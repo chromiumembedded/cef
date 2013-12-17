@@ -320,7 +320,7 @@ void CefBrowserImpl::LoadRequest(const CefMsg_LoadRequest_Params& params) {
   }
 
   if (params.upload_data.get()) {
-    string16 method = request.httpMethod();
+    base::string16 method = request.httpMethod();
     if (method == ASCIIToUTF16("GET") || method == ASCIIToUTF16("HEAD"))
       request.setHTTPMethod(ASCIIToUTF16("POST"));
 
@@ -390,7 +390,7 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
 
   int64 parent_id = frame->parent() == NULL ?
       kInvalidFrameId : frame->parent()->identifier();
-  string16 name = frame->uniqueName();
+  base::string16 name = frame->uniqueName();
 
   // Notify the browser that the frame has been identified.
   Send(new CefHostMsg_FrameIdentified(routing_id(), frame_id, parent_id, name));

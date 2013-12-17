@@ -141,6 +141,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
 #if defined(OS_WIN) && defined(USE_AURA)
   virtual void SetParentNativeViewAccessible(
       gfx::NativeViewAccessible accessible_parent) OVERRIDE;
+  virtual gfx::NativeViewId GetParentForWindowlessPlugin() const OVERRIDE;
 #endif
   virtual void GetScreenInfo(blink::WebScreenInfo* results) OVERRIDE;
   virtual gfx::Rect GetBoundsInRootWindow() OVERRIDE;
@@ -148,7 +149,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
       const std::vector<AccessibilityHostMsg_EventParams>& params)
       OVERRIDE;
   virtual void Destroy() OVERRIDE;
-  virtual void SetTooltipText(const string16& tooltip_text) OVERRIDE;
+  virtual void SetTooltipText(const base::string16& tooltip_text) OVERRIDE;
   virtual void SelectionBoundsChanged(
       const ViewHostMsg_SelectionBounds_Params& params) OVERRIDE;
   virtual void ScrollOffsetChanged() OVERRIDE;
@@ -188,8 +189,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
 #endif
 
 #if defined(OS_MACOSX)
-  virtual void AboutToWaitForBackingStoreMsg() OVERRIDE;
-
   virtual bool PostProcessEventForPluginIme(
       const content::NativeWebKeyboardEvent& event) OVERRIDE;
 #endif

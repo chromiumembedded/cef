@@ -155,7 +155,7 @@ void PrintingMessageFilter::OnAllocateTempFileForPrinting(
   *sequence_number = g_printing_file_descriptor_map.Get().sequence++;
 
   base::FilePath path;
-  if (file_util::CreateTemporaryFile(&path)) {
+  if (base::CreateTemporaryFile(&path)) {
     int fd = open(path.value().c_str(), O_WRONLY);
     if (fd >= 0) {
       SequenceToPathMap::iterator it = map->find(*sequence_number);
@@ -231,7 +231,7 @@ void PrintingMessageFilter::CreatePrintDialogForFile(
       wc->GetView()->GetTopLevelNativeWindow(),
       path,
       wc->GetTitle(),
-      string16(),
+      base::string16(),
       std::string("application/pdf"),
       false);
 }
@@ -382,7 +382,7 @@ void PrintingMessageFilter::OnScriptedPrintReply(
   if (params.params.dpi && params.params.document_cookie) {
 #if defined(OS_ANDROID)
     int file_descriptor;
-    const string16& device_name = printer_query->settings().device_name();
+    const base::string16& device_name = printer_query->settings().device_name();
     if (base::StringToInt(device_name, &file_descriptor)) {
       BrowserThread::PostTask(
           BrowserThread::UI, FROM_HERE,

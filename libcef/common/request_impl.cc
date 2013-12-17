@@ -399,7 +399,8 @@ void CefRequestImpl::GetHeaderMap(const blink::WebURLRequest& request,
 
     virtual void visitHeader(const blink::WebString& name,
                              const blink::WebString& value) {
-      map_->insert(std::make_pair(string16(name), string16(value)));
+      map_->insert(std::make_pair(base::string16(name),
+                                  base::string16(value)));
     }
 
    private:
@@ -415,7 +416,8 @@ void CefRequestImpl::SetHeaderMap(const HeaderMap& map,
                                   blink::WebURLRequest& request) {
   HeaderMap::const_iterator it = map.begin();
   for (; it != map.end(); ++it)
-    request.setHTTPHeaderField(string16(it->first), string16(it->second));
+    request.setHTTPHeaderField(base::string16(it->first),
+                               base::string16(it->second));
 }
 
 // CefPostData ----------------------------------------------------------------
@@ -767,7 +769,7 @@ void CefPostDataElementImpl::Set(const blink::WebHTTPBody::Element& element) {
     SetToBytes(element.data.size(),
         static_cast<const void*>(element.data.data()));
   } else if (element.type == blink::WebHTTPBody::Element::TypeFile) {
-    SetToFile(string16(element.filePath));
+    SetToFile(base::string16(element.filePath));
   } else {
     NOTREACHED();
   }
@@ -782,7 +784,7 @@ void CefPostDataElementImpl::Get(blink::WebHTTPBody::Element& element) {
         static_cast<char*>(data_.bytes.bytes), data_.bytes.size);
   } else if (type_ == PDE_TYPE_FILE) {
     element.type = blink::WebHTTPBody::Element::TypeFile;
-    element.filePath.assign(string16(CefString(&data_.filename)));
+    element.filePath.assign(base::string16(CefString(&data_.filename)));
   } else {
     NOTREACHED();
   }

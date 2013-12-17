@@ -315,9 +315,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
                                const GURL& url) OVERRIDE;
   virtual bool AddMessageToConsole(content::WebContents* source,
                                    int32 level,
-                                   const string16& message,
+                                   const base::string16& message,
                                    int32 line_no,
-                                   const string16& source_id) OVERRIDE;
+                                   const base::string16& source_id) OVERRIDE;
   virtual void BeforeUnloadFired(content::WebContents* source,
                                  bool proceed,
                                  bool* proceed_to_fire_unload) OVERRIDE;
@@ -341,13 +341,13 @@ class CefBrowserHostImpl : public CefBrowserHost,
       content::WebContents* web_contents,
       int route_id,
       WindowContainerType window_container_type,
-      const string16& frame_name,
+      const base::string16& frame_name,
       const GURL& target_url,
       const std::string& partition_id,
       content::SessionStorageNamespace* session_storage_namespace) OVERRIDE;
   virtual void WebContentsCreated(content::WebContents* source_contents,
                                   int64 source_frame_id,
-                                  const string16& frame_name,
+                                  const base::string16& frame_name,
                                   const GURL& target_url,
                                   content::WebContents* new_contents) OVERRIDE;
   virtual void DidNavigateMainFramePostCommit(
@@ -375,25 +375,25 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual void RenderProcessGone(base::TerminationStatus status) OVERRIDE;
   virtual void DidCommitProvisionalLoadForFrame(
       int64 frame_id,
-      const string16& frame_unique_name,
+      const base::string16& frame_unique_name,
       bool is_main_frame,
       const GURL& url,
       content::PageTransition transition_type,
       content::RenderViewHost* render_view_host) OVERRIDE;
   virtual void DidFailProvisionalLoad(
       int64 frame_id,
-      const string16& frame_unique_name,
+      const base::string16& frame_unique_name,
       bool is_main_frame,
       const GURL& validated_url,
       int error_code,
-      const string16& error_description,
+      const base::string16& error_description,
       content::RenderViewHost* render_view_host) OVERRIDE;
   virtual void DocumentAvailableInMainFrame() OVERRIDE;
   virtual void DidFailLoad(int64 frame_id,
                            const GURL& validated_url,
                            bool is_main_frame,
                            int error_code,
-                           const string16& error_description,
+                           const base::string16& error_description,
                            content::RenderViewHost* render_view_host) OVERRIDE;
   virtual void PluginCrashed(const base::FilePath& plugin_path,
                              base::ProcessId plugin_pid) OVERRIDE;
@@ -402,7 +402,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual bool Send(IPC::Message* message) OVERRIDE;
 
   // content::WebContentsObserver::OnMessageReceived() message handlers.
-  void OnFrameIdentified(int64 frame_id, int64 parent_frame_id, string16 name);
+  void OnFrameIdentified(int64 frame_id,
+                         int64 parent_frame_id,
+                         base::string16 name);
   void OnDidFinishLoad(
       int64 frame_id,
       const GURL& validated_url,
@@ -430,7 +432,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefRefPtr<CefFrame> GetOrCreateFrame(int64 frame_id,
                                        int64 parent_frame_id,
                                        bool is_main_frame,
-                                       string16 frame_name,
+                                       base::string16 frame_name,
                                        const GURL& frame_url);
   // Remove the reference to the frame and mark it as detached.
   void DetachFrame(int64 frame_id);
@@ -492,7 +494,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void OnLoadError(CefRefPtr<CefFrame> frame,
                    const GURL& url,
                    int error_code,
-                   const string16& error_description);
+                   const base::string16& error_description);
   void OnLoadEnd(CefRefPtr<CefFrame> frame,
                  const GURL& url,
                  int http_status_code);
@@ -592,7 +594,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   bool file_chooser_pending_;
 
   // Current title for the main frame. Only accessed on the UI thread.
-  string16 title_;
+  base::string16 title_;
 
 #if defined(USE_AURA)
   // Widget hosting the web contents. It will be deleted automatically when the

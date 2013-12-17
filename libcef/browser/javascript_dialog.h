@@ -28,9 +28,9 @@ class CefJavaScriptDialog {
   CefJavaScriptDialog(
       CefJavaScriptDialogManager* creator,
       content::JavaScriptMessageType message_type,
-      const string16& display_url,
-      const string16& message_text,
-      const string16& default_prompt_text,
+      const base::string16& display_url,
+      const base::string16& message_text,
+      const base::string16& default_prompt_text,
       const content::JavaScriptDialogManager::DialogClosedCallback& callback);
   ~CefJavaScriptDialog();
 
@@ -50,8 +50,8 @@ class CefJavaScriptDialog {
   content::JavaScriptMessageType message_type_;
   HWND dialog_win_;
   HWND parent_win_;
-  string16 message_text_;
-  string16 default_prompt_text_;
+  base::string16 message_text_;
+  base::string16 default_prompt_text_;
   static INT_PTR CALLBACK DialogProc(HWND dialog, UINT message, WPARAM wparam,
                                      LPARAM lparam);
 

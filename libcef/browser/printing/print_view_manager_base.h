@@ -43,7 +43,7 @@ class PrintViewManagerBase : public content::NotificationObserver,
   void UpdateScriptedPrintingBlocked();
 
   // PrintedPagesSource implementation.
-  virtual string16 RenderSourceName() OVERRIDE;
+  virtual base::string16 RenderSourceName() OVERRIDE;
 
  protected:
   explicit PrintViewManagerBase(content::WebContents* web_contents);

@@ -24,7 +24,8 @@
 namespace {
 
 CefString GetLabel(int message_id) {
-  string16 label = CefContentClient::Get()->GetLocalizedString(message_id);
+  base::string16 label =
+      CefContentClient::Get()->GetLocalizedString(message_id);
   DCHECK(!label.empty());
   return label;
 }

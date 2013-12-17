@@ -266,7 +266,16 @@ void CefRenderWidgetHostViewOSR::WillWmDestroy() {
 void CefRenderWidgetHostViewOSR::SetParentNativeViewAccessible(
     gfx::NativeViewAccessible accessible_parent) {
 }
-#endif
+
+gfx::NativeViewId
+    CefRenderWidgetHostViewOSR::GetParentForWindowlessPlugin() const {
+  if (browser_impl_.get()) {
+    return reinterpret_cast<gfx::NativeViewId>(
+        browser_impl_->GetWindowHandle());
+  }
+  return NULL;
+}
+#endif  // defined(OS_WIN) && defined(USE_AURA)
 
 void CefRenderWidgetHostViewOSR::GetScreenInfo(blink::WebScreenInfo* results) {
   if (!browser_impl_.get())
@@ -327,7 +336,8 @@ void CefRenderWidgetHostViewOSR::Destroy() {
   delete this;
 }
 
-void CefRenderWidgetHostViewOSR::SetTooltipText(const string16& tooltip_text) {
+void CefRenderWidgetHostViewOSR::SetTooltipText(
+    const base::string16& tooltip_text) {
   if (!browser_impl_.get())
     return;
 
@@ -675,9 +685,6 @@ float CefRenderWidgetHostViewOSR::GetDeviceScaleFactor() const {
 }
 
 #if defined(OS_MACOSX)
-void CefRenderWidgetHostViewOSR::AboutToWaitForBackingStoreMsg() {
-}
-
 bool CefRenderWidgetHostViewOSR::PostProcessEventForPluginIme(
     const content::NativeWebKeyboardEvent& event) {
   return false;

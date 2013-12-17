@@ -37,7 +37,7 @@ class CefWebContentsViewOSR : public content::WebContentsViewPort,
   virtual gfx::NativeView GetContentNativeView() const OVERRIDE;
   virtual gfx::NativeWindow GetTopLevelNativeWindow() const OVERRIDE;
   virtual void GetContainerBounds(gfx::Rect *out) const OVERRIDE;
-  virtual void SetPageTitle(const string16& title) OVERRIDE;
+  virtual void SetPageTitle(const base::string16& title) OVERRIDE;
   virtual void OnTabCrashed(base::TerminationStatus status,
       int error_code) OVERRIDE;
   virtual void SizeContents(const gfx::Size& size) OVERRIDE;
@@ -55,7 +55,10 @@ class CefWebContentsViewOSR : public content::WebContentsViewPort,
   virtual void CloseTabAfterEventTracking() OVERRIDE;
   virtual void SetAllowOverlappingViews(bool overlapping) OVERRIDE;
   virtual bool GetAllowOverlappingViews() const OVERRIDE;
-#endif
+  virtual void SetOverlayView(content::WebContentsView* overlay,
+                              const gfx::Point& offset) OVERRIDE;
+  virtual void RemoveOverlayView() OVERRIDE;
+#endif  // defined(OS_MACOSX)
 
   // RenderViewHostDelegateView methods.
   virtual void StartDragging(

@@ -188,7 +188,7 @@ CEF_EXPORT int cef_string_utf8_to_wide(const char* src, size_t src_len,
 
 CEF_EXPORT int cef_string_wide_to_utf16(const wchar_t* src, size_t src_len,
                                         cef_string_utf16_t* output) {
-  string16 str;
+  base::string16 str;
   bool ret = WideToUTF16(src, src_len, &str);
   if (!cef_string_utf16_set(str.c_str(), str.length(), output, true))
     return false;
@@ -206,7 +206,7 @@ CEF_EXPORT int cef_string_utf16_to_wide(const char16* src, size_t src_len,
 
 CEF_EXPORT int cef_string_utf8_to_utf16(const char* src, size_t src_len,
                                         cef_string_utf16_t* output) {
-  string16 str;
+  base::string16 str;
   bool ret = UTF8ToUTF16(src, src_len, &str);
   if (!cef_string_utf16_set(str.c_str(), str.length(), output, true))
     return false;
@@ -230,7 +230,7 @@ CEF_EXPORT int cef_string_ascii_to_wide(const char* src, size_t src_len,
 
 CEF_EXPORT int cef_string_ascii_to_utf16(const char* src, size_t src_len,
                                          cef_string_utf16_t* output) {
-  string16 str = ASCIIToUTF16(std::string(src, src_len));
+  base::string16 str = ASCIIToUTF16(std::string(src, src_len));
   return cef_string_utf16_set(str.c_str(), str.length(), output, true);
 }
 

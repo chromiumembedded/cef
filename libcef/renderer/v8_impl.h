@@ -110,7 +110,8 @@ class CefV8HandleBase :
  protected:
   // |context| is the context that owns this handle. If empty the current
   // context will be used.
-  explicit CefV8HandleBase(v8::Handle<v8::Context> context);
+  CefV8HandleBase(v8::Isolate* isolate,
+                  v8::Handle<v8::Context> context);
 
  protected:
   v8::Isolate* isolate_;
@@ -126,13 +127,14 @@ class CefV8Handle : public CefV8HandleBase {
   typedef v8::Handle<v8class> handleType;
   typedef v8::Persistent<v8class> persistentType;
 
-  CefV8Handle(v8::Handle<v8::Context> context, handleType v)
-      : CefV8HandleBase(context),
-        handle_(isolate(), v) {
+  CefV8Handle(v8::Isolate* isolate,
+              v8::Handle<v8::Context> context,
+              handleType v)
+      : CefV8HandleBase(isolate, context),
+        handle_(isolate, v) {
   }
   virtual ~CefV8Handle() {
     handle_.Reset();
-    handle_.Clear();
   }
 
   handleType GetNewV8Handle() {
@@ -159,7 +161,8 @@ class CefV8Handle<v8::Value> {
 
 class CefV8ContextImpl : public CefV8Context {
  public:
-  explicit CefV8ContextImpl(v8::Handle<v8::Context> context);
+  CefV8ContextImpl(v8::Isolate* isolate,
+                   v8::Handle<v8::Context> context);
   virtual ~CefV8ContextImpl();
 
   virtual CefRefPtr<CefTaskRunner> GetTaskRunner() OVERRIDE;
@@ -192,8 +195,9 @@ class CefV8ContextImpl : public CefV8Context {
 
 class CefV8ValueImpl : public CefV8Value {
  public:
-  CefV8ValueImpl();
-  explicit CefV8ValueImpl(v8::Handle<v8::Value> value);
+  explicit CefV8ValueImpl(v8::Isolate* isolate);
+  CefV8ValueImpl(v8::Isolate* isolate,
+                 v8::Handle<v8::Value> value);
   virtual ~CefV8ValueImpl();
 
   // Used for initializing the CefV8ValueImpl. Should be called a single time
@@ -274,9 +278,12 @@ class CefV8ValueImpl : public CefV8Value {
     typedef v8::Handle<v8::Value> handleType;
     typedef v8::Persistent<v8::Value> persistentType;
 
-    Handle(v8::Handle<v8::Context> context, handleType v, CefTrackNode* tracker)
-        : CefV8HandleBase(context),
-          handle_(isolate(), v),
+    Handle(v8::Isolate* isolate,
+           v8::Handle<v8::Context> context,
+           handleType v,
+           CefTrackNode* tracker)
+        : CefV8HandleBase(isolate, context),
+          handle_(isolate, v),
           tracker_(tracker),
           should_persist_(false) {
     }
@@ -305,6 +312,8 @@ class CefV8ValueImpl : public CefV8Value {
 
     DISALLOW_COPY_AND_ASSIGN(Handle);
   };
+
+  v8::Isolate* isolate_;
  
   enum {
     TYPE_INVALID = 0,
@@ -340,7 +349,8 @@ class CefV8ValueImpl : public CefV8Value {
 
 class CefV8StackTraceImpl : public CefV8StackTrace {
  public:
-  explicit CefV8StackTraceImpl(v8::Handle<v8::StackTrace> handle);
+  CefV8StackTraceImpl(v8::Isolate* isolate,
+                      v8::Handle<v8::StackTrace> handle);
   virtual ~CefV8StackTraceImpl();
 
   virtual bool IsValid() OVERRIDE;
@@ -356,7 +366,8 @@ class CefV8StackTraceImpl : public CefV8StackTrace {
 
 class CefV8StackFrameImpl : public CefV8StackFrame {
  public:
-  explicit CefV8StackFrameImpl(v8::Handle<v8::StackFrame> handle);
+  CefV8StackFrameImpl(v8::Isolate* isolate,
+                      v8::Handle<v8::StackFrame> handle);
   virtual ~CefV8StackFrameImpl();
 
   virtual bool IsValid() OVERRIDE;

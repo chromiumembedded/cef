@@ -197,7 +197,7 @@ CefString CefDOMNodeImpl::GetFormControlElementType() {
       const WebFormControlElement& formElement =
           node_.toConst<WebFormControlElement>();
 
-      const string16& form_control_type = formElement.formControlType();
+      const base::string16& form_control_type = formElement.formControlType();
       str = form_control_type;
     }
   }
@@ -240,8 +240,8 @@ CefString CefDOMNodeImpl::GetValue() {
       const WebFormControlElement& formElement =
           node_.toConst<WebFormControlElement>();
 
-      string16 value;
-      const string16& form_control_type = formElement.formControlType();
+      base::string16 value;
+      const base::string16& form_control_type = formElement.formControlType();
       if (form_control_type == ASCIIToUTF16("text")) {
         const WebInputElement& input_element =
             formElement.toConst<WebInputElement>();
@@ -273,7 +273,7 @@ bool CefDOMNodeImpl::SetValue(const CefString& value) {
   if (node_.isElementNode())
     return false;
 
-  return webkit_glue::SetNodeValue(node_, string16(value));
+  return webkit_glue::SetNodeValue(node_, base::string16(value));
 }
 
 CefString CefDOMNodeImpl::GetAsMarkup() {
@@ -343,7 +343,7 @@ void CefDOMNodeImpl::AddEventListener(const CefString& eventType,
   if (!VerifyContext())
     return;
 
-  node_.addEventListener(string16(eventType),
+  node_.addEventListener(base::string16(eventType),
       new CefDOMEventListenerWrapper(document_->GetBrowser(),
           document_->GetFrame(), listener),
       useCapture);
@@ -390,7 +390,7 @@ bool CefDOMNodeImpl::HasElementAttribute(const CefString& attrName) {
   }
 
   const WebElement& element = node_.toConst<blink::WebElement>();
-  return element.hasAttribute(string16(attrName));
+  return element.hasAttribute(base::string16(attrName));
 }
 
 CefString CefDOMNodeImpl::GetElementAttribute(const CefString& attrName) {
@@ -404,7 +404,7 @@ CefString CefDOMNodeImpl::GetElementAttribute(const CefString& attrName) {
   }
 
   const WebElement& element = node_.toConst<blink::WebElement>();
-  const WebString& attr = element.getAttribute(string16(attrName));
+  const WebString& attr = element.getAttribute(base::string16(attrName));
   if (!attr.isNull())
     str = attr;
 
@@ -426,8 +426,8 @@ void CefDOMNodeImpl::GetElementAttributes(AttributeMap& attrMap) {
     return;
 
   for (unsigned int i = 0; i < len; ++i) {
-    string16 name = element.attributeLocalName(i);
-    string16 value = element.attributeValue(i);
+    base::string16 name = element.attributeLocalName(i);
+    base::string16 value = element.attributeValue(i);
     attrMap.insert(std::make_pair(name, value));
   }
 }
@@ -443,7 +443,8 @@ bool CefDOMNodeImpl::SetElementAttribute(const CefString& attrName,
   }
 
   WebElement element = node_.to<blink::WebElement>();
-  return element.setAttribute(string16(attrName), string16(value));
+  return element.setAttribute(base::string16(attrName),
+                              base::string16(value));
 }
 
 CefString CefDOMNodeImpl::GetElementInnerText() {

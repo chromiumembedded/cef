@@ -1,4 +1,4 @@
-// Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that can
 // be found in the LICENSE file.
 
@@ -6,91 +6,66 @@
 #include "include/cef_trace.h"
 #include "libcef/browser/thread_util.h"
 
-#include "content/public/browser/trace_controller.h"
+#include "base/debug/trace_event.h"
+#include "content/public/browser/tracing_controller.h"
+
+using content::TracingController;
 
 CefTraceSubscriber::CefTraceSubscriber()
-    : collecting_trace_data_(false) {
+    : collecting_trace_data_(false),
+      weak_factory_(this) {
   CEF_REQUIRE_UIT();
 }
 
 CefTraceSubscriber::~CefTraceSubscriber() {
   CEF_REQUIRE_UIT();
-  if (collecting_trace_data_)
-    content::TraceController::GetInstance()->CancelSubscriber(this);
+  if (collecting_trace_data_) {
+    TracingController::GetInstance()->DisableRecording(
+        base::FilePath(),
+        TracingController::TracingFileResultCallback());
+  }
 }
 
-bool CefTraceSubscriber::BeginTracing(CefRefPtr<CefTraceClient> client,
-                                      const std::string& categories) {
+bool CefTraceSubscriber::BeginTracing(const std::string& categories) {
   CEF_REQUIRE_UIT();
 
   if (collecting_trace_data_)
     return false;
 
   collecting_trace_data_ = true;
-  client_ = client;
 
-  return content::TraceController::GetInstance()->BeginTracing(
-      this, categories, base::debug::TraceLog::GetInstance()->trace_options());
+  TracingController::GetInstance()->EnableRecording(
+      categories, TracingController::DEFAULT_OPTIONS,
+      TracingController::EnableRecordingDoneCallback());
+  return true;
 }
 
-bool CefTraceSubscriber::EndTracingAsync() {
+bool CefTraceSubscriber::EndTracingAsync(
+    const base::FilePath& tracing_file,
+    CefRefPtr<CefEndTracingCallback> callback) {
   CEF_REQUIRE_UIT();
 
   if (!collecting_trace_data_)
     return false;
 
-  return content::TraceController::GetInstance()->EndTracingAsync(this);
-}
-
-void CefTraceSubscriber::GetKnownCategoriesAsync(
-    const KnownCategoriesCallback& callback) {
-  CEF_REQUIRE_UIT();
-  DCHECK(!callback.is_null());
-  DCHECK(known_categories_callback_.is_null());
-
-  known_categories_callback_ = callback;
-  content::TraceController::GetInstance()->GetKnownCategoryGroupsAsync(this);
-}
-
-bool CefTraceSubscriber::GetTraceBufferPercentFullAsync() {
-  CEF_REQUIRE_UIT();
-
-  if (!collecting_trace_data_ || !client_.get())
-    return false;
-
-  return content::TraceController::GetInstance()->
-      GetTraceBufferPercentFullAsync(this);
-}
-
-void CefTraceSubscriber::OnTraceDataCollected(
-    const scoped_refptr<base::RefCountedString>& trace_fragment) {
-  CEF_REQUIRE_UIT();
-  DCHECK(collecting_trace_data_);
-  if (client_.get()) {
-    client_->OnTraceDataCollected(trace_fragment->data().c_str(),
-                                  trace_fragment->data().size());
+  TracingController::TracingFileResultCallback result_callback;
+  if (callback.get()) {
+    result_callback =
+        base::Bind(&CefTraceSubscriber::OnTracingFileResult,
+                   weak_factory_.GetWeakPtr(), callback);
   }
+
+  TracingController::GetInstance()->DisableRecording(
+      tracing_file, result_callback);
+  return true;
 }
 
-void CefTraceSubscriber::OnTraceBufferPercentFullReply(float percent_full) {
+void CefTraceSubscriber::OnTracingFileResult(
+    CefRefPtr<CefEndTracingCallback> callback,
+    const base::FilePath& tracing_file) {
   CEF_REQUIRE_UIT();
-  DCHECK(collecting_trace_data_);
-  DCHECK(client_.get());
-  client_->OnTraceBufferPercentFullReply(percent_full);
-}
 
-void CefTraceSubscriber::OnEndTracingComplete() {
-  CEF_REQUIRE_UIT();
-  DCHECK(collecting_trace_data_);
   collecting_trace_data_ = false;
-  if (client_.get())
-    client_->OnEndTracingComplete();
-}
 
-void CefTraceSubscriber::OnKnownCategoriesCollected(
-    const std::set<std::string>& known_categories) {
-  CEF_REQUIRE_UIT();
-  DCHECK(!known_categories_callback_.is_null());
-  known_categories_callback_.Run(known_categories);
-  known_categories_callback_.Reset();
+  callback->OnEndTracingComplete(tracing_file.value());
 }

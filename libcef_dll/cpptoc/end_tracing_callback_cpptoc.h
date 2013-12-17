@@ -10,8 +10,8 @@
 // for more information.
 //
 
-#ifndef CEF_LIBCEF_DLL_CPPTOC_TRACE_CLIENT_CPPTOC_H_
-#define CEF_LIBCEF_DLL_CPPTOC_TRACE_CLIENT_CPPTOC_H_
+#ifndef CEF_LIBCEF_DLL_CPPTOC_END_TRACING_CALLBACK_CPPTOC_H_
+#define CEF_LIBCEF_DLL_CPPTOC_END_TRACING_CALLBACK_CPPTOC_H_
 #pragma once
 
 #ifndef USING_CEF_SHARED
@@ -24,14 +24,14 @@
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
-class CefTraceClientCppToC
-    : public CefCppToC<CefTraceClientCppToC, CefTraceClient,
-        cef_trace_client_t> {
+class CefEndTracingCallbackCppToC
+    : public CefCppToC<CefEndTracingCallbackCppToC, CefEndTracingCallback,
+        cef_end_tracing_callback_t> {
  public:
-  explicit CefTraceClientCppToC(CefTraceClient* cls);
-  virtual ~CefTraceClientCppToC() {}
+  explicit CefEndTracingCallbackCppToC(CefEndTracingCallback* cls);
+  virtual ~CefEndTracingCallbackCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED
-#endif  // CEF_LIBCEF_DLL_CPPTOC_TRACE_CLIENT_CPPTOC_H_
+#endif  // CEF_LIBCEF_DLL_CPPTOC_END_TRACING_CALLBACK_CPPTOC_H_
 

@@ -52,7 +52,7 @@ bool IsInternalProtectedScheme(const std::string& scheme) {
     chrome::kFileScheme,
     chrome::kFileSystemScheme,
 #if !defined(DISABLE_FTP_SUPPORT)
-    chrome::kFtpScheme,
+    content::kFtpScheme,
 #endif
   };
 

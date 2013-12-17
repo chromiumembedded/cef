@@ -10,8 +10,8 @@
 // for more information.
 //
 
-#ifndef CEF_LIBCEF_DLL_CTOCPP_TRACE_CLIENT_CTOCPP_H_
-#define CEF_LIBCEF_DLL_CTOCPP_TRACE_CLIENT_CTOCPP_H_
+#ifndef CEF_LIBCEF_DLL_CTOCPP_END_TRACING_CALLBACK_CTOCPP_H_
+#define CEF_LIBCEF_DLL_CTOCPP_END_TRACING_CALLBACK_CTOCPP_H_
 #pragma once
 
 #ifndef BUILDING_CEF_SHARED
@@ -24,22 +24,19 @@
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
-class CefTraceClientCToCpp
-    : public CefCToCpp<CefTraceClientCToCpp, CefTraceClient,
-        cef_trace_client_t> {
+class CefEndTracingCallbackCToCpp
+    : public CefCToCpp<CefEndTracingCallbackCToCpp, CefEndTracingCallback,
+        cef_end_tracing_callback_t> {
  public:
-  explicit CefTraceClientCToCpp(cef_trace_client_t* str)
-      : CefCToCpp<CefTraceClientCToCpp, CefTraceClient, cef_trace_client_t>(
-          str) {}
-  virtual ~CefTraceClientCToCpp() {}
+  explicit CefEndTracingCallbackCToCpp(cef_end_tracing_callback_t* str)
+      : CefCToCpp<CefEndTracingCallbackCToCpp, CefEndTracingCallback,
+          cef_end_tracing_callback_t>(str) {}
+  virtual ~CefEndTracingCallbackCToCpp() {}
 
-  // CefTraceClient methods
-  virtual void OnTraceDataCollected(const char* fragment,
-      size_t fragment_size) OVERRIDE;
-  virtual void OnTraceBufferPercentFullReply(float percent_full) OVERRIDE;
-  virtual void OnEndTracingComplete() OVERRIDE;
+  // CefEndTracingCallback methods
+  virtual void OnEndTracingComplete(const CefString& tracing_file) OVERRIDE;
 };
 
 #endif  // BUILDING_CEF_SHARED
-#endif  // CEF_LIBCEF_DLL_CTOCPP_TRACE_CLIENT_CTOCPP_H_
+#endif  // CEF_LIBCEF_DLL_CTOCPP_END_TRACING_CALLBACK_CTOCPP_H_
 

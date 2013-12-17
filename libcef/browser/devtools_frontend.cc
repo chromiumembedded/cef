@@ -10,8 +10,10 @@
 
 #include "base/command_line.h"
 #include "base/path_service.h"
+#include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/devtools_http_handler.h"
 #include "content/public/browser/devtools_manager.h"
+#include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view.h"
 #include "content/public/common/content_client.h"
@@ -79,6 +81,12 @@ void CefDevToolsFrontend::RenderViewCreated(
       web_contents()->GetRenderViewHost());
   content::DevToolsManager::GetInstance()->RegisterDevToolsClientHostFor(
       agent_host_.get(), frontend_host_.get());
+}
+
+void CefDevToolsFrontend::DocumentOnLoadCompletedInMainFrame(int32 page_id) {
+  web_contents()->GetRenderViewHost()->ExecuteJavascriptInWebFrame(
+      base::string16(),
+      ASCIIToUTF16("InspectorFrontendAPI.setUseSoftMenu(true);"));
 }
 
 void CefDevToolsFrontend::WebContentsDestroyed(

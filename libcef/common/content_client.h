@@ -30,7 +30,7 @@ class CefContentClient : public content::ContentClient,
       std::vector<std::string>* standard_schemes,
       std::vector<std::string>* savable_schemes) OVERRIDE;
   virtual std::string GetUserAgent() const OVERRIDE;
-  virtual string16 GetLocalizedString(int message_id) const OVERRIDE;
+  virtual base::string16 GetLocalizedString(int message_id) const OVERRIDE;
   virtual base::StringPiece GetDataResource(
       int resource_id,
       ui::ScaleFactor scale_factor) const OVERRIDE;
@@ -77,7 +77,8 @@ class CefContentClient : public content::ContentClient,
   virtual bool GetRawDataResource(int resource_id,
                                   ui::ScaleFactor scale_factor,
                                   base::StringPiece* value) OVERRIDE;
-  virtual bool GetLocalizedString(int message_id, string16* value) OVERRIDE;
+  virtual bool GetLocalizedString(int message_id,
+                                  base::string16* value) OVERRIDE;
   virtual scoped_ptr<gfx::Font> GetFont(
       ui::ResourceBundle::FontStyle style) OVERRIDE;
 

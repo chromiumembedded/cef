@@ -153,7 +153,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
     int opener_view_id;
     int64 opener_frame_id;
     GURL target_url;
-    string16 target_frame_name;
+    base::string16 target_frame_name;
   };
   void set_last_create_window_params(const LastCreateWindowParams& params);
 

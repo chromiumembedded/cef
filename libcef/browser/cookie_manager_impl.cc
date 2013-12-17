@@ -21,6 +21,7 @@
 #include "base/logging.h"
 #include "base/threading/thread_restrictions.h"
 #include "content/browser/net/sqlite_persistent_cookie_store.h"
+#include "content/public/browser/cookie_crypto_delegate.h"
 #include "net/cookies/cookie_util.h"
 #include "net/cookies/parsed_cookie.h"
 #include "net/url_request/url_request_context.h"
@@ -287,7 +288,7 @@ bool CefCookieManagerImpl::SetStoragePath(
       // allowing file IO on this thread.
       base::ThreadRestrictions::ScopedAllowIO allow_io;
       if (base::DirectoryExists(new_path) ||
-          file_util::CreateDirectory(new_path)) {
+          base::CreateDirectory(new_path)) {
         const base::FilePath& cookie_path = new_path.AppendASCII("Cookies");
         persistent_store =
             new content::SQLitePersistentCookieStore(
@@ -295,7 +296,8 @@ bool CefCookieManagerImpl::SetStoragePath(
                 BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
                 BrowserThread::GetMessageLoopProxyForThread(BrowserThread::DB),
                 persist_session_cookies,
-                NULL);
+                NULL,
+                scoped_ptr<content::CookieCryptoDelegate>());
       } else {
         NOTREACHED() << "The cookie storage directory could not be created";
         storage_path_.clear();

@@ -44,32 +44,19 @@
 #include "include/cef_base.h"
 
 ///
-// Implement this interface to receive trace notifications. The methods of this
-// class will be called on the browser process UI thread.
+// Implement this interface to receive notification when tracing has completed.
+// The methods of this class will be called on the browser process UI thread.
 ///
 /*--cef(source=client)--*/
-class CefTraceClient : public virtual CefBase {
+class CefEndTracingCallback : public virtual CefBase {
  public:
   ///
-  // Called 0 or more times between CefBeginTracing and OnEndTracingComplete
-  // with a UTF8 JSON |fragment| of the specified |fragment_size|. Do not keep
-  // a reference to |fragment|.
+  // Called after all processes have sent their trace data. |tracing_file| is
+  // the path at which tracing data was written. The client is responsible for
+  // deleting |tracing_file|.
   ///
   /*--cef()--*/
-  virtual void OnTraceDataCollected(const char* fragment,
-                                    size_t fragment_size) {}
-
-  ///
-  // Called in response to CefGetTraceBufferPercentFullAsync.
-  ///
-  /*--cef()--*/
-  virtual void OnTraceBufferPercentFullReply(float percent_full) {}
-
-  ///
-  // Called after all processes have sent their trace data.
-  ///
-  /*--cef()--*/
-  virtual void OnEndTracingComplete() {}
+  virtual void OnEndTracingComplete(const CefString& tracing_file) =0;
 };
 
 
@@ -91,24 +78,8 @@ class CefTraceClient : public virtual CefBase {
 //
 // This function must be called on the browser process UI thread.
 ///
-/*--cef(optional_param=client,optional_param=categories)--*/
-bool CefBeginTracing(CefRefPtr<CefTraceClient> client,
-                     const CefString& categories);
-
-///
-// Get the maximum trace buffer percent full state across all processes.
-//
-// CefTraceClient::OnTraceBufferPercentFullReply will be called asynchronously
-// after the value is determined. When any child process reaches 100% full
-// tracing will end automatically and CefTraceClient::OnEndTracingComplete
-// will be called. This function fails and returns false if trace is ending or
-// disabled, no CefTraceClient was passed to CefBeginTracing, or if a previous
-// call to CefGetTraceBufferPercentFullAsync is pending.
-//
-// This function must be called on the browser process UI thread.
-///
-/*--cef()--*/
-bool CefGetTraceBufferPercentFullAsync();
+/*--cef(optional_param=categories)--*/
+bool CefBeginTracing(const CefString& categories);
 
 ///
 // Stop tracing events on all processes.
@@ -116,10 +87,16 @@ bool CefGetTraceBufferPercentFullAsync();
 // This function will fail and return false if a previous call to
 // CefEndTracingAsync is already pending or if CefBeginTracing was not called.
 //
+// |tracing_file| is the path at which tracing data will be written and
+// |callback| is the callback that will be executed once all processes have
+// sent their trace data. If |tracing_file| is empty a new temporary file path
+// will be used. If |callback| is empty no trace data will be written.
+//
 // This function must be called on the browser process UI thread.
 ///
-/*--cef()--*/
-bool CefEndTracingAsync();
+/*--cef(optional_param=tracing_file,optional_param=callback)--*/
+bool CefEndTracingAsync(const CefString& tracing_file,
+                        CefRefPtr<CefEndTracingCallback> callback);
 
 ///
 // Returns the current system trace time or, if none is defined, the current

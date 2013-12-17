@@ -66,7 +66,7 @@ class CefAccessTokenStore : public content::AccessTokenStore {
   }
 
   virtual void SaveAccessToken(
-      const GURL& server_url, const string16& access_token) OVERRIDE {
+      const GURL& server_url, const base::string16& access_token) OVERRIDE {
     access_token_set_[server_url] = access_token;
   }
 
@@ -282,7 +282,7 @@ void TranslatePopupFeatures(const blink::WebWindowFeatures& webKitFeatures,
 
   CefString str;
   for (unsigned int i = 0; i < webKitFeatures.additionalFeatures.size(); ++i) {
-    str = string16(webKitFeatures.additionalFeatures[i]);
+    str = base::string16(webKitFeatures.additionalFeatures[i]);
     cef_string_list_append(features.additionalFeatures, str.GetStruct());
   }
 }

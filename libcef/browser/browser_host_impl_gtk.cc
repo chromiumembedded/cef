@@ -80,7 +80,7 @@ std::string GetDescriptionFromMimeType(const std::string& mime_type) {
 }
 
 void AddFiltersForAcceptTypes(GtkFileChooser* chooser,
-                              const std::vector<string16>& accept_types,
+                              const std::vector<base::string16>& accept_types,
                               bool include_all_files) {
   bool has_filter = false;
 

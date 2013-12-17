@@ -160,7 +160,7 @@ void CefNetworkDelegate::OnURLRequestDestroyed(net::URLRequest* request) {
 }
 
 void CefNetworkDelegate::OnPACScriptError(int line_number,
-                                          const string16& error) {
+                                          const base::string16& error) {
 }
 
 net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(

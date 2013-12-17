@@ -30,6 +30,7 @@
 #include "third_party/WebKit/public/web/win/WebInputEventFactory.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/gfx/win/hwnd_util.h"
+#include "ui/views/background.h"
 #include "ui/views/controls/webview/webview.h"
 #include "ui/views/layout/fill_layout.h"
 #include "ui/views/widget/widget.h"
@@ -194,7 +195,7 @@ std::wstring GetDescriptionFromMimeType(const std::string& mime_type) {
 }
 
 std::wstring GetFilterStringFromAcceptTypes(
-    const std::vector<string16>& accept_types) {
+    const std::vector<base::string16>& accept_types) {
   std::vector<std::wstring> extensions;
   std::vector<std::wstring> descriptions;
 

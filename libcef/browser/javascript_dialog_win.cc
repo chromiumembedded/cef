@@ -39,7 +39,7 @@ INT_PTR CALLBACK CefJavaScriptDialog::DialogProc(HWND dialog,
           GetWindowLongPtr(dialog, DWLP_USER));
       if (owner) {
         owner->Cancel();
-        owner->callback_.Run(false, string16());
+        owner->callback_.Run(false, base::string16());
         owner->creator_->DialogClosed(owner);
 
         // No need for the system to call DestroyWindow() because it will be
@@ -51,7 +51,7 @@ INT_PTR CALLBACK CefJavaScriptDialog::DialogProc(HWND dialog,
     case WM_COMMAND: {
       CefJavaScriptDialog* owner = reinterpret_cast<CefJavaScriptDialog*>(
           GetWindowLongPtr(dialog, DWLP_USER));
-      string16 user_input;
+      base::string16 user_input;
       bool finish = false;
       bool result;
       switch (LOWORD(wparam)) {
@@ -88,9 +88,9 @@ INT_PTR CALLBACK CefJavaScriptDialog::DialogProc(HWND dialog,
 CefJavaScriptDialog::CefJavaScriptDialog(
     CefJavaScriptDialogManager* creator,
     content::JavaScriptMessageType message_type,
-    const string16& display_url,
-    const string16& message_text,
-    const string16& default_prompt_text,
+    const base::string16& display_url,
+    const base::string16& message_text,
+    const base::string16& default_prompt_text,
     const content::JavaScriptDialogManager::DialogClosedCallback& callback)
     : creator_(creator),
       callback_(callback),
@@ -130,7 +130,7 @@ CefJavaScriptDialog::CefJavaScriptDialog(
     TCHAR text[64];
     GetWindowText(dialog_win_, text, sizeof(text)/sizeof(TCHAR));
 
-    string16 new_window_text = text + ASCIIToUTF16(" - ") + display_url;
+    base::string16 new_window_text = text + ASCIIToUTF16(" - ") + display_url;
     SetWindowText(dialog_win_, new_window_text.c_str());
   }
 

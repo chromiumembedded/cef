@@ -2,7 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "base/file_util.h"
 #include "base/synchronization/waitable_event.h"
+#include "include/cef_runnable.h"
 #include "include/cef_task.h"
 #include "include/cef_trace.h"
 #include "include/cef_trace_event.h"
@@ -63,41 +65,7 @@ enum TracingTestType {
 
 const char kTraceTestCategory[] = "test_category";
 
-// Used to test begin tracing on the UI thread.
-class BeginTracingTask : public CefTask {
- public:
-  explicit BeginTracingTask(CefRefPtr<CefTraceClient> client)
-      : client_(client) {
-  }
-
-  virtual void Execute() OVERRIDE {
-    EXPECT_TRUE(CefBeginTracing(client_, kTraceTestCategory));
-  }
-
- private:
-  virtual ~BeginTracingTask() {}
-
-  CefRefPtr<CefTraceClient> client_;
-
-  IMPLEMENT_REFCOUNTING(BeginTracingTask);
-};
-
-// Used to test end tracing on the UI thread.
-class EndTracingTask : public CefTask {
- public:
-  EndTracingTask() {}
-
-  virtual void Execute() OVERRIDE {
-    EXPECT_TRUE(CefEndTracingAsync());
-  }
-
- private:
-  virtual ~EndTracingTask() {}
-
-  IMPLEMENT_REFCOUNTING(EndTracingTask);
-};
-
-class TracingTestHandler : public CefTraceClient {
+class TracingTestHandler : public CefEndTracingCallback {
  public:
   TracingTestHandler(TracingTestType type, const char* trace_type)
       : completion_event_(true, false),
@@ -105,24 +73,29 @@ class TracingTestHandler : public CefTraceClient {
         type_(type) {
   }
 
-  virtual void OnTraceDataCollected(const char* fragment,
-                                    size_t fragment_size) OVERRIDE {
-    if (!trace_data_.empty())
-      trace_data_.append(",");
-    trace_data_.append(fragment, fragment_size);
-  }
+  void ReadTracingFile(const base::FilePath& file_path) {
+    EXPECT_TRUE(CefCurrentlyOn(TID_FILE));
 
-  virtual void OnEndTracingComplete() OVERRIDE {
-    EXPECT_TRUE(!trace_data_.empty());
-    EXPECT_TRUE(trace_type_ != NULL);
-    EXPECT_TRUE(strstr(trace_data_.c_str(), trace_type_) != NULL);
+    base::ReadFileToString(file_path, &trace_data_);
+    base::DeleteFile(file_path, false);
+
     completion_event_.Signal();
   }
 
-  void RunTest() {
-    // BeginTracing works only on the UI thread.
-    CefPostTask(TID_UI, new BeginTracingTask(this));
-    WaitForUIThread();
+  // CefEndTracingCallback method:
+  virtual void OnEndTracingComplete(const CefString& tracing_file) OVERRIDE {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+
+    base::FilePath file_path(tracing_file);
+    CefPostTask(TID_FILE,
+        NewCefRunnableMethod(this, &TracingTestHandler::ReadTracingFile,
+                             file_path));
+  }
+
+  void RunTracing() {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+
+    CefBeginTracing(kTraceTestCategory);
 
     switch (type_) {
       case CEF_TRACE_EVENT0: {
@@ -339,17 +312,22 @@ class TracingTestHandler : public CefTraceClient {
         break;
     }
 
-    // Run EndTracingAsync on the UI thread.
-    CefPostTask(TID_UI, new EndTracingTask());
-    WaitForUIThread();
+    // Results in a call to OnEndTracingComplete.
+    CefEndTracingAsync(CefString(), this);
   }
 
   void ExecuteTest() {
     // Run the test.
-    RunTest();
+    CefPostTask(TID_UI,
+        NewCefRunnableMethod(this, &TracingTestHandler::RunTracing));
 
     // Wait for the test to complete.
     completion_event_.Wait();
+
+    // Verify the results.
+    EXPECT_TRUE(!trace_data_.empty());
+    EXPECT_TRUE(trace_type_ != NULL);
+    EXPECT_TRUE(strstr(trace_data_.c_str(), trace_type_) != NULL);
   }
 
  private:

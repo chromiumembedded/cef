@@ -11,8 +11,7 @@
 #include "base/debug/trace_event.h"
 #include "base/time/time.h"
 
-bool CefBeginTracing(CefRefPtr<CefTraceClient> client,
-                     const CefString& categories) {
+bool CefBeginTracing(const CefString& categories) {
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
     return false;
@@ -27,10 +26,11 @@ bool CefBeginTracing(CefRefPtr<CefTraceClient> client,
   if (!subscriber)
     return false;
 
-  return subscriber->BeginTracing(client, categories);
+  return subscriber->BeginTracing(categories);
 }
 
-bool CefGetTraceBufferPercentFullAsync() {
+bool CefEndTracingAsync(const CefString& tracing_file,
+                        CefRefPtr<CefEndTracingCallback> callback) {
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
     return false;
@@ -45,25 +45,7 @@ bool CefGetTraceBufferPercentFullAsync() {
   if (!subscriber)
     return false;
 
-  return subscriber->GetTraceBufferPercentFullAsync();
-}
-
-bool CefEndTracingAsync() {
-  if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
-    return false;
-  }
-
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "called on invalid thread";
-    return false;
-  }
-
-  CefTraceSubscriber* subscriber = CefContext::Get()->GetTraceSubscriber();
-  if (!subscriber)
-    return false;
-
-  return subscriber->EndTracingAsync();
+  return subscriber->EndTracingAsync(base::FilePath(tracing_file), callback);
 }
 
 int64 CefNowFromSystemTraceTime() {

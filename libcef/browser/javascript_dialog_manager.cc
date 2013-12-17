@@ -55,7 +55,7 @@ class CefJSDialogCallbackImpl : public CefJSDialogCallback {
   static void CancelNow(
       const content::JavaScriptDialogManager::DialogClosedCallback& callback) {
     CEF_REQUIRE_UIT();
-    callback.Run(false, string16());
+    callback.Run(false, base::string16());
   }
 
   content::JavaScriptDialogManager::DialogClosedCallback callback_;
@@ -79,8 +79,8 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
     const GURL& origin_url,
     const std::string& accept_lang,
     content::JavaScriptMessageType message_type,
-    const string16& message_text,
-    const string16& default_prompt_text,
+    const base::string16& message_text,
+    const base::string16& default_prompt_text,
     const DialogClosedCallback& callback,
     bool* did_suppress_message) {
   CefRefPtr<CefClient> client = browser_->GetClient();
@@ -116,7 +116,7 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
     return;
   }
 
-  string16 display_url = net::FormatUrl(origin_url, accept_lang);
+  base::string16 display_url = net::FormatUrl(origin_url, accept_lang);
 
   dialog_.reset(new CefJavaScriptDialog(this,
                                         message_type,
@@ -133,14 +133,14 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
 
 void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
     content::WebContents* web_contents,
-    const string16& message_text,
+    const base::string16& message_text,
     bool is_reload,
     const DialogClosedCallback& callback) {
   if (browser_->destruction_state() >=
       CefBrowserHostImpl::DESTRUCTION_STATE_ACCEPTED) {
     // Currently destroying the browser. Accept the unload without showing
     // the prompt.
-    callback.Run(true, string16());
+    callback.Run(true, base::string16());
     return;
   }
 
@@ -164,24 +164,24 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
 #if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
   if (dialog_.get()) {
     // Seriously!?
-    callback.Run(true, string16());
+    callback.Run(true, base::string16());
     return;
   }
 
-  string16 new_message_text =
+  base::string16 new_message_text =
       message_text +
       ASCIIToUTF16("\n\nIs it OK to leave/reload this page?");
 
   dialog_.reset(
       new CefJavaScriptDialog(this,
                               content::JAVASCRIPT_MESSAGE_TYPE_CONFIRM,
-                              string16(),  // display_url
+                              base::string16(),  // display_url
                               new_message_text,
-                              string16(),  // default_prompt_text
+                              base::string16(),  // default_prompt_text
                               callback));
 #else
   // TODO(port): implement CefJavaScriptDialog for other platforms.
-  callback.Run(true, string16());
+  callback.Run(true, base::string16());
   return;
 #endif
 }

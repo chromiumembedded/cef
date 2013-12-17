@@ -163,7 +163,7 @@ IPC_SYNC_MESSAGE_CONTROL1_1(
 IPC_MESSAGE_ROUTED3(CefHostMsg_FrameIdentified,
                     int64 /* frame_id */,
                     int64 /* parent_frame_id */,
-                    string16 /* frame_name */)
+                    base::string16 /* frame_name */)
 
 // Sent when a frame has been detached.
 IPC_MESSAGE_ROUTED1(CefHostMsg_FrameDetached,

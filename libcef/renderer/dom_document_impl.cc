@@ -83,7 +83,7 @@ CefString CefDOMDocumentImpl::GetTitle() {
 
 CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetElementById(const CefString& id) {
   const WebDocument& document = frame_->document();
-  return GetOrCreateNode(document.getElementById(string16(id)));
+  return GetOrCreateNode(document.getElementById(base::string16(id)));
 }
 
 CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetFocusedNode() {
@@ -189,7 +189,7 @@ CefString CefDOMDocumentImpl::GetCompleteURL(const CefString& partialURL) {
     return str;
 
   const WebDocument& document = frame_->document();
-  const WebURL& url = document.completeURL(string16(partialURL));
+  const WebURL& url = document.completeURL(base::string16(partialURL));
   if (!url.isNull()) {
     GURL gurl = url;
     str = gurl.spec();

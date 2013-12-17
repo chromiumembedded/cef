@@ -475,8 +475,10 @@ void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
   std::transform(url.begin(), url.end(), url.begin(), tolower);
 
   std::string startupURL = GetStartupURL();
-  if (startupURL != "chrome://crash" && url.find(startupURL) != 0)
+  if (startupURL != "chrome://crash" && !url.empty() &&
+      url.find(startupURL) != 0) {
     frame->LoadURL(startupURL);
+  }
 }
 
 bool ClientHandler::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
@@ -616,54 +618,7 @@ void ClientHandler::CloseDevTools(CefRefPtr<CefBrowser> browser) {
 
 void ClientHandler::BeginTracing() {
   if (CefCurrentlyOn(TID_UI)) {
-    class Client : public CefTraceClient,
-                   public CefRunFileDialogCallback {
-     public:
-      explicit Client(CefRefPtr<ClientHandler> handler)
-          : handler_(handler),
-            trace_data_("{\"traceEvents\":["),
-            first_(true) {
-      }
-
-      virtual void OnTraceDataCollected(const char* fragment,
-                                        size_t fragment_size) OVERRIDE {
-        if (first_)
-          first_ = false;
-        else
-          trace_data_.append(",");
-        trace_data_.append(fragment, fragment_size);
-      }
-
-      virtual void OnEndTracingComplete() OVERRIDE {
-        REQUIRE_UI_THREAD();
-        trace_data_.append("]}");
-
-        static const char kDefaultFileName[] = "trace.txt";
-        std::string path = handler_->GetDownloadPath(kDefaultFileName);
-        if (path.empty())
-          path = kDefaultFileName;
-
-        handler_->GetBrowser()->GetHost()->RunFileDialog(
-            FILE_DIALOG_SAVE, CefString(), path, std::vector<CefString>(),
-            this);
-      }
-
-      virtual void OnFileDialogDismissed(
-          CefRefPtr<CefBrowserHost> browser_host,
-          const std::vector<CefString>& file_paths) OVERRIDE {
-        if (!file_paths.empty())
-          handler_->Save(file_paths.front(), trace_data_);
-      }
-
-     private:
-      CefRefPtr<ClientHandler> handler_;
-      std::string trace_data_;
-      bool first_;
-
-      IMPLEMENT_REFCOUNTING(Callback);
-    };
-
-    CefBeginTracing(new Client(this), CefString());
+    CefBeginTracing(CefString());
   } else {
     CefPostTask(TID_UI,
         NewCefRunnableMethod(this, &ClientHandler::BeginTracing));
@@ -672,7 +627,50 @@ void ClientHandler::BeginTracing() {
 
 void ClientHandler::EndTracing() {
   if (CefCurrentlyOn(TID_UI)) {
-    CefEndTracingAsync();
+    class Client : public CefEndTracingCallback,
+                   public CefRunFileDialogCallback {
+     public:
+      explicit Client(CefRefPtr<ClientHandler> handler)
+          : handler_(handler) {
+        RunDialog();
+      }
+
+      void RunDialog() {
+        static const char kDefaultFileName[] = "trace.txt";
+        std::string path = handler_->GetDownloadPath(kDefaultFileName);
+        if (path.empty())
+          path = kDefaultFileName;
+
+        // Results in a call to OnFileDialogDismissed.
+        handler_->GetBrowser()->GetHost()->RunFileDialog(
+            FILE_DIALOG_SAVE, CefString(), path, std::vector<CefString>(),
+            this);
+      }
+
+      virtual void OnFileDialogDismissed(
+          CefRefPtr<CefBrowserHost> browser_host,
+          const std::vector<CefString>& file_paths) OVERRIDE {
+        if (!file_paths.empty()) {
+          // File selected. Results in a call to OnEndTracingComplete.
+          CefEndTracingAsync(file_paths.front(), this);
+        } else {
+          // No file selected. Discard the trace data.
+          CefEndTracingAsync(CefString(), NULL);
+        }
+      }
+
+      virtual void OnEndTracingComplete(const CefString& tracing_file) OVERRIDE {
+        handler_->SetLastDownloadFile(tracing_file.ToString());
+        handler_->SendNotification(NOTIFY_DOWNLOAD_COMPLETE);
+      }
+
+     private:
+      CefRefPtr<ClientHandler> handler_;
+
+      IMPLEMENT_REFCOUNTING(Callback);
+    };
+
+    new Client(this);
   } else {
     CefPostTask(TID_UI,
         NewCefRunnableMethod(this, &ClientHandler::BeginTracing));

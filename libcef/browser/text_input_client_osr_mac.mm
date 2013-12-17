@@ -182,7 +182,8 @@ extern "C" {
   // called in keyEvent: method.
   if (!handlingKeyDown_) {
     renderWidgetHostView_->get_render_widget_host_impl()->
-        ImeConfirmComposition(string16(), gfx::Range::InvalidRange(), false);
+        ImeConfirmComposition(base::string16(), gfx::Range::InvalidRange(),
+                              false);
   } else {
     unmarkTextCalled_ = YES;
   }
@@ -333,7 +334,8 @@ extern "C" {
   } else if (oldHasMarkedText_ && !hasMarkedText_ && !textInserted) {
     if (unmarkTextCalled_) {
       renderWidgetHostView_->get_render_widget_host_impl()->
-          ImeConfirmComposition(string16(), gfx::Range::InvalidRange(), false);
+          ImeConfirmComposition(base::string16(), gfx::Range::InvalidRange(),
+                                false);
     } else {
       renderWidgetHostView_->get_render_widget_host_impl()->
           ImeCancelComposition();

@@ -1361,7 +1361,7 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrameForRequest(
   if (!info)
     return NULL;
   return GetOrCreateFrame(info->GetFrameID(), info->GetParentFrameID(),
-                          info->IsMainFrame(), string16(), GURL());
+                          info->IsMainFrame(), base::string16(), GURL());
 }
 
 void CefBrowserHostImpl::Navigate(const CefNavigateParams& params) {
@@ -1753,9 +1753,9 @@ void CefBrowserHostImpl::UpdateTargetURL(content::WebContents* source,
 
 bool CefBrowserHostImpl::AddMessageToConsole(content::WebContents* source,
                                              int32 level,
-                                             const string16& message,
+                                             const base::string16& message,
                                              int32 line_no,
-                                             const string16& source_id) {
+                                             const base::string16& source_id) {
   if (client_.get()) {
     CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
     if (handler.get())
@@ -1865,7 +1865,7 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
     content::WebContents* web_contents,
       int route_id,
       WindowContainerType window_container_type,
-      const string16& frame_name,
+      const base::string16& frame_name,
       const GURL& target_url,
       const std::string& partition_id,
       content::SessionStorageNamespace* session_storage_namespace) {
@@ -1884,7 +1884,7 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
 void CefBrowserHostImpl::WebContentsCreated(
     content::WebContents* source_contents,
     int64 source_frame_id,
-    const string16& frame_name,
+    const base::string16& frame_name,
     const GURL& target_url,
     content::WebContents* new_contents) {
   scoped_ptr<PendingPopupInfo> pending_popup_info;
@@ -2061,13 +2061,14 @@ void CefBrowserHostImpl::RenderProcessGone(base::TerminationStatus status) {
 
 void CefBrowserHostImpl::DidCommitProvisionalLoadForFrame(
     int64 frame_id,
-    const string16& frame_unique_name,
+    const base::string16& frame_unique_name,
     bool is_main_frame,
     const GURL& url,
     content::PageTransition transition_type,
     content::RenderViewHost* render_view_host) {
   CefRefPtr<CefFrame> frame = GetOrCreateFrame(frame_id,
-      CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, string16(), url);
+      CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, base::string16(),
+      url);
   OnLoadStart(frame, url, transition_type);
   if (is_main_frame)
     OnAddressChange(frame, url);
@@ -2075,14 +2076,14 @@ void CefBrowserHostImpl::DidCommitProvisionalLoadForFrame(
 
 void CefBrowserHostImpl::DidFailProvisionalLoad(
     int64 frame_id,
-    const string16& frame_unique_name,
+    const base::string16& frame_unique_name,
     bool is_main_frame,
     const GURL& validated_url,
     int error_code,
-    const string16& error_description,
+    const base::string16& error_description,
     content::RenderViewHost* render_view_host) {
   CefRefPtr<CefFrame> frame = GetOrCreateFrame(frame_id,
-      CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, string16(),
+      CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, base::string16(),
       GURL());
   OnLoadError(frame, validated_url, error_code, error_description);
 }
@@ -2097,10 +2098,10 @@ void CefBrowserHostImpl::DidFailLoad(
     const GURL& validated_url,
     bool is_main_frame,
     int error_code,
-    const string16& error_description,
+    const base::string16& error_description,
     content::RenderViewHost* render_view_host) {
   CefRefPtr<CefFrame> frame = GetOrCreateFrame(frame_id,
-      CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, string16(),
+      CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, base::string16(),
       validated_url);
   OnLoadError(frame, validated_url, error_code, error_description);
   OnLoadEnd(frame, validated_url, error_code);
@@ -2158,7 +2159,7 @@ bool CefBrowserHostImpl::Send(IPC::Message* message) {
 
 void CefBrowserHostImpl::OnFrameIdentified(int64 frame_id,
                                            int64 parent_frame_id,
-                                           string16 name) {
+                                           base::string16 name) {
   bool is_main_frame = (parent_frame_id == CefFrameHostImpl::kMainFrameId);
   GetOrCreateFrame(frame_id, parent_frame_id, is_main_frame, name, GURL());
 }
@@ -2168,7 +2169,7 @@ void CefBrowserHostImpl::OnDidFinishLoad(int64 frame_id,
                                          bool is_main_frame,
                                          int http_status_code) {
   CefRefPtr<CefFrame> frame = GetOrCreateFrame(frame_id,
-      CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, string16(),
+      CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, base::string16(),
       validated_url);
 
   // Give internal scheme handlers an opportunity to update content.
@@ -2238,7 +2239,7 @@ void CefBrowserHostImpl::Observe(int type,
 
    if (type == content::NOTIFICATION_LOAD_STOP ||
        type == content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED) {
-    string16 title;
+    base::string16 title;
 
     if (type == content::NOTIFICATION_LOAD_STOP) {
       content::NavigationController* controller =
@@ -2347,7 +2348,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(
 
 CefRefPtr<CefFrame> CefBrowserHostImpl::GetOrCreateFrame(
     int64 frame_id, int64 parent_frame_id, bool is_main_frame,
-    string16 frame_name, const GURL& frame_url) {
+    base::string16 frame_name, const GURL& frame_url) {
   DCHECK(frame_id > CefFrameHostImpl::kInvalidFrameId);
   if (frame_id <= CefFrameHostImpl::kInvalidFrameId)
     return NULL;
@@ -2480,7 +2481,7 @@ void CefBrowserHostImpl::OnLoadStart(CefRefPtr<CefFrame> frame,
 void CefBrowserHostImpl::OnLoadError(CefRefPtr<CefFrame> frame,
                                      const GURL& url,
                                      int error_code,
-                                     const string16& error_description) {
+                                     const base::string16& error_description) {
   if (client_.get()) {
     CefRefPtr<CefLoadHandler> handler = client_->GetLoadHandler();
     if (handler.get()) {
@@ -2548,7 +2549,8 @@ void CefBrowserHostImpl::RunFileChooserOnUIThread(
       }
 
       std::vector<CefString> accept_types;
-      std::vector<string16>::const_iterator it = params.accept_types.begin();
+      std::vector<base::string16>::const_iterator it =
+          params.accept_types.begin();
       for (; it != params.accept_types.end(); ++it)
         accept_types.push_back(*it);
 

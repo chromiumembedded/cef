@@ -89,25 +89,26 @@ struct CefStringTraitsWide {
   }
 #if defined(BUILDING_CEF_SHARED)
 #if defined(WCHAR_T_IS_UTF32)
-  static inline string16 to_string16(const struct_type *s) {
+  static inline base::string16 to_string16(const struct_type *s) {
     cef_string_utf16_t cstr;
     memset(&cstr, 0, sizeof(cstr));
     cef_string_wide_to_utf16(s->str, s->length, &cstr);
-    string16 str;
+    base::string16 str;
     if (cstr.length > 0)
-      str = string16(cstr.str, cstr.length);
+      str = base::string16(cstr.str, cstr.length);
     cef_string_utf16_clear(&cstr);
     return str;
   }
-  static inline bool from_string16(const string16& str, struct_type *s) {
+  static inline bool from_string16(const base::string16& str,
+                                         struct_type *s) {
     return cef_string_utf16_to_wide(str.c_str(), str.length(), s) ?
         true : false;
   }
 #else  // WCHAR_T_IS_UTF32
-  static inline string16 to_string16(const struct_type *s) {
-    return string16(s->str, s->length);
+  static inline base::string16 to_string16(const struct_type *s) {
+    return base::string16(s->str, s->length);
   }
-  static inline bool from_string16(const string16& str, struct_type *s) {
+  static inline bool from_string16(const base::string16& str, struct_type *s) {
     return cef_string_wide_set(str.c_str(), str.length(), s, true) ?
         true : false;
   }
@@ -162,17 +163,17 @@ struct CefStringTraitsUTF8 {
     return cef_string_wide_to_utf8(str.c_str(), str.length(), s) ? true : false;
   }
 #if defined(BUILDING_CEF_SHARED)
-  static inline string16 to_string16(const struct_type* s) {
+  static inline base::string16 to_string16(const struct_type* s) {
     cef_string_utf16_t cstr;
     memset(&cstr, 0, sizeof(cstr));
     cef_string_utf8_to_utf16(s->str, s->length, &cstr);
-    string16 str;
+    base::string16 str;
     if (cstr.length > 0)
-      str = string16(cstr.str, cstr.length);
+      str = base::string16(cstr.str, cstr.length);
     cef_string_utf16_clear(&cstr);
     return str;
   }
-  static inline bool from_string16(const string16& str, struct_type* s) {
+  static inline bool from_string16(const base::string16& str, struct_type* s) {
     return cef_string_utf16_to_utf8(str.c_str(), str.length(), s) ?
         true : false;
   }
@@ -245,10 +246,10 @@ struct CefStringTraitsUTF16 {
   }
 #endif  // WCHAR_T_IS_UTF32
 #if defined(BUILDING_CEF_SHARED)
-  static inline string16 to_string16(const struct_type* s) {
-    return string16(s->str, s->length);
+  static inline base::string16 to_string16(const struct_type* s) {
+    return base::string16(s->str, s->length);
   }
-  static inline bool from_string16(const string16& str, struct_type* s) {
+  static inline bool from_string16(const base::string16& str, struct_type* s) {
     return cef_string_utf16_set(str.c_str(), str.length(), s, true) ?
         true : false;
   }
@@ -339,14 +340,14 @@ class CefStringBase {
   // copied. Translation will occur if necessary based on the underlying string
   // type.
   ///
-  CefStringBase(const string16& src)  // NOLINT(runtime/explicit)
+  CefStringBase(const base::string16& src)  // NOLINT(runtime/explicit)
     : string_(NULL), owner_(false) {
     FromString16(src);
   }
   CefStringBase(const char16* src)  // NOLINT(runtime/explicit)
     : string_(NULL), owner_(false) {
     if (src)
-      FromString16(string16(src));
+      FromString16(base::string16(src));
   }
 #endif  // BUILDING_CEF_SHARED && WCHAR_T_IS_UTF32
 
@@ -616,9 +617,9 @@ class CefStringBase {
   // Return this string's data as a string16. Translation will occur if
   // necessary based on the underlying string type.
   ///
-  string16 ToString16() const {
+  base::string16 ToString16() const {
     if (empty())
-      return string16();
+      return base::string16();
     return traits::to_string16(string_);
   }
 
@@ -627,7 +628,7 @@ class CefStringBase {
   // copied. Translation will occur if necessary based on the underlying string
   // type.
   ///
-  bool FromString16(const string16& str) {
+  bool FromString16(const base::string16& str) {
     if (str.empty()) {
       clear();
       return true;
@@ -689,15 +690,15 @@ class CefStringBase {
     return *this;
   }
 #if (defined(BUILDING_CEF_SHARED) && defined(WCHAR_T_IS_UTF32))
-  operator string16() const {
+  operator base::string16() const {
     return ToString16();
   }
-  CefStringBase& operator=(const string16& str) {
+  CefStringBase& operator=(const base::string16& str) {
     FromString16(str);
     return *this;
   }
   CefStringBase& operator=(const char16* str) {
-    FromString16(string16(str));
+    FromString16(base::string16(str));
     return *this;
   }
 #endif  // BUILDING_CEF_SHARED && WCHAR_T_IS_UTF32

@@ -125,7 +125,7 @@ namespace {
 
 // Accept-types to file-types helper.
 NSMutableArray* GetFileTypesFromAcceptTypes(
-    const std::vector<string16>& accept_types) {
+    const std::vector<base::string16>& accept_types) {
   NSMutableArray* acceptArray = [[NSMutableArray alloc] init];
   for (size_t i=0; i<accept_types.size(); i++) {
     std::string ascii_type = UTF16ToASCII(accept_types[i]);
@@ -150,7 +150,7 @@ void RunOpenFileDialog(const content::FileChooserParams& params,
                        std::vector<base::FilePath>* files) {
   NSOpenPanel* openPanel = [NSOpenPanel openPanel];
 
-  string16 title;
+  base::string16 title;
   if (!params.title.empty()) {
     title = params.title;
   } else {
@@ -209,7 +209,7 @@ bool RunSaveFileDialog(const content::FileChooserParams& params,
                        base::FilePath* file) {
   NSSavePanel* savePanel = [NSSavePanel savePanel];
 
-  string16 title;
+  base::string16 title;
   if (!params.title.empty())
     title = params.title;
   else

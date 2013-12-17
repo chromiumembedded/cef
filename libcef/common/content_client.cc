@@ -82,8 +82,8 @@ std::string CefContentClient::GetUserAgent() const {
   return webkit_glue::BuildUserAgentFromProduct(product_version);
 }
 
-string16 CefContentClient::GetLocalizedString(int message_id) const {
-  string16 value =
+base::string16 CefContentClient::GetLocalizedString(int message_id) const {
+  base::string16 value =
       ResourceBundle::GetSharedInstance().GetLocalizedString(message_id);
   if (value.empty())
     LOG(ERROR) << "No localized string available for id " << message_id;
@@ -197,7 +197,8 @@ bool CefContentClient::GetRawDataResource(int resource_id,
   return (pack_loading_disabled_ || !value->empty());
 }
 
-bool CefContentClient::GetLocalizedString(int message_id, string16* value) {
+bool CefContentClient::GetLocalizedString(int message_id,
+                                          base::string16* value) {
   if (application_.get()) {
     CefRefPtr<CefResourceBundleHandler> handler =
         application_->GetResourceBundleHandler();

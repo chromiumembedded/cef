@@ -1,6 +1,6 @@
 Index: desktop_aura/desktop_root_window_host_win.cc
 ===================================================================
---- desktop_aura/desktop_root_window_host_win.cc	(revision 237081)
+--- desktop_aura/desktop_root_window_host_win.cc	(revision 241258)
 +++ desktop_aura/desktop_root_window_host_win.cc	(working copy)
 @@ -131,7 +131,9 @@
                          native_widget_delegate_);
@@ -13,9 +13,18 @@ Index: desktop_aura/desktop_root_window_host_win.cc
      parent_hwnd =
          params.parent->GetDispatcher()->host()->GetAcceleratedWidget();
    }
+@@ -751,7 +753,7 @@
+ 
+ void DesktopRootWindowHostWin::HandleCreate() {
+   // TODO(beng): moar
+-  NOTIMPLEMENTED();
++  // NOTIMPLEMENTED();
+ 
+   native_widget_delegate_->OnNativeWidgetCreated(true);
+ 
 Index: desktop_aura/desktop_screen_win.cc
 ===================================================================
---- desktop_aura/desktop_screen_win.cc	(revision 237081)
+--- desktop_aura/desktop_screen_win.cc	(revision 241258)
 +++ desktop_aura/desktop_screen_win.cc	(working copy)
 @@ -54,6 +54,8 @@
  }
@@ -28,7 +37,7 @@ Index: desktop_aura/desktop_screen_win.cc
  }
 Index: widget.h
 ===================================================================
---- widget.h	(revision 237081)
+--- widget.h	(revision 241258)
 +++ widget.h	(working copy)
 @@ -201,6 +201,7 @@
      // Should the widget be double buffered? Default is false.

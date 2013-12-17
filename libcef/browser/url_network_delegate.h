@@ -38,7 +38,7 @@ class CefNetworkDelegate : public net::NetworkDelegate {
       OVERRIDE;
   virtual void OnCompleted(net::URLRequest* request, bool started) OVERRIDE;
   virtual void OnURLRequestDestroyed(net::URLRequest* request) OVERRIDE;
-  virtual void OnPACScriptError(int line_number, const string16& error)
+  virtual void OnPACScriptError(int line_number, const base::string16& error)
       OVERRIDE;
   virtual AuthRequiredResponse OnAuthRequired(
       net::URLRequest* request,

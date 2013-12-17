@@ -44,6 +44,7 @@
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/download_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/drag_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/end_tracing_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/focus_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/geolocation_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/get_geolocation_callback_cpptoc.h"
@@ -61,7 +62,6 @@
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
 #include "libcef_dll/cpptoc/string_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/task_cpptoc.h"
-#include "libcef_dll/cpptoc/trace_client_cpptoc.h"
 #include "libcef_dll/cpptoc/urlrequest_client_cpptoc.h"
 #include "libcef_dll/cpptoc/v8accessor_cpptoc.h"
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
@@ -193,6 +193,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefDownloadItemCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefDragDataCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefDragHandlerCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefEndTracingCallbackCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefFileDialogCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefFocusHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefFrameCToCpp::DebugObjCt, 0);
@@ -222,7 +223,6 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefStringVisitorCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefTaskCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefTaskRunnerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefTraceClientCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefURLRequestCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefURLRequestClientCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefV8AccessorCppToC::DebugObjCt, 0);
@@ -455,36 +455,29 @@ CEF_GLOBAL bool CefPostDelayedTask(CefThreadId threadId,
   return _retval?true:false;
 }
 
-CEF_GLOBAL bool CefBeginTracing(CefRefPtr<CefTraceClient> client,
-    const CefString& categories) {
+CEF_GLOBAL bool CefBeginTracing(const CefString& categories) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Unverified params: client, categories
+  // Unverified params: categories
 
   // Execute
   int _retval = cef_begin_tracing(
-      CefTraceClientCppToC::Wrap(client),
       categories.GetStruct());
 
   // Return type: bool
   return _retval?true:false;
 }
 
-CEF_GLOBAL bool CefGetTraceBufferPercentFullAsync() {
+CEF_GLOBAL bool CefEndTracingAsync(const CefString& tracing_file,
+    CefRefPtr<CefEndTracingCallback> callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Execute
-  int _retval = cef_get_trace_buffer_percent_full_async();
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefEndTracingAsync() {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+  // Unverified params: tracing_file, callback
 
   // Execute
-  int _retval = cef_end_tracing_async();
+  int _retval = cef_end_tracing_async(
+      tracing_file.GetStruct(),
+      CefEndTracingCallbackCppToC::Wrap(callback));
 
   // Return type: bool
   return _retval?true:false;

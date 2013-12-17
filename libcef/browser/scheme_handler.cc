@@ -37,7 +37,7 @@ void InstallInternalProtectedHandlers(
                           base::SequencedWorkerPool::SKIP_ON_SHUTDOWN)))));
 #if !defined(DISABLE_FTP_SUPPORT)
   protocol_handlers->insert(
-      std::make_pair(chrome::kFtpScheme,
+      std::make_pair(content::kFtpScheme,
           linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
               new net::FtpProtocolHandler(ftp_transaction_factory))));
 #endif

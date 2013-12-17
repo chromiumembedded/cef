@@ -238,8 +238,9 @@ CefRefPtr<CefV8Context> CefFrameImpl::GetV8Context() {
   CEF_REQUIRE_RT_RETURN(NULL);
 
   if (frame_) {
-    v8::HandleScope handle_scope(webkit_glue::GetV8Isolate(frame_));
-    return new CefV8ContextImpl(webkit_glue::GetV8Context(frame_));
+    v8::Isolate* isolate = webkit_glue::GetV8Isolate(frame_);
+    v8::HandleScope handle_scope(isolate);
+    return new CefV8ContextImpl(isolate, webkit_glue::GetV8Context(frame_));
   } else {
     return NULL;
   }

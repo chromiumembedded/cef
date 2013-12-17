@@ -1,6 +1,6 @@
 Index: public/web/WebView.h
 ===================================================================
---- public/web/WebView.h	(revision 162607)
+--- public/web/WebView.h	(revision 163979)
 +++ public/web/WebView.h	(working copy)
 @@ -441,6 +441,7 @@
  
@@ -12,9 +12,9 @@ Index: public/web/WebView.h
      // Visited link state --------------------------------------------------
 Index: Source/web/ChromeClientImpl.cpp
 ===================================================================
---- Source/web/ChromeClientImpl.cpp	(revision 162607)
+--- Source/web/ChromeClientImpl.cpp	(revision 163979)
 +++ Source/web/ChromeClientImpl.cpp	(working copy)
-@@ -866,7 +866,7 @@
+@@ -867,7 +867,7 @@
  
  PassRefPtr<PopupMenu> ChromeClientImpl::createPopupMenu(Frame& frame, PopupMenuClient* client) const
  {
@@ -25,9 +25,9 @@ Index: Source/web/ChromeClientImpl.cpp
      return adoptRef(new PopupMenuChromium(frame, client));
 Index: Source/web/WebViewImpl.cpp
 ===================================================================
---- Source/web/WebViewImpl.cpp	(revision 162607)
+--- Source/web/WebViewImpl.cpp	(revision 163979)
 +++ Source/web/WebViewImpl.cpp	(working copy)
-@@ -392,6 +392,7 @@
+@@ -393,6 +393,7 @@
      , m_fakePageScaleAnimationPageScaleFactor(0)
      , m_fakePageScaleAnimationUseAnchor(false)
      , m_contextMenuAllowed(false)
@@ -35,7 +35,7 @@ Index: Source/web/WebViewImpl.cpp
      , m_doingDragAndDrop(false)
      , m_ignoreInputEvents(false)
      , m_compositorDeviceScaleFactorOverride(0)
-@@ -3686,9 +3687,14 @@
+@@ -3708,9 +3709,14 @@
      updateLayerTreeViewport();
  }
  
@@ -53,7 +53,7 @@ Index: Source/web/WebViewImpl.cpp
  void WebViewImpl::startDragging(Frame* frame,
 Index: Source/web/WebViewImpl.h
 ===================================================================
---- Source/web/WebViewImpl.h	(revision 162607)
+--- Source/web/WebViewImpl.h	(revision 163979)
 +++ Source/web/WebViewImpl.h	(working copy)
 @@ -416,7 +416,8 @@
  
@@ -65,7 +65,7 @@ Index: Source/web/WebViewImpl.h
  
      bool contextMenuAllowed() const
      {
-@@ -713,6 +714,8 @@
+@@ -714,6 +715,8 @@
  
      bool m_contextMenuAllowed;
  

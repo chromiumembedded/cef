@@ -98,7 +98,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
       // Create the directory if necessary.
       base::FilePath dir_path = suggested_path.DirName();
       if (!base::DirectoryExists(dir_path) &&
-          !file_util::CreateDirectory(dir_path)) {
+          !base::CreateDirectory(dir_path)) {
         NOTREACHED() << "failed to create the download directory";
         suggested_path.clear();
       }
@@ -322,7 +322,7 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
     base::FilePath suggested_name = net::GenerateFileName(
         item->GetURL(),
         item->GetContentDisposition(),
-        EmptyString(),
+        std::string(),
         item->GetSuggestedFilename(),
         item->GetMimeType(),
         "download");

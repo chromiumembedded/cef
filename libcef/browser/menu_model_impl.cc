@@ -64,7 +64,7 @@ class CefSimpleMenuModel : public ui::MenuModel {
     return impl_->GetCommandIdAt(index);
   }
 
-  virtual string16 GetLabelAt(int index) const OVERRIDE {
+  virtual base::string16 GetLabelAt(int index) const OVERRIDE {
     return impl_->GetLabelAt(index).ToString16();
   }
 

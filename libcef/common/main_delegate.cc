@@ -359,22 +359,22 @@ void CefMainDelegate::PreSandboxStartup() {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
 
   if (command_line.HasSwitch(switches::kEnableCrashReporter)) {
+    const std::string& process_type = command_line.GetSwitchValueASCII(
+        switches::kProcessType);
     breakpad::SetBreakpadClient(g_shell_breakpad_client.Pointer());
 #if defined(OS_MACOSX)
     base::mac::DisableOSCrashDumps();
-    breakpad::InitCrashReporter();
-    breakpad::InitCrashProcessInfo();
+    breakpad::InitCrashReporter(process_type);
+    breakpad::InitCrashProcessInfo(process_type);
 #elif defined(OS_POSIX) && !defined(OS_MACOSX)
-    std::string process_type = command_line.GetSwitchValueASCII(
-        switches::kProcessType);
     if (process_type != switches::kZygoteProcess)
-      breakpad::InitCrashReporter();
+      breakpad::InitCrashReporter(process_type);
 #elif defined(OS_WIN)
     UINT new_flags =
         SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX;
     UINT existing_flags = SetErrorMode(new_flags);
     SetErrorMode(existing_flags | new_flags);
-    breakpad::InitCrashReporter();
+    breakpad::InitCrashReporter(process_type);
 #endif
   }
 
@@ -431,9 +431,11 @@ void CefMainDelegate::ProcessExiting(const std::string& process_type) {
 
 #if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MACOSX)
 void CefMainDelegate::ZygoteForked() {
-  if (CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kEnableCrashReporter)) {
-    breakpad::InitCrashReporter();
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  if (command_line.HasSwitch(switches::kEnableCrashReporter)) {
+    const std::string& process_type = command_line.GetSwitchValueASCII(
+        switches::kProcessType);
+    breakpad::InitCrashReporter(process_type);
   }
 }
 #endif

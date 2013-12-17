@@ -35,12 +35,13 @@ MSVC_POP_WARNING();
 #include "chrome/renderer/loadtimes_extension_bindings.h"
 #include "chrome/renderer/printing/print_web_view_helper.h"
 #include "content/child/child_thread.h"
+#include "content/common/frame_messages.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
-#include "content/renderer/render_view_impl.h"
+#include "content/renderer/render_frame_impl.h"
 #include "ipc/ipc_sync_channel.h"
 #include "media/base/media.h"
 #include "third_party/WebKit/public/platform/WebPrerenderingSupport.h"
@@ -457,7 +458,7 @@ void CefContentRendererClient::RenderViewCreated(
 }
 
 bool CefContentRendererClient::OverrideCreatePlugin(
-    content::RenderView* render_view,
+    content::RenderFrame* render_frame,
     blink::WebFrame* frame,
     const blink::WebPluginParams& params,
     blink::WebPlugin** plugin) {
@@ -470,16 +471,21 @@ bool CefContentRendererClient::OverrideCreatePlugin(
   if (UTF16ToASCII(params.mimeType) == content::kBrowserPluginMimeType)
     return false;
 
-  content::RenderViewImpl* render_view_impl =
-      static_cast<content::RenderViewImpl*>(render_view);
+  content::RenderFrameImpl* render_frame_impl =
+      static_cast<content::RenderFrameImpl*>(render_frame);
 
   content::WebPluginInfo info;
   std::string mime_type;
-  bool found = render_view_impl->GetPluginInfo(params.url,
-                                               frame->top()->document().url(),
-                                               params.mimeType.utf8(),
-                                               &info,
-                                               &mime_type);
+  bool found = false;
+  render_frame_impl->Send(
+      new FrameHostMsg_GetPluginInfo(
+          render_frame_impl->GetRoutingID(),
+          params.url,
+          frame->top()->document().url(),
+          params.mimeType.utf8(),
+          &found,
+          &info,
+          &mime_type));
   if (!found)
     return false;
 
@@ -527,7 +533,7 @@ bool CefContentRendererClient::OverrideCreatePlugin(
     params_to_use.attributeNames.swap(new_names);
     params_to_use.attributeValues.swap(new_values);
 
-    *plugin = render_view_impl->CreatePlugin(frame, info, params_to_use);
+    *plugin = render_frame_impl->CreatePlugin(frame, info, params_to_use);
     return true;
   }
 #endif  // defined(ENABLE_PLUGINS)
@@ -536,6 +542,9 @@ bool CefContentRendererClient::OverrideCreatePlugin(
 }
 
 bool CefContentRendererClient::HandleNavigation(
+    content::RenderView* view,
+    content::DocumentState* document_state,
+    int opener_id,
     blink::WebFrame* frame,
     const blink::WebURLRequest& request,
     blink::WebNavigationType type,
@@ -602,12 +611,13 @@ void CefContentRendererClient::DidCreateScriptContext(
 
   CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
-  v8::HandleScope handle_scope(webkit_glue::GetV8Isolate(frame));
+  v8::Isolate* isolate = webkit_glue::GetV8Isolate(frame);
+  v8::HandleScope handle_scope(isolate);
   v8::Context::Scope scope(context);
   WebCore::V8RecursionScope recursion_scope(
       WebCore::toExecutionContext(context));
 
-  CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
+  CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(isolate, context));
 
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();
@@ -633,12 +643,14 @@ void CefContentRendererClient::WillReleaseScriptContext(
       if (browserPtr.get()) {
         CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
-        v8::HandleScope handle_scope(webkit_glue::GetV8Isolate(frame));
+        v8::Isolate* isolate = webkit_glue::GetV8Isolate(frame);
+        v8::HandleScope handle_scope(isolate);
         v8::Context::Scope scope(context);
         WebCore::V8RecursionScope recursion_scope(
             WebCore::toExecutionContext(context));
 
-        CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(context));
+        CefRefPtr<CefV8Context> contextPtr(
+            new CefV8ContextImpl(isolate, context));
 
         handler->OnContextReleased(browserPtr.get(), framePtr.get(),
                                    contextPtr);

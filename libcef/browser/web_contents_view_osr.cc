@@ -58,7 +58,7 @@ void CefWebContentsViewOSR::GetContainerBounds(gfx::Rect *out) const {
   *out = GetViewBounds();
 }
 
-void CefWebContentsViewOSR::SetPageTitle(const string16& title) {
+void CefWebContentsViewOSR::SetPageTitle(const base::string16& title) {
 }
 
 void CefWebContentsViewOSR::OnTabCrashed(base::TerminationStatus status,
@@ -116,6 +116,13 @@ void CefWebContentsViewOSR::SetAllowOverlappingViews(bool overlapping) {
 
 bool CefWebContentsViewOSR::GetAllowOverlappingViews() const {
   return false;
+}
+
+void CefWebContentsViewOSR::SetOverlayView(content::WebContentsView* overlay,
+                                           const gfx::Point& offset) {
+}
+
+void CefWebContentsViewOSR::RemoveOverlayView() {
 }
 #endif  // defined(OS_MACOSX)
 
