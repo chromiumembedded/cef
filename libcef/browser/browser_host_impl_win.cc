@@ -14,7 +14,9 @@
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/thread_util.h"
 
+#include "base/file_util.h"
 #include "base/i18n/case_conversion.h"
+#include "base/memory/ref_counted_memory.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/win/registry.h"
@@ -29,6 +31,7 @@
 #include "third_party/WebKit/public/web/WebInputEvent.h"
 #include "third_party/WebKit/public/web/win/WebInputEventFactory.h"
 #include "ui/base/l10n/l10n_util.h"
+#include "ui/base/win/shell.h"
 #include "ui/gfx/win/hwnd_util.h"
 #include "ui/views/background.h"
 #include "ui/views/controls/webview/webview.h"
@@ -58,13 +61,22 @@ void SetAeroGlass(HWND hWnd) {
   DwmExtendFrameIntoClientArea(hWnd, &mgMarInset);
 }
 
-void WriteTextToFile(const std::string& data, const std::wstring& file_path) {
-  FILE* fp;
-  errno_t err = _wfopen_s(&fp, file_path.c_str(), L"wt");
-  if (err)
-      return;
-  fwrite(data.c_str(), 1, data.size(), fp);
-  fclose(fp);
+void WriteTempFileAndView(scoped_refptr<base::RefCountedString> str) {
+  CEF_REQUIRE_FILET();
+
+  base::FilePath tmp_file;
+  if (!base::CreateTemporaryFile(&tmp_file))
+    return;
+
+  // The shell command will look at the file extension to identify the correct
+  // program to open.
+  tmp_file = tmp_file.AddExtension(L"txt");
+
+  const std::string& data = str->data();
+  int write_ct = file_util::WriteFile(tmp_file, data.c_str(), data.size());
+  DCHECK_EQ(static_cast<int>(data.size()), write_ct);
+
+  ui::win::OpenItemViaShell(tmp_file);
 }
 
 // From ui/base/dialogs/select_file_dialog_win.cc.
@@ -783,35 +795,10 @@ CefWindowHandle CefBrowserHostImpl::PlatformGetWindowHandle() {
 bool CefBrowserHostImpl::PlatformViewText(const std::string& text) {
   CEF_REQUIRE_UIT();
 
-  DWORD dwRetVal;
-  DWORD dwBufSize = 512;
-  TCHAR lpPathBuffer[512];
-  UINT uRetVal;
-  TCHAR szTempName[512];
-
-  dwRetVal = GetTempPath(dwBufSize,      // length of the buffer
-                         lpPathBuffer);  // buffer for path
-  if (dwRetVal > dwBufSize || (dwRetVal == 0))
-    return false;
-
-  // Create a temporary file.
-  uRetVal = GetTempFileName(lpPathBuffer,  // directory for tmp files
-                            TEXT("src"),   // temp file name prefix
-                            0,             // create unique name
-                            szTempName);   // buffer for name
-  if (uRetVal == 0)
-    return false;
-
-  size_t len = wcslen(szTempName);
-  wcscpy(szTempName + len - 3, L"txt");
-  WriteTextToFile(text, szTempName);
-
-  HWND frameWnd = GetAncestor(PlatformGetWindowHandle(), GA_ROOT);
-  int errorCode = reinterpret_cast<int>(ShellExecute(frameWnd, L"open",
-      szTempName, NULL, NULL, SW_SHOWNORMAL));
-  if (errorCode <= 32)
-    return false;
-
+  std::string str = text;
+  scoped_refptr<base::RefCountedString> str_ref =
+      base::RefCountedString::TakeString(&str);
+  CEF_POST_TASK(CEF_FILET, base::Bind(WriteTempFileAndView, str_ref));
   return true;
 }
 
