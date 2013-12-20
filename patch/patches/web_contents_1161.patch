@@ -1,0 +1,42 @@
+Index: web_contents_view_win.cc
+===================================================================
+--- web_contents_view_win.cc	(revision 235101)
++++ web_contents_view_win.cc	(working copy)
+@@ -300,6 +300,15 @@
+   rvh->GetDelegate()->Close(rvh);
+ }
+ 
++void WebContentsViewWin::OnNCPaint(HRGN update_region) {
++  // Do nothing.  This suppresses the resize corner that Windows would
++  // otherwise draw for us.
++}
++
++LRESULT WebContentsViewWin::OnEraseBkgnd(HDC dc) {
++  return 1;
++}
++
+ LRESULT WebContentsViewWin::OnCreate(
+     UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled) {
+   hwnd_to_wcv_map.insert(std::make_pair(hwnd(), this));
+Index: web_contents_view_win.h
+===================================================================
+--- web_contents_view_win.h	(revision 235101)
++++ web_contents_view_win.h	(working copy)
+@@ -36,6 +36,8 @@
+   virtual ~WebContentsViewWin();
+ 
+   BEGIN_MSG_MAP_EX(WebContentsViewWin)
++    MSG_WM_NCPAINT(OnNCPaint)
++    MSG_WM_ERASEBKGND(OnEraseBkgnd)
+     MESSAGE_HANDLER(WM_CREATE, OnCreate)
+     MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
+     MESSAGE_HANDLER(WM_WINDOWPOSCHANGED, OnWindowPosChanged)
+@@ -102,6 +104,8 @@
+   void EndDragging();
+   void CloseTab();
+ 
++  void OnNCPaint(HRGN update_region);
++  LRESULT OnEraseBkgnd(HDC dc);
+   LRESULT OnCreate(
+       UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled);
+   LRESULT OnDestroy(

@@ -505,7 +505,7 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
     return 0;
 
   case WM_ERASEBKGND:
-    return 0;
+    return 1;
 
   case WM_DWMCOMPOSITIONCHANGED:
     // Message sent to top-level windows when composition has been enabled or

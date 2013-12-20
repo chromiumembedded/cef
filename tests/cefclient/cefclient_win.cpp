@@ -557,7 +557,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         if (hwnd) {
           // Dont erase the background if the browser window has been loaded
           // (this avoids flashing)
-          return 0;
+          return 1;
         }
       }
       break;
