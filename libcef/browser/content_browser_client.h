@@ -51,17 +51,22 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   // this race CefBrowserInfo may be created when requested for the first time
   // and before the associated CefBrowserHostImpl is created.
   scoped_refptr<CefBrowserInfo> CreateBrowserInfo(bool is_popup);
-  scoped_refptr<CefBrowserInfo> GetOrCreateBrowserInfo(int render_process_id,
-                                                       int render_view_id);
+  scoped_refptr<CefBrowserInfo> GetOrCreateBrowserInfo(
+      int render_view_process_id,
+      int render_view_routing_id,
+      int render_frame_process_id,
+      int render_frame_routing_id);
   void RemoveBrowserInfo(scoped_refptr<CefBrowserInfo> browser_info);
   void DestroyAllBrowsers();
 
   // Retrieves the CefBrowserInfo matching the specified IDs or an empty
   // pointer if no match is found. It is allowed to add new callers of this
-  // method but consider using CefBrowserHostImpl::GetBrowserByRoutingID()
+  // method but consider using CefBrowserHostImpl::GetBrowserFor[View|Frame]()
   // instead.
-  scoped_refptr<CefBrowserInfo> GetBrowserInfo(int render_process_id,
-                                               int render_view_id);
+  scoped_refptr<CefBrowserInfo> GetBrowserInfoForView(int render_process_id,
+                                                      int render_routing_id);
+  scoped_refptr<CefBrowserInfo> GetBrowserInfoForFrame(int render_process_id,
+                                                       int render_routing_id);
 
   // Create and return a new CefBrowserContextProxy object.
   CefBrowserContext* CreateBrowserContextProxy(
@@ -79,7 +84,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   virtual content::WebContentsViewPort* OverrideCreateWebContentsView(
       content::WebContents* web_contents,
       content::RenderViewHostDelegateView** rvhdv) OVERRIDE;
-  virtual void RenderProcessHostCreated(
+  virtual void RenderProcessWillLaunch(
       content::RenderProcessHost* host) OVERRIDE;
   virtual net::URLRequestContextGetter* CreateRequestContext(
       content::BrowserContext* browser_context,

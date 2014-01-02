@@ -170,7 +170,7 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
 
   base::string16 new_message_text =
       message_text +
-      ASCIIToUTF16("\n\nIs it OK to leave/reload this page?");
+      base::ASCIIToUTF16("\n\nIs it OK to leave/reload this page?");
 
   dialog_.reset(
       new CefJavaScriptDialog(this,

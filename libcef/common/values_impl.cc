@@ -227,8 +227,10 @@ bool CefDictionaryValueImpl::HasKey(const CefString& key) {
 bool CefDictionaryValueImpl::GetKeys(KeyList& keys) {
   CEF_VALUE_VERIFY_RETURN(false, 0);
 
-  for (DictionaryValue::Iterator i(const_value()); !i.IsAtEnd(); i.Advance())
+  for (base::DictionaryValue::Iterator i(const_value());
+       !i.IsAtEnd(); i.Advance()) {
     keys.push_back(i.key());
+  }
 
   return true;
 }

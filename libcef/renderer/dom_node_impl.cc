@@ -242,11 +242,11 @@ CefString CefDOMNodeImpl::GetValue() {
 
       base::string16 value;
       const base::string16& form_control_type = formElement.formControlType();
-      if (form_control_type == ASCIIToUTF16("text")) {
+      if (form_control_type == base::ASCIIToUTF16("text")) {
         const WebInputElement& input_element =
             formElement.toConst<WebInputElement>();
         value = input_element.value();
-      } else if (form_control_type == ASCIIToUTF16("select-one")) {
+      } else if (form_control_type == base::ASCIIToUTF16("select-one")) {
         const WebSelectElement& select_element =
             formElement.toConst<WebSelectElement>();
         value = select_element.value();

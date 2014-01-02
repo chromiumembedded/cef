@@ -130,7 +130,8 @@ CefJavaScriptDialog::CefJavaScriptDialog(
     TCHAR text[64];
     GetWindowText(dialog_win_, text, sizeof(text)/sizeof(TCHAR));
 
-    base::string16 new_window_text = text + ASCIIToUTF16(" - ") + display_url;
+    base::string16 new_window_text =
+        text + base::ASCIIToUTF16(" - ") + display_url;
     SetWindowText(dialog_win_, new_window_text.c_str());
   }
 

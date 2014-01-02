@@ -52,6 +52,11 @@ class TitleTestHandler : public TestHandler {
     } else if (step_ == 1 || step_ == 3) {
       EXPECT_STREQ(kTitleStr2, title_str.c_str());
     } else if (step_ == 4) {
+      // Ignore the unexpected notification of the page URL.
+      // Related bug: http://crbug.com/331351
+      if (title_str == &kTitleUrl2[7])
+        return;
+
       EXPECT_STREQ(kTitleStr3, title_str.c_str());
     }
 

@@ -75,6 +75,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
  private:
   // ContentRendererClient implementation.
   virtual void RenderThreadStarted() OVERRIDE;
+  virtual void RenderFrameCreated(content::RenderFrame* render_frame) OVERRIDE;
   virtual void RenderViewCreated(content::RenderView* render_view) OVERRIDE;
   virtual bool OverrideCreatePlugin(
       content::RenderFrame* render_frame,
@@ -99,6 +100,9 @@ class CefContentRendererClient : public content::ContentRendererClient,
 
   // MessageLoop::DestructionObserver implementation.
   virtual void WillDestroyCurrentMessageLoop() OVERRIDE;
+
+  void BrowserCreated(content::RenderView* render_view,
+                      content::RenderFrame* render_frame);
 
   // Perform cleanup work for single-process mode.
   void RunSingleProcessCleanupOnUIThread();

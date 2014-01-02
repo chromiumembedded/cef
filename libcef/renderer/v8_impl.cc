@@ -1053,12 +1053,13 @@ CefV8ValueImpl::Handle::~Handle() {
         (tracker_ ?
             new CefV8MakeWeakParam(isolate(), context_state_, tracker_) : NULL),
         TrackDestructor);
-  } else {
-    handle_.Reset();
-
-    if (tracker_)
-      delete tracker_;
+  } else if (tracker_) {
+    delete tracker_;
   }
+
+  // Always call Reset() on a persistent handle to avoid the
+  // CHECK(state() != NEAR_DEATH) in V8's PostGarbageCollectionProcessing.
+  handle_.Reset();
   tracker_ = NULL;
 }
 

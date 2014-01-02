@@ -21,14 +21,14 @@ namespace {
 bool NavigationOnUIThread(
     int64 frame_id,
     CefRefPtr<CefRequestImpl> request,
-    content::RenderViewHost* source,
+    content::WebContents* source,
     const navigation_interception::NavigationParams& params) {
   CEF_REQUIRE_UIT();
 
   bool ignore_navigation = false;
 
   CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForHost(source);
+      CefBrowserHostImpl::GetBrowserForContents(source);
   DCHECK(browser.get());
   if (browser.get()) {
     CefRefPtr<CefClient> client = browser->GetClient();
@@ -95,7 +95,7 @@ bool CefResourceDispatcherHostDelegate::HandleExternalProtocol(const GURL& url,
                                                                int child_id,
                                                                int route_id) {
   CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserByRoutingID(child_id, route_id);
+      CefBrowserHostImpl::GetBrowserForView(child_id, route_id);
   if (browser.get())
     browser->HandleExternalProtocol(url);
   return false;

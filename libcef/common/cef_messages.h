@@ -40,7 +40,7 @@ IPC_STRUCT_BEGIN(Cef_Request_Params)
   IPC_STRUCT_MEMBER(std::string, name)
 
   // List of message arguments.
-  IPC_STRUCT_MEMBER(ListValue, arguments)
+  IPC_STRUCT_MEMBER(base::ListValue, arguments)
 IPC_STRUCT_END()
 
 // Parameters structure for a response.
@@ -138,7 +138,7 @@ IPC_STRUCT_BEGIN(CefProcessHostMsg_GetNewRenderThreadInfo_Params)
   IPC_STRUCT_MEMBER(std::vector<Cef_CrossOriginWhiteListEntry_Params>,
                     cross_origin_whitelist_entries)
 
-  IPC_STRUCT_MEMBER(ListValue, extra_info)
+  IPC_STRUCT_MEMBER(base::ListValue, extra_info)
 IPC_STRUCT_END()
 
 // Retrieve information about a newly created render thread.
@@ -153,10 +153,11 @@ IPC_STRUCT_BEGIN(CefProcessHostMsg_GetNewBrowserInfo_Params)
   IPC_STRUCT_MEMBER(bool, is_window_rendering_disabled)
 IPC_STRUCT_END()
 
-// Retrieve information about a newly created browser window.
-IPC_SYNC_MESSAGE_CONTROL1_1(
+// Retrieve information about a newly created browser.
+IPC_SYNC_MESSAGE_CONTROL2_1(
     CefProcessHostMsg_GetNewBrowserInfo,
-    int /* routing_id */,
+    int /* render_view_routing_id */,
+    int /* render_frame_routing_id */,
     CefProcessHostMsg_GetNewBrowserInfo_Params /* params*/)
 
 // Sent when a frame is identified for the first time.

@@ -93,7 +93,8 @@ std::string GetOSType() {
 
 std::string GetCommandLine() {
 #if defined(OS_WIN)
-  return WideToUTF8(CommandLine::ForCurrentProcess()->GetCommandLineString());
+  return base::WideToUTF8(
+      CommandLine::ForCurrentProcess()->GetCommandLineString());
 #elif defined(OS_POSIX)
   std::string command_line = "";
   typedef std::vector<std::string> ArgvList;

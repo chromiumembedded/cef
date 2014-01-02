@@ -116,17 +116,17 @@ CefJavaScriptDialog::CefJavaScriptDialog(
   base::string16 label;
   switch (message_type) {
     case content::JAVASCRIPT_MESSAGE_TYPE_ALERT:
-      label = ASCIIToUTF16("JavaScript Alert");
+      label = base::ASCIIToUTF16("JavaScript Alert");
       break;
     case content::JAVASCRIPT_MESSAGE_TYPE_PROMPT:
-      label = ASCIIToUTF16("JavaScript Prompt");
+      label = base::ASCIIToUTF16("JavaScript Prompt");
       break;
     case content::JAVASCRIPT_MESSAGE_TYPE_CONFIRM:
-      label = ASCIIToUTF16("JavaScript Confirm");
+      label = base::ASCIIToUTF16("JavaScript Confirm");
       break;
   }
   if (!display_url.empty())
-    label += ASCIIToUTF16(" - ") + display_url;
+    label += base::ASCIIToUTF16(" - ") + display_url;
 
   [alert setMessageText:base::SysUTF16ToNSString(label)];
 

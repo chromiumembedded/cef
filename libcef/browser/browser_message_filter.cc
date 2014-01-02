@@ -76,11 +76,19 @@ void CefBrowserMessageFilter::OnGetNewRenderThreadInfo(
 }
 
 void CefBrowserMessageFilter::OnGetNewBrowserInfo(
-    int routing_id, CefProcessHostMsg_GetNewBrowserInfo_Params* params) {
+    int render_view_routing_id,
+    int render_frame_routing_id,
+    CefProcessHostMsg_GetNewBrowserInfo_Params* params) {
+  DCHECK_GT(render_view_routing_id, 0);
+  DCHECK_GT(render_frame_routing_id, 0);
+
   // Popup windows may not have info yet.
   scoped_refptr<CefBrowserInfo> info =
-      CefContentBrowserClient::Get()->GetOrCreateBrowserInfo(host_->GetID(),
-                                                             routing_id);
+      CefContentBrowserClient::Get()->GetOrCreateBrowserInfo(
+          host_->GetID(),
+          render_view_routing_id,
+          host_->GetID(),
+          render_frame_routing_id);
   params->browser_id = info->browser_id();
   params->is_popup = info->is_popup();
   params->is_window_rendering_disabled = info->is_window_rendering_disabled();

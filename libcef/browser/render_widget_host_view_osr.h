@@ -132,7 +132,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
       const gfx::Rect& scroll_rect,
       const gfx::Vector2d& scroll_delta,
       const std::vector<gfx::Rect>& copy_rects,
-      const ui::LatencyInfo& latency_info) OVERRIDE;
+      const std::vector<ui::LatencyInfo>& latency_info) OVERRIDE;
   virtual void RenderProcessGone(base::TerminationStatus status,
       int error_code) OVERRIDE;
 #if defined(OS_WIN) && !defined(USE_AURA)
@@ -145,9 +145,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
 #endif
   virtual void GetScreenInfo(blink::WebScreenInfo* results) OVERRIDE;
   virtual gfx::Rect GetBoundsInRootWindow() OVERRIDE;
-  virtual void OnAccessibilityEvents(
-      const std::vector<AccessibilityHostMsg_EventParams>& params)
-      OVERRIDE;
+  virtual void CreateBrowserAccessibilityManagerIfNeeded() OVERRIDE;
   virtual void Destroy() OVERRIDE;
   virtual void SetTooltipText(const base::string16& tooltip_text) OVERRIDE;
   virtual void SelectionBoundsChanged(

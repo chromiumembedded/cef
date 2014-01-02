@@ -421,40 +421,14 @@ void CefContentRendererClient::RenderThreadStarted() {
   }
 }
 
+void CefContentRendererClient::RenderFrameCreated(
+    content::RenderFrame* render_frame) {
+  BrowserCreated(render_frame->GetRenderView(), render_frame);
+}
+
 void CefContentRendererClient::RenderViewCreated(
     content::RenderView* render_view) {
-  // Retrieve the new browser information synchronously.
-  CefProcessHostMsg_GetNewBrowserInfo_Params params;
-  content::RenderThread::Get()->Send(
-      new CefProcessHostMsg_GetNewBrowserInfo(render_view->GetRoutingID(),
-                                              &params));
-  DCHECK_GT(params.browser_id, 0);
-
-#if defined(OS_MACOSX)
-  // FIXME: It would be better if this API would be a callback from the
-  // WebKit layer, or if it would be exposed as an WebView instance method; the
-  // current implementation uses a static variable, and WebKit needs to be
-  // patched in order to make it work for each WebView instance
-  render_view->GetWebView()->setUseExternalPopupMenusThisInstance(
-      !params.is_window_rendering_disabled);
-#endif
-
-  CefRefPtr<CefBrowserImpl> browser =
-      new CefBrowserImpl(render_view, params.browser_id, params.is_popup,
-                         params.is_window_rendering_disabled);
-  browsers_.insert(std::make_pair(render_view, browser));
-
-  new CefPrerendererClient(render_view);
-  new printing::PrintWebViewHelper(render_view);
-
-  // Notify the render process handler.
-  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
-  if (application.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler =
-        application->GetRenderProcessHandler();
-    if (handler.get())
-      handler->OnBrowserCreated(browser.get());
-  }
+  BrowserCreated(render_view, render_view->GetMainRenderFrame());
 }
 
 bool CefContentRendererClient::OverrideCreatePlugin(
@@ -664,6 +638,50 @@ void CefContentRendererClient::WillReleaseScriptContext(
 void CefContentRendererClient::WillDestroyCurrentMessageLoop() {
   base::AutoLock lock_scope(single_process_cleanup_lock_);
   single_process_cleanup_complete_ = true;
+}
+
+void CefContentRendererClient::BrowserCreated(
+    content::RenderView* render_view,
+    content::RenderFrame* render_frame) {
+  // Retrieve the browser information synchronously. This will also register
+  // the routing ids with the browser info object in the browser process.
+  CefProcessHostMsg_GetNewBrowserInfo_Params params;
+  content::RenderThread::Get()->Send(
+      new CefProcessHostMsg_GetNewBrowserInfo(
+          render_view->GetRoutingID(),
+          render_frame->GetRoutingID(),
+          &params));
+  DCHECK_GT(params.browser_id, 0);
+
+  // Don't create another browser object if one already exists for the view.
+  if (GetBrowserForView(render_view))
+    return;
+
+#if defined(OS_MACOSX)
+  // FIXME: It would be better if this API would be a callback from the
+  // WebKit layer, or if it would be exposed as an WebView instance method; the
+  // current implementation uses a static variable, and WebKit needs to be
+  // patched in order to make it work for each WebView instance
+  render_view->GetWebView()->setUseExternalPopupMenusThisInstance(
+      !params.is_window_rendering_disabled);
+#endif
+
+  CefRefPtr<CefBrowserImpl> browser =
+      new CefBrowserImpl(render_view, params.browser_id, params.is_popup,
+                         params.is_window_rendering_disabled);
+  browsers_.insert(std::make_pair(render_view, browser));
+
+  new CefPrerendererClient(render_view);
+  new printing::PrintWebViewHelper(render_view);
+
+  // Notify the render process handler.
+  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
+  if (application.get()) {
+    CefRefPtr<CefRenderProcessHandler> handler =
+        application->GetRenderProcessHandler();
+    if (handler.get())
+      handler->OnBrowserCreated(browser.get());
+  }
 }
 
 void CefContentRendererClient::RunSingleProcessCleanupOnUIThread() {

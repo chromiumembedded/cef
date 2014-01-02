@@ -29,7 +29,7 @@ void InstallInternalProtectedHandlers(
           linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
               new net::DataProtocolHandler)));
   protocol_handlers->insert(
-      std::make_pair(chrome::kFileScheme,
+      std::make_pair(content::kFileScheme,
           linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
               new net::FileProtocolHandler(
                   content::BrowserThread::GetBlockingPool()->

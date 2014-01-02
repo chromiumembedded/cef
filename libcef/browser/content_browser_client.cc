@@ -187,8 +187,8 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
     bool handled = false;
 
     CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserByRoutingID(render_process_id,
-                                                  render_view_id);
+        CefBrowserHostImpl::GetBrowserForView(render_process_id,
+                                              render_view_id);
     if (browser.get()) {
       CefRefPtr<CefClient> client = browser->GetClient();
       if (client.get()) {
@@ -229,8 +229,8 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
     bool allowed = true;
 
     CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserByRoutingID(render_process_id,
-                                                  render_view_id);
+        CefBrowserHostImpl::GetBrowserForView(render_process_id,
+                                              render_view_id);
     if (browser.get()) {
       CefRefPtr<CefClient> client = browser->GetClient();
       if (client.get()) {
@@ -376,21 +376,39 @@ scoped_refptr<CefBrowserInfo> CefContentBrowserClient::CreateBrowserInfo(
 }
 
 scoped_refptr<CefBrowserInfo>
-    CefContentBrowserClient::GetOrCreateBrowserInfo(int render_process_id,
-                                                    int render_view_id) {
+    CefContentBrowserClient::GetOrCreateBrowserInfo(
+        int render_view_process_id,
+        int render_view_routing_id,
+        int render_frame_process_id,
+        int render_frame_routing_id) {
   base::AutoLock lock_scope(browser_info_lock_);
 
   BrowserInfoList::const_iterator it = browser_info_list_.begin();
   for (; it != browser_info_list_.end(); ++it) {
     const scoped_refptr<CefBrowserInfo>& browser_info = *it;
-    if (browser_info->is_render_id_match(render_process_id, render_view_id))
+    if (browser_info->is_render_view_id_match(render_view_process_id,
+                                              render_view_routing_id)) {
+      // Make sure the frame id is also registered.
+      browser_info->add_render_frame_id(render_frame_process_id,
+                                        render_frame_routing_id);
       return browser_info;
+    } else if (browser_info->is_render_frame_id_match(
+                  render_frame_process_id,
+                  render_frame_routing_id)) {
+      // Make sure the view id is also registered.
+      browser_info->add_render_view_id(render_view_process_id,
+                                       render_view_routing_id);
+      return browser_info;
+    }
   }
 
   // Must be a popup if it hasn't already been created.
   scoped_refptr<CefBrowserInfo> browser_info =
       new CefBrowserInfo(++next_browser_id_, true);
-  browser_info->add_render_id(render_process_id, render_view_id);
+  browser_info->add_render_view_id(render_view_process_id,
+                                   render_view_routing_id);
+  browser_info->add_render_frame_id(render_frame_process_id,
+                                    render_frame_routing_id);
   browser_info_list_.push_back(browser_info);
   return browser_info;
 }
@@ -444,19 +462,40 @@ void CefContentBrowserClient::DestroyAllBrowsers() {
 #endif
 }
 
-scoped_refptr<CefBrowserInfo> CefContentBrowserClient::GetBrowserInfo(
-    int render_process_id, int render_view_id) {
+scoped_refptr<CefBrowserInfo> CefContentBrowserClient::GetBrowserInfoForView(
+    int render_process_id, int render_routing_id) {
   base::AutoLock lock_scope(browser_info_lock_);
 
   BrowserInfoList::const_iterator it = browser_info_list_.begin();
   for (; it != browser_info_list_.end(); ++it) {
     const scoped_refptr<CefBrowserInfo>& browser_info = *it;
-    if (browser_info->is_render_id_match(render_process_id, render_view_id))
+    if (browser_info->is_render_view_id_match(
+          render_process_id, render_routing_id)) {
       return browser_info;
+    }
   }
 
-  LOG(WARNING) << "No browser info matching process id " <<
-                  render_process_id << " and view id " << render_view_id;
+  LOG(WARNING) << "No browser info matching view process id " <<
+                  render_process_id << " and routing id " << render_routing_id;
+
+  return scoped_refptr<CefBrowserInfo>();
+}
+
+scoped_refptr<CefBrowserInfo> CefContentBrowserClient::GetBrowserInfoForFrame(
+    int render_process_id, int render_routing_id) {
+  base::AutoLock lock_scope(browser_info_lock_);
+
+  BrowserInfoList::const_iterator it = browser_info_list_.begin();
+  for (; it != browser_info_list_.end(); ++it) {
+    const scoped_refptr<CefBrowserInfo>& browser_info = *it;
+    if (browser_info->is_render_frame_id_match(
+          render_process_id, render_routing_id)) {
+      return browser_info;
+    }
+  }
+
+  LOG(WARNING) << "No browser info matching frame process id " <<
+                  render_process_id << " and routing id " << render_routing_id;
 
   return scoped_refptr<CefBrowserInfo>();
 }
@@ -517,7 +556,7 @@ CefContentBrowserClient::OverrideCreateWebContentsView(
   return view;
 }
 
-void CefContentBrowserClient::RenderProcessHostCreated(
+void CefContentBrowserClient::RenderProcessWillLaunch(
     content::RenderProcessHost* host) {
   host->GetChannel()->AddFilter(new CefBrowserMessageFilter(host));
   host->AddFilter(new PrintingMessageFilter(host->GetID()));
@@ -664,8 +703,8 @@ void CefContentBrowserClient::AllowCertificateError(
   }
 
   CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserByRoutingID(render_process_id,
-                                                render_view_id);
+      CefBrowserHostImpl::GetBrowserForView(render_process_id,
+                                            render_view_id);
   if (!browser.get())
     return;
   CefRefPtr<CefClient> client = browser->GetClient();
@@ -717,7 +756,7 @@ bool CefContentBrowserClient::CanCreateWindow(
     return false;
 
   CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserByRoutingID(
+      CefBrowserHostImpl::GetBrowserForView(
           last_create_window_params_.opener_process_id,
           last_create_window_params_.opener_view_id);
   DCHECK(browser.get());

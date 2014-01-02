@@ -52,9 +52,9 @@ const int64 kInvalidFrameId = -1;
 blink::WebString FilePathStringToWebString(
     const base::FilePath::StringType& str) {
 #if defined(OS_POSIX)
-  return WideToUTF16Hack(base::SysNativeMBToWide(str));
+  return base::WideToUTF16Hack(base::SysNativeMBToWide(str));
 #elif defined(OS_WIN)
-  return WideToUTF16Hack(str);
+  return base::WideToUTF16Hack(str);
 #endif
 }
 
@@ -296,7 +296,7 @@ void CefBrowserImpl::LoadRequest(const CefMsg_LoadRequest_Params& params) {
   request.setRequestorID(-1);
 
   if (!params.method.empty())
-    request.setHTTPMethod(ASCIIToUTF16(params.method));
+    request.setHTTPMethod(base::ASCIIToUTF16(params.method));
 
   if (params.referrer.is_valid()) {
     WebString referrer = blink::WebSecurityPolicy::generateReferrerHeader(
@@ -321,13 +321,16 @@ void CefBrowserImpl::LoadRequest(const CefMsg_LoadRequest_Params& params) {
 
   if (params.upload_data.get()) {
     base::string16 method = request.httpMethod();
-    if (method == ASCIIToUTF16("GET") || method == ASCIIToUTF16("HEAD"))
-      request.setHTTPMethod(ASCIIToUTF16("POST"));
+    if (method == base::ASCIIToUTF16("GET") ||
+        method == base::ASCIIToUTF16("HEAD")) {
+      request.setHTTPMethod(base::ASCIIToUTF16("POST"));
+    }
 
-    if (request.httpHeaderField(ASCIIToUTF16("Content-Type")).length() == 0) {
+    if (request.httpHeaderField(
+            base::ASCIIToUTF16("Content-Type")).length() == 0) {
       request.setHTTPHeaderField(
-          ASCIIToUTF16("Content-Type"),
-          ASCIIToUTF16("application/x-www-form-urlencoded"));
+          base::ASCIIToUTF16("Content-Type"),
+          base::ASCIIToUTF16("application/x-www-form-urlencoded"));
     }
 
     blink::WebHTTPBody body;
@@ -670,7 +673,7 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
 
         if (is_javascript) {
           web_frame->executeScript(
-              WebScriptSource(UTF8ToUTF16(code),
+              WebScriptSource(base::UTF8ToUTF16(code),
                               GURL(script_url),
                               script_start_line));
           success = true;
@@ -699,7 +702,7 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
         } else if (LowerCaseEqualsASCII(command, "gettext")) {
           response = webkit_glue::DumpDocumentText(web_frame);
           success = true;
-        } else if (web_frame->executeCommand(UTF8ToUTF16(command))) {
+        } else if (web_frame->executeCommand(base::UTF8ToUTF16(command))) {
           success = true;
         }
       }

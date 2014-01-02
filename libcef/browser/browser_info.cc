@@ -19,51 +19,38 @@ void CefBrowserInfo::set_window_rendering_disabled(bool disabled) {
   is_window_rendering_disabled_ = disabled;
 }
 
-void CefBrowserInfo::add_render_id(
-    int render_process_id, int render_view_id) {
-  DCHECK_GT(render_process_id, 0);
-  DCHECK_GT(render_view_id, 0);
-
-  base::AutoLock lock_scope(lock_);
-
-  if (!render_id_set_.empty()) {
-    RenderIdSet::const_iterator it =
-        render_id_set_.find(std::make_pair(render_process_id, render_view_id));
-    if (it != render_id_set_.end())
-      return;
-  }
-
-  render_id_set_.insert(std::make_pair(render_process_id, render_view_id));
+void CefBrowserInfo::add_render_view_id(
+    int render_process_id, int render_routing_id) {
+  add_render_id(&render_view_id_set_, render_process_id, render_routing_id);
 }
 
-void CefBrowserInfo::remove_render_id(
-    int render_process_id, int render_view_id) {
-  DCHECK_GT(render_process_id, 0);
-  DCHECK_GT(render_view_id, 0);
-
-  base::AutoLock lock_scope(lock_);
-
-  DCHECK(!render_id_set_.empty());
-  if (render_id_set_.empty())
-    return;
-
-  RenderIdSet::iterator it =
-      render_id_set_.find(std::make_pair(render_process_id, render_view_id));
-  DCHECK(it != render_id_set_.end());
-  if (it != render_id_set_.end())
-    render_id_set_.erase(it);
+void CefBrowserInfo::add_render_frame_id(
+    int render_process_id, int render_routing_id) {
+  add_render_id(&render_frame_id_set_, render_process_id, render_routing_id);
 }
 
-bool CefBrowserInfo::is_render_id_match(
-    int render_process_id, int render_view_id) {
-  base::AutoLock lock_scope(lock_);
+void CefBrowserInfo::remove_render_view_id(
+    int render_process_id, int render_routing_id) {
+  remove_render_id(&render_view_id_set_, render_process_id, render_routing_id);
+}
 
-  if (render_id_set_.empty())
-    return false;
+void CefBrowserInfo::remove_render_frame_id(
+    int render_process_id, int render_routing_id) {
+  remove_render_id(&render_frame_id_set_, render_process_id, render_routing_id);
+}
 
-  RenderIdSet::const_iterator it =
-      render_id_set_.find(std::make_pair(render_process_id, render_view_id));
-  return (it != render_id_set_.end());
+bool CefBrowserInfo::is_render_view_id_match(
+    int render_process_id, int render_routing_id) {
+  return is_render_id_match(&render_view_id_set_,
+                            render_process_id,
+                            render_routing_id);
+}
+
+bool CefBrowserInfo::is_render_frame_id_match(
+    int render_process_id, int render_routing_id) {
+  return is_render_id_match(&render_frame_id_set_,
+                            render_process_id,
+                            render_routing_id);
 }
 
 CefRefPtr<CefBrowserHostImpl> CefBrowserInfo::browser() {
@@ -74,4 +61,52 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserInfo::browser() {
 void CefBrowserInfo::set_browser(CefRefPtr<CefBrowserHostImpl> browser) {
   base::AutoLock lock_scope(lock_);
   browser_ = browser;
+}
+
+void CefBrowserInfo::add_render_id(RenderIdSet* id_set,
+                                   int render_process_id,
+                                   int render_routing_id) {
+  DCHECK_GT(render_process_id, 0);
+  DCHECK_GT(render_routing_id, 0);
+
+  base::AutoLock lock_scope(lock_);
+
+  if (!id_set->empty()) {
+    RenderIdSet::const_iterator it =
+        id_set->find(std::make_pair(render_process_id, render_routing_id));
+    if (it != id_set->end())
+      return;
+  }
+
+  id_set->insert(std::make_pair(render_process_id, render_routing_id));
+}
+
+void CefBrowserInfo::remove_render_id(RenderIdSet* id_set,
+                                      int render_process_id,
+                                      int render_routing_id) {
+  DCHECK_GT(render_process_id, 0);
+  DCHECK_GT(render_routing_id, 0);
+
+  base::AutoLock lock_scope(lock_);
+
+  DCHECK(!id_set->empty());
+  if (id_set->empty())
+    return;
+
+  bool erased = id_set->erase(
+      std::make_pair(render_process_id, render_routing_id)) != 0;
+  DCHECK(erased);
+}
+
+bool CefBrowserInfo::is_render_id_match(const RenderIdSet* id_set,
+                                        int render_process_id,
+                                        int render_routing_id) {
+  base::AutoLock lock_scope(lock_);
+
+  if (id_set->empty())
+    return false;
+
+  RenderIdSet::const_iterator it =
+      id_set->find(std::make_pair(render_process_id, render_routing_id));
+  return (it != id_set->end());
 }

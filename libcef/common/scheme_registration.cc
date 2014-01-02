@@ -29,8 +29,8 @@ bool IsInternalHandledScheme(const std::string& scheme) {
     chrome::kChromeDevToolsScheme,
     chrome::kChromeUIScheme,
     chrome::kDataScheme,
-    chrome::kFileScheme,
-    chrome::kFileSystemScheme,
+    content::kFileScheme,
+    content::kFileSystemScheme,
   };
 
   for (size_t i = 0; i < sizeof(schemes) / sizeof(schemes[0]); ++i) {
@@ -49,8 +49,8 @@ bool IsInternalProtectedScheme(const std::string& scheme) {
     chrome::kBlobScheme,
     chrome::kChromeUIScheme,
     chrome::kDataScheme,
-    chrome::kFileScheme,
-    chrome::kFileSystemScheme,
+    content::kFileScheme,
+    content::kFileSystemScheme,
 #if !defined(DISABLE_FTP_SUPPORT)
     content::kFtpScheme,
 #endif

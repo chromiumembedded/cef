@@ -35,8 +35,7 @@
 #include "base/bind.h"
 #include "base/bind_helpers.h"
 #include "base/command_line.h"
-#include "content/browser/renderer_host/render_view_host_impl.h"
-#include "content/browser/web_contents/web_contents_impl.h"
+#include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/common/view_messages.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/download_url_parameters.h"
@@ -46,6 +45,9 @@
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
+#include "content/public/browser/render_frame_host.h"
+#include "content/public/browser/render_process_host.h"
+#include "content/public/browser/render_view_host.h"
 #include "content/public/browser/resource_request_info.h"
 #include "content/public/browser/web_contents_view.h"
 #include "content/public/common/file_chooser_params.h"
@@ -494,8 +496,21 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForHost(
     const content::RenderViewHost* host) {
   DCHECK(host);
   CEF_REQUIRE_UIT();
-  content::WebContentsImpl* web_contents =
-      static_cast<content::WebContentsImpl*>(host->GetDelegate());
+  content::WebContents* web_contents =
+      content::WebContents::FromRenderViewHost(host);
+  if (web_contents)
+    return static_cast<CefBrowserHostImpl*>(web_contents->GetDelegate());
+  return NULL;
+}
+
+// static
+CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForHost(
+    const content::RenderFrameHost* host) {
+  DCHECK(host);
+  CEF_REQUIRE_UIT();
+  content::WebContents* web_contents =
+      content::WebContents::FromRenderFrameHost(
+          const_cast<content::RenderFrameHost*>(host));
   if (web_contents)
     return static_cast<CefBrowserHostImpl*>(web_contents->GetDelegate());
   return NULL;
@@ -515,42 +530,77 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForRequest(
   DCHECK(request);
   CEF_REQUIRE_IOT();
   int render_process_id = -1;
-  int render_view_id = MSG_ROUTING_NONE;
+  int render_frame_id = MSG_ROUTING_NONE;
 
-  if (!content::ResourceRequestInfo::GetRenderViewForRequest(
-          request, &render_process_id, &render_view_id) ||
+  if (!content::ResourceRequestInfo::GetRenderFrameForRequest(
+          request, &render_process_id, &render_frame_id) ||
       render_process_id == -1 ||
-      render_view_id == MSG_ROUTING_NONE) {
+      render_frame_id == MSG_ROUTING_NONE) {
     return NULL;
   }
 
-  return GetBrowserByRoutingID(render_process_id, render_view_id);
+  return GetBrowserForFrame(render_process_id, render_frame_id);
 }
 
 // static
-CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserByRoutingID(
-    int render_process_id, int render_view_id) {
-  if (render_process_id == -1 || render_view_id == MSG_ROUTING_NONE)
+CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForView(
+    int render_process_id, int render_routing_id) {
+  if (render_process_id == -1 || render_routing_id == MSG_ROUTING_NONE)
     return NULL;
 
   if (CEF_CURRENTLY_ON_UIT()) {
     // Use the non-thread-safe but potentially faster approach.
     content::RenderViewHost* render_view_host =
-        content::RenderViewHost::FromID(render_process_id, render_view_id);
+        content::RenderViewHost::FromID(render_process_id, render_routing_id);
     if (!render_view_host)
       return NULL;
     return GetBrowserForHost(render_view_host);
   } else {
     // Use the thread-safe approach.
     scoped_refptr<CefBrowserInfo> info =
-        CefContentBrowserClient::Get()->GetBrowserInfo(render_process_id,
-                                                       render_view_id);
+        CefContentBrowserClient::Get()->GetBrowserInfoForView(
+            render_process_id,
+            render_routing_id);
     if (info.get()) {
       CefRefPtr<CefBrowserHostImpl> browser = info->browser();
       if (!browser.get()) {
         LOG(WARNING) << "Found browser id " << info->browser_id() <<
-                        " but no browser object matching process id " <<
-                        render_process_id << " and view id " << render_view_id;
+                        " but no browser object matching view process id " <<
+                        render_process_id << " and routing id " <<
+                        render_routing_id;
+      }
+      return browser;
+    }
+    return NULL;
+  }
+}
+
+// static
+CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForFrame(
+    int render_process_id, int render_routing_id) {
+  if (render_process_id == -1 || render_routing_id == MSG_ROUTING_NONE)
+    return NULL;
+
+  if (CEF_CURRENTLY_ON_UIT()) {
+    // Use the non-thread-safe but potentially faster approach.
+    content::RenderFrameHost* render_frame_host =
+        content::RenderFrameHost::FromID(render_process_id, render_routing_id);
+    if (!render_frame_host)
+      return NULL;
+    return GetBrowserForHost(render_frame_host);
+  } else {
+    // Use the thread-safe approach.
+    scoped_refptr<CefBrowserInfo> info =
+        CefContentBrowserClient::Get()->GetBrowserInfoForFrame(
+            render_process_id,
+            render_routing_id);
+    if (info.get()) {
+      CefRefPtr<CefBrowserHostImpl> browser = info->browser();
+      if (!browser.get()) {
+        LOG(WARNING) << "Found browser id " << info->browser_id() <<
+                        " but no browser object matching frame process id " <<
+                        render_process_id << " and routing id " <<
+                        render_routing_id;
       }
       return browser;
     }
@@ -1894,11 +1944,16 @@ void CefBrowserHostImpl::WebContentsCreated(
   }
   DCHECK(pending_popup_info.get());
 
+  content::RenderViewHost* view_host = new_contents->GetRenderViewHost();
+  content::RenderFrameHost* main_frame_host = new_contents->GetMainFrame();
+
   CefWindowHandle opener = NULL;
   scoped_refptr<CefBrowserInfo> info =
       CefContentBrowserClient::Get()->GetOrCreateBrowserInfo(
-          new_contents->GetRenderProcessHost()->GetID(),
-          new_contents->GetRoutingID());
+          view_host->GetProcess()->GetID(),
+          view_host->GetRoutingID(),
+          main_frame_host->GetProcess()->GetID(),
+          main_frame_host->GetRoutingID());
 
   if (source_contents) {
     DCHECK(info->is_popup());
@@ -2005,10 +2060,22 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
 // content::WebContentsObserver methods.
 // -----------------------------------------------------------------------------
 
+void CefBrowserHostImpl::RenderFrameCreated(
+    content::RenderFrameHost* render_frame_host) {
+  browser_info_->add_render_frame_id(render_frame_host->GetProcess()->GetID(),
+                                     render_frame_host->GetRoutingID());
+}
+
+void CefBrowserHostImpl::RenderFrameDeleted(
+    content::RenderFrameHost* render_frame_host) {
+  browser_info_->remove_render_frame_id(render_frame_host->GetProcess()->GetID(),
+                                        render_frame_host->GetRoutingID());
+}
+
 void CefBrowserHostImpl::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
-  browser_info_->add_render_id(render_view_host->GetProcess()->GetID(),
-                               render_view_host->GetRoutingID());
+  browser_info_->add_render_view_id(render_view_host->GetProcess()->GetID(),
+                                    render_view_host->GetRoutingID());
 
   // May be already registered if the renderer crashed previously.
   if (!registrar_->IsRegistered(
@@ -2021,8 +2088,8 @@ void CefBrowserHostImpl::RenderViewCreated(
 
 void CefBrowserHostImpl::RenderViewDeleted(
     content::RenderViewHost* render_view_host) {
-  browser_info_->remove_render_id(render_view_host->GetProcess()->GetID(),
-                                  render_view_host->GetRoutingID());
+  browser_info_->remove_render_view_id(render_view_host->GetProcess()->GetID(),
+                                       render_view_host->GetRoutingID());
 
   if (registrar_->IsRegistered(
       this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,

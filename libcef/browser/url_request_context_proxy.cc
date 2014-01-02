@@ -62,6 +62,16 @@ class CefCookieStoreProxy : public net::CookieStore {
                                                callback);
   }
 
+  virtual void DeleteAllCreatedBetweenForHostAsync(
+      const base::Time delete_begin,
+      const base::Time delete_end,
+      const GURL& url,
+      const DeleteCallback& callback) OVERRIDE {
+    scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
+    cookie_store->DeleteAllCreatedBetweenForHostAsync(delete_begin, delete_end,
+                                                      url, callback);
+  }
+
   virtual void DeleteSessionCookiesAsync(const DeleteCallback& callback)
                                          OVERRIDE {
     scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();

@@ -23,7 +23,7 @@ base::string16 GetPromptText(GtkDialog* dialog) {
   GtkWidget* widget = static_cast<GtkWidget*>(
       g_object_get_data(G_OBJECT(dialog), kPromptTextId));
   if (widget)
-    return UTF8ToUTF16(gtk_entry_get_text(GTK_ENTRY(widget)));
+    return base::UTF8ToUTF16(gtk_entry_get_text(GTK_ENTRY(widget)));
   return base::string16();
 }
 
@@ -67,7 +67,7 @@ CefJavaScriptDialog::CefJavaScriptDialog(
 
   if (!display_url.empty()) {
     title += " - ";
-    title += UTF16ToUTF8(display_url).c_str();
+    title += base::UTF16ToUTF8(display_url).c_str();
   }
 
   GtkWidget* window =
@@ -79,7 +79,7 @@ CefJavaScriptDialog::CefJavaScriptDialog(
                                        gtk_message_type,
                                        buttons,
                                        "%s",
-                                       UTF16ToUTF8(message_text).c_str());
+                                       base::UTF16ToUTF8(message_text).c_str());
   g_signal_connect(gtk_dialog_,
                    "delete-event",
                    G_CALLBACK(gtk_widget_hide_on_delete),
@@ -99,7 +99,7 @@ CefJavaScriptDialog::CefJavaScriptDialog(
         gtk_dialog_get_content_area(GTK_DIALOG(gtk_dialog_));
     GtkWidget* text_box = gtk_entry_new();
     gtk_entry_set_text(GTK_ENTRY(text_box),
-                       UTF16ToUTF8(default_prompt_text).c_str());
+                       base::UTF16ToUTF8(default_prompt_text).c_str());
     gtk_box_pack_start(GTK_BOX(content_area), text_box, TRUE, TRUE, 0);
     g_object_set_data(G_OBJECT(gtk_dialog_), kPromptTextId, text_box);
     gtk_entry_set_activates_default(GTK_ENTRY(text_box), TRUE);

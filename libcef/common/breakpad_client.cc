@@ -23,8 +23,8 @@ void CefBreakpadClient::GetProductNameAndVersion(
     base::string16* version,
     base::string16* special_build,
     base::string16* channel_name) {
-  *product_name = ASCIIToUTF16("cef");
-  *version = UTF8ToUTF16(base::StringPrintf(
+  *product_name = base::ASCIIToUTF16("cef");
+  *version = base::UTF8ToUTF16(base::StringPrintf(
         "%d.%d.%d", CEF_VERSION_MAJOR, CHROME_VERSION_BUILD, CEF_REVISION));
   *special_build = base::string16();
   *channel_name = base::string16();

@@ -163,7 +163,7 @@ std::wstring FormatFilterForExtensions(
         include_all_files = true;
         desc = l10n_util::GetStringFUTF16(
             IDS_APP_SAVEAS_EXTENSION_FORMAT,
-            base::i18n::ToUpper(WideToUTF16(ext_name)),
+            base::i18n::ToUpper(base::WideToUTF16(ext_name)),
             ext_name);
       }
     }
@@ -216,7 +216,7 @@ std::wstring GetFilterStringFromAcceptTypes(
     if (ascii_type.length()) {
       // Just treat as extension if contains '.' as the first character.
       if (ascii_type[0] == '.') {
-        extensions.push_back(L"*" + ASCIIToWide(ascii_type));
+        extensions.push_back(L"*" + base::ASCIIToWide(ascii_type));
         descriptions.push_back(std::wstring());
       } else {
         // Otherwise convert mime type to one or more extensions.
@@ -415,7 +415,7 @@ const int kMaxAddressLengthChars = 2048;
 bool HasExternalHandler(const std::string& scheme) {
   base::win::RegKey key;
   const std::wstring registry_path =
-      ASCIIToWide(scheme + "\\shell\\open\\command");
+      base::ASCIIToWide(scheme + "\\shell\\open\\command");
   key.Open(HKEY_CLASSES_ROOT, registry_path.c_str(), KEY_READ);
   if (key.Valid()) {
     DWORD size = 0;

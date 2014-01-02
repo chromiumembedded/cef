@@ -409,7 +409,7 @@ void PrintingMessageFilter::UpdateFileDescriptor(int render_view_id, int fd) {
 #endif
 
 void PrintingMessageFilter::OnUpdatePrintSettings(
-    int document_cookie, const DictionaryValue& job_settings,
+    int document_cookie, const base::DictionaryValue& job_settings,
     IPC::Message* reply_msg) {
   scoped_refptr<printing::PrinterQuery> printer_query;
   printer_query = queue_->PopPrinterQuery(document_cookie);

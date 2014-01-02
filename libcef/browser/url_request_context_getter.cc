@@ -153,7 +153,8 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
             url_request_context_.get(),
             url_request_context_->network_delegate(),
             CefContentBrowserClient::Get()->proxy_config_service().release(),
-            command_line));
+            command_line,
+            true));
     storage_->set_proxy_service(system_proxy_service.release());
 
     storage_->set_ssl_config_service(new net::SSLConfigServiceDefaults);

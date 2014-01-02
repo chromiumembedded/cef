@@ -1,6 +1,6 @@
 Index: desktop_aura/desktop_root_window_host_win.cc
 ===================================================================
---- desktop_aura/desktop_root_window_host_win.cc	(revision 241258)
+--- desktop_aura/desktop_root_window_host_win.cc	(revision 242756)
 +++ desktop_aura/desktop_root_window_host_win.cc	(working copy)
 @@ -131,7 +131,9 @@
                          native_widget_delegate_);
@@ -13,7 +13,7 @@ Index: desktop_aura/desktop_root_window_host_win.cc
      parent_hwnd =
          params.parent->GetDispatcher()->host()->GetAcceleratedWidget();
    }
-@@ -751,7 +753,7 @@
+@@ -752,7 +754,7 @@
  
  void DesktopRootWindowHostWin::HandleCreate() {
    // TODO(beng): moar
@@ -24,7 +24,7 @@ Index: desktop_aura/desktop_root_window_host_win.cc
  
 Index: desktop_aura/desktop_screen_win.cc
 ===================================================================
---- desktop_aura/desktop_screen_win.cc	(revision 241258)
+--- desktop_aura/desktop_screen_win.cc	(revision 242756)
 +++ desktop_aura/desktop_screen_win.cc	(working copy)
 @@ -54,6 +54,8 @@
  }
@@ -37,9 +37,9 @@ Index: desktop_aura/desktop_screen_win.cc
  }
 Index: widget.h
 ===================================================================
---- widget.h	(revision 241258)
+--- widget.h	(revision 242756)
 +++ widget.h	(working copy)
-@@ -201,6 +201,7 @@
+@@ -197,6 +197,7 @@
      // Should the widget be double buffered? Default is false.
      bool double_buffer;
      gfx::NativeView parent;

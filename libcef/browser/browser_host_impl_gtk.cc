@@ -164,7 +164,7 @@ bool RunFileDialog(const content::FileChooserParams& params,
 
   std::string title;
   if (!params.title.empty()) {
-    title = UTF16ToUTF8(params.title);
+    title = base::UTF16ToUTF8(params.title);
   } else {
     int string_id = 0;
     switch (params.mode) {

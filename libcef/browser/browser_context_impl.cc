@@ -86,8 +86,8 @@ class CefGeolocationPermissionContext
     CEF_REQUIRE_IOT();
 
     CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserByRoutingID(render_process_id,
-                                                  render_view_id);
+        CefBrowserHostImpl::GetBrowserForView(render_process_id,
+                                              render_view_id);
     if (browser.get()) {
       CefRefPtr<CefClient> client = browser->GetClient();
       if (client.get()) {
@@ -120,8 +120,8 @@ class CefGeolocationPermissionContext
     RemoveCallback(bridge_id);
 
     CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserByRoutingID(render_process_id,
-                                                  render_view_id);
+        CefBrowserHostImpl::GetBrowserForView(render_process_id,
+                                              render_view_id);
     if (browser.get()) {
       CefRefPtr<CefClient> client = browser->GetClient();
       if (client.get()) {
