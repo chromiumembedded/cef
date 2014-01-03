@@ -99,7 +99,7 @@ typedef uint32              cef_color_t;
 
 // Return an cef_color_t value with the specified byte component values.
 #define CefColorSetARGB(a, r, g, b) \
-    static_cast<uint32_t>( \
+    static_cast<cef_color_t>( \
         (static_cast<unsigned>(a) << 24) | \
         (static_cast<unsigned>(r) << 16) | \
         (static_cast<unsigned>(g) << 8) | \
