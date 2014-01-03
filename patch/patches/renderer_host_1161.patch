@@ -1,0 +1,158 @@
+Index: compositing_iosurface_mac.mm
+===================================================================
+--- compositing_iosurface_mac.mm	(revision 235101)
++++ compositing_iosurface_mac.mm	(working copy)
+@@ -446,7 +446,7 @@
+     glUseProgram(0); CHECK_AND_SAVE_GL_ERROR();
+   } else {
+     // Should match the clear color of RenderWidgetHostViewMac.
+-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
++    glClearColor(0, 0, 0, 0);
+     glClear(GL_COLOR_BUFFER_BIT);
+   }
+ 
+Index: compositing_iosurface_shader_programs_mac.cc
+===================================================================
+--- compositing_iosurface_shader_programs_mac.cc	(revision 235101)
++++ compositing_iosurface_shader_programs_mac.cc	(working copy)
+@@ -11,6 +11,7 @@
+ #include "base/debug/trace_event.h"
+ #include "base/logging.h"
+ #include "base/memory/scoped_ptr.h"
++#include "base/strings/stringprintf.h"
+ #include "base/values.h"
+ #include "content/browser/gpu/gpu_data_manager_impl.h"
+ #include "gpu/config/gpu_driver_bug_workaround_type.h"
+@@ -51,6 +52,7 @@
+     }
+ );
+ 
++float bgcolor[] = {1.0f, 1.0f, 1.0f};
+ 
+ // Only calculates position.
+ const char kvsSolidWhite[] = GLSL_PROGRAM_AS_STRING(
+@@ -237,6 +239,16 @@
+ 
+   const GLuint shader = glCreateShader(shader_type);
+   DCHECK_NE(shader, 0u);
++  
++  // Support customization of the background color.
++  std::string bg_shader;
++  if (shader_program == SHADER_PROGRAM_SOLID_WHITE &&
++      shader_type == GL_FRAGMENT_SHADER) {
++    bg_shader = base::StringPrintf(
++        "void main() { gl_FragColor = vec4(%f, %f, %f, 1.0); }",
++        bgcolor[0], bgcolor[1], bgcolor[2]);
++    kFragmentShaderSourceCodeMap[shader_program] = bg_shader.c_str();
++  }
+ 
+   // Select and compile the shader program source code.
+   if (shader_type == GL_VERTEX_SHADER) {
+@@ -414,6 +426,14 @@
+   Reset();
+ }
+ 
++// static
++void CompositingIOSurfaceShaderPrograms::SetBackgroundColor(
++    float r, float g, float b) {
++  bgcolor[0] = r;
++  bgcolor[1] = g;
++  bgcolor[2] = b;
++}
++
+ GLuint CompositingIOSurfaceShaderPrograms::GetShaderProgram(int which) {
+   if (shader_programs_[which] == 0u) {
+     shader_programs_[which] =
+Index: compositing_iosurface_shader_programs_mac.h
+===================================================================
+--- compositing_iosurface_shader_programs_mac.h	(revision 235101)
++++ compositing_iosurface_shader_programs_mac.h	(working copy)
+@@ -48,6 +48,8 @@
+     return rgb_to_yv12_output_format_;
+   }
+ 
++  static void SetBackgroundColor(float r, float g, float b);
++
+  protected:
+   FRIEND_TEST_ALL_PREFIXES(CompositingIOSurfaceTransformerTest,
+                            TransformsRGBToYV12);
+Index: compositing_iosurface_layer_mac.mm
+===================================================================
+--- compositing_iosurface_layer_mac.mm	(revision 235101)
++++ compositing_iosurface_layer_mac.mm	(working copy)
+@@ -24,7 +24,7 @@
+     renderWidgetHostView_ = r;
+ 
+     ScopedCAActionDisabler disabler;
+-    [self setBackgroundColor:CGColorGetConstantColor(kCGColorWhite)];
++    [self setBackgroundColor:CGColorGetConstantColor(kCGColorClear)];
+     [self setContentsGravity:kCAGravityTopLeft];
+     [self setFrame:NSRectToCGRect(
+         [renderWidgetHostView_->cocoa_view() bounds])];
+@@ -89,7 +89,7 @@
+ 
+   if (!context_.get() || !renderWidgetHostView_ ||
+       !renderWidgetHostView_->compositing_iosurface_) {
+-    glClearColor(1, 1, 1, 1);
++    glClearColor(0, 0, 0, 0);
+     glClear(GL_COLOR_BUFFER_BIT);
+     return;
+   }
+Index: render_widget_host_view_mac.mm
+===================================================================
+--- render_widget_host_view_mac.mm	(revision 235101)
++++ render_widget_host_view_mac.mm	(working copy)
+@@ -500,7 +500,7 @@
+   software_layer_.reset([[CALayer alloc] init]);
+   if (!software_layer_)
+     LOG(ERROR) << "Failed to create CALayer for software rendering";
+-  [software_layer_ setBackgroundColor:CGColorGetConstantColor(kCGColorWhite)];
++  [software_layer_ setBackgroundColor:CGColorGetConstantColor(kCGColorClear)];
+   [software_layer_ setDelegate:cocoa_view_];
+   [software_layer_ setContentsGravity:kCAGravityTopLeft];
+   [software_layer_ setFrame:NSRectToCGRect([cocoa_view_ bounds])];
+@@ -2640,7 +2640,7 @@
+ 
+     NSRect r = [self flipRectToNSRect:gfx::Rect(x, y, width, height)];
+     CGContextSetFillColorWithColor(context,
+-                                   CGColorGetConstantColor(kCGColorWhite));
++                                   CGColorGetConstantColor(kCGColorClear));
+     CGContextFillRect(context, NSRectToCGRect(r));
+   }
+   if (damagedRect.bottom() > rect.bottom()) {
+@@ -2662,7 +2662,7 @@
+ 
+     NSRect r = [self flipRectToNSRect:gfx::Rect(x, y, width, height)];
+     CGContextSetFillColorWithColor(context,
+-                                   CGColorGetConstantColor(kCGColorWhite));
++                                   CGColorGetConstantColor(kCGColorClear));
+     CGContextFillRect(context, NSRectToCGRect(r));
+   }
+ }
+@@ -2673,7 +2673,7 @@
+ 
+   if (!renderWidgetHostView_->render_widget_host_) {
+     // TODO(shess): Consider using something more noticable?
+-    [[NSColor whiteColor] set];
++    [[NSColor clearColor] set];
+     NSRectFill(dirtyRect);
+     return;
+   }
+@@ -2788,7 +2788,7 @@
+     }
+   } else {
+     CGContextSetFillColorWithColor(context,
+-                                   CGColorGetConstantColor(kCGColorWhite));
++                                   CGColorGetConstantColor(kCGColorClear));
+     CGContextFillRect(context, dirtyRect);
+     if (renderWidgetHostView_->whiteout_start_time_.is_null())
+       renderWidgetHostView_->whiteout_start_time_ = base::TimeTicks::Now();
+@@ -3794,7 +3794,7 @@
+   if (!renderWidgetHostView_->render_widget_host_ ||
+       renderWidgetHostView_->is_hidden()) {
+     CGContextSetFillColorWithColor(context,
+-                                   CGColorGetConstantColor(kCGColorWhite));
++                                   CGColorGetConstantColor(kCGColorClear));
+     CGContextFillRect(context, clipRect);
+     return;
+   }

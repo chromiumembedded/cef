@@ -75,7 +75,7 @@ typedef int                 int32;
 typedef unsigned int       uint32;
 #endif
 
-// UTF-16 character type
+// UTF-16 character type.
 #ifndef char16
 #if defined(WIN32)
 typedef wchar_t             char16;
@@ -83,6 +83,27 @@ typedef wchar_t             char16;
 typedef unsigned short      char16;
 #endif
 #endif
+
+// 32-bit ARGB color value, not premultiplied. The color components are always
+// in a known order. Equivalent to the SkColor type.
+typedef uint32              cef_color_t;
+
+// Return the alpha byte from a cef_color_t value.
+#define CefColorGetA(color)      (((color) >> 24) & 0xFF)
+// Return the red byte from a cef_color_t value.
+#define CefColorGetR(color)      (((color) >> 16) & 0xFF)
+// Return the green byte from a cef_color_t value.
+#define CefColorGetG(color)      (((color) >>  8) & 0xFF)
+// Return the blue byte from a cef_color_t value.
+#define CefColorGetB(color)      (((color) >>  0) & 0xFF)
+
+// Return an cef_color_t value with the specified byte component values.
+#define CefColorSetARGB(a, r, g, b) \
+    static_cast<cef_color_t>( \
+        (static_cast<unsigned>(a) << 24) | \
+        (static_cast<unsigned>(r) << 16) | \
+        (static_cast<unsigned>(g) << 8) | \
+        (static_cast<unsigned>(b) << 0))
 
 #ifdef __cplusplus
 extern "C" {
@@ -336,6 +357,12 @@ typedef struct _cef_settings_t {
   // "ignore-certificate-errors" command-line switch.
   ///
   bool ignore_certificate_errors;
+
+  ///
+  // Used on Mac OS X to specify the background color for hardware accelerated
+  // content.
+  ///
+  cef_color_t background_color;
 } cef_settings_t;
 
 ///
