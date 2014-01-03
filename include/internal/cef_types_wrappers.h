@@ -376,6 +376,7 @@ struct CefSettingsTraits {
     target->uncaught_exception_stack_size = src->uncaught_exception_stack_size;
     target->context_safety_implementation = src->context_safety_implementation;
     target->ignore_certificate_errors = src->ignore_certificate_errors;
+    target->background_color = src->background_color;
   }
 };
 
