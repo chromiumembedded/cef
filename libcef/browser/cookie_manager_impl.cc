@@ -222,8 +222,11 @@ bool CefCookieManagerImpl::SetCookie(const CefString& url,
   if (cookie.has_expires)
     cef_time_to_basetime(cookie.expires, expiration_time);
 
-  cookie_monster_->SetCookieWithDetailsAsync(gurl, name, value, domain, path,
-      expiration_time, cookie.secure, cookie.httponly,
+  cookie_monster_->SetCookieWithDetailsAsync(
+      gurl, name, value, domain, path,
+      expiration_time,
+      cookie.secure ? true : false,
+      cookie.httponly ? true : false,
       net::COOKIE_PRIORITY_DEFAULT,
       net::CookieStore::SetCookiesCallback());
   return true;

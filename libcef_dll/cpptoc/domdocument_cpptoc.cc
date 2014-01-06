@@ -16,7 +16,7 @@
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-enum cef_dom_document_type_t CEF_CALLBACK domdocument_get_type(
+cef_dom_document_type_t CEF_CALLBACK domdocument_get_type(
     struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

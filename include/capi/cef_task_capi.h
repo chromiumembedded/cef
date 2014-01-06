@@ -46,27 +46,6 @@ extern "C" {
 
 
 ///
-// Returns true (1) if called on the specified thread. Equivalent to using
-// cef_task_runner_t::GetForThread(threadId)->belongs_to_current_thread().
-///
-CEF_EXPORT int cef_currently_on(cef_thread_id_t threadId);
-
-///
-// Post a task for execution on the specified thread. Equivalent to using
-// cef_task_runner_t::GetForThread(threadId)->PostTask(task).
-///
-CEF_EXPORT int cef_post_task(cef_thread_id_t threadId,
-    struct _cef_task_t* task);
-
-///
-// Post a task for delayed execution on the specified thread. Equivalent to
-// using cef_task_runner_t::GetForThread(threadId)->PostDelayedTask(task,
-// delay_ms).
-///
-CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId,
-    struct _cef_task_t* task, int64 delay_ms);
-
-///
 // Implement this structure for asynchronous task execution. If the task is
 // posted successfully and if the associated message loop is still running then
 // the execute() function will be called on the target thread. If the task fails
@@ -152,6 +131,26 @@ CEF_EXPORT cef_task_runner_t* cef_task_runner_get_for_current_thread();
 CEF_EXPORT cef_task_runner_t* cef_task_runner_get_for_thread(
     cef_thread_id_t threadId);
 
+
+///
+// Returns true (1) if called on the specified thread. Equivalent to using
+// cef_task_runner_t::GetForThread(threadId)->belongs_to_current_thread().
+///
+CEF_EXPORT int cef_currently_on(cef_thread_id_t threadId);
+
+///
+// Post a task for execution on the specified thread. Equivalent to using
+// cef_task_runner_t::GetForThread(threadId)->PostTask(task).
+///
+CEF_EXPORT int cef_post_task(cef_thread_id_t threadId, cef_task_t* task);
+
+///
+// Post a task for delayed execution on the specified thread. Equivalent to
+// using cef_task_runner_t::GetForThread(threadId)->PostDelayedTask(task,
+// delay_ms).
+///
+CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId, cef_task_t* task,
+    int64 delay_ms);
 
 #ifdef __cplusplus
 }

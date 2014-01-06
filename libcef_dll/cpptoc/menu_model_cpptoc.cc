@@ -405,7 +405,7 @@ int CEF_CALLBACK menu_model_set_label_at(struct _cef_menu_model_t* self,
   return _retval;
 }
 
-enum cef_menu_item_type_t CEF_CALLBACK menu_model_get_type(
+cef_menu_item_type_t CEF_CALLBACK menu_model_get_type(
     struct _cef_menu_model_t* self, int command_id) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -421,7 +421,7 @@ enum cef_menu_item_type_t CEF_CALLBACK menu_model_get_type(
   return _retval;
 }
 
-enum cef_menu_item_type_t CEF_CALLBACK menu_model_get_type_at(
+cef_menu_item_type_t CEF_CALLBACK menu_model_get_type_at(
     struct _cef_menu_model_t* self, int index) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

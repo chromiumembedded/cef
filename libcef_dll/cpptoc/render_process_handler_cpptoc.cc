@@ -108,7 +108,7 @@ cef_load_handler_t* CEF_CALLBACK render_process_handler_get_load_handler(
 int CEF_CALLBACK render_process_handler_on_before_navigation(
     struct _cef_render_process_handler_t* self, cef_browser_t* browser,
     cef_frame_t* frame, struct _cef_request_t* request,
-    enum cef_navigation_type_t navigation_type, int is_redirect) {
+    cef_navigation_type_t navigation_type, int is_redirect) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -258,7 +258,7 @@ void CEF_CALLBACK render_process_handler_on_focused_node_changed(
 
 int CEF_CALLBACK render_process_handler_on_process_message_received(
     struct _cef_render_process_handler_t* self, cef_browser_t* browser,
-    enum cef_process_id_t source_process, cef_process_message_t* message) {
+    cef_process_id_t source_process, cef_process_message_t* message) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);

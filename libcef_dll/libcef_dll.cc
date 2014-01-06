@@ -357,7 +357,7 @@ CEF_EXPORT int cef_clear_cross_origin_whitelist() {
   return _retval;
 }
 
-CEF_EXPORT int cef_get_path(enum cef_path_key_t key, cef_string_t* path) {
+CEF_EXPORT int cef_get_path(cef_path_key_t key, cef_string_t* path) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: path; type: string_byref

@@ -45,7 +45,7 @@ int CEF_CALLBACK context_menu_params_get_ycoord(
   return _retval;
 }
 
-enum cef_context_menu_type_flags_t CEF_CALLBACK context_menu_params_get_type_flags(
+cef_context_menu_type_flags_t CEF_CALLBACK context_menu_params_get_type_flags(
     struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -167,7 +167,7 @@ cef_string_userfree_t CEF_CALLBACK context_menu_params_get_frame_charset(
   return _retval.DetachToUserFree();
 }
 
-enum cef_context_menu_media_type_t CEF_CALLBACK context_menu_params_get_media_type(
+cef_context_menu_media_type_t CEF_CALLBACK context_menu_params_get_media_type(
     struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -183,7 +183,7 @@ enum cef_context_menu_media_type_t CEF_CALLBACK context_menu_params_get_media_ty
   return _retval;
 }
 
-enum cef_context_menu_media_state_flags_t CEF_CALLBACK context_menu_params_get_media_state_flags(
+cef_context_menu_media_state_flags_t CEF_CALLBACK context_menu_params_get_media_state_flags(
     struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -244,7 +244,7 @@ int CEF_CALLBACK context_menu_params_is_speech_input_enabled(
   return _retval;
 }
 
-enum cef_context_menu_edit_state_flags_t CEF_CALLBACK context_menu_params_get_edit_state_flags(
+cef_context_menu_edit_state_flags_t CEF_CALLBACK context_menu_params_get_edit_state_flags(
     struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

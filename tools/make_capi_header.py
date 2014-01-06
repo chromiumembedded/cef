@@ -90,16 +90,37 @@ def make_capi_header(header, filename):
 extern "C" {
 #endif
 
-#include "include/capi/cef_base_capi.h"
-
 """
-    # output global functions
-    funcs = header.get_funcs(filename)
-    if len(funcs) > 0:
-        result += make_capi_global_funcs(funcs, defined_names, translate_map, '')
-    
-    # output classes
     classes = header.get_classes(filename)
+
+    # identify all includes and forward declarations
+    all_includes = set([])
+    all_declares = set([])
+    for cls in classes:
+        includes = cls.get_includes()
+        for include in includes:
+            all_includes.add(include)
+        declares = cls.get_forward_declares()
+        for declare in declares:
+            all_declares.add(header.get_class(declare).get_capi_name())
+
+    # output includes
+    if len(all_includes) > 0:
+        sorted_includes = sorted(all_includes)
+        for include in sorted_includes:
+            result += '#include "include/capi/' + include + '_capi.h"\n'
+    else:
+        result += '#include "include/capi/cef_base_capi.h"\n'
+
+    result += '\n'
+
+    # output forward declarations
+    if len(all_declares) > 0:
+        sorted_declares = sorted(all_declares)
+        for declare in sorted_declares:
+            result += 'struct _' + declare + ';\n'
+
+    # output classes
     for cls in classes:
         # virtual functions are inside the structure
         classname = cls.get_capi_name()
@@ -118,7 +139,12 @@ extern "C" {
         if len(funcs) > 0:
             result += make_capi_global_funcs(funcs, defined_names,
                                              translate_map, '')+'\n'
-    
+
+    # output global functions
+    funcs = header.get_funcs(filename)
+    if len(funcs) > 0:
+        result += make_capi_global_funcs(funcs, defined_names, translate_map, '')
+
     # footer string
     result += \
 """

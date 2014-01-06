@@ -271,7 +271,7 @@ void CEF_CALLBACK request_handler_on_protocol_execution(
 }
 
 int CEF_CALLBACK request_handler_on_certificate_error(
-    struct _cef_request_handler_t* self, enum cef_errorcode_t cert_error,
+    struct _cef_request_handler_t* self, cef_errorcode_t cert_error,
     const cef_string_t* request_url,
     cef_allow_certificate_error_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -353,7 +353,7 @@ void CEF_CALLBACK request_handler_on_plugin_crashed(
 
 void CEF_CALLBACK request_handler_on_render_process_terminated(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
-    enum cef_termination_status_t status) {
+    cef_termination_status_t status) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);

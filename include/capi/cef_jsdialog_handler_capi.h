@@ -43,6 +43,7 @@ extern "C" {
 #endif
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_browser_capi.h"
 
 
 ///
@@ -91,7 +92,7 @@ typedef struct _cef_jsdialog_handler_t {
   ///
   int (CEF_CALLBACK *on_jsdialog)(struct _cef_jsdialog_handler_t* self,
       struct _cef_browser_t* browser, const cef_string_t* origin_url,
-      const cef_string_t* accept_lang, enum cef_jsdialog_type_t dialog_type,
+      const cef_string_t* accept_lang, cef_jsdialog_type_t dialog_type,
       const cef_string_t* message_text,
       const cef_string_t* default_prompt_text,
       struct _cef_jsdialog_callback_t* callback, int* suppress_message);

@@ -43,6 +43,8 @@ extern "C" {
 #endif
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_browser_capi.h"
+#include "include/capi/cef_drag_data_capi.h"
 
 
 ///
@@ -63,7 +65,7 @@ typedef struct _cef_drag_handler_t {
   ///
   int (CEF_CALLBACK *on_drag_enter)(struct _cef_drag_handler_t* self,
       struct _cef_browser_t* browser, struct _cef_drag_data_t* dragData,
-      enum cef_drag_operations_mask_t mask);
+      cef_drag_operations_mask_t mask);
 } cef_drag_handler_t;
 
 

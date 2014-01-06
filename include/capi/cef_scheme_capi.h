@@ -43,30 +43,13 @@ extern "C" {
 #endif
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_browser_capi.h"
+#include "include/capi/cef_frame_capi.h"
+#include "include/capi/cef_request_capi.h"
+#include "include/capi/cef_resource_handler_capi.h"
+#include "include/capi/cef_response_capi.h"
 
-
-///
-// Register a scheme handler factory for the specified |scheme_name| and
-// optional |domain_name|. An NULL |domain_name| value for a standard scheme
-// will cause the factory to match all domain names. The |domain_name| value
-// will be ignored for non-standard schemes. If |scheme_name| is a built-in
-// scheme and no handler is returned by |factory| then the built-in scheme
-// handler factory will be called. If |scheme_name| is a custom scheme then also
-// implement the cef_app_t::on_register_custom_schemes() function in all
-// processes. This function may be called multiple times to change or remove the
-// factory that matches the specified |scheme_name| and optional |domain_name|.
-// Returns false (0) if an error occurs. This function may be called on any
-// thread in the browser process.
-///
-CEF_EXPORT int cef_register_scheme_handler_factory(
-    const cef_string_t* scheme_name, const cef_string_t* domain_name,
-    struct _cef_scheme_handler_factory_t* factory);
-
-///
-// Clear all registered scheme handler factories. Returns false (0) on error.
-// This function may be called on any thread in the browser process.
-///
-CEF_EXPORT int cef_clear_scheme_handler_factories();
+struct _cef_scheme_handler_factory_t;
 
 ///
 // Structure that manages custom scheme registrations.
@@ -154,6 +137,29 @@ typedef struct _cef_scheme_handler_factory_t {
       const cef_string_t* scheme_name, struct _cef_request_t* request);
 } cef_scheme_handler_factory_t;
 
+
+///
+// Register a scheme handler factory for the specified |scheme_name| and
+// optional |domain_name|. An NULL |domain_name| value for a standard scheme
+// will cause the factory to match all domain names. The |domain_name| value
+// will be ignored for non-standard schemes. If |scheme_name| is a built-in
+// scheme and no handler is returned by |factory| then the built-in scheme
+// handler factory will be called. If |scheme_name| is a custom scheme then also
+// implement the cef_app_t::on_register_custom_schemes() function in all
+// processes. This function may be called multiple times to change or remove the
+// factory that matches the specified |scheme_name| and optional |domain_name|.
+// Returns false (0) if an error occurs. This function may be called on any
+// thread in the browser process.
+///
+CEF_EXPORT int cef_register_scheme_handler_factory(
+    const cef_string_t* scheme_name, const cef_string_t* domain_name,
+    cef_scheme_handler_factory_t* factory);
+
+///
+// Clear all registered scheme handler factories. Returns false (0) on error.
+// This function may be called on any thread in the browser process.
+///
+CEF_EXPORT int cef_clear_scheme_handler_factories();
 
 #ifdef __cplusplus
 }

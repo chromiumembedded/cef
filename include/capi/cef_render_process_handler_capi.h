@@ -43,6 +43,13 @@ extern "C" {
 #endif
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_browser_capi.h"
+#include "include/capi/cef_dom_capi.h"
+#include "include/capi/cef_frame_capi.h"
+#include "include/capi/cef_load_handler_capi.h"
+#include "include/capi/cef_process_message_capi.h"
+#include "include/capi/cef_v8_capi.h"
+#include "include/capi/cef_values_capi.h"
 
 
 ///
@@ -102,8 +109,8 @@ typedef struct _cef_render_process_handler_t {
   int (CEF_CALLBACK *on_before_navigation)(
       struct _cef_render_process_handler_t* self,
       struct _cef_browser_t* browser, struct _cef_frame_t* frame,
-      struct _cef_request_t* request,
-      enum cef_navigation_type_t navigation_type, int is_redirect);
+      struct _cef_request_t* request, cef_navigation_type_t navigation_type,
+      int is_redirect);
 
   ///
   // Called immediately after the V8 context for a frame has been created. To
@@ -158,7 +165,7 @@ typedef struct _cef_render_process_handler_t {
   ///
   int (CEF_CALLBACK *on_process_message_received)(
       struct _cef_render_process_handler_t* self,
-      struct _cef_browser_t* browser, enum cef_process_id_t source_process,
+      struct _cef_browser_t* browser, cef_process_id_t source_process,
       struct _cef_process_message_t* message);
 } cef_render_process_handler_t;
 

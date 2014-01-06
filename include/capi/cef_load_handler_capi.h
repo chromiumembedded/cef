@@ -43,6 +43,8 @@ extern "C" {
 #endif
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_browser_capi.h"
+#include "include/capi/cef_frame_capi.h"
 
 
 ///
@@ -98,7 +100,7 @@ typedef struct _cef_load_handler_t {
   ///
   void (CEF_CALLBACK *on_load_error)(struct _cef_load_handler_t* self,
       struct _cef_browser_t* browser, struct _cef_frame_t* frame,
-      enum cef_errorcode_t errorCode, const cef_string_t* errorText,
+      cef_errorcode_t errorCode, const cef_string_t* errorText,
       const cef_string_t* failedUrl);
 } cef_load_handler_t;
 

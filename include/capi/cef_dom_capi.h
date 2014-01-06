@@ -44,6 +44,9 @@ extern "C" {
 
 #include "include/capi/cef_base_capi.h"
 
+struct _cef_domdocument_t;
+struct _cef_domevent_listener_t;
+struct _cef_domnode_t;
 
 ///
 // Structure to implement for visiting the DOM. The functions of this structure
@@ -80,7 +83,7 @@ typedef struct _cef_domdocument_t {
   ///
   // Returns the document type.
   ///
-  enum cef_dom_document_type_t (CEF_CALLBACK *get_type)(
+  cef_dom_document_type_t (CEF_CALLBACK *get_type)(
       struct _cef_domdocument_t* self);
 
   ///
@@ -192,8 +195,7 @@ typedef struct _cef_domnode_t {
   ///
   // Returns the type for this node.
   ///
-  enum cef_dom_node_type_t (CEF_CALLBACK *get_type)(
-      struct _cef_domnode_t* self);
+  cef_dom_node_type_t (CEF_CALLBACK *get_type)(struct _cef_domnode_t* self);
 
   ///
   // Returns true (1) if this is a text node.
@@ -378,14 +380,13 @@ typedef struct _cef_domevent_t {
   ///
   // Returns the event category.
   ///
-  enum cef_dom_event_category_t (CEF_CALLBACK *get_category)(
+  cef_dom_event_category_t (CEF_CALLBACK *get_category)(
       struct _cef_domevent_t* self);
 
   ///
   // Returns the event processing phase.
   ///
-  enum cef_dom_event_phase_t (CEF_CALLBACK *get_phase)(
-      struct _cef_domevent_t* self);
+  cef_dom_event_phase_t (CEF_CALLBACK *get_phase)(struct _cef_domevent_t* self);
 
   ///
   // Returns true (1) if the event can bubble up the tree.

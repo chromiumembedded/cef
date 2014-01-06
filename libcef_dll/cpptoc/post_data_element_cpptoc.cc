@@ -90,7 +90,7 @@ void CEF_CALLBACK post_data_element_set_to_bytes(
       bytes);
 }
 
-enum cef_postdataelement_type_t CEF_CALLBACK post_data_element_get_type(
+cef_postdataelement_type_t CEF_CALLBACK post_data_element_get_type(
     struct _cef_post_data_element_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

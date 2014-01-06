@@ -150,7 +150,7 @@ int CEF_CALLBACK list_value_remove(struct _cef_list_value_t* self, int index) {
   return _retval;
 }
 
-enum cef_value_type_t CEF_CALLBACK list_value_get_type(
+cef_value_type_t CEF_CALLBACK list_value_get_type(
     struct _cef_list_value_t* self, int index) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

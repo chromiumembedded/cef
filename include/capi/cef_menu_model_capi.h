@@ -196,13 +196,13 @@ typedef struct _cef_menu_model_t {
   ///
   // Returns the item type for the specified |command_id|.
   ///
-  enum cef_menu_item_type_t (CEF_CALLBACK *get_type)(
-      struct _cef_menu_model_t* self, int command_id);
+  cef_menu_item_type_t (CEF_CALLBACK *get_type)(struct _cef_menu_model_t* self,
+      int command_id);
 
   ///
   // Returns the item type at the specified |index|.
   ///
-  enum cef_menu_item_type_t (CEF_CALLBACK *get_type_at)(
+  cef_menu_item_type_t (CEF_CALLBACK *get_type_at)(
       struct _cef_menu_model_t* self, int index);
 
   ///

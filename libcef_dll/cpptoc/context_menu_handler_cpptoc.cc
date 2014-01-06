@@ -56,7 +56,7 @@ void CEF_CALLBACK context_menu_handler_on_before_context_menu(
 int CEF_CALLBACK context_menu_handler_on_context_menu_command(
     struct _cef_context_menu_handler_t* self, cef_browser_t* browser,
     struct _cef_frame_t* frame, struct _cef_context_menu_params_t* params,
-    int command_id, enum cef_event_flags_t event_flags) {
+    int command_id, cef_event_flags_t event_flags) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);

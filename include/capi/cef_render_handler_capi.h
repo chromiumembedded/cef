@@ -43,6 +43,7 @@ extern "C" {
 #endif
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_browser_capi.h"
 
 
 ///
@@ -111,7 +112,7 @@ typedef struct _cef_render_handler_t {
   // size and represents a BGRA image with an upper-left origin.
   ///
   void (CEF_CALLBACK *on_paint)(struct _cef_render_handler_t* self,
-      struct _cef_browser_t* browser, enum cef_paint_element_type_t type,
+      struct _cef_browser_t* browser, cef_paint_element_type_t type,
       size_t dirtyRectsCount, cef_rect_t const* dirtyRects, const void* buffer,
       int width, int height);
 

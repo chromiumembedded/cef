@@ -74,7 +74,7 @@ struct _cef_urlrequest_client_t* CEF_CALLBACK urlrequest_get_client(
   return CefURLRequestClientCToCpp::Unwrap(_retval);
 }
 
-enum cef_urlrequest_status_t CEF_CALLBACK urlrequest_get_request_status(
+cef_urlrequest_status_t CEF_CALLBACK urlrequest_get_request_status(
     struct _cef_urlrequest_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -90,7 +90,7 @@ enum cef_urlrequest_status_t CEF_CALLBACK urlrequest_get_request_status(
   return _retval;
 }
 
-enum cef_errorcode_t CEF_CALLBACK urlrequest_get_request_error(
+cef_errorcode_t CEF_CALLBACK urlrequest_get_request_error(
     struct _cef_urlrequest_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

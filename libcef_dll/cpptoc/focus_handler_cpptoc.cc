@@ -35,7 +35,7 @@ void CEF_CALLBACK focus_handler_on_take_focus(struct _cef_focus_handler_t* self,
 }
 
 int CEF_CALLBACK focus_handler_on_set_focus(struct _cef_focus_handler_t* self,
-    cef_browser_t* browser, enum cef_focus_source_t source) {
+    cef_browser_t* browser, cef_focus_source_t source) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);

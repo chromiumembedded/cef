@@ -44,6 +44,8 @@ extern "C" {
 
 #include "include/capi/cef_base_capi.h"
 
+struct _cef_dictionary_value_t;
+struct _cef_list_value_t;
 
 ///
 // Structure representing a binary value. Can be used on any process and thread.
@@ -159,7 +161,7 @@ typedef struct _cef_dictionary_value_t {
   ///
   // Returns the value type for the specified key.
   ///
-  enum cef_value_type_t (CEF_CALLBACK *get_type)(
+  cef_value_type_t (CEF_CALLBACK *get_type)(
       struct _cef_dictionary_value_t* self, const cef_string_t* key);
 
   ///
@@ -336,7 +338,7 @@ typedef struct _cef_list_value_t {
   ///
   // Returns the value type at the specified index.
   ///
-  enum cef_value_type_t (CEF_CALLBACK *get_type)(struct _cef_list_value_t* self,
+  cef_value_type_t (CEF_CALLBACK *get_type)(struct _cef_list_value_t* self,
       int index);
 
   ///

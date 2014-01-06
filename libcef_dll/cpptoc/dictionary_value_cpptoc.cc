@@ -190,7 +190,7 @@ int CEF_CALLBACK dictionary_value_remove(struct _cef_dictionary_value_t* self,
   return _retval;
 }
 
-enum cef_value_type_t CEF_CALLBACK dictionary_value_get_type(
+cef_value_type_t CEF_CALLBACK dictionary_value_get_type(
     struct _cef_dictionary_value_t* self, const cef_string_t* key) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

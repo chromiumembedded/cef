@@ -24,7 +24,7 @@ static blink::WebScreenInfo webScreenInfoFrom(const CefScreenInfo& src) {
   webScreenInfo.deviceScaleFactor = src.device_scale_factor;
   webScreenInfo.depth = src.depth;
   webScreenInfo.depthPerComponent = src.depth_per_component;
-  webScreenInfo.isMonochrome = src.is_monochrome;
+  webScreenInfo.isMonochrome = src.is_monochrome ? true : false;
   webScreenInfo.rect = blink::WebRect(src.rect.x, src.rect.y,
                                        src.rect.width, src.rect.height);
   webScreenInfo.availableRect = blink::WebRect(src.available_rect.x,

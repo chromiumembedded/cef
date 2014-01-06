@@ -46,14 +46,6 @@ extern "C" {
 
 
 ///
-// Request a one-time geolocation update. This function bypasses any user
-// permission checks so should only be used by code that is allowed to access
-// location information.
-///
-CEF_EXPORT int cef_get_geolocation(
-    struct _cef_get_geolocation_callback_t* callback);
-
-///
 // Implement this structure to receive geolocation updates. The functions of
 // this structure will be called on the browser process UI thread.
 ///
@@ -72,6 +64,13 @@ typedef struct _cef_get_geolocation_callback_t {
       const struct _cef_geoposition_t* position);
 } cef_get_geolocation_callback_t;
 
+
+///
+// Request a one-time geolocation update. This function bypasses any user
+// permission checks so should only be used by code that is allowed to access
+// location information.
+///
+CEF_EXPORT int cef_get_geolocation(cef_get_geolocation_callback_t* callback);
 
 #ifdef __cplusplus
 }

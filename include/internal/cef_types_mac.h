@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2014 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -90,10 +90,10 @@ typedef struct _cef_window_info_t {
   // If window rendering is disabled no browser window will be created. Set
   // |parent_view| to the window that will act as the parent for popup menus,
   // dialog boxes, etc.
-  bool window_rendering_disabled;
+  int window_rendering_disabled;
 
   // Set to true to enable transparent painting.
-  bool transparent_painting;
+  int transparent_painting;
 
   // NSView pointer for the new browser view.
   cef_window_handle_t view;

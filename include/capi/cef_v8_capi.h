@@ -43,66 +43,14 @@ extern "C" {
 #endif
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_browser_capi.h"
+#include "include/capi/cef_frame_capi.h"
+#include "include/capi/cef_task_capi.h"
 
-
-///
-// Register a new V8 extension with the specified JavaScript extension code and
-// handler. Functions implemented by the handler are prototyped using the
-// keyword 'native'. The calling of a native function is restricted to the scope
-// in which the prototype of the native function is defined. This function may
-// only be called on the render process main thread.
-//
-// Example JavaScript extension code: <pre>
-//   // create the 'example' global object if it doesn't already exist.
-//   if (!example)
-//     example = {};
-//   // create the 'example.test' global object if it doesn't already exist.
-//   if (!example.test)
-//     example.test = {};
-//   (function() {
-//     // Define the function 'example.test.myfunction'.
-//     example.test.myfunction = function() {
-//       // Call CefV8Handler::Execute() with the function name 'MyFunction'
-//       // and no arguments.
-//       native function MyFunction();
-//       return MyFunction();
-//     };
-//     // Define the getter function for parameter 'example.test.myparam'.
-//     example.test.__defineGetter__('myparam', function() {
-//       // Call CefV8Handler::Execute() with the function name 'GetMyParam'
-//       // and no arguments.
-//       native function GetMyParam();
-//       return GetMyParam();
-//     });
-//     // Define the setter function for parameter 'example.test.myparam'.
-//     example.test.__defineSetter__('myparam', function(b) {
-//       // Call CefV8Handler::Execute() with the function name 'SetMyParam'
-//       // and a single argument.
-//       native function SetMyParam();
-//       if(b) SetMyParam(b);
-//     });
-//
-//     // Extension definitions can also contain normal JavaScript variables
-//     // and functions.
-//     var myint = 0;
-//     example.test.increment = function() {
-//       myint += 1;
-//       return myint;
-//     };
-//   })();
-// </pre> Example usage in the page: <pre>
-//   // Call the function.
-//   example.test.myfunction();
-//   // Set the parameter.
-//   example.test.myparam = value;
-//   // Get the parameter.
-//   value = example.test.myparam;
-//   // Call another function.
-//   example.test.increment();
-// </pre>
-///
-CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
-    const cef_string_t* javascript_code, struct _cef_v8handler_t* handler);
+struct _cef_v8exception_t;
+struct _cef_v8handler_t;
+struct _cef_v8stack_frame_t;
+struct _cef_v8value_t;
 
 ///
 // Structure representing a V8 context handle. V8 handles can only be accessed
@@ -542,7 +490,7 @@ typedef struct _cef_v8value_t {
   ///
   int (CEF_CALLBACK *set_value_bykey)(struct _cef_v8value_t* self,
       const cef_string_t* key, struct _cef_v8value_t* value,
-      enum cef_v8_propertyattribute_t attribute);
+      cef_v8_propertyattribute_t attribute);
 
   ///
   // Associates a value with the specified identifier and returns true (1) on
@@ -561,8 +509,8 @@ typedef struct _cef_v8value_t {
   // values this function will return true (1) even though assignment failed.
   ///
   int (CEF_CALLBACK *set_value_byaccessor)(struct _cef_v8value_t* self,
-      const cef_string_t* key, enum cef_v8_accesscontrol_t settings,
-      enum cef_v8_propertyattribute_t attribute);
+      const cef_string_t* key, cef_v8_accesscontrol_t settings,
+      cef_v8_propertyattribute_t attribute);
 
   ///
   // Read the keys for the object's values into the specified vector. Integer-
@@ -836,6 +784,65 @@ typedef struct _cef_v8stack_frame_t {
   int (CEF_CALLBACK *is_constructor)(struct _cef_v8stack_frame_t* self);
 } cef_v8stack_frame_t;
 
+
+///
+// Register a new V8 extension with the specified JavaScript extension code and
+// handler. Functions implemented by the handler are prototyped using the
+// keyword 'native'. The calling of a native function is restricted to the scope
+// in which the prototype of the native function is defined. This function may
+// only be called on the render process main thread.
+//
+// Example JavaScript extension code: <pre>
+//   // create the 'example' global object if it doesn't already exist.
+//   if (!example)
+//     example = {};
+//   // create the 'example.test' global object if it doesn't already exist.
+//   if (!example.test)
+//     example.test = {};
+//   (function() {
+//     // Define the function 'example.test.myfunction'.
+//     example.test.myfunction = function() {
+//       // Call CefV8Handler::Execute() with the function name 'MyFunction'
+//       // and no arguments.
+//       native function MyFunction();
+//       return MyFunction();
+//     };
+//     // Define the getter function for parameter 'example.test.myparam'.
+//     example.test.__defineGetter__('myparam', function() {
+//       // Call CefV8Handler::Execute() with the function name 'GetMyParam'
+//       // and no arguments.
+//       native function GetMyParam();
+//       return GetMyParam();
+//     });
+//     // Define the setter function for parameter 'example.test.myparam'.
+//     example.test.__defineSetter__('myparam', function(b) {
+//       // Call CefV8Handler::Execute() with the function name 'SetMyParam'
+//       // and a single argument.
+//       native function SetMyParam();
+//       if(b) SetMyParam(b);
+//     });
+//
+//     // Extension definitions can also contain normal JavaScript variables
+//     // and functions.
+//     var myint = 0;
+//     example.test.increment = function() {
+//       myint += 1;
+//       return myint;
+//     };
+//   })();
+// </pre> Example usage in the page: <pre>
+//   // Call the function.
+//   example.test.myfunction();
+//   // Set the parameter.
+//   example.test.myparam = value;
+//   // Get the parameter.
+//   value = example.test.myparam;
+//   // Call another function.
+//   example.test.increment();
+// </pre>
+///
+CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
+    const cef_string_t* javascript_code, cef_v8handler_t* handler);
 
 #ifdef __cplusplus
 }

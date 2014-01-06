@@ -43,6 +43,9 @@ extern "C" {
 #endif
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_browser_capi.h"
+#include "include/capi/cef_dom_capi.h"
+#include "include/capi/cef_frame_capi.h"
 
 
 ///
@@ -70,7 +73,7 @@ typedef struct _cef_focus_handler_t {
   // focus to be set or true (1) to cancel setting the focus.
   ///
   int (CEF_CALLBACK *on_set_focus)(struct _cef_focus_handler_t* self,
-      struct _cef_browser_t* browser, enum cef_focus_source_t source);
+      struct _cef_browser_t* browser, cef_focus_source_t source);
 
   ///
   // Called when the browser component has received focus.

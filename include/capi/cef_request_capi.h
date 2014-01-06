@@ -44,6 +44,8 @@ extern "C" {
 
 #include "include/capi/cef_base_capi.h"
 
+struct _cef_post_data_element_t;
+struct _cef_post_data_t;
 
 ///
 // Structure used to represent a web request. The functions of this structure
@@ -147,7 +149,7 @@ typedef struct _cef_request_t {
   // Get the resource type for this request. Accurate resource type information
   // may only be available in the browser process.
   ///
-  enum cef_resource_type_t (CEF_CALLBACK *get_resource_type)(
+  cef_resource_type_t (CEF_CALLBACK *get_resource_type)(
       struct _cef_request_t* self);
 
   ///
@@ -155,7 +157,7 @@ typedef struct _cef_request_t {
   // process and only applies to requests that represent a main frame or sub-
   // frame navigation.
   ///
-  enum cef_transition_type_t (CEF_CALLBACK *get_transition_type)(
+  cef_transition_type_t (CEF_CALLBACK *get_transition_type)(
       struct _cef_request_t* self);
 } cef_request_t;
 
@@ -254,7 +256,7 @@ typedef struct _cef_post_data_element_t {
   ///
   // Return the type of this post data element.
   ///
-  enum cef_postdataelement_type_t (CEF_CALLBACK *get_type)(
+  cef_postdataelement_type_t (CEF_CALLBACK *get_type)(
       struct _cef_post_data_element_t* self);
 
   ///

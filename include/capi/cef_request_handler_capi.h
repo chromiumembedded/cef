@@ -42,7 +42,14 @@
 extern "C" {
 #endif
 
+#include "include/capi/cef_auth_callback_capi.h"
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_browser_capi.h"
+#include "include/capi/cef_frame_capi.h"
+#include "include/capi/cef_request_capi.h"
+#include "include/capi/cef_resource_handler_capi.h"
+#include "include/capi/cef_response_capi.h"
+#include "include/capi/cef_web_plugin_capi.h"
 
 
 ///
@@ -184,7 +191,7 @@ typedef struct _cef_request_handler_t {
   // be accepted without calling this function.
   ///
   int (CEF_CALLBACK *on_certificate_error)(struct _cef_request_handler_t* self,
-      enum cef_errorcode_t cert_error, const cef_string_t* request_url,
+      cef_errorcode_t cert_error, const cef_string_t* request_url,
       struct _cef_allow_certificate_error_callback_t* callback);
 
   ///
@@ -208,7 +215,7 @@ typedef struct _cef_request_handler_t {
   ///
   void (CEF_CALLBACK *on_render_process_terminated)(
       struct _cef_request_handler_t* self, struct _cef_browser_t* browser,
-      enum cef_termination_status_t status);
+      cef_termination_status_t status);
 } cef_request_handler_t;
 
 

@@ -19,7 +19,7 @@
 
 int CEF_CALLBACK drag_handler_on_drag_enter(struct _cef_drag_handler_t* self,
     cef_browser_t* browser, cef_drag_data_t* dragData,
-    enum cef_drag_operations_mask_t mask) {
+    cef_drag_operations_mask_t mask) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);

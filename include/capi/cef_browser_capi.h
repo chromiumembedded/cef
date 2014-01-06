@@ -43,7 +43,12 @@ extern "C" {
 #endif
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_frame_capi.h"
+#include "include/capi/cef_process_message_capi.h"
+#include "include/capi/cef_request_context_capi.h"
 
+struct _cef_browser_host_t;
+struct _cef_client_t;
 
 ///
 // Structure used to represent a browser window. When used in the browser
@@ -172,7 +177,7 @@ typedef struct _cef_browser_t {
   // message was sent successfully.
   ///
   int (CEF_CALLBACK *send_process_message)(struct _cef_browser_t* self,
-      enum cef_process_id_t target_process,
+      cef_process_id_t target_process,
       struct _cef_process_message_t* message);
 } cef_browser_t;
 
@@ -297,7 +302,7 @@ typedef struct _cef_browser_host_t {
   // the UI thread.
   ///
   void (CEF_CALLBACK *run_file_dialog)(struct _cef_browser_host_t* self,
-      enum cef_file_dialog_mode_t mode, const cef_string_t* title,
+      cef_file_dialog_mode_t mode, const cef_string_t* title,
       const cef_string_t* default_file_name, cef_string_list_t accept_types,
       struct _cef_run_file_dialog_callback_t* callback);
 
@@ -393,7 +398,7 @@ typedef struct _cef_browser_host_t {
   // function is only used when window rendering is disabled.
   ///
   void (CEF_CALLBACK *invalidate)(struct _cef_browser_host_t* self,
-      const cef_rect_t* dirtyRect, enum cef_paint_element_type_t type);
+      const cef_rect_t* dirtyRect, cef_paint_element_type_t type);
 
   ///
   // Send a key event to the browser.
@@ -406,8 +411,8 @@ typedef struct _cef_browser_host_t {
   // relative to the upper-left corner of the view.
   ///
   void (CEF_CALLBACK *send_mouse_click_event)(struct _cef_browser_host_t* self,
-      const struct _cef_mouse_event_t* event,
-      enum cef_mouse_button_type_t type, int mouseUp, int clickCount);
+      const struct _cef_mouse_event_t* event, cef_mouse_button_type_t type,
+      int mouseUp, int clickCount);
 
   ///
   // Send a mouse move event to the browser. The |x| and |y| coordinates are

@@ -43,6 +43,7 @@ extern "C" {
 #endif
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_browser_capi.h"
 
 
 ///
@@ -91,7 +92,7 @@ typedef struct _cef_dialog_handler_t {
   // return false (0).
   ///
   int (CEF_CALLBACK *on_file_dialog)(struct _cef_dialog_handler_t* self,
-      struct _cef_browser_t* browser, enum cef_file_dialog_mode_t mode,
+      struct _cef_browser_t* browser, cef_file_dialog_mode_t mode,
       const cef_string_t* title, const cef_string_t* default_file_name,
       cef_string_list_t accept_types,
       struct _cef_file_dialog_callback_t* callback);

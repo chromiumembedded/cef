@@ -43,7 +43,13 @@ extern "C" {
 #endif
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_dom_capi.h"
+#include "include/capi/cef_request_capi.h"
+#include "include/capi/cef_stream_capi.h"
+#include "include/capi/cef_string_visitor_capi.h"
 
+struct _cef_browser_t;
+struct _cef_v8context_t;
 
 ///
 // Structure used to represent a frame in the browser window. When used in the

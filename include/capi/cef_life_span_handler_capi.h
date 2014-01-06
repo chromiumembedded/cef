@@ -43,7 +43,9 @@ extern "C" {
 #endif
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_browser_capi.h"
 
+struct _cef_client_t;
 
 ///
 // Implement this structure to handle events related to browser life span. The

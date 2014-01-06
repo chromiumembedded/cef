@@ -641,7 +641,7 @@ struct _cef_v8value_t* CEF_CALLBACK v8value_get_value_byindex(
 
 int CEF_CALLBACK v8value_set_value_bykey(struct _cef_v8value_t* self,
     const cef_string_t* key, struct _cef_v8value_t* value,
-    enum cef_v8_propertyattribute_t attribute) {
+    cef_v8_propertyattribute_t attribute) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -689,8 +689,8 @@ int CEF_CALLBACK v8value_set_value_byindex(struct _cef_v8value_t* self,
 }
 
 int CEF_CALLBACK v8value_set_value_byaccessor(struct _cef_v8value_t* self,
-    const cef_string_t* key, enum cef_v8_accesscontrol_t settings,
-    enum cef_v8_propertyattribute_t attribute) {
+    const cef_string_t* key, cef_v8_accesscontrol_t settings,
+    cef_v8_propertyattribute_t attribute) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);

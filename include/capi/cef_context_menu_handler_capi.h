@@ -43,7 +43,11 @@ extern "C" {
 #endif
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_browser_capi.h"
+#include "include/capi/cef_frame_capi.h"
+#include "include/capi/cef_menu_model_capi.h"
 
+struct _cef_context_menu_params_t;
 
 ///
 // Implement this structure to handle context menu events. The functions of this
@@ -79,7 +83,7 @@ typedef struct _cef_context_menu_handler_t {
   int (CEF_CALLBACK *on_context_menu_command)(
       struct _cef_context_menu_handler_t* self, struct _cef_browser_t* browser,
       struct _cef_frame_t* frame, struct _cef_context_menu_params_t* params,
-      int command_id, enum cef_event_flags_t event_flags);
+      int command_id, cef_event_flags_t event_flags);
 
   ///
   // Called when the context menu is dismissed irregardless of whether the menu
@@ -117,7 +121,7 @@ typedef struct _cef_context_menu_params_t {
   // Returns flags representing the type of node that the context menu was
   // invoked on.
   ///
-  enum cef_context_menu_type_flags_t (CEF_CALLBACK *get_type_flags)(
+  cef_context_menu_type_flags_t (CEF_CALLBACK *get_type_flags)(
       struct _cef_context_menu_params_t* self);
 
   ///
@@ -176,15 +180,14 @@ typedef struct _cef_context_menu_params_t {
   ///
   // Returns the type of context node that the context menu was invoked on.
   ///
-  enum cef_context_menu_media_type_t (CEF_CALLBACK *get_media_type)(
+  cef_context_menu_media_type_t (CEF_CALLBACK *get_media_type)(
       struct _cef_context_menu_params_t* self);
 
   ///
   // Returns flags representing the actions supported by the media element, if
   // any, that the context menu was invoked on.
   ///
-  enum cef_context_menu_media_state_flags_t (
-      CEF_CALLBACK *get_media_state_flags)(
+  cef_context_menu_media_state_flags_t (CEF_CALLBACK *get_media_state_flags)(
       struct _cef_context_menu_params_t* self);
 
   ///
@@ -211,7 +214,7 @@ typedef struct _cef_context_menu_params_t {
   // Returns flags representing the actions supported by the editable node, if
   // any, that the context menu was invoked on.
   ///
-  enum cef_context_menu_edit_state_flags_t (CEF_CALLBACK *get_edit_state_flags)(
+  cef_context_menu_edit_state_flags_t (CEF_CALLBACK *get_edit_state_flags)(
       struct _cef_context_menu_params_t* self);
 } cef_context_menu_params_t;
 

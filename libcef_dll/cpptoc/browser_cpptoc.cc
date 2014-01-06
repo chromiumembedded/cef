@@ -334,8 +334,7 @@ void CEF_CALLBACK browser_get_frame_names(struct _cef_browser_t* self,
 }
 
 int CEF_CALLBACK browser_send_process_message(struct _cef_browser_t* self,
-    enum cef_process_id_t target_process,
-    struct _cef_process_message_t* message) {
+    cef_process_id_t target_process, struct _cef_process_message_t* message) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);

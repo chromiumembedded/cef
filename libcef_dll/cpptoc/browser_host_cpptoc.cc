@@ -242,7 +242,7 @@ void CEF_CALLBACK browser_host_set_zoom_level(struct _cef_browser_host_t* self,
 }
 
 void CEF_CALLBACK browser_host_run_file_dialog(struct _cef_browser_host_t* self,
-    enum cef_file_dialog_mode_t mode, const cef_string_t* title,
+    cef_file_dialog_mode_t mode, const cef_string_t* title,
     const cef_string_t* default_file_name, cef_string_list_t accept_types,
     cef_run_file_dialog_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -461,7 +461,7 @@ void CEF_CALLBACK browser_host_notify_screen_info_changed(
 }
 
 void CEF_CALLBACK browser_host_invalidate(struct _cef_browser_host_t* self,
-    const cef_rect_t* dirtyRect, enum cef_paint_element_type_t type) {
+    const cef_rect_t* dirtyRect, cef_paint_element_type_t type) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -505,7 +505,7 @@ void CEF_CALLBACK browser_host_send_key_event(struct _cef_browser_host_t* self,
 
 void CEF_CALLBACK browser_host_send_mouse_click_event(
     struct _cef_browser_host_t* self, const struct _cef_mouse_event_t* event,
-    enum cef_mouse_button_type_t type, int mouseUp, int clickCount) {
+    cef_mouse_button_type_t type, int mouseUp, int clickCount) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);

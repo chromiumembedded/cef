@@ -32,7 +32,7 @@ cef_string_userfree_t CEF_CALLBACK domevent_get_type(
   return _retval.DetachToUserFree();
 }
 
-enum cef_dom_event_category_t CEF_CALLBACK domevent_get_category(
+cef_dom_event_category_t CEF_CALLBACK domevent_get_category(
     struct _cef_domevent_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -48,7 +48,7 @@ enum cef_dom_event_category_t CEF_CALLBACK domevent_get_category(
   return _retval;
 }
 
-enum cef_dom_event_phase_t CEF_CALLBACK domevent_get_phase(
+cef_dom_event_phase_t CEF_CALLBACK domevent_get_phase(
     struct _cef_domevent_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

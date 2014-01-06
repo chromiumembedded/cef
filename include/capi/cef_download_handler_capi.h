@@ -43,6 +43,8 @@ extern "C" {
 #endif
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_browser_capi.h"
+#include "include/capi/cef_download_item_capi.h"
 
 
 ///

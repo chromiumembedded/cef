@@ -46,6 +46,28 @@ extern "C" {
 
 
 ///
+// Implement this structure to receive notification when tracing has completed.
+// The functions of this structure will be called on the browser process UI
+// thread.
+///
+typedef struct _cef_end_tracing_callback_t {
+  ///
+  // Base structure.
+  ///
+  cef_base_t base;
+
+  ///
+  // Called after all processes have sent their trace data. |tracing_file| is
+  // the path at which tracing data was written. The client is responsible for
+  // deleting |tracing_file|.
+  ///
+  void (CEF_CALLBACK *on_end_tracing_complete)(
+      struct _cef_end_tracing_callback_t* self,
+      const cef_string_t* tracing_file);
+} cef_end_tracing_callback_t;
+
+
+///
 // Start tracing events on all processes. Tracing begins immediately locally,
 // and asynchronously on child processes as soon as they receive the
 // BeginTracing request.
@@ -78,7 +100,7 @@ CEF_EXPORT int cef_begin_tracing(const cef_string_t* categories);
 // This function must be called on the browser process UI thread.
 ///
 CEF_EXPORT int cef_end_tracing_async(const cef_string_t* tracing_file,
-    struct _cef_end_tracing_callback_t* callback);
+    cef_end_tracing_callback_t* callback);
 
 ///
 // Returns the current system trace time or, if none is defined, the current
@@ -86,28 +108,6 @@ CEF_EXPORT int cef_end_tracing_async(const cef_string_t* tracing_file,
 // information in trace events.
 ///
 CEF_EXPORT int64 cef_now_from_system_trace_time();
-
-///
-// Implement this structure to receive notification when tracing has completed.
-// The functions of this structure will be called on the browser process UI
-// thread.
-///
-typedef struct _cef_end_tracing_callback_t {
-  ///
-  // Base structure.
-  ///
-  cef_base_t base;
-
-  ///
-  // Called after all processes have sent their trace data. |tracing_file| is
-  // the path at which tracing data was written. The client is responsible for
-  // deleting |tracing_file|.
-  ///
-  void (CEF_CALLBACK *on_end_tracing_complete)(
-      struct _cef_end_tracing_callback_t* self,
-      const cef_string_t* tracing_file);
-} cef_end_tracing_callback_t;
-
 
 #ifdef __cplusplus
 }

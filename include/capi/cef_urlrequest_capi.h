@@ -42,8 +42,12 @@
 extern "C" {
 #endif
 
+#include "include/capi/cef_auth_callback_capi.h"
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_request_capi.h"
+#include "include/capi/cef_response_capi.h"
 
+struct _cef_urlrequest_client_t;
 
 ///
 // Structure used to make a URL request. URL requests are not associated with a
@@ -74,14 +78,14 @@ typedef struct _cef_urlrequest_t {
   ///
   // Returns the request status.
   ///
-  enum cef_urlrequest_status_t (CEF_CALLBACK *get_request_status)(
+  cef_urlrequest_status_t (CEF_CALLBACK *get_request_status)(
       struct _cef_urlrequest_t* self);
 
   ///
   // Returns the request error if status is UR_CANCELED or UR_FAILED, or 0
   // otherwise.
   ///
-  enum cef_errorcode_t (CEF_CALLBACK *get_request_error)(
+  cef_errorcode_t (CEF_CALLBACK *get_request_error)(
       struct _cef_urlrequest_t* self);
 
   ///

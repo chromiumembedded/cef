@@ -884,7 +884,7 @@ void CefBrowserHostImpl::PlatformTranslateKeyEvent(
 
   result.windowsKeyCode = key_event.windows_key_code;
   result.nativeKeyCode = key_event.native_key_code;
-  result.isSystemKey = key_event.is_system_key;
+  result.isSystemKey = key_event.is_system_key ? 1 : 0;
   switch (key_event.type) {
   case KEYEVENT_RAWKEYDOWN:
   case KEYEVENT_KEYDOWN:

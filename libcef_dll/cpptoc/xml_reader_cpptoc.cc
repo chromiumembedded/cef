@@ -17,7 +17,7 @@
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_xml_reader_t* cef_xml_reader_create(cef_stream_reader_t* stream,
-    enum cef_xml_encoding_type_t encodingType, const cef_string_t* URI) {
+    cef_xml_encoding_type_t encodingType, const cef_string_t* URI) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: stream; type: refptr_same
@@ -99,7 +99,7 @@ cef_string_userfree_t CEF_CALLBACK xml_reader_get_error(
   return _retval.DetachToUserFree();
 }
 
-enum cef_xml_node_type_t CEF_CALLBACK xml_reader_get_type(
+cef_xml_node_type_t CEF_CALLBACK xml_reader_get_type(
     struct _cef_xml_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

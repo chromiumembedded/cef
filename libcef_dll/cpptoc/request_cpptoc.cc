@@ -278,7 +278,7 @@ void CEF_CALLBACK request_set_first_party_for_cookies(
       CefString(url));
 }
 
-enum cef_resource_type_t CEF_CALLBACK request_get_resource_type(
+cef_resource_type_t CEF_CALLBACK request_get_resource_type(
     struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -293,7 +293,7 @@ enum cef_resource_type_t CEF_CALLBACK request_get_resource_type(
   return _retval;
 }
 
-enum cef_transition_type_t CEF_CALLBACK request_get_transition_type(
+cef_transition_type_t CEF_CALLBACK request_get_transition_type(
     struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

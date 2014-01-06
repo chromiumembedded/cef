@@ -18,8 +18,7 @@
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-enum cef_dom_node_type_t CEF_CALLBACK domnode_get_type(
-    struct _cef_domnode_t* self) {
+cef_dom_node_type_t CEF_CALLBACK domnode_get_type(struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
