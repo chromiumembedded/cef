@@ -12,6 +12,7 @@
 #include <winspool.h>
 
 #include "libcef/browser/content_browser_client.h"
+#include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
 
 #include "base/file_util.h"
@@ -552,8 +553,10 @@ bool IsSystemCursorID(LPCWSTR cursor_id) {
 // will be deleted automatically when the associated root window is destroyed.
 class CefWindowDelegateView : public views::WidgetDelegateView {
  public:
-  CefWindowDelegateView()
-    : web_view_(NULL) {
+  explicit CefWindowDelegateView(SkColor background_color)
+    : background_color_(background_color),
+      web_view_(NULL) {
+    
   }
 
   // Create the Widget and associated root window.
@@ -592,7 +595,7 @@ class CefWindowDelegateView : public views::WidgetDelegateView {
  private:
   // Initialize the Widget's content.
   void InitContent() {
-    set_background(views::Background::CreateStandardPanelBackground());
+    set_background(views::Background::CreateSolidBackground(background_color_));
     SetLayoutManager(new views::FillLayout());
     AddChildView(web_view_);
   }
@@ -610,6 +613,7 @@ class CefWindowDelegateView : public views::WidgetDelegateView {
   }
 
  private:
+  SkColor background_color_;
   views::WebView* web_view_;
 
   DISALLOW_COPY_AND_ASSIGN(CefWindowDelegateView);
@@ -753,7 +757,17 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
 
   DCHECK(!window_widget_);
 
-  CefWindowDelegateView* delegate_view = new CefWindowDelegateView();
+  SkColor background_color = SK_ColorWHITE;
+  const CefSettings& settings = CefContext::Get()->settings();
+  if (CefColorGetA(settings.background_color) > 0) {
+    background_color = SkColorSetRGB(
+        CefColorGetR(settings.background_color),
+        CefColorGetG(settings.background_color),
+        CefColorGetB(settings.background_color));
+  }
+
+  CefWindowDelegateView* delegate_view =
+      new CefWindowDelegateView(background_color);
   delegate_view->Init(window_info_.window,
                       web_contents(),
                       gfx::Rect(0, 0, cr.right, cr.bottom));
