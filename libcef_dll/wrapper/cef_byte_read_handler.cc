@@ -3,7 +3,8 @@
 // can be found in the LICENSE file.
 
 #include "include/wrapper/cef_byte_read_handler.h"
-#include <stdlib.h>
+#include <algorithm>
+#include <cstdlib>
 #include "libcef_dll/cef_logging.h"
 
 CefByteReadHandler::CefByteReadHandler(const unsigned char* bytes, size_t size,
