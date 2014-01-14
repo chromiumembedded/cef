@@ -269,27 +269,31 @@ def format_translation_includes(body):
     body.
     """
     result = ''
-    
+
+    # <algorithm> required for VS2013.
+    if body.find('std::min') > 0 or body.find('std::max') > 0:
+        result += '#include <algorithm>\n'
+
     if body.find('cef_api_hash(') > 0:
         result += '#include "include/cef_version.h"\n'
-    
+
     # identify what CppToC classes are being used
     p = re.compile('([A-Za-z0-9_]{1,})CppToC')
     list = sorted(set(p.findall(body)))
     for item in list:
         result += '#include "libcef_dll/cpptoc/'+ \
                   get_capi_name(item[3:], False)+'_cpptoc.h"\n'
-    
+
     # identify what CToCpp classes are being used
     p = re.compile('([A-Za-z0-9_]{1,})CToCpp')
     list = sorted(set(p.findall(body)))
     for item in list:
         result += '#include "libcef_dll/ctocpp/'+ \
                   get_capi_name(item[3:], False)+'_ctocpp.h"\n'
-    
+
     if body.find('transfer_') > 0:
         result += '#include "libcef_dll/transfer_util.h"\n'
-        
+
     return result
 
 def str_to_dict(str):

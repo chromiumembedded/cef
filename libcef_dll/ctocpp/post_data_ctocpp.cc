@@ -10,6 +10,7 @@
 // for more information.
 //
 
+#include <algorithm>
 #include "libcef_dll/ctocpp/post_data_ctocpp.h"
 #include "libcef_dll/ctocpp/post_data_element_ctocpp.h"
 
