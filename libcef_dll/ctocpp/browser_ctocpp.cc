@@ -10,6 +10,7 @@
 // for more information.
 //
 
+#include <algorithm>
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"

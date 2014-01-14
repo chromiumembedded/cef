@@ -10,6 +10,7 @@
 // for more information.
 //
 
+#include <algorithm>
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
