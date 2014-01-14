@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/internal/cef_string_types.h"
+#include <algorithm>
 #include "base/logging.h"
 #include "base/strings/string16.h"
 #include "base/strings/utf_string_conversions.h"
