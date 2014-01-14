@@ -39,6 +39,7 @@ MSVC_POP_WARNING();
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_constants.h"
+#include "content/public/common/content_paths.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
 #include "content/renderer/render_frame_impl.h"
@@ -391,7 +392,7 @@ void CefContentRendererClient::RenderThreadStarted() {
   // Note that under Linux, the media library will normally already have
   // been initialized by the Zygote before this instance became a Renderer.
   base::FilePath media_path;
-  PathService::Get(base::DIR_MODULE, &media_path);
+  PathService::Get(content::DIR_MEDIA_LIBS, &media_path);
   if (!media_path.empty())
     media::InitializeMediaLibrary(media_path);
 
