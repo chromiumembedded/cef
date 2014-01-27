@@ -106,6 +106,18 @@ typedef uint32              cef_color_t;
         (static_cast<unsigned>(g) << 8) | \
         (static_cast<unsigned>(b) << 0))
 
+// Return an int64 value with the specified low and high int32 component values.
+#define CefInt64Set(int32_low, int32_high) \
+    static_cast<int64>((static_cast<uint32>(int32_low)) | \
+        (static_cast<int64>(static_cast<int32>(int32_high))) << 32)
+
+// Return the low int32 value from an int64 value.
+#define CefInt64GetLow(int64_val) static_cast<int32>(int64_val)
+// Return the high int32 value from an int64 value.
+#define CefInt64GetHigh(int64_val) \
+    static_cast<int32>((static_cast<int64>(int64_val) >> 32) & 0xFFFFFFFFL)
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif

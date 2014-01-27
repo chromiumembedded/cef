@@ -12,11 +12,8 @@
 namespace {
 
 // Unique values for the SendRecv test.
-const char* kSendRecvUrlNative =
-    "http://tests/ProcessMessageTest.SendRecv/Native";
-const char* kSendRecvUrlJavaScript =
-    "http://tests/ProcessMessageTest.SendRecv/JavaScript";
-const char* kSendRecvMsg = "ProcessMessageTest.SendRecv";
+const char kSendRecvUrl[] = "http://tests/ProcessMessageTest.SendRecv";
+const char kSendRecvMsg[] = "ProcessMessageTest.SendRecv";
 
 // Creates a test message.
 CefRefPtr<CefProcessMessage> CreateTestMessage() {
@@ -55,7 +52,7 @@ class SendRecvRendererTest : public ClientApp::RenderDelegate {
       EXPECT_TRUE(message.get());
 
       std::string url = browser->GetMainFrame()->GetURL();
-      if (url == kSendRecvUrlNative) {
+      if (url == kSendRecvUrl) {
         // Echo the message back to the sender natively.
         EXPECT_TRUE(browser->SendProcessMessage(PID_BROWSER, message));
         return true;
@@ -72,33 +69,14 @@ class SendRecvRendererTest : public ClientApp::RenderDelegate {
 // Browser side.
 class SendRecvTestHandler : public TestHandler {
  public:
-  explicit SendRecvTestHandler(bool native)
-    : native_(native) {
+  SendRecvTestHandler() {
   }
 
   virtual void RunTest() OVERRIDE {
     message_ = CreateTestMessage();
 
-    if (native_) {
-      // Native test.
-      AddResource(kSendRecvUrlNative, "<html><body>TEST NATIVE</body></html>",
-          "text/html");
-      CreateBrowser(kSendRecvUrlNative);
-    } else {
-      // JavaScript test.
-      std::string content =
-          "<html><head>\n"
-          "<script>\n"
-          "function cb(name, args) {\n"
-          "  app.sendMessage(name, args);\n"
-          "}\n"
-          "app.setMessageCallback('"+std::string(kSendRecvMsg)+"', cb);\n"
-          "</script>\n"
-          "<body>TEST JAVASCRIPT</body>\n"
-          "</head></html>";
-      AddResource(kSendRecvUrlJavaScript, content, "text/html");
-      CreateBrowser(kSendRecvUrlJavaScript);
-    }
+    AddResource(kSendRecvUrl, "<html><body>TEST</body></html>", "text/html");
+    CreateBrowser(kSendRecvUrl);
   }
 
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -128,30 +106,21 @@ class SendRecvTestHandler : public TestHandler {
     return true;
   }
 
-  bool native_;
   CefRefPtr<CefProcessMessage> message_;
   TrackCallback got_message_;
 };
 
 }  // namespace
 
-// Verify native send and recieve
-TEST(ProcessMessageTest, SendRecvNative) {
-  CefRefPtr<SendRecvTestHandler> handler = new SendRecvTestHandler(true);
+// Verify send and recieve.
+TEST(ProcessMessageTest, SendRecv) {
+  CefRefPtr<SendRecvTestHandler> handler = new SendRecvTestHandler();
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_message_);
 }
 
-// Verify JavaScript send and recieve
-TEST(ProcessMessageTest, SendRecvJavaScript) {
-  CefRefPtr<SendRecvTestHandler> handler = new SendRecvTestHandler(false);
-  handler->ExecuteTest();
-
-  EXPECT_TRUE(handler->got_message_);
-}
-
-// Verify create
+// Verify create.
 TEST(ProcessMessageTest, Create) {
   CefRefPtr<CefProcessMessage> message =
       CefProcessMessage::Create(kSendRecvMsg);
@@ -167,7 +136,7 @@ TEST(ProcessMessageTest, Create) {
   EXPECT_FALSE(args->IsReadOnly());
 }
 
-// Verify copy
+// Verify copy.
 TEST(ProcessMessageTest, Copy) {
   CefRefPtr<CefProcessMessage> message = CreateTestMessage();
   CefRefPtr<CefProcessMessage> message2 = message->Copy();

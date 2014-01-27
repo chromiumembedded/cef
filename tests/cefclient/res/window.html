@@ -3,8 +3,12 @@
 <title>Window Test</title>
 <script>
 function send_message(test, params) {
-  // This will result in a call to OnProcessMessageReceived in window_test.cpp.
-  app.sendMessage('WindowTest.' + test, params);
+  var message = 'WindowTest.' + test;
+  if (typeof params != 'undefined')
+    message += ':' + params;
+
+  // Results in a call to the OnQuery method in window_test.cpp.
+  window.cefQuery({'request' : message});
 }
 
 function minimize() {
@@ -28,7 +32,7 @@ function position() {
   if (isNaN(x) || isNaN(y) || isNaN(width) || isNaN(height))
     alert('Please specify a valid numeric value.');
   else
-    send_message('Position', [x, y, width, height]);
+    send_message('Position', x + ',' + y + ',' + width + ',' + height);
 }
 </script>
 </head>

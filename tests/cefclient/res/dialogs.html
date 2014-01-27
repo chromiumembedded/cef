@@ -35,14 +35,14 @@ function show_file_dialog(element, test) {
   var message = 'DialogTest.' + test;
   var target = document.getElementById(element);
 
-  // Register for the callback from OnFileDialogDismissed in dialog_test.cpp.
-  app.setMessageCallback(message, function(msg, paths) {
-    target.innerText = paths.join();
-    app.removeMessageCallback(message);
+  // Results in a call to the OnQuery method in dialog_test.cpp
+  window.cefQuery({
+    request: message,
+    onSuccess: function(response) {
+      target.innerText = response;
+    },
+    onFailure: function(error_code, error_message) {}
   });
-
-  // This will result in a call to OnProcessMessageReceived in dialog_test.cpp.
-  app.sendMessage(message);
 }
 
 window.addEventListener('load', setup, false);

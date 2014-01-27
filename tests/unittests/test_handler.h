@@ -94,6 +94,8 @@ class TestHandler : public CefClient,
     TestHandlerList handler_list_;
   };
 
+  typedef std::map<int, CefRefPtr<CefBrowser> > BrowserMap;
+
   // The |completion_state| object if specified must outlive this class.
   explicit TestHandler(CompletionState* completion_state = NULL);
   virtual ~TestHandler();
@@ -149,8 +151,13 @@ class TestHandler : public CefClient,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request) OVERRIDE;
 
-  CefRefPtr<CefBrowser> GetBrowser() { return browser_; }
-  int GetBrowserId() { return browser_id_; }
+  // These methods should only be used if at most one non-popup browser exists.
+  CefRefPtr<CefBrowser> GetBrowser();
+  int GetBrowserId();
+
+  // Copies the map of all the currently existing browsers into |map|. Must be
+  // called on the UI thread.
+  void GetAllBrowsers(BrowserMap* map);
 
   // Called by the test function to execute the test. This method blocks until
   // the test is complete. Do not reference the object after this method
@@ -166,8 +173,11 @@ class TestHandler : public CefClient,
   // Collection.
   virtual void SetupComplete();
 
-  // Destroy the browser window. Once the window is destroyed test completion
-  // will be signaled.
+  // Close any existing non-popup browsers. Test completion will be signaled
+  // once all the browsers have closed if
+  // |signal_completion_when_all_browsers_close_| is true (default value).
+  // If no browsers exist then this method will do nothing and
+  // TestComplete() must be called manually.
   virtual void DestroyTest();
 
   void CreateBrowser(const CefString& url,
@@ -178,26 +188,44 @@ class TestHandler : public CefClient,
                    const std::string& mimeType);
   void ClearResources();
 
+  void SetSignalCompletionWhenAllBrowsersClose(bool val) {
+    signal_completion_when_all_browsers_close_ = val;
+  }
+  bool SignalCompletionWhenAllBrowsersClose() const {
+    return signal_completion_when_all_browsers_close_;
+  }
+
+  // Signal that the test is complete. This will be called automatically when
+  // all existing non-popup browsers are closed if
+  // |signal_completion_when_all_browsers_close_| is true (default value). It
+  // is an error to call this method before all browsers have closed.
+  void TestComplete();
+
  private:
-  // The child browser window
-  CefRefPtr<CefBrowser> browser_;
-
-  // The browser window identifier
-  int browser_id_;
-
-  // Used to notify when the test is complete
+  // Used to notify when the test is complete. Can be accessed on any thread.
   CompletionState* completion_state_;
   bool completion_state_owned_;
 
-  // Map of resources that can be automatically loaded
+  // Map browser ID to browser object for non-popup browsers. Only accessed on
+  // the UI thread.
+  BrowserMap browser_map_;
+
+  // Values for the first created browser. Modified on the UI thread but can be
+  // accessed on any thread.
+  int first_browser_id_;
+  CefRefPtr<CefBrowser> first_browser_;
+
+  // Map of resources that can be automatically loaded. Only accessed on the
+  // IO thread.
   typedef std::map<std::string, std::pair<std::string, std::string> >
       ResourceMap;
   ResourceMap resource_map_;
 
+  // If true test completion will be signaled when all browsers have closed.
+  bool signal_completion_when_all_browsers_close_;
+
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(TestHandler);
-  // Include the default locking implementation.
-  IMPLEMENT_LOCKING(TestHandler);
 
   // Used to track the number of currently existing browser windows.
   static int browser_count_;
@@ -214,5 +242,9 @@ void WaitForThread(CefRefPtr<CefTaskRunner> task_runner);
 
 // Returns true if the currently running test has failed.
 bool TestFailed();
+
+#define EXPECT_UI_THREAD()       EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+#define EXPECT_IO_THREAD()       EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+#define EXPECT_RENDERER_THREAD() EXPECT_TRUE(CefCurrentlyOn(TID_RENDERER));
 
 #endif  // CEF_TESTS_UNITTESTS_TEST_HANDLER_H_

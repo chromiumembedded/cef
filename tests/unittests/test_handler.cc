@@ -3,7 +3,6 @@
 // can be found in the LICENSE file.
 
 #include "tests/unittests/test_handler.h"
-#include "base/logging.h"
 #include "include/cef_command_line.h"
 #include "include/cef_runnable.h"
 #include "include/cef_stream.h"
@@ -47,16 +46,16 @@ void TestHandler::CompletionState::WaitForTests() {
 
 TestHandler::Collection::Collection(CompletionState* completion_state)
     : completion_state_(completion_state) {
-  DCHECK(completion_state_);
+  EXPECT_TRUE(completion_state_);
 }
 
 void TestHandler::Collection::AddTestHandler(TestHandler* test_handler) {
-  DCHECK_EQ(test_handler->completion_state_, completion_state_);
+  EXPECT_EQ(test_handler->completion_state_, completion_state_);
   handler_list_.push_back(test_handler);
 }
 
 void TestHandler::Collection::ExecuteTests() {
-  DCHECK_GT(handler_list_.size(), 0UL);
+  EXPECT_GT(handler_list_.size(), 0UL);
 
   TestHandlerList::const_iterator it;
 
@@ -79,7 +78,8 @@ void TestHandler::Collection::ExecuteTests() {
 int TestHandler::browser_count_ = 0;
 
 TestHandler::TestHandler(CompletionState* completion_state)
-  : browser_id_(0) {
+    : first_browser_id_(0),
+      signal_completion_when_all_browsers_close_(true) {
   if (completion_state) {
     completion_state_ = completion_state;
     completion_state_owned_ = false;
@@ -90,31 +90,48 @@ TestHandler::TestHandler(CompletionState* completion_state)
 }
 
 TestHandler::~TestHandler() {
+  EXPECT_TRUE(browser_map_.empty());
+
   if (completion_state_owned_)
     delete completion_state_;
 }
 
 void TestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
+  EXPECT_UI_THREAD();
+
   browser_count_++;
 
-  AutoLock lock_scope(this);
   if (!browser->IsPopup()) {
-    // Keep the main child window, but not popup windows
-    browser_ = browser;
-    browser_id_ = browser->GetIdentifier();
+    // Keep non-popup browsers.
+    const int browser_id = browser->GetIdentifier();
+    EXPECT_EQ(browser_map_.find(browser_id), browser_map_.end());
+    if (browser_map_.empty()) {
+      first_browser_id_ = browser_id;
+      first_browser_ = browser;
+    }
+    browser_map_.insert(std::make_pair(browser_id, browser));
   }
 }
 
 void TestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
-  {
-    AutoLock lock_scope(this);
-    if (browser_id_ == browser->GetIdentifier()) {
-      // Free the browser pointer so that the browser can be destroyed
-      browser_ = NULL;
-      browser_id_ = 0;
+  EXPECT_UI_THREAD();
 
+  if (!browser->IsPopup()) {
+    // Free the browser pointer so that the browser can be destroyed.
+    const int browser_id = browser->GetIdentifier();
+    BrowserMap::iterator it = browser_map_.find(browser_id);
+    EXPECT_NE(it, browser_map_.end());
+    browser_map_.erase(it);
+
+    if (browser_id == first_browser_id_) {
+      first_browser_id_ = 0;
+      first_browser_ = NULL;
+    }
+
+    if (browser_map_.empty() &&
+        signal_completion_when_all_browsers_close_) {
       // Signal that the test is now complete.
-      completion_state_->TestComplete();
+      TestComplete();
     }
   }
 
@@ -125,7 +142,7 @@ CefRefPtr<CefResourceHandler> TestHandler::GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request) {
-  AutoLock lock_scope(this);
+  EXPECT_IO_THREAD();
 
   if (resource_map_.size() > 0) {
     CefString url = request->GetURL();
@@ -150,8 +167,22 @@ CefRefPtr<CefResourceHandler> TestHandler::GetResourceHandler(
   return NULL;
 }
 
+CefRefPtr<CefBrowser> TestHandler::GetBrowser() {
+  return first_browser_;
+}
+
+int TestHandler::GetBrowserId() {
+  return first_browser_id_;
+}
+
+void TestHandler::GetAllBrowsers(BrowserMap* map) {
+  EXPECT_UI_THREAD();
+  EXPECT_TRUE(map);
+  *map = browser_map_;
+}
+
 void TestHandler::ExecuteTest() {
-  DCHECK_EQ(completion_state_->total(), 1);
+  EXPECT_EQ(completion_state_->total(), 1);
 
   // Run the test
   RunTest();
@@ -166,9 +197,21 @@ void TestHandler::SetupComplete() {
 }
 
 void TestHandler::DestroyTest() {
-  AutoLock lock_scope(this);
-  if (browser_id_ != 0)
-    browser_->GetHost()->CloseBrowser(false);
+  if (!CefCurrentlyOn(TID_UI)) {
+    CefPostTask(TID_UI, NewCefRunnableMethod(this, &TestHandler::DestroyTest));
+    return;
+  }
+
+  if (!browser_map_.empty()) {
+    // Use a copy of the map since the original may be modified while we're
+    // iterating.
+    BrowserMap browser_map = browser_map_;
+
+    // Tell all non-popup browsers to close.
+    BrowserMap::const_iterator it = browser_map.begin();
+    for (; it != browser_map.end(); ++it)
+      it->second->GetHost()->CloseBrowser(false);
+  }
 }
 
 void TestHandler::CreateBrowser(
@@ -187,6 +230,13 @@ void TestHandler::CreateBrowser(
 void TestHandler::AddResource(const std::string& url,
                               const std::string& content,
                               const std::string& mimeType) {
+  if (!CefCurrentlyOn(TID_IO)) {
+    CefPostTask(TID_IO,
+        NewCefRunnableMethod(this, &TestHandler::AddResource, url, content,
+                             mimeType));
+    return;
+  }
+
   // Ignore the query component, if any.
   std::string urlStr = url;
   size_t idx = urlStr.find('?');
@@ -198,7 +248,23 @@ void TestHandler::AddResource(const std::string& url,
 }
 
 void TestHandler::ClearResources() {
+  if (!CefCurrentlyOn(TID_IO)) {
+    CefPostTask(TID_IO,
+        NewCefRunnableMethod(this, &TestHandler::ClearResources));
+    return;
+  }
+
   resource_map_.clear();
+}
+
+void TestHandler::TestComplete() {
+  if (!CefCurrentlyOn(TID_UI)) {
+    CefPostTask(TID_UI, NewCefRunnableMethod(this, &TestHandler::TestComplete));
+    return;
+  }
+
+  EXPECT_TRUE(browser_map_.empty());
+  completion_state_->TestComplete();
 }
 
 

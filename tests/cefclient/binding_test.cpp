@@ -13,54 +13,43 @@ namespace binding_test {
 
 namespace {
 
-const char* kMessageName = "binding_test";
+const char kTestUrl[] = "http://tests/binding";
+const char kTestMessageName[] = "BindingTest";
 
 // Handle messages in the browser process.
-class ProcessMessageDelegate : public ClientHandler::ProcessMessageDelegate {
+class Handler : public CefMessageRouterBrowserSide::Handler {
  public:
-  ProcessMessageDelegate() {
-  }
+  Handler() {}
 
-  // From ClientHandler::ProcessMessageDelegate.
-  virtual bool OnProcessMessageReceived(
-      CefRefPtr<ClientHandler> handler,
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE {
-    std::string message_name = message->GetName();
-    if (message_name == kMessageName) {
-      // Handle the message.
-      std::string result;
+  // Called due to cefQuery execution in binding.html.
+  virtual bool OnQuery(CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefFrame> frame,
+                       int64 query_id,
+                       const CefString& request,
+                       bool persistent,
+                       CefRefPtr<Callback> callback) OVERRIDE {
+    // Only handle messages from the test URL.
+    const std::string& url = frame->GetURL();
+    if (url.find(kTestUrl) != 0)
+      return false;
 
-      CefRefPtr<CefListValue> args = message->GetArgumentList();
-      if (args->GetSize() > 0 && args->GetType(0) == VTYPE_STRING) {
-        // Our result is a reverse of the original message.
-        result = args->GetString(0);
-        std::reverse(result.begin(), result.end());
-      } else {
-        result = "Invalid request";
-      }
-
-      // Send the result back to the render process.
-      CefRefPtr<CefProcessMessage> response =
-          CefProcessMessage::Create(kMessageName);
-      response->GetArgumentList()->SetString(0, result);
-      browser->SendProcessMessage(PID_RENDERER, response);
-
+    const std::string& message_name = request;
+    if (message_name.find(kTestMessageName) == 0) {
+      // Reverse the string and return.
+      std::string result = message_name.substr(sizeof(kTestMessageName));
+      std::reverse(result.begin(), result.end());
+      callback->Success(result);
       return true;
     }
 
     return false;
   }
-
-  IMPLEMENT_REFCOUNTING(ProcessMessageDelegate);
 };
 
 }  // namespace
 
-void CreateProcessMessageDelegates(
-    ClientHandler::ProcessMessageDelegateSet& delegates) {
-  delegates.insert(new ProcessMessageDelegate);
+void CreateMessageHandlers(ClientHandler::MessageHandlerSet& handlers) {
+  handlers.insert(new Handler());
 }
 
 }  // namespace binding_test

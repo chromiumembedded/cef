@@ -8,10 +8,6 @@
   #LI11select {width: 75px;}
   </style>
   <script>
-  function sendBrowserMessage(paramString) {
-    app.sendMessage("osrtest", [paramString]);
-  }
-
   function getElement(id) { return document.getElementById(id); }
   function makeH1Red() { getElement('LI00').style.color='red'; }
   function makeH1Black() { getElement('LI00').style.color='black'; }
@@ -22,12 +18,13 @@
   }
 
   function onEventTest(event) {
-    var param = event.type;
+    var param = 'osr' + event.type;
 
     if (event.type == "click")
       param += event.button;
 
-    sendBrowserMessage(param);
+    // Results in a call to the OnQuery method in os_rendering_unittest.cc.
+    window.testQuery({request: param});
   }
 
   </script>

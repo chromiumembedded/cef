@@ -8,7 +8,7 @@
 
 #include "tests/cefclient/client_app.h"
 #include "tests/cefclient/resource_util.h"
-#include "tests/unittests/test_handler.h"
+#include "tests/unittests/routing_test_handler.h"
 
 #include "base/logging.h"
 #include "ui/events/keycodes/keyboard_codes.h"
@@ -190,7 +190,7 @@ enum OSRTestType {
 };
 
 // Used in the browser process.
-class OSRTestHandler : public TestHandler,
+class OSRTestHandler : public RoutingTestHandler,
                        public CefRenderHandler,
                        public CefContextMenuHandler {
  public:
@@ -224,7 +224,7 @@ class OSRTestHandler : public TestHandler,
       EXPECT_TRUE(browser->GetHost()->IsWindowRenderingDisabled());
       DestroySucceededTestSoon();
     }
-    TestHandler::OnAfterCreated(browser);
+    RoutingTestHandler::OnAfterCreated(browser);
   }
 
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -247,37 +247,33 @@ class OSRTestHandler : public TestHandler,
     }
   }
 
-  virtual bool OnProcessMessageReceived(
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE {
+  virtual bool OnQuery(CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefFrame> frame,
+                       int64 query_id,
+                       const CefString& request,
+                       bool persistent,
+                       CefRefPtr<Callback> callback) OVERRIDE {
     EXPECT_TRUE(browser.get());
-    EXPECT_EQ(PID_RENDERER, source_process);
-    EXPECT_TRUE(message.get());
-    EXPECT_TRUE(message->IsReadOnly());
 
     if (!started())
       return false;
 
-    const CefString kMessageName = "osrtest";
-    EXPECT_EQ(kMessageName, message->GetName());
-
-    CefString stringParam = message->GetArgumentList()->GetString(0);
+    const std::string& messageStr = request;
     switch(test_type_) {
       case OSR_TEST_FOCUS:
-        EXPECT_EQ(stringParam, std::string("focus"));
+        EXPECT_STREQ(messageStr.c_str(), "osrfocus");
         DestroySucceededTestSoon();
         break;
       case OSR_TEST_CLICK_LEFT:
-        EXPECT_EQ(stringParam, std::string("click0"));
+        EXPECT_STREQ(messageStr.c_str(), "osrclick0");
         DestroySucceededTestSoon();
         break;
       case OSR_TEST_CLICK_MIDDLE:
-        EXPECT_EQ(stringParam, std::string("click1"));
+        EXPECT_STREQ(messageStr.c_str(), "osrclick1");
         DestroySucceededTestSoon();
         break;
       case OSR_TEST_MOUSE_MOVE:
-        EXPECT_EQ(stringParam, std::string("mousemove"));
+        EXPECT_STREQ(messageStr.c_str(), "osrmousemove");
         DestroySucceededTestSoon();
         break;
       default:
@@ -285,6 +281,7 @@ class OSRTestHandler : public TestHandler,
         break;
     }
 
+    callback->Success("");
     return true;
   }
 

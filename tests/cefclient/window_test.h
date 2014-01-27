@@ -10,9 +10,8 @@
 
 namespace window_test {
 
-// Delegate creation. Called from ClientHandler.
-void CreateProcessMessageDelegates(
-    ClientHandler::ProcessMessageDelegateSet& delegates);
+/// Handler creation. Called from ClientHandler.
+void CreateMessageHandlers(ClientHandler::MessageHandlerSet& handlers);
 
 // Fit |window| inside |display|. Coordinates are relative to the upper-left
 // corner of the display.

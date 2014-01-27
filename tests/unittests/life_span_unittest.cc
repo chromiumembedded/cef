@@ -3,7 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/cef_runnable.h"
-#include "tests/unittests/test_handler.h"
+#include "tests/unittests/routing_test_handler.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -13,7 +13,7 @@ const char kUnloadDialogText[] = "Are you sure?";
 const char kUnloadMsg[] = "LifeSpanTestHandler.Unload";
 
 // Browser side.
-class LifeSpanTestHandler : public TestHandler {
+class LifeSpanTestHandler : public RoutingTestHandler {
  public:
   struct Settings {
     Settings()
@@ -35,9 +35,9 @@ class LifeSpanTestHandler : public TestHandler {
   virtual void RunTest() OVERRIDE {
     // Add the resources that we will navigate to/from.
     std::string page = "<html><script>";
-    
-    page += "window.onunload = function() { app.sendMessage('" +
-            std::string(kUnloadMsg) + "'); };";
+
+    page += "window.onunload = function() { window.testQuery({request:'" +
+        std::string(kUnloadMsg) + "'}); };";
 
     if (settings_.add_onunload_handler) {
       page += "window.onbeforeunload = function() { return '" +
@@ -53,7 +53,7 @@ class LifeSpanTestHandler : public TestHandler {
 
   virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE {
     got_after_created_.yes();
-    TestHandler::OnAfterCreated(browser);
+    RoutingTestHandler::OnAfterCreated(browser);
   }
 
   virtual bool DoClose(CefRefPtr<CefBrowser> browser) OVERRIDE {
@@ -78,7 +78,7 @@ class LifeSpanTestHandler : public TestHandler {
       EXPECT_TRUE(browser->IsSame(GetBrowser()));
     }
 
-    TestHandler::OnBeforeClose(browser);
+    RoutingTestHandler::OnBeforeClose(browser);
   }
 
   virtual bool OnBeforeUnloadDialog(
@@ -116,18 +116,18 @@ class LifeSpanTestHandler : public TestHandler {
     browser->GetHost()->CloseBrowser(settings_.force_close);
   }
 
-  virtual bool OnProcessMessageReceived(
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE {
-    const std::string& message_name = message->GetName();
-    if (message_name == kUnloadMsg) {
+  virtual bool OnQuery(CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefFrame> frame,
+                       int64 query_id,
+                       const CefString& request,
+                       bool persistent,
+                       CefRefPtr<Callback> callback) OVERRIDE {
+    if (request.ToString() == kUnloadMsg) {
       if (!executing_delay_close_)
         got_unload_message_.yes();
-      return true;
     }
-
-    return false;
+    callback->Success("");
+    return true;
   }
 
   TrackCallback got_after_created_;

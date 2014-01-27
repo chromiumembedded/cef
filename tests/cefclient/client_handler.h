@@ -11,6 +11,7 @@
 #include <set>
 #include <string>
 #include "include/cef_client.h"
+#include "include/wrapper/cef_message_router.h"
 #include "cefclient/util.h"
 
 
@@ -32,31 +33,13 @@ class ClientHandler : public CefClient,
                       public CefRenderHandler,
                       public CefRequestHandler {
  public:
-  // Interface for process message delegates. Do not perform work in the
-  // RenderDelegate constructor.
-  class ProcessMessageDelegate : public virtual CefBase {
-   public:
-    // Called when a process message is received. Return true if the message was
-    // handled and should not be passed on to other handlers.
-    // ProcessMessageDelegates should check for unique message names to avoid
-    // interfering with each other.
-    virtual bool OnProcessMessageReceived(
-        CefRefPtr<ClientHandler> handler,
-        CefRefPtr<CefBrowser> browser,
-        CefProcessId source_process,
-        CefRefPtr<CefProcessMessage> message) {
-      return false;
-    }
-  };
-
-  typedef std::set<CefRefPtr<ProcessMessageDelegate> >
-      ProcessMessageDelegateSet;
-
   // Interface implemented to handle off-screen rendering.
   class RenderHandler : public CefRenderHandler {
    public:
     virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) =0;
   };
+
+  typedef std::set<CefMessageRouterBrowserSide::Handler*> MessageHandlerSet;
 
   ClientHandler();
   virtual ~ClientHandler();
@@ -174,6 +157,10 @@ class ClientHandler : public CefClient,
                            const CefString& failedUrl) OVERRIDE;
 
   // CefRequestHandler methods
+  virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                              CefRefPtr<CefFrame> frame,
+                              CefRefPtr<CefRequest> request,
+                              bool is_redirect) OVERRIDE;
   virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
@@ -264,9 +251,9 @@ class ClientHandler : public CefClient,
   void SetLoading(bool isLoading);
   void SetNavState(bool canGoBack, bool canGoForward);
 
-  // Create all of ProcessMessageDelegate objects.
-  static void CreateProcessMessageDelegates(
-      ProcessMessageDelegateSet& delegates);
+  // Create all CefMessageRouterBrowserSide::Handler objects. They will be
+  // deleted when the ClientHandler is destroyed.
+  static void CreateMessageHandlers(MessageHandlerSet& handlers);
 
   // Test context menu creation.
   void BuildTestMenu(CefRefPtr<CefMenuModel> model);
@@ -317,14 +304,18 @@ class ClientHandler : public CefClient,
   // True if an editable field currently has focus.
   bool m_bFocusOnEditableField;
 
-  // Registered delegates.
-  ProcessMessageDelegateSet process_message_delegates_;
-
   // The startup URL.
   std::string m_StartupURL;
 
   // True if mouse cursor change is disabled.
   bool m_bMouseCursorChangeDisabled;
+
+  // Handles the browser side of query routing. The renderer side is handled
+  // in client_renderer.cpp.
+  CefRefPtr<CefMessageRouterBrowserSide> message_router_;
+
+  // Set of Handlers registered with the message router.
+  MessageHandlerSet message_handler_set_;
 
   // Number of currently existing browser windows. The application will exit
   // when the number of windows reaches 0.

@@ -98,7 +98,15 @@ ClientHandler::ClientHandler()
     m_StopHwnd(NULL),
     m_ReloadHwnd(NULL),
     m_bFocusOnEditableField(false) {
-  CreateProcessMessageDelegates(process_message_delegates_);
+  // Create the browser-side router for query handling.
+  CefMessageRouterConfig config;
+  message_router_ = CefMessageRouterBrowserSide::Create(config);
+
+  // Register handlers with the router.
+  CreateMessageHandlers(message_handler_set_);
+  MessageHandlerSet::const_iterator it = message_handler_set_.begin();
+  for (; it != message_handler_set_.end(); ++it)
+    message_router_->AddHandler(*(it), false);
 
   // Read command line settings.
   CefRefPtr<CefCommandLine> command_line =
@@ -120,6 +128,11 @@ bool ClientHandler::OnProcessMessageReceived(
     CefRefPtr<CefBrowser> browser,
     CefProcessId source_process,
     CefRefPtr<CefProcessMessage> message) {
+  if (message_router_->OnProcessMessageReceived(browser, source_process,
+                                                message)) {
+    return true;
+  }
+
   // Check for messages from the client renderer.
   std::string message_name = message->GetName();
   if (message_name == client_renderer::kFocusedNodeChangedMessage) {
@@ -131,16 +144,7 @@ bool ClientHandler::OnProcessMessageReceived(
     return true;
   }
 
-  bool handled = false;
-
-  // Execute delegate callbacks.
-  ProcessMessageDelegateSet::iterator it = process_message_delegates_.begin();
-  for (; it != process_message_delegates_.end() && !handled; ++it) {
-    handled = (*it)->OnProcessMessageReceived(this, browser, source_process,
-                                              message);
-  }
-
-  return handled;
+  return false;
 }
 
 void ClientHandler::OnBeforeContextMenu(
@@ -343,6 +347,8 @@ bool ClientHandler::DoClose(CefRefPtr<CefBrowser> browser) {
 void ClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   REQUIRE_UI_THREAD();
 
+  message_router_->OnBeforeClose(browser);
+
   if (m_BrowserId == browser->GetIdentifier()) {
     // Free the browser pointer so that the browser can be destroyed
     m_Browser = NULL;
@@ -363,7 +369,17 @@ void ClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   }
 
   if (--m_BrowserCount == 0) {
-    // All browser windows have closed. Quit the application message loop.
+    // All browser windows have closed.
+    // Remove and delete message router handlers.
+    MessageHandlerSet::const_iterator it = message_handler_set_.begin();
+    for (; it != message_handler_set_.end(); ++it) {
+      message_router_->RemoveHandler(*(it));
+      delete *(it);
+    }
+    message_handler_set_.clear();
+    message_router_ = NULL;
+
+    // Quit the application message loop.
     AppQuitMessageLoop();
   }
 }
@@ -412,10 +428,18 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
   frame->LoadString(ss.str(), failedUrl);
 }
 
+bool ClientHandler::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                                   CefRefPtr<CefFrame> frame,
+                                   CefRefPtr<CefRequest> request,
+                                   bool is_redirect) {
+  message_router_->OnBeforeBrowse(browser, frame);
+  return false;
+}
+
 CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
-      CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request) {
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request) {
   std::string url = request->GetURL();
   if (url.find(kTestOrigin) == 0) {
     // Handle URLs in the test origin.
@@ -469,6 +493,8 @@ void ClientHandler::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
 
 void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
                                               TerminationStatus status) {
+  message_router_->OnRenderProcessTerminated(browser);
+
   // Load the startup URL if that's not the website that we terminated on.
   CefRefPtr<CefFrame> frame = browser->GetMainFrame();
   std::string url = frame->GetURL();
@@ -693,16 +719,15 @@ bool ClientHandler::Save(const std::string& path, const std::string& data) {
 }
 
 // static
-void ClientHandler::CreateProcessMessageDelegates(
-      ProcessMessageDelegateSet& delegates) {
-  // Create the binding test delegates.
-  binding_test::CreateProcessMessageDelegates(delegates);
+void ClientHandler::CreateMessageHandlers(MessageHandlerSet& handlers) {
+  // Create the dialog test handlers.
+  dialog_test::CreateMessageHandlers(handlers);
 
-  // Create the dialog test delegates.
-  dialog_test::CreateProcessMessageDelegates(delegates);
+  // Create the binding test handlers.
+  binding_test::CreateMessageHandlers(handlers);
 
-  // Create the window test delegates.
-  window_test::CreateProcessMessageDelegates(delegates);
+  // Create the window test handlers.
+  window_test::CreateMessageHandlers(handlers);
 }
 
 void ClientHandler::BuildTestMenu(CefRefPtr<CefMenuModel> model) {

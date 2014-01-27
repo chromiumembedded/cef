@@ -10,9 +10,8 @@
 
 namespace dialog_test {
 
-// Delegate creation. Called from ClientHandler.
-void CreateProcessMessageDelegates(
-    ClientHandler::ProcessMessageDelegateSet& delegates);
+/// Handler creation. Called from ClientHandler.
+void CreateMessageHandlers(ClientHandler::MessageHandlerSet& handlers);
 
 }  // namespace dialog_test
 

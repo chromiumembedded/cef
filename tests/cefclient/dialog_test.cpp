@@ -11,54 +11,54 @@ namespace dialog_test {
 
 namespace {
 
-const char* kTestUrl = "http://tests/dialogs";
-const char* kFileOpenMessageName = "DialogTest.FileOpen";
-const char* kFileOpenMultipleMessageName = "DialogTest.FileOpenMultiple";
-const char* kFileSaveMessageName = "DialogTest.FileSave";
+const char kTestUrl[] = "http://tests/dialogs";
+const char kFileOpenMessageName[] = "DialogTest.FileOpen";
+const char kFileOpenMultipleMessageName[] = "DialogTest.FileOpenMultiple";
+const char kFileSaveMessageName[] = "DialogTest.FileSave";
 
-class RunFileDialogCallback : public CefRunFileDialogCallback {
+// Callback executed when the file dialog is dismissed.
+class DialogCallback : public CefRunFileDialogCallback {
  public:
-  explicit RunFileDialogCallback(const std::string& message_name)
-      : message_name_(message_name) {
+  explicit DialogCallback(
+      CefRefPtr<CefMessageRouterBrowserSide::Callback> router_callback)
+      : router_callback_(router_callback) {
   }
 
   virtual void OnFileDialogDismissed(
       CefRefPtr<CefBrowserHost> browser_host,
       const std::vector<CefString>& file_paths) OVERRIDE {
-    // Send a message back to the render process with the same name and the list
-    // of file paths.
-    CefRefPtr<CefProcessMessage> message =
-        CefProcessMessage::Create(message_name_);
-    CefRefPtr<CefListValue> args = message->GetArgumentList();
-    CefRefPtr<CefListValue> val = CefListValue::Create();
-    for (int i = 0; i < static_cast<int>(file_paths.size()); ++i)
-      val->SetString(i, file_paths[i]);
-    args->SetList(0, val);
+    // Send a message back to the render process with the list of file paths.
+    std::string response;
+    for (int i = 0; i < static_cast<int>(file_paths.size()); ++i) {
+      if (!response.empty())
+        response += "|";  // Use a delimiter disallowed in file paths.
+      response += file_paths[i];
+    }
 
-    // This will result in a call to the callback registered via JavaScript in
-    // dialogs.html.
-    browser_host->GetBrowser()->SendProcessMessage(PID_RENDERER, message);
+    router_callback_->Success(response);
+    router_callback_ = NULL;
   }
 
  private:
-  std::string message_name_;
+  CefRefPtr<CefMessageRouterBrowserSide::Callback> router_callback_;
 
-  IMPLEMENT_REFCOUNTING(RunFileDialogCallback);
+  IMPLEMENT_REFCOUNTING(DialogCallback);
 };
 
 // Handle messages in the browser process.
-class ProcessMessageDelegate : public ClientHandler::ProcessMessageDelegate {
+class Handler : public CefMessageRouterBrowserSide::Handler {
  public:
-  ProcessMessageDelegate() {
-  }
+  Handler() {}
 
-  // From ClientHandler::ProcessMessageDelegate.
-  virtual bool OnProcessMessageReceived(
-      CefRefPtr<ClientHandler> handler,
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE {
-    std::string url = browser->GetMainFrame()->GetURL();
+  // Called due to cefQuery execution in dialogs.html.
+  virtual bool OnQuery(CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefFrame> frame,
+                       int64 query_id,
+                       const CefString& request,
+                       bool persistent,
+                       CefRefPtr<Callback> callback) OVERRIDE {
+    // Only handle messages from the test URL.
+    const std::string& url = frame->GetURL();
     if (url.find(kTestUrl) != 0)
       return false;
 
@@ -68,35 +68,31 @@ class ProcessMessageDelegate : public ClientHandler::ProcessMessageDelegate {
     file_types.push_back(".log");
     file_types.push_back(".patch");
 
-    std::string message_name = message->GetName();
+    CefRefPtr<DialogCallback> dialog_callback(new DialogCallback(callback));
+
+    const std::string& message_name = request;
     if (message_name == kFileOpenMessageName) {
       browser->GetHost()->RunFileDialog(FILE_DIALOG_OPEN, "My Open Dialog",
-          "test.txt", file_types, new RunFileDialogCallback(message_name));
-      return true;
+          "test.txt", file_types, dialog_callback.get());
     } else if (message_name == kFileOpenMultipleMessageName) {
       browser->GetHost()->RunFileDialog(FILE_DIALOG_OPEN_MULTIPLE,
           "My Open Multiple Dialog", CefString(), file_types,
-          new RunFileDialogCallback(message_name));
-      return true;
+          dialog_callback.get());
     } else if (message_name == kFileSaveMessageName) {
       browser->GetHost()->RunFileDialog(FILE_DIALOG_SAVE, "My Save Dialog",
-          "test.txt", file_types, new RunFileDialogCallback(message_name));
-      return true;
+          "test.txt", file_types, dialog_callback.get());
     } else {
       ASSERT(false);  // Not reached.
     }
 
-    return false;
+    return true;
   }
-
-  IMPLEMENT_REFCOUNTING(ProcessMessageDelegate);
 };
 
 }  // namespace
 
-void CreateProcessMessageDelegates(
-    ClientHandler::ProcessMessageDelegateSet& delegates) {
-  delegates.insert(new ProcessMessageDelegate);
+void CreateMessageHandlers(ClientHandler::MessageHandlerSet& handlers) {
+  handlers.insert(new Handler());
 }
 
 }  // namespace dialog_test

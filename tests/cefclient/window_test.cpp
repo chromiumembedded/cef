@@ -5,7 +5,9 @@
 #include "cefclient/window_test.h"
 
 #include <algorithm>
+#include <sstream>
 #include <string>
+#include <vector>
 
 #include "include/wrapper/cef_stream_resource_handler.h"
 
@@ -13,56 +15,66 @@ namespace window_test {
 
 namespace {
 
-const char* kMessagePositionName = "WindowTest.Position";
-const char* kMessageMinimizeName = "WindowTest.Minimize";
-const char* kMessageMaximizeName = "WindowTest.Maximize";
-const char* kMessageRestoreName = "WindowTest.Restore";
+const char kTestUrl[] = "http://tests/window";
+const char kMessagePositionName[] = "WindowTest.Position";
+const char kMessageMinimizeName[] = "WindowTest.Minimize";
+const char kMessageMaximizeName[] = "WindowTest.Maximize";
+const char kMessageRestoreName[] = "WindowTest.Restore";
 
 // Handle messages in the browser process.
-class ProcessMessageDelegate : public ClientHandler::ProcessMessageDelegate {
+class Handler : public CefMessageRouterBrowserSide::Handler {
  public:
-  ProcessMessageDelegate() {
-  }
+  Handler() {}
 
-  // From ClientHandler::ProcessMessageDelegate.
-  virtual bool OnProcessMessageReceived(
-      CefRefPtr<ClientHandler> handler,
-      CefRefPtr<CefBrowser> browser,
-      CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE {
-    std::string message_name = message->GetName();
-    if (message_name == kMessagePositionName) {
-      CefRefPtr<CefListValue> args = message->GetArgumentList();
-      if (args->GetSize() >= 4) {
-        int x = args->GetInt(0);
-        int y = args->GetInt(1);
-        int width = args->GetInt(2);
-        int height = args->GetInt(3);
-        SetPos(browser->GetHost()->GetWindowHandle(), x, y, width, height);
+  // Called due to cefBroadcast execution in window.html.
+  virtual bool OnQuery(CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefFrame> frame,
+                       int64 query_id,
+                       const CefString& request,
+                       bool persistent,
+                       CefRefPtr<Callback> callback) OVERRIDE {
+    // Only handle messages from the test URL.
+    const std::string& url = frame->GetURL();
+    if (url.find(kTestUrl) != 0)
+      return false;
+
+    const std::string& message_name = request;
+    if (message_name.find(kMessagePositionName) == 0) {
+      // Parse the comma-delimited list of integer values.
+      std::vector<int> vec;
+      const std::string& vals =
+          message_name.substr(sizeof(kMessagePositionName));
+      std::stringstream ss(vals);
+      int i;
+      while (ss >> i) {
+        vec.push_back(i);
+        if (ss.peek() == ',')
+          ss.ignore();
       }
-      return true;
+
+      if (vec.size() == 4) {
+        SetPos(browser->GetHost()->GetWindowHandle(),
+               vec[0], vec[1], vec[2], vec[3]);
+      }
     } else if (message_name == kMessageMinimizeName) {
       Minimize(browser->GetHost()->GetWindowHandle());
-      return true;
     } else if (message_name == kMessageMaximizeName) {
       Maximize(browser->GetHost()->GetWindowHandle());
-      return true;
     } else if (message_name == kMessageRestoreName) {
       Restore(browser->GetHost()->GetWindowHandle());
-      return true;
+    } else {
+      ASSERT(false);  // Not reached.
     }
 
-    return false;
+    callback->Success("");
+    return true;
   }
-
-  IMPLEMENT_REFCOUNTING(ProcessMessageDelegate);
 };
 
 }  // namespace
 
-void CreateProcessMessageDelegates(
-    ClientHandler::ProcessMessageDelegateSet& delegates) {
-  delegates.insert(new ProcessMessageDelegate);
+void CreateMessageHandlers(ClientHandler::MessageHandlerSet& handlers) {
+  handlers.insert(new Handler());
 }
 
 void ModifyBounds(const CefRect& display, CefRect& window) {

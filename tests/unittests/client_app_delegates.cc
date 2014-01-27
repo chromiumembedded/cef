@@ -21,6 +21,16 @@ void ClientApp::CreateBrowserDelegates(BrowserDelegateSet& delegates) {
 
 // static
 void ClientApp::CreateRenderDelegates(RenderDelegateSet& delegates) {
+  // Bring in the routing test handler delegate.
+  extern void CreateRoutingTestHandlerDelegate(
+      ClientApp::RenderDelegateSet& delegates);
+  CreateRoutingTestHandlerDelegate(delegates);
+
+  // Bring in the message router tests.
+  extern void CreateMessageRouterRendererTests(
+      ClientApp::RenderDelegateSet& delegates);
+  CreateMessageRouterRendererTests(delegates);
+
   // Bring in the process message tests.
   extern void CreateProcessMessageRendererTests(
       ClientApp::RenderDelegateSet& delegates);

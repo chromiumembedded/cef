@@ -103,22 +103,6 @@ class ClientApp : public CefApp,
 
   ClientApp();
 
-  // Set a JavaScript callback for the specified |message_name| and |browser_id|
-  // combination. Will automatically be removed when the associated context is
-  // released. Callbacks can also be set in JavaScript using the
-  // app.setMessageCallback function.
-  void SetMessageCallback(const std::string& message_name,
-                          int browser_id,
-                          CefRefPtr<CefV8Context> context,
-                          CefRefPtr<CefV8Value> function);
-
-  // Removes the JavaScript callback for the specified |message_name| and
-  // |browser_id| combination. Returns true if a callback was removed. Callbacks
-  // can also be removed in JavaScript using the app.removeMessageCallback
-  // function.
-  bool RemoveMessageCallback(const std::string& message_name,
-                             int browser_id);
-
  private:
   // Creates all of the BrowserDelegate objects. Implemented in
   // client_app_delegates.
@@ -134,9 +118,7 @@ class ClientApp : public CefApp,
 
   // CefApp methods.
   virtual void OnRegisterCustomSchemes(
-      CefRefPtr<CefSchemeRegistrar> registrar) OVERRIDE {
-    RegisterCustomSchemes(registrar, cookieable_schemes_);
-  }
+      CefRefPtr<CefSchemeRegistrar> registrar) OVERRIDE;
   virtual CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler()
       OVERRIDE { return this; }
   virtual CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler()
@@ -181,19 +163,14 @@ class ClientApp : public CefApp,
       CefProcessId source_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE;
 
-  // Map of message callbacks.
-  typedef std::map<std::pair<std::string, int>,
-                   std::pair<CefRefPtr<CefV8Context>, CefRefPtr<CefV8Value> > >
-                   CallbackMap;
-  CallbackMap callback_map_;
-
-  // Set of supported BrowserDelegates.
+  // Set of supported BrowserDelegates. Only used in the browser process.
   BrowserDelegateSet browser_delegates_;
 
-  // Set of supported RenderDelegates.
+  // Set of supported RenderDelegates. Only used in the renderer process.
   RenderDelegateSet render_delegates_;
 
-  // Schemes that will be registered with the global cookie manager.
+  // Schemes that will be registered with the global cookie manager. Used in
+  // both the browser and renderer process.
   std::vector<CefString> cookieable_schemes_;
 
   IMPLEMENT_REFCOUNTING(ClientApp);
