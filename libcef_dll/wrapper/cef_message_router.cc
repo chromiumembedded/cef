@@ -222,9 +222,10 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
 
       return visitor.count();
     } else if (browser.get()) {
-      return browser_query_info_map_.size(browser->GetIdentifier());
+      return static_cast<int>(
+          browser_query_info_map_.size(browser->GetIdentifier()));
     } else {
-      return browser_query_info_map_.size();
+      return static_cast<int>(browser_query_info_map_.size());
     }
 
     return 0;
@@ -776,9 +777,10 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
 
       return visitor.count();
     } else if (browser.get()) {
-      return browser_request_info_map_.size(browser->GetIdentifier());
+      return static_cast<int>(
+          browser_request_info_map_.size(browser->GetIdentifier()));
     } else {
-      return browser_request_info_map_.size();
+      return static_cast<int>(browser_request_info_map_.size());
     }
 
     return 0;

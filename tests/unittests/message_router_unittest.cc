@@ -2238,7 +2238,8 @@ class MultiQueryManagerMap :
     EXPECT_EQ(it, manager_map_.end());
 
     MultiQueryManager* manager =
-        new MultiQueryManager(url, synchronous, manager_map_.size() * 1000);
+        new MultiQueryManager(url, synchronous,
+            static_cast<int>(manager_map_.size()) * 1000);
     manager->AddObserver(this);
     manager_map_.insert(std::make_pair(url, manager));
 
@@ -2408,8 +2409,8 @@ class MultiQueryManagerMap :
 
   static std::string GetNameForURL(const std::string& url) {
     // Extract the file name without extension.
-    int pos1 = url.rfind("/");
-    int pos2 = url.rfind(".");
+    int pos1 = static_cast<int>(url.rfind("/"));
+    int pos2 = static_cast<int>(url.rfind("."));
     EXPECT_TRUE(pos1 >= 0 && pos2 >= 0 && pos1 < pos2);
     return url.substr(pos1 + 1, pos2 - pos1 - 1);
   }
