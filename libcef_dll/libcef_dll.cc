@@ -570,6 +570,23 @@ CEF_EXPORT int cef_create_url(const struct _cef_urlparts_t* parts,
   return _retval;
 }
 
+CEF_EXPORT cef_string_userfree_t cef_get_mime_type(
+    const cef_string_t* extension) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: extension; type: string_byref_const
+  DCHECK(extension);
+  if (!extension)
+    return NULL;
+
+  // Execute
+  CefString _retval = CefGetMimeType(
+      CefString(extension));
+
+  // Return type: string
+  return _retval.DetachToUserFree();
+}
+
 CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
     const cef_string_t* javascript_code, struct _cef_v8handler_t* handler) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING

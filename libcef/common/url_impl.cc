@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include "include/cef_url.h"
+#include "net/base/mime_util.h"
 #include "url/gurl.h"
 
 bool CefParseURL(const CefString& url,
@@ -65,4 +66,10 @@ bool CefCreateURL(const CefURLParts& parts,
   }
 
   return false;
+}
+
+CefString CefGetMimeType(const CefString& extension) {
+  std::string mime_type;
+  net::GetMimeTypeFromExtension(extension, &mime_type);
+  return mime_type;
 }

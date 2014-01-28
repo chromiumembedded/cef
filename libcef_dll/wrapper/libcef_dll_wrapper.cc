@@ -522,6 +522,24 @@ CEF_GLOBAL bool CefCreateURL(const CefURLParts& parts, CefString& url) {
   return _retval?true:false;
 }
 
+CEF_GLOBAL CefString CefGetMimeType(const CefString& extension) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: extension; type: string_byref_const
+  DCHECK(!extension.empty());
+  if (extension.empty())
+    return CefString();
+
+  // Execute
+  cef_string_userfree_t _retval = cef_get_mime_type(
+      extension.GetStruct());
+
+  // Return type: string
+  CefString _retvalStr;
+  _retvalStr.AttachToUserFree(_retval);
+  return _retvalStr;
+}
+
 CEF_GLOBAL bool CefRegisterExtension(const CefString& extension_name,
     const CefString& javascript_code, CefRefPtr<CefV8Handler> handler) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING

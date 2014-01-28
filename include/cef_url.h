@@ -57,4 +57,11 @@ bool CefParseURL(const CefString& url,
 bool CefCreateURL(const CefURLParts& parts,
                   CefString& url);
 
+///
+// Returns the mime type for the specified file extension or an empty string if
+// unknown.
+///
+/*--cef()--*/
+CefString CefGetMimeType(const CefString& extension);
+
 #endif  // CEF_INCLUDE_CEF_URL_H_
