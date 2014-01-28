@@ -596,6 +596,14 @@ typedef struct _cef_urlparts_t {
   cef_string_t port;
 
   ///
+  // Origin contains just the scheme, host, and port from a URL. Equivalent to
+  // clearing any username and password, replacing the path with a slash, and
+  // clearing everything after that. This value will be empty for non-standard
+  // URLs.
+  ///
+  cef_string_t origin;
+
+  ///
   // Path component including the first slash following the host.
   ///
   cef_string_t path;

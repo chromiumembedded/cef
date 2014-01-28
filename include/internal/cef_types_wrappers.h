@@ -472,6 +472,7 @@ struct CefURLPartsTraits {
     cef_string_clear(&s->password);
     cef_string_clear(&s->host);
     cef_string_clear(&s->port);
+    cef_string_clear(&s->origin);
     cef_string_clear(&s->path);
     cef_string_clear(&s->query);
   }
@@ -486,6 +487,7 @@ struct CefURLPartsTraits {
         copy);
     cef_string_set(src->host.str, src->host.length, &target->host, copy);
     cef_string_set(src->port.str, src->port.length, &target->port, copy);
+    cef_string_set(src->origin.str, src->origin.length, &target->origin, copy);
     cef_string_set(src->path.str, src->path.length, &target->path, copy);
     cef_string_set(src->query.str, src->query.length, &target->query, copy);
   }

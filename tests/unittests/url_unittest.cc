@@ -5,181 +5,215 @@
 #include "include/cef_url.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-TEST(URLTest, CreateURL) {
-  // Create the URL using the spec.
-  {
-    CefURLParts parts;
-    CefString url;
-    CefString(&parts.spec).FromASCII(
-        "http://user:pass@www.example.com:88/path/to.html?foo=test&bar=test2");
-    EXPECT_TRUE(CefCreateURL(parts, url));
-    EXPECT_EQ(url,
-        "http://user:pass@www.example.com:88/path/to.html?foo=test&bar=test2");
-  }
-
-  // Test that scheme and host are required.
-  {
-    CefURLParts parts;
-    CefString url;
-    CefString(&parts.scheme).FromASCII("http");
-    EXPECT_FALSE(CefCreateURL(parts, url));
-  }
-  {
-    CefURLParts parts;
-    CefString url;
-    CefString(&parts.host).FromASCII("www.example.com");
-    EXPECT_FALSE(CefCreateURL(parts, url));
-  }
-
-  // Create the URL using scheme and host.
-  {
-    CefURLParts parts;
-    CefString url;
-    CefString(&parts.scheme).FromASCII("http");
-    CefString(&parts.host).FromASCII("www.example.com");
-    EXPECT_TRUE(CefCreateURL(parts, url));
-    EXPECT_EQ(url, "http://www.example.com/");
-  }
-
-  // Create the URL using scheme, host and path.
-  {
-    CefURLParts parts;
-    CefString url;
-    CefString(&parts.scheme).FromASCII("http");
-    CefString(&parts.host).FromASCII("www.example.com");
-    CefString(&parts.path).FromASCII("/path/to.html");
-    EXPECT_TRUE(CefCreateURL(parts, url));
-    EXPECT_EQ(url, "http://www.example.com/path/to.html");
-  }
-
-  // Create the URL using scheme, host, path and query.
-  {
-    CefURLParts parts;
-    CefString url;
-    CefString(&parts.scheme).FromASCII("http");
-    CefString(&parts.host).FromASCII("www.example.com");
-    CefString(&parts.path).FromASCII("/path/to.html");
-    CefString(&parts.query).FromASCII("foo=test&bar=test2");
-    EXPECT_TRUE(CefCreateURL(parts, url));
-    EXPECT_EQ(url, "http://www.example.com/path/to.html?foo=test&bar=test2");
-  }
-
-  // Create the URL using all the various components.
-  {
-    CefURLParts parts;
-    CefString url;
-    CefString(&parts.scheme).FromASCII("http");
-    CefString(&parts.username).FromASCII("user");
-    CefString(&parts.password).FromASCII("pass");
-    CefString(&parts.host).FromASCII("www.example.com");
-    CefString(&parts.port).FromASCII("88");
-    CefString(&parts.path).FromASCII("/path/to.html");
-    CefString(&parts.query).FromASCII("foo=test&bar=test2");
-    EXPECT_TRUE(CefCreateURL(parts, url));
-    EXPECT_EQ(url,
-        "http://user:pass@www.example.com:88/path/to.html?foo=test&bar=test2");
-  }
+// Create the URL using the spec.
+TEST(URLTest, CreateURLSpec) {
+  CefURLParts parts;
+  CefString url;
+  CefString(&parts.spec).FromASCII(
+      "http://user:pass@www.example.com:88/path/to.html?foo=test&bar=test2");
+  EXPECT_TRUE(CefCreateURL(parts, url));
+  EXPECT_STREQ(
+      "http://user:pass@www.example.com:88/path/to.html?foo=test&bar=test2",
+      url.ToString().c_str());
 }
 
-TEST(URLTest, ParseURL) {
-  // Parse the URL using scheme and host.
-  {
-    CefURLParts parts;
-    CefString url;
-    url.FromASCII("http://www.example.com");
-    EXPECT_TRUE(CefParseURL(url, parts));
+// Test that host is required.
+TEST(URLTest, CreateURLHostRequired) {
+  CefURLParts parts;
+  CefString url;
+  CefString(&parts.scheme).FromASCII("http");
+  EXPECT_FALSE(CefCreateURL(parts, url));
+}
 
-    CefString spec(&parts.spec);
-    EXPECT_EQ(spec, "http://www.example.com/");
-    EXPECT_EQ(parts.username.length, (size_t)0);
-    EXPECT_EQ(parts.password.length, (size_t)0);
-    CefString scheme(&parts.scheme);
-    EXPECT_EQ(scheme, "http");
-    CefString host(&parts.host);
-    EXPECT_EQ(host, "www.example.com");
-    EXPECT_EQ(parts.port.length, (size_t)0);
-    CefString path(&parts.path);
-    EXPECT_EQ(path, "/");
-    EXPECT_EQ(parts.query.length, (size_t)0);
-  }
+// Test that scheme is required.
+TEST(URLTest, CreateURLSchemeRequired) {
+  CefURLParts parts;
+  CefString url;
+  CefString(&parts.host).FromASCII("www.example.com");
+  EXPECT_FALSE(CefCreateURL(parts, url));
+}
 
-  // Parse the URL using scheme, host and path.
-  {
-    CefURLParts parts;
-    CefString url;
-    url.FromASCII("http://www.example.com/path/to.html");
-    EXPECT_TRUE(CefParseURL(url, parts));
+// Create the URL using scheme and host.
+TEST(URLTest, CreateURLSchemeHost) {
+  CefURLParts parts;
+  CefString url;
+  CefString(&parts.scheme).FromASCII("http");
+  CefString(&parts.host).FromASCII("www.example.com");
+  EXPECT_TRUE(CefCreateURL(parts, url));
+  EXPECT_STREQ("http://www.example.com/", url.ToString().c_str());
+}
 
-    CefString spec(&parts.spec);
-    EXPECT_EQ(spec, "http://www.example.com/path/to.html");
-    EXPECT_EQ(parts.username.length, (size_t)0);
-    EXPECT_EQ(parts.password.length, (size_t)0);
-    CefString scheme(&parts.scheme);
-    EXPECT_EQ(scheme, "http");
-    CefString host(&parts.host);
-    EXPECT_EQ(host, "www.example.com");
-    EXPECT_EQ(parts.port.length, (size_t)0);
-    CefString path(&parts.path);
-    EXPECT_EQ(path, "/path/to.html");
-    EXPECT_EQ(parts.query.length, (size_t)0);
-  }
+// Create the URL using scheme, host and path.
+TEST(URLTest, CreateURLSchemeHostPath) {
+  CefURLParts parts;
+  CefString url;
+  CefString(&parts.scheme).FromASCII("http");
+  CefString(&parts.host).FromASCII("www.example.com");
+  CefString(&parts.path).FromASCII("/path/to.html");
+  EXPECT_TRUE(CefCreateURL(parts, url));
+  EXPECT_STREQ("http://www.example.com/path/to.html", url.ToString().c_str());
+}
 
-  // Parse the URL using scheme, host, path and query.
-  {
-    CefURLParts parts;
-    CefString url;
-    url.FromASCII("http://www.example.com/path/to.html?foo=test&bar=test2");
-    EXPECT_TRUE(CefParseURL(url, parts));
+// Create the URL using scheme, host, path and query.
+TEST(URLTest, CreateURLSchemeHostPathQuery) {
+  CefURLParts parts;
+  CefString url;
+  CefString(&parts.scheme).FromASCII("http");
+  CefString(&parts.host).FromASCII("www.example.com");
+  CefString(&parts.path).FromASCII("/path/to.html");
+  CefString(&parts.query).FromASCII("foo=test&bar=test2");
+  EXPECT_TRUE(CefCreateURL(parts, url));
+  EXPECT_STREQ("http://www.example.com/path/to.html?foo=test&bar=test2",
+                url.ToString().c_str());
+}
 
-    CefString spec(&parts.spec);
-    EXPECT_EQ(spec, "http://www.example.com/path/to.html?foo=test&bar=test2");
-    EXPECT_EQ(parts.username.length, (size_t)0);
-    EXPECT_EQ(parts.password.length, (size_t)0);
-    CefString scheme(&parts.scheme);
-    EXPECT_EQ(scheme, "http");
-    CefString host(&parts.host);
-    EXPECT_EQ(host, "www.example.com");
-    EXPECT_EQ(parts.port.length, (size_t)0);
-    CefString path(&parts.path);
-    EXPECT_EQ(path, "/path/to.html");
-    CefString query(&parts.query);
-    EXPECT_EQ(query, "foo=test&bar=test2");
-  }
+// Create the URL using all the various components.
+TEST(URLTest, CreateURLAll) {
+  CefURLParts parts;
+  CefString url;
+  CefString(&parts.scheme).FromASCII("http");
+  CefString(&parts.username).FromASCII("user");
+  CefString(&parts.password).FromASCII("pass");
+  CefString(&parts.host).FromASCII("www.example.com");
+  CefString(&parts.port).FromASCII("88");
+  CefString(&parts.path).FromASCII("/path/to.html");
+  CefString(&parts.query).FromASCII("foo=test&bar=test2");
+  EXPECT_TRUE(CefCreateURL(parts, url));
+  EXPECT_STREQ(
+      "http://user:pass@www.example.com:88/path/to.html?foo=test&bar=test2",
+      url.ToString().c_str());
+}
 
-  // Parse the URL using all the various components.
-  {
-    CefURLParts parts;
-    CefString url;
-    url.FromASCII(
-        "http://user:pass@www.example.com:88/path/to.html?foo=test&bar=test2");
-    EXPECT_TRUE(CefParseURL(url, parts));
+// Parse the URL using scheme and host.
+TEST(URLTest, ParseURLSchemeHost) {
+  CefURLParts parts;
+  CefString url;
+  url.FromASCII("http://www.example.com");
+  EXPECT_TRUE(CefParseURL(url, parts));
 
-    CefString spec(&parts.spec);
-    EXPECT_EQ(spec,
-        "http://user:pass@www.example.com:88/path/to.html?foo=test&bar=test2");
-    CefString scheme(&parts.scheme);
-    EXPECT_EQ(scheme, "http");
-    CefString username(&parts.username);
-    EXPECT_EQ(username, "user");
-    CefString password(&parts.password);
-    EXPECT_EQ(password, "pass");
-    CefString host(&parts.host);
-    EXPECT_EQ(host, "www.example.com");
-    CefString port(&parts.port);
-    EXPECT_EQ(port, "88");
-    CefString path(&parts.path);
-    EXPECT_EQ(path, "/path/to.html");
-    CefString query(&parts.query);
-    EXPECT_EQ(query, "foo=test&bar=test2");
-  }
+  CefString spec(&parts.spec);
+  EXPECT_STREQ("http://www.example.com/", spec.ToString().c_str());
+  EXPECT_EQ(0U, parts.username.length);
+  EXPECT_EQ(0U, parts.password.length);
+  CefString scheme(&parts.scheme);
+  EXPECT_STREQ("http", scheme.ToString().c_str());
+  CefString host(&parts.host);
+  EXPECT_STREQ("www.example.com", host.ToString().c_str());
+  EXPECT_EQ(0U, parts.port.length);
+  CefString origin(&parts.origin);
+  EXPECT_STREQ(origin.ToString().c_str(), "http://www.example.com/");
+  CefString path(&parts.path);
+  EXPECT_STREQ("/", path.ToString().c_str());
+  EXPECT_EQ(0U, parts.query.length);
+}
 
-  // Parse an invalid URL.
-  {
-    CefURLParts parts;
-    CefString url;
-    url.FromASCII("www.example.com");
-    EXPECT_FALSE(CefParseURL(url, parts));
-  }
+// Parse the URL using scheme, host and path.
+TEST(URLTest, ParseURLSchemeHostPath) {
+  CefURLParts parts;
+  CefString url;
+  url.FromASCII("http://www.example.com/path/to.html");
+  EXPECT_TRUE(CefParseURL(url, parts));
+
+  CefString spec(&parts.spec);
+  EXPECT_STREQ("http://www.example.com/path/to.html",
+                spec.ToString().c_str());
+  EXPECT_EQ(0U, parts.username.length);
+  EXPECT_EQ(0U, parts.password.length);
+  CefString scheme(&parts.scheme);
+  EXPECT_STREQ("http", scheme.ToString().c_str());
+  CefString host(&parts.host);
+  EXPECT_STREQ("www.example.com", host.ToString().c_str());
+  EXPECT_EQ(0U, parts.port.length);
+  CefString origin(&parts.origin);
+  EXPECT_STREQ(origin.ToString().c_str(), "http://www.example.com/");
+  CefString path(&parts.path);
+  EXPECT_STREQ("/path/to.html", path.ToString().c_str());
+  EXPECT_EQ(0U, parts.query.length);
+}
+
+// Parse the URL using scheme, host, path and query.
+TEST(URLTest, ParseURLSchemeHostPathQuery) {
+  CefURLParts parts;
+  CefString url;
+  url.FromASCII("http://www.example.com/path/to.html?foo=test&bar=test2");
+  EXPECT_TRUE(CefParseURL(url, parts));
+
+  CefString spec(&parts.spec);
+  EXPECT_STREQ("http://www.example.com/path/to.html?foo=test&bar=test2",
+                spec.ToString().c_str());
+  EXPECT_EQ(0U, parts.username.length);
+  EXPECT_EQ(0U, parts.password.length);
+  CefString scheme(&parts.scheme);
+  EXPECT_STREQ("http", scheme.ToString().c_str());
+  CefString host(&parts.host);
+  EXPECT_STREQ("www.example.com", host.ToString().c_str());
+  EXPECT_EQ(0U, parts.port.length);
+  CefString origin(&parts.origin);
+  EXPECT_STREQ(origin.ToString().c_str(), "http://www.example.com/");
+  CefString path(&parts.path);
+  EXPECT_STREQ("/path/to.html", path.ToString().c_str());
+  CefString query(&parts.query);
+  EXPECT_STREQ("foo=test&bar=test2", query.ToString().c_str());
+}
+
+// Parse the URL using all the various components.
+TEST(URLTest, ParseURLAll) {
+  CefURLParts parts;
+  CefString url;
+  url.FromASCII(
+      "http://user:pass@www.example.com:88/path/to.html?foo=test&bar=test2");
+  EXPECT_TRUE(CefParseURL(url, parts));
+
+  CefString spec(&parts.spec);
+  EXPECT_STREQ(
+      "http://user:pass@www.example.com:88/path/to.html?foo=test&bar=test2",
+      spec.ToString().c_str());
+  CefString scheme(&parts.scheme);
+  EXPECT_STREQ("http", scheme.ToString().c_str());
+  CefString username(&parts.username);
+  EXPECT_STREQ("user", username.ToString().c_str());
+  CefString password(&parts.password);
+  EXPECT_STREQ("pass", password.ToString().c_str());
+  CefString host(&parts.host);
+  EXPECT_STREQ("www.example.com", host.ToString().c_str());
+  CefString port(&parts.port);
+  EXPECT_STREQ("88", port.ToString().c_str());
+  CefString origin(&parts.origin);
+  EXPECT_STREQ(origin.ToString().c_str(), "http://www.example.com:88/");
+  CefString path(&parts.path);
+  EXPECT_STREQ("/path/to.html", path.ToString().c_str());
+  CefString query(&parts.query);
+  EXPECT_STREQ("foo=test&bar=test2", query.ToString().c_str());
+}
+
+// Parse an invalid URL.
+TEST(URLTest, ParseURLInvalid) {
+  CefURLParts parts;
+  CefString url;
+  url.FromASCII("www.example.com");
+  EXPECT_FALSE(CefParseURL(url, parts));
+}
+
+// Parse a non-standard scheme.
+TEST(URLTest, ParseURLNonStandard) {
+  CefURLParts parts;
+  CefString url;
+  url.FromASCII("custom:something%20else?foo");
+  EXPECT_TRUE(CefParseURL(url, parts));
+
+  CefString spec(&parts.spec);
+  EXPECT_STREQ("custom:something%20else?foo", spec.ToString().c_str());
+  EXPECT_EQ(0U, parts.username.length);
+  EXPECT_EQ(0U, parts.password.length);
+  CefString scheme(&parts.scheme);
+  EXPECT_STREQ("custom", scheme.ToString().c_str());
+  EXPECT_EQ(0U, parts.host.length);
+  EXPECT_EQ(0U, parts.port.length);
+  EXPECT_EQ(0U, parts.origin.length);
+  CefString path(&parts.path);
+  EXPECT_STREQ("something%20else", path.ToString().c_str());
+  CefString query(&parts.query);
+  EXPECT_STREQ("foo", query.ToString().c_str());
 }
 
 TEST(URLTest, GetMimeType) {
