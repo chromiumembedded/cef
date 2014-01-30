@@ -921,7 +921,6 @@
         'libcef/browser/download_item_impl.h',
         'libcef/browser/download_manager_delegate.cc',
         'libcef/browser/download_manager_delegate.h',
-        'libcef/browser/file_impl.cc',
         'libcef/browser/frame_host_impl.cc',
         'libcef/browser/frame_host_impl.h',
         'libcef/browser/geolocation_impl.cc',
