@@ -38,6 +38,7 @@ class CefReadHandlerCToCpp
   virtual int Seek(int64 offset, int whence) OVERRIDE;
   virtual int64 Tell() OVERRIDE;
   virtual int Eof() OVERRIDE;
+  virtual bool MayBlock() OVERRIDE;
 };
 
 #endif  // BUILDING_CEF_SHARED

@@ -57,11 +57,14 @@ class CefStreamResourceHandler : public CefResourceHandler {
   // Create a new object with explicit response values.
   ///
   CefStreamResourceHandler(int status_code,
+                           const CefString& status_text,
                            const CefString& mime_type,
                            CefResponse::HeaderMap header_map,
                            CefRefPtr<CefStreamReader> stream);
 
-  // CefStreamResourceHandler methods.
+  virtual ~CefStreamResourceHandler();
+
+  // CefResourceHandler methods.
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
                               CefRefPtr<CefCallback> callback) OVERRIDE;
   virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
@@ -74,10 +77,23 @@ class CefStreamResourceHandler : public CefResourceHandler {
   virtual void Cancel() OVERRIDE;
 
  private:
-  int status_code_;
-  CefString mime_type_;
-  CefResponse::HeaderMap header_map_;
-  CefRefPtr<CefStreamReader> stream_;
+  void ReadOnFileThread(int bytes_to_read,
+                        CefRefPtr<CefCallback> callback);
+
+  const int status_code_;
+  const CefString status_text_;
+  const CefString mime_type_;
+  const CefResponse::HeaderMap header_map_;
+  const CefRefPtr<CefStreamReader> stream_;
+  bool read_on_file_thread_;
+
+  class Buffer;
+  Buffer* buffer_;
+#ifndef NDEBUG
+  // Used in debug builds to verify that |buffer_| isn't being accessed on
+  // multiple threads at the same time.
+  bool buffer_owned_by_file_thread_;
+#endif
 
   IMPLEMENT_REFCOUNTING(CefStreamResourceHandler);
 };

@@ -77,6 +77,13 @@ typedef struct _cef_read_handler_t {
   // Return non-zero if at end of file.
   ///
   int (CEF_CALLBACK *eof)(struct _cef_read_handler_t* self);
+
+  ///
+  // Return true (1) if this handler performs work like accessing the file
+  // system which may block. Used as a hint for determining the thread to access
+  // the handler from.
+  ///
+  int (CEF_CALLBACK *may_block)(struct _cef_read_handler_t* self);
 } cef_read_handler_t;
 
 
@@ -112,6 +119,13 @@ typedef struct _cef_stream_reader_t {
   // Return non-zero if at end of file.
   ///
   int (CEF_CALLBACK *eof)(struct _cef_stream_reader_t* self);
+
+  ///
+  // Returns true (1) if this reader performs work like accessing the file
+  // system which may block. Used as a hint for determining the thread to access
+  // the reader from.
+  ///
+  int (CEF_CALLBACK *may_block)(struct _cef_stream_reader_t* self);
 } cef_stream_reader_t;
 
 
@@ -166,6 +180,13 @@ typedef struct _cef_write_handler_t {
   // Flush the stream.
   ///
   int (CEF_CALLBACK *flush)(struct _cef_write_handler_t* self);
+
+  ///
+  // Return true (1) if this handler performs work like accessing the file
+  // system which may block. Used as a hint for determining the thread to access
+  // the handler from.
+  ///
+  int (CEF_CALLBACK *may_block)(struct _cef_write_handler_t* self);
 } cef_write_handler_t;
 
 
@@ -201,6 +222,13 @@ typedef struct _cef_stream_writer_t {
   // Flush the stream.
   ///
   int (CEF_CALLBACK *flush)(struct _cef_stream_writer_t* self);
+
+  ///
+  // Returns true (1) if this writer performs work like accessing the file
+  // system which may block. Used as a hint for determining the thread to access
+  // the writer from.
+  ///
+  int (CEF_CALLBACK *may_block)(struct _cef_stream_writer_t* self);
 } cef_stream_writer_t;
 
 

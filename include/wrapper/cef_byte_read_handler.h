@@ -60,6 +60,7 @@ class CefByteReadHandler : public CefReadHandler {
   virtual int Seek(int64 offset, int whence) OVERRIDE;
   virtual int64 Tell() OVERRIDE;
   virtual int Eof() OVERRIDE;
+  virtual bool MayBlock() OVERRIDE { return false; }
 
  private:
   const unsigned char* bytes_;

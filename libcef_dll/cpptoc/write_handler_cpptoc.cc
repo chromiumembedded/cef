@@ -82,6 +82,20 @@ int CEF_CALLBACK write_handler_flush(struct _cef_write_handler_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK write_handler_may_block(struct _cef_write_handler_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefWriteHandlerCppToC::Get(self)->MayBlock();
+
+  // Return type: bool
+  return _retval;
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -92,6 +106,7 @@ CefWriteHandlerCppToC::CefWriteHandlerCppToC(CefWriteHandler* cls)
   struct_.struct_.seek = write_handler_seek;
   struct_.struct_.tell = write_handler_tell;
   struct_.struct_.flush = write_handler_flush;
+  struct_.struct_.may_block = write_handler_may_block;
 }
 
 #ifndef NDEBUG

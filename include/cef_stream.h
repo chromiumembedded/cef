@@ -71,6 +71,14 @@ class CefReadHandler : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual int Eof() =0;
+
+  ///
+  // Return true if this handler performs work like accessing the file system
+  // which may block. Used as a hint for determining the thread to access the
+  // handler from.
+  ///
+  /*--cef()--*/
+  virtual bool MayBlock() =0;
 };
 
 
@@ -123,6 +131,14 @@ class CefStreamReader : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual int Eof() =0;
+
+  ///
+  // Returns true if this reader performs work like accessing the file system
+  // which may block. Used as a hint for determining the thread to access the
+  // reader from.
+  ///
+  /*--cef()--*/
+  virtual bool MayBlock() =0;
 };
 
 
@@ -158,6 +174,14 @@ class CefWriteHandler : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual int Flush() =0;
+
+  ///
+  // Return true if this handler performs work like accessing the file system
+  // which may block. Used as a hint for determining the thread to access the
+  // handler from.
+  ///
+  /*--cef()--*/
+  virtual bool MayBlock() =0;
 };
 
 
@@ -205,6 +229,14 @@ class CefStreamWriter : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual int Flush() =0;
+
+  ///
+  // Returns true if this writer performs work like accessing the file system
+  // which may block. Used as a hint for determining the thread to access the
+  // writer from.
+  ///
+  /*--cef()--*/
+  virtual bool MayBlock() =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_STREAM_H_

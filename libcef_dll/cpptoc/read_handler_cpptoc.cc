@@ -82,6 +82,20 @@ int CEF_CALLBACK read_handler_eof(struct _cef_read_handler_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK read_handler_may_block(struct _cef_read_handler_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefReadHandlerCppToC::Get(self)->MayBlock();
+
+  // Return type: bool
+  return _retval;
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -91,6 +105,7 @@ CefReadHandlerCppToC::CefReadHandlerCppToC(CefReadHandler* cls)
   struct_.struct_.seek = read_handler_seek;
   struct_.struct_.tell = read_handler_tell;
   struct_.struct_.eof = read_handler_eof;
+  struct_.struct_.may_block = read_handler_may_block;
 }
 
 #ifndef NDEBUG

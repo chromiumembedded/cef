@@ -138,6 +138,20 @@ int CEF_CALLBACK stream_reader_eof(struct _cef_stream_reader_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK stream_reader_may_block(struct _cef_stream_reader_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefStreamReaderCppToC::Get(self)->MayBlock();
+
+  // Return type: bool
+  return _retval;
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -148,6 +162,7 @@ CefStreamReaderCppToC::CefStreamReaderCppToC(CefStreamReader* cls)
   struct_.struct_.seek = stream_reader_seek;
   struct_.struct_.tell = stream_reader_tell;
   struct_.struct_.eof = stream_reader_eof;
+  struct_.struct_.may_block = stream_reader_may_block;
 }
 
 #ifndef NDEBUG

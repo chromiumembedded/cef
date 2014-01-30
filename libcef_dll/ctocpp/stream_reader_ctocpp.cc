@@ -133,6 +133,19 @@ int CefStreamReaderCToCpp::Eof() {
   return _retval;
 }
 
+bool CefStreamReaderCToCpp::MayBlock() {
+  if (CEF_MEMBER_MISSING(struct_, may_block))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->may_block(struct_);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 
 #ifndef NDEBUG
 template<> long CefCToCpp<CefStreamReaderCToCpp, CefStreamReader,

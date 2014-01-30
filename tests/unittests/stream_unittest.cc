@@ -87,6 +87,7 @@ TEST(StreamTest, ReadFile) {
   CefRefPtr<CefStreamReader> stream(
       CefStreamReader::CreateForFile(fileNameStr));
   ASSERT_TRUE(stream.get() != NULL);
+  ASSERT_TRUE(stream->MayBlock());
   VerifyStreamReadBehavior(stream, contents);
 
   // Release the file pointer
@@ -109,6 +110,7 @@ TEST(StreamTest, ReadData) {
           static_cast<void*>(const_cast<char*>(contents.c_str())),
           contents.size()));
   ASSERT_TRUE(stream.get() != NULL);
+  ASSERT_FALSE(stream->MayBlock());
   VerifyStreamReadBehavior(stream, contents);
 }
 
@@ -121,6 +123,7 @@ TEST(StreamTest, WriteFile) {
   CefRefPtr<CefStreamWriter> stream(
       CefStreamWriter::CreateForFile(fileNameStr));
   ASSERT_TRUE(stream.get() != NULL);
+  ASSERT_TRUE(stream->MayBlock());
   VerifyStreamWriteBehavior(stream, contents);
 
   // Release the file pointer
@@ -173,7 +176,7 @@ class ReadHandlerTester : public CefReadHandler {
     g_ReadHandlerTesterDeleted = true;
   }
 
-  virtual size_t Read(void* ptr, size_t size, size_t n) {
+  virtual size_t Read(void* ptr, size_t size, size_t n) OVERRIDE {
     read_called_ = true;
     read_ptr_ = ptr;
     read_size_ = size;
@@ -181,21 +184,25 @@ class ReadHandlerTester : public CefReadHandler {
     return 10;
   }
 
-  virtual int Seek(int64 offset, int whence) {
+  virtual int Seek(int64 offset, int whence) OVERRIDE {
     seek_called_ = true;
     seek_offset_ = offset;
     seek_whence_ = whence;
     return 10;
   }
 
-  virtual int64 Tell() {
+  virtual int64 Tell() OVERRIDE {
     tell_called_ = true;
     return 10;
   }
 
-  virtual int Eof() {
+  virtual int Eof() OVERRIDE {
     eof_called_ = true;
     return 10;
+  }
+
+  virtual bool MayBlock() OVERRIDE {
+    return false;
   }
 
   bool read_called_;
@@ -220,6 +227,7 @@ TEST(StreamTest, ReadHandler) {
 
   CefRefPtr<CefStreamReader> stream(CefStreamReader::CreateForHandler(handler));
   ASSERT_TRUE(stream.get() != NULL);
+  ASSERT_FALSE(stream->MayBlock());
 
   // CefReadHandler Read
   const char* read_ptr = "My data";
@@ -278,7 +286,7 @@ class WriteHandlerTester : public CefWriteHandler {
     g_WriteHandlerTesterDeleted = true;
   }
 
-  virtual size_t Write(const void* ptr, size_t size, size_t n) {
+  virtual size_t Write(const void* ptr, size_t size, size_t n) OVERRIDE {
     write_called_ = true;
     write_ptr_ = ptr;
     write_size_ = size;
@@ -286,21 +294,25 @@ class WriteHandlerTester : public CefWriteHandler {
     return 10;
   }
 
-  virtual int Seek(int64 offset, int whence) {
+  virtual int Seek(int64 offset, int whence) OVERRIDE {
     seek_called_ = true;
     seek_offset_ = offset;
     seek_whence_ = whence;
     return 10;
   }
 
-  virtual int64 Tell() {
+  virtual int64 Tell() OVERRIDE {
     tell_called_ = true;
     return 10;
   }
 
-  virtual int Flush() {
+  virtual int Flush() OVERRIDE {
     flush_called_ = true;
     return 10;
+  }
+
+  virtual bool MayBlock() OVERRIDE {
+    return false;
   }
 
   bool write_called_;
@@ -325,6 +337,7 @@ TEST(StreamTest, WriteHandler) {
 
   CefRefPtr<CefStreamWriter> stream(CefStreamWriter::CreateForHandler(handler));
   ASSERT_TRUE(stream.get() != NULL);
+  ASSERT_FALSE(stream->MayBlock());
 
   // CefWriteHandler Write
   const char* write_ptr = "My data";

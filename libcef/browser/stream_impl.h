@@ -20,6 +20,7 @@ class CefFileReader : public CefStreamReader {
   virtual int Seek(int64 offset, int whence) OVERRIDE;
   virtual int64 Tell() OVERRIDE;
   virtual int Eof() OVERRIDE;
+  virtual bool MayBlock() OVERRIDE { return true; }
 
  protected:
   bool close_;
@@ -39,6 +40,7 @@ class CefFileWriter : public CefStreamWriter {
   virtual int Seek(int64 offset, int whence) OVERRIDE;
   virtual int64 Tell() OVERRIDE;
   virtual int Flush() OVERRIDE;
+  virtual bool MayBlock() OVERRIDE { return true; }
 
  protected:
   FILE* file_;
@@ -58,6 +60,7 @@ class CefBytesReader : public CefStreamReader {
   virtual int Seek(int64 offset, int whence) OVERRIDE;
   virtual int64 Tell() OVERRIDE;
   virtual int Eof() OVERRIDE;
+  virtual bool MayBlock() OVERRIDE { return false; }
 
   void SetData(void* data, int64 datasize, bool copy);
 
@@ -84,6 +87,7 @@ class CefBytesWriter : public CefStreamWriter {
   virtual int Seek(int64 offset, int whence) OVERRIDE;
   virtual int64 Tell() OVERRIDE;
   virtual int Flush() OVERRIDE;
+  virtual bool MayBlock() OVERRIDE { return false; }
 
   void* GetData() { return data_; }
   int64 GetDataSize() { return offset_; }
@@ -119,6 +123,9 @@ class CefHandlerReader : public CefStreamReader {
   virtual int Eof() OVERRIDE {
     return handler_->Eof();
   }
+  virtual bool MayBlock() OVERRIDE {
+    return handler_->MayBlock();
+  }
 
  protected:
   CefRefPtr<CefReadHandler> handler_;
@@ -143,6 +150,9 @@ class CefHandlerWriter : public CefStreamWriter {
   }
   virtual int Flush() OVERRIDE {
     return handler_->Flush();
+  }
+  virtual bool MayBlock() OVERRIDE {
+    return handler_->MayBlock();
   }
 
  protected:

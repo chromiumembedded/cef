@@ -120,6 +120,20 @@ int CEF_CALLBACK stream_writer_flush(struct _cef_stream_writer_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK stream_writer_may_block(struct _cef_stream_writer_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefStreamWriterCppToC::Get(self)->MayBlock();
+
+  // Return type: bool
+  return _retval;
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -130,6 +144,7 @@ CefStreamWriterCppToC::CefStreamWriterCppToC(CefStreamWriter* cls)
   struct_.struct_.seek = stream_writer_seek;
   struct_.struct_.tell = stream_writer_tell;
   struct_.struct_.flush = stream_writer_flush;
+  struct_.struct_.may_block = stream_writer_may_block;
 }
 
 #ifndef NDEBUG

@@ -28,6 +28,8 @@
 #endif  // !BUILDING_CEF_SHARED
 
 #define CEF_REQUIRE_UI_THREAD()       DCHECK(CefCurrentlyOn(TID_UI));
+#define CEF_REQUIRE_IO_THREAD()       DCHECK(CefCurrentlyOn(TID_IO));
+#define CEF_REQUIRE_FILE_THREAD()     DCHECK(CefCurrentlyOn(TID_FILE));
 #define CEF_REQUIRE_RENDERER_THREAD() DCHECK(CefCurrentlyOn(TID_RENDERER));
 
 #endif  // CEF_LIBCEF_DLL_CEF_LOGGING_H_

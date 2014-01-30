@@ -38,6 +38,7 @@ class CefStreamWriterCToCpp
   virtual int Seek(int64 offset, int whence) OVERRIDE;
   virtual int64 Tell() OVERRIDE;
   virtual int Flush() OVERRIDE;
+  virtual bool MayBlock() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
