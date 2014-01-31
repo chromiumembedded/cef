@@ -46,7 +46,7 @@ class ReadHandler : public CefReadHandler {
   }
 
   virtual size_t Read(void* ptr, size_t size, size_t n) OVERRIDE {
-    EXPECT_EQ(1, size);
+    EXPECT_EQ(1U, size);
 
     // Read the minimum of requested size, remaining size or kReadBlockSize.
     const size_t read_bytes =
