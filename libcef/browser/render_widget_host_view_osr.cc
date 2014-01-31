@@ -325,6 +325,16 @@ void CefRenderWidgetHostViewOSR::OnAccessibilityEvents(
     const std::vector<AccessibilityHostMsg_EventParams>& params) {
 }
 
+#if defined(OS_MACOSX)
+void CefRenderWidgetHostViewOSR::AboutToWaitForBackingStoreMsg() {
+}
+
+bool CefRenderWidgetHostViewOSR::PostProcessEventForPluginIme(
+    const content::NativeWebKeyboardEvent& event) {
+  return false;
+}
+#endif  // defined(OS_MACOSX)
+
 void CefRenderWidgetHostViewOSR::Destroy() {
   if (IsPopupWidget()) {
     if (parent_host_view_)
@@ -683,13 +693,6 @@ float CefRenderWidgetHostViewOSR::GetDeviceScaleFactor() const {
 
   return screen_info.device_scale_factor;
 }
-
-#if defined(OS_MACOSX)
-bool CefRenderWidgetHostViewOSR::PostProcessEventForPluginIme(
-    const content::NativeWebKeyboardEvent& event) {
-  return false;
-}
-#endif
 
 #if defined(OS_MACOSX)
 void CefRenderWidgetHostViewOSR::SetActive(bool active) {

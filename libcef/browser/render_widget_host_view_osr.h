@@ -148,6 +148,11 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   virtual void OnAccessibilityEvents(
       const std::vector<AccessibilityHostMsg_EventParams>& params)
       OVERRIDE;
+#if defined(OS_MACOSX)
+  virtual void AboutToWaitForBackingStoreMsg() OVERRIDE;
+  virtual bool PostProcessEventForPluginIme(
+      const content::NativeWebKeyboardEvent& event) OVERRIDE;
+#endif
   virtual void Destroy() OVERRIDE;
   virtual void SetTooltipText(const base::string16& tooltip_text) OVERRIDE;
   virtual void SelectionBoundsChanged(
@@ -186,11 +191,6 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
 
 #if defined(OS_WIN) && !defined(USE_AURA)
   virtual void SetClickthroughRegion(SkRegion* region) OVERRIDE;
-#endif
-
-#if defined(OS_MACOSX)
-  virtual bool PostProcessEventForPluginIme(
-      const content::NativeWebKeyboardEvent& event) OVERRIDE;
 #endif
 
   // RenderWidgetHostViewBase methods.
