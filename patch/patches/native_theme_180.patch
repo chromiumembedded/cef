@@ -1,0 +1,34 @@
+Index: native_theme_aura.cc
+===================================================================
+--- native_theme_aura.cc	(revision 237081)
++++ native_theme_aura.cc	(working copy)
+@@ -17,10 +17,12 @@
+ 
+ namespace ui {
+ 
++#if !defined(OS_WIN)
+ // static
+ NativeTheme* NativeTheme::instance() {
+   return NativeThemeAura::instance();
+ }
++#endif
+ 
+ // static
+ NativeThemeAura* NativeThemeAura::instance() {
+Index: native_theme_win.cc
+===================================================================
+--- native_theme_win.cc	(revision 237081)
++++ native_theme_win.cc	(working copy)
+@@ -211,12 +211,10 @@
+ // TODO(sky): seems like we should default to NativeThemeWin, but that currently
+ // breaks a couple of tests (FocusTraversalTest.NormalTraversal in
+ // views_unittests).
+-#if !defined(USE_AURA)
+ // static
+ NativeTheme* NativeTheme::instance() {
+   return NativeThemeWin::instance();
+ }
+-#endif
+ 
+ // static
+ NativeThemeWin* NativeThemeWin::instance() {
