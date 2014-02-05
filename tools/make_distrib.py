@@ -490,6 +490,14 @@ if mode == 'standard':
                  output_dir, options.quiet)
 
 if platform == 'windows':
+  binaries = [
+    'd3dcompiler_46.dll',
+    'ffmpegsumo.dll',
+    'libcef.dll',
+    'libEGL.dll',
+    'libGLESv2.dll',
+  ]
+
   if options.ninjabuild:
     out_dir = os.path.join(src_dir, 'out')
     libcef_dll_file = 'libcef.dll.lib'
@@ -525,7 +533,8 @@ if platform == 'windows':
       dst_dir = os.path.join(output_dir, 'Debug')
       make_dir(dst_dir, options.quiet)
       copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
-      copy_files(os.path.join(build_dir, '*.dll'), dst_dir, options.quiet)
+      for binary in binaries:
+        copy_file(os.path.join(build_dir, binary), os.path.join(dst_dir, binary), options.quiet)
       copy_file(os.path.join(build_dir, libcef_dll_file), os.path.join(dst_dir, 'libcef.lib'), \
                 options.quiet)
       combine_libs(build_dir, sandbox_libs, os.path.join(dst_dir, 'cef_sandbox.lib'));
@@ -545,7 +554,8 @@ if platform == 'windows':
     dst_dir = os.path.join(output_dir, 'Release')
     make_dir(dst_dir, options.quiet)
     copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
-    copy_files(os.path.join(build_dir, '*.dll'), dst_dir, options.quiet)
+    for binary in binaries:
+      copy_file(os.path.join(build_dir, binary), os.path.join(dst_dir, binary), options.quiet)
 
     if mode != 'client':
       copy_file(os.path.join(build_dir, libcef_dll_file), os.path.join(dst_dir, 'libcef.lib'), \
@@ -572,6 +582,7 @@ if platform == 'windows':
     make_dir(dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'cef.pak'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'devtools_resources.pak'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'icudtl.dat'), dst_dir, options.quiet)
     copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), options.quiet)
 
   if mode == 'standard':
@@ -735,6 +746,7 @@ elif platform == 'linux':
     make_dir(dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'cef.pak'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'devtools_resources.pak'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'icudtl.dat'), dst_dir, options.quiet)
     copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), options.quiet)
 
   if mode == 'standard':

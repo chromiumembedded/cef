@@ -517,7 +517,7 @@ bool CefContentRendererClient::OverrideCreatePlugin(
 }
 
 bool CefContentRendererClient::HandleNavigation(
-    content::RenderView* view,
+    content::RenderFrame* render_frame,
     content::DocumentState* document_state,
     int opener_id,
     blink::WebFrame* frame,

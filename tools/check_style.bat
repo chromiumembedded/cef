@@ -1,2 +1,2 @@
 @echo off
-..\..\third_party\python_26\python.exe check_style.py %*
+python.bat check_style.py %*

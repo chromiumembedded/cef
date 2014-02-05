@@ -26,7 +26,9 @@ CefTraceSubscriber::~CefTraceSubscriber() {
   }
 }
 
-bool CefTraceSubscriber::BeginTracing(const std::string& categories) {
+bool CefTraceSubscriber::BeginTracing(
+    const std::string& categories,
+    CefRefPtr<CefCompletionCallback> callback) {
   CEF_REQUIRE_UIT();
 
   if (collecting_trace_data_)
@@ -34,13 +36,16 @@ bool CefTraceSubscriber::BeginTracing(const std::string& categories) {
 
   collecting_trace_data_ = true;
 
+  TracingController::EnableRecordingDoneCallback done_callback;
+  if (callback.get())
+    done_callback = base::Bind(&CefCompletionCallback::OnComplete, callback);
+
   TracingController::GetInstance()->EnableRecording(
-      categories, TracingController::DEFAULT_OPTIONS,
-      TracingController::EnableRecordingDoneCallback());
+      categories, TracingController::DEFAULT_OPTIONS, done_callback);
   return true;
 }
 
-bool CefTraceSubscriber::EndTracingAsync(
+bool CefTraceSubscriber::EndTracing(
     const base::FilePath& tracing_file,
     CefRefPtr<CefEndTracingCallback> callback) {
   CEF_REQUIRE_UIT();

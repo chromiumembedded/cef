@@ -12,7 +12,7 @@ Required components:
     libcef.dll
 
 * Unicode support
-    icudt.dll
+    icudtl.dat
 
 Optional components:
 

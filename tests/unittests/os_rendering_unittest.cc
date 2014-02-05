@@ -826,22 +826,23 @@ class OSRTestHandler : public RoutingTestHandler,
   void CreateOSRBrowser(const CefString& url) {
     CefWindowInfo windowInfo;
     CefBrowserSettings settings;
+
+    const bool transparent = (test_type_ ==  OSR_TEST_TRANSPARENCY);
+
 #if defined(OS_WIN)
-    windowInfo.SetAsOffScreen(GetDesktopWindow());
+    windowInfo.SetAsWindowless(GetDesktopWindow(), transparent);
 #elif defined(OS_MACOSX)
     // An actual vies is needed only for the ContextMenu test. The menu runner
     // checks if the view is not nil before showing the context menu.
     if (test_type_ == OSR_TEST_CONTEXT_MENU)
-      windowInfo.SetAsOffScreen(osr_unittests::GetFakeView());
+      windowInfo.SetAsWindowless(osr_unittests::GetFakeView(), transparent);
     else
-      windowInfo.SetAsOffScreen(NULL);
+      windowInfo.SetAsWindowless(NULL, transparent);
 #elif defined(OS_LINUX)
-    windowInfo.SetAsOffScreen(NULL);
+    windowInfo.SetAsWindowless(NULL, transparent);
 #else
 #error "Unsupported platform"
 #endif
-    if (test_type_ ==  OSR_TEST_TRANSPARENCY)
-      windowInfo.SetTransparentPainting(TRUE);
     CefBrowserHost::CreateBrowser(windowInfo, this, url, settings, NULL);
   }
 

@@ -11,6 +11,9 @@ Required components:
 * CEF core library
     libcef.so
 
+* Unicode support
+    icudtl.dat
+
 Optional components:
 
 * Localized resources

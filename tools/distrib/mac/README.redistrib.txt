@@ -19,6 +19,7 @@ cefclient.app/
         Resources/
           cef.pak, devtools_resources.pak <= non-localized resources and strings
           crash_inspector, crash_report_sender <= breakpad support
+          icudtl.dat <= unicode support
           en.lproj/, ... <= locale-specific resources and strings
           Info.plist
       libplugin_carbon_interpose.dylib <= plugin support library
@@ -67,6 +68,9 @@ Required components:
 
 * CEF framework library
     Chromium Embedded Framework.framework/Chromium Embedded Framework
+
+* Unicode support
+    Chromium Embedded Framework.framework/Resources/icudtl.dat
 
 * Plugin support library
     libplugin_carbon_interpose.dylib

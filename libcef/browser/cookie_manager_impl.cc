@@ -81,9 +81,9 @@ bool GetCookieDomain(const GURL& url,
       result);
 }
 
-void RunCompletionOnIOThread(CefRefPtr<CefCompletionHandler> handler) {
+void RunCompletionOnIOThread(CefRefPtr<CefCompletionCallback> callback) {
   CEF_POST_TASK(CEF_IOT,
-      base::Bind(&CefCompletionHandler::OnComplete, handler.get()));
+      base::Bind(&CefCompletionCallback::OnComplete, callback.get()));
 }
 
 }  // namespace
@@ -300,7 +300,7 @@ bool CefCookieManagerImpl::SetStoragePath(
                 BrowserThread::GetMessageLoopProxyForThread(BrowserThread::DB),
                 persist_session_cookies,
                 NULL,
-                scoped_ptr<content::CookieCryptoDelegate>());
+                NULL);
       } else {
         NOTREACHED() << "The cookie storage directory could not be created";
         storage_path_.clear();
@@ -327,26 +327,27 @@ bool CefCookieManagerImpl::SetStoragePath(
   return true;
 }
 
-bool CefCookieManagerImpl::FlushStore(CefRefPtr<CefCompletionHandler> handler) {
+bool CefCookieManagerImpl::FlushStore(
+    CefRefPtr<CefCompletionCallback> callback) {
   if (CEF_CURRENTLY_ON_IOT()) {
     if (!cookie_monster_) {
-      if (handler.get())
-        RunCompletionOnIOThread(handler);
+      if (callback.get())
+        RunCompletionOnIOThread(callback);
       return true;
     }
 
-    base::Closure callback;
-    if (handler.get())
-      callback = base::Bind(RunCompletionOnIOThread, handler);
+    base::Closure flush_callback;
+    if (callback.get())
+      flush_callback = base::Bind(RunCompletionOnIOThread, callback);
     else
-      callback = base::Bind(&base::DoNothing);
+      flush_callback = base::Bind(&base::DoNothing);
 
-    cookie_monster_->FlushStore(callback);
+    cookie_monster_->FlushStore(flush_callback);
   } else {
     // Execute on the IO thread.
     CEF_POST_TASK(CEF_IOT,
         base::Bind(base::IgnoreResult(&CefCookieManagerImpl::FlushStore),
-                   this, handler));
+                   this, callback));
   }
 
   return true;

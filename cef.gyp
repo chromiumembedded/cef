@@ -868,7 +868,6 @@
         '<(DEPTH)/ui/gl/gl.gyp:gl',
         '<(DEPTH)/ui/ui.gyp:ui',
         '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
-        '<(DEPTH)/webkit/glue/webkit_glue.gyp:glue',
         '<(DEPTH)/webkit/storage_browser.gyp:webkit_storage_browser',
         '<(DEPTH)/webkit/storage_common.gyp:webkit_storage_common',
         # Necessary to generate the grit include files.
@@ -1037,6 +1036,8 @@
         'libcef/common/value_base.h',
         'libcef/common/values_impl.cc',
         'libcef/common/values_impl.h',
+        'libcef/common/upload_data.cc',
+        'libcef/common/upload_data.h',
         'libcef/renderer/browser_impl.cc',
         'libcef/renderer/browser_impl.h',
         'libcef/renderer/content_renderer_client.cc',
@@ -1279,6 +1280,7 @@
           'mac_bundle_resources': [
             '<(PRODUCT_DIR)/cef.pak',
             '<(PRODUCT_DIR)/devtools_resources.pak',
+            '<(PRODUCT_DIR)/icudtl.dat',
             'libcef/resources/framework-Info.plist',
           ],
           'mac_bundle_resources!': [
@@ -1635,7 +1637,7 @@
               '<@(includes_win)',
               # TODO(cef): Remove ui_unscaled_resources.rc once custom cursor
               # resources can be loaded via ResourceBundle. See crbug.com/147663.
-              '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.rc',
+              '<(SHARED_INTERMEDIATE_DIR)/webkit/blink_resources.rc',
               '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_unscaled_resources.rc',
               'libcef_dll/libcef_dll.rc',
             ],

@@ -19,9 +19,10 @@ class CefTraceSubscriber {
   CefTraceSubscriber();
   virtual ~CefTraceSubscriber();
 
-  bool BeginTracing(const std::string& categories);
-  bool EndTracingAsync(const base::FilePath& tracing_file,
-                       CefRefPtr<CefEndTracingCallback> callback);
+  bool BeginTracing(const std::string& categories,
+                    CefRefPtr<CefCompletionCallback> callback);
+  bool EndTracing(const base::FilePath& tracing_file,
+                  CefRefPtr<CefEndTracingCallback> callback);
 
  private:
   void OnTracingFileResult(CefRefPtr<CefEndTracingCallback> callback,

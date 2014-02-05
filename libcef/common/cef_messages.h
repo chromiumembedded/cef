@@ -6,12 +6,13 @@
 // IPC messages for CEF.
 // Multiply-included message file, hence no include guard.
 
+#include "libcef/common/upload_data.h"
+
 #include "base/memory/shared_memory.h"
 #include "base/values.h"
 #include "content/public/common/common_param_traits.h"
 #include "content/public/common/referrer.h"
 #include "ipc/ipc_message_macros.h"
-#include "net/base/upload_data.h"
 
 // TODO(cef): Re-using the message start for extensions may be problematic in
 // the future. It would be better if ipc_message_utils.h contained a value

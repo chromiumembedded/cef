@@ -120,11 +120,11 @@ typedef struct _cef_cookie_manager_t {
 
   ///
   // Flush the backing store (if any) to disk and execute the specified
-  // |handler| on the IO thread when done. Returns false (0) if cookies cannot
+  // |callback| on the IO thread when done. Returns false (0) if cookies cannot
   // be accessed.
   ///
   int (CEF_CALLBACK *flush_store)(struct _cef_cookie_manager_t* self,
-      struct _cef_completion_handler_t* handler);
+      struct _cef_completion_callback_t* callback);
 } cef_cookie_manager_t;
 
 

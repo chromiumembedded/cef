@@ -35,7 +35,7 @@
 #include "include/cef_version.h"
 #include "libcef_dll/cpptoc/app_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
-#include "libcef_dll/cpptoc/completion_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/completion_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/context_menu_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/domevent_listener_cpptoc.h"
@@ -176,7 +176,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefBrowserHostCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefBrowserProcessHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefCallbackCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefCompletionHandlerCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefCompletionCallbackCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefContextMenuHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefContextMenuParamsCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefCookieVisitorCppToC::DebugObjCt, 0);
@@ -455,27 +455,33 @@ CEF_GLOBAL bool CefPostDelayedTask(CefThreadId threadId,
   return _retval?true:false;
 }
 
-CEF_GLOBAL bool CefBeginTracing(const CefString& categories) {
+CEF_GLOBAL bool CefBeginTracing(const CefString& categories,
+    CefRefPtr<CefCompletionCallback> callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback.get());
+  if (!callback.get())
+    return false;
   // Unverified params: categories
 
   // Execute
   int _retval = cef_begin_tracing(
-      categories.GetStruct());
+      categories.GetStruct(),
+      CefCompletionCallbackCppToC::Wrap(callback));
 
   // Return type: bool
   return _retval?true:false;
 }
 
-CEF_GLOBAL bool CefEndTracingAsync(const CefString& tracing_file,
+CEF_GLOBAL bool CefEndTracing(const CefString& tracing_file,
     CefRefPtr<CefEndTracingCallback> callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Unverified params: tracing_file, callback
 
   // Execute
-  int _retval = cef_end_tracing_async(
+  int _retval = cef_end_tracing(
       tracing_file.GetStruct(),
       CefEndTracingCallbackCppToC::Wrap(callback));
 

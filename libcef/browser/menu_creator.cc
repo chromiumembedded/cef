@@ -9,7 +9,8 @@
 
 #include "base/compiler_specific.h"
 #include "base/logging.h"
-#include "content/public/browser/render_view_host.h"
+#include "content/public/browser/render_frame_host.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "grit/cef_strings.h"
 
@@ -32,8 +33,12 @@ CefString GetLabel(int message_id) {
 
 }  // namespace
 
-CefMenuCreator::CefMenuCreator(CefBrowserHostImpl* browser)
+CefMenuCreator::CefMenuCreator(CefBrowserHostImpl* browser,
+                               content::RenderFrameHost* render_frame_host)
   : browser_(browser) {
+  DCHECK(render_frame_host);
+  render_process_id_ = render_frame_host->GetProcess()->GetID();
+  render_frame_id_ = render_frame_host->GetRoutingID();
   model_ = new CefMenuModelImpl(this);
 }
 
@@ -199,10 +204,10 @@ void CefMenuCreator::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
         browser_->GetWebContents()->GetRenderWidgetHostView();
     if (view)
       view->SetShowingContextMenu(false);
-    content::RenderViewHost* rvh =
-        browser_->GetWebContents()->GetRenderViewHost();
-    if (rvh)
-      rvh->NotifyContextMenuClosed(params_.custom_context);
+    content::RenderFrameHost* render_frame_host =
+        content::RenderFrameHost::FromID(render_process_id_, render_frame_id_);
+    if (render_frame_host)
+      render_frame_host->NotifyContextMenuClosed(params_.custom_context);
   }
 }
 

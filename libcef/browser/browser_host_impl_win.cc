@@ -701,7 +701,7 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
   case WM_DWMCOMPOSITIONCHANGED:
     // Message sent to top-level windows when composition has been enabled or
     // disabled.
-    if (browser && browser->window_info_.transparent_painting)
+    if (browser && browser->IsTransparent())
       SetAeroGlass(hwnd);
     break;
   }
@@ -739,7 +739,7 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
   if (!window_info_.window)
     return false;
 
-  if (window_info_.transparent_painting &&
+  if (window_info_.transparent_painting_enabled &&
       !(window_info_.style & WS_CHILD)) {
     // Transparent top-level windows will be given "sheet of glass" effect.
     SetAeroGlass(window_info_.window);
@@ -885,11 +885,11 @@ void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {
 
 // static
 bool CefBrowserHostImpl::IsWindowRenderingDisabled(const CefWindowInfo& info) {
-  return info.window_rendering_disabled ? true : false;
+  return info.windowless_rendering_enabled ? true : false;
 }
 
 bool CefBrowserHostImpl::IsTransparent() {
-  return window_info_.transparent_painting != 0;
+  return window_info_.transparent_painting_enabled ? true : false;
 }
 
 void CefBrowserHostImpl::PlatformTranslateKeyEvent(

@@ -330,8 +330,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual bool TakeFocus(content::WebContents* source,
                          bool reverse) OVERRIDE;
   virtual void WebContentsFocused(content::WebContents* contents) OVERRIDE;
-  virtual bool HandleContextMenu(const content::ContextMenuParams& params)
-      OVERRIDE;
+  virtual bool HandleContextMenu(
+      content::RenderFrameHost* render_frame_host,
+      const content::ContextMenuParams& params) OVERRIDE;
   virtual bool PreHandleKeyboardEvent(
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event,

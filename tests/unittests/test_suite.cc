@@ -61,6 +61,9 @@ void CefTestSuite::GetSettings(CefSettings& settings) {
 
   // Necessary for V8Test.OnUncaughtException tests.
   settings.uncaught_exception_stack_size = 10;
+
+  // Necessary for the OSRTest tests.
+  settings.windowless_rendering_enabled = true;
 }
 
 // static

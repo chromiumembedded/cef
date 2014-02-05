@@ -274,7 +274,7 @@ void CefURLRequestContextGetter::SetCookieStoragePath(
               BrowserThread::GetMessageLoopProxyForThread(BrowserThread::DB),
               persist_session_cookies,
               NULL,
-              scoped_ptr<content::CookieCryptoDelegate>());
+              NULL);
     } else {
       NOTREACHED() << "The cookie storage directory could not be created";
     }

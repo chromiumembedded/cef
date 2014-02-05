@@ -10,8 +10,8 @@
 // for more information.
 //
 
-#ifndef CEF_LIBCEF_DLL_CPPTOC_COMPLETION_HANDLER_CPPTOC_H_
-#define CEF_LIBCEF_DLL_CPPTOC_COMPLETION_HANDLER_CPPTOC_H_
+#ifndef CEF_LIBCEF_DLL_CPPTOC_COMPLETION_CALLBACK_CPPTOC_H_
+#define CEF_LIBCEF_DLL_CPPTOC_COMPLETION_CALLBACK_CPPTOC_H_
 #pragma once
 
 #ifndef USING_CEF_SHARED
@@ -24,14 +24,14 @@
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
-class CefCompletionHandlerCppToC
-    : public CefCppToC<CefCompletionHandlerCppToC, CefCompletionHandler,
-        cef_completion_handler_t> {
+class CefCompletionCallbackCppToC
+    : public CefCppToC<CefCompletionCallbackCppToC, CefCompletionCallback,
+        cef_completion_callback_t> {
  public:
-  explicit CefCompletionHandlerCppToC(CefCompletionHandler* cls);
-  virtual ~CefCompletionHandlerCppToC() {}
+  explicit CefCompletionCallbackCppToC(CefCompletionCallback* cls);
+  virtual ~CefCompletionCallbackCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED
-#endif  // CEF_LIBCEF_DLL_CPPTOC_COMPLETION_HANDLER_CPPTOC_H_
+#endif  // CEF_LIBCEF_DLL_CPPTOC_COMPLETION_CALLBACK_CPPTOC_H_
 

@@ -129,6 +129,19 @@ void CefBrowserContextProxy::CancelMIDISysExPermissionRequest(
     const GURL& requesting_frame) {
 }
 
+void CefBrowserContextProxy::RequestProtectedMediaIdentifierPermission(
+    int render_process_id,
+    int render_view_id,
+    int bridge_id,
+    int group_id,
+    const GURL& requesting_frame,
+    const ProtectedMediaIdentifierPermissionCallback& callback) {
+}
+
+void CefBrowserContextProxy::CancelProtectedMediaIdentifierPermissionRequests(
+    int group_id) {
+}
+
 content::ResourceContext* CefBrowserContextProxy::GetResourceContext() {
   return resource_context_.get();
 }

@@ -385,11 +385,11 @@ void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {
 
 // static
 bool CefBrowserHostImpl::IsWindowRenderingDisabled(const CefWindowInfo& info) {
-  return info.window_rendering_disabled ? true : false;
+  return info.windowless_rendering_enabled ? true : false;
 }
 
 bool CefBrowserHostImpl::IsTransparent() {
-  return window_info_.transparent_painting != 0;
+  return window_info_.transparent_painting_enabled ? true : false;
 }
 
 void CefBrowserHostImpl::PlatformTranslateKeyEvent(

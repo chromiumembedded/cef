@@ -65,7 +65,8 @@ enum TracingTestType {
 
 const char kTraceTestCategory[] = "test_category";
 
-class TracingTestHandler : public CefEndTracingCallback {
+class TracingTestHandler : public CefEndTracingCallback,
+                           public CefCompletionCallback {
  public:
   TracingTestHandler(TracingTestType type, const char* trace_type)
       : completion_event_(true, false),
@@ -74,7 +75,7 @@ class TracingTestHandler : public CefEndTracingCallback {
   }
 
   void ReadTracingFile(const base::FilePath& file_path) {
-    EXPECT_TRUE(CefCurrentlyOn(TID_FILE));
+    EXPECT_FILE_THREAD();
 
     base::ReadFileToString(file_path, &trace_data_);
     base::DeleteFile(file_path, false);
@@ -84,7 +85,7 @@ class TracingTestHandler : public CefEndTracingCallback {
 
   // CefEndTracingCallback method:
   virtual void OnEndTracingComplete(const CefString& tracing_file) OVERRIDE {
-    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    EXPECT_UI_THREAD();
 
     base::FilePath file_path(tracing_file);
     CefPostTask(TID_FILE,
@@ -93,9 +94,14 @@ class TracingTestHandler : public CefEndTracingCallback {
   }
 
   void RunTracing() {
-    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    EXPECT_UI_THREAD();
 
-    CefBeginTracing(kTraceTestCategory);
+    // Results in a call to OnComplete.
+    CefBeginTracing(kTraceTestCategory, this);
+  }
+
+  virtual void OnComplete() OVERRIDE {
+    EXPECT_UI_THREAD();
 
     switch (type_) {
       case CEF_TRACE_EVENT0: {
@@ -313,7 +319,7 @@ class TracingTestHandler : public CefEndTracingCallback {
     }
 
     // Results in a call to OnEndTracingComplete.
-    CefEndTracingAsync(CefString(), this);
+    CefEndTracing(CefString(), this);
   }
 
   void ExecuteTest() {

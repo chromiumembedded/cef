@@ -71,7 +71,7 @@
 #include "libcef_dll/cpptoc/zip_reader_cpptoc.h"
 #include "libcef_dll/ctocpp/app_ctocpp.h"
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
-#include "libcef_dll/ctocpp/completion_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/completion_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/context_menu_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/cookie_visitor_ctocpp.h"
 #include "libcef_dll/ctocpp/domevent_listener_ctocpp.h"
@@ -184,7 +184,7 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK_EQ(CefBrowserHostCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefBrowserProcessHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefCallbackCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefCompletionHandlerCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefCompletionCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefContextMenuHandlerCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefContextMenuParamsCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefCookieVisitorCToCpp::DebugObjCt, 0);
@@ -472,27 +472,33 @@ CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId,
   return _retval;
 }
 
-CEF_EXPORT int cef_begin_tracing(const cef_string_t* categories) {
+CEF_EXPORT int cef_begin_tracing(const cef_string_t* categories,
+    struct _cef_completion_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback);
+  if (!callback)
+    return 0;
   // Unverified params: categories
 
   // Execute
   bool _retval = CefBeginTracing(
-      CefString(categories));
+      CefString(categories),
+      CefCompletionCallbackCToCpp::Wrap(callback));
 
   // Return type: bool
   return _retval;
 }
 
-CEF_EXPORT int cef_end_tracing_async(const cef_string_t* tracing_file,
+CEF_EXPORT int cef_end_tracing(const cef_string_t* tracing_file,
     struct _cef_end_tracing_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Unverified params: tracing_file, callback
 
   // Execute
-  bool _retval = CefEndTracingAsync(
+  bool _retval = CefEndTracing(
       CefString(tracing_file),
       CefEndTracingCallbackCToCpp::Wrap(callback));
 

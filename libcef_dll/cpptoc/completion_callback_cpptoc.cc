@@ -10,13 +10,13 @@
 // for more information.
 //
 
-#include "libcef_dll/cpptoc/completion_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/completion_callback_cpptoc.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-void CEF_CALLBACK completion_handler_on_complete(
-    struct _cef_completion_handler_t* self) {
+void CEF_CALLBACK completion_callback_on_complete(
+    struct _cef_completion_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -24,21 +24,21 @@ void CEF_CALLBACK completion_handler_on_complete(
     return;
 
   // Execute
-  CefCompletionHandlerCppToC::Get(self)->OnComplete();
+  CefCompletionCallbackCppToC::Get(self)->OnComplete();
 }
 
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefCompletionHandlerCppToC::CefCompletionHandlerCppToC(
-    CefCompletionHandler* cls)
-    : CefCppToC<CefCompletionHandlerCppToC, CefCompletionHandler,
-        cef_completion_handler_t>(cls) {
-  struct_.struct_.on_complete = completion_handler_on_complete;
+CefCompletionCallbackCppToC::CefCompletionCallbackCppToC(
+    CefCompletionCallback* cls)
+    : CefCppToC<CefCompletionCallbackCppToC, CefCompletionCallback,
+        cef_completion_callback_t>(cls) {
+  struct_.struct_.on_complete = completion_callback_on_complete;
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefCompletionHandlerCppToC, CefCompletionHandler,
-    cef_completion_handler_t>::DebugObjCt = 0;
+template<> long CefCppToC<CefCompletionCallbackCppToC, CefCompletionCallback,
+    cef_completion_callback_t>::DebugObjCt = 0;
 #endif
 

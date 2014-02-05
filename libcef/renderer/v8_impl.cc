@@ -620,7 +620,7 @@ v8::Local<v8::Value> CallV8Function(v8::Handle<v8::Context> context,
     }
   } else {
     WebCore::WorkerScriptController* controller =
-        WebCore::WorkerScriptController::controllerForContext();
+        WebCore::WorkerScriptController::controllerForContext(isolate);
     DCHECK(controller);
     if (controller) {
       func_rv = WebCore::ScriptController::callFunction(
@@ -1154,7 +1154,7 @@ CefRefPtr<CefV8Value> CefV8Value::CreateObject(
   }
 
   // Create the new V8 object.
-  v8::Local<v8::Object> obj = v8::Object::New();
+  v8::Local<v8::Object> obj = v8::Object::New(isolate);
 
   // Create a tracker object that will cause the user data and/or accessor
   // reference to be released when the V8 object is destroyed.

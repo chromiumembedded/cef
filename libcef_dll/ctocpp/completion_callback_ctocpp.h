@@ -10,8 +10,8 @@
 // for more information.
 //
 
-#ifndef CEF_LIBCEF_DLL_CTOCPP_COMPLETION_HANDLER_CTOCPP_H_
-#define CEF_LIBCEF_DLL_CTOCPP_COMPLETION_HANDLER_CTOCPP_H_
+#ifndef CEF_LIBCEF_DLL_CTOCPP_COMPLETION_CALLBACK_CTOCPP_H_
+#define CEF_LIBCEF_DLL_CTOCPP_COMPLETION_CALLBACK_CTOCPP_H_
 #pragma once
 
 #ifndef BUILDING_CEF_SHARED
@@ -24,19 +24,19 @@
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
-class CefCompletionHandlerCToCpp
-    : public CefCToCpp<CefCompletionHandlerCToCpp, CefCompletionHandler,
-        cef_completion_handler_t> {
+class CefCompletionCallbackCToCpp
+    : public CefCToCpp<CefCompletionCallbackCToCpp, CefCompletionCallback,
+        cef_completion_callback_t> {
  public:
-  explicit CefCompletionHandlerCToCpp(cef_completion_handler_t* str)
-      : CefCToCpp<CefCompletionHandlerCToCpp, CefCompletionHandler,
-          cef_completion_handler_t>(str) {}
-  virtual ~CefCompletionHandlerCToCpp() {}
+  explicit CefCompletionCallbackCToCpp(cef_completion_callback_t* str)
+      : CefCToCpp<CefCompletionCallbackCToCpp, CefCompletionCallback,
+          cef_completion_callback_t>(str) {}
+  virtual ~CefCompletionCallbackCToCpp() {}
 
-  // CefCompletionHandler methods
+  // CefCompletionCallback methods
   virtual void OnComplete() OVERRIDE;
 };
 
 #endif  // BUILDING_CEF_SHARED
-#endif  // CEF_LIBCEF_DLL_CTOCPP_COMPLETION_HANDLER_CTOCPP_H_
+#endif  // CEF_LIBCEF_DLL_CTOCPP_COMPLETION_CALLBACK_CTOCPP_H_
 

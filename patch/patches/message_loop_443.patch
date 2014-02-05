@@ -1,8 +1,8 @@
 Index: message_loop.cc
 ===================================================================
---- message_loop.cc	(revision 237081)
+--- message_loop.cc	(revision 248478)
 +++ message_loop.cc	(working copy)
-@@ -166,7 +166,7 @@
+@@ -142,7 +142,7 @@
  MessageLoop::~MessageLoop() {
    DCHECK_EQ(this, current());
  

@@ -574,9 +574,9 @@ TEST(CookieTest, ChangeDirectoryCreated) {
 
 namespace {
 
-class TestCompletionHandler : public CefCompletionHandler {
+class TestCompletionCallback : public CefCompletionCallback {
  public:
-  explicit TestCompletionHandler(base::WaitableEvent* event)
+  explicit TestCompletionCallback(base::WaitableEvent* event)
     : event_(event) {}
 
   virtual void OnComplete() OVERRIDE {
@@ -586,7 +586,7 @@ class TestCompletionHandler : public CefCompletionHandler {
  private:
   base::WaitableEvent* event_;
 
-  IMPLEMENT_REFCOUNTING(TestCompletionHandler);
+  IMPLEMENT_REFCOUNTING(TestCompletionCallback);
 };
 
 }  // namespace
@@ -610,7 +610,7 @@ TEST(CookieTest, SessionCookieNoPersist) {
   GetCookie(manager, cookie, true, event, false);
 
   // Flush the cookie store to disk.
-  manager->FlushStore(new TestCompletionHandler(&event));
+  manager->FlushStore(new TestCompletionCallback(&event));
   event.Wait();
   
   // Create a new manager to read the same cookie store.
@@ -640,7 +640,7 @@ TEST(CookieTest, SessionCookieWillPersist) {
   GetCookie(manager, cookie, true, event, false);
 
   // Flush the cookie store to disk.
-  manager->FlushStore(new TestCompletionHandler(&event));
+  manager->FlushStore(new TestCompletionCallback(&event));
   event.Wait();
   
   // Create a new manager to read the same cookie store.

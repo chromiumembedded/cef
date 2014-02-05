@@ -62,6 +62,9 @@ void AppGetSettings(CefSettings& settings) {
 
   CefString(&settings.cache_path) =
       g_command_line->GetSwitchValue(cefclient::kCachePath);
+
+  if (g_command_line->HasSwitch(cefclient::kOffScreenRenderingEnabled))
+    settings.windowless_rendering_enabled = true;
 }
 
 bool AppIsOffScreenRenderingEnabled() {

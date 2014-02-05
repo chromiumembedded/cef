@@ -110,8 +110,8 @@ struct CefWindowInfoTraits {
   static inline void set(const struct_type* src, struct_type* target,
       bool copy) {
     target->parent_widget = src->parent_widget;
-    target->window_rendering_disabled = src->window_rendering_disabled;
-    target->transparent_painting = src->transparent_painting;
+    target->windowless_rendering_enabled = src->windowless_rendering_enabled;
+    target->transparent_painting_enabled = src->transparent_painting_enabled;
     target->widget = src->widget;
   }
 };
@@ -125,17 +125,29 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
   explicit CefWindowInfo(const cef_window_info_t& r) : parent(r) {}
   explicit CefWindowInfo(const CefWindowInfo& r) : parent(r) {}
 
-  void SetAsChild(CefWindowHandle ParentWidget) {
-    parent_widget = ParentWidget;
+  ///
+  // Create the browser as a child widget.
+  ///
+  void SetAsChild(CefWindowHandle parent) {
+    parent_widget = parent;
   }
 
-  void SetTransparentPainting(bool transparentPainting) {
-    transparent_painting = transparentPainting;
-  }
-
-  void SetAsOffScreen(CefWindowHandle ParentWidget) {
-    window_rendering_disabled = true;
-    parent_widget = ParentWidget;
+  ///
+  // Create the browser using windowless (off-screen) rendering. No widget
+  // will be created for the browser and all rendering will occur via the
+  // CefRenderHandler interface. The |parent| value will be used to identify
+  // monitor info and to act as the parent widget for dialogs, context menus,
+  // etc. If |parent| is not provided then the main screen monitor will be used
+  // and some functionality that requires a parent widget may not function
+  // correctly. If |transparent| is true a transparent background color will be
+  // used (RGBA=0x00000000). If |transparent| is false the background will be
+  // white and opaque. In order to create windowless browsers the
+  // CefSettings.windowless_rendering_enabled value must be set to true.
+  ///
+  void SetAsWindowless(CefWindowHandle parent, bool transparent) {
+    windowless_rendering_enabled = true;
+    parent_widget = parent;
+    transparent_painting_enabled = transparent;
   }
 };
 

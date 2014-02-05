@@ -82,7 +82,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
       blink::WebFrame* frame,
       const blink::WebPluginParams& params,
       blink::WebPlugin** plugin) OVERRIDE;
-  virtual bool HandleNavigation(content::RenderView* view,
+  virtual bool HandleNavigation(content::RenderFrame* render_frame,
                                 content::DocumentState* document_state,
                                 int opener_id,
                                 blink::WebFrame* frame,

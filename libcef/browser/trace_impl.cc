@@ -11,7 +11,8 @@
 #include "base/debug/trace_event.h"
 #include "base/time/time.h"
 
-bool CefBeginTracing(const CefString& categories) {
+bool CefBeginTracing(const CefString& categories,
+                     CefRefPtr<CefCompletionCallback> callback) {
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
     return false;
@@ -26,11 +27,11 @@ bool CefBeginTracing(const CefString& categories) {
   if (!subscriber)
     return false;
 
-  return subscriber->BeginTracing(categories);
+  return subscriber->BeginTracing(categories, callback);
 }
 
-bool CefEndTracingAsync(const CefString& tracing_file,
-                        CefRefPtr<CefEndTracingCallback> callback) {
+bool CefEndTracing(const CefString& tracing_file,
+                   CefRefPtr<CefEndTracingCallback> callback) {
   if (!CONTEXT_STATE_VALID()) {
     NOTREACHED() << "context not valid";
     return false;
@@ -45,7 +46,7 @@ bool CefEndTracingAsync(const CefString& tracing_file,
   if (!subscriber)
     return false;
 
-  return subscriber->EndTracingAsync(base::FilePath(tracing_file), callback);
+  return subscriber->EndTracing(base::FilePath(tracing_file), callback);
 }
 
 int64 CefNowFromSystemTraceTime() {

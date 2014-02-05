@@ -18,6 +18,7 @@
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
 #include "libcef/common/scheme_registration.h"
+#include "libcef/common/upload_data.h"
 
 #include "base/bind.h"
 #include "base/lazy_instance.h"
@@ -27,7 +28,6 @@
 #include "base/synchronization/lock.h"
 #include "net/base/completion_callback.h"
 #include "net/base/io_buffer.h"
-#include "net/base/upload_data.h"
 #include "net/http/http_response_headers.h"
 #include "net/http/http_util.h"
 #include "net/url_request/url_request.h"

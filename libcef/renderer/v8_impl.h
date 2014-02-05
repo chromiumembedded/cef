@@ -124,7 +124,7 @@ class CefV8HandleBase :
 template <typename v8class>
 class CefV8Handle : public CefV8HandleBase {
  public:
-  typedef v8::Handle<v8class> handleType;
+  typedef v8::Local<v8class> handleType;
   typedef v8::Persistent<v8class> persistentType;
 
   CefV8Handle(v8::Isolate* isolate,
@@ -275,7 +275,7 @@ class CefV8ValueImpl : public CefV8Value {
 
   class Handle : public CefV8HandleBase {
    public:
-    typedef v8::Handle<v8::Value> handleType;
+    typedef v8::Local<v8::Value> handleType;
     typedef v8::Persistent<v8::Value> persistentType;
 
     Handle(v8::Isolate* isolate,

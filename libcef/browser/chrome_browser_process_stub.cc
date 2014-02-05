@@ -225,7 +225,8 @@ prerender::PrerenderTracker* ChromeBrowserProcessStub::prerender_tracker() {
   return NULL;
 }
 
-ComponentUpdateService* ChromeBrowserProcessStub::component_updater() {
+component_updater::ComponentUpdateService*
+    ChromeBrowserProcessStub::component_updater() {
   NOTIMPLEMENTED();
   return NULL;
 }
@@ -235,8 +236,8 @@ CRLSetFetcher* ChromeBrowserProcessStub::crl_set_fetcher() {
   return NULL;
 }
 
-PnaclComponentInstaller*
-  ChromeBrowserProcessStub::pnacl_component_installer() {
+component_updater::PnaclComponentInstaller*
+    ChromeBrowserProcessStub::pnacl_component_installer() {
   NOTIMPLEMENTED();
   return NULL;
 }

@@ -291,6 +291,13 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       command_line->AppendSwitchASCII(switches::kContextSafetyImplementation,
           base::IntToString(settings.context_safety_implementation));
     }
+
+    if (settings.windowless_rendering_enabled) {
+      // Must disable delegated renderer and threaded compositing for select
+      // popups to display correctly in a windowless browser.
+      command_line->AppendSwitch(switches::kDisableDelegatedRenderer);
+      command_line->AppendSwitch(switches::kDisableThreadedCompositing);
+    }
   }
 
   if (content_client_.application().get()) {

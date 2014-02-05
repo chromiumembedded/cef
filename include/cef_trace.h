@@ -42,6 +42,7 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_callback.h"
 
 ///
 // Implement this interface to receive notification when tracing has completed.
@@ -61,9 +62,9 @@ class CefEndTracingCallback : public virtual CefBase {
 
 
 ///
-// Start tracing events on all processes. Tracing begins immediately locally,
-// and asynchronously on child processes as soon as they receive the
-// BeginTracing request.
+// Start tracing events on all processes. Tracing is initialized asynchronously
+// and |callback| will be executed on the UI thread after initialization is
+// complete.
 //
 // If CefBeginTracing was called previously, or if a CefEndTracingAsync call is
 // pending, CefBeginTracing will fail and return false.
@@ -79,7 +80,8 @@ class CefEndTracingCallback : public virtual CefBase {
 // This function must be called on the browser process UI thread.
 ///
 /*--cef(optional_param=categories)--*/
-bool CefBeginTracing(const CefString& categories);
+bool CefBeginTracing(const CefString& categories,
+                     CefRefPtr<CefCompletionCallback> callback);
 
 ///
 // Stop tracing events on all processes.
@@ -95,8 +97,8 @@ bool CefBeginTracing(const CefString& categories);
 // This function must be called on the browser process UI thread.
 ///
 /*--cef(optional_param=tracing_file,optional_param=callback)--*/
-bool CefEndTracingAsync(const CefString& tracing_file,
-                        CefRefPtr<CefEndTracingCallback> callback);
+bool CefEndTracing(const CefString& tracing_file,
+                   CefRefPtr<CefEndTracingCallback> callback);
 
 ///
 // Returns the current system trace time or, if none is defined, the current

@@ -37,7 +37,6 @@
 #include "third_party/WebKit/public/web/WebScriptSource.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "third_party/WebKit/public/web/WebView.h"
-#include "webkit/glue/webkit_glue.h"
 
 using blink::WebFrame;
 using blink::WebScriptSource;

@@ -112,8 +112,6 @@ CefDOMNodeImpl::Type CefDOMNodeImpl::GetType() {
       return DOM_NODE_TYPE_TEXT;
     case WebNode::CDataSectionNode:
       return DOM_NODE_TYPE_CDATA_SECTION;
-    case WebNode::EntityNode:
-      return DOM_NODE_TYPE_ENTITY;
     case WebNode::ProcessingInstructionsNode:
       return DOM_NODE_TYPE_PROCESSING_INSTRUCTIONS;
     case WebNode::CommentNode:
@@ -124,10 +122,6 @@ CefDOMNodeImpl::Type CefDOMNodeImpl::GetType() {
       return DOM_NODE_TYPE_DOCUMENT_TYPE;
     case WebNode::DocumentFragmentNode:
       return DOM_NODE_TYPE_DOCUMENT_FRAGMENT;
-    case WebNode::NotationNode:
-      return DOM_NODE_TYPE_NOTATION;
-    case WebNode::XPathNamespaceNode:
-      return DOM_NODE_TYPE_XPATH_NAMESPACE;
     default:
       return DOM_NODE_TYPE_UNSUPPORTED;
   }

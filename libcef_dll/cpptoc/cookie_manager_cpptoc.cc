@@ -11,7 +11,7 @@
 //
 
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
-#include "libcef_dll/ctocpp/completion_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/completion_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/cookie_visitor_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -184,17 +184,20 @@ int CEF_CALLBACK cookie_manager_set_storage_path(
 }
 
 int CEF_CALLBACK cookie_manager_flush_store(struct _cef_cookie_manager_t* self,
-    cef_completion_handler_t* handler) {
+    cef_completion_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return 0;
-  // Unverified params: handler
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback);
+  if (!callback)
+    return 0;
 
   // Execute
   bool _retval = CefCookieManagerCppToC::Get(self)->FlushStore(
-      CefCompletionHandlerCToCpp::Wrap(handler));
+      CefCompletionCallbackCToCpp::Wrap(callback));
 
   // Return type: bool
   return _retval;

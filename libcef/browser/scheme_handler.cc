@@ -25,7 +25,7 @@ void InstallInternalProtectedHandlers(
     content::ProtocolHandlerMap* protocol_handlers,
     net::FtpTransactionFactory* ftp_transaction_factory) {
   protocol_handlers->insert(
-      std::make_pair(chrome::kDataScheme,
+      std::make_pair(content::kDataScheme,
           linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
               new net::DataProtocolHandler)));
   protocol_handlers->insert(

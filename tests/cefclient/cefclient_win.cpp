@@ -394,8 +394,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         CefRefPtr<OSRWindow> osr_window =
             OSRWindow::Create(&g_main_browser_provider, transparent);
         osr_window->CreateWidget(hWnd, rect, hInst, szOSRWindowClass);
-        info.SetAsOffScreen(osr_window->hwnd());
-        info.SetTransparentPainting(transparent ? TRUE : FALSE);
+        info.SetAsWindowless(osr_window->hwnd(), transparent);
         g_handler->SetOSRHandler(osr_window.get());
       } else {
         // Initialize window info to the defaults for a child window.

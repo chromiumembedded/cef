@@ -644,7 +644,7 @@ void ClientHandler::CloseDevTools(CefRefPtr<CefBrowser> browser) {
 
 void ClientHandler::BeginTracing() {
   if (CefCurrentlyOn(TID_UI)) {
-    CefBeginTracing(CefString());
+    CefBeginTracing(CefString(), NULL);
   } else {
     CefPostTask(TID_UI,
         NewCefRunnableMethod(this, &ClientHandler::BeginTracing));
@@ -678,10 +678,10 @@ void ClientHandler::EndTracing() {
           const std::vector<CefString>& file_paths) OVERRIDE {
         if (!file_paths.empty()) {
           // File selected. Results in a call to OnEndTracingComplete.
-          CefEndTracingAsync(file_paths.front(), this);
+          CefEndTracing(file_paths.front(), this);
         } else {
           // No file selected. Discard the trace data.
-          CefEndTracingAsync(CefString(), NULL);
+          CefEndTracing(CefString(), NULL);
         }
       }
 

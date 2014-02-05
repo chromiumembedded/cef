@@ -10,12 +10,12 @@
 // for more information.
 //
 
-#include "libcef_dll/ctocpp/completion_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/completion_callback_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-void CefCompletionHandlerCToCpp::OnComplete() {
+void CefCompletionCallbackCToCpp::OnComplete() {
   if (CEF_MEMBER_MISSING(struct_, on_complete))
     return;
 
@@ -27,7 +27,7 @@ void CefCompletionHandlerCToCpp::OnComplete() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefCompletionHandlerCToCpp, CefCompletionHandler,
-    cef_completion_handler_t>::DebugObjCt = 0;
+template<> long CefCToCpp<CefCompletionCallbackCToCpp, CefCompletionCallback,
+    cef_completion_callback_t>::DebugObjCt = 0;
 #endif
 

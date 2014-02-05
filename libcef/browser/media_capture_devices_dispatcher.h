@@ -82,6 +82,7 @@ class CefMediaCaptureDevicesDispatcher : public content::MediaObserver {
       int render_process_id,
       int render_view_id,
       int page_request_id,
+      const GURL& security_origin,
       const content::MediaStreamDevice& device,
       content::MediaRequestState state) OVERRIDE;
   virtual void OnAudioStreamPlayingChanged(

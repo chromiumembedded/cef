@@ -221,6 +221,7 @@
               'files': [
                 'Resources/cef.pak',
                 'Resources/devtools_resources.pak',
+                'Resources/icudtl.dat',
                 'Resources/locales/',
                 '$(BUILDTYPE)/chrome-sandbox',
                 '$(BUILDTYPE)/libcef.so',
@@ -433,6 +434,7 @@
               'files': [
                 'Resources/cef.pak',
                 'Resources/devtools_resources.pak',
+                'Resources/icudtl.dat',
                 'Resources/locales/',
                 '$(BUILDTYPE)/chrome-sandbox',
                 '$(BUILDTYPE)/libcef.so',

@@ -1,6 +1,6 @@
 Index: public/web/WebView.h
 ===================================================================
---- public/web/WebView.h	(revision 164381)
+--- public/web/WebView.h	(revision 166298)
 +++ public/web/WebView.h	(working copy)
 @@ -417,6 +417,7 @@
  
@@ -12,9 +12,9 @@ Index: public/web/WebView.h
      virtual void hidePopups() = 0;
 Index: Source/web/ChromeClientImpl.cpp
 ===================================================================
---- Source/web/ChromeClientImpl.cpp	(revision 164381)
+--- Source/web/ChromeClientImpl.cpp	(revision 166298)
 +++ Source/web/ChromeClientImpl.cpp	(working copy)
-@@ -851,7 +851,7 @@
+@@ -828,7 +828,7 @@
  
  PassRefPtr<PopupMenu> ChromeClientImpl::createPopupMenu(Frame& frame, PopupMenuClient* client) const
  {
@@ -25,9 +25,9 @@ Index: Source/web/ChromeClientImpl.cpp
      return adoptRef(new PopupMenuChromium(frame, client));
 Index: Source/web/WebViewImpl.cpp
 ===================================================================
---- Source/web/WebViewImpl.cpp	(revision 164381)
+--- Source/web/WebViewImpl.cpp	(revision 166298)
 +++ Source/web/WebViewImpl.cpp	(working copy)
-@@ -348,6 +348,7 @@
+@@ -340,6 +340,7 @@
      , m_fakePageScaleAnimationPageScaleFactor(0)
      , m_fakePageScaleAnimationUseAnchor(false)
      , m_contextMenuAllowed(false)
@@ -35,7 +35,7 @@ Index: Source/web/WebViewImpl.cpp
      , m_doingDragAndDrop(false)
      , m_ignoreInputEvents(false)
      , m_compositorDeviceScaleFactorOverride(0)
-@@ -3552,9 +3553,14 @@
+@@ -3517,9 +3518,14 @@
      updateLayerTreeViewport();
  }
  
@@ -53,9 +53,9 @@ Index: Source/web/WebViewImpl.cpp
  void WebViewImpl::startDragging(Frame* frame,
 Index: Source/web/WebViewImpl.h
 ===================================================================
---- Source/web/WebViewImpl.h	(revision 164381)
+--- Source/web/WebViewImpl.h	(revision 166298)
 +++ Source/web/WebViewImpl.h	(working copy)
-@@ -398,7 +398,8 @@
+@@ -397,7 +397,8 @@
  
      // Returns true if popup menus should be rendered by the browser, false if
      // they should be rendered by WebKit (which is the default).
@@ -65,7 +65,7 @@ Index: Source/web/WebViewImpl.h
  
      bool contextMenuAllowed() const
      {
-@@ -680,6 +681,8 @@
+@@ -683,6 +684,8 @@
  
      bool m_contextMenuAllowed;
  

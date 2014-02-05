@@ -70,7 +70,7 @@ void CefBrowserMainParts::PostMainMessageLoopStart() {
       content::ContentWebUIControllerFactory::GetInstance());
 
 #if defined(OS_LINUX)
-  printing::PrintingContextGtk::SetCreatePrintDialogFunction(
+  printing::PrintingContextLinux::SetCreatePrintDialogFunction(
       &PrintDialogGtk::CreatePrintDialog);
 #endif
 }

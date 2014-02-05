@@ -156,7 +156,8 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
   virtual void CopyFromCompositingSurface(
       const gfx::Rect& src_subrect,
       const gfx::Size& dst_size,
-      const base::Callback<void(bool, const SkBitmap&)>& callback) OVERRIDE;
+      const base::Callback<void(bool, const SkBitmap&)>& callback,
+      const SkBitmap::Config config) OVERRIDE;
   virtual void CopyFromCompositingSurfaceToVideoFrame(
       const gfx::Rect& src_subrect,
       const scoped_refptr<media::VideoFrame>& target,

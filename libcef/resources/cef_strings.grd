@@ -274,7 +274,7 @@ need to be translated for each locale.-->
       <message name="IDS_PRINT_SPOOL_FAILED_ERROR_TEXT" desc="Text in a messagebox when printing fails because of printer issues.">
         Something went wrong when trying to print.  Please check your printer and try again.
       </message>
-      <message name="IDS_PRINT_PREVIEW_INVALID_PRINTER_SETTINGS" desc="Message to display when selected printer is not reachable or its settings are invalid.">
+      <message name="IDS_PRINT_INVALID_PRINTER_SETTINGS" desc="Message to display when selected printer is not reachable or its settings are invalid.">
         The selected printer is not available or not installed correctly.  Check your printer or try selecting another printer.
       </message>
     </messages>

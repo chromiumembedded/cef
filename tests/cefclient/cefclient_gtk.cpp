@@ -360,8 +360,7 @@ int main(int argc, char* argv[]) {
 
     CefRefPtr<OSRWindow> osr_window =
         OSRWindow::Create(&g_main_browser_provider, transparent, vbox);
-    window_info.SetAsOffScreen(osr_window->GetWindowHandle());
-    window_info.SetTransparentPainting(transparent);
+    window_info.SetAsWindowless(osr_window->GetWindowHandle(), transparent);
     g_handler->SetOSRHandler(osr_window.get());
   } else {
     window_info.SetAsChild(vbox);

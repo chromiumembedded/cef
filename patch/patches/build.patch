@@ -1,6 +1,6 @@
 Index: common.gypi
 ===================================================================
---- common.gypi	(revision 240657)
+--- common.gypi	(revision 248478)
 +++ common.gypi	(working copy)
 @@ -9,6 +9,9 @@
    # Variables expected to be overriden on the GYP command line (-D) or by
@@ -12,18 +12,22 @@ Index: common.gypi
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
-@@ -201,7 +204,7 @@
-             'enable_app_list%': 0,
-           }],
+@@ -88,9 +91,9 @@
+             #
+             # TODO(erg): Merge this into the previous block once compiling with
+             # aura safely implies including ash capabilities.
+-            ['OS=="linux"', {
+-              'use_aura%': 1,
+-            }],
++            #['OS=="linux"', {
++            #  'use_aura%': 1,
++            #}],
  
--          ['use_aura==1 or (OS!="win" and OS!="mac" and OS!="ios" and OS!="android")', {
-+          ['OS!="win" and OS!="mac" and OS!="ios" and OS!="android"', {
-             'use_default_render_theme%': 1,
-           }, {
-             'use_default_render_theme%': 0,
+             # Whether we're a traditional desktop unix.
+             ['(OS=="linux" or OS=="freebsd" or OS=="openbsd" or OS=="solaris") and chromeos==0', {
 Index: mac/strip_save_dsym
 ===================================================================
---- mac/strip_save_dsym	(revision 240657)
+--- mac/strip_save_dsym	(revision 248478)
 +++ mac/strip_save_dsym	(working copy)
 @@ -48,7 +48,7 @@
                   "bundle"]

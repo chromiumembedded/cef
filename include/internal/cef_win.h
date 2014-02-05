@@ -119,9 +119,9 @@ struct CefWindowInfoTraits {
     target->height = src->height;
     target->parent_window = src->parent_window;
     target->menu = src->menu;
+    target->transparent_painting_enabled = src->transparent_painting_enabled;
+    target->windowless_rendering_enabled = src->windowless_rendering_enabled;
     target->window = src->window;
-    target->transparent_painting = src->transparent_painting;
-    target->window_rendering_disabled = src->window_rendering_disabled;
   }
 };
 
@@ -136,20 +136,26 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
   explicit CefWindowInfo(const cef_window_info_t& r) : parent(r) {}
   explicit CefWindowInfo(const CefWindowInfo& r) : parent(r) {}
 
-  void SetAsChild(HWND hWndParent, RECT windowRect) {
+  ///
+  // Create the browser as a child window.
+  ///
+  void SetAsChild(CefWindowHandle parent, RECT windowRect) {
     style = WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_TABSTOP |
             WS_VISIBLE;
-    parent_window = hWndParent;
+    parent_window = parent;
     x = windowRect.left;
     y = windowRect.top;
     width = windowRect.right - windowRect.left;
     height = windowRect.bottom - windowRect.top;
   }
 
-  void SetAsPopup(HWND hWndParent, const CefString& windowName) {
+  ///
+  // Create the browser as a popup window.
+  ///
+  void SetAsPopup(CefWindowHandle parent, const CefString& windowName) {
     style = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
             WS_VISIBLE;
-    parent_window = hWndParent;
+    parent_window = parent;
     x = CW_USEDEFAULT;
     y = CW_USEDEFAULT;
     width = CW_USEDEFAULT;
@@ -158,13 +164,22 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
     cef_string_copy(windowName.c_str(), windowName.length(), &window_name);
   }
 
-  void SetTransparentPainting(BOOL transparentPainting) {
-    transparent_painting = transparentPainting;
-  }
-
-  void SetAsOffScreen(HWND hWndParent) {
-    window_rendering_disabled = TRUE;
-    parent_window = hWndParent;
+  ///
+  // Create the browser using windowless (off-screen) rendering. No window
+  // will be created for the browser and all rendering will occur via the
+  // CefRenderHandler interface. The |parent| value will be used to identify
+  // monitor info and to act as the parent window for dialogs, context menus,
+  // etc. If |parent| is not provided then the main screen monitor will be used
+  // and some functionality that requires a parent window may not function
+  // correctly. If |transparent| is true a transparent background color will be
+  // used (RGBA=0x00000000). If |transparent| is false the background will be
+  // white and opaque. In order to create windowless browsers the
+  // CefSettings.windowless_rendering_enabled value must be set to true.
+  ///
+  void SetAsWindowless(CefWindowHandle parent, bool transparent) {
+    windowless_rendering_enabled = TRUE;
+    parent_window = parent;
+    transparent_painting_enabled = transparent;
   }
 };
 

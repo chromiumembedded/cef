@@ -11,6 +11,10 @@
 #include "base/memory/scoped_ptr.h"
 #include "content/public/common/context_menu_params.h"
 
+namespace content {
+class RenderFrameHost;
+};
+
 class CefBrowserHostImpl;
 
 class CefMenuCreator : public CefMenuModelImpl::Delegate {
@@ -22,7 +26,8 @@ class CefMenuCreator : public CefMenuModelImpl::Delegate {
     virtual bool RunContextMenu(CefMenuCreator* manager) =0;
   };
 
-  explicit CefMenuCreator(CefBrowserHostImpl* browser);
+  CefMenuCreator(CefBrowserHostImpl* browser,
+                 content::RenderFrameHost* render_frame_host);
   virtual ~CefMenuCreator();
 
   // Returns true if the context menu is currently showing.
@@ -53,6 +58,11 @@ class CefMenuCreator : public CefMenuModelImpl::Delegate {
 
   // CefBrowserHostImpl pointer is guaranteed to outlive this object.
   CefBrowserHostImpl* browser_;
+
+  // The RenderFrameHost's IDs.
+  int render_process_id_;
+  int render_frame_id_;
+
   CefRefPtr<CefMenuModelImpl> model_;
   content::ContextMenuParams params_;
   scoped_ptr<Runner> runner_;

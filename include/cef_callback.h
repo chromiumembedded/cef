@@ -63,7 +63,7 @@ class CefCallback : public virtual CefBase {
 // Generic callback interface used for asynchronous completion.
 ///
 /*--cef(source=client)--*/
-class CefCompletionHandler : public virtual CefBase {
+class CefCompletionCallback : public virtual CefBase {
  public:
   ///
   // Method that will be called once the task is complete.

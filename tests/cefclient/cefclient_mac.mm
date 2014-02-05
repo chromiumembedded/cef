@@ -355,8 +355,7 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
     CefRefPtr<OSRWindow> osr_window =
         OSRWindow::Create(&g_main_browser_provider, transparent, contentView,
             CefRect(0, 0, kWindowWidth, kWindowHeight));
-    window_info.SetAsOffScreen(osr_window->GetWindowHandle());
-    window_info.SetTransparentPainting(transparent);
+    window_info.SetAsWindowless(osr_window->GetWindowHandle(), transparent);
     g_handler->SetOSRHandler(osr_window->GetRenderHandler().get());
   } else {
     // Initialize window info to the defaults for a child window.

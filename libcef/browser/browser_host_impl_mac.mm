@@ -436,7 +436,11 @@ void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {
 
 // static
 bool CefBrowserHostImpl::IsWindowRenderingDisabled(const CefWindowInfo& info) {
-  return info.window_rendering_disabled ? true : false;
+  return info.windowless_rendering_enabled ? true : false;
+}
+
+bool CefBrowserHostImpl::IsTransparent() {
+  return window_info_.transparent_painting_enabled ? true : false;
 }
 
 static NSTimeInterval currentEventTimestamp() {
@@ -451,10 +455,6 @@ static NSTimeInterval currentEventTimestamp() {
     // and let the client provide it.
     return 0;
   }
-}
-
-bool CefBrowserHostImpl::IsTransparent() {
-  return window_info_.transparent_painting != 0;
 }
 
 static NSUInteger NativeModifiers(int cef_modifiers) {

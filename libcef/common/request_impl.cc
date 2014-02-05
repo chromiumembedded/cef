@@ -8,10 +8,10 @@
 #include "libcef/common/http_header_utils.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/task_runner_impl.h"
+#include "libcef/common/upload_data.h"
 
 #include "base/logging.h"
 #include "content/public/browser/resource_request_info.h"
-#include "net/base/upload_data.h"
 #include "net/base/upload_data_stream.h"
 #include "net/base/upload_element_reader.h"
 #include "net/base/upload_bytes_element_reader.h"

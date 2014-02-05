@@ -290,6 +290,10 @@ bool CefBrowserHost::CreateBrowser(
 
   // Verify that render handler is in place for a windowless browser.
   if (CefBrowserHostImpl::IsWindowRenderingDisabled(windowInfo)) {
+    if (!CefContext::Get()->settings().windowless_rendering_enabled) {
+      NOTREACHED() << "Windowless rendering must be enabled";
+      return false;
+    }
     if (!client->GetRenderHandler().get()) {
       NOTREACHED() << "CefRenderHandler implementation is required";
       return false;
@@ -358,6 +362,10 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
 
   // Verify that render handler is in place for a windowless browser.
   if (CefBrowserHostImpl::IsWindowRenderingDisabled(windowInfo)) {
+    if (!CefContext::Get()->settings().windowless_rendering_enabled) {
+      NOTREACHED() << "Windowless rendering must be enabled";
+      return NULL;
+    }
     if (!client->GetRenderHandler().get()) {
       NOTREACHED() << "CefRenderHandler implementation is required";
       return NULL;
@@ -715,8 +723,8 @@ double CefBrowserHostImpl::GetZoomLevel() {
 
 void CefBrowserHostImpl::SetZoomLevel(double zoomLevel) {
   if (CEF_CURRENTLY_ON_UIT()) {
-    if (web_contents_.get() && web_contents_->GetRenderViewHost())
-      web_contents_->GetRenderViewHost()->SetZoomLevel(zoomLevel);
+    if (web_contents_.get())
+      web_contents_->SetZoomLevel(zoomLevel);
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::SetZoomLevel, this, zoomLevel));
@@ -812,7 +820,7 @@ void CefBrowserHostImpl::Find(int identifier, const CefString& searchText,
     options.forward = forward;
     options.matchCase = matchCase;
     options.findNext = findNext;
-    web_contents()->GetRenderViewHost()->Find(identifier, searchText, options);
+    web_contents()->Find(identifier, searchText, options);
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::Find, this, identifier, searchText,
@@ -828,7 +836,7 @@ void CefBrowserHostImpl::StopFinding(bool clearSelection) {
     content::StopFindAction action = clearSelection ?
         content::STOP_FIND_ACTION_CLEAR_SELECTION :
         content::STOP_FIND_ACTION_KEEP_SELECTION;
-    web_contents()->GetRenderViewHost()->StopFinding(action);
+    web_contents()->StopFinding(action);
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::StopFinding, this, clearSelection));
@@ -1846,9 +1854,10 @@ void CefBrowserHostImpl::WebContentsFocused(content::WebContents* contents) {
 }
 
 bool CefBrowserHostImpl::HandleContextMenu(
+    content::RenderFrameHost* render_frame_host,
     const content::ContextMenuParams& params) {
   if (!menu_creator_.get())
-    menu_creator_.reset(new CefMenuCreator(this));
+    menu_creator_.reset(new CefMenuCreator(this, render_frame_host));
   return menu_creator_->CreateContextMenu(params);
 }
 

@@ -9,10 +9,11 @@
 
 #include <string>
 
+#include "libcef/common/upload_data.h"
+
 #include "content/public/browser/global_request_id.h"
 #include "content/public/common/page_transition_types.h"
 #include "content/public/common/referrer.h"
-#include "net/base/upload_data.h"
 #include "ui/base/window_open_disposition.h"
 #include "url/gurl.h"
 
