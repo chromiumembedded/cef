@@ -1,0 +1,66 @@
+Index: web_dialog_view.cc
+===================================================================
+--- web_dialog_view.cc	(revision 248478)
++++ web_dialog_view.cc	(working copy)
+@@ -261,13 +261,6 @@
+   return true;
+ }
+ 
+-bool WebDialogView::HandleContextMenu(
+-    const content::ContextMenuParams& params) {
+-  if (delegate_)
+-    return delegate_->HandleContextMenu(params);
+-  return WebDialogWebContentsDelegate::HandleContextMenu(params);
+-}
+-
+ ////////////////////////////////////////////////////////////////////////////////
+ // content::WebContentsDelegate implementation:
+ 
+@@ -347,6 +340,16 @@
+   *proceed_to_fire_unload = proceed;
+ }
+ 
++bool WebDialogView::HandleContextMenu(
++    content::RenderFrameHost* render_frame_host,
++    const content::ContextMenuParams& params) {
++  if (delegate_)
++    return delegate_->HandleContextMenu(params);
++  return WebDialogWebContentsDelegate::HandleContextMenu(render_frame_host,
++                                                          params);
++}
++
++
+ ////////////////////////////////////////////////////////////////////////////////
+ // WebDialogView, private:
+ 
+Index: web_dialog_view.h
+===================================================================
+--- web_dialog_view.h	(revision 248478)
++++ web_dialog_view.h	(working copy)
+@@ -74,6 +74,7 @@
+   virtual const views::Widget* GetWidget() const OVERRIDE;
+ 
+   // Overridden from ui::WebDialogDelegate:
++  using ui::WebDialogDelegate::HandleContextMenu;
+   virtual ui::ModalType GetDialogModalType() const OVERRIDE;
+   virtual base::string16 GetDialogTitle() const OVERRIDE;
+   virtual GURL GetDialogContentURL() const OVERRIDE;
+@@ -91,8 +92,6 @@
+   virtual void OnCloseContents(content::WebContents* source,
+                                bool* out_close_dialog) OVERRIDE;
+   virtual bool ShouldShowDialogTitle() const OVERRIDE;
+-  virtual bool HandleContextMenu(
+-      const content::ContextMenuParams& params) OVERRIDE;
+ 
+   // Overridden from content::WebContentsDelegate:
+   virtual void MoveContents(content::WebContents* source,
+@@ -114,6 +113,9 @@
+   virtual void BeforeUnloadFired(content::WebContents* tab,
+                                  bool proceed,
+                                  bool* proceed_to_fire_unload) OVERRIDE;
++  virtual bool HandleContextMenu(
++      content::RenderFrameHost* render_frame_host,
++      const content::ContextMenuParams& params) OVERRIDE;
+ 
+  private:
+   FRIEND_TEST_ALL_PREFIXES(WebDialogBrowserTest, WebContentRendered);
