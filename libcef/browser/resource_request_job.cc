@@ -112,19 +112,13 @@ class CefResourceRequestJobCallback : public CefCallback {
           dest_size_ = 0;
           dest_ = NULL;
 
-          if (bytes_read > 0) {
-            // Clear the IO_PENDING status.
-            job_->SetStatus(URLRequestStatus());
+          // Clear the IO_PENDING status.
+          job_->SetStatus(URLRequestStatus());
 
-            // Notify about the available bytes. This may cause another call to
-            // ReadRawData() from URLRequest::Read.
-            job_->NotifyReadComplete(bytes_read);
-          } else {
-            // Either we read all requested bytes or the handler detected the
-            // end of the resource.
-            job_->NotifyDone(URLRequestStatus());
-            Detach();
-          }
+          // Notify about the available bytes. If bytes_read > 0 then
+          // ReadRawData may be called from URLRequest::Read. If bytes_read == 0
+          // then Kill will be called from the URLRequest destructor.
+          job_->NotifyReadComplete(bytes_read);
         } else if (!job_->GetStatus().is_io_pending()) {
           // Failed due to an error.
           NOTREACHED() <<
@@ -158,6 +152,7 @@ CefResourceRequestJob::CefResourceRequestJob(
     CefRefPtr<CefResourceHandler> handler)
     : net::URLRequestJob(request, network_delegate),
       handler_(handler),
+      done_(false),
       remaining_bytes_(0),
       response_cookies_save_index_(0),
       weak_factory_(this) {
@@ -207,8 +202,10 @@ void CefResourceRequestJob::Start() {
 void CefResourceRequestJob::Kill() {
   CEF_REQUIRE_IOT();
 
-  // Notify the handler that the request has been canceled.
-  handler_->Cancel();
+  if (!done_) {
+    // Notify the handler that the request has been canceled.
+    handler_->Cancel();
+  }
 
   if (callback_) {
     callback_->Detach();
@@ -221,16 +218,15 @@ void CefResourceRequestJob::Kill() {
 // This method will be called by URLRequestJob::Read and our callback.
 // It can indicate the following states:
 // 1. If the request is complete set |bytes_read| == 0 and return true. The
-//    caller is then responsible for calling NotifyDone. ReadRawData should not
-//    be called again.
+//    caller is then responsible for calling NotifyReadComplete. ReadRawData
+//    should not be called again.
 // 2. If data is available synchronously set |bytes_read| > 0 and return true.
 //    The caller is then responsible for calling NotifyReadComplete. ReadRawData
 //    may be called again by URLRequestJob::Read.
 // 3. If data is not available now but may be available asynchronously set
 //    status to IO_PENDING and return false. When executed asynchronously the
 //    callback will again call ReadRawData. If data is returned at that time the
-//    callback will clear the status and call NotifyReadComplete or NotifyDone
-//    as appropriate.
+//    callback will clear the status and call NotifyReadComplete.
 bool CefResourceRequestJob::ReadRawData(net::IOBuffer* dest, int dest_size,
                                         int* bytes_read) {
   CEF_REQUIRE_IOT();
@@ -241,6 +237,7 @@ bool CefResourceRequestJob::ReadRawData(net::IOBuffer* dest, int dest_size,
   if (remaining_bytes_ == 0) {
     // No more data to read.
     *bytes_read = 0;
+    done_ = true;
     return true;
   } else if (remaining_bytes_ > 0 && remaining_bytes_ < dest_size) {
     // The handler knows the content size beforehand.
@@ -260,6 +257,7 @@ bool CefResourceRequestJob::ReadRawData(net::IOBuffer* dest, int dest_size,
   if (!rv) {
     // The handler has indicated completion of the request.
     *bytes_read = 0;
+    done_ = true;
     return true;
   } else if (*bytes_read == 0) {
     // Continue reading asynchronously. May happen multiple times in a row so
