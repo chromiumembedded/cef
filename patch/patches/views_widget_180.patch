@@ -35,6 +35,18 @@ Index: desktop_aura/desktop_screen_win.cc
    aura::WindowEventDispatcher* dispatcher = window->GetDispatcher();
    return dispatcher ? dispatcher->host()->GetAcceleratedWidget() : NULL;
  }
+Index: widget.cc
+===================================================================
+--- widget.cc	(revision 248478)
++++ widget.cc	(working copy)
+@@ -149,6 +149,7 @@
+       show_state(ui::SHOW_STATE_DEFAULT),
+       double_buffer(false),
+       parent(NULL),
++      parent_widget(NULL),
+       native_widget(NULL),
+       desktop_root_window_host(NULL),
+       top_level(false),
 Index: widget.h
 ===================================================================
 --- widget.h	(revision 248478)
