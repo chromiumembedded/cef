@@ -39,7 +39,15 @@ Index: widget.cc
 ===================================================================
 --- widget.cc	(revision 248478)
 +++ widget.cc	(working copy)
-@@ -149,6 +149,7 @@
+@@ -124,6 +124,7 @@
+       show_state(ui::SHOW_STATE_DEFAULT),
+       double_buffer(false),
+       parent(NULL),
++      parent_widget(NULL),
+       native_widget(NULL),
+       desktop_root_window_host(NULL),
+       top_level(false),
+@@ -149,6 +150,7 @@
        show_state(ui::SHOW_STATE_DEFAULT),
        double_buffer(false),
        parent(NULL),
