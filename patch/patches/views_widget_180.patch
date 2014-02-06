@@ -47,6 +47,14 @@ Index: widget.cc
        native_widget(NULL),
        desktop_root_window_host(NULL),
        top_level(false),
+@@ -153,6 +154,7 @@
+       show_state(ui::SHOW_STATE_DEFAULT),
+       double_buffer(false),
+       parent(NULL),
++      parent_widget(NULL),
+       native_widget(NULL),
+       desktop_root_window_host(NULL),
+       top_level(false),
 Index: widget.h
 ===================================================================
 --- widget.h	(revision 247552)
