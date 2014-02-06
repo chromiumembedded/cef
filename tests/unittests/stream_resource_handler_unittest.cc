@@ -5,10 +5,14 @@
 #include <algorithm>
 #include <cstdlib>
 #include <string>
+#include "include/cef_runnable.h"
 #include "include/cef_stream.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/routing_test_handler.h"
+
+// Comment out this define to disable the unit test timeout.
+#define TIMEOUT_ENABLED 1
 
 namespace {
 
@@ -96,6 +100,12 @@ class ReadTestHandler : public RoutingTestHandler {
   virtual void RunTest() OVERRIDE {
     // Create the browser.
     CreateBrowser(kTestUrl);
+
+#if defined(TIMEOUT_ENABLED)
+    // Time out the test after a reasonable period of time.
+    CefPostDelayedTask(TID_UI,
+        NewCefRunnableMethod(this, &ReadTestHandler::DestroyTest), 3000);
+#endif
   }
 
   virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
@@ -127,15 +137,31 @@ class ReadTestHandler : public RoutingTestHandler {
     const int actual_result = atoi(request.ToString().c_str());
     EXPECT_EQ(expected_result_, actual_result);
 
-    DestroyTest();
+    DestroyTestIfDone();
 
     return true;
   }
 
+  virtual void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                                    bool isLoading,
+                                    bool canGoBack,
+                                    bool canGoForward) OVERRIDE {
+    if (!isLoading) {
+      got_on_loading_state_change_done_.yes();
+      DestroyTestIfDone();
+    }
+  }
+
  private:
+  void DestroyTestIfDone() {
+    if (got_on_query_ && got_on_loading_state_change_done_)
+      DestroyTest();
+  }
+
   virtual void DestroyTest() OVERRIDE {
     EXPECT_TRUE(got_resource_handler_);
     EXPECT_TRUE(got_on_query_);
+    EXPECT_TRUE(got_on_loading_state_change_done_);
     RoutingTestHandler::DestroyTest();
   }
 
@@ -144,6 +170,7 @@ class ReadTestHandler : public RoutingTestHandler {
   int expected_result_;
   TrackCallback got_resource_handler_;
   TrackCallback got_on_query_;
+  TrackCallback got_on_loading_state_change_done_;
 };
 
 }  // namespace
