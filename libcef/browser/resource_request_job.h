@@ -60,6 +60,7 @@ class CefResourceRequestJob : public net::URLRequestJob {
   void FetchResponseCookies(std::vector<std::string>* cookies);
 
   CefRefPtr<CefResourceHandler> handler_;
+  bool done_;
   CefRefPtr<CefResponse> response_;
   GURL redirect_url_;
   int64 remaining_bytes_;
