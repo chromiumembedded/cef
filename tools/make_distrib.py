@@ -493,6 +493,7 @@ if platform == 'windows':
   binaries = [
     'd3dcompiler_46.dll',
     'ffmpegsumo.dll',
+    'icudt.dll',
     'libcef.dll',
     'libEGL.dll',
     'libGLESv2.dll',
