@@ -119,7 +119,8 @@ def make_dir(name, quiet = True):
 
 def get_files(search_glob):
     """ Returns all files matching the search glob. """
-    return iglob(search_glob)
+    # Sort the result for consistency across platforms.
+    return sorted(iglob(search_glob))
 
 def read_version_file(file, args):
     """ Read and parse a version file (key=value pairs, one per line). """
