@@ -224,11 +224,11 @@ typedef struct _cef_settings_t {
   int multi_threaded_message_loop;
 
   ///
-  // Set to true to enable windowless (off-screen) rendering support. Do not
+  // Set to true (1) to enable windowless (off-screen) rendering support. Do not
   // enable this value if the application does not use windowless rendering as
   // it may reduce rendering performance on some systems.
   ///
-  bool windowless_rendering_enabled;
+  int windowless_rendering_enabled;
 
   ///
   // Set to true (1) to disable configuration of browser process features using
