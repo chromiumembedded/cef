@@ -98,16 +98,6 @@ ClientHandler::ClientHandler()
     m_StopHwnd(NULL),
     m_ReloadHwnd(NULL),
     m_bFocusOnEditableField(false) {
-  // Create the browser-side router for query handling.
-  CefMessageRouterConfig config;
-  message_router_ = CefMessageRouterBrowserSide::Create(config);
-
-  // Register handlers with the router.
-  CreateMessageHandlers(message_handler_set_);
-  MessageHandlerSet::const_iterator it = message_handler_set_.begin();
-  for (; it != message_handler_set_.end(); ++it)
-    message_router_->AddHandler(*(it), false);
-
   // Read command line settings.
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
@@ -307,6 +297,18 @@ bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser,
 
 void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   REQUIRE_UI_THREAD();
+
+  if (!message_router_) {
+    // Create the browser-side router for query handling.
+    CefMessageRouterConfig config;
+    message_router_ = CefMessageRouterBrowserSide::Create(config);
+
+    // Register handlers with the router.
+    CreateMessageHandlers(message_handler_set_);
+    MessageHandlerSet::const_iterator it = message_handler_set_.begin();
+    for (; it != message_handler_set_.end(); ++it)
+      message_router_->AddHandler(*(it), false);
+  }
 
   // Disable mouse cursor change if requested via the command-line flag.
   if (m_bMouseCursorChangeDisabled)
