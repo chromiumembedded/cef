@@ -4,6 +4,7 @@
 
 #include "libcef/browser/stream_impl.h"
 #include <stdlib.h>
+#include "base/file_util.h"
 #include "base/logging.h"
 
 // Static functions
@@ -11,8 +12,7 @@
 CefRefPtr<CefStreamReader> CefStreamReader::CreateForFile(
     const CefString& fileName) {
   CefRefPtr<CefStreamReader> reader;
-  std::string fileNameStr = fileName;
-  FILE* file = fopen(fileNameStr.c_str(), "rb");
+  FILE* file = base::OpenFile(base::FilePath(fileName), "rb");
   if (file)
     reader = new CefFileReader(file, true);
   return reader;
@@ -41,8 +41,7 @@ CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForFile(
     const CefString& fileName) {
   DCHECK(!fileName.empty());
   CefRefPtr<CefStreamWriter> writer;
-  std::string fileNameStr = fileName;
-  FILE* file = fopen(fileNameStr.c_str(), "wb");
+  FILE* file = base::OpenFile(base::FilePath(fileName), "wb");
   if (file)
     writer = new CefFileWriter(file, true);
   return writer;
@@ -67,7 +66,7 @@ CefFileReader::CefFileReader(FILE* file, bool close)
 CefFileReader::~CefFileReader() {
   AutoLock lock_scope(this);
   if (close_)
-    fclose(file_);
+    base::CloseFile(file_);
 }
 
 size_t CefFileReader::Read(void* ptr, size_t size, size_t n) {
@@ -109,7 +108,7 @@ CefFileWriter::CefFileWriter(FILE* file, bool close)
 CefFileWriter::~CefFileWriter() {
   AutoLock lock_scope(this);
   if (close_)
-    fclose(file_);
+    base::CloseFile(file_);
 }
 
 size_t CefFileWriter::Write(const void* ptr, size_t size, size_t n) {
