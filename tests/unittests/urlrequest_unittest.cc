@@ -17,6 +17,7 @@
 #include "base/file_util.h"
 #include "base/files/scoped_temp_dir.h"
 #include "base/strings/stringprintf.h"
+#include "base/synchronization/waitable_event.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 // Include after base/bind.h to avoid name collisions with cef_tuple.h.
@@ -1094,3 +1095,89 @@ REQ_TEST(RendererGETRedirect, REQTEST_GET_REDIRECT, false);
 REQ_TEST(RendererPOST, REQTEST_POST, false);
 REQ_TEST(RendererPOSTWithProgress, REQTEST_POST_WITHPROGRESS, false);
 REQ_TEST(RendererHEAD, REQTEST_HEAD, false);
+
+
+namespace {
+
+class InvalidURLTestClient : public CefURLRequestClient {
+ public:
+  InvalidURLTestClient()
+      : event_(false, false) {
+  }
+
+  void RunTest() {
+    CefPostTask(TID_UI, 
+        NewCefRunnableMethod(this, &InvalidURLTestClient::RunOnUIThread));
+
+    // Wait for the test to complete.
+    event_.Wait();
+  }
+
+  virtual void OnRequestComplete(CefRefPtr<CefURLRequest> client) OVERRIDE {
+    EXPECT_EQ(UR_FAILED, client->GetRequestStatus());
+
+    // Let the call stack unwind before signaling completion.
+    CefPostTask(TID_UI,
+        NewCefRunnableMethod(this, &InvalidURLTestClient::CompleteOnUIThread));
+  }
+
+  virtual void OnUploadProgress(CefRefPtr<CefURLRequest> request,
+                                uint64 current,
+                                uint64 total) OVERRIDE {
+    EXPECT_TRUE(false);  // Not reached.
+  }
+
+  virtual void OnDownloadProgress(CefRefPtr<CefURLRequest> request,
+                                  uint64 current,
+                                  uint64 total) OVERRIDE {
+    EXPECT_TRUE(false);  // Not reached.
+  }
+
+  virtual void OnDownloadData(CefRefPtr<CefURLRequest> request,
+                              const void* data,
+                              size_t data_length) OVERRIDE {
+    EXPECT_TRUE(false);  // Not reached.
+  }
+
+  virtual bool GetAuthCredentials(
+      bool isProxy,
+      const CefString& host,
+      int port,
+      const CefString& realm,
+      const CefString& scheme,
+      CefRefPtr<CefAuthCallback> callback) OVERRIDE {
+    EXPECT_TRUE(false);  // Not reached.
+    return false;
+  }
+
+ private:
+  void RunOnUIThread() {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    CefRefPtr<CefRequest> request = CefRequest::Create();
+    request->SetMethod("GET");
+    request->SetURL("foo://invalidurl");
+
+    CefURLRequest::Create(request, this);
+  }
+
+  void CompleteOnUIThread() {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+    // Signal that the test is complete.
+    event_.Signal();
+  }
+  
+  base::WaitableEvent event_;
+
+  IMPLEMENT_REFCOUNTING(InvalidURLTestClient);
+};
+
+}  // namespace
+
+// Verify that failed requests do not leak references.
+TEST(URLRequestTest, BrowserInvalidURL) { 
+  CefRefPtr<InvalidURLTestClient> client = new InvalidURLTestClient();
+  client->RunTest();
+
+  // Verify that there's only one reference to the client.
+  EXPECT_EQ(1, client->GetRefCt());
+}
