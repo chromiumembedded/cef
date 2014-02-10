@@ -259,15 +259,6 @@ class CefBrowserHost : public virtual CefBase {
   virtual CefRefPtr<CefBrowser> GetBrowser() =0;
 
   ///
-  // Call this method before destroying a contained browser window. This method
-  // performs any internal cleanup that may be needed before the browser window
-  // is destroyed. See CefLifeSpanHandler::DoClose() documentation for
-  // additional usage information.
-  ///
-  /*--cef()--*/
-  virtual void ParentWindowWillClose() =0;
-
-  ///
   // Request that the browser close. The JavaScript 'onbeforeunload' event will
   // be fired. If |force_close| is false the event handler, if any, will be
   // allowed to prompt the user and the user can optionally cancel the close.

@@ -334,9 +334,6 @@ bool ClientHandler::DoClose(CefRefPtr<CefBrowser> browser) {
   // documentation in the CEF header for a detailed destription of this
   // process.
   if (m_BrowserId == browser->GetIdentifier()) {
-    // Notify the browser that the parent window is about to close.
-    browser->GetHost()->ParentWindowWillClose();
-
     // Set a flag to indicate that the window close should be allowed.
     m_bIsClosing = true;
   }

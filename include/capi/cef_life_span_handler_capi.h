@@ -135,10 +135,8 @@ typedef struct _cef_life_span_handler_t {
   //     CefJSDialogHandler::OnBeforeUnloadDialog()).
   // 4.  User approves the close. 5.  JavaScript 'onunload' handler executes. 6.
   // Application's do_close() handler is called. Application will:
-  //     A. Call CefBrowserHost::ParentWindowWillClose() to notify CEF that the
-  //        parent window will be closing.
-  //     B. Set a flag to indicate that the next close attempt will be allowed.
-  //     C. Return false.
+  //     A. Set a flag to indicate that the next close attempt will be allowed.
+  //     B. Return false.
   // 7.  CEF sends an OS close notification. 8.  Application's top-level window
   // receives the OS close notification and
   //     allows the window to close based on the flag from #6B.

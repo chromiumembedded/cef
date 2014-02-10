@@ -76,16 +76,6 @@ CefRefPtr<CefBrowser> CefBrowserHostCToCpp::GetBrowser() {
   return CefBrowserCToCpp::Wrap(_retval);
 }
 
-void CefBrowserHostCToCpp::ParentWindowWillClose() {
-  if (CEF_MEMBER_MISSING(struct_, parent_window_will_close))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  struct_->parent_window_will_close(struct_);
-}
-
 void CefBrowserHostCToCpp::CloseBrowser(bool force_close) {
   if (CEF_MEMBER_MISSING(struct_, close_browser))
     return;

@@ -112,18 +112,6 @@ cef_browser_t* CEF_CALLBACK browser_host_get_browser(
   return CefBrowserCppToC::Wrap(_retval);
 }
 
-void CEF_CALLBACK browser_host_parent_window_will_close(
-    struct _cef_browser_host_t* self) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-
-  // Execute
-  CefBrowserHostCppToC::Get(self)->ParentWindowWillClose();
-}
-
 void CEF_CALLBACK browser_host_close_browser(struct _cef_browser_host_t* self,
     int force_close) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -651,8 +639,6 @@ void CEF_CALLBACK browser_host_handle_key_event_after_text_input_client(
 CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
     : CefCppToC<CefBrowserHostCppToC, CefBrowserHost, cef_browser_host_t>(cls) {
   struct_.struct_.get_browser = browser_host_get_browser;
-  struct_.struct_.parent_window_will_close =
-      browser_host_parent_window_will_close;
   struct_.struct_.close_browser = browser_host_close_browser;
   struct_.struct_.set_focus = browser_host_set_focus;
   struct_.struct_.get_window_handle = browser_host_get_window_handle;

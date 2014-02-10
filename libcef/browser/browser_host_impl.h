@@ -126,7 +126,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // CefBrowserHost methods.
   virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
   virtual void CloseBrowser(bool force_close) OVERRIDE;
-  virtual void ParentWindowWillClose() OVERRIDE;
   virtual void SetFocus(bool enable) OVERRIDE;
   virtual CefWindowHandle GetWindowHandle() OVERRIDE;
   virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE;

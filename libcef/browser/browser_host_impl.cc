@@ -682,9 +682,6 @@ void CefBrowserHostImpl::CloseBrowser(bool force_close) {
   }
 }
 
-void CefBrowserHostImpl::ParentWindowWillClose() {
-}
-
 void CefBrowserHostImpl::SetFocus(bool enable) {
   if (!enable)
     return;
