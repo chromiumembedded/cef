@@ -38,14 +38,14 @@
 #define CEF_INCLUDE_CAPI_CEF_V8_CAPI_H_
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_browser_capi.h"
 #include "include/capi/cef_frame_capi.h"
 #include "include/capi/cef_task_capi.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct _cef_v8exception_t;
 struct _cef_v8handler_t;

@@ -38,16 +38,16 @@
 #define CEF_INCLUDE_CAPI_CEF_SCHEME_CAPI_H_
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_browser_capi.h"
 #include "include/capi/cef_frame_capi.h"
 #include "include/capi/cef_request_capi.h"
 #include "include/capi/cef_resource_handler_capi.h"
 #include "include/capi/cef_response_capi.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct _cef_scheme_handler_factory_t;
 

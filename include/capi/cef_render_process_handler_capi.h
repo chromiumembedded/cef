@@ -38,10 +38,6 @@
 #define CEF_INCLUDE_CAPI_CEF_RENDER_PROCESS_HANDLER_CAPI_H_
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_browser_capi.h"
 #include "include/capi/cef_dom_capi.h"
@@ -50,6 +46,10 @@ extern "C" {
 #include "include/capi/cef_process_message_capi.h"
 #include "include/capi/cef_v8_capi.h"
 #include "include/capi/cef_values_capi.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 ///
