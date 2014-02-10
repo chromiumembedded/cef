@@ -38,13 +38,13 @@
 #define CEF_INCLUDE_CAPI_CEF_DOWNLOAD_HANDLER_CAPI_H_
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_browser_capi.h"
 #include "include/capi/cef_download_item_capi.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 ///

@@ -38,11 +38,11 @@
 #define CEF_INCLUDE_CAPI_CEF_DOM_CAPI_H_
 #pragma once
 
+#include "include/capi/cef_base_capi.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "include/capi/cef_base_capi.h"
 
 struct _cef_domdocument_t;
 struct _cef_domevent_listener_t;

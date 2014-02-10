@@ -38,12 +38,12 @@
 #define CEF_INCLUDE_CAPI_CEF_COOKIE_CAPI_H_
 #pragma once
 
+#include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_callback_capi.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "include/capi/cef_base_capi.h"
-#include "include/capi/cef_callback_capi.h"
 
 struct _cef_cookie_visitor_t;
 

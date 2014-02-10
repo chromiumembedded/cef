@@ -38,11 +38,11 @@
 #define CEF_INCLUDE_CAPI_CEF_VALUES_CAPI_H_
 #pragma once
 
+#include "include/capi/cef_base_capi.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "include/capi/cef_base_capi.h"
 
 struct _cef_dictionary_value_t;
 struct _cef_list_value_t;

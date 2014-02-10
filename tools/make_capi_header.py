@@ -86,10 +86,6 @@ def make_capi_header(header, filename):
 #define $GUARD$
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 """
     classes = header.get_classes(filename)
 
@@ -112,7 +108,13 @@ extern "C" {
     else:
         result += '#include "include/capi/cef_base_capi.h"\n'
 
-    result += '\n'
+    result += \
+"""
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+"""
 
     # output forward declarations
     if len(all_declares) > 0:

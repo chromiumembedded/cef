@@ -1,4 +1,4 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2014 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -31,16 +31,16 @@
 #ifndef CEF_INCLUDE_CAPI_CEF_BASE_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_BASE_CAPI_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "include/internal/cef_export.h"
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_string_list.h"
 #include "include/internal/cef_string_map.h"
 #include "include/internal/cef_string_multimap.h"
 #include "include/internal/cef_types.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 ///
 // Structure defining the reference count implementation functions. All

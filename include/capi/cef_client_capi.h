@@ -38,10 +38,6 @@
 #define CEF_INCLUDE_CAPI_CEF_CLIENT_CAPI_H_
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_context_menu_handler_capi.h"
 #include "include/capi/cef_dialog_handler_capi.h"
@@ -57,6 +53,10 @@ extern "C" {
 #include "include/capi/cef_process_message_capi.h"
 #include "include/capi/cef_render_handler_capi.h"
 #include "include/capi/cef_request_handler_capi.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 ///

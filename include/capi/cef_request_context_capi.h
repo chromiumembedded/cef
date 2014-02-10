@@ -38,11 +38,11 @@
 #define CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
 #pragma once
 
+#include "include/capi/cef_request_context_handler_capi.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "include/capi/cef_request_context_handler_capi.h"
 
 
 ///

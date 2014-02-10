@@ -38,12 +38,12 @@
 #define CEF_INCLUDE_CAPI_CEF_PROCESS_MESSAGE_CAPI_H_
 #pragma once
 
+#include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_values_capi.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "include/capi/cef_base_capi.h"
-#include "include/capi/cef_values_capi.h"
 
 
 ///

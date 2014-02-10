@@ -38,12 +38,12 @@
 #define CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_HANDLER_CAPI_H_
 #pragma once
 
+#include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_cookie_capi.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "include/capi/cef_base_capi.h"
-#include "include/capi/cef_cookie_capi.h"
 
 
 ///
