@@ -33,13 +33,24 @@ RunAction(cef_dir, patcher)
 # the few necessary actions here.
 
 print "\nPulling clang (Mac only)..."
-patcher = [ 'python', '../tools/clang/scripts/update.py', '--mac-only' ];
-RunAction(cef_dir, patcher)
+command = [ 'python', '../tools/clang/scripts/update.py', '--mac-only' ];
+RunAction(cef_dir, command)
 
 print "\nUpdating cygwin mount (Windows only)..."
-patcher = [ 'python', '../build/win/setup_cygwin_mount.py',
+command = [ 'python', '../build/win/setup_cygwin_mount.py',
             '--win-only' ];
-RunAction(cef_dir, patcher)
+RunAction(cef_dir, command)
+
+print "\nUpdating LASTCHANGE..."
+command = [ 'python', '../build/util/lastchange.py',
+            '-o', '../build/util/LASTCHANGE' ];
+RunAction(cef_dir, command)
+
+print "\nUpdating LASTCHANGE.blink..."
+command = [ 'python', '../build/util/lastchange.py',
+            '-s', '../third_party/WebKit',
+            '-o', '../build/util/LASTCHANGE.blink' ];
+RunAction(cef_dir, command)
 
 print "\nGenerating CEF project files..."
 os.environ['CEF_DIRECTORY'] = os.path.basename(cef_dir);
