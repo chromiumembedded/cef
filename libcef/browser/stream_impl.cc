@@ -6,11 +6,17 @@
 #include <stdlib.h>
 #include "base/file_util.h"
 #include "base/logging.h"
+#include "base/threading/thread_restrictions.h"
 
 // Static functions
 
 CefRefPtr<CefStreamReader> CefStreamReader::CreateForFile(
     const CefString& fileName) {
+  DCHECK(!fileName.empty());
+
+  // TODO(cef): Do not allow file IO on all threads (issue #1187).
+  base::ThreadRestrictions::ScopedAllowIO allow_io;
+
   CefRefPtr<CefStreamReader> reader;
   FILE* file = base::OpenFile(base::FilePath(fileName), "rb");
   if (file)
@@ -40,6 +46,10 @@ CefRefPtr<CefStreamReader> CefStreamReader::CreateForHandler(
 CefRefPtr<CefStreamWriter> CefStreamWriter::CreateForFile(
     const CefString& fileName) {
   DCHECK(!fileName.empty());
+
+  // TODO(cef): Do not allow file IO on all threads (issue #1187).
+  base::ThreadRestrictions::ScopedAllowIO allow_io;
+
   CefRefPtr<CefStreamWriter> writer;
   FILE* file = base::OpenFile(base::FilePath(fileName), "wb");
   if (file)
