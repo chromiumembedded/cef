@@ -36,7 +36,7 @@ bool CefJSDialogHandlerCToCpp::OnJSDialog(CefRefPtr<CefBrowser> browser,
   if (!callback.get())
     return false;
   // Unverified params: origin_url, accept_lang, message_text,
-      default_prompt_text
+  // default_prompt_text
 
   // Translate param: suppress_message; type: bool_byref
   int suppress_messageInt = suppress_message;

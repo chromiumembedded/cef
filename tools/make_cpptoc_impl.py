@@ -123,8 +123,16 @@ def make_cpptoc_function_impl_new(name, func, defined_names):
                       '\n    return'+retval_default+';'
 
     if len(optional) > 0:
-        result += '\n  // Unverified params: '+string.join(optional,', ')
-    
+        # Wrap the comment at 80 characters.
+        str = '\n  // Unverified params: ' + optional[0]
+        for name in optional[1:]:
+            str += ','
+            if len(str) + len(name) + 1 > 80:
+                result += str
+                str = '\n  //'
+            str += ' ' + name
+        result += str
+
     if len(result) != result_len:
         result += '\n'
     result_len = len(result)
