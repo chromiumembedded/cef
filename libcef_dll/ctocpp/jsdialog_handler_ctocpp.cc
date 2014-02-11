@@ -31,15 +31,12 @@ bool CefJSDialogHandlerCToCpp::OnJSDialog(CefRefPtr<CefBrowser> browser,
   DCHECK(browser.get());
   if (!browser.get())
     return false;
-  // Verify param: origin_url; type: string_byref_const
-  DCHECK(!origin_url.empty());
-  if (origin_url.empty())
-    return false;
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
   if (!callback.get())
     return false;
-  // Unverified params: accept_lang, message_text, default_prompt_text
+  // Unverified params: origin_url, accept_lang, message_text,
+      default_prompt_text
 
   // Translate param: suppress_message; type: bool_byref
   int suppress_messageInt = suppress_message;

@@ -32,10 +32,6 @@ int CEF_CALLBACK jsdialog_handler_on_jsdialog(
   DCHECK(browser);
   if (!browser)
     return 0;
-  // Verify param: origin_url; type: string_byref_const
-  DCHECK(origin_url);
-  if (!origin_url)
-    return 0;
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
   if (!callback)
@@ -44,7 +40,8 @@ int CEF_CALLBACK jsdialog_handler_on_jsdialog(
   DCHECK(suppress_message);
   if (!suppress_message)
     return 0;
-  // Unverified params: accept_lang, message_text, default_prompt_text
+  // Unverified params: origin_url, accept_lang, message_text,
+      default_prompt_text
 
   // Translate param: suppress_message; type: bool_byref
   bool suppress_messageBool = (
