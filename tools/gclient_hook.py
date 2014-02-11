@@ -26,6 +26,21 @@ patcher = [ 'python', 'tools/patcher.py',
             '--patch-config', 'patch/patch.cfg' ];
 RunAction(cef_dir, patcher)
 
+# The DEPS file contains hooks that perform necessary actions for various
+# platforms. Due to broken GN binaries on Debian 7 (https://crbug.com/329649)
+# we don't want to run hooks when executing `gclient sync`. So instead we've
+# added the `-n` (no-hooks) switch to `gclient sync` in automate.py and moved
+# the few necessary actions here.
+
+print "\nPulling clang (Mac only)..."
+patcher = [ 'python', '../tools/clang/scripts/update.py', '--mac-only' ];
+RunAction(cef_dir, patcher)
+
+print "\nUpdating cygwin mount (Windows only)..."
+patcher = [ 'python', '../build/win/setup_cygwin_mount.py',
+            '--win-only' ];
+RunAction(cef_dir, patcher)
+
 print "\nGenerating CEF project files..."
 os.environ['CEF_DIRECTORY'] = os.path.basename(cef_dir);
 gyper = [ 'python', 'tools/gyp_cef', 'cef.gyp', '-I', 'cef.gypi' ]

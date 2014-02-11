@@ -524,12 +524,12 @@ if options.forceclean:
 
 if release_url is None:
   if chromium_url_changed or chromium_rev_changed or options.forceupdate:
-    # download/update the Chromium source code
-    run('gclient sync --revision src@'+chromium_rev+' --jobs 8 --force', \
+    # download/update the Chromium source code without running hooks
+    run('gclient sync --revision src@'+chromium_rev+' --jobs 8 --force -n', \
         chromium_dir, depot_tools_dir)
 elif release_url_changed or options.forceupdate:
-  # download/update the release source code
-  run('gclient sync --jobs 8 --force', chromium_dir, depot_tools_dir)
+  # download/update the release source code without running hooks
+  run('gclient sync --jobs 8 --force -n', chromium_dir, depot_tools_dir)
 
 if not os.path.exists(cef_src_dir) or cef_url_changed:
   if not options.dryrun and cef_url_changed and os.path.exists(cef_src_dir):
