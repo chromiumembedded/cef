@@ -49,7 +49,7 @@ class IdGenerator {
   IdGenerator() : next_id_(kReservedId) {}
 
   T GetNextId() {
-    int id = ++next_id_;
+    T id = ++next_id_;
     if (id == kReservedId)  // In case the integer value wraps.
       id = ++next_id_;
     return id;
