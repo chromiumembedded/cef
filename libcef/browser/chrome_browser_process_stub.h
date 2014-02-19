@@ -48,7 +48,6 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   virtual IconManager* icon_manager() OVERRIDE;
   virtual GLStringManager* gl_string_manager() OVERRIDE;
   virtual GpuModeManager* gpu_mode_manager() OVERRIDE;
-  virtual RenderWidgetSnapshotTaker* GetRenderWidgetSnapshotTaker() OVERRIDE;
   virtual AutomationProviderList* GetAutomationProviderList() OVERRIDE;
   virtual void CreateDevToolsHttpProtocolHandler(
       chrome::HostDesktopType host_desktop_type,
@@ -91,7 +90,6 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   virtual MediaFileSystemRegistry*
       media_file_system_registry() OVERRIDE;
   virtual bool created_local_state() const OVERRIDE;
-  virtual StorageMonitor* storage_monitor() OVERRIDE;
 #if defined(ENABLE_WEBRTC)
   virtual WebRtcLogUploader* webrtc_log_uploader() OVERRIDE;
 #endif

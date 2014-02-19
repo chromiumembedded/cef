@@ -51,6 +51,7 @@ MSVC_POP_WARNING();
 #include "third_party/WebKit/public/platform/WebWorkerRunLoop.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebKit.h"
 #include "third_party/WebKit/public/web/WebPluginParams.h"
 #include "third_party/WebKit/public/web/WebPrerendererClient.h"
 #include "third_party/WebKit/public/web/WebRuntimeFeatures.h"
@@ -586,7 +587,7 @@ void CefContentRendererClient::DidCreateScriptContext(
 
   CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
-  v8::Isolate* isolate = webkit_glue::GetV8Isolate(frame);
+  v8::Isolate* isolate = blink::mainThreadIsolate();
   v8::HandleScope handle_scope(isolate);
   v8::Context::Scope scope(context);
   WebCore::V8RecursionScope recursion_scope(
@@ -618,7 +619,7 @@ void CefContentRendererClient::WillReleaseScriptContext(
       if (browserPtr.get()) {
         CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
-        v8::Isolate* isolate = webkit_glue::GetV8Isolate(frame);
+        v8::Isolate* isolate = blink::mainThreadIsolate();
         v8::HandleScope handle_scope(isolate);
         v8::Context::Scope scope(context);
         WebCore::V8RecursionScope recursion_scope(

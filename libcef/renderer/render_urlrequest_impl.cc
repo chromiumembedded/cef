@@ -56,7 +56,8 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
                                         const char* data,
                                         int dataLength) OVERRIDE;
   virtual void didFinishLoading(WebURLLoader* loader,
-                                double finishTime) OVERRIDE;
+                                double finishTime,
+                                int64_t totalEncodedDataLength) OVERRIDE;
   virtual void didFail(WebURLLoader* loader,
                        const WebURLError& error) OVERRIDE;
 
@@ -299,7 +300,8 @@ void CefWebURLLoaderClient::didReceiveCachedMetadata(WebURLLoader* loader,
 }
 
 void CefWebURLLoaderClient::didFinishLoading(WebURLLoader* loader,
-                                             double finishTime) {
+                                             double finishTime,
+                                             int64_t totalEncodedDataLength) {
   context_->OnComplete();
 }
 

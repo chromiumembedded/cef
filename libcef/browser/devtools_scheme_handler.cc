@@ -45,7 +45,7 @@ class Delegate : public InternalHandlerDelegate {
 
 void RegisterChromeDevToolsHandler() {
   CefRegisterSchemeHandlerFactory(
-      chrome::kChromeDevToolsScheme,
+      content::kChromeDevToolsScheme,
       kChromeDevToolsHost,
       CreateInternalHandlerFactory(
           make_scoped_ptr<InternalHandlerDelegate>(new Delegate())));

@@ -1,30 +1,6 @@
-Index: desktop_aura/desktop_root_window_host_win.cc
-===================================================================
---- desktop_aura/desktop_root_window_host_win.cc	(revision 248478)
-+++ desktop_aura/desktop_root_window_host_win.cc	(working copy)
-@@ -132,7 +132,9 @@
-                         native_widget_delegate_);
- 
-   HWND parent_hwnd = NULL;
--  if (params.parent && params.parent->GetDispatcher()) {
-+  if (params.parent_widget) {
-+    parent_hwnd = params.parent_widget;
-+  } else if (params.parent && params.parent->GetDispatcher()) {
-     parent_hwnd =
-         params.parent->GetDispatcher()->host()->GetAcceleratedWidget();
-   }
-@@ -771,7 +773,7 @@
- 
- void DesktopWindowTreeHostWin::HandleCreate() {
-   // TODO(beng): moar
--  NOTIMPLEMENTED();
-+  // NOTIMPLEMENTED();
- 
-   native_widget_delegate_->OnNativeWidgetCreated(true);
- 
 Index: desktop_aura/desktop_screen_win.cc
 ===================================================================
---- desktop_aura/desktop_screen_win.cc	(revision 248478)
+--- desktop_aura/desktop_screen_win.cc	(revision 251746)
 +++ desktop_aura/desktop_screen_win.cc	(working copy)
 @@ -54,6 +54,8 @@
  }
@@ -35,9 +11,24 @@ Index: desktop_aura/desktop_screen_win.cc
    aura::WindowEventDispatcher* dispatcher = window->GetDispatcher();
    return dispatcher ? dispatcher->host()->GetAcceleratedWidget() : NULL;
  }
+Index: desktop_aura/desktop_window_tree_host_win.cc
+===================================================================
+--- desktop_aura/desktop_window_tree_host_win.cc	(revision 251746)
++++ desktop_aura/desktop_window_tree_host_win.cc	(working copy)
+@@ -133,7 +133,9 @@
+                         native_widget_delegate_);
+ 
+   HWND parent_hwnd = NULL;
+-  if (params.parent && params.parent->GetDispatcher()) {
++  if (params.parent_widget) {
++    parent_hwnd = params.parent_widget;
++  } else if (params.parent && params.parent->GetDispatcher()) {
+     parent_hwnd =
+         params.parent->GetDispatcher()->host()->GetAcceleratedWidget();
+   }
 Index: widget.cc
 ===================================================================
---- widget.cc	(revision 248478)
+--- widget.cc	(revision 251746)
 +++ widget.cc	(working copy)
 @@ -124,6 +124,7 @@
        show_state(ui::SHOW_STATE_DEFAULT),
@@ -45,7 +36,7 @@ Index: widget.cc
        parent(NULL),
 +      parent_widget(NULL),
        native_widget(NULL),
-       desktop_root_window_host(NULL),
+       desktop_window_tree_host(NULL),
        top_level(false),
 @@ -149,6 +150,7 @@
        show_state(ui::SHOW_STATE_DEFAULT),
@@ -53,11 +44,11 @@ Index: widget.cc
        parent(NULL),
 +      parent_widget(NULL),
        native_widget(NULL),
-       desktop_root_window_host(NULL),
+       desktop_window_tree_host(NULL),
        top_level(false),
 Index: widget.h
 ===================================================================
---- widget.h	(revision 248478)
+--- widget.h	(revision 251746)
 +++ widget.h	(working copy)
 @@ -197,6 +197,7 @@
      // Should the widget be double buffered? Default is false.

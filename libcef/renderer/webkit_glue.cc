@@ -16,7 +16,6 @@
 #include "libcef/renderer/webkit_glue.h"
 
 #include "base/compiler_specific.h"
-#include "v8/include/v8.h"
 
 #include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
@@ -26,12 +25,9 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/WebKit/public/web/WebNode.h"
 #include "third_party/WebKit/public/web/WebViewClient.h"
 
-#include "bindings/v8/V8Binding.h"
-#include "bindings/v8/ScriptController.h"
 #include "third_party/WebKit/Source/core/dom/Node.h"
 #include "third_party/WebKit/Source/web/WebFrameImpl.h"
 #include "third_party/WebKit/Source/web/WebViewImpl.h"
-#include "third_party/WebKit/Source/wtf/PassRefPtr.h"
 MSVC_POP_WARNING();
 #undef LOG
 
@@ -65,16 +61,6 @@ void GoForward(blink::WebView* view) {
   blink::WebViewImpl* impl = reinterpret_cast<blink::WebViewImpl*>(view);
  if (impl->client()->historyForwardListCount() > 0)
     impl->client()->navigateBackForwardSoon(1);
-}
-
-v8::Isolate* GetV8Isolate(blink::WebFrame* frame) {
-  blink::WebFrameImpl* impl = static_cast<blink::WebFrameImpl*>(frame);
-  return WebCore::toIsolate(impl->frame());
-}
-
-v8::Handle<v8::Context> GetV8Context(blink::WebFrame* frame) {
-  blink::WebFrameImpl* impl = static_cast<blink::WebFrameImpl*>(frame);
-  return WebCore::ScriptController::mainWorldContext(impl->frame());
 }
 
 std::string DumpDocumentText(blink::WebFrame* frame) {

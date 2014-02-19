@@ -11,8 +11,8 @@ namespace scheme {
 
 void AddInternalSchemes(std::vector<std::string>* standard_schemes) {
   static CefContentClient::SchemeInfo schemes[] = {
-    { chrome::kChromeUIScheme,        true,  true,  true  },
-    { chrome::kChromeDevToolsScheme,  true,  false, true  }
+    { content::kChromeUIScheme,        true,  true,  true  },
+    { content::kChromeDevToolsScheme,  true,  false, true  }
   };
 
   CefContentClient* client = CefContentClient::Get();
@@ -26,8 +26,8 @@ void AddInternalSchemes(std::vector<std::string>* standard_schemes) {
 bool IsInternalHandledScheme(const std::string& scheme) {
   static const char* schemes[] = {
     chrome::kBlobScheme,
-    chrome::kChromeDevToolsScheme,
-    chrome::kChromeUIScheme,
+    content::kChromeDevToolsScheme,
+    content::kChromeUIScheme,
     content::kDataScheme,
     content::kFileScheme,
     content::kFileSystemScheme,
@@ -47,7 +47,7 @@ bool IsInternalProtectedScheme(const std::string& scheme) {
   // InstallInternalProtectedHandlers().
   static const char* schemes[] = {
     chrome::kBlobScheme,
-    chrome::kChromeUIScheme,
+    content::kChromeUIScheme,
     content::kDataScheme,
     content::kFileScheme,
     content::kFileSystemScheme,

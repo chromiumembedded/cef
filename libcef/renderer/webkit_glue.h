@@ -28,12 +28,6 @@ bool CanGoForward(blink::WebView* view);
 void GoBack(blink::WebView* view);
 void GoForward(blink::WebView* view);
 
-// Retrieve the V8 isolate associated with the frame.
-v8::Isolate* GetV8Isolate(blink::WebFrame* frame);
-
-// Retrieve the V8 context associated with the frame.
-v8::Handle<v8::Context> GetV8Context(blink::WebFrame* frame);
-
 // Returns the text of the document element.
 std::string DumpDocumentText(blink::WebFrame* frame);
 

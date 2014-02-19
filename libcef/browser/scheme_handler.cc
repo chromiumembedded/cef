@@ -49,10 +49,10 @@ void InstallInternalProtectedHandlers(
     const std::string& scheme = it->first;
     scoped_ptr<net::URLRequestJobFactory::ProtocolHandler> protocol_handler;
 
-    if (scheme == chrome::kChromeDevToolsScheme) {
+    if (scheme == content::kChromeDevToolsScheme) {
       // Don't use the default "chrome-devtools" handler.
       continue;
-    } else if (scheme == chrome::kChromeUIScheme) {
+    } else if (scheme == content::kChromeUIScheme) {
       // Filter the URLs that are passed to the default "chrome" handler so as
       // not to interfere with CEF's "chrome" handler.
       protocol_handler.reset(
@@ -78,7 +78,7 @@ void RegisterInternalHandlers() {
 }
 
 void DidFinishLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url) {
-  if (validated_url.scheme() == chrome::kChromeUIScheme)
+  if (validated_url.scheme() == content::kChromeUIScheme)
     scheme::DidFinishChromeLoad(frame, validated_url);
 }
 

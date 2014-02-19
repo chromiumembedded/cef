@@ -109,12 +109,6 @@ GpuModeManager* ChromeBrowserProcessStub::gpu_mode_manager() {
   return NULL;
 }
 
-RenderWidgetSnapshotTaker*
-  ChromeBrowserProcessStub::GetRenderWidgetSnapshotTaker() {
-  NOTIMPLEMENTED();
-  return NULL;
-}
-
 AutomationProviderList*
   ChromeBrowserProcessStub::GetAutomationProviderList() {
   NOTIMPLEMENTED();
@@ -257,11 +251,6 @@ MediaFileSystemRegistry*
 bool ChromeBrowserProcessStub::created_local_state() const {
   NOTIMPLEMENTED();
   return false;
-}
-
-StorageMonitor* ChromeBrowserProcessStub::storage_monitor() {
-  NOTIMPLEMENTED();
-  return NULL;
 }
 
 #if defined(ENABLE_WEBRTC)

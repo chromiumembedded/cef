@@ -340,14 +340,14 @@ class ChromeProtocolHandlerWrapper :
       net::NetworkDelegate* network_delegate) const OVERRIDE {
     // Keep synchronized with the checks in ChromeProtocolHandler::MaybeCreateJob.
     if (content::ViewHttpCacheJobFactory::IsSupportedURL(request->url()) ||
-        (request->url().SchemeIs(chrome::kChromeUIScheme) &&
+        (request->url().SchemeIs(content::kChromeUIScheme) &&
          request->url().host() == content::kChromeUIAppCacheInternalsHost) ||
         content::ViewBlobInternalsJobFactory::IsSupportedURL(request->url()) ||
 #if defined(USE_TCMALLOC)
-        (request->url().SchemeIs(chrome::kChromeUIScheme) &&
+        (request->url().SchemeIs(content::kChromeUIScheme) &&
          request->url().host() == content::kChromeUITcmallocHost) ||
 #endif
-        (request->url().SchemeIs(chrome::kChromeUIScheme) &&
+        (request->url().SchemeIs(content::kChromeUIScheme) &&
          request->url().host() == content::kChromeUIHistogramHost)) {
       return chrome_protocol_handler_->MaybeCreateJob(request, network_delegate);
     }
@@ -364,7 +364,7 @@ class ChromeProtocolHandlerWrapper :
 
 void RegisterChromeHandler() {
   CefRegisterSchemeHandlerFactory(
-      chrome::kChromeUIScheme,
+      content::kChromeUIScheme,
       std::string(),
       CreateInternalHandlerFactory(
           make_scoped_ptr<InternalHandlerDelegate>(new Delegate())));

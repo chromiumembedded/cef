@@ -18,6 +18,7 @@
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebKit.h"
 #include "third_party/WebKit/public/web/WebView.h"
 #include "third_party/WebKit/public/web/WebScriptSource.h"
 
@@ -238,9 +239,9 @@ CefRefPtr<CefV8Context> CefFrameImpl::GetV8Context() {
   CEF_REQUIRE_RT_RETURN(NULL);
 
   if (frame_) {
-    v8::Isolate* isolate = webkit_glue::GetV8Isolate(frame_);
+    v8::Isolate* isolate = blink::mainThreadIsolate();
     v8::HandleScope handle_scope(isolate);
-    return new CefV8ContextImpl(isolate, webkit_glue::GetV8Context(frame_));
+    return new CefV8ContextImpl(isolate, frame_->mainWorldScriptContext());
   } else {
     return NULL;
   }
