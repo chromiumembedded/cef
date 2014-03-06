@@ -389,9 +389,10 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
 
 void CefBrowserHostImpl::PlatformCloseWindow() {
   if (window_info_.view != nil) {
-    [[window_info_.view window] performSelector:@selector(performClose:)
-                                     withObject:nil
-                                     afterDelay:0];
+    [[window_info_.view window]
+        performSelectorOnMainThread:@selector(performClose:)
+                         withObject:nil
+                      waitUntilDone:NO];
   }
 }
 
