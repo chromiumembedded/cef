@@ -175,7 +175,7 @@ class CefRequestHandler : public virtual CefBase {
   // this method or at a later time to grant or deny the request. Return false
   // to cancel the request.
   ///
-  /*--cef(optional_param=realm)--*/
+  /*--cef()--*/
   virtual bool OnQuotaRequest(CefRefPtr<CefBrowser> browser,
                               const CefString& origin_url,
                               int64 new_size,
