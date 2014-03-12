@@ -46,6 +46,20 @@ Index: widget.cc
        native_widget(NULL),
        desktop_window_tree_host(NULL),
        top_level(false),
+@@ -389,7 +391,12 @@
+       Minimize();
+   } else if (params.delegate) {
+     SetContentsView(params.delegate->GetContentsView());
+-    SetInitialBoundsForFramelessWindow(params.bounds);
++    if (params.parent_widget) {
++      // Set the bounds directly instead of applying an inset.
++      SetBounds(params.bounds);
++    } else {
++      SetInitialBoundsForFramelessWindow(params.bounds);
++    }
+   }
+   native_widget_initialized_ = true;
+ }
 Index: widget.h
 ===================================================================
 --- widget.h	(revision 251746)
