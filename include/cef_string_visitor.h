@@ -48,7 +48,7 @@ class CefStringVisitor : public virtual CefBase {
   ///
   // Method that will be executed.
   ///
-  /*--cef()--*/
+  /*--cef(optional_param=string)--*/
   virtual void Visit(const CefString& string) =0;
 };
 
