@@ -98,8 +98,11 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
           static_cast<cef_jsdialog_type_t>(message_type),
           message_text, default_prompt_text, callbackPtr.get(),
           *did_suppress_message);
-      if (handled)
+      if (handled) {
+        // Invalid combination of values. Crash sooner rather than later.
+        CHECK(!*did_suppress_message);
         return;
+      }
 
       callbackPtr->Disconnect();
       if (*did_suppress_message)
