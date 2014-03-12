@@ -21,10 +21,7 @@ void CefStringVisitorCToCpp::Visit(const CefString& string) {
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: string; type: string_byref_const
-  DCHECK(!string.empty());
-  if (string.empty())
-    return;
+  // Unverified params: string
 
   // Execute
   struct_->visit(struct_,

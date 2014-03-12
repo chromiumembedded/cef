@@ -22,10 +22,7 @@ void CEF_CALLBACK string_visitor_visit(struct _cef_string_visitor_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: string; type: string_byref_const
-  DCHECK(string);
-  if (!string)
-    return;
+  // Unverified params: string
 
   // Execute
   CefStringVisitorCppToC::Get(self)->Visit(
