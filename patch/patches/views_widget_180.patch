@@ -1,6 +1,6 @@
 Index: desktop_aura/desktop_root_window_host_win.cc
 ===================================================================
---- desktop_aura/desktop_root_window_host_win.cc	(revision 247552)
+--- desktop_aura/desktop_root_window_host_win.cc	(revision 252094)
 +++ desktop_aura/desktop_root_window_host_win.cc	(working copy)
 @@ -132,7 +132,9 @@
                          native_widget_delegate_);
@@ -24,7 +24,7 @@ Index: desktop_aura/desktop_root_window_host_win.cc
  
 Index: desktop_aura/desktop_screen_win.cc
 ===================================================================
---- desktop_aura/desktop_screen_win.cc	(revision 247552)
+--- desktop_aura/desktop_screen_win.cc	(revision 252094)
 +++ desktop_aura/desktop_screen_win.cc	(working copy)
 @@ -54,6 +54,8 @@
  }
@@ -37,7 +37,7 @@ Index: desktop_aura/desktop_screen_win.cc
  }
 Index: widget.cc
 ===================================================================
---- widget.cc	(revision 247552)
+--- widget.cc	(revision 252094)
 +++ widget.cc	(working copy)
 @@ -126,6 +126,7 @@
        show_state(ui::SHOW_STATE_DEFAULT),
@@ -55,9 +55,23 @@ Index: widget.cc
        native_widget(NULL),
        desktop_root_window_host(NULL),
        top_level(false),
+@@ -395,7 +397,12 @@
+       Minimize();
+   } else if (params.delegate) {
+     SetContentsView(params.delegate->GetContentsView());
+-    SetInitialBoundsForFramelessWindow(params.bounds);
++    if (params.parent_widget) {
++      // Set the bounds directly instead of applying an inset.
++      SetBounds(params.bounds);
++    } else {
++      SetInitialBoundsForFramelessWindow(params.bounds);
++    }
+   }
+   native_widget_initialized_ = true;
+ }
 Index: widget.h
 ===================================================================
---- widget.h	(revision 247552)
+--- widget.h	(revision 252094)
 +++ widget.h	(working copy)
 @@ -201,6 +201,7 @@
      // Should the widget be double buffered? Default is false.
