@@ -1689,6 +1689,15 @@ void CefBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
 
     if (web_contents_.get())
       web_contents_->GetView()->Focus();
+
+#if defined(OS_WIN)
+    if (!IsWindowRenderingDisabled()) {
+      // When windowed rendering is used in combination with Aura on Windows we
+      // need to explicitly set focus to the native window handle. Otherwise,
+      // the window doesn't get keyboard focus.
+      PlatformSetViewFocus();
+    }
+#endif  // defined(OS_WIN)
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::OnSetFocus, this, source));

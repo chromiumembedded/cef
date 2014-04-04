@@ -456,6 +456,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   static LPCTSTR GetWndClass();
   static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
                                   WPARAM wParam, LPARAM lParam);
+
+  void PlatformSetViewFocus();
 #endif
 
   // Create the window.

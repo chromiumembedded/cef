@@ -26,6 +26,18 @@ Index: desktop_aura/desktop_window_tree_host_win.cc
      parent_hwnd = params.parent->GetHost()->GetAcceleratedWidget();
  
    message_handler_->set_remove_standard_frame(params.remove_standard_frame);
+Index: desktop_aura/desktop_window_tree_host_win.h
+===================================================================
+--- desktop_aura/desktop_window_tree_host_win.h	(revision 261035)
++++ desktop_aura/desktop_window_tree_host_win.h	(working copy)
+@@ -214,6 +214,7 @@
+                              LPARAM l_param) OVERRIDE;
+   virtual bool HandleScrollEvent(const ui::ScrollEvent& event) OVERRIDE;
+ 
++ public:
+   Widget* GetWidget();
+   const Widget* GetWidget() const;
+   HWND GetHWND() const;
 Index: widget.cc
 ===================================================================
 --- widget.cc	(revision 261035)

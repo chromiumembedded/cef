@@ -32,12 +32,14 @@
 #include "net/base/mime_util.h"
 #include "third_party/WebKit/public/web/WebInputEvent.h"
 #include "third_party/WebKit/public/web/win/WebInputEventFactory.h"
+#include "ui/aura/window.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/win/shell.h"
 #include "ui/gfx/win/hwnd_util.h"
 #include "ui/views/background.h"
 #include "ui/views/controls/webview/webview.h"
 #include "ui/views/layout/fill_layout.h"
+#include "ui/views/widget/desktop_aura/desktop_window_tree_host_win.h"
 #include "ui/views/widget/widget.h"
 #include "ui/views/widget/widget_delegate.h"
 
@@ -60,6 +62,21 @@ void SetAeroGlass(HWND hWnd) {
   // Make the whole window transparent.
   MARGINS mgMarInset = { -1, -1, -1, -1 };
   DwmExtendFrameIntoClientArea(hWnd, &mgMarInset);
+}
+
+HWND GetHWND(views::Widget* widget) {
+  gfx::NativeWindow window = widget->GetNativeWindow();
+  DCHECK(window);
+  if (!window)
+    return NULL;
+  views::DesktopWindowTreeHostWin* host =
+      static_cast<views::DesktopWindowTreeHostWin*>(window->GetHost());
+  DCHECK(host);
+  if (!host)
+    return NULL;
+  HWND hwnd = host->GetHWND();
+  DCHECK(hwnd);
+  return hwnd;
 }
 
 void WriteTempFileAndView(scoped_refptr<base::RefCountedString> str) {
@@ -707,6 +724,11 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
   }
 
   return DefWindowProc(hwnd, message, wParam, lParam);
+}
+
+void CefBrowserHostImpl::PlatformSetViewFocus() {
+  if (window_widget_)
+    ::SetFocus(GetHWND(window_widget_));
 }
 
 ui::PlatformCursor CefBrowserHostImpl::GetPlatformCursor(
