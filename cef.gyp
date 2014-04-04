@@ -10,10 +10,10 @@
     'about_credits_file': '<(SHARED_INTERMEDIATE_DIR)/about_credits.html',
     'framework_name': 'Chromium Embedded Framework',
     'revision': '<!(python tools/revision.py)',
-    'chrome_version': '<!(python ../chrome/tools/build/version.py -f ../chrome/VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
+    'chrome_version': '<!(python ../build/util/version.py -f ../chrome/VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
     # Need to be creative to match dylib version formatting requirements.
     'version_mac_dylib':
-        '<!(python ../chrome/tools/build/version.py -f VERSION -f ../chrome/VERSION -t "@CEF_MAJOR@<(revision).@BUILD_HI@.@BUILD_LO@" -e "BUILD_HI=int(BUILD)/256" -e "BUILD_LO=int(BUILD)%256")',
+        '<!(python ../build/util/version.py -f VERSION -f ../chrome/VERSION -t "@CEF_MAJOR@<(revision).@BUILD_HI@.@BUILD_LO@" -e "BUILD_HI=int(BUILD)/256" -e "BUILD_LO=int(BUILD)%256")',
   },
   'includes': [
     # Bring in the source file lists.
@@ -391,7 +391,7 @@
         '<(DEPTH)/testing/gtest.gyp:gtest',
         '<(DEPTH)/third_party/icu/icu.gyp:icui18n',
         '<(DEPTH)/third_party/icu/icu.gyp:icuuc',
-        '<(DEPTH)/ui/ui.gyp:ui',
+        '<(DEPTH)/ui/base/ui_base.gyp:ui_base',
         'libcef_dll_wrapper',
       ],
       'sources': [
@@ -743,7 +743,6 @@
         'cef_resources',
       ],
       'variables': {
-        'repack_path': '<(DEPTH)/tools/grit/grit/format/repack.py',
         'make_pack_header_path': 'tools/make_pack_header.py',
       },
       'actions': [
@@ -758,16 +757,9 @@
               '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources_100_percent.pak',
               '<(grit_out_dir)/cef_resources.pak',
             ],
+            'pak_output': '<(PRODUCT_DIR)/cef.pak',
           },
-          'inputs': [
-            '<(repack_path)',
-            '<@(pak_inputs)',
-          ],
-          'outputs': [
-            '<(PRODUCT_DIR)/cef.pak',
-          ],
-          'action': ['python', '<(repack_path)', '<@(_outputs)',
-                     '<@(pak_inputs)'],
+          'includes': [ '../build/repack_action.gypi' ],
         },
         {
           'action_name': 'make_pack_resources_header',
@@ -866,7 +858,7 @@
         '<(DEPTH)/third_party/WebKit/Source/core/core.gyp:webcore',
         '<(DEPTH)/third_party/zlib/zlib.gyp:minizip',
         '<(DEPTH)/ui/gl/gl.gyp:gl',
-        '<(DEPTH)/ui/ui.gyp:ui',
+        '<(DEPTH)/ui/base/ui_base.gyp:ui_base',
         '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
         '<(DEPTH)/webkit/storage_browser.gyp:webkit_storage_browser',
         '<(DEPTH)/webkit/storage_common.gyp:webkit_storage_common',
@@ -1050,6 +1042,8 @@
         'libcef/renderer/dom_node_impl.h',
         'libcef/renderer/frame_impl.cc',
         'libcef/renderer/frame_impl.h',
+        'libcef/renderer/render_frame_observer.cc',
+        'libcef/renderer/render_frame_observer.h',
         'libcef/renderer/render_message_filter.cc',
         'libcef/renderer/render_message_filter.h',
         'libcef/renderer/render_process_observer.cc',
@@ -1124,8 +1118,6 @@
         [ 'OS=="mac"', {
           'sources': [
             '<@(includes_mac)',
-            'libcef/browser/application_mac.h',
-            'libcef/browser/application_mac.mm',
             'libcef/browser/backing_store_osr.cc',
             'libcef/browser/backing_store_osr.h',
             'libcef/browser/browser_host_impl_mac.mm',

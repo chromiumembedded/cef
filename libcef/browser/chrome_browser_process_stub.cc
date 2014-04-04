@@ -30,6 +30,11 @@ MetricsService* ChromeBrowserProcessStub::metrics_service() {
   return NULL;
 }
 
+rappor::RapporService* ChromeBrowserProcessStub::rappor_service() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
 IOThread* ChromeBrowserProcessStub::io_thread() {
   NOTIMPLEMENTED();
   return NULL;
@@ -109,17 +114,10 @@ GpuModeManager* ChromeBrowserProcessStub::gpu_mode_manager() {
   return NULL;
 }
 
-AutomationProviderList*
-  ChromeBrowserProcessStub::GetAutomationProviderList() {
-  NOTIMPLEMENTED();
-  return NULL;
-}
-
 void ChromeBrowserProcessStub::CreateDevToolsHttpProtocolHandler(
     chrome::HostDesktopType host_desktop_type,
     const std::string& ip,
-    int port,
-    const std::string& frontend_url) {
+    int port) {
 }
 
 unsigned int ChromeBrowserProcessStub::AddRefModule() {

@@ -100,7 +100,7 @@ void CefBrowserMessageFilter::OnCreateWindow(
   CefContentBrowserClient::LastCreateWindowParams lcwp;
   lcwp.opener_process_id = host_->GetID();
   lcwp.opener_view_id = params.opener_id;
-  lcwp.opener_frame_id = params.opener_frame_id;
+  lcwp.opener_frame_id = params.opener_render_frame_id;
   lcwp.target_url = params.target_url;
   lcwp.target_frame_name = params.frame_name;
   CefContentBrowserClient::Get()->set_last_create_window_params(lcwp);

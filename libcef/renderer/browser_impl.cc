@@ -46,8 +46,6 @@ using blink::WebView;
 
 namespace {
 
-const int64 kInvalidFrameId = -1;
-
 blink::WebString FilePathStringToWebString(
     const base::FilePath::StringType& str) {
 #if defined(OS_POSIX)
@@ -228,7 +226,7 @@ void CefBrowserImpl::GetFrameIdentifiers(std::vector<int64>& identifiers) {
     if (main_frame) {
       WebFrame* cur = main_frame;
       do {
-        identifiers.push_back(cur->identifier());
+        identifiers.push_back(webkit_glue::GetIdentifier(cur));
         cur = cur->traverseNext(true);
       } while (cur != main_frame);
     }
@@ -275,7 +273,7 @@ CefBrowserImpl::CefBrowserImpl(content::RenderView* render_view,
       browser_id_(browser_id),
       is_popup_(is_popup),
       is_window_rendering_disabled_(is_window_rendering_disabled),
-      last_focused_frame_id_(kInvalidFrameId) {
+      last_focused_frame_id_(webkit_glue::kInvalidFrameId) {
   response_manager_.reset(new CefResponseManager);
 }
 
@@ -380,7 +378,7 @@ bool CefBrowserImpl::SendProcessMessage(CefProcessId target_process,
 CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
     blink::WebFrame* frame) {
   DCHECK(frame);
-  int64 frame_id = frame->identifier();
+  int64 frame_id = webkit_glue::GetIdentifier(frame);
 
   // Frames are re-used between page loads. Only add the frame to the map once.
   FrameMap::const_iterator it = frames_.find(frame_id);
@@ -391,7 +389,7 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
   frames_.insert(std::make_pair(frame_id, framePtr));
 
   int64 parent_id = frame->parent() == NULL ?
-      kInvalidFrameId : frame->parent()->identifier();
+      webkit_glue::kInvalidFrameId : webkit_glue::GetIdentifier(frame->parent());
   base::string16 name = frame->uniqueName();
 
   // Notify the browser that the frame has been identified.
@@ -401,7 +399,7 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
 }
 
 CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(int64 frame_id) {
-  if (frame_id == kInvalidFrameId) {
+  if (frame_id == webkit_glue::kInvalidFrameId) {
     if (render_view()->GetWebView() && render_view()->GetWebView()->mainFrame())
       return GetWebFrameImpl(render_view()->GetWebView()->mainFrame());
     return NULL;
@@ -418,7 +416,7 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(int64 frame_id) {
     if (main_frame) {
       WebFrame* cur = main_frame;
       do {
-        if (cur->identifier() == frame_id)
+        if (webkit_glue::GetIdentifier(cur) == frame_id)
           return GetWebFrameImpl(cur);
         cur = cur->traverseNext(true);
       } while (cur != main_frame);
@@ -489,7 +487,7 @@ void CefBrowserImpl::DidFailLoad(
 void CefBrowserImpl::DidFinishLoad(blink::WebFrame* frame) {
   blink::WebDataSource* ds = frame->dataSource();
   Send(new CefHostMsg_DidFinishLoad(routing_id(),
-                                    frame->identifier(),
+                                    webkit_glue::GetIdentifier(frame),
                                     ds->request().url(),
                                     !frame->parent(),
                                     ds->response().httpStatusCode()));
@@ -513,7 +511,7 @@ void CefBrowserImpl::DidCommitProvisionalLoad(blink::WebFrame* frame,
 }
 
 void CefBrowserImpl::FrameDetached(WebFrame* frame) {
-  int64 frame_id = frame->identifier();
+  int64 frame_id = webkit_glue::GetIdentifier(frame);
 
   if (!frames_.empty()) {
     // Remove the frame from the map.
@@ -577,9 +575,9 @@ void CefBrowserImpl::FocusedNodeChanged(const blink::WebNode& node) {
     focused_frame = render_view()->GetWebView()->focusedFrame();
   }
 
-  int64 frame_id = kInvalidFrameId;
+  int64 frame_id = webkit_glue::kInvalidFrameId;
   if (focused_frame != NULL)
-    frame_id = focused_frame->identifier();
+    frame_id = webkit_glue::GetIdentifier(focused_frame);
 
   // Don't send a message if the focused frame has not changed.
   if (frame_id == last_focused_frame_id_)

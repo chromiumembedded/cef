@@ -15,8 +15,8 @@
 #include "base/strings/stringprintf.h"
 #include "chrome/common/chrome_switches.h"
 #include "content/public/common/content_switches.h"
+#include "content/public/common/user_agent.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "webkit/common/user_agent/user_agent_util.h"
 
 namespace {
 
@@ -69,7 +69,7 @@ void CefContentClient::AddAdditionalSchemes(
 std::string CefContentClient::GetUserAgent() const {
   std::string product_version;
 
-  static CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kProductVersion)) {
     product_version =
         command_line.GetSwitchValueASCII(switches::kProductVersion);
@@ -79,7 +79,7 @@ std::string CefContentClient::GetUserAgent() const {
         CHROME_VERSION_PATCH);
   }
 
-  return webkit_glue::BuildUserAgentFromProduct(product_version);
+  return content::BuildUserAgentFromProduct(product_version);
 }
 
 base::string16 CefContentClient::GetLocalizedString(int message_id) const {

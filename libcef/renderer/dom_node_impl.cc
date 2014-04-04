@@ -47,7 +47,7 @@ class CefDOMEventListenerWrapper : public WebDOMEventListener,
       frame_(frame),
       listener_(listener) {
     // Cause this object to be deleted immediately before the frame is closed.
-    browser->AddFrameObject(frame->identifier(), this);
+    browser->AddFrameObject(webkit_glue::GetIdentifier(frame), this);
   }
   virtual ~CefDOMEventListenerWrapper() {
     CEF_REQUIRE_RT();
@@ -246,7 +246,7 @@ CefString CefDOMNodeImpl::GetValue() {
         value = select_element.value();
       }
 
-      TrimWhitespace(value, TRIM_LEADING, &value);
+      base::TrimWhitespace(value, base::TRIM_LEADING, &value);
       str = value;
     }
   }

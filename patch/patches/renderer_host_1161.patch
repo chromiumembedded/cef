@@ -1,8 +1,8 @@
 Index: compositing_iosurface_layer_mac.mm
 ===================================================================
---- compositing_iosurface_layer_mac.mm	(revision 251746)
+--- compositing_iosurface_layer_mac.mm	(revision 261035)
 +++ compositing_iosurface_layer_mac.mm	(working copy)
-@@ -119,7 +119,7 @@
+@@ -120,7 +120,7 @@
        (context_ && context_->cgl_context() != glContext) ||
        !renderWidgetHostView_ ||
        !renderWidgetHostView_->compositing_iosurface_) {
@@ -13,9 +13,9 @@ Index: compositing_iosurface_layer_mac.mm
    }
 Index: compositing_iosurface_mac.mm
 ===================================================================
---- compositing_iosurface_mac.mm	(revision 251746)
+--- compositing_iosurface_mac.mm	(revision 261035)
 +++ compositing_iosurface_mac.mm	(working copy)
-@@ -360,7 +360,7 @@
+@@ -362,7 +362,7 @@
      glUseProgram(0); CHECK_AND_SAVE_GL_ERROR();
    } else {
      // Should match the clear color of RenderWidgetHostViewMac.
@@ -26,7 +26,7 @@ Index: compositing_iosurface_mac.mm
  
 Index: compositing_iosurface_shader_programs_mac.cc
 ===================================================================
---- compositing_iosurface_shader_programs_mac.cc	(revision 251746)
+--- compositing_iosurface_shader_programs_mac.cc	(revision 261035)
 +++ compositing_iosurface_shader_programs_mac.cc	(working copy)
 @@ -11,6 +11,7 @@
  #include "base/debug/trace_event.h"
@@ -78,7 +78,7 @@ Index: compositing_iosurface_shader_programs_mac.cc
      shader_programs_[which] =
 Index: compositing_iosurface_shader_programs_mac.h
 ===================================================================
---- compositing_iosurface_shader_programs_mac.h	(revision 251746)
+--- compositing_iosurface_shader_programs_mac.h	(revision 261035)
 +++ compositing_iosurface_shader_programs_mac.h	(working copy)
 @@ -48,6 +48,8 @@
      return rgb_to_yv12_output_format_;
@@ -91,18 +91,18 @@ Index: compositing_iosurface_shader_programs_mac.h
                             TransformsRGBToYV12);
 Index: render_widget_host_view_mac.mm
 ===================================================================
---- render_widget_host_view_mac.mm	(revision 251746)
+--- render_widget_host_view_mac.mm	(revision 261035)
 +++ render_widget_host_view_mac.mm	(working copy)
-@@ -483,7 +483,7 @@
-   software_layer_.reset([[CALayer alloc] init]);
-   if (!software_layer_)
-     LOG(ERROR) << "Failed to create CALayer for software rendering";
--  [software_layer_ setBackgroundColor:CGColorGetConstantColor(kCGColorWhite)];
-+  [software_layer_ setBackgroundColor:CGColorGetConstantColor(kCGColorClear)];
-   [software_layer_ setDelegate:cocoa_view_];
-   [software_layer_ setContentsGravity:kCAGravityTopLeft];
-   [software_layer_ setFrame:NSRectToCGRect([cocoa_view_ bounds])];
-@@ -2856,7 +2856,7 @@
+@@ -434,7 +434,7 @@
+     use_core_animation_ = true;
+     background_layer_.reset([[CALayer alloc] init]);
+     [background_layer_
+-        setBackgroundColor:CGColorGetConstantColor(kCGColorWhite)];
++        setBackgroundColor:CGColorGetConstantColor(kCGColorClear)];
+     [cocoa_view_ setLayer:background_layer_];
+     [cocoa_view_ setWantsLayer:YES];
+   }
+@@ -3087,7 +3087,7 @@
  
      NSRect r = [self flipRectToNSRect:gfx::Rect(x, y, width, height)];
      CGContextSetFillColorWithColor(context,
@@ -111,7 +111,7 @@ Index: render_widget_host_view_mac.mm
      CGContextFillRect(context, NSRectToCGRect(r));
    }
    if (damagedRect.bottom() > rect.bottom()) {
-@@ -2878,7 +2878,7 @@
+@@ -3109,7 +3109,7 @@
  
      NSRect r = [self flipRectToNSRect:gfx::Rect(x, y, width, height)];
      CGContextSetFillColorWithColor(context,
@@ -120,7 +120,7 @@ Index: render_widget_host_view_mac.mm
      CGContextFillRect(context, NSRectToCGRect(r));
    }
  }
-@@ -3037,7 +3037,7 @@
+@@ -3259,7 +3259,7 @@
      }
    } else {
      CGContextSetFillColorWithColor(context,
@@ -129,12 +129,21 @@ Index: render_widget_host_view_mac.mm
      CGContextFillRect(context, dirtyRect);
      if (renderWidgetHostView_->whiteout_start_time_.is_null())
        renderWidgetHostView_->whiteout_start_time_ = base::TimeTicks::Now();
-@@ -4045,7 +4045,7 @@
-   if (!renderWidgetHostView_->render_widget_host_ ||
-       renderWidgetHostView_->render_widget_host_->is_hidden()) {
+@@ -4282,7 +4282,7 @@
+   if (self = [super init]) {
+     renderWidgetHostView_ = r;
+ 
+-    [self setBackgroundColor:CGColorGetConstantColor(kCGColorWhite)];
++    [self setBackgroundColor:CGColorGetConstantColor(kCGColorClear)];
+     [self setAnchorPoint:CGPointMake(0, 0)];
+     // Setting contents gravity is necessary to prevent the layer from being
+     // scaled during dyanmic resizes (especially with devtools open).
+@@ -4311,7 +4311,7 @@
+                                                 inContext:context];
+   } else {
      CGContextSetFillColorWithColor(context,
 -                                   CGColorGetConstantColor(kCGColorWhite));
 +                                   CGColorGetConstantColor(kCGColorClear));
      CGContextFillRect(context, clipRect);
-     return;
    }
+ }

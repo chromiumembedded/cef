@@ -187,7 +187,7 @@ void CefResourceRequestJob::Start() {
 
       if (SetHeaderIfMissing(headerMap,
                              net::HttpRequestHeaders::kUserAgent,
-                             ua_settings->GetUserAgent(request_->url()))) {
+                             ua_settings->GetUserAgent())) {
         changed = true;
       }
     }

@@ -9,11 +9,11 @@
 
 #include "base/message_loop/message_loop.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
+#include "content/common/cursors/webcursor.h"
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/browser/render_view_host.h"
 #include "third_party/WebKit/public/platform/WebScreenInfo.h"
 #include "ui/gfx/size_conversions.h"
-#include "webkit/common/cursors/webcursor.h"
 
 namespace {
 
@@ -180,19 +180,20 @@ void CefRenderWidgetHostViewOSR::Focus() {
 void CefRenderWidgetHostViewOSR::Blur() {
 }
 
-void CefRenderWidgetHostViewOSR::UpdateCursor(const WebCursor& cursor) {
+void CefRenderWidgetHostViewOSR::UpdateCursor(
+    const content::WebCursor& cursor) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::UpdateCursor");
   if (!browser_impl_.get())
     return;
 #if defined(USE_AURA)
-  WebCursor web_cursor = cursor;
+  content::WebCursor web_cursor = cursor;
 
   ui::PlatformCursor platform_cursor;
   if (web_cursor.IsCustom()) {
     // |web_cursor| owns the resulting |platform_cursor|.
     platform_cursor = web_cursor.GetPlatformCursor();
   } else {
-    WebCursor::CursorInfo cursor_info;
+    content::WebCursor::CursorInfo cursor_info;
     cursor.GetCursorInfo(&cursor_info);
     platform_cursor = browser_impl_->GetPlatformCursor(cursor_info.type);
   }
@@ -201,7 +202,7 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(const WebCursor& cursor) {
       browser_impl_->GetBrowser(), platform_cursor);
 #elif defined(OS_MACOSX) || defined(TOOLKIT_GTK)
   // |web_cursor| owns the resulting |native_cursor|.
-  WebCursor web_cursor = cursor;
+  content::WebCursor web_cursor = cursor;
   CefCursorHandle native_cursor = web_cursor.GetNativeCursor();
   browser_impl_->GetClient()->GetRenderHandler()->OnCursorChange(
       browser_impl_->GetBrowser(), native_cursor);

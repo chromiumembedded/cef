@@ -94,8 +94,6 @@ void CefTestSuite::Initialize() {
   log_settings.logging_dest = logging::LOG_TO_ALL;
   log_settings.lock_log = logging::LOCK_LOG_FILE;
   log_settings.delete_old = logging::DELETE_OLD_LOG_FILE;
-  log_settings.dcheck_state =
-      logging::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS;
   logging::InitLogging(log_settings);
 
   // We want process and thread IDs because we may have multiple processes.

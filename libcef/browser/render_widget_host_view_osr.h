@@ -117,7 +117,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase {
       const std::vector<content::WebPluginGeometry>& moves) OVERRIDE;
   virtual void Focus() OVERRIDE;
   virtual void Blur() OVERRIDE;
-  virtual void UpdateCursor(const WebCursor& cursor) OVERRIDE;
+  virtual void UpdateCursor(const content::WebCursor& cursor) OVERRIDE;
   virtual void SetIsLoading(bool is_loading) OVERRIDE;
   virtual void TextInputTypeChanged(ui::TextInputType type,
                                     ui::TextInputMode mode,

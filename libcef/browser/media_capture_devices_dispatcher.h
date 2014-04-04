@@ -19,46 +19,14 @@ class PrefService;
 // layer. Based on chrome/browser/media/media_capture_devices_dispatcher.[h|cc].
 class CefMediaCaptureDevicesDispatcher : public content::MediaObserver {
  public:
-  class Observer {
-   public:
-    // Handle an information update consisting of a up-to-date audio capture
-    // device lists. This happens when a microphone is plugged in or unplugged.
-    virtual void OnUpdateAudioDevices(
-        const content::MediaStreamDevices& devices) {}
-
-    // Handle an information update consisting of a up-to-date video capture
-    // device lists. This happens when a camera is plugged in or unplugged.
-    virtual void OnUpdateVideoDevices(
-        const content::MediaStreamDevices& devices) {}
-
-    // Handle an information update related to a media stream request.
-    virtual void OnRequestUpdate(
-        int render_process_id,
-        int render_view_id,
-        int page_request_id,
-        const content::MediaStreamDevice& device,
-        const content::MediaRequestState state) {}
-
-    virtual ~Observer() {}
-  };
-
   static CefMediaCaptureDevicesDispatcher* GetInstance();
 
   // Registers the preferences related to Media Stream default devices.
   static void RegisterPrefs(PrefRegistrySimple* registry);
 
-  // Methods for observers. Called on UI thread.
-  // Observers should add themselves on construction and remove themselves
-  // on destruction.
-  void AddObserver(Observer* observer);
-  void RemoveObserver(Observer* observer);
-  const content::MediaStreamDevices& GetAudioCaptureDevices();
-  const content::MediaStreamDevices& GetVideoCaptureDevices();
-
   // Helper to get the default devices which can be used by the media request,
   // if the return list is empty, it means there is no available device on the
-  // OS.
-  // Called on the UI thread.
+  // OS. Called on the UI thread.
   void GetDefaultDevices(PrefService* prefs,
                          bool audio,
                          bool video,
@@ -67,17 +35,15 @@ class CefMediaCaptureDevicesDispatcher : public content::MediaObserver {
   // Helper for picking the device that was requested for an OpenDevice request.
   // If the device requested is not available it will revert to using the first
   // available one instead or will return an empty list if no devices of the
-  // requested kind are present.
+  // requested kind are present. Called on the UI thread.
   void GetRequestedDevice(const std::string& requested_device_id,
                           bool audio,
                           bool video,
                           content::MediaStreamDevices* devices);
 
   // Overridden from content::MediaObserver:
-  virtual void OnAudioCaptureDevicesChanged(
-      const content::MediaStreamDevices& devices) OVERRIDE;
-  virtual void OnVideoCaptureDevicesChanged(
-      const content::MediaStreamDevices& devices) OVERRIDE;
+  virtual void OnAudioCaptureDevicesChanged() OVERRIDE;
+  virtual void OnVideoCaptureDevicesChanged() OVERRIDE;
   virtual void OnMediaRequestStateChanged(
       int render_process_id,
       int render_view_id,
@@ -85,15 +51,17 @@ class CefMediaCaptureDevicesDispatcher : public content::MediaObserver {
       const GURL& security_origin,
       const content::MediaStreamDevice& device,
       content::MediaRequestState state) OVERRIDE;
-  virtual void OnAudioStreamPlayingChanged(
-      int render_process_id,
-      int render_view_id,
-      int stream_id,
-      bool is_playing,
-      float power_dbfs,
-      bool clipped) OVERRIDE;
   virtual void OnCreatingAudioStream(int render_process_id,
                                      int render_view_id) OVERRIDE;
+  virtual void OnAudioStreamPlaying(
+      int render_process_id,
+      int render_frame_id,
+      int stream_id,
+      const ReadPowerAndClipCallback& power_read_callback) OVERRIDE;
+  virtual void OnAudioStreamStopped(
+      int render_process_id,
+      int render_frame_id,
+      int stream_id) OVERRIDE;
 
  private:
   friend struct DefaultSingletonTraits<CefMediaCaptureDevicesDispatcher>;
@@ -101,28 +69,8 @@ class CefMediaCaptureDevicesDispatcher : public content::MediaObserver {
   CefMediaCaptureDevicesDispatcher();
   virtual ~CefMediaCaptureDevicesDispatcher();
 
-  // Called by the MediaObserver() functions, executed on UI thread.
-  void UpdateAudioDevicesOnUIThread(const content::MediaStreamDevices& devices);
-  void UpdateVideoDevicesOnUIThread(const content::MediaStreamDevices& devices);
-  void UpdateMediaRequestStateOnUIThread(
-      int render_process_id,
-      int render_view_id,
-      int page_request_id,
-      const content::MediaStreamDevice& device,
-      content::MediaRequestState state);
-
-  // A list of cached audio capture devices.
-  content::MediaStreamDevices audio_devices_;
-
-  // A list of cached video capture devices.
-  content::MediaStreamDevices video_devices_;
-
-  // A list of observers for the device update notifications.
-  ObserverList<Observer> observers_;
-
-  // Flag to indicate if device enumeration has been done/doing.
-  // Only accessed on UI thread.
-  bool devices_enumerated_;
+  const content::MediaStreamDevices& GetAudioCaptureDevices();
+  const content::MediaStreamDevices& GetVideoCaptureDevices();
 };
 
 #endif  // CEF_LIBCEF_BROWSER_MEDIA_CAPTURE_DEVICES_DISPATCHER_H_

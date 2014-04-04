@@ -28,7 +28,7 @@ CefFrameImpl::CefFrameImpl(CefBrowserImpl* browser,
                            blink::WebFrame* frame)
   : browser_(browser),
     frame_(frame),
-    frame_id_(frame->identifier()) {
+    frame_id_(webkit_glue::GetIdentifier(frame)) {
 }
 
 CefFrameImpl::~CefFrameImpl() {

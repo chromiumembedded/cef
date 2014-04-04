@@ -1,6 +1,6 @@
 Index: desktop_aura/desktop_screen_win.cc
 ===================================================================
---- desktop_aura/desktop_screen_win.cc	(revision 251746)
+--- desktop_aura/desktop_screen_win.cc	(revision 261035)
 +++ desktop_aura/desktop_screen_win.cc	(working copy)
 @@ -54,6 +54,8 @@
  }
@@ -8,29 +8,29 @@ Index: desktop_aura/desktop_screen_win.cc
  HWND DesktopScreenWin::GetHWNDFromNativeView(gfx::NativeView window) const {
 +  if (!window)
 +    return NULL;
-   aura::WindowEventDispatcher* dispatcher = window->GetDispatcher();
-   return dispatcher ? dispatcher->host()->GetAcceleratedWidget() : NULL;
+   aura::WindowTreeHost* host = window->GetHost();
+   return host ? host->GetAcceleratedWidget() : NULL;
  }
 Index: desktop_aura/desktop_window_tree_host_win.cc
 ===================================================================
---- desktop_aura/desktop_window_tree_host_win.cc	(revision 251746)
+--- desktop_aura/desktop_window_tree_host_win.cc	(revision 261035)
 +++ desktop_aura/desktop_window_tree_host_win.cc	(working copy)
-@@ -133,7 +133,9 @@
+@@ -130,7 +130,9 @@
                          native_widget_delegate_);
  
    HWND parent_hwnd = NULL;
--  if (params.parent && params.parent->GetDispatcher()) {
-+  if (params.parent_widget) {
+-  if (params.parent && params.parent->GetHost())
++  if (params.parent_widget)
 +    parent_hwnd = params.parent_widget;
-+  } else if (params.parent && params.parent->GetDispatcher()) {
-     parent_hwnd =
-         params.parent->GetDispatcher()->host()->GetAcceleratedWidget();
-   }
++  else if (params.parent && params.parent->GetHost())
+     parent_hwnd = params.parent->GetHost()->GetAcceleratedWidget();
+ 
+   message_handler_->set_remove_standard_frame(params.remove_standard_frame);
 Index: widget.cc
 ===================================================================
---- widget.cc	(revision 251746)
+--- widget.cc	(revision 261035)
 +++ widget.cc	(working copy)
-@@ -124,6 +124,7 @@
+@@ -122,6 +122,7 @@
        show_state(ui::SHOW_STATE_DEFAULT),
        double_buffer(false),
        parent(NULL),
@@ -38,7 +38,7 @@ Index: widget.cc
        native_widget(NULL),
        desktop_window_tree_host(NULL),
        top_level(false),
-@@ -149,6 +150,7 @@
+@@ -148,6 +149,7 @@
        show_state(ui::SHOW_STATE_DEFAULT),
        double_buffer(false),
        parent(NULL),
@@ -46,7 +46,7 @@ Index: widget.cc
        native_widget(NULL),
        desktop_window_tree_host(NULL),
        top_level(false),
-@@ -389,7 +391,12 @@
+@@ -386,7 +388,12 @@
        Minimize();
    } else if (params.delegate) {
      SetContentsView(params.delegate->GetContentsView());
@@ -62,9 +62,9 @@ Index: widget.cc
  }
 Index: widget.h
 ===================================================================
---- widget.h	(revision 251746)
+--- widget.h	(revision 261035)
 +++ widget.h	(working copy)
-@@ -197,6 +197,7 @@
+@@ -200,6 +200,7 @@
      // Should the widget be double buffered? Default is false.
      bool double_buffer;
      gfx::NativeView parent;

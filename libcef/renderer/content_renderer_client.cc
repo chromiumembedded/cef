@@ -9,9 +9,9 @@
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "bindings/v8/V8Binding.h"
 #include "bindings/v8/V8RecursionScope.h"
-#include "bindings/v8/V8Utilities.h"
 MSVC_POP_WARNING();
 #undef ceil
+#undef FROM_HERE
 #undef LOG
 
 #include "libcef/renderer/content_renderer_client.h"
@@ -23,6 +23,7 @@ MSVC_POP_WARNING();
 #include "libcef/common/request_impl.h"
 #include "libcef/common/values_impl.h"
 #include "libcef/renderer/browser_impl.h"
+#include "libcef/renderer/render_frame_observer.h"
 #include "libcef/renderer/render_message_filter.h"
 #include "libcef/renderer/render_process_observer.h"
 #include "libcef/renderer/thread_util.h"
@@ -32,9 +33,11 @@ MSVC_POP_WARNING();
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
+#include "base/strings/utf_string_conversions.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
 #include "chrome/renderer/printing/print_web_view_helper.h"
 #include "content/child/child_thread.h"
+#include "content/child/worker_task_runner.h"
 #include "content/common/frame_messages.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_process_host.h"
@@ -59,7 +62,6 @@ MSVC_POP_WARNING();
 #include "third_party/WebKit/public/web/WebView.h"
 #include "third_party/WebKit/public/web/WebWorkerInfo.h"
 #include "v8/include/v8.h"
-#include "webkit/child/worker_task_runner.h"
 
 namespace {
 
@@ -92,9 +94,9 @@ class CefPrerendererClient : public content::RenderViewObserver,
 
 // Implementation of SequencedTaskRunner for WebWorker threads.
 class CefWebWorkerTaskRunner : public base::SequencedTaskRunner,
-                               public webkit_glue::WorkerTaskRunner::Observer {
+                               public content::WorkerTaskRunner::Observer {
  public:
-  CefWebWorkerTaskRunner(webkit_glue::WorkerTaskRunner* runner,
+  CefWebWorkerTaskRunner(content::WorkerTaskRunner* runner,
                          int worker_id)
       : runner_(runner),
         worker_id_(worker_id) {
@@ -134,7 +136,7 @@ class CefWebWorkerTaskRunner : public base::SequencedTaskRunner,
   }
 
  private:
-  webkit_glue::WorkerTaskRunner* runner_;
+  content::WorkerTaskRunner* runner_;
   int worker_id_;
 };
 
@@ -309,8 +311,8 @@ scoped_refptr<base::SequencedTaskRunner>
     return render_task_runner_;
 
   // Check if a WebWorker exists for the current thread.
-  webkit_glue::WorkerTaskRunner* worker_runner =
-      webkit_glue::WorkerTaskRunner::Instance();
+  content::WorkerTaskRunner* worker_runner =
+      content::WorkerTaskRunner::Instance();
   int worker_id = worker_runner->CurrentWorkerId();
   if (worker_id > 0) {
     base::AutoLock lock_scope(worker_task_runner_lock_);
@@ -425,6 +427,7 @@ void CefContentRendererClient::RenderThreadStarted() {
 
 void CefContentRendererClient::RenderFrameCreated(
     content::RenderFrame* render_frame) {
+  new CefRenderFrameObserver(render_frame);
   BrowserCreated(render_frame->GetRenderView(), render_frame);
 }
 
@@ -444,7 +447,7 @@ bool CefContentRendererClient::OverrideCreatePlugin(
     return false;
 
 #if defined(ENABLE_PLUGINS)
-  if (UTF16ToASCII(params.mimeType) == content::kBrowserPluginMimeType)
+  if (base::UTF16ToASCII(params.mimeType) == content::kBrowserPluginMimeType)
     return false;
 
   content::RenderFrameImpl* render_frame_impl =

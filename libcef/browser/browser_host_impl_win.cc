@@ -22,6 +22,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/win/registry.h"
 #include "base/win/windows_version.h"
+#include "content/common/cursors/webcursor.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/web_contents_view.h"
 #include "content/public/common/file_chooser_params.h"
@@ -39,7 +40,6 @@
 #include "ui/views/layout/fill_layout.h"
 #include "ui/views/widget/widget.h"
 #include "ui/views/widget/widget_delegate.h"
-#include "webkit/common/cursors/webcursor.h"
 
 #pragma comment(lib, "dwmapi.lib")
 
@@ -74,7 +74,7 @@ void WriteTempFileAndView(scoped_refptr<base::RefCountedString> str) {
   tmp_file = tmp_file.AddExtension(L"txt");
 
   const std::string& data = str->data();
-  int write_ct = file_util::WriteFile(tmp_file, data.c_str(), data.size());
+  int write_ct = base::WriteFile(tmp_file, data.c_str(), data.size());
   DCHECK_EQ(static_cast<int>(data.size()), write_ct);
 
   ui::win::OpenItemViaShell(tmp_file);
@@ -213,7 +213,7 @@ std::wstring GetFilterStringFromAcceptTypes(
   std::vector<std::wstring> descriptions;
 
   for (size_t i = 0; i < accept_types.size(); ++i) {
-    std::string ascii_type = UTF16ToASCII(accept_types[i]);
+    std::string ascii_type = base::UTF16ToASCII(accept_types[i]);
     if (ascii_type.length()) {
       // Just treat as extension if contains '.' as the first character.
       if (ascii_type[0] == '.') {
@@ -448,7 +448,7 @@ WORD KeyStatesToWord() {
   return result;
 }
 
-// From webkit/common/cursors/webcursor_win.cc.
+// From content/common/cursors/webcursor_win.cc.
 
 using blink::WebCursorInfo;
 

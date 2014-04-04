@@ -7,6 +7,7 @@
 #define CEF_LIBCEF_RENDERER_WEBKIT_GLUE_H_
 
 #include <string>
+#include "base/basictypes.h"
 
 namespace v8 {
 class Context;
@@ -23,6 +24,8 @@ class WebView;
 
 namespace webkit_glue {
 
+extern const int64 kInvalidFrameId;
+
 bool CanGoBack(blink::WebView* view);
 bool CanGoForward(blink::WebView* view);
 void GoBack(blink::WebView* view);
@@ -32,6 +35,8 @@ void GoForward(blink::WebView* view);
 std::string DumpDocumentText(blink::WebFrame* frame);
 
 bool SetNodeValue(blink::WebNode& node, const blink::WebString& value);
+
+int64 GetIdentifier(blink::WebFrame* frame);
 
 }  // webkit_glue
 

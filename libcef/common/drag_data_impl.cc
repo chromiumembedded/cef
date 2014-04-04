@@ -54,10 +54,10 @@ bool CefDragDataImpl::GetFileNames(std::vector<CefString>& names) {
   if (data_.filenames.empty())
     return false;
 
-  std::vector<content::DropData::FileInfo>::const_iterator it =
+  std::vector<ui::FileInfo>::const_iterator it =
       data_.filenames.begin();
   for (; it != data_.filenames.end(); ++it)
-    names.push_back(it->path);
+    names.push_back(it->path.value());
 
   return true;
 }

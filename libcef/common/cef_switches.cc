@@ -18,9 +18,6 @@ const char kLogSeverity_Error[]           = "error";
 const char kLogSeverity_ErrorReport[]     = "error-report";
 const char kLogSeverity_Disable[]         = "disable";
 
-// Enable DCHECK for release mode.
-const char kEnableReleaseDcheck[]         = "enable-release-dcheck";
-
 // Path to resources directory.
 const char kResourcesDirPath[]            = "resources-dir-path";
 

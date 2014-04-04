@@ -85,7 +85,7 @@ void AddFiltersForAcceptTypes(GtkFileChooser* chooser,
   bool has_filter = false;
 
   for (size_t i = 0; i < accept_types.size(); ++i) {
-    std::string ascii_type = UTF16ToASCII(accept_types[i]);
+    std::string ascii_type = base::UTF16ToASCII(accept_types[i]);
     if (ascii_type.length()) {
       // Just treat as extension if contains '.' as the first character.
       if (ascii_type[0] == '.') {

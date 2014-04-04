@@ -1,8 +1,8 @@
 Index: public/web/WebView.h
 ===================================================================
---- public/web/WebView.h	(revision 167304)
+--- public/web/WebView.h	(revision 170525)
 +++ public/web/WebView.h	(working copy)
-@@ -424,6 +424,7 @@
+@@ -416,6 +416,7 @@
  
      // Sets whether select popup menus should be rendered by the browser.
      BLINK_EXPORT static void setUseExternalPopupMenus(bool);
@@ -12,11 +12,11 @@ Index: public/web/WebView.h
      virtual void hidePopups() = 0;
 Index: Source/web/ChromeClientImpl.cpp
 ===================================================================
---- Source/web/ChromeClientImpl.cpp	(revision 167304)
+--- Source/web/ChromeClientImpl.cpp	(revision 170525)
 +++ Source/web/ChromeClientImpl.cpp	(working copy)
-@@ -751,7 +751,7 @@
+@@ -755,7 +755,7 @@
  
- PassRefPtr<PopupMenu> ChromeClientImpl::createPopupMenu(Frame& frame, PopupMenuClient* client) const
+ PassRefPtr<PopupMenu> ChromeClientImpl::createPopupMenu(LocalFrame& frame, PopupMenuClient* client) const
  {
 -    if (WebViewImpl::useExternalPopupMenus())
 +    if (m_webView->useExternalPopupMenus())
@@ -25,9 +25,9 @@ Index: Source/web/ChromeClientImpl.cpp
      return adoptRef(new PopupMenuChromium(frame, client));
 Index: Source/web/WebViewImpl.cpp
 ===================================================================
---- Source/web/WebViewImpl.cpp	(revision 167304)
+--- Source/web/WebViewImpl.cpp	(revision 170525)
 +++ Source/web/WebViewImpl.cpp	(working copy)
-@@ -343,6 +343,7 @@
+@@ -339,6 +339,7 @@
      , m_fakePageScaleAnimationPageScaleFactor(0)
      , m_fakePageScaleAnimationUseAnchor(false)
      , m_contextMenuAllowed(false)
@@ -35,7 +35,7 @@ Index: Source/web/WebViewImpl.cpp
      , m_doingDragAndDrop(false)
      , m_ignoreInputEvents(false)
      , m_compositorDeviceScaleFactorOverride(0)
-@@ -3521,9 +3522,14 @@
+@@ -3488,9 +3489,14 @@
      updateLayerTreeViewport();
  }
  
@@ -50,12 +50,12 @@ Index: Source/web/WebViewImpl.cpp
 +    return m_shouldUseExternalPopupMenus;
  }
  
- void WebViewImpl::startDragging(Frame* frame,
+ void WebViewImpl::startDragging(LocalFrame* frame,
 Index: Source/web/WebViewImpl.h
 ===================================================================
---- Source/web/WebViewImpl.h	(revision 167304)
+--- Source/web/WebViewImpl.h	(revision 170525)
 +++ Source/web/WebViewImpl.h	(working copy)
-@@ -401,7 +401,8 @@
+@@ -390,7 +390,8 @@
  
      // Returns true if popup menus should be rendered by the browser, false if
      // they should be rendered by WebKit (which is the default).
@@ -65,7 +65,7 @@ Index: Source/web/WebViewImpl.h
  
      bool contextMenuAllowed() const
      {
-@@ -685,6 +686,8 @@
+@@ -668,6 +669,8 @@
  
      bool m_contextMenuAllowed;
  

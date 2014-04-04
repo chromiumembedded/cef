@@ -567,10 +567,13 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
 
 net::URLRequestContextGetter* CefContentBrowserClient::CreateRequestContext(
     content::BrowserContext* content_browser_context,
-    content::ProtocolHandlerMap* protocol_handlers) {
+    content::ProtocolHandlerMap* protocol_handlers,
+    content::ProtocolHandlerScopedVector protocol_interceptors) {
   CefBrowserContext* cef_browser_context =
       static_cast<CefBrowserContext*>(content_browser_context);
-  return cef_browser_context->CreateRequestContext(protocol_handlers);
+  return cef_browser_context->CreateRequestContext(
+      protocol_handlers,
+      protocol_interceptors.Pass());
 }
 
 net::URLRequestContextGetter*
@@ -578,11 +581,15 @@ CefContentBrowserClient::CreateRequestContextForStoragePartition(
     content::BrowserContext* content_browser_context,
     const base::FilePath& partition_path,
     bool in_memory,
-    content::ProtocolHandlerMap* protocol_handlers) {
+    content::ProtocolHandlerMap* protocol_handlers,
+    content::ProtocolHandlerScopedVector protocol_interceptors) {
   CefBrowserContext* cef_browser_context =
       static_cast<CefBrowserContext*>(content_browser_context);
   return cef_browser_context->CreateRequestContextForStoragePartition(
-      partition_path, in_memory, protocol_handlers);
+      partition_path,
+      in_memory,
+      protocol_handlers,
+      protocol_interceptors.Pass());
 }
 
 bool CefContentBrowserClient::IsHandledURL(const GURL& url) {
@@ -610,7 +617,6 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
 #endif
       switches::kDisablePackLoading,
       switches::kEnableCrashReporter,
-      switches::kEnableReleaseDcheck,
       switches::kLang,
       switches::kLocalesDirPath,
       switches::kLogFile,
@@ -873,7 +879,7 @@ std::string CefContentBrowserClient::GetDefaultDownloadName() {
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
 void CefContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
-    const CommandLine& command_line,
+    const base::CommandLine& command_line,
     int child_process_id,
     std::vector<content::FileDescriptorInfo>* mappings) {
   int crash_signal_fd = GetCrashSignalFD(command_line);

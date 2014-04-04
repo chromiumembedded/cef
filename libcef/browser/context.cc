@@ -31,10 +31,6 @@
 #include "content/public/common/content_switches.h"
 #include "ui/base/ui_base_switches.h"
 
-#if defined(OS_MACOSX)
-#include "libcef/browser/application_mac.h"
-#endif
-
 #if defined(OS_WIN)
 #include "content/public/app/startup_helper_win.h"
 #include "sandbox/win/src/sandbox_types.h"
@@ -80,11 +76,6 @@ int CefExecuteProcess(const CefMainArgs& args,
   if (process_type.empty())
     return -1;
 
-#if defined(OS_MACOSX)
-  // Create the CefCrApplication instance.
-  CefCrApplicationCreate();
-#endif
-
   CefMainDelegate main_delegate(application);
 
   // Execute the secondary process.
@@ -95,12 +86,18 @@ int CefExecuteProcess(const CefMainArgs& args,
     windows_sandbox_info = &sandbox_info;
   }
 
-  return content::ContentMain(args.instance,
-      static_cast<sandbox::SandboxInterfaceInfo*>(windows_sandbox_info),
-      &main_delegate);
+  content::ContentMainParams params(&main_delegate);
+  params.instance = args.instance;
+  params.sandbox_info =
+      static_cast<sandbox::SandboxInterfaceInfo*>(windows_sandbox_info);
+
+  return content::ContentMain(params);
 #else
-  return content::ContentMain(args.argc, const_cast<const char**>(args.argv),
-                              &main_delegate);
+  content::ContentMainParams params(&main_delegate);
+  params.argc = args.argc;
+  params.argv = const_cast<const char**>(args.argv);
+
+  return content::ContentMain(params);
 #endif
 }
 
@@ -272,13 +269,18 @@ bool CefContext::Initialize(const CefMainArgs& args,
     settings_.no_sandbox = true;
   }
 
-  exit_code = main_runner_->Initialize(args.instance,
-      static_cast<sandbox::SandboxInterfaceInfo*>(windows_sandbox_info),
-      main_delegate_.get());
+  content::ContentMainParams params(main_delegate_.get());
+  params.instance = args.instance;
+  params.sandbox_info =
+      static_cast<sandbox::SandboxInterfaceInfo*>(windows_sandbox_info);
+
+  exit_code = main_runner_->Initialize(params);
 #else
-  exit_code = main_runner_->Initialize(args.argc,
-                                       const_cast<const char**>(args.argv),
-                                       main_delegate_.get());
+  content::ContentMainParams params(main_delegate_.get());
+  params.argc = args.argc;
+  params.argv = const_cast<const char**>(args.argv);
+
+  exit_code = main_runner_->Initialize(params);
 #endif
 
   DCHECK_LT(exit_code, 0);

@@ -13,6 +13,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/devtools_http_handler.h"
 #include "content/public/browser/devtools_manager.h"
+#include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view.h"
@@ -84,8 +85,7 @@ void CefDevToolsFrontend::RenderViewCreated(
 }
 
 void CefDevToolsFrontend::DocumentOnLoadCompletedInMainFrame(int32 page_id) {
-  web_contents()->GetRenderViewHost()->ExecuteJavascriptInWebFrame(
-      base::string16(),
+  web_contents()->GetMainFrame()->ExecuteJavaScript(
       base::ASCIIToUTF16("InspectorFrontendAPI.setUseSoftMenu(true);"));
 }
 

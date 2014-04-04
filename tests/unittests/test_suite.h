@@ -10,7 +10,9 @@
 #include "include/internal/cef_types_wrappers.h"
 #include "base/test/test_suite.h"
 
+namespace base {
 class CommandLine;
+}
 
 class CefTestSuite : public TestSuite {
  public:
@@ -31,7 +33,7 @@ class CefTestSuite : public TestSuite {
 #endif
 
   // The singleton CommandLine representing the current process's command line.
-  static CommandLine* commandline_;
+  static base::CommandLine* commandline_;
 };
 
 #endif  // CEF_TESTS_UNITTESTS_TEST_SUITE_H_

@@ -76,7 +76,8 @@ net::URLRequestJob* CefRequestInterceptor::MaybeInterceptRedirect(
           if (!new_url.is_empty() && new_url.is_valid()) {
             return new net::URLRequestRedirectJob(
                 request, network_delegate, new_url,
-                net::URLRequestRedirectJob::REDIRECT_302_FOUND);
+                net::URLRequestRedirectJob::REDIRECT_307_TEMPORARY_REDIRECT,
+                "Resource Redirect");
           }
         }
       }

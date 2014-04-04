@@ -672,7 +672,7 @@ void CefBrowserHostImpl::CloseBrowser(bool force_close) {
     if (contents && contents->NeedToFireBeforeUnload()) {
       // Will result in a call to BeforeUnloadFired() and, if the close isn't
       // canceled, CloseContents().
-      contents->GetRenderViewHost()->FirePageBeforeUnload(false);
+      contents->GetMainFrame()->DispatchBeforeUnload(false);
     } else {
       CloseContents(contents);
     }
@@ -1415,8 +1415,11 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrameForRequest(
       content::ResourceRequestInfo::ForRequest(request);
   if (!info)
     return NULL;
-  return GetOrCreateFrame(info->GetFrameID(), info->GetParentFrameID(),
-                          info->IsMainFrame(), base::string16(), GURL());
+  return GetOrCreateFrame(info->GetRenderFrameID(),
+                          info->GetParentRenderFrameID(),
+                          info->IsMainFrame(),
+                          base::string16(),
+                          GURL());
 }
 
 void CefBrowserHostImpl::Navigate(const CefNavigateParams& params) {
@@ -1731,7 +1734,8 @@ content::WebContents* CefBrowserHostImpl::OpenURLFromTab(
   return source;
 }
 
-void CefBrowserHostImpl::LoadingStateChanged(content::WebContents* source) {
+void CefBrowserHostImpl::LoadingStateChanged(content::WebContents* source,
+                                             bool to_different_document) {
   int current_index =
       web_contents_->GetController().GetLastCommittedEntryIndex();
   int max_index = web_contents_->GetController().GetEntryCount() - 1;
@@ -1939,7 +1943,7 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
 
 void CefBrowserHostImpl::WebContentsCreated(
     content::WebContents* source_contents,
-    int64 source_frame_id,
+    int opener_render_frame_id,
     const base::string16& frame_name,
     const GURL& target_url,
     content::WebContents* new_contents) {
@@ -2025,7 +2029,8 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (!command_line.HasSwitch(switches::kEnableMediaStream)) {
     // Cancel the request.
-    callback.Run(devices, scoped_ptr<content::MediaStreamUI>());
+    callback.Run(devices, content::MEDIA_DEVICE_PERMISSION_DENIED,
+                 scoped_ptr<content::MediaStreamUI>());
     return;
   }
 
@@ -2059,7 +2064,8 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
     }
   }
 
-  callback.Run(devices, scoped_ptr<content::MediaStreamUI>());
+  callback.Run(devices, content::MEDIA_DEVICE_OK,
+               scoped_ptr<content::MediaStreamUI>());
 }
 
 

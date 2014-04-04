@@ -255,6 +255,7 @@ void CefBrowserContextImpl::RequestMidiSysExPermission(
     int render_view_id,
     int bridge_id,
     const GURL& requesting_frame,
+    bool user_gesture,
     const MidiSysExPermissionCallback& callback) {
   // TODO(CEF): Implement Web MIDI API permission handling.
   callback.Run(false);
@@ -298,12 +299,14 @@ quota::SpecialStoragePolicy* CefBrowserContextImpl::GetSpecialStoragePolicy() {
 }
 
 net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
-    content::ProtocolHandlerMap* protocol_handlers) {
+    content::ProtocolHandlerMap* protocol_handlers,
+    content::ProtocolHandlerScopedVector protocol_interceptors) {
   DCHECK(!url_request_getter_);
   url_request_getter_ = new CefURLRequestContextGetter(
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
-      protocol_handlers);
+      protocol_handlers,
+      protocol_interceptors.Pass());
   resource_context_->set_url_request_context_getter(url_request_getter_.get());
   return url_request_getter_.get();
 }
@@ -312,6 +315,7 @@ net::URLRequestContextGetter*
     CefBrowserContextImpl::CreateRequestContextForStoragePartition(
         const base::FilePath& partition_path,
         bool in_memory,
-        content::ProtocolHandlerMap* protocol_handlers) {
+        content::ProtocolHandlerMap* protocol_handlers,
+        content::ProtocolHandlerScopedVector protocol_interceptors) {
   return NULL;
 }

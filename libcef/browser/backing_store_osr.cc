@@ -29,10 +29,9 @@ BackingStoreOSR::BackingStoreOSR(content::RenderWidgetHost* widget,
       device_scale_factor_(scale_factor) {
   gfx::Size pixel_size = gfx::ToFlooredSize(
       gfx::ScaleSize(size, device_scale_factor_));
-  device_.reset(new SkBitmapDevice(SkBitmap::kARGB_8888_Config,
-                                   pixel_size.width(),
-                                   pixel_size.height(),
-                                   true));
+  SkImageInfo info = SkImageInfo::MakeN32Premul(pixel_size.width(),
+                                                pixel_size.height());
+  device_.reset(SkBitmapDevice::Create(info));
   canvas_.reset(new SkCanvas(device_.get()));
 
   canvas_->drawColor(SK_ColorWHITE);
@@ -49,11 +48,9 @@ void BackingStoreOSR::ScaleFactorChanged(float scale_factor) {
   gfx::Size pixel_size = gfx::ToFlooredSize(
       gfx::ScaleSize(size(), device_scale_factor_));
 
-  scoped_ptr<SkBaseDevice> new_device(
-      new SkBitmapDevice(SkBitmap::kARGB_8888_Config,
-                         pixel_size.width(),
-                         pixel_size.height(),
-                         true));
+  SkImageInfo info = SkImageInfo::MakeN32Premul(pixel_size.width(),
+                                                pixel_size.height());
+  scoped_ptr<SkBaseDevice> new_device(SkBitmapDevice::Create(info));
 
   scoped_ptr<SkCanvas> new_canvas(new SkCanvas(new_device.get()));
 

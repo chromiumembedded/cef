@@ -248,9 +248,6 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
         command_line->AppendSwitchASCII(switches::kLogSeverity, log_severity);
     }
 
-    if (settings.release_dcheck_enabled)
-      command_line->AppendSwitch(switches::kEnableReleaseDcheck);
-
     if (settings.javascript_flags.length > 0) {
       command_line->AppendSwitchASCII(switches::kJavaScriptFlags,
           CefString(&settings.javascript_flags));
@@ -345,14 +342,6 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
   } else {
     log_settings.logging_dest = logging::LOG_TO_ALL;
     logging::SetMinLogLevel(log_severity);
-  }
-
-  if (command_line->HasSwitch(switches::kEnableReleaseDcheck)) {
-    log_settings.dcheck_state =
-        logging::ENABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS;
-  } else {
-    log_settings.dcheck_state =
-        logging::DISABLE_DCHECK_FOR_NON_OFFICIAL_RELEASE_BUILDS;
   }
 
   logging::InitLogging(log_settings);

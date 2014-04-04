@@ -1,8 +1,8 @@
 Index: browser/browser_plugin/browser_plugin_guest.cc
 ===================================================================
---- browser/browser_plugin/browser_plugin_guest.cc	(revision 251746)
+--- browser/browser_plugin/browser_plugin_guest.cc	(revision 261035)
 +++ browser/browser_plugin/browser_plugin_guest.cc	(working copy)
-@@ -789,7 +789,8 @@
+@@ -794,7 +794,8 @@
    return this;
  }
  
@@ -14,7 +14,7 @@ Index: browser/browser_plugin/browser_plugin_guest.cc
    // http://crbug.com/140315).
 Index: browser/browser_plugin/browser_plugin_guest.h
 ===================================================================
---- browser/browser_plugin/browser_plugin_guest.h	(revision 251746)
+--- browser/browser_plugin/browser_plugin_guest.h	(revision 261035)
 +++ browser/browser_plugin/browser_plugin_guest.h	(working copy)
 @@ -204,7 +204,8 @@
                                     double progress) OVERRIDE;
@@ -28,9 +28,9 @@ Index: browser/browser_plugin/browser_plugin_guest.h
        const NativeWebKeyboardEvent& event) OVERRIDE;
 Index: browser/web_contents/web_contents_impl.cc
 ===================================================================
---- browser/web_contents/web_contents_impl.cc	(revision 251746)
+--- browser/web_contents/web_contents_impl.cc	(revision 261035)
 +++ browser/web_contents/web_contents_impl.cc	(working copy)
-@@ -2727,7 +2727,7 @@
+@@ -2831,7 +2831,7 @@
  void WebContentsImpl::ShowContextMenu(RenderFrameHost* render_frame_host,
                                        const ContextMenuParams& params) {
    // Allow WebContentsDelegates to handle the context menu operation first.
@@ -41,9 +41,9 @@ Index: browser/web_contents/web_contents_impl.cc
    render_view_host_delegate_view_->ShowContextMenu(render_frame_host, params);
 Index: browser/web_contents/web_contents_view_mac.mm
 ===================================================================
---- browser/web_contents/web_contents_view_mac.mm	(revision 251746)
+--- browser/web_contents/web_contents_view_mac.mm	(revision 261035)
 +++ browser/web_contents/web_contents_view_mac.mm	(working copy)
-@@ -233,12 +233,6 @@
+@@ -227,12 +227,6 @@
  void WebContentsViewMac::ShowContextMenu(
      content::RenderFrameHost* render_frame_host,
      const ContextMenuParams& params) {
@@ -58,7 +58,7 @@ Index: browser/web_contents/web_contents_view_mac.mm
    else
 Index: public/browser/web_contents_delegate.cc
 ===================================================================
---- public/browser/web_contents_delegate.cc	(revision 251746)
+--- public/browser/web_contents_delegate.cc	(revision 261035)
 +++ public/browser/web_contents_delegate.cc	(working copy)
 @@ -76,6 +76,7 @@
  }
@@ -70,7 +70,7 @@ Index: public/browser/web_contents_delegate.cc
  }
 Index: public/browser/web_contents_delegate.h
 ===================================================================
---- public/browser/web_contents_delegate.h	(revision 251746)
+--- public/browser/web_contents_delegate.h	(revision 261035)
 +++ public/browser/web_contents_delegate.h	(working copy)
 @@ -35,6 +35,7 @@
  class DownloadItem;
@@ -80,7 +80,7 @@ Index: public/browser/web_contents_delegate.h
  class RenderViewHost;
  class SessionStorageNamespace;
  class WebContents;
-@@ -228,7 +229,8 @@
+@@ -231,7 +232,8 @@
    virtual int GetExtraRenderViewHeight() const;
  
    // Returns true if the context menu operation was handled by the delegate.

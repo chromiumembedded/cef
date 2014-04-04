@@ -266,12 +266,7 @@ class CefBrowserURLRequest::Context
     if (cef_flags & UR_FLAG_SKIP_CACHE)
       load_flags |= net::LOAD_BYPASS_CACHE;
 
-    if (cef_flags & UR_FLAG_ALLOW_CACHED_CREDENTIALS) {
-      if (!(cef_flags & UR_FLAG_ALLOW_COOKIES)) {
-        load_flags |= net::LOAD_DO_NOT_SEND_COOKIES;
-        load_flags |= net::LOAD_DO_NOT_SAVE_COOKIES;
-      }
-    } else {
+    if (!(cef_flags & UR_FLAG_ALLOW_CACHED_CREDENTIALS)) {
       load_flags |= net::LOAD_DO_NOT_SEND_AUTH_DATA;
       load_flags |= net::LOAD_DO_NOT_SEND_COOKIES;
       load_flags |= net::LOAD_DO_NOT_SAVE_COOKIES;

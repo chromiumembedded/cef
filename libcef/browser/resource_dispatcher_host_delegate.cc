@@ -75,7 +75,7 @@ void CefResourceDispatcherHostDelegate::RequestBeginning(
     const content::ResourceRequestInfo* info =
         content::ResourceRequestInfo::ForRequest(request);
     if (info)
-      frame_id = info->GetFrameID();
+      frame_id = info->GetRenderFrameID();
 
     if (frame_id >= 0) {
       CefRefPtr<CefRequestImpl> cef_request(new CefRequestImpl);

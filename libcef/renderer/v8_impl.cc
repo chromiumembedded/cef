@@ -15,12 +15,14 @@
 #include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "core/frame/Frame.h"
+#include "core/frame/LocalFrame.h"
 #include "core/workers/WorkerGlobalScope.h"
 #include "bindings/v8/ScriptController.h"
 #include "bindings/v8/V8Binding.h"
 #include "bindings/v8/V8RecursionScope.h"
 #include "bindings/v8/WorkerScriptController.h"
 MSVC_POP_WARNING();
+#undef FROM_HERE
 #undef LOG
 
 #include "libcef/renderer/v8_impl.h"
@@ -31,6 +33,7 @@ MSVC_POP_WARNING();
 #include "libcef/common/tracker.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/thread_util.h"
+#include "libcef/renderer/webkit_glue.h"
 
 #include "base/bind.h"
 #include "base/lazy_instance.h"
@@ -612,21 +615,16 @@ v8::Local<v8::Value> CallV8Function(v8::Handle<v8::Context> context,
   // Execute the function call using the ScriptController so that inspector
   // instrumentation works.
   if (CEF_CURRENTLY_ON_RT()) {
-    RefPtr<WebCore::Frame> frame = WebCore::toFrameIfNotDetached(context);
+    RefPtr<WebCore::LocalFrame> frame = WebCore::toFrameIfNotDetached(context);
     DCHECK(frame);
     if (frame &&
         frame->script().canExecuteScripts(WebCore::AboutToExecuteScript)) {
       func_rv = frame->script().callFunction(function, receiver, argc, args);
     }
   } else {
-    WebCore::WorkerScriptController* controller =
-        WebCore::WorkerScriptController::controllerForContext(isolate);
-    DCHECK(controller);
-    if (controller) {
-      func_rv = WebCore::ScriptController::callFunction(
-          controller->workerGlobalScope().executionContext(),
-          function, receiver, argc, args, isolate);
-    }
+    func_rv = WebCore::ScriptController::callFunction(
+        WebCore::toExecutionContext(context),
+        function, receiver, argc, args, isolate);
   }
 
   return func_rv;
@@ -932,7 +930,7 @@ CefRefPtr<CefFrame> CefV8ContextImpl::GetFrame() {
   if (webframe) {
     CefRefPtr<CefBrowserImpl> browser =
         CefBrowserImpl::GetBrowserForMainFrame(webframe->top());
-    frame = browser->GetFrame(webframe->identifier());
+    frame = browser->GetFrame(webkit_glue::GetIdentifier(webframe));
   }
 
   return frame;

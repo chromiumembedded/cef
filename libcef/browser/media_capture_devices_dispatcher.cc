@@ -8,8 +8,7 @@
 #include "base/prefs/pref_service.h"
 #include "chrome/common/pref_names.h"
 #include "content/public/browser/browser_thread.h"
-#include "content/public/browser/media_devices_monitor.h"
-#include "content/public/common/media_stream_request.h"
+#include "content/public/browser/media_capture_devices.h"
 
 using content::BrowserThread;
 using content::MediaStreamDevices;
@@ -40,8 +39,7 @@ CefMediaCaptureDevicesDispatcher*
   return Singleton<CefMediaCaptureDevicesDispatcher>::get();
 }
 
-CefMediaCaptureDevicesDispatcher::CefMediaCaptureDevicesDispatcher()
-    : devices_enumerated_(false) {}
+CefMediaCaptureDevicesDispatcher::CefMediaCaptureDevicesDispatcher() {}
 
 CefMediaCaptureDevicesDispatcher::~CefMediaCaptureDevicesDispatcher() {}
 
@@ -51,41 +49,6 @@ void CefMediaCaptureDevicesDispatcher::RegisterPrefs(
                                std::string());
   registry->RegisterStringPref(prefs::kDefaultVideoCaptureDevice,
                                std::string());
-}
-
-void CefMediaCaptureDevicesDispatcher::AddObserver(Observer* observer) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  if (!observers_.HasObserver(observer))
-    observers_.AddObserver(observer);
-}
-
-void CefMediaCaptureDevicesDispatcher::RemoveObserver(Observer* observer) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  observers_.RemoveObserver(observer);
-}
-
-const MediaStreamDevices&
-CefMediaCaptureDevicesDispatcher::GetAudioCaptureDevices() {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  if (!devices_enumerated_) {
-    BrowserThread::PostTask(
-        BrowserThread::IO, FROM_HERE,
-        base::Bind(&content::EnsureMonitorCaptureDevices));
-    devices_enumerated_ = true;
-  }
-  return audio_devices_;
-}
-
-const MediaStreamDevices&
-CefMediaCaptureDevicesDispatcher::GetVideoCaptureDevices() {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  if (!devices_enumerated_) {
-    BrowserThread::PostTask(
-        BrowserThread::IO, FROM_HERE,
-        base::Bind(&content::EnsureMonitorCaptureDevices));
-    devices_enumerated_ = true;
-  }
-  return video_devices_;
 }
 
 void CefMediaCaptureDevicesDispatcher::GetDefaultDevices(
@@ -132,24 +95,10 @@ void CefMediaCaptureDevicesDispatcher::GetRequestedDevice(
   }
 }
 
-void CefMediaCaptureDevicesDispatcher::OnAudioCaptureDevicesChanged(
-    const content::MediaStreamDevices& devices) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
-  BrowserThread::PostTask(
-      BrowserThread::UI, FROM_HERE,
-      base::Bind(
-          &CefMediaCaptureDevicesDispatcher::UpdateAudioDevicesOnUIThread,
-          base::Unretained(this), devices));
+void CefMediaCaptureDevicesDispatcher::OnAudioCaptureDevicesChanged() {
 }
 
-void CefMediaCaptureDevicesDispatcher::OnVideoCaptureDevicesChanged(
-    const content::MediaStreamDevices& devices) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
-  BrowserThread::PostTask(
-      BrowserThread::UI, FROM_HERE,
-      base::Bind(
-          &CefMediaCaptureDevicesDispatcher::UpdateVideoDevicesOnUIThread,
-          base::Unretained(this), devices));
+void CefMediaCaptureDevicesDispatcher::OnVideoCaptureDevicesChanged() {
 }
 
 void CefMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
@@ -159,23 +108,6 @@ void CefMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
     const GURL& security_origin,
     const content::MediaStreamDevice& device,
     content::MediaRequestState state) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
-  BrowserThread::PostTask(
-      BrowserThread::UI, FROM_HERE,
-      base::Bind(
-          &CefMediaCaptureDevicesDispatcher::UpdateMediaRequestStateOnUIThread,
-          base::Unretained(this), render_process_id, render_view_id,
-          page_request_id, device, state));
-
-}
-
-void CefMediaCaptureDevicesDispatcher::OnAudioStreamPlayingChanged(
-    int render_process_id,
-    int render_view_id,
-    int stream_id,
-    bool is_playing,
-    float power_dbfs,
-    bool clipped) {
 }
 
 void CefMediaCaptureDevicesDispatcher::OnCreatingAudioStream(
@@ -183,34 +115,27 @@ void CefMediaCaptureDevicesDispatcher::OnCreatingAudioStream(
     int render_view_id) {
 }
 
-void CefMediaCaptureDevicesDispatcher::UpdateAudioDevicesOnUIThread(
-    const content::MediaStreamDevices& devices) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  devices_enumerated_ = true;
-  audio_devices_ = devices;
-  FOR_EACH_OBSERVER(Observer, observers_,
-                    OnUpdateAudioDevices(audio_devices_));
+void CefMediaCaptureDevicesDispatcher::OnAudioStreamPlaying(
+      int render_process_id,
+      int render_frame_id,
+      int stream_id,
+      const ReadPowerAndClipCallback& power_read_callback) {
 }
 
-void CefMediaCaptureDevicesDispatcher::UpdateVideoDevicesOnUIThread(
-    const content::MediaStreamDevices& devices){
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  devices_enumerated_ = true;
-  video_devices_ = devices;
-  FOR_EACH_OBSERVER(Observer, observers_,
-                    OnUpdateVideoDevices(video_devices_));
+void CefMediaCaptureDevicesDispatcher::OnAudioStreamStopped(
+      int render_process_id,
+      int render_frame_id,
+      int stream_id) {
 }
 
-void CefMediaCaptureDevicesDispatcher::UpdateMediaRequestStateOnUIThread(
-    int render_process_id,
-    int render_view_id,
-    int page_request_id,
-    const content::MediaStreamDevice& device,
-    content::MediaRequestState state) {
-  FOR_EACH_OBSERVER(Observer, observers_,
-                    OnRequestUpdate(render_process_id,
-                                    render_view_id,
-                                    page_request_id,
-                                    device,
-                                    state));
+const MediaStreamDevices&
+CefMediaCaptureDevicesDispatcher::GetAudioCaptureDevices() {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  return content::MediaCaptureDevices::GetInstance()->GetAudioCaptureDevices();
+}
+
+const MediaStreamDevices&
+CefMediaCaptureDevicesDispatcher::GetVideoCaptureDevices() {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  return content::MediaCaptureDevices::GetInstance()->GetVideoCaptureDevices();
 }

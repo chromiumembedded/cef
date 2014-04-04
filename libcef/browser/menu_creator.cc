@@ -84,8 +84,8 @@ bool CefMenuCreator::CreateContextMenu(
           client->GetContextMenuHandler();
       if (handler.get()) {
         CefRefPtr<CefFrame> frame;
-        if (params_.frame_id > 0)
-          frame = browser_->GetFrame(params_.frame_id);
+        if (render_frame_id_ > 0)
+          frame = browser_->GetFrame(render_frame_id_);
         if (!frame.get())
           frame = browser_->GetMainFrame();
 
@@ -138,8 +138,8 @@ void CefMenuCreator::ExecuteCommand(CefRefPtr<CefMenuModelImpl> source,
           client->GetContextMenuHandler();
       if (handler.get()) {
         CefRefPtr<CefFrame> frame;
-        if (params_.frame_id > 0)
-          frame = browser_->GetFrame(params_.frame_id);
+        if (render_frame_id_ > 0)
+          frame = browser_->GetFrame(render_frame_id_);
         if (!frame.get())
           frame = browser_->GetMainFrame();
 
@@ -189,8 +189,8 @@ void CefMenuCreator::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
           client->GetContextMenuHandler();
       if (handler.get()) {
         CefRefPtr<CefFrame> frame;
-        if (params_.frame_id > 0)
-          frame = browser_->GetFrame(params_.frame_id);
+        if (render_frame_id_ > 0)
+          frame = browser_->GetFrame(render_frame_id_);
         if (!frame.get())
           frame = browser_->GetMainFrame();
 

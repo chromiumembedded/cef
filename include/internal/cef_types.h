@@ -297,12 +297,6 @@ typedef struct _cef_settings_t {
   cef_log_severity_t log_severity;
 
   ///
-  // Enable DCHECK in release mode to ease debugging. Also configurable using the
-  // "enable-release-dcheck" command-line switch.
-  ///
-  int release_dcheck_enabled;
-
-  ///
   // Custom flags that will be used when initializing the V8 JavaScript engine.
   // The consequences of using custom flags may not be well tested. Also
   // configurable using the "js-flags" command-line switch.
@@ -1035,15 +1029,10 @@ typedef enum {
   UR_FLAG_SKIP_CACHE                = 1 << 0,
 
   ///
-  // If set user name, password, and cookies may be sent with the request.
+  // If set user name, password, and cookies may be sent with the request, and
+  // cookies may be saved from the response.
   ///
   UR_FLAG_ALLOW_CACHED_CREDENTIALS  = 1 << 1,
-
-  ///
-  // If set cookies may be sent with the request and saved from the response.
-  // UR_FLAG_ALLOW_CACHED_CREDENTIALS must also be set.
-  ///
-  UR_FLAG_ALLOW_COOKIES             = 1 << 2,
 
   ///
   // If set upload progress events will be generated when a request has a body.
@@ -1635,7 +1624,6 @@ typedef enum {
   DOM_EVENT_CATEGORY_POPSTATE = 0x2000,
   DOM_EVENT_CATEGORY_PROGRESS = 0x4000,
   DOM_EVENT_CATEGORY_XMLHTTPREQUEST_PROGRESS = 0x8000,
-  DOM_EVENT_CATEGORY_BEFORE_LOAD = 0x10000,
 } cef_dom_event_category_t;
 
 ///

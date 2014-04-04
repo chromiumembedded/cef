@@ -1,8 +1,8 @@
 Index: web_dialog_view.cc
 ===================================================================
---- web_dialog_view.cc	(revision 248478)
+--- web_dialog_view.cc	(revision 261035)
 +++ web_dialog_view.cc	(working copy)
-@@ -261,13 +261,6 @@
+@@ -257,13 +257,6 @@
    return true;
  }
  
@@ -16,7 +16,7 @@ Index: web_dialog_view.cc
  ////////////////////////////////////////////////////////////////////////////////
  // content::WebContentsDelegate implementation:
  
-@@ -347,6 +340,16 @@
+@@ -337,6 +330,15 @@
    *proceed_to_fire_unload = proceed;
  }
  
@@ -26,16 +26,15 @@ Index: web_dialog_view.cc
 +  if (delegate_)
 +    return delegate_->HandleContextMenu(params);
 +  return WebDialogWebContentsDelegate::HandleContextMenu(render_frame_host,
-+                                                          params);
++                                                         params);
 +}
-+
 +
  ////////////////////////////////////////////////////////////////////////////////
  // WebDialogView, private:
  
 Index: web_dialog_view.h
 ===================================================================
---- web_dialog_view.h	(revision 248478)
+--- web_dialog_view.h	(revision 261035)
 +++ web_dialog_view.h	(working copy)
 @@ -74,6 +74,7 @@
    virtual const views::Widget* GetWidget() const OVERRIDE;
@@ -54,7 +53,7 @@ Index: web_dialog_view.h
  
    // Overridden from content::WebContentsDelegate:
    virtual void MoveContents(content::WebContents* source,
-@@ -114,6 +113,9 @@
+@@ -115,6 +114,9 @@
    virtual void BeforeUnloadFired(content::WebContents* tab,
                                   bool proceed,
                                   bool* proceed_to_fire_unload) OVERRIDE;

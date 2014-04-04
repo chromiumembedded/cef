@@ -88,7 +88,7 @@ CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetElementById(const CefString& id) {
 
 CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetFocusedNode() {
   const WebDocument& document = frame_->document();
-  return GetOrCreateNode(document.focusedNode());
+  return GetOrCreateNode(document.focusedElement());
 }
 
 bool CefDOMDocumentImpl::HasSelection() {

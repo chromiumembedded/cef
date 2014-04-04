@@ -31,7 +31,12 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 #undef LOG
 
+#include "base/logging.h"
+#include "content/public/renderer/render_frame.h"
+
 namespace webkit_glue {
+
+const int64 kInvalidFrameId = -1;
 
 bool CanGoBack(blink::WebView* view) {
   if (!view)
@@ -77,6 +82,17 @@ bool SetNodeValue(blink::WebNode& node, const blink::WebString& value) {
   WebCore::Node* web_node = node.unwrap<WebCore::Node>();
   web_node->setNodeValue(value);
   return true;
+}
+
+int64 GetIdentifier(blink::WebFrame* frame) {
+  // Each WebFrame will have an associated RenderFrame. The RenderFrame
+  // routing IDs are unique within a given renderer process.
+  content::RenderFrame* render_frame =
+      content::RenderFrame::FromWebFrame(frame);
+  DCHECK(render_frame);
+  if (render_frame)
+    return render_frame->GetRoutingID();
+  return kInvalidFrameId;
 }
 
 }  // webkit_glue

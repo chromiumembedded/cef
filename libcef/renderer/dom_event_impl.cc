@@ -75,8 +75,6 @@ CefDOMEventImpl::Category CefDOMEventImpl::GetCategory() {
     flags |= DOM_EVENT_CATEGORY_PROGRESS;
   if (event_.isXMLHttpRequestProgressEvent())
     flags |= DOM_EVENT_CATEGORY_XMLHTTPREQUEST_PROGRESS;
-  if (event_.isBeforeLoadEvent())
-    flags |= DOM_EVENT_CATEGORY_BEFORE_LOAD;
 
   return static_cast<Category>(flags);
 }

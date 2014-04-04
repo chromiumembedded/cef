@@ -25,7 +25,7 @@ void AddInternalSchemes(std::vector<std::string>* standard_schemes) {
 
 bool IsInternalHandledScheme(const std::string& scheme) {
   static const char* schemes[] = {
-    chrome::kBlobScheme,
+    content::kBlobScheme,
     content::kChromeDevToolsScheme,
     content::kChromeUIScheme,
     content::kDataScheme,
@@ -46,7 +46,7 @@ bool IsInternalProtectedScheme(const std::string& scheme) {
   // content/browser/storage_partition_impl_map.cc and are modified by
   // InstallInternalProtectedHandlers().
   static const char* schemes[] = {
-    chrome::kBlobScheme,
+    content::kBlobScheme,
     content::kChromeUIScheme,
     content::kDataScheme,
     content::kFileScheme,

@@ -28,11 +28,11 @@
 #include "content/browser/net/view_http_cache_job_factory.h"
 #include "content/browser/net/view_blob_internals_job_factory.h"
 #include "content/public/common/url_constants.h"
+#include "content/public/common/user_agent.h"
 #include "grit/cef_resources.h"
 #include "ipc/ipc_channel.h"
 #include "net/url_request/url_request.h"
 #include "v8/include/v8.h"
-#include "webkit/common/user_agent/user_agent_util.h"
 
 namespace scheme {
 
@@ -271,11 +271,11 @@ class Delegate : public InternalHandlerDelegate {
     parser.Add("OS", GetOSType());
     parser.Add("WEBKIT",
         base::StringPrintf("%d.%d",
-            webkit_glue::GetWebKitMajorVersion(),
-            webkit_glue::GetWebKitMinorVersion()));
+            content::GetWebKitMajorVersion(),
+            content::GetWebKitMinorVersion()));
     parser.Add("JAVASCRIPT", v8::V8::GetVersion());
     parser.Add("FLASH", std::string());  // Value populated asynchronously.
-    parser.Add("USERAGENT", content::GetUserAgent(GURL()));
+    parser.Add("USERAGENT", CefContentClient::Get()->GetUserAgent());
     parser.Add("COMMANDLINE", GetCommandLine());
     parser.Add("MODULEPATH", GetModulePath());
     parser.Add("CACHEPATH", CefString(CefContext::Get()->cache_path().value()));

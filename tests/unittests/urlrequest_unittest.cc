@@ -604,8 +604,7 @@ class RequestTestRunner {
     SetupGetTest();
 
     // Send cookies.
-    settings_.request->SetFlags(UR_FLAG_ALLOW_CACHED_CREDENTIALS |
-                                UR_FLAG_ALLOW_COOKIES);
+    settings_.request->SetFlags(UR_FLAG_ALLOW_CACHED_CREDENTIALS);
 
     settings_.expect_save_cookie = true;
     settings_.expect_send_cookie = true;
@@ -653,7 +652,7 @@ class RequestTestRunner {
     const base::FilePath& path =
         post_file_tmpdir_.path().Append(FILE_PATH_LITERAL("example.txt"));
     const char content[] = "HELLO FRIEND!";
-    int write_ct = file_util::WriteFile(path, content, sizeof(content) - 1);
+    int write_ct = base::WriteFile(path, content, sizeof(content) - 1);
     EXPECT_EQ(static_cast<int>(sizeof(content) - 1), write_ct);
     SetUploadFile(settings_.request, path);
 

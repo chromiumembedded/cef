@@ -122,47 +122,6 @@ int CefNetworkDelegate::OnBeforeURLRequest(
   return net::OK;
 }
 
-int CefNetworkDelegate::OnBeforeSendHeaders(
-    net::URLRequest* request,
-    const net::CompletionCallback& callback,
-    net::HttpRequestHeaders* headers) {
-  return net::OK;
-}
-
-void CefNetworkDelegate::OnSendHeaders(
-    net::URLRequest* request,
-    const net::HttpRequestHeaders& headers) {
-}
-
-int CefNetworkDelegate::OnHeadersReceived(
-    net::URLRequest* request,
-    const net::CompletionCallback& callback,
-    const net::HttpResponseHeaders* original_response_headers,
-    scoped_refptr<net::HttpResponseHeaders>* override_response_headers) {
-  return net::OK;
-}
-
-void CefNetworkDelegate::OnBeforeRedirect(net::URLRequest* request,
-                                          const GURL& new_location) {
-}
-
-void CefNetworkDelegate::OnResponseStarted(net::URLRequest* request) {
-}
-
-void CefNetworkDelegate::OnRawBytesRead(const net::URLRequest& request,
-                                        int bytes_read) {
-}
-
-void CefNetworkDelegate::OnCompleted(net::URLRequest* request, bool started) {
-}
-
-void CefNetworkDelegate::OnURLRequestDestroyed(net::URLRequest* request) {
-}
-
-void CefNetworkDelegate::OnPACScriptError(int line_number,
-                                          const base::string16& error) {
-}
-
 net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
     net::URLRequest* request,
     const net::AuthChallengeInfo& auth_info,
@@ -217,31 +176,4 @@ net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
   }
 
   return AUTH_REQUIRED_RESPONSE_NO_ACTION;
-}
-
-bool CefNetworkDelegate::OnCanGetCookies(const net::URLRequest& request,
-                                         const net::CookieList& cookie_list) {
-  return true;
-}
-
-bool CefNetworkDelegate::OnCanSetCookie(const net::URLRequest& request,
-                                        const std::string& cookie_line,
-                                        net::CookieOptions* options) {
-  return true;
-}
-
-bool CefNetworkDelegate::OnCanAccessFile(const net::URLRequest& request,
-                                         const base::FilePath& path) const {
-  return true;
-}
-
-bool CefNetworkDelegate::OnCanThrottleRequest(
-    const net::URLRequest& request) const {
-  return false;
-}
-
-int CefNetworkDelegate::OnBeforeSocketStreamConnect(
-    net::SocketStream* socket,
-    const net::CompletionCallback& callback) {
-  return net::OK;
 }

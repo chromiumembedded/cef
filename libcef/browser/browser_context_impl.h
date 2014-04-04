@@ -44,6 +44,7 @@ class CefBrowserContextImpl : public CefBrowserContext {
       int render_view_id,
       int bridge_id,
       const GURL& requesting_frame,
+      bool user_gesture,
       const MidiSysExPermissionCallback& callback) OVERRIDE;
   virtual void CancelMidiSysExPermissionRequest(
       int render_process_id,
@@ -66,11 +67,13 @@ class CefBrowserContextImpl : public CefBrowserContext {
 
   // CefBrowserContext methods.
   virtual net::URLRequestContextGetter* CreateRequestContext(
-      content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
+      content::ProtocolHandlerMap* protocol_handlers,
+      content::ProtocolHandlerScopedVector protocol_interceptors) OVERRIDE;
   virtual net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
       const base::FilePath& partition_path,
       bool in_memory,
-      content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
+      content::ProtocolHandlerMap* protocol_handlers,
+      content::ProtocolHandlerScopedVector protocol_interceptors) OVERRIDE;
 
  private:
   class CefResourceContext;

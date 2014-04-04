@@ -307,8 +307,6 @@ void CefRequestImpl::Set(const blink::WebURLRequest& request) {
     flags_ |= UR_FLAG_SKIP_CACHE;
   if (request.allowStoredCredentials())
     flags_ |= UR_FLAG_ALLOW_CACHED_CREDENTIALS;
-  if (request.allowCookies())
-    flags_ |= UR_FLAG_ALLOW_COOKIES;
   if (request.reportUploadProgress())
     flags_ |= UR_FLAG_REPORT_UPLOAD_PROGRESS;
   if (request.reportLoadTiming())
@@ -351,8 +349,6 @@ void CefRequestImpl::Get(blink::WebURLRequest& request) {
 
   SETBOOLFLAG(request, flags_, setAllowStoredCredentials,
               UR_FLAG_ALLOW_CACHED_CREDENTIALS);
-  SETBOOLFLAG(request, flags_, setAllowCookies,
-              UR_FLAG_ALLOW_COOKIES);
   SETBOOLFLAG(request, flags_, setReportUploadProgress,
               UR_FLAG_REPORT_UPLOAD_PROGRESS);
   SETBOOLFLAG(request, flags_, setReportLoadTiming,

@@ -72,7 +72,6 @@ class CefContentRendererClient : public content::ContentRendererClient,
   // single-process mode. Blocks until cleanup is complete.
   void RunSingleProcessCleanup();
 
- private:
   // ContentRendererClient implementation.
   virtual void RenderThreadStarted() OVERRIDE;
   virtual void RenderFrameCreated(content::RenderFrame* render_frame) OVERRIDE;
@@ -94,13 +93,15 @@ class CefContentRendererClient : public content::ContentRendererClient,
                                       v8::Handle<v8::Context> context,
                                       int extension_group,
                                       int world_id) OVERRIDE;
-  virtual void WillReleaseScriptContext(blink::WebFrame* frame,
-                                        v8::Handle<v8::Context> context,
-                                        int world_id) OVERRIDE;
+
+  void WillReleaseScriptContext(blink::WebFrame* frame,
+                                v8::Handle<v8::Context> context,
+                                int world_id);
 
   // MessageLoop::DestructionObserver implementation.
   virtual void WillDestroyCurrentMessageLoop() OVERRIDE;
 
+ private:
   void BrowserCreated(content::RenderView* render_view,
                       content::RenderFrame* render_frame);
 

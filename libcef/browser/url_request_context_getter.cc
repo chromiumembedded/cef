@@ -18,6 +18,7 @@
 #include "libcef/browser/url_request_context_proxy.h"
 #include "libcef/browser/url_request_interceptor.h"
 #include "libcef/common/cef_switches.h"
+#include "libcef/common/content_client.h"
 
 #include "base/command_line.h"
 #include "base/file_util.h"
@@ -47,6 +48,7 @@
 #include "net/ssl/server_bound_cert_service.h"
 #include "net/ssl/ssl_config_service_defaults.h"
 #include "net/url_request/http_user_agent_settings.h"
+#include "net/url_request/protocol_intercept_job_factory.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_context_storage.h"
@@ -82,9 +84,9 @@ class CefHttpUserAgentSettings : public net::HttpUserAgentSettings {
     return http_accept_language_;
   }
 
-  virtual std::string GetUserAgent(const GURL& url) const OVERRIDE {
+  virtual std::string GetUserAgent() const OVERRIDE {
     CEF_REQUIRE_IOT();
-    return content::GetUserAgent(url);
+    return CefContentClient::Get()->GetUserAgent();
   }
 
  private:
@@ -98,9 +100,11 @@ class CefHttpUserAgentSettings : public net::HttpUserAgentSettings {
 CefURLRequestContextGetter::CefURLRequestContextGetter(
     base::MessageLoop* io_loop,
     base::MessageLoop* file_loop,
-    content::ProtocolHandlerMap* protocol_handlers)
+    content::ProtocolHandlerMap* protocol_handlers,
+    content::ProtocolHandlerScopedVector protocol_interceptors)
     : io_loop_(io_loop),
-      file_loop_(file_loop) {
+      file_loop_(file_loop),
+      protocol_interceptors_(protocol_interceptors.Pass()) {
   // Must first be created on the UI thread.
   CEF_REQUIRE_UIT();
 
@@ -230,7 +234,19 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
                                              ftp_transaction_factory_.get());
     protocol_handlers_.clear();
 
-    storage_->set_job_factory(job_factory.release());
+    // Set up interceptors in the reverse order.
+    scoped_ptr<net::URLRequestJobFactory> top_job_factory =
+        job_factory.PassAs<net::URLRequestJobFactory>();
+    for (content::ProtocolHandlerScopedVector::reverse_iterator i =
+             protocol_interceptors_.rbegin();
+         i != protocol_interceptors_.rend();
+         ++i) {
+      top_job_factory.reset(new net::ProtocolInterceptJobFactory(
+          top_job_factory.Pass(), make_scoped_ptr(*i)));
+    }
+    protocol_interceptors_.weak_clear();
+
+    storage_->set_job_factory(top_job_factory.release());
 
     request_interceptor_.reset(new CefRequestInterceptor);
   }

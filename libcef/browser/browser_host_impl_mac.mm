@@ -17,6 +17,7 @@
 #include "base/mac/scoped_nsautorelease_pool.h"
 #include "base/strings/string_util.h"
 #include "base/strings/sys_string_conversions.h"
+#include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread_restrictions.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/web_contents.h"
@@ -128,7 +129,7 @@ NSMutableArray* GetFileTypesFromAcceptTypes(
     const std::vector<base::string16>& accept_types) {
   NSMutableArray* acceptArray = [[NSMutableArray alloc] init];
   for (size_t i=0; i<accept_types.size(); i++) {
-    std::string ascii_type = UTF16ToASCII(accept_types[i]);
+    std::string ascii_type = base::UTF16ToASCII(accept_types[i]);
     if (ascii_type.length()) {
       // Just treat as extension if contains '.' as the first character.
       if (ascii_type[0] == '.') {
