@@ -1,6 +1,6 @@
 Index: desktop_aura/desktop_root_window_host_win.cc
 ===================================================================
---- desktop_aura/desktop_root_window_host_win.cc	(revision 252094)
+--- desktop_aura/desktop_root_window_host_win.cc	(revision 258314)
 +++ desktop_aura/desktop_root_window_host_win.cc	(working copy)
 @@ -132,7 +132,9 @@
                          native_widget_delegate_);
@@ -22,9 +22,21 @@ Index: desktop_aura/desktop_root_window_host_win.cc
  
    native_widget_delegate_->OnNativeWidgetCreated(true);
  
+Index: desktop_aura/desktop_root_window_host_win.h
+===================================================================
+--- desktop_aura/desktop_root_window_host_win.h	(revision 258314)
++++ desktop_aura/desktop_root_window_host_win.h	(working copy)
+@@ -210,6 +210,7 @@
+                              LPARAM l_param) OVERRIDE;
+   virtual bool HandleScrollEvent(const ui::ScrollEvent& event) OVERRIDE;
+ 
++ public:
+   Widget* GetWidget();
+   const Widget* GetWidget() const;
+   HWND GetHWND() const;
 Index: desktop_aura/desktop_screen_win.cc
 ===================================================================
---- desktop_aura/desktop_screen_win.cc	(revision 252094)
+--- desktop_aura/desktop_screen_win.cc	(revision 258314)
 +++ desktop_aura/desktop_screen_win.cc	(working copy)
 @@ -54,6 +54,8 @@
  }
@@ -37,7 +49,7 @@ Index: desktop_aura/desktop_screen_win.cc
  }
 Index: widget.cc
 ===================================================================
---- widget.cc	(revision 252094)
+--- widget.cc	(revision 258314)
 +++ widget.cc	(working copy)
 @@ -126,6 +126,7 @@
        show_state(ui::SHOW_STATE_DEFAULT),
@@ -71,7 +83,7 @@ Index: widget.cc
  }
 Index: widget.h
 ===================================================================
---- widget.h	(revision 252094)
+--- widget.h	(revision 258314)
 +++ widget.h	(working copy)
 @@ -201,6 +201,7 @@
      // Should the widget be double buffered? Default is false.
