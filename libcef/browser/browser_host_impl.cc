@@ -675,7 +675,7 @@ double CefBrowserHostImpl::GetZoomLevel() {
 void CefBrowserHostImpl::SetZoomLevel(double zoomLevel) {
   if (CEF_CURRENTLY_ON_UIT()) {
     if (web_contents_.get() && web_contents_->GetRenderViewHost())
-      web_contents_->GetRenderViewHost()->SetZoomLevel(zoomLevel);
+      web_contents_->SetZoomLevel(zoomLevel);
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::SetZoomLevel, this, zoomLevel));
