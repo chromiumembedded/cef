@@ -1,0 +1,25 @@
+Index: public/common/common_param_traits_macros.h
+===================================================================
+--- public/common/common_param_traits_macros.h	(revision 261035)
++++ public/common/common_param_traits_macros.h	(working copy)
+@@ -182,6 +182,7 @@
+   IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
+   IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
+   IPC_STRUCT_TRAITS_MEMBER(compositor_touch_hit_testing)
++  IPC_STRUCT_TRAITS_MEMBER(base_background_color)
+   IPC_STRUCT_TRAITS_MEMBER(cookie_enabled)
+   IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
+   IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
+Index: renderer/web_preferences.cc
+===================================================================
+--- renderer/web_preferences.cc	(revision 261035)
++++ renderer/web_preferences.cc	(working copy)
+@@ -163,6 +163,8 @@
+   settings->setCookieEnabled(prefs.cookie_enabled);
+   settings->setNavigateOnDragDrop(prefs.navigate_on_drag_drop);
+ 
++  web_view->setBaseBackgroundColor(prefs.base_background_color);
++
+   // This setting affects the behavior of links in an editable region:
+   // clicking the link should select it rather than navigate to it.
+   // Safari uses the same default. It is unlikley an embedder would want to

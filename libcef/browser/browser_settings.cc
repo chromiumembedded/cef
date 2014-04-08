@@ -6,6 +6,7 @@
 
 #include <string>
 
+#include "libcef/browser/context.h"
 #include "libcef/common/cef_switches.h"
 
 #include "base/command_line.h"
@@ -126,4 +127,6 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
     web.experimental_webgl_enabled = false;
   if (cef.accelerated_compositing == STATE_DISABLED)
     web.accelerated_compositing_enabled = false;
+
+  web.base_background_color = CefContext::Get()->settings().background_color;
 }
