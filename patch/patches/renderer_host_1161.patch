@@ -1,6 +1,6 @@
 Index: compositing_iosurface_layer_mac.mm
 ===================================================================
---- compositing_iosurface_layer_mac.mm	(revision 247552)
+--- compositing_iosurface_layer_mac.mm	(revision 258314)
 +++ compositing_iosurface_layer_mac.mm	(working copy)
 @@ -89,7 +89,7 @@
  
@@ -13,7 +13,7 @@ Index: compositing_iosurface_layer_mac.mm
    }
 Index: compositing_iosurface_mac.mm
 ===================================================================
---- compositing_iosurface_mac.mm	(revision 247552)
+--- compositing_iosurface_mac.mm	(revision 258314)
 +++ compositing_iosurface_mac.mm	(working copy)
 @@ -427,7 +427,7 @@
      glUseProgram(0); CHECK_AND_SAVE_GL_ERROR();
@@ -26,7 +26,7 @@ Index: compositing_iosurface_mac.mm
  
 Index: compositing_iosurface_shader_programs_mac.cc
 ===================================================================
---- compositing_iosurface_shader_programs_mac.cc	(revision 247552)
+--- compositing_iosurface_shader_programs_mac.cc	(revision 258314)
 +++ compositing_iosurface_shader_programs_mac.cc	(working copy)
 @@ -11,6 +11,7 @@
  #include "base/debug/trace_event.h"
@@ -78,7 +78,7 @@ Index: compositing_iosurface_shader_programs_mac.cc
      shader_programs_[which] =
 Index: compositing_iosurface_shader_programs_mac.h
 ===================================================================
---- compositing_iosurface_shader_programs_mac.h	(revision 247552)
+--- compositing_iosurface_shader_programs_mac.h	(revision 258314)
 +++ compositing_iosurface_shader_programs_mac.h	(working copy)
 @@ -48,6 +48,8 @@
      return rgb_to_yv12_output_format_;
@@ -89,9 +89,22 @@ Index: compositing_iosurface_shader_programs_mac.h
   protected:
    FRIEND_TEST_ALL_PREFIXES(CompositingIOSurfaceTransformerTest,
                             TransformsRGBToYV12);
+Index: render_widget_host_view_aura.cc
+===================================================================
+--- render_widget_host_view_aura.cc	(revision 258314)
++++ render_widget_host_view_aura.cc	(working copy)
+@@ -2557,7 +2557,7 @@
+     // canvas coming from the compositor to already be initialized as
+     // transparent.
+     if (window_->layer()->fills_bounds_opaquely())
+-      canvas->DrawColor(SK_ColorWHITE);
++      canvas->DrawColor(SK_ColorTRANSPARENT);
+   }
+ }
+ 
 Index: render_widget_host_view_mac.mm
 ===================================================================
---- render_widget_host_view_mac.mm	(revision 247552)
+--- render_widget_host_view_mac.mm	(revision 258314)
 +++ render_widget_host_view_mac.mm	(working copy)
 @@ -494,7 +494,7 @@
    software_layer_.reset([[CALayer alloc] init]);

@@ -1,0 +1,24 @@
+Index: common/webpreferences.cc
+===================================================================
+--- common/webpreferences.cc	(revision 258314)
++++ common/webpreferences.cc	(working copy)
+@@ -123,6 +123,7 @@
+       pinch_overlay_scrollbar_thickness(0),
+       use_solid_color_scrollbars(false),
+       compositor_touch_hit_testing(true),
++      base_background_color(0xFFFFFFFF),  // Color::white
+       cookie_enabled(true)
+ #if defined(OS_ANDROID)
+       ,
+Index: common/webpreferences.h
+===================================================================
+--- common/webpreferences.h	(revision 258314)
++++ common/webpreferences.h	(working copy)
+@@ -158,6 +158,7 @@
+   int pinch_overlay_scrollbar_thickness;
+   bool use_solid_color_scrollbars;
+   bool compositor_touch_hit_testing;
++  int base_background_color;
+ 
+   // This flags corresponds to a Page's Settings' setCookieEnabled state. It
+   // only controls whether or not the "document.cookie" field is properly
