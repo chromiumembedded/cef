@@ -17,7 +17,8 @@ SimpleHandler* g_instance = NULL;
 
 }  // namespace
 
-SimpleHandler::SimpleHandler() {
+SimpleHandler::SimpleHandler()
+    : is_closing_(false) {
   ASSERT(!g_instance);
   g_instance = this;
 }
@@ -36,6 +37,22 @@ void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 
   // Add to the list of existing browsers.
   browser_list_.push_back(browser);
+}
+
+bool SimpleHandler::DoClose(CefRefPtr<CefBrowser> browser) {
+  REQUIRE_UI_THREAD();
+
+  // Closing the main window requires special handling. See the DoClose()
+  // documentation in the CEF header for a detailed destription of this
+  // process.
+  if (browser_list_.size() == 1) {
+    // Set a flag to indicate that the window close should be allowed.
+    is_closing_ = true;
+  }
+
+  // Allow the close. For windowed browsers this will result in the OS close
+  // event being sent.
+  return false;
 }
 
 void SimpleHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
