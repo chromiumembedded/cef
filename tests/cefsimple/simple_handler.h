@@ -37,6 +37,7 @@ class SimpleHandler : public CefClient,
 
   // CefLifeSpanHandler methods:
   virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  virtual bool DoClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
   virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
 
   // CefLoadHandler methods:
@@ -49,10 +50,14 @@ class SimpleHandler : public CefClient,
   // Request that all existing browser windows close.
   void CloseAllBrowsers(bool force_close);
 
+  bool IsClosing() const { return is_closing_; }
+
  private:
   // List of existing browser windows. Only accessed on the CEF UI thread.
   typedef std::list<CefRefPtr<CefBrowser> > BrowserList;
   BrowserList browser_list_;
+
+  bool is_closing_;
 
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(SimpleHandler);

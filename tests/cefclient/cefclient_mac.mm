@@ -42,6 +42,25 @@ char szWorkingDir[512];   // The current working directory
 const int kWindowWidth = 800;
 const int kWindowHeight = 600;
 
+// Receives notifications from the application. Will delete itself when done.
+@interface ClientAppDelegate : NSObject
+- (void)createApplication:(id)object;
+- (void)tryToTerminateApplication:(NSApplication*)app;
+
+- (IBAction)testGetSource:(id)sender;
+- (IBAction)testGetText:(id)sender;
+- (IBAction)testPopupWindow:(id)sender;
+- (IBAction)testRequest:(id)sender;
+- (IBAction)testPluginInfo:(id)sender;
+- (IBAction)testZoomIn:(id)sender;
+- (IBAction)testZoomOut:(id)sender;
+- (IBAction)testZoomReset:(id)sender;
+- (IBAction)testBeginTracing:(id)sender;
+- (IBAction)testEndTracing:(id)sender;
+- (IBAction)testPrint:(id)sender;
+- (IBAction)testOtherTests:(id)sender;
+@end
+
 // Provide the CefAppProtocol implementation required by CEF.
 @interface ClientApplication : NSApplication<CefAppProtocol> {
 @private
@@ -61,6 +80,50 @@ const int kWindowHeight = 600;
 - (void)sendEvent:(NSEvent*)event {
   CefScopedSendingEvent sendingEventScoper;
   [super sendEvent:event];
+}
+
+// |-terminate:| is the entry point for orderly "quit" operations in Cocoa. This
+// includes the application menu's quit menu item and keyboard equivalent, the
+// application's dock icon menu's quit menu item, "quit" (not "force quit") in
+// the Activity Monitor, and quits triggered by user logout and system restart
+// and shutdown.
+//
+// The default |-terminate:| implementation ends the process by calling exit(),
+// and thus never leaves the main run loop. This is unsuitable for Chromium
+// since Chromium depends on leaving the main run loop to perform an orderly
+// shutdown. We support the normal |-terminate:| interface by overriding the
+// default implementation. Our implementation, which is very specific to the
+// needs of Chromium, works by asking the application delegate to terminate
+// using its |-tryToTerminateApplication:| method.
+//
+// |-tryToTerminateApplication:| differs from the standard
+// |-applicationShouldTerminate:| in that no special event loop is run in the
+// case that immediate termination is not possible (e.g., if dialog boxes
+// allowing the user to cancel have to be shown). Instead, this method tries to
+// close all browsers by calling CloseBrowser(false) via
+// ClientHandler::CloseAllBrowsers. Calling CloseBrowser will result in a call
+// to ClientHandler::DoClose and execution of |-performClose:| on the NSWindow.
+// DoClose sets a flag that is used to differentiate between new close events
+// (e.g., user clicked the window close button) and in-progress close events
+// (e.g., user approved the close window dialog). The NSWindowDelegate
+// |-windowShouldClose:| method checks this flag and either calls
+// CloseBrowser(false) in the case of a new close event or destructs the
+// NSWindow in the case of an in-progress close event.
+// ClientHandler::OnBeforeClose will be called after the CEF NSView hosted in
+// the NSWindow is dealloc'ed.
+//
+// After the final browser window has closed ClientHandler::OnBeforeClose will
+// begin actual tear-down of the application by calling CefQuitMessageLoop.
+// This ends the NSApplication event loop and execution then returns to the
+// main() function for cleanup before application termination.
+//
+// The standard |-applicationShouldTerminate:| is not supported, and code paths
+// leading to it must be redirected.
+- (void)terminate:(id)sender {
+  ClientAppDelegate* delegate =
+      static_cast<ClientAppDelegate*>([NSApp delegate]);
+  [delegate tryToTerminateApplication:self];
+  // Return, don't exit. The application is responsible for exiting on its own.
 }
 @end
 
@@ -204,27 +267,10 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   return button;
 }
 
-// Receives notifications from the application. Will delete itself when done.
-@interface ClientAppDelegate : NSObject
-- (void)createApp:(id)object;
-- (IBAction)testGetSource:(id)sender;
-- (IBAction)testGetText:(id)sender;
-- (IBAction)testPopupWindow:(id)sender;
-- (IBAction)testRequest:(id)sender;
-- (IBAction)testPluginInfo:(id)sender;
-- (IBAction)testZoomIn:(id)sender;
-- (IBAction)testZoomOut:(id)sender;
-- (IBAction)testZoomReset:(id)sender;
-- (IBAction)testBeginTracing:(id)sender;
-- (IBAction)testEndTracing:(id)sender;
-- (IBAction)testPrint:(id)sender;
-- (IBAction)testOtherTests:(id)sender;
-@end
-
 @implementation ClientAppDelegate
 
 // Create the application on the UI thread.
-- (void)createApp:(id)object {
+- (void)createApplication:(id)object {
   [NSApplication sharedApplication];
   [NSBundle loadNibNamed:@"MainMenu" owner:NSApp];
 
@@ -375,6 +421,11 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   [mainWnd setFrame:[mainWnd frameRectForContentRect:r] display:YES];
 }
 
+- (void)tryToTerminateApplication:(NSApplication*)app {
+  if (g_handler.get() && !g_handler->IsClosing())
+    g_handler->CloseAllBrowsers(false);
+}
+
 - (IBAction)testGetSource:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserId())
     RunGetSourceTest(g_handler->GetBrowser());
@@ -441,22 +492,9 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
     RunOtherTests(g_handler->GetBrowser());
 }
 
-// Called when the application's Quit menu item is selected.
 - (NSApplicationTerminateReply)applicationShouldTerminate:
       (NSApplication *)sender {
-  // Request that all browser windows close.
-  if (g_handler.get())
-    g_handler->CloseAllBrowsers(false);
-
-  // Cancel the termination. The application will exit after all windows have
-  // closed.
-  return NSTerminateCancel;
-}
-
-// Sent immediately before the application terminates. This signal should not
-// be called because we cancel the termination.
-- (void)applicationWillTerminate:(NSNotification *)aNotification {
-  ASSERT(false);  // Not reached.
+  return NSTerminateNow;
 }
 
 @end
@@ -496,7 +534,8 @@ int main(int argc, char* argv[]) {
 
   // Create the application delegate and window.
   NSObject* delegate = [[ClientAppDelegate alloc] init];
-  [delegate performSelectorOnMainThread:@selector(createApp:) withObject:nil
+  [delegate performSelectorOnMainThread:@selector(createApplication:)
+                             withObject:nil
                           waitUntilDone:NO];
 
   // Run the application message loop.
