@@ -43,6 +43,6 @@ void SimpleApp::OnContextInitialized() {
     url = "http://www.google.com";
 
   // Create the first browser window.
-  CefBrowserHost::CreateBrowserSync(window_info, handler.get(), url,
-                                    browser_settings, NULL);
+  CefBrowserHost::CreateBrowser(window_info, handler.get(), url,
+                                browser_settings, NULL);
 }
