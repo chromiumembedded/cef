@@ -1,0 +1,24 @@
+Index: common/webpreferences.cc
+===================================================================
+--- common/webpreferences.cc	(revision 261035)
++++ common/webpreferences.cc	(working copy)
+@@ -121,6 +121,7 @@
+       use_solid_color_scrollbars(false),
+       compositor_touch_hit_testing(true),
+       navigate_on_drag_drop(true),
++      base_background_color(0xFFFFFFFF),  // Color::white
+       cookie_enabled(true),
+       pepper_accelerated_video_decode_enabled(false)
+ #if defined(OS_ANDROID)
+Index: common/webpreferences.h
+===================================================================
+--- common/webpreferences.h	(revision 261035)
++++ common/webpreferences.h	(working copy)
+@@ -156,6 +156,7 @@
+   bool use_solid_color_scrollbars;
+   bool compositor_touch_hit_testing;
+   bool navigate_on_drag_drop;
++  int base_background_color;
+ 
+   // This flags corresponds to a Page's Settings' setCookieEnabled state. It
+   // only controls whether or not the "document.cookie" field is properly
