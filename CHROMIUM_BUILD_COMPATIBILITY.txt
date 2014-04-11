@@ -3,17 +3,8 @@
 # below before building CEF. Chromium compatibility information for older CEF
 # revisions is available by viewing this file's change history.
 #
-# To configure a specific Chromium URL:
-#   gclient config chromium_url
-#
-# To update to a specific Chromium revision:
-#   gclient sync --revision src@chromium_revision --jobs 8 --force
-#
-# This file is integrated with the CEF Automation Tool. See the
-# tools/automate/automate.README.txt file for more information.
-#
-# For general gclient usage information visit:
-# http://dev.chromium.org/developers/how-tos/get-the-code
+# Instructions for building CEF are available at:
+# https://code.google.com/p/chromiumembedded/wiki/BranchesAndBuilding
 
 {
   'chromium_url': 'http://src.chromium.org/svn/trunk/src',
