@@ -1,0 +1,37 @@
+Index: content_browser_client.cc
+===================================================================
+--- content_browser_client.cc	(revision 261035)
++++ content_browser_client.cc	(working copy)
+@@ -255,6 +255,10 @@
+   return true;
+ }
+ 
++SkColor ContentBrowserClient::GetBaseBackgroundColor(RenderViewHost* rvh) {
++  return SK_ColorWHITE;
++}
++
+ base::FilePath ContentBrowserClient::GetDefaultDownloadDirectory() {
+   return base::FilePath();
+ }
+Index: content_browser_client.h
+===================================================================
+--- content_browser_client.h	(revision 261035)
++++ content_browser_client.h	(working copy)
+@@ -22,6 +22,7 @@
+ #include "net/base/mime_util.h"
+ #include "net/cookies/canonical_cookie.h"
+ #include "net/url_request/url_request_job_factory.h"
++#include "third_party/skia/include/core/SkColor.h"
+ #include "third_party/WebKit/public/web/WebNotificationPresenter.h"
+ #include "ui/base/window_open_disposition.h"
+ #include "webkit/browser/fileapi/file_system_context.h"
+@@ -542,6 +543,9 @@
+   // Clears browser cookies.
+   virtual void ClearCookies(RenderViewHost* rvh) {}
+ 
++  // Returns the base background color.
++  virtual SkColor GetBaseBackgroundColor(RenderViewHost* rvh);
++
+   // Returns the default download directory.
+   // This can be called on any thread.
+   virtual base::FilePath GetDefaultDownloadDirectory();
