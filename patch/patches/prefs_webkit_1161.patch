@@ -18,7 +18,7 @@ Index: common/webpreferences.h
    bool use_solid_color_scrollbars;
    bool compositor_touch_hit_testing;
    bool navigate_on_drag_drop;
-+  int base_background_color;
++  uint32_t base_background_color;
  
    // This flags corresponds to a Page's Settings' setCookieEnabled state. It
    // only controls whether or not the "document.cookie" field is properly

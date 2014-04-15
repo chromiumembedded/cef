@@ -135,6 +135,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   virtual void OverrideWebkitPrefs(content::RenderViewHost* rvh,
                                    const GURL& url,
                                    WebPreferences* prefs) OVERRIDE;
+  virtual SkColor GetBaseBackgroundColor(content::RenderViewHost* rvh) OVERRIDE;
   virtual void BrowserURLHandlerCreated(
       content::BrowserURLHandler* handler) OVERRIDE;
   virtual std::string GetDefaultDownloadName() OVERRIDE;

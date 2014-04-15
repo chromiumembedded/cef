@@ -14,6 +14,7 @@
 #include "libcef/browser/browser_message_filter.h"
 #include "libcef/browser/browser_settings.h"
 #include "libcef/browser/chrome_scheme_handler.h"
+#include "libcef/browser/context.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/printing/printing_message_filter.h"
 #include "libcef/browser/resource_dispatcher_host_delegate.h"
@@ -43,6 +44,7 @@
 #include "third_party/WebKit/public/web/WebWindowFeatures.h"
 #include "ui/base/ui_base_switches.h"
 #include "url/gurl.h"
+#include "webkit/common/webpreferences.h"
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
 #include "base/debug/leak_annotations.h"
@@ -863,6 +865,33 @@ void CefContentBrowserClient::OverrideWebkitPrefs(
 
   // Populate WebPreferences based on CefBrowserSettings.
   BrowserToWebSettings(browser->settings(), *prefs);
+
+  prefs->base_background_color = GetBaseBackgroundColor(rvh);
+}
+
+SkColor CefContentBrowserClient::GetBaseBackgroundColor(
+    content::RenderViewHost* rvh) {
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserForHost(rvh);
+  DCHECK(browser.get());
+
+  const CefBrowserSettings& browser_settings = browser->settings();
+  if (CefColorGetA(browser_settings.background_color) > 0) {
+    return SkColorSetRGB(
+        CefColorGetR(browser_settings.background_color),
+        CefColorGetG(browser_settings.background_color),
+        CefColorGetB(browser_settings.background_color));
+  } else {
+    const CefSettings& settings = CefContext::Get()->settings();
+    if (CefColorGetA(settings.background_color) > 0) {
+      return SkColorSetRGB(
+          CefColorGetR(settings.background_color),
+          CefColorGetG(settings.background_color),
+          CefColorGetB(settings.background_color));
+    }
+  }
+
+  return SK_ColorWHITE;
 }
 
 void CefContentBrowserClient::BrowserURLHandlerCreated(

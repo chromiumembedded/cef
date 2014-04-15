@@ -19,6 +19,7 @@
 #include "content/public/browser/web_contents_view.h"
 #include "content/public/common/content_client.h"
 #include "net/base/net_util.h"
+#include "third_party/skia/include/core/SkColor.h"
 
 // static
 CefDevToolsFrontend* CefDevToolsFrontend::Show(
@@ -26,9 +27,16 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
     const CefWindowInfo& windowInfo,
     CefRefPtr<CefClient> client,
     const CefBrowserSettings& settings) {
+  CefBrowserSettings new_settings = settings;
+  if (CefColorGetA(new_settings.background_color) == 0) {
+    // Use white as the default background color for DevTools instead of the
+    // CefSettings.background_color value.
+    new_settings.background_color = SK_ColorWHITE;
+  }
+
   CefRefPtr<CefBrowserHostImpl> frontend_browser =
       CefBrowserHostImpl::Create(windowInfo, client, CefString(),
-                                 settings,
+                                 new_settings,
                                  inspected_browser->GetWindowHandle(), true,
                                  inspected_browser->GetRequestContext());
 
