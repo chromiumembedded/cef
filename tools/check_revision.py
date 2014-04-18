@@ -26,8 +26,10 @@ parser.add_option('-q', '--quiet',
 
 # The CEF root directory is the parent directory of _this_ script.
 cef_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+src_dir = os.path.join(cef_dir, os.pardir)
 
-if not os.path.exists(os.path.join(cef_dir, '.svn')):
+if not os.path.exists(os.path.join(cef_dir, '.svn')) or \
+   not os.path.exists(os.path.join(src_dir, '.svn')):
   sys.stdout.write("Not an SVN checkout.\n")
   sys.exit(0)
 
@@ -38,7 +40,6 @@ if not options.quiet:
       cef_info['url']+"\n")
 
 # Retrieve the Chromium SVN info.
-src_dir = os.path.join(cef_dir, os.pardir)
 chromium_info = get_svn_info(src_dir)
 if not options.quiet:
   sys.stdout.write('Using Chromium revision '+chromium_info['revision']+' @ '+\

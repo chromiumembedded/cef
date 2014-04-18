@@ -10,7 +10,8 @@ import os
 import re
 import shlex
 import subprocess
-from svn_util import *
+import svn_util as svn
+import git_util as git
 import sys
 import zipfile
 
@@ -362,13 +363,28 @@ cef_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
 # src directory
 src_dir = os.path.abspath(os.path.join(cef_dir, os.pardir))
 
-# retrieve url, revision and date information
-cef_info = get_svn_info(cef_dir)
-cef_url = cef_info['url']
-cef_rev = cef_info['revision']
-chromium_info = get_svn_info(os.path.join(cef_dir, os.pardir))
-chromium_url = chromium_info['url']
-chromium_rev = chromium_info['revision']
+# retrieve url and revision information for CEF
+if svn.is_checkout(cef_dir):
+  cef_info = svn.get_svn_info(cef_dir)
+  cef_url = cef_info['url']
+  cef_rev = cef_info['revision']
+elif git.is_checkout(cef_dir):
+  cef_url = git.get_url(cef_dir)
+  cef_rev = git.get_svn_revision(cef_dir)
+else:
+  raise Exception('Not a valid checkout: %s' % (cef_dir))
+
+# retrieve url and revision information for Chromium
+if svn.is_checkout(src_dir):
+  chromium_info = svn.get_svn_info(src_dir)
+  chromium_url = cef_info['url']
+  chromium_rev = cef_info['revision']
+elif git.is_checkout(src_dir):
+  chromium_url = git.get_url(src_dir)
+  chromium_rev = git.get_hash(src_dir, 'HEAD')
+else:
+  raise Exception('Not a valid checkout: %s' % (src_dir))
+
 date = get_date()
 
 # Read and parse the version file (key=value pairs, one per line)

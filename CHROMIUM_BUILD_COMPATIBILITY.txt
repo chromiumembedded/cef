@@ -17,4 +17,6 @@
 
 {
   'release_url': 'http://src.chromium.org/svn/releases/33.0.1750.170',
+  'chromium_checkout': 'refs/tags/33.0.1750.170',
+  'chromium_nohooks': 'true',
 }

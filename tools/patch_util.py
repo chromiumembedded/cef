@@ -220,7 +220,7 @@ class PatchInfo(object):
             filenames = False
             header = True
           else:
-            self.source.append(match.group(1))
+            self.source.append(match.group(1).strip())
         elif not line.startswith("+++ "):
           if nextfileno in self.source:
             warning("skipping invalid patch with no target for %s" % self.source[nextfileno])
