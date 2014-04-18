@@ -60,9 +60,9 @@ def write_svn_header(header, chrome_version, cef_version, cpp_header_dir):
 
     year = get_year()
 
-    if os.path.exists(os.path.join('.', '.svn')):
+    if svn.is_checkout('.'):
       revision = svn.get_revision()
-    elif os.path.exists(os.path.join('.', '.git')):
+    elif git.is_checkout('.'):
       revision = git.get_svn_revision()
     else:
       raise Exception('Not a valid checkout')

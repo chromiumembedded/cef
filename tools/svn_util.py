@@ -1,12 +1,15 @@
-# Copyright (c) 2012 The Chromium Embedded Framework Authors. All rights
+# Copyright (c) 2014 The Chromium Embedded Framework Authors. All rights
 # reserved. Use of this source code is governed by a BSD-style license that
-# can be found in the LICENSE file.
+# can be found in the LICENSE file
 
+from exec_util import exec_cmd
 import os
-import sys
-import subprocess
 import urllib
 import xml.etree.ElementTree as ET
+
+def is_checkout(path):
+  """ Returns true if the path represents an svn checkout. """
+  return os.path.exists(os.path.join(path, '.svn'))
 
 def check_url(url):
   """ Check the URL and raise an exception if invalid. """
@@ -15,42 +18,30 @@ def check_url(url):
     if (parts[0] == 'http' or parts[0] == 'https' or parts[0] == 'svn') and \
         parts[1] == urllib.quote(parts[1]):
       return url
-  sys.stderr.write('Invalid URL: '+url+"\n")
-  raise Exception('Invalid URL: '+url)
+  raise Exception('Invalid URL: %s' % (url))
 
-def get_svn_info(path):
+def get_svn_info(path = '.'):
   """ Retrieves the URL and revision from svn info. """
   url = 'None'
   rev = 'None'
-  if path[0:4] == 'http' or os.path.exists(path):
-    try:
-      if sys.platform == 'win32':
-        # Force use of the SVN version bundled with depot_tools.
-        svn = 'svn.bat'
-      else:
-        svn = 'svn'
-      p = subprocess.Popen([svn, 'info', '--xml', path], \
-          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-      out, err = p.communicate()
-      if err == '':
-        tree = ET.ElementTree(ET.fromstring(out))
-        entry = tree.getroot().find('entry')
-        url = entry.find('url').text
-        rev = entry.attrib['revision']
-      else:
-        raise Exception("Failed to execute svn info:\n"+err+"\n")
-    except IOError, (errno, strerror):
-      sys.stderr.write('Failed to read svn info: '+strerror+"\n")
-      raise
-    except:
-      raise
+  cmd = "svn info --xml %s" % (path)
+  is_http = path[0:4] == 'http'
+  if is_http or os.path.exists(path):
+    result = exec_cmd(cmd, path if not is_http else '.')
+    if result['err'] == '':
+      tree = ET.ElementTree(ET.fromstring(result['out']))
+      entry = tree.getroot().find('entry')
+      url = entry.find('url').text
+      rev = entry.attrib['revision']
+    else:
+      raise Exception("Failed to execute svn info: %s" % (result['err']))
   return {'url': url, 'revision': rev}
 
 def get_revision(path = '.'):
   """ Retrieves the revision from svn info. """
   info = get_svn_info(path)
   if info['revision'] == 'None':
-    raise Exception('Unable to retrieve SVN revision for "'+path+'"')
+    raise Exception('Unable to retrieve SVN revision for %s' % (path))
   return info['revision']
 
 def get_changed_files(path = '.'):
@@ -65,6 +56,5 @@ def get_changed_files(path = '.'):
         if status == 'A' or status == 'M' or status == 'S':
           files.append(line[8:].strip())
     except IOError, (errno, strerror):
-      sys.stderr.write('Failed to read svn status: '+strerror+"\n")
       raise
   return files
