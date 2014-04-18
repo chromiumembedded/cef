@@ -11,7 +11,7 @@ def exec_cmd(cmd, path):
   err = ''
   parts = cmd.split()
   try:
-    process = Popen(cmd, cwd=path, stdout=PIPE, stderr=PIPE,
+    process = Popen(parts, cwd=path, stdout=PIPE, stderr=PIPE,
                     shell=(sys.platform == 'win32'))
     out, err = process.communicate()
   except IOError, (errno, strerror):
