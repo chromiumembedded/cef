@@ -8,5 +8,5 @@
 
 {
   'release_url': 'http://src.chromium.org/svn/releases/35.0.1916.27',
-  'chromium_checkout': 'refs/tags/35.0.1916.27',
+  'chromium_checkout': '575d4285b1678b31aef67fb87a74840a8718f298',
 }
