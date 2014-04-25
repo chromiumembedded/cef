@@ -91,7 +91,6 @@
       'tests/cefclient/res/domaccess.html',
       'tests/cefclient/res/localstorage.html',
       'tests/cefclient/res/logo.png',
-      'tests/cefclient/res/osr_test.html',
       'tests/cefclient/res/other_tests.html',
       'tests/cefclient/res/performance.html',
       'tests/cefclient/res/performance2.html',
@@ -117,8 +116,6 @@
       'tests/cefclient/dialog_test.h',
       'tests/cefclient/dom_test.cpp',
       'tests/cefclient/dom_test.h',
-      'tests/cefclient/osrenderer.h',
-      'tests/cefclient/osrenderer.cpp',
       'tests/cefclient/performance_test.cpp',
       'tests/cefclient/performance_test.h',
       'tests/cefclient/performance_test_setup.h',
@@ -136,8 +133,6 @@
     'cefclient_sources_win': [
       'tests/cefclient/cefclient.exe.manifest',
       'tests/cefclient/cefclient.rc',
-      'tests/cefclient/cefclient_osr_widget_win.h',
-      'tests/cefclient/cefclient_osr_widget_win.cpp',
       'tests/cefclient/cefclient_win.cpp',
       'tests/cefclient/client_handler_win.cpp',
       'tests/cefclient/resource.h',
@@ -148,8 +143,6 @@
     ],
     'cefclient_sources_mac': [
       'tests/cefclient/cefclient_mac.mm',
-      'tests/cefclient/cefclient_osr_widget_mac.h',
-      'tests/cefclient/cefclient_osr_widget_mac.mm',
       'tests/cefclient/client_handler_mac.mm',
       'tests/cefclient/resource_util_mac.mm',
       'tests/cefclient/resource_util_posix.cpp',
@@ -198,8 +191,6 @@
     ],
     'cefclient_sources_linux': [
       'tests/cefclient/cefclient_gtk.cpp',
-      'tests/cefclient/cefclient_osr_widget_gtk.h',
-      'tests/cefclient/cefclient_osr_widget_gtk.cpp',
       'tests/cefclient/client_handler_gtk.cpp',
       'tests/cefclient/resource_util_linux.cpp',
       'tests/cefclient/resource_util_posix.cpp',

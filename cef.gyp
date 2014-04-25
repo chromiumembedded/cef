@@ -399,8 +399,6 @@
         'tests/cefclient/client_app.h',
         'tests/cefclient/client_switches.cpp',
         'tests/cefclient/client_switches.h',
-        'tests/cefclient/resource_util.h',
-        'tests/cefclient/res/osr_test.html',
         'tests/unittests/browser_info_map_unittest.cc',
         'tests/unittests/command_line_unittest.cc',
         'tests/unittests/cookie_unittest.cc',
@@ -413,7 +411,6 @@
         'tests/unittests/life_span_unittest.cc',
         'tests/unittests/message_router_unittest.cc',
         'tests/unittests/navigation_unittest.cc',
-        'tests/unittests/os_rendering_unittest.cc',
         'tests/unittests/process_message_unittest.cc',
         'tests/unittests/request_context_unittest.cc',
         'tests/unittests/request_handler_unittest.cc',
@@ -443,7 +440,6 @@
         'tests/unittests/zip_reader_unittest.cc',
       ],
       'mac_bundle_resources': [
-        'tests/cefclient/res/osr_test.html',
         'tests/unittests/mac/unittests.icns',
         'tests/unittests/mac/English.lproj/InfoPlist.strings',
         'tests/unittests/mac/English.lproj/MainMenu.xib',
@@ -472,10 +468,6 @@
           'dependencies': [
             'cef_sandbox',
             'libcef',
-          ],
-          'sources': [
-            'tests/cefclient/cefclient.rc',
-            'tests/cefclient/resource_util_win.cpp',
           ],
           'msvs_settings': {
             'VCManifestTool': {
@@ -568,10 +560,6 @@
             ],
           },
           'sources': [
-            'tests/cefclient/resource_util_mac.mm',
-            'tests/cefclient/resource_util_posix.cpp',
-            'tests/unittests/os_rendering_unittest_mac.h',
-            'tests/unittests/os_rendering_unittest_mac.mm',
             'tests/unittests/run_all_unittests_mac.mm',
           ],
         }],
@@ -580,18 +568,6 @@
             '<(DEPTH)/build/linux/system.gyp:gtk',
             '<(DEPTH)/build/linux/system.gyp:gtkprint',
             'libcef',
-          ],
-          'sources': [
-            'tests/cefclient/resource_util_linux.cpp',
-            'tests/cefclient/resource_util_posix.cpp',
-          ],
-          'copies': [
-            {
-              'destination': '<(PRODUCT_DIR)/files',
-              'files': [
-                'tests/cefclient/res/osr_test.html',
-              ],
-            },
           ],
         }],
       ],
@@ -867,8 +843,6 @@
       ],
       'sources': [
         '<@(includes_common)',
-        'libcef/browser/backing_store_osr.cc',
-        'libcef/browser/backing_store_osr.h',
         'libcef/browser/browser_context.h',
         'libcef/browser/browser_context_impl.cc',
         'libcef/browser/browser_context_impl.h',
@@ -939,8 +913,6 @@
         'libcef/browser/printing/print_view_manager_base.h',
         'libcef/browser/process_util_impl.cc',
         'libcef/browser/proxy_stubs.cc',
-        'libcef/browser/render_widget_host_view_osr.cc',
-        'libcef/browser/render_widget_host_view_osr.h',
         'libcef/browser/resource_dispatcher_host_delegate.cc',
         'libcef/browser/resource_dispatcher_host_delegate.h',
         'libcef/browser/resource_request_job.cc',
@@ -971,8 +943,6 @@
         'libcef/browser/url_request_interceptor.h',
         'libcef/browser/url_request_user_data.cc',
         'libcef/browser/url_request_user_data.h',
-        'libcef/browser/web_contents_view_osr.cc',
-        'libcef/browser/web_contents_view_osr.h',
         'libcef/browser/web_plugin_impl.cc',
         'libcef/browser/web_plugin_impl.h',
         'libcef/browser/xml_reader_impl.cc',
@@ -1118,20 +1088,11 @@
         [ 'OS=="mac"', {
           'sources': [
             '<@(includes_mac)',
-            'libcef/browser/backing_store_osr.cc',
-            'libcef/browser/backing_store_osr.h',
             'libcef/browser/browser_host_impl_mac.mm',
             'libcef/browser/browser_main_mac.mm',
             'libcef/browser/javascript_dialog_mac.mm',
             'libcef/browser/menu_creator_runner_mac.h',
             'libcef/browser/menu_creator_runner_mac.mm',
-            'libcef/browser/render_widget_host_view_osr_mac.mm',
-            'libcef/browser/render_widget_host_view_osr.cc',
-            'libcef/browser/render_widget_host_view_osr.h',
-            'libcef/browser/text_input_client_osr_mac.mm',
-            'libcef/browser/text_input_client_osr_mac.h',
-            'libcef/browser/web_contents_view_osr.cc',
-            'libcef/browser/web_contents_view_osr.h',
             # Include sources for printing.
             '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_mac.mm',
           ],

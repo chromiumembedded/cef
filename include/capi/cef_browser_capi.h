@@ -352,46 +352,6 @@ typedef struct _cef_browser_host_t {
       struct _cef_browser_host_t* self);
 
   ///
-  // Returns true (1) if window rendering is disabled.
-  ///
-  int (CEF_CALLBACK *is_window_rendering_disabled)(
-      struct _cef_browser_host_t* self);
-
-  ///
-  // Notify the browser that the widget has been resized. The browser will first
-  // call cef_render_handler_t::GetViewRect to get the new size and then call
-  // cef_render_handler_t::OnPaint asynchronously with the updated regions. This
-  // function is only used when window rendering is disabled.
-  ///
-  void (CEF_CALLBACK *was_resized)(struct _cef_browser_host_t* self);
-
-  ///
-  // Notify the browser that it has been hidden or shown. Layouting and
-  // cef_render_handler_t::OnPaint notification will stop when the browser is
-  // hidden. This function is only used when window rendering is disabled.
-  ///
-  void (CEF_CALLBACK *was_hidden)(struct _cef_browser_host_t* self, int hidden);
-
-  ///
-  // Send a notification to the browser that the screen info has changed. The
-  // browser will then call cef_render_handler_t::GetScreenInfo to update the
-  // screen information with the new values. This simulates moving the webview
-  // window from one display to another, or changing the properties of the
-  // current display. This function is only used when window rendering is
-  // disabled.
-  ///
-  void (CEF_CALLBACK *notify_screen_info_changed)(
-      struct _cef_browser_host_t* self);
-
-  ///
-  // Invalidate the |dirtyRect| region of the view. The browser will call
-  // cef_render_handler_t::OnPaint asynchronously with the updated regions. This
-  // function is only used when window rendering is disabled.
-  ///
-  void (CEF_CALLBACK *invalidate)(struct _cef_browser_host_t* self,
-      const cef_rect_t* dirtyRect, cef_paint_element_type_t type);
-
-  ///
   // Send a key event to the browser.
   ///
   void (CEF_CALLBACK *send_key_event)(struct _cef_browser_host_t* self,
@@ -416,8 +376,6 @@ typedef struct _cef_browser_host_t {
   // Send a mouse wheel event to the browser. The |x| and |y| coordinates are
   // relative to the upper-left corner of the view. The |deltaX| and |deltaY|
   // values represent the movement delta in the X and Y directions respectively.
-  // In order to scroll inside select popups with window rendering disabled
-  // cef_render_handler_t::GetScreenPoint should be implemented properly.
   ///
   void (CEF_CALLBACK *send_mouse_wheel_event)(struct _cef_browser_host_t* self,
       const struct _cef_mouse_event_t* event, int deltaX, int deltaY);
@@ -433,26 +391,6 @@ typedef struct _cef_browser_host_t {
   ///
   void (CEF_CALLBACK *send_capture_lost_event)(
       struct _cef_browser_host_t* self);
-
-  ///
-  // Get the NSTextInputContext implementation for enabling IME on Mac when
-  // window rendering is disabled.
-  ///
-  cef_text_input_context_t (CEF_CALLBACK *get_nstext_input_context)(
-      struct _cef_browser_host_t* self);
-
-  ///
-  // Handles a keyDown event prior to passing it through the NSTextInputClient
-  // machinery.
-  ///
-  void (CEF_CALLBACK *handle_key_event_before_text_input_client)(
-      struct _cef_browser_host_t* self, cef_event_handle_t keyEvent);
-
-  ///
-  // Performs any additional actions after NSTextInputClient handles the event.
-  ///
-  void (CEF_CALLBACK *handle_key_event_after_text_input_client)(
-      struct _cef_browser_host_t* self, cef_event_handle_t keyEvent);
 } cef_browser_host_t;
 
 

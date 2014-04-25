@@ -319,63 +319,6 @@ bool CefBrowserHostCToCpp::IsMouseCursorChangeDisabled() {
   return _retval?true:false;
 }
 
-bool CefBrowserHostCToCpp::IsWindowRenderingDisabled() {
-  if (CEF_MEMBER_MISSING(struct_, is_window_rendering_disabled))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  int _retval = struct_->is_window_rendering_disabled(struct_);
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-void CefBrowserHostCToCpp::WasResized() {
-  if (CEF_MEMBER_MISSING(struct_, was_resized))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  struct_->was_resized(struct_);
-}
-
-void CefBrowserHostCToCpp::WasHidden(bool hidden) {
-  if (CEF_MEMBER_MISSING(struct_, was_hidden))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  struct_->was_hidden(struct_,
-      hidden);
-}
-
-void CefBrowserHostCToCpp::NotifyScreenInfoChanged() {
-  if (CEF_MEMBER_MISSING(struct_, notify_screen_info_changed))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  struct_->notify_screen_info_changed(struct_);
-}
-
-void CefBrowserHostCToCpp::Invalidate(const CefRect& dirtyRect,
-    PaintElementType type) {
-  if (CEF_MEMBER_MISSING(struct_, invalidate))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  struct_->invalidate(struct_,
-      &dirtyRect,
-      type);
-}
-
 void CefBrowserHostCToCpp::SendKeyEvent(const CefKeyEvent& event) {
   if (CEF_MEMBER_MISSING(struct_, send_key_event))
     return;
@@ -448,43 +391,6 @@ void CefBrowserHostCToCpp::SendCaptureLostEvent() {
 
   // Execute
   struct_->send_capture_lost_event(struct_);
-}
-
-CefTextInputContext CefBrowserHostCToCpp::GetNSTextInputContext() {
-  if (CEF_MEMBER_MISSING(struct_, get_nstext_input_context))
-    return NULL;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_text_input_context_t _retval = struct_->get_nstext_input_context(struct_);
-
-  // Return type: simple
-  return _retval;
-}
-
-void CefBrowserHostCToCpp::HandleKeyEventBeforeTextInputClient(
-    CefEventHandle keyEvent) {
-  if (CEF_MEMBER_MISSING(struct_, handle_key_event_before_text_input_client))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  struct_->handle_key_event_before_text_input_client(struct_,
-      keyEvent);
-}
-
-void CefBrowserHostCToCpp::HandleKeyEventAfterTextInputClient(
-    CefEventHandle keyEvent) {
-  if (CEF_MEMBER_MISSING(struct_, handle_key_event_after_text_input_client))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  struct_->handle_key_event_after_text_input_client(struct_,
-      keyEvent);
 }
 
 

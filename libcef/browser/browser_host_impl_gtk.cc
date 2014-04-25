@@ -320,9 +320,7 @@ void CefBrowserHostImpl::PlatformSizeTo(int width, int height) {
 }
 
 CefWindowHandle CefBrowserHostImpl::PlatformGetWindowHandle() {
-  return IsWindowRenderingDisabled() ?
-      window_info_.parent_widget :
-      window_info_.widget;
+  return window_info_.widget;
 }
 
 bool CefBrowserHostImpl::PlatformViewText(const std::string& text) {
@@ -381,15 +379,6 @@ void CefBrowserHostImpl::PlatformRunFileChooser(
 }
 
 void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {
-}
-
-// static
-bool CefBrowserHostImpl::IsWindowRenderingDisabled(const CefWindowInfo& info) {
-  return info.windowless_rendering_enabled ? true : false;
-}
-
-bool CefBrowserHostImpl::IsTransparent() {
-  return window_info_.transparent_painting_enabled ? true : false;
 }
 
 void CefBrowserHostImpl::PlatformTranslateKeyEvent(
@@ -553,18 +542,12 @@ void CefBrowserHostImpl::PlatformTranslateMouseEvent(
   result.globalY = result.y;
 
   // global position
-  if (IsWindowRenderingDisabled()) {
-    GetClient()->GetRenderHandler()->GetScreenPoint(GetBrowser(),
-        result.x, result.y,
-        result.globalX, result.globalY);
-  } else {
-    GtkWidget* window = gtk_widget_get_toplevel(GetWindowHandle());
-    GdkWindow* gdk_window = gtk_widget_get_window(window);
-    gint xorigin, yorigin;
-    gdk_window_get_root_origin(gdk_window, &xorigin, &yorigin);
-    result.globalX = xorigin + result.x;
-    result.globalY = yorigin + result.y;
-  }
+  GtkWidget* window = gtk_widget_get_toplevel(GetWindowHandle());
+  GdkWindow* gdk_window = gtk_widget_get_window(window);
+  gint xorigin, yorigin;
+  gdk_window_get_root_origin(gdk_window, &xorigin, &yorigin);
+  result.globalX = xorigin + result.x;
+  result.globalY = yorigin + result.y;
 
   // modifiers
   result.modifiers |= TranslateModifiers(mouse_event.modifiers);

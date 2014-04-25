@@ -11,7 +11,6 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
-#include "cefclient/cefclient_osr_widget_mac.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/resource_util.h"
@@ -20,15 +19,6 @@
 
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
-
-class MainBrowserProvider : public OSRBrowserProvider {
-  virtual CefRefPtr<CefBrowser> GetBrowser() {
-    if (g_handler.get())
-      return g_handler->GetBrowser();
-
-    return NULL;
-  }
-} g_main_browser_provider;
 
 char szWorkingDir[512];   // The current working directory
 
@@ -393,20 +383,8 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   CefWindowInfo window_info;
   CefBrowserSettings settings;
 
-  if (AppIsOffScreenRenderingEnabled()) {
-    CefRefPtr<CefCommandLine> cmd_line = AppGetCommandLine();
-    bool transparent =
-        cmd_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
-
-    CefRefPtr<OSRWindow> osr_window =
-        OSRWindow::Create(&g_main_browser_provider, transparent, contentView,
-            CefRect(0, 0, kWindowWidth, kWindowHeight));
-    window_info.SetAsWindowless(osr_window->GetWindowHandle(), transparent);
-    g_handler->SetOSRHandler(osr_window->GetRenderHandler().get());
-  } else {
-    // Initialize window info to the defaults for a child window.
-    window_info.SetAsChild(contentView, 0, 0, kWindowWidth, kWindowHeight);
-  }
+  // Initialize window info to the defaults for a child window.
+  window_info.SetAsChild(contentView, 0, 0, kWindowWidth, kWindowHeight);
 
   CefBrowserHost::CreateBrowser(window_info, g_handler.get(),
                                 g_handler->GetStartupURL(), settings, NULL);

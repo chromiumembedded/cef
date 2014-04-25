@@ -20,7 +20,6 @@
 #include "libcef/browser/resource_dispatcher_host_delegate.h"
 #include "libcef/browser/speech_recognition_manager_delegate.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/browser/web_contents_view_osr.h"
 #include "libcef/browser/web_plugin_impl.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
@@ -349,8 +348,7 @@ int GetCrashSignalFD(const CommandLine& command_line) {
 
 CefContentBrowserClient::CefContentBrowserClient()
     : browser_main_parts_(NULL),
-      next_browser_id_(0),
-      use_osr_next_contents_view_(false) {
+      next_browser_id_(0) {
   plugin_service_filter_.reset(new CefPluginServiceFilter);
   content::PluginServiceImpl::GetInstance()->SetFilter(
       plugin_service_filter_.get());
@@ -539,23 +537,6 @@ content::BrowserMainParts* CefContentBrowserClient::CreateBrowserMainParts(
     const content::MainFunctionParams& parameters) {
   browser_main_parts_ = new CefBrowserMainParts(parameters);
   return browser_main_parts_;
-}
-
-content::WebContentsViewPort*
-CefContentBrowserClient::OverrideCreateWebContentsView(
-    content::WebContents* web_contents,
-    content::RenderViewHostDelegateView** render_view_host_delegate_view) {
-  content::WebContentsViewPort* view = NULL;
-  *render_view_host_delegate_view = NULL;
-
-  if (use_osr_next_contents_view()) {
-    CefWebContentsViewOSR* view_or = new CefWebContentsViewOSR(web_contents,
-        GetWebContentsViewDelegate(web_contents));
-    *render_view_host_delegate_view = view_or;
-    view = view_or;
-  }
-
-  return view;
 }
 
 void CefContentBrowserClient::RenderProcessWillLaunch(
@@ -817,20 +798,6 @@ bool CefContentBrowserClient::CanCreateWindow(
           pending_info->client,
           pending_info->settings,
           no_javascript_access);
-      if (allow) {
-        if (CefBrowserHostImpl::IsWindowRenderingDisabled(
-                pending_info->window_info)) {
-          if (!pending_info->client->GetRenderHandler().get()) {
-            NOTREACHED() << "CefRenderHandler implementation is required";
-            allow = false;
-          }
-          if (pending_info->settings.accelerated_compositing != STATE_DISABLED) {
-            // Accelerated compositing is not supported when window rendering is
-            // disabled.
-            pending_info->settings.accelerated_compositing = STATE_DISABLED;
-          }
-        }
-      }
     }
   }
 

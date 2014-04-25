@@ -16,7 +16,6 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
-#include "cefclient/cefclient_osr_widget_gtk.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/scheme_test.h"
@@ -26,15 +25,6 @@ char szWorkingDir[512];  // The current working directory
 
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
-
-class MainBrowserProvider : public OSRBrowserProvider {
-  virtual CefRefPtr<CefBrowser> GetBrowser() {
-    if (g_handler.get())
-      return g_handler->GetBrowser();
-
-    return NULL;
-  }
-} g_main_browser_provider;
 
 void destroy(GtkWidget* widget, gpointer data) {
   // Quitting CEF is handled in ClientHandler::OnBeforeClose().
@@ -353,18 +343,7 @@ int main(int argc, char* argv[]) {
   CefWindowInfo window_info;
   CefBrowserSettings browserSettings;
 
-  if (AppIsOffScreenRenderingEnabled()) {
-    CefRefPtr<CefCommandLine> cmd_line = AppGetCommandLine();
-    bool transparent =
-        cmd_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
-
-    CefRefPtr<OSRWindow> osr_window =
-        OSRWindow::Create(&g_main_browser_provider, transparent, vbox);
-    window_info.SetAsWindowless(osr_window->GetWindowHandle(), transparent);
-    g_handler->SetOSRHandler(osr_window.get());
-  } else {
-    window_info.SetAsChild(vbox);
-  }
+  window_info.SetAsChild(vbox);
 
   CefBrowserHost::CreateBrowserSync(
       window_info, g_handler.get(),

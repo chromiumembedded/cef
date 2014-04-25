@@ -47,23 +47,6 @@
 
 namespace {
 
-bool IsAeroGlassEnabled() {
-  if (base::win::GetVersion() < base::win::VERSION_VISTA)
-    return false;
-
-  BOOL enabled = FALSE;
-  return SUCCEEDED(DwmIsCompositionEnabled(&enabled)) && enabled;
-}
-
-void SetAeroGlass(HWND hWnd) {
-  if (!IsAeroGlassEnabled())
-    return;
-
-  // Make the whole window transparent.
-  MARGINS mgMarInset = { -1, -1, -1, -1 };
-  DwmExtendFrameIntoClientArea(hWnd, &mgMarInset);
-}
-
 HWND GetHWND(views::Widget* widget) {
   gfx::NativeWindow window = widget->GetNativeWindow();
   DCHECK(window);
@@ -714,13 +697,6 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
 
   case WM_ERASEBKGND:
     return 0;
-
-  case WM_DWMCOMPOSITIONCHANGED:
-    // Message sent to top-level windows when composition has been enabled or
-    // disabled.
-    if (browser && browser->IsTransparent())
-      SetAeroGlass(hwnd);
-    break;
   }
 
   return DefWindowProc(hwnd, message, wParam, lParam);
@@ -760,12 +736,6 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
   DCHECK(window_info_.window != NULL);
   if (!window_info_.window)
     return false;
-
-  if (window_info_.transparent_painting_enabled &&
-      !(window_info_.style & WS_CHILD)) {
-    // Transparent top-level windows will be given "sheet of glass" effect.
-    SetAeroGlass(window_info_.window);
-  }
 
   // Set window user data to this object for future reference from the window
   // procedure.
@@ -823,9 +793,7 @@ void CefBrowserHostImpl::PlatformSizeTo(int width, int height) {
 }
 
 CefWindowHandle CefBrowserHostImpl::PlatformGetWindowHandle() {
-  return IsWindowRenderingDisabled() ?
-      window_info_.parent_window :
-      window_info_.window;
+  return window_info_.window;
 }
 
 bool CefBrowserHostImpl::PlatformViewText(const std::string& text) {
@@ -903,15 +871,6 @@ void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {
         base::Bind(&CefBrowserHostImpl::PlatformHandleExternalProtocol, this,
                    url));
   }
-}
-
-// static
-bool CefBrowserHostImpl::IsWindowRenderingDisabled(const CefWindowInfo& info) {
-  return info.windowless_rendering_enabled ? true : false;
-}
-
-bool CefBrowserHostImpl::IsTransparent() {
-  return window_info_.transparent_painting_enabled ? true : false;
 }
 
 void CefBrowserHostImpl::PlatformTranslateKeyEvent(
@@ -1058,16 +1017,10 @@ void CefBrowserHostImpl::PlatformTranslateMouseEvent(
   result.globalY = result.y;
 
   // global position
-  if (IsWindowRenderingDisabled()) {
-    GetClient()->GetRenderHandler()->GetScreenPoint(GetBrowser(),
-        result.x, result.y,
-        result.globalX, result.globalY);
-  } else {
-    POINT globalPoint = { result.x, result.y };
-    ClientToScreen(GetWindowHandle(), &globalPoint);
-    result.globalX = globalPoint.x;
-    result.globalY = globalPoint.y;
-  }
+  POINT globalPoint = { result.x, result.y };
+  ClientToScreen(GetWindowHandle(), &globalPoint);
+  result.globalX = globalPoint.x;
+  result.globalY = globalPoint.y;
 
   // modifiers
   result.modifiers |= TranslateModifiers(mouse_event.modifiers);

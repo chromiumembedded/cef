@@ -19,11 +19,9 @@
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/navigate_params.h"
 #include "libcef/browser/printing/print_view_manager.h"
-#include "libcef/browser/render_widget_host_view_osr.h"
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/scheme_handler.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/browser/web_contents_view_osr.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/drag_data_impl.h"
@@ -286,28 +284,9 @@ bool CefBrowserHost::CreateBrowser(
     return false;
   }
 
-  CefBrowserSettings new_settings = settings;
-
-  // Verify that render handler is in place for a windowless browser.
-  if (CefBrowserHostImpl::IsWindowRenderingDisabled(windowInfo)) {
-    if (!CefContext::Get()->settings().windowless_rendering_enabled) {
-      NOTREACHED() << "Windowless rendering must be enabled";
-      return false;
-    }
-    if (!client->GetRenderHandler().get()) {
-      NOTREACHED() << "CefRenderHandler implementation is required";
-      return false;
-    }
-    if (new_settings.accelerated_compositing != STATE_DISABLED) {
-      // Accelerated compositing is not supported when window rendering is
-      // disabled.
-      new_settings.accelerated_compositing = STATE_DISABLED;
-    }
-  }
-
   // Create the browser on the UI thread.
   CreateBrowserHelper* helper =
-      new CreateBrowserHelper(windowInfo, client, url, new_settings,
+      new CreateBrowserHelper(windowInfo, client, url, settings,
                               request_context);
   CEF_POST_TASK(CEF_UIT, base::Bind(CreateBrowserWithHelper, helper));
 
@@ -358,35 +337,10 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
     CefWindowHandle opener,
     bool is_popup,
     CefRefPtr<CefRequestContext> request_context) {
-  CefBrowserSettings new_settings = settings;
-
-  // Verify that render handler is in place for a windowless browser.
-  if (CefBrowserHostImpl::IsWindowRenderingDisabled(windowInfo)) {
-    if (!CefContext::Get()->settings().windowless_rendering_enabled) {
-      NOTREACHED() << "Windowless rendering must be enabled";
-      return NULL;
-    }
-    if (!client->GetRenderHandler().get()) {
-      NOTREACHED() << "CefRenderHandler implementation is required";
-      return NULL;
-    }
-    if (new_settings.accelerated_compositing != STATE_DISABLED) {
-      // Accelerated compositing is not supported when window rendering is
-      // disabled.
-      new_settings.accelerated_compositing = STATE_DISABLED;
-    }
-  }
-
-  CefContentBrowserClient::Get()->set_use_osr_next_contents_view(
-      CefBrowserHostImpl::IsWindowRenderingDisabled(windowInfo));
-
   scoped_refptr<CefBrowserInfo> info =
       CefContentBrowserClient::Get()->CreateBrowserInfo(is_popup);
-
-  info->set_window_rendering_disabled(
-      CefBrowserHostImpl::IsWindowRenderingDisabled(windowInfo));
   CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::CreateInternal(windowInfo, new_settings, client, NULL,
+      CefBrowserHostImpl::CreateInternal(windowInfo, settings, client, NULL,
                                          info, opener, request_context);
   if (browser && !url.empty()) {
     browser->LoadURL(CefFrameHostImpl::kMainFrameId, url, content::Referrer(),
@@ -429,8 +383,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
   CefRefPtr<CefBrowserHostImpl> browser =
       new CefBrowserHostImpl(window_info, settings, client, web_contents,
                              browser_info, opener);
-  if (!browser->IsWindowRenderingDisabled() &&
-      !browser->PlatformCreateWindow()) {
+  if (!browser->PlatformCreateWindow()) {
     return NULL;
   }
 
@@ -654,8 +607,7 @@ void CefBrowserHostImpl::CloseBrowser(bool force_close) {
   if (CEF_CURRENTLY_ON_UIT()) {
     // Exit early if a close attempt is already pending and this method is
     // called again from somewhere other than WindowDestroyed().
-    if (destruction_state_ >= DESTRUCTION_STATE_PENDING &&
-        (IsWindowRenderingDisabled() || !window_destroyed_)) {
+    if (destruction_state_ >= DESTRUCTION_STATE_PENDING && !window_destroyed_) {
       if (force_close && destruction_state_ == DESTRUCTION_STATE_PENDING) {
         // Upgrade the destruction state.
         destruction_state_ = DESTRUCTION_STATE_ACCEPTED;
@@ -887,109 +839,6 @@ bool CefBrowserHostImpl::IsMouseCursorChangeDisabled() {
   return mouse_cursor_change_disabled_;
 }
 
-bool CefBrowserHostImpl::IsWindowRenderingDisabled() {
-  return IsWindowRenderingDisabled(window_info_);
-}
-
-void CefBrowserHostImpl::WasResized() {
-  if (!IsWindowRenderingDisabled()) {
-    NOTREACHED() << "Window rendering is not disabled";
-    return;
-  }
-
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT, base::Bind(&CefBrowserHostImpl::WasResized, this));
-    return;
-  }
-
-  if (!web_contents())
-    return;
-
-  content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
-  if (widget)
-    widget->WasResized();
-}
-
-void CefBrowserHostImpl::WasHidden(bool hidden) {
-  if (!IsWindowRenderingDisabled()) {
-    NOTREACHED() << "Window rendering is not disabled";
-    return;
-  }
-
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBrowserHost::WasHidden, this, hidden));
-    return;
-  }
-
-  if (!web_contents())
-    return;
-
-  content::RenderWidgetHostImpl* widget =
-      content::RenderWidgetHostImpl::From(web_contents()->GetRenderViewHost());
-  if (!widget)
-    return;
-
-  if (hidden) 
-    widget->WasHidden();
-  else
-    widget->WasShown();
-}
-
-void CefBrowserHostImpl::NotifyScreenInfoChanged() {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBrowserHostImpl::NotifyScreenInfoChanged, this));
-    return;
-  }
-
-  if (!IsWindowRenderingDisabled()) {
-    NOTREACHED() << "Window rendering is not disabled";
-    return;
-  }
-
-  if (!web_contents())
-    return;
-
-  content::RenderWidgetHostView* view =
-      web_contents()->GetRenderViewHost()->GetView();
-  if (!view)
-    return;
-
-  CefRenderWidgetHostViewOSR* orview =
-      static_cast<CefRenderWidgetHostViewOSR*>(view);
-
-  orview->OnScreenInfoChanged();
-}
-
-void CefBrowserHostImpl::Invalidate(const CefRect& dirtyRect,
-                                    PaintElementType type) {
-  if (!IsWindowRenderingDisabled()) {
-    NOTREACHED() << "Window rendering is not disabled";
-    return;
-  }
-
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBrowserHostImpl::Invalidate, this, dirtyRect, type));
-    return;
-  }
-
-  if (!web_contents())
-    return;
-
-  content::RenderWidgetHostView* view =
-      web_contents()->GetRenderViewHost()->GetView();
-  CefRenderWidgetHostViewOSR* orview =
-      static_cast<CefRenderWidgetHostViewOSR*>(view);
-
-  if (orview) {
-    gfx::Rect rect(dirtyRect.x, dirtyRect.y,
-                   dirtyRect.width, dirtyRect.height);
-    orview->Invalidate(rect, type);
-  }
-}
-
 void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
@@ -1000,20 +849,9 @@ void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
   content::NativeWebKeyboardEvent web_event;
   PlatformTranslateKeyEvent(web_event, event);
 
-  if (!IsWindowRenderingDisabled()) {
-    content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
-    if (widget)
-      widget->ForwardKeyboardEvent(web_event);
-  } else {
-    if (!web_contents())
-      return;
-    content::RenderWidgetHostView* view =
-        web_contents()->GetRenderViewHost()->GetView();
-    CefRenderWidgetHostViewOSR* orview =
-        static_cast<CefRenderWidgetHostViewOSR*>(view);
-    if (orview)
-      orview->SendKeyEvent(web_event);
-  }
+  content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
+  if (widget)
+    widget->ForwardKeyboardEvent(web_event);
 }
 
 void CefBrowserHostImpl::SendMouseClickEvent(const CefMouseEvent& event,
@@ -1058,21 +896,9 @@ void CefBrowserHostImpl::SendMouseWheelEvent(const CefMouseEvent& event,
   blink::WebMouseWheelEvent web_event;
   PlatformTranslateWheelEvent(web_event, event, deltaX, deltaY);
 
-  if (!IsWindowRenderingDisabled()) {
-    content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
-    if (widget)
-      widget->ForwardWheelEvent(web_event);
-  } else {
-    if (!web_contents())
-      return;
-    content::RenderWidgetHostView* view =
-        web_contents()->GetRenderViewHost()->GetView();
-    CefRenderWidgetHostViewOSR* orview =
-        static_cast<CefRenderWidgetHostViewOSR*>(view);
-
-    if (orview)
-      orview->SendMouseWheelEvent(web_event);
-  }
+  content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
+  if (widget)
+    widget->ForwardWheelEvent(web_event);
 }
 
 int CefBrowserHostImpl::TranslateModifiers(uint32 cef_modifiers) {
@@ -1106,21 +932,9 @@ int CefBrowserHostImpl::TranslateModifiers(uint32 cef_modifiers) {
 }
 
 void CefBrowserHostImpl::SendMouseEvent(const blink::WebMouseEvent& event) {
-  if (!IsWindowRenderingDisabled()) {
-    content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
-    if (widget)
-      widget->ForwardMouseEvent(event);
-  } else {
-    if (!web_contents())
-      return;
-    content::RenderWidgetHostView* view =
-        web_contents()->GetRenderViewHost()->GetView();
-    CefRenderWidgetHostViewOSR* orview =
-        static_cast<CefRenderWidgetHostViewOSR*>(view);
-
-    if (orview)
-      orview->SendMouseEvent(event);
-  }
+  content::RenderWidgetHost* widget = web_contents()->GetRenderViewHost();
+  if (widget)
+    widget->ForwardMouseEvent(event);
 }
 
 void CefBrowserHostImpl::SendFocusEvent(bool setFocus) {
@@ -1691,12 +1505,10 @@ void CefBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
       web_contents_->GetView()->Focus();
 
 #if defined(OS_WIN)
-    if (!IsWindowRenderingDisabled()) {
-      // When windowed rendering is used in combination with Aura on Windows we
-      // need to explicitly set focus to the native window handle. Otherwise,
-      // the window doesn't get keyboard focus.
-      PlatformSetViewFocus();
-    }
+    // When windowed rendering is used in combination with Aura on Windows we
+    // need to explicitly set focus to the native window handle. Otherwise,
+    // the window doesn't get keyboard focus.
+    PlatformSetViewFocus();
 #endif  // defined(OS_WIN)
   } else {
     CEF_POST_TASK(CEF_UIT,
@@ -1711,23 +1523,6 @@ void CefBrowserHostImpl::RunFileChooser(
       base::Bind(&CefBrowserHostImpl::RunFileChooserOnUIThread, this, params,
                  callback));
 }
-
-#if !defined(OS_MACOSX)
-CefTextInputContext CefBrowserHostImpl::GetNSTextInputContext() {
-  NOTREACHED();
-  return NULL;
-}
-
-void CefBrowserHostImpl::HandleKeyEventBeforeTextInputClient(
-    CefEventHandle keyEvent) {
-  NOTREACHED();
-}
-
-void CefBrowserHostImpl::HandleKeyEventAfterTextInputClient(
-    CefEventHandle keyEvent) {
-  NOTREACHED();
-}
-#endif // !defined(OS_MACOSX)
 
 // content::WebContentsDelegate methods.
 // -----------------------------------------------------------------------------
@@ -1775,7 +1570,7 @@ void CefBrowserHostImpl::CloseContents(content::WebContents* source) {
 
   // If this method is called in response to something other than
   // WindowDestroyed() ask the user if the browser should close.
-  if (client_.get() && (IsWindowRenderingDisabled() || !window_destroyed_)) {
+  if (client_.get() && !window_destroyed_) {
     CefRefPtr<CefLifeSpanHandler> handler =
         client_->GetLifeSpanHandler();
     if (handler.get()) {
@@ -1787,7 +1582,7 @@ void CefBrowserHostImpl::CloseContents(content::WebContents* source) {
     if (destruction_state_ != DESTRUCTION_STATE_ACCEPTED)
       destruction_state_ = DESTRUCTION_STATE_ACCEPTED;
 
-    if (!IsWindowRenderingDisabled() && !window_destroyed_) {
+    if (!window_destroyed_) {
       // A window exists so try to close it using the platform method. Will
       // result in a call to WindowDestroyed() if/when the window is destroyed
       // via the platform window destruction mechanism.
@@ -1799,10 +1594,8 @@ void CefBrowserHostImpl::CloseContents(content::WebContents* source) {
 
       // No window exists. Destroy the browser immediately.
       DestroyBrowser();
-      if (!IsWindowRenderingDisabled()) {
-        // Release the reference added in PlatformCreateWindow().
-        Release();
-      }
+      // Release the reference added in PlatformCreateWindow().
+      Release();
     }
   } else if (destruction_state_ != DESTRUCTION_STATE_NONE) {
     destruction_state_ = DESTRUCTION_STATE_NONE;
@@ -1927,26 +1720,6 @@ bool CefBrowserHostImpl::CanDragEnter(
       return false;
     }
   }
-  return true;
-}
-
-bool CefBrowserHostImpl::ShouldCreateWebContents(
-    content::WebContents* web_contents,
-      int route_id,
-      WindowContainerType window_container_type,
-      const base::string16& frame_name,
-      const GURL& target_url,
-      const std::string& partition_id,
-      content::SessionStorageNamespace* session_storage_namespace) {
-  // In cases where the navigation will occur in a new render process the
-  // |route_id| value will be MSG_ROUTING_NONE here (because the existing
-  // renderer will not be able to communicate with the new renderer) and
-  // OpenURLFromTab will be called after WebContentsCreated.
-  base::AutoLock lock_scope(pending_popup_info_lock_);
-  DCHECK(pending_popup_info_.get());
-  CefContentBrowserClient::Get()->set_use_osr_next_contents_view(
-      IsWindowRenderingDisabled(pending_popup_info_->window_info));
-
   return true;
 }
 
@@ -2424,14 +2197,6 @@ CefBrowserHostImpl::CefBrowserHostImpl(
 
   // Make sure RenderViewCreated is called at least one time.
   RenderViewCreated(web_contents->GetRenderViewHost());
-
-  if (IsWindowRenderingDisabled()) {
-    CefRenderWidgetHostViewOSR* view =
-        static_cast<CefRenderWidgetHostViewOSR*>(
-            web_contents->GetRenderViewHost()->GetView());
-    if (view)
-      view->set_browser_impl(this);
-  }
 }
 
 CefRefPtr<CefFrame> CefBrowserHostImpl::GetOrCreateFrame(

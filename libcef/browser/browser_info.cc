@@ -7,16 +7,11 @@
 
 CefBrowserInfo::CefBrowserInfo(int browser_id, bool is_popup)
     : browser_id_(browser_id),
-      is_popup_(is_popup),
-      is_window_rendering_disabled_(false) {
+      is_popup_(is_popup) {
   DCHECK_GT(browser_id, 0);
 }
 
 CefBrowserInfo::~CefBrowserInfo() {
-}
-
-void CefBrowserInfo::set_window_rendering_disabled(bool disabled) {
-  is_window_rendering_disabled_ = disabled;
 }
 
 void CefBrowserInfo::add_render_view_id(

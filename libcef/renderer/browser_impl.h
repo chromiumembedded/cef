@@ -79,8 +79,7 @@ class CefBrowserImpl : public CefBrowser,
 
   CefBrowserImpl(content::RenderView* render_view,
                  int browser_id,
-                 bool is_popup,
-                 bool is_window_rendering_disabled);
+                 bool is_popup);
   virtual ~CefBrowserImpl();
 
   void LoadRequest(const CefMsg_LoadRequest_Params& params);
@@ -100,9 +99,6 @@ class CefBrowserImpl : public CefBrowser,
 
   int browser_id() const { return browser_id_; }
   bool is_popup() const { return is_popup_; }
-  bool is_window_rendering_disabled() const {
-    return is_window_rendering_disabled_;
-  }
   content::RenderView* render_view() const {
     return content::RenderViewObserver::render_view();
   }
@@ -144,7 +140,6 @@ class CefBrowserImpl : public CefBrowser,
   // same browser ID.
   int browser_id_;
   bool is_popup_;
-  bool is_window_rendering_disabled_;
 
   // Id of the last frame that had focus.
   int64 last_focused_frame_id_;

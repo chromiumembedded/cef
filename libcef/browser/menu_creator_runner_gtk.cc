@@ -31,33 +31,14 @@ bool CefMenuCreatorRunnerGtk::RunContextMenu(CefMenuCreator* manager) {
   gfx::Point screen_point;
   GdkEventButton* event = NULL;
 
-  if (manager->browser()->IsWindowRenderingDisabled()) {
-    CefRefPtr<CefClient> client = manager->browser()->GetClient();
-    if (!client.get())
-      return false;
+  gfx::Rect bounds;
+  manager->browser()->GetWebContents()->GetView()->GetContainerBounds(&bounds);
+  screen_point = bounds.origin();
+  screen_point.Offset(manager->params().x, manager->params().y);
 
-    CefRefPtr<CefRenderHandler> handler = client->GetRenderHandler();
-    if (!handler.get())
-      return false;
-
-    int screenX = 0, screenY = 0;
-    if (!handler->GetScreenPoint(manager->browser(),
-                                 manager->params().x, manager->params().y,
-                                 screenX, screenY)) {
-      return false;
-    }
-
-    screen_point = gfx::Point(screenX, screenY);
-  } else {
-    gfx::Rect bounds;
-    manager->browser()->GetWebContents()->GetView()->GetContainerBounds(&bounds);
-    screen_point = bounds.origin();
-    screen_point.Offset(manager->params().x, manager->params().y);
-
-    content::RenderWidgetHostView* view =
-        manager->browser()->GetWebContents()->GetRenderWidgetHostView();
-    event = view->GetLastMouseDown();
-  }
+  content::RenderWidgetHostView* view =
+      manager->browser()->GetWebContents()->GetRenderWidgetHostView();
+  event = view->GetLastMouseDown();
 
   if (!menu_delegate_.get())
     menu_delegate_.reset(new CefMenuDelegate);

@@ -279,22 +279,6 @@ bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
   return false;
 }
 
-bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser,
-                                  CefRefPtr<CefFrame> frame,
-                                  const CefString& target_url,
-                                  const CefString& target_frame_name,
-                                  const CefPopupFeatures& popupFeatures,
-                                  CefWindowInfo& windowInfo,
-                                  CefRefPtr<CefClient>& client,
-                                  CefBrowserSettings& settings,
-                                  bool* no_javascript_access) {
-  if (browser->GetHost()->IsWindowRenderingDisabled()) {
-    // Cancel popups in off-screen rendering mode.
-    return true;
-  }
-  return false;
-}
-
 void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   REQUIRE_UI_THREAD();
 
@@ -351,11 +335,6 @@ void ClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   if (m_BrowserId == browser->GetIdentifier()) {
     // Free the browser pointer so that the browser can be destroyed
     m_Browser = NULL;
-
-    if (m_OSRHandler.get()) {
-      m_OSRHandler->OnBeforeClose(browser);
-      m_OSRHandler = NULL;
-    }
   } else if (browser->IsPopup()) {
     // Remove from the browser popup list.
     BrowserList::iterator bit = m_PopupBrowsers.begin();
@@ -504,68 +483,6 @@ void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
       url.find(startupURL) != 0) {
     frame->LoadURL(startupURL);
   }
-}
-
-bool ClientHandler::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
-    CefRect& rect) {
-  if (!m_OSRHandler.get())
-    return false;
-  return m_OSRHandler->GetRootScreenRect(browser, rect);
-}
-
-bool ClientHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
-  if (!m_OSRHandler.get())
-    return false;
-  return m_OSRHandler->GetViewRect(browser, rect);
-}
-
-bool ClientHandler::GetScreenPoint(CefRefPtr<CefBrowser> browser,
-                                   int viewX,
-                                   int viewY,
-                                   int& screenX,
-                                   int& screenY) {
-  if (!m_OSRHandler.get())
-    return false;
-  return m_OSRHandler->GetScreenPoint(browser, viewX, viewY, screenX, screenY);
-}
-
-bool ClientHandler::GetScreenInfo(CefRefPtr<CefBrowser> browser,
-                                  CefScreenInfo& screen_info) {
-  if (!m_OSRHandler.get())
-    return false;
-  return m_OSRHandler->GetScreenInfo(browser, screen_info);
-}
-
-void ClientHandler::OnPopupShow(CefRefPtr<CefBrowser> browser,
-                                bool show) {
-  if (!m_OSRHandler.get())
-    return;
-  return m_OSRHandler->OnPopupShow(browser, show);
-}
-
-void ClientHandler::OnPopupSize(CefRefPtr<CefBrowser> browser,
-                                const CefRect& rect) {
-  if (!m_OSRHandler.get())
-    return;
-  return m_OSRHandler->OnPopupSize(browser, rect);
-}
-
-void ClientHandler::OnPaint(CefRefPtr<CefBrowser> browser,
-                            PaintElementType type,
-                            const RectList& dirtyRects,
-                            const void* buffer,
-                            int width,
-                            int height) {
-  if (!m_OSRHandler.get())
-    return;
-  m_OSRHandler->OnPaint(browser, type, dirtyRects, buffer, width, height);
-}
-
-void ClientHandler::OnCursorChange(CefRefPtr<CefBrowser> browser,
-                                   CefCursorHandle cursor) {
-  if (!m_OSRHandler.get())
-    return;
-  m_OSRHandler->OnCursorChange(browser, cursor);
 }
 
 void ClientHandler::SetMainHwnd(CefWindowHandle hwnd) {

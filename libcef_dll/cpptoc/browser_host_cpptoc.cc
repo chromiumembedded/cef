@@ -397,78 +397,6 @@ int CEF_CALLBACK browser_host_is_mouse_cursor_change_disabled(
   return _retval;
 }
 
-int CEF_CALLBACK browser_host_is_window_rendering_disabled(
-    struct _cef_browser_host_t* self) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return 0;
-
-  // Execute
-  bool _retval = CefBrowserHostCppToC::Get(self)->IsWindowRenderingDisabled();
-
-  // Return type: bool
-  return _retval;
-}
-
-void CEF_CALLBACK browser_host_was_resized(struct _cef_browser_host_t* self) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-
-  // Execute
-  CefBrowserHostCppToC::Get(self)->WasResized();
-}
-
-void CEF_CALLBACK browser_host_was_hidden(struct _cef_browser_host_t* self,
-    int hidden) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-
-  // Execute
-  CefBrowserHostCppToC::Get(self)->WasHidden(
-      hidden?true:false);
-}
-
-void CEF_CALLBACK browser_host_notify_screen_info_changed(
-    struct _cef_browser_host_t* self) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-
-  // Execute
-  CefBrowserHostCppToC::Get(self)->NotifyScreenInfoChanged();
-}
-
-void CEF_CALLBACK browser_host_invalidate(struct _cef_browser_host_t* self,
-    const cef_rect_t* dirtyRect, cef_paint_element_type_t type) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-  // Verify param: dirtyRect; type: simple_byref_const
-  DCHECK(dirtyRect);
-  if (!dirtyRect)
-    return;
-
-  // Translate param: dirtyRect; type: simple_byref_const
-  CefRect dirtyRectVal = dirtyRect?*dirtyRect:CefRect();
-
-  // Execute
-  CefBrowserHostCppToC::Get(self)->Invalidate(
-      dirtyRectVal,
-      type);
-}
-
 void CEF_CALLBACK browser_host_send_key_event(struct _cef_browser_host_t* self,
     const struct _cef_key_event_t* event) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -591,48 +519,6 @@ void CEF_CALLBACK browser_host_send_capture_lost_event(
   CefBrowserHostCppToC::Get(self)->SendCaptureLostEvent();
 }
 
-cef_text_input_context_t CEF_CALLBACK browser_host_get_nstext_input_context(
-    struct _cef_browser_host_t* self) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return NULL;
-
-  // Execute
-  cef_text_input_context_t _retval = CefBrowserHostCppToC::Get(
-      self)->GetNSTextInputContext();
-
-  // Return type: simple
-  return _retval;
-}
-
-void CEF_CALLBACK browser_host_handle_key_event_before_text_input_client(
-    struct _cef_browser_host_t* self, cef_event_handle_t keyEvent) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-
-  // Execute
-  CefBrowserHostCppToC::Get(self)->HandleKeyEventBeforeTextInputClient(
-      keyEvent);
-}
-
-void CEF_CALLBACK browser_host_handle_key_event_after_text_input_client(
-    struct _cef_browser_host_t* self, cef_event_handle_t keyEvent) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-
-  // Execute
-  CefBrowserHostCppToC::Get(self)->HandleKeyEventAfterTextInputClient(
-      keyEvent);
-}
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -659,13 +545,6 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
       browser_host_set_mouse_cursor_change_disabled;
   struct_.struct_.is_mouse_cursor_change_disabled =
       browser_host_is_mouse_cursor_change_disabled;
-  struct_.struct_.is_window_rendering_disabled =
-      browser_host_is_window_rendering_disabled;
-  struct_.struct_.was_resized = browser_host_was_resized;
-  struct_.struct_.was_hidden = browser_host_was_hidden;
-  struct_.struct_.notify_screen_info_changed =
-      browser_host_notify_screen_info_changed;
-  struct_.struct_.invalidate = browser_host_invalidate;
   struct_.struct_.send_key_event = browser_host_send_key_event;
   struct_.struct_.send_mouse_click_event = browser_host_send_mouse_click_event;
   struct_.struct_.send_mouse_move_event = browser_host_send_mouse_move_event;
@@ -673,12 +552,6 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
   struct_.struct_.send_focus_event = browser_host_send_focus_event;
   struct_.struct_.send_capture_lost_event =
       browser_host_send_capture_lost_event;
-  struct_.struct_.get_nstext_input_context =
-      browser_host_get_nstext_input_context;
-  struct_.struct_.handle_key_event_before_text_input_client =
-      browser_host_handle_key_event_before_text_input_client;
-  struct_.struct_.handle_key_event_after_text_input_client =
-      browser_host_handle_key_event_after_text_input_client;
 }
 
 #ifndef NDEBUG

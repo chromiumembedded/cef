@@ -220,7 +220,6 @@ class CefBrowserHost : public virtual CefBase {
  public:
   typedef cef_file_dialog_mode_t FileDialogMode;
   typedef cef_mouse_button_type_t MouseButtonType;
-  typedef cef_paint_element_type_t PaintElementType;
 
   ///
   // Create a new browser window using the window parameters specified by
@@ -397,48 +396,6 @@ class CefBrowserHost : public virtual CefBase {
   virtual bool IsMouseCursorChangeDisabled() =0;
 
   ///
-  // Returns true if window rendering is disabled.
-  ///
-  /*--cef()--*/
-  virtual bool IsWindowRenderingDisabled() =0;
-
-  ///
-  // Notify the browser that the widget has been resized. The browser will first
-  // call CefRenderHandler::GetViewRect to get the new size and then call
-  // CefRenderHandler::OnPaint asynchronously with the updated regions. This
-  // method is only used when window rendering is disabled.
-  ///
-  /*--cef()--*/
-  virtual void WasResized() =0;
-
-  ///
-  // Notify the browser that it has been hidden or shown. Layouting and
-  // CefRenderHandler::OnPaint notification will stop when the browser is
-  // hidden. This method is only used when window rendering is disabled.
-  ///
-  /*--cef()--*/
-  virtual void WasHidden(bool hidden) =0;
-
-  ///
-  // Send a notification to the browser that the screen info has changed. The
-  // browser will then call CefRenderHandler::GetScreenInfo to update the
-  // screen information with the new values. This simulates moving the webview
-  // window from one display to another, or changing the properties of the
-  // current display. This method is only used when window rendering is
-  // disabled.
-  ///
-  /*--cef()--*/
-  virtual void NotifyScreenInfoChanged() =0;
-
-  ///
-  // Invalidate the |dirtyRect| region of the view. The browser will call
-  // CefRenderHandler::OnPaint asynchronously with the updated regions. This
-  // method is only used when window rendering is disabled.
-  ///
-  /*--cef()--*/
-  virtual void Invalidate(const CefRect& dirtyRect, PaintElementType type) =0;
-
-  ///
   // Send a key event to the browser.
   ///
   /*--cef()--*/
@@ -465,8 +422,6 @@ class CefBrowserHost : public virtual CefBase {
   // Send a mouse wheel event to the browser. The |x| and |y| coordinates are
   // relative to the upper-left corner of the view. The |deltaX| and |deltaY|
   // values represent the movement delta in the X and Y directions respectively.
-  // In order to scroll inside select popups with window rendering disabled
-  // CefRenderHandler::GetScreenPoint should be implemented properly.
   ///
   /*--cef()--*/
   virtual void SendMouseWheelEvent(const CefMouseEvent& event,
@@ -483,26 +438,6 @@ class CefBrowserHost : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual void SendCaptureLostEvent() =0;
-
-  ///
-  // Get the NSTextInputContext implementation for enabling IME on Mac when
-  // window rendering is disabled.
-  ///
-  /*--cef(default_retval=NULL)--*/
-  virtual CefTextInputContext GetNSTextInputContext() =0;
-
-  ///
-  // Handles a keyDown event prior to passing it through the NSTextInputClient
-  // machinery.
-  ///
-  /*--cef()--*/
-  virtual void HandleKeyEventBeforeTextInputClient(CefEventHandle keyEvent) =0;
-
-  ///
-  // Performs any additional actions after NSTextInputClient handles the event.
-  ///
-  /*--cef()--*/
-  virtual void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent) =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_

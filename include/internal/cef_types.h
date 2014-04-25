@@ -224,13 +224,6 @@ typedef struct _cef_settings_t {
   int multi_threaded_message_loop;
 
   ///
-  // Set to true (1) to enable windowless (off-screen) rendering support. Do not
-  // enable this value if the application does not use windowless rendering as
-  // it may reduce rendering performance on some systems.
-  ///
-  int windowless_rendering_enabled;
-
-  ///
   // Set to true (1) to disable configuration of browser process features using
   // standard CEF and Chromium command-line arguments. Configuration can still
   // be specified using CEF data structures or via the
@@ -1320,14 +1313,6 @@ typedef struct _cef_mouse_event_t {
   ///
   uint32 modifiers;
 } cef_mouse_event_t;
-
-///
-// Paint element types.
-///
-typedef enum {
-  PET_VIEW  = 0,
-  PET_POPUP,
-} cef_paint_element_type_t;
 
 ///
 // Supported event bit flags.

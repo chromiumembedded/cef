@@ -120,9 +120,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   static CefRefPtr<CefBrowserHostImpl> GetBrowserForFrame(
       int render_process_id, int render_routing_id);
 
-  // Returns true if window rendering is disabled in CefWindowInfo.
-  static bool IsWindowRenderingDisabled(const CefWindowInfo& info);
-
   // CefBrowserHost methods.
   virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
   virtual void CloseBrowser(bool force_close) OVERRIDE;
@@ -150,12 +147,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual void CloseDevTools() OVERRIDE;
   virtual void SetMouseCursorChangeDisabled(bool disabled) OVERRIDE;
   virtual bool IsMouseCursorChangeDisabled() OVERRIDE;
-  virtual bool IsWindowRenderingDisabled() OVERRIDE;
-  virtual void WasResized() OVERRIDE;
-  virtual void WasHidden(bool hidden) OVERRIDE;
-  virtual void NotifyScreenInfoChanged() OVERRIDE;
-  virtual void Invalidate(const CefRect& dirtyRect,
-                          PaintElementType type) OVERRIDE;
   virtual void SendKeyEvent(const CefKeyEvent& event) OVERRIDE;
   virtual void SendMouseClickEvent(const CefMouseEvent& event,
                                    MouseButtonType type,
@@ -166,11 +157,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
                                    int deltaX, int deltaY) OVERRIDE;
   virtual void SendFocusEvent(bool setFocus) OVERRIDE;
   virtual void SendCaptureLostEvent() OVERRIDE;
-  virtual CefTextInputContext GetNSTextInputContext() OVERRIDE;
-  virtual void HandleKeyEventBeforeTextInputClient(CefEventHandle keyEvent)
-      OVERRIDE;
-  virtual void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent)
-      OVERRIDE;
 
   // CefBrowser methods.
   virtual CefRefPtr<CefBrowserHost> GetHost() OVERRIDE;
@@ -258,8 +244,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Returns the URL that is currently loading (or loaded) in the main frame.
   GURL GetLoadingURL();
 
-  bool IsTransparent();
-
 #if defined(OS_WIN)
   static void RegisterWindowClass();
 #endif
@@ -344,14 +328,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
       content::WebContents* source,
       const content::DropData& data,
       blink::WebDragOperationsMask operations_allowed) OVERRIDE;
-  virtual bool ShouldCreateWebContents(
-      content::WebContents* web_contents,
-      int route_id,
-      WindowContainerType window_container_type,
-      const base::string16& frame_name,
-      const GURL& target_url,
-      const std::string& partition_id,
-      content::SessionStorageNamespace* session_storage_namespace) OVERRIDE;
   virtual void WebContentsCreated(content::WebContents* source_contents,
                                   int opener_render_frame_id,
                                   const base::string16& frame_name,
@@ -494,7 +470,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                                    const CefMouseEvent& mouse_event,
                                    int deltaX, int deltaY);
   void PlatformTranslateMouseEvent(blink::WebMouseEvent& web_event,
-                                  const CefMouseEvent& mouse_event);
+                                   const CefMouseEvent& mouse_event);
 
   int TranslateModifiers(uint32 cefKeyStates);
   void SendMouseEvent(const blink::WebMouseEvent& web_event);

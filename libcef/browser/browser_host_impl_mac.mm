@@ -8,8 +8,6 @@
 #import <Cocoa/Cocoa.h>
 #import <CoreServices/CoreServices.h>
 
-#include "libcef/browser/render_widget_host_view_osr.h"
-#include "libcef/browser/text_input_client_osr_mac.h"
 #include "libcef/browser/thread_util.h"
 
 #include "base/file_util.h"
@@ -258,59 +256,6 @@ bool RunSaveFileDialog(const content::FileChooserParams& params,
 
 }  // namespace
 
-CefTextInputContext CefBrowserHostImpl::GetNSTextInputContext() {
-  if (!IsWindowRenderingDisabled()) {
-    NOTREACHED() << "Window rendering is not disabled";
-    return NULL;
-  }
-
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "Called on invalid thread";
-    return NULL;
-  }
-
-  CefRenderWidgetHostViewOSR* rwhv = static_cast<CefRenderWidgetHostViewOSR*>(
-      GetWebContents()->GetRenderWidgetHostView());
-
-  return rwhv->GetNSTextInputContext();
-}
-
-void CefBrowserHostImpl::HandleKeyEventBeforeTextInputClient(
-    CefEventHandle keyEvent) {
-  if (!IsWindowRenderingDisabled()) {
-    NOTREACHED() << "Window rendering is not disabled";
-    return;
-  }
-
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "Called on invalid thread";
-    return;
-  }
-
-  CefRenderWidgetHostViewOSR* rwhv = static_cast<CefRenderWidgetHostViewOSR*>(
-      GetWebContents()->GetRenderWidgetHostView());
-
-  rwhv->HandleKeyEventBeforeTextInputClient(keyEvent);
-}
-
-void CefBrowserHostImpl::HandleKeyEventAfterTextInputClient(
-    CefEventHandle keyEvent) {
-  if (!IsWindowRenderingDisabled()) {
-    NOTREACHED() << "Window rendering is not disabled";
-    return;
-  }
-
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "Called on invalid thread";
-    return;
-  }
-
-  CefRenderWidgetHostViewOSR* rwhv = static_cast<CefRenderWidgetHostViewOSR*>(
-      GetWebContents()->GetRenderWidgetHostView());
-
-  rwhv->HandleKeyEventAfterTextInputClient(keyEvent);
-}
-
 bool CefBrowserHostImpl::PlatformViewText(const std::string& text) {
   NOTIMPLEMENTED();
   return false;
@@ -402,9 +347,7 @@ void CefBrowserHostImpl::PlatformSizeTo(int width, int height) {
 }
 
 CefWindowHandle CefBrowserHostImpl::PlatformGetWindowHandle() {
-  return IsWindowRenderingDisabled() ?
-      window_info_.parent_view :
-      window_info_.view;
+  return window_info_.view;
 }
 
 void CefBrowserHostImpl::PlatformHandleKeyboardEvent(
@@ -434,15 +377,6 @@ void CefBrowserHostImpl::PlatformRunFileChooser(
 }
 
 void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {
-}
-
-// static
-bool CefBrowserHostImpl::IsWindowRenderingDisabled(const CefWindowInfo& info) {
-  return info.windowless_rendering_enabled ? true : false;
-}
-
-bool CefBrowserHostImpl::IsTransparent() {
-  return window_info_.transparent_painting_enabled ? true : false;
 }
 
 static NSTimeInterval currentEventTimestamp() {
@@ -627,20 +561,14 @@ void CefBrowserHostImpl::PlatformTranslateMouseEvent(
   result.globalX = result.x;
   result.globalY = result.y;
 
-  if (IsWindowRenderingDisabled()) {
-    GetClient()->GetRenderHandler()->GetScreenPoint(GetBrowser(),
-        result.x, result.y,
-        result.globalX, result.globalY);
-  } else {
-    NSView* view = window_info_.parent_view;
-    if (view) {
-      NSRect bounds = [view bounds];
-      NSPoint view_pt = {result.x, bounds.size.height - result.y};
-      NSPoint window_pt = [view convertPoint:view_pt toView:nil];
-      NSPoint screen_pt = [[view window] convertBaseToScreen:window_pt];
-      result.globalX = screen_pt.x;
-      result.globalY = screen_pt.y;
-    }
+  NSView* view = window_info_.parent_view;
+  if (view) {
+    NSRect bounds = [view bounds];
+    NSPoint view_pt = {result.x, bounds.size.height - result.y};
+    NSPoint window_pt = [view convertPoint:view_pt toView:nil];
+    NSPoint screen_pt = [[view window] convertBaseToScreen:window_pt];
+    result.globalX = screen_pt.x;
+    result.globalY = screen_pt.y;
   }
 
   // modifiers

@@ -38,7 +38,6 @@ int GetResourceId(const char* resource_name) {
     {"domaccess.html", IDS_DOMACCESS},
     {"localstorage.html", IDS_LOCALSTORAGE},
     {"logo.png", IDS_LOGO},
-    {"osr_test.html", IDS_OSRTEST},
     {"other_tests.html", IDS_OTHER_TESTS},
     {"performance.html", IDS_PERFORMANCE},
     {"performance2.html", IDS_PERFORMANCE2},

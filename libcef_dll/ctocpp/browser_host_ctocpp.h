@@ -61,12 +61,6 @@ class CefBrowserHostCToCpp
   virtual void CloseDevTools() OVERRIDE;
   virtual void SetMouseCursorChangeDisabled(bool disabled) OVERRIDE;
   virtual bool IsMouseCursorChangeDisabled() OVERRIDE;
-  virtual bool IsWindowRenderingDisabled() OVERRIDE;
-  virtual void WasResized() OVERRIDE;
-  virtual void WasHidden(bool hidden) OVERRIDE;
-  virtual void NotifyScreenInfoChanged() OVERRIDE;
-  virtual void Invalidate(const CefRect& dirtyRect,
-      PaintElementType type) OVERRIDE;
   virtual void SendKeyEvent(const CefKeyEvent& event) OVERRIDE;
   virtual void SendMouseClickEvent(const CefMouseEvent& event,
       MouseButtonType type, bool mouseUp, int clickCount) OVERRIDE;
@@ -76,11 +70,6 @@ class CefBrowserHostCToCpp
       int deltaY) OVERRIDE;
   virtual void SendFocusEvent(bool setFocus) OVERRIDE;
   virtual void SendCaptureLostEvent() OVERRIDE;
-  virtual CefTextInputContext GetNSTextInputContext() OVERRIDE;
-  virtual void HandleKeyEventBeforeTextInputClient(
-      CefEventHandle keyEvent) OVERRIDE;
-  virtual void HandleKeyEventAfterTextInputClient(
-      CefEventHandle keyEvent) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED

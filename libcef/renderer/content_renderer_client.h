@@ -76,11 +76,6 @@ class CefContentRendererClient : public content::ContentRendererClient,
   virtual void RenderThreadStarted() OVERRIDE;
   virtual void RenderFrameCreated(content::RenderFrame* render_frame) OVERRIDE;
   virtual void RenderViewCreated(content::RenderView* render_view) OVERRIDE;
-  virtual bool OverrideCreatePlugin(
-      content::RenderFrame* render_frame,
-      blink::WebFrame* frame,
-      const blink::WebPluginParams& params,
-      blink::WebPlugin** plugin) OVERRIDE;
   virtual bool HandleNavigation(content::RenderFrame* render_frame,
                                 content::DocumentState* document_state,
                                 int opener_id,
