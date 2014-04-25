@@ -56,12 +56,6 @@ def msg(message):
   """ Output a message. """
   sys.stdout.write('--> ' + message + "\n")
 
-def warn(message):
-  """ Output a warning. """
-  sys.stdout.write('-' * 80 + "\n")
-  sys.stdout.write('!!!! WARNING: ' + message + "\n")
-  sys.stdout.write('-' * 80 + "\n")
-
 def run(command_line, working_dir, depot_tools_dir=None, output_file=None):
   """ Runs the specified command. """
   # add depot_tools to the path
@@ -249,17 +243,19 @@ def read_config_file(path):
 
 def write_config_file(path, contents):
   """ Write a configuration file. """
-  fp = open(path, 'w')
-  fp.write("{\n")
-  for key in sorted(contents.keys()):
-    fp.write("  '%s': '%s',\n" % (key, contents[key]))
-  fp.write("}\n")
-  fp.close()
+  msg('Writing file: %s' % path)
+  if not options.dryrun:
+    fp = open(path, 'w')
+    fp.write("{\n")
+    for key in sorted(contents.keys()):
+      fp.write("  '%s': '%s',\n" % (key, contents[key]))
+    fp.write("}\n")
+    fp.close()
 
 def read_branch_config_file(path):
   """ Read the CEF branch from the specified path. """
   config_file = os.path.join(path, 'cef.branch')
-  if os.path.exists(config_file):
+  if os.path.isfile(config_file):
     contents = read_config_file(config_file)
     if 'branch' in contents:
       return contents['branch']
@@ -268,7 +264,34 @@ def read_branch_config_file(path):
 def write_branch_config_file(path, branch):
   """ Write the CEF branch to the specified path. """
   config_file = os.path.join(path, 'cef.branch')
-  write_config_file(config_file, {'branch': branch})
+  if not os.path.isfile(config_file):
+    write_config_file(config_file, {'branch': branch})
+
+def remove_deps_entry(path, entry):
+  """ Remove an entry from the DEPS file at the specified path. """
+  msg('Updating DEPS file: %s' % path)
+  if not options.dryrun:
+    if not os.path.isfile(path):
+      raise Exception('Path does not exist: %s' % path)
+
+    # Read the DEPS file.
+    fp = open(path, 'r')
+    lines = fp.readlines()
+    fp.close()
+
+    # Write the DEPS file.
+    # Each entry takes 2 lines. Skip both lines if found.
+    fp = open(path, 'w')
+    skip_next = False
+    for line in lines:
+      if skip_next:
+        skip_next = False
+        continue
+      elif line.find(entry) >= 0:
+        skip_next = True
+        continue
+      fp.write(line)
+    fp.close()
 
 def onerror(func, path, exc_info):
   """
@@ -341,6 +364,9 @@ parser.add_option('--chromium-checkout', dest='chromiumcheckout',
                   default='')
 
 # Miscellaneous options.
+parser.add_option('--force-config',
+                  action='store_true', dest='forceconfig', default=False,
+                  help='Force creation of a new gclient config file.')
 parser.add_option('--force-clean',
                   action='store_true', dest='forceclean', default=False,
                   help='Force a clean CEF checkout. This will trigger a new '+\
@@ -521,11 +547,6 @@ if options.branch != 'trunk' and not options.branch.isdigit():
   raise Exception("Invalid branch value: %s" % (options.branch))
 cef_branch = options.branch
 
-if options.branch != 'trunk':
-  # For more information see:
-  # https://groups.google.com/a/chromium.org/d/msg/chromium-dev/1iNTFLNjUQo/PXjWkHO9Lc4J
-  warn("Non-trunk builds may not be correct. Use automate.py instead.")
-
 cef_dir = os.path.join(download_dir, 'cef_' + cef_branch)
 
 # Delete the existing CEF directory if requested.
@@ -674,10 +695,43 @@ chromium_src_dir = os.path.join(chromium_dir, 'src')
 cef_src_dir = os.path.join(chromium_src_dir, 'cef')
 out_src_dir = os.path.join(chromium_src_dir, 'out')
 
-# Create the Chromium checkout if necessary.
+# Create gclient configuration file.
+gclient_file = os.path.join(chromium_dir, '.gclient')
+if not os.path.exists(gclient_file) or options.forceconfig:
+  # Exclude unnecessary directories. Intentionally written without newlines.
+  gclient_spec = \
+      "solutions = [{"+\
+        "u'managed': False,"+\
+        "u'name': u'src', "+\
+        "u'url': u'https://chromium.googlesource.com/chromium/src.git', "+\
+        "u'custom_deps': {"+\
+          "u'build': None, "+\
+          "u'build/scripts/command_wrapper/bin': None, "+\
+          "u'build/scripts/gsd_generate_index': None, "+\
+          "u'build/scripts/private/data/reliability': None, "+\
+          "u'build/third_party/lighttpd': None, "+\
+          "u'commit-queue': None, "+\
+          "u'depot_tools': None, "+\
+          "u'src/chrome_frame/tools/test/reference_build/chrome': None, "+\
+          "u'src/chrome/tools/test/reference_build/chrome_linux': None, "+\
+          "u'src/chrome/tools/test/reference_build/chrome_mac': None, "+\
+          "u'src/chrome/tools/test/reference_build/chrome_win': None, "+\
+        "}, "+\
+        "u'deps_file': u'.DEPS.git', "+\
+        "u'safesync_url': u''"+\
+      "}]"
+
+  msg('Writing file: %s' % gclient_file)
+  if not options.dryrun:
+    fp = open(gclient_file, 'w')
+    fp.write(gclient_spec)
+    fp.close()
+
+# Initial Chromium checkout.
 if not options.noupdate and not os.path.exists(chromium_src_dir):
   chromium_checkout_new = True
-  run('fetch --nohooks chromium --nosvn=True', chromium_dir, depot_tools_dir)
+  run("gclient sync --nohooks --with_branch_heads --jobs 16", chromium_dir, \
+      depot_tools_dir)
 else:
   chromium_checkout_new = False
 
@@ -744,19 +798,25 @@ if os.path.exists(out_src_dir):
 if chromium_checkout_changed:
   if not chromium_checkout_new:
     # Revert all changes in the Chromium checkout.
-    run("gclient revert --nohooks", chromium_src_dir, depot_tools_dir)
+    run("gclient revert --nohooks", chromium_dir, depot_tools_dir)
 
-  # Retrieve new branch/tag information.
-  run("gclient sync --nohooks --with_branch_heads", chromium_src_dir, \
-      depot_tools_dir)
   # Fetch new sources.
   run("%s fetch" % (git_exe), chromium_src_dir, depot_tools_dir)
 
-  # Checkout the requested branch and update third-party dependencies.
+  # Checkout the requested branch.
   run("%s checkout %s" % (git_exe, chromium_checkout), chromium_src_dir, \
       depot_tools_dir)
-  run("gclient sync %s--jobs 16" % ('--nohooks ' if chromium_nohooks else ''), \
-      chromium_src_dir, depot_tools_dir)
+
+  if cef_branch != 'trunk':
+    # Remove the 'src' entry from .DEPS.git for release branches.
+    # Otherwise, `gclient sync` will fail.
+    deps_path = os.path.join(chromium_src_dir, '.DEPS.git')
+    remove_deps_entry(deps_path, "'src'")
+
+  # Update third-party dependencies including branch/tag information.
+  run("gclient sync %s--with_branch_heads --jobs 16" % \
+      ('--nohooks ' if chromium_nohooks else ''), \
+      chromium_dir, depot_tools_dir)
 
   # Delete the src/out directory created by `gclient sync`.
   delete_directory(out_src_dir)
