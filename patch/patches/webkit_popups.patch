@@ -1,6 +1,6 @@
 Index: public/web/WebView.h
 ===================================================================
---- public/web/WebView.h	(revision 171002)
+--- public/web/WebView.h	(revision 172878)
 +++ public/web/WebView.h	(working copy)
 @@ -417,6 +417,7 @@
  
@@ -12,7 +12,7 @@ Index: public/web/WebView.h
      virtual void hidePopups() = 0;
 Index: Source/web/ChromeClientImpl.cpp
 ===================================================================
---- Source/web/ChromeClientImpl.cpp	(revision 171002)
+--- Source/web/ChromeClientImpl.cpp	(revision 172878)
 +++ Source/web/ChromeClientImpl.cpp	(working copy)
 @@ -755,7 +755,7 @@
  
@@ -25,7 +25,7 @@ Index: Source/web/ChromeClientImpl.cpp
      return adoptRef(new PopupMenuChromium(frame, client));
 Index: Source/web/WebViewImpl.cpp
 ===================================================================
---- Source/web/WebViewImpl.cpp	(revision 171002)
+--- Source/web/WebViewImpl.cpp	(revision 172878)
 +++ Source/web/WebViewImpl.cpp	(working copy)
 @@ -338,6 +338,7 @@
      , m_fakePageScaleAnimationPageScaleFactor(0)
@@ -35,7 +35,7 @@ Index: Source/web/WebViewImpl.cpp
      , m_doingDragAndDrop(false)
      , m_ignoreInputEvents(false)
      , m_compositorDeviceScaleFactorOverride(0)
-@@ -3472,9 +3473,14 @@
+@@ -3483,9 +3484,14 @@
      updateLayerTreeViewport();
  }
  
@@ -53,9 +53,9 @@ Index: Source/web/WebViewImpl.cpp
  void WebViewImpl::startDragging(LocalFrame* frame,
 Index: Source/web/WebViewImpl.h
 ===================================================================
---- Source/web/WebViewImpl.h	(revision 171002)
+--- Source/web/WebViewImpl.h	(revision 172878)
 +++ Source/web/WebViewImpl.h	(working copy)
-@@ -391,7 +391,8 @@
+@@ -392,7 +392,8 @@
  
      // Returns true if popup menus should be rendered by the browser, false if
      // they should be rendered by WebKit (which is the default).
@@ -65,7 +65,7 @@ Index: Source/web/WebViewImpl.h
  
      bool contextMenuAllowed() const
      {
-@@ -669,6 +670,8 @@
+@@ -670,6 +671,8 @@
  
      bool m_contextMenuAllowed;
  

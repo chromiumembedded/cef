@@ -1,6 +1,6 @@
 Index: public/common/common_param_traits_macros.h
 ===================================================================
---- public/common/common_param_traits_macros.h	(revision 261035)
+--- public/common/common_param_traits_macros.h	(revision 266998)
 +++ public/common/common_param_traits_macros.h	(working copy)
 @@ -182,6 +182,7 @@
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
@@ -12,7 +12,7 @@ Index: public/common/common_param_traits_macros.h
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 Index: renderer/web_preferences.cc
 ===================================================================
---- renderer/web_preferences.cc	(revision 261035)
+--- renderer/web_preferences.cc	(revision 266998)
 +++ renderer/web_preferences.cc	(working copy)
 @@ -163,6 +163,8 @@
    settings->setCookieEnabled(prefs.cookie_enabled);

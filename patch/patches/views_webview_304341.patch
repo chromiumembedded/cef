@@ -1,6 +1,6 @@
 Index: web_dialog_view.cc
 ===================================================================
---- web_dialog_view.cc	(revision 261035)
+--- web_dialog_view.cc	(revision 266998)
 +++ web_dialog_view.cc	(working copy)
 @@ -257,13 +257,6 @@
    return true;
@@ -34,7 +34,7 @@ Index: web_dialog_view.cc
  
 Index: web_dialog_view.h
 ===================================================================
---- web_dialog_view.h	(revision 261035)
+--- web_dialog_view.h	(revision 266998)
 +++ web_dialog_view.h	(working copy)
 @@ -74,6 +74,7 @@
    virtual const views::Widget* GetWidget() const OVERRIDE;
