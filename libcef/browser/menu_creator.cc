@@ -33,12 +33,8 @@ CefString GetLabel(int message_id) {
 
 }  // namespace
 
-CefMenuCreator::CefMenuCreator(CefBrowserHostImpl* browser,
-                               content::RenderFrameHost* render_frame_host)
+CefMenuCreator::CefMenuCreator(CefBrowserHostImpl* browser)
   : browser_(browser) {
-  DCHECK(render_frame_host);
-  render_process_id_ = render_frame_host->GetProcess()->GetID();
-  render_frame_id_ = render_frame_host->GetRoutingID();
   model_ = new CefMenuModelImpl(this);
 }
 
@@ -83,16 +79,12 @@ bool CefMenuCreator::CreateContextMenu(
       CefRefPtr<CefContextMenuHandler> handler =
           client->GetContextMenuHandler();
       if (handler.get()) {
-        CefRefPtr<CefFrame> frame;
-        if (render_frame_id_ > 0)
-          frame = browser_->GetFrame(render_frame_id_);
-        if (!frame.get())
-          frame = browser_->GetMainFrame();
-
         CefRefPtr<CefContextMenuParamsImpl> paramsPtr(
             new CefContextMenuParamsImpl(&params_));
 
-        handler->OnBeforeContextMenu(browser_, frame, paramsPtr.get(),
+        handler->OnBeforeContextMenu(browser_,
+                                     browser_->GetFocusedFrame(),
+                                     paramsPtr.get(),
                                      model_.get());
 
         // Do not keep references to the parameters in the callback.
@@ -137,17 +129,15 @@ void CefMenuCreator::ExecuteCommand(CefRefPtr<CefMenuModelImpl> source,
       CefRefPtr<CefContextMenuHandler> handler =
           client->GetContextMenuHandler();
       if (handler.get()) {
-        CefRefPtr<CefFrame> frame;
-        if (render_frame_id_ > 0)
-          frame = browser_->GetFrame(render_frame_id_);
-        if (!frame.get())
-          frame = browser_->GetMainFrame();
-
         CefRefPtr<CefContextMenuParamsImpl> paramsPtr(
             new CefContextMenuParamsImpl(&params_));
 
-        bool handled = handler->OnContextMenuCommand(browser_, frame,
-            paramsPtr.get(), command_id, event_flags);
+        bool handled = handler->OnContextMenuCommand(
+            browser_,
+            browser_->GetFocusedFrame(),
+            paramsPtr.get(),
+            command_id,
+            event_flags);
 
         // Do not keep references to the parameters in the callback.
         paramsPtr->Detach(NULL);
@@ -188,26 +178,18 @@ void CefMenuCreator::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
       CefRefPtr<CefContextMenuHandler> handler =
           client->GetContextMenuHandler();
       if (handler.get()) {
-        CefRefPtr<CefFrame> frame;
-        if (render_frame_id_ > 0)
-          frame = browser_->GetFrame(render_frame_id_);
-        if (!frame.get())
-          frame = browser_->GetMainFrame();
-
-        handler->OnContextMenuDismissed(browser_, frame);
+        handler->OnContextMenuDismissed(browser_, browser_->GetFocusedFrame());
       }
   }
 
   if (IsShowingContextMenu()) {
     // Notify the host after closing the context menu.
+    content::WebContents* web_contents = browser_->GetWebContents();
     content::RenderWidgetHostView* view =
-        browser_->GetWebContents()->GetRenderWidgetHostView();
+        web_contents->GetRenderWidgetHostView();
     if (view)
       view->SetShowingContextMenu(false);
-    content::RenderFrameHost* render_frame_host =
-        content::RenderFrameHost::FromID(render_process_id_, render_frame_id_);
-    if (render_frame_host)
-      render_frame_host->NotifyContextMenuClosed(params_.custom_context);
+    web_contents->NotifyContextMenuClosed(params_.custom_context);
   }
 }
 

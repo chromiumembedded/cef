@@ -20,7 +20,7 @@
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/file_chooser_params.h"
-#include "net/base/net_util.h"
+#include "net/base/filename_util.h"
 
 using content::DownloadItem;
 using content::DownloadManager;

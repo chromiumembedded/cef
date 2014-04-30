@@ -1,6 +1,6 @@
 Index: common.gypi
 ===================================================================
---- common.gypi	(revision 261035)
+--- common.gypi	(revision 263053)
 +++ common.gypi	(working copy)
 @@ -9,6 +9,9 @@
    # Variables expected to be overriden on the GYP command line (-D) or by
@@ -27,7 +27,7 @@ Index: common.gypi
              ['(OS=="linux" or OS=="freebsd" or OS=="openbsd" or OS=="solaris") and chromeos==0', {
 Index: mac/strip_save_dsym
 ===================================================================
---- mac/strip_save_dsym	(revision 261035)
+--- mac/strip_save_dsym	(revision 263053)
 +++ mac/strip_save_dsym	(working copy)
 @@ -48,7 +48,7 @@
                   "bundle"]

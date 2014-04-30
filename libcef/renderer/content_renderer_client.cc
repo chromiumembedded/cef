@@ -510,6 +510,7 @@ void CefContentRendererClient::DidCreateScriptContext(
   v8::HandleScope handle_scope(isolate);
   v8::Context::Scope scope(context);
   WebCore::V8RecursionScope recursion_scope(
+      isolate,
       WebCore::toExecutionContext(context));
 
   CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(isolate, context));
@@ -542,6 +543,7 @@ void CefContentRendererClient::WillReleaseScriptContext(
         v8::HandleScope handle_scope(isolate);
         v8::Context::Scope scope(context);
         WebCore::V8RecursionScope recursion_scope(
+            isolate,
             WebCore::toExecutionContext(context));
 
         CefRefPtr<CefV8Context> contextPtr(

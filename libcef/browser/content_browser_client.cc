@@ -40,6 +40,7 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/resource_dispatcher_host.h"
 #include "content/public/common/content_switches.h"
+#include "content/public/common/storage_quota_params.h"
 #include "third_party/WebKit/public/web/WebWindowFeatures.h"
 #include "ui/base/ui_base_switches.h"
 #include "url/gurl.h"
@@ -172,13 +173,10 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
 
   // The callback will be dispatched on the IO thread.
   virtual void RequestQuotaPermission(
-      const GURL& origin_url,
-      quota::StorageType type,
-      int64 new_quota,
+      const content::StorageQuotaParams& params,
       int render_process_id,
-      int render_view_id,
       const PermissionCallback& callback) OVERRIDE {
-    if (type != quota::kStorageTypePersistent) {
+    if (params.storage_type != quota::kStorageTypePersistent) {
       // To match Chrome behavior we only support requesting quota with this
       // interface for Persistent storage type.
       callback.Run(QUOTA_PERMISSION_RESPONSE_DISALLOW);
@@ -189,7 +187,7 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
 
     CefRefPtr<CefBrowserHostImpl> browser =
         CefBrowserHostImpl::GetBrowserForView(render_process_id,
-                                              render_view_id);
+                                              params.render_view_id);
     if (browser.get()) {
       CefRefPtr<CefClient> client = browser->GetClient();
       if (client.get()) {
@@ -197,8 +195,10 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
         if (handler.get()) {
           CefRefPtr<CefQuotaCallbackImpl> callbackImpl(
               new CefQuotaCallbackImpl(callback));
-          handled = handler->OnQuotaRequest(browser.get(), origin_url.spec(),
-                                            new_quota, callbackImpl.get());
+          handled = handler->OnQuotaRequest(browser.get(),
+                                            params.origin_url.spec(),
+                                            params.requested_size,
+                                            callbackImpl.get());
           if (!handled)
             callbackImpl->Disconnect();
         }

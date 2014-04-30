@@ -33,6 +33,7 @@
 #include "third_party/WebKit/public/web/WebDataSource.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebNode.h"
 #include "third_party/WebKit/public/web/WebScriptSource.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
@@ -476,13 +477,13 @@ void CefBrowserImpl::DidStopLoading() {
 }
 
 void CefBrowserImpl::DidFailLoad(
-    blink::WebFrame* frame,
+    blink::WebLocalFrame* frame,
     const blink::WebURLError& error) {
   OnLoadError(frame, error);
   OnLoadEnd(frame);
 }
 
-void CefBrowserImpl::DidFinishLoad(blink::WebFrame* frame) {
+void CefBrowserImpl::DidFinishLoad(blink::WebLocalFrame* frame) {
   blink::WebDataSource* ds = frame->dataSource();
   Send(new CefHostMsg_DidFinishLoad(routing_id(),
                                     webkit_glue::GetIdentifier(frame),
@@ -492,18 +493,18 @@ void CefBrowserImpl::DidFinishLoad(blink::WebFrame* frame) {
   OnLoadEnd(frame);
 }
 
-void CefBrowserImpl::DidStartProvisionalLoad(blink::WebFrame* frame) {
+void CefBrowserImpl::DidStartProvisionalLoad(blink::WebLocalFrame* frame) {
   // Send the frame creation notification if necessary.
   GetWebFrameImpl(frame);
 }
 
 void CefBrowserImpl::DidFailProvisionalLoad(
-    blink::WebFrame* frame,
+    blink::WebLocalFrame* frame,
     const blink::WebURLError& error) {
   OnLoadError(frame, error);
 }
 
-void CefBrowserImpl::DidCommitProvisionalLoad(blink::WebFrame* frame,
+void CefBrowserImpl::DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
                                               bool is_new_navigation) {
   OnLoadStart(frame);
 }
@@ -585,7 +586,7 @@ void CefBrowserImpl::FocusedNodeChanged(const blink::WebNode& node) {
   Send(new CefHostMsg_FrameFocusChange(routing_id(), frame_id));
 }
 
-void CefBrowserImpl::DidCreateDataSource(blink::WebFrame* frame,
+void CefBrowserImpl::DidCreateDataSource(blink::WebLocalFrame* frame,
                                          blink::WebDataSource* ds) {
   const blink::WebURLRequest& request = ds->request();
   if (request.requestorID() == -1) {
@@ -768,7 +769,7 @@ void CefBrowserImpl::OnLoadingStateChange(bool isLoading) {
   }
 }
 
-void CefBrowserImpl::OnLoadStart(blink::WebFrame* frame) {
+void CefBrowserImpl::OnLoadStart(blink::WebLocalFrame* frame) {
   if (is_swapped_out())
     return;
 
@@ -786,7 +787,7 @@ void CefBrowserImpl::OnLoadStart(blink::WebFrame* frame) {
   }
 }
 
-void CefBrowserImpl::OnLoadEnd(blink::WebFrame* frame) {
+void CefBrowserImpl::OnLoadEnd(blink::WebLocalFrame* frame) {
   if (is_swapped_out())
     return;
 
@@ -805,7 +806,7 @@ void CefBrowserImpl::OnLoadEnd(blink::WebFrame* frame) {
   }
 }
 
-void CefBrowserImpl::OnLoadError(blink::WebFrame* frame,
+void CefBrowserImpl::OnLoadError(blink::WebLocalFrame* frame,
                                  const blink::WebURLError& error) {
   if (is_swapped_out())
     return;

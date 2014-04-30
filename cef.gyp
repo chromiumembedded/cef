@@ -811,7 +811,9 @@
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
         '<(DEPTH)/base/base.gyp:base_prefs',
+        '<(DEPTH)/base/base.gyp:base_static',
         '<(DEPTH)/base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
+        '<(DEPTH)/cc/cc.gyp:cc',
         '<(DEPTH)/components/components.gyp:breakpad_component',
         '<(DEPTH)/components/components.gyp:navigation_interception',
         '<(DEPTH)/content/content.gyp:content_app_both',
@@ -824,6 +826,7 @@
         '<(DEPTH)/content/content.gyp:content_utility',
         '<(DEPTH)/content/content.gyp:content_worker',
         '<(DEPTH)/content/content_resources.gyp:content_resources',
+        '<(DEPTH)/gpu/gpu.gyp:gpu',
         '<(DEPTH)/ipc/ipc.gyp:ipc',
         '<(DEPTH)/media/media.gyp:media',
         '<(DEPTH)/net/net.gyp:net',

@@ -91,9 +91,11 @@ void CefResourceDispatcherHostDelegate::RequestBeginning(
   }
 }
 
-bool CefResourceDispatcherHostDelegate::HandleExternalProtocol(const GURL& url,
-                                                               int child_id,
-                                                               int route_id) {
+bool CefResourceDispatcherHostDelegate::HandleExternalProtocol(
+    const GURL& url,
+    int child_id,
+    int route_id,
+    bool initiated_by_user_gesture) {
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForView(child_id, route_id);
   if (browser.get())

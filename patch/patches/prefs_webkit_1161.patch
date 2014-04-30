@@ -1,8 +1,8 @@
 Index: common/webpreferences.cc
 ===================================================================
---- common/webpreferences.cc	(revision 261035)
+--- common/webpreferences.cc	(revision 263053)
 +++ common/webpreferences.cc	(working copy)
-@@ -121,6 +121,7 @@
+@@ -120,6 +120,7 @@
        use_solid_color_scrollbars(false),
        compositor_touch_hit_testing(true),
        navigate_on_drag_drop(true),
@@ -12,9 +12,9 @@ Index: common/webpreferences.cc
  #if defined(OS_ANDROID)
 Index: common/webpreferences.h
 ===================================================================
---- common/webpreferences.h	(revision 261035)
+--- common/webpreferences.h	(revision 263053)
 +++ common/webpreferences.h	(working copy)
-@@ -156,6 +156,7 @@
+@@ -155,6 +155,7 @@
    bool use_solid_color_scrollbars;
    bool compositor_touch_hit_testing;
    bool navigate_on_drag_drop;

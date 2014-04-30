@@ -30,10 +30,6 @@ namespace base {
 class ListValue;
 }
 
-namespace blink {
-class WebFrame;
-}
-
 // Renderer plumbing for CEF features. There is a one-to-one relationship
 // between RenderView on the renderer side and RenderViewHost on the browser
 // side.
@@ -110,18 +106,18 @@ class CefBrowserImpl : public CefBrowser,
   virtual void OnDestruct() OVERRIDE;
   virtual void DidStartLoading() OVERRIDE;
   virtual void DidStopLoading() OVERRIDE;
-  virtual void DidFailLoad(blink::WebFrame* frame,
+  virtual void DidFailLoad(blink::WebLocalFrame* frame,
                            const blink::WebURLError& error) OVERRIDE;
-  virtual void DidFinishLoad(blink::WebFrame* frame) OVERRIDE;
-  virtual void DidStartProvisionalLoad(blink::WebFrame* frame) OVERRIDE;
+  virtual void DidFinishLoad(blink::WebLocalFrame* frame) OVERRIDE;
+  virtual void DidStartProvisionalLoad(blink::WebLocalFrame* frame) OVERRIDE;
   virtual void DidFailProvisionalLoad(
-      blink::WebFrame* frame,
+      blink::WebLocalFrame* frame,
       const blink::WebURLError& error) OVERRIDE;
-  virtual void DidCommitProvisionalLoad(blink::WebFrame* frame,
+  virtual void DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
                                         bool is_new_navigation) OVERRIDE;
   virtual void FrameDetached(blink::WebFrame* frame) OVERRIDE;
   virtual void FocusedNodeChanged(const blink::WebNode& node) OVERRIDE;
-  virtual void DidCreateDataSource(blink::WebFrame* frame,
+  virtual void DidCreateDataSource(blink::WebLocalFrame* frame,
                                    blink::WebDataSource* ds) OVERRIDE;
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
@@ -131,9 +127,10 @@ class CefBrowserImpl : public CefBrowser,
   void OnResponseAck(int request_id);
 
   void OnLoadingStateChange(bool isLoading);
-  void OnLoadStart(blink::WebFrame* frame);
-  void OnLoadEnd(blink::WebFrame* frame);
-  void OnLoadError(blink::WebFrame* frame, const blink::WebURLError& error);
+  void OnLoadStart(blink::WebLocalFrame* frame);
+  void OnLoadEnd(blink::WebLocalFrame* frame);
+  void OnLoadError(blink::WebLocalFrame* frame,
+                   const blink::WebURLError& error);
 
   // ID of the browser that this RenderView is associated with. During loading
   // of cross-origin requests multiple RenderViews may be associated with the

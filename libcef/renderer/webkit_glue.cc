@@ -26,7 +26,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/WebKit/public/web/WebViewClient.h"
 
 #include "third_party/WebKit/Source/core/dom/Node.h"
-#include "third_party/WebKit/Source/web/WebFrameImpl.h"
 #include "third_party/WebKit/Source/web/WebViewImpl.h"
 MSVC_POP_WARNING();
 #undef LOG

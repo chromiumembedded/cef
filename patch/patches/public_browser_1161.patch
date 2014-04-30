@@ -1,6 +1,6 @@
 Index: content_browser_client.cc
 ===================================================================
---- content_browser_client.cc	(revision 261035)
+--- content_browser_client.cc	(revision 263053)
 +++ content_browser_client.cc	(working copy)
 @@ -255,6 +255,10 @@
    return true;
@@ -15,7 +15,7 @@ Index: content_browser_client.cc
  }
 Index: content_browser_client.h
 ===================================================================
---- content_browser_client.h	(revision 261035)
+--- content_browser_client.h	(revision 263053)
 +++ content_browser_client.h	(working copy)
 @@ -22,6 +22,7 @@
  #include "net/base/mime_util.h"

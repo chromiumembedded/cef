@@ -624,7 +624,7 @@ void CefBrowserHostImpl::CloseBrowser(bool force_close) {
     if (contents && contents->NeedToFireBeforeUnload()) {
       // Will result in a call to BeforeUnloadFired() and, if the close isn't
       // canceled, CloseContents().
-      contents->GetMainFrame()->DispatchBeforeUnload(false);
+      contents->DispatchBeforeUnload(false);
     } else {
       CloseContents(contents);
     }
@@ -1657,10 +1657,9 @@ void CefBrowserHostImpl::WebContentsFocused(content::WebContents* contents) {
 }
 
 bool CefBrowserHostImpl::HandleContextMenu(
-    content::RenderFrameHost* render_frame_host,
     const content::ContextMenuParams& params) {
   if (!menu_creator_.get())
-    menu_creator_.reset(new CefMenuCreator(this, render_frame_host));
+    menu_creator_.reset(new CefMenuCreator(this));
   return menu_creator_->CreateContextMenu(params);
 }
 

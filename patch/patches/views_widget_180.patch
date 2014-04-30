@@ -1,6 +1,6 @@
 Index: desktop_aura/desktop_screen_win.cc
 ===================================================================
---- desktop_aura/desktop_screen_win.cc	(revision 261035)
+--- desktop_aura/desktop_screen_win.cc	(revision 263053)
 +++ desktop_aura/desktop_screen_win.cc	(working copy)
 @@ -54,6 +54,8 @@
  }
@@ -13,7 +13,7 @@ Index: desktop_aura/desktop_screen_win.cc
  }
 Index: desktop_aura/desktop_window_tree_host_win.cc
 ===================================================================
---- desktop_aura/desktop_window_tree_host_win.cc	(revision 261035)
+--- desktop_aura/desktop_window_tree_host_win.cc	(revision 263053)
 +++ desktop_aura/desktop_window_tree_host_win.cc	(working copy)
 @@ -130,7 +130,9 @@
                          native_widget_delegate_);
@@ -28,7 +28,7 @@ Index: desktop_aura/desktop_window_tree_host_win.cc
    message_handler_->set_remove_standard_frame(params.remove_standard_frame);
 Index: desktop_aura/desktop_window_tree_host_win.h
 ===================================================================
---- desktop_aura/desktop_window_tree_host_win.h	(revision 261035)
+--- desktop_aura/desktop_window_tree_host_win.h	(revision 263053)
 +++ desktop_aura/desktop_window_tree_host_win.h	(working copy)
 @@ -214,6 +214,7 @@
                               LPARAM l_param) OVERRIDE;
@@ -40,7 +40,7 @@ Index: desktop_aura/desktop_window_tree_host_win.h
    HWND GetHWND() const;
 Index: widget.cc
 ===================================================================
---- widget.cc	(revision 261035)
+--- widget.cc	(revision 263053)
 +++ widget.cc	(working copy)
 @@ -122,6 +122,7 @@
        show_state(ui::SHOW_STATE_DEFAULT),
@@ -74,7 +74,7 @@ Index: widget.cc
  }
 Index: widget.h
 ===================================================================
---- widget.h	(revision 261035)
+--- widget.h	(revision 263053)
 +++ widget.h	(working copy)
 @@ -200,6 +200,7 @@
      // Should the widget be double buffered? Default is false.

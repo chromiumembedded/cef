@@ -500,6 +500,7 @@ void GetCefString(v8::Handle<v8::String> str, CefString& out) {
 void FunctionCallbackImpl(const v8::FunctionCallbackInfo<v8::Value>& info) {
   v8::Isolate* isolate = info.GetIsolate();
   WebCore::V8RecursionScope recursion_scope(
+      isolate,
       WebCore::toExecutionContext(isolate->GetCurrentContext()));
 
   CefV8Handler* handler =
@@ -540,6 +541,7 @@ void AccessorGetterCallbackImpl(
     const v8::PropertyCallbackInfo<v8::Value>& info) {
   v8::Isolate* isolate = info.GetIsolate();
   WebCore::V8RecursionScope recursion_scope(
+      isolate,
       WebCore::toExecutionContext(isolate->GetCurrentContext()));
 
   v8::Handle<v8::Object> obj = info.This();
@@ -580,6 +582,7 @@ void AccessorSetterCallbackImpl(
     const v8::PropertyCallbackInfo<void>& info) {
   v8::Isolate* isolate = info.GetIsolate();
   WebCore::V8RecursionScope recursion_scope(
+      isolate,
       WebCore::toExecutionContext(isolate->GetCurrentContext()));
 
   v8::Handle<v8::Object> obj = info.This();
@@ -949,9 +952,10 @@ CefRefPtr<CefV8Value> CefV8ContextImpl::GetGlobal() {
 bool CefV8ContextImpl::Enter() {
   CEF_V8_REQUIRE_VALID_HANDLE_RETURN(false);
 
-  v8::HandleScope handle_scope(handle_->isolate());
+  v8::Isolate* isolate = handle_->isolate();
+  v8::HandleScope handle_scope(isolate);
 
-  WebCore::V8PerIsolateData::current()->incrementRecursionLevel();
+  WebCore::V8PerIsolateData::from(isolate)->incrementRecursionLevel();
   handle_->GetNewV8Handle()->Enter();
 #ifndef NDEBUG
   ++enter_count_;
@@ -962,11 +966,12 @@ bool CefV8ContextImpl::Enter() {
 bool CefV8ContextImpl::Exit() {
   CEF_V8_REQUIRE_VALID_HANDLE_RETURN(false);
 
+  v8::Isolate* isolate = handle_->isolate();
   v8::HandleScope handle_scope(handle_->isolate());
 
   DLOG_ASSERT(enter_count_ > 0);
   handle_->GetNewV8Handle()->Exit();
-  WebCore::V8PerIsolateData::current()->decrementRecursionLevel();
+  WebCore::V8PerIsolateData::from(isolate)->decrementRecursionLevel();
 #ifndef NDEBUG
   --enter_count_;
 #endif
@@ -1034,8 +1039,7 @@ blink::WebFrame* CefV8ContextImpl::GetWebFrame() {
   CEF_REQUIRE_RT();
   v8::HandleScope handle_scope(handle_->isolate());
   v8::Context::Scope context_scope(GetV8Context());
-  blink::WebFrame* frame = blink::WebFrame::frameForCurrentContext();
-  return frame;
+  return blink::WebFrame::frameForCurrentContext();
 }
 
 

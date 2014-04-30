@@ -100,7 +100,7 @@ int CefBrowserMainParts::PreCreateThreads() {
   }
 
   // Initialize the V8 proxy integration.
-  net::ProxyResolverV8::RememberDefaultIsolate();
+  net::ProxyResolverV8::EnsureIsolateCreated();
 
   // Initialize proxy configuration tracker.
   pref_proxy_config_tracker_.reset(

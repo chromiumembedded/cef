@@ -81,6 +81,7 @@ class CefGeolocationPermissionContext
       int render_view_id,
       int bridge_id,
       const GURL& requesting_frame,
+      bool user_gesture,
       base::Callback<void(bool)> callback)  // NOLINT(readability/function)
       OVERRIDE {
     CEF_REQUIRE_IOT();
