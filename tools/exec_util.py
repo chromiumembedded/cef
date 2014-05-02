@@ -5,14 +5,20 @@
 from subprocess import Popen, PIPE
 import sys
 
-def exec_cmd(cmd, path):
+def exec_cmd(cmd, path, input_file=None):
   """ Execute the specified command and return the result. """
   out = ''
   err = ''
   parts = cmd.split()
   try:
-    process = Popen(parts, cwd=path, stdout=PIPE, stderr=PIPE,
-                    shell=(sys.platform == 'win32'))
+    if not input_file:
+      process = Popen(parts, cwd=path, stdout=PIPE, stderr=PIPE,
+                      shell=(sys.platform == 'win32'))
+    else:
+      with open(input_file, 'rb') as f:
+        process = Popen(parts, cwd=path, stdout=PIPE, stderr=PIPE,
+                        stdin=f,
+                        shell=(sys.platform == 'win32'))
     out, err = process.communicate()
   except IOError, (errno, strerror):
     raise
