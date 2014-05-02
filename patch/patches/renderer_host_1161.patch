@@ -1,7 +1,7 @@
-Index: compositing_iosurface_layer_mac.mm
-===================================================================
---- compositing_iosurface_layer_mac.mm	(revision 258314)
-+++ compositing_iosurface_layer_mac.mm	(working copy)
+diff --git compositing_iosurface_layer_mac.mm compositing_iosurface_layer_mac.mm
+index 0a06d78..72a6d78 100644
+--- compositing_iosurface_layer_mac.mm
++++ compositing_iosurface_layer_mac.mm
 @@ -89,7 +89,7 @@
  
    if (!context_.get() || !renderWidgetHostView_ ||
@@ -11,11 +11,11 @@ Index: compositing_iosurface_layer_mac.mm
      glClear(GL_COLOR_BUFFER_BIT);
      return;
    }
-Index: compositing_iosurface_mac.mm
-===================================================================
---- compositing_iosurface_mac.mm	(revision 258314)
-+++ compositing_iosurface_mac.mm	(working copy)
-@@ -427,7 +427,7 @@
+diff --git compositing_iosurface_mac.mm compositing_iosurface_mac.mm
+index e948863..0031eaa 100644
+--- compositing_iosurface_mac.mm
++++ compositing_iosurface_mac.mm
+@@ -427,7 +427,7 @@ bool CompositingIOSurfaceMac::DrawIOSurface(
      glUseProgram(0); CHECK_AND_SAVE_GL_ERROR();
    } else {
      // Should match the clear color of RenderWidgetHostViewMac.
@@ -24,10 +24,10 @@ Index: compositing_iosurface_mac.mm
      glClear(GL_COLOR_BUFFER_BIT);
    }
  
-Index: compositing_iosurface_shader_programs_mac.cc
-===================================================================
---- compositing_iosurface_shader_programs_mac.cc	(revision 258314)
-+++ compositing_iosurface_shader_programs_mac.cc	(working copy)
+diff --git compositing_iosurface_shader_programs_mac.cc compositing_iosurface_shader_programs_mac.cc
+index 87f0f34..342bdfc 100644
+--- compositing_iosurface_shader_programs_mac.cc
++++ compositing_iosurface_shader_programs_mac.cc
 @@ -11,6 +11,7 @@
  #include "base/debug/trace_event.h"
  #include "base/logging.h"
@@ -36,7 +36,7 @@ Index: compositing_iosurface_shader_programs_mac.cc
  #include "base/values.h"
  #include "content/browser/gpu/gpu_data_manager_impl.h"
  #include "gpu/config/gpu_driver_bug_workaround_type.h"
-@@ -51,6 +52,7 @@
+@@ -51,6 +52,7 @@ const char kfsBlit[] = GLSL_PROGRAM_AS_STRING(
      }
  );
  
@@ -44,7 +44,7 @@ Index: compositing_iosurface_shader_programs_mac.cc
  
  // Only calculates position.
  const char kvsSolidWhite[] = GLSL_PROGRAM_AS_STRING(
-@@ -238,6 +240,16 @@
+@@ -238,6 +240,16 @@ GLuint CompileShaderGLSL(ShaderProgram shader_program, GLenum shader_type,
    const GLuint shader = glCreateShader(shader_type);
    DCHECK_NE(shader, 0u);
  
@@ -61,7 +61,7 @@ Index: compositing_iosurface_shader_programs_mac.cc
    // Select and compile the shader program source code.
    if (shader_type == GL_VERTEX_SHADER) {
      const GLchar* source_snippets[] = {
-@@ -414,6 +426,14 @@
+@@ -414,6 +426,14 @@ void CompositingIOSurfaceShaderPrograms::SetOutputFormatForTesting(
    Reset();
  }
  
@@ -76,11 +76,11 @@ Index: compositing_iosurface_shader_programs_mac.cc
  GLuint CompositingIOSurfaceShaderPrograms::GetShaderProgram(int which) {
    if (shader_programs_[which] == 0u) {
      shader_programs_[which] =
-Index: compositing_iosurface_shader_programs_mac.h
-===================================================================
---- compositing_iosurface_shader_programs_mac.h	(revision 258314)
-+++ compositing_iosurface_shader_programs_mac.h	(working copy)
-@@ -48,6 +48,8 @@
+diff --git compositing_iosurface_shader_programs_mac.h compositing_iosurface_shader_programs_mac.h
+index de1987f..d36b988 100644
+--- compositing_iosurface_shader_programs_mac.h
++++ compositing_iosurface_shader_programs_mac.h
+@@ -48,6 +48,8 @@ class CompositingIOSurfaceShaderPrograms {
      return rgb_to_yv12_output_format_;
    }
  
@@ -89,28 +89,32 @@ Index: compositing_iosurface_shader_programs_mac.h
   protected:
    FRIEND_TEST_ALL_PREFIXES(CompositingIOSurfaceTransformerTest,
                             TransformsRGBToYV12);
-Index: render_widget_host_view_aura.cc
-===================================================================
---- render_widget_host_view_aura.cc	(revision 258314)
-+++ render_widget_host_view_aura.cc	(working copy)
-@@ -2556,8 +2556,10 @@
+diff --git render_widget_host_view_aura.cc render_widget_host_view_aura.cc
+index 7f98b5d..5796361 100644
+--- render_widget_host_view_aura.cc
++++ render_widget_host_view_aura.cc
+@@ -2556,8 +2556,14 @@ void RenderWidgetHostViewAura::OnPaint(gfx::Canvas* canvas) {
      // For non-opaque windows, we don't draw anything, since we depend on the
      // canvas coming from the compositor to already be initialized as
      // transparent.
 -    if (window_->layer()->fills_bounds_opaquely())
 -      canvas->DrawColor(SK_ColorWHITE);
 +    if (window_->layer()->fills_bounds_opaquely()) {
-+      canvas->DrawColor(GetContentClient()->browser()->GetBaseBackgroundColor(
-+          RenderViewHost::From(host_)));
++      if (host_->IsRenderView()) {
++        canvas->DrawColor(GetContentClient()->browser()->GetBaseBackgroundColor(
++            RenderViewHost::From(host_)));
++      } else {
++        canvas->DrawColor(SK_ColorWHITE);
++      }
 +    }
    }
  }
  
-Index: render_widget_host_view_mac.mm
-===================================================================
---- render_widget_host_view_mac.mm	(revision 258314)
-+++ render_widget_host_view_mac.mm	(working copy)
-@@ -494,7 +494,7 @@
+diff --git render_widget_host_view_mac.mm render_widget_host_view_mac.mm
+index 23a6e3c..f17238f 100644
+--- render_widget_host_view_mac.mm
++++ render_widget_host_view_mac.mm
+@@ -494,7 +494,7 @@ void RenderWidgetHostViewMac::EnableCoreAnimation() {
    software_layer_.reset([[CALayer alloc] init]);
    if (!software_layer_)
      LOG(ERROR) << "Failed to create CALayer for software rendering";
@@ -119,7 +123,7 @@ Index: render_widget_host_view_mac.mm
    [software_layer_ setDelegate:cocoa_view_];
    [software_layer_ setContentsGravity:kCAGravityTopLeft];
    [software_layer_ setFrame:NSRectToCGRect([cocoa_view_ bounds])];
-@@ -2868,7 +2868,7 @@
+@@ -2868,7 +2868,7 @@ void RenderWidgetHostViewMac::FrameSwapped() {
  
      NSRect r = [self flipRectToNSRect:gfx::Rect(x, y, width, height)];
      CGContextSetFillColorWithColor(context,
@@ -128,7 +132,7 @@ Index: render_widget_host_view_mac.mm
      CGContextFillRect(context, NSRectToCGRect(r));
    }
    if (damagedRect.bottom() > rect.bottom()) {
-@@ -2890,7 +2890,7 @@
+@@ -2890,7 +2890,7 @@ void RenderWidgetHostViewMac::FrameSwapped() {
  
      NSRect r = [self flipRectToNSRect:gfx::Rect(x, y, width, height)];
      CGContextSetFillColorWithColor(context,
@@ -137,7 +141,7 @@ Index: render_widget_host_view_mac.mm
      CGContextFillRect(context, NSRectToCGRect(r));
    }
  }
-@@ -3051,7 +3051,7 @@
+@@ -3051,7 +3051,7 @@ void RenderWidgetHostViewMac::FrameSwapped() {
      }
    } else {
      CGContextSetFillColorWithColor(context,
@@ -146,7 +150,7 @@ Index: render_widget_host_view_mac.mm
      CGContextFillRect(context, dirtyRect);
      if (renderWidgetHostView_->whiteout_start_time_.is_null())
        renderWidgetHostView_->whiteout_start_time_ = base::TimeTicks::Now();
-@@ -4058,7 +4058,7 @@
+@@ -4058,7 +4058,7 @@ extern NSString *NSTextInputReplacementRangeAttributeName;
    if (!renderWidgetHostView_->render_widget_host_ ||
        renderWidgetHostView_->render_widget_host_->is_hidden()) {
      CGContextSetFillColorWithColor(context,
