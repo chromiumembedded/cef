@@ -104,7 +104,7 @@ for patch in patches:
 
       # Apply the patch file.
       msg('Applying patch to %s' % patch_root_abs)
-      result = exec_cmd('patch -p0 < %s' % patch_file, patch_root_abs)
+      result = exec_cmd('patch -p0', patch_root_abs, patch_file)
       if result['err'] != '':
         raise Exception('Failed to apply patch file: %s' % result['err'])
       sys.stdout.write(result['out'])
@@ -117,12 +117,14 @@ for patch in patches:
     msg('Saving changes to %s' % patch_file)
     patch_paths_str = ' '.join(patch_paths)
     if src_is_git:
-      cmd = 'git diff --no-prefix --relative %s > %s' % \
-            (patch_paths_str, patch_file)
+      cmd = 'git diff --no-prefix --relative %s' % patch_paths_str
     else:
-      cmd = 'svn diff %s > %s' % (patch_paths_str, patch_file)
+      cmd = 'svn diff %s' % patch_paths_str
     result = exec_cmd(cmd, patch_root_abs)
     if result['err'] != '' and result['err'].find('warning:') != 0:
       raise Exception('Failed to create patch file: %s' % result['err'])
+    f = open(patch_file, 'wb')
+    f.write(result['out'])
+    f.close()
   else:
     raise Exception('Patch file does not exist: %s' % patch_file)
