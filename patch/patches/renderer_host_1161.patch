@@ -93,15 +93,19 @@ Index: render_widget_host_view_aura.cc
 ===================================================================
 --- render_widget_host_view_aura.cc	(revision 263053)
 +++ render_widget_host_view_aura.cc	(working copy)
-@@ -2284,8 +2284,10 @@
+@@ -2284,8 +2284,14 @@
      // For non-opaque windows, we don't draw anything, since we depend on the
      // canvas coming from the compositor to already be initialized as
      // transparent.
 -    if (window_->layer()->fills_bounds_opaquely())
 -      canvas->DrawColor(SK_ColorWHITE);
 +    if (window_->layer()->fills_bounds_opaquely()) {
-+      canvas->DrawColor(GetContentClient()->browser()->GetBaseBackgroundColor(
-+          RenderViewHost::From(host_)));
++      if (host_->IsRenderView()) {
++        canvas->DrawColor(GetContentClient()->browser()->GetBaseBackgroundColor(
++            RenderViewHost::From(host_)));
++      } else {
++        canvas->DrawColor(SK_ColorWHITE);
++      }
 +    }
    }
  }
