@@ -1,0 +1,64 @@
+Index: web_contents_view_aura.cc
+===================================================================
+--- web_contents_view_aura.cc	(revision 263053)
++++ web_contents_view_aura.cc	(working copy)
+@@ -1417,17 +1417,25 @@
+ // WebContentsViewAura, aura::client::DragDropDelegate implementation:
+ 
+ void WebContentsViewAura::OnDragEntered(const ui::DropTargetEvent& event) {
+-  if (drag_dest_delegate_)
+-    drag_dest_delegate_->DragInitialize(web_contents_);
+-
++  current_rvh_for_drag_ = web_contents_->GetRenderViewHost();
+   current_drop_data_.reset(new DropData());
+ 
+   PrepareDropData(current_drop_data_.get(), event.data());
+   blink::WebDragOperationsMask op = ConvertToWeb(event.source_operations());
+ 
++  // Give the delegate an opportunity to cancel the drag.
++  if (!web_contents_->GetDelegate()->CanDragEnter(web_contents_,
++                                                  *current_drop_data_.get(),
++                                                  op)) {
++    current_drop_data_.reset(NULL);
++    return;
++  }
++
++  if (drag_dest_delegate_)
++    drag_dest_delegate_->DragInitialize(web_contents_);
++
+   gfx::Point screen_pt =
+       gfx::Screen::GetScreenFor(GetNativeView())->GetCursorScreenPoint();
+-  current_rvh_for_drag_ = web_contents_->GetRenderViewHost();
+   web_contents_->GetRenderViewHost()->DragTargetDragEnter(
+       *current_drop_data_.get(), event.location(), screen_pt, op,
+       ConvertAuraEventFlagsToWebInputEventModifiers(event.flags()));
+@@ -1443,6 +1451,9 @@
+   if (current_rvh_for_drag_ != web_contents_->GetRenderViewHost())
+     OnDragEntered(event);
+ 
++  if (!current_drop_data_)
++    return ui::DragDropTypes::DRAG_NONE;
++
+   blink::WebDragOperationsMask op = ConvertToWeb(event.source_operations());
+   gfx::Point screen_pt =
+       gfx::Screen::GetScreenFor(GetNativeView())->GetCursorScreenPoint();
+@@ -1461,6 +1472,9 @@
+   if (current_rvh_for_drag_ != web_contents_->GetRenderViewHost())
+     return;
+ 
++  if (!current_drop_data_)
++    return;
++
+   web_contents_->GetRenderViewHost()->DragTargetDragLeave();
+   if (drag_dest_delegate_)
+     drag_dest_delegate_->OnDragLeave();
+@@ -1473,6 +1487,9 @@
+   if (current_rvh_for_drag_ != web_contents_->GetRenderViewHost())
+     OnDragEntered(event);
+ 
++  if (!current_drop_data_)
++    return ui::DragDropTypes::DRAG_NONE;
++
+   web_contents_->GetRenderViewHost()->DragTargetDrop(
+       event.location(),
+       gfx::Screen::GetScreenFor(GetNativeView())->GetCursorScreenPoint(),
