@@ -1,0 +1,63 @@
+diff --git web_contents_view_aura.cc web_contents_view_aura.cc
+index 484d04b..43861a9 100644
+--- web_contents_view_aura.cc
++++ web_contents_view_aura.cc
+@@ -1728,17 +1728,24 @@ void WebContentsViewAura::OnMouseEvent(ui::MouseEvent* event) {
+ // WebContentsViewAura, aura::client::DragDropDelegate implementation:
+ 
+ void WebContentsViewAura::OnDragEntered(const ui::DropTargetEvent& event) {
+-  if (drag_dest_delegate_)
+-    drag_dest_delegate_->DragInitialize(web_contents_);
+-
++  current_rvh_for_drag_ = web_contents_->GetRenderViewHost();
+   current_drop_data_.reset(new DropData());
+ 
+   PrepareDropData(current_drop_data_.get(), event.data());
+   blink::WebDragOperationsMask op = ConvertToWeb(event.source_operations());
+ 
++  if (!web_contents_->GetDelegate()->CanDragEnter(web_contents_,
++                                                  *current_drop_data_.get(),
++                                                  op)) {
++    current_drop_data_.reset(NULL);
++    return;
++  }
++
++  if (drag_dest_delegate_)
++    drag_dest_delegate_->DragInitialize(web_contents_);
++
+   gfx::Point screen_pt =
+       gfx::Screen::GetScreenFor(GetNativeView())->GetCursorScreenPoint();
+-  current_rvh_for_drag_ = web_contents_->GetRenderViewHost();
+   web_contents_->GetRenderViewHost()->DragTargetDragEnter(
+       *current_drop_data_.get(), event.location(), screen_pt, op,
+       ConvertAuraEventFlagsToWebInputEventModifiers(event.flags()));
+@@ -1754,6 +1761,9 @@ int WebContentsViewAura::OnDragUpdated(const ui::DropTargetEvent& event) {
+   if (current_rvh_for_drag_ != web_contents_->GetRenderViewHost())
+     OnDragEntered(event);
+ 
++  if (!current_drop_data_)
++    return ui::DragDropTypes::DRAG_NONE;
++
+   blink::WebDragOperationsMask op = ConvertToWeb(event.source_operations());
+   gfx::Point screen_pt =
+       gfx::Screen::GetScreenFor(GetNativeView())->GetCursorScreenPoint();
+@@ -1772,6 +1782,9 @@ void WebContentsViewAura::OnDragExited() {
+   if (current_rvh_for_drag_ != web_contents_->GetRenderViewHost())
+     return;
+ 
++  if (!current_drop_data_)
++    return;
++
+   web_contents_->GetRenderViewHost()->DragTargetDragLeave();
+   if (drag_dest_delegate_)
+     drag_dest_delegate_->OnDragLeave();
+@@ -1784,6 +1797,9 @@ int WebContentsViewAura::OnPerformDrop(const ui::DropTargetEvent& event) {
+   if (current_rvh_for_drag_ != web_contents_->GetRenderViewHost())
+     OnDragEntered(event);
+ 
++  if (!current_drop_data_)
++    return ui::DragDropTypes::DRAG_NONE;
++
+   web_contents_->GetRenderViewHost()->DragTargetDrop(
+       event.location(),
+       gfx::Screen::GetScreenFor(GetNativeView())->GetCursorScreenPoint(),
