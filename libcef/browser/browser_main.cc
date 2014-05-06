@@ -35,6 +35,10 @@
 #include "ui/gfx/screen.h"
 #include "ui/views/test/desktop_test_views_delegate.h"
 #include "ui/views/widget/desktop_aura/desktop_screen.h"
+
+#if defined(OS_WIN)
+#include "ui/base/cursor/cursor_loader_win.h"
+#endif
 #endif  // defined(USE_AURA)
 
 CefBrowserMainParts::CefBrowserMainParts(
@@ -60,7 +64,12 @@ void CefBrowserMainParts::ToolkitInitialized() {
 
   DCHECK(!views::ViewsDelegate::views_delegate);
   new views::DesktopTestViewsDelegate;
+
+#if defined(OS_WIN)
+  ui::CursorLoaderWin::SetCursorResourceModule(
+      CefContentBrowserClient::Get()->GetResourceDllName());
 #endif
+#endif  // defined(USE_AURA)
 }
 
 void CefBrowserMainParts::PostMainMessageLoopStart() {
