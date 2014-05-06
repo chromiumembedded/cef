@@ -698,7 +698,7 @@ void ClientHandler::EndTracing() {
     new Client(this);
   } else {
     CefPostTask(TID_UI,
-        NewCefRunnableMethod(this, &ClientHandler::BeginTracing));
+        NewCefRunnableMethod(this, &ClientHandler::EndTracing));
   }
 }
 
