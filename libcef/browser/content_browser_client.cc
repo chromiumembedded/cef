@@ -691,7 +691,7 @@ content::SpeechRecognitionManagerDelegate*
 
 void CefContentBrowserClient::AllowCertificateError(
     int render_process_id,
-    int render_view_id,
+    int render_frame_id,
     int cert_error,
     const net::SSLInfo& ssl_info,
     const GURL& request_url,
@@ -711,8 +711,8 @@ void CefContentBrowserClient::AllowCertificateError(
   }
 
   CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForView(render_process_id,
-                                            render_view_id);
+      CefBrowserHostImpl::GetBrowserForFrame(render_process_id,
+                                             render_frame_id);
   if (!browser.get())
     return;
   CefRefPtr<CefClient> client = browser->GetClient();
