@@ -14,6 +14,7 @@
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/browser/window_delegate_view.h"
 
 #include "base/file_util.h"
 #include "base/i18n/case_conversion.h"
