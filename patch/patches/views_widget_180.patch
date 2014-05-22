@@ -1,8 +1,8 @@
-Index: desktop_aura/desktop_screen_win.cc
-===================================================================
---- desktop_aura/desktop_screen_win.cc	(revision 263053)
-+++ desktop_aura/desktop_screen_win.cc	(working copy)
-@@ -54,6 +54,8 @@
+diff --git desktop_aura/desktop_screen_win.cc desktop_aura/desktop_screen_win.cc
+index c5edf76..9389662 100644
+--- desktop_aura/desktop_screen_win.cc
++++ desktop_aura/desktop_screen_win.cc
+@@ -54,6 +54,8 @@ gfx::Display DesktopScreenWin::GetDisplayMatching(
  }
  
  HWND DesktopScreenWin::GetHWNDFromNativeView(gfx::NativeView window) const {
@@ -11,11 +11,11 @@ Index: desktop_aura/desktop_screen_win.cc
    aura::WindowTreeHost* host = window->GetHost();
    return host ? host->GetAcceleratedWidget() : NULL;
  }
-Index: desktop_aura/desktop_window_tree_host_win.cc
-===================================================================
---- desktop_aura/desktop_window_tree_host_win.cc	(revision 263053)
-+++ desktop_aura/desktop_window_tree_host_win.cc	(working copy)
-@@ -130,7 +130,9 @@
+diff --git desktop_aura/desktop_window_tree_host_win.cc desktop_aura/desktop_window_tree_host_win.cc
+index 2fc499b..6fa63b5 100644
+--- desktop_aura/desktop_window_tree_host_win.cc
++++ desktop_aura/desktop_window_tree_host_win.cc
+@@ -130,7 +130,9 @@ void DesktopWindowTreeHostWin::Init(aura::Window* content_window,
                          native_widget_delegate_);
  
    HWND parent_hwnd = NULL;
@@ -26,11 +26,11 @@ Index: desktop_aura/desktop_window_tree_host_win.cc
      parent_hwnd = params.parent->GetHost()->GetAcceleratedWidget();
  
    message_handler_->set_remove_standard_frame(params.remove_standard_frame);
-Index: desktop_aura/desktop_window_tree_host_win.h
-===================================================================
---- desktop_aura/desktop_window_tree_host_win.h	(revision 263053)
-+++ desktop_aura/desktop_window_tree_host_win.h	(working copy)
-@@ -214,6 +214,7 @@
+diff --git desktop_aura/desktop_window_tree_host_win.h desktop_aura/desktop_window_tree_host_win.h
+index dc8a218..84680cf 100644
+--- desktop_aura/desktop_window_tree_host_win.h
++++ desktop_aura/desktop_window_tree_host_win.h
+@@ -214,6 +214,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
                               LPARAM l_param) OVERRIDE;
    virtual bool HandleScrollEvent(const ui::ScrollEvent& event) OVERRIDE;
  
@@ -38,27 +38,91 @@ Index: desktop_aura/desktop_window_tree_host_win.h
    Widget* GetWidget();
    const Widget* GetWidget() const;
    HWND GetHWND() const;
-Index: widget.cc
-===================================================================
---- widget.cc	(revision 263053)
-+++ widget.cc	(working copy)
-@@ -122,6 +122,7 @@
+diff --git desktop_aura/desktop_window_tree_host_x11.cc desktop_aura/desktop_window_tree_host_x11.cc
+index 028b6f5..e8b4bd2 100644
+--- desktop_aura/desktop_window_tree_host_x11.cc
++++ desktop_aura/desktop_window_tree_host_x11.cc
+@@ -138,7 +138,8 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
+       content_window_(NULL),
+       window_parent_(NULL),
+       custom_window_shape_(NULL),
+-      urgency_hint_set_(false) {
++      urgency_hint_set_(false),
++      xwindow_destroyed_(false) {
+ }
+ 
+ DesktopWindowTreeHostX11::~DesktopWindowTreeHostX11() {
+@@ -315,7 +316,8 @@ void DesktopWindowTreeHostX11::CloseNow() {
+   // Actually free our native resources.
+   if (ui::PlatformEventSource::GetInstance())
+     ui::PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
+-  XDestroyWindow(xdisplay_, xwindow_);
++  if (!xwindow_destroyed_)
++    XDestroyWindow(xdisplay_, xwindow_);
+   xwindow_ = None;
+ 
+   desktop_native_widget_aura_->OnHostClosed();
+@@ -968,9 +970,13 @@ void DesktopWindowTreeHostX11::InitX11Window(
+   if (swa.override_redirect)
+     attribute_mask |= CWOverrideRedirect;
+ 
++  gfx::AcceleratedWidget parent_widget = params.parent_widget;
++  if (parent_widget == gfx::kNullAcceleratedWidget)
++    parent_widget = x_root_window_;
++
+   bounds_ = params.bounds;
+   xwindow_ = XCreateWindow(
+-      xdisplay_, x_root_window_,
++      xdisplay_, parent_widget,
+       bounds_.x(), bounds_.y(),
+       bounds_.width(), bounds_.height(),
+       0,               // border width
+@@ -1378,6 +1384,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
+       }
+       break;
+     }
++    case DestroyNotify:
++      xwindow_destroyed_ = true;
++      CloseNow();
++      break;
+     case FocusOut:
+       if (xev->xfocus.mode != NotifyGrab) {
+         ReleaseCapture();
+diff --git desktop_aura/desktop_window_tree_host_x11.h desktop_aura/desktop_window_tree_host_x11.h
+index bc20464..63527ae 100644
+--- desktop_aura/desktop_window_tree_host_x11.h
++++ desktop_aura/desktop_window_tree_host_x11.h
+@@ -299,6 +299,9 @@ private:
+   // the frame when |xwindow_| gains focus or handles a mouse button event.
+   bool urgency_hint_set_;
+ 
++  // True if the xwindow has already been destroyed.
++  bool xwindow_destroyed_;
++
+   DISALLOW_COPY_AND_ASSIGN(DesktopWindowTreeHostX11);
+ };
+ 
+diff --git widget.cc widget.cc
+index e05db49..a936235 100644
+--- widget.cc
++++ widget.cc
+@@ -122,6 +122,7 @@ Widget::InitParams::InitParams()
        show_state(ui::SHOW_STATE_DEFAULT),
        double_buffer(false),
        parent(NULL),
-+      parent_widget(NULL),
++      parent_widget(gfx::kNullAcceleratedWidget),
        native_widget(NULL),
        desktop_window_tree_host(NULL),
        top_level(false),
-@@ -148,6 +149,7 @@
+@@ -148,6 +149,7 @@ Widget::InitParams::InitParams(Type type)
        show_state(ui::SHOW_STATE_DEFAULT),
        double_buffer(false),
        parent(NULL),
-+      parent_widget(NULL),
++      parent_widget(gfx::kNullAcceleratedWidget),
        native_widget(NULL),
        desktop_window_tree_host(NULL),
        top_level(false),
-@@ -386,7 +388,12 @@
+@@ -386,7 +388,12 @@ void Widget::Init(const InitParams& in_params) {
        Minimize();
    } else if (params.delegate) {
      SetContentsView(params.delegate->GetContentsView());
@@ -72,11 +136,11 @@ Index: widget.cc
    }
    native_widget_initialized_ = true;
  }
-Index: widget.h
-===================================================================
---- widget.h	(revision 263053)
-+++ widget.h	(working copy)
-@@ -200,6 +200,7 @@
+diff --git widget.h widget.h
+index 640b140..43feff7 100644
+--- widget.h
++++ widget.h
+@@ -200,6 +200,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
      // Should the widget be double buffered? Default is false.
      bool double_buffer;
      gfx::NativeView parent;

@@ -55,6 +55,10 @@ class Widget;
 }
 #endif
 
+#if defined(USE_X11)
+class CefWindowX11;
+#endif
+
 struct Cef_Request_Params;
 struct Cef_Response_Params;
 class CefBrowserInfo;
@@ -589,6 +593,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // associated root window is destroyed.
   views::Widget* window_widget_;
 #endif  // defined(USE_AURA)
+#if defined(USE_X11)
+  CefWindowX11* window_x11_;
+#endif  // defined(USE_X11)
 
   IMPLEMENT_REFCOUNTING(CefBrowserHostImpl);
   DISALLOW_EVIL_CONSTRUCTORS(CefBrowserHostImpl);

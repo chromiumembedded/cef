@@ -319,8 +319,8 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
   }
 
   CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::Create(windowInfo, client, url, settings, NULL, false,
-                                 request_context);
+      CefBrowserHostImpl::Create(windowInfo, client, url, settings,
+                                 kNullWindowHandle, false, request_context);
   return browser.get();
 }
 
@@ -362,7 +362,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
   DCHECK(browser_info.get());
 
   // If |opener| is non-NULL it must be a popup window.
-  DCHECK(opener == NULL || browser_info->is_popup());
+  DCHECK(opener == kNullWindowHandle || browser_info->is_popup());
 
   if (!web_contents) {
     CefBrowserContext* browser_context = NULL;
@@ -1738,7 +1738,7 @@ void CefBrowserHostImpl::WebContentsCreated(
   content::RenderViewHost* view_host = new_contents->GetRenderViewHost();
   content::RenderFrameHost* main_frame_host = new_contents->GetMainFrame();
 
-  CefWindowHandle opener = NULL;
+  CefWindowHandle opener = kNullWindowHandle;
   scoped_refptr<CefBrowserInfo> info =
       CefContentBrowserClient::Get()->GetOrCreateBrowserInfo(
           view_host->GetProcess()->GetID(),
@@ -2160,6 +2160,9 @@ CefBrowserHostImpl::CefBrowserHostImpl(
       file_chooser_pending_(false) {
 #if defined(USE_AURA)
   window_widget_ = NULL;
+#endif
+#if defined(USE_X11)
+  window_x11_ = NULL;
 #endif
 
   DCHECK(!browser_info_->browser().get());

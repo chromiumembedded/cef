@@ -229,8 +229,8 @@
       'tests/cefsimple/mac/Info.plist',
     ],
     'cefsimple_sources_linux': [
-      'tests/cefsimple/cefsimple_gtk.cpp',
-      'tests/cefsimple/simple_handler_gtk.cpp',
+      'tests/cefsimple/cefsimple_linux.cpp',
+      'tests/cefsimple/simple_handler_linux.cpp',
     ],
   },
 }

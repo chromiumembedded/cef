@@ -27,9 +27,9 @@ CefRefPtr<CefBrowser> AppGetBrowser() {
   return g_handler->GetBrowser();
 }
 
-CefWindowHandle AppGetMainHwnd() {
+ClientWindowHandle AppGetMainHwnd() {
   if (!g_handler.get())
-    return NULL;
+    return kNullWindowHandle;
   return g_handler->GetMainHwnd();
 }
 

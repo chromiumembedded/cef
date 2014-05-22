@@ -14,11 +14,17 @@
 #include "include/wrapper/cef_message_router.h"
 #include "cefclient/util.h"
 
+#if defined(OS_LINUX)
+// The Linux client uses GTK instead of the underlying platform type (X11).
+#include <gtk/gtk.h>
+#define ClientWindowHandle GtkWidget*
+#else
+#define ClientWindowHandle CefWindowHandle
+#endif
 
 // Define this value to redirect all popup URLs to the main application browser
 // window.
 // #define TEST_REDIRECT_POPUP_URLS
-
 
 // ClientHandler implementation.
 class ClientHandler : public CefClient,
@@ -156,13 +162,13 @@ class ClientHandler : public CefClient,
   virtual void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
                                          TerminationStatus status) OVERRIDE;
 
-  void SetMainHwnd(CefWindowHandle hwnd);
-  CefWindowHandle GetMainHwnd() { return m_MainHwnd; }
-  void SetEditHwnd(CefWindowHandle hwnd);
-  void SetButtonHwnds(CefWindowHandle backHwnd,
-                      CefWindowHandle forwardHwnd,
-                      CefWindowHandle reloadHwnd,
-                      CefWindowHandle stopHwnd);
+  void SetMainHwnd(ClientWindowHandle hwnd);
+  ClientWindowHandle GetMainHwnd() { return m_MainHwnd; }
+  void SetEditHwnd(ClientWindowHandle hwnd);
+  void SetButtonHwnds(ClientWindowHandle backHwnd,
+                      ClientWindowHandle forwardHwnd,
+                      ClientWindowHandle reloadHwnd,
+                      ClientWindowHandle stopHwnd);
 
   CefRefPtr<CefBrowser> GetBrowser() { return m_Browser; }
   int GetBrowserId() { return m_BrowserId; }
@@ -229,7 +235,7 @@ class ClientHandler : public CefClient,
   BrowserList m_PopupBrowsers;
 
   // The main frame window handle
-  CefWindowHandle m_MainHwnd;
+  ClientWindowHandle m_MainHwnd;
 
   // The child browser id
   int m_BrowserId;
@@ -238,13 +244,13 @@ class ClientHandler : public CefClient,
   bool m_bIsClosing;
 
   // The edit window handle
-  CefWindowHandle m_EditHwnd;
+  ClientWindowHandle m_EditHwnd;
 
   // The button window handles
-  CefWindowHandle m_BackHwnd;
-  CefWindowHandle m_ForwardHwnd;
-  CefWindowHandle m_StopHwnd;
-  CefWindowHandle m_ReloadHwnd;
+  ClientWindowHandle m_BackHwnd;
+  ClientWindowHandle m_ForwardHwnd;
+  ClientWindowHandle m_StopHwnd;
+  ClientWindowHandle m_ReloadHwnd;
 
   // Support for logging.
   std::string m_LogFile;

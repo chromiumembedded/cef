@@ -35,17 +35,31 @@
 #include "include/internal/cef_build.h"
 
 #if defined(OS_LINUX)
-#include <gtk/gtk.h>
+
+typedef union _XEvent XEvent;
+typedef struct _XDisplay XDisplay;
+
+#include "include/internal/cef_export.h"
 #include "include/internal/cef_string.h"
+
+// Handle types.
+#define cef_cursor_handle_t unsigned long
+#define cef_event_handle_t XEvent*
+#define cef_window_handle_t unsigned long
+
+#define kNullCursorHandle 0
+#define kNullEventHandle NULL
+#define kNullWindowHandle 0
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// Handle types.
-#define cef_cursor_handle_t GdkCursor*
-#define cef_event_handle_t GdkEvent*
-#define cef_window_handle_t GtkWidget*
+///
+// Return the singleton X11 display shared with Chromium. The display is not
+// thread-safe and must only be accessed on the browser process UI thread.
+///
+CEF_EXPORT XDisplay* cef_get_xdisplay();
 
 ///
 // Structure representing CefExecuteProcess arguments.
@@ -59,15 +73,20 @@ typedef struct _cef_main_args_t {
 // Class representing window information.
 ///
 typedef struct _cef_window_info_t {
-  ///
-  // Pointer for the parent widget.
-  ///
-  cef_window_handle_t parent_widget;
+  unsigned int x;
+  unsigned int y;
+  unsigned int width;
+  unsigned int height;
 
   ///
-  // Pointer for the new browser widget. Only used with windowed rendering.
+  // Pointer for the parent window.
   ///
-  cef_window_handle_t widget;
+  cef_window_handle_t parent_window;
+
+  ///
+  // Pointer for the new browser window. Only used with windowed rendering.
+  ///
+  cef_window_handle_t window;
 } cef_window_info_t;
 
 #ifdef __cplusplus

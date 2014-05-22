@@ -57,6 +57,10 @@ struct NSView;
 #define cef_window_handle_t void*
 #endif
 
+#define kNullCursorHandle NULL
+#define kNullEventHandle NULL
+#define kNullWindowHandle NULL
+
 #ifdef __cplusplus
 extern "C" {
 #endif

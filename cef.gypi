@@ -16,9 +16,6 @@
         'disable_debugallocation': 1,
       }, { # OS!="win"
         'cef_directory' : '<!(echo $CEF_DIRECTORY)',
-        # Aura is not yet supported on non-Windows platforms.
-        'use_ash': 0,
-        'use_aura': 0,
       }],
       [ 'OS=="mac"', {
         # Strip symbols and create dSYM files for the Release target.

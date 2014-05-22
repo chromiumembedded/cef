@@ -31,6 +31,8 @@
 #ifndef CEF_INCLUDE_CAPI_CEF_BASE_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_BASE_CAPI_H_
 
+#include <stdint.h>
+
 #include "include/internal/cef_export.h"
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_string_list.h"

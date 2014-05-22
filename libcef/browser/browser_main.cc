@@ -26,10 +26,6 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "v8/include/v8.h"
 
-#if defined(OS_LINUX)
-#include "chrome/browser/printing/print_dialog_gtk.h"
-#endif
-
 #if defined(USE_AURA)
 #include "ui/aura/env.h"
 #include "ui/gfx/screen.h"
@@ -40,6 +36,10 @@
 #include "ui/base/cursor/cursor_loader_win.h"
 #endif
 #endif  // defined(USE_AURA)
+
+#if defined(USE_AURA) && defined(USE_X11)
+#include "ui/base/ime/input_method_initializer.h"
+#endif
 
 CefBrowserMainParts::CefBrowserMainParts(
     const content::MainFunctionParams& parameters)
@@ -56,6 +56,14 @@ void CefBrowserMainParts::PreMainMessageLoopStart() {
     message_loop_.reset(new CefBrowserMessageLoop());
     message_loop_->set_thread_name("CrBrowserMain");
   }
+}
+
+void CefBrowserMainParts::PreEarlyInitialization() {
+#if defined(USE_AURA) && defined(USE_X11)
+  // TODO(linux): Consider using a real input method or
+  // views::LinuxUI::SetInstance.
+  ui::InitializeInputMethodForTesting();
+#endif
 }
 
 void CefBrowserMainParts::ToolkitInitialized() {
@@ -77,11 +85,6 @@ void CefBrowserMainParts::PostMainMessageLoopStart() {
   // CEF's internal handling of "chrome://tracing".
   content::WebUIControllerFactory::UnregisterFactoryForTesting(
       content::ContentWebUIControllerFactory::GetInstance());
-
-#if defined(OS_LINUX)
-  printing::PrintingContextLinux::SetCreatePrintDialogFunction(
-      &PrintDialogGtk::CreatePrintDialog);
-#endif
 }
 
 int CefBrowserMainParts::PreCreateThreads() {

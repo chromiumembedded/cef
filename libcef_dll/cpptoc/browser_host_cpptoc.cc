@@ -144,7 +144,7 @@ cef_window_handle_t CEF_CALLBACK browser_host_get_window_handle(
 
   DCHECK(self);
   if (!self)
-    return NULL;
+    return kNullWindowHandle;
 
   // Execute
   cef_window_handle_t _retval = CefBrowserHostCppToC::Get(
@@ -160,7 +160,7 @@ cef_window_handle_t CEF_CALLBACK browser_host_get_opener_window_handle(
 
   DCHECK(self);
   if (!self)
-    return NULL;
+    return kNullWindowHandle;
 
   // Execute
   cef_window_handle_t _retval = CefBrowserHostCppToC::Get(

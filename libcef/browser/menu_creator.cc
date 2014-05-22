@@ -18,8 +18,8 @@
 #include "libcef/browser/menu_creator_runner_win.h"
 #elif defined(OS_MACOSX)
 #include "libcef/browser/menu_creator_runner_mac.h"
-#elif defined(TOOLKIT_GTK)
-#include "libcef/browser/menu_creator_runner_gtk.h"
+#elif defined(OS_LINUX)
+#include "libcef/browser/menu_creator_runner_linux.h"
 #endif
 
 namespace {
@@ -110,8 +110,8 @@ bool CefMenuCreator::CreateRunner() {
     runner_.reset(new CefMenuCreatorRunnerWin);
 #elif defined(OS_MACOSX)
     runner_.reset(new CefMenuCreatorRunnerMac);
-#elif defined(TOOLKIT_GTK)
-    runner_.reset(new CefMenuCreatorRunnerGtk);
+#elif defined(OS_LINUX)
+    runner_.reset(new CefMenuCreatorRunnerLinux);
 #else
     // Need an implementation.
     NOTREACHED();

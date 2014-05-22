@@ -35,12 +35,8 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/win/shell.h"
 #include "ui/gfx/win/hwnd_util.h"
-#include "ui/views/background.h"
-#include "ui/views/controls/webview/webview.h"
-#include "ui/views/layout/fill_layout.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_win.h"
 #include "ui/views/widget/widget.h"
-#include "ui/views/widget/widget_delegate.h"
 
 #pragma comment(lib, "dwmapi.lib")
 
@@ -547,76 +543,6 @@ LPCWSTR ToCursorID(WebCursorInfo::Type type) {
 bool IsSystemCursorID(LPCWSTR cursor_id) {
   return cursor_id >= IDC_ARROW;  // See WinUser.h
 }
-
-// Manages the views-based root window that hosts the web contents. This object
-// will be deleted automatically when the associated root window is destroyed.
-class CefWindowDelegateView : public views::WidgetDelegateView {
- public:
-  explicit CefWindowDelegateView(SkColor background_color)
-    : background_color_(background_color),
-      web_view_(NULL) {
-    
-  }
-
-  // Create the Widget and associated root window.
-  void Init(gfx::AcceleratedWidget parent_widget,
-            content::WebContents* web_contents,
-            const gfx::Rect& bounds) {
-    DCHECK(!web_view_);
-    web_view_ = new views::WebView(web_contents->GetBrowserContext());
-    web_view_->SetWebContents(web_contents);
-    web_view_->SetPreferredSize(bounds.size());
-
-    views::Widget* widget = new views::Widget;
-
-    // See CalculateWindowStylesFromInitParams in
-    // ui/views/widget/widget_hwnd_utils.cc for the conversion of |params| to
-    // Windows style flags.
-    views::Widget::InitParams params;
-    params.parent_widget = parent_widget;
-    params.bounds = bounds;
-    params.delegate = this;
-    params.top_level = true;
-    // Set the WS_CHILD flag.
-    params.child = true;
-    // Set the WS_VISIBLE flag.
-    params.type = views::Widget::InitParams::TYPE_CONTROL;
-    // Don't set the WS_EX_COMPOSITED flag.
-    params.opacity = views::Widget::InitParams::OPAQUE_WINDOW;
-
-    // Results in a call to InitContent().
-    widget->Init(params);
-
-    // |widget| should now be associated with |this|.
-    DCHECK_EQ(widget, GetWidget());
-  }
-
- private:
-  // Initialize the Widget's content.
-  void InitContent() {
-    set_background(views::Background::CreateSolidBackground(background_color_));
-    SetLayoutManager(new views::FillLayout());
-    AddChildView(web_view_);
-  }
-
-  // WidgetDelegateView methods:
-  virtual bool CanResize() const OVERRIDE { return true; }
-  virtual bool CanMaximize() const OVERRIDE { return true; }
-  virtual View* GetContentsView() OVERRIDE { return this; }
-
-  // View methods:
-  virtual void ViewHierarchyChanged(
-      const ViewHierarchyChangedDetails& details) OVERRIDE {
-    if (details.is_add && details.child == this)
-      InitContent();
-  }
-
- private:
-  SkColor background_color_;
-  views::WebView* web_view_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefWindowDelegateView);
-};
 
 }  // namespace
 

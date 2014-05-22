@@ -485,20 +485,20 @@ void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
   }
 }
 
-void ClientHandler::SetMainHwnd(CefWindowHandle hwnd) {
+void ClientHandler::SetMainHwnd(ClientWindowHandle hwnd) {
   AutoLock lock_scope(this);
   m_MainHwnd = hwnd;
 }
 
-void ClientHandler::SetEditHwnd(CefWindowHandle hwnd) {
+void ClientHandler::SetEditHwnd(ClientWindowHandle hwnd) {
   AutoLock lock_scope(this);
   m_EditHwnd = hwnd;
 }
 
-void ClientHandler::SetButtonHwnds(CefWindowHandle backHwnd,
-                                   CefWindowHandle forwardHwnd,
-                                   CefWindowHandle reloadHwnd,
-                                   CefWindowHandle stopHwnd) {
+void ClientHandler::SetButtonHwnds(ClientWindowHandle backHwnd,
+                                   ClientWindowHandle forwardHwnd,
+                                   ClientWindowHandle reloadHwnd,
+                                   ClientWindowHandle stopHwnd) {
   AutoLock lock_scope(this);
   m_BackHwnd = backHwnd;
   m_ForwardHwnd = forwardHwnd;

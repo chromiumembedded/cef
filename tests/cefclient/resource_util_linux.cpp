@@ -6,6 +6,7 @@
 #include "cefclient/resource_util.h"
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 bool GetResourceDir(std::string& dir) {
   char buff[1024];

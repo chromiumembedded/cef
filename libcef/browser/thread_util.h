@@ -43,6 +43,7 @@
 #define CEF_POST_TASK(id, task) \
     content::BrowserThread::PostTask(id, FROM_HERE, task)
 #define CEF_POST_DELAYED_TASK(id, task, delay_ms) \
-    content::BrowserThread::PostDelayedTask(id, FROM_HERE, task, delay_ms)
+    content::BrowserThread::PostDelayedTask(id, FROM_HERE, task, \
+        base::TimeDelta::FromMilliseconds(delay_ms))
 
 #endif  // CEF_LIBCEF_BROWSER_THREAD_UTIL_H_

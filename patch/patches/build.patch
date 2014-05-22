@@ -1,7 +1,7 @@
-Index: common.gypi
-===================================================================
---- common.gypi	(revision 263053)
-+++ common.gypi	(working copy)
+diff --git common.gypi common.gypi
+index c87ec63..45bb14e 100644
+--- common.gypi
++++ common.gypi
 @@ -9,6 +9,9 @@
    # Variables expected to be overriden on the GYP command line (-D) or by
    # ~/.gyp/include.gypi.
@@ -12,24 +12,11 @@ Index: common.gypi
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
-@@ -101,9 +104,9 @@
-             #
-             # TODO(erg): Merge this into the previous block once compiling with
-             # aura safely implies including ash capabilities.
--            ['OS=="linux"', {
--              'use_aura%': 1,
--            }],
-+            #['OS=="linux"', {
-+            #  'use_aura%': 1,
-+            #}],
- 
-             # Whether we're a traditional desktop unix.
-             ['(OS=="linux" or OS=="freebsd" or OS=="openbsd" or OS=="solaris") and chromeos==0', {
-Index: mac/strip_save_dsym
-===================================================================
---- mac/strip_save_dsym	(revision 263053)
-+++ mac/strip_save_dsym	(working copy)
-@@ -48,7 +48,7 @@
+diff --git mac/strip_save_dsym mac/strip_save_dsym
+index c9cf226..0dedbe3 100755
+--- mac/strip_save_dsym
++++ mac/strip_save_dsym
+@@ -48,7 +48,7 @@ def macho_archs(macho):
                   "bundle"]
    macho_types_re = "Mach-O (?:64-bit )?(?:" + "|".join(macho_types) + ")"
  

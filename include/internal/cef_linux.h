@@ -108,8 +108,12 @@ struct CefWindowInfoTraits {
 
   static inline void set(const struct_type* src, struct_type* target,
       bool copy) {
-    target->parent_widget = src->parent_widget;
-    target->widget = src->widget;
+    target->x = src->x;
+    target->y = src->y;
+    target->width = src->width;
+    target->height = src->height;
+    target->parent_window = src->parent_window;
+    target->window = src->window;
   }
 };
 
@@ -123,10 +127,15 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
   explicit CefWindowInfo(const CefWindowInfo& r) : parent(r) {}
 
   ///
-  // Create the browser as a child widget.
+  // Create the browser as a child window.
   ///
-  void SetAsChild(CefWindowHandle parent) {
-    parent_widget = parent;
+  void SetAsChild(CefWindowHandle parent,
+                  const CefRect& windowRect) {
+    parent_window = parent;
+    x = windowRect.x;
+    y = windowRect.y;
+    width = windowRect.width;
+    height = windowRect.height;
   }
 };
 

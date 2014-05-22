@@ -4,6 +4,7 @@
 
 #include "include/wrapper/cef_byte_read_handler.h"
 #include <algorithm>
+#include <cstdio>
 #include <cstdlib>
 #include "libcef_dll/cef_logging.h"
 

@@ -38,14 +38,18 @@
 #include <windows.h>
 #include "include/internal/cef_string.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 // Handle types.
 #define cef_cursor_handle_t HCURSOR
 #define cef_event_handle_t MSG*
 #define cef_window_handle_t HWND
+
+#define kNullCursorHandle NULL
+#define kNullEventHandle NULL
+#define kNullWindowHandle NULL
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 ///
 // Structure representing CefExecuteProcess arguments.

@@ -6,11 +6,17 @@
 // in order for gtkglext to compile.
 #undef GTK_DISABLE_SINGLE_INCLUDES
 
+#include <gdk/gdk.h>
+#include <gdk/gdkx.h>
 #include <gtk/gtk.h>
-#include <gtk/gtkgl.h>
+
+#include <X11/Xlib.h>
+#undef Success  // Definition conflicts with cef_message_router.h
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <string>
+
 #include "cefclient/cefclient.h"
 #include "include/cef_app.h"
 #include "include/cef_browser.h"
@@ -21,10 +27,15 @@
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
 
-char szWorkingDir[512];  // The current working directory
-
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
+
+namespace {
+
+char szWorkingDir[512];  // The current working directory
+
+// Height of the buttons at the top of the GTK window.
+int g_toolbar_height = 0;
 
 void destroy(GtkWidget* widget, gpointer data) {
   // Quitting CEF is handled in ClientHandler::OnBeforeClose().
@@ -51,6 +62,46 @@ gboolean delete_event(GtkWidget* widget, GdkEvent* event,
 
 void TerminationSignalHandler(int signatl) {
   AppQuitMessageLoop();
+}
+
+void VboxSizeAllocated(GtkWidget *widget,
+                       GtkAllocation *allocation,
+                       void *data) {
+  if (g_handler) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    if (browser) {
+      // Size the browser window to match the GTK widget.
+      ::Display* xdisplay = cef_get_xdisplay();
+      ::Window xwindow = browser->GetHost()->GetWindowHandle();
+      XWindowChanges changes = {0};
+      changes.width = allocation->width;
+      changes.height = allocation->height - g_toolbar_height;
+      XConfigureWindow(xdisplay, xwindow, CWHeight | CWWidth, &changes);
+    }
+  }
+}
+
+void ToolbarSizeAllocated(GtkWidget *widget,
+                          GtkAllocation *allocation,
+                          void *data) {
+  g_toolbar_height = allocation->height;
+}
+
+gboolean WindowFocusIn(GtkWidget* widget,
+                       GdkEventFocus* event,
+                       gpointer user_data) {
+  if (g_handler && event->in) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    if (browser) {
+      // Give focus to the browser window.
+      ::Display* xdisplay = cef_get_xdisplay();
+      ::Window xwindow = browser->GetHost()->GetWindowHandle();
+      XSetInputFocus(xdisplay, xwindow, RevertToParent, CurrentTime);
+      return TRUE;
+    }
+  }
+
+  return FALSE;
 }
 
 // Callback for Tests > Get Source... menu item.
@@ -188,6 +239,20 @@ void URLEntryActivate(GtkEntry* entry) {
   g_handler->GetBrowser()->GetMainFrame()->LoadURL(std::string(url).c_str());
 }
 
+gboolean URLEntryButtonPress(GtkWidget* widget,
+                             GdkEventButton* event,
+                             gpointer user_data) {
+  // Give focus to the GTK window.
+  GtkWidget* window = gtk_widget_get_ancestor(widget,
+      GTK_TYPE_WINDOW);
+  GdkWindow* gdk_window = gtk_widget_get_window(window);
+  ::Display* xdisplay = GDK_WINDOW_XDISPLAY(gdk_window);
+  ::Window xwindow = GDK_WINDOW_XID(gdk_window);
+  XSetInputFocus(xdisplay, xwindow, RevertToParent, CurrentTime);
+
+  return FALSE;
+}
+
 // GTK utility functions ----------------------------------------------
 
 GtkWidget* AddMenuEntry(GtkWidget* menu_widget, const char* text,
@@ -237,16 +302,7 @@ GtkWidget* CreateMenuBar() {
   return menu_bar;
 }
 
-// WebViewDelegate::TakeFocus in the test webview delegate.
-static gboolean HandleFocus(GtkWidget* widget,
-                            GdkEventFocus* focus) {
-  if (g_handler.get() && g_handler->GetBrowserId()) {
-    // Give focus to the browser window.
-    g_handler->GetBrowser()->GetHost()->SetFocus(true);
-  }
-
-  return TRUE;
-}
+}  // namespace
 
 int main(int argc, char* argv[]) {
   CefMainArgs main_args(argc, argv);
@@ -260,13 +316,6 @@ int main(int argc, char* argv[]) {
   if (!getcwd(szWorkingDir, sizeof (szWorkingDir)))
     return -1;
 
-  GtkWidget* window;
-
-  gtk_init(&argc, &argv);
-
-  // Perform gtkglext initialization required by the OSR example.
-  gtk_gl_init(&argc, &argv);
-
   // Parse command line arguments.
   AppInitCommandLine(argc, argv);
 
@@ -278,15 +327,22 @@ int main(int argc, char* argv[]) {
   // Initialize CEF.
   CefInitialize(main_args, settings, app.get(), NULL);
 
+  // The Chromium sandbox requires that there only be a single thread during
+  // initialization. Therefore initialize GTK after CEF.
+  gtk_init(&argc, &argv);
+
   // Register the scheme handler.
   scheme_test::InitTest();
 
-  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  GtkWidget* window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
-
-  g_signal_connect(window, "focus", G_CALLBACK(&HandleFocus), NULL);
+  g_signal_connect(window, "focus-in-event",
+                   G_CALLBACK(WindowFocusIn), NULL);
 
   GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
+  g_signal_connect(vbox, "size-allocate",
+                   G_CALLBACK(VboxSizeAllocated), NULL);
+  gtk_container_add(GTK_CONTAINER(window), vbox);
 
   GtkWidget* menu_bar = CreateMenuBar();
 
@@ -295,6 +351,8 @@ int main(int argc, char* argv[]) {
   GtkWidget* toolbar = gtk_toolbar_new();
   // Turn off the labels on the toolbar buttons.
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_ICONS);
+  g_signal_connect(toolbar, "size-allocate",
+                   G_CALLBACK(ToolbarSizeAllocated), NULL);
 
   GtkToolItem* back = gtk_tool_button_new_from_stock(GTK_STOCK_GO_BACK);
   g_signal_connect(back, "clicked",
@@ -316,12 +374,14 @@ int main(int argc, char* argv[]) {
                    G_CALLBACK(StopButtonClicked), NULL);
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar), stop, -1 /* append */);
 
-  GtkWidget* m_editWnd = gtk_entry_new();
-  g_signal_connect(G_OBJECT(m_editWnd), "activate",
+  GtkWidget* entry = gtk_entry_new();
+  g_signal_connect(entry, "activate",
                    G_CALLBACK(URLEntryActivate), NULL);
+  g_signal_connect(entry, "button-press-event",
+                   G_CALLBACK(URLEntryButtonPress), NULL);
 
   GtkToolItem* tool_item = gtk_tool_item_new();
-  gtk_container_add(GTK_CONTAINER(tool_item), m_editWnd);
+  gtk_container_add(GTK_CONTAINER(tool_item), entry);
   gtk_tool_item_set_expand(tool_item, TRUE);
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tool_item, -1);  // append
 
@@ -335,24 +395,27 @@ int main(int argc, char* argv[]) {
   // Create the handler.
   g_handler = new ClientHandler();
   g_handler->SetMainHwnd(vbox);
-  g_handler->SetEditHwnd(m_editWnd);
+  g_handler->SetEditHwnd(entry);
   g_handler->SetButtonHwnds(GTK_WIDGET(back), GTK_WIDGET(forward),
                             GTK_WIDGET(reload), GTK_WIDGET(stop));
 
-  // Create the browser view.
+  // Show the GTK window.
+  gtk_widget_show_all(GTK_WIDGET(window));
+
   CefWindowInfo window_info;
   CefBrowserSettings browserSettings;
 
-  window_info.SetAsChild(vbox);
+  // The GTK window must be visible before we can retrieve the XID.
+  ::Window xwindow = GDK_WINDOW_XID(gtk_widget_get_window(window));
+  window_info.SetAsChild(xwindow,
+      CefRect(0, g_toolbar_height, 800, 600 - g_toolbar_height));
 
+  // Create the browser window.
   CefBrowserHost::CreateBrowserSync(
       window_info, g_handler.get(),
       g_handler->GetStartupURL(), browserSettings, NULL);
 
-  gtk_container_add(GTK_CONTAINER(window), vbox);
-  gtk_widget_show_all(GTK_WIDGET(window));
-
-  // Install an signal handler so we clean up after ourselves.
+  // Install a signal handler so we clean up after ourselves.
   signal(SIGINT, TerminationSignalHandler);
   signal(SIGTERM, TerminationSignalHandler);
 

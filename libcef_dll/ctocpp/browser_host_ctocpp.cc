@@ -100,7 +100,7 @@ void CefBrowserHostCToCpp::SetFocus(bool enable) {
 
 CefWindowHandle CefBrowserHostCToCpp::GetWindowHandle() {
   if (CEF_MEMBER_MISSING(struct_, get_window_handle))
-    return NULL;
+    return kNullWindowHandle;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -113,7 +113,7 @@ CefWindowHandle CefBrowserHostCToCpp::GetWindowHandle() {
 
 CefWindowHandle CefBrowserHostCToCpp::GetOpenerWindowHandle() {
   if (CEF_MEMBER_MISSING(struct_, get_opener_window_handle))
-    return NULL;
+    return kNullWindowHandle;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

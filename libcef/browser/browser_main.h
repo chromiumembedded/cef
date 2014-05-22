@@ -41,6 +41,7 @@ class CefBrowserMainParts : public content::BrowserMainParts {
 
   virtual void PreMainMessageLoopStart() OVERRIDE;
   virtual void PostMainMessageLoopStart() OVERRIDE;
+  virtual void PreEarlyInitialization() OVERRIDE;
   virtual void ToolkitInitialized() OVERRIDE;
   virtual int PreCreateThreads() OVERRIDE;
   virtual void PreMainMessageLoopRun() OVERRIDE;

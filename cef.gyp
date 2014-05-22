@@ -98,11 +98,6 @@
             '<@(cefclient_sources_win)',
           ],
         }],
-        [ 'toolkit_uses_gtk == 1', {
-          'dependencies': [
-            '<(DEPTH)/sandbox/sandbox.gyp:sandbox',
-          ],
-        }],
         [ 'OS=="mac"', {
           'product_name': 'cefclient',
           'dependencies': [
@@ -188,9 +183,13 @@
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
           'dependencies': [
             'gtk',
-            'gtkglext',
             'libcef',
           ],
+          'link_settings': {
+            'libraries': [
+              '-lX11',
+            ],
+          },
           'sources': [
             '<@(includes_linux)',
             '<@(cefclient_sources_linux)',
@@ -281,11 +280,6 @@
             '<@(cefsimple_sources_win)',
           ],
         }],
-        [ 'toolkit_uses_gtk == 1', {
-          'dependencies': [
-            '<(DEPTH)/sandbox/sandbox.gyp:sandbox',
-          ],
-        }],
         [ 'OS=="mac"', {
           'product_name': 'cefsimple',
           'dependencies': [
@@ -369,9 +363,13 @@
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
           'dependencies': [
-            'gtk',
             'libcef',
           ],
+          'link_settings': {
+            'libraries': [
+              '-lX11',
+            ],
+          },
           'sources': [
             '<@(includes_linux)',
             '<@(cefsimple_sources_linux)',
@@ -477,11 +475,6 @@
             },
           },
         }],
-        [ 'toolkit_uses_gtk == 1', {
-          'dependencies': [
-            '<(DEPTH)/sandbox/sandbox.gyp:sandbox',
-          ],
-        }],
         [ 'OS=="mac"', {
           'product_name': 'cef_unittests',
           'dependencies': [
@@ -565,8 +558,6 @@
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
           'dependencies': [
-            '<(DEPTH)/build/linux/system.gyp:gtk',
-            '<(DEPTH)/build/linux/system.gyp:gtkprint',
             'libcef',
           ],
         }],
@@ -596,12 +587,6 @@
         }, {  # OS!="mac"
           'dependencies': [
             'libcef',
-          ],
-        }],
-        [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
-          'dependencies': [
-            '<(DEPTH)/build/linux/system.gyp:gtk',
-            '<(DEPTH)/build/linux/system.gyp:gtkprint',
           ],
         }],
       ],
@@ -1101,29 +1086,14 @@
           ],
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
-          'dependencies':[
-            '<(DEPTH)/build/linux/system.gyp:gtkprint',
-          ],
           'sources': [
             '<@(includes_linux)',
-            'libcef/browser/browser_host_impl_gtk.cc',
-            'libcef/browser/browser_main_gtk.cc',
-            'libcef/browser/gtk_util_stub.cc',
-            'libcef/browser/javascript_dialog_gtk.cc',
-            'libcef/browser/menu_creator_runner_gtk.cc',
-            'libcef/browser/menu_creator_runner_gtk.h',
-            # Include sources for context menu implementation.
-            '<(DEPTH)/chrome/browser/ui/gtk/gtk_custom_menu.cc',
-            '<(DEPTH)/chrome/browser/ui/gtk/gtk_custom_menu.h',
-            '<(DEPTH)/chrome/browser/ui/gtk/gtk_custom_menu_item.cc',
-            '<(DEPTH)/chrome/browser/ui/gtk/gtk_custom_menu_item.h',
-            '<(DEPTH)/chrome/browser/ui/gtk/menu_gtk.cc',
-            '<(DEPTH)/chrome/browser/ui/gtk/menu_gtk.h',
-            '<(DEPTH)/chrome/browser/ui/views/event_utils.cc',
-            '<(DEPTH)/chrome/browser/ui/views/event_utils.h',
+            'libcef/browser/browser_host_impl_linux.cc',
+            'libcef/browser/browser_main_linux.cc',
+            'libcef/browser/javascript_dialog_linux.cc',
+            'libcef/browser/menu_creator_runner_linux.cc',
+            'libcef/browser/menu_creator_runner_linux.h',
             #Include sources for printing.
-            '<(DEPTH)/chrome/browser/printing/print_dialog_gtk.cc',
-            '<(DEPTH)/chrome/browser/printing/print_dialog_gtk.h',
             '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_linux.cc',
           ],
         }],
@@ -1136,7 +1106,14 @@
           'dependencies': [
             '<(DEPTH)/ui/views/controls/webview/webview.gyp:webview',
             '<(DEPTH)/ui/views/views.gyp:views',
-            '<(DEPTH)/ui/views/views.gyp:views_test_support',
+          ],
+          'sources': [
+            'libcef/browser/window_delegate_view.cc',
+            'libcef/browser/window_delegate_view.h',
+            '<(DEPTH)/ui/views/test/desktop_test_views_delegate.cc',
+            '<(DEPTH)/ui/views/test/desktop_test_views_delegate.h',
+            '<(DEPTH)/ui/views/test/test_views_delegate.cc',
+            '<(DEPTH)/ui/views/test/test_views_delegate.h',
           ],
         }],
       ],
@@ -1617,8 +1594,6 @@
           [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
             'dependencies':[
               '<(DEPTH)/base/allocator/allocator.gyp:allocator',
-              '<(DEPTH)/build/linux/system.gyp:gtk',
-              '<(DEPTH)/build/linux/system.gyp:gtkprint',
             ],
           }],
         ],
@@ -1633,27 +1608,6 @@
             # gtk requires gmodule, but it does not list it as a dependency
             # in some misconfigured systems.
             'gtk_packages': 'gmodule-2.0 gtk+-2.0 gthread-2.0 gtk+-unix-print-2.0',
-          },
-          'direct_dependent_settings': {
-            'cflags': [
-              '<!@(pkg-config --cflags <(gtk_packages))',
-            ],
-          },
-          'link_settings': {
-            'ldflags': [
-              '<!@(pkg-config --libs-only-L --libs-only-other <(gtk_packages))',
-            ],
-            'libraries': [
-              '<!@(pkg-config --libs-only-l <(gtk_packages))',
-            ],
-          },
-        },
-        {
-          'target_name': 'gtkglext',
-          'type': 'none',
-          'variables': {
-            # gtkglext is required by the cefclient OSR example.
-            'gtk_packages': 'gtkglext-1.0',
           },
           'direct_dependent_settings': {
             'cflags': [
