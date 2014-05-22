@@ -39,6 +39,7 @@
 #pragma once
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_stream_capi.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,6 +55,16 @@ typedef struct _cef_drag_data_t {
   // Base structure.
   ///
   cef_base_t base;
+
+  ///
+  // Returns a copy of the current object.
+  ///
+  struct _cef_drag_data_t* (CEF_CALLBACK *clone)(struct _cef_drag_data_t* self);
+
+  ///
+  // Returns true (1) if this object is read-only.
+  ///
+  int (CEF_CALLBACK *is_read_only)(struct _cef_drag_data_t* self);
 
   ///
   // Returns true (1) if the drag data is a link.
@@ -121,12 +132,76 @@ typedef struct _cef_drag_data_t {
       struct _cef_drag_data_t* self);
 
   ///
+  // Write the contents of the file being dragged out of the web view into
+  // |writer|. Returns the number of bytes sent to |writer|. If |writer| is NULL
+  // this function will return the size of the file contents in bytes. Call
+  // get_file_name() to get a suggested name for the file.
+  ///
+  size_t (CEF_CALLBACK *get_file_contents)(struct _cef_drag_data_t* self,
+      struct _cef_stream_writer_t* writer);
+
+  ///
   // Retrieve the list of file names that are being dragged into the browser
   // window.
   ///
   int (CEF_CALLBACK *get_file_names)(struct _cef_drag_data_t* self,
       cef_string_list_t names);
+
+  ///
+  // Set the link URL that is being dragged.
+  ///
+  void (CEF_CALLBACK *set_link_url)(struct _cef_drag_data_t* self,
+      const cef_string_t* url);
+
+  ///
+  // Set the title associated with the link being dragged.
+  ///
+  void (CEF_CALLBACK *set_link_title)(struct _cef_drag_data_t* self,
+      const cef_string_t* title);
+
+  ///
+  // Set the metadata associated with the link being dragged.
+  ///
+  void (CEF_CALLBACK *set_link_metadata)(struct _cef_drag_data_t* self,
+      const cef_string_t* data);
+
+  ///
+  // Set the plain text fragment that is being dragged.
+  ///
+  void (CEF_CALLBACK *set_fragment_text)(struct _cef_drag_data_t* self,
+      const cef_string_t* text);
+
+  ///
+  // Set the text/html fragment that is being dragged.
+  ///
+  void (CEF_CALLBACK *set_fragment_html)(struct _cef_drag_data_t* self,
+      const cef_string_t* html);
+
+  ///
+  // Set the base URL that the fragment came from.
+  ///
+  void (CEF_CALLBACK *set_fragment_base_url)(struct _cef_drag_data_t* self,
+      const cef_string_t* base_url);
+
+  ///
+  // Reset the file contents. You should do this before calling
+  // cef_browser_host_t::DragTargetDragEnter as the web view does not allow us
+  // to drag in this kind of data.
+  ///
+  void (CEF_CALLBACK *reset_file_contents)(struct _cef_drag_data_t* self);
+
+  ///
+  // Add a file that is being dragged into the webview.
+  ///
+  void (CEF_CALLBACK *add_file)(struct _cef_drag_data_t* self,
+      const cef_string_t* path, const cef_string_t* display_name);
 } cef_drag_data_t;
+
+
+///
+// Create a new cef_drag_data_t object.
+///
+CEF_EXPORT cef_drag_data_t* cef_drag_data_create();
 
 
 #ifdef __cplusplus

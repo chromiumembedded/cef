@@ -6,6 +6,25 @@
   body {background:rgba(255, 0, 0, 0.5); }
   input {-webkit-appearance: none; }
   #LI11select {width: 75px;}
+  .dropdiv {
+    width:50px;
+    height:50px;
+    border:1px solid #aaaaaa;
+    float: left;
+  }
+  #dragdiv {
+    width: 30px;
+    height: 30px;
+    background-color: green;
+    margin: 10px;
+  }
+  #draghere {
+    position: relative;
+    z-index: -1;
+    top: 7px;
+    left: 7px;
+    opacity: 0.4;
+  }
   </style>
   <script>
   function getElement(id) { return document.getElementById(id); }
@@ -24,9 +43,27 @@
       param += event.button;
 
     // Results in a call to the OnQuery method in os_rendering_unittest.cc.
-    window.testQuery({request: param});
+    if (window.testQuery)
+      window.testQuery({request: param});
   }
 
+  function allowDrop(ev) {
+    ev.preventDefault();
+  }
+
+  function drag(ev) {
+    ev.dataTransfer.setData("Text",ev.target.id);
+  }
+
+  function drop(ev) {
+    var data=ev.dataTransfer.getData("Text");
+    ev.target.innerHTML = '';
+    var dragged = document.getElementById(data);
+    dragged.setAttribute('draggable', 'false');
+    ev.target.appendChild(dragged);
+    if (window.testQuery)
+      window.testQuery({request: "osrdrop"});
+  }
   </script>
   <body onfocus='onEventTest(event)' onblur='onEventTest(event)' onload='load();'>
   <h1 id='LI00' onclick="onEventTest(event)">
@@ -56,6 +93,12 @@
   <li id='LI10' title='EXPECTED_TOOLTIP'>Mouse over this element will
       trigger show a tooltip</li>
   </ol>
+  <div class="dropdiv" id="dropdiv" ondrop="drop(event)" ondragover="allowDrop(event)">
+    <span id="draghere">Drag here</span>
+  </div>
+  <div class="dropdiv">
+    <div id="dragdiv" draggable="true" ondragstart="drag(event)"></div>
+  </div>
   <br />
   <br />
   <br />

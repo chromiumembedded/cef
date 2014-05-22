@@ -39,6 +39,7 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_drag_data.h"
 #include "include/cef_frame.h"
 #include "include/cef_process_message.h"
 #include "include/cef_request_context.h"
@@ -218,6 +219,7 @@ class CefRunFileDialogCallback : public virtual CefBase {
 /*--cef(source=library)--*/
 class CefBrowserHost : public virtual CefBase {
  public:
+  typedef cef_drag_operations_mask_t DragOperationsMask;
   typedef cef_file_dialog_mode_t FileDialogMode;
   typedef cef_mouse_button_type_t MouseButtonType;
   typedef cef_paint_element_type_t PaintElementType;
@@ -503,6 +505,72 @@ class CefBrowserHost : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent) =0;
+
+  ///
+  // Call this method when the user drags the mouse into the web view (before
+  // calling DragTargetDragOver/DragTargetLeave/DragTargetDrop).
+  // |drag_data| should not contain file contents as this type of data is not
+  // allowed to be dragged into the web view. File contents can be removed using
+  // CefDragData::ResetFileContents (for example, if |drag_data| comes from
+  // CefRenderHandler::StartDragging).
+  // This method is only used when window rendering is disabled.
+  ///
+  /*--cef()--*/
+  virtual void DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
+                                  const CefMouseEvent& event,
+                                  DragOperationsMask allowed_ops) =0;
+
+  ///
+  // Call this method each time the mouse is moved across the web view during
+  // a drag operation (after calling DragTargetDragEnter and before calling
+  // DragTargetDragLeave/DragTargetDrop).
+  // This method is only used when window rendering is disabled.
+  ///
+  /*--cef()--*/
+  virtual void DragTargetDragOver(const CefMouseEvent& event,
+                                  DragOperationsMask allowed_ops) =0;
+
+  ///
+  // Call this method when the user drags the mouse out of the web view (after
+  // calling DragTargetDragEnter).
+  // This method is only used when window rendering is disabled.
+  ///
+  /*--cef()--*/
+  virtual void DragTargetDragLeave() =0;
+
+  ///
+  // Call this method when the user completes the drag operation by dropping
+  // the object onto the web view (after calling DragTargetDragEnter).
+  // The object being dropped is |drag_data|, given as an argument to
+  // the previous DragTargetDragEnter call.
+  // This method is only used when window rendering is disabled.
+  ///
+  /*--cef()--*/
+  virtual void DragTargetDrop(const CefMouseEvent& event) =0;
+
+  ///
+  // Call this method when the drag operation started by a
+  // CefRenderHandler::StartDragging call has ended either in a drop or
+  // by being cancelled. |x| and |y| are mouse coordinates relative to the
+  // upper-left corner of the view. If the web view is both the drag source
+  // and the drag target then all DragTarget* methods should be called before
+  // DragSource* mthods.
+  // This method is only used when window rendering is disabled.
+  ///
+  /*--cef()--*/
+  virtual void DragSourceEndedAt(int x, int y, DragOperationsMask op) =0;
+
+  ///
+  // Call this method when the drag operation started by a
+  // CefRenderHandler::StartDragging call has completed. This method may be
+  // called immediately without first calling DragSourceEndedAt to cancel a
+  // drag operation. If the web view is both the drag source and the drag
+  // target then all DragTarget* methods should be called before DragSource*
+  // mthods.
+  // This method is only used when window rendering is disabled.
+  ///
+  /*--cef()--*/
+  virtual void DragSourceSystemDragEnded() =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_

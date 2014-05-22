@@ -930,7 +930,7 @@ void CefBrowserHostImpl::WasHidden(bool hidden) {
   if (!widget)
     return;
 
-  if (hidden) 
+  if (hidden)
     widget->WasHidden();
   else
     widget->WasShown();
@@ -1729,6 +1729,190 @@ void CefBrowserHostImpl::HandleKeyEventAfterTextInputClient(
 }
 #endif // !defined(OS_MACOSX)
 
+void CefBrowserHostImpl::DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
+    const CefMouseEvent& event,
+    CefBrowserHost::DragOperationsMask allowed_ops) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::DragTargetDragEnter, this, drag_data,
+                   event, allowed_ops));
+    return;
+  }
+
+  if (!drag_data.get()) {
+    NOTREACHED();
+    return;
+  }
+
+  if (!IsWindowRenderingDisabled()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+
+  content::RenderViewHost* rvh =
+      web_contents() ? web_contents()->GetRenderViewHost() : NULL;
+  if (!rvh)
+    return;
+
+  int screenX, screenY;
+
+  if (!client_->GetRenderHandler()->GetScreenPoint(
+      this, event.x, event.y, screenX, screenY)) {
+    screenX = event.x;
+    screenY = event.y;
+  }
+
+  CefDragDataImpl* data_impl = static_cast<CefDragDataImpl*>(drag_data.get());
+  CefDragDataImpl::AutoLock lock_scope(data_impl);
+  const content::DropData& drop_data = data_impl->drop_data();
+  gfx::Point client_pt(event.x, event.y);
+  gfx::Point screen_pt(screenX, screenY);
+  blink::WebDragOperationsMask ops =
+      static_cast<blink::WebDragOperationsMask>(allowed_ops);
+  int modifiers = CefBrowserHostImpl::TranslateModifiers(event.modifiers);
+
+  rvh->DragTargetDragEnter(drop_data, client_pt, screen_pt, ops, modifiers);
+}
+
+void CefBrowserHostImpl::DragTargetDragOver(const CefMouseEvent& event,
+    CefBrowserHost::DragOperationsMask allowed_ops) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::DragTargetDragOver, this, event,
+                   allowed_ops));
+    return;
+  }
+
+  if (!IsWindowRenderingDisabled()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+
+  content::RenderViewHost* rvh =
+      web_contents() ? web_contents()->GetRenderViewHost() : NULL;
+  if (!rvh)
+    return;
+
+  int screenX, screenY;
+
+  if (!client_->GetRenderHandler()->GetScreenPoint(
+      this, event.x, event.y, screenX, screenY)) {
+    screenX = event.x;
+    screenY = event.y;
+  }
+
+  gfx::Point client_pt(event.x, event.y);
+  gfx::Point screen_pt(screenX, screenY);
+  blink::WebDragOperationsMask ops =
+      static_cast<blink::WebDragOperationsMask>(allowed_ops);
+  int modifiers = CefBrowserHostImpl::TranslateModifiers(event.modifiers);
+
+  rvh->DragTargetDragOver(client_pt, screen_pt, ops, modifiers);
+}
+
+void CefBrowserHostImpl::DragTargetDragLeave() {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::DragTargetDragLeave, this));
+    return;
+  }
+
+  if (!IsWindowRenderingDisabled()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+
+  content::RenderViewHost* rvh =
+      web_contents() ? web_contents()->GetRenderViewHost() : NULL;
+  if (!rvh)
+    return;
+
+  rvh->DragTargetDragLeave();
+}
+
+void CefBrowserHostImpl::DragTargetDrop(const CefMouseEvent& event) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::DragTargetDrop, this, event));
+    return;
+  }
+
+  if (!IsWindowRenderingDisabled()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+
+  content::RenderViewHost* rvh =
+      web_contents() ? web_contents()->GetRenderViewHost() : NULL;
+  if (!rvh)
+    return;
+
+  int screenX, screenY;
+
+  if (!client_->GetRenderHandler()->GetScreenPoint(
+      this, event.x, event.y, screenX, screenY)) {
+    screenX = event.x;
+    screenY = event.y;
+  }
+
+  gfx::Point client_pt(event.x, event.y);
+  gfx::Point screen_pt(screenX, screenY);
+  int modifiers = CefBrowserHostImpl::TranslateModifiers(event.modifiers);
+
+  rvh->DragTargetDrop(client_pt, screen_pt, modifiers);
+}
+
+void CefBrowserHostImpl::DragSourceSystemDragEnded() {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::DragSourceSystemDragEnded, this));
+    return;
+  }
+
+  if (!IsWindowRenderingDisabled()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+
+  content::RenderViewHost* rvh =
+      web_contents() ? web_contents()->GetRenderViewHost() : NULL;
+  if (!rvh)
+    return;
+
+  rvh->DragSourceSystemDragEnded();
+}
+
+void CefBrowserHostImpl::DragSourceEndedAt(
+    int x, int y, CefBrowserHost::DragOperationsMask op) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::DragSourceEndedAt, this, x, y, op));
+    return;
+  }
+
+  if (!IsWindowRenderingDisabled()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+
+  content::RenderViewHost* rvh =
+      web_contents() ? web_contents()->GetRenderViewHost() : NULL;
+  if (!rvh)
+    return;
+
+  int screenX, screenY;
+
+  if (!client_->GetRenderHandler()->GetScreenPoint(
+      this, x, y, screenX, screenY)) {
+    screenX = x;
+    screenY = y;
+  }
+
+  blink::WebDragOperation drag_op = static_cast<blink::WebDragOperation>(op);
+
+  rvh->DragSourceEndedAt(x, y, screenX, screenY, drag_op);
+}
+
 // content::WebContentsDelegate methods.
 // -----------------------------------------------------------------------------
 
@@ -1921,9 +2105,12 @@ bool CefBrowserHostImpl::CanDragEnter(
     blink::WebDragOperationsMask mask) {
   CefRefPtr<CefDragHandler> handler = client_->GetDragHandler();
   if (handler.get()) {
-    CefRefPtr<CefDragData> drag_data(new CefDragDataImpl(data));
-    if (handler->OnDragEnter(this, drag_data,
-            static_cast<CefDragHandler::DragOperationsMask>(mask))) {
+    CefRefPtr<CefDragDataImpl> drag_data(new CefDragDataImpl(data));
+    drag_data->SetReadOnly(true);
+    if (handler->OnDragEnter(
+        this,
+        drag_data.get(),
+        static_cast<CefDragHandler::DragOperationsMask>(mask))) {
       return false;
     }
   }
@@ -2046,7 +2233,7 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
   // Based on chrome/browser/media/media_stream_devices_controller.cc
   bool microphone_requested =
       (request.audio_type == content::MEDIA_DEVICE_AUDIO_CAPTURE);
-  bool webcam_requested = 
+  bool webcam_requested =
       (request.video_type == content::MEDIA_DEVICE_VIDEO_CAPTURE);
   if (microphone_requested || webcam_requested) {
     switch (request.request_type) {
@@ -2089,8 +2276,9 @@ void CefBrowserHostImpl::RenderFrameCreated(
 
 void CefBrowserHostImpl::RenderFrameDeleted(
     content::RenderFrameHost* render_frame_host) {
-  browser_info_->remove_render_frame_id(render_frame_host->GetProcess()->GetID(),
-                                        render_frame_host->GetRoutingID());
+  browser_info_->remove_render_frame_id(
+      render_frame_host->GetProcess()->GetID(),
+      render_frame_host->GetRoutingID());
 }
 
 void CefBrowserHostImpl::RenderViewCreated(
@@ -2515,7 +2703,7 @@ void CefBrowserHostImpl::DetachAllFrames() {
 void CefBrowserHostImpl::SetFocusedFrame(int64 frame_id) {
   CefRefPtr<CefFrameHostImpl> unfocused_frame;
   CefRefPtr<CefFrameHostImpl> focused_frame;
-  
+
   {
     base::AutoLock lock_scope(state_lock_);
 

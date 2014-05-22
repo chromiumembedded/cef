@@ -12,6 +12,7 @@
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
+#include "libcef_dll/cpptoc/drag_data_cpptoc.h"
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
 #include "libcef_dll/ctocpp/run_file_dialog_callback_ctocpp.h"
@@ -633,6 +634,122 @@ void CEF_CALLBACK browser_host_handle_key_event_after_text_input_client(
       keyEvent);
 }
 
+void CEF_CALLBACK browser_host_drag_target_drag_enter(
+    struct _cef_browser_host_t* self, struct _cef_drag_data_t* drag_data,
+    const struct _cef_mouse_event_t* event,
+    cef_drag_operations_mask_t allowed_ops) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: drag_data; type: refptr_same
+  DCHECK(drag_data);
+  if (!drag_data)
+    return;
+  // Verify param: event; type: struct_byref_const
+  DCHECK(event);
+  if (!event)
+    return;
+
+  // Translate param: event; type: struct_byref_const
+  CefMouseEvent eventObj;
+  if (event)
+    eventObj.Set(*event, false);
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->DragTargetDragEnter(
+      CefDragDataCppToC::Unwrap(drag_data),
+      eventObj,
+      allowed_ops);
+}
+
+void CEF_CALLBACK browser_host_drag_target_drag_over(
+    struct _cef_browser_host_t* self, const struct _cef_mouse_event_t* event,
+    cef_drag_operations_mask_t allowed_ops) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: event; type: struct_byref_const
+  DCHECK(event);
+  if (!event)
+    return;
+
+  // Translate param: event; type: struct_byref_const
+  CefMouseEvent eventObj;
+  if (event)
+    eventObj.Set(*event, false);
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->DragTargetDragOver(
+      eventObj,
+      allowed_ops);
+}
+
+void CEF_CALLBACK browser_host_drag_target_drag_leave(
+    struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->DragTargetDragLeave();
+}
+
+void CEF_CALLBACK browser_host_drag_target_drop(
+    struct _cef_browser_host_t* self, const struct _cef_mouse_event_t* event) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: event; type: struct_byref_const
+  DCHECK(event);
+  if (!event)
+    return;
+
+  // Translate param: event; type: struct_byref_const
+  CefMouseEvent eventObj;
+  if (event)
+    eventObj.Set(*event, false);
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->DragTargetDrop(
+      eventObj);
+}
+
+void CEF_CALLBACK browser_host_drag_source_ended_at(
+    struct _cef_browser_host_t* self, int x, int y,
+    cef_drag_operations_mask_t op) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->DragSourceEndedAt(
+      x,
+      y,
+      op);
+}
+
+void CEF_CALLBACK browser_host_drag_source_system_drag_ended(
+    struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->DragSourceSystemDragEnded();
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -679,6 +796,13 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
       browser_host_handle_key_event_before_text_input_client;
   struct_.struct_.handle_key_event_after_text_input_client =
       browser_host_handle_key_event_after_text_input_client;
+  struct_.struct_.drag_target_drag_enter = browser_host_drag_target_drag_enter;
+  struct_.struct_.drag_target_drag_over = browser_host_drag_target_drag_over;
+  struct_.struct_.drag_target_drag_leave = browser_host_drag_target_drag_leave;
+  struct_.struct_.drag_target_drop = browser_host_drag_target_drop;
+  struct_.struct_.drag_source_ended_at = browser_host_drag_source_ended_at;
+  struct_.struct_.drag_source_system_drag_ended =
+      browser_host_drag_source_system_drag_ended;
 }
 
 #ifndef NDEBUG

@@ -11,6 +11,7 @@
 //
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
+#include "libcef_dll/cpptoc/drag_data_cpptoc.h"
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
 
 
@@ -200,6 +201,53 @@ void CefRenderHandlerCToCpp::OnCursorChange(CefRefPtr<CefBrowser> browser,
   struct_->on_cursor_change(struct_,
       CefBrowserCppToC::Wrap(browser),
       cursor);
+}
+
+bool CefRenderHandlerCToCpp::StartDragging(CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefDragData> drag_data, DragOperationsMask allowed_ops, int x,
+    int y) {
+  if (CEF_MEMBER_MISSING(struct_, start_dragging))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+  // Verify param: drag_data; type: refptr_diff
+  DCHECK(drag_data.get());
+  if (!drag_data.get())
+    return false;
+
+  // Execute
+  int _retval = struct_->start_dragging(struct_,
+      CefBrowserCppToC::Wrap(browser),
+      CefDragDataCppToC::Wrap(drag_data),
+      allowed_ops,
+      x,
+      y);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+void CefRenderHandlerCToCpp::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
+    DragOperation operation) {
+  if (CEF_MEMBER_MISSING(struct_, update_drag_cursor))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+
+  // Execute
+  struct_->update_drag_cursor(struct_,
+      CefBrowserCppToC::Wrap(browser),
+      operation);
 }
 
 void CefRenderHandlerCToCpp::OnScrollOffsetChanged(

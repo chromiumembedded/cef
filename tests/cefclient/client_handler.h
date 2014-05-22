@@ -116,7 +116,7 @@ class ClientHandler : public CefClient,
   // CefDragHandler methods
   virtual bool OnDragEnter(CefRefPtr<CefBrowser> browser,
                            CefRefPtr<CefDragData> dragData,
-                           DragOperationsMask mask) OVERRIDE;
+                           CefDragHandler::DragOperationsMask mask) OVERRIDE;
 
   // CefGeolocationHandler methods
   virtual void OnRequestGeolocationPermission(
@@ -198,6 +198,13 @@ class ClientHandler : public CefClient,
                        int height) OVERRIDE;
   virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
                               CefCursorHandle cursor) OVERRIDE;
+  virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
+                             CefRefPtr<CefDragData> drag_data,
+                             CefRenderHandler::DragOperationsMask allowed_ops,
+                             int x, int y) OVERRIDE;
+  virtual void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
+                                CefRenderHandler::DragOperation operation)
+                                OVERRIDE;
 
   void SetMainHwnd(CefWindowHandle hwnd);
   CefWindowHandle GetMainHwnd() { return m_MainHwnd; }

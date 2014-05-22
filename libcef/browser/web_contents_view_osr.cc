@@ -3,11 +3,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/render_widget_host_view_osr.h"
 #include "libcef/browser/web_contents_view_osr.h"
+#include "libcef/common/drag_data_impl.h"
 
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/common/drop_data.h"
+#include "ui/base/dragdrop/drag_utils.h"
 
 CefWebContentsViewOSR::CefWebContentsViewOSR(
     content::WebContents* web_contents,
@@ -134,8 +138,46 @@ void CefWebContentsViewOSR::StartDragging(
     const gfx::ImageSkia& image,
     const gfx::Vector2d& image_offset,
     const content::DragEventSourceInfo& event_info) {
-  // Dragging is not supported when window rendering is disabled.
-  web_contents_->SystemDragEnded();
+  CefRefPtr<CefBrowserHostImpl> browser;
+  CefRefPtr<CefRenderHandler> handler;
+  bool handled = false;
+  CefRenderWidgetHostViewOSR* view =
+      static_cast<CefRenderWidgetHostViewOSR*>(view_);
+  if (view)
+    browser = view->get_browser_impl();
+  if (browser.get())
+    handler = browser->GetClient()->GetRenderHandler();
+  DCHECK(handler.get());
+  if (handler.get()) {
+    CefRefPtr<CefDragDataImpl> drag_data(new CefDragDataImpl(drop_data));
+    drag_data->SetReadOnly(true);
+    base::MessageLoop::ScopedNestableTaskAllower allow(
+        base::MessageLoop::current());
+    handled = handler->StartDragging(browser->GetBrowser(),
+        drag_data.get(),
+        static_cast<CefRenderHandler::DragOperationsMask>(allowed_ops),
+        event_info.event_location.x(),
+        event_info.event_location.y());
+  }
+  if (!handled)
+    web_contents_->SystemDragEnded();
+}
+
+void CefWebContentsViewOSR::UpdateDragCursor(
+    blink::WebDragOperation operation) {
+  CefRefPtr<CefBrowserHostImpl> browser;
+  CefRefPtr<CefRenderHandler> handler;
+  CefRenderWidgetHostViewOSR* view =
+      static_cast<CefRenderWidgetHostViewOSR*>(view_);
+  if (view)
+    browser = view->get_browser_impl();
+  if (browser.get())
+    handler = browser->GetClient()->GetRenderHandler();
+  DCHECK(handler.get());
+  if (handler.get()) {
+    handler->UpdateDragCursor(browser->GetBrowser(),
+        static_cast<CefRenderHandler::DragOperation>(operation));
+  }
 }
 
 void CefWebContentsViewOSR::ShowPopupMenu(

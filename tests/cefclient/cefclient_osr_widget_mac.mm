@@ -6,11 +6,15 @@
 #import <objc/runtime.h>
 #include <OpenGL/gl.h>
 
+#include <vector>
+
 #include "cefclient/cefclient_osr_widget_mac.h"
 
 #include "include/cef_application_mac.h"
 #include "include/cef_browser.h"
 #include "include/cef_client.h"
+#include "include/cef_url.h"
+#include "cefclient/bytes_write_handler.h"
 #include "cefclient/cefclient.h"
 #include "cefclient/osrenderer.h"
 #include "cefclient/resource_util.h"
@@ -40,6 +44,11 @@ static BOOL SupportsBackingPropertiesChangedNotification() {
 }
 
 @interface ClientOpenGLView ()
+- (void)resetDragDrop;
+- (void)fillPasteboard;
+- (void)populateDropData:(CefRefPtr<CefDragData>)data
+          fromPasteboard:(NSPasteboard*)pboard;
+- (NSPoint)flipWindowPointToView:(const NSPoint&)windowPoint;
 - (float)getDeviceScaleFactor;
 - (void)windowDidChangeBackingProperties:(NSNotification*)notification;
 
@@ -73,6 +82,9 @@ static CefRect convertRect(const NSRect& target, const NSRect& frame) {
                  rect.size.width,
                  rect.size.height);
 }
+
+static NSString* const kCEFDragDummyPboardType = @"org.CEF.drag-dummy-type";
+static NSString* const kNSURLTitlePboardType = @"public.url-name";
 
 }  // namespace
 
@@ -274,6 +286,26 @@ void ClientOSRHandler::OnCursorChange(CefRefPtr<CefBrowser> browser,
   [cursor set];
 }
 
+bool ClientOSRHandler::StartDragging(CefRefPtr<CefBrowser> browser,
+                               CefRefPtr<CefDragData> drag_data,
+                               CefRenderHandler::DragOperationsMask allowed_ops,
+                               int x, int y) {
+  REQUIRE_UI_THREAD();
+  if (!view_)
+    return false;
+  return [view_ startDragging:drag_data
+                  allowed_ops:static_cast<NSDragOperation>(allowed_ops)
+                        point:NSMakePoint(x, y)];
+}
+
+void ClientOSRHandler::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
+                                 CefRenderHandler::DragOperation operation) {
+  REQUIRE_UI_THREAD();
+  if (!view_)
+    return;
+  view_->current_drag_op_ = operation;
+}
+
 void ClientOSRHandler::SetLoading(bool isLoading) {
 }
 
@@ -312,6 +344,16 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
     // enable HiDPI buffer
     [self setWantsBestResolutionOpenGLSurface:YES];
   }
+
+  [self resetDragDrop];
+
+  NSArray* types = [NSArray arrayWithObjects:
+      kCEFDragDummyPboardType,
+      NSStringPboardType,
+      NSFilenamesPboardType,
+      NSPasteboardTypeString,
+      nil];
+  [self registerForDraggedTypes:types];
 
   return self;
 }
@@ -804,7 +846,318 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   }
 }
 
+// Drag and drop
+
+- (BOOL)startDragging:(CefRefPtr<CefDragData>)drag_data
+          allowed_ops:(NSDragOperation)ops
+                point:(NSPoint)position {
+  ASSERT(!pasteboard_);
+  ASSERT(!fileUTI_);
+  ASSERT(!current_drag_data_.get());
+
+  [self resetDragDrop];
+
+  current_allowed_ops_ = ops;
+  current_drag_data_ = drag_data;
+
+  [self fillPasteboard];
+
+  NSEvent* currentEvent = [NSApp currentEvent];
+  NSWindow* window = [self window];
+  NSTimeInterval eventTime = [currentEvent timestamp];
+
+  NSEvent* dragEvent = [NSEvent mouseEventWithType:NSLeftMouseDragged
+                                          location:position
+                                     modifierFlags:NSLeftMouseDraggedMask
+                                         timestamp:eventTime
+                                      windowNumber:[window windowNumber]
+                                           context:nil
+                                       eventNumber:0
+                                        clickCount:1
+                                          pressure:1.0];
+
+  [window dragImage:nil
+                 at:position
+             offset:NSZeroSize
+              event:dragEvent
+         pasteboard:pasteboard_
+             source:self
+          slideBack:YES];
+  return YES;
+}
+
+// NSDraggingSource Protocol
+
+- (NSDragOperation)draggingSession:(NSDraggingSession *)session
+    sourceOperationMaskForDraggingContext:(NSDraggingContext)context {
+  switch(context) {
+    case NSDraggingContextOutsideApplication:
+      return current_allowed_ops_;
+
+    case NSDraggingContextWithinApplication:
+    default:
+      return current_allowed_ops_;
+  }
+}
+
+- (NSArray*)namesOfPromisedFilesDroppedAtDestination:(NSURL*)dropDest {
+  if (![dropDest isFileURL])
+    return nil;
+
+  if (!current_drag_data_)
+    return nil;
+
+  size_t expected_size = current_drag_data_->GetFileContents(NULL);
+  if (expected_size == 0)
+    return nil;
+
+  std::string path = [[dropDest path] UTF8String];
+  path.append("/");
+  path.append(current_drag_data_->GetFileName().ToString());
+
+  CefRefPtr<CefStreamWriter> writer = CefStreamWriter::CreateForFile(path);
+  if (!writer)
+    return nil;
+
+  if (current_drag_data_->GetFileContents(writer) != expected_size)
+    return nil;
+
+  return @[ [NSString stringWithUTF8String:path.c_str()] ];
+}
+
+- (void)draggedImage:(NSImage*)anImage
+             endedAt:(NSPoint)screenPoint
+           operation:(NSDragOperation)operation {
+
+  if (operation == (NSDragOperationMove | NSDragOperationCopy))
+    operation &= ~NSDragOperationMove;
+
+  NSPoint windowPoint = [[self window] convertScreenToBase: screenPoint];
+  NSPoint pt = [self flipWindowPointToView:windowPoint];
+  CefRenderHandler::DragOperation op =
+      static_cast<CefRenderHandler::DragOperation>(operation);
+  browser_provider_->GetBrowser()->GetHost()->DragSourceEndedAt(pt.x, pt.y, op);
+  browser_provider_->GetBrowser()->GetHost()->DragSourceSystemDragEnded();
+  [self resetDragDrop];
+}
+
+// NSDraggingDestination Protocol
+
+- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)info {
+  CefRefPtr<CefDragData> drag_data;
+  if (!current_drag_data_) {
+    drag_data = CefDragData::Create();
+    [self populateDropData:drag_data
+            fromPasteboard:[info draggingPasteboard]];
+  } else {
+    drag_data = current_drag_data_->Clone();
+    drag_data->ResetFileContents();
+  }
+
+  NSPoint windowPoint = [info draggingLocation];
+  NSPoint viewPoint = [self flipWindowPointToView:windowPoint];
+  NSDragOperation mask = [info draggingSourceOperationMask];
+  CefMouseEvent ev;
+  ev.x = viewPoint.x;
+  ev.y = viewPoint.y;
+  ev.modifiers = [NSEvent modifierFlags];
+  CefBrowserHost::DragOperationsMask allowed_ops =
+      static_cast<CefBrowserHost::DragOperationsMask>(mask);
+  browser_provider_->GetBrowser()->GetHost()->DragTargetDragEnter(
+      drag_data, ev, allowed_ops);
+  browser_provider_->GetBrowser()->GetHost()->DragTargetDragOver(ev,
+      allowed_ops);
+
+  current_drag_op_ = NSDragOperationCopy;
+  return current_drag_op_;
+}
+
+- (void)draggingExited:(id <NSDraggingInfo>)sender {
+  browser_provider_->GetBrowser()->GetHost()->DragTargetDragLeave();
+}
+
+- (BOOL)prepareForDragOperation:(id <NSDraggingInfo>)info {
+  return YES;
+}
+
+- (BOOL)performDragOperation:(id <NSDraggingInfo>)info {
+  NSPoint windowPoint = [info draggingLocation];
+  NSPoint viewPoint = [self flipWindowPointToView:windowPoint];
+  CefMouseEvent ev;
+  ev.x = viewPoint.x;
+  ev.y = viewPoint.y;
+  ev.modifiers = [NSEvent modifierFlags];
+  browser_provider_->GetBrowser()->GetHost()->DragTargetDrop(ev);
+  return YES;
+}
+
+- (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)info {
+  NSPoint windowPoint = [info draggingLocation];
+  NSPoint viewPoint = [self flipWindowPointToView:windowPoint];
+  NSDragOperation mask = [info draggingSourceOperationMask];
+  CefMouseEvent ev;
+  ev.x = viewPoint.x;
+  ev.y = viewPoint.y;
+  ev.modifiers = [NSEvent modifierFlags];
+  CefBrowserHost::DragOperationsMask allowed_ops =
+  static_cast<CefBrowserHost::DragOperationsMask>(mask);
+  browser_provider_->GetBrowser()->GetHost()->DragTargetDragOver(ev,
+      allowed_ops);
+
+  return current_drag_op_;
+}
+
+// NSPasteboardOwner Protocol
+
+- (void)pasteboard:(NSPasteboard *)pboard provideDataForType:(NSString *)type {
+  if (!current_drag_data_) {
+    return;
+  }
+
+  // URL.
+  if ([type isEqualToString:NSURLPboardType]) {
+    ASSERT(current_drag_data_->IsLink());
+    NSString* strUrl = [NSString stringWithUTF8String:
+        current_drag_data_->GetLinkURL().ToString().c_str()];
+    NSURL* url = [NSURL URLWithString:strUrl];
+    [url writeToPasteboard:pboard];
+  // URL title.
+  } else if ([type isEqualToString:kNSURLTitlePboardType]) {
+    NSString* strTitle = [NSString stringWithUTF8String:
+        current_drag_data_->GetLinkTitle().ToString().c_str()];
+    [pboard setString:strTitle forType:kNSURLTitlePboardType];
+
+  // File contents.
+  } else if ([type isEqualToString:(NSString*)fileUTI_]) {
+    size_t size = current_drag_data_->GetFileContents(NULL);
+    ASSERT(size > 0);
+    CefRefPtr<BytesWriteHandler> handler = new BytesWriteHandler(size);
+    CefRefPtr<CefStreamWriter> writer =
+        CefStreamWriter::CreateForHandler(handler.get());
+    current_drag_data_->GetFileContents(writer);
+    ASSERT(handler->GetDataSize() == size);
+
+    [pboard setData:[NSData dataWithBytes:handler->GetData()
+                                   length:handler->GetDataSize()]
+                                  forType:(NSString*)fileUTI_];
+
+  // Plain text.
+  } else if ([type isEqualToString:NSStringPboardType]) {
+    NSString* strTitle = [NSString stringWithUTF8String:
+        current_drag_data_->GetFragmentText().ToString().c_str()];
+    [pboard setString:strTitle forType:NSStringPboardType];
+
+  } else if ([type isEqualToString:kCEFDragDummyPboardType]) {
+    // The dummy type _was_ promised and someone decided to call the bluff.
+    [pboard setData:[NSData data]
+            forType:kCEFDragDummyPboardType];
+
+  }
+
+}
+
 // Utility - private
+- (void)resetDragDrop {
+  current_drag_op_ = NSDragOperationNone;
+  current_allowed_ops_ = NSDragOperationNone;
+  current_drag_data_ = NULL;
+  if (fileUTI_) {
+    CFRelease(fileUTI_);
+    fileUTI_ = NULL;
+  }
+  if (pasteboard_) {
+    [pasteboard_ release];
+    pasteboard_ = nil;
+  }
+}
+
+- (void)fillPasteboard {
+  ASSERT(!pasteboard_);
+  pasteboard_ = [[NSPasteboard pasteboardWithName:NSDragPboard] retain];
+
+  [pasteboard_ declareTypes:@[ kCEFDragDummyPboardType ]
+                      owner:self];
+
+  // URL (and title).
+  if (current_drag_data_->IsLink()) {
+    [pasteboard_ addTypes:@[ NSURLPboardType, kNSURLTitlePboardType ]
+                    owner:self];
+  }
+
+  // MIME type.
+  CefString mimeType;
+  size_t contents_size = current_drag_data_->GetFileContents(NULL);
+  CefString download_metadata = current_drag_data_->GetLinkMetadata();
+  CefString file_name = current_drag_data_->GetFileName();
+
+  // File.
+  if (contents_size > 0) {
+      std::string file_name = current_drag_data_->GetFileName().ToString();
+      size_t sep = file_name.find_last_of(".");
+      CefString extension = file_name.substr(sep + 1);
+
+      mimeType = CefGetMimeType(extension);
+
+    if (!mimeType.empty()) {
+      CFStringRef mimeTypeCF;
+      mimeTypeCF = CFStringCreateWithCString(kCFAllocatorDefault,
+          mimeType.ToString().c_str(), kCFStringEncodingUTF8);
+      fileUTI_ = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType,
+          mimeTypeCF, NULL);
+      CFRelease(mimeTypeCF);
+      // File (HFS) promise.
+      NSArray* fileUTIList = @[ (NSString*)fileUTI_ ];
+      [pasteboard_ addTypes:@[ NSFilesPromisePboardType ] owner:self];
+      [pasteboard_ setPropertyList:fileUTIList
+                           forType:NSFilesPromisePboardType];
+
+      [pasteboard_ addTypes:fileUTIList owner:self];
+    }
+  }
+
+  // Plain text.
+  if (!current_drag_data_->GetFragmentText().empty()) {
+    [pasteboard_ addTypes:@[ NSStringPboardType ]
+                    owner:self];
+  }
+}
+
+- (void)populateDropData:(CefRefPtr<CefDragData>)data
+          fromPasteboard:(NSPasteboard*)pboard {
+  ASSERT(data);
+  ASSERT(pboard);
+  ASSERT(data && !data->IsReadOnly());
+  NSArray* types = [pboard types];
+
+  // Get plain text.
+  if ([types containsObject:NSStringPboardType]) {
+    data->SetFragmentText(
+        [[pboard stringForType:NSStringPboardType] UTF8String]);
+  }
+
+  // Get files.
+  if ([types containsObject:NSFilenamesPboardType]) {
+    NSArray* files = [pboard propertyListForType:NSFilenamesPboardType];
+    if ([files isKindOfClass:[NSArray class]] && [files count]) {
+      for (NSUInteger i = 0; i < [files count]; i++) {
+        NSString* filename = [files objectAtIndex:i];
+        BOOL exists = [[NSFileManager defaultManager]
+            fileExistsAtPath:filename];
+        if (exists) {
+          data->AddFile([filename UTF8String], CefString());
+        }
+      }
+    }
+  }
+}
+
+- (NSPoint)flipWindowPointToView:(const NSPoint&)windowPoint {
+  NSPoint viewPoint =  [self convertPoint:windowPoint fromView:nil];
+  NSRect viewFrame = [self frame];
+  viewPoint.y = viewFrame.size.height - viewPoint.y;
+  return viewPoint;
+}
+
 - (float)getDeviceScaleFactor {
   float deviceScaleFactor = 1;
   NSWindow* window = [self window];

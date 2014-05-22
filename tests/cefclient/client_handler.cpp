@@ -240,7 +240,7 @@ void ClientHandler::OnDownloadUpdated(
 
 bool ClientHandler::OnDragEnter(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefDragData> dragData,
-                                DragOperationsMask mask) {
+                                CefDragHandler::DragOperationsMask mask) {
   REQUIRE_UI_THREAD();
 
   // Forbid dragging of link URLs.
@@ -566,6 +566,22 @@ void ClientHandler::OnCursorChange(CefRefPtr<CefBrowser> browser,
   if (!m_OSRHandler.get())
     return;
   m_OSRHandler->OnCursorChange(browser, cursor);
+}
+
+bool ClientHandler::StartDragging(CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefDragData> drag_data,
+    CefRenderHandler::DragOperationsMask allowed_ops,
+    int x, int y) {
+  if (!m_OSRHandler.get())
+    return false;
+  return m_OSRHandler->StartDragging(browser, drag_data, allowed_ops, x, y);
+}
+
+void ClientHandler::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
+    CefRenderHandler::DragOperation operation) {
+  if (!m_OSRHandler.get())
+    return;
+  m_OSRHandler->UpdateDragCursor(browser, operation);
 }
 
 void ClientHandler::SetMainHwnd(CefWindowHandle hwnd) {

@@ -7,6 +7,7 @@
 #pragma once
 
 #include "include/cef_render_handler.h"
+#include "cefclient/cefclient_osr_dragdrop_win.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/osrenderer.h"
 
@@ -18,7 +19,8 @@ class OSRBrowserProvider {
   virtual ~OSRBrowserProvider() {}
 };
 
-class OSRWindow : public ClientHandler::RenderHandler {
+class OSRWindow : public ClientHandler::RenderHandler,
+                  public DragEvents {
  public:
   // Create a new OSRWindow instance. |browser_provider| must outlive this
   // object.
@@ -64,8 +66,30 @@ class OSRWindow : public ClientHandler::RenderHandler {
                        int height) OVERRIDE;
   virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
                               CefCursorHandle cursor) OVERRIDE;
+  virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
+                             CefRefPtr<CefDragData> drag_data,
+                             CefRenderHandler::DragOperationsMask allowed_ops,
+                             int x, int y) OVERRIDE;
+
+  virtual void UpdateDragCursor(
+      CefRefPtr<CefBrowser> browser,
+      CefRenderHandler::DragOperation operation) OVERRIDE;
+
+  // DragEvents methods
+  virtual CefBrowserHost::DragOperationsMask OnDragEnter(
+      CefRefPtr<CefDragData> drag_data,
+      CefMouseEvent ev,
+      CefBrowserHost::DragOperationsMask effect) OVERRIDE;
+  virtual CefBrowserHost::DragOperationsMask OnDragOver(CefMouseEvent ev,
+      CefBrowserHost::DragOperationsMask effect) OVERRIDE;
+  virtual void OnDragLeave() OVERRIDE;
+  virtual CefBrowserHost::DragOperationsMask OnDrop(CefMouseEvent ev,
+      CefBrowserHost::DragOperationsMask effect) OVERRIDE;
 
   void Invalidate();
+
+  static int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam);
+  static int GetCefMouseModifiers(WPARAM wparam);
 
  private:
   OSRWindow(OSRBrowserProvider* browser_provider, bool transparent);
@@ -78,8 +102,6 @@ class OSRWindow : public ClientHandler::RenderHandler {
   static ATOM RegisterOSRClass(HINSTANCE hInstance, LPCTSTR className);
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
                                   LPARAM lParam);
-  static int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam);
-  static int GetCefMouseModifiers(WPARAM wparam);
   static bool isKeyDown(WPARAM wparam);
   bool IsOverPopupWidget(int x, int y) const;
   int GetPopupXOffset() const;
@@ -91,6 +113,9 @@ class OSRWindow : public ClientHandler::RenderHandler {
   HWND hWnd_;
   HDC hDC_;
   HGLRC hRC_;
+
+  CComPtr<DropTargetWin> drop_target_;
+  CefRenderHandler::DragOperation current_drag_op_;
 
   bool painting_popup_;
   bool render_task_pending_;

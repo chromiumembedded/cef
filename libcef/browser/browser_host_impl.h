@@ -171,6 +171,15 @@ class CefBrowserHostImpl : public CefBrowserHost,
       OVERRIDE;
   virtual void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent)
       OVERRIDE;
+  virtual void DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
+                                  const CefMouseEvent& event,
+                                  DragOperationsMask allowed_ops);
+  virtual void DragTargetDragOver(const CefMouseEvent& event,
+                                  DragOperationsMask allowed_ops);
+  virtual void DragTargetDragLeave();
+  virtual void DragTargetDrop(const CefMouseEvent& event);
+  virtual void DragSourceSystemDragEnded();
+  virtual void DragSourceEndedAt(int x, int y, DragOperationsMask op);
 
   // CefBrowser methods.
   virtual CefRefPtr<CefBrowserHost> GetHost() OVERRIDE;

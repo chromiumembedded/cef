@@ -67,6 +67,7 @@ class CefWebContentsViewOSR : public content::WebContentsViewPort,
       const gfx::ImageSkia& image,
       const gfx::Vector2d& image_offset,
       const content::DragEventSourceInfo& event_info) OVERRIDE;
+  virtual void UpdateDragCursor(blink::WebDragOperation operation) OVERRIDE;
   virtual void ShowPopupMenu(
       const gfx::Rect& bounds,
       int item_height,

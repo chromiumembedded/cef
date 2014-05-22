@@ -81,6 +81,14 @@ class CefBrowserHostCToCpp
       CefEventHandle keyEvent) OVERRIDE;
   virtual void HandleKeyEventAfterTextInputClient(
       CefEventHandle keyEvent) OVERRIDE;
+  virtual void DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
+      const CefMouseEvent& event, DragOperationsMask allowed_ops) OVERRIDE;
+  virtual void DragTargetDragOver(const CefMouseEvent& event,
+      DragOperationsMask allowed_ops) OVERRIDE;
+  virtual void DragTargetDragLeave() OVERRIDE;
+  virtual void DragTargetDrop(const CefMouseEvent& event) OVERRIDE;
+  virtual void DragSourceEndedAt(int x, int y, DragOperationsMask op) OVERRIDE;
+  virtual void DragSourceSystemDragEnded() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED

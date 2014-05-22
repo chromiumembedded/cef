@@ -44,6 +44,9 @@ bool OSRWindow::CreateWidget(HWND hWndParent, const RECT& rect,
   // Reference released in OnDestroyed().
   AddRef();
 
+  drop_target_ = DropTargetWin::Create(this, hWnd_);
+  HRESULT register_res = RegisterDragDrop(hWnd_, drop_target_);
+  ASSERT(register_res == S_OK);
   return true;
 }
 
@@ -53,7 +56,10 @@ void OSRWindow::DestroyWidget() {
 }
 
 void OSRWindow::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
+  RevokeDragDrop(hWnd_);
+  drop_target_ = NULL;
   DisableGL();
+  ::DestroyWindow(hWnd_);
 }
 
 bool OSRWindow::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
@@ -149,6 +155,29 @@ void OSRWindow::OnCursorChange(CefRefPtr<CefBrowser> browser,
   SetCursor(cursor);
 }
 
+bool OSRWindow::StartDragging(CefRefPtr<CefBrowser> browser,
+                               CefRefPtr<CefDragData> drag_data,
+                               CefRenderHandler::DragOperationsMask allowed_ops,
+                               int x, int y) {
+  if (!drop_target_)
+    return false;
+  current_drag_op_ = DRAG_OPERATION_NONE;
+  CefBrowserHost::DragOperationsMask result =
+      drop_target_->StartDragging(browser, drag_data, allowed_ops, x, y);
+  current_drag_op_ = DRAG_OPERATION_NONE;
+  POINT pt = {};
+  GetCursorPos(&pt);
+  ScreenToClient(hWnd_, &pt);
+  browser->GetHost()->DragSourceEndedAt(pt.x, pt.y, result);
+  browser->GetHost()->DragSourceSystemDragEnded();
+  return true;
+}
+
+void OSRWindow::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
+                                 CefRenderHandler::DragOperation operation) {
+  current_drag_op_ = operation;
+}
+
 void OSRWindow::Invalidate() {
   if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI, NewCefRunnableMethod(this, &OSRWindow::Invalidate));
@@ -167,6 +196,34 @@ void OSRWindow::Invalidate() {
                      kRenderDelay);
 }
 
+CefBrowserHost::DragOperationsMask
+    OSRWindow::OnDragEnter(CefRefPtr<CefDragData> drag_data,
+                           CefMouseEvent ev,
+                           CefBrowserHost::DragOperationsMask effect) {
+  browser_provider_->GetBrowser()->GetHost()->DragTargetDragEnter(
+      drag_data, ev, effect);
+  browser_provider_->GetBrowser()->GetHost()->DragTargetDragOver(ev, effect);
+  return current_drag_op_;
+}
+
+CefBrowserHost::DragOperationsMask OSRWindow::OnDragOver(CefMouseEvent ev,
+                              CefBrowserHost::DragOperationsMask effect) {
+  browser_provider_->GetBrowser()->GetHost()->DragTargetDragOver(ev, effect);
+  return current_drag_op_;
+}
+
+void OSRWindow::OnDragLeave() {
+  browser_provider_->GetBrowser()->GetHost()->DragTargetDragLeave();
+}
+
+CefBrowserHost::DragOperationsMask
+    OSRWindow::OnDrop(CefMouseEvent ev,
+                      CefBrowserHost::DragOperationsMask effect) {
+  browser_provider_->GetBrowser()->GetHost()->DragTargetDragOver(ev, effect);
+  browser_provider_->GetBrowser()->GetHost()->DragTargetDrop(ev);
+  return current_drag_op_;
+}
+
 OSRWindow::OSRWindow(OSRBrowserProvider* browser_provider, bool transparent)
     : renderer_(transparent),
       browser_provider_(browser_provider),
@@ -174,7 +231,8 @@ OSRWindow::OSRWindow(OSRBrowserProvider* browser_provider, bool transparent)
       hDC_(NULL),
       hRC_(NULL),
       painting_popup_(false),
-      render_task_pending_(false) {
+      render_task_pending_(false),
+      current_drag_op_(DRAG_OPERATION_NONE) {
 }
 
 OSRWindow::~OSRWindow() {

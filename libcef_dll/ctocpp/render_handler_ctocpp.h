@@ -50,6 +50,11 @@ class CefRenderHandlerCToCpp
       int height) OVERRIDE;
   virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
       CefCursorHandle cursor) OVERRIDE;
+  virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefDragData> drag_data, DragOperationsMask allowed_ops, int x,
+      int y) OVERRIDE;
+  virtual void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
+      DragOperation operation) OVERRIDE;
   virtual void OnScrollOffsetChanged(CefRefPtr<CefBrowser> browser) OVERRIDE;
 };
 

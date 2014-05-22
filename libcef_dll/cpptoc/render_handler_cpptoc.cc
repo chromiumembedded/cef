@@ -12,6 +12,7 @@
 
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
+#include "libcef_dll/ctocpp/drag_data_ctocpp.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
@@ -265,6 +266,55 @@ void CEF_CALLBACK render_handler_on_cursor_change(
       cursor);
 }
 
+int CEF_CALLBACK render_handler_start_dragging(
+    struct _cef_render_handler_t* self, cef_browser_t* browser,
+    cef_drag_data_t* drag_data, cef_drag_operations_mask_t allowed_ops, int x,
+    int y) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return 0;
+  // Verify param: drag_data; type: refptr_diff
+  DCHECK(drag_data);
+  if (!drag_data)
+    return 0;
+
+  // Execute
+  bool _retval = CefRenderHandlerCppToC::Get(self)->StartDragging(
+      CefBrowserCToCpp::Wrap(browser),
+      CefDragDataCToCpp::Wrap(drag_data),
+      allowed_ops,
+      x,
+      y);
+
+  // Return type: bool
+  return _retval;
+}
+
+void CEF_CALLBACK render_handler_update_drag_cursor(
+    struct _cef_render_handler_t* self, cef_browser_t* browser,
+    cef_drag_operations_mask_t operation) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+
+  // Execute
+  CefRenderHandlerCppToC::Get(self)->UpdateDragCursor(
+      CefBrowserCToCpp::Wrap(browser),
+      operation);
+}
+
 void CEF_CALLBACK render_handler_on_scroll_offset_changed(
     struct _cef_render_handler_t* self, cef_browser_t* browser) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -296,6 +346,8 @@ CefRenderHandlerCppToC::CefRenderHandlerCppToC(CefRenderHandler* cls)
   struct_.struct_.on_popup_size = render_handler_on_popup_size;
   struct_.struct_.on_paint = render_handler_on_paint;
   struct_.struct_.on_cursor_change = render_handler_on_cursor_change;
+  struct_.struct_.start_dragging = render_handler_start_dragging;
+  struct_.struct_.update_drag_cursor = render_handler_update_drag_cursor;
   struct_.struct_.on_scroll_offset_changed =
       render_handler_on_scroll_offset_changed;
 }

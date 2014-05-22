@@ -75,6 +75,8 @@ const CefRect kEditBoxRect(412, 245, 60, 22);
 const CefRect kNavigateButtonRect(360, 271, 140, 22);
 const CefRect kSelectRect(467, 22, 75, 20);
 const CefRect kExpandedSelectRect(467, 42, 81, 322);
+const CefRect kDropDivRect(8, 332, 52, 52);
+const CefRect kDragDivRect(71, 342, 30, 30);
 const int kDefaultVerticalScrollbarWidth = 17;
 const int kVerticalScrollbarWidth = GetSystemMetrics(SM_CXVSCROLL);
 const int kHorizontalScrollbarWidth = GetSystemMetrics(SM_CXHSCROLL);
@@ -83,11 +85,15 @@ const CefRect kEditBoxRect(429, 228, 60, 25);
 const CefRect kNavigateButtonRect(375, 251, 138, 28);
 const CefRect kSelectRect(461, 21, 87, 26);
 const CefRect kExpandedSelectRect(467, 42, 80, 262);
+const CefRect kDropDivRect(8, 312, 52, 52);
+const CefRect kDragDivRect(71, 324, 30, 30);
 #elif defined(OS_LINUX)
 const CefRect kEditBoxRect(434, 246, 60, 20);
 const CefRect kNavigateButtonRect(380, 271, 140, 22);
 const CefRect kSelectRect(467, 22, 75, 20);
 const CefRect kExpandedSelectRect(467, 42, 79, 322);
+const CefRect kDropDivRect(8, 332, 52, 52);
+const CefRect kDragDivRect(71, 342, 30, 30);
 const int kDefaultVerticalScrollbarWidth = 14;
 const int kVerticalScrollbarWidth = 14;
 const int kHorizontalScrollbarWidth = 14;
@@ -187,6 +193,12 @@ enum OSRTestType {
   OSR_TEST_POPUP_HIDE_ON_ESC,
   // scrolling inside the popup should trigger repaint for popup area
   OSR_TEST_POPUP_SCROLL_INSIDE,
+  // clicking and moving the mouse will call StartDragging
+  OSR_TEST_DRAG_DROP_START_DRAGGING,
+  // starting dragging over the drop region will call UpdateDragCursor
+  OSR_TEST_DRAG_DROP_UPDATE_CURSOR,
+  // dropping element inside drop region will move the element
+  OSR_TEST_DRAG_DROP_DROP,
 };
 
 // Used in the browser process.
@@ -276,6 +288,10 @@ class OSRTestHandler : public RoutingTestHandler,
         EXPECT_STREQ(messageStr.c_str(), "osrmousemove");
         DestroySucceededTestSoon();
         break;
+      case OSR_TEST_DRAG_DROP_DROP:
+        EXPECT_STREQ(messageStr.c_str(), "osrdrop");
+        DestroySucceededTestSoon();
+        break;
       default:
         // Intentionally left blank
         break;
@@ -304,7 +320,7 @@ class OSRTestHandler : public RoutingTestHandler,
       CefRefPtr<CefRequest> request) OVERRIDE {
     std::string url = request->GetURL();
 
-    if (url.find("http://tests/osrtest") == 0) {
+    if (url.find(kTestUrl) == 0) {
       // Show the osr test contents
       CefRefPtr<CefStreamReader> stream =
          GetBinaryResourceReader("osr_test.html");
@@ -426,18 +442,22 @@ class OSRTestHandler : public RoutingTestHandler,
     // Send events after the first full repaint
     switch (test_type_) {
       case OSR_TEST_PAINT:
-        // test that we have a full repaint
-        EXPECT_EQ(dirtyRects.size(), 1U);
-        EXPECT_TRUE(IsFullRepaint(dirtyRects[0]));
-        EXPECT_EQ(*(reinterpret_cast<const uint32*>(buffer)), 0xffff8080);
-        DestroySucceededTestSoon();
+        if (StartTest()) {
+          // test that we have a full repaint
+          EXPECT_EQ(dirtyRects.size(), 1U);
+          EXPECT_TRUE(IsFullRepaint(dirtyRects[0]));
+          EXPECT_EQ(*(reinterpret_cast<const uint32*>(buffer)), 0xffff8080);
+          DestroySucceededTestSoon();
+        }
         break;
       case OSR_TEST_TRANSPARENCY:
-        // test that we have a full repaint
-        EXPECT_EQ(dirtyRects.size(), 1U);
-        EXPECT_TRUE(IsFullRepaint(dirtyRects[0]));
-        EXPECT_EQ(*(reinterpret_cast<const uint32*>(buffer)), 0x7f7f0000U);
-        DestroySucceededTestSoon();
+        if (StartTest()) {
+          // test that we have a full repaint
+          EXPECT_EQ(dirtyRects.size(), 1U);
+          EXPECT_TRUE(IsFullRepaint(dirtyRects[0]));
+          EXPECT_EQ(*(reinterpret_cast<const uint32*>(buffer)), 0x7f7f0000U);
+          DestroySucceededTestSoon();
+        }
         break;
       case OSR_TEST_FOCUS:
         if (StartTest()) {
@@ -629,17 +649,19 @@ class OSRTestHandler : public RoutingTestHandler,
           // 1) vertical scrollbar
           // 2) discovered new area (bottom side)
           // 3) the whole visible rect.
-          EXPECT_EQ(dirtyRects.size(), 3U);
-          EXPECT_EQ(dirtyRects[0], CefRect(0, 0,
-              kOsrWidth - kVerticalScrollbarWidth, kHorizontalScrollbarWidth));
+          EXPECT_EQ(3U, dirtyRects.size());
+          if (dirtyRects.size() == 3U) {
+            EXPECT_EQ(dirtyRects[0], CefRect(0, 0,
+                kOsrWidth - kVerticalScrollbarWidth, kHorizontalScrollbarWidth));
 
-          EXPECT_EQ(dirtyRects[1], CefRect(0, kHorizontalScrollbarWidth,
-              kOsrWidth, kOsrHeight - 2 * kHorizontalScrollbarWidth));
+            EXPECT_EQ(dirtyRects[1], CefRect(0, kHorizontalScrollbarWidth,
+                kOsrWidth, kOsrHeight - 2 * kHorizontalScrollbarWidth));
 
-          EXPECT_EQ(dirtyRects[2],
-              CefRect(0, kOsrHeight - kHorizontalScrollbarWidth,
-                         kOsrWidth - kVerticalScrollbarWidth,
-                         kHorizontalScrollbarWidth));
+            EXPECT_EQ(dirtyRects[2],
+                CefRect(0, kOsrHeight - kHorizontalScrollbarWidth,
+                           kOsrWidth - kVerticalScrollbarWidth,
+                           kHorizontalScrollbarWidth));
+          }
 #elif defined(OS_MACOSX)
           // On Mac, when scrollbars are Always on, there is a single update of
           // the whole view
@@ -779,6 +801,29 @@ class OSRTestHandler : public RoutingTestHandler,
           }
         }
         break;
+      case OSR_TEST_DRAG_DROP_START_DRAGGING:
+      case OSR_TEST_DRAG_DROP_UPDATE_CURSOR:
+      case OSR_TEST_DRAG_DROP_DROP:
+        {
+          // trigger the StartDragging event
+          if (StartTest()) {
+            // move the mouse over the element to drag
+            CefMouseEvent mouse_event;
+            mouse_event.x = MiddleX(kDragDivRect);
+            mouse_event.y = MiddleY(kDragDivRect);
+            mouse_event.modifiers = 0;
+            browser->GetHost()->SendMouseMoveEvent(mouse_event, false);
+            // click on the element to drag
+            mouse_event.modifiers = EVENTFLAG_LEFT_MOUSE_BUTTON;
+            browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_LEFT,
+                                                    false, 1);
+            // move the mouse to start dragging
+            mouse_event.x -= 5;
+            mouse_event.y -= 5;
+            browser->GetHost()->SendMouseMoveEvent(mouse_event, false);
+          }
+        }
+        break;
       default:
         break;
     }
@@ -789,6 +834,60 @@ class OSRTestHandler : public RoutingTestHandler,
       if (test_type_ == OSR_TEST_CURSOR && started()) {
         DestroySucceededTestSoon();
       }
+  }
+
+  virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
+                             CefRefPtr<CefDragData> drag_data,
+                             DragOperationsMask allowed_ops,
+                             int x, int y) {
+    if (test_type_ == OSR_TEST_DRAG_DROP_START_DRAGGING && started()) {
+      DestroySucceededTestSoon();
+      return false;
+    } else if ((test_type_ == OSR_TEST_DRAG_DROP_UPDATE_CURSOR ||
+        test_type_ == OSR_TEST_DRAG_DROP_DROP) && started()) {
+      // place the mouse over the drop area to trigger UpdateDragCursor
+      CefRefPtr<CefDragData> data = drag_data->Clone();
+      data->ResetFileContents();
+      CefMouseEvent ev;
+      ev.x = MiddleX(kDragDivRect) - 5;
+      ev.y = MiddleY(kDragDivRect) - 5;
+      ev.modifiers = EVENTFLAG_LEFT_MOUSE_BUTTON;
+      browser->GetHost()->DragTargetDragEnter(data, ev, allowed_ops);
+
+      ev.x = MiddleX(kDropDivRect);
+      ev.y = MiddleY(kDropDivRect);
+      browser->GetHost()->SendMouseMoveEvent(ev, false);
+      browser->GetHost()->DragTargetDragOver(ev, allowed_ops);
+
+      ev.x += 5;
+      ev.y += 5;
+      browser->GetHost()->SendMouseMoveEvent(ev, false);
+      browser->GetHost()->DragTargetDragOver(ev, allowed_ops);
+      return true;
+    }
+    return false;
+  }
+
+  virtual void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
+                                DragOperation operation) {
+    if (test_type_ == OSR_TEST_DRAG_DROP_UPDATE_CURSOR && started()) {
+      if (operation != DRAG_OPERATION_NONE) {
+        browser->GetHost()->DragSourceEndedAt(MiddleX(kDropDivRect),
+                                              MiddleY(kDropDivRect),
+                                              DRAG_OPERATION_NONE);
+        browser->GetHost()->DragSourceSystemDragEnded();
+        DestroySucceededTestSoon();
+      }
+    } else if (test_type_ == OSR_TEST_DRAG_DROP_DROP && started()) {
+      CefMouseEvent ev;
+      ev.x = MiddleX(kDropDivRect);
+      ev.y = MiddleY(kDropDivRect);
+      ev.modifiers = 0;
+      browser->GetHost()->SendMouseClickEvent(ev, MBT_LEFT, true, 1);
+      browser->GetHost()->DragTargetDrop(ev);
+      browser->GetHost()->DragSourceEndedAt(ev.x, ev.y, operation);
+      browser->GetHost()->DragSourceSystemDragEnded();
+    }
   }
 
   virtual void OnScrollOffsetChanged(CefRefPtr<CefBrowser> browser) OVERRIDE {
@@ -948,3 +1047,6 @@ OSR_TEST(PopupHideOnClick, OSR_TEST_POPUP_HIDE_ON_CLICK);
 OSR_TEST(PopupHideOnScroll, OSR_TEST_POPUP_HIDE_ON_SCROLL);
 OSR_TEST(PopupHideOnEsc, OSR_TEST_POPUP_HIDE_ON_ESC);
 OSR_TEST(PopupScrollInside, OSR_TEST_POPUP_SCROLL_INSIDE);
+OSR_TEST(DragDropStartDragging, OSR_TEST_DRAG_DROP_START_DRAGGING);
+OSR_TEST(DragDropUpdateCursor, OSR_TEST_DRAG_DROP_UPDATE_CURSOR);
+OSR_TEST(DragDropDropElement, OSR_TEST_DRAG_DROP_DROP);

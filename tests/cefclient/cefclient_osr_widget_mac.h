@@ -19,7 +19,8 @@ class OSRBrowserProvider {
 };
 
 // The client OpenGL view.
-@interface ClientOpenGLView : NSOpenGLView {
+@interface ClientOpenGLView
+    : NSOpenGLView <NSDraggingSource, NSDraggingDestination> {
 @public
   NSTrackingArea* tracking_area_;
   OSRBrowserProvider* browser_provider_;
@@ -29,6 +30,13 @@ class OSRBrowserProvider {
   bool rotating_;
 
   bool was_last_mouse_down_on_view_;
+
+  // Drag and drop
+  CefRefPtr<CefDragData> current_drag_data_;
+  NSDragOperation current_drag_op_;
+  NSDragOperation current_allowed_ops_;
+  NSPasteboard* pasteboard_;
+  CFStringRef fileUTI_;
 
   // Event monitor for scroll wheel end event.
   id endWheelMonitor_;
@@ -42,6 +50,8 @@ class OSRBrowserProvider {
 - (BOOL)isKeyUpEvent:(NSEvent*)event;
 - (BOOL)isKeyPadEvent:(NSEvent*)event;
 - (CefRefPtr<CefBrowser>)getBrowser;
+- (BOOL)startDragging:(CefRefPtr<CefDragData>)drag_data
+          allowed_ops:(NSDragOperation)ops point:(NSPoint)p;
 @end
 
 // Handler for off-screen rendering windows.
@@ -83,6 +93,15 @@ class ClientOSRHandler : public ClientHandler::RenderHandler {
 
   virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
                               CefCursorHandle cursor) OVERRIDE;
+
+  virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
+                             CefRefPtr<CefDragData> drag_data,
+                             CefRenderHandler::DragOperationsMask allowed_ops,
+                             int x, int y) OVERRIDE;
+
+  virtual void UpdateDragCursor(
+      CefRefPtr<CefBrowser> browser,
+      CefRenderHandler::DragOperation operation)OVERRIDE;
 
   CefWindowHandle view() { return view_; }
 

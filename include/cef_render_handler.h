@@ -40,6 +40,7 @@
 
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
+#include "include/cef_drag_data.h"
 #include <vector>
 
 ///
@@ -49,6 +50,8 @@
 /*--cef(source=client)--*/
 class CefRenderHandler : public virtual CefBase {
  public:
+  typedef cef_drag_operations_mask_t DragOperation;
+  typedef cef_drag_operations_mask_t DragOperationsMask;
   typedef cef_paint_element_type_t PaintElementType;
   typedef std::vector<CefRect> RectList;
 
@@ -127,6 +130,35 @@ class CefRenderHandler : public virtual CefBase {
   /*--cef()--*/
   virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
                               CefCursorHandle cursor) {}
+
+  ///
+  // Called when the user starts dragging content in the web view. Contextual
+  // information about the dragged content is supplied by |drag_data|.
+  // OS APIs that run a system message loop may be used within the
+  // StartDragging call.
+  //
+  // Return false to abort the drag operation. Don't call any of
+  // CefBrowserHost::DragSource*Ended* methods after returning false.
+  //
+  // Return true to handle the drag operation. Call
+  // CefBrowserHost::DragSourceEndedAt and DragSourceSystemDragEnded either
+  // synchronously or asynchronously to inform the web view that the drag
+  // operation has ended.
+  ///
+  /*--cef()--*/
+  virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
+                             CefRefPtr<CefDragData> drag_data,
+                             DragOperationsMask allowed_ops,
+                             int x, int y) { return false; }
+
+  ///
+  // Called when the web view wants to update the mouse cursor during a
+  // drag & drop operation. |operation| describes the allowed operation
+  // (none, move, copy, link).
+  ///
+  /*--cef()--*/
+  virtual void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
+                                DragOperation operation) {}
 
   ///
   // Called when the scroll offset has changed.
