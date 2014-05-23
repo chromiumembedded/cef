@@ -31,6 +31,9 @@ class CefMenuModelImpl : public CefMenuModel {
     // Notifies the delegate that the menu has closed.
     virtual void MenuClosed(CefRefPtr<CefMenuModelImpl> source) =0;
 
+    // Allows the delegate to modify a menu item label before it's displayed.
+    virtual bool FormatLabel(base::string16& label) =0;
+
    protected:
     virtual ~Delegate() {}
   };
@@ -104,6 +107,7 @@ class CefMenuModelImpl : public CefMenuModel {
   void ActivatedAt(int index, cef_event_flags_t event_flags);
   void MenuWillShow();
   void MenuClosed();
+  base::string16 GetFormattedLabelAt(int index);
 
   // Verify that only a single reference exists to all CefMenuModelImpl objects.
   bool VerifyRefCount();

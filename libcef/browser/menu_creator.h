@@ -24,6 +24,7 @@ class CefMenuCreator : public CefMenuModelImpl::Delegate {
   public:
     virtual ~Runner() {}
     virtual bool RunContextMenu(CefMenuCreator* manager) =0;
+    virtual bool FormatLabel(base::string16& label) { return false; }
   };
 
   explicit CefMenuCreator(CefBrowserHostImpl* browser);
@@ -49,6 +50,7 @@ class CefMenuCreator : public CefMenuModelImpl::Delegate {
                               cef_event_flags_t event_flags) OVERRIDE;
   virtual void MenuWillShow(CefRefPtr<CefMenuModelImpl> source) OVERRIDE;
   virtual void MenuClosed(CefRefPtr<CefMenuModelImpl> source) OVERRIDE;
+  virtual bool FormatLabel(base::string16& label) OVERRIDE;
 
   // Create the default menu model.
   void CreateDefaultModel();

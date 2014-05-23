@@ -8,6 +8,9 @@
 
 #include "libcef/browser/menu_creator.h"
 
+#include "base/memory/scoped_ptr.h"
+#include "ui/views/controls/menu/menu_runner.h"
+
 class CefMenuCreatorRunnerLinux: public CefMenuCreator::Runner {
  public:
   CefMenuCreatorRunnerLinux();
@@ -15,6 +18,10 @@ class CefMenuCreatorRunnerLinux: public CefMenuCreator::Runner {
 
   // CefMemoryManager::Runner methods.
   virtual bool RunContextMenu(CefMenuCreator* manager) OVERRIDE;
+  virtual bool FormatLabel(base::string16& label) OVERRIDE;
+
+ private:
+  scoped_ptr<views::MenuRunner> menu_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_MENU_MANAGER_RUNNER_LINUX_H_

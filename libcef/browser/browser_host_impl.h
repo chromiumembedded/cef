@@ -245,6 +245,14 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefRefPtr<CefClient> client() const { return client_; }
   int browser_id() const;
 
+#if defined(USE_AURA)
+  views::Widget* window_widget() const { return window_widget_; }
+#endif
+
+#if defined(USE_X11)
+  CefWindowX11* window_x11() const { return window_x11_; }
+#endif
+
   // Returns the URL that is currently loading (or loaded) in the main frame.
   GURL GetLoadingURL();
 

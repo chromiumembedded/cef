@@ -1093,6 +1093,8 @@
             'libcef/browser/javascript_dialog_linux.cc',
             'libcef/browser/menu_creator_runner_linux.cc',
             'libcef/browser/menu_creator_runner_linux.h',
+            'libcef/browser/window_x11.cc',
+            'libcef/browser/window_x11.h',
             #Include sources for printing.
             '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_linux.cc',
           ],

@@ -65,7 +65,7 @@ class CefSimpleMenuModel : public ui::MenuModel {
   }
 
   virtual base::string16 GetLabelAt(int index) const OVERRIDE {
-    return impl_->GetLabelAt(index).ToString16();
+    return impl_->GetFormattedLabelAt(index);
   }
 
   virtual bool IsItemDynamicAt(int index) const OVERRIDE {
@@ -639,6 +639,12 @@ void CefMenuModelImpl::MenuClosed() {
   base::MessageLoop::current()->PostTask(
       FROM_HERE,
       base::Bind(&CefMenuModelImpl::OnMenuClosed, this));
+}
+
+base::string16 CefMenuModelImpl::GetFormattedLabelAt(int index) {
+  base::string16 label = GetLabelAt(index).ToString16();
+  delegate_->FormatLabel(label);
+  return label;
 }
 
 bool CefMenuModelImpl::VerifyRefCount() {

@@ -193,6 +193,10 @@ void CefMenuCreator::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
   }
 }
 
+bool CefMenuCreator::FormatLabel(base::string16& label) {
+  return runner_->FormatLabel(label);
+}
+
 void CefMenuCreator::CreateDefaultModel() {
   if (params_.is_editable) {
     // Editable node.
