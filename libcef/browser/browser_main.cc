@@ -68,7 +68,7 @@ void CefBrowserMainParts::PreEarlyInitialization() {
 
 void CefBrowserMainParts::ToolkitInitialized() {
 #if defined(USE_AURA)
-  aura::Env::CreateInstance();
+  CHECK(aura::Env::GetInstance());
 
   DCHECK(!views::ViewsDelegate::views_delegate);
   new views::DesktopTestViewsDelegate;

@@ -8,9 +8,10 @@
 
 #include <string>
 #include "ipc/ipc_channel_proxy.h"
+#include "ipc/message_filter.h"
 
 // This class sends and receives control messages on the renderer process.
-class CefRenderMessageFilter : public IPC::ChannelProxy::MessageFilter {
+class CefRenderMessageFilter : public IPC::MessageFilter {
  public:
   CefRenderMessageFilter();
   virtual ~CefRenderMessageFilter();

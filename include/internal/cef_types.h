@@ -546,14 +546,6 @@ typedef struct _cef_browser_settings_t {
   cef_state_t webgl;
 
   ///
-  // Controls whether content that depends on accelerated compositing can be
-  // used. Note that accelerated compositing requires hardware support and may
-  // not work on all systems even when enabled. Also configurable using the
-  // "disable-accelerated-compositing" command-line switch.
-  ///
-  cef_state_t accelerated_compositing;
-
-  ///
   // Opaque background color used for the browser before a document is loaded
   // and when no document color is specified. By default the background color
   // will be the same as CefSettings.background_color. Only the RGB compontents

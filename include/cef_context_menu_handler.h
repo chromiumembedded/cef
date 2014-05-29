@@ -200,13 +200,6 @@ class CefContextMenuParams : public virtual CefBase {
   virtual bool IsEditable() =0;
 
   ///
-  // Returns true if the context menu was invoked on an editable node where
-  // speech-input is enabled.
-  ///
-  /*--cef()--*/
-  virtual bool IsSpeechInputEnabled() =0;
-
-  ///
   // Returns flags representing the actions supported by the editable node, if
   // any, that the context menu was invoked on.
   ///

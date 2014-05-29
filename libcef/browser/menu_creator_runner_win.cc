@@ -6,7 +6,6 @@
 #include "libcef/browser/browser_host_impl.h"
 
 #include "base/message_loop/message_loop.h"
-#include "content/public/browser/web_contents_view.h"
 #include "ui/aura/window.h"
 #include "ui/gfx/point.h"
 #include "ui/views/controls/menu/menu_2.h"

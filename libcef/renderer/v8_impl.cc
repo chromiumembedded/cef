@@ -19,8 +19,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "core/workers/WorkerGlobalScope.h"
 #include "bindings/v8/ScriptController.h"
 #include "bindings/v8/V8Binding.h"
-#include "bindings/v8/V8RecursionScope.h"
-#include "bindings/v8/WorkerScriptController.h"
 MSVC_POP_WARNING();
 #undef FROM_HERE
 #undef LOG
@@ -41,6 +39,7 @@ MSVC_POP_WARNING();
 #include "base/threading/thread_local.h"
 #include "third_party/WebKit/public/web/WebKit.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebScriptController.h"
 #include "url/gurl.h"
 
@@ -499,9 +498,6 @@ void GetCefString(v8::Handle<v8::String> str, CefString& out) {
 // V8 function callback.
 void FunctionCallbackImpl(const v8::FunctionCallbackInfo<v8::Value>& info) {
   v8::Isolate* isolate = info.GetIsolate();
-  WebCore::V8RecursionScope recursion_scope(
-      isolate,
-      WebCore::toExecutionContext(isolate->GetCurrentContext()));
 
   CefV8Handler* handler =
       static_cast<CefV8Handler*>(v8::External::Cast(*info.Data())->Value());
@@ -540,9 +536,6 @@ void AccessorGetterCallbackImpl(
     v8::Local<v8::String> property,
     const v8::PropertyCallbackInfo<v8::Value>& info) {
   v8::Isolate* isolate = info.GetIsolate();
-  WebCore::V8RecursionScope recursion_scope(
-      isolate,
-      WebCore::toExecutionContext(isolate->GetCurrentContext()));
 
   v8::Handle<v8::Object> obj = info.This();
 
@@ -581,9 +574,6 @@ void AccessorSetterCallbackImpl(
     v8::Local<v8::Value> value,
     const v8::PropertyCallbackInfo<void>& info) {
   v8::Isolate* isolate = info.GetIsolate();
-  WebCore::V8RecursionScope recursion_scope(
-      isolate,
-      WebCore::toExecutionContext(isolate->GetCurrentContext()));
 
   v8::Handle<v8::Object> obj = info.This();
 
@@ -1039,7 +1029,7 @@ blink::WebFrame* CefV8ContextImpl::GetWebFrame() {
   CEF_REQUIRE_RT();
   v8::HandleScope handle_scope(handle_->isolate());
   v8::Context::Scope context_scope(GetV8Context());
-  return blink::WebFrame::frameForCurrentContext();
+  return blink::WebLocalFrame::frameForCurrentContext();
 }
 
 

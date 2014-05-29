@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/logging.h"
-#include "components/user_prefs/pref_registry_syncable.h"
+#include "components/pref_registry/pref_registry_syncable.h"
 
 namespace user_prefs {
 

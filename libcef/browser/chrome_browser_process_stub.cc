@@ -234,12 +234,6 @@ component_updater::PnaclComponentInstaller*
   return NULL;
 }
 
-BookmarkPromptController*
-  ChromeBrowserProcessStub::bookmark_prompt_controller() {
-  NOTIMPLEMENTED();
-  return NULL;
-}
-
 MediaFileSystemRegistry*
     ChromeBrowserProcessStub::media_file_system_registry() {
   NOTIMPLEMENTED();
@@ -257,3 +251,7 @@ WebRtcLogUploader* ChromeBrowserProcessStub::webrtc_log_uploader() {
   return NULL;
 }
 #endif
+
+NetworkTimeTracker* ChromeBrowserProcessStub::network_time_tracker() {
+  return NULL;
+}

@@ -1,6 +1,6 @@
 Index: public/renderer/content_renderer_client.cc
 ===================================================================
---- public/renderer/content_renderer_client.cc	(revision 263053)
+--- public/renderer/content_renderer_client.cc	(revision 272007)
 +++ public/renderer/content_renderer_client.cc	(working copy)
 @@ -92,7 +92,6 @@
    return false;
@@ -20,9 +20,9 @@ Index: public/renderer/content_renderer_client.cc
                                         const GURL& url,
 Index: public/renderer/content_renderer_client.h
 ===================================================================
---- public/renderer/content_renderer_client.h	(revision 263053)
+--- public/renderer/content_renderer_client.h	(revision 272007)
 +++ public/renderer/content_renderer_client.h	(working copy)
-@@ -175,7 +175,6 @@
+@@ -176,7 +176,6 @@
    // Returns true if a popup window should be allowed.
    virtual bool AllowPopup();
  
@@ -30,7 +30,7 @@ Index: public/renderer/content_renderer_client.h
    // TODO(sgurun) This callback is deprecated and will be removed as soon
    // as android webview completes implementation of a resource throttle based
    // shouldoverrideurl implementation. See crbug.com/325351
-@@ -190,7 +189,6 @@
+@@ -191,7 +190,6 @@
                                  blink::WebNavigationType type,
                                  blink::WebNavigationPolicy default_policy,
                                  bool is_redirect);
@@ -40,9 +40,9 @@ Index: public/renderer/content_renderer_client.h
    // If |send_referrer| is set to false (which is the default), no referrer
 Index: renderer/render_frame_impl.cc
 ===================================================================
---- renderer/render_frame_impl.cc	(revision 263053)
+--- renderer/render_frame_impl.cc	(revision 272007)
 +++ renderer/render_frame_impl.cc	(working copy)
-@@ -2870,7 +2870,6 @@
+@@ -3084,7 +3084,6 @@
      WebNavigationType type,
      WebNavigationPolicy default_policy,
      bool is_redirect) {
@@ -50,7 +50,7 @@ Index: renderer/render_frame_impl.cc
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
    if (request.url() != GURL(kSwappedOutURL) &&
-@@ -2885,7 +2884,6 @@
+@@ -3099,7 +3098,6 @@
            is_redirect)) {
      return blink::WebNavigationPolicyIgnore;
    }

@@ -85,13 +85,13 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   virtual CRLSetFetcher* crl_set_fetcher() OVERRIDE;
   virtual component_updater::PnaclComponentInstaller*
       pnacl_component_installer() OVERRIDE;
-  virtual BookmarkPromptController* bookmark_prompt_controller() OVERRIDE;
   virtual MediaFileSystemRegistry*
       media_file_system_registry() OVERRIDE;
   virtual bool created_local_state() const OVERRIDE;
 #if defined(ENABLE_WEBRTC)
   virtual WebRtcLogUploader* webrtc_log_uploader() OVERRIDE;
 #endif
+  virtual NetworkTimeTracker* network_time_tracker() OVERRIDE;
 
  private:
   std::string locale_;

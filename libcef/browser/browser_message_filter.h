@@ -8,6 +8,7 @@
 
 #include <string>
 #include "ipc/ipc_channel_proxy.h"
+#include "ipc/message_filter.h"
 
 namespace content {
 class RenderProcessHost;
@@ -18,7 +19,7 @@ struct CefProcessHostMsg_GetNewRenderThreadInfo_Params;
 struct ViewHostMsg_CreateWindow_Params;
 
 // This class sends and receives control messages on the browser process.
-class CefBrowserMessageFilter : public IPC::ChannelProxy::MessageFilter {
+class CefBrowserMessageFilter : public IPC::MessageFilter {
  public:
   explicit CefBrowserMessageFilter(content::RenderProcessHost* host);
   virtual ~CefBrowserMessageFilter();

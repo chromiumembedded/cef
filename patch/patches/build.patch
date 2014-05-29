@@ -1,7 +1,7 @@
-diff --git common.gypi common.gypi
-index c87ec63..45bb14e 100644
---- common.gypi
-+++ common.gypi
+Index: common.gypi
+===================================================================
+--- common.gypi	(revision 272007)
++++ common.gypi	(working copy)
 @@ -9,6 +9,9 @@
    # Variables expected to be overriden on the GYP command line (-D) or by
    # ~/.gyp/include.gypi.
@@ -12,11 +12,11 @@ index c87ec63..45bb14e 100644
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
-diff --git mac/strip_save_dsym mac/strip_save_dsym
-index c9cf226..0dedbe3 100755
---- mac/strip_save_dsym
-+++ mac/strip_save_dsym
-@@ -48,7 +48,7 @@ def macho_archs(macho):
+Index: mac/strip_save_dsym
+===================================================================
+--- mac/strip_save_dsym	(revision 272007)
++++ mac/strip_save_dsym	(working copy)
+@@ -48,7 +48,7 @@
                   "bundle"]
    macho_types_re = "Mach-O (?:64-bit )?(?:" + "|".join(macho_types) + ")"
  

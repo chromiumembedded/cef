@@ -48,7 +48,6 @@ class CefContextMenuParamsCToCpp
   virtual MediaStateFlags GetMediaStateFlags() OVERRIDE;
   virtual CefString GetSelectionText() OVERRIDE;
   virtual bool IsEditable() OVERRIDE;
-  virtual bool IsSpeechInputEnabled() OVERRIDE;
   virtual EditStateFlags GetEditStateFlags() OVERRIDE;
 };
 

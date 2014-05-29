@@ -85,7 +85,7 @@ class GeolocationTestHandler : public TestHandler {
       CefRefPtr<CefGeolocationCallback> callback) OVERRIDE {
     got_requestgeolocationpermission_.yes();
 
-    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
 
     EXPECT_STREQ(kTestOrigin, requesting_url.ToString().c_str());
     request_id_ = request_id;
@@ -105,7 +105,7 @@ class GeolocationTestHandler : public TestHandler {
       int request_id) OVERRIDE {
     got_cancelgeolocationpermission_.yes();
 
-    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
 
     EXPECT_STREQ(kTestOrigin, requesting_url.ToString().c_str());
     EXPECT_EQ(request_id, request_id_);

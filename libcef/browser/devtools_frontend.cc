@@ -16,7 +16,6 @@
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
-#include "content/public/browser/web_contents_view.h"
 #include "content/public/common/content_client.h"
 #include "net/base/net_util.h"
 #include "third_party/skia/include/core/SkColor.h"
@@ -63,7 +62,7 @@ void CefDevToolsFrontend::Activate() {
 }
 
 void CefDevToolsFrontend::Focus() {
-  web_contents()->GetView()->Focus();
+  web_contents()->Focus();
 }
 
 void CefDevToolsFrontend::Close() {
@@ -92,13 +91,12 @@ void CefDevToolsFrontend::RenderViewCreated(
       agent_host_.get(), frontend_host_.get());
 }
 
-void CefDevToolsFrontend::DocumentOnLoadCompletedInMainFrame(int32 page_id) {
+void CefDevToolsFrontend::DocumentOnLoadCompletedInMainFrame() {
   web_contents()->GetMainFrame()->ExecuteJavaScript(
       base::ASCIIToUTF16("InspectorFrontendAPI.setUseSoftMenu(true);"));
 }
 
-void CefDevToolsFrontend::WebContentsDestroyed(
-    content::WebContents* web_contents) {
+void CefDevToolsFrontend::WebContentsDestroyed() {
   content::DevToolsManager::GetInstance()->ClientHostClosing(
       frontend_host_.get());
   delete this;

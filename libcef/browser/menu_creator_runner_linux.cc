@@ -36,7 +36,8 @@ bool CefMenuCreatorRunnerLinux::RunContextMenu(CefMenuCreator* manager) {
   views::MenuRunner::RunResult result =
       menu_->RunMenuAt(manager->browser()->window_widget(),
                        NULL, gfx::Rect(screen_point, gfx::Size()),
-                       views::MenuItemView::TOPRIGHT, ui::MENU_SOURCE_NONE,
+                       views::MENU_ANCHOR_TOPRIGHT,
+                       ui::MENU_SOURCE_NONE,
                        views::MenuRunner::CONTEXT_MENU);
   UNUSED(result);
 

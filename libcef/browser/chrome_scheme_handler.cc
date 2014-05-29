@@ -219,8 +219,6 @@ class Delegate : public InternalHandlerDelegate {
   bool OnCredits(const std::string& path, Action* action) {
     if (path == "credits.js") {
       action->resource_id = IDR_CEF_CREDITS_JS;
-    } else if (path == "swiftshader.jpg") {
-      action->resource_id = IDR_CEF_CREDITS_SWIFTSHADER_JPG;
     } else {
       action->mime_type = "text/html";
       action->resource_id = IDR_CEF_CREDITS_HTML;

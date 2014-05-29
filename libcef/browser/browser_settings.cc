@@ -124,6 +124,4 @@ void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
   // GPU blacklist is not being checked here.
   if (cef.webgl == STATE_DISABLED)
     web.experimental_webgl_enabled = false;
-  if (cef.accelerated_compositing == STATE_DISABLED)
-    web.accelerated_compositing_enabled = false;
 }

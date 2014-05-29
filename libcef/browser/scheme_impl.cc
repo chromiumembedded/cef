@@ -36,6 +36,7 @@
 #include "net/url_request/url_request_http_job.h"
 #include "net/url_request/url_request_job.h"
 #include "net/url_request/url_request_job_factory_impl.h"
+#include "url/third_party/mozilla/url_parse.h"
 #include "url/url_util.h"
 
 using net::URLRequestStatus;
@@ -43,8 +44,8 @@ using net::URLRequestStatus;
 namespace {
 
 bool IsStandardScheme(const std::string& scheme) {
-  url_parse::Component scheme_comp(0, scheme.length());
-  return url_util::IsStandard(scheme.c_str(), scheme_comp);
+  url::Component scheme_comp(0, scheme.length());
+  return url::IsStandard(scheme.c_str(), scheme_comp);
 }
 
 // Copied from net/url_request/url_request_job_manager.cc.

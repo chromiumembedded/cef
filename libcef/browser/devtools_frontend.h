@@ -46,9 +46,8 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   // WebContentsObserver overrides
   virtual void RenderViewCreated(
       content::RenderViewHost* render_view_host) OVERRIDE;
-  virtual void DocumentOnLoadCompletedInMainFrame(int32 page_id) OVERRIDE;
-  virtual void WebContentsDestroyed(
-      content::WebContents* web_contents) OVERRIDE;
+  virtual void DocumentOnLoadCompletedInMainFrame() OVERRIDE;
+  virtual void WebContentsDestroyed() OVERRIDE;
 
   // DevToolsFrontendHostDelegate implementation
   virtual void DispatchOnEmbedder(const std::string& message) OVERRIDE {}

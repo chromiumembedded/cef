@@ -17,31 +17,25 @@ class CefLocationRequest :
  public:
   explicit CefLocationRequest(CefRefPtr<CefGetGeolocationCallback> callback)
       : callback_(callback) {
-    CEF_REQUIRE_IOT();
+    CEF_REQUIRE_UIT();
     geo_callback_ = base::Bind(&CefLocationRequest::OnLocationUpdate, this);
     content::GeolocationProvider* provider =
         content::GeolocationProvider::GetInstance();
-    provider->AddLocationUpdateCallback(geo_callback_, true);
+    subscription_ = provider->AddLocationUpdateCallback(geo_callback_, true);
     provider->UserDidOptIntoLocationServices();
   }
 
  private:
   void OnLocationUpdate(const content::Geoposition& position) {
-    if (CEF_CURRENTLY_ON_UIT()) {
-      if (callback_) {
-        CefGeoposition cef_position;
-        SetPosition(position, cef_position);
-        callback_->OnLocationUpdate(cef_position);
-        callback_ = NULL;
-      }
-    } else {
-      content::GeolocationProvider::GetInstance()->RemoveLocationUpdateCallback(
-          geo_callback_);
-      geo_callback_.Reset();
-
-      CEF_POST_TASK(CEF_UIT,
-          base::Bind(&CefLocationRequest::OnLocationUpdate, this, position));
+    CEF_REQUIRE_UIT();
+    if (callback_) {
+      CefGeoposition cef_position;
+      SetPosition(position, cef_position);
+      callback_->OnLocationUpdate(cef_position);
+      callback_ = NULL;
     }
+    subscription_.reset();
+    geo_callback_.Reset();
   }
 
   void SetPosition(const content::Geoposition& source, CefGeoposition& target) {
@@ -74,6 +68,7 @@ class CefLocationRequest :
 
   CefRefPtr<CefGetGeolocationCallback> callback_;
   content::GeolocationProvider::LocationUpdateCallback geo_callback_;
+  scoped_ptr<content::GeolocationProvider::Subscription> subscription_;
 
   DISALLOW_COPY_AND_ASSIGN(CefLocationRequest);
 };
@@ -91,7 +86,7 @@ bool CefGetGeolocation(CefRefPtr<CefGetGeolocationCallback> callback) {
     return false;
   }
 
-  if (CEF_CURRENTLY_ON_IOT()) {
+  if (CEF_CURRENTLY_ON_UIT()) {
     if (content::GeolocationProvider::GetInstance()) {
       // Will be released after the callback executes.
       new CefLocationRequest(callback);
@@ -99,7 +94,7 @@ bool CefGetGeolocation(CefRefPtr<CefGetGeolocationCallback> callback) {
     }
     return false;
   } else {
-    CEF_POST_TASK(CEF_IOT,
+    CEF_POST_TASK(CEF_UIT,
         base::Bind(base::IgnoreResult(CefGetGeolocation), callback));
     return true;
   }

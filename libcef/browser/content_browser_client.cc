@@ -661,11 +661,9 @@ content::MediaObserver* CefContentBrowserClient::GetMediaObserver() {
 
 content::SpeechRecognitionManagerDelegate*
     CefContentBrowserClient::GetSpeechRecognitionManagerDelegate() {
-#if defined(ENABLE_INPUT_SPEECH)
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kEnableSpeechInput))
     return new CefSpeechRecognitionManagerDelegate();
-#endif
 
   return NULL;
 }

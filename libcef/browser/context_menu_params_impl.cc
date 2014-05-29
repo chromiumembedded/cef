@@ -100,11 +100,6 @@ bool CefContextMenuParamsImpl::IsEditable() {
   return const_value().is_editable;
 }
 
-bool CefContextMenuParamsImpl::IsSpeechInputEnabled() {
-  CEF_VALUE_VERIFY_RETURN(false, false);
-  return const_value().speech_input_enabled;
-}
-
 CefContextMenuParamsImpl::EditStateFlags
     CefContextMenuParamsImpl::GetEditStateFlags() {
   CEF_VALUE_VERIFY_RETURN(false, CM_EDITFLAG_NONE);

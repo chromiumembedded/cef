@@ -1,8 +1,8 @@
 Index: public/common/common_param_traits_macros.h
 ===================================================================
---- public/common/common_param_traits_macros.h	(revision 263053)
+--- public/common/common_param_traits_macros.h	(revision 272007)
 +++ public/common/common_param_traits_macros.h	(working copy)
-@@ -181,6 +181,7 @@
+@@ -175,6 +175,7 @@
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
    IPC_STRUCT_TRAITS_MEMBER(compositor_touch_hit_testing)
@@ -12,9 +12,9 @@ Index: public/common/common_param_traits_macros.h
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 Index: renderer/web_preferences.cc
 ===================================================================
---- renderer/web_preferences.cc	(revision 263053)
+--- renderer/web_preferences.cc	(revision 272007)
 +++ renderer/web_preferences.cc	(working copy)
-@@ -171,6 +171,8 @@
+@@ -165,6 +165,8 @@
  
    settings->setJavaEnabled(prefs.java_enabled);
  

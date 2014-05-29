@@ -47,7 +47,6 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/resource_request_info.h"
-#include "content/public/browser/web_contents_view.h"
 #include "content/public/common/file_chooser_params.h"
 #include "third_party/WebKit/public/web/WebFindOptions.h"
 #include "ui/shell_dialogs/selected_file_info.h"
@@ -585,8 +584,7 @@ class CefBrowserHostImpl::DevToolsWebContentsObserver :
   }
 
   // WebContentsObserver methods:
-  virtual void WebContentsDestroyed(
-      content::WebContents* web_contents) OVERRIDE {
+  virtual void WebContentsDestroyed() OVERRIDE {
     browser_->OnDevToolsWebContentsDestroyed();
   }
 
@@ -1213,7 +1211,7 @@ gfx::NativeView CefBrowserHostImpl::GetContentView() const {
 #else
   if (!web_contents_.get())
     return NULL;
-  return web_contents_->GetView()->GetNativeView();
+  return web_contents_->GetNativeView();
 #endif
 }
 
@@ -1502,7 +1500,7 @@ void CefBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
     }
 
     if (web_contents_.get())
-      web_contents_->GetView()->Focus();
+      web_contents_->Focus();
 
 #if defined(OS_WIN)
     // When windowed rendering is used in combination with Aura on Windows we
@@ -1803,7 +1801,7 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
     content::WebContents* web_contents,
     const content::MediaStreamRequest& request,
     const content::MediaResponseCallback& callback) {
-  CEF_CURRENTLY_ON_UIT();
+  CEF_REQUIRE_UIT();
 
   content::MediaStreamDevices devices;
 

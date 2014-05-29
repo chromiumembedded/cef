@@ -204,13 +204,6 @@ typedef struct _cef_context_menu_params_t {
   int (CEF_CALLBACK *is_editable)(struct _cef_context_menu_params_t* self);
 
   ///
-  // Returns true (1) if the context menu was invoked on an editable node where
-  // speech-input is enabled.
-  ///
-  int (CEF_CALLBACK *is_speech_input_enabled)(
-      struct _cef_context_menu_params_t* self);
-
-  ///
   // Returns flags representing the actions supported by the editable node, if
   // any, that the context menu was invoked on.
   ///

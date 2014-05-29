@@ -43,15 +43,14 @@ class CefGeolocationPermissionContext
           callback_(callback) {}
 
     virtual void Continue(bool allow) OVERRIDE {
-      if (CEF_CURRENTLY_ON_IOT()) {
+      if (CEF_CURRENTLY_ON_UIT()) {
         if (!callback_.is_null()) {
           // Callback must be executed on the UI thread.
-          CEF_POST_TASK(CEF_UIT,
-              base::Bind(&CallbackImpl::Run, callback_, allow));
+          callback_.Run(allow);
           context_->RemoveCallback(bridge_id_);
         }
       } else {
-        CEF_POST_TASK(CEF_IOT,
+        CEF_POST_TASK(CEF_UIT,
             base::Bind(&CallbackImpl::Continue, this, allow));
       }
     }
@@ -77,18 +76,16 @@ class CefGeolocationPermissionContext
   CefGeolocationPermissionContext() {}
 
   virtual void RequestGeolocationPermission(
-      int render_process_id,
-      int render_view_id,
+      content::WebContents* web_contents,
       int bridge_id,
       const GURL& requesting_frame,
       bool user_gesture,
       base::Callback<void(bool)> callback)  // NOLINT(readability/function)
       OVERRIDE {
-    CEF_REQUIRE_IOT();
+    CEF_REQUIRE_UIT();
 
     CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserForView(render_process_id,
-                                              render_view_id);
+        CefBrowserHostImpl::GetBrowserForContents(web_contents);
     if (browser.get()) {
       CefRefPtr<CefClient> client = browser->GetClient();
       if (client.get()) {
@@ -110,19 +107,17 @@ class CefGeolocationPermissionContext
     }
 
     // Disallow geolocation access by default.
-    CEF_POST_TASK(CEF_UIT, base::Bind(callback, false));
+    callback.Run(false);
   }
 
   virtual void CancelGeolocationPermissionRequest(
-      int render_process_id,
-      int render_view_id,
+      content::WebContents* web_contents,
       int bridge_id,
       const GURL& requesting_frame) OVERRIDE {
     RemoveCallback(bridge_id);
 
     CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserForView(render_process_id,
-                                              render_view_id);
+        CefBrowserHostImpl::GetBrowserForContents(web_contents);
     if (browser.get()) {
       CefRefPtr<CefClient> client = browser->GetClient();
       if (client.get()) {
@@ -138,7 +133,7 @@ class CefGeolocationPermissionContext
   }
 
   void RemoveCallback(int bridge_id) {
-    CEF_REQUIRE_IOT();
+    CEF_REQUIRE_UIT();
 
     // Disconnect the callback and remove the reference from the map.
     CallbackMap::iterator it = callback_map_.find(bridge_id);
@@ -293,6 +288,10 @@ content::GeolocationPermissionContext*
         new CefGeolocationPermissionContext();
   }
   return geolocation_permission_context_;
+}
+
+content::BrowserPluginGuestManager* CefBrowserContextImpl::GetGuestManager() {
+  return NULL;
 }
 
 quota::SpecialStoragePolicy* CefBrowserContextImpl::GetSpecialStoragePolicy() {

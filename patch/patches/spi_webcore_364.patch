@@ -1,9 +1,9 @@
 Index: core/frame/FrameView.cpp
 ===================================================================
---- core/frame/FrameView.cpp	(revision 171269)
+--- core/frame/FrameView.cpp	(revision 174434)
 +++ core/frame/FrameView.cpp	(working copy)
-@@ -162,8 +162,10 @@
-     if (!isMainFrame())
+@@ -165,8 +165,10 @@
+     if (!m_frame->isMainFrame())
          return;
  
 +#if 0
@@ -15,7 +15,7 @@ Index: core/frame/FrameView.cpp
  PassRefPtr<FrameView> FrameView::create(LocalFrame* frame)
 Index: platform/scroll/ScrollbarThemeMacCommon.mm
 ===================================================================
---- platform/scroll/ScrollbarThemeMacCommon.mm	(revision 171269)
+--- platform/scroll/ScrollbarThemeMacCommon.mm	(revision 174434)
 +++ platform/scroll/ScrollbarThemeMacCommon.mm	(working copy)
 @@ -358,10 +358,14 @@
  // static

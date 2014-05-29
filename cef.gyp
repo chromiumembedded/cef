@@ -611,7 +611,7 @@
       'target_name': 'cef_locales',
       'type': 'none',
       'dependencies': [
-        '<(DEPTH)/ui/base/strings/ui_strings.gyp:ui_strings',
+        '<(DEPTH)/ui/strings/ui_strings.gyp:ui_strings',
         '<(DEPTH)/webkit/webkit_resources.gyp:webkit_strings',
         'cef_strings',
       ],
@@ -1032,6 +1032,10 @@
         '<(DEPTH)/chrome/browser/prefs/proxy_prefs.h',
         '<(DEPTH)/chrome/common/pref_names.cc',
         '<(DEPTH)/chrome/common/pref_names.h',
+        '<(DEPTH)/components/data_reduction_proxy/common/data_reduction_proxy_switches.cc',
+        '<(DEPTH)/components/data_reduction_proxy/common/data_reduction_proxy_switches.h',
+        '<(DEPTH)/components/data_reduction_proxy/common/data_reduction_proxy_pref_names.cc',
+        '<(DEPTH)/components/data_reduction_proxy/common/data_reduction_proxy_pref_names.h',
         # Include sources for the loadtimes V8 extension.
         '<(DEPTH)/chrome/renderer/loadtimes_extension_bindings.h',
         '<(DEPTH)/chrome/renderer/loadtimes_extension_bindings.cc',

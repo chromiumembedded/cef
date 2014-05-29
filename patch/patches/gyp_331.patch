@@ -1,6 +1,6 @@
 Index: gyp/generator/ninja.py
 ===================================================================
---- gyp/generator/ninja.py	(revision 1892)
+--- gyp/generator/ninja.py	(revision 1921)
 +++ gyp/generator/ninja.py	(working copy)
 @@ -738,7 +738,16 @@
        for path in copy['files']:

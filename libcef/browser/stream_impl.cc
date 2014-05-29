@@ -176,7 +176,7 @@ int CefBytesReader::Seek(int64 offset, int whence) {
     rv = 0;
     break;
   case SEEK_END: {
-    int64 offset_abs = abs(offset);
+    int64 offset_abs = std::abs(offset);
     if (offset_abs > datasize_)
       break;
     offset_ = datasize_ - offset_abs;
@@ -267,7 +267,7 @@ int CefBytesWriter::Seek(int64 offset, int whence) {
     rv = 0;
     break;
   case SEEK_END: {
-    int64 offset_abs = abs(offset);
+    int64 offset_abs = std::abs(offset);
     if (offset_abs > datasize_)
       break;
     offset_ = datasize_ - offset_abs;

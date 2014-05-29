@@ -25,38 +25,21 @@
 #include "base/win/windows_version.h"
 #include "content/common/cursors/webcursor.h"
 #include "content/public/browser/native_web_keyboard_event.h"
-#include "content/public/browser/web_contents_view.h"
 #include "content/public/common/file_chooser_params.h"
 #include "grit/cef_strings.h"
 #include "grit/ui_strings.h"
 #include "grit/ui_unscaled_resources.h"
 #include "net/base/mime_util.h"
 #include "third_party/WebKit/public/web/WebInputEvent.h"
-#include "ui/aura/window.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/win/shell.h"
 #include "ui/gfx/win/hwnd_util.h"
-#include "ui/views/widget/desktop_aura/desktop_window_tree_host_win.h"
 #include "ui/views/widget/widget.h"
+#include "ui/views/win/hwnd_util.h"
 
 #pragma comment(lib, "dwmapi.lib")
 
 namespace {
-
-HWND GetHWND(views::Widget* widget) {
-  gfx::NativeWindow window = widget->GetNativeWindow();
-  DCHECK(window);
-  if (!window)
-    return NULL;
-  views::DesktopWindowTreeHostWin* host =
-      static_cast<views::DesktopWindowTreeHostWin*>(window->GetHost());
-  DCHECK(host);
-  if (!host)
-    return NULL;
-  HWND hwnd = host->GetHWND();
-  DCHECK(hwnd);
-  return hwnd;
-}
 
 void WriteTempFileAndView(scoped_refptr<base::RefCountedString> str) {
   CEF_REQUIRE_FILET();
@@ -630,7 +613,7 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
 
 void CefBrowserHostImpl::PlatformSetViewFocus() {
   if (window_widget_)
-    ::SetFocus(GetHWND(window_widget_));
+    ::SetFocus(views::HWNDForWidget(window_widget_));
 }
 
 ui::PlatformCursor CefBrowserHostImpl::GetPlatformCursor(

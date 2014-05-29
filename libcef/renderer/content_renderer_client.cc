@@ -199,14 +199,15 @@ void CefContentRendererClient::OnBrowserDestroyed(CefBrowserImpl* browser) {
 void CefContentRendererClient::WebKitInitialized() {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
 
+  // Create global objects associated with the default Isolate.
+  CefV8IsolateCreated();
+
   blink::WebRuntimeFeatures::enableMediaPlayer(
       media::IsMediaLibraryInitialized());
 
   // TODO(cef): Enable these once the implementation supports it.
   blink::WebRuntimeFeatures::enableNotifications(false);
 
-  blink::WebRuntimeFeatures::enableSpeechInput(
-      command_line.HasSwitch(switches::kEnableSpeechInput));
   blink::WebRuntimeFeatures::enableMediaStream(
       command_line.HasSwitch(switches::kEnableMediaStream));
 
@@ -400,9 +401,6 @@ void CefContentRendererClient::RenderThreadStarted() {
     media::InitializeMediaLibrary(media_path);
 
   blink::WebPrerenderingSupport::initialize(new CefPrerenderingSupport());
-
-  // Create global objects associated with the default Isolate.
-  CefV8IsolateCreated();
 
   // Retrieve the new render thread information synchronously.
   CefProcessHostMsg_GetNewRenderThreadInfo_Params params;

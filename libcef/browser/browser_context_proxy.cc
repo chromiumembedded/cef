@@ -152,6 +152,10 @@ content::GeolocationPermissionContext*
   return parent_->GetGeolocationPermissionContext();
 }
 
+content::BrowserPluginGuestManager* CefBrowserContextProxy::GetGuestManager() {
+  return parent_->GetGuestManager();
+}
+
 quota::SpecialStoragePolicy* CefBrowserContextProxy::GetSpecialStoragePolicy() {
   return parent_->GetSpecialStoragePolicy();
 }

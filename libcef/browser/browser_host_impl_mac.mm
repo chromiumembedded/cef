@@ -19,7 +19,6 @@
 #include "base/threading/thread_restrictions.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/web_contents.h"
-#include "content/public/browser/web_contents_view.h"
 #include "content/public/common/file_chooser_params.h"
 #include "grit/ui_strings.h"
 #include "net/base/mime_util.h"
@@ -317,7 +316,7 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
 
   // Parent the TabContents to the browser view.
   const NSRect bounds = [browser_view bounds];
-  NSView* native_view = web_contents_->GetView()->GetNativeView();
+  NSView* native_view = web_contents_->GetNativeView();
   [browser_view addSubview:native_view];
   [native_view setFrame:bounds];
   [native_view setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];

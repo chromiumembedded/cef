@@ -71,6 +71,7 @@ class CefBrowserContextProxy : public CefBrowserContext {
   virtual content::ResourceContext* GetResourceContext() OVERRIDE;
   virtual content::GeolocationPermissionContext*
       GetGeolocationPermissionContext() OVERRIDE;
+  virtual content::BrowserPluginGuestManager* GetGuestManager() OVERRIDE;
   virtual quota::SpecialStoragePolicy* GetSpecialStoragePolicy() OVERRIDE;
 
   // CefBrowserContext methods.

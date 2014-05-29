@@ -229,21 +229,6 @@ int CEF_CALLBACK context_menu_params_is_editable(
   return _retval;
 }
 
-int CEF_CALLBACK context_menu_params_is_speech_input_enabled(
-    struct _cef_context_menu_params_t* self) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return 0;
-
-  // Execute
-  bool _retval = CefContextMenuParamsCppToC::Get(self)->IsSpeechInputEnabled();
-
-  // Return type: bool
-  return _retval;
-}
-
 cef_context_menu_edit_state_flags_t CEF_CALLBACK context_menu_params_get_edit_state_flags(
     struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -283,8 +268,6 @@ CefContextMenuParamsCppToC::CefContextMenuParamsCppToC(
       context_menu_params_get_media_state_flags;
   struct_.struct_.get_selection_text = context_menu_params_get_selection_text;
   struct_.struct_.is_editable = context_menu_params_is_editable;
-  struct_.struct_.is_speech_input_enabled =
-      context_menu_params_is_speech_input_enabled;
   struct_.struct_.get_edit_state_flags =
       context_menu_params_get_edit_state_flags;
 }

@@ -1,0 +1,16 @@
+Index: Vector.h
+===================================================================
+--- Vector.h	(revision 174434)
++++ Vector.h	(working copy)
+@@ -221,7 +221,10 @@
+     {
+         static bool compare(const T* a, const T* b, size_t size)
+         {
+-            return std::equal(a, a + size, b);
++            for (size_t i = 0; i < size; ++i)
++                if (!(a[i] == b[i]))
++                    return false;
++            return true;
+         }
+     };
+ 

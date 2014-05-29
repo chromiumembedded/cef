@@ -8,7 +8,6 @@
 #include "base/message_loop/message_loop.h"
 #include "base/compiler_specific.h"
 #import "base/mac/scoped_sending_event.h"
-#include "content/public/browser/web_contents_view.h"
 #import "ui/base/cocoa/menu_controller.h"
 
 CefMenuCreatorRunnerMac::CefMenuCreatorRunnerMac()
@@ -29,7 +28,7 @@ bool CefMenuCreatorRunnerMac::RunContextMenu(CefMenuCreator* manager) {
                      useWithPopUpButtonCell:NO];
 
   NSView* parent_view =
-      manager->browser()->GetWebContents()->GetView()->GetContentNativeView();
+      manager->browser()->GetWebContents()->GetContentNativeView();
 
   // Synthesize an event for the click, as there is no certainty that
   // [NSApp currentEvent] will return a valid event.

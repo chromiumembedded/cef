@@ -14,10 +14,8 @@
 
 #include "base/bind.h"
 #include "content/public/browser/native_web_keyboard_event.h"
-#include "content/public/browser/web_contents_view.h"
 #include "content/public/common/file_chooser_params.h"
 #include "content/public/common/renderer_preferences.h"
-#include "third_party/WebKit/public/web/gtk/WebInputEventFactory.h"
 #include "third_party/WebKit/public/web/WebInputEvent.h"
 #include "ui/views/widget/widget.h"
 
