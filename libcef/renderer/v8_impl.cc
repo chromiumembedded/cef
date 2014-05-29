@@ -358,63 +358,6 @@ class V8TrackString : public CefTrackNode {
 };
 
 
-// Manages the life span of a CefTrackNode associated with a persistent Object
-// or Function.
-class CefV8MakeWeakParam {
- public:
-  CefV8MakeWeakParam(v8::Isolate* isolate,
-                     scoped_refptr<CefV8ContextState> context_state,
-                     CefTrackNode* object)
-      : isolate_(isolate),
-        context_state_(context_state),
-        object_(object) {
-    DCHECK(isolate_);
-    DCHECK(object_);
-
-    isolate_->AdjustAmountOfExternalAllocatedMemory(
-        static_cast<int>(sizeof(CefV8MakeWeakParam)));
-
-    if (context_state_.get()) {
-      // |object_| will be deleted when:
-      // A. The associated context is released, or
-      // B. TrackDestructor is called for the weak handle.
-      DCHECK(context_state_->IsValid());
-      context_state_->AddTrackObject(object_);
-    } else {
-      // |object_| will be deleted when:
-      // A. The process shuts down, or
-      // B. TrackDestructor is called for the weak handle.
-      GetIsolateManager()->AddGlobalTrackObject(object_);
-    }
-  }
-  ~CefV8MakeWeakParam() {
-    if (context_state_.get()) {
-      // If the associated context is still valid then delete |object_|.
-      // Otherwise, |object_| will already have been deleted.
-      if (context_state_->IsValid())
-        context_state_->DeleteTrackObject(object_);
-    } else {
-      GetIsolateManager()->DeleteGlobalTrackObject(object_);
-    }
-
-    isolate_->AdjustAmountOfExternalAllocatedMemory(
-        -static_cast<int>(sizeof(CefV8MakeWeakParam)));
-  }
-
- private:
-  v8::Isolate* isolate_;
-  scoped_refptr<CefV8ContextState> context_state_;
-  CefTrackNode* object_;
-};
-
-// Callback for weak persistent reference destruction.
-void TrackDestructor(
-    const v8::WeakCallbackData<v8::Value, CefV8MakeWeakParam>& data) {
-  if (data.GetParameter())
-    delete data.GetParameter();
-}
-
-
 // Convert a CefString to a V8::String.
 v8::Handle<v8::String> GetV8String(v8::Isolate* isolate,
                                    const CefString& str) {
@@ -1035,24 +978,98 @@ blink::WebFrame* CefV8ContextImpl::GetWebFrame() {
 
 // CefV8ValueImpl::Handle
 
+CefV8ValueImpl::Handle::Handle(v8::Isolate* isolate,
+                               v8::Handle<v8::Context> context,
+                               handleType v,
+                               CefTrackNode* tracker)
+    : CefV8HandleBase(isolate, context),
+      handle_(isolate, v),
+      tracker_(tracker),
+      should_persist_(false),
+      is_set_weak_(false) {
+}
+
 CefV8ValueImpl::Handle::~Handle() {
-  // Persist the handle (call MakeWeak) if:
-  // A. The handle has been passed into a V8 function or used as a return value
-  //    from a V8 callback, and
-  // B. The associated context, if any, is still valid.
-  if (should_persist_ && (!context_state_.get() || context_state_->IsValid())) {
-    handle_.SetWeak(
-        (tracker_ ?
-            new CefV8MakeWeakParam(isolate(), context_state_, tracker_) : NULL),
-        TrackDestructor);
-  } else if (tracker_) {
-    delete tracker_;
+  DCHECK(BelongsToCurrentThread());
+
+  if (tracker_) {
+    if (is_set_weak_) {
+      if (context_state_.get()) {
+        // If the associated context is still valid then delete |tracker_|.
+        // Otherwise, |tracker_| will already have been deleted.
+        if (context_state_->IsValid())
+          context_state_->DeleteTrackObject(tracker_);
+      } else {
+        GetIsolateManager()->DeleteGlobalTrackObject(tracker_);
+      }
+
+      isolate_->AdjustAmountOfExternalAllocatedMemory(
+          -static_cast<int>(sizeof(Handle)));
+    } else {
+      delete tracker_;
+    }
   }
 
   // Always call Reset() on a persistent handle to avoid the
   // CHECK(state() != NEAR_DEATH) in V8's PostGarbageCollectionProcessing.
   handle_.Reset();
-  tracker_ = NULL;
+}
+
+CefV8ValueImpl::Handle::handleType
+CefV8ValueImpl::Handle::GetNewV8Handle(bool should_persist) {
+  DCHECK(IsValid());
+  if (should_persist && !should_persist_)
+    should_persist_ = true;
+  return handleType::New(isolate(), handle_);
+}
+
+CefV8ValueImpl::Handle::persistentType&
+CefV8ValueImpl::Handle::GetPersistentV8Handle() {
+  return handle_;
+}
+
+void CefV8ValueImpl::Handle::SetWeakIfNecessary() {
+  if (!BelongsToCurrentThread()) {
+    task_runner()->PostTask(FROM_HERE,
+        base::Bind(&CefV8ValueImpl::Handle::SetWeakIfNecessary, this));
+    return;
+  }
+
+  // Persist the handle (call SetWeak) if:
+  // A. The handle has been passed into a V8 function or used as a return value
+  //    from a V8 callback, and
+  // B. The associated context, if any, is still valid.
+  if (should_persist_ && (!context_state_.get() || context_state_->IsValid())) {
+    is_set_weak_ = true;
+
+    if (tracker_) {
+      if (context_state_.get()) {
+        // |tracker_| will be deleted when:
+        // A. The associated context is released, or
+        // B. Destructor is called for the weak handle.
+        DCHECK(context_state_->IsValid());
+        context_state_->AddTrackObject(tracker_);
+      } else {
+        // |tracker_| will be deleted when:
+        // A. The process shuts down, or
+        // B. Destructor is called for the weak handle.
+        GetIsolateManager()->AddGlobalTrackObject(tracker_);
+      }
+    }
+
+    isolate_->AdjustAmountOfExternalAllocatedMemory(
+        static_cast<int>(sizeof(Handle)));
+
+    // The added reference will be released in Destructor.
+    AddRef();
+    handle_.SetWeak(this, Destructor);
+  }
+}
+
+// static
+void CefV8ValueImpl::Handle::Destructor(
+    const v8::WeakCallbackData<v8::Value, Handle>& data) {
+  data.GetParameter()->Release();
 }
 
 
@@ -1263,6 +1280,8 @@ CefV8ValueImpl::CefV8ValueImpl(v8::Isolate* isolate,
 CefV8ValueImpl::~CefV8ValueImpl() {
   if (type_ == TYPE_STRING)
     cef_string_clear(&string_value_);
+  if (handle_)
+    handle_->SetWeakIfNecessary();
 }
 
 void CefV8ValueImpl::InitFromV8Value(v8::Handle<v8::Value> value) {
