@@ -281,26 +281,19 @@ class CefV8ValueImpl : public CefV8Value {
     Handle(v8::Isolate* isolate,
            v8::Handle<v8::Context> context,
            handleType v,
-           CefTrackNode* tracker)
-        : CefV8HandleBase(isolate, context),
-          handle_(isolate, v),
-          tracker_(tracker),
-          should_persist_(false) {
-    }
+           CefTrackNode* tracker);
     virtual ~Handle();
 
-    handleType GetNewV8Handle(bool should_persist) {
-      DCHECK(IsValid());
-      if (should_persist && !should_persist_)
-        should_persist_ = true;
-      return handleType::New(isolate(), handle_);
-    }
+    handleType GetNewV8Handle(bool should_persist);
 
-    persistentType& GetPersistentV8Handle() {
-      return handle_;
-    }
+    persistentType& GetPersistentV8Handle();
+
+    void SetWeakIfNecessary();
 
    private:
+    // Callback for weak persistent reference destruction.
+    static void Destructor(const v8::WeakCallbackData<v8::Value, Handle>& data);
+
     persistentType handle_;
 
     // For Object and Function types, we need to hold on to a reference to their
@@ -309,6 +302,9 @@ class CefV8ValueImpl : public CefV8Value {
 
     // True if the handle needs to persist due to it being passed into V8.
     bool should_persist_;
+
+    // True if the handle has been set as weak.
+    bool is_set_weak_;
 
     DISALLOW_COPY_AND_ASSIGN(Handle);
   };
