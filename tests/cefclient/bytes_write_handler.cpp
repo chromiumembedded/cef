@@ -4,6 +4,8 @@
 
 #include "cefclient/bytes_write_handler.h"
 
+#include <stdlib.h>
+
 #include "cefclient/util.h"
 
 BytesWriteHandler::BytesWriteHandler(size_t grow)

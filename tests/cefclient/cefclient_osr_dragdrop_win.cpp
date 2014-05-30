@@ -252,7 +252,7 @@ bool DragDataToDataObject(CefRefPtr<CefDragData> drag_data,
     CefRefPtr<CefStreamWriter> writer =
         CefStreamWriter::CreateForHandler(handler.get());
     drag_data->GetFileContents(writer);
-    ASSERT(handler->GetDataSize() == bufferSize);
+    ASSERT(handler->GetDataSize() == static_cast<int64>(bufferSize));
     CefString fileName = drag_data->GetFileName();
     GetStorageForFileDescriptor(&stgmeds[curr_index], fileName.ToWString());
     fmtetc.cfFormat = file_desc_format;

@@ -644,42 +644,9 @@ class OSRTestHandler : public RoutingTestHandler,
           mouse_event.modifiers = 0;
           browser->GetHost()->SendMouseWheelEvent(mouse_event, 0, - deltaY);
         } else {
-#if defined(OS_WIN)
-          // there should be 3 update areas:
-          // 1) vertical scrollbar
-          // 2) discovered new area (bottom side)
-          // 3) the whole visible rect.
-          EXPECT_EQ(3U, dirtyRects.size());
-          if (dirtyRects.size() == 3U) {
-            EXPECT_EQ(dirtyRects[0], CefRect(0, 0,
-                kOsrWidth - kVerticalScrollbarWidth, kHorizontalScrollbarWidth));
-
-            EXPECT_EQ(dirtyRects[1], CefRect(0, kHorizontalScrollbarWidth,
-                kOsrWidth, kOsrHeight - 2 * kHorizontalScrollbarWidth));
-
-            EXPECT_EQ(dirtyRects[2],
-                CefRect(0, kOsrHeight - kHorizontalScrollbarWidth,
-                           kOsrWidth - kVerticalScrollbarWidth,
-                           kHorizontalScrollbarWidth));
-          }
-#elif defined(OS_MACOSX)
-          // On Mac, when scrollbars are Always on, there is a single update of
-          // the whole view
-          // When scrollbars are set to appear 'When scrolling', the first
-          // rectangle is of the whole view, and next comes a longer sequence of
-          // updates, each with one rectangle update for the whole scrollbar
-          // rectangle(584,0,16,400)
-          // Validating the first, full update passes in both cases
           EXPECT_EQ(dirtyRects.size(), 1U);
           EXPECT_EQ(dirtyRects[0], CefRect(0, 0,
               kOsrWidth, kOsrHeight));
-#elif defined(OS_LINUX)
-          EXPECT_EQ(dirtyRects.size(), 1U);
-          EXPECT_EQ(dirtyRects[0], CefRect(0, 0,
-              kOsrWidth, kOsrHeight));
-#else
-#error "Unsupported platform"
-#endif  // defined(OS_WIN)
           DestroySucceededTestSoon();
         }
         break;
@@ -779,23 +746,12 @@ class OSRTestHandler : public RoutingTestHandler,
               scroll_inside_state = Scrolled;
             } else if (scroll_inside_state == Scrolled) {
               EXPECT_EQ(dirtyRects.size(), 1U);
-#if defined(OS_WIN)
               // border is not redrawn
-              EXPECT_EQ(dirtyRects[0],
-                        CefRect(1,
-                                1,
-                                kExpandedSelectRect.width - 3,
-                                kExpandedSelectRect.height - 2));
-#elif defined(OS_MACOSX) || defined(OS_LINUX)
               EXPECT_EQ(dirtyRects[0],
                         CefRect(1,
                                 0,
                                 kExpandedSelectRect.width - 3,
                                 kExpandedSelectRect.height - 1));
-#else
-#error "Unsupported platform"
-#endif  // defined(OS_WIN)
-
               DestroySucceededTestSoon();
             }
           }

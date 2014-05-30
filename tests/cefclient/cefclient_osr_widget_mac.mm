@@ -1035,7 +1035,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
     CefRefPtr<CefStreamWriter> writer =
         CefStreamWriter::CreateForHandler(handler.get());
     current_drag_data_->GetFileContents(writer);
-    ASSERT(handler->GetDataSize() == size);
+    ASSERT(handler->GetDataSize() == static_cast<int64>(size));
 
     [pboard setData:[NSData dataWithBytes:handler->GetData()
                                    length:handler->GetDataSize()]
