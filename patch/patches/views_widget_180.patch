@@ -1,8 +1,8 @@
-Index: desktop_aura/desktop_root_window_host_win.cc
-===================================================================
---- desktop_aura/desktop_root_window_host_win.cc	(revision 258314)
-+++ desktop_aura/desktop_root_window_host_win.cc	(working copy)
-@@ -132,7 +132,9 @@
+diff --git desktop_aura/desktop_root_window_host_win.cc desktop_aura/desktop_root_window_host_win.cc
+index 938a05b..0a3184a 100644
+--- desktop_aura/desktop_root_window_host_win.cc
++++ desktop_aura/desktop_root_window_host_win.cc
+@@ -132,7 +132,9 @@ void DesktopRootWindowHostWin::Init(
                          native_widget_delegate_);
  
    HWND parent_hwnd = NULL;
@@ -13,7 +13,7 @@ Index: desktop_aura/desktop_root_window_host_win.cc
      parent_hwnd =
          params.parent->GetDispatcher()->host()->GetAcceleratedWidget();
    }
-@@ -757,7 +759,7 @@
+@@ -757,7 +759,7 @@ void DesktopRootWindowHostWin::HandleAccelerator(
  
  void DesktopRootWindowHostWin::HandleCreate() {
    // TODO(beng): moar
@@ -22,23 +22,27 @@ Index: desktop_aura/desktop_root_window_host_win.cc
  
    native_widget_delegate_->OnNativeWidgetCreated(true);
  
-Index: desktop_aura/desktop_root_window_host_win.h
-===================================================================
---- desktop_aura/desktop_root_window_host_win.h	(revision 258314)
-+++ desktop_aura/desktop_root_window_host_win.h	(working copy)
-@@ -210,6 +210,7 @@
-                              LPARAM l_param) OVERRIDE;
-   virtual bool HandleScrollEvent(const ui::ScrollEvent& event) OVERRIDE;
+@@ -822,6 +824,7 @@ void DesktopRootWindowHostWin::HandleFrameChanged() {
  
-+ public:
-   Widget* GetWidget();
-   const Widget* GetWidget() const;
-   HWND GetHWND() const;
-Index: desktop_aura/desktop_screen_win.cc
-===================================================================
---- desktop_aura/desktop_screen_win.cc	(revision 258314)
-+++ desktop_aura/desktop_screen_win.cc	(working copy)
-@@ -54,6 +54,8 @@
+ void DesktopRootWindowHostWin::HandleNativeFocus(HWND last_focused_window) {
+   // TODO(beng): inform the native_widget_delegate_.
++  GetWidget()->GetNativeWindow()->Focus();
+   InputMethod* input_method = GetInputMethod();
+   if (input_method)
+     input_method->OnFocus();
+@@ -829,6 +832,7 @@ void DesktopRootWindowHostWin::HandleNativeFocus(HWND last_focused_window) {
+ 
+ void DesktopRootWindowHostWin::HandleNativeBlur(HWND focused_window) {
+   // TODO(beng): inform the native_widget_delegate_.
++  GetWidget()->GetNativeWindow()->Blur();
+   InputMethod* input_method = GetInputMethod();
+   if (input_method)
+     input_method->OnBlur();
+diff --git desktop_aura/desktop_screen_win.cc desktop_aura/desktop_screen_win.cc
+index 86823a0..1d3ebf0 100644
+--- desktop_aura/desktop_screen_win.cc
++++ desktop_aura/desktop_screen_win.cc
+@@ -54,6 +54,8 @@ gfx::Display DesktopScreenWin::GetDisplayMatching(
  }
  
  HWND DesktopScreenWin::GetHWNDFromNativeView(gfx::NativeView window) const {
@@ -47,11 +51,11 @@ Index: desktop_aura/desktop_screen_win.cc
    aura::WindowEventDispatcher* dispatcher = window->GetDispatcher();
    return dispatcher ? dispatcher->host()->GetAcceleratedWidget() : NULL;
  }
-Index: widget.cc
-===================================================================
---- widget.cc	(revision 258314)
-+++ widget.cc	(working copy)
-@@ -126,6 +126,7 @@
+diff --git widget.cc widget.cc
+index b050ae6..f17bc8d 100644
+--- widget.cc
++++ widget.cc
+@@ -126,6 +126,7 @@ Widget::InitParams::InitParams()
        show_state(ui::SHOW_STATE_DEFAULT),
        double_buffer(false),
        parent(NULL),
@@ -59,7 +63,7 @@ Index: widget.cc
        native_widget(NULL),
        desktop_root_window_host(NULL),
        top_level(false),
-@@ -153,6 +154,7 @@
+@@ -153,6 +154,7 @@ Widget::InitParams::InitParams(Type type)
        show_state(ui::SHOW_STATE_DEFAULT),
        double_buffer(false),
        parent(NULL),
@@ -67,7 +71,7 @@ Index: widget.cc
        native_widget(NULL),
        desktop_root_window_host(NULL),
        top_level(false),
-@@ -395,7 +397,12 @@
+@@ -395,7 +397,12 @@ void Widget::Init(const InitParams& in_params) {
        Minimize();
    } else if (params.delegate) {
      SetContentsView(params.delegate->GetContentsView());
@@ -81,11 +85,11 @@ Index: widget.cc
    }
    native_widget_initialized_ = true;
  }
-Index: widget.h
-===================================================================
---- widget.h	(revision 258314)
-+++ widget.h	(working copy)
-@@ -201,6 +201,7 @@
+diff --git widget.h widget.h
+index ce14d7c..99c8063 100644
+--- widget.h
++++ widget.h
+@@ -201,6 +201,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
      // Should the widget be double buffered? Default is false.
      bool double_buffer;
      gfx::NativeView parent;

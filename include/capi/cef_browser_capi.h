@@ -244,10 +244,16 @@ typedef struct _cef_browser_host_t {
       int force_close);
 
   ///
-  // Set focus for the browser window. If |enable| is true (1) focus will be set
-  // to the window. Otherwise, focus will be removed.
+  // Set whether the browser is focused.
   ///
-  void (CEF_CALLBACK *set_focus)(struct _cef_browser_host_t* self, int enable);
+  void (CEF_CALLBACK *set_focus)(struct _cef_browser_host_t* self, int focus);
+
+  ///
+  // Set whether the window containing the browser is visible
+  // (minimized/unminimized, app hidden/unhidden, etc). Only used on Mac OS X.
+  ///
+  void (CEF_CALLBACK *set_window_visibility)(struct _cef_browser_host_t* self,
+      int visible);
 
   ///
   // Retrieve the window handle for this browser.

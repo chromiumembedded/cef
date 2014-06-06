@@ -97,7 +97,7 @@ void CefBrowserHostCToCpp::CloseBrowser(bool force_close) {
       force_close);
 }
 
-void CefBrowserHostCToCpp::SetFocus(bool enable) {
+void CefBrowserHostCToCpp::SetFocus(bool focus) {
   if (CEF_MEMBER_MISSING(struct_, set_focus))
     return;
 
@@ -105,7 +105,18 @@ void CefBrowserHostCToCpp::SetFocus(bool enable) {
 
   // Execute
   struct_->set_focus(struct_,
-      enable);
+      focus);
+}
+
+void CefBrowserHostCToCpp::SetWindowVisibility(bool visible) {
+  if (CEF_MEMBER_MISSING(struct_, set_window_visibility))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->set_window_visibility(struct_,
+      visible);
 }
 
 CefWindowHandle CefBrowserHostCToCpp::GetWindowHandle() {

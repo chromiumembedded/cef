@@ -319,6 +319,11 @@ void CefBrowserHostImpl::PlatformSizeTo(int width, int height) {
   }
 }
 
+void CefBrowserHostImpl::PlatformSetFocus(bool focus) {
+  if (focus && web_contents_)
+    web_contents_->GetView()->Focus();
+}
+
 CefWindowHandle CefBrowserHostImpl::PlatformGetWindowHandle() {
   return IsWindowRenderingDisabled() ?
       window_info_.parent_widget :

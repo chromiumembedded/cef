@@ -281,11 +281,17 @@ class CefBrowserHost : public virtual CefBase {
   virtual void CloseBrowser(bool force_close) =0;
 
   ///
-  // Set focus for the browser window. If |enable| is true focus will be set to
-  // the window. Otherwise, focus will be removed.
+  // Set whether the browser is focused.
   ///
   /*--cef()--*/
-  virtual void SetFocus(bool enable) =0;
+  virtual void SetFocus(bool focus) =0;
+
+  ///
+  // Set whether the window containing the browser is visible
+  // (minimized/unminimized, app hidden/unhidden, etc). Only used on Mac OS X.
+  ///
+  /*--cef()--*/
+  virtual void SetWindowVisibility(bool visible) =0;
 
   ///
   // Retrieve the window handle for this browser.

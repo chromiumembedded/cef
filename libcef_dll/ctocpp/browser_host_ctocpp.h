@@ -40,7 +40,8 @@ class CefBrowserHostCToCpp
   virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
   virtual void ParentWindowWillClose() OVERRIDE;
   virtual void CloseBrowser(bool force_close) OVERRIDE;
-  virtual void SetFocus(bool enable) OVERRIDE;
+  virtual void SetFocus(bool focus) OVERRIDE;
+  virtual void SetWindowVisibility(bool visible) OVERRIDE;
   virtual CefWindowHandle GetWindowHandle() OVERRIDE;
   virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE;
   virtual CefRefPtr<CefClient> GetClient() OVERRIDE;

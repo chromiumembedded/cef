@@ -121,7 +121,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
   virtual void CloseBrowser(bool force_close) OVERRIDE;
   virtual void ParentWindowWillClose() OVERRIDE;
-  virtual void SetFocus(bool enable) OVERRIDE;
+  virtual void SetFocus(bool focus) OVERRIDE;
+  virtual void SetWindowVisibility(bool visible) OVERRIDE;
   virtual CefWindowHandle GetWindowHandle() OVERRIDE;
   virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE;
   virtual CefRefPtr<CefClient> GetClient() OVERRIDE;
@@ -449,8 +450,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   static LPCTSTR GetWndClass();
   static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
                                   WPARAM wParam, LPARAM lParam);
-
-  void PlatformSetViewFocus();
 #endif
 
   // Create the window.
@@ -460,6 +459,12 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void PlatformCloseWindow();
   // Resize the window to the given dimensions.
   void PlatformSizeTo(int width, int height);
+  // Set or remove focus from the window.
+  void PlatformSetFocus(bool focus);
+#if defined(OS_MACOSX)
+  // Set or remove window visibility.
+  void PlatformSetWindowVisibility(bool visible);
+#endif
   // Return the handle for this window.
   CefWindowHandle PlatformGetWindowHandle();
   // Open the specified text in the default text editor.

@@ -19,6 +19,7 @@
 #include "base/strings/sys_string_conversions.h"
 #include "base/threading/thread_restrictions.h"
 #include "content/public/browser/native_web_keyboard_event.h"
+#include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view.h"
 #include "content/public/common/file_chooser_params.h"
@@ -36,7 +37,6 @@
 @interface CefBrowserHostView : NSView {
  @private
   CefBrowserHostImpl* browser_;  // weak
-  bool is_in_onsetfocus_;
 }
 
 @property (nonatomic, assign) CefBrowserHostImpl* browser;
@@ -57,23 +57,6 @@
   [super dealloc];
 }
 
-- (BOOL)acceptsFirstResponder {
-  return browser_ && browser_->GetWebContents();
-}
-
-- (BOOL)becomeFirstResponder {
-  if (browser_ && browser_->GetWebContents()) {
-    // Avoid re-entering OnSetFocus.
-    if (!is_in_onsetfocus_) {
-      is_in_onsetfocus_ = true;
-      browser_->OnSetFocus(FOCUS_SOURCE_SYSTEM);
-      is_in_onsetfocus_ = false;
-    }
-  }
-
-  return YES;
-}
-
 @end
 
 // Receives notifications from the browser window. Will delete itself when done.
@@ -89,6 +72,48 @@
 @implementation CefWindowDelegate
 
 @synthesize browser = browser_;
+
+// Called when we are activated (when we gain focus).
+- (void)windowDidBecomeKey:(NSNotification*)notification {
+  if (browser_)
+    browser_->SetFocus(true);
+}
+
+// Called when we are deactivated (when we lose focus).
+- (void)windowDidResignKey:(NSNotification*)notification {
+  if (browser_)
+    browser_->SetFocus(false);
+}
+
+// Called when we have been minimized.
+- (void)windowDidMiniaturize:(NSNotification *)notification {
+  if (browser_)
+    browser_->SetWindowVisibility(false);
+}
+
+// Called when we have been unminimized.
+- (void)windowDidDeminiaturize:(NSNotification *)notification {
+  if (browser_)
+    browser_->SetWindowVisibility(true);
+}
+
+// Called when the application has been hidden.
+- (void)applicationDidHide:(NSNotification *)notification {
+  // If the window is miniaturized then nothing has really changed.
+  if (![[notification object] isMiniaturized]) {
+    if (browser_)
+      browser_->SetWindowVisibility(false);
+  }
+}
+
+// Called when the application has been unhidden.
+- (void)applicationDidUnhide:(NSNotification *)notification {
+  // If the window is miniaturized then nothing has really changed.
+  if (![[notification object] isMiniaturized]) {
+    if (browser_)
+      browser_->SetWindowVisibility(true);
+  }
+}
 
 - (BOOL)windowShouldClose:(id)window {
   // Protect against multiple requests to close while the close is pending.
@@ -398,6 +423,31 @@ void CefBrowserHostImpl::PlatformCloseWindow() {
 
 void CefBrowserHostImpl::PlatformSizeTo(int width, int height) {
   // Not needed; subviews are bound.
+}
+
+void CefBrowserHostImpl::PlatformSetFocus(bool focus) {
+  if (web_contents_) {
+    if (content::RenderWidgetHostView* view =
+        web_contents_->GetRenderWidgetHostView()) {
+      view->SetActive(focus);
+
+      if (focus) {
+        // Give keyboard focus to the native view.
+        NSView* view = web_contents_->GetView()->GetContentNativeView();
+        DCHECK([view canBecomeKeyView]);
+        [[view window] makeFirstResponder:view];
+      }
+    }
+  }
+}
+
+void CefBrowserHostImpl::PlatformSetWindowVisibility(bool visible) {
+  if (web_contents_) {
+    if (content::RenderWidgetHostView* view =
+        web_contents_->GetRenderWidgetHostView()) {
+      view->SetWindowVisibility(visible);
+    }
+  }
 }
 
 CefWindowHandle CefBrowserHostImpl::PlatformGetWindowHandle() {
