@@ -650,7 +650,9 @@ if not options.noupdate and os.path.exists(cef_dir):
         run('%s fetch' % (git_exe), cef_dir, depot_tools_dir)
 
       # Checkout the requested branch.
-      run('%s checkout %s' % (git_exe, cef_checkout), cef_dir, depot_tools_dir)
+      run('%s checkout %s%s' %
+        (git_exe, ('--force ' if options.forceclean else ''), cef_checkout), \
+        cef_dir, depot_tools_dir)
   else:
     cef_current_info = get_svn_info(cef_dir)
     if cef_current_info['url'] != cef_url:
@@ -804,8 +806,9 @@ if chromium_checkout_changed:
   run("%s fetch" % (git_exe), chromium_src_dir, depot_tools_dir)
 
   # Checkout the requested branch.
-  run("%s checkout %s" % (git_exe, chromium_checkout), chromium_src_dir, \
-      depot_tools_dir)
+  run("%s checkout %s%s" % \
+    (git_exe, ('--force ' if options.forceclean else ''), chromium_checkout), \
+    chromium_src_dir, depot_tools_dir)
 
   if cef_branch != 'trunk':
     # Remove the 'src' entry from .DEPS.git for release branches.
@@ -814,8 +817,9 @@ if chromium_checkout_changed:
     remove_deps_entry(deps_path, "'src'")
 
   # Update third-party dependencies including branch/tag information.
-  run("gclient sync %s--with_branch_heads --jobs 16" % \
-      ('--nohooks ' if chromium_nohooks else ''), \
+  run("gclient sync %s%s--with_branch_heads --jobs 16" % \
+      (('--reset ' if options.forceclean else ''), \
+      ('--nohooks ' if chromium_nohooks else '')), \
       chromium_dir, depot_tools_dir)
 
   # Delete the src/out directory created by `gclient sync`.
