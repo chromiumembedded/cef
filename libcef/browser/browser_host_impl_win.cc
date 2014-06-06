@@ -601,7 +601,7 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
 
   case WM_SETFOCUS:
     if (browser)
-      browser->OnSetFocus(FOCUS_SOURCE_SYSTEM);
+      browser->SetFocus(true);
     return 0;
 
   case WM_ERASEBKGND:
@@ -609,11 +609,6 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
   }
 
   return DefWindowProc(hwnd, message, wParam, lParam);
-}
-
-void CefBrowserHostImpl::PlatformSetViewFocus() {
-  if (window_widget_)
-    ::SetFocus(views::HWNDForWidget(window_widget_));
 }
 
 ui::PlatformCursor CefBrowserHostImpl::GetPlatformCursor(
@@ -699,6 +694,25 @@ void CefBrowserHostImpl::PlatformSizeTo(int width, int height) {
   // Size the window.
   SetWindowPos(window_info_.window, NULL, 0, 0, rect.right,
                rect.bottom, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+}
+
+void CefBrowserHostImpl::PlatformSetFocus(bool focus) {
+  if (!focus)
+    return;
+
+  if (web_contents_) {
+    // Give logical focus to the RenderWidgetHostViewAura in the views
+    // hierarchy. This does not change the native keyboard focus.
+    web_contents_->Focus();
+  }
+
+  if (window_widget_) {
+    // Give native focus to the DesktopNativeWidgetAura for the root window.
+    // Needs to be done via the HWND so that keyboard focus is assigned
+    // correctly. DesktopNativeWidgetAura will update focus state on the
+    // aura::Window when WM_SETFOCUS and WM_KILLFOCUS are received.
+    ::SetFocus(HWNDForWidget(window_widget_));
+  }
 }
 
 CefWindowHandle CefBrowserHostImpl::PlatformGetWindowHandle() {

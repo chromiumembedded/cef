@@ -306,6 +306,12 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   } else if (browser->IsPopup()) {
     // Add to the list of popup browsers.
     m_PopupBrowsers.push_back(browser);
+
+    // Give focus to the popup browser. Perform asynchronously because the
+    // parent window may attempt to keep focus after launching the popup.
+    CefPostTask(TID_UI,
+        NewCefRunnableMethod(browser->GetHost().get(),
+                             &CefBrowserHost::SetFocus, true));
   }
 
   m_BrowserCount++;

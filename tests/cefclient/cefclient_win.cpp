@@ -517,11 +517,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
 
     case WM_SETFOCUS:
       if (g_handler.get() && g_handler->GetBrowser()) {
-        // Pass focus to the browser window
-        CefWindowHandle hwnd =
-            g_handler->GetBrowser()->GetHost()->GetWindowHandle();
-        if (hwnd)
-          PostMessage(hwnd, WM_SETFOCUS, wParam, NULL);
+        // Give focus to the browser.
+        g_handler->GetBrowser()->GetHost()->SetFocus(true);
       }
       return 0;
 

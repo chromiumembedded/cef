@@ -632,11 +632,29 @@ void CefBrowserHostImpl::CloseBrowser(bool force_close) {
   }
 }
 
-void CefBrowserHostImpl::SetFocus(bool enable) {
-  if (!enable)
-    return;
+void CefBrowserHostImpl::SetFocus(bool focus) {
+  if (focus) {
+    OnSetFocus(FOCUS_SOURCE_SYSTEM);
+  } else {
+    if (CEF_CURRENTLY_ON_UIT()) {
+      PlatformSetFocus(false);
+    } else {
+      CEF_POST_TASK(CEF_UIT,
+          base::Bind(&CefBrowserHostImpl::PlatformSetFocus, this, false));
+    }
+  }
+}
 
-  OnSetFocus(FOCUS_SOURCE_SYSTEM);
+void CefBrowserHostImpl::SetWindowVisibility(bool visible) {
+#if defined(OS_MACOSX)
+  if (CEF_CURRENTLY_ON_UIT()) {
+    PlatformSetWindowVisibility(visible);
+  } else {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::PlatformSetWindowVisibility,
+                   this, visible));
+  }
+#endif
 }
 
 CefWindowHandle CefBrowserHostImpl::GetWindowHandle() {
@@ -1499,15 +1517,7 @@ void CefBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
       }
     }
 
-    if (web_contents_.get())
-      web_contents_->Focus();
-
-#if defined(OS_WIN)
-    // When windowed rendering is used in combination with Aura on Windows we
-    // need to explicitly set focus to the native window handle. Otherwise,
-    // the window doesn't get keyboard focus.
-    PlatformSetViewFocus();
-#endif  // defined(OS_WIN)
+    PlatformSetFocus(true);
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::OnSetFocus, this, source));

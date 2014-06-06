@@ -202,10 +202,63 @@ const int kWindowHeight = 600;
   [self alert:@"File Download" withMessage:str];
 }
 
+// Called when we are activated (when we gain focus).
 - (void)windowDidBecomeKey:(NSNotification*)notification {
-  if (g_handler.get() && g_handler->GetBrowserId()) {
-    // Give focus to the browser window.
-    g_handler->GetBrowser()->GetHost()->SetFocus(true);
+  if (g_handler.get()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    if (browser.get())
+      browser->GetHost()->SetFocus(true);
+  }
+}
+
+// Called when we are deactivated (when we lose focus).
+- (void)windowDidResignKey:(NSNotification*)notification {
+  if (g_handler.get()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    if (browser.get())
+      browser->GetHost()->SetFocus(false);
+  }
+}
+
+// Called when we have been minimized.
+- (void)windowDidMiniaturize:(NSNotification *)notification {
+  if (g_handler.get()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    if (browser.get())
+      browser->GetHost()->SetWindowVisibility(false);
+  }
+}
+
+// Called when we have been unminimized.
+- (void)windowDidDeminiaturize:(NSNotification *)notification {
+  if (g_handler.get()) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    if (browser.get())
+      browser->GetHost()->SetWindowVisibility(true);
+  }
+}
+
+// Called when the application has been hidden.
+- (void)applicationDidHide:(NSNotification *)notification {
+  // If the window is miniaturized then nothing has really changed.
+  if (![[notification object] isMiniaturized]) {
+    if (g_handler.get()) {
+      CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+      if (browser.get())
+        browser->GetHost()->SetWindowVisibility(false);
+    }
+  }
+}
+
+// Called when the application has been unhidden.
+- (void)applicationDidUnhide:(NSNotification *)notification {
+  // If the window is miniaturized then nothing has really changed.
+  if (![[notification object] isMiniaturized]) {
+    if (g_handler.get()) {
+      CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+      if (browser.get())
+        browser->GetHost()->SetWindowVisibility(true);
+    }
   }
 }
 

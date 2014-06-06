@@ -94,9 +94,7 @@ gboolean WindowFocusIn(GtkWidget* widget,
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     if (browser) {
       // Give focus to the browser window.
-      ::Display* xdisplay = cef_get_xdisplay();
-      ::Window xwindow = browser->GetHost()->GetWindowHandle();
-      XSetInputFocus(xdisplay, xwindow, RevertToParent, CurrentTime);
+      browser->GetHost()->SetFocus(true);
       return TRUE;
     }
   }

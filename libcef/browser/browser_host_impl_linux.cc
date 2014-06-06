@@ -100,6 +100,24 @@ void CefBrowserHostImpl::PlatformSizeTo(int width, int height) {
   }
 }
 
+void CefBrowserHostImpl::PlatformSetFocus(bool focus) {
+  if (!focus)
+    return;
+
+  if (web_contents_) {
+    // Give logical focus to the RenderWidgetHostViewAura in the views
+    // hierarchy. This does not change the native keyboard focus.
+    web_contents_->Focus();
+  }
+
+  if (window_x11_) {
+    // Give native focus to the DesktopNativeWidgetAura for the root window.
+    // Needs to be done via the ::Window so that keyboard focus is assigned
+    // correctly.
+    window_x11_->Focus();
+  }
+}
+
 CefWindowHandle CefBrowserHostImpl::PlatformGetWindowHandle() {
   return window_info_.window;
 }

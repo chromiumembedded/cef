@@ -10,6 +10,7 @@
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
 
+#include "ui/base/x/x11_util.h"
 #include "ui/events/platform/x11/x11_event_source.h"
 
 namespace {
@@ -58,7 +59,9 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
     xwindow_(0),
     window_mapped_(false),
     bounds_(bounds),
-    atom_cache_(xdisplay_, kAtomsToCache) {
+    focus_pending_(false),
+    atom_cache_(xdisplay_, kAtomsToCache),
+    weak_ptr_factory_(this) {
   if (parent_xwindow_ == None)
     parent_xwindow_ = DefaultRootWindow(xdisplay_);
 
@@ -163,6 +166,17 @@ void CefWindowX11::Hide() {
   if (window_mapped_) {
     XWithdrawWindow(xdisplay_, xwindow_, 0);
     window_mapped_ = false;
+  }
+}
+
+void CefWindowX11::Focus() {
+  if (xwindow_ == None || !window_mapped_)
+    return;
+
+  ::Window child = FindChild(xdisplay_, xwindow_);
+  if (child && ui::IsWindowVisible(child)) {
+    // Give focus to the child DesktopWindowTreeHostX11.
+    XSetInputFocus(xdisplay_, child, RevertToParent, CurrentTime);
   }
 }
 
@@ -274,13 +288,31 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
       // "_NET_ACTIVE_WINDOW" message it will erroneously mark the WebView
       // (hosted in a DesktopWindowTreeHostX11) as unfocused. Use a delayed
       // task here to restore the WebView's focus state.
-      CEF_POST_DELAYED_TASK(CEF_UIT,
-          base::Bind(&CefBrowserHostImpl::OnSetFocus, browser_,
-                     FOCUS_SOURCE_SYSTEM),
-          100);
+      if (!focus_pending_) {
+        focus_pending_ = true;
+        CEF_POST_DELAYED_TASK(CEF_UIT,
+            base::Bind(&CefWindowX11::ContinueFocus,
+                       weak_ptr_factory_.GetWeakPtr()),
+            100);
+      }
+      break;
+    case FocusOut:
+      // Cancel the pending focus change if some other window has gained focus
+      // while waiting for the async task to run. Otherwise we can get stuck in
+      // a focus change loop.
+      if (focus_pending_)
+        focus_pending_ = false;
       break;
   }
 
   return ui::POST_DISPATCH_STOP_PROPAGATION;
 }
+
+void CefWindowX11::ContinueFocus() {
+  if (!focus_pending_)
+    return;
+  browser_->SetFocus(true);
+  focus_pending_ = false;
+}
+
 

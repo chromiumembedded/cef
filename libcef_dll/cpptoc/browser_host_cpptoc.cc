@@ -126,7 +126,7 @@ void CEF_CALLBACK browser_host_close_browser(struct _cef_browser_host_t* self,
 }
 
 void CEF_CALLBACK browser_host_set_focus(struct _cef_browser_host_t* self,
-    int enable) {
+    int focus) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -135,7 +135,20 @@ void CEF_CALLBACK browser_host_set_focus(struct _cef_browser_host_t* self,
 
   // Execute
   CefBrowserHostCppToC::Get(self)->SetFocus(
-      enable?true:false);
+      focus?true:false);
+}
+
+void CEF_CALLBACK browser_host_set_window_visibility(
+    struct _cef_browser_host_t* self, int visible) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->SetWindowVisibility(
+      visible?true:false);
 }
 
 cef_window_handle_t CEF_CALLBACK browser_host_get_window_handle(
@@ -527,6 +540,7 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
   struct_.struct_.get_browser = browser_host_get_browser;
   struct_.struct_.close_browser = browser_host_close_browser;
   struct_.struct_.set_focus = browser_host_set_focus;
+  struct_.struct_.set_window_visibility = browser_host_set_window_visibility;
   struct_.struct_.get_window_handle = browser_host_get_window_handle;
   struct_.struct_.get_opener_window_handle =
       browser_host_get_opener_window_handle;
