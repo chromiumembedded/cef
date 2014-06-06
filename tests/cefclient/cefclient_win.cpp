@@ -539,11 +539,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
 
     case WM_SETFOCUS:
       if (g_handler.get() && g_handler->GetBrowser()) {
-        // Pass focus to the browser window
-        CefWindowHandle hwnd =
-            g_handler->GetBrowser()->GetHost()->GetWindowHandle();
-        if (hwnd)
-          PostMessage(hwnd, WM_SETFOCUS, wParam, NULL);
+        if (AppIsOffScreenRenderingEnabled()) {
+          // Give focus to the OSR window.
+          CefRefPtr<OSRWindow> osr_window =
+              static_cast<OSRWindow*>(g_handler->GetOSRHandler().get());
+          if (osr_window)
+            ::SetFocus(osr_window->hwnd());
+        } else {
+          // Give focus to the browser.
+          g_handler->GetBrowser()->GetHost()->SetFocus(true);
+        }
       }
       return 0;
 

@@ -39,9 +39,9 @@
 #include "ui/views/background.h"
 #include "ui/views/controls/webview/webview.h"
 #include "ui/views/layout/fill_layout.h"
-#include "ui/views/widget/desktop_aura/desktop_window_tree_host_win.h"
 #include "ui/views/widget/widget.h"
 #include "ui/views/widget/widget_delegate.h"
+#include "ui/views/win/hwnd_util.h"
 
 #pragma comment(lib, "dwmapi.lib")
 
@@ -62,21 +62,6 @@ void SetAeroGlass(HWND hWnd) {
   // Make the whole window transparent.
   MARGINS mgMarInset = { -1, -1, -1, -1 };
   DwmExtendFrameIntoClientArea(hWnd, &mgMarInset);
-}
-
-HWND GetHWND(views::Widget* widget) {
-  gfx::NativeWindow window = widget->GetNativeWindow();
-  DCHECK(window);
-  if (!window)
-    return NULL;
-  views::DesktopWindowTreeHostWin* host =
-      static_cast<views::DesktopWindowTreeHostWin*>(window->GetHost());
-  DCHECK(host);
-  if (!host)
-    return NULL;
-  HWND hwnd = host->GetHWND();
-  DCHECK(hwnd);
-  return hwnd;
 }
 
 void WriteTempFileAndView(scoped_refptr<base::RefCountedString> str) {
@@ -573,7 +558,6 @@ class CefWindowDelegateView : public views::WidgetDelegateView {
   explicit CefWindowDelegateView(SkColor background_color)
     : background_color_(background_color),
       web_view_(NULL) {
-    
   }
 
   // Create the Widget and associated root window.
@@ -709,7 +693,7 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
 
   case WM_SETFOCUS:
     if (browser)
-      browser->OnSetFocus(FOCUS_SOURCE_SYSTEM);
+      browser->SetFocus(true);
     return 0;
 
   case WM_ERASEBKGND:
@@ -724,11 +708,6 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
   }
 
   return DefWindowProc(hwnd, message, wParam, lParam);
-}
-
-void CefBrowserHostImpl::PlatformSetViewFocus() {
-  if (window_widget_)
-    ::SetFocus(GetHWND(window_widget_));
 }
 
 ui::PlatformCursor CefBrowserHostImpl::GetPlatformCursor(
@@ -820,6 +799,25 @@ void CefBrowserHostImpl::PlatformSizeTo(int width, int height) {
   // Size the window.
   SetWindowPos(window_info_.window, NULL, 0, 0, rect.right,
                rect.bottom, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+}
+
+void CefBrowserHostImpl::PlatformSetFocus(bool focus) {
+  if (!focus)
+    return;
+
+  if (web_contents_) {
+    // Give logical focus to the RenderWidgetHostViewAura in the views
+    // hierarchy. This does not change the native keyboard focus.
+    web_contents_->GetView()->Focus();
+  }
+
+  if (window_widget_) {
+    // Give native focus to the DesktopNativeWidgetAura for the root window.
+    // Needs to be done via the HWND so that keyboard focus is assigned
+    // correctly. DesktopNativeWidgetAura will update focus state on the
+    // aura::Window when WM_SETFOCUS and WM_KILLFOCUS are received.
+    ::SetFocus(HWNDForWidget(window_widget_));
+  }
 }
 
 CefWindowHandle CefBrowserHostImpl::PlatformGetWindowHandle() {

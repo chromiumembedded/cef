@@ -322,6 +322,9 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   } else if (browser->IsPopup()) {
     // Add to the list of popup browsers.
     m_PopupBrowsers.push_back(browser);
+
+    // Give focus to the popup browser.
+    browser->GetHost()->SetFocus(true);
   }
 
   m_BrowserCount++;
