@@ -733,27 +733,10 @@ void CefBrowserHostImpl::PlatformHandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   // Any unhandled keyboard/character messages are sent to DefWindowProc so that
   // shortcut keys work correctly.
-  HWND hwnd = PlatformGetWindowHandle();
-  if (!hwnd)
-    return;
-
-  UINT message = 0;
-  switch (event.type) {
-    case blink::WebInputEvent::RawKeyDown:
-      message = WM_KEYDOWN;
-      break;
-    case blink::WebInputEvent::KeyUp:
-      message = WM_KEYUP;
-      break;
-    case blink::WebInputEvent::Char:
-      message = WM_CHAR;
-      break;
-    default:
-      NOTREACHED();
-      return;
+  if (event.os_event) {
+    const MSG& msg = event.os_event->native_event();
+    DefWindowProc(msg.hwnd, msg.message, msg.wParam, msg.lParam);
   }
-
-  DefWindowProc(hwnd, message, event.windowsKeyCode, event.nativeKeyCode);
 }
 
 void CefBrowserHostImpl::PlatformRunFileChooser(
