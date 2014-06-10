@@ -1,6 +1,6 @@
 Index: web_contents_view_aura.cc
 ===================================================================
---- web_contents_view_aura.cc	(revision 266998)
+--- web_contents_view_aura.cc	(revision 272606)
 +++ web_contents_view_aura.cc	(working copy)
 @@ -1449,17 +1449,25 @@
  // WebContentsViewAura, aura::client::DragDropDelegate implementation:

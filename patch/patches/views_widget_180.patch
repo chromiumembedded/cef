@@ -1,6 +1,6 @@
 Index: desktop_aura/desktop_screen_win.cc
 ===================================================================
---- desktop_aura/desktop_screen_win.cc	(revision 266998)
+--- desktop_aura/desktop_screen_win.cc	(revision 272606)
 +++ desktop_aura/desktop_screen_win.cc	(working copy)
 @@ -54,6 +54,8 @@
  }
@@ -13,7 +13,7 @@ Index: desktop_aura/desktop_screen_win.cc
  }
 Index: desktop_aura/desktop_window_tree_host_win.cc
 ===================================================================
---- desktop_aura/desktop_window_tree_host_win.cc	(revision 266998)
+--- desktop_aura/desktop_window_tree_host_win.cc	(revision 272606)
 +++ desktop_aura/desktop_window_tree_host_win.cc	(working copy)
 @@ -130,7 +130,9 @@
                          native_widget_delegate_);
@@ -44,7 +44,7 @@ Index: desktop_aura/desktop_window_tree_host_win.cc
      input_method->OnBlur();
 Index: widget.cc
 ===================================================================
---- widget.cc	(revision 266998)
+--- widget.cc	(revision 272606)
 +++ widget.cc	(working copy)
 @@ -122,6 +122,7 @@
        show_state(ui::SHOW_STATE_DEFAULT),
@@ -78,7 +78,7 @@ Index: widget.cc
  }
 Index: widget.h
 ===================================================================
---- widget.h	(revision 266998)
+--- widget.h	(revision 272606)
 +++ widget.h	(working copy)
 @@ -200,6 +200,7 @@
      // Should the widget be double buffered? Default is false.

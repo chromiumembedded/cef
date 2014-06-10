@@ -7,6 +7,6 @@
 # https://code.google.com/p/chromiumembedded/wiki/BranchesAndBuilding
 
 {
-  'release_url': 'http://src.chromium.org/svn/releases/35.0.1916.86',
-  'chromium_checkout': 'refs/tags/35.0.1916.86',
+  'release_url': 'http://src.chromium.org/svn/releases/35.0.1916.138',
+  'chromium_checkout': 'refs/tags/35.0.1916.138',
 }

@@ -1,6 +1,6 @@
 Index: message_loop.cc
 ===================================================================
---- message_loop.cc	(revision 266998)
+--- message_loop.cc	(revision 272606)
 +++ message_loop.cc	(working copy)
 @@ -144,7 +144,7 @@
  MessageLoop::~MessageLoop() {
