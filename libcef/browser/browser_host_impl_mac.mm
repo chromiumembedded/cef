@@ -432,7 +432,7 @@ void CefBrowserHostImpl::PlatformSetFocus(bool focus) {
         web_contents_->GetRenderWidgetHostView()) {
       view->SetActive(focus);
 
-      if (focus) {
+      if (focus && !IsWindowRenderingDisabled()) {
         // Give keyboard focus to the native view.
         NSView* view = web_contents_->GetView()->GetContentNativeView();
         DCHECK([view canBecomeKeyView]);
