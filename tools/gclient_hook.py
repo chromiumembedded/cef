@@ -22,11 +22,18 @@ gyper = [ 'python', 'tools/make_version_header.py',
 RunAction(cef_dir, gyper)
 
 print "\nPatching build configuration and source files for CEF..."
-patcher = [ 'python', 'tools/patcher.py', 
-            '--patch-config', 'patch/patch.cfg' ];
+patcher = [ 'python', 'tools/patcher.py',
+            '--patch-config', 'patch/patch.cfg' ]
 RunAction(cef_dir, patcher)
 
 print "\nGenerating CEF project files..."
-os.environ['CEF_DIRECTORY'] = os.path.basename(cef_dir);
+
+# depot_tools currently bundles VS2013 Express Update 1 which causes linker
+# errors with Debug builds (see issue #1304). Don't use the bundled version
+# unless explicitly requested.
+if not 'DEPOT_TOOLS_WIN_TOOLCHAIN' in os.environ.keys():
+  os.environ['DEPOT_TOOLS_WIN_TOOLCHAIN'] = '0'
+
+os.environ['CEF_DIRECTORY'] = os.path.basename(cef_dir)
 gyper = [ 'python', '../build/gyp_chromium', 'cef.gyp', '-I', 'cef.gypi' ]
 RunAction(cef_dir, gyper)
