@@ -222,7 +222,7 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
   virtual ~CefPluginServiceFilter() {}
 
   virtual bool IsPluginAvailable(int render_process_id,
-                                 int render_view_id,
+                                 int render_frame_id,
                                  const void* context,
                                  const GURL& url,
                                  const GURL& policy_url,
@@ -230,8 +230,8 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
     bool allowed = true;
 
     CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserForView(render_process_id,
-                                              render_view_id);
+        CefBrowserHostImpl::GetBrowserForFrame(render_process_id,
+                                               render_frame_id);
     if (browser.get()) {
       CefRefPtr<CefClient> client = browser->GetClient();
       if (client.get()) {
