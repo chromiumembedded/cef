@@ -185,7 +185,8 @@ def generate_msvs_projects(version):
   sys.stdout.write('Generating '+version+' project files...')
   os.environ['GYP_GENERATORS'] = 'msvs'
   os.environ['GYP_MSVS_VERSION'] = version
-  gyper = [ 'python', 'tools/gyp_cef', os.path.relpath(os.path.join(output_dir, 'cefclient.gyp'), cef_dir) ]
+  gyper = [ 'python', '.../build/gyp_chromium',
+            os.path.relpath(os.path.join(output_dir, 'cefclient.gyp'), cef_dir) ]
   RunAction(cef_dir, gyper);
   move_file(os.path.relpath(os.path.join(output_dir, 'cefclient.sln')), \
             os.path.relpath(os.path.join(output_dir, 'cefclient'+version+'.sln')))
