@@ -1,6 +1,6 @@
 Index: desktop_aura/desktop_screen_win.cc
 ===================================================================
---- desktop_aura/desktop_screen_win.cc	(revision 272007)
+--- desktop_aura/desktop_screen_win.cc	(revision 275973)
 +++ desktop_aura/desktop_screen_win.cc	(working copy)
 @@ -54,6 +54,8 @@
  }
@@ -13,7 +13,7 @@ Index: desktop_aura/desktop_screen_win.cc
  }
 Index: desktop_aura/desktop_window_tree_host_win.cc
 ===================================================================
---- desktop_aura/desktop_window_tree_host_win.cc	(revision 272007)
+--- desktop_aura/desktop_window_tree_host_win.cc	(revision 275973)
 +++ desktop_aura/desktop_window_tree_host_win.cc	(working copy)
 @@ -129,7 +129,9 @@
                          native_widget_delegate_);
@@ -26,7 +26,7 @@ Index: desktop_aura/desktop_window_tree_host_win.cc
      parent_hwnd = params.parent->GetHost()->GetAcceleratedWidget();
  
    message_handler_->set_remove_standard_frame(params.remove_standard_frame);
-@@ -775,6 +777,7 @@
+@@ -770,6 +772,7 @@
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
    // TODO(beng): inform the native_widget_delegate_.
@@ -34,7 +34,7 @@ Index: desktop_aura/desktop_window_tree_host_win.cc
    InputMethod* input_method = GetInputMethod();
    if (input_method)
      input_method->OnFocus();
-@@ -782,6 +785,7 @@
+@@ -777,6 +780,7 @@
  
  void DesktopWindowTreeHostWin::HandleNativeBlur(HWND focused_window) {
    // TODO(beng): inform the native_widget_delegate_.
@@ -44,9 +44,9 @@ Index: desktop_aura/desktop_window_tree_host_win.cc
      input_method->OnBlur();
 Index: desktop_aura/desktop_window_tree_host_x11.cc
 ===================================================================
---- desktop_aura/desktop_window_tree_host_x11.cc	(revision 272007)
+--- desktop_aura/desktop_window_tree_host_x11.cc	(revision 275973)
 +++ desktop_aura/desktop_window_tree_host_x11.cc	(working copy)
-@@ -143,7 +143,8 @@
+@@ -148,7 +148,8 @@
        window_parent_(NULL),
        window_shape_(NULL),
        custom_window_shape_(false),
@@ -56,7 +56,7 @@ Index: desktop_aura/desktop_window_tree_host_x11.cc
  }
  
  DesktopWindowTreeHostX11::~DesktopWindowTreeHostX11() {
-@@ -332,7 +333,8 @@
+@@ -337,7 +338,8 @@
    // Actually free our native resources.
    if (ui::PlatformEventSource::GetInstance())
      ui::PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
@@ -66,7 +66,7 @@ Index: desktop_aura/desktop_window_tree_host_x11.cc
    xwindow_ = None;
  
    desktop_native_widget_aura_->OnHostClosed();
-@@ -998,9 +1000,13 @@
+@@ -1027,9 +1029,13 @@
      }
    }
  
@@ -81,7 +81,7 @@ Index: desktop_aura/desktop_window_tree_host_x11.cc
        bounds_.x(), bounds_.y(),
        bounds_.width(), bounds_.height(),
        0,               // border width
-@@ -1503,6 +1509,10 @@
+@@ -1554,6 +1560,10 @@
        }
        break;
      }
@@ -94,9 +94,9 @@ Index: desktop_aura/desktop_window_tree_host_x11.cc
          ReleaseCapture();
 Index: desktop_aura/desktop_window_tree_host_x11.h
 ===================================================================
---- desktop_aura/desktop_window_tree_host_x11.h	(revision 272007)
+--- desktop_aura/desktop_window_tree_host_x11.h	(revision 275973)
 +++ desktop_aura/desktop_window_tree_host_x11.h	(working copy)
-@@ -319,6 +319,9 @@
+@@ -322,6 +322,9 @@
    // the frame when |xwindow_| gains focus or handles a mouse button event.
    bool urgency_hint_set_;
  
@@ -108,7 +108,7 @@ Index: desktop_aura/desktop_window_tree_host_x11.h
  
 Index: widget.cc
 ===================================================================
---- widget.cc	(revision 272007)
+--- widget.cc	(revision 275973)
 +++ widget.cc	(working copy)
 @@ -116,6 +116,7 @@
        show_state(ui::SHOW_STATE_DEFAULT),
@@ -117,16 +117,25 @@ Index: widget.cc
 +      parent_widget(gfx::kNullAcceleratedWidget),
        native_widget(NULL),
        desktop_window_tree_host(NULL),
-       top_level(false),
-@@ -141,6 +142,7 @@
+       layer_type(aura::WINDOW_LAYER_TEXTURED),
+@@ -140,6 +141,7 @@
        show_state(ui::SHOW_STATE_DEFAULT),
        double_buffer(false),
        parent(NULL),
 +      parent_widget(gfx::kNullAcceleratedWidget),
        native_widget(NULL),
        desktop_window_tree_host(NULL),
-       top_level(false),
-@@ -398,7 +400,12 @@
+       layer_type(aura::WINDOW_LAYER_TEXTURED),
+@@ -314,7 +316,7 @@
+   InitParams params = in_params;
+ 
+   params.child |= (params.type == InitParams::TYPE_CONTROL);
+-  is_top_level_ = !params.child;
++  is_top_level_ = !params.child || params.parent_widget;
+ 
+   if (params.opacity == views::Widget::InitParams::INFER_OPACITY &&
+       params.type != views::Widget::InitParams::TYPE_WINDOW &&
+@@ -376,7 +378,12 @@
        Minimize();
    } else if (params.delegate) {
      SetContentsView(params.delegate->GetContentsView());
@@ -142,9 +151,9 @@ Index: widget.cc
  }
 Index: widget.h
 ===================================================================
---- widget.h	(revision 272007)
+--- widget.h	(revision 275973)
 +++ widget.h	(working copy)
-@@ -213,6 +213,7 @@
+@@ -222,6 +222,7 @@
      // Should the widget be double buffered? Default is false.
      bool double_buffer;
      gfx::NativeView parent;

@@ -33,7 +33,6 @@ void CefWindowDelegateView::Init(
   params.parent_widget = parent_widget;
   params.bounds = bounds;
   params.delegate = this;
-  params.top_level = true;
   // Set the WS_CHILD flag.
   params.child = true;
   // Set the WS_VISIBLE flag.
@@ -46,6 +45,8 @@ void CefWindowDelegateView::Init(
 
   // |widget| should now be associated with |this|.
   DCHECK_EQ(widget, GetWidget());
+  // |widget| must be top-level for focus handling to work correctly.
+  DCHECK(widget->is_top_level());
 }
 
 void CefWindowDelegateView::InitContent() {

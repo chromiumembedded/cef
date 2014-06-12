@@ -62,12 +62,12 @@ class CefBrowserContextProxy : public CefBrowserContext {
   virtual void RequestProtectedMediaIdentifierPermission(
       int render_process_id,
       int render_view_id,
-      int bridge_id,
-      int group_id,
-      const GURL& requesting_frame,
+      const GURL& origin,
       const ProtectedMediaIdentifierPermissionCallback& callback) OVERRIDE;
   virtual void CancelProtectedMediaIdentifierPermissionRequests(
-      int group_id) OVERRIDE;
+      int render_process_id,
+      int render_view_id,
+      const GURL& origin) OVERRIDE;
   virtual content::ResourceContext* GetResourceContext() OVERRIDE;
   virtual content::GeolocationPermissionContext*
       GetGeolocationPermissionContext() OVERRIDE;
@@ -77,12 +77,14 @@ class CefBrowserContextProxy : public CefBrowserContext {
   // CefBrowserContext methods.
   virtual net::URLRequestContextGetter* CreateRequestContext(
       content::ProtocolHandlerMap* protocol_handlers,
-      content::ProtocolHandlerScopedVector protocol_interceptors) OVERRIDE;
+      content::URLRequestInterceptorScopedVector request_interceptors)
+      OVERRIDE;
   virtual net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers,
-      content::ProtocolHandlerScopedVector protocol_interceptors) OVERRIDE;
+      content::URLRequestInterceptorScopedVector request_interceptors)
+      OVERRIDE;
 
   CefRefPtr<CefRequestContextHandler> handler() const { return handler_; }
 

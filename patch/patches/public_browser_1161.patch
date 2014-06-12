@@ -1,8 +1,8 @@
 Index: content_browser_client.cc
 ===================================================================
---- content_browser_client.cc	(revision 272007)
+--- content_browser_client.cc	(revision 275973)
 +++ content_browser_client.cc	(working copy)
-@@ -253,6 +253,10 @@
+@@ -252,6 +252,10 @@
    return true;
  }
  
@@ -15,17 +15,17 @@ Index: content_browser_client.cc
  }
 Index: content_browser_client.h
 ===================================================================
---- content_browser_client.h	(revision 272007)
+--- content_browser_client.h	(revision 275973)
 +++ content_browser_client.h	(working copy)
-@@ -22,6 +22,7 @@
- #include "net/base/mime_util.h"
+@@ -23,6 +23,7 @@
  #include "net/cookies/canonical_cookie.h"
+ #include "net/url_request/url_request_interceptor.h"
  #include "net/url_request/url_request_job_factory.h"
 +#include "third_party/skia/include/core/SkColor.h"
  #include "third_party/WebKit/public/web/WebNotificationPresenter.h"
  #include "ui/base/window_open_disposition.h"
  #include "webkit/browser/fileapi/file_system_context.h"
-@@ -535,6 +536,9 @@
+@@ -533,6 +534,9 @@
    // Clears browser cookies.
    virtual void ClearCookies(RenderViewHost* rvh) {}
  

@@ -267,14 +267,14 @@ void CefBrowserContextImpl::CancelMidiSysExPermissionRequest(
 void CefBrowserContextImpl::RequestProtectedMediaIdentifierPermission(
     int render_process_id,
     int render_view_id,
-    int bridge_id,
-    int group_id,
-    const GURL& requesting_frame,
+    const GURL& origin,
     const ProtectedMediaIdentifierPermissionCallback& callback) {
 }
 
 void CefBrowserContextImpl::CancelProtectedMediaIdentifierPermissionRequests(
-      int group_id) {
+    int render_process_id,
+    int render_view_id,
+    const GURL& origin) {
 }
 
 content::ResourceContext* CefBrowserContextImpl::GetResourceContext() {
@@ -300,13 +300,13 @@ quota::SpecialStoragePolicy* CefBrowserContextImpl::GetSpecialStoragePolicy() {
 
 net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers,
-    content::ProtocolHandlerScopedVector protocol_interceptors) {
+    content::URLRequestInterceptorScopedVector request_interceptors) {
   DCHECK(!url_request_getter_);
   url_request_getter_ = new CefURLRequestContextGetter(
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
       protocol_handlers,
-      protocol_interceptors.Pass());
+      request_interceptors.Pass());
   resource_context_->set_url_request_context_getter(url_request_getter_.get());
   return url_request_getter_.get();
 }
@@ -316,6 +316,6 @@ net::URLRequestContextGetter*
         const base::FilePath& partition_path,
         bool in_memory,
         content::ProtocolHandlerMap* protocol_handlers,
-        content::ProtocolHandlerScopedVector protocol_interceptors) {
+        content::URLRequestInterceptorScopedVector request_interceptors) {
   return NULL;
 }

@@ -41,6 +41,7 @@ class Target : public content::DevToolsTarget {
   explicit Target(content::WebContents* web_contents);
 
   virtual std::string GetId() const OVERRIDE { return id_; }
+  virtual std::string GetParentId() const OVERRIDE { return std::string(); }
   virtual std::string GetType() const OVERRIDE { return kTargetTypePage; }
   virtual std::string GetTitle() const OVERRIDE { return title_; }
   virtual std::string GetDescription() const OVERRIDE { return std::string(); }
@@ -110,7 +111,8 @@ CefDevToolsDelegate::CefDevToolsDelegate(int port) {
   devtools_http_handler_ = content::DevToolsHttpHandler::Start(
       new net::TCPListenSocketFactory("127.0.0.1", port),
       "",
-      this);
+      this,
+      base::FilePath());
 }
 
 CefDevToolsDelegate::~CefDevToolsDelegate() {

@@ -31,6 +31,7 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   // BrowserProcess implementation.
   virtual void ResourceDispatcherHostCreated() OVERRIDE;
   virtual void EndSession() OVERRIDE;
+  virtual MetricsServicesManager* GetMetricsServicesManager() OVERRIDE;
   virtual MetricsService* metrics_service() OVERRIDE;
   virtual rappor::RapporService* rappor_service() OVERRIDE;
   virtual IOThread* io_thread() OVERRIDE;
@@ -91,7 +92,8 @@ class ChromeBrowserProcessStub : public BrowserProcess {
 #if defined(ENABLE_WEBRTC)
   virtual WebRtcLogUploader* webrtc_log_uploader() OVERRIDE;
 #endif
-  virtual NetworkTimeTracker* network_time_tracker() OVERRIDE;
+  virtual network_time::NetworkTimeTracker* network_time_tracker() OVERRIDE;
+  virtual gcm::GCMDriver* gcm_driver() OVERRIDE;
 
  private:
   std::string locale_;

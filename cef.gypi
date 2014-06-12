@@ -14,6 +14,10 @@
         'enable_skia_text': 1,
         # Disable tcmalloc's debugallocation to avoid crashing during startup.
         'disable_debugallocation': 1,
+        # Disable printing to PDF in the renderer process. This will need to be
+        # supported in the future as the old printing approach will be removed.
+        # See https://code.google.com/p/chromiumembedded/issues/detail?id=1313.
+        'win_pdf_metafile_for_printing': 0,
       }, { # OS!="win"
         'cef_directory' : '<!(echo $CEF_DIRECTORY)',
       }],

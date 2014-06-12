@@ -25,6 +25,11 @@ void ChromeBrowserProcessStub::EndSession() {
   NOTIMPLEMENTED();
 };
 
+MetricsServicesManager* ChromeBrowserProcessStub::GetMetricsServicesManager() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
 MetricsService* ChromeBrowserProcessStub::metrics_service() {
   NOTIMPLEMENTED();
   return NULL;
@@ -252,6 +257,13 @@ WebRtcLogUploader* ChromeBrowserProcessStub::webrtc_log_uploader() {
 }
 #endif
 
-NetworkTimeTracker* ChromeBrowserProcessStub::network_time_tracker() {
+network_time::NetworkTimeTracker*
+    ChromeBrowserProcessStub::network_time_tracker() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
+gcm::GCMDriver* ChromeBrowserProcessStub::gcm_driver() {
+  NOTIMPLEMENTED();
   return NULL;
 }

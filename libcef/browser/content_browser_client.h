@@ -86,13 +86,15 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   virtual net::URLRequestContextGetter* CreateRequestContext(
       content::BrowserContext* browser_context,
       content::ProtocolHandlerMap* protocol_handlers,
-      content::ProtocolHandlerScopedVector protocol_interceptors) OVERRIDE;
+      content::URLRequestInterceptorScopedVector request_interceptors)
+      OVERRIDE;
   virtual net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
       content::BrowserContext* browser_context,
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers,
-      content::ProtocolHandlerScopedVector protocol_interceptors) OVERRIDE;
+      content::URLRequestInterceptorScopedVector request_interceptors)
+      OVERRIDE;
   virtual bool IsHandledURL(const GURL& url) OVERRIDE;
   virtual void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
                                               int child_process_id) OVERRIDE;
@@ -125,7 +127,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
                                bool opener_suppressed,
                                content::ResourceContext* context,
                                int render_process_id,
-                               bool is_guest,
                                int opener_id,
                                bool* no_javascript_access) OVERRIDE;
   virtual void ResourceDispatcherHostCreated() OVERRIDE;

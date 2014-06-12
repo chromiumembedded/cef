@@ -47,11 +47,12 @@
 #include "net/ssl/default_server_bound_cert_store.h"
 #include "net/ssl/server_bound_cert_service.h"
 #include "net/ssl/ssl_config_service_defaults.h"
+#include "url/url_constants.h"
 #include "net/url_request/http_user_agent_settings.h"
-#include "net/url_request/protocol_intercept_job_factory.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_context_storage.h"
+#include "net/url_request/url_request_intercepting_job_factory.h"
 #include "net/url_request/url_request_job_factory_impl.h"
 #include "net/url_request/url_request_job_manager.h"
 
@@ -101,10 +102,10 @@ CefURLRequestContextGetter::CefURLRequestContextGetter(
     base::MessageLoop* io_loop,
     base::MessageLoop* file_loop,
     content::ProtocolHandlerMap* protocol_handlers,
-    content::ProtocolHandlerScopedVector protocol_interceptors)
+    content::URLRequestInterceptorScopedVector request_interceptors)
     : io_loop_(io_loop),
       file_loop_(file_loop),
-      protocol_interceptors_(protocol_interceptors.Pass()) {
+      request_interceptors_(request_interceptors.Pass()) {
   // Must first be created on the UI thread.
   CEF_REQUIRE_UIT();
 
@@ -237,14 +238,14 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
     // Set up interceptors in the reverse order.
     scoped_ptr<net::URLRequestJobFactory> top_job_factory =
         job_factory.PassAs<net::URLRequestJobFactory>();
-    for (content::ProtocolHandlerScopedVector::reverse_iterator i =
-             protocol_interceptors_.rbegin();
-         i != protocol_interceptors_.rend();
+    for (content::URLRequestInterceptorScopedVector::reverse_iterator i =
+             request_interceptors_.rbegin();
+         i != request_interceptors_.rend();
          ++i) {
-      top_job_factory.reset(new net::ProtocolInterceptJobFactory(
+      top_job_factory.reset(new net::URLRequestInterceptingJobFactory(
           top_job_factory.Pass(), make_scoped_ptr(*i)));
     }
-    protocol_interceptors_.weak_clear();
+    request_interceptors_.weak_clear();
 
     storage_->set_job_factory(top_job_factory.release());
 

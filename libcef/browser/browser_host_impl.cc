@@ -37,6 +37,7 @@
 #include "content/common/view_messages.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/download_url_parameters.h"
+#include "content/public/browser/host_zoom_map.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
@@ -680,16 +681,16 @@ double CefBrowserHostImpl::GetZoomLevel() {
     return 0;
   }
 
-  if (web_contents_.get())
-    return web_contents_->GetZoomLevel();
+  if (web_contents())
+    return content::HostZoomMap::GetZoomLevel(web_contents());
 
   return 0;
 }
 
 void CefBrowserHostImpl::SetZoomLevel(double zoomLevel) {
   if (CEF_CURRENTLY_ON_UIT()) {
-    if (web_contents_.get())
-      web_contents_->SetZoomLevel(zoomLevel);
+    if (web_contents())
+      content::HostZoomMap::SetZoomLevel(web_contents(), zoomLevel);
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::SetZoomLevel, this, zoomLevel));

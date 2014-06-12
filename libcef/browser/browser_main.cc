@@ -37,7 +37,7 @@
 #endif
 #endif  // defined(USE_AURA)
 
-#if defined(USE_AURA) && defined(USE_X11)
+#if defined(USE_AURA) && defined(OS_LINUX)
 #include "ui/base/ime/input_method_initializer.h"
 #endif
 
@@ -59,7 +59,7 @@ void CefBrowserMainParts::PreMainMessageLoopStart() {
 }
 
 void CefBrowserMainParts::PreEarlyInitialization() {
-#if defined(USE_AURA) && defined(USE_X11)
+#if defined(USE_AURA) && defined(OS_LINUX)
   // TODO(linux): Consider using a real input method or
   // views::LinuxUI::SetInstance.
   ui::InitializeInputMethodForTesting();

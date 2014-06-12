@@ -1116,10 +1116,10 @@
           'sources': [
             'libcef/browser/window_delegate_view.cc',
             'libcef/browser/window_delegate_view.h',
-            '<(DEPTH)/ui/views/test/desktop_test_views_delegate.cc',
             '<(DEPTH)/ui/views/test/desktop_test_views_delegate.h',
-            '<(DEPTH)/ui/views/test/test_views_delegate.cc',
+            '<(DEPTH)/ui/views/test/desktop_test_views_delegate_aura.cc',
             '<(DEPTH)/ui/views/test/test_views_delegate.h',
+            '<(DEPTH)/ui/views/test/test_views_delegate_aura.cc',
           ],
         }],
       ],

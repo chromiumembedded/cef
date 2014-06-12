@@ -8,6 +8,6 @@
 
 {
   'chromium_url': 'http://src.chromium.org/svn/trunk/src',
-  'chromium_revision': '272007',
-  'chromium_checkout': '556ef20cb5deabfd321c044cba8417c2725266cc',
+  'chromium_revision': '275973',
+  'chromium_checkout': '9e96d7351ccb48be8548f7aec7b751b822c7d97c',
 }

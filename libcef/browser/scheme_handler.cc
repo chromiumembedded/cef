@@ -17,6 +17,7 @@
 #include "net/url_request/file_protocol_handler.h"
 #include "net/url_request/ftp_protocol_handler.h"
 #include "net/url_request/url_request_job_factory_impl.h"
+#include "url/url_constants.h"
 
 namespace scheme {
 
@@ -25,11 +26,11 @@ void InstallInternalProtectedHandlers(
     content::ProtocolHandlerMap* protocol_handlers,
     net::FtpTransactionFactory* ftp_transaction_factory) {
   protocol_handlers->insert(
-      std::make_pair(content::kDataScheme,
+      std::make_pair(url::kDataScheme,
           linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
               new net::DataProtocolHandler)));
   protocol_handlers->insert(
-      std::make_pair(content::kFileScheme,
+      std::make_pair(url::kFileScheme,
           linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
               new net::FileProtocolHandler(
                   content::BrowserThread::GetBlockingPool()->
@@ -37,7 +38,7 @@ void InstallInternalProtectedHandlers(
                           base::SequencedWorkerPool::SKIP_ON_SHUTDOWN)))));
 #if !defined(DISABLE_FTP_SUPPORT)
   protocol_handlers->insert(
-      std::make_pair(content::kFtpScheme,
+      std::make_pair(url::kFtpScheme,
           linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
               new net::FtpProtocolHandler(ftp_transaction_factory))));
 #endif

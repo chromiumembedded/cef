@@ -1,6 +1,6 @@
 Index: public/renderer/content_renderer_client.cc
 ===================================================================
---- public/renderer/content_renderer_client.cc	(revision 272007)
+--- public/renderer/content_renderer_client.cc	(revision 275973)
 +++ public/renderer/content_renderer_client.cc	(working copy)
 @@ -92,7 +92,6 @@
    return false;
@@ -20,7 +20,7 @@ Index: public/renderer/content_renderer_client.cc
                                         const GURL& url,
 Index: public/renderer/content_renderer_client.h
 ===================================================================
---- public/renderer/content_renderer_client.h	(revision 272007)
+--- public/renderer/content_renderer_client.h	(revision 275973)
 +++ public/renderer/content_renderer_client.h	(working copy)
 @@ -176,7 +176,6 @@
    // Returns true if a popup window should be allowed.
@@ -40,9 +40,9 @@ Index: public/renderer/content_renderer_client.h
    // If |send_referrer| is set to false (which is the default), no referrer
 Index: renderer/render_frame_impl.cc
 ===================================================================
---- renderer/render_frame_impl.cc	(revision 272007)
+--- renderer/render_frame_impl.cc	(revision 275973)
 +++ renderer/render_frame_impl.cc	(working copy)
-@@ -3084,7 +3084,6 @@
+@@ -3143,7 +3143,6 @@
      WebNavigationType type,
      WebNavigationPolicy default_policy,
      bool is_redirect) {
@@ -50,7 +50,7 @@ Index: renderer/render_frame_impl.cc
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
    if (request.url() != GURL(kSwappedOutURL) &&
-@@ -3099,7 +3098,6 @@
+@@ -3158,7 +3157,6 @@
            is_redirect)) {
      return blink::WebNavigationPolicyIgnore;
    }

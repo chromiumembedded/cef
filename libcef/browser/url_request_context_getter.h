@@ -82,7 +82,7 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
       base::MessageLoop* io_loop,
       base::MessageLoop* file_loop,
       content::ProtocolHandlerMap* protocol_handlers,
-      content::ProtocolHandlerScopedVector protocol_interceptors);
+      content::URLRequestInterceptorScopedVector request_interceptors);
   virtual ~CefURLRequestContextGetter();
 
   // net::URLRequestContextGetter implementation.
@@ -118,7 +118,7 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
   scoped_ptr<net::URLSecurityManager> url_security_manager_;
   scoped_ptr<net::FtpTransactionFactory> ftp_transaction_factory_;
   content::ProtocolHandlerMap protocol_handlers_;
-  content::ProtocolHandlerScopedVector protocol_interceptors_;
+  content::URLRequestInterceptorScopedVector request_interceptors_;
   net::URLRequestJobFactoryImpl* job_factory_impl_;
 
   typedef std::set<CefURLRequestContextProxy*> RequestContextProxySet;

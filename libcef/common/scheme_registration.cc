@@ -6,6 +6,7 @@
 #include "libcef/common/content_client.h"
 
 #include "content/public/common/url_constants.h"
+#include "url/url_constants.h"
 
 namespace scheme {
 
@@ -25,12 +26,12 @@ void AddInternalSchemes(std::vector<std::string>* standard_schemes) {
 
 bool IsInternalHandledScheme(const std::string& scheme) {
   static const char* schemes[] = {
-    content::kBlobScheme,
+    url::kBlobScheme,
     content::kChromeDevToolsScheme,
     content::kChromeUIScheme,
-    content::kDataScheme,
-    content::kFileScheme,
-    content::kFileSystemScheme,
+    url::kDataScheme,
+    url::kFileScheme,
+    url::kFileSystemScheme,
   };
 
   for (size_t i = 0; i < sizeof(schemes) / sizeof(schemes[0]); ++i) {
@@ -46,13 +47,13 @@ bool IsInternalProtectedScheme(const std::string& scheme) {
   // content/browser/storage_partition_impl_map.cc and are modified by
   // InstallInternalProtectedHandlers().
   static const char* schemes[] = {
-    content::kBlobScheme,
+    url::kBlobScheme,
     content::kChromeUIScheme,
-    content::kDataScheme,
-    content::kFileScheme,
-    content::kFileSystemScheme,
+    url::kDataScheme,
+    url::kFileScheme,
+    url::kFileSystemScheme,
 #if !defined(DISABLE_FTP_SUPPORT)
-    content::kFtpScheme,
+    url::kFtpScheme,
 #endif
   };
 

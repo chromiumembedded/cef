@@ -1,11 +1,11 @@
 Index: compositing_iosurface_layer_mac.mm
 ===================================================================
---- compositing_iosurface_layer_mac.mm	(revision 272007)
+--- compositing_iosurface_layer_mac.mm	(revision 275973)
 +++ compositing_iosurface_layer_mac.mm	(working copy)
-@@ -133,7 +133,7 @@
-       !renderWidgetHostView_ ||
-       !renderWidgetHostView_->compositing_iosurface_ ||
-       !renderWidgetHostView_->compositing_iosurface_->HasIOSurface()) {
+@@ -188,7 +188,7 @@
+   TRACE_EVENT0("browser", "CompositingIOSurfaceLayer::drawInCGLContext");
+ 
+   if (!iosurface_->HasIOSurface() || context_->cgl_context() != glContext) {
 -    glClearColor(1, 1, 1, 1);
 +    glClearColor(0, 0, 0, 0);
      glClear(GL_COLOR_BUFFER_BIT);
@@ -13,9 +13,9 @@ Index: compositing_iosurface_layer_mac.mm
    }
 Index: compositing_iosurface_mac.mm
 ===================================================================
---- compositing_iosurface_mac.mm	(revision 272007)
+--- compositing_iosurface_mac.mm	(revision 275973)
 +++ compositing_iosurface_mac.mm	(working copy)
-@@ -360,7 +360,7 @@
+@@ -350,7 +350,7 @@
      glUseProgram(0); CHECK_AND_SAVE_GL_ERROR();
    } else {
      // Should match the clear color of RenderWidgetHostViewMac.
@@ -26,7 +26,7 @@ Index: compositing_iosurface_mac.mm
  
 Index: compositing_iosurface_shader_programs_mac.cc
 ===================================================================
---- compositing_iosurface_shader_programs_mac.cc	(revision 272007)
+--- compositing_iosurface_shader_programs_mac.cc	(revision 275973)
 +++ compositing_iosurface_shader_programs_mac.cc	(working copy)
 @@ -11,6 +11,8 @@
  #include "base/debug/trace_event.h"
@@ -81,7 +81,7 @@ Index: compositing_iosurface_shader_programs_mac.cc
      shader_programs_[which] =
 Index: compositing_iosurface_shader_programs_mac.h
 ===================================================================
---- compositing_iosurface_shader_programs_mac.h	(revision 272007)
+--- compositing_iosurface_shader_programs_mac.h	(revision 275973)
 +++ compositing_iosurface_shader_programs_mac.h	(working copy)
 @@ -48,6 +48,8 @@
      return rgb_to_yv12_output_format_;
@@ -94,9 +94,9 @@ Index: compositing_iosurface_shader_programs_mac.h
                             TransformsRGBToYV12);
 Index: render_widget_host_view_aura.cc
 ===================================================================
---- render_widget_host_view_aura.cc	(revision 272007)
+--- render_widget_host_view_aura.cc	(revision 275973)
 +++ render_widget_host_view_aura.cc	(working copy)
-@@ -1602,8 +1602,14 @@
+@@ -1675,8 +1675,14 @@
    // For non-opaque windows, we don't draw anything, since we depend on the
    // canvas coming from the compositor to already be initialized as
    // transparent.
@@ -115,50 +115,14 @@ Index: render_widget_host_view_aura.cc
  void RenderWidgetHostViewAura::OnDeviceScaleFactorChanged(
 Index: render_widget_host_view_mac.mm
 ===================================================================
---- render_widget_host_view_mac.mm	(revision 272007)
+--- render_widget_host_view_mac.mm	(revision 275973)
 +++ render_widget_host_view_mac.mm	(working copy)
-@@ -498,7 +498,7 @@
-     use_core_animation_ = true;
-     background_layer_.reset([[CALayer alloc] init]);
-     [background_layer_
--        setBackgroundColor:CGColorGetConstantColor(kCGColorWhite)];
-+        setBackgroundColor:CGColorGetConstantColor(kCGColorClear)];
-     [cocoa_view_ setLayer:background_layer_];
-     [cocoa_view_ setWantsLayer:YES];
-   }
-@@ -3304,7 +3304,7 @@
+@@ -493,7 +493,7 @@
  
-     NSRect r = [self flipRectToNSRect:gfx::Rect(x, y, width, height)];
-     CGContextSetFillColorWithColor(context,
--                                   CGColorGetConstantColor(kCGColorWhite));
-+                                   CGColorGetConstantColor(kCGColorClear));
-     CGContextFillRect(context, NSRectToCGRect(r));
-   }
-   if (damagedRect.bottom() > rect.bottom()) {
-@@ -3326,7 +3326,7 @@
+   background_layer_.reset([[CALayer alloc] init]);
+   [background_layer_
+-      setBackgroundColor:CGColorGetConstantColor(kCGColorWhite)];
++      setBackgroundColor:CGColorGetConstantColor(kCGColorClear)];
+   [cocoa_view_ setLayer:background_layer_];
+   [cocoa_view_ setWantsLayer:YES];
  
-     NSRect r = [self flipRectToNSRect:gfx::Rect(x, y, width, height)];
-     CGContextSetFillColorWithColor(context,
--                                   CGColorGetConstantColor(kCGColorWhite));
-+                                   CGColorGetConstantColor(kCGColorClear));
-     CGContextFillRect(context, NSRectToCGRect(r));
-   }
- }
-@@ -3465,7 +3465,7 @@
-     }
-   } else {
-     CGContextSetFillColorWithColor(context,
--                                   CGColorGetConstantColor(kCGColorWhite));
-+                                   CGColorGetConstantColor(kCGColorClear));
-     CGContextFillRect(context, dirtyRect);
-     if (renderWidgetHostView_->whiteout_start_time_.is_null())
-       renderWidgetHostView_->whiteout_start_time_ = base::TimeTicks::Now();
-@@ -4420,7 +4420,7 @@
- 
- - (id)init {
-   if (self = [super init]) {
--    [self setBackgroundColor:CGColorGetConstantColor(kCGColorWhite)];
-+    [self setBackgroundColor:CGColorGetConstantColor(kCGColorClear)];
-     [self setAnchorPoint:CGPointMake(0, 0)];
-     // Setting contents gravity is necessary to prevent the layer from being
-     // scaled during dyanmic resizes (especially with devtools open).

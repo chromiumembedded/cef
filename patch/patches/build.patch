@@ -1,6 +1,6 @@
 Index: common.gypi
 ===================================================================
---- common.gypi	(revision 272007)
+--- common.gypi	(revision 275973)
 +++ common.gypi	(working copy)
 @@ -9,6 +9,9 @@
    # Variables expected to be overriden on the GYP command line (-D) or by
@@ -12,9 +12,19 @@ Index: common.gypi
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
+@@ -5058,6 +5061,9 @@
+           # removed as code is fixed.
+           4100, 4121, 4125, 4127, 4130, 4131, 4189, 4201, 4238, 4244, 4245,
+           4310, 4428, 4481, 4505, 4510, 4512, 4530, 4610, 4611, 4701, 4706,
++          # Disable Warning 4702 ("Unreachable code")
++          # https://code.google.com/p/chromium/issues/detail?id=346399#c55
++          4702,
+         ],
+         'msvs_settings': {
+           'VCCLCompilerTool': {
 Index: mac/strip_save_dsym
 ===================================================================
---- mac/strip_save_dsym	(revision 272007)
+--- mac/strip_save_dsym	(revision 275973)
 +++ mac/strip_save_dsym	(working copy)
 @@ -48,7 +48,7 @@
                   "bundle"]

@@ -1,6 +1,6 @@
 Index: underlay_opengl_hosting_window.h
 ===================================================================
---- underlay_opengl_hosting_window.h	(revision 272007)
+--- underlay_opengl_hosting_window.h	(revision 275973)
 +++ underlay_opengl_hosting_window.h	(working copy)
 @@ -12,7 +12,7 @@
  // Common base class for windows that host a OpenGL surface that renders under

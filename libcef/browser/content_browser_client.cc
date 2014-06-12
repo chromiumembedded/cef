@@ -551,12 +551,12 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
 net::URLRequestContextGetter* CefContentBrowserClient::CreateRequestContext(
     content::BrowserContext* content_browser_context,
     content::ProtocolHandlerMap* protocol_handlers,
-    content::ProtocolHandlerScopedVector protocol_interceptors) {
+    content::URLRequestInterceptorScopedVector request_interceptors) {
   CefBrowserContext* cef_browser_context =
       static_cast<CefBrowserContext*>(content_browser_context);
   return cef_browser_context->CreateRequestContext(
       protocol_handlers,
-      protocol_interceptors.Pass());
+      request_interceptors.Pass());
 }
 
 net::URLRequestContextGetter*
@@ -565,14 +565,14 @@ CefContentBrowserClient::CreateRequestContextForStoragePartition(
     const base::FilePath& partition_path,
     bool in_memory,
     content::ProtocolHandlerMap* protocol_handlers,
-    content::ProtocolHandlerScopedVector protocol_interceptors) {
+    content::URLRequestInterceptorScopedVector request_interceptors) {
   CefBrowserContext* cef_browser_context =
       static_cast<CefBrowserContext*>(content_browser_context);
   return cef_browser_context->CreateRequestContextForStoragePartition(
       partition_path,
       in_memory,
       protocol_handlers,
-      protocol_interceptors.Pass());
+      request_interceptors.Pass());
 }
 
 bool CefContentBrowserClient::IsHandledURL(const GURL& url) {
@@ -732,7 +732,6 @@ bool CefContentBrowserClient::CanCreateWindow(
     bool opener_suppressed,
     content::ResourceContext* context,
     int render_process_id,
-    bool is_guest,
     int opener_id,
     bool* no_javascript_access) {
   CEF_REQUIRE_IOT();

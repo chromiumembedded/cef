@@ -133,14 +133,14 @@ void CefBrowserContextProxy::CancelMidiSysExPermissionRequest(
 void CefBrowserContextProxy::RequestProtectedMediaIdentifierPermission(
     int render_process_id,
     int render_view_id,
-    int bridge_id,
-    int group_id,
-    const GURL& requesting_frame,
+    const GURL& origin,
     const ProtectedMediaIdentifierPermissionCallback& callback) {
 }
 
 void CefBrowserContextProxy::CancelProtectedMediaIdentifierPermissionRequests(
-    int group_id) {
+    int render_process_id,
+    int render_view_id,
+    const GURL& origin) {
 }
 
 content::ResourceContext* CefBrowserContextProxy::GetResourceContext() {
@@ -162,7 +162,7 @@ quota::SpecialStoragePolicy* CefBrowserContextProxy::GetSpecialStoragePolicy() {
 
 net::URLRequestContextGetter* CefBrowserContextProxy::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers,
-    content::ProtocolHandlerScopedVector protocol_interceptors) {
+    content::URLRequestInterceptorScopedVector request_interceptors) {
   DCHECK(!url_request_getter_);
   url_request_getter_ =
       new CefURLRequestContextGetterProxy(handler_,
@@ -177,6 +177,6 @@ net::URLRequestContextGetter*
         const base::FilePath& partition_path,
         bool in_memory,
         content::ProtocolHandlerMap* protocol_handlers,
-        content::ProtocolHandlerScopedVector protocol_interceptors) {
+        content::URLRequestInterceptorScopedVector request_interceptors) {
   return NULL;
 }
