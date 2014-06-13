@@ -1,3 +1,33 @@
+Index: mac/strip_save_dsym
+===================================================================
+--- mac/strip_save_dsym	(revision 272606)
++++ mac/strip_save_dsym	(working copy)
+@@ -48,7 +48,7 @@
+                  "bundle"]
+   macho_types_re = "Mach-O (?:64-bit )?(?:" + "|".join(macho_types) + ")"
+ 
+-  file_cmd = subprocess.Popen(["/usr/bin/file", "-b", "--", macho],
++  file_cmd = subprocess.Popen(["/usr/bin/file", "-b", "-L", "--", macho],
+                               stdout=subprocess.PIPE)
+ 
+   archs = []
+Index: gyp_chromium
+===================================================================
+--- gyp_chromium	(revision 272606)
++++ gyp_chromium	(working copy)
+@@ -246,12 +246,6 @@
+   if sys.platform not in ('darwin',):
+     args.append('--no-circular-check')
+ 
+-  # We explicitly don't support the make gyp generator (crbug.com/348686). Be
+-  # nice and fail here, rather than choking in gyp.
+-  if 'make' in os.environ.get('GYP_GENERATORS', ''):
+-    print 'Error: make gyp generator not supported (check GYP_GENERATORS).'
+-    sys.exit(1)
+-
+   # Default to ninja on linux and windows, but only if no generator has
+   # explicitly been set.
+   # Also default to ninja on mac, but only when not building chrome/ios.
 Index: common.gypi
 ===================================================================
 --- common.gypi	(revision 272606)
@@ -25,16 +55,3 @@ Index: common.gypi
  
              # Whether we're a traditional desktop unix.
              ['(OS=="linux" or OS=="freebsd" or OS=="openbsd" or OS=="solaris") and chromeos==0', {
-Index: mac/strip_save_dsym
-===================================================================
---- mac/strip_save_dsym	(revision 272606)
-+++ mac/strip_save_dsym	(working copy)
-@@ -48,7 +48,7 @@
-                  "bundle"]
-   macho_types_re = "Mach-O (?:64-bit )?(?:" + "|".join(macho_types) + ")"
- 
--  file_cmd = subprocess.Popen(["/usr/bin/file", "-b", "--", macho],
-+  file_cmd = subprocess.Popen(["/usr/bin/file", "-b", "-L", "--", macho],
-                               stdout=subprocess.PIPE)
- 
-   archs = []
