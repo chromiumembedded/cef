@@ -185,7 +185,10 @@ def generate_msvs_projects(version):
   sys.stdout.write('Generating '+version+' project files...')
   os.environ['GYP_GENERATORS'] = 'msvs'
   os.environ['GYP_MSVS_VERSION'] = version
-  gyper = [ 'python', '.../build/gyp_chromium',
+  # Don't use the bundled toolchain because it will cause the above values to
+  # be ignored.
+  os.environ['DEPOT_TOOLS_WIN_TOOLCHAIN'] = '0'
+  gyper = [ 'python', '../build/gyp_chromium',
             os.path.relpath(os.path.join(output_dir, 'cefclient.gyp'), cef_dir) ]
   RunAction(cef_dir, gyper);
   move_file(os.path.relpath(os.path.join(output_dir, 'cefclient.sln')), \
@@ -220,7 +223,8 @@ def create_xcode_projects():
   """ Create Xcode project files. """
   sys.stdout.write('Generating Xcode project files...')
   os.environ['GYP_GENERATORS'] = 'xcode'
-  gyper = [ 'python', 'tools/gyp_cef', os.path.relpath(os.path.join(output_dir, 'cefclient.gyp'), cef_dir) ]
+  gyper = [ 'python', '../build/gyp_chromium',
+            os.path.relpath(os.path.join(output_dir, 'cefclient.gyp'), cef_dir) ]
   RunAction(cef_dir, gyper);
 
   # Post-process the Xcode project file.
@@ -253,7 +257,8 @@ def create_make_projects():
   # Generate make project files
   sys.stdout.write('Generating make project files...')
   os.environ['GYP_GENERATORS'] = 'make'
-  gyper = [ 'python', 'tools/gyp_cef', os.path.relpath(os.path.join(output_dir, 'cefclient.gyp'), cef_dir) ]
+  gyper = [ 'python', '../build/gyp_chromium',
+            os.path.relpath(os.path.join(output_dir, 'cefclient.gyp'), cef_dir) ]
   RunAction(cef_dir, gyper);
 
   # Copy the resulting Makefile to the destination directory
