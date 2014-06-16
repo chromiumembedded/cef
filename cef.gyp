@@ -1087,6 +1087,9 @@
             'libcef/browser/menu_creator_runner_mac.mm',
             # Include sources for printing.
             '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_mac.mm',
+            # Include sources for CoreAnimation support.
+            '<(DEPTH)/chrome/browser/ui/cocoa/nsview_additions.h',
+            '<(DEPTH)/chrome/browser/ui/cocoa/nsview_additions.mm',
           ],
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {

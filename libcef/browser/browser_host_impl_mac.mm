@@ -17,6 +17,7 @@
 #include "base/strings/sys_string_conversions.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread_restrictions.h"
+#import "chrome/browser/ui/cocoa/nsview_additions.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
@@ -326,6 +327,11 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
     parentView = [newWnd contentView];
     window_info_.parent_view = parentView;
   }
+
+  // Make the content view for the window have a layer. This will make all
+  // sub-views have layers. This is necessary to ensure correct layer
+  // ordering of all child views and their layers.
+  [[[parentView window] contentView] cr_setWantsLayer:YES];
 
   // Add a reference that will be released in the dealloc handler.
   AddRef();
