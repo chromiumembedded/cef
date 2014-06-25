@@ -6,6 +6,10 @@
 #define CEF_TESTS_CEFCLIENT_UTIL_H_
 #pragma once
 
+#include <cstring>
+#include <string>
+#include <vector>
+
 #include "include/cef_task.h"
 
 #if defined(OS_WIN)
@@ -33,5 +37,29 @@
 #define REQUIRE_UI_THREAD()   ASSERT(CefCurrentlyOn(TID_UI));
 #define REQUIRE_IO_THREAD()   ASSERT(CefCurrentlyOn(TID_IO));
 #define REQUIRE_FILE_THREAD() ASSERT(CefCurrentlyOn(TID_FILE));
+
+// Helper class to manage a scoped copy of |argv|.
+class ScopedArgArray {
+ public:
+  ScopedArgArray(int argc, char* argv[]) {
+    array_ = new char*[argc];
+    for (int i = 0; i < argc; ++i) {
+      values_.push_back(argv[i]);
+      array_[i] = const_cast<char*>(values_[i].c_str());
+    }
+  }
+  ~ScopedArgArray() {
+    delete [] array_;
+  }
+
+  char** array() const { return array_; }
+
+ private:
+  char** array_;
+
+  // Keep values in a vector separate from |array_| because various users may
+  // modify |array_| and we still want to clean up memory properly.
+  std::vector<std::string> values_;
+};
 
 #endif  // CEF_TESTS_CEFCLIENT_UTIL_H_

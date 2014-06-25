@@ -5,6 +5,7 @@
 #include "include/cef_app.h"
 #include "include/cef_task.h"
 #include "tests/cefclient/client_app.h"
+#include "tests/cefclient/util.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_suite.h"
 #include "base/bind.h"
@@ -58,6 +59,15 @@ void RunTests(CefTestThread* thread) {
 
 
 int main(int argc, char* argv[]) {
+#if defined(OS_LINUX)
+  // Create a copy of |argv| on Linux because Chromium mangles the value
+  // internally (see issue #620).
+  ScopedArgArray scoped_arg_array(argc, argv);
+  char** argv_copy = scoped_arg_array.array();
+#else
+  char** argv_copy = argv;
+#endif
+
 #if defined(OS_WIN)
   CefMainArgs main_args(::GetModuleHandle(NULL));
 #else
@@ -80,7 +90,7 @@ int main(int argc, char* argv[]) {
     return exit_code;
 
   // Initialize the CommandLine object.
-  CefTestSuite::InitCommandLine(argc, argv);
+  CefTestSuite::InitCommandLine(argc, argv_copy);
 
   CefSettings settings;
   CefTestSuite::GetSettings(settings);
@@ -94,8 +104,8 @@ int main(int argc, char* argv[]) {
   // Initialize CEF.
   CefInitialize(main_args, settings, app, windows_sandbox_info);
 
-  // Create the test suite object.
-  CefTestSuite test_suite(argc, argv);
+  // Create the test suite object. TestSuite will modify |argv_copy|.
+  CefTestSuite test_suite(argc, argv_copy);
 
   int retval;
 
