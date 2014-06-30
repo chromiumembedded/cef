@@ -24,14 +24,34 @@ CefMenuCreatorRunnerLinux::~CefMenuCreatorRunnerLinux() {
 bool CefMenuCreatorRunnerLinux::RunContextMenu(CefMenuCreator* manager) {
   menu_.reset(new views::MenuRunner(manager->model()));
 
-  // We can't use aura::Window::GetBoundsInScreen on Linux because it will
-  // return bounds from DesktopWindowTreeHostX11 which in our case is relative
-  // to the parent window instead of the root window (screen).
-  const gfx::Rect& bounds_in_screen =
-      manager->browser()->window_x11()->GetBoundsInScreen();
-  gfx::Point screen_point =
-      gfx::Point(bounds_in_screen.x() + manager->params().x,
-                 bounds_in_screen.y() + manager->params().y);
+  gfx::Point screen_point;
+
+  if (manager->browser()->IsWindowless()) {
+    CefRefPtr<CefClient> client = manager->browser()->GetClient();
+    if (!client.get())
+      return false;
+
+    CefRefPtr<CefRenderHandler> handler = client->GetRenderHandler();
+    if (!handler.get())
+      return false;
+
+    int screenX = 0, screenY = 0;
+    if (!handler->GetScreenPoint(manager->browser(),
+                                 manager->params().x, manager->params().y,
+                                 screenX, screenY)) {
+      return false;
+    }
+
+    screen_point = gfx::Point(screenX, screenY);
+  } else {
+    // We can't use aura::Window::GetBoundsInScreen on Linux because it will
+    // return bounds from DesktopWindowTreeHostX11 which in our case is relative
+    // to the parent window instead of the root window (screen).
+    const gfx::Rect& bounds_in_screen =
+        manager->browser()->window_x11()->GetBoundsInScreen();
+    screen_point = gfx::Point(bounds_in_screen.x() + manager->params().x,
+                              bounds_in_screen.y() + manager->params().y);
+  }
 
   views::MenuRunner::RunResult result =
       menu_->RunMenuAt(manager->browser()->window_widget(),
@@ -42,6 +62,11 @@ bool CefMenuCreatorRunnerLinux::RunContextMenu(CefMenuCreator* manager) {
   UNUSED(result);
 
   return true;
+}
+
+void CefMenuCreatorRunnerLinux::CancelContextMenu() {
+  if (menu_)
+    menu_->Cancel();
 }
 
 bool CefMenuCreatorRunnerLinux::FormatLabel(base::string16& label) {

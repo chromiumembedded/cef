@@ -268,10 +268,12 @@ bool CefBrowserImpl::SendProcessMessage(CefProcessId target_process,
 
 CefBrowserImpl::CefBrowserImpl(content::RenderView* render_view,
                                int browser_id,
-                               bool is_popup)
+                               bool is_popup,
+                               bool is_windowless)
     : content::RenderViewObserver(render_view),
       browser_id_(browser_id),
       is_popup_(is_popup),
+      is_windowless_(is_windowless),
       last_focused_frame_id_(webkit_glue::kInvalidFrameId) {
   response_manager_.reset(new CefResponseManager);
 }

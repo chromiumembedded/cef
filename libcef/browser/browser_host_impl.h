@@ -35,6 +35,10 @@
 #include "ui/base/cursor/cursor.h"
 #endif
 
+#if defined(USE_X11)
+#include "ui/base/x/x11_util.h"
+#endif
+
 namespace content {
 struct NativeWebKeyboardEvent;
 }
@@ -152,6 +156,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual void CloseDevTools() OVERRIDE;
   virtual void SetMouseCursorChangeDisabled(bool disabled) OVERRIDE;
   virtual bool IsMouseCursorChangeDisabled() OVERRIDE;
+  virtual bool IsWindowRenderingDisabled() OVERRIDE;
+  virtual void WasResized() OVERRIDE;
+  virtual void WasHidden(bool hidden) OVERRIDE;
+  virtual void NotifyScreenInfoChanged() OVERRIDE;
+  virtual void Invalidate(PaintElementType type) OVERRIDE;
   virtual void SendKeyEvent(const CefKeyEvent& event) OVERRIDE;
   virtual void SendMouseClickEvent(const CefMouseEvent& event,
                                    MouseButtonType type,
@@ -162,6 +171,20 @@ class CefBrowserHostImpl : public CefBrowserHost,
                                    int deltaX, int deltaY) OVERRIDE;
   virtual void SendFocusEvent(bool setFocus) OVERRIDE;
   virtual void SendCaptureLostEvent() OVERRIDE;
+  virtual CefTextInputContext GetNSTextInputContext() OVERRIDE;
+  virtual void HandleKeyEventBeforeTextInputClient(CefEventHandle keyEvent)
+      OVERRIDE;
+  virtual void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent)
+      OVERRIDE;
+  virtual void DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
+                                  const CefMouseEvent& event,
+                                  DragOperationsMask allowed_ops);
+  virtual void DragTargetDragOver(const CefMouseEvent& event,
+                                  DragOperationsMask allowed_ops);
+  virtual void DragTargetDragLeave();
+  virtual void DragTargetDrop(const CefMouseEvent& event);
+  virtual void DragSourceSystemDragEnded();
+  virtual void DragSourceEndedAt(int x, int y, DragOperationsMask op);
 
   // CefBrowser methods.
   virtual CefRefPtr<CefBrowserHost> GetHost() OVERRIDE;
@@ -188,12 +211,20 @@ class CefBrowserHostImpl : public CefBrowserHost,
       CefProcessId target_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE;
 
+  // Returns true if windowless rendering is enabled.
+  bool IsWindowless() const;
+  // Returns true if transparent painting is enabled.
+  bool IsTransparent() const;
+
   // Called when the OS window hosting the browser is destroyed.
   void WindowDestroyed();
 
   // Destroy the browser members. This method should only be called after the
   // native browser window is not longer processing messages.
   void DestroyBrowser();
+
+  // Cancel display of the context menu, if any.
+  void CancelContextMenu();
 
   // Returns the native view for the WebContents.
   gfx::NativeView GetContentView() const;
@@ -340,6 +371,16 @@ class CefBrowserHostImpl : public CefBrowserHost,
       content::WebContents* source,
       const content::DropData& data,
       blink::WebDragOperationsMask operations_allowed) OVERRIDE;
+  virtual bool ShouldCreateWebContents(
+      content::WebContents* web_contents,
+      int route_id,
+      WindowContainerType window_container_type,
+      const base::string16& frame_name,
+      const GURL& target_url,
+      const std::string& partition_id,
+      content::SessionStorageNamespace* session_storage_namespace,
+      content::WebContentsView** view,
+      content::RenderViewHostDelegateView** delegate_view) OVERRIDE;
   virtual void WebContentsCreated(content::WebContents* source_contents,
                                   int opener_render_frame_id,
                                   const base::string16& frame_name,
@@ -608,6 +649,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
 #endif  // defined(USE_AURA)
 #if defined(USE_X11)
   CefWindowX11* window_x11_;
+  scoped_ptr<ui::XScopedCursor> invisible_cursor_;
 #endif  // defined(USE_X11)
 
   IMPLEMENT_REFCOUNTING(CefBrowserHostImpl);

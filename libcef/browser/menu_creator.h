@@ -24,6 +24,7 @@ class CefMenuCreator : public CefMenuModelImpl::Delegate {
   public:
     virtual ~Runner() {}
     virtual bool RunContextMenu(CefMenuCreator* manager) =0;
+    virtual void CancelContextMenu() {}
     virtual bool FormatLabel(base::string16& label) { return false; }
   };
 
@@ -35,6 +36,7 @@ class CefMenuCreator : public CefMenuModelImpl::Delegate {
 
   // Create the context menu.
   bool CreateContextMenu(const content::ContextMenuParams& params);
+  void CancelContextMenu();
 
   CefBrowserHostImpl* browser() { return browser_; }
   ui::MenuModel* model() { return model_->model(); }

@@ -103,6 +103,11 @@ bool CefMenuCreator::CreateContextMenu(
   return runner_->RunContextMenu(this);
 }
 
+void CefMenuCreator::CancelContextMenu() {
+  if (IsShowingContextMenu())
+    runner_->CancelContextMenu();
+}
+
 bool CefMenuCreator::CreateRunner() {
   if (!runner_.get()) {
     // Create the menu runner.

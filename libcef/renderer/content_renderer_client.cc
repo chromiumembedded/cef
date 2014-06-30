@@ -54,6 +54,7 @@ MSVC_POP_WARNING();
 #include "third_party/WebKit/public/platform/WebWorkerRunLoop.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebKit.h"
 #include "third_party/WebKit/public/web/WebPluginParams.h"
 #include "third_party/WebKit/public/web/WebPrerendererClient.h"
@@ -434,6 +435,90 @@ void CefContentRendererClient::RenderViewCreated(
   BrowserCreated(render_view, render_view->GetMainRenderFrame());
 }
 
+bool CefContentRendererClient::OverrideCreatePlugin(
+    content::RenderFrame* render_frame,
+    blink::WebLocalFrame* frame,
+    const blink::WebPluginParams& params,
+    blink::WebPlugin** plugin) {
+  CefRefPtr<CefBrowserImpl> browser =
+      CefBrowserImpl::GetBrowserForMainFrame(frame->top());
+  if (!browser || !browser->is_windowless())
+    return false;
+
+#if defined(ENABLE_PLUGINS)
+  if (base::UTF16ToASCII(params.mimeType) == content::kBrowserPluginMimeType)
+    return false;
+
+  content::RenderFrameImpl* render_frame_impl =
+      static_cast<content::RenderFrameImpl*>(render_frame);
+
+  content::WebPluginInfo info;
+  std::string mime_type;
+  bool found = false;
+  render_frame_impl->Send(
+      new FrameHostMsg_GetPluginInfo(
+          render_frame_impl->GetRoutingID(),
+          params.url,
+          frame->top()->document().url(),
+          params.mimeType.utf8(),
+          &found,
+          &info,
+          &mime_type));
+  if (!found)
+    return false;
+
+  bool flash = LowerCaseEqualsASCII(mime_type,
+                                    "application/x-shockwave-flash");
+  bool silverlight = StartsWithASCII(mime_type,
+                                     "application/x-silverlight", false);
+
+  if (flash) {
+    // "wmode" values of "opaque" or "transparent" are allowed.
+    size_t size = params.attributeNames.size();
+    for (size_t i = 0; i < size; ++i) {
+      std::string name = params.attributeNames[i].utf8();
+      if (name == "wmode") {
+        std::string value = params.attributeValues[i].utf8();
+        if (value == "opaque" || value == "transparent")
+          flash = false;
+        break;
+      }
+    }
+  }
+
+  if (flash || silverlight) {
+    // Force Flash and Silverlight plugins to use windowless mode.
+    blink::WebPluginParams params_to_use = params;
+    params_to_use.mimeType = blink::WebString::fromUTF8(mime_type);
+  
+    size_t size = params.attributeNames.size();
+    blink::WebVector<blink::WebString> new_names(size+1),
+                                         new_values(size+1);
+
+    for (size_t i = 0; i < size; ++i) {
+      new_names[i] = params.attributeNames[i];
+      new_values[i] = params.attributeValues[i];
+    }
+
+    if (flash) {
+      new_names[size] = "wmode";
+      new_values[size] = "opaque";
+    } else if (silverlight) {
+      new_names[size] = "windowless";
+      new_values[size] = "true";
+    }
+
+    params_to_use.attributeNames.swap(new_names);
+    params_to_use.attributeValues.swap(new_values);
+
+    *plugin = render_frame_impl->CreatePlugin(frame, info, params_to_use);
+    return true;
+  }
+#endif  // defined(ENABLE_PLUGINS)
+
+  return false;
+}
+
 bool CefContentRendererClient::HandleNavigation(
     content::RenderFrame* render_frame,
     content::DocumentState* document_state,
@@ -578,8 +663,18 @@ void CefContentRendererClient::BrowserCreated(
   if (GetBrowserForView(render_view))
     return;
 
+#if defined(OS_MACOSX)
+  // FIXME: It would be better if this API would be a callback from the
+  // WebKit layer, or if it would be exposed as an WebView instance method; the
+  // current implementation uses a static variable, and WebKit needs to be
+  // patched in order to make it work for each WebView instance
+  render_view->GetWebView()->setUseExternalPopupMenusThisInstance(
+      !params.is_windowless);
+#endif
+
   CefRefPtr<CefBrowserImpl> browser =
-      new CefBrowserImpl(render_view, params.browser_id, params.is_popup);
+      new CefBrowserImpl(render_view, params.browser_id, params.is_popup,
+                         params.is_windowless);
   browsers_.insert(std::make_pair(render_view, browser));
 
   new CefPrerendererClient(render_view);

@@ -11,6 +11,20 @@ Index: desktop_aura/desktop_screen_win.cc
    aura::WindowTreeHost* host = window->GetHost();
    return host ? host->GetAcceleratedWidget() : NULL;
  }
+Index: desktop_aura/desktop_screen_x11.cc
+===================================================================
+--- desktop_aura/desktop_screen_x11.cc	(revision 275973)
++++ desktop_aura/desktop_screen_x11.cc	(working copy)
+@@ -220,6 +220,9 @@
+ 
+ gfx::Display DesktopScreenX11::GetDisplayNearestWindow(
+     gfx::NativeView window) const {
++  if (!window)
++    return GetPrimaryDisplay();
++
+   // Getting screen bounds here safely is hard.
+   //
+   // You'd think we'd be able to just call window->GetBoundsInScreen(), but we
 Index: desktop_aura/desktop_window_tree_host_win.cc
 ===================================================================
 --- desktop_aura/desktop_window_tree_host_win.cc	(revision 275973)

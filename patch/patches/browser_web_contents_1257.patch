@@ -1,0 +1,78 @@
+Index: web_contents_impl.cc
+===================================================================
+--- web_contents_impl.cc	(revision 275973)
++++ web_contents_impl.cc	(working copy)
+@@ -1059,22 +1059,29 @@
+       params.browser_context, params.site_instance, params.routing_id,
+       params.main_frame_routing_id);
+ 
+-  WebContentsViewDelegate* delegate =
+-      GetContentClient()->browser()->GetWebContentsViewDelegate(this);
++  if (params.view && params.delegate_view) {
++    view_.reset(params.view);
++    render_view_host_delegate_view_ = params.delegate_view;
++  }
+ 
+-  if (browser_plugin_guest_) {
+-    scoped_ptr<WebContentsView> platform_view(CreateWebContentsView(
+-        this, delegate, &render_view_host_delegate_view_));
++  if (!view_) {
++    WebContentsViewDelegate* delegate =
++        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
+ 
+-    WebContentsViewGuest* rv = new WebContentsViewGuest(
+-        this, browser_plugin_guest_.get(), platform_view.Pass(),
+-        render_view_host_delegate_view_);
+-    render_view_host_delegate_view_ = rv;
+-    view_.reset(rv);
+-  } else {
+-    // Regular WebContentsView.
+-    view_.reset(CreateWebContentsView(
+-        this, delegate, &render_view_host_delegate_view_));
++    if (browser_plugin_guest_) {
++      scoped_ptr<WebContentsView> platform_view(CreateWebContentsView(
++          this, delegate, &render_view_host_delegate_view_));
++
++      WebContentsViewGuest* rv = new WebContentsViewGuest(
++          this, browser_plugin_guest_.get(), platform_view.Pass(),
++          render_view_host_delegate_view_);
++      render_view_host_delegate_view_ = rv;
++      view_.reset(rv);
++    } else {
++      // Regular WebContentsView.
++      view_.reset(CreateWebContentsView(
++          this, delegate, &render_view_host_delegate_view_));
++    }
+   }
+   CHECK(render_view_host_delegate_view_);
+   CHECK(view_.get());
+@@ -1381,6 +1388,9 @@
+       static_cast<SessionStorageNamespaceImpl*>(session_storage_namespace);
+   CHECK(session_storage_namespace_impl->IsFromContext(dom_storage_context));
+ 
++  content::WebContentsView* view = NULL;
++  content::RenderViewHostDelegateView* delegate_view = NULL;
++
+   if (delegate_ &&
+       !delegate_->ShouldCreateWebContents(this,
+                                           route_id,
+@@ -1388,7 +1398,9 @@
+                                           params.frame_name,
+                                           params.target_url,
+                                           partition_id,
+-                                          session_storage_namespace)) {
++                                          session_storage_namespace,
++                                          &view,
++                                          &delegate_view)) {
+     if (route_id != MSG_ROUTING_NONE &&
+         !RenderViewHost::FromID(render_process_id, route_id)) {
+       // If the embedder didn't create a WebContents for this route, we need to
+@@ -1408,6 +1420,8 @@
+   create_params.main_frame_routing_id = main_frame_route_id;
+   create_params.opener = this;
+   create_params.opener_suppressed = params.opener_suppressed;
++  create_params.view = view;
++  create_params.delegate_view = delegate_view;
+   if (params.disposition == NEW_BACKGROUND_TAB)
+     create_params.initially_hidden = true;
+ 

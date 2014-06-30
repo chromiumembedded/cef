@@ -24,6 +24,7 @@
 #include "libcef_dll/ctocpp/keyboard_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/load_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/render_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
 
 
@@ -172,6 +173,19 @@ CefRefPtr<CefLoadHandler> CefClientCToCpp::GetLoadHandler() {
 
   // Return type: refptr_same
   return CefLoadHandlerCToCpp::Wrap(_retval);
+}
+
+CefRefPtr<CefRenderHandler> CefClientCToCpp::GetRenderHandler() {
+  if (CEF_MEMBER_MISSING(struct_, get_render_handler))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_render_handler_t* _retval = struct_->get_render_handler(struct_);
+
+  // Return type: refptr_same
+  return CefRenderHandlerCToCpp::Wrap(_retval);
 }
 
 CefRefPtr<CefRequestHandler> CefClientCToCpp::GetRequestHandler() {

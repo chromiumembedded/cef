@@ -183,6 +183,7 @@
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
           'dependencies': [
             'gtk',
+            'gtkglext',
             'libcef',
           ],
           'link_settings': {
@@ -397,6 +398,8 @@
         'tests/cefclient/client_app.h',
         'tests/cefclient/client_switches.cpp',
         'tests/cefclient/client_switches.h',
+        'tests/cefclient/resource_util.h',
+        'tests/cefclient/res/osr_test.html',
         'tests/unittests/browser_info_map_unittest.cc',
         'tests/unittests/command_line_unittest.cc',
         'tests/unittests/cookie_unittest.cc',
@@ -409,6 +412,7 @@
         'tests/unittests/life_span_unittest.cc',
         'tests/unittests/message_router_unittest.cc',
         'tests/unittests/navigation_unittest.cc',
+        'tests/unittests/os_rendering_unittest.cc',
         'tests/unittests/process_message_unittest.cc',
         'tests/unittests/request_context_unittest.cc',
         'tests/unittests/request_handler_unittest.cc',
@@ -438,6 +442,7 @@
         'tests/unittests/zip_reader_unittest.cc',
       ],
       'mac_bundle_resources': [
+        'tests/cefclient/res/osr_test.html',
         'tests/unittests/mac/unittests.icns',
         'tests/unittests/mac/English.lproj/InfoPlist.strings',
         'tests/unittests/mac/English.lproj/MainMenu.xib',
@@ -466,6 +471,10 @@
           'dependencies': [
             'cef_sandbox',
             'libcef',
+          ],
+          'sources': [
+            'tests/cefclient/cefclient.rc',
+            'tests/cefclient/resource_util_win.cpp',
           ],
           'msvs_settings': {
             'VCManifestTool': {
@@ -553,12 +562,28 @@
             ],
           },
           'sources': [
+            'tests/cefclient/resource_util_mac.mm',
+            'tests/cefclient/resource_util_posix.cpp',
+            'tests/unittests/os_rendering_unittest_mac.h',
+            'tests/unittests/os_rendering_unittest_mac.mm',
             'tests/unittests/run_all_unittests_mac.mm',
           ],
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
           'dependencies': [
             'libcef',
+          ],
+          'sources': [
+            'tests/cefclient/resource_util_linux.cpp',
+            'tests/cefclient/resource_util_posix.cpp',
+          ],
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)/files',
+              'files': [
+                'tests/cefclient/res/osr_test.html',
+              ],
+            },
           ],
         }],
       ],
@@ -901,6 +926,8 @@
         'libcef/browser/printing/print_view_manager_base.h',
         'libcef/browser/process_util_impl.cc',
         'libcef/browser/proxy_stubs.cc',
+        'libcef/browser/render_widget_host_view_osr.cc',
+        'libcef/browser/render_widget_host_view_osr.h',
         'libcef/browser/resource_dispatcher_host_delegate.cc',
         'libcef/browser/resource_dispatcher_host_delegate.h',
         'libcef/browser/resource_request_job.cc',
@@ -931,6 +958,8 @@
         'libcef/browser/url_request_interceptor.h',
         'libcef/browser/url_request_user_data.cc',
         'libcef/browser/url_request_user_data.h',
+        'libcef/browser/web_contents_view_osr.cc',
+        'libcef/browser/web_contents_view_osr.h',
         'libcef/browser/web_plugin_impl.cc',
         'libcef/browser/web_plugin_impl.h',
         'libcef/browser/xml_reader_impl.cc',
@@ -1073,6 +1102,7 @@
             'libcef/browser/javascript_dialog_win.cc',
             'libcef/browser/menu_creator_runner_win.cc',
             'libcef/browser/menu_creator_runner_win.h',
+            'libcef/browser/render_widget_host_view_osr_win.cc',
             # Include sources for printing.
             '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_win.cc',
           ],
@@ -1085,6 +1115,9 @@
             'libcef/browser/javascript_dialog_mac.mm',
             'libcef/browser/menu_creator_runner_mac.h',
             'libcef/browser/menu_creator_runner_mac.mm',
+            'libcef/browser/render_widget_host_view_osr_mac.mm',
+            'libcef/browser/text_input_client_osr_mac.mm',
+            'libcef/browser/text_input_client_osr_mac.h',
             # Include sources for printing.
             '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_mac.mm',
             # Include sources for CoreAnimation support.
@@ -1100,6 +1133,7 @@
             'libcef/browser/javascript_dialog_linux.cc',
             'libcef/browser/menu_creator_runner_linux.cc',
             'libcef/browser/menu_creator_runner_linux.h',
+            'libcef/browser/render_widget_host_view_osr_linux.cc',
             'libcef/browser/window_x11.cc',
             'libcef/browser/window_x11.h',
             #Include sources for printing.
@@ -1617,6 +1651,27 @@
             # gtk requires gmodule, but it does not list it as a dependency
             # in some misconfigured systems.
             'gtk_packages': 'gmodule-2.0 gtk+-2.0 gthread-2.0 gtk+-unix-print-2.0',
+          },
+          'direct_dependent_settings': {
+            'cflags': [
+              '<!@(pkg-config --cflags <(gtk_packages))',
+            ],
+          },
+          'link_settings': {
+            'ldflags': [
+              '<!@(pkg-config --libs-only-L --libs-only-other <(gtk_packages))',
+            ],
+            'libraries': [
+              '<!@(pkg-config --libs-only-l <(gtk_packages))',
+            ],
+          },
+        },
+        {
+          'target_name': 'gtkglext',
+          'type': 'none',
+          'variables': {
+            # gtkglext is required by the cefclient OSR example.
+            'gtk_packages': 'gtkglext-1.0',
           },
           'direct_dependent_settings': {
             'cflags': [

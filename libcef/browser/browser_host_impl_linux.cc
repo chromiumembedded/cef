@@ -6,6 +6,7 @@
 #include "libcef/browser/browser_host_impl.h"
 
 #include <sys/sysinfo.h>
+#include <X11/cursorfont.h>
 
 #include "libcef/browser/context.h"
 #include "libcef/browser/window_delegate_view.h"
@@ -29,7 +30,119 @@ long GetSystemUptime() {
   return 0;
 }
 
+// Based on ui/base/cursor/cursor_loader_x11.cc.
+
+using blink::WebCursorInfo;
+
+int ToCursorID(WebCursorInfo::Type type) {
+  switch (type) {
+    case WebCursorInfo::TypePointer:
+      return XC_left_ptr;
+    case WebCursorInfo::TypeCross:
+      return XC_crosshair;
+    case WebCursorInfo::TypeHand:
+      return XC_hand2;
+    case WebCursorInfo::TypeIBeam:
+      return XC_xterm;
+    case WebCursorInfo::TypeWait:
+      return XC_watch;
+    case WebCursorInfo::TypeHelp:
+      return XC_question_arrow;
+    case WebCursorInfo::TypeEastResize:
+      return XC_right_side;
+    case WebCursorInfo::TypeNorthResize:
+      return XC_top_side;
+    case WebCursorInfo::TypeNorthEastResize:
+      return XC_top_right_corner;
+    case WebCursorInfo::TypeNorthWestResize:
+      return XC_top_left_corner;
+    case WebCursorInfo::TypeSouthResize:
+      return XC_bottom_side;
+    case WebCursorInfo::TypeSouthEastResize:
+      return XC_bottom_right_corner;
+    case WebCursorInfo::TypeSouthWestResize:
+      return XC_bottom_left_corner;
+    case WebCursorInfo::TypeWestResize:
+      return XC_left_side;
+    case WebCursorInfo::TypeNorthSouthResize:
+      return XC_sb_v_double_arrow;
+    case WebCursorInfo::TypeEastWestResize:
+      return XC_sb_h_double_arrow;
+    case WebCursorInfo::TypeNorthEastSouthWestResize:
+      return XC_left_ptr;
+    case WebCursorInfo::TypeNorthWestSouthEastResize:
+      return XC_left_ptr;
+    case WebCursorInfo::TypeColumnResize:
+      return XC_sb_h_double_arrow;
+    case WebCursorInfo::TypeRowResize:
+      return XC_sb_v_double_arrow;
+    case WebCursorInfo::TypeMiddlePanning:
+      return XC_fleur;
+    case WebCursorInfo::TypeEastPanning:
+      return XC_sb_right_arrow;
+    case WebCursorInfo::TypeNorthPanning:
+      return XC_sb_up_arrow;
+    case WebCursorInfo::TypeNorthEastPanning:
+      return XC_top_right_corner;
+    case WebCursorInfo::TypeNorthWestPanning:
+      return XC_top_left_corner;
+    case WebCursorInfo::TypeSouthPanning:
+      return XC_sb_down_arrow;
+    case WebCursorInfo::TypeSouthEastPanning:
+      return XC_bottom_right_corner;
+    case WebCursorInfo::TypeSouthWestPanning:
+      return XC_bottom_left_corner;
+    case WebCursorInfo::TypeWestPanning:
+      return XC_sb_left_arrow;
+    case WebCursorInfo::TypeMove:
+      return XC_fleur;
+    case WebCursorInfo::TypeVerticalText:
+      return XC_left_ptr;
+    case WebCursorInfo::TypeCell:
+      return XC_left_ptr;
+    case WebCursorInfo::TypeContextMenu:
+      return XC_left_ptr;
+    case WebCursorInfo::TypeAlias:
+      return XC_left_ptr;
+    case WebCursorInfo::TypeProgress:
+      return XC_left_ptr;
+    case WebCursorInfo::TypeNoDrop:
+      return XC_left_ptr;
+    case WebCursorInfo::TypeCopy:
+      return XC_left_ptr;
+    case WebCursorInfo::TypeNotAllowed:
+      return XC_left_ptr;
+    case WebCursorInfo::TypeZoomIn:
+      return XC_left_ptr;
+    case WebCursorInfo::TypeZoomOut:
+      return XC_left_ptr;
+    case WebCursorInfo::TypeGrab:
+      return XC_left_ptr;
+    case WebCursorInfo::TypeGrabbing:
+      return XC_left_ptr;
+    case WebCursorInfo::TypeCustom:
+    case WebCursorInfo::TypeNone:
+      break;
+  }
+  NOTREACHED();
+  return 0;
+}
+
 }  // namespace
+
+ui::PlatformCursor CefBrowserHostImpl::GetPlatformCursor(
+    blink::WebCursorInfo::Type type) {
+  if (type == WebCursorInfo::TypeNone) {
+    if (!invisible_cursor_) {
+      invisible_cursor_.reset(
+          new ui::XScopedCursor(ui::CreateInvisibleCursor(),
+                                gfx::GetXDisplay()));
+    }
+    return invisible_cursor_->get();
+  } else {
+    return ui::GetXCursor(ToCursorID(type));
+  }
+}
 
 bool CefBrowserHostImpl::PlatformCreateWindow() {
   DCHECK(!window_x11_);
@@ -119,7 +232,7 @@ void CefBrowserHostImpl::PlatformSetFocus(bool focus) {
 }
 
 CefWindowHandle CefBrowserHostImpl::PlatformGetWindowHandle() {
-  return window_info_.window;
+  return IsWindowless() ? window_info_.parent_window : window_info_.window;
 }
 
 bool CefBrowserHostImpl::PlatformViewText(const std::string& text) {
@@ -175,7 +288,32 @@ void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {
 void CefBrowserHostImpl::PlatformTranslateKeyEvent(
     content::NativeWebKeyboardEvent& result,
     const CefKeyEvent& key_event) {
-  NOTIMPLEMENTED();
+  result.timeStampSeconds = GetSystemUptime();
+
+  result.windowsKeyCode = key_event.windows_key_code;
+  result.nativeKeyCode = key_event.native_key_code;
+  result.isSystemKey = key_event.is_system_key ? 1 : 0;
+  switch (key_event.type) {
+  case KEYEVENT_RAWKEYDOWN:
+  case KEYEVENT_KEYDOWN:
+    result.type = blink::WebInputEvent::RawKeyDown;
+    break;
+  case KEYEVENT_KEYUP:
+    result.type = blink::WebInputEvent::KeyUp;
+    break;
+  case KEYEVENT_CHAR:
+    result.type = blink::WebInputEvent::Char;
+    break;
+  default:
+    NOTREACHED();
+  }
+
+  result.text[0] = key_event.character;
+  result.unmodifiedText[0] = key_event.unmodified_character;
+
+  result.setKeyIdentifierFromWindowsKeyCode();
+
+  result.modifiers |= TranslateModifiers(key_event.modifiers);
 }
 
 void CefBrowserHostImpl::PlatformTranslateClickEvent(
@@ -274,7 +412,14 @@ void CefBrowserHostImpl::PlatformTranslateMouseEvent(
   result.globalX = result.x;
   result.globalY = result.y;
 
-  // TODO(linux): Convert global{X,Y} to screen coordinates.
+  if (IsWindowless()) {
+    GetClient()->GetRenderHandler()->GetScreenPoint(
+        GetBrowser(),
+        result.x, result.y,
+        result.globalX, result.globalY);
+  } else {
+    // TODO(linux): Convert global{X,Y} to screen coordinates.
+  }
 
   // modifiers
   result.modifiers |= TranslateModifiers(mouse_event.modifiers);

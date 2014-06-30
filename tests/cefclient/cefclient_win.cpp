@@ -14,6 +14,7 @@
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
 #include "include/cef_sandbox_win.h"
+#include "cefclient/cefclient_osr_widget_win.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/resource.h"
@@ -59,6 +60,15 @@ LRESULT CALLBACK MessageWndProc(HWND, UINT, WPARAM, LPARAM);
 
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
+
+class MainBrowserProvider : public OSRBrowserProvider {
+  virtual CefRefPtr<CefBrowser> GetBrowser() {
+    if (g_handler.get())
+      return g_handler->GetBrowser();
+
+    return NULL;
+  }
+} g_main_browser_provider;
 
 // Program entry point function.
 int APIENTRY wWinMain(HINSTANCE hInstance,
@@ -376,8 +386,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       CefWindowInfo info;
       CefBrowserSettings settings;
 
-      // Initialize window info to the defaults for a child window.
-      info.SetAsChild(hWnd, rect);
+      // Populate the browser settings based on command line arguments.
+      AppGetBrowserSettings(settings);
+
+      if (AppIsOffScreenRenderingEnabled()) {
+        CefRefPtr<CefCommandLine> cmd_line = AppGetCommandLine();
+        bool transparent =
+            cmd_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
+
+        CefRefPtr<OSRWindow> osr_window =
+            OSRWindow::Create(&g_main_browser_provider, transparent);
+        osr_window->CreateWidget(hWnd, rect, hInst, szOSRWindowClass);
+        info.SetAsWindowless(osr_window->hwnd(), transparent);
+        g_handler->SetOSRHandler(osr_window.get());
+      } else {
+        // Initialize window info to the defaults for a child window.
+        info.SetAsChild(hWnd, rect);
+      }
 
       // Creat the new child browser window
       CefBrowserHost::CreateBrowser(info, g_handler.get(),
@@ -517,8 +542,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
 
     case WM_SETFOCUS:
       if (g_handler.get() && g_handler->GetBrowser()) {
-        // Give focus to the browser.
-        g_handler->GetBrowser()->GetHost()->SetFocus(true);
+        if (AppIsOffScreenRenderingEnabled()) {
+          // Give focus to the OSR window.
+          CefRefPtr<OSRWindow> osr_window =
+              static_cast<OSRWindow*>(g_handler->GetOSRHandler().get());
+          if (osr_window)
+            ::SetFocus(osr_window->hwnd());
+        } else {
+          // Give focus to the browser.
+          g_handler->GetBrowser()->GetHost()->SetFocus(true);
+        }
       }
       return 0;
 

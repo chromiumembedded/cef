@@ -349,6 +349,7 @@ struct CefSettingsTraits {
         src->browser_subprocess_path.length,
         &target->browser_subprocess_path, copy);
     target->multi_threaded_message_loop = src->multi_threaded_message_loop;
+    target->windowless_rendering_enabled = src->windowless_rendering_enabled;
     target->command_line_args_disabled = src->command_line_args_disabled;
 
     cef_string_set(src->cache_path.str, src->cache_path.length,
@@ -405,6 +406,8 @@ struct CefBrowserSettingsTraits {
 
   static inline void set(const struct_type* src, struct_type* target,
       bool copy) {
+    target->windowless_frame_rate = src->windowless_frame_rate;
+
     cef_string_set(src->standard_font_family.str,
         src->standard_font_family.length, &target->standard_font_family, copy);
     cef_string_set(src->fixed_font_family.str, src->fixed_font_family.length,

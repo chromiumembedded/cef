@@ -173,10 +173,14 @@ void CefWindowX11::Focus() {
   if (xwindow_ == None || !window_mapped_)
     return;
 
-  ::Window child = FindChild(xdisplay_, xwindow_);
-  if (child && ui::IsWindowVisible(child)) {
-    // Give focus to the child DesktopWindowTreeHostX11.
-    XSetInputFocus(xdisplay_, child, RevertToParent, CurrentTime);
+  if (browser_) {
+    ::Window child = FindChild(xdisplay_, xwindow_);
+    if (child && ui::IsWindowVisible(child)) {
+      // Give focus to the child DesktopWindowTreeHostX11.
+      XSetInputFocus(xdisplay_, child, RevertToParent, CurrentTime);
+    }
+  } else {
+    XSetInputFocus(xdisplay_, xwindow_, RevertToParent, CurrentTime);
   }
 }
 
@@ -233,13 +237,15 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
           xev->xconfigure.width, xev->xconfigure.height);
       bounds_ = bounds;
 
-      ::Window child = FindChild(xdisplay_, xwindow_);
-      if (child) {
-        // Resize the child DesktopWindowTreeHostX11 to match this window.
-        XWindowChanges changes = {0};
-        changes.width = bounds.width();
-        changes.height = bounds.height();
-        XConfigureWindow(xdisplay_, child, CWHeight | CWWidth, &changes);
+      if (browser_) {
+        ::Window child = FindChild(xdisplay_, xwindow_);
+        if (child) {
+          // Resize the child DesktopWindowTreeHostX11 to match this window.
+          XWindowChanges changes = {0};
+          changes.width = bounds.width();
+          changes.height = bounds.height();
+          XConfigureWindow(xdisplay_, child, CWHeight | CWWidth, &changes);
+        }
       }
       break;
     }
@@ -247,7 +253,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
       Atom message_type = static_cast<Atom>(xev->xclient.data.l[0]);
       if (message_type == atom_cache_.GetAtom("WM_DELETE_WINDOW")) {
         // We have received a close message from the window manager.
-        if (browser_->destruction_state() <=
+        if (browser_ && browser_->destruction_state() <=
             CefBrowserHostImpl::DESTRUCTION_STATE_PENDING) {
           if (browser_->destruction_state() ==
               CefBrowserHostImpl::DESTRUCTION_STATE_NONE) {
@@ -276,9 +282,11 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
     case DestroyNotify:
       xwindow_ = None;
 
-      // Force the browser to be destroyed and release the reference added
-      // in PlatformCreateWindow().
-      browser_->WindowDestroyed();
+      if (browser_) {
+        // Force the browser to be destroyed and release the reference added
+        // in PlatformCreateWindow().
+        browser_->WindowDestroyed();
+      }
 
       delete this;
       break;
@@ -311,8 +319,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
 void CefWindowX11::ContinueFocus() {
   if (!focus_pending_)
     return;
-  browser_->SetFocus(true);
+  if (browser_)
+    browser_->SetFocus(true);
   focus_pending_ = false;
 }
-
-

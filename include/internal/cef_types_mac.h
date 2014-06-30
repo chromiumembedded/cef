@@ -43,18 +43,22 @@
 @class NSCursor;
 @class NSEvent;
 @class NSView;
+@class NSTextInputContext;
 #else
 class NSCursor;
 class NSEvent;
 struct NSView;
+class NSTextInputContext;
 #endif
 #define cef_cursor_handle_t NSCursor*
 #define cef_event_handle_t NSEvent*
 #define cef_window_handle_t NSView*
+#define cef_text_input_context_t NSTextInputContext*
 #else
 #define cef_cursor_handle_t void*
 #define cef_event_handle_t void*
 #define cef_window_handle_t void*
+#define cef_text_input_context_t void*
 #endif
 
 #define kNullCursorHandle NULL
@@ -92,6 +96,26 @@ typedef struct _cef_window_info_t {
   // NSView pointer for the parent view.
   ///
   cef_window_handle_t parent_view;
+
+  ///
+  // Set to true (1) to create the browser using windowless (off-screen)
+  // rendering. No view will be created for the browser and all rendering will
+  // occur via the CefRenderHandler interface. The |parent_view| value will be
+  // used to identify monitor info and to act as the parent view for dialogs,
+  // context menus, etc. If |parent_view| is not provided then the main screen
+  // monitor will be used and some functionality that requires a parent view
+  // may not function correctly. In order to create windowless browsers the
+  // CefSettings.windowless_rendering_enabled value must be set to true.
+  ///
+  int windowless_rendering_enabled;
+
+  ///
+  // Set to true (1) to enable transparent painting in combination with
+  // windowless rendering. When this value is true a transparent background
+  // color will be used (RGBA=0x00000000). When this value is false the
+  // background will be white and opaque.
+  ///
+  int transparent_painting_enabled;
 
   ///
   // NSView pointer for the new browser view. Only used with windowed rendering.

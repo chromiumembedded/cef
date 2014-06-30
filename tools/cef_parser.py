@@ -380,6 +380,7 @@ _simpletypes = {
     'CefCursorHandle' : ['cef_cursor_handle_t', 'kNullCursorHandle'],
     'CefEventHandle' : ['cef_event_handle_t', 'kNullEventHandle'],
     'CefWindowHandle' : ['cef_window_handle_t', 'kNullWindowHandle'],
+    'CefTextInputContext' : ['cef_text_input_context_t' ,'NULL'],
     'CefRect' : ['cef_rect_t', 'CefRect()'],
     'CefThreadId' : ['cef_thread_id_t', 'TID_UI'],
     'CefTime' : ['cef_time_t', 'CefTime()'],

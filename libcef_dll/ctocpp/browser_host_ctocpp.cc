@@ -14,6 +14,7 @@
 #include "libcef_dll/cpptoc/run_file_dialog_callback_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
+#include "libcef_dll/ctocpp/drag_data_ctocpp.h"
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -330,6 +331,61 @@ bool CefBrowserHostCToCpp::IsMouseCursorChangeDisabled() {
   return _retval?true:false;
 }
 
+bool CefBrowserHostCToCpp::IsWindowRenderingDisabled() {
+  if (CEF_MEMBER_MISSING(struct_, is_window_rendering_disabled))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->is_window_rendering_disabled(struct_);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+void CefBrowserHostCToCpp::WasResized() {
+  if (CEF_MEMBER_MISSING(struct_, was_resized))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->was_resized(struct_);
+}
+
+void CefBrowserHostCToCpp::WasHidden(bool hidden) {
+  if (CEF_MEMBER_MISSING(struct_, was_hidden))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->was_hidden(struct_,
+      hidden);
+}
+
+void CefBrowserHostCToCpp::NotifyScreenInfoChanged() {
+  if (CEF_MEMBER_MISSING(struct_, notify_screen_info_changed))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->notify_screen_info_changed(struct_);
+}
+
+void CefBrowserHostCToCpp::Invalidate(PaintElementType type) {
+  if (CEF_MEMBER_MISSING(struct_, invalidate))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->invalidate(struct_,
+      type);
+}
+
 void CefBrowserHostCToCpp::SendKeyEvent(const CefKeyEvent& event) {
   if (CEF_MEMBER_MISSING(struct_, send_key_event))
     return;
@@ -402,6 +458,120 @@ void CefBrowserHostCToCpp::SendCaptureLostEvent() {
 
   // Execute
   struct_->send_capture_lost_event(struct_);
+}
+
+CefTextInputContext CefBrowserHostCToCpp::GetNSTextInputContext() {
+  if (CEF_MEMBER_MISSING(struct_, get_nstext_input_context))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_text_input_context_t _retval = struct_->get_nstext_input_context(struct_);
+
+  // Return type: simple
+  return _retval;
+}
+
+void CefBrowserHostCToCpp::HandleKeyEventBeforeTextInputClient(
+    CefEventHandle keyEvent) {
+  if (CEF_MEMBER_MISSING(struct_, handle_key_event_before_text_input_client))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->handle_key_event_before_text_input_client(struct_,
+      keyEvent);
+}
+
+void CefBrowserHostCToCpp::HandleKeyEventAfterTextInputClient(
+    CefEventHandle keyEvent) {
+  if (CEF_MEMBER_MISSING(struct_, handle_key_event_after_text_input_client))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->handle_key_event_after_text_input_client(struct_,
+      keyEvent);
+}
+
+void CefBrowserHostCToCpp::DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
+    const CefMouseEvent& event, DragOperationsMask allowed_ops) {
+  if (CEF_MEMBER_MISSING(struct_, drag_target_drag_enter))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: drag_data; type: refptr_same
+  DCHECK(drag_data.get());
+  if (!drag_data.get())
+    return;
+
+  // Execute
+  struct_->drag_target_drag_enter(struct_,
+      CefDragDataCToCpp::Unwrap(drag_data),
+      &event,
+      allowed_ops);
+}
+
+void CefBrowserHostCToCpp::DragTargetDragOver(const CefMouseEvent& event,
+    DragOperationsMask allowed_ops) {
+  if (CEF_MEMBER_MISSING(struct_, drag_target_drag_over))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->drag_target_drag_over(struct_,
+      &event,
+      allowed_ops);
+}
+
+void CefBrowserHostCToCpp::DragTargetDragLeave() {
+  if (CEF_MEMBER_MISSING(struct_, drag_target_drag_leave))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->drag_target_drag_leave(struct_);
+}
+
+void CefBrowserHostCToCpp::DragTargetDrop(const CefMouseEvent& event) {
+  if (CEF_MEMBER_MISSING(struct_, drag_target_drop))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->drag_target_drop(struct_,
+      &event);
+}
+
+void CefBrowserHostCToCpp::DragSourceEndedAt(int x, int y,
+    DragOperationsMask op) {
+  if (CEF_MEMBER_MISSING(struct_, drag_source_ended_at))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->drag_source_ended_at(struct_,
+      x,
+      y,
+      op);
+}
+
+void CefBrowserHostCToCpp::DragSourceSystemDragEnded() {
+  if (CEF_MEMBER_MISSING(struct_, drag_source_system_drag_ended))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->drag_source_system_drag_ended(struct_);
 }
 
 

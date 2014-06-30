@@ -18,6 +18,7 @@ class CefMenuCreatorRunnerLinux: public CefMenuCreator::Runner {
 
   // CefMemoryManager::Runner methods.
   virtual bool RunContextMenu(CefMenuCreator* manager) OVERRIDE;
+  virtual void CancelContextMenu() OVERRIDE;
   virtual bool FormatLabel(base::string16& label) OVERRIDE;
 
  private:

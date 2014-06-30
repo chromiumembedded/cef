@@ -74,6 +74,8 @@ class CefAccessTokenStore : public content::AccessTokenStore {
 
  private:
   AccessTokenSet access_token_set_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefAccessTokenStore);
 };
 
 class CefQuotaCallbackImpl : public CefQuotaCallback {
@@ -134,6 +136,7 @@ class CefQuotaCallbackImpl : public CefQuotaCallback {
   content::QuotaPermissionContext::PermissionCallback callback_;
 
   IMPLEMENT_REFCOUNTING(CefQuotaCallbackImpl);
+  DISALLOW_COPY_AND_ASSIGN(CefQuotaCallbackImpl);
 };
 
 class CefAllowCertificateErrorCallbackImpl
@@ -164,6 +167,7 @@ class CefAllowCertificateErrorCallbackImpl
   base::Callback<void(bool)> callback_;
 
   IMPLEMENT_REFCOUNTING(CefAllowCertificateErrorCallbackImpl);
+  DISALLOW_COPY_AND_ASSIGN(CefAllowCertificateErrorCallbackImpl);
 };
 
 class CefQuotaPermissionContext : public content::QuotaPermissionContext {
@@ -214,6 +218,8 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
  private:
   virtual ~CefQuotaPermissionContext() {
   }
+
+  DISALLOW_COPY_AND_ASSIGN(CefQuotaPermissionContext);
 };
 
 class CefPluginServiceFilter : public content::PluginServiceFilter {
@@ -255,6 +261,8 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
                              const base::FilePath& path) OVERRIDE {
     return true;
   }
+
+  DISALLOW_COPY_AND_ASSIGN(CefPluginServiceFilter);
 };
 
 void TranslatePopupFeatures(const blink::WebWindowFeatures& webKitFeatures,

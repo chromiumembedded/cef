@@ -14,7 +14,10 @@
 // Implementation of CefDragData.
 class CefDragDataImpl : public CefDragData {
  public:
+  CefDragDataImpl();
   explicit CefDragDataImpl(const content::DropData& data);
+  virtual CefRefPtr<CefDragData> Clone();
+  virtual bool IsReadOnly();
 
   virtual bool IsLink();
   virtual bool IsFragment();
@@ -26,12 +29,33 @@ class CefDragDataImpl : public CefDragData {
   virtual CefString GetFragmentHtml();
   virtual CefString GetFragmentBaseURL();
   virtual CefString GetFileName();
+  virtual size_t GetFileContents(CefRefPtr<CefStreamWriter> writer);
   virtual bool GetFileNames(std::vector<CefString>& names);
+
+  virtual void SetLinkURL(const CefString& url);
+  virtual void SetLinkTitle(const CefString& title);
+  virtual void SetLinkMetadata(const CefString& data);
+  virtual void SetFragmentText(const CefString& text);
+  virtual void SetFragmentHtml(const CefString& fragment);
+  virtual void SetFragmentBaseURL(const CefString& fragment);
+  virtual void ResetFileContents();
+  virtual void AddFile(const CefString& path, const CefString& display_name);
+
+  // This method is not safe. Use Lock/Unlock to get mutually exclusive access.
+  const content::DropData& drop_data() {
+    return data_;
+  }
+
+  void SetReadOnly(bool read_only);
 
  protected:
   content::DropData data_;
 
+  // True if this object is read-only.
+  bool read_only_;
+
   IMPLEMENT_REFCOUNTING(CefDragDataImpl);
+  IMPLEMENT_LOCKING(CefDragDataImpl);
 };
 
 #endif  // CEF_LIBCEF_COMMON_DRAG_DATA_IMPL_H_

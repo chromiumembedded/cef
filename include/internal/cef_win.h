@@ -71,6 +71,7 @@ class CefCriticalSection {
 #define CefCursorHandle cef_cursor_handle_t
 #define CefEventHandle cef_event_handle_t
 #define CefWindowHandle cef_window_handle_t
+#define CefTextInputContext cef_text_input_context_t
 
 struct CefMainArgsTraits {
   typedef cef_main_args_t struct_type;
@@ -118,6 +119,8 @@ struct CefWindowInfoTraits {
     target->height = src->height;
     target->parent_window = src->parent_window;
     target->menu = src->menu;
+    target->transparent_painting_enabled = src->transparent_painting_enabled;
+    target->windowless_rendering_enabled = src->windowless_rendering_enabled;
     target->window = src->window;
   }
 };
@@ -159,6 +162,24 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
     height = CW_USEDEFAULT;
 
     cef_string_copy(windowName.c_str(), windowName.length(), &window_name);
+  }
+
+  ///
+  // Create the browser using windowless (off-screen) rendering. No window
+  // will be created for the browser and all rendering will occur via the
+  // CefRenderHandler interface. The |parent| value will be used to identify
+  // monitor info and to act as the parent window for dialogs, context menus,
+  // etc. If |parent| is not provided then the main screen monitor will be used
+  // and some functionality that requires a parent window may not function
+  // correctly. If |transparent| is true a transparent background color will be
+  // used (RGBA=0x00000000). If |transparent| is false the background will be
+  // white and opaque. In order to create windowless browsers the
+  // CefSettings.windowless_rendering_enabled value must be set to true.
+  ///
+  void SetAsWindowless(CefWindowHandle parent, bool transparent) {
+    windowless_rendering_enabled = TRUE;
+    parent_window = parent;
+    transparent_painting_enabled = transparent;
   }
 };
 

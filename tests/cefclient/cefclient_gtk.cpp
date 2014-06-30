@@ -2,13 +2,10 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-// This value is defined in build/common.gypi and must be undefined here
-// in order for gtkglext to compile.
-#undef GTK_DISABLE_SINGLE_INCLUDES
-
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
 #include <gtk/gtk.h>
+#include <gtk/gtkgl.h>
 
 #include <X11/Xlib.h>
 #undef Success  // Definition conflicts with cef_message_router.h
@@ -22,10 +19,12 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
+#include "cefclient/cefclient_osr_widget_gtk.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
+#include "cefclient/util.h"
 
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
@@ -36,6 +35,15 @@ char szWorkingDir[512];  // The current working directory
 
 // Height of the buttons at the top of the GTK window.
 int g_toolbar_height = 0;
+
+class MainBrowserProvider : public OSRBrowserProvider {
+  virtual CefRefPtr<CefBrowser> GetBrowser() {
+    if (g_handler.get())
+      return g_handler->GetBrowser();
+
+    return NULL;
+  }
+} g_main_browser_provider;
 
 void destroy(GtkWidget* widget, gpointer data) {
   // Quitting CEF is handled in ClientHandler::OnBeforeClose().
@@ -69,7 +77,7 @@ void VboxSizeAllocated(GtkWidget *widget,
                        void *data) {
   if (g_handler) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
-    if (browser) {
+    if (browser && !browser->GetHost()->IsWindowRenderingDisabled()) {
       // Size the browser window to match the GTK widget.
       ::Display* xdisplay = cef_get_xdisplay();
       ::Window xwindow = browser->GetHost()->GetWindowHandle();
@@ -93,9 +101,14 @@ gboolean WindowFocusIn(GtkWidget* widget,
   if (g_handler && event->in) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     if (browser) {
-      // Give focus to the browser window.
-      browser->GetHost()->SetFocus(true);
-      return TRUE;
+      if (browser->GetHost()->IsWindowRenderingDisabled()) {
+        // Give focus to the off-screen browser.
+        browser->GetHost()->SendFocusEvent(true);
+      } else {
+        // Give focus to the browser window.
+        browser->GetHost()->SetFocus(true);
+        return TRUE;
+      }
     }
   }
 
@@ -303,6 +316,11 @@ GtkWidget* CreateMenuBar() {
 }  // namespace
 
 int main(int argc, char* argv[]) {
+  // Create a copy of |argv| on Linux because Chromium mangles the value
+  // internally (see issue #620).
+  ScopedArgArray scoped_arg_array(argc, argv);
+  char** argv_copy = scoped_arg_array.array();
+
   CefMainArgs main_args(argc, argv);
   CefRefPtr<ClientApp> app(new ClientApp);
 
@@ -315,7 +333,7 @@ int main(int argc, char* argv[]) {
     return -1;
 
   // Parse command line arguments.
-  AppInitCommandLine(argc, argv);
+  AppInitCommandLine(argc, argv_copy);
 
   CefSettings settings;
 
@@ -327,7 +345,10 @@ int main(int argc, char* argv[]) {
 
   // The Chromium sandbox requires that there only be a single thread during
   // initialization. Therefore initialize GTK after CEF.
-  gtk_init(&argc, &argv);
+  gtk_init(&argc, &argv_copy);
+
+  // Perform gtkglext initialization required by the OSR example.
+  gtk_gl_init(&argc, &argv_copy);
 
   // Register the scheme handler.
   scheme_test::InitTest();
@@ -397,16 +418,38 @@ int main(int argc, char* argv[]) {
   g_handler->SetButtonHwnds(GTK_WIDGET(back), GTK_WIDGET(forward),
                             GTK_WIDGET(reload), GTK_WIDGET(stop));
 
-  // Show the GTK window.
-  gtk_widget_show_all(GTK_WIDGET(window));
-
   CefWindowInfo window_info;
   CefBrowserSettings browserSettings;
 
-  // The GTK window must be visible before we can retrieve the XID.
-  ::Window xwindow = GDK_WINDOW_XID(gtk_widget_get_window(window));
-  window_info.SetAsChild(xwindow,
-      CefRect(0, g_toolbar_height, 800, 600 - g_toolbar_height));
+  // Populate the browser settings based on command line arguments.
+  AppGetBrowserSettings(browserSettings);
+
+  if (AppIsOffScreenRenderingEnabled()) {
+    CefRefPtr<CefCommandLine> cmd_line = AppGetCommandLine();
+    bool transparent =
+        cmd_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
+
+    // Create the GTKGL surface.
+    CefRefPtr<OSRWindow> osr_window =
+        OSRWindow::Create(&g_main_browser_provider, transparent, vbox);
+
+    // Show the GTK window.
+    gtk_widget_show_all(GTK_WIDGET(window));
+
+    // The GTK window must be visible before we can retrieve the XID.
+    ::Window xwindow =
+        GDK_WINDOW_XID(gtk_widget_get_window(osr_window->GetWindowHandle()));
+    window_info.SetAsWindowless(xwindow, transparent);
+    g_handler->SetOSRHandler(osr_window.get());
+  } else {
+    // Show the GTK window.
+    gtk_widget_show_all(GTK_WIDGET(window));
+
+    // The GTK window must be visible before we can retrieve the XID.
+    ::Window xwindow = GDK_WINDOW_XID(gtk_widget_get_window(window));
+    window_info.SetAsChild(xwindow,
+        CefRect(0, g_toolbar_height, 800, 600 - g_toolbar_height));
+  }
 
   // Create the browser window.
   CefBrowserHost::CreateBrowserSync(

@@ -32,6 +32,11 @@ CefRefPtr<CefCommandLine> AppGetCommandLine();
 
 // Returns the application settings based on command line arguments.
 void AppGetSettings(CefSettings& settings);
+void AppGetBrowserSettings(CefBrowserSettings& settings);
+
+// Returns true if off-screen rendering is enabled via the command line
+// argument.
+bool AppIsOffScreenRenderingEnabled();
 
 // Quit the application message loop.
 void AppQuitMessageLoop();

@@ -91,6 +91,7 @@ void CefBrowserMessageFilter::OnGetNewBrowserInfo(
           render_frame_routing_id);
   params->browser_id = info->browser_id();
   params->is_popup = info->is_popup();
+  params->is_windowless = info->is_windowless();
 }
 
 void CefBrowserMessageFilter::OnCreateWindow(

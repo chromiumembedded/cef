@@ -24,6 +24,9 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
 
   int browser_id() const { return browser_id_; };
   bool is_popup() const { return is_popup_; }
+  bool is_windowless() const { return is_windowless_; }
+
+  void set_windowless(bool windowless);
 
   // Adds an ID pair if it doesn't already exist.
   void add_render_view_id(int render_process_id, int render_routing_id);
@@ -55,6 +58,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
 
   int browser_id_;
   bool is_popup_;
+  bool is_windowless_;
 
   base::Lock lock_;
 

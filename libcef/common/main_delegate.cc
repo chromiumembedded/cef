@@ -288,6 +288,13 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       command_line->AppendSwitchASCII(switches::kContextSafetyImplementation,
           base::IntToString(settings.context_safety_implementation));
     }
+
+    if (settings.windowless_rendering_enabled) {
+#if defined(OS_MACOSX)
+      // The delegated renderer is not yet enabled by default on OS X.
+      command_line->AppendSwitch(switches::kEnableDelegatedRenderer);
+#endif
+    }
   }
 
   if (content_client_.application().get()) {

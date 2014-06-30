@@ -231,6 +231,7 @@
           ],
           'dependencies': [
             'gtk',
+            'gtkglext',
           ],
           'link_settings': {
             'ldflags': [
@@ -481,11 +482,6 @@
         'SYMROOT': 'xcodebuild',
       },
       'conditions': [
-        [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
-          'dependencies': [
-            'gtk',
-          ],
-        }],
         [ 'OS=="win" and multi_threaded_dll', {
           'configurations': {
             'Debug': {
@@ -635,6 +631,27 @@
             # gtk requires gmodule, but it does not list it as a dependency
             # in some misconfigured systems.
             'gtk_packages': 'gmodule-2.0 gtk+-2.0 gthread-2.0 gtk+-unix-print-2.0',
+          },
+          'direct_dependent_settings': {
+            'cflags': [
+              '$(shell <(pkg-config) --cflags <(gtk_packages))',
+            ],
+          },
+          'link_settings': {
+            'ldflags': [
+              '$(shell <(pkg-config) --libs-only-L --libs-only-other <(gtk_packages))',
+            ],
+            'libraries': [
+              '$(shell <(pkg-config) --libs-only-l <(gtk_packages))',
+            ],
+          },
+        },
+        {
+          'target_name': 'gtkglext',
+          'type': 'none',
+          'variables': {
+            # gtkglext is required by the cefclient OSR example.
+            'gtk_packages': 'gtkglext-1.0',
           },
           'direct_dependent_settings': {
             'cflags': [

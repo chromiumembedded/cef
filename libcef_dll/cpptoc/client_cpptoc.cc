@@ -22,6 +22,7 @@
 #include "libcef_dll/cpptoc/keyboard_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/load_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/render_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/request_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
@@ -205,6 +206,22 @@ struct _cef_load_handler_t* CEF_CALLBACK client_get_load_handler(
   return CefLoadHandlerCppToC::Wrap(_retval);
 }
 
+struct _cef_render_handler_t* CEF_CALLBACK client_get_render_handler(
+    struct _cef_client_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefRenderHandler> _retval = CefClientCppToC::Get(
+      self)->GetRenderHandler();
+
+  // Return type: refptr_same
+  return CefRenderHandlerCppToC::Wrap(_retval);
+}
+
 struct _cef_request_handler_t* CEF_CALLBACK client_get_request_handler(
     struct _cef_client_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -264,6 +281,7 @@ CefClientCppToC::CefClientCppToC(CefClient* cls)
   struct_.struct_.get_keyboard_handler = client_get_keyboard_handler;
   struct_.struct_.get_life_span_handler = client_get_life_span_handler;
   struct_.struct_.get_load_handler = client_get_load_handler;
+  struct_.struct_.get_render_handler = client_get_render_handler;
   struct_.struct_.get_request_handler = client_get_request_handler;
   struct_.struct_.on_process_message_received =
       client_on_process_message_received;

@@ -716,7 +716,7 @@ void CefBrowserHostImpl::PlatformSetFocus(bool focus) {
 }
 
 CefWindowHandle CefBrowserHostImpl::PlatformGetWindowHandle() {
-  return window_info_.window;
+  return IsWindowless() ? window_info_.parent_window : window_info_.window;
 }
 
 bool CefBrowserHostImpl::PlatformViewText(const std::string& text) {
@@ -922,11 +922,17 @@ void CefBrowserHostImpl::PlatformTranslateMouseEvent(
   result.globalX = result.x;
   result.globalY = result.y;
 
-  // global position
-  POINT globalPoint = { result.x, result.y };
-  ClientToScreen(GetWindowHandle(), &globalPoint);
-  result.globalX = globalPoint.x;
-  result.globalY = globalPoint.y;
+  if (IsWindowless()) {
+    GetClient()->GetRenderHandler()->GetScreenPoint(
+        GetBrowser(),
+        result.x, result.y,
+        result.globalX, result.globalY);
+  } else {
+    POINT globalPoint = { result.x, result.y };
+    ClientToScreen(GetWindowHandle(), &globalPoint);
+    result.globalX = globalPoint.x;
+    result.globalY = globalPoint.y;
+  }
 
   // modifiers
   result.modifiers |= TranslateModifiers(mouse_event.modifiers);

@@ -24,10 +24,29 @@ bool CefMenuCreatorRunnerWin::RunContextMenu(CefMenuCreator* manager) {
 
   gfx::Point screen_point;
 
-  aura::Window* window = manager->browser()->GetContentView();
-  const gfx::Rect& bounds_in_screen = window->GetBoundsInScreen();
-  screen_point = gfx::Point(bounds_in_screen.x() + manager->params().x,
-                            bounds_in_screen.y() + manager->params().y);
+  if (manager->browser()->IsWindowless()) {
+    CefRefPtr<CefClient> client = manager->browser()->GetClient();
+    if (!client.get())
+      return false;
+
+    CefRefPtr<CefRenderHandler> handler = client->GetRenderHandler();
+    if (!handler.get())
+      return false;
+
+    int screenX = 0, screenY = 0;
+    if (!handler->GetScreenPoint(manager->browser(),
+                                 manager->params().x, manager->params().y,
+                                 screenX, screenY)) {
+      return false;
+    }
+
+    screen_point = gfx::Point(screenX, screenY);
+  } else {
+    aura::Window* window = manager->browser()->GetContentView();
+    const gfx::Rect& bounds_in_screen = window->GetBoundsInScreen();
+    screen_point = gfx::Point(bounds_in_screen.x() + manager->params().x,
+                              bounds_in_screen.y() + manager->params().y);
+  }
 
   // Show the menu. Blocks until the menu is dismissed.
   menu_->RunMenuAt(screen_point, views::Menu2::ALIGN_TOPLEFT);
