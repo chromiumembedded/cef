@@ -78,11 +78,12 @@ typedef struct _cef_geolocation_handler_t {
   ///
   // Called when a page requests permission to access geolocation information.
   // |requesting_url| is the URL requesting permission and |request_id| is the
-  // unique ID for the permission request. Call
-  // cef_geolocation_callback_t::Continue to allow or deny the permission
-  // request.
+  // unique ID for the permission request. Return true (1) and call
+  // cef_geolocation_callback_t::cont() either in this function or at a later
+  // time to continue or cancel the request. Return false (0) to cancel the
+  // request immediately.
   ///
-  void (CEF_CALLBACK *on_request_geolocation_permission)(
+  int (CEF_CALLBACK *on_request_geolocation_permission)(
       struct _cef_geolocation_handler_t* self, struct _cef_browser_t* browser,
       const cef_string_t* requesting_url, int request_id,
       struct _cef_geolocation_callback_t* callback);

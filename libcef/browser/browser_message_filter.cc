@@ -23,14 +23,14 @@
 CefBrowserMessageFilter::CefBrowserMessageFilter(
     content::RenderProcessHost* host)
     : host_(host),
-      channel_(NULL) {
+      sender_(NULL) {
 }
 
 CefBrowserMessageFilter::~CefBrowserMessageFilter() {
 }
 
-void CefBrowserMessageFilter::OnFilterAdded(IPC::Channel* channel) {
-  channel_ = channel;
+void CefBrowserMessageFilter::OnFilterAdded(IPC::Sender* sender) {
+  sender_ = sender;
 }
 
 void CefBrowserMessageFilter::OnFilterRemoved() {

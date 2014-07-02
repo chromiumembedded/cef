@@ -4,8 +4,6 @@
 
 #include "libcef/browser/printing/print_view_manager_base.h"
 
-#include <map>
-
 #include "libcef/browser/content_browser_client.h"
 
 #include "base/bind.h"
@@ -31,20 +29,19 @@
 #include "printing/printed_document.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if defined(OS_WIN)
-#include "base/command_line.h"
-#include "chrome/common/chrome_switches.h"
-#endif
-
 using base::TimeDelta;
 using content::BrowserThread;
+
+namespace printing {
+
+namespace {
 
 #if defined(OS_WIN)
 // Limits memory usage by raster to 64 MiB.
 const int kMaxRasterSizeInPixels = 16*1024*1024;
 #endif
 
-namespace printing {
+}  // namespace
 
 PrintViewManagerBase::PrintViewManagerBase(content::WebContents* web_contents)
     : content::WebContentsObserver(web_contents),
@@ -177,7 +174,9 @@ void PrintViewManagerBase::OnDidPrintPage(
   // Update the rendered document. It will send notifications to the listener.
   document->SetPage(params.page_number,
                     metafile.release(),
+#if defined(OS_WIN)
                     params.actual_shrink,
+#endif  // OS_WIN
                     params.page_size,
                     params.content_area);
 

@@ -36,10 +36,6 @@ class CefContentClient : public content::ContentClient,
       ui::ScaleFactor scale_factor) const OVERRIDE;
   virtual gfx::Image& GetNativeImageNamed(int resource_id) const OVERRIDE;
 
-#if defined(OS_MACOSX) && !defined(OS_IOS)
-  virtual std::string GetCarbonInterposePath() const OVERRIDE;
-#endif
-
   struct SchemeInfo {
     std::string scheme_name;
     bool is_standard;

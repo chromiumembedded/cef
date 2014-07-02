@@ -22,7 +22,6 @@ cefclient.app/
           icudtl.dat <= unicode support
           en.lproj/, ... <= locale-specific resources and strings
           Info.plist
-      libplugin_carbon_interpose.dylib <= plugin support library
       cefclient Helper.app/
         Contents/
           Info.plist
@@ -71,9 +70,6 @@ Required components:
 
 * Unicode support
     Chromium Embedded Framework.framework/Resources/icudtl.dat
-
-* Plugin support library
-    libplugin_carbon_interpose.dylib
 
 Optional components:
 

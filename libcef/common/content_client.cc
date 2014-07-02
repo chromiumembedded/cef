@@ -22,9 +22,6 @@ namespace {
 
 CefContentClient* g_content_client = NULL;
 
-const char kInterposeLibraryPath[] =
-    "@executable_path/../../../libplugin_carbon_interpose.dylib";
-
 }  // namespace
 
 CefContentClient::CefContentClient(CefRefPtr<CefApp> application)
@@ -111,12 +108,6 @@ gfx::Image& CefContentClient::GetNativeImageNamed(int resource_id) const {
 
   return value;
 }
-
-#if defined(OS_MACOSX) && !defined(OS_IOS)
-std::string CefContentClient::GetCarbonInterposePath() const {
-  return std::string(kInterposeLibraryPath);
-}
-#endif
 
 void CefContentClient::AddCustomScheme(const SchemeInfo& scheme_info) {
   DCHECK(!scheme_info_list_locked_);

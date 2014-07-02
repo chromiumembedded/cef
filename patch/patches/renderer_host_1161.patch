@@ -1,8 +1,8 @@
 Index: compositing_iosurface_layer_mac.mm
 ===================================================================
---- compositing_iosurface_layer_mac.mm	(revision 275973)
+--- compositing_iosurface_layer_mac.mm	(revision 280796)
 +++ compositing_iosurface_layer_mac.mm	(working copy)
-@@ -188,7 +188,7 @@
+@@ -191,7 +191,7 @@
    TRACE_EVENT0("browser", "CompositingIOSurfaceLayer::drawInCGLContext");
  
    if (!iosurface_->HasIOSurface() || context_->cgl_context() != glContext) {
@@ -13,7 +13,7 @@ Index: compositing_iosurface_layer_mac.mm
    }
 Index: compositing_iosurface_mac.mm
 ===================================================================
---- compositing_iosurface_mac.mm	(revision 275973)
+--- compositing_iosurface_mac.mm	(revision 280796)
 +++ compositing_iosurface_mac.mm	(working copy)
 @@ -350,7 +350,7 @@
      glUseProgram(0); CHECK_AND_SAVE_GL_ERROR();
@@ -26,7 +26,7 @@ Index: compositing_iosurface_mac.mm
  
 Index: compositing_iosurface_shader_programs_mac.cc
 ===================================================================
---- compositing_iosurface_shader_programs_mac.cc	(revision 275973)
+--- compositing_iosurface_shader_programs_mac.cc	(revision 280796)
 +++ compositing_iosurface_shader_programs_mac.cc	(working copy)
 @@ -11,6 +11,8 @@
  #include "base/debug/trace_event.h"
@@ -81,7 +81,7 @@ Index: compositing_iosurface_shader_programs_mac.cc
      shader_programs_[which] =
 Index: compositing_iosurface_shader_programs_mac.h
 ===================================================================
---- compositing_iosurface_shader_programs_mac.h	(revision 275973)
+--- compositing_iosurface_shader_programs_mac.h	(revision 280796)
 +++ compositing_iosurface_shader_programs_mac.h	(working copy)
 @@ -48,6 +48,8 @@
      return rgb_to_yv12_output_format_;
@@ -94,9 +94,9 @@ Index: compositing_iosurface_shader_programs_mac.h
                             TransformsRGBToYV12);
 Index: render_widget_host_view_aura.cc
 ===================================================================
---- render_widget_host_view_aura.cc	(revision 275973)
+--- render_widget_host_view_aura.cc	(revision 280796)
 +++ render_widget_host_view_aura.cc	(working copy)
-@@ -1675,8 +1675,14 @@
+@@ -1672,8 +1672,14 @@
    // For non-opaque windows, we don't draw anything, since we depend on the
    // canvas coming from the compositor to already be initialized as
    // transparent.
@@ -115,14 +115,14 @@ Index: render_widget_host_view_aura.cc
  void RenderWidgetHostViewAura::OnDeviceScaleFactorChanged(
 Index: render_widget_host_view_mac.mm
 ===================================================================
---- render_widget_host_view_mac.mm	(revision 275973)
+--- render_widget_host_view_mac.mm	(revision 280796)
 +++ render_widget_host_view_mac.mm	(working copy)
-@@ -493,7 +493,7 @@
+@@ -504,7 +504,7 @@
  
    background_layer_.reset([[CALayer alloc] init]);
    [background_layer_
 -      setBackgroundColor:CGColorGetConstantColor(kCGColorWhite)];
 +      setBackgroundColor:CGColorGetConstantColor(kCGColorClear)];
+   [background_layer_ setGeometryFlipped:YES];
+   [background_layer_ setContentsGravity:kCAGravityTopLeft];
    [cocoa_view_ setLayer:background_layer_];
-   [cocoa_view_ setWantsLayer:YES];
- 

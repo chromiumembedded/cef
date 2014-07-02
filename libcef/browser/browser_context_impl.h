@@ -39,32 +39,10 @@ class CefBrowserContextImpl : public CefBrowserContext {
       GetMediaRequestContextForStoragePartition(
           const base::FilePath& partition_path,
           bool in_memory) OVERRIDE;
-  virtual void RequestMidiSysExPermission(
-      int render_process_id,
-      int render_view_id,
-      int bridge_id,
-      const GURL& requesting_frame,
-      bool user_gesture,
-      const MidiSysExPermissionCallback& callback) OVERRIDE;
-  virtual void CancelMidiSysExPermissionRequest(
-      int render_process_id,
-      int render_view_id,
-      int bridge_id,
-      const GURL& requesting_frame) OVERRIDE;
-  virtual void RequestProtectedMediaIdentifierPermission(
-      int render_process_id,
-      int render_view_id,
-      const GURL& origin,
-      const ProtectedMediaIdentifierPermissionCallback& callback) OVERRIDE;
-  virtual void CancelProtectedMediaIdentifierPermissionRequests(
-      int render_process_id,
-      int render_view_id,
-      const GURL& origin) OVERRIDE;
   virtual content::ResourceContext* GetResourceContext() OVERRIDE;
-  virtual content::GeolocationPermissionContext*
-      GetGeolocationPermissionContext() OVERRIDE;
   virtual content::BrowserPluginGuestManager* GetGuestManager() OVERRIDE;
   virtual quota::SpecialStoragePolicy* GetSpecialStoragePolicy() OVERRIDE;
+  virtual content::PushMessagingService* GetPushMessagingService() OVERRIDE;
 
   // CefBrowserContext methods.
   virtual net::URLRequestContextGetter* CreateRequestContext(
@@ -84,8 +62,6 @@ class CefBrowserContextImpl : public CefBrowserContext {
   scoped_ptr<CefResourceContext> resource_context_;
   scoped_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<CefURLRequestContextGetter> url_request_getter_;
-  scoped_refptr<content::GeolocationPermissionContext>
-      geolocation_permission_context_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserContextImpl);
 };

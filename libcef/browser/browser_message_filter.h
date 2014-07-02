@@ -25,7 +25,7 @@ class CefBrowserMessageFilter : public IPC::MessageFilter {
   virtual ~CefBrowserMessageFilter();
 
   // IPC::ChannelProxy::MessageFilter implementation.
-  virtual void OnFilterAdded(IPC::Channel* channel) OVERRIDE;
+  virtual void OnFilterAdded(IPC::Sender* sender) OVERRIDE;
   virtual void OnFilterRemoved() OVERRIDE;
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
@@ -43,7 +43,7 @@ class CefBrowserMessageFilter : public IPC::MessageFilter {
                       IPC::Message* reply_msg);
 
   content::RenderProcessHost* host_;
-  IPC::Channel* channel_;
+  IPC::Sender* sender_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserMessageFilter);
 };

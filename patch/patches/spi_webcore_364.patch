@@ -1,8 +1,8 @@
 Index: core/frame/FrameView.cpp
 ===================================================================
---- core/frame/FrameView.cpp	(revision 175829)
+--- core/frame/FrameView.cpp	(revision 177271)
 +++ core/frame/FrameView.cpp	(working copy)
-@@ -165,8 +165,10 @@
+@@ -139,8 +139,10 @@
      if (!m_frame->isMainFrame())
          return;
  
@@ -15,9 +15,9 @@ Index: core/frame/FrameView.cpp
  PassRefPtr<FrameView> FrameView::create(LocalFrame* frame)
 Index: platform/scroll/ScrollbarThemeMacCommon.mm
 ===================================================================
---- platform/scroll/ScrollbarThemeMacCommon.mm	(revision 175829)
+--- platform/scroll/ScrollbarThemeMacCommon.mm	(revision 177271)
 +++ platform/scroll/ScrollbarThemeMacCommon.mm	(working copy)
-@@ -358,10 +358,14 @@
+@@ -355,10 +355,14 @@
  // static
  bool ScrollbarThemeMacCommon::isOverlayAPIAvailable()
  {

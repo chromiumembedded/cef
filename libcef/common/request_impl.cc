@@ -309,8 +309,6 @@ void CefRequestImpl::Set(const blink::WebURLRequest& request) {
     flags_ |= UR_FLAG_ALLOW_CACHED_CREDENTIALS;
   if (request.reportUploadProgress())
     flags_ |= UR_FLAG_REPORT_UPLOAD_PROGRESS;
-  if (request.reportLoadTiming())
-    flags_ |= UR_FLAG_REPORT_LOAD_TIMING;
   if (request.reportRawHeaders())
     flags_ |= UR_FLAG_REPORT_RAW_HEADERS;
 
@@ -351,8 +349,6 @@ void CefRequestImpl::Get(blink::WebURLRequest& request) {
               UR_FLAG_ALLOW_CACHED_CREDENTIALS);
   SETBOOLFLAG(request, flags_, setReportUploadProgress,
               UR_FLAG_REPORT_UPLOAD_PROGRESS);
-  SETBOOLFLAG(request, flags_, setReportLoadTiming,
-              UR_FLAG_REPORT_LOAD_TIMING);
   SETBOOLFLAG(request, flags_, setReportRawHeaders,
               UR_FLAG_REPORT_RAW_HEADERS);
 

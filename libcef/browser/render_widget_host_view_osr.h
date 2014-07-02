@@ -114,9 +114,8 @@ class CefRenderWidgetHostViewOSR
   virtual void Blur() OVERRIDE;
   virtual void UpdateCursor(const content::WebCursor& cursor) OVERRIDE;
   virtual void SetIsLoading(bool is_loading) OVERRIDE;
-  virtual void TextInputTypeChanged(ui::TextInputType type,
-                                    ui::TextInputMode input_mode,
-                                    bool can_compose_inline) OVERRIDE;
+  virtual void TextInputStateChanged(
+      const ViewHostMsg_TextInputState_Params& params) OVERRIDE;
   virtual void ImeCancelComposition() OVERRIDE;
   virtual void RenderProcessGone(base::TerminationStatus status,
                                  int error_code) OVERRIDE;
@@ -159,9 +158,6 @@ class CefRenderWidgetHostViewOSR
   virtual void GetScreenInfo(blink::WebScreenInfo* results) OVERRIDE;
   virtual gfx::Rect GetBoundsInRootWindow() OVERRIDE;
   virtual gfx::GLSurfaceHandle GetCompositingSurface() OVERRIDE;
-  virtual void SetScrollOffsetPinning(
-      bool is_pinned_to_left,
-      bool is_pinned_to_right) OVERRIDE;
 
 #if defined(OS_MACOSX)
   virtual bool PostProcessEventForPluginIme(
@@ -186,8 +182,6 @@ class CefRenderWidgetHostViewOSR
   virtual content::RenderWidgetHostImpl* GetHost() OVERRIDE;
   virtual void SchedulePaintInRect(
       const gfx::Rect& damage_rect_in_dip) OVERRIDE;
-  virtual void DelegatedCompositorDidSwapBuffers() OVERRIDE;
-  virtual void DelegatedCompositorAbortedSwapBuffers() OVERRIDE;
   virtual bool IsVisible() OVERRIDE;
   virtual scoped_ptr<content::ResizeLock> CreateResizeLock(
       bool defer_compositor_lock) OVERRIDE;

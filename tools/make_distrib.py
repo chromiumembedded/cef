@@ -655,7 +655,6 @@ elif platform == 'macosx':
       make_dir(dst_dir, options.quiet)
       copy_dir(os.path.join(build_dir, 'cefclient.app/Contents/Frameworks/%s.framework' % framework_name), \
                os.path.join(dst_dir, '%s.framework' % framework_name), options.quiet)
-      copy_file(os.path.join(build_dir, 'libplugin_carbon_interpose.dylib'), dst_dir, options.quiet)
 
   # transfer Release files
   build_dir = os.path.join(out_dir, 'Release')
@@ -666,7 +665,6 @@ elif platform == 'macosx':
     if mode != 'client':
       copy_dir(os.path.join(build_dir, 'cefclient.app/Contents/Frameworks/%s.framework' % framework_name), \
                os.path.join(dst_dir, '%s.framework' % framework_name), options.quiet)
-      copy_file(os.path.join(build_dir, 'libplugin_carbon_interpose.dylib'), dst_dir, options.quiet)
     else:
       copy_dir(os.path.join(build_dir, 'cefclient.app'), os.path.join(dst_dir, 'cefclient.app'), options.quiet)
 

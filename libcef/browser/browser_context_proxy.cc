@@ -112,52 +112,22 @@ net::URLRequestContextGetter*
   return GetRequestContext();
 }
 
-void CefBrowserContextProxy::RequestMidiSysExPermission(
-    int render_process_id,
-    int render_view_id,
-    int bridge_id,
-    const GURL& requesting_frame,
-    bool user_gesture,
-    const MidiSysExPermissionCallback& callback) {
-  // TODO(CEF): Implement Web MIDI API permission handling.
-  callback.Run(false);
-}
-
-void CefBrowserContextProxy::CancelMidiSysExPermissionRequest(
-    int render_process_id,
-    int render_view_id,
-    int bridge_id,
-    const GURL& requesting_frame) {
-}
-
-void CefBrowserContextProxy::RequestProtectedMediaIdentifierPermission(
-    int render_process_id,
-    int render_view_id,
-    const GURL& origin,
-    const ProtectedMediaIdentifierPermissionCallback& callback) {
-}
-
-void CefBrowserContextProxy::CancelProtectedMediaIdentifierPermissionRequests(
-    int render_process_id,
-    int render_view_id,
-    const GURL& origin) {
-}
-
 content::ResourceContext* CefBrowserContextProxy::GetResourceContext() {
   return resource_context_.get();
-}
-
-content::GeolocationPermissionContext*
-    CefBrowserContextProxy::GetGeolocationPermissionContext() {
-  return parent_->GetGeolocationPermissionContext();
 }
 
 content::BrowserPluginGuestManager* CefBrowserContextProxy::GetGuestManager() {
   return parent_->GetGuestManager();
 }
 
-quota::SpecialStoragePolicy* CefBrowserContextProxy::GetSpecialStoragePolicy() {
+quota::SpecialStoragePolicy*
+    CefBrowserContextProxy::GetSpecialStoragePolicy() {
   return parent_->GetSpecialStoragePolicy();
+}
+
+content::PushMessagingService*
+    CefBrowserContextProxy::GetPushMessagingService() {
+  return parent_->GetPushMessagingService();
 }
 
 net::URLRequestContextGetter* CefBrowserContextProxy::CreateRequestContext(

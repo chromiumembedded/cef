@@ -154,7 +154,6 @@
               # Add libraries and helper app.
               'destination': '<(PRODUCT_DIR)/cefclient.app/Contents/Frameworks',
               'files': [
-                '$(CONFIGURATION)/libplugin_carbon_interpose.dylib',
                 '<(PRODUCT_DIR)/cefclient Helper.app',
               ],
             },
@@ -375,7 +374,6 @@
               # Add libraries and helper app.
               'destination': '<(PRODUCT_DIR)/cefsimple.app/Contents/Frameworks',
               'files': [
-                '$(CONFIGURATION)/libplugin_carbon_interpose.dylib',
                 '<(PRODUCT_DIR)/cefsimple Helper.app',
               ],
             },

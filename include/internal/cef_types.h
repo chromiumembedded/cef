@@ -152,11 +152,6 @@ typedef enum {
   LOGSEVERITY_ERROR,
 
   ///
-  // ERROR_REPORT logging.
-  ///
-  LOGSEVERITY_ERROR_REPORT,
-
-  ///
   // Completely disable logging.
   ///
   LOGSEVERITY_DISABLE = 99

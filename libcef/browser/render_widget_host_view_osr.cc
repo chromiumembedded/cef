@@ -405,10 +405,8 @@ void CefRenderWidgetHostViewOSR::SetIsLoading(bool is_loading) {
 }
 
 #if !defined(OS_MACOSX)
-void CefRenderWidgetHostViewOSR::TextInputTypeChanged(
-    ui::TextInputType type,
-    ui::TextInputMode input_mode,
-    bool can_compose_inline) {
+void CefRenderWidgetHostViewOSR::TextInputStateChanged(
+    const ViewHostMsg_TextInputState_Params& params) {
 }
 
 void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
@@ -598,11 +596,6 @@ gfx::GLSurfaceHandle CefRenderWidgetHostViewOSR::GetCompositingSurface() {
       GetSharedSurfaceHandle();
 }
 
-void CefRenderWidgetHostViewOSR::SetScrollOffsetPinning(
-    bool is_pinned_to_left,
-    bool is_pinned_to_right) {
-}
-
 #if !defined(OS_MACOSX) && defined(USE_AURA)
 void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
     const gfx::Range& range,
@@ -625,12 +618,6 @@ content::RenderWidgetHostImpl* CefRenderWidgetHostViewOSR::GetHost() {
 void CefRenderWidgetHostViewOSR::SchedulePaintInRect(
     const gfx::Rect& damage_rect_in_dip) {
   root_layer_->SchedulePaint(damage_rect_in_dip);
-}
-
-void CefRenderWidgetHostViewOSR::DelegatedCompositorDidSwapBuffers() {
-}
-
-void CefRenderWidgetHostViewOSR::DelegatedCompositorAbortedSwapBuffers() {
 }
 
 bool CefRenderWidgetHostViewOSR::IsVisible() {

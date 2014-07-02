@@ -17,141 +17,10 @@
 #include "base/threading/thread.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/browser_thread.h"
-#include "content/public/browser/geolocation_permission_context.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/storage_partition.h"
 
 using content::BrowserThread;
-
-namespace {
-
-class CefGeolocationPermissionContext
-    : public content::GeolocationPermissionContext {
- public:
-  // CefGeolocationCallback implementation.
-  class CallbackImpl : public CefGeolocationCallback {
-   public:
-    typedef base::Callback<void(bool)>  // NOLINT(readability/function)
-        CallbackType;
-
-    explicit CallbackImpl(
-        CefGeolocationPermissionContext* context,
-        int bridge_id,
-        const CallbackType& callback)
-        : context_(context),
-          bridge_id_(bridge_id),
-          callback_(callback) {}
-
-    virtual void Continue(bool allow) OVERRIDE {
-      if (CEF_CURRENTLY_ON_UIT()) {
-        if (!callback_.is_null()) {
-          // Callback must be executed on the UI thread.
-          callback_.Run(allow);
-          context_->RemoveCallback(bridge_id_);
-        }
-      } else {
-        CEF_POST_TASK(CEF_UIT,
-            base::Bind(&CallbackImpl::Continue, this, allow));
-      }
-    }
-
-    void Disconnect() {
-      callback_.Reset();
-      context_ = NULL;
-    }
-
-   private:
-    static void Run(const CallbackType& callback, bool allow) {
-      CEF_REQUIRE_UIT();
-      callback.Run(allow);
-    }
-
-    CefGeolocationPermissionContext* context_;
-    int bridge_id_;
-    CallbackType callback_;
-
-    IMPLEMENT_REFCOUNTING(CallbackImpl);
-  };
-
-  CefGeolocationPermissionContext() {}
-
-  virtual void RequestGeolocationPermission(
-      content::WebContents* web_contents,
-      int bridge_id,
-      const GURL& requesting_frame,
-      bool user_gesture,
-      base::Callback<void(bool)> callback)  // NOLINT(readability/function)
-      OVERRIDE {
-    CEF_REQUIRE_UIT();
-
-    CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserForContents(web_contents);
-    if (browser.get()) {
-      CefRefPtr<CefClient> client = browser->GetClient();
-      if (client.get()) {
-        CefRefPtr<CefGeolocationHandler> handler =
-            client->GetGeolocationHandler();
-        if (handler.get()) {
-          CefRefPtr<CallbackImpl> callbackPtr(
-              new CallbackImpl(this, bridge_id, callback));
-
-          // Add the callback reference to the map.
-          callback_map_.insert(std::make_pair(bridge_id, callbackPtr));
-
-          // Notify the handler.
-          handler->OnRequestGeolocationPermission(browser.get(),
-              requesting_frame.spec(), bridge_id, callbackPtr.get());
-          return;
-        }
-      }
-    }
-
-    // Disallow geolocation access by default.
-    callback.Run(false);
-  }
-
-  virtual void CancelGeolocationPermissionRequest(
-      content::WebContents* web_contents,
-      int bridge_id,
-      const GURL& requesting_frame) OVERRIDE {
-    RemoveCallback(bridge_id);
-
-    CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserForContents(web_contents);
-    if (browser.get()) {
-      CefRefPtr<CefClient> client = browser->GetClient();
-      if (client.get()) {
-        CefRefPtr<CefGeolocationHandler> handler =
-            client->GetGeolocationHandler();
-        if (handler.get()) {
-          // Notify the handler.
-          handler->OnCancelGeolocationPermission(browser.get(),
-              requesting_frame.spec(), bridge_id);
-        }
-      }
-    }
-  }
-
-  void RemoveCallback(int bridge_id) {
-    CEF_REQUIRE_UIT();
-
-    // Disconnect the callback and remove the reference from the map.
-    CallbackMap::iterator it = callback_map_.find(bridge_id);
-    if (it != callback_map_.end()) {
-      it->second->Disconnect();
-      callback_map_.erase(it);
-    }
-  }
-
- private:
-  // Map of bridge ids to callback references.
-  typedef std::map<int, CefRefPtr<CallbackImpl> > CallbackMap;
-  CallbackMap callback_map_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefGeolocationPermissionContext);
-};
-
-}  // namespace
 
 class CefBrowserContextImpl::CefResourceContext : public content::ResourceContext {
  public:
@@ -246,48 +115,8 @@ net::URLRequestContextGetter*
   return GetRequestContext();
 }
 
-void CefBrowserContextImpl::RequestMidiSysExPermission(
-    int render_process_id,
-    int render_view_id,
-    int bridge_id,
-    const GURL& requesting_frame,
-    bool user_gesture,
-    const MidiSysExPermissionCallback& callback) {
-  // TODO(CEF): Implement Web MIDI API permission handling.
-  callback.Run(false);
-}
-
-void CefBrowserContextImpl::CancelMidiSysExPermissionRequest(
-    int render_process_id,
-    int render_view_id,
-    int bridge_id,
-    const GURL& requesting_frame) {
-}
-
-void CefBrowserContextImpl::RequestProtectedMediaIdentifierPermission(
-    int render_process_id,
-    int render_view_id,
-    const GURL& origin,
-    const ProtectedMediaIdentifierPermissionCallback& callback) {
-}
-
-void CefBrowserContextImpl::CancelProtectedMediaIdentifierPermissionRequests(
-    int render_process_id,
-    int render_view_id,
-    const GURL& origin) {
-}
-
 content::ResourceContext* CefBrowserContextImpl::GetResourceContext() {
   return resource_context_.get();
-}
-
-content::GeolocationPermissionContext*
-    CefBrowserContextImpl::GetGeolocationPermissionContext() {
-  if (!geolocation_permission_context_) {
-    geolocation_permission_context_ =
-        new CefGeolocationPermissionContext();
-  }
-  return geolocation_permission_context_;
 }
 
 content::BrowserPluginGuestManager* CefBrowserContextImpl::GetGuestManager() {
@@ -295,6 +124,11 @@ content::BrowserPluginGuestManager* CefBrowserContextImpl::GetGuestManager() {
 }
 
 quota::SpecialStoragePolicy* CefBrowserContextImpl::GetSpecialStoragePolicy() {
+  return NULL;
+}
+
+content::PushMessagingService*
+    CefBrowserContextImpl::GetPushMessagingService() {
   return NULL;
 }
 

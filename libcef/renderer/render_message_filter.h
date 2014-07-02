@@ -17,20 +17,20 @@ class CefRenderMessageFilter : public IPC::MessageFilter {
   virtual ~CefRenderMessageFilter();
 
   // IPC::ChannelProxy::MessageFilter implementation.
-  virtual void OnFilterAdded(IPC::Channel* channel) OVERRIDE;
+  virtual void OnFilterAdded(IPC::Sender* sender) OVERRIDE;
   virtual void OnFilterRemoved() OVERRIDE;
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
  private:
   // Message handlers called on the IO thread.
-  void OnDevToolsAgentAttach();
+  void OnDevToolsAgentAttach(const std::string& host_id);
   void OnDevToolsAgentDetach();
 
   void OnDevToolsAgentAttach_RT();
   void OnDevToolsAgentDetach_IOT();
   void OnDevToolsAgentDetach_RT();
 
-  IPC::Channel* channel_;
+  IPC::Sender* sender_;
 
   DISALLOW_COPY_AND_ASSIGN(CefRenderMessageFilter);
 };

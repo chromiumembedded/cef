@@ -1,8 +1,8 @@
 Index: content_browser_client.cc
 ===================================================================
---- content_browser_client.cc	(revision 275973)
+--- content_browser_client.cc	(revision 280796)
 +++ content_browser_client.cc	(working copy)
-@@ -252,6 +252,10 @@
+@@ -280,6 +280,10 @@
    return true;
  }
  
@@ -15,7 +15,7 @@ Index: content_browser_client.cc
  }
 Index: content_browser_client.h
 ===================================================================
---- content_browser_client.h	(revision 275973)
+--- content_browser_client.h	(revision 280796)
 +++ content_browser_client.h	(working copy)
 @@ -23,6 +23,7 @@
  #include "net/cookies/canonical_cookie.h"
@@ -25,7 +25,7 @@ Index: content_browser_client.h
  #include "third_party/WebKit/public/web/WebNotificationPresenter.h"
  #include "ui/base/window_open_disposition.h"
  #include "webkit/browser/fileapi/file_system_context.h"
-@@ -533,6 +534,9 @@
+@@ -538,6 +539,9 @@
    // Clears browser cookies.
    virtual void ClearCookies(RenderViewHost* rvh) {}
  
@@ -37,12 +37,12 @@ Index: content_browser_client.h
    virtual base::FilePath GetDefaultDownloadDirectory();
 Index: web_contents.cc
 ===================================================================
---- web_contents.cc	(revision 275973)
+--- web_contents.cc	(revision 280796)
 +++ web_contents.cc	(working copy)
 @@ -17,7 +17,9 @@
        main_frame_routing_id(MSG_ROUTING_NONE),
        initially_hidden(false),
-       guest_instance_id(0),
+       guest_delegate(NULL),
 -      context(NULL) {}
 +      context(NULL),
 +      view(NULL),
@@ -53,7 +53,7 @@ Index: web_contents.cc
 @@ -29,7 +31,9 @@
        main_frame_routing_id(MSG_ROUTING_NONE),
        initially_hidden(false),
-       guest_instance_id(0),
+       guest_delegate(NULL),
 -      context(NULL) {}
 +      context(NULL),
 +      view(NULL),
@@ -63,9 +63,9 @@ Index: web_contents.cc
  }
 Index: web_contents.h
 ===================================================================
---- web_contents.h	(revision 275973)
+--- web_contents.h	(revision 280796)
 +++ web_contents.h	(working copy)
-@@ -50,9 +50,11 @@
+@@ -51,9 +51,11 @@
  class RenderFrameHost;
  class RenderProcessHost;
  class RenderViewHost;
@@ -77,7 +77,7 @@ Index: web_contents.h
  struct CustomContextMenuContext;
  struct DropData;
  struct RendererPreferences;
-@@ -120,6 +122,10 @@
+@@ -116,6 +118,10 @@
      // Used to specify the location context which display the new view should
      // belong. This can be NULL if not needed.
      gfx::NativeView context;
@@ -90,7 +90,7 @@ Index: web_contents.h
    // Creates a new WebContents.
 Index: web_contents_delegate.cc
 ===================================================================
---- web_contents_delegate.cc	(revision 275973)
+--- web_contents_delegate.cc	(revision 280796)
 +++ web_contents_delegate.cc	(working copy)
 @@ -136,7 +136,9 @@
      const base::string16& frame_name,
@@ -105,7 +105,7 @@ Index: web_contents_delegate.cc
  
 Index: web_contents_delegate.h
 ===================================================================
---- web_contents_delegate.h	(revision 275973)
+--- web_contents_delegate.h	(revision 280796)
 +++ web_contents_delegate.h	(working copy)
 @@ -36,9 +36,11 @@
  class JavaScriptDialogManager;

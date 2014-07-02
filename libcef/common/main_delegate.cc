@@ -235,9 +235,6 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
         case LOGSEVERITY_ERROR:
           log_severity = switches::kLogSeverity_Error;
           break;
-        case LOGSEVERITY_ERROR_REPORT:
-          log_severity = switches::kLogSeverity_ErrorReport;
-          break;
         case LOGSEVERITY_DISABLE:
           log_severity = switches::kLogSeverity_Disable;
           break;
@@ -328,9 +325,6 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
     } else if (LowerCaseEqualsASCII(log_severity_str,
                                     switches::kLogSeverity_Error)) {
       log_severity = logging::LOG_ERROR;
-    } else if (LowerCaseEqualsASCII(log_severity_str,
-                                    switches::kLogSeverity_ErrorReport)) {
-      log_severity = logging::LOG_ERROR_REPORT;
     } else if (LowerCaseEqualsASCII(log_severity_str,
                                     switches::kLogSeverity_Disable)) {
       log_severity = LOGSEVERITY_DISABLE;

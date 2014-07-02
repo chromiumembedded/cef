@@ -78,7 +78,7 @@ class GeolocationTestHandler : public TestHandler {
       callback->Continue(false);
   }
 
-  virtual void OnRequestGeolocationPermission(
+  virtual bool OnRequestGeolocationPermission(
       CefRefPtr<CefBrowser> browser,
       const CefString& requesting_url,
       int request_id,
@@ -97,6 +97,8 @@ class GeolocationTestHandler : public TestHandler {
           NewCefRunnableMethod(this, &GeolocationTestHandler::ExecuteCallback,
                                callback));
     }
+
+    return true;
   }
 
   virtual void OnCancelGeolocationPermission(

@@ -34,7 +34,7 @@ class CefGeolocationHandlerCToCpp
   virtual ~CefGeolocationHandlerCToCpp() {}
 
   // CefGeolocationHandler methods
-  virtual void OnRequestGeolocationPermission(CefRefPtr<CefBrowser> browser,
+  virtual bool OnRequestGeolocationPermission(CefRefPtr<CefBrowser> browser,
       const CefString& requesting_url, int request_id,
       CefRefPtr<CefGeolocationCallback> callback) OVERRIDE;
   virtual void OnCancelGeolocationPermission(CefRefPtr<CefBrowser> browser,

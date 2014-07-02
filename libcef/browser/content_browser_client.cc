@@ -48,7 +48,6 @@
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
 #include "base/debug/leak_annotations.h"
-#include "base/platform_file.h"
 #include "components/breakpad/app/breakpad_linux.h"
 #include "components/breakpad/browser/crash_handler_host_linux.h"
 #include "content/public/common/content_descriptors.h"
@@ -84,6 +83,7 @@ class CefQuotaCallbackImpl : public CefQuotaCallback {
       const content::QuotaPermissionContext::PermissionCallback& callback)
       : callback_(callback) {
   }
+
   ~CefQuotaCallbackImpl() {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
@@ -142,8 +142,11 @@ class CefQuotaCallbackImpl : public CefQuotaCallback {
 class CefAllowCertificateErrorCallbackImpl
     : public CefAllowCertificateErrorCallback {
  public:
-  explicit CefAllowCertificateErrorCallbackImpl(
-      const base::Callback<void(bool)>& callback) : callback_(callback) {
+  typedef base::Callback<void(bool)>  // NOLINT(readability/function)
+      CallbackType;
+
+  explicit CefAllowCertificateErrorCallbackImpl(const CallbackType& callback)
+      : callback_(callback) {
   }
 
   virtual void Continue(bool allow) OVERRIDE {
@@ -164,11 +167,64 @@ class CefAllowCertificateErrorCallbackImpl
   }
 
  private:
-  base::Callback<void(bool)> callback_;
+  CallbackType callback_;
 
   IMPLEMENT_REFCOUNTING(CefAllowCertificateErrorCallbackImpl);
   DISALLOW_COPY_AND_ASSIGN(CefAllowCertificateErrorCallbackImpl);
 };
+
+class CefGeolocationCallbackImpl : public CefGeolocationCallback {
+ public:
+  typedef base::Callback<void(bool)>  // NOLINT(readability/function)
+      CallbackType;
+
+  explicit CefGeolocationCallbackImpl(const CallbackType& callback)
+      : callback_(callback) {}
+
+  virtual void Continue(bool allow) OVERRIDE {
+    if (CEF_CURRENTLY_ON_UIT()) {
+      if (!callback_.is_null()) {
+        callback_.Run(allow);
+        callback_.Reset();
+      }
+    } else {
+      CEF_POST_TASK(CEF_UIT,
+          base::Bind(&CefGeolocationCallbackImpl::Continue, this, allow));
+    }
+  }
+
+  void Disconnect() {
+    callback_.Reset();
+  }
+
+ private:
+  static void Run(const CallbackType& callback, bool allow) {
+    CEF_REQUIRE_UIT();
+    callback.Run(allow);
+  }
+
+  CallbackType callback_;
+
+  IMPLEMENT_REFCOUNTING(CefGeolocationCallbackImpl);
+  DISALLOW_COPY_AND_ASSIGN(CefGeolocationCallbackImpl);
+};
+
+void CancelGeolocationPermission(base::WeakPtr<CefBrowserHostImpl> browser,
+                                 const GURL& requesting_frame,
+                                 int bridge_id) {
+  if (browser.get()) {
+    CefRefPtr<CefClient> client = browser->GetClient();
+    if (client.get()) {
+      CefRefPtr<CefGeolocationHandler> handler =
+          client->GetGeolocationHandler();
+      if (handler.get()) {
+        handler->OnCancelGeolocationPermission(browser.get(),
+                                               requesting_frame.spec(),
+                                               bridge_id);
+      }
+    }
+  }
+}
 
 class CefQuotaPermissionContext : public content::QuotaPermissionContext {
  public:
@@ -725,6 +781,50 @@ void CefContentBrowserClient::AllowCertificateError(
 
 content::AccessTokenStore* CefContentBrowserClient::CreateAccessTokenStore() {
   return new CefAccessTokenStore;
+}
+
+void CefContentBrowserClient::RequestGeolocationPermission(
+    content::WebContents* web_contents,
+    int bridge_id,
+    const GURL& requesting_frame,
+    bool user_gesture,
+    base::Callback<void(bool)> result_callback,
+    base::Closure* cancel_callback) {
+  CEF_REQUIRE_UIT();
+  bool proceed = false;
+
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserForContents(web_contents);
+  if (browser.get()) {
+    CefRefPtr<CefClient> client = browser->GetClient();
+    if (client.get()) {
+      CefRefPtr<CefGeolocationHandler> handler =
+          client->GetGeolocationHandler();
+      if (handler.get()) {
+        CefRefPtr<CefGeolocationCallbackImpl> callbackImpl(
+            new CefGeolocationCallbackImpl(result_callback));
+
+        // Notify the handler.
+        proceed = handler->OnRequestGeolocationPermission(
+            browser.get(), requesting_frame.spec(), bridge_id,
+            callbackImpl.get());
+        if (proceed) {
+          // The callback reference may outlive the browser so use a WeakPtr.
+          *cancel_callback =
+              base::Bind(CancelGeolocationPermission,
+                         browser->GetWeakPtr(), requesting_frame,
+                         bridge_id);
+        } else {
+          callbackImpl->Disconnect();
+        }
+      }
+    }
+  }
+
+  if (!proceed) {
+    // Disallow geolocation access by default.
+    result_callback.Run(false);
+  }
 }
 
 bool CefContentBrowserClient::CanCreateWindow(

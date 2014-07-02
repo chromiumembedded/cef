@@ -634,6 +634,8 @@ class CefBrowserHostImpl::DevToolsWebContentsObserver :
 };
 
 CefBrowserHostImpl::~CefBrowserHostImpl() {
+  // All weak pointer references should be removed in DestroyBrowser().
+  DCHECK(!weak_ptr_factory_.HasWeakPtrs());
 }
 
 CefRefPtr<CefBrowser> CefBrowserHostImpl::GetBrowser() {
@@ -1391,6 +1393,8 @@ void CefBrowserHostImpl::DestroyBrowser() {
 
   CefContentBrowserClient::Get()->RemoveBrowserInfo(browser_info_);
   browser_info_->set_browser(NULL);
+
+  weak_ptr_factory_.InvalidateWeakPtrs();
 }
 
 gfx::NativeView CefBrowserHostImpl::GetContentView() const {
@@ -2221,6 +2225,11 @@ bool CefBrowserHostImpl::SetPendingPopupInfo(
   return true;
 }
 
+base::WeakPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetWeakPtr() {
+  CEF_REQUIRE_UIT();
+  return weak_ptr_factory_.GetWeakPtr();
+}
+
 void CefBrowserHostImpl::UpdatePreferredSize(content::WebContents* source,
                                              const gfx::Size& pref_size) {
   PlatformSizeTo(pref_size.width(), pref_size.height());
@@ -2348,14 +2357,15 @@ void CefBrowserHostImpl::RenderProcessGone(base::TerminationStatus status) {
 }
 
 void CefBrowserHostImpl::DidCommitProvisionalLoadForFrame(
-    int64 frame_id,
-    const base::string16& frame_unique_name,
+    content::RenderFrameHost* render_frame_host,
     bool is_main_frame,
     const GURL& url,
-    content::PageTransition transition_type,
-    content::RenderViewHost* render_view_host) {
-  CefRefPtr<CefFrame> frame = GetOrCreateFrame(frame_id,
-      CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, base::string16(),
+    content::PageTransition transition_type) {
+  CefRefPtr<CefFrame> frame = GetOrCreateFrame(
+      render_frame_host->GetRoutingID(),
+      CefFrameHostImpl::kUnspecifiedFrameId,
+      is_main_frame,
+      base::string16(),
       url);
   OnLoadStart(frame, url, transition_type);
   if (is_main_frame)
@@ -2363,15 +2373,16 @@ void CefBrowserHostImpl::DidCommitProvisionalLoadForFrame(
 }
 
 void CefBrowserHostImpl::DidFailProvisionalLoad(
-    int64 frame_id,
-    const base::string16& frame_unique_name,
+    content::RenderFrameHost* render_frame_host,
     bool is_main_frame,
     const GURL& validated_url,
     int error_code,
-    const base::string16& error_description,
-    content::RenderViewHost* render_view_host) {
-  CefRefPtr<CefFrame> frame = GetOrCreateFrame(frame_id,
-      CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, base::string16(),
+    const base::string16& error_description) {
+  CefRefPtr<CefFrame> frame = GetOrCreateFrame(
+      render_frame_host->GetRoutingID(),
+      CefFrameHostImpl::kUnspecifiedFrameId,
+      is_main_frame,
+      base::string16(),
       GURL());
   OnLoadError(frame, validated_url, error_code, error_description);
 }
@@ -2585,7 +2596,8 @@ CefBrowserHostImpl::CefBrowserHostImpl(
       focus_on_editable_field_(false),
       mouse_cursor_change_disabled_(false),
       devtools_frontend_(NULL),
-      file_chooser_pending_(false) {
+      file_chooser_pending_(false),
+      weak_ptr_factory_(this) {
 #if defined(USE_AURA)
   window_widget_ = NULL;
 #endif

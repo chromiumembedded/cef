@@ -16,14 +16,14 @@
 #include "url/url_util.h"
 
 CefRenderMessageFilter::CefRenderMessageFilter()
-    : channel_(NULL) {
+    : sender_(NULL) {
 }
 
 CefRenderMessageFilter::~CefRenderMessageFilter() {
 }
 
-void CefRenderMessageFilter::OnFilterAdded(IPC::Channel* channel) {
-  channel_ = channel;
+void CefRenderMessageFilter::OnFilterAdded(IPC::Sender* sender) {
+  sender_ = sender;
 }
 
 void CefRenderMessageFilter::OnFilterRemoved() {
@@ -45,7 +45,8 @@ bool CefRenderMessageFilter::OnMessageReceived(const IPC::Message& message) {
   return handled;
 }
 
-void CefRenderMessageFilter::OnDevToolsAgentAttach() {
+void CefRenderMessageFilter::OnDevToolsAgentAttach(
+    const std::string& host_id) {
   CEF_POST_TASK_RT(
       base::Bind(&CefRenderMessageFilter::OnDevToolsAgentAttach_RT, this));
 }

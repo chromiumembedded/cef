@@ -21,6 +21,7 @@
 #include "libcef/common/response_manager.h"
 
 #include "base/memory/scoped_ptr.h"
+#include "base/memory/weak_ptr.h"
 #include "base/strings/string16.h"
 #include "base/synchronization/lock.h"
 #include "content/public/browser/notification_observer.h"
@@ -325,6 +326,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
   };
   DestructionState destruction_state() const { return destruction_state_; }
 
+  // Used to retrieve a WeakPtr that will be invalidated when the browser is
+  // destroyed. This method can only be called on, and the resulting WeakPtr
+  // can only be dereferenced on, the UI thread.
+  base::WeakPtr<CefBrowserHostImpl> GetWeakPtr();
+
  private:
   class DevToolsWebContentsObserver;
 
@@ -414,20 +420,16 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual void RenderViewReady() OVERRIDE;
   virtual void RenderProcessGone(base::TerminationStatus status) OVERRIDE;
   virtual void DidCommitProvisionalLoadForFrame(
-      int64 frame_id,
-      const base::string16& frame_unique_name,
+      content::RenderFrameHost* render_frame_host,
       bool is_main_frame,
       const GURL& url,
-      content::PageTransition transition_type,
-      content::RenderViewHost* render_view_host) OVERRIDE;
+      content::PageTransition transition_type) OVERRIDE;
   virtual void DidFailProvisionalLoad(
-      int64 frame_id,
-      const base::string16& frame_unique_name,
+      content::RenderFrameHost* render_frame_host,
       bool is_main_frame,
       const GURL& validated_url,
       int error_code,
-      const base::string16& error_description,
-      content::RenderViewHost* render_view_host) OVERRIDE;
+      const base::string16& error_description) OVERRIDE;
   virtual void DocumentAvailableInMainFrame() OVERRIDE;
   virtual void DidFailLoad(int64 frame_id,
                            const GURL& validated_url,
@@ -651,6 +653,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefWindowX11* window_x11_;
   scoped_ptr<ui::XScopedCursor> invisible_cursor_;
 #endif  // defined(USE_X11)
+
+  // Only used on the UI thread. All references will be invalidated when
+  // DestroyBrowser() is called. Must be the last member. 
+  base::WeakPtrFactory<CefBrowserHostImpl> weak_ptr_factory_;
 
   IMPLEMENT_REFCOUNTING(CefBrowserHostImpl);
   DISALLOW_EVIL_CONSTRUCTORS(CefBrowserHostImpl);

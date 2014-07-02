@@ -125,7 +125,7 @@ class ClientHandler : public CefClient,
                            CefDragHandler::DragOperationsMask mask) OVERRIDE;
 
   // CefGeolocationHandler methods
-  virtual void OnRequestGeolocationPermission(
+  virtual bool OnRequestGeolocationPermission(
       CefRefPtr<CefBrowser> browser,
       const CefString& requesting_url,
       int request_id,

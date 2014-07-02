@@ -67,15 +67,18 @@ class CefGeolocationHandler : public virtual CefBase {
   ///
   // Called when a page requests permission to access geolocation information.
   // |requesting_url| is the URL requesting permission and |request_id| is the
-  // unique ID for the permission request. Call CefGeolocationCallback::Continue
-  // to allow or deny the permission request.
+  // unique ID for the permission request. Return true and call
+  // CefGeolocationCallback::Continue() either in this method or at a later
+  // time to continue or cancel the request. Return false to cancel the request
+  // immediately.
   ///
   /*--cef()--*/
-  virtual void OnRequestGeolocationPermission(
+  virtual bool OnRequestGeolocationPermission(
       CefRefPtr<CefBrowser> browser,
       const CefString& requesting_url,
       int request_id,
       CefRefPtr<CefGeolocationCallback> callback) {
+    return false;
   }
 
   ///

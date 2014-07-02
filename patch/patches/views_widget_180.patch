@@ -1,6 +1,6 @@
 Index: desktop_aura/desktop_screen_win.cc
 ===================================================================
---- desktop_aura/desktop_screen_win.cc	(revision 275973)
+--- desktop_aura/desktop_screen_win.cc	(revision 280796)
 +++ desktop_aura/desktop_screen_win.cc	(working copy)
 @@ -54,6 +54,8 @@
  }
@@ -13,7 +13,7 @@ Index: desktop_aura/desktop_screen_win.cc
  }
 Index: desktop_aura/desktop_screen_x11.cc
 ===================================================================
---- desktop_aura/desktop_screen_x11.cc	(revision 275973)
+--- desktop_aura/desktop_screen_x11.cc	(revision 280796)
 +++ desktop_aura/desktop_screen_x11.cc	(working copy)
 @@ -220,6 +220,9 @@
  
@@ -27,7 +27,7 @@ Index: desktop_aura/desktop_screen_x11.cc
    // You'd think we'd be able to just call window->GetBoundsInScreen(), but we
 Index: desktop_aura/desktop_window_tree_host_win.cc
 ===================================================================
---- desktop_aura/desktop_window_tree_host_win.cc	(revision 275973)
+--- desktop_aura/desktop_window_tree_host_win.cc	(revision 280796)
 +++ desktop_aura/desktop_window_tree_host_win.cc	(working copy)
 @@ -129,7 +129,9 @@
                          native_widget_delegate_);
@@ -58,7 +58,7 @@ Index: desktop_aura/desktop_window_tree_host_win.cc
      input_method->OnBlur();
 Index: desktop_aura/desktop_window_tree_host_x11.cc
 ===================================================================
---- desktop_aura/desktop_window_tree_host_x11.cc	(revision 275973)
+--- desktop_aura/desktop_window_tree_host_x11.cc	(revision 280796)
 +++ desktop_aura/desktop_window_tree_host_x11.cc	(working copy)
 @@ -148,7 +148,8 @@
        window_parent_(NULL),
@@ -70,7 +70,7 @@ Index: desktop_aura/desktop_window_tree_host_x11.cc
  }
  
  DesktopWindowTreeHostX11::~DesktopWindowTreeHostX11() {
-@@ -337,7 +338,8 @@
+@@ -347,7 +348,8 @@
    // Actually free our native resources.
    if (ui::PlatformEventSource::GetInstance())
      ui::PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
@@ -80,7 +80,7 @@ Index: desktop_aura/desktop_window_tree_host_x11.cc
    xwindow_ = None;
  
    desktop_native_widget_aura_->OnHostClosed();
-@@ -1027,9 +1029,13 @@
+@@ -1042,9 +1044,13 @@
      }
    }
  
@@ -95,7 +95,7 @@ Index: desktop_aura/desktop_window_tree_host_x11.cc
        bounds_.x(), bounds_.y(),
        bounds_.width(), bounds_.height(),
        0,               // border width
-@@ -1554,6 +1560,10 @@
+@@ -1600,6 +1606,10 @@
        }
        break;
      }
@@ -108,9 +108,9 @@ Index: desktop_aura/desktop_window_tree_host_x11.cc
          ReleaseCapture();
 Index: desktop_aura/desktop_window_tree_host_x11.h
 ===================================================================
---- desktop_aura/desktop_window_tree_host_x11.h	(revision 275973)
+--- desktop_aura/desktop_window_tree_host_x11.h	(revision 280796)
 +++ desktop_aura/desktop_window_tree_host_x11.h	(working copy)
-@@ -322,6 +322,9 @@
+@@ -331,6 +331,9 @@
    // the frame when |xwindow_| gains focus or handles a mouse button event.
    bool urgency_hint_set_;
  
@@ -122,7 +122,7 @@ Index: desktop_aura/desktop_window_tree_host_x11.h
  
 Index: widget.cc
 ===================================================================
---- widget.cc	(revision 275973)
+--- widget.cc	(revision 280796)
 +++ widget.cc	(working copy)
 @@ -116,6 +116,7 @@
        show_state(ui::SHOW_STATE_DEFAULT),
@@ -149,7 +149,7 @@ Index: widget.cc
  
    if (params.opacity == views::Widget::InitParams::INFER_OPACITY &&
        params.type != views::Widget::InitParams::TYPE_WINDOW &&
-@@ -376,7 +378,12 @@
+@@ -375,7 +377,12 @@
        Minimize();
    } else if (params.delegate) {
      SetContentsView(params.delegate->GetContentsView());
@@ -161,11 +161,11 @@ Index: widget.cc
 +      SetInitialBoundsForFramelessWindow(params.bounds);
 +    }
    }
-   native_widget_initialized_ = true;
- }
+   // This must come after SetContentsView() or it might not be able to find
+   // the correct NativeTheme (on Linux). See http://crbug.com/384492
 Index: widget.h
 ===================================================================
---- widget.h	(revision 275973)
+--- widget.h	(revision 280796)
 +++ widget.h	(working copy)
 @@ -222,6 +222,7 @@
      // Should the widget be double buffered? Default is false.
