@@ -30,8 +30,10 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
     "UTF8_STRING"
   };
   Atom atoms[2];
-  int result = XInternAtoms(display, const_cast<char**>(kAtoms), 2, false, atoms);
-  ASSERT(result);
+  int result = XInternAtoms(display, const_cast<char**>(kAtoms), 2, false,
+                            atoms);
+  if (!result)
+    ASSERT(false);
 
   // Set the window title.
   XChangeProperty(display,

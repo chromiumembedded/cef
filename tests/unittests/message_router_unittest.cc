@@ -1168,7 +1168,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
     EXPECT_TRUE(frame.get());
 
     std::string value;
-    int index;
+    int index = 0;
     EXPECT_TRUE(SplitIDString(message, &value, &index));
 
     TestQuery& query = test_query_vector_[index];
@@ -1231,7 +1231,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
     EXPECT_NE(0, query_id);
 
     std::string value;
-    int index;
+    int index = 0;
     EXPECT_TRUE(SplitIDString(request, &value, &index));
 
     TestQuery& query = test_query_vector_[index];
