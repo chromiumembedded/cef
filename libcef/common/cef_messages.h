@@ -223,3 +223,7 @@ struct ParamTraits<scoped_refptr<net::UploadData> > {
 
 #include "chrome/common/prerender_messages.h"
 #include "chrome/common/print_messages.h"
+
+#if defined(WIN_PDF_METAFILE_FOR_PRINTING)
+#include "chrome/common/chrome_utility_printing_messages.h"
+#endif

@@ -9,6 +9,7 @@
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
 #include "libcef/renderer/content_renderer_client.h"
+#include "libcef/utility/content_utility_client.h"
 
 #include "base/base_switches.h"
 #include "base/command_line.h"
@@ -46,6 +47,10 @@
 #include "components/breakpad/app/breakpad_linux.h"
 #endif
 
+#if defined(WIN_PDF_METAFILE_FOR_PRINTING)
+#include "chrome/common/chrome_paths.h"
+#endif
+
 namespace {
 
 base::LazyInstance<CefBreakpadClient>::Leaky g_shell_breakpad_client =
@@ -76,6 +81,10 @@ base::FilePath GetResourcesFilePath() {
   return GetFrameworkBundlePath().Append(FILE_PATH_LITERAL("Resources"));
 }
 
+base::FilePath GetLibrariesFilePath() {
+  return GetFrameworkBundlePath().Append(FILE_PATH_LITERAL("Libraries"));
+}
+
 void OverrideFrameworkBundlePath() {
   base::mac::SetOverrideFrameworkBundlePath(GetFrameworkBundlePath());
 }
@@ -104,7 +113,31 @@ base::FilePath GetResourcesFilePath() {
   return pak_dir;
 }
 
+base::FilePath GetLibrariesFilePath() {
+  return GetResourcesFilePath();
+}
+
 #endif  // !defined(OS_MACOSX)
+
+#if defined(WIN_PDF_METAFILE_FOR_PRINTING)
+
+// File name of the internal PDF plugin on different platforms.
+const base::FilePath::CharType kInternalPDFPluginFileName[] =
+#if defined(OS_WIN)
+    FILE_PATH_LITERAL("pdf.dll");
+#elif defined(OS_MACOSX)
+    FILE_PATH_LITERAL("PDF.plugin");
+#else  // Linux and Chrome OS
+    FILE_PATH_LITERAL("libpdf.so");
+#endif
+
+void OverridePdfPluginPath() {
+  base::FilePath plugin_path = GetLibrariesFilePath();
+  plugin_path = plugin_path.Append(kInternalPDFPluginFileName);
+  PathService::Override(chrome::FILE_PDF_PLUGIN, plugin_path);
+}
+
+#endif  // defined(WIN_PDF_METAFILE_FOR_PRINTING)
 
 // Used to run the UI on a separate thread.
 class CefUIThread : public base::Thread {
@@ -347,10 +380,10 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 
 void CefMainDelegate::PreSandboxStartup() {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  const std::string& process_type =
+      command_line.GetSwitchValueASCII(switches::kProcessType);
 
   if (command_line.HasSwitch(switches::kEnableCrashReporter)) {
-    const std::string& process_type = command_line.GetSwitchValueASCII(
-        switches::kProcessType);
     breakpad::SetBreakpadClient(g_shell_breakpad_client.Pointer());
 #if defined(OS_MACOSX)
     base::mac::DisableOSCrashDumps();
@@ -375,10 +408,19 @@ void CefMainDelegate::PreSandboxStartup() {
   }
 #endif
 
+#if defined(WIN_PDF_METAFILE_FOR_PRINTING)
+  OverridePdfPluginPath();
+#endif
+
   if (command_line.HasSwitch(switches::kDisablePackLoading))
     content_client_.set_pack_loading_disabled(true);
 
   InitializeResourceBundle();
+
+  if (process_type == switches::kUtilityProcess ||
+      process_type == switches::kZygoteProcess) {
+    CefContentUtilityClient::PreSandboxStartup();
+  }
 }
 
 int CefMainDelegate::RunProcess(
@@ -439,6 +481,11 @@ content::ContentRendererClient*
     CefMainDelegate::CreateContentRendererClient() {
   renderer_client_.reset(new CefContentRendererClient);
   return renderer_client_.get();
+}
+
+content::ContentUtilityClient* CefMainDelegate::CreateContentUtilityClient() {
+  utility_client_.reset(new CefContentUtilityClient);
+  return utility_client_.get();
 }
 
 void CefMainDelegate::ShutdownBrowser() {

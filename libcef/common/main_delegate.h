@@ -25,7 +25,6 @@ class BrowserMainRunner;
 
 class CefContentBrowserClient;
 class CefContentRendererClient;
-class CefContentPluginClient;
 class CefContentUtilityClient;
 
 class CefMainDelegate : public content::ContentMainDelegate {
@@ -45,6 +44,7 @@ class CefMainDelegate : public content::ContentMainDelegate {
   virtual content::ContentBrowserClient* CreateContentBrowserClient() OVERRIDE;
   virtual content::ContentRendererClient*
       CreateContentRendererClient() OVERRIDE;
+  virtual content::ContentUtilityClient* CreateContentUtilityClient() OVERRIDE;
 
   // Shut down the browser runner.
   void ShutdownBrowser();
@@ -60,6 +60,7 @@ class CefMainDelegate : public content::ContentMainDelegate {
 
   scoped_ptr<CefContentBrowserClient> browser_client_;
   scoped_ptr<CefContentRendererClient> renderer_client_;
+  scoped_ptr<CefContentUtilityClient> utility_client_;
   CefContentClient content_client_;
 
   DISALLOW_COPY_AND_ASSIGN(CefMainDelegate);

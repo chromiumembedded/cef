@@ -518,6 +518,7 @@ if platform == 'windows':
     'libcef.dll',
     'libEGL.dll',
     'libGLESv2.dll',
+    'pdf.dll',
   ]
 
   if options.ninjabuild:

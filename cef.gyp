@@ -1038,6 +1038,8 @@
         'libcef/renderer/v8_impl.h',
         'libcef/renderer/webkit_glue.cc',
         'libcef/renderer/webkit_glue.h',
+        'libcef/utility/content_utility_client.cc',
+        'libcef/utility/content_utility_client.h',
         '<(DEPTH)/chrome/common/chrome_switches.cc',
         '<(DEPTH)/chrome/common/chrome_switches.h',
         # Include sources for proxy support.
@@ -1099,7 +1101,25 @@
             'libcef/browser/menu_creator_runner_win.cc',
             'libcef/browser/menu_creator_runner_win.h',
             'libcef/browser/render_widget_host_view_osr_win.cc',
-            # Include sources for printing.
+          ],
+        }],
+        ['OS=="win" and win_pdf_metafile_for_printing==1', {
+          'dependencies': [
+            '<(DEPTH)/pdf/pdf.gyp:pdf',
+          ],
+          'sources': [
+            # Include sources for printing using PDF.
+            'libcef/utility/printing_handler.cc',
+            'libcef/utility/printing_handler.h',
+            '<(DEPTH)/chrome/browser/printing/pdf_to_emf_converter.cc',
+            '<(DEPTH)/chrome/browser/printing/pdf_to_emf_converter.h',
+            '<(DEPTH)/chrome/common/chrome_utility_printing_messages.h',
+            '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_pdf_win.cc',
+          ],
+        }],
+        ['OS=="win" and win_pdf_metafile_for_printing!=1', {
+          'sources': [
+            # Include sources for printing using EMF.
             '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_win.cc',
           ],
         }],
