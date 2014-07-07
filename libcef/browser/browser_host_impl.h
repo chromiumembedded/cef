@@ -331,18 +331,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // can only be dereferenced on, the UI thread.
   base::WeakPtr<CefBrowserHostImpl> GetWeakPtr();
 
- private:
-  class DevToolsWebContentsObserver;
-
-  static CefRefPtr<CefBrowserHostImpl> CreateInternal(
-      const CefWindowInfo& window_info,
-      const CefBrowserSettings& settings,
-      CefRefPtr<CefClient> client,
-      content::WebContents* web_contents,
-      scoped_refptr<CefBrowserInfo> browser_info,
-      CefWindowHandle opener,
-      CefRefPtr<CefRequestContext> request_context);
-
   // content::WebContentsDelegate methods.
   virtual content::WebContents* OpenURLFromTab(
       content::WebContents* source,
@@ -443,6 +431,18 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Override to provide a thread safe implementation.
   virtual bool Send(IPC::Message* message) OVERRIDE;
 
+ private:
+  class DevToolsWebContentsObserver;
+
+  static CefRefPtr<CefBrowserHostImpl> CreateInternal(
+      const CefWindowInfo& window_info,
+      const CefBrowserSettings& settings,
+      CefRefPtr<CefClient> client,
+      content::WebContents* web_contents,
+      scoped_refptr<CefBrowserInfo> browser_info,
+      CefWindowHandle opener,
+      CefRefPtr<CefRequestContext> request_context);
+
   // content::WebContentsObserver::OnMessageReceived() message handlers.
   void OnFrameIdentified(int64 frame_id,
                          int64 parent_frame_id,
@@ -456,6 +456,16 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void OnRequest(const Cef_Request_Params& params);
   void OnResponse(const Cef_Response_Params& params);
   void OnResponseAck(int request_id);
+  void OnPDFHasUnsupportedFeature();
+  void OnPDFSaveURLAs(const GURL& url,
+                      const content::Referrer& referrer);
+  void OnPDFUpdateContentRestrictions(int content_restrictions);
+  void OnPDFModalPromptForPassword(const std::string& prompt,
+                                   IPC::Message* reply_message);
+
+  void OnPDFModalPromptForPasswordClosed(IPC::Message* reply_message,
+                                         bool success,
+                                         const base::string16& actual_value);
 
   // content::NotificationObserver methods.
   virtual void Observe(int type,

@@ -21,11 +21,13 @@
 #include "base/strings/string_util.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
+#include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
+#include "ui/base/layout.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
 #include "ui/base/ui_base_switches.h"
@@ -45,10 +47,6 @@
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
 #include "components/breakpad/app/breakpad_linux.h"
-#endif
-
-#if defined(WIN_PDF_METAFILE_FOR_PRINTING)
-#include "chrome/common/chrome_paths.h"
 #endif
 
 namespace {
@@ -119,8 +117,6 @@ base::FilePath GetLibrariesFilePath() {
 
 #endif  // !defined(OS_MACOSX)
 
-#if defined(WIN_PDF_METAFILE_FOR_PRINTING)
-
 // File name of the internal PDF plugin on different platforms.
 const base::FilePath::CharType kInternalPDFPluginFileName[] =
 #if defined(OS_WIN)
@@ -137,7 +133,15 @@ void OverridePdfPluginPath() {
   PathService::Override(chrome::FILE_PDF_PLUGIN, plugin_path);
 }
 
-#endif  // defined(WIN_PDF_METAFILE_FOR_PRINTING)
+// Returns true if |scale_factor| is supported by this platform.
+// Same as ResourceBundle::IsScaleFactorSupported.
+bool IsScaleFactorSupported(ui::ScaleFactor scale_factor) {
+  const std::vector<ui::ScaleFactor>& supported_scale_factors =
+      ui::GetSupportedScaleFactors();
+  return std::find(supported_scale_factors.begin(),
+                   supported_scale_factors.end(),
+                   scale_factor) != supported_scale_factors.end();
+}
 
 // Used to run the UI on a separate thread.
 class CefUIThread : public base::Thread {
@@ -408,9 +412,7 @@ void CefMainDelegate::PreSandboxStartup() {
   }
 #endif
 
-#if defined(WIN_PDF_METAFILE_FOR_PRINTING)
   OverridePdfPluginPath();
-#endif
 
   if (command_line.HasSwitch(switches::kDisablePackLoading))
     content_client_.set_pack_loading_disabled(true);
@@ -502,7 +504,8 @@ void CefMainDelegate::ShutdownBrowser() {
 
 void CefMainDelegate::InitializeResourceBundle() {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  base::FilePath cef_pak_file, devtools_pak_file, locales_dir;
+  base::FilePath cef_pak_file, cef_100_percent_pak_file,
+                 cef_200_percent_pak_file, devtools_pak_file, locales_dir;
 
   if (!content_client_.pack_loading_disabled()) {
     base::FilePath resources_dir;
@@ -515,6 +518,10 @@ void CefMainDelegate::InitializeResourceBundle() {
 
     if (!resources_dir.empty()) {
       cef_pak_file = resources_dir.Append(FILE_PATH_LITERAL("cef.pak"));
+      cef_100_percent_pak_file =
+          resources_dir.Append(FILE_PATH_LITERAL("cef_100_percent.pak"));
+      cef_200_percent_pak_file =
+          resources_dir.Append(FILE_PATH_LITERAL("cef_200_percent.pak"));
       devtools_pak_file =
           resources_dir.Append(FILE_PATH_LITERAL("devtools_resources.pak"));
     }
@@ -532,20 +539,49 @@ void CefMainDelegate::InitializeResourceBundle() {
   const std::string loaded_locale =
       ui::ResourceBundle::InitSharedInstanceWithLocale(locale,
                                                        &content_client_);
+  ResourceBundle& resource_bundle = ResourceBundle::GetSharedInstance();
+
   if (!content_client_.pack_loading_disabled()) {
-    CHECK(!loaded_locale.empty()) << "Locale could not be found for " << locale;
+    if (loaded_locale.empty())
+      LOG(ERROR) << "Could not load locale pak for " << locale;
 
     content_client_.set_allow_pack_file_load(true);
 
     if (base::PathExists(cef_pak_file)) {
-      ResourceBundle::GetSharedInstance().AddDataPackFromPath(
-          cef_pak_file, ui::SCALE_FACTOR_NONE);
+      resource_bundle.AddDataPackFromPath(cef_pak_file, ui::SCALE_FACTOR_NONE);
     } else {
-      NOTREACHED() << "Could not load cef.pak";
+      LOG(ERROR) << "Could not load cef.pak";
+    }
+
+    // On OS X and Linux/Aura always load the 1x data pack first as the 2x data
+    // pack contains both 1x and 2x images.
+    const bool load_100_percent =
+#if defined(OS_WIN)
+        IsScaleFactorSupported(ui::SCALE_FACTOR_100P);
+#else
+        true;
+#endif
+
+    if (load_100_percent) {
+      if (base::PathExists(cef_100_percent_pak_file)) {
+        resource_bundle.AddDataPackFromPath(
+            cef_100_percent_pak_file, ui::SCALE_FACTOR_100P);
+      } else {
+        LOG(ERROR) << "Could not load cef_100_percent.pak";
+      }
+    }
+
+    if (IsScaleFactorSupported(ui::SCALE_FACTOR_200P)) {
+      if (base::PathExists(cef_200_percent_pak_file)) {
+        resource_bundle.AddDataPackFromPath(
+            cef_200_percent_pak_file, ui::SCALE_FACTOR_200P);
+      } else {
+        LOG(ERROR) << "Could not load cef_200_percent.pak";
+      }
     }
 
     if (base::PathExists(devtools_pak_file)) {
-      ResourceBundle::GetSharedInstance().AddDataPackFromPath(
+      resource_bundle.AddDataPackFromPath(
           devtools_pak_file, ui::SCALE_FACTOR_NONE);
     }
 

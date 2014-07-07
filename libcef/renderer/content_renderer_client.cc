@@ -31,10 +31,13 @@ MSVC_POP_WARNING();
 #include "libcef/renderer/webkit_glue.h"
 
 #include "base/command_line.h"
+#include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/utf_string_conversions.h"
+#include "chrome/common/chrome_paths.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
+#include "chrome/renderer/pepper/ppb_pdf_impl.h"
 #include "chrome/renderer/printing/print_web_view_helper.h"
 #include "content/child/child_thread.h"
 #include "content/child/worker_task_runner.h"
@@ -48,6 +51,7 @@ MSVC_POP_WARNING();
 #include "content/renderer/render_frame_impl.h"
 #include "ipc/ipc_sync_channel.h"
 #include "media/base/media.h"
+#include "ppapi/c/private/ppb_pdf.h"
 #include "third_party/WebKit/public/platform/WebPrerenderingSupport.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
@@ -63,6 +67,10 @@ MSVC_POP_WARNING();
 #include "third_party/WebKit/public/web/WebView.h"
 #include "third_party/WebKit/public/web/WebWorkerInfo.h"
 #include "v8/include/v8.h"
+
+#if defined(OS_WIN)
+#include "base/win/iat_patch_function.h"
+#endif
 
 namespace {
 
@@ -141,6 +149,43 @@ class CefWebWorkerTaskRunner : public base::SequencedTaskRunner,
   int worker_id_;
 };
 
+#if defined(OS_WIN)
+static base::win::IATPatchFunction g_iat_patch_createdca;
+HDC WINAPI CreateDCAPatch(LPCSTR driver_name,
+                          LPCSTR device_name,
+                          LPCSTR output,
+                          const void* init_data) {
+  DCHECK(std::string("DISPLAY") == std::string(driver_name));
+  DCHECK(!device_name);
+  DCHECK(!output);
+  DCHECK(!init_data);
+
+  // CreateDC fails behind the sandbox, but not CreateCompatibleDC.
+  return CreateCompatibleDC(NULL);
+}
+
+static base::win::IATPatchFunction g_iat_patch_get_font_data;
+DWORD WINAPI GetFontDataPatch(HDC hdc,
+                              DWORD table,
+                              DWORD offset,
+                              LPVOID buffer,
+                              DWORD length) {
+  int rv = GetFontData(hdc, table, offset, buffer, length);
+  if (rv == GDI_ERROR && hdc) {
+    HFONT font = static_cast<HFONT>(GetCurrentObject(hdc, OBJ_FONT));
+
+    LOGFONT logfont;
+    if (GetObject(font, sizeof(LOGFONT), &logfont)) {
+      std::vector<char> font_data;
+      content::RenderThread::Get()->PreCacheFont(logfont);
+      rv = GetFontData(hdc, table, offset, buffer, length);
+      content::RenderThread::Get()->ReleaseCachedFonts();
+    }
+  }
+  return rv;
+}
+#endif  // OS_WIN
+
 }  // namespace
 
 CefContentRendererClient::CefContentRendererClient()
@@ -211,6 +256,19 @@ void CefContentRendererClient::WebKitInitialized() {
 
   blink::WebRuntimeFeatures::enableMediaStream(
       command_line.HasSwitch(switches::kEnableMediaStream));
+
+#if defined(OS_WIN)
+  // Need to patch a few functions for font loading to work correctly.
+  // From chrome/renderer/chrome_render_process_observer.cc.
+  base::FilePath pdf;
+  if (PathService::Get(chrome::FILE_PDF_PLUGIN, &pdf) &&
+      base::PathExists(pdf)) {
+    g_iat_patch_createdca.Patch(
+        pdf.value().c_str(), "gdi32.dll", "CreateDCA", CreateDCAPatch);
+    g_iat_patch_get_font_data.Patch(
+        pdf.value().c_str(), "gdi32.dll", "GetFontData", GetFontDataPatch);
+  }
+#endif  // defined(OS_WIN)
 
   const CefContentClient::SchemeInfoList* schemes =
       CefContentClient::Get()->GetCustomSchemes();
@@ -606,6 +664,16 @@ void CefContentRendererClient::DidCreateScriptContext(
     if (handler.get())
       handler->OnContextCreated(browserPtr.get(), framePtr.get(), contextPtr);
   }
+}
+
+const void* CefContentRendererClient::CreatePPAPIInterface(
+    const std::string& interface_name) {
+#if defined(ENABLE_PLUGINS)
+  // Used for in-process PDF plugin.
+  if (interface_name == PPB_PDF_INTERFACE)
+    return PPB_PDF_Impl::GetInterface();
+#endif
+  return NULL;
 }
 
 void CefContentRendererClient::WillReleaseScriptContext(

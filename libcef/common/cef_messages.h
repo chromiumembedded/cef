@@ -202,6 +202,28 @@ IPC_MESSAGE_ROUTED1(CefHostMsg_ResponseAck,
                     int /* request_id */)
 
 
+// Pepper PDF plugin messages excerpted from chrome/common/render_messages.h.
+// Including all of render_messages.h would bring in a number of chrome
+// dependencies that are better off avoided.
+
+// The currently displayed PDF has an unsupported feature.
+IPC_MESSAGE_ROUTED0(ChromeViewHostMsg_PDFHasUnsupportedFeature)
+
+// Brings up SaveAs... dialog to save specified URL.
+IPC_MESSAGE_ROUTED2(ChromeViewHostMsg_PDFSaveURLAs,
+                    GURL /* url */,
+                    content::Referrer /* referrer */)
+
+// Updates the content restrictions, i.e. to disable print/copy.
+IPC_MESSAGE_ROUTED1(ChromeViewHostMsg_PDFUpdateContentRestrictions,
+                    int /* restrictions */)
+
+// Brings up a Password... dialog for protected documents.
+IPC_SYNC_MESSAGE_ROUTED1_1(ChromeViewHostMsg_PDFModalPromptForPassword,
+                           std::string /* prompt */,
+                           std::string /* actual_value */)
+
+
 // Singly-included section for struct and custom IPC traits.
 #ifndef CEF_LIBCEF_COMMON_CEF_MESSAGES_H_
 #define CEF_LIBCEF_COMMON_CEF_MESSAGES_H_

@@ -16,8 +16,12 @@ cefclient.app/
         Chromium Embedded Framework <= main application library
         Libraries/
           ffmpegsumo.so <= HTML5 audio/video support library
+          PDF.plugin <= Pepper plugin for PDF support
         Resources/
-          cef.pak, devtools_resources.pak <= non-localized resources and strings
+          cef.pak <= non-localized resources and strings
+          cef_100_percent.pak <====^
+          cef_200_percent.pak <====^
+          devtools_resources.pak <=^
           crash_inspector, crash_report_sender <= breakpad support
           icudtl.dat <= unicode support
           en.lproj/, ... <= locale-specific resources and strings
@@ -83,6 +87,8 @@ Optional components:
 
 * Other resources
     Chromium Embedded Framework.framework/Resources/cef.pak
+    Chromium Embedded Framework.framework/Resources/cef_100_percent.pak
+    Chromium Embedded Framework.framework/Resources/cef_200_percent.pak
     Chromium Embedded Framework.framework/Resources/devtools_resources.pak
   Note: Contains WebKit image and inspector resources. Pack file loading can be
   disabled completely using CefSettings.pack_loading_disabled. The resources
@@ -91,6 +97,9 @@ Optional components:
 * FFmpeg audio and video support
     Chromium Embedded Framework.framework/Libraries/ffmpegsumo.so
   Note: Without this component HTML5 audio and video will not function.
+
+* PDF support
+    Chromium Embedded Framework.framework/Libraries/PDF.plugin
 
 * Breakpad support
     Chromium Embedded Framework.framework/Resources/crash_inspector

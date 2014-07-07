@@ -27,6 +27,8 @@ Optional components:
 
 * Other resources
     cef.pak
+    cef_100_percent.pak
+    cef_200_percent.pak
     devtools_resources.pak
   Note: Contains WebKit image and inspector resources. Pack file loading can be
   disabled completely using CefSettings.pack_loading_disabled. The resources

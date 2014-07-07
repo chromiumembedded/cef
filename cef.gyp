@@ -734,12 +734,32 @@
             'pak_inputs': [
               '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/blink_resources.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources_100_percent.pak',
               '<(grit_out_dir)/cef_resources.pak',
             ],
             'pak_output': '<(PRODUCT_DIR)/cef.pak',
+          },
+          'includes': [ '../build/repack_action.gypi' ],
+        },
+        {
+          'action_name': 'repack_cef_100_percent_pack',
+          'variables': {
+            'pak_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_resources_100_percent.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources_100_percent.pak',
+            ],
+            'pak_output': '<(PRODUCT_DIR)/cef_100_percent.pak',
+          },
+          'includes': [ '../build/repack_action.gypi' ],
+        },
+        {
+          'action_name': 'repack_cef_200_percent_pack',
+          'variables': {
+            'pak_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_resources_200_percent.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources_200_percent.pak',
+            ],
+            'pak_output': '<(PRODUCT_DIR)/cef_200_percent.pak',
           },
           'includes': [ '../build/repack_action.gypi' ],
         },
@@ -837,8 +857,10 @@
         '<(DEPTH)/media/media.gyp:media',
         '<(DEPTH)/net/net.gyp:net',
         '<(DEPTH)/net/net.gyp:net_with_v8',
+        '<(DEPTH)/pdf/pdf.gyp:pdf',
         '<(DEPTH)/skia/skia.gyp:skia',
         '<(DEPTH)/third_party/libxml/libxml.gyp:libxml',
+        '<(DEPTH)/third_party/re2/re2.gyp:re2',
         '<(DEPTH)/third_party/WebKit/public/blink.gyp:blink',
         '<(DEPTH)/third_party/WebKit/Source/core/core.gyp:webcore',
         '<(DEPTH)/third_party/zlib/zlib.gyp:minizip',
@@ -1090,6 +1112,9 @@
         # determine the current locale.
         '<(DEPTH)/chrome/browser/browser_process.cc',
         '<(DEPTH)/chrome/browser/browser_process.h',
+        # Include sources for pepper PDF plugin support.
+        '<(DEPTH)/chrome/renderer/pepper/ppb_pdf_impl.cc',
+        '<(DEPTH)/chrome/renderer/pepper/ppb_pdf_impl.h',
       ],
       'conditions': [
         ['OS=="win"', {
@@ -1104,9 +1129,6 @@
           ],
         }],
         ['OS=="win" and win_pdf_metafile_for_printing==1', {
-          'dependencies': [
-            '<(DEPTH)/pdf/pdf.gyp:pdf',
-          ],
           'sources': [
             # Include sources for printing using PDF.
             'libcef/utility/printing_handler.cc',
@@ -1195,6 +1217,8 @@
           'mac_bundle': 1,
           'mac_bundle_resources': [
             '<(PRODUCT_DIR)/cef.pak',
+            '<(PRODUCT_DIR)/cef_100_percent.pak',
+            '<(PRODUCT_DIR)/cef_200_percent.pak',
             '<(PRODUCT_DIR)/devtools_resources.pak',
             '<(PRODUCT_DIR)/icudtl.dat',
             'libcef/resources/framework-Info.plist',
@@ -1253,10 +1277,11 @@
           ],
           'copies': [
             {
-              # Copy FFmpeg binaries for audio/video support.
+              # Copy binaries for HTML5 audio/video and PDF support.
               'destination': '<(PRODUCT_DIR)/$(CONTENTS_FOLDER_PATH)/Libraries',
               'files': [
                 '<(PRODUCT_DIR)/ffmpegsumo.so',
+                '<(PRODUCT_DIR)/PDF.plugin',
               ],
             },
             {

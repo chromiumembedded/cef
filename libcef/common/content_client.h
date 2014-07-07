@@ -26,6 +26,8 @@ class CefContentClient : public content::ContentClient,
   static CefContentClient* Get();
 
   // content::ContentClient methods.
+  virtual void AddPepperPlugins(
+      std::vector<content::PepperPluginInfo>* plugins) OVERRIDE;
   virtual void AddAdditionalSchemes(
       std::vector<std::string>* standard_schemes,
       std::vector<std::string>* savable_schemes) OVERRIDE;

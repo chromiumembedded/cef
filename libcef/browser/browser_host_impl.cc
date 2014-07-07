@@ -35,6 +35,7 @@
 #include "base/bind.h"
 #include "base/bind_helpers.h"
 #include "base/command_line.h"
+#include "base/strings/utf_string_conversions.h"
 #include "content/browser/gpu/compositor_util.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/common/view_messages.h"
@@ -2431,6 +2432,14 @@ bool CefBrowserHostImpl::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(CefHostMsg_Request, OnRequest)
     IPC_MESSAGE_HANDLER(CefHostMsg_Response, OnResponse)
     IPC_MESSAGE_HANDLER(CefHostMsg_ResponseAck, OnResponseAck)
+    IPC_MESSAGE_HANDLER(ChromeViewHostMsg_PDFHasUnsupportedFeature,
+                        OnPDFHasUnsupportedFeature)
+    IPC_MESSAGE_HANDLER(ChromeViewHostMsg_PDFSaveURLAs, OnPDFSaveURLAs)
+    IPC_MESSAGE_HANDLER(ChromeViewHostMsg_PDFUpdateContentRestrictions,
+                        OnPDFUpdateContentRestrictions)
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(
+        ChromeViewHostMsg_PDFModalPromptForPassword,
+        OnPDFModalPromptForPassword)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -2523,6 +2532,38 @@ void CefBrowserHostImpl::OnResponse(const Cef_Response_Params& params) {
 
 void CefBrowserHostImpl::OnResponseAck(int request_id) {
   response_manager_->RunAckHandler(request_id);
+}
+
+void CefBrowserHostImpl::OnPDFHasUnsupportedFeature() {
+  // TODO(cef): Use Adobe PDF plugin instead. See PDFHasUnsupportedFeature in
+  //            chrome/browser/ui/pdf/pdf_unsupported_feature.cc.
+}
+
+void CefBrowserHostImpl::OnPDFSaveURLAs(
+    const GURL& url,
+    const content::Referrer& referrer) {
+  web_contents()->SaveFrame(url, referrer);
+}
+
+void CefBrowserHostImpl::OnPDFUpdateContentRestrictions(
+    int content_restrictions) {
+  // TODO(cef): Add support for communicating PDF content restrictions.
+}
+
+void CefBrowserHostImpl::OnPDFModalPromptForPassword(
+    const std::string& prompt,
+    IPC::Message* reply_message) {
+  // TODO(cef): Add support for PDF password prompt.
+  OnPDFModalPromptForPasswordClosed(reply_message, false, base::string16());
+}
+
+void CefBrowserHostImpl::OnPDFModalPromptForPasswordClosed(
+    IPC::Message* reply_message,
+    bool success,
+    const base::string16& actual_value) {
+  ChromeViewHostMsg_PDFModalPromptForPassword::WriteReplyParams(
+      reply_message, base::UTF16ToUTF8(actual_value));
+  Send(reply_message);
 }
 
 

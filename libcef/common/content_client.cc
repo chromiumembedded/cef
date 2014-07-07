@@ -10,17 +10,59 @@
 #include "libcef/common/scheme_registration.h"
 
 #include "base/command_line.h"
+#include "base/file_util.h"
 #include "base/logging.h"
+#include "base/path_service.h"
 #include "base/strings/string_piece.h"
 #include "base/strings/stringprintf.h"
+#include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "content/public/common/content_switches.h"
+#include "content/public/common/pepper_plugin_info.h"
 #include "content/public/common/user_agent.h"
+#include "ppapi/shared_impl/ppapi_permissions.h"
 #include "ui/base/resource/resource_bundle.h"
 
 namespace {
 
 CefContentClient* g_content_client = NULL;
+
+const char kPDFPluginName[] = "Chrome PDF Viewer";
+const char kPDFPluginMimeType[] = "application/pdf";
+const char kPDFPluginExtension[] = "pdf";
+const char kPDFPluginDescription[] = "Portable Document Format";
+const uint32 kPDFPluginPermissions = ppapi::PERMISSION_PRIVATE |
+                                     ppapi::PERMISSION_DEV;
+
+// Appends the known built-in plugins to the given vector.
+// Based on chrome/common/chrome_content_client.cc.
+void ComputeBuiltInPlugins(std::vector<content::PepperPluginInfo>* plugins) {
+  // PDF.
+  //
+  // Once we're sandboxed, we can't know if the PDF plugin is available or not;
+  // but (on Linux) this function is always called once before we're sandboxed.
+  // So the first time through test if the file is available and then skip the
+  // check on subsequent calls if yes.
+  static bool skip_pdf_file_check = false;
+  base::FilePath path;
+  if (PathService::Get(chrome::FILE_PDF_PLUGIN, &path)) {
+    if (skip_pdf_file_check || base::PathExists(path)) {
+      content::PepperPluginInfo pdf;
+      pdf.path = path;
+      pdf.name = kPDFPluginName;
+      // Only in-process loading is currently supported. See issue #1331.
+      pdf.is_out_of_process = false;
+      content::WebPluginMimeType pdf_mime_type(kPDFPluginMimeType,
+                                               kPDFPluginExtension,
+                                               kPDFPluginDescription);
+      pdf.mime_types.push_back(pdf_mime_type);
+      pdf.permissions = kPDFPluginPermissions;
+      plugins->push_back(pdf);
+
+      skip_pdf_file_check = true;
+    }
+  }
+}
 
 }  // namespace
 
@@ -40,6 +82,11 @@ CefContentClient::~CefContentClient() {
 // static
 CefContentClient* CefContentClient::Get() {
   return g_content_client;
+}
+
+void CefContentClient::AddPepperPlugins(
+    std::vector<content::PepperPluginInfo>* plugins) {
+  ComputeBuiltInPlugins(plugins);
 }
 
 void CefContentClient::AddAdditionalSchemes(

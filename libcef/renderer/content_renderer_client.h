@@ -93,6 +93,8 @@ class CefContentRendererClient : public content::ContentRendererClient,
                                       v8::Handle<v8::Context> context,
                                       int extension_group,
                                       int world_id) OVERRIDE;
+  virtual const void* CreatePPAPIInterface(
+      const std::string& interface_name) OVERRIDE;
 
   void WillReleaseScriptContext(blink::WebFrame* frame,
                                 v8::Handle<v8::Context> context,
