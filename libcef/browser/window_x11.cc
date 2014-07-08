@@ -12,14 +12,23 @@
 
 #include "ui/base/x/x11_util.h"
 #include "ui/events/platform/x11/x11_event_source.h"
+#include "ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h"
+#include "ui/views/widget/desktop_aura/x11_topmost_window_finder.h"
 
 namespace {
 
+const char kWMDeleteWindow[] = "WM_DELETE_WINDOW";
+const char kWMProtocols[] = "WM_PROTOCOLS";
+const char kNetWMPing[] = "_NET_WM_PING";
+const char kNetWMPid[] = "_NET_WM_PID";
+const char kXdndProxy[] = "XdndProxy";
+
 const char* kAtomsToCache[] = {
-  "WM_DELETE_WINDOW",
-  "WM_PROTOCOLS",
-  "_NET_WM_PING",
-  "_NET_WM_PID",
+  kWMDeleteWindow,
+  kWMProtocols,
+  kNetWMPing,
+  kNetWMPid,
+  kXdndProxy,
   NULL
 };
 
@@ -90,8 +99,8 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
   // should listen for activation events and anything else that GTK+ listens
   // for, and do something useful.
   ::Atom protocols[2];
-  protocols[0] = atom_cache_.GetAtom("WM_DELETE_WINDOW");
-  protocols[1] = atom_cache_.GetAtom("_NET_WM_PING");
+  protocols[0] = atom_cache_.GetAtom(kWMDeleteWindow);
+  protocols[1] = atom_cache_.GetAtom(kNetWMPing);
   XSetWMProtocols(xdisplay_, xwindow_, protocols, 2);
 
   // We need a WM_CLIENT_MACHINE and WM_LOCALE_NAME value so we integrate with
@@ -105,7 +114,7 @@ CefWindowX11::CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
   long pid = getpid();
   XChangeProperty(xdisplay_,
                   xwindow_,
-                  atom_cache_.GetAtom("_NET_WM_PID"),
+                  atom_cache_.GetAtom(kNetWMPid),
                   XA_CARDINAL,
                   32,
                   PropModeReplace,
@@ -125,9 +134,9 @@ void CefWindowX11::Close() {
   XEvent ev = {0};
   ev.xclient.type = ClientMessage;
   ev.xclient.window = xwindow_;
-  ev.xclient.message_type = atom_cache_.GetAtom("WM_PROTOCOLS");
+  ev.xclient.message_type = atom_cache_.GetAtom(kWMProtocols);
   ev.xclient.format = 32;
-  ev.xclient.data.l[0] = atom_cache_.GetAtom("WM_DELETE_WINDOW");
+  ev.xclient.data.l[0] = atom_cache_.GetAtom(kWMDeleteWindow);
   ev.xclient.data.l[1] = CurrentTime;
   XSendEvent(xdisplay_, xwindow_, False, NoEventMask, &ev);
 }
@@ -245,37 +254,77 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
           changes.width = bounds.width();
           changes.height = bounds.height();
           XConfigureWindow(xdisplay_, child, CWHeight | CWWidth, &changes);
+
+          // Explicitly set the screen bounds so that WindowTreeHost::*Screen()
+          // methods return the correct results.
+          views::DesktopWindowTreeHostX11* window_tree_host =
+              views::DesktopWindowTreeHostX11::GetHostForXID(child);
+          if (window_tree_host)
+            window_tree_host->set_screen_bounds(bounds);
+
+          // Find the top-most window containing the browser window.
+          views::X11TopmostWindowFinder finder;
+          ::Window topmost_window = finder.FindWindowAt(bounds.origin());
+          DCHECK(topmost_window);
+
+          // Configure the drag&drop proxy property for the top-most window so
+          // that all drag&drop-related messages will be sent to the child
+          // DesktopWindowTreeHostX11. The proxy property is referenced by
+          // DesktopDragDropClientAuraX11::FindWindowFor.
+          ::Window proxy_target = gfx::kNullAcceleratedWidget;
+          ui::GetXIDProperty(topmost_window, kXdndProxy, &proxy_target);
+          if (proxy_target != child) {
+            // Set the proxy target for the top-most window.
+            XChangeProperty(xdisplay_,
+                  topmost_window,
+                  atom_cache_.GetAtom(kXdndProxy),
+                  XA_WINDOW,
+                  32,
+                  PropModeReplace,
+                  reinterpret_cast<unsigned char*>(&child), 1);
+            // Do the same for the proxy target per the spec.
+            XChangeProperty(xdisplay_,
+                  child,
+                  atom_cache_.GetAtom(kXdndProxy),
+                  XA_WINDOW,
+                  32,
+                  PropModeReplace,
+                  reinterpret_cast<unsigned char*>(&child), 1);
+          }
         }
       }
       break;
     }
     case ClientMessage: {
-      Atom message_type = static_cast<Atom>(xev->xclient.data.l[0]);
-      if (message_type == atom_cache_.GetAtom("WM_DELETE_WINDOW")) {
-        // We have received a close message from the window manager.
-        if (browser_ && browser_->destruction_state() <=
-            CefBrowserHostImpl::DESTRUCTION_STATE_PENDING) {
-          if (browser_->destruction_state() ==
-              CefBrowserHostImpl::DESTRUCTION_STATE_NONE) {
-            // Request that the browser close.
-            browser_->CloseBrowser(false);
+      Atom message_type = xev->xclient.message_type;
+      if (message_type == atom_cache_.GetAtom(kWMProtocols)) {
+        Atom protocol = static_cast<Atom>(xev->xclient.data.l[0]);
+        if (protocol == atom_cache_.GetAtom(kWMDeleteWindow)) {
+          // We have received a close message from the window manager.
+          if (browser_ && browser_->destruction_state() <=
+              CefBrowserHostImpl::DESTRUCTION_STATE_PENDING) {
+            if (browser_->destruction_state() ==
+                CefBrowserHostImpl::DESTRUCTION_STATE_NONE) {
+              // Request that the browser close.
+              browser_->CloseBrowser(false);
+            }
+
+            // Cancel the close.
+          } else {
+            // Allow the close.
+            XDestroyWindow(xdisplay_, xwindow_);
           }
+        } else if (protocol == atom_cache_.GetAtom(kNetWMPing)) {
+          XEvent reply_event = *xev;
+          reply_event.xclient.window = parent_xwindow_;
 
-          // Cancel the close.
-        } else {
-          // Allow the close.
-          XDestroyWindow(xdisplay_, xwindow_);
+          XSendEvent(xdisplay_,
+                     reply_event.xclient.window,
+                     False,
+                     SubstructureRedirectMask | SubstructureNotifyMask,
+                     &reply_event);
+          XFlush(xdisplay_);
         }
-      } else if (message_type == atom_cache_.GetAtom("_NET_WM_PING")) {
-        XEvent reply_event = *xev;
-        reply_event.xclient.window = parent_xwindow_;
-
-        XSendEvent(xdisplay_,
-                   reply_event.xclient.window,
-                   False,
-                   SubstructureRedirectMask | SubstructureNotifyMask,
-                   &reply_event);
-        XFlush(xdisplay_);
       }
       break;
     }

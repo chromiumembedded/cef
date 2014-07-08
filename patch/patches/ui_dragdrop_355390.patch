@@ -1,0 +1,14 @@
+Index: os_exchange_data_provider_aurax11.cc
+===================================================================
+--- os_exchange_data_provider_aurax11.cc	(revision 280796)
++++ os_exchange_data_provider_aurax11.cc	(working copy)
+@@ -155,7 +155,8 @@
+     format_map_.Insert(atom_cache_.GetAtom(kMimeTypeMozillaURL), mem);
+ 
+     // Set a string fallback as well.
+-    SetString(spec);
++    if (!HasString())
++      SetString(spec);
+ 
+     // Return early if this drag already contains file contents (this implies
+     // that file contents must be populated before URLs). Nautilus (and possibly

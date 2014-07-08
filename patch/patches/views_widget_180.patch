@@ -80,7 +80,34 @@ Index: desktop_aura/desktop_window_tree_host_x11.cc
    xwindow_ = None;
  
    desktop_native_widget_aura_->OnHostClosed();
-@@ -1042,9 +1044,13 @@
+@@ -443,6 +445,8 @@
+ }
+ 
+ gfx::Rect DesktopWindowTreeHostX11::GetWindowBoundsInScreen() const {
++  if (!screen_bounds_.IsEmpty())
++    return screen_bounds_;
+   return bounds_;
+ }
+ 
+@@ -455,6 +459,8 @@
+   // Attempts to calculate the rect by asking the NonClientFrameView what it
+   // thought its GetBoundsForClientView() were broke combobox drop down
+   // placement.
++  if (!screen_bounds_.IsEmpty())
++    return screen_bounds_;
+   return bounds_;
+ }
+ 
+@@ -899,6 +905,8 @@
+ }
+ 
+ gfx::Point DesktopWindowTreeHostX11::GetLocationOnNativeScreen() const {
++  if (!screen_bounds_.IsEmpty())
++    return screen_bounds_.origin();
+   return bounds_.origin();
+ }
+ 
+@@ -1042,9 +1050,13 @@
      }
    }
  
@@ -95,7 +122,7 @@ Index: desktop_aura/desktop_window_tree_host_x11.cc
        bounds_.x(), bounds_.y(),
        bounds_.width(), bounds_.height(),
        0,               // border width
-@@ -1600,6 +1606,10 @@
+@@ -1600,6 +1612,10 @@
        }
        break;
      }
@@ -110,7 +137,26 @@ Index: desktop_aura/desktop_window_tree_host_x11.h
 ===================================================================
 --- desktop_aura/desktop_window_tree_host_x11.h	(revision 280796)
 +++ desktop_aura/desktop_window_tree_host_x11.h	(working copy)
-@@ -331,6 +331,9 @@
+@@ -84,6 +84,8 @@
+   // Deallocates the internal list of open windows.
+   static void CleanUpWindowList();
+ 
++  void set_screen_bounds(const gfx::Rect& bounds) { screen_bounds_ = bounds; }
++
+  protected:
+   // Overridden from DesktopWindowTreeHost:
+   virtual void Init(aura::Window* content_window,
+@@ -250,6 +252,9 @@
+   // The bounds of |xwindow_|.
+   gfx::Rect bounds_;
+ 
++  // Override the screen bounds when the host is a child window.
++  gfx::Rect screen_bounds_;
++
+   // Whenever the bounds are set, we keep the previous set of bounds around so
+   // we can have a better chance of getting the real |restored_bounds_|. Window
+   // managers tend to send a Configure message with the maximized bounds, and
+@@ -331,6 +336,9 @@
    // the frame when |xwindow_| gains focus or handles a mouse button event.
    bool urgency_hint_set_;
  

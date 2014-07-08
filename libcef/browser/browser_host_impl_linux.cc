@@ -417,8 +417,10 @@ void CefBrowserHostImpl::PlatformTranslateMouseEvent(
         GetBrowser(),
         result.x, result.y,
         result.globalX, result.globalY);
-  } else {
-    // TODO(linux): Convert global{X,Y} to screen coordinates.
+  } else if (window_x11_) {
+    const gfx::Point& origin = window_x11_->bounds().origin();
+    result.globalX += origin.x();
+    result.globalY += origin.y();
   }
 
   // modifiers
