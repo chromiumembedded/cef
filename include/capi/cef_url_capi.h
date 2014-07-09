@@ -68,6 +68,13 @@ CEF_EXPORT int cef_create_url(const struct _cef_urlparts_t* parts,
 CEF_EXPORT cef_string_userfree_t cef_get_mime_type(
     const cef_string_t* extension);
 
+// Get the extensions associated with the given mime type. This should be passed
+// in lower case. There could be multiple extensions for a given mime type, like
+// "html,htm" for "text/html", or "txt,text,html,..." for "text/*". Any existing
+// elements in the provided vector will not be erased.
+CEF_EXPORT void cef_get_extensions_for_mime_type(const cef_string_t* mime_type,
+    cef_string_list_t extensions);
+
 #ifdef __cplusplus
 }
 #endif

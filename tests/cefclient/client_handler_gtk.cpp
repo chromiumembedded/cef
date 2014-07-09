@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include <gtk/gtk.h>
+#include <libgen.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #undef Success  // Definition conflicts with cef_message_router.h
@@ -12,6 +13,7 @@
 #include "cefclient/client_handler.h"
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
+#include "include/cef_url.h"
 
 namespace {
 
@@ -27,7 +29,189 @@ std::string GetPromptText(GtkDialog* dialog) {
   return std::string();
 }
 
+std::string GetDescriptionFromMimeType(const std::string& mime_type) {
+  // Check for wild card mime types and return an appropriate description.
+  static const struct {
+    const char* mime_type;
+    const char* label;
+  } kWildCardMimeTypes[] = {
+    { "audio", "Audio Files" },
+    { "image", "Image Files" },
+    { "text", "Text Files" },
+    { "video", "Video Files" },
+  };
+
+  for (size_t i = 0;
+       i < sizeof(kWildCardMimeTypes) / sizeof(kWildCardMimeTypes[0]); ++i) {
+    if (mime_type == std::string(kWildCardMimeTypes[i].mime_type) + "/*")
+      return std::string(kWildCardMimeTypes[i].label);
+  }
+
+  return std::string();
+}
+
+void AddFiltersForAcceptTypes(GtkFileChooser* chooser,
+                              const std::vector<CefString>& accept_types,
+                              bool include_all_files) {
+  bool has_filter = false;
+
+  for (size_t i = 0; i < accept_types.size(); ++i) {
+    std::string ascii_type = accept_types[i];
+    if (ascii_type.length()) {
+      // Just treat as extension if contains '.' as the first character.
+      if (ascii_type[0] == '.') {
+        GtkFileFilter* filter = gtk_file_filter_new();
+        std::string pattern = "*" + ascii_type;
+        gtk_file_filter_add_pattern(filter, pattern.c_str());
+        gtk_file_filter_set_name(filter, pattern.c_str());
+        gtk_file_chooser_add_filter(chooser, filter);
+        if (!has_filter)
+          has_filter = true;
+      } else {
+        // Otherwise convert mime type to one or more extensions.
+        GtkFileFilter* filter = NULL;
+        std::string description = GetDescriptionFromMimeType(ascii_type);
+        bool description_from_ext = description.empty();
+
+        std::vector<CefString> ext;
+        CefGetExtensionsForMimeType(ascii_type, ext);
+        for (size_t x = 0; x < ext.size(); ++x) {
+          if (!filter)
+            filter = gtk_file_filter_new();
+          std::string pattern = "*." + ext[x].ToString();
+          gtk_file_filter_add_pattern(filter, pattern.c_str());
+
+          if (description_from_ext) {
+            if (x != 0)
+              description += ";";
+            description += pattern;
+          }
+        }
+
+        if (filter) {
+          gtk_file_filter_set_name(filter, description.c_str());
+          gtk_file_chooser_add_filter(chooser, filter);
+          if (!has_filter)
+            has_filter = true;
+        }
+      }
+    }
+  }
+
+  // Add the *.* filter, but only if we have added other filters (otherwise it
+  // is implied).
+  if (include_all_files && has_filter) {
+    GtkFileFilter* filter = gtk_file_filter_new();
+    gtk_file_filter_add_pattern(filter, "*");
+    gtk_file_filter_set_name(filter, "All Files");
+    gtk_file_chooser_add_filter(chooser, filter);
+  }
+}
+
 }  // namespace
+
+bool ClientHandler::OnFileDialog(CefRefPtr<CefBrowser> browser,
+                                 FileDialogMode mode,
+                                 const CefString& title,
+                                 const CefString& default_file_name,
+                                 const std::vector<CefString>& accept_types,
+                                 CefRefPtr<CefFileDialogCallback> callback) {
+  std::vector<CefString> files;
+
+  GtkFileChooserAction action;
+  const gchar* accept_button;
+  if (mode == FILE_DIALOG_OPEN || mode == FILE_DIALOG_OPEN_MULTIPLE) {
+    action = GTK_FILE_CHOOSER_ACTION_OPEN;
+    accept_button = GTK_STOCK_OPEN;
+  } else if (mode == FILE_DIALOG_SAVE) {
+    action = GTK_FILE_CHOOSER_ACTION_SAVE;
+    accept_button = GTK_STOCK_SAVE;
+  } else {
+    ASSERT(false);  // Not reached
+    return false;
+  }
+
+  std::string base_name;
+  if (!default_file_name.empty()) {
+    base_name =
+        basename(const_cast<char*>(default_file_name.ToString().c_str()));
+  }
+
+  std::string title_str;
+  if (!title.empty()) {
+    title_str = title;
+  } else {
+    switch (mode) {
+      case FILE_DIALOG_OPEN:
+        title_str = "Open File";
+        break;
+      case FILE_DIALOG_OPEN_MULTIPLE:
+        title_str = "Open Files";
+        break;
+      case FILE_DIALOG_SAVE:
+        title_str = "Save File";
+        break;
+      default:
+        break;
+    }
+  }
+
+  GtkWidget* window =
+      gtk_widget_get_ancestor(GTK_WIDGET(GetMainHwnd()), GTK_TYPE_WINDOW);
+  GtkWidget* dialog = gtk_file_chooser_dialog_new(
+      title_str.c_str(),
+      GTK_WINDOW(window),
+      action,
+      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+      accept_button, GTK_RESPONSE_ACCEPT,
+      NULL);
+
+  if (mode == FILE_DIALOG_OPEN_MULTIPLE) {
+    gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
+  } else if (mode == FILE_DIALOG_SAVE) {
+    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dialog),
+                                                   TRUE);
+  }
+
+  if (mode == FILE_DIALOG_SAVE && !base_name.empty()) {
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog),
+                                      base_name.c_str());
+  }
+
+  AddFiltersForAcceptTypes(GTK_FILE_CHOOSER(dialog), accept_types, true);
+
+  bool success = false;
+
+  if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+    if (mode == FILE_DIALOG_OPEN || mode == FILE_DIALOG_SAVE) {
+      char* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      files.push_back(std::string(filename));
+      success = true;
+    } else if (mode == FILE_DIALOG_OPEN_MULTIPLE) {
+      GSList* filenames =
+          gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(dialog));
+      if (filenames) {
+        for (GSList* iter = filenames; iter != NULL;
+             iter = g_slist_next(iter)) {
+          std::string path(static_cast<char*>(iter->data));
+          g_free(iter->data);
+          files.push_back(path);
+        }
+        g_slist_free(filenames);
+        success = true;
+      }
+    }
+  }
+
+  gtk_widget_destroy(dialog);
+
+  if (success)
+    callback->Continue(files);
+  else
+    callback->Cancel();
+
+  return true;
+}
 
 void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefFrame> frame,

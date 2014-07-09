@@ -74,3 +74,14 @@ CefString CefGetMimeType(const CefString& extension) {
   net::GetMimeTypeFromExtension(extension, &mime_type);
   return mime_type;
 }
+
+void CefGetExtensionsForMimeType(const CefString& mime_type,
+                                 std::vector<CefString>& extensions) {
+  typedef std::vector<base::FilePath::StringType> VectorType;
+  VectorType ext;
+  net::GetExtensionsForMimeType(mime_type, &ext);
+  VectorType::const_iterator it = ext.begin();
+  for (; it != ext.end(); ++it)
+    extensions.push_back(*it);
+}
+

@@ -38,6 +38,8 @@
 #define CEF_INCLUDE_CEF_URL_H_
 #pragma once
 
+#include <vector>
+
 #include "include/cef_base.h"
 
 ///
@@ -63,5 +65,13 @@ bool CefCreateURL(const CefURLParts& parts,
 ///
 /*--cef()--*/
 CefString CefGetMimeType(const CefString& extension);
+
+// Get the extensions associated with the given mime type. This should be passed
+// in lower case. There could be multiple extensions for a given mime type, like
+// "html,htm" for "text/html", or "txt,text,html,..." for "text/*". Any existing
+// elements in the provided vector will not be erased.
+/*--cef()--*/
+void CefGetExtensionsForMimeType(const CefString& mime_type,
+                                 std::vector<CefString>& extensions);
 
 #endif  // CEF_INCLUDE_CEF_URL_H_

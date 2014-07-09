@@ -29,6 +29,7 @@
 // ClientHandler implementation.
 class ClientHandler : public CefClient,
                       public CefContextMenuHandler,
+                      public CefDialogHandler,
                       public CefDisplayHandler,
                       public CefDownloadHandler,
                       public CefDragHandler,
@@ -53,6 +54,9 @@ class ClientHandler : public CefClient,
 
   // CefClient methods
   virtual CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefDialogHandler> GetDialogHandler() OVERRIDE {
     return this;
   }
   virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE {
@@ -100,6 +104,14 @@ class ClientHandler : public CefClient,
                                     CefRefPtr<CefContextMenuParams> params,
                                     int command_id,
                                     EventFlags event_flags) OVERRIDE;
+
+  // CefDialogHandler methods
+  virtual bool OnFileDialog(CefRefPtr<CefBrowser> browser,
+                            FileDialogMode mode,
+                            const CefString& title,
+                            const CefString& default_file_name,
+                            const std::vector<CefString>& accept_types,
+                            CefRefPtr<CefFileDialogCallback> callback) OVERRIDE;
 
   // CefDisplayHandler methods
   virtual void OnAddressChange(CefRefPtr<CefBrowser> browser,

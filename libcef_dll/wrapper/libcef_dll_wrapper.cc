@@ -105,6 +105,7 @@
 #include "libcef_dll/ctocpp/web_plugin_info_ctocpp.h"
 #include "libcef_dll/ctocpp/xml_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/zip_reader_ctocpp.h"
+#include "libcef_dll/transfer_util.h"
 
 // Define used to facilitate parsing.
 #define CEF_GLOBAL
@@ -544,6 +545,34 @@ CEF_GLOBAL CefString CefGetMimeType(const CefString& extension) {
   CefString _retvalStr;
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
+}
+
+CEF_GLOBAL void CefGetExtensionsForMimeType(const CefString& mime_type,
+    std::vector<CefString>& extensions) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: mime_type; type: string_byref_const
+  DCHECK(!mime_type.empty());
+  if (mime_type.empty())
+    return;
+
+  // Translate param: extensions; type: string_vec_byref
+  cef_string_list_t extensionsList = cef_string_list_alloc();
+  DCHECK(extensionsList);
+  if (extensionsList)
+    transfer_string_list_contents(extensions, extensionsList);
+
+  // Execute
+  cef_get_extensions_for_mime_type(
+      mime_type.GetStruct(),
+      extensionsList);
+
+  // Restore param:extensions; type: string_vec_byref
+  if (extensionsList) {
+    extensions.clear();
+    transfer_string_list_contents(extensionsList, extensions);
+    cef_string_list_free(extensionsList);
+  }
 }
 
 CEF_GLOBAL bool CefRegisterExtension(const CefString& extension_name,

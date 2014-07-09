@@ -178,6 +178,19 @@ bool ClientHandler::OnContextMenuCommand(
   }
 }
 
+#if !defined(OS_LINUX)
+
+bool ClientHandler::OnFileDialog(CefRefPtr<CefBrowser> browser,
+                                 FileDialogMode mode,
+                                 const CefString& title,
+                                 const CefString& default_file_name,
+                                 const std::vector<CefString>& accept_types,
+                                 CefRefPtr<CefFileDialogCallback> callback) {
+  return false;
+}
+
+#endif  // !defined(OS_LINUX)
+
 bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
                                      const CefString& message,
                                      const CefString& source,

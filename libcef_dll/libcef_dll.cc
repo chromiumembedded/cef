@@ -104,6 +104,7 @@
 #include "libcef_dll/ctocpp/web_plugin_info_visitor_ctocpp.h"
 #include "libcef_dll/ctocpp/web_plugin_unstable_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/write_handler_ctocpp.h"
+#include "libcef_dll/transfer_util.h"
 
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
@@ -591,6 +592,33 @@ CEF_EXPORT cef_string_userfree_t cef_get_mime_type(
 
   // Return type: string
   return _retval.DetachToUserFree();
+}
+
+CEF_EXPORT void cef_get_extensions_for_mime_type(const cef_string_t* mime_type,
+    cef_string_list_t extensions) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: mime_type; type: string_byref_const
+  DCHECK(mime_type);
+  if (!mime_type)
+    return;
+  // Verify param: extensions; type: string_vec_byref
+  DCHECK(extensions);
+  if (!extensions)
+    return;
+
+  // Translate param: extensions; type: string_vec_byref
+  std::vector<CefString> extensionsList;
+  transfer_string_list_contents(extensions, extensionsList);
+
+  // Execute
+  CefGetExtensionsForMimeType(
+      CefString(mime_type),
+      extensionsList);
+
+  // Restore param: extensions; type: string_vec_byref
+  cef_string_list_clear(extensions);
+  transfer_string_list_contents(extensionsList, extensions);
 }
 
 CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,
