@@ -98,6 +98,10 @@ ClientHandler::ClientHandler()
     m_StopHwnd(NULL),
     m_ReloadHwnd(NULL),
     m_bFocusOnEditableField(false) {
+#if defined(OS_LINUX)
+  gtk_dialog_ = NULL;
+#endif
+
   // Read command line settings.
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
@@ -259,6 +263,32 @@ bool ClientHandler::OnRequestGeolocationPermission(
   callback->Continue(true);
   return true;
 }
+
+#if !defined(OS_LINUX)
+
+bool ClientHandler::OnJSDialog(CefRefPtr<CefBrowser> browser,
+                               const CefString& origin_url,
+                               const CefString& accept_lang,
+                               JSDialogType dialog_type,
+                               const CefString& message_text,
+                               const CefString& default_prompt_text,
+                               CefRefPtr<CefJSDialogCallback> callback,
+                               bool& suppress_message) {
+  return false;
+}
+
+bool ClientHandler::OnBeforeUnloadDialog(
+    CefRefPtr<CefBrowser> browser,
+    const CefString& message_text,
+    bool is_reload,
+    CefRefPtr<CefJSDialogCallback> callback) {
+  return false;
+}
+
+void ClientHandler::OnResetDialogState(CefRefPtr<CefBrowser> browser) {
+}
+
+#endif  // !defined(OS_LINUX)
 
 bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
                                   const CefKeyEvent& event,

@@ -33,6 +33,7 @@ class ClientHandler : public CefClient,
                       public CefDownloadHandler,
                       public CefDragHandler,
                       public CefGeolocationHandler,
+                      public CefJSDialogHandler,
                       public CefKeyboardHandler,
                       public CefLifeSpanHandler,
                       public CefLoadHandler,
@@ -64,6 +65,9 @@ class ClientHandler : public CefClient,
     return this;
   }
   virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE {
+    return this;
+  }
+  virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE {
     return this;
   }
   virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() OVERRIDE {
@@ -130,6 +134,22 @@ class ClientHandler : public CefClient,
       const CefString& requesting_url,
       int request_id,
       CefRefPtr<CefGeolocationCallback> callback) OVERRIDE;
+
+  // CefJSDialogHandler methods
+  virtual bool OnJSDialog(CefRefPtr<CefBrowser> browser,
+                          const CefString& origin_url,
+                          const CefString& accept_lang,
+                          JSDialogType dialog_type,
+                          const CefString& message_text,
+                          const CefString& default_prompt_text,
+                          CefRefPtr<CefJSDialogCallback> callback,
+                          bool& suppress_message) OVERRIDE;
+  virtual bool OnBeforeUnloadDialog(
+      CefRefPtr<CefBrowser> browser,
+      const CefString& message_text,
+      bool is_reload,
+      CefRefPtr<CefJSDialogCallback> callback) OVERRIDE;
+  virtual void OnResetDialogState(CefRefPtr<CefBrowser> browser) OVERRIDE;
 
   // CefKeyboardHandler methods
   virtual bool OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
@@ -333,6 +353,14 @@ class ClientHandler : public CefClient,
   // Number of currently existing browser windows. The application will exit
   // when the number of windows reaches 0.
   static int m_BrowserCount;
+
+#if defined(OS_LINUX)
+  static void OnDialogResponse(GtkDialog *dialog,
+                               gint response_id,
+                               ClientHandler* handler);
+  GtkWidget* gtk_dialog_;
+  CefRefPtr<CefJSDialogCallback> js_dialog_callback_;
+#endif
 
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(ClientHandler);
