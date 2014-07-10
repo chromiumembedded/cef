@@ -281,80 +281,8 @@ CefBrowserImpl::CefBrowserImpl(content::RenderView* render_view,
 CefBrowserImpl::~CefBrowserImpl() {
 }
 
-void CefBrowserImpl::LoadRequest(const CefMsg_LoadRequest_Params& params) {
-  CefRefPtr<CefFrameImpl> framePtr = GetWebFrameImpl(params.frame_id);
-  if (!framePtr.get())
-    return;
-
-  WebFrame* web_frame = framePtr->web_frame();
-
-  blink::WebURLRequest request(params.url);
-
-  // DidCreateDataSource checks for this value.
-  request.setRequestorID(-1);
-
-  if (!params.method.empty())
-    request.setHTTPMethod(base::ASCIIToUTF16(params.method));
-
-  if (params.referrer.is_valid()) {
-    WebString referrer = blink::WebSecurityPolicy::generateReferrerHeader(
-        static_cast<blink::WebReferrerPolicy>(params.referrer_policy),
-        params.url,
-        WebString::fromUTF8(params.referrer.spec()));
-    if (!referrer.isEmpty())
-      request.setHTTPHeaderField(WebString::fromUTF8("Referer"), referrer);
-  }
-
-  if (params.first_party_for_cookies.is_valid())
-    request.setFirstPartyForCookies(params.first_party_for_cookies);
-
-  if (!params.headers.empty()) {
-    for (net::HttpUtil::HeadersIterator i(params.headers.begin(),
-                                          params.headers.end(), "\n");
-         i.GetNext(); ) {
-      request.addHTTPHeaderField(WebString::fromUTF8(i.name()),
-                                 WebString::fromUTF8(i.values()));
-    }
-  }
-
-  if (params.upload_data.get()) {
-    base::string16 method = request.httpMethod();
-    if (method == base::ASCIIToUTF16("GET") ||
-        method == base::ASCIIToUTF16("HEAD")) {
-      request.setHTTPMethod(base::ASCIIToUTF16("POST"));
-    }
-
-    if (request.httpHeaderField(
-            base::ASCIIToUTF16("Content-Type")).length() == 0) {
-      request.setHTTPHeaderField(
-          base::ASCIIToUTF16("Content-Type"),
-          base::ASCIIToUTF16("application/x-www-form-urlencoded"));
-    }
-
-    blink::WebHTTPBody body;
-    body.initialize();
-
-    const ScopedVector<net::UploadElement>& elements =
-        params.upload_data->elements();
-    ScopedVector<net::UploadElement>::const_iterator it =
-        elements.begin();
-    for (; it != elements.end(); ++it) {
-      const net::UploadElement& element = **it;
-      if (element.type() == net::UploadElement::TYPE_BYTES) {
-        blink::WebData data;
-        data.assign(element.bytes(), element.bytes_length());
-        body.appendData(data);
-      } else if (element.type() == net::UploadElement::TYPE_FILE) {
-        body.appendFile(FilePathStringToWebString(element.file_path().value()));
-      } else {
-        NOTREACHED();
-      }
-    }
-
-    request.setHTTPBody(body);
-  }
-
-  web_frame->loadRequest(request);
+void CefBrowserImpl::LoadRequest(const CefHostMsg_LoadRequest_Params& params) {
+  Send(new CefHostMsg_LoadRequest(routing_id(), params));
 }
 
 bool CefBrowserImpl::SendProcessMessage(CefProcessId target_process,
@@ -616,7 +544,6 @@ bool CefBrowserImpl::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(CefMsg_Request, OnRequest)
     IPC_MESSAGE_HANDLER(CefMsg_Response, OnResponse)
     IPC_MESSAGE_HANDLER(CefMsg_ResponseAck, OnResponseAck)
-    IPC_MESSAGE_HANDLER(CefMsg_LoadRequest, LoadRequest)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;

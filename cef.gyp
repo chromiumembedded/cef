@@ -932,8 +932,6 @@
         'libcef/browser/menu_creator.h',
         'libcef/browser/menu_model_impl.cc',
         'libcef/browser/menu_model_impl.h',
-        'libcef/browser/navigate_params.cc',
-        'libcef/browser/navigate_params.h',
         'libcef/browser/origin_whitelist_impl.cc',
         'libcef/browser/origin_whitelist_impl.h',
         'libcef/browser/path_util_impl.cc',

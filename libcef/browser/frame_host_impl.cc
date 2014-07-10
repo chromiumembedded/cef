@@ -136,8 +136,7 @@ void CefFrameHostImpl::LoadURL(const CefString& url) {
   }
 
   if (browser) {
-    browser->LoadURL(frame_id, url, content::Referrer(),
-                     content::PAGE_TRANSITION_TYPED, std::string());
+    browser->LoadURL(frame_id, url);
   }
 }
 

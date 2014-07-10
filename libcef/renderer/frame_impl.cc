@@ -110,12 +110,10 @@ void CefFrameImpl::LoadRequest(CefRefPtr<CefRequest> request) {
   if (!browser_)
     return;
 
-  CefMsg_LoadRequest_Params params;
+  CefHostMsg_LoadRequest_Params params;
   params.url = GURL(std::string(request->GetURL()));
   params.method = request->GetMethod();
   params.frame_id = frame_id_;
-  params.first_party_for_cookies =
-      GURL(std::string(request->GetFirstPartyForCookies()));
 
   CefRequest::HeaderMap headerMap;
   request->GetHeaderMap(headerMap);
@@ -129,8 +127,6 @@ void CefFrameImpl::LoadRequest(CefRefPtr<CefRequest> request) {
     impl->Get(*params.upload_data.get());
   }
 
-  params.load_flags = request->GetFlags();
-
   browser_->LoadRequest(params);
 }
 
@@ -140,7 +136,7 @@ void CefFrameImpl::LoadURL(const CefString& url) {
   if (!browser_)
     return;
 
-  CefMsg_LoadRequest_Params params;
+  CefHostMsg_LoadRequest_Params params;
   params.url = GURL(url.ToString());
   params.method = "GET";
   params.frame_id = frame_id_;
