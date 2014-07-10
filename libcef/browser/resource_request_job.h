@@ -36,6 +36,8 @@ class CefResourceRequestJob : public net::URLRequestJob {
   virtual bool ReadRawData(net::IOBuffer* dest, int dest_size, int* bytes_read)
       OVERRIDE;
   virtual void GetResponseInfo(net::HttpResponseInfo* info) OVERRIDE;
+  virtual void GetLoadTimingInfo(
+      net::LoadTimingInfo* load_timing_info) const OVERRIDE;
   virtual bool GetResponseCookies(std::vector<std::string>* cookies) OVERRIDE;
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code)
       OVERRIDE;
@@ -69,6 +71,10 @@ class CefResourceRequestJob : public net::URLRequestJob {
   scoped_refptr<net::HttpResponseHeaders> response_headers_;
   std::vector<std::string> response_cookies_;
   size_t response_cookies_save_index_;
+  base::Time request_start_time_;
+  base::TimeTicks receive_headers_end_;
+
+  // Must be the last member.
   base::WeakPtrFactory<CefResourceRequestJob> weak_factory_;
 
   friend class CefResourceRequestJobCallback;
