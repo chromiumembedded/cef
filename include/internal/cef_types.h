@@ -1108,6 +1108,14 @@ typedef struct _cef_rect_t {
 } cef_rect_t;
 
 ///
+// Structure representing a size.
+///
+typedef struct _cef_size_t {
+  int width;
+  int height;
+} cef_size_t;
+
+///
 // Existing process IDs.
 ///
 typedef enum {
@@ -1744,6 +1752,51 @@ typedef struct _cef_geoposition_t {
   ///
   cef_string_t error_message;
 } cef_geoposition_t;
+
+///
+// Print job color mode values.
+///
+typedef enum {
+  COLOR_MODEL_UNKNOWN,
+  COLOR_MODEL_GRAY,
+  COLOR_MODEL_COLOR,
+  COLOR_MODEL_CMYK,
+  COLOR_MODEL_CMY,
+  COLOR_MODEL_KCMY,
+  COLOR_MODEL_CMY_K,  // CMY_K represents CMY+K.
+  COLOR_MODEL_BLACK,
+  COLOR_MODEL_GRAYSCALE,
+  COLOR_MODEL_RGB,
+  COLOR_MODEL_RGB16,
+  COLOR_MODEL_RGBA,
+  COLOR_MODEL_COLORMODE_COLOR,  // Used in samsung printer ppds.
+  COLOR_MODEL_COLORMODE_MONOCHROME,  // Used in samsung printer ppds.
+  COLOR_MODEL_HP_COLOR_COLOR,  // Used in HP color printer ppds.
+  COLOR_MODEL_HP_COLOR_BLACK,  // Used in HP color printer ppds.
+  COLOR_MODEL_PRINTOUTMODE_NORMAL,  // Used in foomatic ppds.
+  COLOR_MODEL_PRINTOUTMODE_NORMAL_GRAY,  // Used in foomatic ppds.
+  COLOR_MODEL_PROCESSCOLORMODEL_CMYK,  // Used in canon printer ppds.
+  COLOR_MODEL_PROCESSCOLORMODEL_GREYSCALE,  // Used in canon printer ppds.
+  COLOR_MODEL_PROCESSCOLORMODEL_RGB,  // Used in canon printer ppds
+} cef_color_model_t;
+
+///
+// Print job duplex mode values.
+///
+typedef enum {
+  DUPLEX_MODE_UNKNOWN = -1,
+  DUPLEX_MODE_SIMPLEX,
+  DUPLEX_MODE_LONG_EDGE,
+  DUPLEX_MODE_SHORT_EDGE,
+} cef_duplex_mode_t;
+
+///
+// Structure representing a print job page range.
+///
+typedef struct _cef_page_range_t {
+  int from;
+  int to;
+} cef_page_range_t;
 
 #ifdef __cplusplus
 }

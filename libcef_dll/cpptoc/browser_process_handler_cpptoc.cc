@@ -11,6 +11,7 @@
 //
 
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/print_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/command_line_ctocpp.h"
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
 
@@ -65,6 +66,22 @@ void CEF_CALLBACK browser_process_handler_on_render_process_thread_created(
       CefListValueCToCpp::Wrap(extra_info));
 }
 
+struct _cef_print_handler_t* CEF_CALLBACK browser_process_handler_get_print_handler(
+    struct _cef_browser_process_handler_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefPrintHandler> _retval = CefBrowserProcessHandlerCppToC::Get(
+      self)->GetPrintHandler();
+
+  // Return type: refptr_same
+  return CefPrintHandlerCppToC::Wrap(_retval);
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -78,6 +95,7 @@ CefBrowserProcessHandlerCppToC::CefBrowserProcessHandlerCppToC(
       browser_process_handler_on_before_child_process_launch;
   struct_.struct_.on_render_process_thread_created =
       browser_process_handler_on_render_process_thread_created;
+  struct_.struct_.get_print_handler = browser_process_handler_get_print_handler;
 }
 
 #ifndef NDEBUG

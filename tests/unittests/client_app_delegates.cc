@@ -83,3 +83,9 @@ void ClientApp::RegisterCustomSchemes(
       std::vector<CefString>& cookiable_schemes);
   RegisterURLRequestCustomSchemes(registrar, cookiable_schemes);
 }
+
+// static
+CefRefPtr<CefPrintHandler> ClientApp::CreatePrintHandler() {
+  return NULL;
+}
+

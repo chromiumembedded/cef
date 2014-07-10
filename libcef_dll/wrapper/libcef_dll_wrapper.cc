@@ -52,6 +52,7 @@
 #include "libcef_dll/cpptoc/keyboard_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/load_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/print_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/read_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/render_process_handler_cpptoc.h"
@@ -90,6 +91,9 @@
 #include "libcef_dll/ctocpp/jsdialog_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
 #include "libcef_dll/ctocpp/menu_model_ctocpp.h"
+#include "libcef_dll/ctocpp/print_dialog_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/print_job_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/print_settings_ctocpp.h"
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
 #include "libcef_dll/ctocpp/quota_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_registrar_ctocpp.h"
@@ -208,6 +212,10 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK_EQ(CefListValueCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefLoadHandlerCppToC::DebugObjCt, 0);
   DCHECK_EQ(CefMenuModelCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefPrintDialogCallbackCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefPrintHandlerCppToC::DebugObjCt, 0);
+  DCHECK_EQ(CefPrintJobCallbackCToCpp::DebugObjCt, 0);
+  DCHECK_EQ(CefPrintSettingsCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefProcessMessageCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefQuotaCallbackCToCpp::DebugObjCt, 0);
   DCHECK_EQ(CefReadHandlerCppToC::DebugObjCt, 0);

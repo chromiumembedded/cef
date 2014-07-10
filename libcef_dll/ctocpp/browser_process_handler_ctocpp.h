@@ -39,6 +39,7 @@ class CefBrowserProcessHandlerCToCpp
       CefRefPtr<CefCommandLine> command_line) OVERRIDE;
   virtual void OnRenderProcessThreadCreated(
       CefRefPtr<CefListValue> extra_info) OVERRIDE;
+  virtual CefRefPtr<CefPrintHandler> GetPrintHandler() OVERRIDE;
 };
 
 #endif  // BUILDING_CEF_SHARED

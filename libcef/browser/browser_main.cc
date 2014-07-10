@@ -41,6 +41,10 @@
 #include "ui/base/ime/input_method_initializer.h"
 #endif
 
+#if defined(OS_LINUX)
+#include "libcef/browser/printing/print_dialog_linux.h"
+#endif
+
 CefBrowserMainParts::CefBrowserMainParts(
     const content::MainFunctionParams& parameters)
     : BrowserMainParts(),
@@ -85,6 +89,11 @@ void CefBrowserMainParts::PostMainMessageLoopStart() {
   // CEF's internal handling of "chrome://tracing".
   content::WebUIControllerFactory::UnregisterFactoryForTesting(
       content::ContentWebUIControllerFactory::GetInstance());
+
+#if defined(OS_LINUX)
+  printing::PrintingContextLinux::SetCreatePrintDialogFunction(
+      &CefPrintDialogLinux::CreatePrintDialog);
+#endif
 }
 
 int CefBrowserMainParts::PreCreateThreads() {

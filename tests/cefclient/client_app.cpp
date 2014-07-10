@@ -34,6 +34,8 @@ void ClientApp::OnContextInitialized() {
   ASSERT(manager.get());
   manager->SetSupportedSchemes(cookieable_schemes_);
 
+  print_handler_ = CreatePrintHandler();
+
   BrowserDelegateSet::iterator it = browser_delegates_.begin();
   for (; it != browser_delegates_.end(); ++it)
     (*it)->OnContextInitialized(this);

@@ -13,6 +13,7 @@
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
 #include "libcef_dll/cpptoc/list_value_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/print_handler_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -59,6 +60,19 @@ void CefBrowserProcessHandlerCToCpp::OnRenderProcessThreadCreated(
   // Execute
   struct_->on_render_process_thread_created(struct_,
       CefListValueCppToC::Wrap(extra_info));
+}
+
+CefRefPtr<CefPrintHandler> CefBrowserProcessHandlerCToCpp::GetPrintHandler() {
+  if (CEF_MEMBER_MISSING(struct_, get_print_handler))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_print_handler_t* _retval = struct_->get_print_handler(struct_);
+
+  // Return type: refptr_same
+  return CefPrintHandlerCToCpp::Wrap(_retval);
 }
 
 

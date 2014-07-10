@@ -40,6 +40,7 @@
 
 #include "include/cef_base.h"
 #include "include/cef_command_line.h"
+#include "include/cef_print_handler.h"
 #include "include/cef_values.h"
 
 ///
@@ -77,6 +78,15 @@ class CefBrowserProcessHandler : public virtual CefBase {
   /*--cef()--*/
   virtual void OnRenderProcessThreadCreated(
       CefRefPtr<CefListValue> extra_info) {}
+
+  ///
+  // Return the handler for printing on Linux. If a print handler is not
+  // provided then printing will not be supported on the Linux platform.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefPrintHandler> GetPrintHandler() {
+    return NULL;
+  }
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_PROCESS_HANDLER_H_

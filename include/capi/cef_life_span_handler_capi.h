@@ -114,9 +114,10 @@ typedef struct _cef_life_span_handler_t {
   // opportunity to process the 'onbeforeunload' event and optionally cancel the
   // close before do_close() is called.
   //
-  // The cef_life_span_handler_t::OnBeforeclose() function will be called
+  // The cef_life_span_handler_t::on_before_close() function will be called
   // immediately before the browser object is destroyed. The application should
-  // only exit after OnBeforeclose() has been called for all existing browsers.
+  // only exit after on_before_close() has been called for all existing
+  // browsers.
   //
   // If the browser represents a modal window and a custom modal loop
   // implementation was provided in cef_life_span_handler_t::run_modal() this
@@ -141,7 +142,7 @@ typedef struct _cef_life_span_handler_t {
   // receives the OS close notification and
   //     allows the window to close based on the flag from #6B.
   // 9.  Browser OS window is destroyed. 10. Application's
-  // cef_life_span_handler_t::OnBeforeclose() handler is called and
+  // cef_life_span_handler_t::on_before_close() handler is called and
   //     the browser object is destroyed.
   // 11. Application exits by calling cef_quit_message_loop() if no other
   // browsers

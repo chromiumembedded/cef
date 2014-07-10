@@ -116,6 +116,9 @@ class ClientApp : public CefApp,
   static void RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar,
                                     std::vector<CefString>& cookiable_schemes);
 
+  // Create the Linux print handler. Implemented in client_app_delegates.
+  static CefRefPtr<CefPrintHandler> CreatePrintHandler();
+
   // CefApp methods.
   virtual void OnRegisterCustomSchemes(
       CefRefPtr<CefSchemeRegistrar> registrar) OVERRIDE;
@@ -130,6 +133,9 @@ class ClientApp : public CefApp,
       CefRefPtr<CefCommandLine> command_line) OVERRIDE;
   virtual void OnRenderProcessThreadCreated(CefRefPtr<CefListValue> extra_info)
                                             OVERRIDE;
+  virtual CefRefPtr<CefPrintHandler> GetPrintHandler() OVERRIDE {
+    return print_handler_;
+  }
 
   // CefRenderProcessHandler methods.
   virtual void OnRenderThreadCreated(CefRefPtr<CefListValue> extra_info)
@@ -172,6 +178,8 @@ class ClientApp : public CefApp,
   // Schemes that will be registered with the global cookie manager. Used in
   // both the browser and renderer process.
   std::vector<CefString> cookieable_schemes_;
+
+  CefRefPtr<CefPrintHandler> print_handler_;
 
   IMPLEMENT_REFCOUNTING(ClientApp);
 };

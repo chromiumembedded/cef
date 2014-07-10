@@ -40,6 +40,7 @@
 
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_command_line_capi.h"
+#include "include/capi/cef_print_handler_capi.h"
 #include "include/capi/cef_values_capi.h"
 
 #ifdef __cplusplus
@@ -86,6 +87,13 @@ typedef struct _cef_browser_process_handler_t {
   void (CEF_CALLBACK *on_render_process_thread_created)(
       struct _cef_browser_process_handler_t* self,
       struct _cef_list_value_t* extra_info);
+
+  ///
+  // Return the handler for printing on Linux. If a print handler is not
+  // provided then printing will not be supported on the Linux platform.
+  ///
+  struct _cef_print_handler_t* (CEF_CALLBACK *get_print_handler)(
+      struct _cef_browser_process_handler_t* self);
 } cef_browser_process_handler_t;
 
 

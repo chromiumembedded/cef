@@ -206,6 +206,8 @@
       'tests/cefclient/cefclient_osr_widget_gtk.h',
       'tests/cefclient/cefclient_osr_widget_gtk.cpp',
       'tests/cefclient/client_handler_gtk.cpp',
+      'tests/cefclient/print_handler_gtk.cpp',
+      'tests/cefclient/print_handler_gtk.h',
       'tests/cefclient/resource_util_linux.cpp',
       'tests/cefclient/resource_util_posix.cpp',
       'tests/cefclient/window_test_gtk.cpp',
