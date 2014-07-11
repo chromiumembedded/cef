@@ -15,7 +15,7 @@
 void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefFrame> frame,
                                     const CefString& url) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   if (m_BrowserId == browser->GetIdentifier() && frame->IsMain())   {
     // Set the edit window text
@@ -25,7 +25,7 @@ void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
 
 void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
                                   const CefString& title) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   // Set the frame window title bar
   CefWindowHandle hwnd = browser->GetHost()->GetWindowHandle();
@@ -55,14 +55,14 @@ void ClientHandler::SendNotification(NotificationType type) {
 }
 
 void ClientHandler::SetLoading(bool isLoading) {
-  ASSERT(m_EditHwnd != NULL && m_ReloadHwnd != NULL && m_StopHwnd != NULL);
+  DCHECK(m_EditHwnd != NULL && m_ReloadHwnd != NULL && m_StopHwnd != NULL);
   EnableWindow(m_EditHwnd, TRUE);
   EnableWindow(m_ReloadHwnd, !isLoading);
   EnableWindow(m_StopHwnd, isLoading);
 }
 
 void ClientHandler::SetNavState(bool canGoBack, bool canGoForward) {
-  ASSERT(m_BackHwnd != NULL && m_ForwardHwnd != NULL);
+  DCHECK(m_BackHwnd != NULL && m_ForwardHwnd != NULL);
   EnableWindow(m_BackHwnd, canGoBack);
   EnableWindow(m_ForwardHwnd, canGoForward);
 }

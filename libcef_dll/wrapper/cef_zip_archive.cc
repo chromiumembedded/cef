@@ -2,17 +2,20 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#if defined(__linux__)
-#include <wctype.h>
-#endif
+#include "include/wrapper/cef_zip_archive.h"
 
 #include <algorithm>
 #include <vector>
-#include "include/wrapper/cef_zip_archive.h"
+
+#include "include/base/cef_logging.h"
+#include "include/base/cef_macros.h"
 #include "include/cef_stream.h"
 #include "include/cef_zip_reader.h"
 #include "include/wrapper/cef_byte_read_handler.h"
-#include "libcef_dll/cef_logging.h"
+
+#if defined(OS_LINUX)
+#include <wctype.h>
+#endif
 
 namespace {
 

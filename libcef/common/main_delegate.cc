@@ -185,6 +185,10 @@ class CefUIThread : public base::Thread {
 
 CefMainDelegate::CefMainDelegate(CefRefPtr<CefApp> application)
     : content_client_(application) {
+  // Necessary so that exported functions from base_impl.cc will be included
+  // in the binary.
+  extern void base_impl_stub();
+  base_impl_stub();
 }
 
 CefMainDelegate::~CefMainDelegate() {

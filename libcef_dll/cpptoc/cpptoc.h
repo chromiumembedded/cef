@@ -6,9 +6,10 @@
 #define CEF_LIBCEF_DLL_CPPTOC_CPPTOC_H_
 #pragma once
 
+#include "include/base/cef_logging.h"
+#include "include/base/cef_macros.h"
 #include "include/cef_base.h"
 #include "include/capi/cef_base_capi.h"
-#include "libcef_dll/cef_logging.h"
 
 
 // Wrap a C++ class with a C structure.  This is used when the class
@@ -123,6 +124,11 @@ class CefCppToC : public CefBase {
   static long DebugObjCt;  // NOLINT(runtime/int)
 #endif
 
+ protected:
+  CefRefCount refct_;
+  Struct struct_;
+  BaseName* class_;
+
  private:
   static int CEF_CALLBACK struct_add_ref(struct _cef_base_t* base) {
     DCHECK(base);
@@ -151,10 +157,7 @@ class CefCppToC : public CefBase {
     return impl->class_->GetRefCt();
   }
 
- protected:
-  CefRefCount refct_;
-  Struct struct_;
-  BaseName* class_;
+  DISALLOW_COPY_AND_ASSIGN(CefCppToC);
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_CPPTOC_H_

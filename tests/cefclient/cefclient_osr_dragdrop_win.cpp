@@ -12,10 +12,10 @@
 #include <string>
 
 #include "include/cef_runnable.h"
+#include "include/wrapper/cef_helpers.h"
 #include "cefclient/bytes_write_handler.h"
 #include "cefclient/cefclient_osr_widget_win.h"
 #include "cefclient/resource.h"
-#include "cefclient/util.h"
 
 namespace {
 
@@ -71,7 +71,7 @@ void GetStorageForString(STGMEDIUM* stgmed, const std::basic_string<T>& data) {
 
 void GetStorageForFileDescriptor(STGMEDIUM* storage,
                                  const std::wstring& file_name) {
-  ASSERT(!file_name.empty());
+  DCHECK(!file_name.empty());
   HANDLE hdata = GlobalAlloc(GPTR, sizeof(FILEGROUPDESCRIPTOR));
 
   FILEGROUPDESCRIPTOR* descriptor =
@@ -252,7 +252,7 @@ bool DragDataToDataObject(CefRefPtr<CefDragData> drag_data,
     CefRefPtr<CefStreamWriter> writer =
         CefStreamWriter::CreateForHandler(handler.get());
     drag_data->GetFileContents(writer);
-    ASSERT(handler->GetDataSize() == static_cast<int64>(bufferSize));
+    DCHECK_EQ(handler->GetDataSize(), static_cast<int64>(bufferSize));
     CefString fileName = drag_data->GetFileName();
     GetStorageForFileDescriptor(&stgmeds[curr_index], fileName.ToWString());
     fmtetc.cfFormat = file_desc_format;
@@ -264,7 +264,7 @@ bool DragDataToDataObject(CefRefPtr<CefDragData> drag_data,
     fmtetcs[curr_index] = fmtetc;
     curr_index++;
   }
-  ASSERT(curr_index < kMaxDataObjects);
+  DCHECK_LT(curr_index, kMaxDataObjects);
 
   CComPtr<IDataObject> obj =
       DataObjectWin::Create(fmtetcs, stgmeds, curr_index);

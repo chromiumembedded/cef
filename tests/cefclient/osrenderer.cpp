@@ -16,7 +16,7 @@
 #error Platform is not supported.
 #endif
 
-#include "cefclient/util.h"
+#include "include/wrapper/cef_helpers.h"
 
 #ifndef GL_BGR
 #define GL_BGR 0x80E0
@@ -56,7 +56,7 @@ void ClientOSRenderer::Initialize() {
 
   // Create the texture.
   glGenTextures(1, &texture_id_);
-  ASSERT(texture_id_ != 0);
+  DCHECK_NE(texture_id_, 0U);
 
   glBindTexture(GL_TEXTURE_2D, texture_id_);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -75,7 +75,7 @@ void ClientOSRenderer::Render() {
   if (view_width_ == 0 || view_height_ == 0)
     return;
 
-  ASSERT(initialized_);
+  DCHECK(initialized_);
 
   struct {
     float tu, tv;
@@ -128,7 +128,7 @@ void ClientOSRenderer::Render() {
   glEnable(GL_TEXTURE_2D);
 
   // Draw the facets with the texture.
-  ASSERT(texture_id_ != 0);
+  DCHECK_NE(texture_id_, 0U);
   glBindTexture(GL_TEXTURE_2D, texture_id_);
   glInterleavedArrays(GL_T2F_V3F, 0, vertices);
   glDrawArrays(GL_QUADS, 0, 4);
@@ -198,7 +198,7 @@ void ClientOSRenderer::OnPaint(CefRefPtr<CefBrowser> browser,
   // Enable 2D textures.
   glEnable(GL_TEXTURE_2D);
 
-  ASSERT(texture_id_ != 0);
+  DCHECK_NE(texture_id_, 0U);
   glBindTexture(GL_TEXTURE_2D, texture_id_);
 
   if (type == PET_VIEW) {

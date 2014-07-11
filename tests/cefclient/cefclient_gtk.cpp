@@ -19,12 +19,12 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
+#include "include/wrapper/cef_helpers.h"
 #include "cefclient/cefclient_osr_widget_gtk.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
-#include "cefclient/util.h"
 
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
@@ -318,7 +318,7 @@ GtkWidget* CreateMenuBar() {
 int main(int argc, char* argv[]) {
   // Create a copy of |argv| on Linux because Chromium mangles the value
   // internally (see issue #620).
-  ScopedArgArray scoped_arg_array(argc, argv);
+  CefScopedArgArray scoped_arg_array(argc, argv);
   char** argv_copy = scoped_arg_array.array();
 
   CefMainArgs main_args(argc, argv);

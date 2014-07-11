@@ -848,7 +848,7 @@ class RequestRendererTest : public ClientApp::RenderDelegate,
                             public RequestTestRunner::Delegate {
  public:
   RequestRendererTest()
-    : ALLOW_THIS_IN_INITIALIZER_LIST(test_runner_(this, false)) {
+    : test_runner_(this, false) {
   }
 
   virtual bool OnProcessMessageReceived(
@@ -913,7 +913,7 @@ class RequestTestHandler : public TestHandler,
     : test_mode_(test_mode),
       test_in_browser_(test_in_browser),
       test_url_(test_url),
-      ALLOW_THIS_IN_INITIALIZER_LIST(test_runner_(this, true)) {
+      test_runner_(this, true) {
   }
 
   virtual void RunTest() OVERRIDE {

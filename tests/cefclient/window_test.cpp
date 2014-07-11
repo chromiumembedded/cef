@@ -63,7 +63,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     } else if (message_name == kMessageRestoreName) {
       Restore(browser->GetHost()->GetWindowHandle());
     } else {
-      ASSERT(false);  // Not reached.
+      NOTREACHED();
     }
 
     callback->Success("");

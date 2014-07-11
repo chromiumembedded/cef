@@ -82,7 +82,7 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       browser->GetHost()->RunFileDialog(FILE_DIALOG_SAVE, "My Save Dialog",
           "test.txt", file_types, dialog_callback.get());
     } else {
-      ASSERT(false);  // Not reached.
+      NOTREACHED();
     }
 
     return true;

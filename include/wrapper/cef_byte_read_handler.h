@@ -37,6 +37,7 @@
 #define CEF_INCLUDE_WRAPPER_CEF_BYTE_READ_HANDLER_H_
 #pragma once
 
+#include "include/base/cef_macros.h"
 #include "include/cef_base.h"
 #include "include/cef_stream.h"
 
@@ -70,6 +71,8 @@ class CefByteReadHandler : public CefReadHandler {
 
   IMPLEMENT_REFCOUNTING(CefByteReadHandler);
   IMPLEMENT_LOCKING(CefByteReadHandler);
+
+  DISALLOW_COPY_AND_ASSIGN(CefByteReadHandler);
 };
 
 #endif  // CEF_INCLUDE_WRAPPER_CEF_BYTE_READ_HANDLER_H_

@@ -6,9 +6,10 @@
 #define CEF_LIBCEF_DLL_CTOCPP_BASE_CTOCPP_H_
 #pragma once
 
+#include "include/base/cef_logging.h"
+#include "include/base/cef_macros.h"
 #include "include/cef_base.h"
 #include "include/capi/cef_base_capi.h"
-#include "libcef_dll/cef_logging.h"
 
 
 // CefCToCpp implementation for CefBase.
@@ -89,9 +90,11 @@ class CefBaseCToCpp : public CefBase {
     return struct_->get_refct(struct_);
   }
 
- protected:
+ private:
   CefRefCount refct_;
   cef_base_t* struct_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefBaseCToCpp);
 };
 
 

@@ -1,5 +1,4 @@
-// Copyright (c) 2009 The Chromium Embedded Framework Authors. All rights
-// reserved.
+// Copyright (c) 2014 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -28,28 +27,40 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef CEF_INCLUDE_INTERNAL_CEF_EXPORT_H_
-#define CEF_INCLUDE_INTERNAL_CEF_EXPORT_H_
+#ifndef CEF_INCLUDE_INTERNAL_CEF_LOGGING_INTERNAL_H_
+#define CEF_INCLUDE_INTERNAL_CEF_LOGGING_INTERNAL_H_
 #pragma once
 
-#include "include/base/cef_build.h"
+#include "include/internal/cef_export.h"
 
-#if defined(COMPILER_MSVC)
-
-#ifdef BUILDING_CEF_SHARED
-#define CEF_EXPORT __declspec(dllexport)
-#elif USING_CEF_SHARED
-#define CEF_EXPORT __declspec(dllimport)
-#else
-#define CEF_EXPORT
+#ifdef __cplusplus
+extern "C" {
 #endif
-#define CEF_CALLBACK __stdcall
 
-#elif defined(COMPILER_GCC)
+// See include/base/cef_logging.h for macros and intended usage.
 
-#define CEF_EXPORT __attribute__ ((visibility("default")))
-#define CEF_CALLBACK
+///
+// Gets the current log level.
+///
+CEF_EXPORT int cef_get_min_log_level();
 
-#endif  // COMPILER_GCC
+///
+// Gets the current vlog level for the given file (usually taken from
+// __FILE__). Note that |N| is the size *with* the null terminator.
+///
+CEF_EXPORT int cef_get_vlog_level(const char* file_start, size_t N);
 
-#endif  // CEF_INCLUDE_INTERNAL_CEF_EXPORT_H_
+///
+// Add a log message. See the LogSeverity defines for supported |severity|
+// values.
+///
+CEF_EXPORT void cef_log(const char* file,
+                        int line,
+                        int severity,
+                        const char* message);
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
+#endif  // CEF_INCLUDE_INTERNAL_CEF_LOGGING_INTERNAL_H_

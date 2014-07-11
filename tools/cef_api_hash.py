@@ -30,18 +30,17 @@ class cef_api_hash:
 
         self.platform_files = {
             "windows": [
-                "internal/cef_types_win.h"
+                "internal/cef_types_win.h",
                 ],
             "macosx": [
                 "internal/cef_types_mac.h",
                 ],
             "linux": [
-                "internal/cef_types_linux.h"
+                "internal/cef_types_linux.h",
                 ]
             };
 
         self.included_files = [
-            "cef_trace_event.h"
             ];
 
         self.excluded_files = [

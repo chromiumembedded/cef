@@ -7,12 +7,12 @@
 #include <string>
 #include <windows.h>
 
-#include "cefsimple/util.h"
 #include "include/cef_browser.h"
+#include "include/wrapper/cef_helpers.h"
 
 void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
                                   const CefString& title) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   CefWindowHandle hwnd = browser->GetHost()->GetWindowHandle();
   SetWindowText(hwnd, std::wstring(title).c_str());

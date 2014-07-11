@@ -11,8 +11,8 @@
 #include <set>
 #include <string>
 #include "include/cef_client.h"
+#include "include/wrapper/cef_helpers.h"
 #include "include/wrapper/cef_message_router.h"
-#include "cefclient/util.h"
 
 #if defined(OS_LINUX)
 // The Linux client uses GTK instead of the underlying platform type (X11).

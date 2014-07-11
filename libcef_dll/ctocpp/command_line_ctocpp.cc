@@ -21,7 +21,7 @@ CefRefPtr<CefCommandLine> CefCommandLine::CreateCommandLine() {
   const char* api_hash = cef_api_hash(0);
   if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {
     // The libcef API hash does not match the current header API hash.
-    DCHECK(false);
+    NOTREACHED();
     return NULL;
   }
 
@@ -38,7 +38,7 @@ CefRefPtr<CefCommandLine> CefCommandLine::GetGlobalCommandLine() {
   const char* api_hash = cef_api_hash(0);
   if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {
     // The libcef API hash does not match the current header API hash.
-    DCHECK(false);
+    NOTREACHED();
     return NULL;
   }
 

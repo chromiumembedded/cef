@@ -195,7 +195,7 @@ bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
                                      const CefString& message,
                                      const CefString& source,
                                      int line) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   bool first_message;
   std::string logFile;
@@ -239,7 +239,7 @@ void ClientHandler::OnBeforeDownload(
     CefRefPtr<CefDownloadItem> download_item,
     const CefString& suggested_name,
     CefRefPtr<CefBeforeDownloadCallback> callback) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
   // Continue the download and show the "Save As" dialog.
   callback->Continue(GetDownloadPath(suggested_name), true);
 }
@@ -248,7 +248,7 @@ void ClientHandler::OnDownloadUpdated(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDownloadItem> download_item,
     CefRefPtr<CefDownloadItemCallback> callback) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
   if (download_item->IsComplete()) {
     SetLastDownloadFile(download_item->GetFullPath());
     SendNotification(NOTIFY_DOWNLOAD_COMPLETE);
@@ -258,7 +258,7 @@ void ClientHandler::OnDownloadUpdated(
 bool ClientHandler::OnDragEnter(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefDragData> dragData,
                                 CefDragHandler::DragOperationsMask mask) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   // Forbid dragging of link URLs.
   if (mask & DRAG_OPERATION_LINK)
@@ -340,7 +340,7 @@ bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser,
 }
 
 void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   if (!message_router_) {
     // Create the browser-side router for query handling.
@@ -378,7 +378,7 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 }
 
 bool ClientHandler::DoClose(CefRefPtr<CefBrowser> browser) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   // Closing the main window requires special handling. See the DoClose()
   // documentation in the CEF header for a detailed destription of this
@@ -394,7 +394,7 @@ bool ClientHandler::DoClose(CefRefPtr<CefBrowser> browser) {
 }
 
 void ClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   message_router_->OnBeforeClose(browser);
 
@@ -437,7 +437,7 @@ void ClientHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
                                          bool isLoading,
                                          bool canGoBack,
                                          bool canGoForward) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   SetLoading(isLoading);
   SetNavState(canGoBack, canGoForward);
@@ -454,7 +454,7 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
                                 ErrorCode errorCode,
                                 const CefString& errorText,
                                 const CefString& failedUrl) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   // Don't display an error for downloaded files.
   if (errorCode == ERR_ABORTED)
@@ -504,7 +504,7 @@ CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
             CefStreamReader::CreateForData(
                 static_cast<void*>(const_cast<char*>(str.c_str())),
                 str.size());
-        ASSERT(stream.get());
+        DCHECK(stream.get());
         return new CefStreamResourceHandler("text/html", stream);
       } else {
         // Load the resource from file.

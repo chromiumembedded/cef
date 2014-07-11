@@ -37,6 +37,7 @@
 #define CEF_INCLUDE_WRAPPER_CEF_STREAM_RESOURCE_HANDLER_H_
 #pragma once
 
+#include "include/base/cef_macros.h"
 #include "include/cef_base.h"
 #include "include/cef_resource_handler.h"
 #include "include/cef_response.h"
@@ -96,6 +97,8 @@ class CefStreamResourceHandler : public CefResourceHandler {
 #endif
 
   IMPLEMENT_REFCOUNTING(CefStreamResourceHandler);
+
+  DISALLOW_COPY_AND_ASSIGN(CefStreamResourceHandler);
 };
 
 #endif  // CEF_INCLUDE_WRAPPER_CEF_STREAM_RESOURCE_HANDLER_H_

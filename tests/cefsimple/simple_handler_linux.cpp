@@ -8,21 +8,21 @@
 #include <X11/Xlib.h>
 #include <string>
 
-#include "cefsimple/util.h"
 #include "include/cef_browser.h"
+#include "include/wrapper/cef_helpers.h"
 
 void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
                                   const CefString& title) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
   std::string titleStr(title);
 
   // Retrieve the X11 display shared with Chromium.
   ::Display* display = cef_get_xdisplay();
-  ASSERT(display);
+  DCHECK(display);
 
   // Retrieve the X11 window handle for the browser.
   ::Window window = browser->GetHost()->GetWindowHandle();
-  ASSERT(window != kNullWindowHandle);
+  DCHECK_NE(window, kNullWindowHandle);
 
   // Retrieve the atoms required by the below XChangeProperty call.
   const char* kAtoms[] = {
@@ -33,7 +33,7 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
   int result = XInternAtoms(display, const_cast<char**>(kAtoms), 2, false,
                             atoms);
   if (!result)
-    ASSERT(false);
+    NOTREACHED();
 
   // Set the window title.
   XChangeProperty(display,

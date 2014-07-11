@@ -7,7 +7,9 @@
 
 #include <vector>
 
-#include "cefclient/util.h"
+#include "include/base/cef_logging.h"
+#include "include/base/cef_macros.h"
+#include "include/wrapper/cef_helpers.h"
 
 namespace {
 
@@ -57,7 +59,7 @@ class StickyPrintSettingGtk {
   StickyPrintSettingGtk() : last_used_settings_(gtk_print_settings_new()) {
   }
   ~StickyPrintSettingGtk() {
-    ASSERT(false);  // Not reached; the instance is leaked.
+    NOTREACHED();  // The instance is intentionally leaked.
   }
 
   GtkPrintSettings* settings() {
@@ -65,7 +67,7 @@ class StickyPrintSettingGtk {
   }
 
   void SetLastUsedSettings(GtkPrintSettings* settings) {
-    ASSERT(last_used_settings_);
+    DCHECK(last_used_settings_);
     g_object_unref(last_used_settings_);
     last_used_settings_ = gtk_print_settings_copy(settings);
   }
@@ -215,8 +217,8 @@ void GetColorModelForMode(CefPrintSettings::ColorModel color_mode,
 void InitPrintSettings(GtkPrintSettings* settings,
                        GtkPageSetup* page_setup,
                        CefRefPtr<CefPrintSettings> print_settings) {
-  ASSERT(settings);
-  ASSERT(page_setup);
+  DCHECK(settings);
+  DCHECK(page_setup);
 
   std::string device_name;
   const gchar* name = gtk_print_settings_get_printer(settings);
@@ -283,8 +285,8 @@ void ClientPrintHandlerGtk::OnPrintSettings(
     CefRefPtr<CefPrintSettings> settings,
     bool get_defaults) {
   if (get_defaults) {
-    ASSERT(!page_setup_);
-    ASSERT(!printer_);
+    DCHECK(!page_setup_);
+    DCHECK(!printer_);
 
     // |gtk_settings_| is a new copy.
     gtk_settings_ =
@@ -330,7 +332,7 @@ void ClientPrintHandlerGtk::OnPrintSettings(
           cups_duplex_mode = kDuplexNone;
           break;
         default:  // UNKNOWN_DUPLEX_MODE
-          ASSERT(false);  // Not reached
+          NOTREACHED();
           break;
       }
       gtk_print_settings_set(gtk_settings_, kCUPSDuplex, cups_duplex_mode);
@@ -441,7 +443,7 @@ void ClientPrintHandlerGtk::OnDialogResponse(GtkDialog *dialog,
                                              gint response_id) {
   int num_matched_handlers = g_signal_handlers_disconnect_by_func(
       dialog_, reinterpret_cast<gpointer>(&OnDialogResponseThunk), this);
-  ASSERT(1 == num_matched_handlers);
+  DCHECK_EQ(1, num_matched_handlers);
 
   gtk_widget_hide(dialog_);
 
@@ -489,7 +491,7 @@ void ClientPrintHandlerGtk::OnDialogResponse(GtkDialog *dialog,
           break;
         case GTK_PRINT_PAGES_CURRENT:
         default:
-          ASSERT(false);  // Not reached.
+          NOTREACHED();
           break;
       }
 
@@ -509,7 +511,7 @@ void ClientPrintHandlerGtk::OnDialogResponse(GtkDialog *dialog,
     }
     case GTK_RESPONSE_APPLY:
     default: {
-      ASSERT(false);  // Not reached.
+      NOTREACHED();
     }
   }
 }

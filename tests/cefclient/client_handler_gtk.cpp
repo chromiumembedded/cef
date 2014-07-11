@@ -127,7 +127,7 @@ bool ClientHandler::OnFileDialog(CefRefPtr<CefBrowser> browser,
     action = GTK_FILE_CHOOSER_ACTION_SAVE;
     accept_button = GTK_STOCK_SAVE;
   } else {
-    ASSERT(false);  // Not reached
+    NOTREACHED();
     return false;
   }
 
@@ -216,7 +216,7 @@ bool ClientHandler::OnFileDialog(CefRefPtr<CefBrowser> browser,
 void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefFrame> frame,
                                     const CefString& url) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   if (m_BrowserId == browser->GetIdentifier() && frame->IsMain()) {
       // Set the edit window text
@@ -227,7 +227,7 @@ void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
 
 void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
                                   const CefString& title) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   std::string titleStr(title);
 
@@ -239,11 +239,11 @@ void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
   } else {
     // Retrieve the X11 display shared with Chromium.
     ::Display* display = cef_get_xdisplay();
-    ASSERT(display);
+    DCHECK(display);
 
     // Retrieve the X11 window handle for the browser.
     ::Window window = browser->GetHost()->GetWindowHandle();
-    ASSERT(window != kNullWindowHandle);
+    DCHECK_NE(window, kNullWindowHandle);
 
     // Retrieve the atoms required by the below XChangeProperty call.
     const char* kAtoms[] = {
@@ -254,7 +254,7 @@ void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
     int result = XInternAtoms(display, const_cast<char**>(kAtoms), 2, false,
                               atoms);
     if (!result)
-      ASSERT(false);
+      NOTREACHED();
 
     // Set the window title.
     XChangeProperty(display,
@@ -379,7 +379,7 @@ void ClientHandler::OnResetDialogState(CefRefPtr<CefBrowser> browser) {
 void ClientHandler::OnDialogResponse(GtkDialog* dialog,
                                      gint response_id,
                                      ClientHandler* handler) {
-  ASSERT(dialog == GTK_DIALOG(handler->gtk_dialog_));
+  DCHECK_EQ(dialog, GTK_DIALOG(handler->gtk_dialog_));
   switch (response_id) {
     case GTK_RESPONSE_OK:
       handler->js_dialog_callback_->Continue(true, GetPromptText(dialog));
@@ -389,7 +389,7 @@ void ClientHandler::OnDialogResponse(GtkDialog* dialog,
       handler->js_dialog_callback_->Continue(false, CefString());
       break;
     default:
-      ASSERT(false);  // Not reached
+      NOTREACHED();
   }
 
   handler->OnResetDialogState(NULL);

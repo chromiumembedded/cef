@@ -3,12 +3,16 @@
 // can be found in the LICENSE file.
 
 #include "include/wrapper/cef_stream_resource_handler.h"
+
 #include <algorithm>
+
+#include "include/base/cef_logging.h"
+#include "include/base/cef_macros.h"
 #include "include/cef_callback.h"
 #include "include/cef_request.h"
 #include "include/cef_runnable.h"
 #include "include/cef_stream.h"
-#include "libcef_dll/cef_logging.h"
+#include "include/wrapper/cef_helpers.h"
 
 // Class that represents a readable/writable character buffer.
 class CefStreamResourceHandler::Buffer {
@@ -77,6 +81,8 @@ class CefStreamResourceHandler::Buffer {
   int bytes_requested_;
   int bytes_written_;
   int bytes_read_;
+
+  DISALLOW_COPY_AND_ASSIGN(Buffer);
 };
 
 CefStreamResourceHandler::CefStreamResourceHandler(

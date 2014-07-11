@@ -6,10 +6,10 @@
 #define CEF_LIBCEF_DLL_CPPTOC_BASE_CPPTOC_H_
 #pragma once
 
+#include "include/base/cef_logging.h"
+#include "include/base/cef_macros.h"
 #include "include/cef_base.h"
 #include "include/capi/cef_base_capi.h"
-#include "libcef_dll/cef_logging.h"
-
 
 // CefCppToC implementation for CefBase.
 class CefBaseCppToC : public CefBase {
@@ -137,10 +137,11 @@ class CefBaseCppToC : public CefBase {
     return impl->class_->GetRefCt();
   }
 
- protected:
   CefRefCount refct_;
   Struct struct_;
   CefBase* class_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefBaseCppToC);
 };
 
 #endif  // CEF_LIBCEF_DLL_CPPTOC_BASE_CPPTOC_H_

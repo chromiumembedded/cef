@@ -7,13 +7,13 @@
 #include <windowsx.h>
 
 #include "include/cef_runnable.h"
+#include "include/wrapper/cef_helpers.h"
 #include "cefclient/resource.h"
-#include "cefclient/util.h"
 
 // static
 CefRefPtr<OSRWindow> OSRWindow::Create(OSRBrowserProvider* browser_provider,
     bool transparent) {
-  ASSERT(browser_provider);
+  DCHECK(browser_provider);
   if (!browser_provider)
     return NULL;
 
@@ -28,7 +28,7 @@ CefRefPtr<OSRWindow> OSRWindow::From(
 
 bool OSRWindow::CreateWidget(HWND hWndParent, const RECT& rect,
                              HINSTANCE hInst, LPCTSTR className) {
-  ASSERT(hWnd_ == NULL && hDC_ == NULL && hRC_ == NULL);
+  DCHECK(hWnd_ == NULL && hDC_ == NULL && hRC_ == NULL);
 
   RegisterOSRClass(hInst, className);
   hWnd_ = ::CreateWindow(className, 0,
@@ -46,7 +46,7 @@ bool OSRWindow::CreateWidget(HWND hWndParent, const RECT& rect,
 
   drop_target_ = DropTargetWin::Create(this, hWnd_);
   HRESULT register_res = RegisterDragDrop(hWnd_, drop_target_);
-  ASSERT(register_res == S_OK);
+  DCHECK_EQ(register_res, S_OK);
   return true;
 }
 
@@ -236,7 +236,7 @@ OSRWindow::~OSRWindow() {
 }
 
 void OSRWindow::Render() {
-  ASSERT(CefCurrentlyOn(TID_UI));
+  CEF_REQUIRE_UI_THREAD();
   if (render_task_pending_)
     render_task_pending_ = false;
 
@@ -249,7 +249,7 @@ void OSRWindow::Render() {
 }
 
 void OSRWindow::EnableGL() {
-  ASSERT(CefCurrentlyOn(TID_UI));
+  CEF_REQUIRE_UI_THREAD();
 
   PIXELFORMATDESCRIPTOR pfd;
   int format;
@@ -277,7 +277,7 @@ void OSRWindow::EnableGL() {
 }
 
 void OSRWindow::DisableGL() {
-  ASSERT(CefCurrentlyOn(TID_UI));
+  CEF_REQUIRE_UI_THREAD();
 
   if (!hDC_)
     return;

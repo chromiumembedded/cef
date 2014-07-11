@@ -1,5 +1,4 @@
-// Copyright (c) 2009 The Chromium Embedded Framework Authors. All rights
-// reserved.
+// Copyright (c) 2014 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -27,29 +26,54 @@
 // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// ---------------------------------------------------------------------------
+//
+// The contents of this file are only available to applications that link
+// against the libcef_dll_wrapper target.
+//
 
-#ifndef CEF_INCLUDE_INTERNAL_CEF_EXPORT_H_
-#define CEF_INCLUDE_INTERNAL_CEF_EXPORT_H_
+#ifndef CEF_INCLUDE_WRAPPER_CEF_HELPERS_H_
+#define CEF_INCLUDE_WRAPPER_CEF_HELPERS_H_
 #pragma once
 
-#include "include/base/cef_build.h"
+#include <cstring>
+#include <string>
+#include <vector>
 
-#if defined(COMPILER_MSVC)
+#include "include/base/cef_logging.h"
+#include "include/base/cef_macros.h"
+#include "include/cef_task.h"
 
-#ifdef BUILDING_CEF_SHARED
-#define CEF_EXPORT __declspec(dllexport)
-#elif USING_CEF_SHARED
-#define CEF_EXPORT __declspec(dllimport)
-#else
-#define CEF_EXPORT
-#endif
-#define CEF_CALLBACK __stdcall
+#define CEF_REQUIRE_UI_THREAD()       DCHECK(CefCurrentlyOn(TID_UI));
+#define CEF_REQUIRE_IO_THREAD()       DCHECK(CefCurrentlyOn(TID_IO));
+#define CEF_REQUIRE_FILE_THREAD()     DCHECK(CefCurrentlyOn(TID_FILE));
+#define CEF_REQUIRE_RENDERER_THREAD() DCHECK(CefCurrentlyOn(TID_RENDERER));
 
-#elif defined(COMPILER_GCC)
+// Helper class to manage a scoped copy of |argv|.
+class CefScopedArgArray {
+ public:
+  CefScopedArgArray(int argc, char* argv[]) {
+    array_ = new char*[argc];
+    for (int i = 0; i < argc; ++i) {
+      values_.push_back(argv[i]);
+      array_[i] = const_cast<char*>(values_[i].c_str());
+    }
+  }
+  ~CefScopedArgArray() {
+    delete [] array_;
+  }
 
-#define CEF_EXPORT __attribute__ ((visibility("default")))
-#define CEF_CALLBACK
+  char** array() const { return array_; }
 
-#endif  // COMPILER_GCC
+ private:
+  char** array_;
 
-#endif  // CEF_INCLUDE_INTERNAL_CEF_EXPORT_H_
+  // Keep values in a vector separate from |array_| because various users may
+  // modify |array_| and we still want to clean up memory properly.
+  std::vector<std::string> values_;
+  
+  DISALLOW_COPY_AND_ASSIGN(CefScopedArgArray);
+};
+
+#endif  // CEF_INCLUDE_WRAPPER_CEF_HELPERS_H_

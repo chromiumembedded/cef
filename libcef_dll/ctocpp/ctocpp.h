@@ -6,10 +6,10 @@
 #define CEF_LIBCEF_DLL_CTOCPP_CTOCPP_H_
 #pragma once
 
+#include "include/base/cef_logging.h"
+#include "include/base/cef_macros.h"
 #include "include/cef_base.h"
 #include "include/capi/cef_base_capi.h"
-#include "libcef_dll/cef_logging.h"
-
 
 // Wrap a C structure with a C++ class.  This is used when the implementation
 // exists on the other side of the DLL boundary but will have methods called on
@@ -108,6 +108,9 @@ class CefCToCpp : public BaseName {
  protected:
   CefRefCount refct_;
   StructName* struct_;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(CefCToCpp);
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_CTOCPP_H_

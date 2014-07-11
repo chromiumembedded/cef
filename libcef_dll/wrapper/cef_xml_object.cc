@@ -3,9 +3,12 @@
 // can be found in the LICENSE file.
 
 #include "include/wrapper/cef_xml_object.h"
-#include "include/cef_stream.h"
-#include "libcef_dll/cef_logging.h"
+
 #include <sstream>
+
+#include "include/base/cef_logging.h"
+#include "include/base/cef_macros.h"
+#include "include/cef_stream.h"
 
 namespace {
 
@@ -102,7 +105,7 @@ class CefXmlObjectLoader {
               cur_object->GetName() != reader->GetQualifiedName()) {
             // Open tag without close tag or close tag without open tag should
             // never occur (the parser catches this error).
-            DCHECK(false);
+            NOTREACHED();
             std::stringstream ss;
             ss << "Mismatched end tag for " <<
                 std::string(cur_object->GetName()) <<
@@ -149,6 +152,8 @@ class CefXmlObjectLoader {
  private:
   CefString load_error_;
   CefRefPtr<CefXmlObject> root_object_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefXmlObjectLoader);
 };
 
 }  // namespace

@@ -65,7 +65,7 @@ def make_ctocpp_function_impl_new(clsname, name, func):
         result += '\n  const char* api_hash = cef_api_hash(0);'\
                   '\n  if (strcmp(api_hash, CEF_API_HASH_PLATFORM)) {'\
                   '\n    // The libcef API hash does not match the current header API hash.'\
-                  '\n    DCHECK(false);'\
+                  '\n    NOTREACHED();'\
                   '\n    return'+retval_default+';'\
                   '\n  }\n'
     

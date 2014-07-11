@@ -12,9 +12,9 @@
 #include "include/cef_response.h"
 #include "include/cef_request.h"
 #include "include/cef_scheme.h"
+#include "include/wrapper/cef_helpers.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/string_util.h"
-#include "cefclient/util.h"
 
 #if defined(OS_WIN)
 #include "cefclient/resource.h"
@@ -32,7 +32,7 @@ class ClientSchemeHandler : public CefResourceHandler {
   virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
                               CefRefPtr<CefCallback> callback)
                               OVERRIDE {
-    REQUIRE_IO_THREAD();
+    CEF_REQUIRE_IO_THREAD();
 
     bool handled = false;
 
@@ -85,9 +85,9 @@ class ClientSchemeHandler : public CefResourceHandler {
   virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
                                   int64& response_length,
                                   CefString& redirectUrl) OVERRIDE {
-    REQUIRE_IO_THREAD();
+    CEF_REQUIRE_IO_THREAD();
 
-    ASSERT(!data_.empty());
+    DCHECK(!data_.empty());
 
     response->SetMimeType(mime_type_);
     response->SetStatus(200);
@@ -97,7 +97,7 @@ class ClientSchemeHandler : public CefResourceHandler {
   }
 
   virtual void Cancel() OVERRIDE {
-    REQUIRE_IO_THREAD();
+    CEF_REQUIRE_IO_THREAD();
   }
 
   virtual bool ReadResponse(void* data_out,
@@ -105,7 +105,7 @@ class ClientSchemeHandler : public CefResourceHandler {
                             int& bytes_read,
                             CefRefPtr<CefCallback> callback)
                             OVERRIDE {
-    REQUIRE_IO_THREAD();
+    CEF_REQUIRE_IO_THREAD();
 
     bool has_data = false;
     bytes_read = 0;
@@ -144,7 +144,7 @@ class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {
                                                const CefString& scheme_name,
                                                CefRefPtr<CefRequest> request)
                                                OVERRIDE {
-    REQUIRE_IO_THREAD();
+    CEF_REQUIRE_IO_THREAD();
     return new ClientSchemeHandler();
   }
 

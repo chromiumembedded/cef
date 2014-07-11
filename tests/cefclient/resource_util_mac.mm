@@ -4,10 +4,12 @@
 // found in the LICENSE file.
 
 #include "cefclient/resource_util.h"
+
 #import <Foundation/Foundation.h>
 #include <mach-o/dyld.h>
 #include <stdio.h>
-#include "cefclient/util.h"
+
+#include "include/base/cef_logging.h"
 
 namespace {
 
@@ -18,7 +20,7 @@ bool AmIBundled() {
   FSRef fsref;
   OSStatus pbErr;
   if ((pbErr = GetProcessBundleLocation(&psn, &fsref)) != noErr) {
-    ASSERT(false);
+    NOTREACHED();
     return false;
   }
 
@@ -26,7 +28,7 @@ bool AmIBundled() {
   OSErr fsErr;
   if ((fsErr = FSGetCatalogInfo(&fsref, kFSCatInfoNodeFlags, &info,
                                 NULL, NULL, NULL)) != noErr) {
-    ASSERT(false);
+    NOTREACHED();
     return false;
   }
 
@@ -53,7 +55,7 @@ bool GetResourceDir(std::string& dir) {
     return true;
   } else {
     // TODO: Provide unbundled path
-    ASSERT(false);
+    NOTIMPLEMENTED();
     return false;
   }
 }

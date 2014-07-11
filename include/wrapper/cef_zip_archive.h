@@ -37,6 +37,7 @@
 #define CEF_INCLUDE_WRAPPER_CEF_ZIP_ARCHIVE_H_
 #pragma once
 
+#include "include/base/cef_macros.h"
 #include "include/cef_base.h"
 #include <map>
 
@@ -130,6 +131,8 @@ class CefZipArchive : public CefBase {
 
   IMPLEMENT_REFCOUNTING(CefZipArchive);
   IMPLEMENT_LOCKING(CefZipArchive);
+
+  DISALLOW_COPY_AND_ASSIGN(CefZipArchive);
 };
 
 #endif  // CEF_INCLUDE_WRAPPER_CEF_ZIP_ARCHIVE_H_

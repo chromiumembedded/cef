@@ -2,10 +2,13 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+// Include this first to avoid conflicts with base/cef_logging.h.
+#include "base/logging.h"
+
 #include "include/cef_app.h"
 #include "include/cef_task.h"
+#include "include/wrapper/cef_helpers.h"
 #include "tests/cefclient/client_app.h"
-#include "tests/cefclient/util.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_suite.h"
 #include "base/bind.h"
@@ -62,7 +65,7 @@ int main(int argc, char* argv[]) {
 #if defined(OS_LINUX)
   // Create a copy of |argv| on Linux because Chromium mangles the value
   // internally (see issue #620).
-  ScopedArgArray scoped_arg_array(argc, argv);
+  CefScopedArgArray scoped_arg_array(argc, argv);
   char** argv_copy = scoped_arg_array.array();
 #else
   char** argv_copy = argv;

@@ -7,15 +7,15 @@
 #include <string>
 
 #include "cefsimple/simple_handler.h"
-#include "cefsimple/util.h"
 #include "include/cef_browser.h"
 #include "include/cef_command_line.h"
+#include "include/wrapper/cef_helpers.h"
 
 SimpleApp::SimpleApp() {
 }
 
 void SimpleApp::OnContextInitialized() {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   // Information used when creating the native window.
   CefWindowInfo window_info;

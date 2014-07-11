@@ -12,7 +12,7 @@
 #include "include/cef_process_message.h"
 #include "include/cef_task.h"
 #include "include/cef_v8.h"
-#include "util.h"  // NOLINT(build/include)
+#include "include/wrapper/cef_helpers.h"
 
 ClientApp::ClientApp() {
 }
@@ -31,7 +31,7 @@ void ClientApp::OnContextInitialized() {
 
   // Register cookieable schemes with the global cookie manager.
   CefRefPtr<CefCookieManager> manager = CefCookieManager::GetGlobalManager();
-  ASSERT(manager.get());
+  DCHECK(manager.get());
   manager->SetSupportedSchemes(cookieable_schemes_);
 
   print_handler_ = CreatePrintHandler();
@@ -146,7 +146,7 @@ bool ClientApp::OnProcessMessageReceived(
     CefRefPtr<CefBrowser> browser,
     CefProcessId source_process,
     CefRefPtr<CefProcessMessage> message) {
-  ASSERT(source_process == PID_BROWSER);
+  DCHECK_EQ(source_process, PID_BROWSER);
 
   bool handled = false;
 

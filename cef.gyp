@@ -985,6 +985,7 @@
         'libcef/browser/xml_reader_impl.h',
         'libcef/browser/zip_reader_impl.cc',
         'libcef/browser/zip_reader_impl.h',
+        'libcef/common/base_impl.cc',
         'libcef/common/breakpad_client.cc',
         'libcef/common/breakpad_client.h',
         'libcef/common/cef_message_generator.cc',

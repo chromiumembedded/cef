@@ -45,20 +45,6 @@ using blink::WebString;
 using blink::WebURL;
 using blink::WebView;
 
-namespace {
-
-blink::WebString FilePathStringToWebString(
-    const base::FilePath::StringType& str) {
-#if defined(OS_POSIX)
-  return base::WideToUTF16(base::SysNativeMBToWide(str));
-#elif defined(OS_WIN)
-  return base::WideToUTF16(str);
-#endif
-}
-
-}  // namespace
-
-
 // CefBrowserImpl static methods.
 // -----------------------------------------------------------------------------
 

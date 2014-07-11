@@ -6,7 +6,8 @@
 #define CEF_TESTS_CEFCLIENT_PERFORMANCE_TEST_SETUP_H_
 #pragma once
 
-#include "cefclient/util.h"
+#include "include/base/cef_macros.h"
+#include "include/base/cef_logging.h"
 
 namespace performance_test {
 
@@ -39,19 +40,19 @@ class CefTimer {
   bool IsRunning() { return running_; }
 
   void Start() {
-    ASSERT(!running_);
+    DCHECK(!running_);
     running_ = true;
     start_.Now();
   }
 
   void Stop() {
     stop_.Now();
-    ASSERT(running_);
+    DCHECK(running_);
     running_ = false;
   }
 
   int64 Delta() {
-    ASSERT(!running_);
+    DCHECK(!running_);
     return start_.Delta(stop_);
   }
 
@@ -59,6 +60,8 @@ class CefTimer {
   bool running_;
   CefTime start_;
   CefTime stop_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefTimer);
 };
 
 // Peform test iterations using a user-provided timing result variable.

@@ -1,4 +1,5 @@
-// Copyright (c) 2011 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2014 Marshall A. Greenblatt. Portions copyright (c) 2012
+// Google Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -27,69 +28,21 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-#ifndef CEF_INCLUDE_INTERNAL_CEF_BUILD_H_
-#define CEF_INCLUDE_INTERNAL_CEF_BUILD_H_
+#ifndef CEF_INCLUDE_BASE_CEF_MACROS_H_
+#define CEF_INCLUDE_BASE_CEF_MACROS_H_
 #pragma once
 
 #if defined(BUILDING_CEF_SHARED)
-
-#include "base/compiler_specific.h"
-
+// When building CEF include the Chromium header directly.
+#include "base/macros.h"
 #else  // !BUILDING_CEF_SHARED
+// The following is substantially similar to the Chromium implementation.
+// If the Chromium implementation diverges the below implementation should be
+// updated to match.
 
-#if defined(_WIN32)
-#ifndef OS_WIN
-#define OS_WIN 1
-#endif
-#elif defined(__APPLE__)
-#ifndef OS_MACOSX
-#define OS_MACOSX 1
-#endif
-#elif defined(__linux__)
-#ifndef OS_LINUX
-#define OS_LINUX 1
-#endif
-#else
-#error Please add support for your platform in cef_build.h
-#endif
+#include <stddef.h>  // For size_t.
 
-// For access to standard POSIXish features, use OS_POSIX instead of a
-// more specific macro.
-#if defined(OS_MACOSX) || defined(OS_LINUX)
-#ifndef OS_POSIX
-#define OS_POSIX 1
-#endif
-#endif
-
-// Compiler detection.
-#if defined(__GNUC__)
-#ifndef COMPILER_GCC
-#define COMPILER_GCC 1
-#endif
-#elif defined(_MSC_VER)
-#ifndef COMPILER_MSVC
-#define COMPILER_MSVC 1
-#endif
-#else
-#error Please add support for your compiler in cef_build.h
-#endif
-
-// Annotate a virtual method indicating it must be overriding a virtual
-// method in the parent class.
-// Use like:
-//   virtual void foo() OVERRIDE;
-#if defined(__clang__) || defined(COMPILER_MSVC)
-#define OVERRIDE override
-#elif defined(COMPILER_GCC) && __cplusplus >= 201103 && \
-      (__GNUC__ * 10000 + __GNUC_MINOR__ * 100) >= 40700
-// GCC 4.7 supports explicit virtual overrides when C++11 support is enabled.
-#define OVERRIDE override
-#else
-#define OVERRIDE
-#endif
-
-#ifndef ALLOW_THIS_IN_INITIALIZER_LIST
+#if !defined(ALLOW_THIS_IN_INITIALIZER_LIST)
 #if defined(COMPILER_MSVC)
 
 // MSVC_PUSH_DISABLE_WARNING pushes |n| onto a stack of warnings to be disabled.
@@ -122,8 +75,49 @@
 #define ALLOW_THIS_IN_INITIALIZER_LIST(code) code
 
 #endif  // !COMPILER_MSVC
+#endif  // !ALLOW_THIS_IN_INITIALIZER_LIST
+
+#if !defined(arraysize)
+
+// The arraysize(arr) macro returns the # of elements in an array arr.
+// The expression is a compile-time constant, and therefore can be
+// used in defining new arrays, for example.  If you use arraysize on
+// a pointer by mistake, you will get a compile-time error.
+//
+// One caveat is that arraysize() doesn't accept any array of an
+// anonymous type or a type defined inside a function.  In these rare
+// cases, you have to use the unsafe ARRAYSIZE_UNSAFE() macro below.  This is
+// due to a limitation in C++'s template system.  The limitation might
+// eventually be removed, but it hasn't happened yet.
+
+// This template function declaration is used in defining arraysize.
+// Note that the function doesn't need an implementation, as we only
+// use its type.
+template <typename T, size_t N>
+char (&ArraySizeHelper(T (&array)[N]))[N];
+
+// That gcc wants both of these prototypes seems mysterious. VC, for
+// its part, can't decide which to use (another mystery). Matching of
+// template overloads: the final frontier.
+#ifndef _MSC_VER
+template <typename T, size_t N>
+char (&ArraySizeHelper(const T (&array)[N]))[N];
 #endif
+
+#define arraysize(array) (sizeof(ArraySizeHelper(array)))
+
+#endif  // !arraysize
+
+#if !defined(DISALLOW_COPY_AND_ASSIGN)
+
+// A macro to disallow the copy constructor and operator= functions
+// This should be used in the private: declarations for a class
+#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
+  TypeName(const TypeName&);               \
+  void operator=(const TypeName&)
+
+#endif  // !DISALLOW_COPY_AND_ASSIGN
 
 #endif  // !BUILDING_CEF_SHARED
 
-#endif  // CEF_INCLUDE_INTERNAL_CEF_BUILD_H_
+#endif  // CEF_INCLUDE_BASE_CEF_MACROS_H_

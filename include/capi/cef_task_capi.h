@@ -134,19 +134,19 @@ CEF_EXPORT cef_task_runner_t* cef_task_runner_get_for_thread(
 
 ///
 // Returns true (1) if called on the specified thread. Equivalent to using
-// cef_task_runner_t::GetForThread(threadId)->belongs_to_current_thread().
+// cef_task_tRunner::GetForThread(threadId)->belongs_to_current_thread().
 ///
 CEF_EXPORT int cef_currently_on(cef_thread_id_t threadId);
 
 ///
 // Post a task for execution on the specified thread. Equivalent to using
-// cef_task_runner_t::GetForThread(threadId)->PostTask(task).
+// cef_task_tRunner::GetForThread(threadId)->PostTask(task).
 ///
 CEF_EXPORT int cef_post_task(cef_thread_id_t threadId, cef_task_t* task);
 
 ///
 // Post a task for delayed execution on the specified thread. Equivalent to
-// using cef_task_runner_t::GetForThread(threadId)->PostDelayedTask(task,
+// using cef_task_tRunner::GetForThread(threadId)->PostDelayedTask(task,
 // delay_ms).
 ///
 CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId, cef_task_t* task,

@@ -18,7 +18,7 @@
 #include <X11/Xcursor/Xcursor.h>
 
 #include "include/cef_runnable.h"
-#include "cefclient/util.h"
+#include "include/wrapper/cef_helpers.h"
 
 namespace {
 
@@ -1102,7 +1102,7 @@ class ScopedGLContext {
 CefRefPtr<OSRWindow> OSRWindow::Create(OSRBrowserProvider* browser_provider,
                                        bool transparent,
                                        ClientWindowHandle parentView) {
-  ASSERT(browser_provider);
+  DCHECK(browser_provider);
   if (!browser_provider)
     return NULL;
 
@@ -1198,7 +1198,7 @@ void OSRWindow::OnCursorChange(CefRefPtr<CefBrowser> browser,
 
   // Retrieve the X11 display shared with Chromium.
   ::Display* xdisplay = cef_get_xdisplay();
-  ASSERT(xdisplay);
+  DCHECK(xdisplay);
 
   // Retrieve the X11 window handle for OSR widget.
   ::Window xwindow = GDK_WINDOW_XID(gtk_widget_get_window(glarea_));
@@ -1257,13 +1257,13 @@ OSRWindow::OSRWindow(OSRBrowserProvider* browser_provider,
       painting_popup_(false),
       render_task_pending_(false) {
   glarea_ = gtk_drawing_area_new();
-  ASSERT(glarea_);
+  DCHECK(glarea_);
 
   GdkGLConfig* glconfig = gdk_gl_config_new_by_mode(
       static_cast<GdkGLConfigMode>(GDK_GL_MODE_RGB |
                                    GDK_GL_MODE_DEPTH |
                                    GDK_GL_MODE_DOUBLE));
-  ASSERT(glconfig);
+  DCHECK(glconfig);
 
   gtk_widget_set_gl_capability(glarea_, glconfig, NULL, TRUE,
                                GDK_GL_RGBA_TYPE);
@@ -1312,7 +1312,7 @@ OSRWindow::~OSRWindow() {
 }
 
 void OSRWindow::Render() {
-  ASSERT(CefCurrentlyOn(TID_UI));
+  CEF_REQUIRE_UI_THREAD();
   if (render_task_pending_)
     render_task_pending_ = false;
 
@@ -1327,7 +1327,7 @@ void OSRWindow::Render() {
 }
 
 void OSRWindow::EnableGL() {
-  ASSERT(CefCurrentlyOn(TID_UI));
+  CEF_REQUIRE_UI_THREAD();
   if (gl_enabled_)
     return;
 
@@ -1341,7 +1341,7 @@ void OSRWindow::EnableGL() {
 }
 
 void OSRWindow::DisableGL() {
-  ASSERT(CefCurrentlyOn(TID_UI));
+  CEF_REQUIRE_UI_THREAD();
 
   if (!gl_enabled_)
     return;

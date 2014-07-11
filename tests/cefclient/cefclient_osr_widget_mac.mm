@@ -14,11 +14,11 @@
 #include "include/cef_browser.h"
 #include "include/cef_client.h"
 #include "include/cef_url.h"
+#include "include/wrapper/cef_helpers.h"
 #include "cefclient/bytes_write_handler.h"
 #include "cefclient/cefclient.h"
 #include "cefclient/osrenderer.h"
 #include "cefclient/resource_util.h"
-#include "cefclient/util.h"
 
 // This method will return YES for OS X versions 10.7.3 and later, and NO
 // otherwise.
@@ -127,7 +127,7 @@ void ClientOSRHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 
 bool ClientOSRHandler::GetViewRect(CefRefPtr<CefBrowser> browser,
                                    CefRect& rect) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   if (!view_)
     return false;
@@ -146,7 +146,7 @@ bool ClientOSRHandler::GetScreenPoint(CefRefPtr<CefBrowser> browser,
                                       int viewY,
                                       int& screenX,
                                       int& screenY) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   if (!view_)
     return false;
@@ -163,7 +163,7 @@ bool ClientOSRHandler::GetScreenPoint(CefRefPtr<CefBrowser> browser,
 
 bool ClientOSRHandler::GetScreenInfo(CefRefPtr<CefBrowser> browser,
                                      CefScreenInfo& screen_info) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   if (!view_)
     return false;
@@ -192,7 +192,7 @@ bool ClientOSRHandler::GetScreenInfo(CefRefPtr<CefBrowser> browser,
 
 void ClientOSRHandler::OnPopupShow(CefRefPtr<CefBrowser> browser,
                                    bool show) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   if (!view_)
     return;
@@ -209,7 +209,7 @@ void ClientOSRHandler::OnPopupShow(CefRefPtr<CefBrowser> browser,
 
 void ClientOSRHandler::OnPopupSize(CefRefPtr<CefBrowser> browser,
                                    const CefRect& rect) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   if (!view_)
     return;
@@ -222,7 +222,7 @@ void ClientOSRHandler::OnPaint(CefRefPtr<CefBrowser> browser,
                                const RectList& dirtyRects,
                                const void* buffer,
                                int width, int height) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
 
   if (!view_)
     return;
@@ -253,7 +253,7 @@ void ClientOSRHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 
 void ClientOSRHandler::OnCursorChange(CefRefPtr<CefBrowser> browser,
                                       CefCursorHandle cursor) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
   [cursor set];
 }
 
@@ -261,7 +261,7 @@ bool ClientOSRHandler::StartDragging(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefDragData> drag_data,
                                CefRenderHandler::DragOperationsMask allowed_ops,
                                int x, int y) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
   if (!view_)
     return false;
   return [view_ startDragging:drag_data
@@ -271,7 +271,7 @@ bool ClientOSRHandler::StartDragging(CefRefPtr<CefBrowser> browser,
 
 void ClientOSRHandler::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
                                  CefRenderHandler::DragOperation operation) {
-  REQUIRE_UI_THREAD();
+  CEF_REQUIRE_UI_THREAD();
   if (!view_)
     return;
   view_->current_drag_op_ = operation;
@@ -542,7 +542,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
     return;
 
   CGEventRef cgEvent = [event CGEvent];
-  ASSERT(cgEvent);
+  DCHECK(cgEvent);
 
   int deltaX =
       CGEventGetIntegerValueField(cgEvent, kCGScrollWheelEventPointDeltaAxis2);
@@ -817,9 +817,9 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 - (BOOL)startDragging:(CefRefPtr<CefDragData>)drag_data
           allowed_ops:(NSDragOperation)ops
                 point:(NSPoint)position {
-  ASSERT(!pasteboard_);
-  ASSERT(!fileUTI_);
-  ASSERT(!current_drag_data_.get());
+  DCHECK(!pasteboard_);
+  DCHECK(!fileUTI_);
+  DCHECK(!current_drag_data_.get());
 
   [self resetDragDrop];
 
@@ -982,7 +982,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 
   // URL.
   if ([type isEqualToString:NSURLPboardType]) {
-    ASSERT(current_drag_data_->IsLink());
+    DCHECK(current_drag_data_->IsLink());
     NSString* strUrl = [NSString stringWithUTF8String:
         current_drag_data_->GetLinkURL().ToString().c_str()];
     NSURL* url = [NSURL URLWithString:strUrl];
@@ -996,12 +996,12 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   // File contents.
   } else if ([type isEqualToString:(NSString*)fileUTI_]) {
     size_t size = current_drag_data_->GetFileContents(NULL);
-    ASSERT(size > 0);
+    DCHECK_GT(size, 0U);
     CefRefPtr<BytesWriteHandler> handler = new BytesWriteHandler(size);
     CefRefPtr<CefStreamWriter> writer =
         CefStreamWriter::CreateForHandler(handler.get());
     current_drag_data_->GetFileContents(writer);
-    ASSERT(handler->GetDataSize() == static_cast<int64>(size));
+    DCHECK_EQ(handler->GetDataSize(), static_cast<int64>(size));
 
     [pboard setData:[NSData dataWithBytes:handler->GetData()
                                    length:handler->GetDataSize()]
@@ -1038,7 +1038,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 }
 
 - (void)fillPasteboard {
-  ASSERT(!pasteboard_);
+  DCHECK(!pasteboard_);
   pasteboard_ = [[NSPasteboard pasteboardWithName:NSDragPboard] retain];
 
   [pasteboard_ declareTypes:@[ kCEFDragDummyPboardType ]
@@ -1090,9 +1090,9 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 
 - (void)populateDropData:(CefRefPtr<CefDragData>)data
           fromPasteboard:(NSPasteboard*)pboard {
-  ASSERT(data);
-  ASSERT(pboard);
-  ASSERT(data && !data->IsReadOnly());
+  DCHECK(data);
+  DCHECK(pboard);
+  DCHECK(data && !data->IsReadOnly());
   NSArray* types = [pboard types];
 
   // Get plain text.

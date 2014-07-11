@@ -7,10 +7,10 @@
 #include <map>
 #include <set>
 
+#include "include/base/cef_macros.h"
 #include "include/cef_runnable.h"
 #include "include/cef_task.h"
-#include "libcef_dll/cef_logging.h"
-#include "libcef_dll/cef_macros.h"
+#include "include/wrapper/cef_helpers.h"
 #include "libcef_dll/wrapper/cef_browser_info_map.h"
 
 namespace {

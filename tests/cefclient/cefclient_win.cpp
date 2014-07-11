@@ -110,7 +110,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
   // Populate the settings based on command line arguments.
   AppGetSettings(settings);
-
+  
   // Initialize CEF.
   CefInitialize(main_args, settings, app.get(), sandbox_info);
 
@@ -143,7 +143,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   } else {
     // Create a hidden window for message processing.
     hMessageWnd = CreateMessageWindow(hInstance);
-    ASSERT(hMessageWnd);
+    DCHECK(hMessageWnd);
 
     MSG msg;
 
@@ -692,7 +692,7 @@ void AppQuitMessageLoop() {
   if (command_line->HasSwitch(cefclient::kMultiThreadedMessageLoop)) {
     // Running in multi-threaded message loop mode. Need to execute
     // PostQuitMessage on the main application thread.
-    ASSERT(hMessageWnd);
+    DCHECK(hMessageWnd);
     PostMessage(hMessageWnd, WM_COMMAND, ID_QUIT, 0);
   } else {
     CefQuitMessageLoop();

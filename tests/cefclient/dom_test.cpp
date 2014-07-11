@@ -8,7 +8,7 @@
 #include <string>
 
 #include "include/cef_dom.h"
-#include "cefclient/util.h"
+#include "include/wrapper/cef_helpers.h"
 
 namespace dom_test {
 
@@ -25,12 +25,12 @@ class ClientDOMEventListener : public CefDOMEventListener {
 
   virtual void HandleEvent(CefRefPtr<CefDOMEvent> event) OVERRIDE {
     CefRefPtr<CefDOMDocument> document = event->GetDocument();
-    ASSERT(document.get());
+    DCHECK(document.get());
 
     std::stringstream ss;
 
     CefRefPtr<CefDOMNode> button = event->GetTarget();
-    ASSERT(button.get());
+    DCHECK(button.get());
     std::string buttonValue = button->GetElementAttribute("value");
     ss << "You clicked the " << buttonValue.c_str() << " button. ";
 
@@ -71,10 +71,10 @@ class ClientDOMEventListener : public CefDOMEventListener {
 
     // Update the description.
     CefRefPtr<CefDOMNode> desc = document->GetElementById("description");
-    ASSERT(desc.get());
+    DCHECK(desc.get());
     CefRefPtr<CefDOMNode> text = desc->GetFirstChild();
-    ASSERT(text.get());
-    ASSERT(text->IsText());
+    DCHECK(text.get());
+    DCHECK(text->IsText());
     text->SetValue(ss.str());
   }
 
@@ -89,7 +89,7 @@ class ClientDOMVisitor : public CefDOMVisitor {
   virtual void Visit(CefRefPtr<CefDOMDocument> document) OVERRIDE {
     // Register a click listener for the button.
     CefRefPtr<CefDOMNode> button = document->GetElementById("button");
-    ASSERT(button.get());
+    DCHECK(button.get());
     button->AddEventListener("click", new ClientDOMEventListener(), false);
   }
 

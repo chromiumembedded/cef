@@ -4,7 +4,7 @@
 //
 
 #include "include/cef_version.h"
-#include "cef_logging.h"
+#include <cstddef>
 
 CEF_EXPORT int cef_build_revision() {
   return CEF_REVISION;

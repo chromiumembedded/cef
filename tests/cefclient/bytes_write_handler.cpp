@@ -7,15 +7,15 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "cefclient/util.h"
+#include "include/wrapper/cef_helpers.h"
 
 BytesWriteHandler::BytesWriteHandler(size_t grow)
     : grow_(grow),
       datasize_(grow),
       offset_(0) {
-  ASSERT(grow > 0);  // NOLINT(readability/check)
+  DCHECK_GT(grow, 0U);
   data_ = malloc(grow);
-  ASSERT(data_ != NULL);
+  DCHECK(data_ != NULL);
 }
 
 BytesWriteHandler::~BytesWriteHandler() {
@@ -82,7 +82,7 @@ size_t BytesWriteHandler::Grow(size_t size) {
   size_t rv;
   size_t s = (size > grow_ ? size : grow_);
   void* tmp = realloc(data_, datasize_ + s);
-  ASSERT(tmp != NULL);
+  DCHECK(tmp != NULL);
   if (tmp) {
     data_ = tmp;
     datasize_ += s;

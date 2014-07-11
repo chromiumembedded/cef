@@ -13,10 +13,10 @@
 #include "include/cef_frame.h"
 #include "include/cef_runnable.h"
 #include "include/cef_web_plugin.h"
+#include "include/wrapper/cef_helpers.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/string_util.h"
-#include "cefclient/util.h"
 
 CefRefPtr<ClientHandler> g_handler;
 CefRefPtr<CefCommandLine> g_command_line;
@@ -49,7 +49,7 @@ CefRefPtr<CefCommandLine> AppGetCommandLine() {
 
 // Returns the application settings based on command line arguments.
 void AppGetSettings(CefSettings& settings) {
-  ASSERT(g_command_line.get());
+  DCHECK(g_command_line.get());
   if (!g_command_line.get())
     return;
 
@@ -68,7 +68,7 @@ void AppGetSettings(CefSettings& settings) {
 }
 
 void AppGetBrowserSettings(CefBrowserSettings& settings) {
-  ASSERT(g_command_line.get());
+  DCHECK(g_command_line.get());
   if (!g_command_line.get())
     return;
 
@@ -79,7 +79,7 @@ void AppGetBrowserSettings(CefBrowserSettings& settings) {
 }
 
 bool AppIsOffScreenRenderingEnabled() {
-  ASSERT(g_command_line.get());
+  DCHECK(g_command_line.get());
   if (!g_command_line.get())
     return false;
 

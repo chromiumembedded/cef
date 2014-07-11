@@ -8,8 +8,8 @@
 #include <string>
 
 #include "include/cef_dom.h"
+#include "include/wrapper/cef_helpers.h"
 #include "include/wrapper/cef_message_router.h"
-#include "cefclient/util.h"
 
 namespace client_renderer {
 

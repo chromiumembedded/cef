@@ -39,7 +39,7 @@
 #define CEF_INCLUDE_CEF_BASE_H_
 #pragma once
 
-#include "include/internal/cef_build.h"
+#include "include/base/cef_build.h"
 #include "include/internal/cef_ptr.h"
 #include "include/internal/cef_types_wrappers.h"
 
