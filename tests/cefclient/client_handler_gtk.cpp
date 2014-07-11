@@ -156,8 +156,8 @@ bool ClientHandler::OnFileDialog(CefRefPtr<CefBrowser> browser,
     }
   }
 
-  GtkWidget* window =
-      gtk_widget_get_ancestor(GTK_WIDGET(GetMainHwnd()), GTK_TYPE_WINDOW);
+  GtkWidget* window = gtk_widget_get_ancestor(
+      GTK_WIDGET(GetMainWindowHandle()), GTK_TYPE_WINDOW);
   GtkWidget* dialog = gtk_file_chooser_dialog_new(
       title_str.c_str(),
       GTK_WINDOW(window),
@@ -218,10 +218,10 @@ void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
                                     const CefString& url) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (m_BrowserId == browser->GetIdentifier() && frame->IsMain()) {
+  if (browser_id_ == browser->GetIdentifier() && frame->IsMain()) {
       // Set the edit window text
     std::string urlStr(url);
-    gtk_entry_set_text(GTK_ENTRY(m_EditHwnd), urlStr.c_str());
+    gtk_entry_set_text(GTK_ENTRY(edit_handle_), urlStr.c_str());
   }
 }
 
@@ -233,7 +233,7 @@ void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 
   if (!browser->IsPopup()) {
     // Set the GTK parent window title.
-    GtkWidget* window = gtk_widget_get_ancestor(m_MainHwnd,
+    GtkWidget* window = gtk_widget_get_ancestor(main_handle_,
         GTK_TYPE_WINDOW);
     gtk_window_set_title(GTK_WINDOW(window), titleStr.c_str());
   } else {
@@ -314,8 +314,8 @@ bool ClientHandler::OnJSDialog(CefRefPtr<CefBrowser> browser,
     title += origin_url.ToString();
   }
 
-  GtkWidget* window =
-      gtk_widget_get_ancestor(GTK_WIDGET(GetMainHwnd()), GTK_TYPE_WINDOW);
+  GtkWidget* window = gtk_widget_get_ancestor(
+      GTK_WIDGET(GetMainWindowHandle()), GTK_TYPE_WINDOW);
   gtk_dialog_ = gtk_message_dialog_new(GTK_WINDOW(window),
                                        GTK_DIALOG_MODAL,
                                        gtk_message_type,
@@ -401,21 +401,21 @@ void ClientHandler::SendNotification(NotificationType type) {
 
 void ClientHandler::SetLoading(bool isLoading) {
   if (isLoading)
-    gtk_widget_set_sensitive(GTK_WIDGET(m_StopHwnd), true);
+    gtk_widget_set_sensitive(GTK_WIDGET(stop_handle_), true);
   else
-    gtk_widget_set_sensitive(GTK_WIDGET(m_StopHwnd), false);
+    gtk_widget_set_sensitive(GTK_WIDGET(stop_handle_), false);
 }
 
 void ClientHandler::SetNavState(bool canGoBack, bool canGoForward) {
   if (canGoBack)
-    gtk_widget_set_sensitive(GTK_WIDGET(m_BackHwnd), true);
+    gtk_widget_set_sensitive(GTK_WIDGET(back_handle_), true);
   else
-    gtk_widget_set_sensitive(GTK_WIDGET(m_BackHwnd), false);
+    gtk_widget_set_sensitive(GTK_WIDGET(back_handle_), false);
 
   if (canGoForward)
-    gtk_widget_set_sensitive(GTK_WIDGET(m_ForwardHwnd), true);
+    gtk_widget_set_sensitive(GTK_WIDGET(forward_handle_), true);
   else
-    gtk_widget_set_sensitive(GTK_WIDGET(m_ForwardHwnd), false);
+    gtk_widget_set_sensitive(GTK_WIDGET(forward_handle_), false);
 }
 
 std::string ClientHandler::GetDownloadPath(const std::string& file_name) {

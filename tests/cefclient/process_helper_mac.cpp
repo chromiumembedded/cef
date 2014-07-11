@@ -12,7 +12,7 @@
 std::string AppGetWorkingDirectory() {
   return std::string();
 }
-CefWindowHandle AppGetMainHwnd() {
+CefWindowHandle AppGetMainWindowHandle() {
   return NULL;
 }
 void AppQuitMessageLoop() {

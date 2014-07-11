@@ -413,10 +413,10 @@ int main(int argc, char* argv[]) {
 
   // Create the handler.
   g_handler = new ClientHandler();
-  g_handler->SetMainHwnd(vbox);
-  g_handler->SetEditHwnd(entry);
-  g_handler->SetButtonHwnds(GTK_WIDGET(back), GTK_WIDGET(forward),
-                            GTK_WIDGET(reload), GTK_WIDGET(stop));
+  g_handler->SetMainWindowHandle(vbox);
+  g_handler->SetEditWindowHandle(entry);
+  g_handler->SetButtonWindowHandles(GTK_WIDGET(back), GTK_WIDGET(forward),
+                                    GTK_WIDGET(reload), GTK_WIDGET(stop));
 
   CefWindowInfo window_info;
   CefBrowserSettings browserSettings;

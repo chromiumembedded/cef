@@ -332,7 +332,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
     case WM_CREATE: {
       // Create the single static handler class instance
       g_handler = new ClientHandler();
-      g_handler->SetMainHwnd(hWnd);
+      g_handler->SetMainWindowHandle(hWnd);
 
       // Create the child windows used for navigation
       RECT rect;
@@ -378,8 +378,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
           reinterpret_cast<WNDPROC>(GetWindowLongPtr(editWnd, GWLP_WNDPROC));
       SetWindowLongPtr(editWnd, GWLP_WNDPROC,
           reinterpret_cast<LONG_PTR>(WndProc));
-      g_handler->SetEditHwnd(editWnd);
-      g_handler->SetButtonHwnds(backWnd, forwardWnd, reloadWnd, stopWnd);
+      g_handler->SetEditWindowHandle(editWnd);
+      g_handler->SetButtonWindowHandles(
+          backWnd, forwardWnd, reloadWnd, stopWnd);
 
       rect.top += URLBAR_HEIGHT;
 

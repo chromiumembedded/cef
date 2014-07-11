@@ -27,10 +27,10 @@ CefRefPtr<CefBrowser> AppGetBrowser() {
   return g_handler->GetBrowser();
 }
 
-ClientWindowHandle AppGetMainHwnd() {
+ClientWindowHandle AppGetMainWindowHandle() {
   if (!g_handler.get())
     return kNullWindowHandle;
-  return g_handler->GetMainHwnd();
+  return g_handler->GetMainWindowHandle();
 }
 
 void AppInitCommandLine(int argc, const char* const* argv) {

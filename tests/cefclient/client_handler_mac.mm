@@ -14,9 +14,9 @@ void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
                                     const CefString& url) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (m_BrowserId == browser->GetIdentifier() && frame->IsMain()) {
+  if (browser_id_ == browser->GetIdentifier() && frame->IsMain()) {
     // Set the edit window text
-    NSTextField* textField = (NSTextField*)m_EditHwnd;
+    NSTextField* textField = (NSTextField*)edit_handle_;
     std::string urlStr(url);
     NSString* str = [NSString stringWithUTF8String:urlStr.c_str()];
     [textField setStringValue:str];
@@ -52,7 +52,7 @@ void ClientHandler::SendNotification(NotificationType type) {
   if (sel == nil)
     return;
 
-  NSWindow* window = [AppGetMainHwnd() window];
+  NSWindow* window = [AppGetMainWindowHandle() window];
   NSObject* delegate = [window delegate];
   [delegate performSelectorOnMainThread:sel withObject:nil waitUntilDone:NO];
 }

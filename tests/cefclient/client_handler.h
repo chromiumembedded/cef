@@ -244,20 +244,20 @@ class ClientHandler : public CefClient,
                                 CefRenderHandler::DragOperation operation)
                                 OVERRIDE;
 
-  void SetMainHwnd(ClientWindowHandle hwnd);
-  ClientWindowHandle GetMainHwnd() { return m_MainHwnd; }
-  void SetEditHwnd(ClientWindowHandle hwnd);
+  void SetMainWindowHandle(ClientWindowHandle handle);
+  ClientWindowHandle GetMainWindowHandle() { return main_handle_; }
+  void SetEditWindowHandle(ClientWindowHandle handle);
   void SetOSRHandler(CefRefPtr<RenderHandler> handler) {
-    m_OSRHandler = handler;
+    osr_handler_ = handler;
   }
-  CefRefPtr<RenderHandler> GetOSRHandler() { return m_OSRHandler; }
-  void SetButtonHwnds(ClientWindowHandle backHwnd,
-                      ClientWindowHandle forwardHwnd,
-                      ClientWindowHandle reloadHwnd,
-                      ClientWindowHandle stopHwnd);
+  CefRefPtr<RenderHandler> GetOSRHandler() { return osr_handler_; }
+  void SetButtonWindowHandles(ClientWindowHandle backHandle,
+                              ClientWindowHandle forwardHandle,
+                              ClientWindowHandle reloadHandle,
+                              ClientWindowHandle stopHandle);
 
-  CefRefPtr<CefBrowser> GetBrowser() { return m_Browser; }
-  int GetBrowserId() { return m_BrowserId; }
+  CefRefPtr<CefBrowser> GetBrowser() { return browser_; }
+  int GetBrowserId() { return browser_id_; }
 
   // Request that all existing browser windows close.
   void CloseAllBrowsers(bool force_close);
@@ -265,7 +265,7 @@ class ClientHandler : public CefClient,
   // Returns true if the main browser window is currently closing. Used in
   // combination with DoClose() and the OS close notification to properly handle
   // 'onbeforeunload' JavaScript events during window close.
-  bool IsClosing() { return m_bIsClosing; }
+  bool IsClosing() { return is_closing_; }
 
   std::string GetLogFile();
 
@@ -285,7 +285,7 @@ class ClientHandler : public CefClient,
   void CloseDevTools(CefRefPtr<CefBrowser> browser);
 
   // Returns the startup URL.
-  std::string GetStartupURL() { return m_StartupURL; }
+  std::string GetStartupURL() { return startup_url_; }
 
   void BeginTracing();
   void EndTracing();
@@ -307,53 +307,53 @@ class ClientHandler : public CefClient,
     TestMenuState() : check_item(true), radio_item(0) {}
     bool check_item;
     int radio_item;
-  } m_TestMenuState;
+  } test_menu_state_;
 
   // Returns the full download path for the specified file, or an empty path to
   // use the default temp directory.
   std::string GetDownloadPath(const std::string& file_name);
 
   // The child browser window
-  CefRefPtr<CefBrowser> m_Browser;
+  CefRefPtr<CefBrowser> browser_;
 
   // List of any popup browser windows. Only accessed on the CEF UI thread.
   typedef std::list<CefRefPtr<CefBrowser> > BrowserList;
-  BrowserList m_PopupBrowsers;
+  BrowserList popup_browsers_;
 
   // The main frame window handle
-  ClientWindowHandle m_MainHwnd;
+  ClientWindowHandle main_handle_;
 
   // The child browser id
-  int m_BrowserId;
+  int browser_id_;
 
   // True if the main browser window is currently closing.
-  bool m_bIsClosing;
+  bool is_closing_;
 
   // The edit window handle
-  ClientWindowHandle m_EditHwnd;
+  ClientWindowHandle edit_handle_;
 
   // The button window handles
-  ClientWindowHandle m_BackHwnd;
-  ClientWindowHandle m_ForwardHwnd;
-  ClientWindowHandle m_StopHwnd;
-  ClientWindowHandle m_ReloadHwnd;
+  ClientWindowHandle back_handle_;
+  ClientWindowHandle forward_handle_;
+  ClientWindowHandle stop_handle_;
+  ClientWindowHandle reload_handle_;
 
-  CefRefPtr<RenderHandler> m_OSRHandler;
+  CefRefPtr<RenderHandler> osr_handler_;
 
   // Support for logging.
-  std::string m_LogFile;
+  std::string log_file_;
 
   // Support for downloading files.
-  std::string m_LastDownloadFile;
+  std::string last_download_file_;
 
   // True if an editable field currently has focus.
-  bool m_bFocusOnEditableField;
+  bool focus_on_editable_field_;
 
   // The startup URL.
-  std::string m_StartupURL;
+  std::string startup_url_;
 
   // True if mouse cursor change is disabled.
-  bool m_bMouseCursorChangeDisabled;
+  bool mouse_cursor_change_disabled_;
 
   // Handles the browser side of query routing. The renderer side is handled
   // in client_renderer.cpp.
@@ -364,7 +364,7 @@ class ClientHandler : public CefClient,
 
   // Number of currently existing browser windows. The application will exit
   // when the number of windows reaches 0.
-  static int m_BrowserCount;
+  static int browser_count_;
 
 #if defined(OS_LINUX)
   static void OnDialogResponse(GtkDialog *dialog,

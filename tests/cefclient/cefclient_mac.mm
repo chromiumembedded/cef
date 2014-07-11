@@ -447,8 +447,8 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 
   // Create the handler.
   g_handler = new ClientHandler();
-  g_handler->SetMainHwnd(contentView);
-  g_handler->SetEditHwnd(editWnd);
+  g_handler->SetMainWindowHandle(contentView);
+  g_handler->SetEditWindowHandle(editWnd);
 
   // Create the browser view.
   CefWindowInfo window_info;
