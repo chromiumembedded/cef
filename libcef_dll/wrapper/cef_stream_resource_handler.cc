@@ -151,7 +151,9 @@ bool CefStreamResourceHandler::ReadResponse(void* data_out,
   DCHECK_GT(bytes_to_read, 0);
 
   if (read_on_file_thread_) {
+#ifndef NDEBUG
     DCHECK(!buffer_owned_by_file_thread_);
+#endif
     if (buffer_ && (buffer_->CanRead() || buffer_->IsEmpty())) {
       if (buffer_->CanRead()) {
         // Provide data from the buffer.
@@ -196,7 +198,9 @@ void CefStreamResourceHandler::ReadOnFileThread(
     int bytes_to_read,
     CefRefPtr<CefCallback> callback) {
   CEF_REQUIRE_FILE_THREAD();
+#ifndef NDEBUG
   DCHECK(buffer_owned_by_file_thread_);
+#endif
 
   if (!buffer_)
     buffer_ = new Buffer();
