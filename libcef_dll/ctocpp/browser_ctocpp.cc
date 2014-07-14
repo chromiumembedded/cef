@@ -337,7 +337,7 @@ bool CefBrowserCToCpp::SendProcessMessage(CefProcessId target_process,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefBrowserCToCpp, CefBrowser,
+template<> base::AtomicRefCount CefCToCpp<CefBrowserCToCpp, CefBrowser,
     cef_browser_t>::DebugObjCt = 0;
 #endif
 

@@ -32,41 +32,8 @@
 #define CEF_INCLUDE_INTERNAL_CEF_MAC_H_
 #pragma once
 
-#if defined(OS_MACOSX)
-#include <pthread.h>
 #include "include/internal/cef_types_mac.h"
 #include "include/internal/cef_types_wrappers.h"
-
-// Atomic increment and decrement.
-inline long CefAtomicIncrement(long volatile *pDest) {  // NOLINT(runtime/int)
-  return __sync_add_and_fetch(pDest, 1);
-}
-inline long CefAtomicDecrement(long volatile *pDest) {  // NOLINT(runtime/int)
-  return __sync_sub_and_fetch(pDest, 1);
-}
-
-// Critical section wrapper.
-class CefCriticalSection {
- public:
-  CefCriticalSection() {
-    pthread_mutexattr_init(&attr_);
-    pthread_mutexattr_settype(&attr_, PTHREAD_MUTEX_RECURSIVE);
-    pthread_mutex_init(&lock_, &attr_);
-  }
-  virtual ~CefCriticalSection() {
-    pthread_mutex_destroy(&lock_);
-    pthread_mutexattr_destroy(&attr_);
-  }
-  void Lock() {
-    pthread_mutex_lock(&lock_);
-  }
-  void Unlock() {
-    pthread_mutex_unlock(&lock_);
-  }
-
-  pthread_mutex_t lock_;
-  pthread_mutexattr_t attr_;
-};
 
 // Handle types.
 #define CefCursorHandle cef_cursor_handle_t
@@ -166,7 +133,5 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
     transparent_painting_enabled = transparent;
   }
 };
-
-#endif  // OS_MACOSX
 
 #endif  // CEF_INCLUDE_INTERNAL_CEF_MAC_H_

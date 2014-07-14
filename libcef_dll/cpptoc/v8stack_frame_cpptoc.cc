@@ -151,7 +151,7 @@ CefV8StackFrameCppToC::CefV8StackFrameCppToC(CefV8StackFrame* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefV8StackFrameCppToC, CefV8StackFrame,
-    cef_v8stack_frame_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefV8StackFrameCppToC,
+    CefV8StackFrame, cef_v8stack_frame_t>::DebugObjCt = 0;
 #endif
 

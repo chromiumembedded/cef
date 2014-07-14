@@ -29,7 +29,7 @@ void CefGetGeolocationCallbackCToCpp::OnLocationUpdate(
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefGetGeolocationCallbackCToCpp,
+template<> base::AtomicRefCount CefCToCpp<CefGetGeolocationCallbackCToCpp,
     CefGetGeolocationCallback, cef_get_geolocation_callback_t>::DebugObjCt =
     0;
 #endif

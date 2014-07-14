@@ -112,7 +112,7 @@ size_t CefBinaryValueCToCpp::GetData(void* buffer, size_t buffer_size,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefBinaryValueCToCpp, CefBinaryValue,
+template<> base::AtomicRefCount CefCToCpp<CefBinaryValueCToCpp, CefBinaryValue,
     cef_binary_value_t>::DebugObjCt = 0;
 #endif
 

@@ -273,7 +273,7 @@ CefContextMenuParamsCppToC::CefContextMenuParamsCppToC(
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefContextMenuParamsCppToC, CefContextMenuParams,
-    cef_context_menu_params_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefContextMenuParamsCppToC,
+    CefContextMenuParams, cef_context_menu_params_t>::DebugObjCt = 0;
 #endif
 

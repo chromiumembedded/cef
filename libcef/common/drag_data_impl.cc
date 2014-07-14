@@ -32,65 +32,65 @@ CefRefPtr<CefDragData> CefDragData::Create() {
 CefRefPtr<CefDragData> CefDragDataImpl::Clone() {
   CefDragDataImpl* drag_data = NULL;
   {
-    AutoLock lock_scope(this);
+    base::AutoLock lock_scope(lock_);
     drag_data = new CefDragDataImpl(data_);
   }
   return drag_data;
 }
 
 bool CefDragDataImpl::IsReadOnly() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return read_only_;
 }
 
 bool CefDragDataImpl::IsLink() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return (data_.url.is_valid() && data_.file_description_filename.empty());
 }
 
 bool CefDragDataImpl::IsFragment() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return (!data_.url.is_valid() && data_.file_description_filename.empty() &&
           data_.filenames.empty());
 }
 
 bool CefDragDataImpl::IsFile() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return (!data_.file_description_filename.empty() || !data_.filenames.empty());
 }
 
 CefString CefDragDataImpl::GetLinkURL() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return data_.url.spec();
 }
 
 CefString CefDragDataImpl::GetLinkTitle() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return data_.url_title;
 }
 
 CefString CefDragDataImpl::GetLinkMetadata() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return data_.download_metadata;
 }
 
 CefString CefDragDataImpl::GetFragmentText() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return data_.text.is_null() ? CefString() : CefString(data_.text.string());
 }
 
 CefString CefDragDataImpl::GetFragmentHtml() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return data_.html.is_null() ? CefString() : CefString(data_.html.string());
 }
 
 CefString CefDragDataImpl::GetFragmentBaseURL() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return data_.html_base_url.spec();
 }
 
 CefString CefDragDataImpl::GetFileName() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   if (data_.file_description_filename.empty())
     return CefString();
 
@@ -108,7 +108,7 @@ CefString CefDragDataImpl::GetFileName() {
 }
 
 size_t CefDragDataImpl::GetFileContents(CefRefPtr<CefStreamWriter> writer) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   if (data_.file_contents.empty())
     return 0;
 
@@ -122,7 +122,7 @@ size_t CefDragDataImpl::GetFileContents(CefRefPtr<CefStreamWriter> writer) {
 }
 
 bool CefDragDataImpl::GetFileNames(std::vector<CefString>& names) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   if (data_.filenames.empty())
     return false;
 
@@ -135,43 +135,43 @@ bool CefDragDataImpl::GetFileNames(std::vector<CefString>& names) {
 }
 
 void CefDragDataImpl::SetLinkURL(const CefString& url) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   data_.url = GURL(url.ToString());
 }
 
 void CefDragDataImpl::SetLinkTitle(const CefString& title) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   data_.url_title = title.ToString16();
 }
 
 void CefDragDataImpl::SetLinkMetadata(const CefString& data) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   data_.download_metadata = data.ToString16();
 }
 
 void CefDragDataImpl::SetFragmentText(const CefString& text) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   data_.text = base::NullableString16(text.ToString16(), false);
 }
 
 void CefDragDataImpl::SetFragmentHtml(const CefString& fragment) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   data_.html = base::NullableString16(fragment.ToString16(), false);
 }
 
 void CefDragDataImpl::SetFragmentBaseURL(const CefString& fragment) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   data_.html_base_url = GURL(fragment.ToString());
 }
 
 void CefDragDataImpl::ResetFileContents() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   data_.file_contents.erase();
   data_.file_description_filename.erase();
@@ -179,14 +179,14 @@ void CefDragDataImpl::ResetFileContents() {
 
 void CefDragDataImpl::AddFile(const CefString& path,
                               const CefString& display_name) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   data_.filenames.push_back(ui::FileInfo(base::FilePath(path),
                                          base::FilePath(display_name)));
 }
 
 void CefDragDataImpl::SetReadOnly(bool read_only) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   if (read_only_ == read_only)
     return;
 

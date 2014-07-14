@@ -89,7 +89,7 @@ bool CefMenuCreator::CreateContextMenu(
 
         // Do not keep references to the parameters in the callback.
         paramsPtr->Detach(NULL);
-        DCHECK_EQ(paramsPtr->GetRefCt(), 1);
+        DCHECK(paramsPtr->HasOneRef());
         DCHECK(model_->VerifyRefCount());
 
         // Menu is empty so notify the client and return.
@@ -146,7 +146,7 @@ void CefMenuCreator::ExecuteCommand(CefRefPtr<CefMenuModelImpl> source,
 
         // Do not keep references to the parameters in the callback.
         paramsPtr->Detach(NULL);
-        DCHECK_EQ(paramsPtr->GetRefCt(), 1);
+        DCHECK(paramsPtr->HasOneRef());
 
         if (handled)
           return;

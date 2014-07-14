@@ -120,7 +120,7 @@ CefV8AccessorCppToC::CefV8AccessorCppToC(CefV8Accessor* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefV8AccessorCppToC, CefV8Accessor,
+template<> base::AtomicRefCount CefCppToC<CefV8AccessorCppToC, CefV8Accessor,
     cef_v8accessor_t>::DebugObjCt = 0;
 #endif
 

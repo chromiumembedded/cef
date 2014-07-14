@@ -37,7 +37,7 @@ CefPrintJobCallbackCppToC::CefPrintJobCallbackCppToC(CefPrintJobCallback* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefPrintJobCallbackCppToC, CefPrintJobCallback,
-    cef_print_job_callback_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefPrintJobCallbackCppToC,
+    CefPrintJobCallback, cef_print_job_callback_t>::DebugObjCt = 0;
 #endif
 

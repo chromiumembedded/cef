@@ -5,20 +5,22 @@
 #include <map>
 #include <sstream>
 
-#include "include/cef_scheme.h"
-#include "include/cef_task.h"
-#include "include/cef_urlrequest.h"
-#include "tests/cefclient/client_app.h"
-#include "tests/unittests/test_handler.h"
-#include "tests/unittests/test_util.h"
+// Include this first to avoid type conflicts with CEF headers.
+#include "tests/unittests/chromium_includes.h"
 
-#include "base/bind.h"
-#include "base/callback.h"
 #include "base/file_util.h"
 #include "base/files/scoped_temp_dir.h"
 #include "base/strings/stringprintf.h"
 #include "base/synchronization/waitable_event.h"
+
+#include "include/base/cef_bind.h"
+#include "include/cef_scheme.h"
+#include "include/cef_task.h"
+#include "include/cef_urlrequest.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "tests/cefclient/client_app.h"
+#include "tests/unittests/test_handler.h"
+#include "tests/unittests/test_util.h"
 
 // Include after base/bind.h to avoid name collisions with cef_tuple.h.
 #include "include/cef_runnable.h"
@@ -286,7 +288,7 @@ class RequestSchemeHandler : public CefResourceHandler {
   RequestRunSettings settings_;
   size_t offset_;
 
-  IMPLEMENT_REFCOUNTING(ClientSchemeHandler);
+  IMPLEMENT_REFCOUNTING(RequestSchemeHandler);
 };
 
 // Serves redirect request responses.
@@ -343,7 +345,7 @@ class RequestRedirectSchemeHandler : public CefResourceHandler {
   CefRefPtr<CefRequest> request_;
   CefRefPtr<CefResponse> response_;
 
-  IMPLEMENT_REFCOUNTING(ClientSchemeHandler);
+  IMPLEMENT_REFCOUNTING(RequestRedirectSchemeHandler);
 };
 
 
@@ -410,7 +412,7 @@ class RequestSchemeHandlerFactory : public CefSchemeHandlerFactory {
                   RedirectHandlerMap;
   RedirectHandlerMap redirect_handler_map_;
 
-  IMPLEMENT_REFCOUNTING(ClientSchemeHandlerFactory);
+  IMPLEMENT_REFCOUNTING(RequestSchemeHandlerFactory);
 };
 
 
@@ -897,7 +899,7 @@ class RequestRendererTest : public ClientApp::RenderDelegate,
 
   RequestTestRunner test_runner_;
 
-  IMPLEMENT_REFCOUNTING(SendRecvRendererTest);
+  IMPLEMENT_REFCOUNTING(RequestRendererTest);
 };
 
 // Browser side.
@@ -1178,5 +1180,5 @@ TEST(URLRequestTest, BrowserInvalidURL) {
   client->RunTest();
 
   // Verify that there's only one reference to the client.
-  EXPECT_EQ(1, client->GetRefCt());
+  EXPECT_TRUE(client->HasOneRef());
 }

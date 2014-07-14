@@ -28,7 +28,7 @@ void CefAllowCertificateErrorCallbackCToCpp::Continue(bool allow) {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefAllowCertificateErrorCallbackCToCpp,
+template<> base::AtomicRefCount CefCToCpp<CefAllowCertificateErrorCallbackCToCpp,
     CefAllowCertificateErrorCallback,
     cef_allow_certificate_error_callback_t>::DebugObjCt = 0;
 #endif

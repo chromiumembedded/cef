@@ -651,7 +651,7 @@ bool CefMenuModelImpl::VerifyRefCount() {
   if (!VerifyContext())
     return false;
 
-  if (GetRefCt() != 1)
+  if (!HasOneRef())
     return false;
 
   for (ItemVector::iterator i = items_.begin(); i != items_.end(); ++i) {

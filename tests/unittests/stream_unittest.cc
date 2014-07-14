@@ -3,6 +3,10 @@
 // can be found in the LICENSE file.
 
 #include <algorithm>
+
+// Include this first to avoid type conflicts with CEF headers.
+#include "tests/unittests/chromium_includes.h"
+
 #include "include/cef_stream.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

@@ -158,7 +158,8 @@
 #include "include/base/cef_macros.h"
 #include "include/internal/cef_logging_internal.h"
 
-namespace cef_logging {
+namespace cef {
+namespace logging {
 
 // Gets the current log level.
 inline int GetMinLogLevel() {
@@ -193,19 +194,19 @@ const LogSeverity LOG_DFATAL = LOG_FATAL;
 // by LOG() and LOG_IF, etc. Since these are used all over our code, it's
 // better to have compact code for these operations.
 #define COMPACT_GOOGLE_LOG_EX_INFO(ClassName, ...) \
-  cef_logging::ClassName(__FILE__, __LINE__, cef_logging::LOG_INFO , \
+  cef::logging::ClassName(__FILE__, __LINE__, cef::logging::LOG_INFO , \
                          ##__VA_ARGS__)
 #define COMPACT_GOOGLE_LOG_EX_WARNING(ClassName, ...) \
-  cef_logging::ClassName(__FILE__, __LINE__, cef_logging::LOG_WARNING , \
+  cef::logging::ClassName(__FILE__, __LINE__, cef::logging::LOG_WARNING , \
                          ##__VA_ARGS__)
 #define COMPACT_GOOGLE_LOG_EX_ERROR(ClassName, ...) \
-  cef_logging::ClassName(__FILE__, __LINE__, cef_logging::LOG_ERROR , \
+  cef::logging::ClassName(__FILE__, __LINE__, cef::logging::LOG_ERROR , \
                          ##__VA_ARGS__)
 #define COMPACT_GOOGLE_LOG_EX_FATAL(ClassName, ...) \
-  cef_logging::ClassName(__FILE__, __LINE__, cef_logging::LOG_FATAL , \
+  cef::logging::ClassName(__FILE__, __LINE__, cef::logging::LOG_FATAL , \
                          ##__VA_ARGS__)
 #define COMPACT_GOOGLE_LOG_EX_DFATAL(ClassName, ...) \
-  cef_logging::ClassName(__FILE__, __LINE__, cef_logging::LOG_DFATAL , \
+  cef::logging::ClassName(__FILE__, __LINE__, cef::logging::LOG_DFATAL , \
                          ##__VA_ARGS__)
 
 #define COMPACT_GOOGLE_LOG_INFO \
@@ -237,19 +238,19 @@ const LogSeverity LOG_0 = LOG_ERROR;
 // LOG_IS_ON(DFATAL) always holds in debug mode. In particular, CHECK()s will
 // always fire if they fail.
 #define LOG_IS_ON(severity) \
-  ((::cef_logging::LOG_ ## severity) >= ::cef_logging::GetMinLogLevel())
+  ((::cef::logging::LOG_ ## severity) >= ::cef::logging::GetMinLogLevel())
 
 // We can't do any caching tricks with VLOG_IS_ON() like the
 // google-glog version since it requires GCC extensions.  This means
 // that using the v-logging functions in conjunction with --vmodule
 // may be slow.
 #define VLOG_IS_ON(verboselevel) \
-  ((verboselevel) <= ::cef_logging::GetVlogLevel(__FILE__))
+  ((verboselevel) <= ::cef::logging::GetVlogLevel(__FILE__))
 
 // Helper macro which avoids evaluating the arguments to a stream if
 // the condition doesn't hold.
 #define LAZY_STREAM(stream, condition)                                  \
-  !(condition) ? (void) 0 : ::cef_logging::LogMessageVoidify() & (stream)
+  !(condition) ? (void) 0 : ::cef::logging::LogMessageVoidify() & (stream)
 
 // We use the preprocessor's merging operator, "##", so that, e.g.,
 // LOG(INFO) becomes the token COMPACT_GOOGLE_LOG_INFO.  There's some funny
@@ -270,7 +271,7 @@ const LogSeverity LOG_0 = LOG_ERROR;
 
 // The VLOG macros log with negative verbosities.
 #define VLOG_STREAM(verbose_level) \
-  cef_logging::LogMessage(__FILE__, __LINE__, -verbose_level).stream()
+  cef::logging::LogMessage(__FILE__, __LINE__, -verbose_level).stream()
 
 #define VLOG(verbose_level) \
   LAZY_STREAM(VLOG_STREAM(verbose_level), VLOG_IS_ON(verbose_level))
@@ -281,12 +282,12 @@ const LogSeverity LOG_0 = LOG_ERROR;
 
 #if defined (OS_WIN)
 #define VPLOG_STREAM(verbose_level) \
-  cef_logging::Win32ErrorLogMessage(__FILE__, __LINE__, -verbose_level, \
-    ::cef_logging::GetLastSystemErrorCode()).stream()
+  cef::logging::Win32ErrorLogMessage(__FILE__, __LINE__, -verbose_level, \
+    ::cef::logging::GetLastSystemErrorCode()).stream()
 #elif defined(OS_POSIX)
 #define VPLOG_STREAM(verbose_level) \
-  cef_logging::ErrnoLogMessage(__FILE__, __LINE__, -verbose_level, \
-    ::cef_logging::GetLastSystemErrorCode()).stream()
+  cef::logging::ErrnoLogMessage(__FILE__, __LINE__, -verbose_level, \
+    ::cef::logging::GetLastSystemErrorCode()).stream()
 #endif
 
 #define VPLOG(verbose_level) \
@@ -306,11 +307,11 @@ const LogSeverity LOG_0 = LOG_ERROR;
 #if defined(OS_WIN)
 #define PLOG_STREAM(severity) \
   COMPACT_GOOGLE_LOG_EX_ ## severity(Win32ErrorLogMessage, \
-      ::cef_logging::GetLastSystemErrorCode()).stream()
+      ::cef::logging::GetLastSystemErrorCode()).stream()
 #elif defined(OS_POSIX)
 #define PLOG_STREAM(severity) \
   COMPACT_GOOGLE_LOG_EX_ ## severity(ErrnoLogMessage, \
-      ::cef_logging::GetLastSystemErrorCode()).stream()
+      ::cef::logging::GetLastSystemErrorCode()).stream()
 #endif
 
 #define PLOG(severity)                                          \
@@ -321,7 +322,7 @@ const LogSeverity LOG_0 = LOG_ERROR;
 
 // The actual stream used isn't important.
 #define EAT_STREAM_PARAMETERS                                           \
-  true ? (void) 0 : ::cef_logging::LogMessageVoidify() & LOG_STREAM(FATAL)
+  true ? (void) 0 : ::cef::logging::LogMessageVoidify() & LOG_STREAM(FATAL)
 
 // CHECK dies with a fatal error if condition is not true.  It is *not*
 // controlled by NDEBUG, so the check will be executed regardless of
@@ -345,9 +346,9 @@ const LogSeverity LOG_0 = LOG_ERROR;
 // CHECK_EQ(...) else { ... } work properly.
 #define CHECK_OP(name, op, val1, val2)                          \
   if (std::string* _result =                                    \
-      cef_logging::Check##name##Impl((val1), (val2),                \
+      cef::logging::Check##name##Impl((val1), (val2),                \
                                  #val1 " " #op " " #val2))      \
-    cef_logging::LogMessage(__FILE__, __LINE__, _result).stream()
+    cef::logging::LogMessage(__FILE__, __LINE__, _result).stream()
 
 // Build the error message string.  This is separate from the "Impl"
 // function template because it is not performance critical and so can
@@ -509,10 +510,10 @@ const LogSeverity LOG_DCHECK = LOG_INFO;
 #define DCHECK_OP(name, op, val1, val2)                         \
   if (DCHECK_IS_ON)                                             \
     if (std::string* _result =                                  \
-        cef_logging::Check##name##Impl((val1), (val2),              \
+        cef::logging::Check##name##Impl((val1), (val2),              \
                                    #val1 " " #op " " #val2))    \
-      cef_logging::LogMessage(                                      \
-          __FILE__, __LINE__, ::cef_logging::LOG_DCHECK,            \
+      cef::logging::LogMessage(                                      \
+          __FILE__, __LINE__, ::cef::logging::LOG_DCHECK,            \
           _result).stream()
 
 // Equality/Inequality checks - compare two values, and log a
@@ -678,7 +679,8 @@ class ErrnoLogMessage {
 };
 #endif  // OS_WIN
 
-}  // namespace cef_logging
+}  // namespace logging
+}  // namespace cef
 
 // These functions are provided as a convenience for logging, which is where we
 // use streams (it is against Google style to use streams in other places). It

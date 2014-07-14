@@ -32,7 +32,7 @@ void CefJSDialogCallbackCToCpp::Continue(bool success,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefJSDialogCallbackCToCpp, CefJSDialogCallback,
-    cef_jsdialog_callback_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefJSDialogCallbackCToCpp,
+    CefJSDialogCallback, cef_jsdialog_callback_t>::DebugObjCt = 0;
 #endif
 

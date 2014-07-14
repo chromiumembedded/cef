@@ -53,7 +53,7 @@ CefDragHandlerCppToC::CefDragHandlerCppToC(CefDragHandler* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefDragHandlerCppToC, CefDragHandler,
+template<> base::AtomicRefCount CefCppToC<CefDragHandlerCppToC, CefDragHandler,
     cef_drag_handler_t>::DebugObjCt = 0;
 #endif
 

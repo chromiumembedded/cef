@@ -197,7 +197,7 @@ CefResourceHandlerCppToC::CefResourceHandlerCppToC(CefResourceHandler* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefResourceHandlerCppToC, CefResourceHandler,
-    cef_resource_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefResourceHandlerCppToC,
+    CefResourceHandler, cef_resource_handler_t>::DebugObjCt = 0;
 #endif
 

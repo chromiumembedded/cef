@@ -278,7 +278,7 @@ CefDownloadItemCppToC::CefDownloadItemCppToC(CefDownloadItem* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefDownloadItemCppToC, CefDownloadItem,
-    cef_download_item_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefDownloadItemCppToC,
+    CefDownloadItem, cef_download_item_t>::DebugObjCt = 0;
 #endif
 

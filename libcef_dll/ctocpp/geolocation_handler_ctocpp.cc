@@ -75,7 +75,7 @@ void CefGeolocationHandlerCToCpp::OnCancelGeolocationPermission(
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefGeolocationHandlerCToCpp, CefGeolocationHandler,
-    cef_geolocation_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefGeolocationHandlerCToCpp,
+    CefGeolocationHandler, cef_geolocation_handler_t>::DebugObjCt = 0;
 #endif
 

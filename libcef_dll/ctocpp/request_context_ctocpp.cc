@@ -90,7 +90,7 @@ CefRefPtr<CefRequestContextHandler> CefRequestContextCToCpp::GetHandler() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefRequestContextCToCpp, CefRequestContext,
-    cef_request_context_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefRequestContextCToCpp,
+    CefRequestContext, cef_request_context_t>::DebugObjCt = 0;
 #endif
 

@@ -3,12 +3,16 @@
 // can be found in the LICENSE file.
 
 #include <sstream>
+
+// Include this first to avoid type conflicts with CEF headers.
+#include "tests/unittests/chromium_includes.h"
+
 #include "include/cef_runnable.h"
 #include "include/cef_task.h"
 #include "include/cef_v8.h"
 #include "tests/cefclient/client_app.h"
-#include "tests/unittests/test_handler.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "tests/unittests/test_handler.h"
 
 // How to add a new test:
 // 1. Add a new value to the V8TestMode enumeration.

@@ -241,7 +241,7 @@ void CefDOMDocumentImpl::Detach() {
 
   // If you hit this assert it means that you are keeping references to this
   // document object beyond the valid scope.
-  DCHECK_EQ(GetRefCt(), 1);
+  DCHECK(HasOneRef());
 
   if (!node_map_.empty()) {
     NodeMap::const_iterator it = node_map_.begin();

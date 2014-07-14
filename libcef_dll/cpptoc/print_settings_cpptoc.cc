@@ -441,7 +441,7 @@ CefPrintSettingsCppToC::CefPrintSettingsCppToC(CefPrintSettings* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefPrintSettingsCppToC, CefPrintSettings,
-    cef_print_settings_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefPrintSettingsCppToC,
+    CefPrintSettings, cef_print_settings_t>::DebugObjCt = 0;
 #endif
 

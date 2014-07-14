@@ -40,7 +40,7 @@ CefAllowCertificateErrorCallbackCppToC::CefAllowCertificateErrorCallbackCppToC(
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefAllowCertificateErrorCallbackCppToC,
+template<> base::AtomicRefCount CefCppToC<CefAllowCertificateErrorCallbackCppToC,
     CefAllowCertificateErrorCallback,
     cef_allow_certificate_error_callback_t>::DebugObjCt = 0;
 #endif

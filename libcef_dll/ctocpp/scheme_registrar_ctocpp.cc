@@ -40,7 +40,7 @@ bool CefSchemeRegistrarCToCpp::AddCustomScheme(const CefString& scheme_name,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefSchemeRegistrarCToCpp, CefSchemeRegistrar,
-    cef_scheme_registrar_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefSchemeRegistrarCToCpp,
+    CefSchemeRegistrar, cef_scheme_registrar_t>::DebugObjCt = 0;
 #endif
 

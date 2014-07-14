@@ -2,11 +2,15 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "include/cef_scheme.h"
+// Include this first to avoid type conflicts with CEF headers.
+#include "tests/unittests/chromium_includes.h"
+
 #include "base/file_util.h"
 #include "base/files/scoped_temp_dir.h"
-#include "tests/unittests/test_handler.h"
+
+#include "include/cef_scheme.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "tests/unittests/test_handler.h"
 
 namespace {
 
@@ -95,7 +99,7 @@ class DownloadSchemeHandler : public CefResourceHandler {
   std::string content_disposition_;
   size_t offset_;
 
-  IMPLEMENT_REFCOUNTING(SchemeHandler);
+  IMPLEMENT_REFCOUNTING(DownloadSchemeHandler);
 };
 
 class DownloadSchemeHandlerFactory : public CefSchemeHandlerFactory {
@@ -114,7 +118,7 @@ class DownloadSchemeHandlerFactory : public CefSchemeHandlerFactory {
  private:
   TrackCallback* got_download_request_;
 
-  IMPLEMENT_REFCOUNTING(SchemeHandlerFactory);
+  IMPLEMENT_REFCOUNTING(DownloadSchemeHandlerFactory);
 };
 
 class DownloadTestHandler : public TestHandler {

@@ -120,7 +120,7 @@ void CefURLRequestCToCpp::Cancel() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefURLRequestCToCpp, CefURLRequest,
+template<> base::AtomicRefCount CefCToCpp<CefURLRequestCToCpp, CefURLRequest,
     cef_urlrequest_t>::DebugObjCt = 0;
 #endif
 

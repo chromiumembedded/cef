@@ -229,7 +229,7 @@ bool CefClientCToCpp::OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefClientCToCpp, CefClient,
+template<> base::AtomicRefCount CefCToCpp<CefClientCToCpp, CefClient,
     cef_client_t>::DebugObjCt = 0;
 #endif
 

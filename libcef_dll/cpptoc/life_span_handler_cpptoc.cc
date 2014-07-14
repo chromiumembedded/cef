@@ -205,7 +205,7 @@ CefLifeSpanHandlerCppToC::CefLifeSpanHandlerCppToC(CefLifeSpanHandler* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefLifeSpanHandlerCppToC, CefLifeSpanHandler,
-    cef_life_span_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefLifeSpanHandlerCppToC,
+    CefLifeSpanHandler, cef_life_span_handler_t>::DebugObjCt = 0;
 #endif
 

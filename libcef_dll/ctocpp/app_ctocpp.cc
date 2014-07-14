@@ -100,6 +100,7 @@ CefRefPtr<CefRenderProcessHandler> CefAppCToCpp::GetRenderProcessHandler() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefAppCToCpp, CefApp, cef_app_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefAppCToCpp, CefApp,
+    cef_app_t>::DebugObjCt = 0;
 #endif
 

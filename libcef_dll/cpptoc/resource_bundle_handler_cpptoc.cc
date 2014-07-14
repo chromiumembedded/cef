@@ -92,7 +92,7 @@ CefResourceBundleHandlerCppToC::CefResourceBundleHandlerCppToC(
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefResourceBundleHandlerCppToC,
+template<> base::AtomicRefCount CefCppToC<CefResourceBundleHandlerCppToC,
     CefResourceBundleHandler, cef_resource_bundle_handler_t>::DebugObjCt = 0;
 #endif
 

@@ -45,7 +45,7 @@ CefEndTracingCallbackCppToC::CefEndTracingCallbackCppToC(
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefEndTracingCallbackCppToC, CefEndTracingCallback,
-    cef_end_tracing_callback_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefEndTracingCallbackCppToC,
+    CefEndTracingCallback, cef_end_tracing_callback_t>::DebugObjCt = 0;
 #endif
 

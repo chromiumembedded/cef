@@ -92,7 +92,7 @@ bool CefReadHandlerCToCpp::MayBlock() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefReadHandlerCToCpp, CefReadHandler,
+template<> base::AtomicRefCount CefCToCpp<CefReadHandlerCToCpp, CefReadHandler,
     cef_read_handler_t>::DebugObjCt = 0;
 #endif
 

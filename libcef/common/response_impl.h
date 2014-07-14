@@ -8,6 +8,8 @@
 
 #include "include/cef_response.h"
 
+#include "base/synchronization/lock.h"
+
 namespace net {
 class HttpResponseHeaders;
 }
@@ -48,8 +50,9 @@ class CefResponseImpl : public CefResponse {
   HeaderMap header_map_;
   bool read_only_;
 
+  base::Lock lock_;
+
   IMPLEMENT_REFCOUNTING(CefResponseImpl);
-  IMPLEMENT_LOCKING(CefResponseImpl);
 };
 
 #endif  // CEF_LIBCEF_COMMON_RESPONSE_IMPL_H_

@@ -214,7 +214,7 @@ bool CefZipReaderCToCpp::Eof() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefZipReaderCToCpp, CefZipReader,
+template<> base::AtomicRefCount CefCToCpp<CefZipReaderCToCpp, CefZipReader,
     cef_zip_reader_t>::DebugObjCt = 0;
 #endif
 

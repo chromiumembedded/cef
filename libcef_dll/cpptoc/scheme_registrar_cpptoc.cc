@@ -49,7 +49,7 @@ CefSchemeRegistrarCppToC::CefSchemeRegistrarCppToC(CefSchemeRegistrar* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefSchemeRegistrarCppToC, CefSchemeRegistrar,
-    cef_scheme_registrar_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefSchemeRegistrarCppToC,
+    CefSchemeRegistrar, cef_scheme_registrar_t>::DebugObjCt = 0;
 #endif
 

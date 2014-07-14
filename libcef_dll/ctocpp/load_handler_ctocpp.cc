@@ -115,7 +115,7 @@ void CefLoadHandlerCToCpp::OnLoadError(CefRefPtr<CefBrowser> browser,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefLoadHandlerCToCpp, CefLoadHandler,
+template<> base::AtomicRefCount CefCToCpp<CefLoadHandlerCToCpp, CefLoadHandler,
     cef_load_handler_t>::DebugObjCt = 0;
 #endif
 

@@ -78,7 +78,7 @@ bool CefV8HandlerCToCpp::Execute(const CefString& name,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefV8HandlerCToCpp, CefV8Handler,
+template<> base::AtomicRefCount CefCToCpp<CefV8HandlerCToCpp, CefV8Handler,
     cef_v8handler_t>::DebugObjCt = 0;
 #endif
 

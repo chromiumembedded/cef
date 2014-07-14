@@ -44,7 +44,7 @@ CefRequestContextHandlerCppToC::CefRequestContextHandlerCppToC(
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefRequestContextHandlerCppToC,
+template<> base::AtomicRefCount CefCppToC<CefRequestContextHandlerCppToC,
     CefRequestContextHandler, cef_request_context_handler_t>::DebugObjCt = 0;
 #endif
 

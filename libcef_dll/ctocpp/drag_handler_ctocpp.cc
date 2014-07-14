@@ -45,7 +45,7 @@ bool CefDragHandlerCToCpp::OnDragEnter(CefRefPtr<CefBrowser> browser,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefDragHandlerCToCpp, CefDragHandler,
+template<> base::AtomicRefCount CefCToCpp<CefDragHandlerCToCpp, CefDragHandler,
     cef_drag_handler_t>::DebugObjCt = 0;
 #endif
 

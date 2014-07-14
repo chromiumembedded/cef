@@ -4,12 +4,15 @@
 
 #include <map>
 
+// Include this first to avoid type conflicts with CEF headers.
+#include "tests/unittests/chromium_includes.h"
+
 #include "include/cef_request.h"
 #include "include/cef_runnable.h"
+#include "testing/gtest/include/gtest/gtest.h"
 #include "tests/cefclient/client_app.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
-#include "testing/gtest/include/gtest/gtest.h"
 
 // Verify Set/Get methods for CefRequest, CefPostData and CefPostDataElement.
 TEST(RequestTest, SetGet) {

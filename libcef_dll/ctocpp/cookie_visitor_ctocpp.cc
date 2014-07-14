@@ -41,7 +41,7 @@ bool CefCookieVisitorCToCpp::Visit(const CefCookie& cookie, int count,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefCookieVisitorCToCpp, CefCookieVisitor,
-    cef_cookie_visitor_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefCookieVisitorCToCpp,
+    CefCookieVisitor, cef_cookie_visitor_t>::DebugObjCt = 0;
 #endif
 

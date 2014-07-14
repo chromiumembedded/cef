@@ -125,7 +125,7 @@ CefRefPtr<CefDOMNode> CefDOMEventCToCpp::GetCurrentTarget() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefDOMEventCToCpp, CefDOMEvent,
+template<> base::AtomicRefCount CefCToCpp<CefDOMEventCToCpp, CefDOMEvent,
     cef_domevent_t>::DebugObjCt = 0;
 #endif
 

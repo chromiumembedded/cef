@@ -67,7 +67,7 @@ class CefXmlReaderImpl : public CefXmlReader {
   xmlTextReaderPtr reader_;
   std::stringstream error_buf_;
 
-  IMPLEMENT_REFCOUNTING(CefXMLReaderImpl);
+  IMPLEMENT_REFCOUNTING(CefXmlReaderImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_XML_READER_IMPL_H_

@@ -128,7 +128,7 @@ bool CefV8StackFrameCToCpp::IsConstructor() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefV8StackFrameCToCpp, CefV8StackFrame,
-    cef_v8stack_frame_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefV8StackFrameCToCpp,
+    CefV8StackFrame, cef_v8stack_frame_t>::DebugObjCt = 0;
 #endif
 

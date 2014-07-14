@@ -59,7 +59,7 @@ CefAuthCallbackCppToC::CefAuthCallbackCppToC(CefAuthCallback* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefAuthCallbackCppToC, CefAuthCallback,
-    cef_auth_callback_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefAuthCallbackCppToC,
+    CefAuthCallback, cef_auth_callback_t>::DebugObjCt = 0;
 #endif
 

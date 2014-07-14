@@ -138,7 +138,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     const int64 query_id_;
     const bool persistent_;
 
-    IMPLEMENT_REFCOUNTING(CefQueryCallbackImpl);
+    IMPLEMENT_REFCOUNTING(CallbackImpl);
   };
 
   explicit CefMessageRouterBrowserSideImpl(const CefMessageRouterConfig& config)
@@ -291,7 +291,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
 
       // If the query isn't handled nothing should be keeping a reference to
       // the callback.
-      DCHECK(handled || callback->GetRefCt() == 1);
+      DCHECK(handled || callback->HasOneRef());
 
       if (handled) {
         // Persist the query information until the callback executes.

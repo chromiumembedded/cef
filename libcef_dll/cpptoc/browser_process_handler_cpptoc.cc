@@ -99,7 +99,7 @@ CefBrowserProcessHandlerCppToC::CefBrowserProcessHandlerCppToC(
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefBrowserProcessHandlerCppToC,
+template<> base::AtomicRefCount CefCppToC<CefBrowserProcessHandlerCppToC,
     CefBrowserProcessHandler, cef_browser_process_handler_t>::DebugObjCt = 0;
 #endif
 

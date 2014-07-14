@@ -110,7 +110,7 @@ void CefContextMenuHandlerCToCpp::OnContextMenuDismissed(
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefContextMenuHandlerCToCpp, CefContextMenuHandler,
-    cef_context_menu_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefContextMenuHandlerCToCpp,
+    CefContextMenuHandler, cef_context_menu_handler_t>::DebugObjCt = 0;
 #endif
 

@@ -61,7 +61,7 @@ CefFileDialogCallbackCppToC::CefFileDialogCallbackCppToC(
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefFileDialogCallbackCppToC, CefFileDialogCallback,
-    cef_file_dialog_callback_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefFileDialogCallbackCppToC,
+    CefFileDialogCallback, cef_file_dialog_callback_t>::DebugObjCt = 0;
 #endif
 

@@ -132,7 +132,7 @@ bool CefURLRequestClientCToCpp::GetAuthCredentials(bool isProxy,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefURLRequestClientCToCpp, CefURLRequestClient,
-    cef_urlrequest_client_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefURLRequestClientCToCpp,
+    CefURLRequestClient, cef_urlrequest_client_t>::DebugObjCt = 0;
 #endif
 

@@ -6,9 +6,11 @@
 #define CEF_LIBCEF_COMMON_DRAG_DATA_IMPL_H_
 #pragma once
 
+#include "include/cef_drag_data.h"
+
 #include <vector>
 
-#include "include/cef_drag_data.h"
+#include "base/synchronization/lock.h"
 #include "content/public/common/drop_data.h"
 
 // Implementation of CefDragData.
@@ -48,14 +50,17 @@ class CefDragDataImpl : public CefDragData {
 
   void SetReadOnly(bool read_only);
 
- protected:
+  base::Lock& lock() { return lock_; }
+
+ private:
   content::DropData data_;
 
   // True if this object is read-only.
   bool read_only_;
 
+  base::Lock lock_;
+
   IMPLEMENT_REFCOUNTING(CefDragDataImpl);
-  IMPLEMENT_LOCKING(CefDragDataImpl);
 };
 
 #endif  // CEF_LIBCEF_COMMON_DRAG_DATA_IMPL_H_

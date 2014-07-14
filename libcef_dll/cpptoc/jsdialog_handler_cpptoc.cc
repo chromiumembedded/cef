@@ -145,7 +145,7 @@ CefJSDialogHandlerCppToC::CefJSDialogHandlerCppToC(CefJSDialogHandler* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefJSDialogHandlerCppToC, CefJSDialogHandler,
-    cef_jsdialog_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefJSDialogHandlerCppToC,
+    CefJSDialogHandler, cef_jsdialog_handler_t>::DebugObjCt = 0;
 #endif
 

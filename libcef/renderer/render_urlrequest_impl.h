@@ -31,7 +31,7 @@ class CefRenderURLRequest : public CefURLRequest {
 
   scoped_refptr<Context> context_;
 
-  IMPLEMENT_REFCOUNTING(CefBrowserURLRequest);
+  IMPLEMENT_REFCOUNTING(CefRenderURLRequest);
 };
 
 #endif  // CEF_LIBCEF_RENDERER_RENDER_URLREQUEST_IMPL_H_

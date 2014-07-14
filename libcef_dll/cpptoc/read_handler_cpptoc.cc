@@ -109,7 +109,7 @@ CefReadHandlerCppToC::CefReadHandlerCppToC(CefReadHandler* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefReadHandlerCppToC, CefReadHandler,
+template<> base::AtomicRefCount CefCppToC<CefReadHandlerCppToC, CefReadHandler,
     cef_read_handler_t>::DebugObjCt = 0;
 #endif
 

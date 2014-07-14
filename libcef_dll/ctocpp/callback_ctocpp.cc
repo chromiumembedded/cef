@@ -37,7 +37,7 @@ void CefCallbackCToCpp::Cancel() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefCallbackCToCpp, CefCallback,
+template<> base::AtomicRefCount CefCToCpp<CefCallbackCToCpp, CefCallback,
     cef_callback_t>::DebugObjCt = 0;
 #endif
 

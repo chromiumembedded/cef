@@ -196,7 +196,7 @@ void CefResponseCToCpp::SetHeaderMap(const HeaderMap& headerMap) {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefResponseCToCpp, CefResponse,
+template<> base::AtomicRefCount CefCToCpp<CefResponseCToCpp, CefResponse,
     cef_response_t>::DebugObjCt = 0;
 #endif
 

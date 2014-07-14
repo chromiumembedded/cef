@@ -130,7 +130,7 @@ bool CefDisplayHandlerCToCpp::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefDisplayHandlerCToCpp, CefDisplayHandler,
-    cef_display_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefDisplayHandlerCToCpp,
+    CefDisplayHandler, cef_display_handler_t>::DebugObjCt = 0;
 #endif
 

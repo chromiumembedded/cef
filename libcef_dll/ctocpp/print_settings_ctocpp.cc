@@ -361,7 +361,7 @@ CefPrintSettings::DuplexMode CefPrintSettingsCToCpp::GetDuplexMode() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefPrintSettingsCToCpp, CefPrintSettings,
-    cef_print_settings_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefPrintSettingsCToCpp,
+    CefPrintSettings, cef_print_settings_t>::DebugObjCt = 0;
 #endif
 

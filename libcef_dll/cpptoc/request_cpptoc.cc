@@ -335,7 +335,7 @@ CefRequestCppToC::CefRequestCppToC(CefRequest* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefRequestCppToC, CefRequest,
+template<> base::AtomicRefCount CefCppToC<CefRequestCppToC, CefRequest,
     cef_request_t>::DebugObjCt = 0;
 #endif
 

@@ -218,7 +218,7 @@ void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
                                     const CefString& url) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (browser_id_ == browser->GetIdentifier() && frame->IsMain()) {
+  if (GetBrowserId() == browser->GetIdentifier() && frame->IsMain()) {
       // Set the edit window text
     std::string urlStr(url);
     gtk_entry_set_text(GTK_ENTRY(edit_handle_), urlStr.c_str());
@@ -283,6 +283,8 @@ bool ClientHandler::OnJSDialog(CefRefPtr<CefBrowser> browser,
                                const CefString& default_prompt_text,
                                CefRefPtr<CefJSDialogCallback> callback,
                                bool& suppress_message) {
+  CEF_REQUIRE_UI_THREAD();
+
   GtkButtonsType buttons = GTK_BUTTONS_NONE;
   GtkMessageType gtk_message_type = GTK_MESSAGE_OTHER;
   std::string title;
@@ -359,6 +361,8 @@ bool ClientHandler::OnBeforeUnloadDialog(
     const CefString& message_text,
     bool is_reload,
     CefRefPtr<CefJSDialogCallback> callback) {
+  CEF_REQUIRE_UI_THREAD();
+
   const std::string& new_message_text =
       message_text.ToString() + "\n\nIs it OK to leave/reload this page?";
   bool suppress_message = false;
@@ -368,6 +372,8 @@ bool ClientHandler::OnBeforeUnloadDialog(
 }
 
 void ClientHandler::OnResetDialogState(CefRefPtr<CefBrowser> browser) {
+  CEF_REQUIRE_UI_THREAD();
+
   if (!gtk_dialog_)
     return;
   gtk_widget_destroy(gtk_dialog_);
@@ -379,6 +385,8 @@ void ClientHandler::OnResetDialogState(CefRefPtr<CefBrowser> browser) {
 void ClientHandler::OnDialogResponse(GtkDialog* dialog,
                                      gint response_id,
                                      ClientHandler* handler) {
+  CEF_REQUIRE_UI_THREAD();
+
   DCHECK_EQ(dialog, GTK_DIALOG(handler->gtk_dialog_));
   switch (response_id) {
     case GTK_RESPONSE_OK:
@@ -400,6 +408,8 @@ void ClientHandler::SendNotification(NotificationType type) {
 }
 
 void ClientHandler::SetLoading(bool isLoading) {
+  CEF_REQUIRE_UI_THREAD();
+
   if (isLoading)
     gtk_widget_set_sensitive(GTK_WIDGET(stop_handle_), true);
   else
@@ -407,6 +417,8 @@ void ClientHandler::SetLoading(bool isLoading) {
 }
 
 void ClientHandler::SetNavState(bool canGoBack, bool canGoForward) {
+  CEF_REQUIRE_UI_THREAD();
+
   if (canGoBack)
     gtk_widget_set_sensitive(GTK_WIDGET(back_handle_), true);
   else
@@ -421,4 +433,3 @@ void ClientHandler::SetNavState(bool canGoBack, bool canGoForward) {
 std::string ClientHandler::GetDownloadPath(const std::string& file_name) {
   return std::string();
 }
-

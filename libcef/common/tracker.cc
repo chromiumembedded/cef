@@ -51,7 +51,7 @@ CefTrackManager::~CefTrackManager() {
 }
 
 void CefTrackManager::Add(CefTrackNode* object) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   if (!object->IsTracked()) {
     tracker_.InsertTrackNext(object);
     ++object_count_;
@@ -59,7 +59,7 @@ void CefTrackManager::Add(CefTrackNode* object) {
 }
 
 bool CefTrackManager::Delete(CefTrackNode* object) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   if (object->IsTracked()) {
     object->RemoveTracking();
     delete object;
@@ -70,7 +70,7 @@ bool CefTrackManager::Delete(CefTrackNode* object) {
 }
 
 void CefTrackManager::DeleteAll() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CefTrackNode* next;
   do {
     next = tracker_.GetTrackNext();

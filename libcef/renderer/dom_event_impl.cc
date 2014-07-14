@@ -133,7 +133,7 @@ CefRefPtr<CefDOMNode> CefDOMEventImpl::GetCurrentTarget() {
 void CefDOMEventImpl::Detach() {
   // If you hit this assert it means that you are keeping references to this
   // event object beyond the valid scope.
-  DCHECK_EQ(GetRefCt(), 1);
+  DCHECK(HasOneRef());
 
   document_ = NULL;
   event_.assign(WebDOMEvent());

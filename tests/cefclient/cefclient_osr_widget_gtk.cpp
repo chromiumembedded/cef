@@ -17,8 +17,8 @@
 #include <X11/XF86keysym.h>
 #include <X11/Xcursor/Xcursor.h>
 
-#include "include/cef_runnable.h"
-#include "include/wrapper/cef_helpers.h"
+#include "include/base/cef_bind.h"
+#include "include/wrapper/cef_closure_task.h"
 
 namespace {
 
@@ -1209,7 +1209,7 @@ void OSRWindow::OnCursorChange(CefRefPtr<CefBrowser> browser,
 
 void OSRWindow::Invalidate() {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, NewCefRunnableMethod(this, &OSRWindow::Invalidate));
+    CefPostTask(TID_UI, base::Bind(&OSRWindow::Invalidate, this));
     return;
   }
 
@@ -1221,7 +1221,7 @@ void OSRWindow::Invalidate() {
 
   // Render at 30fps.
   static const int kRenderDelay = 1000 / 30;
-  CefPostDelayedTask(TID_UI, NewCefRunnableMethod(this, &OSRWindow::Render),
+  CefPostDelayedTask(TID_UI, base::Bind(&OSRWindow::Render, this),
                      kRenderDelay);
 }
 

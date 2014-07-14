@@ -5,6 +5,10 @@
 #include <algorithm>
 #include <cstdlib>
 #include <string>
+
+// Include this first to avoid type conflicts with CEF headers.
+#include "tests/unittests/chromium_includes.h"
+
 #include "include/cef_runnable.h"
 #include "include/cef_stream.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
@@ -88,7 +92,7 @@ class ReadHandler : public CefReadHandler {
   size_t offset_;
   int expected_result_;
 
-  IMPLEMENT_REFCOUNTING(StreamReader);
+  IMPLEMENT_REFCOUNTING(ReadHandler);
 };
 
 class ReadTestHandler : public RoutingTestHandler {

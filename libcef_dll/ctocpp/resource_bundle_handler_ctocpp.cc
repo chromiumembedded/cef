@@ -50,7 +50,7 @@ bool CefResourceBundleHandlerCToCpp::GetDataResource(int resource_id,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefResourceBundleHandlerCToCpp,
+template<> base::AtomicRefCount CefCToCpp<CefResourceBundleHandlerCToCpp,
     CefResourceBundleHandler, cef_resource_bundle_handler_t>::DebugObjCt = 0;
 #endif
 

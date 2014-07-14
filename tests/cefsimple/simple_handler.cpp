@@ -7,8 +7,9 @@
 #include <sstream>
 #include <string>
 
+#include "include/base/cef_bind.h"
 #include "include/cef_app.h"
-#include "include/cef_runnable.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
 
 namespace {
@@ -97,8 +98,7 @@ void SimpleHandler::CloseAllBrowsers(bool force_close) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute on the UI thread.
     CefPostTask(TID_UI,
-        NewCefRunnableMethod(this, &SimpleHandler::CloseAllBrowsers,
-                             force_close));
+        base::Bind(&SimpleHandler::CloseAllBrowsers, this, force_close));
     return;
   }
 

@@ -126,7 +126,7 @@ CefContextMenuHandlerCppToC::CefContextMenuHandlerCppToC(
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefContextMenuHandlerCppToC, CefContextMenuHandler,
-    cef_context_menu_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefContextMenuHandlerCppToC,
+    CefContextMenuHandler, cef_context_menu_handler_t>::DebugObjCt = 0;
 #endif
 

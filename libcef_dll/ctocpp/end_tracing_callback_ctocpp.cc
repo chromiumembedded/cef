@@ -34,7 +34,7 @@ void CefEndTracingCallbackCToCpp::OnEndTracingComplete(
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefEndTracingCallbackCToCpp, CefEndTracingCallback,
-    cef_end_tracing_callback_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefEndTracingCallbackCToCpp,
+    CefEndTracingCallback, cef_end_tracing_callback_t>::DebugObjCt = 0;
 #endif
 

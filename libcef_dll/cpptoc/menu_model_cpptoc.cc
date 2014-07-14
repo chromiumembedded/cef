@@ -1014,7 +1014,7 @@ CefMenuModelCppToC::CefMenuModelCppToC(CefMenuModel* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefMenuModelCppToC, CefMenuModel,
+template<> base::AtomicRefCount CefCppToC<CefMenuModelCppToC, CefMenuModel,
     cef_menu_model_t>::DebugObjCt = 0;
 #endif
 

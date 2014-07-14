@@ -34,7 +34,7 @@ void CefDOMVisitorCToCpp::Visit(CefRefPtr<CefDOMDocument> document) {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefDOMVisitorCToCpp, CefDOMVisitor,
+template<> base::AtomicRefCount CefCToCpp<CefDOMVisitorCToCpp, CefDOMVisitor,
     cef_domvisitor_t>::DebugObjCt = 0;
 #endif
 

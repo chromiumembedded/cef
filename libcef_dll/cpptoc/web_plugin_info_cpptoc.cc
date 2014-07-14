@@ -88,7 +88,7 @@ CefWebPluginInfoCppToC::CefWebPluginInfoCppToC(CefWebPluginInfo* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefWebPluginInfoCppToC, CefWebPluginInfo,
-    cef_web_plugin_info_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefWebPluginInfoCppToC,
+    CefWebPluginInfo, cef_web_plugin_info_t>::DebugObjCt = 0;
 #endif
 

@@ -243,7 +243,7 @@ CefZipReaderCppToC::CefZipReaderCppToC(CefZipReader* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefZipReaderCppToC, CefZipReader,
+template<> base::AtomicRefCount CefCppToC<CefZipReaderCppToC, CefZipReader,
     cef_zip_reader_t>::DebugObjCt = 0;
 #endif
 

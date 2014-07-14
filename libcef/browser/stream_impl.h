@@ -6,9 +6,12 @@
 #define CEF_LIBCEF_BROWSER_STREAM_IMPL_H_
 #pragma once
 
+#include "include/cef_stream.h"
+
 #include <stdio.h>
 #include <string>
-#include "include/cef_stream.h"
+
+#include "base/synchronization/lock.h"
 
 // Implementation of CefStreamReader for files.
 class CefFileReader : public CefStreamReader {
@@ -26,8 +29,9 @@ class CefFileReader : public CefStreamReader {
   bool close_;
   FILE* file_;
 
+  base::Lock lock_;
+
   IMPLEMENT_REFCOUNTING(CefFileReader);
-  IMPLEMENT_LOCKING(CefFileReader);
 };
 
 // Implementation of CefStreamWriter for files.
@@ -46,8 +50,9 @@ class CefFileWriter : public CefStreamWriter {
   FILE* file_;
   bool close_;
 
+  base::Lock lock_;
+
   IMPLEMENT_REFCOUNTING(CefFileWriter);
-  IMPLEMENT_LOCKING(CefFileWriter);
 };
 
 // Implementation of CefStreamReader for byte buffers.
@@ -73,8 +78,9 @@ class CefBytesReader : public CefStreamReader {
   bool copy_;
   int64 offset_;
 
+  base::Lock lock_;
+
   IMPLEMENT_REFCOUNTING(CefBytesReader);
-  IMPLEMENT_LOCKING(CefBytesReader);
 };
 
 // Implementation of CefStreamWriter for byte buffers.
@@ -101,8 +107,9 @@ class CefBytesWriter : public CefStreamWriter {
   int64 datasize_;
   int64 offset_;
 
+  base::Lock lock_;
+
   IMPLEMENT_REFCOUNTING(CefBytesWriter);
-  IMPLEMENT_LOCKING(CefBytesWriter);
 };
 
 // Implementation of CefStreamReader for handlers.

@@ -92,7 +92,7 @@ bool CefWriteHandlerCToCpp::MayBlock() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefWriteHandlerCToCpp, CefWriteHandler,
-    cef_write_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefWriteHandlerCToCpp,
+    CefWriteHandler, cef_write_handler_t>::DebugObjCt = 0;
 #endif
 

@@ -148,7 +148,7 @@ CefStreamWriterCppToC::CefStreamWriterCppToC(CefStreamWriter* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefStreamWriterCppToC, CefStreamWriter,
-    cef_stream_writer_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefStreamWriterCppToC,
+    CefStreamWriter, cef_stream_writer_t>::DebugObjCt = 0;
 #endif
 

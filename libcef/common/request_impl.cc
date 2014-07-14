@@ -112,50 +112,50 @@ CefRequestImpl::CefRequestImpl()
 }
 
 bool CefRequestImpl::IsReadOnly() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return read_only_;
 }
 
 CefString CefRequestImpl::GetURL() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return url_;
 }
 
 void CefRequestImpl::SetURL(const CefString& url) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   url_ = url;
 }
 
 CefString CefRequestImpl::GetMethod() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return method_;
 }
 
 void CefRequestImpl::SetMethod(const CefString& method) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   method_ = method;
 }
 
 CefRefPtr<CefPostData> CefRequestImpl::GetPostData() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return postdata_;
 }
 
 void CefRequestImpl::SetPostData(CefRefPtr<CefPostData> postData) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   postdata_ = postData;
 }
 
 void CefRequestImpl::GetHeaderMap(HeaderMap& headerMap) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   headerMap = headermap_;
 }
 
 void CefRequestImpl::SetHeaderMap(const HeaderMap& headerMap) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   headermap_ = headerMap;
 }
@@ -164,7 +164,7 @@ void CefRequestImpl::Set(const CefString& url,
                          const CefString& method,
                          CefRefPtr<CefPostData> postData,
                          const HeaderMap& headerMap) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   url_ = url;
   method_ = method;
@@ -173,37 +173,37 @@ void CefRequestImpl::Set(const CefString& url,
 }
 
 int CefRequestImpl::GetFlags() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return flags_;
 }
 void CefRequestImpl::SetFlags(int flags) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   flags_ = flags;
 }
 
 CefString CefRequestImpl::GetFirstPartyForCookies() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return first_party_for_cookies_;
 }
 void CefRequestImpl::SetFirstPartyForCookies(const CefString& url) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   first_party_for_cookies_ = url;
 }
 
 CefRequestImpl::ResourceType CefRequestImpl::GetResourceType() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return resource_type_;
 }
 
 CefRequestImpl::TransitionType CefRequestImpl::GetTransitionType() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return transition_type_;
 }
 
 void CefRequestImpl::Set(net::URLRequest* request) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
 
   url_ = request->url().spec();
@@ -252,7 +252,7 @@ void CefRequestImpl::Set(net::URLRequest* request) {
 }
 
 void CefRequestImpl::Get(net::URLRequest* request) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
 
   request->set_method(method_);
   if (!first_party_for_cookies_.empty()) {
@@ -285,7 +285,7 @@ void CefRequestImpl::Get(net::URLRequest* request) {
 void CefRequestImpl::Set(const blink::WebURLRequest& request) {
   DCHECK(!request.isNull());
 
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
 
   url_ = request.url().spec().utf16();
@@ -320,7 +320,7 @@ void CefRequestImpl::Set(const blink::WebURLRequest& request) {
 
 void CefRequestImpl::Get(blink::WebURLRequest& request) {
   request.initialize();
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
 
   GURL gurl = GURL(url_.ToString());
   request.setURL(blink::WebURL(gurl));
@@ -359,7 +359,7 @@ void CefRequestImpl::Get(blink::WebURLRequest& request) {
 }
 
 void CefRequestImpl::SetReadOnly(bool read_only) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   if (read_only_ == read_only)
     return;
 
@@ -428,22 +428,22 @@ CefPostDataImpl::CefPostDataImpl()
 }
 
 bool CefPostDataImpl::IsReadOnly() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return read_only_;
 }
 
 size_t CefPostDataImpl::GetElementCount() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return elements_.size();
 }
 
 void CefPostDataImpl::GetElements(ElementVector& elements) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   elements = elements_;
 }
 
 bool CefPostDataImpl::RemoveElement(CefRefPtr<CefPostDataElement> element) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN(false);
 
   ElementVector::iterator it = elements_.begin();
@@ -460,7 +460,7 @@ bool CefPostDataImpl::RemoveElement(CefRefPtr<CefPostDataElement> element) {
 bool CefPostDataImpl::AddElement(CefRefPtr<CefPostDataElement> element) {
   bool found = false;
 
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN(false);
 
   // check that the element isn't already in the list before adding
@@ -479,14 +479,16 @@ bool CefPostDataImpl::AddElement(CefRefPtr<CefPostDataElement> element) {
 }
 
 void CefPostDataImpl::RemoveElements() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   elements_.clear();
 }
 
 void CefPostDataImpl::Set(const net::UploadData& data) {
-  AutoLock lock_scope(this);
-  CHECK_READONLY_RETURN_VOID();
+  {
+    base::AutoLock lock_scope(lock_);
+    CHECK_READONLY_RETURN_VOID();
+  }
 
   CefRefPtr<CefPostDataElement> postelem;
 
@@ -500,8 +502,10 @@ void CefPostDataImpl::Set(const net::UploadData& data) {
 }
 
 void CefPostDataImpl::Set(const net::UploadDataStream& data_stream) {
-  AutoLock lock_scope(this);
-  CHECK_READONLY_RETURN_VOID();
+  {
+    base::AutoLock lock_scope(lock_);
+    CHECK_READONLY_RETURN_VOID();
+  }
 
   CefRefPtr<CefPostDataElement> postelem;
 
@@ -516,7 +520,7 @@ void CefPostDataImpl::Set(const net::UploadDataStream& data_stream) {
 }
 
 void CefPostDataImpl::Get(net::UploadData& data) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
 
   ScopedVector<net::UploadElement> data_elements;
   ElementVector::const_iterator it = elements_.begin();
@@ -529,7 +533,7 @@ void CefPostDataImpl::Get(net::UploadData& data) {
 }
 
 net::UploadDataStream* CefPostDataImpl::Get() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
 
   ScopedVector<net::UploadElementReader> element_readers;
   ElementVector::const_iterator it = elements_.begin();
@@ -542,8 +546,10 @@ net::UploadDataStream* CefPostDataImpl::Get() {
 }
 
 void CefPostDataImpl::Set(const blink::WebHTTPBody& data) {
-  AutoLock lock_scope(this);
-  CHECK_READONLY_RETURN_VOID();
+  {
+    base::AutoLock lock_scope(lock_);
+    CHECK_READONLY_RETURN_VOID();
+  }
 
   CefRefPtr<CefPostDataElement> postelem;
   blink::WebHTTPBody::Element element;
@@ -558,7 +564,7 @@ void CefPostDataImpl::Set(const blink::WebHTTPBody& data) {
 }
 
 void CefPostDataImpl::Get(blink::WebHTTPBody& data) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
 
   blink::WebHTTPBody::Element element;
   ElementVector::iterator it = elements_.begin();
@@ -575,7 +581,7 @@ void CefPostDataImpl::Get(blink::WebHTTPBody& data) {
 }
 
 void CefPostDataImpl::SetReadOnly(bool read_only) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   if (read_only_ == read_only)
     return;
 
@@ -609,23 +615,23 @@ CefPostDataElementImpl::~CefPostDataElementImpl() {
 }
 
 bool CefPostDataElementImpl::IsReadOnly() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return read_only_;
 }
 
 void CefPostDataElementImpl::SetToEmpty() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
 
   Cleanup();
 }
 
 void CefPostDataElementImpl::SetToFile(const CefString& fileName) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
 
   // Clear any data currently in the element
-  SetToEmpty();
+  Cleanup();
 
   // Assign the new data
   type_ = PDE_TYPE_FILE;
@@ -633,11 +639,11 @@ void CefPostDataElementImpl::SetToFile(const CefString& fileName) {
 }
 
 void CefPostDataElementImpl::SetToBytes(size_t size, const void* bytes) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
 
   // Clear any data currently in the element
-  SetToEmpty();
+  Cleanup();
 
   // Assign the new data
   void* data = malloc(size);
@@ -653,12 +659,12 @@ void CefPostDataElementImpl::SetToBytes(size_t size, const void* bytes) {
 }
 
 CefPostDataElement::Type CefPostDataElementImpl::GetType() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return type_;
 }
 
 CefString CefPostDataElementImpl::GetFile() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   DCHECK(type_ == PDE_TYPE_FILE);
   CefString filename;
   if (type_ == PDE_TYPE_FILE)
@@ -667,7 +673,7 @@ CefString CefPostDataElementImpl::GetFile() {
 }
 
 size_t CefPostDataElementImpl::GetBytesCount() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   DCHECK(type_ == PDE_TYPE_BYTES);
   size_t size = 0;
   if (type_ == PDE_TYPE_BYTES)
@@ -676,7 +682,7 @@ size_t CefPostDataElementImpl::GetBytesCount() {
 }
 
 size_t CefPostDataElementImpl::GetBytes(size_t size, void* bytes) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   DCHECK(type_ == PDE_TYPE_BYTES);
   size_t rv = 0;
   if (type_ == PDE_TYPE_BYTES) {
@@ -687,8 +693,10 @@ size_t CefPostDataElementImpl::GetBytes(size_t size, void* bytes) {
 }
 
 void CefPostDataElementImpl::Set(const net::UploadElement& element) {
-  AutoLock lock_scope(this);
-  CHECK_READONLY_RETURN_VOID();
+  {
+    base::AutoLock lock_scope(lock_);
+    CHECK_READONLY_RETURN_VOID();
+  }
 
   if (element.type() == net::UploadElement::TYPE_BYTES) {
     SetToBytes(element.bytes_length(), element.bytes());
@@ -701,8 +709,10 @@ void CefPostDataElementImpl::Set(const net::UploadElement& element) {
 
 void CefPostDataElementImpl::Set(
     const net::UploadElementReader& element_reader) {
-  AutoLock lock_scope(this);
-  CHECK_READONLY_RETURN_VOID();
+  {
+    base::AutoLock lock_scope(lock_);
+    CHECK_READONLY_RETURN_VOID();
+  }
 
   const net::UploadBytesElementReader* bytes_reader =
       element_reader.AsBytesReader();
@@ -722,7 +732,7 @@ void CefPostDataElementImpl::Set(
 }
 
 void CefPostDataElementImpl::Get(net::UploadElement& element) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
 
   if (type_ == PDE_TYPE_BYTES) {
     element.SetToBytes(static_cast<char*>(data_.bytes.bytes), data_.bytes.size);
@@ -735,7 +745,7 @@ void CefPostDataElementImpl::Get(net::UploadElement& element) {
 }
 
 net::UploadElementReader* CefPostDataElementImpl::Get() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
 
   if (type_ == PDE_TYPE_BYTES) {
     net::UploadElement* element = new net::UploadElement();
@@ -754,8 +764,10 @@ net::UploadElementReader* CefPostDataElementImpl::Get() {
 }
 
 void CefPostDataElementImpl::Set(const blink::WebHTTPBody::Element& element) {
-  AutoLock lock_scope(this);
-  CHECK_READONLY_RETURN_VOID();
+  {
+    base::AutoLock lock_scope(lock_);
+    CHECK_READONLY_RETURN_VOID();
+  }
 
   if (element.type == blink::WebHTTPBody::Element::TypeData) {
     SetToBytes(element.data.size(),
@@ -768,7 +780,7 @@ void CefPostDataElementImpl::Set(const blink::WebHTTPBody::Element& element) {
 }
 
 void CefPostDataElementImpl::Get(blink::WebHTTPBody::Element& element) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
 
   if (type_ == PDE_TYPE_BYTES) {
     element.type = blink::WebHTTPBody::Element::TypeData;
@@ -783,7 +795,7 @@ void CefPostDataElementImpl::Get(blink::WebHTTPBody::Element& element) {
 }
 
 void CefPostDataElementImpl::SetReadOnly(bool read_only) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   if (read_only_ == read_only)
     return;
 

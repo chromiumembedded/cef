@@ -48,7 +48,7 @@ void CefSchemeRegistrarImpl::GetStandardSchemes(
 }
 
 bool CefSchemeRegistrarImpl::VerifyRefCount() {
-  return (GetRefCt() == 1);
+  return HasOneRef();
 }
 
 void CefSchemeRegistrarImpl::Detach() {

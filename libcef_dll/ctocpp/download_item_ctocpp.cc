@@ -235,7 +235,7 @@ CefString CefDownloadItemCToCpp::GetMimeType() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefDownloadItemCToCpp, CefDownloadItem,
-    cef_download_item_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefDownloadItemCToCpp,
+    CefDownloadItem, cef_download_item_t>::DebugObjCt = 0;
 #endif
 

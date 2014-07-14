@@ -27,7 +27,7 @@ void CefCompletionCallbackCToCpp::OnComplete() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefCompletionCallbackCToCpp, CefCompletionCallback,
-    cef_completion_callback_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefCompletionCallbackCToCpp,
+    CefCompletionCallback, cef_completion_callback_t>::DebugObjCt = 0;
 #endif
 

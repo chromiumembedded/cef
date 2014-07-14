@@ -392,7 +392,7 @@ CefRequestHandlerCppToC::CefRequestHandlerCppToC(CefRequestHandler* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefRequestHandlerCppToC, CefRequestHandler,
-    cef_request_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefRequestHandlerCppToC,
+    CefRequestHandler, cef_request_handler_t>::DebugObjCt = 0;
 #endif
 

@@ -73,7 +73,7 @@ void CefFocusHandlerCToCpp::OnGotFocus(CefRefPtr<CefBrowser> browser) {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefFocusHandlerCToCpp, CefFocusHandler,
-    cef_focus_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefFocusHandlerCToCpp,
+    CefFocusHandler, cef_focus_handler_t>::DebugObjCt = 0;
 #endif
 

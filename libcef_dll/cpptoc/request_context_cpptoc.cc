@@ -106,7 +106,7 @@ CefRequestContextCppToC::CefRequestContextCppToC(CefRequestContext* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefRequestContextCppToC, CefRequestContext,
-    cef_request_context_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefRequestContextCppToC,
+    CefRequestContext, cef_request_context_t>::DebugObjCt = 0;
 #endif
 

@@ -89,7 +89,7 @@ CefGeolocationHandlerCppToC::CefGeolocationHandlerCppToC(
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefGeolocationHandlerCppToC, CefGeolocationHandler,
-    cef_geolocation_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefGeolocationHandlerCppToC,
+    CefGeolocationHandler, cef_geolocation_handler_t>::DebugObjCt = 0;
 #endif
 

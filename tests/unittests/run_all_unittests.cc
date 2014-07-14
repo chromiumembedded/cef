@@ -2,18 +2,18 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-// Include this first to avoid conflicts with base/cef_logging.h.
-#include "base/logging.h"
+// Include this first to avoid type conflicts with CEF headers.
+#include "tests/unittests/chromium_includes.h"
 
+#include "base/threading/thread.h"
+
+#include "include/base/cef_bind.h"
 #include "include/cef_app.h"
 #include "include/cef_task.h"
 #include "include/wrapper/cef_helpers.h"
 #include "tests/cefclient/client_app.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_suite.h"
-#include "base/bind.h"
-#include "base/command_line.h"
-#include "base/threading/thread.h"
 
 // Include after base/bind.h to avoid name collisions with cef_tuple.h.
 #include "include/cef_runnable.h"

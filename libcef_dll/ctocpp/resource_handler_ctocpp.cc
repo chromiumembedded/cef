@@ -130,7 +130,7 @@ void CefResourceHandlerCToCpp::Cancel() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefResourceHandlerCToCpp, CefResourceHandler,
-    cef_resource_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefResourceHandlerCToCpp,
+    CefResourceHandler, cef_resource_handler_t>::DebugObjCt = 0;
 #endif
 

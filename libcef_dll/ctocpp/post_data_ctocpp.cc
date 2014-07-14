@@ -144,7 +144,7 @@ void CefPostDataCToCpp::RemoveElements() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefPostDataCToCpp, CefPostData,
+template<> base::AtomicRefCount CefCToCpp<CefPostDataCToCpp, CefPostData,
     cef_post_data_t>::DebugObjCt = 0;
 #endif
 

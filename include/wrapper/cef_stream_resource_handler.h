@@ -97,7 +97,6 @@ class CefStreamResourceHandler : public CefResourceHandler {
 #endif
 
   IMPLEMENT_REFCOUNTING(CefStreamResourceHandler);
-
   DISALLOW_COPY_AND_ASSIGN(CefStreamResourceHandler);
 };
 

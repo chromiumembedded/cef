@@ -77,6 +77,42 @@
 #error Please add support for your compiler in cef_build.h
 #endif
 
+// Processor architecture detection.  For more info on what's defined, see:
+//   http://msdn.microsoft.com/en-us/library/b0084kay.aspx
+//   http://www.agner.org/optimize/calling_conventions.pdf
+//   or with gcc, run: "echo | gcc -E -dM -"
+#if defined(_M_X64) || defined(__x86_64__)
+#define ARCH_CPU_X86_FAMILY 1
+#define ARCH_CPU_X86_64 1
+#define ARCH_CPU_64_BITS 1
+#define ARCH_CPU_LITTLE_ENDIAN 1
+#elif defined(_M_IX86) || defined(__i386__)
+#define ARCH_CPU_X86_FAMILY 1
+#define ARCH_CPU_X86 1
+#define ARCH_CPU_32_BITS 1
+#define ARCH_CPU_LITTLE_ENDIAN 1
+#elif defined(__ARMEL__)
+#define ARCH_CPU_ARM_FAMILY 1
+#define ARCH_CPU_ARMEL 1
+#define ARCH_CPU_32_BITS 1
+#define ARCH_CPU_LITTLE_ENDIAN 1
+#elif defined(__aarch64__)
+#define ARCH_CPU_ARM_FAMILY 1
+#define ARCH_CPU_ARM64 1
+#define ARCH_CPU_64_BITS 1
+#define ARCH_CPU_LITTLE_ENDIAN 1
+#elif defined(__pnacl__)
+#define ARCH_CPU_32_BITS 1
+#define ARCH_CPU_LITTLE_ENDIAN 1
+#elif defined(__MIPSEL__)
+#define ARCH_CPU_MIPS_FAMILY 1
+#define ARCH_CPU_MIPSEL 1
+#define ARCH_CPU_32_BITS 1
+#define ARCH_CPU_LITTLE_ENDIAN 1
+#else
+#error Please add support for your architecture in build/build_config.h
+#endif
+
 // Annotate a virtual method indicating it must be overriding a virtual
 // method in the parent class.
 // Use like:
@@ -89,6 +125,27 @@
 #define OVERRIDE override
 #else
 #define OVERRIDE
+#endif
+
+// Annotate a function indicating the caller must examine the return value.
+// Use like:
+//   int foo() WARN_UNUSED_RESULT;
+// To explicitly ignore a result, see |ignore_result()| in <base/basictypes.h>.
+#if defined(COMPILER_GCC)
+#define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+#else
+#define WARN_UNUSED_RESULT
+#endif
+
+// Annotate a variable indicating it's ok if the variable is not used.
+// (Typically used to silence a compiler warning when the assignment
+// is important for some other reason.)
+// Use like:
+//   int x ALLOW_UNUSED = ...;
+#if defined(COMPILER_GCC)
+#define ALLOW_UNUSED __attribute__((unused))
+#else
+#define ALLOW_UNUSED
 #endif
 
 #endif  // !BUILDING_CEF_SHARED

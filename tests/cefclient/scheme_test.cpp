@@ -3,8 +3,10 @@
 // can be found in the LICENSE file.
 
 #include "cefclient/scheme_test.h"
+
 #include <algorithm>
 #include <string>
+
 #include "include/cef_browser.h"
 #include "include/cef_callback.h"
 #include "include/cef_frame.h"
@@ -35,8 +37,6 @@ class ClientSchemeHandler : public CefResourceHandler {
     CEF_REQUIRE_IO_THREAD();
 
     bool handled = false;
-
-    AutoLock lock_scope(this);
 
     std::string url = request->GetURL();
     if (strstr(url.c_str(), "handler.html") != NULL) {
@@ -110,8 +110,6 @@ class ClientSchemeHandler : public CefResourceHandler {
     bool has_data = false;
     bytes_read = 0;
 
-    AutoLock lock_scope(this);
-
     if (offset_ < data_.length()) {
       // Copy the next block of data into the buffer.
       int transfer_size =
@@ -132,7 +130,6 @@ class ClientSchemeHandler : public CefResourceHandler {
   size_t offset_;
 
   IMPLEMENT_REFCOUNTING(ClientSchemeHandler);
-  IMPLEMENT_LOCKING(ClientSchemeHandler);
 };
 
 // Implementation of the factory for for creating schema handlers.

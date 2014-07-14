@@ -115,7 +115,7 @@ CefPrintHandlerCppToC::CefPrintHandlerCppToC(CefPrintHandler* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefPrintHandlerCppToC, CefPrintHandler,
-    cef_print_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefPrintHandlerCppToC,
+    CefPrintHandler, cef_print_handler_t>::DebugObjCt = 0;
 #endif
 

@@ -60,38 +60,38 @@ class CefBaseCToCpp : public CefBase {
 
   // CefBase methods increment/decrement reference counts on both this object
   // and the underlying wrapped structure.
-  int AddRef() {
+  void AddRef() const {
     UnderlyingAddRef();
-    return refct_.AddRef();
+    ref_count_.AddRef();
   }
-  int Release() {
+  bool Release() const {
     UnderlyingRelease();
-    int retval = refct_.Release();
-    if (retval == 0)
+    if (ref_count_.Release()) {
       delete this;
-    return retval;
+      return true;
+    }
+    return false;
   }
-  int GetRefCt() { return refct_.GetRefCt(); }
+  bool HasOneRef() const { return ref_count_.HasOneRef(); }
 
   // Increment/decrement reference counts on only the underlying class.
-  int UnderlyingAddRef() {
-    if (!struct_->add_ref)
-      return 0;
-    return struct_->add_ref(struct_);
+  void UnderlyingAddRef() const {
+    if (struct_->add_ref)
+      struct_->add_ref(struct_);
   }
-  int UnderlyingRelease() {
+  bool UnderlyingRelease() const {
     if (!struct_->release)
-      return 0;
-    return struct_->release(struct_);
+      return false;
+    return struct_->release(struct_) ? true : false;
   }
-  int UnderlyingGetRefCt() {
-    if (!struct_->get_refct)
-      return 0;
-    return struct_->get_refct(struct_);
+  bool UnderlyingHasOneRef() const {
+    if (!struct_->has_one_ref)
+      return false;
+    return struct_->has_one_ref(struct_) ? true : false;
   }
 
  private:
-  CefRefCount refct_;
+  CefRefCount ref_count_;
   cef_base_t* struct_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBaseCToCpp);

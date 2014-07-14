@@ -8,6 +8,8 @@
 
 #include "include/cef_base.h"
 
+#include "base/synchronization/lock.h"
+
 // Class extended by objects that must be tracked.  After creating a tracked
 // object you should add it to the appropriate track manager.
 class CefTrackNode {
@@ -67,8 +69,9 @@ class CefTrackManager : public CefBase {
   CefTrackNode tracker_;
   int object_count_;
 
+  base::Lock lock_;
+
   IMPLEMENT_REFCOUNTING(CefTrackManager);
-  IMPLEMENT_LOCKING(CefTrackManager);
 };
 
 #endif  // CEF_LIBCEF_COMMON_TRACKER_H_

@@ -50,7 +50,9 @@
 #define CEF_REQUIRE_FILE_THREAD()     DCHECK(CefCurrentlyOn(TID_FILE));
 #define CEF_REQUIRE_RENDERER_THREAD() DCHECK(CefCurrentlyOn(TID_RENDERER));
 
+///
 // Helper class to manage a scoped copy of |argv|.
+///
 class CefScopedArgArray {
  public:
   CefScopedArgArray(int argc, char* argv[]) {

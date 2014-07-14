@@ -350,7 +350,7 @@ void CefRequestHandlerCToCpp::OnRenderProcessTerminated(
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefRequestHandlerCToCpp, CefRequestHandler,
-    cef_request_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefRequestHandlerCToCpp,
+    CefRequestHandler, cef_request_handler_t>::DebugObjCt = 0;
 #endif
 

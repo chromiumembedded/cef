@@ -868,7 +868,7 @@ CefRefPtr<CefV8Value> CefV8ValueCToCpp::ExecuteFunctionWithContext(
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefV8ValueCToCpp, CefV8Value,
+template<> base::AtomicRefCount CefCToCpp<CefV8ValueCToCpp, CefV8Value,
     cef_v8value_t>::DebugObjCt = 0;
 #endif
 

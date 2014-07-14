@@ -193,7 +193,7 @@ bool CefCookieManagerCToCpp::FlushStore(
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefCookieManagerCToCpp, CefCookieManager,
-    cef_cookie_manager_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefCookieManagerCToCpp,
+    CefCookieManager, cef_cookie_manager_t>::DebugObjCt = 0;
 #endif
 

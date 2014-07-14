@@ -315,7 +315,7 @@ CefRenderProcessHandlerCppToC::CefRenderProcessHandlerCppToC(
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefRenderProcessHandlerCppToC,
+template<> base::AtomicRefCount CefCppToC<CefRenderProcessHandlerCppToC,
     CefRenderProcessHandler, cef_render_process_handler_t>::DebugObjCt = 0;
 #endif
 

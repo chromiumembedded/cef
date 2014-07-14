@@ -150,7 +150,7 @@ void CefLifeSpanHandlerCToCpp::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefLifeSpanHandlerCToCpp, CefLifeSpanHandler,
-    cef_life_span_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefLifeSpanHandlerCToCpp,
+    CefLifeSpanHandler, cef_life_span_handler_t>::DebugObjCt = 0;
 #endif
 

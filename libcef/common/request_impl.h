@@ -7,6 +7,8 @@
 #pragma once
 
 #include "include/cef_request.h"
+
+#include "base/synchronization/lock.h"
 #include "third_party/WebKit/public/platform/WebHTTPBody.h"
 
 namespace net {
@@ -84,8 +86,9 @@ class CefRequestImpl : public CefRequest {
   // True if this object is read-only.
   bool read_only_;
 
+  base::Lock lock_;
+
   IMPLEMENT_REFCOUNTING(CefRequestImpl);
-  IMPLEMENT_LOCKING(CefRequestImpl);
 };
 
 // Implementation of CefPostData
@@ -116,8 +119,9 @@ class CefPostDataImpl : public CefPostData {
   // True if this object is read-only.
   bool read_only_;
 
+  base::Lock lock_;
+
   IMPLEMENT_REFCOUNTING(CefPostDataImpl);
-  IMPLEMENT_LOCKING(CefPostDataImpl);
 };
 
 // Implementation of CefPostDataElement
@@ -161,8 +165,9 @@ class CefPostDataElementImpl : public CefPostDataElement {
   // True if this object is read-only.
   bool read_only_;
 
+  base::Lock lock_;
+
   IMPLEMENT_REFCOUNTING(CefPostDataElementImpl);
-  IMPLEMENT_LOCKING(CefPostDataElementImpl);
 };
 
 #endif  // CEF_LIBCEF_COMMON_REQUEST_IMPL_H_

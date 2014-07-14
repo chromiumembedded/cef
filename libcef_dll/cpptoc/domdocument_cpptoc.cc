@@ -297,7 +297,7 @@ CefDOMDocumentCppToC::CefDOMDocumentCppToC(CefDOMDocument* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefDOMDocumentCppToC, CefDOMDocument,
+template<> base::AtomicRefCount CefCppToC<CefDOMDocumentCppToC, CefDOMDocument,
     cef_domdocument_t>::DebugObjCt = 0;
 #endif
 

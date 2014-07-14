@@ -392,7 +392,7 @@ void CefCommandLineCToCpp::PrependWrapper(const CefString& wrapper) {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefCommandLineCToCpp, CefCommandLine,
+template<> base::AtomicRefCount CefCToCpp<CefCommandLineCToCpp, CefCommandLine,
     cef_command_line_t>::DebugObjCt = 0;
 #endif
 

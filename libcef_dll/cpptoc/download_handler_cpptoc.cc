@@ -94,7 +94,7 @@ CefDownloadHandlerCppToC::CefDownloadHandlerCppToC(CefDownloadHandler* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefDownloadHandlerCppToC, CefDownloadHandler,
-    cef_download_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefDownloadHandlerCppToC,
+    CefDownloadHandler, cef_download_handler_t>::DebugObjCt = 0;
 #endif
 

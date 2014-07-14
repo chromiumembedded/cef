@@ -84,7 +84,7 @@ CefFocusHandlerCppToC::CefFocusHandlerCppToC(CefFocusHandler* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefFocusHandlerCppToC, CefFocusHandler,
-    cef_focus_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefFocusHandlerCppToC,
+    CefFocusHandler, cef_focus_handler_t>::DebugObjCt = 0;
 #endif
 

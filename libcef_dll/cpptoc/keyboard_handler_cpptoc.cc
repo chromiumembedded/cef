@@ -104,7 +104,7 @@ CefKeyboardHandlerCppToC::CefKeyboardHandlerCppToC(CefKeyboardHandler* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefKeyboardHandlerCppToC, CefKeyboardHandler,
-    cef_keyboard_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefKeyboardHandlerCppToC,
+    CefKeyboardHandler, cef_keyboard_handler_t>::DebugObjCt = 0;
 #endif
 

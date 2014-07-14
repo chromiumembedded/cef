@@ -3,6 +3,10 @@
 // can be found in the LICENSE file.
 
 #include <algorithm>
+
+// Include this first to avoid type conflicts with CEF headers.
+#include "tests/unittests/chromium_includes.h"
+
 #include "include/cef_origin_whitelist.h"
 #include "include/cef_callback.h"
 #include "include/cef_runnable.h"
@@ -273,8 +277,6 @@ class ClientSchemeHandler : public CefResourceHandler {
     bool has_data = false;
     bytes_read = 0;
 
-    AutoLock lock_scope(this);
-
     size_t size = data->size();
     if (offset_ < size) {
       int transfer_size =
@@ -301,7 +303,6 @@ class ClientSchemeHandler : public CefResourceHandler {
   bool has_delayed_;
 
   IMPLEMENT_REFCOUNTING(ClientSchemeHandler);
-  IMPLEMENT_LOCKING(ClientSchemeHandler);
 };
 
 class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {

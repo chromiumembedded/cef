@@ -153,7 +153,7 @@ CefDOMEventCppToC::CefDOMEventCppToC(CefDOMEvent* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefDOMEventCppToC, CefDOMEvent,
+template<> base::AtomicRefCount CefCppToC<CefDOMEventCppToC, CefDOMEvent,
     cef_domevent_t>::DebugObjCt = 0;
 #endif
 

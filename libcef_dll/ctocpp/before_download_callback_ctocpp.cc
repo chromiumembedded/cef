@@ -32,7 +32,7 @@ void CefBeforeDownloadCallbackCToCpp::Continue(const CefString& download_path,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefBeforeDownloadCallbackCToCpp,
+template<> base::AtomicRefCount CefCToCpp<CefBeforeDownloadCallbackCToCpp,
     CefBeforeDownloadCallback, cef_before_download_callback_t>::DebugObjCt =
     0;
 #endif

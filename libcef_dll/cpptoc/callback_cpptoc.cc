@@ -47,7 +47,7 @@ CefCallbackCppToC::CefCallbackCppToC(CefCallback* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefCallbackCppToC, CefCallback,
+template<> base::AtomicRefCount CefCppToC<CefCallbackCppToC, CefCallback,
     cef_callback_t>::DebugObjCt = 0;
 #endif
 

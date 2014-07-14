@@ -522,7 +522,7 @@ CefListValueCppToC::CefListValueCppToC(CefListValue* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefListValueCppToC, CefListValue,
+template<> base::AtomicRefCount CefCppToC<CefListValueCppToC, CefListValue,
     cef_list_value_t>::DebugObjCt = 0;
 #endif
 

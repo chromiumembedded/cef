@@ -158,7 +158,7 @@ CefPostDataCppToC::CefPostDataCppToC(CefPostData* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefPostDataCppToC, CefPostData,
+template<> base::AtomicRefCount CefCppToC<CefPostDataCppToC, CefPostData,
     cef_post_data_t>::DebugObjCt = 0;
 #endif
 

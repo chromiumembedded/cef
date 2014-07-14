@@ -11,11 +11,12 @@
 #include <string>
 #include <utility>
 
+#include "base/synchronization/waitable_event.h"
+
 #include "include/cef_browser.h"
 #include "include/cef_client.h"
 #include "include/cef_frame.h"
 #include "include/cef_task.h"
-#include "base/synchronization/waitable_event.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 class TrackCallback {
@@ -224,11 +225,13 @@ class TestHandler : public CefClient,
   // If true test completion will be signaled when all browsers have closed.
   bool signal_completion_when_all_browsers_close_;
 
+  // Used to track the number of currently existing browser windows.
+  static int browser_count_;
+
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(TestHandler);
 
-  // Used to track the number of currently existing browser windows.
-  static int browser_count_;
+  DISALLOW_COPY_AND_ASSIGN(TestHandler);
 };
 
 

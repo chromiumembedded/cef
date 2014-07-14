@@ -49,7 +49,7 @@ void CefAuthCallbackCToCpp::Cancel() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefAuthCallbackCToCpp, CefAuthCallback,
-    cef_auth_callback_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefAuthCallbackCToCpp,
+    CefAuthCallback, cef_auth_callback_t>::DebugObjCt = 0;
 #endif
 

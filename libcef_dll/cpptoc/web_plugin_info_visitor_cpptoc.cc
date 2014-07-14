@@ -50,7 +50,7 @@ CefWebPluginInfoVisitorCppToC::CefWebPluginInfoVisitorCppToC(
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefWebPluginInfoVisitorCppToC,
+template<> base::AtomicRefCount CefCppToC<CefWebPluginInfoVisitorCppToC,
     CefWebPluginInfoVisitor, cef_web_plugin_info_visitor_t>::DebugObjCt = 0;
 #endif
 

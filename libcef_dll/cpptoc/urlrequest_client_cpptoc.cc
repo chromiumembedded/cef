@@ -148,7 +148,7 @@ CefURLRequestClientCppToC::CefURLRequestClientCppToC(CefURLRequestClient* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefURLRequestClientCppToC, CefURLRequestClient,
-    cef_urlrequest_client_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefURLRequestClientCppToC,
+    CefURLRequestClient, cef_urlrequest_client_t>::DebugObjCt = 0;
 #endif
 

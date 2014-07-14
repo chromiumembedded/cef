@@ -6,6 +6,7 @@
 #define CEF_TESTS_CEFCLIENT_BYTES_WRITE_HANDLER_H_
 #pragma once
 
+#include "include/base/cef_lock.h"
 #include "include/cef_stream.h"
 
 class BytesWriteHandler : public CefWriteHandler {
@@ -30,8 +31,9 @@ class BytesWriteHandler : public CefWriteHandler {
   int64 datasize_;
   int64 offset_;
 
+  base::Lock lock_;
+
   IMPLEMENT_REFCOUNTING(BytesWriteHandler);
-  IMPLEMENT_LOCKING(BytesWriteHandler);
 };
 
 #endif  // CEF_TESTS_CEFCLIENT_BYTES_WRITE_HANDLER_H_

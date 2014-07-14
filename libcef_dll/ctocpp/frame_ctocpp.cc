@@ -345,7 +345,7 @@ void CefFrameCToCpp::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefFrameCToCpp, CefFrame, cef_frame_t>::DebugObjCt =
-    0;
+template<> base::AtomicRefCount CefCToCpp<CefFrameCToCpp, CefFrame,
+    cef_frame_t>::DebugObjCt = 0;
 #endif
 

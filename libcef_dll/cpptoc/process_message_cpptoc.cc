@@ -126,7 +126,7 @@ CefProcessMessageCppToC::CefProcessMessageCppToC(CefProcessMessage* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefProcessMessageCppToC, CefProcessMessage,
-    cef_process_message_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefProcessMessageCppToC,
+    CefProcessMessage, cef_process_message_t>::DebugObjCt = 0;
 #endif
 

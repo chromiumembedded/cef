@@ -14,7 +14,7 @@ void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
                                     const CefString& url) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (browser_id_ == browser->GetIdentifier() && frame->IsMain()) {
+  if (GetBrowserId() == browser->GetIdentifier() && frame->IsMain()) {
     // Set the edit window text
     NSTextField* textField = (NSTextField*)edit_handle_;
     std::string urlStr(url);

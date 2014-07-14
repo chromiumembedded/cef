@@ -28,7 +28,7 @@ void CefGeolocationCallbackCToCpp::Continue(bool allow) {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefGeolocationCallbackCToCpp, CefGeolocationCallback,
-    cef_geolocation_callback_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefGeolocationCallbackCToCpp,
+    CefGeolocationCallback, cef_geolocation_callback_t>::DebugObjCt = 0;
 #endif
 

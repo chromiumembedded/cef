@@ -50,7 +50,7 @@ CefRefPtr<CefResourceHandler> CefSchemeHandlerFactoryCToCpp::Create(
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefSchemeHandlerFactoryCToCpp,
+template<> base::AtomicRefCount CefCToCpp<CefSchemeHandlerFactoryCToCpp,
     CefSchemeHandlerFactory, cef_scheme_handler_factory_t>::DebugObjCt = 0;
 #endif
 

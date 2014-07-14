@@ -2,17 +2,19 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+// Include this first to avoid type conflicts with CEF headers.
+#include "tests/unittests/chromium_includes.h"
+
+#include "ui/events/keycodes/keyboard_codes.h"
+#include "ui/events/keycodes/keyboard_code_conversion.h"
+
+#include "include/base/cef_logging.h"
 #include "include/cef_runnable.h"
 #include "include/cef_v8.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
-
 #include "tests/cefclient/client_app.h"
 #include "tests/cefclient/resource_util.h"
 #include "tests/unittests/routing_test_handler.h"
-
-#include "base/logging.h"
-#include "ui/events/keycodes/keyboard_codes.h"
-#include "ui/events/keycodes/keyboard_code_conversion.h"
 
 #if defined(OS_MACOSX)
 #include "tests/unittests/os_rendering_unittest_mac.h"

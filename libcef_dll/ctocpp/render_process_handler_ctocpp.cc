@@ -278,7 +278,7 @@ bool CefRenderProcessHandlerCToCpp::OnProcessMessageReceived(
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefRenderProcessHandlerCToCpp,
+template<> base::AtomicRefCount CefCToCpp<CefRenderProcessHandlerCToCpp,
     CefRenderProcessHandler, cef_render_process_handler_t>::DebugObjCt = 0;
 #endif
 

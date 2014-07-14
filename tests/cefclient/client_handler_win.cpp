@@ -17,7 +17,7 @@ void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
                                     const CefString& url) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (browser_id_ == browser->GetIdentifier() && frame->IsMain()) {
+  if (GetBrowserId() == browser->GetIdentifier() && frame->IsMain()) {
     // Set the edit window text
     SetWindowText(edit_handle_, std::wstring(url).c_str());
   }
@@ -29,7 +29,7 @@ void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 
   // Set the frame window title bar
   CefWindowHandle hwnd = browser->GetHost()->GetWindowHandle();
-  if (browser_id_ == browser->GetIdentifier()) {
+  if (GetBrowserId() == browser->GetIdentifier()) {
     // The frame window will be the parent of the browser window
     hwnd = GetParent(hwnd);
   }

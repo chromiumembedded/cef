@@ -414,7 +414,7 @@ def make_ctocpp_function_impl_new(clsname, name, func):
             result += '\n#ifndef NDEBUG'\
                       '\n  // Check that all wrapper objects have been destroyed'
             for name in names:
-                result += '\n  DCHECK_EQ('+name+'::DebugObjCt, 0);';
+                result += '\n  DCHECK(base::AtomicRefCountIsZero(&'+name+'::DebugObjCt));';
             result += '\n#endif  // !NDEBUG'
     
     if len(result) != result_len:
@@ -496,7 +496,7 @@ def make_ctocpp_class_impl(header, clsname, impl):
     result += includes+'\n'+resultingimpl+'\n'
     
     result += wrap_code('#ifndef NDEBUG\n'+ \
-              'template<> long CefCToCpp<'+clsname+'CToCpp, '+clsname+', '+capiname+'>::DebugObjCt = 0;\n'+ \
+              'template<> base::AtomicRefCount CefCToCpp<'+clsname+'CToCpp, '+clsname+', '+capiname+'>::DebugObjCt = 0;\n'+ \
               '#endif\n')
 
     return result

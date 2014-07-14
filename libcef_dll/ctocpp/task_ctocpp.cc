@@ -27,6 +27,7 @@ void CefTaskCToCpp::Execute() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefTaskCToCpp, CefTask, cef_task_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefTaskCToCpp, CefTask,
+    cef_task_t>::DebugObjCt = 0;
 #endif
 

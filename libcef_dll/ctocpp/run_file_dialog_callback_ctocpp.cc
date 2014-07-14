@@ -48,7 +48,7 @@ void CefRunFileDialogCallbackCToCpp::OnFileDialogDismissed(
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefRunFileDialogCallbackCToCpp,
+template<> base::AtomicRefCount CefCToCpp<CefRunFileDialogCallbackCToCpp,
     CefRunFileDialogCallback, cef_run_file_dialog_callback_t>::DebugObjCt = 0;
 #endif
 

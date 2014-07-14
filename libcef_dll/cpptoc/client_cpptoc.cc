@@ -288,7 +288,7 @@ CefClientCppToC::CefClientCppToC(CefClient* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefClientCppToC, CefClient,
+template<> base::AtomicRefCount CefCppToC<CefClientCppToC, CefClient,
     cef_client_t>::DebugObjCt = 0;
 #endif
 

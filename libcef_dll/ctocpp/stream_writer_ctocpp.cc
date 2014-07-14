@@ -130,7 +130,7 @@ bool CefStreamWriterCToCpp::MayBlock() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefStreamWriterCToCpp, CefStreamWriter,
-    cef_stream_writer_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefStreamWriterCToCpp,
+    CefStreamWriter, cef_stream_writer_t>::DebugObjCt = 0;
 #endif
 

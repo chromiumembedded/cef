@@ -50,7 +50,7 @@ void CefFileDialogCallbackCToCpp::Cancel() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefFileDialogCallbackCToCpp, CefFileDialogCallback,
-    cef_file_dialog_callback_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefFileDialogCallbackCToCpp,
+    CefFileDialogCallback, cef_file_dialog_callback_t>::DebugObjCt = 0;
 #endif
 

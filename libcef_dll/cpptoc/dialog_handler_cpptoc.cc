@@ -65,7 +65,7 @@ CefDialogHandlerCppToC::CefDialogHandlerCppToC(CefDialogHandler* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefDialogHandlerCppToC, CefDialogHandler,
-    cef_dialog_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefDialogHandlerCppToC,
+    CefDialogHandler, cef_dialog_handler_t>::DebugObjCt = 0;
 #endif
 

@@ -181,80 +181,91 @@ CEF_EXPORT void cef_shutdown() {
 
 #ifndef NDEBUG
   // Check that all wrapper objects have been destroyed
-  DCHECK_EQ(CefAllowCertificateErrorCallbackCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefAuthCallbackCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefBeforeDownloadCallbackCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefBinaryValueCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefBrowserCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefBrowserHostCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefBrowserProcessHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefCallbackCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefCompletionCallbackCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefContextMenuHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefContextMenuParamsCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefCookieVisitorCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefDOMDocumentCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefDOMEventCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefDOMEventListenerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefDOMNodeCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefDOMVisitorCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefDialogHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefDictionaryValueCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefDisplayHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefDownloadHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefDownloadItemCallbackCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefDownloadItemCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefDragDataCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefDragHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefEndTracingCallbackCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefFileDialogCallbackCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefFocusHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefFrameCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefGeolocationCallbackCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefGeolocationHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefGetGeolocationCallbackCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefJSDialogCallbackCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefJSDialogHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefKeyboardHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefLifeSpanHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefListValueCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefLoadHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefMenuModelCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefPrintDialogCallbackCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefPrintHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefPrintJobCallbackCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefPrintSettingsCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefProcessMessageCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefQuotaCallbackCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefReadHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefRenderHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefRenderProcessHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefRequestHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefResourceBundleHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefResourceHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefRunFileDialogCallbackCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefSchemeHandlerFactoryCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefSchemeRegistrarCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefStreamReaderCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefStreamWriterCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefStringVisitorCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefTaskCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefTaskRunnerCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefURLRequestClientCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefURLRequestCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefV8AccessorCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefV8ContextCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefV8ExceptionCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefV8HandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefV8StackFrameCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefV8StackTraceCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefV8ValueCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefWebPluginInfoCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefWebPluginInfoVisitorCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefWebPluginUnstableCallbackCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefWriteHandlerCToCpp::DebugObjCt, 0);
-  DCHECK_EQ(CefXmlReaderCppToC::DebugObjCt, 0);
-  DCHECK_EQ(CefZipReaderCppToC::DebugObjCt, 0);
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefAllowCertificateErrorCallbackCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefAuthCallbackCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefBeforeDownloadCallbackCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefBinaryValueCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefBrowserCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefBrowserHostCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefBrowserProcessHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefCallbackCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefCompletionCallbackCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefContextMenuHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefContextMenuParamsCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefCookieVisitorCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefDOMDocumentCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefDOMEventCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefDOMEventListenerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefDOMNodeCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefDOMVisitorCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefDialogHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefDictionaryValueCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefDisplayHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefDownloadHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefDownloadItemCallbackCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefDownloadItemCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefDragDataCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefDragHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefEndTracingCallbackCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefFileDialogCallbackCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefFocusHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefFrameCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefGeolocationCallbackCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefGeolocationHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefGetGeolocationCallbackCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefJSDialogCallbackCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefJSDialogHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefKeyboardHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefLifeSpanHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefListValueCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefLoadHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefMenuModelCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefPrintDialogCallbackCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefPrintHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefPrintJobCallbackCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefPrintSettingsCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefProcessMessageCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefQuotaCallbackCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefReadHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefRenderHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefRenderProcessHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefRequestHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefResourceBundleHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefResourceHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefRunFileDialogCallbackCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefSchemeHandlerFactoryCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefSchemeRegistrarCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefStreamReaderCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefStreamWriterCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefStringVisitorCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefTaskCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefTaskRunnerCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefURLRequestClientCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefURLRequestCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefV8AccessorCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefV8ContextCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefV8ExceptionCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefV8HandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefV8StackFrameCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefV8StackTraceCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefV8ValueCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefWebPluginInfoCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefWebPluginInfoVisitorCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefWebPluginUnstableCallbackCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefWriteHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefXmlReaderCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefZipReaderCppToC::DebugObjCt));
 #endif  // !NDEBUG
 }
 
@@ -485,11 +496,7 @@ CEF_EXPORT int cef_begin_tracing(const cef_string_t* categories,
     struct _cef_completion_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: callback; type: refptr_diff
-  DCHECK(callback);
-  if (!callback)
-    return 0;
-  // Unverified params: categories
+  // Unverified params: categories, callback
 
   // Execute
   bool _retval = CefBeginTracing(

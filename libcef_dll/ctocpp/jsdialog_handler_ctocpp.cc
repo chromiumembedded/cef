@@ -123,7 +123,7 @@ void CefJSDialogHandlerCToCpp::OnDialogClosed(CefRefPtr<CefBrowser> browser) {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefJSDialogHandlerCToCpp, CefJSDialogHandler,
-    cef_jsdialog_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefJSDialogHandlerCToCpp,
+    CefJSDialogHandler, cef_jsdialog_handler_t>::DebugObjCt = 0;
 #endif
 

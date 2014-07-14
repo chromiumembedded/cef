@@ -38,7 +38,7 @@ CefDownloadItemCallbackCppToC::CefDownloadItemCallbackCppToC(
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefDownloadItemCallbackCppToC,
+template<> base::AtomicRefCount CefCppToC<CefDownloadItemCallbackCppToC,
     CefDownloadItemCallback, cef_download_item_callback_t>::DebugObjCt = 0;
 #endif
 

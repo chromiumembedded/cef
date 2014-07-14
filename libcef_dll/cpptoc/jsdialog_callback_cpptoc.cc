@@ -40,7 +40,7 @@ CefJSDialogCallbackCppToC::CefJSDialogCallbackCppToC(CefJSDialogCallback* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefJSDialogCallbackCppToC, CefJSDialogCallback,
-    cef_jsdialog_callback_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefJSDialogCallbackCppToC,
+    CefJSDialogCallback, cef_jsdialog_callback_t>::DebugObjCt = 0;
 #endif
 

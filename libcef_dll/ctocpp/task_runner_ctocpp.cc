@@ -128,7 +128,7 @@ bool CefTaskRunnerCToCpp::PostDelayedTask(CefRefPtr<CefTask> task,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefTaskRunnerCToCpp, CefTaskRunner,
+template<> base::AtomicRefCount CefCToCpp<CefTaskRunnerCToCpp, CefTaskRunner,
     cef_task_runner_t>::DebugObjCt = 0;
 #endif
 

@@ -470,7 +470,7 @@ bool CefListValueCToCpp::SetList(int index, CefRefPtr<CefListValue> value) {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefListValueCToCpp, CefListValue,
+template<> base::AtomicRefCount CefCToCpp<CefListValueCToCpp, CefListValue,
     cef_list_value_t>::DebugObjCt = 0;
 #endif
 

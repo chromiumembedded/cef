@@ -93,7 +93,7 @@ CefV8HandlerCppToC::CefV8HandlerCppToC(CefV8Handler* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefV8HandlerCppToC, CefV8Handler,
+template<> base::AtomicRefCount CefCppToC<CefV8HandlerCppToC, CefV8Handler,
     cef_v8handler_t>::DebugObjCt = 0;
 #endif
 

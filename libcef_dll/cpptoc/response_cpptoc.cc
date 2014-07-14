@@ -218,7 +218,7 @@ CefResponseCppToC::CefResponseCppToC(CefResponse* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefResponseCppToC, CefResponse,
+template<> base::AtomicRefCount CefCppToC<CefResponseCppToC, CefResponse,
     cef_response_t>::DebugObjCt = 0;
 #endif
 

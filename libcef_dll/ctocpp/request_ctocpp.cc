@@ -297,7 +297,7 @@ CefRequest::TransitionType CefRequestCToCpp::GetTransitionType() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefRequestCToCpp, CefRequest,
+template<> base::AtomicRefCount CefCToCpp<CefRequestCToCpp, CefRequest,
     cef_request_t>::DebugObjCt = 0;
 #endif
 

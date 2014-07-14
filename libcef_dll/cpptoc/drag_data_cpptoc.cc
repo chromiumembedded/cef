@@ -395,7 +395,7 @@ CefDragDataCppToC::CefDragDataCppToC(CefDragData* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefDragDataCppToC, CefDragData,
+template<> base::AtomicRefCount CefCppToC<CefDragDataCppToC, CefDragData,
     cef_drag_data_t>::DebugObjCt = 0;
 #endif
 

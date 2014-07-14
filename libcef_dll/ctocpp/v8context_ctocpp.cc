@@ -215,7 +215,7 @@ bool CefV8ContextCToCpp::Eval(const CefString& code,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefV8ContextCToCpp, CefV8Context,
+template<> base::AtomicRefCount CefCToCpp<CefV8ContextCToCpp, CefV8Context,
     cef_v8context_t>::DebugObjCt = 0;
 #endif
 

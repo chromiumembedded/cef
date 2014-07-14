@@ -143,7 +143,7 @@ class CefResourceRequestJobCallback : public CefCallback {
   net::IOBuffer* dest_;
   int dest_size_;
 
-  IMPLEMENT_REFCOUNTING(Callback);
+  IMPLEMENT_REFCOUNTING(CefResourceRequestJobCallback);
 };
 
 CefResourceRequestJob::CefResourceRequestJob(

@@ -34,13 +34,9 @@
 #define CEF_INCLUDE_CEF_RUNNABLE_H_
 #pragma once
 
+#include "include/base/cef_tuple.h"
 #include "include/cef_base.h"
 #include "include/cef_task.h"
-#ifdef BUILDING_CEF_SHARED
-#include "base/tuple.h"
-#else
-#include "internal/cef_tuple.h"
-#endif
 
 // CefRunnableMethodTraits -----------------------------------------------------
 //

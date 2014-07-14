@@ -255,7 +255,7 @@ CefV8ContextCppToC::CefV8ContextCppToC(CefV8Context* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefV8ContextCppToC, CefV8Context,
+template<> base::AtomicRefCount CefCppToC<CefV8ContextCppToC, CefV8Context,
     cef_v8context_t>::DebugObjCt = 0;
 #endif
 

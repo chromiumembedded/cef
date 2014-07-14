@@ -833,7 +833,7 @@ bool CefMenuModelCToCpp::GetAcceleratorAt(int index, int& key_code,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefMenuModelCToCpp, CefMenuModel,
+template<> base::AtomicRefCount CefCToCpp<CefMenuModelCToCpp, CefMenuModel,
     cef_menu_model_t>::DebugObjCt = 0;
 #endif
 

@@ -353,7 +353,7 @@ CefRenderHandlerCppToC::CefRenderHandlerCppToC(CefRenderHandler* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefRenderHandlerCppToC, CefRenderHandler,
-    cef_render_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefRenderHandlerCppToC,
+    CefRenderHandler, cef_render_handler_t>::DebugObjCt = 0;
 #endif
 

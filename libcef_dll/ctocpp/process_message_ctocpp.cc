@@ -104,7 +104,7 @@ CefRefPtr<CefListValue> CefProcessMessageCToCpp::GetArgumentList() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefProcessMessageCToCpp, CefProcessMessage,
-    cef_process_message_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefProcessMessageCToCpp,
+    CefProcessMessage, cef_process_message_t>::DebugObjCt = 0;
 #endif
 

@@ -3,17 +3,20 @@
 // can be found in the LICENSE file.
 
 #include "cefclient/cefclient.h"
+
 #include <windows.h>
 #include <commdlg.h>
 #include <shellapi.h>
 #include <direct.h>
 #include <sstream>
 #include <string>
+
+#include "include/base/cef_bind.h"
 #include "include/cef_app.h"
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
-#include "include/cef_runnable.h"
 #include "include/cef_sandbox_win.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "cefclient/cefclient_osr_widget_win.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
@@ -234,11 +237,76 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 
 // Change the zoom factor on the UI thread.
 static void ModifyZoom(CefRefPtr<CefBrowser> browser, double delta) {
-  if (CefCurrentlyOn(TID_UI)) {
-    browser->GetHost()->SetZoomLevel(
-        browser->GetHost()->GetZoomLevel() + delta);
+  if (!CefCurrentlyOn(TID_UI)) {
+    // Execute on the UI thread.
+    CefPostTask(TID_UI, base::Bind(&ModifyZoom, browser, delta));
+    return;
+  }
+
+  browser->GetHost()->SetZoomLevel(
+      browser->GetHost()->GetZoomLevel() + delta);
+}
+
+// Show a warning message on the UI thread.
+static void ShowWarning(CefRefPtr<CefBrowser> browser, int id) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    // Execute on the UI thread.
+    CefPostTask(TID_UI, base::Bind(&ShowWarning, browser, id));
+    return;
+  }
+
+  if (!g_handler)
+    return;
+
+  std::wstring caption;
+  std::wstringstream message;
+
+  switch (id) {
+    case ID_WARN_CONSOLEMESSAGE:
+      caption = L"Console Messages";
+      message << L"Console messages will be written to " <<
+              std::wstring(CefString(g_handler->GetLogFile()));
+      break;
+    case ID_WARN_DOWNLOADCOMPLETE:
+    case ID_WARN_DOWNLOADERROR:
+      caption = L"File Download";
+      message << L"File \"" <<
+              std::wstring(CefString(g_handler->GetLastDownloadFile())) <<
+              L"\" ";
+
+      if (id == ID_WARN_DOWNLOADCOMPLETE)
+        message << L"downloaded successfully.";
+      else
+        message << L"failed to download.";
+      break;
+  }
+
+  MessageBox(g_handler->GetMainWindowHandle(),
+             message.str().c_str(),
+             caption.c_str(),
+             MB_OK | MB_ICONINFORMATION);
+}
+
+// Set focus to |browser| on the UI thread.
+static void SetFocusToBrowser(CefRefPtr<CefBrowser> browser) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    // Execute on the UI thread.
+    CefPostTask(TID_UI, base::Bind(&SetFocusToBrowser, browser));
+    return;
+  }
+
+  if (!g_handler)
+    return;
+
+  if (AppIsOffScreenRenderingEnabled()) {
+    // Give focus to the OSR window.
+    CefRefPtr<OSRWindow> osr_window =
+        static_cast<OSRWindow*>(g_handler->GetOSRHandler().get());
+    if (osr_window)
+      ::SetFocus(osr_window->hwnd());
   } else {
-    CefPostTask(TID_UI, NewCefRunnableFunction(ModifyZoom, browser, delta));
+    // Give focus to the browser.
+    browser->GetHost()->SetFocus(true);
   }
 }
 
@@ -429,30 +497,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
           g_handler->CloseAllBrowsers(false);
         return 0;
       case ID_WARN_CONSOLEMESSAGE:
-        if (g_handler.get()) {
-          std::wstringstream ss;
-          ss << L"Console messages will be written to "
-              << std::wstring(CefString(g_handler->GetLogFile()));
-          MessageBox(hWnd, ss.str().c_str(), L"Console Messages",
-              MB_OK | MB_ICONINFORMATION);
-        }
-        return 0;
       case ID_WARN_DOWNLOADCOMPLETE:
       case ID_WARN_DOWNLOADERROR:
-        if (g_handler.get()) {
-          std::wstringstream ss;
-          ss << L"File \"" <<
-              std::wstring(CefString(g_handler->GetLastDownloadFile())) <<
-              L"\" ";
-
-          if (wmId == ID_WARN_DOWNLOADCOMPLETE)
-            ss << L"downloaded successfully.";
-          else
-            ss << L"failed to download.";
-
-          MessageBox(hWnd, ss.str().c_str(), L"File Download",
-              MB_OK | MB_ICONINFORMATION);
-        }
+        ShowWarning(browser, wmId);
         return 0;
       case ID_FIND:
         if (!hFindDlg) {
@@ -542,17 +589,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       return 0;
 
     case WM_SETFOCUS:
-      if (g_handler.get() && g_handler->GetBrowser()) {
-        if (AppIsOffScreenRenderingEnabled()) {
-          // Give focus to the OSR window.
-          CefRefPtr<OSRWindow> osr_window =
-              static_cast<OSRWindow*>(g_handler->GetOSRHandler().get());
-          if (osr_window)
-            ::SetFocus(osr_window->hwnd());
-        } else {
-          // Give focus to the browser.
-          g_handler->GetBrowser()->GetHost()->SetFocus(true);
-        }
+      if (g_handler.get()) {
+        CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+        if (browser)
+          SetFocusToBrowser(browser);
       }
       return 0;
 

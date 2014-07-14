@@ -88,7 +88,7 @@ CefV8StackTraceCppToC::CefV8StackTraceCppToC(CefV8StackTrace* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefV8StackTraceCppToC, CefV8StackTrace,
-    cef_v8stack_trace_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefV8StackTraceCppToC,
+    CefV8StackTrace, cef_v8stack_trace_t>::DebugObjCt = 0;
 #endif
 

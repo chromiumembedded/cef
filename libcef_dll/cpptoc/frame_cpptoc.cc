@@ -395,7 +395,7 @@ CefFrameCppToC::CefFrameCppToC(CefFrame* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefFrameCppToC, CefFrame, cef_frame_t>::DebugObjCt =
-    0;
+template<> base::AtomicRefCount CefCppToC<CefFrameCppToC, CefFrame,
+    cef_frame_t>::DebugObjCt = 0;
 #endif
 

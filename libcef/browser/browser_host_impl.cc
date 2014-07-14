@@ -1803,7 +1803,7 @@ void CefBrowserHostImpl::DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
   }
 
   CefDragDataImpl* data_impl = static_cast<CefDragDataImpl*>(drag_data.get());
-  CefDragDataImpl::AutoLock lock_scope(data_impl);
+  base::AutoLock lock_scope(data_impl->lock());
   const content::DropData& drop_data = data_impl->drop_data();
   gfx::Point client_pt(event.x, event.y);
   gfx::Point screen_pt(screenX, screenY);

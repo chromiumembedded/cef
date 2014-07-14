@@ -576,7 +576,7 @@ void CefBrowserHostCToCpp::DragSourceSystemDragEnded() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefBrowserHostCToCpp, CefBrowserHost,
+template<> base::AtomicRefCount CefCToCpp<CefBrowserHostCToCpp, CefBrowserHost,
     cef_browser_host_t>::DebugObjCt = 0;
 #endif
 

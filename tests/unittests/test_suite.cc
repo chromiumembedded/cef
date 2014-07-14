@@ -2,8 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+// Include this first to avoid type conflicts with CEF headers.
+#include "tests/unittests/chromium_includes.h"
+
 #include "tests/unittests/test_suite.h"
-#include "tests/cefclient/client_switches.h"
+
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/test/test_suite.h"
@@ -15,6 +18,8 @@
 #include "base/path_service.h"
 #include "base/test/test_timeouts.h"
 #endif
+
+#include "tests/cefclient/client_switches.h"
 
 CommandLine* CefTestSuite::commandline_ = NULL;
 

@@ -31,7 +31,7 @@ CefRefPtr<CefCookieManager> CefRequestContextHandlerCToCpp::GetCookieManager() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefRequestContextHandlerCToCpp,
+template<> base::AtomicRefCount CefCToCpp<CefRequestContextHandlerCToCpp,
     CefRequestContextHandler, cef_request_context_handler_t>::DebugObjCt = 0;
 #endif
 

@@ -17,7 +17,8 @@
 
 #include "include/internal/cef_string_types.h"
 
-namespace cef_logging {
+namespace cef {
+namespace logging {
 
 namespace {
 
@@ -254,4 +255,5 @@ std::ostream& operator<<(std::ostream& out, const wchar_t* wstr) {
   return out;
 }
 
-}  // namespace cef_logging
+}  // namespace logging
+}  // namespace cef

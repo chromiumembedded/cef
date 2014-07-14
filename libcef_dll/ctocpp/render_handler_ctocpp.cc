@@ -269,7 +269,7 @@ void CefRenderHandlerCToCpp::OnScrollOffsetChanged(
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefRenderHandlerCToCpp, CefRenderHandler,
-    cef_render_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefRenderHandlerCToCpp,
+    CefRenderHandler, cef_render_handler_t>::DebugObjCt = 0;
 #endif
 

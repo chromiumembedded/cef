@@ -495,7 +495,7 @@ bool CefXmlReaderCToCpp::MoveToCarryingElement() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefXmlReaderCToCpp, CefXmlReader,
+template<> base::AtomicRefCount CefCToCpp<CefXmlReaderCToCpp, CefXmlReader,
     cef_xml_reader_t>::DebugObjCt = 0;
 #endif
 

@@ -571,7 +571,7 @@ CefDictionaryValueCppToC::CefDictionaryValueCppToC(CefDictionaryValue* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefDictionaryValueCppToC, CefDictionaryValue,
-    cef_dictionary_value_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefDictionaryValueCppToC,
+    CefDictionaryValue, cef_dictionary_value_t>::DebugObjCt = 0;
 #endif
 

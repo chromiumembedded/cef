@@ -127,7 +127,7 @@ int CefV8ExceptionCToCpp::GetEndColumn() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefV8ExceptionCToCpp, CefV8Exception,
+template<> base::AtomicRefCount CefCToCpp<CefV8ExceptionCToCpp, CefV8Exception,
     cef_v8exception_t>::DebugObjCt = 0;
 #endif
 

@@ -219,7 +219,7 @@ CefCookieManagerCppToC::CefCookieManagerCppToC(CefCookieManager* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefCookieManagerCppToC, CefCookieManager,
-    cef_cookie_manager_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefCookieManagerCppToC,
+    CefCookieManager, cef_cookie_manager_t>::DebugObjCt = 0;
 #endif
 

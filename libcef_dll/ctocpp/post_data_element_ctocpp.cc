@@ -147,7 +147,7 @@ size_t CefPostDataElementCToCpp::GetBytes(size_t size, void* bytes) {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefPostDataElementCToCpp, CefPostDataElement,
-    cef_post_data_element_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefPostDataElementCToCpp,
+    CefPostDataElement, cef_post_data_element_t>::DebugObjCt = 0;
 #endif
 

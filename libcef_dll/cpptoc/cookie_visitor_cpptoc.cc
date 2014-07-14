@@ -64,7 +64,7 @@ CefCookieVisitorCppToC::CefCookieVisitorCppToC(CefCookieVisitor* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefCookieVisitorCppToC, CefCookieVisitor,
-    cef_cookie_visitor_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefCookieVisitorCppToC,
+    CefCookieVisitor, cef_cookie_visitor_t>::DebugObjCt = 0;
 #endif
 

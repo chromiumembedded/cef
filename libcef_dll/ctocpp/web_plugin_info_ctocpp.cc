@@ -77,7 +77,7 @@ CefString CefWebPluginInfoCToCpp::GetDescription() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefWebPluginInfoCToCpp, CefWebPluginInfo,
-    cef_web_plugin_info_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefWebPluginInfoCToCpp,
+    CefWebPluginInfo, cef_web_plugin_info_t>::DebugObjCt = 0;
 #endif
 

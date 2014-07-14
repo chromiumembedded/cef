@@ -110,7 +110,7 @@ CefWriteHandlerCppToC::CefWriteHandlerCppToC(CefWriteHandler* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefWriteHandlerCppToC, CefWriteHandler,
-    cef_write_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefWriteHandlerCppToC,
+    CefWriteHandler, cef_write_handler_t>::DebugObjCt = 0;
 #endif
 

@@ -422,7 +422,7 @@ CefCommandLineCppToC::CefCommandLineCppToC(CefCommandLine* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefCommandLineCppToC, CefCommandLine,
+template<> base::AtomicRefCount CefCppToC<CefCommandLineCppToC, CefCommandLine,
     cef_command_line_t>::DebugObjCt = 0;
 #endif
 

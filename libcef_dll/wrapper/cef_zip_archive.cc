@@ -58,7 +58,7 @@ CefZipArchive::~CefZipArchive() {
 size_t CefZipArchive::Load(CefRefPtr<CefStreamReader> stream,
                            const CefString& password,
                            bool overwriteExisting) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
 
   CefRefPtr<CefZipReader> reader(CefZipReader::Create(stream));
   if (!reader.get())
@@ -116,12 +116,12 @@ size_t CefZipArchive::Load(CefRefPtr<CefStreamReader> stream,
 }
 
 void CefZipArchive::Clear() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   contents_.clear();
 }
 
 size_t CefZipArchive::GetFileCount() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return contents_.size();
 }
 
@@ -129,7 +129,7 @@ bool CefZipArchive::HasFile(const CefString& fileName) {
   std::wstring str = fileName;
   std::transform(str.begin(), str.end(), str.begin(), towlower);
 
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   FileMap::const_iterator it = contents_.find(CefString(str));
   return (it != contents_.end());
 }
@@ -139,7 +139,7 @@ CefRefPtr<CefZipArchive::File> CefZipArchive::GetFile(
   std::wstring str = fileName;
   std::transform(str.begin(), str.end(), str.begin(), towlower);
 
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   FileMap::const_iterator it = contents_.find(CefString(str));
   if (it != contents_.end())
     return it->second;
@@ -150,7 +150,7 @@ bool CefZipArchive::RemoveFile(const CefString& fileName) {
   std::wstring str = fileName;
   std::transform(str.begin(), str.end(), str.begin(), towlower);
 
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   FileMap::iterator it = contents_.find(CefString(str));
   if (it != contents_.end()) {
     contents_.erase(it);
@@ -160,7 +160,7 @@ bool CefZipArchive::RemoveFile(const CefString& fileName) {
 }
 
 size_t CefZipArchive::GetFiles(FileMap& map) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   map = contents_;
   return contents_.size();
 }

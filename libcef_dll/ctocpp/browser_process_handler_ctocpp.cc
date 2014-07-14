@@ -77,7 +77,7 @@ CefRefPtr<CefPrintHandler> CefBrowserProcessHandlerCToCpp::GetPrintHandler() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefBrowserProcessHandlerCToCpp,
+template<> base::AtomicRefCount CefCToCpp<CefBrowserProcessHandlerCToCpp,
     CefBrowserProcessHandler, cef_browser_process_handler_t>::DebugObjCt = 0;
 #endif
 

@@ -230,7 +230,7 @@ CefContextMenuParams::EditStateFlags CefContextMenuParamsCToCpp::GetEditStateFla
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefContextMenuParamsCToCpp, CefContextMenuParams,
-    cef_context_menu_params_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefContextMenuParamsCToCpp,
+    CefContextMenuParams, cef_context_menu_params_t>::DebugObjCt = 0;
 #endif
 

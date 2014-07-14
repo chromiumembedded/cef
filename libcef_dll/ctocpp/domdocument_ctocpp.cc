@@ -249,7 +249,7 @@ CefString CefDOMDocumentCToCpp::GetCompleteURL(const CefString& partialURL) {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefDOMDocumentCToCpp, CefDOMDocument,
+template<> base::AtomicRefCount CefCToCpp<CefDOMDocumentCToCpp, CefDOMDocument,
     cef_domdocument_t>::DebugObjCt = 0;
 #endif
 

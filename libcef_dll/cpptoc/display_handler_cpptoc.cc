@@ -149,7 +149,7 @@ CefDisplayHandlerCppToC::CefDisplayHandlerCppToC(CefDisplayHandler* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefDisplayHandlerCppToC, CefDisplayHandler,
-    cef_display_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefDisplayHandlerCppToC,
+    CefDisplayHandler, cef_display_handler_t>::DebugObjCt = 0;
 #endif
 

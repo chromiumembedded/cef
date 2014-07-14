@@ -384,7 +384,7 @@ CefBrowserCppToC::CefBrowserCppToC(CefBrowser* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefBrowserCppToC, CefBrowser,
+template<> base::AtomicRefCount CefCppToC<CefBrowserCppToC, CefBrowser,
     cef_browser_t>::DebugObjCt = 0;
 #endif
 

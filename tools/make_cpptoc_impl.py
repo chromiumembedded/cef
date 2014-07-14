@@ -379,7 +379,7 @@ def make_cpptoc_function_impl_new(name, func, defined_names):
             result += '\n#ifndef NDEBUG'\
                       '\n  // Check that all wrapper objects have been destroyed'
             for name in names:
-                result += '\n  DCHECK_EQ('+name+'::DebugObjCt, 0);';
+                result += '\n  DCHECK(base::AtomicRefCountIsZero(&'+name+'::DebugObjCt));';
             result += '\n#endif  // !NDEBUG'
     
     if len(result) != result_len:
@@ -479,7 +479,7 @@ def make_cpptoc_class_impl(header, clsname, impl):
                 
     const += '}\n\n'+ \
              '#ifndef NDEBUG\n'+ \
-             'template<> long CefCppToC<'+clsname+'CppToC, '+clsname+', '+capiname+'>::DebugObjCt = 0;\n'+ \
+             'template<> base::AtomicRefCount CefCppToC<'+clsname+'CppToC, '+clsname+', '+capiname+'>::DebugObjCt = 0;\n'+ \
              '#endif\n'
     result += wrap_code(const)
 

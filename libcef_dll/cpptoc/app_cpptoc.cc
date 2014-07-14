@@ -119,6 +119,7 @@ CefAppCppToC::CefAppCppToC(CefApp* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefAppCppToC, CefApp, cef_app_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefAppCppToC, CefApp,
+    cef_app_t>::DebugObjCt = 0;
 #endif
 

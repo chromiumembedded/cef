@@ -42,7 +42,7 @@ CefDOMVisitorCppToC::CefDOMVisitorCppToC(CefDOMVisitor* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefDOMVisitorCppToC, CefDOMVisitor,
+template<> base::AtomicRefCount CefCppToC<CefDOMVisitorCppToC, CefDOMVisitor,
     cef_domvisitor_t>::DebugObjCt = 0;
 #endif
 

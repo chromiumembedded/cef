@@ -812,7 +812,7 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefBrowserHostCppToC, CefBrowserHost,
+template<> base::AtomicRefCount CefCppToC<CefBrowserHostCppToC, CefBrowserHost,
     cef_browser_host_t>::DebugObjCt = 0;
 #endif
 

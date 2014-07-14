@@ -50,7 +50,7 @@ CefQuotaCallbackCppToC::CefQuotaCallbackCppToC(CefQuotaCallback* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefQuotaCallbackCppToC, CefQuotaCallback,
-    cef_quota_callback_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefQuotaCallbackCppToC,
+    CefQuotaCallback, cef_quota_callback_t>::DebugObjCt = 0;
 #endif
 

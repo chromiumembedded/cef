@@ -127,7 +127,7 @@ CefLoadHandlerCppToC::CefLoadHandlerCppToC(CefLoadHandler* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefLoadHandlerCppToC, CefLoadHandler,
+template<> base::AtomicRefCount CefCppToC<CefLoadHandlerCppToC, CefLoadHandler,
     cef_load_handler_t>::DebugObjCt = 0;
 #endif
 

@@ -63,7 +63,7 @@ bool CefDialogHandlerCToCpp::OnFileDialog(CefRefPtr<CefBrowser> browser,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefDialogHandlerCToCpp, CefDialogHandler,
-    cef_dialog_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefDialogHandlerCToCpp,
+    CefDialogHandler, cef_dialog_handler_t>::DebugObjCt = 0;
 #endif
 

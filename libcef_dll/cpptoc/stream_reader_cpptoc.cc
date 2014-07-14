@@ -166,7 +166,7 @@ CefStreamReaderCppToC::CefStreamReaderCppToC(CefStreamReader* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefStreamReaderCppToC, CefStreamReader,
-    cef_stream_reader_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefStreamReaderCppToC,
+    CefStreamReader, cef_stream_reader_t>::DebugObjCt = 0;
 #endif
 

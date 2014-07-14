@@ -2,14 +2,18 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+// Include this first to avoid type conflicts with CEF headers.
+#include "tests/unittests/chromium_includes.h"
+
 #include "base/file_util.h"
 #include "base/synchronization/waitable_event.h"
+
 #include "include/cef_runnable.h"
 #include "include/cef_task.h"
 #include "include/cef_trace.h"
 #include "include/base/cef_trace_event.h"
-#include "tests/unittests/test_handler.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "tests/unittests/test_handler.h"
 
 enum TracingTestType {
   TT_TRACE_EVENT0,

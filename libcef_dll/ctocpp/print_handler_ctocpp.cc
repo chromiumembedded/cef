@@ -99,7 +99,7 @@ void CefPrintHandlerCToCpp::OnPrintReset() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefPrintHandlerCToCpp, CefPrintHandler,
-    cef_print_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefPrintHandlerCToCpp,
+    CefPrintHandler, cef_print_handler_t>::DebugObjCt = 0;
 #endif
 

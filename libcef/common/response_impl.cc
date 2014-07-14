@@ -39,45 +39,45 @@ CefResponseImpl::CefResponseImpl()
 }
 
 bool CefResponseImpl::IsReadOnly() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return read_only_;
 }
 
 int CefResponseImpl::GetStatus() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return status_code_;
 }
 
 void CefResponseImpl::SetStatus(int status) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   status_code_ = status;
 }
 
 CefString CefResponseImpl::GetStatusText() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return status_text_;
 }
 
 void CefResponseImpl::SetStatusText(const CefString& statusText) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   status_text_ = statusText;
 }
 
 CefString CefResponseImpl::GetMimeType() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   return mime_type_;
 }
 
 void CefResponseImpl::SetMimeType(const CefString& mimeType) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   mime_type_ = mimeType;
 }
 
 CefString CefResponseImpl::GetHeader(const CefString& name) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
 
   CefString value;
 
@@ -89,18 +89,18 @@ CefString CefResponseImpl::GetHeader(const CefString& name) {
 }
 
 void CefResponseImpl::GetHeaderMap(HeaderMap& map) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   map = header_map_;
 }
 
 void CefResponseImpl::SetHeaderMap(const HeaderMap& headerMap) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   header_map_ = headerMap;
 }
 
 net::HttpResponseHeaders* CefResponseImpl::GetResponseHeaders() {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
 
   std::string response;
   std::string status_text;
@@ -151,7 +151,7 @@ net::HttpResponseHeaders* CefResponseImpl::GetResponseHeaders() {
 
 void CefResponseImpl::SetResponseHeaders(
     const net::HttpResponseHeaders& headers) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
 
   header_map_.empty();
 
@@ -171,7 +171,7 @@ void CefResponseImpl::SetResponseHeaders(
 void CefResponseImpl::Set(const blink::WebURLResponse& response) {
   DCHECK(!response.isNull());
 
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
 
   blink::WebString str;
@@ -200,6 +200,6 @@ void CefResponseImpl::Set(const blink::WebURLResponse& response) {
 }
 
 void CefResponseImpl::SetReadOnly(bool read_only) {
-  AutoLock lock_scope(this);
+  base::AutoLock lock_scope(lock_);
   read_only_ = read_only;
 }

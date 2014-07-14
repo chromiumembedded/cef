@@ -552,7 +552,7 @@ CefXmlReaderCppToC::CefXmlReaderCppToC(CefXmlReader* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefXmlReaderCppToC, CefXmlReader,
+template<> base::AtomicRefCount CefCppToC<CefXmlReaderCppToC, CefXmlReader,
     cef_xml_reader_t>::DebugObjCt = 0;
 #endif
 

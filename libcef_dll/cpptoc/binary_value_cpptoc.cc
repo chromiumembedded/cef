@@ -128,7 +128,7 @@ CefBinaryValueCppToC::CefBinaryValueCppToC(CefBinaryValue* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefBinaryValueCppToC, CefBinaryValue,
+template<> base::AtomicRefCount CefCppToC<CefBinaryValueCppToC, CefBinaryValue,
     cef_binary_value_t>::DebugObjCt = 0;
 #endif
 

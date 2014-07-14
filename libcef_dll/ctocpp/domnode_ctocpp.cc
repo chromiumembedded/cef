@@ -430,7 +430,7 @@ CefString CefDOMNodeCToCpp::GetElementInnerText() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefDOMNodeCToCpp, CefDOMNode,
+template<> base::AtomicRefCount CefCToCpp<CefDOMNodeCToCpp, CefDOMNode,
     cef_domnode_t>::DebugObjCt = 0;
 #endif
 

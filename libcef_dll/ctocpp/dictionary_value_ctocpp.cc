@@ -511,7 +511,7 @@ bool CefDictionaryValueCToCpp::SetList(const CefString& key,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefDictionaryValueCToCpp, CefDictionaryValue,
-    cef_dictionary_value_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefDictionaryValueCToCpp,
+    CefDictionaryValue, cef_dictionary_value_t>::DebugObjCt = 0;
 #endif
 

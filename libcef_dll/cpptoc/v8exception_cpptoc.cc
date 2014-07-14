@@ -148,7 +148,7 @@ CefV8ExceptionCppToC::CefV8ExceptionCppToC(CefV8Exception* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefV8ExceptionCppToC, CefV8Exception,
+template<> base::AtomicRefCount CefCppToC<CefV8ExceptionCppToC, CefV8Exception,
     cef_v8exception_t>::DebugObjCt = 0;
 #endif
 

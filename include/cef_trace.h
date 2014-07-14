@@ -79,7 +79,7 @@ class CefEndTracingCallback : public virtual CefBase {
 //
 // This function must be called on the browser process UI thread.
 ///
-/*--cef(optional_param=categories)--*/
+/*--cef(optional_param=categories,optional_param=callback)--*/
 bool CefBeginTracing(const CefString& categories,
                      CefRefPtr<CefCompletionCallback> callback);
 

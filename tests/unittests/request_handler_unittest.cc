@@ -2,13 +2,16 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "tests/unittests/test_handler.h"
+// Include this first to avoid type conflicts with CEF headers.
+#include "tests/unittests/chromium_includes.h"
+
 #include "base/strings/stringprintf.h"
-#include "base/strings/string_number_conversions.h"
+
 #include "include/cef_cookie.h"
 #include "include/cef_runnable.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/cefclient/client_app.h"
+#include "tests/unittests/test_handler.h"
 
 namespace {
 
@@ -41,7 +44,7 @@ class NetNotifyBrowserTest : public ClientApp::BrowserDelegate {
   }
 
  protected:
-  IMPLEMENT_REFCOUNTING(HistoryNavBrowserTest);
+  IMPLEMENT_REFCOUNTING(NetNotifyBrowserTest);
 };
 
 // Browser side.

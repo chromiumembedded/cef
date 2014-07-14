@@ -4,9 +4,11 @@
 
 #include "include/internal/cef_trace_event_internal.h"
 #include "include/internal/cef_logging_internal.h"
+#include "include/internal/cef_thread_internal.h"
 
 #include "base/debug/trace_event.h"
 #include "base/logging.h"
+#include "base/threading/platform_thread.h"
 
 // The contents of this file are a compilation unit that is not called by other
 // functions in the the library. Consiquently MSVS will exclude it during the
@@ -327,4 +329,17 @@ CEF_EXPORT void cef_log(const char* file,
                         int severity,
                         const char* message) {
   logging::LogMessage(file, line, severity).stream() << message;
+}
+
+CEF_EXPORT cef_platform_thread_id_t cef_get_current_platform_thread_id() {
+  return base::PlatformThread::CurrentId();
+}
+
+CEF_EXPORT cef_platform_thread_handle_t
+    cef_get_current_platform_thread_handle() {
+#if defined(OS_WIN)
+  return base::PlatformThread::CurrentId();
+#else
+  return base::PlatformThread::CurrentHandle().platform_handle();
+#endif
 }

@@ -35,7 +35,7 @@ void CefWebPluginUnstableCallbackCToCpp::IsUnstable(const CefString& path,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefWebPluginUnstableCallbackCToCpp,
+template<> base::AtomicRefCount CefCToCpp<CefWebPluginUnstableCallbackCToCpp,
     CefWebPluginUnstableCallback,
     cef_web_plugin_unstable_callback_t>::DebugObjCt = 0;
 #endif

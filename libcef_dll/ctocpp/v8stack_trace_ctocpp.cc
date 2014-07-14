@@ -72,7 +72,7 @@ CefRefPtr<CefV8StackFrame> CefV8StackTraceCToCpp::GetFrame(int index) {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefV8StackTraceCToCpp, CefV8StackTrace,
-    cef_v8stack_trace_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefV8StackTraceCToCpp,
+    CefV8StackTrace, cef_v8stack_trace_t>::DebugObjCt = 0;
 #endif
 

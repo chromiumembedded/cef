@@ -32,38 +32,8 @@
 #define CEF_INCLUDE_INTERNAL_CEF_WIN_H_
 #pragma once
 
-#if defined(OS_WIN)
-#include <windows.h>
 #include "include/internal/cef_types_win.h"
 #include "include/internal/cef_types_wrappers.h"
-
-///
-// Atomic increment and decrement.
-///
-#define CefAtomicIncrement(p) InterlockedIncrement(p)
-#define CefAtomicDecrement(p) InterlockedDecrement(p)
-
-///
-// Critical section wrapper.
-///
-class CefCriticalSection {
- public:
-  CefCriticalSection() {
-    memset(&m_sec, 0, sizeof(CRITICAL_SECTION));
-    InitializeCriticalSection(&m_sec);
-  }
-  virtual ~CefCriticalSection() {
-    DeleteCriticalSection(&m_sec);
-  }
-  void Lock() {
-    EnterCriticalSection(&m_sec);
-  }
-  void Unlock() {
-    LeaveCriticalSection(&m_sec);
-  }
-
-  CRITICAL_SECTION m_sec;
-};
 
 ///
 // Handle types.
@@ -182,7 +152,5 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
     transparent_painting_enabled = transparent;
   }
 };
-
-#endif  // OS_WIN
 
 #endif  // CEF_INCLUDE_INTERNAL_CEF_WIN_H_

@@ -82,7 +82,7 @@ void CefDownloadHandlerCToCpp::OnDownloadUpdated(CefRefPtr<CefBrowser> browser,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefDownloadHandlerCToCpp, CefDownloadHandler,
-    cef_download_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefDownloadHandlerCToCpp,
+    CefDownloadHandler, cef_download_handler_t>::DebugObjCt = 0;
 #endif
 

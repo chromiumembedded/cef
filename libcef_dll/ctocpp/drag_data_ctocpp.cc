@@ -352,7 +352,7 @@ void CefDragDataCToCpp::AddFile(const CefString& path,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefDragDataCToCpp, CefDragData,
+template<> base::AtomicRefCount CefCToCpp<CefDragDataCToCpp, CefDragData,
     cef_drag_data_t>::DebugObjCt = 0;
 #endif
 

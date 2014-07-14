@@ -147,7 +147,7 @@ CefTaskRunnerCppToC::CefTaskRunnerCppToC(CefTaskRunner* cls)
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefTaskRunnerCppToC, CefTaskRunner,
+template<> base::AtomicRefCount CefCppToC<CefTaskRunnerCppToC, CefTaskRunner,
     cef_task_runner_t>::DebugObjCt = 0;
 #endif
 

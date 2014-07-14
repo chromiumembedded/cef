@@ -37,6 +37,7 @@
 #define CEF_INCLUDE_WRAPPER_CEF_XML_OBJECT_H_
 #pragma once
 
+#include "include/base/cef_lock.h"
 #include "include/base/cef_macros.h"
 #include "include/cef_base.h"
 #include "include/cef_xml_reader.h"
@@ -182,9 +183,9 @@ class CefXmlObject : public CefBase {
   AttributeMap attributes_;
   ObjectVector children_;
 
-  IMPLEMENT_REFCOUNTING(CefXmlObject);
-  IMPLEMENT_LOCKING(CefXmlObject);
+  base::Lock lock_;
 
+  IMPLEMENT_REFCOUNTING(CefXmlObject);
   DISALLOW_COPY_AND_ASSIGN(CefXmlObject);
 };
 

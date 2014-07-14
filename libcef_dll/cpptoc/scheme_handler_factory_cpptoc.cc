@@ -61,7 +61,7 @@ CefSchemeHandlerFactoryCppToC::CefSchemeHandlerFactoryCppToC(
 }
 
 #ifndef NDEBUG
-template<> long CefCppToC<CefSchemeHandlerFactoryCppToC,
+template<> base::AtomicRefCount CefCppToC<CefSchemeHandlerFactoryCppToC,
     CefSchemeHandlerFactory, cef_scheme_handler_factory_t>::DebugObjCt = 0;
 #endif
 

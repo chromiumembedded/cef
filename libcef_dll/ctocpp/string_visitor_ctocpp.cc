@@ -30,7 +30,7 @@ void CefStringVisitorCToCpp::Visit(const CefString& string) {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefStringVisitorCToCpp, CefStringVisitor,
-    cef_string_visitor_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefStringVisitorCToCpp,
+    CefStringVisitor, cef_string_visitor_t>::DebugObjCt = 0;
 #endif
 

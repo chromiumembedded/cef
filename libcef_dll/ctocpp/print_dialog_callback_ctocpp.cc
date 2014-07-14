@@ -45,7 +45,7 @@ void CefPrintDialogCallbackCToCpp::Cancel() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefPrintDialogCallbackCToCpp, CefPrintDialogCallback,
-    cef_print_dialog_callback_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefPrintDialogCallbackCToCpp,
+    CefPrintDialogCallback, cef_print_dialog_callback_t>::DebugObjCt = 0;
 #endif
 

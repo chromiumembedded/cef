@@ -93,7 +93,7 @@ bool CefV8AccessorCToCpp::Set(const CefString& name,
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefV8AccessorCToCpp, CefV8Accessor,
+template<> base::AtomicRefCount CefCToCpp<CefV8AccessorCToCpp, CefV8Accessor,
     cef_v8accessor_t>::DebugObjCt = 0;
 #endif
 

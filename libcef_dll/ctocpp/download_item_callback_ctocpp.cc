@@ -27,7 +27,7 @@ void CefDownloadItemCallbackCToCpp::Cancel() {
 
 
 #ifndef NDEBUG
-template<> long CefCToCpp<CefDownloadItemCallbackCToCpp,
+template<> base::AtomicRefCount CefCToCpp<CefDownloadItemCallbackCToCpp,
     CefDownloadItemCallback, cef_download_item_callback_t>::DebugObjCt = 0;
 #endif
 
