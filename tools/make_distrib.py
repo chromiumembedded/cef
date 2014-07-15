@@ -383,8 +383,8 @@ else:
 # retrieve url and revision information for Chromium
 if svn.is_checkout(src_dir):
   chromium_info = svn.get_svn_info(src_dir)
-  chromium_url = cef_info['url']
-  chromium_rev = cef_info['revision']
+  chromium_url = chromium_info['url']
+  chromium_rev = chromium_info['revision']
 elif git.is_checkout(src_dir):
   chromium_url = git.get_url(src_dir)
   chromium_rev = git.get_hash(src_dir, 'HEAD')
