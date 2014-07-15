@@ -69,7 +69,7 @@
 //   MyClass() {}
 //   void MyMethod(int arg) { /* do something with |arg| on the UI thread */ }
 //  private:
-//   IMPLEMENT_REFOCUNTING(MyClass);
+//   IMPLEMENT_REFCOUNTING(MyClass);
 // };
 //
 // // Create an instance of MyClass.
