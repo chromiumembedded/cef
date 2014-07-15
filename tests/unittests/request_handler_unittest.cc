@@ -7,8 +7,9 @@
 
 #include "base/strings/stringprintf.h"
 
+#include "include/base/cef_bind.h"
 #include "include/cef_cookie.h"
-#include "include/cef_runnable.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/cefclient/client_app.h"
 #include "tests/unittests/test_handler.h"
@@ -269,7 +270,7 @@ class NetNotifyTestHandler : public TestHandler {
       virtual ~TestVisitor()   {
         // Destroy the test.
         CefPostTask(TID_UI,
-            NewCefRunnableMethod(handler_, &NetNotifyTestHandler::DestroyTest));
+            base::Bind(&NetNotifyTestHandler::DestroyTest, handler_));
       }
 
       virtual bool Visit(const CefCookie& cookie, int count, int total,

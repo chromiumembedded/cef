@@ -7,8 +7,9 @@
 // Include this first to avoid type conflicts with CEF headers.
 #include "tests/unittests/chromium_includes.h"
 
+#include "include/base/cef_bind.h"
 #include "include/cef_request.h"
-#include "include/cef_runnable.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/cefclient/client_app.h"
 #include "tests/unittests/test_handler.h"
@@ -492,9 +493,8 @@ class TypeTestHandler : public TestHandler {
     CreateBrowser(std::string(kTypeTestOrigin) + "main.html");
 
     // Time out the test after a reasonable period of time.
-    CefPostDelayedTask(TID_UI,
-          NewCefRunnableMethod(this, &TypeTestHandler::DestroyTest),
-          2000);
+    CefPostDelayedTask(TID_UI, base::Bind(&TypeTestHandler::DestroyTest, this),
+                       2000);
   }
 
   virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
@@ -523,7 +523,7 @@ class TypeTestHandler : public TestHandler {
       completed_browser_side_ = true;
       // Destroy the test on the UI thread.
       CefPostTask(TID_UI,
-          NewCefRunnableMethod(this, &TypeTestHandler::DestroyTestIfComplete));
+          base::Bind(&TypeTestHandler::DestroyTestIfComplete, this));
     }
 
     return TestHandler::GetResourceHandler(browser, frame, request);

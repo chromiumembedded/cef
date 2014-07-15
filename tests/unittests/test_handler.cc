@@ -7,9 +7,10 @@
 
 #include "tests/unittests/test_handler.h"
 
+#include "include/base/cef_bind.h"
 #include "include/cef_command_line.h"
-#include "include/cef_runnable.h"
 #include "include/cef_stream.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 
 namespace {
@@ -202,7 +203,7 @@ void TestHandler::SetupComplete() {
 
 void TestHandler::DestroyTest() {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, NewCefRunnableMethod(this, &TestHandler::DestroyTest));
+    CefPostTask(TID_UI, base::Bind(&TestHandler::DestroyTest, this));
     return;
   }
 
@@ -236,8 +237,7 @@ void TestHandler::AddResource(const std::string& url,
                               const std::string& mimeType) {
   if (!CefCurrentlyOn(TID_IO)) {
     CefPostTask(TID_IO,
-        NewCefRunnableMethod(this, &TestHandler::AddResource, url, content,
-                             mimeType));
+        base::Bind(&TestHandler::AddResource, this, url, content, mimeType));
     return;
   }
 
@@ -253,8 +253,7 @@ void TestHandler::AddResource(const std::string& url,
 
 void TestHandler::ClearResources() {
   if (!CefCurrentlyOn(TID_IO)) {
-    CefPostTask(TID_IO,
-        NewCefRunnableMethod(this, &TestHandler::ClearResources));
+    CefPostTask(TID_IO, base::Bind(&TestHandler::ClearResources, this));
     return;
   }
 
@@ -263,7 +262,7 @@ void TestHandler::ClearResources() {
 
 void TestHandler::TestComplete() {
   if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, NewCefRunnableMethod(this, &TestHandler::TestComplete));
+    CefPostTask(TID_UI, base::Bind(&TestHandler::TestComplete, this));
     return;
   }
 
@@ -276,13 +275,13 @@ void TestHandler::TestComplete() {
 
 void WaitForThread(CefThreadId thread_id) {
   base::WaitableEvent event(true, false);
-  CefPostTask(thread_id, NewCefRunnableFunction(&NotifyEvent, &event));
+  CefPostTask(thread_id, base::Bind(&NotifyEvent, &event));
   event.Wait();
 }
 
 void WaitForThread(CefRefPtr<CefTaskRunner> task_runner) {
   base::WaitableEvent event(true, false);
-  task_runner->PostTask(NewCefRunnableFunction(&NotifyEvent, &event));
+  task_runner->PostTask(CefCreateClosureTask(base::Bind(&NotifyEvent, &event)));
   event.Wait();
 }
 

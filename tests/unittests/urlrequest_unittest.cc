@@ -17,14 +17,11 @@
 #include "include/cef_scheme.h"
 #include "include/cef_task.h"
 #include "include/cef_urlrequest.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/cefclient/client_app.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
-
-// Include after base/bind.h to avoid name collisions with cef_tuple.h.
-#include "include/cef_runnable.h"
-
 
 // How to add a new test:
 // 1. Add a new value to the RequestTestMode enumeration.
@@ -1010,8 +1007,7 @@ class RequestTestHandler : public TestHandler,
     } else {
       // Execute on the IO thread.
       CefPostTask(TID_IO,
-          NewCefRunnableMethod(this, &RequestTestHandler::SetTestCookie,
-                               event));
+          base::Bind(&RequestTestHandler::SetTestCookie, this, event));
     }
   }
 
@@ -1027,8 +1023,7 @@ class RequestTestHandler : public TestHandler,
     } else {
       // Execute on the IO thread.
       CefPostTask(TID_IO,
-          NewCefRunnableMethod(this, &RequestTestHandler::ClearTestCookie,
-                               event));
+          base::Bind(&RequestTestHandler::ClearTestCookie, this, event));
     }
   }
 
@@ -1107,8 +1102,7 @@ class InvalidURLTestClient : public CefURLRequestClient {
   }
 
   void RunTest() {
-    CefPostTask(TID_UI, 
-        NewCefRunnableMethod(this, &InvalidURLTestClient::RunOnUIThread));
+    CefPostTask(TID_UI, base::Bind(&InvalidURLTestClient::RunOnUIThread, this));
 
     // Wait for the test to complete.
     event_.Wait();
@@ -1119,7 +1113,7 @@ class InvalidURLTestClient : public CefURLRequestClient {
 
     // Let the call stack unwind before signaling completion.
     CefPostTask(TID_UI,
-        NewCefRunnableMethod(this, &InvalidURLTestClient::CompleteOnUIThread));
+        base::Bind(&InvalidURLTestClient::CompleteOnUIThread, this));
   }
 
   virtual void OnUploadProgress(CefRefPtr<CefURLRequest> request,

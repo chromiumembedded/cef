@@ -5,7 +5,8 @@
 // Include this first to avoid type conflicts with CEF headers.
 #include "tests/unittests/chromium_includes.h"
 
-#include "include/cef_runnable.h"
+#include "include/base/cef_bind.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/test_handler.h"
 
@@ -127,7 +128,7 @@ class JSDialogTestHandler : public TestHandler {
     } else if (mode_ == MODE_RUN_DELAYED) {
       // Continue asynchronously.
       CefPostTask(TID_UI,
-          NewCefRunnableMethod(this, &JSDialogTestHandler::Continue, callback));
+          base::Bind(&JSDialogTestHandler::Continue, this, callback));
     }
 
     return true;
@@ -151,7 +152,7 @@ class JSDialogTestHandler : public TestHandler {
     } else if (mode_ == MODE_RUN_DELAYED) {
       // Continue asynchronously.
       CefPostTask(TID_UI,
-          NewCefRunnableMethod(this, &JSDialogTestHandler::Continue, callback));
+          base::Bind(&JSDialogTestHandler::Continue, this, callback));
     }
 
     return true;

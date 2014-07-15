@@ -8,9 +8,10 @@
 // Include this first to avoid type conflicts with CEF headers.
 #include "tests/unittests/chromium_includes.h"
 
+#include "include/base/cef_bind.h"
 #include "include/cef_callback.h"
-#include "include/cef_runnable.h"
 #include "include/cef_scheme.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/cefclient/client_app.h"
 #include "tests/unittests/test_handler.h"
@@ -1864,7 +1865,7 @@ class PopupNavTestHandler : public TestHandler {
       if (!allow_) {
         // Wait a bit to make sure the popup window isn't created.
         CefPostDelayedTask(TID_UI,
-            NewCefRunnableMethod(this, &PopupNavTestHandler::DestroyTest), 200);
+            base::Bind(&PopupNavTestHandler::DestroyTest, this), 200);
       }
     } else if (url == kPopupNavPopupUrl) {
       if (allow_) {
@@ -1930,8 +1931,8 @@ class BrowseNavTestHandler : public TestHandler {
 
     // Time out the test after a reasonable period of time.
     CefPostDelayedTask(TID_UI,
-          NewCefRunnableMethod(this, &BrowseNavTestHandler::DestroyTest),
-          2000);
+        base::Bind(&BrowseNavTestHandler::DestroyTest, this),
+        2000);
   }
 
   virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,

@@ -7,8 +7,9 @@
 
 #include "base/synchronization/waitable_event.h"
 
+#include "include/base/cef_bind.h"
 #include "include/cef_geolocation.h"
-#include "include/cef_runnable.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
@@ -98,8 +99,7 @@ class GeolocationTestHandler : public TestHandler {
       ExecuteCallback(callback);
     } else {
       CefPostTask(TID_UI,
-          NewCefRunnableMethod(this, &GeolocationTestHandler::ExecuteCallback,
-                               callback));
+          base::Bind(&GeolocationTestHandler::ExecuteCallback, this, callback));
     }
 
     return true;

@@ -28,7 +28,7 @@ class CefClosureTask : public CefTask {
 
 }  // namespace
 
-CefRefPtr<CefTask> CefCreateClosureRask(const base::Closure& closure) {
+CefRefPtr<CefTask> CefCreateClosureTask(const base::Closure& closure) {
   return new CefClosureTask(closure);
 }
 

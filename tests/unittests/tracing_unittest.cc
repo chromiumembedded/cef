@@ -8,10 +8,11 @@
 #include "base/file_util.h"
 #include "base/synchronization/waitable_event.h"
 
-#include "include/cef_runnable.h"
+#include "include/base/cef_bind.h"
+#include "include/base/cef_trace_event.h"
 #include "include/cef_task.h"
 #include "include/cef_trace.h"
-#include "include/base/cef_trace_event.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/test_handler.h"
 
@@ -93,8 +94,7 @@ class TracingTestHandler : public CefEndTracingCallback,
 
     base::FilePath file_path(tracing_file);
     CefPostTask(TID_FILE,
-        NewCefRunnableMethod(this, &TracingTestHandler::ReadTracingFile,
-                             file_path));
+        base::Bind(&TracingTestHandler::ReadTracingFile, this, file_path));
   }
 
   void RunTracing() {
@@ -324,8 +324,7 @@ class TracingTestHandler : public CefEndTracingCallback,
 
   void ExecuteTest() {
     // Run the test.
-    CefPostTask(TID_UI,
-        NewCefRunnableMethod(this, &TracingTestHandler::RunTracing));
+    CefPostTask(TID_UI, base::Bind(&TracingTestHandler::RunTracing, this));
 
     // Wait for the test to complete.
     completion_event_.Wait();

@@ -11,12 +11,10 @@
 #include "include/cef_app.h"
 #include "include/cef_task.h"
 #include "include/wrapper/cef_helpers.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "tests/cefclient/client_app.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_suite.h"
-
-// Include after base/bind.h to avoid name collisions with cef_tuple.h.
-#include "include/cef_runnable.h"
 
 #if defined(OS_WIN)
 #include "include/cef_sandbox_win.h"
@@ -41,7 +39,7 @@ class CefTestThread : public base::Thread {
       base::PlatformThread::Sleep(base::TimeDelta::FromMilliseconds(100));
 
     // Quit the CEF message loop.
-    CefPostTask(TID_UI, NewCefRunnableFunction(CefQuitMessageLoop));
+    CefPostTask(TID_UI, base::Bind(&CefQuitMessageLoop));
   }
 
   int retval() { return retval_; }
@@ -124,7 +122,7 @@ int main(int argc, char* argv[]) {
 
     // Start the tests from the UI thread so that any pending UI tasks get a
     // chance to execute first.
-    CefPostTask(TID_UI, NewCefRunnableFunction(RunTests, thread.get()));
+    CefPostTask(TID_UI, base::Bind(&RunTests, thread.get()));
 
     // Run the CEF message loop.
     CefRunMessageLoop();

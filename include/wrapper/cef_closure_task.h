@@ -85,7 +85,7 @@
 // Create a CefTask that wraps a base::Closure. Can be used in combination with
 // CefTaskRunner.
 ///
-CefRefPtr<CefTask> CefCreateClosureRask(const base::Closure& closure);
+CefRefPtr<CefTask> CefCreateClosureTask(const base::Closure& closure);
 
 ///
 // Post a Closure for execution on the specified thread.

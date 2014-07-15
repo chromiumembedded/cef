@@ -7,9 +7,10 @@
 // Include this first to avoid type conflicts with CEF headers.
 #include "tests/unittests/chromium_includes.h"
 
-#include "include/cef_runnable.h"
+#include "include/base/cef_bind.h"
 #include "include/cef_task.h"
 #include "include/cef_v8.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "tests/cefclient/client_app.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/test_handler.h"
@@ -1816,8 +1817,7 @@ class V8RendererTest : public ClientApp::RenderDelegate,
       test_context_ =
           browser_->GetMainFrame()->GetV8Context();
       test_object_ = CefV8Value::CreateArray(10);
-      CefPostTask(TID_RENDERER,
-          NewCefRunnableMethod(this, &V8RendererTest::DestroyTest));
+      CefPostTask(TID_RENDERER, base::Bind(&V8RendererTest::DestroyTest, this));
     }
   }
 
@@ -1861,8 +1861,7 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     const std::string& message_name = message->GetName();
     if (message_name == kV8RunTestMsg) {
       // Run the test asynchronously.
-      CefPostTask(TID_RENDERER,
-                  NewCefRunnableMethod(this, &V8RendererTest::RunTest));
+      CefPostTask(TID_RENDERER, base::Bind(&V8RendererTest::RunTest, this));
       return true;
     }
     return false;

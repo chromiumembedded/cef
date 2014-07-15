@@ -10,11 +10,12 @@
 #include "base/files/scoped_temp_dir.h"
 #include "base/synchronization/waitable_event.h"
 
+#include "include/base/cef_bind.h"
 #include "include/base/cef_logging.h"
 #include "include/base/cef_ref_counted.h"
 #include "include/cef_cookie.h"
-#include "include/cef_runnable.h"
 #include "include/cef_scheme.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_suite.h"
@@ -74,8 +75,7 @@ class TestVisitor : public CefCookieVisitor {
 void SetCookies(CefRefPtr<CefCookieManager> manager,
                 const CefString& url, CookieVector& cookies,
                 base::WaitableEvent& event) {
-  CefPostTask(TID_IO, NewCefRunnableFunction(IOT_Set, manager, url,
-                                             &cookies, &event));
+  CefPostTask(TID_IO, base::Bind(IOT_Set, manager, url, &cookies, &event));
   event.Wait();
 }
 
@@ -83,8 +83,8 @@ void SetCookies(CefRefPtr<CefCookieManager> manager,
 void DeleteCookies(CefRefPtr<CefCookieManager> manager,
                    const CefString& url, const CefString& cookie_name,
                    base::WaitableEvent& event) {
-  CefPostTask(TID_IO, NewCefRunnableFunction(IOT_Delete, manager, url,
-                                             cookie_name, &event));
+  CefPostTask(TID_IO,
+      base::Bind(IOT_Delete, manager, url, cookie_name, &event));
   event.Wait();
 }
 
@@ -191,8 +191,8 @@ void VerifyNoCookies(CefRefPtr<CefCookieManager> manager,
 // Delete all system cookies.
 void DeleteAllCookies(CefRefPtr<CefCookieManager> manager,
                       base::WaitableEvent& event) {
-  CefPostTask(TID_IO, NewCefRunnableFunction(IOT_Delete, manager, CefString(),
-                                             CefString(), &event));
+  CefPostTask(TID_IO,
+      base::Bind(IOT_Delete, manager, CefString(), CefString(), &event));
   event.Wait();
 }
 

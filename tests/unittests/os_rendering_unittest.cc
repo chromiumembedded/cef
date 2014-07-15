@@ -8,9 +8,10 @@
 #include "ui/events/keycodes/keyboard_codes.h"
 #include "ui/events/keycodes/keyboard_code_conversion.h"
 
+#include "include/base/cef_bind.h"
 #include "include/base/cef_logging.h"
-#include "include/cef_runnable.h"
 #include "include/cef_v8.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/cefclient/client_app.h"
 #include "tests/cefclient/resource_util.h"
@@ -229,8 +230,8 @@ class OSRTestHandler : public RoutingTestHandler,
     // Each test has a 5 second timeout. After this timeout it will be destroyed
     // and the test will fail. DestroyTest will be called at the timeout even
     // if the test is already destroyed and this is fine.
-    CefPostDelayedTask(TID_UI, NewCefRunnableMethod(this,
-        &OSRTestHandler::DestroyTest), 5000);
+    CefPostDelayedTask(TID_UI, base::Bind(&OSRTestHandler::DestroyTest, this),
+                       5000);
 #endif  // DEBUGGER_ATTACHED
   }
 
@@ -936,10 +937,8 @@ class OSRTestHandler : public RoutingTestHandler,
   void DestroySucceededTestSoon() {
     if (succeeded())
       return;
-    if (++event_count_ == event_total_) {
-      CefPostTask(TID_UI, NewCefRunnableMethod(this,
-          &OSRTestHandler::DestroyTest));
-    }
+    if (++event_count_ == event_total_)
+      CefPostTask(TID_UI, base::Bind(&OSRTestHandler::DestroyTest, this));
   }
 
   void ExpandDropDown() {

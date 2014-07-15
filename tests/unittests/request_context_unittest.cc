@@ -5,9 +5,10 @@
 // Include this first to avoid type conflicts with CEF headers.
 #include "tests/unittests/chromium_includes.h"
 
+#include "include/base/cef_bind.h"
 #include "include/cef_request_context.h"
 #include "include/cef_request_context_handler.h"
-#include "include/cef_runnable.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/test_handler.h"
 
@@ -158,7 +159,7 @@ class CookieTestHandler : public TestHandler {
       virtual ~TestVisitor()   {
         // Destroy the test.
         CefPostTask(TID_UI,
-            NewCefRunnableMethod(handler_, &CookieTestHandler::DestroyTest));
+            base::Bind(&CookieTestHandler::DestroyTest, handler_));
       }
 
       virtual bool Visit(const CefCookie& cookie, int count, int total,
@@ -366,7 +367,7 @@ class PopupTestHandler : public TestHandler {
       virtual ~TestVisitor()   {
         // Destroy the test.
         CefPostTask(TID_UI,
-            NewCefRunnableMethod(handler_, &PopupTestHandler::DestroyTest));
+            base::Bind(&PopupTestHandler::DestroyTest, handler_));
       }
 
       virtual bool Visit(const CefCookie& cookie, int count, int total,

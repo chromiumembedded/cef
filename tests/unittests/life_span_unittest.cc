@@ -5,7 +5,8 @@
 // Include this first to avoid type conflicts with CEF headers.
 #include "tests/unittests/chromium_includes.h"
 
-#include "include/cef_runnable.h"
+#include "include/base/cef_bind.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/routing_test_handler.h"
 
@@ -146,7 +147,7 @@ class LifeSpanTestHandler : public RoutingTestHandler {
   // the window.
   void ScheduleDelayClose() {
     CefPostDelayedTask(TID_UI,
-        NewCefRunnableMethod(this, &LifeSpanTestHandler::DelayClose), 100);
+        base::Bind(&LifeSpanTestHandler::DelayClose, this), 100);
   }
 
   void DelayClose() {

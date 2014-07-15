@@ -7,10 +7,11 @@
 // Include this first to avoid type conflicts with CEF headers.
 #include "tests/unittests/chromium_includes.h"
 
+#include "include/base/cef_bind.h"
 #include "include/cef_origin_whitelist.h"
 #include "include/cef_callback.h"
-#include "include/cef_runnable.h"
 #include "include/cef_scheme.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "tests/unittests/test_handler.h"
 
 namespace {
@@ -194,7 +195,7 @@ class ClientSchemeHandler : public CefResourceHandler {
       if (test_results_->delay > 0) {
         // Continue after the delay.
         CefPostDelayedTask(TID_IO,
-            NewCefRunnableMethod(callback.get(), &CefCallback::Continue),
+            base::Bind(&CefCallback::Continue, callback),
             test_results_->delay);
       } else {
         // Continue immediately.
@@ -254,8 +255,8 @@ class ClientSchemeHandler : public CefResourceHandler {
       if (!has_delayed_) {
         // Continue after a delay.
         CefPostDelayedTask(TID_IO,
-            NewCefRunnableMethod(this,
-            &ClientSchemeHandler::ContinueAfterDelay, callback),
+            base::Bind(&ClientSchemeHandler::ContinueAfterDelay,
+                       this, callback),
             test_results_->delay);
          bytes_read = 0;
          return true;

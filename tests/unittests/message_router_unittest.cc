@@ -11,9 +11,10 @@
 
 #include "base/strings/stringprintf.h"
 
+#include "include/base/cef_bind.h"
 #include "include/base/cef_weak_ptr.h"
 #include "include/cef_v8.h"
-#include "include/cef_runnable.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/routing_test_handler.h"
 #include "tests/cefclient/client_app.h"
@@ -211,7 +212,7 @@ class MRTestHandler : public TestHandler {
 #if defined(TIMEOUT_ENABLED)
     // Time out the test after a reasonable period of time.
     CefPostDelayedTask(TID_UI,
-        NewCefRunnableMethod(this, &MRTestHandler::DestroyTest),
+        base::Bind(&MRTestHandler::DestroyTest, this),
         4000);
 #endif
   }
@@ -542,8 +543,7 @@ class SingleQueryTestHandler : public SingleLoadTestHandler {
         ExecuteCallback();
       } else {
         CefPostTask(TID_UI,
-            NewCefRunnableMethod(this,
-                &SingleQueryTestHandler::ExecuteCallback));
+            base::Bind(&SingleQueryTestHandler::ExecuteCallback, this));
       }
     }
 
@@ -767,8 +767,8 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
         ExecuteCallback();
       } else {
         CefPostTask(TID_UI,
-            NewCefRunnableMethod(this,
-                &SinglePersistentQueryTestHandler::ExecuteCallback));
+            base::Bind(&SinglePersistentQueryTestHandler::ExecuteCallback,
+                       this));
       }
     }
 
@@ -1851,8 +1851,7 @@ class MultiQuerySingleFrameTestHandler :
     if (!SignalCompletionWhenAllBrowsersClose()) {
       // Complete asynchronously so the call stack has a chance to unwind.
       CefPostTask(TID_UI,
-          NewCefRunnableMethod(this,
-              &MultiQuerySingleFrameTestHandler::TestComplete));
+          base::Bind(&MultiQuerySingleFrameTestHandler::TestComplete, this));
     }
   }
 
