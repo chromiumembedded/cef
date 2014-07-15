@@ -37,10 +37,12 @@
 #define CEF_INCLUDE_WRAPPER_CEF_ZIP_ARCHIVE_H_
 #pragma once
 
+#include <map>
+
 #include "include/base/cef_lock.h"
 #include "include/base/cef_macros.h"
+#include "include/base/cef_ref_counted.h"
 #include "include/cef_base.h"
-#include <map>
 
 class CefStreamReader;
 
@@ -49,13 +51,12 @@ class CefStreamReader;
 // not be used with large archive files because all data will be resident in
 // memory at the same time. This implementation supports a restricted set of zip
 // archive features:
-// (1) Password-protected files are not supported.
-// (2) All file names are stored and compared in lower case.
-// (3) File ordering from the original zip archive is not maintained. This
+// (1) All file names are stored and compared in lower case.
+// (2) File ordering from the original zip archive is not maintained. This
 //     means that files from the same folder may not be located together in the
 //     file content map.
 ///
-class CefZipArchive : public CefBase {
+class CefZipArchive : public base::RefCountedThreadSafe<CefZipArchive> {
  public:
   ///
   // Class representing a file in the archive. Accessing the file data from
@@ -66,25 +67,25 @@ class CefZipArchive : public CefBase {
     ///
     // Returns the read-only data contained in the file.
     ///
-    virtual const unsigned char* GetData() =0;
+    virtual const unsigned char* GetData() const =0;
 
     ///
     // Returns the size of the data in the file.
     ///
-    virtual size_t GetDataSize() =0;
+    virtual size_t GetDataSize() const =0;
 
     ///
     // Returns a CefStreamReader object for streaming the contents of the file.
     ///
-    virtual CefRefPtr<CefStreamReader> GetStreamReader() =0;
+    virtual CefRefPtr<CefStreamReader> GetStreamReader() const =0;
   };
+
   typedef std::map<CefString, CefRefPtr<File> > FileMap;
 
   ///
   // Create a new object.
   ///
   CefZipArchive();
-  virtual ~CefZipArchive();
 
   ///
   // Load the contents of the specified zip archive stream into this object.
@@ -105,17 +106,17 @@ class CefZipArchive : public CefBase {
   ///
   // Returns the number of files in the archive.
   ///
-  size_t GetFileCount();
+  size_t GetFileCount() const;
 
   ///
   // Returns true if the specified file exists and has contents.
   ///
-  bool HasFile(const CefString& fileName);
+  bool HasFile(const CefString& fileName) const;
 
   ///
   // Returns the specified file.
   ///
-  CefRefPtr<File> GetFile(const CefString& fileName);
+  CefRefPtr<File> GetFile(const CefString& fileName) const;
 
   ///
   // Removes the specified file.
@@ -125,14 +126,17 @@ class CefZipArchive : public CefBase {
   ///
   // Returns the map of all files.
   ///
-  size_t GetFiles(FileMap& map);
+  size_t GetFiles(FileMap& map) const;
 
  private:
+  // Protect against accidental deletion of this object.
+  friend class base::RefCountedThreadSafe<CefZipArchive>;
+  ~CefZipArchive();
+
   FileMap contents_;
 
-  base::Lock lock_;
+  mutable base::Lock lock_;
 
-  IMPLEMENT_REFCOUNTING(CefZipArchive);
   DISALLOW_COPY_AND_ASSIGN(CefZipArchive);
 };
 

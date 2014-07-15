@@ -37,12 +37,14 @@
 #define CEF_INCLUDE_WRAPPER_CEF_XML_OBJECT_H_
 #pragma once
 
-#include "include/base/cef_lock.h"
-#include "include/base/cef_macros.h"
-#include "include/cef_base.h"
-#include "include/cef_xml_reader.h"
 #include <map>
 #include <vector>
+
+#include "include/base/cef_lock.h"
+#include "include/base/cef_macros.h"
+#include "include/base/cef_ref_counted.h"
+#include "include/cef_base.h"
+#include "include/cef_xml_reader.h"
 
 class CefStreamReader;
 
@@ -69,7 +71,7 @@ class CefStreamReader;
 //     (c) Element nodes are represented by their outer XML string.
 // </pre>
 ///
-class CefXmlObject : public CefBase {
+class CefXmlObject : public base::RefCountedThreadSafe<CefXmlObject> {
  public:
   typedef std::vector<CefRefPtr<CefXmlObject> > ObjectVector;
   typedef std::map<CefString, CefString > AttributeMap;
@@ -79,7 +81,6 @@ class CefXmlObject : public CefBase {
   // at least one character long.
   ///
   explicit CefXmlObject(const CefString& name);
-  virtual ~CefXmlObject();
 
   ///
   // Load the contents of the specified XML stream into this object.  The
@@ -175,6 +176,10 @@ class CefXmlObject : public CefBase {
   size_t FindChildren(const CefString& name, ObjectVector& children);
 
  private:
+  // Protect against accidental deletion of this object.
+  friend class base::RefCountedThreadSafe<CefXmlObject>;
+  ~CefXmlObject();
+
   void SetParent(CefXmlObject* parent);
 
   CefString name_;
@@ -185,7 +190,6 @@ class CefXmlObject : public CefBase {
 
   base::Lock lock_;
 
-  IMPLEMENT_REFCOUNTING(CefXmlObject);
   DISALLOW_COPY_AND_ASSIGN(CefXmlObject);
 };
 

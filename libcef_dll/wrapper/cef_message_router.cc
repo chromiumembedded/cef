@@ -598,7 +598,6 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
   typedef CefBrowserInfoMap<int64, QueryInfo*> BrowserQueryInfoMap;
   BrowserQueryInfoMap browser_query_info_map_;
 
-  IMPLEMENT_REFCOUNTING(CefMessageRouterBrowserSideImpl);
   DISALLOW_COPY_AND_ASSIGN(CefMessageRouterBrowserSideImpl);
 };
 
@@ -1124,7 +1123,6 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
   typedef std::map<int, CefRefPtr<CefV8Context> > ContextMap;
   ContextMap context_map_;
 
-  IMPLEMENT_REFCOUNTING(CefMessageRouterRendererSideImpl);
   DISALLOW_COPY_AND_ASSIGN(CefMessageRouterRendererSideImpl);
 };
 
