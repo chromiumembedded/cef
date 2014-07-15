@@ -8,6 +8,7 @@
 
 // Include some Chromium headers first to avoid type conflicts with CEF headers.
 #include "base/bind.h"
+#include "base/strings/string16.h"
 #include "base/synchronization/lock.h"
 
 #endif  // CEF_TESTS_UNITTESTS_CHROMIUM_INCLUDES_H_

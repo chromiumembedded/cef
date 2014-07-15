@@ -33,12 +33,9 @@
 
 #include <memory.h>
 #include <string>
+
+#include "include/base/cef_string16.h"
 #include "include/internal/cef_string_types.h"
-
-#ifdef BUILDING_CEF_SHARED
-#include "base/strings/string16.h"
-#endif
-
 
 ///
 // Traits implementation for wide character strings.
@@ -87,7 +84,6 @@ struct CefStringTraitsWide {
     return cef_string_wide_set(str.c_str(), str.length(), s, true) ?
         true : false;
   }
-#if defined(BUILDING_CEF_SHARED)
 #if defined(WCHAR_T_IS_UTF32)
   static inline base::string16 to_string16(const struct_type *s) {
     cef_string_utf16_t cstr;
@@ -113,7 +109,6 @@ struct CefStringTraitsWide {
         true : false;
   }
 #endif  // WCHAR_T_IS_UTF32
-#endif  // BUILDING_CEF_SHARED
 };
 
 ///
@@ -162,7 +157,6 @@ struct CefStringTraitsUTF8 {
   static inline bool from_wstring(const std::wstring& str, struct_type* s) {
     return cef_string_wide_to_utf8(str.c_str(), str.length(), s) ? true : false;
   }
-#if defined(BUILDING_CEF_SHARED)
   static inline base::string16 to_string16(const struct_type* s) {
     cef_string_utf16_t cstr;
     memset(&cstr, 0, sizeof(cstr));
@@ -177,7 +171,6 @@ struct CefStringTraitsUTF8 {
     return cef_string_utf16_to_utf8(str.c_str(), str.length(), s) ?
         true : false;
   }
-#endif  // BUILDING_CEF_SHARED
 };
 
 ///
@@ -245,7 +238,6 @@ struct CefStringTraitsUTF16 {
         true : false;
   }
 #endif  // WCHAR_T_IS_UTF32
-#if defined(BUILDING_CEF_SHARED)
   static inline base::string16 to_string16(const struct_type* s) {
     return base::string16(s->str, s->length);
   }
@@ -253,7 +245,6 @@ struct CefStringTraitsUTF16 {
     return cef_string_utf16_set(str.c_str(), str.length(), s, true) ?
         true : false;
   }
-#endif  // BUILDING_CEF_SHARED
 };
 
 ///
@@ -334,7 +325,7 @@ class CefStringBase {
       FromWString(std::wstring(src));
   }
 
-#if (defined(BUILDING_CEF_SHARED) && defined(WCHAR_T_IS_UTF32))
+#if defined(WCHAR_T_IS_UTF32)
   ///
   // Create a new string from an existing string16. Data will be always
   // copied. Translation will occur if necessary based on the underlying string
@@ -349,7 +340,7 @@ class CefStringBase {
     if (src)
       FromString16(base::string16(src));
   }
-#endif  // BUILDING_CEF_SHARED && WCHAR_T_IS_UTF32
+#endif  // WCHAR_T_IS_UTF32
 
   ///
   // Create a new string from an existing character array. If |copy| is true
@@ -612,7 +603,7 @@ class CefStringBase {
     AllocIfNeeded();
     return traits::from_wstring(str, string_);
   }
-#if defined(BUILDING_CEF_SHARED)
+
   ///
   // Return this string's data as a string16. Translation will occur if
   // necessary based on the underlying string type.
@@ -636,7 +627,6 @@ class CefStringBase {
     AllocIfNeeded();
     return traits::from_string16(str, string_);
   }
-#endif  // BUILDING_CEF_SHARED
 
   ///
   // Comparison operator overloads.
@@ -689,7 +679,7 @@ class CefStringBase {
     FromWString(std::wstring(str));
     return *this;
   }
-#if (defined(BUILDING_CEF_SHARED) && defined(WCHAR_T_IS_UTF32))
+#if defined(WCHAR_T_IS_UTF32)
   operator base::string16() const {
     return ToString16();
   }
@@ -701,7 +691,7 @@ class CefStringBase {
     FromString16(base::string16(str));
     return *this;
   }
-#endif  // BUILDING_CEF_SHARED && WCHAR_T_IS_UTF32
+#endif  // WCHAR_T_IS_UTF32
 
  private:
   // Allocate the string structure if it doesn't already exist.
