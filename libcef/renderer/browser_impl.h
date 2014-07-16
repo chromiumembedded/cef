@@ -20,7 +20,7 @@
 #include "content/public/renderer/render_view_observer.h"
 
 class GURL;
-struct CefHostMsg_LoadRequest_Params;
+struct CefMsg_LoadRequest_Params;
 struct Cef_Request_Params;
 struct Cef_Response_Params;
 class CefContentRendererClient;
@@ -79,7 +79,7 @@ class CefBrowserImpl : public CefBrowser,
                  bool is_windowless);
   virtual ~CefBrowserImpl();
 
-  void LoadRequest(const CefHostMsg_LoadRequest_Params& params);
+  void LoadRequest(const CefMsg_LoadRequest_Params& params);
 
   // Avoids unnecessary string type conversions.
   bool SendProcessMessage(CefProcessId target_process,

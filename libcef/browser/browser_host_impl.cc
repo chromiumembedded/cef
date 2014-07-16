@@ -17,6 +17,7 @@
 #include "libcef/browser/devtools_delegate.h"
 #include "libcef/browser/devtools_frontend.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
+#include "libcef/browser/navigate_params.h"
 #include "libcef/browser/printing/print_view_manager.h"
 #include "libcef/browser/render_widget_host_view_osr.h"
 #include "libcef/browser/request_context_impl.h"
@@ -31,7 +32,6 @@
 #include "libcef/common/process_message_impl.h"
 #include "libcef/common/request_impl.h"
 
-#include "base/base64.h"
 #include "base/bind.h"
 #include "base/bind_helpers.h"
 #include "base/command_line.h"
@@ -263,143 +263,6 @@ class CefRunFileDialogCallbackWrapper
   CefRefPtr<CefRunFileDialogCallback> callback_;
 };
 
-class NavigationHelper {
- public:
-  static content::NavigationController::LoadURLParams GetParams(
-      int64 frame_id,
-      const std::string& url) {
-    content::NavigationController::LoadURLParams params(
-        GetGURL(url));
-    params.frame_tree_node_id = frame_id;
-    params.transition_type = content::PAGE_TRANSITION_TYPED;
-
-    return params;
-  }
-
-  static content::NavigationController::LoadURLParams GetParams(
-      int64 frame_id,
-      CefRefPtr<CefRequest> request) {
-    content::NavigationController::LoadURLParams params(
-        GetGURL(request->GetURL()));
-    params.frame_tree_node_id = frame_id;
-    params.transition_type =
-        static_cast<content::PageTransition>(request->GetTransitionType());
-    params.extra_headers = GetHeaders(request);
-
-    if (request->GetMethod() == "POST") {
-      params.load_type =
-          content::NavigationController::LOAD_TYPE_BROWSER_INITIATED_HTTP_POST;
-      params.browser_initiated_post_data = GetPostData(request->GetPostData());
-    }
-
-    return params;
-  }
-
-  static content::NavigationController::LoadURLParams GetParams(
-      int64 frame_id,
-      const std::string& data,
-      const std::string& url) {
-    content::NavigationController::LoadURLParams params(GetDataURL(data));
-    params.frame_tree_node_id = frame_id;
-    params.load_type = content::NavigationController::LOAD_TYPE_DATA;
-    params.virtual_url_for_data_url = GURL(url);
-    params.base_url_for_data_url = GURL(url);
-
-    return params;
-  }
-
-  static content::NavigationController::LoadURLParams GetParams(
-      const content::OpenURLParams& content_params) {
-    GURL gurl = GetGURL(content_params.url.spec());
-    content::NavigationController::LoadURLParams params(gurl);
-    params.frame_tree_node_id = CefFrameHostImpl::kMainFrameId;
-    params.referrer = content_params.referrer;
-    params.transition_type = content_params.transition;
-    params.extra_headers = content_params.extra_headers;
-
-    return params;
-  }
-
-  static content::NavigationController::LoadURLParams GetParams(
-      const CefHostMsg_LoadRequest_Params& request_params) {
-    content::NavigationController::LoadURLParams params(request_params.url);
-    params.referrer.url = request_params.referrer;
-    params.referrer.policy =
-        static_cast<blink::WebReferrerPolicy>(request_params.referrer_policy);
-    params.frame_tree_node_id = request_params.frame_id;
-    params.extra_headers = request_params.headers;
-    if (request_params.method == "POST") {
-      params.load_type =
-          content::NavigationController::LOAD_TYPE_BROWSER_INITIATED_HTTP_POST;
-      params.browser_initiated_post_data =
-          GetPostData(request_params.upload_data);
-    }
-    return params;
-  }
-
- private:
-  static GURL GetDataURL(const std::string& data) {
-    std::string encoded_data;
-    base::Base64Encode(data, &encoded_data);
-
-    GURL gurl("data:text/html;charset=UTF-8;base64," + encoded_data);
-    return gurl;
-  }
-
-  static GURL GetGURL(const std::string& url) {
-    GURL gurl(url);
-
-    if (!gurl.is_valid() && !gurl.has_scheme()) {
-      // Try to add "http://" at the beginning
-      std::string new_url = std::string("http://") + url;
-      gurl = GURL(new_url);
-    }
-
-    return gurl;
-  }
-
-  static std::string GetHeaders(CefRefPtr<CefRequest> request) {
-    CefRequest::HeaderMap headerMap;
-    request->GetHeaderMap(headerMap);
-    if (!headerMap.empty()) {
-      return HttpHeaderUtils::GenerateHeaders(headerMap);
-    }
-
-    return std::string();
-  }
-
-  static base::RefCountedBytes* GetPostData(
-      CefRefPtr<CefPostData> postData) {
-    if (postData.get()) {
-      CefPostDataImpl* impl = static_cast<CefPostDataImpl*>(postData.get());
-      scoped_refptr<net::UploadData> upload_data = new net::UploadData();
-      impl->Get(*upload_data);
-
-      return GetPostData(upload_data);
-    }
-
-    return NULL;
-  }
-
-  static base::RefCountedBytes* GetPostData(
-      scoped_refptr<net::UploadData> upload_data) {
-    if (upload_data.get()) {
-      std::vector<unsigned char> body;
-      if (!upload_data->elements().empty()) {
-        const net::UploadElement* elem = upload_data->elements().front();
-        if (elem) {
-          body.insert(body.end(), elem->bytes(),
-                      elem->bytes() + elem->bytes_length());
-        }
-      }
-
-      return base::RefCountedBytes::TakeVector(&body);
-    }
-
-    return NULL;
-  }
-};
-
 }  // namespace
 
 
@@ -510,7 +373,8 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
       CefBrowserHostImpl::CreateInternal(windowInfo, settings, client, NULL,
                                          info, opener, request_context);
   if (browser && !url.empty()) {
-    browser->LoadURL(CefFrameHostImpl::kMainFrameId, url);
+    browser->LoadURL(CefFrameHostImpl::kMainFrameId, url, content::Referrer(),
+                     content::PAGE_TRANSITION_TYPED, std::string());
   }
   return browser.get();
 }
@@ -1576,18 +1440,122 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrameForRequest(
                           GURL());
 }
 
-void CefBrowserHostImpl::LoadRequest(int64 frame_id,
-                                     CefRefPtr<CefRequest> request) {
-  Navigate(NavigationHelper::GetParams(frame_id, request));
+void CefBrowserHostImpl::Navigate(const CefNavigateParams& params) {
+  // Only known frame ids and kMainFrameId are supported.
+  DCHECK(params.frame_id >= CefFrameHostImpl::kMainFrameId);
+
+  CefMsg_LoadRequest_Params request;
+  request.url = params.url;
+  if (!request.url.is_valid()) {
+    LOG(ERROR) << "Invalid URL passed to CefBrowserHostImpl::Navigate: " <<
+        params.url;
+    return;
+  }
+
+  request.method = params.method;
+  request.referrer = params.referrer.url;
+  request.referrer_policy = params.referrer.policy;
+  request.frame_id = params.frame_id;
+  request.first_party_for_cookies = params.first_party_for_cookies;
+  request.headers = params.headers;
+  request.load_flags = params.load_flags;
+  request.upload_data = params.upload_data;
+
+  Send(new CefMsg_LoadRequest(routing_id(), request));
+
+  OnSetFocus(FOCUS_SOURCE_NAVIGATION);
 }
 
-void CefBrowserHostImpl::LoadURL(int64 frame_id, const std::string& url) {
-  Navigate(NavigationHelper::GetParams(frame_id, url));
+void CefBrowserHostImpl::LoadRequest(int64 frame_id,
+                                     CefRefPtr<CefRequest> request) {
+  CefNavigateParams params(GURL(std::string(request->GetURL())),
+                           content::PAGE_TRANSITION_TYPED);
+  params.method = request->GetMethod();
+  params.frame_id = frame_id;
+  params.first_party_for_cookies =
+    GURL(std::string(request->GetFirstPartyForCookies()));
+
+  CefRequest::HeaderMap headerMap;
+  request->GetHeaderMap(headerMap);
+  if (!headerMap.empty())
+    params.headers = HttpHeaderUtils::GenerateHeaders(headerMap);
+
+  CefRefPtr<CefPostData> postData = request->GetPostData();
+  if (postData.get()) {
+    CefPostDataImpl* impl = static_cast<CefPostDataImpl*>(postData.get());
+    params.upload_data = new net::UploadData();
+    impl->Get(*params.upload_data.get());
+  }
+
+  params.load_flags = request->GetFlags();
+
+  Navigate(params);
+}
+
+void CefBrowserHostImpl::LoadURL(
+    int64 frame_id,
+    const std::string& url,
+    const content::Referrer& referrer,
+    content::PageTransition transition,
+    const std::string& extra_headers) {
+  if (frame_id == CefFrameHostImpl::kMainFrameId) {
+    // Go through the navigation controller.
+    if (CEF_CURRENTLY_ON_UIT()) {
+      if (web_contents_.get()) {
+        GURL gurl = GURL(url);
+
+        if (!gurl.is_valid() && !gurl.has_scheme()) {
+          // Try to add "http://" at the beginning
+          std::string new_url = std::string("http://") + url;
+          gurl = GURL(new_url);
+        }
+
+        if (!gurl.is_valid()) {
+          LOG(ERROR) <<
+              "Invalid URL passed to CefBrowserHostImpl::LoadURL: " << url;
+          return;
+        }
+
+        // Update the loading URL.
+        OnLoadingURLChange(gurl);
+
+        web_contents_->GetController().LoadURL(
+            gurl,
+            referrer,
+            transition,
+            extra_headers);
+        OnSetFocus(FOCUS_SOURCE_NAVIGATION);
+      }
+    } else {
+      CEF_POST_TASK(CEF_UIT,
+          base::Bind(&CefBrowserHostImpl::LoadURL, this, frame_id, url,
+                     referrer, transition, extra_headers));
+    }
+  } else {
+    CefNavigateParams params(GURL(url), transition);
+    params.frame_id = frame_id;
+    params.referrer = referrer;
+    params.headers = extra_headers;
+    Navigate(params);
+  }
 }
 
 void CefBrowserHostImpl::LoadString(int64 frame_id, const std::string& string,
                                     const std::string& url) {
-  Navigate(NavigationHelper::GetParams(frame_id, string, url));
+  // Only known frame ids or kMainFrameId are supported.
+  DCHECK(frame_id >= CefFrameHostImpl::kMainFrameId);
+
+  Cef_Request_Params params;
+  params.name = "load-string";
+  params.frame_id = frame_id;
+  params.user_initiated = false;
+  params.request_id = -1;
+  params.expect_response = false;
+
+  params.arguments.Append(base::Value::CreateStringValue(string));
+  params.arguments.Append(base::Value::CreateStringValue(url));
+
+  Send(new CefMsg_Request(routing_id(), params));
 }
 
 void CefBrowserHostImpl::SendCommand(
@@ -1954,34 +1922,6 @@ void CefBrowserHostImpl::DragSourceEndedAt(
 }
 
 
-void CefBrowserHostImpl::Navigate(
-    const content::NavigationController::LoadURLParams& params) {
-  // Only known frame ids and kMainFrameId are supported.
-  DCHECK(params.frame_tree_node_id >= CefFrameHostImpl::kMainFrameId);
-
-  // Go through the navigation controller.
-  if (CEF_CURRENTLY_ON_UIT()) {
-    if (web_contents_.get()) {
-      if (!params.url.is_valid()) {
-        LOG(ERROR)
-            << "Invalid URL passed to CefBrowserHostImpl::LoadURLWithParams: "
-            << params.url.spec();
-        return;
-      }
-
-      // Update the loading URL.
-      OnLoadingURLChange(params.url);
-
-      web_contents_->GetController().LoadURLWithParams(params);
-
-      OnSetFocus(FOCUS_SOURCE_NAVIGATION);
-    }
-  } else {
-    CEF_POST_TASK(CEF_UIT,
-      base::Bind(&CefBrowserHostImpl::Navigate, this, params));
-  }
-}
-
 // content::WebContentsDelegate methods.
 // -----------------------------------------------------------------------------
 
@@ -1990,7 +1930,8 @@ content::WebContents* CefBrowserHostImpl::OpenURLFromTab(
     const content::OpenURLParams& params) {
   // Start a navigation that will result in the creation of a new render
   // process.
-  Navigate(NavigationHelper::GetParams(params));
+  LoadURL(CefFrameHostImpl::kMainFrameId, params.url.spec(), params.referrer,
+          params.transition, params.extra_headers);
 
   return source;
 }
@@ -2491,7 +2432,6 @@ bool CefBrowserHostImpl::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(CefHostMsg_Request, OnRequest)
     IPC_MESSAGE_HANDLER(CefHostMsg_Response, OnResponse)
     IPC_MESSAGE_HANDLER(CefHostMsg_ResponseAck, OnResponseAck)
-    IPC_MESSAGE_HANDLER(CefHostMsg_LoadRequest, OnLoadRequest)
     IPC_MESSAGE_HANDLER(ChromeViewHostMsg_PDFHasUnsupportedFeature,
                         OnPDFHasUnsupportedFeature)
     IPC_MESSAGE_HANDLER(ChromeViewHostMsg_PDFSaveURLAs, OnPDFSaveURLAs)
@@ -2592,11 +2532,6 @@ void CefBrowserHostImpl::OnResponse(const Cef_Response_Params& params) {
 
 void CefBrowserHostImpl::OnResponseAck(int request_id) {
   response_manager_->RunAckHandler(request_id);
-}
-
-void CefBrowserHostImpl::OnLoadRequest(
-    const CefHostMsg_LoadRequest_Params& request_params) {
-  Navigate(NavigationHelper::GetParams(request_params));
 }
 
 void CefBrowserHostImpl::OnPDFHasUnsupportedFeature() {

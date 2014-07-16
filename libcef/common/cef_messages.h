@@ -70,6 +70,45 @@ IPC_STRUCT_END()
 
 // Messages sent from the browser to the renderer.
 
+// Parameters for a resource request.
+IPC_STRUCT_BEGIN(CefMsg_LoadRequest_Params)
+  // The request method: GET, POST, etc.
+  IPC_STRUCT_MEMBER(std::string, method)
+
+  // The requested URL.
+  IPC_STRUCT_MEMBER(GURL, url)
+
+  // The URL to send in the "Referer" header field. Can be empty if there is
+  // no referrer.
+  IPC_STRUCT_MEMBER(GURL, referrer)
+  // One of the blink::WebReferrerPolicy values.
+  IPC_STRUCT_MEMBER(int, referrer_policy)
+
+  // Identifies the frame within the RenderView that sent the request.
+  // -1 if unknown / invalid.
+  IPC_STRUCT_MEMBER(int64, frame_id)
+
+  // Usually the URL of the document in the top-level window, which may be
+  // checked by the third-party cookie blocking policy. Leaving it empty may
+  // lead to undesired cookie blocking. Third-party cookie blocking can be
+  // bypassed by setting first_party_for_cookies = url, but this should ideally
+  // only be done if there really is no way to determine the correct value.
+  IPC_STRUCT_MEMBER(GURL, first_party_for_cookies)
+
+  // Additional HTTP request headers.
+  IPC_STRUCT_MEMBER(std::string, headers)
+
+  // net::URLRequest load flags (0 by default).
+  IPC_STRUCT_MEMBER(int, load_flags)
+
+  // Optional upload data (may be null).
+  IPC_STRUCT_MEMBER(scoped_refptr<net::UploadData>, upload_data)
+IPC_STRUCT_END()
+
+// Tell the renderer to load a request.
+IPC_MESSAGE_ROUTED1(CefMsg_LoadRequest,
+                    CefMsg_LoadRequest_Params)
+
 // Sent when the browser has a request for the renderer. The renderer may
 // respond with a CefHostMsg_Response.
 IPC_MESSAGE_ROUTED1(CefMsg_Request,
@@ -161,35 +200,6 @@ IPC_MESSAGE_ROUTED1(CefHostMsg_Response,
 // has been processed.
 IPC_MESSAGE_ROUTED1(CefHostMsg_ResponseAck,
                     int /* request_id */)
-
-// Parameters for a resource request.
-IPC_STRUCT_BEGIN(CefHostMsg_LoadRequest_Params)
-  // The request method: GET, POST, etc.
-  IPC_STRUCT_MEMBER(std::string, method)
-
-  // The requested URL.
-  IPC_STRUCT_MEMBER(GURL, url)
-
-  // The URL to send in the "Referer" header field. Can be empty if there is
-  // no referrer.
-  IPC_STRUCT_MEMBER(GURL, referrer)
-  // One of the blink::WebReferrerPolicy values.
-  IPC_STRUCT_MEMBER(int, referrer_policy)
-
-  // Identifies the frame within the RenderView that sent the request.
-  // -1 if unknown / invalid.
-  IPC_STRUCT_MEMBER(int64, frame_id)
-
-  // Additional HTTP request headers.
-  IPC_STRUCT_MEMBER(std::string, headers)
-
-  // Optional upload data (may be null).
-  IPC_STRUCT_MEMBER(scoped_refptr<net::UploadData>, upload_data)
-IPC_STRUCT_END()
-
-// Tell the browser to load a request.
-IPC_MESSAGE_ROUTED1(CefHostMsg_LoadRequest,
-                    CefHostMsg_LoadRequest_Params)
 
 
 // Pepper PDF plugin messages excerpted from chrome/common/render_messages.h.

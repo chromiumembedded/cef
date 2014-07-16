@@ -145,7 +145,7 @@ class RequestSendRecvTestHandler : public TestHandler {
     CreateRequest(request_);
 
     // Create the browser
-    CreateBrowser("");
+    CreateBrowser("about:blank");
   }
 
   virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE {
@@ -161,7 +161,7 @@ class RequestSendRecvTestHandler : public TestHandler {
     // Verify that the request is the same
     TestRequestEqual(request_, request, true);
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
-    EXPECT_EQ(request_->GetTransitionType(), request->GetTransitionType());
+    EXPECT_EQ(TT_LINK, request->GetTransitionType());
 
     got_before_resource_load_.yes();
 
@@ -175,7 +175,7 @@ class RequestSendRecvTestHandler : public TestHandler {
     // Verify that the request is the same
     TestRequestEqual(request_, request, true);
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
-    EXPECT_EQ(request_->GetTransitionType(), request->GetTransitionType());
+    EXPECT_EQ(TT_LINK, request->GetTransitionType());
 
     got_resource_handler_.yes();
 
@@ -201,64 +201,6 @@ TEST(RequestTest, SendRecv) {
 
   ASSERT_TRUE(handler->got_before_resource_load_);
   ASSERT_TRUE(handler->got_resource_handler_);
-}
-
-namespace {
-
-class LoadStringTestHandler : public TestHandler,
-                              public CefStringVisitor {
- public:
-  LoadStringTestHandler() {
-    source_ = "<html><head></head><body>Test</body></html>";
-    url_ = "http://tests/run.html";
-  }
-
-  virtual void RunTest() OVERRIDE {
-    CreateBrowser("");
-  }
-
-  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE {
-    TestHandler::OnAfterCreated(browser);
-
-    browser->GetMainFrame()->LoadString(source_, url_);
-  }
-
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
-    EXPECT_EQ(url_, frame->GetURL().ToString());
-
-    CefRefPtr<CefStringVisitor> visitor(this);
-    frame->GetSource(visitor);
-
-    got_on_load_end_.yes();
-  }
-
-  virtual void Visit(const CefString& source) OVERRIDE {
-    EXPECT_EQ(source_, source.ToString());
-    got_source_.yes();
-    DestroyTest();
-  }
-
-  std::string source_;
-  std::string url_;
-
-  TrackCallback got_on_load_end_;
-  TrackCallback got_source_;
-
- private:
-  IMPLEMENT_REFCOUNTING(LoadStringTestHandler);
-};
-
-}  // namespace
-
-TEST(RequestTest, LoadStringTest) {
-  CefRefPtr<LoadStringTestHandler> handler =
-    new LoadStringTestHandler();
-
-  handler->ExecuteTest();
-  ASSERT_TRUE(handler->got_on_load_end_);
-  ASSERT_TRUE(handler->got_source_);
 }
 
 namespace {
