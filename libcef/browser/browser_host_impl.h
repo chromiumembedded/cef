@@ -55,11 +55,11 @@ class Widget;
 }
 #endif
 
-struct CefHostMsg_LoadRequest_Params;
 struct Cef_Request_Params;
 struct Cef_Response_Params;
 class CefBrowserInfo;
 class CefDevToolsFrontend;
+struct CefNavigateParams;
 class SiteInstance;
 
 // Implementation of CefBrowser.
@@ -224,13 +224,17 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefRefPtr<CefFrame> GetFrameForRequest(net::URLRequest* request);
 
   // Navigate as specified by the |params| argument.
-  void Navigate(const content::NavigationController::LoadURLParams& params);
+  void Navigate(const CefNavigateParams& params);
 
   // Load the specified request.
   void LoadRequest(int64 frame_id, CefRefPtr<CefRequest> request);
 
   // Load the specified URL.
-  void LoadURL(int64 frame_id, const std::string& url);
+  void LoadURL(int64 frame_id,
+               const std::string& url,
+               const content::Referrer& referrer,
+               content::PageTransition transition,
+               const std::string& extra_headers);
 
   // Load the specified string.
   void LoadString(int64 frame_id, const std::string& string,
@@ -431,7 +435,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void OnRequest(const Cef_Request_Params& params);
   void OnResponse(const Cef_Response_Params& params);
   void OnResponseAck(int request_id);
-  void OnLoadRequest(const CefHostMsg_LoadRequest_Params& params);
 
   // content::NotificationObserver methods.
   virtual void Observe(int type,
