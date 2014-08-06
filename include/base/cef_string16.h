@@ -82,6 +82,8 @@ typedef std::char_traits<wchar_t> string16_char_traits;
 
 #elif defined(WCHAR_T_IS_UTF32)
 
+#include <stdint.h>  // For uint16_t
+
 #include "include/base/cef_macros.h"
 
 namespace base {
