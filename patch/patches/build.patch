@@ -1,0 +1,54 @@
+Index: mac/strip_save_dsym
+===================================================================
+--- mac/strip_save_dsym	(revision 286351)
++++ mac/strip_save_dsym	(working copy)
+@@ -48,7 +48,7 @@
+                  "bundle"]
+   macho_types_re = "Mach-O (?:64-bit )?(?:" + "|".join(macho_types) + ")"
+ 
+-  file_cmd = subprocess.Popen(["/usr/bin/file", "-b", "--", macho],
++  file_cmd = subprocess.Popen(["/usr/bin/file", "-b", "-L", "--", macho],
+                               stdout=subprocess.PIPE)
+ 
+   archs = []
+Index: gyp_chromium
+===================================================================
+--- gyp_chromium	(revision 286351)
++++ gyp_chromium	(working copy)
+@@ -251,12 +251,6 @@
+   if sys.platform not in ('darwin',):
+     args.append('--no-circular-check')
+ 
+-  # We explicitly don't support the make gyp generator (crbug.com/348686). Be
+-  # nice and fail here, rather than choking in gyp.
+-  if re.search(r'(^|,|\s)make($|,|\s)', os.environ.get('GYP_GENERATORS', '')):
+-    print 'Error: make gyp generator not supported (check GYP_GENERATORS).'
+-    sys.exit(1)
+-
+   # Default to ninja on linux and windows, but only if no generator has
+   # explicitly been set.
+   # Also default to ninja on mac, but only when not building chrome/ios.
+Index: common.gypi
+===================================================================
+--- common.gypi	(revision 286351)
++++ common.gypi	(working copy)
+@@ -9,6 +9,9 @@
+   # Variables expected to be overriden on the GYP command line (-D) or by
+   # ~/.gyp/include.gypi.
+   'variables': {
++    # Directory for CEF source files. This will be set by cef.gypi.
++    'cef_directory%' : '',
++
+     # Putting a variables dict inside another variables dict looks kind of
+     # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
+     # variables within the outer variables dict here.  This is necessary
+@@ -5119,6 +5122,9 @@
+           # removed as code is fixed.
+           4100, 4121, 4125, 4127, 4130, 4131, 4189, 4201, 4238, 4244, 4245,
+           4310, 4428, 4481, 4505, 4510, 4512, 4530, 4610, 4611, 4701, 4706,
++          # Disable Warning 4702 ("Unreachable code")
++          # https://code.google.com/p/chromium/issues/detail?id=346399#c55
++          4702,
+         ],
+         'msvs_settings': {
+           'VCCLCompilerTool': {

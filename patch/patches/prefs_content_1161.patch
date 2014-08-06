@@ -1,0 +1,25 @@
+Index: public/common/common_param_traits_macros.h
+===================================================================
+--- public/common/common_param_traits_macros.h	(revision 286351)
++++ public/common/common_param_traits_macros.h	(working copy)
+@@ -175,6 +175,7 @@
+   IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
+   IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
+   IPC_STRUCT_TRAITS_MEMBER(compositor_touch_hit_testing)
++  IPC_STRUCT_TRAITS_MEMBER(base_background_color)
+   IPC_STRUCT_TRAITS_MEMBER(cookie_enabled)
+   IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
+   IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
+Index: renderer/web_preferences.cc
+===================================================================
+--- renderer/web_preferences.cc	(revision 286351)
++++ renderer/web_preferences.cc	(working copy)
+@@ -167,6 +167,8 @@
+ 
+   settings->setJavaEnabled(prefs.java_enabled);
+ 
++  web_view->setBaseBackgroundColor(prefs.base_background_color);
++
+   // By default, allow_universal_access_from_file_urls is set to false and thus
+   // we mitigate attacks from local HTML files by not granting file:// URLs
+   // universal access. Only test shell will enable this.

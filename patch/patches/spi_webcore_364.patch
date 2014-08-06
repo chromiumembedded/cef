@@ -1,0 +1,34 @@
+Index: core/frame/FrameView.cpp
+===================================================================
+--- core/frame/FrameView.cpp	(revision 179174)
++++ core/frame/FrameView.cpp	(working copy)
+@@ -138,8 +138,10 @@
+     if (!m_frame->isMainFrame())
+         return;
+ 
++#if 0
+     ScrollableArea::setVerticalScrollElasticity(ScrollElasticityAllowed);
+     ScrollableArea::setHorizontalScrollElasticity(ScrollElasticityAllowed);
++#endif
+ }
+ 
+ PassRefPtr<FrameView> FrameView::create(LocalFrame* frame)
+Index: platform/scroll/ScrollbarThemeMacCommon.mm
+===================================================================
+--- platform/scroll/ScrollbarThemeMacCommon.mm	(revision 179174)
++++ platform/scroll/ScrollbarThemeMacCommon.mm	(working copy)
+@@ -355,10 +355,14 @@
+ // static
+ bool ScrollbarThemeMacCommon::isOverlayAPIAvailable()
+ {
++#if 0
+     static bool apiAvailable =
+         [NSClassFromString(@"NSScrollerImp") respondsToSelector:@selector(scrollerImpWithStyle:controlSize:horizontal:replacingScrollerImp:)]
+         && [NSClassFromString(@"NSScrollerImpPair") instancesRespondToSelector:@selector(scrollerStyle)];
+     return apiAvailable;
++#else
++    return false;
++#endif
+ }
+ 
+ } // namespace WebCore
