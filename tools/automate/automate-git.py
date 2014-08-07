@@ -813,6 +813,8 @@ if chromium_checkout_changed:
 
   # Fetch new sources.
   run("%s fetch" % (git_exe), chromium_src_dir, depot_tools_dir)
+  # Also fetch tags, which are required for release branch builds.
+  run("%s fetch --tags" % (git_exe), chromium_src_dir, depot_tools_dir)
 
   # Checkout the requested branch.
   run("%s checkout %s%s" % \
