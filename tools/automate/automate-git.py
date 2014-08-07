@@ -369,8 +369,12 @@ parser.add_option('--force-config',
                   help='Force creation of a new gclient config file.')
 parser.add_option('--force-clean',
                   action='store_true', dest='forceclean', default=False,
-                  help='Force a clean CEF checkout. This will trigger a new '+\
-                       'update, build and distribution.')
+                  help='Force a clean checkout of Chromium and CEF. This will'+\
+                       ' trigger a new update, build and distribution.')
+parser.add_option('--force-clean-deps',
+                  action='store_true', dest='forcecleandeps', default=False,
+                  help='Force a clean checkout of Chromium dependencies. Used'+\
+                       ' in combination with --force-clean.')
 parser.add_option('--dry-run',
                   action='store_true', dest='dryrun', default=False,
                   help="Output commands without executing them.")
@@ -799,8 +803,13 @@ if os.path.exists(out_src_dir):
 # Update the Chromium checkout.
 if chromium_checkout_changed:
   if not chromium_checkout_new:
-    # Revert all changes in the Chromium checkout.
-    run("gclient revert --nohooks", chromium_dir, depot_tools_dir)
+    if options.forceclean and options.forcecleandeps:
+      # Remove all local changes including third-party git checkouts managed by
+      # gclient.
+      run("%s clean -dffx" % (git_exe), chromium_src_dir, depot_tools_dir)
+    else:
+      # Revert all changes in the Chromium checkout.
+      run("gclient revert --nohooks", chromium_dir, depot_tools_dir)
 
   # Fetch new sources.
   run("%s fetch" % (git_exe), chromium_src_dir, depot_tools_dir)
