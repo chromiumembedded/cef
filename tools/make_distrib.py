@@ -17,7 +17,7 @@ import zipfile
 
 def create_archive(input_dir, zip_file):
   """ Creates a zip archive of the specified input directory. """
-  zf = zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED)
+  zf = zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED, True)
   def addDir(dir):
     for f in os.listdir(dir):
       full_path = os.path.join(dir, f)
