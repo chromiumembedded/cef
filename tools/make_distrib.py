@@ -387,7 +387,7 @@ if svn.is_checkout(src_dir):
   chromium_rev = chromium_info['revision']
 elif git.is_checkout(src_dir):
   chromium_url = git.get_url(src_dir)
-  chromium_rev = git.get_hash(src_dir, 'HEAD')
+  chromium_rev = git.get_hash(src_dir)
 else:
   raise Exception('Not a valid checkout: %s' % (src_dir))
 

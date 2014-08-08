@@ -9,7 +9,7 @@ def is_checkout(path):
   """ Returns true if the path represents a git checkout. """
   return os.path.exists(os.path.join(path, '.git'))
 
-def get_hash(path = '.', branch = 'master'):
+def get_hash(path = '.', branch = 'HEAD'):
   """ Returns the git hash for the specified branch/tag/hash. """
   cmd = "git rev-parse %s" % (branch)
   result = exec_cmd(cmd, path)
@@ -25,7 +25,7 @@ def get_url(path = '.'):
     return result['out'].strip()
   return 'Unknown'
 
-def get_svn_revision(path = '.', branch = 'master'):
+def get_svn_revision(path = '.', branch = 'HEAD'):
   """ Returns the SVN revision associated with the specified path and git
       branch/tag/hash. """
   svn_rev = "None"
