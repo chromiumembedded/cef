@@ -17,7 +17,7 @@ import zipfile
 
 def create_archive(input_dir, zip_file):
   """ Creates a zip archive of the specified input directory. """
-  zf = zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED)
+  zf = zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED, True)
   def addDir(dir):
     for f in os.listdir(dir):
       full_path = os.path.join(dir, f)
@@ -387,7 +387,7 @@ if svn.is_checkout(src_dir):
   chromium_rev = chromium_info['revision']
 elif git.is_checkout(src_dir):
   chromium_url = git.get_url(src_dir)
-  chromium_rev = git.get_hash(src_dir, 'HEAD')
+  chromium_rev = git.get_hash(src_dir)
 else:
   raise Exception('Not a valid checkout: %s' % (src_dir))
 
