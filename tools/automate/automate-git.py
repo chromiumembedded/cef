@@ -606,7 +606,7 @@ msg("CEF Source Directory: %s" % (cef_dir))
 if options.checkout == '':
   # Use the CEF head revision.
   if cef_use_git:
-    cef_checkout = 'master'
+    cef_checkout = 'origin/master'
   else:
     cef_checkout = get_svn_info(cef_url)['revision']
 else:
@@ -637,6 +637,11 @@ if not options.dryrun:
 if not options.noupdate and os.path.exists(cef_dir):
   if cef_use_git:
     cef_current_hash = get_git_hash(cef_dir, 'HEAD')
+
+    if not cef_checkout_new:
+      # Fetch new sources.
+      run('%s fetch' % (git_exe), cef_dir, depot_tools_dir)
+
     cef_desired_hash = get_git_hash(cef_dir, cef_checkout)
     cef_checkout_changed = cef_checkout_new or force_change or \
                            cef_current_hash != cef_desired_hash
@@ -649,10 +654,6 @@ if not options.noupdate and os.path.exists(cef_dir):
         (get_git_svn_revision(cef_dir, cef_desired_hash)))
 
     if cef_checkout_changed:
-      if not cef_checkout_new:
-        # Fetch new sources.
-        run('%s fetch' % (git_exe), cef_dir, depot_tools_dir)
-
       # Checkout the requested branch.
       run('%s checkout %s%s' %
         (git_exe, ('--force ' if options.forceclean else ''), cef_checkout), \
