@@ -164,6 +164,7 @@ CefResourceRequestJob::~CefResourceRequestJob() {
 void CefResourceRequestJob::Start() {
   CEF_REQUIRE_IOT();
 
+  request_start_time_ = base::Time::Now();
   cef_request_ = CefRequest::Create();
 
   // Populate the request data.
@@ -285,6 +286,16 @@ void CefResourceRequestJob::GetResponseInfo(net::HttpResponseInfo* info) {
   info->headers = GetResponseHeaders();
 }
 
+void CefResourceRequestJob::GetLoadTimingInfo(
+    net::LoadTimingInfo* load_timing_info) const {
+  // If haven't made it far enough to receive any headers, don't return
+  // anything. This makes for more consistent behavior in the case of errors.
+  if (!response_ || receive_headers_end_.is_null())
+    return;
+  load_timing_info->request_start_time = request_start_time_;
+  load_timing_info->receive_headers_end = receive_headers_end_;
+}
+
 bool CefResourceRequestJob::GetResponseCookies(
     std::vector<std::string>* cookies) {
   CEF_REQUIRE_IOT();
@@ -349,6 +360,7 @@ void CefResourceRequestJob::SendHeaders() {
 
   // Get header information from the handler.
   handler_->GetResponseHeaders(response_, remaining_bytes_, redirectUrl);
+  receive_headers_end_ = base::TimeTicks::Now();
   if (!redirectUrl.empty()) {
     std::string redirectUrlStr = redirectUrl;
     redirect_url_ = GURL(redirectUrlStr);
