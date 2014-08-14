@@ -243,7 +243,7 @@ void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 
     // Retrieve the X11 window handle for the browser.
     ::Window window = browser->GetHost()->GetWindowHandle();
-    DCHECK_NE(window, kNullWindowHandle);
+    DCHECK(window != kNullWindowHandle);
 
     // Retrieve the atoms required by the below XChangeProperty call.
     const char* kAtoms[] = {
