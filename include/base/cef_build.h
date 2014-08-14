@@ -136,6 +136,7 @@
 // method in the parent class.
 // Use like:
 //   virtual void foo() OVERRIDE;
+#ifndef OVERRIDE
 #if defined(__clang__) || defined(COMPILER_MSVC)
 #define OVERRIDE override
 #elif defined(COMPILER_GCC) && __cplusplus >= 201103 && \
@@ -145,27 +146,32 @@
 #else
 #define OVERRIDE
 #endif
+#endif  // OVERRIDE
 
 // Annotate a function indicating the caller must examine the return value.
 // Use like:
 //   int foo() WARN_UNUSED_RESULT;
 // To explicitly ignore a result, see |ignore_result()| in <base/basictypes.h>.
+#ifndef WARN_UNUSED_RESULT
 #if defined(COMPILER_GCC)
 #define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
 #else
 #define WARN_UNUSED_RESULT
 #endif
+#endif  // WARN_UNUSED_RESULT
 
 // Annotate a variable indicating it's ok if the variable is not used.
 // (Typically used to silence a compiler warning when the assignment
 // is important for some other reason.)
 // Use like:
 //   int x ALLOW_UNUSED = ...;
+#ifndef ALLOW_UNUSED
 #if defined(COMPILER_GCC)
 #define ALLOW_UNUSED __attribute__((unused))
 #else
 #define ALLOW_UNUSED
 #endif
+#endif  // ALLOW_UNUSED
 
 #endif  // !BUILDING_CEF_SHARED
 
