@@ -47,7 +47,15 @@ parser = OptionParser(description=disc)
 parser.add_option('--resave',
                   action='store_true', dest='resave', default=False,
                   help='re-save existing patch files to pick up manual changes')
+parser.add_option('--revert',
+                  action='store_true', dest='revert', default=False,
+                  help='revert all changes from existing patch files')
 (options, args) = parser.parse_args()
+
+if options.resave and options.revert:
+  print 'Invalid combination of options.'
+  parser.print_help(sys.stderr)
+  sys.exit()
 
 # The CEF root directory is the parent directory of _this_ script.
 cef_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
@@ -102,29 +110,31 @@ for patch in patches:
         if result['out'] != '':
           sys.stdout.write(result['out'])
 
-      # Apply the patch file.
-      msg('Applying patch to %s' % patch_root_abs)
-      result = exec_cmd('patch -p0', patch_root_abs, patch_file)
-      if result['err'] != '':
-        raise Exception('Failed to apply patch file: %s' % result['err'])
-      sys.stdout.write(result['out'])
-      if result['out'].find('FAILED') != -1:
-        warn('Failed to apply %s, fix manually and run with --resave' % \
-             patch['name'])
-        continue
+      if not options.revert:
+        # Apply the patch file.
+        msg('Applying patch to %s' % patch_root_abs)
+        result = exec_cmd('patch -p0', patch_root_abs, patch_file)
+        if result['err'] != '':
+          raise Exception('Failed to apply patch file: %s' % result['err'])
+        sys.stdout.write(result['out'])
+        if result['out'].find('FAILED') != -1:
+          warn('Failed to apply %s, fix manually and run with --resave' % \
+               patch['name'])
+          continue
 
-    # Re-create the patch file.
-    msg('Saving changes to %s' % patch_file)
-    patch_paths_str = ' '.join(patch_paths)
-    if src_is_git:
-      cmd = 'git diff --no-prefix --relative %s' % patch_paths_str
-    else:
-      cmd = 'svn diff %s' % patch_paths_str
-    result = exec_cmd(cmd, patch_root_abs)
-    if result['err'] != '' and result['err'].find('warning:') != 0:
-      raise Exception('Failed to create patch file: %s' % result['err'])
-    f = open(patch_file, 'wb')
-    f.write(result['out'])
-    f.close()
+    if not options.revert:
+      # Re-create the patch file.
+      msg('Saving changes to %s' % patch_file)
+      patch_paths_str = ' '.join(patch_paths)
+      if src_is_git:
+        cmd = 'git diff --no-prefix --relative %s' % patch_paths_str
+      else:
+        cmd = 'svn diff %s' % patch_paths_str
+      result = exec_cmd(cmd, patch_root_abs)
+      if result['err'] != '' and result['err'].find('warning:') != 0:
+        raise Exception('Failed to create patch file: %s' % result['err'])
+      f = open(patch_file, 'wb')
+      f.write(result['out'])
+      f.close()
   else:
     raise Exception('Patch file does not exist: %s' % patch_file)
