@@ -1,6 +1,6 @@
 Index: compositing_iosurface_layer_mac.mm
 ===================================================================
---- compositing_iosurface_layer_mac.mm	(revision 286351)
+--- compositing_iosurface_layer_mac.mm	(revision 290621)
 +++ compositing_iosurface_layer_mac.mm	(working copy)
 @@ -202,7 +202,7 @@
    TRACE_EVENT0("browser", "CompositingIOSurfaceLayer::drawInCGLContext");
@@ -13,7 +13,7 @@ Index: compositing_iosurface_layer_mac.mm
    }
 Index: compositing_iosurface_mac.mm
 ===================================================================
---- compositing_iosurface_mac.mm	(revision 286351)
+--- compositing_iosurface_mac.mm	(revision 290621)
 +++ compositing_iosurface_mac.mm	(working copy)
 @@ -350,7 +350,7 @@
      glUseProgram(0); CHECK_AND_SAVE_GL_ERROR();
@@ -26,7 +26,7 @@ Index: compositing_iosurface_mac.mm
  
 Index: compositing_iosurface_shader_programs_mac.cc
 ===================================================================
---- compositing_iosurface_shader_programs_mac.cc	(revision 286351)
+--- compositing_iosurface_shader_programs_mac.cc	(revision 290621)
 +++ compositing_iosurface_shader_programs_mac.cc	(working copy)
 @@ -11,6 +11,8 @@
  #include "base/debug/trace_event.h"
@@ -81,7 +81,7 @@ Index: compositing_iosurface_shader_programs_mac.cc
      shader_programs_[which] =
 Index: compositing_iosurface_shader_programs_mac.h
 ===================================================================
---- compositing_iosurface_shader_programs_mac.h	(revision 286351)
+--- compositing_iosurface_shader_programs_mac.h	(revision 290621)
 +++ compositing_iosurface_shader_programs_mac.h	(working copy)
 @@ -48,6 +48,8 @@
      return rgb_to_yv12_output_format_;
@@ -94,7 +94,7 @@ Index: compositing_iosurface_shader_programs_mac.h
                             TransformsRGBToYV12);
 Index: render_widget_host_view_aura.cc
 ===================================================================
---- render_widget_host_view_aura.cc	(revision 286351)
+--- render_widget_host_view_aura.cc	(revision 290621)
 +++ render_widget_host_view_aura.cc	(working copy)
 @@ -1654,8 +1654,14 @@
    // For non-opaque windows, we don't draw anything, since we depend on the
@@ -115,9 +115,9 @@ Index: render_widget_host_view_aura.cc
  void RenderWidgetHostViewAura::OnDeviceScaleFactorChanged(
 Index: render_widget_host_view_mac.mm
 ===================================================================
---- render_widget_host_view_mac.mm	(revision 286351)
+--- render_widget_host_view_mac.mm	(revision 290621)
 +++ render_widget_host_view_mac.mm	(working copy)
-@@ -473,7 +473,7 @@
+@@ -471,7 +471,7 @@
  
    background_layer_.reset([[CALayer alloc] init]);
    [background_layer_
