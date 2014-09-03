@@ -59,7 +59,7 @@ class CefXmlObjectLoader {
             } else {
               // Value following a child element is not allowed.
               std::stringstream ss;
-              ss << L"Value following child element, line " <<
+              ss << "Value following child element, line " <<
                   reader->GetLineNumber();
               load_error_ = ss.str();
               ret = false;
