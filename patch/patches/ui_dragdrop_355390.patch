@@ -1,8 +1,8 @@
-Index: os_exchange_data_provider_aurax11.cc
-===================================================================
---- os_exchange_data_provider_aurax11.cc	(revision 280796)
-+++ os_exchange_data_provider_aurax11.cc	(working copy)
-@@ -155,7 +155,8 @@
+diff --git os_exchange_data_provider_aurax11.cc os_exchange_data_provider_aurax11.cc
+index 714069f..56c7fa5 100644
+--- os_exchange_data_provider_aurax11.cc
++++ os_exchange_data_provider_aurax11.cc
+@@ -158,7 +158,8 @@ void OSExchangeDataProviderAuraX11::SetURL(const GURL& url,
      format_map_.Insert(atom_cache_.GetAtom(kMimeTypeMozillaURL), mem);
  
      // Set a string fallback as well.

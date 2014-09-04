@@ -1,37 +1,7 @@
-Index: mac/strip_save_dsym
-===================================================================
---- mac/strip_save_dsym	(revision 280796)
-+++ mac/strip_save_dsym	(working copy)
-@@ -48,7 +48,7 @@
-                  "bundle"]
-   macho_types_re = "Mach-O (?:64-bit )?(?:" + "|".join(macho_types) + ")"
- 
--  file_cmd = subprocess.Popen(["/usr/bin/file", "-b", "--", macho],
-+  file_cmd = subprocess.Popen(["/usr/bin/file", "-b", "-L", "--", macho],
-                               stdout=subprocess.PIPE)
- 
-   archs = []
-Index: gyp_chromium
-===================================================================
---- gyp_chromium	(revision 280796)
-+++ gyp_chromium	(working copy)
-@@ -257,12 +257,6 @@
-   if sys.platform not in ('darwin',):
-     args.append('--no-circular-check')
- 
--  # We explicitly don't support the make gyp generator (crbug.com/348686). Be
--  # nice and fail here, rather than choking in gyp.
--  if re.search(r'(^|,|\s)make($|,|\s)', os.environ.get('GYP_GENERATORS', '')):
--    print 'Error: make gyp generator not supported (check GYP_GENERATORS).'
--    sys.exit(1)
--
-   # Default to ninja on linux and windows, but only if no generator has
-   # explicitly been set.
-   # Also default to ninja on mac, but only when not building chrome/ios.
-Index: common.gypi
-===================================================================
---- common.gypi	(revision 280796)
-+++ common.gypi	(working copy)
+diff --git common.gypi common.gypi
+index ea388ac..d0864e3 100644
+--- common.gypi
++++ common.gypi
 @@ -9,6 +9,9 @@
    # Variables expected to be overriden on the GYP command line (-D) or by
    # ~/.gyp/include.gypi.
@@ -42,13 +12,43 @@ Index: common.gypi
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
-@@ -5175,6 +5178,9 @@
-           # removed as code is fixed.
-           4100, 4121, 4125, 4127, 4130, 4131, 4189, 4201, 4238, 4244, 4245,
-           4310, 4428, 4481, 4505, 4510, 4512, 4530, 4610, 4611, 4701, 4706,
+@@ -5377,6 +5380,9 @@
+           4510, # Default constructor could not be generated
+           4512, # Assignment operator could not be generated
+           4610, # Object can never be instantiated
 +          # Disable Warning 4702 ("Unreachable code")
 +          # https://code.google.com/p/chromium/issues/detail?id=346399#c55
 +          4702,
          ],
          'msvs_settings': {
            'VCCLCompilerTool': {
+diff --git gyp_chromium gyp_chromium
+index b8fe82d..cbc8790 100755
+--- gyp_chromium
++++ gyp_chromium
+@@ -262,12 +262,6 @@ if __name__ == '__main__':
+   if sys.platform not in ('darwin',):
+     args.append('--no-circular-check')
+ 
+-  # We explicitly don't support the make gyp generator (crbug.com/348686). Be
+-  # nice and fail here, rather than choking in gyp.
+-  if re.search(r'(^|,|\s)make($|,|\s)', os.environ.get('GYP_GENERATORS', '')):
+-    print 'Error: make gyp generator not supported (check GYP_GENERATORS).'
+-    sys.exit(1)
+-
+   # If CHROMIUM_GYP_SYNTAX_CHECK is set to 1, it will invoke gyp with --check
+   # to enfore syntax checking.
+   syntax_check = os.environ.get('CHROMIUM_GYP_SYNTAX_CHECK')
+diff --git mac/strip_save_dsym mac/strip_save_dsym
+index c9cf226..0dedbe3 100755
+--- mac/strip_save_dsym
++++ mac/strip_save_dsym
+@@ -48,7 +48,7 @@ def macho_archs(macho):
+                  "bundle"]
+   macho_types_re = "Mach-O (?:64-bit )?(?:" + "|".join(macho_types) + ")"
+ 
+-  file_cmd = subprocess.Popen(["/usr/bin/file", "-b", "--", macho],
++  file_cmd = subprocess.Popen(["/usr/bin/file", "-b", "-L", "--", macho],
+                               stdout=subprocess.PIPE)
+ 
+   archs = []

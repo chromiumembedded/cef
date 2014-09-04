@@ -44,8 +44,8 @@
 #include "net/http/http_util.h"
 #include "net/http/transport_security_state.h"
 #include "net/proxy/proxy_service.h"
-#include "net/ssl/default_server_bound_cert_store.h"
-#include "net/ssl/server_bound_cert_service.h"
+#include "net/ssl/channel_id_service.h"
+#include "net/ssl/default_channel_id_store.h"
 #include "net/ssl/ssl_config_service_defaults.h"
 #include "url/url_constants.h"
 #include "net/url_request/http_user_agent_settings.h"
@@ -141,8 +141,8 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
 
     storage_->set_network_delegate(new CefNetworkDelegate);
 
-    storage_->set_server_bound_cert_service(new net::ServerBoundCertService(
-        new net::DefaultServerBoundCertStore(NULL),
+    storage_->set_channel_id_service(new net::ChannelIDService(
+        new net::DefaultChannelIDStore(NULL),
         base::WorkerPool::GetTaskRunner(true)));
     storage_->set_http_user_agent_settings(
         new CefHttpUserAgentSettings("en-us,en"));
@@ -201,8 +201,8 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
         url_request_context_->cert_verifier();
     network_session_params.transport_security_state =
         url_request_context_->transport_security_state();
-    network_session_params.server_bound_cert_service =
-        url_request_context_->server_bound_cert_service();
+    network_session_params.channel_id_service =
+        url_request_context_->channel_id_service();
     network_session_params.proxy_service =
         url_request_context_->proxy_service();
     network_session_params.ssl_config_service =

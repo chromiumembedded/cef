@@ -384,7 +384,7 @@ bool CefDictionaryValueImpl::SetBool(const CefString& key, bool value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
   RemoveInternal(key);
   mutable_value()->SetWithoutPathExpansion(key,
-      base::Value::CreateBooleanValue(value));
+      new base::FundamentalValue(value));
   return true;
 }
 
@@ -392,7 +392,7 @@ bool CefDictionaryValueImpl::SetInt(const CefString& key, int value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
   RemoveInternal(key);
   mutable_value()->SetWithoutPathExpansion(key,
-      base::Value::CreateIntegerValue(value));
+      new base::FundamentalValue(value));
   return true;
 }
 
@@ -400,7 +400,7 @@ bool CefDictionaryValueImpl::SetDouble(const CefString& key, double value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
   RemoveInternal(key);
   mutable_value()->SetWithoutPathExpansion(key,
-      base::Value::CreateDoubleValue(value));
+      new base::FundamentalValue(value));
   return true;
 }
 
@@ -409,7 +409,7 @@ bool CefDictionaryValueImpl::SetString(const CefString& key,
   CEF_VALUE_VERIFY_RETURN(true, false);
   RemoveInternal(key);
   mutable_value()->SetWithoutPathExpansion(key,
-      base::Value::CreateStringValue(value.ToString()));
+      new base::StringValue(value.ToString()));
   return true;
 }
 
@@ -729,7 +729,7 @@ bool CefListValueImpl::SetNull(int index) {
 
 bool CefListValueImpl::SetBool(int index, bool value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
-  base::Value* new_value = base::Value::CreateBooleanValue(value);
+  base::Value* new_value = new base::FundamentalValue(value);
   if (RemoveInternal(index))
     mutable_value()->Insert(index, new_value);
   else
@@ -739,7 +739,7 @@ bool CefListValueImpl::SetBool(int index, bool value) {
 
 bool CefListValueImpl::SetInt(int index, int value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
-  base::Value* new_value = base::Value::CreateIntegerValue(value);
+  base::Value* new_value = new base::FundamentalValue(value);
   if (RemoveInternal(index))
     mutable_value()->Insert(index, new_value);
   else
@@ -749,7 +749,7 @@ bool CefListValueImpl::SetInt(int index, int value) {
 
 bool CefListValueImpl::SetDouble(int index, double value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
-  base::Value* new_value = base::Value::CreateDoubleValue(value);
+  base::Value* new_value = new base::FundamentalValue(value);
   if (RemoveInternal(index))
     mutable_value()->Insert(index, new_value);
   else
@@ -759,7 +759,7 @@ bool CefListValueImpl::SetDouble(int index, double value) {
 
 bool CefListValueImpl::SetString(int index, const CefString& value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
-  base::Value* new_value = base::Value::CreateStringValue(value.ToString());
+  base::Value* new_value = new base::StringValue(value.ToString());
   if (RemoveInternal(index))
     mutable_value()->Insert(index, new_value);
   else

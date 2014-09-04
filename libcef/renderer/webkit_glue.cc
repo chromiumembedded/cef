@@ -78,7 +78,7 @@ std::string DumpDocumentText(blink::WebFrame* frame) {
 }
 
 bool SetNodeValue(blink::WebNode& node, const blink::WebString& value) {
-  WebCore::Node* web_node = node.unwrap<WebCore::Node>();
+  blink::Node* web_node = node.unwrap<blink::Node>();
   web_node->setNodeValue(value);
   return true;
 }

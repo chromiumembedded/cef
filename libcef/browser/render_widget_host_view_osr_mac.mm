@@ -10,7 +10,8 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/text_input_client_osr_mac.h"
 
-#include "content/browser/compositor/browser_compositor_view_private_mac.h"
+#include "content/browser/compositor/browser_compositor_view_mac.h"
+#include "ui/events/latency_info.h"
 
 #if !defined(UNUSED)
 #define UNUSED(x)	((void)(x))	/* to avoid warnings */
@@ -84,6 +85,30 @@ void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
   client->markedRange_ = range.ToNSRange();
   client->composition_range_ = range;
   client->composition_bounds_ = character_bounds;
+}
+
+bool CefRenderWidgetHostViewOSR::BrowserCompositorViewShouldAckImmediately()
+    const {
+  return false;
+}
+
+void CefRenderWidgetHostViewOSR::BrowserCompositorViewFrameSwapped(
+    const std::vector<ui::LatencyInfo>& all_latency_info) {
+  if (!render_widget_host_)
+    return;
+  for (auto latency_info : all_latency_info) {
+    latency_info.AddLatencyNumber(
+        ui::INPUT_EVENT_LATENCY_TERMINATED_FRAME_SWAP_COMPONENT, 0, 0);
+    render_widget_host_->FrameSwapped(latency_info);
+  }
+}
+
+NSView* CefRenderWidgetHostViewOSR::BrowserCompositorSuperview() {
+  return [window_ contentView];
+}
+
+ui::Layer* CefRenderWidgetHostViewOSR::BrowserCompositorRootLayer() {
+  return root_layer_.get();
 }
 
 CefTextInputContext CefRenderWidgetHostViewOSR::GetNSTextInputContext() {
@@ -260,21 +285,30 @@ void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
                                         styleMask:NSBorderlessWindowMask
                                           backing:NSBackingStoreBuffered
                                             defer:NO];
-  BrowserCompositorViewCocoa* view = [[BrowserCompositorViewCocoa alloc] init];
-  [window_ setContentView:view];
-  compositor_.reset([view compositor]);
+
+  // Create a CALayer which is used by BrowserCompositorViewMac for rendering.
+  background_layer_ = [[[CALayer alloc] init] retain];
+  [background_layer_ setBackgroundColor:CGColorGetConstantColor(kCGColorClear)];
+  NSView* content_view = [window_ contentView];
+  [content_view setLayer:background_layer_];
+  [content_view setWantsLayer:YES];
+
+  compositor_view_.reset(new content::BrowserCompositorViewMac(this));
+  compositor_.reset(compositor_view_->GetCompositor());
   DCHECK(compositor_);
-  compositor_widget_ = view;
 }
 
 void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {
   DCHECK(window_);
 
-  // Compositor is owned by and will be freed by BrowserCompositorViewCocoa.
+  // Compositor is owned by and will be freed by BrowserCompositorViewMac.
   ui::Compositor* compositor = compositor_.release();
   UNUSED(compositor);
 
   [window_ close];
   window_ = nil;
-  compositor_widget_ = gfx::kNullAcceleratedWidget;
+  [background_layer_ release];
+  background_layer_ = nil;
+
+  compositor_view_.reset(NULL);
 }

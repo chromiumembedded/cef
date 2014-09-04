@@ -9,10 +9,11 @@
 #include "libcef/browser/request_context_impl.h"
 
 #include "base/command_line.h"
+#include "base/json/json_reader.h"
 #include "base/path_service.h"
+#include "base/strings/string_number_conversions.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/devtools_http_handler.h"
-#include "content/public/browser/devtools_manager.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
@@ -44,7 +45,7 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
   CefDevToolsFrontend* devtools_frontend = new CefDevToolsFrontend(
       static_cast<CefBrowserHostImpl*>(frontend_browser.get()),
       content::DevToolsAgentHost::GetOrCreateFor(
-          inspected_browser->GetWebContents()->GetRenderViewHost()).get());
+          inspected_browser->GetWebContents()).get());
 
   // Need to load the URL after creating the DevTools objects.
   CefDevToolsDelegate* delegate =
@@ -75,9 +76,6 @@ CefDevToolsFrontend::CefDevToolsFrontend(
     : WebContentsObserver(frontend_browser->GetWebContents()),
       frontend_browser_(frontend_browser),
       agent_host_(agent_host) {
-  frontend_host_.reset(
-      content::DevToolsClientHost::CreateDevToolsFrontendHost(
-          web_contents(), this));
 }
 
 CefDevToolsFrontend::~CefDevToolsFrontend() {
@@ -85,10 +83,11 @@ CefDevToolsFrontend::~CefDevToolsFrontend() {
 
 void CefDevToolsFrontend::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
-  content::DevToolsClientHost::SetupDevToolsFrontendClient(
-      web_contents()->GetRenderViewHost());
-  content::DevToolsManager::GetInstance()->RegisterDevToolsClientHostFor(
-      agent_host_.get(), frontend_host_.get());
+  if (!frontend_host_) {
+    frontend_host_.reset(
+        content::DevToolsFrontendHost::Create(render_view_host, this));
+    agent_host_->AttachClient(this);
+  }
 }
 
 void CefDevToolsFrontend::DocumentOnLoadCompletedInMainFrame() {
@@ -97,11 +96,58 @@ void CefDevToolsFrontend::DocumentOnLoadCompletedInMainFrame() {
 }
 
 void CefDevToolsFrontend::WebContentsDestroyed() {
-  content::DevToolsManager::GetInstance()->ClientHostClosing(
-      frontend_host_.get());
+  agent_host_->DetachClient();
   delete this;
 }
 
-void CefDevToolsFrontend::InspectedContentsClosing() {
+void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
+    const std::string& message) {
+  std::string method;
+  std::string browser_message;
+  int id = 0;
+
+  base::ListValue* params = NULL;
+  base::DictionaryValue* dict = NULL;
+  scoped_ptr<base::Value> parsed_message(base::JSONReader::Read(message));
+  if (!parsed_message ||
+      !parsed_message->GetAsDictionary(&dict) ||
+      !dict->GetString("method", &method) ||
+      !dict->GetList("params", &params)) {
+    return;
+  }
+
+  if (method != "sendMessageToBrowser" ||
+      params->GetSize() != 1 ||
+      !params->GetString(0, &browser_message)) {
+    return;
+  }
+  dict->GetInteger("id", &id);
+
+  agent_host_->DispatchProtocolMessage(browser_message);
+
+  if (id) {
+    std::string code = "InspectorFrontendAPI.embedderMessageAck(" +
+        base::IntToString(id) + ",\"\");";
+    base::string16 javascript = base::UTF8ToUTF16(code);
+    web_contents()->GetMainFrame()->ExecuteJavaScript(javascript);
+  }
+}
+
+void CefDevToolsFrontend::HandleMessageFromDevToolsFrontendToBackend(
+    const std::string& message) {
+  agent_host_->DispatchProtocolMessage(message);
+}
+
+void CefDevToolsFrontend::DispatchProtocolMessage(
+    content::DevToolsAgentHost* agent_host,
+    const std::string& message) {
+  std::string code = "InspectorFrontendAPI.dispatchMessage(" + message + ");";
+  base::string16 javascript = base::UTF8ToUTF16(code);
+  web_contents()->GetMainFrame()->ExecuteJavaScript(javascript);
+}
+
+void CefDevToolsFrontend::AgentHostClosed(
+    content::DevToolsAgentHost* agent_host,
+    bool replaced) {
   Close();
 }

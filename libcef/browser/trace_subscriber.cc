@@ -41,7 +41,9 @@ bool CefTraceSubscriber::BeginTracing(
     done_callback = base::Bind(&CefCompletionCallback::OnComplete, callback);
 
   TracingController::GetInstance()->EnableRecording(
-      categories, TracingController::DEFAULT_OPTIONS, done_callback);
+      base::debug::CategoryFilter(categories),
+      base::debug::TraceOptions(),
+      done_callback);
   return true;
 }
 

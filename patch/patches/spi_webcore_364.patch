@@ -1,8 +1,8 @@
-Index: core/frame/FrameView.cpp
-===================================================================
---- core/frame/FrameView.cpp	(revision 177271)
-+++ core/frame/FrameView.cpp	(working copy)
-@@ -139,8 +139,10 @@
+diff --git core/frame/FrameView.cpp core/frame/FrameView.cpp
+index 5d42bda..70e70a6 100644
+--- core/frame/FrameView.cpp
++++ core/frame/FrameView.cpp
+@@ -126,8 +126,10 @@ FrameView::FrameView(LocalFrame* frame)
      if (!m_frame->isMainFrame())
          return;
  
@@ -13,11 +13,11 @@ Index: core/frame/FrameView.cpp
  }
  
  PassRefPtr<FrameView> FrameView::create(LocalFrame* frame)
-Index: platform/scroll/ScrollbarThemeMacCommon.mm
-===================================================================
---- platform/scroll/ScrollbarThemeMacCommon.mm	(revision 177271)
-+++ platform/scroll/ScrollbarThemeMacCommon.mm	(working copy)
-@@ -355,10 +355,14 @@
+diff --git platform/scroll/ScrollbarThemeMacCommon.mm platform/scroll/ScrollbarThemeMacCommon.mm
+index 309e1e3..b40a19a 100644
+--- platform/scroll/ScrollbarThemeMacCommon.mm
++++ platform/scroll/ScrollbarThemeMacCommon.mm
+@@ -355,10 +355,14 @@ NSScrollerStyle ScrollbarThemeMacCommon::recommendedScrollerStyle()
  // static
  bool ScrollbarThemeMacCommon::isOverlayAPIAvailable()
  {
@@ -31,4 +31,4 @@ Index: platform/scroll/ScrollbarThemeMacCommon.mm
 +#endif
  }
  
- } // namespace WebCore
+ } // namespace blink

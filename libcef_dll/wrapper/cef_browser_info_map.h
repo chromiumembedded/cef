@@ -111,7 +111,7 @@ class CefBrowserInfoMap {
     if (browser_info_map_.empty())
       return;
 
-    bool remove, keepgoing;
+    bool remove, keepgoing = true;
 
     typename BrowserInfoMap::iterator it_browser = browser_info_map_.begin();
     while (it_browser != browser_info_map_.end()) {

@@ -123,12 +123,18 @@ content::BrowserPluginGuestManager* CefBrowserContextImpl::GetGuestManager() {
   return NULL;
 }
 
-quota::SpecialStoragePolicy* CefBrowserContextImpl::GetSpecialStoragePolicy() {
+storage::SpecialStoragePolicy*
+    CefBrowserContextImpl::GetSpecialStoragePolicy() {
   return NULL;
 }
 
 content::PushMessagingService*
     CefBrowserContextImpl::GetPushMessagingService() {
+  return NULL;
+}
+
+content::SSLHostStateDelegate*
+    CefBrowserContextImpl::GetSSLHostStateDelegate() {
   return NULL;
 }
 

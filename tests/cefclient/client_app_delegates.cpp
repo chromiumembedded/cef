@@ -4,7 +4,6 @@
 
 #include "cefclient/client_app.h"
 #include "cefclient/client_renderer.h"
-#include "cefclient/dom_test.h"
 #include "cefclient/performance_test.h"
 #include "cefclient/scheme_test.h"
 
@@ -19,7 +18,6 @@ void ClientApp::CreateBrowserDelegates(BrowserDelegateSet& delegates) {
 // static
 void ClientApp::CreateRenderDelegates(RenderDelegateSet& delegates) {
   client_renderer::CreateRenderDelegates(delegates);
-  dom_test::CreateRenderDelegates(delegates);
   performance_test::CreateRenderDelegates(delegates);
 }
 

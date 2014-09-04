@@ -1,7 +1,7 @@
-Index: resource_ids
-===================================================================
---- resource_ids	(revision 280796)
-+++ resource_ids	(working copy)
+diff --git resource_ids resource_ids
+index 3b8768e..cde0ceb 100644
+--- resource_ids
++++ resource_ids
 @@ -16,6 +16,12 @@
  {
    "SRCDIR": "../..",

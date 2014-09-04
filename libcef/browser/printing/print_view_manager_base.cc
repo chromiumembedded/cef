@@ -18,13 +18,13 @@
 #include "chrome/browser/printing/printer_query.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/print_messages.h"
+#include "chrome/grit/generated_resources.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
-#include "grit/generated_resources.h"
 #include "printing/metafile_impl.h"
 #include "printing/printed_document.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -57,7 +57,7 @@ PrintViewManagerBase::PrintViewManagerBase(content::WebContents* web_contents)
       inside_inner_message_loop_(false),
       cookie_(0),
       queue_(g_browser_process->print_job_manager()->queue()) {
-  DCHECK(queue_);
+  DCHECK(queue_.get());
 #if (defined(OS_POSIX) && !defined(OS_MACOSX)) || \
     defined(WIN_PDF_METAFILE_FOR_PRINTING)
   expecting_first_page_ = true;
@@ -128,6 +128,9 @@ void PrintViewManagerBase::OnPdfToEmfConverted(
     const PrintHostMsg_DidPrintPage_Params& params,
     double scale_factor,
     const std::vector<base::FilePath>& emf_files) {
+  if (!print_job_.get())
+    return;
+
   PrintedDocument* document = print_job_->document();
   if (!document)
     return;
@@ -526,12 +529,12 @@ bool PrintViewManagerBase::OpportunisticallyCreatePrintJob(int cookie) {
   // The job was initiated by a script. Time to get the corresponding worker
   // thread.
   scoped_refptr<PrinterQuery> queued_query = queue_->PopPrinterQuery(cookie);
-  if (!queued_query) {
+  if (!queued_query.get()) {
     NOTREACHED();
     return false;
   }
 
-  if (!CreateNewPrintJob(queued_query)) {
+  if (!CreateNewPrintJob(queued_query.get())) {
     // Don't kill anything.
     return false;
   }
@@ -568,7 +571,7 @@ void PrintViewManagerBase::ReleasePrinterQuery() {
 
   scoped_refptr<printing::PrinterQuery> printer_query;
   printer_query = queue_->PopPrinterQuery(cookie);
-  if (!printer_query)
+  if (!printer_query.get())
     return;
   BrowserThread::PostTask(
       BrowserThread::IO, FROM_HERE,

@@ -7,8 +7,8 @@
 
 #include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
-#include "bindings/v8/V8Binding.h"
-#include "bindings/v8/V8RecursionScope.h"
+#include "bindings/core/v8/V8Binding.h"
+#include "bindings/core/v8/V8RecursionScope.h"
 MSVC_POP_WARNING();
 #undef ceil
 #undef FROM_HERE
@@ -37,8 +37,9 @@ MSVC_POP_WARNING();
 #include "base/strings/utf_string_conversions.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
-#include "chrome/renderer/pepper/ppb_pdf_impl.h"
+#include "chrome/renderer/pepper/chrome_pdf_print_client.h"
 #include "chrome/renderer/printing/print_web_view_helper.h"
+#include "components/pdf/renderer/ppb_pdf_impl.h"
 #include "content/child/child_thread.h"
 #include "content/child/worker_task_runner.h"
 #include "content/common/frame_messages.h"
@@ -65,7 +66,6 @@ MSVC_POP_WARNING();
 #include "third_party/WebKit/public/web/WebRuntimeFeatures.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "third_party/WebKit/public/web/WebView.h"
-#include "third_party/WebKit/public/web/WebWorkerInfo.h"
 #include "v8/include/v8.h"
 
 #if defined(OS_WIN)
@@ -468,6 +468,9 @@ void CefContentRendererClient::RenderThreadStarted() {
   // Cross-origin entries need to be added after WebKit is initialized.
   cross_origin_whitelist_entries_ = params.cross_origin_whitelist_entries;
 
+  pdf_print_client_.reset(new ChromePDFPrintClient());
+  pdf::PPB_PDF_Impl::SetPrintClient(pdf_print_client_.get());
+
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();
   if (application.get()) {
@@ -650,9 +653,9 @@ void CefContentRendererClient::DidCreateScriptContext(
   v8::Isolate* isolate = blink::mainThreadIsolate();
   v8::HandleScope handle_scope(isolate);
   v8::Context::Scope scope(context);
-  WebCore::V8RecursionScope recursion_scope(
+  blink::V8RecursionScope recursion_scope(
       isolate,
-      WebCore::toExecutionContext(context));
+      blink::toExecutionContext(context));
 
   CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(isolate, context));
 
@@ -671,7 +674,7 @@ const void* CefContentRendererClient::CreatePPAPIInterface(
 #if defined(ENABLE_PLUGINS)
   // Used for in-process PDF plugin.
   if (interface_name == PPB_PDF_INTERFACE)
-    return PPB_PDF_Impl::GetInterface();
+    return pdf::PPB_PDF_Impl::GetInterface();
 #endif
   return NULL;
 }
@@ -693,9 +696,9 @@ void CefContentRendererClient::WillReleaseScriptContext(
         v8::Isolate* isolate = blink::mainThreadIsolate();
         v8::HandleScope handle_scope(isolate);
         v8::Context::Scope scope(context);
-        WebCore::V8RecursionScope recursion_scope(
+        blink::V8RecursionScope recursion_scope(
             isolate,
-            WebCore::toExecutionContext(context));
+            blink::toExecutionContext(context));
 
         CefRefPtr<CefV8Context> contextPtr(
             new CefV8ContextImpl(isolate, context));
@@ -746,7 +749,7 @@ void CefContentRendererClient::BrowserCreated(
   browsers_.insert(std::make_pair(render_view, browser));
 
   new CefPrerendererClient(render_view);
-  new printing::PrintWebViewHelper(render_view);
+  new printing::PrintWebViewHelper(render_view, false, false);
 
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();

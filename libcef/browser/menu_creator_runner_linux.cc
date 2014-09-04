@@ -22,7 +22,8 @@ CefMenuCreatorRunnerLinux::~CefMenuCreatorRunnerLinux() {
 }
 
 bool CefMenuCreatorRunnerLinux::RunContextMenu(CefMenuCreator* manager) {
-  menu_.reset(new views::MenuRunner(manager->model()));
+  menu_.reset(
+      new views::MenuRunner(manager->model(), views::MenuRunner::CONTEXT_MENU));
 
   gfx::Point screen_point;
 
@@ -57,8 +58,7 @@ bool CefMenuCreatorRunnerLinux::RunContextMenu(CefMenuCreator* manager) {
       menu_->RunMenuAt(manager->browser()->window_widget(),
                        NULL, gfx::Rect(screen_point, gfx::Size()),
                        views::MENU_ANCHOR_TOPRIGHT,
-                       ui::MENU_SOURCE_NONE,
-                       views::MenuRunner::CONTEXT_MENU);
+                       ui::MENU_SOURCE_NONE);
   UNUSED(result);
 
   return true;
@@ -74,4 +74,3 @@ bool CefMenuCreatorRunnerLinux::FormatLabel(base::string16& label) {
   const char16 replace[] = {L'&', 0};
   return base::ReplaceChars(label, replace, base::string16(), &label);
 }
-

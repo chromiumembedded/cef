@@ -6,7 +6,6 @@
 #include "libcef/common/tracker.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/dom_document_impl.h"
-#include "libcef/renderer/dom_event_impl.h"
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/webkit_glue.h"
 
@@ -16,7 +15,6 @@
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebDOMEvent.h"
-#include "third_party/WebKit/public/web/WebDOMEventListener.h"
 #include "third_party/WebKit/public/web/WebElement.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebFormControlElement.h"
@@ -26,7 +24,6 @@
 
 using blink::WebDocument;
 using blink::WebDOMEvent;
-using blink::WebDOMEventListener;
 using blink::WebElement;
 using blink::WebFrame;
 using blink::WebFormControlElement;
@@ -34,55 +31,6 @@ using blink::WebInputElement;
 using blink::WebNode;
 using blink::WebSelectElement;
 using blink::WebString;
-
-namespace {
-
-// Wrapper implementation for WebDOMEventListener.
-class CefDOMEventListenerWrapper : public WebDOMEventListener,
-                                   public CefTrackNode {
- public:
-  CefDOMEventListenerWrapper(CefBrowserImpl* browser, WebFrame* frame,
-                             CefRefPtr<CefDOMEventListener> listener)
-    : browser_(browser),
-      frame_(frame),
-      listener_(listener) {
-    // Cause this object to be deleted immediately before the frame is closed.
-    browser->AddFrameObject(webkit_glue::GetIdentifier(frame), this);
-  }
-  virtual ~CefDOMEventListenerWrapper() {
-    CEF_REQUIRE_RT();
-  }
-
-  virtual void handleEvent(const WebDOMEvent& event) {
-    CefRefPtr<CefDOMDocumentImpl> documentImpl;
-    CefRefPtr<CefDOMEventImpl> eventImpl;
-
-    if (!event.isNull()) {
-      // Create CefDOMDocumentImpl and CefDOMEventImpl objects that are valid
-      // only for the scope of this method.
-      const WebDocument& document = frame_->document();
-      if (!document.isNull()) {
-        documentImpl = new CefDOMDocumentImpl(browser_, frame_);
-        eventImpl = new CefDOMEventImpl(documentImpl, event);
-      }
-    }
-
-    listener_->HandleEvent(eventImpl.get());
-
-    if (eventImpl.get())
-      eventImpl->Detach();
-    if (documentImpl.get())
-      documentImpl->Detach();
-  }
-
- protected:
-  CefBrowserImpl* browser_;
-  WebFrame* frame_;
-  CefRefPtr<CefDOMEventListener> listener_;
-};
-
-}  // namespace
-
 
 CefDOMNodeImpl::CefDOMNodeImpl(CefRefPtr<CefDOMDocumentImpl> document,
                                const blink::WebNode& node)
@@ -329,18 +277,6 @@ CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetLastChild() {
     return NULL;
 
   return document_->GetOrCreateNode(node_.lastChild());
-}
-
-void CefDOMNodeImpl::AddEventListener(const CefString& eventType,
-                                      CefRefPtr<CefDOMEventListener> listener,
-                                      bool useCapture) {
-  if (!VerifyContext())
-    return;
-
-  node_.addEventListener(base::string16(eventType),
-      new CefDOMEventListenerWrapper(document_->GetBrowser(),
-          document_->GetFrame(), listener),
-      useCapture);
 }
 
 CefString CefDOMNodeImpl::GetElementTagName() {

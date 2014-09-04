@@ -50,8 +50,6 @@ class CefDOMNodeCToCpp
   virtual bool HasChildren() OVERRIDE;
   virtual CefRefPtr<CefDOMNode> GetFirstChild() OVERRIDE;
   virtual CefRefPtr<CefDOMNode> GetLastChild() OVERRIDE;
-  virtual void AddEventListener(const CefString& eventType,
-      CefRefPtr<CefDOMEventListener> listener, bool useCapture) OVERRIDE;
   virtual CefString GetElementTagName() OVERRIDE;
   virtual bool HasElementAttributes() OVERRIDE;
   virtual bool HasElementAttribute(const CefString& attrName) OVERRIDE;

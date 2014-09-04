@@ -24,7 +24,6 @@
 #include "net/base/net_module.h"
 #include "net/proxy/proxy_resolver_v8.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "v8/include/v8.h"
 
 #if defined(USE_AURA)
 #include "ui/aura/env.h"
@@ -47,8 +46,7 @@
 
 CefBrowserMainParts::CefBrowserMainParts(
     const content::MainFunctionParams& parameters)
-    : BrowserMainParts(),
-      proxy_v8_isolate_(NULL) {
+    : BrowserMainParts() {
 }
 
 CefBrowserMainParts::~CefBrowserMainParts() {
@@ -114,12 +112,6 @@ int CefBrowserMainParts::PreCreateThreads() {
   pref_store_->SetInitializationCompleted();
   pref_service_ = pref_store_->CreateService().Pass();
 
-  // Create a v8::Isolate for the current thread if it doesn't already exist.
-  if (!v8::Isolate::GetCurrent()) {
-    proxy_v8_isolate_ = v8::Isolate::New();
-    proxy_v8_isolate_->Enter();
-  }
-
   // Initialize the V8 proxy integration.
   net::ProxyResolverV8::EnsureIsolateCreated();
 
@@ -174,11 +166,6 @@ void CefBrowserMainParts::PostMainMessageLoopRun() {
 
 void CefBrowserMainParts::PostDestroyThreads() {
   pref_proxy_config_tracker_.reset(NULL);
-
-  if (proxy_v8_isolate_) {
-    proxy_v8_isolate_->Exit();
-    proxy_v8_isolate_->Dispose();
-  }
 
 #if defined(USE_AURA)
   aura::Env::DeleteInstance();

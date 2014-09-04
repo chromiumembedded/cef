@@ -27,10 +27,6 @@ namespace content {
 struct MainFunctionParams;
 }
 
-namespace v8 {
-class Isolate;
-}
-
 class CefBrowserContext;
 class CefDevToolsDelegate;
 
@@ -78,7 +74,6 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   scoped_ptr<net::ProxyConfigService> proxy_config_service_;
   scoped_refptr<CefBrowserPrefStore> pref_store_;
   scoped_ptr<PrefService> pref_service_;
-  v8::Isolate* proxy_v8_isolate_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserMainParts);
 };

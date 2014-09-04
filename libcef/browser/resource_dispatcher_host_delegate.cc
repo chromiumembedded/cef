@@ -62,12 +62,10 @@ void CefResourceDispatcherHostDelegate::RequestBeginning(
     net::URLRequest* request,
     content::ResourceContext* resource_context,
     content::AppCacheService* appcache_service,
-    ResourceType::Type resource_type,
-    int child_id,
-    int route_id,
+    content::ResourceType resource_type,
     ScopedVector<content::ResourceThrottle>* throttles) {
-  if (resource_type == ResourceType::MAIN_FRAME ||
-      resource_type == ResourceType::SUB_FRAME) {
+  if (resource_type == content::ResourceType::RESOURCE_TYPE_MAIN_FRAME ||
+      resource_type == content::ResourceType::RESOURCE_TYPE_SUB_FRAME) {
     int64 frame_id = -1;
 
     // ResourceRequestInfo will not exist for requests originating from
@@ -94,8 +92,7 @@ void CefResourceDispatcherHostDelegate::RequestBeginning(
 bool CefResourceDispatcherHostDelegate::HandleExternalProtocol(
     const GURL& url,
     int child_id,
-    int route_id,
-    bool initiated_by_user_gesture) {
+    int route_id) {
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForView(child_id, route_id);
   if (browser.get())

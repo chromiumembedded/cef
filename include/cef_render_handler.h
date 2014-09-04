@@ -159,12 +159,6 @@ class CefRenderHandler : public virtual CefBase {
   /*--cef()--*/
   virtual void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
                                 DragOperation operation) {}
-
-  ///
-  // Called when the scroll offset has changed.
-  ///
-  /*--cef()--*/
-  virtual void OnScrollOffsetChanged(CefRefPtr<CefBrowser> browser) {}
 };
 
 #endif  // CEF_INCLUDE_CEF_RENDER_HANDLER_H_

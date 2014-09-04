@@ -49,8 +49,9 @@ class CefBrowserContextProxy : public CefBrowserContext {
           bool in_memory) OVERRIDE;
   virtual content::ResourceContext* GetResourceContext() OVERRIDE;
   virtual content::BrowserPluginGuestManager* GetGuestManager() OVERRIDE;
-  virtual quota::SpecialStoragePolicy* GetSpecialStoragePolicy() OVERRIDE;
+  virtual storage::SpecialStoragePolicy* GetSpecialStoragePolicy() OVERRIDE;
   virtual content::PushMessagingService* GetPushMessagingService() OVERRIDE;
+  virtual content::SSLHostStateDelegate* GetSSLHostStateDelegate() OVERRIDE;
 
   // CefBrowserContext methods.
   virtual net::URLRequestContextGetter* CreateRequestContext(

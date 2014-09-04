@@ -42,17 +42,16 @@
 #define IDC_STATIC                      -1
 #define IDS_BINDING                     1000
 #define IDS_DIALOGS                     1001
-#define IDS_DOMACCESS                   1002
-#define IDS_LOCALSTORAGE                1003
-#define IDS_LOGO                        1004
-#define IDS_LOGOBALL                    1005
-#define IDS_OSRTEST                     1006
-#define IDS_OTHER_TESTS                 1007
-#define IDS_PERFORMANCE                 1008
-#define IDS_TRANSPARENCY                1009
-#define IDS_WINDOW                      1010
-#define IDS_XMLHTTPREQUEST              1011
-#define IDS_PERFORMANCE2                1012
+#define IDS_LOCALSTORAGE                1002
+#define IDS_LOGO                        1003
+#define IDS_LOGOBALL                    1004
+#define IDS_OSRTEST                     1005
+#define IDS_OTHER_TESTS                 1006
+#define IDS_PERFORMANCE                 1007
+#define IDS_TRANSPARENCY                1008
+#define IDS_WINDOW                      1009
+#define IDS_XMLHTTPREQUEST              1010
+#define IDS_PERFORMANCE2                1011
 
 // Avoid files associated with MacOS
 #define _X86_

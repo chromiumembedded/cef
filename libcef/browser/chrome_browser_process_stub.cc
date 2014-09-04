@@ -30,7 +30,7 @@ MetricsServicesManager* ChromeBrowserProcessStub::GetMetricsServicesManager() {
   return NULL;
 }
 
-MetricsService* ChromeBrowserProcessStub::metrics_service() {
+metrics::MetricsService* ChromeBrowserProcessStub::metrics_service() {
   NOTIMPLEMENTED();
   return NULL;
 }

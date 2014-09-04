@@ -68,6 +68,10 @@ class CefRootLayer : public ui::Layer, public ui::LayerDelegate {
   virtual void OnPaintLayer(gfx::Canvas* canvas) OVERRIDE {
   }
 
+  virtual void OnDelegatedFrameDamage(
+      const gfx::Rect& damage_rect_in_dip) OVERRIDE {
+  }
+
   virtual void OnDeviceScaleFactorChanged(float device_scale_factor) OVERRIDE {
   }
 
@@ -172,7 +176,9 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 #if !defined(OS_MACOSX)
   // On OS X the ui::Compositor is created/owned by the platform view.
   compositor_.reset(
-      new ui::Compositor(compositor_widget_, content::GetContextFactory()));
+      new ui::Compositor(compositor_widget_,
+                         content::GetContextFactory(),
+                         base::MessageLoopProxy::current()));
 #endif
   compositor_->SetRootLayer(root_layer_.get());
 
@@ -185,9 +191,16 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 }
 
 CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
+  // Marking the DelegatedFrameHost as removed from the window hierarchy is
+  // necessary to remove all connections to its old ui::Compositor.
+  if (is_showing_)
+    delegated_frame_host_->WasHidden();
+  delegated_frame_host_->RemovingFromWindow();
+
+  PlatformDestroyCompositorWidget();
+
   delegated_frame_host_.reset(NULL);
   compositor_.reset(NULL);
-  PlatformDestroyCompositorWidget();
   root_layer_.reset(NULL);
 }
 
@@ -341,9 +354,9 @@ void CefRenderWidgetHostViewOSR::WasShown() {
 
   is_showing_ = true;
   if (render_widget_host_)
-    render_widget_host_->WasShown();
+    render_widget_host_->WasShown(ui::LatencyInfo());
   delegated_frame_host_->AddedToWindow();
-  delegated_frame_host_->WasShown();
+  delegated_frame_host_->WasShown(ui::LatencyInfo());
 }
 
 void CefRenderWidgetHostViewOSR::WasHidden() {
@@ -472,21 +485,13 @@ void CefRenderWidgetHostViewOSR::SelectionBoundsChanged(
     const ViewHostMsg_SelectionBounds_Params& params) {
 }
 
-void CefRenderWidgetHostViewOSR::ScrollOffsetChanged() {
-  if (!browser_impl_)
-    return;
-
-  browser_impl_->GetClient()->GetRenderHandler()->
-      OnScrollOffsetChanged(browser_impl_.get());
-}
-
 void CefRenderWidgetHostViewOSR::CopyFromCompositingSurface(
     const gfx::Rect& src_subrect,
     const gfx::Size& dst_size,
     const base::Callback<void(bool, const SkBitmap&)>& callback,
-    const SkBitmap::Config config) {
+    const SkColorType color_type) {
   delegated_frame_host_->CopyFromCompositingSurface(
-      src_subrect, dst_size, callback, config);
+      src_subrect, dst_size, callback, color_type);
 }
 
 void CefRenderWidgetHostViewOSR::CopyFromCompositingSurfaceToVideoFrame(
@@ -596,6 +601,12 @@ gfx::GLSurfaceHandle CefRenderWidgetHostViewOSR::GetCompositingSurface() {
       GetSharedSurfaceHandle();
 }
 
+content::BrowserAccessibilityManager*
+    CefRenderWidgetHostViewOSR::CreateBrowserAccessibilityManager(
+        content::BrowserAccessibilityDelegate* delegate) {
+  return NULL;
+}
+
 #if !defined(OS_MACOSX) && defined(USE_AURA)
 void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
     const gfx::Range& range,
@@ -613,11 +624,6 @@ ui::Layer* CefRenderWidgetHostViewOSR::GetLayer() {
 
 content::RenderWidgetHostImpl* CefRenderWidgetHostViewOSR::GetHost() {
   return render_widget_host_;
-}
-
-void CefRenderWidgetHostViewOSR::SchedulePaintInRect(
-    const gfx::Rect& damage_rect_in_dip) {
-  root_layer_->SchedulePaint(damage_rect_in_dip);
 }
 
 bool CefRenderWidgetHostViewOSR::IsVisible() {
@@ -909,13 +915,11 @@ void CefRenderWidgetHostViewOSR::PrepareTextureCopyOutputResult(
       bitmap_size.height() != result_size.height()) {
     // Create a new bitmap if the size has changed.
     bitmap_.reset(new SkBitmap);
-    bitmap_->setConfig(SkBitmap::kARGB_8888_Config,
-                       result_size.width(),
-                       result_size.height(),
-                       0,
-                       kOpaque_SkAlphaType);
-    if (!bitmap_->allocPixels())
+    if (!bitmap_->allocN32Pixels(result_size.width(),
+                                 result_size.height(),
+                                 true)) {
       return;
+    }
   }
 
   content::ImageTransportFactory* factory =
@@ -944,7 +948,7 @@ void CefRenderWidgetHostViewOSR::PrepareTextureCopyOutputResult(
       gfx::Rect(result_size),
       result_size,
       pixels,
-      SkBitmap::kARGB_8888_Config,
+      kN32_SkColorType,
       base::Bind(
           &CefRenderWidgetHostViewOSR::CopyFromCompositingSurfaceFinishedProxy,
           weak_ptr_factory_.GetWeakPtr(),

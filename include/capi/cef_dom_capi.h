@@ -45,7 +45,6 @@ extern "C" {
 #endif
 
 struct _cef_domdocument_t;
-struct _cef_domevent_listener_t;
 struct _cef_domnode_t;
 
 ///
@@ -297,20 +296,6 @@ typedef struct _cef_domnode_t {
   struct _cef_domnode_t* (CEF_CALLBACK *get_last_child)(
       struct _cef_domnode_t* self);
 
-  ///
-  // Add an event listener to this node for the specified event type. If
-  // |useCapture| is true (1) then this listener will be considered a capturing
-  // listener. Capturing listeners will recieve all events of the specified type
-  // before the events are dispatched to any other event targets beneath the
-  // current node in the tree. Events which are bubbling upwards through the
-  // tree will not trigger a capturing listener. Separate calls to this function
-  // can be used to register the same listener with and without capture. See
-  // WebCore/dom/EventNames.h for the list of supported event types.
-  ///
-  void (CEF_CALLBACK *add_event_listener)(struct _cef_domnode_t* self,
-      const cef_string_t* eventType, struct _cef_domevent_listener_t* listener,
-      int useCapture);
-
 
   // The following functions are valid only for element nodes.
 
@@ -359,85 +344,6 @@ typedef struct _cef_domnode_t {
   cef_string_userfree_t (CEF_CALLBACK *get_element_inner_text)(
       struct _cef_domnode_t* self);
 } cef_domnode_t;
-
-
-///
-// Structure used to represent a DOM event. The functions of this structure
-// should only be called on the render process main thread.
-///
-typedef struct _cef_domevent_t {
-  ///
-  // Base structure.
-  ///
-  cef_base_t base;
-
-  ///
-  // Returns the event type.
-  ///
-  // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_type)(struct _cef_domevent_t* self);
-
-  ///
-  // Returns the event category.
-  ///
-  cef_dom_event_category_t (CEF_CALLBACK *get_category)(
-      struct _cef_domevent_t* self);
-
-  ///
-  // Returns the event processing phase.
-  ///
-  cef_dom_event_phase_t (CEF_CALLBACK *get_phase)(struct _cef_domevent_t* self);
-
-  ///
-  // Returns true (1) if the event can bubble up the tree.
-  ///
-  int (CEF_CALLBACK *can_bubble)(struct _cef_domevent_t* self);
-
-  ///
-  // Returns true (1) if the event can be canceled.
-  ///
-  int (CEF_CALLBACK *can_cancel)(struct _cef_domevent_t* self);
-
-  ///
-  // Returns the document associated with this event.
-  ///
-  struct _cef_domdocument_t* (CEF_CALLBACK *get_document)(
-      struct _cef_domevent_t* self);
-
-  ///
-  // Returns the target of the event.
-  ///
-  struct _cef_domnode_t* (CEF_CALLBACK *get_target)(
-      struct _cef_domevent_t* self);
-
-  ///
-  // Returns the current target of the event.
-  ///
-  struct _cef_domnode_t* (CEF_CALLBACK *get_current_target)(
-      struct _cef_domevent_t* self);
-} cef_domevent_t;
-
-
-///
-// Structure to implement for handling DOM events. The functions of this
-// structure will be called on the render process main thread.
-///
-typedef struct _cef_domevent_listener_t {
-  ///
-  // Base structure.
-  ///
-  cef_base_t base;
-
-  ///
-  // Called when an event is received. The event object passed to this function
-  // contains a snapshot of the DOM at the time this function is executed. DOM
-  // objects are only valid for the scope of this function. Do not keep
-  // references to or attempt to access any DOM objects outside the scope of
-  // this function.
-  ///
-  void (CEF_CALLBACK *handle_event)(struct _cef_domevent_listener_t* self,
-      struct _cef_domevent_t* event);
-} cef_domevent_listener_t;
 
 
 #ifdef __cplusplus

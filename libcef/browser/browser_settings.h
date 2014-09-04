@@ -8,8 +8,11 @@
 
 #include "include/internal/cef_types_wrappers.h"
 
+namespace content {
 struct WebPreferences;
+}
 
-void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web);
+void BrowserToWebSettings(const CefBrowserSettings& cef,
+                          content::WebPreferences& web);
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_SETTINGS_H_

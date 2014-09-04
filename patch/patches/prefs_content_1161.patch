@@ -1,20 +1,44 @@
-Index: public/common/common_param_traits_macros.h
-===================================================================
---- public/common/common_param_traits_macros.h	(revision 280796)
-+++ public/common/common_param_traits_macros.h	(working copy)
-@@ -175,6 +175,7 @@
+diff --git public/common/common_param_traits_macros.h public/common/common_param_traits_macros.h
+index 56b23e4..04de1dc 100644
+--- public/common/common_param_traits_macros.h
++++ public/common/common_param_traits_macros.h
+@@ -172,6 +172,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+   IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
-   IPC_STRUCT_TRAITS_MEMBER(compositor_touch_hit_testing)
 +  IPC_STRUCT_TRAITS_MEMBER(base_background_color)
    IPC_STRUCT_TRAITS_MEMBER(cookie_enabled)
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
-Index: renderer/web_preferences.cc
-===================================================================
---- renderer/web_preferences.cc	(revision 280796)
-+++ renderer/web_preferences.cc	(working copy)
-@@ -167,6 +167,8 @@
+diff --git public/common/web_preferences.cc public/common/web_preferences.cc
+index d1e656d..b2ad9e8 100644
+--- public/common/web_preferences.cc
++++ public/common/web_preferences.cc
+@@ -135,6 +135,7 @@ WebPreferences::WebPreferences()
+       pinch_overlay_scrollbar_thickness(0),
+       use_solid_color_scrollbars(false),
+       navigate_on_drag_drop(true),
++      base_background_color(0xFFFFFFFF),  // Color::white
+       v8_cache_options(V8_CACHE_OPTIONS_OFF),
+       cookie_enabled(true),
+       pepper_accelerated_video_decode_enabled(false)
+diff --git public/common/web_preferences.h public/common/web_preferences.h
+index 496a347..3916026 100644
+--- public/common/web_preferences.h
++++ public/common/web_preferences.h
+@@ -141,6 +141,7 @@ struct CONTENT_EXPORT WebPreferences {
+   int pinch_overlay_scrollbar_thickness;
+   bool use_solid_color_scrollbars;
+   bool navigate_on_drag_drop;
++  uint32_t base_background_color;
+   V8CacheOptions v8_cache_options;
+ 
+   // This flags corresponds to a Page's Settings' setCookieEnabled state. It
+diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
+index 743d8db..617ddf4 100644
+--- renderer/render_view_impl.cc
++++ renderer/render_view_impl.cc
+@@ -969,6 +969,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
  
    settings->setJavaEnabled(prefs.java_enabled);
  

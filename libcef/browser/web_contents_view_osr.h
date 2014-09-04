@@ -48,11 +48,8 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   virtual void SetOverscrollControllerEnabled(bool enabled) OVERRIDE;
 
 #if defined(OS_MACOSX)
-  virtual void SetAllowOverlappingViews(bool overlapping) OVERRIDE;
-  virtual bool GetAllowOverlappingViews() const OVERRIDE;
-  virtual void SetOverlayView(content::WebContentsView* overlay,
-                              const gfx::Point& offset) OVERRIDE;
-  virtual void RemoveOverlayView() OVERRIDE;
+  virtual void SetAllowOtherViews(bool allow) OVERRIDE;
+  virtual bool GetAllowOtherViews() const OVERRIDE;
   virtual bool IsEventTracking() const OVERRIDE;
   virtual void CloseTabAfterEventTracking() OVERRIDE;
 #endif

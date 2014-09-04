@@ -42,7 +42,6 @@
 #include <map>
 
 class CefDOMDocument;
-class CefDOMEventListener;
 class CefDOMNode;
 
 ///
@@ -291,22 +290,6 @@ class CefDOMNode : public virtual CefBase {
   /*--cef()--*/
   virtual CefRefPtr<CefDOMNode> GetLastChild() =0;
 
-  ///
-  // Add an event listener to this node for the specified event type. If
-  // |useCapture| is true then this listener will be considered a capturing
-  // listener. Capturing listeners will recieve all events of the specified
-  // type before the events are dispatched to any other event targets beneath
-  // the current node in the tree. Events which are bubbling upwards through
-  // the tree will not trigger a capturing listener. Separate calls to this
-  // method can be used to register the same listener with and without capture.
-  // See WebCore/dom/EventNames.h for the list of supported event types.
-  ///
-  /*--cef()--*/
-  virtual void AddEventListener(const CefString& eventType,
-                                CefRefPtr<CefDOMEventListener> listener,
-                                bool useCapture) =0;
-
-
   // The following methods are valid only for element nodes.
 
   ///
@@ -352,84 +335,6 @@ class CefDOMNode : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual CefString GetElementInnerText() =0;
-};
-
-
-///
-// Class used to represent a DOM event. The methods of this class should only
-// be called on the render process main thread.
-///
-/*--cef(source=library)--*/
-class CefDOMEvent : public virtual CefBase {
- public:
-  typedef cef_dom_event_category_t Category;
-  typedef cef_dom_event_phase_t Phase;
-
-  ///
-  // Returns the event type.
-  ///
-  /*--cef()--*/
-  virtual CefString GetType() =0;
-
-  ///
-  // Returns the event category.
-  ///
-  /*--cef(default_retval=DOM_EVENT_CATEGORY_UNKNOWN)--*/
-  virtual Category GetCategory() =0;
-
-  ///
-  // Returns the event processing phase.
-  ///
-  /*--cef(default_retval=DOM_EVENT_PHASE_UNKNOWN)--*/
-  virtual Phase GetPhase() =0;
-
-  ///
-  // Returns true if the event can bubble up the tree.
-  ///
-  /*--cef()--*/
-  virtual bool CanBubble() =0;
-
-  ///
-  // Returns true if the event can be canceled.
-  ///
-  /*--cef()--*/
-  virtual bool CanCancel() =0;
-
-  ///
-  // Returns the document associated with this event.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefDOMDocument> GetDocument() =0;
-
-  ///
-  // Returns the target of the event.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefDOMNode> GetTarget() =0;
-
-  ///
-  // Returns the current target of the event.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefDOMNode> GetCurrentTarget() =0;
-};
-
-
-///
-// Interface to implement for handling DOM events. The methods of this class
-// will be called on the render process main thread.
-///
-/*--cef(source=client)--*/
-class CefDOMEventListener : public virtual CefBase {
- public:
-  ///
-  // Called when an event is received. The event object passed to this method
-  // contains a snapshot of the DOM at the time this method is executed. DOM
-  // objects are only valid for the scope of this method. Do not keep references
-  // to or attempt to access any DOM objects outside the scope of this method.
-  ///
-  /*--cef()--*/
-  virtual void HandleEvent(CefRefPtr<CefDOMEvent> event) =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_DOM_H_

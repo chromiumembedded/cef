@@ -6,15 +6,15 @@
 
 #include <string>
 
+#include "include/internal/cef_types_wrappers.h"
 #include "libcef/common/cef_switches.h"
 
 #include "base/command_line.h"
-#include "include/internal/cef_types_wrappers.h"
-#include "webkit/common/webpreferences.h"
+#include "content/public/common/web_preferences.h"
 
 // Set default preferences based on CEF command-line flags. Chromium command-
 // line flags should not exist for these preferences.
-void SetDefaults(WebPreferences& web) {
+void SetDefaults(content::WebPreferences& web) {
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
 
   if (command_line.HasSwitch(switches::kDefaultEncoding)) {
@@ -55,31 +55,32 @@ void SetDefaults(WebPreferences& web) {
 // Use the preferences from WebContentsImpl::GetWebkitPrefs and the
 // WebPreferences constructor by default. Only override features that are
 // explicitly enabled or disabled.
-void BrowserToWebSettings(const CefBrowserSettings& cef, WebPreferences& web) {
+void BrowserToWebSettings(const CefBrowserSettings& cef,
+                          content::WebPreferences& web) {
   SetDefaults(web);
 
   if (cef.standard_font_family.length > 0) {
-    web.standard_font_family_map[webkit_glue::kCommonScript] =
+    web.standard_font_family_map[content::kCommonScript] =
         CefString(&cef.standard_font_family);
   }
   if (cef.fixed_font_family.length > 0) {
-    web.fixed_font_family_map[webkit_glue::kCommonScript] =
+    web.fixed_font_family_map[content::kCommonScript] =
         CefString(&cef.fixed_font_family);
   }
   if (cef.serif_font_family.length > 0) {
-    web.serif_font_family_map[webkit_glue::kCommonScript] =
+    web.serif_font_family_map[content::kCommonScript] =
         CefString(&cef.serif_font_family);
   }
   if (cef.sans_serif_font_family.length > 0) {
-    web.sans_serif_font_family_map[webkit_glue::kCommonScript] =
+    web.sans_serif_font_family_map[content::kCommonScript] =
         CefString(&cef.sans_serif_font_family);
   }
   if (cef.cursive_font_family.length > 0) {
-    web.cursive_font_family_map[webkit_glue::kCommonScript] =
+    web.cursive_font_family_map[content::kCommonScript] =
         CefString(&cef.cursive_font_family);
   }
   if (cef.fantasy_font_family.length > 0) {
-    web.fantasy_font_family_map[webkit_glue::kCommonScript] =
+    web.fantasy_font_family_map[content::kCommonScript] =
         CefString(&cef.fantasy_font_family);
   }
 

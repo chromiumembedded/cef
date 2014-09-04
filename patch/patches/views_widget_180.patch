@@ -1,8 +1,8 @@
-Index: desktop_aura/desktop_screen_win.cc
-===================================================================
---- desktop_aura/desktop_screen_win.cc	(revision 280796)
-+++ desktop_aura/desktop_screen_win.cc	(working copy)
-@@ -54,6 +54,8 @@
+diff --git desktop_aura/desktop_screen_win.cc desktop_aura/desktop_screen_win.cc
+index aede179..abad021 100644
+--- desktop_aura/desktop_screen_win.cc
++++ desktop_aura/desktop_screen_win.cc
+@@ -36,6 +36,8 @@ gfx::Display DesktopScreenWin::GetDisplayMatching(
  }
  
  HWND DesktopScreenWin::GetHWNDFromNativeView(gfx::NativeView window) const {
@@ -11,11 +11,11 @@ Index: desktop_aura/desktop_screen_win.cc
    aura::WindowTreeHost* host = window->GetHost();
    return host ? host->GetAcceleratedWidget() : NULL;
  }
-Index: desktop_aura/desktop_screen_x11.cc
-===================================================================
---- desktop_aura/desktop_screen_x11.cc	(revision 280796)
-+++ desktop_aura/desktop_screen_x11.cc	(working copy)
-@@ -220,6 +220,9 @@
+diff --git desktop_aura/desktop_screen_x11.cc desktop_aura/desktop_screen_x11.cc
+index f4c03da..bb253cf 100644
+--- desktop_aura/desktop_screen_x11.cc
++++ desktop_aura/desktop_screen_x11.cc
+@@ -157,6 +157,9 @@ std::vector<gfx::Display> DesktopScreenX11::GetAllDisplays() const {
  
  gfx::Display DesktopScreenX11::GetDisplayNearestWindow(
      gfx::NativeView window) const {
@@ -25,11 +25,11 @@ Index: desktop_aura/desktop_screen_x11.cc
    // Getting screen bounds here safely is hard.
    //
    // You'd think we'd be able to just call window->GetBoundsInScreen(), but we
-Index: desktop_aura/desktop_window_tree_host_win.cc
-===================================================================
---- desktop_aura/desktop_window_tree_host_win.cc	(revision 280796)
-+++ desktop_aura/desktop_window_tree_host_win.cc	(working copy)
-@@ -129,7 +129,9 @@
+diff --git desktop_aura/desktop_window_tree_host_win.cc desktop_aura/desktop_window_tree_host_win.cc
+index 877e8d1..d3a03c6 100644
+--- desktop_aura/desktop_window_tree_host_win.cc
++++ desktop_aura/desktop_window_tree_host_win.cc
+@@ -129,7 +129,9 @@ void DesktopWindowTreeHostWin::Init(aura::Window* content_window,
                          native_widget_delegate_);
  
    HWND parent_hwnd = NULL;
@@ -40,7 +40,7 @@ Index: desktop_aura/desktop_window_tree_host_win.cc
      parent_hwnd = params.parent->GetHost()->GetAcceleratedWidget();
  
    message_handler_->set_remove_standard_frame(params.remove_standard_frame);
-@@ -770,6 +772,7 @@
+@@ -769,6 +771,7 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
    // TODO(beng): inform the native_widget_delegate_.
@@ -48,7 +48,7 @@ Index: desktop_aura/desktop_window_tree_host_win.cc
    InputMethod* input_method = GetInputMethod();
    if (input_method)
      input_method->OnFocus();
-@@ -777,6 +780,7 @@
+@@ -776,6 +779,7 @@ void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
  
  void DesktopWindowTreeHostWin::HandleNativeBlur(HWND focused_window) {
    // TODO(beng): inform the native_widget_delegate_.
@@ -56,11 +56,11 @@ Index: desktop_aura/desktop_window_tree_host_win.cc
    InputMethod* input_method = GetInputMethod();
    if (input_method)
      input_method->OnBlur();
-Index: desktop_aura/desktop_window_tree_host_x11.cc
-===================================================================
---- desktop_aura/desktop_window_tree_host_x11.cc	(revision 280796)
-+++ desktop_aura/desktop_window_tree_host_x11.cc	(working copy)
-@@ -148,7 +148,8 @@
+diff --git desktop_aura/desktop_window_tree_host_x11.cc desktop_aura/desktop_window_tree_host_x11.cc
+index 03b2cfb..c15798a 100644
+--- desktop_aura/desktop_window_tree_host_x11.cc
++++ desktop_aura/desktop_window_tree_host_x11.cc
+@@ -146,7 +146,8 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
        window_parent_(NULL),
        window_shape_(NULL),
        custom_window_shape_(false),
@@ -70,7 +70,7 @@ Index: desktop_aura/desktop_window_tree_host_x11.cc
  }
  
  DesktopWindowTreeHostX11::~DesktopWindowTreeHostX11() {
-@@ -347,7 +348,8 @@
+@@ -349,7 +350,8 @@ void DesktopWindowTreeHostX11::CloseNow() {
    // Actually free our native resources.
    if (ui::PlatformEventSource::GetInstance())
      ui::PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
@@ -80,7 +80,7 @@ Index: desktop_aura/desktop_window_tree_host_x11.cc
    xwindow_ = None;
  
    desktop_native_widget_aura_->OnHostClosed();
-@@ -443,6 +445,8 @@
+@@ -446,6 +448,8 @@ void DesktopWindowTreeHostX11::GetWindowPlacement(
  }
  
  gfx::Rect DesktopWindowTreeHostX11::GetWindowBoundsInScreen() const {
@@ -89,7 +89,7 @@ Index: desktop_aura/desktop_window_tree_host_x11.cc
    return bounds_;
  }
  
-@@ -455,6 +459,8 @@
+@@ -458,6 +462,8 @@ gfx::Rect DesktopWindowTreeHostX11::GetClientAreaBoundsInScreen() const {
    // Attempts to calculate the rect by asking the NonClientFrameView what it
    // thought its GetBoundsForClientView() were broke combobox drop down
    // placement.
@@ -98,7 +98,7 @@ Index: desktop_aura/desktop_window_tree_host_x11.cc
    return bounds_;
  }
  
-@@ -899,6 +905,8 @@
+@@ -924,6 +930,8 @@ void DesktopWindowTreeHostX11::SetBounds(const gfx::Rect& requested_bounds) {
  }
  
  gfx::Point DesktopWindowTreeHostX11::GetLocationOnNativeScreen() const {
@@ -107,7 +107,7 @@ Index: desktop_aura/desktop_window_tree_host_x11.cc
    return bounds_.origin();
  }
  
-@@ -1042,9 +1050,13 @@
+@@ -1072,10 +1080,14 @@ void DesktopWindowTreeHostX11::InitX11Window(
      }
    }
  
@@ -115,14 +115,15 @@ Index: desktop_aura/desktop_window_tree_host_x11.cc
 +  if (parent_widget == gfx::kNullAcceleratedWidget)
 +    parent_widget = x_root_window_;
 +
-   bounds_ = params.bounds;
+   bounds_ = gfx::Rect(params.bounds.origin(),
+                       AdjustSize(params.bounds.size()));
    xwindow_ = XCreateWindow(
 -      xdisplay_, x_root_window_,
 +      xdisplay_, parent_widget,
        bounds_.x(), bounds_.y(),
        bounds_.width(), bounds_.height(),
        0,               // border width
-@@ -1600,6 +1612,10 @@
+@@ -1678,6 +1690,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
        }
        break;
      }
@@ -133,11 +134,11 @@ Index: desktop_aura/desktop_window_tree_host_x11.cc
      case FocusOut:
        if (xev->xfocus.mode != NotifyGrab) {
          ReleaseCapture();
-Index: desktop_aura/desktop_window_tree_host_x11.h
-===================================================================
---- desktop_aura/desktop_window_tree_host_x11.h	(revision 280796)
-+++ desktop_aura/desktop_window_tree_host_x11.h	(working copy)
-@@ -84,6 +84,8 @@
+diff --git desktop_aura/desktop_window_tree_host_x11.h desktop_aura/desktop_window_tree_host_x11.h
+index 1c08221..f0ae19f 100644
+--- desktop_aura/desktop_window_tree_host_x11.h
++++ desktop_aura/desktop_window_tree_host_x11.h
+@@ -85,6 +85,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
    // Deallocates the internal list of open windows.
    static void CleanUpWindowList();
  
@@ -146,7 +147,7 @@ Index: desktop_aura/desktop_window_tree_host_x11.h
   protected:
    // Overridden from DesktopWindowTreeHost:
    virtual void Init(aura::Window* content_window,
-@@ -250,6 +252,9 @@
+@@ -257,6 +259,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
    // The bounds of |xwindow_|.
    gfx::Rect bounds_;
  
@@ -156,9 +157,9 @@ Index: desktop_aura/desktop_window_tree_host_x11.h
    // Whenever the bounds are set, we keep the previous set of bounds around so
    // we can have a better chance of getting the real |restored_bounds_|. Window
    // managers tend to send a Configure message with the maximized bounds, and
-@@ -331,6 +336,9 @@
-   // the frame when |xwindow_| gains focus or handles a mouse button event.
-   bool urgency_hint_set_;
+@@ -336,6 +341,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
+ 
+   base::CancelableCallback<void()> delayed_resize_task_;
  
 +  // True if the xwindow has already been destroyed.
 +  bool xwindow_destroyed_;
@@ -166,11 +167,11 @@ Index: desktop_aura/desktop_window_tree_host_x11.h
    DISALLOW_COPY_AND_ASSIGN(DesktopWindowTreeHostX11);
  };
  
-Index: widget.cc
-===================================================================
---- widget.cc	(revision 280796)
-+++ widget.cc	(working copy)
-@@ -116,6 +116,7 @@
+diff --git widget.cc widget.cc
+index d4b16bb..5af6aa1 100644
+--- widget.cc
++++ widget.cc
+@@ -116,6 +116,7 @@ Widget::InitParams::InitParams()
        show_state(ui::SHOW_STATE_DEFAULT),
        double_buffer(false),
        parent(NULL),
@@ -178,7 +179,7 @@ Index: widget.cc
        native_widget(NULL),
        desktop_window_tree_host(NULL),
        layer_type(aura::WINDOW_LAYER_TEXTURED),
-@@ -140,6 +141,7 @@
+@@ -140,6 +141,7 @@ Widget::InitParams::InitParams(Type type)
        show_state(ui::SHOW_STATE_DEFAULT),
        double_buffer(false),
        parent(NULL),
@@ -186,7 +187,7 @@ Index: widget.cc
        native_widget(NULL),
        desktop_window_tree_host(NULL),
        layer_type(aura::WINDOW_LAYER_TEXTURED),
-@@ -314,7 +316,7 @@
+@@ -314,7 +316,7 @@ void Widget::Init(const InitParams& in_params) {
    InitParams params = in_params;
  
    params.child |= (params.type == InitParams::TYPE_CONTROL);
@@ -195,7 +196,7 @@ Index: widget.cc
  
    if (params.opacity == views::Widget::InitParams::INFER_OPACITY &&
        params.type != views::Widget::InitParams::TYPE_WINDOW &&
-@@ -375,7 +377,12 @@
+@@ -375,7 +377,12 @@ void Widget::Init(const InitParams& in_params) {
        Minimize();
    } else if (params.delegate) {
      SetContentsView(params.delegate->GetContentsView());
@@ -209,11 +210,11 @@ Index: widget.cc
    }
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
-Index: widget.h
-===================================================================
---- widget.h	(revision 280796)
-+++ widget.h	(working copy)
-@@ -222,6 +222,7 @@
+diff --git widget.h widget.h
+index fad5506..7828ced 100644
+--- widget.h
++++ widget.h
+@@ -225,6 +225,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
      // Should the widget be double buffered? Default is false.
      bool double_buffer;
      gfx::NativeView parent;

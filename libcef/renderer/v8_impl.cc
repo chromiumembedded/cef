@@ -17,8 +17,8 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "core/frame/Frame.h"
 #include "core/frame/LocalFrame.h"
 #include "core/workers/WorkerGlobalScope.h"
-#include "bindings/v8/ScriptController.h"
-#include "bindings/v8/V8Binding.h"
+#include "bindings/core/v8/ScriptController.h"
+#include "bindings/core/v8/V8Binding.h"
 MSVC_POP_WARNING();
 #undef FROM_HERE
 #undef LOG
@@ -551,15 +551,15 @@ v8::Local<v8::Value> CallV8Function(v8::Handle<v8::Context> context,
   // Execute the function call using the ScriptController so that inspector
   // instrumentation works.
   if (CEF_CURRENTLY_ON_RT()) {
-    RefPtr<WebCore::LocalFrame> frame = WebCore::toFrameIfNotDetached(context);
+    RefPtr<blink::LocalFrame> frame = blink::toFrameIfNotDetached(context);
     DCHECK(frame);
     if (frame &&
-        frame->script().canExecuteScripts(WebCore::AboutToExecuteScript)) {
+        frame->script().canExecuteScripts(blink::AboutToExecuteScript)) {
       func_rv = frame->script().callFunction(function, receiver, argc, args);
     }
   } else {
-    func_rv = WebCore::ScriptController::callFunction(
-        WebCore::toExecutionContext(context),
+    func_rv = blink::ScriptController::callFunction(
+        blink::toExecutionContext(context),
         function, receiver, argc, args, isolate);
   }
 
@@ -888,7 +888,7 @@ bool CefV8ContextImpl::Enter() {
   v8::Isolate* isolate = handle_->isolate();
   v8::HandleScope handle_scope(isolate);
 
-  WebCore::V8PerIsolateData::from(isolate)->incrementRecursionLevel();
+  blink::V8PerIsolateData::from(isolate)->incrementRecursionLevel();
   handle_->GetNewV8Handle()->Enter();
 #ifndef NDEBUG
   ++enter_count_;
@@ -904,7 +904,7 @@ bool CefV8ContextImpl::Exit() {
 
   DLOG_ASSERT(enter_count_ > 0);
   handle_->GetNewV8Handle()->Exit();
-  WebCore::V8PerIsolateData::from(isolate)->decrementRecursionLevel();
+  blink::V8PerIsolateData::from(isolate)->decrementRecursionLevel();
 #ifndef NDEBUG
   --enter_count_;
 #endif
@@ -1712,8 +1712,17 @@ bool CefV8ValueImpl::SetValue(const CefString& key,
 
     v8::TryCatch try_catch;
     try_catch.SetVerbose(true);
-    bool set = obj->Set(GetV8String(isolate, key), impl->GetV8Value(true),
-                        static_cast<v8::PropertyAttribute>(attribute));
+    bool set;
+    // TODO(cef): This usage may not exactly match the previous implementation.
+    // Set will trigger interceptors and/or accessors whereas ForceSet will not.
+    // It might be better to split this functionality into separate methods.
+    if (attribute == V8_PROPERTY_ATTRIBUTE_NONE) {
+      set = obj->Set(GetV8String(isolate, key), impl->GetV8Value(true));
+    } else {
+      set = obj->ForceSet(GetV8String(isolate, key),
+                          impl->GetV8Value(true),
+                          static_cast<v8::PropertyAttribute>(attribute));
+    }
     return (!HasCaught(try_catch) && set);
   } else {
     NOTREACHED() << "invalid input parameter";

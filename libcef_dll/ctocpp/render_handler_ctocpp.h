@@ -55,7 +55,6 @@ class CefRenderHandlerCToCpp
       int y) OVERRIDE;
   virtual void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
       DragOperation operation) OVERRIDE;
-  virtual void OnScrollOffsetChanged(CefRefPtr<CefBrowser> browser) OVERRIDE;
 };
 
 #endif  // BUILDING_CEF_SHARED

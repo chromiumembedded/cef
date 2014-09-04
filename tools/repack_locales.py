@@ -54,26 +54,22 @@ def calc_inputs(locale):
   """Determine the files that need processing for the given locale."""
   inputs = []
 
-  #e.g. '<(grit_out_dir)/generated_resources_da.pak'
-  #inputs.append(os.path.join(GRIT_DIR, 'generated_resources_%s.pak' % locale))
+  #e.g.
+  # '<(SHARED_INTERMEDIATE_DIR)/components/strings/components_strings_da.pak'
+  inputs.append(os.path.join(SHARE_INT_DIR, 'components', 'strings',
+                'components_strings_%s.pak' % locale))
 
-  #e.g. '<(grit_out_dir)/locale_settings_da.pak'
-  #inputs.append(os.path.join(GRIT_DIR, 'locale_settings_%s.pak' % locale))
+  #e.g.
+  # '<(SHARED_INTERMEDIATE_DIR)/content/app/strings/content_strings_da.pak'
+  inputs.append(os.path.join(SHARE_INT_DIR, 'content', 'app', 'strings',
+                'content_strings_%s.pak' % locale))
 
-  #e.g. '<(grit_out_dir)/platform_locale_settings_da.pak'
-  #inputs.append(os.path.join(GRIT_DIR,
-  #              'platform_locale_settings_%s.pak' % locale))
-
-  #e.g. '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_da.pak'
-  inputs.append(os.path.join(SHARE_INT_DIR, 'webkit',
-                'webkit_strings_%s.pak' % locale))
-
-  #e.g. '<(SHARED_INTERMEDIATE_DIR)/ui/ui_strings_da.pak',
-  inputs.append(os.path.join(SHARE_INT_DIR, 'ui', 'ui_strings',
+  #e.g. '<(SHARED_INTERMEDIATE_DIR)/ui/strings/ui_strings_da.pak',
+  inputs.append(os.path.join(SHARE_INT_DIR, 'ui', 'strings',
                 'ui_strings_%s.pak' % locale))
 
-  #e.g. '<(SHARED_INTERMEDIATE_DIR)/ui/app_locale_settings_da.pak',
-  inputs.append(os.path.join(SHARE_INT_DIR, 'ui', 'app_locale_settings',
+  #e.g. '<(SHARED_INTERMEDIATE_DIR)/ui/strings/app_locale_settings_da.pak',
+  inputs.append(os.path.join(SHARE_INT_DIR, 'ui', 'strings',
                 'app_locale_settings_%s.pak' % locale))
 
   #e.g. '<(SHARED_INTERMEDIATE_DIR)/cef/cef_strings_da.pak'

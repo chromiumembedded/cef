@@ -34,19 +34,19 @@
 
 #if defined(OS_WIN)
 #include <Objbase.h>  // NOLINT(build/include_order)
-#include "components/breakpad/app/breakpad_win.h"
+#include "components/crash/app/breakpad_win.h"
 #endif
 
 #if defined(OS_MACOSX)
 #include "base/mac/os_crash_dumps.h"
 #include "base/mac/bundle_locations.h"
 #include "base/mac/foundation_util.h"
-#include "components/breakpad/app/breakpad_mac.h"
+#include "components/crash/app/breakpad_mac.h"
 #include "content/public/common/content_paths.h"
 #endif
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
-#include "components/breakpad/app/breakpad_linux.h"
+#include "components/crash/app/breakpad_linux.h"
 #endif
 
 namespace {
@@ -541,8 +541,10 @@ void CefMainDelegate::InitializeResourceBundle() {
   DCHECK(!locale.empty());
 
   const std::string loaded_locale =
-      ui::ResourceBundle::InitSharedInstanceWithLocale(locale,
-                                                       &content_client_);
+      ui::ResourceBundle::InitSharedInstanceWithLocale(
+          locale,
+          &content_client_,
+          ui::ResourceBundle::LOAD_COMMON_RESOURCES);
   ResourceBundle& resource_bundle = ResourceBundle::GetSharedInstance();
 
   if (!content_client_.pack_loading_disabled()) {

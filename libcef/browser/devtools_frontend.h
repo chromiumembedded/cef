@@ -12,8 +12,7 @@
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/devtools_agent_host.h"
-#include "content/public/browser/devtools_client_host.h"
-#include "content/public/browser/devtools_frontend_host_delegate.h"
+#include "content/public/browser/devtools_frontend_host.h"
 #include "content/public/browser/web_contents_observer.h"
 
 namespace content {
@@ -22,7 +21,8 @@ class WebContents;
 }
 
 class CefDevToolsFrontend : public content::WebContentsObserver,
-                            public content::DevToolsFrontendHostDelegate {
+                            public content::DevToolsFrontendHost::Delegate,
+                            public content::DevToolsAgentHostClient {
  public:
   static CefDevToolsFrontend* Show(
       CefRefPtr<CefBrowserHostImpl> inspected_browser,
@@ -43,20 +43,29 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
                       content::DevToolsAgentHost* agent_host);
   virtual ~CefDevToolsFrontend();
 
-  // WebContentsObserver overrides
+  // WebContentsObserver overrides.
   virtual void RenderViewCreated(
       content::RenderViewHost* render_view_host) OVERRIDE;
   virtual void DocumentOnLoadCompletedInMainFrame() OVERRIDE;
   virtual void WebContentsDestroyed() OVERRIDE;
 
-  // DevToolsFrontendHostDelegate implementation
-  virtual void DispatchOnEmbedder(const std::string& message) OVERRIDE {}
+  // content::DevToolsFrontendHost::Delegate implementation.
+  virtual void HandleMessageFromDevToolsFrontend(
+      const std::string& message) OVERRIDE;
+  virtual void HandleMessageFromDevToolsFrontendToBackend(
+      const std::string& message) OVERRIDE;
 
-  virtual void InspectedContentsClosing() OVERRIDE;
+  // content::DevToolsAgentHostClient implementation.
+  virtual void DispatchProtocolMessage(
+      content::DevToolsAgentHost* agent_host,
+      const std::string& message) OVERRIDE;
+  virtual void AgentHostClosed(
+      content::DevToolsAgentHost* agent_host,
+      bool replaced) OVERRIDE;
 
   CefRefPtr<CefBrowserHostImpl> frontend_browser_;
   scoped_refptr<content::DevToolsAgentHost> agent_host_;
-  scoped_ptr<content::DevToolsClientHost> frontend_host_;
+  scoped_ptr<content::DevToolsFrontendHost> frontend_host_;
 
   DISALLOW_COPY_AND_ASSIGN(CefDevToolsFrontend);
 };

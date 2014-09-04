@@ -5,12 +5,13 @@
 #ifndef CEF_LIBCEF_COMMON_UPLOAD_DATA_H_
 #define CEF_LIBCEF_COMMON_UPLOAD_DATA_H_
 
+#include "libcef/common/upload_element.h"
+
 #include "base/basictypes.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_vector.h"
 #include "base/supports_user_data.h"
 #include "net/base/net_export.h"
-#include "net/base/upload_element.h"
 
 namespace base {
 class FilePath;

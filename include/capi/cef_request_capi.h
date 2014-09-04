@@ -146,8 +146,8 @@ typedef struct _cef_request_t {
       const cef_string_t* url);
 
   ///
-  // Get the resource type for this request. Accurate resource type information
-  // may only be available in the browser process.
+  // Get the resource type for this request. Only available in the browser
+  // process.
   ///
   cef_resource_type_t (CEF_CALLBACK *get_resource_type)(
       struct _cef_request_t* self);

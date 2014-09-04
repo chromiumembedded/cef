@@ -22,6 +22,7 @@
 
 class CefRenderProcessObserver;
 struct Cef_CrossOriginWhiteListEntry_Params;
+class ChromePDFPrintClient;
 
 class CefContentRendererClient : public content::ContentRendererClient,
                                  public base::MessageLoop::DestructionObserver {
@@ -120,6 +121,8 @@ class CefContentRendererClient : public content::ContentRendererClient,
   // Cross-origin white list entries that need to be registered with WebKit.
   typedef std::vector<Cef_CrossOriginWhiteListEntry_Params> CrossOriginList;
   CrossOriginList cross_origin_whitelist_entries_;
+
+  scoped_ptr<ChromePDFPrintClient> pdf_print_client_;
 
   int devtools_agent_count_;
   int uncaught_exception_stack_size_;

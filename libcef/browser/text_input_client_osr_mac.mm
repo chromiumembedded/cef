@@ -44,7 +44,7 @@ void ExtractUnderlines(NSAttributedString* string,
             [colorAttr colorUsingColorSpaceName:NSDeviceRGBColorSpace]);
       }
       underlines->push_back(blink::WebCompositionUnderline(
-          range.location, NSMaxRange(range), color, [style intValue] > 1));
+          range.location, NSMaxRange(range), color, [style intValue] > 1, 0));
     }
     i = range.location + range.length;
   }
@@ -151,7 +151,7 @@ extern "C" {
   } else {
     // Use a thin black underline by default.
     underlines_.push_back(blink::WebCompositionUnderline(0, length,
-        SK_ColorBLACK, false));
+        SK_ColorBLACK, false, 0));
   }
 
   // If we are handling a key down event, then SetComposition() will be

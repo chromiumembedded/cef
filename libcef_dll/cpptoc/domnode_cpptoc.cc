@@ -12,7 +12,6 @@
 
 #include "libcef_dll/cpptoc/domdocument_cpptoc.h"
 #include "libcef_dll/cpptoc/domnode_cpptoc.h"
-#include "libcef_dll/ctocpp/domevent_listener_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
 
@@ -294,30 +293,6 @@ struct _cef_domnode_t* CEF_CALLBACK domnode_get_last_child(
   return CefDOMNodeCppToC::Wrap(_retval);
 }
 
-void CEF_CALLBACK domnode_add_event_listener(struct _cef_domnode_t* self,
-    const cef_string_t* eventType, struct _cef_domevent_listener_t* listener,
-    int useCapture) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-  // Verify param: eventType; type: string_byref_const
-  DCHECK(eventType);
-  if (!eventType)
-    return;
-  // Verify param: listener; type: refptr_diff
-  DCHECK(listener);
-  if (!listener)
-    return;
-
-  // Execute
-  CefDOMNodeCppToC::Get(self)->AddEventListener(
-      CefString(eventType),
-      CefDOMEventListenerCToCpp::Wrap(listener),
-      useCapture?true:false);
-}
-
 cef_string_userfree_t CEF_CALLBACK domnode_get_element_tag_name(
     struct _cef_domnode_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -476,7 +451,6 @@ CefDOMNodeCppToC::CefDOMNodeCppToC(CefDOMNode* cls)
   struct_.struct_.has_children = domnode_has_children;
   struct_.struct_.get_first_child = domnode_get_first_child;
   struct_.struct_.get_last_child = domnode_get_last_child;
-  struct_.struct_.add_event_listener = domnode_add_event_listener;
   struct_.struct_.get_element_tag_name = domnode_get_element_tag_name;
   struct_.struct_.has_element_attributes = domnode_has_element_attributes;
   struct_.struct_.has_element_attribute = domnode_has_element_attribute;

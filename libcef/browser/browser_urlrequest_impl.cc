@@ -162,7 +162,7 @@ class CefBrowserURLRequest::Context
       return false;
 
     std::string method = request_->GetMethod();
-    StringToLowerASCII(&method);
+    base::StringToLowerASCII(&method);
     net::URLFetcher::RequestType request_type = net::URLFetcher::GET;
     if (LowerCaseEqualsASCII(method, "get")) {
     } else if (LowerCaseEqualsASCII(method, "post")) {
@@ -276,9 +276,6 @@ class CefBrowserURLRequest::Context
       load_flags |= net::LOAD_ENABLE_UPLOAD_PROGRESS;
       upload_data_size_ = upload_data_size;
     }
-
-    if (cef_flags & UR_FLAG_REPORT_LOAD_TIMING)
-      load_flags |= net::LOAD_ENABLE_LOAD_TIMING;
 
     if (cef_flags & UR_FLAG_REPORT_RAW_HEADERS)
       load_flags |= net::LOAD_REPORT_RAW_HEADERS;

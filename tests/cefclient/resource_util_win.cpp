@@ -35,7 +35,6 @@ int GetResourceId(const char* resource_name) {
   } resource_map[] = {
     {"binding.html", IDS_BINDING},
     {"dialogs.html", IDS_DIALOGS},
-    {"domaccess.html", IDS_DOMACCESS},
     {"localstorage.html", IDS_LOCALSTORAGE},
     {"logo.png", IDS_LOGO},
     {"osr_test.html", IDS_OSRTEST},

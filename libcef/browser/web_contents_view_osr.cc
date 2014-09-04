@@ -96,18 +96,11 @@ void CefWebContentsViewOSR::SetOverscrollControllerEnabled(bool enabled) {
 }
 
 #if defined(OS_MACOSX)
-void CefWebContentsViewOSR::SetAllowOverlappingViews(bool overlapping) {
+void CefWebContentsViewOSR::SetAllowOtherViews(bool allow) {
 }
 
-bool CefWebContentsViewOSR::GetAllowOverlappingViews() const {
+bool CefWebContentsViewOSR::GetAllowOtherViews() const {
   return false;
-}
-
-void CefWebContentsViewOSR::SetOverlayView(
-    content::WebContentsView* overlay,
-    const gfx::Point& offset) {
-}
-void CefWebContentsViewOSR::RemoveOverlayView() {
 }
 
 bool CefWebContentsViewOSR::IsEventTracking() const {

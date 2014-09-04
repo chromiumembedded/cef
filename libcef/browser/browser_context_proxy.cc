@@ -120,7 +120,7 @@ content::BrowserPluginGuestManager* CefBrowserContextProxy::GetGuestManager() {
   return parent_->GetGuestManager();
 }
 
-quota::SpecialStoragePolicy*
+storage::SpecialStoragePolicy*
     CefBrowserContextProxy::GetSpecialStoragePolicy() {
   return parent_->GetSpecialStoragePolicy();
 }
@@ -128,6 +128,11 @@ quota::SpecialStoragePolicy*
 content::PushMessagingService*
     CefBrowserContextProxy::GetPushMessagingService() {
   return parent_->GetPushMessagingService();
+}
+
+content::SSLHostStateDelegate*
+    CefBrowserContextProxy::GetSSLHostStateDelegate() {
+  return parent_->GetSSLHostStateDelegate();
 }
 
 net::URLRequestContextGetter* CefBrowserContextProxy::CreateRequestContext(

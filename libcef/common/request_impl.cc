@@ -12,6 +12,7 @@
 
 #include "base/logging.h"
 #include "content/public/browser/resource_request_info.h"
+#include "content/public/common/resource_type.h"
 #include "net/base/upload_data_stream.h"
 #include "net/base/upload_element_reader.h"
 #include "net/base/upload_bytes_element_reader.h"
@@ -23,7 +24,6 @@
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/platform/WebURLError.h"
 #include "third_party/WebKit/public/platform/WebURLRequest.h"
-#include "webkit/common/resource_type.h"
 
 namespace {
 
@@ -313,9 +313,6 @@ void CefRequestImpl::Set(const blink::WebURLRequest& request) {
     flags_ |= UR_FLAG_REPORT_RAW_HEADERS;
 
   first_party_for_cookies_ = request.firstPartyForCookies().spec().utf16();
-
-  resource_type_ = static_cast<cef_resource_type_t>(
-      ::ResourceType::FromTargetType(request.targetType()));
 }
 
 void CefRequestImpl::Get(blink::WebURLRequest& request) {
@@ -327,7 +324,6 @@ void CefRequestImpl::Get(blink::WebURLRequest& request) {
 
   std::string method(method_);
   request.setHTTPMethod(blink::WebString::fromUTF8(method.c_str()));
-  request.setTargetType(blink::WebURLRequest::TargetIsMainFrame);
 
   blink::WebHTTPBody body;
   if (postdata_.get()) {

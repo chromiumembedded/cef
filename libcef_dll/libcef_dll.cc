@@ -42,7 +42,6 @@
 #include "libcef_dll/cpptoc/command_line_cpptoc.h"
 #include "libcef_dll/cpptoc/context_menu_params_cpptoc.h"
 #include "libcef_dll/cpptoc/domdocument_cpptoc.h"
-#include "libcef_dll/cpptoc/domevent_cpptoc.h"
 #include "libcef_dll/cpptoc/domnode_cpptoc.h"
 #include "libcef_dll/cpptoc/dictionary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/download_item_cpptoc.h"
@@ -77,7 +76,6 @@
 #include "libcef_dll/ctocpp/completion_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/context_menu_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/cookie_visitor_ctocpp.h"
-#include "libcef_dll/ctocpp/domevent_listener_ctocpp.h"
 #include "libcef_dll/ctocpp/domvisitor_ctocpp.h"
 #include "libcef_dll/ctocpp/dialog_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
@@ -197,8 +195,6 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefContextMenuParamsCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefCookieVisitorCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefDOMDocumentCppToC::DebugObjCt));
-  DCHECK(base::AtomicRefCountIsZero(&CefDOMEventCppToC::DebugObjCt));
-  DCHECK(base::AtomicRefCountIsZero(&CefDOMEventListenerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefDOMNodeCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefDOMVisitorCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefDialogHandlerCToCpp::DebugObjCt));

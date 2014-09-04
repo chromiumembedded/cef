@@ -1,8 +1,8 @@
-Index: content_browser_client.cc
-===================================================================
---- content_browser_client.cc	(revision 280796)
-+++ content_browser_client.cc	(working copy)
-@@ -280,6 +280,10 @@
+diff --git content_browser_client.cc content_browser_client.cc
+index d982b69..9272897 100644
+--- content_browser_client.cc
++++ content_browser_client.cc
+@@ -276,6 +276,10 @@ bool ContentBrowserClient::IsFastShutdownPossible() {
    return true;
  }
  
@@ -13,19 +13,19 @@ Index: content_browser_client.cc
  base::FilePath ContentBrowserClient::GetDefaultDownloadDirectory() {
    return base::FilePath();
  }
-Index: content_browser_client.h
-===================================================================
---- content_browser_client.h	(revision 280796)
-+++ content_browser_client.h	(working copy)
-@@ -23,6 +23,7 @@
+diff --git content_browser_client.h content_browser_client.h
+index f8253a6..d82c177 100644
+--- content_browser_client.h
++++ content_browser_client.h
+@@ -25,6 +25,7 @@
  #include "net/cookies/canonical_cookie.h"
  #include "net/url_request/url_request_interceptor.h"
  #include "net/url_request/url_request_job_factory.h"
 +#include "third_party/skia/include/core/SkColor.h"
- #include "third_party/WebKit/public/web/WebNotificationPresenter.h"
+ #include "third_party/WebKit/public/platform/WebNotificationPermission.h"
  #include "ui/base/window_open_disposition.h"
  #include "webkit/browser/fileapi/file_system_context.h"
-@@ -538,6 +539,9 @@
+@@ -526,6 +527,9 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Clears browser cookies.
    virtual void ClearCookies(RenderViewHost* rvh) {}
  
@@ -35,11 +35,11 @@ Index: content_browser_client.h
    // Returns the default download directory.
    // This can be called on any thread.
    virtual base::FilePath GetDefaultDownloadDirectory();
-Index: web_contents.cc
-===================================================================
---- web_contents.cc	(revision 280796)
-+++ web_contents.cc	(working copy)
-@@ -17,7 +17,9 @@
+diff --git web_contents.cc web_contents.cc
+index 7afc338..c014439 100644
+--- web_contents.cc
++++ web_contents.cc
+@@ -17,7 +17,9 @@ WebContents::CreateParams::CreateParams(BrowserContext* context)
        main_frame_routing_id(MSG_ROUTING_NONE),
        initially_hidden(false),
        guest_delegate(NULL),
@@ -50,7 +50,7 @@ Index: web_contents.cc
  
  WebContents::CreateParams::CreateParams(
      BrowserContext* context, SiteInstance* site)
-@@ -29,7 +31,9 @@
+@@ -29,7 +31,9 @@ WebContents::CreateParams::CreateParams(
        main_frame_routing_id(MSG_ROUTING_NONE),
        initially_hidden(false),
        guest_delegate(NULL),
@@ -61,11 +61,11 @@ Index: web_contents.cc
  
  WebContents::CreateParams::~CreateParams() {
  }
-Index: web_contents.h
-===================================================================
---- web_contents.h	(revision 280796)
-+++ web_contents.h	(working copy)
-@@ -51,9 +51,11 @@
+diff --git web_contents.h web_contents.h
+index 80766dc..025c8c7 100644
+--- web_contents.h
++++ web_contents.h
+@@ -52,9 +52,11 @@ class PageState;
  class RenderFrameHost;
  class RenderProcessHost;
  class RenderViewHost;
@@ -77,7 +77,7 @@ Index: web_contents.h
  struct CustomContextMenuContext;
  struct DropData;
  struct RendererPreferences;
-@@ -116,6 +118,10 @@
+@@ -117,6 +119,10 @@ class WebContents : public PageNavigator,
      // Used to specify the location context which display the new view should
      // belong. This can be NULL if not needed.
      gfx::NativeView context;
@@ -88,11 +88,11 @@ Index: web_contents.h
    };
  
    // Creates a new WebContents.
-Index: web_contents_delegate.cc
-===================================================================
---- web_contents_delegate.cc	(revision 280796)
-+++ web_contents_delegate.cc	(working copy)
-@@ -136,7 +136,9 @@
+diff --git web_contents_delegate.cc web_contents_delegate.cc
+index 0028339..477040e 100644
+--- web_contents_delegate.cc
++++ web_contents_delegate.cc
+@@ -136,7 +136,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
      const base::string16& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
@@ -103,11 +103,11 @@ Index: web_contents_delegate.cc
    return true;
  }
  
-Index: web_contents_delegate.h
-===================================================================
---- web_contents_delegate.h	(revision 280796)
-+++ web_contents_delegate.h	(working copy)
-@@ -36,9 +36,11 @@
+diff --git web_contents_delegate.h web_contents_delegate.h
+index b9aa02d..d840775 100644
+--- web_contents_delegate.h
++++ web_contents_delegate.h
+@@ -37,9 +37,11 @@ class DownloadItem;
  class JavaScriptDialogManager;
  class PageState;
  class RenderViewHost;
@@ -119,7 +119,7 @@ Index: web_contents_delegate.h
  struct ColorSuggestion;
  struct ContextMenuParams;
  struct DropData;
-@@ -312,7 +314,9 @@
+@@ -312,7 +314,9 @@ class CONTENT_EXPORT WebContentsDelegate {
        const base::string16& frame_name,
        const GURL& target_url,
        const std::string& partition_id,

@@ -10,7 +10,6 @@
 // for more information.
 //
 
-#include "libcef_dll/cpptoc/domevent_listener_cpptoc.h"
 #include "libcef_dll/ctocpp/domdocument_ctocpp.h"
 #include "libcef_dll/ctocpp/domnode_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
@@ -271,29 +270,6 @@ CefRefPtr<CefDOMNode> CefDOMNodeCToCpp::GetLastChild() {
 
   // Return type: refptr_same
   return CefDOMNodeCToCpp::Wrap(_retval);
-}
-
-void CefDOMNodeCToCpp::AddEventListener(const CefString& eventType,
-    CefRefPtr<CefDOMEventListener> listener, bool useCapture) {
-  if (CEF_MEMBER_MISSING(struct_, add_event_listener))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: eventType; type: string_byref_const
-  DCHECK(!eventType.empty());
-  if (eventType.empty())
-    return;
-  // Verify param: listener; type: refptr_diff
-  DCHECK(listener.get());
-  if (!listener.get())
-    return;
-
-  // Execute
-  struct_->add_event_listener(struct_,
-      eventType.GetStruct(),
-      CefDOMEventListenerCppToC::Wrap(listener),
-      useCapture);
 }
 
 CefString CefDOMNodeCToCpp::GetElementTagName() {

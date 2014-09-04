@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_COMMON_BREAKPAD_CLIENT_H_
 
 #include "base/compiler_specific.h"
-#include "components/breakpad/app/breakpad_client.h"
+#include "components/crash/app/breakpad_client.h"
 
 class CefBreakpadClient : public breakpad::BreakpadClient {
  public:

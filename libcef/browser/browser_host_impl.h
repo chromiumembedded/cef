@@ -409,22 +409,18 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual void RenderProcessGone(base::TerminationStatus status) OVERRIDE;
   virtual void DidCommitProvisionalLoadForFrame(
       content::RenderFrameHost* render_frame_host,
-      bool is_main_frame,
       const GURL& url,
       content::PageTransition transition_type) OVERRIDE;
   virtual void DidFailProvisionalLoad(
       content::RenderFrameHost* render_frame_host,
-      bool is_main_frame,
       const GURL& validated_url,
       int error_code,
       const base::string16& error_description) OVERRIDE;
   virtual void DocumentAvailableInMainFrame() OVERRIDE;
-  virtual void DidFailLoad(int64 frame_id,
+  virtual void DidFailLoad(content::RenderFrameHost* render_frame_host,
                            const GURL& validated_url,
-                           bool is_main_frame,
                            int error_code,
-                           const base::string16& error_description,
-                           content::RenderViewHost* render_view_host) OVERRIDE;
+                           const base::string16& error_description) OVERRIDE;
   virtual void PluginCrashed(const base::FilePath& plugin_path,
                              base::ProcessId plugin_pid) OVERRIDE;
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;

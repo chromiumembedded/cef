@@ -17,6 +17,10 @@
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
 #include "ui/compositor/compositor.h"
 
+#if defined(OS_MACOSX)
+#include "content/browser/compositor/browser_compositor_view_mac.h"
+#endif
+
 #if defined(OS_WIN)
 #include "ui/gfx/win/window_impl.h"
 #endif
@@ -32,8 +36,10 @@ class CefWebContentsViewOSR;
 
 #if defined(OS_MACOSX)
 #ifdef __OBJC__
+@class CALayer;
 @class NSWindow;
 #else
+class CALayer;
 class NSWindow;
 #endif
 #endif
@@ -62,6 +68,9 @@ class CefWindowX11;
 
 class CefRenderWidgetHostViewOSR
     : public content::RenderWidgetHostViewBase,
+#if defined(OS_MACOSX)
+      public content::BrowserCompositorViewMacClient,
+#endif
       public content::DelegatedFrameHostClient {
  public:
   explicit CefRenderWidgetHostViewOSR(content::RenderWidgetHost* widget);
@@ -128,12 +137,11 @@ class CefRenderWidgetHostViewOSR
   virtual gfx::Size GetPhysicalBackingSize() const OVERRIDE;
   virtual void SelectionBoundsChanged(
       const ViewHostMsg_SelectionBounds_Params& params) OVERRIDE;
-  virtual void ScrollOffsetChanged() OVERRIDE;
   virtual void CopyFromCompositingSurface(
       const gfx::Rect& src_subrect,
       const gfx::Size& dst_size,
       const base::Callback<void(bool, const SkBitmap&)>& callback,
-      const SkBitmap::Config config) OVERRIDE;
+      const SkColorType color_type) OVERRIDE;
   virtual void CopyFromCompositingSurfaceToVideoFrame(
       const gfx::Rect& src_subrect,
       const scoped_refptr<media::VideoFrame>& target,
@@ -158,6 +166,9 @@ class CefRenderWidgetHostViewOSR
   virtual void GetScreenInfo(blink::WebScreenInfo* results) OVERRIDE;
   virtual gfx::Rect GetBoundsInRootWindow() OVERRIDE;
   virtual gfx::GLSurfaceHandle GetCompositingSurface() OVERRIDE;
+  virtual content::BrowserAccessibilityManager*
+      CreateBrowserAccessibilityManager(
+          content::BrowserAccessibilityDelegate* delegate) OVERRIDE;
 
 #if defined(OS_MACOSX)
   virtual bool PostProcessEventForPluginIme(
@@ -176,12 +187,19 @@ class CefRenderWidgetHostViewOSR
   virtual gfx::NativeViewId GetParentForWindowlessPlugin() const OVERRIDE;
 #endif
 
-  // DelegatedFrameHost implementation.
+#if defined(OS_MACOSX)
+  // BrowserCompositorViewMacClient implementation.
+  virtual bool BrowserCompositorViewShouldAckImmediately() const OVERRIDE;
+  virtual void BrowserCompositorViewFrameSwapped(
+      const std::vector<ui::LatencyInfo>& latency_info) OVERRIDE;
+  virtual NSView* BrowserCompositorSuperview() OVERRIDE;
+  virtual ui::Layer* BrowserCompositorRootLayer() OVERRIDE;
+#endif  // defined(OS_MACOSX)
+
+  // DelegatedFrameHostClient implementation.
   virtual ui::Compositor* GetCompositor() const OVERRIDE;
   virtual ui::Layer* GetLayer() OVERRIDE;
   virtual content::RenderWidgetHostImpl* GetHost() OVERRIDE;
-  virtual void SchedulePaintInRect(
-      const gfx::Rect& damage_rect_in_dip) OVERRIDE;
   virtual bool IsVisible() OVERRIDE;
   virtual scoped_ptr<content::ResizeLock> CreateResizeLock(
       bool defer_compositor_lock) OVERRIDE;
@@ -295,6 +313,8 @@ class CefRenderWidgetHostViewOSR
   scoped_ptr<gfx::WindowImpl> window_;
 #elif defined(OS_MACOSX)
   NSWindow* window_;
+  CALayer* background_layer_;
+  scoped_ptr<content::BrowserCompositorViewMac> compositor_view_;
 #elif defined(USE_X11)
   CefWindowX11* window_;
 #endif

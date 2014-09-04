@@ -41,15 +41,15 @@
 #include "content/public/browser/resource_dispatcher_host.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/storage_quota_params.h"
+#include "content/public/common/web_preferences.h"
 #include "third_party/WebKit/public/web/WebWindowFeatures.h"
 #include "ui/base/ui_base_switches.h"
 #include "url/gurl.h"
-#include "webkit/common/webpreferences.h"
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
 #include "base/debug/leak_annotations.h"
-#include "components/breakpad/app/breakpad_linux.h"
-#include "components/breakpad/browser/crash_handler_host_linux.h"
+#include "components/crash/app/breakpad_linux.h"
+#include "components/crash/browser/crash_handler_host_linux.h"
 #include "content/public/common/content_descriptors.h"
 #endif
 
@@ -236,7 +236,7 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
       const content::StorageQuotaParams& params,
       int render_process_id,
       const PermissionCallback& callback) OVERRIDE {
-    if (params.storage_type != quota::kStorageTypePersistent) {
+    if (params.storage_type != storage::kStorageTypePersistent) {
       // To match Chrome behavior we only support requesting quota with this
       // interface for Persistent storage type.
       callback.Run(QUOTA_PERMISSION_RESPONSE_DISALLOW);
@@ -606,7 +606,7 @@ content::BrowserMainParts* CefContentBrowserClient::CreateBrowserMainParts(
 void CefContentBrowserClient::RenderProcessWillLaunch(
     content::RenderProcessHost* host) {
   host->GetChannel()->AddFilter(new CefBrowserMessageFilter(host));
-  host->AddFilter(new PrintingMessageFilter(host->GetID()));
+  host->AddFilter(new printing::PrintingMessageFilter(host->GetID()));
 
   AddBrowserContextReference(
       static_cast<CefBrowserContext*>(host->GetBrowserContext()));
@@ -643,7 +643,7 @@ bool CefContentBrowserClient::IsHandledURL(const GURL& url) {
   if (!url.is_valid())
     return false;
   const std::string& scheme = url.scheme();
-  DCHECK_EQ(scheme, StringToLowerASCII(scheme));
+  DCHECK_EQ(scheme, base::StringToLowerASCII(scheme));
 
   if (scheme::IsInternalHandledScheme(scheme))
     return true;
@@ -738,14 +738,15 @@ void CefContentBrowserClient::AllowCertificateError(
     int cert_error,
     const net::SSLInfo& ssl_info,
     const GURL& request_url,
-    ResourceType::Type resource_type,
+    content::ResourceType resource_type,
     bool overridable,
     bool strict_enforcement,
+    bool expired_previous_decision,
     const base::Callback<void(bool)>& callback,
     content::CertificateRequestResultType* result) {
   CEF_REQUIRE_UIT();
 
-  if (resource_type != ResourceType::MAIN_FRAME) {
+  if (resource_type != content::ResourceType::RESOURCE_TYPE_MAIN_FRAME) {
     // A sub-resource has a certificate error. The user doesn't really
     // have a context for making the right decision, so block the request
     // hard.
@@ -930,7 +931,7 @@ void CefContentBrowserClient::ResourceDispatcherHostCreated() {
 void CefContentBrowserClient::OverrideWebkitPrefs(
     content::RenderViewHost* rvh,
     const GURL& url,
-    WebPreferences* prefs) {
+    content::WebPreferences* prefs) {
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForHost(rvh);
   DCHECK(browser.get());

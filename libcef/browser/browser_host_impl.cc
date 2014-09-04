@@ -36,6 +36,7 @@
 #include "base/bind_helpers.h"
 #include "base/command_line.h"
 #include "base/strings/utf_string_conversions.h"
+#include "components/pdf/common/pdf_messages.h"
 #include "content/browser/gpu/compositor_util.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/common/view_messages.h"
@@ -57,7 +58,7 @@
 #include "ui/shell_dialogs/selected_file_info.h"
 
 #if defined(OS_LINUX) || defined(OS_ANDROID)
-#include "ui/gfx/font_render_params_linux.h"
+#include "ui/gfx/font_render_params.h"
 #endif
 
 #if defined(USE_AURA)
@@ -428,57 +429,14 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
 
 #if defined(OS_LINUX) || defined(OS_ANDROID)
   content::RendererPreferences* prefs = web_contents->GetMutableRendererPrefs();
-  const gfx::FontRenderParams& params = gfx::GetDefaultWebKitFontRenderParams();
+  CR_DEFINE_STATIC_LOCAL(const gfx::FontRenderParams, params,
+      (gfx::GetFontRenderParams(gfx::FontRenderParamsQuery(true), NULL)));
   prefs->should_antialias_text = params.antialiasing;
   prefs->use_subpixel_positioning = params.subpixel_positioning;
-  switch (params.hinting) {
-    case gfx::FontRenderParams::HINTING_NONE:
-      prefs->hinting = content::RENDERER_PREFERENCES_HINTING_NONE;
-      break;
-    case gfx::FontRenderParams::HINTING_SLIGHT:
-      prefs->hinting = content::RENDERER_PREFERENCES_HINTING_SLIGHT;
-      break;
-    case gfx::FontRenderParams::HINTING_MEDIUM:
-      prefs->hinting = content::RENDERER_PREFERENCES_HINTING_MEDIUM;
-      break;
-    case gfx::FontRenderParams::HINTING_FULL:
-      prefs->hinting = content::RENDERER_PREFERENCES_HINTING_FULL;
-      break;
-    default:
-      NOTREACHED() << "Unhandled hinting style " << params.hinting;
-      prefs->hinting = content::RENDERER_PREFERENCES_HINTING_SYSTEM_DEFAULT;
-      break;
-  }
+  prefs->hinting = params.hinting;
   prefs->use_autohinter = params.autohinter;
   prefs->use_bitmaps = params.use_bitmaps;
-  switch (params.subpixel_rendering) {
-    case gfx::FontRenderParams::SUBPIXEL_RENDERING_NONE:
-      prefs->subpixel_rendering =
-          content::RENDERER_PREFERENCES_SUBPIXEL_RENDERING_NONE;
-      break;
-    case gfx::FontRenderParams::SUBPIXEL_RENDERING_RGB:
-      prefs->subpixel_rendering =
-          content::RENDERER_PREFERENCES_SUBPIXEL_RENDERING_RGB;
-      break;
-    case gfx::FontRenderParams::SUBPIXEL_RENDERING_BGR:
-      prefs->subpixel_rendering =
-          content::RENDERER_PREFERENCES_SUBPIXEL_RENDERING_BGR;
-      break;
-    case gfx::FontRenderParams::SUBPIXEL_RENDERING_VRGB:
-      prefs->subpixel_rendering =
-          content::RENDERER_PREFERENCES_SUBPIXEL_RENDERING_VRGB;
-      break;
-    case gfx::FontRenderParams::SUBPIXEL_RENDERING_VBGR:
-      prefs->subpixel_rendering =
-          content::RENDERER_PREFERENCES_SUBPIXEL_RENDERING_VBGR;
-      break;
-    default:
-      NOTREACHED() << "Unhandled subpixel rendering style "
-                   << params.subpixel_rendering;
-      prefs->subpixel_rendering =
-          content::RENDERER_PREFERENCES_SUBPIXEL_RENDERING_SYSTEM_DEFAULT;
-      break;
-  }
+  prefs->subpixel_rendering = params.subpixel_rendering;
   web_contents->GetRenderViewHost()->SyncRendererPrefs();
 #endif  // defined(OS_LINUX) || defined(OS_ANDROID)
 
@@ -1552,8 +1510,8 @@ void CefBrowserHostImpl::LoadString(int64 frame_id, const std::string& string,
   params.request_id = -1;
   params.expect_response = false;
 
-  params.arguments.Append(base::Value::CreateStringValue(string));
-  params.arguments.Append(base::Value::CreateStringValue(url));
+  params.arguments.AppendString(string);
+  params.arguments.AppendString(url);
 
   Send(new CefMsg_Request(routing_id(), params));
 }
@@ -1584,7 +1542,7 @@ void CefBrowserHostImpl::SendCommand(
       params.expect_response = false;
     }
 
-    params.arguments.Append(base::Value::CreateStringValue(command));
+    params.arguments.AppendString(command);
 
     Send(new CefMsg_Request(routing_id(), params));
   } else {
@@ -1624,10 +1582,10 @@ void CefBrowserHostImpl::SendCode(
       params.expect_response = false;
     }
 
-    params.arguments.Append(base::Value::CreateBooleanValue(is_javascript));
-    params.arguments.Append(base::Value::CreateStringValue(code));
-    params.arguments.Append(base::Value::CreateStringValue(script_url));
-    params.arguments.Append(base::Value::CreateIntegerValue(script_start_line));
+    params.arguments.AppendBoolean(is_javascript);
+    params.arguments.AppendString(code);
+    params.arguments.AppendString(script_url);
+    params.arguments.AppendInteger(script_start_line);
 
     Send(new CefMsg_Request(routing_id(), params));
   } else {
@@ -2359,9 +2317,9 @@ void CefBrowserHostImpl::RenderProcessGone(base::TerminationStatus status) {
 
 void CefBrowserHostImpl::DidCommitProvisionalLoadForFrame(
     content::RenderFrameHost* render_frame_host,
-    bool is_main_frame,
     const GURL& url,
     content::PageTransition transition_type) {
+  const bool is_main_frame = !render_frame_host->GetParent();
   CefRefPtr<CefFrame> frame = GetOrCreateFrame(
       render_frame_host->GetRoutingID(),
       CefFrameHostImpl::kUnspecifiedFrameId,
@@ -2375,10 +2333,10 @@ void CefBrowserHostImpl::DidCommitProvisionalLoadForFrame(
 
 void CefBrowserHostImpl::DidFailProvisionalLoad(
     content::RenderFrameHost* render_frame_host,
-    bool is_main_frame,
     const GURL& validated_url,
     int error_code,
     const base::string16& error_description) {
+  const bool is_main_frame = !render_frame_host->GetParent();
   CefRefPtr<CefFrame> frame = GetOrCreateFrame(
       render_frame_host->GetRoutingID(),
       CefFrameHostImpl::kUnspecifiedFrameId,
@@ -2394,14 +2352,16 @@ void CefBrowserHostImpl::DocumentAvailableInMainFrame() {
 }
 
 void CefBrowserHostImpl::DidFailLoad(
-    int64 frame_id,
+    content::RenderFrameHost* render_frame_host,
     const GURL& validated_url,
-    bool is_main_frame,
     int error_code,
-    const base::string16& error_description,
-    content::RenderViewHost* render_view_host) {
-  CefRefPtr<CefFrame> frame = GetOrCreateFrame(frame_id,
-      CefFrameHostImpl::kUnspecifiedFrameId, is_main_frame, base::string16(),
+    const base::string16& error_description) {
+  const bool is_main_frame = !render_frame_host->GetParent();
+  CefRefPtr<CefFrame> frame = GetOrCreateFrame(
+      render_frame_host->GetRoutingID(),
+      CefFrameHostImpl::kUnspecifiedFrameId,
+      is_main_frame,
+      base::string16(),
       validated_url);
   OnLoadError(frame, validated_url, error_code, error_description);
   OnLoadEnd(frame, validated_url, error_code);
@@ -2432,14 +2392,13 @@ bool CefBrowserHostImpl::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(CefHostMsg_Request, OnRequest)
     IPC_MESSAGE_HANDLER(CefHostMsg_Response, OnResponse)
     IPC_MESSAGE_HANDLER(CefHostMsg_ResponseAck, OnResponseAck)
-    IPC_MESSAGE_HANDLER(ChromeViewHostMsg_PDFHasUnsupportedFeature,
+    IPC_MESSAGE_HANDLER(PDFHostMsg_PDFHasUnsupportedFeature,
                         OnPDFHasUnsupportedFeature)
-    IPC_MESSAGE_HANDLER(ChromeViewHostMsg_PDFSaveURLAs, OnPDFSaveURLAs)
-    IPC_MESSAGE_HANDLER(ChromeViewHostMsg_PDFUpdateContentRestrictions,
+    IPC_MESSAGE_HANDLER(PDFHostMsg_PDFSaveURLAs, OnPDFSaveURLAs)
+    IPC_MESSAGE_HANDLER(PDFHostMsg_PDFUpdateContentRestrictions,
                         OnPDFUpdateContentRestrictions)
-    IPC_MESSAGE_HANDLER_DELAY_REPLY(
-        ChromeViewHostMsg_PDFModalPromptForPassword,
-        OnPDFModalPromptForPassword)
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(PDFHostMsg_PDFModalPromptForPassword,
+                                    OnPDFModalPromptForPassword)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -2561,7 +2520,7 @@ void CefBrowserHostImpl::OnPDFModalPromptForPasswordClosed(
     IPC::Message* reply_message,
     bool success,
     const base::string16& actual_value) {
-  ChromeViewHostMsg_PDFModalPromptForPassword::WriteReplyParams(
+  PDFHostMsg_PDFModalPromptForPassword::WriteReplyParams(
       reply_message, base::UTF16ToUTF8(actual_value));
   Send(reply_message);
 }

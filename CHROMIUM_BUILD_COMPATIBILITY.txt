@@ -7,7 +7,5 @@
 # https://code.google.com/p/chromiumembedded/wiki/BranchesAndBuilding
 
 {
-  'chromium_url': 'http://src.chromium.org/svn/trunk/src',
-  'chromium_revision': '280796',
-  'chromium_checkout': 'e800fe7470fa87dc1ca5b148a7c2c41f603fdcbd',
+  'chromium_checkout': 'ad468e8b47617a4f9fb70fecfd9ea320e6f8c1cf',
 }

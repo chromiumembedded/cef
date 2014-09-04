@@ -386,7 +386,7 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
   // Make the content view for the window have a layer. This will make all
   // sub-views have layers. This is necessary to ensure correct layer
   // ordering of all child views and their layers.
-  [[[parentView window] contentView] cr_setWantsLayer:YES];
+  [[[parentView window] contentView] setWantsLayer:YES];
 
   // Add a reference that will be released in the dealloc handler.
   AddRef();

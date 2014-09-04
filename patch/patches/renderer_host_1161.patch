@@ -1,8 +1,8 @@
-Index: compositing_iosurface_layer_mac.mm
-===================================================================
---- compositing_iosurface_layer_mac.mm	(revision 280796)
-+++ compositing_iosurface_layer_mac.mm	(working copy)
-@@ -191,7 +191,7 @@
+diff --git compositing_iosurface_layer_mac.mm compositing_iosurface_layer_mac.mm
+index 81a3529..dfcc48d 100644
+--- compositing_iosurface_layer_mac.mm
++++ compositing_iosurface_layer_mac.mm
+@@ -268,7 +268,7 @@ void CompositingIOSurfaceLayerHelper::EndPumpingFrames() {
    TRACE_EVENT0("browser", "CompositingIOSurfaceLayer::drawInCGLContext");
  
    if (!iosurface_->HasIOSurface() || context_->cgl_context() != glContext) {
@@ -11,12 +11,12 @@ Index: compositing_iosurface_layer_mac.mm
      glClear(GL_COLOR_BUFFER_BIT);
      return;
    }
-Index: compositing_iosurface_mac.mm
-===================================================================
---- compositing_iosurface_mac.mm	(revision 280796)
-+++ compositing_iosurface_mac.mm	(working copy)
-@@ -350,7 +350,7 @@
-     glUseProgram(0); CHECK_AND_SAVE_GL_ERROR();
+diff --git compositing_iosurface_mac.mm compositing_iosurface_mac.mm
+index 7012399..47cb9d1 100644
+--- compositing_iosurface_mac.mm
++++ compositing_iosurface_mac.mm
+@@ -167,7 +167,7 @@ bool CompositingIOSurfaceMac::DrawIOSurface(
+     CHECK_AND_SAVE_GL_ERROR();
    } else {
      // Should match the clear color of RenderWidgetHostViewMac.
 -    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -24,79 +24,11 @@ Index: compositing_iosurface_mac.mm
      glClear(GL_COLOR_BUFFER_BIT);
    }
  
-Index: compositing_iosurface_shader_programs_mac.cc
-===================================================================
---- compositing_iosurface_shader_programs_mac.cc	(revision 280796)
-+++ compositing_iosurface_shader_programs_mac.cc	(working copy)
-@@ -11,6 +11,8 @@
- #include "base/debug/trace_event.h"
- #include "base/logging.h"
- #include "base/memory/scoped_ptr.h"
-+#include "base/strings/stringprintf.h"
-+#include "base/strings/string_number_conversions.h"
- #include "base/values.h"
- #include "content/browser/gpu/gpu_data_manager_impl.h"
- #include "gpu/config/gpu_driver_bug_workaround_type.h"
-@@ -51,6 +53,7 @@
-     }
- );
- 
-+float bgcolor[] = {1.0f, 1.0f, 1.0f};
- 
- // Only calculates position.
- const char kvsSolidWhite[] = GLSL_PROGRAM_AS_STRING(
-@@ -238,6 +241,18 @@
-   const GLuint shader = glCreateShader(shader_type);
-   DCHECK_NE(shader, 0u);
- 
-+  // Support customization of the background color.
-+  std::string bg_shader;
-+  if (shader_program == SHADER_PROGRAM_SOLID_WHITE &&
-+      shader_type == GL_FRAGMENT_SHADER) {
-+    bg_shader = base::StringPrintf(
-+        "void main() { gl_FragColor = vec4(%s, %s, %s, 1.0); }",
-+        base::DoubleToString(bgcolor[0]).c_str(),
-+        base::DoubleToString(bgcolor[1]).c_str(),
-+        base::DoubleToString(bgcolor[2]).c_str());
-+    kFragmentShaderSourceCodeMap[shader_program] = bg_shader.c_str();
-+  }
-+
-   // Select and compile the shader program source code.
-   if (shader_type == GL_VERTEX_SHADER) {
-     const GLchar* source_snippets[] = {
-@@ -412,6 +427,14 @@
-   Reset();
- }
- 
-+// static
-+void CompositingIOSurfaceShaderPrograms::SetBackgroundColor(
-+    float r, float g, float b) {
-+  bgcolor[0] = r;
-+  bgcolor[1] = g;
-+  bgcolor[2] = b;
-+}
-+
- GLuint CompositingIOSurfaceShaderPrograms::GetShaderProgram(int which) {
-   if (shader_programs_[which] == 0u) {
-     shader_programs_[which] =
-Index: compositing_iosurface_shader_programs_mac.h
-===================================================================
---- compositing_iosurface_shader_programs_mac.h	(revision 280796)
-+++ compositing_iosurface_shader_programs_mac.h	(working copy)
-@@ -48,6 +48,8 @@
-     return rgb_to_yv12_output_format_;
-   }
- 
-+  static void SetBackgroundColor(float r, float g, float b);
-+
-  protected:
-   FRIEND_TEST_ALL_PREFIXES(CompositingIOSurfaceTransformerTest,
-                            TransformsRGBToYV12);
-Index: render_widget_host_view_aura.cc
-===================================================================
---- render_widget_host_view_aura.cc	(revision 280796)
-+++ render_widget_host_view_aura.cc	(working copy)
-@@ -1672,8 +1672,14 @@
+diff --git render_widget_host_view_aura.cc render_widget_host_view_aura.cc
+index 49ee8e4..c49ef82 100644
+--- render_widget_host_view_aura.cc
++++ render_widget_host_view_aura.cc
+@@ -1615,8 +1615,14 @@ void RenderWidgetHostViewAura::OnPaint(gfx::Canvas* canvas) {
    // For non-opaque windows, we don't draw anything, since we depend on the
    // canvas coming from the compositor to already be initialized as
    // transparent.
@@ -113,16 +45,16 @@ Index: render_widget_host_view_aura.cc
  }
  
  void RenderWidgetHostViewAura::OnDeviceScaleFactorChanged(
-Index: render_widget_host_view_mac.mm
-===================================================================
---- render_widget_host_view_mac.mm	(revision 280796)
-+++ render_widget_host_view_mac.mm	(working copy)
-@@ -504,7 +504,7 @@
- 
+diff --git render_widget_host_view_mac.mm render_widget_host_view_mac.mm
+index 4ebbd62..7b3983a 100644
+--- render_widget_host_view_mac.mm
++++ render_widget_host_view_mac.mm
+@@ -507,7 +507,7 @@ RenderWidgetHostViewMac::RenderWidgetHostViewMac(RenderWidgetHost* widget)
+   // draw.
    background_layer_.reset([[CALayer alloc] init]);
    [background_layer_
 -      setBackgroundColor:CGColorGetConstantColor(kCGColorWhite)];
 +      setBackgroundColor:CGColorGetConstantColor(kCGColorClear)];
-   [background_layer_ setGeometryFlipped:YES];
-   [background_layer_ setContentsGravity:kCAGravityTopLeft];
    [cocoa_view_ setLayer:background_layer_];
+   [cocoa_view_ setWantsLayer:YES];
+ 

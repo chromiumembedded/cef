@@ -155,8 +155,8 @@ class CefRequest : public virtual CefBase {
   virtual void SetFirstPartyForCookies(const CefString& url) =0;
 
   ///
-  // Get the resource type for this request. Accurate resource type information
-  // may only be available in the browser process.
+  // Get the resource type for this request. Only available in the browser
+  // process.
   ///
   /*--cef(default_retval=RT_SUB_RESOURCE)--*/
   virtual ResourceType GetResourceType() =0;

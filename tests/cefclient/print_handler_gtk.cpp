@@ -26,7 +26,6 @@ const char kCUPSPrintoutMode[] = "cups-PrintoutMode";
 const char kCUPSProcessColorModel[] = "cups-ProcessColorModel";
 const char kBlack[] = "Black";
 const char kCMYK[] = "CMYK";
-const char kKCMY[] = "KCMY";
 const char kCMY_K[] = "CMY+K";
 const char kCMY[] = "CMY";
 const char kColor[] = "Color";

@@ -1,25 +1,18 @@
-Index: web_contents_impl.cc
-===================================================================
---- web_contents_impl.cc	(revision 280796)
-+++ web_contents_impl.cc	(working copy)
-@@ -1073,22 +1073,29 @@
+diff --git web_contents_impl.cc web_contents_impl.cc
+index f1a9d02..243bbc8 100644
+--- web_contents_impl.cc
++++ web_contents_impl.cc
+@@ -1147,22 +1147,29 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
        params.browser_context, params.site_instance, params.routing_id,
        params.main_frame_routing_id);
  
 -  WebContentsViewDelegate* delegate =
 -      GetContentClient()->browser()->GetWebContentsViewDelegate(this);
-+  if (params.view && params.delegate_view) {
-+    view_.reset(params.view);
-+    render_view_host_delegate_view_ = params.delegate_view;
-+  }
- 
+-
 -  if (browser_plugin_guest_) {
 -    scoped_ptr<WebContentsView> platform_view(CreateWebContentsView(
 -        this, delegate, &render_view_host_delegate_view_));
-+  if (!view_) {
-+    WebContentsViewDelegate* delegate =
-+        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
- 
+-
 -    WebContentsViewGuest* rv = new WebContentsViewGuest(
 -        this, browser_plugin_guest_.get(), platform_view.Pass(),
 -        render_view_host_delegate_view_);
@@ -29,6 +22,15 @@ Index: web_contents_impl.cc
 -    // Regular WebContentsView.
 -    view_.reset(CreateWebContentsView(
 -        this, delegate, &render_view_host_delegate_view_));
++  if (params.view && params.delegate_view) {
++    view_.reset(params.view);
++    render_view_host_delegate_view_ = params.delegate_view;
++  }
++
++  if (!view_) {
++    WebContentsViewDelegate* delegate =
++        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
++
 +    if (browser_plugin_guest_) {
 +      scoped_ptr<WebContentsView> platform_view(CreateWebContentsView(
 +          this, delegate, &render_view_host_delegate_view_));
@@ -46,7 +48,7 @@ Index: web_contents_impl.cc
    }
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
-@@ -1407,6 +1414,9 @@
+@@ -1479,6 +1486,9 @@ void WebContentsImpl::CreateNewWindow(
        static_cast<SessionStorageNamespaceImpl*>(session_storage_namespace);
    CHECK(session_storage_namespace_impl->IsFromContext(dom_storage_context));
  
@@ -56,7 +58,7 @@ Index: web_contents_impl.cc
    if (delegate_ &&
        !delegate_->ShouldCreateWebContents(this,
                                            route_id,
-@@ -1414,7 +1424,9 @@
+@@ -1486,7 +1496,9 @@ void WebContentsImpl::CreateNewWindow(
                                            params.frame_name,
                                            params.target_url,
                                            partition_id,
@@ -67,7 +69,7 @@ Index: web_contents_impl.cc
      if (route_id != MSG_ROUTING_NONE &&
          !RenderViewHost::FromID(render_process_id, route_id)) {
        // If the embedder didn't create a WebContents for this route, we need to
-@@ -1434,6 +1446,8 @@
+@@ -1506,6 +1518,8 @@ void WebContentsImpl::CreateNewWindow(
    create_params.main_frame_routing_id = main_frame_route_id;
    create_params.opener = this;
    create_params.opener_suppressed = params.opener_suppressed;

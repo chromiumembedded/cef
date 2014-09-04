@@ -151,7 +151,7 @@ void CefURLRequestContextProxy::Initialize(
   set_host_resolver(context->host_resolver());
   set_cert_verifier(context->cert_verifier());
   set_transport_security_state(context->transport_security_state());
-  set_server_bound_cert_service(context->server_bound_cert_service());
+  set_channel_id_service(context->channel_id_service());
   set_fraudulent_certificate_reporter(
       context->fraudulent_certificate_reporter());
   set_proxy_service(context->proxy_service());

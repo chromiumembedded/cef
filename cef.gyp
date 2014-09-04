@@ -634,7 +634,7 @@
       'type': 'none',
       'dependencies': [
         '<(DEPTH)/ui/strings/ui_strings.gyp:ui_strings',
-        '<(DEPTH)/webkit/webkit_resources.gyp:webkit_strings',
+        '<(DEPTH)/content/app/strings/content_strings.gyp:content_strings',
         'cef_strings',
       ],
       'actions': [
@@ -717,11 +717,12 @@
       'target_name': 'cef_pak',
       'type': 'none',
       'dependencies': [
+        '<(DEPTH)/components/components_strings.gyp:components_strings',
+        '<(DEPTH)/content/app/resources/content_resources.gyp:content_resources',
+        '<(DEPTH)/content/app/strings/content_strings.gyp:content_strings',
         '<(DEPTH)/content/browser/devtools/devtools_resources.gyp:devtools_resources',
-        '<(DEPTH)/content/content_resources.gyp:content_resources',
         '<(DEPTH)/net/net.gyp:net_resources',
         '<(DEPTH)/ui/resources/ui_resources.gyp:ui_resources',
-        '<(DEPTH)/webkit/webkit_resources.gyp:webkit_resources',
         'cef_locales',
         'cef_resources',
       ],
@@ -733,9 +734,9 @@
           'action_name': 'repack_cef_pack',
           'variables': {
             'pak_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/blink/public/resources/blink_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/webkit/blink_resources.pak',
               '<(grit_out_dir)/cef_resources.pak',
             ],
             'pak_output': '<(PRODUCT_DIR)/cef.pak',
@@ -746,8 +747,8 @@
           'action_name': 'repack_cef_100_percent_pack',
           'variables': {
             'pak_inputs': [
-              '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_resources_100_percent.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources_100_percent.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/content/app/resources/content_resources_100_percent.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/ui/resources/ui_resources_100_percent.pak',
             ],
             'pak_output': '<(PRODUCT_DIR)/cef_100_percent.pak',
           },
@@ -757,8 +758,8 @@
           'action_name': 'repack_cef_200_percent_pack',
           'variables': {
             'pak_inputs': [
-              '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_resources_200_percent.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources_200_percent.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/content/app/resources/content_resources_200_percent.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/ui/resources/ui_resources_200_percent.pak',
             ],
             'pak_output': '<(PRODUCT_DIR)/cef_200_percent.pak',
           },
@@ -768,12 +769,11 @@
           'action_name': 'make_pack_resources_header',
           'variables': {
             'header_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/blink/public/resources/grit/blink_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/content/grit/content_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/net/grit/net_resources.h',
-              '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/grit/ui_resources.h',
+              '<(SHARED_INTERMEDIATE_DIR)/ui/resources/grit/ui_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/devtools_resources.h',
-              '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/blink_resources.h',
-              '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/webkit_resources.h',
               '<(grit_out_dir)/grit/cef_resources.h',
             ],
           },
@@ -791,8 +791,9 @@
           'action_name': 'make_pack_strings_header',
           'variables': {
             'header_inputs': [
-              '<(SHARED_INTERMEDIATE_DIR)/ui/ui_strings/grit/ui_strings.h',
-              '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/webkit_strings.h',
+              '<(SHARED_INTERMEDIATE_DIR)/components/strings/grit/components_strings.h',
+              '<(SHARED_INTERMEDIATE_DIR)/content/app/strings/grit/content_strings.h',
+              '<(SHARED_INTERMEDIATE_DIR)/ui/strings/grit/ui_strings.h',
               '<(grit_out_dir)/grit/cef_strings.h',
             ],
           },
@@ -831,8 +832,8 @@
         # CEF grit resource includes
         '<(DEPTH)/cef/libcef/resources/grit_stub',
         '<(grit_out_dir)',
-        '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources',
-        '<(SHARED_INTERMEDIATE_DIR)/ui/ui_strings',
+        '<(SHARED_INTERMEDIATE_DIR)/ui/resources',
+        '<(SHARED_INTERMEDIATE_DIR)/ui/strings',
         '<(SHARED_INTERMEDIATE_DIR)/webkit',
       ],
       'dependencies': [
@@ -840,9 +841,13 @@
         '<(DEPTH)/base/base.gyp:base_prefs',
         '<(DEPTH)/base/base.gyp:base_static',
         '<(DEPTH)/base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
+        '<(DEPTH)/cc/blink/cc_blink.gyp:cc_blink',
         '<(DEPTH)/cc/cc.gyp:cc',
-        '<(DEPTH)/components/components.gyp:breakpad_component',
+        '<(DEPTH)/components/components.gyp:crash_component',
         '<(DEPTH)/components/components.gyp:navigation_interception',
+        '<(DEPTH)/components/components.gyp:pdf_browser',
+        '<(DEPTH)/components/components.gyp:pdf_common',
+        '<(DEPTH)/components/components.gyp:pdf_renderer',
         '<(DEPTH)/content/content.gyp:content_app_both',
         '<(DEPTH)/content/content.gyp:content_browser',
         '<(DEPTH)/content/content.gyp:content_common',
@@ -850,9 +855,8 @@
         '<(DEPTH)/content/content.gyp:content_plugin',
         '<(DEPTH)/content/content.gyp:content_ppapi_plugin',
         '<(DEPTH)/content/content.gyp:content_renderer',
+        '<(DEPTH)/content/content.gyp:content_resources',
         '<(DEPTH)/content/content.gyp:content_utility',
-        '<(DEPTH)/content/content.gyp:content_worker',
-        '<(DEPTH)/content/content_resources.gyp:content_resources',
         '<(DEPTH)/gpu/gpu.gyp:gpu',
         '<(DEPTH)/ipc/ipc.gyp:ipc',
         '<(DEPTH)/media/media.gyp:media',
@@ -868,8 +872,7 @@
         '<(DEPTH)/ui/gl/gl.gyp:gl',
         '<(DEPTH)/ui/base/ui_base.gyp:ui_base',
         '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
-        '<(DEPTH)/webkit/storage_browser.gyp:webkit_storage_browser',
-        '<(DEPTH)/webkit/storage_common.gyp:webkit_storage_common',
+        '<(DEPTH)/webkit/storage_browser.gyp:storage',
         # Necessary to generate the grit include files.
         'cef_pak',
       ],
@@ -1039,14 +1042,14 @@
         'libcef/common/values_impl.h',
         'libcef/common/upload_data.cc',
         'libcef/common/upload_data.h',
+        'libcef/common/upload_element.cc',
+        'libcef/common/upload_element.h',
         'libcef/renderer/browser_impl.cc',
         'libcef/renderer/browser_impl.h',
         'libcef/renderer/content_renderer_client.cc',
         'libcef/renderer/content_renderer_client.h',
         'libcef/renderer/dom_document_impl.cc',
         'libcef/renderer/dom_document_impl.h',
-        'libcef/renderer/dom_event_impl.cc',
-        'libcef/renderer/dom_event_impl.h',
         'libcef/renderer/dom_node_impl.cc',
         'libcef/renderer/dom_node_impl.h',
         'libcef/renderer/frame_impl.cc',
@@ -1099,15 +1102,15 @@
         '<(DEPTH)/chrome/browser/printing/print_job_manager.h',
         '<(DEPTH)/chrome/browser/printing/print_job_worker.cc',
         '<(DEPTH)/chrome/browser/printing/print_job_worker.h',
-        '<(DEPTH)/chrome/browser/printing/print_job_worker_owner.h',
+        '<(DEPTH)/chrome/browser/printing/print_job_worker_owner.cc',
         '<(DEPTH)/chrome/browser/printing/print_job_worker_owner.h',
         '<(DEPTH)/chrome/browser/printing/printer_query.cc',
         '<(DEPTH)/chrome/browser/printing/printer_query.h',
-        '<(DEPTH)/chrome/browser/printing/printing_ui_web_contents_observer.cc',
-        '<(DEPTH)/chrome/browser/printing/printing_ui_web_contents_observer.h',
         '<(DEPTH)/chrome/common/prerender_messages.h',
         '<(DEPTH)/chrome/common/print_messages.cc',
         '<(DEPTH)/chrome/common/print_messages.h',
+        '<(DEPTH)/chrome/renderer/pepper/chrome_pdf_print_client.cc',
+        '<(DEPTH)/chrome/renderer/pepper/chrome_pdf_print_client.h',
         '<(DEPTH)/chrome/renderer/prerender/prerender_helper.cc',
         '<(DEPTH)/chrome/renderer/prerender/prerender_helper.h',
         '<(DEPTH)/chrome/renderer/printing/print_web_view_helper.cc',
@@ -1116,9 +1119,6 @@
         # determine the current locale.
         '<(DEPTH)/chrome/browser/browser_process.cc',
         '<(DEPTH)/chrome/browser/browser_process.h',
-        # Include sources for pepper PDF plugin support.
-        '<(DEPTH)/chrome/renderer/pepper/ppb_pdf_impl.cc',
-        '<(DEPTH)/chrome/renderer/pepper/ppb_pdf_impl.h',
       ],
       'conditions': [
         ['OS=="win"', {
@@ -1584,8 +1584,8 @@
               '<@(includes_win)',
               # TODO(cef): Remove ui_unscaled_resources.rc once custom cursor
               # resources can be loaded via ResourceBundle. See crbug.com/147663.
-              '<(SHARED_INTERMEDIATE_DIR)/webkit/blink_resources.rc',
-              '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_unscaled_resources.rc',
+              '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.rc',
+              '<(SHARED_INTERMEDIATE_DIR)/ui/resources/ui_unscaled_resources.rc',
               'libcef_dll/libcef_dll.rc',
             ],
             'link_settings': {

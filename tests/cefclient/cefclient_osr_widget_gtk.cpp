@@ -976,10 +976,6 @@ gint glarea_scroll_event(GtkWidget* widget,
   return TRUE;
 }
 
-void process(GdkEventKey* event) {
-  
-}
-
 gint glarea_key_event(GtkWidget* widget,
                       GdkEventKey* event,
                       OSRWindow* window) {
@@ -1091,7 +1087,6 @@ class ScopedGLContext {
 
  private:
   bool swap_buffers_;
-  GdkGLContext* glcontext_;
   GdkGLDrawable* gldrawable_;
   bool is_valid_;
 };

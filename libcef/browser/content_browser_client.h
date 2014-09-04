@@ -109,9 +109,10 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       int cert_error,
       const net::SSLInfo& ssl_info,
       const GURL& request_url,
-      ResourceType::Type resource_type,
+      content::ResourceType resource_type,
       bool overridable,
       bool strict_enforcement,
+      bool expired_previous_decision,
       const base::Callback<void(bool)>& callback,
       content::CertificateRequestResultType* result) OVERRIDE;
   virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
@@ -139,7 +140,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   virtual void ResourceDispatcherHostCreated() OVERRIDE;
   virtual void OverrideWebkitPrefs(content::RenderViewHost* rvh,
                                    const GURL& url,
-                                   WebPreferences* prefs) OVERRIDE;
+                                   content::WebPreferences* prefs) OVERRIDE;
   virtual SkColor GetBaseBackgroundColor(content::RenderViewHost* rvh) OVERRIDE;
   virtual void BrowserURLHandlerCreated(
       content::BrowserURLHandler* handler) OVERRIDE;

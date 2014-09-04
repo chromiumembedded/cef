@@ -1,8 +1,8 @@
 diff --git ThemeMac.mm ThemeMac.mm
-index 4e702e1..927b2e8 100644
+index 8da614b..14c865d 100644
 --- ThemeMac.mm
 +++ ThemeMac.mm
-@@ -472,7 +472,7 @@ static void paintButton(ControlPart part, ControlStates states, GraphicsContext*
+@@ -490,7 +490,7 @@ static void paintButton(ControlPart part, ControlStates states, GraphicsContext*
  
      [buttonCell drawWithFrame:NSRect(inflatedRect) inView:view];
  #if !BUTTON_CELL_DRAW_WITH_FRAME_DRAWS_FOCUS_RING

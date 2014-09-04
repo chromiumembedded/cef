@@ -24,7 +24,6 @@
 #include "cefclient/client_renderer.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/dialog_test.h"
-#include "cefclient/dom_test.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/string_util.h"
 #include "cefclient/window_test.h"
@@ -462,12 +461,6 @@ void ClientHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
 
   SetLoading(isLoading);
   SetNavState(canGoBack, canGoForward);
-
-  if (!isLoading) {
-    // Continue the DOM test.
-    if (browser->GetMainFrame()->GetURL() == dom_test::kTestUrl)
-      dom_test::OnLoadEnd(browser);
-  }
 }
 
 void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,

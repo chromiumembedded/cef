@@ -1044,11 +1044,6 @@ typedef enum {
   UR_FLAG_REPORT_UPLOAD_PROGRESS    = 1 << 3,
 
   ///
-  // If set load timing info will be collected for the request.
-  ///
-  UR_FLAG_REPORT_LOAD_TIMING        = 1 << 4,
-
-  ///
   // If set the headers sent and received for the request will be recorded.
   ///
   UR_FLAG_REPORT_RAW_HEADERS        = 1 << 5,

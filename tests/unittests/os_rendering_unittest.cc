@@ -82,7 +82,6 @@ const CefRect kDropDivRect(8, 332, 52, 52);
 const CefRect kDragDivRect(71, 342, 30, 30);
 const int kDefaultVerticalScrollbarWidth = 17;
 const int kVerticalScrollbarWidth = GetSystemMetrics(SM_CXVSCROLL);
-const int kHorizontalScrollbarWidth = GetSystemMetrics(SM_CXHSCROLL);
 #elif defined(OS_MACOSX)
 const CefRect kEditBoxRect(442, 251, 46, 16);
 const CefRect kNavigateButtonRect(375, 275, 130, 20);
@@ -99,7 +98,6 @@ const CefRect kDropDivRect(8, 332, 52, 52);
 const CefRect kDragDivRect(71, 342, 30, 30);
 const int kDefaultVerticalScrollbarWidth = 14;
 const int kVerticalScrollbarWidth = 14;
-const int kHorizontalScrollbarWidth = 14;
 #else
 #error "Unsupported platform"
 #endif  // defined(OS_WIN)
@@ -215,10 +213,6 @@ class OSRTestHandler : public RoutingTestHandler,
         event_count_(0),
         event_total_(1),
         started_(false) {
-    if (test == OSR_TEST_SCROLLING) {
-      // Wait for both the paint event and the scroll offset event.
-      event_total_ = 2;
-    }
   }
 
   virtual ~OSRTestHandler() {}
@@ -853,12 +847,6 @@ class OSRTestHandler : public RoutingTestHandler,
       browser->GetHost()->DragTargetDrop(ev);
       browser->GetHost()->DragSourceEndedAt(ev.x, ev.y, operation);
       browser->GetHost()->DragSourceSystemDragEnded();
-    }
-  }
-
-  virtual void OnScrollOffsetChanged(CefRefPtr<CefBrowser> browser) OVERRIDE {
-    if (test_type_ == OSR_TEST_SCROLLING && started()) {
-      DestroySucceededTestSoon();
     }
   }
 
