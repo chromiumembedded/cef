@@ -155,7 +155,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       render_widget_host_(content::RenderWidgetHostImpl::From(widget)),
       parent_host_view_(NULL),
       popup_host_view_(NULL),
-      is_showing_(false),
+      is_showing_(true),
       is_destroyed_(false),
 #if defined(OS_MACOSX)
       text_input_context_osr_mac_(NULL),

@@ -87,6 +87,7 @@ class OSRWindow : public ClientHandler::RenderHandler,
       CefBrowserHost::DragOperationsMask effect) OVERRIDE;
 
   void Invalidate();
+  void WasHidden(bool hidden);
 
   static int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam);
   static int GetCefMouseModifiers(WPARAM wparam);
@@ -119,6 +120,7 @@ class OSRWindow : public ClientHandler::RenderHandler,
 
   bool painting_popup_;
   bool render_task_pending_;
+  bool hidden_;
 
   IMPLEMENT_REFCOUNTING(OSRWindow);
 };

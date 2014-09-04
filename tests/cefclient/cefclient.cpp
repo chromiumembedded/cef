@@ -18,7 +18,13 @@
 #include "cefclient/string_util.h"
 
 CefRefPtr<ClientHandler> g_handler;
+
+namespace {
+
 CefRefPtr<CefCommandLine> g_command_line;
+int g_offscreen_state = 0;
+
+}  // namespace
 
 CefRefPtr<CefBrowser> AppGetBrowser() {
   if (!g_handler.get())
@@ -78,11 +84,15 @@ void AppGetBrowserSettings(CefBrowserSettings& settings) {
 }
 
 bool AppIsOffScreenRenderingEnabled() {
-  DCHECK(g_command_line.get());
-  if (!g_command_line.get())
-    return false;
+  if (g_offscreen_state == 0) {
+    // Store the value so it isn't queried multiple times.
+    DCHECK(g_command_line.get());
+    g_offscreen_state =
+        g_command_line->HasSwitch(cefclient::kOffScreenRenderingEnabled) ?
+            1 : 2;
+  }
 
-  return g_command_line->HasSwitch(cefclient::kOffScreenRenderingEnabled);
+  return (g_offscreen_state == 1);
 }
 
 void RunGetSourceTest(CefRefPtr<CefBrowser> browser) {
