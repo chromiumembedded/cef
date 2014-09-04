@@ -192,6 +192,16 @@ void OSRWindow::Invalidate() {
                      kRenderDelay);
 }
 
+void OSRWindow::WasHidden(bool hidden) {
+  if (hidden == hidden_)
+    return;
+  CefRefPtr<CefBrowser> browser = browser_provider_->GetBrowser();
+  if (!browser)
+    return;
+  browser->GetHost()->WasHidden(hidden);
+  hidden_ = hidden;
+}
+
 CefBrowserHost::DragOperationsMask
     OSRWindow::OnDragEnter(CefRefPtr<CefDragData> drag_data,
                            CefMouseEvent ev,
@@ -226,9 +236,10 @@ OSRWindow::OSRWindow(OSRBrowserProvider* browser_provider, bool transparent)
       hWnd_(NULL),
       hDC_(NULL),
       hRC_(NULL),
+      current_drag_op_(DRAG_OPERATION_NONE),
       painting_popup_(false),
       render_task_pending_(false),
-      current_drag_op_(DRAG_OPERATION_NONE) {
+      hidden_(false) {
 }
 
 OSRWindow::~OSRWindow() {

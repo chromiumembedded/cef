@@ -597,15 +597,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       return 0;
 
     case WM_SIZE:
-      // Minimizing resizes the window to 0x0 which causes our layout to go all
-      // screwy, so we just ignore it.
-      if (wParam != SIZE_MINIMIZED && g_handler.get() &&
-          g_handler->GetBrowser()) {
+      if (!g_handler.get())
+        break;
+
+      // Mark the off-screen browser as hidden when the frame window is
+      // minimized to reduce resource usage.
+      if (AppIsOffScreenRenderingEnabled()) {
+        CefRefPtr<OSRWindow> osr_window =
+            static_cast<OSRWindow*>(g_handler->GetOSRHandler().get());
+        if (osr_window)
+          osr_window->WasHidden(wParam == SIZE_MINIMIZED);
+      }
+
+      // Don't resize the window if minimizing because the resulting size of 0x0
+      // causes the layout to go all screwy.
+      if (wParam != SIZE_MINIMIZED && g_handler->GetBrowser()) {
+        // Retrieve the window handle (parent window with off-screen rendering).
         CefWindowHandle hwnd =
             g_handler->GetBrowser()->GetHost()->GetWindowHandle();
         if (hwnd) {
-          // Resize the browser window and address bar to match the new frame
-          // window size
+          // Resize the window and address bar to match the new frame size.
           RECT rect;
           GetClientRect(hWnd, &rect);
           rect.top += URLBAR_HEIGHT;
