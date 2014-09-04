@@ -596,43 +596,51 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       }
       return 0;
 
-    case WM_SIZE:
+    case WM_SIZE: {
       if (!g_handler.get())
         break;
 
-      // Mark the off-screen browser as hidden when the frame window is
-      // minimized to reduce resource usage.
-      if (AppIsOffScreenRenderingEnabled()) {
+      // For off-screen browsers when the frame window is minimized set the
+      // browser as hidden to reduce resource usage.
+      const bool offscreen = AppIsOffScreenRenderingEnabled();
+      if (offscreen) {
         CefRefPtr<OSRWindow> osr_window =
             static_cast<OSRWindow*>(g_handler->GetOSRHandler().get());
         if (osr_window)
           osr_window->WasHidden(wParam == SIZE_MINIMIZED);
       }
 
-      // Don't resize the window if minimizing because the resulting size of 0x0
-      // causes the layout to go all screwy.
-      if (wParam != SIZE_MINIMIZED && g_handler->GetBrowser()) {
+      if (g_handler->GetBrowser()) {
         // Retrieve the window handle (parent window with off-screen rendering).
         CefWindowHandle hwnd =
             g_handler->GetBrowser()->GetHost()->GetWindowHandle();
         if (hwnd) {
-          // Resize the window and address bar to match the new frame size.
-          RECT rect;
-          GetClientRect(hWnd, &rect);
-          rect.top += URLBAR_HEIGHT;
+          if (wParam == SIZE_MINIMIZED) {
+            // For windowed browsers when the frame window is minimized set the
+            // browser window size to 0x0 to reduce resource usage.
+            if (!offscreen) {
+              SetWindowPos(hwnd, NULL,
+                  0, 0, 0, 0, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+            }
+          } else {
+            // Resize the window and address bar to match the new frame size.
+            RECT rect;
+            GetClientRect(hWnd, &rect);
+            rect.top += URLBAR_HEIGHT;
 
-          int urloffset = rect.left + BUTTON_WIDTH * 4;
+            int urloffset = rect.left + BUTTON_WIDTH * 4;
 
-          HDWP hdwp = BeginDeferWindowPos(1);
-          hdwp = DeferWindowPos(hdwp, editWnd, NULL, urloffset,
-            0, rect.right - urloffset, URLBAR_HEIGHT, SWP_NOZORDER);
-          hdwp = DeferWindowPos(hdwp, hwnd, NULL,
-            rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
-            SWP_NOZORDER);
-          EndDeferWindowPos(hdwp);
+            HDWP hdwp = BeginDeferWindowPos(1);
+            hdwp = DeferWindowPos(hdwp, editWnd, NULL, urloffset,
+                0, rect.right - urloffset, URLBAR_HEIGHT, SWP_NOZORDER);
+            hdwp = DeferWindowPos(hdwp, hwnd, NULL,
+                rect.left, rect.top, rect.right - rect.left,
+                rect.bottom - rect.top, SWP_NOZORDER);
+            EndDeferWindowPos(hdwp);
+          }
         }
       }
-      break;
+    } break;
 
     case WM_ERASEBKGND:
       if (g_handler.get() && g_handler->GetBrowser()) {

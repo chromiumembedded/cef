@@ -589,13 +589,15 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
     return 0;
 
   case WM_SIZE:
-    // Minimizing resizes the window to 0x0 which causes our layout to go all
-    // screwy, so we just ignore it.
-    if (wParam != SIZE_MINIMIZED && browser && browser->window_widget_) {
-      // Resize the Widget window to the full size of the browser window.
+    if (browser && browser->window_widget_) {
+      // Pass window resize events to the HWND for the DesktopNativeWidgetAura
+      // root window. Passing size 0x0 (wParam == SIZE_MINIMIZED, for example)
+      // will cause the widget to be hidden which reduces resource usage.
       RECT rc;
       GetClientRect(hwnd, &rc);
-      browser->window_widget_->SetSize(gfx::Size(rc.right, rc.bottom));
+      SetWindowPos(HWNDForWidget(browser->window_widget_), NULL,
+            rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
+            SWP_NOZORDER);
     }
     return 0;
 
