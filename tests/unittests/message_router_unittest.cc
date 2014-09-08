@@ -1735,7 +1735,7 @@ void MakeTestQueries(MultiQueryManager* manager, bool some,
   } else {
     // Test every type of query.
     for (int i = 0; i < many_count; ++i) {
-      MultiQueryManager::TestType type;
+      MultiQueryManager::TestType type = MultiQueryManager::SUCCESS;
       switch (i % 7) {
         case 0:
           type = MultiQueryManager::SUCCESS;
