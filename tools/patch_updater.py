@@ -94,21 +94,31 @@ for patch in patches:
     # Retrieve the list of paths modified by the patch file.
     patch_paths = extract_paths(patch_file)
 
+    # List of paths added by the patch file.
+    added_paths = []
+
     if not options.resave:
       # Revert any changes to existing files in the patch.
       for patch_path in patch_paths:
         patch_path_abs = os.path.abspath(os.path.join(patch_root_abs, \
                                                       patch_path))
-        msg('Reverting changes to %s' % patch_path_abs)
-        if src_is_git:
-          cmd = 'git checkout -- %s' % (patch_path_abs)
+        if os.path.exists(patch_path_abs):
+          msg('Reverting changes to %s' % patch_path_abs)
+          if src_is_git:
+            cmd = 'git checkout -- %s' % (patch_path_abs)
+          else:
+            cmd = 'svn revert %s' % (patch_path_abs)
+          result = exec_cmd(cmd, patch_root_abs)
+          if result['err'] != '':
+            msg('Failed to revert file: %s' % result['err'])
+            msg('Deleting file %s' % patch_path_abs)
+            os.remove(patch_path_abs)
+            added_paths.append(patch_path_abs)
+          if result['out'] != '':
+            sys.stdout.write(result['out'])
         else:
-          cmd = 'svn revert %s' % (patch_path_abs)
-        result = exec_cmd(cmd, patch_root_abs)
-        if result['err'] != '':
-          raise Exception('Failed to revert file: %s' % result['err'])
-        if result['out'] != '':
-          sys.stdout.write(result['out'])
+          msg('Skipping non-existing file %s' % patch_path_abs)
+          added_paths.append(patch_path_abs)
 
       if not options.revert:
         # Apply the patch file.
@@ -123,8 +133,15 @@ for patch in patches:
           continue
 
     if not options.revert:
-      # Re-create the patch file.
       msg('Saving changes to %s' % patch_file)
+      if src_is_git and added_paths:
+        # Inform git of the added paths so they appear in the patch file.
+        cmd = 'git add -N %s' % ' '.join(added_paths)
+        result = exec_cmd(cmd, patch_root_abs)
+        if result['err'] != '' and result['err'].find('warning:') != 0:
+          raise Exception('Failed to add paths: %s' % result['err'])
+
+      # Re-create the patch file.
       patch_paths_str = ' '.join(patch_paths)
       if src_is_git:
         cmd = 'git diff --no-prefix --relative %s' % patch_paths_str
