@@ -8,6 +8,7 @@
 #include <gtk/gtkgl.h>
 
 #include <X11/Xlib.h>
+#undef Status   // Definition conflicts with cef_urlrequest.h
 #undef Success  // Definition conflicts with cef_message_router.h
 
 #include <stdlib.h>
