@@ -81,11 +81,24 @@
               ],
             },
             {
+              'action_name': 'copy_executables',
+              'msvs_cygwin_shell': 0,
+              'inputs': [],
+              'outputs': [
+                '<(PRODUCT_DIR)/copy_executables.stamp',
+              ],
+              'action': [
+                'xcopy /efy',
+                '$(ConfigurationName)\*.exe',
+                '$(OutDir)',
+              ],
+            },
+            {
               'action_name': 'copy_libraries',
               'msvs_cygwin_shell': 0,
               'inputs': [],
               'outputs': [
-                '<(PRODUCT_DIR)/copy_resources.stamp',
+                '<(PRODUCT_DIR)/copy_libraries.stamp',
               ],
               'action': [
                 'xcopy /efy',
@@ -303,11 +316,24 @@
               ],
             },
             {
+              'action_name': 'copy_executables',
+              'msvs_cygwin_shell': 0,
+              'inputs': [],
+              'outputs': [
+                '<(PRODUCT_DIR)/copy_executables.stamp',
+              ],
+              'action': [
+                'xcopy /efy',
+                '$(ConfigurationName)\*.exe',
+                '$(OutDir)',
+              ],
+            },
+            {
               'action_name': 'copy_libraries',
               'msvs_cygwin_shell': 0,
               'inputs': [],
               'outputs': [
-                '<(PRODUCT_DIR)/copy_resources.stamp',
+                '<(PRODUCT_DIR)/copy_libraries.stamp',
               ],
               'action': [
                 'xcopy /efy',

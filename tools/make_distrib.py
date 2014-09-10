@@ -519,6 +519,8 @@ if platform == 'windows':
     'libEGL.dll',
     'libGLESv2.dll',
   ]
+  if not options.x64build:
+    binaries.append('wow_helper.exe')
 
   if options.ninjabuild:
     out_dir = os.path.join(src_dir, 'out')
