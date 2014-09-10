@@ -64,15 +64,40 @@
 @interface CefWindowDelegate : NSObject <NSWindowDelegate> {
  @private
   CefBrowserHostImpl* browser_;  // weak
+  NSWindow* window_;
 }
-
-@property (nonatomic, assign) CefBrowserHostImpl* browser;
-
+- (id)initWithWindow:(NSWindow*)window andBrowser:(CefBrowserHostImpl*)browser;
 @end
 
 @implementation CefWindowDelegate
 
-@synthesize browser = browser_;
+- (id)initWithWindow:(NSWindow*)window andBrowser:(CefBrowserHostImpl*)browser {
+  if (self = [super init]) {
+    window_ = window;
+    browser_ = browser;
+
+    [window_ setDelegate:self];
+
+    // Register for application hide/unhide notifications.
+    [[NSNotificationCenter defaultCenter]
+         addObserver:self
+            selector:@selector(applicationDidHide:)
+                name:NSApplicationDidHideNotification
+              object:nil];
+    [[NSNotificationCenter defaultCenter]
+         addObserver:self
+            selector:@selector(applicationDidUnhide:)
+                name:NSApplicationDidUnhideNotification
+              object:nil];
+  }
+  return self;
+}
+
+- (void)dealloc {
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+
+  [super dealloc];
+}
 
 // Called when we are activated (when we gain focus).
 - (void)windowDidBecomeKey:(NSNotification*)notification {
@@ -101,7 +126,7 @@
 // Called when the application has been hidden.
 - (void)applicationDidHide:(NSNotification *)notification {
   // If the window is miniaturized then nothing has really changed.
-  if (![[notification object] isMiniaturized]) {
+  if (![window_ isMiniaturized]) {
     if (browser_)
       browser_->SetWindowVisibility(false);
   }
@@ -110,7 +135,7 @@
 // Called when the application has been unhidden.
 - (void)applicationDidUnhide:(NSNotification *)notification {
   // If the window is miniaturized then nothing has really changed.
-  if (![[notification object] isMiniaturized]) {
+  if (![window_ isMiniaturized]) {
     if (browser_)
       browser_->SetWindowVisibility(true);
   }
@@ -365,10 +390,6 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
     contentRect.size.width = window_rect.size.width;
     contentRect.size.height = window_rect.size.height;
 
-    // Create the delegate for control and browser window events.
-    CefWindowDelegate* delegate = [[CefWindowDelegate alloc] init];
-    delegate.browser = this;
-
     newWnd = [[UnderlayOpenGLHostingWindow alloc]
               initWithContentRect:window_rect
               styleMask:(NSTitledWindowMask |
@@ -378,7 +399,10 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
                          NSUnifiedTitleAndToolbarWindowMask )
               backing:NSBackingStoreBuffered
               defer:NO];
-    [newWnd setDelegate:delegate];
+
+    // Create the delegate for control and browser window events.
+    [[CefWindowDelegate alloc] initWithWindow:newWnd andBrowser:this];
+
     parentView = [newWnd contentView];
     window_info_.parent_view = parentView;
   }

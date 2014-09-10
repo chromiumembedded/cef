@@ -129,7 +129,11 @@ const int kWindowHeight = 600;
 
 // Receives notifications from controls and the browser window. Will delete
 // itself when done.
-@interface ClientWindowDelegate : NSObject <NSWindowDelegate>
+@interface ClientWindowDelegate : NSObject <NSWindowDelegate> {
+ @private
+  NSWindow* window_;
+}
+- (id)initWithWindow:(NSWindow*)window;
 - (IBAction)goBack:(id)sender;
 - (IBAction)goForward:(id)sender;
 - (IBAction)reload:(id)sender;
@@ -142,6 +146,32 @@ const int kWindowHeight = 600;
 @end
 
 @implementation ClientWindowDelegate
+
+- (id)initWithWindow:(NSWindow*)window {
+  if (self = [super init]) {
+    window_ = window;
+    [window_ setDelegate:self];
+
+    // Register for application hide/unhide notifications.
+    [[NSNotificationCenter defaultCenter]
+         addObserver:self
+            selector:@selector(applicationDidHide:)
+                name:NSApplicationDidHideNotification
+              object:nil];
+    [[NSNotificationCenter defaultCenter]
+         addObserver:self
+            selector:@selector(applicationDidUnhide:)
+                name:NSApplicationDidUnhideNotification
+              object:nil];
+  }
+  return self;
+}
+
+- (void)dealloc {
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+
+  [super dealloc];
+}
 
 - (IBAction)goBack:(id)sender {
   if (g_handler.get() && g_handler->GetBrowserId())
@@ -258,7 +288,7 @@ const int kWindowHeight = 600;
 // Called when the application has been hidden.
 - (void)applicationDidHide:(NSNotification *)notification {
   // If the window is miniaturized then nothing has really changed.
-  if (![[notification object] isMiniaturized]) {
+  if (![window_ isMiniaturized]) {
     if (g_handler.get()) {
       CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
       if (browser.get())
@@ -270,7 +300,7 @@ const int kWindowHeight = 600;
 // Called when the application has been unhidden.
 - (void)applicationDidUnhide:(NSNotification *)notification {
   // If the window is miniaturized then nothing has really changed.
-  if (![[notification object] isMiniaturized]) {
+  if (![window_ isMiniaturized]) {
     if (g_handler.get()) {
       CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
       if (browser.get())
@@ -382,9 +412,6 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   [testItem setSubmenu:testMenu];
   [menubar addItem:testItem];
 
-  // Create the delegate for control and browser window events.
-  ClientWindowDelegate* delegate = [[ClientWindowDelegate alloc] init];
-
   // Create the main application window.
   NSRect screen_rect = [[NSScreen mainScreen] visibleFrame];
   NSRect window_rect = { {0, screen_rect.size.height - kWindowHeight},
@@ -398,7 +425,10 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                        backing:NSBackingStoreBuffered
                        defer:NO];
   [mainWnd setTitle:@"cefclient"];
-  [mainWnd setDelegate:delegate];
+
+  // Create the delegate for control and browser window events.
+  ClientWindowDelegate* delegate =
+      [[ClientWindowDelegate alloc] initWithWindow:mainWnd];
 
   // Rely on the window delegate to clean us up rather than immediately
   // releasing when the window gets closed. We use the delegate to do

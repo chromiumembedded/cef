@@ -34,6 +34,10 @@ void CefRenderWidgetHostViewOSR::SetTakesFocusOnlyOnMouseDown(bool flag) {
 }
 
 void CefRenderWidgetHostViewOSR::SetWindowVisibility(bool visible) {
+  if (visible)
+    WasShown();
+  else
+    WasHidden();
 }
 
 void CefRenderWidgetHostViewOSR::WindowFrameChanged() {
