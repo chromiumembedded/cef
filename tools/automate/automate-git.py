@@ -17,7 +17,8 @@ import zipfile
 # Default URLs.
 ##
 
-depot_tools_url = 'http://src.chromium.org/svn/trunk/tools/depot_tools'
+depot_tools_url = 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
+depot_tools_archive_url = 'https://src.chromium.org/svn/trunk/tools/depot_tools.zip'
 
 cef_git_trunk_url = 'https://chromiumembedded@bitbucket.org/chromiumembedded/trunk-cef3.git'
 cef_git_branch_url = 'https://chromiumembedded@bitbucket.org/chromiumembedded/branches-%1-cef3.git'
@@ -507,6 +508,11 @@ else:
 msg("Depot Tools Directory: %s" % (depot_tools_dir))
 
 if not os.path.exists(depot_tools_dir):
+  if platform == 'windows' and options.depottoolsarchive == '':
+    # On Windows download depot_tools as an archive file since we can't assume
+    # that git is already installed.
+    options.depottoolsarchive = depot_tools_archive_url
+
   if options.depottoolsarchive != '':
     # Extract depot_tools from an archive file.
     msg('Extracting %s to %s.' % \
@@ -515,11 +521,12 @@ if not os.path.exists(depot_tools_dir):
       download_and_extract(options.depottoolsarchive, depot_tools_dir, \
                            'depot_tools/')
   else:
-    # Checkout depot_tools.
-    run('svn checkout '+depot_tools_url+' '+depot_tools_dir, download_dir)
+    # On Linux and OS X check out depot_tools using Git.
+    run('git clone '+depot_tools_url+' '+depot_tools_dir, download_dir)
 
 if not options.noupdate:
-  # Update depot_tools. It will download required scripts (svn, git, python).
+  # Update depot_tools.
+  # On Windows this will download required python and git binaries.
   if platform == 'windows':
     run('update_depot_tools.bat', depot_tools_dir, depot_tools_dir);
   else:
