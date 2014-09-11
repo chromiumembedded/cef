@@ -16,6 +16,7 @@
 #include <string>
 
 #include "cefclient/cefclient.h"
+#include "include/base/cef_scoped_ptr.h"
 #include "include/cef_app.h"
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
@@ -113,6 +114,68 @@ gboolean WindowFocusIn(GtkWidget* widget,
   }
 
   return FALSE;
+}
+
+gboolean WindowState(GtkWidget* widget,
+                     GdkEventWindowState* event,
+                     gpointer user_data) {
+  if (!(event->changed_mask & GDK_WINDOW_STATE_ICONIFIED))
+    return TRUE;
+
+  if (!g_handler)
+    return TRUE;
+  CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+  if (!browser)
+    return TRUE;
+
+  const bool iconified = (event->new_window_state & GDK_WINDOW_STATE_ICONIFIED);
+  if (browser->GetHost()->IsWindowRenderingDisabled()) {
+    // Notify the off-screen browser that it was shown or hidden.
+    browser->GetHost()->WasHidden(iconified);
+  } else {
+    // Forward the state change event to the browser window.
+    ::Display* xdisplay = cef_get_xdisplay();
+    ::Window xwindow = browser->GetHost()->GetWindowHandle();
+
+    // Retrieve the atoms required by the below XChangeProperty call.
+    const char* kAtoms[] = {
+      "_NET_WM_STATE",
+      "ATOM",
+      "_NET_WM_STATE_HIDDEN"
+    };
+    Atom atoms[3];
+    int result = XInternAtoms(xdisplay, const_cast<char**>(kAtoms), 3, false,
+                              atoms);
+    if (!result)
+      NOTREACHED();
+
+    if (iconified) {
+      // Set the hidden property state value.
+      scoped_ptr<Atom[]> data(new Atom[1]);
+      data[0] = atoms[2];
+
+      XChangeProperty(xdisplay,
+                      xwindow,
+                      atoms[0],  // name
+                      atoms[1],  // type
+                      32,  // size in bits of items in 'value'
+                      PropModeReplace,
+                      reinterpret_cast<const unsigned char*>(data.get()),
+                      1);  // num items
+    } else {
+      // Set an empty array of property state values.
+      XChangeProperty(xdisplay,
+                      xwindow,
+                      atoms[0],  // name
+                      atoms[1],  // type
+                      32,  // size in bits of items in 'value'
+                      PropModeReplace,
+                      NULL,
+                      0);  // num items
+    }
+  }
+
+  return TRUE;
 }
 
 // Callback for Tests > Get Source... menu item.
@@ -357,6 +420,8 @@ int main(int argc, char* argv[]) {
   gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
   g_signal_connect(window, "focus-in-event",
                    G_CALLBACK(WindowFocusIn), NULL);
+  g_signal_connect(window, "window-state-event", 
+                   G_CALLBACK(WindowState), NULL);
 
   GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
   g_signal_connect(vbox, "size-allocate",

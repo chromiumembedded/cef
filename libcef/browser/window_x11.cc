@@ -17,17 +17,21 @@
 
 namespace {
 
+const char kAtom[] = "ATOM";
 const char kWMDeleteWindow[] = "WM_DELETE_WINDOW";
 const char kWMProtocols[] = "WM_PROTOCOLS";
-const char kNetWMPing[] = "_NET_WM_PING";
 const char kNetWMPid[] = "_NET_WM_PID";
+const char kNetWMPing[] = "_NET_WM_PING";
+const char kNetWMState[] = "_NET_WM_STATE";
 const char kXdndProxy[] = "XdndProxy";
 
 const char* kAtomsToCache[] = {
+  kAtom,
   kWMDeleteWindow,
   kWMProtocols,
-  kNetWMPing,
   kNetWMPid,
+  kNetWMPing,
+  kNetWMState,
   kXdndProxy,
   NULL
 };
@@ -360,6 +364,37 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
       if (focus_pending_)
         focus_pending_ = false;
       break;
+    case PropertyNotify: {
+      ::Atom changed_atom = xev->xproperty.atom;
+      if (changed_atom == atom_cache_.GetAtom(kNetWMState)) {
+        // State change event like minimize/maximize.
+        if (browser_) {
+          ::Window child = FindChild(xdisplay_, xwindow_);
+          if (child) {
+            // Forward the state change to the child DesktopWindowTreeHostX11
+            // window so that resource usage will be reduced while the window is
+            // minimized.
+            std::vector< ::Atom> atom_list;
+            if (ui::GetAtomArrayProperty(xwindow_, kNetWMState, &atom_list) &&
+                !atom_list.empty()) {
+              ui::SetAtomArrayProperty(child, kNetWMState, "ATOM", atom_list);
+            } else {
+              // Set an empty list of property values to pass the check in
+              // DesktopWindowTreeHostX11::OnWMStateUpdated().
+              XChangeProperty(xdisplay_,
+                              child,
+                              atom_cache_.GetAtom(kNetWMState),  // name
+                              atom_cache_.GetAtom(kAtom),  // type
+                              32,  // size in bits of items in 'value'
+                              PropModeReplace,
+                              NULL,
+                              0);  // num items
+            }
+          }
+        }
+      }
+      break;
+    }
   }
 
   return ui::POST_DISPATCH_STOP_PROPAGATION;
