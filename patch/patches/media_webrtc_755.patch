@@ -1,0 +1,14 @@
+Index: webrtc_internals.cc
+===================================================================
+--- webrtc_internals.cc	(revision 272606)
++++ webrtc_internals.cc	(working copy)
+@@ -63,7 +63,8 @@
+ }
+ 
+ WebRTCInternals* WebRTCInternals::GetInstance() {
+-  return Singleton<WebRTCInternals>::get();
++  return Singleton<WebRTCInternals,
++                   LeakySingletonTraits<WebRTCInternals> >::get();
+ }
+ 
+ void WebRTCInternals::OnAddPeerConnection(int render_process_id,
