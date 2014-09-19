@@ -273,8 +273,7 @@ CefBrowserImpl::CefBrowserImpl(content::RenderView* render_view,
     : content::RenderViewObserver(render_view),
       browser_id_(browser_id),
       is_popup_(is_popup),
-      is_windowless_(is_windowless),
-      last_focused_frame_id_(webkit_glue::kInvalidFrameId) {
+      is_windowless_(is_windowless) {
   response_manager_.reset(new CefResponseManager);
 }
 
@@ -390,7 +389,8 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
   frames_.insert(std::make_pair(frame_id, framePtr));
 
   int64 parent_id = frame->parent() == NULL ?
-      webkit_glue::kInvalidFrameId : webkit_glue::GetIdentifier(frame->parent());
+      webkit_glue::kInvalidFrameId :
+      webkit_glue::GetIdentifier(frame->parent());
   base::string16 name = frame->uniqueName();
 
   // Notify the browser that the frame has been identified.
@@ -529,9 +529,6 @@ void CefBrowserImpl::FrameDetached(WebFrame* frame) {
     if (it != frame_objects_.end())
       frame_objects_.erase(it);
   }
-
-  // Notify the browser that the frame has detached.
-  Send(new CefHostMsg_FrameDetached(routing_id(), frame_id));
 }
 
 void CefBrowserImpl::FocusedNodeChanged(const blink::WebNode& node) {
@@ -557,35 +554,6 @@ void CefBrowserImpl::FocusedNodeChanged(const blink::WebNode& node) {
       }
     }
   }
-
-  // TODO(cef): This method is being used as a work-around for identifying frame
-  // focus changes. The ideal approach would be implementating delegation from
-  // ChromeClientImpl::focusedFrameChanged().
-
-  WebFrame* focused_frame = NULL;
-
-  // Try to identify the focused frame from the node.
-  if (!node.isNull()) {
-    const blink::WebDocument& document = node.document();
-    if (!document.isNull())
-      focused_frame = document.frame();
-  }
-
-  if (focused_frame == NULL && render_view()->GetWebView()) {
-    // Try to identify the global focused frame.
-    focused_frame = render_view()->GetWebView()->focusedFrame();
-  }
-
-  int64 frame_id = webkit_glue::kInvalidFrameId;
-  if (focused_frame != NULL)
-    frame_id = webkit_glue::GetIdentifier(focused_frame);
-
-  // Don't send a message if the focused frame has not changed.
-  if (frame_id == last_focused_frame_id_)
-    return;
-
-  last_focused_frame_id_ = frame_id;
-  Send(new CefHostMsg_FrameFocusChange(routing_id(), frame_id));
 }
 
 void CefBrowserImpl::DidCreateDataSource(blink::WebLocalFrame* frame,

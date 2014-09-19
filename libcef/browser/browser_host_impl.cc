@@ -2367,6 +2367,23 @@ void CefBrowserHostImpl::DidFailLoad(
   OnLoadEnd(frame, validated_url, error_code);
 }
 
+void CefBrowserHostImpl::FrameDetached(
+    content::RenderFrameHost* render_frame_host) {
+  base::AutoLock lock_scope(state_lock_);
+
+  const int64 frame_id = render_frame_host->GetRoutingID();
+  FrameMap::iterator it = frames_.find(frame_id);
+  if (it != frames_.end()) {
+    it->second->Detach();
+    frames_.erase(it);
+  }
+
+  if (main_frame_id_ == frame_id)
+    main_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
+  if (focused_frame_id_ ==  frame_id)
+    focused_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
+}
+
 void CefBrowserHostImpl::PluginCrashed(const base::FilePath& plugin_path,
                                        base::ProcessId plugin_pid) {
   if (client_.get()) {
@@ -2385,8 +2402,6 @@ bool CefBrowserHostImpl::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(CefBrowserHostImpl, message)
     IPC_MESSAGE_HANDLER(CefHostMsg_FrameIdentified, OnFrameIdentified)
-    IPC_MESSAGE_HANDLER(CefHostMsg_FrameDetached, DetachFrame)
-    IPC_MESSAGE_HANDLER(CefHostMsg_FrameFocusChange, SetFocusedFrame)
     IPC_MESSAGE_HANDLER(CefHostMsg_DidFinishLoad, OnDidFinishLoad)
     IPC_MESSAGE_HANDLER(CefHostMsg_LoadingURLChange, OnLoadingURLChange)
     IPC_MESSAGE_HANDLER(CefHostMsg_Request, OnRequest)
@@ -2690,21 +2705,6 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetOrCreateFrame(
     frame->SetAttributes(url, name, parent_frame_id);
 
   return frame.get();
-}
-
-void CefBrowserHostImpl::DetachFrame(int64 frame_id) {
-  base::AutoLock lock_scope(state_lock_);
-
-  FrameMap::iterator it = frames_.find(frame_id);
-  if (it != frames_.end()) {
-    it->second->Detach();
-    frames_.erase(it);
-  }
-
-  if (main_frame_id_ == frame_id)
-    main_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
-  if (focused_frame_id_ ==  frame_id)
-    focused_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
 }
 
 void CefBrowserHostImpl::DetachAllFrames() {

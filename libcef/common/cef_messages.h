@@ -167,14 +167,6 @@ IPC_MESSAGE_ROUTED3(CefHostMsg_FrameIdentified,
                     int64 /* parent_frame_id */,
                     base::string16 /* frame_name */)
 
-// Sent when a frame has been detached.
-IPC_MESSAGE_ROUTED1(CefHostMsg_FrameDetached,
-                    int64 /* frame_id */)
-
-// Sent when a new frame has been given focus.
-IPC_MESSAGE_ROUTED1(CefHostMsg_FrameFocusChange,
-                    int64 /* frame_id */)
-
 // Sent when a frame has finished loading. Based on ViewHostMsg_DidFinishLoad.
 IPC_MESSAGE_ROUTED4(CefHostMsg_DidFinishLoad,
                     int64 /* frame_id */,

@@ -141,9 +141,6 @@ class CefBrowserImpl : public CefBrowser,
   bool is_popup_;
   bool is_windowless_;
 
-  // Id of the last frame that had focus.
-  int64 last_focused_frame_id_;
-
   // Map of unique frame ids to CefFrameImpl references.
   typedef std::map<int64, CefRefPtr<CefFrameImpl> > FrameMap;
   FrameMap frames_;

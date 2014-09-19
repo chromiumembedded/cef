@@ -17,6 +17,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/bind.h"
+#include "content/common/frame_messages.h"
 #include "content/common/view_messages.h"
 #include "content/public/browser/render_process_host.h"
 
@@ -37,6 +38,12 @@ void CefBrowserMessageFilter::OnFilterRemoved() {
 }
 
 bool CefBrowserMessageFilter::OnMessageReceived(const IPC::Message& message) {
+  if (message.type() == FrameHostMsg_FrameFocused::ID) {
+    // Observe but don't handle this message.
+    OnFrameFocused(message.routing_id());
+    return false;
+  }
+
   bool handled = true;
   if (message.type() == ViewHostMsg_CreateWindow::ID) {
     // Observe but don't handle this message.
@@ -107,4 +114,19 @@ void CefBrowserMessageFilter::OnCreateWindow(
 
   // Reply message is not used.
   delete reply_msg;
+}
+
+void CefBrowserMessageFilter::OnFrameFocused(int32 render_frame_routing_id) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserMessageFilter::OnFrameFocused, this,
+                   render_frame_routing_id));
+    return;
+  }
+
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserForFrame(host_->GetID(),
+                                             render_frame_routing_id);
+  if (browser)
+    browser->SetFocusedFrame(render_frame_routing_id);
 }

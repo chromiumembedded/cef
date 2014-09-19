@@ -273,6 +273,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Handler for URLs involving external protocols.
   void HandleExternalProtocol(const GURL& url);
 
+  // Set the frame that currently has focus.
+  void SetFocusedFrame(int64 frame_id);
+
   // Thread safe accessors.
   const CefBrowserSettings& settings() const { return settings_; }
   CefRefPtr<CefClient> client() const { return client_; }
@@ -421,6 +424,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
                            const GURL& validated_url,
                            int error_code,
                            const base::string16& error_description) OVERRIDE;
+  virtual void FrameDetached(
+      content::RenderFrameHost* render_frame_host) OVERRIDE;
   virtual void PluginCrashed(const base::FilePath& plugin_path,
                              base::ProcessId plugin_pid) OVERRIDE;
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
@@ -482,12 +487,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
                                        bool is_main_frame,
                                        base::string16 frame_name,
                                        const GURL& frame_url);
-  // Remove the reference to the frame and mark it as detached.
-  void DetachFrame(int64 frame_id);
   // Remove the references to all frames and mark them as detached.
   void DetachAllFrames();
-  // Set the frame that currently has focus.
-  void SetFocusedFrame(int64 frame_id);
 
 #if defined(OS_WIN)
   static LPCTSTR GetWndClass();
