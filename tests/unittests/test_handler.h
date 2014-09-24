@@ -251,4 +251,35 @@ bool TestFailed();
 #define EXPECT_FILE_THREAD()     EXPECT_TRUE(CefCurrentlyOn(TID_FILE));
 #define EXPECT_RENDERER_THREAD() EXPECT_TRUE(CefCurrentlyOn(TID_RENDERER));
 
+// Helper macros for executing checks in a method with a boolean return value.
+// For example:
+//
+// bool VerifyVals(bool a, bool b) {
+//   V_DECLARE();
+//   V_EXPECT_TRUE(a);
+//   V_EXPECT_FALSE(b);
+//   V_RETURN();
+// }
+//
+// EXPECT_TRUE(VerifyVals(true, false));
+
+#define V_DECLARE() \
+    bool __verify = true; \
+    bool __result
+
+#define V_RETURN() \
+    return __verify
+
+#define V_EXPECT_TRUE(condition) \
+    __result = !!(condition); \
+    __verify &= __result; \
+    GTEST_TEST_BOOLEAN_(__result, #condition, false, true, \
+                        GTEST_NONFATAL_FAILURE_)
+
+#define V_EXPECT_FALSE(condition) \
+    __result = !!(condition); \
+    __verify &= !__result; \
+    GTEST_TEST_BOOLEAN_(!(__result), #condition, true, false, \
+                        GTEST_NONFATAL_FAILURE_)
+
 #endif  // CEF_TESTS_UNITTESTS_TEST_HANDLER_H_

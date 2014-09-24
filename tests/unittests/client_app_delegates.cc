@@ -6,9 +6,9 @@
 
 // static
 void ClientApp::CreateBrowserDelegates(BrowserDelegateSet& delegates) {
-  // Bring in the V8 tests.
-  extern void CreateV8BrowserTests(BrowserDelegateSet& delegates);
-  CreateV8BrowserTests(delegates);
+  // Bring in the Frame tests.
+  extern void CreateFrameBrowserTests(BrowserDelegateSet& delegates);
+  CreateFrameBrowserTests(delegates);
 
   // Bring in the Navigation tests.
   extern void CreateNavigationBrowserTests(BrowserDelegateSet& delegates);
@@ -17,48 +17,56 @@ void ClientApp::CreateBrowserDelegates(BrowserDelegateSet& delegates) {
   // Bring in the RequestHandler tests.
   extern void CreateRequestHandlerBrowserTests(BrowserDelegateSet& delegates);
   CreateRequestHandlerBrowserTests(delegates);
+
+  // Bring in the V8 tests.
+  extern void CreateV8BrowserTests(BrowserDelegateSet& delegates);
+  CreateV8BrowserTests(delegates);
 }
 
 // static
 void ClientApp::CreateRenderDelegates(RenderDelegateSet& delegates) {
-  // Bring in the routing test handler delegate.
-  extern void CreateRoutingTestHandlerDelegate(
-      ClientApp::RenderDelegateSet& delegates);
-  CreateRoutingTestHandlerDelegate(delegates);
+  // Bring in the Frame tests.
+  extern void CreateFrameRendererTests(RenderDelegateSet& delegates);
+  CreateFrameRendererTests(delegates);
+
+  // Bring in the DOM tests.
+  extern void CreateDOMRendererTests(RenderDelegateSet& delegates);
+  CreateDOMRendererTests(delegates);
 
   // Bring in the message router tests.
   extern void CreateMessageRouterRendererTests(
       ClientApp::RenderDelegateSet& delegates);
   CreateMessageRouterRendererTests(delegates);
 
+  // Bring in the Navigation tests.
+  extern void CreateNavigationRendererTests(RenderDelegateSet& delegates);
+  CreateNavigationRendererTests(delegates);
+
   // Bring in the process message tests.
   extern void CreateProcessMessageRendererTests(
       ClientApp::RenderDelegateSet& delegates);
   CreateProcessMessageRendererTests(delegates);
 
-  // Bring in the V8 tests.
-  extern void CreateV8RendererTests(RenderDelegateSet& delegates);
-  CreateV8RendererTests(delegates);
-
-  // Bring in the DOM tests.
-  extern void CreateDOMRendererTests(RenderDelegateSet& delegates);
-  CreateDOMRendererTests(delegates);
-
-  // Bring in the URLRequest tests.
-  extern void CreateURLRequestRendererTests(RenderDelegateSet& delegates);
-  CreateURLRequestRendererTests(delegates);
-
-  // Bring in the Navigation tests.
-  extern void CreateNavigationRendererTests(RenderDelegateSet& delegates);
-  CreateNavigationRendererTests(delegates);
+  // Bring in the RequestHandler tests.
+  extern void CreateRequestHandlerRendererTests(RenderDelegateSet& delegates);
+  CreateRequestHandlerRendererTests(delegates);
 
   // Bring in the Request tests.
   extern void CreateRequestRendererTests(RenderDelegateSet& delegates);
   CreateRequestRendererTests(delegates);
 
-  // Bring in the RequestHandler tests.
-  extern void CreateRequestHandlerRendererTests(RenderDelegateSet& delegates);
-  CreateRequestHandlerRendererTests(delegates);
+  // Bring in the routing test handler delegate.
+  extern void CreateRoutingTestHandlerDelegate(
+      ClientApp::RenderDelegateSet& delegates);
+  CreateRoutingTestHandlerDelegate(delegates);
+
+  // Bring in the URLRequest tests.
+  extern void CreateURLRequestRendererTests(RenderDelegateSet& delegates);
+  CreateURLRequestRendererTests(delegates);
+
+  // Bring in the V8 tests.
+  extern void CreateV8RendererTests(RenderDelegateSet& delegates);
+  CreateV8RendererTests(delegates);
 }
 
 // static

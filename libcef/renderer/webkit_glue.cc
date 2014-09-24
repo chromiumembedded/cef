@@ -26,6 +26,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/WebKit/public/web/WebViewClient.h"
 
 #include "third_party/WebKit/Source/core/dom/Node.h"
+#include "third_party/WebKit/Source/web/WebLocalFrameImpl.h"
 #include "third_party/WebKit/Source/web/WebViewImpl.h"
 MSVC_POP_WARNING();
 #undef LOG
@@ -92,6 +93,32 @@ int64 GetIdentifier(blink::WebFrame* frame) {
   if (render_frame)
     return render_frame->GetRoutingID();
   return kInvalidFrameId;
+}
+
+// Based on WebViewImpl::findFrameByName and FrameTree::find.
+blink::WebFrame* FindFrameByUniqueName(const blink::WebString& unique_name,
+                                       blink::WebFrame* relative_to_frame) {
+  blink::Frame* start_frame = toWebLocalFrameImpl(relative_to_frame)->frame();
+  if (!start_frame)
+    return NULL;
+
+  const AtomicString& atomic_name = unique_name;
+  blink::Frame* found_frame = NULL;
+
+  // Search the subtree starting with |start_frame|.
+  for (blink::Frame* frame = start_frame;
+       frame;
+       frame = frame->tree().traverseNext(start_frame)) {
+    if (frame->tree().uniqueName() == atomic_name) {
+      found_frame = frame;
+      break;
+    }
+  }
+
+  if (found_frame && found_frame->isLocalFrame())
+    return blink::WebLocalFrameImpl::fromFrame(toLocalFrame(found_frame));
+
+  return NULL;
 }
 
 }  // webkit_glue
