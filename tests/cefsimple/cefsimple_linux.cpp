@@ -4,6 +4,28 @@
 
 #include "cefsimple/simple_app.h"
 
+#include <X11/Xlib.h>
+
+namespace {
+
+int XErrorHandlerImpl(Display *display, XErrorEvent *event) {
+  LOG(WARNING)
+        << "X error received: "
+        << "type " << event->type << ", "
+        << "serial " << event->serial << ", "
+        << "error_code " << static_cast<int>(event->error_code) << ", "
+        << "request_code " << static_cast<int>(event->request_code) << ", "
+        << "minor_code " << static_cast<int>(event->minor_code);
+  return 0;
+}
+
+int XIOErrorHandlerImpl(Display *display) {
+  return 0;
+}
+
+}  // namespace
+
+
 // Entry point function for all processes.
 int main(int argc, char* argv[]) {
   // Provide CEF with command-line arguments.
@@ -24,6 +46,11 @@ int main(int argc, char* argv[]) {
 
   // Specify CEF global settings here.
   CefSettings settings;
+
+  // Install xlib error handlers so that the application won't be terminated
+  // on non-fatal errors.
+  XSetErrorHandler(XErrorHandlerImpl);
+  XSetIOErrorHandler(XIOErrorHandlerImpl);
 
   // Initialize CEF for the browser process.
   CefInitialize(main_args, settings, app.get(), NULL);
