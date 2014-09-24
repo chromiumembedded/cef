@@ -159,7 +159,7 @@ class CefBrowser : public virtual CefBase {
   ///
   // Returns the frame with the specified name, or NULL if not found.
   ///
-  /*--cef()--*/
+  /*--cef(optional_param=name)--*/
   virtual CefRefPtr<CefFrame> GetFrame(const CefString& name) =0;
 
   ///

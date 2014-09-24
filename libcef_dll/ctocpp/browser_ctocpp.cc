@@ -226,10 +226,7 @@ CefRefPtr<CefFrame> CefBrowserCToCpp::GetFrame(const CefString& name) {
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: name; type: string_byref_const
-  DCHECK(!name.empty());
-  if (name.empty())
-    return NULL;
+  // Unverified params: name
 
   // Execute
   cef_frame_t* _retval = struct_->get_frame(struct_,

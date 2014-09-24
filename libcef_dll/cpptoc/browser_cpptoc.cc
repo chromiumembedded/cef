@@ -247,10 +247,7 @@ struct _cef_frame_t* CEF_CALLBACK browser_get_frame(struct _cef_browser_t* self,
   DCHECK(self);
   if (!self)
     return NULL;
-  // Verify param: name; type: string_byref_const
-  DCHECK(name);
-  if (!name)
-    return NULL;
+  // Unverified params: name
 
   // Execute
   CefRefPtr<CefFrame> _retval = CefBrowserCppToC::Get(self)->GetFrame(

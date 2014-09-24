@@ -38,6 +38,11 @@ bool SetNodeValue(blink::WebNode& node, const blink::WebString& value);
 
 int64 GetIdentifier(blink::WebFrame* frame);
 
+// Find the frame with the specified |unique_name| relative to
+// |relative_to_frame| in the frame hierarchy.
+blink::WebFrame* FindFrameByUniqueName(const blink::WebString& unique_name,
+                                       blink::WebFrame* relative_to_frame);
+
 }  // webkit_glue
 
 #endif  // CEF_LIBCEF_RENDERER_WEBKIT_GLUE_H_

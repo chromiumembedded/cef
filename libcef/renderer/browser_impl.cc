@@ -190,9 +190,17 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(int64 identifier) {
 CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const CefString& name) {
   CEF_REQUIRE_RT_RETURN(NULL);
 
-  if (render_view()->GetWebView()) {
-    WebFrame* frame =
-        render_view()->GetWebView()->findFrameByName(name.ToString16());
+  blink::WebView* web_view = render_view()->GetWebView();
+  if (web_view) {
+    const blink::WebString& frame_name = name.ToString16();
+    // Search by assigned frame name (Frame::name).
+    WebFrame* frame = web_view->findFrameByName(frame_name,
+                                                web_view->mainFrame());
+    if (!frame) {
+      // Search by unique frame name (Frame::uniqueName).
+      frame = webkit_glue::FindFrameByUniqueName(frame_name,
+                                                 web_view->mainFrame());
+    }
     if (frame)
       return GetWebFrameImpl(frame).get();
   }
@@ -222,6 +230,9 @@ size_t CefBrowserImpl::GetFrameCount() {
 void CefBrowserImpl::GetFrameIdentifiers(std::vector<int64>& identifiers) {
   CEF_REQUIRE_RT_RETURN_VOID();
 
+  if (identifiers.size() > 0)
+    identifiers.clear();
+
   if (render_view()->GetWebView()) {
     WebFrame* main_frame = render_view()->GetWebView()->mainFrame();
     if (main_frame) {
@@ -236,6 +247,9 @@ void CefBrowserImpl::GetFrameIdentifiers(std::vector<int64>& identifiers) {
 
 void CefBrowserImpl::GetFrameNames(std::vector<CefString>& names) {
   CEF_REQUIRE_RT_RETURN_VOID();
+
+  if (names.size() > 0)
+    names.clear();
 
   if (render_view()->GetWebView()) {
     WebFrame* main_frame = render_view()->GetWebView()->mainFrame();

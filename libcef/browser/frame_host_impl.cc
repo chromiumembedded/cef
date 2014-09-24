@@ -56,7 +56,7 @@ CefFrameHostImpl::CefFrameHostImpl(CefBrowserHostImpl* browser,
     : frame_id_(frame_id),
       is_main_frame_(is_main_frame),
       browser_(browser),
-      is_focused_(false),
+      is_focused_(is_main_frame_),  // The main frame always starts focused.
       url_(url),
       name_(name),
       parent_frame_id_(parent_frame_id == kUnspecifiedFrameId ?
