@@ -5,6 +5,13 @@
 // Include this first to avoid type conflicts with CEF headers.
 #include "tests/unittests/chromium_includes.h"
 
+#if defined(OS_LINUX)
+#include <X11/Xlib.h>
+// Definitions conflict with gtest.
+#undef None
+#undef Bool
+#endif
+
 #include "base/threading/thread.h"
 
 #include "include/base/cef_bind.h"
@@ -56,6 +63,23 @@ void RunTests(CefTestThread* thread) {
       base::Bind(&CefTestThread::RunTests, base::Unretained(thread)));
 }
 
+#if defined(OS_LINUX)
+int XErrorHandlerImpl(Display *display, XErrorEvent *event) {
+  LOG(WARNING)
+        << "X error received: "
+        << "type " << event->type << ", "
+        << "serial " << event->serial << ", "
+        << "error_code " << static_cast<int>(event->error_code) << ", "
+        << "request_code " << static_cast<int>(event->request_code) << ", "
+        << "minor_code " << static_cast<int>(event->minor_code);
+  return 0;
+}
+
+int XIOErrorHandlerImpl(Display *display) {
+  return 0;
+}
+#endif  // defined(OS_LINUX)
+
 }  // namespace
 
 
@@ -100,6 +124,13 @@ int main(int argc, char* argv[]) {
   // Platform-specific initialization.
   extern void PlatformInit();
   PlatformInit();
+#endif
+
+#if defined(OS_LINUX)
+  // Install xlib error handlers so that the application won't be terminated
+  // on non-fatal errors.
+  XSetErrorHandler(XErrorHandlerImpl);
+  XSetIOErrorHandler(XIOErrorHandlerImpl);
 #endif
 
   // Initialize CEF.

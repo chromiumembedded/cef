@@ -46,6 +46,21 @@ class MainBrowserProvider : public OSRBrowserProvider {
   }
 } g_main_browser_provider;
 
+int XErrorHandlerImpl(Display *display, XErrorEvent *event) {
+  LOG(WARNING)
+        << "X error received: "
+        << "type " << event->type << ", "
+        << "serial " << event->serial << ", "
+        << "error_code " << static_cast<int>(event->error_code) << ", "
+        << "request_code " << static_cast<int>(event->request_code) << ", "
+        << "minor_code " << static_cast<int>(event->minor_code);
+  return 0;
+}
+
+int XIOErrorHandlerImpl(Display *display) {
+  return 0;
+}
+
 void destroy(GtkWidget* widget, gpointer data) {
   // Quitting CEF is handled in ClientHandler::OnBeforeClose().
 }
@@ -402,6 +417,11 @@ int main(int argc, char* argv[]) {
 
   // Populate the settings based on command line arguments.
   AppGetSettings(settings);
+
+  // Install xlib error handlers so that the application won't be terminated
+  // on non-fatal errors.
+  XSetErrorHandler(XErrorHandlerImpl);
+  XSetIOErrorHandler(XIOErrorHandlerImpl);
 
   // Initialize CEF.
   CefInitialize(main_args, settings, app.get(), NULL);
