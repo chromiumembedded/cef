@@ -1,5 +1,5 @@
 diff --git content_browser_client.cc content_browser_client.cc
-index d982b69..9272897 100644
+index a72bc67..ff64d68 100644
 --- content_browser_client.cc
 +++ content_browser_client.cc
 @@ -276,6 +276,10 @@ bool ContentBrowserClient::IsFastShutdownPossible() {
@@ -14,18 +14,18 @@ index d982b69..9272897 100644
    return base::FilePath();
  }
 diff --git content_browser_client.h content_browser_client.h
-index f8253a6..d82c177 100644
+index 455bff9..a8c80fc 100644
 --- content_browser_client.h
 +++ content_browser_client.h
-@@ -25,6 +25,7 @@
- #include "net/cookies/canonical_cookie.h"
+@@ -27,6 +27,7 @@
  #include "net/url_request/url_request_interceptor.h"
  #include "net/url_request/url_request_job_factory.h"
+ #include "storage/browser/fileapi/file_system_context.h"
 +#include "third_party/skia/include/core/SkColor.h"
  #include "third_party/WebKit/public/platform/WebNotificationPermission.h"
  #include "ui/base/window_open_disposition.h"
- #include "webkit/browser/fileapi/file_system_context.h"
-@@ -526,6 +527,9 @@ class CONTENT_EXPORT ContentBrowserClient {
+ 
+@@ -527,6 +528,9 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Clears browser cookies.
    virtual void ClearCookies(RenderViewHost* rvh) {}
  
@@ -62,7 +62,7 @@ index 7afc338..c014439 100644
  WebContents::CreateParams::~CreateParams() {
  }
 diff --git web_contents.h web_contents.h
-index 80766dc..025c8c7 100644
+index 4f0d625..01083ac 100644
 --- web_contents.h
 +++ web_contents.h
 @@ -52,9 +52,11 @@ class PageState;
@@ -76,8 +76,8 @@ index 80766dc..025c8c7 100644
 +class WebContentsView;
  struct CustomContextMenuContext;
  struct DropData;
- struct RendererPreferences;
-@@ -117,6 +119,10 @@ class WebContents : public PageNavigator,
+ struct Manifest;
+@@ -118,6 +120,10 @@ class WebContents : public PageNavigator,
      // Used to specify the location context which display the new view should
      // belong. This can be NULL if not needed.
      gfx::NativeView context;
@@ -89,7 +89,7 @@ index 80766dc..025c8c7 100644
  
    // Creates a new WebContents.
 diff --git web_contents_delegate.cc web_contents_delegate.cc
-index 0028339..477040e 100644
+index 72cabb4..32765ba 100644
 --- web_contents_delegate.cc
 +++ web_contents_delegate.cc
 @@ -136,7 +136,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
@@ -104,10 +104,10 @@ index 0028339..477040e 100644
  }
  
 diff --git web_contents_delegate.h web_contents_delegate.h
-index b9aa02d..d840775 100644
+index 457b3c0..734fc87 100644
 --- web_contents_delegate.h
 +++ web_contents_delegate.h
-@@ -37,9 +37,11 @@ class DownloadItem;
+@@ -36,9 +36,11 @@ class DownloadItem;
  class JavaScriptDialogManager;
  class PageState;
  class RenderViewHost;
@@ -119,7 +119,7 @@ index b9aa02d..d840775 100644
  struct ColorSuggestion;
  struct ContextMenuParams;
  struct DropData;
-@@ -312,7 +314,9 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -314,7 +316,9 @@ class CONTENT_EXPORT WebContentsDelegate {
        const base::string16& frame_name,
        const GURL& target_url,
        const std::string& partition_id,

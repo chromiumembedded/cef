@@ -27,12 +27,12 @@ scoped_ptr<PrefService> CefBrowserPrefStore::CreateService() {
   scoped_refptr<PrefRegistrySimple> registry(new PrefRegistrySimple());
 
   // Default settings.
-  CefMediaCaptureDevicesDispatcher::RegisterPrefs(registry);
-  PrefProxyConfigTrackerImpl::RegisterPrefs(registry);
+  CefMediaCaptureDevicesDispatcher::RegisterPrefs(registry.get());
+  PrefProxyConfigTrackerImpl::RegisterPrefs(registry.get());
 
   registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);
 
-  return factory.Create(registry);
+  return factory.Create(registry.get());
 }
 
 CefBrowserPrefStore::~CefBrowserPrefStore() {

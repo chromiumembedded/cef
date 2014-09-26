@@ -7,7 +7,7 @@
 
 CefNavigateParams::CefNavigateParams(
     const GURL& a_url,
-    content::PageTransition a_transition)
+    ui::PageTransition a_transition)
     : url(a_url),
       frame_id(-1),
       disposition(CURRENT_TAB),

@@ -121,7 +121,7 @@ void CefFrameHostImpl::LoadRequest(CefRefPtr<CefRequest> request) {
     frame_id = (is_main_frame_ ? kMainFrameId : frame_id_);
   }
 
-  if (browser)
+  if (browser.get())
     browser->LoadRequest(frame_id, request);
 }
 
@@ -135,9 +135,9 @@ void CefFrameHostImpl::LoadURL(const CefString& url) {
     frame_id = (is_main_frame_ ? kMainFrameId : frame_id_);
   }
 
-  if (browser) {
+  if (browser.get()) {
     browser->LoadURL(frame_id, url, content::Referrer(),
-                     content::PAGE_TRANSITION_TYPED, std::string());
+                     ui::PAGE_TRANSITION_TYPED, std::string());
   }
 }
 
@@ -152,7 +152,7 @@ void CefFrameHostImpl::LoadString(const CefString& string,
     frame_id = (is_main_frame_ ? kMainFrameId : frame_id_);
   }
 
-  if (browser)
+  if (browser.get())
     browser->LoadString(frame_id, string, url);
 }
 
@@ -192,7 +192,7 @@ CefRefPtr<CefFrame> CefFrameHostImpl::GetParent() {
     parent_frame_id = parent_frame_id_;
   }
 
-  if (browser)
+  if (browser.get())
     return browser->GetFrame(parent_frame_id);
 
   return NULL;
@@ -252,7 +252,7 @@ void CefFrameHostImpl::SendJavaScript(
     frame_id = (is_main_frame_ ? kMainFrameId : frame_id_);
   }
 
-  if (browser)
+  if (browser.get())
     browser->SendCode(frame_id, true, jsCode, scriptUrl, startLine, NULL);
 }
 
@@ -274,6 +274,6 @@ void CefFrameHostImpl::SendCommand(
     frame_id = frame_id_;
   }
 
-  if (browser && frame_id != kInvalidFrameId)
+  if (browser.get() && frame_id != kInvalidFrameId)
     browser->SendCommand(frame_id, command, responseHandler);
 }

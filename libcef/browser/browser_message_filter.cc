@@ -127,6 +127,6 @@ void CefBrowserMessageFilter::OnFrameFocused(int32 render_frame_routing_id) {
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForFrame(host_->GetID(),
                                              render_frame_routing_id);
-  if (browser)
+  if (browser.get())
     browser->SetFocusedFrame(render_frame_routing_id);
 }

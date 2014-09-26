@@ -1,5 +1,5 @@
 diff --git resource_ids resource_ids
-index 3b8768e..cde0ceb 100644
+index 9cd707c..5bb858c 100644
 --- resource_ids
 +++ resource_ids
 @@ -16,6 +16,12 @@
@@ -13,5 +13,5 @@ index 3b8768e..cde0ceb 100644
 +    "messages": [28000],
 +  },
    "chrome/browser/browser_resources.grd": {
-     "includes": [500],
+     "includes": [400],
      "structures": [750],

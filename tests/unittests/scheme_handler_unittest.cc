@@ -195,7 +195,7 @@ class ClientSchemeHandler : public CefResourceHandler {
       if (test_results_->delay > 0) {
         // Continue after the delay.
         CefPostDelayedTask(TID_IO,
-            base::Bind(&CefCallback::Continue, callback),
+            base::Bind(&CefCallback::Continue, callback.get()),
             test_results_->delay);
       } else {
         // Continue immediately.

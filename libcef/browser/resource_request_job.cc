@@ -208,7 +208,7 @@ void CefResourceRequestJob::Kill() {
     handler_->Cancel();
   }
 
-  if (callback_) {
+  if (callback_.get()) {
     callback_->Detach();
     callback_ = NULL;
   }
@@ -290,7 +290,7 @@ void CefResourceRequestJob::GetLoadTimingInfo(
     net::LoadTimingInfo* load_timing_info) const {
   // If haven't made it far enough to receive any headers, don't return
   // anything. This makes for more consistent behavior in the case of errors.
-  if (!response_ || receive_headers_end_.is_null())
+  if (!response_.get() || receive_headers_end_.is_null())
     return;
   load_timing_info->request_start_time = request_start_time_;
   load_timing_info->receive_headers_end = receive_headers_end_;
@@ -468,13 +468,13 @@ void CefResourceRequestJob::StartTransaction() {
 }
 
 net::HttpResponseHeaders* CefResourceRequestJob::GetResponseHeaders() {
-  DCHECK(response_);
+  DCHECK(response_.get());
   if (!response_headers_.get()) {
     CefResponseImpl* responseImpl =
         static_cast<CefResponseImpl*>(response_.get());
     response_headers_ = responseImpl->GetResponseHeaders();
   }
-  return response_headers_;
+  return response_headers_.get();
 }
 
 void CefResourceRequestJob::SaveCookiesAndNotifyHeadersComplete() {

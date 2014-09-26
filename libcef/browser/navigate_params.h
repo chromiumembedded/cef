@@ -12,15 +12,15 @@
 #include "libcef/common/upload_data.h"
 
 #include "content/public/browser/global_request_id.h"
-#include "content/public/common/page_transition_types.h"
 #include "content/public/common/referrer.h"
+#include "ui/base/page_transition_types.h"
 #include "ui/base/window_open_disposition.h"
 #include "url/gurl.h"
 
 // Parameters that tell CefBrowserHostImpl::Navigate() what to do.
 struct CefNavigateParams {
   CefNavigateParams(const GURL& a_url,
-                    content::PageTransition a_transition);
+                    ui::PageTransition a_transition);
   ~CefNavigateParams();
 
   // The following parameters are sent to the renderer via CefMsg_LoadRequest.
@@ -61,7 +61,7 @@ struct CefNavigateParams {
   WindowOpenDisposition disposition;
 
   // The transition type of the navigation.
-  content::PageTransition transition;
+  ui::PageTransition transition;
 
   // Whether this navigation was initiated by the renderer process.
   bool is_renderer_initiated;

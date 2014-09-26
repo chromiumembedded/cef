@@ -405,7 +405,7 @@ void PrintingMessageFilter::OnUpdatePrintSettingsReply(
   PrintHostMsg_UpdatePrintSettings::WriteReplyParams(
       reply_msg,
       params,
-      printer_query &&
+      printer_query.get() &&
           (printer_query->last_status() == printing::PrintingContext::CANCEL));
   Send(reply_msg);
   // If user hasn't cancelled.

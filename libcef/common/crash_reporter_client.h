@@ -2,16 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_COMMON_BREAKPAD_CLIENT_H_
-#define CEF_LIBCEF_COMMON_BREAKPAD_CLIENT_H_
+#ifndef CEF_LIBCEF_COMMON_CRASH_REPORTER_CLIENT_H_
+#define CEF_LIBCEF_COMMON_CRASH_REPORTER_CLIENT_H_
 
 #include "base/compiler_specific.h"
-#include "components/crash/app/breakpad_client.h"
+#include "components/crash/app/crash_reporter_client.h"
 
-class CefBreakpadClient : public breakpad::BreakpadClient {
+class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
  public:
-  CefBreakpadClient();
-  virtual ~CefBreakpadClient();
+  CefCrashReporterClient();
+  virtual ~CefCrashReporterClient();
 
 #if defined(OS_WIN)
   // Returns a textual description of the product type and version to include
@@ -37,7 +37,7 @@ class CefBreakpadClient : public breakpad::BreakpadClient {
   virtual bool GetCrashDumpLocation(base::FilePath* crash_dir) OVERRIDE;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(CefBreakpadClient);
+  DISALLOW_COPY_AND_ASSIGN(CefCrashReporterClient);
 };
 
-#endif  // CEF_LIBCEF_COMMON_BREAKPAD_CLIENT_H_
+#endif  // CEF_LIBCEF_COMMON_CRASH_REPORTER_CLIENT_H_

@@ -6,6 +6,8 @@
   'variables': {
     # Don't use the chrome style plugin with CEF.
     'clang_use_chrome_plugins': 0,
+    # Set ENABLE_PRINTING=1.
+    'enable_printing': 2,
     'conditions': [
       # Directory for CEF source files.
       [ 'OS=="win"', {

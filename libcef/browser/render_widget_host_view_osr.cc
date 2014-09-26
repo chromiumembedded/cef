@@ -157,6 +157,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       popup_host_view_(NULL),
       is_showing_(true),
       is_destroyed_(false),
+      is_scroll_offset_changed_pending_(false),
 #if defined(OS_MACOSX)
       text_input_context_osr_mac_(NULL),
 #endif
@@ -182,7 +183,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 #endif
   compositor_->SetRootLayer(root_layer_.get());
 
-  if (browser_impl_) {
+  if (browser_impl_.get()) {
     SetFrameRate();
     ResizeRootLayer();
     compositor_->SetScaleAndSize(CurrentDeviceScaleFactor(),
@@ -216,6 +217,10 @@ void CefRenderWidgetHostViewOSR::SetSize(const gfx::Size& size) {
 }
 
 void CefRenderWidgetHostViewOSR::SetBounds(const gfx::Rect& rect) {
+}
+
+gfx::Vector2dF CefRenderWidgetHostViewOSR::GetLastScrollOffset() const {
+  return last_scroll_offset_;
 }
 
 gfx::NativeView CefRenderWidgetHostViewOSR::GetNativeView() const {
@@ -262,7 +267,7 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetViewBounds() const {
   if (IsPopupWidget())
     return popup_position_;
 
-  if (!browser_impl_)
+  if (!browser_impl_.get())
     return gfx::Rect();
 
   CefRect rc;
@@ -288,6 +293,18 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
     uint32 output_surface_id,
     scoped_ptr<cc::CompositorFrame> frame) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::OnSwapCompositorFrame");
+
+  if (frame->metadata.root_scroll_offset != last_scroll_offset_) {
+    last_scroll_offset_ = frame->metadata.root_scroll_offset;
+
+    if (!is_scroll_offset_changed_pending_) {
+      // Send the notification asnychronously.
+      CEF_POST_TASK(CEF_UIT,
+          base::Bind(&CefRenderWidgetHostViewOSR::OnScrollOffsetChanged,
+                     weak_ptr_factory_.GetWeakPtr()));
+    }
+  }
+
   if (frame->delegated_frame_data) {
     delegated_frame_host_->SwapDelegatedFrame(
         output_surface_id,
@@ -313,7 +330,7 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
   parent_host_view_ = static_cast<CefRenderWidgetHostViewOSR*>(
       parent_host_view);
   browser_impl_ = parent_host_view_->browser_impl();
-  if (!browser_impl_)
+  if (!browser_impl_.get())
     return;
 
   if (parent_host_view_->popup_host_view_) {
@@ -363,7 +380,7 @@ void CefRenderWidgetHostViewOSR::WasHidden() {
   if (!is_showing_)
     return;
 
-  if (browser_impl_)
+  if (browser_impl_.get())
     browser_impl_->CancelContextMenu();
 
   if (render_widget_host_)
@@ -383,7 +400,7 @@ void CefRenderWidgetHostViewOSR::Blur() {
 void CefRenderWidgetHostViewOSR::UpdateCursor(
     const content::WebCursor& cursor) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::UpdateCursor");
-  if (!browser_impl_)
+  if (!browser_impl_.get())
     return;
 
 #if defined(USE_AURA)
@@ -453,7 +470,7 @@ void CefRenderWidgetHostViewOSR::Destroy() {
 
 void CefRenderWidgetHostViewOSR::SetTooltipText(
     const base::string16& tooltip_text) {
-  if (!browser_impl_)
+  if (!browser_impl_.get())
     return;
 
   CefString tooltip(tooltip_text);
@@ -552,7 +569,7 @@ bool CefRenderWidgetHostViewOSR::HasAcceleratedSurface(
 }
 
 void CefRenderWidgetHostViewOSR::GetScreenInfo(blink::WebScreenInfo* results) {
-  if (!browser_impl_)
+  if (!browser_impl_.get())
     return;
 
   CefScreenInfo screen_info(
@@ -585,7 +602,7 @@ void CefRenderWidgetHostViewOSR::GetScreenInfo(blink::WebScreenInfo* results) {
 }
 
 gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
-  if (!browser_impl_)
+  if (!browser_impl_.get())
     return gfx::Rect();
 
   CefRect rc;
@@ -645,7 +662,7 @@ gfx::Size CefRenderWidgetHostViewOSR::DesiredFrameSize() {
 }
 
 float CefRenderWidgetHostViewOSR::CurrentDeviceScaleFactor() {
-  if (!browser_impl_)
+  if (!browser_impl_.get())
     return kDefaultScaleFactor;
 
   CefScreenInfo screen_info(
@@ -670,7 +687,7 @@ content::DelegatedFrameHost*
 }
 
 bool CefRenderWidgetHostViewOSR::InstallTransparency() {
-  if (browser_impl_ && browser_impl_->IsTransparent()) {
+  if (browser_impl_.get() && browser_impl_->IsTransparent()) {
     SetBackgroundOpaque(false);
     return true;
   }
@@ -728,7 +745,7 @@ void CefRenderWidgetHostViewOSR::SendMouseEvent(
     const blink::WebMouseEvent& event) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::SendMouseEvent");
   if (!IsPopupWidget()) {
-    if (browser_impl_ && event.type == blink::WebMouseEvent::MouseDown)
+    if (browser_impl_.get() && event.type == blink::WebMouseEvent::MouseDown)
       browser_impl_->CancelContextMenu();
 
     if (popup_host_view_ &&
@@ -752,7 +769,7 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
     const blink::WebMouseWheelEvent& event) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::SendMouseWheelEvent");
   if (!IsPopupWidget()) {
-    if (browser_impl_)
+    if (browser_impl_.get())
       browser_impl_->CancelContextMenu();
 
     if (popup_host_view_) {
@@ -789,7 +806,7 @@ void CefRenderWidgetHostViewOSR::SendFocusEvent(bool focus) {
     widget->GotFocus();
     widget->SetActive(true);
   } else {
-    if (browser_impl_)
+    if (browser_impl_.get())
       browser_impl_->CancelContextMenu();
 
     widget->SetActive(false);
@@ -816,7 +833,7 @@ void CefRenderWidgetHostViewOSR::ReleaseResize() {
 }
 
 void CefRenderWidgetHostViewOSR::SetFrameRate() {
-  if (!browser_impl_)
+  if (!browser_impl_.get())
     return;
   int frame_rate = browser_impl_->settings().windowless_frame_rate;
   if (frame_rate < 1)
@@ -915,11 +932,11 @@ void CefRenderWidgetHostViewOSR::PrepareTextureCopyOutputResult(
       bitmap_size.height() != result_size.height()) {
     // Create a new bitmap if the size has changed.
     bitmap_.reset(new SkBitmap);
-    if (!bitmap_->allocN32Pixels(result_size.width(),
-                                 result_size.height(),
-                                 true)) {
+    bitmap_->allocN32Pixels(result_size.width(),
+                            result_size.height(),
+                            true);
+    if (bitmap_->drawsNothing())
       return;
-    }
   }
 
   content::ImageTransportFactory* factory =
@@ -1065,7 +1082,7 @@ void CefRenderWidgetHostViewOSR::CancelPopupWidget() {
 
   WasHidden();
 
-  if (browser_impl_) {
+  if (browser_impl_.get()) {
     browser_impl_->GetClient()->GetRenderHandler()->OnPopupShow(
         browser_impl_.get(), false);
     browser_impl_ = NULL;
@@ -1083,3 +1100,11 @@ void CefRenderWidgetHostViewOSR::CancelPopupWidget() {
   }
 }
 
+void CefRenderWidgetHostViewOSR::OnScrollOffsetChanged() {
+  if (browser_impl_.get()) {
+    CefRefPtr<CefRenderHandler> handler =
+        browser_impl_->client()->GetRenderHandler();
+    handler->OnScrollOffsetChanged(browser_impl_.get());
+  }
+  is_scroll_offset_changed_pending_ = false;
+}

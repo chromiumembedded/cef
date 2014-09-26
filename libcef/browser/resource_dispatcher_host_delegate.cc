@@ -109,7 +109,7 @@ void CefResourceDispatcherHostDelegate::OnRequestRedirected(
   if (active_url.is_valid() && redirect_url.is_valid() &&
       active_url.GetOrigin() != redirect_url.GetOrigin() &&
       HasCrossOriginWhitelistEntry(active_url, redirect_url)) {
-    if (!response->head.headers)
+    if (!response->head.headers.get())
       response->head.headers = new net::HttpResponseHeaders(std::string());
 
     // Add CORS headers to support XMLHttpRequest redirects.

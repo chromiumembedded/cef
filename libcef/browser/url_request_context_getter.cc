@@ -302,7 +302,7 @@ void CefURLRequestContextGetter::SetCookieStoragePath(
   // longer referenced.
   scoped_refptr<net::CookieMonster> cookie_monster =
       new net::CookieMonster(persistent_store.get(), NULL);
-  storage_->set_cookie_store(cookie_monster);
+  storage_->set_cookie_store(cookie_monster.get());
   if (persistent_store.get() && persist_session_cookies)
       cookie_monster->SetPersistSessionCookies(true);
   cookie_store_path_ = path;
@@ -390,5 +390,5 @@ void CefURLRequestContextGetter::CreateProxyConfigService() {
 
   proxy_config_service_.reset(
       net::ProxyService::CreateSystemProxyConfigService(
-          io_loop_->message_loop_proxy(), file_loop_));
+          io_loop_->message_loop_proxy(), file_loop_->message_loop_proxy()));
 }

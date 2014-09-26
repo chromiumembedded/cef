@@ -914,7 +914,7 @@ bool VerifySingleBrowserFrame(CefRefPtr<CefBrowser> browser,
                               bool frame_should_exist,
                               const std::string& expected_url) {
   V_DECLARE();
-  V_EXPECT_TRUE(frame);
+  V_EXPECT_TRUE(frame.get());
   V_EXPECT_TRUE(frame->IsValid());
   if (frame_should_exist) {
     V_EXPECT_TRUE(frame->GetIdentifier() >= 0);
@@ -924,7 +924,7 @@ bool VerifySingleBrowserFrame(CefRefPtr<CefBrowser> browser,
   V_EXPECT_TRUE(frame->IsValid());
   V_EXPECT_TRUE(frame->IsMain());
   V_EXPECT_TRUE(frame->IsFocused());
-  V_EXPECT_FALSE(frame->GetParent());
+  V_EXPECT_FALSE(frame->GetParent().get());
   V_EXPECT_TRUE(frame->GetName().empty());
   V_EXPECT_TRUE(browser->GetIdentifier() ==
                 frame->GetBrowser()->GetIdentifier());
@@ -941,10 +941,10 @@ bool VerifySingleBrowserFrames(CefRefPtr<CefBrowser> browser,
                                bool frame_should_exist,
                                const std::string& expected_url) {
   V_DECLARE();
-  V_EXPECT_TRUE(browser);
+  V_EXPECT_TRUE(browser.get());
 
   // |frame| may be NULL for callbacks that don't specify one.
-  if (frame) {
+  if (frame.get()) {
     V_EXPECT_TRUE(VerifySingleBrowserFrame(browser, frame,
                                            frame_should_exist, expected_url));
   }
@@ -1781,11 +1781,11 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
 
   // Find frames by name.
   frame0 = browser->GetFrame(kFrame0Name);
-  V_EXPECT_TRUE(frame0);
+  V_EXPECT_TRUE(frame0.get());
   frame1 = browser->GetFrame(kFrame1Name);
-  V_EXPECT_TRUE(frame1);
+  V_EXPECT_TRUE(frame1.get());
   frame2 = browser->GetFrame(kFrame2Name);
-  V_EXPECT_TRUE(frame2);
+  V_EXPECT_TRUE(frame2.get());
 
   // Verify that the name matches.
   V_EXPECT_TRUE(frame0->GetName().ToString() == kFrame0Name);
@@ -1819,11 +1819,11 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
 
   // Find frames by id.
   frame0b = browser->GetFrame(frame0->GetIdentifier());
-  V_EXPECT_TRUE(frame0b);
+  V_EXPECT_TRUE(frame0b.get());
   frame1b = browser->GetFrame(frame1->GetIdentifier());
-  V_EXPECT_TRUE(frame1b);
+  V_EXPECT_TRUE(frame1b.get());
   frame2b = browser->GetFrame(frame2->GetIdentifier());
-  V_EXPECT_TRUE(frame2b);
+  V_EXPECT_TRUE(frame2b.get());
 
   // Verify that the id matches.
   V_EXPECT_TRUE(frame0b->GetIdentifier() == frame0id);
@@ -1849,7 +1849,7 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
   V_EXPECT_TRUE(idents[2] == frame2->GetIdentifier());
 
   // Verify parent hierarchy.
-  V_EXPECT_TRUE(frame0->GetParent() == NULL);
+  V_EXPECT_FALSE(frame0->GetParent().get());
   V_EXPECT_TRUE(frame1->GetParent()->GetIdentifier() == frame0id);
   V_EXPECT_TRUE(frame2->GetParent()->GetIdentifier() == frame1id);
 

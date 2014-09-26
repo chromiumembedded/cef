@@ -1,5 +1,5 @@
 diff --git ThemeMac.mm ThemeMac.mm
-index 8da614b..14c865d 100644
+index a405ba5..e20144d 100644
 --- ThemeMac.mm
 +++ ThemeMac.mm
 @@ -490,7 +490,7 @@ static void paintButton(ControlPart part, ControlStates states, GraphicsContext*

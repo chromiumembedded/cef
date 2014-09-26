@@ -265,7 +265,7 @@ class CefUrlRequestManager {
     net::URLRequestJob* job = NULL;
     CefRefPtr<CefSchemeHandlerFactory> factory =
         GetHandlerFactory(request, scheme);
-    if (factory) {
+    if (factory.get()) {
       CefRefPtr<CefBrowserHostImpl> browser =
           CefBrowserHostImpl::GetBrowserForRequest(request);
       CefRefPtr<CefFrame> frame;

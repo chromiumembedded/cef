@@ -40,6 +40,7 @@ MSVC_POP_WARNING();
 #include "chrome/renderer/pepper/chrome_pdf_print_client.h"
 #include "chrome/renderer/printing/print_web_view_helper.h"
 #include "components/pdf/renderer/ppb_pdf_impl.h"
+#include "components/web_cache/renderer/web_cache_render_process_observer.h"
 #include "content/child/child_thread.h"
 #include "content/child/worker_task_runner.h"
 #include "content/common/frame_messages.h"
@@ -412,7 +413,7 @@ void CefContentRendererClient::RunSingleProcessCleanup() {
   DCHECK(content::RenderProcessHost::run_renderer_in_process());
 
   // Make sure the render thread was actually started.
-  if (!render_task_runner_)
+  if (!render_task_runner_.get())
     return;
 
   if (content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
@@ -440,9 +441,11 @@ void CefContentRendererClient::RunSingleProcessCleanup() {
 void CefContentRendererClient::RenderThreadStarted() {
   render_task_runner_ = base::MessageLoopProxy::current();
   observer_.reset(new CefRenderProcessObserver());
+  web_cache_observer_.reset(new web_cache::WebCacheRenderProcessObserver());
 
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(observer_.get());
+  thread->AddObserver(web_cache_observer_.get());
   thread->GetChannel()->AddFilter(new CefRenderMessageFilter);
   thread->RegisterExtension(extensions_v8::LoadTimesExtension::Get());
 
@@ -503,7 +506,7 @@ bool CefContentRendererClient::OverrideCreatePlugin(
     blink::WebPlugin** plugin) {
   CefRefPtr<CefBrowserImpl> browser =
       CefBrowserImpl::GetBrowserForMainFrame(frame->top());
-  if (!browser || !browser->is_windowless())
+  if (!browser.get() || !browser->is_windowless())
     return false;
 
 #if defined(ENABLE_PLUGINS)
@@ -653,9 +656,7 @@ void CefContentRendererClient::DidCreateScriptContext(
   v8::Isolate* isolate = blink::mainThreadIsolate();
   v8::HandleScope handle_scope(isolate);
   v8::Context::Scope scope(context);
-  blink::V8RecursionScope recursion_scope(
-      isolate,
-      blink::toExecutionContext(context));
+  blink::V8RecursionScope recursion_scope(isolate);
 
   CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(isolate, context));
 
@@ -680,7 +681,9 @@ const void* CefContentRendererClient::CreatePPAPIInterface(
 }
 
 void CefContentRendererClient::WillReleaseScriptContext(
-    blink::WebFrame* frame, v8::Handle<v8::Context> context, int world_id) {
+    blink::WebLocalFrame* frame,
+    v8::Handle<v8::Context> context,
+    int world_id) {
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();
   if (application.get()) {
@@ -696,9 +699,7 @@ void CefContentRendererClient::WillReleaseScriptContext(
         v8::Isolate* isolate = blink::mainThreadIsolate();
         v8::HandleScope handle_scope(isolate);
         v8::Context::Scope scope(context);
-        blink::V8RecursionScope recursion_scope(
-            isolate,
-            blink::toExecutionContext(context));
+        blink::V8RecursionScope recursion_scope(isolate);
 
         CefRefPtr<CefV8Context> contextPtr(
             new CefV8ContextImpl(isolate, context));
@@ -731,7 +732,7 @@ void CefContentRendererClient::BrowserCreated(
   DCHECK_GT(params.browser_id, 0);
 
   // Don't create another browser object if one already exists for the view.
-  if (GetBrowserForView(render_view))
+  if (GetBrowserForView(render_view).get())
     return;
 
 #if defined(OS_MACOSX)
@@ -749,7 +750,7 @@ void CefContentRendererClient::BrowserCreated(
   browsers_.insert(std::make_pair(render_view, browser));
 
   new CefPrerendererClient(render_view);
-  new printing::PrintWebViewHelper(render_view, false, false);
+  new printing::PrintWebViewHelper(render_view);
 
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();

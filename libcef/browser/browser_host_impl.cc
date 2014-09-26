@@ -373,9 +373,9 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::CreateInternal(windowInfo, settings, client, NULL,
                                          info, opener, request_context);
-  if (browser && !url.empty()) {
+  if (browser.get() && !url.empty()) {
     browser->LoadURL(CefFrameHostImpl::kMainFrameId, url, content::Referrer(),
-                     content::PAGE_TRANSITION_TYPED, std::string());
+                     ui::PAGE_TRANSITION_TYPED, std::string());
   }
   return browser.get();
 }
@@ -1427,7 +1427,7 @@ void CefBrowserHostImpl::Navigate(const CefNavigateParams& params) {
 void CefBrowserHostImpl::LoadRequest(int64 frame_id,
                                      CefRefPtr<CefRequest> request) {
   CefNavigateParams params(GURL(std::string(request->GetURL())),
-                           content::PAGE_TRANSITION_TYPED);
+                           ui::PAGE_TRANSITION_TYPED);
   params.method = request->GetMethod();
   params.frame_id = frame_id;
   params.first_party_for_cookies =
@@ -1454,7 +1454,7 @@ void CefBrowserHostImpl::LoadURL(
     int64 frame_id,
     const std::string& url,
     const content::Referrer& referrer,
-    content::PageTransition transition,
+    ui::PageTransition transition,
     const std::string& extra_headers) {
   if (frame_id == CefFrameHostImpl::kMainFrameId) {
     // Go through the navigation controller.
@@ -2318,7 +2318,7 @@ void CefBrowserHostImpl::RenderProcessGone(base::TerminationStatus status) {
 void CefBrowserHostImpl::DidCommitProvisionalLoadForFrame(
     content::RenderFrameHost* render_frame_host,
     const GURL& url,
-    content::PageTransition transition_type) {
+    ui::PageTransition transition_type) {
   const bool is_main_frame = !render_frame_host->GetParent();
   CefRefPtr<CefFrame> frame = GetOrCreateFrame(
       render_frame_host->GetRoutingID(),
@@ -2749,12 +2749,12 @@ void CefBrowserHostImpl::SetFocusedFrame(int64 frame_id) {
     }
 
     focused_frame_id_ =
-        focused_frame ? frame_id : CefFrameHostImpl::kInvalidFrameId;
+        focused_frame.get() ? frame_id : CefFrameHostImpl::kInvalidFrameId;
   }
 
-  if (unfocused_frame)
+  if (unfocused_frame.get())
     unfocused_frame->SetFocused(false);
-  if (focused_frame)
+  if (focused_frame.get())
     focused_frame->SetFocused(true);
 }
 
@@ -2771,7 +2771,7 @@ void CefBrowserHostImpl::OnAddressChange(CefRefPtr<CefFrame> frame,
 
 void CefBrowserHostImpl::OnLoadStart(CefRefPtr<CefFrame> frame,
                                      const GURL& url,
-                                     content::PageTransition transition_type) {
+                                     ui::PageTransition transition_type) {
   if (client_.get()) {
     CefRefPtr<CefLoadHandler> handler = client_->GetLoadHandler();
     if (handler.get()) {

@@ -136,12 +136,12 @@ bool CefTaskRunnerImpl::BelongsToThread(CefThreadId threadId) {
 
 bool CefTaskRunnerImpl::PostTask(CefRefPtr<CefTask> task) {
   return task_runner_->PostTask(FROM_HERE,
-      base::Bind(&CefTask::Execute, task));
+      base::Bind(&CefTask::Execute, task.get()));
 }
 
 bool CefTaskRunnerImpl::PostDelayedTask(CefRefPtr<CefTask> task,
                                         int64 delay_ms) {
   return task_runner_->PostDelayedTask(FROM_HERE,
-        base::Bind(&CefTask::Execute, task),
+        base::Bind(&CefTask::Execute, task.get()),
         base::TimeDelta::FromMilliseconds(delay_ms));
 }

@@ -110,8 +110,11 @@ void CefBrowserImpl::GoForward() {
 bool CefBrowserImpl::IsLoading() {
   CEF_REQUIRE_RT_RETURN(false);
 
-  if (render_view()->GetWebView() && render_view()->GetWebView()->mainFrame())
-    return render_view()->GetWebView()->mainFrame()->isLoading();
+  if (render_view()->GetWebView()) {
+    blink::WebFrame* main_frame = render_view()->GetWebView()->mainFrame();
+    if (main_frame)
+      return main_frame->toWebLocalFrame()->isLoading();
+  }
   return false;
 }
 
@@ -580,7 +583,7 @@ void CefBrowserImpl::DidCreateDataSource(blink::WebLocalFrame* frame,
         content::DocumentState::FromDataSource(ds);
     document_state->set_navigation_state(
         content::NavigationState::CreateBrowserInitiated(-1, -1, false,
-            content::PAGE_TRANSITION_LINK));
+            ui::PAGE_TRANSITION_LINK));
   }
 
   if (frame->parent() == 0) {

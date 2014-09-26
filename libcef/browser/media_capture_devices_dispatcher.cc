@@ -115,19 +115,6 @@ void CefMediaCaptureDevicesDispatcher::OnCreatingAudioStream(
     int render_view_id) {
 }
 
-void CefMediaCaptureDevicesDispatcher::OnAudioStreamPlaying(
-      int render_process_id,
-      int render_frame_id,
-      int stream_id,
-      const ReadPowerAndClipCallback& power_read_callback) {
-}
-
-void CefMediaCaptureDevicesDispatcher::OnAudioStreamStopped(
-      int render_process_id,
-      int render_frame_id,
-      int stream_id) {
-}
-
 const MediaStreamDevices&
 CefMediaCaptureDevicesDispatcher::GetAudioCaptureDevices() {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));

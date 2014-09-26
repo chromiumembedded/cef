@@ -21,7 +21,7 @@ bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task) {
       CefTaskRunnerImpl::GetTaskRunner(threadId);
   if (task_runner.get()) {
     return task_runner->PostTask(FROM_HERE,
-        base::Bind(&CefTask::Execute, task));
+        base::Bind(&CefTask::Execute, task.get()));
   }
   return false;
 }
@@ -31,7 +31,7 @@ bool CefPostDelayedTask(CefThreadId threadId, CefRefPtr<CefTask> task, int64 del
       CefTaskRunnerImpl::GetTaskRunner(threadId);
   if (task_runner.get()) {
     return task_runner->PostDelayedTask(FROM_HERE,
-        base::Bind(&CefTask::Execute, task),
+        base::Bind(&CefTask::Execute, task.get()),
         base::TimeDelta::FromMilliseconds(delay_ms));
   }
   return false;

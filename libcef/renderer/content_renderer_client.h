@@ -20,6 +20,10 @@
 #include "base/sequenced_task_runner.h"
 #include "content/public/renderer/content_renderer_client.h"
 
+namespace web_cache {
+class WebCacheRenderProcessObserver;
+}
+
 class CefRenderProcessObserver;
 struct Cef_CrossOriginWhiteListEntry_Params;
 class ChromePDFPrintClient;
@@ -97,7 +101,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
   virtual const void* CreatePPAPIInterface(
       const std::string& interface_name) OVERRIDE;
 
-  void WillReleaseScriptContext(blink::WebFrame* frame,
+  void WillReleaseScriptContext(blink::WebLocalFrame* frame,
                                 v8::Handle<v8::Context> context,
                                 int world_id);
 
@@ -113,6 +117,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
 
   scoped_refptr<base::SequencedTaskRunner> render_task_runner_;
   scoped_ptr<CefRenderProcessObserver> observer_;
+  scoped_ptr<web_cache::WebCacheRenderProcessObserver> web_cache_observer_;
 
   // Map of RenderView pointers to CefBrowserImpl references.
   typedef std::map<content::RenderView*, CefRefPtr<CefBrowserImpl> > BrowserMap;

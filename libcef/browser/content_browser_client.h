@@ -145,6 +145,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   virtual void BrowserURLHandlerCreated(
       content::BrowserURLHandler* handler) OVERRIDE;
   virtual std::string GetDefaultDownloadName() OVERRIDE;
+  virtual content::DevToolsManagerDelegate* GetDevToolsManagerDelegate()
+      OVERRIDE;
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
   virtual void GetAdditionalMappedFilesForChildProcess(

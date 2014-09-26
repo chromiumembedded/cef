@@ -9,7 +9,7 @@
 #include "chrome/utility/utility_message_handler.h"
 #include "content/public/utility/utility_thread.h"
 
-#if defined(ENABLE_FULL_PRINTING) && defined(WIN_PDF_METAFILE_FOR_PRINTING)
+#if defined(OS_WIN)
 #include "libcef/utility/printing_handler.h"
 #endif
 
@@ -22,7 +22,7 @@ bool Send(IPC::Message* message) {
 }  // namespace
 
 CefContentUtilityClient::CefContentUtilityClient() {
-#if defined(ENABLE_FULL_PRINTING) && defined(WIN_PDF_METAFILE_FOR_PRINTING)
+#if defined(OS_WIN)
   handlers_.push_back(new PrintingHandler());
 #endif
 }
@@ -49,7 +49,7 @@ bool CefContentUtilityClient::OnMessageReceived(
 
 // static
 void CefContentUtilityClient::PreSandboxStartup() {
-#if defined(ENABLE_FULL_PRINTING) && defined(WIN_PDF_METAFILE_FOR_PRINTING)
+#if defined(OS_WIN)
   PrintingHandler::PreSandboxStartup();
 #endif
 }

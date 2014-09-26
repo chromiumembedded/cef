@@ -36,12 +36,6 @@ class CefBrowserContextImpl::CefResourceContext : public content::ResourceContex
     CHECK(getter_);
     return getter_->GetURLRequestContext();
   }
-  virtual bool AllowMicAccess(const GURL& origin) OVERRIDE {
-    return true;
-  }
-  virtual bool AllowCameraAccess(const GURL& origin) OVERRIDE {
-    return true;
-  }
 
   void set_url_request_context_getter(CefURLRequestContextGetter* getter) {
     getter_ = getter;
@@ -141,7 +135,7 @@ content::SSLHostStateDelegate*
 net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
-  DCHECK(!url_request_getter_);
+  DCHECK(!url_request_getter_.get());
   url_request_getter_ = new CefURLRequestContextGetter(
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),

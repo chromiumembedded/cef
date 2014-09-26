@@ -20,14 +20,11 @@ class PrintViewManager : public PrintViewManagerBase,
  public:
   virtual ~PrintViewManager();
 
+#if !defined(DISABLE_BASIC_PRINTING)
   // Same as PrintNow(), but for the case where a user prints with the system
   // dialog from print preview.
   bool PrintForSystemDialogNow();
-
-  // Same as PrintNow(), but for the case where we want to send the result to
-  // another destination.
-  // TODO(mad) Add an argument so we can pass the destination interface.
-  bool PrintToDestination();
+#endif  // !DISABLE_BASIC_PRINTING
 
   // content::WebContentsObserver implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;

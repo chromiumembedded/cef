@@ -702,7 +702,7 @@ bool CefRegisterExtension(const CefString& extension_name,
   V8TrackString* code = new V8TrackString(javascript_code);
   isolate_manager->AddGlobalTrackObject(code);
 
-  if (handler) {
+  if (handler.get()) {
     // The reference will be released when the process exits.
     V8TrackObject* object = new V8TrackObject(isolate_manager->isolate());
     object->SetHandler(handler);
@@ -1280,7 +1280,7 @@ CefV8ValueImpl::CefV8ValueImpl(v8::Isolate* isolate,
 CefV8ValueImpl::~CefV8ValueImpl() {
   if (type_ == TYPE_STRING)
     cef_string_clear(&string_value_);
-  if (handle_)
+  if (handle_.get())
     handle_->SetWeakIfNecessary();
 }
 

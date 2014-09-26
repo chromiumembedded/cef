@@ -108,7 +108,7 @@ void CefCookieManagerImpl::Initialize(
 void CefCookieManagerImpl::SetSupportedSchemes(
     const std::vector<CefString>& schemes) {
   if (CEF_CURRENTLY_ON_IOT()) {
-    if (!cookie_monster_)
+    if (!cookie_monster_.get())
       return;
 
     if (is_global_) {
@@ -157,11 +157,11 @@ void CefCookieManagerImpl::SetSupportedSchemes(
 bool CefCookieManagerImpl::VisitAllCookies(
     CefRefPtr<CefCookieVisitor> visitor) {
   if (CEF_CURRENTLY_ON_IOT()) {
-    if (!cookie_monster_)
+    if (!cookie_monster_.get())
       return false;
 
     scoped_refptr<VisitCookiesCallback> callback(
-      new VisitCookiesCallback(cookie_monster_, visitor));
+      new VisitCookiesCallback(cookie_monster_.get(), visitor));
 
     cookie_monster_->GetAllCookiesAsync(
         base::Bind(&VisitCookiesCallback::Run, callback.get()));
@@ -179,7 +179,7 @@ bool CefCookieManagerImpl::VisitUrlCookies(
     const CefString& url, bool includeHttpOnly,
     CefRefPtr<CefCookieVisitor> visitor) {
   if (CEF_CURRENTLY_ON_IOT()) {
-    if (!cookie_monster_)
+    if (!cookie_monster_.get())
       return false;
 
     net::CookieOptions options;
@@ -187,7 +187,7 @@ bool CefCookieManagerImpl::VisitUrlCookies(
       options.set_include_httponly();
 
     scoped_refptr<VisitCookiesCallback> callback(
-        new VisitCookiesCallback(cookie_monster_, visitor));
+        new VisitCookiesCallback(cookie_monster_.get(), visitor));
 
     GURL gurl = GURL(url.ToString());
     cookie_monster_->GetAllCookiesForURLWithOptionsAsync(gurl, options,
@@ -206,7 +206,7 @@ bool CefCookieManagerImpl::SetCookie(const CefString& url,
                                      const CefCookie& cookie) {
   CEF_REQUIRE_IOT_RETURN(false);
 
-  if (!cookie_monster_)
+  if (!cookie_monster_.get())
     return false;
 
   GURL gurl = GURL(url.ToString());
@@ -236,7 +236,7 @@ bool CefCookieManagerImpl::DeleteCookies(const CefString& url,
                                          const CefString& cookie_name) {
   CEF_REQUIRE_IOT_RETURN(false);
 
-  if (!cookie_monster_)
+  if (!cookie_monster_.get())
     return false;
 
   if (url.empty()) {
@@ -279,8 +279,8 @@ bool CefCookieManagerImpl::SetStoragePath(
       return true;
     }
 
-    if (cookie_monster_ && ((storage_path_.empty() && path.empty()) ||
-                            storage_path_ == new_path)) {
+    if (cookie_monster_.get() && ((storage_path_.empty() && path.empty()) ||
+                                  storage_path_ == new_path)) {
       // The path has not changed so don't do anything.
       return true;
     }
@@ -330,7 +330,7 @@ bool CefCookieManagerImpl::SetStoragePath(
 bool CefCookieManagerImpl::FlushStore(
     CefRefPtr<CefCompletionCallback> callback) {
   if (CEF_CURRENTLY_ON_IOT()) {
-    if (!cookie_monster_) {
+    if (!cookie_monster_.get()) {
       if (callback.get())
         RunCompletionOnIOThread(callback);
       return true;
@@ -355,10 +355,10 @@ bool CefCookieManagerImpl::FlushStore(
 
 void CefCookieManagerImpl::SetGlobal() {
   if (CEF_CURRENTLY_ON_IOT()) {
-    if (CefContentBrowserClient::Get()->request_context()) {
+    if (CefContentBrowserClient::Get()->request_context().get()) {
       cookie_monster_ = CefContentBrowserClient::Get()->request_context()->
           GetURLRequestContext()->cookie_store()->GetCookieMonster();
-      DCHECK(cookie_monster_);
+      DCHECK(cookie_monster_.get());
     }
   } else {
     // Execute on the IO thread.

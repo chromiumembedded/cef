@@ -15,6 +15,7 @@
 #include "libcef/browser/browser_settings.h"
 #include "libcef/browser/chrome_scheme_handler.h"
 #include "libcef/browser/context.h"
+#include "libcef/browser/devtools_delegate.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/printing/printing_message_filter.h"
 #include "libcef/browser/resource_dispatcher_host_delegate.h"
@@ -63,7 +64,7 @@ class CefAccessTokenStore : public content::AccessTokenStore {
   virtual void LoadAccessTokens(
       const LoadAccessTokensCallbackType& callback) OVERRIDE {
     callback.Run(access_token_set_,
-        CefContentBrowserClient::Get()->request_context());
+        CefContentBrowserClient::Get()->request_context().get());
   }
 
   virtual void SaveAccessToken(
@@ -978,6 +979,10 @@ std::string CefContentBrowserClient::GetDefaultDownloadName() {
   return "download";
 }
 
+content::DevToolsManagerDelegate*
+    CefContentBrowserClient::GetDevToolsManagerDelegate() {
+  return new CefDevToolsManagerDelegate(browser_context());
+}
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
 void CefContentBrowserClient::GetAdditionalMappedFilesForChildProcess(

@@ -17,7 +17,7 @@
 #include "printing/printing_context_linux.h"
 
 namespace printing {
-class Metafile;
+class MetafilePlayer;
 class PrintSettings;
 }
 
@@ -40,7 +40,7 @@ class CefPrintDialogLinux
       gfx::NativeView parent_view,
       bool has_selection,
       const PrintingContextLinux::PrintSettingsCallback& callback) OVERRIDE;
-  virtual void PrintDocument(const printing::Metafile* metafile,
+  virtual void PrintDocument(const printing::MetafilePlayer& metafile,
                              const base::string16& document_name) OVERRIDE;
   virtual void AddRefToDialog() OVERRIDE;
   virtual void ReleaseDialog() OVERRIDE;

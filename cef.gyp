@@ -718,6 +718,7 @@
       'target_name': 'cef_pak',
       'type': 'none',
       'dependencies': [
+        '<(DEPTH)/components/components_resources.gyp:components_resources',
         '<(DEPTH)/components/components_strings.gyp:components_strings',
         '<(DEPTH)/content/app/resources/content_resources.gyp:content_resources',
         '<(DEPTH)/content/app/strings/content_strings.gyp:content_strings',
@@ -736,6 +737,7 @@
           'variables': {
             'pak_inputs': [
               '<(SHARED_INTERMEDIATE_DIR)/blink/public/resources/blink_resources.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/components/component_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
               '<(grit_out_dir)/cef_resources.pak',
@@ -748,6 +750,7 @@
           'action_name': 'repack_cef_100_percent_pack',
           'variables': {
             'pak_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/components/component_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/app/resources/content_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/resources/ui_resources_100_percent.pak',
             ],
@@ -759,6 +762,7 @@
           'action_name': 'repack_cef_200_percent_pack',
           'variables': {
             'pak_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/components/component_resources_200_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/app/resources/content_resources_200_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/resources/ui_resources_200_percent.pak',
             ],
@@ -849,6 +853,7 @@
         '<(DEPTH)/components/components.gyp:pdf_browser',
         '<(DEPTH)/components/components.gyp:pdf_common',
         '<(DEPTH)/components/components.gyp:pdf_renderer',
+        '<(DEPTH)/components/components.gyp:web_cache_renderer',
         '<(DEPTH)/content/content.gyp:content_app_both',
         '<(DEPTH)/content/content.gyp:content_browser',
         '<(DEPTH)/content/content.gyp:content_common',
@@ -860,11 +865,13 @@
         '<(DEPTH)/content/content.gyp:content_utility',
         '<(DEPTH)/gpu/gpu.gyp:gpu',
         '<(DEPTH)/ipc/ipc.gyp:ipc',
+        '<(DEPTH)/media/blink/media_blink.gyp:media_blink',
         '<(DEPTH)/media/media.gyp:media',
         '<(DEPTH)/net/net.gyp:net',
         '<(DEPTH)/net/net.gyp:net_with_v8',
         '<(DEPTH)/pdf/pdf.gyp:pdf',
         '<(DEPTH)/skia/skia.gyp:skia',
+        '<(DEPTH)/storage/storage_browser.gyp:storage',
         '<(DEPTH)/third_party/libxml/libxml.gyp:libxml',
         '<(DEPTH)/third_party/re2/re2.gyp:re2',
         '<(DEPTH)/third_party/WebKit/public/blink.gyp:blink',
@@ -873,7 +880,6 @@
         '<(DEPTH)/ui/gl/gl.gyp:gl',
         '<(DEPTH)/ui/base/ui_base.gyp:ui_base',
         '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
-        '<(DEPTH)/webkit/storage_browser.gyp:storage',
         # Necessary to generate the grit include files.
         'cef_pak',
       ],
@@ -992,8 +998,6 @@
         'libcef/browser/zip_reader_impl.cc',
         'libcef/browser/zip_reader_impl.h',
         'libcef/common/base_impl.cc',
-        'libcef/common/breakpad_client.cc',
-        'libcef/common/breakpad_client.h',
         'libcef/common/cef_message_generator.cc',
         'libcef/common/cef_message_generator.h',
         'libcef/common/cef_messages.cc',
@@ -1004,6 +1008,8 @@
         'libcef/common/command_line_impl.h',
         'libcef/common/content_client.cc',
         'libcef/common/content_client.h',
+        'libcef/common/crash_reporter_client.cc',
+        'libcef/common/crash_reporter_client.h',
         'libcef/common/drag_data_impl.cc',
         'libcef/common/drag_data_impl.h',
         'libcef/common/http_header_utils.cc',
@@ -1131,10 +1137,6 @@
             'libcef/browser/menu_creator_runner_win.cc',
             'libcef/browser/menu_creator_runner_win.h',
             'libcef/browser/render_widget_host_view_osr_win.cc',
-          ],
-        }],
-        ['OS=="win" and win_pdf_metafile_for_printing==1', {
-          'sources': [
             # Include sources for printing using PDF.
             'libcef/utility/printing_handler.cc',
             'libcef/utility/printing_handler.h',
@@ -1142,12 +1144,6 @@
             '<(DEPTH)/chrome/browser/printing/pdf_to_emf_converter.h',
             '<(DEPTH)/chrome/common/chrome_utility_printing_messages.h',
             '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_pdf_win.cc',
-          ],
-        }],
-        ['OS=="win" and win_pdf_metafile_for_printing!=1', {
-          'sources': [
-            # Include sources for printing using EMF.
-            '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_win.cc',
           ],
         }],
         [ 'OS=="mac"', {

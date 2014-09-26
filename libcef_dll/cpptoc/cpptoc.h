@@ -44,7 +44,7 @@ class CefCppToC : public CefBase {
       return NULL;
 
     // Wrap our object with the CefCppToC class.
-    ClassName* wrapper = new ClassName(c);
+    ClassName* wrapper = new ClassName(c.get());
     // Add a reference to our wrapper object that will be released once our
     // structure arrives on the other side.
     wrapper->AddRef();

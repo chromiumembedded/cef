@@ -1,5 +1,5 @@
 diff --git public/common/common_param_traits_macros.h public/common/common_param_traits_macros.h
-index 56b23e4..04de1dc 100644
+index 1d045b0..e336118 100644
 --- public/common/common_param_traits_macros.h
 +++ public/common/common_param_traits_macros.h
 @@ -172,6 +172,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
@@ -11,7 +11,7 @@ index 56b23e4..04de1dc 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git public/common/web_preferences.cc public/common/web_preferences.cc
-index d1e656d..b2ad9e8 100644
+index 32f7987..7e166c4 100644
 --- public/common/web_preferences.cc
 +++ public/common/web_preferences.cc
 @@ -135,6 +135,7 @@ WebPreferences::WebPreferences()
@@ -20,10 +20,10 @@ index d1e656d..b2ad9e8 100644
        navigate_on_drag_drop(true),
 +      base_background_color(0xFFFFFFFF),  // Color::white
        v8_cache_options(V8_CACHE_OPTIONS_OFF),
+       v8_script_streaming_enabled(false),
        cookie_enabled(true),
-       pepper_accelerated_video_decode_enabled(false)
 diff --git public/common/web_preferences.h public/common/web_preferences.h
-index 496a347..3916026 100644
+index b0a95ca..8c0781e 100644
 --- public/common/web_preferences.h
 +++ public/common/web_preferences.h
 @@ -141,6 +141,7 @@ struct CONTENT_EXPORT WebPreferences {
@@ -32,10 +32,10 @@ index 496a347..3916026 100644
    bool navigate_on_drag_drop;
 +  uint32_t base_background_color;
    V8CacheOptions v8_cache_options;
+   bool v8_script_streaming_enabled;
  
-   // This flags corresponds to a Page's Settings' setCookieEnabled state. It
 diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
-index 743d8db..617ddf4 100644
+index 02d10eef..ba5cf0c 100644
 --- renderer/render_view_impl.cc
 +++ renderer/render_view_impl.cc
 @@ -969,6 +969,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,

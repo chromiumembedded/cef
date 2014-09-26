@@ -33,7 +33,7 @@ class CefCookieManagerImpl : public CefCookieManager {
                               bool persist_session_cookies) OVERRIDE;
   virtual bool FlushStore(CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
 
-  net::CookieMonster* cookie_monster() { return cookie_monster_; }
+  net::CookieMonster* cookie_monster() { return cookie_monster_.get(); }
 
   static bool GetCefCookie(const net::CanonicalCookie& cc, CefCookie& cookie);
   static bool GetCefCookie(const GURL& url, const std::string& cookie_line,

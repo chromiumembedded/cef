@@ -7,7 +7,24 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/debug/trace_event.h"
+#include "base/files/file_util.h"
 #include "content/public/browser/tracing_controller.h"
+
+namespace {
+
+// Create the temporary file and then execute |callback| on the thread
+// represented by |message_loop_proxy|. 
+void CreateTemporaryFileOnFileThread(
+    scoped_refptr<base::MessageLoopProxy> message_loop_proxy,
+    base::Callback<void(const base::FilePath&)> callback) {
+  CEF_REQUIRE_FILET();
+  base::FilePath file_path;
+  if (!base::CreateTemporaryFile(&file_path))
+    LOG(ERROR) << "Failed to create temporary file.";
+  message_loop_proxy->PostTask(FROM_HERE, base::Bind(callback, file_path));
+}
+
+}  // namespace
 
 using content::TracingController;
 
@@ -19,11 +36,8 @@ CefTraceSubscriber::CefTraceSubscriber()
 
 CefTraceSubscriber::~CefTraceSubscriber() {
   CEF_REQUIRE_UIT();
-  if (collecting_trace_data_) {
-    TracingController::GetInstance()->DisableRecording(
-        base::FilePath(),
-        TracingController::TracingFileResultCallback());
-  }
+  if (collecting_trace_data_)
+    TracingController::GetInstance()->DisableRecording(NULL);
 }
 
 bool CefTraceSubscriber::BeginTracing(
@@ -37,8 +51,10 @@ bool CefTraceSubscriber::BeginTracing(
   collecting_trace_data_ = true;
 
   TracingController::EnableRecordingDoneCallback done_callback;
-  if (callback.get())
-    done_callback = base::Bind(&CefCompletionCallback::OnComplete, callback);
+  if (callback.get()) {
+    done_callback =
+        base::Bind(&CefCompletionCallback::OnComplete, callback.get());
+  }
 
   TracingController::GetInstance()->EnableRecording(
       base::debug::CategoryFilter(categories),
@@ -55,16 +71,34 @@ bool CefTraceSubscriber::EndTracing(
   if (!collecting_trace_data_)
     return false;
 
-  TracingController::TracingFileResultCallback result_callback;
+  if (tracing_file.empty()) {
+    // Create a new temporary file path on the FILE thread, then continue.
+    CEF_POST_TASK(CEF_FILET,
+        base::Bind(CreateTemporaryFileOnFileThread,
+            base::MessageLoop::current()->message_loop_proxy(),
+            base::Bind(&CefTraceSubscriber::ContinueEndTracing,
+                       weak_factory_.GetWeakPtr(), callback)));
+    return true;
+  }
+
+  base::Closure result_callback;
   if (callback.get()) {
     result_callback =
         base::Bind(&CefTraceSubscriber::OnTracingFileResult,
-                   weak_factory_.GetWeakPtr(), callback);
+                   weak_factory_.GetWeakPtr(), callback, tracing_file);
   }
 
   TracingController::GetInstance()->DisableRecording(
-      tracing_file, result_callback);
+      TracingController::CreateFileSink(tracing_file, result_callback));
   return true;
+}
+
+void CefTraceSubscriber::ContinueEndTracing(
+    CefRefPtr<CefEndTracingCallback> callback,
+    const base::FilePath& tracing_file) {
+  CEF_REQUIRE_UIT();
+  if (!tracing_file.empty())
+    EndTracing(tracing_file, callback);
 }
 
 void CefTraceSubscriber::OnTracingFileResult(

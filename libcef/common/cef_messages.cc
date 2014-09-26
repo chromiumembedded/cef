@@ -72,7 +72,7 @@ struct ParamTraits<net::UploadElement> {
 void ParamTraits<scoped_refptr<net::UploadData> >::Write(Message* m,
                                                          const param_type& p) {
   WriteParam(m, p.get() != NULL);
-  if (p) {
+  if (p.get()) {
     WriteParam(m, p->elements());
     WriteParam(m, p->identifier());
     WriteParam(m, p->is_chunked());

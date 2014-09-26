@@ -1,13 +1,12 @@
 diff --git message_loop.cc message_loop.cc
-index ae165ea..cbe5c05 100644
+index c01e542..232e7bf 100644
 --- message_loop.cc
 +++ message_loop.cc
-@@ -154,7 +154,7 @@ MessageLoop::MessageLoop(scoped_ptr<MessagePump> pump)
+@@ -158,7 +158,6 @@ MessageLoop::MessageLoop(scoped_ptr<MessagePump> pump)
  MessageLoop::~MessageLoop() {
    DCHECK_EQ(this, current());
  
 -  DCHECK(!run_loop_);
-+  //DCHECK(!run_loop_);
- 
-   // Clean up any unprocessed tasks, but take care: deleting a task could
-   // result in the addition of more tasks (e.g., via DeleteSoon).  We set a
+ #if defined(OS_WIN)
+   if (in_high_res_mode_)
+     Time::ActivateHighResolutionTimer(false);

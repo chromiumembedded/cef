@@ -1,709 +1,296 @@
-diff --git chrome/renderer/printing/print_web_view_helper.cc chrome/renderer/printing/print_web_view_helper.cc
-index f1d4cfd..bb4eac4 100644
---- chrome/renderer/printing/print_web_view_helper.cc
-+++ chrome/renderer/printing/print_web_view_helper.cc
-@@ -767,12 +767,17 @@ void PrepareFrameAndViewForPrint::FinishPrinting() {
-   on_ready_.Reset();
- }
+diff --git chrome/common/chrome_utility_printing_messages.h chrome/common/chrome_utility_printing_messages.h
+index d5ddd6e..7d90287 100644
+--- chrome/common/chrome_utility_printing_messages.h
++++ chrome/common/chrome_utility_printing_messages.h
+@@ -16,8 +16,8 @@
  
--PrintWebViewHelper::PrintWebViewHelper(content::RenderView* render_view)
-+PrintWebViewHelper::PrintWebViewHelper(content::RenderView* render_view,
-+                                       bool preview_enabled,
-+                                       bool scripted_print_throttling_disabled)
-     : content::RenderViewObserver(render_view),
-       content::RenderViewObserverTracker<PrintWebViewHelper>(render_view),
-       reset_prep_frame_view_(false),
-+      is_preview_enabled_(preview_enabled),
-+      is_scripted_print_throttling_disabled_(scripted_print_throttling_disabled),
-       is_print_ready_metafile_sent_(false),
-       ignore_css_margins_(false),
-+      user_cancelled_scripted_print_count_(0),
-       is_scripted_printing_blocked_(false),
-       notify_browser_of_print_failure_(true),
-       print_for_preview_(false),
-@@ -791,6 +796,14 @@ bool PrintWebViewHelper::IsScriptInitiatedPrintAllowed(
- #endif  // defined(OS_ANDROID)
-   if (is_scripted_printing_blocked_)
+ #define IPC_MESSAGE_START ChromeUtilityPrintingMsgStart
+ 
++// Preview and Cloud Print messages.
+ #if defined(ENABLE_FULL_PRINTING)
+-
+ IPC_STRUCT_TRAITS_BEGIN(printing::PrinterCapsAndDefaults)
+   IPC_STRUCT_TRAITS_MEMBER(printer_capabilities)
+   IPC_STRUCT_TRAITS_MEMBER(caps_mime_type)
+@@ -61,23 +61,6 @@ IPC_STRUCT_TRAITS_END()
+ // Utility process messages:
+ // These are messages from the browser to the utility process.
+ 
+-#if defined(OS_WIN)
+-// Tell the utility process to start rendering the given PDF into a metafile.
+-// Utility process would be alive until
+-// ChromeUtilityMsg_RenderPDFPagesToMetafiles_Stop message.
+-IPC_MESSAGE_CONTROL2(ChromeUtilityMsg_RenderPDFPagesToMetafiles,
+-                     IPC::PlatformFileForTransit, /* input_file */
+-                     printing::PdfRenderSettings /* settings */)
+-
+-// Requests conversion of the next page.
+-IPC_MESSAGE_CONTROL2(ChromeUtilityMsg_RenderPDFPagesToMetafiles_GetPage,
+-                     int /* page_number */,
+-                     IPC::PlatformFileForTransit /* output_file */)
+-
+-// Requests utility process to stop conversion and exit.
+-IPC_MESSAGE_CONTROL0(ChromeUtilityMsg_RenderPDFPagesToMetafiles_Stop)
+-#endif  // OS_WIN
+-
+ // Tell the utility process to render the given PDF into a PWGRaster.
+ IPC_MESSAGE_CONTROL4(ChromeUtilityMsg_RenderPDFPagesToPWGRaster,
+                      IPC::PlatformFileForTransit, /* Input PDF file */
+@@ -99,23 +82,32 @@ IPC_MESSAGE_CONTROL1(ChromeUtilityMsg_GetPrinterCapsAndDefaults,
+ // sandbox. Returns result as printing::PrinterSemanticCapsAndDefaults.
+ IPC_MESSAGE_CONTROL1(ChromeUtilityMsg_GetPrinterSemanticCapsAndDefaults,
+                      std::string /* printer name */)
++#endif  // ENABLE_FULL_PRINTING
++
++// Windows uses messages for printing even without preview. crbug.com/170859
++// Primary user of Windows without preview is CEF. crbug.com/417967
++#if defined(ENABLE_PRINTING) && defined(OS_WIN)
++// Tell the utility process to start rendering the given PDF into a metafile.
++// Utility process would be alive until
++// ChromeUtilityMsg_RenderPDFPagesToMetafiles_Stop message.
++IPC_MESSAGE_CONTROL2(ChromeUtilityMsg_RenderPDFPagesToMetafiles,
++                     IPC::PlatformFileForTransit, /* input_file */
++                     printing::PdfRenderSettings /* settings */)
++
++// Requests conversion of the next page.
++IPC_MESSAGE_CONTROL2(ChromeUtilityMsg_RenderPDFPagesToMetafiles_GetPage,
++                     int /* page_number */,
++                     IPC::PlatformFileForTransit /* output_file */)
++
++// Requests utility process to stop conversion and exit.
++IPC_MESSAGE_CONTROL0(ChromeUtilityMsg_RenderPDFPagesToMetafiles_Stop)
++#endif  // ENABLE_PRINTING && OS_WIN
+ 
+ //------------------------------------------------------------------------------
+ // Utility process host messages:
+ // These are messages from the utility process to the browser.
+ 
+-#if defined(OS_WIN)
+-// Reply when the utility process loaded PDF. |page_count| is 0, if loading
+-// failed.
+-IPC_MESSAGE_CONTROL1(ChromeUtilityHostMsg_RenderPDFPagesToMetafiles_PageCount,
+-                     int /* page_count */)
+-
+-// Reply when the utility process rendered the PDF page.
+-IPC_MESSAGE_CONTROL2(ChromeUtilityHostMsg_RenderPDFPagesToMetafiles_PageDone,
+-                     bool /* success */,
+-                     double /* scale_factor */)
+-#endif  // OS_WIN
+-
++#if defined(ENABLE_FULL_PRINTING)
+ // Reply when the utility process has succeeded in rendering the PDF to PWG.
+ IPC_MESSAGE_CONTROL0(ChromeUtilityHostMsg_RenderPDFPagesToPWGRaster_Succeeded)
+ 
+@@ -145,5 +137,16 @@ IPC_MESSAGE_CONTROL1(ChromeUtilityHostMsg_GetPrinterCapsAndDefaults_Failed,
+ IPC_MESSAGE_CONTROL1(
+   ChromeUtilityHostMsg_GetPrinterSemanticCapsAndDefaults_Failed,
+   std::string /* printer name */)
+-
+ #endif  // ENABLE_FULL_PRINTING
++
++#if defined(ENABLE_PRINTING) && defined(OS_WIN)
++// Reply when the utility process loaded PDF. |page_count| is 0, if loading
++// failed.
++IPC_MESSAGE_CONTROL1(ChromeUtilityHostMsg_RenderPDFPagesToMetafiles_PageCount,
++                     int /* page_count */)
++
++// Reply when the utility process rendered the PDF page.
++IPC_MESSAGE_CONTROL2(ChromeUtilityHostMsg_RenderPDFPagesToMetafiles_PageDone,
++                     bool /* success */,
++                     double /* scale_factor */)
++#endif  // ENABLE_PRINTING && OS_WIN
+diff --git content/renderer/pepper/pepper_plugin_instance_impl.cc content/renderer/pepper/pepper_plugin_instance_impl.cc
+index 98ca698..2128d55 100644
+--- content/renderer/pepper/pepper_plugin_instance_impl.cc
++++ content/renderer/pepper/pepper_plugin_instance_impl.cc
+@@ -94,9 +94,7 @@
+ #include "ppapi/thunk/ppb_buffer_api.h"
+ #include "printing/metafile_skia_wrapper.h"
+ #include "printing/pdf_metafile_skia.h"
+-#include "printing/units.h"
+ #include "skia/ext/platform_canvas.h"
+-#include "skia/ext/platform_device.h"
+ #include "third_party/WebKit/public/platform/WebCursorInfo.h"
+ #include "third_party/WebKit/public/platform/WebGamepads.h"
+ #include "third_party/WebKit/public/platform/WebRect.h"
+@@ -120,13 +118,9 @@
+ #include "third_party/WebKit/public/web/WebUserGestureIndicator.h"
+ #include "third_party/WebKit/public/web/WebView.h"
+ #include "third_party/khronos/GLES2/gl2.h"
+-#include "third_party/skia/include/core/SkCanvas.h"
+-#include "third_party/skia/include/core/SkRect.h"
+ #include "ui/gfx/image/image_skia.h"
+ #include "ui/gfx/image/image_skia_rep.h"
+ #include "ui/gfx/range/range.h"
+-#include "ui/gfx/rect_conversions.h"
+-#include "ui/gfx/scoped_ns_graphics_context_save_gstate_mac.h"
+ #include "v8/include/v8.h"
+ 
+ #if defined(OS_CHROMEOS)
+@@ -137,8 +131,6 @@
+ #include "base/metrics/histogram.h"
+ #include "base/win/windows_version.h"
+ #include "skia/ext/platform_canvas.h"
+-#include "ui/gfx/codec/jpeg_codec.h"
+-#include "ui/gfx/gdi_util.h"
+ #endif
+ 
+ using base::StringPrintf;
+@@ -186,35 +178,6 @@ using blink::WebView;
+ 
+ namespace content {
+ 
+-#if defined(OS_WIN)
+-// Exported by pdf.dll
+-typedef bool (*RenderPDFPageToDCProc)(const unsigned char* pdf_buffer,
+-                                      int buffer_size,
+-                                      int page_number,
+-                                      HDC dc,
+-                                      int dpi_x,
+-                                      int dpi_y,
+-                                      int bounds_origin_x,
+-                                      int bounds_origin_y,
+-                                      int bounds_width,
+-                                      int bounds_height,
+-                                      bool fit_to_bounds,
+-                                      bool stretch_to_bounds,
+-                                      bool keep_aspect_ratio,
+-                                      bool center_in_bounds,
+-                                      bool autorotate);
+-
+-void DrawEmptyRectangle(HDC dc) {
+-  // TODO(sanjeevr): This is a temporary hack. If we output a JPEG
+-  // to the EMF, the EnumEnhMetaFile call fails in the browser
+-  // process. The failure also happens if we output nothing here.
+-  // We need to investigate the reason for this failure and fix it.
+-  // In the meantime this temporary hack of drawing an empty
+-  // rectangle in the DC gets us by.
+-  Rectangle(dc, 0, 0, 0, 0);
+-}
+-#endif  // defined(OS_WIN)
+-
+ namespace {
+ 
+ // Check PP_TextInput_Type and ui::TextInputType are kept in sync.
+@@ -1776,7 +1739,7 @@ int PepperPluginInstanceImpl::PrintBegin(const WebPrintParams& print_params) {
+ 
+ bool PepperPluginInstanceImpl::PrintPage(int page_number,
+                                          blink::WebCanvas* canvas) {
+-#if defined(ENABLE_FULL_PRINTING)
++#if defined(ENABLE_PRINTING)
+   DCHECK(plugin_print_interface_);
+   PP_PrintPageNumberRange_Dev page_range;
+   page_range.first_page_number = page_range.last_page_number = page_number;
+@@ -1793,7 +1756,7 @@ bool PepperPluginInstanceImpl::PrintPage(int page_number,
+   } else {
+     return PrintPageHelper(&page_range, 1, canvas);
+   }
+-#else  // defined(ENABLED_PRINTING)
++#else  // ENABLE_PRINTING
+   return false;
+ #endif
+ }
+@@ -1960,7 +1923,7 @@ bool PepperPluginInstanceImpl::IsViewAccelerated() {
+ 
+ bool PepperPluginInstanceImpl::PrintPDFOutput(PP_Resource print_output,
+                                               blink::WebCanvas* canvas) {
+-#if defined(ENABLE_FULL_PRINTING)
++#if defined(ENABLE_PRINTING)
+   ppapi::thunk::EnterResourceNoLock<PPB_Buffer_API> enter(print_output, true);
+   if (enter.failed())
      return false;
-+  // If preview is enabled, then the print dialog is tab modal, and the user
-+  // can always close the tab on a mis-behaving page (the system print dialog
-+  // is app modal). If the print was initiated through user action, don't
-+  // throttle. Or, if the command line flag to skip throttling has been set.
-+  if (!is_scripted_print_throttling_disabled_ &&
-+      !is_preview_enabled_ &&
-+      !user_initiated)
-+    return !IsScriptInitiatedPrintTooFrequent(frame);
-   return true;
- }
- 
-@@ -820,8 +833,14 @@ void PrintWebViewHelper::PrintPage(blink::WebLocalFrame* frame,
- 
-   if (!IsScriptInitiatedPrintAllowed(frame, user_initiated))
-     return;
--  print_preview_context_.InitWithFrame(frame);
--  RequestPrintPreview(PRINT_PREVIEW_SCRIPTED);
-+  IncrementScriptedPrintCount();
-+
-+  if (is_preview_enabled_) {
-+    print_preview_context_.InitWithFrame(frame);
-+    RequestPrintPreview(PRINT_PREVIEW_SCRIPTED);
-+  } else {
-+    Print(frame, blink::WebNode());
-+  }
- }
- 
- bool PrintWebViewHelper::OnMessageReceived(const IPC::Message& message) {
-@@ -842,6 +861,7 @@ bool PrintWebViewHelper::OnMessageReceived(const IPC::Message& message) {
- 
- void PrintWebViewHelper::OnPrintForPrintPreview(
-     const base::DictionaryValue& job_settings) {
-+  DCHECK(is_preview_enabled_);
-   // If still not finished with earlier print request simply ignore.
-   if (prep_frame_view_)
-     return;
-@@ -975,6 +995,7 @@ bool PrintWebViewHelper::IsPrintToPdfRequested(
- }
- 
- void PrintWebViewHelper::OnPrintPreview(const base::DictionaryValue& settings) {
-+  DCHECK(is_preview_enabled_);
-   print_preview_context_.OnPrintPreview();
- 
-   UMA_HISTOGRAM_ENUMERATION("PrintPreview.PreviewEvent",
-@@ -1177,6 +1198,7 @@ void PrintWebViewHelper::SetScriptedPrintBlocked(bool blocked) {
- }
- 
- void PrintWebViewHelper::OnInitiatePrintPreview(bool selection_only) {
-+  DCHECK(is_preview_enabled_);
-   blink::WebLocalFrame* frame = NULL;
-   GetPrintFrame(&frame);
-   DCHECK(frame);
-@@ -1210,8 +1232,13 @@ void PrintWebViewHelper::PrintNode(const blink::WebNode& node) {
- 
-   // Make a copy of the node, in case RenderView::OnContextMenuClosed resets
-   // its |context_menu_node_|.
--  print_preview_context_.InitWithNode(node);
--  RequestPrintPreview(PRINT_PREVIEW_USER_INITIATED_CONTEXT_NODE);
-+  if (is_preview_enabled_) {
-+    print_preview_context_.InitWithNode(node);
-+    RequestPrintPreview(PRINT_PREVIEW_USER_INITIATED_CONTEXT_NODE);
-+  } else {
-+    blink::WebNode duplicate_node(node);
-+    Print(duplicate_node.document().frame(), duplicate_node);
-+  }
- 
-   print_node_in_progress_ = false;
- }
-@@ -1248,6 +1275,7 @@ void PrintWebViewHelper::Print(blink::WebLocalFrame* frame,
-     LOG(ERROR) << "RenderPagesForPrint failed";
-     DidFinishPrinting(FAIL_PRINT);
+@@ -1970,91 +1933,15 @@ bool PepperPluginInstanceImpl::PrintPDFOutput(PP_Resource print_output,
+     NOTREACHED();
+     return false;
    }
-+  ResetScriptedPrintCount();
- }
+-#if defined(OS_WIN)
+-  // For Windows, we need the PDF DLL to render the output PDF to a DC.
+-  HMODULE pdf_module = GetModuleHandle(L"pdf.dll");
+-  if (!pdf_module)
+-    return false;
+-  RenderPDFPageToDCProc render_proc = reinterpret_cast<RenderPDFPageToDCProc>(
+-      GetProcAddress(pdf_module, "RenderPDFPageToDC"));
+-  if (!render_proc)
+-    return false;
+-#endif  // defined(OS_WIN)
  
- void PrintWebViewHelper::DidFinishPrinting(PrintingResult result) {
-@@ -1267,6 +1295,7 @@ void PrintWebViewHelper::DidFinishPrinting(PrintingResult result) {
-       break;
- 
-     case FAIL_PREVIEW:
-+      DCHECK(is_preview_enabled_);
-       int cookie = print_pages_params_ ?
-           print_pages_params_->params.document_cookie : 0;
-       if (notify_browser_of_print_failure_) {
-@@ -1435,6 +1464,7 @@ bool PrintWebViewHelper::UpdatePrintSettings(
-     blink::WebLocalFrame* frame,
-     const blink::WebNode& node,
-     const base::DictionaryValue& passed_job_settings) {
-+  DCHECK(is_preview_enabled_);
-   const base::DictionaryValue* job_settings = &passed_job_settings;
-   base::DictionaryValue modified_job_settings;
-   if (job_settings->empty()) {
-@@ -1588,6 +1618,54 @@ bool PrintWebViewHelper::CopyMetafileDataToSharedMem(
- }
- #endif  // defined(OS_POSIX)
- 
-+bool PrintWebViewHelper::IsScriptInitiatedPrintTooFrequent(
-+    blink::WebFrame* frame) {
-+  const int kMinSecondsToIgnoreJavascriptInitiatedPrint = 2;
-+  const int kMaxSecondsToIgnoreJavascriptInitiatedPrint = 32;
-+  bool too_frequent = false;
-+
-+  // Check if there is script repeatedly trying to print and ignore it if too
-+  // frequent.  The first 3 times, we use a constant wait time, but if this
-+  // gets excessive, we switch to exponential wait time. So for a page that
-+  // calls print() in a loop the user will need to cancel the print dialog
-+  // after: [2, 2, 2, 4, 8, 16, 32, 32, ...] seconds.
-+  // This gives the user time to navigate from the page.
-+  if (user_cancelled_scripted_print_count_ > 0) {
-+    base::TimeDelta diff = base::Time::Now() - last_cancelled_script_print_;
-+    int min_wait_seconds = kMinSecondsToIgnoreJavascriptInitiatedPrint;
-+    if (user_cancelled_scripted_print_count_ > 3) {
-+      min_wait_seconds = std::min(
-+          kMinSecondsToIgnoreJavascriptInitiatedPrint <<
-+              (user_cancelled_scripted_print_count_ - 3),
-+          kMaxSecondsToIgnoreJavascriptInitiatedPrint);
-+    }
-+    if (diff.InSeconds() < min_wait_seconds) {
-+      too_frequent = true;
-+    }
-+  }
-+
-+  if (!too_frequent)
-+    return false;
-+
-+  blink::WebString message(
-+      blink::WebString::fromUTF8("Ignoring too frequent calls to print()."));
-+  frame->addMessageToConsole(
-+      blink::WebConsoleMessage(
-+          blink::WebConsoleMessage::LevelWarning, message));
-+  return true;
-+}
-+
-+void PrintWebViewHelper::ResetScriptedPrintCount() {
-+  // Reset cancel counter on successful print.
-+  user_cancelled_scripted_print_count_ = 0;
-+}
-+
-+void PrintWebViewHelper::IncrementScriptedPrintCount() {
-+  ++user_cancelled_scripted_print_count_;
-+  last_cancelled_script_print_ = base::Time::Now();
-+}
-+
-+
- void PrintWebViewHelper::ShowScriptedPrintPreview() {
-   if (is_scripted_preview_delayed_) {
-     is_scripted_preview_delayed_ = false;
-diff --git chrome/renderer/printing/print_web_view_helper.h chrome/renderer/printing/print_web_view_helper.h
-index 67bcc73..b8a5126 100644
---- chrome/renderer/printing/print_web_view_helper.h
-+++ chrome/renderer/printing/print_web_view_helper.h
-@@ -66,7 +66,9 @@ class PrintWebViewHelper
-     : public content::RenderViewObserver,
-       public content::RenderViewObserverTracker<PrintWebViewHelper> {
-  public:
--  explicit PrintWebViewHelper(content::RenderView* render_view);
-+  PrintWebViewHelper(content::RenderView* render_view,
-+                     bool preview_enabled,
-+                     bool scripted_print_throttling_disabled);
-   virtual ~PrintWebViewHelper();
- 
-   bool IsPrintingEnabled();
-@@ -292,13 +294,24 @@ class PrintWebViewHelper
-   bool IsScriptInitiatedPrintAllowed(blink::WebFrame* frame,
-                                      bool user_initiated);
- 
--  // Shows scripted print preview when options from plugin are available.
-+  // Returns true if script initiated printing occurs too often.
-+  bool IsScriptInitiatedPrintTooFrequent(blink::WebFrame* frame);
-+
-+  // Reset the counter for script initiated printing.
-+  // Scripted printing will be allowed to continue.
-+  void ResetScriptedPrintCount();
-+
-+  // Increment the counter for script initiated printing.
-+  // Scripted printing will be blocked for a limited amount of time.
-+  void IncrementScriptedPrintCount();
-+
-+  // Shows scripted print preview when options from plugin are availible.
-   void ShowScriptedPrintPreview();
- 
-   void RequestPrintPreview(PrintPreviewRequestType type);
- 
-   // Checks whether print preview should continue or not.
--  // Returns true if canceling, false if continuing.
-+  // Returns true if cancelling, false if continuing.
-   bool CheckForCancel();
- 
-   // Notifies the browser a print preview page has been rendered.
-@@ -315,9 +328,14 @@ class PrintWebViewHelper
-   bool reset_prep_frame_view_;
- 
-   scoped_ptr<PrintMsg_PrintPages_Params> print_pages_params_;
-+  bool is_preview_enabled_;
-+  bool is_scripted_print_throttling_disabled_;
-   bool is_print_ready_metafile_sent_;
-   bool ignore_css_margins_;
-+
-   // Used for scripted initiated printing blocking.
-+  base::Time last_cancelled_script_print_;
-+  int user_cancelled_scripted_print_count_;
-   bool is_scripted_printing_blocked_;
- 
-   // Let the browser process know of a printing failure. Only set to false when
-diff --git printing/printing_context_win.cc printing/printing_context_win.cc
-index 4d7ea92..5e53ed2 100644
---- printing/printing_context_win.cc
-+++ printing/printing_context_win.cc
-@@ -50,7 +50,7 @@ scoped_ptr<PrintingContext> PrintingContext::Create(Delegate* delegate) {
- }
- 
- PrintingContextWin::PrintingContextWin(Delegate* delegate)
--    : PrintingContext(delegate), context_(NULL) {
-+    : PrintingContext(delegate), context_(NULL), dialog_box_(NULL) {
- }
- 
- PrintingContextWin::~PrintingContextWin() {
-@@ -61,26 +61,63 @@ void PrintingContextWin::AskUserForSettings(
-     int max_pages,
-     bool has_selection,
-     const PrintSettingsCallback& callback) {
--  NOTIMPLEMENTED();
-+  DCHECK(!in_print_job_);
-+  dialog_box_dismissed_ = false;
-+
-+  HWND window = GetRootWindow(delegate_->GetParentView());
-+  DCHECK(window);
-+
-+  // Show the OS-dependent dialog box.
-+  // If the user press
-+  // - OK, the settings are reset and reinitialized with the new settings. OK is
-+  //   returned.
-+  // - Apply then Cancel, the settings are reset and reinitialized with the new
-+  //   settings. CANCEL is returned.
-+  // - Cancel, the settings are not changed, the previous setting, if it was
-+  //   initialized before, are kept. CANCEL is returned.
-+  // On failure, the settings are reset and FAILED is returned.
-+  PRINTDLGEX dialog_options = { sizeof(PRINTDLGEX) };
-+  dialog_options.hwndOwner = window;
-+  // Disable options we don't support currently.
-+  // TODO(maruel):  Reuse the previously loaded settings!
-+  dialog_options.Flags = PD_RETURNDC | PD_USEDEVMODECOPIESANDCOLLATE  |
-+                         PD_NOCURRENTPAGE | PD_HIDEPRINTTOFILE;
-+  if (!has_selection)
-+    dialog_options.Flags |= PD_NOSELECTION;
-+
-+  PRINTPAGERANGE ranges[32];
-+  dialog_options.nStartPage = START_PAGE_GENERAL;
-+  if (max_pages) {
-+    // Default initialize to print all the pages.
-+    memset(ranges, 0, sizeof(ranges));
-+    ranges[0].nFromPage = 1;
-+    ranges[0].nToPage = max_pages;
-+    dialog_options.nPageRanges = 1;
-+    dialog_options.nMaxPageRanges = arraysize(ranges);
-+    dialog_options.nMinPage = 1;
-+    dialog_options.nMaxPage = max_pages;
-+    dialog_options.lpPageRanges = ranges;
-+  } else {
-+    // No need to bother, we don't know how many pages are available.
-+    dialog_options.Flags |= PD_NOPAGENUMS;
-+  }
-+
-+  if (ShowPrintDialog(&dialog_options) != S_OK) {
-+    ResetSettings();
-+    callback.Run(FAILED);
-+  }
-+
-+  // TODO(maruel):  Support PD_PRINTTOFILE.
-+  callback.Run(ParseDialogResultEx(dialog_options));
- }
- 
- PrintingContext::Result PrintingContextWin::UseDefaultSettings() {
-   DCHECK(!in_print_job_);
- 
--  scoped_refptr<PrintBackend> backend = PrintBackend::CreateInstance(NULL);
--  base::string16 default_printer =
--      base::UTF8ToWide(backend->GetDefaultPrinterName());
--  if (!default_printer.empty()) {
--    ScopedPrinterHandle printer;
--    if (printer.OpenPrinter(default_printer.c_str())) {
--      scoped_ptr<DEVMODE, base::FreeDeleter> dev_mode =
--          CreateDevMode(printer, NULL);
--      if (InitializeSettings(default_printer, dev_mode.get()) == OK)
--        return OK;
--    }
--  }
--
--  ReleaseContext();
-+  PRINTDLG dialog_options = { sizeof(PRINTDLG) };
-+  dialog_options.Flags = PD_RETURNDC | PD_RETURNDEFAULT;
-+  if (PrintDlg(&dialog_options))
-+    return ParseDialogResult(dialog_options);
- 
-   // No default printer configured, do we have any printers at all?
-   DWORD bytes_needed = 0;
-@@ -105,15 +142,23 @@ PrintingContext::Result PrintingContextWin::UseDefaultSettings() {
-           continue;
-         scoped_ptr<DEVMODE, base::FreeDeleter> dev_mode =
-             CreateDevMode(printer, NULL);
--        if (InitializeSettings(info_2->pPrinterName, dev_mode.get()) == OK)
-+        if (!dev_mode || !AllocateContext(info_2->pPrinterName, dev_mode.get(),
-+                                          &context_)) {
-+          continue;
-+        }
-+        if (InitializeSettings(*dev_mode.get(), info_2->pPrinterName, NULL, 0,
-+                               false)) {
-           return OK;
-+        }
-+        ReleaseContext();
-       }
-       if (context_)
-         return OK;
-     }
-   }
- 
--  return OnError();
-+  ResetSettings();
-+  return FAILED;
- }
- 
- gfx::Size PrintingContextWin::GetPdfPaperSizeDeviceUnits() {
-@@ -212,14 +257,19 @@ PrintingContext::Result PrintingContextWin::UpdatePrinterSettings(
-   }
- 
-   // Update data using DocumentProperties.
--  if (show_system_dialog) {
--    scoped_dev_mode = ShowPrintDialog(
--        printer, delegate_->GetParentView(), scoped_dev_mode.get());
+-  bool ret = false;
+-#if defined(OS_POSIX) && !defined(OS_ANDROID)
+   printing::PdfMetafileSkia* metafile =
+       printing::MetafileSkiaWrapper::GetMetafileFromCanvas(*canvas);
+-  DCHECK(metafile != NULL);
+   if (metafile)
+-    ret = metafile->InitFromData(mapper.data(), mapper.size());
+-#elif defined(OS_WIN)
+-  printing::PdfMetafileSkia* metafile =
+-      printing::MetafileSkiaWrapper::GetMetafileFromCanvas(*canvas);
+-  if (metafile) {
+-    // We only have a metafile when doing print preview, so we just want to
+-    // pass the PDF off to preview.
+-    ret = metafile->InitFromData(mapper.data(), mapper.size());
 -  } else {
--    scoped_dev_mode = CreateDevMode(printer, scoped_dev_mode.get());
--  }
-+  scoped_dev_mode = CreateDevMode(printer, scoped_dev_mode.get());
-+  if (!scoped_dev_mode)
-+    return OnError();
-+
-   // Set printer then refresh printer settings.
--  return InitializeSettings(settings_.device_name(), scoped_dev_mode.get());
-+  if (!AllocateContext(settings_.device_name(), scoped_dev_mode.get(),
-+                       &context_)) {
-+    return OnError();
-+  }
-+  PrintSettingsInitializerWin::InitPrintSettings(context_,
-+                                                 *scoped_dev_mode.get(),
-+                                                 &settings_);
-+  return OK;
- }
- 
- PrintingContext::Result PrintingContextWin::InitWithSettings(
-@@ -230,13 +280,18 @@ PrintingContext::Result PrintingContextWin::InitWithSettings(
- 
-   // TODO(maruel): settings_.ToDEVMODE()
-   ScopedPrinterHandle printer;
--  if (!printer.OpenPrinter(settings_.device_name().c_str()))
-+  if (!printer.OpenPrinter(settings_.device_name().c_str())) {
-     return FAILED;
-+  }
- 
--  scoped_ptr<DEVMODE, base::FreeDeleter> dev_mode =
--      CreateDevMode(printer, NULL);
-+  Result status = OK;
-+
-+  if (!GetPrinterSettings(printer, settings_.device_name()))
-+    status = FAILED;
- 
--  return InitializeSettings(settings_.device_name(), dev_mode.get());
-+  if (status != OK)
-+    ResetSettings();
-+  return status;
- }
- 
- PrintingContext::Result PrintingContextWin::NewDocument(
-@@ -320,6 +375,10 @@ void PrintingContextWin::Cancel() {
-   in_print_job_ = false;
-   if (context_)
-     CancelDC(context_);
-+  if (dialog_box_) {
-+    DestroyWindow(dialog_box_);
-+    dialog_box_dismissed_ = true;
-+  }
- }
- 
- void PrintingContextWin::ReleaseContext() {
-@@ -343,31 +402,154 @@ BOOL PrintingContextWin::AbortProc(HDC hdc, int nCode) {
-   return true;
- }
- 
--PrintingContext::Result PrintingContextWin::InitializeSettings(
--    const std::wstring& device_name,
--    DEVMODE* dev_mode) {
--  if (!dev_mode)
--    return OnError();
-+bool PrintingContextWin::InitializeSettings(const DEVMODE& dev_mode,
-+                                            const std::wstring& new_device_name,
-+                                            const PRINTPAGERANGE* ranges,
-+                                            int number_ranges,
-+                                            bool selection_only) {
-+  skia::InitializeDC(context_);
-+  DCHECK(GetDeviceCaps(context_, CLIPCAPS));
-+  DCHECK(GetDeviceCaps(context_, RASTERCAPS) & RC_STRETCHDIB);
-+  DCHECK(GetDeviceCaps(context_, RASTERCAPS) & RC_BITMAP64);
-+  // Some printers don't advertise these.
-+  // DCHECK(GetDeviceCaps(context_, RASTERCAPS) & RC_SCALING);
-+  // DCHECK(GetDeviceCaps(context_, SHADEBLENDCAPS) & SB_CONST_ALPHA);
-+  // DCHECK(GetDeviceCaps(context_, SHADEBLENDCAPS) & SB_PIXEL_ALPHA);
-+
-+  // StretchDIBits() support is needed for printing.
-+  if (!(GetDeviceCaps(context_, RASTERCAPS) & RC_STRETCHDIB) ||
-+      !(GetDeviceCaps(context_, RASTERCAPS) & RC_BITMAP64)) {
-+    NOTREACHED();
-+    ResetSettings();
-+    return false;
-+  }
- 
--  ReleaseContext();
--  context_ = CreateDC(L"WINSPOOL", device_name.c_str(), NULL, dev_mode);
--  if (!context_)
--    return OnError();
-+  DCHECK(!in_print_job_);
-+  DCHECK(context_);
-+  PageRanges ranges_vector;
-+  if (!selection_only) {
-+    // Convert the PRINTPAGERANGE array to a PrintSettings::PageRanges vector.
-+    ranges_vector.reserve(number_ranges);
-+    for (int i = 0; i < number_ranges; ++i) {
-+      PageRange range;
-+      // Transfer from 1-based to 0-based.
-+      range.from = ranges[i].nFromPage - 1;
-+      range.to = ranges[i].nToPage - 1;
-+      ranges_vector.push_back(range);
-+    }
-+  }
- 
--  skia::InitializeDC(context_);
-+  settings_.set_ranges(ranges_vector);
-+  settings_.set_device_name(new_device_name);
-+  settings_.set_selection_only(selection_only);
-+  PrintSettingsInitializerWin::InitPrintSettings(context_, dev_mode,
-+                                                 &settings_);
- 
-+  return true;
-+}
-+
-+bool PrintingContextWin::GetPrinterSettings(HANDLE printer,
-+                                            const std::wstring& device_name) {
-   DCHECK(!in_print_job_);
--  settings_.set_device_name(device_name);
--  PrintSettingsInitializerWin::InitPrintSettings(
--      context_, *dev_mode, &settings_);
- 
--  return OK;
-+  scoped_ptr<DEVMODE, base::FreeDeleter> dev_mode =
-+      CreateDevMode(printer, NULL);
-+
-+  if (!dev_mode || !AllocateContext(device_name, dev_mode.get(), &context_)) {
-+    ResetSettings();
-+    return false;
-+  }
-+
-+  return InitializeSettings(*dev_mode.get(), device_name, NULL, 0, false);
-+}
-+
-+// static
-+bool PrintingContextWin::AllocateContext(const std::wstring& device_name,
-+                                         const DEVMODE* dev_mode,
-+                                         gfx::NativeDrawingContext* context) {
-+  *context = CreateDC(L"WINSPOOL", device_name.c_str(), NULL, dev_mode);
-+  DCHECK(*context);
-+  return *context != NULL;
-+}
-+
-+PrintingContext::Result PrintingContextWin::ParseDialogResultEx(
-+    const PRINTDLGEX& dialog_options) {
-+  // If the user clicked OK or Apply then Cancel, but not only Cancel.
-+  if (dialog_options.dwResultAction != PD_RESULT_CANCEL) {
-+    // Start fresh.
-+    ResetSettings();
-+
-+    DEVMODE* dev_mode = NULL;
-+    if (dialog_options.hDevMode) {
-+      dev_mode =
-+          reinterpret_cast<DEVMODE*>(GlobalLock(dialog_options.hDevMode));
-+      DCHECK(dev_mode);
-+    }
-+
-+    std::wstring device_name;
-+    if (dialog_options.hDevNames) {
-+      DEVNAMES* dev_names =
-+          reinterpret_cast<DEVNAMES*>(GlobalLock(dialog_options.hDevNames));
-+      DCHECK(dev_names);
-+      if (dev_names) {
-+        device_name = reinterpret_cast<const wchar_t*>(dev_names) +
-+                      dev_names->wDeviceOffset;
-+        GlobalUnlock(dialog_options.hDevNames);
-+      }
-+    }
-+
-+    bool success = false;
-+    if (dev_mode && !device_name.empty()) {
-+      context_ = dialog_options.hDC;
-+      PRINTPAGERANGE* page_ranges = NULL;
-+      DWORD num_page_ranges = 0;
-+      bool print_selection_only = false;
-+      if (dialog_options.Flags & PD_PAGENUMS) {
-+        page_ranges = dialog_options.lpPageRanges;
-+        num_page_ranges = dialog_options.nPageRanges;
-+      }
-+      if (dialog_options.Flags & PD_SELECTION) {
-+        print_selection_only = true;
-+      }
-+      success = InitializeSettings(*dev_mode,
-+                                   device_name,
-+                                   page_ranges,
-+                                   num_page_ranges,
-+                                   print_selection_only);
-+    }
-+
-+    if (!success && dialog_options.hDC) {
-+      DeleteDC(dialog_options.hDC);
-+      context_ = NULL;
-+    }
-+
-+    if (dev_mode) {
-+      GlobalUnlock(dialog_options.hDevMode);
-+    }
-+  } else {
-+    if (dialog_options.hDC) {
-+      DeleteDC(dialog_options.hDC);
-+    }
-+  }
-+
-+  if (dialog_options.hDevMode != NULL)
-+    GlobalFree(dialog_options.hDevMode);
-+  if (dialog_options.hDevNames != NULL)
-+    GlobalFree(dialog_options.hDevNames);
-+
-+  switch (dialog_options.dwResultAction) {
-+    case PD_RESULT_PRINT:
-+      return context_ ? OK : FAILED;
-+    case PD_RESULT_APPLY:
-+      return context_ ? CANCEL : FAILED;
-+    case PD_RESULT_CANCEL:
-+      return CANCEL;
-+    default:
-+      return FAILED;
-+  }
- }
- 
--scoped_ptr<DEVMODE, base::FreeDeleter> PrintingContextWin::ShowPrintDialog(
--    HANDLE printer,
--    gfx::NativeView parent_view,
--    DEVMODE* dev_mode) {
-+HRESULT PrintingContextWin::ShowPrintDialog(PRINTDLGEX* options) {
-   // Note that this cannot use ui::BaseShellDialog as the print dialog is
-   // system modal: opening it from a background thread can cause Windows to
-   // get the wrong Z-order which will make the print dialog appear behind the
-@@ -377,20 +559,57 @@ scoped_ptr<DEVMODE, base::FreeDeleter> PrintingContextWin::ShowPrintDialog(
-   base::MessageLoop::ScopedNestableTaskAllower allow(
-       base::MessageLoop::current());
- 
--  bool canceled = false;
--  scoped_ptr<DEVMODE, base::FreeDeleter> result =
--      PromptDevMode(printer,
--                    settings_.device_name(),
--                    dev_mode,
--                    GetRootWindow(parent_view),
--                    &canceled);
+-    // On Windows, we now need to render the PDF to the DC that backs the
+-    // supplied canvas.
+-    HDC dc = skia::BeginPlatformPaint(canvas);
+-    DrawEmptyRectangle(dc);
+-    gfx::Size size_in_pixels;
+-    size_in_pixels.set_width(
+-        printing::ConvertUnit(current_print_settings_.printable_area.size.width,
+-                              static_cast<int>(printing::kPointsPerInch),
+-                              current_print_settings_.dpi));
+-    size_in_pixels.set_height(printing::ConvertUnit(
+-        current_print_settings_.printable_area.size.height,
+-        static_cast<int>(printing::kPointsPerInch),
+-        current_print_settings_.dpi));
+-    // We need to scale down DC to fit an entire page into DC available area.
+-    // First, we'll try to use default scaling based on the 72dpi that is
+-    // used in webkit for printing.
+-    // If default scaling is not enough to fit the entire PDF without
+-    // Current metafile is based on screen DC and have current screen size.
+-    // Writing outside of those boundaries will result in the cut-off output.
+-    // On metafiles (this is the case here), scaling down will still record
+-    // original coordinates and we'll be able to print in full resolution.
+-    // Before playback we'll need to counter the scaling up that will happen
+-    // in the browser (printed_document_win.cc).
+-    double dynamic_scale = gfx::CalculatePageScale(
+-        dc, size_in_pixels.width(), size_in_pixels.height());
+-    double page_scale = static_cast<double>(printing::kPointsPerInch) /
+-                        static_cast<double>(current_print_settings_.dpi);
 -
--  if (canceled) {
--    result.reset();
--    abort_printing_ = true;
-+  return PrintDlgEx(options);
-+}
-+
-+PrintingContext::Result PrintingContextWin::ParseDialogResult(
-+    const PRINTDLG& dialog_options) {
-+  // If the user clicked OK or Apply then Cancel, but not only Cancel.
-+  // Start fresh.
-+  ResetSettings();
-+
-+  DEVMODE* dev_mode = NULL;
-+  if (dialog_options.hDevMode) {
-+    dev_mode =
-+        reinterpret_cast<DEVMODE*>(GlobalLock(dialog_options.hDevMode));
-+    DCHECK(dev_mode);
-   }
+-    if (dynamic_scale < page_scale) {
+-      page_scale = dynamic_scale;
+-      printing::MetafileSkiaWrapper::SetCustomScaleOnCanvas(*canvas,
+-                                                            page_scale);
+-    }
+-
+-    gfx::ScaleDC(dc, page_scale);
+-
+-    ret = render_proc(static_cast<unsigned char*>(mapper.data()),
+-                      mapper.size(),
+-                      0,
+-                      dc,
+-                      current_print_settings_.dpi,
+-                      current_print_settings_.dpi,
+-                      0,
+-                      0,
+-                      size_in_pixels.width(),
+-                      size_in_pixels.height(),
+-                      true,
+-                      false,
+-                      true,
+-                      true,
+-                      true);
+-    skia::EndPlatformPaint(canvas);
+-  }
+-#endif  // defined(OS_WIN)
++    return metafile->InitFromData(mapper.data(), mapper.size());
  
--  return result.Pass();
-+  std::wstring device_name;
-+  if (dialog_options.hDevNames) {
-+    DEVNAMES* dev_names =
-+        reinterpret_cast<DEVNAMES*>(GlobalLock(dialog_options.hDevNames));
-+    DCHECK(dev_names);
-+    if (dev_names) {
-+      device_name =
-+          reinterpret_cast<const wchar_t*>(
-+              reinterpret_cast<const wchar_t*>(dev_names) +
-+                  dev_names->wDeviceOffset);
-+      GlobalUnlock(dialog_options.hDevNames);
-+    }
-+  }
-+
-+  bool success = false;
-+  if (dev_mode && !device_name.empty()) {
-+    context_ = dialog_options.hDC;
-+    success = InitializeSettings(*dev_mode, device_name, NULL, 0, false);
-+  }
-+
-+  if (!success && dialog_options.hDC) {
-+    DeleteDC(dialog_options.hDC);
-+    context_ = NULL;
-+  }
-+
-+  if (dev_mode) {
-+    GlobalUnlock(dialog_options.hDevMode);
-+  }
-+
-+  if (dialog_options.hDevMode != NULL)
-+    GlobalFree(dialog_options.hDevMode);
-+  if (dialog_options.hDevNames != NULL)
-+    GlobalFree(dialog_options.hDevNames);
-+
-+  return context_ ? OK : FAILED;
+-  return ret;
+-#else  // defined(ENABLE_FULL_PRINTING)
++  NOTREACHED();
++#endif  // ENABLE_PRINTING
+   return false;
+-#endif
  }
  
- }  // namespace printing
-diff --git printing/printing_context_win.h printing/printing_context_win.h
-index 99a7e3e..f6222ad 100644
---- printing/printing_context_win.h
-+++ printing/printing_context_win.h
-@@ -40,24 +40,45 @@ class PRINTING_EXPORT PrintingContextWin : public PrintingContext {
-   virtual void ReleaseContext() OVERRIDE;
-   virtual gfx::NativeDrawingContext context() const OVERRIDE;
- 
-+  // Allocates the HDC for a specific DEVMODE.
-+  static bool AllocateContext(const std::wstring& printer_name,
-+                              const DEVMODE* dev_mode,
-+                              gfx::NativeDrawingContext* context);
-+
-  protected:
--  virtual scoped_ptr<DEVMODE, base::FreeDeleter> ShowPrintDialog(
--      HANDLE printer,
--      gfx::NativeView parent_view,
--      DEVMODE* dev_mode);
-+  virtual HRESULT ShowPrintDialog(PRINTDLGEX* options);
- 
-  private:
-+  // Class that manages the PrintDlgEx() callbacks. This is meant to be a
-+  // temporary object used during the Print... dialog display.
-+  class CallbackHandler;
-+
-   // Used in response to the user canceling the printing.
-   static BOOL CALLBACK AbortProc(HDC hdc, int nCode);
- 
-   // Reads the settings from the selected device context. Updates settings_ and
-   // its margins.
--  virtual Result InitializeSettings(const base::string16& device_name,
--                                    DEVMODE* dev_mode);
-+  bool InitializeSettings(const DEVMODE& dev_mode,
-+                          const std::wstring& new_device_name,
-+                          const PRINTPAGERANGE* ranges,
-+                          int number_ranges,
-+                          bool selection_only);
-+
-+  // Retrieves the printer's default low-level settings. On Windows, context_ is
-+  // allocated with this call.
-+  bool GetPrinterSettings(HANDLE printer,
-+                          const std::wstring& device_name);
-+
-+  // Parses the result of a PRINTDLGEX result.
-+  Result ParseDialogResultEx(const PRINTDLGEX& dialog_options);
-+  Result ParseDialogResult(const PRINTDLG& dialog_options);
- 
-   // The selected printer context.
-   HDC context_;
- 
-+  // The dialog box for the time it is shown.
-+  volatile HWND dialog_box_;
-+
-   DISALLOW_COPY_AND_ASSIGN(PrintingContextWin);
- };
- 
+ void PepperPluginInstanceImpl::UpdateLayer(bool device_changed) {

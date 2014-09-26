@@ -49,8 +49,8 @@ class BytesElementReader : public net::UploadBytesElementReader {
 base::TaskRunner* GetFileTaskRunner() {
   scoped_refptr<base::SequencedTaskRunner> task_runner =
       CefTaskRunnerImpl::GetTaskRunner(TID_FILE);
-  DCHECK(task_runner);
-  return task_runner;
+  DCHECK(task_runner.get());
+  return task_runner.get();
 }
 
 // A subclass of net::UploadFileElementReader that keeps the associated

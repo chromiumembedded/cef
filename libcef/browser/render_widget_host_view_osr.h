@@ -81,6 +81,7 @@ class CefRenderWidgetHostViewOSR
   virtual content::RenderWidgetHost* GetRenderWidgetHost() const OVERRIDE;
   virtual void SetSize(const gfx::Size& size) OVERRIDE;
   virtual void SetBounds(const gfx::Rect& rect) OVERRIDE;
+  virtual gfx::Vector2dF GetLastScrollOffset() const OVERRIDE;
   virtual gfx::NativeView GetNativeView() const OVERRIDE;
   virtual gfx::NativeViewId GetNativeViewId() const OVERRIDE;
   virtual gfx::NativeViewAccessible GetNativeViewAccessible() OVERRIDE;
@@ -279,6 +280,8 @@ class CefRenderWidgetHostViewOSR
 
   void CancelPopupWidget();
 
+  void OnScrollOffsetChanged();
+
 #if defined(OS_MACOSX)
   // Returns composition character boundary rectangle. The |range| is
   // composition based range. Also stores |actual_range| which is corresponding
@@ -341,6 +344,10 @@ class CefRenderWidgetHostViewOSR
   bool is_showing_;
   bool is_destroyed_;
   gfx::Rect popup_position_;
+
+  // The last scroll offset of the view.
+  gfx::Vector2dF last_scroll_offset_;
+  bool is_scroll_offset_changed_pending_;
 
 #if defined(OS_MACOSX)
   NSTextInputContext* text_input_context_osr_mac_;

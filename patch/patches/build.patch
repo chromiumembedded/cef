@@ -1,5 +1,5 @@
 diff --git common.gypi common.gypi
-index ea388ac..d0864e3 100644
+index d00b6a7..42c6469 100644
 --- common.gypi
 +++ common.gypi
 @@ -9,6 +9,9 @@
@@ -12,7 +12,7 @@ index ea388ac..d0864e3 100644
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
-@@ -5377,6 +5380,9 @@
+@@ -5390,6 +5393,9 @@
            4510, # Default constructor could not be generated
            4512, # Assignment operator could not be generated
            4610, # Object can never be instantiated
@@ -23,10 +23,10 @@ index ea388ac..d0864e3 100644
          'msvs_settings': {
            'VCCLCompilerTool': {
 diff --git gyp_chromium gyp_chromium
-index b8fe82d..cbc8790 100755
+index 326919c0..67d0a00 100755
 --- gyp_chromium
 +++ gyp_chromium
-@@ -262,12 +262,6 @@ if __name__ == '__main__':
+@@ -263,12 +263,6 @@ if __name__ == '__main__':
    if sys.platform not in ('darwin',):
      args.append('--no-circular-check')
  

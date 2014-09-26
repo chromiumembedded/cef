@@ -218,7 +218,7 @@ class MRTestHandler : public TestHandler {
   }
 
   virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE {
-    if (!message_router_) {
+    if (!message_router_.get()) {
       // Create the browser-side router for query handling.
       CefMessageRouterConfig config;
       SetRouterConfig(config);
@@ -263,7 +263,7 @@ class MRTestHandler : public TestHandler {
 
       const int64 frame_id = CefInt64Set(args->GetInt(0), args->GetInt(1));
       CefRefPtr<CefFrame> frame = browser->GetFrame(frame_id);
-      EXPECT_TRUE(frame);
+      EXPECT_TRUE(frame.get());
 
       OnNotify(browser, frame, args->GetString(2));
       return true;
@@ -1312,7 +1312,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
         // Verify a successful/expected result.
         EXPECT_TRUE(WillCancel(query.type)) << i;
-        EXPECT_TRUE(query.callback) << i;
+        EXPECT_TRUE(query.callback.get()) << i;
 
         // Release the callback.
         query.callback = NULL;
@@ -1374,7 +1374,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
       else
         EXPECT_FALSE(query.got_error);
 
-      EXPECT_FALSE(query.callback) << i;
+      EXPECT_FALSE(query.callback.get()) << i;
     }
   }
 
@@ -2101,7 +2101,7 @@ class MultiQueryMultiHandlerTestHandler :
 
     EXPECT_TRUE(manager_.HasAutoQueries());
 
-    CefMessageRouterBrowserSide* router = GetRouter();
+    CefRefPtr<CefMessageRouterBrowserSide> router = GetRouter();
     
     // Remove one handler to cancel a query.
 

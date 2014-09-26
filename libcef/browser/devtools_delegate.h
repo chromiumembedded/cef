@@ -15,6 +15,7 @@
 #include "content/public/browser/devtools_agent_host.h"
 #include "content/public/browser/devtools_http_handler.h"
 #include "content/public/browser/devtools_http_handler_delegate.h"
+#include "content/public/browser/devtools_manager_delegate.h"
 
 namespace content {
 class RenderViewHost;
@@ -28,14 +29,10 @@ class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   // Stops http server.
   void Stop();
 
-  // DevToolsHttpProtocolHandler::Delegate overrides.
+  // DevToolsHttpHandlerDelegate overrides.
   virtual std::string GetDiscoveryPageHTML() OVERRIDE;
   virtual bool BundlesFrontendResources() OVERRIDE;
   virtual base::FilePath GetDebugFrontendDir() OVERRIDE;
-  virtual std::string GetPageThumbnailData(const GURL& url) OVERRIDE;
-  virtual scoped_ptr<content::DevToolsTarget> CreateNewTarget(const GURL& url)
-      OVERRIDE;
-  virtual void EnumerateTargets(TargetCallback callback) OVERRIDE;
   virtual scoped_ptr<net::StreamListenSocket> CreateSocketForTethering(
       net::StreamListenSocket::Delegate* delegate,
       std::string* name) OVERRIDE;
@@ -47,6 +44,31 @@ class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   content::DevToolsHttpHandler* devtools_http_handler_;
 
   DISALLOW_COPY_AND_ASSIGN(CefDevToolsDelegate);
+};
+
+class CefDevToolsManagerDelegate : public content::DevToolsManagerDelegate {
+ public:
+  explicit CefDevToolsManagerDelegate(
+      content::BrowserContext* browser_context);
+  virtual ~CefDevToolsManagerDelegate();
+
+  // DevToolsManagerDelegate implementation.
+  virtual void Inspect(content::BrowserContext* browser_context,
+                       content::DevToolsAgentHost* agent_host) OVERRIDE {}
+  virtual void DevToolsAgentStateChanged(content::DevToolsAgentHost* agent_host,
+                                         bool attached) OVERRIDE {}
+  virtual base::DictionaryValue* HandleCommand(
+      content::DevToolsAgentHost* agent_host,
+      base::DictionaryValue* command) OVERRIDE;
+  virtual scoped_ptr<content::DevToolsTarget> CreateNewTarget(
+      const GURL& url) OVERRIDE;
+  virtual void EnumerateTargets(TargetCallback callback) OVERRIDE;
+  virtual std::string GetPageThumbnailData(const GURL& url) OVERRIDE;
+
+ private:
+  content::BrowserContext* browser_context_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefDevToolsManagerDelegate);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_DEVTOOLS_DELEGATE_H_

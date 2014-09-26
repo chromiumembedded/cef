@@ -155,26 +155,6 @@ base::FilePath CefDevToolsDelegate::GetDebugFrontendDir() {
   return base::FilePath();
 }
 
-std::string CefDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
-  return std::string();
-}
-
-scoped_ptr<content::DevToolsTarget> CefDevToolsDelegate::CreateNewTarget(
-    const GURL& url) {
-   return scoped_ptr<content::DevToolsTarget>();
-}
-
-void CefDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
-  TargetList targets;
-  content::DevToolsAgentHost::List agents =
-      content::DevToolsAgentHost::GetOrCreateAll();
-  for (content::DevToolsAgentHost::List::iterator it = agents.begin();
-       it != agents.end(); ++it) {
-    targets.push_back(new Target(*it));
-  }
-  callback.Run(targets);
-}
-
 scoped_ptr<net::StreamListenSocket>
     CefDevToolsDelegate::CreateSocketForTethering(
         net::StreamListenSocket::Delegate* delegate,
@@ -185,4 +165,41 @@ scoped_ptr<net::StreamListenSocket>
 std::string CefDevToolsDelegate::GetChromeDevToolsURL() {
   return base::StringPrintf("%s://%s/devtools.html",
       content::kChromeDevToolsScheme, scheme::kChromeDevToolsHost);
+}
+
+// CefDevToolsManagerDelegate
+
+CefDevToolsManagerDelegate::CefDevToolsManagerDelegate(
+    content::BrowserContext* browser_context)
+    : browser_context_(browser_context) {
+}
+
+CefDevToolsManagerDelegate::~CefDevToolsManagerDelegate() {
+}
+
+base::DictionaryValue* CefDevToolsManagerDelegate::HandleCommand(
+    content::DevToolsAgentHost* agent_host,
+    base::DictionaryValue* command) {
+  return NULL;
+}
+
+std::string CefDevToolsManagerDelegate::GetPageThumbnailData(
+    const GURL& url) {
+  return std::string();
+}
+
+scoped_ptr<content::DevToolsTarget>
+CefDevToolsManagerDelegate::CreateNewTarget(const GURL& url) {
+  return scoped_ptr<content::DevToolsTarget>();
+}
+
+void CefDevToolsManagerDelegate::EnumerateTargets(TargetCallback callback) {
+  TargetList targets;
+  content::DevToolsAgentHost::List agents =
+      content::DevToolsAgentHost::GetOrCreateAll();
+  for (content::DevToolsAgentHost::List::iterator it = agents.begin();
+       it != agents.end(); ++it) {
+    targets.push_back(new Target(*it));
+  }
+  callback.Run(targets);
 }

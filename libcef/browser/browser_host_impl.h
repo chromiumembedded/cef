@@ -246,7 +246,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void LoadURL(int64 frame_id,
                const std::string& url,
                const content::Referrer& referrer,
-               content::PageTransition transition,
+               ui::PageTransition transition,
                const std::string& extra_headers);
 
   // Load the specified string.
@@ -413,7 +413,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual void DidCommitProvisionalLoadForFrame(
       content::RenderFrameHost* render_frame_host,
       const GURL& url,
-      content::PageTransition transition_type) OVERRIDE;
+      ui::PageTransition transition_type) OVERRIDE;
   virtual void DidFailProvisionalLoad(
       content::RenderFrameHost* render_frame_host,
       const GURL& validated_url,
@@ -545,7 +545,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                        const GURL& url);
   void OnLoadStart(CefRefPtr<CefFrame> frame,
                    const GURL& url,
-                   content::PageTransition transition_type);
+                   ui::PageTransition transition_type);
   void OnLoadError(CefRefPtr<CefFrame> frame,
                    const GURL& url,
                    int error_code,

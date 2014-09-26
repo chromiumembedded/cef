@@ -36,7 +36,7 @@ class CefPrintDialogCallbackImpl : public CefPrintDialogCallback {
 
   virtual void Continue(CefRefPtr<CefPrintSettings> settings) OVERRIDE {
     if (CEF_CURRENTLY_ON_UIT()) {
-      if (dialog_) {
+      if (dialog_.get()) {
         dialog_->OnPrintContinue(settings);
         dialog_ = NULL;
       }
@@ -48,7 +48,7 @@ class CefPrintDialogCallbackImpl : public CefPrintDialogCallback {
 
   virtual void Cancel() OVERRIDE {
     if (CEF_CURRENTLY_ON_UIT()) {
-      if (dialog_) {
+      if (dialog_.get()) {
         dialog_->OnPrintCancel();
         dialog_ = NULL;
       }
@@ -77,7 +77,7 @@ class CefPrintJobCallbackImpl : public CefPrintJobCallback {
 
   virtual void Continue() OVERRIDE {
     if (CEF_CURRENTLY_ON_UIT()) {
-      if (dialog_) {
+      if (dialog_.get()) {
         dialog_->OnJobCompleted();
         dialog_ = NULL;
       }
@@ -131,7 +131,7 @@ void CefPrintDialogLinux::ShowDialog(
   CEF_REQUIRE_UIT();
 
   SetHandler();
-  if (!handler_) {
+  if (!handler_.get()) {
     callback.Run(PrintingContextLinux::CANCEL);
     return;
   }
@@ -147,8 +147,9 @@ void CefPrintDialogLinux::ShowDialog(
   }
 }
 
-void CefPrintDialogLinux::PrintDocument(const printing::Metafile* metafile,
-                                        const base::string16& document_name) {
+void CefPrintDialogLinux::PrintDocument(
+    const printing::MetafilePlayer& metafile,
+    const base::string16& document_name) {
   // This runs on the print worker thread, does not block the UI thread.
   DCHECK(!CEF_CURRENTLY_ON_UIT());
 
@@ -156,28 +157,30 @@ void CefPrintDialogLinux::PrintDocument(const printing::Metafile* metafile,
   // this dialog.
   AddRef();
 
-  bool error = false;
-  if (!base::CreateTemporaryFile(&path_to_pdf_)) {
-    LOG(ERROR) << "Creating temporary file failed";
-    error = true;
+  bool success = base::CreateTemporaryFile(&path_to_pdf_);
+
+  if (success) {
+    base::File file;
+    file.Initialize(path_to_pdf_,
+                    base::File::FLAG_CREATE_ALWAYS | base::File::FLAG_WRITE);
+    success = metafile.SaveTo(&file);
+    file.Close();
+    if (!success)
+      base::DeleteFile(path_to_pdf_, false);
   }
 
-  if (!error && !metafile->SaveTo(path_to_pdf_)) {
+  if (!success) {
     LOG(ERROR) << "Saving metafile failed";
-    base::DeleteFile(path_to_pdf_, false);
-    error = true;
-  }
-
-  if (error) {
     // Matches AddRef() above.
     Release();
-  } else {
-    // No errors, continue printing.
-    CEF_POST_TASK(
-        CEF_UIT,
-        base::Bind(&CefPrintDialogLinux::SendDocumentToPrinter, this,
-                   document_name));
+    return;
   }
+
+  // No errors, continue printing.
+  CEF_POST_TASK(
+      CEF_UIT,
+      base::Bind(&CefPrintDialogLinux::SendDocumentToPrinter, this,
+                 document_name));
 }
 
 void CefPrintDialogLinux::AddRefToDialog() {
@@ -189,20 +192,20 @@ void CefPrintDialogLinux::ReleaseDialog() {
 }
 
 void CefPrintDialogLinux::SetHandler() {
- if (handler_)
+ if (handler_.get())
    return;
 
  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
     CefRefPtr<CefBrowserProcessHandler> browser_handler =
         app->GetBrowserProcessHandler();
-    if (browser_handler)
+    if (browser_handler.get())
       handler_ = browser_handler->GetPrintHandler();
   }
 }
 
 void CefPrintDialogLinux::ReleaseHandler() {
-  if (handler_) {
+  if (handler_.get()) {
     handler_->OnPrintReset();
     handler_ = NULL;
   }
@@ -213,7 +216,7 @@ bool CefPrintDialogLinux::UpdateSettings(printing::PrintSettings* settings,
   CEF_REQUIRE_UIT();
 
   SetHandler();
-  if (!handler_)
+  if (!handler_.get())
     return false;
 
   CefRefPtr<CefPrintSettingsImpl> settings_impl(
@@ -229,7 +232,7 @@ void CefPrintDialogLinux::SendDocumentToPrinter(
     const base::string16& document_name) {
   CEF_REQUIRE_UIT();
 
-  if (!handler_) {
+  if (!handler_.get()) {
     OnJobCompleted();
     return;
   }

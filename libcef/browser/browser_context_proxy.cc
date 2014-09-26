@@ -19,7 +19,8 @@
 
 using content::BrowserThread;
 
-class CefBrowserContextProxy::CefResourceContext : public content::ResourceContext {
+class CefBrowserContextProxy::CefResourceContext :
+    public content::ResourceContext {
  public:
   CefResourceContext() : getter_(NULL) {}
   virtual ~CefResourceContext() {}
@@ -32,12 +33,6 @@ class CefBrowserContextProxy::CefResourceContext : public content::ResourceConte
   virtual net::URLRequestContext* GetRequestContext() OVERRIDE {
     CHECK(getter_);
     return getter_->GetURLRequestContext();
-  }
-  virtual bool AllowMicAccess(const GURL& origin) OVERRIDE {
-    return true;
-  }
-  virtual bool AllowCameraAccess(const GURL& origin) OVERRIDE {
-    return true;
   }
 
   void set_url_request_context_getter(CefURLRequestContextGetterProxy* getter) {
@@ -138,7 +133,7 @@ content::SSLHostStateDelegate*
 net::URLRequestContextGetter* CefBrowserContextProxy::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
-  DCHECK(!url_request_getter_);
+  DCHECK(!url_request_getter_.get());
   url_request_getter_ =
       new CefURLRequestContextGetterProxy(handler_,
           static_cast<CefURLRequestContextGetter*>(

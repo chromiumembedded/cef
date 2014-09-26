@@ -25,6 +25,8 @@ class CefTraceSubscriber {
                   CefRefPtr<CefEndTracingCallback> callback);
 
  private:
+  void ContinueEndTracing(CefRefPtr<CefEndTracingCallback> callback,
+                          const base::FilePath& tracing_file);
   void OnTracingFileResult(CefRefPtr<CefEndTracingCallback> callback,
                            const base::FilePath& tracing_file);
 

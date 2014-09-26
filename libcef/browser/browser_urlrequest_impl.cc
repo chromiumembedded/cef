@@ -70,7 +70,7 @@ class NET_EXPORT CefURLFetcherResponseWriter :
   virtual int Write(net::IOBuffer* buffer,
                     int num_bytes,
                     const net::CompletionCallback& callback) OVERRIDE {
-    if (url_request_) {
+    if (url_request_.get()) {
       message_loop_proxy_->PostTask(FROM_HERE,
           base::Bind(&CefURLFetcherResponseWriter::WriteOnClientThread,
                      url_request_, scoped_refptr<net::IOBuffer>(buffer),
@@ -82,7 +82,7 @@ class NET_EXPORT CefURLFetcherResponseWriter :
   }
 
   virtual int Finish(const net::CompletionCallback& callback) OVERRIDE {
-    if (url_request_)
+    if (url_request_.get())
       url_request_ = NULL;
     return net::OK;
   }
@@ -95,7 +95,7 @@ class NET_EXPORT CefURLFetcherResponseWriter :
       const net::CompletionCallback& callback,
       scoped_refptr<base::MessageLoopProxy> source_message_loop_proxy) {
     CefRefPtr<CefURLRequestClient> client = url_request->GetClient();
-    if (client)
+    if (client.get())
       client->OnDownloadData(url_request.get(), buffer->data(), num_bytes);
 
     source_message_loop_proxy->PostTask(FROM_HERE,
@@ -184,7 +184,7 @@ class CefBrowserURLRequest::Context
     fetcher_.reset(net::URLFetcher::Create(url, request_type,
                                            fetcher_delegate_.get()));
     fetcher_->SetRequestContext(
-        CefContentBrowserClient::Get()->request_context());
+        CefContentBrowserClient::Get()->request_context().get());
 
     CefRequest::HeaderMap headerMap;
     request_->GetHeaderMap(headerMap);

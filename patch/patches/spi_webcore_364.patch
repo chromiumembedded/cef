@@ -1,8 +1,8 @@
 diff --git core/frame/FrameView.cpp core/frame/FrameView.cpp
-index 5d42bda..70e70a6 100644
+index db086a2..3bcc736 100644
 --- core/frame/FrameView.cpp
 +++ core/frame/FrameView.cpp
-@@ -126,8 +126,10 @@ FrameView::FrameView(LocalFrame* frame)
+@@ -128,8 +128,10 @@ FrameView::FrameView(LocalFrame* frame)
      if (!m_frame->isMainFrame())
          return;
  
@@ -14,10 +14,10 @@ index 5d42bda..70e70a6 100644
  
  PassRefPtr<FrameView> FrameView::create(LocalFrame* frame)
 diff --git platform/scroll/ScrollbarThemeMacCommon.mm platform/scroll/ScrollbarThemeMacCommon.mm
-index 309e1e3..b40a19a 100644
+index 90abb7c..6bb16c6 100644
 --- platform/scroll/ScrollbarThemeMacCommon.mm
 +++ platform/scroll/ScrollbarThemeMacCommon.mm
-@@ -355,10 +355,14 @@ NSScrollerStyle ScrollbarThemeMacCommon::recommendedScrollerStyle()
+@@ -354,10 +354,14 @@ NSScrollerStyle ScrollbarThemeMacCommon::recommendedScrollerStyle()
  // static
  bool ScrollbarThemeMacCommon::isOverlayAPIAvailable()
  {

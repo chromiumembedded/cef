@@ -28,7 +28,7 @@ class CefLocationRequest :
  private:
   void OnLocationUpdate(const content::Geoposition& position) {
     CEF_REQUIRE_UIT();
-    if (callback_) {
+    if (callback_.get()) {
       CefGeoposition cef_position;
       SetPosition(position, cef_position);
       callback_->OnLocationUpdate(cef_position);

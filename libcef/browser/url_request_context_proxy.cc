@@ -103,17 +103,17 @@ class CefCookieStoreProxy : public net::CookieStore {
         cookie_store =
           reinterpret_cast<CefCookieManagerImpl*>(
               manager.get())->cookie_monster();
-        DCHECK(cookie_store);
+        DCHECK(cookie_store.get());
       }
     }
 
-    if (!cookie_store) {
+    if (!cookie_store.get()) {
       // Use the global cookie store.
       cookie_store = parent_->cookie_store();
     }
 
-    DCHECK(cookie_store);
-    return cookie_store;
+    DCHECK(cookie_store.get());
+    return cookie_store.get();
   }
 
   // This pointer is guaranteed by the CefRequestContextProxy object.
@@ -144,7 +144,7 @@ void CefURLRequestContextProxy::Initialize(
 
   // Cookie store that proxies to the browser implementation.
   cookie_store_proxy_ = new CefCookieStoreProxy(context, handler);
-  set_cookie_store(cookie_store_proxy_);
+  set_cookie_store(cookie_store_proxy_.get());
 
   // All other values refer to the parent request context.
   set_net_log(context->net_log());

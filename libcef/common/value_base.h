@@ -238,14 +238,14 @@ class CefValueBase : public CefType, public CefValueController::Object {
     // Specifying a parent value for a non-reference doesn't make sense.
     DCHECK(!(!reference() && parent_value));
 
-    if (!reference() && !controller_) {
+    if (!reference() && !controller_.get()) {
       // For owned values default to using a new multi-threaded controller.
       controller_ = new CefValueControllerThreadSafe();
       SetOwnsController();
     }
 
     // A controller is required.
-    DCHECK(controller_);
+    DCHECK(controller_.get());
 
     if (reference()) {
       // Register the reference with the controller.
@@ -257,7 +257,7 @@ class CefValueBase : public CefType, public CefValueController::Object {
     }
   }
   virtual ~CefValueBase() {
-    if (controller_ && value_)
+    if (controller_.get() && value_)
       Delete();
   }
 
@@ -271,10 +271,10 @@ class CefValueBase : public CefType, public CefValueController::Object {
   inline bool read_only() const { return read_only_; }
 
   // True if the underlying value has been detached.
-  inline bool detached() { return (controller_ == NULL); }
+  inline bool detached() { return !controller_.get(); }
 
   // Returns the controller.
-  inline CefValueController* controller() { return controller_; }
+  inline CefValueController* controller() { return controller_.get(); }
 
   // Deletes the underlying value.
   void Delete() {
@@ -377,7 +377,7 @@ class CefValueBase : public CefType, public CefValueController::Object {
 
   // Used to indicate that this object owns the controller.
   inline void SetOwnsController() {
-    CefValueController::AutoLock lock_scope(controller_);
+    CefValueController::AutoLock lock_scope(controller_.get());
     if (lock_scope.verified())
       controller_->SetOwner(value_, this);
   }
@@ -386,8 +386,8 @@ class CefValueBase : public CefType, public CefValueController::Object {
   class AutoLock {
    public:
     explicit AutoLock(CefValueBase* impl, bool modify)
-      : auto_lock_(impl->controller()),
-        verified_(auto_lock_.verified() && impl->VerifyAccess(modify)) {
+      : auto_lock_(impl->controller()) {
+      verified_ = (auto_lock_.verified() && impl->VerifyAccess(modify));
     }
     virtual ~AutoLock() {}
 

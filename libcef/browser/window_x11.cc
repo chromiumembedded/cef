@@ -186,7 +186,7 @@ void CefWindowX11::Focus() {
   if (xwindow_ == None || !window_mapped_)
     return;
 
-  if (browser_) {
+  if (browser_.get()) {
     ::Window child = FindChild(xdisplay_, xwindow_);
     if (child && ui::IsWindowVisible(child)) {
       // Give focus to the child DesktopWindowTreeHostX11.
@@ -250,7 +250,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
           xev->xconfigure.width, xev->xconfigure.height);
       bounds_ = bounds;
 
-      if (browser_) {
+      if (browser_.get()) {
         ::Window child = FindChild(xdisplay_, xwindow_);
         if (child) {
           // Resize the child DesktopWindowTreeHostX11 to match this window.
@@ -305,7 +305,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
         Atom protocol = static_cast<Atom>(xev->xclient.data.l[0]);
         if (protocol == atom_cache_.GetAtom(kWMDeleteWindow)) {
           // We have received a close message from the window manager.
-          if (browser_ && browser_->destruction_state() <=
+          if (browser_.get() && browser_->destruction_state() <=
               CefBrowserHostImpl::DESTRUCTION_STATE_PENDING) {
             if (browser_->destruction_state() ==
                 CefBrowserHostImpl::DESTRUCTION_STATE_NONE) {
@@ -335,7 +335,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
     case DestroyNotify:
       xwindow_ = None;
 
-      if (browser_) {
+      if (browser_.get()) {
         // Force the browser to be destroyed and release the reference added
         // in PlatformCreateWindow().
         browser_->WindowDestroyed();
@@ -368,7 +368,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
       ::Atom changed_atom = xev->xproperty.atom;
       if (changed_atom == atom_cache_.GetAtom(kNetWMState)) {
         // State change event like minimize/maximize.
-        if (browser_) {
+        if (browser_.get()) {
           ::Window child = FindChild(xdisplay_, xwindow_);
           if (child) {
             // Forward the state change to the child DesktopWindowTreeHostX11
@@ -403,7 +403,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
 void CefWindowX11::ContinueFocus() {
   if (!focus_pending_)
     return;
-  if (browser_)
+  if (browser_.get())
     browser_->SetFocus(true);
   focus_pending_ = false;
 }

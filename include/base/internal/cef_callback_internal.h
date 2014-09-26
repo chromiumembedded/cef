@@ -64,7 +64,7 @@ class BindStateBase : public RefCountedThreadSafe<BindStateBase> {
 class CallbackBase {
  public:
   // Returns true if Callback is null (doesn't refer to anything).
-  bool is_null() const;
+  bool is_null() const { return bind_state_.get() == NULL; }
 
   // Returns the Callback into an uninitialized state.
   void Reset();

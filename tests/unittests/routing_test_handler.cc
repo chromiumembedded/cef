@@ -62,7 +62,7 @@ RoutingTestHandler::RoutingTestHandler() {
 }
 
 void RoutingTestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
-  if (!message_router_) {
+  if (!message_router_.get()) {
     // Create the browser-side router for query handling.
     CefMessageRouterConfig config;
     SetRouterConfig(config);

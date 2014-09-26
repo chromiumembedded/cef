@@ -23,7 +23,7 @@ class RenderViewHost;
 namespace printing {
 
 class JobEventDetails;
-class PdfToEmfConverter;
+class MetafilePlayer;
 class PrintJob;
 class PrintJobWorkerOwner;
 class PrintQueriesQueue;
@@ -35,10 +35,12 @@ class PrintViewManagerBase : public content::NotificationObserver,
  public:
   virtual ~PrintViewManagerBase();
 
+#if !defined(DISABLE_BASIC_PRINTING)
   // Prints the current document immediately. Since the rendering is
   // asynchronous, the actual printing will not be completed on the return of
   // this function. Returns false if printing is impossible at the moment.
   virtual bool PrintNow();
+#endif  // !DISABLE_BASIC_PRINTING
 
   // Whether to block scripted printing for our tab or not.
   void UpdateScriptedPrintingBlocked();
@@ -78,6 +80,7 @@ class PrintViewManagerBase : public content::NotificationObserver,
   void OnDidGetPrintedPagesCount(int cookie, int number_pages);
   void OnDidGetDocumentCookie(int cookie);
   void OnDidPrintPage(const PrintHostMsg_DidPrintPage_Params& params);
+  void OnShowInvalidPrinterSettingsError();
 
   // Processes a NOTIFY_PRINT_JOB_EVENT notification.
   void OnNotifyPrintJobEvent(const JobEventDetails& event_details);
@@ -130,13 +133,6 @@ class PrintViewManagerBase : public content::NotificationObserver,
   // Release the PrinterQuery associated with our |cookie_|.
   void ReleasePrinterQuery();
 
-#if defined(WIN_PDF_METAFILE_FOR_PRINTING)
-  // Called on completion of converting the pdf to emf.
-  void OnPdfToEmfConverted(const PrintHostMsg_DidPrintPage_Params& params,
-                           double scale_factor,
-                           const std::vector<base::FilePath>& emf_file);
-#endif
-
   content::NotificationRegistrar registrar_;
 
   // Manages the low-level talk to the printer.
@@ -153,15 +149,10 @@ class PrintViewManagerBase : public content::NotificationObserver,
   // print settings are being loaded.
   bool inside_inner_message_loop_;
 
-#if (defined(OS_POSIX) && !defined(OS_MACOSX)) || \
-    defined(WIN_PDF_METAFILE_FOR_PRINTING)
+#if !defined(OS_MACOSX)
   // Set to true when OnDidPrintPage() should be expecting the first page.
   bool expecting_first_page_;
-#endif
-
-#if defined(WIN_PDF_METAFILE_FOR_PRINTING)
-  scoped_ptr<PdfToEmfConverter> pdf_to_emf_converter_;
-#endif
+#endif  // OS_MACOSX
 
   // The document cookie of the current PrinterQuery.
   int cookie_;

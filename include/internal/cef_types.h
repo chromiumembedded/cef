@@ -915,6 +915,16 @@ typedef enum {
   // XMLHttpRequest.
   ///
   RT_XHR,
+
+  ///
+  // A request for a <ping>
+  ///
+  RT_PING,
+
+  ///
+  // Main resource of a service worker.
+  ///
+  RT_SERVICE_WORKER,
 } cef_resource_type_t;
 
 ///
@@ -1459,9 +1469,28 @@ typedef enum {
 // Key event types.
 ///
 typedef enum {
+  ///
+  // Notification that a key transitioned from "up" to "down".
+  ///
   KEYEVENT_RAWKEYDOWN = 0,
+
+  ///
+  // Notification that a key was pressed. This does not necessarily correspond
+  // to a character depending on the key and language. Use KEYEVENT_CHAR for
+  // character input.
+  ///
   KEYEVENT_KEYDOWN,
+
+  ///
+  // Notification that a key was released.
+  ///
   KEYEVENT_KEYUP,
+
+  ///
+  // Notification that a character was typed. Use this for text input. Key
+  // down events may generate 0, 1, or more than one character event depending
+  // on the key, locale, and operating system.
+  ///
   KEYEVENT_CHAR
 } cef_key_event_type_t;
 

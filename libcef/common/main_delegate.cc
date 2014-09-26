@@ -5,9 +5,9 @@
 #include "libcef/common/main_delegate.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
-#include "libcef/common/breakpad_client.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
+#include "libcef/common/crash_reporter_client.h"
 #include "libcef/renderer/content_renderer_client.h"
 #include "libcef/utility/content_utility_client.h"
 
@@ -51,7 +51,7 @@
 
 namespace {
 
-base::LazyInstance<CefBreakpadClient>::Leaky g_shell_breakpad_client =
+base::LazyInstance<CefCrashReporterClient>::Leaky g_crash_reporter_client =
     LAZY_INSTANCE_INITIALIZER;
 
 #if defined(OS_MACOSX)
@@ -392,7 +392,7 @@ void CefMainDelegate::PreSandboxStartup() {
       command_line.GetSwitchValueASCII(switches::kProcessType);
 
   if (command_line.HasSwitch(switches::kEnableCrashReporter)) {
-    breakpad::SetBreakpadClient(g_shell_breakpad_client.Pointer());
+    crash_reporter::SetCrashReporterClient(g_crash_reporter_client.Pointer());
 #if defined(OS_MACOSX)
     base::mac::DisableOSCrashDumps();
     breakpad::InitCrashReporter(process_type);

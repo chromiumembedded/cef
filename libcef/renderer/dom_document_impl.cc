@@ -216,7 +216,7 @@ CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetOrCreateNode(
 
   // Create the new node object.
   CefRefPtr<CefDOMNode> nodeImpl(new CefDOMNodeImpl(this, node));
-  node_map_.insert(std::make_pair(node, nodeImpl));
+  node_map_.insert(std::make_pair(node, nodeImpl.get()));
   return nodeImpl;
 }
 
