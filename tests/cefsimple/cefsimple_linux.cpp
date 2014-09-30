@@ -6,6 +6,8 @@
 
 #include <X11/Xlib.h>
 
+#include "include/base/cef_logging.h"
+
 namespace {
 
 int XErrorHandlerImpl(Display *display, XErrorEvent *event) {
