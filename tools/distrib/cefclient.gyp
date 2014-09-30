@@ -8,11 +8,9 @@
     'framework_name': 'Chromium Embedded Framework',
     'linux_use_gold_binary': 0,
     'linux_use_gold_flags': 0,
+    # Don't use clang with CEF binary releases due to Chromium tree structure dependency.
+    'clang': 0,
     'conditions': [
-      [ 'OS=="mac"', {
-        # Don't use clang with CEF binary releases due to Chromium tree structure dependency.
-        'clang': 0,
-      }],
       ['sysroot!=""', {
         'pkg-config': './pkg-config-wrapper "<(sysroot)" "<(target_arch)"',
       }, {
