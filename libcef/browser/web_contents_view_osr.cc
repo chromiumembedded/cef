@@ -10,14 +10,18 @@
 
 #include "content/public/browser/render_widget_host.h"
 
-CefWebContentsViewOSR::CefWebContentsViewOSR(
-    content::WebContents* web_contents,
-    content::WebContentsViewDelegate* delegate)
-    : web_contents_(web_contents),
+CefWebContentsViewOSR::CefWebContentsViewOSR()
+    : web_contents_(NULL),
       view_(NULL) {
 }
 
 CefWebContentsViewOSR::~CefWebContentsViewOSR() {
+}
+
+void CefWebContentsViewOSR::set_web_contents(
+    content::WebContents* web_contents) {
+  DCHECK(!web_contents_);
+  web_contents_ = web_contents;
 }
 
 gfx::NativeView CefWebContentsViewOSR::GetNativeView() const {

@@ -20,9 +20,10 @@ class CefRenderWidgetHostViewOSR;
 class CefWebContentsViewOSR : public content::WebContentsView,
                               public content::RenderViewHostDelegateView {
  public:
-  CefWebContentsViewOSR(content::WebContents* web_contents,
-                        content::WebContentsViewDelegate* delegate);
+  CefWebContentsViewOSR();
   virtual ~CefWebContentsViewOSR();
+
+  void set_web_contents(content::WebContents* web_contents);
 
   // WebContentsView methods.
   virtual gfx::NativeView GetNativeView() const OVERRIDE;
