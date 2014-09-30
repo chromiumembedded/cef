@@ -409,16 +409,16 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
     content::WebContents::CreateParams create_params(
         browser_context);
 
+    CefWebContentsViewOSR* view_or = NULL;
     if (window_info.windowless_rendering_enabled) {
       // Use the OSR view instead of the default view.
-      CefWebContentsViewOSR* view_or = new CefWebContentsViewOSR(
-          web_contents,
-          CefContentBrowserClient::Get()->GetWebContentsViewDelegate(
-              web_contents));
+      view_or = new CefWebContentsViewOSR();
       create_params.view = view_or;
       create_params.delegate_view = view_or;
     }
     web_contents = content::WebContents::Create(create_params);
+    if (view_or)
+      view_or->set_web_contents(web_contents);
   }
 
   CefRefPtr<CefBrowserHostImpl> browser =
@@ -2101,10 +2101,8 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
   DCHECK(pending_popup_info_.get());
   if (pending_popup_info_->window_info.windowless_rendering_enabled) {
     // Use the OSR view instead of the default view.
-    CefWebContentsViewOSR* view_or = new CefWebContentsViewOSR(
-        web_contents,
-        CefContentBrowserClient::Get()->GetWebContentsViewDelegate(
-            web_contents));
+    CefWebContentsViewOSR* view_or = new CefWebContentsViewOSR();
+    view_or->set_web_contents(web_contents);
     *view = view_or;
     *delegate_view = view_or;
   }

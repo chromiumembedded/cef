@@ -725,7 +725,6 @@ void ClientHandler::SetOSRHandler(CefRefPtr<RenderHandler> handler) {
 }
 
 CefRefPtr<ClientHandler::RenderHandler> ClientHandler::GetOSRHandler() const {
-  CEF_REQUIRE_UI_THREAD();
   return osr_handler_; 
 }
 
