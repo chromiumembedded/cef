@@ -38,6 +38,9 @@ char szWorkingDir[512];  // The current working directory
 // Height of the buttons at the top of the GTK window.
 int g_toolbar_height = 0;
 
+// Height of the integrated menu bar (if any) at the top of the GTK window.
+int g_menubar_height = 0;
+
 class MainBrowserProvider : public OSRBrowserProvider {
   virtual CefRefPtr<CefBrowser> GetBrowser() {
     if (g_handler.get())
@@ -89,9 +92,9 @@ void TerminationSignalHandler(int signatl) {
   AppQuitMessageLoop();
 }
 
-void VboxSizeAllocated(GtkWidget *widget,
-                       GtkAllocation *allocation,
-                       void *data) {
+void VboxSizeAllocated(GtkWidget* widget,
+                       GtkAllocation* allocation,
+                       void* data) {
   if (g_handler) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     if (browser && !browser->GetHost()->IsWindowRenderingDisabled()) {
@@ -100,16 +103,24 @@ void VboxSizeAllocated(GtkWidget *widget,
       ::Window xwindow = browser->GetHost()->GetWindowHandle();
       XWindowChanges changes = {0};
       changes.width = allocation->width;
-      changes.height = allocation->height - g_toolbar_height;
-      XConfigureWindow(xdisplay, xwindow, CWHeight | CWWidth, &changes);
+      changes.height = allocation->height -
+                       (g_toolbar_height + g_menubar_height);
+      changes.y = g_toolbar_height + g_menubar_height;
+      XConfigureWindow(xdisplay, xwindow, CWHeight | CWWidth | CWY, &changes);
     }
   }
 }
 
-void ToolbarSizeAllocated(GtkWidget *widget,
-                          GtkAllocation *allocation,
-                          void *data) {
+void ToolbarSizeAllocated(GtkWidget* widget,
+                          GtkAllocation* allocation,
+                          void* data) {
   g_toolbar_height = allocation->height;
+}
+
+void MenubarSizeAllocated(GtkWidget* widget,
+                          GtkAllocation* allocation,
+                          void* data) {
+  g_menubar_height = allocation->height;
 }
 
 gboolean WindowFocusIn(GtkWidget* widget,
@@ -450,6 +461,8 @@ int main(int argc, char* argv[]) {
   gtk_container_add(GTK_CONTAINER(window), vbox);
 
   GtkWidget* menu_bar = CreateMenuBar();
+  g_signal_connect(menu_bar, "size-allocate",
+                   G_CALLBACK(MenubarSizeAllocated), NULL);
 
   gtk_box_pack_start(GTK_BOX(vbox), menu_bar, FALSE, FALSE, 0);
 
