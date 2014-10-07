@@ -147,6 +147,12 @@ typedef struct _cef_render_handler_t {
   ///
   void (CEF_CALLBACK *update_drag_cursor)(struct _cef_render_handler_t* self,
       struct _cef_browser_t* browser, cef_drag_operations_mask_t operation);
+
+  ///
+  // Called when the scroll offset has changed.
+  ///
+  void (CEF_CALLBACK *on_scroll_offset_changed)(
+      struct _cef_render_handler_t* self, struct _cef_browser_t* browser);
 } cef_render_handler_t;
 
 
