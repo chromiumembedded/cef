@@ -85,4 +85,13 @@ const char kEnableProfanityFilter[]       = "enable-profanity-filter";
 // The directory breakpad should store minidumps in.
 const char kCrashDumpsDir[]               = "crash-dumps-dir";
 
+// Disable spell checking.
+const char kDisableSpellChecking[]        = "disable-spell-checking";
+
+// Enable the remote spelling service.
+const char kEnableSpellingService[]       = "enable-spelling-service";
+
+// Override the default spellchecking language which comes from locales.pak.
+const char kOverrideSpellCheckLang[]      = "override-spell-check-lang";
+
 }  // namespace switches

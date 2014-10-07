@@ -39,6 +39,8 @@ MSVC_POP_WARNING();
 #include "chrome/renderer/loadtimes_extension_bindings.h"
 #include "chrome/renderer/pepper/chrome_pdf_print_client.h"
 #include "chrome/renderer/printing/print_web_view_helper.h"
+#include "chrome/renderer/spellchecker/spellcheck.h"
+#include "chrome/renderer/spellchecker/spellcheck_provider.h"
 #include "components/pdf/renderer/ppb_pdf_impl.h"
 #include "components/web_cache/renderer/web_cache_render_process_observer.h"
 #include "content/child/child_thread.h"
@@ -50,6 +52,7 @@ MSVC_POP_WARNING();
 #include "content/public/common/content_paths.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
+#include "content/public/renderer/render_view_visitor.h"
 #include "content/renderer/render_frame_impl.h"
 #include "ipc/ipc_sync_channel.h"
 #include "media/base/media.h"
@@ -439,6 +442,9 @@ void CefContentRendererClient::RunSingleProcessCleanup() {
 }
 
 void CefContentRendererClient::RenderThreadStarted() {
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+
   render_task_runner_ = base::MessageLoopProxy::current();
   observer_.reset(new CefRenderProcessObserver());
   web_cache_observer_.reset(new web_cache::WebCacheRenderProcessObserver());
@@ -448,6 +454,11 @@ void CefContentRendererClient::RenderThreadStarted() {
   thread->AddObserver(web_cache_observer_.get());
   thread->GetChannel()->AddFilter(new CefRenderMessageFilter);
   thread->RegisterExtension(extensions_v8::LoadTimesExtension::Get());
+
+  if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
+    spellcheck_.reset(new SpellCheck());
+    thread->AddObserver(spellcheck_.get());
+  }
 
   if (content::RenderProcessHost::run_renderer_in_process()) {
     // When running in single-process mode register as a destruction observer
@@ -721,6 +732,9 @@ void CefContentRendererClient::WillDestroyCurrentMessageLoop() {
 void CefContentRendererClient::BrowserCreated(
     content::RenderView* render_view,
     content::RenderFrame* render_frame) {
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+
   // Retrieve the browser information synchronously. This will also register
   // the routing ids with the browser info object in the browser process.
   CefProcessHostMsg_GetNewBrowserInfo_Params params;
@@ -751,6 +765,9 @@ void CefContentRendererClient::BrowserCreated(
 
   new CefPrerendererClient(render_view);
   new printing::PrintWebViewHelper(render_view);
+
+  if (!command_line->HasSwitch(switches::kDisableSpellChecking)) 
+    new SpellCheckProvider(render_view, spellcheck_.get());
 
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();

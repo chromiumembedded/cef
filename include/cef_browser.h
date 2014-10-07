@@ -405,6 +405,13 @@ class CefBrowserHost : public virtual CefBase {
   virtual bool IsMouseCursorChangeDisabled() =0;
 
   ///
+  // If a misspelled word is currently selected in an editable node calling
+  // this method will replace it with the specified |word|.
+  ///
+  /*--cef()--*/
+  virtual void ReplaceMisspelling(const CefString& word) =0;
+
+  ///
   // Returns true if window rendering is disabled.
   ///
   /*--cef()--*/

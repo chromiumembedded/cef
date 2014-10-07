@@ -17,6 +17,7 @@
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
 #include "chrome/browser/net/proxy_service_factory.h"
+#include "components/user_prefs/user_prefs.h"
 #include "content/browser/webui/content_web_ui_controller_factory.h"
 #include "content/public/browser/gpu_data_manager.h"
 #include "content/public/browser/web_ui_controller_factory.h"
@@ -149,6 +150,8 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
       LOG(WARNING) << "Invalid http debugger port number " << port;
     }
   }
+
+  user_prefs::UserPrefs::Set(browser_context(), pref_service());
 }
 
 void CefBrowserMainParts::PostMainMessageLoopRun() {

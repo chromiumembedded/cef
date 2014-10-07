@@ -411,6 +411,23 @@ int CEF_CALLBACK browser_host_is_mouse_cursor_change_disabled(
   return _retval;
 }
 
+void CEF_CALLBACK browser_host_replace_misspelling(
+    struct _cef_browser_host_t* self, const cef_string_t* word) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: word; type: string_byref_const
+  DCHECK(word);
+  if (!word)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->ReplaceMisspelling(
+      CefString(word));
+}
+
 int CEF_CALLBACK browser_host_is_window_rendering_disabled(
     struct _cef_browser_host_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -782,6 +799,7 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
       browser_host_set_mouse_cursor_change_disabled;
   struct_.struct_.is_mouse_cursor_change_disabled =
       browser_host_is_mouse_cursor_change_disabled;
+  struct_.struct_.replace_misspelling = browser_host_replace_misspelling;
   struct_.struct_.is_window_rendering_disabled =
       browser_host_is_window_rendering_disabled;
   struct_.struct_.was_resized = browser_host_was_resized;

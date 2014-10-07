@@ -359,6 +359,13 @@ typedef struct _cef_browser_host_t {
       struct _cef_browser_host_t* self);
 
   ///
+  // If a misspelled word is currently selected in an editable node calling this
+  // function will replace it with the specified |word|.
+  ///
+  void (CEF_CALLBACK *replace_misspelling)(struct _cef_browser_host_t* self,
+      const cef_string_t* word);
+
+  ///
   // Returns true (1) if window rendering is disabled.
   ///
   int (CEF_CALLBACK *is_window_rendering_disabled)(

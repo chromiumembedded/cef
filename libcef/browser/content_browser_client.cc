@@ -31,6 +31,7 @@
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/path_service.h"
+#include "chrome/browser/spellchecker/spellcheck_message_filter.h"
 #include "chrome/common/chrome_switches.h"
 #include "content/browser/plugin_service_impl.h"
 #include "content/public/browser/access_token_store.h"
@@ -46,6 +47,10 @@
 #include "third_party/WebKit/public/web/WebWindowFeatures.h"
 #include "ui/base/ui_base_switches.h"
 #include "url/gurl.h"
+
+#if defined(OS_MACOSX)
+#include "chrome/browser/spellchecker/spellcheck_message_filter_mac.h"
+#endif
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
 #include "base/debug/leak_annotations.h"
@@ -357,7 +362,7 @@ void TranslatePopupFeatures(const blink::WebWindowFeatures& webKitFeatures,
 breakpad::CrashHandlerHostLinux* CreateCrashHandlerHost(
     const std::string& process_type) {
   base::FilePath dumps_path =
-      CommandLine::ForCurrentProcess()->GetSwitchValuePath(
+      base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
           switches::kCrashDumpsDir);
   {
     ANNOTATE_SCOPED_MEMORY_LEAK;
@@ -369,7 +374,7 @@ breakpad::CrashHandlerHostLinux* CreateCrashHandlerHost(
   }
 }
 
-int GetCrashSignalFD(const CommandLine& command_line) {
+int GetCrashSignalFD(const base::CommandLine& command_line) {
   if (!breakpad::IsCrashReporterEnabled())
     return -1;
 
@@ -606,8 +611,19 @@ content::BrowserMainParts* CefContentBrowserClient::CreateBrowserMainParts(
 
 void CefContentBrowserClient::RenderProcessWillLaunch(
     content::RenderProcessHost* host) {
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  const int id = host->GetID();
+
   host->GetChannel()->AddFilter(new CefBrowserMessageFilter(host));
-  host->AddFilter(new printing::PrintingMessageFilter(host->GetID()));
+  host->AddFilter(new printing::PrintingMessageFilter(id));
+
+  if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
+    host->AddFilter(new SpellCheckMessageFilter(id));
+#if defined(OS_MACOSX)
+    host->AddFilter(new SpellCheckMessageFilterMac(id));
+#endif
+  }
 
   AddBrowserContextReference(
       static_cast<CefBrowserContext*>(host->GetBrowserContext()));
@@ -653,8 +669,9 @@ bool CefContentBrowserClient::IsHandledURL(const GURL& url) {
 }
 
 void CefContentBrowserClient::AppendExtraCommandLineSwitches(
-    CommandLine* command_line, int child_process_id) {
-  const CommandLine& browser_cmd = *CommandLine::ForCurrentProcess();
+    base::CommandLine* command_line, int child_process_id) {
+  const base::CommandLine& browser_cmd =
+      *base::CommandLine::ForCurrentProcess();
 
   {
     // Propagate the following switches to all command lines (along with any
@@ -683,8 +700,10 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     // any associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
       switches::kContextSafetyImplementation,
+      switches::kDisableSpellChecking,
       switches::kEnableMediaStream,
       switches::kEnableSpeechInput,
+      switches::kEnableSpellingAutoCorrect,
       switches::kUncaughtExceptionStackSize,
     };
     command_line->CopySwitchesFrom(browser_cmd, kSwitchNames,
@@ -726,8 +745,9 @@ content::MediaObserver* CefContentBrowserClient::GetMediaObserver() {
 
 content::SpeechRecognitionManagerDelegate*
     CefContentBrowserClient::GetSpeechRecognitionManagerDelegate() {
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  if (command_line.HasSwitch(switches::kEnableSpeechInput))
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kEnableSpeechInput))
     return new CefSpeechRecognitionManagerDelegate();
 
   return NULL;
@@ -933,6 +953,9 @@ void CefContentBrowserClient::OverrideWebkitPrefs(
     content::RenderViewHost* rvh,
     const GURL& url,
     content::WebPreferences* prefs) {
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForHost(rvh);
   DCHECK(browser.get());
@@ -941,6 +964,11 @@ void CefContentBrowserClient::OverrideWebkitPrefs(
   BrowserToWebSettings(browser->settings(), *prefs);
 
   prefs->base_background_color = GetBaseBackgroundColor(rvh);
+
+  prefs->asynchronous_spell_checking_enabled = true;
+  // Auto-correct does not work in combination with the unified text checker.
+  prefs->unified_textchecker_enabled =
+      !command_line->HasSwitch(switches::kEnableSpellingAutoCorrect);
 }
 
 SkColor CefContentBrowserClient::GetBaseBackgroundColor(

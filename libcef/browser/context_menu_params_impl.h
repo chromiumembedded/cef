@@ -31,7 +31,12 @@ class CefContextMenuParamsImpl
   virtual MediaType GetMediaType() OVERRIDE;
   virtual MediaStateFlags GetMediaStateFlags() OVERRIDE;
   virtual CefString GetSelectionText() OVERRIDE;
+  virtual CefString GetMisspelledWord() OVERRIDE;
+  virtual int GetMisspellingHash() OVERRIDE;
+  virtual bool GetDictionarySuggestions(
+      std::vector<CefString>& suggestions) OVERRIDE;
   virtual bool IsEditable() OVERRIDE;
+  virtual bool IsSpellCheckEnabled() OVERRIDE;
   virtual EditStateFlags GetEditStateFlags() OVERRIDE;
 
   DISALLOW_COPY_AND_ASSIGN(CefContextMenuParamsImpl);

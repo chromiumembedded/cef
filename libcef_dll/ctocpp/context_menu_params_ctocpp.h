@@ -18,6 +18,7 @@
 #pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
 #else  // USING_CEF_SHARED
 
+#include <vector>
 #include "include/cef_context_menu_handler.h"
 #include "include/capi/cef_context_menu_handler_capi.h"
 #include "libcef_dll/ctocpp/ctocpp.h"
@@ -47,7 +48,12 @@ class CefContextMenuParamsCToCpp
   virtual MediaType GetMediaType() OVERRIDE;
   virtual MediaStateFlags GetMediaStateFlags() OVERRIDE;
   virtual CefString GetSelectionText() OVERRIDE;
+  virtual CefString GetMisspelledWord() OVERRIDE;
+  virtual int GetMisspellingHash() OVERRIDE;
+  virtual bool GetDictionarySuggestions(
+      std::vector<CefString>& suggestions) OVERRIDE;
   virtual bool IsEditable() OVERRIDE;
+  virtual bool IsSpellCheckEnabled() OVERRIDE;
   virtual EditStateFlags GetEditStateFlags() OVERRIDE;
 };
 

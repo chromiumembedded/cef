@@ -13,6 +13,7 @@
 #include "base/bind.h"
 #include "base/logging.h"
 #include "base/threading/thread.h"
+#include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/storage_partition.h"
@@ -59,6 +60,10 @@ CefBrowserContextProxy::~CefBrowserContextProxy() {
     BrowserThread::DeleteSoon(
         BrowserThread::IO, FROM_HERE, resource_context_.release());
   }
+
+  // Remove any BrowserContextKeyedServiceFactory associations.
+  BrowserContextDependencyManager::GetInstance()->DestroyBrowserContextServices(
+      this);
 }
 
 base::FilePath CefBrowserContextProxy::GetPath() const {

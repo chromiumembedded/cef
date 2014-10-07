@@ -860,6 +860,17 @@ bool CefBrowserHostImpl::IsWindowRenderingDisabled() {
   return IsWindowless();
 }
 
+void CefBrowserHostImpl::ReplaceMisspelling(const CefString& word) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::ReplaceMisspelling, this, word));
+    return;
+  }
+
+  if(web_contents())
+    web_contents()->ReplaceMisspelling(word);
+}
+
 void CefBrowserHostImpl::WasResized() {
   if (!IsWindowless()) {
     NOTREACHED() << "Window rendering is not disabled";

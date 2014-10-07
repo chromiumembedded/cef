@@ -215,6 +215,7 @@ struct ParamTraits<scoped_refptr<net::UploadData> > {
 
 #include "chrome/common/prerender_messages.h"
 #include "chrome/common/print_messages.h"
+#include "chrome/common/spellcheck_messages.h"
 
 #if defined(OS_WIN)
 #include "chrome/common/chrome_utility_printing_messages.h"

@@ -11,6 +11,7 @@
 //
 
 #include "libcef_dll/ctocpp/context_menu_params_ctocpp.h"
+#include "libcef_dll/transfer_util.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -200,6 +201,62 @@ CefString CefContextMenuParamsCToCpp::GetSelectionText() {
   return _retvalStr;
 }
 
+CefString CefContextMenuParamsCToCpp::GetMisspelledWord() {
+  if (CEF_MEMBER_MISSING(struct_, get_misspelled_word))
+    return CefString();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_string_userfree_t _retval = struct_->get_misspelled_word(struct_);
+
+  // Return type: string
+  CefString _retvalStr;
+  _retvalStr.AttachToUserFree(_retval);
+  return _retvalStr;
+}
+
+int CefContextMenuParamsCToCpp::GetMisspellingHash() {
+  if (CEF_MEMBER_MISSING(struct_, get_misspelling_hash))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->get_misspelling_hash(struct_);
+
+  // Return type: simple
+  return _retval;
+}
+
+bool CefContextMenuParamsCToCpp::GetDictionarySuggestions(
+    std::vector<CefString>& suggestions) {
+  if (CEF_MEMBER_MISSING(struct_, get_dictionary_suggestions))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Translate param: suggestions; type: string_vec_byref
+  cef_string_list_t suggestionsList = cef_string_list_alloc();
+  DCHECK(suggestionsList);
+  if (suggestionsList)
+    transfer_string_list_contents(suggestions, suggestionsList);
+
+  // Execute
+  int _retval = struct_->get_dictionary_suggestions(struct_,
+      suggestionsList);
+
+  // Restore param:suggestions; type: string_vec_byref
+  if (suggestionsList) {
+    suggestions.clear();
+    transfer_string_list_contents(suggestionsList, suggestions);
+    cef_string_list_free(suggestionsList);
+  }
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 bool CefContextMenuParamsCToCpp::IsEditable() {
   if (CEF_MEMBER_MISSING(struct_, is_editable))
     return false;
@@ -208,6 +265,19 @@ bool CefContextMenuParamsCToCpp::IsEditable() {
 
   // Execute
   int _retval = struct_->is_editable(struct_);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+bool CefContextMenuParamsCToCpp::IsSpellCheckEnabled() {
+  if (CEF_MEMBER_MISSING(struct_, is_spell_check_enabled))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->is_spell_check_enabled(struct_);
 
   // Return type: bool
   return _retval?true:false;

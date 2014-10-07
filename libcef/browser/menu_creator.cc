@@ -231,6 +231,26 @@ void CefMenuCreator::CreateDefaultModel() {
       model_->SetEnabled(MENU_ID_DELETE, false);
     if (!(params_.edit_flags & CM_EDITFLAG_CAN_SELECT_ALL))
       model_->SetEnabled(MENU_ID_SELECT_ALL, false);
+
+    if(!params_.misspelled_word.empty()) {
+      if (!params_.dictionary_suggestions.empty())
+        model_->AddSeparator();
+
+      for (size_t i = 0;
+           i < params_.dictionary_suggestions.size() &&
+               MENU_ID_SPELLCHECK_SUGGESTION_0 + i <=
+                  MENU_ID_SPELLCHECK_SUGGESTION_LAST;
+           ++i) {
+        model_->AddItem(MENU_ID_SPELLCHECK_SUGGESTION_0 + static_cast<int>(i),
+            params_.dictionary_suggestions[i].c_str());
+      }
+
+      if (params_.dictionary_suggestions.empty()) {
+        model_->AddItem(
+            MENU_ID_NO_SPELLING_SUGGESTIONS,
+            GetLabel(IDS_MENU_NO_SPELLING_SUGGESTIONS));
+      }
+    }
   } else if (!params_.selection_text.empty()) {
     // Something is selected.
     model_->AddItem(MENU_ID_COPY, GetLabel(IDS_MENU_COPY));
@@ -251,6 +271,18 @@ void CefMenuCreator::CreateDefaultModel() {
 }
 
 void CefMenuCreator::ExecuteDefaultCommand(int command_id) {
+  // If the user chose a replacement word for a misspelling, replace it here.
+  if (command_id >= MENU_ID_SPELLCHECK_SUGGESTION_0 &&
+      command_id <= MENU_ID_SPELLCHECK_SUGGESTION_LAST) {
+    const size_t suggestion_index =
+        static_cast<size_t>(command_id) - MENU_ID_SPELLCHECK_SUGGESTION_0;
+    if (suggestion_index < params_.dictionary_suggestions.size()) {
+      browser_->ReplaceMisspelling(
+          params_.dictionary_suggestions[suggestion_index]);
+    }
+    return;
+  }
+
   switch (command_id) {
   // Navigation.
   case MENU_ID_BACK:

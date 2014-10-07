@@ -315,6 +315,23 @@ void CEF_CALLBACK render_handler_update_drag_cursor(
       operation);
 }
 
+void CEF_CALLBACK render_handler_on_scroll_offset_changed(
+    struct _cef_render_handler_t* self, cef_browser_t* browser) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+
+  // Execute
+  CefRenderHandlerCppToC::Get(self)->OnScrollOffsetChanged(
+      CefBrowserCToCpp::Wrap(browser));
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -331,6 +348,8 @@ CefRenderHandlerCppToC::CefRenderHandlerCppToC(CefRenderHandler* cls)
   struct_.struct_.on_cursor_change = render_handler_on_cursor_change;
   struct_.struct_.start_dragging = render_handler_start_dragging;
   struct_.struct_.update_drag_cursor = render_handler_update_drag_cursor;
+  struct_.struct_.on_scroll_offset_changed =
+      render_handler_on_scroll_offset_changed;
 }
 
 #ifndef NDEBUG

@@ -409,12 +409,24 @@ void CefMainDelegate::PreSandboxStartup() {
 #endif
   }
 
-#if defined(OS_MACOSX)
   if (!command_line.HasSwitch(switches::kProcessType)) {
-    // Only override the child process path when executing the main process.
+    // Only these paths when executing the main process.
+#if defined(OS_MACOSX)
     OverrideChildProcessPath();
-  }
 #endif
+
+    // Paths used to locate spell checking dictionary files.
+    // TODO(cef): It may be better to use a persistent location for
+    // DIR_USER_DATA. See the implementation of GetDefaultUserDataDirectory in
+    // chrome/common/chrome_paths_*.
+    const base::FilePath& cache_path = CefContext::Get()->cache_path();
+    PathService::Override(chrome::DIR_USER_DATA, cache_path);
+    PathService::OverrideAndCreateIfNeeded(
+        chrome::DIR_APP_DICTIONARIES,
+        cache_path.AppendASCII("Dictionaries"),
+        false,  // May not be an absolute path.
+        true);  // Create if necessary.
+  }
 
   OverridePdfPluginPath();
 

@@ -11,6 +11,7 @@
 //
 
 #include "libcef_dll/cpptoc/context_menu_params_cpptoc.h"
+#include "libcef_dll/transfer_util.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
@@ -214,6 +215,66 @@ cef_string_userfree_t CEF_CALLBACK context_menu_params_get_selection_text(
   return _retval.DetachToUserFree();
 }
 
+cef_string_userfree_t CEF_CALLBACK context_menu_params_get_misspelled_word(
+    struct _cef_context_menu_params_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefString _retval = CefContextMenuParamsCppToC::Get(self)->GetMisspelledWord(
+      );
+
+  // Return type: string
+  return _retval.DetachToUserFree();
+}
+
+int CEF_CALLBACK context_menu_params_get_misspelling_hash(
+    struct _cef_context_menu_params_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  int _retval = CefContextMenuParamsCppToC::Get(self)->GetMisspellingHash();
+
+  // Return type: simple
+  return _retval;
+}
+
+int CEF_CALLBACK context_menu_params_get_dictionary_suggestions(
+    struct _cef_context_menu_params_t* self, cef_string_list_t suggestions) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: suggestions; type: string_vec_byref
+  DCHECK(suggestions);
+  if (!suggestions)
+    return 0;
+
+  // Translate param: suggestions; type: string_vec_byref
+  std::vector<CefString> suggestionsList;
+  transfer_string_list_contents(suggestions, suggestionsList);
+
+  // Execute
+  bool _retval = CefContextMenuParamsCppToC::Get(
+      self)->GetDictionarySuggestions(
+      suggestionsList);
+
+  // Restore param: suggestions; type: string_vec_byref
+  cef_string_list_clear(suggestions);
+  transfer_string_list_contents(suggestionsList, suggestions);
+
+  // Return type: bool
+  return _retval;
+}
+
 int CEF_CALLBACK context_menu_params_is_editable(
     struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -224,6 +285,21 @@ int CEF_CALLBACK context_menu_params_is_editable(
 
   // Execute
   bool _retval = CefContextMenuParamsCppToC::Get(self)->IsEditable();
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK context_menu_params_is_spell_check_enabled(
+    struct _cef_context_menu_params_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefContextMenuParamsCppToC::Get(self)->IsSpellCheckEnabled();
 
   // Return type: bool
   return _retval;
@@ -267,7 +343,14 @@ CefContextMenuParamsCppToC::CefContextMenuParamsCppToC(
   struct_.struct_.get_media_state_flags =
       context_menu_params_get_media_state_flags;
   struct_.struct_.get_selection_text = context_menu_params_get_selection_text;
+  struct_.struct_.get_misspelled_word = context_menu_params_get_misspelled_word;
+  struct_.struct_.get_misspelling_hash =
+      context_menu_params_get_misspelling_hash;
+  struct_.struct_.get_dictionary_suggestions =
+      context_menu_params_get_dictionary_suggestions;
   struct_.struct_.is_editable = context_menu_params_is_editable;
+  struct_.struct_.is_spell_check_enabled =
+      context_menu_params_is_spell_check_enabled;
   struct_.struct_.get_edit_state_flags =
       context_menu_params_get_edit_state_flags;
 }

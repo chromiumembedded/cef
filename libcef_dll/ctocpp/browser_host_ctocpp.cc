@@ -331,6 +331,22 @@ bool CefBrowserHostCToCpp::IsMouseCursorChangeDisabled() {
   return _retval?true:false;
 }
 
+void CefBrowserHostCToCpp::ReplaceMisspelling(const CefString& word) {
+  if (CEF_MEMBER_MISSING(struct_, replace_misspelling))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: word; type: string_byref_const
+  DCHECK(!word.empty());
+  if (word.empty())
+    return;
+
+  // Execute
+  struct_->replace_misspelling(struct_,
+      word.GetStruct());
+}
+
 bool CefBrowserHostCToCpp::IsWindowRenderingDisabled() {
   if (CEF_MEMBER_MISSING(struct_, is_window_rendering_disabled))
     return false;

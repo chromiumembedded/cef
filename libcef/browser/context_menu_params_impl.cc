@@ -95,9 +95,42 @@ CefString CefContextMenuParamsImpl::GetSelectionText() {
   return const_value().selection_text;
 }
 
+CefString CefContextMenuParamsImpl::GetMisspelledWord() {
+  CEF_VALUE_VERIFY_RETURN(false, CefString());
+  return const_value().misspelled_word;
+}
+
+int CefContextMenuParamsImpl::GetMisspellingHash() {
+  CEF_VALUE_VERIFY_RETURN(false, 0);
+  return const_value().misspelling_hash;
+}
+
+bool CefContextMenuParamsImpl::GetDictionarySuggestions(
+    std::vector<CefString>& suggestions) {
+  CEF_VALUE_VERIFY_RETURN(false, false);
+
+  if (!suggestions.empty())
+    suggestions.clear();
+
+  if(const_value().dictionary_suggestions.empty())
+    return false;
+
+  std::vector<base::string16>::const_iterator it =
+      const_value().dictionary_suggestions.begin();
+  for (; it != const_value().dictionary_suggestions.end(); ++it)
+    suggestions.push_back(*it);
+
+  return true;
+}
+
 bool CefContextMenuParamsImpl::IsEditable() {
   CEF_VALUE_VERIFY_RETURN(false, false);
   return const_value().is_editable;
+}
+
+bool CefContextMenuParamsImpl::IsSpellCheckEnabled() {
+  CEF_VALUE_VERIFY_RETURN(false, false);
+  return const_value().spellcheck_enabled;
 }
 
 CefContextMenuParamsImpl::EditStateFlags
