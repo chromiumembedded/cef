@@ -77,9 +77,7 @@ need to be translated for each locale.-->
     <output filename="cef_strings_lv.pak" type="data_package" lang="lv" />
     <output filename="cef_strings_ml.pak" type="data_package" lang="ml" />
     <output filename="cef_strings_mr.pak" type="data_package" lang="mr" />
-    <if expr="pp_ifdef('use_third_party_translations')">
-      <output filename="cef_strings_ms.pak" type="data_package" lang="ms" />
-    </if>
+    <output filename="cef_strings_ms.pak" type="data_package" lang="ms" />
     <output filename="cef_strings_nl.pak" type="data_package" lang="nl" />
     <!-- The translation console uses 'no' for Norwegian Bokmål. It should
          be 'nb'. -->
@@ -109,49 +107,71 @@ need to be translated for each locale.-->
   <translations>
     <file path="../../../chrome/app/resources/generated_resources_am.xtb" lang="am" />
     <file path="../../../chrome/app/resources/generated_resources_ar.xtb" lang="ar" />
-    <file path="../../../third_party/launchpad_translations/generated_resources_ast.xtb" lang="ast" />
+    <if expr="use_third_party_translations">
+      <file path="../../../third_party/launchpad_translations/generated_resources_ast.xtb" lang="ast" />
+    </if>
     <file path="../../../chrome/app/resources/generated_resources_bg.xtb" lang="bg" />
     <file path="../../../chrome/app/resources/generated_resources_bn.xtb" lang="bn" />
-    <file path="../../../third_party/launchpad_translations/generated_resources_bs.xtb" lang="bs" />
+    <if expr="use_third_party_translations">
+      <file path="../../../third_party/launchpad_translations/generated_resources_bs.xtb" lang="bs" />
+    </if>
     <file path="../../../chrome/app/resources/generated_resources_ca.xtb" lang="ca" />
-    <file path="../../../third_party/launchpad_translations/generated_resources_ca-valencia.xtb" lang="ca@valencia" />
+    <if expr="use_third_party_translations">
+      <file path="../../../third_party/launchpad_translations/generated_resources_ca-valencia.xtb" lang="ca@valencia" />
+    </if>
     <file path="../../../chrome/app/resources/generated_resources_cs.xtb" lang="cs" />
     <file path="../../../chrome/app/resources/generated_resources_da.xtb" lang="da" />
     <file path="../../../chrome/app/resources/generated_resources_de.xtb" lang="de" />
     <file path="../../../chrome/app/resources/generated_resources_el.xtb" lang="el" />
-    <file path="../../../third_party/launchpad_translations/generated_resources_en-AU.xtb" lang="en-AU" />
+    <if expr="use_third_party_translations">
+      <file path="../../../third_party/launchpad_translations/generated_resources_en-AU.xtb" lang="en-AU" />
+    </if>
     <file path="../../../chrome/app/resources/generated_resources_en-GB.xtb" lang="en-GB" />
-    <file path="../../../third_party/launchpad_translations/generated_resources_eo.xtb" lang="eo" />
+    <if expr="use_third_party_translations">
+      <file path="../../../third_party/launchpad_translations/generated_resources_eo.xtb" lang="eo" />
+    </if>
     <file path="../../../chrome/app/resources/generated_resources_es.xtb" lang="es" />
     <file path="../../../chrome/app/resources/generated_resources_es-419.xtb" lang="es-419" />
     <file path="../../../chrome/app/resources/generated_resources_et.xtb" lang="et" />
-    <file path="../../../third_party/launchpad_translations/generated_resources_eu.xtb" lang="eu" />
+    <if expr="use_third_party_translations">
+      <file path="../../../third_party/launchpad_translations/generated_resources_eu.xtb" lang="eu" />
+    </if>
     <file path="../../../chrome/app/resources/generated_resources_fa.xtb" lang="fa" />
     <file path="../../../chrome/app/resources/generated_resources_fi.xtb" lang="fi" />
     <file path="../../../chrome/app/resources/generated_resources_fil.xtb" lang="fil" />
     <file path="../../../chrome/app/resources/generated_resources_fr.xtb" lang="fr" />
-    <file path="../../../third_party/launchpad_translations/generated_resources_gl.xtb" lang="gl" />
+    <if expr="use_third_party_translations">
+      <file path="../../../third_party/launchpad_translations/generated_resources_gl.xtb" lang="gl" />
+    </if>
     <file path="../../../chrome/app/resources/generated_resources_gu.xtb" lang="gu" />
     <file path="../../../chrome/app/resources/generated_resources_hi.xtb" lang="hi" />
     <file path="../../../chrome/app/resources/generated_resources_hr.xtb" lang="hr" />
     <file path="../../../chrome/app/resources/generated_resources_hu.xtb" lang="hu" />
-    <file path="../../../third_party/launchpad_translations/generated_resources_hy.xtb" lang="hy" />
-    <file path="../../../third_party/launchpad_translations/generated_resources_ia.xtb" lang="ia" />
+    <if expr="use_third_party_translations">
+      <file path="../../../third_party/launchpad_translations/generated_resources_hy.xtb" lang="hy" />
+      <file path="../../../third_party/launchpad_translations/generated_resources_ia.xtb" lang="ia" />
+    </if>
     <file path="../../../chrome/app/resources/generated_resources_id.xtb" lang="id" />
     <file path="../../../chrome/app/resources/generated_resources_it.xtb" lang="it" />
     <!-- The translation console uses 'iw' for Hebrew, but we use 'he'. -->
     <file path="../../../chrome/app/resources/generated_resources_iw.xtb" lang="he" />
     <file path="../../../chrome/app/resources/generated_resources_ja.xtb" lang="ja" />
-    <file path="../../../third_party/launchpad_translations/generated_resources_ka.xtb" lang="ka" />
+    <if expr="use_third_party_translations">
+      <file path="../../../third_party/launchpad_translations/generated_resources_ka.xtb" lang="ka" />
+    </if>
     <file path="../../../chrome/app/resources/generated_resources_kn.xtb" lang="kn" />
     <file path="../../../chrome/app/resources/generated_resources_ko.xtb" lang="ko" />
-    <file path="../../../third_party/launchpad_translations/generated_resources_ku.xtb" lang="ku" />
-    <file path="../../../third_party/launchpad_translations/generated_resources_kw.xtb" lang="kw" />
+    <if expr="use_third_party_translations">
+      <file path="../../../third_party/launchpad_translations/generated_resources_ku.xtb" lang="ku" />
+      <file path="../../../third_party/launchpad_translations/generated_resources_kw.xtb" lang="kw" />
+    </if>
     <file path="../../../chrome/app/resources/generated_resources_lt.xtb" lang="lt" />
     <file path="../../../chrome/app/resources/generated_resources_lv.xtb" lang="lv" />
     <file path="../../../chrome/app/resources/generated_resources_ml.xtb" lang="ml" />
     <file path="../../../chrome/app/resources/generated_resources_mr.xtb" lang="mr" />
-    <file path="../../../third_party/launchpad_translations/generated_resources_ms.xtb" lang="ms" />
+    <if expr="use_third_party_translations">
+      <file path="../../../third_party/launchpad_translations/generated_resources_ms.xtb" lang="ms" />
+    </if>
     <file path="../../../chrome/app/resources/generated_resources_nl.xtb" lang="nl" />
     <file path="../../../chrome/app/resources/generated_resources_no.xtb" lang="no" />
     <file path="../../../chrome/app/resources/generated_resources_pl.xtb" lang="pl" />
@@ -168,7 +188,9 @@ need to be translated for each locale.-->
     <file path="../../../chrome/app/resources/generated_resources_te.xtb" lang="te" />
     <file path="../../../chrome/app/resources/generated_resources_th.xtb" lang="th" />
     <file path="../../../chrome/app/resources/generated_resources_tr.xtb" lang="tr" />
-    <file path="../../../third_party/launchpad_translations/generated_resources_ug.xtb" lang="ug" />
+    <if expr="use_third_party_translations">
+      <file path="../../../third_party/launchpad_translations/generated_resources_ug.xtb" lang="ug" />
+    </if>
     <file path="../../../chrome/app/resources/generated_resources_uk.xtb" lang="uk" />
     <file path="../../../chrome/app/resources/generated_resources_vi.xtb" lang="vi" />
     <file path="../../../chrome/app/resources/generated_resources_zh-CN.xtb" lang="zh-CN" />
