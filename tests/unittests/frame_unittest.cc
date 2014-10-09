@@ -1276,9 +1276,9 @@ std::string GetMultiNavURL(const std::string& origin, int nav) {
 
 // Extract the nav number from the URL.
 int GetNavFromMultiNavURL(const std::string& url) {
-  const int start = url.find("/nav");
-  const int end = url.find(".html", start);
-  EXPECT_TRUE(start < end && start > 0);
+  const size_t start = url.find("/nav");
+  const size_t end = url.find(".html", start);
+  EXPECT_TRUE(start < end && start > 0U);
   const std::string& nav = url.substr(start + 4, end - start - 4);
   return atoi(nav.c_str());
 }
