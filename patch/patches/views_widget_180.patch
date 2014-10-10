@@ -26,7 +26,7 @@ index f4c03da..bb253cf 100644
    //
    // You'd think we'd be able to just call window->GetBoundsInScreen(), but we
 diff --git desktop_aura/desktop_window_tree_host_win.cc desktop_aura/desktop_window_tree_host_win.cc
-index 84ff9e6..4464b8d 100644
+index d184ae4..92ffd42 100644
 --- desktop_aura/desktop_window_tree_host_win.cc
 +++ desktop_aura/desktop_window_tree_host_win.cc
 @@ -131,7 +131,9 @@ void DesktopWindowTreeHostWin::Init(aura::Window* content_window,
@@ -40,7 +40,7 @@ index 84ff9e6..4464b8d 100644
      parent_hwnd = params.parent->GetHost()->GetAcceleratedWidget();
  
    message_handler_->set_remove_standard_frame(params.remove_standard_frame);
-@@ -814,6 +816,7 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -822,6 +824,7 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
    // TODO(beng): inform the native_widget_delegate_.
@@ -48,7 +48,7 @@ index 84ff9e6..4464b8d 100644
    InputMethod* input_method = GetInputMethod();
    if (input_method)
      input_method->OnFocus();
-@@ -821,6 +824,7 @@ void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
+@@ -829,6 +832,7 @@ void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
  
  void DesktopWindowTreeHostWin::HandleNativeBlur(HWND focused_window) {
    // TODO(beng): inform the native_widget_delegate_.
@@ -57,15 +57,15 @@ index 84ff9e6..4464b8d 100644
    if (input_method)
      input_method->OnBlur();
 diff --git desktop_aura/desktop_window_tree_host_x11.cc desktop_aura/desktop_window_tree_host_x11.cc
-index 15c51a0..7d2503d 100644
+index 9831992..081a56a0 100644
 --- desktop_aura/desktop_window_tree_host_x11.cc
 +++ desktop_aura/desktop_window_tree_host_x11.cc
 @@ -147,7 +147,8 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
-       window_parent_(NULL),
        window_shape_(NULL),
        custom_window_shape_(false),
--      urgency_hint_set_(false) {
-+      urgency_hint_set_(false),
+       urgency_hint_set_(false),
+-      close_widget_factory_(this) {
++      close_widget_factory_(this),
 +      xwindow_destroyed_(false) {
  }
  
@@ -98,7 +98,7 @@ index 15c51a0..7d2503d 100644
    return bounds_;
  }
  
-@@ -929,6 +935,8 @@ void DesktopWindowTreeHostX11::SetBounds(const gfx::Rect& requested_bounds) {
+@@ -933,6 +939,8 @@ void DesktopWindowTreeHostX11::SetBounds(const gfx::Rect& requested_bounds) {
  }
  
  gfx::Point DesktopWindowTreeHostX11::GetLocationOnNativeScreen() const {
@@ -107,7 +107,7 @@ index 15c51a0..7d2503d 100644
    return bounds_.origin();
  }
  
-@@ -1081,10 +1089,14 @@ void DesktopWindowTreeHostX11::InitX11Window(
+@@ -1085,10 +1093,14 @@ void DesktopWindowTreeHostX11::InitX11Window(
      }
    }
  
@@ -123,7 +123,7 @@ index 15c51a0..7d2503d 100644
        bounds_.x(), bounds_.y(),
        bounds_.width(), bounds_.height(),
        0,               // border width
-@@ -1702,6 +1714,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
+@@ -1706,6 +1718,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
        }
        break;
      }
@@ -135,7 +135,7 @@ index 15c51a0..7d2503d 100644
        if (xev->xfocus.mode != NotifyGrab) {
          ReleaseCapture();
 diff --git desktop_aura/desktop_window_tree_host_x11.h desktop_aura/desktop_window_tree_host_x11.h
-index 12bd9a1..8191a25 100644
+index 8a5e51f..4d5a777 100644
 --- desktop_aura/desktop_window_tree_host_x11.h
 +++ desktop_aura/desktop_window_tree_host_x11.h
 @@ -85,6 +85,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
@@ -147,7 +147,7 @@ index 12bd9a1..8191a25 100644
   protected:
    // Overridden from DesktopWindowTreeHost:
    virtual void Init(aura::Window* content_window,
-@@ -257,6 +259,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
+@@ -256,6 +258,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
    // The bounds of |xwindow_|.
    gfx::Rect bounds_;
  
@@ -157,9 +157,9 @@ index 12bd9a1..8191a25 100644
    // Whenever the bounds are set, we keep the previous set of bounds around so
    // we can have a better chance of getting the real |restored_bounds_|. Window
    // managers tend to send a Configure message with the maximized bounds, and
-@@ -339,6 +344,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
+@@ -340,6 +345,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
  
-   base::CancelableCallback<void()> delayed_resize_task_;
+   base::WeakPtrFactory<DesktopWindowTreeHostX11> close_widget_factory_;
  
 +  // True if the xwindow has already been destroyed.
 +  bool xwindow_destroyed_;

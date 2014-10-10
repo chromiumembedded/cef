@@ -1972,7 +1972,6 @@ void CefBrowserHostImpl::CloseContents(content::WebContents* source) {
 }
 
 void CefBrowserHostImpl::UpdateTargetURL(content::WebContents* source,
-                                         int32 page_id,
                                          const GURL& url) {
   if (client_.get()) {
     CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();

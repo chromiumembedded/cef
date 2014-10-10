@@ -343,7 +343,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
                                    bool to_different_document) OVERRIDE;
   virtual void CloseContents(content::WebContents* source) OVERRIDE;
   virtual void UpdateTargetURL(content::WebContents* source,
-                               int32 page_id,
                                const GURL& url) OVERRIDE;
   virtual bool AddMessageToConsole(content::WebContents* source,
                                    int32 level,

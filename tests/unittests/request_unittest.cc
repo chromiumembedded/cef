@@ -234,9 +234,7 @@ static struct TypeExpected {
   {"script.js", true, false, TT_LINK, RT_SCRIPT, 1},
 
   // Image load.
-  // TODO(cef): Should be RT_IMAGE, see http://crbug.com/415253#c23 for the
-  // regression source.
-  {"image.png", true, false, TT_LINK, RT_PREFETCH, 1},
+  {"image.png", true, false, TT_LINK, RT_IMAGE, 1},
 
   // Font load.
   {"font.ttf", true, false, TT_LINK, RT_FONT_RESOURCE, 1},

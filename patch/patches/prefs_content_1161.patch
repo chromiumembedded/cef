@@ -35,10 +35,10 @@ index b0a95ca..8c0781e 100644
    bool v8_script_streaming_enabled;
  
 diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
-index 02d10eef..ba5cf0c 100644
+index b931da5..73b30b4 100644
 --- renderer/render_view_impl.cc
 +++ renderer/render_view_impl.cc
-@@ -969,6 +969,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+@@ -971,6 +971,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
  
    settings->setJavaEnabled(prefs.java_enabled);
  

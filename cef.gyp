@@ -737,7 +737,7 @@
           'variables': {
             'pak_inputs': [
               '<(SHARED_INTERMEDIATE_DIR)/blink/public/resources/blink_resources.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/components/component_resources.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/components/components_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
               '<(grit_out_dir)/cef_resources.pak',
@@ -750,7 +750,7 @@
           'action_name': 'repack_cef_100_percent_pack',
           'variables': {
             'pak_inputs': [
-              '<(SHARED_INTERMEDIATE_DIR)/components/component_resources_100_percent.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/components/components_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/app/resources/content_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/resources/ui_resources_100_percent.pak',
             ],
@@ -762,7 +762,7 @@
           'action_name': 'repack_cef_200_percent_pack',
           'variables': {
             'pak_inputs': [
-              '<(SHARED_INTERMEDIATE_DIR)/components/component_resources_200_percent.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/components/components_resources_200_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/app/resources/content_resources_200_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/resources/ui_resources_200_percent.pak',
             ],

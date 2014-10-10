@@ -624,6 +624,13 @@ content::BrowserAccessibilityManager*
   return NULL;
 }
 
+#if defined(TOOLKIT_VIEWS) || defined(USE_AURA)
+void CefRenderWidgetHostViewOSR::ShowDisambiguationPopup(
+    const gfx::Rect& rect_pixels,
+    const SkBitmap& zoomed_bitmap) {
+}
+#endif
+
 #if !defined(OS_MACOSX) && defined(USE_AURA)
 void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
     const gfx::Range& range,

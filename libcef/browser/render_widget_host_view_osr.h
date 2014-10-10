@@ -171,6 +171,11 @@ class CefRenderWidgetHostViewOSR
       CreateBrowserAccessibilityManager(
           content::BrowserAccessibilityDelegate* delegate) OVERRIDE;
 
+#if defined(TOOLKIT_VIEWS) || defined(USE_AURA)
+  virtual void ShowDisambiguationPopup(const gfx::Rect& rect_pixels,
+                                       const SkBitmap& zoomed_bitmap) OVERRIDE;
+#endif
+
 #if defined(OS_MACOSX)
   virtual bool PostProcessEventForPluginIme(
       const content::NativeWebKeyboardEvent& event) OVERRIDE;

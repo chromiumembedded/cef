@@ -1,17 +1,16 @@
 diff --git compositor/io_surface_layer_mac.mm compositor/io_surface_layer_mac.mm
-index bdb3abf..523d372 100644
+index 357c65e..371e3c4 100644
 --- compositor/io_surface_layer_mac.mm
 +++ compositor/io_surface_layer_mac.mm
-@@ -435,7 +435,7 @@ void IOSurfaceLayerHelper::TimerFired() {
-         logging::LOG_ERROR,
-         "IOSurfaceLayer",
-         std::string("No texture to draw, clearing to white"));
+@@ -295,7 +295,7 @@ void IOSurfaceLayerHelper::EndPumpingFrames() {
+   TRACE_EVENT0("browser", "IOSurfaceLayer::drawInCGLContext");
+ 
+   if (!iosurface_->HasIOSurface() || context_->cgl_context() != glContext) {
 -    glClearColor(1, 1, 1, 1);
 +    glClearColor(0, 0, 0, 0);
      glClear(GL_COLOR_BUFFER_BIT);
+     return;
    }
- 
-
 diff --git renderer_host/compositing_iosurface_mac.mm renderer_host/compositing_iosurface_mac.mm
 index ba67fc9..2c6a410 100644
 --- renderer_host/compositing_iosurface_mac.mm
@@ -26,10 +25,10 @@ index ba67fc9..2c6a410 100644
    }
  
 diff --git renderer_host/render_widget_host_view_aura.cc renderer_host/render_widget_host_view_aura.cc
-index a59880e..e57a421 100644
+index 6ad6e41..9f33679 100644
 --- renderer_host/render_widget_host_view_aura.cc
 +++ renderer_host/render_widget_host_view_aura.cc
-@@ -1622,8 +1622,14 @@ void RenderWidgetHostViewAura::OnPaint(gfx::Canvas* canvas) {
+@@ -1706,8 +1706,14 @@ void RenderWidgetHostViewAura::OnPaint(gfx::Canvas* canvas) {
    // For non-opaque windows, we don't draw anything, since we depend on the
    // canvas coming from the compositor to already be initialized as
    // transparent.
