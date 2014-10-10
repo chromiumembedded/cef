@@ -1,0 +1,296 @@
+diff --git chrome/common/chrome_utility_printing_messages.h chrome/common/chrome_utility_printing_messages.h
+index d5ddd6e..7d90287 100644
+--- chrome/common/chrome_utility_printing_messages.h
++++ chrome/common/chrome_utility_printing_messages.h
+@@ -16,8 +16,8 @@
+ 
+ #define IPC_MESSAGE_START ChromeUtilityPrintingMsgStart
+ 
++// Preview and Cloud Print messages.
+ #if defined(ENABLE_FULL_PRINTING)
+-
+ IPC_STRUCT_TRAITS_BEGIN(printing::PrinterCapsAndDefaults)
+   IPC_STRUCT_TRAITS_MEMBER(printer_capabilities)
+   IPC_STRUCT_TRAITS_MEMBER(caps_mime_type)
+@@ -61,23 +61,6 @@ IPC_STRUCT_TRAITS_END()
+ // Utility process messages:
+ // These are messages from the browser to the utility process.
+ 
+-#if defined(OS_WIN)
+-// Tell the utility process to start rendering the given PDF into a metafile.
+-// Utility process would be alive until
+-// ChromeUtilityMsg_RenderPDFPagesToMetafiles_Stop message.
+-IPC_MESSAGE_CONTROL2(ChromeUtilityMsg_RenderPDFPagesToMetafiles,
+-                     IPC::PlatformFileForTransit, /* input_file */
+-                     printing::PdfRenderSettings /* settings */)
+-
+-// Requests conversion of the next page.
+-IPC_MESSAGE_CONTROL2(ChromeUtilityMsg_RenderPDFPagesToMetafiles_GetPage,
+-                     int /* page_number */,
+-                     IPC::PlatformFileForTransit /* output_file */)
+-
+-// Requests utility process to stop conversion and exit.
+-IPC_MESSAGE_CONTROL0(ChromeUtilityMsg_RenderPDFPagesToMetafiles_Stop)
+-#endif  // OS_WIN
+-
+ // Tell the utility process to render the given PDF into a PWGRaster.
+ IPC_MESSAGE_CONTROL4(ChromeUtilityMsg_RenderPDFPagesToPWGRaster,
+                      IPC::PlatformFileForTransit, /* Input PDF file */
+@@ -99,23 +82,32 @@ IPC_MESSAGE_CONTROL1(ChromeUtilityMsg_GetPrinterCapsAndDefaults,
+ // sandbox. Returns result as printing::PrinterSemanticCapsAndDefaults.
+ IPC_MESSAGE_CONTROL1(ChromeUtilityMsg_GetPrinterSemanticCapsAndDefaults,
+                      std::string /* printer name */)
++#endif  // ENABLE_FULL_PRINTING
++
++// Windows uses messages for printing even without preview. crbug.com/170859
++// Primary user of Windows without preview is CEF. crbug.com/417967
++#if defined(ENABLE_PRINTING) && defined(OS_WIN)
++// Tell the utility process to start rendering the given PDF into a metafile.
++// Utility process would be alive until
++// ChromeUtilityMsg_RenderPDFPagesToMetafiles_Stop message.
++IPC_MESSAGE_CONTROL2(ChromeUtilityMsg_RenderPDFPagesToMetafiles,
++                     IPC::PlatformFileForTransit, /* input_file */
++                     printing::PdfRenderSettings /* settings */)
++
++// Requests conversion of the next page.
++IPC_MESSAGE_CONTROL2(ChromeUtilityMsg_RenderPDFPagesToMetafiles_GetPage,
++                     int /* page_number */,
++                     IPC::PlatformFileForTransit /* output_file */)
++
++// Requests utility process to stop conversion and exit.
++IPC_MESSAGE_CONTROL0(ChromeUtilityMsg_RenderPDFPagesToMetafiles_Stop)
++#endif  // ENABLE_PRINTING && OS_WIN
+ 
+ //------------------------------------------------------------------------------
+ // Utility process host messages:
+ // These are messages from the utility process to the browser.
+ 
+-#if defined(OS_WIN)
+-// Reply when the utility process loaded PDF. |page_count| is 0, if loading
+-// failed.
+-IPC_MESSAGE_CONTROL1(ChromeUtilityHostMsg_RenderPDFPagesToMetafiles_PageCount,
+-                     int /* page_count */)
+-
+-// Reply when the utility process rendered the PDF page.
+-IPC_MESSAGE_CONTROL2(ChromeUtilityHostMsg_RenderPDFPagesToMetafiles_PageDone,
+-                     bool /* success */,
+-                     double /* scale_factor */)
+-#endif  // OS_WIN
+-
++#if defined(ENABLE_FULL_PRINTING)
+ // Reply when the utility process has succeeded in rendering the PDF to PWG.
+ IPC_MESSAGE_CONTROL0(ChromeUtilityHostMsg_RenderPDFPagesToPWGRaster_Succeeded)
+ 
+@@ -145,5 +137,16 @@ IPC_MESSAGE_CONTROL1(ChromeUtilityHostMsg_GetPrinterCapsAndDefaults_Failed,
+ IPC_MESSAGE_CONTROL1(
+   ChromeUtilityHostMsg_GetPrinterSemanticCapsAndDefaults_Failed,
+   std::string /* printer name */)
+-
+ #endif  // ENABLE_FULL_PRINTING
++
++#if defined(ENABLE_PRINTING) && defined(OS_WIN)
++// Reply when the utility process loaded PDF. |page_count| is 0, if loading
++// failed.
++IPC_MESSAGE_CONTROL1(ChromeUtilityHostMsg_RenderPDFPagesToMetafiles_PageCount,
++                     int /* page_count */)
++
++// Reply when the utility process rendered the PDF page.
++IPC_MESSAGE_CONTROL2(ChromeUtilityHostMsg_RenderPDFPagesToMetafiles_PageDone,
++                     bool /* success */,
++                     double /* scale_factor */)
++#endif  // ENABLE_PRINTING && OS_WIN
+diff --git content/renderer/pepper/pepper_plugin_instance_impl.cc content/renderer/pepper/pepper_plugin_instance_impl.cc
+index e9b9a69..7b8eac1 100644
+--- content/renderer/pepper/pepper_plugin_instance_impl.cc
++++ content/renderer/pepper/pepper_plugin_instance_impl.cc
+@@ -94,9 +94,7 @@
+ #include "ppapi/thunk/ppb_buffer_api.h"
+ #include "printing/metafile_skia_wrapper.h"
+ #include "printing/pdf_metafile_skia.h"
+-#include "printing/units.h"
+ #include "skia/ext/platform_canvas.h"
+-#include "skia/ext/platform_device.h"
+ #include "third_party/WebKit/public/platform/WebCursorInfo.h"
+ #include "third_party/WebKit/public/platform/WebGamepads.h"
+ #include "third_party/WebKit/public/platform/WebRect.h"
+@@ -120,13 +118,9 @@
+ #include "third_party/WebKit/public/web/WebUserGestureIndicator.h"
+ #include "third_party/WebKit/public/web/WebView.h"
+ #include "third_party/khronos/GLES2/gl2.h"
+-#include "third_party/skia/include/core/SkCanvas.h"
+-#include "third_party/skia/include/core/SkRect.h"
+ #include "ui/gfx/image/image_skia.h"
+ #include "ui/gfx/image/image_skia_rep.h"
+ #include "ui/gfx/range/range.h"
+-#include "ui/gfx/rect_conversions.h"
+-#include "ui/gfx/scoped_ns_graphics_context_save_gstate_mac.h"
+ #include "v8/include/v8.h"
+ 
+ #if defined(OS_CHROMEOS)
+@@ -137,8 +131,6 @@
+ #include "base/metrics/histogram.h"
+ #include "base/win/windows_version.h"
+ #include "skia/ext/platform_canvas.h"
+-#include "ui/gfx/codec/jpeg_codec.h"
+-#include "ui/gfx/gdi_util.h"
+ #endif
+ 
+ using base::StringPrintf;
+@@ -186,35 +178,6 @@ using blink::WebView;
+ 
+ namespace content {
+ 
+-#if defined(OS_WIN)
+-// Exported by pdf.dll
+-typedef bool (*RenderPDFPageToDCProc)(const unsigned char* pdf_buffer,
+-                                      int buffer_size,
+-                                      int page_number,
+-                                      HDC dc,
+-                                      int dpi_x,
+-                                      int dpi_y,
+-                                      int bounds_origin_x,
+-                                      int bounds_origin_y,
+-                                      int bounds_width,
+-                                      int bounds_height,
+-                                      bool fit_to_bounds,
+-                                      bool stretch_to_bounds,
+-                                      bool keep_aspect_ratio,
+-                                      bool center_in_bounds,
+-                                      bool autorotate);
+-
+-void DrawEmptyRectangle(HDC dc) {
+-  // TODO(sanjeevr): This is a temporary hack. If we output a JPEG
+-  // to the EMF, the EnumEnhMetaFile call fails in the browser
+-  // process. The failure also happens if we output nothing here.
+-  // We need to investigate the reason for this failure and fix it.
+-  // In the meantime this temporary hack of drawing an empty
+-  // rectangle in the DC gets us by.
+-  Rectangle(dc, 0, 0, 0, 0);
+-}
+-#endif  // defined(OS_WIN)
+-
+ namespace {
+ 
+ // Check PP_TextInput_Type and ui::TextInputType are kept in sync.
+@@ -1787,7 +1750,7 @@ int PepperPluginInstanceImpl::PrintBegin(const WebPrintParams& print_params) {
+ 
+ bool PepperPluginInstanceImpl::PrintPage(int page_number,
+                                          blink::WebCanvas* canvas) {
+-#if defined(ENABLE_FULL_PRINTING)
++#if defined(ENABLE_PRINTING)
+   DCHECK(plugin_print_interface_);
+   PP_PrintPageNumberRange_Dev page_range;
+   page_range.first_page_number = page_range.last_page_number = page_number;
+@@ -1804,7 +1767,7 @@ bool PepperPluginInstanceImpl::PrintPage(int page_number,
+   } else {
+     return PrintPageHelper(&page_range, 1, canvas);
+   }
+-#else  // defined(ENABLED_PRINTING)
++#else  // ENABLE_PRINTING
+   return false;
+ #endif
+ }
+@@ -1971,7 +1934,7 @@ bool PepperPluginInstanceImpl::IsViewAccelerated() {
+ 
+ bool PepperPluginInstanceImpl::PrintPDFOutput(PP_Resource print_output,
+                                               blink::WebCanvas* canvas) {
+-#if defined(ENABLE_FULL_PRINTING)
++#if defined(ENABLE_PRINTING)
+   ppapi::thunk::EnterResourceNoLock<PPB_Buffer_API> enter(print_output, true);
+   if (enter.failed())
+     return false;
+@@ -1981,91 +1944,15 @@ bool PepperPluginInstanceImpl::PrintPDFOutput(PP_Resource print_output,
+     NOTREACHED();
+     return false;
+   }
+-#if defined(OS_WIN)
+-  // For Windows, we need the PDF DLL to render the output PDF to a DC.
+-  HMODULE pdf_module = GetModuleHandle(L"pdf.dll");
+-  if (!pdf_module)
+-    return false;
+-  RenderPDFPageToDCProc render_proc = reinterpret_cast<RenderPDFPageToDCProc>(
+-      GetProcAddress(pdf_module, "RenderPDFPageToDC"));
+-  if (!render_proc)
+-    return false;
+-#endif  // defined(OS_WIN)
+ 
+-  bool ret = false;
+-#if defined(OS_POSIX) && !defined(OS_ANDROID)
+   printing::PdfMetafileSkia* metafile =
+       printing::MetafileSkiaWrapper::GetMetafileFromCanvas(*canvas);
+-  DCHECK(metafile != NULL);
+   if (metafile)
+-    ret = metafile->InitFromData(mapper.data(), mapper.size());
+-#elif defined(OS_WIN)
+-  printing::PdfMetafileSkia* metafile =
+-      printing::MetafileSkiaWrapper::GetMetafileFromCanvas(*canvas);
+-  if (metafile) {
+-    // We only have a metafile when doing print preview, so we just want to
+-    // pass the PDF off to preview.
+-    ret = metafile->InitFromData(mapper.data(), mapper.size());
+-  } else {
+-    // On Windows, we now need to render the PDF to the DC that backs the
+-    // supplied canvas.
+-    HDC dc = skia::BeginPlatformPaint(canvas);
+-    DrawEmptyRectangle(dc);
+-    gfx::Size size_in_pixels;
+-    size_in_pixels.set_width(
+-        printing::ConvertUnit(current_print_settings_.printable_area.size.width,
+-                              static_cast<int>(printing::kPointsPerInch),
+-                              current_print_settings_.dpi));
+-    size_in_pixels.set_height(printing::ConvertUnit(
+-        current_print_settings_.printable_area.size.height,
+-        static_cast<int>(printing::kPointsPerInch),
+-        current_print_settings_.dpi));
+-    // We need to scale down DC to fit an entire page into DC available area.
+-    // First, we'll try to use default scaling based on the 72dpi that is
+-    // used in webkit for printing.
+-    // If default scaling is not enough to fit the entire PDF without
+-    // Current metafile is based on screen DC and have current screen size.
+-    // Writing outside of those boundaries will result in the cut-off output.
+-    // On metafiles (this is the case here), scaling down will still record
+-    // original coordinates and we'll be able to print in full resolution.
+-    // Before playback we'll need to counter the scaling up that will happen
+-    // in the browser (printed_document_win.cc).
+-    double dynamic_scale = gfx::CalculatePageScale(
+-        dc, size_in_pixels.width(), size_in_pixels.height());
+-    double page_scale = static_cast<double>(printing::kPointsPerInch) /
+-                        static_cast<double>(current_print_settings_.dpi);
+-
+-    if (dynamic_scale < page_scale) {
+-      page_scale = dynamic_scale;
+-      printing::MetafileSkiaWrapper::SetCustomScaleOnCanvas(*canvas,
+-                                                            page_scale);
+-    }
+-
+-    gfx::ScaleDC(dc, page_scale);
+-
+-    ret = render_proc(static_cast<unsigned char*>(mapper.data()),
+-                      mapper.size(),
+-                      0,
+-                      dc,
+-                      current_print_settings_.dpi,
+-                      current_print_settings_.dpi,
+-                      0,
+-                      0,
+-                      size_in_pixels.width(),
+-                      size_in_pixels.height(),
+-                      true,
+-                      false,
+-                      true,
+-                      true,
+-                      true);
+-    skia::EndPlatformPaint(canvas);
+-  }
+-#endif  // defined(OS_WIN)
++    return metafile->InitFromData(mapper.data(), mapper.size());
+ 
+-  return ret;
+-#else  // defined(ENABLE_FULL_PRINTING)
++  NOTREACHED();
++#endif  // ENABLE_PRINTING
+   return false;
+-#endif
+ }
+ 
+ void PepperPluginInstanceImpl::UpdateLayer(bool device_changed) {

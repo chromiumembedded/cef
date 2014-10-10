@@ -1,0 +1,60 @@
+diff --git compositor/io_surface_layer_mac.mm compositor/io_surface_layer_mac.mm
+index 357c65e..371e3c4 100644
+--- compositor/io_surface_layer_mac.mm
++++ compositor/io_surface_layer_mac.mm
+@@ -295,7 +295,7 @@ void IOSurfaceLayerHelper::EndPumpingFrames() {
+   TRACE_EVENT0("browser", "IOSurfaceLayer::drawInCGLContext");
+ 
+   if (!iosurface_->HasIOSurface() || context_->cgl_context() != glContext) {
+-    glClearColor(1, 1, 1, 1);
++    glClearColor(0, 0, 0, 0);
+     glClear(GL_COLOR_BUFFER_BIT);
+     return;
+   }
+diff --git renderer_host/compositing_iosurface_mac.mm renderer_host/compositing_iosurface_mac.mm
+index ba67fc9..2c6a410 100644
+--- renderer_host/compositing_iosurface_mac.mm
++++ renderer_host/compositing_iosurface_mac.mm
+@@ -168,7 +168,7 @@ bool CompositingIOSurfaceMac::DrawIOSurface(
+     CHECK_AND_SAVE_GL_ERROR();
+   } else {
+     // Should match the clear color of RenderWidgetHostViewMac.
+-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
++    glClearColor(0, 0, 0, 0);
+     glClear(GL_COLOR_BUFFER_BIT);
+   }
+ 
+diff --git renderer_host/render_widget_host_view_aura.cc renderer_host/render_widget_host_view_aura.cc
+index a1b5000..1e4fe4a 100644
+--- renderer_host/render_widget_host_view_aura.cc
++++ renderer_host/render_widget_host_view_aura.cc
+@@ -1708,8 +1708,14 @@ void RenderWidgetHostViewAura::OnPaint(gfx::Canvas* canvas) {
+   // For non-opaque windows, we don't draw anything, since we depend on the
+   // canvas coming from the compositor to already be initialized as
+   // transparent.
+-  if (window_->layer()->fills_bounds_opaquely())
+-    canvas->DrawColor(SK_ColorWHITE);
++  if (window_->layer()->fills_bounds_opaquely()) {
++    if (host_->IsRenderView()) {
++      canvas->DrawColor(GetContentClient()->browser()->GetBaseBackgroundColor(
++          RenderViewHost::From(host_)));
++    } else {
++      canvas->DrawColor(SK_ColorWHITE);
++    }
++  }
+ }
+ 
+ void RenderWidgetHostViewAura::OnDeviceScaleFactorChanged(
+diff --git renderer_host/render_widget_host_view_mac.mm renderer_host/render_widget_host_view_mac.mm
+index 0d4d03c..8615203 100644
+--- renderer_host/render_widget_host_view_mac.mm
++++ renderer_host/render_widget_host_view_mac.mm
+@@ -541,7 +541,7 @@ RenderWidgetHostViewMac::RenderWidgetHostViewMac(RenderWidgetHost* widget)
+   // draw.
+   background_layer_.reset([[CALayer alloc] init]);
+   [background_layer_
+-      setBackgroundColor:CGColorGetConstantColor(kCGColorWhite)];
++      setBackgroundColor:CGColorGetConstantColor(kCGColorClear)];
+   [cocoa_view_ setLayer:background_layer_];
+   [cocoa_view_ setWantsLayer:YES];
+ 

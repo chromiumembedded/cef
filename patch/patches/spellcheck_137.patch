@@ -1,0 +1,49 @@
+diff --git spellcheck_factory.cc spellcheck_factory.cc
+index 8df78f4..909840e 100644
+--- spellcheck_factory.cc
++++ spellcheck_factory.cc
+@@ -14,6 +14,13 @@
+ #include "components/user_prefs/user_prefs.h"
+ #include "content/public/browser/render_process_host.h"
+ 
++namespace {
++
++static base::LazyInstance<SpellcheckServiceFactory>::Leaky
++    g_spellcheck_service_factory = LAZY_INSTANCE_INITIALIZER;
++
++}  // namespace
++
+ // static
+ SpellcheckService* SpellcheckServiceFactory::GetForContext(
+     content::BrowserContext* context) {
+@@ -36,7 +43,7 @@ SpellcheckService* SpellcheckServiceFactory::GetForRenderProcessId(
+ 
+ // static
+ SpellcheckServiceFactory* SpellcheckServiceFactory::GetInstance() {
+-  return Singleton<SpellcheckServiceFactory>::get();
++  return g_spellcheck_service_factory.Pointer();
+ }
+ 
+ SpellcheckServiceFactory::SpellcheckServiceFactory()
+diff --git spellcheck_factory.h spellcheck_factory.h
+index d2f4679..c1a790c 100644
+--- spellcheck_factory.h
++++ spellcheck_factory.h
+@@ -7,7 +7,7 @@
+ 
+ #include "base/basictypes.h"
+ #include "base/gtest_prod_util.h"
+-#include "base/memory/singleton.h"
++#include "base/lazy_instance.h"
+ #include "components/keyed_service/content/browser_context_keyed_service_factory.h"
+ 
+ class SpellcheckService;
+@@ -26,7 +26,7 @@ class SpellcheckServiceFactory : public BrowserContextKeyedServiceFactory {
+   static SpellcheckServiceFactory* GetInstance();
+ 
+  private:
+-  friend struct DefaultSingletonTraits<SpellcheckServiceFactory>;
++  friend struct base::DefaultLazyInstanceTraits<SpellcheckServiceFactory>;
+ 
+   SpellcheckServiceFactory();
+   virtual ~SpellcheckServiceFactory();

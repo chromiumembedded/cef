@@ -1,0 +1,12 @@
+diff --git message_loop.cc message_loop.cc
+index c01e542..232e7bf 100644
+--- message_loop.cc
++++ message_loop.cc
+@@ -158,7 +158,6 @@ MessageLoop::MessageLoop(scoped_ptr<MessagePump> pump)
+ MessageLoop::~MessageLoop() {
+   DCHECK_EQ(this, current());
+ 
+-  DCHECK(!run_loop_);
+ #if defined(OS_WIN)
+   if (in_high_res_mode_)
+     Time::ActivateHighResolutionTimer(false);

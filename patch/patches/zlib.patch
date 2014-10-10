@@ -1,0 +1,13 @@
+diff --git contrib/minizip/unzip.c contrib/minizip/unzip.c
+index af59b80..ee3c0fd 100644
+--- contrib/minizip/unzip.c
++++ contrib/minizip/unzip.c
+@@ -69,7 +69,7 @@
+ #include <string.h>
+ 
+ #ifndef NOUNCRYPT
+-        #define NOUNCRYPT
++//        #define NOUNCRYPT
+ #endif
+ 
+ #include "third_party/zlib/zlib.h"

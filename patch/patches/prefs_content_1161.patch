@@ -1,0 +1,49 @@
+diff --git public/common/common_param_traits_macros.h public/common/common_param_traits_macros.h
+index 1d045b0..e336118 100644
+--- public/common/common_param_traits_macros.h
++++ public/common/common_param_traits_macros.h
+@@ -172,6 +172,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+   IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
+   IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
+   IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
++  IPC_STRUCT_TRAITS_MEMBER(base_background_color)
+   IPC_STRUCT_TRAITS_MEMBER(cookie_enabled)
+   IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
+   IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
+diff --git public/common/web_preferences.cc public/common/web_preferences.cc
+index 32f7987..7e166c4 100644
+--- public/common/web_preferences.cc
++++ public/common/web_preferences.cc
+@@ -135,6 +135,7 @@ WebPreferences::WebPreferences()
+       pinch_overlay_scrollbar_thickness(0),
+       use_solid_color_scrollbars(false),
+       navigate_on_drag_drop(true),
++      base_background_color(0xFFFFFFFF),  // Color::white
+       v8_cache_options(V8_CACHE_OPTIONS_OFF),
+       v8_script_streaming_enabled(false),
+       cookie_enabled(true),
+diff --git public/common/web_preferences.h public/common/web_preferences.h
+index b0a95ca..8c0781e 100644
+--- public/common/web_preferences.h
++++ public/common/web_preferences.h
+@@ -141,6 +141,7 @@ struct CONTENT_EXPORT WebPreferences {
+   int pinch_overlay_scrollbar_thickness;
+   bool use_solid_color_scrollbars;
+   bool navigate_on_drag_drop;
++  uint32_t base_background_color;
+   V8CacheOptions v8_cache_options;
+   bool v8_script_streaming_enabled;
+ 
+diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
+index b931da5..73b30b4 100644
+--- renderer/render_view_impl.cc
++++ renderer/render_view_impl.cc
+@@ -971,6 +971,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+ 
+   settings->setJavaEnabled(prefs.java_enabled);
+ 
++  web_view->setBaseBackgroundColor(prefs.base_background_color);
++
+   // By default, allow_universal_access_from_file_urls is set to false and thus
+   // we mitigate attacks from local HTML files by not granting file:// URLs
+   // universal access. Only test shell will enable this.
