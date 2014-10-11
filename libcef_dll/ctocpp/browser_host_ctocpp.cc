@@ -279,7 +279,8 @@ void CefBrowserHostCToCpp::StopFinding(bool clearSelection) {
 }
 
 void CefBrowserHostCToCpp::ShowDevTools(const CefWindowInfo& windowInfo,
-    CefRefPtr<CefClient> client, const CefBrowserSettings& settings) {
+    CefRefPtr<CefClient> client, const CefBrowserSettings& settings,
+    const CefPoint& inspect_element_at) {
   if (CEF_MEMBER_MISSING(struct_, show_dev_tools))
     return;
 
@@ -289,12 +290,14 @@ void CefBrowserHostCToCpp::ShowDevTools(const CefWindowInfo& windowInfo,
   DCHECK(client.get());
   if (!client.get())
     return;
+  // Unverified params: inspect_element_at
 
   // Execute
   struct_->show_dev_tools(struct_,
       &windowInfo,
       CefClientCppToC::Wrap(client),
-      &settings);
+      &settings,
+      &inspect_element_at);
 }
 
 void CefBrowserHostCToCpp::CloseDevTools() {

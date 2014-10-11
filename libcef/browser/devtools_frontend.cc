@@ -26,7 +26,8 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
     CefRefPtr<CefBrowserHostImpl> inspected_browser,
     const CefWindowInfo& windowInfo,
     CefRefPtr<CefClient> client,
-    const CefBrowserSettings& settings) {
+    const CefBrowserSettings& settings,
+    const CefPoint& inspect_element_at) {
   CefBrowserSettings new_settings = settings;
   if (CefColorGetA(new_settings.background_color) == 0) {
     // Use white as the default background color for DevTools instead of the
@@ -40,12 +41,17 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
                                  inspected_browser->GetWindowHandle(), true,
                                  inspected_browser->GetRequestContext());
 
+  scoped_refptr<content::DevToolsAgentHost> agent_host =
+      content::DevToolsAgentHost::GetOrCreateFor(
+          inspected_browser->GetWebContents());
+  if (!inspect_element_at.IsEmpty())
+    agent_host->InspectElement(inspect_element_at.x, inspect_element_at.y);
+
   // CefDevToolsFrontend will delete itself when the frontend WebContents is
   // destroyed.
   CefDevToolsFrontend* devtools_frontend = new CefDevToolsFrontend(
       static_cast<CefBrowserHostImpl*>(frontend_browser.get()),
-      content::DevToolsAgentHost::GetOrCreateFor(
-          inspected_browser->GetWebContents()).get());
+      agent_host.get());
 
   // Need to load the URL after creating the DevTools objects.
   CefDevToolsDelegate* delegate =

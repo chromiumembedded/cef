@@ -34,6 +34,7 @@ namespace {
 enum client_menu_ids {
   CLIENT_ID_SHOW_DEVTOOLS   = MENU_ID_USER_FIRST,
   CLIENT_ID_CLOSE_DEVTOOLS,
+  CLIENT_ID_INSPECT_ELEMENT,
   CLIENT_ID_TESTMENU_SUBMENU,
   CLIENT_ID_TESTMENU_CHECKITEM,
   CLIENT_ID_TESTMENU_RADIOITEM1,
@@ -158,6 +159,8 @@ void ClientHandler::OnBeforeContextMenu(
     // Add DevTools items to all context menus.
     model->AddItem(CLIENT_ID_SHOW_DEVTOOLS, "&Show DevTools");
     model->AddItem(CLIENT_ID_CLOSE_DEVTOOLS, "Close DevTools");
+    model->AddSeparator();
+    model->AddItem(CLIENT_ID_INSPECT_ELEMENT, "Inspect Element");
 
     // Test context menu features.
     BuildTestMenu(model);
@@ -174,10 +177,13 @@ bool ClientHandler::OnContextMenuCommand(
 
   switch (command_id) {
     case CLIENT_ID_SHOW_DEVTOOLS:
-      ShowDevTools(browser);
+      ShowDevTools(browser, CefPoint());
       return true;
     case CLIENT_ID_CLOSE_DEVTOOLS:
       CloseDevTools(browser);
+      return true;
+    case CLIENT_ID_INSPECT_ELEMENT:
+      ShowDevTools(browser, CefPoint(params->GetXCoord(), params->GetYCoord()));
       return true;
     default:  // Allow default handling, if any.
       return ExecuteTestMenu(command_id);
@@ -779,7 +785,8 @@ std::string ClientHandler::GetLastDownloadFile() const {
   return last_download_file_;
 }
 
-void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser) {
+void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser,
+                                 const CefPoint& inspect_element_at) {
   CefWindowInfo windowInfo;
   CefBrowserSettings settings;
 
@@ -787,7 +794,8 @@ void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser) {
   windowInfo.SetAsPopup(browser->GetHost()->GetWindowHandle(), "DevTools");
 #endif
 
-  browser->GetHost()->ShowDevTools(windowInfo, this, settings);
+  browser->GetHost()->ShowDevTools(windowInfo, this, settings,
+                                   inspect_element_at);
 }
 
 void ClientHandler::CloseDevTools(CefRefPtr<CefBrowser> browser) {

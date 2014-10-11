@@ -378,12 +378,14 @@ class CefBrowserHost : public virtual CefBase {
   virtual void StopFinding(bool clearSelection) =0;
 
   ///
-  // Open developer tools in its own window.
+  // Open developer tools in its own window. If |inspect_element_at| is non-
+  // empty the element at the specified (x,y) location will be inspected.
   ///
-  /*--cef()--*/
+  /*--cef(optional_param=inspect_element_at)--*/
   virtual void ShowDevTools(const CefWindowInfo& windowInfo,
                             CefRefPtr<CefClient> client,
-                            const CefBrowserSettings& settings) =0;
+                            const CefBrowserSettings& settings,
+                            const CefPoint& inspect_element_at) =0;
 
   ///
   // Explicitly close the developer tools window if one exists for this browser

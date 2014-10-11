@@ -282,7 +282,8 @@ class ClientHandler : public CefClient,
   };
   void SendNotification(NotificationType type);
 
-  void ShowDevTools(CefRefPtr<CefBrowser> browser);
+  void ShowDevTools(CefRefPtr<CefBrowser> browser,
+                    const CefPoint& inspect_element_at);
   void CloseDevTools(CefRefPtr<CefBrowser> browser);
 
   // Returns the startup URL.
