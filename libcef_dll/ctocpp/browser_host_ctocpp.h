@@ -57,8 +57,8 @@ class CefBrowserHostCToCpp
       bool matchCase, bool findNext) OVERRIDE;
   virtual void StopFinding(bool clearSelection) OVERRIDE;
   virtual void ShowDevTools(const CefWindowInfo& windowInfo,
-      CefRefPtr<CefClient> client,
-      const CefBrowserSettings& settings) OVERRIDE;
+      CefRefPtr<CefClient> client, const CefBrowserSettings& settings,
+      const CefPoint& inspect_element_at) OVERRIDE;
   virtual void CloseDevTools() OVERRIDE;
   virtual void SetMouseCursorChangeDisabled(bool disabled) OVERRIDE;
   virtual bool IsMouseCursorChangeDisabled() OVERRIDE;

@@ -98,21 +98,24 @@ class ShowDevToolsHelper {
   ShowDevToolsHelper(CefRefPtr<CefBrowserHostImpl> browser,
                      const CefWindowInfo& windowInfo,
                      CefRefPtr<CefClient> client,
-                     const CefBrowserSettings& settings)
+                     const CefBrowserSettings& settings,
+                     const CefPoint& inspect_element_at)
                       : browser_(browser),
                         window_info_(windowInfo),
                         client_(client),
-                        settings_(settings) {}
+                        settings_(settings),
+                        inspect_element_at_(inspect_element_at) {}
 
   CefRefPtr<CefBrowserHostImpl> browser_;
   CefWindowInfo window_info_;
   CefRefPtr<CefClient> client_;
   CefBrowserSettings settings_;
+  CefPoint inspect_element_at_;
 };
 
 void ShowDevToolsWithHelper(ShowDevToolsHelper* helper) {
   helper->browser_->ShowDevTools(helper->window_info_, helper->client_,
-      helper->settings_);
+      helper->settings_, helper->inspect_element_at_);
   delete helper;
 }
 
@@ -812,7 +815,8 @@ void CefBrowserHostImpl::StopFinding(bool clearSelection) {
 void CefBrowserHostImpl::ShowDevTools(
     const CefWindowInfo& windowInfo,
     CefRefPtr<CefClient> client,
-    const CefBrowserSettings& settings) {
+    const CefBrowserSettings& settings,
+    const CefPoint& inspect_element_at) {
   if (CEF_CURRENTLY_ON_UIT()) {
     if (!web_contents_)
       return;
@@ -823,12 +827,13 @@ void CefBrowserHostImpl::ShowDevTools(
     }
 
     devtools_frontend_ = CefDevToolsFrontend::Show(
-        this, windowInfo, client, settings);
+        this, windowInfo, client, settings, inspect_element_at);
     devtools_observer_.reset(new DevToolsWebContentsObserver(
         this, devtools_frontend_->frontend_browser()->web_contents()));
   } else {
     ShowDevToolsHelper* helper =
-        new ShowDevToolsHelper(this, windowInfo, client, settings);
+        new ShowDevToolsHelper(this, windowInfo, client, settings,
+                               inspect_element_at);
     CEF_POST_TASK(CEF_UIT, base::Bind(ShowDevToolsWithHelper, helper));
   }
 }

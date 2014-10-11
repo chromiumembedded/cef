@@ -2051,7 +2051,8 @@ class V8TestHandler : public TestHandler {
         windowInfo.SetAsPopup(browser->GetHost()->GetWindowHandle(), "DevTools");
 #endif
 
-        browser->GetHost()->ShowDevTools(windowInfo, this, settings);
+        browser->GetHost()->ShowDevTools(windowInfo, this, settings,
+                                         CefPoint());
       }
       return;
     }

@@ -134,6 +134,47 @@ class CefStructBase : public traits::struct_type {
 };
 
 
+struct CefPointTraits {
+  typedef cef_point_t struct_type;
+
+  static inline void init(struct_type* s) {}
+  static inline void clear(struct_type* s) {}
+
+  static inline void set(const struct_type* src, struct_type* target,
+      bool copy) {
+    *target = *src;
+  }
+};
+
+///
+// Class representing a point.
+///
+class CefPoint : public CefStructBase<CefPointTraits> {
+ public:
+  typedef CefStructBase<CefPointTraits> parent;
+
+  CefPoint() : parent() {}
+  CefPoint(const cef_point_t& r) : parent(r) {}  // NOLINT(runtime/explicit)
+  CefPoint(const CefPoint& r) : parent(r) {}  // NOLINT(runtime/explicit)
+  CefPoint(int x, int y) : parent() {
+    Set(x, y);
+  }
+
+  bool IsEmpty() const { return x <= 0 || x <= 0; }
+  void Set(int x, int y) {
+    this->x = x, this->y = y;
+  }
+};
+
+inline bool operator==(const CefPoint& a, const CefPoint& b) {
+  return a.x == b.x && a.y == b.y;
+}
+
+inline bool operator!=(const CefPoint& a, const CefPoint& b) {
+  return !(a == b);
+}
+
+
 struct CefRectTraits {
   typedef cef_rect_t struct_type;
 

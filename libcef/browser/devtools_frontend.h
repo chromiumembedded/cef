@@ -28,7 +28,8 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
       CefRefPtr<CefBrowserHostImpl> inspected_browser,
       const CefWindowInfo& windowInfo,
       CefRefPtr<CefClient> client,
-      const CefBrowserSettings& settings);
+      const CefBrowserSettings& settings,
+      const CefPoint& inspect_element_at);
 
   void Activate();
   void Focus();

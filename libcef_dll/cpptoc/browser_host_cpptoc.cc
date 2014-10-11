@@ -336,7 +336,8 @@ void CEF_CALLBACK browser_host_stop_finding(struct _cef_browser_host_t* self,
 
 void CEF_CALLBACK browser_host_show_dev_tools(struct _cef_browser_host_t* self,
     const cef_window_info_t* windowInfo, struct _cef_client_t* client,
-    const struct _cef_browser_settings_t* settings) {
+    const struct _cef_browser_settings_t* settings,
+    const cef_point_t* inspect_element_at) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -354,6 +355,7 @@ void CEF_CALLBACK browser_host_show_dev_tools(struct _cef_browser_host_t* self,
   DCHECK(settings);
   if (!settings)
     return;
+  // Unverified params: inspect_element_at
 
   // Translate param: windowInfo; type: struct_byref_const
   CefWindowInfo windowInfoObj;
@@ -363,12 +365,16 @@ void CEF_CALLBACK browser_host_show_dev_tools(struct _cef_browser_host_t* self,
   CefBrowserSettings settingsObj;
   if (settings)
     settingsObj.Set(*settings, false);
+  // Translate param: inspect_element_at; type: simple_byref_const
+  CefPoint inspect_element_atVal =
+      inspect_element_at?*inspect_element_at:CefPoint();
 
   // Execute
   CefBrowserHostCppToC::Get(self)->ShowDevTools(
       windowInfoObj,
       CefClientCToCpp::Wrap(client),
-      settingsObj);
+      settingsObj,
+      inspect_element_atVal);
 }
 
 void CEF_CALLBACK browser_host_close_dev_tools(
