@@ -1285,8 +1285,8 @@ int GetNavFromMultiNavURL(const std::string& url) {
 
 // Extract the origin from the URL.
 std::string GetOriginFromMultiNavURL(const std::string& url) {
-  const int pos = url.rfind("/");
-  EXPECT_TRUE(pos > 0);
+  const size_t pos = url.rfind("/");
+  EXPECT_TRUE(pos > 0U);
   return url.substr(0, pos + 1);
 }
 
