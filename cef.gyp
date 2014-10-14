@@ -1209,9 +1209,6 @@
             'libcef/browser/text_input_client_osr_mac.h',
             # Include sources for printing.
             '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_mac.mm',
-            # Include sources for CoreAnimation support.
-            '<(DEPTH)/chrome/browser/ui/cocoa/nsview_additions.h',
-            '<(DEPTH)/chrome/browser/ui/cocoa/nsview_additions.mm',
             # Include sources for spell checking support.
             '<(DEPTH)/chrome/browser/spellchecker/spellcheck_message_filter_mac.cc',
             '<(DEPTH)/chrome/browser/spellchecker/spellcheck_message_filter_mac.h',
