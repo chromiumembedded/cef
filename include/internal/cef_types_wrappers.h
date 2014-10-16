@@ -160,7 +160,7 @@ class CefPoint : public CefStructBase<CefPointTraits> {
     Set(x, y);
   }
 
-  bool IsEmpty() const { return x <= 0 || x <= 0; }
+  bool IsEmpty() const { return x <= 0 && y <= 0; }
   void Set(int x, int y) {
     this->x = x, this->y = y;
   }
