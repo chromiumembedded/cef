@@ -333,7 +333,10 @@ need to be translated for each locale.-->
       <message name="IDS_SPELLCHECK_DICTIONARY" use_name_for_id="true">
         en-US
       </message>
-      <message name="IDS_MENU_NO_SPELLING_SUGGESTIONS" desc="The name of the No Spelling Suggestions display in the content area context menu">
+      <message name="IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY" desc="The name of the Add to dictionary command in the content area context menu">
+        &amp;Add to dictionary
+      </message>
+      <message name="IDS_CONTENT_CONTEXT_NO_SPELLING_SUGGESTIONS" desc="The name of the No Spelling Suggestions display in the content area context menu">
         &amp;No spelling suggestions
       </message>
     </messages>

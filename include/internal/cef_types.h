@@ -1308,6 +1308,7 @@ typedef enum {
   MENU_ID_SPELLCHECK_SUGGESTION_4        = 204,
   MENU_ID_SPELLCHECK_SUGGESTION_LAST     = 204,
   MENU_ID_NO_SPELLING_SUGGESTIONS        = 205,
+  MENU_ID_ADD_TO_DICTIONARY              = 206,
 
   // All user-defined menu IDs should come between MENU_ID_USER_FIRST and
   // MENU_ID_USER_LAST to avoid overlapping the Chromium and CEF ID ranges

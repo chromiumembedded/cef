@@ -368,6 +368,12 @@ typedef struct _cef_browser_host_t {
       const cef_string_t* word);
 
   ///
+  // Add the specified |word| to the spelling dictionary.
+  ///
+  void (CEF_CALLBACK *add_word_to_dictionary)(struct _cef_browser_host_t* self,
+      const cef_string_t* word);
+
+  ///
   // Returns true (1) if window rendering is disabled.
   ///
   int (CEF_CALLBACK *is_window_rendering_disabled)(

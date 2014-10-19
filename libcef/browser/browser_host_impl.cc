@@ -36,6 +36,8 @@
 #include "base/bind_helpers.h"
 #include "base/command_line.h"
 #include "base/strings/utf_string_conversions.h"
+#include "chrome/browser/spellchecker/spellcheck_factory.h"
+#include "chrome/browser/spellchecker/spellcheck_service.h"
 #include "components/pdf/common/pdf_messages.h"
 #include "content/browser/gpu/compositor_util.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
@@ -59,6 +61,10 @@
 
 #if defined(OS_LINUX) || defined(OS_ANDROID)
 #include "ui/gfx/font_render_params.h"
+#endif
+
+#if defined(OS_MACOSX)
+#include "chrome/browser/spellchecker/spellcheck_platform_mac.h"
 #endif
 
 #if defined(USE_AURA)
@@ -874,6 +880,29 @@ void CefBrowserHostImpl::ReplaceMisspelling(const CefString& word) {
 
   if(web_contents())
     web_contents()->ReplaceMisspelling(word);
+}
+
+void CefBrowserHostImpl::AddWordToDictionary(const CefString& word) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::AddWordToDictionary, this, word));
+    return;
+  }
+
+  if (!web_contents())
+    return;
+
+  content::BrowserContext* browser_context =
+      web_contents()->GetBrowserContext();
+  if (browser_context) {
+    SpellcheckService* spellcheck =
+        SpellcheckServiceFactory::GetForContext(browser_context);
+    if (spellcheck)
+      spellcheck->GetCustomDictionary()->AddWord(word);
+  }
+#if defined(OS_MACOSX)
+  spellcheck_mac::AddWord(word);
+#endif
 }
 
 void CefBrowserHostImpl::WasResized() {

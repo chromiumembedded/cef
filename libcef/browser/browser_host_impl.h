@@ -160,6 +160,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   virtual bool IsMouseCursorChangeDisabled() OVERRIDE;
   virtual bool IsWindowRenderingDisabled() OVERRIDE;
   virtual void ReplaceMisspelling(const CefString& word) OVERRIDE;
+  virtual void AddWordToDictionary(const CefString& word) OVERRIDE;
   virtual void WasResized() OVERRIDE;
   virtual void WasHidden(bool hidden) OVERRIDE;
   virtual void NotifyScreenInfoChanged() OVERRIDE;
