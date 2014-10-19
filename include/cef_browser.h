@@ -414,6 +414,12 @@ class CefBrowserHost : public virtual CefBase {
   virtual void ReplaceMisspelling(const CefString& word) =0;
 
   ///
+  // Add the specified |word| to the spelling dictionary.
+  ///
+  /*--cef()--*/
+  virtual void AddWordToDictionary(const CefString& word) =0;
+
+  ///
   // Returns true if window rendering is disabled.
   ///
   /*--cef()--*/

@@ -233,23 +233,33 @@ void CefMenuCreator::CreateDefaultModel() {
       model_->SetEnabled(MENU_ID_SELECT_ALL, false);
 
     if(!params_.misspelled_word.empty()) {
-      if (!params_.dictionary_suggestions.empty())
+      // Always add a separator before the list of dictionary suggestions or
+      // "No spelling suggestions".
+      model_->AddSeparator();
+
+      if (!params_.dictionary_suggestions.empty()) {
+        for (size_t i = 0;
+             i < params_.dictionary_suggestions.size() &&
+                 MENU_ID_SPELLCHECK_SUGGESTION_0 + i <=
+                    MENU_ID_SPELLCHECK_SUGGESTION_LAST;
+             ++i) {
+          model_->AddItem(MENU_ID_SPELLCHECK_SUGGESTION_0 + static_cast<int>(i),
+              params_.dictionary_suggestions[i].c_str());
+        }
+
+        // When there are dictionary suggestions add a separator before "Add to
+        // dictionary".
         model_->AddSeparator();
-
-      for (size_t i = 0;
-           i < params_.dictionary_suggestions.size() &&
-               MENU_ID_SPELLCHECK_SUGGESTION_0 + i <=
-                  MENU_ID_SPELLCHECK_SUGGESTION_LAST;
-           ++i) {
-        model_->AddItem(MENU_ID_SPELLCHECK_SUGGESTION_0 + static_cast<int>(i),
-            params_.dictionary_suggestions[i].c_str());
-      }
-
-      if (params_.dictionary_suggestions.empty()) {
+      } else {
         model_->AddItem(
             MENU_ID_NO_SPELLING_SUGGESTIONS,
-            GetLabel(IDS_MENU_NO_SPELLING_SUGGESTIONS));
+            GetLabel(IDS_CONTENT_CONTEXT_NO_SPELLING_SUGGESTIONS));
+        model_->SetEnabled(MENU_ID_NO_SPELLING_SUGGESTIONS, false);
       }
+
+      model_->AddItem(
+            MENU_ID_ADD_TO_DICTIONARY,
+            GetLabel(IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY));
     }
   } else if (!params_.selection_text.empty()) {
     // Something is selected.
@@ -334,6 +344,11 @@ void CefMenuCreator::ExecuteDefaultCommand(int command_id) {
     break;
   case MENU_ID_VIEW_SOURCE:
     browser_->GetFocusedFrame()->ViewSource();
+    break;
+
+  // Spell checking.
+  case MENU_ID_ADD_TO_DICTIONARY:
+    browser_->GetHost()->AddWordToDictionary(params_.misspelled_word);
     break;
 
   default:
