@@ -32,7 +32,12 @@ Resources   Contains resources required by libcef.so. By default these files
 USAGE
 -----
 
-Run 'build.sh Debug' to build the cefclient target in Debug mode.
+Building using CMake:
+  CMake can be used to generate project files in many different formats. See
+  usage instructions at the top of the CMakeLists.txt file.
+
+Building using the pre-existing make solution (DEPRECATED):
+  Run 'build.sh Debug' to build the cefclient target in Debug mode.
 
 Please visit the CEF Website for additional usage information.
 

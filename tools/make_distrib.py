@@ -5,6 +5,7 @@
 from date_util import *
 from file_util import *
 from gclient_util import *
+from make_cmake import process_cmake_template
 from optparse import OptionParser
 import os
 import re
@@ -114,10 +115,6 @@ def create_readme():
   write_file(os.path.join(output_dir, 'README.txt'), data)
   if not options.quiet:
     sys.stdout.write('Creating README.TXT file.\n')
-
-def eval_file(src):
-  """ Loads and evaluates the contents of the specified file. """
-  return eval(read_file(src), {'__builtins__': None}, None)
 
 def transfer_gypi_files(src_dir, gypi_paths, gypi_path_prefix, dst_dir, quiet):
   """ Transfer files from one location to another. """
@@ -510,6 +507,24 @@ if mode == 'standard':
   # transfer additional files
   transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/transfer.cfg'), \
                  output_dir, options.quiet)
+
+  # process cmake templates
+  variables = dict(cef_paths.items() + cef_paths2.items())
+  process_cmake_template(os.path.join(cef_dir, 'CMakeLists.txt.in'), \
+                         os.path.join(output_dir, 'CMakeLists.txt'), \
+                         variables, options.quiet)
+  process_cmake_template(os.path.join(cef_dir, 'macros.cmake.in'), \
+                         os.path.join(output_dir, 'macros.cmake'), \
+                         variables, options.quiet)
+  process_cmake_template(os.path.join(cef_dir, 'libcef_dll', 'CMakeLists.txt.in'), \
+                         os.path.join(output_dir, 'libcef_dll', 'CMakeLists.txt'), \
+                         variables, options.quiet)
+  process_cmake_template(os.path.join(cef_dir, 'tests', 'cefclient', 'CMakeLists.txt.in'), \
+                         os.path.join(output_dir, 'cefclient', 'CMakeLists.txt'), \
+                         variables, options.quiet)
+  process_cmake_template(os.path.join(cef_dir, 'tests', 'cefsimple', 'CMakeLists.txt.in'), \
+                         os.path.join(output_dir, 'cefsimple', 'CMakeLists.txt'), \
+                         variables, options.quiet)
 
 if platform == 'windows':
   binaries = [
