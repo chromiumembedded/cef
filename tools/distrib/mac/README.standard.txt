@@ -28,7 +28,12 @@ tools       Scripts that perform post-processing on Mac release targets.
 USAGE
 -----
 
-Xcode 3 and 4: Open the cefclient.xcodeproj project and build.
+Building using CMake:
+  CMake can be used to generate project files in many different formats. See
+  usage instructions at the top of the CMakeLists.txt file.
+
+Building using the pre-existing Xcode solution (DEPRECATED):
+  Xcode 3.2 or newer: Open the cefclient.xcodeproj project and build.
 
 Please visit the CEF Website for additional usage information.
 

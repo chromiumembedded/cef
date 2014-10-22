@@ -129,3 +129,13 @@ def read_version_file(file, args):
         parts = line.split('=', 1)
         if len(parts) == 2:
             args[parts[0]] = parts[1]
+
+def eval_file(src):
+    """ Loads and evaluates the contents of the specified file. """
+    return eval(read_file(src), {'__builtins__': None}, None)
+
+def normalize_path(path):
+    """ Normalizes the path separator to match the Unix standard. """
+    if sys.platform == 'win32':
+        return path.replace('\\', '/')
+    return path

@@ -8,11 +8,14 @@
 #include "include/cef_sandbox_win.h"
 
 
-// Set to 0 to disable sandbox support.
-#define CEF_ENABLE_SANDBOX 1
+// When generating projects with CMake the CEF_USE_SANDBOX value will be defined
+// automatically if using the required compiler version. Pass -DUSE_SANDBOX=OFF
+// to the CMake command-line to disable use of the sandbox.
+// Uncomment this line to manually enable sandbox support.
+// #define CEF_USE_SANDBOX 1
 
-#if CEF_ENABLE_SANDBOX
-// The cef_sandbox.lib static library is currently built with VS2010. It may not
+#if defined(CEF_USE_SANDBOX)
+// The cef_sandbox.lib static library is currently built with VS2013. It may not
 // link successfully with other VS versions.
 #pragma comment(lib, "cef_sandbox.lib")
 #endif
@@ -28,7 +31,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
   void* sandbox_info = NULL;
 
-#if CEF_ENABLE_SANDBOX
+#if defined(CEF_USE_SANDBOX)
   // Manage the life span of the sandbox information object. This is necessary
   // for sandbox support on Windows. See cef_sandbox_win.h for complete details.
   CefScopedSandboxInfo scoped_sandbox;
@@ -54,7 +57,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   // Specify CEF global settings here.
   CefSettings settings;
 
-#if !CEF_ENABLE_SANDBOX
+#if !defined(CEF_USE_SANDBOX)
   settings.no_sandbox = true;
 #endif
 
