@@ -435,8 +435,10 @@ void CefRenderWidgetHostViewOSR::SetIsLoading(bool is_loading) {
 }
 
 #if !defined(OS_MACOSX)
-void CefRenderWidgetHostViewOSR::TextInputStateChanged(
-    const ViewHostMsg_TextInputState_Params& params) {
+void CefRenderWidgetHostViewOSR::TextInputTypeChanged(
+    ui::TextInputType type,
+    ui::TextInputMode mode,
+    bool can_compose_inline) {
 }
 
 void CefRenderWidgetHostViewOSR::ImeCancelComposition() {

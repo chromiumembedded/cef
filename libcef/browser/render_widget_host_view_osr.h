@@ -124,8 +124,10 @@ class CefRenderWidgetHostViewOSR
   virtual void Blur() OVERRIDE;
   virtual void UpdateCursor(const content::WebCursor& cursor) OVERRIDE;
   virtual void SetIsLoading(bool is_loading) OVERRIDE;
-  virtual void TextInputStateChanged(
-      const ViewHostMsg_TextInputState_Params& params) OVERRIDE;
+  virtual void TextInputTypeChanged(
+      ui::TextInputType type,
+      ui::TextInputMode mode,
+      bool can_compose_inline) OVERRIDE;
   virtual void ImeCancelComposition() OVERRIDE;
   virtual void RenderProcessGone(base::TerminationStatus status,
                                  int error_code) OVERRIDE;

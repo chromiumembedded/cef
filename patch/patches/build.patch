@@ -1,5 +1,5 @@
 diff --git common.gypi common.gypi
-index dc0f525..fb1889c 100644
+index f3f28c7..93d7238 100644
 --- common.gypi
 +++ common.gypi
 @@ -9,6 +9,9 @@
@@ -12,7 +12,7 @@ index dc0f525..fb1889c 100644
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
-@@ -5391,6 +5394,9 @@
+@@ -5394,6 +5397,9 @@
            4510, # Default constructor could not be generated
            4512, # Assignment operator could not be generated
            4610, # Object can never be instantiated

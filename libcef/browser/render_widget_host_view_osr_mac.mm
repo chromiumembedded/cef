@@ -61,8 +61,10 @@ bool CefRenderWidgetHostViewOSR::IsSpeaking() const {
 void CefRenderWidgetHostViewOSR::StopSpeaking() {
 }
 
-void CefRenderWidgetHostViewOSR::TextInputStateChanged(
-    const ViewHostMsg_TextInputState_Params& params) {
+void CefRenderWidgetHostViewOSR::TextInputTypeChanged(
+    ui::TextInputType type,
+    ui::TextInputMode mode,
+    bool can_compose_inline) {
   [NSApp updateWindows];
 }
 
