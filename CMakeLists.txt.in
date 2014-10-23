@@ -132,16 +132,6 @@ project(cef)
 # Use folders in the resulting project files.
 set_property(GLOBAL PROPERTY OS_FOLDERS ON)
 
-# Determine the project architecture.
-# PROJECT_ARCH must be specified via the command-line on Mac OS X.
-if(NOT DEFINED PROJECT_ARCH)
-  if(CMAKE_SIZEOF_VOID_P MATCHES 8)
-    set(PROJECT_ARCH "x86_64")
-  else()
-    set(PROJECT_ARCH "x86")
-  endif()
-endif()
-
 # Determine the platform.
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
   set(OS_MACOSX 1)
@@ -151,6 +141,27 @@ elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
   set(OS_POSIX 1)
 elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
   set(OS_WINDOWS 1)
+endif()
+
+# Determine the project architecture.
+if(NOT DEFINED PROJECT_ARCH)
+  if(CMAKE_SIZEOF_VOID_P MATCHES 8)
+    set(PROJECT_ARCH "x86_64")
+  else()
+    set(PROJECT_ARCH "x86")
+  endif()
+
+  if(OS_MACOSX)
+    # PROJECT_ARCH should be specified on Mac OS X.
+    message(WARNING "No PROJECT_ARCH value specified, using ${PROJECT_ARCH}")
+  endif()
+endif()
+
+if(NOT CMAKE_BUILD_TYPE AND
+   (${CMAKE_GENERATOR} STREQUAL "Ninja" OR ${CMAKE_GENERATOR} STREQUAL "Unix Makefiles"))
+  # CMAKE_BUILD_TYPE should be specified when using Ninja or Unix Makefiles.
+  set(CMAKE_BUILD_TYPE Release)
+  message(WARNING "No CMAKE_BUILD_TYPE value selected, using ${CMAKE_BUILD_TYPE}")
 endif()
 
 # Include cmake macros.
@@ -183,9 +194,8 @@ if(OS_LINUX)
   # -Wall                           = Enable all warnings
   # -Werror                         = Treat warnings as errors
   # -Wno-missing-field-initializers = Don't warn about missing field initializers
-  # -Wno-unused-local-typedefs      = Don't warn about unused local typedefs
   # -Wno-unused-parameter           = Don't warn about unused parameters
-  set(CEF_COMPILER_FLAGS          "-fno-strict-aliasing -fPIC -fstack-protector -funwind-tables -fvisibility=hidden --param=ssp-buffer-size=4 -pipe -pthread -Wall -Werror -Wno-missing-field-initializers -Wno-unused-local-typedefs -Wno-unused-parameter")
+  set(CEF_COMPILER_FLAGS          "-fno-strict-aliasing -fPIC -fstack-protector -funwind-tables -fvisibility=hidden --param=ssp-buffer-size=4 -pipe -pthread -Wall -Werror -Wno-missing-field-initializers -Wno-unused-parameter")
   # -std=c99                        = Use the C99 language standard
   set(CEF_C_COMPILER_FLAGS        "-std=c99")
   # -fno-exceptions                 = Disable exceptions
@@ -193,10 +203,8 @@ if(OS_LINUX)
   # -fno-threadsafe-statics         = Don't generate thread-safe statics
   # -fvisibility-inlines-hidden     = Give hidden visibility to inlined class member functions
   # -std=gnu++11                    = Use the C++11 language standard including GNU extensions
-  # -Wno-literal-suffix             = Don't warn about invalid suffixes on literals
-  # -Wno-narrowing                  = Don't warn about type narrowing
   # -Wsign-compare                  = Warn about mixed signed/unsigned type comparisons
-  set(CEF_CXX_COMPILER_FLAGS      "-fno-exceptions -fno-rtti -fno-threadsafe-statics -fvisibility-inlines-hidden -std=gnu++11 -Wno-literal-suffix -Wno-narrowing -Wsign-compare")
+  set(CEF_CXX_COMPILER_FLAGS      "-fno-exceptions -fno-rtti -fno-threadsafe-statics -fvisibility-inlines-hidden -std=gnu++11 -Wsign-compare")
   # -O0                             = Disable optimizations
   # -g                              = Generate debug information
   set(CEF_COMPILER_FLAGS_DEBUG    "-O0 -g")
@@ -205,8 +213,9 @@ if(OS_LINUX)
   # -ffunction-sections             = Enable linker optimizations to improve locality of reference for function sections
   # -fno-ident                      = Ignore the #ident directive
   # -DNDEBUG                        = Not a debug build
+  # -U_FORTIFY_SOURCE               = Undefine _FORTIFY_SOURCE in case it was previously defined
   # -D_FORTIFY_SOURCE=2             = Add memory and string function protection (security feature, related to stack-protector)
-  set(CEF_COMPILER_FLAGS_RELEASE  "-O2 -fdata-sections -ffunction-sections -fno-ident -DNDEBUG -D_FORTIFY_SOURCE=2")
+  set(CEF_COMPILER_FLAGS_RELEASE  "-O2 -fdata-sections -ffunction-sections -fno-ident -DNDEBUG -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2")
   # -Wl,--disable-new-dtags         = Don't generate new-style dynamic tags in ELF
   # -Wl,--fatal-warnings            = Treat warnings as errors
   # -Wl,-rpath,.                    = Set rpath so that libraries can be placed next to the executable
@@ -218,6 +227,27 @@ if(OS_LINUX)
   # -Wl,--as-needed                 = Only link libraries that export symbols used by the binary
   # -Wl,--gc-sections               = Remove unused code resulting from -fdata-sections and -function-sections
   set(CEF_LINKER_FLAGS_RELEASE    "-Wl,-O1 -Wl,--as-needed -Wl,--gc-sections")
+
+  include(CheckCCompilerFlag)
+  include(CheckCXXCompilerFlag)
+
+  # -Wno-unused-local-typedefs      = Don't warn about unused local typedefs
+  CHECK_C_COMPILER_FLAG(-Wno-unused-local-typedefs COMPILER_SUPPORTS_NO_UNUSED_LOCAL_TYPEDEFS)
+  if(COMPILER_SUPPORTS_NO_UNUSED_LOCAL_TYPEDEFS)
+    set(CEF_C_COMPILER_FLAGS      "${CEF_C_COMPILER_FLAGS} -Wno-unused-local-typedefs")
+  endif()
+
+  # -Wno-literal-suffix             = Don't warn about invalid suffixes on literals
+  CHECK_CXX_COMPILER_FLAG(-Wno-literal-suffix COMPILER_SUPPORTS_NO_LITERAL_SUFFIX)
+  if(COMPILER_SUPPORTS_NO_LITERAL_SUFFIX)
+    set(CEF_CXX_COMPILER_FLAGS    "${CEF_CXX_COMPILER_FLAGS} -Wno-literal-suffix")
+  endif()
+
+  # -Wno-narrowing                  = Don't warn about type narrowing
+  CHECK_CXX_COMPILER_FLAG(-Wno-narrowing COMPILER_SUPPORTS_NO_NARROWING)
+  if(COMPILER_SUPPORTS_NO_NARROWING)
+    set(CEF_CXX_COMPILER_FLAGS    "${CEF_CXX_COMPILER_FLAGS} -Wno-narrowing")
+  endif()
 
   if(PROJECT_ARCH STREQUAL "x86_64")
     # 64-bit architecture.
