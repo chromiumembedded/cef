@@ -48,7 +48,7 @@ def format_cmake_set(name, values):
         result += '  %s\n' % value
     return result + '  )\n'
 
-def format_cmake_group(cmake_path, name, files, platform_sep):
+def format_cmake_group(cmake_path, name, files, platform_sep, append_macro):
     platforms = {}
     common = []
 
@@ -87,7 +87,7 @@ def format_cmake_group(cmake_path, name, files, platform_sep):
         keys = sorted(platforms.keys())
         for key in keys:
             result += format_cmake_set(name + '_' + key, platforms[key])
-        result += 'APPEND_PLATFORM_SOURCES(%s)\n' % name
+        result += '%s(%s)\n' % (append_macro, name)
 
     result += 'source_group(%s FILES ${%s})\n\n' % (folder, name)
     return result
@@ -105,6 +105,7 @@ def process_cmake_template_segment(segment, segment_ct, cmake_path, variables):
     includes = []
     suffix = '_SRCS'    # Appended to each group name before the platform name.
     platform_sep = ':'  # Used to separate value from platform name.
+    append_macro = 'APPEND_PLATFORM_SOURCES'  # CMake macro name.
 
     # Extract values from |segment|. Example |segment| contents:
     #  'prefix': 'cefsimple',
@@ -125,6 +126,9 @@ def process_cmake_template_segment(segment, segment_ct, cmake_path, variables):
 
     if 'set' in values:
         set = values['set']
+
+    if 'append_macro' in values:
+        append_macro = values['append_macro']
 
     if 'includes' in values and len(values['includes']) > 0:
         for include in values['includes']:
@@ -163,7 +167,7 @@ def process_cmake_template_segment(segment, segment_ct, cmake_path, variables):
     for key in keys:
         # Add a group of files that share the same path.
         result += format_cmake_group(cmake_path, key + suffix, groups[key], \
-                                     platform_sep)
+                                     platform_sep, append_macro)
 
     if not library is None:
         # Add the library declaration if requested.
