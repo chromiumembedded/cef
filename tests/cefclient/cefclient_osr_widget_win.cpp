@@ -44,9 +44,12 @@ bool OSRWindow::CreateWidget(HWND hWndParent, const RECT& rect,
   // Reference released in OnDestroyed().
   AddRef();
 
+#if defined(CEF_USE_ATL)
   drop_target_ = DropTargetWin::Create(this, hWnd_);
   HRESULT register_res = RegisterDragDrop(hWnd_, drop_target_);
   DCHECK_EQ(register_res, S_OK);
+#endif
+
   return true;
 }
 
@@ -56,8 +59,11 @@ void OSRWindow::DestroyWidget() {
 }
 
 void OSRWindow::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
+#if defined(CEF_USE_ATL)
   RevokeDragDrop(hWnd_);
   drop_target_ = NULL;
+#endif
+
   DisableGL();
   ::DestroyWindow(hWnd_);
 }
@@ -155,6 +161,7 @@ bool OSRWindow::StartDragging(CefRefPtr<CefBrowser> browser,
                                CefRefPtr<CefDragData> drag_data,
                                CefRenderHandler::DragOperationsMask allowed_ops,
                                int x, int y) {
+#if defined(CEF_USE_ATL)
   if (!drop_target_)
     return false;
   current_drag_op_ = DRAG_OPERATION_NONE;
@@ -167,11 +174,17 @@ bool OSRWindow::StartDragging(CefRefPtr<CefBrowser> browser,
   browser->GetHost()->DragSourceEndedAt(pt.x, pt.y, result);
   browser->GetHost()->DragSourceSystemDragEnded();
   return true;
+#else
+  // Cancel the drag. The dragging implementation requires ATL support.
+  return false;
+#endif
 }
 
 void OSRWindow::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
                                  CefRenderHandler::DragOperation operation) {
+#if defined(CEF_USE_ATL)
   current_drag_op_ = operation;
+#endif
 }
 
 void OSRWindow::Invalidate() {
@@ -202,6 +215,8 @@ void OSRWindow::WasHidden(bool hidden) {
   hidden_ = hidden;
 }
 
+#if defined(CEF_USE_ATL)
+
 CefBrowserHost::DragOperationsMask
     OSRWindow::OnDragEnter(CefRefPtr<CefDragData> drag_data,
                            CefMouseEvent ev,
@@ -230,13 +245,17 @@ CefBrowserHost::DragOperationsMask
   return current_drag_op_;
 }
 
+#endif  // defined(CEF_USE_ATL)
+
 OSRWindow::OSRWindow(OSRBrowserProvider* browser_provider, bool transparent)
     : renderer_(transparent),
       browser_provider_(browser_provider),
       hWnd_(NULL),
       hDC_(NULL),
       hRC_(NULL),
+#if defined(CEF_USE_ATL)
       current_drag_op_(DRAG_OPERATION_NONE),
+#endif
       painting_popup_(false),
       render_task_pending_(false),
       hidden_(false) {

@@ -480,6 +480,22 @@ if(OS_WINDOWS)
     set(CEF_SANDBOX_LIB_DEBUG "${CEF_BINARY_DIR_DEBUG}/cef_sandbox.lib")
     set(CEF_SANDBOX_LIB_RELEASE "${CEF_BINARY_DIR_RELEASE}/cef_sandbox.lib")
   endif()
+
+  # Configure use of ATL.
+  option(USE_ATL "Enable or disable use of ATL." ON)
+  if(USE_ATL)
+    # Determine if the Visual Studio install supports ATL.
+    get_filename_component(VC_BIN_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
+    get_filename_component(VC_DIR ${VC_BIN_DIR} DIRECTORY)
+    if(NOT IS_DIRECTORY "${VC_DIR}/atlmfc")
+      set(USE_ATL OFF)
+    endif()
+  endif()
+
+  if(USE_ATL)
+    # Definition used by apps to test if ATL support is enabled.
+    add_definitions(-DCEF_USE_ATL)
+  endif()
 endif()
 
 
@@ -531,6 +547,7 @@ endif()
 
 if(OS_WINDOWS)
   message(STATUS "CEF Windows sandbox:          ${USE_SANDBOX}")
+  message(STATUS "Visual Studio ATL support:    ${USE_ATL}")
 endif()
 
 set(LIBRARIES ${CEF_STANDARD_LIBS})

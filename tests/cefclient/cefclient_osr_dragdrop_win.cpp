@@ -4,6 +4,8 @@
 
 #include "cefclient/cefclient_osr_dragdrop_win.h"
 
+#if defined(CEF_USE_ATL)
+
 #include <shellapi.h>
 #include <shlobj.h>
 #include <windowsx.h>
@@ -646,3 +648,5 @@ DataObjectWin::DataObjectWin(FORMATETC* fmtetc, STGMEDIUM* stgmed, int count)
     m_pStgMedium[i] = stgmed[i];
   }
 }
+
+#endif  // defined(CEF_USE_ATL)
