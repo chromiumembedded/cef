@@ -26,7 +26,7 @@
 #
 # CMakeLists.txt              Bootstrap that sets up the CMake environment and
 #                             loads the other CMake files.
-# cmake.macros                Helper macros for building a generic CEF-based
+# macros.cmake                Helper macros for building a generic CEF-based
 #                             application.
 # libcef_dll/CMakeLists.txt   Defines the libcef_dll_wrapper target.
 # cefclient/CMakeLists.txt    Defines the cefclient target.
