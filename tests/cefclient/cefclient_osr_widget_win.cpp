@@ -647,9 +647,14 @@ LRESULT CALLBACK OSRWindow::WndProc(HWND hWnd, UINT message,
       mouseTracking = false;
     }
     if (browser.get()) {
+      // Determine the cursor position in screen coordinates.
+      POINT p;
+      ::GetCursorPos(&p);
+      ::ScreenToClient(hWnd, &p);
+
       CefMouseEvent mouse_event;
-      mouse_event.x = 0;
-      mouse_event.y = 0;
+      mouse_event.x = p.x;
+      mouse_event.y = p.y;
       mouse_event.modifiers = GetCefMouseModifiers(wParam);
       browser->SendMouseMoveEvent(mouse_event, true);
     }
