@@ -114,6 +114,9 @@ std::string CefContentClient::GetUserAgent() const {
   std::string product_version;
 
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  if (command_line.HasSwitch(switches::kUserAgent))
+    return command_line.GetSwitchValueASCII(switches::kUserAgent);
+
   if (command_line.HasSwitch(switches::kProductVersion)) {
     product_version =
         command_line.GetSwitchValueASCII(switches::kProductVersion);
