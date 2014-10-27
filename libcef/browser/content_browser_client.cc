@@ -686,8 +686,9 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
       switches::kLocalesDirPath,
       switches::kLogFile,
       switches::kLogSeverity,
-      switches::kResourcesDirPath,
       switches::kProductVersion,
+      switches::kResourcesDirPath,
+      switches::kUserAgent,
     };
     command_line->CopySwitchesFrom(browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));
