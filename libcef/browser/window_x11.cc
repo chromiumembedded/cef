@@ -47,14 +47,39 @@ const char* kAtomsToCache[] = {
   ::Window root;
   ::Window parent;
   ::Window* children;
+  ::Window child_window = None;
   unsigned int nchildren;
   if (XQueryTree(display, window, &root, &parent, &children, &nchildren)) {
     DCHECK_EQ(1U, nchildren);
-    return children[0];
+    child_window = children[0];
+    XFree(children);
   }
-  return None;
+  return child_window;
 }
 
+::Window FindToplevelParent(::Display* display, ::Window window) {
+  ::Window top_level_window = window;
+  ::Window root = None;
+  ::Window parent = None;
+  ::Window* children = NULL;
+  unsigned int nchildren = 0;
+  // Enumerate all parents of "window" to find the highest level window
+  // that either:
+  //   - has a parent that does not contain the _NET_WM_PID property
+  //   - has a parent that is the root window.
+  while (XQueryTree(display, window, &root, &parent, &children, &nchildren)) {
+    if (children) {
+      XFree(children);
+    }
+
+    top_level_window = window;
+    if (!ui::PropertyExists(parent, kNetWMPid) || parent == root) {
+      break;
+    }
+    window = parent;
+  }
+  return top_level_window;
+}
 }  // namespace
 
 CEF_EXPORT XDisplay* cef_get_xdisplay() {
@@ -169,6 +194,39 @@ void CefWindowX11::Show() {
     if (ui::X11EventSource::GetInstance())
       ui::X11EventSource::GetInstance()->BlockUntilWindowMapped(xwindow_);
     window_mapped_ = true;
+
+    // Setup the drag and drop proxy on the top level window of the application
+    // to be the child of this window.
+    ::Window child = FindChild(xdisplay_, xwindow_);
+    ::Window toplevel_window = FindToplevelParent(xdisplay_, xwindow_);
+    DCHECK(toplevel_window);
+    if (child && toplevel_window) {
+      // Configure the drag&drop proxy property for the top-most window so
+      // that all drag&drop-related messages will be sent to the child
+      // DesktopWindowTreeHostX11. The proxy property is referenced by
+      // DesktopDragDropClientAuraX11::FindWindowFor.
+      ::Window proxy_target = gfx::kNullAcceleratedWidget;
+      ui::GetXIDProperty(toplevel_window, kXdndProxy, &proxy_target);
+
+      if (proxy_target != child) {
+        // Set the proxy target for the top-most window.
+        XChangeProperty(xdisplay_,
+              toplevel_window,
+              atom_cache_.GetAtom(kXdndProxy),
+              XA_WINDOW,
+              32,
+              PropModeReplace,
+              reinterpret_cast<unsigned char*>(&child), 1);
+        // Do the same for the proxy target per the spec.
+        XChangeProperty(xdisplay_,
+              child,
+              atom_cache_.GetAtom(kXdndProxy),
+              XA_WINDOW,
+              32,
+              PropModeReplace,
+              reinterpret_cast<unsigned char*>(&child), 1);
+      }
+    }
   }
 }
 
@@ -263,37 +321,9 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
           // methods return the correct results.
           views::DesktopWindowTreeHostX11* window_tree_host =
               views::DesktopWindowTreeHostX11::GetHostForXID(child);
-          if (window_tree_host)
-            window_tree_host->set_screen_bounds(bounds);
-
-          // Find the top-most window containing the browser window.
-          views::X11TopmostWindowFinder finder;
-          ::Window topmost_window = finder.FindWindowAt(bounds.origin());
-          DCHECK(topmost_window);
-
-          // Configure the drag&drop proxy property for the top-most window so
-          // that all drag&drop-related messages will be sent to the child
-          // DesktopWindowTreeHostX11. The proxy property is referenced by
-          // DesktopDragDropClientAuraX11::FindWindowFor.
-          ::Window proxy_target = gfx::kNullAcceleratedWidget;
-          ui::GetXIDProperty(topmost_window, kXdndProxy, &proxy_target);
-          if (proxy_target != child) {
-            // Set the proxy target for the top-most window.
-            XChangeProperty(xdisplay_,
-                  topmost_window,
-                  atom_cache_.GetAtom(kXdndProxy),
-                  XA_WINDOW,
-                  32,
-                  PropModeReplace,
-                  reinterpret_cast<unsigned char*>(&child), 1);
-            // Do the same for the proxy target per the spec.
-            XChangeProperty(xdisplay_,
-                  child,
-                  atom_cache_.GetAtom(kXdndProxy),
-                  XA_WINDOW,
-                  32,
-                  PropModeReplace,
-                  reinterpret_cast<unsigned char*>(&child), 1);
+          if (window_tree_host) {
+            window_tree_host->set_screen_bounds(
+                CefWindowX11::GetBoundsInScreen());
           }
         }
       }
@@ -344,7 +374,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
       delete this;
       break;
     case FocusIn:
-      // This message is recieved first followed by a "_NET_ACTIVE_WINDOW"
+      // This message is received first followed by a "_NET_ACTIVE_WINDOW"
       // message sent to the root window. When X11DesktopHandler handles the
       // "_NET_ACTIVE_WINDOW" message it will erroneously mark the WebView
       // (hosted in a DesktopWindowTreeHostX11) as unfocused. Use a delayed
@@ -355,6 +385,23 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
             base::Bind(&CefWindowX11::ContinueFocus,
                        weak_ptr_factory_.GetWeakPtr()),
             100);
+
+        // Explicitly set the screen bounds so that WindowTreeHost::*Screen()
+        // methods return the correct results. This is done here to update the
+        // bounds for the case of a simple window move which will not result in
+        // a ConfigureEvent in the case that this window is hosted in a parent,
+        // i.e. the CefClient use case.
+        if (browser_.get()) {
+          ::Window child = FindChild(xdisplay_, xwindow_);
+          if (child) {
+            views::DesktopWindowTreeHostX11* window_tree_host =
+                views::DesktopWindowTreeHostX11::GetHostForXID(child);
+            if (window_tree_host) {
+              window_tree_host->set_screen_bounds(
+                  CefWindowX11::GetBoundsInScreen());
+            }
+          }
+        }
       }
       break;
     case FocusOut:
