@@ -6,6 +6,14 @@
 #define CEF_TESTS_CEFCLIENT_CEFCLIENT_OSR_DRAGDROP_WIN_H_
 #pragma once
 
+// When generating projects with CMake the CEF_USE_ATL value will be defined
+// automatically if using a supported Visual Studio version. Pass -DUSE_ATL=OFF
+// to the CMake command-line to disable use of ATL.
+// Uncomment this line to manually enable ATL support.
+// #define CEF_USE_ATL 1
+
+#if defined(CEF_USE_ATL)
+
 #include <atlcomcli.h>
 #include <objidl.h>
 #include <stdio.h>
@@ -174,5 +182,7 @@ class DataObjectWin : public IDataObject {
 
   explicit DataObjectWin(FORMATETC *fmtetc, STGMEDIUM *stgmed, int count);
 };
+
+#endif  // defined(CEF_USE_ATL)
 
 #endif  // CEF_TESTS_CEFCLIENT_CEFCLIENT_OSR_DRAGDROP_WIN_H_
