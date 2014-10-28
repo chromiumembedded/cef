@@ -5,19 +5,15 @@
 add_definitions(-DUSING_CEF_SHARED)
 
 # Append platform specific sources to a list of sources.
-# Should be kept synchronized with APPEND_PLATFORM_SOURCES from macros.cmake.
 macro(LIBCEF_APPEND_PLATFORM_SOURCES name_of_list)
-  if(OS_LINUX AND ${name_of_list}_LINUX)
+  if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin" AND ${name_of_list}_MACOSX)
+    list(APPEND ${name_of_list} ${${name_of_list}_MACOSX})
+  endif()
+  if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" AND ${name_of_list}_LINUX)
     list(APPEND ${name_of_list} ${${name_of_list}_LINUX})
   endif()
-  if(OS_POSIX AND ${name_of_list}_POSIX)
-    list(APPEND ${name_of_list} ${${name_of_list}_POSIX})
-  endif()
-  if(OS_WINDOWS AND ${name_of_list}_WINDOWS)
+  if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows" AND ${name_of_list}_WINDOWS)
     list(APPEND ${name_of_list} ${${name_of_list}_WINDOWS})
-  endif()
-  if(OS_MACOSX AND ${name_of_list}_MACOSX)
-    list(APPEND ${name_of_list} ${${name_of_list}_MACOSX})
   endif()
 endmacro()
 
