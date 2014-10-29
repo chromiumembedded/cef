@@ -16,6 +16,10 @@
 #include "ui/gfx/rect.h"
 #include "ui/gfx/x/x11_atom_cache.h"
 
+namespace views {
+class DesktopWindowTreeHostX11;
+}
+
 // Object wrapper for an X11 Window.
 // Based on WindowTreeHostX11 and DesktopWindowTreeHostX11.
 class CefWindowX11 : public ui::PlatformEventDispatcher {
@@ -35,6 +39,8 @@ class CefWindowX11 : public ui::PlatformEventDispatcher {
   void SetBounds(const gfx::Rect& bounds);
 
   gfx::Rect GetBoundsInScreen();
+
+  views::DesktopWindowTreeHostX11* GetHost();
 
   // ui::PlatformEventDispatcher methods:
   virtual bool CanDispatchEvent(const ui::PlatformEvent& event) OVERRIDE;

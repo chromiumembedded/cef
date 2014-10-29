@@ -1164,6 +1164,24 @@ void CefBrowserHostImpl::SendCaptureLostEvent() {
     widget->LostCapture();
 }
 
+void CefBrowserHostImpl::NotifyMoveOrResizeStarted() {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::NotifyMoveOrResizeStarted, this));
+    return;
+  }
+
+  if (!web_contents())
+    return;
+
+  // Dismiss any existing popups.
+  content::RenderViewHost* rvh = web_contents()->GetRenderViewHost();
+  if (rvh)
+    rvh->NotifyMoveOrResizeStarted();
+
+  PlatformNotifyMoveOrResizeStarted();
+}
+
 // CefBrowser methods.
 // -----------------------------------------------------------------------------
 

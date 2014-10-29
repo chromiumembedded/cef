@@ -495,6 +495,16 @@ void CefBrowserHostCToCpp::SendCaptureLostEvent() {
   struct_->send_capture_lost_event(struct_);
 }
 
+void CefBrowserHostCToCpp::NotifyMoveOrResizeStarted() {
+  if (CEF_MEMBER_MISSING(struct_, notify_move_or_resize_started))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->notify_move_or_resize_started(struct_);
+}
+
 CefTextInputContext CefBrowserHostCToCpp::GetNSTextInputContext() {
   if (CEF_MEMBER_MISSING(struct_, get_nstext_input_context))
     return NULL;

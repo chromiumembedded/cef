@@ -645,6 +645,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       }
     } break;
 
+    case WM_MOVING:
+    case WM_MOVE:
+      // Notify the browser of move events so that popup windows are displayed
+      // in the correct location and dismissed when the window moves.
+      if (g_handler.get() && g_handler->GetBrowser())
+        g_handler->GetBrowser()->GetHost()->NotifyMoveOrResizeStarted();
+      return 0;
+
     case WM_ERASEBKGND:
       if (g_handler.get() && g_handler->GetBrowser()) {
         CefWindowHandle hwnd =

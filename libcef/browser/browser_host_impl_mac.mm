@@ -717,3 +717,6 @@ void CefBrowserHostImpl::PlatformTranslateMouseEvent(
   // timestamp - Mac OSX specific
   result.timeStampSeconds = currentEventTimestamp();
 }
+
+void CefBrowserHostImpl::PlatformNotifyMoveOrResizeStarted() {
+}

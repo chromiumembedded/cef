@@ -508,6 +508,13 @@ class CefBrowserHost : public virtual CefBase {
   virtual void SendCaptureLostEvent() =0;
 
   ///
+  // Notify the browser that the window hosting it is about to be moved or
+  // resized. This method is only used on Windows and Linux.
+  ///
+  /*--cef()--*/
+  virtual void NotifyMoveOrResizeStarted() =0;
+
+  ///
   // Get the NSTextInputContext implementation for enabling IME on Mac when
   // window rendering is disabled.
   ///

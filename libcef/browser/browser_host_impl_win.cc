@@ -31,10 +31,13 @@
 #include "grit/ui_unscaled_resources.h"
 #include "net/base/mime_util.h"
 #include "third_party/WebKit/public/web/WebInputEvent.h"
+#include "ui/aura/window_tree_host.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/win/shell.h"
 #include "ui/gfx/win/hwnd_util.h"
+#include "ui/views/widget/desktop_aura/desktop_window_tree_host_win.h"
 #include "ui/views/widget/widget.h"
+#include "ui/views/win/hwnd_message_handler_delegate.h"
 #include "ui/views/win/hwnd_util.h"
 
 #pragma comment(lib, "dwmapi.lib")
@@ -601,6 +604,12 @@ LRESULT CALLBACK CefBrowserHostImpl::WndProc(HWND hwnd, UINT message,
     }
     return 0;
 
+  case WM_MOVING:
+  case WM_MOVE:
+    if (browser)
+      browser->NotifyMoveOrResizeStarted();
+    return 0;
+
   case WM_SETFOCUS:
     if (browser)
       browser->SetFocus(true);
@@ -941,4 +950,25 @@ void CefBrowserHostImpl::PlatformTranslateMouseEvent(
 
   // timestamp
   result.timeStampSeconds = GetMessageTime() / 1000.0;
+}
+
+void CefBrowserHostImpl::PlatformNotifyMoveOrResizeStarted() {
+  if (IsWindowless())
+    return;
+
+  if (!window_widget_)
+    return;
+
+  // Notify DesktopWindowTreeHostWin of move events so that screen rectangle
+  // information is communicated to the renderer process and popups are
+  // displayed in the correct location.
+  views::DesktopWindowTreeHostWin* tree_host =
+      static_cast<views::DesktopWindowTreeHostWin*>(
+          aura::WindowTreeHost::GetForAcceleratedWidget(
+              HWNDForWidget(window_widget_)));
+  DCHECK(tree_host);
+  if (tree_host) {
+    // Cast to HWNDMessageHandlerDelegate so we can access HandleMove().
+    static_cast<views::HWNDMessageHandlerDelegate*>(tree_host)->HandleMove();
+  }
 }
