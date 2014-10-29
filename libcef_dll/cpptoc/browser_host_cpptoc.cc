@@ -637,6 +637,18 @@ void CEF_CALLBACK browser_host_send_capture_lost_event(
   CefBrowserHostCppToC::Get(self)->SendCaptureLostEvent();
 }
 
+void CEF_CALLBACK browser_host_notify_move_or_resize_started(
+    struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->NotifyMoveOrResizeStarted();
+}
+
 cef_text_input_context_t CEF_CALLBACK browser_host_get_nstext_input_context(
     struct _cef_browser_host_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -838,6 +850,8 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
   struct_.struct_.send_focus_event = browser_host_send_focus_event;
   struct_.struct_.send_capture_lost_event =
       browser_host_send_capture_lost_event;
+  struct_.struct_.notify_move_or_resize_started =
+      browser_host_notify_move_or_resize_started;
   struct_.struct_.get_nstext_input_context =
       browser_host_get_nstext_input_context;
   struct_.struct_.handle_key_event_before_text_input_client =

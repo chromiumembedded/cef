@@ -5,6 +5,10 @@
 
 #include "libcef/browser/browser_host_impl.h"
 
+// Include this first to avoid type conflict errors.
+#include "base/tracked_objects.h"
+#undef Status
+
 #include <sys/sysinfo.h>
 #include <X11/cursorfont.h>
 
@@ -14,10 +18,13 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/bind.h"
+#include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/public/browser/native_web_keyboard_event.h"
+#include "content/public/browser/render_view_host.h"
 #include "content/public/common/file_chooser_params.h"
 #include "content/public/common/renderer_preferences.h"
 #include "third_party/WebKit/public/web/WebInputEvent.h"
+#include "ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h"
 #include "ui/views/widget/widget.h"
 
 namespace {
@@ -429,3 +436,26 @@ void CefBrowserHostImpl::PlatformTranslateMouseEvent(
   // timestamp
   result.timeStampSeconds = GetSystemUptime();
 }
+
+void CefBrowserHostImpl::PlatformNotifyMoveOrResizeStarted() {
+  if (IsWindowless())
+    return;
+
+  if (!window_x11_)
+    return;
+
+  views::DesktopWindowTreeHostX11* tree_host = window_x11_->GetHost();
+  if (!tree_host)
+    return;
+
+  // Explicitly set the screen bounds so that WindowTreeHost::*Screen()
+  // methods return the correct results.
+  const gfx::Rect& bounds = window_x11_->GetBoundsInScreen();
+  tree_host->set_screen_bounds(bounds);
+
+  // Send updated screen rectangle information to the renderer process so that
+  // popups are displayed in the correct location.
+  content::RenderWidgetHostImpl::From(web_contents()->GetRenderViewHost())->
+      SendScreenRects();
+}
+

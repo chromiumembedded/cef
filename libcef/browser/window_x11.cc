@@ -290,6 +290,15 @@ gfx::Rect CefWindowX11::GetBoundsInScreen() {
   return gfx::Rect();
 }
 
+views::DesktopWindowTreeHostX11* CefWindowX11::GetHost() {
+  if (browser_.get()) {
+    ::Window child = FindChild(xdisplay_, xwindow_);
+    if (child)
+      return views::DesktopWindowTreeHostX11::GetHostForXID(child);
+  }
+  return NULL;
+}
+
 bool CefWindowX11::CanDispatchEvent(const ui::PlatformEvent& event) {
   ::Window target = FindEventTarget(event);
    return target == xwindow_;
@@ -317,14 +326,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
           changes.height = bounds.height();
           XConfigureWindow(xdisplay_, child, CWHeight | CWWidth, &changes);
 
-          // Explicitly set the screen bounds so that WindowTreeHost::*Screen()
-          // methods return the correct results.
-          views::DesktopWindowTreeHostX11* window_tree_host =
-              views::DesktopWindowTreeHostX11::GetHostForXID(child);
-          if (window_tree_host) {
-            window_tree_host->set_screen_bounds(
-                CefWindowX11::GetBoundsInScreen());
-          }
+          browser_->NotifyMoveOrResizeStarted();
         }
       }
       break;
@@ -385,23 +387,6 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
             base::Bind(&CefWindowX11::ContinueFocus,
                        weak_ptr_factory_.GetWeakPtr()),
             100);
-
-        // Explicitly set the screen bounds so that WindowTreeHost::*Screen()
-        // methods return the correct results. This is done here to update the
-        // bounds for the case of a simple window move which will not result in
-        // a ConfigureEvent in the case that this window is hosted in a parent,
-        // i.e. the CefClient use case.
-        if (browser_.get()) {
-          ::Window child = FindChild(xdisplay_, xwindow_);
-          if (child) {
-            views::DesktopWindowTreeHostX11* window_tree_host =
-                views::DesktopWindowTreeHostX11::GetHostForXID(child);
-            if (window_tree_host) {
-              window_tree_host->set_screen_bounds(
-                  CefWindowX11::GetBoundsInScreen());
-            }
-          }
-        }
       }
       break;
     case FocusOut:
@@ -454,3 +439,4 @@ void CefWindowX11::ContinueFocus() {
     browser_->SetFocus(true);
   focus_pending_ = false;
 }
+

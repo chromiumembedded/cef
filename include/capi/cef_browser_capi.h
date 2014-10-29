@@ -457,6 +457,13 @@ typedef struct _cef_browser_host_t {
       struct _cef_browser_host_t* self);
 
   ///
+  // Notify the browser that the window hosting it is about to be moved or
+  // resized. This function is only used on Windows and Linux.
+  ///
+  void (CEF_CALLBACK *notify_move_or_resize_started)(
+      struct _cef_browser_host_t* self);
+
+  ///
   // Get the NSTextInputContext implementation for enabling IME on Mac when
   // window rendering is disabled.
   ///

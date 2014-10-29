@@ -78,6 +78,7 @@ class CefBrowserHostCToCpp
       int deltaY) OVERRIDE;
   virtual void SendFocusEvent(bool setFocus) OVERRIDE;
   virtual void SendCaptureLostEvent() OVERRIDE;
+  virtual void NotifyMoveOrResizeStarted() OVERRIDE;
   virtual CefTextInputContext GetNSTextInputContext() OVERRIDE;
   virtual void HandleKeyEventBeforeTextInputClient(
       CefEventHandle keyEvent) OVERRIDE;

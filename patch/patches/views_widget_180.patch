@@ -57,7 +57,7 @@ index d184ae4..92ffd42 100644
    if (input_method)
      input_method->OnBlur();
 diff --git desktop_aura/desktop_window_tree_host_x11.cc desktop_aura/desktop_window_tree_host_x11.cc
-index 9831992..081a56a0 100644
+index 9831992..23a00a9 100644
 --- desktop_aura/desktop_window_tree_host_x11.cc
 +++ desktop_aura/desktop_window_tree_host_x11.cc
 @@ -147,7 +147,8 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
@@ -98,7 +98,16 @@ index 9831992..081a56a0 100644
    return bounds_;
  }
  
-@@ -933,6 +939,8 @@ void DesktopWindowTreeHostX11::SetBounds(const gfx::Rect& requested_bounds) {
+@@ -879,6 +885,8 @@ void DesktopWindowTreeHostX11::Hide() {
+ }
+ 
+ gfx::Rect DesktopWindowTreeHostX11::GetBounds() const {
++  if (!screen_bounds_.IsEmpty())
++    return screen_bounds_;
+   return bounds_;
+ }
+ 
+@@ -933,6 +941,8 @@ void DesktopWindowTreeHostX11::SetBounds(const gfx::Rect& requested_bounds) {
  }
  
  gfx::Point DesktopWindowTreeHostX11::GetLocationOnNativeScreen() const {
@@ -107,7 +116,7 @@ index 9831992..081a56a0 100644
    return bounds_.origin();
  }
  
-@@ -1085,10 +1093,14 @@ void DesktopWindowTreeHostX11::InitX11Window(
+@@ -1085,10 +1095,14 @@ void DesktopWindowTreeHostX11::InitX11Window(
      }
    }
  
@@ -123,7 +132,7 @@ index 9831992..081a56a0 100644
        bounds_.x(), bounds_.y(),
        bounds_.width(), bounds_.height(),
        0,               // border width
-@@ -1706,6 +1718,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
+@@ -1706,6 +1720,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
        }
        break;
      }

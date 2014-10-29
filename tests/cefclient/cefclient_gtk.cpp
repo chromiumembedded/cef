@@ -205,6 +205,24 @@ gboolean WindowState(GtkWidget* widget,
   return TRUE;
 }
 
+gboolean WindowConfigure(GtkWindow* window, 
+                         GdkEvent* event,
+                         gpointer data) {
+  // Called when size, position or stack order changes.
+  if (g_handler) {
+    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
+    if (browser) {
+      // Notify the browser of move/resize events so that:
+      // - Popup windows are displayed in the correct location and dismissed
+      //   when the window moves.
+      // - Drag&drop areas are updated accordingly.
+      browser->GetHost()->NotifyMoveOrResizeStarted();
+    }
+  }
+
+  return FALSE;  // Don't stop this message.
+}
+
 // Callback for Tests > Get Source... menu item.
 gboolean GetSourceActivated(GtkWidget* widget) {
   if (g_handler.get() && g_handler->GetBrowserId())
@@ -454,6 +472,8 @@ int main(int argc, char* argv[]) {
                    G_CALLBACK(WindowFocusIn), NULL);
   g_signal_connect(window, "window-state-event", 
                    G_CALLBACK(WindowState), NULL);
+  g_signal_connect(G_OBJECT(window), "configure-event",
+                   G_CALLBACK(WindowConfigure), NULL);
 
   GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
   g_signal_connect(vbox, "size-allocate",

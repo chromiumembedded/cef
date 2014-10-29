@@ -175,6 +175,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                                    int deltaX, int deltaY) OVERRIDE;
   virtual void SendFocusEvent(bool setFocus) OVERRIDE;
   virtual void SendCaptureLostEvent() OVERRIDE;
+  virtual void NotifyMoveOrResizeStarted() OVERRIDE;
   virtual CefTextInputContext GetNSTextInputContext() OVERRIDE;
   virtual void HandleKeyEventBeforeTextInputClient(CefEventHandle keyEvent)
       OVERRIDE;
@@ -539,6 +540,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
                                    int deltaX, int deltaY);
   void PlatformTranslateMouseEvent(blink::WebMouseEvent& web_event,
                                    const CefMouseEvent& mouse_event);
+
+  void PlatformNotifyMoveOrResizeStarted();
 
   int TranslateModifiers(uint32 cefKeyStates);
   void SendMouseEvent(const blink::WebMouseEvent& web_event);
