@@ -36,13 +36,13 @@
 // modification. It is the user's responsibility to provide synchronization if
 // modifying CEF strings from multiple threads.
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "include/internal/cef_build.h"
 #include "include/internal/cef_export.h"
 #include <stddef.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // CEF character type definitions. wchar_t is 2 bytes on Windows and 4 bytes on
 // most other platforms.

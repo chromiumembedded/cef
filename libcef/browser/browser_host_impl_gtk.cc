@@ -400,51 +400,11 @@ bool CefBrowserHostImpl::IsTransparent() {
 void CefBrowserHostImpl::PlatformTranslateKeyEvent(
     content::NativeWebKeyboardEvent& result,
     const CefKeyEvent& key_event) {
-  // Use a synthetic GdkEventKey in order to obtain the windowsKeyCode member
-  // from the NativeWebKeyboardEvent constructor. This is the only member
-  // which cannot be easily translated (without hardcoding keyCodes).
-
-  guint state = 0;
-  if (key_event.modifiers & EVENTFLAG_SHIFT_DOWN)
-    state |= GDK_SHIFT_MASK;
-  if (key_event.modifiers & EVENTFLAG_CAPS_LOCK_ON)
-    state |= GDK_LOCK_MASK;
-  if (key_event.modifiers & EVENTFLAG_CONTROL_DOWN)
-    state |= GDK_CONTROL_MASK;
-  if (key_event.modifiers & EVENTFLAG_ALT_DOWN)
-    state |= GDK_MOD1_MASK;
-  if (key_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
-    state |= GDK_BUTTON1_MASK;
-  if (key_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
-    state |= GDK_BUTTON2_MASK;
-  if (key_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
-    state |= GDK_BUTTON3_MASK;
-
-  GdkKeymap* keymap = gdk_keymap_get_for_display(gdk_display_get_default());
-
-  GdkKeymapKey *keys = NULL;
-  gint n_keys = 0;
-  if (gdk_keymap_get_entries_for_keyval(keymap, key_event.native_key_code,
-                                        &keys, &n_keys)) {
-    GdkEventKey event;
-    event.type = GDK_KEY_PRESS;
-    event.window = NULL;
-    event.send_event = 0;
-    event.time = 0;
-    event.state = state;
-    event.keyval = key_event.native_key_code;
-    event.length = 0;
-    event.string = NULL;
-    event.hardware_keycode = keys[0].keycode;
-    event.group = keys[0].group;
-    event.is_modifier = 0;
-    g_free(keys);
-    result = content::NativeWebKeyboardEvent(
-        reinterpret_cast<GdkEvent*>(&event));
-  }
-
   result.timeStampSeconds = GetSystemUptime();
 
+  result.windowsKeyCode = key_event.windows_key_code;
+  result.nativeKeyCode = key_event.native_key_code;
+  result.isSystemKey = key_event.is_system_key ? 1 : 0;
   switch (key_event.type) {
   case KEYEVENT_RAWKEYDOWN:
   case KEYEVENT_KEYDOWN:
@@ -459,6 +419,13 @@ void CefBrowserHostImpl::PlatformTranslateKeyEvent(
   default:
     NOTREACHED();
   }
+
+  result.text[0] = key_event.character;
+  result.unmodifiedText[0] = key_event.unmodified_character;
+
+  result.setKeyIdentifierFromWindowsKeyCode();
+
+  result.modifiers |= TranslateModifiers(key_event.modifiers);
 }
 
 void CefBrowserHostImpl::PlatformTranslateClickEvent(

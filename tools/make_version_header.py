@@ -116,10 +116,10 @@ def write_svn_header(header, chrome_version, cef_version, cpp_header_dir):
                   '#define DO_MAKE_STRING(p) #p\n'+\
                   '#define MAKE_STRING(p) DO_MAKE_STRING(p)\n\n'+\
                   '#ifndef APSTUDIO_HIDDEN_SYMBOLS\n\n'\
+                  '#include "include/internal/cef_export.h"\n\n'+\
                   '#ifdef __cplusplus\n'+\
                   'extern "C" {\n'+\
                   '#endif\n\n'+\
-                  '#include "internal/cef_export.h"\n\n'+\
                   '// The API hash is created by analyzing CEF header files for C API type\n'+\
                   '// definitions. The hash value will change when header files are modified\n'+\
                   '// in a way that may cause binary incompatibility with other builds. The\n'+\
