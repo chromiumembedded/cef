@@ -31,7 +31,6 @@ class CefWebPluginInfoCToCpp
   explicit CefWebPluginInfoCToCpp(cef_web_plugin_info_t* str)
       : CefCToCpp<CefWebPluginInfoCToCpp, CefWebPluginInfo,
           cef_web_plugin_info_t>(str) {}
-  virtual ~CefWebPluginInfoCToCpp() {}
 
   // CefWebPluginInfo methods
   virtual CefString GetName() OVERRIDE;

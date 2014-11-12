@@ -28,7 +28,6 @@ class CefV8ValueCppToC
     : public CefCppToC<CefV8ValueCppToC, CefV8Value, cef_v8value_t> {
  public:
   explicit CefV8ValueCppToC(CefV8Value* cls);
-  virtual ~CefV8ValueCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

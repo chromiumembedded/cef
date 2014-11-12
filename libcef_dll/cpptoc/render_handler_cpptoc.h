@@ -29,7 +29,6 @@ class CefRenderHandlerCppToC
         cef_render_handler_t> {
  public:
   explicit CefRenderHandlerCppToC(CefRenderHandler* cls);
-  virtual ~CefRenderHandlerCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

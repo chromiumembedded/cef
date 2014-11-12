@@ -22,8 +22,8 @@ class Delegate : public InternalHandlerDelegate {
  public:
   Delegate() {}
 
-  virtual bool OnRequest(CefRefPtr<CefRequest> request,
-                         Action* action) OVERRIDE {
+  bool OnRequest(CefRefPtr<CefRequest> request,
+                 Action* action) override {
     GURL url = GURL(request->GetURL().ToString());
     std::string path = url.path();
     if (path.length() > 0)

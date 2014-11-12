@@ -29,7 +29,6 @@ class CefWriteHandlerCppToC
         cef_write_handler_t> {
  public:
   explicit CefWriteHandlerCppToC(CefWriteHandler* cls);
-  virtual ~CefWriteHandlerCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

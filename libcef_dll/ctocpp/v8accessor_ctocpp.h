@@ -29,13 +29,12 @@ class CefV8AccessorCToCpp
  public:
   explicit CefV8AccessorCToCpp(cef_v8accessor_t* str)
       : CefCToCpp<CefV8AccessorCToCpp, CefV8Accessor, cef_v8accessor_t>(str) {}
-  virtual ~CefV8AccessorCToCpp() {}
 
   // CefV8Accessor methods
-  virtual bool Get(const CefString& name, const CefRefPtr<CefV8Value> object,
-      CefRefPtr<CefV8Value>& retval, CefString& exception) OVERRIDE;
-  virtual bool Set(const CefString& name, const CefRefPtr<CefV8Value> object,
-      const CefRefPtr<CefV8Value> value, CefString& exception) OVERRIDE;
+  bool Get(const CefString& name, const CefRefPtr<CefV8Value> object,
+      CefRefPtr<CefV8Value>& retval, CefString& exception) override;
+  bool Set(const CefString& name, const CefRefPtr<CefV8Value> object,
+      const CefRefPtr<CefV8Value> value, CefString& exception) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

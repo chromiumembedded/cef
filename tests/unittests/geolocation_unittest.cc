@@ -36,7 +36,7 @@ class GeolocationTestHandler : public TestHandler {
         request_id_(-1) {
   }
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     std::string html =
         "<html><head><script>"
         "navigator.geolocation.getCurrentPosition("
@@ -60,9 +60,9 @@ class GeolocationTestHandler : public TestHandler {
     CreateBrowser(kTestUrl);
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     std::string url = frame->GetURL();
     if (url != kTestUrl) {
       if (url == kTestAllowUrl)
@@ -83,11 +83,11 @@ class GeolocationTestHandler : public TestHandler {
       callback->Continue(false);
   }
 
-  virtual bool OnRequestGeolocationPermission(
+  bool OnRequestGeolocationPermission(
       CefRefPtr<CefBrowser> browser,
       const CefString& requesting_url,
       int request_id,
-      CefRefPtr<CefGeolocationCallback> callback) OVERRIDE {
+      CefRefPtr<CefGeolocationCallback> callback) override {
     got_requestgeolocationpermission_.yes();
 
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
@@ -105,10 +105,10 @@ class GeolocationTestHandler : public TestHandler {
     return true;
   }
 
-  virtual void OnCancelGeolocationPermission(
+  void OnCancelGeolocationPermission(
       CefRefPtr<CefBrowser> browser,
       const CefString& requesting_url,
-      int request_id) OVERRIDE {
+      int request_id) override {
     got_cancelgeolocationpermission_.yes();
 
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
@@ -117,7 +117,7 @@ class GeolocationTestHandler : public TestHandler {
     EXPECT_EQ(request_id, request_id_);
   }
 
-  virtual void DestroyTest() OVERRIDE {
+  void DestroyTest() override {
     EXPECT_TRUE(got_requestgeolocationpermission_);
     if (mode_ == TEST_CANCEL)
       EXPECT_TRUE(got_cancelgeolocationpermission_);
@@ -185,7 +185,7 @@ class TestGetGeolocationCallback : public CefGetGeolocationCallback {
       : event_(event) {
   }
 
-  virtual void OnLocationUpdate(const CefGeoposition& position) OVERRIDE {
+  void OnLocationUpdate(const CefGeoposition& position) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
     EXPECT_EQ(position.error_code, GEOPOSITON_ERROR_NONE);
     EXPECT_NE(position.latitude, 0.0);

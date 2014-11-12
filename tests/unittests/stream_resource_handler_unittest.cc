@@ -54,7 +54,7 @@ class ReadHandler : public CefReadHandler {
     return expected_result_;
   }
 
-  virtual size_t Read(void* ptr, size_t size, size_t n) OVERRIDE {
+  size_t Read(void* ptr, size_t size, size_t n) override {
     EXPECT_EQ(1U, size);
 
     // Read the minimum of requested size, remaining size or kReadBlockSize.
@@ -68,22 +68,22 @@ class ReadHandler : public CefReadHandler {
     return read_bytes;
   }
 
-  virtual int Seek(int64 offset, int whence) OVERRIDE {
+  int Seek(int64 offset, int whence) override {
     EXPECT_TRUE(false);  // Not reached.
     return 0;
   }
 
-  virtual int64 Tell() OVERRIDE {
+  int64 Tell() override {
     EXPECT_TRUE(false);  // Not reached.
     return 0;
   }
 
-  virtual int Eof() OVERRIDE {
+  int Eof() override {
     EXPECT_TRUE(false);  // Not reached.
     return 0;
   }
 
-  virtual bool MayBlock() OVERRIDE {
+  bool MayBlock() override {
     return may_block_;
   }
 
@@ -102,7 +102,7 @@ class ReadTestHandler : public RoutingTestHandler {
       : may_block_(may_block),
         expected_result_(0) {}
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     // Create the browser.
     CreateBrowser(kTestUrl);
 
@@ -113,10 +113,10 @@ class ReadTestHandler : public RoutingTestHandler {
 #endif
   }
 
-  virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
+  CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request) OVERRIDE {
+      CefRefPtr<CefRequest> request) override {
     got_resource_handler_.yes();
 
     const std::string& url = request->GetURL();
@@ -131,12 +131,12 @@ class ReadTestHandler : public RoutingTestHandler {
     return new CefStreamResourceHandler("text/html", stream);
   }
 
-  virtual bool OnQuery(CefRefPtr<CefBrowser> browser,
-                       CefRefPtr<CefFrame> frame,
-                       int64 query_id,
-                       const CefString& request,
-                       bool persistent,
-                       CefRefPtr<Callback> callback) OVERRIDE {
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64 query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
     got_on_query_.yes();
 
     const int actual_result = atoi(request.ToString().c_str());
@@ -147,10 +147,10 @@ class ReadTestHandler : public RoutingTestHandler {
     return true;
   }
 
-  virtual void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
-                                    bool isLoading,
-                                    bool canGoBack,
-                                    bool canGoForward) OVERRIDE {
+  void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                            bool isLoading,
+                            bool canGoBack,
+                            bool canGoForward) override {
     if (!isLoading) {
       got_on_loading_state_change_done_.yes();
       DestroyTestIfDone();
@@ -163,7 +163,7 @@ class ReadTestHandler : public RoutingTestHandler {
       DestroyTest();
   }
 
-  virtual void DestroyTest() OVERRIDE {
+  void DestroyTest() override {
     EXPECT_TRUE(got_resource_handler_);
     EXPECT_TRUE(got_on_query_);
     EXPECT_TRUE(got_on_loading_state_change_done_);

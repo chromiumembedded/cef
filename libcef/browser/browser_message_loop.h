@@ -15,7 +15,7 @@ class CefBrowserMessageLoop : public base::MessageLoopForUI {
 
  public:
   CefBrowserMessageLoop();
-  virtual ~CefBrowserMessageLoop();
+  ~CefBrowserMessageLoop() override;
 
   // Returns the MessageLoopForUI of the current thread.
   static CefBrowserMessageLoop* current();

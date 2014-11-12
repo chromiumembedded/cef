@@ -26,19 +26,16 @@ class CefSimpleMenuModel : public ui::MenuModel {
         menu_model_delegate_(NULL) {
   }
 
-  virtual ~CefSimpleMenuModel() {
-  }
-
   // MenuModel methods.
-  virtual bool HasIcons() const OVERRIDE {
+  bool HasIcons() const override {
     return false;
   }
 
-  virtual int GetItemCount() const OVERRIDE {
+  int GetItemCount() const override {
     return impl_->GetCount();
   }
 
-  virtual ItemType GetTypeAt(int index) const OVERRIDE {
+  ItemType GetTypeAt(int index) const override {
     switch (impl_->GetTypeAt(index)) {
     case MENUITEMTYPE_COMMAND:
       return TYPE_COMMAND;
@@ -56,24 +53,24 @@ class CefSimpleMenuModel : public ui::MenuModel {
     }
   }
 
-  virtual ui::MenuSeparatorType GetSeparatorTypeAt(int index) const OVERRIDE {
+  ui::MenuSeparatorType GetSeparatorTypeAt(int index) const override {
     return ui::NORMAL_SEPARATOR;
   }
 
-  virtual int GetCommandIdAt(int index) const OVERRIDE {
+  int GetCommandIdAt(int index) const override {
     return impl_->GetCommandIdAt(index);
   }
 
-  virtual base::string16 GetLabelAt(int index) const OVERRIDE {
+  base::string16 GetLabelAt(int index) const override {
     return impl_->GetFormattedLabelAt(index);
   }
 
-  virtual bool IsItemDynamicAt(int index) const OVERRIDE {
+  bool IsItemDynamicAt(int index) const override {
     return false;
   }
 
-  virtual bool GetAcceleratorAt(int index,
-                                ui::Accelerator* accelerator) const OVERRIDE {
+  bool GetAcceleratorAt(int index,
+                        ui::Accelerator* accelerator) const override {
     int key_code = 0;
     bool shift_pressed = false;
     bool ctrl_pressed = false;
@@ -95,63 +92,63 @@ class CefSimpleMenuModel : public ui::MenuModel {
     return false;
   }
 
-  virtual bool IsItemCheckedAt(int index) const OVERRIDE {
+  bool IsItemCheckedAt(int index) const override {
     return impl_->IsCheckedAt(index);
   }
 
-  virtual int GetGroupIdAt(int index) const OVERRIDE {
+  int GetGroupIdAt(int index) const override {
     return impl_->GetGroupIdAt(index);
   }
 
-  virtual bool GetIconAt(int index, gfx::Image* icon) OVERRIDE {
+  bool GetIconAt(int index, gfx::Image* icon) override {
     return false;
   }
 
-  virtual ui::ButtonMenuItemModel* GetButtonMenuItemAt(
-      int index) const OVERRIDE {
+  ui::ButtonMenuItemModel* GetButtonMenuItemAt(
+      int index) const override {
     return NULL;
   }
 
-  virtual bool IsEnabledAt(int index) const OVERRIDE {
+  bool IsEnabledAt(int index) const override {
     return impl_->IsEnabledAt(index);
   }
 
-  virtual bool IsVisibleAt(int index) const OVERRIDE {
+  bool IsVisibleAt(int index) const override {
     return impl_->IsVisibleAt(index);
   }
 
-  virtual void HighlightChangedTo(int index) OVERRIDE {
+  void HighlightChangedTo(int index) override {
   }
 
-  virtual void ActivatedAt(int index) OVERRIDE {
+  void ActivatedAt(int index) override {
     ActivatedAt(index, 0);
   }
 
-  virtual void ActivatedAt(int index, int event_flags) OVERRIDE {
+  void ActivatedAt(int index, int event_flags) override {
     impl_->ActivatedAt(index, static_cast<cef_event_flags_t>(event_flags));
   }
 
-  virtual MenuModel* GetSubmenuModelAt(int index) const OVERRIDE {
+  MenuModel* GetSubmenuModelAt(int index) const override {
     CefRefPtr<CefMenuModel> submenu = impl_->GetSubMenuAt(index);
     if (submenu.get())
       return static_cast<CefMenuModelImpl*>(submenu.get())->model();
     return NULL;
   }
 
-  virtual void MenuWillShow() OVERRIDE {
+  void MenuWillShow() override {
     impl_->MenuWillShow();
   }
 
-  virtual void MenuClosed() OVERRIDE {
+  void MenuClosed() override {
     impl_->MenuClosed();
   }
 
-  virtual void SetMenuModelDelegate(
-      ui::MenuModelDelegate* menu_model_delegate) OVERRIDE {
+  void SetMenuModelDelegate(
+      ui::MenuModelDelegate* menu_model_delegate) override {
     menu_model_delegate_ = menu_model_delegate;
   }
 
-  virtual ui::MenuModelDelegate* GetMenuModelDelegate() const OVERRIDE {
+  ui::MenuModelDelegate* GetMenuModelDelegate() const override {
     return menu_model_delegate_;
   }
 

@@ -8,7 +8,7 @@
 // Include this first to avoid type conflicts with CEF headers.
 #include "tests/unittests/chromium_includes.h"
 
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/files/scoped_temp_dir.h"
 #include "base/strings/stringprintf.h"
 #include "base/synchronization/waitable_event.h"
@@ -146,12 +146,12 @@ void TestSaveCookie(base::WaitableEvent* event, bool* cookie_exists) {
       : event_(event),
         cookie_exists_(cookie_exists) {
     }
-    virtual ~Visitor() {
+    ~Visitor() override {
       event_->Signal();
     }
 
-    virtual bool Visit(const CefCookie& cookie, int count, int total,
-                       bool& deleteCookie) OVERRIDE {
+    bool Visit(const CefCookie& cookie, int count, int total,
+                bool& deleteCookie) override {
       std::string cookie_name = CefString(&cookie.name);
       if (cookie_name == kRequestSaveCookieName) {
         *cookie_exists_ = true;
@@ -185,8 +185,8 @@ class RequestSchemeHandler : public CefResourceHandler {
       offset_(0) {
   }
 
-  virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              CefRefPtr<CefCallback> callback) OVERRIDE {
+  bool ProcessRequest(CefRefPtr<CefRequest> request,
+                      CefRefPtr<CefCallback> callback) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     // Shouldn't get here if we're not following redirects.
@@ -229,9 +229,9 @@ class RequestSchemeHandler : public CefResourceHandler {
     return true;
   }
 
-  virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                                  int64& response_length,
-                                  CefString& redirectUrl) OVERRIDE {
+  void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                          int64& response_length,
+                          CefString& redirectUrl) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     response->SetStatus(settings_.response->GetStatus());
@@ -252,10 +252,10 @@ class RequestSchemeHandler : public CefResourceHandler {
     response_length = settings_.response_data.length();
   }
 
-  virtual bool ReadResponse(void* response_data_out,
-                            int bytes_to_read,
-                            int& bytes_read,
-                            CefRefPtr<CefCallback> callback) OVERRIDE {
+  bool ReadResponse(void* response_data_out,
+                    int bytes_to_read,
+                    int& bytes_read,
+                    CefRefPtr<CefCallback> callback) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     bool has_data = false;
@@ -277,7 +277,7 @@ class RequestSchemeHandler : public CefResourceHandler {
     return has_data;
   }
 
-  virtual void Cancel() OVERRIDE {
+  void Cancel() override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
   }
 
@@ -297,8 +297,8 @@ class RequestRedirectSchemeHandler : public CefResourceHandler {
       response_(response) {
   }
 
-  virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              CefRefPtr<CefCallback> callback) OVERRIDE {
+  bool ProcessRequest(CefRefPtr<CefRequest> request,
+                      CefRefPtr<CefCallback> callback) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     // Verify that the request was sent correctly.
@@ -309,9 +309,9 @@ class RequestRedirectSchemeHandler : public CefResourceHandler {
     return true;
   }
 
-  virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                                  int64& response_length,
-                                  CefString& redirectUrl) OVERRIDE {
+  void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                          int64& response_length,
+                          CefString& redirectUrl) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     response->SetStatus(response_->GetStatus());
@@ -325,16 +325,16 @@ class RequestRedirectSchemeHandler : public CefResourceHandler {
     response_length = 0;
   }
 
-  virtual bool ReadResponse(void* response_data_out,
-                            int bytes_to_read,
-                            int& bytes_read,
-                            CefRefPtr<CefCallback> callback) OVERRIDE {
+  bool ReadResponse(void* response_data_out,
+                    int bytes_to_read,
+                    int& bytes_read,
+                    CefRefPtr<CefCallback> callback) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
     NOTREACHED();
     return false;
   }
 
-  virtual void Cancel() OVERRIDE {
+  void Cancel() override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
   }
 
@@ -351,12 +351,11 @@ class RequestSchemeHandlerFactory : public CefSchemeHandlerFactory {
   RequestSchemeHandlerFactory() {
   }
 
-  virtual CefRefPtr<CefResourceHandler> Create(
+  CefRefPtr<CefResourceHandler> Create(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       const CefString& scheme_name,
-      CefRefPtr<CefRequest> request)
-      OVERRIDE {
+      CefRefPtr<CefRequest> request) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
     std::string url = request->GetURL();
     
@@ -431,7 +430,7 @@ class RequestClient : public CefURLRequestClient {
     return client;
   }
 
-  virtual void OnRequestComplete(CefRefPtr<CefURLRequest> request) OVERRIDE {
+  void OnRequestComplete(CefRefPtr<CefURLRequest> request) override {
     request_complete_ct_++;
 
     request_ = request->GetRequest();
@@ -445,16 +444,16 @@ class RequestClient : public CefURLRequestClient {
     delegate_->OnRequestComplete(this);
   }
 
-  virtual void OnUploadProgress(CefRefPtr<CefURLRequest> request,
-                                uint64 current,
-                                uint64 total) OVERRIDE {
+  void OnUploadProgress(CefRefPtr<CefURLRequest> request,
+                        uint64 current,
+                        uint64 total) override {
     upload_progress_ct_++;
     upload_total_ = total;
   }
 
-  virtual void OnDownloadProgress(CefRefPtr<CefURLRequest> request,
-                                  uint64 current,
-                                  uint64 total) OVERRIDE {
+  void OnDownloadProgress(CefRefPtr<CefURLRequest> request,
+                          uint64 current,
+                          uint64 total) override {
     response_ = request->GetResponse();
     EXPECT_TRUE(response_.get());
     EXPECT_TRUE(response_->IsReadOnly());
@@ -462,9 +461,9 @@ class RequestClient : public CefURLRequestClient {
     download_total_ = total;
   }
 
-  virtual void OnDownloadData(CefRefPtr<CefURLRequest> request,
-                              const void* data,
-                              size_t data_length) OVERRIDE {
+  void OnDownloadData(CefRefPtr<CefURLRequest> request,
+                      const void* data,
+                      size_t data_length) override {
     response_ = request->GetResponse();
     EXPECT_TRUE(response_.get());
     EXPECT_TRUE(response_->IsReadOnly());
@@ -472,12 +471,12 @@ class RequestClient : public CefURLRequestClient {
     download_data_ += std::string(static_cast<const char*>(data), data_length);
   }
 
-   virtual bool GetAuthCredentials(bool isProxy,
-                                  const CefString& host,
-                                  int port,
-                                  const CefString& realm,
-                                  const CefString& scheme,
-                                  CefRefPtr<CefAuthCallback> callback) OVERRIDE {
+   bool GetAuthCredentials(bool isProxy,
+                           const CefString& host,
+                           int port,
+                           const CefString& realm,
+                           const CefString& scheme,
+                           CefRefPtr<CefAuthCallback> callback) override {
      return false;
    }
 
@@ -699,7 +698,7 @@ class RequestTestRunner {
           settings_(settings) {
       }
 
-      virtual void OnRequestComplete(CefRefPtr<RequestClient> client) OVERRIDE {
+      void OnRequestComplete(CefRefPtr<RequestClient> client) override {
         CefRefPtr<CefRequest> expected_request;
         CefRefPtr<CefResponse> expected_response;
 
@@ -850,11 +849,11 @@ class RequestRendererTest : public ClientApp::RenderDelegate,
     : test_runner_(this, false) {
   }
 
-  virtual bool OnProcessMessageReceived(
+  bool OnProcessMessageReceived(
       CefRefPtr<ClientApp> app,
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE {
+      CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName() == kRequestTestMsg) {
       app_ = app;
       browser_ = browser;
@@ -877,7 +876,7 @@ class RequestRendererTest : public ClientApp::RenderDelegate,
 
  protected:
   // Return from the test.
-  virtual void DestroyTest(const RequestRunSettings& settings) OVERRIDE {
+  void DestroyTest(const RequestRunSettings& settings) override {
     // Check if the test has failed.
     bool result = !TestFailed();
 
@@ -915,7 +914,7 @@ class RequestTestHandler : public TestHandler,
       test_runner_(this, true) {
   }
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     EXPECT_TRUE(test_url_ != NULL);
     AddResource(test_url_, "<html><body>TEST</body></html>", "text/html");
 
@@ -937,9 +936,9 @@ class RequestTestHandler : public TestHandler,
     return msg;
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     if (frame->IsMain()) {
       if (test_in_browser_) {
         // Run the test in the browser process.
@@ -952,10 +951,10 @@ class RequestTestHandler : public TestHandler,
     }
   }
 
-  virtual bool OnProcessMessageReceived(
+  bool OnProcessMessageReceived(
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE {
+      CefRefPtr<CefProcessMessage> message) override {
     EXPECT_TRUE(browser.get());
     EXPECT_EQ(PID_RENDERER, source_process);
     EXPECT_TRUE(message.get());
@@ -972,7 +971,7 @@ class RequestTestHandler : public TestHandler,
     return true;
   }
 
-  virtual void DestroyTest(const RequestRunSettings& settings) OVERRIDE {
+  void DestroyTest(const RequestRunSettings& settings) override {
     base::WaitableEvent event(false, false);
 
     bool has_save_cookie = false;
@@ -1108,7 +1107,7 @@ class InvalidURLTestClient : public CefURLRequestClient {
     event_.Wait();
   }
 
-  virtual void OnRequestComplete(CefRefPtr<CefURLRequest> client) OVERRIDE {
+  void OnRequestComplete(CefRefPtr<CefURLRequest> client) override {
     EXPECT_EQ(UR_FAILED, client->GetRequestStatus());
 
     // Let the call stack unwind before signaling completion.
@@ -1116,31 +1115,31 @@ class InvalidURLTestClient : public CefURLRequestClient {
         base::Bind(&InvalidURLTestClient::CompleteOnUIThread, this));
   }
 
-  virtual void OnUploadProgress(CefRefPtr<CefURLRequest> request,
-                                uint64 current,
-                                uint64 total) OVERRIDE {
+  void OnUploadProgress(CefRefPtr<CefURLRequest> request,
+                        uint64 current,
+                        uint64 total) override {
     EXPECT_TRUE(false);  // Not reached.
   }
 
-  virtual void OnDownloadProgress(CefRefPtr<CefURLRequest> request,
-                                  uint64 current,
-                                  uint64 total) OVERRIDE {
+  void OnDownloadProgress(CefRefPtr<CefURLRequest> request,
+                          uint64 current,
+                          uint64 total) override {
     EXPECT_TRUE(false);  // Not reached.
   }
 
-  virtual void OnDownloadData(CefRefPtr<CefURLRequest> request,
-                              const void* data,
-                              size_t data_length) OVERRIDE {
+  void OnDownloadData(CefRefPtr<CefURLRequest> request,
+                      const void* data,
+                      size_t data_length) override {
     EXPECT_TRUE(false);  // Not reached.
   }
 
-  virtual bool GetAuthCredentials(
+  bool GetAuthCredentials(
       bool isProxy,
       const CefString& host,
       int port,
       const CefString& realm,
       const CefString& scheme,
-      CefRefPtr<CefAuthCallback> callback) OVERRIDE {
+      CefRefPtr<CefAuthCallback> callback) override {
     EXPECT_TRUE(false);  // Not reached.
     return false;
   }

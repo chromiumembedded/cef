@@ -31,7 +31,6 @@ class CefGeolocationCallbackCToCpp
   explicit CefGeolocationCallbackCToCpp(cef_geolocation_callback_t* str)
       : CefCToCpp<CefGeolocationCallbackCToCpp, CefGeolocationCallback,
           cef_geolocation_callback_t>(str) {}
-  virtual ~CefGeolocationCallbackCToCpp() {}
 
   // CefGeolocationCallback methods
   virtual void Continue(bool allow) OVERRIDE;

@@ -27,21 +27,20 @@ class CefResourceRequestJob : public net::URLRequestJob {
   CefResourceRequestJob(net::URLRequest* request,
                         net::NetworkDelegate* network_delegate,
                         CefRefPtr<CefResourceHandler> handler);
-  virtual ~CefResourceRequestJob();
+  ~CefResourceRequestJob() override;
 
  private:
   // net::URLRequestJob methods.
-  virtual void Start() OVERRIDE;
-  virtual void Kill() OVERRIDE;
-  virtual bool ReadRawData(net::IOBuffer* dest, int dest_size, int* bytes_read)
-      OVERRIDE;
-  virtual void GetResponseInfo(net::HttpResponseInfo* info) OVERRIDE;
-  virtual void GetLoadTimingInfo(
-      net::LoadTimingInfo* load_timing_info) const OVERRIDE;
-  virtual bool GetResponseCookies(std::vector<std::string>* cookies) OVERRIDE;
-  virtual bool IsRedirectResponse(GURL* location, int* http_status_code)
-      OVERRIDE;
-  virtual bool GetMimeType(std::string* mime_type) const OVERRIDE;
+  void Start() override;
+  void Kill() override;
+  bool ReadRawData(net::IOBuffer* dest, int dest_size, int* bytes_read) override;
+  void GetResponseInfo(net::HttpResponseInfo* info) override;
+  void GetLoadTimingInfo(
+      net::LoadTimingInfo* load_timing_info) const override;
+  bool GetResponseCookies(std::vector<std::string>* cookies) override;
+  bool IsRedirectResponse(GURL* location, int* http_status_code)
+      override;
+  bool GetMimeType(std::string* mime_type) const override;
 
   void SendHeaders();
 

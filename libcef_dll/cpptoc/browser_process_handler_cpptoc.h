@@ -29,7 +29,6 @@ class CefBrowserProcessHandlerCppToC
         cef_browser_process_handler_t> {
  public:
   explicit CefBrowserProcessHandlerCppToC(CefBrowserProcessHandler* cls);
-  virtual ~CefBrowserProcessHandlerCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

@@ -30,7 +30,6 @@ class CefBrowserCppToC
     : public CefCppToC<CefBrowserCppToC, CefBrowser, cef_browser_t> {
  public:
   explicit CefBrowserCppToC(CefBrowser* cls);
-  virtual ~CefBrowserCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

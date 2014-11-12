@@ -51,7 +51,7 @@ class CefTrackNode {
 class CefTrackManager : public CefBase {
  public:
   CefTrackManager();
-  virtual ~CefTrackManager();
+  ~CefTrackManager() override;
 
   // Add an object to be tracked by this manager.
   void Add(CefTrackNode* object);

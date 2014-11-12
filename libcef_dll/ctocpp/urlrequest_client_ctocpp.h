@@ -31,19 +31,18 @@ class CefURLRequestClientCToCpp
   explicit CefURLRequestClientCToCpp(cef_urlrequest_client_t* str)
       : CefCToCpp<CefURLRequestClientCToCpp, CefURLRequestClient,
           cef_urlrequest_client_t>(str) {}
-  virtual ~CefURLRequestClientCToCpp() {}
 
   // CefURLRequestClient methods
-  virtual void OnRequestComplete(CefRefPtr<CefURLRequest> request) OVERRIDE;
-  virtual void OnUploadProgress(CefRefPtr<CefURLRequest> request,
-      uint64 current, uint64 total) OVERRIDE;
-  virtual void OnDownloadProgress(CefRefPtr<CefURLRequest> request,
-      uint64 current, uint64 total) OVERRIDE;
-  virtual void OnDownloadData(CefRefPtr<CefURLRequest> request,
-      const void* data, size_t data_length) OVERRIDE;
-  virtual bool GetAuthCredentials(bool isProxy, const CefString& host, int port,
+  void OnRequestComplete(CefRefPtr<CefURLRequest> request) override;
+  void OnUploadProgress(CefRefPtr<CefURLRequest> request, uint64 current,
+      uint64 total) override;
+  void OnDownloadProgress(CefRefPtr<CefURLRequest> request, uint64 current,
+      uint64 total) override;
+  void OnDownloadData(CefRefPtr<CefURLRequest> request, const void* data,
+      size_t data_length) override;
+  bool GetAuthCredentials(bool isProxy, const CefString& host, int port,
       const CefString& realm, const CefString& scheme,
-      CefRefPtr<CefAuthCallback> callback) OVERRIDE;
+      CefRefPtr<CefAuthCallback> callback) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

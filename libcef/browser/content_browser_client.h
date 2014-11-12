@@ -38,7 +38,7 @@ class SiteInstance;
 class CefContentBrowserClient : public content::ContentBrowserClient {
  public:
   CefContentBrowserClient();
-  virtual ~CefContentBrowserClient();
+  ~CefContentBrowserClient() override;
 
   // Returns the singleton CefContentBrowserClient instance.
   static CefContentBrowserClient* Get();
@@ -79,31 +79,31 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   void RemoveBrowserContextReference(CefBrowserContext* context);
 
   // ContentBrowserClient implementation.
-  virtual content::BrowserMainParts* CreateBrowserMainParts(
-      const content::MainFunctionParams& parameters) OVERRIDE;
-  virtual void RenderProcessWillLaunch(
-      content::RenderProcessHost* host) OVERRIDE;
-  virtual net::URLRequestContextGetter* CreateRequestContext(
+  content::BrowserMainParts* CreateBrowserMainParts(
+      const content::MainFunctionParams& parameters) override;
+  void RenderProcessWillLaunch(
+      content::RenderProcessHost* host) override;
+  net::URLRequestContextGetter* CreateRequestContext(
       content::BrowserContext* browser_context,
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors)
-      OVERRIDE;
-  virtual net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
+      override;
+  net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
       content::BrowserContext* browser_context,
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors)
-      OVERRIDE;
-  virtual bool IsHandledURL(const GURL& url) OVERRIDE;
-  virtual void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
-                                              int child_process_id) OVERRIDE;
-  virtual content::QuotaPermissionContext*
-      CreateQuotaPermissionContext() OVERRIDE;
-  virtual content::MediaObserver* GetMediaObserver() OVERRIDE;
-  virtual content::SpeechRecognitionManagerDelegate*
-      GetSpeechRecognitionManagerDelegate() OVERRIDE;
-  virtual void AllowCertificateError(
+      override;
+  bool IsHandledURL(const GURL& url) override;
+  void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
+                                              int child_process_id) override;
+  content::QuotaPermissionContext*
+      CreateQuotaPermissionContext() override;
+  content::MediaObserver* GetMediaObserver() override;
+  content::SpeechRecognitionManagerDelegate*
+      GetSpeechRecognitionManagerDelegate() override;
+  void AllowCertificateError(
       int render_process_id,
       int render_frame_id,
       int cert_error,
@@ -114,49 +114,53 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       bool strict_enforcement,
       bool expired_previous_decision,
       const base::Callback<void(bool)>& callback,
-      content::CertificateRequestResultType* result) OVERRIDE;
-  virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
-  virtual void RequestGeolocationPermission(
+      content::CertificateRequestResultType* result) override;
+  content::AccessTokenStore* CreateAccessTokenStore() override;
+  void RequestPermission(
+      content::PermissionType permission,
       content::WebContents* web_contents,
       int bridge_id,
       const GURL& requesting_frame,
       bool user_gesture,
-      base::Callback<void(bool)> result_callback,
-      base::Closure* cancel_callback) OVERRIDE;
-  virtual bool CanCreateWindow(const GURL& opener_url,
-                               const GURL& opener_top_level_frame_url,
-                               const GURL& source_origin,
-                               WindowContainerType container_type,
-                               const GURL& target_url,
-                               const content::Referrer& referrer,
-                               WindowOpenDisposition disposition,
-                               const blink::WebWindowFeatures& features,
-                               bool user_gesture,
-                               bool opener_suppressed,
-                               content::ResourceContext* context,
-                               int render_process_id,
-                               int opener_id,
-                               bool* no_javascript_access) OVERRIDE;
-  virtual void ResourceDispatcherHostCreated() OVERRIDE;
-  virtual void OverrideWebkitPrefs(content::RenderViewHost* rvh,
-                                   const GURL& url,
-                                   content::WebPreferences* prefs) OVERRIDE;
-  virtual SkColor GetBaseBackgroundColor(content::RenderViewHost* rvh) OVERRIDE;
-  virtual void BrowserURLHandlerCreated(
-      content::BrowserURLHandler* handler) OVERRIDE;
-  virtual std::string GetDefaultDownloadName() OVERRIDE;
-  virtual content::DevToolsManagerDelegate* GetDevToolsManagerDelegate()
-      OVERRIDE;
+      const base::Callback<void(bool)>& result_callback) override;
+  void CancelPermissionRequest(content::PermissionType permission,
+                                       content::WebContents* web_contents,
+                                       int bridge_id,
+                                       const GURL& requesting_frame) override;
+  bool CanCreateWindow(const GURL& opener_url,
+                       const GURL& opener_top_level_frame_url,
+                       const GURL& source_origin,
+                       WindowContainerType container_type,
+                       const GURL& target_url,
+                       const content::Referrer& referrer,
+                       WindowOpenDisposition disposition,
+                       const blink::WebWindowFeatures& features,
+                       bool user_gesture,
+                       bool opener_suppressed,
+                       content::ResourceContext* context,
+                       int render_process_id,
+                       int opener_id,
+                       bool* no_javascript_access) override;
+  void ResourceDispatcherHostCreated() override;
+  void OverrideWebkitPrefs(content::RenderViewHost* rvh,
+                           const GURL& url,
+                           content::WebPreferences* prefs) override;
+  SkColor GetBaseBackgroundColor(content::RenderViewHost* rvh) override;
+  void BrowserURLHandlerCreated(
+      content::BrowserURLHandler* handler) override;
+  std::string GetDefaultDownloadName() override;
+  content::DevToolsManagerDelegate* GetDevToolsManagerDelegate()
+      override;
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
-  virtual void GetAdditionalMappedFilesForChildProcess(
+  void GetAdditionalMappedFilesForChildProcess(
       const base::CommandLine& command_line,
       int child_process_id,
-      std::vector<content::FileDescriptorInfo>* mappings) OVERRIDE;
+      content::FileDescriptorInfo* mappings) override;
 #endif
 
 #if defined(OS_WIN)
-  const wchar_t* GetResourceDllName() OVERRIDE;
+  const wchar_t* GetResourceDllName() override;
 #endif
 
   // Perform browser process registration for the custom scheme.

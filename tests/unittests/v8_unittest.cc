@@ -88,9 +88,9 @@ class V8BrowserTest : public ClientApp::BrowserDelegate {
  public:
   V8BrowserTest() {}
 
-  virtual void OnBeforeChildProcessLaunch(
+  void OnBeforeChildProcessLaunch(
       CefRefPtr<ClientApp> app,
-      CefRefPtr<CefCommandLine> command_line) OVERRIDE {
+      CefRefPtr<CefCommandLine> command_line) override {
     CefString process_type = command_line->GetSwitchValue("type");
     if (process_type == "renderer") {
       // Add the current test mode to the render process command line arguments.
@@ -577,10 +577,10 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     class Accessor : public CefV8Accessor {
      public:
       Accessor() : value_(0) {}
-      virtual bool Get(const CefString& name,
-                       const CefRefPtr<CefV8Value> object,
-                       CefRefPtr<CefV8Value>& retval,
-                       CefString& exception) OVERRIDE {
+      bool Get(const CefString& name,
+               const CefRefPtr<CefV8Value> object,
+               CefRefPtr<CefV8Value>& retval,
+               CefString& exception) override {
         EXPECT_STREQ(kName, name.ToString().c_str());
 
         EXPECT_TRUE(object.get());
@@ -595,10 +595,10 @@ class V8RendererTest : public ClientApp::RenderDelegate,
         return true;
       }
 
-      virtual bool Set(const CefString& name,
-                       const CefRefPtr<CefV8Value> object,
-                       const CefRefPtr<CefV8Value> value,
-                       CefString& exception) OVERRIDE {
+      bool Set(const CefString& name,
+               const CefRefPtr<CefV8Value> object,
+               const CefRefPtr<CefV8Value> value,
+               CefString& exception) override {
         EXPECT_STREQ(kName, name.ToString().c_str());
 
         EXPECT_TRUE(object.get());
@@ -671,19 +671,19 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     class Accessor : public CefV8Accessor {
      public:
       Accessor() {}
-      virtual bool Get(const CefString& name,
-                       const CefRefPtr<CefV8Value> object,
-                       CefRefPtr<CefV8Value>& retval,
-                       CefString& exception) OVERRIDE {
+      bool Get(const CefString& name,
+               const CefRefPtr<CefV8Value> object,
+               CefRefPtr<CefV8Value>& retval,
+               CefString& exception) override {
         got_get_.yes();
         exception = kGetException;
         return true;
       }
 
-      virtual bool Set(const CefString& name,
-                       const CefRefPtr<CefV8Value> object,
-                       const CefRefPtr<CefV8Value> value,
-                       CefString& exception) OVERRIDE {
+      bool Set(const CefString& name,
+               const CefRefPtr<CefV8Value> object,
+               const CefRefPtr<CefV8Value> value,
+               CefString& exception) override {
         got_set_.yes();
         exception = kSetException;
         return true;
@@ -745,18 +745,18 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     class Accessor : public CefV8Accessor {
      public:
       Accessor() {}
-      virtual bool Get(const CefString& name,
-                       const CefRefPtr<CefV8Value> object,
-                       CefRefPtr<CefV8Value>& retval,
-                       CefString& exception) OVERRIDE {
+      bool Get(const CefString& name,
+               const CefRefPtr<CefV8Value> object,
+               CefRefPtr<CefV8Value>& retval,
+               CefString& exception) override {
         got_get_.yes();
         return false;
       }
 
-      virtual bool Set(const CefString& name,
-                       const CefRefPtr<CefV8Value> object,
-                       const CefRefPtr<CefV8Value> value,
-                       CefString& exception) OVERRIDE {
+      bool Set(const CefString& name,
+               const CefRefPtr<CefV8Value> object,
+               const CefRefPtr<CefV8Value> value,
+               CefString& exception) override {
         got_set_.yes();
         return false;
       }
@@ -809,18 +809,18 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     class Accessor : public CefV8Accessor {
      public:
       Accessor() {}
-      virtual bool Get(const CefString& name,
-                       const CefRefPtr<CefV8Value> object,
-                       CefRefPtr<CefV8Value>& retval,
-                       CefString& exception) OVERRIDE {
+      bool Get(const CefString& name,
+               const CefRefPtr<CefV8Value> object,
+               CefRefPtr<CefV8Value>& retval,
+               CefString& exception) override {
         got_get_.yes();
         return true;
       }
 
-      virtual bool Set(const CefString& name,
-                       const CefRefPtr<CefV8Value> object,
-                       const CefRefPtr<CefV8Value> value,
-                       CefString& exception) OVERRIDE {
+      bool Set(const CefString& name,
+               const CefRefPtr<CefV8Value> object,
+               const CefRefPtr<CefV8Value> value,
+               CefString& exception) override {
         got_set_.yes();
         return true;
       }
@@ -1145,11 +1145,11 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     class Handler : public CefV8Handler {
      public:
       Handler() {}
-      virtual bool Execute(const CefString& name,
-                         CefRefPtr<CefV8Value> object,
-                         const CefV8ValueList& arguments,
-                         CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) OVERRIDE { return false; }
+      bool Execute(const CefString& name,
+                   CefRefPtr<CefV8Value> object,
+                   const CefV8ValueList& arguments,
+                   CefRefPtr<CefV8Value>& retval,
+                   CefString& exception) override { return false; }
       IMPLEMENT_REFCOUNTING(Handler);
     };
 
@@ -1189,11 +1189,11 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     class Handler : public CefV8Handler {
      public:
       Handler() {}
-      virtual bool Execute(const CefString& name,
-                         CefRefPtr<CefV8Value> object,
-                         const CefV8ValueList& arguments,
-                         CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) OVERRIDE {
+      bool Execute(const CefString& name,
+                   CefRefPtr<CefV8Value> object,
+                   const CefV8ValueList& arguments,
+                   CefRefPtr<CefV8Value>& retval,
+                   CefString& exception) override {
         EXPECT_STREQ(kFuncName, name.ToString().c_str());
         EXPECT_TRUE(object->IsSame(object_));
 
@@ -1261,11 +1261,11 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     class Handler : public CefV8Handler {
      public:
       Handler() {}
-      virtual bool Execute(const CefString& name,
-                         CefRefPtr<CefV8Value> object,
-                         const CefV8ValueList& arguments,
-                         CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) OVERRIDE {
+      bool Execute(const CefString& name,
+                   CefRefPtr<CefV8Value> object,
+                   const CefV8ValueList& arguments,
+                   CefRefPtr<CefV8Value>& retval,
+                   CefString& exception) override {
         exception = kException;
         got_execute_.yes();
         return true;
@@ -1308,11 +1308,11 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     class Handler : public CefV8Handler {
      public:
       Handler() {}
-      virtual bool Execute(const CefString& name,
-                         CefRefPtr<CefV8Value> object,
-                         const CefV8ValueList& arguments,
-                         CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) OVERRIDE {
+      bool Execute(const CefString& name,
+                   CefRefPtr<CefV8Value> object,
+                   const CefV8ValueList& arguments,
+                   CefRefPtr<CefV8Value>& retval,
+                   CefString& exception) override {
         got_execute_.yes();
         return false;
       }
@@ -1352,11 +1352,11 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     class Handler : public CefV8Handler {
      public:
       Handler() {}
-      virtual bool Execute(const CefString& name,
-                         CefRefPtr<CefV8Value> object,
-                         const CefV8ValueList& arguments,
-                         CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) OVERRIDE {
+      bool Execute(const CefString& name,
+                   CefRefPtr<CefV8Value> object,
+                   const CefV8ValueList& arguments,
+                   CefRefPtr<CefV8Value>& retval,
+                   CefString& exception) override {
         EXPECT_TRUE(object.get());
         CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
         EXPECT_TRUE(context.get());
@@ -1402,11 +1402,11 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     class Handler : public CefV8Handler {
      public:
       Handler() {}
-      virtual bool Execute(const CefString& name,
-                         CefRefPtr<CefV8Value> object,
-                         const CefV8ValueList& arguments,
-                         CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) OVERRIDE {
+      bool Execute(const CefString& name,
+                   CefRefPtr<CefV8Value> object,
+                   const CefV8ValueList& arguments,
+                   CefRefPtr<CefV8Value>& retval,
+                   CefString& exception) override {
         CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
         EXPECT_TRUE(context.get());
         EXPECT_TRUE(context->IsSame(context_));
@@ -1453,11 +1453,11 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     class Handler : public CefV8Handler {
      public:
       Handler() {}
-      virtual bool Execute(const CefString& name,
-                         CefRefPtr<CefV8Value> object,
-                         const CefV8ValueList& arguments,
-                         CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) OVERRIDE {
+      bool Execute(const CefString& name,
+                   CefRefPtr<CefV8Value> object,
+                   const CefV8ValueList& arguments,
+                   CefRefPtr<CefV8Value>& retval,
+                   CefString& exception) override {
         EXPECT_TRUE(object.get());
         CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
         EXPECT_TRUE(context.get());
@@ -1584,11 +1584,11 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     class Handler : public CefV8Handler {
      public:
       Handler() {}
-      virtual bool Execute(const CefString& name,
-                         CefRefPtr<CefV8Value> object,
-                         const CefV8ValueList& arguments,
-                         CefRefPtr<CefV8Value>& retval,
-                         CefString& exception) OVERRIDE {
+      bool Execute(const CefString& name,
+                   CefRefPtr<CefV8Value> object,
+                   const CefV8ValueList& arguments,
+                   CefRefPtr<CefV8Value>& retval,
+                   CefString& exception) override {
         EXPECT_STREQ(kFuncName, name.ToString().c_str());
 
         stack_trace_ = CefV8StackTrace::GetCurrent(10);
@@ -1678,11 +1678,11 @@ class V8RendererTest : public ClientApp::RenderDelegate,
           : callback_(callback) {
       }
 
-      virtual bool Execute(const CefString& name,
-                           CefRefPtr<CefV8Value> object,
-                           const CefV8ValueList& arguments,
-                           CefRefPtr<CefV8Value>& retval,
-                           CefString& exception) OVERRIDE {
+      bool Execute(const CefString& name,
+                   CefRefPtr<CefV8Value> object,
+                   const CefV8ValueList& arguments,
+                   CefRefPtr<CefV8Value>& retval,
+                   CefString& exception) override {
         EXPECT_STREQ("v8_extension_test", name.ToString().c_str());
         callback_->yes();
         return true;
@@ -1697,8 +1697,8 @@ class V8RendererTest : public ClientApp::RenderDelegate,
                          new Handler(&startup_test_success_));
   }
 
-  virtual void OnBrowserCreated(CefRefPtr<ClientApp> app,
-                                CefRefPtr<CefBrowser> browser) {
+  void OnBrowserCreated(CefRefPtr<ClientApp> app,
+                        CefRefPtr<CefBrowser> browser) override {
     test_mode_ = g_current_test_mode;
     if (test_mode_ == V8TEST_NONE) {
       // Retrieve the test mode from the command line.
@@ -1712,27 +1712,26 @@ class V8RendererTest : public ClientApp::RenderDelegate,
       RunStartupTest();
   }
 
-  virtual CefRefPtr<CefLoadHandler> GetLoadHandler(
-    CefRefPtr<ClientApp> app) OVERRIDE {
+  CefRefPtr<CefLoadHandler> GetLoadHandler(CefRefPtr<ClientApp> app) override {
     if (test_mode_ == V8TEST_NONE)
       return NULL;
 
     return this;
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS &&
         browser->IsPopup()) {
       DevToolsLoadHook(browser);
     }
   }
 
-  virtual void OnContextCreated(CefRefPtr<ClientApp> app,
-                                CefRefPtr<CefBrowser> browser,
-                                CefRefPtr<CefFrame> frame,
-                                CefRefPtr<CefV8Context> context) OVERRIDE {
+  void OnContextCreated(CefRefPtr<ClientApp> app,
+                        CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefFrame> frame,
+                        CefRefPtr<CefV8Context> context) override {
     if (test_mode_ == V8TEST_NONE)
       return;
 
@@ -1754,11 +1753,11 @@ class V8RendererTest : public ClientApp::RenderDelegate,
       class Handler : public CefV8Handler {
        public:
         Handler() {}
-        virtual bool Execute(const CefString& name,
-                           CefRefPtr<CefV8Value> object,
-                           const CefV8ValueList& arguments,
-                           CefRefPtr<CefV8Value>& retval,
-                           CefString& exception) OVERRIDE {
+        bool Execute(const CefString& name,
+                   CefRefPtr<CefV8Value> object,
+                   const CefV8ValueList& arguments,
+                   CefRefPtr<CefV8Value>& retval,
+                   CefString& exception) override {
           // context for the sub-frame
           CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
           EXPECT_TRUE(context.get());
@@ -1805,10 +1804,10 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     }
   }
 
-  virtual void OnContextReleased(CefRefPtr<ClientApp> app,
-                                 CefRefPtr<CefBrowser> browser,
-                                 CefRefPtr<CefFrame> frame,
-                                 CefRefPtr<CefV8Context> context) OVERRIDE {
+  void OnContextReleased(CefRefPtr<ClientApp> app,
+                         CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         CefRefPtr<CefV8Context> context) override {
     if (test_mode_ == V8TEST_NONE)
       return;
 
@@ -1826,7 +1825,7 @@ class V8RendererTest : public ClientApp::RenderDelegate,
                            CefRefPtr<CefFrame> frame,
                            CefRefPtr<CefV8Context> context,
                            CefRefPtr<CefV8Exception> exception,
-                           CefRefPtr<CefV8StackTrace> stackTrace) OVERRIDE {
+                           CefRefPtr<CefV8StackTrace> stackTrace) override {
     if (test_mode_ == V8TEST_NONE)
       return;
 
@@ -1850,11 +1849,10 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     }
   }
 
-  virtual bool OnProcessMessageReceived(CefRefPtr<ClientApp> app,
-                                        CefRefPtr<CefBrowser> browser,
-                                        CefProcessId source_process,
-                                        CefRefPtr<CefProcessMessage> message)
-                                        OVERRIDE {
+  bool OnProcessMessageReceived(CefRefPtr<ClientApp> app,
+                                CefRefPtr<CefBrowser> browser,
+                                CefProcessId source_process,
+                                CefRefPtr<CefProcessMessage> message) override {
     if (test_mode_ == V8TEST_NONE)
       return false;
 
@@ -1875,11 +1873,11 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     class Handler : public CefV8Handler {
      public:
       Handler() {}
-      virtual bool Execute(const CefString& name,
-                           CefRefPtr<CefV8Value> object,
-                           const CefV8ValueList& arguments,
-                           CefRefPtr<CefV8Value>& retval,
-                           CefString& exception) OVERRIDE {
+      bool Execute(const CefString& name,
+                   CefRefPtr<CefV8Value> object,
+                   const CefV8ValueList& arguments,
+                   CefRefPtr<CefV8Value>& retval,
+                   CefString& exception) override {
           EXPECT_STREQ(kFuncName, name.ToString().c_str());
           if (name == kFuncName) {
             EXPECT_TRUE(exception.empty());
@@ -1907,14 +1905,20 @@ class V8RendererTest : public ClientApp::RenderDelegate,
         kFuncName, func, V8_PROPERTY_ATTRIBUTE_NONE));
     EXPECT_TRUE(context->Exit());
 
-    // Call DevToolsLoaded() when DevTools window completed loading.
-    std::string jsCode = "(function(){"
-        "  var oldLoadCompleted = InspectorFrontendAPI.loadCompleted;"
-        "  if (InspectorFrontendAPI._isLoaded) {"
-        "      window.DevToolsLoaded();"
+    // Call DevToolsLoaded() when the DevTools window has completed loading.
+    // If the loading is already complete call DevToolsLoaded() immediately.
+    // There is no good indicator that |InspectorFrontendHost.loadCompleted| has
+    // already been called so we depend on potentially fragile loading behavior:
+    // WebInspector.Main._createAppUI calls InspectorFrontendHost.loadCompleted
+    // and then (indirectly) calls InspectorBackend.setConnection which sets
+    // InspectorBackend._connection.
+    std::string jsCode = "(function() {"
+        "  if (InspectorBackend._connection) {"
+        "    window.DevToolsLoaded();"
         "  } else {"
-        "    InspectorFrontendAPI.loadCompleted = function(){"
-        "      oldLoadCompleted.call(InspectorFrontendAPI);"
+        "    var oldLoadCompleted = InspectorFrontendHost.loadCompleted;"
+        "    InspectorFrontendHost.loadCompleted = function() {"
+        "      oldLoadCompleted.call(InspectorFrontendHost);"
         "      window.DevToolsLoaded();"
         "    };"
         "  }"
@@ -1996,7 +2000,7 @@ class V8TestHandler : public TestHandler {
       test_url_(test_url) {
   }
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     // Nested script tag forces creation of the V8 context.
     if (test_mode_ == V8TEST_CONTEXT_ENTERED) {
       AddResource(kV8ContextParentTestUrl, "<html><body>"
@@ -2026,7 +2030,7 @@ class V8TestHandler : public TestHandler {
     }
   }
 
-  virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE {
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
     if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS &&
         browser->IsPopup()) {
       // Generate the uncaught exception in the main browser.
@@ -2038,9 +2042,9 @@ class V8TestHandler : public TestHandler {
     TestHandler::OnBeforeClose(browser);
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS) {
       if (!browser->IsPopup()) {
         // Create the DevTools window.
@@ -2067,10 +2071,10 @@ class V8TestHandler : public TestHandler {
     }
   }
 
-  virtual bool OnProcessMessageReceived(
+  bool OnProcessMessageReceived(
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE {
+      CefRefPtr<CefProcessMessage> message) override {
     EXPECT_TRUE(browser.get());
     EXPECT_EQ(PID_RENDERER, source_process);
     EXPECT_TRUE(message.get());

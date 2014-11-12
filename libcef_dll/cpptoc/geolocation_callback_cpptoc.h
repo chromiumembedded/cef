@@ -29,7 +29,6 @@ class CefGeolocationCallbackCppToC
         cef_geolocation_callback_t> {
  public:
   explicit CefGeolocationCallbackCppToC(CefGeolocationCallback* cls);
-  virtual ~CefGeolocationCallbackCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

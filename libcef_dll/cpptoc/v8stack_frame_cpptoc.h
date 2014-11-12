@@ -29,7 +29,6 @@ class CefV8StackFrameCppToC
         cef_v8stack_frame_t> {
  public:
   explicit CefV8StackFrameCppToC(CefV8StackFrame* cls);
-  virtual ~CefV8StackFrameCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

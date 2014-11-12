@@ -13,10 +13,10 @@ class CefWebPluginInfoImpl : public CefWebPluginInfo {
  public:
   explicit CefWebPluginInfoImpl(const content::WebPluginInfo& plugin_info);
 
-  virtual CefString GetName() OVERRIDE;
-  virtual CefString GetPath() OVERRIDE;
-  virtual CefString GetVersion() OVERRIDE;
-  virtual CefString GetDescription() OVERRIDE;
+  CefString GetName() override;
+  CefString GetPath() override;
+  CefString GetVersion() override;
+  CefString GetDescription() override;
 
  private:
   content::WebPluginInfo plugin_info_;

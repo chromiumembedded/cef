@@ -577,9 +577,9 @@ class ExtensionWrapper : public v8::Extension {
     : v8::Extension(extension_name, javascript_code), handler_(handler) {
   }
 
-  virtual v8::Handle<v8::FunctionTemplate> GetNativeFunctionTemplate(
+  v8::Handle<v8::FunctionTemplate> GetNativeFunctionTemplate(
     v8::Isolate* isolate,
-    v8::Handle<v8::String> name) OVERRIDE {
+    v8::Handle<v8::String> name) override {
     if (!handler_)
       return v8::Handle<v8::FunctionTemplate>();
 
@@ -616,14 +616,14 @@ class CefV8ExceptionImpl : public CefV8Exception {
     end_column_ = message->GetEndColumn();
   }
 
-  virtual CefString GetMessage() OVERRIDE { return message_; }
-  virtual CefString GetSourceLine() OVERRIDE { return source_line_; }
-  virtual CefString GetScriptResourceName() OVERRIDE { return script_; }
-  virtual int GetLineNumber() OVERRIDE { return line_number_; }
-  virtual int GetStartPosition() OVERRIDE { return start_position_; }
-  virtual int GetEndPosition() OVERRIDE { return end_position_; }
-  virtual int GetStartColumn() OVERRIDE { return start_column_; }
-  virtual int GetEndColumn() OVERRIDE { return end_column_; }
+  CefString GetMessage() override { return message_; }
+  CefString GetSourceLine() override { return source_line_; }
+  CefString GetScriptResourceName() override { return script_; }
+  int GetLineNumber() override { return line_number_; }
+  int GetStartPosition() override { return start_position_; }
+  int GetEndPosition() override { return end_position_; }
+  int GetStartColumn() override { return start_column_; }
+  int GetEndColumn() override { return end_column_; }
 
  protected:
   CefString message_;

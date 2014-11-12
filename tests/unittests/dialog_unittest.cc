@@ -45,9 +45,9 @@ class DialogTestHandler : public TestHandler {
         : handler_(handler) {
     }
 
-    virtual void OnFileDialogDismissed(
+    void OnFileDialogDismissed(
         CefRefPtr<CefBrowserHost> browser_host,
-        const std::vector<CefString>& file_paths) OVERRIDE {
+        const std::vector<CefString>& file_paths) override {
       handler_->got_onfiledialogdismissed_.yes();
 
       std::string url = browser_host->GetBrowser()->GetMainFrame()->GetURL();
@@ -72,16 +72,16 @@ class DialogTestHandler : public TestHandler {
       : config_(config) {
   }
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     AddResource(kTestUrl, "<html><body>TEST</body></html>", "text/html");
 
     // Create the browser
     CreateBrowser(kTestUrl);
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     browser->GetHost()->RunFileDialog(config_.mode,
                                       config_.title,
                                       config_.default_file_name,
@@ -97,13 +97,13 @@ class DialogTestHandler : public TestHandler {
   }
 
   // CefDialogHandler
-  virtual bool OnFileDialog(
+  bool OnFileDialog(
       CefRefPtr<CefBrowser> browser,
       FileDialogMode mode,
       const CefString& title,
       const CefString& default_file_name,
       const std::vector<CefString>& accept_types,
-      CefRefPtr<CefFileDialogCallback> callback) OVERRIDE {
+      CefRefPtr<CefFileDialogCallback> callback) override {
     got_onfiledialog_.yes();
 
     std::string url = browser->GetMainFrame()->GetURL();
@@ -125,7 +125,7 @@ class DialogTestHandler : public TestHandler {
     return true;
   }
 
-  virtual void DestroyTest() OVERRIDE {
+  void DestroyTest() override {
     EXPECT_TRUE(got_onfiledialog_);
     EXPECT_TRUE(got_onfiledialogdismissed_);
 

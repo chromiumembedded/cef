@@ -80,9 +80,9 @@ class CefSpeechRecognitionManagerDelegate::WebContentsWatcher
   }
 
   // content::NotificationObserver implementation.
-  virtual void Observe(int type,
-                       const content::NotificationSource& source,
-                       const content::NotificationDetails& details) OVERRIDE {
+  void Observe(int type,
+               const content::NotificationSource& source,
+               const content::NotificationDetails& details) override {
     DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
     DCHECK_EQ(content::NOTIFICATION_WEB_CONTENTS_DISCONNECTED, type);
 
@@ -102,7 +102,7 @@ class CefSpeechRecognitionManagerDelegate::WebContentsWatcher
  private:
   friend class base::RefCountedThreadSafe<WebContentsWatcher>;
 
-  virtual ~WebContentsWatcher() {
+  ~WebContentsWatcher() override {
     // Must be destroyed on the UI thread due to |registrar_| non thread-safety.
     DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   }

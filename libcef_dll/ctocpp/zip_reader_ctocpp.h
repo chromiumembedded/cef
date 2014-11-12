@@ -29,7 +29,6 @@ class CefZipReaderCToCpp
  public:
   explicit CefZipReaderCToCpp(cef_zip_reader_t* str)
       : CefCToCpp<CefZipReaderCToCpp, CefZipReader, cef_zip_reader_t>(str) {}
-  virtual ~CefZipReaderCToCpp() {}
 
   // CefZipReader methods
   virtual bool MoveToFirstFile() OVERRIDE;

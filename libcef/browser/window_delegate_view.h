@@ -32,13 +32,13 @@ class CefWindowDelegateView : public views::WidgetDelegateView {
   void InitContent();
 
   // WidgetDelegateView methods:
-  virtual bool CanResize() const OVERRIDE { return true; }
-  virtual bool CanMaximize() const OVERRIDE { return true; }
-  virtual View* GetContentsView() OVERRIDE { return this; }
+  bool CanResize() const override { return true; }
+  bool CanMaximize() const override { return true; }
+  View* GetContentsView() override { return this; }
 
   // View methods:
-  virtual void ViewHierarchyChanged(
-      const ViewHierarchyChangedDetails& details) OVERRIDE;
+  void ViewHierarchyChanged(
+      const ViewHierarchyChangedDetails& details) override;
 
  private:
   SkColor background_color_;

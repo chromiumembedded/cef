@@ -1,8 +1,8 @@
 diff --git core/frame/FrameView.cpp core/frame/FrameView.cpp
-index 3a1981b..95cb146 100644
+index 8a77e1c..06e6c47 100644
 --- core/frame/FrameView.cpp
 +++ core/frame/FrameView.cpp
-@@ -129,8 +129,10 @@ FrameView::FrameView(LocalFrame* frame)
+@@ -145,8 +145,10 @@ FrameView::FrameView(LocalFrame* frame)
      if (!m_frame->isMainFrame())
          return;
  
@@ -12,7 +12,7 @@ index 3a1981b..95cb146 100644
 +#endif
  }
  
- PassRefPtr<FrameView> FrameView::create(LocalFrame* frame)
+ PassRefPtrWillBeRawPtr<FrameView> FrameView::create(LocalFrame* frame)
 diff --git platform/scroll/ScrollbarThemeMacCommon.mm platform/scroll/ScrollbarThemeMacCommon.mm
 index 90abb7c..6bb16c6 100644
 --- platform/scroll/ScrollbarThemeMacCommon.mm

@@ -15,35 +15,35 @@ class CefDOMNodeImpl : public CefDOMNode {
  public:
   CefDOMNodeImpl(CefRefPtr<CefDOMDocumentImpl> document,
                  const blink::WebNode& node);
-  virtual ~CefDOMNodeImpl();
+  ~CefDOMNodeImpl() override;
 
   // CefDOMNode methods.
-  virtual Type GetType() OVERRIDE;
-  virtual bool IsText() OVERRIDE;
-  virtual bool IsElement() OVERRIDE;
-  virtual bool IsEditable() OVERRIDE;
-  virtual bool IsFormControlElement() OVERRIDE;
-  virtual CefString GetFormControlElementType() OVERRIDE;
-  virtual bool IsSame(CefRefPtr<CefDOMNode> that) OVERRIDE;
-  virtual CefString GetName() OVERRIDE;
-  virtual CefString GetValue() OVERRIDE;
-  virtual bool SetValue(const CefString& value) OVERRIDE;
-  virtual CefString GetAsMarkup() OVERRIDE;
-  virtual CefRefPtr<CefDOMDocument> GetDocument() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetParent() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetPreviousSibling() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetNextSibling() OVERRIDE;
-  virtual bool HasChildren() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetFirstChild() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetLastChild() OVERRIDE;
-  virtual CefString GetElementTagName() OVERRIDE;
-  virtual bool HasElementAttributes() OVERRIDE;
-  virtual bool HasElementAttribute(const CefString& attrName) OVERRIDE;
-  virtual CefString GetElementAttribute(const CefString& attrName) OVERRIDE;
-  virtual void GetElementAttributes(AttributeMap& attrMap) OVERRIDE;
-  virtual bool SetElementAttribute(const CefString& attrName,
-                                   const CefString& value) OVERRIDE;
-  virtual CefString GetElementInnerText() OVERRIDE;
+  Type GetType() override;
+  bool IsText() override;
+  bool IsElement() override;
+  bool IsEditable() override;
+  bool IsFormControlElement() override;
+  CefString GetFormControlElementType() override;
+  bool IsSame(CefRefPtr<CefDOMNode> that) override;
+  CefString GetName() override;
+  CefString GetValue() override;
+  bool SetValue(const CefString& value) override;
+  CefString GetAsMarkup() override;
+  CefRefPtr<CefDOMDocument> GetDocument() override;
+  CefRefPtr<CefDOMNode> GetParent() override;
+  CefRefPtr<CefDOMNode> GetPreviousSibling() override;
+  CefRefPtr<CefDOMNode> GetNextSibling() override;
+  bool HasChildren() override;
+  CefRefPtr<CefDOMNode> GetFirstChild() override;
+  CefRefPtr<CefDOMNode> GetLastChild() override;
+  CefString GetElementTagName() override;
+  bool HasElementAttributes() override;
+  bool HasElementAttribute(const CefString& attrName) override;
+  CefString GetElementAttribute(const CefString& attrName) override;
+  void GetElementAttributes(AttributeMap& attrMap) override;
+  bool SetElementAttribute(const CefString& attrName,
+                           const CefString& value) override;
+  CefString GetElementInnerText() override;
 
   // Will be called from CefDOMDocumentImpl::Detach().
   void Detach();

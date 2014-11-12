@@ -29,7 +29,6 @@ class CefFileDialogCallbackCppToC
         cef_file_dialog_callback_t> {
  public:
   explicit CefFileDialogCallbackCppToC(CefFileDialogCallback* cls);
-  virtual ~CefFileDialogCallbackCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

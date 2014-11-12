@@ -29,7 +29,6 @@ class CefStreamWriterCppToC
         cef_stream_writer_t> {
  public:
   explicit CefStreamWriterCppToC(CefStreamWriter* cls);
-  virtual ~CefStreamWriterCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

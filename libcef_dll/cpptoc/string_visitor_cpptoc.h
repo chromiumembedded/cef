@@ -29,7 +29,6 @@ class CefStringVisitorCppToC
         cef_string_visitor_t> {
  public:
   explicit CefStringVisitorCppToC(CefStringVisitor* cls);
-  virtual ~CefStringVisitorCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

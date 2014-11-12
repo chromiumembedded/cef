@@ -31,7 +31,6 @@ class CefRequestContextCToCpp
   explicit CefRequestContextCToCpp(cef_request_context_t* str)
       : CefCToCpp<CefRequestContextCToCpp, CefRequestContext,
           cef_request_context_t>(str) {}
-  virtual ~CefRequestContextCToCpp() {}
 
   // CefRequestContext methods
   virtual bool IsSame(CefRefPtr<CefRequestContext> other) OVERRIDE;

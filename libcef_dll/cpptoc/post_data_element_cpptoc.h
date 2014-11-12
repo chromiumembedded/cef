@@ -29,7 +29,6 @@ class CefPostDataElementCppToC
         cef_post_data_element_t> {
  public:
   explicit CefPostDataElementCppToC(CefPostDataElement* cls);
-  virtual ~CefPostDataElementCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

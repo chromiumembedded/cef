@@ -31,7 +31,6 @@ class CefPrintDialogCallbackCToCpp
   explicit CefPrintDialogCallbackCToCpp(cef_print_dialog_callback_t* str)
       : CefCToCpp<CefPrintDialogCallbackCToCpp, CefPrintDialogCallback,
           cef_print_dialog_callback_t>(str) {}
-  virtual ~CefPrintDialogCallbackCToCpp() {}
 
   // CefPrintDialogCallback methods
   virtual void Continue(CefRefPtr<CefPrintSettings> settings) OVERRIDE;

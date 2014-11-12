@@ -31,20 +31,18 @@ class CefJSDialogHandlerCToCpp
   explicit CefJSDialogHandlerCToCpp(cef_jsdialog_handler_t* str)
       : CefCToCpp<CefJSDialogHandlerCToCpp, CefJSDialogHandler,
           cef_jsdialog_handler_t>(str) {}
-  virtual ~CefJSDialogHandlerCToCpp() {}
 
   // CefJSDialogHandler methods
-  virtual bool OnJSDialog(CefRefPtr<CefBrowser> browser,
-      const CefString& origin_url, const CefString& accept_lang,
-      JSDialogType dialog_type, const CefString& message_text,
-      const CefString& default_prompt_text,
+  bool OnJSDialog(CefRefPtr<CefBrowser> browser, const CefString& origin_url,
+      const CefString& accept_lang, JSDialogType dialog_type,
+      const CefString& message_text, const CefString& default_prompt_text,
       CefRefPtr<CefJSDialogCallback> callback,
-      bool& suppress_message) OVERRIDE;
-  virtual bool OnBeforeUnloadDialog(CefRefPtr<CefBrowser> browser,
+      bool& suppress_message) override;
+  bool OnBeforeUnloadDialog(CefRefPtr<CefBrowser> browser,
       const CefString& message_text, bool is_reload,
-      CefRefPtr<CefJSDialogCallback> callback) OVERRIDE;
-  virtual void OnResetDialogState(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  virtual void OnDialogClosed(CefRefPtr<CefBrowser> browser) OVERRIDE;
+      CefRefPtr<CefJSDialogCallback> callback) override;
+  void OnResetDialogState(CefRefPtr<CefBrowser> browser) override;
+  void OnDialogClosed(CefRefPtr<CefBrowser> browser) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

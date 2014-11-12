@@ -29,7 +29,6 @@ class CefV8ContextCToCpp
  public:
   explicit CefV8ContextCToCpp(cef_v8context_t* str)
       : CefCToCpp<CefV8ContextCToCpp, CefV8Context, cef_v8context_t>(str) {}
-  virtual ~CefV8ContextCToCpp() {}
 
   // CefV8Context methods
   virtual CefRefPtr<CefTaskRunner> GetTaskRunner() OVERRIDE;

@@ -40,7 +40,7 @@ class CefContext : public content::NotificationObserver {
   typedef std::list<CefRefPtr<CefBrowserHostImpl> > BrowserList;
 
   CefContext();
-  ~CefContext();
+  ~CefContext() override;
 
   // Returns the singleton CefContext instance.
   static CefContext* Get();
@@ -83,9 +83,9 @@ class CefContext : public content::NotificationObserver {
   void FinalizeShutdown();
 
   // NotificationObserver implementation.
-  virtual void Observe(int type,
-                       const content::NotificationSource& source,
-                       const content::NotificationDetails& details) OVERRIDE;
+  void Observe(int type,
+               const content::NotificationSource& source,
+               const content::NotificationDetails& details) override;
 
   // Track context state.
   bool initialized_;

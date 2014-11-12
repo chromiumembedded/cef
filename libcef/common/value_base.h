@@ -40,7 +40,7 @@ class CefValueController
       if (verified_)
         impl_->lock();
     }
-    virtual ~AutoLock() {
+    ~AutoLock() {
       if (verified_)
         impl_->unlock();
     }
@@ -55,7 +55,6 @@ class CefValueController
   };
 
   CefValueController();
-  virtual ~CefValueController();
 
   // Returns true if this controller is thread safe.
   virtual bool thread_safe() =0;
@@ -108,6 +107,11 @@ class CefValueController
   // |other|. The |other| controller must already be locked.
   void TakeFrom(CefValueController* other);
 
+ protected:
+  friend class base::RefCountedThreadSafe<CefValueController>;
+
+  virtual ~CefValueController();
+
  private:
   // Owner object.
   void* owner_value_;
@@ -132,17 +136,17 @@ class CefValueControllerThreadSafe : public CefValueController {
     : locked_thread_id_(0) {}
 
   // CefValueController methods.
-  virtual bool thread_safe() OVERRIDE { return true; }
-  virtual bool on_correct_thread() OVERRIDE { return true; }
-  virtual void lock() OVERRIDE {
+  bool thread_safe() override { return true; }
+  bool on_correct_thread() override { return true; }
+  void lock() override {
     lock_.Acquire();
     locked_thread_id_ = base::PlatformThread::CurrentId();
   }
-  virtual void unlock() OVERRIDE {
+  void unlock() override {
     locked_thread_id_ = 0;
     lock_.Release();
   }
-  virtual bool locked() OVERRIDE {
+  bool locked() override {
     return (locked_thread_id_ == base::PlatformThread::CurrentId());
   }
 
@@ -160,13 +164,13 @@ class CefValueControllerNonThreadSafe : public CefValueController {
     : thread_id_(base::PlatformThread::CurrentId()) {}
 
   // CefValueController methods.
-  virtual bool thread_safe() OVERRIDE { return false; }
-  virtual bool on_correct_thread() OVERRIDE {
+  bool thread_safe() override { return false; }
+  bool on_correct_thread() override {
     return (thread_id_ == base::PlatformThread::CurrentId());
   }
-  virtual void lock() OVERRIDE {}
-  virtual void unlock() OVERRIDE {}
-  virtual bool locked() OVERRIDE { return on_correct_thread(); }
+  void lock() override {}
+  void unlock() override {}
+  bool locked() override { return on_correct_thread(); }
 
  private:
   base::PlatformThreadId thread_id_;
@@ -256,7 +260,8 @@ class CefValueBase : public CefType, public CefValueController::Object {
         controller_->AddDependency(parent_value, value_);
     }
   }
-  virtual ~CefValueBase() {
+
+  ~CefValueBase() override {
     if (controller_.get() && value_)
       Delete();
   }
@@ -334,7 +339,7 @@ class CefValueBase : public CefType, public CefValueController::Object {
 
  protected:
   // CefValueController::Object methods.
-  virtual void OnControlRemoved() {
+  void OnControlRemoved() override {
     DCHECK(controller()->locked());
 
     // Only references should be removed in this manner.
@@ -389,7 +394,6 @@ class CefValueBase : public CefType, public CefValueController::Object {
       : auto_lock_(impl->controller()) {
       verified_ = (auto_lock_.verified() && impl->VerifyAccess(modify));
     }
-    virtual ~AutoLock() {}
 
     inline bool verified() { return verified_; }
 

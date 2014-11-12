@@ -28,7 +28,6 @@ class CefResponseCppToC
     : public CefCppToC<CefResponseCppToC, CefResponse, cef_response_t> {
  public:
   explicit CefResponseCppToC(CefResponse* cls);
-  virtual ~CefResponseCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

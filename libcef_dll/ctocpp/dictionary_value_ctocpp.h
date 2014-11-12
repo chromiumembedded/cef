@@ -31,7 +31,6 @@ class CefDictionaryValueCToCpp
   explicit CefDictionaryValueCToCpp(cef_dictionary_value_t* str)
       : CefCToCpp<CefDictionaryValueCToCpp, CefDictionaryValue,
           cef_dictionary_value_t>(str) {}
-  virtual ~CefDictionaryValueCToCpp() {}
 
   // CefDictionaryValue methods
   virtual bool IsValid() OVERRIDE;

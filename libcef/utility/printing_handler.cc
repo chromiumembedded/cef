@@ -172,7 +172,7 @@ class PdfFunctionsWin : public PdfFunctionsBase {
 
   bool PlatformInit(
       const base::FilePath& pdf_module_path,
-      const base::ScopedNativeLibrary& pdf_lib) OVERRIDE {
+      const base::ScopedNativeLibrary& pdf_lib) override {
     // Patch the IAT for handling specific APIs known to fail in the sandbox.
     if (!g_iat_patch_createdca.is_patched()) {
       g_iat_patch_createdca.Patch(pdf_module_path.value().c_str(),

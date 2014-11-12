@@ -17,7 +17,7 @@ class StringVisitHandler : public CefResponseManager::Handler {
   explicit StringVisitHandler(CefRefPtr<CefStringVisitor> visitor)
       : visitor_(visitor) {
   }
-  virtual void OnResponse(const Cef_Response_Params& params) OVERRIDE {
+  void OnResponse(const Cef_Response_Params& params) override {
     visitor_->Visit(params.response);
   }
  private:
@@ -32,7 +32,7 @@ class ViewTextHandler : public CefResponseManager::Handler {
   explicit ViewTextHandler(CefRefPtr<CefFrameHostImpl> frame)
       : frame_(frame) {
   }
-  virtual void OnResponse(const Cef_Response_Params& params) OVERRIDE {
+  void OnResponse(const Cef_Response_Params& params) override {
     CefRefPtr<CefBrowser> browser = frame_->GetBrowser();
     if (browser.get()) {
       static_cast<CefBrowserHostImpl*>(browser.get())->ViewText(

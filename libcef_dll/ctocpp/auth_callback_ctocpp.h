@@ -31,7 +31,6 @@ class CefAuthCallbackCToCpp
   explicit CefAuthCallbackCToCpp(cef_auth_callback_t* str)
       : CefCToCpp<CefAuthCallbackCToCpp, CefAuthCallback, cef_auth_callback_t>(
           str) {}
-  virtual ~CefAuthCallbackCToCpp() {}
 
   // CefAuthCallback methods
   virtual void Continue(const CefString& username,

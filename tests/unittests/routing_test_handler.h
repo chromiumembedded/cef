@@ -18,23 +18,23 @@ class RoutingTestHandler :
  public:
   RoutingTestHandler();
 
-  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  virtual void OnRenderProcessTerminated(
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
+  void OnRenderProcessTerminated(
       CefRefPtr<CefBrowser> browser,
-      TerminationStatus status) OVERRIDE;
+      TerminationStatus status) override;
 
   // Only call this method if the navigation isn't canceled.
-  virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
-                              CefRefPtr<CefFrame> frame,
-                              CefRefPtr<CefRequest> request,
-                              bool is_redirect) OVERRIDE;
+  bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                      CefRefPtr<CefFrame> frame,
+                      CefRefPtr<CefRequest> request,
+                     bool is_redirect) override;
 
   // Returns true if the router handled the navigation.
-  virtual bool OnProcessMessageReceived(
+  bool OnProcessMessageReceived(
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE;
+      CefRefPtr<CefProcessMessage> message) override;
 
  private:
   CefRefPtr<CefMessageRouterBrowserSide> message_router_;

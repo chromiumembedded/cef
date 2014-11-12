@@ -20,32 +20,32 @@ class CefSpeechRecognitionManagerDelegate
       public content::SpeechRecognitionEventListener {
  public:
   CefSpeechRecognitionManagerDelegate();
-  virtual ~CefSpeechRecognitionManagerDelegate();
+  ~CefSpeechRecognitionManagerDelegate() override;
 
  protected:
   // SpeechRecognitionEventListener methods.
-  virtual void OnRecognitionStart(int session_id) OVERRIDE;
-  virtual void OnAudioStart(int session_id) OVERRIDE;
-  virtual void OnEnvironmentEstimationComplete(int session_id) OVERRIDE;
-  virtual void OnSoundStart(int session_id) OVERRIDE;
-  virtual void OnSoundEnd(int session_id) OVERRIDE;
-  virtual void OnAudioEnd(int session_id) OVERRIDE;
-  virtual void OnRecognitionEnd(int session_id) OVERRIDE;
-  virtual void OnRecognitionResults(
-      int session_id, const content::SpeechRecognitionResults& result) OVERRIDE;
-  virtual void OnRecognitionError(
-      int session_id, const content::SpeechRecognitionError& error) OVERRIDE;
-  virtual void OnAudioLevelsChange(int session_id, float volume,
-                                   float noise_volume) OVERRIDE;
+  void OnRecognitionStart(int session_id) override;
+  void OnAudioStart(int session_id) override;
+  void OnEnvironmentEstimationComplete(int session_id) override;
+  void OnSoundStart(int session_id) override;
+  void OnSoundEnd(int session_id) override;
+  void OnAudioEnd(int session_id) override;
+  void OnRecognitionEnd(int session_id) override;
+  void OnRecognitionResults(
+      int session_id, const content::SpeechRecognitionResults& result) override;
+  void OnRecognitionError(
+      int session_id, const content::SpeechRecognitionError& error) override;
+  void OnAudioLevelsChange(int session_id, float volume,
+                           float noise_volume) override;
 
   // SpeechRecognitionManagerDelegate methods.
-  virtual void GetDiagnosticInformation(bool* can_report_metrics,
-                                        std::string* hardware_info) OVERRIDE;
-  virtual void CheckRecognitionIsAllowed(
+  void GetDiagnosticInformation(bool* can_report_metrics,
+                                std::string* hardware_info) override;
+  void CheckRecognitionIsAllowed(
       int session_id,
-      base::Callback<void(bool ask_user, bool is_allowed)> callback) OVERRIDE;
-  virtual content::SpeechRecognitionEventListener* GetEventListener() OVERRIDE;
-  virtual bool FilterProfanities(int render_process_id) OVERRIDE;
+      base::Callback<void(bool ask_user, bool is_allowed)> callback) override;
+  content::SpeechRecognitionEventListener* GetEventListener() override;
+  bool FilterProfanities(int render_process_id) override;
 
  private:
   class WebContentsWatcher;

@@ -37,27 +37,27 @@ class RedirectHandler : public CefResourceHandler {
       : url_(url) {
   }
 
-  virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              CefRefPtr<CefCallback> callback) OVERRIDE {
+  bool ProcessRequest(CefRefPtr<CefRequest> request,
+                      CefRefPtr<CefCallback> callback) override {
     callback->Continue();
     return true;
   }
 
-  virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                                  int64& response_length,
-                                  CefString& redirectUrl) OVERRIDE {
+  void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                          int64& response_length,
+                          CefString& redirectUrl) override {
     response_length = 0;
     redirectUrl = url_.spec();
   }
 
-  virtual bool ReadResponse(void* data_out,
-                            int bytes_to_read,
-                            int& bytes_read,
-                            CefRefPtr<CefCallback> callback) OVERRIDE {
+  bool ReadResponse(void* data_out,
+                    int bytes_to_read,
+                    int& bytes_read,
+                    CefRefPtr<CefCallback> callback) override {
     return false;
   }
 
-  virtual void Cancel() OVERRIDE {
+  void Cancel() override {
   }
 
  private:
@@ -76,30 +76,30 @@ class InternalHandler : public CefResourceHandler {
         size_(size) {
   }
 
-  virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              CefRefPtr<CefCallback> callback) OVERRIDE {
+  bool ProcessRequest(CefRefPtr<CefRequest> request,
+                      CefRefPtr<CefCallback> callback) override {
     callback->Continue();
     return true;
   }
 
-  virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                                  int64& response_length,
-                                  CefString& redirectUrl) OVERRIDE {
+  void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                          int64& response_length,
+                          CefString& redirectUrl) override {
     response_length = size_;
 
     response->SetMimeType(mime_type_);
     response->SetStatus(200);
   }
 
-  virtual bool ReadResponse(void* data_out,
-                            int bytes_to_read,
-                            int& bytes_read,
-                            CefRefPtr<CefCallback> callback) OVERRIDE {
+  bool ReadResponse(void* data_out,
+                    int bytes_to_read,
+                    int& bytes_read,
+                    CefRefPtr<CefCallback> callback) override {
     bytes_read = reader_->Read(data_out, 1, bytes_to_read);
     return (bytes_read > 0);
   }
 
-  virtual void Cancel() OVERRIDE {
+  void Cancel() override {
   }
 
  private:
@@ -117,11 +117,11 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
       : delegate_(delegate.Pass()) {
   }
 
-  virtual CefRefPtr<CefResourceHandler> Create(
+  CefRefPtr<CefResourceHandler> Create(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       const CefString& scheme_name,
-      CefRefPtr<CefRequest> request) OVERRIDE {
+      CefRefPtr<CefRequest> request) override {
     GURL url = GURL(request->GetURL().ToString());
 
     InternalHandlerDelegate::Action action;

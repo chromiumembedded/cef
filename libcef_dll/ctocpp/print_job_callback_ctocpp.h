@@ -31,7 +31,6 @@ class CefPrintJobCallbackCToCpp
   explicit CefPrintJobCallbackCToCpp(cef_print_job_callback_t* str)
       : CefCToCpp<CefPrintJobCallbackCToCpp, CefPrintJobCallback,
           cef_print_job_callback_t>(str) {}
-  virtual ~CefPrintJobCallbackCToCpp() {}
 
   // CefPrintJobCallback methods
   virtual void Continue() OVERRIDE;

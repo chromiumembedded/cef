@@ -49,35 +49,35 @@ class CefBrowserImpl : public CefBrowser,
       blink::WebFrame* frame);
 
   // CefBrowser methods.
-  virtual CefRefPtr<CefBrowserHost> GetHost() OVERRIDE;
-  virtual bool CanGoBack() OVERRIDE;
-  virtual void GoBack() OVERRIDE;
-  virtual bool CanGoForward() OVERRIDE;
-  virtual void GoForward() OVERRIDE;
-  virtual bool IsLoading() OVERRIDE;
-  virtual void Reload() OVERRIDE;
-  virtual void ReloadIgnoreCache() OVERRIDE;
-  virtual void StopLoad() OVERRIDE;
-  virtual int GetIdentifier() OVERRIDE;
-  virtual bool IsSame(CefRefPtr<CefBrowser> that) OVERRIDE;
-  virtual bool IsPopup() OVERRIDE;
-  virtual bool HasDocument() OVERRIDE;
-  virtual CefRefPtr<CefFrame> GetMainFrame() OVERRIDE;
-  virtual CefRefPtr<CefFrame> GetFocusedFrame() OVERRIDE;
-  virtual CefRefPtr<CefFrame> GetFrame(int64 identifier) OVERRIDE;
-  virtual CefRefPtr<CefFrame> GetFrame(const CefString& name) OVERRIDE;
-  virtual size_t GetFrameCount() OVERRIDE;
-  virtual void GetFrameIdentifiers(std::vector<int64>& identifiers) OVERRIDE;
-  virtual void GetFrameNames(std::vector<CefString>& names) OVERRIDE;
-  virtual bool SendProcessMessage(
+  CefRefPtr<CefBrowserHost> GetHost() override;
+  bool CanGoBack() override;
+  void GoBack() override;
+  bool CanGoForward() override;
+  void GoForward() override;
+  bool IsLoading() override;
+  void Reload() override;
+  void ReloadIgnoreCache() override;
+  void StopLoad() override;
+  int GetIdentifier() override;
+  bool IsSame(CefRefPtr<CefBrowser> that) override;
+  bool IsPopup() override;
+  bool HasDocument() override;
+  CefRefPtr<CefFrame> GetMainFrame() override;
+  CefRefPtr<CefFrame> GetFocusedFrame() override;
+  CefRefPtr<CefFrame> GetFrame(int64 identifier) override;
+  CefRefPtr<CefFrame> GetFrame(const CefString& name) override;
+  size_t GetFrameCount() override;
+  void GetFrameIdentifiers(std::vector<int64>& identifiers) override;
+  void GetFrameNames(std::vector<CefString>& names) override;
+  bool SendProcessMessage(
       CefProcessId target_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE;
+      CefRefPtr<CefProcessMessage> message) override;
 
   CefBrowserImpl(content::RenderView* render_view,
                  int browser_id,
                  bool is_popup,
                  bool is_windowless);
-  virtual ~CefBrowserImpl();
+  ~CefBrowserImpl() override;
 
   void LoadRequest(const CefMsg_LoadRequest_Params& params);
 
@@ -105,23 +105,23 @@ class CefBrowserImpl : public CefBrowser,
 
  private:
   // RenderViewObserver methods.
-  virtual void OnDestruct() OVERRIDE;
-  virtual void DidStartLoading() OVERRIDE;
-  virtual void DidStopLoading() OVERRIDE;
-  virtual void DidFailLoad(blink::WebLocalFrame* frame,
-                           const blink::WebURLError& error) OVERRIDE;
-  virtual void DidFinishLoad(blink::WebLocalFrame* frame) OVERRIDE;
-  virtual void DidStartProvisionalLoad(blink::WebLocalFrame* frame) OVERRIDE;
-  virtual void DidFailProvisionalLoad(
+  void OnDestruct() override;
+  void DidStartLoading() override;
+  void DidStopLoading() override;
+  void DidFailLoad(blink::WebLocalFrame* frame,
+                   const blink::WebURLError& error) override;
+  void DidFinishLoad(blink::WebLocalFrame* frame) override;
+  void DidStartProvisionalLoad(blink::WebLocalFrame* frame) override;
+  void DidFailProvisionalLoad(
       blink::WebLocalFrame* frame,
-      const blink::WebURLError& error) OVERRIDE;
-  virtual void DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
-                                        bool is_new_navigation) OVERRIDE;
-  virtual void FrameDetached(blink::WebFrame* frame) OVERRIDE;
-  virtual void FocusedNodeChanged(const blink::WebNode& node) OVERRIDE;
-  virtual void DidCreateDataSource(blink::WebLocalFrame* frame,
-                                   blink::WebDataSource* ds) OVERRIDE;
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
+      const blink::WebURLError& error) override;
+  void DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
+                                bool is_new_navigation) override;
+  void FrameDetached(blink::WebFrame* frame) override;
+  void FocusedNodeChanged(const blink::WebNode& node) override;
+  void DidCreateDataSource(blink::WebLocalFrame* frame,
+                           blink::WebDataSource* ds) override;
+  bool OnMessageReceived(const IPC::Message& message) override;
 
   // RenderViewObserver::OnMessageReceived message handlers.
   void OnRequest(const Cef_Request_Params& params);

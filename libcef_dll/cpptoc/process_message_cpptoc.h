@@ -29,7 +29,6 @@ class CefProcessMessageCppToC
         cef_process_message_t> {
  public:
   explicit CefProcessMessageCppToC(CefProcessMessage* cls);
-  virtual ~CefProcessMessageCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

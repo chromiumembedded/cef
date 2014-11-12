@@ -13,6 +13,7 @@
 #include "base/logging.h"
 #include "content/public/browser/resource_request_info.h"
 #include "content/public/common/resource_type.h"
+#include "net/base/elements_upload_data_stream.h"
 #include "net/base/upload_data_stream.h"
 #include "net/base/upload_element_reader.h"
 #include "net/base/upload_bytes_element_reader.h"
@@ -37,8 +38,6 @@ class BytesElementReader : public net::UploadBytesElementReader {
         element_(element.Pass()) {
     DCHECK_EQ(net::UploadElement::TYPE_BYTES, element_->type());
   }
-
-  virtual ~BytesElementReader() {}
 
  private:
   scoped_ptr<net::UploadElement> element_;
@@ -67,8 +66,6 @@ class FileElementReader : public net::UploadFileElementReader {
         element_(element.Pass()) {
     DCHECK_EQ(net::UploadElement::TYPE_FILE, element_->type());
   }
-
-  virtual ~FileElementReader() {}
 
  private:
   scoped_ptr<net::UploadElement> element_;
@@ -385,8 +382,8 @@ void CefRequestImpl::GetHeaderMap(const blink::WebURLRequest& request,
    public:
     explicit HeaderVisitor(HeaderMap* map) : map_(map) {}
 
-    virtual void visitHeader(const blink::WebString& name,
-                             const blink::WebString& value) {
+    void visitHeader(const blink::WebString& name,
+                     const blink::WebString& value) override {
       map_->insert(std::make_pair(base::string16(name),
                                   base::string16(value)));
     }
@@ -505,13 +502,16 @@ void CefPostDataImpl::Set(const net::UploadDataStream& data_stream) {
 
   CefRefPtr<CefPostDataElement> postelem;
 
-  const ScopedVector<net::UploadElementReader>& elements =
-      data_stream.element_readers();
-  ScopedVector<net::UploadElementReader>::const_iterator it = elements.begin();
-  for (; it != elements.end(); ++it) {
-    postelem = CefPostDataElement::Create();
-    static_cast<CefPostDataElementImpl*>(postelem.get())->Set(**it);
-    AddElement(postelem);
+  const ScopedVector<net::UploadElementReader>* elements =
+      data_stream.GetElementReaders();
+  if (elements) {
+    ScopedVector<net::UploadElementReader>::const_iterator it =
+        elements->begin();
+    for (; it != elements->end(); ++it) {
+      postelem = CefPostDataElement::Create();
+      static_cast<CefPostDataElementImpl*>(postelem.get())->Set(**it);
+      AddElement(postelem);
+    }
   }
 }
 
@@ -538,7 +538,7 @@ net::UploadDataStream* CefPostDataImpl::Get() {
         static_cast<CefPostDataElementImpl*>(it->get())->Get());
   }
 
-  return new net::UploadDataStream(element_readers.Pass(), 0);
+  return new net::ElementsUploadDataStream(element_readers.Pass(), 0);
 }
 
 void CefPostDataImpl::Set(const blink::WebHTTPBody& data) {

@@ -29,7 +29,6 @@ class CefDictionaryValueCppToC
         cef_dictionary_value_t> {
  public:
   explicit CefDictionaryValueCppToC(CefDictionaryValue* cls);
-  virtual ~CefDictionaryValueCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

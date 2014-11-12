@@ -29,7 +29,6 @@ class CefFocusHandlerCppToC
         cef_focus_handler_t> {
  public:
   explicit CefFocusHandlerCppToC(CefFocusHandler* cls);
-  virtual ~CefFocusHandlerCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

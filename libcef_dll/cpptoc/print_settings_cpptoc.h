@@ -29,7 +29,6 @@ class CefPrintSettingsCppToC
         cef_print_settings_t> {
  public:
   explicit CefPrintSettingsCppToC(CefPrintSettings* cls);
-  virtual ~CefPrintSettingsCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

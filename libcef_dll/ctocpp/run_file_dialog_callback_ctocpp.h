@@ -34,11 +34,10 @@ class CefRunFileDialogCallbackCToCpp
   explicit CefRunFileDialogCallbackCToCpp(cef_run_file_dialog_callback_t* str)
       : CefCToCpp<CefRunFileDialogCallbackCToCpp, CefRunFileDialogCallback,
           cef_run_file_dialog_callback_t>(str) {}
-  virtual ~CefRunFileDialogCallbackCToCpp() {}
 
   // CefRunFileDialogCallback methods
-  virtual void OnFileDialogDismissed(CefRefPtr<CefBrowserHost> browser_host,
-      const std::vector<CefString>& file_paths) OVERRIDE;
+  void OnFileDialogDismissed(CefRefPtr<CefBrowserHost> browser_host,
+      const std::vector<CefString>& file_paths) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

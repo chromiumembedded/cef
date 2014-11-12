@@ -29,7 +29,6 @@ class CefPrintHandlerCppToC
         cef_print_handler_t> {
  public:
   explicit CefPrintHandlerCppToC(CefPrintHandler* cls);
-  virtual ~CefPrintHandlerCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

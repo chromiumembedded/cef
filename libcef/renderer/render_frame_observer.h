@@ -14,10 +14,10 @@ class RenderFrame;
 class CefRenderFrameObserver : public content::RenderFrameObserver {
  public:
   explicit CefRenderFrameObserver(content::RenderFrame* render_frame);
-  virtual ~CefRenderFrameObserver();
+  ~CefRenderFrameObserver() override;
 
-  virtual void WillReleaseScriptContext(v8::Handle<v8::Context> context,
-                                        int world_id) OVERRIDE;
+  void WillReleaseScriptContext(v8::Handle<v8::Context> context,
+                                int world_id) override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CefRenderFrameObserver);

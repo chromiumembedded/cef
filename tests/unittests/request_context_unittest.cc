@@ -33,7 +33,7 @@ TEST(RequestContextTest, CreateContext) {
   class Handler : public CefRequestContextHandler {
    public:
     Handler() {}
-    virtual CefRefPtr<CefCookieManager> GetCookieManager() { return NULL; }
+    CefRefPtr<CefCookieManager> GetCookieManager() override { return NULL; }
    private:
     IMPLEMENT_REFCOUNTING(Handler);
   };
@@ -102,7 +102,7 @@ class CookieTestHandler : public TestHandler {
     explicit RequestContextHandler(CookieTestHandler* handler)
         : handler_(handler) {}
 
-    virtual CefRefPtr<CefCookieManager> GetCookieManager() OVERRIDE {
+    CefRefPtr<CefCookieManager> GetCookieManager() override {
       EXPECT_TRUE(handler_);
       handler_->got_get_cookie_manager_.yes();
       return handler_->cookie_manager_;
@@ -121,7 +121,7 @@ class CookieTestHandler : public TestHandler {
   CookieTestHandler(const std::string& url)
       : url_(url) {}
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     AddResource(url_,
         "<html>"
         "<head><script>document.cookie='name1=value1';</script></head>"
@@ -136,9 +136,9 @@ class CookieTestHandler : public TestHandler {
     CreateBrowser(url_, context_);
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     CefRefPtr<CefRequestContext> context = browser->GetHost()->GetRequestContext();
     EXPECT_TRUE(context.get());
     EXPECT_TRUE(context->IsSame(context_));
@@ -156,14 +156,14 @@ class CookieTestHandler : public TestHandler {
       explicit TestVisitor(CookieTestHandler* handler)
           : handler_(handler) {
       }
-      virtual ~TestVisitor()   {
+      ~TestVisitor() override {
         // Destroy the test.
         CefPostTask(TID_UI,
             base::Bind(&CookieTestHandler::DestroyTest, handler_));
       }
 
-      virtual bool Visit(const CefCookie& cookie, int count, int total,
-                         bool& deleteCookie)   {
+      bool Visit(const CefCookie& cookie, int count, int total,
+                 bool& deleteCookie) override {
         const std::string& name = CefString(&cookie.name);
         const std::string& value = CefString(&cookie.value);
         if (name == "name1" && value == "value1")
@@ -179,7 +179,7 @@ class CookieTestHandler : public TestHandler {
     cookie_manager_->VisitAllCookies(new TestVisitor(this));
   }
 
-  virtual void DestroyTest() OVERRIDE {
+  void DestroyTest() override {
     // Verify test expectations.
     EXPECT_TRUE(got_get_cookie_manager_);
     EXPECT_TRUE(got_cookie_);
@@ -219,7 +219,7 @@ class PopupTestHandler : public TestHandler {
     explicit RequestContextHandler(PopupTestHandler* handler)
         : handler_(handler) {}
 
-    virtual CefRefPtr<CefCookieManager> GetCookieManager() OVERRIDE {
+    CefRefPtr<CefCookieManager> GetCookieManager() override {
       EXPECT_TRUE(handler_);
       if (url_ == handler_->url_)
         handler_->got_get_cookie_manager1_.yes();
@@ -259,7 +259,7 @@ class PopupTestHandler : public TestHandler {
       popup_url_ = "http://tests-simple-rch2.com/pop1.html";
   }
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     std::string link;
     if (mode_ == MODE_TARGETED_LINK) {
       link = "<a href=\"" + std::string(popup_url_) +
@@ -292,9 +292,9 @@ class PopupTestHandler : public TestHandler {
     CreateBrowser(url_, context_);
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     CefRefPtr<CefRequestContext> context = browser->GetHost()->GetRequestContext();
     EXPECT_TRUE(context.get());
     EXPECT_TRUE(context->IsSame(context_));
@@ -315,15 +315,15 @@ class PopupTestHandler : public TestHandler {
     }
   }
 
-  virtual bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
-                             CefRefPtr<CefFrame> frame,
-                             const CefString& target_url,
-                             const CefString& target_frame_name,
-                             const CefPopupFeatures& popupFeatures,
-                             CefWindowInfo& windowInfo,
-                             CefRefPtr<CefClient>& client,
-                             CefBrowserSettings& settings,
-                             bool* no_javascript_access) OVERRIDE {
+  bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
+                     CefRefPtr<CefFrame> frame,
+                     const CefString& target_url,
+                     const CefString& target_frame_name,
+                     const CefPopupFeatures& popupFeatures,
+                     CefWindowInfo& windowInfo,
+                     CefRefPtr<CefClient>& client,
+                     CefBrowserSettings& settings,
+                     bool* no_javascript_access) override {
     got_on_before_popup_.yes();
 
     const std::string& url = target_url;
@@ -331,7 +331,7 @@ class PopupTestHandler : public TestHandler {
     return false;
   }
 
-  virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) {
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
     TestHandler::OnBeforeClose(browser);
 
     if (browser->IsPopup())
@@ -364,14 +364,14 @@ class PopupTestHandler : public TestHandler {
       explicit TestVisitor(PopupTestHandler* handler)
           : handler_(handler) {
       }
-      virtual ~TestVisitor()   {
+      ~TestVisitor() override {
         // Destroy the test.
         CefPostTask(TID_UI,
             base::Bind(&PopupTestHandler::DestroyTest, handler_));
       }
 
-      virtual bool Visit(const CefCookie& cookie, int count, int total,
-                         bool& deleteCookie)   {
+      bool Visit(const CefCookie& cookie, int count, int total,
+                 bool& deleteCookie) override {
         const std::string& name = CefString(&cookie.name);
         const std::string& value = CefString(&cookie.value);
         if (name == "name1" && value == "value1")
@@ -389,7 +389,7 @@ class PopupTestHandler : public TestHandler {
     cookie_manager_->VisitAllCookies(new TestVisitor(this));
   }
 
-  virtual void DestroyTest() OVERRIDE {
+  void DestroyTest() override {
     // Verify test expectations.
     EXPECT_TRUE(got_get_cookie_manager1_);
     EXPECT_TRUE(got_load_end1_);

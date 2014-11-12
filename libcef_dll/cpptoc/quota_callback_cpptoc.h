@@ -29,7 +29,6 @@ class CefQuotaCallbackCppToC
         cef_quota_callback_t> {
  public:
   explicit CefQuotaCallbackCppToC(CefQuotaCallback* cls);
-  virtual ~CefQuotaCallbackCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

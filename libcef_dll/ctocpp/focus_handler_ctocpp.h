@@ -31,13 +31,11 @@ class CefFocusHandlerCToCpp
   explicit CefFocusHandlerCToCpp(cef_focus_handler_t* str)
       : CefCToCpp<CefFocusHandlerCToCpp, CefFocusHandler, cef_focus_handler_t>(
           str) {}
-  virtual ~CefFocusHandlerCToCpp() {}
 
   // CefFocusHandler methods
-  virtual void OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) OVERRIDE;
-  virtual bool OnSetFocus(CefRefPtr<CefBrowser> browser,
-      FocusSource source) OVERRIDE;
-  virtual void OnGotFocus(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  void OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) override;
+  bool OnSetFocus(CefRefPtr<CefBrowser> browser, FocusSource source) override;
+  void OnGotFocus(CefRefPtr<CefBrowser> browser) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

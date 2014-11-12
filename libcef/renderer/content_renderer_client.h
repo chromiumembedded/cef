@@ -33,7 +33,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
                                  public base::MessageLoop::DestructionObserver {
  public:
   CefContentRendererClient();
-  virtual ~CefContentRendererClient();
+  ~CefContentRendererClient() override;
 
   // Returns the singleton CefContentRendererClient instance.
   static CefContentRendererClient* Get();
@@ -79,35 +79,35 @@ class CefContentRendererClient : public content::ContentRendererClient,
   void RunSingleProcessCleanup();
 
   // ContentRendererClient implementation.
-  virtual void RenderThreadStarted() OVERRIDE;
-  virtual void RenderFrameCreated(content::RenderFrame* render_frame) OVERRIDE;
-  virtual void RenderViewCreated(content::RenderView* render_view) OVERRIDE;
-  virtual bool OverrideCreatePlugin(
+  void RenderThreadStarted() override;
+  void RenderFrameCreated(content::RenderFrame* render_frame) override;
+  void RenderViewCreated(content::RenderView* render_view) override;
+  bool OverrideCreatePlugin(
       content::RenderFrame* render_frame,
       blink::WebLocalFrame* frame,
       const blink::WebPluginParams& params,
-      blink::WebPlugin** plugin) OVERRIDE;
-  virtual bool HandleNavigation(content::RenderFrame* render_frame,
-                                content::DocumentState* document_state,
-                                int opener_id,
-                                blink::WebFrame* frame,
-                                const blink::WebURLRequest& request,
-                                blink::WebNavigationType type,
-                                blink::WebNavigationPolicy default_policy,
-                                bool is_redirect) OVERRIDE;
-  virtual void DidCreateScriptContext(blink::WebFrame* frame,
-                                      v8::Handle<v8::Context> context,
-                                      int extension_group,
-                                      int world_id) OVERRIDE;
-  virtual const void* CreatePPAPIInterface(
-      const std::string& interface_name) OVERRIDE;
+      blink::WebPlugin** plugin) override;
+  bool HandleNavigation(content::RenderFrame* render_frame,
+                        content::DocumentState* document_state,
+                        int opener_id,
+                        blink::WebFrame* frame,
+                        const blink::WebURLRequest& request,
+                        blink::WebNavigationType type,
+                        blink::WebNavigationPolicy default_policy,
+                        bool is_redirect) override;
+ void DidCreateScriptContext(blink::WebFrame* frame,
+                             v8::Handle<v8::Context> context,
+                             int extension_group,
+                             int world_id) override;
+  const void* CreatePPAPIInterface(
+      const std::string& interface_name) override;
 
   void WillReleaseScriptContext(blink::WebLocalFrame* frame,
                                 v8::Handle<v8::Context> context,
                                 int world_id);
 
   // MessageLoop::DestructionObserver implementation.
-  virtual void WillDestroyCurrentMessageLoop() OVERRIDE;
+  void WillDestroyCurrentMessageLoop() override;
 
  private:
   void BrowserCreated(content::RenderView* render_view,

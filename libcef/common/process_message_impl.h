@@ -23,11 +23,11 @@ class CefProcessMessageImpl
   bool CopyTo(Cef_Request_Params& target);
 
   // CefProcessMessage methods.
-  virtual bool IsValid() OVERRIDE;
-  virtual bool IsReadOnly() OVERRIDE;
-  virtual CefRefPtr<CefProcessMessage> Copy() OVERRIDE;
-  virtual CefString GetName() OVERRIDE;
-  virtual CefRefPtr<CefListValue> GetArgumentList() OVERRIDE;
+  bool IsValid() override;
+  bool IsReadOnly() override;
+  CefRefPtr<CefProcessMessage> Copy() override;
+  CefString GetName() override;
+  CefRefPtr<CefListValue> GetArgumentList() override;
 
   DISALLOW_COPY_AND_ASSIGN(CefProcessMessageImpl);
 };

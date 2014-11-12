@@ -29,7 +29,6 @@ class CefReadHandlerCppToC
         cef_read_handler_t> {
  public:
   explicit CefReadHandlerCppToC(CefReadHandler* cls);
-  virtual ~CefReadHandlerCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

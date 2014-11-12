@@ -31,7 +31,6 @@ class CefBeforeDownloadCallbackCToCpp
   explicit CefBeforeDownloadCallbackCToCpp(cef_before_download_callback_t* str)
       : CefCToCpp<CefBeforeDownloadCallbackCToCpp, CefBeforeDownloadCallback,
           cef_before_download_callback_t>(str) {}
-  virtual ~CefBeforeDownloadCallbackCToCpp() {}
 
   // CefBeforeDownloadCallback methods
   virtual void Continue(const CefString& download_path,

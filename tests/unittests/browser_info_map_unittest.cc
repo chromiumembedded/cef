@@ -36,10 +36,10 @@ class MyVisitor : public MyObjectMap::Visitor {
         remove_browser_id_(remove_browser_id),
         remove_info_id_(remove_info_id) {}
 
-  virtual bool OnNextInfo(int browser_id,
-                          InfoIdType info_id,
-                          InfoObjectType info,
-                          bool* remove) OVERRIDE {
+  bool OnNextInfo(int browser_id,
+                  InfoIdType info_id,
+                  InfoObjectType info,
+                  bool* remove) override {
     Info info_rec;
     info_rec.browser_id = browser_id;
     info_rec.info_id = info_id;

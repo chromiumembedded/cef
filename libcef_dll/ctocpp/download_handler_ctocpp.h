@@ -31,16 +31,15 @@ class CefDownloadHandlerCToCpp
   explicit CefDownloadHandlerCToCpp(cef_download_handler_t* str)
       : CefCToCpp<CefDownloadHandlerCToCpp, CefDownloadHandler,
           cef_download_handler_t>(str) {}
-  virtual ~CefDownloadHandlerCToCpp() {}
 
   // CefDownloadHandler methods
-  virtual void OnBeforeDownload(CefRefPtr<CefBrowser> browser,
+  void OnBeforeDownload(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefDownloadItem> download_item,
       const CefString& suggested_name,
-      CefRefPtr<CefBeforeDownloadCallback> callback) OVERRIDE;
-  virtual void OnDownloadUpdated(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefBeforeDownloadCallback> callback) override;
+  void OnDownloadUpdated(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefDownloadItem> download_item,
-      CefRefPtr<CefDownloadItemCallback> callback) OVERRIDE;
+      CefRefPtr<CefDownloadItemCallback> callback) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

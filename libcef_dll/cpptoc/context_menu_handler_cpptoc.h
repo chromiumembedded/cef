@@ -29,7 +29,6 @@ class CefContextMenuHandlerCppToC
         cef_context_menu_handler_t> {
  public:
   explicit CefContextMenuHandlerCppToC(CefContextMenuHandler* cls);
-  virtual ~CefContextMenuHandlerCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

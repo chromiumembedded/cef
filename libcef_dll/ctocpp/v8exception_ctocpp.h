@@ -31,7 +31,6 @@ class CefV8ExceptionCToCpp
   explicit CefV8ExceptionCToCpp(cef_v8exception_t* str)
       : CefCToCpp<CefV8ExceptionCToCpp, CefV8Exception, cef_v8exception_t>(
           str) {}
-  virtual ~CefV8ExceptionCToCpp() {}
 
   // CefV8Exception methods
   virtual CefString GetMessage() OVERRIDE;

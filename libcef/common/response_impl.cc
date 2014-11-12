@@ -185,8 +185,8 @@ void CefResponseImpl::Set(const blink::WebURLResponse& response) {
    public:
     explicit HeaderVisitor(HeaderMap* map) : map_(map) {}
 
-    virtual void visitHeader(const blink::WebString& name,
-                             const blink::WebString& value) {
+    void visitHeader(const blink::WebString& name,
+                     const blink::WebString& value) override {
       map_->insert(std::make_pair(base::string16(name),
                                   base::string16(value)));
     }

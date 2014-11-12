@@ -29,7 +29,6 @@ class CefSchemeHandlerFactoryCppToC
         cef_scheme_handler_factory_t> {
  public:
   explicit CefSchemeHandlerFactoryCppToC(CefSchemeHandlerFactory* cls);
-  virtual ~CefSchemeHandlerFactoryCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

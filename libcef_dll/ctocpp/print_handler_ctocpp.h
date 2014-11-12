@@ -31,17 +31,16 @@ class CefPrintHandlerCToCpp
   explicit CefPrintHandlerCToCpp(cef_print_handler_t* str)
       : CefCToCpp<CefPrintHandlerCToCpp, CefPrintHandler, cef_print_handler_t>(
           str) {}
-  virtual ~CefPrintHandlerCToCpp() {}
 
   // CefPrintHandler methods
-  virtual void OnPrintSettings(CefRefPtr<CefPrintSettings> settings,
-      bool get_defaults) OVERRIDE;
-  virtual bool OnPrintDialog(bool has_selection,
-      CefRefPtr<CefPrintDialogCallback> callback) OVERRIDE;
-  virtual bool OnPrintJob(const CefString& document_name,
+  void OnPrintSettings(CefRefPtr<CefPrintSettings> settings,
+      bool get_defaults) override;
+  bool OnPrintDialog(bool has_selection,
+      CefRefPtr<CefPrintDialogCallback> callback) override;
+  bool OnPrintJob(const CefString& document_name,
       const CefString& pdf_file_path,
-      CefRefPtr<CefPrintJobCallback> callback) OVERRIDE;
-  virtual void OnPrintReset() OVERRIDE;
+      CefRefPtr<CefPrintJobCallback> callback) override;
+  void OnPrintReset() override;
 };
 
 #endif  // BUILDING_CEF_SHARED

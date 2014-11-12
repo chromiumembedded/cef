@@ -29,7 +29,6 @@ class CefDOMNodeCToCpp
  public:
   explicit CefDOMNodeCToCpp(cef_domnode_t* str)
       : CefCToCpp<CefDOMNodeCToCpp, CefDOMNode, cef_domnode_t>(str) {}
-  virtual ~CefDOMNodeCToCpp() {}
 
   // CefDOMNode methods
   virtual Type GetType() OVERRIDE;

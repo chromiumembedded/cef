@@ -31,15 +31,14 @@ class CefBrowserProcessHandlerCToCpp
   explicit CefBrowserProcessHandlerCToCpp(cef_browser_process_handler_t* str)
       : CefCToCpp<CefBrowserProcessHandlerCToCpp, CefBrowserProcessHandler,
           cef_browser_process_handler_t>(str) {}
-  virtual ~CefBrowserProcessHandlerCToCpp() {}
 
   // CefBrowserProcessHandler methods
-  virtual void OnContextInitialized() OVERRIDE;
-  virtual void OnBeforeChildProcessLaunch(
-      CefRefPtr<CefCommandLine> command_line) OVERRIDE;
-  virtual void OnRenderProcessThreadCreated(
-      CefRefPtr<CefListValue> extra_info) OVERRIDE;
-  virtual CefRefPtr<CefPrintHandler> GetPrintHandler() OVERRIDE;
+  void OnContextInitialized() override;
+  void OnBeforeChildProcessLaunch(
+      CefRefPtr<CefCommandLine> command_line) override;
+  void OnRenderProcessThreadCreated(
+      CefRefPtr<CefListValue> extra_info) override;
+  CefRefPtr<CefPrintHandler> GetPrintHandler() override;
 };
 
 #endif  // BUILDING_CEF_SHARED

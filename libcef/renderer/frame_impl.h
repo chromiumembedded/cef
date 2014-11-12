@@ -23,36 +23,36 @@ class CefFrameImpl : public CefFrame {
  public:
   CefFrameImpl(CefBrowserImpl* browser,
                blink::WebFrame* frame);
-  virtual ~CefFrameImpl();
+  ~CefFrameImpl() override;
 
   // CefFrame implementation.
-  virtual bool IsValid() OVERRIDE;
-  virtual void Undo() OVERRIDE;
-  virtual void Redo() OVERRIDE;
-  virtual void Cut() OVERRIDE;
-  virtual void Copy() OVERRIDE;
-  virtual void Paste() OVERRIDE;
-  virtual void Delete() OVERRIDE;
-  virtual void SelectAll() OVERRIDE;
-  virtual void ViewSource() OVERRIDE;
-  virtual void GetSource(CefRefPtr<CefStringVisitor> visitor) OVERRIDE;
-  virtual void GetText(CefRefPtr<CefStringVisitor> visitor) OVERRIDE;
-  virtual void LoadRequest(CefRefPtr<CefRequest> request) OVERRIDE;
-  virtual void LoadURL(const CefString& url) OVERRIDE;
-  virtual void LoadString(const CefString& string,
-                          const CefString& url) OVERRIDE;
-  virtual void ExecuteJavaScript(const CefString& jsCode,
-                                 const CefString& scriptUrl,
-                                 int startLine) OVERRIDE;
-  virtual bool IsMain() OVERRIDE;
-  virtual bool IsFocused() OVERRIDE;
-  virtual CefString GetName() OVERRIDE;
-  virtual int64 GetIdentifier() OVERRIDE;
-  virtual CefRefPtr<CefFrame> GetParent() OVERRIDE;
-  virtual CefString GetURL() OVERRIDE;
-  virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
-  virtual CefRefPtr<CefV8Context> GetV8Context() OVERRIDE;
-  virtual void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) OVERRIDE;
+  bool IsValid() override;
+  void Undo() override;
+  void Redo() override;
+  void Cut() override;
+  void Copy() override;
+  void Paste() override;
+  void Delete() override;
+  void SelectAll() override;
+  void ViewSource() override;
+  void GetSource(CefRefPtr<CefStringVisitor> visitor) override;
+  void GetText(CefRefPtr<CefStringVisitor> visitor) override;
+  void LoadRequest(CefRefPtr<CefRequest> request) override;
+  void LoadURL(const CefString& url) override;
+  void LoadString(const CefString& string,
+                  const CefString& url) override;
+  void ExecuteJavaScript(const CefString& jsCode,
+                         const CefString& scriptUrl,
+                         int startLine) override;
+  bool IsMain() override;
+  bool IsFocused() override;
+  CefString GetName() override;
+  int64 GetIdentifier() override;
+  CefRefPtr<CefFrame> GetParent() override;
+  CefString GetURL() override;
+  CefRefPtr<CefBrowser> GetBrowser() override;
+  CefRefPtr<CefV8Context> GetV8Context() override;
+  void VisitDOM(CefRefPtr<CefDOMVisitor> visitor) override;
 
   void Detach();
 

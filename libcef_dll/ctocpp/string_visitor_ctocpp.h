@@ -31,10 +31,9 @@ class CefStringVisitorCToCpp
   explicit CefStringVisitorCToCpp(cef_string_visitor_t* str)
       : CefCToCpp<CefStringVisitorCToCpp, CefStringVisitor,
           cef_string_visitor_t>(str) {}
-  virtual ~CefStringVisitorCToCpp() {}
 
   // CefStringVisitor methods
-  virtual void Visit(const CefString& string) OVERRIDE;
+  void Visit(const CefString& string) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

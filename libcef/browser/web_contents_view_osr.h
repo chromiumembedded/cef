@@ -21,48 +21,49 @@ class CefWebContentsViewOSR : public content::WebContentsView,
                               public content::RenderViewHostDelegateView {
  public:
   CefWebContentsViewOSR();
-  virtual ~CefWebContentsViewOSR();
+  ~CefWebContentsViewOSR() override;
 
   void set_web_contents(content::WebContents* web_contents);
 
   // WebContentsView methods.
-  virtual gfx::NativeView GetNativeView() const OVERRIDE;
-  virtual gfx::NativeView GetContentNativeView() const OVERRIDE;
-  virtual gfx::NativeWindow GetTopLevelNativeWindow() const OVERRIDE;
-  virtual void GetContainerBounds(gfx::Rect* out) const OVERRIDE;
-  virtual void SizeContents(const gfx::Size& size) OVERRIDE;
-  virtual void Focus() OVERRIDE;
-  virtual void SetInitialFocus() OVERRIDE;
-  virtual void StoreFocus() OVERRIDE;
-  virtual void RestoreFocus() OVERRIDE;
-  virtual content::DropData* GetDropData() const OVERRIDE;
-  virtual gfx::Rect GetViewBounds() const OVERRIDE;
-  virtual void CreateView(const gfx::Size& initial_size,
-                          gfx::NativeView context) OVERRIDE;
-  virtual content::RenderWidgetHostViewBase* CreateViewForWidget(
-      content::RenderWidgetHost* render_widget_host) OVERRIDE;
-  virtual content::RenderWidgetHostViewBase* CreateViewForPopupWidget(
-      content::RenderWidgetHost* render_widget_host) OVERRIDE;
-  virtual void SetPageTitle(const base::string16& title) OVERRIDE;
-  virtual void RenderViewCreated(content::RenderViewHost* host) OVERRIDE;
-  virtual void RenderViewSwappedIn(content::RenderViewHost* host) OVERRIDE;
-  virtual void SetOverscrollControllerEnabled(bool enabled) OVERRIDE;
+  gfx::NativeView GetNativeView() const override;
+  gfx::NativeView GetContentNativeView() const override;
+  gfx::NativeWindow GetTopLevelNativeWindow() const override;
+  void GetContainerBounds(gfx::Rect* out) const override;
+  void SizeContents(const gfx::Size& size) override;
+  void Focus() override;
+  void SetInitialFocus() override;
+  void StoreFocus() override;
+  void RestoreFocus() override;
+  content::DropData* GetDropData() const override;
+  gfx::Rect GetViewBounds() const override;
+  void CreateView(const gfx::Size& initial_size,
+                  gfx::NativeView context) override;
+  content::RenderWidgetHostViewBase* CreateViewForWidget(
+      content::RenderWidgetHost* render_widget_host,
+      bool is_guest_view_hack) override;
+  content::RenderWidgetHostViewBase* CreateViewForPopupWidget(
+      content::RenderWidgetHost* render_widget_host) override;
+  void SetPageTitle(const base::string16& title) override;
+  void RenderViewCreated(content::RenderViewHost* host) override;
+  void RenderViewSwappedIn(content::RenderViewHost* host) override;
+  void SetOverscrollControllerEnabled(bool enabled) override;
 
 #if defined(OS_MACOSX)
-  virtual void SetAllowOtherViews(bool allow) OVERRIDE;
-  virtual bool GetAllowOtherViews() const OVERRIDE;
-  virtual bool IsEventTracking() const OVERRIDE;
-  virtual void CloseTabAfterEventTracking() OVERRIDE;
+  void SetAllowOtherViews(bool allow) override;
+  bool GetAllowOtherViews() const override;
+  bool IsEventTracking() const override;
+  void CloseTabAfterEventTracking() override;
 #endif
 
   // RenderViewHostDelegateView methods.
-  virtual void StartDragging(
+  void StartDragging(
       const content::DropData& drop_data,
       blink::WebDragOperationsMask allowed_ops,
       const gfx::ImageSkia& image,
       const gfx::Vector2d& image_offset,
-      const content::DragEventSourceInfo& event_info) OVERRIDE;
-  virtual void UpdateDragCursor(blink::WebDragOperation operation) OVERRIDE;
+      const content::DragEventSourceInfo& event_info) override;
+  void UpdateDragCursor(blink::WebDragOperation operation) override;
 
  private:
   content::WebContents* web_contents_;

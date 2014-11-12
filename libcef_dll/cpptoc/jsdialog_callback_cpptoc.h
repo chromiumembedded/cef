@@ -29,7 +29,6 @@ class CefJSDialogCallbackCppToC
         cef_jsdialog_callback_t> {
  public:
   explicit CefJSDialogCallbackCppToC(CefJSDialogCallback* cls);
-  virtual ~CefJSDialogCallbackCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

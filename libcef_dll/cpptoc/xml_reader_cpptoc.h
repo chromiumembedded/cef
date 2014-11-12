@@ -28,7 +28,6 @@ class CefXmlReaderCppToC
     : public CefCppToC<CefXmlReaderCppToC, CefXmlReader, cef_xml_reader_t> {
  public:
   explicit CefXmlReaderCppToC(CefXmlReader* cls);
-  virtual ~CefXmlReaderCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

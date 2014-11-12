@@ -20,7 +20,6 @@
 class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
  public:
   CefBrowserInfo(int browser_id, bool is_popup);
-  virtual ~CefBrowserInfo();
 
   int browser_id() const { return browser_id_; };
   bool is_popup() const { return is_popup_; }
@@ -44,6 +43,10 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   void set_browser(CefRefPtr<CefBrowserHostImpl> browser);
 
  private:
+  friend class base::RefCountedThreadSafe<CefBrowserInfo>;
+
+  ~CefBrowserInfo();
+
   typedef std::set<std::pair<int, int> > RenderIdSet;
 
   void add_render_id(RenderIdSet* id_set,

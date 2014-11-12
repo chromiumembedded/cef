@@ -31,31 +31,27 @@ class CefRenderHandlerCToCpp
   explicit CefRenderHandlerCToCpp(cef_render_handler_t* str)
       : CefCToCpp<CefRenderHandlerCToCpp, CefRenderHandler,
           cef_render_handler_t>(str) {}
-  virtual ~CefRenderHandlerCToCpp() {}
 
   // CefRenderHandler methods
-  virtual bool GetRootScreenRect(CefRefPtr<CefBrowser> browser,
-      CefRect& rect) OVERRIDE;
-  virtual bool GetViewRect(CefRefPtr<CefBrowser> browser,
-      CefRect& rect) OVERRIDE;
-  virtual bool GetScreenPoint(CefRefPtr<CefBrowser> browser, int viewX,
-      int viewY, int& screenX, int& screenY) OVERRIDE;
-  virtual bool GetScreenInfo(CefRefPtr<CefBrowser> browser,
-      CefScreenInfo& screen_info) OVERRIDE;
-  virtual void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) OVERRIDE;
-  virtual void OnPopupSize(CefRefPtr<CefBrowser> browser,
-      const CefRect& rect) OVERRIDE;
-  virtual void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type,
+  bool GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
+  bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
+  bool GetScreenPoint(CefRefPtr<CefBrowser> browser, int viewX, int viewY,
+      int& screenX, int& screenY) override;
+  bool GetScreenInfo(CefRefPtr<CefBrowser> browser,
+      CefScreenInfo& screen_info) override;
+  void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) override;
+  void OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect) override;
+  void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type,
       const RectList& dirtyRects, const void* buffer, int width,
-      int height) OVERRIDE;
-  virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
-      CefCursorHandle cursor) OVERRIDE;
-  virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
+      int height) override;
+  void OnCursorChange(CefRefPtr<CefBrowser> browser,
+      CefCursorHandle cursor) override;
+  bool StartDragging(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefDragData> drag_data, DragOperationsMask allowed_ops, int x,
-      int y) OVERRIDE;
-  virtual void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
-      DragOperation operation) OVERRIDE;
-  virtual void OnScrollOffsetChanged(CefRefPtr<CefBrowser> browser) OVERRIDE;
+      int y) override;
+  void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
+      DragOperation operation) override;
+  void OnScrollOffsetChanged(CefRefPtr<CefBrowser> browser) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

@@ -16,7 +16,7 @@
 #include "libcef/common/time_util.h"
 
 #include "base/bind.h"
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/format_macros.h"
 #include "base/logging.h"
 #include "base/threading/thread_restrictions.h"
@@ -63,6 +63,10 @@ class VisitCookiesCallback : public base::RefCounted<VisitCookiesCallback> {
   }
 
  private:
+  friend class base::RefCounted<VisitCookiesCallback>;
+
+  ~VisitCookiesCallback() {}
+
   scoped_refptr<net::CookieMonster> cookie_monster_;
   CefRefPtr<CefCookieVisitor> visitor_;
 };

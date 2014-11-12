@@ -26,7 +26,7 @@ index 8df78f4..909840e 100644
  
  SpellcheckServiceFactory::SpellcheckServiceFactory()
 diff --git spellcheck_factory.h spellcheck_factory.h
-index d2f4679..c1a790c 100644
+index 3e4ad0e..d52b881 100644
 --- spellcheck_factory.h
 +++ spellcheck_factory.h
 @@ -7,7 +7,7 @@
@@ -46,4 +46,4 @@ index d2f4679..c1a790c 100644
 +  friend struct base::DefaultLazyInstanceTraits<SpellcheckServiceFactory>;
  
    SpellcheckServiceFactory();
-   virtual ~SpellcheckServiceFactory();
+   ~SpellcheckServiceFactory() override;

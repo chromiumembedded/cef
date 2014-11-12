@@ -176,11 +176,11 @@ class ReadHandlerTester : public CefReadHandler {
       tell_called_(false),
       eof_called_(false) {
   }
-  virtual ~ReadHandlerTester() {
+  ~ReadHandlerTester() override {
     g_ReadHandlerTesterDeleted = true;
   }
 
-  virtual size_t Read(void* ptr, size_t size, size_t n) OVERRIDE {
+  size_t Read(void* ptr, size_t size, size_t n) override {
     read_called_ = true;
     read_ptr_ = ptr;
     read_size_ = size;
@@ -188,24 +188,24 @@ class ReadHandlerTester : public CefReadHandler {
     return 10;
   }
 
-  virtual int Seek(int64 offset, int whence) OVERRIDE {
+  int Seek(int64 offset, int whence) override {
     seek_called_ = true;
     seek_offset_ = offset;
     seek_whence_ = whence;
     return 10;
   }
 
-  virtual int64 Tell() OVERRIDE {
+  int64 Tell() override {
     tell_called_ = true;
     return 10;
   }
 
-  virtual int Eof() OVERRIDE {
+  int Eof() override {
     eof_called_ = true;
     return 10;
   }
 
-  virtual bool MayBlock() OVERRIDE {
+  bool MayBlock() override {
     return false;
   }
 
@@ -286,11 +286,11 @@ class WriteHandlerTester : public CefWriteHandler {
       tell_called_(false),
       flush_called_(false) {
   }
-  virtual ~WriteHandlerTester() {
+  ~WriteHandlerTester() override {
     g_WriteHandlerTesterDeleted = true;
   }
 
-  virtual size_t Write(const void* ptr, size_t size, size_t n) OVERRIDE {
+  size_t Write(const void* ptr, size_t size, size_t n) override {
     write_called_ = true;
     write_ptr_ = ptr;
     write_size_ = size;
@@ -298,24 +298,24 @@ class WriteHandlerTester : public CefWriteHandler {
     return 10;
   }
 
-  virtual int Seek(int64 offset, int whence) OVERRIDE {
+  int Seek(int64 offset, int whence) override {
     seek_called_ = true;
     seek_offset_ = offset;
     seek_whence_ = whence;
     return 10;
   }
 
-  virtual int64 Tell() OVERRIDE {
+  int64 Tell() override {
     tell_called_ = true;
     return 10;
   }
 
-  virtual int Flush() OVERRIDE {
+  int Flush() override {
     flush_called_ = true;
     return 10;
   }
 
-  virtual bool MayBlock() OVERRIDE {
+  bool MayBlock() override {
     return false;
   }
 

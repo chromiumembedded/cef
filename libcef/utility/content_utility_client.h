@@ -14,9 +14,9 @@ class UtilityMessageHandler;
 class CefContentUtilityClient : public content::ContentUtilityClient {
  public:
   CefContentUtilityClient();
-  virtual ~CefContentUtilityClient();
+  ~CefContentUtilityClient() override;
 
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
+  bool OnMessageReceived(const IPC::Message& message) override;
 
   static void PreSandboxStartup();
 

@@ -44,11 +44,11 @@ class SendRecvRendererTest : public ClientApp::RenderDelegate {
  public:
   SendRecvRendererTest() {}
 
-  virtual bool OnProcessMessageReceived(
+  bool OnProcessMessageReceived(
       CefRefPtr<ClientApp> app,
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE {
+      CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName() == kSendRecvMsg) {
       EXPECT_TRUE(browser.get());
       EXPECT_EQ(PID_BROWSER, source_process);
@@ -75,24 +75,24 @@ class SendRecvTestHandler : public TestHandler {
   SendRecvTestHandler() {
   }
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     message_ = CreateTestMessage();
 
     AddResource(kSendRecvUrl, "<html><body>TEST</body></html>", "text/html");
     CreateBrowser(kSendRecvUrl);
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     // Send the message to the renderer process.
     EXPECT_TRUE(browser->SendProcessMessage(PID_RENDERER, message_));
   }
 
-  virtual bool OnProcessMessageReceived(
+  bool OnProcessMessageReceived(
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE {
+      CefRefPtr<CefProcessMessage> message) override {
     EXPECT_TRUE(browser.get());
     EXPECT_EQ(PID_RENDERER, source_process);
     EXPECT_TRUE(message.get());

@@ -26,74 +26,74 @@ class BackgroundModeManager {
 class ChromeBrowserProcessStub : public BrowserProcess {
  public:
   ChromeBrowserProcessStub();
-  virtual ~ChromeBrowserProcessStub();
+  ~ChromeBrowserProcessStub() override;
 
   // BrowserProcess implementation.
-  virtual void ResourceDispatcherHostCreated() OVERRIDE;
-  virtual void EndSession() OVERRIDE;
-  virtual MetricsServicesManager* GetMetricsServicesManager() OVERRIDE;
-  virtual metrics::MetricsService* metrics_service() OVERRIDE;
-  virtual rappor::RapporService* rappor_service() OVERRIDE;
-  virtual IOThread* io_thread() OVERRIDE;
-  virtual WatchDogThread* watchdog_thread() OVERRIDE;
-  virtual ProfileManager* profile_manager() OVERRIDE;
-  virtual PrefService* local_state() OVERRIDE;
-  virtual net::URLRequestContextGetter* system_request_context() OVERRIDE;
-  virtual chrome_variations::VariationsService* variations_service() OVERRIDE;
-  virtual BrowserProcessPlatformPart* platform_part() OVERRIDE;
-  virtual extensions::EventRouterForwarder*
-        extension_event_router_forwarder() OVERRIDE;
-  virtual NotificationUIManager* notification_ui_manager() OVERRIDE;
-  virtual message_center::MessageCenter* message_center() OVERRIDE;
-  virtual policy::BrowserPolicyConnector* browser_policy_connector() OVERRIDE;
-  virtual policy::PolicyService* policy_service() OVERRIDE;
-  virtual IconManager* icon_manager() OVERRIDE;
-  virtual GLStringManager* gl_string_manager() OVERRIDE;
-  virtual GpuModeManager* gpu_mode_manager() OVERRIDE;
-  virtual void CreateDevToolsHttpProtocolHandler(
+  void ResourceDispatcherHostCreated() override;
+  void EndSession() override;
+  MetricsServicesManager* GetMetricsServicesManager() override;
+  metrics::MetricsService* metrics_service() override;
+  rappor::RapporService* rappor_service() override;
+  IOThread* io_thread() override;
+  WatchDogThread* watchdog_thread() override;
+  ProfileManager* profile_manager() override;
+  PrefService* local_state() override;
+  net::URLRequestContextGetter* system_request_context() override;
+  chrome_variations::VariationsService* variations_service() override;
+  BrowserProcessPlatformPart* platform_part() override;
+  extensions::EventRouterForwarder*
+      extension_event_router_forwarder() override;
+  NotificationUIManager* notification_ui_manager() override;
+  message_center::MessageCenter* message_center() override;
+  policy::BrowserPolicyConnector* browser_policy_connector() override;
+  policy::PolicyService* policy_service() override;
+  IconManager* icon_manager() override;
+  GLStringManager* gl_string_manager() override;
+  GpuModeManager* gpu_mode_manager() override;
+  void CreateDevToolsHttpProtocolHandler(
       chrome::HostDesktopType host_desktop_type,
       const std::string& ip,
-      int port) OVERRIDE;
-  virtual unsigned int AddRefModule() OVERRIDE;
-  virtual unsigned int ReleaseModule() OVERRIDE;
-  virtual bool IsShuttingDown() OVERRIDE;
-  virtual printing::PrintJobManager* print_job_manager() OVERRIDE;
-  virtual printing::PrintPreviewDialogController*
-      print_preview_dialog_controller() OVERRIDE;
-  virtual printing::BackgroundPrintingManager*
-      background_printing_manager() OVERRIDE;
-  virtual IntranetRedirectDetector* intranet_redirect_detector() OVERRIDE;
-  virtual const std::string& GetApplicationLocale() OVERRIDE;
-  virtual void SetApplicationLocale(const std::string& locale) OVERRIDE;
-  virtual DownloadStatusUpdater* download_status_updater() OVERRIDE;
-  virtual DownloadRequestLimiter* download_request_limiter() OVERRIDE;
-  virtual BackgroundModeManager* background_mode_manager() OVERRIDE;
-  virtual void set_background_mode_manager_for_test(
-      scoped_ptr<BackgroundModeManager> manager) OVERRIDE;
-  virtual StatusTray* status_tray() OVERRIDE;
-  virtual SafeBrowsingService* safe_browsing_service() OVERRIDE;
-  virtual safe_browsing::ClientSideDetectionService*
-      safe_browsing_detection_service() OVERRIDE;
+      int port) override;
+  unsigned int AddRefModule() override;
+  unsigned int ReleaseModule() override;
+  bool IsShuttingDown() override;
+  printing::PrintJobManager* print_job_manager() override;
+  printing::PrintPreviewDialogController*
+      print_preview_dialog_controller() override;
+  printing::BackgroundPrintingManager*
+      background_printing_manager() override;
+  IntranetRedirectDetector* intranet_redirect_detector() override;
+  const std::string& GetApplicationLocale() override;
+  void SetApplicationLocale(const std::string& locale) override;
+  DownloadStatusUpdater* download_status_updater() override;
+  DownloadRequestLimiter* download_request_limiter() override;
+  BackgroundModeManager* background_mode_manager() override;
+  void set_background_mode_manager_for_test(
+      scoped_ptr<BackgroundModeManager> manager) override;
+  StatusTray* status_tray() override;
+  SafeBrowsingService* safe_browsing_service() override;
+  safe_browsing::ClientSideDetectionService*
+      safe_browsing_detection_service() override;
 
 #if (defined(OS_WIN) || defined(OS_LINUX)) && !defined(OS_CHROMEOS)
-  virtual void StartAutoupdateTimer() OVERRIDE;
+  void StartAutoupdateTimer() override;
 #endif
 
-  virtual ChromeNetLog* net_log() OVERRIDE;
-  virtual prerender::PrerenderTracker* prerender_tracker() OVERRIDE;
-  virtual component_updater::ComponentUpdateService*
-      component_updater() OVERRIDE;
-  virtual CRLSetFetcher* crl_set_fetcher() OVERRIDE;
-  virtual component_updater::PnaclComponentInstaller*
-      pnacl_component_installer() OVERRIDE;
-  virtual MediaFileSystemRegistry*
-      media_file_system_registry() OVERRIDE;
-  virtual bool created_local_state() const OVERRIDE;
+  ChromeNetLog* net_log() override;
+  prerender::PrerenderTracker* prerender_tracker() override;
+  component_updater::ComponentUpdateService*
+      component_updater() override;
+  CRLSetFetcher* crl_set_fetcher() override;
+  component_updater::PnaclComponentInstaller*
+      pnacl_component_installer() override;
+  MediaFileSystemRegistry*
+      media_file_system_registry() override;
+  bool created_local_state() const override;
 #if defined(ENABLE_WEBRTC)
-  virtual WebRtcLogUploader* webrtc_log_uploader() OVERRIDE;
+  WebRtcLogUploader* webrtc_log_uploader() override;
 #endif
-  virtual network_time::NetworkTimeTracker* network_time_tracker() OVERRIDE;
-  virtual gcm::GCMDriver* gcm_driver() OVERRIDE;
+  network_time::NetworkTimeTracker* network_time_tracker() override;
+  gcm::GCMDriver* gcm_driver() override;
 
  private:
   std::string locale_;

@@ -31,11 +31,10 @@ class CefCookieVisitorCToCpp
   explicit CefCookieVisitorCToCpp(cef_cookie_visitor_t* str)
       : CefCToCpp<CefCookieVisitorCToCpp, CefCookieVisitor,
           cef_cookie_visitor_t>(str) {}
-  virtual ~CefCookieVisitorCToCpp() {}
 
   // CefCookieVisitor methods
-  virtual bool Visit(const CefCookie& cookie, int count, int total,
-      bool& deleteCookie) OVERRIDE;
+  bool Visit(const CefCookie& cookie, int count, int total,
+      bool& deleteCookie) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

@@ -87,7 +87,7 @@ class TestSchemeHandler : public TestHandler {
     g_current_handler = this;
   }
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     CreateBrowser(test_results_->url);
   }
 
@@ -97,9 +97,9 @@ class TestSchemeHandler : public TestHandler {
     TestHandler::DestroyTest();
   }
 
-  virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-                                    CefRefPtr<CefFrame> frame,
-                                    CefRefPtr<CefRequest> request) OVERRIDE {
+  bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
+                            CefRefPtr<CefFrame> frame,
+                            CefRefPtr<CefRequest> request) override {
     std::string newUrl = request->GetURL();
     if (!test_results_->exit_url.empty() &&
         newUrl.find(test_results_->exit_url) != std::string::npos) {
@@ -130,9 +130,9 @@ class TestSchemeHandler : public TestHandler {
     return false;
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     std::string url = frame->GetURL();
     if (url == test_results_->url || test_results_->status_code != 200) {
       test_results_->got_output.yes();
@@ -145,11 +145,11 @@ class TestSchemeHandler : public TestHandler {
     }
   }
 
-  virtual void OnLoadError(CefRefPtr<CefBrowser> browser,
-                           CefRefPtr<CefFrame> frame,
-                           ErrorCode errorCode,
-                           const CefString& errorText,
-                           const CefString& failedUrl) OVERRIDE {
+  void OnLoadError(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   ErrorCode errorCode,
+                   const CefString& errorText,
+                   const CefString& failedUrl) override {
     test_results_->got_error.yes();
     DestroyTest();
   }
@@ -167,8 +167,8 @@ class ClientSchemeHandler : public CefResourceHandler {
       has_delayed_(false) {
   }
 
-  virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              CefRefPtr<CefCallback> callback) OVERRIDE {
+  bool ProcessRequest(CefRefPtr<CefRequest> request,
+                      CefRefPtr<CefCallback> callback) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     bool handled = false;
@@ -210,9 +210,9 @@ class ClientSchemeHandler : public CefResourceHandler {
     return false;
   }
 
-  virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                                  int64& response_length,
-                                  CefString& redirectUrl) OVERRIDE {
+  void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                          int64& response_length,
+                          CefString& redirectUrl) override {
     if (is_sub_) {
       response->SetStatus(test_results_->sub_status_code);
 
@@ -241,14 +241,14 @@ class ClientSchemeHandler : public CefResourceHandler {
     }
   }
 
-  virtual void Cancel() OVERRIDE {
+  void Cancel() override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
   }
 
-  virtual bool ReadResponse(void* data_out,
-                            int bytes_to_read,
-                            int& bytes_read,
-                            CefRefPtr<CefCallback> callback) OVERRIDE {
+  bool ReadResponse(void* data_out,
+                    int bytes_to_read,
+                    int& bytes_read,
+                    CefRefPtr<CefCallback> callback) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     if (test_results_->delay > 0) {
@@ -312,12 +312,11 @@ class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {
     : test_results_(tr) {
   }
 
-  virtual CefRefPtr<CefResourceHandler> Create(
+  CefRefPtr<CefResourceHandler> Create(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       const CefString& scheme_name,
-      CefRefPtr<CefRequest> request)
-      OVERRIDE {
+      CefRefPtr<CefRequest> request) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
     return new ClientSchemeHandler(test_results_);
   }

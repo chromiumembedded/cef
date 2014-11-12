@@ -38,13 +38,13 @@ class PrintingMessageFilter : public content::BrowserMessageFilter {
   explicit PrintingMessageFilter(int render_process_id);
 
   // content::BrowserMessageFilter methods.
-  virtual void OverrideThreadForMessage(
+  void OverrideThreadForMessage(
       const IPC::Message& message,
-      content::BrowserThread::ID* thread) OVERRIDE;
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
+      content::BrowserThread::ID* thread) override;
+  bool OnMessageReceived(const IPC::Message& message) override;
 
  private:
-  virtual ~PrintingMessageFilter();
+  ~PrintingMessageFilter() override;
 
 #if defined(OS_WIN)
   // Used to pass resulting EMF from renderer to browser in printing.

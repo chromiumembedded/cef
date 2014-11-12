@@ -29,7 +29,6 @@ class CefDownloadItemCallbackCppToC
         cef_download_item_callback_t> {
  public:
   explicit CefDownloadItemCallbackCppToC(CefDownloadItemCallback* cls);
-  virtual ~CefDownloadItemCallbackCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

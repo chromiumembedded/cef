@@ -29,7 +29,6 @@ class CefStreamReaderCppToC
         cef_stream_reader_t> {
  public:
   explicit CefStreamReaderCppToC(CefStreamReader* cls);
-  virtual ~CefStreamReaderCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

@@ -42,23 +42,23 @@ class CefMediaCaptureDevicesDispatcher : public content::MediaObserver {
                           content::MediaStreamDevices* devices);
 
   // Overridden from content::MediaObserver:
-  virtual void OnAudioCaptureDevicesChanged() OVERRIDE;
-  virtual void OnVideoCaptureDevicesChanged() OVERRIDE;
-  virtual void OnMediaRequestStateChanged(
+  void OnAudioCaptureDevicesChanged() override;
+  void OnVideoCaptureDevicesChanged() override;
+  void OnMediaRequestStateChanged(
       int render_process_id,
       int render_frame_id,
       int page_request_id,
       const GURL& security_origin,
       content::MediaStreamType stream_type,
-      content::MediaRequestState state) OVERRIDE;
-  virtual void OnCreatingAudioStream(int render_process_id,
-                                     int render_view_id) OVERRIDE;
+      content::MediaRequestState state) override;
+   void OnCreatingAudioStream(int render_process_id,
+                              int render_view_id) override;
 
  private:
   friend struct DefaultSingletonTraits<CefMediaCaptureDevicesDispatcher>;
 
   CefMediaCaptureDevicesDispatcher();
-  virtual ~CefMediaCaptureDevicesDispatcher();
+  ~CefMediaCaptureDevicesDispatcher() override;
 
   const content::MediaStreamDevices& GetAudioCaptureDevices();
   const content::MediaStreamDevices& GetVideoCaptureDevices();

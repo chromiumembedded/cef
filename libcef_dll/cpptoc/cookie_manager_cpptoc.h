@@ -29,7 +29,6 @@ class CefCookieManagerCppToC
         cef_cookie_manager_t> {
  public:
   explicit CefCookieManagerCppToC(CefCookieManager* cls);
-  virtual ~CefCookieManagerCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

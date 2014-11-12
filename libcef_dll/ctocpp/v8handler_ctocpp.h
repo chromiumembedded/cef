@@ -29,12 +29,11 @@ class CefV8HandlerCToCpp
  public:
   explicit CefV8HandlerCToCpp(cef_v8handler_t* str)
       : CefCToCpp<CefV8HandlerCToCpp, CefV8Handler, cef_v8handler_t>(str) {}
-  virtual ~CefV8HandlerCToCpp() {}
 
   // CefV8Handler methods
-  virtual bool Execute(const CefString& name, CefRefPtr<CefV8Value> object,
+  bool Execute(const CefString& name, CefRefPtr<CefV8Value> object,
       const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval,
-      CefString& exception) OVERRIDE;
+      CefString& exception) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

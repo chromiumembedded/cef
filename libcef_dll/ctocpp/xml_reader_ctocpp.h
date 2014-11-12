@@ -29,7 +29,6 @@ class CefXmlReaderCToCpp
  public:
   explicit CefXmlReaderCToCpp(cef_xml_reader_t* str)
       : CefCToCpp<CefXmlReaderCToCpp, CefXmlReader, cef_xml_reader_t>(str) {}
-  virtual ~CefXmlReaderCToCpp() {}
 
   // CefXmlReader methods
   virtual bool MoveToNextNode() OVERRIDE;

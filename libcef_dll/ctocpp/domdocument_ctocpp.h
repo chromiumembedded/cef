@@ -31,7 +31,6 @@ class CefDOMDocumentCToCpp
   explicit CefDOMDocumentCToCpp(cef_domdocument_t* str)
       : CefCToCpp<CefDOMDocumentCToCpp, CefDOMDocument, cef_domdocument_t>(
           str) {}
-  virtual ~CefDOMDocumentCToCpp() {}
 
   // CefDOMDocument methods
   virtual Type GetType() OVERRIDE;

@@ -29,10 +29,9 @@ class CefTaskCToCpp
  public:
   explicit CefTaskCToCpp(cef_task_t* str)
       : CefCToCpp<CefTaskCToCpp, CefTask, cef_task_t>(str) {}
-  virtual ~CefTaskCToCpp() {}
 
   // CefTask methods
-  virtual void Execute() OVERRIDE;
+  void Execute() override;
 };
 
 #endif  // BUILDING_CEF_SHARED

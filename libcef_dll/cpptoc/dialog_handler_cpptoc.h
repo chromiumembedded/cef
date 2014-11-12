@@ -29,7 +29,6 @@ class CefDialogHandlerCppToC
         cef_dialog_handler_t> {
  public:
   explicit CefDialogHandlerCppToC(CefDialogHandler* cls);
-  virtual ~CefDialogHandlerCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

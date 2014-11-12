@@ -31,7 +31,6 @@ class CefRunFileDialogCallbackCppToC
         cef_run_file_dialog_callback_t> {
  public:
   explicit CefRunFileDialogCallbackCppToC(CefRunFileDialogCallback* cls);
-  virtual ~CefRunFileDialogCallbackCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

@@ -31,7 +31,6 @@ class CefAllowCertificateErrorCallbackCppToC
  public:
   explicit CefAllowCertificateErrorCallbackCppToC(
       CefAllowCertificateErrorCallback* cls);
-  virtual ~CefAllowCertificateErrorCallbackCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

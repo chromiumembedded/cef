@@ -31,12 +31,11 @@ class CefResourceBundleHandlerCToCpp
   explicit CefResourceBundleHandlerCToCpp(cef_resource_bundle_handler_t* str)
       : CefCToCpp<CefResourceBundleHandlerCToCpp, CefResourceBundleHandler,
           cef_resource_bundle_handler_t>(str) {}
-  virtual ~CefResourceBundleHandlerCToCpp() {}
 
   // CefResourceBundleHandler methods
-  virtual bool GetLocalizedString(int message_id, CefString& string) OVERRIDE;
-  virtual bool GetDataResource(int resource_id, void*& data,
-      size_t& data_size) OVERRIDE;
+  bool GetLocalizedString(int message_id, CefString& string) override;
+  bool GetDataResource(int resource_id, void*& data,
+      size_t& data_size) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

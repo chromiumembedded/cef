@@ -29,7 +29,6 @@ class CefBinaryValueCppToC
         cef_binary_value_t> {
  public:
   explicit CefBinaryValueCppToC(CefBinaryValue* cls);
-  virtual ~CefBinaryValueCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

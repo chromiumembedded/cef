@@ -29,7 +29,6 @@ class CefDownloadItemCppToC
         cef_download_item_t> {
  public:
   explicit CefDownloadItemCppToC(CefDownloadItem* cls);
-  virtual ~CefDownloadItemCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

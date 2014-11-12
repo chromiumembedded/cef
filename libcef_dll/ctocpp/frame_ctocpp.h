@@ -33,7 +33,6 @@ class CefFrameCToCpp
  public:
   explicit CefFrameCToCpp(cef_frame_t* str)
       : CefCToCpp<CefFrameCToCpp, CefFrame, cef_frame_t>(str) {}
-  virtual ~CefFrameCToCpp() {}
 
   // CefFrame methods
   virtual bool IsValid() OVERRIDE;

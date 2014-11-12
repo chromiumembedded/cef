@@ -32,7 +32,6 @@ class CefFileDialogCallbackCToCpp
   explicit CefFileDialogCallbackCToCpp(cef_file_dialog_callback_t* str)
       : CefCToCpp<CefFileDialogCallbackCToCpp, CefFileDialogCallback,
           cef_file_dialog_callback_t>(str) {}
-  virtual ~CefFileDialogCallbackCToCpp() {}
 
   // CefFileDialogCallback methods
   virtual void Continue(const std::vector<CefString>& file_paths) OVERRIDE;

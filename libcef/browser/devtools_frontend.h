@@ -42,27 +42,27 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
  private:
   CefDevToolsFrontend(CefRefPtr<CefBrowserHostImpl> frontend_browser,
                       content::DevToolsAgentHost* agent_host);
-  virtual ~CefDevToolsFrontend();
+  ~CefDevToolsFrontend() override;
 
   // WebContentsObserver overrides.
-  virtual void RenderViewCreated(
-      content::RenderViewHost* render_view_host) OVERRIDE;
-  virtual void DocumentOnLoadCompletedInMainFrame() OVERRIDE;
-  virtual void WebContentsDestroyed() OVERRIDE;
+  void RenderViewCreated(
+      content::RenderViewHost* render_view_host) override;
+  void DocumentOnLoadCompletedInMainFrame() override;
+  void WebContentsDestroyed() override;
 
   // content::DevToolsFrontendHost::Delegate implementation.
-  virtual void HandleMessageFromDevToolsFrontend(
-      const std::string& message) OVERRIDE;
-  virtual void HandleMessageFromDevToolsFrontendToBackend(
-      const std::string& message) OVERRIDE;
+  void HandleMessageFromDevToolsFrontend(
+      const std::string& message) override;
+  void HandleMessageFromDevToolsFrontendToBackend(
+      const std::string& message) override;
 
   // content::DevToolsAgentHostClient implementation.
-  virtual void DispatchProtocolMessage(
+  void DispatchProtocolMessage(
       content::DevToolsAgentHost* agent_host,
-      const std::string& message) OVERRIDE;
-  virtual void AgentHostClosed(
+      const std::string& message) override;
+  void AgentHostClosed(
       content::DevToolsAgentHost* agent_host,
-      bool replaced) OVERRIDE;
+      bool replaced) override;
 
   CefRefPtr<CefBrowserHostImpl> frontend_browser_;
   scoped_refptr<content::DevToolsAgentHost> agent_host_;

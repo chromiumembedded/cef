@@ -29,7 +29,6 @@ class CefPostDataCToCpp
  public:
   explicit CefPostDataCToCpp(cef_post_data_t* str)
       : CefCToCpp<CefPostDataCToCpp, CefPostData, cef_post_data_t>(str) {}
-  virtual ~CefPostDataCToCpp() {}
 
   // CefPostData methods
   virtual bool IsReadOnly() OVERRIDE;

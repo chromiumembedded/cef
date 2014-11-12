@@ -31,9 +31,6 @@ CefTextInputClientOSRMac* GetInputClientFromContext(
 void CefRenderWidgetHostViewOSR::SetActive(bool active) {
 }
 
-void CefRenderWidgetHostViewOSR::SetTakesFocusOnlyOnMouseDown(bool flag) {
-}
-
 void CefRenderWidgetHostViewOSR::SetWindowVisibility(bool visible) {
   if (visible)
     WasShown();
@@ -61,8 +58,10 @@ bool CefRenderWidgetHostViewOSR::IsSpeaking() const {
 void CefRenderWidgetHostViewOSR::StopSpeaking() {
 }
 
-void CefRenderWidgetHostViewOSR::TextInputStateChanged(
-    const ViewHostMsg_TextInputState_Params& params) {
+void CefRenderWidgetHostViewOSR::TextInputTypeChanged(ui::TextInputType type,
+                                                      ui::TextInputMode mode,
+                                                      bool can_compose_inline,
+                                                      int flags) {
   [NSApp updateWindows];
 }
 
@@ -105,14 +104,6 @@ void CefRenderWidgetHostViewOSR::BrowserCompositorViewFrameSwapped(
         ui::INPUT_EVENT_LATENCY_TERMINATED_FRAME_SWAP_COMPONENT, 0, 0);
     render_widget_host_->FrameSwapped(latency_info);
   }
-}
-
-NSView* CefRenderWidgetHostViewOSR::BrowserCompositorSuperview() {
-  return [window_ contentView];
-}
-
-ui::Layer* CefRenderWidgetHostViewOSR::BrowserCompositorRootLayer() {
-  return root_layer_.get();
 }
 
 CefTextInputContext CefRenderWidgetHostViewOSR::GetNSTextInputContext() {
@@ -297,7 +288,9 @@ void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
   [content_view setLayer:background_layer_];
   [content_view setWantsLayer:YES];
 
-  compositor_view_.reset(new content::BrowserCompositorViewMac(this));
+  compositor_view_.reset(
+      new content::BrowserCompositorViewMac(this, content_view,
+                                            root_layer_.get()));
   compositor_.reset(compositor_view_->GetCompositor());
   DCHECK(compositor_);
 }

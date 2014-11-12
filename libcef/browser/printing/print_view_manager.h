@@ -18,20 +18,20 @@ namespace printing {
 class PrintViewManager : public PrintViewManagerBase,
                          public content::WebContentsUserData<PrintViewManager> {
  public:
-  virtual ~PrintViewManager();
+  ~PrintViewManager() override;
 
-#if !defined(DISABLE_BASIC_PRINTING)
+#if defined(ENABLE_BASIC_PRINTING)
   // Same as PrintNow(), but for the case where a user prints with the system
   // dialog from print preview.
   bool PrintForSystemDialogNow();
-#endif  // !DISABLE_BASIC_PRINTING
+#endif  // ENABLE_BASIC_PRINTING
 
   // content::WebContentsObserver implementation.
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
+  bool OnMessageReceived(const IPC::Message& message) override;
 
   // content::WebContentsObserver implementation.
   // Terminates or cancels the print job if one was pending.
-  virtual void RenderProcessGone(base::TerminationStatus status) OVERRIDE;
+  void RenderProcessGone(base::TerminationStatus status) override;
 
  private:
   explicit PrintViewManager(content::WebContents* web_contents);

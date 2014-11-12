@@ -28,7 +28,6 @@ class CefMenuModelCppToC
     : public CefCppToC<CefMenuModelCppToC, CefMenuModel, cef_menu_model_t> {
  public:
   explicit CefMenuModelCppToC(CefMenuModel* cls);
-  virtual ~CefMenuModelCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

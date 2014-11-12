@@ -29,7 +29,6 @@ class CefCompletionCallbackCppToC
         cef_completion_callback_t> {
  public:
   explicit CefCompletionCallbackCppToC(CefCompletionCallback* cls);
-  virtual ~CefCompletionCallbackCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

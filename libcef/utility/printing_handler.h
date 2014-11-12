@@ -25,12 +25,12 @@ struct PageRange;
 class PrintingHandler : public UtilityMessageHandler {
  public:
   PrintingHandler();
-  virtual ~PrintingHandler();
+  ~PrintingHandler() override;
 
   static void PreSandboxStartup();
 
   // IPC::Listener:
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
+  bool OnMessageReceived(const IPC::Message& message) override;
 
  private:
   // IPC message handlers.

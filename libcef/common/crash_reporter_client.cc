@@ -32,11 +32,16 @@ void CefCrashReporterClient::GetProductNameAndVersion(
 #endif
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX) && !defined(OS_IOS)
-void CefCrashReporterClient::GetProductNameAndVersion(std::string* product_name,
-                                                 std::string* version) {
+#define PRODUCT_VERSION \
+    MAKE_STRING(CEF_VERSION_MAJOR) "." \
+    MAKE_STRING(CHROME_VERSION_BUILD) "." \
+    MAKE_STRING(CEF_REVISION)
+
+void CefCrashReporterClient::GetProductNameAndVersion(
+    const char** product_name,
+    const char** version) {
   *product_name = "cef";
-  *version = base::StringPrintf(
-        "%d.%d.%d", CEF_VERSION_MAJOR, CHROME_VERSION_BUILD, CEF_REVISION);
+  *version = PRODUCT_VERSION;
 }
 
 base::FilePath CefCrashReporterClient::GetReporterLogFilename() {

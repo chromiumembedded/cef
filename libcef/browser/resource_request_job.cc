@@ -57,13 +57,13 @@ class CefResourceRequestJobCallback : public CefCallback {
         dest_(NULL),
         dest_size_(0) {}
 
-  virtual void Continue() OVERRIDE {
+  void Continue() override {
     // Continue asynchronously.
     CEF_POST_TASK(CEF_IOT,
         base::Bind(&CefResourceRequestJobCallback::ContinueOnIOThread, this));
   }
 
-  virtual void Cancel() OVERRIDE {
+  void Cancel() override {
     // Cancel asynchronously.
     CEF_POST_TASK(CEF_IOT,
         base::Bind(&CefResourceRequestJobCallback::CancelOnIOThread, this));

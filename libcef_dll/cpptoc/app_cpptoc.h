@@ -28,7 +28,6 @@ class CefAppCppToC
     : public CefCppToC<CefAppCppToC, CefApp, cef_app_t> {
  public:
   explicit CefAppCppToC(CefApp* cls);
-  virtual ~CefAppCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

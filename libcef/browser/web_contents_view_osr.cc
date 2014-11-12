@@ -68,7 +68,8 @@ void CefWebContentsViewOSR::CreateView(const gfx::Size& initial_size,
 }
 
 content::RenderWidgetHostViewBase* CefWebContentsViewOSR::CreateViewForWidget(
-    content::RenderWidgetHost* render_widget_host) {
+    content::RenderWidgetHost* render_widget_host,
+    bool is_guest_view_hack) {
   if (render_widget_host->GetView()) {
     return static_cast<content::RenderWidgetHostViewBase*>(
         render_widget_host->GetView());

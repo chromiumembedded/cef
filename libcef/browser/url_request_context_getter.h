@@ -83,12 +83,12 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
       base::MessageLoop* file_loop,
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors);
-  virtual ~CefURLRequestContextGetter();
+  ~CefURLRequestContextGetter() override;
 
   // net::URLRequestContextGetter implementation.
-  virtual net::URLRequestContext* GetURLRequestContext() OVERRIDE;
-  virtual scoped_refptr<base::SingleThreadTaskRunner>
-      GetNetworkTaskRunner() const OVERRIDE;
+  net::URLRequestContext* GetURLRequestContext() override;
+  scoped_refptr<base::SingleThreadTaskRunner>
+      GetNetworkTaskRunner() const override;
 
   net::HostResolver* host_resolver();
   net::URLRequestJobFactoryImpl* job_factory_impl() const {

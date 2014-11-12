@@ -69,7 +69,7 @@ class NET_EXPORT UploadData
  private:
   friend class base::RefCounted<UploadData>;
 
-  virtual ~UploadData();
+  ~UploadData() override;
 
   ScopedVector<UploadElement> elements_;
   int64 identifier_;

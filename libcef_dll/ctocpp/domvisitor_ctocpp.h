@@ -29,10 +29,9 @@ class CefDOMVisitorCToCpp
  public:
   explicit CefDOMVisitorCToCpp(cef_domvisitor_t* str)
       : CefCToCpp<CefDOMVisitorCToCpp, CefDOMVisitor, cef_domvisitor_t>(str) {}
-  virtual ~CefDOMVisitorCToCpp() {}
 
   // CefDOMVisitor methods
-  virtual void Visit(CefRefPtr<CefDOMDocument> document) OVERRIDE;
+  void Visit(CefRefPtr<CefDOMDocument> document) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

@@ -29,7 +29,6 @@ class CefMenuModelCToCpp
  public:
   explicit CefMenuModelCToCpp(cef_menu_model_t* str)
       : CefCToCpp<CefMenuModelCToCpp, CefMenuModel, cef_menu_model_t>(str) {}
-  virtual ~CefMenuModelCToCpp() {}
 
   // CefMenuModel methods
   virtual bool Clear() OVERRIDE;

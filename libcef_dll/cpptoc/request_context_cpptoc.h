@@ -29,7 +29,6 @@ class CefRequestContextCppToC
         cef_request_context_t> {
  public:
   explicit CefRequestContextCppToC(CefRequestContext* cls);
-  virtual ~CefRequestContextCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

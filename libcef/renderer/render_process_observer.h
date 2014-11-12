@@ -15,12 +15,12 @@ struct Cef_CrossOriginWhiteListEntry_Params;
 class CefRenderProcessObserver : public content::RenderProcessObserver {
  public:
   CefRenderProcessObserver();
-  virtual ~CefRenderProcessObserver();
+  ~CefRenderProcessObserver() override;
 
   // RenderProcessObserver implementation.
-  virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
-  virtual void WebKitInitialized() OVERRIDE;
-  virtual void OnRenderProcessShutdown() OVERRIDE;
+  bool OnControlMessageReceived(const IPC::Message& message) override;
+  void WebKitInitialized() override;
+  void OnRenderProcessShutdown() override;
 
  private:
   // Message handlers called on the render thread.

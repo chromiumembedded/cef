@@ -29,7 +29,6 @@ class CefPrintJobCallbackCppToC
         cef_print_job_callback_t> {
  public:
   explicit CefPrintJobCallbackCppToC(CefPrintJobCallback* cls);
-  virtual ~CefPrintJobCallbackCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

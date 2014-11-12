@@ -31,7 +31,6 @@ class CefStreamWriterCToCpp
   explicit CefStreamWriterCToCpp(cef_stream_writer_t* str)
       : CefCToCpp<CefStreamWriterCToCpp, CefStreamWriter, cef_stream_writer_t>(
           str) {}
-  virtual ~CefStreamWriterCToCpp() {}
 
   // CefStreamWriter methods
   virtual size_t Write(const void* ptr, size_t size, size_t n) OVERRIDE;

@@ -13,19 +13,19 @@
 class CefRequestInterceptor : public net::URLRequest::Interceptor {
  public:
   CefRequestInterceptor();
-  ~CefRequestInterceptor();
+  ~CefRequestInterceptor() override;
 
   // net::URLRequest::Interceptor methods.
-  virtual net::URLRequestJob* MaybeIntercept(
+  net::URLRequestJob* MaybeIntercept(
       net::URLRequest* request,
-      net::NetworkDelegate* network_delegate) OVERRIDE;
-  virtual net::URLRequestJob* MaybeInterceptRedirect(
+      net::NetworkDelegate* network_delegate) override;
+  net::URLRequestJob* MaybeInterceptRedirect(
       net::URLRequest* request,
       net::NetworkDelegate* network_delegate,
-      const GURL& location) OVERRIDE;
-  virtual net::URLRequestJob* MaybeInterceptResponse(
+      const GURL& location) override;
+  net::URLRequestJob* MaybeInterceptResponse(
       net::URLRequest* request,
-      net::NetworkDelegate* network_delegate) OVERRIDE;
+      net::NetworkDelegate* network_delegate) override;
 
   DISALLOW_COPY_AND_ASSIGN(CefRequestInterceptor);
 };

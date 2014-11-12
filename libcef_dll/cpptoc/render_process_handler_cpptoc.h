@@ -29,7 +29,6 @@ class CefRenderProcessHandlerCppToC
         cef_render_process_handler_t> {
  public:
   explicit CefRenderProcessHandlerCppToC(CefRenderProcessHandler* cls);
-  virtual ~CefRenderProcessHandlerCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

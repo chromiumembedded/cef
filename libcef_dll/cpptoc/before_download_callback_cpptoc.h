@@ -29,7 +29,6 @@ class CefBeforeDownloadCallbackCppToC
         CefBeforeDownloadCallback, cef_before_download_callback_t> {
  public:
   explicit CefBeforeDownloadCallbackCppToC(CefBeforeDownloadCallback* cls);
-  virtual ~CefBeforeDownloadCallbackCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

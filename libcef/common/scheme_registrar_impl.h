@@ -18,10 +18,10 @@ class CefSchemeRegistrarImpl : public CefSchemeRegistrar {
   CefSchemeRegistrarImpl();
 
   // CefSchemeRegistrar methods.
-  virtual bool AddCustomScheme(const CefString& scheme_name,
-                               bool is_standard,
-                               bool is_local,
-                               bool is_display_isolated) OVERRIDE;
+  bool AddCustomScheme(const CefString& scheme_name,
+                       bool is_standard,
+                       bool is_local,
+                       bool is_display_isolated) override;
 
   void GetStandardSchemes(std::vector<std::string>* standard_schemes);
 

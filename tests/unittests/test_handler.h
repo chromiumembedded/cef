@@ -99,7 +99,7 @@ class TestHandler : public CefClient,
 
   // The |completion_state| object if specified must outlive this class.
   explicit TestHandler(CompletionState* completion_state = NULL);
-  virtual ~TestHandler();
+  ~TestHandler() override;
 
   // Implement this method to set up the test. Only used in combination with a
   // Collection. Call SetupComplete() once the setup is complete.
@@ -110,47 +110,47 @@ class TestHandler : public CefClient,
   virtual void RunTest() =0;
 
   // CefClient methods. Add new methods as needed by test cases.
-  virtual CefRefPtr<CefDialogHandler> GetDialogHandler() OVERRIDE {
+  CefRefPtr<CefDialogHandler> GetDialogHandler() override {
     return this;
   }
-  virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE {
+  CefRefPtr<CefDisplayHandler> GetDisplayHandler() override {
     return this;
   }
-  virtual CefRefPtr<CefDownloadHandler> GetDownloadHandler() OVERRIDE {
+  CefRefPtr<CefDownloadHandler> GetDownloadHandler() override {
     return this;
   }
-  virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE {
+  CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() override {
     return this;
   }
-  virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE {
+  CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() override {
     return this;
   }
-  virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE {
+  CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override {
     return this;
   }
-  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE {
+  CefRefPtr<CefLoadHandler> GetLoadHandler() override {
     return this;
   }
-  virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE {
+  CefRefPtr<CefRequestHandler> GetRequestHandler() override {
     return this;
   }
 
   // CefDownloadHandler methods
-  virtual void OnBeforeDownload(
+  void OnBeforeDownload(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefDownloadItem> download_item,
       const CefString& suggested_name,
-      CefRefPtr<CefBeforeDownloadCallback> callback) OVERRIDE {}
+      CefRefPtr<CefBeforeDownloadCallback> callback) override {}
 
   // CefLifeSpanHandler methods
-  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
 
   // CefRequestHandler methods
-  virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
+  CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request) OVERRIDE;
+      CefRefPtr<CefRequest> request) override;
 
   // These methods should only be used if at most one non-popup browser exists.
   CefRefPtr<CefBrowser> GetBrowser();

@@ -54,35 +54,6 @@ static blink::WebScreenInfo webScreenInfoFrom(const CefScreenInfo& src) {
   return webScreenInfo;
 }
 
-// Root layer passed to the ui::Compositor.
-class CefRootLayer : public ui::Layer, public ui::LayerDelegate {
- public:
-  CefRootLayer()
-      : Layer(ui::LAYER_TEXTURED) {
-    set_delegate(this);
-  }
-
-  virtual ~CefRootLayer() { }
-
-  // Overridden from LayerDelegate:
-  virtual void OnPaintLayer(gfx::Canvas* canvas) OVERRIDE {
-  }
-
-  virtual void OnDelegatedFrameDamage(
-      const gfx::Rect& damage_rect_in_dip) OVERRIDE {
-  }
-
-  virtual void OnDeviceScaleFactorChanged(float device_scale_factor) OVERRIDE {
-  }
-
-  virtual base::Closure PrepareForLayerBoundsChange() OVERRIDE {
-    return base::Closure();
-  }
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefRootLayer);
-};
-
 // Used to prevent further resizes while a resize is pending.
 class CefResizeLock : public content::ResizeLock {
  public:
@@ -104,21 +75,21 @@ class CefResizeLock : public content::ResizeLock {
         timeout);
   }
 
-  virtual ~CefResizeLock() {
+  ~CefResizeLock() override {
     CancelLock();
   }
 
-  virtual bool GrabDeferredLock() OVERRIDE {
+  bool GrabDeferredLock() override {
     return ResizeLock::GrabDeferredLock();
   }
 
-  virtual void UnlockCompositor() OVERRIDE {
+  void UnlockCompositor() override {
     ResizeLock::UnlockCompositor();
     compositor_lock_ = NULL;
   }
 
  protected:
-  virtual void LockCompositor() OVERRIDE {
+  void LockCompositor() override {
     ResizeLock::LockCompositor();
     compositor_lock_ = host_->compositor()->GetCompositorLock();
   }
@@ -171,7 +142,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
         content::RenderViewHost::From(render_widget_host_));
   }
 
-  root_layer_.reset(new CefRootLayer);
+  root_layer_.reset(new ui::Layer(ui::LAYER_SOLID_COLOR));
 
   PlatformCreateCompositorWidget();
 #if !defined(OS_MACOSX)
@@ -276,8 +247,9 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetViewBounds() const {
   return gfx::Rect(rc.x, rc.y, rc.width, rc.height);
 }
 
-void CefRenderWidgetHostViewOSR::SetBackgroundOpaque(bool opaque) {
-  content::RenderWidgetHostViewBase::SetBackgroundOpaque(opaque);
+void CefRenderWidgetHostViewOSR::SetBackgroundColor(SkColor color) {
+  content::RenderWidgetHostViewBase::SetBackgroundColor(color);
+  bool opaque = GetBackgroundOpaque();
   if (render_widget_host_)
     render_widget_host_->SetBackgroundOpaque(opaque);
 }
@@ -435,8 +407,10 @@ void CefRenderWidgetHostViewOSR::SetIsLoading(bool is_loading) {
 }
 
 #if !defined(OS_MACOSX)
-void CefRenderWidgetHostViewOSR::TextInputStateChanged(
-    const ViewHostMsg_TextInputState_Params& params) {
+void CefRenderWidgetHostViewOSR::TextInputTypeChanged(ui::TextInputType type,
+                                                      ui::TextInputMode mode,
+                                                      bool can_compose_inline,
+                                                      int flags) {
 }
 
 void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
@@ -537,26 +511,7 @@ void CefRenderWidgetHostViewOSR::EndFrameSubscription() {
 }
 
 void CefRenderWidgetHostViewOSR::AcceleratedSurfaceInitialized(
-    int host_id,
     int route_id) {
-}
-
-void CefRenderWidgetHostViewOSR::AcceleratedSurfaceBuffersSwapped(
-    const GpuHostMsg_AcceleratedSurfaceBuffersSwapped_Params& params_in_pixel,
-    int gpu_host_id) {
-  // Oldschool composited mode is no longer supported.
-}
-
-void CefRenderWidgetHostViewOSR::AcceleratedSurfacePostSubBuffer(
-    const GpuHostMsg_AcceleratedSurfacePostSubBuffer_Params& params_in_pixel,
-    int gpu_host_id) {
-  // Oldschool composited mode is no longer supported.
-}
-
-void CefRenderWidgetHostViewOSR::AcceleratedSurfaceSuspend() {
-}
-
-void CefRenderWidgetHostViewOSR::AcceleratedSurfaceRelease() {
 }
 
 bool CefRenderWidgetHostViewOSR::HasAcceleratedSurface(
@@ -695,7 +650,7 @@ content::DelegatedFrameHost*
 
 bool CefRenderWidgetHostViewOSR::InstallTransparency() {
   if (browser_impl_.get() && browser_impl_->IsTransparent()) {
-    SetBackgroundOpaque(false);
+    SetBackgroundColor(SkColorSetARGB(SK_AlphaTRANSPARENT, 0, 0, 0));
     return true;
   }
   return false;

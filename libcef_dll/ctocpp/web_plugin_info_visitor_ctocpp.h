@@ -31,11 +31,9 @@ class CefWebPluginInfoVisitorCToCpp
   explicit CefWebPluginInfoVisitorCToCpp(cef_web_plugin_info_visitor_t* str)
       : CefCToCpp<CefWebPluginInfoVisitorCToCpp, CefWebPluginInfoVisitor,
           cef_web_plugin_info_visitor_t>(str) {}
-  virtual ~CefWebPluginInfoVisitorCToCpp() {}
 
   // CefWebPluginInfoVisitor methods
-  virtual bool Visit(CefRefPtr<CefWebPluginInfo> info, int count,
-      int total) OVERRIDE;
+  bool Visit(CefRefPtr<CefWebPluginInfo> info, int count, int total) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

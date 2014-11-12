@@ -16,43 +16,43 @@
 class CefXmlReaderImpl : public CefXmlReader {
  public:
   CefXmlReaderImpl();
-  ~CefXmlReaderImpl();
+  ~CefXmlReaderImpl() override;
 
   // Initialize the reader context.
   bool Initialize(CefRefPtr<CefStreamReader> stream,
                   EncodingType encodingType, const CefString& URI);
 
-  virtual bool MoveToNextNode() OVERRIDE;
-  virtual bool Close() OVERRIDE;
-  virtual bool HasError() OVERRIDE;
-  virtual CefString GetError() OVERRIDE;
-  virtual NodeType GetType() OVERRIDE;
-  virtual int GetDepth() OVERRIDE;
-  virtual CefString GetLocalName() OVERRIDE;
-  virtual CefString GetPrefix() OVERRIDE;
-  virtual CefString GetQualifiedName() OVERRIDE;
-  virtual CefString GetNamespaceURI() OVERRIDE;
-  virtual CefString GetBaseURI() OVERRIDE;
-  virtual CefString GetXmlLang() OVERRIDE;
-  virtual bool IsEmptyElement() OVERRIDE;
-  virtual bool HasValue() OVERRIDE;
-  virtual CefString GetValue() OVERRIDE;
-  virtual bool HasAttributes() OVERRIDE;
-  virtual size_t GetAttributeCount() OVERRIDE;
-  virtual CefString GetAttribute(int index) OVERRIDE;
-  virtual CefString GetAttribute(const CefString& qualifiedName) OVERRIDE;
-  virtual CefString GetAttribute(const CefString& localName,
-                                 const CefString& namespaceURI) OVERRIDE;
-  virtual CefString GetInnerXml() OVERRIDE;
-  virtual CefString GetOuterXml() OVERRIDE;
-  virtual int GetLineNumber() OVERRIDE;
-  virtual bool MoveToAttribute(int index) OVERRIDE;
-  virtual bool MoveToAttribute(const CefString& qualifiedName) OVERRIDE;
-  virtual bool MoveToAttribute(const CefString& localName,
-                               const CefString& namespaceURI) OVERRIDE;
-  virtual bool MoveToFirstAttribute() OVERRIDE;
-  virtual bool MoveToNextAttribute() OVERRIDE;
-  virtual bool MoveToCarryingElement() OVERRIDE;
+  bool MoveToNextNode() override;
+  bool Close() override;
+  bool HasError() override;
+  CefString GetError() override;
+  NodeType GetType() override;
+  int GetDepth() override;
+  CefString GetLocalName() override;
+  CefString GetPrefix() override;
+  CefString GetQualifiedName() override;
+  CefString GetNamespaceURI() override;
+  CefString GetBaseURI() override;
+  CefString GetXmlLang() override;
+  bool IsEmptyElement() override;
+  bool HasValue() override;
+  CefString GetValue() override;
+  bool HasAttributes() override;
+  size_t GetAttributeCount() override;
+  CefString GetAttribute(int index) override;
+  CefString GetAttribute(const CefString& qualifiedName) override;
+  CefString GetAttribute(const CefString& localName,
+                         const CefString& namespaceURI) override;
+  CefString GetInnerXml() override;
+  CefString GetOuterXml() override;
+  int GetLineNumber() override;
+  bool MoveToAttribute(int index) override;
+  bool MoveToAttribute(const CefString& qualifiedName) override;
+  bool MoveToAttribute(const CefString& localName,
+                       const CefString& namespaceURI) override;
+  bool MoveToFirstAttribute() override;
+  bool MoveToNextAttribute() override;
+  bool MoveToCarryingElement() override;
 
   // Add another line to the error string.
   void AppendError(const CefString& error_str);

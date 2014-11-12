@@ -15,7 +15,7 @@
 class CefURLRequestUserData : public base::SupportsUserData::Data {
  public:
   CefURLRequestUserData(CefRefPtr<CefURLRequestClient> client);
-  virtual ~CefURLRequestUserData();
+  ~CefURLRequestUserData() override;
 
   CefRefPtr<CefURLRequestClient> GetClient();
   static const void* kUserDataKey;

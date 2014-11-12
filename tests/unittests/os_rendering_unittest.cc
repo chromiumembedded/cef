@@ -215,10 +215,8 @@ class OSRTestHandler : public RoutingTestHandler,
         started_(false) {
   }
 
-  virtual ~OSRTestHandler() {}
-
   // TestHandler methods
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     CreateOSRBrowser(kTestUrl);
 #if !defined(DEBUGGER_ATTACHED)
     // Each test has a 5 second timeout. After this timeout it will be destroyed
@@ -229,7 +227,7 @@ class OSRTestHandler : public RoutingTestHandler,
 #endif  // DEBUGGER_ATTACHED
   }
 
-  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE {
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
     if (test_type_ == OSR_TEST_IS_WINDOWLESS) {
       EXPECT_TRUE(browser->GetHost()->IsWindowRenderingDisabled());
       DestroySucceededTestSoon();
@@ -237,9 +235,9 @@ class OSRTestHandler : public RoutingTestHandler,
     RoutingTestHandler::OnAfterCreated(browser);
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
-      int httpStatusCode) OVERRIDE {
+      int httpStatusCode) override {
     if (!started())
       return;
 
@@ -257,12 +255,12 @@ class OSRTestHandler : public RoutingTestHandler,
     }
   }
 
-  virtual bool OnQuery(CefRefPtr<CefBrowser> browser,
-                       CefRefPtr<CefFrame> frame,
-                       int64 query_id,
-                       const CefString& request,
-                       bool persistent,
-                       CefRefPtr<Callback> callback) OVERRIDE {
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64 query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
     EXPECT_TRUE(browser.get());
 
     if (!started())
@@ -300,22 +298,22 @@ class OSRTestHandler : public RoutingTestHandler,
   }
 
   // CefClient methods, providing handlers
-  virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE {
+  CefRefPtr<CefRenderHandler> GetRenderHandler() override {
     return this;
   }
 
-  virtual CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() OVERRIDE {
+  CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override {
     return this;
   }
 
-  virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE {
+  CefRefPtr<CefRequestHandler> GetRequestHandler() override {
     return this;
   }
 
-  virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
+  CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request) OVERRIDE {
+      CefRefPtr<CefRequest> request) override {
     std::string url = request->GetURL();
 
     if (url.find(kTestUrl) == 0) {
@@ -329,8 +327,8 @@ class OSRTestHandler : public RoutingTestHandler,
   }
 
   // CefRenderHandler methods
-  virtual bool GetViewRect(CefRefPtr<CefBrowser> browser,
-                           CefRect& rect) OVERRIDE {
+  bool GetViewRect(CefRefPtr<CefBrowser> browser,
+                   CefRect& rect) override {
     if (test_type_ == OSR_TEST_RESIZE && started()) {
       rect = CefRect(0, 0, kOsrWidth * 2, kOsrHeight * 2);
       return true;
@@ -339,11 +337,11 @@ class OSRTestHandler : public RoutingTestHandler,
     return true;
   }
 
-  virtual bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
-                              int viewX,
-                              int viewY,
-                              int& screenX,
-                              int& screenY) OVERRIDE {
+  bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
+                      int viewX,
+                      int viewY,
+                      int& screenX,
+                      int& screenY) override {
     if (test_type_ == OSR_TEST_SCREEN_POINT && started()) {
       EXPECT_EQ(viewX, MiddleX(ExpectedRect(4)));
       EXPECT_EQ(viewY, MiddleY(ExpectedRect(4)));
@@ -357,8 +355,8 @@ class OSRTestHandler : public RoutingTestHandler,
     return false;
   }
 
-  virtual bool GetScreenInfo(CefRefPtr<CefBrowser> browser,
-                             CefScreenInfo& screen_info) {
+  bool GetScreenInfo(CefRefPtr<CefBrowser> browser,
+                     CefScreenInfo& screen_info) override {
     screen_info.device_scale_factor = 1;
 
     // The screen info rectangles are used by the renderer to create and
@@ -371,8 +369,8 @@ class OSRTestHandler : public RoutingTestHandler,
     return true;
   }
 
-  virtual void OnPopupShow(CefRefPtr<CefBrowser> browser,
-                           bool show) OVERRIDE {
+  void OnPopupShow(CefRefPtr<CefBrowser> browser,
+                   bool show) override {
     if (show && started()) {
       switch (test_type_) {
         case OSR_TEST_POPUP_SHOW:
@@ -399,8 +397,8 @@ class OSRTestHandler : public RoutingTestHandler,
     }
   }
 
-  virtual void OnPopupSize(CefRefPtr<CefBrowser> browser,
-                           const CefRect& rect) OVERRIDE {
+  void OnPopupSize(CefRefPtr<CefBrowser> browser,
+                   const CefRect& rect) override {
     if (started()) {
       switch (test_type_) {
       case OSR_TEST_POPUP_SIZE:
@@ -413,11 +411,11 @@ class OSRTestHandler : public RoutingTestHandler,
     }
   }
 
-  virtual void OnPaint(CefRefPtr<CefBrowser> browser,
-                       PaintElementType type,
-                       const RectList& dirtyRects,
-                       const void* buffer,
-                       int width, int height) OVERRIDE {
+  void OnPaint(CefRefPtr<CefBrowser> browser,
+               PaintElementType type,
+               const RectList& dirtyRects,
+               const void* buffer,
+               int width, int height) override {
     // bitmap must as big as GetViewRect said
     if (test_type_ != OSR_TEST_RESIZE && type == PET_VIEW) {
       EXPECT_EQ(kOsrWidth, width);
@@ -784,17 +782,17 @@ class OSRTestHandler : public RoutingTestHandler,
     }
   }
 
-  virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
-                              CefCursorHandle cursor) OVERRIDE {
+  void OnCursorChange(CefRefPtr<CefBrowser> browser,
+                      CefCursorHandle cursor) override {
       if (test_type_ == OSR_TEST_CURSOR && started()) {
         DestroySucceededTestSoon();
       }
   }
 
-  virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
-                             CefRefPtr<CefDragData> drag_data,
-                             DragOperationsMask allowed_ops,
-                             int x, int y) {
+  bool StartDragging(CefRefPtr<CefBrowser> browser,
+                     CefRefPtr<CefDragData> drag_data,
+                     DragOperationsMask allowed_ops,
+                     int x, int y) override {
     if (test_type_ == OSR_TEST_DRAG_DROP_START_DRAGGING && started()) {
       DestroySucceededTestSoon();
       return false;
@@ -823,8 +821,8 @@ class OSRTestHandler : public RoutingTestHandler,
     return false;
   }
 
-  virtual void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
-                                DragOperation operation) {
+  void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
+                        DragOperation operation) override {
     if (test_type_ == OSR_TEST_DRAG_DROP_UPDATE_CURSOR && started()) {
       if (operation != DRAG_OPERATION_NONE) {
         browser->GetHost()->DragSourceEndedAt(MiddleX(kDropDivRect),
@@ -850,8 +848,8 @@ class OSRTestHandler : public RoutingTestHandler,
     }
   }
 
-  virtual bool OnTooltip(CefRefPtr<CefBrowser> browser,
-                         CefString& text) OVERRIDE {
+  bool OnTooltip(CefRefPtr<CefBrowser> browser,
+                 CefString& text) override {
     if (test_type_ == OSR_TEST_TOOLTIP && started()) {
       EXPECT_STREQ("EXPECTED_TOOLTIP", text.ToString().c_str());
       DestroySucceededTestSoon();
@@ -859,10 +857,10 @@ class OSRTestHandler : public RoutingTestHandler,
     return false;
   }
 
-  virtual void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
-                                   CefRefPtr<CefFrame> frame,
-                                   CefRefPtr<CefContextMenuParams> params,
-                                   CefRefPtr<CefMenuModel> model) OVERRIDE {
+  void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
+                           CefRefPtr<CefFrame> frame,
+                           CefRefPtr<CefContextMenuParams> params,
+                           CefRefPtr<CefMenuModel> model) override {
     if (!started())
       return;
     if (test_type_ == OSR_TEST_CLICK_RIGHT) {

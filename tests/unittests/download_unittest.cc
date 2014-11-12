@@ -5,7 +5,7 @@
 // Include this first to avoid type conflicts with CEF headers.
 #include "tests/unittests/chromium_includes.h"
 
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/files/scoped_temp_dir.h"
 
 #include "include/cef_scheme.h"
@@ -29,9 +29,8 @@ class DownloadSchemeHandler : public CefResourceHandler {
       : got_download_request_(got_download_request),
         offset_(0) {}
 
-  virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                              CefRefPtr<CefCallback> callback)
-                              OVERRIDE {
+  bool ProcessRequest(CefRefPtr<CefRequest> request,
+                      CefRefPtr<CefCallback> callback) override {
     std::string url = request->GetURL();
     if (url == kTestEntryUrl) {
       content_ = "<html><body>Download Test</body></html>";
@@ -50,9 +49,9 @@ class DownloadSchemeHandler : public CefResourceHandler {
     return true;
   }
 
-  virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                                  int64& response_length,
-                                  CefString& redirectUrl) OVERRIDE {
+  void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                          int64& response_length,
+                          CefString& redirectUrl) override {
     response_length = content_.size();
 
     response->SetStatus(200);
@@ -67,11 +66,10 @@ class DownloadSchemeHandler : public CefResourceHandler {
     }
   }
 
-  virtual bool ReadResponse(void* data_out,
-                            int bytes_to_read,
-                            int& bytes_read,
-                            CefRefPtr<CefCallback> callback)
-                            OVERRIDE {
+  bool ReadResponse(void* data_out,
+                    int bytes_to_read,
+                    int& bytes_read,
+                    CefRefPtr<CefCallback> callback) override {
     bool has_data = false;
     bytes_read = 0;
 
@@ -89,7 +87,7 @@ class DownloadSchemeHandler : public CefResourceHandler {
     return has_data;
   }
 
-  virtual void Cancel() OVERRIDE {
+  void Cancel() override {
   }
 
  private:
@@ -107,11 +105,11 @@ class DownloadSchemeHandlerFactory : public CefSchemeHandlerFactory {
   explicit DownloadSchemeHandlerFactory(TrackCallback* got_download_request)
     : got_download_request_(got_download_request) {}
 
-  virtual CefRefPtr<CefResourceHandler> Create(
+  CefRefPtr<CefResourceHandler> Create(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       const CefString& scheme_name,
-      CefRefPtr<CefRequest> request) OVERRIDE {
+      CefRefPtr<CefRequest> request) override {
     return new DownloadSchemeHandler(got_download_request_);
   }
 
@@ -125,7 +123,7 @@ class DownloadTestHandler : public TestHandler {
  public:
   DownloadTestHandler() {}
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     CefRegisterSchemeHandlerFactory("http", kTestDomain,
         new DownloadSchemeHandlerFactory(&got_download_request_));
 
@@ -137,20 +135,20 @@ class DownloadTestHandler : public TestHandler {
     CreateBrowser(kTestEntryUrl);
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     EXPECT_STREQ(kTestEntryUrl, frame->GetURL().ToString().c_str());
 
     // Begin the download.
     browser->GetHost()->StartDownload(kTestDownloadUrl);
   }
 
-  virtual void OnBeforeDownload(
+  void OnBeforeDownload(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefDownloadItem> download_item,
       const CefString& suggested_name,
-      CefRefPtr<CefBeforeDownloadCallback> callback) OVERRIDE {
+      CefRefPtr<CefBeforeDownloadCallback> callback) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
     EXPECT_FALSE(got_on_before_download_);
 
@@ -180,10 +178,10 @@ class DownloadTestHandler : public TestHandler {
     callback->Continue(test_path_.value(), false);
   }
 
-  virtual void OnDownloadUpdated(
+  void OnDownloadUpdated(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefDownloadItem> download_item,
-      CefRefPtr<CefDownloadItemCallback> callback) OVERRIDE {
+      CefRefPtr<CefDownloadItemCallback> callback) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
 
     got_on_download_updated_.yes();
@@ -228,7 +226,7 @@ class DownloadTestHandler : public TestHandler {
     }
   }
 
-  virtual void DestroyTest() OVERRIDE {
+  void DestroyTest() override {
     CefRegisterSchemeHandlerFactory("http", kTestDomain, NULL);
 
     EXPECT_TRUE(got_download_request_);

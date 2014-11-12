@@ -74,145 +74,135 @@ class CefRenderWidgetHostViewOSR
       public content::DelegatedFrameHostClient {
  public:
   explicit CefRenderWidgetHostViewOSR(content::RenderWidgetHost* widget);
-  virtual ~CefRenderWidgetHostViewOSR();
+  ~CefRenderWidgetHostViewOSR() override;
 
   // RenderWidgetHostView implementation.
-  virtual void InitAsChild(gfx::NativeView parent_view) OVERRIDE;
-  virtual content::RenderWidgetHost* GetRenderWidgetHost() const OVERRIDE;
-  virtual void SetSize(const gfx::Size& size) OVERRIDE;
-  virtual void SetBounds(const gfx::Rect& rect) OVERRIDE;
-  virtual gfx::Vector2dF GetLastScrollOffset() const OVERRIDE;
-  virtual gfx::NativeView GetNativeView() const OVERRIDE;
-  virtual gfx::NativeViewId GetNativeViewId() const OVERRIDE;
-  virtual gfx::NativeViewAccessible GetNativeViewAccessible() OVERRIDE;
-  virtual ui::TextInputClient* GetTextInputClient() OVERRIDE;
-  virtual void Focus() OVERRIDE;
-  virtual bool HasFocus() const OVERRIDE;
-  virtual bool IsSurfaceAvailableForCopy() const OVERRIDE;
-  virtual void Show() OVERRIDE;
-  virtual void Hide() OVERRIDE;
-  virtual bool IsShowing() OVERRIDE;
-  virtual gfx::Rect GetViewBounds() const OVERRIDE;
-  virtual void SetBackgroundOpaque(bool opaque) OVERRIDE;
-  virtual bool LockMouse() OVERRIDE;
-  virtual void UnlockMouse() OVERRIDE;
+  void InitAsChild(gfx::NativeView parent_view) override;
+  content::RenderWidgetHost* GetRenderWidgetHost() const override;
+  void SetSize(const gfx::Size& size) override;
+  void SetBounds(const gfx::Rect& rect) override;
+  gfx::Vector2dF GetLastScrollOffset() const override;
+  gfx::NativeView GetNativeView() const override;
+  gfx::NativeViewId GetNativeViewId() const override;
+  gfx::NativeViewAccessible GetNativeViewAccessible() override;
+  ui::TextInputClient* GetTextInputClient() override;
+  void Focus() override;
+  bool HasFocus() const override;
+  bool IsSurfaceAvailableForCopy() const override;
+  void Show() override;
+  void Hide() override;
+  bool IsShowing() override;
+  gfx::Rect GetViewBounds() const override;
+  void SetBackgroundColor(SkColor color) override;
+  bool LockMouse() override;
+  void UnlockMouse() override;
 
 #if defined(OS_MACOSX)
-  virtual void SetActive(bool active) OVERRIDE;
-  virtual void SetTakesFocusOnlyOnMouseDown(bool flag) OVERRIDE;
-  virtual void SetWindowVisibility(bool visible) OVERRIDE;
-  virtual void WindowFrameChanged() OVERRIDE;
-  virtual void ShowDefinitionForSelection() OVERRIDE;
-  virtual bool SupportsSpeech() const OVERRIDE;
-  virtual void SpeakSelection() OVERRIDE;
-  virtual bool IsSpeaking() const OVERRIDE;
-  virtual void StopSpeaking() OVERRIDE;
+  void SetActive(bool active) override;
+  void SetWindowVisibility(bool visible) override;
+  void WindowFrameChanged() override;
+  void ShowDefinitionForSelection() override;
+  bool SupportsSpeech() const override;
+  void SpeakSelection() override;
+  bool IsSpeaking() const override;
+  void StopSpeaking() override;
 #endif  // defined(OS_MACOSX)
 
   // RenderWidgetHostViewBase implementation.
-  virtual void OnSwapCompositorFrame(
+  void OnSwapCompositorFrame(
       uint32 output_surface_id,
-      scoped_ptr<cc::CompositorFrame> frame) OVERRIDE;
-  virtual void InitAsPopup(content::RenderWidgetHostView* parent_host_view,
-                           const gfx::Rect& pos) OVERRIDE;
-  virtual void InitAsFullscreen(
-      content::RenderWidgetHostView* reference_host_view) OVERRIDE;
-  virtual void WasShown() OVERRIDE;
-  virtual void WasHidden() OVERRIDE;
-  virtual void MovePluginWindows(
-      const std::vector<content::WebPluginGeometry>& moves) OVERRIDE;
-  virtual void Blur() OVERRIDE;
-  virtual void UpdateCursor(const content::WebCursor& cursor) OVERRIDE;
-  virtual void SetIsLoading(bool is_loading) OVERRIDE;
-  virtual void TextInputStateChanged(
-      const ViewHostMsg_TextInputState_Params& params) OVERRIDE;
-  virtual void ImeCancelComposition() OVERRIDE;
-  virtual void RenderProcessGone(base::TerminationStatus status,
-                                 int error_code) OVERRIDE;
-  virtual void Destroy() OVERRIDE;
-  virtual void SetTooltipText(const base::string16& tooltip_text) OVERRIDE;
-  virtual void SelectionChanged(const base::string16& text,
-                                size_t offset,
-                                const gfx::Range& range) OVERRIDE;
-  virtual gfx::Size GetRequestedRendererSize() const OVERRIDE;
-  virtual gfx::Size GetPhysicalBackingSize() const OVERRIDE;
-  virtual void SelectionBoundsChanged(
-      const ViewHostMsg_SelectionBounds_Params& params) OVERRIDE;
-  virtual void CopyFromCompositingSurface(
+      scoped_ptr<cc::CompositorFrame> frame) override;
+  void InitAsPopup(content::RenderWidgetHostView* parent_host_view,
+                   const gfx::Rect& pos) override;
+  void InitAsFullscreen(
+      content::RenderWidgetHostView* reference_host_view) override;
+  void WasShown() override;
+  void WasHidden() override;
+  void MovePluginWindows(
+      const std::vector<content::WebPluginGeometry>& moves) override;
+  void Blur() override;
+  void UpdateCursor(const content::WebCursor& cursor) override;
+  void SetIsLoading(bool is_loading) override;
+  void TextInputTypeChanged(ui::TextInputType type,
+                            ui::TextInputMode mode,
+                            bool can_compose_inline,
+                            int flags) override;
+  void ImeCancelComposition() override;
+  void RenderProcessGone(base::TerminationStatus status,
+                         int error_code) override;
+  void Destroy() override;
+  void SetTooltipText(const base::string16& tooltip_text) override;
+  void SelectionChanged(const base::string16& text,
+                        size_t offset,
+                        const gfx::Range& range) override;
+  gfx::Size GetRequestedRendererSize() const override;
+  gfx::Size GetPhysicalBackingSize() const override;
+  void SelectionBoundsChanged(
+      const ViewHostMsg_SelectionBounds_Params& params) override;
+  void CopyFromCompositingSurface(
       const gfx::Rect& src_subrect,
       const gfx::Size& dst_size,
       const base::Callback<void(bool, const SkBitmap&)>& callback,
-      const SkColorType color_type) OVERRIDE;
-  virtual void CopyFromCompositingSurfaceToVideoFrame(
+      const SkColorType color_type) override;
+  void CopyFromCompositingSurfaceToVideoFrame(
       const gfx::Rect& src_subrect,
       const scoped_refptr<media::VideoFrame>& target,
-      const base::Callback<void(bool)>& callback) OVERRIDE;
-  virtual bool CanCopyToVideoFrame() const OVERRIDE;
-  virtual bool CanSubscribeFrame() const OVERRIDE;
-  virtual void BeginFrameSubscription(
+      const base::Callback<void(bool)>& callback) override;
+  bool CanCopyToVideoFrame() const override;
+  bool CanSubscribeFrame() const override;
+  void BeginFrameSubscription(
       scoped_ptr<content::RenderWidgetHostViewFrameSubscriber> subscriber)
-      OVERRIDE;
-  virtual void EndFrameSubscription() OVERRIDE;
-  virtual void AcceleratedSurfaceInitialized(int host_id,
-                                             int route_id) OVERRIDE;
-  virtual void AcceleratedSurfaceBuffersSwapped(
-      const GpuHostMsg_AcceleratedSurfaceBuffersSwapped_Params& params_in_pixel,
-      int gpu_host_id) OVERRIDE;
-  virtual void AcceleratedSurfacePostSubBuffer(
-      const GpuHostMsg_AcceleratedSurfacePostSubBuffer_Params& params_in_pixel,
-      int gpu_host_id) OVERRIDE;
-  virtual void AcceleratedSurfaceSuspend() OVERRIDE;
-  virtual void AcceleratedSurfaceRelease() OVERRIDE;
-  virtual bool HasAcceleratedSurface(const gfx::Size& desired_size) OVERRIDE;
-  virtual void GetScreenInfo(blink::WebScreenInfo* results) OVERRIDE;
-  virtual gfx::Rect GetBoundsInRootWindow() OVERRIDE;
-  virtual gfx::GLSurfaceHandle GetCompositingSurface() OVERRIDE;
-  virtual content::BrowserAccessibilityManager*
+      override;
+  void EndFrameSubscription() override;
+  void AcceleratedSurfaceInitialized(int route_id) override;
+  bool HasAcceleratedSurface(const gfx::Size& desired_size) override;
+  void GetScreenInfo(blink::WebScreenInfo* results) override;
+  gfx::Rect GetBoundsInRootWindow() override;
+  gfx::GLSurfaceHandle GetCompositingSurface() override;
+  content::BrowserAccessibilityManager*
       CreateBrowserAccessibilityManager(
-          content::BrowserAccessibilityDelegate* delegate) OVERRIDE;
+          content::BrowserAccessibilityDelegate* delegate) override;
 
 #if defined(TOOLKIT_VIEWS) || defined(USE_AURA)
-  virtual void ShowDisambiguationPopup(const gfx::Rect& rect_pixels,
-                                       const SkBitmap& zoomed_bitmap) OVERRIDE;
+  void ShowDisambiguationPopup(const gfx::Rect& rect_pixels,
+                               const SkBitmap& zoomed_bitmap) override;
 #endif
 
 #if defined(OS_MACOSX)
-  virtual bool PostProcessEventForPluginIme(
-      const content::NativeWebKeyboardEvent& event) OVERRIDE;
+  bool PostProcessEventForPluginIme(
+      const content::NativeWebKeyboardEvent& event) override;
 #endif
 
 #if defined(OS_MACOSX) || defined(USE_AURA)
-  virtual void ImeCompositionRangeChanged(
+  void ImeCompositionRangeChanged(
       const gfx::Range& range,
-      const std::vector<gfx::Rect>& character_bounds) OVERRIDE;
+      const std::vector<gfx::Rect>& character_bounds) override;
 #endif
 
 #if defined(OS_WIN)
-  virtual void SetParentNativeViewAccessible(
-      gfx::NativeViewAccessible accessible_parent) OVERRIDE;
-  virtual gfx::NativeViewId GetParentForWindowlessPlugin() const OVERRIDE;
+  void SetParentNativeViewAccessible(
+      gfx::NativeViewAccessible accessible_parent) override;
+  gfx::NativeViewId GetParentForWindowlessPlugin() const override;
 #endif
 
 #if defined(OS_MACOSX)
   // BrowserCompositorViewMacClient implementation.
-  virtual bool BrowserCompositorViewShouldAckImmediately() const OVERRIDE;
-  virtual void BrowserCompositorViewFrameSwapped(
-      const std::vector<ui::LatencyInfo>& latency_info) OVERRIDE;
-  virtual NSView* BrowserCompositorSuperview() OVERRIDE;
-  virtual ui::Layer* BrowserCompositorRootLayer() OVERRIDE;
+  bool BrowserCompositorViewShouldAckImmediately() const override;
+  void BrowserCompositorViewFrameSwapped(
+      const std::vector<ui::LatencyInfo>& latency_info) override;
 #endif  // defined(OS_MACOSX)
 
   // DelegatedFrameHostClient implementation.
-  virtual ui::Compositor* GetCompositor() const OVERRIDE;
-  virtual ui::Layer* GetLayer() OVERRIDE;
-  virtual content::RenderWidgetHostImpl* GetHost() OVERRIDE;
-  virtual bool IsVisible() OVERRIDE;
-  virtual scoped_ptr<content::ResizeLock> CreateResizeLock(
-      bool defer_compositor_lock) OVERRIDE;
-  virtual gfx::Size DesiredFrameSize() OVERRIDE;
-  virtual float CurrentDeviceScaleFactor() OVERRIDE;
-  virtual gfx::Size ConvertViewSizeToPixel(const gfx::Size& size) OVERRIDE;
-  virtual content::DelegatedFrameHost* GetDelegatedFrameHost() const OVERRIDE;
+  ui::Compositor* GetCompositor() const override;
+  ui::Layer* GetLayer() override;
+  content::RenderWidgetHostImpl* GetHost() override;
+  bool IsVisible() override;
+  scoped_ptr<content::ResizeLock> CreateResizeLock(
+      bool defer_compositor_lock) override;
+  gfx::Size DesiredFrameSize() override;
+  float CurrentDeviceScaleFactor() override;
+  gfx::Size ConvertViewSizeToPixel(const gfx::Size& size) override;
+  content::DelegatedFrameHost* GetDelegatedFrameHost() const override;
 
   bool InstallTransparency();
 

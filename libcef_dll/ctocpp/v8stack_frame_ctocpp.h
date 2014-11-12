@@ -31,7 +31,6 @@ class CefV8StackFrameCToCpp
   explicit CefV8StackFrameCToCpp(cef_v8stack_frame_t* str)
       : CefCToCpp<CefV8StackFrameCToCpp, CefV8StackFrame, cef_v8stack_frame_t>(
           str) {}
-  virtual ~CefV8StackFrameCToCpp() {}
 
   // CefV8StackFrame methods
   virtual bool IsValid() OVERRIDE;

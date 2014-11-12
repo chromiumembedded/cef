@@ -32,7 +32,6 @@ class CefCookieManagerCToCpp
   explicit CefCookieManagerCToCpp(cef_cookie_manager_t* str)
       : CefCToCpp<CefCookieManagerCToCpp, CefCookieManager,
           cef_cookie_manager_t>(str) {}
-  virtual ~CefCookieManagerCToCpp() {}
 
   // CefCookieManager methods
   virtual void SetSupportedSchemes(

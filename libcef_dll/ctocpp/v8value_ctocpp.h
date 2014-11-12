@@ -30,7 +30,6 @@ class CefV8ValueCToCpp
  public:
   explicit CefV8ValueCToCpp(cef_v8value_t* str)
       : CefCToCpp<CefV8ValueCToCpp, CefV8Value, cef_v8value_t>(str) {}
-  virtual ~CefV8ValueCToCpp() {}
 
   // CefV8Value methods
   virtual bool IsValid() OVERRIDE;

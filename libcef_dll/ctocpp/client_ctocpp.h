@@ -29,25 +29,24 @@ class CefClientCToCpp
  public:
   explicit CefClientCToCpp(cef_client_t* str)
       : CefCToCpp<CefClientCToCpp, CefClient, cef_client_t>(str) {}
-  virtual ~CefClientCToCpp() {}
 
   // CefClient methods
-  virtual CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() OVERRIDE;
-  virtual CefRefPtr<CefDialogHandler> GetDialogHandler() OVERRIDE;
-  virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE;
-  virtual CefRefPtr<CefDownloadHandler> GetDownloadHandler() OVERRIDE;
-  virtual CefRefPtr<CefDragHandler> GetDragHandler() OVERRIDE;
-  virtual CefRefPtr<CefFocusHandler> GetFocusHandler() OVERRIDE;
-  virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE;
-  virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE;
-  virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() OVERRIDE;
-  virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE;
-  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE;
-  virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE;
-  virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE;
-  virtual bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+  CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override;
+  CefRefPtr<CefDialogHandler> GetDialogHandler() override;
+  CefRefPtr<CefDisplayHandler> GetDisplayHandler() override;
+  CefRefPtr<CefDownloadHandler> GetDownloadHandler() override;
+  CefRefPtr<CefDragHandler> GetDragHandler() override;
+  CefRefPtr<CefFocusHandler> GetFocusHandler() override;
+  CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() override;
+  CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() override;
+  CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() override;
+  CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override;
+  CefRefPtr<CefLoadHandler> GetLoadHandler() override;
+  CefRefPtr<CefRenderHandler> GetRenderHandler() override;
+  CefRefPtr<CefRequestHandler> GetRequestHandler() override;
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE;
+      CefRefPtr<CefProcessMessage> message) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

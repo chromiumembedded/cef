@@ -17,13 +17,13 @@
 class CefFileReader : public CefStreamReader {
  public:
   CefFileReader(FILE* file, bool close);
-  virtual ~CefFileReader();
+  ~CefFileReader() override;
 
-  virtual size_t Read(void* ptr, size_t size, size_t n) OVERRIDE;
-  virtual int Seek(int64 offset, int whence) OVERRIDE;
-  virtual int64 Tell() OVERRIDE;
-  virtual int Eof() OVERRIDE;
-  virtual bool MayBlock() OVERRIDE { return true; }
+  size_t Read(void* ptr, size_t size, size_t n) override;
+  int Seek(int64 offset, int whence) override;
+  int64 Tell() override;
+  int Eof() override;
+  bool MayBlock() override { return true; }
 
  protected:
   bool close_;
@@ -38,13 +38,13 @@ class CefFileReader : public CefStreamReader {
 class CefFileWriter : public CefStreamWriter {
  public:
   CefFileWriter(FILE* file, bool close);
-  virtual ~CefFileWriter();
+  ~CefFileWriter() override;
 
-  virtual size_t Write(const void* ptr, size_t size, size_t n) OVERRIDE;
-  virtual int Seek(int64 offset, int whence) OVERRIDE;
-  virtual int64 Tell() OVERRIDE;
-  virtual int Flush() OVERRIDE;
-  virtual bool MayBlock() OVERRIDE { return true; }
+  size_t Write(const void* ptr, size_t size, size_t n) override;
+  int Seek(int64 offset, int whence) override;
+  int64 Tell() override;
+  int Flush() override;
+  bool MayBlock() override { return true; }
 
  protected:
   FILE* file_;
@@ -59,13 +59,13 @@ class CefFileWriter : public CefStreamWriter {
 class CefBytesReader : public CefStreamReader {
  public:
   CefBytesReader(void* data, int64 datasize, bool copy);
-  virtual ~CefBytesReader();
+  ~CefBytesReader() override;
 
-  virtual size_t Read(void* ptr, size_t size, size_t n) OVERRIDE;
-  virtual int Seek(int64 offset, int whence) OVERRIDE;
-  virtual int64 Tell() OVERRIDE;
-  virtual int Eof() OVERRIDE;
-  virtual bool MayBlock() OVERRIDE { return false; }
+  size_t Read(void* ptr, size_t size, size_t n) override;
+  int Seek(int64 offset, int whence) override;
+  int64 Tell() override;
+  int Eof() override;
+  bool MayBlock() override { return false; }
 
   void SetData(void* data, int64 datasize, bool copy);
 
@@ -87,13 +87,13 @@ class CefBytesReader : public CefStreamReader {
 class CefBytesWriter : public CefStreamWriter {
  public:
   explicit CefBytesWriter(size_t grow);
-  virtual ~CefBytesWriter();
+  ~CefBytesWriter() override;
 
-  virtual size_t Write(const void* ptr, size_t size, size_t n) OVERRIDE;
-  virtual int Seek(int64 offset, int whence) OVERRIDE;
-  virtual int64 Tell() OVERRIDE;
-  virtual int Flush() OVERRIDE;
-  virtual bool MayBlock() OVERRIDE { return false; }
+  size_t Write(const void* ptr, size_t size, size_t n) override;
+  int Seek(int64 offset, int whence) override;
+  int64 Tell() override;
+  int Flush() override;
+  bool MayBlock() override { return false; }
 
   void* GetData() { return data_; }
   int64 GetDataSize() { return offset_; }
@@ -118,19 +118,19 @@ class CefHandlerReader : public CefStreamReader {
   explicit CefHandlerReader(CefRefPtr<CefReadHandler> handler)
       : handler_(handler) {}
 
-  virtual size_t Read(void* ptr, size_t size, size_t n) OVERRIDE {
+  size_t Read(void* ptr, size_t size, size_t n) override {
     return handler_->Read(ptr, size, n);
   }
-  virtual int Seek(int64 offset, int whence) OVERRIDE {
+  int Seek(int64 offset, int whence) override {
     return handler_->Seek(offset, whence);
   }
-  virtual int64 Tell() OVERRIDE {
+  int64 Tell() override {
     return handler_->Tell();
   }
-  virtual int Eof() OVERRIDE {
+  int Eof() override {
     return handler_->Eof();
   }
-  virtual bool MayBlock() OVERRIDE {
+  bool MayBlock() override {
     return handler_->MayBlock();
   }
 
@@ -146,19 +146,19 @@ class CefHandlerWriter : public CefStreamWriter {
   explicit CefHandlerWriter(CefRefPtr<CefWriteHandler> handler)
       : handler_(handler) {}
 
-  virtual size_t Write(const void* ptr, size_t size, size_t n) OVERRIDE {
+  size_t Write(const void* ptr, size_t size, size_t n) override {
     return handler_->Write(ptr, size, n);
   }
-  virtual int Seek(int64 offset, int whence) OVERRIDE {
+  int Seek(int64 offset, int whence) override {
     return handler_->Seek(offset, whence);
   }
-  virtual int64 Tell() OVERRIDE {
+  int64 Tell() override {
     return handler_->Tell();
   }
-  virtual int Flush() OVERRIDE {
+  int Flush() override {
     return handler_->Flush();
   }
-  virtual bool MayBlock() OVERRIDE {
+  bool MayBlock() override {
     return handler_->MayBlock();
   }
 

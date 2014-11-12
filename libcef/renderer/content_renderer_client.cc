@@ -31,7 +31,7 @@ MSVC_POP_WARNING();
 #include "libcef/renderer/webkit_glue.h"
 
 #include "base/command_line.h"
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/utf_string_conversions.h"
@@ -80,13 +80,10 @@ namespace {
 
 // Stub implementation of blink::WebPrerenderingSupport.
 class CefPrerenderingSupport : public blink::WebPrerenderingSupport {
- public:
-  virtual ~CefPrerenderingSupport() {}
-
  private:
-  virtual void add(const blink::WebPrerender& prerender) OVERRIDE {}
-  virtual void cancel(const blink::WebPrerender& prerender) OVERRIDE {}
-  virtual void abandon(const blink::WebPrerender& prerender) OVERRIDE {}
+  void add(const blink::WebPrerender& prerender) override {}
+  void cancel(const blink::WebPrerender& prerender) override {}
+  void abandon(const blink::WebPrerender& prerender) override {}
 };
 
 // Stub implementation of blink::WebPrerendererClient.
@@ -100,9 +97,9 @@ class CefPrerendererClient : public content::RenderViewObserver,
   }
 
  private:
-  virtual ~CefPrerendererClient() {}
+  ~CefPrerendererClient() override {}
 
-  virtual void willAddPrerender(blink::WebPrerender* prerender) OVERRIDE {}
+  void willAddPrerender(blink::WebPrerender* prerender) override {}
 };
 
 // Implementation of SequencedTaskRunner for WebWorker threads.
@@ -122,29 +119,29 @@ class CefWebWorkerTaskRunner : public base::SequencedTaskRunner,
   }
 
   // SequencedTaskRunner methods:
-  virtual bool PostNonNestableDelayedTask(
+  bool PostNonNestableDelayedTask(
       const tracked_objects::Location& from_here,
       const base::Closure& task,
-      base::TimeDelta delay) OVERRIDE {
+      base::TimeDelta delay) override {
     return PostDelayedTask(from_here, task, delay);
   }
 
   // TaskRunner methods:
-  virtual bool PostDelayedTask(const tracked_objects::Location& from_here,
-                               const base::Closure& task,
-                               base::TimeDelta delay) OVERRIDE {
+  bool PostDelayedTask(const tracked_objects::Location& from_here,
+                       const base::Closure& task,
+                       base::TimeDelta delay) override {
     if (delay != base::TimeDelta())
       LOG(WARNING) << "Delayed tasks are not supported on WebWorker threads";
     runner_->PostTask(worker_id_, task);
     return true;
   }
 
-  virtual bool RunsTasksOnCurrentThread() const OVERRIDE {
+  bool RunsTasksOnCurrentThread() const override {
     return (runner_->CurrentWorkerId() == worker_id_);
   }
 
   // WorkerTaskRunner::Observer methods:
-  virtual void OnWorkerRunLoopStopped() OVERRIDE {
+  void OnWorkerRunLoopStopped() override {
     CefContentRendererClient::Get()->RemoveWorkerTaskRunner(worker_id_);
   }
 
@@ -257,9 +254,6 @@ void CefContentRendererClient::WebKitInitialized() {
 
   // TODO(cef): Enable these once the implementation supports it.
   blink::WebRuntimeFeatures::enableNotifications(false);
-
-  blink::WebRuntimeFeatures::enableMediaStream(
-      command_line.HasSwitch(switches::kEnableMediaStream));
 
 #if defined(OS_WIN)
   // Need to patch a few functions for font loading to work correctly.

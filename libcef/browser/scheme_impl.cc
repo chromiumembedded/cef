@@ -100,9 +100,9 @@ class CefUrlRequestManager {
       : scheme_(scheme) {}
 
     // From net::URLRequestJobFactory::ProtocolHandler
-    virtual net::URLRequestJob* MaybeCreateJob(
+    net::URLRequestJob* MaybeCreateJob(
         net::URLRequest* request,
-        net::NetworkDelegate* network_delegate) const OVERRIDE {
+        net::NetworkDelegate* network_delegate) const override {
       CEF_REQUIRE_IOT();
       return CefUrlRequestManager::GetInstance()->GetRequestJob(
           request, network_delegate, scheme_);

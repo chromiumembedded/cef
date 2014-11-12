@@ -29,7 +29,6 @@ class CefGeolocationHandlerCppToC
         cef_geolocation_handler_t> {
  public:
   explicit CefGeolocationHandlerCppToC(CefGeolocationHandler* cls);
-  virtual ~CefGeolocationHandlerCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

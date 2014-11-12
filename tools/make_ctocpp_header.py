@@ -36,8 +36,11 @@ def make_ctocpp_header(header, clsname):
     func_body = ''
     funcs = cls.get_virtual_funcs()
     for func in funcs:
-        func_body += '  virtual '+func.get_cpp_proto()+' OVERRIDE;\n'
-    
+        if clientside:
+            func_body += '  '+func.get_cpp_proto()+' override;\n'
+        else:
+            func_body += '  virtual '+func.get_cpp_proto()+' OVERRIDE;\n'
+
     # include standard headers
     if func_body.find('std::map') > 0 or func_body.find('std::multimap') > 0:
         result += '\n#include <map>'
@@ -70,8 +73,7 @@ def make_ctocpp_header(header, clsname):
                 '    : public CefCToCpp<'+clsname+'CToCpp, '+clsname+', '+capiname+'> {\n'+ \
                 ' public:\n'+ \
                 '  explicit '+clsname+'CToCpp('+capiname+'* str)\n'+ \
-                '      : CefCToCpp<'+clsname+'CToCpp, '+clsname+', '+capiname+'>(str) {}\n'+ \
-                '  virtual ~'+clsname+'CToCpp() {}\n\n'+ \
+                '      : CefCToCpp<'+clsname+'CToCpp, '+clsname+', '+capiname+'>(str) {}\n\n'+ \
                 '  // '+clsname+' methods\n';
     
     result +=   func_body

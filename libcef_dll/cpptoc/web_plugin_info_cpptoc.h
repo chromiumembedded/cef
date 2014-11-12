@@ -29,7 +29,6 @@ class CefWebPluginInfoCppToC
         cef_web_plugin_info_t> {
  public:
   explicit CefWebPluginInfoCppToC(CefWebPluginInfo* cls);
-  virtual ~CefWebPluginInfoCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

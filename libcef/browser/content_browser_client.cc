@@ -66,14 +66,14 @@ class CefAccessTokenStore : public content::AccessTokenStore {
  public:
   CefAccessTokenStore() {}
 
-  virtual void LoadAccessTokens(
-      const LoadAccessTokensCallbackType& callback) OVERRIDE {
+  void LoadAccessTokens(
+      const LoadAccessTokensCallbackType& callback) override {
     callback.Run(access_token_set_,
         CefContentBrowserClient::Get()->request_context().get());
   }
 
-  virtual void SaveAccessToken(
-      const GURL& server_url, const base::string16& access_token) OVERRIDE {
+  void SaveAccessToken(
+      const GURL& server_url, const base::string16& access_token) override {
     access_token_set_[server_url] = access_token;
   }
 
@@ -102,7 +102,7 @@ class CefQuotaCallbackImpl : public CefQuotaCallback {
     }
   }
 
-  virtual void Continue(bool allow) OVERRIDE {
+  void Continue(bool allow) override {
     if (CEF_CURRENTLY_ON_IOT()) {
       if (!callback_.is_null()) {
         callback_.Run(allow ?
@@ -116,7 +116,7 @@ class CefQuotaCallbackImpl : public CefQuotaCallback {
     }
   }
 
-  virtual void Cancel() OVERRIDE {
+  void Cancel() override {
     if (CEF_CURRENTLY_ON_IOT()) {
       if (!callback_.is_null()) {
         CancelNow(callback_);
@@ -155,7 +155,7 @@ class CefAllowCertificateErrorCallbackImpl
       : callback_(callback) {
   }
 
-  virtual void Continue(bool allow) OVERRIDE {
+  void Continue(bool allow) override {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (!callback_.is_null()) {
         callback_.Run(allow);
@@ -187,7 +187,7 @@ class CefGeolocationCallbackImpl : public CefGeolocationCallback {
   explicit CefGeolocationCallbackImpl(const CallbackType& callback)
       : callback_(callback) {}
 
-  virtual void Continue(bool allow) OVERRIDE {
+  void Continue(bool allow) override {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (!callback_.is_null()) {
         callback_.Run(allow);
@@ -215,33 +215,16 @@ class CefGeolocationCallbackImpl : public CefGeolocationCallback {
   DISALLOW_COPY_AND_ASSIGN(CefGeolocationCallbackImpl);
 };
 
-void CancelGeolocationPermission(base::WeakPtr<CefBrowserHostImpl> browser,
-                                 const GURL& requesting_frame,
-                                 int bridge_id) {
-  if (browser.get()) {
-    CefRefPtr<CefClient> client = browser->GetClient();
-    if (client.get()) {
-      CefRefPtr<CefGeolocationHandler> handler =
-          client->GetGeolocationHandler();
-      if (handler.get()) {
-        handler->OnCancelGeolocationPermission(browser.get(),
-                                               requesting_frame.spec(),
-                                               bridge_id);
-      }
-    }
-  }
-}
-
 class CefQuotaPermissionContext : public content::QuotaPermissionContext {
  public:
   CefQuotaPermissionContext() {
   }
 
   // The callback will be dispatched on the IO thread.
-  virtual void RequestQuotaPermission(
+  void RequestQuotaPermission(
       const content::StorageQuotaParams& params,
       int render_process_id,
-      const PermissionCallback& callback) OVERRIDE {
+      const PermissionCallback& callback) override {
     if (params.storage_type != storage::kStorageTypePersistent) {
       // To match Chrome behavior we only support requesting quota with this
       // interface for Persistent storage type.
@@ -278,8 +261,7 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
   }
 
  private:
-  virtual ~CefQuotaPermissionContext() {
-  }
+  ~CefQuotaPermissionContext() override {}
 
   DISALLOW_COPY_AND_ASSIGN(CefQuotaPermissionContext);
 };
@@ -287,14 +269,13 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
 class CefPluginServiceFilter : public content::PluginServiceFilter {
  public:
   CefPluginServiceFilter() {}
-  virtual ~CefPluginServiceFilter() {}
 
-  virtual bool IsPluginAvailable(int render_process_id,
-                                 int render_frame_id,
-                                 const void* context,
-                                 const GURL& url,
-                                 const GURL& policy_url,
-                                 content::WebPluginInfo* plugin) OVERRIDE {
+  bool IsPluginAvailable(int render_process_id,
+                         int render_frame_id,
+                         const void* context,
+                         const GURL& url,
+                         const GURL& policy_url,
+                         content::WebPluginInfo* plugin) override {
     bool allowed = true;
 
     CefRefPtr<CefBrowserHostImpl> browser =
@@ -319,8 +300,8 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
     return allowed;
   }
 
-  virtual bool CanLoadPlugin(int render_process_id,
-                             const base::FilePath& path) OVERRIDE {
+  bool CanLoadPlugin(int render_process_id,
+                     const base::FilePath& path) override {
     return true;
   }
 
@@ -702,7 +683,6 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     static const char* const kSwitchNames[] = {
       switches::kContextSafetyImplementation,
       switches::kDisableSpellChecking,
-      switches::kEnableMediaStream,
       switches::kEnableSpeechInput,
       switches::kEnableSpellingAutoCorrect,
       switches::kUncaughtExceptionStackSize,
@@ -806,14 +786,20 @@ content::AccessTokenStore* CefContentBrowserClient::CreateAccessTokenStore() {
   return new CefAccessTokenStore;
 }
 
-void CefContentBrowserClient::RequestGeolocationPermission(
+void CefContentBrowserClient::RequestPermission(
+    content::PermissionType permission,
     content::WebContents* web_contents,
     int bridge_id,
     const GURL& requesting_frame,
     bool user_gesture,
-    base::Callback<void(bool)> result_callback,
-    base::Closure* cancel_callback) {
+    const base::Callback<void(bool)>& result_callback) {
   CEF_REQUIRE_UIT();
+
+  if (permission != content::PermissionType::PERMISSION_GEOLOCATION) {
+    result_callback.Run(false);
+    return;
+  }
+
   bool proceed = false;
 
   CefRefPtr<CefBrowserHostImpl> browser =
@@ -831,15 +817,8 @@ void CefContentBrowserClient::RequestGeolocationPermission(
         proceed = handler->OnRequestGeolocationPermission(
             browser.get(), requesting_frame.spec(), bridge_id,
             callbackImpl.get());
-        if (proceed) {
-          // The callback reference may outlive the browser so use a WeakPtr.
-          *cancel_callback =
-              base::Bind(CancelGeolocationPermission,
-                         browser->GetWeakPtr(), requesting_frame,
-                         bridge_id);
-        } else {
+        if (!proceed)
           callbackImpl->Disconnect();
-        }
       }
     }
   }
@@ -847,6 +826,32 @@ void CefContentBrowserClient::RequestGeolocationPermission(
   if (!proceed) {
     // Disallow geolocation access by default.
     result_callback.Run(false);
+  }
+}
+
+void CefContentBrowserClient::CancelPermissionRequest(
+    content::PermissionType permission,
+    content::WebContents* web_contents,
+    int bridge_id,
+    const GURL& requesting_frame) {
+  CEF_REQUIRE_UIT();
+
+  if (permission != content::PermissionType::PERMISSION_GEOLOCATION)
+    return;
+
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserForContents(web_contents);
+  if (browser.get()) {
+    CefRefPtr<CefClient> client = browser->GetClient();
+    if (client.get()) {
+      CefRefPtr<CefGeolocationHandler> handler =
+          client->GetGeolocationHandler();
+      if (handler.get()) {
+        handler->OnCancelGeolocationPermission(browser.get(),
+                                               requesting_frame.spec(),
+                                               bridge_id);
+      }
+    }
   }
 }
 
@@ -1017,11 +1022,10 @@ content::DevToolsManagerDelegate*
 void CefContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
     const base::CommandLine& command_line,
     int child_process_id,
-    std::vector<content::FileDescriptorInfo>* mappings) {
+    content::FileDescriptorInfo* mappings) {
   int crash_signal_fd = GetCrashSignalFD(command_line);
   if (crash_signal_fd >= 0) {
-    mappings->push_back(content::FileDescriptorInfo(
-        kCrashDumpSignal, base::FileDescriptor(crash_signal_fd, false)));
+    mappings->Share(kCrashDumpSignal, crash_signal_fd);
   }
 }
 #endif  // defined(OS_POSIX) && !defined(OS_MACOSX)

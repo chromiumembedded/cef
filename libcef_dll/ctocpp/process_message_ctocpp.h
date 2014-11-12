@@ -31,7 +31,6 @@ class CefProcessMessageCToCpp
   explicit CefProcessMessageCToCpp(cef_process_message_t* str)
       : CefCToCpp<CefProcessMessageCToCpp, CefProcessMessage,
           cef_process_message_t>(str) {}
-  virtual ~CefProcessMessageCToCpp() {}
 
   // CefProcessMessage methods
   virtual bool IsValid() OVERRIDE;

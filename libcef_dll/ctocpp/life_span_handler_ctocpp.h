@@ -33,19 +33,17 @@ class CefLifeSpanHandlerCToCpp
   explicit CefLifeSpanHandlerCToCpp(cef_life_span_handler_t* str)
       : CefCToCpp<CefLifeSpanHandlerCToCpp, CefLifeSpanHandler,
           cef_life_span_handler_t>(str) {}
-  virtual ~CefLifeSpanHandlerCToCpp() {}
 
   // CefLifeSpanHandler methods
-  virtual bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, const CefString& target_url,
-      const CefString& target_frame_name,
+  bool OnBeforePopup(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+      const CefString& target_url, const CefString& target_frame_name,
       const CefPopupFeatures& popupFeatures, CefWindowInfo& windowInfo,
       CefRefPtr<CefClient>& client, CefBrowserSettings& settings,
-      bool* no_javascript_access) OVERRIDE;
-  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  virtual bool RunModal(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  virtual bool DoClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
+      bool* no_javascript_access) override;
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
+  bool RunModal(CefRefPtr<CefBrowser> browser) override;
+  bool DoClose(CefRefPtr<CefBrowser> browser) override;
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

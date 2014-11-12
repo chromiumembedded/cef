@@ -29,7 +29,6 @@ class CefResponseCToCpp
  public:
   explicit CefResponseCToCpp(cef_response_t* str)
       : CefCToCpp<CefResponseCToCpp, CefResponse, cef_response_t>(str) {}
-  virtual ~CefResponseCToCpp() {}
 
   // CefResponse methods
   virtual bool IsReadOnly() OVERRIDE;

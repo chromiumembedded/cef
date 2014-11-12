@@ -21,7 +21,6 @@
 #include "libcef/common/response_manager.h"
 
 #include "base/memory/scoped_ptr.h"
-#include "base/memory/weak_ptr.h"
 #include "base/strings/string16.h"
 #include "base/synchronization/lock.h"
 #include "content/public/browser/notification_observer.h"
@@ -98,7 +97,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
      virtual void OnResponse(const std::string& response) =0;
   };
 
-  virtual ~CefBrowserHostImpl();
+  ~CefBrowserHostImpl() override;
 
   // Create a new CefBrowserHostImpl instance.
   static CefRefPtr<CefBrowserHostImpl> Create(
@@ -130,91 +129,89 @@ class CefBrowserHostImpl : public CefBrowserHost,
       int render_process_id, int render_routing_id);
 
   // CefBrowserHost methods.
-  virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
-  virtual void CloseBrowser(bool force_close) OVERRIDE;
-  virtual void SetFocus(bool focus) OVERRIDE;
-  virtual void SetWindowVisibility(bool visible) OVERRIDE;
-  virtual CefWindowHandle GetWindowHandle() OVERRIDE;
-  virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE;
-  virtual CefRefPtr<CefClient> GetClient() OVERRIDE;
-  virtual CefRefPtr<CefRequestContext> GetRequestContext() OVERRIDE;
-  virtual double GetZoomLevel() OVERRIDE;
-  virtual void SetZoomLevel(double zoomLevel) OVERRIDE;
-  virtual void RunFileDialog(
+  CefRefPtr<CefBrowser> GetBrowser() override;
+  void CloseBrowser(bool force_close) override;
+  void SetFocus(bool focus) override;
+  void SetWindowVisibility(bool visible) override;
+  CefWindowHandle GetWindowHandle() override;
+  CefWindowHandle GetOpenerWindowHandle() override;
+  CefRefPtr<CefClient> GetClient() override;
+  CefRefPtr<CefRequestContext> GetRequestContext() override;
+  double GetZoomLevel() override;
+  void SetZoomLevel(double zoomLevel) override;
+  void RunFileDialog(
       FileDialogMode mode,
       const CefString& title,
       const CefString& default_file_name,
       const std::vector<CefString>& accept_types,
-      CefRefPtr<CefRunFileDialogCallback> callback) OVERRIDE;
-  virtual void StartDownload(const CefString& url) OVERRIDE;
-  virtual void Print() OVERRIDE;
-  virtual void Find(int identifier, const CefString& searchText,
-                    bool forward, bool matchCase, bool findNext) OVERRIDE;
-  virtual void StopFinding(bool clearSelection) OVERRIDE;
-  virtual void ShowDevTools(const CefWindowInfo& windowInfo,
-                            CefRefPtr<CefClient> client,
-                            const CefBrowserSettings& settings,
-                            const CefPoint& inspect_element_at) OVERRIDE;
-  virtual void CloseDevTools() OVERRIDE;
-  virtual void SetMouseCursorChangeDisabled(bool disabled) OVERRIDE;
-  virtual bool IsMouseCursorChangeDisabled() OVERRIDE;
-  virtual bool IsWindowRenderingDisabled() OVERRIDE;
-  virtual void ReplaceMisspelling(const CefString& word) OVERRIDE;
-  virtual void AddWordToDictionary(const CefString& word) OVERRIDE;
-  virtual void WasResized() OVERRIDE;
-  virtual void WasHidden(bool hidden) OVERRIDE;
-  virtual void NotifyScreenInfoChanged() OVERRIDE;
-  virtual void Invalidate(PaintElementType type) OVERRIDE;
-  virtual void SendKeyEvent(const CefKeyEvent& event) OVERRIDE;
-  virtual void SendMouseClickEvent(const CefMouseEvent& event,
-                                   MouseButtonType type,
-                                   bool mouseUp, int clickCount) OVERRIDE;
-  virtual void SendMouseMoveEvent(const CefMouseEvent& event,
-                                  bool mouseLeave) OVERRIDE;
-  virtual void SendMouseWheelEvent(const CefMouseEvent& event,
-                                   int deltaX, int deltaY) OVERRIDE;
-  virtual void SendFocusEvent(bool setFocus) OVERRIDE;
-  virtual void SendCaptureLostEvent() OVERRIDE;
-  virtual void NotifyMoveOrResizeStarted() OVERRIDE;
-  virtual CefTextInputContext GetNSTextInputContext() OVERRIDE;
-  virtual void HandleKeyEventBeforeTextInputClient(CefEventHandle keyEvent)
-      OVERRIDE;
-  virtual void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent)
-      OVERRIDE;
-  virtual void DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
-                                  const CefMouseEvent& event,
-                                  DragOperationsMask allowed_ops);
-  virtual void DragTargetDragOver(const CefMouseEvent& event,
-                                  DragOperationsMask allowed_ops);
-  virtual void DragTargetDragLeave();
-  virtual void DragTargetDrop(const CefMouseEvent& event);
-  virtual void DragSourceSystemDragEnded();
-  virtual void DragSourceEndedAt(int x, int y, DragOperationsMask op);
+      CefRefPtr<CefRunFileDialogCallback> callback) override;
+  void StartDownload(const CefString& url) override;
+  void Print() override;
+  void Find(int identifier, const CefString& searchText,
+            bool forward, bool matchCase, bool findNext) override;
+  void StopFinding(bool clearSelection) override;
+  void ShowDevTools(const CefWindowInfo& windowInfo,
+                    CefRefPtr<CefClient> client,
+                    const CefBrowserSettings& settings,
+                    const CefPoint& inspect_element_at) override;
+  void CloseDevTools() override;
+  void SetMouseCursorChangeDisabled(bool disabled) override;
+  bool IsMouseCursorChangeDisabled() override;
+  bool IsWindowRenderingDisabled() override;
+  void ReplaceMisspelling(const CefString& word) override;
+  void AddWordToDictionary(const CefString& word) override;
+  void WasResized() override;
+  void WasHidden(bool hidden) override;
+  void NotifyScreenInfoChanged() override;
+  void Invalidate(PaintElementType type) override;
+  void SendKeyEvent(const CefKeyEvent& event) override;
+  void SendMouseClickEvent(const CefMouseEvent& event,
+                           MouseButtonType type,
+                           bool mouseUp, int clickCount) override;
+  void SendMouseMoveEvent(const CefMouseEvent& event,
+                          bool mouseLeave) override;
+  void SendMouseWheelEvent(const CefMouseEvent& event,
+                           int deltaX, int deltaY) override;
+  void SendFocusEvent(bool setFocus) override;
+  void SendCaptureLostEvent() override;
+  void NotifyMoveOrResizeStarted() override;
+  CefTextInputContext GetNSTextInputContext() override;
+  void HandleKeyEventBeforeTextInputClient(CefEventHandle keyEvent) override;
+  void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent) override;
+  void DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
+                           const CefMouseEvent& event,
+                           DragOperationsMask allowed_ops) override;
+  void DragTargetDragOver(const CefMouseEvent& event,
+                          DragOperationsMask allowed_ops) override;
+  void DragTargetDragLeave() override;
+  void DragTargetDrop(const CefMouseEvent& event) override;
+  void DragSourceSystemDragEnded() override;
+  void DragSourceEndedAt(int x, int y, DragOperationsMask op) override;
 
   // CefBrowser methods.
-  virtual CefRefPtr<CefBrowserHost> GetHost() OVERRIDE;
-  virtual bool CanGoBack() OVERRIDE;
-  virtual void GoBack() OVERRIDE;
-  virtual bool CanGoForward() OVERRIDE;
-  virtual void GoForward() OVERRIDE;
-  virtual bool IsLoading() OVERRIDE;
-  virtual void Reload() OVERRIDE;
-  virtual void ReloadIgnoreCache() OVERRIDE;
-  virtual void StopLoad() OVERRIDE;
-  virtual int GetIdentifier() OVERRIDE;
-  virtual bool IsSame(CefRefPtr<CefBrowser> that) OVERRIDE;
-  virtual bool IsPopup() OVERRIDE;
-  virtual bool HasDocument() OVERRIDE;
-  virtual CefRefPtr<CefFrame> GetMainFrame() OVERRIDE;
-  virtual CefRefPtr<CefFrame> GetFocusedFrame() OVERRIDE;
-  virtual CefRefPtr<CefFrame> GetFrame(int64 identifier) OVERRIDE;
-  virtual CefRefPtr<CefFrame> GetFrame(const CefString& name) OVERRIDE;
-  virtual size_t GetFrameCount() OVERRIDE;
-  virtual void GetFrameIdentifiers(std::vector<int64>& identifiers) OVERRIDE;
-  virtual void GetFrameNames(std::vector<CefString>& names) OVERRIDE;
-  virtual bool SendProcessMessage(
+  CefRefPtr<CefBrowserHost> GetHost() override;
+  bool CanGoBack() override;
+  void GoBack() override;
+  bool CanGoForward() override;
+  void GoForward() override;
+  bool IsLoading() override;
+  void Reload() override;
+  void ReloadIgnoreCache() override;
+  void StopLoad() override;
+  int GetIdentifier() override;
+  bool IsSame(CefRefPtr<CefBrowser> that) override;
+  bool IsPopup() override;
+  bool HasDocument() override;
+  CefRefPtr<CefFrame> GetMainFrame() override;
+  CefRefPtr<CefFrame> GetFocusedFrame() override;
+  CefRefPtr<CefFrame> GetFrame(int64 identifier) override;
+  CefRefPtr<CefFrame> GetFrame(const CefString& name) override;
+  size_t GetFrameCount() override;
+  void GetFrameIdentifiers(std::vector<int64>& identifiers) override;
+  void GetFrameNames(std::vector<CefString>& names) override;
+  bool SendProcessMessage(
       CefProcessId target_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE;
+      CefRefPtr<CefProcessMessage> message) override;
 
   // Returns true if windowless rendering is enabled.
   bool IsWindowless() const;
@@ -333,45 +330,40 @@ class CefBrowserHostImpl : public CefBrowserHost,
   };
   DestructionState destruction_state() const { return destruction_state_; }
 
-  // Used to retrieve a WeakPtr that will be invalidated when the browser is
-  // destroyed. This method can only be called on, and the resulting WeakPtr
-  // can only be dereferenced on, the UI thread.
-  base::WeakPtr<CefBrowserHostImpl> GetWeakPtr();
-
   // content::WebContentsDelegate methods.
-  virtual content::WebContents* OpenURLFromTab(
+  content::WebContents* OpenURLFromTab(
       content::WebContents* source,
-      const content::OpenURLParams& params) OVERRIDE;
-  virtual void LoadingStateChanged(content::WebContents* source,
-                                   bool to_different_document) OVERRIDE;
-  virtual void CloseContents(content::WebContents* source) OVERRIDE;
-  virtual void UpdateTargetURL(content::WebContents* source,
-                               const GURL& url) OVERRIDE;
-  virtual bool AddMessageToConsole(content::WebContents* source,
-                                   int32 level,
-                                   const base::string16& message,
-                                   int32 line_no,
-                                   const base::string16& source_id) OVERRIDE;
-  virtual void BeforeUnloadFired(content::WebContents* source,
-                                 bool proceed,
-                                 bool* proceed_to_fire_unload) OVERRIDE;
-  virtual bool TakeFocus(content::WebContents* source,
-                         bool reverse) OVERRIDE;
-  virtual void WebContentsFocused(content::WebContents* contents) OVERRIDE;
-  virtual bool HandleContextMenu(
-      const content::ContextMenuParams& params) OVERRIDE;
-  virtual bool PreHandleKeyboardEvent(
+      const content::OpenURLParams& params) override;
+  void LoadingStateChanged(content::WebContents* source,
+                           bool to_different_document) override;
+  void CloseContents(content::WebContents* source) override;
+  void UpdateTargetURL(content::WebContents* source,
+                       const GURL& url) override;
+  bool AddMessageToConsole(content::WebContents* source,
+                           int32 level,
+                           const base::string16& message,
+                           int32 line_no,
+                           const base::string16& source_id) override;
+  void BeforeUnloadFired(content::WebContents* source,
+                         bool proceed,
+                         bool* proceed_to_fire_unload) override;
+  bool TakeFocus(content::WebContents* source,
+                 bool reverse) override;
+  void WebContentsFocused(content::WebContents* contents) override;
+  bool HandleContextMenu(
+      const content::ContextMenuParams& params) override;
+  bool PreHandleKeyboardEvent(
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event,
-      bool* is_keyboard_shortcut) OVERRIDE;
-  virtual void HandleKeyboardEvent(
+      bool* is_keyboard_shortcut) override;
+  void HandleKeyboardEvent(
       content::WebContents* source,
-      const content::NativeWebKeyboardEvent& event) OVERRIDE;
-  virtual bool CanDragEnter(
+      const content::NativeWebKeyboardEvent& event) override;
+  bool CanDragEnter(
       content::WebContents* source,
       const content::DropData& data,
-      blink::WebDragOperationsMask operations_allowed) OVERRIDE;
-  virtual bool ShouldCreateWebContents(
+      blink::WebDragOperationsMask operations_allowed) override;
+  bool ShouldCreateWebContents(
       content::WebContents* web_contents,
       int route_id,
       WindowContainerType window_container_type,
@@ -380,60 +372,59 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const std::string& partition_id,
       content::SessionStorageNamespace* session_storage_namespace,
       content::WebContentsView** view,
-      content::RenderViewHostDelegateView** delegate_view) OVERRIDE;
-  virtual void WebContentsCreated(content::WebContents* source_contents,
-                                  int opener_render_frame_id,
-                                  const base::string16& frame_name,
-                                  const GURL& target_url,
-                                  content::WebContents* new_contents) OVERRIDE;
-  virtual void DidNavigateMainFramePostCommit(
-      content::WebContents* tab) OVERRIDE;
-  virtual content::JavaScriptDialogManager* GetJavaScriptDialogManager()
-      OVERRIDE;
-  virtual void RunFileChooser(
+      content::RenderViewHostDelegateView** delegate_view) override;
+  void WebContentsCreated(content::WebContents* source_contents,
+                          int opener_render_frame_id,
+                          const base::string16& frame_name,
+                          const GURL& target_url,
+                          content::WebContents* new_contents) override;
+  void DidNavigateMainFramePostCommit(
+      content::WebContents* tab) override;
+  content::JavaScriptDialogManager* GetJavaScriptDialogManager() override;
+  void RunFileChooser(
       content::WebContents* tab,
-      const content::FileChooserParams& params) OVERRIDE;
-  virtual void UpdatePreferredSize(content::WebContents* source,
-                                   const gfx::Size& pref_size) OVERRIDE;
-  virtual void RequestMediaAccessPermission(
+      const content::FileChooserParams& params) override;
+  void UpdatePreferredSize(content::WebContents* source,
+                                   const gfx::Size& pref_size) override;
+  void RequestMediaAccessPermission(
       content::WebContents* web_contents,
       const content::MediaStreamRequest& request,
-      const content::MediaResponseCallback& callback) OVERRIDE;
+      const content::MediaResponseCallback& callback) override;
 
   // content::WebContentsObserver methods.
   using content::WebContentsObserver::BeforeUnloadFired;
   using content::WebContentsObserver::WasHidden;
-  virtual void RenderFrameCreated(
-      content::RenderFrameHost* render_frame_host) OVERRIDE;
-  virtual void RenderFrameDeleted(
-      content::RenderFrameHost* render_frame_host) OVERRIDE;
-  virtual void RenderViewCreated(
-      content::RenderViewHost* render_view_host) OVERRIDE;
-  virtual void RenderViewDeleted(
-      content::RenderViewHost* render_view_host) OVERRIDE;
-  virtual void RenderViewReady() OVERRIDE;
-  virtual void RenderProcessGone(base::TerminationStatus status) OVERRIDE;
-  virtual void DidCommitProvisionalLoadForFrame(
+  void RenderFrameCreated(
+      content::RenderFrameHost* render_frame_host) override;
+  void RenderFrameDeleted(
+      content::RenderFrameHost* render_frame_host) override;
+  void RenderViewCreated(
+      content::RenderViewHost* render_view_host) override;
+  void RenderViewDeleted(
+      content::RenderViewHost* render_view_host) override;
+  void RenderViewReady() override;
+  void RenderProcessGone(base::TerminationStatus status) override;
+  void DidCommitProvisionalLoadForFrame(
       content::RenderFrameHost* render_frame_host,
       const GURL& url,
-      ui::PageTransition transition_type) OVERRIDE;
-  virtual void DidFailProvisionalLoad(
+      ui::PageTransition transition_type) override;
+  void DidFailProvisionalLoad(
       content::RenderFrameHost* render_frame_host,
       const GURL& validated_url,
       int error_code,
-      const base::string16& error_description) OVERRIDE;
-  virtual void DocumentAvailableInMainFrame() OVERRIDE;
-  virtual void DidFailLoad(content::RenderFrameHost* render_frame_host,
-                           const GURL& validated_url,
-                           int error_code,
-                           const base::string16& error_description) OVERRIDE;
-  virtual void FrameDetached(
-      content::RenderFrameHost* render_frame_host) OVERRIDE;
-  virtual void PluginCrashed(const base::FilePath& plugin_path,
-                             base::ProcessId plugin_pid) OVERRIDE;
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
+      const base::string16& error_description) override;
+  void DocumentAvailableInMainFrame() override;
+  void DidFailLoad(content::RenderFrameHost* render_frame_host,
+                   const GURL& validated_url,
+                   int error_code,
+                   const base::string16& error_description) override;
+  void FrameDetached(
+      content::RenderFrameHost* render_frame_host) override;
+  void PluginCrashed(const base::FilePath& plugin_path,
+                     base::ProcessId plugin_pid) override;
+  bool OnMessageReceived(const IPC::Message& message) override;
   // Override to provide a thread safe implementation.
-  virtual bool Send(IPC::Message* message) OVERRIDE;
+  bool Send(IPC::Message* message) override;
 
  private:
   class DevToolsWebContentsObserver;
@@ -472,9 +463,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
                                          const base::string16& actual_value);
 
   // content::NotificationObserver methods.
-  virtual void Observe(int type,
-                       const content::NotificationSource& source,
-                       const content::NotificationDetails& details) OVERRIDE;
+  void Observe(int type,
+              const content::NotificationSource& source,
+              const content::NotificationDetails& details) override;
 
   CefBrowserHostImpl(const CefWindowInfo& window_info,
                      const CefBrowserSettings& settings,
@@ -665,10 +656,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefWindowX11* window_x11_;
   scoped_ptr<ui::XScopedCursor> invisible_cursor_;
 #endif  // defined(USE_X11)
-
-  // Only used on the UI thread. All references will be invalidated when
-  // DestroyBrowser() is called. Must be the last member. 
-  base::WeakPtrFactory<CefBrowserHostImpl> weak_ptr_factory_;
 
   IMPLEMENT_REFCOUNTING(CefBrowserHostImpl);
   DISALLOW_EVIL_CONSTRUCTORS(CefBrowserHostImpl);

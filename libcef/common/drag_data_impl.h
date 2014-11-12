@@ -18,30 +18,29 @@ class CefDragDataImpl : public CefDragData {
  public:
   CefDragDataImpl();
   explicit CefDragDataImpl(const content::DropData& data);
-  virtual CefRefPtr<CefDragData> Clone();
-  virtual bool IsReadOnly();
 
-  virtual bool IsLink();
-  virtual bool IsFragment();
-  virtual bool IsFile();
-  virtual CefString GetLinkURL();
-  virtual CefString GetLinkTitle();
-  virtual CefString GetLinkMetadata();
-  virtual CefString GetFragmentText();
-  virtual CefString GetFragmentHtml();
-  virtual CefString GetFragmentBaseURL();
-  virtual CefString GetFileName();
-  virtual size_t GetFileContents(CefRefPtr<CefStreamWriter> writer);
-  virtual bool GetFileNames(std::vector<CefString>& names);
-
-  virtual void SetLinkURL(const CefString& url);
-  virtual void SetLinkTitle(const CefString& title);
-  virtual void SetLinkMetadata(const CefString& data);
-  virtual void SetFragmentText(const CefString& text);
-  virtual void SetFragmentHtml(const CefString& fragment);
-  virtual void SetFragmentBaseURL(const CefString& fragment);
-  virtual void ResetFileContents();
-  virtual void AddFile(const CefString& path, const CefString& display_name);
+  CefRefPtr<CefDragData> Clone() override;
+  bool IsReadOnly() override;
+  bool IsLink() override;
+  bool IsFragment() override;
+  bool IsFile() override;
+  CefString GetLinkURL() override;
+  CefString GetLinkTitle() override;
+  CefString GetLinkMetadata() override;
+  CefString GetFragmentText() override;
+  CefString GetFragmentHtml() override;
+  CefString GetFragmentBaseURL() override;
+  CefString GetFileName() override;
+  size_t GetFileContents(CefRefPtr<CefStreamWriter> writer) override;
+  bool GetFileNames(std::vector<CefString>& names) override;
+  void SetLinkURL(const CefString& url) override;
+  void SetLinkTitle(const CefString& title) override;
+  void SetLinkMetadata(const CefString& data) override;
+  void SetFragmentText(const CefString& text) override;
+  void SetFragmentHtml(const CefString& fragment) override;
+  void SetFragmentBaseURL(const CefString& fragment) override;
+  void ResetFileContents() override;
+  void AddFile(const CefString& path, const CefString& display_name) override;
 
   // This method is not safe. Use Lock/Unlock to get mutually exclusive access.
   const content::DropData& drop_data() {

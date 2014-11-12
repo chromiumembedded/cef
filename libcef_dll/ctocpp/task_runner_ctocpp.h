@@ -29,7 +29,6 @@ class CefTaskRunnerCToCpp
  public:
   explicit CefTaskRunnerCToCpp(cef_task_runner_t* str)
       : CefCToCpp<CefTaskRunnerCToCpp, CefTaskRunner, cef_task_runner_t>(str) {}
-  virtual ~CefTaskRunnerCToCpp() {}
 
   // CefTaskRunner methods
   virtual bool IsSame(CefRefPtr<CefTaskRunner> that) OVERRIDE;

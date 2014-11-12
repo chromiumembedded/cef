@@ -31,7 +31,6 @@ class CefDownloadItemCToCpp
   explicit CefDownloadItemCToCpp(cef_download_item_t* str)
       : CefCToCpp<CefDownloadItemCToCpp, CefDownloadItem, cef_download_item_t>(
           str) {}
-  virtual ~CefDownloadItemCToCpp() {}
 
   // CefDownloadItem methods
   virtual bool IsValid() OVERRIDE;

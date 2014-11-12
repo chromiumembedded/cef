@@ -27,7 +27,7 @@ class CefWindowX11 : public ui::PlatformEventDispatcher {
   CefWindowX11(CefRefPtr<CefBrowserHostImpl> browser,
                ::Window parent_xwindow,
                const gfx::Rect& bounds);
-  virtual ~CefWindowX11();
+  ~CefWindowX11() override;
 
   void Close();
 
@@ -43,8 +43,8 @@ class CefWindowX11 : public ui::PlatformEventDispatcher {
   views::DesktopWindowTreeHostX11* GetHost();
 
   // ui::PlatformEventDispatcher methods:
-  virtual bool CanDispatchEvent(const ui::PlatformEvent& event) OVERRIDE;
-  virtual uint32_t DispatchEvent(const ui::PlatformEvent& event) OVERRIDE;
+  bool CanDispatchEvent(const ui::PlatformEvent& event) override;
+  uint32_t DispatchEvent(const ui::PlatformEvent& event) override;
 
   ::Window xwindow() const { return xwindow_; }
   gfx::Rect bounds() const { return bounds_; }

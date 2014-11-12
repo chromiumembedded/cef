@@ -31,31 +31,29 @@ class CefRenderProcessHandlerCToCpp
   explicit CefRenderProcessHandlerCToCpp(cef_render_process_handler_t* str)
       : CefCToCpp<CefRenderProcessHandlerCToCpp, CefRenderProcessHandler,
           cef_render_process_handler_t>(str) {}
-  virtual ~CefRenderProcessHandlerCToCpp() {}
 
   // CefRenderProcessHandler methods
-  virtual void OnRenderThreadCreated(
-      CefRefPtr<CefListValue> extra_info) OVERRIDE;
-  virtual void OnWebKitInitialized() OVERRIDE;
-  virtual void OnBrowserCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  virtual void OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) OVERRIDE;
-  virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE;
-  virtual bool OnBeforeNavigation(CefRefPtr<CefBrowser> browser,
+  void OnRenderThreadCreated(CefRefPtr<CefListValue> extra_info) override;
+  void OnWebKitInitialized() override;
+  void OnBrowserCreated(CefRefPtr<CefBrowser> browser) override;
+  void OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) override;
+  CefRefPtr<CefLoadHandler> GetLoadHandler() override;
+  bool OnBeforeNavigation(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
-      NavigationType navigation_type, bool is_redirect) OVERRIDE;
-  virtual void OnContextCreated(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) OVERRIDE;
-  virtual void OnContextReleased(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) OVERRIDE;
-  virtual void OnUncaughtException(CefRefPtr<CefBrowser> browser,
+      NavigationType navigation_type, bool is_redirect) override;
+  void OnContextCreated(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) override;
+  void OnContextReleased(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) override;
+  void OnUncaughtException(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context,
       CefRefPtr<CefV8Exception> exception,
-      CefRefPtr<CefV8StackTrace> stackTrace) OVERRIDE;
-  virtual void OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, CefRefPtr<CefDOMNode> node) OVERRIDE;
-  virtual bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefV8StackTrace> stackTrace) override;
+  void OnFocusedNodeChanged(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame, CefRefPtr<CefDOMNode> node) override;
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE;
+      CefRefPtr<CefProcessMessage> message) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

@@ -29,7 +29,6 @@ class CefAuthCallbackCppToC
         cef_auth_callback_t> {
  public:
   explicit CefAuthCallbackCppToC(CefAuthCallback* cls);
-  virtual ~CefAuthCallbackCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

@@ -28,7 +28,6 @@ class CefRequestCppToC
     : public CefCppToC<CefRequestCppToC, CefRequest, cef_request_t> {
  public:
   explicit CefRequestCppToC(CefRequest* cls);
-  virtual ~CefRequestCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

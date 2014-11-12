@@ -29,11 +29,11 @@ PrintViewManager::PrintViewManager(content::WebContents* web_contents)
 PrintViewManager::~PrintViewManager() {
 }
 
-#if !defined(DISABLE_BASIC_PRINTING)
+#if defined(ENABLE_BASIC_PRINTING)
 bool PrintViewManager::PrintForSystemDialogNow() {
   return PrintNowInternal(new PrintMsg_PrintForSystemDialog(routing_id()));
 }
-#endif  // !DISABLE_BASIC_PRINTING
+#endif  // ENABLE_BASIC_PRINTING
 
 void PrintViewManager::RenderProcessGone(base::TerminationStatus status) {
   PrintViewManagerBase::RenderProcessGone(status);

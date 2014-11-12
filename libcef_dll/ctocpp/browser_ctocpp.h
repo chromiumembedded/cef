@@ -32,7 +32,6 @@ class CefBrowserCToCpp
  public:
   explicit CefBrowserCToCpp(cef_browser_t* str)
       : CefCToCpp<CefBrowserCToCpp, CefBrowser, cef_browser_t>(str) {}
-  virtual ~CefBrowserCToCpp() {}
 
   // CefBrowser methods
   virtual CefRefPtr<CefBrowserHost> GetHost() OVERRIDE;

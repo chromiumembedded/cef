@@ -1,5 +1,5 @@
 diff --git message_loop.cc message_loop.cc
-index c01e542..232e7bf 100644
+index 01402d0..dd910bd 100644
 --- message_loop.cc
 +++ message_loop.cc
 @@ -158,7 +158,6 @@ MessageLoop::MessageLoop(scoped_ptr<MessagePump> pump)

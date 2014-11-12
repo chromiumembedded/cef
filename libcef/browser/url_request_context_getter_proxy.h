@@ -22,12 +22,12 @@ class CefURLRequestContextGetterProxy : public net::URLRequestContextGetter {
  public:
   CefURLRequestContextGetterProxy(CefRefPtr<CefRequestContextHandler> handler,
                                   CefURLRequestContextGetter* parent);
-  virtual ~CefURLRequestContextGetterProxy();
+  ~CefURLRequestContextGetterProxy() override;
 
   // net::URLRequestContextGetter implementation.
-  virtual net::URLRequestContext* GetURLRequestContext() OVERRIDE;
-  virtual scoped_refptr<base::SingleThreadTaskRunner>
-      GetNetworkTaskRunner() const OVERRIDE;
+  net::URLRequestContext* GetURLRequestContext() override;
+  scoped_refptr<base::SingleThreadTaskRunner>
+      GetNetworkTaskRunner() const override;
 
   net::HostResolver* GetHostResolver() const;
 

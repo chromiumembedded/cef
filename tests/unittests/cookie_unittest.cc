@@ -52,12 +52,12 @@ class TestVisitor : public CefCookieVisitor {
       delete_cookies_(deleteCookies),
       event_(event) {
   }
-  virtual ~TestVisitor()   {
+  ~TestVisitor() override {
     event_->Signal();
   }
 
-  virtual bool Visit(const CefCookie& cookie, int count, int total,
-                     bool& deleteCookie)   {
+  bool Visit(const CefCookie& cookie, int count, int total,
+             bool& deleteCookie) override {
     cookies_->push_back(cookie);
     if (delete_cookies_)
       deleteCookie = true;
@@ -586,7 +586,7 @@ class TestCompletionCallback : public CefCompletionCallback {
   explicit TestCompletionCallback(base::WaitableEvent* event)
     : event_(event) {}
 
-  virtual void OnComplete() OVERRIDE {
+  void OnComplete() override {
     event_->Signal();
   }
 
@@ -671,7 +671,7 @@ class CookieTestJSHandler : public TestHandler {
     explicit RequestContextHandler(CookieTestJSHandler* handler)
         : handler_(handler) {}
 
-    virtual CefRefPtr<CefCookieManager> GetCookieManager() OVERRIDE {
+    CefRefPtr<CefCookieManager> GetCookieManager() override {
       EXPECT_TRUE(handler_);
       EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
@@ -703,7 +703,7 @@ class CookieTestJSHandler : public TestHandler {
 
   CookieTestJSHandler() {}
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     // Create =new in-memory managers.
     manager1_ = CefCookieManager::CreateManager(CefString(), false);
     manager2_ = CefCookieManager::CreateManager(CefString(), false);
@@ -732,9 +732,9 @@ class CookieTestJSHandler : public TestHandler {
         CefRequestContext::CreateContext(context_handler_.get()));
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     std::string url = frame->GetURL();
     if (url == kCookieJSUrl1) {
       got_load_end1_.yes();
@@ -751,7 +751,7 @@ class CookieTestJSHandler : public TestHandler {
     }
   }
 
-  virtual void DestroyTest() OVERRIDE {
+  void DestroyTest() override {
     context_handler_->Detach();
     context_handler_ = NULL;
 
@@ -815,9 +815,8 @@ class CookieTestSchemeHandler : public TestHandler {
         : handler_(handler),
           offset_(0) {}
 
-    virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-                                CefRefPtr<CefCallback> callback)
-                                OVERRIDE {
+    bool ProcessRequest(CefRefPtr<CefRequest> request,
+                        CefRefPtr<CefCallback> callback) override {
       std::string url = request->GetURL();
       if (url == handler_->url1_) {
         content_ = "<html><body>COOKIE TEST1</body></html>";
@@ -843,9 +842,9 @@ class CookieTestSchemeHandler : public TestHandler {
       return true;
     }
 
-    virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
-                                    int64& response_length,
-                                    CefString& redirectUrl) OVERRIDE {
+    void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                            int64& response_length,
+                            CefString& redirectUrl) override {
       response_length = content_.size();
 
       response->SetStatus(200);
@@ -859,11 +858,10 @@ class CookieTestSchemeHandler : public TestHandler {
       }
     }
 
-    virtual bool ReadResponse(void* data_out,
-                              int bytes_to_read,
-                              int& bytes_read,
-                              CefRefPtr<CefCallback> callback)
-                              OVERRIDE {
+    bool ReadResponse(void* data_out,
+                      int bytes_to_read,
+                      int& bytes_read,
+                      CefRefPtr<CefCallback> callback) override {
       bool has_data = false;
       bytes_read = 0;
 
@@ -881,7 +879,7 @@ class CookieTestSchemeHandler : public TestHandler {
       return has_data;
     }
 
-    virtual void Cancel() OVERRIDE {
+    void Cancel() override {
     }
 
    private:
@@ -898,11 +896,11 @@ class CookieTestSchemeHandler : public TestHandler {
     explicit SchemeHandlerFactory(CookieTestSchemeHandler* handler)
         : handler_(handler) {}
 
-    virtual CefRefPtr<CefResourceHandler> Create(
+    CefRefPtr<CefResourceHandler> Create(
         CefRefPtr<CefBrowser> browser,
         CefRefPtr<CefFrame> frame,
         const CefString& scheme_name,
-        CefRefPtr<CefRequest> request) OVERRIDE {
+        CefRefPtr<CefRequest> request) override {
       std::string url = request->GetURL();
       if (url == handler_->url3_) {
         // Verify that the cookie was not passed in.
@@ -927,7 +925,7 @@ class CookieTestSchemeHandler : public TestHandler {
     explicit RequestContextHandler(CookieTestSchemeHandler* handler)
         : handler_(handler) {}
 
-    virtual CefRefPtr<CefCookieManager> GetCookieManager() OVERRIDE {
+    CefRefPtr<CefCookieManager> GetCookieManager() override {
       EXPECT_TRUE(handler_);
       EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
@@ -963,7 +961,7 @@ class CookieTestSchemeHandler : public TestHandler {
     url3_ = scheme + "://cookie-tests/cookie3.html";
   }
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     // Create new in-memory managers.
     manager1_ = CefCookieManager::CreateManager(CefString(), false);
     manager2_ = CefCookieManager::CreateManager(CefString(), false);
@@ -990,9 +988,9 @@ class CookieTestSchemeHandler : public TestHandler {
         CefRequestContext::CreateContext(context_handler_.get()));
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     std::string url = frame->GetURL();
     if (url == url1_) {
       got_load_end1_.yes();
@@ -1019,7 +1017,7 @@ class CookieTestSchemeHandler : public TestHandler {
     }
   }
 
-   virtual void DestroyTest() OVERRIDE {
+   void DestroyTest() override {
      context_handler_->Detach();
      context_handler_ = NULL;
 

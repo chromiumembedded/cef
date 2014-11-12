@@ -31,7 +31,6 @@ class CefBrowserHostCppToC
         cef_browser_host_t> {
  public:
   explicit CefBrowserHostCppToC(CefBrowserHost* cls);
-  virtual ~CefBrowserHostCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

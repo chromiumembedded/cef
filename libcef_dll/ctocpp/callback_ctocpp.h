@@ -29,7 +29,6 @@ class CefCallbackCToCpp
  public:
   explicit CefCallbackCToCpp(cef_callback_t* str)
       : CefCToCpp<CefCallbackCToCpp, CefCallback, cef_callback_t>(str) {}
-  virtual ~CefCallbackCToCpp() {}
 
   // CefCallback methods
   virtual void Continue() OVERRIDE;

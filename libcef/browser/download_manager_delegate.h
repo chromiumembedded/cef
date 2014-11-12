@@ -20,23 +20,23 @@ class CefDownloadManagerDelegate
       public content::DownloadManagerDelegate {
  public:
   explicit CefDownloadManagerDelegate(content::DownloadManager* manager);
-  ~CefDownloadManagerDelegate();
+  ~CefDownloadManagerDelegate() override;
 
  private:
   // DownloadItem::Observer methods.
-  virtual void OnDownloadUpdated(content::DownloadItem* download) OVERRIDE;
-  virtual void OnDownloadDestroyed(content::DownloadItem* download) OVERRIDE;
+  void OnDownloadUpdated(content::DownloadItem* download) override;
+  void OnDownloadDestroyed(content::DownloadItem* download) override;
 
   // DownloadManager::Observer methods.
-  virtual void OnDownloadCreated(content::DownloadManager* manager,
-                                 content::DownloadItem* item) OVERRIDE;
-  virtual void ManagerGoingDown(content::DownloadManager* manager) OVERRIDE;
+  void OnDownloadCreated(content::DownloadManager* manager,
+                         content::DownloadItem* item) override;
+  void ManagerGoingDown(content::DownloadManager* manager) override;
 
   // DownloadManagerDelegate methods.
-  virtual bool DetermineDownloadTarget(
+  bool DetermineDownloadTarget(
       content::DownloadItem* item,
-      const content::DownloadTargetCallback& callback) OVERRIDE;
-  virtual void GetNextId(const content::DownloadIdCallback& callback) OVERRIDE;
+      const content::DownloadTargetCallback& callback) override;
+  void GetNextId(const content::DownloadIdCallback& callback) override;
 
   content::DownloadManager* manager_;
   base::WeakPtrFactory<content::DownloadManager> manager_ptr_factory_;

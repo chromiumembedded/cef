@@ -14,12 +14,12 @@
 class CefMenuCreatorRunnerLinux: public CefMenuCreator::Runner {
  public:
   CefMenuCreatorRunnerLinux();
-  virtual ~CefMenuCreatorRunnerLinux();
+  ~CefMenuCreatorRunnerLinux() override;
 
   // CefMemoryManager::Runner methods.
-  virtual bool RunContextMenu(CefMenuCreator* manager) OVERRIDE;
-  virtual void CancelContextMenu() OVERRIDE;
-  virtual bool FormatLabel(base::string16& label) OVERRIDE;
+  bool RunContextMenu(CefMenuCreator* manager) override;
+  void CancelContextMenu() override;
+  bool FormatLabel(base::string16& label) override;
 
  private:
   scoped_ptr<views::MenuRunner> menu_;

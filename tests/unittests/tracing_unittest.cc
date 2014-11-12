@@ -5,7 +5,7 @@
 // Include this first to avoid type conflicts with CEF headers.
 #include "tests/unittests/chromium_includes.h"
 
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/synchronization/waitable_event.h"
 
 #include "include/base/cef_bind.h"
@@ -89,7 +89,7 @@ class TracingTestHandler : public CefEndTracingCallback,
   }
 
   // CefEndTracingCallback method:
-  virtual void OnEndTracingComplete(const CefString& tracing_file) OVERRIDE {
+  void OnEndTracingComplete(const CefString& tracing_file) override {
     EXPECT_UI_THREAD();
 
     base::FilePath file_path(tracing_file);
@@ -104,7 +104,7 @@ class TracingTestHandler : public CefEndTracingCallback,
     CefBeginTracing(kTraceTestCategory, this);
   }
 
-  virtual void OnComplete() OVERRIDE {
+  void OnComplete() override {
     EXPECT_UI_THREAD();
 
     switch (type_) {
@@ -336,7 +336,7 @@ class TracingTestHandler : public CefEndTracingCallback,
   }
 
  private:
-  virtual ~TracingTestHandler() {}
+  ~TracingTestHandler() override {}
 
   // Handle used to notify when the test is complete.
   base::WaitableEvent completion_event_;

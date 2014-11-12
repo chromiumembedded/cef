@@ -29,7 +29,6 @@ class CefCommandLineCppToC
         cef_command_line_t> {
  public:
   explicit CefCommandLineCppToC(CefCommandLine* cls);
-  virtual ~CefCommandLineCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

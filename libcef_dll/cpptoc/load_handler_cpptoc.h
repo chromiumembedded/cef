@@ -29,7 +29,6 @@ class CefLoadHandlerCppToC
         cef_load_handler_t> {
  public:
   explicit CefLoadHandlerCppToC(CefLoadHandler* cls);
-  virtual ~CefLoadHandlerCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

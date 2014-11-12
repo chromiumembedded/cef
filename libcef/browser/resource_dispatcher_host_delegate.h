@@ -14,23 +14,23 @@ class CefResourceDispatcherHostDelegate
     : public content::ResourceDispatcherHostDelegate {
  public:
   CefResourceDispatcherHostDelegate();
-  virtual ~CefResourceDispatcherHostDelegate();
+  ~CefResourceDispatcherHostDelegate() override;
 
   // ResourceDispatcherHostDelegate methods.
-  virtual void RequestBeginning(
+  void RequestBeginning(
       net::URLRequest* request,
       content::ResourceContext* resource_context,
       content::AppCacheService* appcache_service,
       content::ResourceType resource_type,
-      ScopedVector<content::ResourceThrottle>* throttles) OVERRIDE;
-  virtual bool HandleExternalProtocol(const GURL& url,
-                                      int child_id,
-                                      int route_id) OVERRIDE;
-  virtual void OnRequestRedirected(
+      ScopedVector<content::ResourceThrottle>* throttles) override;
+  bool HandleExternalProtocol(const GURL& url,
+                              int child_id,
+                              int route_id) override;
+  void OnRequestRedirected(
       const GURL& redirect_url,
       net::URLRequest* request,
       content::ResourceContext* resource_context,
-      content::ResourceResponse* response) OVERRIDE;
+      content::ResourceResponse* response) override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CefResourceDispatcherHostDelegate);

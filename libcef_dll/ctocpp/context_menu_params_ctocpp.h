@@ -32,7 +32,6 @@ class CefContextMenuParamsCToCpp
   explicit CefContextMenuParamsCToCpp(cef_context_menu_params_t* str)
       : CefCToCpp<CefContextMenuParamsCToCpp, CefContextMenuParams,
           cef_context_menu_params_t>(str) {}
-  virtual ~CefContextMenuParamsCToCpp() {}
 
   // CefContextMenuParams methods
   virtual int GetXCoord() OVERRIDE;

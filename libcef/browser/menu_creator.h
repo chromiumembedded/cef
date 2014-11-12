@@ -29,7 +29,7 @@ class CefMenuCreator : public CefMenuModelImpl::Delegate {
   };
 
   explicit CefMenuCreator(CefBrowserHostImpl* browser);
-  virtual ~CefMenuCreator();
+  ~CefMenuCreator() override;
 
   // Returns true if the context menu is currently showing.
   bool IsShowingContextMenu();
@@ -47,12 +47,12 @@ class CefMenuCreator : public CefMenuModelImpl::Delegate {
   bool CreateRunner();
 
   // CefMenuModelImpl::Delegate methods.
-  virtual void ExecuteCommand(CefRefPtr<CefMenuModelImpl> source,
-                              int command_id,
-                              cef_event_flags_t event_flags) OVERRIDE;
-  virtual void MenuWillShow(CefRefPtr<CefMenuModelImpl> source) OVERRIDE;
-  virtual void MenuClosed(CefRefPtr<CefMenuModelImpl> source) OVERRIDE;
-  virtual bool FormatLabel(base::string16& label) OVERRIDE;
+  void ExecuteCommand(CefRefPtr<CefMenuModelImpl> source,
+                      int command_id,
+                      cef_event_flags_t event_flags) override;
+  void MenuWillShow(CefRefPtr<CefMenuModelImpl> source) override;
+  void MenuClosed(CefRefPtr<CefMenuModelImpl> source) override;
+  bool FormatLabel(base::string16& label) override;
 
   // Create the default menu model.
   void CreateDefaultModel();

@@ -17,7 +17,7 @@ class CefBrowserPrefStore : public TestingPrefStore {
   scoped_ptr<PrefService> CreateService();
 
  protected:
-  virtual ~CefBrowserPrefStore();
+  ~CefBrowserPrefStore() override;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserPrefStore);
 };

@@ -16,23 +16,23 @@
 class CefZipReaderImpl : public CefZipReader {
  public:
   CefZipReaderImpl();
-  ~CefZipReaderImpl();
+  ~CefZipReaderImpl() override;
 
   // Initialize the reader context.
   bool Initialize(CefRefPtr<CefStreamReader> stream);
 
-  virtual bool MoveToFirstFile();
-  virtual bool MoveToNextFile();
-  virtual bool MoveToFile(const CefString& fileName, bool caseSensitive);
-  virtual bool Close();
-  virtual CefString GetFileName();
-  virtual int64 GetFileSize();
-  virtual time_t GetFileLastModified();
-  virtual bool OpenFile(const CefString& password);
-  virtual bool CloseFile();
-  virtual int ReadFile(void* buffer, size_t bufferSize);
-  virtual int64 Tell();
-  virtual bool Eof();
+  bool MoveToFirstFile() override;
+  bool MoveToNextFile() override;
+  bool MoveToFile(const CefString& fileName, bool caseSensitive) override;
+  bool Close() override;
+  CefString GetFileName() override;
+  int64 GetFileSize() override;
+  time_t GetFileLastModified() override;
+  bool OpenFile(const CefString& password) override;
+  bool CloseFile() override;
+  int ReadFile(void* buffer, size_t bufferSize) override;
+  int64 Tell() override;
+  bool Eof() override;
 
   bool GetFileInfo();
 

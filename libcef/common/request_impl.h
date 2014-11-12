@@ -28,27 +28,26 @@ class WebURLRequest;
 class CefRequestImpl : public CefRequest {
  public:
   CefRequestImpl();
-  ~CefRequestImpl() {}
 
-  virtual bool IsReadOnly() OVERRIDE;
-  virtual CefString GetURL() OVERRIDE;
-  virtual void SetURL(const CefString& url) OVERRIDE;
-  virtual CefString GetMethod() OVERRIDE;
-  virtual void SetMethod(const CefString& method) OVERRIDE;
-  virtual CefRefPtr<CefPostData> GetPostData() OVERRIDE;
-  virtual void SetPostData(CefRefPtr<CefPostData> postData) OVERRIDE;
-  virtual void GetHeaderMap(HeaderMap& headerMap) OVERRIDE;
-  virtual void SetHeaderMap(const HeaderMap& headerMap) OVERRIDE;
-  virtual void Set(const CefString& url,
-                   const CefString& method,
-                   CefRefPtr<CefPostData> postData,
-                   const HeaderMap& headerMap) OVERRIDE;
-  virtual int GetFlags() OVERRIDE;
-  virtual void SetFlags(int flags) OVERRIDE;
-  virtual CefString GetFirstPartyForCookies() OVERRIDE;
-  virtual void SetFirstPartyForCookies(const CefString& url) OVERRIDE;
-  virtual ResourceType GetResourceType() OVERRIDE;
-  virtual TransitionType GetTransitionType() OVERRIDE;
+  bool IsReadOnly() override;
+  CefString GetURL() override;
+  void SetURL(const CefString& url) override;
+  CefString GetMethod() override;
+  void SetMethod(const CefString& method) override;
+  CefRefPtr<CefPostData> GetPostData() override;
+  void SetPostData(CefRefPtr<CefPostData> postData) override;
+  void GetHeaderMap(HeaderMap& headerMap) override;
+  void SetHeaderMap(const HeaderMap& headerMap) override;
+  void Set(const CefString& url,
+           const CefString& method,
+           CefRefPtr<CefPostData> postData,
+           const HeaderMap& headerMap) override;
+  int GetFlags() override;
+  void SetFlags(int flags) override;
+  CefString GetFirstPartyForCookies() override;
+  void SetFirstPartyForCookies(const CefString& url) override;
+  ResourceType GetResourceType() override;
+  TransitionType GetTransitionType() override;
 
   // Populate this object from the URLRequest object.
   void Set(net::URLRequest* request);
@@ -95,14 +94,13 @@ class CefRequestImpl : public CefRequest {
 class CefPostDataImpl : public CefPostData {
  public:
   CefPostDataImpl();
-  ~CefPostDataImpl() {}
 
-  virtual bool IsReadOnly() OVERRIDE;
-  virtual size_t GetElementCount() OVERRIDE;
-  virtual void GetElements(ElementVector& elements) OVERRIDE;
-  virtual bool RemoveElement(CefRefPtr<CefPostDataElement> element) OVERRIDE;
-  virtual bool AddElement(CefRefPtr<CefPostDataElement> element) OVERRIDE;
-  virtual void RemoveElements();
+  bool IsReadOnly() override;
+  size_t GetElementCount() override;
+  void GetElements(ElementVector& elements) override;
+  bool RemoveElement(CefRefPtr<CefPostDataElement> element) override;
+  bool AddElement(CefRefPtr<CefPostDataElement> element) override;
+  void RemoveElements() override;
 
   void Set(const net::UploadData& data);
   void Set(const net::UploadDataStream& data_stream);
@@ -128,16 +126,16 @@ class CefPostDataImpl : public CefPostData {
 class CefPostDataElementImpl : public CefPostDataElement {
  public:
   CefPostDataElementImpl();
-  ~CefPostDataElementImpl();
+  ~CefPostDataElementImpl() override;
 
-  virtual bool IsReadOnly() OVERRIDE;
-  virtual void SetToEmpty() OVERRIDE;
-  virtual void SetToFile(const CefString& fileName) OVERRIDE;
-  virtual void SetToBytes(size_t size, const void* bytes) OVERRIDE;
-  virtual Type GetType() OVERRIDE;
-  virtual CefString GetFile() OVERRIDE;
-  virtual size_t GetBytesCount() OVERRIDE;
-  virtual size_t GetBytes(size_t size, void* bytes) OVERRIDE;
+  bool IsReadOnly() override;
+  void SetToEmpty() override;
+  void SetToFile(const CefString& fileName) override;
+  void SetToBytes(size_t size, const void* bytes) override;
+  Type GetType() override;
+  CefString GetFile() override;
+  size_t GetBytesCount() override;
+  size_t GetBytes(size_t size, void* bytes) override;
 
   void* GetBytes() { return data_.bytes.bytes; }
 

@@ -24,70 +24,76 @@ class CefCookieStoreProxy : public net::CookieStore {
       : parent_(parent),
         handler_(handler) {
   }
-  virtual ~CefCookieStoreProxy() {
+  ~CefCookieStoreProxy() override {
     CEF_REQUIRE_IOT();
   }
 
   // net::CookieStore methods.
-  virtual void SetCookieWithOptionsAsync(
+  void SetCookieWithOptionsAsync(
       const GURL& url,
       const std::string& cookie_line,
       const net::CookieOptions& options,
-      const SetCookiesCallback& callback) OVERRIDE {
+      const SetCookiesCallback& callback) override {
     scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
     cookie_store->SetCookieWithOptionsAsync(url, cookie_line, options,
                                             callback);
   }
 
-  virtual void GetCookiesWithOptionsAsync(
+  void GetCookiesWithOptionsAsync(
       const GURL& url, const net::CookieOptions& options,
-      const GetCookiesCallback& callback) OVERRIDE {
+      const GetCookiesCallback& callback) override {
     scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
     cookie_store->GetCookiesWithOptionsAsync(url, options, callback);
   }
 
-  virtual void DeleteCookieAsync(const GURL& url,
-                                 const std::string& cookie_name,
-                                 const base::Closure& callback) OVERRIDE {
+  void DeleteCookieAsync(const GURL& url,
+                         const std::string& cookie_name,
+                         const base::Closure& callback) override {
     scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
     cookie_store->DeleteCookieAsync(url, cookie_name, callback);
   }
 
-  virtual void GetAllCookiesForURLAsync(
+  void GetAllCookiesForURLAsync(
       const GURL& url,
-      const GetCookieListCallback& callback) OVERRIDE {
+      const GetCookieListCallback& callback) override {
     scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
     cookie_store->GetAllCookiesForURLAsync(url, callback);
   }
 
-  virtual void DeleteAllCreatedBetweenAsync(const base::Time& delete_begin,
-                                            const base::Time& delete_end,
-                                            const DeleteCallback& callback)
-                                            OVERRIDE {
+  void DeleteAllCreatedBetweenAsync(const base::Time& delete_begin,
+                                    const base::Time& delete_end,
+                                    const DeleteCallback& callback) override {
     scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
     cookie_store->DeleteAllCreatedBetweenAsync(delete_begin, delete_end,
                                                callback);
   }
 
-  virtual void DeleteAllCreatedBetweenForHostAsync(
+  void DeleteAllCreatedBetweenForHostAsync(
       const base::Time delete_begin,
       const base::Time delete_end,
       const GURL& url,
-      const DeleteCallback& callback) OVERRIDE {
+      const DeleteCallback& callback) override {
     scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
     cookie_store->DeleteAllCreatedBetweenForHostAsync(delete_begin, delete_end,
                                                       url, callback);
   }
 
-  virtual void DeleteSessionCookiesAsync(const DeleteCallback& callback)
-                                         OVERRIDE {
+  void DeleteSessionCookiesAsync(const DeleteCallback& callback) override {
     scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
     cookie_store->DeleteSessionCookiesAsync(callback);
   }
 
-  virtual net::CookieMonster* GetCookieMonster() OVERRIDE {
+  net::CookieMonster* GetCookieMonster() override {
     scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
     return cookie_store->GetCookieMonster();
+  }
+
+  scoped_ptr<CookieChangedSubscription> AddCallbackForCookie(
+      const GURL& url,
+      const std::string& name,
+      const CookieChangedCallback& callback) override {
+    scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
+    return cookie_store->AddCallbackForCookie(url, name, callback);
   }
 
  private:

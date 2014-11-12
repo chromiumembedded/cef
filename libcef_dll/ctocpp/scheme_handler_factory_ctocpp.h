@@ -31,12 +31,11 @@ class CefSchemeHandlerFactoryCToCpp
   explicit CefSchemeHandlerFactoryCToCpp(cef_scheme_handler_factory_t* str)
       : CefCToCpp<CefSchemeHandlerFactoryCToCpp, CefSchemeHandlerFactory,
           cef_scheme_handler_factory_t>(str) {}
-  virtual ~CefSchemeHandlerFactoryCToCpp() {}
 
   // CefSchemeHandlerFactory methods
-  virtual CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
+  CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, const CefString& scheme_name,
-      CefRefPtr<CefRequest> request) OVERRIDE;
+      CefRefPtr<CefRequest> request) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

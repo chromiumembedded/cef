@@ -29,7 +29,6 @@ class CefRequestCToCpp
  public:
   explicit CefRequestCToCpp(cef_request_t* str)
       : CefCToCpp<CefRequestCToCpp, CefRequest, cef_request_t>(str) {}
-  virtual ~CefRequestCToCpp() {}
 
   // CefRequest methods
   virtual bool IsReadOnly() OVERRIDE;

@@ -21,7 +21,7 @@ class CefJSDialogCallbackImpl : public CefJSDialogCallback {
       const content::JavaScriptDialogManager::DialogClosedCallback& callback)
       : callback_(callback) {
   }
-  ~CefJSDialogCallbackImpl() {
+  ~CefJSDialogCallbackImpl() override {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
       if (CEF_CURRENTLY_ON_UIT()) {
@@ -33,8 +33,8 @@ class CefJSDialogCallbackImpl : public CefJSDialogCallback {
     }
   }
 
-  virtual void Continue(bool success,
-                        const CefString& user_input) OVERRIDE {
+  void Continue(bool success,
+                const CefString& user_input) override {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (!callback_.is_null()) {
         callback_.Run(success, user_input);

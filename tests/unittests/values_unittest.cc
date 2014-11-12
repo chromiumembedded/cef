@@ -90,7 +90,7 @@ class BinaryTask : public CefTask {
       data_(data),
       data_size_(data_size) {}
 
-  virtual void Execute() OVERRIDE {
+  void Execute() override {
     TestBinary(value_, data_, data_size_);
   }
 
@@ -297,7 +297,7 @@ class DictionaryTask : public CefTask {
       binary_data_(binary_data),
       binary_data_size_(binary_data_size)  {}
 
-  virtual void Execute() OVERRIDE {
+  void Execute() override {
     TestDictionary(value_, binary_data_, binary_data_size_);
   }
 
@@ -556,7 +556,7 @@ class ListTask : public CefTask {
       binary_data_(binary_data),
       binary_data_size_(binary_data_size)  {}
 
-  virtual void Execute() OVERRIDE {
+  void Execute() override {
     TestList(value_, binary_data_, binary_data_size_);
   }
 

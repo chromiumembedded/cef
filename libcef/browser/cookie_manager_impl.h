@@ -13,25 +13,24 @@
 class CefCookieManagerImpl : public CefCookieManager {
  public:
   CefCookieManagerImpl(bool is_global);
-  ~CefCookieManagerImpl();
+  ~CefCookieManagerImpl() override;
 
   // Initialize the cookie manager.
   void Initialize(const CefString& path,
                   bool persist_session_cookies);
 
   // CefCookieManager methods.
-  virtual void SetSupportedSchemes(const std::vector<CefString>& schemes)
-      OVERRIDE;
-  virtual bool VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;
-  virtual bool VisitUrlCookies(const CefString& url, bool includeHttpOnly,
-                               CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;
-  virtual bool SetCookie(const CefString& url,
-                         const CefCookie& cookie) OVERRIDE;
-  virtual bool DeleteCookies(const CefString& url,
-                             const CefString& cookie_name) OVERRIDE;
-  virtual bool SetStoragePath(const CefString& path,
-                              bool persist_session_cookies) OVERRIDE;
-  virtual bool FlushStore(CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
+  void SetSupportedSchemes(const std::vector<CefString>& schemes) override;
+  bool VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) override;
+  bool VisitUrlCookies(const CefString& url, bool includeHttpOnly,
+                       CefRefPtr<CefCookieVisitor> visitor) override;
+  bool SetCookie(const CefString& url,
+                 const CefCookie& cookie) override;
+  bool DeleteCookies(const CefString& url,
+                     const CefString& cookie_name) override;
+  bool SetStoragePath(const CefString& path,
+                      bool persist_session_cookies) override;
+  bool FlushStore(CefRefPtr<CefCompletionCallback> callback) override;
 
   net::CookieMonster* cookie_monster() { return cookie_monster_.get(); }
 

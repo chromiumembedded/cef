@@ -29,7 +29,6 @@ class CefEndTracingCallbackCppToC
         cef_end_tracing_callback_t> {
  public:
   explicit CefEndTracingCallbackCppToC(CefEndTracingCallback* cls);
-  virtual ~CefEndTracingCallbackCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

@@ -31,10 +31,9 @@ class CefGetGeolocationCallbackCToCpp
   explicit CefGetGeolocationCallbackCToCpp(cef_get_geolocation_callback_t* str)
       : CefCToCpp<CefGetGeolocationCallbackCToCpp, CefGetGeolocationCallback,
           cef_get_geolocation_callback_t>(str) {}
-  virtual ~CefGetGeolocationCallbackCToCpp() {}
 
   // CefGetGeolocationCallback methods
-  virtual void OnLocationUpdate(const CefGeoposition& position) OVERRIDE;
+  void OnLocationUpdate(const CefGeoposition& position) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

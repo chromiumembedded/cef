@@ -13,20 +13,20 @@
 class CefNetworkDelegate : public net::NetworkDelegate {
  public:
   CefNetworkDelegate();
-  ~CefNetworkDelegate();
+  ~CefNetworkDelegate() override;
 
  private:
   // net::NetworkDelegate methods.
-  virtual int OnBeforeURLRequest(net::URLRequest* request,
-                                 const net::CompletionCallback& callback,
-                                 GURL* new_url) OVERRIDE;
-  virtual AuthRequiredResponse OnAuthRequired(
+  int OnBeforeURLRequest(net::URLRequest* request,
+                         const net::CompletionCallback& callback,
+                         GURL* new_url) override;
+  AuthRequiredResponse OnAuthRequired(
       net::URLRequest* request,
       const net::AuthChallengeInfo& auth_info,
       const AuthCallback& callback,
-      net::AuthCredentials* credentials) OVERRIDE;
-  virtual bool OnCanAccessFile(const net::URLRequest& request,
-                               const base::FilePath& path) const;
+      net::AuthCredentials* credentials) override;
+  bool OnCanAccessFile(const net::URLRequest& request,
+                       const base::FilePath& path) const;
 
   DISALLOW_COPY_AND_ASSIGN(CefNetworkDelegate);
 };

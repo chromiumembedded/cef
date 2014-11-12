@@ -31,7 +31,6 @@ class CefJSDialogCallbackCToCpp
   explicit CefJSDialogCallbackCToCpp(cef_jsdialog_callback_t* str)
       : CefCToCpp<CefJSDialogCallbackCToCpp, CefJSDialogCallback,
           cef_jsdialog_callback_t>(str) {}
-  virtual ~CefJSDialogCallbackCToCpp() {}
 
   // CefJSDialogCallback methods
   virtual void Continue(bool success, const CefString& user_input) OVERRIDE;

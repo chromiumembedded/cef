@@ -28,7 +28,6 @@ class CefClientCppToC
     : public CefCppToC<CefClientCppToC, CefClient, cef_client_t> {
  public:
   explicit CefClientCppToC(CefClient* cls);
-  virtual ~CefClientCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

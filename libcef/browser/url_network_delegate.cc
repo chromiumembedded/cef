@@ -24,7 +24,7 @@ class CefAuthCallbackImpl : public CefAuthCallback {
       : callback_(callback),
         credentials_(credentials) {
   }
-  ~CefAuthCallbackImpl() {
+  ~CefAuthCallbackImpl() override {
     if (!callback_.is_null()) {
       // The auth callback is still pending. Cancel it now.
       if (CEF_CURRENTLY_ON_IOT()) {
@@ -36,8 +36,8 @@ class CefAuthCallbackImpl : public CefAuthCallback {
     }
   }
 
-  virtual void Continue(const CefString& username,
-                        const CefString& password) OVERRIDE {
+  void Continue(const CefString& username,
+                const CefString& password) override {
     if (CEF_CURRENTLY_ON_IOT()) {
       if (!callback_.is_null()) {
         credentials_->Set(username, password);
@@ -50,7 +50,7 @@ class CefAuthCallbackImpl : public CefAuthCallback {
     }
   }
 
-  virtual void Cancel() OVERRIDE {
+  void Cancel() override {
     if (CEF_CURRENTLY_ON_IOT()) {
       if (!callback_.is_null()) {
         CancelNow(callback_);

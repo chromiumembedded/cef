@@ -28,7 +28,6 @@ class CefTaskCppToC
     : public CefCppToC<CefTaskCppToC, CefTask, cef_task_t> {
  public:
   explicit CefTaskCppToC(CefTask* cls);
-  virtual ~CefTaskCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

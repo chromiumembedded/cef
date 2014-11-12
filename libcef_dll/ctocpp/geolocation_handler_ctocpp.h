@@ -31,14 +31,13 @@ class CefGeolocationHandlerCToCpp
   explicit CefGeolocationHandlerCToCpp(cef_geolocation_handler_t* str)
       : CefCToCpp<CefGeolocationHandlerCToCpp, CefGeolocationHandler,
           cef_geolocation_handler_t>(str) {}
-  virtual ~CefGeolocationHandlerCToCpp() {}
 
   // CefGeolocationHandler methods
-  virtual bool OnRequestGeolocationPermission(CefRefPtr<CefBrowser> browser,
+  bool OnRequestGeolocationPermission(CefRefPtr<CefBrowser> browser,
       const CefString& requesting_url, int request_id,
-      CefRefPtr<CefGeolocationCallback> callback) OVERRIDE;
-  virtual void OnCancelGeolocationPermission(CefRefPtr<CefBrowser> browser,
-      const CefString& requesting_url, int request_id) OVERRIDE;
+      CefRefPtr<CefGeolocationCallback> callback) override;
+  void OnCancelGeolocationPermission(CefRefPtr<CefBrowser> browser,
+      const CefString& requesting_url, int request_id) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

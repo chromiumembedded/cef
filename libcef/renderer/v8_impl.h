@@ -43,7 +43,6 @@ void CefV8SetWorkerAttributes(int worker_id, const GURL& worker_url);
 class CefV8ContextState : public base::RefCounted<CefV8ContextState> {
  public:
   CefV8ContextState() : valid_(true) {}
-  virtual ~CefV8ContextState() {}
 
   bool IsValid() { return valid_; }
   void Detach() {
@@ -63,6 +62,10 @@ class CefV8ContextState : public base::RefCounted<CefV8ContextState> {
   }
 
  private:
+  friend class base::RefCounted<CefV8ContextState>;
+
+  ~CefV8ContextState() {}
+
   bool valid_;
   CefTrackManager track_manager_;
 };
@@ -92,8 +95,6 @@ class CefV8HandleBase :
     public base::RefCountedThreadSafe<CefV8HandleBase,
                                       CefV8DeleteOnMessageLoopThread> {
  public:
-  virtual ~CefV8HandleBase();
-
   // Returns true if there is no underlying context or if the underlying context
   // is valid.
   bool IsValid() const {
@@ -108,10 +109,16 @@ class CefV8HandleBase :
   }
 
  protected:
+  friend class base::DeleteHelper<CefV8HandleBase>;
+  friend class base::RefCountedThreadSafe<CefV8HandleBase,
+                                          CefV8DeleteOnMessageLoopThread>;
+  friend struct CefV8DeleteOnMessageLoopThread;
+
   // |context| is the context that owns this handle. If empty the current
   // context will be used.
   CefV8HandleBase(v8::Isolate* isolate,
                   v8::Handle<v8::Context> context);
+  virtual ~CefV8HandleBase();
 
  protected:
   v8::Isolate* isolate_;
@@ -133,9 +140,6 @@ class CefV8Handle : public CefV8HandleBase {
       : CefV8HandleBase(isolate, context),
         handle_(isolate, v) {
   }
-  virtual ~CefV8Handle() {
-    handle_.Reset();
-  }
 
   handleType GetNewV8Handle() {
     DCHECK(IsValid());
@@ -147,6 +151,10 @@ class CefV8Handle : public CefV8HandleBase {
   }
 
  protected:
+  ~CefV8Handle() override {
+    handle_.Reset();
+  }
+
   persistentType handle_;
 
   DISALLOW_COPY_AND_ASSIGN(CefV8Handle);
@@ -163,19 +171,19 @@ class CefV8ContextImpl : public CefV8Context {
  public:
   CefV8ContextImpl(v8::Isolate* isolate,
                    v8::Handle<v8::Context> context);
-  virtual ~CefV8ContextImpl();
+  ~CefV8ContextImpl() override;
 
-  virtual CefRefPtr<CefTaskRunner> GetTaskRunner() OVERRIDE;
-  virtual bool IsValid() OVERRIDE;
-  virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
-  virtual CefRefPtr<CefFrame> GetFrame() OVERRIDE;
-  virtual CefRefPtr<CefV8Value> GetGlobal() OVERRIDE;
-  virtual bool Enter() OVERRIDE;
-  virtual bool Exit() OVERRIDE;
-  virtual bool IsSame(CefRefPtr<CefV8Context> that) OVERRIDE;
-  virtual bool Eval(const CefString& code,
-                    CefRefPtr<CefV8Value>& retval,
-                    CefRefPtr<CefV8Exception>& exception) OVERRIDE;
+  CefRefPtr<CefTaskRunner> GetTaskRunner() override;
+  bool IsValid() override;
+  CefRefPtr<CefBrowser> GetBrowser() override;
+  CefRefPtr<CefFrame> GetFrame() override;
+  CefRefPtr<CefV8Value> GetGlobal() override;
+  bool Enter() override;
+  bool Exit() override;
+  bool IsSame(CefRefPtr<CefV8Context> that) override;
+  bool Eval(const CefString& code,
+            CefRefPtr<CefV8Value>& retval,
+            CefRefPtr<CefV8Exception>& exception) override;
 
   v8::Handle<v8::Context> GetV8Context();
   blink::WebFrame* GetWebFrame();
@@ -198,7 +206,7 @@ class CefV8ValueImpl : public CefV8Value {
   explicit CefV8ValueImpl(v8::Isolate* isolate);
   CefV8ValueImpl(v8::Isolate* isolate,
                  v8::Handle<v8::Value> value);
-  virtual ~CefV8ValueImpl();
+  ~CefV8ValueImpl() override;
 
   // Used for initializing the CefV8ValueImpl. Should be called a single time
   // after the CefV8ValueImpl is created.
@@ -217,57 +225,57 @@ class CefV8ValueImpl : public CefV8Value {
   // object handle.
   v8::Handle<v8::Value> GetV8Value(bool should_persist);
 
-  virtual bool IsValid() OVERRIDE;
-  virtual bool IsUndefined() OVERRIDE;
-  virtual bool IsNull() OVERRIDE;
-  virtual bool IsBool() OVERRIDE;
-  virtual bool IsInt() OVERRIDE;
-  virtual bool IsUInt() OVERRIDE;
-  virtual bool IsDouble() OVERRIDE;
-  virtual bool IsDate() OVERRIDE;
-  virtual bool IsString() OVERRIDE;
-  virtual bool IsObject() OVERRIDE;
-  virtual bool IsArray() OVERRIDE;
-  virtual bool IsFunction() OVERRIDE;
-  virtual bool IsSame(CefRefPtr<CefV8Value> value) OVERRIDE;
-  virtual bool GetBoolValue() OVERRIDE;
-  virtual int32 GetIntValue() OVERRIDE;
-  virtual uint32 GetUIntValue() OVERRIDE;
-  virtual double GetDoubleValue() OVERRIDE;
-  virtual CefTime GetDateValue() OVERRIDE;
-  virtual CefString GetStringValue() OVERRIDE;
-  virtual bool IsUserCreated() OVERRIDE;
-  virtual bool HasException() OVERRIDE;
-  virtual CefRefPtr<CefV8Exception> GetException() OVERRIDE;
-  virtual bool ClearException() OVERRIDE;
-  virtual bool WillRethrowExceptions() OVERRIDE;
-  virtual bool SetRethrowExceptions(bool rethrow) OVERRIDE;
-  virtual bool HasValue(const CefString& key) OVERRIDE;
-  virtual bool HasValue(int index) OVERRIDE;
-  virtual bool DeleteValue(const CefString& key) OVERRIDE;
-  virtual bool DeleteValue(int index) OVERRIDE;
-  virtual CefRefPtr<CefV8Value> GetValue(const CefString& key) OVERRIDE;
-  virtual CefRefPtr<CefV8Value> GetValue(int index) OVERRIDE;
-  virtual bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value,
-                        PropertyAttribute attribute) OVERRIDE;
-  virtual bool SetValue(int index, CefRefPtr<CefV8Value> value) OVERRIDE;
-  virtual bool SetValue(const CefString& key, AccessControl settings,
-                        PropertyAttribute attribute) OVERRIDE;
-  virtual bool GetKeys(std::vector<CefString>& keys) OVERRIDE;
-  virtual bool SetUserData(CefRefPtr<CefBase> user_data) OVERRIDE;
-  virtual CefRefPtr<CefBase> GetUserData() OVERRIDE;
-  virtual int GetExternallyAllocatedMemory() OVERRIDE;
-  virtual int AdjustExternallyAllocatedMemory(int change_in_bytes) OVERRIDE;
-  virtual int GetArrayLength() OVERRIDE;
-  virtual CefString GetFunctionName() OVERRIDE;
-  virtual CefRefPtr<CefV8Handler> GetFunctionHandler() OVERRIDE;
-  virtual CefRefPtr<CefV8Value> ExecuteFunction(
+  bool IsValid() override;
+  bool IsUndefined() override;
+  bool IsNull() override;
+  bool IsBool() override;
+  bool IsInt() override;
+  bool IsUInt() override;
+  bool IsDouble() override;
+  bool IsDate() override;
+  bool IsString() override;
+  bool IsObject() override;
+  bool IsArray() override;
+  bool IsFunction() override;
+  bool IsSame(CefRefPtr<CefV8Value> value) override;
+  bool GetBoolValue() override;
+  int32 GetIntValue() override;
+  uint32 GetUIntValue() override;
+  double GetDoubleValue() override;
+  CefTime GetDateValue() override;
+  CefString GetStringValue() override;
+  bool IsUserCreated() override;
+  bool HasException() override;
+  CefRefPtr<CefV8Exception> GetException() override;
+  bool ClearException() override;
+  bool WillRethrowExceptions() override;
+  bool SetRethrowExceptions(bool rethrow) override;
+  bool HasValue(const CefString& key) override;
+  bool HasValue(int index) override;
+  bool DeleteValue(const CefString& key) override;
+  bool DeleteValue(int index) override;
+  CefRefPtr<CefV8Value> GetValue(const CefString& key) override;
+  CefRefPtr<CefV8Value> GetValue(int index) override;
+  bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value,
+                PropertyAttribute attribute) override;
+  bool SetValue(int index, CefRefPtr<CefV8Value> value) override;
+  bool SetValue(const CefString& key, AccessControl settings,
+                PropertyAttribute attribute) override;
+  bool GetKeys(std::vector<CefString>& keys) override;
+  bool SetUserData(CefRefPtr<CefBase> user_data) override;
+  CefRefPtr<CefBase> GetUserData() override;
+  int GetExternallyAllocatedMemory() override;
+  int AdjustExternallyAllocatedMemory(int change_in_bytes) override;
+  int GetArrayLength() override;
+  CefString GetFunctionName() override;
+  CefRefPtr<CefV8Handler> GetFunctionHandler() override;
+  CefRefPtr<CefV8Value> ExecuteFunction(
       CefRefPtr<CefV8Value> object,
-      const CefV8ValueList& arguments) OVERRIDE;
-  virtual CefRefPtr<CefV8Value> ExecuteFunctionWithContext(
+      const CefV8ValueList& arguments) override;
+  CefRefPtr<CefV8Value> ExecuteFunctionWithContext(
       CefRefPtr<CefV8Context> context,
       CefRefPtr<CefV8Value> object,
-      const CefV8ValueList& arguments) OVERRIDE;
+      const CefV8ValueList& arguments) override;
 
  protected:
   // Test for and record any exception.
@@ -282,13 +290,15 @@ class CefV8ValueImpl : public CefV8Value {
            v8::Handle<v8::Context> context,
            handleType v,
            CefTrackNode* tracker);
-    virtual ~Handle();
 
     handleType GetNewV8Handle(bool should_persist);
 
     persistentType& GetPersistentV8Handle();
 
     void SetWeakIfNecessary();
+
+   protected:
+    ~Handle() override;
 
    private:
     // Callback for weak persistent reference destruction.
@@ -347,11 +357,11 @@ class CefV8StackTraceImpl : public CefV8StackTrace {
  public:
   CefV8StackTraceImpl(v8::Isolate* isolate,
                       v8::Handle<v8::StackTrace> handle);
-  virtual ~CefV8StackTraceImpl();
+  ~CefV8StackTraceImpl() override;
 
-  virtual bool IsValid() OVERRIDE;
-  virtual int GetFrameCount() OVERRIDE;
-  virtual CefRefPtr<CefV8StackFrame> GetFrame(int index) OVERRIDE;
+  bool IsValid() override;
+  int GetFrameCount() override;
+  CefRefPtr<CefV8StackFrame> GetFrame(int index) override;
 
  protected:
   std::vector<CefRefPtr<CefV8StackFrame> > frames_;
@@ -364,16 +374,16 @@ class CefV8StackFrameImpl : public CefV8StackFrame {
  public:
   CefV8StackFrameImpl(v8::Isolate* isolate,
                       v8::Handle<v8::StackFrame> handle);
-  virtual ~CefV8StackFrameImpl();
+  ~CefV8StackFrameImpl() override;
 
-  virtual bool IsValid() OVERRIDE;
-  virtual CefString GetScriptName() OVERRIDE;
-  virtual CefString GetScriptNameOrSourceURL() OVERRIDE;
-  virtual CefString GetFunctionName() OVERRIDE;
-  virtual int GetLineNumber() OVERRIDE;
-  virtual int GetColumn() OVERRIDE;
-  virtual bool IsEval() OVERRIDE;
-  virtual bool IsConstructor() OVERRIDE;
+  bool IsValid() override;
+  CefString GetScriptName() override;
+  CefString GetScriptNameOrSourceURL() override;
+  CefString GetFunctionName() override;
+  int GetLineNumber() override;
+  int GetColumn() override;
+  bool IsEval() override;
+  bool IsConstructor() override;
 
  protected:
   CefString script_name_;

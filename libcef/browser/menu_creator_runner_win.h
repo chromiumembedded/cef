@@ -16,7 +16,7 @@ class CefMenuCreatorRunnerWin : public CefMenuCreator::Runner {
   CefMenuCreatorRunnerWin();
 
   // CefMemoryManager::Runner methods.
-  virtual bool RunContextMenu(CefMenuCreator* manager) OVERRIDE;
+  bool RunContextMenu(CefMenuCreator* manager) override;
 
  private:
   scoped_ptr<views::NativeMenuWin> menu_;

@@ -31,14 +31,13 @@ class CefWriteHandlerCToCpp
   explicit CefWriteHandlerCToCpp(cef_write_handler_t* str)
       : CefCToCpp<CefWriteHandlerCToCpp, CefWriteHandler, cef_write_handler_t>(
           str) {}
-  virtual ~CefWriteHandlerCToCpp() {}
 
   // CefWriteHandler methods
-  virtual size_t Write(const void* ptr, size_t size, size_t n) OVERRIDE;
-  virtual int Seek(int64 offset, int whence) OVERRIDE;
-  virtual int64 Tell() OVERRIDE;
-  virtual int Flush() OVERRIDE;
-  virtual bool MayBlock() OVERRIDE;
+  size_t Write(const void* ptr, size_t size, size_t n) override;
+  int Seek(int64 offset, int whence) override;
+  int64 Tell() override;
+  int Flush() override;
+  bool MayBlock() override;
 };
 
 #endif  // BUILDING_CEF_SHARED

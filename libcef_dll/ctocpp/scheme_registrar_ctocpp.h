@@ -31,7 +31,6 @@ class CefSchemeRegistrarCToCpp
   explicit CefSchemeRegistrarCToCpp(cef_scheme_registrar_t* str)
       : CefCToCpp<CefSchemeRegistrarCToCpp, CefSchemeRegistrar,
           cef_scheme_registrar_t>(str) {}
-  virtual ~CefSchemeRegistrarCToCpp() {}
 
   // CefSchemeRegistrar methods
   virtual bool AddCustomScheme(const CefString& scheme_name, bool is_standard,

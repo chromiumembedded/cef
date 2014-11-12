@@ -143,7 +143,7 @@ class RequestSendRecvTestHandler : public TestHandler {
  public:
   RequestSendRecvTestHandler() {}
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     // Create the test request
     CreateRequest(request_);
 
@@ -151,16 +151,16 @@ class RequestSendRecvTestHandler : public TestHandler {
     CreateBrowser("about:blank");
   }
 
-  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE {
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
     TestHandler::OnAfterCreated(browser);
 
     // Load the test request
     browser->GetMainFrame()->LoadRequest(request_);
   }
 
-  virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-                                    CefRefPtr<CefFrame> frame,
-                                    CefRefPtr<CefRequest> request) OVERRIDE {
+  bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
+                            CefRefPtr<CefFrame> frame,
+                            CefRefPtr<CefRequest> request) override {
     // Verify that the request is the same
     TestRequestEqual(request_, request, true);
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
@@ -171,10 +171,10 @@ class RequestSendRecvTestHandler : public TestHandler {
     return false;
   }
 
-  virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
+  CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request) OVERRIDE {
+      CefRefPtr<CefRequest> request) override {
     // Verify that the request is the same
     TestRequestEqual(request_, request, true);
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
@@ -353,12 +353,12 @@ class TypeRendererTest : public ClientApp::RenderDelegate {
   TypeRendererTest() :
       expectations_(false, true) {}
 
-  virtual bool OnBeforeNavigation(CefRefPtr<ClientApp> app,
-                                  CefRefPtr<CefBrowser> browser,
-                                  CefRefPtr<CefFrame> frame,
-                                  CefRefPtr<CefRequest> request,
-                                  cef_navigation_type_t navigation_type,
-                                  bool is_redirect) OVERRIDE {
+  bool OnBeforeNavigation(CefRefPtr<ClientApp> app,
+                          CefRefPtr<CefBrowser> browser,
+                          CefRefPtr<CefFrame> frame,
+                          CefRefPtr<CefRequest> request,
+                          cef_navigation_type_t navigation_type,
+                          bool is_redirect) override {
     if (expectations_.GotRequest(request) && expectations_.IsDone(false))
       SendTestResults(browser);
     return false;
@@ -395,7 +395,7 @@ class TypeTestHandler : public TestHandler {
       completed_render_side_(false),
       destroyed_(false) {}
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     AddResource(std::string(kTypeTestOrigin) + "main.html",
         "<html>"
         "<head>"
@@ -444,27 +444,27 @@ class TypeTestHandler : public TestHandler {
 #endif
   }
 
-  virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
-                              CefRefPtr<CefFrame> frame,
-                              CefRefPtr<CefRequest> request,
-                              bool is_redirect) OVERRIDE {
+  bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                      CefRefPtr<CefFrame> frame,
+                      CefRefPtr<CefRequest> request,
+                      bool is_redirect) override {
     browse_expectations_.GotRequest(request);
 
     return false;
   }
 
-  virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-                                    CefRefPtr<CefFrame> frame,
-                                    CefRefPtr<CefRequest> request) OVERRIDE {
+  bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
+                            CefRefPtr<CefFrame> frame,
+                            CefRefPtr<CefRequest> request) override {
     load_expectations_.GotRequest(request);
     
     return false;
   }
 
-  virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
+  CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request) OVERRIDE {
+      CefRefPtr<CefRequest> request) override {
     if (get_expectations_.GotRequest(request) &&
         get_expectations_.IsDone(false)) {
       completed_browser_side_ = true;
@@ -476,10 +476,10 @@ class TypeTestHandler : public TestHandler {
     return TestHandler::GetResourceHandler(browser, frame, request);
   }
 
-  virtual bool OnProcessMessageReceived(
+  bool OnProcessMessageReceived(
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE {
+      CefRefPtr<CefProcessMessage> message) override {
     const std::string& msg_name = message->GetName();
     if (msg_name == kTypeTestCompleteMsg) {
       // Test that the renderer side succeeded.
@@ -505,7 +505,7 @@ class TypeTestHandler : public TestHandler {
       DestroyTest();
   }
 
-  virtual void DestroyTest() OVERRIDE {
+  void DestroyTest() override {
     if (destroyed_)
       return;
     destroyed_ = true;

@@ -31,19 +31,17 @@ class CefDisplayHandlerCToCpp
   explicit CefDisplayHandlerCToCpp(cef_display_handler_t* str)
       : CefCToCpp<CefDisplayHandlerCToCpp, CefDisplayHandler,
           cef_display_handler_t>(str) {}
-  virtual ~CefDisplayHandlerCToCpp() {}
 
   // CefDisplayHandler methods
-  virtual void OnAddressChange(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, const CefString& url) OVERRIDE;
-  virtual void OnTitleChange(CefRefPtr<CefBrowser> browser,
-      const CefString& title) OVERRIDE;
-  virtual bool OnTooltip(CefRefPtr<CefBrowser> browser,
-      CefString& text) OVERRIDE;
-  virtual void OnStatusMessage(CefRefPtr<CefBrowser> browser,
-      const CefString& value) OVERRIDE;
-  virtual bool OnConsoleMessage(CefRefPtr<CefBrowser> browser,
-      const CefString& message, const CefString& source, int line) OVERRIDE;
+  void OnAddressChange(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+      const CefString& url) override;
+  void OnTitleChange(CefRefPtr<CefBrowser> browser,
+      const CefString& title) override;
+  bool OnTooltip(CefRefPtr<CefBrowser> browser, CefString& text) override;
+  void OnStatusMessage(CefRefPtr<CefBrowser> browser,
+      const CefString& value) override;
+  bool OnConsoleMessage(CefRefPtr<CefBrowser> browser, const CefString& message,
+      const CefString& source, int line) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

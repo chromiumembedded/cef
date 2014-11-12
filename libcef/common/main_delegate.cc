@@ -14,7 +14,7 @@
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/lazy_instance.h"
 #include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
@@ -151,7 +151,7 @@ class CefUIThread : public base::Thread {
       main_function_params_(main_function_params) {
   }
 
-  virtual void Init() OVERRIDE {
+  void Init() override {
 #if defined(OS_WIN)
     // Initializes the COM library on the current thread.
     CoInitialize(NULL);
@@ -165,7 +165,7 @@ class CefUIThread : public base::Thread {
     CHECK_EQ(exit_code, -1);
   }
 
-  virtual void CleanUp() OVERRIDE {
+  void CleanUp() override {
     browser_runner_->Shutdown();
     browser_runner_.reset(NULL);
 

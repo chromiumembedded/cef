@@ -41,7 +41,7 @@ class JSDialogTestHandler : public TestHandler {
       result_(result) {
   }
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     std::string content = "<html><head><body>START<script>";
     if (type_ == TYPE_ALERT) {
       content += "alert('My alert message'); "
@@ -65,9 +65,9 @@ class JSDialogTestHandler : public TestHandler {
     CreateBrowser(kStartUrl);
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     if (!frame->IsMain())
       return;
 
@@ -85,18 +85,18 @@ class JSDialogTestHandler : public TestHandler {
     }
   }
 
-  virtual void Continue(CefRefPtr<CefJSDialogCallback> callback) {
+  void Continue(CefRefPtr<CefJSDialogCallback> callback) {
     callback->Continue(success_, user_input_);
   }
 
-  virtual bool OnJSDialog(CefRefPtr<CefBrowser> browser,
-                          const CefString& origin_url,
-                          const CefString& accept_lang,
-                          JSDialogType dialog_type,
-                          const CefString& message_text,
-                          const CefString& default_prompt_text,
-                          CefRefPtr<CefJSDialogCallback> callback,
-                          bool& suppress_message) OVERRIDE {
+  bool OnJSDialog(CefRefPtr<CefBrowser> browser,
+                  const CefString& origin_url,
+                  const CefString& accept_lang,
+                  JSDialogType dialog_type,
+                  const CefString& message_text,
+                  const CefString& default_prompt_text,
+                  CefRefPtr<CefJSDialogCallback> callback,
+                  bool& suppress_message) override {
     got_onjsdialog_.yes();
 
     EXPECT_STREQ("http://tests/", origin_url.ToString().c_str());
@@ -134,11 +134,11 @@ class JSDialogTestHandler : public TestHandler {
     return true;
   }
 
-  virtual bool OnBeforeUnloadDialog(CefRefPtr<CefBrowser> browser,
-                                    const CefString& message_text,
-                                    bool is_reload,
-                                    CefRefPtr<CefJSDialogCallback> callback)
-                                    OVERRIDE {
+  bool OnBeforeUnloadDialog(CefRefPtr<CefBrowser> browser,
+                            const CefString& message_text,
+                            bool is_reload,
+                            CefRefPtr<CefJSDialogCallback> callback)
+                            override {
     got_onbeforeunloaddialog_.yes();
 
     if (type_ == TYPE_ONBEFOREUNLOAD) {
@@ -158,7 +158,7 @@ class JSDialogTestHandler : public TestHandler {
     return true;
   }
 
-  virtual void OnResetDialogState(CefRefPtr<CefBrowser> browser) OVERRIDE {
+  void OnResetDialogState(CefRefPtr<CefBrowser> browser) override {
     got_onresetdialogstate_.yes();
   }
 

@@ -29,7 +29,6 @@ class CefContextMenuParamsCppToC
         cef_context_menu_params_t> {
  public:
   explicit CefContextMenuParamsCppToC(CefContextMenuParams* cls);
-  virtual ~CefContextMenuParamsCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

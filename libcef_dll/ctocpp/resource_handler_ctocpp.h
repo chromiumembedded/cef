@@ -31,18 +31,17 @@ class CefResourceHandlerCToCpp
   explicit CefResourceHandlerCToCpp(cef_resource_handler_t* str)
       : CefCToCpp<CefResourceHandlerCToCpp, CefResourceHandler,
           cef_resource_handler_t>(str) {}
-  virtual ~CefResourceHandlerCToCpp() {}
 
   // CefResourceHandler methods
-  virtual bool ProcessRequest(CefRefPtr<CefRequest> request,
-      CefRefPtr<CefCallback> callback) OVERRIDE;
-  virtual void GetResponseHeaders(CefRefPtr<CefResponse> response,
-      int64& response_length, CefString& redirectUrl) OVERRIDE;
-  virtual bool ReadResponse(void* data_out, int bytes_to_read, int& bytes_read,
-      CefRefPtr<CefCallback> callback) OVERRIDE;
-  virtual bool CanGetCookie(const CefCookie& cookie) OVERRIDE;
-  virtual bool CanSetCookie(const CefCookie& cookie) OVERRIDE;
-  virtual void Cancel() OVERRIDE;
+  bool ProcessRequest(CefRefPtr<CefRequest> request,
+      CefRefPtr<CefCallback> callback) override;
+  void GetResponseHeaders(CefRefPtr<CefResponse> response,
+      int64& response_length, CefString& redirectUrl) override;
+  bool ReadResponse(void* data_out, int bytes_to_read, int& bytes_read,
+      CefRefPtr<CefCallback> callback) override;
+  bool CanGetCookie(const CefCookie& cookie) override;
+  bool CanSetCookie(const CefCookie& cookie) override;
+  void Cancel() override;
 };
 
 #endif  // BUILDING_CEF_SHARED

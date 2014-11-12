@@ -187,7 +187,7 @@ class CefFileDialogCallbackImpl : public CefFileDialogCallback {
       const CefBrowserHostImpl::RunFileChooserCallback& callback)
       : callback_(callback) {
   }
-  ~CefFileDialogCallbackImpl() {
+  ~CefFileDialogCallbackImpl() override {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
       if (CEF_CURRENTLY_ON_UIT()) {
@@ -199,7 +199,7 @@ class CefFileDialogCallbackImpl : public CefFileDialogCallback {
     }
   }
 
-  virtual void Continue(const std::vector<CefString>& file_paths) OVERRIDE {
+  void Continue(const std::vector<CefString>& file_paths) override {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (!callback_.is_null()) {
         std::vector<base::FilePath> vec;
@@ -217,7 +217,7 @@ class CefFileDialogCallbackImpl : public CefFileDialogCallback {
     }
   }
 
-  virtual void Cancel() OVERRIDE {
+  void Cancel() override {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (!callback_.is_null()) {
         CancelNow(callback_);
@@ -269,6 +269,10 @@ class CefRunFileDialogCallbackWrapper
   }
 
  private:
+  friend class base::RefCountedThreadSafe<CefRunFileDialogCallbackWrapper>;
+
+  ~CefRunFileDialogCallbackWrapper() {}
+
   CefRefPtr<CefBrowserHost> host_;
   CefRefPtr<CefRunFileDialogCallback> callback_;
 };
@@ -591,7 +595,7 @@ class CefBrowserHostImpl::DevToolsWebContentsObserver :
   }
 
   // WebContentsObserver methods:
-  virtual void WebContentsDestroyed() OVERRIDE {
+  void WebContentsDestroyed() override {
     browser_->OnDevToolsWebContentsDestroyed();
   }
 
@@ -602,8 +606,6 @@ class CefBrowserHostImpl::DevToolsWebContentsObserver :
 };
 
 CefBrowserHostImpl::~CefBrowserHostImpl() {
-  // All weak pointer references should be removed in DestroyBrowser().
-  DCHECK(!weak_ptr_factory_.HasWeakPtrs());
 }
 
 CefRefPtr<CefBrowser> CefBrowserHostImpl::GetBrowser() {
@@ -1415,8 +1417,6 @@ void CefBrowserHostImpl::DestroyBrowser() {
 
   CefContentBrowserClient::Get()->RemoveBrowserInfo(browser_info_);
   browser_info_->set_browser(NULL);
-
-  weak_ptr_factory_.InvalidateWeakPtrs();
 }
 
 gfx::NativeView CefBrowserHostImpl::GetContentView() const {
@@ -2244,11 +2244,6 @@ bool CefBrowserHostImpl::SetPendingPopupInfo(
   return true;
 }
 
-base::WeakPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetWeakPtr() {
-  CEF_REQUIRE_UIT();
-  return weak_ptr_factory_.GetWeakPtr();
-}
-
 void CefBrowserHostImpl::UpdatePreferredSize(content::WebContents* source,
                                              const gfx::Size& pref_size) {
   PlatformSizeTo(pref_size.width(), pref_size.height());
@@ -2671,8 +2666,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(
       focus_on_editable_field_(false),
       mouse_cursor_change_disabled_(false),
       devtools_frontend_(NULL),
-      file_chooser_pending_(false),
-      weak_ptr_factory_(this) {
+      file_chooser_pending_(false) {
 #if defined(USE_AURA)
   window_widget_ = NULL;
 #endif
@@ -2960,10 +2954,11 @@ void CefBrowserHostImpl::OnRunFileChooserDelegateCallback(
     return;
 
   // Convert FilePath list to SelectedFileInfo list.
-  std::vector<ui::SelectedFileInfo> selected_files;
+  std::vector<content::FileChooserFileInfo> selected_files;
   for (size_t i = 0; i < file_paths.size(); ++i) {
-    selected_files.push_back(
-        ui::SelectedFileInfo(file_paths[i], base::FilePath()));
+    content::FileChooserFileInfo info;
+    info.file_path = file_paths[i];
+    selected_files.push_back(info);
   }
 
   // Notify our RenderViewHost in all cases.

@@ -21,7 +21,7 @@ class URLRequestContextGetter;
 class CefURLRequestContextProxy : public net::URLRequestContext {
  public:
   explicit CefURLRequestContextProxy(net::URLRequestContextGetter* parent);
-  virtual ~CefURLRequestContextProxy();
+  ~CefURLRequestContextProxy() override;
 
   void Initialize(CefRefPtr<CefRequestContextHandler> handler);
 

@@ -29,7 +29,6 @@ class CefV8StackTraceCppToC
         cef_v8stack_trace_t> {
  public:
   explicit CefV8StackTraceCppToC(CefV8StackTrace* cls);
-  virtual ~CefV8StackTraceCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

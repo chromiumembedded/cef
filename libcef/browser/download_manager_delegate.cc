@@ -12,7 +12,7 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/bind.h"
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/strings/string_util.h"
@@ -62,8 +62,8 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
         callback_(callback) {
   }
 
-  virtual void Continue(const CefString& download_path,
-                        bool show_dialog) OVERRIDE {
+  void Continue(const CefString& download_path,
+                bool show_dialog) override {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (download_id_ <= 0)
         return;
@@ -203,7 +203,7 @@ class CefDownloadItemCallbackImpl : public CefDownloadItemCallback {
         download_id_(download_id) {
   }
 
-  virtual void Cancel() OVERRIDE {
+  void Cancel() override {
      CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefDownloadItemCallbackImpl::DoCancel, this));
   }

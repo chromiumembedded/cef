@@ -31,18 +31,17 @@ class CefLoadHandlerCToCpp
   explicit CefLoadHandlerCToCpp(cef_load_handler_t* str)
       : CefCToCpp<CefLoadHandlerCToCpp, CefLoadHandler, cef_load_handler_t>(
           str) {}
-  virtual ~CefLoadHandlerCToCpp() {}
 
   // CefLoadHandler methods
-  virtual void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
-      bool isLoading, bool canGoBack, bool canGoForward) OVERRIDE;
-  virtual void OnLoadStart(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame) OVERRIDE;
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, int httpStatusCode) OVERRIDE;
-  virtual void OnLoadError(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, ErrorCode errorCode,
-      const CefString& errorText, const CefString& failedUrl) OVERRIDE;
+  void OnLoadingStateChange(CefRefPtr<CefBrowser> browser, bool isLoading,
+      bool canGoBack, bool canGoForward) override;
+  void OnLoadStart(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame) override;
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+      int httpStatusCode) override;
+  void OnLoadError(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+      ErrorCode errorCode, const CefString& errorText,
+      const CefString& failedUrl) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

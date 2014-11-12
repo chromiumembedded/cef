@@ -31,14 +31,13 @@ class CefReadHandlerCToCpp
   explicit CefReadHandlerCToCpp(cef_read_handler_t* str)
       : CefCToCpp<CefReadHandlerCToCpp, CefReadHandler, cef_read_handler_t>(
           str) {}
-  virtual ~CefReadHandlerCToCpp() {}
 
   // CefReadHandler methods
-  virtual size_t Read(void* ptr, size_t size, size_t n) OVERRIDE;
-  virtual int Seek(int64 offset, int whence) OVERRIDE;
-  virtual int64 Tell() OVERRIDE;
-  virtual int Eof() OVERRIDE;
-  virtual bool MayBlock() OVERRIDE;
+  size_t Read(void* ptr, size_t size, size_t n) override;
+  int Seek(int64 offset, int whence) override;
+  int64 Tell() override;
+  int Eof() override;
+  bool MayBlock() override;
 };
 
 #endif  // BUILDING_CEF_SHARED

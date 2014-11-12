@@ -13,7 +13,7 @@
 #include "libcef/common/content_client.h"
 
 #include "base/bind.h"
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/files/file_util_proxy.h"
 #include "base/lazy_instance.h"
 #include "base/logging.h"
@@ -34,7 +34,7 @@ class CefPrintDialogCallbackImpl : public CefPrintDialogCallback {
       : dialog_(dialog) {
   }
 
-  virtual void Continue(CefRefPtr<CefPrintSettings> settings) OVERRIDE {
+  void Continue(CefRefPtr<CefPrintSettings> settings) override {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (dialog_.get()) {
         dialog_->OnPrintContinue(settings);
@@ -46,7 +46,7 @@ class CefPrintDialogCallbackImpl : public CefPrintDialogCallback {
     }
   }
 
-  virtual void Cancel() OVERRIDE {
+  void Cancel() override {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (dialog_.get()) {
         dialog_->OnPrintCancel();
@@ -75,7 +75,7 @@ class CefPrintJobCallbackImpl : public CefPrintJobCallback {
       : dialog_(dialog) {
   }
 
-  virtual void Continue() OVERRIDE {
+  void Continue() override {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (dialog_.get()) {
         dialog_->OnJobCompleted();

@@ -31,10 +31,9 @@ class CefEndTracingCallbackCToCpp
   explicit CefEndTracingCallbackCToCpp(cef_end_tracing_callback_t* str)
       : CefCToCpp<CefEndTracingCallbackCToCpp, CefEndTracingCallback,
           cef_end_tracing_callback_t>(str) {}
-  virtual ~CefEndTracingCallbackCToCpp() {}
 
   // CefEndTracingCallback methods
-  virtual void OnEndTracingComplete(const CefString& tracing_file) OVERRIDE;
+  void OnEndTracingComplete(const CefString& tracing_file) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

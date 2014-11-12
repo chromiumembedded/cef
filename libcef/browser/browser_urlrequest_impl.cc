@@ -35,14 +35,14 @@ class CefURLFetcherDelegate : public net::URLFetcherDelegate {
  public:
   CefURLFetcherDelegate(CefBrowserURLRequest::Context* context,
                         int request_flags);
-  virtual ~CefURLFetcherDelegate();
+  ~CefURLFetcherDelegate() override;
 
   // net::URLFetcherDelegate methods.
-  virtual void OnURLFetchComplete(const net::URLFetcher* source) OVERRIDE;
-  virtual void OnURLFetchDownloadProgress(const net::URLFetcher* source,
-                                          int64 current, int64 total) OVERRIDE;
-  virtual void OnURLFetchUploadProgress(const net::URLFetcher* source,
-                                        int64 current, int64 total) OVERRIDE;
+  void OnURLFetchComplete(const net::URLFetcher* source) override;
+  void OnURLFetchDownloadProgress(const net::URLFetcher* source,
+                                  int64 current, int64 total) override;
+  void OnURLFetchUploadProgress(const net::URLFetcher* source,
+                                int64 current, int64 total) override;
 
  private:
   // The context_ pointer will outlive this object.
@@ -59,17 +59,15 @@ class NET_EXPORT CefURLFetcherResponseWriter :
       : url_request_(url_request),
         message_loop_proxy_(message_loop_proxy) {
   }
-  virtual ~CefURLFetcherResponseWriter() {
-  }
 
   // net::URLFetcherResponseWriter methods.
-  virtual int Initialize(const net::CompletionCallback& callback) OVERRIDE {
+  int Initialize(const net::CompletionCallback& callback) override {
     return net::OK;
   }
 
-  virtual int Write(net::IOBuffer* buffer,
-                    int num_bytes,
-                    const net::CompletionCallback& callback) OVERRIDE {
+  int Write(net::IOBuffer* buffer,
+            int num_bytes,
+            const net::CompletionCallback& callback) override {
     if (url_request_.get()) {
       message_loop_proxy_->PostTask(FROM_HERE,
           base::Bind(&CefURLFetcherResponseWriter::WriteOnClientThread,
@@ -81,7 +79,7 @@ class NET_EXPORT CefURLFetcherResponseWriter :
     return num_bytes;
   }
 
-  virtual int Finish(const net::CompletionCallback& callback) OVERRIDE {
+  int Finish(const net::CompletionCallback& callback) override {
     if (url_request_.get())
       url_request_ = NULL;
     return net::OK;
@@ -141,13 +139,6 @@ class CefBrowserURLRequest::Context
     got_upload_progress_complete_(false) {
     // Mark the request as read-only.
     static_cast<CefRequestImpl*>(request_.get())->SetReadOnly(true);
-  }
-
-  virtual ~Context() {
-    if (fetcher_.get()) {
-      // Delete the fetcher object on the thread that created it.
-      message_loop_proxy_->DeleteSoon(FROM_HERE, fetcher_.release());
-    }
   }
 
   inline bool CalledOnValidThread() {
@@ -273,7 +264,6 @@ class CefBrowserURLRequest::Context
     }
 
     if (cef_flags & UR_FLAG_REPORT_UPLOAD_PROGRESS) {
-      load_flags |= net::LOAD_ENABLE_UPLOAD_PROGRESS;
       upload_data_size_ = upload_data_size;
     }
 
@@ -396,6 +386,15 @@ class CefBrowserURLRequest::Context
   CefRefPtr<CefResponse> response() { return response_; }
 
  private:
+  friend class base::RefCountedThreadSafe<CefBrowserURLRequest::Context>;
+
+  ~Context() {
+    if (fetcher_.get()) {
+      // Delete the fetcher object on the thread that created it.
+      message_loop_proxy_->DeleteSoon(FROM_HERE, fetcher_.release());
+    }
+  }
+
   void NotifyUploadProgressIfNecessary() {
     if (!got_upload_progress_complete_ && upload_data_size_ > 0) {
       // URLFetcher sends upload notifications using a timer and will not send

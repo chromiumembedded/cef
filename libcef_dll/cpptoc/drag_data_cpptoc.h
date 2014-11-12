@@ -28,7 +28,6 @@ class CefDragDataCppToC
     : public CefCppToC<CefDragDataCppToC, CefDragData, cef_drag_data_t> {
  public:
   explicit CefDragDataCppToC(CefDragData* cls);
-  virtual ~CefDragDataCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

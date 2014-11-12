@@ -19,27 +19,27 @@ class CefCommandLineImpl : public CefValueBase<CefCommandLine, CommandLine> {
                      bool read_only);
 
   // CefCommandLine methods.
-  virtual bool IsValid() OVERRIDE;
-  virtual bool IsReadOnly() OVERRIDE;
-  virtual CefRefPtr<CefCommandLine> Copy() OVERRIDE;
-  virtual void InitFromArgv(int argc, const char* const* argv) OVERRIDE;
-  virtual void InitFromString(const CefString& command_line) OVERRIDE;
-  virtual void Reset() OVERRIDE;
-  virtual void GetArgv(std::vector<CefString>& argv) OVERRIDE;
-  virtual CefString GetCommandLineString() OVERRIDE;
-  virtual CefString GetProgram() OVERRIDE;
-  virtual void SetProgram(const CefString& program) OVERRIDE;
-  virtual bool HasSwitches() OVERRIDE;
-  virtual bool HasSwitch(const CefString& name) OVERRIDE;
-  virtual CefString GetSwitchValue(const CefString& name) OVERRIDE;
-  virtual void GetSwitches(SwitchMap& switches) OVERRIDE;
-  virtual void AppendSwitch(const CefString& name) OVERRIDE;
-  virtual void AppendSwitchWithValue(const CefString& name,
-                                     const CefString& value) OVERRIDE;
-  virtual bool HasArguments() OVERRIDE;
-  virtual void GetArguments(ArgumentList& arguments) OVERRIDE;
-  virtual void AppendArgument(const CefString& argument) OVERRIDE;
-  virtual void PrependWrapper(const CefString& wrapper) OVERRIDE;
+  bool IsValid() override;
+  bool IsReadOnly() override;
+  CefRefPtr<CefCommandLine> Copy() override;
+  void InitFromArgv(int argc, const char* const* argv) override;
+  void InitFromString(const CefString& command_line) override;
+  void Reset() override;
+  void GetArgv(std::vector<CefString>& argv) override;
+  CefString GetCommandLineString() override;
+  CefString GetProgram() override;
+  void SetProgram(const CefString& program) override;
+  bool HasSwitches() override;
+  bool HasSwitch(const CefString& name) override;
+  CefString GetSwitchValue(const CefString& name) override;
+  void GetSwitches(SwitchMap& switches) override;
+  void AppendSwitch(const CefString& name) override;
+  void AppendSwitchWithValue(const CefString& name,
+                             const CefString& value) override;
+  bool HasArguments() override;
+  void GetArguments(ArgumentList& arguments) override;
+  void AppendArgument(const CefString& argument) override;
+  void PrependWrapper(const CefString& wrapper) override;
 
   // Must hold the controller lock while using this value.
   const CommandLine& command_line() { return const_value(); }

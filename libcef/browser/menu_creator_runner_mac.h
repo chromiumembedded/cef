@@ -17,10 +17,10 @@ class MenuController;
 class CefMenuCreatorRunnerMac : public CefMenuCreator::Runner {
  public:
   CefMenuCreatorRunnerMac();
-  virtual ~CefMenuCreatorRunnerMac();
+  ~CefMenuCreatorRunnerMac() override;
 
   // CefMemoryManager::Runner methods.
-  virtual bool RunContextMenu(CefMenuCreator* manager) OVERRIDE;
+  bool RunContextMenu(CefMenuCreator* manager) override;
 
  private:
   MenuController* menu_controller_;

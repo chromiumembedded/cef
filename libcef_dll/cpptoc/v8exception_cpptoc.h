@@ -29,7 +29,6 @@ class CefV8ExceptionCppToC
         cef_v8exception_t> {
  public:
   explicit CefV8ExceptionCppToC(CefV8Exception* cls);
-  virtual ~CefV8ExceptionCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

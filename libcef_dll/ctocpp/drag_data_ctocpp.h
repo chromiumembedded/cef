@@ -30,7 +30,6 @@ class CefDragDataCToCpp
  public:
   explicit CefDragDataCToCpp(cef_drag_data_t* str)
       : CefCToCpp<CefDragDataCToCpp, CefDragData, cef_drag_data_t>(str) {}
-  virtual ~CefDragDataCToCpp() {}
 
   // CefDragData methods
   virtual CefRefPtr<CefDragData> Clone() OVERRIDE;

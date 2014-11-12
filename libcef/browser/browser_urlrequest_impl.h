@@ -14,17 +14,17 @@ class CefBrowserURLRequest : public CefURLRequest {
 
   CefBrowserURLRequest(CefRefPtr<CefRequest> request,
                        CefRefPtr<CefURLRequestClient> client);
-  virtual ~CefBrowserURLRequest();
+  ~CefBrowserURLRequest() override;
 
   bool Start();
 
   // CefURLRequest methods.
-  virtual CefRefPtr<CefRequest> GetRequest() OVERRIDE;
-  virtual CefRefPtr<CefURLRequestClient> GetClient() OVERRIDE;
-  virtual Status GetRequestStatus() OVERRIDE;
-  virtual ErrorCode GetRequestError() OVERRIDE;
-  virtual CefRefPtr<CefResponse> GetResponse() OVERRIDE;
-  virtual void Cancel() OVERRIDE;
+  CefRefPtr<CefRequest> GetRequest() override;
+  CefRefPtr<CefURLRequestClient> GetClient() override;
+  Status GetRequestStatus() override;
+  ErrorCode GetRequestError() override;
+  CefRefPtr<CefResponse> GetResponse() override;
+  void Cancel() override;
 
  private:
   bool VerifyContext();

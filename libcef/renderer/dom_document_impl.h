@@ -20,25 +20,25 @@ class CefDOMDocumentImpl : public CefDOMDocument {
  public:
   CefDOMDocumentImpl(CefBrowserImpl* browser,
                      blink::WebFrame* frame);
-  virtual ~CefDOMDocumentImpl();
+  ~CefDOMDocumentImpl() override;
 
   // CefDOMDocument methods.
-  virtual Type GetType() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetDocument() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetBody() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetHead() OVERRIDE;
-  virtual CefString GetTitle() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetElementById(const CefString& id) OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetFocusedNode() OVERRIDE;
-  virtual bool HasSelection() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetSelectionStartNode() OVERRIDE;
-  virtual int GetSelectionStartOffset() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetSelectionEndNode() OVERRIDE;
-  virtual int GetSelectionEndOffset() OVERRIDE;
-  virtual CefString GetSelectionAsMarkup() OVERRIDE;
-  virtual CefString GetSelectionAsText() OVERRIDE;
-  virtual CefString GetBaseURL() OVERRIDE;
-  virtual CefString GetCompleteURL(const CefString& partialURL) OVERRIDE;
+  Type GetType() override;
+  CefRefPtr<CefDOMNode> GetDocument() override;
+  CefRefPtr<CefDOMNode> GetBody() override;
+  CefRefPtr<CefDOMNode> GetHead() override;
+  CefString GetTitle() override;
+  CefRefPtr<CefDOMNode> GetElementById(const CefString& id) override;
+  CefRefPtr<CefDOMNode> GetFocusedNode() override;
+  bool HasSelection() override;
+  CefRefPtr<CefDOMNode> GetSelectionStartNode() override;
+  int GetSelectionStartOffset() override;
+  CefRefPtr<CefDOMNode> GetSelectionEndNode() override;
+  int GetSelectionEndOffset() override;
+  CefString GetSelectionAsMarkup() override;
+  CefString GetSelectionAsText() override;
+  CefString GetBaseURL() override;
+  CefString GetCompleteURL(const CefString& partialURL) override;
 
   CefBrowserImpl* GetBrowser() { return browser_; }
   blink::WebFrame* GetFrame() { return frame_; }

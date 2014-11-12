@@ -31,7 +31,6 @@ class CefBinaryValueCToCpp
   explicit CefBinaryValueCToCpp(cef_binary_value_t* str)
       : CefCToCpp<CefBinaryValueCToCpp, CefBinaryValue, cef_binary_value_t>(
           str) {}
-  virtual ~CefBinaryValueCToCpp() {}
 
   // CefBinaryValue methods
   virtual bool IsValid() OVERRIDE;

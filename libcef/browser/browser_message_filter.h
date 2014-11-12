@@ -22,12 +22,12 @@ struct ViewHostMsg_CreateWindow_Params;
 class CefBrowserMessageFilter : public IPC::MessageFilter {
  public:
   explicit CefBrowserMessageFilter(content::RenderProcessHost* host);
-  virtual ~CefBrowserMessageFilter();
+  ~CefBrowserMessageFilter() override;
 
   // IPC::ChannelProxy::MessageFilter implementation.
-  virtual void OnFilterAdded(IPC::Sender* sender) OVERRIDE;
-  virtual void OnFilterRemoved() OVERRIDE;
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
+  void OnFilterAdded(IPC::Sender* sender) override;
+  void OnFilterRemoved() override;
+  bool OnMessageReceived(const IPC::Message& message) override;
 
   bool Send(IPC::Message* message);
 

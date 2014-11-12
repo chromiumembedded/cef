@@ -18,7 +18,7 @@
 #include "libcef/common/content_client.h"
 
 #include "base/command_line.h"
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/strings/string_util.h"
@@ -182,8 +182,8 @@ class Delegate : public InternalHandlerDelegate {
  public:
   Delegate() {}
 
-  virtual bool OnRequest(CefRefPtr<CefRequest> request,
-                         Action* action) OVERRIDE {
+  bool OnRequest(CefRefPtr<CefRequest> request,
+                 Action* action) override {
     GURL url = GURL(request->GetURL().ToString());
     std::string path = url.path();
     if (path.length() > 0)
@@ -298,8 +298,8 @@ void DidFinishChromeVersionLoad(CefRefPtr<CefFrame> frame) {
         : frame_(frame) {
     }
 
-    virtual bool Visit(CefRefPtr<CefWebPluginInfo> info,
-                       int count, int total) OVERRIDE {
+    bool Visit(CefRefPtr<CefWebPluginInfo> info,
+               int count, int total) override {
       std::string name = info->GetName();
       if (name == "Shockwave Flash") {
         if (frame_->IsValid()) {
@@ -333,9 +333,9 @@ class ChromeProtocolHandlerWrapper :
       : chrome_protocol_handler_(chrome_protocol_handler.Pass()) {
   }
 
-  virtual net::URLRequestJob* MaybeCreateJob(
+  net::URLRequestJob* MaybeCreateJob(
       net::URLRequest* request,
-      net::NetworkDelegate* network_delegate) const OVERRIDE {
+      net::NetworkDelegate* network_delegate) const override {
     // Keep synchronized with the checks in ChromeProtocolHandler::MaybeCreateJob.
     if (content::ViewHttpCacheJobFactory::IsSupportedURL(request->url()) ||
         (request->url().SchemeIs(content::kChromeUIScheme) &&

@@ -20,32 +20,32 @@ class RoutingRenderDelegate : public ClientApp::RenderDelegate {
  public:
   RoutingRenderDelegate() {}
 
-  virtual void OnWebKitInitialized(CefRefPtr<ClientApp> app) OVERRIDE {
+  void OnWebKitInitialized(CefRefPtr<ClientApp> app) override {
     // Create the renderer-side router for query handling.
     CefMessageRouterConfig config;
     SetRouterConfig(config);
     message_router_ = CefMessageRouterRendererSide::Create(config);
   }
 
-  virtual void OnContextCreated(CefRefPtr<ClientApp> app,
-                                CefRefPtr<CefBrowser> browser,
-                                CefRefPtr<CefFrame> frame,
-                                CefRefPtr<CefV8Context> context) OVERRIDE {
+  void OnContextCreated(CefRefPtr<ClientApp> app,
+                        CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefFrame> frame,
+                        CefRefPtr<CefV8Context> context) override {
     message_router_->OnContextCreated(browser,  frame, context);
   }
 
-  virtual void OnContextReleased(CefRefPtr<ClientApp> app,
-                                 CefRefPtr<CefBrowser> browser,
-                                 CefRefPtr<CefFrame> frame,
-                                 CefRefPtr<CefV8Context> context) OVERRIDE {
+  void OnContextReleased(CefRefPtr<ClientApp> app,
+                         CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         CefRefPtr<CefV8Context> context) override {
     message_router_->OnContextReleased(browser,  frame, context);
   }
 
-  virtual bool OnProcessMessageReceived(
+  bool OnProcessMessageReceived(
       CefRefPtr<ClientApp> app,
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE {
+      CefRefPtr<CefProcessMessage> message) override {
     return message_router_->OnProcessMessageReceived(
         browser, source_process, message);
   }

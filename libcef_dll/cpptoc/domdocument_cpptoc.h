@@ -29,7 +29,6 @@ class CefDOMDocumentCppToC
         cef_domdocument_t> {
  public:
   explicit CefDOMDocumentCppToC(CefDOMDocument* cls);
-  virtual ~CefDOMDocumentCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

@@ -29,7 +29,6 @@ class CefListValueCToCpp
  public:
   explicit CefListValueCToCpp(cef_list_value_t* str)
       : CefCToCpp<CefListValueCToCpp, CefListValue, cef_list_value_t>(str) {}
-  virtual ~CefListValueCToCpp() {}
 
   // CefListValue methods
   virtual bool IsValid() OVERRIDE;

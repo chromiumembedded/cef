@@ -29,7 +29,6 @@ class CefKeyboardHandlerCppToC
         cef_keyboard_handler_t> {
  public:
   explicit CefKeyboardHandlerCppToC(CefKeyboardHandler* cls);
-  virtual ~CefKeyboardHandlerCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

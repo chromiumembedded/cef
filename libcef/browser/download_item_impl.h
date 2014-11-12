@@ -20,22 +20,22 @@ class CefDownloadItemImpl
   explicit CefDownloadItemImpl(content::DownloadItem* value);
 
   // CefDownloadItem methods.
-  virtual bool IsValid() OVERRIDE;
-  virtual bool IsInProgress() OVERRIDE;
-  virtual bool IsComplete() OVERRIDE;
-  virtual bool IsCanceled() OVERRIDE;
-  virtual int64 GetCurrentSpeed() OVERRIDE;
-  virtual int GetPercentComplete() OVERRIDE;
-  virtual int64 GetTotalBytes() OVERRIDE;
-  virtual int64 GetReceivedBytes() OVERRIDE;
-  virtual CefTime GetStartTime() OVERRIDE;
-  virtual CefTime GetEndTime() OVERRIDE;
-  virtual CefString GetFullPath() OVERRIDE;
-  virtual uint32 GetId() OVERRIDE;
-  virtual CefString GetURL() OVERRIDE;
-  virtual CefString GetSuggestedFileName() OVERRIDE;
-  virtual CefString GetContentDisposition() OVERRIDE;
-  virtual CefString GetMimeType() OVERRIDE;
+  bool IsValid() override;
+  bool IsInProgress() override;
+  bool IsComplete() override;
+  bool IsCanceled() override;
+  int64 GetCurrentSpeed() override;
+  int GetPercentComplete() override;
+  int64 GetTotalBytes() override;
+  int64 GetReceivedBytes() override;
+  CefTime GetStartTime() override;
+  CefTime GetEndTime() override;
+  CefString GetFullPath() override;
+  uint32 GetId() override;
+  CefString GetURL() override;
+  CefString GetSuggestedFileName() override;
+  CefString GetContentDisposition() override;
+  CefString GetMimeType() override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CefDownloadItemImpl);

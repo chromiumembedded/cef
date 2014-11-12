@@ -31,11 +31,10 @@ class CefDragHandlerCToCpp
   explicit CefDragHandlerCToCpp(cef_drag_handler_t* str)
       : CefCToCpp<CefDragHandlerCToCpp, CefDragHandler, cef_drag_handler_t>(
           str) {}
-  virtual ~CefDragHandlerCToCpp() {}
 
   // CefDragHandler methods
-  virtual bool OnDragEnter(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefDragData> dragData, DragOperationsMask mask) OVERRIDE;
+  bool OnDragEnter(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefDragData> dragData, DragOperationsMask mask) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

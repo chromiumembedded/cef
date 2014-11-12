@@ -31,7 +31,6 @@ class CefPostDataElementCToCpp
   explicit CefPostDataElementCToCpp(cef_post_data_element_t* str)
       : CefCToCpp<CefPostDataElementCToCpp, CefPostDataElement,
           cef_post_data_element_t>(str) {}
-  virtual ~CefPostDataElementCToCpp() {}
 
   // CefPostDataElement methods
   virtual bool IsReadOnly() OVERRIDE;

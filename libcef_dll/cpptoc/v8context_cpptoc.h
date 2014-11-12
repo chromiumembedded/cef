@@ -28,7 +28,6 @@ class CefV8ContextCppToC
     : public CefCppToC<CefV8ContextCppToC, CefV8Context, cef_v8context_t> {
  public:
   explicit CefV8ContextCppToC(CefV8Context* cls);
-  virtual ~CefV8ContextCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

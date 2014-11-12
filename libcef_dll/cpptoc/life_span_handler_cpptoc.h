@@ -31,7 +31,6 @@ class CefLifeSpanHandlerCppToC
         cef_life_span_handler_t> {
  public:
   explicit CefLifeSpanHandlerCppToC(CefLifeSpanHandler* cls);
-  virtual ~CefLifeSpanHandlerCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

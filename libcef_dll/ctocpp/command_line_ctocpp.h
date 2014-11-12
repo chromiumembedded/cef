@@ -32,7 +32,6 @@ class CefCommandLineCToCpp
   explicit CefCommandLineCToCpp(cef_command_line_t* str)
       : CefCToCpp<CefCommandLineCToCpp, CefCommandLine, cef_command_line_t>(
           str) {}
-  virtual ~CefCommandLineCToCpp() {}
 
   // CefCommandLine methods
   virtual bool IsValid() OVERRIDE;

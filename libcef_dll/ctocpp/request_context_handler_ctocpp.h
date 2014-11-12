@@ -31,10 +31,9 @@ class CefRequestContextHandlerCToCpp
   explicit CefRequestContextHandlerCToCpp(cef_request_context_handler_t* str)
       : CefCToCpp<CefRequestContextHandlerCToCpp, CefRequestContextHandler,
           cef_request_context_handler_t>(str) {}
-  virtual ~CefRequestContextHandlerCToCpp() {}
 
   // CefRequestContextHandler methods
-  virtual CefRefPtr<CefCookieManager> GetCookieManager() OVERRIDE;
+  CefRefPtr<CefCookieManager> GetCookieManager() override;
 };
 
 #endif  // BUILDING_CEF_SHARED

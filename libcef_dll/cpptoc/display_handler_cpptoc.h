@@ -29,7 +29,6 @@ class CefDisplayHandlerCppToC
         cef_display_handler_t> {
  public:
   explicit CefDisplayHandlerCppToC(CefDisplayHandler* cls);
-  virtual ~CefDisplayHandlerCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

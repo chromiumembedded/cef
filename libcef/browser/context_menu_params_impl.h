@@ -18,26 +18,26 @@ class CefContextMenuParamsImpl
   explicit CefContextMenuParamsImpl(content::ContextMenuParams* value);
 
   // CefContextMenuParams methods.
-  virtual int GetXCoord() OVERRIDE;
-  virtual int GetYCoord() OVERRIDE;
-  virtual TypeFlags GetTypeFlags() OVERRIDE;
-  virtual CefString GetLinkUrl() OVERRIDE;
-  virtual CefString GetUnfilteredLinkUrl() OVERRIDE;
-  virtual CefString GetSourceUrl() OVERRIDE;
-  virtual bool HasImageContents() OVERRIDE;
-  virtual CefString GetPageUrl() OVERRIDE;
-  virtual CefString GetFrameUrl() OVERRIDE;
-  virtual CefString GetFrameCharset() OVERRIDE;
-  virtual MediaType GetMediaType() OVERRIDE;
-  virtual MediaStateFlags GetMediaStateFlags() OVERRIDE;
-  virtual CefString GetSelectionText() OVERRIDE;
-  virtual CefString GetMisspelledWord() OVERRIDE;
-  virtual int GetMisspellingHash() OVERRIDE;
-  virtual bool GetDictionarySuggestions(
-      std::vector<CefString>& suggestions) OVERRIDE;
-  virtual bool IsEditable() OVERRIDE;
-  virtual bool IsSpellCheckEnabled() OVERRIDE;
-  virtual EditStateFlags GetEditStateFlags() OVERRIDE;
+  int GetXCoord() override;
+  int GetYCoord() override;
+  TypeFlags GetTypeFlags() override;
+  CefString GetLinkUrl() override;
+  CefString GetUnfilteredLinkUrl() override;
+  CefString GetSourceUrl() override;
+  bool HasImageContents() override;
+  CefString GetPageUrl() override;
+  CefString GetFrameUrl() override;
+  CefString GetFrameCharset() override;
+  MediaType GetMediaType() override;
+  MediaStateFlags GetMediaStateFlags() override;
+  CefString GetSelectionText() override;
+  CefString GetMisspelledWord() override;
+  int GetMisspellingHash() override;
+  bool GetDictionarySuggestions(
+      std::vector<CefString>& suggestions) override;
+  bool IsEditable() override;
+  bool IsSpellCheckEnabled() override;
+  EditStateFlags GetEditStateFlags() override;
 
   DISALLOW_COPY_AND_ASSIGN(CefContextMenuParamsImpl);
 };

@@ -31,7 +31,6 @@ class CefStreamReaderCToCpp
   explicit CefStreamReaderCToCpp(cef_stream_reader_t* str)
       : CefCToCpp<CefStreamReaderCToCpp, CefStreamReader, cef_stream_reader_t>(
           str) {}
-  virtual ~CefStreamReaderCToCpp() {}
 
   // CefStreamReader methods
   virtual size_t Read(void* ptr, size_t size, size_t n) OVERRIDE;

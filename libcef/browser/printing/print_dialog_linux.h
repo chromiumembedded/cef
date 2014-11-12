@@ -34,26 +34,28 @@ class CefPrintDialogLinux
       PrintingContextLinux* context);
 
   // printing::CefPrintDialogLinuxInterface implementation.
-  virtual void UseDefaultSettings() OVERRIDE;
-  virtual bool UpdateSettings(printing::PrintSettings* settings) OVERRIDE;
-  virtual void ShowDialog(
+  void UseDefaultSettings() override;
+  bool UpdateSettings(printing::PrintSettings* settings) override;
+  void ShowDialog(
       gfx::NativeView parent_view,
       bool has_selection,
-      const PrintingContextLinux::PrintSettingsCallback& callback) OVERRIDE;
-  virtual void PrintDocument(const printing::MetafilePlayer& metafile,
-                             const base::string16& document_name) OVERRIDE;
-  virtual void AddRefToDialog() OVERRIDE;
-  virtual void ReleaseDialog() OVERRIDE;
+      const PrintingContextLinux::PrintSettingsCallback& callback) override;
+  void PrintDocument(const printing::MetafilePlayer& metafile,
+                     const base::string16& document_name) override;
+  void AddRefToDialog() override;
+  void ReleaseDialog() override;
 
  private:
+  friend class base::DeleteHelper<CefPrintDialogLinux>;
+  friend class base::RefCountedThreadSafe<
+      CefPrintDialogLinux, content::BrowserThread::DeleteOnUIThread>;
   friend struct content::BrowserThread::DeleteOnThread<
       content::BrowserThread::UI>;
-  friend class base::DeleteHelper<CefPrintDialogLinux>;
   friend class CefPrintDialogCallbackImpl;
   friend class CefPrintJobCallbackImpl;
 
   explicit CefPrintDialogLinux(PrintingContextLinux* context);
-  virtual ~CefPrintDialogLinux();
+  ~CefPrintDialogLinux() override;
 
   void SetHandler();
   void ReleaseHandler();

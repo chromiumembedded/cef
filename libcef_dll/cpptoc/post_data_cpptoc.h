@@ -28,7 +28,6 @@ class CefPostDataCppToC
     : public CefCppToC<CefPostDataCppToC, CefPostData, cef_post_data_t> {
  public:
   explicit CefPostDataCppToC(CefPostData* cls);
-  virtual ~CefPostDataCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

@@ -33,10 +33,9 @@ class CefWebPluginUnstableCallbackCToCpp
       : CefCToCpp<CefWebPluginUnstableCallbackCToCpp,
           CefWebPluginUnstableCallback, cef_web_plugin_unstable_callback_t>(
           str) {}
-  virtual ~CefWebPluginUnstableCallbackCToCpp() {}
 
   // CefWebPluginUnstableCallback methods
-  virtual void IsUnstable(const CefString& path, bool unstable) OVERRIDE;
+  void IsUnstable(const CefString& path, bool unstable) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

@@ -29,7 +29,6 @@ class CefRequestHandlerCppToC
         cef_request_handler_t> {
  public:
   explicit CefRequestHandlerCppToC(CefRequestHandler* cls);
-  virtual ~CefRequestHandlerCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

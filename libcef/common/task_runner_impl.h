@@ -21,12 +21,12 @@ class CefTaskRunnerImpl : public CefTaskRunner {
   static scoped_refptr<base::SequencedTaskRunner> GetCurrentTaskRunner();
 
   // CefTaskRunner methods:
-  virtual bool IsSame(CefRefPtr<CefTaskRunner> that) OVERRIDE;
-  virtual bool BelongsToCurrentThread() OVERRIDE;
-  virtual bool BelongsToThread(CefThreadId threadId) OVERRIDE;
-  virtual bool PostTask(CefRefPtr<CefTask> task) OVERRIDE;
-  virtual bool PostDelayedTask(CefRefPtr<CefTask> task,
-                               int64 delay_ms) OVERRIDE;
+  bool IsSame(CefRefPtr<CefTaskRunner> that) override;
+  bool BelongsToCurrentThread() override;
+  bool BelongsToThread(CefThreadId threadId) override;
+  bool PostTask(CefRefPtr<CefTask> task) override;
+  bool PostDelayedTask(CefRefPtr<CefTask> task,
+                       int64 delay_ms) override;
 
  private:
   scoped_refptr<base::SequencedTaskRunner> task_runner_;

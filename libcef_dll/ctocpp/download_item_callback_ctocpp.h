@@ -31,7 +31,6 @@ class CefDownloadItemCallbackCToCpp
   explicit CefDownloadItemCallbackCToCpp(cef_download_item_callback_t* str)
       : CefCToCpp<CefDownloadItemCallbackCToCpp, CefDownloadItemCallback,
           cef_download_item_callback_t>(str) {}
-  virtual ~CefDownloadItemCallbackCToCpp() {}
 
   // CefDownloadItemCallback methods
   virtual void Cancel() OVERRIDE;

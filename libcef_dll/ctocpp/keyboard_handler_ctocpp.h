@@ -31,14 +31,12 @@ class CefKeyboardHandlerCToCpp
   explicit CefKeyboardHandlerCToCpp(cef_keyboard_handler_t* str)
       : CefCToCpp<CefKeyboardHandlerCToCpp, CefKeyboardHandler,
           cef_keyboard_handler_t>(str) {}
-  virtual ~CefKeyboardHandlerCToCpp() {}
 
   // CefKeyboardHandler methods
-  virtual bool OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
-      const CefKeyEvent& event, CefEventHandle os_event,
-      bool* is_keyboard_shortcut) OVERRIDE;
-  virtual bool OnKeyEvent(CefRefPtr<CefBrowser> browser,
-      const CefKeyEvent& event, CefEventHandle os_event) OVERRIDE;
+  bool OnPreKeyEvent(CefRefPtr<CefBrowser> browser, const CefKeyEvent& event,
+      CefEventHandle os_event, bool* is_keyboard_shortcut) override;
+  bool OnKeyEvent(CefRefPtr<CefBrowser> browser, const CefKeyEvent& event,
+      CefEventHandle os_event) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

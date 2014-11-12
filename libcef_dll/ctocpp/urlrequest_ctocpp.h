@@ -29,7 +29,6 @@ class CefURLRequestCToCpp
  public:
   explicit CefURLRequestCToCpp(cef_urlrequest_t* str)
       : CefCToCpp<CefURLRequestCToCpp, CefURLRequest, cef_urlrequest_t>(str) {}
-  virtual ~CefURLRequestCToCpp() {}
 
   // CefURLRequest methods
   virtual CefRefPtr<CefRequest> GetRequest() OVERRIDE;

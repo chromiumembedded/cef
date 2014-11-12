@@ -21,7 +21,7 @@
 #include "libcef/common/content_client.h"
 
 #include "base/command_line.h"
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/logging.h"
 #include "base/stl_util.h"
 #include "base/strings/string_util.h"
@@ -75,17 +75,13 @@ class CefHttpUserAgentSettings : public net::HttpUserAgentSettings {
     CEF_REQUIRE_IOT();
   }
 
-  virtual ~CefHttpUserAgentSettings() {
-    CEF_REQUIRE_IOT();
-  }
-
   // net::HttpUserAgentSettings implementation
-  virtual std::string GetAcceptLanguage() const OVERRIDE {
+  std::string GetAcceptLanguage() const override {
     CEF_REQUIRE_IOT();
     return http_accept_language_;
   }
 
-  virtual std::string GetUserAgent() const OVERRIDE {
+  std::string GetUserAgent() const override {
     CEF_REQUIRE_IOT();
     return CefContentClient::Get()->GetUserAgent();
   }
@@ -237,7 +233,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
 
     // Set up interceptors in the reverse order.
     scoped_ptr<net::URLRequestJobFactory> top_job_factory =
-        job_factory.PassAs<net::URLRequestJobFactory>();
+        job_factory.Pass();
     for (content::URLRequestInterceptorScopedVector::reverse_iterator i =
              request_interceptors_.rbegin();
          i != request_interceptors_.rend();

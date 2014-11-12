@@ -31,35 +31,35 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
  public:
   CefWebURLLoaderClient(CefRenderURLRequest::Context* context,
                         int request_flags);
-  virtual ~CefWebURLLoaderClient();
+  ~CefWebURLLoaderClient() override;
 
   // blink::WebURLLoaderClient methods.
-  virtual void willSendRequest(
+  void willSendRequest(
       WebURLLoader* loader,
       WebURLRequest& newRequest,
-      const WebURLResponse& redirectResponse) OVERRIDE;
-  virtual void didSendData(
+      const WebURLResponse& redirectResponse) override;
+  void didSendData(
       WebURLLoader* loader,
       unsigned long long bytesSent,
-      unsigned long long totalBytesToBeSent) OVERRIDE;
-  virtual void didReceiveResponse(
+      unsigned long long totalBytesToBeSent) override;
+  void didReceiveResponse(
       WebURLLoader* loader,
-      const WebURLResponse& response) OVERRIDE;
-  virtual void didDownloadData(WebURLLoader* loader,
-                               int dataLength,
-                               int encodedDataLength) OVERRIDE;
-  virtual void didReceiveData(WebURLLoader* loader,
-                              const char* data,
-                              int dataLength,
-                              int encodedDataLength) OVERRIDE;
-  virtual void didReceiveCachedMetadata(WebURLLoader* loader,
-                                        const char* data,
-                                        int dataLength) OVERRIDE;
-  virtual void didFinishLoading(WebURLLoader* loader,
-                                double finishTime,
-                                int64_t totalEncodedDataLength) OVERRIDE;
-  virtual void didFail(WebURLLoader* loader,
-                       const WebURLError& error) OVERRIDE;
+      const WebURLResponse& response) override;
+  void didDownloadData(WebURLLoader* loader,
+                       int dataLength,
+                       int encodedDataLength) override;
+  void didReceiveData(WebURLLoader* loader,
+                      const char* data,
+                      int dataLength,
+                      int encodedDataLength) override;
+  void didReceiveCachedMetadata(WebURLLoader* loader,
+                                const char* data,
+                                int dataLength) override;
+  void didFinishLoading(WebURLLoader* loader,
+                        double finishTime,
+                        int64_t totalEncodedDataLength) override;
+  void didFail(WebURLLoader* loader,
+               const WebURLError& error) override;
 
  protected:
   // The context_ pointer will outlive this object.
@@ -90,9 +90,6 @@ class CefRenderURLRequest::Context
       download_data_total_(-1) {
     // Mark the request as read-only.
     static_cast<CefRequestImpl*>(request_.get())->SetReadOnly(true);
-  }
-
-  virtual ~Context() {
   }
 
   inline bool CalledOnValidThread() {
@@ -217,6 +214,10 @@ class CefRenderURLRequest::Context
   CefRefPtr<CefResponse> response() { return response_; }
 
  private:
+  friend class base::RefCountedThreadSafe<CefRenderURLRequest::Context>;
+
+  virtual ~Context() {}
+
   void NotifyUploadProgressIfNecessary() {
     if (!got_upload_progress_complete_ && upload_data_size_ > 0) {
       // URLFetcher sends upload notifications using a timer and will not send

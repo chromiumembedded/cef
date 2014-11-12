@@ -30,21 +30,21 @@ class CefContentUtilityClient;
 class CefMainDelegate : public content::ContentMainDelegate {
  public:
   explicit CefMainDelegate(CefRefPtr<CefApp> application);
-  virtual ~CefMainDelegate();
+  ~CefMainDelegate() override;
 
-  virtual bool BasicStartupComplete(int* exit_code) OVERRIDE;
-  virtual void PreSandboxStartup() OVERRIDE;
-  virtual int RunProcess(
+  bool BasicStartupComplete(int* exit_code) override;
+  void PreSandboxStartup() override;
+  int RunProcess(
       const std::string& process_type,
-      const content::MainFunctionParams& main_function_params) OVERRIDE;
-  virtual void ProcessExiting(const std::string& process_type) OVERRIDE;
+      const content::MainFunctionParams& main_function_params) override;
+  void ProcessExiting(const std::string& process_type) override;
 #if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MACOSX)
-  virtual void ZygoteForked() OVERRIDE;
+  void ZygoteForked() override;
 #endif
-  virtual content::ContentBrowserClient* CreateContentBrowserClient() OVERRIDE;
-  virtual content::ContentRendererClient*
-      CreateContentRendererClient() OVERRIDE;
-  virtual content::ContentUtilityClient* CreateContentUtilityClient() OVERRIDE;
+  content::ContentBrowserClient* CreateContentBrowserClient() override;
+  content::ContentRendererClient*
+      CreateContentRendererClient() override;
+  content::ContentUtilityClient* CreateContentUtilityClient() override;
 
   // Shut down the browser runner.
   void ShutdownBrowser();

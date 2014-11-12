@@ -14,13 +14,13 @@ class CefRequestContextImpl : public CefRequestContext {
  public:
   explicit CefRequestContextImpl(CefBrowserContext* browser_context);
   explicit CefRequestContextImpl(CefRefPtr<CefRequestContextHandler> handler);
-  virtual ~CefRequestContextImpl();
+  ~CefRequestContextImpl() override;
 
   CefBrowserContext* GetOrCreateBrowserContext();
 
-  virtual bool IsSame(CefRefPtr<CefRequestContext> other) OVERRIDE;
-  virtual bool IsGlobal() OVERRIDE;
-  virtual CefRefPtr<CefRequestContextHandler> GetHandler() OVERRIDE;
+  bool IsSame(CefRefPtr<CefRequestContext> other) override;
+  bool IsGlobal() override;
+  CefRefPtr<CefRequestContextHandler> GetHandler() override;
 
  protected:
   CefBrowserContext* browser_context_;

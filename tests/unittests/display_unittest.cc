@@ -31,7 +31,7 @@ class TitleTestHandler : public TestHandler {
   TitleTestHandler()
       : step_(0) {}
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     // Add the resources that we will navigate to/from.
     AddResource(kTitleUrl1,
         "<html><head><title>" + std::string(kTitleStr1) +
@@ -47,8 +47,8 @@ class TitleTestHandler : public TestHandler {
     CreateBrowser(kTitleUrl1);
   }
 
-  virtual void OnTitleChange(CefRefPtr<CefBrowser> browser,
-                             const CefString& title) OVERRIDE {
+  void OnTitleChange(CefRefPtr<CefBrowser> browser,
+                     const CefString& title) override {
     std::string title_str = title;
     if (step_ == 0 || step_ == 2) {
       EXPECT_STREQ(kTitleStr1, title_str.c_str());
@@ -69,9 +69,9 @@ class TitleTestHandler : public TestHandler {
       DestroyTest();
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     switch (step_++) {
       case 0:
         frame->LoadURL(kTitleUrl2);
@@ -91,7 +91,7 @@ class TitleTestHandler : public TestHandler {
   }
 
  private:
-  virtual void DestroyTest() OVERRIDE {
+  void DestroyTest() override {
     for (int i = 0; i < 5; ++i)
       EXPECT_TRUE(got_title_[i]) << "step " << i;
 

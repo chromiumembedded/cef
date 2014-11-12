@@ -196,7 +196,7 @@ class TestDOMVisitor : public CefDOMVisitor {
     ASSERT_FALSE(h1Node->SetValue("Something Different"));
   }
 
-  virtual void Visit(CefRefPtr<CefDOMDocument> document) OVERRIDE {
+  void Visit(CefRefPtr<CefDOMDocument> document) override {
     if (test_type_ == DOM_TEST_STRUCTURE)
       TestStructure(document);
     else if (test_type_ == DOM_TEST_MODIFY)
@@ -230,11 +230,11 @@ class DOMRendererTest : public ClientApp::RenderDelegate {
   DOMRendererTest() {
   }
 
-  virtual bool OnProcessMessageReceived(
+  bool OnProcessMessageReceived(
       CefRefPtr<ClientApp> app,
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE {
+      CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName() == kTestMessage) {
       EXPECT_EQ(message->GetArgumentList()->GetSize(), (size_t)1);
       int test_type = message->GetArgumentList()->GetInt(0);
@@ -257,7 +257,7 @@ class TestDOMHandler : public TestHandler {
       : test_type_(test) {
   }
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     std::stringstream mainHtml;
     mainHtml <<
         "<html>"
@@ -272,9 +272,9 @@ class TestDOMHandler : public TestHandler {
     CreateBrowser(kTestUrl);
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     if (frame->IsMain()) {
       // Start the test in the render process.
       CefRefPtr<CefProcessMessage> message(
@@ -284,10 +284,10 @@ class TestDOMHandler : public TestHandler {
     }
   }
 
-  virtual bool OnProcessMessageReceived(
+  bool OnProcessMessageReceived(
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE {
+      CefRefPtr<CefProcessMessage> message) override {
     EXPECT_STREQ(message->GetName().ToString().c_str(), kTestMessage);
         
     got_message_.yes();

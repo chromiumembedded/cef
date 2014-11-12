@@ -1,8 +1,8 @@
 diff --git content_browser_client.cc content_browser_client.cc
-index a72bc67..ff64d68 100644
+index 728d822..cbbd248 100644
 --- content_browser_client.cc
 +++ content_browser_client.cc
-@@ -276,6 +276,10 @@ bool ContentBrowserClient::IsFastShutdownPossible() {
+@@ -273,6 +273,10 @@ bool ContentBrowserClient::IsFastShutdownPossible() {
    return true;
  }
  
@@ -14,10 +14,10 @@ index a72bc67..ff64d68 100644
    return base::FilePath();
  }
 diff --git content_browser_client.h content_browser_client.h
-index 455bff9..a8c80fc 100644
+index 5a27d98..74184f1 100644
 --- content_browser_client.h
 +++ content_browser_client.h
-@@ -27,6 +27,7 @@
+@@ -28,6 +28,7 @@
  #include "net/url_request/url_request_interceptor.h"
  #include "net/url_request/url_request_job_factory.h"
  #include "storage/browser/fileapi/file_system_context.h"
@@ -25,7 +25,7 @@ index 455bff9..a8c80fc 100644
  #include "third_party/WebKit/public/platform/WebNotificationPermission.h"
  #include "ui/base/window_open_disposition.h"
  
-@@ -527,6 +528,9 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -507,6 +508,9 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Clears browser cookies.
    virtual void ClearCookies(RenderViewHost* rvh) {}
  
@@ -62,7 +62,7 @@ index 7afc338..c014439 100644
  WebContents::CreateParams::~CreateParams() {
  }
 diff --git web_contents.h web_contents.h
-index 4f0d625..01083ac 100644
+index 5478a37..d34c1da 100644
 --- web_contents.h
 +++ web_contents.h
 @@ -52,9 +52,11 @@ class PageState;
@@ -104,7 +104,7 @@ index f264df7..bded79a 100644
  }
  
 diff --git web_contents_delegate.h web_contents_delegate.h
-index 2cfcdf7..7adde8e 100644
+index bcd5caf..35b8934 100644
 --- web_contents_delegate.h
 +++ web_contents_delegate.h
 @@ -36,9 +36,11 @@ class DownloadItem;

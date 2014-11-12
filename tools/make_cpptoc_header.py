@@ -58,7 +58,6 @@ def make_cpptoc_header(header, clsname):
                '    : public CefCppToC<'+clsname+'CppToC, '+clsname+', '+capiname+'> {\n'+ \
                ' public:\n'+ \
                '  explicit '+clsname+'CppToC('+clsname+'* cls);\n'+ \
-               '  virtual ~'+clsname+'CppToC() {}\n'+ \
                '};\n\n'
     
     if dllside:

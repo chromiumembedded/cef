@@ -29,18 +29,15 @@ class CefAppCToCpp
  public:
   explicit CefAppCToCpp(cef_app_t* str)
       : CefCToCpp<CefAppCToCpp, CefApp, cef_app_t>(str) {}
-  virtual ~CefAppCToCpp() {}
 
   // CefApp methods
-  virtual void OnBeforeCommandLineProcessing(const CefString& process_type,
-      CefRefPtr<CefCommandLine> command_line) OVERRIDE;
-  virtual void OnRegisterCustomSchemes(
-      CefRefPtr<CefSchemeRegistrar> registrar) OVERRIDE;
-  virtual CefRefPtr<CefResourceBundleHandler> GetResourceBundleHandler(
-      ) OVERRIDE;
-  virtual CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler(
-      ) OVERRIDE;
-  virtual CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() OVERRIDE;
+  void OnBeforeCommandLineProcessing(const CefString& process_type,
+      CefRefPtr<CefCommandLine> command_line) override;
+  void OnRegisterCustomSchemes(
+      CefRefPtr<CefSchemeRegistrar> registrar) override;
+  CefRefPtr<CefResourceBundleHandler> GetResourceBundleHandler() override;
+  CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() override;
+  CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() override;
 };
 
 #endif  // BUILDING_CEF_SHARED

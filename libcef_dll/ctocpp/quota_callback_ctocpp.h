@@ -31,7 +31,6 @@ class CefQuotaCallbackCToCpp
   explicit CefQuotaCallbackCToCpp(cef_quota_callback_t* str)
       : CefCToCpp<CefQuotaCallbackCToCpp, CefQuotaCallback,
           cef_quota_callback_t>(str) {}
-  virtual ~CefQuotaCallbackCToCpp() {}
 
   // CefQuotaCallback methods
   virtual void Continue(bool allow) OVERRIDE;

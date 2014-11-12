@@ -34,7 +34,6 @@ class CefAllowCertificateErrorCallbackCToCpp
       : CefCToCpp<CefAllowCertificateErrorCallbackCToCpp,
           CefAllowCertificateErrorCallback,
           cef_allow_certificate_error_callback_t>(str) {}
-  virtual ~CefAllowCertificateErrorCallbackCToCpp() {}
 
   // CefAllowCertificateErrorCallback methods
   virtual void Continue(bool allow) OVERRIDE;

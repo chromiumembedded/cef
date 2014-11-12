@@ -34,9 +34,9 @@ class NetNotifyBrowserTest : public ClientApp::BrowserDelegate {
  public:
   NetNotifyBrowserTest() {}
 
-  virtual void OnBeforeChildProcessLaunch(
+  void OnBeforeChildProcessLaunch(
       CefRefPtr<ClientApp> app,
-      CefRefPtr<CefCommandLine> command_line) OVERRIDE {
+      CefRefPtr<CefCommandLine> command_line) override {
     if (!g_net_notify_test)
       return;
 
@@ -56,7 +56,7 @@ class NetNotifyTestHandler : public TestHandler {
     explicit RequestContextHandler(NetNotifyTestHandler* handler)
         : handler_(handler) {}
 
-    virtual CefRefPtr<CefCookieManager> GetCookieManager() OVERRIDE {
+    CefRefPtr<CefCookieManager> GetCookieManager() override {
       EXPECT_TRUE(handler_);
       EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
@@ -92,7 +92,7 @@ class NetNotifyTestHandler : public TestHandler {
         test_type_(test_type),
         same_origin_(same_origin) {}
 
-  virtual void SetupTest() OVERRIDE {
+  void SetupTest() override {
     url1_ = base::StringPrintf("%snav1.html?t=%d",
         kNetNotifyOrigin1, test_type_);
     url2_ = base::StringPrintf("%snav2.html?t=%d",
@@ -119,15 +119,15 @@ class NetNotifyTestHandler : public TestHandler {
         CefRequestContext::CreateContext(context_handler_.get()));
   }
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     // Navigate to the 2nd URL.
     context_handler_->SetURL(url2_);
     GetBrowser()->GetMainFrame()->LoadURL(url2_);
   }
 
-  virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-                                    CefRefPtr<CefFrame> frame,
-                                    CefRefPtr<CefRequest> request) OVERRIDE {
+  bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
+                            CefRefPtr<CefFrame> frame,
+                            CefRefPtr<CefRequest> request) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     const std::string& url = request->GetURL();
@@ -141,10 +141,10 @@ class NetNotifyTestHandler : public TestHandler {
     return false;
   }
 
-  virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
+  CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
-      CefRefPtr<CefRequest> request) OVERRIDE {
+      CefRefPtr<CefRequest> request) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     const std::string& url = request->GetURL();
@@ -158,10 +158,10 @@ class NetNotifyTestHandler : public TestHandler {
     return TestHandler::GetResourceHandler(browser,  frame, request);
   }
 
-  virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
-                              CefRefPtr<CefFrame> frame,
-                              CefRefPtr<CefRequest> request,
-                              bool is_redirect) OVERRIDE {
+  bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                      CefRefPtr<CefFrame> frame,
+                      CefRefPtr<CefRequest> request,
+                      bool is_redirect) override {
     std::string url = request->GetURL();
 
     // Check if the load has already been delayed.
@@ -208,9 +208,9 @@ class NetNotifyTestHandler : public TestHandler {
     return false;
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     const std::string& url = frame->GetURL();
     if (url.find(url1_) == 0) {
       got_load_end1_.yes();
@@ -223,10 +223,10 @@ class NetNotifyTestHandler : public TestHandler {
     }
   }
 
-  virtual bool OnProcessMessageReceived(
+  bool OnProcessMessageReceived(
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
-      CefRefPtr<CefProcessMessage> message) OVERRIDE {
+      CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName().ToString() == kNetNotifyMsg) {
       CefRefPtr<CefListValue> args = message->GetArgumentList();
       EXPECT_TRUE(args.get());
@@ -267,14 +267,14 @@ class NetNotifyTestHandler : public TestHandler {
       explicit TestVisitor(NetNotifyTestHandler* handler)
           : handler_(handler) {
       }
-      virtual ~TestVisitor()   {
+      ~TestVisitor() override {
         // Destroy the test.
         CefPostTask(TID_UI,
             base::Bind(&NetNotifyTestHandler::DestroyTest, handler_));
       }
 
-      virtual bool Visit(const CefCookie& cookie, int count, int total,
-                         bool& deleteCookie)   {
+      bool Visit(const CefCookie& cookie, int count, int total,
+                 bool& deleteCookie) override {
         const std::string& name = CefString(&cookie.name);
         const std::string& value = CefString(&cookie.value);
         if (name == "name1" && value == "value1")
@@ -292,7 +292,7 @@ class NetNotifyTestHandler : public TestHandler {
     cookie_manager_->VisitAllCookies(new TestVisitor(this));
   }
 
-  virtual void DestroyTest() OVERRIDE {
+  void DestroyTest() override {
     int browser_id = GetBrowser()->GetIdentifier();
 
     // Verify test expectations.
@@ -361,9 +361,9 @@ class NetNotifyRendererTest : public ClientApp::RenderDelegate,
   NetNotifyRendererTest()
       : run_test_(false) {}
 
-  virtual void OnRenderThreadCreated(
+  void OnRenderThreadCreated(
       CefRefPtr<ClientApp> app,
-      CefRefPtr<CefListValue> extra_info) OVERRIDE {
+      CefRefPtr<CefListValue> extra_info) override {
     if (!g_net_notify_test) {
       // Check that the test should be run.
       CefRefPtr<CefCommandLine> command_line =
@@ -376,16 +376,16 @@ class NetNotifyRendererTest : public ClientApp::RenderDelegate,
     run_test_ = true;
   }
 
-  virtual CefRefPtr<CefLoadHandler> GetLoadHandler(
-      CefRefPtr<ClientApp> app) OVERRIDE {
+  CefRefPtr<CefLoadHandler> GetLoadHandler(
+      CefRefPtr<ClientApp> app) override {
     if (run_test_)
       return this;
     return NULL;
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     if (!run_test_)
       return;
 
@@ -399,11 +399,11 @@ class NetNotifyRendererTest : public ClientApp::RenderDelegate,
     EXPECT_TRUE(browser->SendProcessMessage(PID_BROWSER, message));
   }
 
-  virtual bool OnProcessMessageReceived(
+  bool OnProcessMessageReceived(
         CefRefPtr<ClientApp> app,
         CefRefPtr<CefBrowser> browser,
         CefProcessId source_process,
-        CefRefPtr<CefProcessMessage> message) OVERRIDE {
+        CefRefPtr<CefProcessMessage> message) override {
     if (message->GetName().ToString() == kNetNotifyMsg) {
       CefRefPtr<CefListValue> args = message->GetArgumentList();
       EXPECT_TRUE(args.get());

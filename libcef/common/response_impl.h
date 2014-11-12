@@ -22,19 +22,18 @@ class WebURLResponse;
 class CefResponseImpl : public CefResponse {
  public:
   CefResponseImpl();
-  ~CefResponseImpl() {}
 
   // CefResponse methods.
-  virtual bool IsReadOnly() OVERRIDE;
-  virtual int GetStatus() OVERRIDE;
-  virtual void SetStatus(int status) OVERRIDE;
-  virtual CefString GetStatusText() OVERRIDE;
-  virtual void SetStatusText(const CefString& statusText) OVERRIDE;
-  virtual CefString GetMimeType() OVERRIDE;
-  virtual void SetMimeType(const CefString& mimeType) OVERRIDE;
-  virtual CefString GetHeader(const CefString& name) OVERRIDE;
-  virtual void GetHeaderMap(HeaderMap& headerMap) OVERRIDE;
-  virtual void SetHeaderMap(const HeaderMap& headerMap) OVERRIDE;
+  bool IsReadOnly() override;
+  int GetStatus() override;
+  void SetStatus(int status) override;
+  CefString GetStatusText() override;
+  void SetStatusText(const CefString& statusText) override;
+  CefString GetMimeType() override;
+  void SetMimeType(const CefString& mimeType) override;
+  CefString GetHeader(const CefString& name) override;
+  void GetHeaderMap(HeaderMap& headerMap) override;
+  void SetHeaderMap(const HeaderMap& headerMap) override;
 
   net::HttpResponseHeaders* GetResponseHeaders();
   void SetResponseHeaders(const net::HttpResponseHeaders& headers);

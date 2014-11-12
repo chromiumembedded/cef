@@ -30,7 +30,6 @@ class CefWebPluginUnstableCallbackCppToC
  public:
   explicit CefWebPluginUnstableCallbackCppToC(
       CefWebPluginUnstableCallback* cls);
-  virtual ~CefWebPluginUnstableCallbackCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

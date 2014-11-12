@@ -29,7 +29,6 @@ class CefSchemeRegistrarCppToC
         cef_scheme_registrar_t> {
  public:
   explicit CefSchemeRegistrarCppToC(CefSchemeRegistrar* cls);
-  virtual ~CefSchemeRegistrarCppToC() {}
 };
 
 #endif  // BUILDING_CEF_SHARED

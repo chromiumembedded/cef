@@ -12,7 +12,7 @@
 #include "libcef/browser/text_input_client_osr_mac.h"
 #include "libcef/browser/thread_util.h"
 
-#include "base/file_util.h"
+#include "base/files/file_util.h"
 #include "base/mac/mac_util.h"
 #include "base/mac/scoped_nsautorelease_pool.h"
 #include "base/strings/string_util.h"

@@ -31,7 +31,6 @@ class CefPrintSettingsCToCpp
   explicit CefPrintSettingsCToCpp(cef_print_settings_t* str)
       : CefCToCpp<CefPrintSettingsCToCpp, CefPrintSettings,
           cef_print_settings_t>(str) {}
-  virtual ~CefPrintSettingsCToCpp() {}
 
   // CefPrintSettings methods
   virtual bool IsValid() OVERRIDE;

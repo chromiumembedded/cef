@@ -36,7 +36,7 @@ class LifeSpanTestHandler : public RoutingTestHandler {
       : settings_(settings),
         executing_delay_close_(false) {}
 
-  virtual void RunTest() OVERRIDE {
+  void RunTest() override {
     // Add the resources that we will navigate to/from.
     std::string page = "<html><script>";
 
@@ -55,12 +55,12 @@ class LifeSpanTestHandler : public RoutingTestHandler {
     CreateBrowser(kLifeSpanUrl);
   }
 
-  virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE {
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
     got_after_created_.yes();
     RoutingTestHandler::OnAfterCreated(browser);
   }
 
-  virtual bool DoClose(CefRefPtr<CefBrowser> browser) OVERRIDE {
+  bool DoClose(CefRefPtr<CefBrowser> browser) override {
     if (executing_delay_close_)
       return false;
 
@@ -76,7 +76,7 @@ class LifeSpanTestHandler : public RoutingTestHandler {
     return !settings_.allow_do_close;
   }
 
-  virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE {
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
     if (!executing_delay_close_) {
       got_before_close_.yes();
       EXPECT_TRUE(browser->IsSame(GetBrowser()));
@@ -85,11 +85,11 @@ class LifeSpanTestHandler : public RoutingTestHandler {
     RoutingTestHandler::OnBeforeClose(browser);
   }
 
-  virtual bool OnBeforeUnloadDialog(
+  bool OnBeforeUnloadDialog(
       CefRefPtr<CefBrowser> browser,
       const CefString& message_text,
       bool is_reload,
-      CefRefPtr<CefJSDialogCallback> callback) OVERRIDE {
+      CefRefPtr<CefJSDialogCallback> callback) override {
     if (executing_delay_close_) {
       callback->Continue(true, CefString());
       return true;
@@ -110,9 +110,9 @@ class LifeSpanTestHandler : public RoutingTestHandler {
     return true;
   }
 
-  virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                         CefRefPtr<CefFrame> frame,
-                         int httpStatusCode) OVERRIDE {
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
     got_load_end_.yes();
     EXPECT_TRUE(browser->IsSame(GetBrowser()));
 
@@ -120,12 +120,12 @@ class LifeSpanTestHandler : public RoutingTestHandler {
     browser->GetHost()->CloseBrowser(settings_.force_close);
   }
 
-  virtual bool OnQuery(CefRefPtr<CefBrowser> browser,
-                       CefRefPtr<CefFrame> frame,
-                       int64 query_id,
-                       const CefString& request,
-                       bool persistent,
-                       CefRefPtr<Callback> callback) OVERRIDE {
+  bool OnQuery(CefRefPtr<CefBrowser> browser,
+               CefRefPtr<CefFrame> frame,
+               int64 query_id,
+               const CefString& request,
+               bool persistent,
+               CefRefPtr<Callback> callback) override {
     if (request.ToString() == kUnloadMsg) {
       if (!executing_delay_close_)
         got_unload_message_.yes();

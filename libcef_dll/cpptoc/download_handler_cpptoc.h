@@ -29,7 +29,6 @@ class CefDownloadHandlerCppToC
         cef_download_handler_t> {
  public:
   explicit CefDownloadHandlerCppToC(CefDownloadHandler* cls);
-  virtual ~CefDownloadHandlerCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

@@ -31,17 +31,16 @@ class CefContextMenuHandlerCToCpp
   explicit CefContextMenuHandlerCToCpp(cef_context_menu_handler_t* str)
       : CefCToCpp<CefContextMenuHandlerCToCpp, CefContextMenuHandler,
           cef_context_menu_handler_t>(str) {}
-  virtual ~CefContextMenuHandlerCToCpp() {}
 
   // CefContextMenuHandler methods
-  virtual void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
+  void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params,
-      CefRefPtr<CefMenuModel> model) OVERRIDE;
-  virtual bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefMenuModel> model) override;
+  bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params,
-      int command_id, EventFlags event_flags) OVERRIDE;
-  virtual void OnContextMenuDismissed(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame) OVERRIDE;
+      int command_id, EventFlags event_flags) override;
+  void OnContextMenuDismissed(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

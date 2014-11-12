@@ -31,7 +31,6 @@ class CefV8StackTraceCToCpp
   explicit CefV8StackTraceCToCpp(cef_v8stack_trace_t* str)
       : CefCToCpp<CefV8StackTraceCToCpp, CefV8StackTrace, cef_v8stack_trace_t>(
           str) {}
-  virtual ~CefV8StackTraceCToCpp() {}
 
   // CefV8StackTrace methods
   virtual bool IsValid() OVERRIDE;

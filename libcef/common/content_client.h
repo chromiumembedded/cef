@@ -20,23 +20,23 @@ class CefContentClient : public content::ContentClient,
                          public ui::ResourceBundle::Delegate {
  public:
   explicit CefContentClient(CefRefPtr<CefApp> application);
-  virtual ~CefContentClient();
+  ~CefContentClient() override;
 
   // Returns the singleton CefContentClient instance.
   static CefContentClient* Get();
 
   // content::ContentClient methods.
-  virtual void AddPepperPlugins(
-      std::vector<content::PepperPluginInfo>* plugins) OVERRIDE;
-  virtual void AddAdditionalSchemes(
+  void AddPepperPlugins(
+      std::vector<content::PepperPluginInfo>* plugins) override;
+  void AddAdditionalSchemes(
       std::vector<std::string>* standard_schemes,
-      std::vector<std::string>* savable_schemes) OVERRIDE;
-  virtual std::string GetUserAgent() const OVERRIDE;
-  virtual base::string16 GetLocalizedString(int message_id) const OVERRIDE;
-  virtual base::StringPiece GetDataResource(
+      std::vector<std::string>* savable_schemes) override;
+  std::string GetUserAgent() const override;
+  base::string16 GetLocalizedString(int message_id) const override;
+  base::StringPiece GetDataResource(
       int resource_id,
-      ui::ScaleFactor scale_factor) const OVERRIDE;
-  virtual gfx::Image& GetNativeImageNamed(int resource_id) const OVERRIDE;
+      ui::ScaleFactor scale_factor) const override;
+  gfx::Image& GetNativeImageNamed(int resource_id) const override;
 
   struct SchemeInfo {
     std::string scheme_name;
@@ -59,26 +59,26 @@ class CefContentClient : public content::ContentClient,
 
  private:
   // ui::ResourceBundle::Delegate methods.
-  virtual base::FilePath GetPathForResourcePack(
+  base::FilePath GetPathForResourcePack(
       const base::FilePath& pack_path,
-      ui::ScaleFactor scale_factor) OVERRIDE;
-  virtual base::FilePath GetPathForLocalePack(
+      ui::ScaleFactor scale_factor) override;
+  base::FilePath GetPathForLocalePack(
       const base::FilePath& pack_path,
-      const std::string& locale) OVERRIDE;
-  virtual gfx::Image GetImageNamed(int resource_id) OVERRIDE;
-  virtual gfx::Image GetNativeImageNamed(
+      const std::string& locale) override;
+  gfx::Image GetImageNamed(int resource_id) override;
+  gfx::Image GetNativeImageNamed(
       int resource_id,
-      ui::ResourceBundle::ImageRTL rtl) OVERRIDE;
-  virtual base::RefCountedStaticMemory* LoadDataResourceBytes(
+      ui::ResourceBundle::ImageRTL rtl) override;
+  base::RefCountedStaticMemory* LoadDataResourceBytes(
       int resource_id,
-      ui::ScaleFactor scale_factor) OVERRIDE;
-  virtual bool GetRawDataResource(int resource_id,
-                                  ui::ScaleFactor scale_factor,
-                                  base::StringPiece* value) OVERRIDE;
-  virtual bool GetLocalizedString(int message_id,
-                                  base::string16* value) OVERRIDE;
-  virtual scoped_ptr<gfx::Font> GetFont(
-      ui::ResourceBundle::FontStyle style) OVERRIDE;
+      ui::ScaleFactor scale_factor) override;
+  bool GetRawDataResource(int resource_id,
+                          ui::ScaleFactor scale_factor,
+                          base::StringPiece* value) override;
+  bool GetLocalizedString(int message_id,
+                          base::string16* value) override;
+  scoped_ptr<gfx::Font> GetFont(
+      ui::ResourceBundle::FontStyle style) override;
 
   CefRefPtr<CefApp> application_;
   bool pack_loading_disabled_;

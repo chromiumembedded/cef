@@ -31,10 +31,9 @@ class CefCompletionCallbackCToCpp
   explicit CefCompletionCallbackCToCpp(cef_completion_callback_t* str)
       : CefCToCpp<CefCompletionCallbackCToCpp, CefCompletionCallback,
           cef_completion_callback_t>(str) {}
-  virtual ~CefCompletionCallbackCToCpp() {}
 
   // CefCompletionCallback methods
-  virtual void OnComplete() OVERRIDE;
+  void OnComplete() override;
 };
 
 #endif  // BUILDING_CEF_SHARED

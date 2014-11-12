@@ -16,7 +16,7 @@ class CefCompositorHostWin : public gfx::WindowImpl {
     Init(NULL, gfx::Rect(0, 0, 1, 1));
   }
 
-  virtual ~CefCompositorHostWin() {
+  ~CefCompositorHostWin() override {
     DestroyWindow(hwnd());
   }
 

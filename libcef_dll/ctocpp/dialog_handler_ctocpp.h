@@ -32,13 +32,12 @@ class CefDialogHandlerCToCpp
   explicit CefDialogHandlerCToCpp(cef_dialog_handler_t* str)
       : CefCToCpp<CefDialogHandlerCToCpp, CefDialogHandler,
           cef_dialog_handler_t>(str) {}
-  virtual ~CefDialogHandlerCToCpp() {}
 
   // CefDialogHandler methods
-  virtual bool OnFileDialog(CefRefPtr<CefBrowser> browser, FileDialogMode mode,
+  bool OnFileDialog(CefRefPtr<CefBrowser> browser, FileDialogMode mode,
       const CefString& title, const CefString& default_file_name,
       const std::vector<CefString>& accept_types,
-      CefRefPtr<CefFileDialogCallback> callback) OVERRIDE;
+      CefRefPtr<CefFileDialogCallback> callback) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

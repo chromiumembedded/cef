@@ -29,7 +29,6 @@ class CefResourceBundleHandlerCppToC
         cef_resource_bundle_handler_t> {
  public:
   explicit CefResourceBundleHandlerCppToC(CefResourceBundleHandler* cls);
-  virtual ~CefResourceBundleHandlerCppToC() {}
 };
 
 #endif  // USING_CEF_SHARED

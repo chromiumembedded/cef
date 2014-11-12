@@ -26,6 +26,10 @@ class CefLocationRequest :
   }
 
  private:
+  friend class base::RefCountedThreadSafe<CefLocationRequest>;
+
+  ~CefLocationRequest() {}
+
   void OnLocationUpdate(const content::Geoposition& position) {
     CEF_REQUIRE_UIT();
     if (callback_.get()) {
