@@ -39,6 +39,8 @@ void CefWindowDelegateView::Init(
   params.type = views::Widget::InitParams::TYPE_CONTROL;
   // Don't set the WS_EX_COMPOSITED flag.
   params.opacity = views::Widget::InitParams::OPAQUE_WINDOW;
+  // Tell Aura not to draw the window frame on resize.
+  params.remove_standard_frame = true;
 
   // Results in a call to InitContent().
   widget->Init(params);
