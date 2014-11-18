@@ -138,6 +138,7 @@
 
 #include "include/base/cef_basictypes.h"
 #include "include/base/cef_build.h"
+#include "include/base/cef_macros.h"
 #include "include/base/cef_move.h"
 #include "include/base/cef_template_util.h"
 
