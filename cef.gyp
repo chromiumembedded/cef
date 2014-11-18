@@ -64,6 +64,9 @@
             'cef_sandbox',
             'libcef',
           ],
+          'defines': [
+            'CEF_USE_SANDBOX',
+          ],
           'configurations': {
             'Debug_Base': {
               'msvs_settings': {
@@ -246,6 +249,9 @@
           'dependencies': [
             'cef_sandbox',
             'libcef',
+          ],
+          'defines': [
+            'CEF_USE_SANDBOX',
           ],
           'configurations': {
             'Debug_Base': {
