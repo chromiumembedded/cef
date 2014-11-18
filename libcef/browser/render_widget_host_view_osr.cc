@@ -154,12 +154,8 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 #endif
   compositor_->SetRootLayer(root_layer_.get());
 
-  if (browser_impl_.get()) {
-    SetFrameRate();
+  if (browser_impl_.get())
     ResizeRootLayer();
-    compositor_->SetScaleAndSize(CurrentDeviceScaleFactor(),
-                                 root_layer_->bounds().size());
-  }
 }
 
 CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
@@ -325,10 +321,7 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
   browser_impl_->GetClient()->GetRenderHandler()->OnPopupSize(
       browser_impl_.get(), widget_pos);
 
-  SetFrameRate();
   ResizeRootLayer();
-  compositor_->SetScaleAndSize(scale_factor, root_layer_->bounds().size());
-
   WasShown();
 }
 
@@ -806,12 +799,19 @@ void CefRenderWidgetHostViewOSR::SetFrameRate() {
 }
 
 void CefRenderWidgetHostViewOSR::ResizeRootLayer() {
+  SetFrameRate();
+
   gfx::Size size;
   if (!IsPopupWidget())
     size = GetViewBounds().size();
   else
     size = popup_position_.size();
+
+  if (size == root_layer_->bounds().size())
+    return;
+
   root_layer_->SetBounds(gfx::Rect(0, 0, size.width(), size.height()));
+  compositor_->SetScaleAndSize(CurrentDeviceScaleFactor(), size);
 }
 
 void CefRenderWidgetHostViewOSR::GenerateFrame(bool force_frame) {
