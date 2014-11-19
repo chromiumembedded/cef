@@ -414,6 +414,7 @@ void CefRenderWidgetHostViewOSR::RenderProcessGone(
     base::TerminationStatus status,
     int error_code) {
   // TODO(OSR): Need to also clear WebContentsViewOSR::view_?
+  Destroy();
   render_widget_host_ = NULL;
   parent_host_view_ = NULL;
   popup_host_view_ = NULL;
@@ -595,6 +596,7 @@ ui::Layer* CefRenderWidgetHostViewOSR::GetLayer() {
 }
 
 content::RenderWidgetHostImpl* CefRenderWidgetHostViewOSR::GetHost() {
+  DCHECK(render_widget_host_);
   return render_widget_host_;
 }
 
@@ -846,6 +848,9 @@ void CefRenderWidgetHostViewOSR::InternalGenerateFrame() {
   frame_pending_ = false;
   frame_start_time_ = base::TimeTicks::Now();
 
+  if (!render_widget_host_)
+    return;
+
   // The below code is similar in functionality to
   // DelegatedFrameHost::CopyFromCompositingSurface but we reuse the same
   // SkBitmap in the GPU codepath and avoid scaling where possible.
@@ -863,7 +868,7 @@ void CefRenderWidgetHostViewOSR::InternalGenerateFrame() {
 
 void CefRenderWidgetHostViewOSR::CopyFromCompositingSurfaceHasResult(
     scoped_ptr<cc::CopyOutputResult> result) {
-  if (result->IsEmpty() || result->size().IsEmpty()) {
+  if (result->IsEmpty() || result->size().IsEmpty() || !render_widget_host_) {
     OnFrameCaptureFailure();
     return;
   }
