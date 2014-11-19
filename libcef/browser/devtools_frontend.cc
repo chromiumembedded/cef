@@ -7,6 +7,7 @@
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/devtools_delegate.h"
 #include "libcef/browser/request_context_impl.h"
+#include "libcef/browser/thread_util.h"
 
 #include "base/command_line.h"
 #include "base/json/json_reader.h"
@@ -73,7 +74,8 @@ void CefDevToolsFrontend::Focus() {
 }
 
 void CefDevToolsFrontend::Close() {
-  frontend_browser_->CloseBrowser(true);
+  CEF_POST_TASK(CEF_UIT,
+      base::Bind(&CefBrowserHostImpl::CloseBrowser, frontend_browser_, true));
 }
 
 CefDevToolsFrontend::CefDevToolsFrontend(
@@ -155,5 +157,6 @@ void CefDevToolsFrontend::DispatchProtocolMessage(
 void CefDevToolsFrontend::AgentHostClosed(
     content::DevToolsAgentHost* agent_host,
     bool replaced) {
+  DCHECK(agent_host == agent_host_.get());
   Close();
 }

@@ -850,9 +850,7 @@ void CefBrowserHostImpl::CloseDevTools() {
   if (CEF_CURRENTLY_ON_UIT()) {
     if (!devtools_frontend_)
       return;
-    devtools_observer_.reset();
     devtools_frontend_->Close();
-    devtools_frontend_ = NULL;
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::CloseDevTools, this));
