@@ -75,7 +75,8 @@ void CefDevToolsFrontend::Focus() {
 
 void CefDevToolsFrontend::Close() {
   CEF_POST_TASK(CEF_UIT,
-      base::Bind(&CefBrowserHostImpl::CloseBrowser, frontend_browser_, true));
+      base::Bind(&CefBrowserHostImpl::CloseBrowser, frontend_browser_.get(),
+                 true));
 }
 
 CefDevToolsFrontend::CefDevToolsFrontend(
