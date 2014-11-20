@@ -2602,12 +2602,6 @@ void CefBrowserHostImpl::Observe(int type,
       title = web_contents->GetTitle();
     }
 
-    // Don't notify if the title hasn't changed.
-    if (title == title_)
-      return;
-
-    title_ = title;
-
     if (client_.get()) {
       CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
       if (handler.get())
