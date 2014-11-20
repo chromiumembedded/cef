@@ -644,9 +644,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // True if a file chooser is currently pending.
   bool file_chooser_pending_;
 
-  // Current title for the main frame. Only accessed on the UI thread.
-  base::string16 title_;
-
 #if defined(USE_AURA)
   // Widget hosting the web contents. It will be deleted automatically when the
   // associated root window is destroyed.
