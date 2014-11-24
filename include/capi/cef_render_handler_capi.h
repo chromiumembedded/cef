@@ -109,8 +109,8 @@ typedef struct _cef_render_handler_t {
   // Called when an element should be painted. |type| indicates whether the
   // element is the view or the popup widget. |buffer| contains the pixel data
   // for the whole image. |dirtyRects| contains the set of rectangles that need
-  // to be repainted. On Windows |buffer| will be |width|*|height|*4 bytes in
-  // size and represents a BGRA image with an upper-left origin.
+  // to be repainted. |buffer| will be |width|*|height|*4 bytes in size and
+  // represents a BGRA image with an upper-left origin.
   ///
   void (CEF_CALLBACK *on_paint)(struct _cef_render_handler_t* self,
       struct _cef_browser_t* browser, cef_paint_element_type_t type,
@@ -118,10 +118,13 @@ typedef struct _cef_render_handler_t {
       int width, int height);
 
   ///
-  // Called when the browser window's cursor has changed.
+  // Called when the browser's cursor has changed. If |type| is CT_CUSTOM then
+  // |custom_cursor_info| will be populated with the custom cursor information.
   ///
   void (CEF_CALLBACK *on_cursor_change)(struct _cef_render_handler_t* self,
-      struct _cef_browser_t* browser, cef_cursor_handle_t cursor);
+      struct _cef_browser_t* browser, cef_cursor_handle_t cursor,
+      cef_cursor_type_t type,
+      const struct _cef_cursor_info_t* custom_cursor_info);
 
   ///
   // Called when the user starts dragging content in the web view. Contextual

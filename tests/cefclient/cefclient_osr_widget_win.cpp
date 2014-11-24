@@ -147,7 +147,9 @@ void OSRWindow::OnPaint(CefRefPtr<CefBrowser> browser,
 }
 
 void OSRWindow::OnCursorChange(CefRefPtr<CefBrowser> browser,
-                               CefCursorHandle cursor) {
+                               CefCursorHandle cursor,
+                               CursorType type,
+                               const CefCursorInfo& custom_cursor_info) {
   if (!::IsWindow(hWnd_))
     return;
 

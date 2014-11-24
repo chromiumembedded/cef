@@ -44,8 +44,8 @@ class CefRenderHandlerCToCpp
   void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type,
       const RectList& dirtyRects, const void* buffer, int width,
       int height) override;
-  void OnCursorChange(CefRefPtr<CefBrowser> browser,
-      CefCursorHandle cursor) override;
+  void OnCursorChange(CefRefPtr<CefBrowser> browser, CefCursorHandle cursor,
+      CursorType type, const CefCursorInfo& custom_cursor_info) override;
   bool StartDragging(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefDragData> drag_data, DragOperationsMask allowed_ops, int x,
       int y) override;

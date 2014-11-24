@@ -649,11 +649,13 @@ void ClientHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 }
 
 void ClientHandler::OnCursorChange(CefRefPtr<CefBrowser> browser,
-                                   CefCursorHandle cursor) {
+                                   CefCursorHandle cursor,
+                                   CursorType type,
+                                   const CefCursorInfo& custom_cursor_info) {
   CEF_REQUIRE_UI_THREAD();
   if (!osr_handler_.get())
     return;
-  osr_handler_->OnCursorChange(browser, cursor);
+  osr_handler_->OnCursorChange(browser, cursor, type, custom_cursor_info);
 }
 
 bool ClientHandler::StartDragging(CefRefPtr<CefBrowser> browser,

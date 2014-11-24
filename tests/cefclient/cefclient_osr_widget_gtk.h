@@ -60,7 +60,9 @@ class OSRWindow : public ClientHandler::RenderHandler {
                        int width,
                        int height) OVERRIDE;
   virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
-                              CefCursorHandle cursor) OVERRIDE;
+                              CefCursorHandle cursor,
+                              CursorType type,
+                              const CefCursorInfo& custom_cursor_info) OVERRIDE;
 
   void Invalidate();
   bool IsOverPopupWidget(int x, int y) const;

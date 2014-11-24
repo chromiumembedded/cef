@@ -368,6 +368,21 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
   if (!browser_impl_.get())
     return;
 
+  content::WebCursor::CursorInfo cursor_info;
+  cursor.GetCursorInfo(&cursor_info);
+
+  const cef_cursor_type_t cursor_type =
+      static_cast<cef_cursor_type_t>(cursor_info.type);
+  CefCursorInfo custom_cursor_info;
+  if (cursor.IsCustom()) {
+    custom_cursor_info.hotspot.x = cursor_info.hotspot.x();
+    custom_cursor_info.hotspot.y = cursor_info.hotspot.y();
+    custom_cursor_info.image_scale_factor = cursor_info.image_scale_factor;
+    custom_cursor_info.buffer = cursor_info.custom_image.getPixels();
+    custom_cursor_info.size.width = cursor_info.custom_image.width();
+    custom_cursor_info.size.height = cursor_info.custom_image.height();
+  }
+
 #if defined(USE_AURA)
   content::WebCursor web_cursor = cursor;
 
@@ -376,19 +391,17 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
     // |web_cursor| owns the resulting |platform_cursor|.
     platform_cursor = web_cursor.GetPlatformCursor();
   } else {
-    content::WebCursor::CursorInfo cursor_info;
-    cursor.GetCursorInfo(&cursor_info);
     platform_cursor = browser_impl_->GetPlatformCursor(cursor_info.type);
   }
 
   browser_impl_->GetClient()->GetRenderHandler()->OnCursorChange(
-      browser_impl_.get(), platform_cursor);
+      browser_impl_.get(), platform_cursor, cursor_type, custom_cursor_info);
 #elif defined(OS_MACOSX)
   // |web_cursor| owns the resulting |native_cursor|.
   content::WebCursor web_cursor = cursor;
   CefCursorHandle native_cursor = web_cursor.GetNativeCursor();
   browser_impl_->GetClient()->GetRenderHandler()->OnCursorChange(
-      browser_impl_.get(), native_cursor);
+      browser_impl_.get(), native_cursor, cursor_type, custom_cursor_info);
 #else
   // TODO(port): Implement this method to work on other platforms as part of
   // off-screen rendering support.

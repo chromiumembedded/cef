@@ -186,7 +186,8 @@ void CefRenderHandlerCToCpp::OnPaint(CefRefPtr<CefBrowser> browser,
 }
 
 void CefRenderHandlerCToCpp::OnCursorChange(CefRefPtr<CefBrowser> browser,
-    CefCursorHandle cursor) {
+    CefCursorHandle cursor, CursorType type,
+    const CefCursorInfo& custom_cursor_info) {
   if (CEF_MEMBER_MISSING(struct_, on_cursor_change))
     return;
 
@@ -200,7 +201,9 @@ void CefRenderHandlerCToCpp::OnCursorChange(CefRefPtr<CefBrowser> browser,
   // Execute
   struct_->on_cursor_change(struct_,
       CefBrowserCppToC::Wrap(browser),
-      cursor);
+      cursor,
+      type,
+      &custom_cursor_info);
 }
 
 bool CefRenderHandlerCToCpp::StartDragging(CefRefPtr<CefBrowser> browser,
