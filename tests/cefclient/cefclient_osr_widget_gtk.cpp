@@ -1184,13 +1184,9 @@ void OSRWindow::OnPaint(CefRefPtr<CefBrowser> browser,
 }
 
 void OSRWindow::OnCursorChange(CefRefPtr<CefBrowser> browser,
-                               CefCursorHandle cursor) {
-  /*GtkWidget* window = gtk_widget_get_toplevel(glarea_);
-  GdkWindow* gdk_window = gtk_widget_get_window(window);
-  if (cursor->type == GDK_LAST_CURSOR)
-    cursor = NULL;
-  gdk_window_set_cursor(gdk_window, cursor);*/
-
+                               CefCursorHandle cursor,
+                               CursorType type,
+                               const CefCursorInfo& custom_cursor_info) {
   // Retrieve the X11 display shared with Chromium.
   ::Display* xdisplay = cef_get_xdisplay();
   DCHECK(xdisplay);
