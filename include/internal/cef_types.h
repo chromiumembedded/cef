@@ -1779,7 +1779,7 @@ typedef struct _cef_geoposition_t {
   double speed;
 
   ///
-  // Time of position measurement in miliseconds since Epoch in UTC time. This
+  // Time of position measurement in milliseconds since Epoch in UTC time. This
   // is taken from the host computer's system clock.
   ///
   cef_time_t timestamp;
