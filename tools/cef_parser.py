@@ -381,7 +381,9 @@ _simpletypes = {
     'CefEventHandle' : ['cef_event_handle_t', 'NULL'],
     'CefWindowHandle' : ['cef_window_handle_t', 'NULL'],
     'CefTextInputContext' : ['cef_text_input_context_t' ,'NULL'],
+    'CefPoint' : ['cef_point_t', 'CefPoint()'],
     'CefRect' : ['cef_rect_t', 'CefRect()'],
+    'CefSize' : ['cef_size_t', 'CefSize()'],
     'CefThreadId' : ['cef_thread_id_t', 'TID_UI'],
     'CefTime' : ['cef_time_t', 'CefTime()'],
 }

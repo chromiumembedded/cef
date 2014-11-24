@@ -565,10 +565,12 @@ void ClientHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 }
 
 void ClientHandler::OnCursorChange(CefRefPtr<CefBrowser> browser,
-                                   CefCursorHandle cursor) {
+                                   CefCursorHandle cursor,
+                                   CursorType type,
+                                   const CefCursorInfo& custom_cursor_info) {
   if (!m_OSRHandler.get())
     return;
-  m_OSRHandler->OnCursorChange(browser, cursor);
+  m_OSRHandler->OnCursorChange(browser, cursor, type, custom_cursor_info);
 }
 
 bool ClientHandler::StartDragging(CefRefPtr<CefBrowser> browser,

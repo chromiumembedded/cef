@@ -1186,7 +1186,9 @@ void OSRWindow::OnPaint(CefRefPtr<CefBrowser> browser,
 }
 
 void OSRWindow::OnCursorChange(CefRefPtr<CefBrowser> browser,
-                               CefCursorHandle cursor) {
+                               CefCursorHandle cursor,
+                               CursorType type,
+                               const CefCursorInfo& custom_cursor_info) {
   GtkWidget* window = gtk_widget_get_toplevel(glarea_);
   GdkWindow* gdk_window = gtk_widget_get_window(window);
   if (cursor->type == GDK_LAST_CURSOR)

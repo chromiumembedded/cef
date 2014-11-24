@@ -1103,6 +1103,14 @@ typedef enum {
 } cef_urlrequest_status_t;
 
 ///
+// Structure representing a point.
+///
+typedef struct _cef_point_t {
+  int x;
+  int y;
+} cef_point_t;
+
+///
 // Structure representing a rectangle.
 ///
 typedef struct _cef_rect_t {
@@ -1111,6 +1119,14 @@ typedef struct _cef_rect_t {
   int width;
   int height;
 } cef_rect_t;
+
+///
+// Structure representing a size.
+///
+typedef struct _cef_size_t {
+  int width;
+  int height;
+} cef_size_t;
 
 ///
 // Existing process IDs.
@@ -1749,6 +1765,68 @@ typedef struct _cef_geoposition_t {
   ///
   cef_string_t error_message;
 } cef_geoposition_t;
+
+///
+// Cursor type values.
+///
+typedef enum {
+  CT_POINTER = 0,
+  CT_CROSS,
+  CT_HAND,
+  CT_IBEAM,
+  CT_WAIT,
+  CT_HELP,
+  CT_EASTRESIZE,
+  CT_NORTHRESIZE,
+  CT_NORTHEASTRESIZE,
+  CT_NORTHWESTRESIZE,
+  CT_SOUTHRESIZE,
+  CT_SOUTHEASTRESIZE,
+  CT_SOUTHWESTRESIZE,
+  CT_WESTRESIZE,
+  CT_NORTHSOUTHRESIZE,
+  CT_EASTWESTRESIZE,
+  CT_NORTHEASTSOUTHWESTRESIZE,
+  CT_NORTHWESTSOUTHEASTRESIZE,
+  CT_COLUMNRESIZE,
+  CT_ROWRESIZE,
+  CT_MIDDLEPANNING,
+  CT_EASTPANNING,
+  CT_NORTHPANNING,
+  CT_NORTHEASTPANNING,
+  CT_NORTHWESTPANNING,
+  CT_SOUTHPANNING,
+  CT_SOUTHEASTPANNING,
+  CT_SOUTHWESTPANNING,
+  CT_WESTPANNING,
+  CT_MOVE,
+  CT_VERTICALTEXT,
+  CT_CELL,
+  CT_CONTEXTMENU,
+  CT_ALIAS,
+  CT_PROGRESS,
+  CT_NODROP,
+  CT_COPY,
+  CT_NONE,
+  CT_NOTALLOWED,
+  CT_ZOOMIN,
+  CT_ZOOMOUT,
+  CT_GRAB,
+  CT_GRABBING,
+  CT_CUSTOM,
+} cef_cursor_type_t;
+
+///
+// Structure representing cursor information. |buffer| will be
+// |size.width|*|size.height|*4 bytes in size and represents a BGRA image with
+// an upper-left origin.
+///
+typedef struct _cef_cursor_info_t {
+  cef_point_t hotspot;
+  float image_scale_factor;
+  void* buffer;
+  cef_size_t size;
+} cef_cursor_info_t;
 
 #ifdef __cplusplus
 }

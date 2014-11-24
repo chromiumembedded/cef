@@ -281,7 +281,9 @@ void ClientOSRHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 }
 
 void ClientOSRHandler::OnCursorChange(CefRefPtr<CefBrowser> browser,
-                                      CefCursorHandle cursor) {
+                                      CefCursorHandle cursor,
+                                      CursorType type,
+                                      const CefCursorInfo& custom_cursor_info) {
   REQUIRE_UI_THREAD();
   [cursor set];
 }
