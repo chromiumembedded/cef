@@ -381,6 +381,7 @@ _simpletypes = {
     'CefEventHandle' : ['cef_event_handle_t', 'kNullEventHandle'],
     'CefWindowHandle' : ['cef_window_handle_t', 'kNullWindowHandle'],
     'CefTextInputContext' : ['cef_text_input_context_t' ,'NULL'],
+    'CefPoint' : ['cef_point_t', 'CefPoint()'],
     'CefRect' : ['cef_rect_t', 'CefRect()'],
     'CefSize' : ['cef_size_t', 'CefSize()'],
     'CefPageRange' : ['cef_page_range_t', 'CefPageRange()'],

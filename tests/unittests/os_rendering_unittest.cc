@@ -790,11 +790,16 @@ class OSRTestHandler : public RoutingTestHandler,
     }
   }
 
-  virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
-                              CefCursorHandle cursor) OVERRIDE {
-      if (test_type_ == OSR_TEST_CURSOR && started()) {
-        DestroySucceededTestSoon();
-      }
+  virtual void OnCursorChange(
+      CefRefPtr<CefBrowser> browser,
+      CefCursorHandle cursor,
+      CursorType type,
+      const CefCursorInfo& custom_cursor_info) OVERRIDE {
+    if (test_type_ == OSR_TEST_CURSOR && started()) {
+      EXPECT_EQ(CT_HAND, type);
+      EXPECT_EQ(NULL, custom_cursor_info.buffer);
+      DestroySucceededTestSoon();
+    }
   }
 
   virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
