@@ -155,6 +155,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
                     const CefBrowserSettings& settings,
                     const CefPoint& inspect_element_at) override;
   void CloseDevTools() override;
+  void GetNavigationEntries(
+      CefRefPtr<CefNavigationEntryVisitor> visitor,
+      bool current_only) override;
   void SetMouseCursorChangeDisabled(bool disabled) override;
   bool IsMouseCursorChangeDisabled() override;
   bool IsWindowRenderingDisabled() override;

@@ -251,6 +251,93 @@ class HistoryNavRendererTest : public ClientApp::RenderDelegate,
   IMPLEMENT_REFCOUNTING(HistoryNavRendererTest);
 };
 
+class NavigationEntryVisitor : public CefNavigationEntryVisitor {
+ public:
+  NavigationEntryVisitor(int nav, TrackCallback* callback)
+    : nav_(nav),
+      callback_(callback),
+      expected_total_(0),
+      expected_current_index_(-1),
+      expected_forwardback_(),
+      callback_count_(0) {
+    // Determine the expected values.
+    for (int i = 0; i <= nav_; ++i) {
+      if (kHNavList[i].action == NA_LOAD) {
+        expected_total_++;
+        expected_current_index_++;
+      } else if (kHNavList[i].action == NA_BACK) {
+        expected_current_index_--;
+      }  else if (kHNavList[i].action == NA_FORWARD) {
+        expected_current_index_++;
+      }
+      expected_forwardback_[expected_current_index_] =
+          (kHNavList[i].action != NA_LOAD);
+    }
+  }
+
+  ~NavigationEntryVisitor() override {
+    EXPECT_EQ(callback_count_, expected_total_);
+    callback_->yes();
+  }
+
+  bool Visit(CefRefPtr<CefNavigationEntry> entry,
+             bool current,
+             int index,
+             int total) override {
+    // Only 3 loads total.
+    EXPECT_LT(index, 3);
+    EXPECT_LE(total, 3);
+
+    EXPECT_EQ((expected_current_index_ == index), current);
+    EXPECT_EQ(callback_count_, index);
+    EXPECT_EQ(expected_total_, total);
+
+    std::string expected_url;
+    std::string expected_title;
+    if (index == 0) {
+      expected_url = kHNav1;
+      expected_title = "Nav1";
+    } else if (index == 1) {
+      expected_url = kHNav2;
+      expected_title = "Nav2";
+    } else if (index == 2) {
+      expected_url = kHNav3;
+      expected_title = "Nav3";
+    }
+
+    EXPECT_TRUE(entry->IsValid());
+    EXPECT_STREQ(expected_url.c_str(), entry->GetURL().ToString().c_str());
+    EXPECT_STREQ(expected_url.c_str(),
+                 entry->GetDisplayURL().ToString().c_str());
+    EXPECT_STREQ(expected_url.c_str(),
+                 entry->GetOriginalURL().ToString().c_str());
+    EXPECT_STREQ(expected_title.c_str(), entry->GetTitle().ToString().c_str());
+
+    if (expected_forwardback_[index])
+      EXPECT_EQ(TT_EXPLICIT | TT_FORWARD_BACK_FLAG, entry->GetTransitionType());
+    else
+      EXPECT_EQ(TT_EXPLICIT, entry->GetTransitionType());
+
+    EXPECT_FALSE(entry->HasPostData());
+    EXPECT_TRUE(entry->GetFrameName().empty());
+    EXPECT_GT(entry->GetCompletionTime().GetTimeT(), 0);
+    EXPECT_EQ(200, entry->GetHttpStatusCode());
+
+    callback_count_++;
+    return true;
+  }
+
+ private:
+  const int nav_;
+  TrackCallback* callback_;
+  int expected_total_;
+  int expected_current_index_;
+  bool expected_forwardback_[3];  // Only 3 loads total.
+  int callback_count_;
+
+  IMPLEMENT_REFCOUNTING(NavigationEntryVisitor);
+};
+
 // Browser side.
 class HistoryNavTestHandler : public TestHandler {
  public:
@@ -261,9 +348,15 @@ class HistoryNavTestHandler : public TestHandler {
 
   void RunTest() override {
     // Add the resources that we will navigate to/from.
-    AddResource(kHNav1, "<html>Nav1</html>", "text/html");
-    AddResource(kHNav2, "<html>Nav2</html>", "text/html");
-    AddResource(kHNav3, "<html>Nav3</html>", "text/html");
+    AddResource(kHNav1,
+        "<html><head><title>Nav1</title></head><body>Nav1</body></html>",
+        "text/html");
+    AddResource(kHNav2,
+        "<html><head><title>Nav2</title><body>Nav2</body></html>",
+        "text/html");
+    AddResource(kHNav3,
+        "<html><head><title>Nav3</title><body>Nav3</body></html>",
+        "text/html");
 
     // Create the browser.
     CreateBrowser(CefString());
@@ -404,6 +497,12 @@ class HistoryNavTestHandler : public TestHandler {
 
     got_load_end_[nav_].yes();
 
+    // Test that navigation entries are correct.
+    CefRefPtr<NavigationEntryVisitor> visitor =
+        new NavigationEntryVisitor(nav_, &got_correct_history_[nav_]);
+    browser->GetHost()->GetNavigationEntries(visitor.get(), false);
+    visitor = NULL;
+
     std::string url1 = browser->GetMainFrame()->GetURL();
     std::string url2 = frame->GetURL();
     if (url1 == item.target && url2 == item.target)
@@ -454,6 +553,7 @@ class HistoryNavTestHandler : public TestHandler {
   TrackCallback got_load_start_[NAV_LIST_SIZE()];
   TrackCallback got_correct_load_start_url_[NAV_LIST_SIZE()];
   TrackCallback got_load_end_[NAV_LIST_SIZE()];
+  TrackCallback got_correct_history_[NAV_LIST_SIZE()];
   TrackCallback got_correct_load_end_url_[NAV_LIST_SIZE()];
   TrackCallback got_correct_can_go_back2_[NAV_LIST_SIZE()];
   TrackCallback got_correct_can_go_forward2_[NAV_LIST_SIZE()];
@@ -485,6 +585,7 @@ TEST(NavigationTest, History) {
 
     if (kHNavList[i].action != NA_CLEAR) {
       ASSERT_TRUE(handler->got_load_end_[i]) << "i = " << i;
+      ASSERT_TRUE(handler->got_correct_history_[i]) << "i = " << i;
       ASSERT_TRUE(handler->got_correct_load_end_url_[i]) << "i = " << i;
       ASSERT_TRUE(handler->got_correct_can_go_back2_[i]) << "i = " << i;
       ASSERT_TRUE(handler->got_correct_can_go_forward2_[i]) << "i = " << i;
