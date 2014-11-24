@@ -15,6 +15,7 @@
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
+#include "libcef_dll/ctocpp/navigation_entry_visitor_ctocpp.h"
 #include "libcef_dll/ctocpp/run_file_dialog_callback_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -387,6 +388,25 @@ void CEF_CALLBACK browser_host_close_dev_tools(
 
   // Execute
   CefBrowserHostCppToC::Get(self)->CloseDevTools();
+}
+
+void CEF_CALLBACK browser_host_get_navigation_entries(
+    struct _cef_browser_host_t* self, cef_navigation_entry_visitor_t* visitor,
+    int current_only) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: visitor; type: refptr_diff
+  DCHECK(visitor);
+  if (!visitor)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->GetNavigationEntries(
+      CefNavigationEntryVisitorCToCpp::Wrap(visitor),
+      current_only?true:false);
 }
 
 void CEF_CALLBACK browser_host_set_mouse_cursor_change_disabled(
@@ -830,6 +850,7 @@ CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
   struct_.struct_.stop_finding = browser_host_stop_finding;
   struct_.struct_.show_dev_tools = browser_host_show_dev_tools;
   struct_.struct_.close_dev_tools = browser_host_close_dev_tools;
+  struct_.struct_.get_navigation_entries = browser_host_get_navigation_entries;
   struct_.struct_.set_mouse_cursor_change_disabled =
       browser_host_set_mouse_cursor_change_disabled;
   struct_.struct_.is_mouse_cursor_change_disabled =

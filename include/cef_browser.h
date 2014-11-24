@@ -41,6 +41,7 @@
 #include "include/cef_base.h"
 #include "include/cef_drag_data.h"
 #include "include/cef_frame.h"
+#include "include/cef_navigation_entry.h"
 #include "include/cef_process_message.h"
 #include "include/cef_request_context.h"
 #include <vector>
@@ -207,6 +208,28 @@ class CefRunFileDialogCallback : public virtual CefBase {
   virtual void OnFileDialogDismissed(
       CefRefPtr<CefBrowserHost> browser_host,
       const std::vector<CefString>& file_paths) =0;
+};
+
+
+///
+// Callback interface for CefBrowserHost::GetNavigationEntries. The methods of
+// this class will be called on the browser process UI thread.
+///
+/*--cef(source=client)--*/
+class CefNavigationEntryVisitor : public virtual CefBase {
+ public:
+  ///
+  // Method that will be executed. Do not keep a reference to |entry| outside of
+  // this callback. Return true to continue visiting entries or false to stop.
+  // |current| is true if this entry is the currently loaded navigation entry.
+  // |index| is the 0-based index of this entry and |total| is the total number
+  // of entries.
+  ///
+  /*--cef()--*/
+  virtual bool Visit(CefRefPtr<CefNavigationEntry> entry,
+                     bool current,
+                     int index,
+                     int total) =0;
 };
 
 
@@ -393,6 +416,17 @@ class CefBrowserHost : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual void CloseDevTools() =0;
+
+  ///
+  // Retrieve a snapshot of current navigation entries as values sent to the
+  // specified visitor. If |current_only| is true only the current navigation
+  // entry will be sent, otherwise all navigation entries will be sent.
+  ///
+  ///
+  /*--cef()--*/
+  virtual void GetNavigationEntries(
+      CefRefPtr<CefNavigationEntryVisitor> visitor,
+      bool current_only) =0;
 
   ///
   // Set whether mouse cursor change is disabled.

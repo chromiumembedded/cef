@@ -18,6 +18,7 @@
 #include "libcef/browser/devtools_frontend.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/navigate_params.h"
+#include "libcef/browser/navigation_entry_impl.h"
 #include "libcef/browser/printing/print_view_manager.h"
 #include "libcef/browser/render_widget_host_view_osr.h"
 #include "libcef/browser/request_context_impl.h"
@@ -854,6 +855,46 @@ void CefBrowserHostImpl::CloseDevTools() {
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::CloseDevTools, this));
+  }
+}
+
+void CefBrowserHostImpl::GetNavigationEntries(
+    CefRefPtr<CefNavigationEntryVisitor> visitor,
+    bool current_only) {
+  DCHECK(visitor.get());
+  if (!visitor.get())
+    return;
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::GetNavigationEntries, this, visitor,
+                   current_only));
+    return;
+  }
+
+  if (!web_contents())
+    return;
+
+  const content::NavigationController& controller =
+      web_contents()->GetController();
+  const int total = controller.GetEntryCount();
+  const int current = controller.GetCurrentEntryIndex();
+
+  if (current_only) {
+    // Visit only the current entry.
+    CefRefPtr<CefNavigationEntryImpl> entry =
+        new CefNavigationEntryImpl(controller.GetEntryAtIndex(current));
+    visitor->Visit(entry.get(), true, current, total);
+    entry->Detach(NULL);
+  } else {
+    // Visit all entries.
+    bool cont = true;
+    for (int i = 0; i < total && cont; ++i) {
+      CefRefPtr<CefNavigationEntryImpl> entry =
+          new CefNavigationEntryImpl(controller.GetEntryAtIndex(i));
+      cont = visitor->Visit(entry.get(), (i == current), i, total);
+      entry->Detach(NULL);
+    }
   }
 }
 

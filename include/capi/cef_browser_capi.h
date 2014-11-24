@@ -41,6 +41,7 @@
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_drag_data_capi.h"
 #include "include/capi/cef_frame_capi.h"
+#include "include/capi/cef_navigation_entry_capi.h"
 #include "include/capi/cef_process_message_capi.h"
 #include "include/capi/cef_request_context_capi.h"
 
@@ -205,6 +206,29 @@ typedef struct _cef_run_file_dialog_callback_t {
 
 
 ///
+// Callback structure for cef_browser_host_t::GetNavigationEntries. The
+// functions of this structure will be called on the browser process UI thread.
+///
+typedef struct _cef_navigation_entry_visitor_t {
+  ///
+  // Base structure.
+  ///
+  cef_base_t base;
+
+  ///
+  // Method that will be executed. Do not keep a reference to |entry| outside of
+  // this callback. Return true (1) to continue visiting entries or false (0) to
+  // stop. |current| is true (1) if this entry is the currently loaded
+  // navigation entry. |index| is the 0-based index of this entry and |total| is
+  // the total number of entries.
+  ///
+  int (CEF_CALLBACK *visit)(struct _cef_navigation_entry_visitor_t* self,
+      struct _cef_navigation_entry_t* entry, int current, int index,
+      int total);
+} cef_navigation_entry_visitor_t;
+
+
+///
 // Structure used to represent the browser process aspects of a browser window.
 // The functions of this structure can only be called in the browser process.
 // They may be called on any thread in that process unless otherwise indicated
@@ -347,6 +371,16 @@ typedef struct _cef_browser_host_t {
   // instance.
   ///
   void (CEF_CALLBACK *close_dev_tools)(struct _cef_browser_host_t* self);
+
+  ///
+  // Retrieve a snapshot of current navigation entries as values sent to the
+  // specified visitor. If |current_only| is true (1) only the current
+  // navigation entry will be sent, otherwise all navigation entries will be
+  // sent.
+  ///
+  ///
+  void (CEF_CALLBACK *get_navigation_entries)(struct _cef_browser_host_t* self,
+      struct _cef_navigation_entry_visitor_t* visitor, int current_only);
 
   ///
   // Set whether mouse cursor change is disabled.
