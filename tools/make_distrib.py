@@ -245,8 +245,8 @@ if options.minimal and options.client:
   parser.print_help(sys.stderr)
   sys.exit()
 
-if platform == 'windows' and options.x64build and not options.ninjabuild:
-  print 'x64 build on Windows requires ninja'
+if not options.ninjabuild:
+  print 'Ninja build is required on all platforms'
   sys.exit()
 
 # script directory
@@ -299,9 +299,7 @@ if options.x64build:
 
 if platform == 'linux':
   platform_arch = ''
-  lib_dir_name = 'lib.target'
-  if options.ninjabuild:
-    lib_dir_name = 'lib'
+  lib_dir_name = 'lib'
   release_libcef_path = os.path.join(src_dir, 'out', 'Release', lib_dir_name, 'libcef.so');
   debug_libcef_path = os.path.join(src_dir, 'out', 'Debug', lib_dir_name, 'libcef.so');
   file_desc = ''
@@ -430,26 +428,15 @@ if platform == 'windows':
   if not options.x64build:
     binaries.append('wow_helper.exe')
 
-  if options.ninjabuild:
-    out_dir = os.path.join(src_dir, 'out')
-    libcef_dll_file = 'libcef.dll.lib'
-    sandbox_libs = [
-      'obj\\base\\base.lib',
-      'obj\\base\\base_static.lib',
-      'obj\\cef\\cef_sandbox.lib',
-      'obj\\base\\third_party\\dynamic_annotations\\dynamic_annotations.lib',
-      'obj\\sandbox\\sandbox.lib',
-    ]
-  else:
-    out_dir = os.path.join(src_dir, 'build')
-    libcef_dll_file = 'lib/libcef.lib'
-    sandbox_libs = [
-      'lib\\base.lib',
-      'lib\\base_static.lib',
-      'lib\\cef_sandbox.lib',
-      'lib\\dynamic_annotations.lib',
-      'lib\\sandbox.lib',
-    ]
+  out_dir = os.path.join(src_dir, 'out')
+  libcef_dll_file = 'libcef.dll.lib'
+  sandbox_libs = [
+    'obj\\base\\base.lib',
+    'obj\\base\\base_static.lib',
+    'obj\\cef\\cef_sandbox.lib',
+    'obj\\base\\third_party\\dynamic_annotations\\dynamic_annotations.lib',
+    'obj\\sandbox\\sandbox.lib',
+  ]
 
   valid_build_dir = None
 
@@ -548,10 +535,7 @@ if platform == 'windows':
       copy_dir(src_dir, docs_output_dir, options.quiet)
 
 elif platform == 'macosx':
-  if options.ninjabuild:
-    out_dir = os.path.join(src_dir, 'out')
-  else:
-    out_dir = os.path.join(src_dir, 'xcodebuild')
+  out_dir = os.path.join(src_dir, 'out')
 
   valid_build_dir = None
   framework_name = 'Chromium Embedded Framework'
@@ -624,10 +608,7 @@ elif platform == 'macosx':
 
 elif platform == 'linux':
   out_dir = os.path.join(src_dir, 'out')
-  if options.ninjabuild:
-    lib_dir_name = 'lib'
-  else:
-    lib_dir_name = 'lib.target'
+  lib_dir_name = 'lib'
 
   valid_build_dir = None
 
