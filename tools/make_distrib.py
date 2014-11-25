@@ -4,7 +4,6 @@
 
 from date_util import *
 from file_util import *
-from gclient_util import *
 from make_cmake import process_cmake_template
 from optparse import OptionParser
 import os
@@ -176,113 +175,6 @@ def combine_libs(build_dir, libs, dest_lib):
       raise Exception('Library not found: ' + lib_path)
     cmdline = cmdline + ' "%s"' % lib_path
   run(cmdline, os.path.join(cef_dir, 'tools'))
-
-def generate_msvs_projects(version):
-  """ Generate MSVS projects for the specified version. """
-  sys.stdout.write('Generating '+version+' project files...')
-  os.environ['GYP_GENERATORS'] = 'msvs'
-  os.environ['GYP_MSVS_VERSION'] = version
-  # Don't use the bundled toolchain because it will cause the above values to
-  # be ignored.
-  os.environ['DEPOT_TOOLS_WIN_TOOLCHAIN'] = '0'
-  gyper = [ 'python', '../build/gyp_chromium',
-            os.path.relpath(os.path.join(output_dir, 'cefclient.gyp'), cef_dir) ]
-  RunAction(cef_dir, gyper);
-  move_file(os.path.relpath(os.path.join(output_dir, 'cefclient.sln')), \
-            os.path.relpath(os.path.join(output_dir, 'cefclient'+version+'.sln')))
-
-def create_msvs_projects():
-  """ Create MSVS project files. """
-  if not options.x64build:
-    generate_msvs_projects('2005');
-    generate_msvs_projects('2008');
-  generate_msvs_projects('2010');
-
-  # Fix the output directory path in all .vcproj and .vcxproj files.
-  files = []
-  for file in get_files(os.path.join(output_dir, '*.vcproj')):
-    files.append(file)
-  for file in get_files(os.path.join(output_dir, '*.vcxproj')):
-    files.append(file)
-  for file in files:
-    data = read_file(file)
-    # fix the build directory path
-    data = data.replace('../../..\\build\\', 'out\\')
-    data = data.replace('..\\..\\..\\build\\', 'out\\')
-    # fix xcopy arguments
-    data = data.replace('xcopy \\', 'xcopy /')
-    if options.x64build:
-      # fix machine type
-      data = data.replace('MachineX86', 'MachineX64')
-    write_file(file, data)
-
-def create_xcode_projects():
-  """ Create Xcode project files. """
-  sys.stdout.write('Generating Xcode project files...')
-  os.environ['GYP_GENERATORS'] = 'xcode'
-  gyper = [ 'python', '../build/gyp_chromium',
-            os.path.relpath(os.path.join(output_dir, 'cefclient.gyp'), cef_dir) ]
-  RunAction(cef_dir, gyper);
-
-  # Post-process the Xcode project file.
-  src_file = os.path.join(output_dir, 'cefclient.xcodeproj/project.pbxproj')
-  data = read_file(src_file)
-
-  # Fix file paths.
-  data = data.replace('../../../build/mac/', 'tools/')
-  data = data.replace('../../../build', 'build')
-  data = data.replace('../../../xcodebuild', 'xcodebuild')
-
-  # Fix framework type.
-  data = data.replace('lastKnownFileType = text; name = "Chromium Embedded Framework";', \
-                      'explicitFileType = "compiled.mach-o.dylib"; name = "Chromium Embedded Framework";')
-
-  # Fix target compiler.
-  data = data.replace('GCC_VERSION = 4.2;', 'GCC_VERSION = com.apple.compilers.llvm.clang.1_0;')
-
-  write_file(src_file, data)
-
-def create_make_projects():
-  """ Create make project files. """
-  makefile = os.path.join(src_dir, 'Makefile')
-  makefile_tmp = ''
-  if path_exists(makefile):
-    # Back up the existing Makefile
-    makefile_tmp = makefile + '.cef_bak'
-    copy_file(makefile, makefile_tmp, options.quiet)
-
-  # Generate make project files
-  sys.stdout.write('Generating make project files...')
-  os.environ['GYP_GENERATORS'] = 'make'
-  gyper = [ 'python', '../build/gyp_chromium',
-            os.path.relpath(os.path.join(output_dir, 'cefclient.gyp'), cef_dir) ]
-  RunAction(cef_dir, gyper);
-
-  # Copy the resulting Makefile to the destination directory
-  copy_file(makefile, output_dir, options.quiet)
-
-  remove_file(makefile, options.quiet)
-  if makefile_tmp != '':
-    # Restore the original Makefile
-    move_file(makefile_tmp, makefile, options.quiet)
-
-  # Fix the output directory path in Makefile and all .mk files.
-  find = os.path.relpath(output_dir, src_dir)
-  files = [os.path.join(output_dir, 'Makefile')]
-  for file in get_files(os.path.join(output_dir, '*.mk')):
-    files.append(file)
-  for file in files:
-    data = read_file(file)
-    data = data.replace(find, '.')
-    data = data.replace('/./', '/')
-    if os.path.basename(file) == 'Makefile':
-      # remove the quiet_cmd_regen_makefile section
-      pos = str.find(data, 'quiet_cmd_regen_makefile')
-      if pos >= 0:
-        epos = str.find(data, '#', pos)
-        if epos >= 0:
-          data = data[0:pos] + data[epos:]
-    write_file(file, data)
 
 def run(command_line, working_dir):
   """ Run a command. """
@@ -644,8 +536,6 @@ if platform == 'windows':
     transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/win/transfer.cfg'), \
                    output_dir, options.quiet)
 
-    create_msvs_projects()
-
   if not options.nodocs:
     # generate doc files
     os.popen('make_cppdocs.bat '+cef_rev)
@@ -732,8 +622,6 @@ elif platform == 'macosx':
     transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/mac/transfer.cfg'), \
                   output_dir, options.quiet)
 
-    create_xcode_projects()
-
 elif platform == 'linux':
   out_dir = os.path.join(src_dir, 'out')
   if options.ninjabuild:
@@ -812,8 +700,6 @@ elif platform == 'linux':
     copy_file(os.path.join(script_dir, 'distrib/linux/build.sh'), output_dir, options.quiet)
     transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/linux/transfer.cfg'), \
                   output_dir, options.quiet)
-
-    create_make_projects()
 
 if not options.noarchive:
   # create an archive for each output directory

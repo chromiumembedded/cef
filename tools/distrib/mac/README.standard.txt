@@ -32,9 +32,6 @@ Building using CMake:
   CMake can be used to generate project files in many different formats. See
   usage instructions at the top of the CMakeLists.txt file.
 
-Building using the pre-existing Xcode solution (DEPRECATED):
-  Xcode 3.2 or newer: Open the cefclient.xcodeproj project and build.
-
 Please visit the CEF Website for additional usage information.
 
 http://code.google.com/p/chromiumembedded
