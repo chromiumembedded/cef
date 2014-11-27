@@ -1666,7 +1666,7 @@
               },
             },
           }],
-          [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+          [ '(OS=="linux" or OS=="freebsd" or OS=="openbsd") and use_allocator!="none"', {
             'dependencies':[
               '<(DEPTH)/base/allocator/allocator.gyp:allocator',
             ],
