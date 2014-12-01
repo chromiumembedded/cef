@@ -95,7 +95,7 @@ void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
 
 bool CefRenderWidgetHostViewOSR::BrowserCompositorViewShouldAckImmediately()
     const {
-  return false;
+  return true;
 }
 
 void CefRenderWidgetHostViewOSR::BrowserCompositorViewFrameSwapped(
