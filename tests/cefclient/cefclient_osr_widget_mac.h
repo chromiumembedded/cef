@@ -42,7 +42,8 @@ class OSRBrowserProvider {
   id endWheelMonitor_;
 }
 
-- (id)initWithFrame:(NSRect)frame andTransparency:(bool)transparency;
+- (id)initWithFrame:(NSRect)frame andTransparency:(bool)transparency
+                                andShowUpdateRect:(bool)show_update_rect;
 - (NSPoint)getClickPointForEvent:(NSEvent*)event;
 - (void)getKeyEvent:(CefKeyEvent&)keyEvent forEvent:(NSEvent*)event;
 - (void)getMouseEvent:(CefMouseEvent&)mouseEvent forEvent:(NSEvent*)event;
@@ -122,6 +123,7 @@ class OSRWindow {
  public:
   static CefRefPtr<OSRWindow> Create(OSRBrowserProvider* browser_provider,
                                      bool transparent,
+                                     bool show_update_rect,
                                      CefWindowHandle parentView,
                                      const CefRect& frame);
 
@@ -134,6 +136,7 @@ class OSRWindow {
  private:
   OSRWindow(OSRBrowserProvider* browser_provider,
             bool transparent,
+            bool show_update_rect,
             CefWindowHandle parentView,
             const CefRect& frame);
 

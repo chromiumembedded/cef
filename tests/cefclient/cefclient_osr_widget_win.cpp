@@ -10,14 +10,42 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "cefclient/resource.h"
 
+namespace {
+
+class ScopedGLContext {
+ public:
+  ScopedGLContext(HDC hdc, HGLRC hglrc, bool swap_buffers)
+    : hdc_(hdc),
+      swap_buffers_(swap_buffers) {
+    BOOL result = wglMakeCurrent(hdc, hglrc);
+    DCHECK(result);
+  }
+  ~ScopedGLContext() {
+    BOOL result = wglMakeCurrent(NULL, NULL);
+    DCHECK(result);
+    if (swap_buffers_) {
+      result = SwapBuffers(hdc_);
+      DCHECK(result);
+    }
+  }
+
+ private:
+  const HDC hdc_;
+  const bool swap_buffers_;
+};
+
+}  // namespace
+
 // static
-CefRefPtr<OSRWindow> OSRWindow::Create(OSRBrowserProvider* browser_provider,
-    bool transparent) {
+CefRefPtr<OSRWindow> OSRWindow::Create(
+    OSRBrowserProvider* browser_provider,
+    bool transparent,
+    bool show_update_rect) {
   DCHECK(browser_provider);
   if (!browser_provider)
     return NULL;
 
-  return new OSRWindow(browser_provider, transparent);
+  return new OSRWindow(browser_provider, transparent, show_update_rect);
 }
 
 // static
@@ -135,15 +163,16 @@ void OSRWindow::OnPaint(CefRefPtr<CefBrowser> browser,
   if (!hDC_)
     EnableGL();
 
-  wglMakeCurrent(hDC_, hRC_);
-  renderer_.OnPaint(browser, type, dirtyRects, buffer, width, height);
-  if (type == PET_VIEW && !renderer_.popup_rect().IsEmpty()) {
-    painting_popup_ = true;
-    browser->GetHost()->Invalidate(PET_POPUP);
-    painting_popup_ = false;
+  {
+    ScopedGLContext scoped_gl_context(hDC_, hRC_, true);
+    renderer_.OnPaint(browser, type, dirtyRects, buffer, width, height);
+    if (type == PET_VIEW && !renderer_.popup_rect().IsEmpty()) {
+      painting_popup_ = true;
+      browser->GetHost()->Invalidate(PET_POPUP);
+      painting_popup_ = false;
+    }
+    renderer_.Render();
   }
-  renderer_.Render();
-  SwapBuffers(hDC_);
 }
 
 void OSRWindow::OnCursorChange(CefRefPtr<CefBrowser> browser,
@@ -249,8 +278,10 @@ CefBrowserHost::DragOperationsMask
 
 #endif  // defined(CEF_USE_ATL)
 
-OSRWindow::OSRWindow(OSRBrowserProvider* browser_provider, bool transparent)
-    : renderer_(transparent),
+OSRWindow::OSRWindow(OSRBrowserProvider* browser_provider,
+                     bool transparent,
+                     bool show_update_rect)
+    : renderer_(transparent, show_update_rect),
       browser_provider_(browser_provider),
       hWnd_(NULL),
       hDC_(NULL),
@@ -275,9 +306,8 @@ void OSRWindow::Render() {
   if (!hDC_)
     EnableGL();
 
-  wglMakeCurrent(hDC_, hRC_);
+  ScopedGLContext scoped_gl_context(hDC_, hRC_, true);
   renderer_.Render();
-  SwapBuffers(hDC_);
 }
 
 void OSRWindow::EnableGL() {
@@ -303,8 +333,8 @@ void OSRWindow::EnableGL() {
 
   // Create and enable the render context.
   hRC_ = wglCreateContext(hDC_);
-  wglMakeCurrent(hDC_, hRC_);
 
+  ScopedGLContext scoped_gl_context(hDC_, hRC_, false);
   renderer_.Initialize();
 }
 
@@ -314,11 +344,15 @@ void OSRWindow::DisableGL() {
   if (!hDC_)
     return;
 
-  renderer_.Cleanup();
+  {
+    ScopedGLContext scoped_gl_context(hDC_, hRC_, false);
+    renderer_.Cleanup();
+  }
 
   if (IsWindow(hWnd_)) {
-    wglMakeCurrent(NULL, NULL);
-    wglDeleteContext(hRC_);
+    // wglDeleteContext will make the context not current before deleting it.
+    BOOL result = wglDeleteContext(hRC_);
+    DCHECK(result);
     ReleaseDC(hWnd_, hDC_);
   }
 

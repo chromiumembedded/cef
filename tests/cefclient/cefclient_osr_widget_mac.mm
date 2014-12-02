@@ -20,11 +20,13 @@
 #include "cefclient/osrenderer.h"
 #include "cefclient/resource_util.h"
 
+namespace {
+
 // This method will return YES for OS X versions 10.7.3 and later, and NO
 // otherwise.
 // Used to prevent a crash when building with the 10.7 SDK and accessing the
 // notification below. See: http://crbug.com/260595.
-static BOOL SupportsBackingPropertiesChangedNotification() {
+BOOL SupportsBackingPropertiesChangedNotification() {
   // windowDidChangeBackingProperties: method has been added to the
   // NSWindowDelegate protocol in 10.7.3, at the same time as the
   // NSWindowDidChangeBackingPropertiesNotification notification was added.
@@ -42,6 +44,25 @@ static BOOL SupportsBackingPropertiesChangedNotification() {
   // description is {NULL, NULL}
   return methodDescription.name != NULL || methodDescription.types != NULL;
 }
+
+class ScopedGLContext {
+ public:
+  ScopedGLContext(ClientOpenGLView* view, bool swap_buffers)
+    : swap_buffers_(swap_buffers) {
+    context_ = [view openGLContext];
+    [context_ makeCurrentContext];
+  }
+  ~ScopedGLContext() {
+    [NSOpenGLContext clearCurrentContext];
+    if (swap_buffers_)
+      [context_ flushBuffer];
+  }
+ private:
+  NSOpenGLContext* context_;
+  const bool swap_buffers_;
+};
+
+}  // namespace
 
 @interface ClientOpenGLView ()
 - (void)resetDragDrop;
@@ -232,8 +253,7 @@ void ClientOSRHandler::OnPaint(CefRefPtr<CefBrowser> browser,
     return;
   }
 
-  NSOpenGLContext* context = [view_ openGLContext];
-  [context makeCurrentContext];
+  ScopedGLContext scoped_gl_context(view_, true);
 
   view_->renderer_->OnPaint(browser, type, dirtyRects, buffer, width, height);
 
@@ -248,7 +268,6 @@ void ClientOSRHandler::OnPaint(CefRefPtr<CefBrowser> browser,
   }
 
   view_->renderer_->Render();
-  [context flushBuffer];
 }
 
 void ClientOSRHandler::OnCursorChange(CefRefPtr<CefBrowser> browser,
@@ -286,7 +305,8 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 
 @synthesize was_last_mouse_down_on_view = was_last_mouse_down_on_view_;
 
-- (id)initWithFrame:(NSRect)frame andTransparency:(bool)transparency {
+- (id)initWithFrame:(NSRect)frame andTransparency:(bool)transparency
+                                andShowUpdateRect:(bool)show_update_rect {
   NSOpenGLPixelFormat * pixelFormat =
       [[NSOpenGLPixelFormat alloc]
        initWithAttributes:(NSOpenGLPixelFormatAttribute[]) {
@@ -299,7 +319,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 
   self = [super initWithFrame:frame pixelFormat:pixelFormat];
   if (self) {
-    renderer_ = new ClientOSRenderer(transparency);
+    renderer_ = new ClientOSRenderer(transparency, show_update_rect);
     rotating_ = false;
     endWheelMonitor_ = nil;
 
@@ -1191,18 +1211,23 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 
 CefRefPtr<OSRWindow> OSRWindow::Create(OSRBrowserProvider* browser_provider,
                                        bool transparent,
+                                       bool show_update_rect,
                                        CefWindowHandle parentView,
                                        const CefRect& frame) {
-  return new OSRWindow(browser_provider, transparent, parentView, frame);
+  return new OSRWindow(browser_provider, transparent, show_update_rect,
+                       parentView, frame);
 }
 
 OSRWindow::OSRWindow(OSRBrowserProvider* browser_provider,
                      bool transparent,
+                     bool show_update_rect,
                      CefWindowHandle parentView,
                      const CefRect& frame) {
   NSRect window_rect = NSMakeRect(frame.x, frame.y, frame.width, frame.height);
-  ClientOpenGLView* view = [[ClientOpenGLView alloc] initWithFrame:window_rect
-                                                   andTransparency:transparent];
+  ClientOpenGLView* view =
+      [[ClientOpenGLView alloc] initWithFrame:window_rect
+                               andTransparency:transparent
+                             andShowUpdateRect:show_update_rect];
   this->view_ = view;
   [parentView addSubview:view];
   [view setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];

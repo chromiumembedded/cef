@@ -249,26 +249,32 @@ class CefRenderWidgetHostViewOSR
 
   // Implementation based on RendererOverridesHandler::InnerSwapCompositorFrame
   // and DelegatedFrameHost::CopyFromCompositingSurface.
-  void GenerateFrame(bool force_frame);
+  void GenerateFrame(bool force_frame, const gfx::Rect& damage_rect);
   void InternalGenerateFrame();
   void CopyFromCompositingSurfaceHasResult(
+      const gfx::Rect& damage_rect,
       scoped_ptr<cc::CopyOutputResult> result);
   void PrepareTextureCopyOutputResult(
+      const gfx::Rect& damage_rect,
       scoped_ptr<cc::CopyOutputResult> result);
   static void CopyFromCompositingSurfaceFinishedProxy(
       base::WeakPtr<CefRenderWidgetHostViewOSR> view,
       scoped_ptr<cc::SingleReleaseCallback> release_callback,
+      const gfx::Rect& damage_rect,
       scoped_ptr<SkBitmap> bitmap,
       scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock,
       bool result);
   void CopyFromCompositingSurfaceFinished(
+      const gfx::Rect& damage_rect,
       scoped_ptr<SkBitmap> bitmap,
       scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock,
       bool result);
   void PrepareBitmapCopyOutputResult(
+      const gfx::Rect& damage_rect,
       scoped_ptr<cc::CopyOutputResult> result);
-  void OnFrameCaptureFailure();
+  void OnFrameCaptureFailure(const gfx::Rect& damage_rect);
   void OnFrameCaptureSuccess(
+      const gfx::Rect& damage_rect,
       const SkBitmap& bitmap,
       scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock);
   void OnFrameCaptureCompletion(bool force_frame);
@@ -323,6 +329,7 @@ class CefRenderWidgetHostViewOSR
   bool frame_in_progress_;
   int frame_retry_count_;
   scoped_ptr<SkBitmap> bitmap_;
+  gfx::Rect pending_damage_rect_;
 
   bool hold_resize_;
   bool pending_resize_;

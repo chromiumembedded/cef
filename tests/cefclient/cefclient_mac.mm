@@ -488,11 +488,14 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
 
   if (AppIsOffScreenRenderingEnabled()) {
     CefRefPtr<CefCommandLine> cmd_line = AppGetCommandLine();
-    bool transparent =
+    const bool transparent =
         cmd_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
+    const bool show_update_rect =
+        cmd_line->HasSwitch(cefclient::kShowUpdateRect);
 
     CefRefPtr<OSRWindow> osr_window =
-        OSRWindow::Create(&g_main_browser_provider, transparent, contentView,
+        OSRWindow::Create(&g_main_browser_provider, transparent,
+            show_update_rect, contentView,
             CefRect(0, 0, kWindowWidth, kWindowHeight));
     window_info.SetAsWindowless(osr_window->GetWindowHandle(), transparent);
     g_handler->SetOSRHandler(osr_window->GetRenderHandler().get());

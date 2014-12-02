@@ -24,6 +24,7 @@ const char kUrl[] = "url";
 const char kOffScreenRenderingEnabled[] = "off-screen-rendering-enabled";
 const char kOffScreenFrameRate[] = "off-screen-frame-rate";
 const char kTransparentPaintingEnabled[] = "transparent-painting-enabled";
+const char kShowUpdateRect[] = "show-update-rect";
 const char kMouseCursorChangeDisabled[] = "mouse-cursor-change-disabled";
 
 }  // namespace cefclient

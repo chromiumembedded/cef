@@ -545,12 +545,15 @@ int main(int argc, char* argv[]) {
 
   if (AppIsOffScreenRenderingEnabled()) {
     CefRefPtr<CefCommandLine> cmd_line = AppGetCommandLine();
-    bool transparent =
+    const bool transparent =
         cmd_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
+    const bool show_update_rect =
+        cmd_line->HasSwitch(cefclient::kShowUpdateRect);
 
     // Create the GTKGL surface.
     CefRefPtr<OSRWindow> osr_window =
-        OSRWindow::Create(&g_main_browser_provider, transparent, vbox);
+        OSRWindow::Create(&g_main_browser_provider, transparent,
+                          show_update_rect, vbox);
 
     // Show the GTK window.
     gtk_widget_show_all(GTK_WIDGET(window));
