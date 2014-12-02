@@ -1096,12 +1096,14 @@ class ScopedGLContext {
 // static
 CefRefPtr<OSRWindow> OSRWindow::Create(OSRBrowserProvider* browser_provider,
                                        bool transparent,
+                                       bool show_update_rect,
                                        ClientWindowHandle parentView) {
   DCHECK(browser_provider);
   if (!browser_provider)
     return NULL;
 
-  return new OSRWindow(browser_provider, transparent, parentView);
+  return new OSRWindow(browser_provider, transparent, show_update_rect,
+                       parentView);
 }
 
 // static
@@ -1241,8 +1243,9 @@ void OSRWindow::ApplyPopupOffset(int& x, int& y) const {
 
 OSRWindow::OSRWindow(OSRBrowserProvider* browser_provider,
                      bool transparent,
+                     bool show_update_rect,
                      ClientWindowHandle parentView)
-    : renderer_(transparent),
+    : renderer_(transparent, show_update_rect),
       browser_provider_(browser_provider),
       gl_enabled_(false),
       painting_popup_(false),

@@ -24,6 +24,7 @@ class OSRWindow : public ClientHandler::RenderHandler {
   // object.
   static CefRefPtr<OSRWindow> Create(OSRBrowserProvider* browser_provider,
                                      bool transparent,
+                                     bool show_update_rect,
                                      ClientWindowHandle parentView);
 
   static CefRefPtr<OSRWindow> From(
@@ -73,6 +74,7 @@ class OSRWindow : public ClientHandler::RenderHandler {
  private:
   OSRWindow(OSRBrowserProvider* browser_provider,
             bool transparent,
+            bool show_update_rect,
             ClientWindowHandle parentView);
   virtual ~OSRWindow();
 

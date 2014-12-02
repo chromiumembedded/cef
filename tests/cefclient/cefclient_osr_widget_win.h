@@ -28,7 +28,8 @@ class OSRWindow : public ClientHandler::RenderHandler
   // Create a new OSRWindow instance. |browser_provider| must outlive this
   // object.
   static CefRefPtr<OSRWindow> Create(OSRBrowserProvider* browser_provider,
-                                     bool transparent);
+                                     bool transparent,
+                                     bool show_update_rect);
 
   static CefRefPtr<OSRWindow> From(
       CefRefPtr<ClientHandler::RenderHandler> renderHandler);
@@ -100,7 +101,9 @@ class OSRWindow : public ClientHandler::RenderHandler
   static int GetCefMouseModifiers(WPARAM wparam);
 
  private:
-  OSRWindow(OSRBrowserProvider* browser_provider, bool transparent);
+  OSRWindow(OSRBrowserProvider* browser_provider,
+            bool transparent,
+            bool show_update_rect);
   virtual ~OSRWindow();
 
   void Render();
