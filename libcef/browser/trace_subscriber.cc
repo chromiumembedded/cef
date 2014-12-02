@@ -71,6 +71,13 @@ bool CefTraceSubscriber::EndTracing(
   if (!collecting_trace_data_)
     return false;
 
+  if (!callback.get()) {
+    // Discard the trace data.
+    collecting_trace_data_ = false;
+    TracingController::GetInstance()->DisableRecording(NULL);
+    return true;
+  }
+
   if (tracing_file.empty()) {
     // Create a new temporary file path on the FILE thread, then continue.
     CEF_POST_TASK(CEF_FILET,
@@ -81,12 +88,9 @@ bool CefTraceSubscriber::EndTracing(
     return true;
   }
 
-  base::Closure result_callback;
-  if (callback.get()) {
-    result_callback =
-        base::Bind(&CefTraceSubscriber::OnTracingFileResult,
-                   weak_factory_.GetWeakPtr(), callback, tracing_file);
-  }
+  base::Closure result_callback =
+      base::Bind(&CefTraceSubscriber::OnTracingFileResult,
+                 weak_factory_.GetWeakPtr(), callback, tracing_file);
 
   TracingController::GetInstance()->DisableRecording(
       TracingController::CreateFileSink(tracing_file, result_callback));
