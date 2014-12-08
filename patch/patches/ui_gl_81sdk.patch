@@ -1,0 +1,13 @@
+diff --git gl_implementation_win.cc gl_implementation_win.cc
+index b4dd38c..fff9018 100644
+--- gl_implementation_win.cc
++++ gl_implementation_win.cc
+@@ -33,7 +33,7 @@ namespace gfx {
+ 
+ namespace {
+ 
+-const wchar_t kD3DCompiler[] = L"D3DCompiler_46.dll";
++const wchar_t kD3DCompiler[] = L"D3DCompiler_47.dll";
+ 
+ void GL_BINDING_CALL MarshalClearDepthToClearDepthf(GLclampd depth) {
+   glClearDepthf(static_cast<GLclampf>(depth));

@@ -1,0 +1,23 @@
+diff --git src/angle.gypi src/angle.gypi
+index 8629c2e..ea1defb 100644
+--- src/angle.gypi
++++ src/angle.gypi
+@@ -113,7 +113,7 @@
+                             'message': 'Copying D3D Compiler DLL...',
+                             'msvs_cygwin_shell': 0,
+                             'inputs': [ 'copy_compiler_dll.bat' ],
+-                            'outputs': [ '<(PRODUCT_DIR)/d3dcompiler_46.dll' ],
++                            'outputs': [ '<(PRODUCT_DIR)/d3dcompiler_47.dll' ],
+                             'action':
+                             [
+                                 "<(angle_gen_path)/copy_compiler_dll.bat",
+diff --git src/copy_compiler_dll.bat src/copy_compiler_dll.bat
+index 72aeffc..63fc427 100644
+--- src/copy_compiler_dll.bat
++++ src/copy_compiler_dll.bat
+@@ -1,4 +1,4 @@
+ @echo off
+ set _arch=%1
+ set _arch=%_arch:Win32=x86%
+-copy %2"\Redist\D3D\"%_arch%"\d3dcompiler_46.dll" %3 > NUL
++copy %2"\Redist\D3D\"%_arch%"\d3dcompiler_47.dll" %3 > NUL

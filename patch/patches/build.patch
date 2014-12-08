@@ -1,5 +1,5 @@
 diff --git common.gypi common.gypi
-index f3f28c7..93d7238 100644
+index f3f28c7..2d2f0f7 100644
 --- common.gypi
 +++ common.gypi
 @@ -9,6 +9,9 @@
@@ -12,10 +12,20 @@ index f3f28c7..93d7238 100644
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
-@@ -5394,6 +5397,9 @@
+@@ -1567,7 +1570,7 @@
+       ['OS=="win" and "<!pymod_do_main(dir_exists <(windows_sdk_default_path))"=="True"', {
+         'windows_sdk_path%': '<(windows_sdk_default_path)',
+       }, {
+-        'windows_sdk_path%': 'C:/Program Files (x86)/Windows Kits/8.0',
++        'windows_sdk_path%': 'C:/Program Files (x86)/Windows Kits/8.1',
+       }],
+       ['OS=="win" and "<!pymod_do_main(dir_exists <(directx_sdk_default_path))"=="True"', {
+         'directx_sdk_path%': '<(directx_sdk_default_path)',
+@@ -5394,6 +5397,10 @@
            4510, # Default constructor could not be generated
            4512, # Assignment operator could not be generated
            4610, # Object can never be instantiated
++          4996, # 'X': was declared deprecated (for GetVersionEx)
 +          # Disable Warning 4702 ("Unreachable code")
 +          # https://code.google.com/p/chromium/issues/detail?id=346399#c55
 +          4702,
@@ -52,3 +62,21 @@ index c9cf226..0dedbe3 100755
                                stdout=subprocess.PIPE)
  
    archs = []
+diff --git toolchain/win/setup_toolchain.py toolchain/win/setup_toolchain.py
+index 5e292ab..b49025c 100644
+--- toolchain/win/setup_toolchain.py
++++ toolchain/win/setup_toolchain.py
+@@ -22,9 +22,13 @@ and the files will be written to the current directory.
+ def ExtractImportantEnvironment():
+   """Extracts environment variables required for the toolchain from the
+   current environment."""
++  # This list should be kept synchronized with _ExtractImportantEnvironment from
++  # tools/gyp/pylib/gyp/msvs_emulation.py.
+   envvars_to_save = (
+       'goma_.*',  # TODO(scottmg): This is ugly, but needed for goma.
+       'include',  # Needed by midl compiler.
++      'lib',
++      'libpath',
+       'path',
+       'pathext',
+       'systemroot',
