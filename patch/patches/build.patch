@@ -22,23 +22,6 @@ index f97bf66..116c7bc 100644
          ],
          'msvs_settings': {
            'VCCLCompilerTool': {
-diff --git gyp_chromium gyp_chromium
-index ad2796b..1407d9c 100755
---- gyp_chromium
-+++ gyp_chromium
-@@ -269,12 +269,6 @@ if __name__ == '__main__':
-   if sys.platform not in ('darwin',):
-     args.append('--no-circular-check')
- 
--  # We explicitly don't support the make gyp generator (crbug.com/348686). Be
--  # nice and fail here, rather than choking in gyp.
--  if re.search(r'(^|,|\s)make($|,|\s)', os.environ.get('GYP_GENERATORS', '')):
--    print 'Error: make gyp generator not supported (check GYP_GENERATORS).'
--    sys.exit(1)
--
-   # If CHROMIUM_GYP_SYNTAX_CHECK is set to 1, it will invoke gyp with --check
-   # to enfore syntax checking.
-   syntax_check = os.environ.get('CHROMIUM_GYP_SYNTAX_CHECK')
 diff --git mac/strip_save_dsym mac/strip_save_dsym
 index c9cf226..0dedbe3 100755
 --- mac/strip_save_dsym
@@ -52,3 +35,16 @@ index c9cf226..0dedbe3 100755
                                stdout=subprocess.PIPE)
  
    archs = []
+diff --git toolchain/win/setup_toolchain.py toolchain/win/setup_toolchain.py
+index 5e292ab..70ad093 100644
+--- toolchain/win/setup_toolchain.py
++++ toolchain/win/setup_toolchain.py
+@@ -25,6 +25,8 @@ def ExtractImportantEnvironment():
+   envvars_to_save = (
+       'goma_.*',  # TODO(scottmg): This is ugly, but needed for goma.
+       'include',  # Needed by midl compiler.
++      'lib',
++      'libpath',
+       'path',
+       'pathext',
+       'systemroot',
