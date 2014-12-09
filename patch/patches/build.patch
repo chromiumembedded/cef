@@ -36,7 +36,7 @@ index c9cf226..0dedbe3 100755
  
    archs = []
 diff --git toolchain/win/setup_toolchain.py toolchain/win/setup_toolchain.py
-index 5e292ab..70ad093 100644
+index 5e292ab..92ea3f4 100644
 --- toolchain/win/setup_toolchain.py
 +++ toolchain/win/setup_toolchain.py
 @@ -25,6 +25,8 @@ def ExtractImportantEnvironment():
@@ -48,3 +48,12 @@ index 5e292ab..70ad093 100644
        'path',
        'pathext',
        'systemroot',
+@@ -90,7 +92,7 @@ important_env_vars = ExtractImportantEnvironment()
+ path = important_env_vars["PATH"].split(";")
+ 
+ # Add 32-bit compiler path to the beginning and write the block.
+-path32 = [os.path.join(vs_path, "VC\\BIN")] + \
++path32 = [os.path.join(vs_path, "VC\\BIN\\amd64_x86")] + \
+          [os.path.join(win_sdk_path, "bin\\x86")] + \
+          path
+ important_env_vars["PATH"] = ";".join(path32)
