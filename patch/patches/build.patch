@@ -63,7 +63,7 @@ index c9cf226..0dedbe3 100755
  
    archs = []
 diff --git toolchain/win/setup_toolchain.py toolchain/win/setup_toolchain.py
-index 5e292ab..b49025c 100644
+index 5e292ab..9e0bb8d 100644
 --- toolchain/win/setup_toolchain.py
 +++ toolchain/win/setup_toolchain.py
 @@ -22,9 +22,13 @@ and the files will be written to the current directory.
@@ -80,3 +80,12 @@ index 5e292ab..b49025c 100644
        'path',
        'pathext',
        'systemroot',
+@@ -90,7 +94,7 @@ important_env_vars = ExtractImportantEnvironment()
+ path = important_env_vars["PATH"].split(";")
+ 
+ # Add 32-bit compiler path to the beginning and write the block.
+-path32 = [os.path.join(vs_path, "VC\\BIN")] + \
++path32 = [os.path.join(vs_path, "VC\\BIN\\amd64_x86")] + \
+          [os.path.join(win_sdk_path, "bin\\x86")] + \
+          path
+ important_env_vars["PATH"] = ";".join(path32)
