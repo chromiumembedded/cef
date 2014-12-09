@@ -54,8 +54,7 @@ if not 'DEPOT_TOOLS_WIN_TOOLCHAIN' in os.environ.keys():
 #   set GYP_MSVS_VERSION=<VS version>
 #   set CEF_VCVARS=<empty .bat file>
 custom_toolchain = False
-if 'WIN_CUSTOM_TOOLCHAIN' in os.environ.keys() and \
-    os.environ['WIN_CUSTOM_TOOLCHAIN'] == '1':
+if bool(int(os.environ.get('WIN_CUSTOM_TOOLCHAIN', '0'))):
   required_vars = [
     'GYP_MSVS_VERSION',
     'VS_ROOT',
