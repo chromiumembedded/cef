@@ -49,6 +49,8 @@ class CefBrowserContextImpl::CefResourceContext : public content::ResourceContex
 
 CefBrowserContextImpl::CefBrowserContextImpl()
     : resource_context_(new CefResourceContext) {
+  BrowserContextDependencyManager::GetInstance()->CreateBrowserContextServices(
+      this);
 }
 
 CefBrowserContextImpl::~CefBrowserContextImpl() {
@@ -69,6 +71,11 @@ CefBrowserContextImpl::~CefBrowserContextImpl() {
 
 base::FilePath CefBrowserContextImpl::GetPath() const {
   return CefContext::Get()->cache_path();
+}
+
+scoped_ptr<content::ZoomLevelDelegate>
+    CefBrowserContextImpl::CreateZoomLevelDelegate(const base::FilePath&) {
+  return scoped_ptr<content::ZoomLevelDelegate>();
 }
 
 bool CefBrowserContextImpl::IsOffTheRecord() const {

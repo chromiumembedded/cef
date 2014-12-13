@@ -580,7 +580,9 @@ bool CefContentRendererClient::OverrideCreatePlugin(
     params_to_use.attributeNames.swap(new_names);
     params_to_use.attributeValues.swap(new_values);
 
-    *plugin = render_frame_impl->CreatePlugin(frame, info, params_to_use);
+    *plugin = render_frame_impl->CreatePlugin(
+        frame, info, params_to_use,
+        content::RenderFrame::POWER_SAVER_MODE_ESSENTIAL);
     return true;
   }
 #endif  // defined(ENABLE_PLUGINS)

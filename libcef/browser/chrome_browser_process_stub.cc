@@ -122,7 +122,7 @@ GpuModeManager* ChromeBrowserProcessStub::gpu_mode_manager() {
 void ChromeBrowserProcessStub::CreateDevToolsHttpProtocolHandler(
     chrome::HostDesktopType host_desktop_type,
     const std::string& ip,
-    int port) {
+    uint16 port) {
 }
 
 unsigned int ChromeBrowserProcessStub::AddRefModule() {

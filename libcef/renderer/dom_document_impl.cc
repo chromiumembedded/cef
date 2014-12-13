@@ -98,18 +98,6 @@ bool CefDOMDocumentImpl::HasSelection() {
   return frame_->hasSelection();
 }
 
-CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetSelectionStartNode() {
-  if (!VerifyContext() || !frame_->hasSelection())
-    return NULL;
-
-  const WebRange& range = frame_->selectionRange();
-  if (range.isNull())
-    return NULL;
-
-  int exceptionCode;
-  return GetOrCreateNode(range.startContainer(exceptionCode));
-}
-
 int CefDOMDocumentImpl::GetSelectionStartOffset() {
   if (!VerifyContext() || !frame_->hasSelection())
     return 0;
@@ -119,18 +107,6 @@ int CefDOMDocumentImpl::GetSelectionStartOffset() {
     return 0;
 
   return range.startOffset();
-}
-
-CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetSelectionEndNode() {
-  if (!VerifyContext() || !frame_->hasSelection())
-    return NULL;
-
-  const WebRange& range = frame_->selectionRange();
-  if (range.isNull())
-    return NULL;
-
-  int exceptionCode;
-  return GetOrCreateNode(range.endContainer(exceptionCode));
 }
 
 int CefDOMDocumentImpl::GetSelectionEndOffset() {

@@ -102,7 +102,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       CreateQuotaPermissionContext() override;
   content::MediaObserver* GetMediaObserver() override;
   content::SpeechRecognitionManagerDelegate*
-      GetSpeechRecognitionManagerDelegate() override;
+      CreateSpeechRecognitionManagerDelegate() override;
   void AllowCertificateError(
       int render_process_id,
       int render_frame_id,

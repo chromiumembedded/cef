@@ -7,7 +7,7 @@
 #if defined(OS_WIN)
 
 namespace base {
-namespace internal {
+namespace cef_internal {
 
 LockImpl::LockImpl() {
   // The second parameter is the spin count, for short-held locks it avoid the
@@ -34,7 +34,7 @@ void LockImpl::Unlock() {
   ::LeaveCriticalSection(&native_handle_);
 }
 
-}  // namespace internal
+}  // namespace cef_internal
 }  // namespace base
 
 #elif defined(OS_POSIX)
@@ -45,7 +45,7 @@ void LockImpl::Unlock() {
 #include "include/base/cef_logging.h"
 
 namespace base {
-namespace internal {
+namespace cef_internal {
 
 LockImpl::LockImpl() {
 #ifndef NDEBUG
@@ -86,7 +86,7 @@ void LockImpl::Unlock() {
   DCHECK_EQ(rv, 0) << ". " << strerror(rv);
 }
 
-}  // namespace internal
+}  // namespace cef_internal
 }  // namespace base
 
 #endif  // defined(OS_POSIX)

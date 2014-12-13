@@ -143,22 +143,6 @@ int CEF_CALLBACK domdocument_has_selection(struct _cef_domdocument_t* self) {
   return _retval;
 }
 
-struct _cef_domnode_t* CEF_CALLBACK domdocument_get_selection_start_node(
-    struct _cef_domdocument_t* self) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return NULL;
-
-  // Execute
-  CefRefPtr<CefDOMNode> _retval = CefDOMDocumentCppToC::Get(
-      self)->GetSelectionStartNode();
-
-  // Return type: refptr_same
-  return CefDOMNodeCppToC::Wrap(_retval);
-}
-
 int CEF_CALLBACK domdocument_get_selection_start_offset(
     struct _cef_domdocument_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -172,22 +156,6 @@ int CEF_CALLBACK domdocument_get_selection_start_offset(
 
   // Return type: simple
   return _retval;
-}
-
-struct _cef_domnode_t* CEF_CALLBACK domdocument_get_selection_end_node(
-    struct _cef_domdocument_t* self) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return NULL;
-
-  // Execute
-  CefRefPtr<CefDOMNode> _retval = CefDOMDocumentCppToC::Get(
-      self)->GetSelectionEndNode();
-
-  // Return type: refptr_same
-  return CefDOMNodeCppToC::Wrap(_retval);
 }
 
 int CEF_CALLBACK domdocument_get_selection_end_offset(
@@ -283,11 +251,8 @@ CefDOMDocumentCppToC::CefDOMDocumentCppToC(CefDOMDocument* cls)
   struct_.struct_.get_element_by_id = domdocument_get_element_by_id;
   struct_.struct_.get_focused_node = domdocument_get_focused_node;
   struct_.struct_.has_selection = domdocument_has_selection;
-  struct_.struct_.get_selection_start_node =
-      domdocument_get_selection_start_node;
   struct_.struct_.get_selection_start_offset =
       domdocument_get_selection_start_offset;
-  struct_.struct_.get_selection_end_node = domdocument_get_selection_end_node;
   struct_.struct_.get_selection_end_offset =
       domdocument_get_selection_end_offset;
   struct_.struct_.get_selection_as_markup = domdocument_get_selection_as_markup;

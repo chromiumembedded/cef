@@ -12,7 +12,7 @@ index a8e088c..838b6a0 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git desktop_aura/desktop_window_tree_host_win.cc desktop_aura/desktop_window_tree_host_win.cc
-index 8fac698..11dcd60 100644
+index 3752373..f588160 100644
 --- desktop_aura/desktop_window_tree_host_win.cc
 +++ desktop_aura/desktop_window_tree_host_win.cc
 @@ -131,7 +131,9 @@ void DesktopWindowTreeHostWin::Init(aura::Window* content_window,
@@ -43,7 +43,7 @@ index 8fac698..11dcd60 100644
    if (input_method)
      input_method->OnBlur();
 diff --git desktop_aura/desktop_window_tree_host_x11.cc desktop_aura/desktop_window_tree_host_x11.cc
-index 3c99281..e6c56b7 100644
+index dd8aa40..5d2a63d 100644
 --- desktop_aura/desktop_window_tree_host_x11.cc
 +++ desktop_aura/desktop_window_tree_host_x11.cc
 @@ -150,7 +150,8 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
@@ -118,7 +118,7 @@ index 3c99281..e6c56b7 100644
        bounds_.x(), bounds_.y(),
        bounds_.width(), bounds_.height(),
        0,               // border width
-@@ -1695,6 +1709,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
+@@ -1696,6 +1710,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
        }
        break;
      }

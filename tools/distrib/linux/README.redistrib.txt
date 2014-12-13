@@ -14,6 +14,10 @@ Required components:
 * Unicode support
     icudtl.dat
 
+* V8 initial snapshot
+    natives_blob.bin
+    snapshot_blob.bin
+
 Optional components:
 
 * Localized resources

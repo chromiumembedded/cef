@@ -19,6 +19,7 @@
 
 #if defined(OS_MACOSX)
 #include "content/browser/compositor/browser_compositor_view_mac.h"
+#include "ui/accelerated_widget_mac/accelerated_widget_mac.h"
 #endif
 
 #if defined(OS_WIN)
@@ -69,7 +70,7 @@ class CefWindowX11;
 class CefRenderWidgetHostViewOSR
     : public content::RenderWidgetHostViewBase,
 #if defined(OS_MACOSX)
-      public content::BrowserCompositorViewMacClient,
+      public ui::AcceleratedWidgetMacNSView,
 #endif
       public content::DelegatedFrameHostClient {
  public:
@@ -142,7 +143,7 @@ class CefRenderWidgetHostViewOSR
   void CopyFromCompositingSurface(
       const gfx::Rect& src_subrect,
       const gfx::Size& dst_size,
-      const base::Callback<void(bool, const SkBitmap&)>& callback,
+      content::ReadbackRequestCallback& callback,
       const SkColorType color_type) override;
   void CopyFromCompositingSurfaceToVideoFrame(
       const gfx::Rect& src_subrect,
@@ -186,10 +187,12 @@ class CefRenderWidgetHostViewOSR
 #endif
 
 #if defined(OS_MACOSX)
-  // BrowserCompositorViewMacClient implementation.
-  bool BrowserCompositorViewShouldAckImmediately() const override;
-  void BrowserCompositorViewFrameSwapped(
+  // AcceleratedWidgetMacNSView implementation.
+  NSView* AcceleratedWidgetGetNSView() const override;
+  bool AcceleratedWidgetShouldIgnoreBackpressure() const override;
+  void AcceleratedWidgetSwapCompleted(
       const std::vector<ui::LatencyInfo>& latency_info) override;
+  void AcceleratedWidgetHitError() override;
 #endif  // defined(OS_MACOSX)
 
   // DelegatedFrameHostClient implementation.
@@ -318,7 +321,7 @@ class CefRenderWidgetHostViewOSR
 #elif defined(OS_MACOSX)
   NSWindow* window_;
   CALayer* background_layer_;
-  scoped_ptr<content::BrowserCompositorViewMac> compositor_view_;
+  scoped_ptr<content::BrowserCompositorMac> browser_compositor_;
 #elif defined(USE_X11)
   CefWindowX11* window_;
 #endif

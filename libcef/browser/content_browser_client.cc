@@ -37,6 +37,7 @@
 #include "content/public/browser/access_token_store.h"
 #include "content/public/browser/browser_url_handler.h"
 #include "content/public/browser/child_process_security_policy.h"
+#include "content/public/browser/geolocation_provider.h"
 #include "content/public/browser/plugin_service_filter.h"
 #include "content/public/browser/quota_permission_context.h"
 #include "content/public/browser/render_process_host.h"
@@ -190,6 +191,11 @@ class CefGeolocationCallbackImpl : public CefGeolocationCallback {
   void Continue(bool allow) override {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (!callback_.is_null()) {
+        if (allow) {
+          content::GeolocationProvider::GetInstance()->
+              UserDidOptIntoLocationServices();
+        }
+
         callback_.Run(allow);
         callback_.Reset();
       }
@@ -725,7 +731,7 @@ content::MediaObserver* CefContentBrowserClient::GetMediaObserver() {
 }
 
 content::SpeechRecognitionManagerDelegate*
-    CefContentBrowserClient::GetSpeechRecognitionManagerDelegate() {
+    CefContentBrowserClient::CreateSpeechRecognitionManagerDelegate() {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kEnableSpeechInput))

@@ -6,6 +6,7 @@
 #include <algorithm>
 #include "base/logging.h"
 #include "base/strings/string16.h"
+#include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 
 namespace {
@@ -20,6 +21,12 @@ void string_utf8_dtor(char* str) {
 
 void string_utf16_dtor(char16* str) {
   delete [] str;
+}
+
+// Originally from base/strings/utf_string_conversions.cc
+std::wstring ASCIIToWide(const base::StringPiece& ascii) {
+  DCHECK(base::IsStringASCII(ascii)) << ascii;
+  return std::wstring(ascii.begin(), ascii.end());
 }
 
 }  // namespace
@@ -225,13 +232,13 @@ CEF_EXPORT int cef_string_utf16_to_utf8(const char16* src, size_t src_len,
 
 CEF_EXPORT int cef_string_ascii_to_wide(const char* src, size_t src_len,
                                         cef_string_wide_t* output) {
-  std::wstring str = base::ASCIIToWide(std::string(src, src_len));
+  const std::wstring& str = ASCIIToWide(std::string(src, src_len));
   return cef_string_wide_set(str.c_str(), str.length(), output, true);
 }
 
 CEF_EXPORT int cef_string_ascii_to_utf16(const char* src, size_t src_len,
                                          cef_string_utf16_t* output) {
-  base::string16 str = base::ASCIIToUTF16(std::string(src, src_len));
+  const base::string16& str = base::ASCIIToUTF16(std::string(src, src_len));
   return cef_string_utf16_set(str.c_str(), str.length(), output, true);
 }
 

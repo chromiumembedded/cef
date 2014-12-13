@@ -199,7 +199,7 @@ std::wstring GetFilterStringFromAcceptTypes(
     if (ascii_type.length()) {
       // Just treat as extension if contains '.' as the first character.
       if (ascii_type[0] == '.') {
-        extensions.push_back(L"*" + base::ASCIIToWide(ascii_type));
+        extensions.push_back(L"*" + base::ASCIIToUTF16(ascii_type));
         descriptions.push_back(std::wstring());
       } else {
         // Otherwise convert mime type to one or more extensions.
@@ -398,7 +398,7 @@ const int kMaxAddressLengthChars = 2048;
 bool HasExternalHandler(const std::string& scheme) {
   base::win::RegKey key;
   const std::wstring registry_path =
-      base::ASCIIToWide(scheme + "\\shell\\open\\command");
+      base::ASCIIToUTF16(scheme + "\\shell\\open\\command");
   key.Open(HKEY_CLASSES_ROOT, registry_path.c_str(), KEY_READ);
   if (key.Valid()) {
     DWORD size = 0;

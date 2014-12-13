@@ -31,9 +31,7 @@ class CefDOMDocumentImpl : public CefDOMDocument {
   CefRefPtr<CefDOMNode> GetElementById(const CefString& id) override;
   CefRefPtr<CefDOMNode> GetFocusedNode() override;
   bool HasSelection() override;
-  CefRefPtr<CefDOMNode> GetSelectionStartNode() override;
   int GetSelectionStartOffset() override;
-  CefRefPtr<CefDOMNode> GetSelectionEndNode() override;
   int GetSelectionEndOffset() override;
   CefString GetSelectionAsMarkup() override;
   CefString GetSelectionAsText() override;

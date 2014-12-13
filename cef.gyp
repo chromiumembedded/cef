@@ -1128,6 +1128,8 @@
         '<(DEPTH)/chrome/browser/printing/print_job_worker_owner.h',
         '<(DEPTH)/chrome/browser/printing/printer_query.cc',
         '<(DEPTH)/chrome/browser/printing/printer_query.h',
+        '<(DEPTH)/chrome/common/extensions/extension_constants.cc',
+        '<(DEPTH)/chrome/common/extensions/extension_constants.h',
         '<(DEPTH)/chrome/common/prerender_messages.h',
         '<(DEPTH)/chrome/common/print_messages.cc',
         '<(DEPTH)/chrome/common/print_messages.h',
@@ -1137,6 +1139,8 @@
         '<(DEPTH)/chrome/renderer/prerender/prerender_helper.h',
         '<(DEPTH)/chrome/renderer/printing/print_web_view_helper.cc',
         '<(DEPTH)/chrome/renderer/printing/print_web_view_helper.h',
+        '<(DEPTH)/extensions/common/constants.cc',
+        '<(DEPTH)/extensions/common/constants.h',
         # Include header for stub creation (BrowserProcess) so print_job_worker can
         # determine the current locale.
         '<(DEPTH)/chrome/browser/browser_process.cc',
@@ -1287,6 +1291,8 @@
             '<(PRODUCT_DIR)/cef_200_percent.pak',
             '<(PRODUCT_DIR)/devtools_resources.pak',
             '<(PRODUCT_DIR)/icudtl.dat',
+            '<(PRODUCT_DIR)/natives_blob.bin',
+            '<(PRODUCT_DIR)/snapshot_blob.bin',
             'libcef/resources/framework-Info.plist',
           ],
           'mac_bundle_resources!': [

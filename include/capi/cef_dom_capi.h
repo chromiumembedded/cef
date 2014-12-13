@@ -128,21 +128,9 @@ typedef struct _cef_domdocument_t {
   int (CEF_CALLBACK *has_selection)(struct _cef_domdocument_t* self);
 
   ///
-  // Returns the selection start node.
-  ///
-  struct _cef_domnode_t* (CEF_CALLBACK *get_selection_start_node)(
-      struct _cef_domdocument_t* self);
-
-  ///
   // Returns the selection offset within the start node.
   ///
   int (CEF_CALLBACK *get_selection_start_offset)(
-      struct _cef_domdocument_t* self);
-
-  ///
-  // Returns the selection end node.
-  ///
-  struct _cef_domnode_t* (CEF_CALLBACK *get_selection_end_node)(
       struct _cef_domdocument_t* self);
 
   ///

@@ -6,11 +6,11 @@
 #define CEF_LIBCEF_BROWSER_URL_NETWORK_DELEGATE_H_
 #pragma once
 
-#include "net/base/network_delegate.h"
+#include "net/base/network_delegate_impl.h"
 
 // Used for intercepting resource requests, redirects and responses. The single
 // instance of this class is managed by CefURLRequestContextGetter.
-class CefNetworkDelegate : public net::NetworkDelegate {
+class CefNetworkDelegate : public net::NetworkDelegateImpl {
  public:
   CefNetworkDelegate();
   ~CefNetworkDelegate() override;

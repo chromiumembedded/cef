@@ -41,7 +41,7 @@ const char kTargetTypeOther[] = "other";
 class TCPServerSocketFactory
     : public content::DevToolsHttpHandler::ServerSocketFactory {
  public:
-  TCPServerSocketFactory(const std::string& address, int port, int backlog)
+  TCPServerSocketFactory(const std::string& address, uint16 port, int backlog)
       : content::DevToolsHttpHandler::ServerSocketFactory(
             address, port, backlog) {}
 
@@ -56,7 +56,7 @@ class TCPServerSocketFactory
 };
 
 scoped_ptr<content::DevToolsHttpHandler::ServerSocketFactory>
-    CreateSocketFactory(int port) {
+    CreateSocketFactory(uint16 port) {
   return scoped_ptr<content::DevToolsHttpHandler::ServerSocketFactory>(
       new TCPServerSocketFactory("127.0.0.1", port, 1));
 }
@@ -126,20 +126,21 @@ bool Target::Close() const {
 
 // CefDevToolsDelegate
 
-CefDevToolsDelegate::CefDevToolsDelegate(int port) {
-  devtools_http_handler_ = content::DevToolsHttpHandler::Start(
+CefDevToolsDelegate::CefDevToolsDelegate(uint16 port) {
+  devtools_http_handler_.reset(content::DevToolsHttpHandler::Start(
       CreateSocketFactory(port),
       std::string(),
       this,
-      base::FilePath());
+      base::FilePath()));
 }
 
 CefDevToolsDelegate::~CefDevToolsDelegate() {
+  DCHECK(!devtools_http_handler_.get());
 }
 
 void CefDevToolsDelegate::Stop() {
-  // The call below destroys this.
-  devtools_http_handler_->Stop();
+  // The call below deletes |this|.
+  devtools_http_handler_.reset();
 }
 
 std::string CefDevToolsDelegate::GetDiscoveryPageHTML() {
@@ -155,11 +156,9 @@ base::FilePath CefDevToolsDelegate::GetDebugFrontendDir() {
   return base::FilePath();
 }
 
-scoped_ptr<net::StreamListenSocket>
-    CefDevToolsDelegate::CreateSocketForTethering(
-        net::StreamListenSocket::Delegate* delegate,
-        std::string* name) {
-  return scoped_ptr<net::StreamListenSocket>();
+scoped_ptr<net::ServerSocket>
+    CefDevToolsDelegate::CreateSocketForTethering(std::string* name) {
+  return scoped_ptr<net::ServerSocket>();
 }
 
 std::string CefDevToolsDelegate::GetChromeDevToolsURL() {

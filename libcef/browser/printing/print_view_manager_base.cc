@@ -163,7 +163,7 @@ void PrintViewManagerBase::OnDidPrintPage(
         reinterpret_cast<const unsigned char*>(shared_buf.memory()),
         params.data_size);
 
-    document->DebugDumpData(bytes, FILE_PATH_LITERAL(".pdf"));
+    document->DebugDumpData(bytes.get(), FILE_PATH_LITERAL(".pdf"));
     print_job_->StartPdfToEmfConversion(
         bytes, params.page_size, params.content_area);
   }

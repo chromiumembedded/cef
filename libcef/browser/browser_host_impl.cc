@@ -2256,7 +2256,8 @@ void CefBrowserHostImpl::DidNavigateMainFramePostCommit(
 }
 
 content::JavaScriptDialogManager*
-    CefBrowserHostImpl::GetJavaScriptDialogManager() {
+    CefBrowserHostImpl::GetJavaScriptDialogManager(
+        content::WebContents* source) {
   if (!dialog_manager_.get())
     dialog_manager_.reset(new CefJavaScriptDialogManager(this));
   return dialog_manager_.get();

@@ -129,19 +129,6 @@ bool CefDOMDocumentCToCpp::HasSelection() {
   return _retval?true:false;
 }
 
-CefRefPtr<CefDOMNode> CefDOMDocumentCToCpp::GetSelectionStartNode() {
-  if (CEF_MEMBER_MISSING(struct_, get_selection_start_node))
-    return NULL;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_domnode_t* _retval = struct_->get_selection_start_node(struct_);
-
-  // Return type: refptr_same
-  return CefDOMNodeCToCpp::Wrap(_retval);
-}
-
 int CefDOMDocumentCToCpp::GetSelectionStartOffset() {
   if (CEF_MEMBER_MISSING(struct_, get_selection_start_offset))
     return 0;
@@ -153,19 +140,6 @@ int CefDOMDocumentCToCpp::GetSelectionStartOffset() {
 
   // Return type: simple
   return _retval;
-}
-
-CefRefPtr<CefDOMNode> CefDOMDocumentCToCpp::GetSelectionEndNode() {
-  if (CEF_MEMBER_MISSING(struct_, get_selection_end_node))
-    return NULL;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_domnode_t* _retval = struct_->get_selection_end_node(struct_);
-
-  // Return type: refptr_same
-  return CefDOMNodeCToCpp::Wrap(_retval);
 }
 
 int CefDOMDocumentCToCpp::GetSelectionEndOffset() {

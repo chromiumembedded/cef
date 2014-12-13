@@ -383,7 +383,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
                           content::WebContents* new_contents) override;
   void DidNavigateMainFramePostCommit(
       content::WebContents* tab) override;
-  content::JavaScriptDialogManager* GetJavaScriptDialogManager() override;
+  content::JavaScriptDialogManager* GetJavaScriptDialogManager(
+      content::WebContents* source) override;
   void RunFileChooser(
       content::WebContents* tab,
       const content::FileChooserParams& params) override;

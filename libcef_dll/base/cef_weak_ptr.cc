@@ -5,7 +5,7 @@
 #include "include/base/cef_weak_ptr.h"
 
 namespace base {
-namespace internal {
+namespace cef_internal {
 
 WeakReference::Flag::Flag() : is_valid_(true) {
   // Flags only become bound when checked for validity, or invalidated,
@@ -73,5 +73,5 @@ WeakPtrBase::~WeakPtrBase() {
 WeakPtrBase::WeakPtrBase(const WeakReference& ref) : ref_(ref) {
 }
 
-}  // namespace internal
+}  // namespace cef_internal
 }  // namespace base

@@ -47,7 +47,8 @@
 
 CefBrowserMainParts::CefBrowserMainParts(
     const content::MainFunctionParams& parameters)
-    : BrowserMainParts() {
+    : BrowserMainParts(),
+      devtools_delegate_(NULL) {
 }
 
 CefBrowserMainParts::~CefBrowserMainParts() {
@@ -145,7 +146,8 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
         command_line.GetSwitchValueASCII(switches::kRemoteDebuggingPort);
     int port;
     if (base::StringToInt(port_str, &port) && port > 0 && port < 65535) {
-      devtools_delegate_.reset(new CefDevToolsDelegate(port));
+      devtools_delegate_ =
+          new CefDevToolsDelegate(static_cast<uint16>(port));
     } else {
       LOG(WARNING) << "Invalid http debugger port number " << port;
     }
@@ -155,8 +157,10 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
 }
 
 void CefBrowserMainParts::PostMainMessageLoopRun() {
-  if (devtools_delegate_)
+  if (devtools_delegate_) {
     devtools_delegate_->Stop();
+    devtools_delegate_ = NULL;
+  }
   pref_proxy_config_tracker_->DetachFromPrefService();
 
   // Only the global browser context should still exist.

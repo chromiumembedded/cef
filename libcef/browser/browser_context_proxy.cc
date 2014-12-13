@@ -52,6 +52,8 @@ CefBrowserContextProxy::CefBrowserContextProxy(
       handler_(handler),
       parent_(parent),
       resource_context_(new CefResourceContext) {
+  BrowserContextDependencyManager::GetInstance()->CreateBrowserContextServices(
+      this);
 }
 
 CefBrowserContextProxy::~CefBrowserContextProxy() {
@@ -67,6 +69,12 @@ CefBrowserContextProxy::~CefBrowserContextProxy() {
 
 base::FilePath CefBrowserContextProxy::GetPath() const {
   return parent_->GetPath();
+}
+
+scoped_ptr<content::ZoomLevelDelegate>
+    CefBrowserContextProxy::CreateZoomLevelDelegate(
+        const base::FilePath& partition_path) {
+  return parent_->CreateZoomLevelDelegate(partition_path);
 }
 
 bool CefBrowserContextProxy::IsOffTheRecord() const {

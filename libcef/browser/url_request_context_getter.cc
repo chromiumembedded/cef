@@ -231,6 +231,8 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
                                              ftp_transaction_factory_.get());
     protocol_handlers_.clear();
 
+    request_interceptors_.push_back(new CefRequestInterceptor());
+
     // Set up interceptors in the reverse order.
     scoped_ptr<net::URLRequestJobFactory> top_job_factory =
         job_factory.Pass();
@@ -244,8 +246,6 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
     request_interceptors_.weak_clear();
 
     storage_->set_job_factory(top_job_factory.release());
-
-    request_interceptor_.reset(new CefRequestInterceptor);
   }
 
   return url_request_context_.get();

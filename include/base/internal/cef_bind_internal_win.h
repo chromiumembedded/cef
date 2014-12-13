@@ -41,7 +41,7 @@
 #if !defined(ARCH_CPU_X86_64)
 
 namespace base {
-namespace internal {
+namespace cef_internal {
 
 template <typename Functor>
 class RunnableAdapter;
@@ -382,7 +382,7 @@ class RunnableAdapter<R(__fastcall *)(A1, A2, A3, A4, A5, A6, A7)> {
   R (__fastcall *function_)(A1, A2, A3, A4, A5, A6, A7);
 };
 
-}  // namespace internal
+}  // namespace cef_internal
 }  // namespace base
 
 #endif  // !defined(ARCH_CPU_X86_64)

@@ -7,7 +7,7 @@
 #include "include/base/cef_logging.h"
 
 namespace base {
-namespace internal {
+namespace cef_internal {
 
 void CallbackBase::Reset() {
   polymorphic_invoke_ = NULL;
@@ -30,5 +30,5 @@ CallbackBase::CallbackBase(BindStateBase* bind_state)
 CallbackBase::~CallbackBase() {
 }
 
-}  // namespace internal
+}  // namespace cef_internal
 }  // namespace base

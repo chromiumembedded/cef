@@ -1,5 +1,5 @@
 diff --git content_browser_client.cc content_browser_client.cc
-index 728d822..cbbd248 100644
+index c5c672f..dd84884 100644
 --- content_browser_client.cc
 +++ content_browser_client.cc
 @@ -273,6 +273,10 @@ bool ContentBrowserClient::IsFastShutdownPossible() {
@@ -14,10 +14,10 @@ index 728d822..cbbd248 100644
    return base::FilePath();
  }
 diff --git content_browser_client.h content_browser_client.h
-index 5a27d98..74184f1 100644
+index 0934c9a..035ac1b 100644
 --- content_browser_client.h
 +++ content_browser_client.h
-@@ -28,6 +28,7 @@
+@@ -29,6 +29,7 @@
  #include "net/url_request/url_request_interceptor.h"
  #include "net/url_request/url_request_job_factory.h"
  #include "storage/browser/fileapi/file_system_context.h"
@@ -25,7 +25,7 @@ index 5a27d98..74184f1 100644
  #include "third_party/WebKit/public/platform/WebNotificationPermission.h"
  #include "ui/base/window_open_disposition.h"
  
-@@ -507,6 +508,9 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -514,6 +515,9 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Clears browser cookies.
    virtual void ClearCookies(RenderViewHost* rvh) {}
  
@@ -89,7 +89,7 @@ index 5478a37..d34c1da 100644
  
    // Creates a new WebContents.
 diff --git web_contents_delegate.cc web_contents_delegate.cc
-index f264df7..bded79a 100644
+index eefb8ab..b4646f8 100644
 --- web_contents_delegate.cc
 +++ web_contents_delegate.cc
 @@ -136,7 +136,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
@@ -104,7 +104,7 @@ index f264df7..bded79a 100644
  }
  
 diff --git web_contents_delegate.h web_contents_delegate.h
-index bcd5caf..35b8934 100644
+index 17bed7f..64181d0 100644
 --- web_contents_delegate.h
 +++ web_contents_delegate.h
 @@ -36,9 +36,11 @@ class DownloadItem;

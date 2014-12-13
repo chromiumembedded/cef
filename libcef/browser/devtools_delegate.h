@@ -23,7 +23,7 @@ class RenderViewHost;
 
 class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
  public:
-  explicit CefDevToolsDelegate(int port);
+  explicit CefDevToolsDelegate(uint16 port);
   ~CefDevToolsDelegate() override;
 
   // Stops http server.
@@ -33,15 +33,14 @@ class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   std::string GetDiscoveryPageHTML() override;
   bool BundlesFrontendResources() override;
   base::FilePath GetDebugFrontendDir() override;
- scoped_ptr<net::StreamListenSocket> CreateSocketForTethering(
-      net::StreamListenSocket::Delegate* delegate,
+  scoped_ptr<net::ServerSocket> CreateSocketForTethering(
       std::string* name) override;
 
   // Returns the chrome-devtools URL.
   std::string GetChromeDevToolsURL();
 
  private:
-  content::DevToolsHttpHandler* devtools_http_handler_;
+  scoped_ptr<content::DevToolsHttpHandler> devtools_http_handler_;
 
   DISALLOW_COPY_AND_ASSIGN(CefDevToolsDelegate);
 };

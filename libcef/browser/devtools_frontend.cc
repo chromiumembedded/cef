@@ -11,6 +11,7 @@
 
 #include "base/command_line.h"
 #include "base/json/json_reader.h"
+#include "base/json/json_writer.h"
 #include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/utf_string_conversions.h"
@@ -94,14 +95,10 @@ void CefDevToolsFrontend::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
   if (!frontend_host_) {
     frontend_host_.reset(
-        content::DevToolsFrontendHost::Create(render_view_host, this));
+        content::DevToolsFrontendHost::Create(
+            web_contents()->GetMainFrame(), this));
     agent_host_->AttachClient(this);
   }
-}
-
-void CefDevToolsFrontend::DocumentOnLoadCompletedInMainFrame() {
-  web_contents()->GetMainFrame()->ExecuteJavaScript(
-      base::ASCIIToUTF16("InspectorFrontendAPI.setUseSoftMenu(true);"));
 }
 
 void CefDevToolsFrontend::WebContentsDestroyed() {
@@ -112,30 +109,31 @@ void CefDevToolsFrontend::WebContentsDestroyed() {
 void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     const std::string& message) {
   std::string method;
-  std::string browser_message;
   int id = 0;
-
   base::ListValue* params = NULL;
   base::DictionaryValue* dict = NULL;
   scoped_ptr<base::Value> parsed_message(base::JSONReader::Read(message));
   if (!parsed_message ||
       !parsed_message->GetAsDictionary(&dict) ||
-      !dict->GetString("method", &method) ||
-      !dict->GetList("params", &params)) {
+      !dict->GetString("method", &method)) {
+    return;
+  }
+  dict->GetList("params", &params);
+
+  std::string browser_message;
+  if (method == "sendMessageToBrowser" && params &&
+      params->GetSize() == 1 && params->GetString(0, &browser_message)) {
+    agent_host_->DispatchProtocolMessage(browser_message);
+  } else if (method == "loadCompleted") {
+    web_contents()->GetMainFrame()->ExecuteJavaScript(
+        base::ASCIIToUTF16("DevToolsAPI.setUseSoftMenu(true);"));
+  } else {
     return;
   }
 
-  if (method != "sendMessageToBrowser" ||
-      params->GetSize() != 1 ||
-      !params->GetString(0, &browser_message)) {
-    return;
-  }
   dict->GetInteger("id", &id);
-
-  agent_host_->DispatchProtocolMessage(browser_message);
-
   if (id) {
-    std::string code = "InspectorFrontendAPI.embedderMessageAck(" +
+    std::string code = "DevToolsAPI.embedderMessageAck(" +
         base::IntToString(id) + ",\"\");";
     base::string16 javascript = base::UTF8ToUTF16(code);
     web_contents()->GetMainFrame()->ExecuteJavaScript(javascript);
@@ -150,7 +148,10 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontendToBackend(
 void CefDevToolsFrontend::DispatchProtocolMessage(
     content::DevToolsAgentHost* agent_host,
     const std::string& message) {
-  std::string code = "InspectorFrontendAPI.dispatchMessage(" + message + ");";
+  base::StringValue message_value(message);
+  std::string param;
+  base::JSONWriter::Write(&message_value, &param);
+  std::string code = "DevToolsAPI.dispatchMessage(" + param + ");";
   base::string16 javascript = base::UTF8ToUTF16(code);
   web_contents()->GetMainFrame()->ExecuteJavaScript(javascript);
 }

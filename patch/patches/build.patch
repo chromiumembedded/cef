@@ -1,5 +1,5 @@
 diff --git common.gypi common.gypi
-index f97bf66..116c7bc 100644
+index c899e14..435bfb5 100644
 --- common.gypi
 +++ common.gypi
 @@ -9,6 +9,9 @@
@@ -12,16 +12,6 @@ index f97bf66..116c7bc 100644
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
-@@ -5486,6 +5489,9 @@
-           4510, # Default constructor could not be generated
-           4512, # Assignment operator could not be generated
-           4610, # Object can never be instantiated
-+          # Disable Warning 4702 ("Unreachable code")
-+          # https://code.google.com/p/chromium/issues/detail?id=346399#c55
-+          4702,
-         ],
-         'msvs_settings': {
-           'VCCLCompilerTool': {
 diff --git mac/strip_save_dsym mac/strip_save_dsym
 index c9cf226..0dedbe3 100755
 --- mac/strip_save_dsym
@@ -35,25 +25,3 @@ index c9cf226..0dedbe3 100755
                                stdout=subprocess.PIPE)
  
    archs = []
-diff --git toolchain/win/setup_toolchain.py toolchain/win/setup_toolchain.py
-index 5e292ab..92ea3f4 100644
---- toolchain/win/setup_toolchain.py
-+++ toolchain/win/setup_toolchain.py
-@@ -25,6 +25,8 @@ def ExtractImportantEnvironment():
-   envvars_to_save = (
-       'goma_.*',  # TODO(scottmg): This is ugly, but needed for goma.
-       'include',  # Needed by midl compiler.
-+      'lib',
-+      'libpath',
-       'path',
-       'pathext',
-       'systemroot',
-@@ -90,7 +92,7 @@ important_env_vars = ExtractImportantEnvironment()
- path = important_env_vars["PATH"].split(";")
- 
- # Add 32-bit compiler path to the beginning and write the block.
--path32 = [os.path.join(vs_path, "VC\\BIN")] + \
-+path32 = [os.path.join(vs_path, "VC\\BIN\\amd64_x86")] + \
-          [os.path.join(win_sdk_path, "bin\\x86")] + \
-          path
- important_env_vars["PATH"] = ";".join(path32)

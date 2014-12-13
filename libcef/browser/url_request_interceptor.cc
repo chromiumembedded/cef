@@ -11,23 +11,19 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/request_impl.h"
 
-#include "net/url_request/url_request_job_manager.h"
 #include "net/url_request/url_request_redirect_job.h"
 
 CefRequestInterceptor::CefRequestInterceptor() {
   CEF_REQUIRE_IOT();
-  net::URLRequestJobManager::GetInstance()->RegisterRequestInterceptor(this);
 }
 
 CefRequestInterceptor::~CefRequestInterceptor() {
   CEF_REQUIRE_IOT();
-  net::URLRequestJobManager::GetInstance()->
-      UnregisterRequestInterceptor(this);
 }
 
-net::URLRequestJob* CefRequestInterceptor::MaybeIntercept(
+net::URLRequestJob* CefRequestInterceptor::MaybeInterceptRequest(
     net::URLRequest* request,
-    net::NetworkDelegate* network_delegate) {
+    net::NetworkDelegate* network_delegate) const {
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForRequest(request);
   if (browser.get()) {
@@ -57,7 +53,7 @@ net::URLRequestJob* CefRequestInterceptor::MaybeIntercept(
 net::URLRequestJob* CefRequestInterceptor::MaybeInterceptRedirect(
     net::URLRequest* request,
     net::NetworkDelegate* network_delegate,
-    const GURL& location) {
+    const GURL& location) const {
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForRequest(request);
   if (browser.get()) {
@@ -89,6 +85,6 @@ net::URLRequestJob* CefRequestInterceptor::MaybeInterceptRedirect(
 
 net::URLRequestJob* CefRequestInterceptor::MaybeInterceptResponse(
     net::URLRequest* request,
-    net::NetworkDelegate* network_delegate) {
+    net::NetworkDelegate* network_delegate) const {
   return NULL;
 }

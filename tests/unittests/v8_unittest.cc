@@ -1867,7 +1867,8 @@ class V8RendererTest : public ClientApp::RenderDelegate,
 
   void DevToolsLoadHook(CefRefPtr<CefBrowser> browser) {
     EXPECT_TRUE(browser->IsPopup());
-    CefRefPtr<CefV8Context> context = browser->GetMainFrame()->GetV8Context();
+    CefRefPtr<CefFrame> frame = browser->GetMainFrame();
+    CefRefPtr<CefV8Context> context = frame->GetV8Context();
     static const char* kFuncName = "DevToolsLoaded";
 
     class Handler : public CefV8Handler {
@@ -1905,28 +1906,13 @@ class V8RendererTest : public ClientApp::RenderDelegate,
         kFuncName, func, V8_PROPERTY_ATTRIBUTE_NONE));
     EXPECT_TRUE(context->Exit());
 
-    // Call DevToolsLoaded() when the DevTools window has completed loading.
-    // If the loading is already complete call DevToolsLoaded() immediately.
-    // There is no good indicator that |InspectorFrontendHost.loadCompleted| has
-    // already been called so we depend on potentially fragile loading behavior:
-    // WebInspector.Main._createAppUI calls InspectorFrontendHost.loadCompleted
-    // and then (indirectly) calls InspectorBackend.setConnection which sets
-    // InspectorBackend._connection.
-    std::string jsCode = "(function() {"
-        "  if (InspectorBackend._connection) {"
-        "    window.DevToolsLoaded();"
-        "  } else {"
-        "    var oldLoadCompleted = InspectorFrontendHost.loadCompleted;"
-        "    InspectorFrontendHost.loadCompleted = function() {"
-        "      oldLoadCompleted.call(InspectorFrontendHost);"
-        "      window.DevToolsLoaded();"
-        "    };"
-        "  }"
-        "})();";
-
-    CefRefPtr<CefV8Value> retval;
-    CefRefPtr<CefV8Exception> exception;
-    EXPECT_TRUE(context->Eval(CefString(jsCode), retval, exception));
+    // Dismiss the DevTools window after 500ms. It would be better to hook the
+    // DevTools JS to receive notification of when loading is complete but that
+    // is no longer possible.
+    CefPostDelayedTask(TID_RENDERER, 
+        base::Bind(&CefFrame::ExecuteJavaScript, frame.get(),
+                   "window.DevToolsLoaded()", frame->GetURL(), 0),
+        500);
   }
 
   void DevToolsLoaded(CefRefPtr<CefBrowser> browser) {

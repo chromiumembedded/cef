@@ -51,7 +51,7 @@ class CefBrowserMainParts : public content::BrowserMainParts {
     return global_request_context_;
   }
   CefDevToolsDelegate* devtools_delegate() const {
-    return devtools_delegate_.get();
+    return devtools_delegate_;
   }
   PrefService* pref_service() const { return pref_service_.get(); }
   scoped_ptr<net::ProxyConfigService> proxy_config_service() {
@@ -68,7 +68,7 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   scoped_ptr<CefBrowserContext> global_browser_context_;
   scoped_refptr<net::URLRequestContextGetter> global_request_context_;
   ScopedVector<CefBrowserContext> browser_contexts_;
-  scoped_ptr<CefDevToolsDelegate> devtools_delegate_;
+  CefDevToolsDelegate* devtools_delegate_;  // Deletes itself.
   scoped_ptr<base::MessageLoop> message_loop_;
   scoped_ptr<PrefProxyConfigTracker> pref_proxy_config_tracker_;
   scoped_ptr<net::ProxyConfigService> proxy_config_service_;

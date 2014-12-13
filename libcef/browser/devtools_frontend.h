@@ -47,7 +47,6 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   // WebContentsObserver overrides.
   void RenderViewCreated(
       content::RenderViewHost* render_view_host) override;
-  void DocumentOnLoadCompletedInMainFrame() override;
   void WebContentsDestroyed() override;
 
   // content::DevToolsFrontendHost::Delegate implementation.

@@ -121,22 +121,10 @@ class CefDOMDocument : public virtual CefBase {
   virtual bool HasSelection() =0;
 
   ///
-  // Returns the selection start node.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefDOMNode> GetSelectionStartNode() =0;
-
-  ///
   // Returns the selection offset within the start node.
   ///
   /*--cef()--*/
   virtual int GetSelectionStartOffset() =0;
-
-  ///
-  // Returns the selection end node.
-  ///
-  /*--cef()--*/
-  virtual CefRefPtr<CefDOMNode> GetSelectionEndNode() =0;
 
   ///
   // Returns the selection offset within the end node.

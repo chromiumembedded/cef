@@ -41,9 +41,7 @@ class CefDOMDocumentCToCpp
   virtual CefRefPtr<CefDOMNode> GetElementById(const CefString& id) OVERRIDE;
   virtual CefRefPtr<CefDOMNode> GetFocusedNode() OVERRIDE;
   virtual bool HasSelection() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetSelectionStartNode() OVERRIDE;
   virtual int GetSelectionStartOffset() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetSelectionEndNode() OVERRIDE;
   virtual int GetSelectionEndOffset() OVERRIDE;
   virtual CefString GetSelectionAsMarkup() OVERRIDE;
   virtual CefString GetSelectionAsText() OVERRIDE;

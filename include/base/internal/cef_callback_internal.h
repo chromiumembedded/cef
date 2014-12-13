@@ -45,7 +45,7 @@ template <typename T>
 class ScopedVector;
 
 namespace base {
-namespace internal {
+namespace cef_internal {
 
 // BindStateBase is used to provide an opaque handle that the Callback
 // class can use to represent a function object with bound arguments.  It
@@ -199,7 +199,7 @@ typename enable_if<IsMoveOnlyType<T>::value, T>::type CallbackForward(T& t) {
   return t.Pass();
 }
 
-}  // namespace internal
+}  // namespace cef_internal
 }  // namespace base
 
 #endif  // CEF_INCLUDE_BASE_INTERNAL_CEF_CALLBACK_INTERNAL_H_

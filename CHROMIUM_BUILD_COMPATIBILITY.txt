@@ -7,5 +7,5 @@
 # https://code.google.com/p/chromiumembedded/wiki/BranchesAndBuilding
 
 {
-  'chromium_checkout': '40af916dfb14ca12890e3a7cf8b50d8e62c69695',
+  'chromium_checkout': '8cb76f56a1d0e12b80006e8958187bc8148ea346',
 }

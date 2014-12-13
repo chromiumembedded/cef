@@ -660,6 +660,8 @@ elif platform == 'linux':
     copy_file(os.path.join(build_dir, 'cef_200_percent.pak'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'devtools_resources.pak'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'icudtl.dat'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'natives_blob.bin'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'snapshot_blob.bin'), dst_dir, options.quiet)
     copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), options.quiet)
 
   if mode == 'standard':

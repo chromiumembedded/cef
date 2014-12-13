@@ -46,7 +46,7 @@
 
 namespace base {
 
-namespace internal {
+namespace cef_internal {
 
 template <typename T>
 struct NeedsScopedRefptrButGetsRawPtr {
@@ -147,7 +147,7 @@ struct ParamsUseScopedRefptrCorrectly<Tuple8<A, B, C, D, E, F, G, H> > {
                    NeedsScopedRefptrButGetsRawPtr<H>::value) };
 };
 
-}  // namespace internal
+}  // namespace cef_internal
 
 }  // namespace base
 

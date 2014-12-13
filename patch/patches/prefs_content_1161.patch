@@ -1,8 +1,8 @@
 diff --git public/common/common_param_traits_macros.h public/common/common_param_traits_macros.h
-index cb17472..9fac25e 100644
+index 85e98ce..46b7fb3 100644
 --- public/common/common_param_traits_macros.h
 +++ public/common/common_param_traits_macros.h
-@@ -177,6 +177,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+@@ -186,6 +186,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
    IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
@@ -11,23 +11,23 @@ index cb17472..9fac25e 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git public/common/web_preferences.cc public/common/web_preferences.cc
-index dbe1629..c14ac82 100644
+index 17bf9dc..b76213c 100644
 --- public/common/web_preferences.cc
 +++ public/common/web_preferences.cc
-@@ -150,6 +150,7 @@ WebPreferences::WebPreferences()
-       pinch_overlay_scrollbar_thickness(0),
+@@ -178,6 +178,7 @@ WebPreferences::WebPreferences()
+       rubber_banding_on_compositor_thread(false),
        use_solid_color_scrollbars(false),
        navigate_on_drag_drop(true),
 +      base_background_color(0xFFFFFFFF),  // Color::white
-       v8_cache_options(V8_CACHE_OPTIONS_OFF),
+       v8_cache_options(V8_CACHE_OPTIONS_DEFAULT),
        v8_script_streaming_enabled(false),
        v8_script_streaming_mode(V8_SCRIPT_STREAMING_MODE_ALL),
 diff --git public/common/web_preferences.h public/common/web_preferences.h
-index 057174f..a76d7a7 100644
+index c850133..1cfb3cc 100644
 --- public/common/web_preferences.h
 +++ public/common/web_preferences.h
-@@ -152,6 +152,7 @@ struct CONTENT_EXPORT WebPreferences {
-   int pinch_overlay_scrollbar_thickness;
+@@ -165,6 +165,7 @@ struct CONTENT_EXPORT WebPreferences {
+   bool rubber_banding_on_compositor_thread;
    bool use_solid_color_scrollbars;
    bool navigate_on_drag_drop;
 +  uint32_t base_background_color;
@@ -35,10 +35,10 @@ index 057174f..a76d7a7 100644
    bool v8_script_streaming_enabled;
    V8ScriptStreamingMode v8_script_streaming_mode;
 diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
-index 56a719e..d61c1cb 100644
+index 61f4c88..6772f2d 100644
 --- renderer/render_view_impl.cc
 +++ renderer/render_view_impl.cc
-@@ -963,6 +963,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+@@ -974,6 +974,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
  
    settings->setJavaEnabled(prefs.java_enabled);
  

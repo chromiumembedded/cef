@@ -85,8 +85,7 @@ if bool(int(os.environ.get('WIN_CUSTOM_TOOLCHAIN', '0'))):
   # build output directory.
   # When using the default toolchain this is done by GenerateEnvironmentFiles
   # in src/tools/gyp/pylib/gyp/msvs_emulation.py.
-  setup_script = \
-      os.path.join(src_dir, 'build/toolchain/win/setup_toolchain.py')
+  setup_script = os.path.join(cef_dir, 'tools/setup_toolchain.py')
   win_tool_script = os.path.join(src_dir, 'tools/gyp/pylib/gyp/win_tool.py')
   out_dirs = ['Debug', 'Debug_x64', 'Release', 'Release_x64']
   for out_dir in out_dirs:

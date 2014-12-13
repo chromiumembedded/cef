@@ -18,6 +18,7 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host_view_frame_subscriber.h"
 #include "third_party/WebKit/public/platform/WebScreenInfo.h"
+#include "ui/gfx/geometry/dip_util.h"
 #include "ui/gfx/geometry/size_conversions.h"
 #include "ui/gfx/image/image_skia_operations.h"
 
@@ -494,7 +495,7 @@ void CefRenderWidgetHostViewOSR::SelectionBoundsChanged(
 void CefRenderWidgetHostViewOSR::CopyFromCompositingSurface(
     const gfx::Rect& src_subrect,
     const gfx::Size& dst_size,
-    const base::Callback<void(bool, const SkBitmap&)>& callback,
+    content::ReadbackRequestCallback& callback,
     const SkColorType color_type) {
   delegated_frame_host_->CopyFromCompositingSurface(
       src_subrect, dst_size, callback, color_type);
@@ -891,8 +892,8 @@ void CefRenderWidgetHostViewOSR::InternalGenerateFrame() {
           damage_rect));
 
   const gfx::Rect& src_subrect_in_pixel =
-      content::ConvertRectToPixel(CurrentDeviceScaleFactor(),
-                                  root_layer_->bounds());
+      gfx::ConvertRectToPixel(CurrentDeviceScaleFactor(),
+                              root_layer_->bounds());
   request->set_area(src_subrect_in_pixel);
   RequestCopyOfOutput(request.Pass());
 }

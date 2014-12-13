@@ -32,7 +32,6 @@ class URLRequestJobFactoryImpl;
 class URLSecurityManager;
 }
 
-class CefRequestInterceptor;
 class CefURLRequestContextProxy;
 
 /*
@@ -112,7 +111,6 @@ class CefURLRequestContextGetter : public net::URLRequestContextGetter {
   base::MessageLoop* file_loop_;
 
   scoped_ptr<net::ProxyConfigService> proxy_config_service_;
-  scoped_ptr<CefRequestInterceptor> request_interceptor_;
   scoped_ptr<net::URLRequestContextStorage> storage_;
   scoped_ptr<net::URLRequestContext> url_request_context_;
   scoped_ptr<net::URLSecurityManager> url_security_manager_;
