@@ -1,5 +1,5 @@
 diff --git common.gypi common.gypi
-index f3f28c7..2d2f0f7 100644
+index cc2d8d1..a82d3c0 100644
 --- common.gypi
 +++ common.gypi
 @@ -9,6 +9,9 @@
@@ -21,7 +21,7 @@ index f3f28c7..2d2f0f7 100644
        }],
        ['OS=="win" and "<!pymod_do_main(dir_exists <(directx_sdk_default_path))"=="True"', {
          'directx_sdk_path%': '<(directx_sdk_default_path)',
-@@ -5394,6 +5397,10 @@
+@@ -5400,6 +5403,10 @@
            4510, # Default constructor could not be generated
            4512, # Assignment operator could not be generated
            4610, # Object can never be instantiated
