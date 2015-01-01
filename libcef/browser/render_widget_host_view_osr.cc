@@ -5,18 +5,24 @@
 
 #include "libcef/browser/render_widget_host_view_osr.h"
 #include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/software_output_device_osr.h"
 #include "libcef/browser/thread_util.h"
 
 #include "base/callback_helpers.h"
+#include "base/command_line.h"
 #include "cc/output/copy_output_request.h"
+#include "cc/scheduler/delay_based_time_source.h"
 #include "content/browser/compositor/image_transport_factory.h"
 #include "content/browser/compositor/resize_lock.h"
 #include "content/browser/renderer_host/dip_util.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/common/gpu/client/gl_helper.h"
+#include "content/common/view_messages.h"
+#include "content/public/browser/browser_thread.h"
 #include "content/public/browser/context_factory.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host_view_frame_subscriber.h"
+#include "content/public/common/content_switches.h"
 #include "third_party/WebKit/public/platform/WebScreenInfo.h"
 #include "ui/gfx/geometry/dip_util.h"
 #include "ui/gfx/geometry/size_conversions.h"
@@ -114,14 +120,316 @@ class CefResizeLock : public content::ResizeLock {
 
 }  // namespace
 
-CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
-    content::RenderWidgetHost* widget)
-    : delegated_frame_host_(new content::DelegatedFrameHost(this)),
-      compositor_widget_(gfx::kNullAcceleratedWidget),
-      frame_rate_threshold_ms_(1000 / kDefaultFrameRate),
+// Used for managing copy requests when GPU compositing is enabled. Based on
+// RendererOverridesHandler::InnerSwapCompositorFrame and
+// DelegatedFrameHost::CopyFromCompositingSurface.
+class CefCopyFrameGenerator {
+ public:
+  CefCopyFrameGenerator(int frame_rate_threshold_ms,
+                        CefRenderWidgetHostViewOSR* view)
+    : frame_rate_threshold_ms_(frame_rate_threshold_ms),
+      view_(view),
       frame_pending_(false),
       frame_in_progress_(false),
       frame_retry_count_(0),
+      weak_ptr_factory_(this) {
+  }
+
+  void GenerateCopyFrame(
+      bool force_frame,
+      const gfx::Rect& damage_rect) {
+    if (force_frame && !frame_pending_)
+      frame_pending_ = true;
+
+    // No frame needs to be generated at this time.
+    if (!frame_pending_)
+      return;
+
+    // Keep track of |damage_rect| for when the next frame is generated.
+    if (!damage_rect.IsEmpty())
+      pending_damage_rect_.Union(damage_rect);
+
+    // Don't attempt to generate a frame while one is currently in-progress.
+    if (frame_in_progress_)
+      return;
+    frame_in_progress_ = true;
+
+    // Don't exceed the frame rate threshold.
+    const int64 frame_rate_delta =
+        (base::TimeTicks::Now() - frame_start_time_).InMilliseconds();
+    if (frame_rate_delta < frame_rate_threshold_ms_) {
+      // Generate the frame after the necessary time has passed.
+      CEF_POST_DELAYED_TASK(CEF_UIT,
+          base::Bind(&CefCopyFrameGenerator::InternalGenerateCopyFrame,
+                     weak_ptr_factory_.GetWeakPtr()),
+          frame_rate_threshold_ms_ - frame_rate_delta);
+      return;
+    }
+
+    InternalGenerateCopyFrame();
+  }
+
+  bool frame_pending() const { return frame_pending_; }
+
+ private:
+  void InternalGenerateCopyFrame() {
+    frame_pending_ = false;
+    frame_start_time_ = base::TimeTicks::Now();
+
+    if (!view_->render_widget_host())
+      return;
+
+    const gfx::Rect damage_rect = pending_damage_rect_;
+    pending_damage_rect_.SetRect(0, 0, 0, 0);
+
+    // The below code is similar in functionality to
+    // DelegatedFrameHost::CopyFromCompositingSurface but we reuse the same
+    // SkBitmap in the GPU codepath and avoid scaling where possible.
+    scoped_ptr<cc::CopyOutputRequest> request =
+        cc::CopyOutputRequest::CreateRequest(base::Bind(
+            &CefCopyFrameGenerator::CopyFromCompositingSurfaceHasResult,
+            weak_ptr_factory_.GetWeakPtr(),
+            damage_rect));
+
+    request->set_area(gfx::Rect(view_->GetPhysicalBackingSize()));
+    view_->RequestCopyOfOutput(request.Pass());
+  }
+
+  void CopyFromCompositingSurfaceHasResult(
+      const gfx::Rect& damage_rect,
+      scoped_ptr<cc::CopyOutputResult> result) {
+    if (result->IsEmpty() || result->size().IsEmpty() ||
+        !view_->render_widget_host()) {
+      OnCopyFrameCaptureFailure(damage_rect);
+      return;
+    }
+
+    if (result->HasTexture()) {
+      PrepareTextureCopyOutputResult(damage_rect, result.Pass());
+      return;
+    }
+
+    DCHECK(result->HasBitmap());
+    PrepareBitmapCopyOutputResult(damage_rect, result.Pass());
+  }
+
+  void PrepareTextureCopyOutputResult(
+      const gfx::Rect& damage_rect,
+      scoped_ptr<cc::CopyOutputResult> result) {
+    DCHECK(result->HasTexture());
+    base::ScopedClosureRunner scoped_callback_runner(
+        base::Bind(&CefCopyFrameGenerator::OnCopyFrameCaptureFailure,
+                   weak_ptr_factory_.GetWeakPtr(),
+                   damage_rect));
+
+    const gfx::Size& result_size = result->size();
+    SkIRect bitmap_size;
+    if (bitmap_)
+      bitmap_->getBounds(&bitmap_size);
+
+    if (!bitmap_ ||
+        bitmap_size.width() != result_size.width() ||
+        bitmap_size.height() != result_size.height()) {
+      // Create a new bitmap if the size has changed.
+      bitmap_.reset(new SkBitmap);
+      bitmap_->allocN32Pixels(result_size.width(),
+                              result_size.height(),
+                              true);
+      if (bitmap_->drawsNothing())
+        return;
+    }
+
+    content::ImageTransportFactory* factory =
+        content::ImageTransportFactory::GetInstance();
+    content::GLHelper* gl_helper = factory->GetGLHelper();
+    if (!gl_helper)
+      return;
+
+    scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock(
+        new SkAutoLockPixels(*bitmap_));
+    uint8* pixels = static_cast<uint8*>(bitmap_->getPixels());
+
+    cc::TextureMailbox texture_mailbox;
+    scoped_ptr<cc::SingleReleaseCallback> release_callback;
+    result->TakeTexture(&texture_mailbox, &release_callback);
+    DCHECK(texture_mailbox.IsTexture());
+    if (!texture_mailbox.IsTexture())
+      return;
+
+    ignore_result(scoped_callback_runner.Release());
+
+    gl_helper->CropScaleReadbackAndCleanMailbox(
+        texture_mailbox.mailbox(),
+        texture_mailbox.sync_point(),
+        result_size,
+        gfx::Rect(result_size),
+        result_size,
+        pixels,
+        kN32_SkColorType,
+        base::Bind(
+            &CefCopyFrameGenerator::CopyFromCompositingSurfaceFinishedProxy,
+            weak_ptr_factory_.GetWeakPtr(),
+            base::Passed(&release_callback),
+            damage_rect,
+            base::Passed(&bitmap_),
+            base::Passed(&bitmap_pixels_lock)),
+        content::GLHelper::SCALER_QUALITY_FAST);
+  }
+
+  static void CopyFromCompositingSurfaceFinishedProxy(
+      base::WeakPtr<CefCopyFrameGenerator> generator,
+      scoped_ptr<cc::SingleReleaseCallback> release_callback,
+      const gfx::Rect& damage_rect,
+      scoped_ptr<SkBitmap> bitmap,
+      scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock,
+      bool result) {
+    // This method may be called after the view has been deleted.
+    uint32 sync_point = 0;
+    if (result) {
+      content::GLHelper* gl_helper =
+          content::ImageTransportFactory::GetInstance()->GetGLHelper();
+      sync_point = gl_helper->InsertSyncPoint();
+    }
+    bool lost_resource = sync_point == 0;
+    release_callback->Run(sync_point, lost_resource);
+
+    if (generator) {
+      generator->CopyFromCompositingSurfaceFinished(
+          damage_rect, bitmap.Pass(), bitmap_pixels_lock.Pass(), result);
+    } else {
+      bitmap_pixels_lock.reset();
+      bitmap.reset();
+    }
+  }
+
+  void CopyFromCompositingSurfaceFinished(
+      const gfx::Rect& damage_rect,
+      scoped_ptr<SkBitmap> bitmap,
+      scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock,
+      bool result) {
+    // Restore ownership of the bitmap to the view.
+    DCHECK(!bitmap_);
+    bitmap_ = bitmap.Pass();
+
+    if (result) {
+      OnCopyFrameCaptureSuccess(damage_rect, *bitmap_,
+                                bitmap_pixels_lock.Pass());
+    } else {
+      bitmap_pixels_lock.reset();
+      OnCopyFrameCaptureFailure(damage_rect);
+    }
+  }
+
+  void PrepareBitmapCopyOutputResult(
+      const gfx::Rect& damage_rect,
+      scoped_ptr<cc::CopyOutputResult> result) {
+    DCHECK(result->HasBitmap());
+    scoped_ptr<SkBitmap> source = result->TakeBitmap();
+    DCHECK(source);
+    if (source) {
+      scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock(
+          new SkAutoLockPixels(*source));
+      OnCopyFrameCaptureSuccess(damage_rect, *source,
+                                bitmap_pixels_lock.Pass());
+    } else {
+      OnCopyFrameCaptureFailure(damage_rect);
+    }
+  }
+
+  void OnCopyFrameCaptureFailure(
+      const gfx::Rect& damage_rect) {
+    // Retry with the same |damage_rect|.
+    pending_damage_rect_.Union(damage_rect);
+
+    const bool force_frame = (++frame_retry_count_ <= kFrameRetryLimit);
+    OnCopyFrameCaptureCompletion(force_frame);
+  }
+
+  void OnCopyFrameCaptureSuccess(
+      const gfx::Rect& damage_rect,
+      const SkBitmap& bitmap,
+      scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock) {
+    view_->OnPaint(damage_rect, bitmap.width(), bitmap.height(),
+                   bitmap.getPixels());
+    bitmap_pixels_lock.reset();
+
+    // Reset the frame retry count on successful frame generation.
+    if (frame_retry_count_ > 0)
+      frame_retry_count_ = 0;
+
+    OnCopyFrameCaptureCompletion(false);
+  }
+
+  void OnCopyFrameCaptureCompletion(bool force_frame) {
+    frame_in_progress_ = false;
+
+    if (frame_pending_) {
+      // Another frame was requested while the current frame was in-progress.
+      // Generate the pending frame now.
+      CEF_POST_TASK(CEF_UIT,
+          base::Bind(&CefCopyFrameGenerator::GenerateCopyFrame,
+                     weak_ptr_factory_.GetWeakPtr(),
+                     force_frame,
+                     gfx::Rect()));
+    }
+  }
+
+  const int frame_rate_threshold_ms_;
+  CefRenderWidgetHostViewOSR* view_;
+
+  base::TimeTicks frame_start_time_;
+  bool frame_pending_;
+  bool frame_in_progress_;
+  int frame_retry_count_;
+  scoped_ptr<SkBitmap> bitmap_;
+  gfx::Rect pending_damage_rect_;
+
+  base::WeakPtrFactory<CefCopyFrameGenerator> weak_ptr_factory_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefCopyFrameGenerator);
+};
+
+// Used to control the VSync rate in subprocesses when BeginFrame scheduling is
+// enabled.
+class CefBeginFrameTimer : public cc::TimeSourceClient {
+ public:
+  CefBeginFrameTimer(int frame_rate_threshold_ms,
+                     const base::Closure& callback)
+      : callback_(callback) {
+    time_source_ = cc::DelayBasedTimeSource::Create(
+        base::TimeDelta::FromMilliseconds(frame_rate_threshold_ms), 
+        content::BrowserThread::GetMessageLoopProxyForThread(CEF_UIT).get());
+    time_source_->SetClient(this);
+  }
+
+  void SetActive(bool active) {
+    time_source_->SetActive(active);
+  }
+
+  bool IsActive() const {
+    return time_source_->Active();
+  }
+
+ private:
+  // cc::TimerSourceClient implementation.
+  void OnTimerTick() override {
+    callback_.Run();
+  }
+
+  const base::Closure callback_;
+  scoped_refptr<cc::DelayBasedTimeSource> time_source_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefBeginFrameTimer);
+};
+
+
+CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
+    content::RenderWidgetHost* widget)
+    : scale_factor_(kDefaultScaleFactor),
+      frame_rate_threshold_ms_(0),
+      delegated_frame_host_(new content::DelegatedFrameHost(this)),
+      compositor_widget_(gfx::kNullAcceleratedWidget),
+      software_output_device_(NULL),
       hold_resize_(false),
       pending_resize_(false),
       render_widget_host_(content::RenderWidgetHostImpl::From(widget)),
@@ -153,6 +461,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
                          content::GetContextFactory(),
                          base::MessageLoopProxy::current()));
 #endif
+  compositor_->SetDelegate(this);
   compositor_->SetRootLayer(root_layer_.get());
 
   if (browser_impl_.get())
@@ -167,6 +476,9 @@ CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
   delegated_frame_host_->RemovingFromWindow();
 
   PlatformDestroyCompositorWidget();
+
+  if (copy_frame_generator_.get())
+    copy_frame_generator_.reset(NULL);
 
   delegated_frame_host_.reset(NULL);
   compositor_.reset(NULL);
@@ -275,21 +587,46 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
   }
 
   if (frame->delegated_frame_data) {
-    // Determine the damage rectangle for the current frame. This is the same
-    // calculation that SwapDelegatedFrame uses.
-    cc::RenderPass* root_pass =
-        frame->delegated_frame_data->render_pass_list.back();
-    gfx::Size frame_size = root_pass->output_rect.size();
-    gfx::Rect damage_rect = gfx::ToEnclosingRect(root_pass->damage_rect);
-    damage_rect.Intersect(gfx::Rect(frame_size));
+    if (software_output_device_) {
+      if (!begin_frame_timer_.get()) {
+        // If BeginFrame scheduling is enabled SoftwareOutputDevice activity
+        // will be controlled via OnSetNeedsBeginFrames. Otherwise, activate
+        // the SoftwareOutputDevice now (when the first frame is generated).
+        software_output_device_->SetActive(true);
+      }
 
-    delegated_frame_host_->SwapDelegatedFrame(
-        output_surface_id,
-        frame->delegated_frame_data.Pass(),
-        frame->metadata.device_scale_factor,
-        frame->metadata.latency_info);
+      // The compositor will draw directly to the SoftwareOutputDevice which
+      // then calls OnPaint.
+      delegated_frame_host_->SwapDelegatedFrame(
+          output_surface_id,
+          frame->delegated_frame_data.Pass(),
+          frame->metadata.device_scale_factor,
+          frame->metadata.latency_info);
+    } else {
+      if (!copy_frame_generator_.get()) {
+        copy_frame_generator_.reset(
+            new CefCopyFrameGenerator(frame_rate_threshold_ms_, this));
+      }
 
-    GenerateFrame(true, damage_rect);
+      // Determine the damage rectangle for the current frame. This is the same
+      // calculation that SwapDelegatedFrame uses.
+      cc::RenderPass* root_pass =
+          frame->delegated_frame_data->render_pass_list.back();
+      gfx::Size frame_size = root_pass->output_rect.size();
+      gfx::Rect damage_rect = gfx::ToEnclosingRect(root_pass->damage_rect);
+      damage_rect.Intersect(gfx::Rect(frame_size));
+
+      delegated_frame_host_->SwapDelegatedFrame(
+          output_surface_id,
+          frame->delegated_frame_data.Pass(),
+          frame->metadata.device_scale_factor,
+          frame->metadata.latency_info);
+
+      // Request a copy of the last compositor frame which will eventually call
+      // OnPaint asynchronously.
+      copy_frame_generator_->GenerateCopyFrame(true, damage_rect);
+    }
+
     return;
   }
 
@@ -307,8 +644,7 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
   parent_host_view_ = static_cast<CefRenderWidgetHostViewOSR*>(
       parent_host_view);
   browser_impl_ = parent_host_view_->browser_impl();
-  if (!browser_impl_.get())
-    return;
+  DCHECK(browser_impl_.get());
 
   if (parent_host_view_->popup_host_view_) {
     // Cancel the previous popup widget.
@@ -321,12 +657,7 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
 
   popup_position_ = pos;
 
-  const float scale_factor = CurrentDeviceScaleFactor();
-  const gfx::Rect scaled_size =
-      gfx::ToNearestRect(gfx::ScaleRect(pos, scale_factor));
-
-  CefRect widget_pos(scaled_size.x(), scaled_size.y(),
-                     scaled_size.width(), scaled_size.height());
+  CefRect widget_pos(pos.x(), pos.y(), pos.width(), pos.height());
   browser_impl_->GetClient()->GetRenderHandler()->OnPopupSize(
       browser_impl_.get(), widget_pos);
 
@@ -482,10 +813,7 @@ gfx::Size CefRenderWidgetHostViewOSR::GetRequestedRendererSize() const {
 }
 
 gfx::Size CefRenderWidgetHostViewOSR::GetPhysicalBackingSize() const {
-  float scale_factor = const_cast<CefRenderWidgetHostViewOSR*>(this)->
-      CurrentDeviceScaleFactor();
-  return gfx::ToCeiledSize(gfx::ScaleSize(GetRequestedRendererSize(),
-                                          scale_factor));
+  return gfx::ConvertSizeToPixel(scale_factor_, GetRequestedRendererSize());
 }
 
 void CefRenderWidgetHostViewOSR::SelectionBoundsChanged(
@@ -609,6 +937,44 @@ void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
 }
 #endif
 
+bool CefRenderWidgetHostViewOSR::OnMessageReceived(const IPC::Message& msg) {
+  bool handled = true;
+  IPC_BEGIN_MESSAGE_MAP(CefRenderWidgetHostViewOSR, msg)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_SetNeedsBeginFrames,
+                        OnSetNeedsBeginFrames)
+    IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP()
+
+  if (!handled)
+    return content::RenderWidgetHostViewBase::OnMessageReceived(msg);
+  return handled;
+}
+
+void CefRenderWidgetHostViewOSR::OnSetNeedsBeginFrames(bool enabled) {
+  // Start/stop the timer that sends BeginFrame requests.
+  begin_frame_timer_->SetActive(enabled);
+  if (software_output_device_) {
+    // When the SoftwareOutputDevice is active it will call OnPaint for each
+    // frame. If the SoftwareOutputDevice is deactivated while an invalidation
+    // region is pending it will call OnPaint immediately.
+    software_output_device_->SetActive(enabled);
+  }
+}
+
+scoped_ptr<cc::SoftwareOutputDevice>
+CefRenderWidgetHostViewOSR::CreateSoftwareOutputDevice(
+    ui::Compositor* compositor) {
+  DCHECK_EQ(compositor_.get(), compositor);
+  DCHECK(!copy_frame_generator_);
+  DCHECK(!software_output_device_);
+  software_output_device_ = new CefSoftwareOutputDeviceOSR(
+      compositor,
+      browser_impl_.get() ? browser_impl_->IsTransparent() : false,
+      base::Bind(&CefRenderWidgetHostViewOSR::OnPaint,
+                 weak_ptr_factory_.GetWeakPtr()));
+  return make_scoped_ptr<cc::SoftwareOutputDevice>(software_output_device_);
+}
+
 ui::Compositor* CefRenderWidgetHostViewOSR::GetCompositor() const {
   return compositor_.get();
 }
@@ -641,18 +1007,7 @@ gfx::Size CefRenderWidgetHostViewOSR::DesiredFrameSize() {
 }
 
 float CefRenderWidgetHostViewOSR::CurrentDeviceScaleFactor() {
-  if (!browser_impl_.get())
-    return kDefaultScaleFactor;
-
-  CefScreenInfo screen_info(
-      kDefaultScaleFactor, 0, 0, false, CefRect(), CefRect());
-  if (!browser_impl_->GetClient()->GetRenderHandler()->GetScreenInfo(
-          browser_impl_.get(), screen_info)) {
-    // Use the default
-    return kDefaultScaleFactor;
-  }
-
-  return screen_info.device_scale_factor;
+  return scale_factor_;
 }
 
 gfx::Size CefRenderWidgetHostViewOSR::ConvertViewSizeToPixel(
@@ -668,6 +1023,7 @@ content::DelegatedFrameHost*
 bool CefRenderWidgetHostViewOSR::InstallTransparency() {
   if (browser_impl_.get() && browser_impl_->IsTransparent()) {
     SetBackgroundColor(SkColorSetARGB(SK_AlphaTRANSPARENT, 0, 0, 0));
+    compositor_->SetHostHasTransparentBackground(true);
     return true;
   }
   return false;
@@ -709,7 +1065,19 @@ void CefRenderWidgetHostViewOSR::Invalidate(
     return;
   }
 
-  GenerateFrame(true, root_layer_->bounds());
+  const gfx::Rect& bounds_in_pixels = gfx::Rect(GetPhysicalBackingSize());
+
+  if (software_output_device_) {
+    if (IsFramePending()) {
+      // Include the invalidated region in the next frame generated.
+      software_output_device_->Invalidate(bounds_in_pixels);
+    } else {
+      // Call OnPaint immediately.
+      software_output_device_->OnPaint(bounds_in_pixels);
+    }
+  } else if (copy_frame_generator_.get()) {
+    copy_frame_generator_->GenerateCopyFrame(true, bounds_in_pixels);
+  }
 }
 
 void CefRenderWidgetHostViewOSR::SendKeyEvent(
@@ -811,246 +1179,17 @@ void CefRenderWidgetHostViewOSR::ReleaseResize() {
   }
 }
 
-void CefRenderWidgetHostViewOSR::SetFrameRate() {
-  if (!browser_impl_.get())
-    return;
-  int frame_rate = browser_impl_->settings().windowless_frame_rate;
-  if (frame_rate < 1)
-    frame_rate = kDefaultFrameRate;
-  else if (frame_rate > kMaximumFrameRate)
-    frame_rate = kMaximumFrameRate;
-  frame_rate_threshold_ms_ = 1000 / frame_rate;
-}
-
-void CefRenderWidgetHostViewOSR::ResizeRootLayer() {
-  SetFrameRate();
-
-  gfx::Size size;
-  if (!IsPopupWidget())
-    size = GetViewBounds().size();
-  else
-    size = popup_position_.size();
-
-  if (size == root_layer_->bounds().size())
-    return;
-
-  root_layer_->SetBounds(gfx::Rect(0, 0, size.width(), size.height()));
-  compositor_->SetScaleAndSize(CurrentDeviceScaleFactor(), size);
-}
-
-void CefRenderWidgetHostViewOSR::GenerateFrame(
-    bool force_frame,
-    const gfx::Rect& damage_rect) {
-  if (force_frame && !frame_pending_)
-    frame_pending_ = true;
-
-  // No frame needs to be generated at this time.
-  if (!frame_pending_)
-    return;
-
-  // Keep track of |damage_rect| for when the next frame is generated.
-  if (!damage_rect.IsEmpty())
-    pending_damage_rect_.Union(damage_rect);
-
-  // Don't attempt to generate a frame while one is currently in-progress.
-  if (frame_in_progress_)
-    return;
-  frame_in_progress_ = true;
-
-  // Don't exceed the frame rate threshold.
-  const int64 frame_rate_delta =
-      (base::TimeTicks::Now() - frame_start_time_).InMilliseconds();
-  if (frame_rate_delta < frame_rate_threshold_ms_) {
-    // Generate the frame after the necessary time has passed.
-    CEF_POST_DELAYED_TASK(CEF_UIT,
-        base::Bind(&CefRenderWidgetHostViewOSR::InternalGenerateFrame,
-                   weak_ptr_factory_.GetWeakPtr()),
-        frame_rate_threshold_ms_ - frame_rate_delta);
-    return;
-  }
-
-  InternalGenerateFrame();
-}
-
-void CefRenderWidgetHostViewOSR::InternalGenerateFrame() {
-  frame_pending_ = false;
-  frame_start_time_ = base::TimeTicks::Now();
-
-  if (!render_widget_host_)
-    return;
-
-  const gfx::Rect damage_rect = pending_damage_rect_;
-  pending_damage_rect_.SetRect(0, 0, 0, 0);
-
-  // The below code is similar in functionality to
-  // DelegatedFrameHost::CopyFromCompositingSurface but we reuse the same
-  // SkBitmap in the GPU codepath and avoid scaling where possible.
-  scoped_ptr<cc::CopyOutputRequest> request =
-      cc::CopyOutputRequest::CreateRequest(base::Bind(
-          &CefRenderWidgetHostViewOSR::CopyFromCompositingSurfaceHasResult,
-          weak_ptr_factory_.GetWeakPtr(),
-          damage_rect));
-
-  const gfx::Rect& src_subrect_in_pixel =
-      gfx::ConvertRectToPixel(CurrentDeviceScaleFactor(),
-                              root_layer_->bounds());
-  request->set_area(src_subrect_in_pixel);
-  RequestCopyOfOutput(request.Pass());
-}
-
-void CefRenderWidgetHostViewOSR::CopyFromCompositingSurfaceHasResult(
+void CefRenderWidgetHostViewOSR::OnPaint(
     const gfx::Rect& damage_rect,
-    scoped_ptr<cc::CopyOutputResult> result) {
-  if (result->IsEmpty() || result->size().IsEmpty() || !render_widget_host_) {
-    OnFrameCaptureFailure(damage_rect);
-    return;
-  }
+    int bitmap_width,
+    int bitmap_height,
+    void* bitmap_pixels) {
+  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::OnPaint");
 
-  if (result->HasTexture()) {
-    PrepareTextureCopyOutputResult(damage_rect, result.Pass());
-    return;
-  }
+  // Don't execute WasResized while the OnPaint callback is pending.
+  HoldResize();
 
-  DCHECK(result->HasBitmap());
-  PrepareBitmapCopyOutputResult(damage_rect, result.Pass());
-}
-
-void CefRenderWidgetHostViewOSR::PrepareTextureCopyOutputResult(
-    const gfx::Rect& damage_rect,
-    scoped_ptr<cc::CopyOutputResult> result) {
-  DCHECK(result->HasTexture());
-  base::ScopedClosureRunner scoped_callback_runner(
-      base::Bind(&CefRenderWidgetHostViewOSR::OnFrameCaptureFailure,
-                 weak_ptr_factory_.GetWeakPtr(),
-                 damage_rect));
-
-  const gfx::Size& result_size = result->size();
-  SkIRect bitmap_size;
-  if (bitmap_)
-    bitmap_->getBounds(&bitmap_size);
-
-  if (!bitmap_ ||
-      bitmap_size.width() != result_size.width() ||
-      bitmap_size.height() != result_size.height()) {
-    // Create a new bitmap if the size has changed.
-    bitmap_.reset(new SkBitmap);
-    bitmap_->allocN32Pixels(result_size.width(),
-                            result_size.height(),
-                            true);
-    if (bitmap_->drawsNothing())
-      return;
-  }
-
-  content::ImageTransportFactory* factory =
-      content::ImageTransportFactory::GetInstance();
-  content::GLHelper* gl_helper = factory->GetGLHelper();
-  if (!gl_helper)
-    return;
-
-  scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock(
-      new SkAutoLockPixels(*bitmap_));
-  uint8* pixels = static_cast<uint8*>(bitmap_->getPixels());
-
-  cc::TextureMailbox texture_mailbox;
-  scoped_ptr<cc::SingleReleaseCallback> release_callback;
-  result->TakeTexture(&texture_mailbox, &release_callback);
-  DCHECK(texture_mailbox.IsTexture());
-  if (!texture_mailbox.IsTexture())
-    return;
-
-  ignore_result(scoped_callback_runner.Release());
-
-  gl_helper->CropScaleReadbackAndCleanMailbox(
-      texture_mailbox.mailbox(),
-      texture_mailbox.sync_point(),
-      result_size,
-      gfx::Rect(result_size),
-      result_size,
-      pixels,
-      kN32_SkColorType,
-      base::Bind(
-          &CefRenderWidgetHostViewOSR::CopyFromCompositingSurfaceFinishedProxy,
-          weak_ptr_factory_.GetWeakPtr(),
-          base::Passed(&release_callback),
-          damage_rect,
-          base::Passed(&bitmap_),
-          base::Passed(&bitmap_pixels_lock)),
-      content::GLHelper::SCALER_QUALITY_FAST);
-}
-
-// static
-void CefRenderWidgetHostViewOSR::CopyFromCompositingSurfaceFinishedProxy(
-    base::WeakPtr<CefRenderWidgetHostViewOSR> view,
-    scoped_ptr<cc::SingleReleaseCallback> release_callback,
-    const gfx::Rect& damage_rect,
-    scoped_ptr<SkBitmap> bitmap,
-    scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock,
-    bool result) {
-  // This method may be called after the view has been deleted.
-  uint32 sync_point = 0;
-  if (result) {
-    content::GLHelper* gl_helper =
-        content::ImageTransportFactory::GetInstance()->GetGLHelper();
-    sync_point = gl_helper->InsertSyncPoint();
-  }
-  bool lost_resource = sync_point == 0;
-  release_callback->Run(sync_point, lost_resource);
-
-  if (view) {
-    view->CopyFromCompositingSurfaceFinished(
-        damage_rect, bitmap.Pass(), bitmap_pixels_lock.Pass(), result);
-  } else {
-    bitmap_pixels_lock.reset();
-    bitmap.reset();
-  }
-}
-
-void CefRenderWidgetHostViewOSR::CopyFromCompositingSurfaceFinished(
-    const gfx::Rect& damage_rect,
-    scoped_ptr<SkBitmap> bitmap,
-    scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock,
-    bool result) {
-  // Restore ownership of the bitmap to the view.
-  DCHECK(!bitmap_);
-  bitmap_ = bitmap.Pass();
-
-  if (result) {
-    OnFrameCaptureSuccess(damage_rect, *bitmap_, bitmap_pixels_lock.Pass());
-  } else {
-    bitmap_pixels_lock.reset();
-    OnFrameCaptureFailure(damage_rect);
-  }
-}
-
-void CefRenderWidgetHostViewOSR::PrepareBitmapCopyOutputResult(
-    const gfx::Rect& damage_rect,
-    scoped_ptr<cc::CopyOutputResult> result) {
-  DCHECK(result->HasBitmap());
-  scoped_ptr<SkBitmap> source = result->TakeBitmap();
-  DCHECK(source);
-  if (source) {
-    scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock(
-        new SkAutoLockPixels(*source));
-    OnFrameCaptureSuccess(damage_rect, *source, bitmap_pixels_lock.Pass());
-  } else {
-    OnFrameCaptureFailure(damage_rect);
-  }
-}
-
-void CefRenderWidgetHostViewOSR::OnFrameCaptureFailure(
-    const gfx::Rect& damage_rect) {
-  // Retry with the same |damage_rect|.
-  pending_damage_rect_.Union(damage_rect);
-
-  const bool force_frame = (++frame_retry_count_ <= kFrameRetryLimit);
-  OnFrameCaptureCompletion(force_frame);
-}
-
-void CefRenderWidgetHostViewOSR::OnFrameCaptureSuccess(
-    const gfx::Rect& damage_rect,
-    const SkBitmap& bitmap,
-    scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock) {
-  gfx::Rect rect_in_bitmap(0, 0, bitmap.width(), bitmap.height());
+  gfx::Rect rect_in_bitmap(0, 0, bitmap_width, bitmap_height);
   rect_in_bitmap.Intersect(damage_rect);
 
   CefRenderHandler::RectList rcList;
@@ -1061,31 +1200,114 @@ void CefRenderWidgetHostViewOSR::OnFrameCaptureSuccess(
         browser_impl_.get(),
         IsPopupWidget() ? PET_POPUP : PET_VIEW,
         rcList,
-        bitmap.getPixels(),
-        bitmap.width(),
-        bitmap.height());
+        bitmap_pixels,
+        bitmap_width,
+        bitmap_height);
 
-  bitmap_pixels_lock.reset();
-
-  // Reset the frame retry count on successful frame generation.
-  if (frame_retry_count_ > 0)
-    frame_retry_count_ = 0;
-
-  OnFrameCaptureCompletion(false);
+  ReleaseResize();
 }
 
-void CefRenderWidgetHostViewOSR::OnFrameCaptureCompletion(bool force_frame) {
-  frame_in_progress_ = false;
+void CefRenderWidgetHostViewOSR::SetFrameRate() {
+  DCHECK(browser_impl_.get());
+  if (!browser_impl_.get())
+    return;
 
-  if (frame_pending_) {
-    // Another frame was requested while the current frame was in-progress.
-    // Generate the pending frame now.
-    CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefRenderWidgetHostViewOSR::GenerateFrame,
-                   weak_ptr_factory_.GetWeakPtr(),
-                   force_frame,
-                   gfx::Rect()));
+  // Only set the frame rate one time.
+  if (frame_rate_threshold_ms_ != 0)
+    return;
+
+  int frame_rate = browser_impl_->settings().windowless_frame_rate;
+  if (frame_rate < 1)
+    frame_rate = kDefaultFrameRate;
+  else if (frame_rate > kMaximumFrameRate)
+    frame_rate = kMaximumFrameRate;
+  frame_rate_threshold_ms_ = 1000 / frame_rate;
+
+  // Configure the VSync interval for the browser process.
+  compositor_->vsync_manager()->SetAuthoritativeVSyncInterval(
+      base::TimeDelta::FromMilliseconds(frame_rate_threshold_ms_));
+
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kEnableBeginFrameScheduling)) {
+    DCHECK(!begin_frame_timer_.get());
+    begin_frame_timer_.reset(new CefBeginFrameTimer(
+        frame_rate_threshold_ms_,
+        base::Bind(&CefRenderWidgetHostViewOSR::OnBeginFrameTimerTick,
+                   weak_ptr_factory_.GetWeakPtr())));
   }
+}
+
+void CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
+  if (browser_impl_.get())  {
+    CefScreenInfo screen_info(
+        kDefaultScaleFactor, 0, 0, false, CefRect(), CefRect());
+    if (browser_impl_->GetClient()->GetRenderHandler()->GetScreenInfo(
+            browser_impl_.get(), screen_info)) {
+      scale_factor_ = screen_info.device_scale_factor;
+      return;
+    }
+  }
+
+  scale_factor_ = kDefaultScaleFactor;
+}
+
+void CefRenderWidgetHostViewOSR::ResizeRootLayer() {
+  SetFrameRate();
+  SetDeviceScaleFactor();
+
+  gfx::Size size;
+  if (!IsPopupWidget())
+    size = GetViewBounds().size();
+  else
+    size = popup_position_.size();
+
+  if (size == root_layer_->bounds().size())
+    return;
+
+  const gfx::Size& size_in_pixels =
+      gfx::ConvertSizeToPixel(scale_factor_, size);
+
+  root_layer_->SetBounds(gfx::Rect(size));
+  compositor_->SetScaleAndSize(scale_factor_, size_in_pixels);
+}
+
+bool CefRenderWidgetHostViewOSR::IsFramePending() {
+  if (!IsShowing())
+    return false;
+
+  if (begin_frame_timer_.get())
+    return begin_frame_timer_->IsActive();
+  else if (copy_frame_generator_.get())
+    return copy_frame_generator_->frame_pending();
+
+  return false;
+}
+
+void CefRenderWidgetHostViewOSR::OnBeginFrameTimerTick() {
+  const base::TimeTicks frame_time = base::TimeTicks::Now();
+  const base::TimeDelta vsync_period =
+      base::TimeDelta::FromMilliseconds(frame_rate_threshold_ms_);
+  SendBeginFrame(frame_time, vsync_period);
+}
+
+void CefRenderWidgetHostViewOSR::SendBeginFrame(base::TimeTicks frame_time,
+                                                base::TimeDelta vsync_period) {
+  TRACE_EVENT1("libcef", "CefRenderWidgetHostViewOSR::SendBeginFrame",
+               "frame_time_us", frame_time.ToInternalValue());
+
+  base::TimeTicks display_time = frame_time + vsync_period;
+
+  // TODO(brianderson): Use adaptive draw-time estimation.
+  base::TimeDelta estimated_browser_composite_time =
+      base::TimeDelta::FromMicroseconds(
+          (1.0f * base::Time::kMicrosecondsPerSecond) / (3.0f * 60));
+
+  base::TimeTicks deadline = display_time - estimated_browser_composite_time;
+
+  render_widget_host_->Send(new ViewMsg_BeginFrame(
+      render_widget_host_->GetRoutingID(),
+      cc::BeginFrameArgs::Create(BEGINFRAME_FROM_HERE, frame_time, deadline,
+                                 vsync_period, cc::BeginFrameArgs::NORMAL)));
 }
 
 void CefRenderWidgetHostViewOSR::CancelPopupWidget() {

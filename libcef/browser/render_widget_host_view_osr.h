@@ -32,7 +32,10 @@ class RenderWidgetHostImpl;
 class BackingStore;
 }
 
+class CefBeginFrameTimer;
 class CefBrowserHostImpl;
+class CefCopyFrameGenerator;
+class CefSoftwareOutputDeviceOSR;
 class CefWebContentsViewOSR;
 
 #if defined(OS_MACOSX)
@@ -72,6 +75,7 @@ class CefRenderWidgetHostViewOSR
 #if defined(OS_MACOSX)
       public ui::AcceleratedWidgetMacNSView,
 #endif
+      public ui::CompositorDelegate,
       public content::DelegatedFrameHostClient {
  public:
   explicit CefRenderWidgetHostViewOSR(content::RenderWidgetHost* widget);
@@ -195,6 +199,15 @@ class CefRenderWidgetHostViewOSR
   void AcceleratedWidgetHitError() override;
 #endif  // defined(OS_MACOSX)
 
+  bool OnMessageReceived(const IPC::Message& msg) override;
+
+  // Message handlers.
+  void OnSetNeedsBeginFrames(bool enabled);
+
+  // ui::CompositorDelegate implementation.
+  scoped_ptr<cc::SoftwareOutputDevice> CreateSoftwareOutputDevice(
+      ui::Compositor* compositor) override;
+
   // DelegatedFrameHostClient implementation.
   ui::Compositor* GetCompositor() const override;
   ui::Layer* GetLayer() override;
@@ -219,6 +232,11 @@ class CefRenderWidgetHostViewOSR
 
   void HoldResize();
   void ReleaseResize();
+
+  void OnPaint(const gfx::Rect& damage_rect,
+               int bitmap_width,
+               int bitmap_height,
+               void* bitmap_pixels);
 
   bool IsPopupWidget() const {
     return popup_type_ != blink::WebPopupTypeNone;
@@ -248,39 +266,16 @@ class CefRenderWidgetHostViewOSR
 
  private:
   void SetFrameRate();
+  void SetDeviceScaleFactor();
   void ResizeRootLayer();
 
-  // Implementation based on RendererOverridesHandler::InnerSwapCompositorFrame
-  // and DelegatedFrameHost::CopyFromCompositingSurface.
-  void GenerateFrame(bool force_frame, const gfx::Rect& damage_rect);
-  void InternalGenerateFrame();
-  void CopyFromCompositingSurfaceHasResult(
-      const gfx::Rect& damage_rect,
-      scoped_ptr<cc::CopyOutputResult> result);
-  void PrepareTextureCopyOutputResult(
-      const gfx::Rect& damage_rect,
-      scoped_ptr<cc::CopyOutputResult> result);
-  static void CopyFromCompositingSurfaceFinishedProxy(
-      base::WeakPtr<CefRenderWidgetHostViewOSR> view,
-      scoped_ptr<cc::SingleReleaseCallback> release_callback,
-      const gfx::Rect& damage_rect,
-      scoped_ptr<SkBitmap> bitmap,
-      scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock,
-      bool result);
-  void CopyFromCompositingSurfaceFinished(
-      const gfx::Rect& damage_rect,
-      scoped_ptr<SkBitmap> bitmap,
-      scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock,
-      bool result);
-  void PrepareBitmapCopyOutputResult(
-      const gfx::Rect& damage_rect,
-      scoped_ptr<cc::CopyOutputResult> result);
-  void OnFrameCaptureFailure(const gfx::Rect& damage_rect);
-  void OnFrameCaptureSuccess(
-      const gfx::Rect& damage_rect,
-      const SkBitmap& bitmap,
-      scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock);
-  void OnFrameCaptureCompletion(bool force_frame);
+  // Returns a best guess whether a frame is currently pending.
+  bool IsFramePending();
+
+  // Called by CefBeginFrameTimer to send a BeginFrame request.
+  void OnBeginFrameTimerTick();
+  void SendBeginFrame(base::TimeTicks frame_time,
+                      base::TimeDelta vsync_period);
 
   void CancelPopupWidget();
 
@@ -311,6 +306,9 @@ class CefRenderWidgetHostViewOSR
   void PlatformCreateCompositorWidget();
   void PlatformDestroyCompositorWidget();
 
+  float scale_factor_;
+  int frame_rate_threshold_ms_;
+
   scoped_ptr<content::DelegatedFrameHost> delegated_frame_host_;
   scoped_ptr<ui::Compositor> compositor_;
   gfx::AcceleratedWidget compositor_widget_;
@@ -326,13 +324,16 @@ class CefRenderWidgetHostViewOSR
   CefWindowX11* window_;
 #endif
 
-  int frame_rate_threshold_ms_;
-  base::TimeTicks frame_start_time_;
-  bool frame_pending_;
-  bool frame_in_progress_;
-  int frame_retry_count_;
-  scoped_ptr<SkBitmap> bitmap_;
-  gfx::Rect pending_damage_rect_;
+  // Used to control the VSync rate in subprocesses when BeginFrame scheduling
+  // is enabled.
+  scoped_ptr<CefBeginFrameTimer> begin_frame_timer_;
+
+  // Used for direct rendering from the compositor when GPU compositing is
+  // disabled. This object is owned by the compositor.
+  CefSoftwareOutputDeviceOSR* software_output_device_;
+
+  // Used for managing copy requests when GPU compositing is enabled.
+  scoped_ptr<CefCopyFrameGenerator> copy_frame_generator_;
 
   bool hold_resize_;
   bool pending_resize_;

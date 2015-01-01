@@ -27,6 +27,7 @@ class ClientOSRenderer {
   // Forwarded from CefRenderHandler callbacks.
   void OnPopupShow(CefRefPtr<CefBrowser> browser,
                    bool show);
+  // |rect| must be in pixel coordinates.
   void OnPopupSize(CefRefPtr<CefBrowser> browser,
                    const CefRect& rect);
   void OnPaint(CefRefPtr<CefBrowser> browser,

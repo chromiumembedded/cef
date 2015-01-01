@@ -82,6 +82,7 @@ class ScopedGLContext {
                  button: (CefBrowserHost::MouseButtonType)type
                    isUp: (bool)isUp;
 
+- (CefRect) convertRectToBackingInternal: (const CefRect&) rect;
 - (CefRect) convertRectFromBackingInternal: (const CefRect&) rect;
 
 @property (readwrite, atomic) bool was_last_mouse_down_on_view;
@@ -235,7 +236,8 @@ void ClientOSRHandler::OnPopupSize(CefRefPtr<CefBrowser> browser,
   if (!view_)
     return;
 
-  view_->renderer_->OnPopupSize(browser, rect);
+  view_->renderer_->OnPopupSize(browser,
+                                [view_ convertRectToBackingInternal:rect]);
 }
 
 void ClientOSRHandler::OnPaint(CefRefPtr<CefBrowser> browser,
@@ -259,10 +261,6 @@ void ClientOSRHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 
   if (type == PET_VIEW && !view_->renderer_->popup_rect().IsEmpty()) {
     painting_popup_ = true;
-    CefRect client_popup_rect(0, 0,
-                              view_->renderer_->popup_rect().width,
-                              view_->renderer_->popup_rect().height);
-
     browser->GetHost()->Invalidate(PET_POPUP);
     painting_popup_ = false;
   }
@@ -333,7 +331,8 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
     [self addTrackingArea:tracking_area_];
   }
 
-  if ([self respondsToSelector:@selector(setWantsBestResolutionOpenGLSurface:)]) {
+  if ([self respondsToSelector:
+          @selector(setWantsBestResolutionOpenGLSurface:)]) {
     // enable HiDPI buffer
     [self setWantsBestResolutionOpenGLSurface:YES];
   }
@@ -1193,14 +1192,29 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   }
 }
 
-- (CefRect) convertRectFromBackingInternal: (const CefRect&) rect {
-  if ([self respondsToSelector:@selector(convertRectFromBacking:)]) {
-    NSRect old_rect = NSMakeRect(rect.x, rect.y, rect.width, rect.height);
-    NSRect scaled_rect = [self convertRectFromBacking:old_rect];
+// Convert the rect from view coordinates to scaled coordinates.
+- (CefRect) convertRectToBackingInternal: (const CefRect&) rect {
+  if ([self respondsToSelector:@selector(convertRectToBacking:)]) {
+    NSRect view_rect = NSMakeRect(rect.x, rect.y, rect.width, rect.height);
+    NSRect scaled_rect = [self convertRectToBacking:view_rect];
     return CefRect((int)scaled_rect.origin.x,
                    (int)scaled_rect.origin.y,
                    (int)scaled_rect.size.width,
                    (int)scaled_rect.size.height);
+  }
+
+  return rect;
+}
+
+// Convert the rect from scaled coordinates to view coordinates.
+- (CefRect) convertRectFromBackingInternal: (const CefRect&) rect {
+  if ([self respondsToSelector:@selector(convertRectFromBacking:)]) {
+    NSRect scaled_rect = NSMakeRect(rect.x, rect.y, rect.width, rect.height);
+    NSRect view_rect = [self convertRectFromBacking:scaled_rect];
+    return CefRect((int)view_rect.origin.x,
+                   (int)view_rect.origin.y,
+                   (int)view_rect.size.width,
+                   (int)view_rect.size.height);
   }
 
   return rect;

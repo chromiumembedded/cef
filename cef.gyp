@@ -984,6 +984,8 @@
         'libcef/browser/scheme_handler.h',
         'libcef/browser/scheme_impl.cc',
         'libcef/browser/scheme_impl.h',
+        'libcef/browser/software_output_device_osr.cc',
+        'libcef/browser/software_output_device_osr.h',
         'libcef/browser/speech_recognition_manager_delegate.cc',
         'libcef/browser/speech_recognition_manager_delegate.h',
         'libcef/browser/stream_impl.cc',
