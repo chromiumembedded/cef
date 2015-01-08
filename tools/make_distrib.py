@@ -418,7 +418,7 @@ if mode == 'standard':
 
 if platform == 'windows':
   binaries = [
-    'd3dcompiler_46.dll',
+    'd3dcompiler_47.dll',
     'ffmpegsumo.dll',
     'libcef.dll',
     'libEGL.dll',

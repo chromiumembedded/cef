@@ -165,7 +165,8 @@ struct CompileAssert {
 }  // namespace cef
 
 #define COMPILE_ASSERT(expr, msg) \
-  typedef cef::CompileAssert<(bool(expr))> msg[bool(expr) ? 1 : -1] ALLOW_UNUSED
+  typedef cef::CompileAssert<(bool(expr))> msg[bool(expr) ? 1 : -1] \
+      ALLOW_UNUSED_TYPE
 
 // Implementation details of COMPILE_ASSERT:
 //

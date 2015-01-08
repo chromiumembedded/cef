@@ -44,7 +44,7 @@ Optional components:
 
 * Angle and Direct3D support
     d3dcompiler_43.dll (required for Windows XP)
-    d3dcompiler_46.dll (required for Windows Vista and newer)
+    d3dcompiler_47.dll (required for Windows Vista and newer)
     libEGL.dll
     libGLESv2.dll
   Note: Without these components HTML5 accelerated content like 2D canvas, 3D

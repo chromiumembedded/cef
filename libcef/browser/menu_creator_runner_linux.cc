@@ -6,14 +6,10 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/window_x11.h"
 
+#include "base/compiler_specific.h"
 #include "base/strings/string_util.h"
 #include "ui/aura/window.h"
 #include "ui/gfx/point.h"
-
-// Used to silence warnings about unused variables.
-#if !defined(UNUSED)
-#define UNUSED(x) ((void)(x))
-#endif
 
 CefMenuCreatorRunnerLinux::CefMenuCreatorRunnerLinux() {
 }
@@ -59,7 +55,7 @@ bool CefMenuCreatorRunnerLinux::RunContextMenu(CefMenuCreator* manager) {
                        NULL, gfx::Rect(screen_point, gfx::Size()),
                        views::MENU_ANCHOR_TOPRIGHT,
                        ui::MENU_SOURCE_NONE);
-  UNUSED(result);
+  ALLOW_UNUSED_LOCAL(result);
 
   return true;
 }

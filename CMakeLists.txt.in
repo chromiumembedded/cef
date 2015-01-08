@@ -437,7 +437,7 @@ if(OS_WINDOWS)
   # List of CEF binary files.
   set(CEF_BINARY_FILES
     d3dcompiler_43.dll
-    d3dcompiler_46.dll
+    d3dcompiler_47.dll
     ffmpegsumo.dll
     libcef.dll
     libEGL.dll

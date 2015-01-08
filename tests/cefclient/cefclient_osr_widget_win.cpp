@@ -7,6 +7,7 @@
 #include <windowsx.h>
 
 #include "include/base/cef_bind.h"
+#include "include/base/cef_build.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "cefclient/resource.h"
 
@@ -18,6 +19,7 @@ class ScopedGLContext {
     : hdc_(hdc),
       swap_buffers_(swap_buffers) {
     BOOL result = wglMakeCurrent(hdc, hglrc);
+    ALLOW_UNUSED_LOCAL(result);
     DCHECK(result);
   }
   ~ScopedGLContext() {
@@ -352,6 +354,7 @@ void OSRWindow::DisableGL() {
   if (IsWindow(hWnd_)) {
     // wglDeleteContext will make the context not current before deleting it.
     BOOL result = wglDeleteContext(hRC_);
+    ALLOW_UNUSED_LOCAL(result);
     DCHECK(result);
     ReleaseDC(hWnd_, hDC_);
   }

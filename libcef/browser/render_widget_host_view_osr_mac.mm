@@ -10,11 +10,8 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/text_input_client_osr_mac.h"
 
+#include "base/compiler_specific.h"
 #include "ui/events/latency_info.h"
-
-#if !defined(UNUSED)
-#define UNUSED(x)	((void)(x))	/* to avoid warnings */
-#endif
 
 namespace {
 
@@ -310,7 +307,7 @@ void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {
 
   // Compositor is owned by and will be freed by BrowserCompositorMac.
   ui::Compositor* compositor = compositor_.release();
-  UNUSED(compositor);
+  ALLOW_UNUSED_LOCAL(compositor);
 
   [window_ close];
   window_ = nil;
