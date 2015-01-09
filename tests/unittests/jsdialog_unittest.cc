@@ -63,6 +63,9 @@ class JSDialogTestHandler : public TestHandler {
 
     // Create the browser
     CreateBrowser(kStartUrl);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -190,6 +193,8 @@ TEST(JSDialogTest, AlertSuppress) {
   EXPECT_FALSE(handler->got_onbeforeunloaddialog_);
   EXPECT_TRUE(handler->got_onresetdialogstate_);
   EXPECT_TRUE(handler->got_onloadend_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Alert dialog with immediate callback.
@@ -206,6 +211,8 @@ TEST(JSDialogTest, AlertRunImmediate) {
   EXPECT_FALSE(handler->got_onbeforeunloaddialog_);
   EXPECT_TRUE(handler->got_onresetdialogstate_);
   EXPECT_TRUE(handler->got_onloadend_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Alert dialog with delayed callback.
@@ -222,6 +229,8 @@ TEST(JSDialogTest, AlertRunDelayed) {
   EXPECT_FALSE(handler->got_onbeforeunloaddialog_);
   EXPECT_TRUE(handler->got_onresetdialogstate_);
   EXPECT_TRUE(handler->got_onloadend_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Confirm dialog with suppression.
@@ -238,6 +247,8 @@ TEST(JSDialogTest, ConfirmSuppress) {
   EXPECT_FALSE(handler->got_onbeforeunloaddialog_);
   EXPECT_TRUE(handler->got_onresetdialogstate_);
   EXPECT_TRUE(handler->got_onloadend_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Confirm dialog run immediately return OK.
@@ -254,6 +265,8 @@ TEST(JSDialogTest, ConfirmRunImmediateOk) {
   EXPECT_FALSE(handler->got_onbeforeunloaddialog_);
   EXPECT_TRUE(handler->got_onresetdialogstate_);
   EXPECT_TRUE(handler->got_onloadend_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Confirm dialog run immediately return Cancel.
@@ -270,6 +283,8 @@ TEST(JSDialogTest, ConfirmRunImmediateCancel) {
   EXPECT_FALSE(handler->got_onbeforeunloaddialog_);
   EXPECT_TRUE(handler->got_onresetdialogstate_);
   EXPECT_TRUE(handler->got_onloadend_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Confirm dialog run delayed return OK.
@@ -286,6 +301,8 @@ TEST(JSDialogTest, ConfirmRunDelayedOk) {
   EXPECT_FALSE(handler->got_onbeforeunloaddialog_);
   EXPECT_TRUE(handler->got_onresetdialogstate_);
   EXPECT_TRUE(handler->got_onloadend_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Confirm dialog run delayed return Cancel.
@@ -302,6 +319,8 @@ TEST(JSDialogTest, ConfirmRunDelayedCancel) {
   EXPECT_FALSE(handler->got_onbeforeunloaddialog_);
   EXPECT_TRUE(handler->got_onresetdialogstate_);
   EXPECT_TRUE(handler->got_onloadend_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Prompt dialog with suppression.
@@ -318,6 +337,8 @@ TEST(JSDialogTest, PromptSuppress) {
   EXPECT_FALSE(handler->got_onbeforeunloaddialog_);
   EXPECT_TRUE(handler->got_onresetdialogstate_);
   EXPECT_TRUE(handler->got_onloadend_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Prompt dialog run immediately return OK.
@@ -334,6 +355,8 @@ TEST(JSDialogTest, PromptRunImmediateOk) {
   EXPECT_FALSE(handler->got_onbeforeunloaddialog_);
   EXPECT_TRUE(handler->got_onresetdialogstate_);
   EXPECT_TRUE(handler->got_onloadend_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Prompt dialog run immediately return Cancel.
@@ -350,6 +373,8 @@ TEST(JSDialogTest, PromptRunImmediateCancel) {
   EXPECT_FALSE(handler->got_onbeforeunloaddialog_);
   EXPECT_TRUE(handler->got_onresetdialogstate_);
   EXPECT_TRUE(handler->got_onloadend_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Prompt dialog run delayed return OK.
@@ -366,6 +391,8 @@ TEST(JSDialogTest, PromptRunDelayedOk) {
   EXPECT_FALSE(handler->got_onbeforeunloaddialog_);
   EXPECT_TRUE(handler->got_onresetdialogstate_);
   EXPECT_TRUE(handler->got_onloadend_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Prompt dialog run delayed return Cancel.
@@ -382,6 +409,8 @@ TEST(JSDialogTest, PromptRunDelayedCancel) {
   EXPECT_FALSE(handler->got_onbeforeunloaddialog_);
   EXPECT_TRUE(handler->got_onresetdialogstate_);
   EXPECT_TRUE(handler->got_onloadend_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // OnBeforeUnload dialog with immediate callback.
@@ -398,6 +427,8 @@ TEST(JSDialogTest, OnBeforeUnloadRunImmediate) {
   EXPECT_TRUE(handler->got_onbeforeunloaddialog_);
   EXPECT_TRUE(handler->got_onresetdialogstate_);
   EXPECT_TRUE(handler->got_onloadend_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // OnBeforeUnload dialog with delayed callback.
@@ -414,4 +445,6 @@ TEST(JSDialogTest, OnBeforeUnloadRunDelayed) {
   EXPECT_TRUE(handler->got_onbeforeunloaddialog_);
   EXPECT_TRUE(handler->got_onresetdialogstate_);
   EXPECT_TRUE(handler->got_onloadend_);
+
+  ReleaseAndWaitForDestructor(handler);
 }

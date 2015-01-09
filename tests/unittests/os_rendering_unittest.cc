@@ -35,8 +35,6 @@ const char kTestUrl[] = "http://tests/osrtest";
 // this html should render on a 600 x 400 window with a little vertical
 // offset with scrollbar.
 
-// #define DEBUGGER_ATTACHED
-
 // default osr widget size
 const int kOsrWidth = 600;
 const int kOsrHeight = 400;
@@ -205,13 +203,9 @@ class OSRTestHandler : public RoutingTestHandler,
   // TestHandler methods
   void RunTest() override {
     CreateOSRBrowser(kTestUrl);
-#if !defined(DEBUGGER_ATTACHED)
-    // Each test has a 5 second timeout. After this timeout it will be destroyed
-    // and the test will fail. DestroyTest will be called at the timeout even
-    // if the test is already destroyed and this is fine.
-    CefPostDelayedTask(TID_UI, base::Bind(&OSRTestHandler::DestroyTest, this),
-                       5000);
-#endif  // DEBUGGER_ATTACHED
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
@@ -1007,6 +1001,7 @@ class OSRTestHandler : public RoutingTestHandler,
   int event_total_;
   bool started_;
   TrackCallback got_update_cursor_;
+
   IMPLEMENT_REFCOUNTING(OSRTestHandler);
 };
 
@@ -1019,6 +1014,7 @@ TEST(OSRTest, name) {\
       new OSRTestHandler(test_mode, scale_factor);\
   handler->ExecuteTest();\
   EXPECT_TRUE(handler->succeeded());\
+  ReleaseAndWaitForDestructor(handler);\
 }
 
 // tests

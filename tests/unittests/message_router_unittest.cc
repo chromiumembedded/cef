@@ -19,9 +19,6 @@
 #include "tests/unittests/routing_test_handler.h"
 #include "tests/cefclient/client_app.h"
 
-// Comment out this define to disable the unit test timeout.
-#define TIMEOUT_ENABLED 1
-
 namespace {
 
 const char kTestDomainRoot[] = "http://tests-mr";
@@ -209,12 +206,8 @@ class MRTestHandler : public TestHandler {
   void RunTest() override {
     RunMRTest();
 
-#if defined(TIMEOUT_ENABLED)
     // Time out the test after a reasonable period of time.
-    CefPostDelayedTask(TID_UI,
-        base::Bind(&MRTestHandler::DestroyTest, this),
-        4000);
-#endif
+    SetTestTimeout();
   }
 
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
@@ -402,12 +395,14 @@ class HarnessTestHandler : public SingleLoadTestHandler {
 TEST(MessageRouterTest, HarnessSuccess) {
   CefRefPtr<HarnessTestHandler> handler = new HarnessTestHandler(true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Verify that the test harness works with failed assertions.
 TEST(MessageRouterTest, HarnessFailure) {
   CefRefPtr<HarnessTestHandler> handler = new HarnessTestHandler(false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 
@@ -608,6 +603,7 @@ TEST(MessageRouterTest, SingleQuerySuccessSyncCallback) {
   CefRefPtr<SingleQueryTestHandler> handler =
       new SingleQueryTestHandler(SingleQueryTestHandler::SUCCESS, true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that a single query with successful result delivered asynchronously.
@@ -615,6 +611,7 @@ TEST(MessageRouterTest, SingleQuerySuccessAsyncCallback) {
   CefRefPtr<SingleQueryTestHandler> handler =
       new SingleQueryTestHandler(SingleQueryTestHandler::SUCCESS, false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that a single query with failure result delivered synchronously.
@@ -622,6 +619,7 @@ TEST(MessageRouterTest, SingleQueryFailureSyncCallback) {
   CefRefPtr<SingleQueryTestHandler> handler =
       new SingleQueryTestHandler(SingleQueryTestHandler::FAILURE, true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that a single query with failure result delivered asynchronously.
@@ -629,6 +627,7 @@ TEST(MessageRouterTest, SingleQueryFailureAsyncCallback) {
   CefRefPtr<SingleQueryTestHandler> handler =
       new SingleQueryTestHandler(SingleQueryTestHandler::FAILURE, false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that a single query with cancellation.
@@ -636,6 +635,7 @@ TEST(MessageRouterTest, SingleQueryCancel) {
   CefRefPtr<SingleQueryTestHandler> handler =
       new SingleQueryTestHandler(SingleQueryTestHandler::CANCEL, true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 
@@ -836,6 +836,7 @@ TEST(MessageRouterTest, SinglePersistentQuerySuccessSyncCallback) {
       new SinglePersistentQueryTestHandler(
           SinglePersistentQueryTestHandler::SUCCESS, true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that a single query with successful result delivered asynchronously.
@@ -844,6 +845,7 @@ TEST(MessageRouterTest, SinglePersistentQuerySuccessAsyncCallback) {
       new SinglePersistentQueryTestHandler(
           SinglePersistentQueryTestHandler::SUCCESS, false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that a single query with failure result delivered synchronously.
@@ -852,6 +854,7 @@ TEST(MessageRouterTest, SinglePersistentQueryFailureSyncCallback) {
       new SinglePersistentQueryTestHandler(
           SinglePersistentQueryTestHandler::FAILURE, true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that a single query with failure result delivered asynchronously.
@@ -860,6 +863,7 @@ TEST(MessageRouterTest, SinglePersistentQueryFailureAsyncCallback) {
       new SinglePersistentQueryTestHandler(
           SinglePersistentQueryTestHandler::FAILURE, false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 
@@ -963,6 +967,7 @@ TEST(MessageRouterTest, SingleUnhandledQuery) {
   CefRefPtr<SingleUnhandledQueryTestHandler> handler =
       new SingleUnhandledQueryTestHandler();
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 
@@ -1877,6 +1882,7 @@ class MultiQuerySingleFrameTestHandler :
     manager->AddTestQuery(MultiQueryManager::type); \
     manager->Finalize(); \
     handler->ExecuteTest(); \
+    ReleaseAndWaitForDestructor(handler); \
   }
 
 // Test the query types individually.
@@ -1910,6 +1916,7 @@ TEST(MessageRouterTest, MultiQuerySingleFrameSyncSome) {
       new MultiQuerySingleFrameTestHandler(true);
   MakeTestQueries(handler->GetManager(), true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that one frame can run some queries successfully in an asynchronous
@@ -1919,6 +1926,7 @@ TEST(MessageRouterTest, MultiQuerySingleFrameAsyncSome) {
       new MultiQuerySingleFrameTestHandler(false);
   MakeTestQueries(handler->GetManager(), true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that one frame can run many queries successfully in a synchronous
@@ -1928,6 +1936,7 @@ TEST(MessageRouterTest, MultiQuerySingleFrameSyncMany) {
       new MultiQuerySingleFrameTestHandler(true);
   MakeTestQueries(handler->GetManager(), false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that one frame can run many queries successfully in an asynchronous
@@ -1937,6 +1946,7 @@ TEST(MessageRouterTest, MultiQuerySingleFrameAsyncMany) {
       new MultiQuerySingleFrameTestHandler(false);
   MakeTestQueries(handler->GetManager(), false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that pending queries can be canceled by removing the handler.
@@ -1946,6 +1956,7 @@ TEST(MessageRouterTest, MultiQuerySingleFrameCancelByRemovingHandler) {
           MultiQuerySingleFrameTestHandler::CANCEL_BY_REMOVING_HANDLER);
   MakeTestQueries(handler->GetManager(), false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that pending queries can be canceled by closing the browser.
@@ -1955,6 +1966,7 @@ TEST(MessageRouterTest, MultiQuerySingleFrameCancelByClosingBrowser) {
           MultiQuerySingleFrameTestHandler::CANCEL_BY_CLOSING_BROWSER);
   MakeTestQueries(handler->GetManager(), false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 
@@ -2184,6 +2196,7 @@ TEST(MessageRouterTest, MultiQueryMultiHandler) {
   CefRefPtr<MultiQueryMultiHandlerTestHandler> handler =
       new MultiQueryMultiHandlerTestHandler(false, false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that multiple handlers behave correctly. Cancel by removing the
@@ -2192,6 +2205,7 @@ TEST(MessageRouterTest, MultiQueryMultiHandlerCancelByRemovingHandler) {
   CefRefPtr<MultiQueryMultiHandlerTestHandler> handler =
       new MultiQueryMultiHandlerTestHandler(false, true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 
@@ -2553,6 +2567,7 @@ TEST(MessageRouterTest, MultiQueryMultiFrameSync) {
   CefRefPtr<MultiQueryMultiFrameTestHandler> handler =
       new MultiQueryMultiFrameTestHandler(true, false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that multiple frames can run many queries successfully in an
@@ -2561,6 +2576,7 @@ TEST(MessageRouterTest, MultiQueryMultiFrameAsync) {
   CefRefPtr<MultiQueryMultiFrameTestHandler> handler =
       new MultiQueryMultiFrameTestHandler(false, false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that multiple frames can run many queries successfully in a synchronous
@@ -2569,6 +2585,7 @@ TEST(MessageRouterTest, MultiQueryMultiFrameSyncSubnavCancel) {
   CefRefPtr<MultiQueryMultiFrameTestHandler> handler =
       new MultiQueryMultiFrameTestHandler(true, true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that multiple frames can run many queries successfully in an
@@ -2577,6 +2594,7 @@ TEST(MessageRouterTest, MultiQueryMultiFrameAsyncSubnavCancel) {
   CefRefPtr<MultiQueryMultiFrameTestHandler> handler =
       new MultiQueryMultiFrameTestHandler(false, true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 
@@ -2717,6 +2735,7 @@ TEST(MessageRouterTest, MultiQueryMultiBrowserSameOriginSync) {
   CefRefPtr<MultiQueryMultiBrowserTestHandler> handler =
       new MultiQueryMultiBrowserTestHandler(true, true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that multiple browsers can query simultaniously from the same origin.
@@ -2724,6 +2743,7 @@ TEST(MessageRouterTest, MultiQueryMultiBrowserSameOriginAsync) {
   CefRefPtr<MultiQueryMultiBrowserTestHandler> handler =
       new MultiQueryMultiBrowserTestHandler(false, true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that multiple browsers can query simultaniously from different origins.
@@ -2731,6 +2751,7 @@ TEST(MessageRouterTest, MultiQueryMultiBrowserDifferentOriginSync) {
   CefRefPtr<MultiQueryMultiBrowserTestHandler> handler =
       new MultiQueryMultiBrowserTestHandler(true, false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that multiple browsers can query simultaniously from different origins.
@@ -2738,6 +2759,7 @@ TEST(MessageRouterTest, MultiQueryMultiBrowserDifferentOriginAsync) {
   CefRefPtr<MultiQueryMultiBrowserTestHandler> handler =
       new MultiQueryMultiBrowserTestHandler(false, false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 
@@ -2791,6 +2813,7 @@ TEST(MessageRouterTest, MultiQueryMultiNavigateSameOriginSync) {
   CefRefPtr<MultiQueryMultiNavigateTestHandler> handler =
       new MultiQueryMultiNavigateTestHandler(true, true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that multiple navigations can query from the same origin.
@@ -2798,6 +2821,7 @@ TEST(MessageRouterTest, MultiQueryMultiNavigateSameOriginAsync) {
   CefRefPtr<MultiQueryMultiNavigateTestHandler> handler =
       new MultiQueryMultiNavigateTestHandler(false, true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that multiple navigations can query from different origins.
@@ -2805,6 +2829,7 @@ TEST(MessageRouterTest, MultiQueryMultiNavigateDifferentOriginSync) {
   CefRefPtr<MultiQueryMultiNavigateTestHandler> handler =
       new MultiQueryMultiNavigateTestHandler(true, false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that multiple navigations can query from different origins.
@@ -2812,4 +2837,5 @@ TEST(MessageRouterTest, MultiQueryMultiNavigateDifferentOriginAsync) {
   CefRefPtr<MultiQueryMultiNavigateTestHandler> handler =
       new MultiQueryMultiNavigateTestHandler(false, false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }

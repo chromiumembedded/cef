@@ -270,6 +270,9 @@ class TestDOMHandler : public TestHandler {
 
     AddResource(kTestUrl, mainHtml.str(), "text/html");
     CreateBrowser(kTestUrl);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -316,6 +319,8 @@ TEST(DOMTest, Read) {
 
   EXPECT_TRUE(handler->got_message_);
   EXPECT_TRUE(handler->got_success_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test DOM modifications.
@@ -326,6 +331,8 @@ TEST(DOMTest, Modify) {
 
   EXPECT_TRUE(handler->got_message_);
   EXPECT_TRUE(handler->got_success_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Entry point for creating DOM renderer test objects.

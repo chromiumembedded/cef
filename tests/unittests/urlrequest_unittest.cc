@@ -927,6 +927,9 @@ class RequestTestHandler : public TestHandler,
     test_runner_.SetupTest(test_mode_);
 
     CreateBrowser(test_url_);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   CefRefPtr<CefProcessMessage> CreateTestMessage() {
@@ -1067,6 +1070,7 @@ void RegisterURLRequestCustomSchemes(
       EXPECT_TRUE(handler->got_message_); \
       EXPECT_TRUE(handler->got_success_); \
     } \
+    ReleaseAndWaitForDestructor(handler); \
   }
 
 #define REQ_TEST(name, test_mode, test_in_browser) \

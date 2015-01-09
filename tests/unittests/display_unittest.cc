@@ -45,6 +45,9 @@ class TitleTestHandler : public TestHandler {
 
     // Create the browser.
     CreateBrowser(kTitleUrl1);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   void OnTitleChange(CefRefPtr<CefBrowser> browser,
@@ -109,4 +112,5 @@ class TitleTestHandler : public TestHandler {
 TEST(DisplayTest, Title) {
   CefRefPtr<TitleTestHandler> handler = new TitleTestHandler();
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }

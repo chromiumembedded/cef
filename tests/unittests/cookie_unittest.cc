@@ -730,6 +730,9 @@ class CookieTestJSHandler : public TestHandler {
     // Create the browser
     CreateBrowser(kCookieJSUrl1,
         CefRequestContext::CreateContext(context_handler_.get()));
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -802,6 +805,8 @@ TEST(CookieTest, GetCookieManagerJS) {
   EXPECT_TRUE(handler->got_load_end2_);
   EXPECT_TRUE(handler->got_cookie1_);
   EXPECT_TRUE(handler->got_cookie2_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 
@@ -986,6 +991,9 @@ class CookieTestSchemeHandler : public TestHandler {
     // Create the browser
     CreateBrowser(url1_,
         CefRequestContext::CreateContext(context_handler_.get()));
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -1088,6 +1096,8 @@ TEST(CookieTest, GetCookieManagerHttp) {
   EXPECT_TRUE(handler->got_cookie1_);
   EXPECT_TRUE(handler->got_cookie2_);
   EXPECT_TRUE(handler->got_cookie3_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Verify use of multiple cookie managers via a custom scheme.
@@ -1109,6 +1119,8 @@ TEST(CookieTest, GetCookieManagerCustom) {
   EXPECT_TRUE(handler->got_cookie1_);
   EXPECT_TRUE(handler->got_cookie2_);
   EXPECT_TRUE(handler->got_cookie3_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Entry point for registering custom schemes.

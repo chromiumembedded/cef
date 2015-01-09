@@ -360,6 +360,9 @@ class HistoryNavTestHandler : public TestHandler {
 
     // Create the browser.
     CreateBrowser(CefString());
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   void RunNav(CefRefPtr<CefBrowser> browser) {
@@ -591,6 +594,8 @@ TEST(NavigationTest, History) {
       ASSERT_TRUE(handler->got_correct_can_go_forward2_[i]) << "i = " << i;
     }
   }
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 
@@ -724,6 +729,9 @@ class RedirectTestHandler : public TestHandler {
   void RunTest() override {
     // Create the browser.
     CreateBrowser(kRNav1);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
@@ -842,6 +850,8 @@ TEST(NavigationTest, Redirect) {
   ASSERT_TRUE(g_got_nav3_request);
   ASSERT_TRUE(g_got_nav4_request);
   ASSERT_FALSE(g_got_invalid_request);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 
@@ -1219,6 +1229,9 @@ class OrderNavTestHandler : public TestHandler {
 
     // Create the browser.
     CreateBrowser(KONav1);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   void ContinueIfReady(CefRefPtr<CefBrowser> browser) {
@@ -1415,6 +1428,7 @@ TEST(NavigationTest, Order) {
       new OrderNavTestHandler();
   handler->ExecuteTest();
   g_order_nav_test = false;
+  ReleaseAndWaitForDestructor(handler);
 }
 
 
@@ -1628,6 +1642,9 @@ class CrossOriginNavTestHandler : public TestHandler {
 
     // Create the browser.
     CreateBrowser(kCrossOriginNav1);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   void ContinueIfReady(CefRefPtr<CefBrowser> browser) {
@@ -1739,6 +1756,7 @@ TEST(NavigationTest, CrossOrigin) {
       new CrossOriginNavTestHandler();
   handler->ExecuteTest();
   g_cross_origin_nav_test = false;
+  ReleaseAndWaitForDestructor(handler);
 }
 
 
@@ -1765,6 +1783,9 @@ class PopupNavTestHandler : public TestHandler {
 
     // Create the browser.
     CreateBrowser(kPopupNavPageUrl);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
@@ -1836,12 +1857,14 @@ class PopupNavTestHandler : public TestHandler {
 TEST(NavigationTest, PopupAllow) {
   CefRefPtr<PopupNavTestHandler> handler = new PopupNavTestHandler(true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test denying popups.
 TEST(NavigationTest, PopupDeny) {
   CefRefPtr<PopupNavTestHandler> handler = new PopupNavTestHandler(false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 
@@ -1857,15 +1880,13 @@ class BrowseNavTestHandler : public TestHandler {
         destroyed_(false) {}
 
   void RunTest() override {
-   AddResource(kBrowseNavPageUrl, "<html>Test</html>", "text/html");
+    AddResource(kBrowseNavPageUrl, "<html>Test</html>", "text/html");
 
     // Create the browser.
     CreateBrowser(kBrowseNavPageUrl);
 
     // Time out the test after a reasonable period of time.
-    CefPostDelayedTask(TID_UI,
-        base::Bind(&BrowseNavTestHandler::DestroyTest, this),
-        2000);
+    SetTestTimeout();
   }
 
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
@@ -1997,12 +2018,14 @@ class BrowseNavTestHandler : public TestHandler {
 TEST(NavigationTest, BrowseAllow) {
   CefRefPtr<BrowseNavTestHandler> handler = new BrowseNavTestHandler(true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test denying navigation.
 TEST(NavigationTest, BrowseDeny) {
   CefRefPtr<BrowseNavTestHandler> handler = new BrowseNavTestHandler(false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 

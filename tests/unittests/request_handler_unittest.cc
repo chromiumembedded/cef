@@ -123,6 +123,9 @@ class NetNotifyTestHandler : public TestHandler {
     // Navigate to the 2nd URL.
     context_handler_->SetURL(url2_);
     GetBrowser()->GetMainFrame()->LoadURL(url2_);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
@@ -447,6 +450,10 @@ void RunNetNotifyTest(NetNotifyTestType test_type, bool same_origin) {
   collection.AddTestHandler(handler3.get());
 
   collection.ExecuteTests();
+
+  ReleaseAndWaitForDestructor(handler1);
+  ReleaseAndWaitForDestructor(handler2);
+  ReleaseAndWaitForDestructor(handler3);
 
   g_net_notify_test = false;
 }

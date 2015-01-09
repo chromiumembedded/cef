@@ -133,6 +133,9 @@ class DownloadTestHandler : public TestHandler {
 
     // Create the browser
     CreateBrowser(kTestEntryUrl);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -261,4 +264,5 @@ class DownloadTestHandler : public TestHandler {
 TEST(DownloadTest, Download) {
   CefRefPtr<DownloadTestHandler> handler = new DownloadTestHandler();
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }

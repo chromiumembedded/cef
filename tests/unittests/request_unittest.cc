@@ -15,9 +15,6 @@
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
 
-// Comment out this define to disable the unit test timeout.
-#define TIMEOUT_ENABLED 1
-
 // Verify Set/Get methods for CefRequest, CefPostData and CefPostDataElement.
 TEST(RequestTest, SetGet) {
   // CefRequest CreateRequest
@@ -149,6 +146,9 @@ class RequestSendRecvTestHandler : public TestHandler {
 
     // Create the browser
     CreateBrowser("about:blank");
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
@@ -204,6 +204,8 @@ TEST(RequestTest, SendRecv) {
 
   ASSERT_TRUE(handler->got_before_resource_load_);
   ASSERT_TRUE(handler->got_resource_handler_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 namespace {
@@ -437,11 +439,8 @@ class TypeTestHandler : public TestHandler {
 
     CreateBrowser(std::string(kTypeTestOrigin) + "main.html");
 
-#if defined(TIMEOUT_ENABLED)
     // Time out the test after a reasonable period of time.
-    CefPostDelayedTask(TID_UI, base::Bind(&TypeTestHandler::DestroyTest, this),
-                       2000);
-#endif
+    SetTestTimeout();
   }
 
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
@@ -536,6 +535,7 @@ TEST(RequestTest, ResourceAndTransitionType) {
   CefRefPtr<TypeTestHandler> handler =
       new TypeTestHandler();
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 

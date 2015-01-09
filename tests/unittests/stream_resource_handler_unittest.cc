@@ -16,9 +16,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/routing_test_handler.h"
 
-// Comment out this define to disable the unit test timeout.
-#define TIMEOUT_ENABLED 1
-
 namespace {
 
 const char kTestUrl[] = "http://tests-srh/test.html";
@@ -106,11 +103,8 @@ class ReadTestHandler : public RoutingTestHandler {
     // Create the browser.
     CreateBrowser(kTestUrl);
 
-#if defined(TIMEOUT_ENABLED)
     // Time out the test after a reasonable period of time.
-    CefPostDelayedTask(TID_UI,
-        base::Bind(&ReadTestHandler::DestroyTest, this), 3000);
-#endif
+    SetTestTimeout();
   }
 
   CefRefPtr<CefResourceHandler> GetResourceHandler(
@@ -183,9 +177,11 @@ class ReadTestHandler : public RoutingTestHandler {
 TEST(StreamResourceHandlerTest, ReadWillBlock) {
   CefRefPtr<ReadTestHandler> handler = new ReadTestHandler(true);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(StreamResourceHandlerTest, ReadWontBlock) {
   CefRefPtr<ReadTestHandler> handler = new ReadTestHandler(false);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }

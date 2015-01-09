@@ -134,6 +134,9 @@ class CookieTestHandler : public TestHandler {
 
     // Create browser that loads the 1st URL.
     CreateBrowser(url_, context_);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -208,6 +211,7 @@ TEST(RequestContextTest, GetCookieManager) {
       new CookieTestHandler(
           "http://tests-simple-rch.com/nav1.html");
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 namespace {
@@ -290,6 +294,9 @@ class PopupTestHandler : public TestHandler {
 
     // Create browser that loads the 1st URL.
     CreateBrowser(url_, context_);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -432,6 +439,7 @@ TEST(RequestContextTest, WindowOpenSameOrigin) {
       new PopupTestHandler(true,
           PopupTestHandler::MODE_WINDOW_OPEN);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(RequestContextTest, WindowOpenDifferentOrigin) {
@@ -439,6 +447,7 @@ TEST(RequestContextTest, WindowOpenDifferentOrigin) {
       new PopupTestHandler(false,
           PopupTestHandler::MODE_WINDOW_OPEN);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Test that a popup created using a targeted link will get the same request
@@ -448,6 +457,7 @@ TEST(RequestContextTest, TargetedLinkSameOrigin) {
       new PopupTestHandler(true,
           PopupTestHandler::MODE_TARGETED_LINK);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(RequestContextTest, TargetedLinkDifferentOrigin) {
@@ -455,6 +465,7 @@ TEST(RequestContextTest, TargetedLinkDifferentOrigin) {
       new PopupTestHandler(false,
           PopupTestHandler::MODE_TARGETED_LINK);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 
@@ -466,6 +477,7 @@ TEST(RequestContextTest, NoReferrerLinkSameOrigin) {
       new PopupTestHandler(true,
           PopupTestHandler::MODE_NOREFERRER_LINK);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(RequestContextTest, NoReferrerLinkDifferentOrigin) {
@@ -473,4 +485,5 @@ TEST(RequestContextTest, NoReferrerLinkDifferentOrigin) {
       new PopupTestHandler(false,
           PopupTestHandler::MODE_NOREFERRER_LINK);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }

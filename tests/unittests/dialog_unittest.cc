@@ -77,6 +77,9 @@ class DialogTestHandler : public TestHandler {
 
     // Create the browser
     CreateBrowser(kTestUrl);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -151,6 +154,7 @@ TEST(DialogTest, FileEmptyParams) {
 
   CefRefPtr<DialogTestHandler> handler = new DialogTestHandler(config);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(DialogTest, FileOpen) {
@@ -161,6 +165,7 @@ TEST(DialogTest, FileOpen) {
 
   CefRefPtr<DialogTestHandler> handler = new DialogTestHandler(config);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(DialogTest, FileOpenCancel) {
@@ -170,6 +175,7 @@ TEST(DialogTest, FileOpenCancel) {
 
   CefRefPtr<DialogTestHandler> handler = new DialogTestHandler(config);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(DialogTest, FileOpenAsync) {
@@ -180,6 +186,7 @@ TEST(DialogTest, FileOpenAsync) {
 
   CefRefPtr<DialogTestHandler> handler = new DialogTestHandler(config);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(DialogTest, FileOpenAsyncCancel) {
@@ -189,6 +196,7 @@ TEST(DialogTest, FileOpenAsyncCancel) {
 
   CefRefPtr<DialogTestHandler> handler = new DialogTestHandler(config);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(DialogTest, FileOpenMultiple) {
@@ -200,6 +208,7 @@ TEST(DialogTest, FileOpenMultiple) {
 
   CefRefPtr<DialogTestHandler> handler = new DialogTestHandler(config);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(DialogTest, FileOpenMultipleCancel) {
@@ -209,6 +218,7 @@ TEST(DialogTest, FileOpenMultipleCancel) {
 
   CefRefPtr<DialogTestHandler> handler = new DialogTestHandler(config);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(DialogTest, FileOpenMultipleAsync) {
@@ -220,6 +230,7 @@ TEST(DialogTest, FileOpenMultipleAsync) {
 
   CefRefPtr<DialogTestHandler> handler = new DialogTestHandler(config);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(DialogTest, FileOpenMultipleAsyncCancel) {
@@ -229,6 +240,7 @@ TEST(DialogTest, FileOpenMultipleAsyncCancel) {
 
   CefRefPtr<DialogTestHandler> handler = new DialogTestHandler(config);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(DialogTest, FileSave) {
@@ -239,6 +251,7 @@ TEST(DialogTest, FileSave) {
 
   CefRefPtr<DialogTestHandler> handler = new DialogTestHandler(config);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(DialogTest, FileSaveCancel) {
@@ -248,6 +261,7 @@ TEST(DialogTest, FileSaveCancel) {
 
   CefRefPtr<DialogTestHandler> handler = new DialogTestHandler(config);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(DialogTest, FileSaveAsync) {
@@ -258,6 +272,7 @@ TEST(DialogTest, FileSaveAsync) {
 
   CefRefPtr<DialogTestHandler> handler = new DialogTestHandler(config);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(DialogTest, FileSaveAsyncCancel) {
@@ -267,4 +282,5 @@ TEST(DialogTest, FileSaveAsyncCancel) {
 
   CefRefPtr<DialogTestHandler> handler = new DialogTestHandler(config);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }

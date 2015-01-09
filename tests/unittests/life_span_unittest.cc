@@ -34,7 +34,10 @@ class LifeSpanTestHandler : public RoutingTestHandler {
 
   explicit LifeSpanTestHandler(const Settings& settings)
       : settings_(settings),
-        executing_delay_close_(false) {}
+        executing_delay_close_(false) {
+    // By default no LifeSpan tests call DestroyTest().
+    SetDestroyTestExpected(false);
+  }
 
   void RunTest() override {
     // Add the resources that we will navigate to/from.
@@ -53,6 +56,8 @@ class LifeSpanTestHandler : public RoutingTestHandler {
 
     // Create the browser.
     CreateBrowser(kLifeSpanUrl);
+
+    // Intentionally don't call SetTestTimeout() for these tests.
   }
 
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
@@ -146,6 +151,9 @@ class LifeSpanTestHandler : public RoutingTestHandler {
   // Wait a bit to make sure no additional events are received and then close
   // the window.
   void ScheduleDelayClose() {
+    // This test will call DestroyTest().
+    SetDestroyTestExpected(true);
+
     CefPostDelayedTask(TID_UI,
         base::Bind(&LifeSpanTestHandler::DelayClose, this), 100);
   }
@@ -177,6 +185,8 @@ TEST(LifeSpanTest, DoCloseAllow) {
   EXPECT_TRUE(handler->got_unload_message_);
   EXPECT_TRUE(handler->got_load_end_);
   EXPECT_FALSE(handler->got_delay_close_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(LifeSpanTest, DoCloseAllowForce) {
@@ -193,6 +203,8 @@ TEST(LifeSpanTest, DoCloseAllowForce) {
   EXPECT_TRUE(handler->got_unload_message_);
   EXPECT_TRUE(handler->got_load_end_);
   EXPECT_FALSE(handler->got_delay_close_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(LifeSpanTest, DoCloseDisallow) {
@@ -208,6 +220,8 @@ TEST(LifeSpanTest, DoCloseDisallow) {
   EXPECT_TRUE(handler->got_unload_message_);
   EXPECT_TRUE(handler->got_load_end_);
   EXPECT_TRUE(handler->got_delay_close_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(LifeSpanTest, DoCloseDisallowForce) {
@@ -224,6 +238,8 @@ TEST(LifeSpanTest, DoCloseDisallowForce) {
   EXPECT_TRUE(handler->got_unload_message_);
   EXPECT_TRUE(handler->got_load_end_);
   EXPECT_TRUE(handler->got_delay_close_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(LifeSpanTest, DoCloseDisallowWithOnUnloadAllow) {
@@ -241,6 +257,8 @@ TEST(LifeSpanTest, DoCloseDisallowWithOnUnloadAllow) {
   EXPECT_TRUE(handler->got_unload_message_);
   EXPECT_TRUE(handler->got_load_end_);
   EXPECT_TRUE(handler->got_delay_close_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(LifeSpanTest, DoCloseAllowWithOnUnloadForce) {
@@ -258,6 +276,8 @@ TEST(LifeSpanTest, DoCloseAllowWithOnUnloadForce) {
   EXPECT_TRUE(handler->got_unload_message_);
   EXPECT_TRUE(handler->got_load_end_);
   EXPECT_FALSE(handler->got_delay_close_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(LifeSpanTest, DoCloseDisallowWithOnUnloadForce) {
@@ -275,6 +295,8 @@ TEST(LifeSpanTest, DoCloseDisallowWithOnUnloadForce) {
   EXPECT_TRUE(handler->got_unload_message_);
   EXPECT_TRUE(handler->got_load_end_);
   EXPECT_TRUE(handler->got_delay_close_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(LifeSpanTest, OnUnloadAllow) {
@@ -291,6 +313,8 @@ TEST(LifeSpanTest, OnUnloadAllow) {
   EXPECT_TRUE(handler->got_unload_message_);
   EXPECT_TRUE(handler->got_load_end_);
   EXPECT_FALSE(handler->got_delay_close_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(LifeSpanTest, OnUnloadDisallow) {
@@ -307,4 +331,6 @@ TEST(LifeSpanTest, OnUnloadDisallow) {
   EXPECT_FALSE(handler->got_unload_message_);
   EXPECT_TRUE(handler->got_load_end_);
   EXPECT_TRUE(handler->got_delay_close_);
+
+  ReleaseAndWaitForDestructor(handler);
 }

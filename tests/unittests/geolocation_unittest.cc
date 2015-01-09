@@ -58,6 +58,9 @@ class GeolocationTestHandler : public TestHandler {
 
     // Create the browser
     CreateBrowser(kTestUrl);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -146,6 +149,7 @@ TEST(GeolocationTest, HandlerAllow) {
       new GeolocationTestHandler(TEST_ALLOW, false);
   handler->ExecuteTest();
   EXPECT_TRUE(handler->got_allow_);
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(GeolocationTest, HandlerAllowAsync) {
@@ -153,6 +157,7 @@ TEST(GeolocationTest, HandlerAllowAsync) {
       new GeolocationTestHandler(TEST_ALLOW, true);
   handler->ExecuteTest();
   EXPECT_TRUE(handler->got_allow_);
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(GeolocationTest, HandlerDeny) {
@@ -160,6 +165,7 @@ TEST(GeolocationTest, HandlerDeny) {
       new GeolocationTestHandler(TEST_DENY, false);
   handler->ExecuteTest();
   EXPECT_TRUE(handler->got_deny_);
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(GeolocationTest, HandlerDenyAsync) {
@@ -167,6 +173,7 @@ TEST(GeolocationTest, HandlerDenyAsync) {
       new GeolocationTestHandler(TEST_DENY, true);
   handler->ExecuteTest();
   EXPECT_TRUE(handler->got_deny_);
+  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(GeolocationTest, HandlerCancel) {
@@ -174,6 +181,7 @@ TEST(GeolocationTest, HandlerCancel) {
       new GeolocationTestHandler(TEST_CANCEL, false);
   handler->ExecuteTest();
   EXPECT_TRUE(handler->got_cancel_);
+  ReleaseAndWaitForDestructor(handler);
 }
 
 

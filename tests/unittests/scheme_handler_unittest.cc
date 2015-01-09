@@ -89,6 +89,9 @@ class TestSchemeHandler : public TestHandler {
 
   void RunTest() override {
     CreateBrowser(test_results_->url);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   // Necessary to make the method public in order to destroy the test from
@@ -505,6 +508,8 @@ TEST(SchemeHandlerTest, Registration) {
   g_TestResults.got_error.reset();
   handler->ExecuteTest();
 
+  ReleaseAndWaitForDestructor(handler);
+
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
@@ -522,6 +527,7 @@ TEST(SchemeHandlerTest, CustomStandardNormalResponse) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -542,6 +548,7 @@ TEST(SchemeHandlerTest, CustomStandardNormalResponseDelayed) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -560,6 +567,7 @@ TEST(SchemeHandlerTest, CustomNonStandardNormalResponse) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -578,6 +586,7 @@ TEST(SchemeHandlerTest, CustomStandardErrorResponse) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -596,6 +605,7 @@ TEST(SchemeHandlerTest, CustomNonStandardErrorResponse) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -612,6 +622,7 @@ TEST(SchemeHandlerTest, CustomStandardNameNotHandled) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_FALSE(g_TestResults.got_request);
   EXPECT_FALSE(g_TestResults.got_read);
@@ -628,6 +639,7 @@ TEST(SchemeHandlerTest, CustomNonStandardNameNotHandled) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_FALSE(g_TestResults.got_request);
   EXPECT_FALSE(g_TestResults.got_read);
@@ -644,6 +656,7 @@ TEST(SchemeHandlerTest, CustomStandardDomainNotHandled) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_FALSE(g_TestResults.got_request);
   EXPECT_FALSE(g_TestResults.got_read);
@@ -659,6 +672,7 @@ TEST(SchemeHandlerTest, CustomStandardNoResponse) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_FALSE(g_TestResults.got_read);
@@ -674,6 +688,7 @@ TEST(SchemeHandlerTest, CustomNonStandardNoResponse) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_FALSE(g_TestResults.got_read);
@@ -692,6 +707,7 @@ TEST(SchemeHandlerTest, CustomStandardRedirect) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -711,6 +727,7 @@ TEST(SchemeHandlerTest, CustomNonStandardRedirect) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -731,6 +748,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRSameOriginSync) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -754,6 +772,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRSameOriginAsync) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -776,6 +795,7 @@ TEST(SchemeHandlerTest, CustomNonStandardXHRSameOriginSync) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -799,6 +819,7 @@ TEST(SchemeHandlerTest, CustomNonStandardXHRSameOriginAsync) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -818,6 +839,7 @@ TEST(SchemeHandlerTest, CustomStandardXSSSameOrigin) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -837,6 +859,7 @@ TEST(SchemeHandlerTest, CustomNonStandardXSSSameOrigin) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -861,6 +884,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginSync) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -886,6 +910,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginAsync) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -907,6 +932,7 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentOrigin) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -931,6 +957,7 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginSync) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -956,6 +983,7 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginAsync) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -977,6 +1005,7 @@ TEST(SchemeHandlerTest, HttpXSSDifferentOrigin) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1003,6 +1032,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithHeaderSync) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1030,6 +1060,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithHeaderAsync) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1058,6 +1089,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistSync1) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1088,6 +1120,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistSync2) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1118,6 +1151,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistSync3) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1150,6 +1184,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync1) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1181,6 +1216,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync2) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1212,6 +1248,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginWithWhitelistAsync3) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1240,6 +1277,7 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginWithHeaderSync) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1266,6 +1304,7 @@ TEST(SchemeHandlerTest, HttpXHRDifferentOriginWithHeaderAsync) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1288,6 +1327,7 @@ TEST(SchemeHandlerTest, CustomStandardXSSDifferentOriginWithDomain) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1310,6 +1350,7 @@ TEST(SchemeHandlerTest, HttpXSSDifferentOriginWithDomain) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1335,6 +1376,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginRedirectSync) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1362,6 +1404,7 @@ TEST(SchemeHandlerTest, CustomStandardXHRDifferentOriginRedirectAsync) {
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1395,6 +1438,7 @@ TEST(SchemeHandlerTest,
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1433,6 +1477,7 @@ TEST(SchemeHandlerTest,
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1467,6 +1512,7 @@ TEST(SchemeHandlerTest,
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
@@ -1501,6 +1547,7 @@ TEST(SchemeHandlerTest,
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);

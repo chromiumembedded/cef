@@ -78,13 +78,46 @@ void TestHandler::Collection::ExecuteTests() {
 }
 
 
+// TestHandler::UIThreadHelper
+
+TestHandler::UIThreadHelper::UIThreadHelper()
+    : weak_ptr_factory_(this) {
+}
+
+void TestHandler::UIThreadHelper::PostTask(const base::Closure& task) {
+  EXPECT_UI_THREAD();
+  CefPostTask(
+      TID_UI,
+      base::Bind(&UIThreadHelper::TaskHelper,
+                 weak_ptr_factory_.GetWeakPtr(), task));
+}
+
+void TestHandler::UIThreadHelper::PostDelayedTask(
+    const base::Closure& task, int delay_ms) {
+  EXPECT_UI_THREAD();
+  CefPostDelayedTask(
+      TID_UI,
+      base::Bind(&UIThreadHelper::TaskHelper,
+                 weak_ptr_factory_.GetWeakPtr(), task),
+      delay_ms);
+}
+
+void TestHandler::UIThreadHelper::TaskHelper(const base::Closure& task) {
+  EXPECT_UI_THREAD();
+  task.Run();
+}
+
+
 // TestHandler
 
 int TestHandler::browser_count_ = 0;
 
 TestHandler::TestHandler(CompletionState* completion_state)
     : first_browser_id_(0),
-      signal_completion_when_all_browsers_close_(true) {
+      signal_completion_when_all_browsers_close_(true),
+      destroy_event_(NULL),
+      destroy_test_expected_(true),
+      destroy_test_called_(false) {
   if (completion_state) {
     completion_state_ = completion_state;
     completion_state_owned_ = false;
@@ -95,10 +128,18 @@ TestHandler::TestHandler(CompletionState* completion_state)
 }
 
 TestHandler::~TestHandler() {
+  DCHECK(!ui_thread_helper_.get());
+  if (destroy_test_expected_)
+    EXPECT_TRUE(destroy_test_called_);
+  else
+    EXPECT_FALSE(destroy_test_called_);
   EXPECT_TRUE(browser_map_.empty());
 
   if (completion_state_owned_)
     delete completion_state_;
+
+  if (destroy_event_)
+    destroy_event_->Signal();
 }
 
 void TestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
@@ -189,10 +230,14 @@ void TestHandler::GetAllBrowsers(BrowserMap* map) {
 void TestHandler::ExecuteTest() {
   EXPECT_EQ(completion_state_->total(), 1);
 
-  // Run the test
+  // Reset any state from the previous run.
+  if (destroy_test_called_)
+    destroy_test_called_ = false;
+
+  // Run the test.
   RunTest();
 
-  // Wait for the test to complete
+  // Wait for the test to complete.
   completion_state_->WaitForTests();
 }
 
@@ -207,6 +252,11 @@ void TestHandler::DestroyTest() {
     return;
   }
 
+  EXPECT_TRUE(destroy_test_expected_);
+  if (destroy_test_called_)
+    return;
+  destroy_test_called_ = true;
+
   if (!browser_map_.empty()) {
     // Use a copy of the map since the original may be modified while we're
     // iterating.
@@ -217,6 +267,15 @@ void TestHandler::DestroyTest() {
     for (; it != browser_map.end(); ++it)
       it->second->GetHost()->CloseBrowser(false);
   }
+
+  if (ui_thread_helper_.get())
+    ui_thread_helper_.reset(NULL);
+}
+
+void TestHandler::OnTestTimeout(int timeout_ms) {
+  EXPECT_UI_THREAD();
+  EXPECT_TRUE(false) << "Test timed out after " << timeout_ms << "ms";
+  DestroyTest();
 }
 
 void TestHandler::CreateBrowser(
@@ -260,6 +319,24 @@ void TestHandler::ClearResources() {
   resource_map_.clear();
 }
 
+void TestHandler::SetTestTimeout(int timeout_ms) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    CefPostTask(TID_UI, base::Bind(&TestHandler::SetTestTimeout, this,
+                timeout_ms));
+    return;
+  }
+
+  if (CefCommandLine::GetGlobalCommandLine()->HasSwitch("disable-test-timeout"))
+    return;
+
+  // Use a weak reference to |this| via UIThreadHelper so that the TestHandler
+  // can be destroyed before the timeout expires.
+  GetUIThreadHelper()->PostDelayedTask(
+      base::Bind(&TestHandler::OnTestTimeout, base::Unretained(this),
+                 timeout_ms),
+      timeout_ms);
+}
+
 void TestHandler::TestComplete() {
   if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI, base::Bind(&TestHandler::TestComplete, this));
@@ -268,6 +345,15 @@ void TestHandler::TestComplete() {
 
   EXPECT_TRUE(browser_map_.empty());
   completion_state_->TestComplete();
+}
+
+TestHandler::UIThreadHelper* TestHandler::GetUIThreadHelper() {
+  EXPECT_UI_THREAD();
+  EXPECT_FALSE(destroy_test_called_);
+
+  if (!ui_thread_helper_.get())
+    ui_thread_helper_.reset(new UIThreadHelper());
+  return ui_thread_helper_.get();
 }
 
 

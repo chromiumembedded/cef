@@ -97,6 +97,26 @@ class TestHandler : public CefClient,
 
   typedef std::map<int, CefRefPtr<CefBrowser> > BrowserMap;
 
+  // Helper for executing methods using WeakPtr references to TestHandler.
+  class UIThreadHelper {
+   public:
+    UIThreadHelper();
+
+    // Pass in a |task| with an unretained reference to TestHandler. |task| will
+    // be executed only if TestHandler::DestroyTest has not yet been called.
+    // For example:
+    //    GetUIThreadHelper()->PostTask(
+    //        base::Bind(&TestHandler::DoSomething, base::Unretained(this)));
+    void PostTask(const base::Closure& task);
+    void PostDelayedTask(const base::Closure& task, int delay_ms);
+
+   private:
+    void TaskHelper(const base::Closure& task);
+
+    // Must be the last member.
+    base::WeakPtrFactory<UIThreadHelper> weak_ptr_factory_;
+  };
+
   // The |completion_state| object if specified must outlive this class.
   explicit TestHandler(CompletionState* completion_state = NULL);
   ~TestHandler() override;
@@ -166,6 +186,15 @@ class TestHandler : public CefClient,
   // multiple handlers or when using a Collection object.
   void ExecuteTest();
 
+  // Event that will be signaled from the TestHandler destructor.
+  // Used by ReleaseAndWaitForDestructor.
+  void SetDestroyEvent(base::WaitableEvent* event) { destroy_event_ = event; }
+
+  // If a test will not call DestroyTest() indicate so using this method.
+  void SetDestroyTestExpected(bool expected) {
+    destroy_test_expected_ = expected;
+  }
+
   // Returns true if a browser currently exists.
   static bool HasBrowser() { return browser_count_ > 0; }
 
@@ -180,6 +209,10 @@ class TestHandler : public CefClient,
   // If no browsers exist then this method will do nothing and
   // TestComplete() must be called manually.
   virtual void DestroyTest();
+
+  // Called on the UI thread if the test times out as a result of calling
+  // SetTestTimeout(). Calls DestroyTest() by default.
+  virtual void OnTestTimeout(int timeout_ms);
 
   void CreateBrowser(const CefString& url,
                      CefRefPtr<CefRequestContext> request_context = NULL);
@@ -196,11 +229,18 @@ class TestHandler : public CefClient,
     return signal_completion_when_all_browsers_close_;
   }
 
+  // Call OnTestTimeout() after the specified amount of time.
+  void SetTestTimeout(int timeout_ms = 5000);
+
   // Signal that the test is complete. This will be called automatically when
   // all existing non-popup browsers are closed if
   // |signal_completion_when_all_browsers_close_| is true (default value). It
   // is an error to call this method before all browsers have closed.
   void TestComplete();
+
+  // Returns the single UIThreadHelper instance, creating it if necessary. Must
+  // be called on the UI thread.
+  UIThreadHelper* GetUIThreadHelper();
 
  private:
   // Used to notify when the test is complete. Can be accessed on any thread.
@@ -225,6 +265,14 @@ class TestHandler : public CefClient,
   // If true test completion will be signaled when all browsers have closed.
   bool signal_completion_when_all_browsers_close_;
 
+  base::WaitableEvent* destroy_event_;
+
+  // Tracks whether DestroyTest() is expected or has been called.
+  bool destroy_test_expected_;
+  bool destroy_test_called_;
+
+  scoped_ptr<UIThreadHelper> ui_thread_helper_;
+
   // Used to track the number of currently existing browser windows.
   static int browser_count_;
 
@@ -234,6 +282,19 @@ class TestHandler : public CefClient,
   DISALLOW_COPY_AND_ASSIGN(TestHandler);
 };
 
+
+// Release |handler| and wait for the destructor to be called.
+// This function is used to avoid test state leakage and to verify that
+// all Handler references have been released on test completion.
+template<typename T>
+void ReleaseAndWaitForDestructor(CefRefPtr<T>& handler, int delay_ms = 2000) {
+  base::WaitableEvent event(true, false);
+  handler->SetDestroyEvent(&event);
+  handler = NULL;
+  bool handler_destructed =
+      event.TimedWait(base::TimeDelta::FromMilliseconds(delay_ms));
+  EXPECT_TRUE(handler_destructed);
+}
 
 // Post a task to the specified thread and wait for the task to execute as
 // indication that all previously pending tasks on that thread have completed.

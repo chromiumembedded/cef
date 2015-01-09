@@ -2014,6 +2014,9 @@ class V8TestHandler : public TestHandler {
           "<script>var i = 0;</script>TEST</body></html>", "text/html");
       CreateBrowser(test_url_);
     }
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
@@ -2112,6 +2115,7 @@ void CreateV8RendererTests(ClientApp::RenderDelegateSet& delegates) {
     EXPECT_TRUE(handler->got_message_); \
     EXPECT_TRUE(handler->got_success_); \
     g_current_test_mode = V8TEST_NONE; \
+    ReleaseAndWaitForDestructor(handler); \
   }
 
 #define V8_TEST(name, test_mode) \

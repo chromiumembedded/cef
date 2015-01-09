@@ -13,9 +13,6 @@
 #include "tests/cefclient/client_app.h"
 #include "tests/unittests/test_handler.h"
 
-// Comment out this define to disable the unit test timeout.
-#define TIMEOUT_ENABLED 1
-
 namespace {
 
 // The frame navigation test harness work as follows:
@@ -416,11 +413,7 @@ class FrameNavTestHandler : public TestHandler {
  public:
   explicit FrameNavTestHandler(FrameNavFactoryId factory_id)
       : nav_(0),
-        factory_(FrameNavExpectationsFactoryBrowser::FromID(factory_id))
-#if defined(TIMEOUT_ENABLED)
-        , weak_ptr_factory_(this)
-#endif
-  {
+        factory_(FrameNavExpectationsFactoryBrowser::FromID(factory_id)) {
     EXPECT_FALSE(g_frame_nav_test);
     EXPECT_EQ(FNF_ID_INVALID, g_frame_nav_factory_id);
     g_frame_nav_test = true;
@@ -442,13 +435,8 @@ class FrameNavTestHandler : public TestHandler {
     // Create the browser with the initial URL.
     CreateBrowser(expectations_->GetMainURL());
 
-#if defined(TIMEOUT_ENABLED)
     // Time out the test after a reasonable period of time.
-    CefPostDelayedTask(TID_UI,
-        base::Bind(&FrameNavTestHandler::DestroyTest,
-                   weak_ptr_factory_.GetWeakPtr()),
-        4000);
-#endif
+    SetTestTimeout();
   }
 
   // Transition to the next navigation.
@@ -552,10 +540,6 @@ class FrameNavTestHandler : public TestHandler {
 
     got_destroyed_.yes();
 
-#if defined(TIMEOUT_ENABLED)
-    weak_ptr_factory_.InvalidateWeakPtrs();
-#endif
-
     // The expectations should have been tested already.
     EXPECT_FALSE(expectations_.get());
 
@@ -569,20 +553,7 @@ class FrameNavTestHandler : public TestHandler {
   TrackCallback got_destroyed_;
   scoped_ptr<FrameNavExpectationsFactoryBrowser> factory_;
   scoped_ptr<FrameNavExpectationsBrowser> expectations_;
-
-#if defined(TIMEOUT_ENABLED)
-  // Must be the last member.
-  base::WeakPtrFactory<FrameNavTestHandler> weak_ptr_factory_;
-#endif
 };
-
-
-// Wait for the the FrameNavTestHandler destructor to be called. This avoids
-// problems with setting global variables when running multiple tests.
-void WaitForTestHandlerDestruction() {
-  while (g_frame_nav_test)
-    base::PlatformThread::Sleep(base::TimeDelta::FromMilliseconds(100));
-}
 
 // Helper for defining frame tests.
 #define FRAME_TEST(name, factory_id) \
@@ -590,8 +561,7 @@ void WaitForTestHandlerDestruction() {
       CefRefPtr<FrameNavTestHandler> handler = \
           new FrameNavTestHandler(factory_id); \
       handler->ExecuteTest(); \
-      handler = NULL; \
-      WaitForTestHandlerDestruction(); \
+      ReleaseAndWaitForDestructor(handler); \
     }
 
 

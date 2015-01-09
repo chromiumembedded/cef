@@ -80,6 +80,9 @@ class SendRecvTestHandler : public TestHandler {
 
     AddResource(kSendRecvUrl, "<html><body>TEST</body></html>", "text/html");
     CreateBrowser(kSendRecvUrl);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -121,6 +124,8 @@ TEST(ProcessMessageTest, SendRecv) {
   handler->ExecuteTest();
 
   EXPECT_TRUE(handler->got_message_);
+
+  ReleaseAndWaitForDestructor(handler);
 }
 
 // Verify create.
