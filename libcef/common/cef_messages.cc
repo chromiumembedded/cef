@@ -39,7 +39,7 @@ struct ParamTraits<net::UploadElement> {
       case net::UploadElement::TYPE_BYTES: {
         const char* data;
         int len;
-        if (!m->ReadData(iter, &data, &len))
+        if (!iter->ReadData(&data, &len))
           return false;
         r->SetToBytes(data, len);
         break;

@@ -12,9 +12,10 @@
 #include "base/command_line.h"
 
 // CefCommandLine implementation
-class CefCommandLineImpl : public CefValueBase<CefCommandLine, CommandLine> {
+class CefCommandLineImpl :
+    public CefValueBase<CefCommandLine, base::CommandLine> {
  public:
-  CefCommandLineImpl(CommandLine* value,
+  CefCommandLineImpl(base::CommandLine* value,
                      bool will_delete,
                      bool read_only);
 
@@ -42,7 +43,7 @@ class CefCommandLineImpl : public CefValueBase<CefCommandLine, CommandLine> {
   void PrependWrapper(const CefString& wrapper) override;
 
   // Must hold the controller lock while using this value.
-  const CommandLine& command_line() { return const_value(); }
+  const base::CommandLine& command_line() { return const_value(); }
 
   DISALLOW_COPY_AND_ASSIGN(CefCommandLineImpl);
 };

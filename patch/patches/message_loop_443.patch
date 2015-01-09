@@ -1,8 +1,8 @@
 diff --git message_loop.cc message_loop.cc
-index 2f4a03c..ea7d505 100644
+index 8180733..927f755 100644
 --- message_loop.cc
 +++ message_loop.cc
-@@ -160,7 +160,6 @@ MessageLoop::MessageLoop(scoped_ptr<MessagePump> pump)
+@@ -148,7 +148,6 @@ MessageLoop::MessageLoop(scoped_ptr<MessagePump> pump)
  MessageLoop::~MessageLoop() {
    DCHECK_EQ(this, current());
  

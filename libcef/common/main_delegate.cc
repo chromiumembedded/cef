@@ -199,7 +199,7 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
   OverrideFrameworkBundlePath();
 #endif
 
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   std::string process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
 
@@ -209,12 +209,12 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 
     if (settings.command_line_args_disabled) {
       // Remove any existing command-line arguments.
-      CommandLine::StringVector argv;
+      base::CommandLine::StringVector argv;
       argv.push_back(command_line->GetProgram().value());
       command_line->InitFromArgv(argv);
 
-      const CommandLine::SwitchMap& map = command_line->GetSwitches();
-      const_cast<CommandLine::SwitchMap*>(&map)->clear();
+      const base::CommandLine::SwitchMap& map = command_line->GetSwitches();
+      const_cast<base::CommandLine::SwitchMap*>(&map)->clear();
     }
 
     if (settings.single_process)
@@ -387,11 +387,12 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 }
 
 void CefMainDelegate::PreSandboxStartup() {
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
   const std::string& process_type =
-      command_line.GetSwitchValueASCII(switches::kProcessType);
+      command_line->GetSwitchValueASCII(switches::kProcessType);
 
-  if (command_line.HasSwitch(switches::kEnableCrashReporter)) {
+  if (command_line->HasSwitch(switches::kEnableCrashReporter)) {
     crash_reporter::SetCrashReporterClient(g_crash_reporter_client.Pointer());
 #if defined(OS_MACOSX)
     base::mac::DisableOSCrashDumps();
@@ -409,7 +410,7 @@ void CefMainDelegate::PreSandboxStartup() {
 #endif
   }
 
-  if (!command_line.HasSwitch(switches::kProcessType)) {
+  if (!command_line->HasSwitch(switches::kProcessType)) {
     // Only these paths when executing the main process.
 #if defined(OS_MACOSX)
     OverrideChildProcessPath();
@@ -430,7 +431,7 @@ void CefMainDelegate::PreSandboxStartup() {
 
   OverridePdfPluginPath();
 
-  if (command_line.HasSwitch(switches::kDisablePackLoading))
+  if (command_line->HasSwitch(switches::kDisablePackLoading))
     content_client_.set_pack_loading_disabled(true);
 
   InitializeResourceBundle();
@@ -481,9 +482,10 @@ void CefMainDelegate::ProcessExiting(const std::string& process_type) {
 
 #if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MACOSX)
 void CefMainDelegate::ZygoteForked() {
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  if (command_line.HasSwitch(switches::kEnableCrashReporter)) {
-    const std::string& process_type = command_line.GetSwitchValueASCII(
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kEnableCrashReporter)) {
+    const std::string& process_type = command_line->GetSwitchValueASCII(
         switches::kProcessType);
     breakpad::InitCrashReporter(process_type);
   }
@@ -519,15 +521,16 @@ void CefMainDelegate::ShutdownBrowser() {
 }
 
 void CefMainDelegate::InitializeResourceBundle() {
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
   base::FilePath cef_pak_file, cef_100_percent_pak_file,
                  cef_200_percent_pak_file, devtools_pak_file, locales_dir;
 
   if (!content_client_.pack_loading_disabled()) {
     base::FilePath resources_dir;
-    if (command_line.HasSwitch(switches::kResourcesDirPath)) {
+    if (command_line->HasSwitch(switches::kResourcesDirPath)) {
       resources_dir =
-          command_line.GetSwitchValuePath(switches::kResourcesDirPath);
+          command_line->GetSwitchValuePath(switches::kResourcesDirPath);
     }
     if (resources_dir.empty())
       resources_dir = GetResourcesFilePath();
@@ -542,14 +545,14 @@ void CefMainDelegate::InitializeResourceBundle() {
           resources_dir.Append(FILE_PATH_LITERAL("devtools_resources.pak"));
     }
 
-    if (command_line.HasSwitch(switches::kLocalesDirPath))
-      locales_dir = command_line.GetSwitchValuePath(switches::kLocalesDirPath);
+    if (command_line->HasSwitch(switches::kLocalesDirPath))
+      locales_dir = command_line->GetSwitchValuePath(switches::kLocalesDirPath);
 
     if (!locales_dir.empty())
       PathService::Override(ui::DIR_LOCALES, locales_dir);
   }
 
-  std::string locale = command_line.GetSwitchValueASCII(switches::kLang);
+  std::string locale = command_line->GetSwitchValueASCII(switches::kLang);
   DCHECK(!locale.empty());
 
   const std::string loaded_locale =

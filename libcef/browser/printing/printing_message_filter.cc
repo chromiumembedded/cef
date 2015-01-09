@@ -263,10 +263,11 @@ void PrintingMessageFilter::OnGetDefaultPrintSettings(IPC::Message* reply_msg) {
   // Loads default settings. This is asynchronous, only the IPC message sender
   // will hang until the settings are retrieved.
   printer_query->GetSettings(
-      PrinterQuery::DEFAULTS,
+      PrinterQuery::GetSettingsAskParam::DEFAULTS,
       0,
       false,
       DEFAULT_MARGINS,
+      false,
       base::Bind(&PrintingMessageFilter::OnGetDefaultPrintSettingsReply,
                  this,
                  printer_query,
@@ -307,10 +308,11 @@ void PrintingMessageFilter::OnScriptedPrint(
         queue_->CreatePrinterQuery(render_process_id_, reply_msg->routing_id());
   }
   printer_query->GetSettings(
-      PrinterQuery::ASK_USER,
+      PrinterQuery::GetSettingsAskParam::ASK_USER,
       params.expected_pages_count,
       params.has_selection,
       params.margin_type,
+      params.is_scripted,
       base::Bind(&PrintingMessageFilter::OnScriptedPrintReply,
                  this,
                  printer_query,

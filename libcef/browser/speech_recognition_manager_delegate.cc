@@ -125,9 +125,10 @@ class CefSpeechRecognitionManagerDelegate::WebContentsWatcher
 
 CefSpeechRecognitionManagerDelegate
 ::CefSpeechRecognitionManagerDelegate() {
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
   filter_profanities_ =
-      command_line.HasSwitch(switches::kEnableProfanityFilter);
+      command_line->HasSwitch(switches::kEnableProfanityFilter);
 }
 
 CefSpeechRecognitionManagerDelegate

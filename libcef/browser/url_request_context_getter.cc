@@ -123,7 +123,8 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
 
   if (!url_request_context_.get()) {
     const base::FilePath& cache_path = CefContext::Get()->cache_path();
-    const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+    const base::CommandLine* command_line =
+        base::CommandLine::ForCurrentProcess();
     const CefSettings& settings = CefContext::Get()->settings();
 
     url_request_context_.reset(new net::URLRequestContext());
@@ -132,7 +133,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
 
     bool persist_session_cookies =
         (settings.persist_session_cookies ||
-         command_line.HasSwitch(switches::kPersistSessionCookies));
+         command_line->HasSwitch(switches::kPersistSessionCookies));
     SetCookieStoragePath(cache_path, persist_session_cookies);
 
     storage_->set_network_delegate(new CefNetworkDelegate);
@@ -154,7 +155,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
             url_request_context_.get(),
             url_request_context_->network_delegate(),
             CefContentBrowserClient::Get()->proxy_config_service().release(),
-            command_line,
+            *command_line,
             true));
     storage_->set_proxy_service(system_proxy_service.release());
 
@@ -211,7 +212,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
         url_request_context_->http_server_properties();
     network_session_params.ignore_certificate_errors =
         (settings.ignore_certificate_errors ||
-         command_line.HasSwitch(switches::kIgnoreCertificateErrors));
+         command_line->HasSwitch(switches::kIgnoreCertificateErrors));
 
     net::HttpCache* main_cache = new net::HttpCache(network_session_params,
                                                     main_backend);

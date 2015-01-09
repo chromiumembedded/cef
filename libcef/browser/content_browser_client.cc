@@ -657,8 +657,8 @@ bool CefContentBrowserClient::IsHandledURL(const GURL& url) {
 
 void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     base::CommandLine* command_line, int child_process_id) {
-  const base::CommandLine& browser_cmd =
-      *base::CommandLine::ForCurrentProcess();
+  const base::CommandLine* browser_cmd =
+      base::CommandLine::ForCurrentProcess();
 
   {
     // Propagate the following switches to all command lines (along with any
@@ -677,7 +677,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
       switches::kResourcesDirPath,
       switches::kUserAgent,
     };
-    command_line->CopySwitchesFrom(browser_cmd, kSwitchNames,
+    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));
   }
 
@@ -693,16 +693,16 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
       switches::kEnableSpellingAutoCorrect,
       switches::kUncaughtExceptionStackSize,
     };
-    command_line->CopySwitchesFrom(browser_cmd, kSwitchNames,
+    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));
   }
 
 #if defined(OS_LINUX)
   if (process_type == switches::kZygoteProcess &&
-      browser_cmd.HasSwitch(switches::kBrowserSubprocessPath)) {
+      browser_cmd->HasSwitch(switches::kBrowserSubprocessPath)) {
     // Force use of the sub-process executable path for the zygote process.
     const base::FilePath& subprocess_path =
-        browser_cmd.GetSwitchValuePath(switches::kBrowserSubprocessPath);
+        browser_cmd->GetSwitchValuePath(switches::kBrowserSubprocessPath);
     if (!subprocess_path.empty())
       command_line->SetProgram(subprocess_path);
   }

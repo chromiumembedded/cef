@@ -140,10 +140,11 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
   // to CefURLRequestContextGetter::GetURLRequestContext() on the IO thread.
   global_request_context_ = global_browser_context_->GetRequestContext();
 
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  if (command_line.HasSwitch(switches::kRemoteDebuggingPort)) {
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kRemoteDebuggingPort)) {
     std::string port_str =
-        command_line.GetSwitchValueASCII(switches::kRemoteDebuggingPort);
+        command_line->GetSwitchValueASCII(switches::kRemoteDebuggingPort);
     int port;
     if (base::StringToInt(port_str, &port) && port > 0 && port < 65535) {
       devtools_delegate_ =

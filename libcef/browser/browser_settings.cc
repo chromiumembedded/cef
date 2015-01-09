@@ -15,33 +15,34 @@
 // Set default preferences based on CEF command-line flags. Chromium command-
 // line flags should not exist for these preferences.
 void SetDefaults(content::WebPreferences& web) {
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
 
-  if (command_line.HasSwitch(switches::kDefaultEncoding)) {
+  if (command_line->HasSwitch(switches::kDefaultEncoding)) {
     web.default_encoding =
-        command_line.GetSwitchValueASCII(switches::kDefaultEncoding);
+        command_line->GetSwitchValueASCII(switches::kDefaultEncoding);
   }
 
   web.javascript_can_open_windows_automatically =
-      !command_line.HasSwitch(switches::kDisableJavascriptOpenWindows);
+      !command_line->HasSwitch(switches::kDisableJavascriptOpenWindows);
   web.allow_scripts_to_close_windows =
-      !command_line.HasSwitch(switches::kDisableJavascriptCloseWindows);
+      !command_line->HasSwitch(switches::kDisableJavascriptCloseWindows);
   web.javascript_can_access_clipboard =
-      !command_line.HasSwitch(switches::kDisableJavascriptAccessClipboard);
+      !command_line->HasSwitch(switches::kDisableJavascriptAccessClipboard);
   web.dom_paste_enabled =
-      !command_line.HasSwitch(switches::kDisableJavascriptDomPaste);
+      !command_line->HasSwitch(switches::kDisableJavascriptDomPaste);
   web.caret_browsing_enabled =
-      command_line.HasSwitch(switches::kEnableCaretBrowsing);
+      command_line->HasSwitch(switches::kEnableCaretBrowsing);
   web.allow_universal_access_from_file_urls =
-      command_line.HasSwitch(switches::kAllowUniversalAccessFromFileUrls);
+      command_line->HasSwitch(switches::kAllowUniversalAccessFromFileUrls);
   web.loads_images_automatically =
-      !command_line.HasSwitch(switches::kDisableImageLoading);
+      !command_line->HasSwitch(switches::kDisableImageLoading);
   web.shrinks_standalone_images_to_fit =
-      command_line.HasSwitch(switches::kImageShrinkStandaloneToFit);
+      command_line->HasSwitch(switches::kImageShrinkStandaloneToFit);
   web.text_areas_are_resizable =
-      !command_line.HasSwitch(switches::kDisableTextAreaResize);
+      !command_line->HasSwitch(switches::kDisableTextAreaResize);
   web.tabs_to_links =
-      !command_line.HasSwitch(switches::kDisableTabToLinks);
+      !command_line->HasSwitch(switches::kDisableTabToLinks);
 }
 
 // Helper macro for setting a WebPreferences variable based on the value of a

@@ -21,7 +21,7 @@
 
 #include "tests/cefclient/client_switches.h"
 
-CommandLine* CefTestSuite::commandline_ = NULL;
+base::CommandLine* CefTestSuite::commandline_ = NULL;
 
 CefTestSuite::CefTestSuite(int argc, char** argv)
   : TestSuite(argc, argv) {
@@ -36,7 +36,7 @@ void CefTestSuite::InitCommandLine(int argc, const char* const* argv) {
     return;
   }
 
-  commandline_ = new CommandLine(CommandLine::NO_PROGRAM);
+  commandline_ = new base::CommandLine(base::CommandLine::NO_PROGRAM);
 #if defined(OS_WIN)
   commandline_->ParseFromString(::GetCommandLineW());
 #elif defined(OS_POSIX)
@@ -109,7 +109,8 @@ void CefTestSuite::Initialize() {
 
   // In some cases, we do not want to see standard error dialogs.
   if (!base::debug::BeingDebugged() &&
-      !CommandLine::ForCurrentProcess()->HasSwitch("show-error-dialogs")) {
+      !base::CommandLine::ForCurrentProcess()->HasSwitch(
+          "show-error-dialogs")) {
     SuppressErrorDialogs();
     base::debug::SetSuppressDebugUI(true);
     logging::SetLogAssertHandler(UnitTestAssertHandler);

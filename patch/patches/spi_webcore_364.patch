@@ -1,8 +1,8 @@
 diff --git core/frame/FrameView.cpp core/frame/FrameView.cpp
-index d8b6105..33abf9d 100644
+index 61cf629..f734ee9 100644
 --- core/frame/FrameView.cpp
 +++ core/frame/FrameView.cpp
-@@ -145,8 +145,10 @@ FrameView::FrameView(LocalFrame* frame)
+@@ -144,8 +144,10 @@ FrameView::FrameView(LocalFrame* frame)
      if (!m_frame->isMainFrame())
          return;
  

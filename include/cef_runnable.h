@@ -34,6 +34,13 @@
 #define CEF_INCLUDE_CEF_RUNNABLE_H_
 #pragma once
 
+#if defined(BUILDING_CEF_SHARED)
+// The implementation of cef_runnable.h depends on an obsolete version of
+// base/tuple.h that is implemented by cef_tuple.h for client applications but
+// is not compatible with the version used when building Chromium/CEF.
+#error This header cannot be used when building Chromium/CEF.
+#endif
+
 #include "include/base/cef_tuple.h"
 #include "include/cef_base.h"
 #include "include/cef_task.h"

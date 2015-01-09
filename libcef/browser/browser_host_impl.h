@@ -369,6 +369,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   bool ShouldCreateWebContents(
       content::WebContents* web_contents,
       int route_id,
+      int main_frame_route_id,
       WindowContainerType window_container_type,
       const base::string16& frame_name,
       const GURL& target_url,

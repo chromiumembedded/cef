@@ -94,11 +94,11 @@ std::string GetOSType() {
 std::string GetCommandLine() {
 #if defined(OS_WIN)
   return base::WideToUTF8(
-      CommandLine::ForCurrentProcess()->GetCommandLineString());
+      base::CommandLine::ForCurrentProcess()->GetCommandLineString());
 #elif defined(OS_POSIX)
   std::string command_line = "";
   typedef std::vector<std::string> ArgvList;
-  const ArgvList& argv = CommandLine::ForCurrentProcess()->argv();
+  const ArgvList& argv = base::CommandLine::ForCurrentProcess()->argv();
   for (ArgvList::const_iterator iter = argv.begin(); iter != argv.end(); iter++)
     command_line += " " + *iter;
   // TODO(viettrungluu): |command_line| could really have any encoding, whereas

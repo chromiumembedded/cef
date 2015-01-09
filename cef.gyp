@@ -781,11 +781,11 @@
           'action_name': 'make_pack_resources_header',
           'variables': {
             'header_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/blink/grit/devtools_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/blink/public/resources/grit/blink_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/content/grit/content_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/net/grit/net_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/ui/resources/grit/ui_resources.h',
-              '<(SHARED_INTERMEDIATE_DIR)/webkit/grit/devtools_resources.h',
               '<(grit_out_dir)/grit/cef_resources.h',
             ],
           },
@@ -825,7 +825,7 @@
           # Keep the devtools_resources.pak file separate.
           'destination': '<(PRODUCT_DIR)',
           'files': [
-            '<(SHARED_INTERMEDIATE_DIR)/webkit/devtools_resources.pak',
+            '<(SHARED_INTERMEDIATE_DIR)/blink/devtools_resources.pak',
           ],
         },
       ],
@@ -1132,13 +1132,10 @@
         '<(DEPTH)/chrome/browser/printing/printer_query.h',
         '<(DEPTH)/chrome/common/extensions/extension_constants.cc',
         '<(DEPTH)/chrome/common/extensions/extension_constants.h',
-        '<(DEPTH)/chrome/common/prerender_messages.h',
         '<(DEPTH)/chrome/common/print_messages.cc',
         '<(DEPTH)/chrome/common/print_messages.h',
         '<(DEPTH)/chrome/renderer/pepper/chrome_pdf_print_client.cc',
         '<(DEPTH)/chrome/renderer/pepper/chrome_pdf_print_client.h',
-        '<(DEPTH)/chrome/renderer/prerender/prerender_helper.cc',
-        '<(DEPTH)/chrome/renderer/prerender/prerender_helper.h',
         '<(DEPTH)/chrome/renderer/printing/print_web_view_helper.cc',
         '<(DEPTH)/chrome/renderer/printing/print_web_view_helper.h',
         '<(DEPTH)/extensions/common/constants.cc',

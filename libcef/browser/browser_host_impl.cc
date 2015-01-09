@@ -2187,6 +2187,7 @@ bool CefBrowserHostImpl::CanDragEnter(
 bool CefBrowserHostImpl::ShouldCreateWebContents(
     content::WebContents* web_contents,
     int route_id,
+    int main_frame_route_id,
     WindowContainerType window_container_type,
     const base::string16& frame_name,
     const GURL& target_url,
@@ -2297,8 +2298,9 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
 
   content::MediaStreamDevices devices;
 
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  if (!command_line.HasSwitch(switches::kEnableMediaStream)) {
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  if (!command_line->HasSwitch(switches::kEnableMediaStream)) {
     // Cancel the request.
     callback.Run(devices, content::MEDIA_DEVICE_PERMISSION_DENIED,
                  scoped_ptr<content::MediaStreamUI>());

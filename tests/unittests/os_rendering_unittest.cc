@@ -91,6 +91,7 @@ const CefRect kSelectRect(461, 21, 87, 26);
 const CefRect kExpandedSelectRect(465, 42, 80, 262);
 const CefRect kDropDivRect(9, 330, 52, 52);
 const CefRect kDragDivRect(60, 330, 52, 52);
+const int kVerticalScrollbarWidth = 15;
 #elif defined(OS_LINUX)
 const CefRect kEditBoxRect(434, 246, 60, 20);
 const CefRect kNavigateButtonRect(380, 271, 140, 22);
@@ -642,8 +643,19 @@ class OSRTestHandler : public RoutingTestHandler,
           browser->GetHost()->SendMouseWheelEvent(mouse_event, 0, - deltaY);
         } else {
           EXPECT_EQ(dirtyRects.size(), 1U);
-          EXPECT_EQ(dirtyRects[0],
-                    GetScaledRect(CefRect(0, 0, kOsrWidth, kOsrHeight)));
+#if defined(OS_MACOSX)
+          const CefRect& expected_rect1 =
+              GetScaledRect(CefRect(0, 0, kOsrWidth, kOsrHeight));
+          const CefRect& expected_rect2 =
+              GetScaledRect(CefRect(0, 0, kOsrWidth - kVerticalScrollbarWidth,
+                                    kOsrHeight));
+          EXPECT_TRUE(dirtyRects[0] == expected_rect1 ||
+                      dirtyRects[0] == expected_rect2);
+#else
+          const CefRect& expected_rect =
+              GetScaledRect(CefRect(0, 0, kOsrWidth, kOsrHeight));
+          EXPECT_EQ(expected_rect, dirtyRects[0]);
+#endif
           DestroySucceededTestSoon();
         }
         break;

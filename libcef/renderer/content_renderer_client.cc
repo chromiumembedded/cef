@@ -62,6 +62,7 @@ MSVC_POP_WARNING();
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/platform/WebWorkerRunLoop.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
+#include "third_party/WebKit/public/web/WebElement.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebKit.h"
@@ -148,6 +149,24 @@ class CefWebWorkerTaskRunner : public base::SequencedTaskRunner,
  private:
   content::WorkerTaskRunner* runner_;
   int worker_id_;
+};
+
+class CefPrintWebViewHelperDelegate :
+    public printing::PrintWebViewHelper::Delegate {
+ public:
+  CefPrintWebViewHelperDelegate() {}
+
+  bool CancelPrerender(content::RenderView* render_view,
+                      int routing_id) override {
+    return false;
+  }
+
+  blink::WebElement GetPdfElement(blink::WebLocalFrame* frame) override {
+    return blink::WebElement();
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(CefPrintWebViewHelperDelegate);
 };
 
 #if defined(OS_WIN)
@@ -244,7 +263,8 @@ void CefContentRendererClient::OnBrowserDestroyed(CefBrowserImpl* browser) {
 }
 
 void CefContentRendererClient::WebKitInitialized() {
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
 
   // Create global objects associated with the default Isolate.
   CefV8IsolateCreated();
@@ -305,10 +325,11 @@ void CefContentRendererClient::WebKitInitialized() {
   }
 
   // The number of stack trace frames to capture for uncaught exceptions.
-  if (command_line.HasSwitch(switches::kUncaughtExceptionStackSize)) {
+  if (command_line->HasSwitch(switches::kUncaughtExceptionStackSize)) {
     int uncaught_exception_stack_size = 0;
     base::StringToInt(
-        command_line.GetSwitchValueASCII(switches::kUncaughtExceptionStackSize),
+        command_line->GetSwitchValueASCII(
+            switches::kUncaughtExceptionStackSize),
         &uncaught_exception_stack_size);
 
     if (uncaught_exception_stack_size > 0) {
@@ -760,7 +781,12 @@ void CefContentRendererClient::BrowserCreated(
   browsers_.insert(std::make_pair(render_view, browser));
 
   new CefPrerendererClient(render_view);
-  new printing::PrintWebViewHelper(render_view);
+  new printing::PrintWebViewHelper(
+      render_view,
+      false,
+      true,
+      make_scoped_ptr<printing::PrintWebViewHelper::Delegate>(
+          new CefPrintWebViewHelperDelegate()));
 
   if (!command_line->HasSwitch(switches::kDisableSpellChecking)) 
     new SpellCheckProvider(render_view, spellcheck_.get());

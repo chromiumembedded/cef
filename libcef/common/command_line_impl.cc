@@ -7,10 +7,10 @@
 #include "base/files/file_path.h"
 #include "base/logging.h"
 
-CefCommandLineImpl::CefCommandLineImpl(CommandLine* value,
+CefCommandLineImpl::CefCommandLineImpl(base::CommandLine* value,
                                        bool will_delete,
                                        bool read_only)
-  : CefValueBase<CefCommandLine, CommandLine>(
+  : CefValueBase<CefCommandLine, base::CommandLine>(
         value, NULL, will_delete ? kOwnerWillDelete : kOwnerNoDelete,
         read_only, NULL) {
 }
@@ -26,7 +26,7 @@ bool CefCommandLineImpl::IsReadOnly() {
 CefRefPtr<CefCommandLine> CefCommandLineImpl::Copy() {
   CEF_VALUE_VERIFY_RETURN(false, NULL);
   return new CefCommandLineImpl(
-      new CommandLine(const_value().argv()), true, false);
+      new base::CommandLine(const_value().argv()), true, false);
 }
 
 void CefCommandLineImpl::InitFromArgv(int argc, const char* const* argv) {
@@ -49,18 +49,18 @@ void CefCommandLineImpl::InitFromString(const CefString& command_line) {
 
 void CefCommandLineImpl::Reset() {
   CEF_VALUE_VERIFY_RETURN_VOID(true);
-  CommandLine::StringVector argv;
+  base::CommandLine::StringVector argv;
   argv.push_back(mutable_value()->GetProgram().value());
   mutable_value()->InitFromArgv(argv);
 
-  const CommandLine::SwitchMap& map = mutable_value()->GetSwitches();
-  const_cast<CommandLine::SwitchMap*>(&map)->clear();
+  const base::CommandLine::SwitchMap& map = mutable_value()->GetSwitches();
+  const_cast<base::CommandLine::SwitchMap*>(&map)->clear();
 }
 
 void CefCommandLineImpl::GetArgv(std::vector<CefString>& argv) {
   CEF_VALUE_VERIFY_RETURN_VOID(false);
-  const CommandLine::StringVector& cmd_argv = const_value().argv();
-  CommandLine::StringVector::const_iterator it = cmd_argv.begin();
+  const base::CommandLine::StringVector& cmd_argv = const_value().argv();
+  base::CommandLine::StringVector::const_iterator it = cmd_argv.begin();
   for (; it != cmd_argv.end(); ++it)
     argv.push_back(*it);
 }
@@ -97,8 +97,8 @@ CefString CefCommandLineImpl::GetSwitchValue(const CefString& name) {
 
 void CefCommandLineImpl::GetSwitches(SwitchMap& switches) {
   CEF_VALUE_VERIFY_RETURN_VOID(false);
-  const CommandLine::SwitchMap& map = const_value().GetSwitches();
-  CommandLine::SwitchMap::const_iterator it = map.begin();
+  const base::CommandLine::SwitchMap& map = const_value().GetSwitches();
+  base::CommandLine::SwitchMap::const_iterator it = map.begin();
   for (; it != map.end(); ++it)
     switches.insert(std::make_pair(it->first, it->second));
 }
@@ -121,8 +121,8 @@ bool CefCommandLineImpl::HasArguments() {
 
 void CefCommandLineImpl::GetArguments(ArgumentList& arguments) {
   CEF_VALUE_VERIFY_RETURN_VOID(false);
-  const CommandLine::StringVector& vec = const_value().GetArgs();
-  CommandLine::StringVector::const_iterator it = vec.begin();
+  const base::CommandLine::StringVector& vec = const_value().GetArgs();
+  base::CommandLine::StringVector::const_iterator it = vec.begin();
   for (; it != vec.end(); ++it)
     arguments.push_back(*it);
 }
@@ -143,7 +143,7 @@ void CefCommandLineImpl::PrependWrapper(const CefString& wrapper) {
 // static
 CefRefPtr<CefCommandLine> CefCommandLine::CreateCommandLine() {
   return new CefCommandLineImpl(
-      new CommandLine(CommandLine::NO_PROGRAM), true, false);
+      new base::CommandLine(base::CommandLine::NO_PROGRAM), true, false);
 }
 
 // static
@@ -151,7 +151,7 @@ CefRefPtr<CefCommandLine> CefCommandLine::GetGlobalCommandLine() {
   // Uses a singleton reference object.
   static CefRefPtr<CefCommandLineImpl> commandLinePtr;
   if (!commandLinePtr.get()) {
-    CommandLine* command_line = CommandLine::ForCurrentProcess();
+    base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
     if (command_line)
       commandLinePtr = new CefCommandLineImpl(command_line, false, true);
   }

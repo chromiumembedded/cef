@@ -30,7 +30,7 @@
 #import  "ui/base/cocoa/underlay_opengl_hosting_window.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/events/keycodes/keyboard_codes_posix.h"
-#include "ui/gfx/rect.h"
+#include "ui/gfx/geometry/rect.h"
 
 // Wrapper NSView for the native view. Necessary to destroy the browser when
 // the view is deleted.

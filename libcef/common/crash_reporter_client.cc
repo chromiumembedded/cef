@@ -51,10 +51,11 @@ base::FilePath CefCrashReporterClient::GetReporterLogFilename() {
 
 bool CefCrashReporterClient::GetCrashDumpLocation(base::FilePath* crash_dir) {
 #if !defined(OS_WIN)
-  if (!CommandLine::ForCurrentProcess()->HasSwitch(switches::kCrashDumpsDir))
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  if (!command_line->HasSwitch(switches::kCrashDumpsDir))
     return false;
-  *crash_dir = CommandLine::ForCurrentProcess()->GetSwitchValuePath(
-      switches::kCrashDumpsDir);
+  *crash_dir = command_line->GetSwitchValuePath(switches::kCrashDumpsDir);
   return true;
 #else
   NOTREACHED();

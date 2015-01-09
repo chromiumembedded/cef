@@ -7,7 +7,7 @@
 
 #include "base/message_loop/message_loop.h"
 #include "ui/aura/window.h"
-#include "ui/gfx/point.h"
+#include "ui/gfx/geometry/point.h"
 #include "ui/views/controls/menu/menu_2.h"
 
 CefMenuCreatorRunnerWin::CefMenuCreatorRunnerWin() {

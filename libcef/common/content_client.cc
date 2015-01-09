@@ -113,13 +113,14 @@ void CefContentClient::AddAdditionalSchemes(
 std::string CefContentClient::GetUserAgent() const {
   std::string product_version;
 
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  if (command_line.HasSwitch(switches::kUserAgent))
-    return command_line.GetSwitchValueASCII(switches::kUserAgent);
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kUserAgent))
+    return command_line->GetSwitchValueASCII(switches::kUserAgent);
 
-  if (command_line.HasSwitch(switches::kProductVersion)) {
+  if (command_line->HasSwitch(switches::kProductVersion)) {
     product_version =
-        command_line.GetSwitchValueASCII(switches::kProductVersion);
+        command_line->GetSwitchValueASCII(switches::kProductVersion);
   } else {
     product_version = base::StringPrintf("Chrome/%d.%d.%d.%d",
         CHROME_VERSION_MAJOR, CHROME_VERSION_MINOR, CHROME_VERSION_BUILD,

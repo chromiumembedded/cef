@@ -63,9 +63,10 @@ class CefV8IsolateManager {
     DCHECK(isolate_);
     DCHECK(task_runner_.get());
 
-    const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-    if (command_line.HasSwitch(switches::kContextSafetyImplementation)) {
-      std::string value = command_line.GetSwitchValueASCII(
+    const base::CommandLine* command_line =
+        base::CommandLine::ForCurrentProcess();
+    if (command_line->HasSwitch(switches::kContextSafetyImplementation)) {
+      std::string value = command_line->GetSwitchValueASCII(
           switches::kContextSafetyImplementation);
       int mode;
       if (base::StringToInt(value, &mode)) {

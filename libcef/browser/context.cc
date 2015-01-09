@@ -58,7 +58,7 @@ class CefForceShutdown {
 int CefExecuteProcess(const CefMainArgs& args,
                       CefRefPtr<CefApp> application,
                       void* windows_sandbox_info) {
-  CommandLine command_line(CommandLine::NO_PROGRAM);
+  base::CommandLine command_line(base::CommandLine::NO_PROGRAM);
 #if defined(OS_WIN)
   command_line.ParseFromString(::GetCommandLineW());
 #else

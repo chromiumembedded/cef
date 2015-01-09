@@ -9,7 +9,7 @@
 #include "base/compiler_specific.h"
 #include "base/strings/string_util.h"
 #include "ui/aura/window.h"
-#include "ui/gfx/point.h"
+#include "ui/gfx/geometry/point.h"
 
 CefMenuCreatorRunnerLinux::CefMenuCreatorRunnerLinux() {
 }
