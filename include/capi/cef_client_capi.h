@@ -44,6 +44,7 @@
 #include "include/capi/cef_display_handler_capi.h"
 #include "include/capi/cef_download_handler_capi.h"
 #include "include/capi/cef_drag_handler_capi.h"
+#include "include/capi/cef_find_handler_capi.h"
 #include "include/capi/cef_focus_handler_capi.h"
 #include "include/capi/cef_geolocation_handler_capi.h"
 #include "include/capi/cef_jsdialog_handler_capi.h"
@@ -99,6 +100,12 @@ typedef struct _cef_client_t {
   // Return the handler for drag events.
   ///
   struct _cef_drag_handler_t* (CEF_CALLBACK *get_drag_handler)(
+      struct _cef_client_t* self);
+
+  ///
+  // Return the handler for find result events.
+  ///
+  struct _cef_find_handler_t* (CEF_CALLBACK *get_find_handler)(
       struct _cef_client_t* self);
 
   ///

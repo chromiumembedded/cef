@@ -44,6 +44,7 @@
 #include "include/cef_display_handler.h"
 #include "include/cef_download_handler.h"
 #include "include/cef_drag_handler.h"
+#include "include/cef_find_handler.h"
 #include "include/cef_focus_handler.h"
 #include "include/cef_geolocation_handler.h"
 #include "include/cef_jsdialog_handler.h"
@@ -100,6 +101,14 @@ class CefClient : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefDragHandler> GetDragHandler() {
+    return NULL;
+  }
+
+  ///
+  // Return the handler for find result events.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefFindHandler> GetFindHandler() {
     return NULL;
   }
 

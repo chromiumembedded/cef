@@ -36,6 +36,7 @@ class CefClientCToCpp
   CefRefPtr<CefDisplayHandler> GetDisplayHandler() override;
   CefRefPtr<CefDownloadHandler> GetDownloadHandler() override;
   CefRefPtr<CefDragHandler> GetDragHandler() override;
+  CefRefPtr<CefFindHandler> GetFindHandler() override;
   CefRefPtr<CefFocusHandler> GetFocusHandler() override;
   CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() override;
   CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() override;

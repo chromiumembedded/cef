@@ -344,7 +344,8 @@ typedef struct _cef_browser_host_t {
   // running simultaniously. |forward| indicates whether to search forward or
   // backward within the page. |matchCase| indicates whether the search should
   // be case-sensitive. |findNext| indicates whether this is the first request
-  // or a follow-up.
+  // or a follow-up. The cef_find_handler_t instance, if any, returned via
+  // cef_client_t::GetFindHandler will be called to report find results.
   ///
   void (CEF_CALLBACK *find)(struct _cef_browser_host_t* self, int identifier,
       const cef_string_t* searchText, int forward, int matchCase,

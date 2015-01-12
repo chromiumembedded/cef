@@ -388,7 +388,8 @@ class CefBrowserHost : public virtual CefBase {
   // running simultaniously. |forward| indicates whether to search forward or
   // backward within the page. |matchCase| indicates whether the search should
   // be case-sensitive. |findNext| indicates whether this is the first request
-  // or a follow-up.
+  // or a follow-up. The CefFindHandler instance, if any, returned via
+  // CefClient::GetFindHandler will be called to report find results.
   ///
   /*--cef()--*/
   virtual void Find(int identifier, const CefString& searchText,

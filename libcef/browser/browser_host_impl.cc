@@ -1780,6 +1780,24 @@ void CefBrowserHostImpl::RunFileChooser(
                  callback));
 }
 
+void CefBrowserHostImpl::FindReply(
+    content::WebContents* web_contents,
+    int request_id,
+    int number_of_matches,
+    const gfx::Rect& selection_rect,
+    int active_match_ordinal,
+    bool final_update) {
+  if (client_.get()) {
+    CefRefPtr<CefFindHandler> handler = client_->GetFindHandler();
+    if (handler.get()) {
+      CefRect rect(selection_rect.x(), selection_rect.y(),
+          selection_rect.width(), selection_rect.height());
+      handler->OnFindResult(this, request_id, number_of_matches,
+          rect, active_match_ordinal, final_update);
+    }
+  }
+}
+
 #if !defined(OS_MACOSX)
 CefTextInputContext CefBrowserHostImpl::GetNSTextInputContext() {
   NOTREACHED();

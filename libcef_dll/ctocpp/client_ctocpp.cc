@@ -18,6 +18,7 @@
 #include "libcef_dll/ctocpp/display_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/download_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/drag_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/find_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/focus_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/geolocation_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/jsdialog_handler_ctocpp.h"
@@ -94,6 +95,19 @@ CefRefPtr<CefDragHandler> CefClientCToCpp::GetDragHandler() {
 
   // Return type: refptr_same
   return CefDragHandlerCToCpp::Wrap(_retval);
+}
+
+CefRefPtr<CefFindHandler> CefClientCToCpp::GetFindHandler() {
+  if (CEF_MEMBER_MISSING(struct_, get_find_handler))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_find_handler_t* _retval = struct_->get_find_handler(struct_);
+
+  // Return type: refptr_same
+  return CefFindHandlerCToCpp::Wrap(_retval);
 }
 
 CefRefPtr<CefFocusHandler> CefClientCToCpp::GetFocusHandler() {

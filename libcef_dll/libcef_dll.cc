@@ -83,6 +83,7 @@
 #include "libcef_dll/ctocpp/download_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/drag_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/end_tracing_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/find_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/focus_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/geolocation_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/get_geolocation_callback_ctocpp.h"
@@ -210,6 +211,7 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefDragHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefEndTracingCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefFileDialogCallbackCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefFindHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefFocusHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefFrameCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefGeolocationCallbackCppToC::DebugObjCt));
