@@ -17,6 +17,7 @@
 #include "base/logging.h"
 #include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
+#include "net/base/mime_util.h"
 #include "net/http/http_response_headers.h"
 #include "net/url_request/http_user_agent_settings.h"
 #include "net/url_request/url_request.h"
@@ -355,6 +356,20 @@ void CefResourceRequestJob::SendHeaders() {
 
   response_ = new CefResponseImpl();
   remaining_bytes_ = 0;
+
+  // Set the response mime type if it can be determined from the file extension.
+  if (request_->url().has_path()) {
+    const std::string& path = request_->url().path();
+    size_t found = path.find_last_of(".");
+    if (found != std::string::npos) {
+      std::string suggest_mime_type;
+      if (net::GetWellKnownMimeTypeFromExtension(
+              base::FilePath::FromUTF8Unsafe(path.substr(found + 1)).value(),
+              &suggest_mime_type)) {
+        response_->SetMimeType(suggest_mime_type);
+      }
+    }
+  }
 
   CefString redirectUrl;
 
