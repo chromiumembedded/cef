@@ -445,15 +445,15 @@ class RequestClient : public CefURLRequestClient {
   }
 
   void OnUploadProgress(CefRefPtr<CefURLRequest> request,
-                        uint64 current,
-                        uint64 total) override {
+                        int64 current,
+                        int64 total) override {
     upload_progress_ct_++;
     upload_total_ = total;
   }
 
   void OnDownloadProgress(CefRefPtr<CefURLRequest> request,
-                          uint64 current,
-                          uint64 total) override {
+                          int64 current,
+                          int64 total) override {
     response_ = request->GetResponse();
     EXPECT_TRUE(response_.get());
     EXPECT_TRUE(response_->IsReadOnly());
@@ -1120,14 +1120,14 @@ class InvalidURLTestClient : public CefURLRequestClient {
   }
 
   void OnUploadProgress(CefRefPtr<CefURLRequest> request,
-                        uint64 current,
-                        uint64 total) override {
+                        int64 current,
+                        int64 total) override {
     EXPECT_TRUE(false);  // Not reached.
   }
 
   void OnDownloadProgress(CefRefPtr<CefURLRequest> request,
-                          uint64 current,
-                          uint64 total) override {
+                          int64 current,
+                          int64 total) override {
     EXPECT_TRUE(false);  // Not reached.
   }
 

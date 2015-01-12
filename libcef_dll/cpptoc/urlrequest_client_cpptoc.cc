@@ -36,7 +36,7 @@ void CEF_CALLBACK urlrequest_client_on_request_complete(
 
 void CEF_CALLBACK urlrequest_client_on_upload_progress(
     struct _cef_urlrequest_client_t* self, cef_urlrequest_t* request,
-    uint64 current, uint64 total) {
+    int64 current, int64 total) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -56,7 +56,7 @@ void CEF_CALLBACK urlrequest_client_on_upload_progress(
 
 void CEF_CALLBACK urlrequest_client_on_download_progress(
     struct _cef_urlrequest_client_t* self, cef_urlrequest_t* request,
-    uint64 current, uint64 total) {
+    int64 current, int64 total) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);

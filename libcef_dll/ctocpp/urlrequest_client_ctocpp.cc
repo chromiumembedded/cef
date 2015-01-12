@@ -35,7 +35,7 @@ void CefURLRequestClientCToCpp::OnRequestComplete(
 }
 
 void CefURLRequestClientCToCpp::OnUploadProgress(
-    CefRefPtr<CefURLRequest> request, uint64 current, uint64 total) {
+    CefRefPtr<CefURLRequest> request, int64 current, int64 total) {
   if (CEF_MEMBER_MISSING(struct_, on_upload_progress))
     return;
 
@@ -54,7 +54,7 @@ void CefURLRequestClientCToCpp::OnUploadProgress(
 }
 
 void CefURLRequestClientCToCpp::OnDownloadProgress(
-    CefRefPtr<CefURLRequest> request, uint64 current, uint64 total) {
+    CefRefPtr<CefURLRequest> request, int64 current, int64 total) {
   if (CEF_MEMBER_MISSING(struct_, on_download_progress))
     return;
 
