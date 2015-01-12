@@ -747,6 +747,37 @@ void CefBrowserHostImpl::PlatformHandleKeyboardEvent(
   if (event.os_event) {
     const MSG& msg = event.os_event->native_event();
     DefWindowProc(msg.hwnd, msg.message, msg.wParam, msg.lParam);
+  } else {
+    MSG msg = {};
+
+    msg.hwnd = PlatformGetWindowHandle();
+    if (!msg.hwnd)
+      return;
+
+    switch (event.type) {
+      case blink::WebInputEvent::RawKeyDown:
+        msg.message = event.isSystemKey ? WM_SYSKEYDOWN : WM_KEYDOWN;
+        break;
+      case blink::WebInputEvent::KeyUp:
+        msg.message = event.isSystemKey ? WM_SYSKEYUP : WM_KEYUP;
+        break;
+      case blink::WebInputEvent::Char:
+        msg.message = event.isSystemKey ? WM_SYSCHAR: WM_CHAR;
+        break;
+      default:
+        NOTREACHED();
+        return;
+    }
+
+    msg.wParam = event.windowsKeyCode;
+
+    UINT scan_code = ::MapVirtualKeyW(event.windowsKeyCode, MAPVK_VK_TO_VSC);
+    msg.lParam = (scan_code << 16) |  // key scan code
+                                  1;  // key repeat count
+    if (event.modifiers & content::NativeWebKeyboardEvent::AltKey)
+      msg.lParam |= (1 << 29);
+
+    DefWindowProc(msg.hwnd, msg.message, msg.wParam, msg.lParam);
   }
 }
 
