@@ -427,6 +427,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
       content::RenderFrameHost* render_frame_host) override;
   void PluginCrashed(const base::FilePath& plugin_path,
                      base::ProcessId plugin_pid) override;
+  void DidUpdateFaviconURL(
+      const std::vector<content::FaviconURL>& candidates) override;
   bool OnMessageReceived(const IPC::Message& message) override;
   // Override to provide a thread safe implementation.
   bool Send(IPC::Message* message) override;

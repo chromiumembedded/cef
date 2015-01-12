@@ -2490,6 +2490,21 @@ void CefBrowserHostImpl::PluginCrashed(const base::FilePath& plugin_path,
   }
 }
 
+void CefBrowserHostImpl::DidUpdateFaviconURL(
+    const std::vector<content::FaviconURL>& candidates) {
+  if (client_.get()) {
+    CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
+    if (handler.get()) {
+      std::vector<CefString> icon_urls;
+      std::vector<content::FaviconURL>::const_iterator it =
+          candidates.begin();
+      for (; it != candidates.end(); ++it)
+        icon_urls.push_back(it->icon_url.spec());
+      handler->OnFaviconURLChange(this, icon_urls);
+    }
+  }
+}
+
 bool CefBrowserHostImpl::OnMessageReceived(const IPC::Message& message) {
   // Handle the cursor message here if mouse cursor change is disabled instead
   // of propegating the message to the normal handler.
