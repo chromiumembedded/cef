@@ -34,6 +34,8 @@ class CefDownloadItemCallbackCToCpp
 
   // CefDownloadItemCallback methods
   virtual void Cancel() OVERRIDE;
+  virtual void Pause() OVERRIDE;
+  virtual void Resume() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED

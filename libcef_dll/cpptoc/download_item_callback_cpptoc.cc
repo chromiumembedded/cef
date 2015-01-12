@@ -27,6 +27,30 @@ void CEF_CALLBACK download_item_callback_cancel(
   CefDownloadItemCallbackCppToC::Get(self)->Cancel();
 }
 
+void CEF_CALLBACK download_item_callback_pause(
+    struct _cef_download_item_callback_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefDownloadItemCallbackCppToC::Get(self)->Pause();
+}
+
+void CEF_CALLBACK download_item_callback_resume(
+    struct _cef_download_item_callback_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefDownloadItemCallbackCppToC::Get(self)->Resume();
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -35,6 +59,8 @@ CefDownloadItemCallbackCppToC::CefDownloadItemCallbackCppToC(
     : CefCppToC<CefDownloadItemCallbackCppToC, CefDownloadItemCallback,
         cef_download_item_callback_t>(cls) {
   struct_.struct_.cancel = download_item_callback_cancel;
+  struct_.struct_.pause = download_item_callback_pause;
+  struct_.struct_.resume = download_item_callback_resume;
 }
 
 #ifndef NDEBUG

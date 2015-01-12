@@ -208,6 +208,15 @@ class CefDownloadItemCallbackImpl : public CefDownloadItemCallback {
         base::Bind(&CefDownloadItemCallbackImpl::DoCancel, this));
   }
 
+  void Pause() override {
+     CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefDownloadItemCallbackImpl::DoPause, this));
+  }
+
+  void Resume() override {
+     CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefDownloadItemCallbackImpl::DoResume, this));
+  }
  private:
   void DoCancel() {
     if (download_id_ <= 0)
@@ -220,6 +229,28 @@ class CefDownloadItemCallbackImpl : public CefDownloadItemCallback {
     }
 
     download_id_ = 0;
+  }
+
+  void DoPause() {
+    if (download_id_ <= 0)
+      return;
+
+    if (manager_) {
+      DownloadItem* item = manager_->GetDownload(download_id_);
+      if (item && item->GetState() == content::DownloadItem::IN_PROGRESS)
+        item->Pause();
+    }
+  }
+
+  void DoResume() {
+    if (download_id_ <= 0)
+      return;
+
+    if (manager_) {
+      DownloadItem* item = manager_->GetDownload(download_id_);
+      if (item && item->CanResume())
+        item->Resume();
+    }
   }
 
   base::WeakPtr<DownloadManager> manager_;

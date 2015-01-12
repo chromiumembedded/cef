@@ -80,6 +80,16 @@ typedef struct _cef_download_item_callback_t {
   // Call to cancel the download.
   ///
   void (CEF_CALLBACK *cancel)(struct _cef_download_item_callback_t* self);
+
+  ///
+  // Call to pause the download.
+  ///
+  void (CEF_CALLBACK *pause)(struct _cef_download_item_callback_t* self);
+
+  ///
+  // Call to resume the download.
+  ///
+  void (CEF_CALLBACK *resume)(struct _cef_download_item_callback_t* self);
 } cef_download_item_callback_t;
 
 

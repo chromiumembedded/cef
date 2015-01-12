@@ -71,6 +71,18 @@ class CefDownloadItemCallback : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual void Cancel() =0;
+
+  ///
+  // Call to pause the download.
+  ///
+  /*--cef()--*/
+  virtual void Pause() =0;
+
+  ///
+  // Call to resume the download.
+  ///
+  /*--cef()--*/
+  virtual void Resume() =0;
 };
 
 

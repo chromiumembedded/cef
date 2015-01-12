@@ -25,6 +25,26 @@ void CefDownloadItemCallbackCToCpp::Cancel() {
   struct_->cancel(struct_);
 }
 
+void CefDownloadItemCallbackCToCpp::Pause() {
+  if (CEF_MEMBER_MISSING(struct_, pause))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->pause(struct_);
+}
+
+void CefDownloadItemCallbackCToCpp::Resume() {
+  if (CEF_MEMBER_MISSING(struct_, resume))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  struct_->resume(struct_);
+}
+
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefDownloadItemCallbackCToCpp,
