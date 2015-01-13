@@ -1,0 +1,24 @@
+diff --git render_process_host_impl.cc render_process_host_impl.cc
+index ef9570f..4dd5eb4 100644
+--- render_process_host_impl.cc
++++ render_process_host_impl.cc
+@@ -1927,6 +1927,9 @@ void RenderProcessHostImpl::ProcessDied(bool already_dead) {
+   message_port_message_filter_ = NULL;
+   RemoveUserData(kSessionStorageHolderKey);
+ 
++  mojo_application_host_.reset(new MojoApplicationHost);
++  mojo_activation_required_ = false;
++
+   IDMap<IPC::Listener>::iterator iter(&listeners_);
+   while (!iter.IsAtEnd()) {
+     iter.GetCurrentValue()->OnMessageReceived(
+@@ -1936,9 +1939,6 @@ void RenderProcessHostImpl::ProcessDied(bool already_dead) {
+     iter.Advance();
+   }
+ 
+-  mojo_application_host_.reset(new MojoApplicationHost);
+-  mojo_activation_required_ = false;
+-
+   // It's possible that one of the calls out to the observers might have caused
+   // this object to be no longer needed.
+   if (delayed_cleanup_needed_)
