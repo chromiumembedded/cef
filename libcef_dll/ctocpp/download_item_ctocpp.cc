@@ -188,6 +188,21 @@ CefString CefDownloadItemCToCpp::GetURL() {
   return _retvalStr;
 }
 
+CefString CefDownloadItemCToCpp::GetOriginalUrl() {
+  if (CEF_MEMBER_MISSING(struct_, get_original_url))
+    return CefString();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_string_userfree_t _retval = struct_->get_original_url(struct_);
+
+  // Return type: string
+  CefString _retvalStr;
+  _retvalStr.AttachToUserFree(_retval);
+  return _retvalStr;
+}
+
 CefString CefDownloadItemCToCpp::GetSuggestedFileName() {
   if (CEF_MEMBER_MISSING(struct_, get_suggested_file_name))
     return CefString();

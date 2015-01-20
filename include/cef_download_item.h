@@ -127,6 +127,12 @@ class CefDownloadItem : public virtual CefBase {
   virtual CefString GetURL() =0;
 
   ///
+  // Returns the original URL before any redirections.
+  ///
+  /*--cef()--*/
+  virtual CefString GetOriginalUrl() =0;
+
+  ///
   // Returns the suggested file name.
   ///
   /*--cef()--*/

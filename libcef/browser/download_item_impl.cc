@@ -86,6 +86,11 @@ CefString CefDownloadItemImpl::GetURL() {
   return const_value().GetURL().spec();
 }
 
+CefString CefDownloadItemImpl::GetOriginalUrl() {
+  CEF_VALUE_VERIFY_RETURN(false, CefString());
+  return const_value().GetOriginalUrl().spec();
+}
+
 CefString CefDownloadItemImpl::GetSuggestedFileName() {
   CEF_VALUE_VERIFY_RETURN(false, CefString());
   return const_value().GetSuggestedFilename();

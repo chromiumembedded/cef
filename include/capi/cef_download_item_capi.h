@@ -126,6 +126,13 @@ typedef struct _cef_download_item_t {
       struct _cef_download_item_t* self);
 
   ///
+  // Returns the original URL before any redirections.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_original_url)(
+      struct _cef_download_item_t* self);
+
+  ///
   // Returns the suggested file name.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().

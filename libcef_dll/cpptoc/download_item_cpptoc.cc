@@ -206,6 +206,21 @@ cef_string_userfree_t CEF_CALLBACK download_item_get_url(
   return _retval.DetachToUserFree();
 }
 
+cef_string_userfree_t CEF_CALLBACK download_item_get_original_url(
+    struct _cef_download_item_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefString _retval = CefDownloadItemCppToC::Get(self)->GetOriginalUrl();
+
+  // Return type: string
+  return _retval.DetachToUserFree();
+}
+
 cef_string_userfree_t CEF_CALLBACK download_item_get_suggested_file_name(
     struct _cef_download_item_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -270,6 +285,7 @@ CefDownloadItemCppToC::CefDownloadItemCppToC(CefDownloadItem* cls)
   struct_.struct_.get_full_path = download_item_get_full_path;
   struct_.struct_.get_id = download_item_get_id;
   struct_.struct_.get_url = download_item_get_url;
+  struct_.struct_.get_original_url = download_item_get_original_url;
   struct_.struct_.get_suggested_file_name =
       download_item_get_suggested_file_name;
   struct_.struct_.get_content_disposition =

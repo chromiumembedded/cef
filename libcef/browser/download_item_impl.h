@@ -33,6 +33,7 @@ class CefDownloadItemImpl
   CefString GetFullPath() override;
   uint32 GetId() override;
   CefString GetURL() override;
+  CefString GetOriginalUrl() override;
   CefString GetSuggestedFileName() override;
   CefString GetContentDisposition() override;
   CefString GetMimeType() override;

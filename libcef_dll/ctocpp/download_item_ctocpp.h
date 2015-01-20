@@ -46,6 +46,7 @@ class CefDownloadItemCToCpp
   virtual CefString GetFullPath() OVERRIDE;
   virtual uint32 GetId() OVERRIDE;
   virtual CefString GetURL() OVERRIDE;
+  virtual CefString GetOriginalUrl() OVERRIDE;
   virtual CefString GetSuggestedFileName() OVERRIDE;
   virtual CefString GetContentDisposition() OVERRIDE;
   virtual CefString GetMimeType() OVERRIDE;
