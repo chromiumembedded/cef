@@ -151,6 +151,8 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
     }
   }
 
+  // Spell checking support and possibly other subsystems retrieve the
+  // PrefService associated with a BrowserContext via UserPrefs::Get().
   user_prefs::UserPrefs::Set(browser_context(), pref_service());
 }
 
@@ -179,6 +181,10 @@ void CefBrowserMainParts::PostDestroyThreads() {
 }
 
 void CefBrowserMainParts::AddBrowserContext(CefBrowserContext* context) {
+  // Spell checking support and possibly other subsystems retrieve the
+  // PrefService associated with a BrowserContext via UserPrefs::Get().
+  user_prefs::UserPrefs::Set(context, pref_service());
+
   browser_contexts_.push_back(context);
 }
 
