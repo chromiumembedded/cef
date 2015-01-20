@@ -56,6 +56,10 @@
 #include "net/url_request/url_request_job_factory_impl.h"
 #include "net/url_request/url_request_job_manager.h"
 
+#if defined(USE_NSS)
+#include "net/ocsp/nss_ocsp.h"
+#endif
+
 using content::BrowserThread;
 
 #if defined(OS_WIN)
@@ -247,6 +251,10 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
     request_interceptors_.weak_clear();
 
     storage_->set_job_factory(top_job_factory.release());
+
+#if defined(USE_NSS)
+    net::SetURLRequestContextForNSSHttpIO(url_request_context_.get());
+#endif
   }
 
   return url_request_context_.get();
