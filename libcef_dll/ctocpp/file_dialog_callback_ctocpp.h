@@ -34,7 +34,8 @@ class CefFileDialogCallbackCToCpp
           cef_file_dialog_callback_t>(str) {}
 
   // CefFileDialogCallback methods
-  virtual void Continue(const std::vector<CefString>& file_paths) OVERRIDE;
+  virtual void Continue(int selected_accept_filter,
+      const std::vector<CefString>& file_paths) OVERRIDE;
   virtual void Cancel() OVERRIDE;
 };
 

@@ -11,28 +11,24 @@
 //
 
 #include "libcef_dll/cpptoc/run_file_dialog_callback_cpptoc.h"
-#include "libcef_dll/ctocpp/browser_host_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-void CEF_CALLBACK run_file_dialog_callback_cont(
-    struct _cef_run_file_dialog_callback_t* self,
-    struct _cef_browser_host_t* browser_host, cef_string_list_t file_paths) {
+void CEF_CALLBACK run_file_dialog_callback_on_file_dialog_dismissed(
+    struct _cef_run_file_dialog_callback_t* self, int selected_accept_filter,
+    cef_string_list_t file_paths) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: browser_host; type: refptr_diff
-  DCHECK(browser_host);
-  if (!browser_host)
+  // Verify param: selected_accept_filter; type: simple_byval
+  DCHECK_GE(selected_accept_filter, 0);
+  if (selected_accept_filter < 0)
     return;
-  // Verify param: file_paths; type: string_vec_byref_const
-  DCHECK(file_paths);
-  if (!file_paths)
-    return;
+  // Unverified params: file_paths
 
   // Translate param: file_paths; type: string_vec_byref_const
   std::vector<CefString> file_pathsList;
@@ -40,7 +36,7 @@ void CEF_CALLBACK run_file_dialog_callback_cont(
 
   // Execute
   CefRunFileDialogCallbackCppToC::Get(self)->OnFileDialogDismissed(
-      CefBrowserHostCToCpp::Wrap(browser_host),
+      selected_accept_filter,
       file_pathsList);
 }
 
@@ -51,7 +47,8 @@ CefRunFileDialogCallbackCppToC::CefRunFileDialogCallbackCppToC(
     CefRunFileDialogCallback* cls)
     : CefCppToC<CefRunFileDialogCallbackCppToC, CefRunFileDialogCallback,
         cef_run_file_dialog_callback_t>(cls) {
-  struct_.struct_.cont = run_file_dialog_callback_cont;
+  struct_.struct_.on_file_dialog_dismissed =
+      run_file_dialog_callback_on_file_dialog_dismissed;
 }
 
 #ifndef NDEBUG

@@ -142,7 +142,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
       if (browser.get()) {
         handled = true;
 
-        content::FileChooserParams params;
+        CefBrowserHostImpl::FileChooserParams params;
         params.mode = content::FileChooserParams::Save;
         if (!suggested_path.empty()) {
           params.default_file_name = suggested_path;
@@ -169,6 +169,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
 
   static void ChooseDownloadPathCallback(
       const content::DownloadTargetCallback& callback,
+      int selected_accept_filter,
       const std::vector<base::FilePath>& file_paths) {
     DCHECK_LE(file_paths.size(), (size_t) 1);
 

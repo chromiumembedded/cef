@@ -10,7 +10,6 @@
 // for more information.
 //
 
-#include "libcef_dll/cpptoc/browser_host_cpptoc.h"
 #include "libcef_dll/ctocpp/run_file_dialog_callback_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -18,17 +17,17 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefRunFileDialogCallbackCToCpp::OnFileDialogDismissed(
-    CefRefPtr<CefBrowserHost> browser_host,
-    const std::vector<CefString>& file_paths) {
-  if (CEF_MEMBER_MISSING(struct_, cont))
+    int selected_accept_filter, const std::vector<CefString>& file_paths) {
+  if (CEF_MEMBER_MISSING(struct_, on_file_dialog_dismissed))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: browser_host; type: refptr_diff
-  DCHECK(browser_host.get());
-  if (!browser_host.get())
+  // Verify param: selected_accept_filter; type: simple_byval
+  DCHECK_GE(selected_accept_filter, 0);
+  if (selected_accept_filter < 0)
     return;
+  // Unverified params: file_paths
 
   // Translate param: file_paths; type: string_vec_byref_const
   cef_string_list_t file_pathsList = cef_string_list_alloc();
@@ -37,8 +36,8 @@ void CefRunFileDialogCallbackCToCpp::OnFileDialogDismissed(
     transfer_string_list_contents(file_paths, file_pathsList);
 
   // Execute
-  struct_->cont(struct_,
-      CefBrowserHostCppToC::Wrap(browser_host),
+  struct_->on_file_dialog_dismissed(struct_,
+      selected_accept_filter,
       file_pathsList);
 
   // Restore param:file_paths; type: string_vec_byref_const

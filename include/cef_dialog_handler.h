@@ -48,13 +48,17 @@
 class CefFileDialogCallback : public virtual CefBase {
  public:
   ///
-  // Continue the file selection with the specified |file_paths|. This may be
-  // a single value or a list of values depending on the dialog mode. An empty
-  // value is treated the same as calling Cancel().
+  // Continue the file selection. |selected_accept_filter| should be the 0-based
+  // index of the value selected from the accept filters array passed to
+  // CefDialogHandler::OnFileDialog. |file_paths| should be a single value or a
+  // list of values depending on the dialog mode. An empty |file_paths| value is
+  // treated the same as calling Cancel().
   ///
-  /*--cef(capi_name=cont)--*/
-  virtual void Continue(const std::vector<CefString>& file_paths) =0;
-  
+  /*--cef(capi_name=cont,index_param=selected_accept_filter,
+          optional_param=file_paths)--*/
+  virtual void Continue(int selected_accept_filter,
+                        const std::vector<CefString>& file_paths) =0;
+
   ///
   // Cancel the file selection.
   ///
@@ -76,20 +80,25 @@ class CefDialogHandler : public virtual CefBase {
   // Called to run a file chooser dialog. |mode| represents the type of dialog
   // to display. |title| to the title to be used for the dialog and may be empty
   // to show the default title ("Open" or "Save" depending on the mode).
-  // |default_file_name| is the default file name to select in the dialog.
-  // |accept_types| is a list of valid lower-cased MIME types or file extensions
-  // specified in an input element and is used to restrict selectable files to
-  // such types. To display a custom dialog return true and execute |callback|
-  // either inline or at a later time. To display the default dialog return
-  // false.
+  // |default_file_path| is the path with optional directory and/or file name
+  // component that should be initially selected in the dialog. |accept_filters|
+  // are used to restrict the selectable file types and may any combination of
+  // (a) valid lower-cased MIME types (e.g. "text/*" or "image/*"),
+  // (b) individual file extensions (e.g. ".txt" or ".png"), or (c) combined
+  // description and file extension delimited using "|" and ";" (e.g.
+  // "Image Types|.png;.gif;.jpg"). |selected_accept_filter| is the 0-based
+  // index of the filter that should be selected by default. To display a custom
+  // dialog return true and execute |callback| either inline or at a later time.
+  // To display the default dialog return false.
   ///
-  /*--cef(optional_param=title,optional_param=default_file_name,
-          optional_param=accept_types)--*/
+  /*--cef(optional_param=title,optional_param=default_file_path,
+          optional_param=accept_filters,index_param=selected_accept_filter)--*/
   virtual bool OnFileDialog(CefRefPtr<CefBrowser> browser,
                             FileDialogMode mode,
                             const CefString& title,
-                            const CefString& default_file_name,
-                            const std::vector<CefString>& accept_types,
+                            const CefString& default_file_path,
+                            const std::vector<CefString>& accept_filters,
+                            int selected_accept_filter,
                             CefRefPtr<CefFileDialogCallback> callback) {
     return false;
   }

@@ -195,13 +195,15 @@ typedef struct _cef_run_file_dialog_callback_t {
   cef_base_t base;
 
   ///
-  // Called asynchronously after the file dialog is dismissed. If the selection
-  // was successful |file_paths| will be a single value or a list of values
-  // depending on the dialog mode. If the selection was cancelled |file_paths|
-  // will be NULL.
+  // Called asynchronously after the file dialog is dismissed.
+  // |selected_accept_filter| is the 0-based index of the value selected from
+  // the accept filters array passed to cef_browser_host_t::RunFileDialog.
+  // |file_paths| will be a single value or a list of values depending on the
+  // dialog mode. If the selection was cancelled |file_paths| will be NULL.
   ///
-  void (CEF_CALLBACK *cont)(struct _cef_run_file_dialog_callback_t* self,
-      struct _cef_browser_host_t* browser_host, cef_string_list_t file_paths);
+  void (CEF_CALLBACK *on_file_dialog_dismissed)(
+      struct _cef_run_file_dialog_callback_t* self, int selected_accept_filter,
+      cef_string_list_t file_paths);
 } cef_run_file_dialog_callback_t;
 
 
@@ -315,17 +317,22 @@ typedef struct _cef_browser_host_t {
   // Call to run a file chooser dialog. Only a single file chooser dialog may be
   // pending at any given time. |mode| represents the type of dialog to display.
   // |title| to the title to be used for the dialog and may be NULL to show the
-  // default title ("Open" or "Save" depending on the mode). |default_file_name|
-  // is the default file name to select in the dialog. |accept_types| is a list
-  // of valid lower-cased MIME types or file extensions specified in an input
-  // element and is used to restrict selectable files to such types. |callback|
-  // will be executed after the dialog is dismissed or immediately if another
-  // dialog is already pending. The dialog will be initiated asynchronously on
-  // the UI thread.
+  // default title ("Open" or "Save" depending on the mode). |default_file_path|
+  // is the path with optional directory and/or file name component that will be
+  // initially selected in the dialog. |accept_filters| are used to restrict the
+  // selectable file types and may any combination of (a) valid lower-cased MIME
+  // types (e.g. "text/*" or "image/*"), (b) individual file extensions (e.g.
+  // ".txt" or ".png"), or (c) combined description and file extension delimited
+  // using "|" and ";" (e.g. "Image Types|.png;.gif;.jpg").
+  // |selected_accept_filter| is the 0-based index of the filter that will be
+  // selected by default. |callback| will be executed after the dialog is
+  // dismissed or immediately if another dialog is already pending. The dialog
+  // will be initiated asynchronously on the UI thread.
   ///
   void (CEF_CALLBACK *run_file_dialog)(struct _cef_browser_host_t* self,
       cef_file_dialog_mode_t mode, const cef_string_t* title,
-      const cef_string_t* default_file_name, cef_string_list_t accept_types,
+      const cef_string_t* default_file_path, cef_string_list_t accept_filters,
+      int selected_accept_filter,
       struct _cef_run_file_dialog_callback_t* callback);
 
   ///

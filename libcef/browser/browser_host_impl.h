@@ -97,6 +97,18 @@ class CefBrowserHostImpl : public CefBrowserHost,
      virtual void OnResponse(const std::string& response) =0;
   };
 
+  // Extend content::FileChooserParams with some options unique to CEF.
+  struct FileChooserParams : public content::FileChooserParams {
+    // 0-based index of the selected value in |accept_types|.
+    int selected_accept_filter = 0;
+
+    // True if the Save dialog should prompt before overwriting files.
+    bool overwriteprompt = true;
+
+    // True if read-only files should be hidden.
+    bool hidereadonly = true;
+  };
+
   ~CefBrowserHostImpl() override;
 
   // Create a new CefBrowserHostImpl instance.
@@ -142,8 +154,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void RunFileDialog(
       FileDialogMode mode,
       const CefString& title,
-      const CefString& default_file_name,
-      const std::vector<CefString>& accept_types,
+      const CefString& default_file_path,
+      const std::vector<CefString>& accept_filters,
+      int selected_accept_filter,
       CefRefPtr<CefRunFileDialogCallback> callback) override;
   void StartDownload(const CefString& url) override;
   void Print() override;
@@ -307,13 +320,13 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void OnSetFocus(cef_focus_source_t source);
 
   // The argument vector will be empty if the dialog was cancelled.
-  typedef base::Callback<void(const std::vector<base::FilePath>&)>
+  typedef base::Callback<void(int, const std::vector<base::FilePath>&)>
       RunFileChooserCallback;
 
   // Run the file chooser dialog specified by |params|. Only a single dialog may
   // be pending at any given time. |callback| will be executed asynchronously
   // after the dialog is dismissed or if another dialog is already pending.
-  void RunFileChooser(const content::FileChooserParams& params,
+  void RunFileChooser(const FileChooserParams& params,
                       const RunFileChooserCallback& callback);
 
   // Used when creating a new popup window.
@@ -383,11 +396,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
                           const GURL& target_url,
                           content::WebContents* new_contents) override;
   void DidNavigateMainFramePostCommit(
-      content::WebContents* tab) override;
+      content::WebContents* web_contents) override;
   content::JavaScriptDialogManager* GetJavaScriptDialogManager(
       content::WebContents* source) override;
   void RunFileChooser(
-      content::WebContents* tab,
+      content::WebContents* web_contents,
       const content::FileChooserParams& params) override;
   void FindReply(
       content::WebContents* web_contents,
@@ -528,7 +541,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Invoke platform specific handling for the external protocol.
   void PlatformHandleExternalProtocol(const GURL& url);
   // Invoke platform specific file chooser dialog.
-  void PlatformRunFileChooser(const content::FileChooserParams& params,
+  void PlatformRunFileChooser(const FileChooserParams& params,
                               RunFileChooserCallback callback);
 
   void PlatformTranslateKeyEvent(content::NativeWebKeyboardEvent& native_event,
@@ -565,17 +578,19 @@ class CefBrowserHostImpl : public CefBrowserHost,
                  int http_status_code);
 
   // Continuation from RunFileChooser.
-  void RunFileChooserOnUIThread(const content::FileChooserParams& params,
+  void RunFileChooserOnUIThread(const FileChooserParams& params,
                                 const RunFileChooserCallback& callback);
 
   // Used with RunFileChooser to clear the |file_chooser_pending_| flag.
   void OnRunFileChooserCallback(const RunFileChooserCallback& callback,
+                                int selected_accept_filter,
                                 const std::vector<base::FilePath>& file_paths);
 
   // Used with WebContentsDelegate::RunFileChooser to notify the WebContents.
   void OnRunFileChooserDelegateCallback(
-      content::WebContents* tab,
+      content::WebContents* web_contents,
       content::FileChooserParams::Mode mode,
+      int selected_accept_filter,
       const std::vector<base::FilePath>& file_paths);
 
   void OnDevToolsWebContentsDestroyed();

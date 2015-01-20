@@ -17,16 +17,18 @@
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK file_dialog_callback_cont(
-    struct _cef_file_dialog_callback_t* self, cef_string_list_t file_paths) {
+    struct _cef_file_dialog_callback_t* self, int selected_accept_filter,
+    cef_string_list_t file_paths) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: file_paths; type: string_vec_byref_const
-  DCHECK(file_paths);
-  if (!file_paths)
+  // Verify param: selected_accept_filter; type: simple_byval
+  DCHECK_GE(selected_accept_filter, 0);
+  if (selected_accept_filter < 0)
     return;
+  // Unverified params: file_paths
 
   // Translate param: file_paths; type: string_vec_byref_const
   std::vector<CefString> file_pathsList;
@@ -34,6 +36,7 @@ void CEF_CALLBACK file_dialog_callback_cont(
 
   // Execute
   CefFileDialogCallbackCppToC::Get(self)->Continue(
+      selected_accept_filter,
       file_pathsList);
 }
 

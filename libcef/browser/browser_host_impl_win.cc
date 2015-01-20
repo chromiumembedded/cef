@@ -8,6 +8,7 @@
 #include <commdlg.h>
 #include <dwmapi.h>
 #include <shellapi.h>
+#include <shlobj.h>
 #include <wininet.h>
 #include <winspool.h>
 
@@ -19,9 +20,11 @@
 #include "base/files/file_util.h"
 #include "base/i18n/case_conversion.h"
 #include "base/memory/ref_counted_memory.h"
+#include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/win/registry.h"
+#include "base/win/scoped_comptr.h"
 #include "base/win/windows_version.h"
 #include "content/common/cursors/webcursor.h"
 #include "content/public/browser/native_web_keyboard_event.h"
@@ -140,14 +143,8 @@ std::wstring FormatFilterForExtensions(
         ext_name = ext_name.substr(ext_index);
 
       if (!GetRegistryDescriptionFromExtension(first_extension, &desc)) {
-        // The extension doesn't exist in the registry. Create a description
-        // based on the unknown extension type (i.e. if the extension is .qqq,
-        // the we create a description "QQQ File (.qqq)").
+        // The extension doesn't exist in the registry.
         include_all_files = true;
-        desc = l10n_util::GetStringFUTF16(
-            IDS_APP_SAVEAS_EXTENSION_FORMAT,
-            base::i18n::ToUpper(base::WideToUTF16(ext_name)),
-            ext_name);
       }
     }
 
@@ -189,32 +186,53 @@ std::wstring GetDescriptionFromMimeType(const std::string& mime_type) {
   return std::wstring();
 }
 
-std::wstring GetFilterStringFromAcceptTypes(
-    const std::vector<base::string16>& accept_types) {
+std::wstring GetFilterString(
+    const std::vector<base::string16>& accept_filters) {
   std::vector<std::wstring> extensions;
   std::vector<std::wstring> descriptions;
 
-  for (size_t i = 0; i < accept_types.size(); ++i) {
-    std::string ascii_type = base::UTF16ToASCII(accept_types[i]);
-    if (ascii_type.length()) {
-      // Just treat as extension if contains '.' as the first character.
-      if (ascii_type[0] == '.') {
-        extensions.push_back(L"*" + base::ASCIIToUTF16(ascii_type));
-        descriptions.push_back(std::wstring());
-      } else {
-        // Otherwise convert mime type to one or more extensions.
-        std::vector<base::FilePath::StringType> ext;
-        std::wstring ext_str;
-        net::GetExtensionsForMimeType(ascii_type, &ext);
-        if (ext.size() > 0) {
-          for (size_t x = 0; x < ext.size(); ++x) {
-            if (x != 0)
-              ext_str += L";";
-            ext_str += L"*." + ext[x];
-          }
-          extensions.push_back(ext_str);
-          descriptions.push_back(GetDescriptionFromMimeType(ascii_type));
+  for (size_t i = 0; i < accept_filters.size(); ++i) {
+    const base::string16& filter = accept_filters[i];
+    if (filter.empty())
+      continue;
+
+    size_t sep_index = filter.find('|');
+    if (sep_index != base::string16::npos) {
+      // Treat as a filter of the form "Filter Name|.ext1;.ext2;.ext3".
+      const base::string16& desc = filter.substr(0, sep_index);
+      std::vector<base::string16> ext;
+      base::SplitString(filter.substr(sep_index + 1), ';', &ext);
+      std::wstring ext_str;
+      for (size_t x = 0; x < ext.size(); ++x) {
+        const base::string16& file_ext = ext[x];
+        if (!file_ext.empty() && file_ext[0] == '.') {
+          if (!ext_str.empty())
+            ext_str += L";";
+          ext_str += L"*" + file_ext;
         }
+      }
+      if (!ext_str.empty()) {
+        extensions.push_back(ext_str);
+        descriptions.push_back(desc);
+      }
+    } else if (filter[0] == L'.') {
+      // Treat as an extension beginning with the '.' character.
+      extensions.push_back(L"*" + filter);
+      descriptions.push_back(std::wstring());
+    } else {
+      // Otherwise convert mime type to one or more extensions.
+      const std::string& ascii = base::UTF16ToASCII(filter);
+      std::vector<base::FilePath::StringType> ext;
+      std::wstring ext_str;
+      net::GetExtensionsForMimeType(ascii, &ext);
+      if (!ext.empty()) {
+        for (size_t x = 0; x < ext.size(); ++x) {
+          if (x != 0)
+            ext_str += L";";
+          ext_str += L"*." + ext[x];
+        }
+        extensions.push_back(ext_str);
+        descriptions.push_back(GetDescriptionFromMimeType(ascii));
       }
     }
   }
@@ -224,8 +242,9 @@ std::wstring GetFilterStringFromAcceptTypes(
 
 // from chrome/browser/views/shell_dialogs_win.cc
 
-bool RunOpenFileDialog(const content::FileChooserParams& params,
+bool RunOpenFileDialog(const CefBrowserHostImpl::FileChooserParams& params,
                        HWND owner,
+                       int* filter_index,
                        base::FilePath* path) {
   OPENFILENAME ofn;
 
@@ -235,22 +254,25 @@ bool RunOpenFileDialog(const content::FileChooserParams& params,
   ofn.lStructSize = sizeof(ofn);
   ofn.hwndOwner = owner;
 
-  // Consider default file name if any.
-  base::FilePath default_file_name(params.default_file_name);
-
   wchar_t filename[MAX_PATH] = {0};
 
   ofn.lpstrFile = filename;
   ofn.nMaxFile = MAX_PATH;
 
   std::wstring directory;
-  if (!default_file_name.empty()) {
-    base::wcslcpy(filename, default_file_name.value().c_str(),
-        arraysize(filename));
-
-    directory = default_file_name.DirName().value();
-    ofn.lpstrInitialDir = directory.c_str();
+  if (!params.default_file_name.empty()) {
+    if (params.default_file_name.EndsWithSeparator()) {
+      // The value is only a directory.
+      directory = params.default_file_name.value();
+    } else {
+      // The value is a file name and possibly a directory.
+      base::wcslcpy(filename, params.default_file_name.value().c_str(),
+          arraysize(filename));
+      directory = params.default_file_name.DirName().value();
+    }
   }
+  if (!directory.empty())
+    ofn.lpstrInitialDir = directory.c_str();
 
   std::wstring title;
   if (!params.title.empty())
@@ -264,19 +286,27 @@ bool RunOpenFileDialog(const content::FileChooserParams& params,
   // without having to close Chrome first.
   ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_EXPLORER |
               OFN_ENABLESIZING;
+  if (params.hidereadonly)
+    ofn.Flags |= OFN_HIDEREADONLY;
 
-  std::wstring filter = GetFilterStringFromAcceptTypes(params.accept_types);
-  if (!filter.empty())
+  const std::wstring& filter = GetFilterString(params.accept_types);
+  if (!filter.empty()) {
     ofn.lpstrFilter = filter.c_str();
+    // Indices into |lpstrFilter| start at 1.
+    ofn.nFilterIndex = *filter_index + 1;
+  }
 
   bool success = !!GetOpenFileName(&ofn);
-  if (success)
+  if (success) {
+    *filter_index = ofn.nFilterIndex == 0 ? 0 : ofn.nFilterIndex - 1;
     *path = base::FilePath(filename);
+  }
   return success;
 }
 
-bool RunOpenMultiFileDialog(const content::FileChooserParams& params,
+bool RunOpenMultiFileDialog(const CefBrowserHostImpl::FileChooserParams& params,
                             HWND owner,
+                            int* filter_index,
                             std::vector<base::FilePath>* paths) {
   OPENFILENAME ofn;
 
@@ -292,6 +322,19 @@ bool RunOpenMultiFileDialog(const content::FileChooserParams& params,
   ofn.lpstrFile = filename.get();
   ofn.nMaxFile = UNICODE_STRING_MAX_CHARS;
 
+  std::wstring directory;
+  if (!params.default_file_name.empty()) {
+    if (params.default_file_name.EndsWithSeparator()) {
+      // The value is only a directory.
+      directory = params.default_file_name.value();
+    } else {
+      // The value is a file name and possibly a directory.
+      directory = params.default_file_name.DirName().value();
+    }
+  }
+  if (!directory.empty())
+    ofn.lpstrInitialDir = directory.c_str();
+
   std::wstring title;
   if (!params.title.empty())
     title = params.title;
@@ -303,11 +346,16 @@ bool RunOpenMultiFileDialog(const content::FileChooserParams& params,
   // We use OFN_NOCHANGEDIR so that the user can rename or delete the directory
   // without having to close Chrome first.
   ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER |
-              OFN_HIDEREADONLY | OFN_ALLOWMULTISELECT | OFN_ENABLESIZING;
+              OFN_ALLOWMULTISELECT | OFN_ENABLESIZING;
+  if (params.hidereadonly)
+    ofn.Flags |= OFN_HIDEREADONLY;
 
-  std::wstring filter = GetFilterStringFromAcceptTypes(params.accept_types);
-  if (!filter.empty())
+  const std::wstring& filter = GetFilterString(params.accept_types);
+  if (!filter.empty()) {
     ofn.lpstrFilter = filter.c_str();
+    // Indices into |lpstrFilter| start at 1.
+    ofn.nFilterIndex = *filter_index + 1;
+  }
 
   bool success = !!GetOpenFileName(&ofn);
 
@@ -334,11 +382,84 @@ bool RunOpenMultiFileDialog(const content::FileChooserParams& params,
       }
     }
   }
+
+  if (success)
+    *filter_index = ofn.nFilterIndex == 0 ? 0 : ofn.nFilterIndex - 1;
+
   return success;
 }
 
-bool RunSaveFileDialog(const content::FileChooserParams& params,
+// The callback function for when the select folder dialog is opened.
+int CALLBACK BrowseCallbackProc(HWND window,
+                                UINT message,
+                                LPARAM parameter,
+                                LPARAM data)
+{
+  if (message == BFFM_INITIALIZED) {
+    // WParam is TRUE since passing a path.
+    // data lParam member of the BROWSEINFO structure.
+    SendMessage(window, BFFM_SETSELECTION, TRUE, (LPARAM)data);
+  }
+  return 0;
+}
+
+bool RunOpenFolderDialog(const CefBrowserHostImpl::FileChooserParams& params,
+                         HWND owner,
+                         base::FilePath* path) {
+  wchar_t dir_buffer[MAX_PATH + 1] = {0};
+
+  bool result = false;
+  BROWSEINFO browse_info = {0};
+  browse_info.hwndOwner = owner;
+  browse_info.pszDisplayName = dir_buffer;
+  browse_info.ulFlags = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
+
+  std::wstring title;
+  if (!params.title.empty())
+    title = params.title;
+  else
+    title = l10n_util::GetStringUTF16(IDS_SELECT_FOLDER_DIALOG_TITLE);
+  if (!title.empty())
+    browse_info.lpszTitle = title.c_str();
+
+  const std::wstring& file_path = params.default_file_name.value();
+  if (!file_path.empty()) {
+    // Highlight the current value.
+    browse_info.lParam = (LPARAM)file_path.c_str();
+    browse_info.lpfn = &BrowseCallbackProc;
+  }
+
+  LPITEMIDLIST list = SHBrowseForFolder(&browse_info);
+  if (list) {
+    STRRET out_dir_buffer;
+    ZeroMemory(&out_dir_buffer, sizeof(out_dir_buffer));
+    out_dir_buffer.uType = STRRET_WSTR;
+    base::win::ScopedComPtr<IShellFolder> shell_folder;
+    if (SHGetDesktopFolder(shell_folder.Receive()) == NOERROR) {
+      HRESULT hr = shell_folder->GetDisplayNameOf(list, SHGDN_FORPARSING,
+                                                  &out_dir_buffer);
+      if (SUCCEEDED(hr) && out_dir_buffer.uType == STRRET_WSTR) {
+        *path = base::FilePath(out_dir_buffer.pOleStr);
+        CoTaskMemFree(out_dir_buffer.pOleStr);
+        result = true;
+      } else {
+        // Use old way if we don't get what we want.
+        wchar_t old_out_dir_buffer[MAX_PATH + 1];
+        if (SHGetPathFromIDList(list, old_out_dir_buffer)) {
+          *path = base::FilePath(old_out_dir_buffer);
+          result = true;
+        }
+      }
+    }
+    CoTaskMemFree(list);
+  }
+
+  return result;
+}
+
+bool RunSaveFileDialog(const CefBrowserHostImpl::FileChooserParams& params,
                        HWND owner,
+                       int* filter_index,
                        base::FilePath* path) {
   OPENFILENAME ofn;
 
@@ -348,22 +469,25 @@ bool RunSaveFileDialog(const content::FileChooserParams& params,
   ofn.lStructSize = sizeof(ofn);
   ofn.hwndOwner = owner;
 
-  // Consider default file name if any.
-  base::FilePath default_file_name(params.default_file_name);
-
   wchar_t filename[MAX_PATH] = {0};
 
   ofn.lpstrFile = filename;
   ofn.nMaxFile = MAX_PATH;
 
   std::wstring directory;
-  if (!default_file_name.empty()) {
-    base::wcslcpy(filename, default_file_name.value().c_str(),
-        arraysize(filename));
-
-    directory = default_file_name.DirName().value();
-    ofn.lpstrInitialDir = directory.c_str();
+  if (!params.default_file_name.empty()) {
+    if (params.default_file_name.EndsWithSeparator()) {
+      // The value is only a directory.
+      directory = params.default_file_name.value();
+    } else {
+      // The value is a file name and possibly a directory.
+      base::wcslcpy(filename, params.default_file_name.value().c_str(),
+          arraysize(filename));
+      directory = params.default_file_name.DirName().value();
+    }
   }
+  if (!directory.empty())
+    ofn.lpstrInitialDir = directory.c_str();
 
   std::wstring title;
   if (!params.title.empty())
@@ -375,16 +499,25 @@ bool RunSaveFileDialog(const content::FileChooserParams& params,
 
   // We use OFN_NOCHANGEDIR so that the user can rename or delete the directory
   // without having to close Chrome first.
-  ofn.Flags = OFN_OVERWRITEPROMPT | OFN_EXPLORER | OFN_ENABLESIZING |
-              OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST;
+  ofn.Flags = OFN_EXPLORER | OFN_ENABLESIZING | OFN_NOCHANGEDIR |
+              OFN_PATHMUSTEXIST;
+  if (params.hidereadonly)
+    ofn.Flags |= OFN_HIDEREADONLY;
+  if (params.overwriteprompt)
+    ofn.Flags |= OFN_OVERWRITEPROMPT;
 
-  std::wstring filter = GetFilterStringFromAcceptTypes(params.accept_types);
-  if (!filter.empty())
+  const std::wstring& filter = GetFilterString(params.accept_types);
+  if (!filter.empty()) {
     ofn.lpstrFilter = filter.c_str();
+    // Indices into |lpstrFilter| start at 1.
+    ofn.nFilterIndex = *filter_index + 1;
+  }
 
   bool success = !!GetSaveFileName(&ofn);
-  if (success)
+  if (success) {
+    *filter_index = ofn.nFilterIndex == 0 ? 0 : ofn.nFilterIndex - 1;
     *path = base::FilePath(filename);
+  }
   return success;
 }
 
@@ -782,25 +915,32 @@ void CefBrowserHostImpl::PlatformHandleKeyboardEvent(
 }
 
 void CefBrowserHostImpl::PlatformRunFileChooser(
-    const content::FileChooserParams& params,
+    const FileChooserParams& params,
     RunFileChooserCallback callback) {
+  int filter_index = params.selected_accept_filter;
   std::vector<base::FilePath> files;
+
+  HWND owner = PlatformGetWindowHandle();
 
   if (params.mode == content::FileChooserParams::Open) {
     base::FilePath file;
-    if (RunOpenFileDialog(params, PlatformGetWindowHandle(), &file))
+    if (RunOpenFileDialog(params, owner, &filter_index, &file))
       files.push_back(file);
   } else if (params.mode == content::FileChooserParams::OpenMultiple) {
-    RunOpenMultiFileDialog(params, PlatformGetWindowHandle(), &files);
+    RunOpenMultiFileDialog(params, owner, &filter_index, &files);
+  } else if (params.mode == content::FileChooserParams::UploadFolder) {
+    base::FilePath file;
+    if (RunOpenFolderDialog(params, owner, &file))
+      files.push_back(file);
   } else if (params.mode == content::FileChooserParams::Save) {
     base::FilePath file;
-    if (RunSaveFileDialog(params, PlatformGetWindowHandle(), &file))
+    if (RunSaveFileDialog(params, owner, &filter_index, &file))
       files.push_back(file);
   } else {
     NOTIMPLEMENTED();
   }
 
-  callback.Run(files);
+  callback.Run(filter_index, files);
 }
 
 void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {

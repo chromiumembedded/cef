@@ -188,37 +188,42 @@ void CefBrowserHostCToCpp::SetZoomLevel(double zoomLevel) {
 }
 
 void CefBrowserHostCToCpp::RunFileDialog(FileDialogMode mode,
-    const CefString& title, const CefString& default_file_name,
-    const std::vector<CefString>& accept_types,
+    const CefString& title, const CefString& default_file_path,
+    const std::vector<CefString>& accept_filters, int selected_accept_filter,
     CefRefPtr<CefRunFileDialogCallback> callback) {
   if (CEF_MEMBER_MISSING(struct_, run_file_dialog))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+  // Verify param: selected_accept_filter; type: simple_byval
+  DCHECK_GE(selected_accept_filter, 0);
+  if (selected_accept_filter < 0)
+    return;
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
   if (!callback.get())
     return;
-  // Unverified params: title, default_file_name, accept_types
+  // Unverified params: title, default_file_path, accept_filters
 
-  // Translate param: accept_types; type: string_vec_byref_const
-  cef_string_list_t accept_typesList = cef_string_list_alloc();
-  DCHECK(accept_typesList);
-  if (accept_typesList)
-    transfer_string_list_contents(accept_types, accept_typesList);
+  // Translate param: accept_filters; type: string_vec_byref_const
+  cef_string_list_t accept_filtersList = cef_string_list_alloc();
+  DCHECK(accept_filtersList);
+  if (accept_filtersList)
+    transfer_string_list_contents(accept_filters, accept_filtersList);
 
   // Execute
   struct_->run_file_dialog(struct_,
       mode,
       title.GetStruct(),
-      default_file_name.GetStruct(),
-      accept_typesList,
+      default_file_path.GetStruct(),
+      accept_filtersList,
+      selected_accept_filter,
       CefRunFileDialogCallbackCppToC::Wrap(callback));
 
-  // Restore param:accept_types; type: string_vec_byref_const
-  if (accept_typesList)
-    cef_string_list_free(accept_typesList);
+  // Restore param:accept_filters; type: string_vec_byref_const
+  if (accept_filtersList)
+    cef_string_list_free(accept_filtersList);
 }
 
 void CefBrowserHostCToCpp::StartDownload(const CefString& url) {

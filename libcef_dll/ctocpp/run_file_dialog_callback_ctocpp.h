@@ -36,7 +36,7 @@ class CefRunFileDialogCallbackCToCpp
           cef_run_file_dialog_callback_t>(str) {}
 
   // CefRunFileDialogCallback methods
-  void OnFileDialogDismissed(CefRefPtr<CefBrowserHost> browser_host,
+  void OnFileDialogDismissed(int selected_accept_filter,
       const std::vector<CefString>& file_paths) override;
 };
 

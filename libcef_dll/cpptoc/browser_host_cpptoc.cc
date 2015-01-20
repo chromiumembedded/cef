@@ -246,29 +246,34 @@ void CEF_CALLBACK browser_host_set_zoom_level(struct _cef_browser_host_t* self,
 
 void CEF_CALLBACK browser_host_run_file_dialog(struct _cef_browser_host_t* self,
     cef_file_dialog_mode_t mode, const cef_string_t* title,
-    const cef_string_t* default_file_name, cef_string_list_t accept_types,
-    cef_run_file_dialog_callback_t* callback) {
+    const cef_string_t* default_file_path, cef_string_list_t accept_filters,
+    int selected_accept_filter, cef_run_file_dialog_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return;
+  // Verify param: selected_accept_filter; type: simple_byval
+  DCHECK_GE(selected_accept_filter, 0);
+  if (selected_accept_filter < 0)
+    return;
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
   if (!callback)
     return;
-  // Unverified params: title, default_file_name, accept_types
+  // Unverified params: title, default_file_path, accept_filters
 
-  // Translate param: accept_types; type: string_vec_byref_const
-  std::vector<CefString> accept_typesList;
-  transfer_string_list_contents(accept_types, accept_typesList);
+  // Translate param: accept_filters; type: string_vec_byref_const
+  std::vector<CefString> accept_filtersList;
+  transfer_string_list_contents(accept_filters, accept_filtersList);
 
   // Execute
   CefBrowserHostCppToC::Get(self)->RunFileDialog(
       mode,
       CefString(title),
-      CefString(default_file_name),
-      accept_typesList,
+      CefString(default_file_path),
+      accept_filtersList,
+      selected_accept_filter,
       CefRunFileDialogCallbackCToCpp::Wrap(callback));
 }
 

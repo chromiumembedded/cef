@@ -21,8 +21,8 @@
 int CEF_CALLBACK dialog_handler_on_file_dialog(
     struct _cef_dialog_handler_t* self, cef_browser_t* browser,
     cef_file_dialog_mode_t mode, const cef_string_t* title,
-    const cef_string_t* default_file_name, cef_string_list_t accept_types,
-    cef_file_dialog_callback_t* callback) {
+    const cef_string_t* default_file_path, cef_string_list_t accept_filters,
+    int selected_accept_filter, cef_file_dialog_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -32,23 +32,28 @@ int CEF_CALLBACK dialog_handler_on_file_dialog(
   DCHECK(browser);
   if (!browser)
     return 0;
+  // Verify param: selected_accept_filter; type: simple_byval
+  DCHECK_GE(selected_accept_filter, 0);
+  if (selected_accept_filter < 0)
+    return 0;
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
   if (!callback)
     return 0;
-  // Unverified params: title, default_file_name, accept_types
+  // Unverified params: title, default_file_path, accept_filters
 
-  // Translate param: accept_types; type: string_vec_byref_const
-  std::vector<CefString> accept_typesList;
-  transfer_string_list_contents(accept_types, accept_typesList);
+  // Translate param: accept_filters; type: string_vec_byref_const
+  std::vector<CefString> accept_filtersList;
+  transfer_string_list_contents(accept_filters, accept_filtersList);
 
   // Execute
   bool _retval = CefDialogHandlerCppToC::Get(self)->OnFileDialog(
       CefBrowserCToCpp::Wrap(browser),
       mode,
       CefString(title),
-      CefString(default_file_name),
-      accept_typesList,
+      CefString(default_file_path),
+      accept_filtersList,
+      selected_accept_filter,
       CefFileDialogCallbackCToCpp::Wrap(callback));
 
   // Return type: bool

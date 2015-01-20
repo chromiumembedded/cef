@@ -20,8 +20,8 @@
 
 bool CefDialogHandlerCToCpp::OnFileDialog(CefRefPtr<CefBrowser> browser,
     FileDialogMode mode, const CefString& title,
-    const CefString& default_file_name,
-    const std::vector<CefString>& accept_types,
+    const CefString& default_file_path,
+    const std::vector<CefString>& accept_filters, int selected_accept_filter,
     CefRefPtr<CefFileDialogCallback> callback) {
   if (CEF_MEMBER_MISSING(struct_, on_file_dialog))
     return false;
@@ -32,30 +32,35 @@ bool CefDialogHandlerCToCpp::OnFileDialog(CefRefPtr<CefBrowser> browser,
   DCHECK(browser.get());
   if (!browser.get())
     return false;
+  // Verify param: selected_accept_filter; type: simple_byval
+  DCHECK_GE(selected_accept_filter, 0);
+  if (selected_accept_filter < 0)
+    return false;
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
   if (!callback.get())
     return false;
-  // Unverified params: title, default_file_name, accept_types
+  // Unverified params: title, default_file_path, accept_filters
 
-  // Translate param: accept_types; type: string_vec_byref_const
-  cef_string_list_t accept_typesList = cef_string_list_alloc();
-  DCHECK(accept_typesList);
-  if (accept_typesList)
-    transfer_string_list_contents(accept_types, accept_typesList);
+  // Translate param: accept_filters; type: string_vec_byref_const
+  cef_string_list_t accept_filtersList = cef_string_list_alloc();
+  DCHECK(accept_filtersList);
+  if (accept_filtersList)
+    transfer_string_list_contents(accept_filters, accept_filtersList);
 
   // Execute
   int _retval = struct_->on_file_dialog(struct_,
       CefBrowserCppToC::Wrap(browser),
       mode,
       title.GetStruct(),
-      default_file_name.GetStruct(),
-      accept_typesList,
+      default_file_path.GetStruct(),
+      accept_filtersList,
+      selected_accept_filter,
       CefFileDialogCallbackCppToC::Wrap(callback));
 
-  // Restore param:accept_types; type: string_vec_byref_const
-  if (accept_typesList)
-    cef_string_list_free(accept_typesList);
+  // Restore param:accept_filters; type: string_vec_byref_const
+  if (accept_filtersList)
+    cef_string_list_free(accept_filtersList);
 
   // Return type: bool
   return _retval?true:false;

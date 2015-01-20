@@ -200,7 +200,8 @@ class CefFileDialogCallbackImpl : public CefFileDialogCallback {
     }
   }
 
-  void Continue(const std::vector<CefString>& file_paths) override {
+  void Continue(int selected_accept_filter,
+                const std::vector<CefString>& file_paths) override {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (!callback_.is_null()) {
         std::vector<base::FilePath> vec;
@@ -209,12 +210,13 @@ class CefFileDialogCallbackImpl : public CefFileDialogCallback {
           for (; it != file_paths.end(); ++it)
             vec.push_back(base::FilePath(*it));
         }
-        callback_.Run(vec);
+        callback_.Run(selected_accept_filter, vec);
         callback_.Reset();
       }
     } else {
       CEF_POST_TASK(CEF_UIT,
-          base::Bind(&CefFileDialogCallbackImpl::Continue, this, file_paths));
+          base::Bind(&CefFileDialogCallbackImpl::Continue, this,
+                     selected_accept_filter, file_paths));
     }
   }
 
@@ -243,7 +245,7 @@ class CefFileDialogCallbackImpl : public CefFileDialogCallback {
       const CefBrowserHostImpl::RunFileChooserCallback& callback) {
     CEF_REQUIRE_UIT();
     std::vector<base::FilePath> file_paths;
-    callback.Run(file_paths);
+    callback.Run(0, file_paths);
   }
 
   CefBrowserHostImpl::RunFileChooserCallback callback_;
@@ -251,32 +253,17 @@ class CefFileDialogCallbackImpl : public CefFileDialogCallback {
   IMPLEMENT_REFCOUNTING(CefFileDialogCallbackImpl);
 };
 
-class CefRunFileDialogCallbackWrapper
-    : public base::RefCountedThreadSafe<CefRunFileDialogCallbackWrapper> {
- public:
-  CefRunFileDialogCallbackWrapper(CefRefPtr<CefBrowserHost> host,
-                                  CefRefPtr<CefRunFileDialogCallback> callback)
-      : host_(host),
-        callback_(callback) {
+void RunFileDialogDismissed(
+    CefRefPtr<CefRunFileDialogCallback> callback,
+    int selected_accept_filter,
+    const std::vector<base::FilePath>& file_paths) {
+  std::vector<CefString> paths;
+  if (file_paths.size() > 0) {
+    for (size_t i = 0; i < file_paths.size(); ++i)
+      paths.push_back(file_paths[i].value());
   }
-
-  void Callback(const std::vector<base::FilePath>& file_paths) {
-    std::vector<CefString> paths;
-    if (file_paths.size() > 0) {
-      for (size_t i = 0; i < file_paths.size(); ++i)
-        paths.push_back(file_paths[i].value());
-    }
-    callback_->OnFileDialogDismissed(host_, paths);
-  }
-
- private:
-  friend class base::RefCountedThreadSafe<CefRunFileDialogCallbackWrapper>;
-
-  ~CefRunFileDialogCallbackWrapper() {}
-
-  CefRefPtr<CefBrowserHost> host_;
-  CefRefPtr<CefRunFileDialogCallback> callback_;
-};
+  callback->OnFileDialogDismissed(selected_accept_filter, paths);
+}
 
 }  // namespace
 
@@ -712,38 +699,47 @@ void CefBrowserHostImpl::SetZoomLevel(double zoomLevel) {
 void CefBrowserHostImpl::RunFileDialog(
       FileDialogMode mode,
       const CefString& title,
-      const CefString& default_file_name,
-      const std::vector<CefString>& accept_types,
+      const CefString& default_file_path,
+      const std::vector<CefString>& accept_filters,
+      int selected_accept_filter,
       CefRefPtr<CefRunFileDialogCallback> callback) {
   DCHECK(callback.get());
   if (!callback.get())
     return;
 
-  content::FileChooserParams params;
-  switch (mode) {
+  FileChooserParams params;
+  switch (mode & FILE_DIALOG_TYPE_MASK) {
     case FILE_DIALOG_OPEN:
       params.mode = content::FileChooserParams::Open;
       break;
     case FILE_DIALOG_OPEN_MULTIPLE:
       params.mode = content::FileChooserParams::OpenMultiple;
       break;
+    case FILE_DIALOG_OPEN_FOLDER:
+      params.mode = content::FileChooserParams::UploadFolder;
+      break;
     case FILE_DIALOG_SAVE:
       params.mode = content::FileChooserParams::Save;
       break;
   }
+
+  DCHECK_GE(selected_accept_filter, 0);
+  params.selected_accept_filter = selected_accept_filter;
+
+  params.overwriteprompt = !!(mode & FILE_DIALOG_OVERWRITEPROMPT_FLAG);
+  params.hidereadonly = !!(mode & FILE_DIALOG_HIDEREADONLY_FLAG);
+
   params.title = title;
-  if (!default_file_name.empty())
-    params.default_file_name = base::FilePath(default_file_name);
-  if (!accept_types.empty()) {
-    std::vector<CefString>::const_iterator it = accept_types.begin();
-    for (; it != accept_types.end(); ++it)
+  if (!default_file_path.empty())
+    params.default_file_name = base::FilePath(default_file_path);
+
+  if (!accept_filters.empty()) {
+    std::vector<CefString>::const_iterator it = accept_filters.begin();
+    for (; it != accept_filters.end(); ++it)
       params.accept_types.push_back(*it);
   }
 
-  scoped_refptr<CefRunFileDialogCallbackWrapper> wrapper =
-      new CefRunFileDialogCallbackWrapper(this, callback);
-  RunFileChooser(params,
-      base::Bind(&CefRunFileDialogCallbackWrapper::Callback, wrapper));
+  RunFileChooser(params, base::Bind(RunFileDialogDismissed, callback));
 }
 
 void CefBrowserHostImpl::StartDownload(const CefString& url) {
@@ -1773,7 +1769,7 @@ void CefBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
 }
 
 void CefBrowserHostImpl::RunFileChooser(
-    const content::FileChooserParams& params,
+    const FileChooserParams& params,
     const RunFileChooserCallback& callback) {
   CEF_POST_TASK(CEF_UIT,
       base::Bind(&CefBrowserHostImpl::RunFileChooserOnUIThread, this, params,
@@ -2269,7 +2265,7 @@ void CefBrowserHostImpl::WebContentsCreated(
 }
 
 void CefBrowserHostImpl::DidNavigateMainFramePostCommit(
-    content::WebContents* tab) {
+    content::WebContents* web_contents) {
   base::AutoLock lock_scope(state_lock_);
   has_document_ = false;
 }
@@ -2283,15 +2279,25 @@ content::JavaScriptDialogManager*
 }
 
 void CefBrowserHostImpl::RunFileChooser(
-    content::WebContents* tab,
+    content::WebContents* web_contents,
     const content::FileChooserParams& params) {
-  content::RenderViewHost* render_view_host = tab->GetRenderViewHost();
+  content::RenderViewHost* render_view_host = web_contents->GetRenderViewHost();
   if (!render_view_host)
     return;
 
-  RunFileChooserOnUIThread(params,
+  if (params.mode == content::FileChooserParams::UploadFolder) {
+    // TODO(cef): Implement the logic necessary for the 'webkitdirectory'
+    // attribute. See CEF issue #958.
+    OnRunFileChooserDelegateCallback(
+        web_contents, params.mode, 0, std::vector<base::FilePath>());
+    return;
+  }
+
+  FileChooserParams cef_params;
+  static_cast<content::FileChooserParams&>(cef_params) = params;
+  RunFileChooserOnUIThread(cef_params,
       base::Bind(&CefBrowserHostImpl::OnRunFileChooserDelegateCallback, this,
-                 tab, params.mode));
+                 web_contents, params.mode));
 }
 
 bool CefBrowserHostImpl::SetPendingPopupInfo(
@@ -2931,19 +2937,13 @@ void CefBrowserHostImpl::OnLoadEnd(CefRefPtr<CefFrame> frame,
 }
 
 void CefBrowserHostImpl::RunFileChooserOnUIThread(
-    const content::FileChooserParams& params,
+    const FileChooserParams& params,
     const RunFileChooserCallback& callback) {
   CEF_REQUIRE_UIT();
 
   if (file_chooser_pending_) {
     // Dismiss the new dialog immediately.
-    callback.Run(std::vector<base::FilePath>());
-    return;
-  }
-
-  if (params.mode == content::FileChooserParams::UploadFolder) {
-    NOTIMPLEMENTED();
-    callback.Run(std::vector<base::FilePath>());
+    callback.Run(0, std::vector<base::FilePath>());
     return;
   }
 
@@ -2958,13 +2958,16 @@ void CefBrowserHostImpl::RunFileChooserOnUIThread(
   if (client_.get()) {
     CefRefPtr<CefDialogHandler> handler = client_->GetDialogHandler();
     if (handler.get()) {
-      cef_file_dialog_mode_t mode = FILE_DIALOG_OPEN;
+      int mode = FILE_DIALOG_OPEN;
       switch (params.mode) {
         case content::FileChooserParams::Open:
           mode = FILE_DIALOG_OPEN;
           break;
         case content::FileChooserParams::OpenMultiple:
           mode = FILE_DIALOG_OPEN_MULTIPLE;
+          break;
+        case content::FileChooserParams::UploadFolder:
+          mode = FILE_DIALOG_OPEN_FOLDER;
           break;
         case content::FileChooserParams::Save:
           mode = FILE_DIALOG_SAVE;
@@ -2974,17 +2977,28 @@ void CefBrowserHostImpl::RunFileChooserOnUIThread(
           break;
       }
 
-      std::vector<CefString> accept_types;
-      std::vector<base::string16>::const_iterator it =
-          params.accept_types.begin();
+      if (params.overwriteprompt)
+        mode |= FILE_DIALOG_OVERWRITEPROMPT_FLAG;
+      if (params.hidereadonly)
+        mode |= FILE_DIALOG_HIDEREADONLY_FLAG;
+
+      std::vector<base::string16>::const_iterator it;
+
+      std::vector<CefString> accept_filters;
+      it = params.accept_types.begin();
       for (; it != params.accept_types.end(); ++it)
-        accept_types.push_back(*it);
+        accept_filters.push_back(*it);
 
       CefRefPtr<CefFileDialogCallbackImpl> callbackImpl(
           new CefFileDialogCallbackImpl(host_callback));
-      handled = handler->OnFileDialog(this, mode, params.title,
-                                      params.default_file_name.value(),
-                                      accept_types, callbackImpl.get());
+      handled = handler->OnFileDialog(
+          this,
+          static_cast<cef_file_dialog_mode_t>(mode),
+          params.title,
+          params.default_file_name.value(),
+          accept_filters,
+          params.selected_accept_filter,
+          callbackImpl.get());
       if (!handled) {
         if (callbackImpl->IsConnected()) {
           callbackImpl->Disconnect();
@@ -3003,22 +3017,25 @@ void CefBrowserHostImpl::RunFileChooserOnUIThread(
 
 void CefBrowserHostImpl::OnRunFileChooserCallback(
     const RunFileChooserCallback& callback,
+    int selected_accept_filter,
     const std::vector<base::FilePath>& file_paths) {
   CEF_REQUIRE_UIT();
 
   file_chooser_pending_ = false;
 
   // Execute the callback asynchronously.
-  CEF_POST_TASK(CEF_UIT, base::Bind(callback, file_paths));
+  CEF_POST_TASK(CEF_UIT,
+      base::Bind(callback, selected_accept_filter, file_paths));
 }
 
 void CefBrowserHostImpl::OnRunFileChooserDelegateCallback(
-    content::WebContents* tab,
+    content::WebContents* web_contents,
     content::FileChooserParams::Mode mode,
+    int selected_accept_filter,
     const std::vector<base::FilePath>& file_paths) {
   CEF_REQUIRE_UIT();
 
-  content::RenderViewHost* render_view_host = tab->GetRenderViewHost();
+  content::RenderViewHost* render_view_host = web_contents->GetRenderViewHost();
   if (!render_view_host)
     return;
 

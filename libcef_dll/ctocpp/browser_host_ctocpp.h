@@ -47,8 +47,8 @@ class CefBrowserHostCToCpp
   virtual double GetZoomLevel() OVERRIDE;
   virtual void SetZoomLevel(double zoomLevel) OVERRIDE;
   virtual void RunFileDialog(FileDialogMode mode, const CefString& title,
-      const CefString& default_file_name,
-      const std::vector<CefString>& accept_types,
+      const CefString& default_file_path,
+      const std::vector<CefString>& accept_filters, int selected_accept_filter,
       CefRefPtr<CefRunFileDialogCallback> callback) OVERRIDE;
   virtual void StartDownload(const CefString& url) OVERRIDE;
   virtual void Print() OVERRIDE;

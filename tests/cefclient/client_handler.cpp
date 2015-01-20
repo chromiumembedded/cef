@@ -195,8 +195,9 @@ bool ClientHandler::OnContextMenuCommand(
 bool ClientHandler::OnFileDialog(CefRefPtr<CefBrowser> browser,
                                  FileDialogMode mode,
                                  const CefString& title,
-                                 const CefString& default_file_name,
-                                 const std::vector<CefString>& accept_types,
+                                 const CefString& default_file_path,
+                                 const std::vector<CefString>& accept_filters,
+                                 int selected_accept_filter,
                                  CefRefPtr<CefFileDialogCallback> callback) {
   CEF_REQUIRE_UI_THREAD();
 
@@ -841,12 +842,16 @@ void ClientHandler::EndTracing() {
 
       // Results in a call to OnFileDialogDismissed.
       handler_->GetBrowser()->GetHost()->RunFileDialog(
-          FILE_DIALOG_SAVE, CefString(), path, std::vector<CefString>(),
+          FILE_DIALOG_SAVE,
+          CefString(),  // title
+          path,
+          std::vector<CefString>(),  // accept_filters
+          0,  // selected_accept_filter
           this);
     }
 
     virtual void OnFileDialogDismissed(
-        CefRefPtr<CefBrowserHost> browser_host,
+        int selected_accept_filter,
         const std::vector<CefString>& file_paths) OVERRIDE {
       CEF_REQUIRE_UI_THREAD();
       if (!file_paths.empty()) {

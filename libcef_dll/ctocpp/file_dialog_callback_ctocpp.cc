@@ -16,12 +16,18 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-void CefFileDialogCallbackCToCpp::Continue(
+void CefFileDialogCallbackCToCpp::Continue(int selected_accept_filter,
     const std::vector<CefString>& file_paths) {
   if (CEF_MEMBER_MISSING(struct_, cont))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: selected_accept_filter; type: simple_byval
+  DCHECK_GE(selected_accept_filter, 0);
+  if (selected_accept_filter < 0)
+    return;
+  // Unverified params: file_paths
 
   // Translate param: file_paths; type: string_vec_byref_const
   cef_string_list_t file_pathsList = cef_string_list_alloc();
@@ -31,6 +37,7 @@ void CefFileDialogCallbackCToCpp::Continue(
 
   // Execute
   struct_->cont(struct_,
+      selected_accept_filter,
       file_pathsList);
 
   // Restore param:file_paths; type: string_vec_byref_const

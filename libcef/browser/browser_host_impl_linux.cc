@@ -282,11 +282,10 @@ void CefBrowserHostImpl::PlatformHandleKeyboardEvent(
 }
 
 void CefBrowserHostImpl::PlatformRunFileChooser(
-    const content::FileChooserParams& params,
+    const FileChooserParams& params,
     RunFileChooserCallback callback) {
   NOTIMPLEMENTED();
-  std::vector<base::FilePath> files;
-  callback.Run(files);
+  callback.Run(0, std::vector<base::FilePath>());
 }
 
 void CefBrowserHostImpl::PlatformHandleExternalProtocol(const GURL& url) {
