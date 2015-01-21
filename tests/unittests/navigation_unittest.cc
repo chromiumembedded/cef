@@ -1762,15 +1762,22 @@ TEST(NavigationTest, CrossOrigin) {
 
 namespace {
 
-const char kPopupNavPageUrl[] = "http://tests-popup/page.html";
-const char kPopupNavPopupUrl[] = "http://tests-popup/popup.html";
+const char kPopupNavPageUrl[] = "http://tests-popup.com/page.html";
+const char kPopupNavPopupUrl[] = "http://tests-popup.com/popup.html";
+const char kPopupNavPopupUrl2[] = "http://tests-popup2.com/popup.html";
 const char kPopupNavPopupName[] = "my_popup";
 
 // Browser side.
 class PopupNavTestHandler : public TestHandler {
  public:
-  explicit PopupNavTestHandler(bool allow)
-      : allow_(allow) {}
+  enum Mode {
+    ALLOW,
+    DENY,
+    NAVIGATE_AFTER_CREATION,
+  };
+
+  PopupNavTestHandler(Mode mode)
+      : mode_(mode) {}
 
   void RunTest() override {
     // Add the resources that we will navigate to/from.
@@ -1780,6 +1787,8 @@ class PopupNavTestHandler : public TestHandler {
                        "'); }</script>Page</html>";
     AddResource(kPopupNavPageUrl, page, "text/html");
     AddResource(kPopupNavPopupUrl, "<html>Popup</html>", "text/html");
+    if (mode_ == NAVIGATE_AFTER_CREATION)
+      AddResource(kPopupNavPopupUrl2, "<html>Popup2</html>", "text/html");
 
     // Create the browser.
     CreateBrowser(kPopupNavPageUrl);
@@ -1806,7 +1815,14 @@ class PopupNavTestHandler : public TestHandler {
     EXPECT_STREQ(kPopupNavPopupName, target_frame_name.ToString().c_str());
     EXPECT_FALSE(*no_javascript_access);
 
-    return !allow_;
+    return (mode_ == DENY);  // Return true to cancel the popup.
+  }
+
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
+    TestHandler::OnAfterCreated(browser);
+
+    if (mode_ == NAVIGATE_AFTER_CREATION && browser->IsPopup())
+      browser->GetMainFrame()->LoadURL(kPopupNavPopupUrl2);
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -1816,13 +1832,23 @@ class PopupNavTestHandler : public TestHandler {
     if (url == kPopupNavPageUrl) {
       frame->ExecuteJavaScript("doPopup()", kPopupNavPageUrl, 0);
 
-      if (!allow_) {
+      if (mode_ == DENY) {
         // Wait a bit to make sure the popup window isn't created.
         CefPostDelayedTask(TID_UI,
             base::Bind(&PopupNavTestHandler::DestroyTest, this), 200);
       }
     } else if (url == kPopupNavPopupUrl) {
-      if (allow_) {
+      if (mode_ != NAVIGATE_AFTER_CREATION) {
+        if (mode_ != DENY) {
+          got_popup_load_end_.yes();
+          browser->GetHost()->CloseBrowser(false);
+          DestroyTest();
+        } else {
+          EXPECT_FALSE(true); // Not reached.
+        }
+      }
+    } else if (url == kPopupNavPopupUrl2) {
+      if (mode_ == NAVIGATE_AFTER_CREATION) {
         got_popup_load_end_.yes();
         browser->GetHost()->CloseBrowser(false);
         DestroyTest();
@@ -1837,7 +1863,7 @@ class PopupNavTestHandler : public TestHandler {
  private:
   void DestroyTest() override {
     EXPECT_TRUE(got_on_before_popup_);
-    if (allow_)
+    if (mode_ != DENY)
       EXPECT_TRUE(got_popup_load_end_);
     else
       EXPECT_FALSE(got_popup_load_end_);
@@ -1845,7 +1871,7 @@ class PopupNavTestHandler : public TestHandler {
     TestHandler::DestroyTest();
   }
 
-  bool allow_;
+  const Mode mode_;
 
   TrackCallback got_on_before_popup_;
   TrackCallback got_popup_load_end_;
@@ -1855,14 +1881,25 @@ class PopupNavTestHandler : public TestHandler {
 
 // Test allowing popups.
 TEST(NavigationTest, PopupAllow) {
-  CefRefPtr<PopupNavTestHandler> handler = new PopupNavTestHandler(true);
+  CefRefPtr<PopupNavTestHandler> handler =
+      new PopupNavTestHandler(PopupNavTestHandler::ALLOW);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
 
 // Test denying popups.
 TEST(NavigationTest, PopupDeny) {
-  CefRefPtr<PopupNavTestHandler> handler = new PopupNavTestHandler(false);
+  CefRefPtr<PopupNavTestHandler> handler =
+      new PopupNavTestHandler(PopupNavTestHandler::DENY);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Test navigation to a different origin after popup creation to verify that
+// internal objects are tracked correctly (see issue #1392).
+TEST(NavigationTest, PopupNavigateAfterCreation) {
+  CefRefPtr<PopupNavTestHandler> handler =
+      new PopupNavTestHandler(PopupNavTestHandler::NAVIGATE_AFTER_CREATION);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
