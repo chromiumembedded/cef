@@ -40,30 +40,30 @@ class OSRWindow : public ClientHandler::RenderHandler {
   }
 
   // ClientHandler::RenderHandler methods
-  virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
 
   // CefRenderHandler methods
-  virtual bool GetViewRect(CefRefPtr<CefBrowser> browser,
-                           CefRect& rect) OVERRIDE;
-  virtual bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
-                              int viewX,
-                              int viewY,
-                              int& screenX,
-                              int& screenY) OVERRIDE;
-  virtual void OnPopupShow(CefRefPtr<CefBrowser> browser,
-                           bool show) OVERRIDE;
-  virtual void OnPopupSize(CefRefPtr<CefBrowser> browser,
-                           const CefRect& rect) OVERRIDE;
-  virtual void OnPaint(CefRefPtr<CefBrowser> browser,
-                       PaintElementType type,
-                       const RectList& dirtyRects,
-                       const void* buffer,
-                       int width,
-                       int height) OVERRIDE;
-  virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
-                              CefCursorHandle cursor,
-                              CursorType type,
-                              const CefCursorInfo& custom_cursor_info) OVERRIDE;
+  bool GetViewRect(CefRefPtr<CefBrowser> browser,
+                   CefRect& rect) OVERRIDE;
+  bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
+                      int viewX,
+                      int viewY,
+                      int& screenX,
+                      int& screenY) OVERRIDE;
+  void OnPopupShow(CefRefPtr<CefBrowser> browser,
+                   bool show) OVERRIDE;
+  void OnPopupSize(CefRefPtr<CefBrowser> browser,
+                   const CefRect& rect) OVERRIDE;
+  void OnPaint(CefRefPtr<CefBrowser> browser,
+               PaintElementType type,
+               const RectList& dirtyRects,
+               const void* buffer,
+               int width,
+               int height) OVERRIDE;
+  void OnCursorChange(CefRefPtr<CefBrowser> browser,
+                      CefCursorHandle cursor,
+                      CursorType type,
+                      const CefCursorInfo& custom_cursor_info) OVERRIDE;
 
   void Invalidate();
   bool IsOverPopupWidget(int x, int y) const;
@@ -76,7 +76,7 @@ class OSRWindow : public ClientHandler::RenderHandler {
             bool transparent,
             bool show_update_rect,
             ClientWindowHandle parentView);
-  virtual ~OSRWindow();
+  ~OSRWindow();
 
   void Render();
   void EnableGL();

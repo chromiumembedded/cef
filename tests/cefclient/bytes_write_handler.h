@@ -12,13 +12,13 @@
 class BytesWriteHandler : public CefWriteHandler {
  public:
   explicit BytesWriteHandler(size_t grow);
-  virtual ~BytesWriteHandler();
+  ~BytesWriteHandler();
 
-  virtual size_t Write(const void* ptr, size_t size, size_t n) OVERRIDE;
-  virtual int Seek(int64 offset, int whence) OVERRIDE;
-  virtual int64 Tell() OVERRIDE;
-  virtual int Flush() OVERRIDE;
-  virtual bool MayBlock() OVERRIDE { return false; }
+  size_t Write(const void* ptr, size_t size, size_t n) OVERRIDE;
+  int Seek(int64 offset, int whence) OVERRIDE;
+  int64 Tell() OVERRIDE;
+  int Flush() OVERRIDE;
+  bool MayBlock() OVERRIDE { return false; }
 
   void* GetData() { return data_; }
   int64 GetDataSize() { return offset_; }
