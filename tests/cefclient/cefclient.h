@@ -21,8 +21,11 @@ CefRefPtr<CefBrowser> AppGetBrowser();
 // Returns the main application window handle.
 ClientWindowHandle AppGetMainWindowHandle();
 
-// Returns the application working directory.
+// Returns the application working directory including trailing path separator.
 std::string AppGetWorkingDirectory();
+
+// Returns the full path to the console log file.
+std::string AppGetConsoleLogPath();
 
 // Initialize the application command line.
 void AppInitCommandLine(int argc, const char* const* argv);

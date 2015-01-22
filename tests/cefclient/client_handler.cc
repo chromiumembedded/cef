@@ -25,6 +25,12 @@
 #include "cefclient/resource_util.h"
 #include "cefclient/test_runner.h"
 
+#if defined(OS_WIN)
+#define NEWLINE "\r\n"
+#else
+#define NEWLINE "\n"
+#endif
+
 namespace {
 
 // Custom menu command Ids.
@@ -52,10 +58,14 @@ ClientHandler::ClientHandler()
     forward_handle_(NULL),
     stop_handle_(NULL),
     reload_handle_(NULL),
+    console_log_file_(AppGetConsoleLogPath()),
+    first_console_message_(true),
     focus_on_editable_field_(false) {
 #if defined(OS_LINUX)
   gtk_dialog_ = NULL;
 #endif
+
+  DCHECK(!console_log_file_.empty());
 
   // Read command line settings.
   CefRefPtr<CefCommandLine> command_line =
@@ -166,36 +176,21 @@ bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
                                      int line) {
   CEF_REQUIRE_UI_THREAD();
 
-  bool first_message;
-  std::string logFile;
-
-  {
-    first_message = log_file_.empty();
-    if (first_message) {
-      std::stringstream ss;
-      ss << AppGetWorkingDirectory();
-#if defined(OS_WIN)
-      ss << "\\";
-#else
-      ss << "/";
-#endif
-      ss << "console.log";
-      log_file_ = ss.str();
-    }
-    logFile = log_file_;
-  }
-
-  FILE* file = fopen(logFile.c_str(), "a");
+  FILE* file = fopen(console_log_file_.c_str(), "a");
   if (file) {
     std::stringstream ss;
-    ss << "Message: " << std::string(message) << "\r\nSource: " <<
-        std::string(source) << "\r\nLine: " << line <<
-        "\r\n-----------------------\r\n";
+    ss << "Message: " << message.ToString() << NEWLINE <<
+          "Source: " << source.ToString() << NEWLINE <<
+          "Line: " << line << NEWLINE <<
+          "-----------------------" << NEWLINE;
     fputs(ss.str().c_str(), file);
     fclose(file);
 
-    if (first_message)
-      SendNotification(NOTIFY_CONSOLE_MESSAGE);
+    if (first_console_message_) {
+      client::test_runner::Alert(
+          browser, "Console messages written to \"" + console_log_file_ + "\"");
+      first_console_message_ = false;
+    }
   }
 
   return false;
@@ -219,8 +214,10 @@ void ClientHandler::OnDownloadUpdated(
   CEF_REQUIRE_UI_THREAD();
 
   if (download_item->IsComplete()) {
-    SetLastDownloadFile(download_item->GetFullPath());
-    SendNotification(NOTIFY_DOWNLOAD_COMPLETE);
+    client::test_runner::Alert(
+        browser,
+        "File \"" + download_item->GetFullPath().ToString() +
+        "\" downloaded successfully.");
   }
 }
 
@@ -697,21 +694,6 @@ void ClientHandler::CloseAllBrowsers(bool force_close) {
 bool ClientHandler::IsClosing() const {
   base::AutoLock lock_scope(lock_);
   return is_closing_;
-}
-
-std::string ClientHandler::GetLogFile() const {
-  CEF_REQUIRE_UI_THREAD();
-  return log_file_;
-}
-
-void ClientHandler::SetLastDownloadFile(const std::string& fileName) {
-  CEF_REQUIRE_UI_THREAD();
-  last_download_file_ = fileName;
-}
-
-std::string ClientHandler::GetLastDownloadFile() const {
-  CEF_REQUIRE_UI_THREAD();
-  return last_download_file_;
 }
 
 void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser,

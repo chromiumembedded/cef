@@ -35,24 +35,6 @@ void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
   SetWindowText(hwnd, std::wstring(title).c_str());
 }
 
-void ClientHandler::SendNotification(NotificationType type) {
-  UINT id;
-  switch (type) {
-  case NOTIFY_CONSOLE_MESSAGE:
-    id = ID_WARN_CONSOLEMESSAGE;
-    break;
-  case NOTIFY_DOWNLOAD_COMPLETE:
-    id = ID_WARN_DOWNLOADCOMPLETE;
-    break;
-  case NOTIFY_DOWNLOAD_ERROR:
-    id = ID_WARN_DOWNLOADERROR;
-    break;
-  default:
-    return;
-  }
-  PostMessage(main_handle_, WM_COMMAND, id, 0);
-}
-
 void ClientHandler::SetLoading(bool isLoading) {
   DCHECK(edit_handle_ != NULL && reload_handle_ != NULL &&
          stop_handle_ != NULL);

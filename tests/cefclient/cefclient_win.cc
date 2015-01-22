@@ -51,7 +51,6 @@ HINSTANCE hInst;   // current instance
 TCHAR szTitle[MAX_LOADSTRING];  // The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];  // the main window class name
 TCHAR szOSRWindowClass[MAX_LOADSTRING];  // the OSR window class name
-char szWorkingDir[MAX_PATH];  // The current working directory
 UINT uFindMsg;  // Message identifier for find events.
 HWND hFindDlg = NULL;  // Handle for the find dialog.
 
@@ -98,10 +97,6 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   int exit_code = CefExecuteProcess(main_args, app.get(), sandbox_info);
   if (exit_code >= 0)
     return exit_code;
-
-  // Retrieve the current working directory.
-  if (_getcwd(szWorkingDir, MAX_PATH) == NULL)
-    szWorkingDir[0] = 0;
 
   // Parse command line arguments. The passed in values are ignored on Windows.
   AppInitCommandLine(0, NULL);
@@ -212,46 +207,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
   UpdateWindow(hWnd);
 
   return TRUE;
-}
-
-// Show a warning message on the UI thread.
-static void ShowWarning(CefRefPtr<CefBrowser> browser, int id) {
-  if (!CefCurrentlyOn(TID_UI)) {
-    // Execute on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&ShowWarning, browser, id));
-    return;
-  }
-
-  if (!g_handler)
-    return;
-
-  std::wstring caption;
-  std::wstringstream message;
-
-  switch (id) {
-    case ID_WARN_CONSOLEMESSAGE:
-      caption = L"Console Messages";
-      message << L"Console messages will be written to " <<
-              std::wstring(CefString(g_handler->GetLogFile()));
-      break;
-    case ID_WARN_DOWNLOADCOMPLETE:
-    case ID_WARN_DOWNLOADERROR:
-      caption = L"File Download";
-      message << L"File \"" <<
-              std::wstring(CefString(g_handler->GetLastDownloadFile())) <<
-              L"\" ";
-
-      if (id == ID_WARN_DOWNLOADCOMPLETE)
-        message << L"downloaded successfully.";
-      else
-        message << L"failed to download.";
-      break;
-  }
-
-  MessageBox(g_handler->GetMainWindowHandle(),
-             message.str().c_str(),
-             caption.c_str(),
-             MB_OK | MB_ICONINFORMATION);
 }
 
 // Set focus to |browser| on the UI thread.
@@ -472,11 +427,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         if (g_handler.get())
           g_handler->CloseAllBrowsers(false);
         return 0;
-      case ID_WARN_CONSOLEMESSAGE:
-      case ID_WARN_DOWNLOADCOMPLETE:
-      case ID_WARN_DOWNLOADERROR:
-        ShowWarning(browser, wmId);
-        return 0;
       case ID_FIND:
         if (!hFindDlg) {
           // Create the find dialog.
@@ -682,6 +632,15 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 // Global functions
 
 std::string AppGetWorkingDirectory() {
+  char szWorkingDir[MAX_PATH + 1];
+  if (_getcwd(szWorkingDir, MAX_PATH) == NULL) {
+    szWorkingDir[0] = 0;
+  } else {
+    // Add trailing path separator.
+    size_t len = strlen(szWorkingDir);
+    szWorkingDir[len] = '\\';
+    szWorkingDir[len + 1] = 0;
+  }
   return szWorkingDir;
 }
 

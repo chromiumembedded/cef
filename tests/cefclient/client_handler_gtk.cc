@@ -456,10 +456,6 @@ void ClientHandler::OnDialogResponse(GtkDialog* dialog,
   handler->OnResetDialogState(NULL);
 }
 
-void ClientHandler::SendNotification(NotificationType type) {
-  // TODO(port): Implement this method.
-}
-
 void ClientHandler::SetLoading(bool isLoading) {
   CEF_REQUIRE_UI_THREAD();
 

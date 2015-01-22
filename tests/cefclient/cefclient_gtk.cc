@@ -34,8 +34,6 @@ extern CefRefPtr<ClientHandler> g_handler;
 
 namespace {
 
-char szWorkingDir[512];  // The current working directory
-
 // Height of the buttons at the top of the GTK window.
 int g_toolbar_height = 0;
 
@@ -334,9 +332,6 @@ int main(int argc, char* argv[]) {
   if (exit_code >= 0)
     return exit_code;
 
-  if (!getcwd(szWorkingDir, sizeof (szWorkingDir)))
-    return -1;
-
   // Parse command line arguments.
   AppInitCommandLine(argc, argv_copy);
 
@@ -498,6 +493,15 @@ int main(int argc, char* argv[]) {
 // Global functions
 
 std::string AppGetWorkingDirectory() {
+  char szWorkingDir[256];
+  if (getcwd(szWorkingDir, sizeof(szWorkingDir) - 1) == NULL) {
+    szWorkingDir[0] = 0;
+  } else {
+    // Add trailing path separator.
+    size_t len = strlen(szWorkingDir);
+    szWorkingDir[len] = '/';
+    szWorkingDir[len + 1] = 0;
+  }
   return szWorkingDir;
 }
 

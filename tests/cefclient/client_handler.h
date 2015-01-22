@@ -271,20 +271,6 @@ class ClientHandler : public CefClient,
   // 'onbeforeunload' JavaScript events during window close.
   bool IsClosing() const;
 
-  std::string GetLogFile() const;
-
-  void SetLastDownloadFile(const std::string& fileName);
-  std::string GetLastDownloadFile() const;
-
-  // Send a notification to the application. Notifications should not block the
-  // caller.
-  enum NotificationType {
-    NOTIFY_CONSOLE_MESSAGE,
-    NOTIFY_DOWNLOAD_COMPLETE,
-    NOTIFY_DOWNLOAD_ERROR,
-  };
-  void SendNotification(NotificationType type);
-
   void ShowDevTools(CefRefPtr<CefBrowser> browser,
                     const CefPoint& inspect_element_at);
   void CloseDevTools(CefRefPtr<CefBrowser> browser);
@@ -358,11 +344,9 @@ class ClientHandler : public CefClient,
   // The handler for off-screen rendering, if any.
   CefRefPtr<RenderHandler> osr_handler_;
 
-  // Support for logging.
-  std::string log_file_;
-
-  // Support for downloading files.
-  std::string last_download_file_;
+  // Used for console logging purposes.
+  const std::string console_log_file_;
+  bool first_console_message_;
 
   // True if an editable field currently has focus.
   bool focus_on_editable_field_;

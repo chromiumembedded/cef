@@ -35,28 +35,6 @@ void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
   [window setTitle:str];
 }
 
-void ClientHandler::SendNotification(NotificationType type) {
-  SEL sel = nil;
-  switch(type) {
-    case NOTIFY_CONSOLE_MESSAGE:
-      sel = @selector(notifyConsoleMessage:);
-      break;
-    case NOTIFY_DOWNLOAD_COMPLETE:
-      sel = @selector(notifyDownloadComplete:);
-      break;
-    case NOTIFY_DOWNLOAD_ERROR:
-      sel = @selector(notifyDownloadError:);
-      break;
-  }
-
-  if (sel == nil)
-    return;
-
-  NSWindow* window = [AppGetMainWindowHandle() window];
-  NSObject* delegate = [window delegate];
-  [delegate performSelectorOnMainThread:sel withObject:nil waitUntilDone:NO];
-}
-
 void ClientHandler::SetLoading(bool isLoading) {
   // TODO(port): Change button status.
 }

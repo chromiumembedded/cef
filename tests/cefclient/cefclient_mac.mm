@@ -30,8 +30,6 @@ class MainBrowserProvider : public OSRBrowserProvider {
   }
 } g_main_browser_provider;
 
-char szWorkingDir[512];   // The current working directory
-
 // Sizes for URL bar layout
 #define BUTTON_HEIGHT 22
 #define BUTTON_WIDTH 72
@@ -129,9 +127,6 @@ const int kWindowHeight = 600;
 - (IBAction)stopLoading:(id)sender;
 - (IBAction)takeURLStringValueFrom:(NSTextField *)sender;
 - (void)alert:(NSString*)title withMessage:(NSString*)message;
-- (void)notifyConsoleMessage:(id)object;
-- (void)notifyDownloadComplete:(id)object;
-- (void)notifyDownloadError:(id)object;
 @end
 
 @implementation ClientWindowDelegate
@@ -205,29 +200,6 @@ const int kWindowHeight = 600;
                                      otherButton:nil
                        informativeTextWithFormat:@"%@", message];
   [alert runModal];
-}
-
-- (void)notifyConsoleMessage:(id)object {
-  std::stringstream ss;
-  ss << "Console messages will be written to " << g_handler->GetLogFile();
-  NSString* str = [NSString stringWithUTF8String:(ss.str().c_str())];
-  [self alert:@"Console Messages" withMessage:str];
-}
-
-- (void)notifyDownloadComplete:(id)object {
-  std::stringstream ss;
-  ss << "File \"" << g_handler->GetLastDownloadFile() <<
-      "\" downloaded successfully.";
-  NSString* str = [NSString stringWithUTF8String:(ss.str().c_str())];
-  [self alert:@"File Download" withMessage:str];
-}
-
-- (void)notifyDownloadError:(id)object {
-  std::stringstream ss;
-  ss << "File \"" << g_handler->GetLastDownloadFile() <<
-      "\" failed to download.";
-  NSString* str = [NSString stringWithUTF8String:(ss.str().c_str())];
-  [self alert:@"File Download" withMessage:str];
 }
 
 // Called when we are activated (when we gain focus).
@@ -517,9 +489,6 @@ int main(int argc, char* argv[]) {
   if (exit_code >= 0)
     return exit_code;
 
-  // Retrieve the current working directory.
-  getcwd(szWorkingDir, sizeof(szWorkingDir));
-
   // Initialize the AutoRelease pool.
   NSAutoreleasePool* autopool = [[NSAutoreleasePool alloc] init];
 
@@ -575,6 +544,15 @@ int main(int argc, char* argv[]) {
 // Global functions
 
 std::string AppGetWorkingDirectory() {
+  char szWorkingDir[256];
+  if (getcwd(szWorkingDir, sizeof(szWorkingDir) - 1) == NULL) {
+    szWorkingDir[0] = 0;
+  } else {
+    // Add trailing path separator.
+    size_t len = strlen(szWorkingDir);
+    szWorkingDir[len] = '/';
+    szWorkingDir[len + 1] = 0;
+  }
   return szWorkingDir;
 }
 

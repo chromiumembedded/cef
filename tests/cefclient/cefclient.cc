@@ -37,6 +37,10 @@ ClientWindowHandle AppGetMainWindowHandle() {
   return g_handler->GetMainWindowHandle();
 }
 
+std::string AppGetConsoleLogPath() {
+  return AppGetWorkingDirectory() + "console.log";
+}
+
 void AppInitCommandLine(int argc, const char* const* argv) {
   g_command_line = CefCommandLine::CreateCommandLine();
 #if defined(OS_WIN)
