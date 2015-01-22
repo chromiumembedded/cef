@@ -6,19 +6,21 @@
 
 #import <Cocoa/Cocoa.h>
 
+namespace client {
 namespace window_test {
 
 namespace {
 
-NSWindow* GetWindow(CefWindowHandle handle) {
-  NSView* view = (NSView*)handle;
+NSWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
+  NSView* view = (NSView*)browser->GetHost()->GetWindowHandle();
   return [view window];
 }
 
 }  // namespace
 
-void SetPos(CefWindowHandle handle, int x, int y, int width, int height) {
-  NSWindow* window = GetWindow(handle);
+void SetPos(CefRefPtr<CefBrowser> browser, int x, int y, int width,
+            int height) {
+  NSWindow* window = GetWindow(browser);
 
   // Make sure the window isn't minimized or maximized.
   if ([window isMiniaturized])
@@ -50,16 +52,16 @@ void SetPos(CefWindowHandle handle, int x, int y, int width, int height) {
   [window setFrame:newRect display:YES];
 }
 
-void Minimize(CefWindowHandle handle) {
-  [GetWindow(handle) performMiniaturize:nil];
+void Minimize(CefRefPtr<CefBrowser> browser) {
+  [GetWindow(browser) performMiniaturize:nil];
 }
 
-void Maximize(CefWindowHandle handle) {
-  [GetWindow(handle) performZoom:nil];
+void Maximize(CefRefPtr<CefBrowser> browser) {
+  [GetWindow(browser) performZoom:nil];
 }
 
-void Restore(CefWindowHandle handle) {
-  NSWindow* window = GetWindow(handle);
+void Restore(CefRefPtr<CefBrowser> browser) {
+  NSWindow* window = GetWindow(browser);
   if ([window isMiniaturized])
     [window deminiaturize:nil];
   else if ([window isZoomed])
@@ -67,3 +69,4 @@ void Restore(CefWindowHandle handle) {
 }
 
 }  // namespace window_test
+}  // namespace client

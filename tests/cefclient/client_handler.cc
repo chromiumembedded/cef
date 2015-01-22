@@ -19,14 +19,11 @@
 #include "include/cef_url.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
-#include "cefclient/binding_test.h"
 #include "cefclient/cefclient.h"
 #include "cefclient/client_renderer.h"
 #include "cefclient/client_switches.h"
-#include "cefclient/dialog_test.h"
 #include "cefclient/resource_util.h"
-#include "cefclient/string_util.h"
-#include "cefclient/window_test.h"
+#include "cefclient/test_runner.h"
 
 namespace {
 
@@ -41,49 +38,6 @@ enum client_menu_ids {
   CLIENT_ID_TESTMENU_RADIOITEM2,
   CLIENT_ID_TESTMENU_RADIOITEM3,
 };
-
-const char kTestOrigin[] = "http://tests/";
-
-// Retrieve the file name and mime type based on the specified url.
-bool ParseTestUrl(const std::string& url,
-                  std::string* file_name,
-                  std::string* mime_type) {
-  // Retrieve the path component.
-  CefURLParts parts;
-  CefParseURL(url, parts);
-  std::string file = CefString(&parts.path);
-  if (file.size() < 2)
-    return false;
-
-  // Remove the leading slash.
-  file = file.substr(1);
-
-  // Verify that the file name is valid.
-  for(size_t i = 0; i < file.size(); ++i) {
-    const char c = file[i];
-    if (!isalpha(c) && !isdigit(c) && c != '_' && c != '.')
-      return false;
-  }
-
-  // Determine the mime type based on the file extension, if any.
-  size_t pos = file.rfind(".");
-  if (pos != std::string::npos) {
-    std::string ext = file.substr(pos + 1);
-    if (ext == "html")
-      *mime_type = "text/html";
-    else if (ext == "png")
-      *mime_type = "image/png";
-    else
-      return false;
-  } else {
-    // Default to an html extension if none is specified.
-    *mime_type = "text/html";
-    file += ".html";
-  }
-
-  *file_name = file;
-  return true;
-}
 
 }  // namespace
 
@@ -255,7 +209,7 @@ void ClientHandler::OnBeforeDownload(
   CEF_REQUIRE_UI_THREAD();
 
   // Continue the download and show the "Save As" dialog.
-  callback->Continue(GetDownloadPath(suggested_name), true);
+  callback->Continue(AppGetDownloadPath(suggested_name), true);
 }
 
 void ClientHandler::OnDownloadUpdated(
@@ -372,7 +326,7 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     message_router_ = CefMessageRouterBrowserSide::Create(config);
 
     // Register handlers with the router.
-    CreateMessageHandlers(message_handler_set_);
+    client::test_runner::CreateMessageHandlers(message_handler_set_);
     MessageHandlerSet::const_iterator it = message_handler_set_.begin();
     for (; it != message_handler_set_.end(); ++it)
       message_router_->AddHandler(*(it), false);
@@ -513,35 +467,7 @@ CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request) {
   CEF_REQUIRE_IO_THREAD();
-
-  std::string url = request->GetURL();
-  if (url.find(kTestOrigin) == 0) {
-    // Handle URLs in the test origin.
-    std::string file_name, mime_type;
-    if (ParseTestUrl(url, &file_name, &mime_type)) {
-      if (file_name == "request.html") {
-        // Show the request contents.
-        std::string dump;
-        DumpRequestContents(request, dump);
-        std::string str = "<html><body bgcolor=\"white\"><pre>" + dump +
-                          "</pre></body></html>";
-        CefRefPtr<CefStreamReader> stream =
-            CefStreamReader::CreateForData(
-                static_cast<void*>(const_cast<char*>(str.c_str())),
-                str.size());
-        DCHECK(stream.get());
-        return new CefStreamResourceHandler("text/html", stream);
-      } else {
-        // Load the resource from file.
-        CefRefPtr<CefStreamReader> stream =
-            GetBinaryResourceReader(file_name.c_str());
-        if (stream.get())
-          return new CefStreamResourceHandler(mime_type, stream);
-      }
-    }
-  }
-
-  return NULL;
+  return client::test_runner::GetResourceHandler(browser, frame, request);
 }
 
 bool ClientHandler::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
@@ -809,76 +735,6 @@ std::string ClientHandler::GetStartupURL() const {
   return startup_url_;
 }
 
-void ClientHandler::BeginTracing() {
-  if (!CefCurrentlyOn(TID_UI)) {
-    // Execute on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&ClientHandler::BeginTracing, this));
-    return;
-  }
-
-  CefBeginTracing(CefString(), NULL);
-}
-
-void ClientHandler::EndTracing() {
-  if (!CefCurrentlyOn(TID_UI)) {
-    // Execute on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&ClientHandler::EndTracing, this));
-    return;
-  }
-
-  class Client : public CefEndTracingCallback,
-                  public CefRunFileDialogCallback {
-    public:
-    explicit Client(CefRefPtr<ClientHandler> handler)
-        : handler_(handler) {
-      RunDialog();
-    }
-
-    void RunDialog() {
-      static const char kDefaultFileName[] = "trace.txt";
-      std::string path = handler_->GetDownloadPath(kDefaultFileName);
-      if (path.empty())
-        path = kDefaultFileName;
-
-      // Results in a call to OnFileDialogDismissed.
-      handler_->GetBrowser()->GetHost()->RunFileDialog(
-          FILE_DIALOG_SAVE,
-          CefString(),  // title
-          path,
-          std::vector<CefString>(),  // accept_filters
-          0,  // selected_accept_filter
-          this);
-    }
-
-    virtual void OnFileDialogDismissed(
-        int selected_accept_filter,
-        const std::vector<CefString>& file_paths) OVERRIDE {
-      CEF_REQUIRE_UI_THREAD();
-      if (!file_paths.empty()) {
-        // File selected. Results in a call to OnEndTracingComplete.
-        CefEndTracing(file_paths.front(), this);
-      } else {
-        // No file selected. Discard the trace data.
-        CefEndTracing(CefString(), NULL);
-      }
-    }
-
-    virtual void OnEndTracingComplete(
-        const CefString& tracing_file) OVERRIDE {
-      CEF_REQUIRE_UI_THREAD();
-      handler_->SetLastDownloadFile(tracing_file.ToString());
-      handler_->SendNotification(NOTIFY_DOWNLOAD_COMPLETE);
-    }
-
-    private:
-    CefRefPtr<ClientHandler> handler_;
-
-    IMPLEMENT_REFCOUNTING(Client);
-  };
-
-  new Client(this);
-}
-
 bool ClientHandler::Save(const std::string& path, const std::string& data) {
   FILE* f = fopen(path.c_str(), "w");
   if (!f)
@@ -892,18 +748,6 @@ bool ClientHandler::Save(const std::string& path, const std::string& data) {
   } while (total < data.size());
   fclose(f);
   return true;
-}
-
-// static
-void ClientHandler::CreateMessageHandlers(MessageHandlerSet& handlers) {
-  // Create the dialog test handlers.
-  dialog_test::CreateMessageHandlers(handlers);
-
-  // Create the binding test handlers.
-  binding_test::CreateMessageHandlers(handlers);
-
-  // Create the window test handlers.
-  window_test::CreateMessageHandlers(handlers);
 }
 
 void ClientHandler::BuildTestMenu(CefRefPtr<CefMenuModel> model) {
@@ -942,4 +786,3 @@ bool ClientHandler::ExecuteTestMenu(int command_id) {
   // Allow default handling to proceed.
   return false;
 }
-

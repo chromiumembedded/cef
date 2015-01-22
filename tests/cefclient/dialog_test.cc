@@ -3,10 +3,13 @@
 // can be found in the LICENSE file.
 
 #include "cefclient/dialog_test.h"
-#include "include/cef_browser.h"
 
 #include <string>
 
+#include "include/cef_browser.h"
+#include "include/wrapper/cef_helpers.h"
+
+namespace client {
 namespace dialog_test {
 
 namespace {
@@ -176,8 +179,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
 }  // namespace
 
-void CreateMessageHandlers(ClientHandler::MessageHandlerSet& handlers) {
+void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers) {
   handlers.insert(new Handler());
 }
 
 }  // namespace dialog_test
+}  // namespace client

@@ -8,11 +8,13 @@
 
 #include "cefclient/client_app.h"
 
+namespace client {
 namespace performance_test {
 
 // Render delegate creation. Called from client_app_delegates.cc.
 void CreateRenderDelegates(ClientApp::RenderDelegateSet& delegates);
 
 }  // namespace performance_test
+}  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_PERFORMANCE_TEST_H_

@@ -292,18 +292,11 @@ class ClientHandler : public CefClient,
   // Returns the startup URL.
   std::string GetStartupURL() const;
 
-  void BeginTracing();
-  void EndTracing();
-
   bool Save(const std::string& path, const std::string& data);
 
  private:
   void SetLoading(bool isLoading);
   void SetNavState(bool canGoBack, bool canGoForward);
-
-  // Create all CefMessageRouterBrowserSide::Handler objects. They will be
-  // deleted when the ClientHandler is destroyed.
-  static void CreateMessageHandlers(MessageHandlerSet& handlers);
 
   // Test context menu creation.
   void BuildTestMenu(CefRefPtr<CefMenuModel> model);
@@ -313,10 +306,6 @@ class ClientHandler : public CefClient,
     bool check_item;
     int radio_item;
   } test_menu_state_;
-
-  // Returns the full download path for the specified file, or an empty path to
-  // use the default temp directory.
-  std::string GetDownloadPath(const std::string& file_name);
 
   // START THREAD SAFE MEMBERS
   // The following members are thread-safe because they're initialized during

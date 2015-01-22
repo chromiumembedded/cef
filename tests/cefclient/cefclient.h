@@ -38,19 +38,11 @@ void AppGetBrowserSettings(CefBrowserSettings& settings);
 // argument.
 bool AppIsOffScreenRenderingEnabled();
 
+// Returns the full download path for the specified file, or an empty path to
+// use the default temp directory.
+std::string AppGetDownloadPath(const std::string& file_name);
+
 // Quit the application message loop.
 void AppQuitMessageLoop();
-
-// Implementations for various tests.
-void RunGetSourceTest(CefRefPtr<CefBrowser> browser);
-void RunGetTextTest(CefRefPtr<CefBrowser> browser);
-void RunRequestTest(CefRefPtr<CefBrowser> browser);
-void RunPopupTest(CefRefPtr<CefBrowser> browser);
-void RunPluginInfoTest(CefRefPtr<CefBrowser> browser);
-void RunOtherTests(CefRefPtr<CefBrowser> browser);
-
-#if defined(OS_WIN)
-void RunTransparentPopupTest(CefRefPtr<CefBrowser> browser);
-#endif
 
 #endif  // CEF_TESTS_CEFCLIENT_CEFCLIENT_H_

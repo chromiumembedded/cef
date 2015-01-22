@@ -14,9 +14,9 @@
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/main_message_loop_std.h"
+#include "cefclient/resource.h"
 #include "cefclient/resource_util.h"
-#include "cefclient/scheme_test.h"
-#include "cefclient/string_util.h"
+#include "cefclient/test_runner.h"
 
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
@@ -46,19 +46,7 @@ const int kWindowHeight = 600;
 @interface ClientAppDelegate : NSObject
 - (void)createApplication:(id)object;
 - (void)tryToTerminateApplication:(NSApplication*)app;
-
-- (IBAction)testGetSource:(id)sender;
-- (IBAction)testGetText:(id)sender;
-- (IBAction)testPopupWindow:(id)sender;
-- (IBAction)testRequest:(id)sender;
-- (IBAction)testPluginInfo:(id)sender;
-- (IBAction)testZoomIn:(id)sender;
-- (IBAction)testZoomOut:(id)sender;
-- (IBAction)testZoomReset:(id)sender;
-- (IBAction)testBeginTracing:(id)sender;
-- (IBAction)testEndTracing:(id)sender;
-- (IBAction)testPrint:(id)sender;
-- (IBAction)testOtherTests:(id)sender;
+- (IBAction)menuItemSelected:(id)sender;
 @end
 
 // Provide the CefAppProtocol implementation required by CEF.
@@ -358,6 +346,13 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
   return button;
 }
 
+void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
+  NSMenuItem* item = [menu addItemWithTitle:label
+                                     action:@selector(menuItemSelected:)
+                              keyEquivalent:@""];
+  [item setTag:idval];
+}
+
 @implementation ClientAppDelegate
 
 // Create the application on the UI thread.
@@ -374,42 +369,18 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
                                                      action:nil
                                               keyEquivalent:@""] autorelease];
   NSMenu *testMenu = [[[NSMenu alloc] initWithTitle:@"Tests"] autorelease];
-  [testMenu addItemWithTitle:@"Get Source"
-                      action:@selector(testGetSource:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Get Text"
-                      action:@selector(testGetText:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Popup Window"
-                      action:@selector(testPopupWindow:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Request"
-                      action:@selector(testRequest:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Plugin Info"
-                      action:@selector(testPluginInfo:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Zoom In"
-                      action:@selector(testZoomIn:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Zoom Out"
-                      action:@selector(testZoomOut:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Zoom Reset"
-                      action:@selector(testZoomReset:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Begin Tracing"
-                      action:@selector(testBeginTracing:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"End Tracing"
-                      action:@selector(testEndTracing:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Print"
-                      action:@selector(testPrint:)
-               keyEquivalent:@""];
-  [testMenu addItemWithTitle:@"Other Tests"
-                      action:@selector(testOtherTests:)
-               keyEquivalent:@""];
+  AddMenuItem(testMenu, @"Get Text",      ID_TESTS_GETSOURCE);
+  AddMenuItem(testMenu, @"Get Source",    ID_TESTS_GETTEXT);
+  AddMenuItem(testMenu, @"Popup Window",  ID_TESTS_POPUP);
+  AddMenuItem(testMenu, @"Request",       ID_TESTS_REQUEST);
+  AddMenuItem(testMenu, @"Plugin Info",   ID_TESTS_PLUGIN_INFO);
+  AddMenuItem(testMenu, @"Zoom In",       ID_TESTS_ZOOM_IN);
+  AddMenuItem(testMenu, @"Zoom Out",      ID_TESTS_ZOOM_OUT);
+  AddMenuItem(testMenu, @"Zoom Reset",    ID_TESTS_ZOOM_RESET);
+  AddMenuItem(testMenu, @"Begin Tracing", ID_TESTS_TRACING_BEGIN);
+  AddMenuItem(testMenu, @"End Tracing",   ID_TESTS_TRACING_END);
+  AddMenuItem(testMenu, @"Print",         ID_TESTS_PRINT);
+  AddMenuItem(testMenu, @"Other Tests",   ID_TESTS_OTHER_TESTS);
   [testItem setSubmenu:testMenu];
   [menubar addItem:testItem];
 
@@ -523,70 +494,10 @@ NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
     g_handler->CloseAllBrowsers(false);
 }
 
-- (IBAction)testGetSource:(id)sender {
+- (IBAction)menuItemSelected:(id)sender {
+  NSMenuItem *item = (NSMenuItem*)sender;
   if (g_handler.get() && g_handler->GetBrowserId())
-    RunGetSourceTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testGetText:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunGetTextTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testPopupWindow:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunPopupTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testRequest:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunRequestTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testPluginInfo:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunPluginInfoTest(g_handler->GetBrowser());
-}
-
-- (IBAction)testZoomIn:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId()) {
-    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
-    browser->GetHost()->SetZoomLevel(browser->GetHost()->GetZoomLevel() + 0.5);
-  }
-}
-
-- (IBAction)testZoomOut:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId()) {
-    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
-    browser->GetHost()->SetZoomLevel(browser->GetHost()->GetZoomLevel() - 0.5);
-  }
-}
-
-- (IBAction)testZoomReset:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId()) {
-    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
-    browser->GetHost()->SetZoomLevel(0.0);
-  }
-}
-
-- (IBAction)testBeginTracing:(id)sender {
-  if (g_handler.get())
-    g_handler->BeginTracing();
-}
-
-- (IBAction)testEndTracing:(id)sender {
-  if (g_handler.get())
-    g_handler->EndTracing();
-}
-
-- (IBAction)testPrint:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    g_handler->GetBrowser()->GetHost()->Print();
-}
-
-- (IBAction)testOtherTests:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunOtherTests(g_handler->GetBrowser());
+    client::test_runner::RunTest(g_handler->GetBrowser(), [item tag]);
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:
@@ -630,8 +541,8 @@ int main(int argc, char* argv[]) {
   // Initialize CEF.
   CefInitialize(main_args, settings, app.get(), NULL);
 
-  // Register the scheme handler.
-  scheme_test::InitTest();
+  // Register scheme handlers.
+  client::test_runner::RegisterSchemeHandlers();
 
   // Create the application delegate and window.
   NSObject* delegate = [[ClientAppDelegate alloc] init];
@@ -665,6 +576,10 @@ int main(int argc, char* argv[]) {
 
 std::string AppGetWorkingDirectory() {
   return szWorkingDir;
+}
+
+std::string AppGetDownloadPath(const std::string& file_name) {
+  return std::string();
 }
 
 void AppQuitMessageLoop() {

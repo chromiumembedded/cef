@@ -9,6 +9,7 @@
 #include "include/base/cef_macros.h"
 #include "include/base/cef_logging.h"
 
+namespace client {
 namespace performance_test {
 
 // Default number of iterations.
@@ -98,5 +99,6 @@ extern const PerfTestEntry kPerfTests[];
 extern const int kPerfTestsCount;
 
 }  // namespace performance_test
+}  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_PERFORMANCE_TEST_H_

@@ -64,7 +64,3 @@ void ClientHandler::SetLoading(bool isLoading) {
 void ClientHandler::SetNavState(bool canGoBack, bool canGoForward) {
   // TODO(port): Change button status.
 }
-
-std::string ClientHandler::GetDownloadPath(const std::string& file_name) {
-  return std::string();
-}

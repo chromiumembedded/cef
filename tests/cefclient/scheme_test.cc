@@ -16,12 +16,9 @@
 #include "include/cef_scheme.h"
 #include "include/wrapper/cef_helpers.h"
 #include "cefclient/resource_util.h"
-#include "cefclient/string_util.h"
+#include "cefclient/test_runner.h"
 
-#if defined(OS_WIN)
-#include "cefclient/resource.h"
-#endif
-
+namespace client {
 namespace scheme_test {
 
 namespace {
@@ -50,7 +47,7 @@ class ClientSchemeHandler : public CefResourceHandler {
 
       // Output a string representation of the request
       std::string dump;
-      DumpRequestContents(request, dump);
+      test_runner::DumpRequestContents(request, dump);
       data_.append(dump);
 
       data_.append("</pre><br/>Try the test form:"
@@ -155,9 +152,10 @@ void RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar,
   registrar->AddCustomScheme("client", true, false, false);
 }
 
-void InitTest() {
+void RegisterSchemeHandlers() {
   CefRegisterSchemeHandlerFactory("client", "tests",
       new ClientSchemeHandlerFactory());
 }
 
 }  // namespace scheme_test
+}  // namespace client

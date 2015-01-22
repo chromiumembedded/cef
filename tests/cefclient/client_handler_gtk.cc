@@ -482,7 +482,3 @@ void ClientHandler::SetNavState(bool canGoBack, bool canGoForward) {
   else
     gtk_widget_set_sensitive(GTK_WIDGET(forward_handle_), false);
 }
-
-std::string ClientHandler::GetDownloadPath(const std::string& file_name) {
-  return std::string();
-}

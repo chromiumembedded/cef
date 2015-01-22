@@ -8,6 +8,7 @@
 #include <commdlg.h>
 #include <shellapi.h>
 #include <direct.h>
+#include <shlobj.h> 
 #include <sstream>
 #include <string>
 
@@ -23,8 +24,7 @@
 #include "cefclient/main_message_loop_multithreaded_win.h"
 #include "cefclient/main_message_loop_std.h"
 #include "cefclient/resource.h"
-#include "cefclient/scheme_test.h"
-#include "cefclient/string_util.h"
+#include "cefclient/test_runner.h"
 #include "cefclient/util_win.h"
 
 
@@ -125,8 +125,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   // Initialize CEF.
   CefInitialize(main_args, settings, app.get(), sandbox_info);
 
-  // Register the scheme handler.
-  scheme_test::InitTest();
+  // Register scheme handlers.
+  client::test_runner::RegisterSchemeHandlers();
 
   // Initialize global strings
   LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -212,18 +212,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
   UpdateWindow(hWnd);
 
   return TRUE;
-}
-
-// Change the zoom factor on the UI thread.
-static void ModifyZoom(CefRefPtr<CefBrowser> browser, double delta) {
-  if (!CefCurrentlyOn(TID_UI)) {
-    // Execute on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&ModifyZoom, browser, delta));
-    return;
-  }
-
-  browser->GetHost()->SetZoomLevel(
-      browser->GetHost()->GetZoomLevel() + delta);
 }
 
 // Show a warning message on the UI thread.
@@ -469,6 +457,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
 
       wmId    = LOWORD(wParam);
       wmEvent = HIWORD(wParam);
+
+      if (wmId >= ID_TESTS_FIRST && wmId <= ID_TESTS_LAST) {
+        client::test_runner::RunTest(browser, wmId);
+        return 0;
+      }
+
       // Parse the menu selections:
       switch (wmId) {
       case IDM_ABOUT:
@@ -520,52 +514,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       case IDC_NAV_STOP:  // Stop button
         if (browser.get())
           browser->StopLoad();
-        return 0;
-      case ID_TESTS_GETSOURCE:  // Test the GetSource function
-        if (browser.get())
-          RunGetSourceTest(browser);
-        return 0;
-      case ID_TESTS_GETTEXT:  // Test the GetText function
-        if (browser.get())
-          RunGetTextTest(browser);
-        return 0;
-      case ID_TESTS_POPUP:  // Test a popup window
-        if (browser.get())
-          RunPopupTest(browser);
-        return 0;
-      case ID_TESTS_REQUEST:  // Test a request
-        if (browser.get())
-          RunRequestTest(browser);
-        return 0;
-      case ID_TESTS_PLUGIN_INFO:  // Test plugin info
-        if (browser.get())
-          RunPluginInfoTest(browser);
-        return 0;
-      case ID_TESTS_ZOOM_IN:
-        if (browser.get())
-          ModifyZoom(browser, 0.5);
-        return 0;
-      case ID_TESTS_ZOOM_OUT:
-        if (browser.get())
-          ModifyZoom(browser, -0.5);
-        return 0;
-      case ID_TESTS_ZOOM_RESET:
-        if (browser.get())
-          browser->GetHost()->SetZoomLevel(0.0);
-        return 0;
-      case ID_TESTS_TRACING_BEGIN:
-        g_handler->BeginTracing();
-        return 0;
-      case ID_TESTS_TRACING_END:
-        g_handler->EndTracing();
-        return 0;
-      case ID_TESTS_PRINT:
-        if(browser.get())
-          browser->GetHost()->Print();
-        return 0;
-      case ID_TESTS_OTHER_TESTS:
-        if (browser.get())
-          RunOtherTests(browser);
         return 0;
       }
       break;
@@ -735,6 +683,20 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 
 std::string AppGetWorkingDirectory() {
   return szWorkingDir;
+}
+
+std::string AppGetDownloadPath(const std::string& file_name) {
+  TCHAR szFolderPath[MAX_PATH];
+  std::string path;
+
+  // Save the file in the user's "My Documents" folder.
+  if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PERSONAL | CSIDL_FLAG_CREATE,
+                                NULL, 0, szFolderPath))) {
+    path = CefString(szFolderPath);
+    path += "\\" + file_name;
+  }
+
+  return path;
 }
 
 void AppQuitMessageLoop() {

@@ -6,13 +6,15 @@
 #define CEF_TESTS_CEFCLIENT_BINDING_TEST_H_
 #pragma once
 
-#include "cefclient/client_handler.h"
+#include "cefclient/test_runner.h"
 
+namespace client {
 namespace binding_test {
 
-// Handler creation. Called from ClientHandler.
-void CreateMessageHandlers(ClientHandler::MessageHandlerSet& handlers);
+// Handler creation.
+void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers);
 
 }  // namespace binding_test
+}  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_BINDING_TEST_H_

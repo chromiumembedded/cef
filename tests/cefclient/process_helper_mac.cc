@@ -12,6 +12,9 @@
 std::string AppGetWorkingDirectory() {
   return std::string();
 }
+std::string AppGetDownloadPath(const std::string& file_name) {
+  return std::string();
+}
 CefWindowHandle AppGetMainWindowHandle() {
   return NULL;
 }

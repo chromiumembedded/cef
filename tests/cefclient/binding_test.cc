@@ -9,6 +9,7 @@
 
 #include "include/wrapper/cef_stream_resource_handler.h"
 
+namespace client {
 namespace binding_test {
 
 namespace {
@@ -48,8 +49,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 
 }  // namespace
 
-void CreateMessageHandlers(ClientHandler::MessageHandlerSet& handlers) {
+void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers) {
   handlers.insert(new Handler());
 }
 
 }  // namespace binding_test
+}  // namespace client

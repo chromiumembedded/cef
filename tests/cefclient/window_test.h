@@ -6,23 +6,26 @@
 #define CEF_TESTS_CEFCLIENT_WINDOW_TEST_H_
 #pragma once
 
-#include "cefclient/client_handler.h"
+#include "cefclient/test_runner.h"
 
+namespace client {
 namespace window_test {
 
-/// Handler creation. Called from ClientHandler.
-void CreateMessageHandlers(ClientHandler::MessageHandlerSet& handlers);
+/// Handler creation.
+void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers);
 
 // Fit |window| inside |display|. Coordinates are relative to the upper-left
 // corner of the display.
 void ModifyBounds(const CefRect& display, CefRect& window);
 
 // Platform implementations.
-void SetPos(CefWindowHandle handle, int x, int y, int width, int height);
-void Minimize(CefWindowHandle handle);
-void Maximize(CefWindowHandle handle);
-void Restore(CefWindowHandle handle);
+void SetPos(CefRefPtr<CefBrowser> browser,
+            int x, int y, int width, int height);
+void Minimize(CefRefPtr<CefBrowser> browser);
+void Maximize(CefRefPtr<CefBrowser> browser);
+void Restore(CefRefPtr<CefBrowser> browser);
 
 }  // namespace window_test
+}  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_WINDOW_TEST_H_

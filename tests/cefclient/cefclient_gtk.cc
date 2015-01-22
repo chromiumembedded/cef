@@ -26,8 +26,8 @@
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/main_message_loop_std.h"
-#include "cefclient/scheme_test.h"
-#include "cefclient/string_util.h"
+#include "cefclient/resource.h"
+#include "cefclient/test_runner.h"
 
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
@@ -224,104 +224,12 @@ gboolean WindowConfigure(GtkWindow* window,
   return FALSE;  // Don't stop this message.
 }
 
-// Callback for Tests > Get Source... menu item.
-gboolean GetSourceActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunGetSourceTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > Get Text... menu item.
-gboolean GetTextActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunGetTextTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > Popup Window... menu item.
-gboolean PopupWindowActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunPopupTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > Request... menu item.
-gboolean RequestActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunRequestTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > Plugin Info... menu item.
-gboolean PluginInfoActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunPluginInfoTest(g_handler->GetBrowser());
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > Zoom In... menu item.
-gboolean ZoomInActivated(GtkWidget* widget) {
+// Callback for Tests menu items.
+gboolean MenuItemActivated(GtkWidget* widget, gpointer data) {
   if (g_handler.get() && g_handler->GetBrowserId()) {
-    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
-    browser->GetHost()->SetZoomLevel(browser->GetHost()->GetZoomLevel() + 0.5);
+    client::test_runner::RunTest(g_handler->GetBrowser(),
+        GPOINTER_TO_INT(data));
   }
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > Zoom Out... menu item.
-gboolean ZoomOutActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId()) {
-    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
-    browser->GetHost()->SetZoomLevel(browser->GetHost()->GetZoomLevel() - 0.5);
-  }
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > Zoom Reset... menu item.
-gboolean ZoomResetActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId()) {
-    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
-    browser->GetHost()->SetZoomLevel(0.0);
-  }
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > Begin Tracing menu item.
-gboolean BeginTracingActivated(GtkWidget* widget) {
-  if (g_handler.get())
-    g_handler->BeginTracing();
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > End Tracing menu item.
-gboolean EndTracingActivated(GtkWidget* widget) {
-  if (g_handler.get())
-    g_handler->EndTracing();
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > Print menu item.
-gboolean PrintActivated(GtkWidget* widget) {
-  if (g_handler.get())
-    g_handler->GetBrowser()->GetHost()->Print();
-
-  return FALSE;  // Don't stop this message.
-}
-
-// Callback for Tests > Other Tests... menu item.
-gboolean OtherTestsActivated(GtkWidget* widget) {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    RunOtherTests(g_handler->GetBrowser());
 
   return FALSE;  // Don't stop this message.
 }
@@ -375,10 +283,10 @@ gboolean URLEntryButtonPress(GtkWidget* widget,
 
 // GTK utility functions ----------------------------------------------
 
-GtkWidget* AddMenuEntry(GtkWidget* menu_widget, const char* text,
-                        GCallback callback) {
+GtkWidget* AddMenuEntry(GtkWidget* menu_widget, const char* text, int id) {
   GtkWidget* entry = gtk_menu_item_new_with_label(text);
-  g_signal_connect(entry, "activate", callback, NULL);
+  g_signal_connect(entry, "activate", G_CALLBACK(MenuItemActivated),
+      GINT_TO_POINTER(id));
   gtk_menu_shell_append(GTK_MENU_SHELL(menu_widget), entry);
   return entry;
 }
@@ -395,30 +303,18 @@ GtkWidget* CreateMenuBar() {
   GtkWidget* menu_bar = gtk_menu_bar_new();
   GtkWidget* debug_menu = CreateMenu(menu_bar, "Tests");
 
-  AddMenuEntry(debug_menu, "Get Source",
-               G_CALLBACK(GetSourceActivated));
-  AddMenuEntry(debug_menu, "Get Text",
-               G_CALLBACK(GetTextActivated));
-  AddMenuEntry(debug_menu, "Popup Window",
-               G_CALLBACK(PopupWindowActivated));
-  AddMenuEntry(debug_menu, "Request",
-               G_CALLBACK(RequestActivated));
-  AddMenuEntry(debug_menu, "Plugin Info",
-               G_CALLBACK(PluginInfoActivated));
-  AddMenuEntry(debug_menu, "Zoom In",
-               G_CALLBACK(ZoomInActivated));
-  AddMenuEntry(debug_menu, "Zoom Out",
-               G_CALLBACK(ZoomOutActivated));
-  AddMenuEntry(debug_menu, "Zoom Reset",
-               G_CALLBACK(ZoomResetActivated));
-  AddMenuEntry(debug_menu, "Begin Tracing",
-               G_CALLBACK(BeginTracingActivated));
-  AddMenuEntry(debug_menu, "End Tracing",
-               G_CALLBACK(EndTracingActivated));
-  AddMenuEntry(debug_menu, "Print",
-               G_CALLBACK(PrintActivated));
-  AddMenuEntry(debug_menu, "Other Tests",
-               G_CALLBACK(OtherTestsActivated));
+  AddMenuEntry(debug_menu, "Get Source",    ID_TESTS_GETSOURCE);
+  AddMenuEntry(debug_menu, "Get Text",      ID_TESTS_GETTEXT);
+  AddMenuEntry(debug_menu, "Popup Window",  ID_TESTS_POPUP);
+  AddMenuEntry(debug_menu, "Request",       ID_TESTS_REQUEST);
+  AddMenuEntry(debug_menu, "Plugin Info",   ID_TESTS_PLUGIN_INFO);
+  AddMenuEntry(debug_menu, "Zoom In",       ID_TESTS_ZOOM_IN);
+  AddMenuEntry(debug_menu, "Zoom Out",      ID_TESTS_ZOOM_OUT);
+  AddMenuEntry(debug_menu, "Zoom Reset",    ID_TESTS_ZOOM_RESET);
+  AddMenuEntry(debug_menu, "Begin Tracing", ID_TESTS_TRACING_BEGIN);
+  AddMenuEntry(debug_menu, "End Tracing",   ID_TESTS_TRACING_END);
+  AddMenuEntry(debug_menu, "Print",         ID_TESTS_PRINT);
+  AddMenuEntry(debug_menu, "Other Tests",   ID_TESTS_OTHER_TESTS);
   return menu_bar;
 }
 
@@ -468,8 +364,8 @@ int main(int argc, char* argv[]) {
   // Perform gtkglext initialization required by the OSR example.
   gtk_gl_init(&argc, &argv_copy);
 
-  // Register the scheme handler.
-  scheme_test::InitTest();
+  // Register scheme handlers.
+  client::test_runner::RegisterSchemeHandlers();
 
   GtkWidget* window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
@@ -603,6 +499,10 @@ int main(int argc, char* argv[]) {
 
 std::string AppGetWorkingDirectory() {
   return szWorkingDir;
+}
+
+std::string AppGetDownloadPath(const std::string& file_name) {
+  return std::string();
 }
 
 void AppQuitMessageLoop() {

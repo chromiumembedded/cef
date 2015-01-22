@@ -27,6 +27,7 @@
 #define ID_WARN_DOWNLOADERROR           32002
 #define ID_QUIT                         32500
 #define ID_FIND                         32501
+#define ID_TESTS_FIRST                  32700
 #define ID_TESTS_GETSOURCE              32700
 #define ID_TESTS_GETTEXT                32701
 #define ID_TESTS_OTHER_TESTS            32702
@@ -39,6 +40,7 @@
 #define ID_TESTS_ZOOM_IN                32709
 #define ID_TESTS_ZOOM_OUT               32710
 #define ID_TESTS_ZOOM_RESET             32711
+#define ID_TESTS_LAST                   32711
 #define IDC_STATIC                      -1
 #define IDS_BINDING                     1000
 #define IDS_DIALOGS                     1001
@@ -52,9 +54,6 @@
 #define IDS_WINDOW                      1009
 #define IDS_XMLHTTPREQUEST              1010
 #define IDS_PERFORMANCE2                1011
-
-// Avoid files associated with MacOS
-#define _X86_
 
 // Next default values for new objects
 // 

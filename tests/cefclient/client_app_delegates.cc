@@ -18,14 +18,14 @@ void ClientApp::CreateBrowserDelegates(BrowserDelegateSet& delegates) {
 // static
 void ClientApp::CreateRenderDelegates(RenderDelegateSet& delegates) {
   client_renderer::CreateRenderDelegates(delegates);
-  performance_test::CreateRenderDelegates(delegates);
+  client::performance_test::CreateRenderDelegates(delegates);
 }
 
 // static
 void ClientApp::RegisterCustomSchemes(
     CefRefPtr<CefSchemeRegistrar> registrar,
     std::vector<CefString>& cookiable_schemes) {
-  scheme_test::RegisterCustomSchemes(registrar, cookiable_schemes);
+  client::scheme_test::RegisterCustomSchemes(registrar, cookiable_schemes);
 }
 
 // static

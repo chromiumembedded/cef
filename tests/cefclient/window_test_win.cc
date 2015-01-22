@@ -4,32 +4,36 @@
 
 #include "cefclient/window_test.h"
 
+namespace client {
 namespace window_test {
 
 namespace {
 
-// Toggles the current display state.
-void Toggle(CefWindowHandle handle, UINT nCmdShow) {
-  HWND root_wnd = ::GetAncestor(handle, GA_ROOT);
+HWND GetRootHwnd(CefRefPtr<CefBrowser> browser) {
+  return ::GetAncestor(browser->GetHost()->GetWindowHandle(), GA_ROOT);
+}
 
+// Toggles the current display state.
+void Toggle(HWND root_hwnd, UINT nCmdShow) {
   // Retrieve current window placement information.
   WINDOWPLACEMENT placement;
-  ::GetWindowPlacement(root_wnd, &placement);
+  ::GetWindowPlacement(root_hwnd, &placement);
 
   if (placement.showCmd == nCmdShow)
-    ::ShowWindow(root_wnd, SW_RESTORE);
+    ::ShowWindow(root_hwnd, SW_RESTORE);
   else
-    ::ShowWindow(root_wnd, nCmdShow);
+    ::ShowWindow(root_hwnd, nCmdShow);
 }
 
 }  // namespace
 
-void SetPos(CefWindowHandle handle, int x, int y, int width, int height) {
-  HWND root_wnd = ::GetAncestor(handle, GA_ROOT);
+void SetPos(CefRefPtr<CefBrowser> browser,
+            int x, int y, int width, int height) {
+  HWND root_hwnd = GetRootHwnd(browser);
 
   // Retrieve current window placement information.
   WINDOWPLACEMENT placement;
-  ::GetWindowPlacement(root_wnd, &placement);
+  ::GetWindowPlacement(root_hwnd, &placement);
 
   // Retrieve information about the display that contains the window.
   HMONITOR monitor = MonitorFromRect(&placement.rcNormalPosition,
@@ -54,25 +58,26 @@ void SetPos(CefWindowHandle handle, int x, int y, int width, int height) {
     placement.rcNormalPosition.right = window_rect.x + window_rect.width;
     placement.rcNormalPosition.top = window_rect.y;
     placement.rcNormalPosition.bottom = window_rect.y + window_rect.height;
-    ::SetWindowPlacement(root_wnd, &placement);
-    ::ShowWindow(root_wnd, SW_RESTORE);
+    ::SetWindowPlacement(root_hwnd, &placement);
+    ::ShowWindow(root_hwnd, SW_RESTORE);
   } else {
     // Set the window position.
-    ::SetWindowPos(root_wnd, NULL, window_rect.x, window_rect.y,
+    ::SetWindowPos(root_hwnd, NULL, window_rect.x, window_rect.y,
                    window_rect.width, window_rect.height, SWP_NOZORDER);
   }
 }
 
-void Minimize(CefWindowHandle handle) {
-  Toggle(handle, SW_MINIMIZE);
+void Minimize(CefRefPtr<CefBrowser> browser) {
+  Toggle(GetRootHwnd(browser), SW_MINIMIZE);
 }
 
-void Maximize(CefWindowHandle handle) {
-  Toggle(handle, SW_MAXIMIZE);
+void Maximize(CefRefPtr<CefBrowser> browser) {
+  Toggle(GetRootHwnd(browser), SW_MAXIMIZE);
 }
 
-void Restore(CefWindowHandle handle) {
-  ::ShowWindow(::GetAncestor(handle, GA_ROOT), SW_RESTORE);
+void Restore(CefRefPtr<CefBrowser> browser) {
+  ::ShowWindow(GetRootHwnd(browser), SW_RESTORE);
 }
 
 }  // namespace window_test
+}  // namespace client

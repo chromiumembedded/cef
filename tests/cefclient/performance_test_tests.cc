@@ -6,6 +6,7 @@
 #include "cefclient/performance_test_setup.h"
 #include "include/cef_v8.h"
 
+namespace client {
 namespace performance_test {
 
 namespace {
@@ -326,3 +327,4 @@ const PerfTestEntry kPerfTests[] = {
 const int kPerfTestsCount = (sizeof(kPerfTests) / sizeof(kPerfTests[0]));
 
 }  // namespace performance_test
+}  // namespace client

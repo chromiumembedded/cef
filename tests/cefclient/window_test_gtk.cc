@@ -3,15 +3,22 @@
 // can be found in the LICENSE file.
 
 #include "cefclient/window_test.h"
+#include "cefclient/client_handler.h"
 
 #include <gtk/gtk.h>
 
+namespace client {
 namespace window_test {
 
 namespace {
 
-GtkWindow* GetWindow(CefWindowHandle handle) {
-  return GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(handle)));
+GtkWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
+  // We can't get the GtkWidget* from the X11 Window that would be returned via
+  // CefBrowserHost::GetWindowHandle so retrieve it via the ClientHandler
+  // instance instead.
+  CefRefPtr<ClientHandler> handler =
+      static_cast<ClientHandler*>(browser->GetHost()->GetClient().get());
+  return GTK_WINDOW(gtk_widget_get_toplevel(handler->GetMainWindowHandle()));
 }
 
 bool IsMaximized(GtkWindow* window) {
@@ -22,8 +29,9 @@ bool IsMaximized(GtkWindow* window) {
 
 }  // namespace
 
-void SetPos(CefWindowHandle handle, int x, int y, int width, int height) {
-  GtkWindow* window = GetWindow(handle);
+void SetPos(CefRefPtr<CefBrowser> browser, int x, int y, int width,
+            int height) {
+  GtkWindow* window = GetWindow(browser);
   GdkWindow* gdk_window = gtk_widget_get_window(GTK_WIDGET(window));
 
   // Make sure the window isn't minimized or maximized.
@@ -47,8 +55,8 @@ void SetPos(CefWindowHandle handle, int x, int y, int width, int height) {
                          window_rect.width, window_rect.height);
 }
 
-void Minimize(CefWindowHandle handle) {
-  GtkWindow* window = GetWindow(handle);
+void Minimize(CefRefPtr<CefBrowser> browser) {
+  GtkWindow* window = GetWindow(browser);
 
   // Unmaximize the window before minimizing so restore behaves correctly.
   if (IsMaximized(window))
@@ -57,12 +65,12 @@ void Minimize(CefWindowHandle handle) {
   gtk_window_iconify(window);
 }
 
-void Maximize(CefWindowHandle handle) {
-  gtk_window_maximize(GetWindow(handle));
+void Maximize(CefRefPtr<CefBrowser> browser) {
+  gtk_window_maximize(GetWindow(browser));
 }
 
-void Restore(CefWindowHandle handle) {
-  GtkWindow* window = GetWindow(handle);
+void Restore(CefRefPtr<CefBrowser> browser) {
+  GtkWindow* window = GetWindow(browser);
   if (IsMaximized(window))
     gtk_window_unmaximize(window);
   else
@@ -70,3 +78,4 @@ void Restore(CefWindowHandle handle) {
 }
 
 }  // namespace window_test
+}  // namespace client

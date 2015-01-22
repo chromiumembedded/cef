@@ -10,6 +10,7 @@
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "cefclient/performance_test_setup.h"
 
+namespace client {
 namespace performance_test {
 
 // Use more interations for a Release build.
@@ -161,3 +162,4 @@ void CreateRenderDelegates(ClientApp::RenderDelegateSet& delegates) {
 }
 
 }  // namespace performance_test
+}  // namespace client

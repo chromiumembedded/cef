@@ -9,8 +9,11 @@
 #include <string>
 #include <vector>
 
+#include "include/base/cef_bind.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
+#include "cefclient/main_message_loop.h"
 
+namespace client {
 namespace window_test {
 
 namespace {
@@ -53,15 +56,19 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       }
 
       if (vec.size() == 4) {
-        SetPos(browser->GetHost()->GetWindowHandle(),
-               vec[0], vec[1], vec[2], vec[3]);
+        // Execute SetPos() on the main thread.
+        MAIN_POST_CLOSURE(base::Bind(&SetPos, browser,
+                                     vec[0], vec[1], vec[2], vec[3]));
       }
     } else if (message_name == kMessageMinimizeName) {
-      Minimize(browser->GetHost()->GetWindowHandle());
+      // Execute Minimize() on the main thread.
+      MAIN_POST_CLOSURE(base::Bind(&Minimize, browser));
     } else if (message_name == kMessageMaximizeName) {
-      Maximize(browser->GetHost()->GetWindowHandle());
+      // Execute Maximize() on the main thread.
+      MAIN_POST_CLOSURE(base::Bind(&Maximize, browser));
     } else if (message_name == kMessageRestoreName) {
-      Restore(browser->GetHost()->GetWindowHandle());
+      // Execute Restore() on the main thread.
+      MAIN_POST_CLOSURE(base::Bind(&Restore, browser));
     } else {
       NOTREACHED();
     }
@@ -72,10 +79,6 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
 };
 
 }  // namespace
-
-void CreateMessageHandlers(ClientHandler::MessageHandlerSet& handlers) {
-  handlers.insert(new Handler());
-}
 
 void ModifyBounds(const CefRect& display, CefRect& window) {
   window.x += display.x;
@@ -99,4 +102,9 @@ void ModifyBounds(const CefRect& display, CefRect& window) {
     window.y = display.y + display.height - window.height;
 }
 
+void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers) {
+  handlers.insert(new Handler());
+}
+
 }  // namespace window_test
+}  // namespace client
