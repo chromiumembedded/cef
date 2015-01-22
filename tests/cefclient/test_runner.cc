@@ -12,8 +12,8 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "cefclient/binding_test.h"
-#include "cefclient/cefclient.h"
 #include "cefclient/dialog_test.h"
+#include "cefclient/main_context.h"
 #include "cefclient/resource.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/scheme_test.h"
@@ -186,7 +186,8 @@ void EndTracing(CefRefPtr<CefBrowser> browser) {
 
     void RunDialog() {
       static const char kDefaultFileName[] = "trace.txt";
-      std::string path = AppGetDownloadPath(kDefaultFileName);
+      std::string path =
+          client::MainContext::Get()->GetDownloadPath(kDefaultFileName);
       if (path.empty())
         path = kDefaultFileName;
 

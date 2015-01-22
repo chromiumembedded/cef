@@ -8,25 +8,6 @@
 // a qualified path.
 #include "client_app.h"  // NOLINT(build/include)
 
-// Stub implementations.
-std::string AppGetWorkingDirectory() {
-  return std::string();
-}
-std::string AppGetConsoleLogPath() {
-  return std::string();
-}
-std::string AppGetDownloadPath(const std::string& file_name) {
-  return std::string();
-}
-CefWindowHandle AppGetMainWindowHandle() {
-  return NULL;
-}
-void AppQuitMessageLoop() {
-}
-bool AppIsOffScreenRenderingEnabled() {
-  return false;
-}
-
 // Process entry point.
 int main(int argc, char* argv[]) {
   CefMainArgs main_args(argc, argv);

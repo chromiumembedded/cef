@@ -15,7 +15,6 @@
 #include <unistd.h>
 #include <string>
 
-#include "cefclient/cefclient.h"
 #include "include/base/cef_logging.h"
 #include "include/base/cef_scoped_ptr.h"
 #include "include/cef_app.h"
@@ -23,14 +22,16 @@
 #include "include/cef_frame.h"
 #include "include/wrapper/cef_helpers.h"
 #include "cefclient/cefclient_osr_widget_gtk.h"
+#include "cefclient/client_app.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
+#include "cefclient/main_context_impl.h"
 #include "cefclient/main_message_loop_std.h"
 #include "cefclient/resource.h"
 #include "cefclient/test_runner.h"
 
 // The global ClientHandler reference.
-extern CefRefPtr<ClientHandler> g_handler;
+CefRefPtr<ClientHandler> g_handler;
 
 namespace {
 
@@ -88,7 +89,7 @@ gboolean delete_event(GtkWidget* widget, GdkEvent* event,
 }
 
 void TerminationSignalHandler(int signatl) {
-  AppQuitMessageLoop();
+  client::MainMessageLoop::Get()->Quit();
 }
 
 void VboxSizeAllocated(GtkWidget* widget,
@@ -332,13 +333,14 @@ int main(int argc, char* argv[]) {
   if (exit_code >= 0)
     return exit_code;
 
-  // Parse command line arguments.
-  AppInitCommandLine(argc, argv_copy);
+  // Create the main context object.
+  scoped_ptr<client::MainContextImpl> context(
+      new client::MainContextImpl(argc, argv));
 
   CefSettings settings;
 
   // Populate the settings based on command line arguments.
-  AppGetSettings(settings);
+  context->PopulateSettings(&settings);
 
   // Install xlib error handlers so that the application won't be terminated
   // on non-fatal errors.
@@ -437,14 +439,15 @@ int main(int argc, char* argv[]) {
   CefBrowserSettings browserSettings;
 
   // Populate the browser settings based on command line arguments.
-  AppGetBrowserSettings(browserSettings);
+  context->PopulateBrowserSettings(&browserSettings);
 
-  if (AppIsOffScreenRenderingEnabled()) {
-    CefRefPtr<CefCommandLine> cmd_line = AppGetCommandLine();
+  CefRefPtr<CefCommandLine> command_line =
+      CefCommandLine::GetGlobalCommandLine();
+  if (command_line->HasSwitch(cefclient::kOffScreenRenderingEnabled)) {
     const bool transparent =
-        cmd_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
+        command_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
     const bool show_update_rect =
-        cmd_line->HasSwitch(cefclient::kShowUpdateRect);
+        command_line->HasSwitch(cefclient::kShowUpdateRect);
 
     // Create the GTKGL surface.
     CefRefPtr<OSRWindow> osr_window =
@@ -484,31 +487,9 @@ int main(int argc, char* argv[]) {
   // Shut down CEF.
   CefShutdown();
 
-  // Release the |message_loop| object.
+  // Release objects in reverse order of creation.
   message_loop.reset();
+  context.reset();
 
   return result;
-}
-
-// Global functions
-
-std::string AppGetWorkingDirectory() {
-  char szWorkingDir[256];
-  if (getcwd(szWorkingDir, sizeof(szWorkingDir) - 1) == NULL) {
-    szWorkingDir[0] = 0;
-  } else {
-    // Add trailing path separator.
-    size_t len = strlen(szWorkingDir);
-    szWorkingDir[len] = '/';
-    szWorkingDir[len + 1] = 0;
-  }
-  return szWorkingDir;
-}
-
-std::string AppGetDownloadPath(const std::string& file_name) {
-  return std::string();
-}
-
-void AppQuitMessageLoop() {
-  client::MainMessageLoop::Get()->Quit();
 }

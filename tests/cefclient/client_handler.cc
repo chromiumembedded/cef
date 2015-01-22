@@ -19,9 +19,10 @@
 #include "include/cef_url.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
-#include "cefclient/cefclient.h"
 #include "cefclient/client_renderer.h"
 #include "cefclient/client_switches.h"
+#include "cefclient/main_context.h"
+#include "cefclient/main_message_loop.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/test_runner.h"
 
@@ -50,7 +51,8 @@ enum client_menu_ids {
 int ClientHandler::browser_count_ = 0;
 
 ClientHandler::ClientHandler()
-  : browser_id_(0),
+  : startup_url_(client::MainContext::Get()->GetMainURL()),
+    browser_id_(0),
     is_closing_(false),
     main_handle_(NULL),
     edit_handle_(NULL),
@@ -58,7 +60,7 @@ ClientHandler::ClientHandler()
     forward_handle_(NULL),
     stop_handle_(NULL),
     reload_handle_(NULL),
-    console_log_file_(AppGetConsoleLogPath()),
+    console_log_file_(client::MainContext::Get()->GetConsoleLogPath()),
     first_console_message_(true),
     focus_on_editable_field_(false) {
 #if defined(OS_LINUX)
@@ -70,12 +72,6 @@ ClientHandler::ClientHandler()
   // Read command line settings.
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
-
-  if (command_line->HasSwitch(cefclient::kUrl))
-    startup_url_ = command_line->GetSwitchValue(cefclient::kUrl);
-  if (startup_url_.empty())
-    startup_url_ = "http://www.google.com/";
-
   mouse_cursor_change_disabled_ =
       command_line->HasSwitch(cefclient::kMouseCursorChangeDisabled);
 }
@@ -204,7 +200,8 @@ void ClientHandler::OnBeforeDownload(
   CEF_REQUIRE_UI_THREAD();
 
   // Continue the download and show the "Save As" dialog.
-  callback->Continue(AppGetDownloadPath(suggested_name), true);
+  callback->Continue(
+      client::MainContext::Get()->GetDownloadPath(suggested_name), true);
 }
 
 void ClientHandler::OnDownloadUpdated(
@@ -407,7 +404,7 @@ void ClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
     message_router_ = NULL;
 
     // Quit the application message loop.
-    AppQuitMessageLoop();
+    client::MainMessageLoop::Get()->Quit();
   }
 }
 

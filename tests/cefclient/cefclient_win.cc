@@ -2,8 +2,6 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefclient/cefclient.h"
-
 #include <windows.h>
 #include <commdlg.h>
 #include <shellapi.h>
@@ -19,8 +17,10 @@
 #include "include/cef_sandbox_win.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "cefclient/cefclient_osr_widget_win.h"
+#include "cefclient/client_app.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
+#include "cefclient/main_context_impl.h"
 #include "cefclient/main_message_loop_multithreaded_win.h"
 #include "cefclient/main_message_loop_std.h"
 #include "cefclient/resource.h"
@@ -62,7 +62,7 @@ LRESULT CALLBACK FindProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 
 // The global ClientHandler reference.
-extern CefRefPtr<ClientHandler> g_handler;
+CefRefPtr<ClientHandler> g_handler;
 
 class MainBrowserProvider : public OSRBrowserProvider {
   virtual CefRefPtr<CefBrowser> GetBrowser() {
@@ -98,8 +98,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   if (exit_code >= 0)
     return exit_code;
 
-  // Parse command line arguments. The passed in values are ignored on Windows.
-  AppInitCommandLine(0, NULL);
+  // Create the main context object.
+  scoped_ptr<client::MainContextImpl> context(
+      new client::MainContextImpl(0, NULL));
 
   CefSettings settings;
 
@@ -108,7 +109,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 #endif
 
   // Populate the settings based on command line arguments.
-  AppGetSettings(settings);
+  context->PopulateSettings(&settings);
 
   // Create the main message loop object.
   scoped_ptr<client::MainMessageLoop> message_loop;
@@ -142,8 +143,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   // Shut down CEF.
   CefShutdown();
 
-  // Release the |message_loop| object.
+  // Release objects in reverse order of creation.
   message_loop.reset();
+  context.reset();
 
   return result;
 }
@@ -220,7 +222,8 @@ static void SetFocusToBrowser(CefRefPtr<CefBrowser> browser) {
   if (!g_handler)
     return;
 
-  if (AppIsOffScreenRenderingEnabled()) {
+  if (CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+          cefclient::kOffScreenRenderingEnabled)) {
     // Give focus to the OSR window.
     CefRefPtr<OSRWindow> osr_window =
         static_cast<OSRWindow*>(g_handler->GetOSRHandler().get());
@@ -378,14 +381,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       CefBrowserSettings settings;
 
       // Populate the browser settings based on command line arguments.
-      AppGetBrowserSettings(settings);
+      client::MainContext::Get()->PopulateBrowserSettings(&settings);
 
-      if (AppIsOffScreenRenderingEnabled()) {
-        CefRefPtr<CefCommandLine> cmd_line = AppGetCommandLine();
+      CefRefPtr<CefCommandLine> command_line =
+          CefCommandLine::GetGlobalCommandLine();
+      if (command_line->HasSwitch(cefclient::kOffScreenRenderingEnabled)) {
         const bool transparent =
-            cmd_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
+            command_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
         const bool show_update_rect =
-            cmd_line->HasSwitch(cefclient::kShowUpdateRect);
+            command_line->HasSwitch(cefclient::kShowUpdateRect);
 
         CefRefPtr<OSRWindow> osr_window =
             OSRWindow::Create(&g_main_browser_provider, transparent,
@@ -488,7 +492,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
 
       // For off-screen browsers when the frame window is minimized set the
       // browser as hidden to reduce resource usage.
-      const bool offscreen = AppIsOffScreenRenderingEnabled();
+      const bool offscreen = CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+          cefclient::kOffScreenRenderingEnabled);
       if (offscreen) {
         CefRefPtr<OSRWindow> osr_window =
             static_cast<OSRWindow*>(g_handler->GetOSRHandler().get());
@@ -626,38 +631,4 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
     break;
   }
   return (INT_PTR)FALSE;
-}
-
-
-// Global functions
-
-std::string AppGetWorkingDirectory() {
-  char szWorkingDir[MAX_PATH + 1];
-  if (_getcwd(szWorkingDir, MAX_PATH) == NULL) {
-    szWorkingDir[0] = 0;
-  } else {
-    // Add trailing path separator.
-    size_t len = strlen(szWorkingDir);
-    szWorkingDir[len] = '\\';
-    szWorkingDir[len + 1] = 0;
-  }
-  return szWorkingDir;
-}
-
-std::string AppGetDownloadPath(const std::string& file_name) {
-  TCHAR szFolderPath[MAX_PATH];
-  std::string path;
-
-  // Save the file in the user's "My Documents" folder.
-  if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PERSONAL | CSIDL_FLAG_CREATE,
-                                NULL, 0, szFolderPath))) {
-    path = CefString(szFolderPath);
-    path += "\\" + file_name;
-  }
-
-  return path;
-}
-
-void AppQuitMessageLoop() {
-  client::MainMessageLoop::Get()->Quit();
 }

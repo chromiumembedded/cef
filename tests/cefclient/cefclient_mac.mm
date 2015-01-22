@@ -5,21 +5,22 @@
 
 #import <Cocoa/Cocoa.h>
 #include <sstream>
-#include "cefclient/cefclient.h"
 #include "include/cef_app.h"
 #import "include/cef_application_mac.h"
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "cefclient/cefclient_osr_widget_mac.h"
+#include "cefclient/client_app.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
+#include "cefclient/main_context_impl.h"
 #include "cefclient/main_message_loop_std.h"
 #include "cefclient/resource.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/test_runner.h"
 
 // The global ClientHandler reference.
-extern CefRefPtr<ClientHandler> g_handler;
+CefRefPtr<ClientHandler> g_handler;
 
 class MainBrowserProvider : public OSRBrowserProvider {
   virtual CefRefPtr<CefBrowser> GetBrowser() {
@@ -207,10 +208,12 @@ const int kWindowHeight = 600;
   if (g_handler.get()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     if (browser.get()) {
-      if (AppIsOffScreenRenderingEnabled())
+      if (CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+              cefclient::kOffScreenRenderingEnabled)) {
         browser->GetHost()->SendFocusEvent(true);
-      else
+      } else {
         browser->GetHost()->SetFocus(true);
+      }
     }
   }
 }
@@ -220,10 +223,12 @@ const int kWindowHeight = 600;
   if (g_handler.get()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     if (browser.get()) {
-      if (AppIsOffScreenRenderingEnabled())
+      if (CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+              cefclient::kOffScreenRenderingEnabled)) {
         browser->GetHost()->SendFocusEvent(false);
-      else
+      } else {
         browser->GetHost()->SetFocus(false);
+      }
     }
   }
 }
@@ -428,14 +433,15 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
   CefBrowserSettings settings;
 
   // Populate the browser settings based on command line arguments.
-  AppGetBrowserSettings(settings);
+  client::MainContext::Get()->PopulateBrowserSettings(&settings);
 
-  if (AppIsOffScreenRenderingEnabled()) {
-    CefRefPtr<CefCommandLine> cmd_line = AppGetCommandLine();
+  CefRefPtr<CefCommandLine> command_line =
+      CefCommandLine::GetGlobalCommandLine();
+  if (command_line->HasSwitch(cefclient::kOffScreenRenderingEnabled)) {
     const bool transparent =
-        cmd_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
+        command_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
     const bool show_update_rect =
-        cmd_line->HasSwitch(cefclient::kShowUpdateRect);
+        command_line->HasSwitch(cefclient::kShowUpdateRect);
 
     CefRefPtr<OSRWindow> osr_window =
         OSRWindow::Create(&g_main_browser_provider, transparent,
@@ -484,24 +490,20 @@ int main(int argc, char* argv[]) {
   CefMainArgs main_args(argc, argv);
   CefRefPtr<ClientApp> app(new ClientApp);
 
-  // Execute the secondary process, if any.
-  int exit_code = CefExecuteProcess(main_args, app.get(), NULL);
-  if (exit_code >= 0)
-    return exit_code;
-
   // Initialize the AutoRelease pool.
   NSAutoreleasePool* autopool = [[NSAutoreleasePool alloc] init];
 
   // Initialize the ClientApplication instance.
   [ClientApplication sharedApplication];
 
-  // Parse command line arguments.
-  AppInitCommandLine(argc, argv);
+  // Create the main context object.
+  scoped_ptr<client::MainContextImpl> context(
+      new client::MainContextImpl(argc, argv));
 
   CefSettings settings;
 
   // Populate the settings based on command line arguments.
-  AppGetSettings(settings);
+  context->PopulateSettings(&settings);
 
   // Create the main message loop object.
   scoped_ptr<client::MainMessageLoop> message_loop(
@@ -525,41 +527,12 @@ int main(int argc, char* argv[]) {
   // Shut down CEF.
   CefShutdown();
 
-  // Release the handler.
+  // Release objects in reverse order of creation.
   g_handler = NULL;
-
-  // Release the delegate.
   [delegate release];
-
-  // Release the AutoRelease pool.
+  message_loop.reset();
+  context.reset();
   [autopool release];
 
-  // Release the |message_loop| object.
-  message_loop.reset();
-
   return result;
-}
-
-
-// Global functions
-
-std::string AppGetWorkingDirectory() {
-  char szWorkingDir[256];
-  if (getcwd(szWorkingDir, sizeof(szWorkingDir) - 1) == NULL) {
-    szWorkingDir[0] = 0;
-  } else {
-    // Add trailing path separator.
-    size_t len = strlen(szWorkingDir);
-    szWorkingDir[len] = '/';
-    szWorkingDir[len + 1] = 0;
-  }
-  return szWorkingDir;
-}
-
-std::string AppGetDownloadPath(const std::string& file_name) {
-  return std::string();
-}
-
-void AppQuitMessageLoop() {
-  client::MainMessageLoop::Get()->Quit();
 }

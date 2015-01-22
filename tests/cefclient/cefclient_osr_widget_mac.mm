@@ -16,7 +16,6 @@
 #include "include/cef_url.h"
 #include "include/wrapper/cef_helpers.h"
 #include "cefclient/bytes_write_handler.h"
-#include "cefclient/cefclient.h"
 #include "cefclient/osrenderer.h"
 #include "cefclient/resource_util.h"
 
