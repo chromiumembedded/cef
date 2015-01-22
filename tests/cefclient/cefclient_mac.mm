@@ -13,6 +13,7 @@
 #include "cefclient/cefclient_osr_widget_mac.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
+#include "cefclient/main_message_loop_std.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
@@ -622,6 +623,10 @@ int main(int argc, char* argv[]) {
   // Populate the settings based on command line arguments.
   AppGetSettings(settings);
 
+  // Create the main message loop object.
+  scoped_ptr<client::MainMessageLoop> message_loop(
+      new client::MainMessageLoopStd);
+
   // Initialize CEF.
   CefInitialize(main_args, settings, app.get(), NULL);
 
@@ -634,8 +639,8 @@ int main(int argc, char* argv[]) {
                              withObject:nil
                           waitUntilDone:NO];
 
-  // Run the application message loop.
-  CefRunMessageLoop();
+  // Run the message loop. This will block until Quit() is called.
+  int result = message_loop->Run();
 
   // Shut down CEF.
   CefShutdown();
@@ -649,7 +654,10 @@ int main(int argc, char* argv[]) {
   // Release the AutoRelease pool.
   [autopool release];
 
-  return 0;
+  // Release the |message_loop| object.
+  message_loop.reset();
+
+  return result;
 }
 
 
@@ -660,5 +668,5 @@ std::string AppGetWorkingDirectory() {
 }
 
 void AppQuitMessageLoop() {
-  CefQuitMessageLoop();
+  client::MainMessageLoop::Get()->Quit();
 }

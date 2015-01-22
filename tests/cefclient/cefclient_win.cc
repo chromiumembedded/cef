@@ -20,9 +20,12 @@
 #include "cefclient/cefclient_osr_widget_win.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
+#include "cefclient/main_message_loop_multithreaded_win.h"
+#include "cefclient/main_message_loop_std.h"
 #include "cefclient/resource.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
+#include "cefclient/util_win.h"
 
 
 // When generating projects with CMake the CEF_USE_SANDBOX value will be defined
@@ -56,13 +59,8 @@ HWND hFindDlg = NULL;  // Handle for the find dialog.
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK FindProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
-
-// Used for processing messages on the main application thread while running
-// in multi-threaded message loop mode.
-HWND hMessageWnd = NULL;
-HWND CreateMessageWindow(HINSTANCE hInstance);
-LRESULT CALLBACK MessageWndProc(HWND, UINT, WPARAM, LPARAM);
 
 // The global ClientHandler reference.
 extern CefRefPtr<ClientHandler> g_handler;
@@ -116,14 +114,19 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
   // Populate the settings based on command line arguments.
   AppGetSettings(settings);
-  
+
+  // Create the main message loop object.
+  scoped_ptr<client::MainMessageLoop> message_loop;
+  if (settings.multi_threaded_message_loop)
+    message_loop.reset(new client::MainMessageLoopMultithreadedWin);
+  else
+    message_loop.reset(new client::MainMessageLoopStd);
+
   // Initialize CEF.
   CefInitialize(main_args, settings, app.get(), sandbox_info);
 
   // Register the scheme handler.
   scheme_test::InitTest();
-
-  HACCEL hAccelTable;
 
   // Initialize global strings
   LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -135,44 +138,17 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   if (!InitInstance (hInstance, nCmdShow))
     return FALSE;
 
-  hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CEFCLIENT));
-
   // Register the find event message.
   uFindMsg = RegisterWindowMessage(FINDMSGSTRING);
 
-  int result = 0;
-
-  if (!settings.multi_threaded_message_loop) {
-    // Run the CEF message loop. This function will block until the application
-    // recieves a WM_QUIT message.
-    CefRunMessageLoop();
-  } else {
-    // Create a hidden window for message processing.
-    hMessageWnd = CreateMessageWindow(hInstance);
-    DCHECK(hMessageWnd);
-
-    MSG msg;
-
-    // Run the application message loop.
-    while (GetMessage(&msg, NULL, 0, 0)) {
-      // Allow processing of find dialog messages.
-      if (hFindDlg && IsDialogMessage(hFindDlg, &msg))
-        continue;
-
-      if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-      }
-    }
-
-    DestroyWindow(hMessageWnd);
-    hMessageWnd = NULL;
-
-    result = static_cast<int>(msg.wParam);
-  }
+  // Run the message loop. This will block until Quit() is called.
+  int result = message_loop->Run();
 
   // Shut down CEF.
   CefShutdown();
+
+  // Release the |message_loop| object.
+  message_loop.reset();
 
   return result;
 }
@@ -518,6 +494,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
           fr.Flags = FR_HIDEWHOLEWORD | FR_DOWN;
 
           hFindDlg = FindText(&fr);
+
+          // Override the dialog's window procedure.
+          WNDPROC wndproc_old = client::SetWndProcPtr(hFindDlg, FindProc);
+
+          // Associate |wndproc_old| with the dialog.
+          client::SetUserDataPtr(hFindDlg, wndproc_old);
         } else {
           // Give focus to the existing find dialog.
           ::SetFocus(hFindDlg);
@@ -708,6 +690,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
   }
 }
 
+// Message handler for the find dialog.
+LRESULT CALLBACK FindProc(HWND hWnd, UINT message, WPARAM wParam,
+                          LPARAM lParam) {
+  REQUIRE_MAIN_THREAD();
+
+  WNDPROC old_wndproc = client::GetUserDataPtr<WNDPROC>(hWnd);
+  DCHECK(old_wndproc);
+
+  switch (message) {
+    case WM_ACTIVATE:
+      // Set this dialog as current when activated.
+      client::MainMessageLoop::Get()->SetCurrentModelessDialog(
+          wParam == 0 ? NULL : hWnd);
+      return FALSE;
+    case WM_NCDESTROY:
+      // Clear the reference to |old_wndproc|.
+      client::SetUserDataPtr(hWnd, NULL);
+      break;
+  }
+
+  return CallWindowProc(old_wndproc, hWnd, message, wParam, lParam);
+}
+
 // Message handler for about box.
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
   UNREFERENCED_PARAMETER(lParam);
@@ -725,35 +730,6 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
   return (INT_PTR)FALSE;
 }
 
-HWND CreateMessageWindow(HINSTANCE hInstance) {
-  static const wchar_t kWndClass[] = L"ClientMessageWindow";
-
-  WNDCLASSEX wc = {0};
-  wc.cbSize = sizeof(wc);
-  wc.lpfnWndProc = MessageWndProc;
-  wc.hInstance = hInstance;
-  wc.lpszClassName = kWndClass;
-  RegisterClassEx(&wc);
-
-  return CreateWindow(kWndClass, 0, 0, 0, 0, 0, 0, HWND_MESSAGE, 0,
-                      hInstance, 0);
-}
-
-LRESULT CALLBACK MessageWndProc(HWND hWnd, UINT message, WPARAM wParam,
-                                LPARAM lParam) {
-  switch (message) {
-    case WM_COMMAND: {
-      int wmId = LOWORD(wParam);
-      switch (wmId) {
-        case ID_QUIT:
-          PostQuitMessage(0);
-          return 0;
-      }
-    }
-  }
-  return DefWindowProc(hWnd, message, wParam, lParam);
-}
-
 
 // Global functions
 
@@ -762,13 +738,5 @@ std::string AppGetWorkingDirectory() {
 }
 
 void AppQuitMessageLoop() {
-  CefRefPtr<CefCommandLine> command_line = AppGetCommandLine();
-  if (command_line->HasSwitch(cefclient::kMultiThreadedMessageLoop)) {
-    // Running in multi-threaded message loop mode. Need to execute
-    // PostQuitMessage on the main application thread.
-    DCHECK(hMessageWnd);
-    PostMessage(hMessageWnd, WM_COMMAND, ID_QUIT, 0);
-  } else {
-    CefQuitMessageLoop();
-  }
+  client::MainMessageLoop::Get()->Quit();
 }

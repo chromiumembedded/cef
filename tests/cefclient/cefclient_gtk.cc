@@ -25,6 +25,7 @@
 #include "cefclient/cefclient_osr_widget_gtk.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
+#include "cefclient/main_message_loop_std.h"
 #include "cefclient/scheme_test.h"
 #include "cefclient/string_util.h"
 
@@ -453,6 +454,10 @@ int main(int argc, char* argv[]) {
   XSetErrorHandler(XErrorHandlerImpl);
   XSetIOErrorHandler(XIOErrorHandlerImpl);
 
+  // Create the main message loop object.
+  scoped_ptr<client::MainMessageLoop> message_loop(
+      new client::MainMessageLoopStd);
+
   // Initialize CEF.
   CefInitialize(main_args, settings, app.get(), NULL);
 
@@ -582,11 +587,16 @@ int main(int argc, char* argv[]) {
   signal(SIGINT, TerminationSignalHandler);
   signal(SIGTERM, TerminationSignalHandler);
 
-  CefRunMessageLoop();
+  // Run the message loop. This will block until Quit() is called.
+  int result = message_loop->Run();
 
+  // Shut down CEF.
   CefShutdown();
 
-  return 0;
+  // Release the |message_loop| object.
+  message_loop.reset();
+
+  return result;
 }
 
 // Global functions
@@ -596,5 +606,5 @@ std::string AppGetWorkingDirectory() {
 }
 
 void AppQuitMessageLoop() {
-  CefQuitMessageLoop();
+  client::MainMessageLoop::Get()->Quit();
 }
