@@ -10,7 +10,7 @@
 
 namespace performance_test {
 
-// Render delegate creation. Called from client_app_delegates.cpp.
+// Render delegate creation. Called from client_app_delegates.cc.
 void CreateRenderDelegates(ClientApp::RenderDelegateSet& delegates);
 
 }  // namespace performance_test

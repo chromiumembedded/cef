@@ -379,7 +379,7 @@ class ClientHandler : public CefClient,
   bool focus_on_editable_field_;
 
   // Handles the browser side of query routing. The renderer side is handled
-  // in client_renderer.cpp.
+  // in client_renderer.cc.
   CefRefPtr<CefMessageRouterBrowserSide> message_router_;
 
   // Set of Handlers registered with the message router.

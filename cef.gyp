@@ -397,9 +397,9 @@
         'libcef_dll_wrapper',
       ],
       'sources': [
-        'tests/cefclient/client_app.cpp',
+        'tests/cefclient/client_app.cc',
         'tests/cefclient/client_app.h',
-        'tests/cefclient/client_switches.cpp',
+        'tests/cefclient/client_switches.cc',
         'tests/cefclient/client_switches.h',
         'tests/cefclient/resource_util.h',
         'tests/cefclient/res/osr_test.html',
@@ -479,7 +479,7 @@
           ],
           'sources': [
             'tests/cefclient/cefclient.rc',
-            'tests/cefclient/resource_util_win.cpp',
+            'tests/cefclient/resource_util_win.cc',
           ],
           'msvs_settings': {
             'VCManifestTool': {
@@ -568,7 +568,7 @@
           },
           'sources': [
             'tests/cefclient/resource_util_mac.mm',
-            'tests/cefclient/resource_util_posix.cpp',
+            'tests/cefclient/resource_util_posix.cc',
             'tests/unittests/os_rendering_unittest_mac.h',
             'tests/unittests/os_rendering_unittest_mac.mm',
             'tests/unittests/run_all_unittests_mac.mm',
@@ -579,8 +579,8 @@
             'libcef',
           ],
           'sources': [
-            'tests/cefclient/resource_util_linux.cpp',
-            'tests/cefclient/resource_util_posix.cpp',
+            'tests/cefclient/resource_util_linux.cc',
+            'tests/cefclient/resource_util_posix.cc',
           ],
           'copies': [
             {
@@ -1535,11 +1535,11 @@
             '.',
           ],
           'sources': [
-            'tests/cefclient/client_app.cpp',
+            'tests/cefclient/client_app.cc',
             'tests/cefclient/client_app.h',
-            'tests/cefclient/client_switches.cpp',
+            'tests/cefclient/client_switches.cc',
             'tests/cefclient/client_switches.h',
-            'tests/cefclient/process_helper_mac.cpp',
+            'tests/cefclient/process_helper_mac.cc',
             'tests/unittests/client_app_delegates.cc',
             'tests/unittests/cookie_unittest.cc',
             'tests/unittests/dom_unittest.cc',
