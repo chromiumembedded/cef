@@ -2,23 +2,35 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef CEF_TESTS_CEFCLIENT_DRAGDROP_EVENTS_H_
-#define CEF_TESTS_CEFCLIENT_DRAGDROP_EVENTS_H_
-#pragma once
+#ifndef CEF_TESTS_CEFCLIENT_OSR_DRAGDROP_EVENTS_H_
+#define CEF_TESTS_CEFCLIENT_OSR_DRAGDROP_EVENTS_H_
+
 #include "include/cef_render_handler.h"
 #include "cefclient/client_handler.h"
 
-class DragEvents {
+namespace client {
+
+class OsrDragEvents {
  public:
   virtual CefBrowserHost::DragOperationsMask OnDragEnter(
       CefRefPtr<CefDragData> drag_data,
       CefMouseEvent ev,
       CefBrowserHost::DragOperationsMask effect) = 0;
-  virtual CefBrowserHost::DragOperationsMask OnDragOver(CefMouseEvent ev,
+
+  virtual CefBrowserHost::DragOperationsMask OnDragOver(
+      CefMouseEvent ev,
       CefBrowserHost::DragOperationsMask effect) = 0;
+
   virtual void OnDragLeave() = 0;
-  virtual CefBrowserHost::DragOperationsMask OnDrop(CefMouseEvent ev,
+
+  virtual CefBrowserHost::DragOperationsMask OnDrop(
+      CefMouseEvent ev,
       CefBrowserHost::DragOperationsMask effect) = 0;
+
+ protected:
+  virtual ~OsrDragEvents() {}
 };
 
-#endif  // CEF_TESTS_CEFCLIENT_DRAGDROP_EVENTS_H_
+}  // namespace client
+
+#endif  // CEF_TESTS_CEFCLIENT_OSR_DRAGDROP_EVENTS_H_

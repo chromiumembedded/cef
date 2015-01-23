@@ -2,13 +2,15 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef CEF_TESTS_CEFCLIENT_CEFCLIENT_OSR_WIDGET_GTK_H_
-#define CEF_TESTS_CEFCLIENT_CEFCLIENT_OSR_WIDGET_GTK_H_
+#ifndef CEF_TESTS_CEFCLIENT_OSR_WIDGET_GTK_H_
+#define CEF_TESTS_CEFCLIENT_OSR_WIDGET_GTK_H_
 #pragma once
 
 #include "include/cef_render_handler.h"
 #include "cefclient/client_handler.h"
-#include "cefclient/osrenderer.h"
+#include "cefclient/osr_renderer.h"
+
+namespace client {
 
 class OSRBrowserProvider {
  public:
@@ -82,7 +84,7 @@ class OSRWindow : public ClientHandler::RenderHandler {
   void EnableGL();
   void DisableGL();
 
-  ClientOSRenderer renderer_;
+  OsrRenderer renderer_;
   OSRBrowserProvider* browser_provider_;
   ClientWindowHandle glarea_;
   bool gl_enabled_;
@@ -93,4 +95,6 @@ class OSRWindow : public ClientHandler::RenderHandler {
   IMPLEMENT_REFCOUNTING(OSRWindow);
 };
 
-#endif  // CEF_TESTS_CEFCLIENT_CEFCLIENT_OSR_WIDGET_GTK_H_
+}  // namespace client
+
+#endif  // CEF_TESTS_CEFCLIENT_OSR_WIDGET_GTK_H_

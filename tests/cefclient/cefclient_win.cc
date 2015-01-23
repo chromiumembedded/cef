@@ -16,13 +16,13 @@
 #include "include/cef_frame.h"
 #include "include/cef_sandbox_win.h"
 #include "include/wrapper/cef_closure_task.h"
-#include "cefclient/cefclient_osr_widget_win.h"
 #include "cefclient/client_app.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/main_context_impl.h"
 #include "cefclient/main_message_loop_multithreaded_win.h"
 #include "cefclient/main_message_loop_std.h"
+#include "cefclient/osr_widget_win.h"
 #include "cefclient/resource.h"
 #include "cefclient/test_runner.h"
 #include "cefclient/util_win.h"
@@ -64,7 +64,7 @@ INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 // The global ClientHandler reference.
 CefRefPtr<ClientHandler> g_handler;
 
-class MainBrowserProvider : public OSRBrowserProvider {
+class MainBrowserProvider : public client::OSRBrowserProvider {
   virtual CefRefPtr<CefBrowser> GetBrowser() {
     if (g_handler.get())
       return g_handler->GetBrowser();
@@ -225,8 +225,8 @@ static void SetFocusToBrowser(CefRefPtr<CefBrowser> browser) {
   if (CefCommandLine::GetGlobalCommandLine()->HasSwitch(
           cefclient::kOffScreenRenderingEnabled)) {
     // Give focus to the OSR window.
-    CefRefPtr<OSRWindow> osr_window =
-        static_cast<OSRWindow*>(g_handler->GetOSRHandler().get());
+    CefRefPtr<client::OSRWindow> osr_window =
+        static_cast<client::OSRWindow*>(g_handler->GetOSRHandler().get());
     if (osr_window)
       ::SetFocus(osr_window->hwnd());
   } else {
@@ -391,9 +391,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
         const bool show_update_rect =
             command_line->HasSwitch(cefclient::kShowUpdateRect);
 
-        CefRefPtr<OSRWindow> osr_window =
-            OSRWindow::Create(&g_main_browser_provider, transparent,
-                              show_update_rect);
+        CefRefPtr<client::OSRWindow> osr_window =
+            client::OSRWindow::Create(&g_main_browser_provider, transparent,
+                                      show_update_rect);
         osr_window->CreateWidget(hWnd, rect, hInst, szOSRWindowClass);
         info.SetAsWindowless(osr_window->hwnd(), transparent);
         g_handler->SetOSRHandler(osr_window.get());
@@ -495,8 +495,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       const bool offscreen = CefCommandLine::GetGlobalCommandLine()->HasSwitch(
           cefclient::kOffScreenRenderingEnabled);
       if (offscreen) {
-        CefRefPtr<OSRWindow> osr_window =
-            static_cast<OSRWindow*>(g_handler->GetOSRHandler().get());
+        CefRefPtr<client::OSRWindow> osr_window =
+            static_cast<client::OSRWindow*>(g_handler->GetOSRHandler().get());
         if (osr_window)
           osr_window->WasHidden(wParam == SIZE_MINIMIZED);
       }

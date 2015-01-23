@@ -8,7 +8,7 @@
 
 #include <vector>
 
-#include "cefclient/cefclient_osr_widget_mac.h"
+#include "cefclient/osr_widget_mac.h"
 
 #include "include/cef_application_mac.h"
 #include "include/cef_browser.h"
@@ -16,7 +16,7 @@
 #include "include/cef_url.h"
 #include "include/wrapper/cef_helpers.h"
 #include "cefclient/bytes_write_handler.h"
-#include "cefclient/osrenderer.h"
+#include "cefclient/osr_renderer.h"
 #include "cefclient/resource_util.h"
 
 namespace {
@@ -102,6 +102,8 @@ static NSString* const kCEFDragDummyPboardType = @"org.CEF.drag-dummy-type";
 static NSString* const kNSURLTitlePboardType = @"public.url-name";
 
 }  // namespace
+
+namespace client {
 
 ClientOSRHandler::ClientOSRHandler(ClientOpenGLView* view,
                                    OSRBrowserProvider* browser_provider)
@@ -298,6 +300,8 @@ void ClientOSRHandler::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
 void ClientOSRHandler::SetLoading(bool isLoading) {
 }
 
+}  // namespace client
+
 @implementation ClientOpenGLView
 
 @synthesize was_last_mouse_down_on_view = was_last_mouse_down_on_view_;
@@ -316,7 +320,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 
   self = [super initWithFrame:frame pixelFormat:pixelFormat];
   if (self) {
-    renderer_ = new ClientOSRenderer(transparency, show_update_rect);
+    renderer_ = new client::OsrRenderer(transparency, show_update_rect);
     rotating_ = false;
     endWheelMonitor_ = nil;
 
@@ -352,7 +356,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 - (void)dealloc {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
   if (browser) {
-    static_cast<ClientOSRHandler*>(
+    static_cast<client::ClientOSRHandler*>(
       browser->GetHost()->GetClient()->GetRenderHandler().get())->Disconnect();
     browser->GetHost()->CloseBrowser(true);
     browser = NULL;
@@ -1221,6 +1225,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 
 @end
 
+namespace client {
 
 CefRefPtr<OSRWindow> OSRWindow::Create(OSRBrowserProvider* browser_provider,
                                        bool transparent,
@@ -1251,3 +1256,5 @@ OSRWindow::OSRWindow(OSRBrowserProvider* browser_provider,
 
 OSRWindow::~OSRWindow() {
 }
+
+}  // namespace client

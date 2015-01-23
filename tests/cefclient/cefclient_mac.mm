@@ -9,12 +9,12 @@
 #import "include/cef_application_mac.h"
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
-#include "cefclient/cefclient_osr_widget_mac.h"
 #include "cefclient/client_app.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/main_context_impl.h"
 #include "cefclient/main_message_loop_std.h"
+#include "cefclient/osr_widget_mac.h"
 #include "cefclient/resource.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/test_runner.h"
@@ -22,7 +22,7 @@
 // The global ClientHandler reference.
 CefRefPtr<ClientHandler> g_handler;
 
-class MainBrowserProvider : public OSRBrowserProvider {
+class MainBrowserProvider : public client::OSRBrowserProvider {
   virtual CefRefPtr<CefBrowser> GetBrowser() {
     if (g_handler.get())
       return g_handler->GetBrowser();
@@ -443,8 +443,8 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
     const bool show_update_rect =
         command_line->HasSwitch(cefclient::kShowUpdateRect);
 
-    CefRefPtr<OSRWindow> osr_window =
-        OSRWindow::Create(&g_main_browser_provider, transparent,
+    CefRefPtr<client::OSRWindow> osr_window =
+        client::OSRWindow::Create(&g_main_browser_provider, transparent,
             show_update_rect, contentView,
             CefRect(0, 0, kWindowWidth, kWindowHeight));
     window_info.SetAsWindowless(osr_window->GetWindowHandle(), transparent);

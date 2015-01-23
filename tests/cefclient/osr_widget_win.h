@@ -2,14 +2,16 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef CEF_TESTS_CEFCLIENT_CEFCLIENT_OSR_WIDGET_WIN_H_
-#define CEF_TESTS_CEFCLIENT_CEFCLIENT_OSR_WIDGET_WIN_H_
+#ifndef CEF_TESTS_CEFCLIENT_OSR_WIDGET_WIN_H_
+#define CEF_TESTS_CEFCLIENT_OSR_WIDGET_WIN_H_
 #pragma once
 
 #include "include/cef_render_handler.h"
-#include "cefclient/cefclient_osr_dragdrop_win.h"
 #include "cefclient/client_handler.h"
-#include "cefclient/osrenderer.h"
+#include "cefclient/osr_dragdrop_win.h"
+#include "cefclient/osr_renderer.h"
+
+namespace client {
 
 class OSRBrowserProvider {
  public:
@@ -21,7 +23,7 @@ class OSRBrowserProvider {
 
 class OSRWindow : public ClientHandler::RenderHandler
 #if defined(CEF_USE_ATL)
-                  , public DragEvents
+                  , public OsrDragEvents
 #endif
 {
  public:
@@ -81,7 +83,7 @@ class OSRWindow : public ClientHandler::RenderHandler
       CefRenderHandler::DragOperation operation) OVERRIDE;
 
 #if defined(CEF_USE_ATL)
-  // DragEvents methods
+  // OsrDragEvents methods
   CefBrowserHost::DragOperationsMask OnDragEnter(
       CefRefPtr<CefDragData> drag_data,
       CefMouseEvent ev,
@@ -96,9 +98,6 @@ class OSRWindow : public ClientHandler::RenderHandler
   void Invalidate();
   void WasHidden(bool hidden);
 
-  static int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam);
-  static int GetCefMouseModifiers(WPARAM wparam);
-
  private:
   OSRWindow(OSRBrowserProvider* browser_provider,
             bool transparent,
@@ -112,13 +111,12 @@ class OSRWindow : public ClientHandler::RenderHandler
   static ATOM RegisterOSRClass(HINSTANCE hInstance, LPCTSTR className);
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
                                   LPARAM lParam);
-  static bool isKeyDown(WPARAM wparam);
   bool IsOverPopupWidget(int x, int y) const;
   int GetPopupXOffset() const;
   int GetPopupYOffset() const;
   void ApplyPopupOffset(int& x, int& y) const;
 
-  ClientOSRenderer renderer_;
+  OsrRenderer renderer_;
   OSRBrowserProvider* browser_provider_;
   HWND hWnd_;
   HDC hDC_;
@@ -136,4 +134,6 @@ class OSRWindow : public ClientHandler::RenderHandler
   IMPLEMENT_REFCOUNTING(OSRWindow);
 };
 
-#endif  // CEF_TESTS_CEFCLIENT_CEFCLIENT_OSR_WIDGET_WIN_H_
+}  // namespace client
+
+#endif  // CEF_TESTS_CEFCLIENT_OSR_WIDGET_WIN_H_

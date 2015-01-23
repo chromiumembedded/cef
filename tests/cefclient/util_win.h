@@ -19,4 +19,8 @@ T GetUserDataPtr(HWND hWnd) {
 // Set the window's window procedure pointer and return the old value.
 WNDPROC SetWndProcPtr(HWND hWnd, WNDPROC wndProc);
 
+int GetCefMouseModifiers(WPARAM wparam);
+int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam);
+bool IsKeyDown(WPARAM wparam);
+
 }  // namespace client

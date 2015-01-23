@@ -21,12 +21,12 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/wrapper/cef_helpers.h"
-#include "cefclient/cefclient_osr_widget_gtk.h"
 #include "cefclient/client_app.h"
 #include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/main_context_impl.h"
 #include "cefclient/main_message_loop_std.h"
+#include "cefclient/osr_widget_gtk.h"
 #include "cefclient/resource.h"
 #include "cefclient/test_runner.h"
 
@@ -41,7 +41,7 @@ int g_toolbar_height = 0;
 // Height of the integrated menu bar (if any) at the top of the GTK window.
 int g_menubar_height = 0;
 
-class MainBrowserProvider : public OSRBrowserProvider {
+class MainBrowserProvider : public client::OSRBrowserProvider {
   virtual CefRefPtr<CefBrowser> GetBrowser() {
     if (g_handler.get())
       return g_handler->GetBrowser();
@@ -450,9 +450,9 @@ int main(int argc, char* argv[]) {
         command_line->HasSwitch(cefclient::kShowUpdateRect);
 
     // Create the GTKGL surface.
-    CefRefPtr<OSRWindow> osr_window =
-        OSRWindow::Create(&g_main_browser_provider, transparent,
-                          show_update_rect, vbox);
+    CefRefPtr<client::OSRWindow> osr_window =
+        client::OSRWindow::Create(&g_main_browser_provider, transparent,
+                                  show_update_rect, vbox);
 
     // Show the GTK window.
     gtk_widget_show_all(GTK_WIDGET(window));

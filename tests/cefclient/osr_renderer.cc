@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license
 // that can be found in the LICENSE file.
 
-#include "cefclient/osrenderer.h"
+#include "cefclient/osr_renderer.h"
 
 #if defined(OS_WIN)
 #include <gl/gl.h>
@@ -39,8 +39,10 @@
 #define VERIFY_NO_ERROR
 #endif
 
-ClientOSRenderer::ClientOSRenderer(bool transparent,
-                                   bool show_update_rect)
+namespace client {
+
+OsrRenderer::OsrRenderer(bool transparent,
+                         bool show_update_rect)
     : transparent_(transparent),
       show_update_rect_(show_update_rect),
       initialized_(false),
@@ -51,11 +53,11 @@ ClientOSRenderer::ClientOSRenderer(bool transparent,
       spin_y_(0) {
 }
 
-ClientOSRenderer::~ClientOSRenderer() {
+OsrRenderer::~OsrRenderer() {
   Cleanup();
 }
 
-void ClientOSRenderer::Initialize() {
+void OsrRenderer::Initialize() {
   if (initialized_)
     return;
 
@@ -80,12 +82,12 @@ void ClientOSRenderer::Initialize() {
   initialized_ = true;
 }
 
-void ClientOSRenderer::Cleanup() {
+void OsrRenderer::Cleanup() {
   if (texture_id_ != 0)
     glDeleteTextures(1, &texture_id_);
 }
 
-void ClientOSRenderer::Render() {
+void OsrRenderer::Render() {
   if (view_width_ == 0 || view_height_ == 0)
     return;
 
@@ -196,23 +198,23 @@ void ClientOSRenderer::Render() {
   }
 }
 
-void ClientOSRenderer::OnPopupShow(CefRefPtr<CefBrowser> browser,
-                                   bool show) {
+void OsrRenderer::OnPopupShow(CefRefPtr<CefBrowser> browser,
+                              bool show) {
   if (!show) {
     // Clear the popup rectangle.
     ClearPopupRects();
   }
 }
 
-void ClientOSRenderer::OnPopupSize(CefRefPtr<CefBrowser> browser,
-                                   const CefRect& rect) {
+void OsrRenderer::OnPopupSize(CefRefPtr<CefBrowser> browser,
+                              const CefRect& rect) {
   if (rect.width <= 0 || rect.height <= 0)
     return;
   original_popup_rect_ = rect;
   popup_rect_ = GetPopupRectInWebView(original_popup_rect_);
 }
 
-CefRect ClientOSRenderer::GetPopupRectInWebView(const CefRect& original_rect) {
+CefRect OsrRenderer::GetPopupRectInWebView(const CefRect& original_rect) {
   CefRect rc(original_rect);
   // if x or y are negative, move them to 0.
   if (rc.x < 0)
@@ -232,15 +234,15 @@ CefRect ClientOSRenderer::GetPopupRectInWebView(const CefRect& original_rect) {
   return rc;
 }
 
-void ClientOSRenderer::ClearPopupRects() {
+void OsrRenderer::ClearPopupRects() {
   popup_rect_.Set(0, 0, 0, 0);
   original_popup_rect_.Set(0, 0, 0, 0);
 }
 
-void ClientOSRenderer::OnPaint(CefRefPtr<CefBrowser> browser,
-                               CefRenderHandler::PaintElementType type,
-                               const CefRenderHandler::RectList& dirtyRects,
-                               const void* buffer, int width, int height) {
+void OsrRenderer::OnPaint(CefRefPtr<CefBrowser> browser,
+                          CefRenderHandler::PaintElementType type,
+                          const CefRenderHandler::RectList& dirtyRects,
+                          const void* buffer, int width, int height) {
   if (!initialized_)
     Initialize();
 
@@ -326,12 +328,14 @@ void ClientOSRenderer::OnPaint(CefRefPtr<CefBrowser> browser,
   }
 }
 
-void ClientOSRenderer::SetSpin(float spinX, float spinY) {
+void OsrRenderer::SetSpin(float spinX, float spinY) {
   spin_x_ = spinX;
   spin_y_ = spinY;
 }
 
-void ClientOSRenderer::IncrementSpin(float spinDX, float spinDY) {
+void OsrRenderer::IncrementSpin(float spinDX, float spinDY) {
   spin_x_ -= spinDX;
   spin_y_ -= spinDY;
 }
+
+}  // namespace client

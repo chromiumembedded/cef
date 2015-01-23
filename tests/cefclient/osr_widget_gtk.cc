@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefclient/cefclient_osr_widget_gtk.h"
+#include "cefclient/osr_widget_gtk.h"
 
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
@@ -19,6 +19,8 @@
 
 #include "include/base/cef_bind.h"
 #include "include/wrapper/cef_closure_task.h"
+
+namespace client {
 
 namespace {
 
@@ -1348,3 +1350,5 @@ void OSRWindow::DisableGL() {
 
   gl_enabled_ = false;
 }
+
+}  // namespace client

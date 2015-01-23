@@ -2,29 +2,24 @@
 // reserved. Use of this source code is governed by a BSD-style license
 // that can be found in the LICENSE file.
 
-#ifndef CEF_TESTS_CEFCLIENT_CEFCLIENT_OSR_WIDGET_MAC_H_
-#define CEF_TESTS_CEFCLIENT_CEFCLIENT_OSR_WIDGET_MAC_H_
+#ifndef CEF_TESTS_CEFCLIENT_OSR_WIDGET_MAC_H_
+#define CEF_TESTS_CEFCLIENT_OSR_WIDGET_MAC_H_
 
 #include "include/cef_client.h"
 #include "cefclient/client_handler.h"
 
-class ClientOSRenderer;
-
-class OSRBrowserProvider {
- public:
-  virtual CefRefPtr<CefBrowser> GetBrowser() =0;
-
- protected:
-  virtual ~OSRBrowserProvider() {}
-};
+namespace client {
+class OSRBrowserProvider;
+class OsrRenderer;
+}
 
 // The client OpenGL view.
 @interface ClientOpenGLView
     : NSOpenGLView <NSDraggingSource, NSDraggingDestination> {
 @public
   NSTrackingArea* tracking_area_;
-  OSRBrowserProvider* browser_provider_;
-  ClientOSRenderer* renderer_;
+  client::OSRBrowserProvider* browser_provider_;
+  client::OsrRenderer* renderer_;
   NSPoint last_mouse_pos_;
   NSPoint cur_mouse_pos_;
   bool rotating_;
@@ -54,6 +49,16 @@ class OSRBrowserProvider {
 - (BOOL)startDragging:(CefRefPtr<CefDragData>)drag_data
           allowed_ops:(NSDragOperation)ops point:(NSPoint)p;
 @end
+
+namespace client {
+
+class OSRBrowserProvider {
+ public:
+  virtual CefRefPtr<CefBrowser> GetBrowser() =0;
+
+ protected:
+  virtual ~OSRBrowserProvider() {}
+};
 
 // Handler for off-screen rendering windows.
 class ClientOSRHandler : public ClientHandler::RenderHandler {
@@ -139,5 +144,7 @@ class OSRWindow {
   IMPLEMENT_REFCOUNTING(OSRWindow);
 };
 
-#endif  // CEF_TESTS_CEFCLIENT_CEFCLIENT_OSR_WIDGET_MAC_H_
+}  // namespace client
+
+#endif  // CEF_TESTS_CEFCLIENT_OSR_WIDGET_MAC_H_
 

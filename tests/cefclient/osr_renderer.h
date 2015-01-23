@@ -2,18 +2,20 @@
 // reserved. Use of this source code is governed by a BSD-style license
 // that can be found in the LICENSE file.
 
-#ifndef CEF_TESTS_CEFCLIENT_OSRENDERER_H_
-#define CEF_TESTS_CEFCLIENT_OSRENDERER_H_
+#ifndef CEF_TESTS_CEFCLIENT_OSR_RENDERER_H_
+#define CEF_TESTS_CEFCLIENT_OSR_RENDERER_H_
 #pragma once
 
 #include "include/cef_browser.h"
 #include "include/cef_render_handler.h"
 
-class ClientOSRenderer {
+namespace client {
+
+class OsrRenderer {
  public:
-  ClientOSRenderer(bool transparent,
-                   bool show_update_rect);
-  virtual ~ClientOSRenderer();
+  OsrRenderer(bool transparent,
+              bool show_update_rect);
+  virtual ~OsrRenderer();
 
   // Initialize the OpenGL environment.
   void Initialize();
@@ -64,5 +66,7 @@ class ClientOSRenderer {
   CefRect update_rect_;
 };
 
-#endif  // CEF_TESTS_CEFCLIENT_OSRENDERER_H_
+}  // namespace client
+
+#endif  // CEF_TESTS_CEFCLIENT_OSR_RENDERER_H_
 

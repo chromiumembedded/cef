@@ -4,7 +4,6 @@
 
 #ifndef CEF_TESTS_CEFCLIENT_CEFCLIENT_OSR_DRAGDROP_WIN_H_
 #define CEF_TESTS_CEFCLIENT_CEFCLIENT_OSR_DRAGDROP_WIN_H_
-#pragma once
 
 // When generating projects with CMake the CEF_USE_ATL value will be defined
 // automatically if using a supported Visual Studio version. Pass -DUSE_ATL=OFF
@@ -18,7 +17,9 @@
 #include <objidl.h>
 #include <stdio.h>
 
-#include "cefclient/dragdrop_events.h"
+#include "cefclient/osr_dragdrop_events.h"
+
+namespace client {
 
 #define DEFAULT_QUERY_INTERFACE(__Class) \
   HRESULT __stdcall QueryInterface(const IID& iid, void** object) { \
@@ -52,7 +53,7 @@
 
 class DropTargetWin : public IDropTarget {
  public:
-  static CComPtr<DropTargetWin> Create(DragEvents* callback, HWND hWnd);
+  static CComPtr<DropTargetWin> Create(OsrDragEvents* callback, HWND hWnd);
 
   CefBrowserHost::DragOperationsMask StartDragging(
       CefRefPtr<CefBrowser> browser,
@@ -81,14 +82,14 @@ class DropTargetWin : public IDropTarget {
   IUNKNOWN_IMPLEMENTATION()
 
  protected:
-  explicit DropTargetWin(DragEvents* callback, HWND hWnd) :
-      ref_count_(0),
-      callback_(callback),
-      hWnd_(hWnd) {}
+  DropTargetWin(OsrDragEvents* callback, HWND hWnd)
+      : ref_count_(0),
+        callback_(callback),
+        hWnd_(hWnd) {}
   virtual ~DropTargetWin() {}
 
  private:
-  DragEvents* callback_;
+  OsrDragEvents* callback_;
   HWND hWnd_;
 
   CefRefPtr<CefDragData> current_drag_data_;
@@ -182,6 +183,8 @@ class DataObjectWin : public IDataObject {
 
   explicit DataObjectWin(FORMATETC *fmtetc, STGMEDIUM *stgmed, int count);
 };
+
+}  // namespace client
 
 #endif  // defined(CEF_USE_ATL)
 

@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefclient/cefclient_osr_dragdrop_win.h"
+#include "cefclient/osr_dragdrop_win.h"
 
 #if defined(CEF_USE_ATL)
 
@@ -15,8 +15,10 @@
 
 #include "include/wrapper/cef_helpers.h"
 #include "cefclient/bytes_write_handler.h"
-#include "cefclient/cefclient_osr_widget_win.h"
 #include "cefclient/resource.h"
+#include "cefclient/util_win.h"
+
+namespace client {
 
 namespace {
 
@@ -48,7 +50,7 @@ CefMouseEvent ToMouseEvent(POINTL p, DWORD key_state, HWND hWnd) {
   ScreenToClient(hWnd, &screen_point);
   ev.x = screen_point.x;
   ev.y = screen_point.y;
-  ev.modifiers = OSRWindow::GetCefMouseModifiers(key_state);
+  ev.modifiers = GetCefMouseModifiers(key_state);
   return ev;
 }
 
@@ -358,14 +360,15 @@ CefRefPtr<CefDragData> DataObjectToDragData(IDataObject* data_object) {
 }  // namespace
 
 
-CComPtr<DropTargetWin> DropTargetWin::Create(DragEvents* callback, HWND hWnd) {
+CComPtr<DropTargetWin> DropTargetWin::Create(OsrDragEvents* callback,
+                                             HWND hWnd) {
   return CComPtr<DropTargetWin>(new DropTargetWin(callback, hWnd));
 }
 
 HRESULT DropTargetWin::DragEnter(IDataObject* data_object,
-                                  DWORD key_state,
-                                  POINTL cursor_position,
-                                  DWORD* effect) {
+                                 DWORD key_state,
+                                 POINTL cursor_position,
+                                 DWORD* effect) {
   if (!callback_)
     return E_UNEXPECTED;
 
@@ -648,5 +651,7 @@ DataObjectWin::DataObjectWin(FORMATETC* fmtetc, STGMEDIUM* stgmed, int count)
     m_pStgMedium[i] = stgmed[i];
   }
 }
+
+}  // namespace client
 
 #endif  // defined(CEF_USE_ATL)
