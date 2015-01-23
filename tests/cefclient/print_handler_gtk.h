@@ -12,6 +12,8 @@
 
 #include "include/cef_print_handler.h"
 
+namespace client {
+
 class ClientPrintHandlerGtk : public CefPrintHandler {
  public:
   ClientPrintHandlerGtk();
@@ -58,5 +60,6 @@ class ClientPrintHandlerGtk : public CefPrintHandler {
   IMPLEMENT_REFCOUNTING(ClientPrintHandlerGtk);
 };
 
-#endif  // CEF_TESTS_CEFCLIENT_PRINT_HANDLER_GTK_H_
+}  // namespace client
 
+#endif  // CEF_TESTS_CEFCLIENT_PRINT_HANDLER_GTK_H_

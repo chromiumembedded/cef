@@ -36,6 +36,7 @@ class BytesWriteHandler : public CefWriteHandler {
   base::Lock lock_;
 
   IMPLEMENT_REFCOUNTING(BytesWriteHandler);
+  DISALLOW_COPY_AND_ASSIGN(BytesWriteHandler);
 };
 
 }  // namespace client

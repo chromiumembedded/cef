@@ -11,6 +11,8 @@
 #include "include/base/cef_macros.h"
 #include "include/wrapper/cef_helpers.h"
 
+namespace client {
+
 namespace {
 
 // CUPS Duplex attribute and values.
@@ -521,3 +523,4 @@ void ClientPrintHandlerGtk::OnJobCompleted(GtkPrintJob* print_job,
   job_callback_ = NULL;
 }
 
+}  // namespace client
