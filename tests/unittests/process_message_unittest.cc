@@ -12,6 +12,8 @@
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
 
+using client::ClientApp;
+
 namespace {
 
 // Unique values for the SendRecv test.

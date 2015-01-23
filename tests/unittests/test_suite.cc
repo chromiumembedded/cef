@@ -48,11 +48,11 @@ void CefTestSuite::InitCommandLine(int argc, const char* const* argv) {
 void CefTestSuite::GetSettings(CefSettings& settings) {
 #if defined(OS_WIN)
   settings.multi_threaded_message_loop =
-      commandline_->HasSwitch(cefclient::kMultiThreadedMessageLoop);
+      commandline_->HasSwitch(client::switches::kMultiThreadedMessageLoop);
 #endif
 
   CefString(&settings.cache_path) =
-      commandline_->GetSwitchValueASCII(cefclient::kCachePath);
+      commandline_->GetSwitchValueASCII(client::switches::kCachePath);
 
   // Always expose the V8 gc() function to give tests finer-grained control over
   // memory management.
@@ -75,9 +75,9 @@ void CefTestSuite::GetSettings(CefSettings& settings) {
 bool CefTestSuite::GetCachePath(std::string& path) {
   DCHECK(commandline_);
 
-  if (commandline_->HasSwitch(cefclient::kCachePath)) {
+  if (commandline_->HasSwitch(client::switches::kCachePath)) {
     // Set the cache_path value.
-    path = commandline_->GetSwitchValueASCII(cefclient::kCachePath);
+    path = commandline_->GetSwitchValueASCII(client::switches::kCachePath);
     return true;
   }
 

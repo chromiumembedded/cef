@@ -15,6 +15,8 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/test_handler.h"
 
+using client::ClientApp;
+
 // How to add a new test:
 // 1. Add a new value to the V8TestMode enumeration.
 // 2. Add a method that implements the test in V8RendererTest.

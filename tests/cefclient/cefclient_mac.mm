@@ -19,9 +19,12 @@
 #include "cefclient/resource_util.h"
 #include "cefclient/test_runner.h"
 
-// The global ClientHandler reference.
-CefRefPtr<ClientHandler> g_handler;
+namespace {
 
+// The global ClientHandler reference.
+CefRefPtr<client::ClientHandler> g_handler;
+
+// Used by off-screen rendering to find the associated CefBrowser.
 class MainBrowserProvider : public client::OSRBrowserProvider {
   virtual CefRefPtr<CefBrowser> GetBrowser() {
     if (g_handler.get())
@@ -30,6 +33,7 @@ class MainBrowserProvider : public client::OSRBrowserProvider {
     return NULL;
   }
 } g_main_browser_provider;
+
 
 // Sizes for URL bar layout
 #define BUTTON_HEIGHT 22
@@ -40,6 +44,26 @@ class MainBrowserProvider : public client::OSRBrowserProvider {
 // Content area size for newly created windows.
 const int kWindowWidth = 800;
 const int kWindowHeight = 600;
+
+
+NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
+  NSButton* button = [[[NSButton alloc] initWithFrame:*rect] autorelease];
+  [button setTitle:title];
+  [button setBezelStyle:NSSmallSquareBezelStyle];
+  [button setAutoresizingMask:(NSViewMaxXMargin | NSViewMinYMargin)];
+  [parent addSubview:button];
+  rect->origin.x += BUTTON_WIDTH;
+  return button;
+}
+
+void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
+  NSMenuItem* item = [menu addItemWithTitle:label
+                                     action:@selector(menuItemSelected:)
+                              keyEquivalent:@""];
+  [item setTag:idval];
+}
+
+}  // namespace
 
 // Receives notifications from the application. Will delete itself when done.
 @interface ClientAppDelegate : NSObject
@@ -209,7 +233,7 @@ const int kWindowHeight = 600;
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     if (browser.get()) {
       if (CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-              cefclient::kOffScreenRenderingEnabled)) {
+              client::switches::kOffScreenRenderingEnabled)) {
         browser->GetHost()->SendFocusEvent(true);
       } else {
         browser->GetHost()->SetFocus(true);
@@ -224,7 +248,7 @@ const int kWindowHeight = 600;
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     if (browser.get()) {
       if (CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-              cefclient::kOffScreenRenderingEnabled)) {
+              client::switches::kOffScreenRenderingEnabled)) {
         browser->GetHost()->SendFocusEvent(false);
       } else {
         browser->GetHost()->SetFocus(false);
@@ -312,23 +336,6 @@ const int kWindowHeight = 600;
 
 @end
 
-
-NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
-  NSButton* button = [[[NSButton alloc] initWithFrame:*rect] autorelease];
-  [button setTitle:title];
-  [button setBezelStyle:NSSmallSquareBezelStyle];
-  [button setAutoresizingMask:(NSViewMaxXMargin | NSViewMinYMargin)];
-  [parent addSubview:button];
-  rect->origin.x += BUTTON_WIDTH;
-  return button;
-}
-
-void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
-  NSMenuItem* item = [menu addItemWithTitle:label
-                                     action:@selector(menuItemSelected:)
-                              keyEquivalent:@""];
-  [item setTag:idval];
-}
 
 @implementation ClientAppDelegate
 
@@ -424,7 +431,7 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
   [[editWnd cell] setScrollable:YES];
 
   // Create the handler.
-  g_handler = new ClientHandler();
+  g_handler = new client::ClientHandler();
   g_handler->SetMainWindowHandle(contentView);
   g_handler->SetEditWindowHandle(editWnd);
 
@@ -437,11 +444,11 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
 
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
-  if (command_line->HasSwitch(cefclient::kOffScreenRenderingEnabled)) {
+  if (command_line->HasSwitch(client::switches::kOffScreenRenderingEnabled)) {
     const bool transparent =
-        command_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
+        command_line->HasSwitch(client::switches::kTransparentPaintingEnabled);
     const bool show_update_rect =
-        command_line->HasSwitch(cefclient::kShowUpdateRect);
+        command_line->HasSwitch(client::switches::kShowUpdateRect);
 
     CefRefPtr<client::OSRWindow> osr_window =
         client::OSRWindow::Create(&g_main_browser_provider, transparent,
@@ -486,7 +493,10 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
 @end
 
 
-int main(int argc, char* argv[]) {
+namespace client {
+namespace {
+
+int RunMain(int argc, char* argv[]) {
   CefMainArgs main_args(argc, argv);
   CefRefPtr<ClientApp> app(new ClientApp);
 
@@ -497,8 +507,7 @@ int main(int argc, char* argv[]) {
   [ClientApplication sharedApplication];
 
   // Create the main context object.
-  scoped_ptr<client::MainContextImpl> context(
-      new client::MainContextImpl(argc, argv));
+  scoped_ptr<MainContextImpl> context(new MainContextImpl(argc, argv));
 
   CefSettings settings;
 
@@ -506,14 +515,13 @@ int main(int argc, char* argv[]) {
   context->PopulateSettings(&settings);
 
   // Create the main message loop object.
-  scoped_ptr<client::MainMessageLoop> message_loop(
-      new client::MainMessageLoopStd);
+  scoped_ptr<MainMessageLoop> message_loop(new MainMessageLoopStd);
 
   // Initialize CEF.
   CefInitialize(main_args, settings, app.get(), NULL);
 
   // Register scheme handlers.
-  client::test_runner::RegisterSchemeHandlers();
+  test_runner::RegisterSchemeHandlers();
 
   // Create the application delegate and window.
   NSObject* delegate = [[ClientAppDelegate alloc] init];
@@ -535,4 +543,13 @@ int main(int argc, char* argv[]) {
   [autopool release];
 
   return result;
+}
+
+}  // namespace
+}  // namespace client
+
+
+// Program entry point function.
+int main(int argc, char* argv[]) {
+  return client::RunMain(argc, argv);
 }

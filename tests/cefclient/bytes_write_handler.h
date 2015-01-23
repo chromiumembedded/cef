@@ -9,6 +9,8 @@
 #include "include/base/cef_lock.h"
 #include "include/cef_stream.h"
 
+namespace client {
+
 class BytesWriteHandler : public CefWriteHandler {
  public:
   explicit BytesWriteHandler(size_t grow);
@@ -35,5 +37,7 @@ class BytesWriteHandler : public CefWriteHandler {
 
   IMPLEMENT_REFCOUNTING(BytesWriteHandler);
 };
+
+}  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_BYTES_WRITE_HANDLER_H_

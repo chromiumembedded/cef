@@ -28,6 +28,8 @@
 // window.
 // #define TEST_REDIRECT_POPUP_URLS
 
+namespace client {
+
 // ClientHandler implementation.
 class ClientHandler : public CefClient,
                       public CefContextMenuHandler,
@@ -373,5 +375,7 @@ class ClientHandler : public CefClient,
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(ClientHandler);
 };
+
+}  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_CLIENT_HANDLER_H_

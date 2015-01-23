@@ -23,6 +23,8 @@
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
 
+using client::ClientApp;
+
 // How to add a new test:
 // 1. Add a new value to the RequestTestMode enumeration.
 // 2. Add methods to set up and run the test in RequestTestRunner.

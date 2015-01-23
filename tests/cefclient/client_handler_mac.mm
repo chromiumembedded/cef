@@ -8,6 +8,8 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 
+namespace client {
+
 void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefFrame> frame,
                                     const CefString& url) {
@@ -41,3 +43,5 @@ void ClientHandler::SetLoading(bool isLoading) {
 void ClientHandler::SetNavState(bool canGoBack, bool canGoForward) {
   // TODO(port): Change button status.
 }
+
+}  // namespace client

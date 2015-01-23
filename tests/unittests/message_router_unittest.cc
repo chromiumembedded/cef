@@ -19,6 +19,8 @@
 #include "tests/unittests/routing_test_handler.h"
 #include "tests/cefclient/client_app.h"
 
+using client::ClientApp;
+
 namespace {
 
 const char kTestDomainRoot[] = "http://tests-mr";

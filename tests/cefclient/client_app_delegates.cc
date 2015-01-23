@@ -11,21 +11,23 @@
 #include "cefclient/print_handler_gtk.h"
 #endif
 
+namespace client {
+
 // static
 void ClientApp::CreateBrowserDelegates(BrowserDelegateSet& delegates) {
 }
 
 // static
 void ClientApp::CreateRenderDelegates(RenderDelegateSet& delegates) {
-  client_renderer::CreateRenderDelegates(delegates);
-  client::performance_test::CreateRenderDelegates(delegates);
+  renderer::CreateRenderDelegates(delegates);
+  performance_test::CreateRenderDelegates(delegates);
 }
 
 // static
 void ClientApp::RegisterCustomSchemes(
     CefRefPtr<CefSchemeRegistrar> registrar,
     std::vector<CefString>& cookiable_schemes) {
-  client::scheme_test::RegisterCustomSchemes(registrar, cookiable_schemes);
+  scheme_test::RegisterCustomSchemes(registrar, cookiable_schemes);
 }
 
 // static
@@ -37,3 +39,4 @@ CefRefPtr<CefPrintHandler> ClientApp::CreatePrintHandler() {
 #endif
 }
 
+}  // namespace client

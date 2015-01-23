@@ -8,6 +8,8 @@
 #include "tests/unittests/routing_test_handler.h"
 #include "tests/cefclient/client_app.h"
 
+using client::ClientApp;
+
 namespace {
 
 void SetRouterConfig(CefMessageRouterConfig& config) {

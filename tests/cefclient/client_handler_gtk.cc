@@ -15,6 +15,8 @@
 #include "include/cef_frame.h"
 #include "include/cef_url.h"
 
+namespace client {
+
 namespace {
 
 const char kPromptTextId[] = "cef_prompt_text";
@@ -478,3 +480,5 @@ void ClientHandler::SetNavState(bool canGoBack, bool canGoForward) {
   else
     gtk_widget_set_sensitive(GTK_WIDGET(forward_handle_), false);
 }
+
+}  // namespace client

@@ -10,6 +10,8 @@
 #include "tests/cefclient/client_app.h"
 #include "tests/unittests/test_handler.h"
 
+using client::ClientApp;
+
 namespace {
 
 const char* kTestUrl = "http://tests/DOMTest.Test";

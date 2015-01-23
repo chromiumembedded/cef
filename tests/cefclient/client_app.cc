@@ -14,6 +14,8 @@
 #include "include/cef_v8.h"
 #include "include/wrapper/cef_helpers.h"
 
+namespace client {
+
 ClientApp::ClientApp() {
 }
 
@@ -158,3 +160,5 @@ bool ClientApp::OnProcessMessageReceived(
 
   return handled;
 }
+
+}  // namespace client

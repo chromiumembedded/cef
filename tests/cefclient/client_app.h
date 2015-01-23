@@ -13,6 +13,8 @@
 #include <vector>
 #include "include/cef_app.h"
 
+namespace client {
+
 class ClientApp : public CefApp,
                   public CefBrowserProcessHandler,
                   public CefRenderProcessHandler {
@@ -183,5 +185,7 @@ class ClientApp : public CefApp,
 
   IMPLEMENT_REFCOUNTING(ClientApp);
 };
+
+}  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_CLIENT_APP_H_

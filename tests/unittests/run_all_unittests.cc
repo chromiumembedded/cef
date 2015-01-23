@@ -27,6 +27,8 @@
 #include "include/cef_sandbox_win.h"
 #endif
 
+using client::ClientApp;
+
 namespace {
 
 // Thread used to run the test suite.
@@ -107,7 +109,7 @@ int main(int argc, char* argv[]) {
   windows_sandbox_info = scoped_sandbox.sandbox_info();
 #endif
 
-  CefRefPtr<CefApp> app(new ClientApp);
+  CefRefPtr<CefApp> app(new client::ClientApp);
 
   // Execute the secondary process, if any.
   int exit_code = CefExecuteProcess(main_args, app, windows_sandbox_info);

@@ -186,8 +186,7 @@ void EndTracing(CefRefPtr<CefBrowser> browser) {
 
     void RunDialog() {
       static const char kDefaultFileName[] = "trace.txt";
-      std::string path =
-          client::MainContext::Get()->GetDownloadPath(kDefaultFileName);
+      std::string path = MainContext::Get()->GetDownloadPath(kDefaultFileName);
       if (path.empty())
         path = kDefaultFileName;
 

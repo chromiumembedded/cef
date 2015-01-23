@@ -8,6 +8,8 @@
 #include "include/wrapper/cef_byte_read_handler.h"
 #include "cefclient/resource.h"
 
+namespace client {
+
 namespace {
 
 bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes) {
@@ -89,3 +91,5 @@ CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name) {
   NOTREACHED();  // The resource should be found.
   return NULL;
 }
+
+}  // namespace client

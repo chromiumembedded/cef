@@ -15,6 +15,8 @@
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
 
+using client::ClientApp;
+
 // Verify Set/Get methods for CefRequest, CefPostData and CefPostDataElement.
 TEST(RequestTest, SetGet) {
   // CefRequest CreateRequest

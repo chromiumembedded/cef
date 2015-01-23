@@ -40,6 +40,8 @@
 #pragma comment(lib, "cef_sandbox.lib")
 #endif
 
+namespace client {
+namespace {
 
 #define MAX_LOADSTRING 100
 #define MAX_URL_LENGTH  255
@@ -54,17 +56,18 @@ TCHAR szOSRWindowClass[MAX_LOADSTRING];  // the OSR window class name
 UINT uFindMsg;  // Message identifier for find events.
 HWND hFindDlg = NULL;  // Handle for the find dialog.
 
-// Forward declarations of functions included in this code module:
-ATOM MyRegisterClass(HINSTANCE hInstance);
-BOOL InitInstance(HINSTANCE, int);
-LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-LRESULT CALLBACK FindProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
+// Forward declarations of functions included in this code module.
+ATOM RegisterMainClass(HINSTANCE hInstance);
+BOOL CreateMainWindow(HINSTANCE, int);
+LRESULT CALLBACK MainWndProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK FindWndProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK AboutWndProc(HWND, UINT, WPARAM, LPARAM);
 
 // The global ClientHandler reference.
 CefRefPtr<ClientHandler> g_handler;
 
-class MainBrowserProvider : public client::OSRBrowserProvider {
+// Used by off-screen rendering to find the associated CefBrowser.
+class MainBrowserProvider : public OSRBrowserProvider {
   virtual CefRefPtr<CefBrowser> GetBrowser() {
     if (g_handler.get())
       return g_handler->GetBrowser();
@@ -73,14 +76,8 @@ class MainBrowserProvider : public client::OSRBrowserProvider {
   }
 } g_main_browser_provider;
 
-// Program entry point function.
-int APIENTRY wWinMain(HINSTANCE hInstance,
-                     HINSTANCE hPrevInstance,
-                     LPTSTR    lpCmdLine,
-                     int       nCmdShow) {
-  UNREFERENCED_PARAMETER(hPrevInstance);
-  UNREFERENCED_PARAMETER(lpCmdLine);
 
+int RunMain(HINSTANCE hInstance, int nCmdShow) {
   void* sandbox_info = NULL;
 
 #if defined(CEF_USE_SANDBOX)
@@ -99,8 +96,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     return exit_code;
 
   // Create the main context object.
-  scoped_ptr<client::MainContextImpl> context(
-      new client::MainContextImpl(0, NULL));
+  scoped_ptr<MainContextImpl> context(new MainContextImpl(0, NULL));
 
   CefSettings settings;
 
@@ -112,26 +108,26 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   context->PopulateSettings(&settings);
 
   // Create the main message loop object.
-  scoped_ptr<client::MainMessageLoop> message_loop;
+  scoped_ptr<MainMessageLoop> message_loop;
   if (settings.multi_threaded_message_loop)
-    message_loop.reset(new client::MainMessageLoopMultithreadedWin);
+    message_loop.reset(new MainMessageLoopMultithreadedWin);
   else
-    message_loop.reset(new client::MainMessageLoopStd);
+    message_loop.reset(new MainMessageLoopStd);
 
   // Initialize CEF.
   CefInitialize(main_args, settings, app.get(), sandbox_info);
 
   // Register scheme handlers.
-  client::test_runner::RegisterSchemeHandlers();
+  test_runner::RegisterSchemeHandlers();
 
   // Initialize global strings
   LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
   LoadString(hInstance, IDC_CEFCLIENT, szWindowClass, MAX_LOADSTRING);
   LoadString(hInstance, IDS_OSR_WIDGET_CLASS, szOSRWindowClass, MAX_LOADSTRING);
-  MyRegisterClass(hInstance);
+  RegisterMainClass(hInstance);
 
   // Perform application initialization
-  if (!InitInstance (hInstance, nCmdShow))
+  if (!CreateMainWindow(hInstance, nCmdShow))
     return FALSE;
 
   // Register the find event message.
@@ -150,26 +146,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   return result;
 }
 
-//
-//  FUNCTION: MyRegisterClass()
-//
-//  PURPOSE: Registers the window class.
-//
-//  COMMENTS:
-//
-//    This function and its usage are only necessary if you want this code
-//    to be compatible with Win32 systems prior to the 'RegisterClassEx'
-//    function that was added to Windows 95. It is important to call this
-//    function so that the application will get 'well formed' small icons
-//    associated with it.
-//
-ATOM MyRegisterClass(HINSTANCE hInstance) {
+// Register the main window class.
+ATOM RegisterMainClass(HINSTANCE hInstance) {
   WNDCLASSEX wcex;
 
   wcex.cbSize = sizeof(WNDCLASSEX);
 
   wcex.style         = CS_HREDRAW | CS_VREDRAW;
-  wcex.lpfnWndProc   = WndProc;
+  wcex.lpfnWndProc   = MainWndProc;
   wcex.cbClsExtra    = 0;
   wcex.cbWndExtra    = 0;
   wcex.hInstance     = hInstance;
@@ -183,17 +167,8 @@ ATOM MyRegisterClass(HINSTANCE hInstance) {
   return RegisterClassEx(&wcex);
 }
 
-//
-//   FUNCTION: InitInstance(HINSTANCE, int)
-//
-//   PURPOSE: Saves instance handle and creates main window
-//
-//   COMMENTS:
-//
-//        In this function, we save the instance handle in a global variable and
-//        create and display the main program window.
-//
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
+// Create and show the main window.
+BOOL CreateMainWindow(HINSTANCE hInstance, int nCmdShow) {
   HWND hWnd;
 
   hInst = hInstance;  // Store instance handle in our global variable
@@ -223,10 +198,10 @@ static void SetFocusToBrowser(CefRefPtr<CefBrowser> browser) {
     return;
 
   if (CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-          cefclient::kOffScreenRenderingEnabled)) {
+          switches::kOffScreenRenderingEnabled)) {
     // Give focus to the OSR window.
-    CefRefPtr<client::OSRWindow> osr_window =
-        static_cast<client::OSRWindow*>(g_handler->GetOSRHandler().get());
+    CefRefPtr<OSRWindow> osr_window =
+        static_cast<OSRWindow*>(g_handler->GetOSRHandler().get());
     if (osr_window)
       ::SetFocus(osr_window->hwnd());
   } else {
@@ -235,13 +210,9 @@ static void SetFocusToBrowser(CefRefPtr<CefBrowser> browser) {
   }
 }
 
-//
-//  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
-//
-//  PURPOSE:  Processes messages for the main window.
-//
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
-                         LPARAM lParam) {
+// Window procedure for the main window.
+LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam,
+                             LPARAM lParam) {
   static HWND backWnd = NULL, forwardWnd = NULL, reloadWnd = NULL,
       stopWnd = NULL, editWnd = NULL;
   static WNDPROC editWndOldProc = NULL;
@@ -370,7 +341,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       editWndOldProc =
           reinterpret_cast<WNDPROC>(GetWindowLongPtr(editWnd, GWLP_WNDPROC));
       SetWindowLongPtr(editWnd, GWLP_WNDPROC,
-          reinterpret_cast<LONG_PTR>(WndProc));
+          reinterpret_cast<LONG_PTR>(MainWndProc));
       g_handler->SetEditWindowHandle(editWnd);
       g_handler->SetButtonWindowHandles(
           backWnd, forwardWnd, reloadWnd, stopWnd);
@@ -381,19 +352,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       CefBrowserSettings settings;
 
       // Populate the browser settings based on command line arguments.
-      client::MainContext::Get()->PopulateBrowserSettings(&settings);
+      MainContext::Get()->PopulateBrowserSettings(&settings);
 
       CefRefPtr<CefCommandLine> command_line =
           CefCommandLine::GetGlobalCommandLine();
-      if (command_line->HasSwitch(cefclient::kOffScreenRenderingEnabled)) {
+      if (command_line->HasSwitch(switches::kOffScreenRenderingEnabled)) {
         const bool transparent =
-            command_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
+            command_line->HasSwitch(switches::kTransparentPaintingEnabled);
         const bool show_update_rect =
-            command_line->HasSwitch(cefclient::kShowUpdateRect);
+            command_line->HasSwitch(switches::kShowUpdateRect);
 
-        CefRefPtr<client::OSRWindow> osr_window =
-            client::OSRWindow::Create(&g_main_browser_provider, transparent,
-                                      show_update_rect);
+        CefRefPtr<OSRWindow> osr_window =
+            OSRWindow::Create(&g_main_browser_provider, transparent,
+                              show_update_rect);
         osr_window->CreateWidget(hWnd, rect, hInst, szOSRWindowClass);
         info.SetAsWindowless(osr_window->hwnd(), transparent);
         g_handler->SetOSRHandler(osr_window.get());
@@ -418,14 +389,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       wmEvent = HIWORD(wParam);
 
       if (wmId >= ID_TESTS_FIRST && wmId <= ID_TESTS_LAST) {
-        client::test_runner::RunTest(browser, wmId);
+        test_runner::RunTest(browser, wmId);
         return 0;
       }
 
       // Parse the menu selections:
       switch (wmId) {
       case IDM_ABOUT:
-        DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+        DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, AboutWndProc);
         return 0;
       case IDM_EXIT:
         if (g_handler.get())
@@ -444,10 +415,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
           hFindDlg = FindText(&fr);
 
           // Override the dialog's window procedure.
-          WNDPROC wndproc_old = client::SetWndProcPtr(hFindDlg, FindProc);
+          WNDPROC wndproc_old = SetWndProcPtr(hFindDlg, FindWndProc);
 
           // Associate |wndproc_old| with the dialog.
-          client::SetUserDataPtr(hFindDlg, wndproc_old);
+          SetUserDataPtr(hFindDlg, wndproc_old);
         } else {
           // Give focus to the existing find dialog.
           ::SetFocus(hFindDlg);
@@ -493,10 +464,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
       // For off-screen browsers when the frame window is minimized set the
       // browser as hidden to reduce resource usage.
       const bool offscreen = CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-          cefclient::kOffScreenRenderingEnabled);
+          switches::kOffScreenRenderingEnabled);
       if (offscreen) {
-        CefRefPtr<client::OSRWindow> osr_window =
-            static_cast<client::OSRWindow*>(g_handler->GetOSRHandler().get());
+        CefRefPtr<OSRWindow> osr_window =
+            static_cast<OSRWindow*>(g_handler->GetOSRHandler().get());
         if (osr_window)
           osr_window->WasHidden(wParam == SIZE_MINIMIZED);
       }
@@ -593,31 +564,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
   }
 }
 
-// Message handler for the find dialog.
-LRESULT CALLBACK FindProc(HWND hWnd, UINT message, WPARAM wParam,
-                          LPARAM lParam) {
+// Window procedure for the find dialog.
+LRESULT CALLBACK FindWndProc(HWND hWnd, UINT message, WPARAM wParam,
+                             LPARAM lParam) {
   REQUIRE_MAIN_THREAD();
 
-  WNDPROC old_wndproc = client::GetUserDataPtr<WNDPROC>(hWnd);
+  WNDPROC old_wndproc = GetUserDataPtr<WNDPROC>(hWnd);
   DCHECK(old_wndproc);
 
   switch (message) {
     case WM_ACTIVATE:
       // Set this dialog as current when activated.
-      client::MainMessageLoop::Get()->SetCurrentModelessDialog(
+      MainMessageLoop::Get()->SetCurrentModelessDialog(
           wParam == 0 ? NULL : hWnd);
       return FALSE;
     case WM_NCDESTROY:
       // Clear the reference to |old_wndproc|.
-      client::SetUserDataPtr(hWnd, NULL);
+      SetUserDataPtr(hWnd, NULL);
       break;
   }
 
   return CallWindowProc(old_wndproc, hWnd, message, wParam, lParam);
 }
 
-// Message handler for about box.
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+// Window procedure for the about dialog.
+INT_PTR CALLBACK AboutWndProc(HWND hDlg, UINT message, WPARAM wParam,
+                              LPARAM lParam) {
   UNREFERENCED_PARAMETER(lParam);
   switch (message) {
   case WM_INITDIALOG:
@@ -631,4 +603,18 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
     break;
   }
   return (INT_PTR)FALSE;
+}
+
+}  // namespace
+}  // namespace client
+
+
+// Program entry point function.
+int APIENTRY wWinMain(HINSTANCE hInstance,
+                      HINSTANCE hPrevInstance,
+                      LPTSTR    lpCmdLine,
+                      int       nCmdShow) {
+  UNREFERENCED_PARAMETER(hPrevInstance);
+  UNREFERENCED_PARAMETER(lpCmdLine);
+  return client::RunMain(hInstance, nCmdShow);
 }

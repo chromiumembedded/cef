@@ -26,8 +26,8 @@ MainContextImpl::MainContextImpl(int argc,
 #endif
 
   // Set the main URL.
-  if (command_line_->HasSwitch(cefclient::kUrl))
-    main_url_ = command_line_->GetSwitchValue(cefclient::kUrl);
+  if (command_line_->HasSwitch(switches::kUrl))
+    main_url_ = command_line_->GetSwitchValue(switches::kUrl);
   if (main_url_.empty())
     main_url_ = kDefaultUrl;
 }
@@ -43,20 +43,20 @@ std::string MainContextImpl::GetMainURL() {
 void MainContextImpl::PopulateSettings(CefSettings* settings) {
 #if defined(OS_WIN)
   settings->multi_threaded_message_loop =
-      command_line_->HasSwitch(cefclient::kMultiThreadedMessageLoop);
+      command_line_->HasSwitch(switches::kMultiThreadedMessageLoop);
 #endif
 
   CefString(&settings->cache_path) =
-      command_line_->GetSwitchValue(cefclient::kCachePath);
+      command_line_->GetSwitchValue(switches::kCachePath);
 
-  if (command_line_->HasSwitch(cefclient::kOffScreenRenderingEnabled))
+  if (command_line_->HasSwitch(switches::kOffScreenRenderingEnabled))
     settings->windowless_rendering_enabled = true;
 }
 
 void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {
-  if (command_line_->HasSwitch(cefclient::kOffScreenFrameRate)) {
+  if (command_line_->HasSwitch(switches::kOffScreenFrameRate)) {
     settings->windowless_frame_rate = atoi(command_line_->
-        GetSwitchValue(cefclient::kOffScreenFrameRate).ToString().c_str());
+        GetSwitchValue(switches::kOffScreenFrameRate).ToString().c_str());
   }
 }
 

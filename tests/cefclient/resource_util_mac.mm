@@ -11,6 +11,8 @@
 
 #include "include/base/cef_logging.h"
 
+namespace client {
+
 namespace {
 
 bool AmIBundled() {
@@ -59,3 +61,5 @@ bool GetResourceDir(std::string& dir) {
     return false;
   }
 }
+
+}  // namespace client

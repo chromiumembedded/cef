@@ -300,7 +300,7 @@ class OSRTestHandler : public RoutingTestHandler,
     if (url.find(kTestUrl) == 0) {
       // Show the osr test contents
       CefRefPtr<CefStreamReader> stream =
-         GetBinaryResourceReader("osr_test.html");
+         client::GetBinaryResourceReader("osr_test.html");
       return new CefStreamResourceHandler("text/html", stream);
     }
 

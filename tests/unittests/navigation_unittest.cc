@@ -17,6 +17,8 @@
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
 
+using client::ClientApp;
+
 namespace {
 
 const char kHNav1[] = "http://tests-hnav/nav1.html";

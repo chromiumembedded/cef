@@ -30,10 +30,11 @@
 #include "cefclient/resource.h"
 #include "cefclient/test_runner.h"
 
+namespace client {
+namespace {
+
 // The global ClientHandler reference.
 CefRefPtr<ClientHandler> g_handler;
-
-namespace {
 
 // Height of the buttons at the top of the GTK window.
 int g_toolbar_height = 0;
@@ -41,7 +42,9 @@ int g_toolbar_height = 0;
 // Height of the integrated menu bar (if any) at the top of the GTK window.
 int g_menubar_height = 0;
 
-class MainBrowserProvider : public client::OSRBrowserProvider {
+
+// Used by off-screen rendering to find the associated CefBrowser.
+class MainBrowserProvider : public OSRBrowserProvider {
   virtual CefRefPtr<CefBrowser> GetBrowser() {
     if (g_handler.get())
       return g_handler->GetBrowser();
@@ -49,6 +52,7 @@ class MainBrowserProvider : public client::OSRBrowserProvider {
     return NULL;
   }
 } g_main_browser_provider;
+
 
 int XErrorHandlerImpl(Display *display, XErrorEvent *event) {
   LOG(WARNING)
@@ -89,7 +93,7 @@ gboolean delete_event(GtkWidget* widget, GdkEvent* event,
 }
 
 void TerminationSignalHandler(int signatl) {
-  client::MainMessageLoop::Get()->Quit();
+  MainMessageLoop::Get()->Quit();
 }
 
 void VboxSizeAllocated(GtkWidget* widget,
@@ -225,10 +229,8 @@ gboolean WindowConfigure(GtkWindow* window,
 
 // Callback for Tests menu items.
 gboolean MenuItemActivated(GtkWidget* widget, gpointer data) {
-  if (g_handler.get() && g_handler->GetBrowserId()) {
-    client::test_runner::RunTest(g_handler->GetBrowser(),
-        GPOINTER_TO_INT(data));
-  }
+  if (g_handler.get() && g_handler->GetBrowserId())
+    test_runner::RunTest(g_handler->GetBrowser(), GPOINTER_TO_INT(data));
 
   return FALSE;  // Don't stop this message.
 }
@@ -317,9 +319,7 @@ GtkWidget* CreateMenuBar() {
   return menu_bar;
 }
 
-}  // namespace
-
-int main(int argc, char* argv[]) {
+int RunMain(int argc, char* argv[]) {
   // Create a copy of |argv| on Linux because Chromium mangles the value
   // internally (see issue #620).
   CefScopedArgArray scoped_arg_array(argc, argv);
@@ -334,8 +334,7 @@ int main(int argc, char* argv[]) {
     return exit_code;
 
   // Create the main context object.
-  scoped_ptr<client::MainContextImpl> context(
-      new client::MainContextImpl(argc, argv));
+  scoped_ptr<MainContextImpl> context(new MainContextImpl(argc, argv));
 
   CefSettings settings;
 
@@ -348,8 +347,7 @@ int main(int argc, char* argv[]) {
   XSetIOErrorHandler(XIOErrorHandlerImpl);
 
   // Create the main message loop object.
-  scoped_ptr<client::MainMessageLoop> message_loop(
-      new client::MainMessageLoopStd);
+  scoped_ptr<MainMessageLoop> message_loop(new MainMessageLoopStd);
 
   // Initialize CEF.
   CefInitialize(main_args, settings, app.get(), NULL);
@@ -362,7 +360,7 @@ int main(int argc, char* argv[]) {
   gtk_gl_init(&argc, &argv_copy);
 
   // Register scheme handlers.
-  client::test_runner::RegisterSchemeHandlers();
+  test_runner::RegisterSchemeHandlers();
 
   GtkWidget* window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
@@ -443,16 +441,16 @@ int main(int argc, char* argv[]) {
 
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
-  if (command_line->HasSwitch(cefclient::kOffScreenRenderingEnabled)) {
+  if (command_line->HasSwitch(switches::kOffScreenRenderingEnabled)) {
     const bool transparent =
-        command_line->HasSwitch(cefclient::kTransparentPaintingEnabled);
+        command_line->HasSwitch(switches::kTransparentPaintingEnabled);
     const bool show_update_rect =
-        command_line->HasSwitch(cefclient::kShowUpdateRect);
+        command_line->HasSwitch(switches::kShowUpdateRect);
 
     // Create the GTKGL surface.
-    CefRefPtr<client::OSRWindow> osr_window =
-        client::OSRWindow::Create(&g_main_browser_provider, transparent,
-                                  show_update_rect, vbox);
+    CefRefPtr<OSRWindow> osr_window =
+        OSRWindow::Create(&g_main_browser_provider, transparent,
+                          show_update_rect, vbox);
 
     // Show the GTK window.
     gtk_widget_show_all(GTK_WIDGET(window));
@@ -492,4 +490,13 @@ int main(int argc, char* argv[]) {
   context.reset();
 
   return result;
+}
+
+}  // namespace
+}  // namespace client
+
+
+// Program entry point function.
+int main(int argc, char* argv[]) {
+  return client::RunMain(argc, argv);
 }

@@ -8,6 +8,8 @@
 #include <string.h>
 #include <unistd.h>
 
+namespace client {
+
 bool GetResourceDir(std::string& dir) {
   char buff[1024];
 
@@ -28,3 +30,5 @@ bool GetResourceDir(std::string& dir) {
   dir = std::string(buff);
   return true;
 }
+
+}  // namespace client

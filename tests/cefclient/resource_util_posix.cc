@@ -5,6 +5,8 @@
 #include "cefclient/resource_util.h"
 #include <stdio.h>
 
+namespace client {
+
 namespace {
 
 bool FileExists(const char* path) {
@@ -57,3 +59,5 @@ CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name) {
 
   return CefStreamReader::CreateForFile(path);
 }
+
+}  // namespace client

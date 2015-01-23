@@ -14,6 +14,8 @@
 #include "tests/cefclient/client_app.h"
 #include "tests/unittests/test_handler.h"
 
+using client::ClientApp;
+
 namespace {
 
 enum NetNotifyTestType {

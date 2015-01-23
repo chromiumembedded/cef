@@ -9,6 +9,8 @@
 #include <string>
 #include "include/cef_stream.h"
 
+namespace client {
+
 #if defined(OS_POSIX)
 // Returns the directory containing resource files.
 bool GetResourceDir(std::string& dir);
@@ -19,5 +21,7 @@ bool LoadBinaryResource(const char* resource_name, std::string& resource_data);
 
 // Retrieve a resource as a steam reader.
 CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name);
+
+}  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_RESOURCE_UTIL_H_

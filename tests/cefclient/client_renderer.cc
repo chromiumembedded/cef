@@ -11,7 +11,8 @@
 #include "include/wrapper/cef_helpers.h"
 #include "include/wrapper/cef_message_router.h"
 
-namespace client_renderer {
+namespace client {
+namespace renderer {
 
 const char kFocusedNodeChangedMessage[] = "ClientRenderer.FocusedNodeChanged";
 
@@ -82,4 +83,5 @@ void CreateRenderDelegates(ClientApp::RenderDelegateSet& delegates) {
   delegates.insert(new ClientRenderDelegate);
 }
 
-}  // namespace client_renderer
+}  // namespace renderer
+}  // namespace client

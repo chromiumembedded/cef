@@ -9,6 +9,8 @@
 
 #include "include/wrapper/cef_helpers.h"
 
+namespace client {
+
 BytesWriteHandler::BytesWriteHandler(size_t grow)
     : grow_(grow),
       datasize_(grow),
@@ -92,3 +94,5 @@ size_t BytesWriteHandler::Grow(size_t size) {
 
   return rv;
 }
+
+}  // namespace client

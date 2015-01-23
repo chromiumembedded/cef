@@ -9,7 +9,8 @@
 #include "include/cef_base.h"
 #include "cefclient/client_app.h"
 
-namespace client_renderer {
+namespace client {
+namespace renderer {
 
 // Message sent when the focused node changes.
 extern const char kFocusedNodeChangedMessage[];
@@ -17,6 +18,7 @@ extern const char kFocusedNodeChangedMessage[];
 // Create the render delegate.
 void CreateRenderDelegates(ClientApp::RenderDelegateSet& delegates);
 
-}  // namespace client_renderer
+}  // namespace renderer
+}  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_CLIENT_RENDERER_H_

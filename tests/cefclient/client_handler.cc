@@ -26,6 +26,8 @@
 #include "cefclient/resource_util.h"
 #include "cefclient/test_runner.h"
 
+namespace client {
+
 #if defined(OS_WIN)
 #define NEWLINE "\r\n"
 #else
@@ -51,7 +53,7 @@ enum client_menu_ids {
 int ClientHandler::browser_count_ = 0;
 
 ClientHandler::ClientHandler()
-  : startup_url_(client::MainContext::Get()->GetMainURL()),
+  : startup_url_(MainContext::Get()->GetMainURL()),
     browser_id_(0),
     is_closing_(false),
     main_handle_(NULL),
@@ -60,7 +62,7 @@ ClientHandler::ClientHandler()
     forward_handle_(NULL),
     stop_handle_(NULL),
     reload_handle_(NULL),
-    console_log_file_(client::MainContext::Get()->GetConsoleLogPath()),
+    console_log_file_(MainContext::Get()->GetConsoleLogPath()),
     first_console_message_(true),
     focus_on_editable_field_(false) {
 #if defined(OS_LINUX)
@@ -73,7 +75,7 @@ ClientHandler::ClientHandler()
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
   mouse_cursor_change_disabled_ =
-      command_line->HasSwitch(cefclient::kMouseCursorChangeDisabled);
+      command_line->HasSwitch(switches::kMouseCursorChangeDisabled);
 }
 
 ClientHandler::~ClientHandler() {
@@ -92,7 +94,7 @@ bool ClientHandler::OnProcessMessageReceived(
 
   // Check for messages from the client renderer.
   std::string message_name = message->GetName();
-  if (message_name == client_renderer::kFocusedNodeChangedMessage) {
+  if (message_name == renderer::kFocusedNodeChangedMessage) {
     // A message is sent from ClientRenderDelegate to tell us whether the
     // currently focused DOM node is editable. Use of |focus_on_editable_field_|
     // is redundant with CefKeyEvent.focus_on_editable_field in OnPreKeyEvent
@@ -183,7 +185,7 @@ bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
     fclose(file);
 
     if (first_console_message_) {
-      client::test_runner::Alert(
+      test_runner::Alert(
           browser, "Console messages written to \"" + console_log_file_ + "\"");
       first_console_message_ = false;
     }
@@ -200,8 +202,7 @@ void ClientHandler::OnBeforeDownload(
   CEF_REQUIRE_UI_THREAD();
 
   // Continue the download and show the "Save As" dialog.
-  callback->Continue(
-      client::MainContext::Get()->GetDownloadPath(suggested_name), true);
+  callback->Continue(MainContext::Get()->GetDownloadPath(suggested_name), true);
 }
 
 void ClientHandler::OnDownloadUpdated(
@@ -211,7 +212,7 @@ void ClientHandler::OnDownloadUpdated(
   CEF_REQUIRE_UI_THREAD();
 
   if (download_item->IsComplete()) {
-    client::test_runner::Alert(
+    test_runner::Alert(
         browser,
         "File \"" + download_item->GetFullPath().ToString() +
         "\" downloaded successfully.");
@@ -320,7 +321,7 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     message_router_ = CefMessageRouterBrowserSide::Create(config);
 
     // Register handlers with the router.
-    client::test_runner::CreateMessageHandlers(message_handler_set_);
+    test_runner::CreateMessageHandlers(message_handler_set_);
     MessageHandlerSet::const_iterator it = message_handler_set_.begin();
     for (; it != message_handler_set_.end(); ++it)
       message_router_->AddHandler(*(it), false);
@@ -404,7 +405,7 @@ void ClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
     message_router_ = NULL;
 
     // Quit the application message loop.
-    client::MainMessageLoop::Get()->Quit();
+    MainMessageLoop::Get()->Quit();
   }
 }
 
@@ -461,7 +462,7 @@ CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request) {
   CEF_REQUIRE_IO_THREAD();
-  return client::test_runner::GetResourceHandler(browser, frame, request);
+  return test_runner::GetResourceHandler(browser, frame, request);
 }
 
 bool ClientHandler::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
@@ -765,3 +766,5 @@ bool ClientHandler::ExecuteTestMenu(int command_id) {
   // Allow default handling to proceed.
   return false;
 }
+
+}  // namespace client

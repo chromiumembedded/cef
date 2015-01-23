@@ -11,6 +11,8 @@
 #include "include/cef_frame.h"
 #include "cefclient/resource.h"
 
+namespace client {
+
 void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefFrame> frame,
                                     const CefString& url) {
@@ -48,3 +50,5 @@ void ClientHandler::SetNavState(bool canGoBack, bool canGoForward) {
   EnableWindow(back_handle_, canGoBack);
   EnableWindow(forward_handle_, canGoForward);
 }
+
+}  // namespace client

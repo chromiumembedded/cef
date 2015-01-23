@@ -1021,7 +1021,8 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   } else if ([type isEqualToString:(NSString*)fileUTI_]) {
     size_t size = current_drag_data_->GetFileContents(NULL);
     DCHECK_GT(size, 0U);
-    CefRefPtr<BytesWriteHandler> handler = new BytesWriteHandler(size);
+    CefRefPtr<client::BytesWriteHandler> handler =
+        new client::BytesWriteHandler(size);
     CefRefPtr<CefStreamWriter> writer =
         CefStreamWriter::CreateForHandler(handler.get());
     current_drag_data_->GetFileContents(writer);
