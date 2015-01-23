@@ -93,8 +93,7 @@ class ClientHandler : public CefClient,
   }
   bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
                                 CefProcessId source_process,
-                                CefRefPtr<CefProcessMessage> message)
-                                OVERRIDE;
+                                CefRefPtr<CefProcessMessage> message) OVERRIDE;
 
   // CefContextMenuHandler methods
   void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
@@ -246,8 +245,7 @@ class ClientHandler : public CefClient,
                      CefRenderHandler::DragOperationsMask allowed_ops,
                      int x, int y) OVERRIDE;
   void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
-                        CefRenderHandler::DragOperation operation)
-                        OVERRIDE;
+                        CefRenderHandler::DragOperation operation) OVERRIDE;
 
   void SetMainWindowHandle(ClientWindowHandle handle);
   ClientWindowHandle GetMainWindowHandle() const;
