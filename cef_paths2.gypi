@@ -261,6 +261,8 @@
     'cefclient_sources_linux': [
       'tests/cefclient/cefclient_gtk.cc',
       'tests/cefclient/client_handler_gtk.cc',
+      'tests/cefclient/dialog_handler_gtk.cc',
+      'tests/cefclient/dialog_handler_gtk.h',
       'tests/cefclient/main_context_impl_posix.cc',
       'tests/cefclient/osr_widget_gtk.h',
       'tests/cefclient/osr_widget_gtk.cc',

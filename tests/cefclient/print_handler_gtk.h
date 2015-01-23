@@ -18,16 +18,16 @@ class ClientPrintHandlerGtk : public CefPrintHandler {
  public:
   ClientPrintHandlerGtk();
 
-  // CefPrintHandler methods
-  virtual void OnPrintSettings(CefRefPtr<CefPrintSettings> settings,
-                               bool get_defaults) OVERRIDE;
-  virtual bool OnPrintDialog(
+  // CefPrintHandler methods.
+  void OnPrintSettings(CefRefPtr<CefPrintSettings> settings,
+                       bool get_defaults) OVERRIDE;
+  bool OnPrintDialog(
       bool has_selection,
       CefRefPtr<CefPrintDialogCallback> callback) OVERRIDE;
-  virtual bool OnPrintJob(const CefString& document_name,
-                          const CefString& pdf_file_path,
-                          CefRefPtr<CefPrintJobCallback> callback) OVERRIDE;
-  virtual void OnPrintReset() OVERRIDE;
+  bool OnPrintJob(const CefString& document_name,
+                  const CefString& pdf_file_path,
+                  CefRefPtr<CefPrintJobCallback> callback) OVERRIDE;
+  void OnPrintReset() OVERRIDE;
 
  private:
   void OnDialogResponse(GtkDialog *dialog,
@@ -58,6 +58,7 @@ class ClientPrintHandlerGtk : public CefPrintHandler {
   CefRefPtr<CefPrintJobCallback> job_callback_;
 
   IMPLEMENT_REFCOUNTING(ClientPrintHandlerGtk);
+  DISALLOW_COPY_AND_ASSIGN(ClientPrintHandlerGtk);
 };
 
 }  // namespace client

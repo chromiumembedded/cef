@@ -33,12 +33,10 @@ namespace client {
 // ClientHandler implementation.
 class ClientHandler : public CefClient,
                       public CefContextMenuHandler,
-                      public CefDialogHandler,
                       public CefDisplayHandler,
                       public CefDownloadHandler,
                       public CefDragHandler,
                       public CefGeolocationHandler,
-                      public CefJSDialogHandler,
                       public CefKeyboardHandler,
                       public CefLifeSpanHandler,
                       public CefLoadHandler,
@@ -61,7 +59,7 @@ class ClientHandler : public CefClient,
     return this;
   }
   CefRefPtr<CefDialogHandler> GetDialogHandler() OVERRIDE {
-    return this;
+    return dialog_handler_;
   }
   CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE {
     return this;
@@ -76,7 +74,7 @@ class ClientHandler : public CefClient,
     return this;
   }
   CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE {
-    return this;
+    return jsdialog_handler_;
   }
   CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() OVERRIDE {
     return this;
@@ -107,15 +105,6 @@ class ClientHandler : public CefClient,
                             CefRefPtr<CefContextMenuParams> params,
                             int command_id,
                             EventFlags event_flags) OVERRIDE;
-
-  // CefDialogHandler methods
-  bool OnFileDialog(CefRefPtr<CefBrowser> browser,
-                    FileDialogMode mode,
-                    const CefString& title,
-                    const CefString& default_file_path,
-                    const std::vector<CefString>& accept_filters,
-                    int selected_accept_filter,
-                    CefRefPtr<CefFileDialogCallback> callback) OVERRIDE;
 
   // CefDisplayHandler methods
   void OnAddressChange(CefRefPtr<CefBrowser> browser,
@@ -150,22 +139,6 @@ class ClientHandler : public CefClient,
       const CefString& requesting_url,
       int request_id,
       CefRefPtr<CefGeolocationCallback> callback) OVERRIDE;
-
-  // CefJSDialogHandler methods
-  bool OnJSDialog(CefRefPtr<CefBrowser> browser,
-                  const CefString& origin_url,
-                  const CefString& accept_lang,
-                  JSDialogType dialog_type,
-                  const CefString& message_text,
-                  const CefString& default_prompt_text,
-                  CefRefPtr<CefJSDialogCallback> callback,
-                  bool& suppress_message) OVERRIDE;
-  bool OnBeforeUnloadDialog(
-      CefRefPtr<CefBrowser> browser,
-      const CefString& message_text,
-      bool is_reload,
-      CefRefPtr<CefJSDialogCallback> callback) OVERRIDE;
-  void OnResetDialogState(CefRefPtr<CefBrowser> browser) OVERRIDE;
 
   // CefKeyboardHandler methods
   bool OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
@@ -302,6 +275,9 @@ class ClientHandler : public CefClient,
 
   // True if mouse cursor change is disabled.
   bool mouse_cursor_change_disabled_;
+
+  CefRefPtr<CefDialogHandler> dialog_handler_;
+  CefRefPtr<CefJSDialogHandler> jsdialog_handler_;
   // END THREAD SAFE MEMBERS
 
   // Lock used to protect members accessed on multiple threads. Make it mutable
@@ -362,14 +338,6 @@ class ClientHandler : public CefClient,
   // when the number of windows reaches 0.
   static int browser_count_;
 
-#if defined(OS_LINUX)
-  // Linux-only implementation of GTK-based dialog boxes.
-  static void OnDialogResponse(GtkDialog *dialog,
-                               gint response_id,
-                               ClientHandler* handler);
-  GtkWidget* gtk_dialog_;
-  CefRefPtr<CefJSDialogCallback> js_dialog_callback_;
-#endif
   // END UI THREAD ACCESS ONLY MEMBERS
 
   // Include the default reference counting implementation.

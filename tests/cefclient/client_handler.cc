@@ -26,6 +26,10 @@
 #include "cefclient/resource_util.h"
 #include "cefclient/test_runner.h"
 
+#if defined(OS_LINUX)
+#include "cefclient/dialog_handler_gtk.h"
+#endif
+
 namespace client {
 
 #if defined(OS_WIN)
@@ -65,11 +69,15 @@ ClientHandler::ClientHandler()
     console_log_file_(MainContext::Get()->GetConsoleLogPath()),
     first_console_message_(true),
     focus_on_editable_field_(false) {
-#if defined(OS_LINUX)
-  gtk_dialog_ = NULL;
-#endif
-
   DCHECK(!console_log_file_.empty());
+
+#if defined(OS_LINUX)
+  // Provide the GTK-based dialog implementation on Linux.
+  CefRefPtr<ClientDialogHandlerGtk> dialog_handler =
+      new ClientDialogHandlerGtk();
+  dialog_handler_ = dialog_handler.get();
+  jsdialog_handler_ = dialog_handler.get();
+#endif
 
   // Read command line settings.
   CefRefPtr<CefCommandLine> command_line =
@@ -152,22 +160,6 @@ bool ClientHandler::OnContextMenuCommand(
   }
 }
 
-#if !defined(OS_LINUX)
-
-bool ClientHandler::OnFileDialog(CefRefPtr<CefBrowser> browser,
-                                 FileDialogMode mode,
-                                 const CefString& title,
-                                 const CefString& default_file_path,
-                                 const std::vector<CefString>& accept_filters,
-                                 int selected_accept_filter,
-                                 CefRefPtr<CefFileDialogCallback> callback) {
-  CEF_REQUIRE_UI_THREAD();
-
-  return false;
-}
-
-#endif  // !defined(OS_LINUX)
-
 bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
                                      const CefString& message,
                                      const CefString& source,
@@ -242,35 +234,6 @@ bool ClientHandler::OnRequestGeolocationPermission(
   callback->Continue(true);
   return true;
 }
-
-#if !defined(OS_LINUX)
-
-bool ClientHandler::OnJSDialog(CefRefPtr<CefBrowser> browser,
-                               const CefString& origin_url,
-                               const CefString& accept_lang,
-                               JSDialogType dialog_type,
-                               const CefString& message_text,
-                               const CefString& default_prompt_text,
-                               CefRefPtr<CefJSDialogCallback> callback,
-                               bool& suppress_message) {
-  CEF_REQUIRE_UI_THREAD();
-  return false;
-}
-
-bool ClientHandler::OnBeforeUnloadDialog(
-    CefRefPtr<CefBrowser> browser,
-    const CefString& message_text,
-    bool is_reload,
-    CefRefPtr<CefJSDialogCallback> callback) {
-  CEF_REQUIRE_UI_THREAD();
-  return false;
-}
-
-void ClientHandler::OnResetDialogState(CefRefPtr<CefBrowser> browser) {
-  CEF_REQUIRE_UI_THREAD();
-}
-
-#endif  // !defined(OS_LINUX)
 
 bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
                                   const CefKeyEvent& event,
@@ -607,6 +570,12 @@ void ClientHandler::SetMainWindowHandle(ClientWindowHandle handle) {
   }
 
   main_handle_ = handle;
+
+#if defined(OS_LINUX)
+  // Associate |handle| with the GTK dialog handler.
+  static_cast<ClientDialogHandlerGtk*>(dialog_handler_.get())->set_parent(
+      handle);
+#endif
 }
 
 ClientWindowHandle ClientHandler::GetMainWindowHandle() const {
