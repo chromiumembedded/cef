@@ -1,0 +1,32 @@
+diff --git ThemeMac.mm ThemeMac.mm
+index a35aaea..c049569 100644
+--- ThemeMac.mm
++++ ThemeMac.mm
+@@ -490,7 +490,7 @@ static void paintButton(ControlPart part, ControlStates states, GraphicsContext*
+ 
+     [buttonCell drawWithFrame:NSRect(inflatedRect) inView:view];
+ #if !BUTTON_CELL_DRAW_WITH_FRAME_DRAWS_FOCUS_RING
+-    if (states & FocusControlState)
++    if (states & FocusState)
+         [buttonCell _web_drawFocusRingWithFrame:NSRect(inflatedRect) inView:view];
+ #endif
+     [buttonCell setControlView:nil];
+diff --git WebCoreNSCellExtras.h WebCoreNSCellExtras.h
+index 8623826..b9f683d 100644
+--- WebCoreNSCellExtras.h
++++ WebCoreNSCellExtras.h
+@@ -26,12 +26,12 @@
+ #import <AppKit/AppKit.h>
+ #include "platform/PlatformExport.h"
+ 
+-#define BUTTON_CELL_DRAW_WITH_FRAME_DRAWS_FOCUS_RING (!defined(MAC_OS_X_VERSION_10_7) || MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_7)
++#define BUTTON_CELL_DRAW_WITH_FRAME_DRAWS_FOCUS_RING 1
+ 
+ #if !BUTTON_CELL_DRAW_WITH_FRAME_DRAWS_FOCUS_RING
+ 
+ // FIXME: Might want to use this on Mac once we only support OS X 10.8+
+-@interface NSCell (WebCoreFocusRingDrawing)
++PLATFORM_EXPORT @interface NSCell (WebCoreFocusRingDrawing)
+ - (void)_web_drawFocusRingWithFrame:(NSRect)cellFrame inView:(NSView *)controlView;
+ @end
+ 

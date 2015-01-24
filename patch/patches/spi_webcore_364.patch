@@ -1,0 +1,34 @@
+diff --git core/frame/FrameView.cpp core/frame/FrameView.cpp
+index 9b2004d..b9a73c7 100644
+--- core/frame/FrameView.cpp
++++ core/frame/FrameView.cpp
+@@ -144,8 +144,10 @@ FrameView::FrameView(LocalFrame* frame)
+     if (!m_frame->isMainFrame())
+         return;
+ 
++#if 0
+     ScrollableArea::setVerticalScrollElasticity(ScrollElasticityAllowed);
+     ScrollableArea::setHorizontalScrollElasticity(ScrollElasticityAllowed);
++#endif
+ }
+ 
+ PassRefPtrWillBeRawPtr<FrameView> FrameView::create(LocalFrame* frame)
+diff --git platform/scroll/ScrollbarThemeMacCommon.mm platform/scroll/ScrollbarThemeMacCommon.mm
+index 90abb7c..6bb16c6 100644
+--- platform/scroll/ScrollbarThemeMacCommon.mm
++++ platform/scroll/ScrollbarThemeMacCommon.mm
+@@ -354,10 +354,14 @@ NSScrollerStyle ScrollbarThemeMacCommon::recommendedScrollerStyle()
+ // static
+ bool ScrollbarThemeMacCommon::isOverlayAPIAvailable()
+ {
++#if 0
+     static bool apiAvailable =
+         [NSClassFromString(@"NSScrollerImp") respondsToSelector:@selector(scrollerImpWithStyle:controlSize:horizontal:replacingScrollerImp:)]
+         && [NSClassFromString(@"NSScrollerImpPair") instancesRespondToSelector:@selector(scrollerStyle)];
+     return apiAvailable;
++#else
++    return false;
++#endif
+ }
+ 
+ } // namespace blink

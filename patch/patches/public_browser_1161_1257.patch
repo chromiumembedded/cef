@@ -1,0 +1,132 @@
+diff --git content_browser_client.cc content_browser_client.cc
+index 91c8a4d..10c3b28 100644
+--- content_browser_client.cc
++++ content_browser_client.cc
+@@ -278,6 +278,10 @@ bool ContentBrowserClient::IsFastShutdownPossible() {
+   return true;
+ }
+ 
++SkColor ContentBrowserClient::GetBaseBackgroundColor(RenderViewHost* rvh) {
++  return SK_ColorWHITE;
++}
++
+ base::FilePath ContentBrowserClient::GetDefaultDownloadDirectory() {
+   return base::FilePath();
+ }
+diff --git content_browser_client.h content_browser_client.h
+index 627353d..e1805f4 100644
+--- content_browser_client.h
++++ content_browser_client.h
+@@ -28,6 +28,7 @@
+ #include "net/url_request/url_request_interceptor.h"
+ #include "net/url_request/url_request_job_factory.h"
+ #include "storage/browser/fileapi/file_system_context.h"
++#include "third_party/skia/include/core/SkColor.h"
+ #include "ui/base/window_open_disposition.h"
+ 
+ #if defined(OS_POSIX) && !defined(OS_MACOSX)
+@@ -499,6 +500,9 @@ class CONTENT_EXPORT ContentBrowserClient {
+   // Clears browser cookies.
+   virtual void ClearCookies(RenderViewHost* rvh) {}
+ 
++  // Returns the base background color.
++  virtual SkColor GetBaseBackgroundColor(RenderViewHost* rvh);
++
+   // Returns the default download directory.
+   // This can be called on any thread.
+   virtual base::FilePath GetDefaultDownloadDirectory();
+diff --git web_contents.cc web_contents.cc
+index 7afc338..c014439 100644
+--- web_contents.cc
++++ web_contents.cc
+@@ -17,7 +17,9 @@ WebContents::CreateParams::CreateParams(BrowserContext* context)
+       main_frame_routing_id(MSG_ROUTING_NONE),
+       initially_hidden(false),
+       guest_delegate(NULL),
+-      context(NULL) {}
++      context(NULL),
++      view(NULL),
++      delegate_view(NULL) {}
+ 
+ WebContents::CreateParams::CreateParams(
+     BrowserContext* context, SiteInstance* site)
+@@ -29,7 +31,9 @@ WebContents::CreateParams::CreateParams(
+       main_frame_routing_id(MSG_ROUTING_NONE),
+       initially_hidden(false),
+       guest_delegate(NULL),
+-      context(NULL) {}
++      context(NULL),
++      view(NULL),
++      delegate_view(NULL) {}
+ 
+ WebContents::CreateParams::~CreateParams() {
+ }
+diff --git web_contents.h web_contents.h
+index 87becd6..b66d3fb 100644
+--- web_contents.h
++++ web_contents.h
+@@ -52,9 +52,11 @@ class PageState;
+ class RenderFrameHost;
+ class RenderProcessHost;
+ class RenderViewHost;
++class RenderViewHostDelegateView;
+ class RenderWidgetHostView;
+ class SiteInstance;
+ class WebContentsDelegate;
++class WebContentsView;
+ struct CustomContextMenuContext;
+ struct DropData;
+ struct Manifest;
+@@ -122,6 +124,10 @@ class WebContents : public PageNavigator,
+     // Used to specify the location context which display the new view should
+     // belong. This can be NULL if not needed.
+     gfx::NativeView context;
++    
++    // Optionally specify the view and delegate view.
++    content::WebContentsView* view;
++    content::RenderViewHostDelegateView* delegate_view;
+   };
+ 
+   // Creates a new WebContents.
+diff --git web_contents_delegate.cc web_contents_delegate.cc
+index e846041..da3c9e6 100644
+--- web_contents_delegate.cc
++++ web_contents_delegate.cc
+@@ -137,7 +137,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
+     const base::string16& frame_name,
+     const GURL& target_url,
+     const std::string& partition_id,
+-    SessionStorageNamespace* session_storage_namespace) {
++    SessionStorageNamespace* session_storage_namespace,
++    content::WebContentsView** view,
++    content::RenderViewHostDelegateView** delegate_view) {
+   return true;
+ }
+ 
+diff --git web_contents_delegate.h web_contents_delegate.h
+index 344fbaf..adaa39d 100644
+--- web_contents_delegate.h
++++ web_contents_delegate.h
+@@ -36,9 +36,11 @@ class DownloadItem;
+ class JavaScriptDialogManager;
+ class PageState;
+ class RenderViewHost;
++class RenderViewHostDelegateView;
+ class SessionStorageNamespace;
+ class WebContents;
+ class WebContentsImpl;
++class WebContentsView;
+ struct ColorSuggestion;
+ struct ContextMenuParams;
+ struct DropData;
+@@ -314,7 +316,9 @@ class CONTENT_EXPORT WebContentsDelegate {
+       const base::string16& frame_name,
+       const GURL& target_url,
+       const std::string& partition_id,
+-      SessionStorageNamespace* session_storage_namespace);
++      SessionStorageNamespace* session_storage_namespace,
++      content::WebContentsView** view,
++      content::RenderViewHostDelegateView** delegate_view);
+ 
+   // Notifies the delegate about the creation of a new WebContents. This
+   // typically happens when popups are created.

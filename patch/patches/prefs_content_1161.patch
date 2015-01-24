@@ -1,0 +1,49 @@
+diff --git public/common/common_param_traits_macros.h public/common/common_param_traits_macros.h
+index a064d53..8abea71 100644
+--- public/common/common_param_traits_macros.h
++++ public/common/common_param_traits_macros.h
+@@ -188,6 +188,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+   IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
+   IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
+   IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
++  IPC_STRUCT_TRAITS_MEMBER(base_background_color)
+   IPC_STRUCT_TRAITS_MEMBER(cookie_enabled)
+   IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
+   IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
+diff --git public/common/web_preferences.cc public/common/web_preferences.cc
+index a5574d3..8e9e391 100644
+--- public/common/web_preferences.cc
++++ public/common/web_preferences.cc
+@@ -179,6 +179,7 @@ WebPreferences::WebPreferences()
+       rubber_banding_on_compositor_thread(false),
+       use_solid_color_scrollbars(false),
+       navigate_on_drag_drop(true),
++      base_background_color(0xFFFFFFFF),  // Color::white
+       v8_cache_options(V8_CACHE_OPTIONS_DEFAULT),
+       v8_script_streaming_enabled(false),
+       v8_script_streaming_mode(V8_SCRIPT_STREAMING_MODE_ALL),
+diff --git public/common/web_preferences.h public/common/web_preferences.h
+index 78559f2..028a94e 100644
+--- public/common/web_preferences.h
++++ public/common/web_preferences.h
+@@ -169,6 +169,7 @@ struct CONTENT_EXPORT WebPreferences {
+   bool rubber_banding_on_compositor_thread;
+   bool use_solid_color_scrollbars;
+   bool navigate_on_drag_drop;
++  uint32_t base_background_color;
+   V8CacheOptions v8_cache_options;
+   bool v8_script_streaming_enabled;
+   V8ScriptStreamingMode v8_script_streaming_mode;
+diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
+index 623cb14..5d21fc5 100644
+--- renderer/render_view_impl.cc
++++ renderer/render_view_impl.cc
+@@ -958,6 +958,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+ 
+   settings->setJavaEnabled(prefs.java_enabled);
+ 
++  web_view->setBaseBackgroundColor(prefs.base_background_color);
++
+   // By default, allow_universal_access_from_file_urls is set to false and thus
+   // we mitigate attacks from local HTML files by not granting file:// URLs
+   // universal access. Only test shell will enable this.

@@ -1,0 +1,17 @@
+diff --git resource_ids resource_ids
+index efd5760..62dd7b0 100644
+--- resource_ids
++++ resource_ids
+@@ -14,6 +14,12 @@
+ {
+   "SRCDIR": "../..",
+ 
++  "cef/libcef/resources/cef_resources.grd": {
++    "includes": [27500],
++  },
++  "cef/libcef/resources/cef_strings.grd": {
++    "messages": [28000],
++  },
+   "chrome/browser/browser_resources.grd": {
+     "includes": [400],
+     "structures": [750],
