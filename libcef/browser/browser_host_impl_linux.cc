@@ -419,10 +419,11 @@ void CefBrowserHostImpl::PlatformTranslateMouseEvent(
   result.globalY = result.y;
 
   if (IsWindowless()) {
-    GetClient()->GetRenderHandler()->GetScreenPoint(
-        GetBrowser(),
-        result.x, result.y,
-        result.globalX, result.globalY);
+    CefRefPtr<CefRenderHandler> handler = client_->GetRenderHandler();
+    if (handler.get()) {
+      handler->GetScreenPoint(this, result.x, result.y, result.globalX,
+                              result.globalY);
+    }
   } else if (window_x11_) {
     const gfx::Point& origin = window_x11_->bounds().origin();
     result.globalX += origin.x();

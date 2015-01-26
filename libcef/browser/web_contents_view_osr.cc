@@ -131,13 +131,13 @@ void CefWebContentsViewOSR::StartDragging(
     browser = view->browser_impl();
   if (browser.get())
     handler = browser->GetClient()->GetRenderHandler();
-  DCHECK(handler.get());
   if (handler.get()) {
     CefRefPtr<CefDragDataImpl> drag_data(new CefDragDataImpl(drop_data));
     drag_data->SetReadOnly(true);
     base::MessageLoop::ScopedNestableTaskAllower allow(
         base::MessageLoop::current());
-    handled = handler->StartDragging(browser->GetBrowser(),
+    handled = handler->StartDragging(
+        browser.get(),
         drag_data.get(),
         static_cast<CefRenderHandler::DragOperationsMask>(allowed_ops),
         event_info.event_location.x(),
@@ -157,9 +157,9 @@ void CefWebContentsViewOSR::UpdateDragCursor(
     browser = view->browser_impl();
   if (browser.get())
     handler = browser->GetClient()->GetRenderHandler();
-  DCHECK(handler.get());
   if (handler.get()) {
-    handler->UpdateDragCursor(browser->GetBrowser(),
+    handler->UpdateDragCursor(
+        browser.get(),
         static_cast<CefRenderHandler::DragOperation>(operation));
   }
 }

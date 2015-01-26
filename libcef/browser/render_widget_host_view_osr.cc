@@ -551,8 +551,10 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetViewBounds() const {
     return gfx::Rect();
 
   CefRect rc;
-  browser_impl_->GetClient()->GetRenderHandler()->GetViewRect(
-      browser_impl_.get(), rc);
+  CefRefPtr<CefRenderHandler> handler =
+      browser_impl_->GetClient()->GetRenderHandler();
+  if (handler.get())
+    handler->GetViewRect(browser_impl_.get(), rc);
   return gfx::Rect(rc.x, rc.y, rc.width, rc.height);
 }
 
@@ -652,14 +654,17 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
   }
 
   parent_host_view_->set_popup_host_view(this);
-  browser_impl_->GetClient()->GetRenderHandler()->OnPopupShow(
-      browser_impl_.get(), true);
+
+  CefRefPtr<CefRenderHandler> handler =
+      browser_impl_->GetClient()->GetRenderHandler();
+  if (handler.get())
+    handler->OnPopupShow(browser_impl_.get(), true);
 
   popup_position_ = pos;
 
   CefRect widget_pos(pos.x(), pos.y(), pos.width(), pos.height());
-  browser_impl_->GetClient()->GetRenderHandler()->OnPopupSize(
-      browser_impl_.get(), widget_pos);
+  if (handler.get())
+    handler->OnPopupSize(browser_impl_.get(), widget_pos);
 
   ResizeRootLayer();
   WasShown();
@@ -708,6 +713,11 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
   if (!browser_impl_.get())
     return;
 
+  CefRefPtr<CefRenderHandler> handler =
+      browser_impl_->GetClient()->GetRenderHandler();
+  if (!handler.get())
+    return;
+
   content::WebCursor::CursorInfo cursor_info;
   cursor.GetCursorInfo(&cursor_info);
 
@@ -734,14 +744,14 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
     platform_cursor = browser_impl_->GetPlatformCursor(cursor_info.type);
   }
 
-  browser_impl_->GetClient()->GetRenderHandler()->OnCursorChange(
-      browser_impl_.get(), platform_cursor, cursor_type, custom_cursor_info);
+  handler->OnCursorChange(browser_impl_.get(), platform_cursor, cursor_type,
+                          custom_cursor_info);
 #elif defined(OS_MACOSX)
   // |web_cursor| owns the resulting |native_cursor|.
   content::WebCursor web_cursor = cursor;
   CefCursorHandle native_cursor = web_cursor.GetNativeCursor();
-  browser_impl_->GetClient()->GetRenderHandler()->OnCursorChange(
-      browser_impl_.get(), native_cursor, cursor_type, custom_cursor_info);
+  handler->OnCursorChange(browser_impl_.get(), native_cursor, cursor_type,
+                          custom_cursor_info);
 #else
   // TODO(port): Implement this method to work on other platforms as part of
   // off-screen rendering support.
@@ -876,11 +886,12 @@ void CefRenderWidgetHostViewOSR::GetScreenInfo(blink::WebScreenInfo* results) {
 
   CefRefPtr<CefRenderHandler> handler =
       browser_impl_->client()->GetRenderHandler();
-  if (!handler->GetScreenInfo(browser_impl_.get(), screen_info) ||
+  if (handler.get() &&
+      (!handler->GetScreenInfo(browser_impl_.get(), screen_info) ||
       screen_info.rect.width == 0 ||
       screen_info.rect.height == 0 ||
       screen_info.available_rect.width == 0 ||
-      screen_info.available_rect.height == 0) {
+      screen_info.available_rect.height == 0)) {
     // If a screen rectangle was not provided, try using the view rectangle
     // instead. Otherwise, popup views may be drawn incorrectly, or not at all.
     CefRect screenRect;
@@ -905,10 +916,10 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
     return gfx::Rect();
 
   CefRect rc;
-  if (browser_impl_->GetClient()->GetRenderHandler()->GetRootScreenRect(
-          browser_impl_.get(), rc)) {
+  CefRefPtr<CefRenderHandler> handler =
+      browser_impl_->client()->GetRenderHandler();
+  if (handler.get() && handler->GetRootScreenRect(browser_impl_.get(), rc))
     return gfx::Rect(rc.x, rc.y, rc.width, rc.height);
-  }
   return gfx::Rect();
 }
 
@@ -1186,6 +1197,11 @@ void CefRenderWidgetHostViewOSR::OnPaint(
     void* bitmap_pixels) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::OnPaint");
 
+  CefRefPtr<CefRenderHandler> handler =
+      browser_impl_->client()->GetRenderHandler();
+  if (!handler.get())
+    return;
+
   // Don't execute WasResized while the OnPaint callback is pending.
   HoldResize();
 
@@ -1196,7 +1212,7 @@ void CefRenderWidgetHostViewOSR::OnPaint(
   rcList.push_back(CefRect(rect_in_bitmap.x(), rect_in_bitmap.y(),
                            rect_in_bitmap.width(), rect_in_bitmap.height()));
 
-  browser_impl_->GetClient()->GetRenderHandler()->OnPaint(
+  handler->OnPaint(
         browser_impl_.get(),
         IsPopupWidget() ? PET_POPUP : PET_VIEW,
         rcList,
@@ -1241,8 +1257,10 @@ void CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
   if (browser_impl_.get())  {
     CefScreenInfo screen_info(
         kDefaultScaleFactor, 0, 0, false, CefRect(), CefRect());
-    if (browser_impl_->GetClient()->GetRenderHandler()->GetScreenInfo(
-            browser_impl_.get(), screen_info)) {
+    CefRefPtr<CefRenderHandler> handler =
+        browser_impl_->client()->GetRenderHandler();
+    if (handler.get() && handler->GetScreenInfo(browser_impl_.get(),
+                                                screen_info)) {
       scale_factor_ = screen_info.device_scale_factor;
       return;
     }
@@ -1319,8 +1337,10 @@ void CefRenderWidgetHostViewOSR::CancelPopupWidget() {
   WasHidden();
 
   if (browser_impl_.get()) {
-    browser_impl_->GetClient()->GetRenderHandler()->OnPopupShow(
-        browser_impl_.get(), false);
+    CefRefPtr<CefRenderHandler> handler =
+        browser_impl_->client()->GetRenderHandler();
+    if (handler.get())
+      handler->OnPopupShow(browser_impl_.get(), false);
     browser_impl_ = NULL;
   }
 
@@ -1340,7 +1360,8 @@ void CefRenderWidgetHostViewOSR::OnScrollOffsetChanged() {
   if (browser_impl_.get()) {
     CefRefPtr<CefRenderHandler> handler =
         browser_impl_->client()->GetRenderHandler();
-    handler->OnScrollOffsetChanged(browser_impl_.get());
+    if (handler.get())
+      handler->OnScrollOffsetChanged(browser_impl_.get());
   }
   is_scroll_offset_changed_pending_ = false;
 }
