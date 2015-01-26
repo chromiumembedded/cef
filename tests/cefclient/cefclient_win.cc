@@ -17,7 +17,7 @@
 #include "include/cef_sandbox_win.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "cefclient/client_app.h"
-#include "cefclient/client_handler.h"
+#include "cefclient/client_handler_shared.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/main_context_impl.h"
 #include "cefclient/main_message_loop_multithreaded_win.h"
@@ -63,8 +63,8 @@ LRESULT CALLBACK MainWndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK FindWndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK AboutWndProc(HWND, UINT, WPARAM, LPARAM);
 
-// The global ClientHandler reference.
-CefRefPtr<ClientHandler> g_handler;
+// The global ClientHandlerShared reference.
+CefRefPtr<ClientHandlerShared> g_handler;
 
 // Used by off-screen rendering to find the associated CefBrowser.
 class MainBrowserProvider : public OSRBrowserProvider {
@@ -197,11 +197,10 @@ static void SetFocusToBrowser(CefRefPtr<CefBrowser> browser) {
   if (!g_handler)
     return;
 
-  if (CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-          switches::kOffScreenRenderingEnabled)) {
+  if (g_handler->is_osr()) {
     // Give focus to the OSR window.
     CefRefPtr<OSRWindow> osr_window =
-        static_cast<OSRWindow*>(g_handler->GetOSRHandler().get());
+        OSRWindow::From(g_handler->GetOSRHandler());
     if (osr_window)
       ::SetFocus(osr_window->hwnd());
   } else {
@@ -295,7 +294,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam,
     switch (message) {
     case WM_CREATE: {
       // Create the single static handler class instance
-      g_handler = new ClientHandler();
+      g_handler = new ClientHandlerShared();
       g_handler->SetMainWindowHandle(hWnd);
 
       // Create the child windows used for navigation
@@ -342,9 +341,8 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam,
           reinterpret_cast<WNDPROC>(GetWindowLongPtr(editWnd, GWLP_WNDPROC));
       SetWindowLongPtr(editWnd, GWLP_WNDPROC,
           reinterpret_cast<LONG_PTR>(MainWndProc));
-      g_handler->SetEditWindowHandle(editWnd);
-      g_handler->SetButtonWindowHandles(
-          backWnd, forwardWnd, reloadWnd, stopWnd);
+      g_handler->SetUXWindowHandles(
+          editWnd, backWnd, forwardWnd, reloadWnd, stopWnd);
 
       rect.top += URLBAR_HEIGHT;
 
@@ -354,9 +352,9 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam,
       // Populate the browser settings based on command line arguments.
       MainContext::Get()->PopulateBrowserSettings(&settings);
 
-      CefRefPtr<CefCommandLine> command_line =
-          CefCommandLine::GetGlobalCommandLine();
-      if (command_line->HasSwitch(switches::kOffScreenRenderingEnabled)) {
+      if (g_handler->is_osr()) {
+        CefRefPtr<CefCommandLine> command_line =
+            CefCommandLine::GetGlobalCommandLine();
         const bool transparent =
             command_line->HasSwitch(switches::kTransparentPaintingEnabled);
         const bool show_update_rect =
@@ -375,7 +373,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam,
 
       // Creat the new child browser window
       CefBrowserHost::CreateBrowser(info, g_handler.get(),
-          g_handler->GetStartupURL(), settings, NULL);
+          g_handler->startup_url(), settings, NULL);
 
       return 0;
     }
@@ -463,11 +461,10 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam,
 
       // For off-screen browsers when the frame window is minimized set the
       // browser as hidden to reduce resource usage.
-      const bool offscreen = CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-          switches::kOffScreenRenderingEnabled);
+      const bool offscreen = g_handler->is_osr();
       if (offscreen) {
         CefRefPtr<OSRWindow> osr_window =
-            static_cast<OSRWindow*>(g_handler->GetOSRHandler().get());
+            OSRWindow::From(g_handler->GetOSRHandler());
         if (osr_window)
           osr_window->WasHidden(wParam == SIZE_MINIMIZED);
       }

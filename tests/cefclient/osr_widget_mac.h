@@ -6,7 +6,7 @@
 #define CEF_TESTS_CEFCLIENT_OSR_WIDGET_MAC_H_
 
 #include "include/cef_client.h"
-#include "cefclient/client_handler.h"
+#include "cefclient/client_handler_shared.h"
 
 namespace client {
 class OSRBrowserProvider;
@@ -61,7 +61,7 @@ class OSRBrowserProvider {
 };
 
 // Handler for off-screen rendering windows.
-class ClientOSRHandler : public ClientHandler::RenderHandler {
+class ClientOSRHandler : public ClientHandlerShared::RenderHandler {
  public:
   explicit ClientOSRHandler(ClientOpenGLView* view,
                             OSRBrowserProvider* browser_provider);
@@ -69,7 +69,7 @@ class ClientOSRHandler : public ClientHandler::RenderHandler {
 
   void Disconnect();
 
-  // ClientHandler::RenderHandler
+  // ClientHandlerShared::RenderHandler methods
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
 
   // CefRenderHandler methods
@@ -124,7 +124,7 @@ class OSRWindow {
                                      CefWindowHandle parentView,
                                      const CefRect& frame);
 
-  CefRefPtr<ClientHandler::RenderHandler> GetRenderHandler() {
+  CefRefPtr<ClientHandlerShared::RenderHandler> GetRenderHandler() {
     return render_client.get();
   }
 
@@ -142,6 +142,7 @@ class OSRWindow {
   CefWindowHandle view_;
 
   IMPLEMENT_REFCOUNTING(OSRWindow);
+  DISALLOW_COPY_AND_ASSIGN(OSRWindow);
 };
 
 }  // namespace client

@@ -22,7 +22,7 @@
 #include "include/cef_frame.h"
 #include "include/wrapper/cef_helpers.h"
 #include "cefclient/client_app.h"
-#include "cefclient/client_handler.h"
+#include "cefclient/client_handler_shared.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/main_context_impl.h"
 #include "cefclient/main_message_loop_std.h"
@@ -33,8 +33,8 @@
 namespace client {
 namespace {
 
-// The global ClientHandler reference.
-CefRefPtr<ClientHandler> g_handler;
+// The global ClientHandlerShared reference.
+CefRefPtr<ClientHandlerShared> g_handler;
 
 // Height of the buttons at the top of the GTK window.
 int g_toolbar_height = 0;
@@ -427,11 +427,10 @@ int RunMain(int argc, char* argv[]) {
                    G_CALLBACK(delete_event), window);
 
   // Create the handler.
-  g_handler = new ClientHandler();
+  g_handler = new ClientHandlerShared();
   g_handler->SetMainWindowHandle(vbox);
-  g_handler->SetEditWindowHandle(entry);
-  g_handler->SetButtonWindowHandles(GTK_WIDGET(back), GTK_WIDGET(forward),
-                                    GTK_WIDGET(reload), GTK_WIDGET(stop));
+  g_handler->SetUXWindowHandles(entry, GTK_WIDGET(back), GTK_WIDGET(forward),
+                                GTK_WIDGET(reload), GTK_WIDGET(stop));
 
   CefWindowInfo window_info;
   CefBrowserSettings browserSettings;
@@ -439,9 +438,9 @@ int RunMain(int argc, char* argv[]) {
   // Populate the browser settings based on command line arguments.
   context->PopulateBrowserSettings(&browserSettings);
 
-  CefRefPtr<CefCommandLine> command_line =
-      CefCommandLine::GetGlobalCommandLine();
-  if (command_line->HasSwitch(switches::kOffScreenRenderingEnabled)) {
+  if (g_handler->is_osr()) {
+    CefRefPtr<CefCommandLine> command_line =
+        CefCommandLine::GetGlobalCommandLine();
     const bool transparent =
         command_line->HasSwitch(switches::kTransparentPaintingEnabled);
     const bool show_update_rect =
@@ -473,7 +472,7 @@ int RunMain(int argc, char* argv[]) {
   // Create the browser window.
   CefBrowserHost::CreateBrowserSync(
       window_info, g_handler.get(),
-      g_handler->GetStartupURL(), browserSettings, NULL);
+      g_handler->startup_url(), browserSettings, NULL);
 
   // Install a signal handler so we clean up after ourselves.
   signal(SIGINT, TerminationSignalHandler);

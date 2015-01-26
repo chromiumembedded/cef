@@ -10,33 +10,31 @@
 
 #include <string>
 
-#include "cefclient/client_handler.h"
+#include "cefclient/client_handler_shared.h"
 #include "include/cef_browser.h"
-#include "include/cef_frame.h"
 
 namespace client {
 
-void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
-                                    CefRefPtr<CefFrame> frame,
-                                    const CefString& url) {
+void ClientHandlerShared::SetAddress(CefRefPtr<CefBrowser> browser,
+                                     const CefString& url) {
   CEF_REQUIRE_UI_THREAD();
 
-  if (GetBrowserId() == browser->GetIdentifier() && frame->IsMain()) {
-      // Set the edit window text
+  if (browser_id_ == browser->GetIdentifier()) {
+      // Set the edit window text.
     std::string urlStr(url);
     gtk_entry_set_text(GTK_ENTRY(edit_handle_), urlStr.c_str());
   }
 }
 
-void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
-                                  const CefString& title) {
+void ClientHandlerShared::SetTitle(CefRefPtr<CefBrowser> browser,
+                                   const CefString& title) {
   CEF_REQUIRE_UI_THREAD();
 
   std::string titleStr(title);
 
   if (!browser->IsPopup()) {
     // Set the GTK parent window title.
-    GtkWidget* window = gtk_widget_get_ancestor(main_handle_,
+    GtkWidget* window = gtk_widget_get_ancestor(GetMainWindowHandle(),
         GTK_TYPE_WINDOW);
     gtk_window_set_title(GTK_WINDOW(window), titleStr.c_str());
   } else {
@@ -78,17 +76,20 @@ void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
   }
 }
 
-void ClientHandler::SetLoading(bool isLoading) {
+void ClientHandlerShared::SetLoadingState(CefRefPtr<CefBrowser> browser,
+                                          bool isLoading,
+                                          bool canGoBack,
+                                          bool canGoForward) {
   CEF_REQUIRE_UI_THREAD();
+
+  // Nothing to do for popup windows.
+  if (browser_id_ != browser->GetIdentifier())
+    return;
 
   if (isLoading)
     gtk_widget_set_sensitive(GTK_WIDGET(stop_handle_), true);
   else
     gtk_widget_set_sensitive(GTK_WIDGET(stop_handle_), false);
-}
-
-void ClientHandler::SetNavState(bool canGoBack, bool canGoForward) {
-  CEF_REQUIRE_UI_THREAD();
 
   if (canGoBack)
     gtk_widget_set_sensitive(GTK_WIDGET(back_handle_), true);

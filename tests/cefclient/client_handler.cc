@@ -3,32 +3,21 @@
 // can be found in the LICENSE file.
 
 #include "cefclient/client_handler.h"
+
 #include <stdio.h>
 #include <algorithm>
-#include <set>
 #include <sstream>
 #include <string>
-#include <vector>
 
 #include "include/base/cef_bind.h"
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
-#include "include/cef_path_util.h"
-#include "include/cef_process_util.h"
-#include "include/cef_trace.h"
-#include "include/cef_url.h"
 #include "include/wrapper/cef_closure_task.h"
-#include "include/wrapper/cef_stream_resource_handler.h"
 #include "cefclient/client_renderer.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/main_context.h"
-#include "cefclient/main_message_loop.h"
 #include "cefclient/resource_util.h"
 #include "cefclient/test_runner.h"
-
-#if defined(OS_LINUX)
-#include "cefclient/dialog_handler_gtk.h"
-#endif
 
 namespace client {
 
@@ -54,18 +43,12 @@ enum client_menu_ids {
 
 }  // namespace
 
-int ClientHandler::browser_count_ = 0;
-
-ClientHandler::ClientHandler()
-  : startup_url_(MainContext::Get()->GetMainURL()),
-    browser_id_(0),
-    is_closing_(false),
+ClientHandler::ClientHandler(const std::string& startup_url,
+                             bool is_osr)
+  : startup_url_(startup_url),
+    is_osr_(is_osr),
+    browser_count_(0),
     main_handle_(NULL),
-    edit_handle_(NULL),
-    back_handle_(NULL),
-    forward_handle_(NULL),
-    stop_handle_(NULL),
-    reload_handle_(NULL),
     console_log_file_(MainContext::Get()->GetConsoleLogPath()),
     first_console_message_(true),
     focus_on_editable_field_(false) {
@@ -73,10 +56,7 @@ ClientHandler::ClientHandler()
 
 #if defined(OS_LINUX)
   // Provide the GTK-based dialog implementation on Linux.
-  CefRefPtr<ClientDialogHandlerGtk> dialog_handler =
-      new ClientDialogHandlerGtk();
-  dialog_handler_ = dialog_handler.get();
-  jsdialog_handler_ = dialog_handler.get();
+  dialog_handler_ = new ClientDialogHandlerGtk();
 #endif
 
   // Read command line settings.
@@ -158,6 +138,23 @@ bool ClientHandler::OnContextMenuCommand(
     default:  // Allow default handling, if any.
       return ExecuteTestMenu(command_id);
   }
+}
+
+void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame,
+                                    const CefString& url) {
+  CEF_REQUIRE_UI_THREAD();
+
+  // Only update the address for the main (top-level) frame.
+  if (frame->IsMain())
+    SetAddress(browser, url);
+}
+
+void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
+                                  const CefString& title) {
+  CEF_REQUIRE_UI_THREAD();
+
+  SetTitle(browser, title);
 }
 
 bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
@@ -247,10 +244,8 @@ bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
     // being processed in the renderer. If we instead handled the event in the
     // OnKeyEvent() method the space key would cause the window to scroll in
     // addition to showing the alert box.
-    if (event.type == KEYEVENT_RAWKEYDOWN) {
-      browser->GetMainFrame()->ExecuteJavaScript(
-          "alert('You pressed the space bar!');", "", 0);
-    }
+    if (event.type == KEYEVENT_RAWKEYDOWN)
+      test_runner::Alert(browser, "You pressed the space bar!");
     return true;
   }
 
@@ -268,15 +263,14 @@ bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser,
                                   bool* no_javascript_access) {
   CEF_REQUIRE_IO_THREAD();
 
-  if (browser->GetHost()->IsWindowRenderingDisabled()) {
-    // Cancel popups in off-screen rendering mode.
-    return true;
-  }
-  return false;
+  // Return true to cancel the popup window.
+  return !CreatePopupWindow(false, popupFeatures, windowInfo, client, settings);
 }
 
 void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
+
+  browser_count_++;
 
   if (!message_router_) {
     // Create the browser-side router for query handling.
@@ -294,35 +288,13 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   if (mouse_cursor_change_disabled_)
     browser->GetHost()->SetMouseCursorChangeDisabled(true);
 
-  if (!GetBrowser())   {
-    base::AutoLock lock_scope(lock_);
-    // We need to keep the main child window, but not popup windows
-    browser_ = browser;
-    browser_id_ = browser->GetIdentifier();
-  } else if (browser->IsPopup()) {
-    // Add to the list of popup browsers.
-    popup_browsers_.push_back(browser);
-
-    // Give focus to the popup browser. Perform asynchronously because the
-    // parent window may attempt to keep focus after launching the popup.
-    CefPostTask(TID_UI,
-        base::Bind(&CefBrowserHost::SetFocus, browser->GetHost().get(), true));
-  }
-
-  browser_count_++;
+  BrowserCreated(browser);
 }
 
 bool ClientHandler::DoClose(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
 
-  // Closing the main window requires special handling. See the DoClose()
-  // documentation in the CEF header for a detailed destription of this
-  // process.
-  if (GetBrowserId() == browser->GetIdentifier()) {
-    base::AutoLock lock_scope(lock_);
-    // Set a flag to indicate that the window close should be allowed.
-    is_closing_ = true;
-  }
+  BrowserClosing(browser);
 
   // Allow the close. For windowed browsers this will result in the OS close
   // event being sent.
@@ -332,44 +304,19 @@ bool ClientHandler::DoClose(CefRefPtr<CefBrowser> browser) {
 void ClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
 
-  message_router_->OnBeforeClose(browser);
-
-  if (GetBrowserId() == browser->GetIdentifier()) {
-    {
-      base::AutoLock lock_scope(lock_);
-      // Free the browser pointer so that the browser can be destroyed
-      browser_ = NULL;
-    }
-
-    if (osr_handler_.get()) {
-      osr_handler_->OnBeforeClose(browser);
-      osr_handler_ = NULL;
-    }
-  } else if (browser->IsPopup()) {
-    // Remove from the browser popup list.
-    BrowserList::iterator bit = popup_browsers_.begin();
-    for (; bit != popup_browsers_.end(); ++bit) {
-      if ((*bit)->IsSame(browser)) {
-        popup_browsers_.erase(bit);
-        break;
-      }
-    }
-  }
-
   if (--browser_count_ == 0) {
-    // All browser windows have closed.
     // Remove and delete message router handlers.
-    MessageHandlerSet::const_iterator it = message_handler_set_.begin();
+    MessageHandlerSet::const_iterator it =
+        message_handler_set_.begin();
     for (; it != message_handler_set_.end(); ++it) {
       message_router_->RemoveHandler(*(it));
       delete *(it);
     }
     message_handler_set_.clear();
     message_router_ = NULL;
-
-    // Quit the application message loop.
-    MainMessageLoop::Get()->Quit();
   }
+
+  BrowserClosed(browser);
 }
 
 void ClientHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
@@ -378,8 +325,7 @@ void ClientHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
                                          bool canGoForward) {
   CEF_REQUIRE_UI_THREAD();
 
-  SetLoading(isLoading);
-  SetNavState(canGoBack, canGoForward);
+  SetLoadingState(browser, isLoading, canGoBack, canGoForward);
 }
 
 void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
@@ -425,6 +371,7 @@ CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request) {
   CEF_REQUIRE_IO_THREAD();
+
   return test_runner::GetResourceHandler(browser, frame, request);
 }
 
@@ -459,106 +406,30 @@ void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
 
   message_router_->OnRenderProcessTerminated(browser);
 
-  // Load the startup URL if that's not the website that we terminated on.
+  // Don't reload if there's no start URL, or if the crash URL was specified.
+  if (startup_url_.empty() || startup_url_ == "chrome://crash")
+    return;
+
   CefRefPtr<CefFrame> frame = browser->GetMainFrame();
   std::string url = frame->GetURL();
+
+  // Don't reload if the termination occurred before any URL had successfully
+  // loaded.
+  if (url.empty())
+    return;
+
+  std::string start_url = startup_url_;
+
+  // Convert URLs to lowercase for easier comparison.
   std::transform(url.begin(), url.end(), url.begin(), tolower);
+  std::transform(start_url.begin(), start_url.end(), start_url.begin(),
+                 tolower);
 
-  std::string startupURL = GetStartupURL();
-  if (startupURL != "chrome://crash" && !url.empty() &&
-      url.find(startupURL) != 0) {
-    frame->LoadURL(startupURL);
-  }
-}
-
-bool ClientHandler::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
-                                      CefRect& rect) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_handler_.get())
-    return false;
-  return osr_handler_->GetRootScreenRect(browser, rect);
-}
-
-bool ClientHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_handler_.get())
-    return false;
-  return osr_handler_->GetViewRect(browser, rect);
-}
-
-bool ClientHandler::GetScreenPoint(CefRefPtr<CefBrowser> browser,
-                                   int viewX,
-                                   int viewY,
-                                   int& screenX,
-                                   int& screenY) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_handler_.get())
-    return false;
-  return osr_handler_->GetScreenPoint(browser, viewX, viewY, screenX, screenY);
-}
-
-bool ClientHandler::GetScreenInfo(CefRefPtr<CefBrowser> browser,
-                                  CefScreenInfo& screen_info) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_handler_.get())
-    return false;
-  return osr_handler_->GetScreenInfo(browser, screen_info);
-}
-
-void ClientHandler::OnPopupShow(CefRefPtr<CefBrowser> browser,
-                                bool show) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_handler_.get())
+  // Don't reload the URL that just resulted in termination.
+  if (url.find(start_url) == 0)
     return;
-  return osr_handler_->OnPopupShow(browser, show);
-}
 
-void ClientHandler::OnPopupSize(CefRefPtr<CefBrowser> browser,
-                                const CefRect& rect) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_handler_.get())
-    return;
-  return osr_handler_->OnPopupSize(browser, rect);
-}
-
-void ClientHandler::OnPaint(CefRefPtr<CefBrowser> browser,
-                            PaintElementType type,
-                            const RectList& dirtyRects,
-                            const void* buffer,
-                            int width,
-                            int height) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_handler_.get())
-    return;
-  osr_handler_->OnPaint(browser, type, dirtyRects, buffer, width, height);
-}
-
-void ClientHandler::OnCursorChange(CefRefPtr<CefBrowser> browser,
-                                   CefCursorHandle cursor,
-                                   CursorType type,
-                                   const CefCursorInfo& custom_cursor_info) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_handler_.get())
-    return;
-  osr_handler_->OnCursorChange(browser, cursor, type, custom_cursor_info);
-}
-
-bool ClientHandler::StartDragging(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefDragData> drag_data,
-    CefRenderHandler::DragOperationsMask allowed_ops,
-    int x, int y) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_handler_.get())
-    return false;
-  return osr_handler_->StartDragging(browser, drag_data, allowed_ops, x, y);
-}
-
-void ClientHandler::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
-    CefRenderHandler::DragOperation operation) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!osr_handler_.get())
-    return;
-  osr_handler_->UpdateDragCursor(browser, operation);
+  frame->LoadURL(startup_url_);
 }
 
 void ClientHandler::SetMainWindowHandle(ClientWindowHandle handle) {
@@ -573,8 +444,7 @@ void ClientHandler::SetMainWindowHandle(ClientWindowHandle handle) {
 
 #if defined(OS_LINUX)
   // Associate |handle| with the GTK dialog handler.
-  static_cast<ClientDialogHandlerGtk*>(dialog_handler_.get())->set_parent(
-      handle);
+  dialog_handler_->set_parent(handle);
 #endif
 }
 
@@ -583,120 +453,26 @@ ClientWindowHandle ClientHandler::GetMainWindowHandle() const {
   return main_handle_;
 }
 
-void ClientHandler::SetEditWindowHandle(ClientWindowHandle handle) {
-  if (!CefCurrentlyOn(TID_UI)) {
-    // Execute on the UI thread.
-    CefPostTask(TID_UI,
-        base::Bind(&ClientHandler::SetEditWindowHandle, this, handle));
-    return;
-  }
-
-  edit_handle_ = handle;
-}
-
-void ClientHandler::SetButtonWindowHandles(ClientWindowHandle backHandle,
-                                           ClientWindowHandle forwardHandle,
-                                           ClientWindowHandle reloadHandle,
-                                           ClientWindowHandle stopHandle) {
-  if (!CefCurrentlyOn(TID_UI)) {
-    // Execute on the UI thread.
-    CefPostTask(TID_UI,
-        base::Bind(&ClientHandler::SetButtonWindowHandles, this,
-                   backHandle, forwardHandle, reloadHandle, stopHandle));
-    return;
-  }
-
-  back_handle_ = backHandle;
-  forward_handle_ = forwardHandle;
-  reload_handle_ = reloadHandle;
-  stop_handle_ = stopHandle;
-}
-
-void ClientHandler::SetOSRHandler(CefRefPtr<RenderHandler> handler) {
-  if (!CefCurrentlyOn(TID_UI)) {
-    // Execute on the UI thread.
-    CefPostTask(TID_UI,
-        base::Bind(&ClientHandler::SetOSRHandler, this, handler));
-    return;
-  }
-
-  osr_handler_ = handler;
-}
-
-CefRefPtr<ClientHandler::RenderHandler> ClientHandler::GetOSRHandler() const {
-  return osr_handler_; 
-}
-
-CefRefPtr<CefBrowser> ClientHandler::GetBrowser() const {
-  base::AutoLock lock_scope(lock_);
-  return browser_;
-}
-
-int ClientHandler::GetBrowserId() const {
-  base::AutoLock lock_scope(lock_);
-  return browser_id_;
-}
-
-void ClientHandler::CloseAllBrowsers(bool force_close) {
-  if (!CefCurrentlyOn(TID_UI)) {
-    // Execute on the UI thread.
-    CefPostTask(TID_UI,
-        base::Bind(&ClientHandler::CloseAllBrowsers, this, force_close));
-    return;
-  }
-
-  if (!popup_browsers_.empty()) {
-    // Request that any popup browsers close.
-    BrowserList::const_iterator it = popup_browsers_.begin();
-    for (; it != popup_browsers_.end(); ++it)
-      (*it)->GetHost()->CloseBrowser(force_close);
-  }
-
-  if (browser_.get()) {
-    // Request that the main browser close.
-    browser_->GetHost()->CloseBrowser(force_close);
-  }
-}
-
-bool ClientHandler::IsClosing() const {
-  base::AutoLock lock_scope(lock_);
-  return is_closing_;
+int ClientHandler::GetBrowserCount() const {
+  CEF_REQUIRE_UI_THREAD();
+  return browser_count_;
 }
 
 void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser,
                                  const CefPoint& inspect_element_at) {
   CefWindowInfo windowInfo;
+  CefRefPtr<CefClient> client;
   CefBrowserSettings settings;
 
-#if defined(OS_WIN)
-  windowInfo.SetAsPopup(browser->GetHost()->GetWindowHandle(), "DevTools");
-#endif
-
-  browser->GetHost()->ShowDevTools(windowInfo, this, settings,
-                                   inspect_element_at);
+  if (CreatePopupWindow(true, CefPopupFeatures(), windowInfo, client,
+                        settings)) {
+    browser->GetHost()->ShowDevTools(windowInfo, client, settings,
+                                     inspect_element_at);
+  }
 }
 
 void ClientHandler::CloseDevTools(CefRefPtr<CefBrowser> browser) {
   browser->GetHost()->CloseDevTools();
-}
-
-std::string ClientHandler::GetStartupURL() const {
-  return startup_url_;
-}
-
-bool ClientHandler::Save(const std::string& path, const std::string& data) {
-  FILE* f = fopen(path.c_str(), "w");
-  if (!f)
-    return false;
-  size_t total = 0;
-  do {
-    size_t write = fwrite(data.c_str() + total, 1, data.size() - total, f);
-    if (write == 0)
-      break;
-    total += write;
-  } while (total < data.size());
-  fclose(f);
-  return true;
 }
 
 void ClientHandler::BuildTestMenu(CefRefPtr<CefMenuModel> model) {

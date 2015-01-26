@@ -7,7 +7,7 @@
 #pragma once
 
 #include "include/cef_render_handler.h"
-#include "cefclient/client_handler.h"
+#include "cefclient/client_handler_shared.h"
 #include "cefclient/osr_dragdrop_win.h"
 #include "cefclient/osr_renderer.h"
 
@@ -21,7 +21,7 @@ class OSRBrowserProvider {
   virtual ~OSRBrowserProvider() {}
 };
 
-class OSRWindow : public ClientHandler::RenderHandler
+class OSRWindow : public ClientHandlerShared::RenderHandler
 #if defined(CEF_USE_ATL)
                   , public OsrDragEvents
 #endif
@@ -34,7 +34,7 @@ class OSRWindow : public ClientHandler::RenderHandler
                                      bool show_update_rect);
 
   static CefRefPtr<OSRWindow> From(
-      CefRefPtr<ClientHandler::RenderHandler> renderHandler);
+      CefRefPtr<ClientHandlerShared::RenderHandler> renderHandler);
 
   // Create the underlying window.
   bool CreateWidget(HWND hWndParent, const RECT& rect,
@@ -47,7 +47,7 @@ class OSRWindow : public ClientHandler::RenderHandler
     return hWnd_;
   }
 
-  // ClientHandler::RenderHandler methods
+  // ClientHandlerShared::RenderHandler methods
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
 
   // CefRenderHandler methods
@@ -132,6 +132,7 @@ class OSRWindow : public ClientHandler::RenderHandler
   bool hidden_;
 
   IMPLEMENT_REFCOUNTING(OSRWindow);
+  DISALLOW_COPY_AND_ASSIGN(OSRWindow);
 };
 
 }  // namespace client

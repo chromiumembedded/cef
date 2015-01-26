@@ -21,8 +21,8 @@
 
 namespace {
 
-// The global ClientHandler reference.
-CefRefPtr<client::ClientHandler> g_handler;
+// The global ClientHandlerShared reference.
+CefRefPtr<client::ClientHandlerShared> g_handler;
 
 // Used by off-screen rendering to find the associated CefBrowser.
 class MainBrowserProvider : public client::OSRBrowserProvider {
@@ -232,8 +232,7 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
   if (g_handler.get()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     if (browser.get()) {
-      if (CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-              client::switches::kOffScreenRenderingEnabled)) {
+      if (g_handler->is_osr())) {
         browser->GetHost()->SendFocusEvent(true);
       } else {
         browser->GetHost()->SetFocus(true);
@@ -247,8 +246,7 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
   if (g_handler.get()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     if (browser.get()) {
-      if (CefCommandLine::GetGlobalCommandLine()->HasSwitch(
-              client::switches::kOffScreenRenderingEnabled)) {
+      if (g_handler->is_osr()) {
         browser->GetHost()->SendFocusEvent(false);
       } else {
         browser->GetHost()->SetFocus(false);
@@ -402,21 +400,25 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
   button_rect.origin.x += BUTTON_MARGIN;
   button_rect.size.width = BUTTON_WIDTH;
 
-  NSButton* button = MakeButton(&button_rect, @"Back", contentView);
-  [button setTarget:delegate];
-  [button setAction:@selector(goBack:)];
+  NSButton* backButton = MakeButton(&button_rect, @"Back", contentView);
+  [backButton setTarget:delegate];
+  [backButton setAction:@selector(goBack:)];
+  [backButton setEnabled:NO];
 
-  button = MakeButton(&button_rect, @"Forward", contentView);
-  [button setTarget:delegate];
-  [button setAction:@selector(goForward:)];
+  NSButton* forwardButton = MakeButton(&button_rect, @"Forward", contentView);
+  [forwardButton setTarget:delegate];
+  [forwardButton setAction:@selector(goForward:)];
+  [forwardButton setEnabled:NO];
 
-  button = MakeButton(&button_rect, @"Reload", contentView);
-  [button setTarget:delegate];
-  [button setAction:@selector(reload:)];
+  NSButton* reloadButton = MakeButton(&button_rect, @"Reload", contentView);
+  [reloadButton setTarget:delegate];
+  [reloadButton setAction:@selector(reload:)];
+  [reloadButton setEnabled:NO];
 
-  button = MakeButton(&button_rect, @"Stop", contentView);
-  [button setTarget:delegate];
-  [button setAction:@selector(stopLoading:)];
+  NSButton* stopButton = MakeButton(&button_rect, @"Stop", contentView);
+  [stopButton setTarget:delegate];
+  [stopButton setAction:@selector(stopLoading:)];
+  [stopButton setEnabled:NO];
 
   // Create the URL text field.
   button_rect.origin.x += BUTTON_MARGIN;
@@ -427,13 +429,15 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
   [editWnd setAutoresizingMask:(NSViewWidthSizable | NSViewMinYMargin)];
   [editWnd setTarget:delegate];
   [editWnd setAction:@selector(takeURLStringValueFrom:)];
+  [editWnd setEnabled:NO];
   [[editWnd cell] setWraps:NO];
   [[editWnd cell] setScrollable:YES];
 
   // Create the handler.
-  g_handler = new client::ClientHandler();
+  g_handler = new client::ClientHandlerShared();
   g_handler->SetMainWindowHandle(contentView);
-  g_handler->SetEditWindowHandle(editWnd);
+  g_handler->SetUXWindowHandles(editWnd, backButton, forwardButton,
+                                reloadButton, stopButton);
 
   // Create the browser view.
   CefWindowInfo window_info;
@@ -442,9 +446,9 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
   // Populate the browser settings based on command line arguments.
   client::MainContext::Get()->PopulateBrowserSettings(&settings);
 
-  CefRefPtr<CefCommandLine> command_line =
-      CefCommandLine::GetGlobalCommandLine();
-  if (command_line->HasSwitch(client::switches::kOffScreenRenderingEnabled)) {
+  if (g_handler->is_osr()) {
+    CefRefPtr<CefCommandLine> command_line =
+        CefCommandLine::GetGlobalCommandLine();
     const bool transparent =
         command_line->HasSwitch(client::switches::kTransparentPaintingEnabled);
     const bool show_update_rect =
@@ -462,7 +466,7 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
   }
 
   CefBrowserHost::CreateBrowser(window_info, g_handler.get(),
-                                g_handler->GetStartupURL(), settings, NULL);
+                                g_handler->startup_url(), settings, NULL);
 
   // Show the window.
   [mainWnd makeKeyAndOrderFront: nil];

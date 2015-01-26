@@ -1110,7 +1110,7 @@ CefRefPtr<OSRWindow> OSRWindow::Create(OSRBrowserProvider* browser_provider,
 
 // static
 CefRefPtr<OSRWindow> OSRWindow::From(
-    CefRefPtr<ClientHandler::RenderHandler> renderHandler) {
+    CefRefPtr<ClientHandlerShared::RenderHandler> renderHandler) {
   return static_cast<OSRWindow*>(renderHandler.get());
 }
 
