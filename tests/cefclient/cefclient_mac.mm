@@ -232,7 +232,7 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
   if (g_handler.get()) {
     CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
     if (browser.get()) {
-      if (g_handler->is_osr())) {
+      if (g_handler->is_osr()) {
         browser->GetHost()->SendFocusEvent(true);
       } else {
         browser->GetHost()->SetFocus(true);
