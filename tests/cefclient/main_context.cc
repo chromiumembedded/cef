@@ -4,6 +4,8 @@
 
 #include "cefclient/main_context.h"
 
+#include "include/base/cef_logging.h"
+
 namespace client {
 
 namespace {
