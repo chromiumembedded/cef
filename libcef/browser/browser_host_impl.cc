@@ -1838,8 +1838,9 @@ void CefBrowserHostImpl::DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
 
   int screenX, screenY;
 
-  if (!client_->GetRenderHandler()->GetScreenPoint(
-      this, event.x, event.y, screenX, screenY)) {
+  CefRefPtr<CefRenderHandler> handler = client_->GetRenderHandler();
+  if (!handler.get() || !handler->GetScreenPoint(this, event.x, event.y,
+                                                 screenX, screenY)) {
     screenX = event.x;
     screenY = event.y;
   }
@@ -1877,8 +1878,9 @@ void CefBrowserHostImpl::DragTargetDragOver(const CefMouseEvent& event,
 
   int screenX, screenY;
 
-  if (!client_->GetRenderHandler()->GetScreenPoint(
-      this, event.x, event.y, screenX, screenY)) {
+  CefRefPtr<CefRenderHandler> handler = client_->GetRenderHandler();
+  if (!handler.get() || !handler->GetScreenPoint(this, event.x, event.y,
+                                                 screenX, screenY)) {
     screenX = event.x;
     screenY = event.y;
   }
@@ -1931,8 +1933,9 @@ void CefBrowserHostImpl::DragTargetDrop(const CefMouseEvent& event) {
 
   int screenX, screenY;
 
-  if (!client_->GetRenderHandler()->GetScreenPoint(
-      this, event.x, event.y, screenX, screenY)) {
+  CefRefPtr<CefRenderHandler> handler = client_->GetRenderHandler();
+  if (!handler.get() || !handler->GetScreenPoint(this, event.x, event.y,
+                                                 screenX, screenY)) {
     screenX = event.x;
     screenY = event.y;
   }
@@ -1984,8 +1987,9 @@ void CefBrowserHostImpl::DragSourceEndedAt(
 
   int screenX, screenY;
 
-  if (!client_->GetRenderHandler()->GetScreenPoint(
-      this, x, y, screenX, screenY)) {
+  CefRefPtr<CefRenderHandler> handler = client_->GetRenderHandler();
+  if (!handler.get() || !handler->GetScreenPoint(this, x, y, screenX,
+                                                 screenY)) {
     screenX = x;
     screenY = y;
   }
