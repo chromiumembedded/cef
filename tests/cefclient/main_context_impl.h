@@ -15,7 +15,11 @@ namespace client {
 class MainContextImpl : public MainContext {
  public:
   MainContextImpl(int argc,
-                  const char* const* argv);
+                  const char* const* argv
+#if defined(OS_WIN)
+                  , bool terminate_when_all_windows_closed
+#endif
+                  );
 
   // MainContext members.
   std::string GetConsoleLogPath() OVERRIDE;
@@ -24,6 +28,9 @@ class MainContextImpl : public MainContext {
   std::string GetMainURL() OVERRIDE;
   void PopulateSettings(CefSettings* settings) OVERRIDE;
   void PopulateBrowserSettings(CefBrowserSettings* settings) OVERRIDE;
+#if defined(OS_WIN)
+  RootWindowManager* GetRootWindowManager() OVERRIDE;
+#endif
 
  private:
   // Allow deletion via scoped_ptr only.
@@ -33,6 +40,10 @@ class MainContextImpl : public MainContext {
 
   CefRefPtr<CefCommandLine> command_line_;
   std::string main_url_;
+
+#if defined(OS_WIN)
+  scoped_ptr<RootWindowManager> root_window_manager_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(MainContextImpl);
 };

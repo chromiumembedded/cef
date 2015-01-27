@@ -6,6 +6,9 @@
 
 #include "cefclient/client_switches.h"
 
+#if defined(OS_WIN)
+#include "cefclient/root_window_manager.h"
+#endif
 namespace client {
 
 namespace {
@@ -16,7 +19,11 @@ const char kDefaultUrl[] = "http://www.google.com";
 }  // namespace
 
 MainContextImpl::MainContextImpl(int argc,
-                                 const char* const* argv) {
+                                 const char* const* argv
+#if defined(OS_WIN)
+                                 , bool terminate_when_all_windows_closed
+#endif
+                  ) {
   // Parse the command line.
   command_line_ = CefCommandLine::CreateCommandLine();
 #if defined(OS_WIN)
@@ -30,6 +37,11 @@ MainContextImpl::MainContextImpl(int argc,
     main_url_ = command_line_->GetSwitchValue(switches::kUrl);
   if (main_url_.empty())
     main_url_ = kDefaultUrl;
+
+#if defined(OS_WIN)
+  root_window_manager_.reset(
+      new RootWindowManager(terminate_when_all_windows_closed));
+#endif
 }
 
 std::string MainContextImpl::GetConsoleLogPath() {
@@ -59,5 +71,11 @@ void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {
         GetSwitchValue(switches::kOffScreenFrameRate).ToString().c_str());
   }
 }
+
+#if defined(OS_WIN)
+RootWindowManager* MainContextImpl::GetRootWindowManager() {
+  return root_window_manager_.get();
+}
+#endif
 
 }  // namespace client

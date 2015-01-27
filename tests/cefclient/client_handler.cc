@@ -264,7 +264,8 @@ bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser,
   CEF_REQUIRE_IO_THREAD();
 
   // Return true to cancel the popup window.
-  return !CreatePopupWindow(false, popupFeatures, windowInfo, client, settings);
+  return !CreatePopupWindow(browser, false, popupFeatures, windowInfo, client,
+                            settings);
 }
 
 void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
@@ -464,7 +465,7 @@ void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser,
   CefRefPtr<CefClient> client;
   CefBrowserSettings settings;
 
-  if (CreatePopupWindow(true, CefPopupFeatures(), windowInfo, client,
+  if (CreatePopupWindow(browser, true, CefPopupFeatures(), windowInfo, client,
                         settings)) {
     browser->GetHost()->ShowDevTools(windowInfo, client, settings,
                                      inspect_element_at);

@@ -9,12 +9,12 @@
 #include <list>
 #include <string>
 
-#include "include/base/cef_lock.h"
 #include "cefclient/client_handler.h"
 
 namespace client {
 
-// Client handler implementation that is shared by all existing browsers.
+// Client handler implementation that is shared by all existing browsers. All
+// methods must be called on the CEF UI thread unless otherwise indicated.
 class ClientHandlerShared : public ClientHandler {
  public:
   // Interface implemented to handle off-screen rendering.
@@ -44,6 +44,7 @@ class ClientHandlerShared : public ClientHandler {
                        bool canGoBack,
                        bool canGoForward) OVERRIDE;
   bool CreatePopupWindow(
+      CefRefPtr<CefBrowser> browser,
       bool is_devtools,
       const CefPopupFeatures& popupFeatures,
       CefWindowInfo& windowInfo,
@@ -59,12 +60,11 @@ class ClientHandlerShared : public ClientHandler {
   CefRefPtr<RenderHandler> GetOSRHandler() const;
   void SetOSRHandler(CefRefPtr<RenderHandler> handler);
 
-  // Get the main (non-popup) browser associated with this client. Safe to call
-  // on any thread.
+  // Get the main (non-popup) browser associated with this client.
   CefRefPtr<CefBrowser> GetBrowser() const;
 
   // Get the main (non-popup) browser ID. Will return non-0 if the main browser
-  // currently exists. Should only be called on the CEF UI thread.
+  // currently exists.
   int GetBrowserId() const;
 
   // Request that all existing browser windows close.
@@ -72,21 +72,11 @@ class ClientHandlerShared : public ClientHandler {
 
   // Returns true if the main browser window is currently closing. Used in
   // combination with DoClose() and the OS close notification to properly handle
-  // 'onbeforeunload' JavaScript events during window close. Safe to call on any
-  // thread.
+  // 'onbeforeunload' JavaScript events during window close.
   bool IsClosing() const;
 
  private:
-  // Lock used to protect members accessed on multiple threads. Make it mutable
-  // so that it can be used from const methods.
-  mutable base::Lock lock_;
-
-  // LOCK PROTECTED MEMBERS
-  // Setting the following members or accessing them from a thread other than
-  // the CEF UI thread must be protected by |lock_|. Most platforms will only
-  // access them from the UI thread but on Windows they will be accessed from
-  // the main application thread when using using multi-threaded message loop
-  // mode.
+  // The following members will only be accessed on the CEF UI thread.
 
   // The handler for off-screen rendering, if any.
   CefRefPtr<RenderHandler> osr_handler_;
@@ -96,9 +86,6 @@ class ClientHandlerShared : public ClientHandler {
 
   // True if the main browser window is currently closing.
   bool is_closing_;
-
-  // UI THREAD MEMBERS
-  // The following members will only be accessed on the CEF UI thread.
 
   // The child browser id.
   int browser_id_;

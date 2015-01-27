@@ -41,6 +41,7 @@
 #include <string>
 #include <vector>
 
+#include "include/base/cef_bind.h"
 #include "include/base/cef_logging.h"
 #include "include/base/cef_macros.h"
 #include "include/cef_task.h"
@@ -49,6 +50,46 @@
 #define CEF_REQUIRE_IO_THREAD()       DCHECK(CefCurrentlyOn(TID_IO));
 #define CEF_REQUIRE_FILE_THREAD()     DCHECK(CefCurrentlyOn(TID_FILE));
 #define CEF_REQUIRE_RENDERER_THREAD() DCHECK(CefCurrentlyOn(TID_RENDERER));
+
+
+// Use this struct in conjuction with refcounted types to ensure that an
+// object is deleted on the specified thread. For example:
+//
+// class Foo : public base::RefCountedThreadSafe<Foo, CefDeleteOnUIThread> {
+//  public:
+//   Foo();
+//   void DoSomething();
+//
+//  private:
+//   // Allow deletion via scoped_refptr only.
+//   friend struct CefDeleteOnThread<TID_UI>;
+//   friend class base::RefCountedThreadSafe<Foo, CefDeleteOnUIThread>;
+//
+//   virtual ~Foo() {}
+// };
+//
+// base::scoped_refptr<Foo> foo = new Foo();
+// foo->DoSomething();
+// foo = NULL;  // Deletion of |foo| will occur on the UI thread.
+//
+template<CefThreadId thread>
+struct CefDeleteOnThread {
+  template<typename T>
+  static void Destruct(const T* x) {
+    if (CefCurrentlyOn(thread)) {
+      delete x;
+    } else {
+      CefPostTask(thread,
+                  base::Bind(&CefDeleteOnThread<thread>::Destruct<T>, x));
+    }
+  }
+};
+
+struct CefDeleteOnUIThread : public CefDeleteOnThread<TID_UI> { };
+struct CefDeleteOnIOThread : public CefDeleteOnThread<TID_IO> { };
+struct CefDeleteOnFileThread : public CefDeleteOnThread<TID_FILE> { };
+struct CefDeleteOnRendererThread : public CefDeleteOnThread<TID_RENDERER> { };
+
 
 ///
 // Helper class to manage a scoped copy of |argv|.

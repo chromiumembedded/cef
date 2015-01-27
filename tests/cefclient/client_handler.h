@@ -235,6 +235,7 @@ class ClientHandler : public CefClient,
   // proceed with popup browser creation or false to cancel the popup browser.
   // May be called on any thead.
   virtual bool CreatePopupWindow(
+      CefRefPtr<CefBrowser> browser,
       bool is_devtools,
       const CefPopupFeatures& popupFeatures,
       CefWindowInfo& windowInfo,

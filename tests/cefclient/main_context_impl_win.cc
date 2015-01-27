@@ -7,6 +7,8 @@
 #include <direct.h>
 #include <shlobj.h>
 
+#include "cefclient/root_window_manager.h"
+
 namespace client {
 
 std::string MainContextImpl::GetDownloadPath(const std::string& file_name) {

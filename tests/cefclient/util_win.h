@@ -19,6 +19,9 @@ T GetUserDataPtr(HWND hWnd) {
 // Set the window's window procedure pointer and return the old value.
 WNDPROC SetWndProcPtr(HWND hWnd, WNDPROC wndProc);
 
+// Return the resource string with the specified id.
+std::wstring GetResourceString(UINT id);
+
 int GetCefMouseModifiers(WPARAM wparam);
 int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam);
 bool IsKeyDown(WPARAM wparam);

@@ -26,6 +26,13 @@ WNDPROC SetWndProcPtr(HWND hWnd, WNDPROC wndProc) {
   return old;
 }
 
+std::wstring GetResourceString(UINT id) {
+  #define MAX_LOADSTRING 100
+  TCHAR buff[MAX_LOADSTRING] = {0};
+  LoadString(::GetModuleHandle(NULL), id, buff, MAX_LOADSTRING);
+  return buff;
+}
+
 int GetCefMouseModifiers(WPARAM wparam) {
   int modifiers = 0;
   if (wparam & MK_CONTROL)

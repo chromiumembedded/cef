@@ -1,0 +1,112 @@
+// Copyright (c) 2015 The Chromium Embedded Framework Authors. All rights
+// reserved. Use of this source code is governed by a BSD-style license that
+// can be found in the LICENSE file.
+
+#ifndef CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_WIN_H_
+#define CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_WIN_H_
+
+#include <windows.h>
+
+#include "include/base/cef_scoped_ptr.h"
+#include "include/cef_browser.h"
+#include "cefclient/client_handler_single.h"
+
+namespace client {
+
+// Represents a native child window hosting a single browser instance. The
+// methods of this class must be called on the main thread unless otherwise
+// indicated.
+class BrowserWindowWin : public ClientHandlerSingle::Delegate {
+ public:
+  // This interface is implemented by the owner of the BrowserWindowWin. The
+  // methods of this class will be called on the main thread.
+  class Delegate {
+   public:
+    // Called when the browser has been created.
+    virtual void OnBrowserCreated(CefRefPtr<CefBrowser> browser) = 0;
+
+    // Called when the BrowserWindowWin has been destroyed.
+    virtual void OnBrowserWindowDestroyed() = 0;
+
+    // Set the window URL address.
+    virtual void OnSetAddress(const std::string& url) = 0;
+
+    // Set the window title.
+    virtual void OnSetTitle(const std::string& title) = 0;
+
+    // Set the loading state.
+    virtual void OnSetLoadingState(bool isLoading,
+                                   bool canGoBack,
+                                   bool canGoForward) = 0;
+
+   protected:
+    virtual ~Delegate() {}
+  };
+
+  // Create a new browser and native window.
+  virtual void CreateBrowser(HWND parent_hwnd,
+                             const RECT& rect,
+                             const CefBrowserSettings& settings) = 0;
+
+  // Retrieve the configuration that will be used when creating a popup window.
+  // The native window will be created later after the browser has been created.
+  // This method may be called on any thread.
+  virtual void GetPopupConfig(HWND temp_hwnd,
+                              CefWindowInfo& windowInfo,
+                              CefRefPtr<CefClient>& client,
+                              CefBrowserSettings& settings) = 0;
+
+  // Show the popup window with correct parent and bounds in parent coordinates.
+  virtual void ShowPopup(HWND parent_hwnd,
+                         int x, int y, size_t width, size_t height) = 0;
+
+  // Show the window.
+  virtual void Show() = 0;
+
+  // Hide the window.
+  virtual void Hide() = 0;
+
+  // Set the window bounds in parent coordinates.
+  virtual void SetBounds(int x, int y, size_t width, size_t height) = 0;
+
+  // Set focus to the window.
+  virtual void SetFocus() = 0;
+
+  // Returns the window handle.
+  virtual HWND GetHWND() const = 0;
+
+  // Returns the browser owned by the window.
+  CefRefPtr<CefBrowser> GetBrowser() const;
+
+  // Returns true if the browser is closing.
+  bool IsClosing() const;
+
+ protected:
+  // Allow deletion via scoped_ptr only.
+  friend struct base::DefaultDeleter<BrowserWindowWin>;
+
+  // Constructor may be called on any thread.
+  // |root_window| and |delegate| must outlive this object.
+  explicit BrowserWindowWin(Delegate* delegate);
+
+  // ClientHandlerSingle::Delegate methods.
+  void OnBrowserCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  void OnBrowserClosing(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  void OnBrowserClosed(CefRefPtr<CefBrowser> browser) OVERRIDE;
+  void OnSetAddress(const std::string& url) OVERRIDE;
+  void OnSetTitle(const std::string& title) OVERRIDE;
+  void OnSetLoadingState(bool isLoading,
+                         bool canGoBack,
+                         bool canGoForward) OVERRIDE;
+
+  Delegate* delegate_;
+  CefRefPtr<CefBrowser> browser_;
+  CefRefPtr<ClientHandlerSingle> client_handler_;
+  bool is_closing_;
+
+  DISALLOW_COPY_AND_ASSIGN(BrowserWindowWin);
+};
+
+}  // namespace client
+
+#endif  // CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_WIN_H_

@@ -40,12 +40,7 @@ void ClientHandlerShared::BrowserCreated(CefRefPtr<CefBrowser> browser) {
   if (browser_id_ == 0)   {
     // Keep references to the browser hosted in the main window.
     browser_id_ = browser->GetIdentifier();
-    {
-      // Protect modification of |browser_| with a lock because it may be
-      // accessed from different threads.
-      base::AutoLock lock_scope(lock_);
-      browser_ = browser;
-    }
+    browser_ = browser;
   } else if (browser->IsPopup()) {
     // Add to the list of popup browsers.
     popup_browsers_.push_back(browser);
@@ -64,9 +59,6 @@ void ClientHandlerShared::BrowserClosing(CefRefPtr<CefBrowser> browser) {
   // documentation in the CEF header for a detailed destription of this
   // process.
   if (browser_id_ == browser->GetIdentifier()) {
-    // Protect modification of |is_closing_| with a lock because it may be
-    // accessed from different threads.
-    base::AutoLock lock_scope(lock_);
     // Set a flag to indicate that the window close should be allowed.
     is_closing_ = true;
   }
@@ -76,20 +68,11 @@ void ClientHandlerShared::BrowserClosed(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
 
   if (browser_id_ == browser->GetIdentifier()) {
-    {
-      // Protect modification of |browser_| with a lock because it may be
-      // accessed from different threads.
-      base::AutoLock lock_scope(lock_);
-      // Free the browser pointer so that the browser can be destroyed.
-      browser_ = NULL;
-    }
+    // Free the browser pointer so that the browser can be destroyed.
+    browser_ = NULL;
 
     if (osr_handler_.get()) {
       osr_handler_->OnBeforeClose(browser);
-
-      // Protect modification of |osr_handler_| with a lock because it may be
-      // accessed from different threads.
-      base::AutoLock lock_scope(lock_);
       osr_handler_ = NULL;
     }
 
@@ -112,6 +95,7 @@ void ClientHandlerShared::BrowserClosed(CefRefPtr<CefBrowser> browser) {
 }
 
 bool ClientHandlerShared::CreatePopupWindow(
+    CefRefPtr<CefBrowser> browser,
     bool is_devtools,
     const CefPopupFeatures& popupFeatures,
     CefWindowInfo& windowInfo,
@@ -120,6 +104,8 @@ bool ClientHandlerShared::CreatePopupWindow(
   // Note: This method will be called on multiple threads.
 
   if (is_devtools) {
+    CEF_REQUIRE_UI_THREAD();
+
     // Create DevTools as a windowed popup browser using the same client.
 #if defined(OS_WIN)
     windowInfo.SetAsPopup(GetMainWindowHandle(), "DevTools");
@@ -127,7 +113,7 @@ bool ClientHandlerShared::CreatePopupWindow(
     client = this;
   } else if (is_osr()) {
     CefPostTask(TID_UI,
-        base::Bind(test_runner::Alert, GetBrowser(),
+        base::Bind(test_runner::Alert, browser,
                    "Popup windows are disabled with off-screen rendering."));
 
     // Cancel popups in off-screen rendering mode.
@@ -143,14 +129,7 @@ void ClientHandlerShared::SetUXWindowHandles(
    ClientWindowHandle forwardHandle,
    ClientWindowHandle reloadHandle,
    ClientWindowHandle stopHandle) {
-  if (!CefCurrentlyOn(TID_UI)) {
-    // Execute on the UI thread.
-    CefPostTask(TID_UI,
-        base::Bind(&ClientHandlerShared::SetUXWindowHandles, this,
-                   editHandle, backHandle, forwardHandle, reloadHandle,
-                   stopHandle));
-    return;
-  }
+  CEF_REQUIRE_UI_THREAD();
 
   edit_handle_ = editHandle;
   back_handle_ = backHandle;
@@ -161,50 +140,31 @@ void ClientHandlerShared::SetUXWindowHandles(
 
 CefRefPtr<ClientHandlerShared::RenderHandler>
     ClientHandlerShared::GetOSRHandler() const {
-  if (CefCurrentlyOn(TID_UI)) {
-    // No need for locking because |osr_handler_| will only be modified on this
-    // thread.
-    return osr_handler_;
-  } else {
-    // Use a lock to protect |osr_handler_| from being modified while we're
-    // accessing it from a different thread.
-    base::AutoLock lock_scope(lock_);
-    return osr_handler_;
-  }
+  CEF_REQUIRE_UI_THREAD();
+
+  return osr_handler_;
 }
 
 void ClientHandlerShared::SetOSRHandler(CefRefPtr<RenderHandler> handler) {
-  // Protect modification of |osr_handler_| with a lock because it may be
-  // accessed from different threads.
-  base::AutoLock lock_scope(lock_);
+  CEF_REQUIRE_UI_THREAD();
+
   osr_handler_ = handler;
 }
 
 CefRefPtr<CefBrowser> ClientHandlerShared::GetBrowser() const {
-  if (CefCurrentlyOn(TID_UI)) {
-    // No need for locking because |browser_| will only be modified on this
-    // thread.
-    return browser_;
-  } else {
-    // Use a lock to protect |browser_| from being modified while we're
-    // accessing it from a different thread.
-    base::AutoLock lock_scope(lock_);
-    return browser_;
-  }
+  CEF_REQUIRE_UI_THREAD();
+
+  return browser_;
 }
 
 int ClientHandlerShared::GetBrowserId() const {
   CEF_REQUIRE_UI_THREAD();
+
   return browser_id_;
 }
 
 void ClientHandlerShared::CloseAllBrowsers(bool force_close) {
-  if (!CefCurrentlyOn(TID_UI)) {
-    // Execute on the UI thread.
-    CefPostTask(TID_UI,
-        base::Bind(&ClientHandlerShared::CloseAllBrowsers, this, force_close));
-    return;
-  }
+  CEF_REQUIRE_UI_THREAD();
 
   if (!popup_browsers_.empty()) {
     // Request that any popup browsers close.
@@ -220,16 +180,9 @@ void ClientHandlerShared::CloseAllBrowsers(bool force_close) {
 }
 
 bool ClientHandlerShared::IsClosing() const {
-  if (CefCurrentlyOn(TID_UI)) {
-    // No need for locking because |is_closing_| will only be modified on this
-    // thread.
-    return is_closing_;
-  } else {
-    // Use a lock to protect |is_closing_| from being modified while we're
-    // accessing it from a different thread.
-    base::AutoLock lock_scope(lock_);
-    return is_closing_;
-  }
+  CEF_REQUIRE_UI_THREAD();
+
+  return is_closing_;
 }
 
 }  // namespace client
