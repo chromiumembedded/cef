@@ -45,7 +45,9 @@ void BrowserWindowStdWin::ShowPopup(HWND parent_hwnd,
   HWND hwnd = GetHWND();
   if (hwnd) {
     SetParent(hwnd, parent_hwnd);
-    SetWindowPos(hwnd, NULL, x, y, width, height, SWP_NOZORDER);
+    SetWindowPos(hwnd, NULL, x, y,
+                 static_cast<int>(width), static_cast<int>(height),
+                 SWP_NOZORDER);
     ShowWindow(hwnd, SW_SHOW);
   }
 }
@@ -76,7 +78,9 @@ void BrowserWindowStdWin::SetBounds(int x, int y, size_t width, size_t height) {
   HWND hwnd = GetHWND();
   if (hwnd) {
     // Set the browser window bounds.
-    SetWindowPos(hwnd, NULL, x, y, width, height, SWP_NOZORDER);
+    SetWindowPos(hwnd, NULL, x, y,
+                 static_cast<int>(width), static_cast<int>(height),
+                 SWP_NOZORDER);
   }
 }
 

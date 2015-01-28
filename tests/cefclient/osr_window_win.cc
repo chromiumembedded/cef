@@ -114,7 +114,9 @@ void OsrWindowWin::ShowPopup(HWND parent_hwnd,
   DCHECK(browser_.get());
 
   // Create the native window.
-  const RECT rect = {x, y, x + width, y + height};
+  const RECT rect = {x, y,
+                     x + static_cast<int>(width),
+                     y + static_cast<int>(height)};
   Create(parent_hwnd, rect);
 
   // Send resize notification so the compositor is assigned the correct
@@ -178,7 +180,9 @@ void OsrWindowWin::SetBounds(int x, int y, size_t width, size_t height) {
 
   if (hwnd_) {
     // Set the browser window bounds.
-    ::SetWindowPos(hwnd_, NULL, x, y, width, height, SWP_NOZORDER);
+    ::SetWindowPos(hwnd_, NULL, x, y,
+                   static_cast<int>(width), static_cast<int>(height),
+                   SWP_NOZORDER);
   }
 }
 
