@@ -1,8 +1,8 @@
-// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2015 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefclient/osr_widget_gtk.h"
+#include "cefclient/browser_window_osr_gtk.h"
 
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
@@ -17,23 +17,15 @@
 #include <X11/XF86keysym.h>
 #include <X11/Xcursor/Xcursor.h>
 
-#include "include/base/cef_bind.h"
+#include "include/base/cef_logging.h"
 #include "include/wrapper/cef_closure_task.h"
+#include "cefclient/main_message_loop.h"
 
 namespace client {
 
 namespace {
 
-gint glarea_size_allocation(GtkWidget* widget,
-                            GtkAllocation* allocation,
-                            OSRWindow* window) {
-  CefRefPtr<CefBrowserHost> host = window->GetBrowserHost();
-  if (host)
-    host->WasResized();
-  return TRUE;
-}
-
-int get_cef_state_modifiers(guint state) {
+int GetCefStateModifiers(guint state) {
   int modifiers = 0;
   if (state & GDK_SHIFT_MASK)
     modifiers |= EVENTFLAG_SHIFT_DOWN;
@@ -865,183 +857,7 @@ int GetControlCharacter(KeyboardCode windows_key_code, bool shift) {
   }
 }
 
-gint glarea_click_event(GtkWidget* widget,
-                        GdkEventButton* event,
-                        OSRWindow* window) {
-  CefRefPtr<CefBrowserHost> host = window->GetBrowserHost();
-  if (!host)
-    return TRUE;
-
-  CefBrowserHost::MouseButtonType button_type = MBT_LEFT;
-  switch (event->button) {
-    case 1:
-      break;
-    case 2:
-      button_type = MBT_MIDDLE;
-      break;
-    case 3:
-      button_type = MBT_RIGHT;
-      break;
-    default:
-      // Other mouse buttons are not handled here.
-      return FALSE;
-  }
-
-  CefMouseEvent mouse_event;
-  mouse_event.x = event->x;
-  mouse_event.y = event->y;
-  window->ApplyPopupOffset(mouse_event.x, mouse_event.y);
-  mouse_event.modifiers = get_cef_state_modifiers(event->state);
-
-  bool mouse_up = (event->type == GDK_BUTTON_RELEASE);
-  if (!mouse_up)
-    gtk_widget_grab_focus(widget);
-
-  int click_count = 1;
-  switch (event->type) {
-    case GDK_2BUTTON_PRESS:
-      click_count = 2;
-      break;
-    case GDK_3BUTTON_PRESS:
-      click_count = 3;
-      break;
-    default:
-      break;
-  }
-
-  host->SendMouseClickEvent(mouse_event, button_type, mouse_up, click_count);
-  return TRUE;
-}
-
-gint glarea_move_event(GtkWidget* widget,
-                       GdkEventMotion* event,
-                       OSRWindow* window) {
-  CefRefPtr<CefBrowserHost> host = window->GetBrowserHost();
-  if (!host)
-    return TRUE;
-
-  gint x, y;
-  GdkModifierType state;
-
-  if (event->is_hint) {
-    gdk_window_get_pointer(event->window, &x, &y, &state);
-  } else {
-    x = (gint)event->x;
-    y = (gint)event->y;
-    state = (GdkModifierType)event->state;
-  }
-
-  CefMouseEvent mouse_event;
-  mouse_event.x = x;
-  mouse_event.y = y;
-  window->ApplyPopupOffset(mouse_event.x, mouse_event.y);
-  mouse_event.modifiers = get_cef_state_modifiers(state);
-
-  bool mouse_leave = (event->type == GDK_LEAVE_NOTIFY);
-
-  host->SendMouseMoveEvent(mouse_event, mouse_leave);
-  return TRUE;
-}
-
-gint glarea_scroll_event(GtkWidget* widget,
-                         GdkEventScroll* event,
-                         OSRWindow* window) {
-  CefRefPtr<CefBrowserHost> host = window->GetBrowserHost();
-  if (!host)
-    return TRUE;
-
-  CefMouseEvent mouse_event;
-  mouse_event.x = event->x;
-  mouse_event.y = event->y;
-  window->ApplyPopupOffset(mouse_event.x, mouse_event.y);
-  mouse_event.modifiers = get_cef_state_modifiers(event->state);
-
-  static const int scrollbarPixelsPerGtkTick = 40;
-  int deltaX = 0;
-  int deltaY = 0;
-  switch (event->direction) {
-    case GDK_SCROLL_UP:
-      deltaY = scrollbarPixelsPerGtkTick;
-      break;
-    case GDK_SCROLL_DOWN:
-      deltaY = -scrollbarPixelsPerGtkTick;
-      break;
-    case GDK_SCROLL_LEFT:
-      deltaX = scrollbarPixelsPerGtkTick;
-      break;
-    case GDK_SCROLL_RIGHT:
-      deltaX = -scrollbarPixelsPerGtkTick;
-      break;
-  }
-
-  host->SendMouseWheelEvent(mouse_event, deltaX, deltaY);
-  return TRUE;
-}
-
-gint glarea_key_event(GtkWidget* widget,
-                      GdkEventKey* event,
-                      OSRWindow* window) {
-  CefRefPtr<CefBrowserHost> host = window->GetBrowserHost();
-  if (!host)
-    return TRUE;
-
-  // Based on WebKeyboardEventBuilder::Build from
-  // content/browser/renderer_host/input/web_input_event_builders_gtk.cc.
-  CefKeyEvent key_event;
-  KeyboardCode windows_key_code = GdkEventToWindowsKeyCode(event);
-  key_event.windows_key_code =
-      GetWindowsKeyCodeWithoutLocation(windows_key_code);
-  key_event.native_key_code = event->hardware_keycode;
-
-  key_event.modifiers = get_cef_state_modifiers(event->state);
-  if (event->keyval >= GDK_KP_Space && event->keyval <= GDK_KP_9)
-    key_event.modifiers |= EVENTFLAG_IS_KEY_PAD;
-  if (key_event.modifiers & EVENTFLAG_ALT_DOWN)
-    key_event.is_system_key = true;
-
-  if (windows_key_code == VKEY_RETURN) {
-    // We need to treat the enter key as a key press of character \r.  This
-    // is apparently just how webkit handles it and what it expects.
-    key_event.unmodified_character = '\r';
-  } else {
-    // FIXME: fix for non BMP chars
-    key_event.unmodified_character =
-        static_cast<int>(gdk_keyval_to_unicode(event->keyval));
-  }
-
-  // If ctrl key is pressed down, then control character shall be input.
-  if (key_event.modifiers & EVENTFLAG_CONTROL_DOWN) {
-    key_event.character =
-      GetControlCharacter(windows_key_code,
-                          key_event.modifiers & EVENTFLAG_SHIFT_DOWN);
-  } else {
-    key_event.character = key_event.unmodified_character;
-  }
-
-  if (event->type == GDK_KEY_PRESS) {
-    key_event.type = KEYEVENT_RAWKEYDOWN;
-    host->SendKeyEvent(key_event);
-  } else {
-    // Need to send both KEYUP and CHAR events.
-    key_event.type = KEYEVENT_KEYUP;
-    host->SendKeyEvent(key_event);
-    key_event.type = KEYEVENT_CHAR;
-    host->SendKeyEvent(key_event);
-  }
-
-  return TRUE;
-}
-
-gint glarea_focus_event(GtkWidget* widget,
-                        GdkEventFocus* event,
-                        OSRWindow* window) {
-  CefRefPtr<CefBrowserHost> host = window->GetBrowserHost();
-  if (host)
-    host->SendFocusEvent(event->in == TRUE);
-  return TRUE;
-}
-
-void widget_get_rect_in_screen(GtkWidget* widget, GdkRectangle* r) {
+void GetWidgetRectInScreen(GtkWidget* widget, GdkRectangle* r) {
   gint x, y, w, h;
   GdkRectangle extents;
 
@@ -1095,26 +911,128 @@ class ScopedGLContext {
 
 }  // namespace
 
-// static
-CefRefPtr<OSRWindow> OSRWindow::Create(OSRBrowserProvider* browser_provider,
-                                       bool transparent,
-                                       bool show_update_rect,
-                                       ClientWindowHandle parentView) {
-  DCHECK(browser_provider);
-  if (!browser_provider)
-    return NULL;
-
-  return new OSRWindow(browser_provider, transparent, show_update_rect,
-                       parentView);
+BrowserWindowOsrGtk::BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
+                                         const std::string& startup_url,
+                                         bool transparent,
+                                         bool show_update_rect)
+    : BrowserWindow(delegate),
+      renderer_(transparent, show_update_rect),
+      glarea_(NULL),
+      hidden_(false),
+      gl_enabled_(false),
+      painting_popup_(false) {
+  client_handler_ = new ClientHandlerOsr(this, this, startup_url);
 }
 
-// static
-CefRefPtr<OSRWindow> OSRWindow::From(
-    CefRefPtr<ClientHandlerShared::RenderHandler> renderHandler) {
-  return static_cast<OSRWindow*>(renderHandler.get());
+void BrowserWindowOsrGtk::CreateBrowser(ClientWindowHandle parent_handle,
+                                        const CefRect& rect,
+                                        const CefBrowserSettings& settings) {
+  REQUIRE_MAIN_THREAD();
+
+  // Set the window handle for GTK dialogs.
+  client_handler_->SetMainWindowHandle(parent_handle);
+
+  // Create the native window.
+  Create(parent_handle);
+
+  // Retrieve the X11 Window ID for the GTK parent window.
+  GtkWidget* window = gtk_widget_get_ancestor(
+      GTK_WIDGET(parent_handle), GTK_TYPE_WINDOW);
+  ::Window xwindow = GDK_WINDOW_XID(gtk_widget_get_window(window));
+  DCHECK(xwindow);
+
+  CefWindowInfo window_info;
+  window_info.SetAsWindowless(xwindow, renderer_.IsTransparent());
+
+  // Create the browser asynchronously.
+  CefBrowserHost::CreateBrowser(window_info, client_handler_,
+                                client_handler_->startup_url(),
+                                settings, NULL);
 }
 
-void OSRWindow::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
+void BrowserWindowOsrGtk::GetPopupConfig(CefWindowHandle temp_handle,
+                                         CefWindowInfo& windowInfo,
+                                         CefRefPtr<CefClient>& client,
+                                         CefBrowserSettings& settings) {
+  // Note: This method may be called on any thread.
+  windowInfo.SetAsWindowless(temp_handle, renderer_.IsTransparent());
+  client = client_handler_;
+}
+
+void BrowserWindowOsrGtk::ShowPopup(ClientWindowHandle parent_handle,
+                                    int x, int y, size_t width, size_t height) {
+  REQUIRE_MAIN_THREAD();
+  DCHECK(browser_.get());
+
+  // Set the window handle for GTK dialogs.
+  client_handler_->SetMainWindowHandle(parent_handle);
+
+  // Create the native window.
+  Create(parent_handle);
+
+  // Send resize notification so the compositor is assigned the correct
+  // viewport size and begins rendering.
+  browser_->GetHost()->WasResized();
+
+  Show();
+}
+
+void BrowserWindowOsrGtk::Show() {
+  REQUIRE_MAIN_THREAD();
+
+  if (hidden_) {
+    // Set the browser as visible.
+    browser_->GetHost()->WasHidden(false);
+    hidden_ = false;
+  }
+
+  // Give focus to the browser.
+  browser_->GetHost()->SendFocusEvent(true);
+}
+
+void BrowserWindowOsrGtk::Hide() {
+  REQUIRE_MAIN_THREAD();
+  
+  if (!browser_)
+    return;
+
+  // Remove focus from the browser.
+  browser_->GetHost()->SendFocusEvent(false);
+
+  if (!hidden_) {
+    // Set the browser as hidden.
+    browser_->GetHost()->WasHidden(true);
+    hidden_ = true;
+  }
+}
+
+void BrowserWindowOsrGtk::SetBounds(int x, int y, size_t width, size_t height) {
+  REQUIRE_MAIN_THREAD();
+  // Nothing to do here. GTK will take care of positioning in the container.
+}
+
+void BrowserWindowOsrGtk::SetFocus() {
+  REQUIRE_MAIN_THREAD();
+  if (glarea_)
+    gtk_widget_grab_focus(glarea_);
+}
+
+ClientWindowHandle BrowserWindowOsrGtk::GetWindowHandle() const {
+  REQUIRE_MAIN_THREAD();
+  return glarea_;
+}
+
+void BrowserWindowOsrGtk::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
+  CEF_REQUIRE_UI_THREAD();
+}
+
+void BrowserWindowOsrGtk::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
+  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
+
+  // Detach |this| from the ClientHandlerOsr.
+  static_cast<ClientHandlerOsr*>(client_handler_.get())->DetachOsrDelegate();
+
   // Disconnect all signal handlers that reference |this|.
   g_signal_handlers_disconnect_matched(glarea_, G_SIGNAL_MATCH_DATA, 0, 0,
       NULL, NULL, this);
@@ -1122,8 +1040,17 @@ void OSRWindow::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   DisableGL();
 }
 
-bool OSRWindow::GetViewRect(CefRefPtr<CefBrowser> browser,
-                            CefRect& rect) {
+bool BrowserWindowOsrGtk::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
+                                            CefRect& rect) {
+  CEF_REQUIRE_UI_THREAD();
+  return false;
+}
+
+bool BrowserWindowOsrGtk::GetViewRect(CefRefPtr<CefBrowser> browser,
+                                      CefRect& rect) {
+  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
+
   if (!glarea_)
     return false;
 
@@ -1135,20 +1062,32 @@ bool OSRWindow::GetViewRect(CefRefPtr<CefBrowser> browser,
   return true;
 }
 
-bool OSRWindow::GetScreenPoint(CefRefPtr<CefBrowser> browser,
-                               int viewX,
-                               int viewY,
-                               int& screenX,
-                               int& screenY) {
+bool BrowserWindowOsrGtk::GetScreenPoint(CefRefPtr<CefBrowser> browser,
+                                         int viewX,
+                                         int viewY,
+                                         int& screenX,
+                                         int& screenY) {
+  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
+
   GdkRectangle screen_rect;
-  widget_get_rect_in_screen(glarea_, &screen_rect);
+  GetWidgetRectInScreen(glarea_, &screen_rect);
   screenX = screen_rect.x + viewX;
   screenY = screen_rect.y + viewY;
   return true;
 }
 
-void OSRWindow::OnPopupShow(CefRefPtr<CefBrowser> browser,
-                            bool show) {
+bool BrowserWindowOsrGtk::GetScreenInfo(CefRefPtr<CefBrowser> browser,
+                                        CefScreenInfo& screen_info) {
+  CEF_REQUIRE_UI_THREAD();
+  return false;
+}
+
+void BrowserWindowOsrGtk::OnPopupShow(CefRefPtr<CefBrowser> browser,
+                                      bool show) {
+  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
+
   if (!show) {
     renderer_.ClearPopupRects();
     browser->GetHost()->Invalidate(PET_VIEW);
@@ -1156,16 +1095,29 @@ void OSRWindow::OnPopupShow(CefRefPtr<CefBrowser> browser,
   renderer_.OnPopupShow(browser, show);
 }
 
-void OSRWindow::OnPopupSize(CefRefPtr<CefBrowser> browser,
-                            const CefRect& rect) {
+void BrowserWindowOsrGtk::OnPopupSize(CefRefPtr<CefBrowser> browser,
+                                      const CefRect& rect) {
+  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
+
   renderer_.OnPopupSize(browser, rect);
 }
 
-void OSRWindow::OnPaint(CefRefPtr<CefBrowser> browser,
-                        PaintElementType type,
-                        const RectList& dirtyRects,
-                        const void* buffer,
-                        int width, int height) {
+void BrowserWindowOsrGtk::OnPaint(
+    CefRefPtr<CefBrowser> browser,
+    CefRenderHandler::PaintElementType type,
+    const CefRenderHandler::RectList& dirtyRects,
+    const void* buffer,
+    int width,
+    int height) {
+  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
+
+  if (width <= 2 && height <= 2) {
+    // Ignore really small buffer sizes while the widget is starting up.
+    return;
+  }
+
   if (painting_popup_) {
     renderer_.OnPaint(browser, type, dirtyRects, buffer, width, height);
     return;
@@ -1187,71 +1139,45 @@ void OSRWindow::OnPaint(CefRefPtr<CefBrowser> browser,
   renderer_.Render();
 }
 
-void OSRWindow::OnCursorChange(CefRefPtr<CefBrowser> browser,
-                               CefCursorHandle cursor,
-                               CursorType type,
-                               const CefCursorInfo& custom_cursor_info) {
+void BrowserWindowOsrGtk::OnCursorChange(
+    CefRefPtr<CefBrowser> browser,
+    CefCursorHandle cursor,
+    CefRenderHandler::CursorType type,
+    const CefCursorInfo& custom_cursor_info) {
+  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
+
   // Retrieve the X11 display shared with Chromium.
   ::Display* xdisplay = cef_get_xdisplay();
   DCHECK(xdisplay);
 
-  // Retrieve the X11 window handle for OSR widget.
+  // Retrieve the X11 window handle for the GTK widget.
   ::Window xwindow = GDK_WINDOW_XID(gtk_widget_get_window(glarea_));
 
   // Set the cursor.
   XDefineCursor(xdisplay, xwindow, cursor);
 }
 
-void OSRWindow::Invalidate() {
-  if (!CefCurrentlyOn(TID_UI)) {
-    CefPostTask(TID_UI, base::Bind(&OSRWindow::Invalidate, this));
-    return;
-  }
-
-  // Don't post another task if the previous task is still pending.
-  if (render_task_pending_)
-    return;
-
-  render_task_pending_ = true;
-
-  // Render at 30fps.
-  static const int kRenderDelay = 1000 / 30;
-  CefPostDelayedTask(TID_UI, base::Bind(&OSRWindow::Render, this),
-                     kRenderDelay);
+bool BrowserWindowOsrGtk::StartDragging(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefDragData> drag_data,
+    CefRenderHandler::DragOperationsMask allowed_ops,
+    int x, int y) {
+  CEF_REQUIRE_UI_THREAD();
+  // TODO(port): Implement drag&drop support.
+  return false;
 }
 
-bool OSRWindow::IsOverPopupWidget(int x, int y) const {
-  const CefRect& rc = renderer_.popup_rect();
-  int popup_right = rc.x + rc.width;
-  int popup_bottom = rc.y + rc.height;
-  return (x >= rc.x) && (x < popup_right) &&
-         (y >= rc.y) && (y < popup_bottom);
+void BrowserWindowOsrGtk::UpdateDragCursor(
+    CefRefPtr<CefBrowser> browser,
+    CefRenderHandler::DragOperation operation) {
+  CEF_REQUIRE_UI_THREAD();
 }
 
-int OSRWindow::GetPopupXOffset() const {
-  return renderer_.original_popup_rect().x - renderer_.popup_rect().x;
-}
+void BrowserWindowOsrGtk::Create(ClientWindowHandle parent_handle) {
+  REQUIRE_MAIN_THREAD();
+  DCHECK(!glarea_);
 
-int OSRWindow::GetPopupYOffset() const {
-  return renderer_.original_popup_rect().y - renderer_.popup_rect().y;
-}
-
-void OSRWindow::ApplyPopupOffset(int& x, int& y) const {
-  if (IsOverPopupWidget(x, y)) {
-    x += GetPopupXOffset();
-    y += GetPopupYOffset();
-  }
-}
-
-OSRWindow::OSRWindow(OSRBrowserProvider* browser_provider,
-                     bool transparent,
-                     bool show_update_rect,
-                     ClientWindowHandle parentView)
-    : renderer_(transparent, show_update_rect),
-      browser_provider_(browser_provider),
-      gl_enabled_(false),
-      painting_popup_(false),
-      render_task_pending_(false) {
   glarea_ = gtk_drawing_area_new();
   DCHECK(glarea_);
 
@@ -1261,13 +1187,12 @@ OSRWindow::OSRWindow(OSRBrowserProvider* browser_provider,
                                    GDK_GL_MODE_DOUBLE));
   DCHECK(glconfig);
 
-  gtk_widget_set_gl_capability(glarea_, glconfig, NULL, TRUE,
-                               GDK_GL_RGBA_TYPE);
+  gtk_widget_set_gl_capability(glarea_, glconfig, NULL, TRUE, GDK_GL_RGBA_TYPE);
 
   gtk_widget_set_can_focus(glarea_, TRUE);
 
   g_signal_connect(G_OBJECT(glarea_), "size_allocate",
-                   G_CALLBACK(glarea_size_allocation), this);
+                   G_CALLBACK(&BrowserWindowOsrGtk::SizeAllocation), this);
 
   gtk_widget_set_events(glarea_,
                         GDK_BUTTON_PRESS_MASK |
@@ -1281,49 +1206,265 @@ OSRWindow::OSRWindow(OSRBrowserProvider* browser_provider,
                         GDK_SCROLL_MASK |
                         GDK_FOCUS_CHANGE_MASK);
   g_signal_connect(G_OBJECT(glarea_), "button_press_event",
-                   G_CALLBACK(glarea_click_event), this);
+                   G_CALLBACK(&BrowserWindowOsrGtk::ClickEvent), this);
   g_signal_connect(G_OBJECT(glarea_), "button_release_event",
-                   G_CALLBACK(glarea_click_event), this);
+                   G_CALLBACK(&BrowserWindowOsrGtk::ClickEvent), this);
   g_signal_connect(G_OBJECT(glarea_), "key_press_event",
-                   G_CALLBACK(glarea_key_event), this);
+                   G_CALLBACK(&BrowserWindowOsrGtk::KeyEvent), this);
   g_signal_connect(G_OBJECT(glarea_), "key_release_event",
-                   G_CALLBACK(glarea_key_event), this);
+                   G_CALLBACK(&BrowserWindowOsrGtk::KeyEvent), this);
   g_signal_connect(G_OBJECT(glarea_), "enter_notify_event",
-                   G_CALLBACK(glarea_move_event), this);
+                   G_CALLBACK(&BrowserWindowOsrGtk::MoveEvent), this);
   g_signal_connect(G_OBJECT(glarea_), "leave_notify_event",
-                   G_CALLBACK(glarea_move_event), this);
+                   G_CALLBACK(&BrowserWindowOsrGtk::MoveEvent), this);
   g_signal_connect(G_OBJECT(glarea_), "motion_notify_event",
-                   G_CALLBACK(glarea_move_event), this);
+                   G_CALLBACK(&BrowserWindowOsrGtk::MoveEvent), this);
   g_signal_connect(G_OBJECT(glarea_), "scroll_event",
-                   G_CALLBACK(glarea_scroll_event), this);
+                   G_CALLBACK(&BrowserWindowOsrGtk::ScrollEvent), this);
   g_signal_connect(G_OBJECT(glarea_), "focus_in_event",
-                   G_CALLBACK(glarea_focus_event), this);
+                   G_CALLBACK(&BrowserWindowOsrGtk::FocusEvent), this);
   g_signal_connect(G_OBJECT(glarea_), "focus_out_event",
-                   G_CALLBACK(glarea_focus_event), this);
+                   G_CALLBACK(&BrowserWindowOsrGtk::FocusEvent), this);
 
-  gtk_container_add(GTK_CONTAINER(parentView), glarea_);
+  gtk_container_add(GTK_CONTAINER(parent_handle), glarea_);
+
+  // Make the GlArea visible in the parent container.
+  gtk_widget_show_all(parent_handle);
 }
 
-OSRWindow::~OSRWindow() {
+// static
+gint BrowserWindowOsrGtk::SizeAllocation(GtkWidget* widget,
+                                         GtkAllocation* allocation,
+                                         BrowserWindowOsrGtk* self) {
+  REQUIRE_MAIN_THREAD();
+
+  if (self->browser_.get()) {
+    // Results in a call to GetViewRect().
+    self->browser_->GetHost()->WasResized();
+  }
+  return TRUE;
 }
 
-void OSRWindow::Render() {
-  CEF_REQUIRE_UI_THREAD();
-  if (render_task_pending_)
-    render_task_pending_ = false;
+// static
+gint BrowserWindowOsrGtk::ClickEvent(GtkWidget* widget,
+                                     GdkEventButton* event,
+                                     BrowserWindowOsrGtk* self) {
+  REQUIRE_MAIN_THREAD();
 
-  if (!gl_enabled_)
-    EnableGL();
+  if (!self->browser_.get())
+    return TRUE;
 
-  ScopedGLContext scoped_gl_context(glarea_, true);
-  if (!scoped_gl_context.IsValid())
-    return;
+  CefRefPtr<CefBrowserHost> host = self->browser_->GetHost();
 
-  renderer_.Render();
+  CefBrowserHost::MouseButtonType button_type = MBT_LEFT;
+  switch (event->button) {
+    case 1:
+      break;
+    case 2:
+      button_type = MBT_MIDDLE;
+      break;
+    case 3:
+      button_type = MBT_RIGHT;
+      break;
+    default:
+      // Other mouse buttons are not handled here.
+      return FALSE;
+  }
+
+  CefMouseEvent mouse_event;
+  mouse_event.x = event->x;
+  mouse_event.y = event->y;
+  self->ApplyPopupOffset(mouse_event.x, mouse_event.y);
+  mouse_event.modifiers = GetCefStateModifiers(event->state);
+
+  bool mouse_up = (event->type == GDK_BUTTON_RELEASE);
+  if (!mouse_up)
+    gtk_widget_grab_focus(widget);
+
+  int click_count = 1;
+  switch (event->type) {
+    case GDK_2BUTTON_PRESS:
+      click_count = 2;
+      break;
+    case GDK_3BUTTON_PRESS:
+      click_count = 3;
+      break;
+    default:
+      break;
+  }
+
+  host->SendMouseClickEvent(mouse_event, button_type, mouse_up, click_count);
+  return TRUE;
 }
 
-void OSRWindow::EnableGL() {
-  CEF_REQUIRE_UI_THREAD();
+// static
+gint BrowserWindowOsrGtk::KeyEvent(GtkWidget* widget,
+                                   GdkEventKey* event,
+                                   BrowserWindowOsrGtk* self) {
+  REQUIRE_MAIN_THREAD();
+
+  if (!self->browser_.get())
+    return TRUE;
+
+  CefRefPtr<CefBrowserHost> host = self->browser_->GetHost();
+
+  // Based on WebKeyboardEventBuilder::Build from
+  // content/browser/renderer_host/input/web_input_event_builders_gtk.cc.
+  CefKeyEvent key_event;
+  KeyboardCode windows_key_code = GdkEventToWindowsKeyCode(event);
+  key_event.windows_key_code =
+      GetWindowsKeyCodeWithoutLocation(windows_key_code);
+  key_event.native_key_code = event->hardware_keycode;
+
+  key_event.modifiers = GetCefStateModifiers(event->state);
+  if (event->keyval >= GDK_KP_Space && event->keyval <= GDK_KP_9)
+    key_event.modifiers |= EVENTFLAG_IS_KEY_PAD;
+  if (key_event.modifiers & EVENTFLAG_ALT_DOWN)
+    key_event.is_system_key = true;
+
+  if (windows_key_code == VKEY_RETURN) {
+    // We need to treat the enter key as a key press of character \r.  This
+    // is apparently just how webkit handles it and what it expects.
+    key_event.unmodified_character = '\r';
+  } else {
+    // FIXME: fix for non BMP chars
+    key_event.unmodified_character =
+        static_cast<int>(gdk_keyval_to_unicode(event->keyval));
+  }
+
+  // If ctrl key is pressed down, then control character shall be input.
+  if (key_event.modifiers & EVENTFLAG_CONTROL_DOWN) {
+    key_event.character =
+      GetControlCharacter(windows_key_code,
+                          key_event.modifiers & EVENTFLAG_SHIFT_DOWN);
+  } else {
+    key_event.character = key_event.unmodified_character;
+  }
+
+  if (event->type == GDK_KEY_PRESS) {
+    key_event.type = KEYEVENT_RAWKEYDOWN;
+    host->SendKeyEvent(key_event);
+  } else {
+    // Need to send both KEYUP and CHAR events.
+    key_event.type = KEYEVENT_KEYUP;
+    host->SendKeyEvent(key_event);
+    key_event.type = KEYEVENT_CHAR;
+    host->SendKeyEvent(key_event);
+  }
+
+  return TRUE;
+}
+
+// static
+gint BrowserWindowOsrGtk::MoveEvent(GtkWidget* widget,
+                                    GdkEventMotion* event,
+                                    BrowserWindowOsrGtk* self) {
+  REQUIRE_MAIN_THREAD();
+
+  if (!self->browser_.get())
+    return TRUE;
+
+  CefRefPtr<CefBrowserHost> host = self->browser_->GetHost();
+
+  gint x, y;
+  GdkModifierType state;
+
+  if (event->is_hint) {
+    gdk_window_get_pointer(event->window, &x, &y, &state);
+  } else {
+    x = (gint)event->x;
+    y = (gint)event->y;
+    state = (GdkModifierType)event->state;
+  }
+
+  CefMouseEvent mouse_event;
+  mouse_event.x = x;
+  mouse_event.y = y;
+  self->ApplyPopupOffset(mouse_event.x, mouse_event.y);
+  mouse_event.modifiers = GetCefStateModifiers(state);
+
+  bool mouse_leave = (event->type == GDK_LEAVE_NOTIFY);
+
+  host->SendMouseMoveEvent(mouse_event, mouse_leave);
+  return TRUE;
+}
+
+// static
+gint BrowserWindowOsrGtk::ScrollEvent(GtkWidget* widget,
+                                      GdkEventScroll* event,
+                                      BrowserWindowOsrGtk* self) {
+  REQUIRE_MAIN_THREAD();
+
+  if (!self->browser_.get())
+    return TRUE;
+
+  CefRefPtr<CefBrowserHost> host = self->browser_->GetHost();
+
+  CefMouseEvent mouse_event;
+  mouse_event.x = event->x;
+  mouse_event.y = event->y;
+  self->ApplyPopupOffset(mouse_event.x, mouse_event.y);
+  mouse_event.modifiers = GetCefStateModifiers(event->state);
+
+  static const int scrollbarPixelsPerGtkTick = 40;
+  int deltaX = 0;
+  int deltaY = 0;
+  switch (event->direction) {
+    case GDK_SCROLL_UP:
+      deltaY = scrollbarPixelsPerGtkTick;
+      break;
+    case GDK_SCROLL_DOWN:
+      deltaY = -scrollbarPixelsPerGtkTick;
+      break;
+    case GDK_SCROLL_LEFT:
+      deltaX = scrollbarPixelsPerGtkTick;
+      break;
+    case GDK_SCROLL_RIGHT:
+      deltaX = -scrollbarPixelsPerGtkTick;
+      break;
+  }
+
+  host->SendMouseWheelEvent(mouse_event, deltaX, deltaY);
+  return TRUE;
+}
+
+// static
+gint BrowserWindowOsrGtk::FocusEvent(GtkWidget* widget,
+                                     GdkEventFocus* event,
+                                     BrowserWindowOsrGtk* self) {
+  REQUIRE_MAIN_THREAD();
+
+  if (self->browser_.get())
+     self->browser_->GetHost()->SendFocusEvent(event->in == TRUE);
+  return TRUE;
+}
+
+bool BrowserWindowOsrGtk::IsOverPopupWidget(int x, int y) const {
+  const CefRect& rc = renderer_.popup_rect();
+  int popup_right = rc.x + rc.width;
+  int popup_bottom = rc.y + rc.height;
+  return (x >= rc.x) && (x < popup_right) &&
+         (y >= rc.y) && (y < popup_bottom);
+}
+
+int BrowserWindowOsrGtk::GetPopupXOffset() const {
+  return renderer_.original_popup_rect().x - renderer_.popup_rect().x;
+}
+
+int BrowserWindowOsrGtk::GetPopupYOffset() const {
+  return renderer_.original_popup_rect().y - renderer_.popup_rect().y;
+}
+
+void BrowserWindowOsrGtk::ApplyPopupOffset(int& x, int& y) const {
+  if (IsOverPopupWidget(x, y)) {
+    x += GetPopupXOffset();
+    y += GetPopupYOffset();
+  }
+}
+
+void BrowserWindowOsrGtk::EnableGL() {
+  REQUIRE_MAIN_THREAD();
+
   if (gl_enabled_)
     return;
 
@@ -1336,8 +1477,8 @@ void OSRWindow::EnableGL() {
   gl_enabled_ = true;
 }
 
-void OSRWindow::DisableGL() {
-  CEF_REQUIRE_UI_THREAD();
+void BrowserWindowOsrGtk::DisableGL() {
+  REQUIRE_MAIN_THREAD();
 
   if (!gl_enabled_)
     return;

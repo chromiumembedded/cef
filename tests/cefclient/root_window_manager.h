@@ -13,6 +13,8 @@
 
 #if defined(OS_WIN)
 #include "cefclient/temp_window_win.h"
+#elif defined(OS_LINUX)
+#include "cefclient/temp_window_x11.h"
 #endif
 
 namespace client {
@@ -76,9 +78,11 @@ class RootWindowManager : public RootWindow::Delegate {
   typedef std::set<scoped_refptr<RootWindow> > RootWindowSet;
   RootWindowSet root_windows_;
 
-#if defined(OS_WIN)
   // Singleton window used as the temporary parent for popup browsers.
+#if defined(OS_WIN)
   TempWindowWin temp_window_win_;
+#elif defined(OS_LINUX)
+  TempWindowX11 temp_window_x11_;
 #endif
 
   DISALLOW_COPY_AND_ASSIGN(RootWindowManager);

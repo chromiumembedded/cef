@@ -12,15 +12,10 @@
 #include "include/cef_client.h"
 #include "include/wrapper/cef_helpers.h"
 #include "include/wrapper/cef_message_router.h"
+#include "cefclient/client_types.h"
 
 #if defined(OS_LINUX)
-#include <gtk/gtk.h>
 #include "cefclient/dialog_handler_gtk.h"
-
-// The Linux client uses GTK instead of the underlying platform type (X11).
-#define ClientWindowHandle GtkWidget*
-#else
-#define ClientWindowHandle CefWindowHandle
 #endif
 
 namespace client {

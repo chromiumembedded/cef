@@ -511,7 +511,7 @@ int RunMain(int argc, char* argv[]) {
   [ClientApplication sharedApplication];
 
   // Create the main context object.
-  scoped_ptr<MainContextImpl> context(new MainContextImpl(argc, argv));
+  scoped_ptr<MainContextImpl> context(new MainContextImpl(argc, argv, true));
 
   CefSettings settings;
 
@@ -522,7 +522,7 @@ int RunMain(int argc, char* argv[]) {
   scoped_ptr<MainMessageLoop> message_loop(new MainMessageLoopStd);
 
   // Initialize CEF.
-  CefInitialize(main_args, settings, app.get(), NULL);
+  context->Initialize(main_args, settings, app.get(), NULL);
 
   // Register scheme handlers.
   test_runner::RegisterSchemeHandlers();
@@ -537,7 +537,7 @@ int RunMain(int argc, char* argv[]) {
   int result = message_loop->Run();
 
   // Shut down CEF.
-  CefShutdown();
+  context->Shutdown();
 
   // Release objects in reverse order of creation.
   g_handler = NULL;

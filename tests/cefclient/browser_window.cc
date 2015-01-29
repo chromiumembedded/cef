@@ -2,30 +2,30 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefclient/browser_window_win.h"
+#include "cefclient/browser_window.h"
 
 #include "include/base/cef_bind.h"
 #include "cefclient/main_message_loop.h"
 
 namespace client {
 
-BrowserWindowWin::BrowserWindowWin(Delegate* delegate)
+BrowserWindow::BrowserWindow(Delegate* delegate)
     : delegate_(delegate),
       is_closing_(false) {
   DCHECK(delegate_);
 }
 
-CefRefPtr<CefBrowser> BrowserWindowWin::GetBrowser() const {
+CefRefPtr<CefBrowser> BrowserWindow::GetBrowser() const {
   REQUIRE_MAIN_THREAD();
   return browser_;
 }
 
-bool BrowserWindowWin::IsClosing() const {
+bool BrowserWindow::IsClosing() const {
   REQUIRE_MAIN_THREAD();
   return is_closing_;
 }
 
-void BrowserWindowWin::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {
+void BrowserWindow::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {
   REQUIRE_MAIN_THREAD();
   DCHECK(!browser_);
   browser_ = browser;
@@ -33,13 +33,13 @@ void BrowserWindowWin::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {
   delegate_->OnBrowserCreated(browser);
 }
 
-void BrowserWindowWin::OnBrowserClosing(CefRefPtr<CefBrowser> browser) {
+void BrowserWindow::OnBrowserClosing(CefRefPtr<CefBrowser> browser) {
   REQUIRE_MAIN_THREAD();
   DCHECK_EQ(browser->GetIdentifier(), browser_->GetIdentifier());
   is_closing_ = true;
 }
 
-void BrowserWindowWin::OnBrowserClosed(CefRefPtr<CefBrowser> browser) {
+void BrowserWindow::OnBrowserClosed(CefRefPtr<CefBrowser> browser) {
   REQUIRE_MAIN_THREAD();
   DCHECK_EQ(browser->GetIdentifier(), browser_->GetIdentifier());
   browser_ = NULL;
@@ -51,19 +51,19 @@ void BrowserWindowWin::OnBrowserClosed(CefRefPtr<CefBrowser> browser) {
   delegate_->OnBrowserWindowDestroyed();
 }
 
-void BrowserWindowWin::OnSetAddress(const std::string& url) {
+void BrowserWindow::OnSetAddress(const std::string& url) {
   REQUIRE_MAIN_THREAD();
   delegate_->OnSetAddress(url);
 }
 
-void BrowserWindowWin::OnSetTitle(const std::string& title) {
+void BrowserWindow::OnSetTitle(const std::string& title) {
   REQUIRE_MAIN_THREAD();
   delegate_->OnSetTitle(title);
 }
 
-void BrowserWindowWin::OnSetLoadingState(bool isLoading,
-                                         bool canGoBack,
-                                         bool canGoForward) {
+void BrowserWindow::OnSetLoadingState(bool isLoading,
+                                      bool canGoBack,
+                                      bool canGoForward) {
   REQUIRE_MAIN_THREAD();
   delegate_->OnSetLoadingState(isLoading, canGoBack, canGoForward);
 }

@@ -11,40 +11,41 @@ namespace client {
 
 BrowserWindowStdWin::BrowserWindowStdWin(Delegate* delegate,
                                          const std::string& startup_url)
-    : BrowserWindowWin(delegate) {
+    : BrowserWindow(delegate) {
   client_handler_ = new ClientHandlerStd(this, startup_url);
 }
 
-void BrowserWindowStdWin::CreateBrowser(HWND parent_hwnd,
-                                        const RECT& rect,
+void BrowserWindowStdWin::CreateBrowser(ClientWindowHandle parent_handle,
+                                        const CefRect& rect,
                                         const CefBrowserSettings& settings) {
   REQUIRE_MAIN_THREAD();
 
   CefWindowInfo window_info;
-  window_info.SetAsChild(parent_hwnd, rect);
+  RECT wnd_rect = {rect.x, rect.y, rect.x + rect.width, rect.y + rect.height};
+  window_info.SetAsChild(parent_handle, wnd_rect);
 
   CefBrowserHost::CreateBrowser(window_info, client_handler_,
                                 client_handler_->startup_url(),
                                 settings, NULL);
 }
 
-void BrowserWindowStdWin::GetPopupConfig(HWND temp_hwnd,
+void BrowserWindowStdWin::GetPopupConfig(CefWindowHandle temp_handle,
                                          CefWindowInfo& windowInfo,
                                          CefRefPtr<CefClient>& client,
                                          CefBrowserSettings& settings) {
   // Note: This method may be called on any thread.
   // The window will be properly sized after the browser is created.
-  windowInfo.SetAsChild(temp_hwnd, RECT());
+  windowInfo.SetAsChild(temp_handle, RECT());
   client = client_handler_;
 }
 
-void BrowserWindowStdWin::ShowPopup(HWND parent_hwnd,
+void BrowserWindowStdWin::ShowPopup(ClientWindowHandle parent_handle,
                                     int x, int y, size_t width, size_t height) {
   REQUIRE_MAIN_THREAD();
 
-  HWND hwnd = GetHWND();
+  HWND hwnd = GetWindowHandle();
   if (hwnd) {
-    SetParent(hwnd, parent_hwnd);
+    SetParent(hwnd, parent_handle);
     SetWindowPos(hwnd, NULL, x, y,
                  static_cast<int>(width), static_cast<int>(height),
                  SWP_NOZORDER);
@@ -55,7 +56,7 @@ void BrowserWindowStdWin::ShowPopup(HWND parent_hwnd,
 void BrowserWindowStdWin::Show() {
   REQUIRE_MAIN_THREAD();
 
-  HWND hwnd = GetHWND();
+  HWND hwnd = GetWindowHandle();
   if (hwnd && !::IsWindowVisible(hwnd))
     ShowWindow(hwnd, SW_SHOW);
 }
@@ -63,7 +64,7 @@ void BrowserWindowStdWin::Show() {
 void BrowserWindowStdWin::Hide() {
   REQUIRE_MAIN_THREAD();
 
-  HWND hwnd = GetHWND();
+  HWND hwnd = GetWindowHandle();
   if (hwnd) {
     // When the frame window is minimized set the browser window size to 0x0 to
     // reduce resource usage.
@@ -75,7 +76,7 @@ void BrowserWindowStdWin::Hide() {
 void BrowserWindowStdWin::SetBounds(int x, int y, size_t width, size_t height) {
   REQUIRE_MAIN_THREAD();
 
-  HWND hwnd = GetHWND();
+  HWND hwnd = GetWindowHandle();
   if (hwnd) {
     // Set the browser window bounds.
     SetWindowPos(hwnd, NULL, x, y,
@@ -93,7 +94,7 @@ void BrowserWindowStdWin::SetFocus() {
   }
 }
 
-HWND BrowserWindowStdWin::GetHWND() const {
+ClientWindowHandle BrowserWindowStdWin::GetWindowHandle() const {
   REQUIRE_MAIN_THREAD();
 
   if (browser_)

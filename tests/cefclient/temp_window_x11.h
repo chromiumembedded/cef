@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef CEF_TESTS_CEFCLIENT_TEMP_WINDOW_WIN_H_
-#define CEF_TESTS_CEFCLIENT_TEMP_WINDOW_WIN_H_
+#ifndef CEF_TESTS_CEFCLIENT_TEMP_WINDOW_X11_H_
+#define CEF_TESTS_CEFCLIENT_TEMP_WINDOW_X11_H_
 
 #include "cefclient/main_message_loop.h"
 
@@ -11,7 +11,7 @@ namespace client {
 
 // Represents a singleton hidden window that acts at temporary parent for
 // popup browsers.
-class TempWindowWin {
+class TempWindowX11 {
  public:
   // Returns the singleton window handle.
   static CefWindowHandle GetWindowHandle();
@@ -20,14 +20,14 @@ class TempWindowWin {
   // A single instance will be created/owned by RootWindowManager.
   friend class RootWindowManager;
 
-  TempWindowWin();
-  ~TempWindowWin();
+  TempWindowX11();
+  ~TempWindowX11();
 
-  CefWindowHandle hwnd_;
+  CefWindowHandle xwindow_;
 
-  DISALLOW_COPY_AND_ASSIGN(TempWindowWin);
+  DISALLOW_COPY_AND_ASSIGN(TempWindowX11);
 };
 
 }  // namespace client
 
-#endif  // CEF_TESTS_CEFCLIENT_TEMP_WINDOW_WIN_H_
+#endif  // CEF_TESTS_CEFCLIENT_TEMP_WINDOW_X11_H_

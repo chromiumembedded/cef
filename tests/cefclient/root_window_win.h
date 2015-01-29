@@ -11,7 +11,7 @@
 #include <string>
 
 #include "include/base/cef_scoped_ptr.h"
-#include "cefclient/browser_window_win.h"
+#include "cefclient/browser_window.h"
 #include "cefclient/root_window.h"
 
 namespace client {
@@ -20,7 +20,7 @@ namespace client {
 // The methods of this class must be called on the main thread unless otherwise
 // indicated.
 class RootWindowWin : public RootWindow,
-                      public BrowserWindowWin::Delegate {
+                      public BrowserWindow::Delegate {
  public:
   // Constructor may be called on any thread.
   RootWindowWin();
@@ -45,7 +45,7 @@ class RootWindowWin : public RootWindow,
   void SetBounds(int x, int y, size_t width, size_t height) OVERRIDE;
   void Close(bool force) OVERRIDE;
   CefRefPtr<CefBrowser> GetBrowser() const OVERRIDE;
-  CefWindowHandle GetWindowHandle() const OVERRIDE;
+  ClientWindowHandle GetWindowHandle() const OVERRIDE;
 
  private:
   void CreateBrowserWindow(bool with_osr, const std::string& startup_url);
@@ -79,7 +79,7 @@ class RootWindowWin : public RootWindow,
   bool OnClose();
   void OnDestroyed();
 
-  // BrowserWindowWin::Delegate methods.
+  // BrowserWindow::Delegate methods.
   void OnBrowserCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   void OnBrowserWindowDestroyed() OVERRIDE;
   void OnSetAddress(const std::string& url) OVERRIDE;
@@ -96,7 +96,7 @@ class RootWindowWin : public RootWindow,
   bool with_controls_;
   bool is_popup_;
   RECT start_rect_;
-  scoped_ptr<BrowserWindowWin> browser_window_;
+  scoped_ptr<BrowserWindow> browser_window_;
   bool initialized_;
 
   // Main window.

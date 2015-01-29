@@ -9,6 +9,7 @@
 
 #include "include/base/cef_ref_counted.h"
 #include "include/cef_browser.h"
+#include "cefclient/client_types.h"
 #include "cefclient/main_message_loop.h"
 
 namespace client {
@@ -90,7 +91,7 @@ class RootWindow :
   virtual CefRefPtr<CefBrowser> GetBrowser() const = 0;
 
   // Returns the handle for this window, if any.
-  virtual CefWindowHandle GetWindowHandle() const = 0;
+  virtual ClientWindowHandle GetWindowHandle() const = 0;
 
  protected:
   // Allow deletion via scoped_refptr only.

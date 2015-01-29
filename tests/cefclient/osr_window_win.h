@@ -96,7 +96,7 @@ class OsrWindowWin :
   int GetPopupYOffset() const;
   void ApplyPopupOffset(int& x, int& y) const;
 
-  // ClientHandlerOsr::Delegate methods.
+  // ClientHandlerOsr::OsrDelegate methods.
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
   bool GetRootScreenRect(CefRefPtr<CefBrowser> browser,

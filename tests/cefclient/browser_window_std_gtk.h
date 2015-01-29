@@ -2,26 +2,22 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_OSR_WIN_H_
-#define CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_OSR_WIN_H_
+#ifndef CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_STD_GTK_H_
+#define CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_STD_GTK_H_
 
 #include "cefclient/browser_window.h"
-#include "cefclient/osr_window_win.h"
 
 namespace client {
 
-// Represents a native child window hosting a single off-screen browser
-// instance. The methods of this class must be called on the main thread unless
-// otherwise indicated.
-class BrowserWindowOsrWin : public BrowserWindow,
-                            public OsrWindowWin::Delegate {
+// Represents a native child window hosting a single windowed browser instance.
+// The methods of this class must be called on the main thread unless otherwise
+// indicated.
+class BrowserWindowStdGtk : public BrowserWindow {
  public:
   // Constructor may be called on any thread.
   // |delegate| must outlive this object.
-  BrowserWindowOsrWin(BrowserWindow::Delegate* delegate,
-                      const std::string& startup_url,
-                      bool transparent,
-                      bool show_update_rect);
+  BrowserWindowStdGtk(Delegate* delegate,
+                      const std::string& startup_url);
 
   // BrowserWindow methods.
   void CreateBrowser(ClientWindowHandle parent_handle,
@@ -40,21 +36,9 @@ class BrowserWindowOsrWin : public BrowserWindow,
   ClientWindowHandle GetWindowHandle() const OVERRIDE;
 
  private:
-  // ClienHandler::Delegate methods.
-  void OnBrowserClosed(CefRefPtr<CefBrowser> browser) OVERRIDE;
-
-  // OsrWindowWin::Delegate methods.
-  void OnOsrNativeWindowCreated(HWND hwnd) OVERRIDE;
-
-  const bool transparent_;
-
-  // The below members are only accessed on the main thread.
-  scoped_refptr<OsrWindowWin> osr_window_;
-  HWND osr_hwnd_;
-
-  DISALLOW_COPY_AND_ASSIGN(BrowserWindowOsrWin);
+  DISALLOW_COPY_AND_ASSIGN(BrowserWindowStdGtk);
 };
 
 }  // namespace client
 
-#endif  // CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_OSR_WIN_H_
+#endif  // CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_STD_GTK_H_

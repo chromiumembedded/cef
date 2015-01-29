@@ -4,6 +4,8 @@
 
 #include "cefclient/temp_window_win.h"
 
+#include <windows.h>
+
 #include "include/base/cef_logging.h"
 
 namespace client {
@@ -50,7 +52,7 @@ TempWindowWin::~TempWindowWin() {
 }
 
 // static
-HWND TempWindowWin::GetHWND() {
+CefWindowHandle TempWindowWin::GetWindowHandle() {
   DCHECK(g_temp_window);
   return g_temp_window->hwnd_;
 }

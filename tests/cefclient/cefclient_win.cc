@@ -66,7 +66,7 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
     message_loop.reset(new MainMessageLoopStd);
 
   // Initialize CEF.
-  CefInitialize(main_args, settings, app.get(), sandbox_info);
+  context->Initialize(main_args, settings, app.get(), sandbox_info);
 
   // Register scheme handlers.
   test_runner::RegisterSchemeHandlers();
@@ -83,7 +83,7 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
   int result = message_loop->Run();
 
   // Shut down CEF.
-  CefShutdown();
+  context->Shutdown();
 
   // Release objects in reverse order of creation.
   message_loop.reset();

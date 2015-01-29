@@ -713,7 +713,7 @@ void OsrWindowWin::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 
 void OsrWindowWin::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
-  // Detach |this| from the ClientHandler.
+  // Detach |this| from the ClientHandlerOsr.
   static_cast<ClientHandlerOsr*>(browser_->GetHost()->GetClient().get())->
       DetachOsrDelegate();
   browser_ = NULL;

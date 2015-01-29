@@ -134,7 +134,7 @@ void RootWindowWin::InitAsPopup(RootWindow::Delegate* delegate,
   // The new popup is initially parented to a temporary window. The native root
   // window will be created after the browser is created and the popup window
   // will be re-parented to it at that time.
-  browser_window_->GetPopupConfig(TempWindowWin::GetHWND(),
+  browser_window_->GetPopupConfig(TempWindowWin::GetWindowHandle(),
                                   windowInfo, client, settings);
 }
 
@@ -147,10 +147,10 @@ void RootWindowWin::Show(ShowMode mode) {
   int nCmdShow = SW_SHOWNORMAL;
   switch (mode) {
     case ShowMinimized:
-      nCmdShow = SW_SHOWNORMAL;
+      nCmdShow = SW_SHOWMINIMIZED;
       break;
     case ShowMaximized:
-      nCmdShow = SW_SHOWNORMAL;
+      nCmdShow = SW_SHOWMAXIMIZED;
       break;
     default:
       break;
@@ -193,7 +193,7 @@ CefRefPtr<CefBrowser> RootWindowWin::GetBrowser() const {
   return NULL;
 }
 
-CefWindowHandle RootWindowWin::GetWindowHandle() const {
+ClientWindowHandle RootWindowWin::GetWindowHandle() const {
   REQUIRE_MAIN_THREAD();
   return hwnd_;
 }
@@ -322,7 +322,10 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings) {
 
   if (!is_popup_) {
     // Create the browser window.
-    browser_window_->CreateBrowser(hwnd_, rect, settings);
+    CefRect cef_rect(rect.left, rect.top,
+                     rect.right - rect.left,
+                     rect.bottom - rect.top);
+    browser_window_->CreateBrowser(hwnd_, cef_rect, settings);
   } else {
     // With popups we already have a browser window. Parent the browser window
     // to the root window and show it in the correct location.
@@ -533,7 +536,7 @@ void RootWindowWin::OnSize(bool minimized) {
     int urloffset = rect.left + BUTTON_WIDTH * 4;
 
     if (browser_window_) {
-      HWND browser_hwnd = browser_window_->GetHWND();
+      HWND browser_hwnd = browser_window_->GetWindowHandle();
       HDWP hdwp = BeginDeferWindowPos(1);
       hdwp = DeferWindowPos(hdwp, edit_hwnd_, NULL, urloffset,
           0, rect.right - urloffset, URLBAR_HEIGHT, SWP_NOZORDER);
@@ -696,7 +699,6 @@ void RootWindowWin::OnBrowserWindowDestroyed() {
   REQUIRE_MAIN_THREAD();
 
   browser_window_.reset();
-  browser_destroyed_ = true;
 
   if (!window_destroyed_) {
     // The browser was destroyed first. This could be due to the use of
@@ -705,6 +707,7 @@ void RootWindowWin::OnBrowserWindowDestroyed() {
     Close(false);
   }
 
+  browser_destroyed_ = true;
   NotifyDestroyedIfDone();
 }
 
