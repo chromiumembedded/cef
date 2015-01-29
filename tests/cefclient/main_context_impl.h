@@ -6,6 +6,7 @@
 #define CEF_TESTS_CEFCLIENT_MAIN_CONTEXT_IMPL_H_
 
 #include "include/base/cef_scoped_ptr.h"
+#include "include/base/cef_thread_checker.h"
 #include "include/cef_app.h"
 #include "include/cef_command_line.h"
 #include "cefclient/main_context.h"
