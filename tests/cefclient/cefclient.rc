@@ -47,8 +47,8 @@ IDS_XMLHTTPREQUEST BINARY "resources\\xmlhttprequest.html"
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_CEFCLIENT           ICON                    "resources\cefclient.ico"
-IDI_SMALL               ICON                    "resources\small.ico"
+IDI_CEFCLIENT           ICON                    "resources\win\cefclient.ico"
+IDI_SMALL               ICON                    "resources\win\small.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
