@@ -31,8 +31,7 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
   bool with_osr_;
 }
 
-@property (nonatomic, readwrite) bool with_osr;
-
+- (id)initWithOsr:(bool)with_osr;
 - (void)createApplication:(id)object;
 - (void)tryToTerminateApplication:(NSApplication*)app;
 - (IBAction)menuItemSelected:(id)sender;
@@ -46,8 +45,6 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
 @end
 
 @implementation ClientApplication
-
-@synthesize with_osr = with_osr_;
 
 - (BOOL)isHandlingSendEvent {
   return handlingSendEvent_;
@@ -108,6 +105,13 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
 @end
 
 @implementation ClientAppDelegate
+
+- (id)initWithOsr:(bool)with_osr {
+  if (self = [super init]) {
+    with_osr_ = with_osr;
+  }
+  return self;
+}
 
 // Create the application on the UI thread.
 - (void)createApplication:(id)object {
@@ -205,8 +209,8 @@ int RunMain(int argc, char* argv[]) {
   test_runner::RegisterSchemeHandlers();
 
   // Create the application delegate and window.
-  ClientAppDelegate* delegate = [[ClientAppDelegate alloc] init];
-  delegate->with_osr = settings.windowless_rendering_enabled ? true : false;
+  ClientAppDelegate* delegate = [[ClientAppDelegate alloc]
+      initWithOsr:settings.windowless_rendering_enabled ? true : false];
   [delegate performSelectorOnMainThread:@selector(createApplication:)
                              withObject:nil
                           waitUntilDone:NO];
