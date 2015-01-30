@@ -104,7 +104,7 @@ if(OS_MACOSX)
   add_dependencies(${CEF_HELPER_TARGET} libcef_dll_wrapper)
   target_link_libraries(${CEF_HELPER_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS})
   set_target_properties(${CEF_HELPER_TARGET} PROPERTIES
-    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/mac/helper-Info.plist
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/resources/mac/helper-Info.plist
     )
 
   # Fix the framework link in the helper executable.
@@ -116,7 +116,7 @@ if(OS_MACOSX)
   target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS} "-framework OpenGL")
   set_target_properties(${CEF_TARGET} PROPERTIES
     RESOURCE "${CEFCLIENT_RESOURCES_SRCS}"
-    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/mac/Info.plist
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/resources/mac/Info.plist
     )
 
   # Copy files into the main app bundle.
@@ -143,7 +143,7 @@ if(OS_MACOSX)
   if(NOT ${CMAKE_GENERATOR} STREQUAL "Xcode")
     # Manually process and copy over resource files.
     # The Xcode generator handles this via the set_target_properties RESOURCE directive.
-    set(PREFIXES "mac/" "resources/")  # Remove these prefixes from input file paths.
+    set(PREFIXES "resources/mac/" "resources/")  # Remove these prefixes from input file paths.
     COPY_MACOSX_RESOURCES("${CEFCLIENT_RESOURCES_SRCS}" "${PREFIXES}" "${CEF_TARGET}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_APP}")
   endif()
 endif()

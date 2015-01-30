@@ -49,10 +49,10 @@
         # TODO(mark): Come up with a fancier way to do this (mac_info_plist?)
         # that automatically sets the correct INFOPLIST_FILE setting and adds
         # the file to a source group.
-        'tests/cefclient/mac/Info.plist',
+        'tests/cefclient/resources/mac/Info.plist',
       ],
       'xcode_settings': {
-        'INFOPLIST_FILE': 'tests/cefclient/mac/Info.plist',
+        'INFOPLIST_FILE': 'tests/cefclient/resources/mac/Info.plist',
         # Necessary to avoid an "install_name_tool: changing install names or
         # rpaths can't be redone" error.
         'OTHER_LDFLAGS': ['-Wl,-headerpad_max_install_names'],
@@ -1396,7 +1396,7 @@
           # be necessary to list helper-Info.plist once, not the three times it
           # is listed here.
           'mac_bundle_resources!': [
-            'tests/cefclient/mac/helper-Info.plist',
+            'tests/cefclient/resources/mac/helper-Info.plist',
           ],
           # TODO(mark): For now, don't put any resources into this app.  Its
           # resources directory will be a symbolic link to the browser app's
@@ -1405,7 +1405,7 @@
             ['exclude', '.*'],
           ],
           'xcode_settings': {
-            'INFOPLIST_FILE': 'tests/cefclient/mac/helper-Info.plist',
+            'INFOPLIST_FILE': 'tests/cefclient/resources/mac/helper-Info.plist',
             # Necessary to avoid an "install_name_tool: changing install names or
             # rpaths can't be redone" error.
             'OTHER_LDFLAGS': ['-Wl,-headerpad_max_install_names'],
@@ -1566,7 +1566,7 @@
           # be necessary to list helper-Info.plist once, not the three times it
           # is listed here.
           'mac_bundle_resources!': [
-            'tests/cefclient/mac/helper-Info.plist',
+            'tests/cefclient/resources/mac/helper-Info.plist',
           ],
           # TODO(mark): For now, don't put any resources into this app.  Its
           # resources directory will be a symbolic link to the browser app's
@@ -1575,7 +1575,7 @@
             ['exclude', '.*'],
           ],
           'xcode_settings': {
-            'INFOPLIST_FILE': 'tests/cefclient/mac/helper-Info.plist',
+            'INFOPLIST_FILE': 'tests/cefclient/resources/mac/helper-Info.plist',
             # Necessary to avoid an "install_name_tool: changing install names or
             # rpaths can't be redone" error.
             'OTHER_LDFLAGS': ['-Wl,-headerpad_max_install_names'],
