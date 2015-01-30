@@ -28,17 +28,17 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Binary
 //
 
-IDS_BINDING BINARY "res\\binding.html"
-IDS_DIALOGS BINARY "res\\dialogs.html"
-IDS_LOCALSTORAGE BINARY "res\\localstorage.html"
-IDS_LOGO BINARY "res\\logo.png"
-IDS_OSRTEST BINARY "res\\osr_test.html"
-IDS_OTHER_TESTS BINARY "res\\other_tests.html"
-IDS_PERFORMANCE BINARY "res\\performance.html"
-IDS_PERFORMANCE2 BINARY "res\\performance2.html"
-IDS_TRANSPARENCY BINARY "res\\transparency.html"
-IDS_WINDOW BINARY "res\\window.html"
-IDS_XMLHTTPREQUEST BINARY "res\\xmlhttprequest.html"
+IDS_BINDING BINARY "resources\\binding.html"
+IDS_DIALOGS BINARY "resources\\dialogs.html"
+IDS_LOCALSTORAGE BINARY "resources\\localstorage.html"
+IDS_LOGO BINARY "resources\\logo.png"
+IDS_OSRTEST BINARY "resources\\osr_test.html"
+IDS_OTHER_TESTS BINARY "resources\\other_tests.html"
+IDS_PERFORMANCE BINARY "resources\\performance.html"
+IDS_PERFORMANCE2 BINARY "resources\\performance2.html"
+IDS_TRANSPARENCY BINARY "resources\\transparency.html"
+IDS_WINDOW BINARY "resources\\window.html"
+IDS_XMLHTTPREQUEST BINARY "resources\\xmlhttprequest.html"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -47,8 +47,8 @@ IDS_XMLHTTPREQUEST BINARY "res\\xmlhttprequest.html"
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_CEFCLIENT           ICON                    "res\cefclient.ico"
-IDI_SMALL               ICON                    "res\small.ico"
+IDI_CEFCLIENT           ICON                    "resources\cefclient.ico"
+IDI_SMALL               ICON                    "resources\small.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //

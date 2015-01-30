@@ -402,7 +402,7 @@
         'tests/cefclient/client_switches.cc',
         'tests/cefclient/client_switches.h',
         'tests/cefclient/resource_util.h',
-        'tests/cefclient/res/osr_test.html',
+        'tests/cefclient/resources/osr_test.html',
         'tests/unittests/browser_info_map_unittest.cc',
         'tests/unittests/command_line_unittest.cc',
         'tests/unittests/cookie_unittest.cc',
@@ -447,7 +447,7 @@
         'tests/unittests/zip_reader_unittest.cc',
       ],
       'mac_bundle_resources': [
-        'tests/cefclient/res/osr_test.html',
+        'tests/cefclient/resources/osr_test.html',
         'tests/unittests/mac/unittests.icns',
         'tests/unittests/mac/English.lproj/InfoPlist.strings',
         'tests/unittests/mac/English.lproj/MainMenu.xib',
@@ -586,7 +586,7 @@
             {
               'destination': '<(PRODUCT_DIR)/files',
               'files': [
-                'tests/cefclient/res/osr_test.html',
+                'tests/cefclient/resources/osr_test.html',
               ],
             },
           ],

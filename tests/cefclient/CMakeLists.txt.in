@@ -80,7 +80,7 @@ if(OS_LINUX)
   # Copy cefclient resource files to the target output directory.
   COPY_FILES("${CEF_TARGET}" "${CEFCLIENT_RESOURCES_SRCS}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_TARGET_OUT_DIR}")
   # Rename the "res" directory to "files".
-  RENAME_DIRECTORY("${CEF_TARGET}" "${CEF_TARGET_OUT_DIR}/res" "${CEF_TARGET_OUT_DIR}/files")
+  RENAME_DIRECTORY("${CEF_TARGET}" "${CEF_TARGET_OUT_DIR}/resources" "${CEF_TARGET_OUT_DIR}/files")
 
   # Set SUID permissions on the chrome-sandbox target.
   SET_LINUX_SUID_PERMISSIONS("${CEF_TARGET}" "${CEF_TARGET_OUT_DIR}/chrome-sandbox")
@@ -143,7 +143,7 @@ if(OS_MACOSX)
   if(NOT ${CMAKE_GENERATOR} STREQUAL "Xcode")
     # Manually process and copy over resource files.
     # The Xcode generator handles this via the set_target_properties RESOURCE directive.
-    set(PREFIXES "mac/" "res/")  # Remove these prefixes from input file paths.
+    set(PREFIXES "mac/" "resources/")  # Remove these prefixes from input file paths.
     COPY_MACOSX_RESOURCES("${CEFCLIENT_RESOURCES_SRCS}" "${PREFIXES}" "${CEF_TARGET}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_APP}")
   endif()
 endif()
