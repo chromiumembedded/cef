@@ -1011,9 +1011,9 @@ void BrowserWindowOsrGtk::SetBounds(int x, int y, size_t width, size_t height) {
   // Nothing to do here. GTK will take care of positioning in the container.
 }
 
-void BrowserWindowOsrGtk::SetFocus() {
+void BrowserWindowOsrGtk::SetFocus(bool focus) {
   REQUIRE_MAIN_THREAD();
-  if (glarea_)
+  if (glarea_ && focus)
     gtk_widget_grab_focus(glarea_);
 }
 

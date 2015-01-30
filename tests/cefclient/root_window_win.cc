@@ -512,7 +512,7 @@ void RootWindowWin::OnPaint() {
 
 void RootWindowWin::OnFocus() {
   if (browser_window_)
-    browser_window_->SetFocus();
+    browser_window_->SetFocus(true);
 }
 
 void RootWindowWin::OnSize(bool minimized) {
@@ -703,8 +703,8 @@ void RootWindowWin::OnBrowserWindowDestroyed() {
   if (!window_destroyed_) {
     // The browser was destroyed first. This could be due to the use of
     // off-screen rendering or execution of JavaScript window.close().
-    // Close the RootWindow asynchronously.
-    Close(false);
+    // Close the RootWindow.
+    Close(true);
   }
 
   browser_destroyed_ = true;

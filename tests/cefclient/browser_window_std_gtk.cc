@@ -165,13 +165,11 @@ void BrowserWindowStdGtk::SetBounds(int x, int y, size_t width, size_t height) {
   }
 }
 
-void BrowserWindowStdGtk::SetFocus() {
+void BrowserWindowStdGtk::SetFocus(bool focus) {
   REQUIRE_MAIN_THREAD();
 
-  if (browser_) {
-    // Give focus to the browser window.
-    browser_->GetHost()->SetFocus(true);
-  }
+  if (browser_)
+    browser_->GetHost()->SetFocus(focus);
 }
 
 ClientWindowHandle BrowserWindowStdGtk::GetWindowHandle() const {

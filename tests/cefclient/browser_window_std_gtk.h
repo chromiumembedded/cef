@@ -32,7 +32,7 @@ class BrowserWindowStdGtk : public BrowserWindow {
   void Show() OVERRIDE;
   void Hide() OVERRIDE;
   void SetBounds(int x, int y, size_t width, size_t height) OVERRIDE;
-  void SetFocus() OVERRIDE;
+  void SetFocus(bool focus) OVERRIDE;
   ClientWindowHandle GetWindowHandle() const OVERRIDE;
 
  private:

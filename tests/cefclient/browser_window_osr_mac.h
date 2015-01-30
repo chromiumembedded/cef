@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_OSR_GTK_H_
-#define CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_OSR_GTK_H_
+#ifndef CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_OSR_MAC_H_
+#define CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_OSR_MAC_H_
 
 #include "cefclient/browser_window.h"
 #include "cefclient/client_handler_osr.h"
@@ -14,15 +14,16 @@ namespace client {
 // Represents a native child window hosting a single off-screen browser
 // instance. The methods of this class must be called on the main thread unless
 // otherwise indicated.
-class BrowserWindowOsrGtk : public BrowserWindow,
+class BrowserWindowOsrMac : public BrowserWindow,
                             public ClientHandlerOsr::OsrDelegate {
  public:
   // Constructor may be called on any thread.
   // |delegate| must outlive this object.
-  BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
+  BrowserWindowOsrMac(BrowserWindow::Delegate* delegate,
                       const std::string& startup_url,
                       bool transparent,
                       bool show_update_rect);
+  ~BrowserWindowOsrMac();
 
   // BrowserWindow methods.
   void CreateBrowser(ClientWindowHandle parent_handle,
@@ -75,48 +76,19 @@ class BrowserWindowOsrGtk : public BrowserWindow,
                         CefRenderHandler::DragOperation operation) OVERRIDE;
 
  private:
-  // Create the GTK GlArea.
-  void Create(ClientWindowHandle parent_handle);
-
-  // Signal handlers for the GTK GlArea.
-  static gint SizeAllocation(GtkWidget* widget,
-                             GtkAllocation* allocation,
-                             BrowserWindowOsrGtk* self);
-  static gint ClickEvent(GtkWidget* widget,
-                         GdkEventButton* event,
-                         BrowserWindowOsrGtk* self);
-  static gint KeyEvent(GtkWidget* widget,
-                       GdkEventKey* event,
-                       BrowserWindowOsrGtk* self);
-  static gint MoveEvent(GtkWidget* widget,
-                        GdkEventMotion* event,
-                        BrowserWindowOsrGtk* self);
-  static gint ScrollEvent(GtkWidget* widget,
-                          GdkEventScroll* event,
-                          BrowserWindowOsrGtk* self);
-  static gint FocusEvent(GtkWidget* widget,
-                         GdkEventFocus* event,
-                         BrowserWindowOsrGtk* self);
-
-  bool IsOverPopupWidget(int x, int y) const;
-  int GetPopupXOffset() const;
-  int GetPopupYOffset() const;
-  void ApplyPopupOffset(int& x, int& y) const;
-
-  void EnableGL();
-  void DisableGL();
+  // Create the NSView.
+  void Create(ClientWindowHandle parent_handle, const CefRect& rect);
 
   // The below members will only be accessed on the main thread which should be
   // the same as the CEF UI thread.
   OsrRenderer renderer_;
-  ClientWindowHandle glarea_;
+  ClientWindowHandle nsview_;
   bool hidden_;
-  bool gl_enabled_;
   bool painting_popup_;
 
-  DISALLOW_COPY_AND_ASSIGN(BrowserWindowOsrGtk);
+  DISALLOW_COPY_AND_ASSIGN(BrowserWindowOsrMac);
 };
 
 }  // namespace client
 
-#endif  // CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_OSR_GTK_H_
+#endif  // CEF_TESTS_CEFCLIENT_BROWSER_WINDOW_OSR_MAC_H_

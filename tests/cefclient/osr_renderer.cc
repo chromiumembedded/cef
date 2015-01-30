@@ -283,6 +283,8 @@ void OsrRenderer::OnPaint(CefRefPtr<CefBrowser> browser,
       CefRenderHandler::RectList::const_iterator i = dirtyRects.begin();
       for (; i != dirtyRects.end(); ++i) {
         const CefRect& rect = *i;
+        DCHECK(rect.x + rect.width <= view_width_);
+        DCHECK(rect.y + rect.height <= view_height_);
         glPixelStorei(GL_UNPACK_SKIP_PIXELS, rect.x); VERIFY_NO_ERROR;
         glPixelStorei(GL_UNPACK_SKIP_ROWS, rect.y); VERIFY_NO_ERROR;
         glTexSubImage2D(GL_TEXTURE_2D, 0, rect.x, rect.y, rect.width,

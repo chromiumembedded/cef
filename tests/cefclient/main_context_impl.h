@@ -10,10 +10,7 @@
 #include "include/cef_app.h"
 #include "include/cef_command_line.h"
 #include "cefclient/main_context.h"
-
-#if defined(OS_WIN) || defined(OS_LINUX)
 #include "cefclient/root_window_manager.h"
-#endif
 
 namespace client {
 
@@ -31,9 +28,7 @@ class MainContextImpl : public MainContext {
   std::string GetMainURL() OVERRIDE;
   void PopulateSettings(CefSettings* settings) OVERRIDE;
   void PopulateBrowserSettings(CefBrowserSettings* settings) OVERRIDE;
-#if defined(OS_WIN) || defined(OS_LINUX)
   RootWindowManager* GetRootWindowManager() OVERRIDE;
-#endif
 
   // Initialize CEF and associated main context state. This method must be
   // called on the same thread that created this object.
@@ -69,9 +64,7 @@ class MainContextImpl : public MainContext {
   CefRefPtr<CefCommandLine> command_line_;
   std::string main_url_;
 
-#if defined(OS_WIN) || defined(OS_LINUX)
   scoped_ptr<RootWindowManager> root_window_manager_;
-#endif
 
   // Used to verify that methods are called on the correct thread.
   base::ThreadChecker thread_checker_;

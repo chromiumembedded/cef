@@ -4,57 +4,17 @@
 // found in the LICENSE file.
 
 #import <Cocoa/Cocoa.h>
-#include <sstream>
 #include "include/cef_app.h"
 #import "include/cef_application_mac.h"
-#include "include/cef_browser.h"
-#include "include/cef_frame.h"
 #include "cefclient/client_app.h"
-#include "cefclient/client_handler.h"
 #include "cefclient/client_switches.h"
 #include "cefclient/main_context_impl.h"
 #include "cefclient/main_message_loop_std.h"
-#include "cefclient/osr_widget_mac.h"
 #include "cefclient/resource.h"
-#include "cefclient/resource_util.h"
+#include "cefclient/root_window.h"
 #include "cefclient/test_runner.h"
 
 namespace {
-
-// The global ClientHandlerShared reference.
-CefRefPtr<client::ClientHandlerShared> g_handler;
-
-// Used by off-screen rendering to find the associated CefBrowser.
-class MainBrowserProvider : public client::OSRBrowserProvider {
-  virtual CefRefPtr<CefBrowser> GetBrowser() {
-    if (g_handler.get())
-      return g_handler->GetBrowser();
-
-    return NULL;
-  }
-} g_main_browser_provider;
-
-
-// Sizes for URL bar layout
-#define BUTTON_HEIGHT 22
-#define BUTTON_WIDTH 72
-#define BUTTON_MARGIN 8
-#define URLBAR_HEIGHT  32
-
-// Content area size for newly created windows.
-const int kWindowWidth = 800;
-const int kWindowHeight = 600;
-
-
-NSButton* MakeButton(NSRect* rect, NSString* title, NSView* parent) {
-  NSButton* button = [[[NSButton alloc] initWithFrame:*rect] autorelease];
-  [button setTitle:title];
-  [button setBezelStyle:NSSmallSquareBezelStyle];
-  [button setAutoresizingMask:(NSViewMaxXMargin | NSViewMinYMargin)];
-  [parent addSubview:button];
-  rect->origin.x += BUTTON_WIDTH;
-  return button;
-}
 
 void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
   NSMenuItem* item = [menu addItemWithTitle:label
@@ -66,7 +26,13 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
 }  // namespace
 
 // Receives notifications from the application. Will delete itself when done.
-@interface ClientAppDelegate : NSObject
+@interface ClientAppDelegate : NSObject<NSApplicationDelegate> {
+ @private
+  bool with_osr_;
+}
+
+@property (nonatomic, readwrite) bool with_osr;
+
 - (void)createApplication:(id)object;
 - (void)tryToTerminateApplication:(NSApplication*)app;
 - (IBAction)menuItemSelected:(id)sender;
@@ -74,12 +40,15 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
 
 // Provide the CefAppProtocol implementation required by CEF.
 @interface ClientApplication : NSApplication<CefAppProtocol> {
-@private
+ @private
   BOOL handlingSendEvent_;
 }
 @end
 
 @implementation ClientApplication
+
+@synthesize with_osr = with_osr_;
+
 - (BOOL)isHandlingSendEvent {
   return handlingSendEvent_;
 }
@@ -131,222 +100,25 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
 // The standard |-applicationShouldTerminate:| is not supported, and code paths
 // leading to it must be redirected.
 - (void)terminate:(id)sender {
-  ClientAppDelegate* delegate =
-      static_cast<ClientAppDelegate*>([NSApp delegate]);
+  ClientAppDelegate* delegate = static_cast<ClientAppDelegate*>(
+      [[NSApplication sharedApplication] delegate]);
   [delegate tryToTerminateApplication:self];
   // Return, don't exit. The application is responsible for exiting on its own.
 }
 @end
 
-
-// Receives notifications from controls and the browser window. Will delete
-// itself when done.
-@interface ClientWindowDelegate : NSObject <NSWindowDelegate> {
- @private
-  NSWindow* window_;
-}
-- (id)initWithWindow:(NSWindow*)window;
-- (IBAction)goBack:(id)sender;
-- (IBAction)goForward:(id)sender;
-- (IBAction)reload:(id)sender;
-- (IBAction)stopLoading:(id)sender;
-- (IBAction)takeURLStringValueFrom:(NSTextField *)sender;
-- (void)alert:(NSString*)title withMessage:(NSString*)message;
-@end
-
-@implementation ClientWindowDelegate
-
-- (id)initWithWindow:(NSWindow*)window {
-  if (self = [super init]) {
-    window_ = window;
-    [window_ setDelegate:self];
-
-    // Register for application hide/unhide notifications.
-    [[NSNotificationCenter defaultCenter]
-         addObserver:self
-            selector:@selector(applicationDidHide:)
-                name:NSApplicationDidHideNotification
-              object:nil];
-    [[NSNotificationCenter defaultCenter]
-         addObserver:self
-            selector:@selector(applicationDidUnhide:)
-                name:NSApplicationDidUnhideNotification
-              object:nil];
-  }
-  return self;
-}
-
-- (void)dealloc {
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
-
-  [super dealloc];
-}
-
-- (IBAction)goBack:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    g_handler->GetBrowser()->GoBack();
-}
-
-- (IBAction)goForward:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    g_handler->GetBrowser()->GoForward();
-}
-
-- (IBAction)reload:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    g_handler->GetBrowser()->Reload();
-}
-
-- (IBAction)stopLoading:(id)sender {
-  if (g_handler.get() && g_handler->GetBrowserId())
-    g_handler->GetBrowser()->StopLoad();
-}
-
-- (IBAction)takeURLStringValueFrom:(NSTextField *)sender {
-  if (!g_handler.get() || !g_handler->GetBrowserId())
-    return;
-
-  NSString *url = [sender stringValue];
-
-  // if it doesn't already have a prefix, add http. If we can't parse it,
-  // just don't bother rather than making things worse.
-  NSURL* tempUrl = [NSURL URLWithString:url];
-  if (tempUrl && ![tempUrl scheme])
-    url = [@"http://" stringByAppendingString:url];
-
-  std::string urlStr = [url UTF8String];
-  g_handler->GetBrowser()->GetMainFrame()->LoadURL(urlStr);
-}
-
-- (void)alert:(NSString*)title withMessage:(NSString*)message {
-  NSAlert *alert = [NSAlert alertWithMessageText:title
-                                   defaultButton:@"OK"
-                                 alternateButton:nil
-                                     otherButton:nil
-                       informativeTextWithFormat:@"%@", message];
-  [alert runModal];
-}
-
-// Called when we are activated (when we gain focus).
-- (void)windowDidBecomeKey:(NSNotification*)notification {
-  if (g_handler.get()) {
-    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
-    if (browser.get()) {
-      if (g_handler->is_osr()) {
-        browser->GetHost()->SendFocusEvent(true);
-      } else {
-        browser->GetHost()->SetFocus(true);
-      }
-    }
-  }
-}
-
-// Called when we are deactivated (when we lose focus).
-- (void)windowDidResignKey:(NSNotification*)notification {
-  if (g_handler.get()) {
-    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
-    if (browser.get()) {
-      if (g_handler->is_osr()) {
-        browser->GetHost()->SendFocusEvent(false);
-      } else {
-        browser->GetHost()->SetFocus(false);
-      }
-    }
-  }
-}
-
-// Called when we have been minimized.
-- (void)windowDidMiniaturize:(NSNotification *)notification {
-  if (g_handler.get()) {
-    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
-    if (browser.get())
-      browser->GetHost()->SetWindowVisibility(false);
-  }
-}
-
-// Called when we have been unminimized.
-- (void)windowDidDeminiaturize:(NSNotification *)notification {
-  if (g_handler.get()) {
-    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
-    if (browser.get())
-      browser->GetHost()->SetWindowVisibility(true);
-  }
-}
-
-// Called when the application has been hidden.
-- (void)applicationDidHide:(NSNotification *)notification {
-  // If the window is miniaturized then nothing has really changed.
-  if (![window_ isMiniaturized]) {
-    if (g_handler.get()) {
-      CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
-      if (browser.get())
-        browser->GetHost()->SetWindowVisibility(false);
-    }
-  }
-}
-
-// Called when the application has been unhidden.
-- (void)applicationDidUnhide:(NSNotification *)notification {
-  // If the window is miniaturized then nothing has really changed.
-  if (![window_ isMiniaturized]) {
-    if (g_handler.get()) {
-      CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
-      if (browser.get())
-        browser->GetHost()->SetWindowVisibility(true);
-    }
-  }
-}
-
-// Called when the window is about to close. Perform the self-destruction
-// sequence by getting rid of the window. By returning YES, we allow the window
-// to be removed from the screen.
-- (BOOL)windowShouldClose:(id)window {
-  if (g_handler.get() && !g_handler->IsClosing()) {
-    CefRefPtr<CefBrowser> browser = g_handler->GetBrowser();
-    if (browser.get()) {
-      // Notify the browser window that we would like to close it. This
-      // will result in a call to ClientHandler::DoClose() if the
-      // JavaScript 'onbeforeunload' event handler allows it.
-      browser->GetHost()->CloseBrowser(false);
-
-      // Cancel the close.
-      return NO;
-    }
-  }
-
-  // Try to make the window go away.
-  [window autorelease];
-
-  // Clean ourselves up after clearing the stack of anything that might have the
-  // window on it.
-  [self performSelectorOnMainThread:@selector(cleanup:)
-                         withObject:window
-                      waitUntilDone:NO];
-
-  // Allow the close.
-  return YES;
-}
-
-// Deletes itself.
-- (void)cleanup:(id)window {
-  [self release];
-}
-
-@end
-
-
 @implementation ClientAppDelegate
 
 // Create the application on the UI thread.
 - (void)createApplication:(id)object {
-  [NSApplication sharedApplication];
+  NSApplication* application = [NSApplication sharedApplication];
   [NSBundle loadNibNamed:@"MainMenu" owner:NSApp];
 
   // Set the delegate for application events.
-  [NSApp setDelegate:self];
+  [application setDelegate:self];
 
   // Add the Tests menu.
-  NSMenu* menubar = [NSApp mainMenu];
+  NSMenu* menubar = [application mainMenu];
   NSMenuItem *testItem = [[[NSMenuItem alloc] initWithTitle:@"Tests"
                                                      action:nil
                                               keyEquivalent:@""] autorelease];
@@ -366,127 +138,32 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
   [testItem setSubmenu:testMenu];
   [menubar addItem:testItem];
 
-  // Create the main application window.
-  NSRect screen_rect = [[NSScreen mainScreen] visibleFrame];
-  NSRect window_rect = { {0, screen_rect.size.height - kWindowHeight},
-    {kWindowWidth, kWindowHeight} };
-  NSWindow* mainWnd = [[UnderlayOpenGLHostingWindow alloc]
-                       initWithContentRect:window_rect
-                       styleMask:(NSTitledWindowMask |
-                                  NSClosableWindowMask |
-                                  NSMiniaturizableWindowMask |
-                                  NSResizableWindowMask )
-                       backing:NSBackingStoreBuffered
-                       defer:NO];
-  [mainWnd setTitle:@"cefclient"];
-
-  // Create the delegate for control and browser window events.
-  ClientWindowDelegate* delegate =
-      [[ClientWindowDelegate alloc] initWithWindow:mainWnd];
-
-  // Rely on the window delegate to clean us up rather than immediately
-  // releasing when the window gets closed. We use the delegate to do
-  // everything from the autorelease pool so the window isn't on the stack
-  // during cleanup (ie, a window close from javascript).
-  [mainWnd setReleasedWhenClosed:NO];
-
-  NSView* contentView = [mainWnd contentView];
-
-  // Create the buttons.
-  NSRect button_rect = [contentView bounds];
-  button_rect.origin.y = window_rect.size.height - URLBAR_HEIGHT +
-      (URLBAR_HEIGHT - BUTTON_HEIGHT) / 2;
-  button_rect.size.height = BUTTON_HEIGHT;
-  button_rect.origin.x += BUTTON_MARGIN;
-  button_rect.size.width = BUTTON_WIDTH;
-
-  NSButton* backButton = MakeButton(&button_rect, @"Back", contentView);
-  [backButton setTarget:delegate];
-  [backButton setAction:@selector(goBack:)];
-  [backButton setEnabled:NO];
-
-  NSButton* forwardButton = MakeButton(&button_rect, @"Forward", contentView);
-  [forwardButton setTarget:delegate];
-  [forwardButton setAction:@selector(goForward:)];
-  [forwardButton setEnabled:NO];
-
-  NSButton* reloadButton = MakeButton(&button_rect, @"Reload", contentView);
-  [reloadButton setTarget:delegate];
-  [reloadButton setAction:@selector(reload:)];
-  [reloadButton setEnabled:NO];
-
-  NSButton* stopButton = MakeButton(&button_rect, @"Stop", contentView);
-  [stopButton setTarget:delegate];
-  [stopButton setAction:@selector(stopLoading:)];
-  [stopButton setEnabled:NO];
-
-  // Create the URL text field.
-  button_rect.origin.x += BUTTON_MARGIN;
-  button_rect.size.width = [contentView bounds].size.width -
-      button_rect.origin.x - BUTTON_MARGIN;
-  NSTextField* editWnd = [[NSTextField alloc] initWithFrame:button_rect];
-  [contentView addSubview:editWnd];
-  [editWnd setAutoresizingMask:(NSViewWidthSizable | NSViewMinYMargin)];
-  [editWnd setTarget:delegate];
-  [editWnd setAction:@selector(takeURLStringValueFrom:)];
-  [editWnd setEnabled:NO];
-  [[editWnd cell] setWraps:NO];
-  [[editWnd cell] setScrollable:YES];
-
-  // Create the handler.
-  g_handler = new client::ClientHandlerShared();
-  g_handler->SetMainWindowHandle(contentView);
-  g_handler->SetUXWindowHandles(editWnd, backButton, forwardButton,
-                                reloadButton, stopButton);
-
-  // Create the browser view.
-  CefWindowInfo window_info;
-  CefBrowserSettings settings;
-
-  // Populate the browser settings based on command line arguments.
-  client::MainContext::Get()->PopulateBrowserSettings(&settings);
-
-  if (g_handler->is_osr()) {
-    CefRefPtr<CefCommandLine> command_line =
-        CefCommandLine::GetGlobalCommandLine();
-    const bool transparent =
-        command_line->HasSwitch(client::switches::kTransparentPaintingEnabled);
-    const bool show_update_rect =
-        command_line->HasSwitch(client::switches::kShowUpdateRect);
-
-    CefRefPtr<client::OSRWindow> osr_window =
-        client::OSRWindow::Create(&g_main_browser_provider, transparent,
-            show_update_rect, contentView,
-            CefRect(0, 0, kWindowWidth, kWindowHeight));
-    window_info.SetAsWindowless(osr_window->GetWindowHandle(), transparent);
-    g_handler->SetOSRHandler(osr_window->GetRenderHandler().get());
-  } else {
-    // Initialize window info to the defaults for a child window.
-    window_info.SetAsChild(contentView, 0, 0, kWindowWidth, kWindowHeight);
-  }
-
-  CefBrowserHost::CreateBrowser(window_info, g_handler.get(),
-                                g_handler->startup_url(), settings, NULL);
-
-  // Show the window.
-  [mainWnd makeKeyAndOrderFront: nil];
-
-  // Size the window.
-  NSRect r = [mainWnd contentRectForFrameRect:[mainWnd frame]];
-  r.size.width = kWindowWidth;
-  r.size.height = kWindowHeight + URLBAR_HEIGHT;
-  [mainWnd setFrame:[mainWnd frameRectForContentRect:r] display:YES];
+  // Create the first window.
+  client::MainContext::Get()->GetRootWindowManager()->CreateRootWindow(
+      true,             // Show controls.
+      with_osr_,        // Use off-screen rendering.
+      CefRect(),        // Use default system size.
+      std::string());   // Use default URL.
 }
 
 - (void)tryToTerminateApplication:(NSApplication*)app {
-  if (g_handler.get() && !g_handler->IsClosing())
-    g_handler->CloseAllBrowsers(false);
+  client::MainContext::Get()->GetRootWindowManager()->CloseAllWindows(false);
 }
 
 - (IBAction)menuItemSelected:(id)sender {
-  NSMenuItem *item = (NSMenuItem*)sender;
-  if (g_handler.get() && g_handler->GetBrowserId())
-    client::test_runner::RunTest(g_handler->GetBrowser(), [item tag]);
+  // Retrieve the active RootWindow.
+  NSWindow* key_window = [[NSApplication sharedApplication] keyWindow];
+  if (!key_window)
+    return;
+
+  scoped_refptr<client::RootWindow> root_window =
+      client::RootWindow::GetForNSWindow(key_window);
+
+  CefRefPtr<CefBrowser> browser = root_window->GetBrowser();
+  if (browser.get()) {
+    NSMenuItem *item = (NSMenuItem*)sender;
+    client::test_runner::RunTest(browser, [item tag]);
+  }
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:
@@ -528,7 +205,8 @@ int RunMain(int argc, char* argv[]) {
   test_runner::RegisterSchemeHandlers();
 
   // Create the application delegate and window.
-  NSObject* delegate = [[ClientAppDelegate alloc] init];
+  ClientAppDelegate* delegate = [[ClientAppDelegate alloc] init];
+  delegate->with_osr = settings.windowless_rendering_enabled ? true : false;
   [delegate performSelectorOnMainThread:@selector(createApplication:)
                              withObject:nil
                           waitUntilDone:NO];
@@ -540,7 +218,6 @@ int RunMain(int argc, char* argv[]) {
   context->Shutdown();
 
   // Release objects in reverse order of creation.
-  g_handler = NULL;
   [delegate release];
   message_loop.reset();
   context.reset();

@@ -71,7 +71,7 @@ class BrowserWindow : public ClientHandlerSingle::Delegate {
   virtual void SetBounds(int x, int y, size_t width, size_t height) = 0;
 
   // Set focus to the window.
-  virtual void SetFocus() = 0;
+  virtual void SetFocus(bool focus) = 0;
 
   // Returns the window handle.
   virtual ClientWindowHandle GetWindowHandle() const = 0;

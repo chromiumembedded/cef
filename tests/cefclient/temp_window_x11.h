@@ -5,7 +5,7 @@
 #ifndef CEF_TESTS_CEFCLIENT_TEMP_WINDOW_X11_H_
 #define CEF_TESTS_CEFCLIENT_TEMP_WINDOW_X11_H_
 
-#include "cefclient/main_message_loop.h"
+#include "include/cef_base.h"
 
 namespace client {
 

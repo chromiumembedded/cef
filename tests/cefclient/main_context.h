@@ -12,9 +12,7 @@
 
 namespace client {
 
-#if defined(OS_WIN) || defined(OS_LINUX)
 class RootWindowManager;
-#endif
 
 // Used to store global context in the browser process. The methods of this
 // class are thread-safe unless otherwise indicated.
@@ -39,10 +37,8 @@ class MainContext {
   virtual void PopulateSettings(CefSettings* settings) = 0;
   virtual void PopulateBrowserSettings(CefBrowserSettings* settings) = 0;
 
-#if defined(OS_WIN) || defined(OS_LINUX)
   // Returns the object used to create/manage RootWindow instances.
   virtual RootWindowManager* GetRootWindowManager() = 0;
-#endif
 
  protected:
   MainContext();

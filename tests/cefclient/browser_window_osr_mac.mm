@@ -1,23 +1,80 @@
-// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
-// reserved. Use of this source code is governed by a BSD-style license
-// that can be found in the LICENSE file.
+// Copyright (c) 2015 The Chromium Embedded Framework Authors. All rights
+// reserved. Use of this source code is governed by a BSD-style license that
+// can be found in the LICENSE file.
 
-#import <Cocoa/Cocoa.h>
+#include "cefclient/browser_window_osr_mac.h"
+
+#include <Cocoa/Cocoa.h>
 #import <objc/runtime.h>
 #include <OpenGL/gl.h>
 
-#include <vector>
-
-#include "cefclient/osr_widget_mac.h"
-
-#include "include/cef_application_mac.h"
-#include "include/cef_browser.h"
-#include "include/cef_client.h"
+#include "include/base/cef_logging.h"
 #include "include/cef_url.h"
-#include "include/wrapper/cef_helpers.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "cefclient/bytes_write_handler.h"
-#include "cefclient/osr_renderer.h"
-#include "cefclient/resource_util.h"
+#include "cefclient/main_message_loop.h"
+
+@interface BrowserOpenGLView
+    : NSOpenGLView <NSDraggingSource, NSDraggingDestination> {
+ @private
+  NSTrackingArea* tracking_area_;
+  client::BrowserWindowOsrMac* browser_window_;
+  client::OsrRenderer* renderer_;
+  NSPoint last_mouse_pos_;
+  NSPoint cur_mouse_pos_;
+  bool rotating_;
+
+  bool was_last_mouse_down_on_view_;
+
+  // Drag and drop
+  CefRefPtr<CefDragData> current_drag_data_;
+  NSDragOperation current_drag_op_;
+  NSDragOperation current_allowed_ops_;
+  NSPasteboard* pasteboard_;
+  CFStringRef fileUTI_;
+
+  // Event monitor for scroll wheel end event.
+  id endWheelMonitor_;
+}
+
+- (id)initWithFrame:(NSRect)frame
+   andBrowserWindow:(client::BrowserWindowOsrMac*)browser_window
+        andRenderer:(client::OsrRenderer*)renderer;
+- (void)detach;
+
+- (CefRefPtr<CefBrowser>)getBrowser;
+- (NSPoint)getClickPointForEvent:(NSEvent*)event;
+- (void)getKeyEvent:(CefKeyEvent&)keyEvent forEvent:(NSEvent*)event;
+- (void)getMouseEvent:(CefMouseEvent&)mouseEvent forEvent:(NSEvent*)event;
+- (int)getModifiersForEvent:(NSEvent*)event;
+- (BOOL)isKeyUpEvent:(NSEvent*)event;
+- (BOOL)isKeyPadEvent:(NSEvent*)event;
+- (BOOL)startDragging:(CefRefPtr<CefDragData>)drag_data
+           allowedOps:(NSDragOperation)ops point:(NSPoint)p;
+- (void)setCurrentDragOp:(NSDragOperation)op;
+
+- (void)resetDragDrop;
+- (void)fillPasteboard;
+- (void)populateDropData:(CefRefPtr<CefDragData>)data
+          fromPasteboard:(NSPasteboard*)pboard;
+- (NSPoint)flipWindowPointToView:(const NSPoint&)windowPoint;
+- (float)getDeviceScaleFactor;
+- (void)windowDidChangeBackingProperties:(NSNotification*)notification;
+
+- (bool)isOverPopupWidgetX:(int)x andY:(int)y;
+- (void)applyPopupOffsetToX:(int&)x andY:(int&)y;
+- (int)getPopupXOffset;
+- (int)getPopupYOffset;
+
+- (void)sendMouseClick:(NSEvent*)event
+                button:(CefBrowserHost::MouseButtonType)type
+                  isUp:(bool)isUp;
+
+- (CefRect)convertRectToBackingInternal:(const CefRect&)rect;
+- (CefRect)convertRectFromBackingInternal:(const CefRect&)rect;
+
+@end
+
 
 namespace {
 
@@ -44,9 +101,21 @@ BOOL SupportsBackingPropertiesChangedNotification() {
   return methodDescription.name != NULL || methodDescription.types != NULL;
 }
 
+CefRect convertRect(const NSRect& target, const NSRect& frame) {
+  NSRect rect = target;
+  rect.origin.y = NSMaxY(frame) - NSMaxY(target);
+  return CefRect(rect.origin.x,
+                 rect.origin.y,
+                 rect.size.width,
+                 rect.size.height);
+}
+
+NSString* const kCEFDragDummyPboardType = @"org.CEF.drag-dummy-type";
+NSString* const kNSURLTitlePboardType = @"public.url-name";
+
 class ScopedGLContext {
  public:
-  ScopedGLContext(ClientOpenGLView* view, bool swap_buffers)
+  ScopedGLContext(BrowserOpenGLView* view, bool swap_buffers)
     : swap_buffers_(swap_buffers) {
     context_ = [view openGLContext];
     [context_ makeCurrentContext];
@@ -61,253 +130,18 @@ class ScopedGLContext {
   const bool swap_buffers_;
 };
 
-}  // namespace
-
-@interface ClientOpenGLView ()
-- (void)resetDragDrop;
-- (void)fillPasteboard;
-- (void)populateDropData:(CefRefPtr<CefDragData>)data
-          fromPasteboard:(NSPasteboard*)pboard;
-- (NSPoint)flipWindowPointToView:(const NSPoint&)windowPoint;
-- (float)getDeviceScaleFactor;
-- (void)windowDidChangeBackingProperties:(NSNotification*)notification;
-
-- (bool) isOverPopupWidgetX: (int) x andY: (int) y;
-- (void) applyPopupOffsetToX: (int&) x andY: (int&) y;
-- (int) getPopupXOffset;
-- (int) getPopupYOffset;
-
-- (void) sendMouseClick: (NSEvent *)event
-                 button: (CefBrowserHost::MouseButtonType)type
-                   isUp: (bool)isUp;
-
-- (CefRect) convertRectToBackingInternal: (const CefRect&) rect;
-- (CefRect) convertRectFromBackingInternal: (const CefRect&) rect;
-
-@property (readwrite, atomic) bool was_last_mouse_down_on_view;
-@end
-
-namespace {
-
-static CefRect convertRect(const NSRect& target, const NSRect& frame) {
-  NSRect rect = target;
-  rect.origin.y = NSMaxY(frame) - NSMaxY(target);
-  return CefRect(rect.origin.x,
-                 rect.origin.y,
-                 rect.size.width,
-                 rect.size.height);
+BrowserOpenGLView* GLView(NSView* view) {
+  return static_cast<BrowserOpenGLView*>(view);
 }
-
-static NSString* const kCEFDragDummyPboardType = @"org.CEF.drag-dummy-type";
-static NSString* const kNSURLTitlePboardType = @"public.url-name";
 
 }  // namespace
 
-namespace client {
 
-ClientOSRHandler::ClientOSRHandler(ClientOpenGLView* view,
-                                   OSRBrowserProvider* browser_provider)
-    : view_(view),
-      painting_popup_(false) {
-  [view_ retain];
-  view_->browser_provider_ = browser_provider;
+@implementation BrowserOpenGLView
 
-  // Backing property notifications crash on 10.6 when building with the 10.7
-  // SDK, see http://crbug.com/260595.
-  static BOOL supportsBackingPropertiesNotification =
-      SupportsBackingPropertiesChangedNotification();
-  if (supportsBackingPropertiesNotification) {
-    [[NSNotificationCenter defaultCenter]
-      addObserver:view_
-         selector:@selector(windowDidChangeBackingProperties:)
-             name:NSWindowDidChangeBackingPropertiesNotification
-           object:[view_ window]];
-  }
-}
-
-ClientOSRHandler:: ~ClientOSRHandler() {
-  static BOOL supportsBackingPropertiesNotification =
-      SupportsBackingPropertiesChangedNotification();
-
-  if (supportsBackingPropertiesNotification) {
-    [[NSNotificationCenter defaultCenter]
-        removeObserver:view_
-                  name:NSWindowDidChangeBackingPropertiesNotification
-                object:[view_ window]];
-  }
-}
-
-void ClientOSRHandler::Disconnect() {
-  [view_ release];
-  view_ = nil;
-}
-
-// CefRenderHandler methods
-void ClientOSRHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
-  if (view_)
-    view_->browser_provider_ = NULL;
-}
-
-bool ClientOSRHandler::GetViewRect(CefRefPtr<CefBrowser> browser,
-                                   CefRect& rect) {
-  CEF_REQUIRE_UI_THREAD();
-
-  if (!view_)
-    return false;
-
-  // The simulated screen and view rectangle are the same. This is necessary
-  // for popup menus to be located and sized inside the view.
-  const NSRect bounds = [view_ bounds];
-  rect.x = rect.y = 0;
-  rect.width = bounds.size.width;
-  rect.height = bounds.size.height;
-  return true;
-}
-
-bool ClientOSRHandler::GetScreenPoint(CefRefPtr<CefBrowser> browser,
-                                      int viewX,
-                                      int viewY,
-                                      int& screenX,
-                                      int& screenY) {
-  CEF_REQUIRE_UI_THREAD();
-
-  if (!view_)
-    return false;
-
-  // Convert the point from view coordinates to actual screen coordinates.
-  NSRect bounds = [view_ bounds];
-  NSPoint view_pt = NSMakePoint(viewX, bounds.size.height - viewY);
-  NSPoint window_pt = [view_ convertPoint:view_pt toView:nil];
-  NSPoint screen_pt = [[view_ window] convertBaseToScreen:window_pt];
-  screenX = screen_pt.x;
-  screenY = screen_pt.y;
-  return true;
-}
-
-bool ClientOSRHandler::GetScreenInfo(CefRefPtr<CefBrowser> browser,
-                                     CefScreenInfo& screen_info) {
-  CEF_REQUIRE_UI_THREAD();
-
-  if (!view_)
-    return false;
-
-  NSWindow* window = [view_ window];
-  if (!window)
-    return false;
-
-  screen_info.device_scale_factor = [view_ getDeviceScaleFactor];
-
-  NSScreen* screen = [window screen];
-  if (!screen)
-    screen = [NSScreen deepestScreen];
-
-  screen_info.depth = NSBitsPerPixelFromDepth([screen depth]);
-  screen_info.depth_per_component = NSBitsPerSampleFromDepth([screen depth]);
-  screen_info.is_monochrome =
-      [[screen colorSpace] colorSpaceModel] == NSGrayColorSpaceModel;
-  // screen_info.is_monochrome = true;
-  screen_info.rect = convertRect([screen frame], [screen frame]);
-  screen_info.available_rect =
-      convertRect([screen visibleFrame], [screen frame]);
-
-  return true;
-}
-
-void ClientOSRHandler::OnPopupShow(CefRefPtr<CefBrowser> browser,
-                                   bool show) {
-  CEF_REQUIRE_UI_THREAD();
-
-  if (!view_)
-    return;
-
-  if (!show) {
-    // Clear the popup rectangles, so that the paint triggered by Invalidate
-    // will not repaint the popup content over the OpenGL view.
-    view_->renderer_->ClearPopupRects();
-    browser->GetHost()->Invalidate(PET_VIEW);
-  }
-
-  view_->renderer_->OnPopupShow(browser, show);
-}
-
-void ClientOSRHandler::OnPopupSize(CefRefPtr<CefBrowser> browser,
-                                   const CefRect& rect) {
-  CEF_REQUIRE_UI_THREAD();
-
-  if (!view_)
-    return;
-
-  view_->renderer_->OnPopupSize(browser,
-                                [view_ convertRectToBackingInternal:rect]);
-}
-
-void ClientOSRHandler::OnPaint(CefRefPtr<CefBrowser> browser,
-                               PaintElementType type,
-                               const RectList& dirtyRects,
-                               const void* buffer,
-                               int width, int height) {
-  CEF_REQUIRE_UI_THREAD();
-
-  if (!view_)
-    return;
-
-  if (painting_popup_) {
-    view_->renderer_->OnPaint(browser, type, dirtyRects, buffer, width, height);
-    return;
-  }
-
-  ScopedGLContext scoped_gl_context(view_, true);
-
-  view_->renderer_->OnPaint(browser, type, dirtyRects, buffer, width, height);
-
-  if (type == PET_VIEW && !view_->renderer_->popup_rect().IsEmpty()) {
-    painting_popup_ = true;
-    browser->GetHost()->Invalidate(PET_POPUP);
-    painting_popup_ = false;
-  }
-
-  view_->renderer_->Render();
-}
-
-void ClientOSRHandler::OnCursorChange(CefRefPtr<CefBrowser> browser,
-                                      CefCursorHandle cursor,
-                                      CursorType type,
-                                      const CefCursorInfo& custom_cursor_info) {
-  CEF_REQUIRE_UI_THREAD();
-  [cursor set];
-}
-
-bool ClientOSRHandler::StartDragging(CefRefPtr<CefBrowser> browser,
-                               CefRefPtr<CefDragData> drag_data,
-                               CefRenderHandler::DragOperationsMask allowed_ops,
-                               int x, int y) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!view_)
-    return false;
-  return [view_ startDragging:drag_data
-                  allowed_ops:static_cast<NSDragOperation>(allowed_ops)
-                        point:NSMakePoint(x, y)];
-}
-
-void ClientOSRHandler::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
-                                 CefRenderHandler::DragOperation operation) {
-  CEF_REQUIRE_UI_THREAD();
-  if (!view_)
-    return;
-  view_->current_drag_op_ = operation;
-}
-
-void ClientOSRHandler::SetLoading(bool isLoading) {
-}
-
-}  // namespace client
-
-@implementation ClientOpenGLView
-
-@synthesize was_last_mouse_down_on_view = was_last_mouse_down_on_view_;
-
-- (id)initWithFrame:(NSRect)frame andTransparency:(bool)transparency
-                                andShowUpdateRect:(bool)show_update_rect {
+- (id)initWithFrame:(NSRect)frame
+   andBrowserWindow:(client::BrowserWindowOsrMac*)browser_window
+        andRenderer:(client::OsrRenderer*)renderer {
   NSOpenGLPixelFormat * pixelFormat =
       [[NSOpenGLPixelFormat alloc]
        initWithAttributes:(NSOpenGLPixelFormatAttribute[]) {
@@ -318,9 +152,9 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
            0}];
   [pixelFormat autorelease];
 
-  self = [super initWithFrame:frame pixelFormat:pixelFormat];
-  if (self) {
-    renderer_ = new client::OsrRenderer(transparency, show_update_rect);
+  if (self = [super initWithFrame:frame pixelFormat:pixelFormat]) {
+    browser_window_ = browser_window;
+    renderer_ = renderer;
     rotating_ = false;
     endWheelMonitor_ = nil;
 
@@ -332,86 +166,90 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
                                        owner:self
                                     userInfo:nil];
     [self addTrackingArea:tracking_area_];
+
+    if ([self respondsToSelector:
+            @selector(setWantsBestResolutionOpenGLSurface:)]) {
+      // enable HiDPI buffer
+      [self setWantsBestResolutionOpenGLSurface:YES];
+    }
+
+    [self resetDragDrop];
+
+    NSArray* types = [NSArray arrayWithObjects:
+        kCEFDragDummyPboardType,
+        NSStringPboardType,
+        NSFilenamesPboardType,
+        NSPasteboardTypeString,
+        nil];
+    [self registerForDraggedTypes:types];
   }
-
-  if ([self respondsToSelector:
-          @selector(setWantsBestResolutionOpenGLSurface:)]) {
-    // enable HiDPI buffer
-    [self setWantsBestResolutionOpenGLSurface:YES];
-  }
-
-  [self resetDragDrop];
-
-  NSArray* types = [NSArray arrayWithObjects:
-      kCEFDragDummyPboardType,
-      NSStringPboardType,
-      NSFilenamesPboardType,
-      NSPasteboardTypeString,
-      nil];
-  [self registerForDraggedTypes:types];
 
   return self;
 }
 
 - (void)dealloc {
-  CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (browser) {
-    static_cast<client::ClientOSRHandler*>(
-      browser->GetHost()->GetClient()->GetRenderHandler().get())->Disconnect();
-    browser->GetHost()->CloseBrowser(true);
-    browser = NULL;
+  static BOOL supportsBackingPropertiesNotification =
+      SupportsBackingPropertiesChangedNotification();
+  if (supportsBackingPropertiesNotification) {
+    [[NSNotificationCenter defaultCenter]
+        removeObserver:self
+                  name:NSWindowDidChangeBackingPropertiesNotification
+                object:nil];
   }
-  if (renderer_)
-    delete renderer_;
 
   [super dealloc];
 }
 
+- (void)detach {
+  renderer_ = NULL;
+  browser_window_ = NULL;
+}
+
 - (CefRefPtr<CefBrowser>)getBrowser {
-  if (browser_provider_)
-    return browser_provider_->GetBrowser();
+  if (browser_window_)
+    return browser_window_->GetBrowser();
   return NULL;
 }
 
 - (void)setFrame:(NSRect)frameRect {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (!browser)
+  if (!browser.get())
     return;
 
   [super setFrame:frameRect];
   browser->GetHost()->WasResized();
 }
 
-- (void) sendMouseClick:(NSEvent *)event
-                 button: (CefBrowserHost::MouseButtonType)type
-                   isUp: (bool)isUp {
+- (void) sendMouseClick:(NSEvent*)event
+                 button:(CefBrowserHost::MouseButtonType)type
+                   isUp:(bool)isUp {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (!browser)
+  if (!browser.get())
     return;
 
   CefMouseEvent mouseEvent;
   [self getMouseEvent: mouseEvent forEvent: event];
   NSPoint point = [self getClickPointForEvent:event];
   if (!isUp)
-    self.was_last_mouse_down_on_view = ![self isOverPopupWidgetX: point.x
-                                                            andY: point.y];
-  else if (self.was_last_mouse_down_on_view &&
+    was_last_mouse_down_on_view_ = ![self isOverPopupWidgetX: point.x
+                                                        andY: point.y];
+  else if (was_last_mouse_down_on_view_ &&
            [self isOverPopupWidgetX:point.x andY: point.y] &&
            ([self getPopupXOffset] || [self getPopupYOffset])) {
     return;
   }
 
   browser->GetHost()->SendMouseClickEvent(mouseEvent,
-                                           type,
-                                           isUp,
-                                           [event clickCount]);
+                                          type,
+                                          isUp,
+                                          [event clickCount]);
 }
 
-- (void)mouseDown:(NSEvent *)event {
+- (void)mouseDown:(NSEvent*)event {
   [self sendMouseClick: event button:MBT_LEFT isUp:false];
 }
 
-- (void)rightMouseDown:(NSEvent *)event {
+- (void)rightMouseDown:(NSEvent*)event {
   if ([event modifierFlags] & NSShiftKeyMask) {
     // Start rotation effect.
     last_mouse_pos_ = cur_mouse_pos_ = [self getClickPointForEvent:event];
@@ -422,15 +260,15 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   [self sendMouseClick: event button:MBT_RIGHT isUp:false];
 }
 
-- (void)otherMouseDown:(NSEvent *)event {
+- (void)otherMouseDown:(NSEvent*)event {
   [self sendMouseClick: event button:MBT_MIDDLE isUp:false];
 }
 
-- (void)mouseUp:(NSEvent *)event {
+- (void)mouseUp:(NSEvent*)event {
   [self sendMouseClick: event button: MBT_LEFT isUp: true];
 }
 
-- (void)rightMouseUp:(NSEvent *)event {
+- (void)rightMouseUp:(NSEvent*)event {
   if (rotating_) {
     // End rotation effect.
     renderer_->SetSpin(0, 0);
@@ -441,13 +279,13 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   [self sendMouseClick: event button: MBT_RIGHT isUp: true];
 }
 
-- (void)otherMouseUp:(NSEvent *)event {
+- (void)otherMouseUp:(NSEvent*)event {
   [self sendMouseClick: event button: MBT_MIDDLE isUp: true];
 }
 
-- (void)mouseMoved:(NSEvent *)event {
+- (void)mouseMoved:(NSEvent*)event {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (!browser)
+  if (!browser.get())
     return;
 
   if (rotating_) {
@@ -465,25 +303,25 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
 }
 
-- (void)mouseDragged:(NSEvent *)event {
+- (void)mouseDragged:(NSEvent*)event {
   [self mouseMoved:event];
 }
 
-- (void)rightMouseDragged:(NSEvent *)event {
+- (void)rightMouseDragged:(NSEvent*)event {
   [self mouseMoved:event];
 }
 
-- (void)otherMouseDragged:(NSEvent *)event {
+- (void)otherMouseDragged:(NSEvent*)event {
   [self mouseMoved:event];
 }
 
-- (void)mouseEntered:(NSEvent *)event {
+- (void)mouseEntered:(NSEvent*)event {
   [self mouseMoved:event];
 }
 
-- (void)mouseExited:(NSEvent *)event {
+- (void)mouseExited:(NSEvent*)event {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (!browser)
+  if (!browser.get())
     return;
 
   CefMouseEvent mouseEvent;
@@ -491,9 +329,9 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   browser->GetHost()->SendMouseMoveEvent(mouseEvent, true);
 }
 
-- (void)keyDown:(NSEvent *)event {
+- (void)keyDown:(NSEvent*)event {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (!browser)
+  if (!browser.get())
     return;
 
   if ([event type] != NSFlagsChanged) {
@@ -508,9 +346,9 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   }
 }
 
-- (void)keyUp:(NSEvent *)event {
+- (void)keyUp:(NSEvent*)event {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (!browser)
+  if (!browser.get())
     return;
 
   CefKeyEvent keyEvent;
@@ -520,7 +358,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   browser->GetHost()->SendKeyEvent(keyEvent);
 }
 
-- (void)flagsChanged:(NSEvent *)event {
+- (void)flagsChanged:(NSEvent*)event {
   if ([self isKeyUpEvent:event])
     [self keyUp:event];
   else
@@ -541,7 +379,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   }
 }
 
-- (void)scrollWheel:(NSEvent *)event {
+- (void)scrollWheel:(NSEvent*)event {
   // Phase is only supported in OS-X 10.7 and newer.
   // Use an NSEvent monitor to listen for the wheel-end end. This ensures that
   // the event is received even when the mouse cursor is no longer over the
@@ -560,9 +398,9 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   [self sendScrollWheelEvet:event];
 }
 
-- (void)sendScrollWheelEvet:(NSEvent *)event {
+- (void)sendScrollWheelEvet:(NSEvent*)event {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (!browser)
+  if (!browser.get())
     return;
 
   CGEventRef cgEvent = [event CGEvent];
@@ -580,17 +418,17 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 
 - (BOOL)canBecomeKeyView {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  return (browser != NULL);
+  return (browser.get() != NULL);
 }
 
 - (BOOL)acceptsFirstResponder {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  return (browser != NULL);
+  return (browser.get() != NULL);
 }
 
 - (BOOL)becomeFirstResponder {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (browser) {
+  if (browser.get()) {
     browser->GetHost()->SendFocusEvent(true);
     return [super becomeFirstResponder];
   }
@@ -600,7 +438,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 
 - (BOOL)resignFirstResponder {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (browser) {
+  if (browser.get()) {
     browser->GetHost()->SendFocusEvent(false);
     return [super resignFirstResponder];
   }
@@ -610,43 +448,43 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 
 - (void)undo:(id)sender {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (browser)
+  if (browser.get())
     browser->GetFocusedFrame()->Undo();
 }
 
 - (void)redo:(id)sender {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (browser)
+  if (browser.get())
     browser->GetFocusedFrame()->Redo();
 }
 
 - (void)cut:(id)sender {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (browser)
+  if (browser.get())
     browser->GetFocusedFrame()->Cut();
 }
 
 - (void)copy:(id)sender {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (browser)
+  if (browser.get())
     browser->GetFocusedFrame()->Copy();
 }
 
 - (void)paste:(id)sender {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (browser)
+  if (browser.get())
     browser->GetFocusedFrame()->Paste();
 }
 
 - (void)delete:(id)sender {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (browser)
+  if (browser.get())
     browser->GetFocusedFrame()->Delete();
 }
 
 - (void)selectAll:(id)sender {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (browser)
+  if (browser.get())
     browser->GetFocusedFrame()->SelectAll();
 }
 
@@ -683,7 +521,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 
 - (NSTextInputContext*)inputContext {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (browser)
+  if (browser.get())
     return browser->GetHost()->GetNSTextInputContext();
   return NULL;
 }
@@ -818,10 +656,8 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
       [[notification userInfo] objectForKey:NSBackingPropertyOldScaleFactorKey];
   if (newBackingScaleFactor != [oldBackingScaleFactor doubleValue]) {
     CefRefPtr<CefBrowser> browser = [self getBrowser];
-    if (!browser)
-      return;
-
-    browser->GetHost()->NotifyScreenInfoChanged();
+    if (browser.get())
+      browser->GetHost()->NotifyScreenInfoChanged();
   }
 }
 
@@ -829,17 +665,15 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   // The Invalidate below fixes flicker when resizing
   if ([self inLiveResize]) {
     CefRefPtr<CefBrowser> browser = [self getBrowser];
-    if (!browser)
-      return;
-
-    browser->GetHost()->Invalidate(PET_VIEW);
+    if (browser.get())
+      browser->GetHost()->Invalidate(PET_VIEW);
   }
 }
 
 // Drag and drop
 
 - (BOOL)startDragging:(CefRefPtr<CefDragData>)drag_data
-          allowed_ops:(NSDragOperation)ops
+           allowedOps:(NSDragOperation)ops
                 point:(NSPoint)position {
   DCHECK(!pasteboard_);
   DCHECK(!fileUTI_);
@@ -852,7 +686,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 
   [self fillPasteboard];
 
-  NSEvent* currentEvent = [NSApp currentEvent];
+  NSEvent* currentEvent = [[NSApplication sharedApplication] currentEvent];
   NSWindow* window = [self window];
   NSTimeInterval eventTime = [currentEvent timestamp];
 
@@ -874,6 +708,10 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
              source:self
           slideBack:YES];
   return YES;
+}
+
+- (void)setCurrentDragOp:(NSDragOperation)op {
+  current_drag_op_ = op;
 }
 
 // NSDraggingSource Protocol
@@ -918,6 +756,9 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 - (void)draggedImage:(NSImage*)anImage
              endedAt:(NSPoint)screenPoint
            operation:(NSDragOperation)operation {
+  CefRefPtr<CefBrowser> browser = [self getBrowser];
+  if (!browser.get())
+    return;
 
   if (operation == (NSDragOperationMove | NSDragOperationCopy))
     operation &= ~NSDragOperationMove;
@@ -926,14 +767,18 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   NSPoint pt = [self flipWindowPointToView:windowPoint];
   CefRenderHandler::DragOperation op =
       static_cast<CefRenderHandler::DragOperation>(operation);
-  browser_provider_->GetBrowser()->GetHost()->DragSourceEndedAt(pt.x, pt.y, op);
-  browser_provider_->GetBrowser()->GetHost()->DragSourceSystemDragEnded();
+  browser->GetHost()->DragSourceEndedAt(pt.x, pt.y, op);
+  browser->GetHost()->DragSourceSystemDragEnded();
   [self resetDragDrop];
 }
 
 // NSDraggingDestination Protocol
 
 - (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)info {
+  CefRefPtr<CefBrowser> browser = [self getBrowser];
+  if (!browser.get())
+    return NSDragOperationNone;
+
   CefRefPtr<CefDragData> drag_data;
   if (!current_drag_data_) {
     drag_data = CefDragData::Create();
@@ -953,17 +798,17 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   ev.modifiers = [NSEvent modifierFlags];
   CefBrowserHost::DragOperationsMask allowed_ops =
       static_cast<CefBrowserHost::DragOperationsMask>(mask);
-  browser_provider_->GetBrowser()->GetHost()->DragTargetDragEnter(
-      drag_data, ev, allowed_ops);
-  browser_provider_->GetBrowser()->GetHost()->DragTargetDragOver(ev,
-      allowed_ops);
+  browser->GetHost()->DragTargetDragEnter(drag_data, ev, allowed_ops);
+  browser->GetHost()->DragTargetDragOver(ev, allowed_ops);
 
   current_drag_op_ = NSDragOperationCopy;
   return current_drag_op_;
 }
 
 - (void)draggingExited:(id <NSDraggingInfo>)sender {
-  browser_provider_->GetBrowser()->GetHost()->DragTargetDragLeave();
+  CefRefPtr<CefBrowser> browser = [self getBrowser];
+  if (browser.get())
+    browser->GetHost()->DragTargetDragLeave();
 }
 
 - (BOOL)prepareForDragOperation:(id <NSDraggingInfo>)info {
@@ -971,17 +816,26 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 }
 
 - (BOOL)performDragOperation:(id <NSDraggingInfo>)info {
+  CefRefPtr<CefBrowser> browser = [self getBrowser];
+  if (!browser.get())
+    return NO;
+
   NSPoint windowPoint = [info draggingLocation];
   NSPoint viewPoint = [self flipWindowPointToView:windowPoint];
   CefMouseEvent ev;
   ev.x = viewPoint.x;
   ev.y = viewPoint.y;
   ev.modifiers = [NSEvent modifierFlags];
-  browser_provider_->GetBrowser()->GetHost()->DragTargetDrop(ev);
+  browser->GetHost()->DragTargetDrop(ev);
+
   return YES;
 }
 
 - (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)info {
+  CefRefPtr<CefBrowser> browser = [self getBrowser];
+  if (!browser.get())
+    return NSDragOperationNone;
+
   NSPoint windowPoint = [info draggingLocation];
   NSPoint viewPoint = [self flipWindowPointToView:windowPoint];
   NSDragOperation mask = [info draggingSourceOperationMask];
@@ -991,8 +845,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   ev.modifiers = [NSEvent modifierFlags];
   CefBrowserHost::DragOperationsMask allowed_ops =
   static_cast<CefBrowserHost::DragOperationsMask>(mask);
-  browser_provider_->GetBrowser()->GetHost()->DragTargetDragOver(ev,
-      allowed_ops);
+  browser->GetHost()->DragTargetDragOver(ev, allowed_ops);
 
   return current_drag_op_;
 }
@@ -1044,10 +897,9 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
             forType:kCEFDragDummyPboardType];
 
   }
-
 }
 
-// Utility - private
+// Utility methods.
 - (void)resetDragDrop {
   current_drag_op_ = NSDragOperationNone;
   current_allowed_ops_ = NSDragOperationNone;
@@ -1163,7 +1015,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   return deviceScaleFactor;
 }
 
-- (bool) isOverPopupWidgetX: (int) x andY: (int) y {
+- (bool)isOverPopupWidgetX:(int)x andY:(int)y {
   CefRect rc = [self convertRectFromBackingInternal:renderer_->popup_rect()];
   int popup_right = rc.x + rc.width;
   int popup_bottom = rc.y + rc.height;
@@ -1171,7 +1023,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
          (y >= rc.y) && (y < popup_bottom);
 }
 
-- (int) getPopupXOffset {
+- (int)getPopupXOffset {
   int original_x =
       [self convertRectFromBackingInternal:renderer_->original_popup_rect()].x;
   int popup_x =
@@ -1180,7 +1032,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   return original_x - popup_x;
 }
 
-- (int) getPopupYOffset {
+- (int)getPopupYOffset {
   int original_y =
       [self convertRectFromBackingInternal:renderer_->original_popup_rect()].y;
   int popup_y =
@@ -1189,7 +1041,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
   return original_y - popup_y;
 }
 
-- (void) applyPopupOffsetToX: (int&) x andY: (int&) y {
+- (void)applyPopupOffsetToX:(int&)x andY:(int&)y {
   if ([self isOverPopupWidgetX:x andY:y]) {
     x += [self getPopupXOffset];
     y += [self getPopupYOffset];
@@ -1197,7 +1049,7 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 }
 
 // Convert the rect from view coordinates to scaled coordinates.
-- (CefRect) convertRectToBackingInternal: (const CefRect&) rect {
+- (CefRect) convertRectToBackingInternal:(const CefRect&)rect {
   if ([self respondsToSelector:@selector(convertRectToBacking:)]) {
     NSRect view_rect = NSMakeRect(rect.x, rect.y, rect.width, rect.height);
     NSRect scaled_rect = [self convertRectToBacking:view_rect];
@@ -1226,36 +1078,324 @@ void ClientOSRHandler::SetLoading(bool isLoading) {
 
 @end
 
+
 namespace client {
 
-CefRefPtr<OSRWindow> OSRWindow::Create(OSRBrowserProvider* browser_provider,
-                                       bool transparent,
-                                       bool show_update_rect,
-                                       CefWindowHandle parentView,
-                                       const CefRect& frame) {
-  return new OSRWindow(browser_provider, transparent, show_update_rect,
-                       parentView, frame);
+BrowserWindowOsrMac::BrowserWindowOsrMac(BrowserWindow::Delegate* delegate,
+                                         const std::string& startup_url,
+                                         bool transparent,
+                                         bool show_update_rect)
+    : BrowserWindow(delegate),
+      renderer_(transparent, show_update_rect),
+      nsview_(NULL),
+      hidden_(false),
+      painting_popup_(false) {
+  client_handler_ = new ClientHandlerOsr(this, this, startup_url);
 }
 
-OSRWindow::OSRWindow(OSRBrowserProvider* browser_provider,
-                     bool transparent,
-                     bool show_update_rect,
-                     CefWindowHandle parentView,
-                     const CefRect& frame) {
-  NSRect window_rect = NSMakeRect(frame.x, frame.y, frame.width, frame.height);
-  ClientOpenGLView* view =
-      [[ClientOpenGLView alloc] initWithFrame:window_rect
-                               andTransparency:transparent
-                             andShowUpdateRect:show_update_rect];
-  this->view_ = view;
-  [parentView addSubview:view];
-  [view setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
-  [view setAutoresizesSubviews: true];
-
-  this->render_client = new ClientOSRHandler(view, browser_provider);
+BrowserWindowOsrMac::~BrowserWindowOsrMac() {
+  if (nsview_) {
+    // Disassociate the view with |this|.
+    [GLView(nsview_) detach];
+  }
 }
 
-OSRWindow::~OSRWindow() {
+void BrowserWindowOsrMac::CreateBrowser(ClientWindowHandle parent_handle,
+                                        const CefRect& rect,
+                                        const CefBrowserSettings& settings) {
+  REQUIRE_MAIN_THREAD();
+
+  // Create the native NSView.
+  Create(parent_handle, rect);
+
+  CefWindowInfo window_info;
+  window_info.SetAsWindowless(nsview_, renderer_.IsTransparent());
+
+  // Create the browser asynchronously.
+  CefBrowserHost::CreateBrowser(window_info, client_handler_,
+                                client_handler_->startup_url(),
+                                settings, NULL);
+}
+
+void BrowserWindowOsrMac::GetPopupConfig(CefWindowHandle temp_handle,
+                                         CefWindowInfo& windowInfo,
+                                         CefRefPtr<CefClient>& client,
+                                         CefBrowserSettings& settings) {
+  // Note: This method may be called on any thread.
+  windowInfo.SetAsWindowless(temp_handle, renderer_.IsTransparent());
+  client = client_handler_;
+}
+
+void BrowserWindowOsrMac::ShowPopup(ClientWindowHandle parent_handle,
+                                    int x, int y, size_t width, size_t height) {
+  REQUIRE_MAIN_THREAD();
+  DCHECK(browser_.get());
+
+  // Create the native NSView.
+  Create(parent_handle,
+         CefRect(x, y, static_cast<int>(width), static_cast<int>(height)));
+
+  // Send resize notification so the compositor is assigned the correct
+  // viewport size and begins rendering.
+  browser_->GetHost()->WasResized();
+
+  Show();
+}
+
+void BrowserWindowOsrMac::Show() {
+  REQUIRE_MAIN_THREAD();
+
+  if (hidden_) {
+    // Set the browser as visible.
+    browser_->GetHost()->SetWindowVisibility(true);
+    hidden_ = false;
+  }
+
+  // Give focus to the browser.
+  browser_->GetHost()->SendFocusEvent(true);
+}
+
+void BrowserWindowOsrMac::Hide() {
+  REQUIRE_MAIN_THREAD();
+  
+  if (!browser_.get())
+    return;
+
+  // Remove focus from the browser.
+  browser_->GetHost()->SendFocusEvent(false);
+
+  if (!hidden_) {
+    // Set the browser as hidden.
+    browser_->GetHost()->SetWindowVisibility(false);
+    hidden_ = true;
+  }
+}
+
+void BrowserWindowOsrMac::SetBounds(int x, int y, size_t width, size_t height) {
+  REQUIRE_MAIN_THREAD();
+  // Nothing to do here. GTK will take care of positioning in the container.
+}
+
+void BrowserWindowOsrMac::SetFocus(bool focus) {
+  REQUIRE_MAIN_THREAD();
+  if (nsview_)
+    [[nsview_ window] makeFirstResponder:nsview_];
+}
+
+ClientWindowHandle BrowserWindowOsrMac::GetWindowHandle() const {
+  REQUIRE_MAIN_THREAD();
+  return nsview_;
+}
+
+void BrowserWindowOsrMac::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
+  CEF_REQUIRE_UI_THREAD();
+}
+
+void BrowserWindowOsrMac::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
+  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
+
+  // Detach |this| from the ClientHandlerOsr.
+  static_cast<ClientHandlerOsr*>(client_handler_.get())->DetachOsrDelegate();
+}
+
+bool BrowserWindowOsrMac::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
+                                            CefRect& rect) {
+  CEF_REQUIRE_UI_THREAD();
+  return false;
+}
+
+bool BrowserWindowOsrMac::GetViewRect(CefRefPtr<CefBrowser> browser,
+                                      CefRect& rect) {
+  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
+
+  if (!nsview_)
+    return false;
+
+  // The simulated screen and view rectangle are the same. This is necessary
+  // for popup menus to be located and sized inside the view.
+  const NSRect bounds = [nsview_ bounds];
+  rect.x = rect.y = 0;
+  rect.width = bounds.size.width;
+  rect.height = bounds.size.height;
+  return true;
+}
+
+bool BrowserWindowOsrMac::GetScreenPoint(CefRefPtr<CefBrowser> browser,
+                                         int viewX,
+                                         int viewY,
+                                         int& screenX,
+                                         int& screenY) {
+  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
+
+  if (!nsview_)
+    return false;
+
+  // Convert the point from view coordinates to actual screen coordinates.
+  NSRect bounds = [nsview_ bounds];
+  NSPoint view_pt = NSMakePoint(viewX, bounds.size.height - viewY);
+  NSPoint window_pt = [nsview_ convertPoint:view_pt toView:nil];
+  NSPoint screen_pt = [[nsview_ window] convertBaseToScreen:window_pt];
+  screenX = screen_pt.x;
+  screenY = screen_pt.y;
+  return true;
+}
+
+bool BrowserWindowOsrMac::GetScreenInfo(CefRefPtr<CefBrowser> browser,
+                                        CefScreenInfo& screen_info) {
+  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
+
+  if (!nsview_)
+    return false;
+
+  NSWindow* window = [nsview_ window];
+  if (!window)
+    return false;
+
+  screen_info.device_scale_factor = [GLView(nsview_) getDeviceScaleFactor];
+
+  NSScreen* screen = [window screen];
+  if (!screen)
+    screen = [NSScreen deepestScreen];
+
+  screen_info.depth = NSBitsPerPixelFromDepth([screen depth]);
+  screen_info.depth_per_component = NSBitsPerSampleFromDepth([screen depth]);
+  screen_info.is_monochrome =
+      [[screen colorSpace] colorSpaceModel] == NSGrayColorSpaceModel;
+  screen_info.rect = convertRect([screen frame], [screen frame]);
+  screen_info.available_rect =
+      convertRect([screen visibleFrame], [screen frame]);
+
+  return true;
+}
+
+void BrowserWindowOsrMac::OnPopupShow(CefRefPtr<CefBrowser> browser,
+                                      bool show) {
+  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
+
+  if (!nsview_)
+    return;
+
+  if (!show) {
+    renderer_.ClearPopupRects();
+    browser->GetHost()->Invalidate(PET_VIEW);
+  }
+  renderer_.OnPopupShow(browser, show);
+}
+
+void BrowserWindowOsrMac::OnPopupSize(CefRefPtr<CefBrowser> browser,
+                                      const CefRect& rect) {
+  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
+
+  if (!nsview_)
+    return;
+
+  renderer_.OnPopupSize(browser,
+                        [GLView(nsview_) convertRectToBackingInternal:rect]);
+}
+
+void BrowserWindowOsrMac::OnPaint(
+    CefRefPtr<CefBrowser> browser,
+    CefRenderHandler::PaintElementType type,
+    const CefRenderHandler::RectList& dirtyRects,
+    const void* buffer,
+    int width,
+    int height) {
+  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
+
+  if (!nsview_)
+    return;
+
+  if (width <= 2 && height <= 2) {
+    // Ignore really small buffer sizes while the widget is starting up.
+    return;
+  }
+
+  if (painting_popup_) {
+    renderer_.OnPaint(browser, type, dirtyRects, buffer, width, height);
+    return;
+  }
+
+  ScopedGLContext scoped_gl_context(GLView(nsview_), true);
+
+  renderer_.OnPaint(browser, type, dirtyRects, buffer, width, height);
+  if (type == PET_VIEW && !renderer_.popup_rect().IsEmpty()) {
+    painting_popup_ = true;
+    browser->GetHost()->Invalidate(PET_POPUP);
+    painting_popup_ = false;
+  }
+  renderer_.Render();
+}
+
+void BrowserWindowOsrMac::OnCursorChange(
+    CefRefPtr<CefBrowser> browser,
+    CefCursorHandle cursor,
+    CefRenderHandler::CursorType type,
+    const CefCursorInfo& custom_cursor_info) {
+  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
+
+  [cursor set];
+}
+
+bool BrowserWindowOsrMac::StartDragging(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefDragData> drag_data,
+    CefRenderHandler::DragOperationsMask allowed_ops,
+    int x, int y) {
+  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
+
+  if (!nsview_)
+    return false;
+
+  return [GLView(nsview_)
+      startDragging:drag_data
+         allowedOps:static_cast<NSDragOperation>(allowed_ops)
+              point:NSMakePoint(x, y)];
+}
+
+void BrowserWindowOsrMac::UpdateDragCursor(
+    CefRefPtr<CefBrowser> browser,
+    CefRenderHandler::DragOperation operation) {
+  CEF_REQUIRE_UI_THREAD();
+  REQUIRE_MAIN_THREAD();
+
+  if (nsview_)
+    [GLView(nsview_) setCurrentDragOp:operation];
+}
+
+void BrowserWindowOsrMac::Create(ClientWindowHandle parent_handle,
+                                 const CefRect& rect) {
+  REQUIRE_MAIN_THREAD();
+  DCHECK(!nsview_);
+
+  NSRect window_rect = NSMakeRect(rect.x, rect.y, rect.width, rect.height);
+  nsview_ =
+      [[BrowserOpenGLView alloc] initWithFrame:window_rect
+                              andBrowserWindow:this
+                                   andRenderer:&renderer_];
+  [nsview_ setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
+  [nsview_ setAutoresizesSubviews: true];
+  [parent_handle addSubview:nsview_];
+
+  // Backing property notifications crash on 10.6 when building with the 10.7
+  // SDK, see http://crbug.com/260595.
+  static BOOL supportsBackingPropertiesNotification =
+      SupportsBackingPropertiesChangedNotification();
+  if (supportsBackingPropertiesNotification) {
+    [[NSNotificationCenter defaultCenter]
+      addObserver:nsview_
+         selector:@selector(windowDidChangeBackingProperties:)
+             name:NSWindowDidChangeBackingPropertiesNotification
+           object:[nsview_ window]];
+  }
 }
 
 }  // namespace client

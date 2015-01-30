@@ -345,8 +345,8 @@ void RootWindowGtk::OnBrowserWindowDestroyed() {
   if (!window_destroyed_) {
     // The browser was destroyed first. This could be due to the use of
     // off-screen rendering or execution of JavaScript window.close().
-    // Close the RootWindow asynchronously.
-    Close(false);
+    // Close the RootWindow.
+    Close(true);
   }
 
   browser_destroyed_ = true;
@@ -395,7 +395,7 @@ gboolean RootWindowGtk::WindowFocusIn(GtkWidget* widget,
                                       GdkEventFocus* event,
                                       RootWindowGtk* self) {
   if (event->in && self->browser_window_.get()) {
-    self->browser_window_->SetFocus();
+    self->browser_window_->SetFocus(true);
     // Return true for a windowed browser so that focus is not passed to GTK.
     return self->with_osr_ ? FALSE : TRUE;
   }

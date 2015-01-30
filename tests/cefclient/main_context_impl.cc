@@ -70,12 +70,10 @@ void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {
   }
 }
 
-#if defined(OS_WIN) || defined(OS_LINUX)
 RootWindowManager* MainContextImpl::GetRootWindowManager() {
   DCHECK(InValidState());
   return root_window_manager_.get();
 }
-#endif
 
 bool MainContextImpl::Initialize(const CefMainArgs& args,
                                  const CefSettings& settings,
@@ -88,12 +86,10 @@ bool MainContextImpl::Initialize(const CefMainArgs& args,
   if (!CefInitialize(args, settings, application, windows_sandbox_info))
     return false;
 
-#if defined(OS_WIN) || defined(OS_LINUX)
   // Need to create the RootWindowManager after calling CefInitialize because
   // TempWindowX11 uses cef_get_xdisplay().
   root_window_manager_.reset(
       new RootWindowManager(terminate_when_all_windows_closed_));
-#endif
 
   initialized_ = true;
 
@@ -105,9 +101,7 @@ void MainContextImpl::Shutdown() {
   DCHECK(initialized_);
   DCHECK(!shutdown_);
 
-#if defined(OS_WIN) || defined(OS_LINUX)
   root_window_manager_.reset();
-#endif
 
   CefShutdown();
 

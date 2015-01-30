@@ -16,5 +16,17 @@
 #define ClientWindowHandle CefWindowHandle
 #endif
 
+#if defined(OS_MACOSX)
+// Forward declaration of ObjC types used by cefclient and not provided by
+// include/internal/cef_types_mac.h.
+#ifdef __cplusplus
+#ifdef __OBJC__
+@class NSWindow;
+#else
+class NSWindow;
+#endif
+#endif
+#endif  // defined OS_MACOSX
+
 #endif  // CEF_TESTS_CEFCLIENT_CLIENT_TYPES_H_
 

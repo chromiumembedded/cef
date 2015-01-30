@@ -64,9 +64,9 @@ void BrowserWindowOsrWin::SetBounds(int x, int y, size_t width, size_t height) {
     osr_window_->SetBounds(x, y, width, height);
 }
 
-void BrowserWindowOsrWin::SetFocus() {
+void BrowserWindowOsrWin::SetFocus(bool focus) {
   REQUIRE_MAIN_THREAD();
-  if (osr_window_)
+  if (osr_window_ && focus)
     osr_window_->SetFocus();
 }
 

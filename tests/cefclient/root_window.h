@@ -42,6 +42,16 @@ class RootWindow :
   // instead of calling this method directly.
   static scoped_refptr<RootWindow> Create();
 
+  // Returns the RootWindow associated with the specified |browser_id|. Must be
+  // called on the main thread.
+  static scoped_refptr<RootWindow> GetForBrowser(int browser_id);
+
+#if defined(OS_MACOSX)
+  // Returns the RootWindow associated with the specified |window|. Must be
+  // called on the main thread.
+  static scoped_refptr<RootWindow> GetForNSWindow(NSWindow* window);
+#endif
+
   // Initialize as a normal window. This will create and show a browser window.
   // This method may be called on any thread.
   // |delegate| must be non-NULL and outlive this object.
