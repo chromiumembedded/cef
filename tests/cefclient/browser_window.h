@@ -7,7 +7,7 @@
 
 #include "include/base/cef_scoped_ptr.h"
 #include "include/cef_browser.h"
-#include "cefclient/client_handler_single.h"
+#include "cefclient/client_handler.h"
 #include "cefclient/client_types.h"
 
 namespace client {
@@ -15,7 +15,7 @@ namespace client {
 // Represents a native child window hosting a single browser instance. The
 // methods of this class must be called on the main thread unless otherwise
 // indicated.
-class BrowserWindow : public ClientHandlerSingle::Delegate {
+class BrowserWindow : public ClientHandler::Delegate {
  public:
   // This interface is implemented by the owner of the BrowserWindowWin. The
   // methods of this class will be called on the main thread.
@@ -90,7 +90,7 @@ class BrowserWindow : public ClientHandlerSingle::Delegate {
   // |root_window| and |delegate| must outlive this object.
   explicit BrowserWindow(Delegate* delegate);
 
-  // ClientHandlerSingle::Delegate methods.
+  // ClientHandler::Delegate methods.
   void OnBrowserCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   void OnBrowserClosing(CefRefPtr<CefBrowser> browser) OVERRIDE;
   void OnBrowserClosed(CefRefPtr<CefBrowser> browser) OVERRIDE;
@@ -102,7 +102,7 @@ class BrowserWindow : public ClientHandlerSingle::Delegate {
 
   Delegate* delegate_;
   CefRefPtr<CefBrowser> browser_;
-  CefRefPtr<ClientHandlerSingle> client_handler_;
+  CefRefPtr<ClientHandler> client_handler_;
   bool is_closing_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserWindow);

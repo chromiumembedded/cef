@@ -17,6 +17,7 @@
 #include "cefclient/client_switches.h"
 #include "cefclient/main_context.h"
 #include "cefclient/resource_util.h"
+#include "cefclient/root_window_manager.h"
 #include "cefclient/test_runner.h"
 
 namespace client {
@@ -43,12 +44,13 @@ enum client_menu_ids {
 
 }  // namespace
 
-ClientHandler::ClientHandler(const std::string& startup_url,
-                             bool is_osr)
-  : startup_url_(startup_url),
-    is_osr_(is_osr),
+ClientHandler::ClientHandler(Delegate* delegate,
+                             bool is_osr,
+                             const std::string& startup_url)
+  : is_osr_(is_osr),
+    startup_url_(startup_url),
+    delegate_(delegate),
     browser_count_(0),
-    main_handle_(NULL),
     console_log_file_(MainContext::Get()->GetConsoleLogPath()),
     first_console_message_(true),
     focus_on_editable_field_(false) {
@@ -66,7 +68,15 @@ ClientHandler::ClientHandler(const std::string& startup_url,
       command_line->HasSwitch(switches::kMouseCursorChangeDisabled);
 }
 
-ClientHandler::~ClientHandler() {
+void ClientHandler::DetachDelegate() {
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute this method on the main thread.
+    MAIN_POST_CLOSURE(base::Bind(&ClientHandler::DetachDelegate, this));
+    return;
+  }
+
+  DCHECK(delegate_);
+  delegate_ = NULL;
 }
 
 bool ClientHandler::OnProcessMessageReceived(
@@ -147,14 +157,14 @@ void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
 
   // Only update the address for the main (top-level) frame.
   if (frame->IsMain())
-    SetAddress(browser, url);
+    NotifyAddress(url);
 }
 
 void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
                                   const CefString& title) {
   CEF_REQUIRE_UI_THREAD();
 
-  SetTitle(browser, title);
+  NotifyTitle(title);
 }
 
 bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
@@ -289,13 +299,13 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   if (mouse_cursor_change_disabled_)
     browser->GetHost()->SetMouseCursorChangeDisabled(true);
 
-  BrowserCreated(browser);
+  NotifyBrowserCreated(browser);
 }
 
 bool ClientHandler::DoClose(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
 
-  BrowserClosing(browser);
+  NotifyBrowserClosing(browser);
 
   // Allow the close. For windowed browsers this will result in the OS close
   // event being sent.
@@ -317,7 +327,7 @@ void ClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
     message_router_ = NULL;
   }
 
-  BrowserClosed(browser);
+  NotifyBrowserClosed(browser);
 }
 
 void ClientHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
@@ -326,7 +336,7 @@ void ClientHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
                                          bool canGoForward) {
   CEF_REQUIRE_UI_THREAD();
 
-  SetLoadingState(browser, isLoading, canGoBack, canGoForward);
+  NotifyLoadingState(isLoading, canGoBack, canGoForward);
 }
 
 void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
@@ -433,27 +443,6 @@ void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
   frame->LoadURL(startup_url_);
 }
 
-void ClientHandler::SetMainWindowHandle(ClientWindowHandle handle) {
-  if (!CefCurrentlyOn(TID_UI)) {
-    // Execute on the UI thread.
-    CefPostTask(TID_UI,
-        base::Bind(&ClientHandler::SetMainWindowHandle, this, handle));
-    return;
-  }
-
-  main_handle_ = handle;
-
-#if defined(OS_LINUX)
-  // Associate |handle| with the GTK dialog handler.
-  dialog_handler_->set_parent(handle);
-#endif
-}
-
-ClientWindowHandle ClientHandler::GetMainWindowHandle() const {
-  CEF_REQUIRE_UI_THREAD();
-  return main_handle_;
-}
-
 int ClientHandler::GetBrowserCount() const {
   CEF_REQUIRE_UI_THREAD();
   return browser_count_;
@@ -474,6 +463,100 @@ void ClientHandler::ShowDevTools(CefRefPtr<CefBrowser> browser,
 
 void ClientHandler::CloseDevTools(CefRefPtr<CefBrowser> browser) {
   browser->GetHost()->CloseDevTools();
+}
+
+
+bool ClientHandler::CreatePopupWindow(
+    CefRefPtr<CefBrowser> browser,
+    bool is_devtools,
+    const CefPopupFeatures& popupFeatures,
+    CefWindowInfo& windowInfo,
+    CefRefPtr<CefClient>& client,
+    CefBrowserSettings& settings) {
+  // Note: This method will be called on multiple threads.
+
+  // The popup browser will be parented to a new native window.
+  // Don't show URL bar and navigation buttons on DevTools windows.
+  MainContext::Get()->GetRootWindowManager()->CreateRootWindowAsPopup(
+      !is_devtools, is_osr(), popupFeatures, windowInfo, client, settings);
+
+  return true;
+}
+
+
+void ClientHandler::NotifyBrowserCreated(CefRefPtr<CefBrowser> browser) {
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute this method on the main thread.
+    MAIN_POST_CLOSURE(
+        base::Bind(&ClientHandler::NotifyBrowserCreated, this, browser));
+    return;
+  }
+
+  if (delegate_)
+    delegate_->OnBrowserCreated(browser);
+}
+
+void ClientHandler::NotifyBrowserClosing(CefRefPtr<CefBrowser> browser) {
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute this method on the main thread.
+    MAIN_POST_CLOSURE(
+        base::Bind(&ClientHandler::NotifyBrowserClosing, this, browser));
+    return;
+  }
+
+  if (delegate_)
+    delegate_->OnBrowserClosing(browser);
+}
+
+void ClientHandler::NotifyBrowserClosed(CefRefPtr<CefBrowser> browser) {
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute this method on the main thread.
+    MAIN_POST_CLOSURE(
+        base::Bind(&ClientHandler::NotifyBrowserClosed, this, browser));
+    return;
+  }
+
+  if (delegate_)
+    delegate_->OnBrowserClosed(browser);
+}
+
+void ClientHandler::NotifyAddress(const CefString& url) {
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute this method on the main thread.
+    MAIN_POST_CLOSURE(
+        base::Bind(&ClientHandler::NotifyAddress, this, url));
+    return;
+  }
+
+  if (delegate_)
+    delegate_->OnSetAddress(url);
+}
+
+void ClientHandler::NotifyTitle(const CefString& title) {
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute this method on the main thread.
+    MAIN_POST_CLOSURE(
+        base::Bind(&ClientHandler::NotifyTitle, this, title));
+    return;
+  }
+
+  if (delegate_)
+    delegate_->OnSetTitle(title);
+}
+
+void ClientHandler::NotifyLoadingState(bool isLoading,
+                                       bool canGoBack,
+                                       bool canGoForward) {
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute this method on the main thread.
+    MAIN_POST_CLOSURE(
+        base::Bind(&ClientHandler::NotifyLoadingState, this,
+                   isLoading, canGoBack, canGoForward));
+    return;
+  }
+
+  if (delegate_)
+    delegate_->OnSetLoadingState(isLoading, canGoBack, canGoForward);
 }
 
 void ClientHandler::BuildTestMenu(CefRefPtr<CefMenuModel> model) {

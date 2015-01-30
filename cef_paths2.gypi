@@ -160,8 +160,6 @@
       'tests/cefclient/client_handler.h',
       'tests/cefclient/client_handler_osr.cc',
       'tests/cefclient/client_handler_osr.h',
-      'tests/cefclient/client_handler_single.cc',
-      'tests/cefclient/client_handler_single.h',
       'tests/cefclient/client_handler_std.cc',
       'tests/cefclient/client_handler_std.h',
       'tests/cefclient/client_renderer.cc',

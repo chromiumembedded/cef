@@ -33,11 +33,45 @@ class ClientHandler : public CefClient,
                       public CefLoadHandler,
                       public CefRequestHandler {
  public:
+  // Implement this interface to receive notification of ClientHandler
+  // events. The methods of this class will be called on the main thread.
+  class Delegate {
+   public:
+    // Called when the browser is created.
+    virtual void OnBrowserCreated(CefRefPtr<CefBrowser> browser) = 0;
+
+    // Called when the browser is closing.
+    virtual void OnBrowserClosing(CefRefPtr<CefBrowser> browser) = 0;
+
+    // Called when the browser has been closed.
+    virtual void OnBrowserClosed(CefRefPtr<CefBrowser> browser) = 0;
+
+    // Set the window URL address.
+    virtual void OnSetAddress(const std::string& url) = 0;
+
+    // Set the window title.
+    virtual void OnSetTitle(const std::string& title) = 0;
+
+    // Set the loading state.
+    virtual void OnSetLoadingState(bool isLoading,
+                                   bool canGoBack,
+                                   bool canGoForward) = 0;
+
+   protected:
+    virtual ~Delegate() {}
+  };
+
   typedef std::set<CefMessageRouterBrowserSide::Handler*> MessageHandlerSet;
 
-  ClientHandler(const std::string& startup_url,
-                bool is_osr);
-  ~ClientHandler();
+  // Constructor may be called on any thread.
+  // |delegate| must outlive this object or DetachDelegate() must be called.
+  ClientHandler(Delegate* delegate,
+                bool is_osr,
+                const std::string& startup_url);
+
+  // This object may outlive the Delegate object so it's necessary for the
+  // Delegate to detach itself before destruction.
+  void DetachDelegate();
 
   // CefClient methods
   CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() OVERRIDE {
@@ -175,12 +209,6 @@ class ClientHandler : public CefClient,
   void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
                                  TerminationStatus status) OVERRIDE;
 
-  // Set the main frame window handle.
-  void SetMainWindowHandle(ClientWindowHandle handle);
-
-  // Get the main frame window handle. Can only be called on the CEF UI thread.
-  ClientWindowHandle GetMainWindowHandle() const;
-
   // Returns the number of browsers currently using this handler. Can only be
   // called on the CEF UI thread.
   int GetBrowserCount() const;
@@ -198,46 +226,29 @@ class ClientHandler : public CefClient,
   // Returns true if this handler uses off-screen rendering.
   bool is_osr() const { return is_osr_; }
 
- protected:
-  // The following virtual methods are called on the CEF UI thread unless
-  // otherwise indicated.
-
-  // A browser has been created.
-  virtual void BrowserCreated(CefRefPtr<CefBrowser> browser) = 0;
-
-  // A browser is closing.
-  virtual void BrowserClosing(CefRefPtr<CefBrowser> browser) = 0;
-
-  // A browser has been closed.
-  virtual void BrowserClosed(CefRefPtr<CefBrowser> browser) = 0;
-
-  // Set the window URL address.
-  virtual void SetAddress(CefRefPtr<CefBrowser> browser,
-                          const CefString& url) = 0;
-
-  // Set the window title.
-  virtual void SetTitle(CefRefPtr<CefBrowser> browser,
-                        const CefString& title) = 0;
-
-  // Set the loading state.
-  virtual void SetLoadingState(CefRefPtr<CefBrowser> browser,
-                               bool isLoading,
-                               bool canGoBack,
-                               bool canGoForward) = 0;
-
+ private:
   // Create a new popup window using the specified information. |is_devtools|
   // will be true if the window will be used for DevTools. Return true to
   // proceed with popup browser creation or false to cancel the popup browser.
   // May be called on any thead.
-  virtual bool CreatePopupWindow(
+  bool CreatePopupWindow(
       CefRefPtr<CefBrowser> browser,
       bool is_devtools,
       const CefPopupFeatures& popupFeatures,
       CefWindowInfo& windowInfo,
       CefRefPtr<CefClient>& client,
-      CefBrowserSettings& settings) = 0;
+      CefBrowserSettings& settings);
 
- private:
+  // Execute Delegate notifications on the main thread.
+  void NotifyBrowserCreated(CefRefPtr<CefBrowser> browser);
+  void NotifyBrowserClosing(CefRefPtr<CefBrowser> browser);
+  void NotifyBrowserClosed(CefRefPtr<CefBrowser> browser);
+  void NotifyAddress(const CefString& url);
+  void NotifyTitle(const CefString& title);
+  void NotifyLoadingState(bool isLoading,
+                          bool canGoBack,
+                          bool canGoForward);
+
   // Test context menu creation.
   void BuildTestMenu(CefRefPtr<CefMenuModel> model);
   bool ExecuteTestMenu(int command_id);
@@ -245,11 +256,11 @@ class ClientHandler : public CefClient,
   // THREAD SAFE MEMBERS
   // The following members may be accessed from any thread.
 
-  // The startup URL.
-  const std::string startup_url_;
-
   // True if this handler uses off-screen rendering.
   const bool is_osr_;
+
+  // The startup URL.
+  const std::string startup_url_;
 
   // True if mouse cursor change is disabled.
   bool mouse_cursor_change_disabled_;
@@ -263,6 +274,13 @@ class ClientHandler : public CefClient,
   // in client_renderer.cc.
   CefRefPtr<CefMessageRouterBrowserSide> message_router_;
   
+  // MAIN THREAD MEMBERS
+  // The following members will only be accessed on the main thread. This will
+  // be the same as the CEF UI thread except when using multi-threaded message
+  // loop mode on Windows.
+
+  Delegate* delegate_;
+
   // UI THREAD MEMBERS
   // The following members will only be accessed on the CEF UI thread.
 
@@ -275,9 +293,6 @@ class ClientHandler : public CefClient,
 
   // The current number of browsers using this handler.
   int browser_count_;
-
-  // The main frame window handle.
-  ClientWindowHandle main_handle_;
 
   // Console logging state.
   const std::string console_log_file_;

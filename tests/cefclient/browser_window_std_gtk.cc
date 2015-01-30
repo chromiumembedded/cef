@@ -94,9 +94,6 @@ void BrowserWindowStdGtk::CreateBrowser(ClientWindowHandle parent_handle,
                                         const CefBrowserSettings& settings) {
   REQUIRE_MAIN_THREAD();
 
-  // Set the window handle for GTK dialogs.
-  client_handler_->SetMainWindowHandle(parent_handle);
-
   CefWindowInfo window_info;
   window_info.SetAsChild(GetXWindowForWidget(parent_handle), rect);
 
@@ -118,9 +115,6 @@ void BrowserWindowStdGtk::GetPopupConfig(CefWindowHandle temp_handle,
 void BrowserWindowStdGtk::ShowPopup(ClientWindowHandle parent_handle,
                                     int x, int y, size_t width, size_t height) {
   REQUIRE_MAIN_THREAD();
-
-  // Set the window handle for GTK dialogs.
-  client_handler_->SetMainWindowHandle(parent_handle);
 
   if (browser_) {
     ::Window parent_xwindow = GetXWindowForWidget(parent_handle);

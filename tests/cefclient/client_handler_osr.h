@@ -5,13 +5,13 @@
 #ifndef CEF_TESTS_CEFCLIENT_CLIENT_HANDLER_OSR_H_
 #define CEF_TESTS_CEFCLIENT_CLIENT_HANDLER_OSR_H_
 
-#include "cefclient/client_handler_single.h"
+#include "cefclient/client_handler.h"
 
 namespace client {
 
 // Client handler implementation for windowless browsers. There will only ever
 // be one browser per handler instance.
-class ClientHandlerOsr : public ClientHandlerSingle,
+class ClientHandlerOsr : public ClientHandler,
                          public CefRenderHandler {
  public:
   // Implement this interface to receive notification of ClientHandlerOsr

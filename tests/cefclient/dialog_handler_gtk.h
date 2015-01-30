@@ -43,16 +43,11 @@ class ClientDialogHandlerGtk : public CefDialogHandler,
       CefRefPtr<CefJSDialogCallback> callback) OVERRIDE;
   void OnResetDialogState(CefRefPtr<CefBrowser> browser) OVERRIDE;
 
-  void set_parent(GtkWidget* parent) {
-    gtk_parent_ = parent;
-  }
-
  private:
   static void OnDialogResponse(GtkDialog *dialog,
                                gint response_id,
                                ClientDialogHandlerGtk* handler);
 
-  GtkWidget* gtk_parent_;
   GtkWidget* gtk_dialog_;
   CefRefPtr<CefJSDialogCallback> js_dialog_callback_;
 

@@ -13,7 +13,7 @@ namespace client {
 ClientHandlerOsr::ClientHandlerOsr(Delegate* delegate,
                                    OsrDelegate* osr_delegate,
                                    const std::string& startup_url)
-    : ClientHandlerSingle(delegate, true, startup_url),
+    : ClientHandler(delegate, true, startup_url),
       osr_delegate_(osr_delegate) {
   DCHECK(osr_delegate_);
 }
@@ -33,14 +33,14 @@ void ClientHandlerOsr::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
   if (osr_delegate_)
     osr_delegate_->OnAfterCreated(browser);
-  ClientHandlerSingle::OnAfterCreated(browser);
+  ClientHandler::OnAfterCreated(browser);
 }
 
 void ClientHandlerOsr::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
   if (osr_delegate_)
     osr_delegate_->OnBeforeClose(browser);
-  ClientHandlerSingle::OnBeforeClose(browser);
+  ClientHandler::OnBeforeClose(browser);
 }
 
 bool ClientHandlerOsr::GetRootScreenRect(CefRefPtr<CefBrowser> browser,

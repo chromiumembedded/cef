@@ -3,9 +3,11 @@
 // can be found in the LICENSE file.
 
 #include "cefclient/dialog_handler_gtk.h"
+
 #include "include/cef_browser.h"
 #include "include/cef_url.h"
 #include "include/wrapper/cef_helpers.h"
+#include "cefclient/root_window.h"
 
 namespace client {
 
@@ -124,12 +126,19 @@ void AddFilters(GtkFileChooser* chooser,
   }
 }
 
+GtkWidget* GetWindow(CefRefPtr<CefBrowser> browser) {
+  scoped_refptr<RootWindow> root_window =
+      RootWindow::GetForBrowser(browser->GetIdentifier());
+  if (root_window.get())
+    return root_window->GetWindowHandle();
+  return NULL;
+}
+
 }  // namespace
 
 
 ClientDialogHandlerGtk::ClientDialogHandlerGtk()
-    : gtk_parent_(NULL),
-      gtk_dialog_(NULL) {
+    : gtk_dialog_(NULL) {
 }
 
 bool ClientDialogHandlerGtk::OnFileDialog(
@@ -185,9 +194,9 @@ bool ClientDialogHandlerGtk::OnFileDialog(
     }
   }
 
-  DCHECK(gtk_parent_);
-  GtkWidget* window = gtk_widget_get_ancestor(
-      GTK_WIDGET(gtk_parent_), GTK_TYPE_WINDOW);
+  GtkWidget* window = GetWindow(browser);
+  DCHECK(window);
+
   GtkWidget* dialog = gtk_file_chooser_dialog_new(
       title_str.c_str(),
       GTK_WINDOW(window),
@@ -310,9 +319,9 @@ bool ClientDialogHandlerGtk::OnJSDialog(
     title += origin_url.ToString();
   }
 
-  DCHECK(gtk_parent_);
-  GtkWidget* window = gtk_widget_get_ancestor(
-      GTK_WIDGET(gtk_parent_), GTK_TYPE_WINDOW);
+  GtkWidget* window = GetWindow(browser);
+  DCHECK(window);
+
   gtk_dialog_ = gtk_message_dialog_new(GTK_WINDOW(window),
                                        GTK_DIALOG_MODAL,
                                        gtk_message_type,

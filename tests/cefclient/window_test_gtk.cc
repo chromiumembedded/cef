@@ -3,9 +3,10 @@
 // can be found in the LICENSE file.
 
 #include "cefclient/window_test.h"
-#include "cefclient/client_handler.h"
 
 #include <gtk/gtk.h>
+
+#include "cefclient/root_window.h"
 
 namespace client {
 namespace window_test {
@@ -13,12 +14,11 @@ namespace window_test {
 namespace {
 
 GtkWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
-  // We can't get the GtkWidget* from the X11 Window that would be returned via
-  // CefBrowserHost::GetWindowHandle so retrieve it via the ClientHandler
-  // instance instead.
-  CefRefPtr<ClientHandler> handler =
-      static_cast<ClientHandler*>(browser->GetHost()->GetClient().get());
-  return GTK_WINDOW(gtk_widget_get_toplevel(handler->GetMainWindowHandle()));
+  scoped_refptr<RootWindow> root_window =
+      RootWindow::GetForBrowser(browser->GetIdentifier());
+  if (root_window.get())
+    return GTK_WINDOW(root_window->GetWindowHandle());
+  return NULL;
 }
 
 bool IsMaximized(GtkWindow* window) {

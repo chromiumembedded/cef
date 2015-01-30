@@ -5,13 +5,13 @@
 #ifndef CEF_TESTS_CEFCLIENT_CLIENT_HANDLER_STD_H_
 #define CEF_TESTS_CEFCLIENT_CLIENT_HANDLER_STD_H_
 
-#include "cefclient/client_handler_single.h"
+#include "cefclient/client_handler.h"
 
 namespace client {
 
 // Client handler implementation for windowed browsers. There will only ever be
 // one browser per handler instance.
-class ClientHandlerStd : public ClientHandlerSingle {
+class ClientHandlerStd : public ClientHandler {
  public:
   ClientHandlerStd(Delegate* delegate,
                    const std::string& startup_url);

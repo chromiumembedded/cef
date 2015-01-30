@@ -929,9 +929,6 @@ void BrowserWindowOsrGtk::CreateBrowser(ClientWindowHandle parent_handle,
                                         const CefBrowserSettings& settings) {
   REQUIRE_MAIN_THREAD();
 
-  // Set the window handle for GTK dialogs.
-  client_handler_->SetMainWindowHandle(parent_handle);
-
   // Create the native window.
   Create(parent_handle);
 
@@ -963,9 +960,6 @@ void BrowserWindowOsrGtk::ShowPopup(ClientWindowHandle parent_handle,
                                     int x, int y, size_t width, size_t height) {
   REQUIRE_MAIN_THREAD();
   DCHECK(browser_.get());
-
-  // Set the window handle for GTK dialogs.
-  client_handler_->SetMainWindowHandle(parent_handle);
 
   // Create the native window.
   Create(parent_handle);

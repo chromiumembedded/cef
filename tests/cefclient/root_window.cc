@@ -10,7 +10,7 @@
 namespace client {
 
 // static
-scoped_refptr<RootWindow> GetForBrowser(int browser_id) {
+scoped_refptr<RootWindow> RootWindow::GetForBrowser(int browser_id) {
   return MainContext::Get()->GetRootWindowManager()->GetWindowForBrowser(
       browser_id);
 }
