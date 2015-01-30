@@ -191,6 +191,7 @@
       'tests/cefclient/root_window_manager.h',
       'tests/cefclient/scheme_test.cc',
       'tests/cefclient/scheme_test.h',
+      'tests/cefclient/temp_window.h',
       'tests/cefclient/test_runner.cc',
       'tests/cefclient/test_runner.h',
       'tests/cefclient/window_test.cc',

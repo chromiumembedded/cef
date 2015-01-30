@@ -18,7 +18,7 @@
 #include "cefclient/client_switches.h"
 #include "cefclient/main_message_loop.h"
 #include "cefclient/resource.h"
-#include "cefclient/temp_window_x11.h"
+#include "cefclient/temp_window.h"
 
 namespace client {
 
@@ -131,7 +131,7 @@ void RootWindowGtk::InitAsPopup(RootWindow::Delegate* delegate,
   // The new popup is initially parented to a temporary window. The native root
   // window will be created after the browser is created and the popup window
   // will be re-parented to it at that time.
-  browser_window_->GetPopupConfig(TempWindowX11::GetWindowHandle(),
+  browser_window_->GetPopupConfig(TempWindow::GetWindowHandle(),
                                   windowInfo, client, settings);
 }
 

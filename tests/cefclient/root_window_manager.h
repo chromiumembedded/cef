@@ -10,14 +10,7 @@
 #include "include/base/cef_scoped_ptr.h"
 #include "include/cef_command_line.h"
 #include "cefclient/root_window.h"
-
-#if defined(OS_WIN)
-#include "cefclient/temp_window_win.h"
-#elif defined(OS_LINUX)
-#include "cefclient/temp_window_x11.h"
-#elif defined(OS_MACOSX)
-#include "cefclient/temp_window_mac.h"
-#endif
+#include "cefclient/temp_window.h"
 
 namespace client {
 
@@ -81,13 +74,7 @@ class RootWindowManager : public RootWindow::Delegate {
   RootWindowSet root_windows_;
 
   // Singleton window used as the temporary parent for popup browsers.
-#if defined(OS_WIN)
-  TempWindowWin temp_window_win_;
-#elif defined(OS_LINUX)
-  TempWindowX11 temp_window_x11_;
-#elif defined(OS_MACOSX)
-  TempWindowMac temp_window_mac_;
-#endif
+  TempWindow temp_window_;
 
   DISALLOW_COPY_AND_ASSIGN(RootWindowManager);
 };

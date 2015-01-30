@@ -11,7 +11,7 @@
 #include "cefclient/client_switches.h"
 #include "cefclient/main_message_loop.h"
 #include "cefclient/resource.h"
-#include "cefclient/temp_window_win.h"
+#include "cefclient/temp_window.h"
 #include "cefclient/util_win.h"
 
 #define MAX_URL_LENGTH  255
@@ -134,7 +134,7 @@ void RootWindowWin::InitAsPopup(RootWindow::Delegate* delegate,
   // The new popup is initially parented to a temporary window. The native root
   // window will be created after the browser is created and the popup window
   // will be re-parented to it at that time.
-  browser_window_->GetPopupConfig(TempWindowWin::GetWindowHandle(),
+  browser_window_->GetPopupConfig(TempWindow::GetWindowHandle(),
                                   windowInfo, client, settings);
 }
 
