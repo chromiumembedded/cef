@@ -147,11 +147,6 @@ class ClientSchemeHandlerFactory : public CefSchemeHandlerFactory {
 
 }  // namespace
 
-void RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar,
-                           std::vector<CefString>& cookiable_schemes) {
-  registrar->AddCustomScheme("client", true, false, false);
-}
-
 void RegisterSchemeHandlers() {
   CefRegisterSchemeHandlerFactory("client", "tests",
       new ClientSchemeHandlerFactory());

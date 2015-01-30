@@ -19,7 +19,7 @@ namespace scheme_test {
 void RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar,
                            std::vector<CefString>& cookiable_schemes);
 
-// Create the scheme handler.
+// Create the scheme handler. Called from both the browser and renderer process.
 void RegisterSchemeHandlers();
 
 }  // namespace scheme_test
