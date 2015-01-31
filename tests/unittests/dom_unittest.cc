@@ -7,7 +7,7 @@
 
 #include "include/cef_dom.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "tests/cefclient/client_app.h"
+#include "tests/cefclient/common/client_app.h"
 #include "tests/unittests/test_handler.h"
 
 using client::ClientApp;

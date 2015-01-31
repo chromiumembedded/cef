@@ -19,7 +19,7 @@
 #include "base/test/test_timeouts.h"
 #endif
 
-#include "tests/cefclient/client_switches.h"
+#include "tests/cefclient/common/client_switches.h"
 
 base::CommandLine* CefTestSuite::commandline_ = NULL;
 

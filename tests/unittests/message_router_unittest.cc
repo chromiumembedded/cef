@@ -17,7 +17,7 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/routing_test_handler.h"
-#include "tests/cefclient/client_app.h"
+#include "tests/cefclient/common/client_app.h"
 
 using client::ClientApp;
 

@@ -11,7 +11,7 @@
 #include "include/cef_task.h"
 #include "include/cef_v8.h"
 #include "include/wrapper/cef_closure_task.h"
-#include "tests/cefclient/client_app.h"
+#include "tests/cefclient/common/client_app.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/test_handler.h"
 

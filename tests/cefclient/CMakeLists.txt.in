@@ -11,19 +11,25 @@
   'prefix': 'cefclient',
   'set': 'CEFCLIENT_SRCS',
   'includes': [
+    'cefclient_sources_browser',
     'cefclient_sources_common',
-    'cefclient_bundle_resources_common',
+    'cefclient_sources_linux:LINUX',
+    'cefclient_sources_renderer:LINUX',
+    'cefclient_sources_renderer:WINDOWS',
+    'cefclient_sources_resources:WINDOWS',
     'cefclient_sources_win:WINDOWS',
     'cefclient_sources_mac:MACOSX',
-    'cefclient_sources_linux:LINUX',
   ],
 }}
 
 # cefclient helper sources.
 {{
   'prefix': 'cefclient_helper',
+  'set': 'CEFCLIENT_HELPER_SRCS',
   'includes': [
+    'cefclient_sources_common:MACOSX',
     'cefclient_sources_mac_helper:MACOSX',
+    'cefclient_sources_renderer:MACOSX',
   ],
 }}
 
@@ -32,8 +38,8 @@
   'prefix': 'cefclient_resources',
   'set': 'CEFCLIENT_RESOURCES_SRCS',
   'includes': [
-    'cefclient_bundle_resources_common',
     'cefclient_bundle_resources_mac:MACOSX',
+    'cefclient_sources_resources',
   ],
 }}
 
@@ -166,7 +172,7 @@ if(OS_WINDOWS)
   endif()
 
   # Add the custom manifest files to the executable.
-  ADD_WINDOWS_MANIFEST("${CEF_TARGET}")
+  ADD_WINDOWS_MANIFEST("${CMAKE_CURRENT_SOURCE_DIR}/resources/win" "${CEF_TARGET}")
 
   # Copy CEF binary and resource files to the target output directory.
   COPY_FILES("${CEF_TARGET}" "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")

@@ -40,7 +40,6 @@
       'sources': [
         '<@(includes_common)',
         '<@(includes_wrapper)',
-        '<@(cefclient_sources_common)',
       ],
       'mac_bundle_resources': [
         '<@(cefclient_bundle_resources_mac)',
@@ -84,7 +83,7 @@
             },
             'VCManifestTool': {
               'AdditionalManifestFiles': [
-                'tests/cefclient/cefclient.exe.manifest',
+                'tests/cefclient/resources/win/cefclient.exe.manifest',
               ],
             },
           },
@@ -397,11 +396,11 @@
         'libcef_dll_wrapper',
       ],
       'sources': [
-        'tests/cefclient/client_app.cc',
-        'tests/cefclient/client_app.h',
-        'tests/cefclient/client_switches.cc',
-        'tests/cefclient/client_switches.h',
-        'tests/cefclient/resource_util.h',
+        'tests/cefclient/browser/resource_util.h',
+        'tests/cefclient/common/client_app.cc',
+        'tests/cefclient/common/client_app.h',
+        'tests/cefclient/common/client_switches.cc',
+        'tests/cefclient/common/client_switches.h',
         'tests/cefclient/resources/osr_test.html',
         'tests/unittests/browser_info_map_unittest.cc',
         'tests/unittests/command_line_unittest.cc',
@@ -478,13 +477,13 @@
             'libcef',
           ],
           'sources': [
-            'tests/cefclient/cefclient.rc',
-            'tests/cefclient/resource_util_win.cc',
+            'tests/cefclient/browser/resource_util_win.cc',
+            'tests/cefclient/resources/win/cefclient.rc',
           ],
           'msvs_settings': {
             'VCManifestTool': {
               'AdditionalManifestFiles': [
-                'tests/cefclient/cefclient.exe.manifest',
+                'tests/cefclient/resources/win/cefclient.exe.manifest',
               ],
             },
           },
@@ -567,8 +566,8 @@
             ],
           },
           'sources': [
-            'tests/cefclient/resource_util_mac.mm',
-            'tests/cefclient/resource_util_posix.cc',
+            'tests/cefclient/browser/resource_util_mac.mm',
+            'tests/cefclient/browser/resource_util_posix.cc',
             'tests/unittests/os_rendering_unittest_mac.h',
             'tests/unittests/os_rendering_unittest_mac.mm',
             'tests/unittests/run_all_unittests_mac.mm',
@@ -579,8 +578,8 @@
             'libcef',
           ],
           'sources': [
-            'tests/cefclient/resource_util_linux.cc',
-            'tests/cefclient/resource_util_posix.cc',
+            'tests/cefclient/browser/resource_util_linux.cc',
+            'tests/cefclient/browser/resource_util_posix.cc',
           ],
           'copies': [
             {
@@ -1535,11 +1534,11 @@
             '.',
           ],
           'sources': [
-            'tests/cefclient/client_app.cc',
-            'tests/cefclient/client_app.h',
-            'tests/cefclient/client_switches.cc',
-            'tests/cefclient/client_switches.h',
-            'tests/cefclient/process_helper_mac.cc',
+            'tests/cefclient/common/client_app.cc',
+            'tests/cefclient/common/client_app.h',
+            'tests/cefclient/common/client_switches.cc',
+            'tests/cefclient/common/client_switches.h',
+            'tests/cefclient/renderer/process_helper_mac.cc',
             'tests/unittests/client_app_delegates.cc',
             'tests/unittests/cookie_unittest.cc',
             'tests/unittests/dom_unittest.cc',

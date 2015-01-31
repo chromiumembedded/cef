@@ -6,7 +6,7 @@
 #include "tests/unittests/chromium_includes.h"
 
 #include "tests/unittests/routing_test_handler.h"
-#include "tests/cefclient/client_app.h"
+#include "tests/cefclient/common/client_app.h"
 
 using client::ClientApp;
 

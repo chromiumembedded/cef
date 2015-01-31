@@ -19,7 +19,7 @@
 #include "include/cef_task.h"
 #include "include/wrapper/cef_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
-#include "tests/cefclient/client_app.h"
+#include "tests/cefclient/common/client_app.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_suite.h"
 

@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "tests/cefclient/client_app.h"
+#include "tests/cefclient/common/client_app.h"
 
 using client::ClientApp;
 

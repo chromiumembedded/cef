@@ -13,7 +13,7 @@
 #include "include/cef_scheme.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "tests/cefclient/client_app.h"
+#include "tests/cefclient/common/client_app.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
 

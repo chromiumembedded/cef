@@ -369,9 +369,13 @@ if mode == 'standard':
                       'include/', include_dir, options.quiet)
 
   # transfer common cefclient files
+  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_browser'], \
+                      'tests/cefclient/', cefclient_dir, options.quiet)
   transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_common'], \
                       'tests/cefclient/', cefclient_dir, options.quiet)
-  transfer_gypi_files(cef_dir, cef_paths2['cefclient_bundle_resources_common'], \
+  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_renderer'], \
+                      'tests/cefclient/', cefclient_dir, options.quiet)
+  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_resources'], \
                       'tests/cefclient/', cefclient_dir, options.quiet)
 
   # transfer common cefsimple files

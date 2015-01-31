@@ -258,12 +258,12 @@ endif(OS_MACOSX)
 if(OS_WINDOWS)
 
 # Add custom manifest files to an executable target.
-macro(ADD_WINDOWS_MANIFEST target)
+macro(ADD_WINDOWS_MANIFEST manifest_path target)
   add_custom_command(
     TARGET ${target}
     POST_BUILD
     COMMAND "mt.exe" -nologo
-            -manifest \"${CMAKE_CURRENT_SOURCE_DIR}/${target}.exe.manifest\" \"${CMAKE_CURRENT_SOURCE_DIR}/compatibility.manifest\"
+            -manifest \"${manifest_path}/${target}.exe.manifest\" \"${manifest_path}/compatibility.manifest\"
             -outputresource:"${CEF_TARGET_OUT_DIR}/${target}.exe"\;\#1
     COMMENT "Adding manifest..." 
     )
