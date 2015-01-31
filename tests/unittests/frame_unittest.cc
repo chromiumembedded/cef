@@ -10,10 +10,12 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "tests/cefclient/common/client_app.h"
+#include "tests/cefclient/browser/client_app_browser.h"
+#include "tests/cefclient/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
 
-using client::ClientApp;
+using client::ClientAppBrowser;
+using client::ClientAppRenderer;
 
 namespace {
 
@@ -263,12 +265,12 @@ class FrameNavExpectationsFactoryRenderer : public FrameNavExpectationsFactory {
 
 
 // Browser side app delegate.
-class FrameNavBrowserTest : public ClientApp::BrowserDelegate {
+class FrameNavBrowserTest : public ClientAppBrowser::Delegate {
  public:
   FrameNavBrowserTest() {}
 
   void OnBeforeChildProcessLaunch(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppBrowser> app,
       CefRefPtr<CefCommandLine> command_line) override {
     if (!g_frame_nav_test)
       return;
@@ -286,7 +288,7 @@ class FrameNavBrowserTest : public ClientApp::BrowserDelegate {
 };
 
 // Renderer side handler.
-class FrameNavRendererTest : public ClientApp::RenderDelegate,
+class FrameNavRendererTest : public ClientAppRenderer::Delegate,
                              public CefLoadHandler {
  public:
   FrameNavRendererTest()
@@ -294,7 +296,7 @@ class FrameNavRendererTest : public ClientApp::RenderDelegate,
         nav_(0) {}
 
   void OnRenderThreadCreated(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppRenderer> app,
       CefRefPtr<CefListValue> extra_info) override {
     // The g_* values will be set when running in single-process mode.
     if (!g_frame_nav_test) {
@@ -325,7 +327,7 @@ class FrameNavRendererTest : public ClientApp::RenderDelegate,
   }
 
   CefRefPtr<CefLoadHandler> GetLoadHandler(
-    CefRefPtr<ClientApp> app) override {
+      CefRefPtr<ClientAppRenderer> app) override {
     if (!run_test_)
       return NULL;
 
@@ -354,7 +356,7 @@ class FrameNavRendererTest : public ClientApp::RenderDelegate,
     EXPECT_TRUE(expectations_->OnLoadEnd(browser, frame)) << "nav = " << nav_;
   }
 
-  bool OnBeforeNavigation(CefRefPtr<ClientApp> app,
+  bool OnBeforeNavigation(CefRefPtr<ClientAppRenderer> app,
                           CefRefPtr<CefBrowser> browser,
                           CefRefPtr<CefFrame> frame,
                           CefRefPtr<CefRequest> request,
@@ -2297,12 +2299,12 @@ scoped_ptr<FrameNavExpectationsFactoryRenderer>
 
 // Entry point for creating frame browser test objects.
 // Called from client_app_delegates.cc.
-void CreateFrameBrowserTests(ClientApp::BrowserDelegateSet& delegates) {
+void CreateFrameBrowserTests(ClientAppBrowser::DelegateSet& delegates) {
   delegates.insert(new FrameNavBrowserTest);
 }
 
 // Entry point for creating frame renderer test objects.
 // Called from client_app_delegates.cc.
-void CreateFrameRendererTests(ClientApp::RenderDelegateSet& delegates) {
+void CreateFrameRendererTests(ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new FrameNavRendererTest);
 }

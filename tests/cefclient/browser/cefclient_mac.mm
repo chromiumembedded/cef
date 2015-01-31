@@ -6,12 +6,12 @@
 #import <Cocoa/Cocoa.h>
 #include "include/cef_app.h"
 #import "include/cef_application_mac.h"
+#include "cefclient/browser/client_app_browser.h"
 #include "cefclient/browser/main_context_impl.h"
 #include "cefclient/browser/main_message_loop_std.h"
 #include "cefclient/browser/resource.h"
 #include "cefclient/browser/root_window.h"
 #include "cefclient/browser/test_runner.h"
-#include "cefclient/common/client_app.h"
 
 namespace {
 
@@ -177,20 +177,10 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
 @end
 
 namespace client {
-
-// Stub implementations of ClientApp methods that are only used in the renderer
-// process.
-
-// static
-void ClientApp::CreateRenderDelegates(RenderDelegateSet& delegates) {
-}
-
-
 namespace {
 
 int RunMain(int argc, char* argv[]) {
   CefMainArgs main_args(argc, argv);
-  CefRefPtr<ClientApp> app(new ClientApp);
 
   // Initialize the AutoRelease pool.
   NSAutoreleasePool* autopool = [[NSAutoreleasePool alloc] init];
@@ -198,8 +188,18 @@ int RunMain(int argc, char* argv[]) {
   // Initialize the ClientApplication instance.
   [ClientApplication sharedApplication];
 
+  // Parse command-line arguments.
+  CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
+  command_line->InitFromArgv(argc, argv);
+
+  // Create a ClientApp of the correct type.
+  CefRefPtr<CefApp> app;
+  ClientApp::ProcessType process_type = ClientApp::GetProcessType(command_line);
+  if (process_type == ClientApp::BrowserProcess)
+    app = new ClientAppBrowser();
+
   // Create the main context object.
-  scoped_ptr<MainContextImpl> context(new MainContextImpl(argc, argv, true));
+  scoped_ptr<MainContextImpl> context(new MainContextImpl(command_line, true));
 
   CefSettings settings;
 
@@ -210,7 +210,7 @@ int RunMain(int argc, char* argv[]) {
   scoped_ptr<MainMessageLoop> message_loop(new MainMessageLoopStd);
 
   // Initialize CEF.
-  context->Initialize(main_args, settings, app.get(), NULL);
+  context->Initialize(main_args, settings, app, NULL);
 
   // Register scheme handlers.
   test_runner::RegisterSchemeHandlers();

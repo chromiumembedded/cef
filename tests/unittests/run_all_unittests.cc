@@ -19,15 +19,15 @@
 #include "include/cef_task.h"
 #include "include/wrapper/cef_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
-#include "tests/cefclient/common/client_app.h"
+#include "tests/cefclient/browser/client_app_browser.h"
+#include "tests/cefclient/common/client_app_other.h"
+#include "tests/cefclient/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_suite.h"
 
 #if defined(OS_WIN)
 #include "include/cef_sandbox_win.h"
 #endif
-
-using client::ClientApp;
 
 namespace {
 
@@ -109,7 +109,26 @@ int main(int argc, char* argv[]) {
   windows_sandbox_info = scoped_sandbox.sandbox_info();
 #endif
 
-  CefRefPtr<CefApp> app(new client::ClientApp);
+  // Parse command-line arguments.
+  CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
+#if defined(OS_WIN)
+  command_line->InitFromString(::GetCommandLineW());
+#else
+  command_line->InitFromArgv(argc, argv);
+#endif
+
+  // Create a ClientApp of the correct type.
+  CefRefPtr<CefApp> app;
+  client::ClientApp::ProcessType process_type =
+      client::ClientApp::GetProcessType(command_line);
+  if (process_type == client::ClientApp::BrowserProcess) {
+    app = new client::ClientAppBrowser();
+  } else if (process_type == client::ClientApp::RendererProcess ||
+             process_type == client::ClientApp::ZygoteProcess) {
+    app = new client::ClientAppRenderer();
+  } else if (process_type == client::ClientApp::OtherProcess) {
+    app = new client::ClientAppOther();
+  }
 
   // Execute the secondary process, if any.
   int exit_code = CefExecuteProcess(main_args, app, windows_sandbox_info);

@@ -396,11 +396,17 @@
         'libcef_dll_wrapper',
       ],
       'sources': [
+        'tests/cefclient/browser/client_app_browser.cc',
+        'tests/cefclient/browser/client_app_browser.h',
         'tests/cefclient/browser/resource_util.h',
         'tests/cefclient/common/client_app.cc',
         'tests/cefclient/common/client_app.h',
+        'tests/cefclient/common/client_app_other.cc',
+        'tests/cefclient/common/client_app_other.h',
         'tests/cefclient/common/client_switches.cc',
         'tests/cefclient/common/client_switches.h',
+        'tests/cefclient/renderer/client_app_renderer.cc',
+        'tests/cefclient/renderer/client_app_renderer.h',
         'tests/cefclient/resources/osr_test.html',
         'tests/unittests/browser_info_map_unittest.cc',
         'tests/unittests/command_line_unittest.cc',
@@ -466,9 +472,8 @@
       },
       'include_dirs': [
         '.',
-        # Necessary to allow resouce_util_* implementation files in cefclient to
-        # include 'cefclient/*' files, without the tests/ fragment
-        './tests'
+        # Necessary to allow unittest files to access cefclient files.
+        'tests',
       ],
       'conditions': [
         [ 'OS=="win"', {
@@ -1532,12 +1537,20 @@
           ],
           'include_dirs': [
             '.',
+            # Necessary to allow unittest files to access cefclient files.
+            'tests',
           ],
           'sources': [
+            'tests/cefclient/browser/client_app_browser.cc',
+            'tests/cefclient/browser/client_app_browser.h',
             'tests/cefclient/common/client_app.cc',
             'tests/cefclient/common/client_app.h',
+            'tests/cefclient/common/client_app_other.cc',
+            'tests/cefclient/common/client_app_other.h',
             'tests/cefclient/common/client_switches.cc',
             'tests/cefclient/common/client_switches.h',
+            'tests/cefclient/renderer/client_app_renderer.cc',
+            'tests/cefclient/renderer/client_app_renderer.h',
             'tests/cefclient/renderer/process_helper_mac.cc',
             'tests/unittests/client_app_delegates.cc',
             'tests/unittests/cookie_unittest.cc',

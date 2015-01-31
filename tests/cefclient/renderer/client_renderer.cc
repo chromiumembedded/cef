@@ -19,33 +19,33 @@ namespace {
 // Must match the value in client_handler.cc.
 const char kFocusedNodeChangedMessage[] = "ClientRenderer.FocusedNodeChanged";
 
-class ClientRenderDelegate : public ClientApp::RenderDelegate {
+class ClientRenderDelegate : public ClientAppRenderer::Delegate {
  public:
   ClientRenderDelegate()
     : last_node_is_editable_(false) {
   }
 
-  virtual void OnWebKitInitialized(CefRefPtr<ClientApp> app) OVERRIDE {
+  virtual void OnWebKitInitialized(CefRefPtr<ClientAppRenderer> app) OVERRIDE {
     // Create the renderer-side router for query handling.
     CefMessageRouterConfig config;
     message_router_ = CefMessageRouterRendererSide::Create(config);
   }
 
-  virtual void OnContextCreated(CefRefPtr<ClientApp> app,
+  virtual void OnContextCreated(CefRefPtr<ClientAppRenderer> app,
                                 CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame,
                                 CefRefPtr<CefV8Context> context) OVERRIDE {
     message_router_->OnContextCreated(browser,  frame, context);
   }
 
-  virtual void OnContextReleased(CefRefPtr<ClientApp> app,
+  virtual void OnContextReleased(CefRefPtr<ClientAppRenderer> app,
                                  CefRefPtr<CefBrowser> browser,
                                  CefRefPtr<CefFrame> frame,
                                  CefRefPtr<CefV8Context> context) OVERRIDE {
     message_router_->OnContextReleased(browser,  frame, context);
   }
 
-  virtual void OnFocusedNodeChanged(CefRefPtr<ClientApp> app,
+  virtual void OnFocusedNodeChanged(CefRefPtr<ClientAppRenderer> app,
                                     CefRefPtr<CefBrowser> browser,
                                     CefRefPtr<CefFrame> frame,
                                     CefRefPtr<CefDOMNode> node) OVERRIDE {
@@ -61,7 +61,7 @@ class ClientRenderDelegate : public ClientApp::RenderDelegate {
   }
 
   virtual bool OnProcessMessageReceived(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppRenderer> app,
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE {
@@ -80,7 +80,7 @@ class ClientRenderDelegate : public ClientApp::RenderDelegate {
 
 }  // namespace
 
-void CreateRenderDelegates(ClientApp::RenderDelegateSet& delegates) {
+void CreateDelegates(ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new ClientRenderDelegate);
 }
 

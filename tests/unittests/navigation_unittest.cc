@@ -13,11 +13,13 @@
 #include "include/cef_scheme.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "tests/cefclient/common/client_app.h"
+#include "tests/cefclient/browser/client_app_browser.h"
+#include "tests/cefclient/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
 
-using client::ClientApp;
+using client::ClientAppBrowser;
+using client::ClientAppRenderer;
 
 namespace {
 
@@ -58,12 +60,12 @@ static NavListItem kHNavList[] = {
 bool g_history_nav_test = false;
 
 // Browser side.
-class HistoryNavBrowserTest : public ClientApp::BrowserDelegate {
+class HistoryNavBrowserTest : public ClientAppBrowser::Delegate {
  public:
   HistoryNavBrowserTest() {}
 
   void OnBeforeChildProcessLaunch(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppBrowser> app,
       CefRefPtr<CefCommandLine> command_line) override {
     if (!g_history_nav_test)
       return;
@@ -77,7 +79,7 @@ class HistoryNavBrowserTest : public ClientApp::BrowserDelegate {
 };
 
 // Renderer side.
-class HistoryNavRendererTest : public ClientApp::RenderDelegate,
+class HistoryNavRendererTest : public ClientAppRenderer::Delegate,
                                public CefLoadHandler {
  public:
   HistoryNavRendererTest()
@@ -85,7 +87,7 @@ class HistoryNavRendererTest : public ClientApp::RenderDelegate,
         nav_(0) {}
 
   void OnRenderThreadCreated(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppRenderer> app,
       CefRefPtr<CefListValue> extra_info) override {
     if (!g_history_nav_test) {
       // Check that the test should be run.
@@ -100,7 +102,7 @@ class HistoryNavRendererTest : public ClientApp::RenderDelegate,
   }
 
   CefRefPtr<CefLoadHandler> GetLoadHandler(
-    CefRefPtr<ClientApp> app) override {
+      CefRefPtr<ClientAppRenderer> app) override {
     if (!run_test_)
       return NULL;
 
@@ -174,7 +176,7 @@ class HistoryNavRendererTest : public ClientApp::RenderDelegate,
     SendTestResultsIfDone(browser);
   }
 
-  bool OnBeforeNavigation(CefRefPtr<ClientApp> app,
+  bool OnBeforeNavigation(CefRefPtr<ClientAppRenderer> app,
                           CefRefPtr<CefBrowser> browser,
                           CefRefPtr<CefFrame> frame,
                           CefRefPtr<CefRequest> request,
@@ -878,12 +880,12 @@ void SetOrderNavExtraInfo(CefRefPtr<CefListValue> extra_info) {
 bool g_order_nav_test = false;
 
 // Browser side.
-class OrderNavBrowserTest : public ClientApp::BrowserDelegate {
+class OrderNavBrowserTest : public ClientAppBrowser::Delegate {
  public:
   OrderNavBrowserTest() {}
 
   void OnBeforeChildProcessLaunch(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppBrowser> app,
       CefRefPtr<CefCommandLine> command_line) override {
     if (!g_order_nav_test)
       return;
@@ -893,7 +895,7 @@ class OrderNavBrowserTest : public ClientApp::BrowserDelegate {
   }
 
   void OnRenderProcessThreadCreated(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppBrowser> app,
       CefRefPtr<CefListValue> extra_info) override {
     if (!g_order_nav_test)
       return;
@@ -990,7 +992,7 @@ class OrderNavLoadState {
 };
 
 // Renderer side.
-class OrderNavRendererTest : public ClientApp::RenderDelegate,
+class OrderNavRendererTest : public ClientAppRenderer::Delegate,
                              public CefLoadHandler {
  public:
   OrderNavRendererTest()
@@ -1001,7 +1003,7 @@ class OrderNavRendererTest : public ClientApp::RenderDelegate,
         state_popup_(true, false) {}
 
   void OnRenderThreadCreated(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppRenderer> app,
       CefRefPtr<CefListValue> extra_info) override {
     if (!g_order_nav_test) {
       // Check that the test should be run.
@@ -1024,7 +1026,7 @@ class OrderNavRendererTest : public ClientApp::RenderDelegate,
     TestListEqual(expected, extra_info);
   }
 
-  void OnWebKitInitialized(CefRefPtr<ClientApp> app) override {
+  void OnWebKitInitialized(CefRefPtr<ClientAppRenderer> app) override {
     if (!run_test_)
       return;
 
@@ -1033,7 +1035,7 @@ class OrderNavRendererTest : public ClientApp::RenderDelegate,
     got_webkit_initialized_.yes();
   }
 
-  void OnBrowserCreated(CefRefPtr<ClientApp> app,
+  void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser) override {
     if (!run_test_)
       return;
@@ -1062,7 +1064,7 @@ class OrderNavRendererTest : public ClientApp::RenderDelegate,
     }
   }
 
-  void OnBrowserDestroyed(CefRefPtr<ClientApp> app,
+  void OnBrowserDestroyed(CefRefPtr<ClientAppRenderer> app,
                           CefRefPtr<CefBrowser> browser) override {
     if (!run_test_)
       return;
@@ -1095,7 +1097,7 @@ class OrderNavRendererTest : public ClientApp::RenderDelegate,
   }
 
   CefRefPtr<CefLoadHandler> GetLoadHandler(
-      CefRefPtr<ClientApp> app) override {
+      CefRefPtr<ClientAppRenderer> app) override {
     if (!run_test_)
       return NULL;
 
@@ -1443,12 +1445,12 @@ const char kCrossOriginNavMsg[] = "NavigationTest.CrossOriginNav";
 bool g_cross_origin_nav_test = false;
 
 // Browser side.
-class CrossOriginNavBrowserTest : public ClientApp::BrowserDelegate {
+class CrossOriginNavBrowserTest : public ClientAppBrowser::Delegate {
  public:
   CrossOriginNavBrowserTest() {}
 
   void OnBeforeChildProcessLaunch(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppBrowser> app,
       CefRefPtr<CefCommandLine> command_line) override {
     if (!g_cross_origin_nav_test)
       return;
@@ -1462,7 +1464,7 @@ class CrossOriginNavBrowserTest : public ClientApp::BrowserDelegate {
 };
 
 // Renderer side.
-class CrossOriginNavRendererTest : public ClientApp::RenderDelegate,
+class CrossOriginNavRendererTest : public ClientAppRenderer::Delegate,
                                    public CefLoadHandler {
  public:
   CrossOriginNavRendererTest()
@@ -1472,7 +1474,7 @@ class CrossOriginNavRendererTest : public ClientApp::RenderDelegate,
   }
 
   void OnRenderThreadCreated(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppRenderer> app,
       CefRefPtr<CefListValue> extra_info) override {
     if (!g_cross_origin_nav_test) {
       // Check that the test should be run.
@@ -1490,7 +1492,7 @@ class CrossOriginNavRendererTest : public ClientApp::RenderDelegate,
     got_render_thread_created_.yes();
   }
 
-  void OnWebKitInitialized(CefRefPtr<ClientApp> app) override {
+  void OnWebKitInitialized(CefRefPtr<ClientAppRenderer> app) override {
     if (!run_test_)
       return;
 
@@ -1499,7 +1501,7 @@ class CrossOriginNavRendererTest : public ClientApp::RenderDelegate,
     got_webkit_initialized_.yes();
   }
 
-  void OnBrowserCreated(CefRefPtr<ClientApp> app,
+  void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser) override {
     if (!run_test_)
       return;
@@ -1512,7 +1514,7 @@ class CrossOriginNavRendererTest : public ClientApp::RenderDelegate,
     status->got_browser_created.yes();
   }
 
-  void OnBrowserDestroyed(CefRefPtr<ClientApp> app,
+  void OnBrowserDestroyed(CefRefPtr<ClientAppRenderer> app,
                           CefRefPtr<CefBrowser> browser) override {
     if (!run_test_)
       return;
@@ -1532,7 +1534,7 @@ class CrossOriginNavRendererTest : public ClientApp::RenderDelegate,
   }
 
   CefRefPtr<CefLoadHandler> GetLoadHandler(
-    CefRefPtr<ClientApp> app) override {
+      CefRefPtr<ClientAppRenderer> app) override {
     if (!run_test_)
       return NULL;
 
@@ -2070,7 +2072,7 @@ TEST(NavigationTest, BrowseDeny) {
 
 // Entry point for creating navigation browser test objects.
 // Called from client_app_delegates.cc.
-void CreateNavigationBrowserTests(ClientApp::BrowserDelegateSet& delegates) {
+void CreateNavigationBrowserTests(ClientAppBrowser::DelegateSet& delegates) {
   delegates.insert(new HistoryNavBrowserTest);
   delegates.insert(new OrderNavBrowserTest);
   delegates.insert(new CrossOriginNavBrowserTest);
@@ -2078,7 +2080,7 @@ void CreateNavigationBrowserTests(ClientApp::BrowserDelegateSet& delegates) {
 
 // Entry point for creating navigation renderer test objects.
 // Called from client_app_delegates.cc.
-void CreateNavigationRendererTests(ClientApp::RenderDelegateSet& delegates) {
+void CreateNavigationRendererTests(ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new HistoryNavRendererTest);
   delegates.insert(new OrderNavRendererTest);
   delegates.insert(new CrossOriginNavRendererTest);

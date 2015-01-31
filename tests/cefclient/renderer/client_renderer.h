@@ -7,13 +7,13 @@
 #pragma once
 
 #include "include/cef_base.h"
-#include "cefclient/common/client_app.h"
+#include "cefclient/renderer/client_app_renderer.h"
 
 namespace client {
 namespace renderer {
 
 // Create the render delegate.
-void CreateRenderDelegates(ClientApp::RenderDelegateSet& delegates);
+void CreateDelegates(ClientAppRenderer::DelegateSet& delegates);
 
 }  // namespace renderer
 }  // namespace client

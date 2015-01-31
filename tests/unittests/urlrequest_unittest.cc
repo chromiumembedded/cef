@@ -19,11 +19,11 @@
 #include "include/cef_urlrequest.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "tests/cefclient/common/client_app.h"
+#include "tests/cefclient/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
 
-using client::ClientApp;
+using client::ClientAppRenderer;
 
 // How to add a new test:
 // 1. Add a new value to the RequestTestMode enumeration.
@@ -844,7 +844,7 @@ class RequestTestRunner {
 };
 
 // Renderer side.
-class RequestRendererTest : public ClientApp::RenderDelegate,
+class RequestRendererTest : public ClientAppRenderer::Delegate,
                             public RequestTestRunner::Delegate {
  public:
   RequestRendererTest()
@@ -852,7 +852,7 @@ class RequestRendererTest : public ClientApp::RenderDelegate,
   }
 
   bool OnProcessMessageReceived(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppRenderer> app,
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
       CefRefPtr<CefProcessMessage> message) override {
@@ -892,7 +892,7 @@ class RequestRendererTest : public ClientApp::RenderDelegate,
     browser_ = NULL;
   }
 
-  CefRefPtr<ClientApp> app_;
+  CefRefPtr<ClientAppRenderer> app_;
   CefRefPtr<CefBrowser> browser_;
 
   RequestTestRunner test_runner_;
@@ -1048,7 +1048,7 @@ class RequestTestHandler : public TestHandler,
 
 // Entry point for creating URLRequest renderer test objects.
 // Called from client_app_delegates.cc.
-void CreateURLRequestRendererTests(ClientApp::RenderDelegateSet& delegates) {
+void CreateURLRequestRendererTests(ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new RequestRendererTest);
 }
 

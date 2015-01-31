@@ -17,9 +17,9 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/routing_test_handler.h"
-#include "tests/cefclient/common/client_app.h"
+#include "tests/cefclient/renderer/client_app_renderer.h"
 
-using client::ClientApp;
+using client::ClientAppRenderer;
 
 namespace {
 
@@ -41,7 +41,7 @@ void SetRouterConfig(CefMessageRouterConfig& config) {
 }
 
 // Handle the renderer side of the routing implementation.
-class MRRenderDelegate : public ClientApp::RenderDelegate {
+class MRRenderDelegate : public ClientAppRenderer::Delegate {
  public:
   class V8HandlerImpl : public CefV8Handler {
    public:
@@ -114,14 +114,14 @@ class MRRenderDelegate : public ClientApp::RenderDelegate {
 
   MRRenderDelegate() {}
 
-  void OnWebKitInitialized(CefRefPtr<ClientApp> app) override {
+  void OnWebKitInitialized(CefRefPtr<ClientAppRenderer> app) override {
     // Create the renderer-side router for query handling.
     CefMessageRouterConfig config;
     SetRouterConfig(config);
     message_router_ = CefMessageRouterRendererSide::Create(config);
   }
 
-  void OnContextCreated(CefRefPtr<ClientApp> app,
+  void OnContextCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefFrame> frame,
                         CefRefPtr<CefV8Context> context) override {
@@ -158,7 +158,7 @@ class MRRenderDelegate : public ClientApp::RenderDelegate {
     window->SetValue(kJSAssertContextCountFunc, context_count_func, attributes);
   }
 
-  void OnContextReleased(CefRefPtr<ClientApp> app,
+  void OnContextReleased(CefRefPtr<ClientAppRenderer> app,
                          CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
                          CefRefPtr<CefV8Context> context) override {
@@ -170,7 +170,7 @@ class MRRenderDelegate : public ClientApp::RenderDelegate {
   }
 
   bool OnProcessMessageReceived(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppRenderer> app,
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
       CefRefPtr<CefProcessMessage> message) override {
@@ -193,7 +193,7 @@ class MRRenderDelegate : public ClientApp::RenderDelegate {
 // Entry point for creating the test delegate.
 // Called from client_app_delegates.cc.
 void CreateMessageRouterRendererTests(
-    ClientApp::RenderDelegateSet& delegates) {
+    ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new MRRenderDelegate);
 }
 

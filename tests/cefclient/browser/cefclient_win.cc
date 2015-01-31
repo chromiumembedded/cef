@@ -5,13 +5,16 @@
 #include <windows.h>
 
 #include "include/base/cef_scoped_ptr.h"
+#include "include/cef_command_line.h"
 #include "include/cef_sandbox_win.h"
+#include "cefclient/browser/client_app_browser.h"
 #include "cefclient/browser/main_context_impl.h"
 #include "cefclient/browser/main_message_loop_multithreaded_win.h"
 #include "cefclient/browser/main_message_loop_std.h"
 #include "cefclient/browser/root_window_manager.h"
 #include "cefclient/browser/test_runner.h"
-#include "cefclient/common/client_app.h"
+#include "cefclient/common/client_app_other.h"
+#include "cefclient/renderer/client_app_renderer.h"
 
 // When generating projects with CMake the CEF_USE_SANDBOX value will be defined
 // automatically if using the required compiler version. Pass -DUSE_SANDBOX=OFF
@@ -29,6 +32,8 @@ namespace client {
 namespace {
 
 int RunMain(HINSTANCE hInstance, int nCmdShow) {
+  CefMainArgs main_args(hInstance);
+
   void* sandbox_info = NULL;
 
 #if defined(CEF_USE_SANDBOX)
@@ -38,16 +43,27 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
   sandbox_info = scoped_sandbox.sandbox_info();
 #endif
 
-  CefMainArgs main_args(hInstance);
-  CefRefPtr<ClientApp> app(new ClientApp);
+  // Parse command-line arguments.
+  CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
+  command_line->InitFromString(::GetCommandLineW());
+
+  // Create a ClientApp of the correct type.
+  CefRefPtr<CefApp> app;
+  ClientApp::ProcessType process_type = ClientApp::GetProcessType(command_line);
+  if (process_type == ClientApp::BrowserProcess)
+    app = new ClientAppBrowser();
+  else if (process_type == ClientApp::RendererProcess)
+    app = new ClientAppRenderer();
+  else if (process_type == ClientApp::OtherProcess)
+    app = new ClientAppOther();
 
   // Execute the secondary process, if any.
-  int exit_code = CefExecuteProcess(main_args, app.get(), sandbox_info);
+  int exit_code = CefExecuteProcess(main_args, app, sandbox_info);
   if (exit_code >= 0)
     return exit_code;
 
   // Create the main context object.
-  scoped_ptr<MainContextImpl> context(new MainContextImpl(0, NULL, true));
+  scoped_ptr<MainContextImpl> context(new MainContextImpl(command_line, true));
 
   CefSettings settings;
 
@@ -66,7 +82,7 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
     message_loop.reset(new MainMessageLoopStd);
 
   // Initialize CEF.
-  context->Initialize(main_args, settings, app.get(), sandbox_info);
+  context->Initialize(main_args, settings, app, sandbox_info);
 
   // Register scheme handlers.
   test_runner::RegisterSchemeHandlers();

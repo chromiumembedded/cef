@@ -11,11 +11,11 @@
 #include "include/cef_request.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "tests/cefclient/common/client_app.h"
+#include "tests/cefclient/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
 
-using client::ClientApp;
+using client::ClientAppRenderer;
 
 // Verify Set/Get methods for CefRequest, CefPostData and CefPostDataElement.
 TEST(RequestTest, SetGet) {
@@ -352,12 +352,12 @@ class TypeExpectations {
 };
 
 // Renderer side.
-class TypeRendererTest : public ClientApp::RenderDelegate {
+class TypeRendererTest : public ClientAppRenderer::Delegate {
  public:
   TypeRendererTest() :
       expectations_(false, true) {}
 
-  bool OnBeforeNavigation(CefRefPtr<ClientApp> app,
+  bool OnBeforeNavigation(CefRefPtr<ClientAppRenderer> app,
                           CefRefPtr<CefBrowser> browser,
                           CefRefPtr<CefFrame> frame,
                           CefRefPtr<CefRequest> request,
@@ -543,6 +543,6 @@ TEST(RequestTest, ResourceAndTransitionType) {
 
 // Entry point for creating request renderer test objects.
 // Called from client_app_delegates.cc.
-void CreateRequestRendererTests(ClientApp::RenderDelegateSet& delegates) {
+void CreateRequestRendererTests(ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new TypeRendererTest);
 }

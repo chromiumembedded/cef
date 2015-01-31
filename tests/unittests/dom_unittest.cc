@@ -7,10 +7,10 @@
 
 #include "include/cef_dom.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "tests/cefclient/common/client_app.h"
+#include "tests/cefclient/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
 
-using client::ClientApp;
+using client::ClientAppRenderer;
 
 namespace {
 
@@ -227,13 +227,13 @@ class TestDOMVisitor : public CefDOMVisitor {
 };
 
 // Used in the render process.
-class DOMRendererTest : public ClientApp::RenderDelegate {
+class DOMRendererTest : public ClientAppRenderer::Delegate {
  public:
   DOMRendererTest() {
   }
 
   bool OnProcessMessageReceived(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppRenderer> app,
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
       CefRefPtr<CefProcessMessage> message) override {
@@ -339,6 +339,6 @@ TEST(DOMTest, Modify) {
 
 // Entry point for creating DOM renderer test objects.
 // Called from client_app_delegates.cc.
-void CreateDOMRendererTests(ClientApp::RenderDelegateSet& delegates) {
+void CreateDOMRendererTests(ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new DOMRendererTest);
 }

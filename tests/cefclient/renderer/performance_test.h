@@ -6,13 +6,13 @@
 #define CEF_TESTS_CEFCLIENT_RENDERER_PERFORMANCE_TEST_H_
 #pragma once
 
-#include "cefclient/common/client_app.h"
+#include "cefclient/renderer/client_app_renderer.h"
 
 namespace client {
 namespace performance_test {
 
 // Render delegate creation. Called from client_app_delegates.cc.
-void CreateRenderDelegates(ClientApp::RenderDelegateSet& delegates);
+void CreateDelegates(ClientAppRenderer::DelegateSet& delegates);
 
 }  // namespace performance_test
 }  // namespace client

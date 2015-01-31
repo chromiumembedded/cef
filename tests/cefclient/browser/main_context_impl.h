@@ -18,8 +18,7 @@ namespace client {
 // Used to store global context in the browser process.
 class MainContextImpl : public MainContext {
  public:
-  MainContextImpl(int argc,
-                  const char* const* argv,
+  MainContextImpl(CefRefPtr<CefCommandLine> command_line,
                   bool terminate_when_all_windows_closed);
 
   // MainContext members.
@@ -54,6 +53,7 @@ class MainContextImpl : public MainContext {
     return initialized_ && !shutdown_;
   }
 
+  CefRefPtr<CefCommandLine> command_line_;
   const bool terminate_when_all_windows_closed_;
 
   // Track context state. Accessing these variables from multiple threads is
@@ -62,7 +62,6 @@ class MainContextImpl : public MainContext {
   bool initialized_;
   bool shutdown_;
 
-  CefRefPtr<CefCommandLine> command_line_;
   std::string main_url_;
 
   scoped_ptr<RootWindowManager> root_window_manager_;

@@ -11,10 +11,12 @@
 #include "include/cef_cookie.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "tests/cefclient/common/client_app.h"
+#include "tests/cefclient/browser/client_app_browser.h"
+#include "tests/cefclient/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
 
-using client::ClientApp;
+using client::ClientAppBrowser;
+using client::ClientAppRenderer;
 
 namespace {
 
@@ -32,12 +34,12 @@ const char kNetNotifyMsg[] = "RequestHandlerTest.NetNotify";
 bool g_net_notify_test = false;
 
 // Browser side.
-class NetNotifyBrowserTest : public ClientApp::BrowserDelegate {
+class NetNotifyBrowserTest : public ClientAppBrowser::Delegate {
  public:
   NetNotifyBrowserTest() {}
 
   void OnBeforeChildProcessLaunch(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppBrowser> app,
       CefRefPtr<CefCommandLine> command_line) override {
     if (!g_net_notify_test)
       return;
@@ -360,14 +362,14 @@ class NetNotifyTestHandler : public TestHandler {
 };
 
 // Renderer side.
-class NetNotifyRendererTest : public ClientApp::RenderDelegate,
+class NetNotifyRendererTest : public ClientAppRenderer::Delegate,
                               public CefLoadHandler {
  public:
   NetNotifyRendererTest()
       : run_test_(false) {}
 
   void OnRenderThreadCreated(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppRenderer> app,
       CefRefPtr<CefListValue> extra_info) override {
     if (!g_net_notify_test) {
       // Check that the test should be run.
@@ -382,7 +384,7 @@ class NetNotifyRendererTest : public ClientApp::RenderDelegate,
   }
 
   CefRefPtr<CefLoadHandler> GetLoadHandler(
-      CefRefPtr<ClientApp> app) override {
+      CefRefPtr<ClientAppRenderer> app) override {
     if (run_test_)
       return this;
     return NULL;
@@ -405,7 +407,7 @@ class NetNotifyRendererTest : public ClientApp::RenderDelegate,
   }
 
   bool OnProcessMessageReceived(
-        CefRefPtr<ClientApp> app,
+        CefRefPtr<ClientAppRenderer> app,
         CefRefPtr<CefBrowser> browser,
         CefProcessId source_process,
         CefRefPtr<CefProcessMessage> message) override {
@@ -506,13 +508,13 @@ TEST(RequestHandlerTest, NotificationsCrossOriginDelayedBrowser) {
 // Entry point for creating request handler browser test objects.
 // Called from client_app_delegates.cc.
 void CreateRequestHandlerBrowserTests(
-    ClientApp::BrowserDelegateSet& delegates) {
+    ClientAppBrowser::DelegateSet& delegates) {
   delegates.insert(new NetNotifyBrowserTest);
 }
 
 // Entry point for creating request handler renderer test objects.
 // Called from client_app_delegates.cc.
 void CreateRequestHandlerRendererTests(
-    ClientApp::RenderDelegateSet& delegates) {
+    ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new NetNotifyRendererTest);
 }

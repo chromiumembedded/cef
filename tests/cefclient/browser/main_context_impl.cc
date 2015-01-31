@@ -15,19 +15,13 @@ const char kDefaultUrl[] = "http://www.google.com";
 
 }  // namespace
 
-MainContextImpl::MainContextImpl(int argc,
-                                 const char* const* argv,
+MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
                                  bool terminate_when_all_windows_closed)
-    : terminate_when_all_windows_closed_(terminate_when_all_windows_closed),
+    : command_line_(command_line),
+      terminate_when_all_windows_closed_(terminate_when_all_windows_closed),
       initialized_(false),
       shutdown_(false) {
-  // Parse the command line.
-  command_line_ = CefCommandLine::CreateCommandLine();
-#if defined(OS_WIN)
-  command_line_->InitFromString(::GetCommandLineW());
-#else
-  command_line_->InitFromArgv(argc, argv);
-#endif
+  DCHECK(command_line_.get());
 
   // Set the main URL.
   if (command_line_->HasSwitch(switches::kUrl))

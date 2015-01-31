@@ -2,81 +2,83 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "tests/cefclient/common/client_app.h"
+#include "tests/cefclient/browser/client_app_browser.h"
+#include "tests/cefclient/renderer/client_app_renderer.h"
 
-using client::ClientApp;
+using client::ClientAppBrowser;
+using client::ClientAppRenderer;
 
-void CreateBrowserDelegates(ClientApp::BrowserDelegateSet& delegates) {
+void CreateBrowserDelegates(ClientAppBrowser::DelegateSet& delegates) {
   // Bring in the Frame tests.
   extern void CreateFrameBrowserTests(
-      ClientApp::BrowserDelegateSet& delegates);
+      ClientAppBrowser::DelegateSet& delegates);
   CreateFrameBrowserTests(delegates);
 
   // Bring in the Navigation tests.
   extern void CreateNavigationBrowserTests(
-      ClientApp::BrowserDelegateSet& delegates);
+      ClientAppBrowser::DelegateSet& delegates);
   CreateNavigationBrowserTests(delegates);
 
   // Bring in the RequestHandler tests.
   extern void CreateRequestHandlerBrowserTests(
-      ClientApp::BrowserDelegateSet& delegates);
+      ClientAppBrowser::DelegateSet& delegates);
   CreateRequestHandlerBrowserTests(delegates);
 
   // Bring in the V8 tests.
   extern void CreateV8BrowserTests(
-      ClientApp::BrowserDelegateSet& delegates);
+      ClientAppBrowser::DelegateSet& delegates);
   CreateV8BrowserTests(delegates);
 }
 
-void CreateRenderDelegates(ClientApp::RenderDelegateSet& delegates) {
+void CreateRenderDelegates(ClientAppRenderer::DelegateSet& delegates) {
   // Bring in the Frame tests.
   extern void CreateFrameRendererTests(
-      ClientApp::RenderDelegateSet& delegates);
+      ClientAppRenderer::DelegateSet& delegates);
   CreateFrameRendererTests(delegates);
 
   // Bring in the DOM tests.
   extern void CreateDOMRendererTests(
-      ClientApp::RenderDelegateSet& delegates);
+      ClientAppRenderer::DelegateSet& delegates);
   CreateDOMRendererTests(delegates);
 
   // Bring in the message router tests.
   extern void CreateMessageRouterRendererTests(
-      ClientApp::RenderDelegateSet& delegates);
+      ClientAppRenderer::DelegateSet& delegates);
   CreateMessageRouterRendererTests(delegates);
 
   // Bring in the Navigation tests.
   extern void CreateNavigationRendererTests(
-      ClientApp::RenderDelegateSet& delegates);
+      ClientAppRenderer::DelegateSet& delegates);
   CreateNavigationRendererTests(delegates);
 
   // Bring in the process message tests.
   extern void CreateProcessMessageRendererTests(
-      ClientApp::RenderDelegateSet& delegates);
+      ClientAppRenderer::DelegateSet& delegates);
   CreateProcessMessageRendererTests(delegates);
 
   // Bring in the RequestHandler tests.
   extern void CreateRequestHandlerRendererTests(
-      ClientApp::RenderDelegateSet& delegates);
+      ClientAppRenderer::DelegateSet& delegates);
   CreateRequestHandlerRendererTests(delegates);
 
   // Bring in the Request tests.
   extern void CreateRequestRendererTests(
-      ClientApp::RenderDelegateSet& delegates);
+      ClientAppRenderer::DelegateSet& delegates);
   CreateRequestRendererTests(delegates);
 
   // Bring in the routing test handler delegate.
   extern void CreateRoutingTestHandlerDelegate(
-      ClientApp::RenderDelegateSet& delegates);
+      ClientAppRenderer::DelegateSet& delegates);
   CreateRoutingTestHandlerDelegate(delegates);
 
   // Bring in the URLRequest tests.
   extern void CreateURLRequestRendererTests(
-      ClientApp::RenderDelegateSet& delegates);
+      ClientAppRenderer::DelegateSet& delegates);
   CreateURLRequestRendererTests(delegates);
 
   // Bring in the V8 tests.
   extern void CreateV8RendererTests(
-      ClientApp::RenderDelegateSet& delegates);
+      ClientAppRenderer::DelegateSet& delegates);
   CreateV8RendererTests(delegates);
 }
 
@@ -106,12 +108,17 @@ void RegisterCustomSchemes(
 namespace client {
 
 // static
-void ClientApp::CreateBrowserDelegates(BrowserDelegateSet& delegates) {
+void ClientAppBrowser::CreateDelegates(DelegateSet& delegates) {
   ::CreateBrowserDelegates(delegates);
 }
 
 // static
-void ClientApp::CreateRenderDelegates(RenderDelegateSet& delegates) {
+CefRefPtr<CefPrintHandler> ClientAppBrowser::CreatePrintHandler() {
+  return NULL;
+}
+
+// static
+void ClientAppRenderer::CreateDelegates(DelegateSet& delegates) {
   ::CreateRenderDelegates(delegates);
 }
 
@@ -120,11 +127,6 @@ void ClientApp::RegisterCustomSchemes(
     CefRefPtr<CefSchemeRegistrar> registrar,
     std::vector<CefString>& cookiable_schemes) {
   ::RegisterCustomSchemes(registrar, cookiable_schemes);
-}
-
-// static
-CefRefPtr<CefPrintHandler> ClientApp::CreatePrintHandler() {
-  return NULL;
 }
 
 }  // namespace client

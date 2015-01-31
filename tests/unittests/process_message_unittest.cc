@@ -8,11 +8,11 @@
 #include "include/cef_process_message.h"
 #include "include/cef_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "tests/cefclient/common/client_app.h"
+#include "tests/cefclient/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
 
-using client::ClientApp;
+using client::ClientAppRenderer;
 
 namespace {
 
@@ -42,12 +42,12 @@ CefRefPtr<CefProcessMessage> CreateTestMessage() {
 }
 
 // Renderer side.
-class SendRecvRendererTest : public ClientApp::RenderDelegate {
+class SendRecvRendererTest : public ClientAppRenderer::Delegate {
  public:
   SendRecvRendererTest() {}
 
   bool OnProcessMessageReceived(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppRenderer> app,
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
       CefRefPtr<CefProcessMessage> message) override {
@@ -157,7 +157,7 @@ TEST(ProcessMessageTest, Copy) {
 // Entry point for creating process message renderer test objects.
 // Called from client_app_delegates.cc.
 void CreateProcessMessageRendererTests(
-    ClientApp::RenderDelegateSet& delegates) {
+    ClientAppRenderer::DelegateSet& delegates) {
   // For ProcessMessageTest.SendRecv
   delegates.insert(new SendRecvRendererTest);
 }

@@ -11,11 +11,13 @@
 #include "include/cef_task.h"
 #include "include/cef_v8.h"
 #include "include/wrapper/cef_closure_task.h"
-#include "tests/cefclient/common/client_app.h"
+#include "tests/cefclient/browser/client_app_browser.h"
+#include "tests/cefclient/renderer/client_app_renderer.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/test_handler.h"
 
-using client::ClientApp;
+using client::ClientAppBrowser;
+using client::ClientAppRenderer;
 
 // How to add a new test:
 // 1. Add a new value to the V8TestMode enumeration.
@@ -86,12 +88,12 @@ enum V8TestMode {
 V8TestMode g_current_test_mode = V8TEST_NONE;
 
 // Browser side.
-class V8BrowserTest : public ClientApp::BrowserDelegate {
+class V8BrowserTest : public ClientAppBrowser::Delegate {
  public:
   V8BrowserTest() {}
 
   void OnBeforeChildProcessLaunch(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppBrowser> app,
       CefRefPtr<CefCommandLine> command_line) override {
     CefString process_type = command_line->GetSwitchValue("type");
     if (process_type == "renderer") {
@@ -108,7 +110,7 @@ class V8BrowserTest : public ClientApp::BrowserDelegate {
 
 
 // Renderer side.
-class V8RendererTest : public ClientApp::RenderDelegate,
+class V8RendererTest : public ClientAppRenderer::Delegate,
                        public CefLoadHandler {
  public:
   V8RendererTest()
@@ -1699,7 +1701,7 @@ class V8RendererTest : public ClientApp::RenderDelegate,
                          new Handler(&startup_test_success_));
   }
 
-  void OnBrowserCreated(CefRefPtr<ClientApp> app,
+  void OnBrowserCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser) override {
     test_mode_ = g_current_test_mode;
     if (test_mode_ == V8TEST_NONE) {
@@ -1714,7 +1716,8 @@ class V8RendererTest : public ClientApp::RenderDelegate,
       RunStartupTest();
   }
 
-  CefRefPtr<CefLoadHandler> GetLoadHandler(CefRefPtr<ClientApp> app) override {
+  CefRefPtr<CefLoadHandler> GetLoadHandler(
+      CefRefPtr<ClientAppRenderer> app) override {
     if (test_mode_ == V8TEST_NONE)
       return NULL;
 
@@ -1730,7 +1733,7 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     }
   }
 
-  void OnContextCreated(CefRefPtr<ClientApp> app,
+  void OnContextCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefFrame> frame,
                         CefRefPtr<CefV8Context> context) override {
@@ -1806,7 +1809,7 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     }
   }
 
-  void OnContextReleased(CefRefPtr<ClientApp> app,
+  void OnContextReleased(CefRefPtr<ClientAppRenderer> app,
                          CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
                          CefRefPtr<CefV8Context> context) override {
@@ -1822,7 +1825,7 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     }
   }
 
-  void OnUncaughtException(CefRefPtr<ClientApp> app,
+  void OnUncaughtException(CefRefPtr<ClientAppRenderer> app,
                            CefRefPtr<CefBrowser> browser,
                            CefRefPtr<CefFrame> frame,
                            CefRefPtr<CefV8Context> context,
@@ -1851,7 +1854,7 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     }
   }
 
-  bool OnProcessMessageReceived(CefRefPtr<ClientApp> app,
+  bool OnProcessMessageReceived(CefRefPtr<ClientAppRenderer> app,
                                 CefRefPtr<CefBrowser> browser,
                                 CefProcessId source_process,
                                 CefRefPtr<CefProcessMessage> message) override {
@@ -1967,7 +1970,7 @@ class V8RendererTest : public ClientApp::RenderDelegate,
     return context;
   }
 
-  CefRefPtr<ClientApp> app_;
+  CefRefPtr<ClientAppRenderer> app_;
   CefRefPtr<CefBrowser> browser_;
   V8TestMode test_mode_;
 
@@ -2096,13 +2099,13 @@ class V8TestHandler : public TestHandler {
 
 // Entry point for creating V8 browser test objects.
 // Called from client_app_delegates.cc.
-void CreateV8BrowserTests(ClientApp::BrowserDelegateSet& delegates) {
+void CreateV8BrowserTests(ClientAppBrowser::DelegateSet& delegates) {
   delegates.insert(new V8BrowserTest);
 }
 
 // Entry point for creating V8 renderer test objects.
 // Called from client_app_delegates.cc.
-void CreateV8RendererTests(ClientApp::RenderDelegateSet& delegates) {
+void CreateV8RendererTests(ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new V8RendererTest);
 }
 

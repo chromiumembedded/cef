@@ -16,11 +16,14 @@
 #include "include/base/cef_logging.h"
 #include "include/base/cef_scoped_ptr.h"
 #include "include/cef_app.h"
+#include "include/cef_command_line.h"
 #include "include/wrapper/cef_helpers.h"
+#include "cefclient/browser/client_app_browser.h"
 #include "cefclient/browser/main_context_impl.h"
 #include "cefclient/browser/main_message_loop_std.h"
 #include "cefclient/browser/test_runner.h"
-#include "cefclient/common/client_app.h"
+#include "cefclient/common/client_app_other.h"
+#include "cefclient/renderer/client_app_renderer.h"
 
 namespace client {
 namespace {
@@ -52,15 +55,33 @@ int RunMain(int argc, char* argv[]) {
   char** argv_copy = scoped_arg_array.array();
 
   CefMainArgs main_args(argc, argv);
-  CefRefPtr<ClientApp> app(new ClientApp);
+
+  // Parse command-line arguments.
+  CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
+  command_line->InitFromArgv(argc, argv);
+
+  // Create a ClientApp of the correct type.
+  CefRefPtr<CefApp> app;
+  ClientApp::ProcessType process_type = ClientApp::GetProcessType(command_line);
+  if (process_type == ClientApp::BrowserProcess) {
+    app = new ClientAppBrowser();
+  } else if (process_type == ClientApp::RendererProcess ||
+             process_type == ClientApp::ZygoteProcess) {
+    // On Linux the zygote process is used to spawn other process types. Since
+    // we don't know what type of process it will be give it the renderer
+    // client.
+    app = new ClientAppRenderer();
+  } else if (process_type == ClientApp::OtherProcess) {
+    app = new ClientAppOther();
+  }
 
   // Execute the secondary process, if any.
-  int exit_code = CefExecuteProcess(main_args, app.get(), NULL);
+  int exit_code = CefExecuteProcess(main_args, app, NULL);
   if (exit_code >= 0)
     return exit_code;
 
   // Create the main context object.
-  scoped_ptr<MainContextImpl> context(new MainContextImpl(argc, argv, true));
+  scoped_ptr<MainContextImpl> context(new MainContextImpl(command_line, true));
 
   CefSettings settings;
 
@@ -76,7 +97,7 @@ int RunMain(int argc, char* argv[]) {
   scoped_ptr<MainMessageLoop> message_loop(new MainMessageLoopStd);
 
   // Initialize CEF.
-  context->Initialize(main_args, settings, app.get(), NULL);
+  context->Initialize(main_args, settings, app, NULL);
 
   // The Chromium sandbox requires that there only be a single thread during
   // initialization. Therefore initialize GTK after CEF.

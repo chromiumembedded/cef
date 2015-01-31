@@ -126,15 +126,15 @@ class V8Handler : public CefV8Handler {
 };
 
 // Handle bindings in the render process.
-class RenderDelegate : public ClientApp::RenderDelegate {
+class RenderDelegate : public ClientAppRenderer::Delegate {
  public:
   RenderDelegate() {
   }
 
-  virtual void OnContextCreated(CefRefPtr<ClientApp> app,
-                                  CefRefPtr<CefBrowser> browser,
-                                  CefRefPtr<CefFrame> frame,
-                                  CefRefPtr<CefV8Context> context) OVERRIDE {
+  virtual void OnContextCreated(CefRefPtr<ClientAppRenderer> app,
+                                CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
+                                CefRefPtr<CefV8Context> context) OVERRIDE {
     CefRefPtr<CefV8Value> object = context->GetGlobal();
 
     CefRefPtr<CefV8Handler> handler = new V8Handler();
@@ -157,7 +157,7 @@ class RenderDelegate : public ClientApp::RenderDelegate {
 
 }  // namespace
 
-void CreateRenderDelegates(ClientApp::RenderDelegateSet& delegates) {
+void CreateDelegates(ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new RenderDelegate);
 }
 

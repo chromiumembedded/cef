@@ -6,9 +6,9 @@
 #include "tests/unittests/chromium_includes.h"
 
 #include "tests/unittests/routing_test_handler.h"
-#include "tests/cefclient/common/client_app.h"
+#include "tests/cefclient/renderer/client_app_renderer.h"
 
-using client::ClientApp;
+using client::ClientAppRenderer;
 
 namespace {
 
@@ -18,25 +18,25 @@ void SetRouterConfig(CefMessageRouterConfig& config) {
 }
 
 // Handle the renderer side of the routing implementation.
-class RoutingRenderDelegate : public ClientApp::RenderDelegate {
+class RoutingRenderDelegate : public ClientAppRenderer::Delegate {
  public:
   RoutingRenderDelegate() {}
 
-  void OnWebKitInitialized(CefRefPtr<ClientApp> app) override {
+  void OnWebKitInitialized(CefRefPtr<ClientAppRenderer> app) override {
     // Create the renderer-side router for query handling.
     CefMessageRouterConfig config;
     SetRouterConfig(config);
     message_router_ = CefMessageRouterRendererSide::Create(config);
   }
 
-  void OnContextCreated(CefRefPtr<ClientApp> app,
+  void OnContextCreated(CefRefPtr<ClientAppRenderer> app,
                         CefRefPtr<CefBrowser> browser,
                         CefRefPtr<CefFrame> frame,
                         CefRefPtr<CefV8Context> context) override {
     message_router_->OnContextCreated(browser,  frame, context);
   }
 
-  void OnContextReleased(CefRefPtr<ClientApp> app,
+  void OnContextReleased(CefRefPtr<ClientAppRenderer> app,
                          CefRefPtr<CefBrowser> browser,
                          CefRefPtr<CefFrame> frame,
                          CefRefPtr<CefV8Context> context) override {
@@ -44,7 +44,7 @@ class RoutingRenderDelegate : public ClientApp::RenderDelegate {
   }
 
   bool OnProcessMessageReceived(
-      CefRefPtr<ClientApp> app,
+      CefRefPtr<ClientAppRenderer> app,
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
       CefRefPtr<CefProcessMessage> message) override {
@@ -104,6 +104,6 @@ bool RoutingTestHandler::OnProcessMessageReceived(
 // Entry point for creating the test delegate.
 // Called from client_app_delegates.cc.
 void CreateRoutingTestHandlerDelegate(
-    ClientApp::RenderDelegateSet& delegates) {
+    ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new RoutingRenderDelegate);
 }

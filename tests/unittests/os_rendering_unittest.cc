@@ -16,7 +16,6 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/cefclient/browser/resource_util.h"
-#include "tests/cefclient/common/client_app.h"
 #include "tests/unittests/routing_test_handler.h"
 
 #if defined(OS_MACOSX)
