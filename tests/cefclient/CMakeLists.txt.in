@@ -6,30 +6,66 @@
 # Source files.
 #
 
-# cefclient sources.
+# cefclient browser sources.
 {{
-  'prefix': 'cefclient',
-  'set': 'CEFCLIENT_SRCS',
+  'prefix': 'cefclient_browser',
+  'set': 'CEFCLIENT_BROWSER_SRCS',
   'includes': [
     'cefclient_sources_browser',
-    'cefclient_sources_common',
-    'cefclient_sources_linux:LINUX',
-    'cefclient_sources_renderer:LINUX',
-    'cefclient_sources_renderer:WINDOWS',
-    'cefclient_sources_resources:WINDOWS',
-    'cefclient_sources_win:WINDOWS',
-    'cefclient_sources_mac:MACOSX',
   ],
 }}
 
-# cefclient helper sources.
+# cefclient common sources.
+{{
+  'prefix': 'cefclient_common',
+  'set': 'CEFCLIENT_COMMON_SRCS',
+  'includes': [
+    'cefclient_sources_common',
+  ],
+}}
+
+# cefclient renderer sources.
+{{
+  'prefix': 'cefclient_renderer',
+  'set': 'CEFCLIENT_RENDERER_SRCS',
+  'includes': [
+    'cefclient_sources_renderer',
+  ],
+}}
+
+#cefclient Linux sources
+{{
+  'prefix': 'cefclient_linux',
+  'set': 'CEFCLIENT_LINUX_SRCS',
+  'includes': [
+    'cefclient_sources_linux',
+  ],
+}}
+
+#cefclient Mac OS X sources
+{{
+  'prefix': 'cefclient_macosx',
+  'set': 'CEFCLIENT_MACOSX_SRCS',
+  'includes': [
+    'cefclient_sources_mac',
+  ],
+}}
+
+# cefclient Mac OS X helper sources.
 {{
   'prefix': 'cefclient_helper',
-  'set': 'CEFCLIENT_HELPER_SRCS',
+  'set': 'CEFCLIENT_MACOSX_HELPER_SRCS',
   'includes': [
-    'cefclient_sources_common:MACOSX',
-    'cefclient_sources_mac_helper:MACOSX',
-    'cefclient_sources_renderer:MACOSX',
+    'cefclient_sources_mac_helper',
+  ],
+}}
+
+#cefclient Windows sources
+{{
+  'prefix': 'cefclient_windows',
+  'set': 'CEFCLIENT_WINDOWS_SRCS',
+  'includes': [
+    'cefclient_sources_win',
   ],
 }}
 
@@ -66,6 +102,16 @@ SET_CEF_TARGET_OUT_DIR()
 #
 
 if(OS_LINUX)
+  # All sources required by the "cefclient" target. Generates an executable that
+  # is used for all processes.
+  set(CEFCLIENT_SRCS
+    ${CEFCLIENT_BROWSER_SRCS}
+    ${CEFCLIENT_COMMON_SRCS}
+    ${CEFCLIENT_RENDERER_SRCS}
+    ${CEFCLIENT_RESOURCES_SRCS}
+    ${CEFCLIENT_LINUX_SRCS}
+    )
+
   # Find required libraries and update compiler/linker variables.
   FIND_LINUX_LIBRARIES("gmodule-2.0 gtk+-2.0 gthread-2.0 gtk+-unix-print-2.0 gtkglext-1.0")
 
@@ -98,6 +144,23 @@ endif()
 #
 
 if(OS_MACOSX)
+  # All sources required by the "cefclient" target. Generates an app bundle that
+  # is used only for the browser process.
+  set(CEFCLIENT_SRCS
+    ${CEFCLIENT_BROWSER_SRCS}
+    ${CEFCLIENT_COMMON_SRCS}
+    ${CEFCLIENT_RESOURCES_SRCS}
+    ${CEFCLIENT_MACOSX_SRCS}
+    )
+
+  # All sources required by the "cefclient Helper" target. Generates an app
+  # bundle that is used only for non-browser processes.
+  set(CEFCLIENT_HELPER_SRCS
+    ${CEFCLIENT_COMMON_SRCS}
+    ${CEFCLIENT_RENDERER_SRCS}
+    ${CEFCLIENT_MACOSX_HELPER_SRCS}
+    )
+
   # Output paths for the app bundles.
   set(CEF_APP "${CEF_TARGET_OUT_DIR}/${CEF_TARGET}.app")
   set(CEF_HELPER_APP "${CEF_TARGET_OUT_DIR}/${CEF_HELPER_TARGET}.app")
@@ -160,6 +223,16 @@ endif()
 #
 
 if(OS_WINDOWS)
+  # All sources required by the "cefclient" target. Generates an executable that
+  # is used for all processes.
+  set(CEFCLIENT_SRCS
+    ${CEFCLIENT_BROWSER_SRCS}
+    ${CEFCLIENT_COMMON_SRCS}
+    ${CEFCLIENT_RENDERER_SRCS}
+    ${CEFCLIENT_RESOURCES_SRCS}
+    ${CEFCLIENT_WINDOWS_SRCS}
+    )
+
   # Executable target.
   add_executable(${CEF_TARGET} WIN32 ${CEFCLIENT_SRCS})
   add_dependencies(${CEF_TARGET} libcef_dll_wrapper)
