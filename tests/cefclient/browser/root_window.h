@@ -53,8 +53,8 @@ class RootWindow :
   static scoped_refptr<RootWindow> GetForNSWindow(NSWindow* window);
 #endif
 
-  // Initialize as a normal window. This will create and show a browser window.
-  // This method may be called on any thread.
+  // Initialize as a normal window. This will create and show a native window
+  // hosting a single browser instance. This method may be called on any thread.
   // |delegate| must be non-NULL and outlive this object.
   // Use RootWindowManager::CreateRootWindow() instead of calling this method
   // directly.
@@ -65,10 +65,10 @@ class RootWindow :
                     const CefBrowserSettings& settings,
                     const std::string& url) = 0;
 
-  // Initialize as a popup window. This is used to attach a browser window that
-  // will be created later. The window will be shown once the browser is
-  // available. This method may be called on any thread.
-  // |delegate| must be non-NULL and outlive this object.
+  // Initialize as a popup window. This is used to attach a new native window to
+  // a single browser instance that will be created later. The native window
+  // will be created and shown once the browser is available. This method may be
+  // called on any thread. |delegate| must be non-NULL and outlive this object.
   // Use RootWindowManager::CreateRootWindowAsPopup() instead of calling this
   // method directly.
   virtual void InitAsPopup(RootWindow::Delegate* delegate,
@@ -101,7 +101,7 @@ class RootWindow :
   // Returns the browser that this window contains, if any.
   virtual CefRefPtr<CefBrowser> GetBrowser() const = 0;
 
-  // Returns the handle for this window, if any.
+  // Returns the native handle for this window, if any.
   virtual ClientWindowHandle GetWindowHandle() const = 0;
 
  protected:

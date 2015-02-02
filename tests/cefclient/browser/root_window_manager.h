@@ -26,7 +26,7 @@ class RootWindowManager : public RootWindow::Delegate {
   // Create a new top-level native window that loads |url|.
   // If |with_controls| is true the window will show controls.
   // If |with_osr| is true the window will use off-screen rendering.
-  // If |bounds| is empty the default window size will be used.
+  // If |bounds| is empty the default window size and location will be used.
   // This method can be called from anywhere to create a new top-level window.
   scoped_refptr<RootWindow> CreateRootWindow(
       bool with_controls,

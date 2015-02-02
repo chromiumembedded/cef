@@ -37,11 +37,12 @@ class ClientAppBrowser : public ClientApp,
   ClientAppBrowser();
 
  private:
-  // Creates all of the Delegate objects. Implemented in
-  // client_app_delegates.
+  // Creates all of the Delegate objects. Implemented by cefclient in
+  // client_app_delegates_browser.cc
   static void CreateDelegates(DelegateSet& delegates);
 
-  // Create the Linux print handler. Implemented in client_app_delegates.
+  // Create the Linux print handler. Implemented by cefclient in
+  // client_app_delegates_browser.cc
   static CefRefPtr<CefPrintHandler> CreatePrintHandler();
 
   // CefApp methods.

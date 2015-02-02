@@ -11,7 +11,7 @@
 namespace client {
 namespace performance_test {
 
-// Render delegate creation. Called from client_app_delegates.cc.
+// Create the renderer delegate. Called from client_app_delegates_renderer.cc.
 void CreateDelegates(ClientAppRenderer::DelegateSet& delegates);
 
 }  // namespace performance_test

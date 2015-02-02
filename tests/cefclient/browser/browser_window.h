@@ -18,14 +18,14 @@ namespace client {
 // indicated.
 class BrowserWindow : public ClientHandler::Delegate {
  public:
-  // This interface is implemented by the owner of the BrowserWindowWin. The
+  // This interface is implemented by the owner of the BrowserWindow. The
   // methods of this class will be called on the main thread.
   class Delegate {
    public:
     // Called when the browser has been created.
     virtual void OnBrowserCreated(CefRefPtr<CefBrowser> browser) = 0;
 
-    // Called when the BrowserWindowWin has been destroyed.
+    // Called when the BrowserWindow has been destroyed.
     virtual void OnBrowserWindowDestroyed() = 0;
 
     // Set the window URL address.
@@ -88,7 +88,7 @@ class BrowserWindow : public ClientHandler::Delegate {
   friend struct base::DefaultDeleter<BrowserWindow>;
 
   // Constructor may be called on any thread.
-  // |root_window| and |delegate| must outlive this object.
+  // |delegate| must outlive this object.
   explicit BrowserWindow(Delegate* delegate);
 
   // ClientHandler::Delegate methods.

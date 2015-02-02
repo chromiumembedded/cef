@@ -9,7 +9,9 @@
 namespace client {
 namespace scheme_test {
 
-// Create the scheme handler. Called from both the browser and renderer process.
+// Create and register the custom scheme handler. See
+// common/scheme_handler_common.h for registration of the custom scheme
+// name/type which must occur in all processes. Called from test_runner.cc.
 void RegisterSchemeHandlers();
 
 }  // namespace scheme_test

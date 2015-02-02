@@ -13,7 +13,10 @@
 namespace client {
 namespace scheme_test {
 
-// Register the scheme.
+// Register the custom scheme name/type. This must be done in all processes.
+// See browser/scheme_test.h for creation/registration of the custom scheme
+// handler which only occurs in the browser process. Called from
+// client_app_delegates_common.cc.
 void RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar,
                            std::vector<CefString>& cookiable_schemes);
 

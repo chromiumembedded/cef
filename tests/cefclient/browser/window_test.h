@@ -11,7 +11,7 @@
 namespace client {
 namespace window_test {
 
-/// Handler creation.
+// Create message handlers. Called from test_runner.cc.
 void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers);
 
 // Fit |window| inside |display|. Coordinates are relative to the upper-left

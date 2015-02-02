@@ -32,7 +32,8 @@ class ClientApp : public CefApp {
   std::vector<CefString> cookieable_schemes_;
 
  private:
-  // Registers custom schemes. Implemented in client_app_delegates.
+  // Registers custom schemes. Implemented by cefclient in
+  // client_app_delegates_common.cc
   static void RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar,
                                     std::vector<CefString>& cookiable_schemes);
 

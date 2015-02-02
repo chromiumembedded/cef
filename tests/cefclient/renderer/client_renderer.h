@@ -12,7 +12,7 @@
 namespace client {
 namespace renderer {
 
-// Create the render delegate.
+// Create the renderer delegate. Called from client_app_delegates_renderer.cc.
 void CreateDelegates(ClientAppRenderer::DelegateSet& delegates);
 
 }  // namespace renderer

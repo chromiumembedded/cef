@@ -86,8 +86,8 @@ class ClientAppRenderer : public ClientApp,
   ClientAppRenderer();
 
  private:
-  // Creates all of the Delegate objects. Implemented in
-  // client_app_delegates.
+  // Creates all of the Delegate objects. Implemented by cefclient in
+  // client_app_delegates_renderer.cc
   static void CreateDelegates(DelegateSet& delegates);
 
   // CefApp methods.

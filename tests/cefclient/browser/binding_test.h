@@ -11,7 +11,7 @@
 namespace client {
 namespace binding_test {
 
-// Handler creation.
+// Create message handlers. Called from test_runner.cc.
 void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers);
 
 }  // namespace binding_test
