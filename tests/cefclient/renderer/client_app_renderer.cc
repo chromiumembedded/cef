@@ -4,6 +4,8 @@
 
 #include "cefclient/renderer/client_app_renderer.h"
 
+#include "include/base/cef_logging.h"
+
 namespace client {
 
 ClientAppRenderer::ClientAppRenderer() {

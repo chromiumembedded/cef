@@ -4,6 +4,7 @@
 
 #include "cefclient/browser/client_app_browser.h"
 
+#include "include/base/cef_logging.h"
 #include "include/cef_cookie.h"
 
 namespace client {
