@@ -48,7 +48,6 @@ class CefContextMenuParamsCToCpp
   virtual MediaStateFlags GetMediaStateFlags() OVERRIDE;
   virtual CefString GetSelectionText() OVERRIDE;
   virtual CefString GetMisspelledWord() OVERRIDE;
-  virtual int GetMisspellingHash() OVERRIDE;
   virtual bool GetDictionarySuggestions(
       std::vector<CefString>& suggestions) OVERRIDE;
   virtual bool IsEditable() OVERRIDE;

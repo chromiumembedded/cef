@@ -142,9 +142,10 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
 
     storage_->set_network_delegate(new CefNetworkDelegate);
 
-    storage_->set_channel_id_service(new net::ChannelIDService(
-        new net::DefaultChannelIDStore(NULL),
-        base::WorkerPool::GetTaskRunner(true)));
+    storage_->set_channel_id_service(make_scoped_ptr(
+        new net::ChannelIDService(
+            new net::DefaultChannelIDStore(NULL),
+            base::WorkerPool::GetTaskRunner(true))));
     storage_->set_http_user_agent_settings(
         new CefHttpUserAgentSettings("en-us,en"));
 

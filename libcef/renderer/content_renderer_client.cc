@@ -38,10 +38,10 @@ MSVC_POP_WARNING();
 #include "chrome/common/chrome_paths.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
 #include "chrome/renderer/pepper/chrome_pdf_print_client.h"
-#include "chrome/renderer/printing/print_web_view_helper.h"
 #include "chrome/renderer/spellchecker/spellcheck.h"
 #include "chrome/renderer/spellchecker/spellcheck_provider.h"
 #include "components/pdf/renderer/ppb_pdf_impl.h"
+#include "components/printing/renderer/print_web_view_helper.h"
 #include "components/web_cache/renderer/web_cache_render_process_observer.h"
 #include "content/child/child_thread.h"
 #include "content/child/worker_task_runner.h"
@@ -50,6 +50,7 @@ MSVC_POP_WARNING();
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_paths.h"
+#include "content/public/renderer/plugin_instance_throttler.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/render_view_visitor.h"
@@ -163,6 +164,18 @@ class CefPrintWebViewHelperDelegate :
 
   blink::WebElement GetPdfElement(blink::WebLocalFrame* frame) override {
     return blink::WebElement();
+  }
+
+  bool IsOutOfProcessPdfEnabled() override {
+    return false;
+  }
+
+  bool IsPrintPreviewEnabled() override {
+    return false;
+  }
+
+  bool OverridePrint(blink::WebLocalFrame* frame) override {
+    return false;
   }
 
  private:
@@ -602,8 +615,7 @@ bool CefContentRendererClient::OverrideCreatePlugin(
     params_to_use.attributeValues.swap(new_values);
 
     *plugin = render_frame_impl->CreatePlugin(
-        frame, info, params_to_use,
-        content::RenderFrame::POWER_SAVER_MODE_ESSENTIAL);
+        frame, info, params_to_use, nullptr);
     return true;
   }
 #endif  // defined(ENABLE_PLUGINS)
@@ -783,8 +795,6 @@ void CefContentRendererClient::BrowserCreated(
   new CefPrerendererClient(render_view);
   new printing::PrintWebViewHelper(
       render_view,
-      false,
-      true,
       make_scoped_ptr<printing::PrintWebViewHelper::Delegate>(
           new CefPrintWebViewHelperDelegate()));
 

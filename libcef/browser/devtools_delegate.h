@@ -33,8 +33,6 @@ class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   std::string GetDiscoveryPageHTML() override;
   bool BundlesFrontendResources() override;
   base::FilePath GetDebugFrontendDir() override;
-  scoped_ptr<net::ServerSocket> CreateSocketForTethering(
-      std::string* name) override;
 
   // Returns the chrome-devtools URL.
   std::string GetChromeDevToolsURL();

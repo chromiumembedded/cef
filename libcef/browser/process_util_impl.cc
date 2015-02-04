@@ -27,5 +27,5 @@ bool CefLaunchProcess(CefRefPtr<CefCommandLine> command_line) {
   CefValueController::AutoLock lock_scope(impl->controller());
 
   base::LaunchOptions options;
-  return base::LaunchProcess(impl->command_line(), options, NULL);
+  return base::LaunchProcess(impl->command_line(), options).IsValid();
 }

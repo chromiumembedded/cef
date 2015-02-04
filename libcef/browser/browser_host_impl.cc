@@ -983,9 +983,9 @@ void CefBrowserHostImpl::WasHidden(bool hidden) {
           web_contents()->GetRenderViewHost()->GetView());
   if (view) {
     if (hidden)
-      view->WasHidden();
+      view->Hide();
     else
-      view->WasShown();
+      view->Show();
   }
 }
 
@@ -2492,7 +2492,7 @@ void CefBrowserHostImpl::DidFailLoad(
   OnLoadEnd(frame, validated_url, error_code);
 }
 
-void CefBrowserHostImpl::FrameDetached(
+void CefBrowserHostImpl::FrameDeleted(
     content::RenderFrameHost* render_frame_host) {
   base::AutoLock lock_scope(state_lock_);
 

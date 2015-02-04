@@ -1,0 +1,30 @@
+diff --git web_dialog_view.cc web_dialog_view.cc
+index 0bffda9..c584bc9 100644
+--- web_dialog_view.cc
++++ web_dialog_view.cc
+@@ -339,7 +339,9 @@ bool WebDialogView::ShouldCreateWebContents(
+     const base::string16& frame_name,
+     const GURL& target_url,
+     const std::string& partition_id,
+-    content::SessionStorageNamespace* session_storage_namespace) {
++    content::SessionStorageNamespace* session_storage_namespace,
++    content::WebContentsView** view,
++    content::RenderViewHostDelegateView** delegate_view) {
+   if (delegate_)
+     return delegate_->HandleShouldCreateWebContents();
+   return true;
+diff --git web_dialog_view.h web_dialog_view.h
+index ce69cfc..a890771 100644
+--- web_dialog_view.h
++++ web_dialog_view.h
+@@ -119,7 +119,9 @@ class WEBVIEW_EXPORT WebDialogView : public views::ClientView,
+       const base::string16& frame_name,
+       const GURL& target_url,
+       const std::string& partition_id,
+-      content::SessionStorageNamespace* session_storage_namespace) override;
++      content::SessionStorageNamespace* session_storage_namespace,
++      content::WebContentsView** view,
++      content::RenderViewHostDelegateView** delegate_view) override;
+ 
+  private:
+   FRIEND_TEST_ALL_PREFIXES(WebDialogBrowserTest, WebContentRendered);

@@ -13,8 +13,6 @@
       # Directory for CEF source files.
       [ 'OS=="win"', {
         'cef_directory' : '<!(echo %CEF_DIRECTORY%)',
-        # Disable tcmalloc's debugallocation to avoid crashing during startup.
-        'disable_debugallocation': 1,
       }, { # OS!="win"
         'cef_directory' : '<!(echo $CEF_DIRECTORY)',
       }],

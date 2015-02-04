@@ -29,9 +29,9 @@ void CefRenderWidgetHostViewOSR::SetActive(bool active) {
 
 void CefRenderWidgetHostViewOSR::SetWindowVisibility(bool visible) {
   if (visible)
-    WasShown();
+    Hide();
   else
-    WasHidden();
+    Show();
 }
 
 void CefRenderWidgetHostViewOSR::WindowFrameChanged() {

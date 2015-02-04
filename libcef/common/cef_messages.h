@@ -12,6 +12,7 @@
 #include "base/values.h"
 #include "content/public/common/common_param_traits.h"
 #include "content/public/common/referrer.h"
+#include "ui/gfx/ipc/gfx_param_traits.h"
 #include "ipc/ipc_message_macros.h"
 
 // TODO(cef): Re-using the message start for extensions may be problematic in
@@ -213,7 +214,6 @@ struct ParamTraits<scoped_refptr<net::UploadData> > {
 
 #endif  // CEF_LIBCEF_COMMON_CEF_MESSAGES_H_
 
-#include "chrome/common/print_messages.h"
 #include "chrome/common/spellcheck_messages.h"
 
 #if defined(OS_WIN)

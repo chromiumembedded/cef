@@ -12,7 +12,7 @@ index a8e088c..838b6a0 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git desktop_aura/desktop_window_tree_host_win.cc desktop_aura/desktop_window_tree_host_win.cc
-index 1e8d67d..34b535a 100644
+index b54a643..5a589e5 100644
 --- desktop_aura/desktop_window_tree_host_win.cc
 +++ desktop_aura/desktop_window_tree_host_win.cc
 @@ -133,7 +133,9 @@ void DesktopWindowTreeHostWin::Init(aura::Window* content_window,
@@ -43,10 +43,10 @@ index 1e8d67d..34b535a 100644
    if (input_method)
      input_method->OnBlur();
 diff --git desktop_aura/desktop_window_tree_host_x11.cc desktop_aura/desktop_window_tree_host_x11.cc
-index 54d67ad..13e5163 100644
+index 80008cf..46ea712 100644
 --- desktop_aura/desktop_window_tree_host_x11.cc
 +++ desktop_aura/desktop_window_tree_host_x11.cc
-@@ -152,7 +152,8 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
+@@ -153,7 +153,8 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
        window_shape_(NULL),
        custom_window_shape_(false),
        urgency_hint_set_(false),
@@ -118,7 +118,7 @@ index 54d67ad..13e5163 100644
        bounds_.x(), bounds_.y(),
        bounds_.width(), bounds_.height(),
        0,               // border width
-@@ -1698,6 +1712,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
+@@ -1699,6 +1713,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
        }
        break;
      }
@@ -163,7 +163,7 @@ index d6b5cc8..bf20d4c 100644
  };
  
 diff --git widget.cc widget.cc
-index a24f781..52a1755 100644
+index 76dc14a..8c40f67 100644
 --- widget.cc
 +++ widget.cc
 @@ -109,6 +109,7 @@ Widget::InitParams::InitParams()
@@ -206,7 +206,7 @@ index a24f781..52a1755 100644
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
 diff --git widget.h widget.h
-index e0f6180..25f557f 100644
+index 06bd491..ed3893e 100644
 --- widget.h
 +++ widget.h
 @@ -235,6 +235,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,

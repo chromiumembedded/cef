@@ -201,13 +201,6 @@ class CefContextMenuParams : public virtual CefBase {
   virtual CefString GetMisspelledWord() =0;
 
   ///
-  // Returns the hash of the misspelled word, if any, that the context menu was
-  // invoked on.
-  ///
-  /*--cef()--*/
-  virtual int GetMisspellingHash() =0;
-
-  ///
   // Returns true if suggestions exist, false otherwise. Fills in |suggestions|
   // from the spell check service for the misspelled word if there is one.
   ///

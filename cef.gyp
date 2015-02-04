@@ -867,6 +867,8 @@
         '<(DEPTH)/components/components.gyp:pdf_common',
         '<(DEPTH)/components/components.gyp:pdf_renderer',
         '<(DEPTH)/components/components.gyp:pref_registry',
+        '<(DEPTH)/components/components.gyp:printing_common',
+        '<(DEPTH)/components/components.gyp:printing_renderer',
         '<(DEPTH)/components/components.gyp:user_prefs',
         '<(DEPTH)/components/components.gyp:web_cache_renderer',
         '<(DEPTH)/content/content.gyp:content_app_both',
@@ -1136,12 +1138,8 @@
         '<(DEPTH)/chrome/browser/printing/printer_query.h',
         '<(DEPTH)/chrome/common/extensions/extension_constants.cc',
         '<(DEPTH)/chrome/common/extensions/extension_constants.h',
-        '<(DEPTH)/chrome/common/print_messages.cc',
-        '<(DEPTH)/chrome/common/print_messages.h',
         '<(DEPTH)/chrome/renderer/pepper/chrome_pdf_print_client.cc',
         '<(DEPTH)/chrome/renderer/pepper/chrome_pdf_print_client.h',
-        '<(DEPTH)/chrome/renderer/printing/print_web_view_helper.cc',
-        '<(DEPTH)/chrome/renderer/printing/print_web_view_helper.h',
         '<(DEPTH)/extensions/common/constants.cc',
         '<(DEPTH)/extensions/common/constants.h',
         # Include header for stub creation (BrowserProcess) so print_job_worker can
@@ -1149,12 +1147,6 @@
         '<(DEPTH)/chrome/browser/browser_process.cc',
         '<(DEPTH)/chrome/browser/browser_process.h',
         # Include sources for spell checking support.
-        '<(DEPTH)/chrome/browser/spellchecker/feedback.cc',
-        '<(DEPTH)/chrome/browser/spellchecker/feedback.h',
-        '<(DEPTH)/chrome/browser/spellchecker/feedback_sender.cc',
-        '<(DEPTH)/chrome/browser/spellchecker/feedback_sender.h',
-        '<(DEPTH)/chrome/browser/spellchecker/misspelling.cc',
-        '<(DEPTH)/chrome/browser/spellchecker/misspelling.h',
         '<(DEPTH)/chrome/browser/spellchecker/spellcheck_action.cc',
         '<(DEPTH)/chrome/browser/spellchecker/spellcheck_action.h',
         '<(DEPTH)/chrome/browser/spellchecker/spellcheck_custom_dictionary.cc',
@@ -1171,8 +1163,6 @@
         '<(DEPTH)/chrome/browser/spellchecker/spellcheck_service.h',
         '<(DEPTH)/chrome/browser/spellchecker/spelling_service_client.cc',
         '<(DEPTH)/chrome/browser/spellchecker/spelling_service_client.h',
-        '<(DEPTH)/chrome/browser/spellchecker/word_trimmer.cc',
-        '<(DEPTH)/chrome/browser/spellchecker/word_trimmer.h',
         '<(DEPTH)/chrome/common/chrome_constants.cc',
         '<(DEPTH)/chrome/common/spellcheck_common.cc',
         '<(DEPTH)/chrome/common/spellcheck_common.h',
@@ -1209,7 +1199,6 @@
             '<(DEPTH)/chrome/browser/printing/pdf_to_emf_converter.cc',
             '<(DEPTH)/chrome/browser/printing/pdf_to_emf_converter.h',
             '<(DEPTH)/chrome/common/chrome_utility_printing_messages.h',
-            '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_pdf_win.cc',
           ],
         }],
         [ 'OS=="mac"', {
@@ -1223,8 +1212,6 @@
             'libcef/browser/render_widget_host_view_osr_mac.mm',
             'libcef/browser/text_input_client_osr_mac.mm',
             'libcef/browser/text_input_client_osr_mac.h',
-            # Include sources for printing.
-            '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_mac.mm',
             # Include sources for spell checking support.
             '<(DEPTH)/chrome/browser/spellchecker/spellcheck_message_filter_mac.cc',
             '<(DEPTH)/chrome/browser/spellchecker/spellcheck_message_filter_mac.h',
@@ -1247,8 +1234,6 @@
             'libcef/browser/render_widget_host_view_osr_linux.cc',
             'libcef/browser/window_x11.cc',
             'libcef/browser/window_x11.h',
-            #Include sources for printing.
-            '<(DEPTH)/chrome/renderer/printing/print_web_view_helper_linux.cc',
           ],
         }],
         ['os_posix == 1 and OS != "mac" and android_webview_build != 1', {

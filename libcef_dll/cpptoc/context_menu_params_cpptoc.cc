@@ -231,21 +231,6 @@ cef_string_userfree_t CEF_CALLBACK context_menu_params_get_misspelled_word(
   return _retval.DetachToUserFree();
 }
 
-int CEF_CALLBACK context_menu_params_get_misspelling_hash(
-    struct _cef_context_menu_params_t* self) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return 0;
-
-  // Execute
-  int _retval = CefContextMenuParamsCppToC::Get(self)->GetMisspellingHash();
-
-  // Return type: simple
-  return _retval;
-}
-
 int CEF_CALLBACK context_menu_params_get_dictionary_suggestions(
     struct _cef_context_menu_params_t* self, cef_string_list_t suggestions) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -344,8 +329,6 @@ CefContextMenuParamsCppToC::CefContextMenuParamsCppToC(
       context_menu_params_get_media_state_flags;
   struct_.struct_.get_selection_text = context_menu_params_get_selection_text;
   struct_.struct_.get_misspelled_word = context_menu_params_get_misspelled_word;
-  struct_.struct_.get_misspelling_hash =
-      context_menu_params_get_misspelling_hash;
   struct_.struct_.get_dictionary_suggestions =
       context_menu_params_get_dictionary_suggestions;
   struct_.struct_.is_editable = context_menu_params_is_editable;

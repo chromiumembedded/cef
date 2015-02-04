@@ -552,7 +552,8 @@ v8::Local<v8::Value> CallV8Function(v8::Handle<v8::Context> context,
   // Execute the function call using the ScriptController so that inspector
   // instrumentation works.
   if (CEF_CURRENTLY_ON_RT()) {
-    RefPtr<blink::LocalFrame> frame = blink::toFrameIfNotDetached(context);
+    RefPtr<blink::LocalFrame> frame =
+        toLocalFrame(blink::toFrameIfNotDetached(context));
     DCHECK(frame);
     if (frame &&
         frame->script().canExecuteScripts(blink::AboutToExecuteScript)) {

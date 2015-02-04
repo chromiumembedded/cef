@@ -207,13 +207,6 @@ typedef struct _cef_context_menu_params_t {
       struct _cef_context_menu_params_t* self);
 
   ///
-  // Returns the hash of the misspelled word, if any, that the context menu was
-  // invoked on.
-  ///
-  int (CEF_CALLBACK *get_misspelling_hash)(
-      struct _cef_context_menu_params_t* self);
-
-  ///
   // Returns true (1) if suggestions exist, false (0) otherwise. Fills in
   // |suggestions| from the spell check service for the misspelled word if there
   // is one.

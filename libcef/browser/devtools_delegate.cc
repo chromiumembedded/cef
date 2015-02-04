@@ -28,6 +28,7 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
 #include "grit/cef_resources.h"
+#include "net/base/net_errors.h"
 #include "net/socket/tcp_server_socket.h"
 #include "ui/base/layout.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -38,19 +39,28 @@ const char kTargetTypePage[] = "page";
 const char kTargetTypeServiceWorker[] = "service_worker";
 const char kTargetTypeOther[] = "other";
 
+const int kBackLog = 10;
+
 class TCPServerSocketFactory
     : public content::DevToolsHttpHandler::ServerSocketFactory {
  public:
-  TCPServerSocketFactory(const std::string& address, uint16 port, int backlog)
-      : content::DevToolsHttpHandler::ServerSocketFactory(
-            address, port, backlog) {}
+  TCPServerSocketFactory(const std::string& address, uint16 port)
+      : address_(address), port_(port) {
+  }
 
  private:
-  // content::DevToolsHttpHandler::ServerSocketFactory.
-  scoped_ptr<net::ServerSocket> Create() const override {
-    return scoped_ptr<net::ServerSocket>(
-        new net::TCPServerSocket(NULL, net::NetLog::Source()));
+  // DevToolsHttpHandler::ServerSocketFactory.
+  scoped_ptr<net::ServerSocket> CreateForHttpServer() override {
+    scoped_ptr<net::ServerSocket> socket(
+        new net::TCPServerSocket(nullptr, net::NetLog::Source()));
+    if (socket->ListenWithAddressAndPort(address_, port_, kBackLog) != net::OK)
+      return scoped_ptr<net::ServerSocket>();
+
+    return socket;
   }
+
+  std::string address_;
+  uint16 port_;
 
   DISALLOW_COPY_AND_ASSIGN(TCPServerSocketFactory);
 };
@@ -58,7 +68,7 @@ class TCPServerSocketFactory
 scoped_ptr<content::DevToolsHttpHandler::ServerSocketFactory>
     CreateSocketFactory(uint16 port) {
   return scoped_ptr<content::DevToolsHttpHandler::ServerSocketFactory>(
-      new TCPServerSocketFactory("127.0.0.1", port, 1));
+      new TCPServerSocketFactory("127.0.0.1", port));
 }
 
 class Target : public content::DevToolsTarget {
@@ -154,11 +164,6 @@ bool CefDevToolsDelegate::BundlesFrontendResources() {
 
 base::FilePath CefDevToolsDelegate::GetDebugFrontendDir() {
   return base::FilePath();
-}
-
-scoped_ptr<net::ServerSocket>
-    CefDevToolsDelegate::CreateSocketForTethering(std::string* name) {
-  return scoped_ptr<net::ServerSocket>();
 }
 
 std::string CefDevToolsDelegate::GetChromeDevToolsURL() {

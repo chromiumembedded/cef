@@ -443,7 +443,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                    const GURL& validated_url,
                    int error_code,
                    const base::string16& error_description) override;
-  void FrameDetached(
+  void FrameDeleted(
       content::RenderFrameHost* render_frame_host) override;
   void PluginCrashed(const base::FilePath& plugin_path,
                      base::ProcessId plugin_pid) override;

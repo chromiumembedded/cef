@@ -121,8 +121,6 @@ class CefRenderWidgetHostViewOSR
                    const gfx::Rect& pos) override;
   void InitAsFullscreen(
       content::RenderWidgetHostView* reference_host_view) override;
-  void WasShown() override;
-  void WasHidden() override;
   void MovePluginWindows(
       const std::vector<content::WebPluginGeometry>& moves) override;
   void Blur() override;
@@ -209,16 +207,23 @@ class CefRenderWidgetHostViewOSR
       ui::Compositor* compositor) override;
 
   // DelegatedFrameHostClient implementation.
-  ui::Compositor* GetCompositor() const override;
-  ui::Layer* GetLayer() override;
-  content::RenderWidgetHostImpl* GetHost() override;
-  bool IsVisible() override;
-  scoped_ptr<content::ResizeLock> CreateResizeLock(
+  ui::Layer* DelegatedFrameHostGetLayer() const override;
+  bool DelegatedFrameHostIsVisible() const override;
+  gfx::Size DelegatedFrameHostDesiredSizeInDIP() const override;
+ bool DelegatedFrameCanCreateResizeLock() const override;
+  scoped_ptr<content::ResizeLock> DelegatedFrameHostCreateResizeLock(
       bool defer_compositor_lock) override;
-  gfx::Size DesiredFrameSize() override;
-  float CurrentDeviceScaleFactor() override;
-  gfx::Size ConvertViewSizeToPixel(const gfx::Size& size) override;
-  content::DelegatedFrameHost* GetDelegatedFrameHost() const override;
+  void DelegatedFrameHostResizeLockWasReleased() override;
+  void DelegatedFrameHostSendCompositorSwapAck(
+      int output_surface_id,
+      const cc::CompositorFrameAck& ack) override;
+  void DelegatedFrameHostSendReclaimCompositorResources(
+      int output_surface_id,
+      const cc::CompositorFrameAck& ack) override;
+  void DelegatedFrameHostOnLostCompositorResources() override;
+  void DelegatedFrameHostUpdateVSyncParameters(
+      const base::TimeTicks& timebase,
+      const base::TimeDelta& interval) override;
 
   bool InstallTransparency();
 

@@ -100,11 +100,6 @@ CefString CefContextMenuParamsImpl::GetMisspelledWord() {
   return const_value().misspelled_word;
 }
 
-int CefContextMenuParamsImpl::GetMisspellingHash() {
-  CEF_VALUE_VERIFY_RETURN(false, 0);
-  return const_value().misspelling_hash;
-}
-
 bool CefContextMenuParamsImpl::GetDictionarySuggestions(
     std::vector<CefString>& suggestions) {
   CEF_VALUE_VERIFY_RETURN(false, false);

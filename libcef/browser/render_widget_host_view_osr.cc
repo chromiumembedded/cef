@@ -192,7 +192,7 @@ class CefCopyFrameGenerator {
             damage_rect));
 
     request->set_area(gfx::Rect(view_->GetPhysicalBackingSize()));
-    view_->RequestCopyOfOutput(request.Pass());
+    view_->DelegatedFrameHostGetLayer()->RequestCopyOfOutput(request.Pass());
   }
 
   void CopyFromCompositingSurfaceHasResult(
@@ -473,7 +473,7 @@ CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
   // necessary to remove all connections to its old ui::Compositor.
   if (is_showing_)
     delegated_frame_host_->WasHidden();
-  delegated_frame_host_->RemovingFromWindow();
+  delegated_frame_host_->ResetCompositor();
 
   PlatformDestroyCompositorWidget();
 
@@ -532,11 +532,28 @@ bool CefRenderWidgetHostViewOSR::IsSurfaceAvailableForCopy() const {
 }
 
 void CefRenderWidgetHostViewOSR::Show() {
-  WasShown();
+  if (is_showing_)
+    return;
+
+  is_showing_ = true;
+  if (render_widget_host_)
+    render_widget_host_->WasShown(ui::LatencyInfo());
+  delegated_frame_host_->SetCompositor(compositor_.get());
+  delegated_frame_host_->WasShown(ui::LatencyInfo());
 }
 
 void CefRenderWidgetHostViewOSR::Hide() {
-  WasHidden();
+  if (!is_showing_)
+    return;
+
+  if (browser_impl_.get())
+    browser_impl_->CancelContextMenu();
+
+  if (render_widget_host_)
+    render_widget_host_->WasHidden();
+  delegated_frame_host_->WasHidden();
+  delegated_frame_host_->ResetCompositor();
+  is_showing_ = false;
 }
 
 bool CefRenderWidgetHostViewOSR::IsShowing() {
@@ -667,37 +684,12 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
     handler->OnPopupSize(browser_impl_.get(), widget_pos);
 
   ResizeRootLayer();
-  WasShown();
+  Show();
 }
 
 void CefRenderWidgetHostViewOSR::InitAsFullscreen(
     content::RenderWidgetHostView* reference_host_view) {
   NOTREACHED() << "Fullscreen widgets are not supported in OSR";
-}
-
-void CefRenderWidgetHostViewOSR::WasShown() {
-  if (is_showing_)
-    return;
-
-  is_showing_ = true;
-  if (render_widget_host_)
-    render_widget_host_->WasShown(ui::LatencyInfo());
-  delegated_frame_host_->AddedToWindow();
-  delegated_frame_host_->WasShown(ui::LatencyInfo());
-}
-
-void CefRenderWidgetHostViewOSR::WasHidden() {
-  if (!is_showing_)
-    return;
-
-  if (browser_impl_.get())
-    browser_impl_->CancelContextMenu();
-
-  if (render_widget_host_)
-    render_widget_host_->WasHidden();
-  delegated_frame_host_->WasHidden();
-  delegated_frame_host_->RemovingFromWindow();
-  is_showing_ = false;
 }
 
 void CefRenderWidgetHostViewOSR::MovePluginWindows(
@@ -792,7 +784,7 @@ void CefRenderWidgetHostViewOSR::Destroy() {
     } else {
       if (popup_host_view_)
         popup_host_view_->CancelPopupWidget();
-      WasHidden();
+      Hide();
     }
   }
 
@@ -986,24 +978,25 @@ CefRenderWidgetHostViewOSR::CreateSoftwareOutputDevice(
   return make_scoped_ptr<cc::SoftwareOutputDevice>(software_output_device_);
 }
 
-ui::Compositor* CefRenderWidgetHostViewOSR::GetCompositor() const {
-  return compositor_.get();
-}
-
-ui::Layer* CefRenderWidgetHostViewOSR::GetLayer() {
+ui::Layer* CefRenderWidgetHostViewOSR::DelegatedFrameHostGetLayer() const {
   return root_layer_.get();
 }
 
-content::RenderWidgetHostImpl* CefRenderWidgetHostViewOSR::GetHost() {
-  DCHECK(render_widget_host_);
-  return render_widget_host_;
+bool CefRenderWidgetHostViewOSR::DelegatedFrameHostIsVisible() const {
+  return !render_widget_host_->is_hidden();
 }
 
-bool CefRenderWidgetHostViewOSR::IsVisible() {
-  return IsShowing();
+gfx::Size
+CefRenderWidgetHostViewOSR::DelegatedFrameHostDesiredSizeInDIP() const {
+  return root_layer_->bounds().size();
 }
 
-scoped_ptr<content::ResizeLock> CefRenderWidgetHostViewOSR::CreateResizeLock(
+bool CefRenderWidgetHostViewOSR::DelegatedFrameCanCreateResizeLock() const {
+  return !render_widget_host_->auto_resize_enabled();
+}
+
+scoped_ptr<content::ResizeLock>
+CefRenderWidgetHostViewOSR::DelegatedFrameHostCreateResizeLock(
     bool defer_compositor_lock) {
   const gfx::Size& desired_size = root_layer_->bounds().size();
   return scoped_ptr<content::ResizeLock>(new CefResizeLock(
@@ -1013,22 +1006,35 @@ scoped_ptr<content::ResizeLock> CefRenderWidgetHostViewOSR::CreateResizeLock(
       kResizeLockTimeoutMs));
 }
 
-gfx::Size CefRenderWidgetHostViewOSR::DesiredFrameSize() {
-  return root_layer_->bounds().size();
+void CefRenderWidgetHostViewOSR::DelegatedFrameHostResizeLockWasReleased() {
+  return render_widget_host_->WasResized();
 }
 
-float CefRenderWidgetHostViewOSR::CurrentDeviceScaleFactor() {
-  return scale_factor_;
+void CefRenderWidgetHostViewOSR::DelegatedFrameHostSendCompositorSwapAck(
+    int output_surface_id,
+    const cc::CompositorFrameAck& ack) {
+  render_widget_host_->Send(new ViewMsg_SwapCompositorFrameAck(
+      render_widget_host_->GetRoutingID(),
+      output_surface_id, ack));
 }
 
-gfx::Size CefRenderWidgetHostViewOSR::ConvertViewSizeToPixel(
-    const gfx::Size& size) {
-  return content::ConvertViewSizeToPixel(this, size);
+void
+CefRenderWidgetHostViewOSR::DelegatedFrameHostSendReclaimCompositorResources(
+    int output_surface_id,
+    const cc::CompositorFrameAck& ack) {
+  render_widget_host_->Send(new ViewMsg_ReclaimCompositorResources(
+      render_widget_host_->GetRoutingID(),
+      output_surface_id, ack));
 }
 
-content::DelegatedFrameHost*
-    CefRenderWidgetHostViewOSR::GetDelegatedFrameHost() const {
-  return delegated_frame_host_.get();
+void CefRenderWidgetHostViewOSR::DelegatedFrameHostOnLostCompositorResources() {
+  render_widget_host_->ScheduleComposite();
+}
+
+void CefRenderWidgetHostViewOSR::DelegatedFrameHostUpdateVSyncParameters(
+    const base::TimeTicks& timebase,
+    const base::TimeDelta& interval) {
+  render_widget_host_->UpdateVSyncParameters(timebase, interval);
 }
 
 bool CefRenderWidgetHostViewOSR::InstallTransparency() {
@@ -1334,7 +1340,7 @@ void CefRenderWidgetHostViewOSR::CancelPopupWidget() {
   if (render_widget_host_)
     render_widget_host_->LostCapture();
 
-  WasHidden();
+  Hide();
 
   if (browser_impl_.get()) {
     CefRefPtr<CefRenderHandler> handler =
