@@ -1,87 +1,12 @@
-diff --git atomicops.h atomicops.h
-index 6a5371c..48e2f13 100644
---- atomicops.h
-+++ atomicops.h
-@@ -168,7 +168,7 @@ struct AtomicOps_x86CPUFeatureStruct {
-   bool has_cmpxchg16b;      // Processor supports cmpxchg16b instruction.
- };
- BASE_EXPORT extern struct AtomicOps_x86CPUFeatureStruct
--    AtomicOps_Internalx86CPUFeatures;
-+    base_AtomicOps_Internalx86CPUFeatures;
- #endif
- 
- // Try to use a portable implementation based on C++11 atomics.
-diff --git atomicops_internals_x86_gcc.cc atomicops_internals_x86_gcc.cc
-index c21e96d..fb570e0 100644
---- atomicops_internals_x86_gcc.cc
-+++ atomicops_internals_x86_gcc.cc
-@@ -34,7 +34,7 @@
- // Set the flags so that code will run correctly and conservatively, so even
- // if we haven't been initialized yet, we're probably single threaded, and our
- // default values should hopefully be pretty safe.
--struct AtomicOps_x86CPUFeatureStruct AtomicOps_Internalx86CPUFeatures = {
-+struct AtomicOps_x86CPUFeatureStruct base_AtomicOps_Internalx86CPUFeatures = {
-   false, // bug can't exist before process spawns multiple threads
-   false, // Chrome requires SSE2, but for transition assume not and initialize
-          // this properly.
-@@ -76,16 +76,16 @@ void AtomicOps_Internalx86CPUFeaturesInit() {
-   if (strcmp(vendor, "AuthenticAMD") == 0 &&       // AMD
-       family == 15 &&
-       32 <= model && model <= 63) {
--    AtomicOps_Internalx86CPUFeatures.has_amd_lock_mb_bug = true;
-+    base_AtomicOps_Internalx86CPUFeatures.has_amd_lock_mb_bug = true;
-   } else {
--    AtomicOps_Internalx86CPUFeatures.has_amd_lock_mb_bug = false;
-+    base_AtomicOps_Internalx86CPUFeatures.has_amd_lock_mb_bug = false;
-   }
- 
-   // edx bit 26 is SSE2 which we use to tell use whether we can use mfence
--  AtomicOps_Internalx86CPUFeatures.has_sse2 = ((edx >> 26) & 1);
-+  base_AtomicOps_Internalx86CPUFeatures.has_sse2 = ((edx >> 26) & 1);
- 
-   // ecx bit 13 indicates whether the cmpxchg16b instruction is supported
--  AtomicOps_Internalx86CPUFeatures.has_cmpxchg16b = ((ecx >> 13) & 1);
-+  base_AtomicOps_Internalx86CPUFeatures.has_cmpxchg16b = ((ecx >> 13) & 1);
- }
- 
- class AtomicOpsx86Initializer {
-diff --git atomicops_internals_x86_gcc.h atomicops_internals_x86_gcc.h
-index 69eacdb..c2ad1e6 100644
---- atomicops_internals_x86_gcc.h
-+++ atomicops_internals_x86_gcc.h
-@@ -51,7 +51,7 @@ inline Atomic32 Barrier_AtomicIncrement(volatile Atomic32* ptr,
-                        : "+r" (temp), "+m" (*ptr)
-                        : : "memory");
-   // temp now holds the old value of *ptr
--  if (AtomicOps_Internalx86CPUFeatures.has_amd_lock_mb_bug) {
-+  if (base_AtomicOps_Internalx86CPUFeatures.has_amd_lock_mb_bug) {
-     __asm__ __volatile__("lfence" : : : "memory");
-   }
-   return temp + increment;
-@@ -61,7 +61,7 @@ inline Atomic32 Acquire_CompareAndSwap(volatile Atomic32* ptr,
-                                        Atomic32 old_value,
-                                        Atomic32 new_value) {
-   Atomic32 x = NoBarrier_CompareAndSwap(ptr, old_value, new_value);
--  if (AtomicOps_Internalx86CPUFeatures.has_amd_lock_mb_bug) {
-+  if (base_AtomicOps_Internalx86CPUFeatures.has_amd_lock_mb_bug) {
-     __asm__ __volatile__("lfence" : : : "memory");
-   }
-   return x;
-@@ -149,7 +149,7 @@ inline Atomic64 Barrier_AtomicIncrement(volatile Atomic64* ptr,
-                        : "+r" (temp), "+m" (*ptr)
-                        : : "memory");
-   // temp now contains the previous value of *ptr
--  if (AtomicOps_Internalx86CPUFeatures.has_amd_lock_mb_bug) {
-+  if (base_AtomicOps_Internalx86CPUFeatures.has_amd_lock_mb_bug) {
-     __asm__ __volatile__("lfence" : : : "memory");
-   }
-   return temp + increment;
-@@ -206,7 +206,7 @@ inline Atomic64 Acquire_CompareAndSwap(volatile Atomic64* ptr,
-                                        Atomic64 old_value,
-                                        Atomic64 new_value) {
-   Atomic64 x = NoBarrier_CompareAndSwap(ptr, old_value, new_value);
--  if (AtomicOps_Internalx86CPUFeatures.has_amd_lock_mb_bug) {
-+  if (base_AtomicOps_Internalx86CPUFeatures.has_amd_lock_mb_bug) {
-     __asm__ __volatile__("lfence" : : : "memory");
-   }
-   return x;
+diff --git allocator.gyp allocator.gyp
+index c20325d..0e34390 100644
+--- allocator.gyp
++++ allocator.gyp
+@@ -238,6 +238,7 @@
+             '<(tcmalloc_dir)/src/base/atomicops-internals-linuxppc.h',
+             '<(tcmalloc_dir)/src/base/atomicops-internals-macosx.h',
+             '<(tcmalloc_dir)/src/base/atomicops-internals-x86-msvc.h',
++            '<(tcmalloc_dir)/src/base/atomicops-internals-x86.cc',
+             '<(tcmalloc_dir)/src/base/atomicops-internals-x86.h',
+             '<(tcmalloc_dir)/src/base/atomicops.h',
+             '<(tcmalloc_dir)/src/base/basictypes.h',
