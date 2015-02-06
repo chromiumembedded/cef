@@ -1,0 +1,12 @@
+diff --git allocator.gyp allocator.gyp
+index c20325d..0e34390 100644
+--- allocator.gyp
++++ allocator.gyp
+@@ -238,6 +238,7 @@
+             '<(tcmalloc_dir)/src/base/atomicops-internals-linuxppc.h',
+             '<(tcmalloc_dir)/src/base/atomicops-internals-macosx.h',
+             '<(tcmalloc_dir)/src/base/atomicops-internals-x86-msvc.h',
++            '<(tcmalloc_dir)/src/base/atomicops-internals-x86.cc',
+             '<(tcmalloc_dir)/src/base/atomicops-internals-x86.h',
+             '<(tcmalloc_dir)/src/base/atomicops.h',
+             '<(tcmalloc_dir)/src/base/basictypes.h',
