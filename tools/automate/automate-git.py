@@ -30,23 +30,8 @@ cef_svn_branch_url = 'https://chromiumembedded.googlecode.com/svn/branches/%1/ce
 # Global system variables.
 ##
 
-# Operating system.
-platform = '';
-if sys.platform == 'win32':
-  platform = 'windows'
-elif sys.platform == 'darwin':
-  platform = 'macosx'
-elif sys.platform.startswith('linux'):
-  platform = 'linux'
-
 # Script directory.
 script_dir = os.path.dirname(__file__)
-
-# Script extension.
-if platform == 'windows':
-  script_ext = '.bat'
-else:
-  script_ext = '.sh'
 
 
 ##
@@ -379,6 +364,10 @@ parser.add_option('--force-clean-deps',
 parser.add_option('--dry-run',
                   action='store_true', dest='dryrun', default=False,
                   help="Output commands without executing them.")
+parser.add_option('--dry-run-platform', dest='dryrunplatform', default=None,
+                  help='Simulate a dry run on the specified platform '+\
+                       '(windows, macosx, linux). Must be used in combination'+\
+                       ' with the --dry-run flag.')
 
 # Update-related options.
 parser.add_option('--force-update',
@@ -472,6 +461,28 @@ if (options.noreleasebuild and \
   parser.print_help(sys.stderr)
   sys.exit()
 
+# Operating system.
+if options.dryrun and options.dryrunplatform is not None:
+  platform = options.dryrunplatform
+  if not platform in ['windows', 'macosx', 'linux']:
+    print 'Invalid dry-run-platform value: %s' % (platform)
+    sys.exit()
+elif sys.platform == 'win32':
+  platform = 'windows'
+elif sys.platform == 'darwin':
+  platform = 'macosx'
+elif sys.platform.startswith('linux'):
+  platform = 'linux'
+else:
+  print 'Unknown operating system platform'
+  sys.exit()
+
+# Script extension.
+if platform == 'windows':
+  script_ext = '.bat'
+else:
+  script_ext = '.sh'
+
 if options.x64build and platform != 'windows' and platform != 'macosx':
   print 'The x64 build option is only used on Windows and Mac OS X.'
   sys.exit()
@@ -479,6 +490,24 @@ if options.x64build and platform != 'windows' and platform != 'macosx':
 if platform == 'windows' and not 'GYP_MSVS_VERSION' in os.environ.keys():
   print 'You must set the GYP_MSVS_VERSION environment variable on Windows.'
   sys.exit()
+
+# CEF branch.
+if options.branch != 'trunk' and not options.branch.isdigit():
+  print 'Invalid branch value: %s' % (options.branch)
+cef_branch = options.branch
+
+# True if the requested branch is 2272 or newer.
+branch_is_2272_or_newer = (cef_branch == 'trunk' or int(cef_branch) >= 2272)
+
+if platform == 'macosx' and not options.x64build and branch_is_2272_or_newer:
+  print '32-bit Mac OS X builds are no longer supported with 2272 branch and '+\
+        'newer. Add --x64-build flag to generate a 64-bit build.'
+  sys.exit()
+
+# True if GYP_DEFINES=target_arch=x64 must be set.
+gyp_needs_target_arch_x64 = options.x64build and \
+  (platform == 'windows' or \
+    (platform == 'macosx' and not branch_is_2272_or_newer))
 
 # Options that force the sources to change.
 force_change = options.forceclean or options.forceupdate
@@ -552,11 +581,6 @@ else:
 ##
 # Manage the cef directory.
 ##
-
-# Validate the branch value.
-if options.branch != 'trunk' and not options.branch.isdigit():
-  raise Exception("Invalid branch value: %s" % (options.branch))
-cef_branch = options.branch
 
 cef_dir = os.path.join(download_dir, 'cef_' + cef_branch)
 
@@ -863,14 +887,22 @@ if not options.nobuild and (chromium_checkout_changed or \
   # Building should also force a distribution.
   options.forcedistrib = True
 
-  # Run the cef_create_projects script to generate Ninja project files.
+  # Set GYP environment variables.
   os.environ['GYP_GENERATORS'] = 'ninja'
-  if options.x64build:
+  if gyp_needs_target_arch_x64:
     if 'GYP_DEFINES' in os.environ.keys():
       os.environ['GYP_DEFINES'] = os.environ['GYP_DEFINES'] + ' ' + \
                                   'target_arch=x64'
     else:
       os.environ['GYP_DEFINES'] = 'target_arch=x64'
+
+  # Print all build-related environment variables including any that were set
+  # previously.
+  for key in os.environ.keys():
+    if key.startswith('GYP_') or key.startswith('DEPOT_TOOLS_'):
+      msg('%s=%s' % (key, os.environ[key]))
+
+  # Run the cef_create_projects script to generate project files.
   path = os.path.join(cef_src_dir, 'cef_create_projects'+script_ext)
   run(path, cef_src_dir, depot_tools_dir)
 
