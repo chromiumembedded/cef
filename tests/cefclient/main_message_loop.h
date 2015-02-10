@@ -4,6 +4,7 @@
 
 #ifndef CEF_TESTS_CEFCLIENT_MAIN_MESSAGE_LOOP_H_
 #define CEF_TESTS_CEFCLIENT_MAIN_MESSAGE_LOOP_H_
+#pragma once
 
 #include "include/base/cef_bind.h"
 #include "include/base/cef_scoped_ptr.h"
@@ -48,14 +49,6 @@ class MainMessageLoop {
   // Post a closure for execution on the main message loop.
   void PostClosure(const base::Closure& closure);
 
-  // Used in combination with DeleteOnMainThread to delete |object| on the
-  // correct thread.
-  template<class T>
-  void DeleteSoon(const T* object) {
-    // Execute DeleteHelper on the main thread.
-    PostClosure(base::Bind(&MainMessageLoop::DeleteHelper, object));
-  }
-
  protected:
   // Only allow deletion via scoped_ptr.
   friend struct base::DefaultDeleter<MainMessageLoop>;
@@ -64,12 +57,6 @@ class MainMessageLoop {
   virtual ~MainMessageLoop();
 
  private:
-  // Helper for deleting |object|.
-  template<class T>
-  static void DeleteHelper(const T* object) {
-    delete object;
-  }
-
   DISALLOW_COPY_AND_ASSIGN(MainMessageLoop);
 };
 
@@ -110,7 +97,8 @@ struct DeleteOnMainThread {
     if (CURRENTLY_ON_MAIN_THREAD()) {
       delete x;
     } else {
-      client::MainMessageLoop::Get()->DeleteSoon(x);
+      client::MainMessageLoop::Get()->PostClosure(
+          base::Bind(&DeleteOnMainThread::Destruct<T>, x));
     }
   }
 };
