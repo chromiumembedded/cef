@@ -187,6 +187,12 @@ class ClientHandler : public CefClient,
   void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
                            const CefString& url,
                            bool& allow_os_execution) OVERRIDE;
+  bool OnCertificateError(
+      CefRefPtr<CefBrowser> browser,
+      ErrorCode cert_error,
+      const CefString& request_url,
+      CefRefPtr<CefSSLInfo> ssl_info,
+      CefRefPtr<CefAllowCertificateErrorCallback> callback) OVERRIDE;
   void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
                                  TerminationStatus status) OVERRIDE;
 

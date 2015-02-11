@@ -59,6 +59,8 @@
 #include "libcef_dll/cpptoc/print_settings_cpptoc.h"
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
 #include "libcef_dll/cpptoc/quota_callback_cpptoc.h"
+#include "libcef_dll/cpptoc/sslcert_principal_cpptoc.h"
+#include "libcef_dll/cpptoc/sslinfo_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_registrar_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_writer_cpptoc.h"
@@ -244,6 +246,8 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefResourceHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefRunFileDialogCallbackCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefSSLCertPrincipalCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefSSLInfoCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefSchemeHandlerFactoryCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefSchemeRegistrarCppToC::DebugObjCt));
@@ -637,6 +641,78 @@ CEF_EXPORT void cef_get_extensions_for_mime_type(const cef_string_t* mime_type,
   // Restore param: extensions; type: string_vec_byref
   cef_string_list_clear(extensions);
   transfer_string_list_contents(extensionsList, extensions);
+}
+
+CEF_EXPORT cef_string_userfree_t cef_base64encode(const void* data,
+    size_t data_size) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: data; type: simple_byaddr
+  DCHECK(data);
+  if (!data)
+    return NULL;
+
+  // Execute
+  CefString _retval = CefBase64Encode(
+      data,
+      data_size);
+
+  // Return type: string
+  return _retval.DetachToUserFree();
+}
+
+CEF_EXPORT struct _cef_binary_value_t* cef_base64decode(
+    const cef_string_t* data) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: data; type: string_byref_const
+  DCHECK(data);
+  if (!data)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefBinaryValue> _retval = CefBase64Decode(
+      CefString(data));
+
+  // Return type: refptr_same
+  return CefBinaryValueCppToC::Wrap(_retval);
+}
+
+CEF_EXPORT cef_string_userfree_t cef_uriencode(const cef_string_t* text,
+    int use_plus) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: text; type: string_byref_const
+  DCHECK(text);
+  if (!text)
+    return NULL;
+
+  // Execute
+  CefString _retval = CefURIEncode(
+      CefString(text),
+      use_plus?true:false);
+
+  // Return type: string
+  return _retval.DetachToUserFree();
+}
+
+CEF_EXPORT cef_string_userfree_t cef_uridecode(const cef_string_t* text,
+    int convert_to_utf8, cef_uri_unescape_rule_t unescape_rule) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: text; type: string_byref_const
+  DCHECK(text);
+  if (!text)
+    return NULL;
+
+  // Execute
+  CefString _retval = CefURIDecode(
+      CefString(text),
+      convert_to_utf8?true:false,
+      unescape_rule);
+
+  // Return type: string
+  return _retval.DetachToUserFree();
 }
 
 CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,

@@ -46,8 +46,7 @@ class ClientSchemeHandler : public CefResourceHandler {
               "<br/><img src=\"client://tests/logo.png\"><pre>";
 
       // Output a string representation of the request
-      std::string dump;
-      test_runner::DumpRequestContents(request, dump);
+      const std::string& dump = test_runner::DumpRequestContents(request);
       data_.append(dump);
 
       data_.append("</pre><br/>Try the test form:"

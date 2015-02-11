@@ -41,6 +41,7 @@
 #include <vector>
 
 #include "include/cef_base.h"
+#include "include/cef_values.h"
 
 ///
 // Parse the specified |url| into its component parts.
@@ -73,5 +74,42 @@ CefString CefGetMimeType(const CefString& extension);
 /*--cef()--*/
 void CefGetExtensionsForMimeType(const CefString& mime_type,
                                  std::vector<CefString>& extensions);
+
+///
+// Encodes |data| as a base64 string.
+///
+/*--cef()--*/
+CefString CefBase64Encode(const void* data, size_t data_size);
+
+///
+// Decodes the base64 encoded string |data|. The returned value will be NULL if
+// the decoding fails.
+///
+/*--cef()--*/
+CefRefPtr<CefBinaryValue> CefBase64Decode(const CefString& data);
+
+///
+// Escapes characters in |text| which are unsuitable for use as a query
+// parameter value. Everything except alphanumerics and -_.!~*'() will be
+// converted to "%XX". If |use_plus| is true spaces will change to "+". The
+// result is basically the same as encodeURIComponent in Javacript.
+///
+/*--cef()--*/
+CefString CefURIEncode(const CefString& text, bool use_plus);
+
+///
+// Unescapes |text| and returns the result. Unescaping consists of looking for
+// the exact pattern "%XX" where each X is a hex digit and converting to the
+// character with the numerical value of those digits (e.g. "i%20=%203%3b"
+// unescapes to "i = 3;"). If |convert_to_utf8| is true this function will
+// attempt to interpret the initial decoded result as UTF-8. If the result is
+// convertable into UTF-8 it will be returned as converted. Otherwise the
+// initial decoded result will be returned.  The |unescape_rule| parameter
+// supports further customization the decoding process.
+///
+/*--cef()--*/
+CefString CefURIDecode(const CefString& text,
+                       bool convert_to_utf8,
+                       cef_uri_unescape_rule_t unescape_rule);
 
 #endif  // CEF_INCLUDE_CEF_URL_H_

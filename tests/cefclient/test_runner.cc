@@ -4,6 +4,8 @@
 
 #include "cefclient/test_runner.h"
 
+#include <sstream>
+
 #include "include/base/cef_bind.h"
 #include "include/cef_task.h"
 #include "include/cef_trace.h"
@@ -318,7 +320,7 @@ void RunTest(CefRefPtr<CefBrowser> browser, int id) {
   }
 }
 
-void DumpRequestContents(CefRefPtr<CefRequest> request, std::string& str) {
+std::string DumpRequestContents(CefRefPtr<CefRequest> request) {
   std::stringstream ss;
 
   ss << "URL: " << std::string(request->GetURL());
@@ -365,7 +367,13 @@ void DumpRequestContents(CefRefPtr<CefRequest> request, std::string& str) {
     }
   }
 
-  str = ss.str();
+  return ss.str();
+}
+
+std::string GetDataURI(const std::string& data,
+                       const std::string& mime_type) {
+  return "data:" + mime_type + ";base64," +
+      CefURIEncode(CefBase64Encode(data.data(), data.size()), false).ToString();
 }
 
 CefRefPtr<CefResourceHandler> GetResourceHandler(
@@ -379,8 +387,7 @@ CefRefPtr<CefResourceHandler> GetResourceHandler(
     if (ParseTestUrl(url, &file_name, &mime_type)) {
       if (file_name == "request.html") {
         // Show the request contents.
-        std::string dump;
-        DumpRequestContents(request, dump);
+        const std::string& dump = DumpRequestContents(request);
         std::string str = "<html><body bgcolor=\"white\"><pre>" + dump +
                           "</pre></body></html>";
         CefRefPtr<CefStreamReader> stream =

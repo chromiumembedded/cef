@@ -16,6 +16,7 @@
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/quota_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
+#include "libcef_dll/cpptoc/sslinfo_cpptoc.h"
 #include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
@@ -252,17 +253,26 @@ void CefRequestHandlerCToCpp::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
   allow_os_execution = allow_os_executionInt?true:false;
 }
 
-bool CefRequestHandlerCToCpp::OnCertificateError(cef_errorcode_t cert_error,
-    const CefString& request_url,
+bool CefRequestHandlerCToCpp::OnCertificateError(CefRefPtr<CefBrowser> browser,
+    cef_errorcode_t cert_error, const CefString& request_url,
+    CefRefPtr<CefSSLInfo> ssl_info,
     CefRefPtr<CefAllowCertificateErrorCallback> callback) {
   if (CEF_MEMBER_MISSING(struct_, on_certificate_error))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
   // Verify param: request_url; type: string_byref_const
   DCHECK(!request_url.empty());
   if (request_url.empty())
+    return false;
+  // Verify param: ssl_info; type: refptr_diff
+  DCHECK(ssl_info.get());
+  if (!ssl_info.get())
     return false;
   // Verify param: callback; type: refptr_diff
   DCHECK(callback.get());
@@ -271,8 +281,10 @@ bool CefRequestHandlerCToCpp::OnCertificateError(cef_errorcode_t cert_error,
 
   // Execute
   int _retval = struct_->on_certificate_error(struct_,
+      CefBrowserCppToC::Wrap(browser),
       cert_error,
       request_url.GetStruct(),
+      CefSSLInfoCppToC::Wrap(ssl_info),
       CefAllowCertificateErrorCallbackCppToC::Wrap(callback));
 
   // Return type: bool

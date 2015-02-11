@@ -19,8 +19,12 @@ namespace test_runner {
 // Run a test.
 void RunTest(CefRefPtr<CefBrowser> browser, int id);
 
-// Dump the contents of the request into a string.
-void DumpRequestContents(CefRefPtr<CefRequest> request, std::string& str);
+// Returns the contents of the CefRequest as a string.
+std::string DumpRequestContents(CefRefPtr<CefRequest> request);
+
+// Returns a data: URI with the specified contents.
+std::string GetDataURI(const std::string& data,
+                       const std::string& mime_type);
 
 // Get test resources.
 CefRefPtr<CefResourceHandler> GetResourceHandler(

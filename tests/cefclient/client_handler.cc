@@ -5,6 +5,7 @@
 #include "cefclient/client_handler.h"
 #include <stdio.h>
 #include <algorithm>
+#include <iomanip>
 #include <set>
 #include <sstream>
 #include <string>
@@ -51,6 +52,121 @@ enum client_menu_ids {
   CLIENT_ID_TESTMENU_RADIOITEM2,
   CLIENT_ID_TESTMENU_RADIOITEM3,
 };
+
+std::string GetTimeString(const CefTime& value) {
+  if (value.GetTimeT() == 0)
+    return "Unspecified";
+
+  static const char* kMonths[] = {
+    "January", "February", "March", "April", "May", "June", "July", "August",
+    "September", "October", "November", "December"
+  };
+  std::string month;
+  if (value.month >= 1 && value.month <= 12)
+    month = kMonths[value.month - 1];
+  else
+    month = "Invalid";
+
+  std::stringstream ss;
+  ss << month << " " << value.day_of_month << ", " << value.year << " " <<
+      std::setfill('0') << std::setw(2) << value.hour << ":" <<
+      std::setfill('0') << std::setw(2) << value.minute << ":" <<
+      std::setfill('0') << std::setw(2) << value.second;
+  return ss.str();
+}
+
+std::string GetBinaryString(CefRefPtr<CefBinaryValue> value) {
+  if (!value.get())
+    return "&nbsp;";
+
+  // Retrieve the value.
+  const size_t size = value->GetSize();
+  std::string src;
+  src.resize(size);
+  value->GetData(const_cast<char*>(src.data()), size, 0);
+
+  // Encode the value.
+  return CefBase64Encode(src.data(), src.size());
+}
+
+std::string GetErrorString(cef_errorcode_t code) {
+  // Case condition that returns |code| as a string.
+  #define CASE(code) case code: return #code
+
+  switch (code) {
+    CASE(ERR_NONE);
+    CASE(ERR_FAILED);
+    CASE(ERR_ABORTED);
+    CASE(ERR_INVALID_ARGUMENT);
+    CASE(ERR_INVALID_HANDLE);
+    CASE(ERR_FILE_NOT_FOUND);
+    CASE(ERR_TIMED_OUT);
+    CASE(ERR_FILE_TOO_BIG);
+    CASE(ERR_UNEXPECTED);
+    CASE(ERR_ACCESS_DENIED);
+    CASE(ERR_NOT_IMPLEMENTED);
+    CASE(ERR_CONNECTION_CLOSED);
+    CASE(ERR_CONNECTION_RESET);
+    CASE(ERR_CONNECTION_REFUSED);
+    CASE(ERR_CONNECTION_ABORTED);
+    CASE(ERR_CONNECTION_FAILED);
+    CASE(ERR_NAME_NOT_RESOLVED);
+    CASE(ERR_INTERNET_DISCONNECTED);
+    CASE(ERR_SSL_PROTOCOL_ERROR);
+    CASE(ERR_ADDRESS_INVALID);
+    CASE(ERR_ADDRESS_UNREACHABLE);
+    CASE(ERR_SSL_CLIENT_AUTH_CERT_NEEDED);
+    CASE(ERR_TUNNEL_CONNECTION_FAILED);
+    CASE(ERR_NO_SSL_VERSIONS_ENABLED);
+    CASE(ERR_SSL_VERSION_OR_CIPHER_MISMATCH);
+    CASE(ERR_SSL_RENEGOTIATION_REQUESTED);
+    CASE(ERR_CERT_COMMON_NAME_INVALID);
+    CASE(ERR_CERT_DATE_INVALID);
+    CASE(ERR_CERT_AUTHORITY_INVALID);
+    CASE(ERR_CERT_CONTAINS_ERRORS);
+    CASE(ERR_CERT_NO_REVOCATION_MECHANISM);
+    CASE(ERR_CERT_UNABLE_TO_CHECK_REVOCATION);
+    CASE(ERR_CERT_REVOKED);
+    CASE(ERR_CERT_INVALID);
+    CASE(ERR_CERT_END);
+    CASE(ERR_INVALID_URL);
+    CASE(ERR_DISALLOWED_URL_SCHEME);
+    CASE(ERR_UNKNOWN_URL_SCHEME);
+    CASE(ERR_TOO_MANY_REDIRECTS);
+    CASE(ERR_UNSAFE_REDIRECT);
+    CASE(ERR_UNSAFE_PORT);
+    CASE(ERR_INVALID_RESPONSE);
+    CASE(ERR_INVALID_CHUNKED_ENCODING);
+    CASE(ERR_METHOD_NOT_SUPPORTED);
+    CASE(ERR_UNEXPECTED_PROXY_AUTH);
+    CASE(ERR_EMPTY_RESPONSE);
+    CASE(ERR_RESPONSE_HEADERS_TOO_BIG);
+    CASE(ERR_CACHE_MISS);
+    CASE(ERR_INSECURE_RESPONSE);
+    default:
+      return "UNKNOWN";
+  }
+}
+
+// Load a data: URI containing the error message.
+void LoadErrorPage(CefRefPtr<CefFrame> frame,
+                   const std::string& failed_url,
+                   cef_errorcode_t error_code,
+                   const std::string& other_info) {
+  std::stringstream ss;
+  ss << "<html><head><title>Page failed to load</title></head>"
+        "<body bgcolor=\"white\">"
+        "<h3>Page failed to load.</h3>"
+        "URL: <a href=\"" << failed_url << "\">"<< failed_url << "</a>"
+        "<br/>Error: " << GetErrorString(error_code) <<
+        " (" << error_code << ")";
+
+  if (!other_info.empty())
+    ss << "<br/>" << other_info;
+
+  ss << "</body></html>";
+  frame->LoadURL(test_runner::GetDataURI(ss.str(), "text/html"));
+}
 
 }  // namespace
 
@@ -401,13 +517,8 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
       return;
   }
 
-  // Display a load error message.
-  std::stringstream ss;
-  ss << "<html><body bgcolor=\"white\">"
-        "<h2>Failed to load URL " << std::string(failedUrl) <<
-        " with error " << std::string(errorText) << " (" << errorCode <<
-        ").</h2></body></html>";
-  frame->LoadString(ss.str(), failedUrl);
+  // Load the error page.
+  LoadErrorPage(frame, failedUrl, errorCode, errorText);
 }
 
 bool ClientHandler::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
@@ -451,6 +562,47 @@ void ClientHandler::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
   // Allow OS execution of Spotify URIs.
   if (urlStr.find("spotify:") == 0)
     allow_os_execution = true;
+}
+
+bool ClientHandler::OnCertificateError(
+    CefRefPtr<CefBrowser> browser,
+    ErrorCode cert_error,
+    const CefString& request_url,
+    CefRefPtr<CefSSLInfo> ssl_info,
+    CefRefPtr<CefAllowCertificateErrorCallback> callback) {
+  CEF_REQUIRE_UI_THREAD();
+
+  CefRefPtr<CefSSLCertPrincipal> subject = ssl_info->GetSubject();
+  CefRefPtr<CefSSLCertPrincipal> issuer = ssl_info->GetIssuer();
+
+  // Build a table showing certificate information.
+  std::stringstream ss;
+  ss << "X.509 Certificate Information:"
+        "<table border=1><tr><th>Field</th><th>Value</th></tr>" <<
+        "<tr><td>Subject</td><td>" <<
+            (subject.get() ? subject->GetDisplayName().ToString() : "&nbsp;") <<
+            "</td></tr>"
+        "<tr><td>Issuer</td><td>" <<
+            (issuer.get() ? issuer->GetDisplayName().ToString() : "&nbsp;") <<
+            "</td></tr>"
+        "<tr><td>Serial #*</td><td>" <<
+            GetBinaryString(ssl_info->GetSerialNumber()) << "</td></tr>"
+        "<tr><td>Valid Start</td><td>" <<
+            GetTimeString(ssl_info->GetValidStart()) << "</td></tr>"
+        "<tr><td>Valid Expiry</td><td>" <<
+            GetTimeString(ssl_info->GetValidExpiry()) << "</td></tr>"
+        "<tr><td>DER Encoded*</td>"
+        "<td style=\"max-width:800px;overflow:scroll;\">" <<
+            GetBinaryString(ssl_info->GetDEREncoded()) << "</td></tr>"
+        "<tr><td>PEM Encoded*</td>"
+        "<td style=\"max-width:800px;overflow:scroll;\">" <<
+            GetBinaryString(ssl_info->GetPEMEncoded()) << "</td></tr>"
+        "</table> * Displayed value is base64 encoded.";
+
+  // Load the error page.
+  LoadErrorPage(browser->GetMainFrame(), request_url, cert_error, ss.str());
+
+  return false;  // Cancel the request.
 }
 
 void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
