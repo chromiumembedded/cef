@@ -447,8 +447,9 @@ typedef struct _cef_browser_settings_t {
   ///
   // Controls whether JavaScript can be used to close windows that were not
   // opened via JavaScript. JavaScript can still be used to close windows that
-  // were opened via JavaScript. Also configurable using the
-  // "disable-javascript-close-windows" command-line switch.
+  // were opened via JavaScript or that have no back/forward history. Also
+  // configurable using the "disable-javascript-close-windows" command-line
+  // switch.
   ///
   cef_state_t javascript_close_windows;
 
