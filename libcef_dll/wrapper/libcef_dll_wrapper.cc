@@ -97,6 +97,8 @@
 #include "libcef_dll/ctocpp/print_settings_ctocpp.h"
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
 #include "libcef_dll/ctocpp/quota_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/sslcert_principal_ctocpp.h"
+#include "libcef_dll/ctocpp/sslinfo_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_registrar_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
@@ -236,6 +238,8 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefResourceHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefRunFileDialogCallbackCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefSSLCertPrincipalCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefSSLInfoCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefSchemeHandlerFactoryCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefSchemeRegistrarCToCpp::DebugObjCt));
@@ -591,6 +595,81 @@ CEF_GLOBAL void CefGetExtensionsForMimeType(const CefString& mime_type,
     transfer_string_list_contents(extensionsList, extensions);
     cef_string_list_free(extensionsList);
   }
+}
+
+CEF_GLOBAL CefString CefBase64Encode(const void* data, size_t data_size) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: data; type: simple_byaddr
+  DCHECK(data);
+  if (!data)
+    return CefString();
+
+  // Execute
+  cef_string_userfree_t _retval = cef_base64encode(
+      data,
+      data_size);
+
+  // Return type: string
+  CefString _retvalStr;
+  _retvalStr.AttachToUserFree(_retval);
+  return _retvalStr;
+}
+
+CEF_GLOBAL CefRefPtr<CefBinaryValue> CefBase64Decode(const CefString& data) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: data; type: string_byref_const
+  DCHECK(!data.empty());
+  if (data.empty())
+    return NULL;
+
+  // Execute
+  cef_binary_value_t* _retval = cef_base64decode(
+      data.GetStruct());
+
+  // Return type: refptr_same
+  return CefBinaryValueCToCpp::Wrap(_retval);
+}
+
+CEF_GLOBAL CefString CefURIEncode(const CefString& text, bool use_plus) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: text; type: string_byref_const
+  DCHECK(!text.empty());
+  if (text.empty())
+    return CefString();
+
+  // Execute
+  cef_string_userfree_t _retval = cef_uriencode(
+      text.GetStruct(),
+      use_plus);
+
+  // Return type: string
+  CefString _retvalStr;
+  _retvalStr.AttachToUserFree(_retval);
+  return _retvalStr;
+}
+
+CEF_GLOBAL CefString CefURIDecode(const CefString& text, bool convert_to_utf8,
+    cef_uri_unescape_rule_t unescape_rule) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: text; type: string_byref_const
+  DCHECK(!text.empty());
+  if (text.empty())
+    return CefString();
+
+  // Execute
+  cef_string_userfree_t _retval = cef_uridecode(
+      text.GetStruct(),
+      convert_to_utf8,
+      unescape_rule);
+
+  // Return type: string
+  CefString _retvalStr;
+  _retvalStr.AttachToUserFree(_retval);
+  return _retvalStr;
 }
 
 CEF_GLOBAL bool CefRegisterExtension(const CefString& extension_name,

@@ -45,6 +45,7 @@
 #include "include/cef_resource_handler.h"
 #include "include/cef_response.h"
 #include "include/cef_request.h"
+#include "include/cef_ssl_info.h"
 #include "include/cef_web_plugin.h"
 
 ///
@@ -206,8 +207,10 @@ class CefRequestHandler : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual bool OnCertificateError(
+      CefRefPtr<CefBrowser> browser,
       cef_errorcode_t cert_error,
       const CefString& request_url,
+      CefRefPtr<CefSSLInfo> ssl_info,
       CefRefPtr<CefAllowCertificateErrorCallback> callback) {
     return false;
   }

@@ -52,8 +52,9 @@ class CefRequestHandlerCToCpp
       CefRefPtr<CefQuotaCallback> callback) override;
   void OnProtocolExecution(CefRefPtr<CefBrowser> browser, const CefString& url,
       bool& allow_os_execution) override;
-  bool OnCertificateError(cef_errorcode_t cert_error,
-      const CefString& request_url,
+  bool OnCertificateError(CefRefPtr<CefBrowser> browser,
+      cef_errorcode_t cert_error, const CefString& request_url,
+      CefRefPtr<CefSSLInfo> ssl_info,
       CefRefPtr<CefAllowCertificateErrorCallback> callback) override;
   bool OnBeforePluginLoad(CefRefPtr<CefBrowser> browser, const CefString& url,
       const CefString& policy_url, CefRefPtr<CefWebPluginInfo> info) override;

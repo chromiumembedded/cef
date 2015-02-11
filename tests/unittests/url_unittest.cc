@@ -231,3 +231,46 @@ TEST(URLTest, GetMimeType) {
   mime_type = CefGetMimeType("gif");
   EXPECT_STREQ("image/gif", mime_type.ToString().c_str());
 }
+
+TEST(URLTest, Base64Encode) {
+  const std::string& test_str_decoded = "A test string";
+  const std::string& test_str_encoded = "QSB0ZXN0IHN0cmluZw==";
+  const CefString& encoded_value =
+      CefBase64Encode(test_str_decoded.data(), test_str_decoded.size());
+  EXPECT_STREQ(test_str_encoded.c_str(), encoded_value.ToString().c_str());
+}
+
+TEST(URLTest, Base64Decode) {
+  const std::string& test_str_decoded = "A test string";
+  const std::string& test_str_encoded = "QSB0ZXN0IHN0cmluZw==";
+  CefRefPtr<CefBinaryValue> decoded_value = CefBase64Decode(test_str_encoded);
+  EXPECT_TRUE(decoded_value.get());
+
+  const size_t decoded_size = decoded_value->GetSize();
+  EXPECT_EQ(test_str_decoded.size(), decoded_size);
+
+  std::string decoded_str;
+  decoded_str.resize(decoded_size + 1);  // Include space for NUL-terminator.
+  const size_t get_data_result =
+      decoded_value->GetData(const_cast<char*>(decoded_str.data()),
+                             decoded_size, 0);
+  EXPECT_EQ(decoded_size, get_data_result);
+  EXPECT_STREQ(test_str_decoded.c_str(), decoded_str.c_str());
+}
+
+TEST(URLTest, URIEncode) {
+  const std::string& test_str_decoded = "A test string=";
+  const std::string& test_str_encoded = "A%20test%20string%3D";
+  const CefString& encoded_value = CefURIEncode(test_str_decoded, false);
+  EXPECT_STREQ(test_str_encoded.c_str(), encoded_value.ToString().c_str());
+}
+
+TEST(URLTest, URIDecode) {
+  const std::string& test_str_decoded = "A test string=";
+  const std::string& test_str_encoded = "A%20test%20string%3D";
+  const CefString& decoded_value =
+      CefURIDecode(test_str_encoded, false,
+                   static_cast<cef_uri_unescape_rule_t>(
+                      UU_SPACES | UU_URL_SPECIAL_CHARS));
+  EXPECT_STREQ(test_str_decoded.c_str(), decoded_value.ToString().c_str());
+}

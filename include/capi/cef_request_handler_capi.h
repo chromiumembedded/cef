@@ -45,6 +45,7 @@
 #include "include/capi/cef_request_capi.h"
 #include "include/capi/cef_resource_handler_capi.h"
 #include "include/capi/cef_response_capi.h"
+#include "include/capi/cef_ssl_info_capi.h"
 #include "include/capi/cef_web_plugin_capi.h"
 
 #ifdef __cplusplus
@@ -191,7 +192,8 @@ typedef struct _cef_request_handler_t {
   // be accepted without calling this function.
   ///
   int (CEF_CALLBACK *on_certificate_error)(struct _cef_request_handler_t* self,
-      cef_errorcode_t cert_error, const cef_string_t* request_url,
+      struct _cef_browser_t* browser, cef_errorcode_t cert_error,
+      const cef_string_t* request_url, struct _cef_sslinfo_t* ssl_info,
       struct _cef_allow_certificate_error_callback_t* callback);
 
   ///

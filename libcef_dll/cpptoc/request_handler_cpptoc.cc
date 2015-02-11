@@ -18,6 +18,7 @@
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/quota_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/request_ctocpp.h"
+#include "libcef_dll/ctocpp/sslinfo_ctocpp.h"
 #include "libcef_dll/ctocpp/web_plugin_info_ctocpp.h"
 
 
@@ -271,17 +272,26 @@ void CEF_CALLBACK request_handler_on_protocol_execution(
 }
 
 int CEF_CALLBACK request_handler_on_certificate_error(
-    struct _cef_request_handler_t* self, cef_errorcode_t cert_error,
-    const cef_string_t* request_url,
+    struct _cef_request_handler_t* self, cef_browser_t* browser,
+    cef_errorcode_t cert_error, const cef_string_t* request_url,
+    struct _cef_sslinfo_t* ssl_info,
     cef_allow_certificate_error_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
     return 0;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return 0;
   // Verify param: request_url; type: string_byref_const
   DCHECK(request_url);
   if (!request_url)
+    return 0;
+  // Verify param: ssl_info; type: refptr_diff
+  DCHECK(ssl_info);
+  if (!ssl_info)
     return 0;
   // Verify param: callback; type: refptr_diff
   DCHECK(callback);
@@ -290,8 +300,10 @@ int CEF_CALLBACK request_handler_on_certificate_error(
 
   // Execute
   bool _retval = CefRequestHandlerCppToC::Get(self)->OnCertificateError(
+      CefBrowserCToCpp::Wrap(browser),
       cert_error,
       CefString(request_url),
+      CefSSLInfoCToCpp::Wrap(ssl_info),
       CefAllowCertificateErrorCallbackCToCpp::Wrap(callback));
 
   // Return type: bool

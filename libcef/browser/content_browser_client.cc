@@ -20,6 +20,7 @@
 #include "libcef/browser/printing/printing_message_filter.h"
 #include "libcef/browser/resource_dispatcher_host_delegate.h"
 #include "libcef/browser/speech_recognition_manager_delegate.h"
+#include "libcef/browser/ssl_info_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/web_plugin_impl.h"
 #include "libcef/common/cef_switches.h"
@@ -774,13 +775,15 @@ void CefContentBrowserClient::AllowCertificateError(
   if (!handler.get())
     return;
 
+  CefRefPtr<CefSSLInfo> cef_ssl_info = new CefSSLInfoImpl(ssl_info);
+
   CefRefPtr<CefAllowCertificateErrorCallbackImpl> callbackImpl;
   if (overridable && !strict_enforcement)
     callbackImpl = new CefAllowCertificateErrorCallbackImpl(callback);
 
   bool proceed = handler->OnCertificateError(
-      static_cast<cef_errorcode_t>(cert_error), request_url.spec(),
-      callbackImpl.get());
+      browser.get(), static_cast<cef_errorcode_t>(cert_error),
+      request_url.spec(), cef_ssl_info, callbackImpl.get());
   if (!proceed && callbackImpl.get())
     callbackImpl->Disconnect();
 

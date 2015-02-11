@@ -4,6 +4,9 @@
 
 #include <sstream>
 #include "include/cef_url.h"
+
+#include "base/base64.h"
+#include "net/base/escape.h"
 #include "net/base/mime_util.h"
 #include "url/gurl.h"
 
@@ -85,3 +88,39 @@ void CefGetExtensionsForMimeType(const CefString& mime_type,
     extensions.push_back(*it);
 }
 
+CefString CefBase64Encode(const void* data, size_t data_size) {
+  if (data_size == 0)
+    return CefString();
+
+  base::StringPiece input;
+  input.set(static_cast<const char*>(data), data_size);
+  std::string output;
+  base::Base64Encode(input, &output);
+  return output;
+}
+
+CefRefPtr<CefBinaryValue> CefBase64Decode(const CefString& data) {
+  if (data.size() == 0)
+    return NULL;
+
+  const std::string& input = data;
+  std::string output;
+  if (base::Base64Decode(input, &output))
+    return CefBinaryValue::Create(output.data(), output.size());
+  return NULL;
+}
+
+CefString CefURIEncode(const CefString& text, bool use_plus) {
+  return net::EscapeQueryParamValue(text, use_plus);
+}
+
+CefString CefURIDecode(const CefString& text,
+                       bool convert_to_utf8,
+                       cef_uri_unescape_rule_t unescape_rule) {
+  const net::UnescapeRule::Type type =
+      static_cast<net::UnescapeRule::Type>(unescape_rule);
+  if (convert_to_utf8)
+    return net::UnescapeAndDecodeUTF8URLComponent(text.ToString(), type);
+  else
+    return net::UnescapeURLComponent(text.ToString(), type);
+}
