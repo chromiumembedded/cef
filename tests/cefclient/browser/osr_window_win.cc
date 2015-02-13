@@ -82,12 +82,13 @@ void OsrWindowWin::CreateBrowser(HWND parent_hwnd,
                                  const RECT& rect,
                                  CefRefPtr<CefClient> handler,
                                  const CefBrowserSettings& settings,
+                                 CefRefPtr<CefRequestContext> request_context,
                                  const std::string& startup_url) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute this method on the UI thread.
     CefPostTask(TID_UI, base::Bind(&OsrWindowWin::CreateBrowser, this,
                                    parent_hwnd, rect, handler, settings,
-                                   startup_url));
+                                   request_context, startup_url));
     return;
   }
 
@@ -99,7 +100,7 @@ void OsrWindowWin::CreateBrowser(HWND parent_hwnd,
 
   // Create the browser asynchronously.
   CefBrowserHost::CreateBrowser(window_info, handler, startup_url, settings,
-                                NULL);
+                                request_context);
 }
 
 void OsrWindowWin::ShowPopup(HWND parent_hwnd,

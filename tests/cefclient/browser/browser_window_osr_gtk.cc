@@ -924,9 +924,11 @@ BrowserWindowOsrGtk::BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
   client_handler_ = new ClientHandlerOsr(this, this, startup_url);
 }
 
-void BrowserWindowOsrGtk::CreateBrowser(ClientWindowHandle parent_handle,
-                                        const CefRect& rect,
-                                        const CefBrowserSettings& settings) {
+void BrowserWindowOsrGtk::CreateBrowser(
+    ClientWindowHandle parent_handle,
+    const CefRect& rect,
+    const CefBrowserSettings& settings,
+    CefRefPtr<CefRequestContext> request_context) {
   REQUIRE_MAIN_THREAD();
 
   // Create the native window.
@@ -944,7 +946,7 @@ void BrowserWindowOsrGtk::CreateBrowser(ClientWindowHandle parent_handle,
   // Create the browser asynchronously.
   CefBrowserHost::CreateBrowser(window_info, client_handler_,
                                 client_handler_->startup_url(),
-                                settings, NULL);
+                                settings, request_context);
 }
 
 void BrowserWindowOsrGtk::GetPopupConfig(CefWindowHandle temp_handle,

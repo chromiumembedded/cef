@@ -7,64 +7,19 @@
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/download_manager_delegate.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/browser/url_request_context_getter.h"
 #include "libcef/browser/url_request_context_getter_proxy.h"
 
-#include "base/bind.h"
 #include "base/logging.h"
-#include "base/threading/thread.h"
-#include "components/keyed_service/content/browser_context_dependency_manager.h"
-#include "content/public/browser/browser_thread.h"
-#include "content/public/browser/resource_context.h"
 #include "content/public/browser/storage_partition.h"
-
-using content::BrowserThread;
-
-class CefBrowserContextProxy::CefResourceContext :
-    public content::ResourceContext {
- public:
-  CefResourceContext() : getter_(NULL) {}
-
-  // ResourceContext implementation:
-  net::HostResolver* GetHostResolver() override {
-    CHECK(getter_);
-    return getter_->GetHostResolver();
-  }
-  net::URLRequestContext* GetRequestContext() override {
-    CHECK(getter_);
-    return getter_->GetURLRequestContext();
-  }
-
-  void set_url_request_context_getter(CefURLRequestContextGetterProxy* getter) {
-    getter_ = getter;
-  }
-
- private:
-  CefURLRequestContextGetterProxy* getter_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefResourceContext);
-};
 
 CefBrowserContextProxy::CefBrowserContextProxy(
     CefRefPtr<CefRequestContextHandler> handler,
-    CefBrowserContext* parent)
-    : refct_(0),
-      handler_(handler),
-      parent_(parent),
-      resource_context_(new CefResourceContext) {
-  BrowserContextDependencyManager::GetInstance()->CreateBrowserContextServices(
-      this);
+    scoped_refptr<CefBrowserContextImpl> parent)
+    : handler_(handler),
+      parent_(parent) {
 }
 
 CefBrowserContextProxy::~CefBrowserContextProxy() {
-  if (resource_context_.get()) {
-    BrowserThread::DeleteSoon(
-        BrowserThread::IO, FROM_HERE, resource_context_.release());
-  }
-
-  // Remove any BrowserContextKeyedServiceFactory associations.
-  BrowserContextDependencyManager::GetInstance()->DestroyBrowserContextServices(
-      this);
 }
 
 base::FilePath CefBrowserContextProxy::GetPath() const {
@@ -119,10 +74,6 @@ net::URLRequestContextGetter*
   return GetRequestContext();
 }
 
-content::ResourceContext* CefBrowserContextProxy::GetResourceContext() {
-  return resource_context_.get();
-}
-
 content::BrowserPluginGuestManager* CefBrowserContextProxy::GetGuestManager() {
   return parent_->GetGuestManager();
 }
@@ -148,9 +99,8 @@ net::URLRequestContextGetter* CefBrowserContextProxy::CreateRequestContext(
   DCHECK(!url_request_getter_.get());
   url_request_getter_ =
       new CefURLRequestContextGetterProxy(handler_,
-          static_cast<CefURLRequestContextGetter*>(
-              CefContentBrowserClient::Get()->request_context().get()));
-  resource_context_->set_url_request_context_getter(url_request_getter_.get());
+          CefContentBrowserClient::Get()->request_context().get());
+  resource_context()->set_url_request_context_getter(url_request_getter_.get());
   return url_request_getter_.get();
 }
 

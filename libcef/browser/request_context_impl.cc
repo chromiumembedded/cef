@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "libcef/browser/request_context_impl.h"
+#include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/browser_context_proxy.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
@@ -11,11 +12,6 @@
 #include "base/logging.h"
 
 namespace {
-
-void RemoveContextRef(CefBrowserContext* browser_context) {
-  CefContentBrowserClient::Get()->RemoveBrowserContextReference(
-      browser_context);
-}
 
 base::StaticAtomicSequenceNumber g_next_id;
 
@@ -31,7 +27,7 @@ CefRefPtr<CefRequestContext> CefRequestContext::GetGlobalContext() {
   }
 
   return new CefRequestContextImpl(
-      CefContentBrowserClient::Get()->browser_context());
+      CefContentBrowserClient::Get()->browser_context().get());
 }
 
 CefRefPtr<CefRequestContext> CefRequestContext::CreateContext(
@@ -48,40 +44,33 @@ CefRefPtr<CefRequestContext> CefRequestContext::CreateContext(
 // CefBrowserContextImpl
 
 CefRequestContextImpl::CefRequestContextImpl(
-    CefBrowserContext* browser_context)
+    scoped_refptr<CefBrowserContext> browser_context)
     : browser_context_(browser_context),
       unique_id_(0) {
-  DCHECK(browser_context);
+  DCHECK(browser_context.get());
   if (!IsGlobal()) {
     CEF_REQUIRE_UIT();
-    CefBrowserContextProxy* proxy =
-        static_cast<CefBrowserContextProxy*>(browser_context);
+    scoped_refptr<CefBrowserContextProxy> proxy =
+        static_cast<CefBrowserContextProxy*>(browser_context.get());
     handler_ = proxy->handler();
-    CefContentBrowserClient::Get()->AddBrowserContextReference(browser_context);
   }
 }
 
 CefRequestContextImpl::CefRequestContextImpl(
     CefRefPtr<CefRequestContextHandler> handler)
-    : browser_context_(NULL),
-      handler_(handler),
+    : handler_(handler),
       unique_id_(g_next_id.GetNext()) {
 }
 
 CefRequestContextImpl::~CefRequestContextImpl() {
-  if (browser_context_) {
-    if (CEF_CURRENTLY_ON_UIT())
-      RemoveContextRef(browser_context_);
-    else
-      CEF_POST_TASK(CEF_UIT, base::Bind(RemoveContextRef, browser_context_));
-  }
 }
 
-CefBrowserContext* CefRequestContextImpl::GetOrCreateBrowserContext() {
+scoped_refptr<CefBrowserContext>
+CefRequestContextImpl::GetOrCreateBrowserContext() {
   CEF_REQUIRE_UIT();
   if (!browser_context_) {
-    browser_context_ =
-        CefContentBrowserClient::Get()->CreateBrowserContextProxy(handler_);
+    browser_context_ = new CefBrowserContextProxy(
+        handler_, CefContentBrowserClient::Get()->browser_context());
   }
   return browser_context_;
 }

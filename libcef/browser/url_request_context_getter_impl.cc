@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "libcef/browser/url_request_context_getter.h"
+#include "libcef/browser/url_request_context_getter_impl.h"
 
 #if defined(OS_WIN)
 #include <winhttp.h>
@@ -15,7 +15,6 @@
 #include "libcef/browser/scheme_handler.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_network_delegate.h"
-#include "libcef/browser/url_request_context_proxy.h"
 #include "libcef/browser/url_request_interceptor.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/content_client.h"
@@ -98,7 +97,7 @@ class CefHttpUserAgentSettings : public net::HttpUserAgentSettings {
 
 }  // namespace
 
-CefURLRequestContextGetter::CefURLRequestContextGetter(
+CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
     base::MessageLoop* io_loop,
     base::MessageLoop* file_loop,
     content::ProtocolHandlerMap* protocol_handlers,
@@ -112,9 +111,8 @@ CefURLRequestContextGetter::CefURLRequestContextGetter(
   std::swap(protocol_handlers_, *protocol_handlers);
 }
 
-CefURLRequestContextGetter::~CefURLRequestContextGetter() {
+CefURLRequestContextGetterImpl::~CefURLRequestContextGetterImpl() {
   CEF_REQUIRE_IOT();
-  STLDeleteElements(&url_request_context_proxies_);
 
   // Delete the ProxyService object here so that any pending requests will be
   // canceled before the associated URLRequestContext is destroyed in this
@@ -122,7 +120,7 @@ CefURLRequestContextGetter::~CefURLRequestContextGetter() {
   storage_->set_proxy_service(NULL);
 }
 
-net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
+net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
   CEF_REQUIRE_IOT();
 
   if (!url_request_context_.get()) {
@@ -131,7 +129,7 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
         base::CommandLine::ForCurrentProcess();
     const CefSettings& settings = CefContext::Get()->settings();
 
-    url_request_context_.reset(new net::URLRequestContext());
+    url_request_context_.reset(new CefURLRequestContextImpl());
     storage_.reset(
         new net::URLRequestContextStorage(url_request_context_.get()));
 
@@ -262,15 +260,15 @@ net::URLRequestContext* CefURLRequestContextGetter::GetURLRequestContext() {
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
-    CefURLRequestContextGetter::GetNetworkTaskRunner() const {
+    CefURLRequestContextGetterImpl::GetNetworkTaskRunner() const {
   return BrowserThread::GetMessageLoopProxyForThread(CEF_IOT);
 }
 
-net::HostResolver* CefURLRequestContextGetter::host_resolver() {
+net::HostResolver* CefURLRequestContextGetterImpl::GetHostResolver() const {
   return url_request_context_->host_resolver();
 }
 
-void CefURLRequestContextGetter::SetCookieStoragePath(
+void CefURLRequestContextGetterImpl::SetCookieStoragePath(
     const base::FilePath& path,
     bool persist_session_cookies) {
   CEF_REQUIRE_IOT();
@@ -317,7 +315,7 @@ void CefURLRequestContextGetter::SetCookieStoragePath(
   SetCookieSupportedSchemes(cookie_supported_schemes_);
 }
 
-void CefURLRequestContextGetter::SetCookieSupportedSchemes(
+void CefURLRequestContextGetterImpl::SetCookieSupportedSchemes(
     const std::vector<std::string>& schemes) {
   CEF_REQUIRE_IOT();
 
@@ -345,52 +343,7 @@ void CefURLRequestContextGetter::SetCookieSupportedSchemes(
   delete [] arr;
 }
 
-CefURLRequestContextProxy*
-    CefURLRequestContextGetter::CreateURLRequestContextProxy() {
-  CEF_REQUIRE_IOT();
-  CefURLRequestContextProxy* proxy = new CefURLRequestContextProxy(this);
-  url_request_context_proxies_.insert(proxy);
-  return proxy;
-}
-
-void CefURLRequestContextGetter::ReleaseURLRequestContextProxy(
-    CefURLRequestContextProxy* proxy) {
-  CEF_REQUIRE_IOT();
-
-  // Don't do anything if we're currently shutting down. The proxy objects will
-  // be deleted when this object is destroyed.
-  if (CefContext::Get()->shutting_down())
-    return;
-
-  if (proxy->url_requests()->size() == 0) {
-    // Safe to delete the proxy.
-    RequestContextProxySet::iterator it =
-        url_request_context_proxies_.find(proxy);
-    DCHECK(it != url_request_context_proxies_.end());
-    url_request_context_proxies_.erase(it);
-    delete proxy;
-  } else {
-    proxy->increment_delete_try_count();
-    if (proxy->delete_try_count() <= 1) {
-      // Cancel the pending requests. This may result in additional tasks being
-      // posted on the IO thread.
-      std::set<const net::URLRequest*>::iterator it =
-          proxy->url_requests()->begin();
-      for (; it != proxy->url_requests()->end(); ++it)
-        const_cast<net::URLRequest*>(*it)->Cancel();
-
-      // Try to delete the proxy again later.
-      CEF_POST_TASK(CEF_IOT,
-          base::Bind(&CefURLRequestContextGetter::ReleaseURLRequestContextProxy,
-                     this, proxy));
-    } else {
-      NOTREACHED() <<
-          "too many retries to delete URLRequestContext proxy object";
-    }
-  }
-}
-
-void CefURLRequestContextGetter::CreateProxyConfigService() {
+void CefURLRequestContextGetterImpl::CreateProxyConfigService() {
   if (proxy_config_service_.get())
     return;
 

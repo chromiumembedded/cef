@@ -7,21 +7,21 @@
 #pragma once
 
 #include "include/cef_request_context_handler.h"
+#include "libcef/browser/url_request_context_getter.h"
+#include "libcef/browser/url_request_context_getter_impl.h"
 
 #include "base/memory/scoped_ptr.h"
-#include "net/url_request/url_request_context_getter.h"
 
-class CefURLRequestContextGetter;
 class CefURLRequestContextProxy;
 
-namespace net {
-class HostResolver;
-}
-
-class CefURLRequestContextGetterProxy : public net::URLRequestContextGetter {
+// URLRequestContextGetter implementation for a particular CefRequestContext.
+// Life span is primarily controlled by CefResourceContext. Only accessed on the
+// IO thread. See browser_context.h for an object relationship diagram.
+class CefURLRequestContextGetterProxy : public CefURLRequestContextGetter {
  public:
-  CefURLRequestContextGetterProxy(CefRefPtr<CefRequestContextHandler> handler,
-                                  CefURLRequestContextGetter* parent);
+  CefURLRequestContextGetterProxy(
+      CefRefPtr<CefRequestContextHandler> handler,
+      scoped_refptr<CefURLRequestContextGetterImpl> parent);
   ~CefURLRequestContextGetterProxy() override;
 
   // net::URLRequestContextGetter implementation.
@@ -29,16 +29,20 @@ class CefURLRequestContextGetterProxy : public net::URLRequestContextGetter {
   scoped_refptr<base::SingleThreadTaskRunner>
       GetNetworkTaskRunner() const override;
 
-  net::HostResolver* GetHostResolver() const;
+  // CefURLRequestContextGetter implementation.
+  net::HostResolver* GetHostResolver() const override;
 
   CefRefPtr<CefRequestContextHandler> handler() const { return handler_; }
 
  private:
   CefRefPtr<CefRequestContextHandler> handler_;
-  scoped_refptr<CefURLRequestContextGetter> parent_;
 
-  // The |context_proxy_| object is owned by |parent_|.
-  CefURLRequestContextProxy* context_proxy_;
+  // The CefURLRequestContextImpl owned by |parent_| is passed as a raw pointer
+  // to CefURLRequestContextProxy and CefCookieStoreProxy. This reference is
+  // necessary to keep it alive.
+  scoped_refptr<CefURLRequestContextGetterImpl> parent_;
+
+  scoped_ptr<CefURLRequestContextProxy> context_proxy_;
 
   DISALLOW_COPY_AND_ASSIGN(CefURLRequestContextGetterProxy);
 };

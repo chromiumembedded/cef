@@ -7,6 +7,8 @@
 #pragma once
 
 #include "libcef/browser/browser_pref_store.h"
+#include "libcef/browser/browser_context_impl.h"
+#include "libcef/browser/url_request_context_getter_impl.h"
 
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
@@ -27,7 +29,6 @@ namespace content {
 struct MainFunctionParams;
 }
 
-class CefBrowserContext;
 class CefDevToolsDelegate;
 
 class CefBrowserMainParts : public content::BrowserMainParts {
@@ -44,10 +45,10 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   void PostMainMessageLoopRun() override;
   void PostDestroyThreads() override;
 
-  CefBrowserContext* browser_context() const {
-    return global_browser_context_.get();
+  scoped_refptr<CefBrowserContextImpl> browser_context() const {
+    return global_browser_context_;
   }
-  scoped_refptr<net::URLRequestContextGetter> request_context() const {
+  scoped_refptr<CefURLRequestContextGetterImpl> request_context() const {
     return global_request_context_;
   }
   CefDevToolsDelegate* devtools_delegate() const {
@@ -58,16 +59,12 @@ class CefBrowserMainParts : public content::BrowserMainParts {
     return proxy_config_service_.Pass();
   }
 
-  void AddBrowserContext(CefBrowserContext* context);
-  void RemoveBrowserContext(CefBrowserContext* context);
-
  private:
   void PlatformInitialize();
   void PlatformCleanup();
 
-  scoped_ptr<CefBrowserContext> global_browser_context_;
-  scoped_refptr<net::URLRequestContextGetter> global_request_context_;
-  ScopedVector<CefBrowserContext> browser_contexts_;
+  scoped_refptr<CefBrowserContextImpl> global_browser_context_;
+  scoped_refptr<CefURLRequestContextGetterImpl> global_request_context_;
   CefDevToolsDelegate* devtools_delegate_;  // Deletes itself.
   scoped_ptr<base::MessageLoop> message_loop_;
   scoped_ptr<PrefProxyConfigTracker> pref_proxy_config_tracker_;

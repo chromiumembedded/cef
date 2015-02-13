@@ -8,6 +8,8 @@
 
 #include "libcef/browser/browser_context.h"
 
+#include "libcef/browser/url_request_context_getter_impl.h"
+
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
@@ -18,12 +20,13 @@ class SpeechRecognitionPreferences;
 }
 
 class CefDownloadManagerDelegate;
-class CefURLRequestContextGetter;
 
+// Global BrowserContext implementation. Life span is controlled by
+// CefRequestContextImpl and CefBrowserMainParts. Only accessed on the UI
+// thread. See browser_context.h for an object relationship diagram.
 class CefBrowserContextImpl : public CefBrowserContext {
  public:
   CefBrowserContextImpl();
-  ~CefBrowserContextImpl() override;
 
   // BrowserContext methods.
   base::FilePath GetPath() const override;
@@ -41,7 +44,6 @@ class CefBrowserContextImpl : public CefBrowserContext {
       GetMediaRequestContextForStoragePartition(
           const base::FilePath& partition_path,
           bool in_memory) override;
-  content::ResourceContext* GetResourceContext() override;
   content::BrowserPluginGuestManager* GetGuestManager() override;
   storage::SpecialStoragePolicy* GetSpecialStoragePolicy() override;
   content::PushMessagingService* GetPushMessagingService() override;
@@ -60,11 +62,15 @@ class CefBrowserContextImpl : public CefBrowserContext {
       override;
 
  private:
-  class CefResourceContext;
+  // Only allow deletion via scoped_refptr().
+  friend struct content::BrowserThread::DeleteOnThread<
+      content::BrowserThread::UI>;
+  friend class base::DeleteHelper<CefBrowserContextImpl>;
 
-  scoped_ptr<CefResourceContext> resource_context_;
+  ~CefBrowserContextImpl() override;
+
   scoped_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
-  scoped_refptr<CefURLRequestContextGetter> url_request_getter_;
+  scoped_refptr<CefURLRequestContextGetterImpl> url_request_getter_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserContextImpl);
 };

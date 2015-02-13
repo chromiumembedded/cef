@@ -47,10 +47,11 @@
 #define IDS_OSRTEST                     1005
 #define IDS_OTHER_TESTS                 1006
 #define IDS_PERFORMANCE                 1007
-#define IDS_TRANSPARENCY                1008
-#define IDS_WINDOW                      1009
-#define IDS_XMLHTTPREQUEST              1010
-#define IDS_PERFORMANCE2                1011
+#define IDS_PERFORMANCE2                1008
+#define IDS_TRANSPARENCY                1009
+#define IDS_URLREQUEST                  1010
+#define IDS_WINDOW                      1011
+#define IDS_XMLHTTPREQUEST              1012
 
 // Next default values for new objects
 // 

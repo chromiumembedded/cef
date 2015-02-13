@@ -6,8 +6,6 @@
 
 #include <algorithm>
 
-#include "libcef/browser/browser_context.h"
-#include "libcef/browser/browser_context_proxy.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_main.h"
@@ -558,39 +556,6 @@ scoped_refptr<CefBrowserInfo> CefContentBrowserClient::GetBrowserInfoForFrame(
   return scoped_refptr<CefBrowserInfo>();
 }
 
-CefBrowserContext* CefContentBrowserClient::CreateBrowserContextProxy(
-    CefRefPtr<CefRequestContextHandler> handler) {
-  CEF_REQUIRE_UIT();
-  CefBrowserContextProxy* context =
-      new CefBrowserContextProxy(handler, browser_context());
-  browser_main_parts_->AddBrowserContext(context);
-  context->AddRef();
-  return context;
-}
-
-void CefContentBrowserClient::AddBrowserContextReference(
-    CefBrowserContext* context) {
-  CEF_REQUIRE_UIT();
-  // Skip the global browser context.
-  if (context == browser_context())
-    return;
-
-  CefBrowserContextProxy* proxy = static_cast<CefBrowserContextProxy*>(context);
-  proxy->AddRef();
-}
-
-void CefContentBrowserClient::RemoveBrowserContextReference(
-    CefBrowserContext* context) {
-  CEF_REQUIRE_UIT();
-  // Skip the global browser context.
-  if (context == browser_context())
-    return;
-
-  CefBrowserContextProxy* proxy = static_cast<CefBrowserContextProxy*>(context);
-  if (proxy->Release())
-    browser_main_parts_->RemoveBrowserContext(proxy);
-}
-
 content::BrowserMainParts* CefContentBrowserClient::CreateBrowserMainParts(
     const content::MainFunctionParams& parameters) {
   browser_main_parts_ = new CefBrowserMainParts(parameters);
@@ -612,18 +577,15 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
     host->AddFilter(new SpellCheckMessageFilterMac(id));
 #endif
   }
-
-  AddBrowserContextReference(
-      static_cast<CefBrowserContext*>(host->GetBrowserContext()));
 }
 
 net::URLRequestContextGetter* CefContentBrowserClient::CreateRequestContext(
     content::BrowserContext* content_browser_context,
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
-  CefBrowserContext* cef_browser_context =
+  scoped_refptr<CefBrowserContext> context =
       static_cast<CefBrowserContext*>(content_browser_context);
-  return cef_browser_context->CreateRequestContext(
+  return context->CreateRequestContext(
       protocol_handlers,
       request_interceptors.Pass());
 }
@@ -635,9 +597,9 @@ CefContentBrowserClient::CreateRequestContextForStoragePartition(
     bool in_memory,
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
-  CefBrowserContext* cef_browser_context =
+  scoped_refptr<CefBrowserContext> context =
       static_cast<CefBrowserContext*>(content_browser_context);
-  return cef_browser_context->CreateRequestContextForStoragePartition(
+  return context->CreateRequestContextForStoragePartition(
       partition_path,
       in_memory,
       protocol_handlers,
@@ -1024,7 +986,7 @@ std::string CefContentBrowserClient::GetDefaultDownloadName() {
 
 content::DevToolsManagerDelegate*
     CefContentBrowserClient::GetDevToolsManagerDelegate() {
-  return new CefDevToolsManagerDelegate(browser_context());
+  return new CefDevToolsManagerDelegate(browser_context().get());
 }
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
@@ -1074,11 +1036,12 @@ void CefContentBrowserClient::set_last_create_window_params(
   last_create_window_params_ = params;
 }
 
-CefBrowserContext* CefContentBrowserClient::browser_context() const {
+scoped_refptr<CefBrowserContextImpl>
+CefContentBrowserClient::browser_context() const {
   return browser_main_parts_->browser_context();
 }
 
-scoped_refptr<net::URLRequestContextGetter>
+scoped_refptr<CefURLRequestContextGetterImpl>
 CefContentBrowserClient::request_context() const {
   return browser_main_parts_->request_context();
 }

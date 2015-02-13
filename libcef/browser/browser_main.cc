@@ -7,9 +7,11 @@
 #include <string>
 
 #include "libcef/browser/browser_context_impl.h"
+#include "libcef/browser/browser_context_proxy.h"
 #include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/devtools_delegate.h"
+#include "libcef/browser/thread_util.h"
 #include "libcef/common/net_resource_provider.h"
 
 #include "base/bind.h"
@@ -17,7 +19,6 @@
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
 #include "chrome/browser/net/proxy_service_factory.h"
-#include "components/user_prefs/user_prefs.h"
 #include "content/browser/webui/content_web_ui_controller_factory.h"
 #include "content/public/browser/gpu_data_manager.h"
 #include "content/public/browser/web_ui_controller_factory.h"
@@ -126,8 +127,8 @@ int CefBrowserMainParts::PreCreateThreads() {
 }
 
 void CefBrowserMainParts::PreMainMessageLoopRun() {
-  // Create the global browser context.
-  global_browser_context_.reset(new CefBrowserContextImpl());
+  // Create the global BrowserContext.
+  global_browser_context_ = new CefBrowserContextImpl();
 
   // Initialize the proxy configuration service. This needs to occur before
   // CefURLRequestContextGetter::GetURLRequestContext() is called for the
@@ -136,9 +137,12 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
       ProxyServiceFactory::CreateProxyConfigService(
           pref_proxy_config_tracker_.get()));
 
-  // Initialize the request context getter. This indirectly triggers a call
-  // to CefURLRequestContextGetter::GetURLRequestContext() on the IO thread.
-  global_request_context_ = global_browser_context_->GetRequestContext();
+  // Create the global URLRequestContextGetter via an indirect call to
+  // CefBrowserContextImpl::CreateRequestContext. Triggers a call to
+  // CefURLRequestContextGetter::GetURLRequestContext() on the IO thread which
+  // creates the URLRequestContext.
+  global_request_context_ = static_cast<CefURLRequestContextGetterImpl*>(
+      global_browser_context_->GetRequestContext());
 
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
@@ -153,10 +157,6 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
       LOG(WARNING) << "Invalid http debugger port number " << port;
     }
   }
-
-  // Spell checking support and possibly other subsystems retrieve the
-  // PrefService associated with a BrowserContext via UserPrefs::Get().
-  user_prefs::UserPrefs::Set(browser_context(), pref_service());
 }
 
 void CefBrowserMainParts::PostMainMessageLoopRun() {
@@ -166,12 +166,13 @@ void CefBrowserMainParts::PostMainMessageLoopRun() {
   }
   pref_proxy_config_tracker_->DetachFromPrefService();
 
-  // Only the global browser context should still exist.
-  DCHECK(browser_contexts_.empty());
-  browser_contexts_.clear();
-
   global_request_context_ = NULL;
-  global_browser_context_.reset();
+  global_browser_context_ = NULL;
+
+#ifndef NDEBUG
+  // No CefBrowserContext instances should exist at this point.
+  DCHECK_EQ(0, CefBrowserContext::DebugObjCt);
+#endif
 }
 
 void CefBrowserMainParts::PostDestroyThreads() {
@@ -182,25 +183,10 @@ void CefBrowserMainParts::PostDestroyThreads() {
   delete views::ViewsDelegate::views_delegate;
 #endif
 
+#ifndef NDEBUG
+  // No CefURLRequestContext instances should exist at this point.
+  DCHECK_EQ(0, CefURLRequestContext::DebugObjCt);
+#endif
+
   PlatformCleanup();
-}
-
-void CefBrowserMainParts::AddBrowserContext(CefBrowserContext* context) {
-  // Spell checking support and possibly other subsystems retrieve the
-  // PrefService associated with a BrowserContext via UserPrefs::Get().
-  user_prefs::UserPrefs::Set(context, pref_service());
-
-  browser_contexts_.push_back(context);
-}
-
-void CefBrowserMainParts::RemoveBrowserContext(CefBrowserContext* context) {
-  ScopedVector<CefBrowserContext>::iterator it = browser_contexts_.begin();
-  for (; it != browser_contexts_.end(); ++it) {
-    if (*it == context) {
-      browser_contexts_.erase(it);
-      return;
-    }
-  }
-
-  NOTREACHED();
 }

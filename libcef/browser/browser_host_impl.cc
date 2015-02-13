@@ -8,7 +8,7 @@
 #include <string>
 #include <utility>
 
-#include "libcef/browser/browser_context.h"
+#include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_pref_store.h"
 #include "libcef/browser/chrome_scheme_handler.h"
@@ -397,7 +397,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
   DCHECK(opener == kNullWindowHandle || browser_info->is_popup());
 
   if (!web_contents) {
-    CefBrowserContext* browser_context = NULL;
+    scoped_refptr<CefBrowserContext> browser_context = NULL;
     if (request_context.get()) {
       CefRequestContextImpl* request_context_impl =
           static_cast<CefRequestContextImpl*>(request_context.get());
@@ -408,7 +408,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
     DCHECK(browser_context);
 
     content::WebContents::CreateParams create_params(
-        browser_context);
+        browser_context.get());
 
     CefWebContentsViewOSR* view_or = NULL;
     if (window_info.windowless_rendering_enabled) {
@@ -756,13 +756,13 @@ void CefBrowserHostImpl::StartDownload(const CefString& url) {
   if (!web_contents())
     return;
 
-  CefBrowserContext* context =
+  scoped_refptr<CefBrowserContext> context =
       static_cast<CefBrowserContext*>(web_contents()->GetBrowserContext());
-  if (!context)
+  if (!context.get())
     return;
 
   content::DownloadManager* manager =
-      content::BrowserContext::GetDownloadManager(context);
+      content::BrowserContext::GetDownloadManager(context.get());
   if (!manager)
     return;
 
@@ -2759,7 +2759,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(
   web_contents_.reset(web_contents);
   web_contents->SetDelegate(this);
 
-  CefBrowserContext* browser_context =
+  scoped_refptr<CefBrowserContext> browser_context =
       static_cast<CefBrowserContext*>(web_contents->GetBrowserContext());
   request_context_ = new CefRequestContextImpl(browser_context);
 

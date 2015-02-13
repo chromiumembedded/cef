@@ -117,9 +117,8 @@ void CefCookieManagerImpl::SetSupportedSchemes(
 
     if (is_global_) {
       // Global changes are handled by the request context.
-      scoped_refptr<CefURLRequestContextGetter> getter =
-          static_cast<CefURLRequestContextGetter*>(
-              CefContentBrowserClient::Get()->request_context().get());
+      scoped_refptr<CefURLRequestContextGetterImpl> getter =
+          CefContentBrowserClient::Get()->request_context();
 
       std::vector<std::string> scheme_vec;
       std::vector<CefString>::const_iterator it = schemes.begin();
@@ -274,9 +273,8 @@ bool CefCookieManagerImpl::SetStoragePath(
 
     if (is_global_) {
       // Global path changes are handled by the request context.
-      scoped_refptr<CefURLRequestContextGetter> getter =
-          static_cast<CefURLRequestContextGetter*>(
-              CefContentBrowserClient::Get()->request_context().get());
+      scoped_refptr<CefURLRequestContextGetterImpl> getter =
+          CefContentBrowserClient::Get()->request_context();
       getter->SetCookieStoragePath(new_path, persist_session_cookies);
       cookie_monster_ = getter->GetURLRequestContext()->cookie_store()->
           GetCookieMonster();
@@ -359,9 +357,11 @@ bool CefCookieManagerImpl::FlushStore(
 
 void CefCookieManagerImpl::SetGlobal() {
   if (CEF_CURRENTLY_ON_IOT()) {
-    if (CefContentBrowserClient::Get()->request_context().get()) {
-      cookie_monster_ = CefContentBrowserClient::Get()->request_context()->
-          GetURLRequestContext()->cookie_store()->GetCookieMonster();
+    scoped_refptr<CefURLRequestContextGetterImpl> getter =
+        CefContentBrowserClient::Get()->request_context();
+    if (getter.get()) {
+      cookie_monster_ =
+          getter->GetURLRequestContext()->cookie_store()->GetCookieMonster();
       DCHECK(cookie_monster_.get());
     }
   } else {

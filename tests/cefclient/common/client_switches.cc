@@ -25,6 +25,7 @@ const char kOffScreenFrameRate[] = "off-screen-frame-rate";
 const char kTransparentPaintingEnabled[] = "transparent-painting-enabled";
 const char kShowUpdateRect[] = "show-update-rect";
 const char kMouseCursorChangeDisabled[] = "mouse-cursor-change-disabled";
+const char kRequestContextPerBrowser[] = "request-context-per-browser";
 
 }  // namespace switches
 }  // namespace client

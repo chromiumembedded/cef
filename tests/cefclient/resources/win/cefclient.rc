@@ -38,6 +38,7 @@ IDS_OTHER_TESTS BINARY "..\\other_tests.html"
 IDS_PERFORMANCE BINARY "..\\performance.html"
 IDS_PERFORMANCE2 BINARY "..\\performance2.html"
 IDS_TRANSPARENCY BINARY "..\\transparency.html"
+IDS_URLREQUEST BINARY "..\\urlrequest.html"
 IDS_WINDOW BINARY "..\\window.html"
 IDS_XMLHTTPREQUEST BINARY "..\\xmlhttprequest.html"
 

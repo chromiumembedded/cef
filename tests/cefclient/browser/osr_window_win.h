@@ -48,6 +48,7 @@ class OsrWindowWin :
                      const RECT& rect,
                      CefRefPtr<CefClient> handler,
                      const CefBrowserSettings& settings,
+                     CefRefPtr<CefRequestContext> request_context,
                      const std::string& startup_url);
   
   // Show the popup window with correct parent and bounds in parent coordinates.

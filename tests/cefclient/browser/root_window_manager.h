@@ -64,11 +64,14 @@ class RootWindowManager : public RootWindow::Delegate {
   void OnRootWindowCreated(scoped_refptr<RootWindow> root_window);
 
   // RootWindow::Delegate methods.
+  CefRefPtr<CefRequestContext> GetRequestContext(
+      RootWindow* root_window) OVERRIDE;
   void OnTest(RootWindow* root_window, int test_id) OVERRIDE;
   void OnExit(RootWindow* root_window) OVERRIDE;
   void OnRootWindowDestroyed(RootWindow* root_window) OVERRIDE;
 
   const bool terminate_when_all_windows_closed_;
+  bool request_context_per_browser_;
 
   // Existing root windows. Only accessed on the main thread.
   typedef std::set<scoped_refptr<RootWindow> > RootWindowSet;

@@ -27,6 +27,9 @@ std::string DumpRequestContents(CefRefPtr<CefRequest> request);
 std::string GetDataURI(const std::string& data,
                        const std::string& mime_type);
 
+// Returns the string representation of the specified error code.
+std::string GetErrorString(cef_errorcode_t code);
+
 // Get test resources.
 CefRefPtr<CefResourceHandler> GetResourceHandler(
     CefRefPtr<CefBrowser> browser,

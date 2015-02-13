@@ -1100,9 +1100,11 @@ BrowserWindowOsrMac::~BrowserWindowOsrMac() {
   }
 }
 
-void BrowserWindowOsrMac::CreateBrowser(ClientWindowHandle parent_handle,
-                                        const CefRect& rect,
-                                        const CefBrowserSettings& settings) {
+void BrowserWindowOsrMac::CreateBrowser(
+    ClientWindowHandle parent_handle,
+    const CefRect& rect,
+    const CefBrowserSettings& settings,
+    CefRefPtr<CefRequestContext> request_context) {
   REQUIRE_MAIN_THREAD();
 
   // Create the native NSView.
@@ -1114,7 +1116,7 @@ void BrowserWindowOsrMac::CreateBrowser(ClientWindowHandle parent_handle,
   // Create the browser asynchronously.
   CefBrowserHost::CreateBrowser(window_info, client_handler_,
                                 client_handler_->startup_url(),
-                                settings, NULL);
+                                settings, request_context);
 }
 
 void BrowserWindowOsrMac::GetPopupConfig(CefWindowHandle temp_handle,

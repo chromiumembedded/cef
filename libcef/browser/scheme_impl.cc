@@ -196,9 +196,8 @@ class CefUrlRequestManager {
 
  private:
   net::URLRequestJobFactoryImpl* GetJobFactoryImpl() {
-    return static_cast<CefURLRequestContextGetter*>(
-        CefContentBrowserClient::Get()->request_context().get())->
-            job_factory_impl();
+    return CefContentBrowserClient::Get()->request_context()->
+        job_factory_impl();
   }
 
   // Add or remove the protocol handler if necessary. |scheme| will already be

@@ -19,6 +19,7 @@ extern const char kOffScreenFrameRate[];
 extern const char kTransparentPaintingEnabled[];
 extern const char kShowUpdateRect[];
 extern const char kMouseCursorChangeDisabled[];
+extern const char kRequestContextPerBrowser[];
 
 }  // namespace switches
 }  // namespace client

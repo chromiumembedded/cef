@@ -325,7 +325,8 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings) {
     CefRect cef_rect(rect.left, rect.top,
                      rect.right - rect.left,
                      rect.bottom - rect.top);
-    browser_window_->CreateBrowser(hwnd_, cef_rect, settings);
+    browser_window_->CreateBrowser(hwnd_, cef_rect, settings,
+                                   delegate_->GetRequestContext(this));
   } else {
     // With popups we already have a browser window. Parent the browser window
     // to the root window and show it in the correct location.

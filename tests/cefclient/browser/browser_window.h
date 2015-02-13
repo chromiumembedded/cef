@@ -46,7 +46,8 @@ class BrowserWindow : public ClientHandler::Delegate {
   // Create a new browser and native window.
   virtual void CreateBrowser(ClientWindowHandle parent_handle,
                              const CefRect& rect,
-                             const CefBrowserSettings& settings) = 0;
+                             const CefBrowserSettings& settings,
+                             CefRefPtr<CefRequestContext> request_context) = 0;
 
   // Retrieve the configuration that will be used when creating a popup window.
   // The popup browser will initially be parented to |temp_handle| which should

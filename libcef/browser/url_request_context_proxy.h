@@ -7,35 +7,28 @@
 #pragma once
 
 #include "include/cef_request_context_handler.h"
+#include "libcef/browser/cookie_store_proxy.h"
+#include "libcef/browser/url_request_context.h"
 
 #include "base/memory/scoped_ptr.h"
-#include "net/url_request/url_request_context.h"
 
 class CefBrowserHostImpl;
+class CefURLRequestContextImpl;
 
-namespace net {
-class CookieStore;
-class URLRequestContextGetter;
-}
-
-class CefURLRequestContextProxy : public net::URLRequestContext {
+// URLRequestContext implementation for a particular CefRequestContext. Life
+// span is controlled by CefURLRequestContextGetterProxy. Only accessed on the
+// IO thread. See browser_context.h for an object relationship diagram.
+class CefURLRequestContextProxy : public CefURLRequestContext {
  public:
-  explicit CefURLRequestContextProxy(net::URLRequestContextGetter* parent);
+  // The |parent| pointer is kept alive by CefURLRequestContextGetterProxy
+  // which has a ref to the owning CefURLRequestContextGetterImpl. It is
+  // guaranteed to outlive this object.
+  CefURLRequestContextProxy(CefURLRequestContextImpl* parent,
+                            CefRefPtr<CefRequestContextHandler> handler);
   ~CefURLRequestContextProxy() override;
 
-  void Initialize(CefRefPtr<CefRequestContextHandler> handler);
-
-  // We may try to delete this proxy multiple times if URLRequests are still
-  // pending. Keep track of the number of tries so that they don't become
-  // excessive.
-  int delete_try_count() const { return delete_try_count_; }
-  void increment_delete_try_count() { delete_try_count_++; }
-
  private:
-  net::URLRequestContextGetter* parent_;
-  scoped_refptr<net::CookieStore> cookie_store_proxy_;
-
-  int delete_try_count_;
+  scoped_refptr<CefCookieStoreProxy> cookie_store_proxy_;
 
   DISALLOW_COPY_AND_ASSIGN(CefURLRequestContextProxy);
 };

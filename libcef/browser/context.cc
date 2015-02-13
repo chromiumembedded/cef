@@ -352,13 +352,6 @@ void CefContext::OnContextInitialized() {
   // Register internal scheme handlers.
   scheme::RegisterInternalHandlers();
 
-  // Register for notifications.
-  registrar_.reset(new content::NotificationRegistrar());
-  registrar_->Add(this, content::NOTIFICATION_RENDERER_PROCESS_TERMINATED,
-                  content::NotificationService::AllBrowserContextsAndSources());
-  registrar_->Add(this, content::NOTIFICATION_RENDERER_PROCESS_CLOSED,
-                  content::NotificationService::AllBrowserContextsAndSources());
-
   // Must be created after the NotificationService.
   print_job_manager_.reset(new printing::PrintJobManager());
 
@@ -384,8 +377,6 @@ void CefContext::FinishShutdownOnUIThread(
 
   CefContentBrowserClient::Get()->DestroyAllBrowsers();
 
-  registrar_.reset();
-
   if (trace_subscriber_.get())
     trace_subscriber_.reset(NULL);
 
@@ -407,17 +398,4 @@ void CefContext::FinalizeShutdown() {
 
   main_runner_.reset(NULL);
   main_delegate_.reset(NULL);
-}
-
-void CefContext::Observe(
-    int type,
-    const content::NotificationSource& source,
-    const content::NotificationDetails& details) {
-  DCHECK(type == content::NOTIFICATION_RENDERER_PROCESS_TERMINATED ||
-         type == content::NOTIFICATION_RENDERER_PROCESS_CLOSED);
-  content::RenderProcessHost* rph =
-      content::Source<content::RenderProcessHost>(source).ptr();
-  DCHECK(rph);
-  CefContentBrowserClient::Get()->RemoveBrowserContextReference(
-      static_cast<CefBrowserContext*>(rph->GetBrowserContext()));
 }

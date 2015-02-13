@@ -23,7 +23,8 @@ class BrowserWindowStdGtk : public BrowserWindow {
   // BrowserWindow methods.
   void CreateBrowser(ClientWindowHandle parent_handle,
                      const CefRect& rect,
-                     const CefBrowserSettings& settings) OVERRIDE;
+                     const CefBrowserSettings& settings,
+                     CefRefPtr<CefRequestContext> request_context) OVERRIDE;
   void GetPopupConfig(CefWindowHandle temp_handle,
                       CefWindowInfo& windowInfo,
                       CefRefPtr<CefClient>& client,

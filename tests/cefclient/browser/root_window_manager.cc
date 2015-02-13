@@ -5,14 +5,21 @@
 #include "cefclient/browser/root_window_manager.h"
 
 #include "include/base/cef_bind.h"
+#include "include/base/cef_logging.h"
 #include "include/wrapper/cef_helpers.h"
 #include "cefclient/browser/main_context.h"
 #include "cefclient/browser/test_runner.h"
+#include "cefclient/common/client_switches.h"
 
 namespace client {
 
 RootWindowManager::RootWindowManager(bool terminate_when_all_windows_closed)
     : terminate_when_all_windows_closed_(terminate_when_all_windows_closed) {
+  CefRefPtr<CefCommandLine> command_line =
+      CefCommandLine::GetGlobalCommandLine();
+  DCHECK(command_line.get());
+  request_context_per_browser_ =
+      command_line->HasSwitch(switches::kRequestContextPerBrowser);
 }
 
 RootWindowManager::~RootWindowManager() {
@@ -98,6 +105,19 @@ void RootWindowManager::OnRootWindowCreated(
   }
 
   root_windows_.insert(root_window);
+}
+
+CefRefPtr<CefRequestContext> RootWindowManager::GetRequestContext(
+    RootWindow* root_window) {
+  REQUIRE_MAIN_THREAD();
+
+  if (request_context_per_browser_) {
+    // Create a new request context for each browser.
+    return CefRequestContext::CreateContext(NULL);
+  }
+
+  // All browsers will share the global request context.
+  return NULL;
 }
 
 void RootWindowManager::OnTest(RootWindow* root_window, int test_id) {

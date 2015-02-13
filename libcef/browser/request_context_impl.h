@@ -7,23 +7,23 @@
 #pragma once
 
 #include "include/cef_request_context.h"
-
-class CefBrowserContext;
+#include "libcef/browser/browser_context.h"
 
 class CefRequestContextImpl : public CefRequestContext {
  public:
-  explicit CefRequestContextImpl(CefBrowserContext* browser_context);
+  explicit CefRequestContextImpl(
+      scoped_refptr<CefBrowserContext> browser_context);
   explicit CefRequestContextImpl(CefRefPtr<CefRequestContextHandler> handler);
   ~CefRequestContextImpl() override;
 
-  CefBrowserContext* GetOrCreateBrowserContext();
+  scoped_refptr<CefBrowserContext> GetOrCreateBrowserContext();
 
   bool IsSame(CefRefPtr<CefRequestContext> other) override;
   bool IsGlobal() override;
   CefRefPtr<CefRequestContextHandler> GetHandler() override;
 
  protected:
-  CefBrowserContext* browser_context_;
+  scoped_refptr<CefBrowserContext> browser_context_;
   CefRefPtr<CefRequestContextHandler> handler_;
 
   // Used to uniquely identify CefRequestContext objects before an associated

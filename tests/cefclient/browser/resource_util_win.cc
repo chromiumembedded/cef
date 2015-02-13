@@ -45,6 +45,7 @@ int GetResourceId(const char* resource_name) {
     {"performance.html", IDS_PERFORMANCE},
     {"performance2.html", IDS_PERFORMANCE2},
     {"transparency.html", IDS_TRANSPARENCY},
+    {"urlrequest.html", IDS_URLREQUEST},
     {"window.html", IDS_WINDOW},
     {"xmlhttprequest.html", IDS_XMLHTTPREQUEST},
   };

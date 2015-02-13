@@ -18,9 +18,11 @@ BrowserWindowStdMac::BrowserWindowStdMac(Delegate* delegate,
   client_handler_ = new ClientHandlerStd(this, startup_url);
 }
 
-void BrowserWindowStdMac::CreateBrowser(ClientWindowHandle parent_handle,
-                                        const CefRect& rect,
-                                        const CefBrowserSettings& settings) {
+void BrowserWindowStdMac::CreateBrowser(
+    ClientWindowHandle parent_handle,
+    const CefRect& rect,
+    const CefBrowserSettings& settings,
+    CefRefPtr<CefRequestContext> request_context) {
   REQUIRE_MAIN_THREAD();
 
   CefWindowInfo window_info;
@@ -29,7 +31,7 @@ void BrowserWindowStdMac::CreateBrowser(ClientWindowHandle parent_handle,
 
   CefBrowserHost::CreateBrowser(window_info, client_handler_,
                                 client_handler_->startup_url(),
-                                settings, NULL);
+                                settings, request_context);
 }
 
 void BrowserWindowStdMac::GetPopupConfig(CefWindowHandle temp_handle,

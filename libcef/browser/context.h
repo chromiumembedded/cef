@@ -16,8 +16,6 @@
 #include "base/files/scoped_temp_dir.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/threading/platform_thread.h"
-#include "content/public/browser/notification_observer.h"
-#include "content/public/browser/notification_registrar.h"
 
 namespace base {
 class WaitableEvent;
@@ -35,12 +33,12 @@ class CefBrowserHostImpl;
 class CefMainDelegate;
 class CefTraceSubscriber;
 
-class CefContext : public content::NotificationObserver {
+class CefContext {
  public:
   typedef std::list<CefRefPtr<CefBrowserHostImpl> > BrowserList;
 
   CefContext();
-  ~CefContext() override;
+  ~CefContext();
 
   // Returns the singleton CefContext instance.
   static CefContext* Get();
@@ -82,11 +80,6 @@ class CefContext : public content::NotificationObserver {
   // Destroys the main runner and related objects.
   void FinalizeShutdown();
 
-  // NotificationObserver implementation.
-  void Observe(int type,
-               const content::NotificationSource& source,
-               const content::NotificationDetails& details) override;
-
   // Track context state.
   bool initialized_;
   bool shutting_down_;
@@ -103,7 +96,6 @@ class CefContext : public content::NotificationObserver {
   scoped_ptr<CefTraceSubscriber> trace_subscriber_;
 
   // Only accessed on the UI Thread.
-  scoped_ptr<content::NotificationRegistrar> registrar_;
   scoped_ptr<printing::PrintJobManager> print_job_manager_;
 };
 

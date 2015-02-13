@@ -9,27 +9,26 @@
 
 CefURLRequestContextGetterProxy::CefURLRequestContextGetterProxy(
     CefRefPtr<CefRequestContextHandler> handler,
-    CefURLRequestContextGetter* parent)
+    scoped_refptr<CefURLRequestContextGetterImpl> parent)
     : handler_(handler),
-      parent_(parent),
-      context_proxy_(NULL) {
+      parent_(parent) {
   DCHECK(parent);
 }
 
 CefURLRequestContextGetterProxy::~CefURLRequestContextGetterProxy() {
   CEF_REQUIRE_IOT();
-  if (context_proxy_)
-    parent_->ReleaseURLRequestContextProxy(context_proxy_);
 }
 
 net::URLRequestContext*
     CefURLRequestContextGetterProxy::GetURLRequestContext() {
   CEF_REQUIRE_IOT();
   if (!context_proxy_) {
-    context_proxy_ = parent_->CreateURLRequestContextProxy();
-    context_proxy_->Initialize(handler_);
+    context_proxy_.reset(
+        new CefURLRequestContextProxy(static_cast<CefURLRequestContextImpl*>(
+                                          parent_->GetURLRequestContext()),
+                                      handler_));
   }
-  return context_proxy_;
+  return context_proxy_.get();
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
@@ -38,5 +37,5 @@ scoped_refptr<base::SingleThreadTaskRunner>
 }
 
 net::HostResolver* CefURLRequestContextGetterProxy::GetHostResolver() const {
-  return parent_->host_resolver();
+  return parent_->GetHostResolver();
 }

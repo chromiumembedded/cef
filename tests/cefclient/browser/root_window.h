@@ -25,6 +25,11 @@ class RootWindow :
   // of this class will be called on the main thread.
   class Delegate {
    public:
+    // Called to retrieve the CefRequestContext for browser. Only called for
+    // non-popup browsers. May return NULL.
+    virtual CefRefPtr<CefRequestContext> GetRequestContext(
+        RootWindow* root_window) = 0;
+
     // Called to execute a test. See resource.h for |test_id| values.
     virtual void OnTest(RootWindow* root_window, int test_id) = 0;
 

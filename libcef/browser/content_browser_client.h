@@ -13,6 +13,8 @@
 #include <utility>
 
 #include "include/cef_request_context_handler.h"
+#include "libcef/browser/browser_context_impl.h"
+#include "libcef/browser/url_request_context_getter_impl.h"
 
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
@@ -20,10 +22,8 @@
 #include "base/synchronization/lock.h"
 #include "content/public/browser/content_browser_client.h"
 #include "net/proxy/proxy_config_service.h"
-#include "net/url_request/url_request_context_getter.h"
 #include "url/gurl.h"
 
-class CefBrowserContext;
 class CefBrowserInfo;
 class CefBrowserMainParts;
 class CefDevToolsDelegate;
@@ -67,16 +67,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
                                                       int render_routing_id);
   scoped_refptr<CefBrowserInfo> GetBrowserInfoForFrame(int render_process_id,
                                                        int render_routing_id);
-
-  // Create and return a new CefBrowserContextProxy object.
-  CefBrowserContext* CreateBrowserContextProxy(
-      CefRefPtr<CefRequestContextHandler> handler);
-
-  // BrowserContexts are nominally owned by RenderViewHosts and
-  // CefRequestContextImpls. Keep track of how many objects reference a given
-  // context and delete the context when the reference count reaches zero.
-  void AddBrowserContextReference(CefBrowserContext* context);
-  void RemoveBrowserContextReference(CefBrowserContext* context);
 
   // ContentBrowserClient implementation.
   content::BrowserMainParts* CreateBrowserMainParts(
@@ -177,8 +167,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   };
   void set_last_create_window_params(const LastCreateWindowParams& params);
 
-  CefBrowserContext* browser_context() const;
-  scoped_refptr<net::URLRequestContextGetter> request_context() const;
+  scoped_refptr<CefBrowserContextImpl> browser_context() const;
+  scoped_refptr<CefURLRequestContextGetterImpl> request_context() const;
   CefDevToolsDelegate* devtools_delegate() const;
   PrefService* pref_service() const;
 

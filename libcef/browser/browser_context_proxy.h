@@ -8,6 +8,7 @@
 
 #include "include/cef_request_context_handler.h"
 #include "libcef/browser/browser_context.h"
+#include "libcef/browser/browser_context_impl.h"
 
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
@@ -21,17 +22,13 @@ class SpeechRecognitionPreferences;
 class CefDownloadManagerDelegate;
 class CefURLRequestContextGetterProxy;
 
-// This class is only accessed on the UI thread.
+// BrowserContext implementation for a particular CefRequestContext. Life span
+// is controlled by CefRequestContextImpl. Only accessed on the UI thread. See
+// browser_context.h for an object relationship diagram.
 class CefBrowserContextProxy : public CefBrowserContext {
  public:
   CefBrowserContextProxy(CefRefPtr<CefRequestContextHandler> handler,
-                         CefBrowserContext* parent);
-  ~CefBrowserContextProxy() override;
-
-  // Reference counting and object life span is managed by
-  // CefContentBrowserClient.
-  void AddRef() { refct_++; }
-  bool Release() { return (--refct_ == 0); }
+                         scoped_refptr<CefBrowserContextImpl> parent);
 
   // BrowserContext methods.
   base::FilePath GetPath() const override;
@@ -49,7 +46,6 @@ class CefBrowserContextProxy : public CefBrowserContext {
       GetMediaRequestContextForStoragePartition(
           const base::FilePath& partition_path,
           bool in_memory) override;
-  content::ResourceContext* GetResourceContext() override;
   content::BrowserPluginGuestManager* GetGuestManager() override;
   storage::SpecialStoragePolicy* GetSpecialStoragePolicy() override;
   content::PushMessagingService* GetPushMessagingService() override;
@@ -70,12 +66,15 @@ class CefBrowserContextProxy : public CefBrowserContext {
   CefRefPtr<CefRequestContextHandler> handler() const { return handler_; }
 
  private:
-  class CefResourceContext;
+  // Only allow deletion via scoped_refptr().
+  friend struct content::BrowserThread::DeleteOnThread<
+      content::BrowserThread::UI>;
+  friend class base::DeleteHelper<CefBrowserContextProxy>;
 
-  int refct_;
+  ~CefBrowserContextProxy() override;
+
   CefRefPtr<CefRequestContextHandler> handler_;
-  CefBrowserContext* parent_;
-  scoped_ptr<CefResourceContext> resource_context_;
+  scoped_refptr<CefBrowserContextImpl> parent_;
   scoped_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<CefURLRequestContextGetterProxy> url_request_getter_;
 

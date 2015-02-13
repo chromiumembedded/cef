@@ -19,15 +19,17 @@ BrowserWindowOsrWin::BrowserWindowOsrWin(BrowserWindow::Delegate* delegate,
   client_handler_ = new ClientHandlerOsr(this, osr_window_.get(), startup_url);
 }
 
-void BrowserWindowOsrWin::CreateBrowser(ClientWindowHandle parent_handle,
-                                        const CefRect& rect,
-                                        const CefBrowserSettings& settings) {
+void BrowserWindowOsrWin::CreateBrowser(
+    ClientWindowHandle parent_handle,
+    const CefRect& rect,
+    const CefBrowserSettings& settings,
+    CefRefPtr<CefRequestContext> request_context) {
   REQUIRE_MAIN_THREAD();
 
   // Create the new browser and native window on the UI thread.
   RECT wnd_rect = {rect.x, rect.y, rect.x + rect.width, rect.y + rect.height};
   osr_window_->CreateBrowser(parent_handle, wnd_rect, client_handler_, settings,
-                             client_handler_->startup_url());
+                             request_context, client_handler_->startup_url());
 }
 
 void BrowserWindowOsrWin::GetPopupConfig(CefWindowHandle temp_handle,
