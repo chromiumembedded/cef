@@ -145,14 +145,9 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
             new net::DefaultChannelIDStore(NULL),
             base::WorkerPool::GetTaskRunner(true))));
 
-    std::string accept_language;
-    if (settings.accept_language_list.length > 0) {
-      accept_language =
-          net::HttpUtil::GenerateAcceptLanguageHeader(
-              CefString(&settings.accept_language_list));
-    } else {
-      accept_language = "en-US,en";
-    }
+    const std::string& accept_language =
+        settings.accept_language_list.length > 0 ?
+            CefString(&settings.accept_language_list): "en-US,en";
     storage_->set_http_user_agent_settings(
         new CefHttpUserAgentSettings(accept_language));
 
