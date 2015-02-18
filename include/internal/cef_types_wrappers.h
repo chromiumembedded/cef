@@ -276,8 +276,8 @@ struct CefScreenInfoTraits {
 };
 
 ///
-// Class representing the virtual screen information for use when window rendering
-// is disabled.
+// Class representing the virtual screen information for use when window
+// rendering is disabled.
 ///
 class CefScreenInfo : public CefStructBase<CefScreenInfoTraits> {
  public:
@@ -425,6 +425,7 @@ struct CefSettingsTraits {
     cef_string_clear(&s->javascript_flags);
     cef_string_clear(&s->resources_dir_path);
     cef_string_clear(&s->locales_dir_path);
+    cef_string_clear(&s->accept_language_list);
   }
 
   static inline void set(const struct_type* src, struct_type* target,
@@ -464,6 +465,9 @@ struct CefSettingsTraits {
     target->context_safety_implementation = src->context_safety_implementation;
     target->ignore_certificate_errors = src->ignore_certificate_errors;
     target->background_color = src->background_color;
+
+    cef_string_set(src->accept_language_list.str,
+        src->accept_language_list.length, &target->accept_language_list, copy);
   }
 };
 
@@ -488,6 +492,7 @@ struct CefBrowserSettingsTraits {
     cef_string_clear(&s->cursive_font_family);
     cef_string_clear(&s->fantasy_font_family);
     cef_string_clear(&s->default_encoding);
+    cef_string_clear(&s->accept_language_list);
   }
 
   static inline void set(const struct_type* src, struct_type* target,
@@ -540,6 +545,9 @@ struct CefBrowserSettingsTraits {
     target->webgl = src->webgl;
 
     target->background_color = src->background_color;
+
+    cef_string_set(src->accept_language_list.str,
+        src->accept_language_list.length, &target->accept_language_list, copy);
   }
 };
 

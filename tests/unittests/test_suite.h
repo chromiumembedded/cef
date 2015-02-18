@@ -36,4 +36,6 @@ class CefTestSuite : public TestSuite {
   static base::CommandLine* commandline_;
 };
 
+#define CEF_SETTINGS_ACCEPT_LANGUAGE "en-GB"
+
 #endif  // CEF_TESTS_UNITTESTS_TEST_SUITE_H_

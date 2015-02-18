@@ -69,6 +69,9 @@ void CefTestSuite::GetSettings(CefSettings& settings) {
 
   // Necessary for the OSRTest tests.
   settings.windowless_rendering_enabled = true;
+
+  // For Accept-Language test
+  CefString(&settings.accept_language_list) = CEF_SETTINGS_ACCEPT_LANGUAGE;
 }
 
 // static

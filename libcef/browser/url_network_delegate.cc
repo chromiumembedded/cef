@@ -13,6 +13,7 @@
 #include "libcef/common/request_impl.h"
 
 #include "net/base/net_errors.h"
+#include "net/http/http_util.h"
 #include "net/url_request/url_request.h"
 
 namespace {
@@ -92,6 +93,14 @@ int CefNetworkDelegate::OnBeforeURLRequest(
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForRequest(request);
   if (browser.get()) {
+    const CefBrowserSettings& browser_settings = browser->settings();
+    if (browser_settings.accept_language_list.length > 0) {
+      const std::string& accept_language =
+          net::HttpUtil::GenerateAcceptLanguageHeader(
+              CefString(&browser_settings.accept_language_list));
+      request->SetExtraRequestHeaderByName(
+          net::HttpRequestHeaders::kAcceptLanguage, accept_language, false);
+    }
     CefRefPtr<CefClient> client = browser->GetClient();
     if (client.get()) {
       CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();

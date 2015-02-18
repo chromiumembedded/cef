@@ -21,6 +21,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/cefclient/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
+#include "tests/unittests/test_suite.h"
 #include "tests/unittests/test_util.h"
 
 using client::ClientAppRenderer;
@@ -211,6 +212,11 @@ class RequestSchemeHandler : public CefResourceHandler {
     EXPECT_TRUE(headerIter != headerMap.end() && !headerIter->second.empty());
     headerIter = headerMap.find("Accept-Language");
     EXPECT_TRUE(headerIter != headerMap.end() && !headerIter->second.empty());
+
+    // Verify that we get the value that was set via
+    // CefSettings.accept_language_list in CefTestSuite::GetSettings().
+    EXPECT_STREQ(CEF_SETTINGS_ACCEPT_LANGUAGE,
+                 headerIter->second.ToString().data());
 
     // Check if the request cookie was sent.
     bool has_send_cookie = false;

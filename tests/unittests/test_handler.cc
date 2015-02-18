@@ -287,6 +287,7 @@ void TestHandler::CreateBrowser(
   windowInfo.SetAsPopup(NULL, "CefUnitTest");
   windowInfo.style |= WS_VISIBLE;
 #endif
+  PopulateBrowserSettings(&settings);
   CefBrowserHost::CreateBrowser(windowInfo, this, url, settings,
                                 request_context);
 }

@@ -381,6 +381,14 @@ typedef struct _cef_settings_t {
   // of the background color but will be otherwise ignored.
   ///
   cef_color_t background_color;
+
+  ///
+  // Comma delimited ordered list of language codes without any whitespace that
+  // will be used in the "Accept-Language" HTTP header. May be overridden on a
+  // per-browser basis using the CefBrowserSettings.accept_language_list value.
+  // If both values are empty then "en-US,en" will be used.
+  ///
+  cef_string_t accept_language_list;
 } cef_settings_t;
 
 ///
@@ -564,6 +572,14 @@ typedef struct _cef_browser_settings_t {
   // 0 to enable use of the background color but will be otherwise ignored.
   ///
   cef_color_t background_color;
+
+  ///
+  // Comma delimited ordered list of language codes without any whitespace that
+  // will be used in the "Accept-Language" HTTP header. May be set globally
+  // using the CefBrowserSettings.accept_language_list value. If both values are
+  // empty then "en-US,en" will be used.
+  ///
+  cef_string_t accept_language_list;
 } cef_browser_settings_t;
 
 ///

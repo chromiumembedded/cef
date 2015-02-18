@@ -13,6 +13,7 @@
 #include "include/cef_scheme.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/unittests/test_handler.h"
+#include "tests/unittests/test_suite.h"
 
 namespace {
 
@@ -34,6 +35,7 @@ class TestResults {
     sub_status_code = 0;
     sub_allow_origin.clear();
     exit_url.clear();
+    accept_language.clear();
     delay = 0;
     got_request.reset();
     got_read.reset();
@@ -60,6 +62,9 @@ class TestResults {
   std::string sub_redirect_url;
   std::string exit_url;
 
+  // Used for testing per-browser Accept-Language.
+  std::string accept_language;
+
   // Delay for returning scheme handler results.
   int delay;
 
@@ -85,6 +90,13 @@ class TestSchemeHandler : public TestHandler {
   explicit TestSchemeHandler(TestResults* tr)
     : test_results_(tr) {
     g_current_handler = this;
+  }
+
+  void PopulateBrowserSettings(CefBrowserSettings* settings) override {
+    if (!test_results_->accept_language.empty()) {
+      CefString(&settings->accept_language_list) =
+          test_results_->accept_language;
+    }
   }
 
   void RunTest() override {
@@ -192,6 +204,27 @@ class ClientSchemeHandler : public CefResourceHandler {
 
       if (!test_results_->html.empty())
         handled = true;
+    }
+
+    std::string accept_language;
+    CefRequest::HeaderMap headerMap;
+    CefRequest::HeaderMap::iterator headerIter;
+    request->GetHeaderMap(headerMap);
+    headerIter = headerMap.find("Accept-Language");
+    if (headerIter != headerMap.end())
+      accept_language = headerIter->second;
+    EXPECT_TRUE(!accept_language.empty());
+
+    if (!test_results_->accept_language.empty()) {
+      // Value from CefBrowserSettings.accept_language set in
+      // PopulateBrowserSettings().
+      EXPECT_STREQ(test_results_->accept_language.data(),
+                   accept_language.data());
+    } else {
+      // Value from CefSettings.accept_language set in
+      // CefTestSuite::GetSettings().
+      EXPECT_STREQ(CEF_SETTINGS_ACCEPT_LANGUAGE,
+                   accept_language.data());
     }
 
     if (handled) {
@@ -1559,6 +1592,29 @@ TEST(SchemeHandlerTest,
 
   EXPECT_TRUE(CefClearCrossOriginWhitelist());
   WaitForUIThread();
+
+  ClearTestSchemes();
+}
+
+// Test per-browser setting of Accept-Language.
+TEST(SchemeHandlerTest, AcceptLanguage) {
+  RegisterTestScheme("customstd", "test");
+  g_TestResults.url = "customstd://test/run.html";
+  g_TestResults.html =
+      "<html><head></head><body><h1>Success!</h1></body></html>";
+  g_TestResults.status_code = 200;
+
+  // Value that will be set via CefBrowserSettings.accept_language in
+  // PopulateBrowserSettings().
+  g_TestResults.accept_language = "uk";
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_TRUE(g_TestResults.got_read);
+  EXPECT_TRUE(g_TestResults.got_output);
 
   ClearTestSchemes();
 }
