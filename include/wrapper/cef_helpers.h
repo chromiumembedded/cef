@@ -97,11 +97,13 @@ struct CefDeleteOnRendererThread : public CefDeleteOnThread<TID_RENDERER> { };
 class CefScopedArgArray {
  public:
   CefScopedArgArray(int argc, char* argv[]) {
-    array_ = new char*[argc];
+    // argv should have (argc + 1) elements, the last one always being NULL.
+    array_ = new char*[argc + 1];
     for (int i = 0; i < argc; ++i) {
       values_.push_back(argv[i]);
       array_[i] = const_cast<char*>(values_[i].c_str());
     }
+    array_[argc] = NULL;
   }
   ~CefScopedArgArray() {
     delete [] array_;
