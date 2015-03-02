@@ -499,7 +499,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
                      CefRefPtr<CefClient> client,
                      content::WebContents* web_contents,
                      scoped_refptr<CefBrowserInfo> browser_info,
-                     CefWindowHandle opener);
+                     CefWindowHandle opener,
+                     CefRefPtr<CefRequestContext> request_context);
 
   // Updates and returns an existing frame or creates a new frame. Pass
   // CefFrameHostImpl::kUnspecifiedFrameId for |parent_frame_id| if unknown.

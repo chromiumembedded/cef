@@ -24,12 +24,14 @@ namespace content {
 class BrowserContext;
 }
 
+class CefURLRequestManager;
+
 namespace scheme {
 
 extern const char kChromeURL[];
 
 // Register the chrome scheme handler.
-void RegisterChromeHandler();
+void RegisterChromeHandler(CefURLRequestManager* request_manager);
 
 // Used to redirect about: URLs to chrome: URLs.
 bool WillHandleBrowserAboutURL(GURL* url,
@@ -43,6 +45,7 @@ void DidFinishChromeLoad(CefRefPtr<CefFrame> frame,
 // "chrome" protocol handler and forward the rest to CEF's handler.
 scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
 WrapChromeProtocolHandler(
+    CefURLRequestManager* request_manager,
     scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
         chrome_protocol_handler);
 

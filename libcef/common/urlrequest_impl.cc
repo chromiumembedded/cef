@@ -14,7 +14,8 @@
 // static
 CefRefPtr<CefURLRequest> CefURLRequest::Create(
       CefRefPtr<CefRequest> request,
-      CefRefPtr<CefURLRequestClient> client) {
+      CefRefPtr<CefURLRequestClient> client,
+      CefRefPtr<CefRequestContext> request_context) {
   if (!request.get() || !client.get()) {
     NOTREACHED() << "called with invalid parameters";
     return NULL;
@@ -28,7 +29,7 @@ CefRefPtr<CefURLRequest> CefURLRequest::Create(
   if (CefContentClient::Get()->browser()) {
     // In the browser process.
     CefRefPtr<CefBrowserURLRequest> impl =
-        new CefBrowserURLRequest(request, client);
+        new CefBrowserURLRequest(request, client, request_context);
     if (impl->Start())
       return impl.get();
     return NULL;

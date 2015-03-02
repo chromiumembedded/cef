@@ -26,23 +26,66 @@ const char* kTestUrl = "http://www.test.com/path/to/cookietest/foo.html";
 const char* kTestDomain = "www.test.com";
 const char* kTestPath = "/path/to/cookietest";
 
+const int kIgnoreNumDeleted = -2;
+
 typedef std::vector<CefCookie> CookieVector;
 
-void IOT_Set(CefRefPtr<CefCookieManager> manager,
-             const CefString& url, CookieVector* cookies,
-             base::WaitableEvent* event) {
-  CookieVector::const_iterator it = cookies->begin();
-  for (; it != cookies->end(); ++it)
-    EXPECT_TRUE(manager->SetCookie(url, *it));
-  event->Signal();
-}
+class TestCompletionCallback : public CefCompletionCallback {
+ public:
+  explicit TestCompletionCallback(base::WaitableEvent* event)
+    : event_(event) {}
 
-void IOT_Delete(CefRefPtr<CefCookieManager> manager,
-                const CefString& url, const CefString& cookie_name,
-                base::WaitableEvent* event) {
-  EXPECT_TRUE(manager->DeleteCookies(url, cookie_name));
-  event->Signal();
-}
+  void OnComplete() override {
+    event_->Signal();
+  }
+
+ private:
+  base::WaitableEvent* event_;
+
+  IMPLEMENT_REFCOUNTING(TestCompletionCallback);
+  DISALLOW_COPY_AND_ASSIGN(TestCompletionCallback);
+};
+
+class TestSetCookieCallback : public CefSetCookieCallback {
+ public:
+  TestSetCookieCallback(bool expected_success,
+                       base::WaitableEvent* event)
+    : expected_success_(expected_success),
+      event_(event) {}
+
+  void OnComplete(bool success) override {
+    EXPECT_EQ(expected_success_, success);
+    event_->Signal();
+  }
+
+ private:
+  bool expected_success_;
+  base::WaitableEvent* event_;
+
+  IMPLEMENT_REFCOUNTING(TestSetCookieCallback);
+  DISALLOW_COPY_AND_ASSIGN(TestSetCookieCallback);
+};
+
+class TestDeleteCookiesCallback : public CefDeleteCookiesCallback {
+ public:
+  TestDeleteCookiesCallback(int expected_num_deleted,
+                            base::WaitableEvent* event)
+    : expected_num_deleted_(expected_num_deleted),
+      event_(event) {}
+
+  void OnComplete(int num_deleted) override {
+    if (expected_num_deleted_ != kIgnoreNumDeleted)
+      EXPECT_EQ(expected_num_deleted_, num_deleted);
+    event_->Signal();
+  }
+
+ private:
+  int expected_num_deleted_;
+  base::WaitableEvent* event_;
+
+  IMPLEMENT_REFCOUNTING(TestDeleteCookiesCallback);
+  DISALLOW_COPY_AND_ASSIGN(TestDeleteCookiesCallback);
+};
 
 class TestVisitor : public CefCookieVisitor {
  public:
@@ -73,18 +116,25 @@ class TestVisitor : public CefCookieVisitor {
 
 // Set the cookies.
 void SetCookies(CefRefPtr<CefCookieManager> manager,
-                const CefString& url, CookieVector& cookies,
+                const CefString& url, const CookieVector& cookies,
+                bool expected_success,
                 base::WaitableEvent& event) {
-  CefPostTask(TID_IO, base::Bind(IOT_Set, manager, url, &cookies, &event));
-  event.Wait();
+  CookieVector::const_iterator it = cookies.begin();
+  for (; it != cookies.end(); ++it) {
+    EXPECT_TRUE(manager->SetCookie(
+        url, *it, new TestSetCookieCallback(expected_success, &event)));
+    event.Wait();
+  }
 }
 
 // Delete the cookie.
 void DeleteCookies(CefRefPtr<CefCookieManager> manager,
                    const CefString& url, const CefString& cookie_name,
+                   int expected_num_deleted,
                    base::WaitableEvent& event) {
-  CefPostTask(TID_IO,
-      base::Bind(IOT_Delete, manager, url, cookie_name, &event));
+  EXPECT_TRUE(manager->DeleteCookies(
+      url, cookie_name,
+      new TestDeleteCookiesCallback(expected_num_deleted, &event)));
   event.Wait();
 }
 
@@ -110,7 +160,7 @@ void CreateCookie(CefRefPtr<CefCookieManager> manager,
   CookieVector cookies;
   cookies.push_back(cookie);
 
-  SetCookies(manager, kTestUrl, cookies, event);
+  SetCookies(manager, kTestUrl, cookies, true, event);
 }
 
 // Retrieve the test cookie. If |withDomain| is true check that the cookie
@@ -126,7 +176,9 @@ void GetCookie(CefRefPtr<CefCookieManager> manager,
       new TestVisitor(&cookies, deleteCookies, &event)));
   event.Wait();
 
-  EXPECT_EQ((CookieVector::size_type)1, cookies.size());
+  EXPECT_EQ(1U, cookies.size());
+  if (cookies.size() != 1U)
+    return;
 
   const CefCookie& cookie_read = cookies[0];
   EXPECT_EQ(CefString(&cookie_read.name), "my_cookie");
@@ -185,19 +237,17 @@ void VerifyNoCookies(CefRefPtr<CefCookieManager> manager,
   }
   event.Wait();
 
-  EXPECT_EQ((CookieVector::size_type)0, cookies.size());
+  EXPECT_EQ(0U, cookies.size());
 }
 
 // Delete all system cookies.
 void DeleteAllCookies(CefRefPtr<CefCookieManager> manager,
                       base::WaitableEvent& event) {
-  CefPostTask(TID_IO,
-      base::Bind(IOT_Delete, manager, CefString(), CefString(), &event));
-  event.Wait();
+  DeleteCookies(manager, CefString(), CefString(), kIgnoreNumDeleted, event);
 }
 
-void TestDomainCookie(CefRefPtr<CefCookieManager> manager) {
-  base::WaitableEvent event(false, false);
+void TestDomainCookie(CefRefPtr<CefCookieManager> manager,
+                      base::WaitableEvent& event) {
   CefCookie cookie;
 
   // Create a domain cookie.
@@ -210,8 +260,8 @@ void TestDomainCookie(CefRefPtr<CefCookieManager> manager) {
   VerifyNoCookies(manager, event, true);
 }
 
-void TestHostCookie(CefRefPtr<CefCookieManager> manager) {
-  base::WaitableEvent event(false, false);
+void TestHostCookie(CefRefPtr<CefCookieManager> manager,
+                    base::WaitableEvent& event) {
   CefCookie cookie;
 
   // Create a host cookie.
@@ -224,8 +274,8 @@ void TestHostCookie(CefRefPtr<CefCookieManager> manager) {
   VerifyNoCookies(manager, event, true);
 }
 
-void TestMultipleCookies(CefRefPtr<CefCookieManager> manager) {
-  base::WaitableEvent event(false, false);
+void TestMultipleCookies(CefRefPtr<CefCookieManager> manager,
+                         base::WaitableEvent& event) {
   std::stringstream ss;
   int i;
 
@@ -248,7 +298,7 @@ void TestMultipleCookies(CefRefPtr<CefCookieManager> manager) {
   }
 
   // Set the cookies.
-  SetCookies(manager, kTestUrl, cookies, event);
+  SetCookies(manager, kTestUrl, cookies, true, event);
   cookies.clear();
 
   // Get the cookies without deleting them.
@@ -271,12 +321,15 @@ void TestMultipleCookies(CefRefPtr<CefCookieManager> manager) {
   cookies.clear();
 
   // Delete the 2nd cookie.
-  DeleteCookies(manager, kTestUrl, CefString("my_cookie1"), event);
+  DeleteCookies(manager, kTestUrl, CefString("my_cookie1"), -1, event);
 
   // Verify that the cookie has been deleted.
   VisitUrlCookies(manager, kTestUrl, false, cookies, false, event);
 
-  EXPECT_EQ((CookieVector::size_type)3, cookies.size());
+  EXPECT_EQ(3U, cookies.size());
+  if (cookies.size() != 3U)
+    return;
+
   EXPECT_EQ(CefString(&cookies[0].name), "my_cookie0");
   EXPECT_EQ(CefString(&cookies[1].name), "my_cookie2");
   EXPECT_EQ(CefString(&cookies[2].name), "my_cookie3");
@@ -284,12 +337,12 @@ void TestMultipleCookies(CefRefPtr<CefCookieManager> manager) {
   cookies.clear();
 
   // Delete the rest of the cookies.
-  DeleteCookies(manager, kTestUrl, CefString(), event);
+  DeleteCookies(manager, kTestUrl, CefString(), 3, event);
 
   // Verify that the cookies have been deleted.
   VisitUrlCookies(manager, kTestUrl, false, cookies, false, event);
 
-  EXPECT_EQ((CookieVector::size_type)0, cookies.size());
+  EXPECT_EQ(0U, cookies.size());
 
   // Create the cookies.
   for (i = 0; i < kNumCookies; i++) {
@@ -313,21 +366,21 @@ void TestMultipleCookies(CefRefPtr<CefCookieManager> manager) {
   // Verify that the cookies have been deleted.
   VisitUrlCookies(manager, kTestUrl, false, cookies, false, event);
 
-  EXPECT_EQ((CookieVector::size_type)0, cookies.size());
+  EXPECT_EQ(0U, cookies.size());
 }
 
-void TestAllCookies(CefRefPtr<CefCookieManager> manager) {
-  base::WaitableEvent event(false, false);
+void TestAllCookies(CefRefPtr<CefCookieManager> manager,
+                    base::WaitableEvent& event) {
   CookieVector cookies;
 
   // Delete all system cookies just in case something is left over from a
   // different test.
-  DeleteCookies(manager, CefString(), CefString(), event);
+  DeleteAllCookies(manager, event);
 
   // Verify that all system cookies have been deleted.
   VisitAllCookies(manager, cookies, false, event);
 
-  EXPECT_EQ((CookieVector::size_type)0, cookies.size());
+  EXPECT_EQ(0U, cookies.size());
 
   // Create cookies with 2 separate hosts.
   CefCookie cookie1;
@@ -336,7 +389,7 @@ void TestAllCookies(CefRefPtr<CefCookieManager> manager) {
   CefString(&cookie1.value).FromASCII("My Value 1");
 
   cookies.push_back(cookie1);
-  SetCookies(manager,  kUrl1, cookies, event);
+  SetCookies(manager,  kUrl1, cookies, true, event);
   cookies.clear();
 
   CefCookie cookie2;
@@ -345,13 +398,16 @@ void TestAllCookies(CefRefPtr<CefCookieManager> manager) {
   CefString(&cookie2.value).FromASCII("My Value 2");
 
   cookies.push_back(cookie2);
-  SetCookies(manager,  kUrl2, cookies, event);
+  SetCookies(manager,  kUrl2, cookies, true, event);
   cookies.clear();
 
   // Verify that all system cookies can be retrieved.
   VisitAllCookies(manager, cookies, false, event);
 
-  EXPECT_EQ((CookieVector::size_type)2, cookies.size());
+  EXPECT_EQ(2U, cookies.size());
+  if (cookies.size() != 2U)
+    return;
+
   EXPECT_EQ(CefString(&cookies[0].name), "my_cookie1");
   EXPECT_EQ(CefString(&cookies[0].value), "My Value 1");
   EXPECT_EQ(CefString(&cookies[0].domain), "www.foo.com");
@@ -363,7 +419,10 @@ void TestAllCookies(CefRefPtr<CefCookieManager> manager) {
   // Verify that the cookies can be retrieved separately.
   VisitUrlCookies(manager, kUrl1, false, cookies, false, event);
 
-  EXPECT_EQ((CookieVector::size_type)1, cookies.size());
+  EXPECT_EQ(1U, cookies.size());
+  if (cookies.size() != 1U)
+    return;
+
   EXPECT_EQ(CefString(&cookies[0].name), "my_cookie1");
   EXPECT_EQ(CefString(&cookies[0].value), "My Value 1");
   EXPECT_EQ(CefString(&cookies[0].domain), "www.foo.com");
@@ -371,7 +430,10 @@ void TestAllCookies(CefRefPtr<CefCookieManager> manager) {
 
   VisitUrlCookies(manager, kUrl2, false, cookies, false, event);
 
-  EXPECT_EQ((CookieVector::size_type)1, cookies.size());
+  EXPECT_EQ(1U, cookies.size());
+  if (cookies.size() != 1U)
+    return;
+
   EXPECT_EQ(CefString(&cookies[0].name), "my_cookie2");
   EXPECT_EQ(CefString(&cookies[0].value), "My Value 2");
   EXPECT_EQ(CefString(&cookies[0].domain), "www.bar.com");
@@ -385,8 +447,8 @@ void TestAllCookies(CefRefPtr<CefCookieManager> manager) {
 }
 
 void TestChangeDirectory(CefRefPtr<CefCookieManager> manager,
+                         base::WaitableEvent& event,
                          const CefString& original_dir) {
-  base::WaitableEvent event(false, false);
   CefCookie cookie;
 
   base::ScopedTempDir temp_dir;
@@ -398,7 +460,7 @@ void TestChangeDirectory(CefRefPtr<CefCookieManager> manager,
   DeleteAllCookies(manager, event);
 
   // Set the new temporary directory as the storage location.
-  EXPECT_TRUE(manager->SetStoragePath(temp_dir.path().value(), false));
+  EXPECT_TRUE(manager->SetStoragePath(temp_dir.path().value(), false, NULL));
 
   // Wait for the storage location change to complete on the IO thread.
   WaitForIOThread();
@@ -413,7 +475,7 @@ void TestChangeDirectory(CefRefPtr<CefCookieManager> manager,
   GetCookie(manager, cookie, true, event, false);
 
   // Restore the original storage location.
-  EXPECT_TRUE(manager->SetStoragePath(original_dir, false));
+  EXPECT_TRUE(manager->SetStoragePath(original_dir, false, NULL));
 
   // Wait for the storage location change to complete on the IO thread.
   WaitForIOThread();
@@ -422,7 +484,7 @@ void TestChangeDirectory(CefRefPtr<CefCookieManager> manager,
   VerifyNoCookies(manager, event, true);
 
   // Set the new temporary directory as the storage location.
-  EXPECT_TRUE(manager->SetStoragePath(temp_dir.path().value(), false));
+  EXPECT_TRUE(manager->SetStoragePath(temp_dir.path().value(), false, NULL));
 
   // Wait for the storage location change to complete on the IO thread.
   WaitForIOThread();
@@ -431,7 +493,7 @@ void TestChangeDirectory(CefRefPtr<CefCookieManager> manager,
   GetCookie(manager, cookie, true, event, false);
 
   // Restore the original storage location.
-  EXPECT_TRUE(manager->SetStoragePath(original_dir, false));
+  EXPECT_TRUE(manager->SetStoragePath(original_dir, false, NULL));
 
   // Wait for the storage location change to complete on the IO thread.
   WaitForIOThread();
@@ -441,19 +503,27 @@ void TestChangeDirectory(CefRefPtr<CefCookieManager> manager,
 
 // Test creation of a domain cookie.
 TEST(CookieTest, DomainCookieGlobal) {
-  CefRefPtr<CefCookieManager> manager = CefCookieManager::GetGlobalManager();
+  base::WaitableEvent event(false, false);
+
+  CefRefPtr<CefCookieManager> manager =
+      CefCookieManager::GetGlobalManager(new TestCompletionCallback(&event));
+  event.Wait();
   EXPECT_TRUE(manager.get());
 
-  TestDomainCookie(manager);
+  TestDomainCookie(manager, event);
 }
 
 // Test creation of a domain cookie.
 TEST(CookieTest, DomainCookieInMemory) {
+  base::WaitableEvent event(false, false);
+
   CefRefPtr<CefCookieManager> manager =
-      CefCookieManager::CreateManager(CefString(), false);
+      CefCookieManager::CreateManager(CefString(), false,
+                                      new TestCompletionCallback(&event));
+  event.Wait();
   EXPECT_TRUE(manager.get());
 
-  TestDomainCookie(manager);
+  TestDomainCookie(manager, event);
 }
 
 // Test creation of a domain cookie.
@@ -463,28 +533,40 @@ TEST(CookieTest, DomainCookieOnDisk) {
   // Create a new temporary directory.
   EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
 
+  base::WaitableEvent event(false, false);
+
   CefRefPtr<CefCookieManager> manager =
-      CefCookieManager::CreateManager(temp_dir.path().value(), false);
+      CefCookieManager::CreateManager(temp_dir.path().value(), false,
+                                      new TestCompletionCallback(&event));
+  event.Wait();
   EXPECT_TRUE(manager.get());
 
-  TestDomainCookie(manager);
+  TestDomainCookie(manager, event);
 }
 
 // Test creation of a host cookie.
 TEST(CookieTest, HostCookieGlobal) {
-  CefRefPtr<CefCookieManager> manager = CefCookieManager::GetGlobalManager();
+  base::WaitableEvent event(false, false);
+
+  CefRefPtr<CefCookieManager> manager =
+      CefCookieManager::GetGlobalManager(new TestCompletionCallback(&event));
+  event.Wait();
   EXPECT_TRUE(manager.get());
 
-  TestHostCookie(manager);
+  TestHostCookie(manager, event);
 }
 
 // Test creation of a host cookie.
 TEST(CookieTest, HostCookieInMemory) {
+  base::WaitableEvent event(false, false);
+
   CefRefPtr<CefCookieManager> manager =
-      CefCookieManager::CreateManager(CefString(), false);
+      CefCookieManager::CreateManager(CefString(), false,
+                                      new TestCompletionCallback(&event));
+  event.Wait();
   EXPECT_TRUE(manager.get());
 
-  TestHostCookie(manager);
+  TestHostCookie(manager, event);
 }
 
 // Test creation of a host cookie.
@@ -494,28 +576,40 @@ TEST(CookieTest, HostCookieOnDisk) {
   // Create a new temporary directory.
   EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
 
+  base::WaitableEvent event(false, false);
+
   CefRefPtr<CefCookieManager> manager =
-      CefCookieManager::CreateManager(temp_dir.path().value(), false);
+      CefCookieManager::CreateManager(temp_dir.path().value(), false,
+                                      new TestCompletionCallback(&event));
+  event.Wait();
   EXPECT_TRUE(manager.get());
 
-  TestHostCookie(manager);
+  TestHostCookie(manager, event);
 }
 
 // Test creation of multiple cookies.
 TEST(CookieTest, MultipleCookiesGlobal) {
-  CefRefPtr<CefCookieManager> manager = CefCookieManager::GetGlobalManager();
+  base::WaitableEvent event(false, false);
+
+  CefRefPtr<CefCookieManager> manager =
+      CefCookieManager::GetGlobalManager(new TestCompletionCallback(&event));
+  event.Wait();
   EXPECT_TRUE(manager.get());
 
-  TestMultipleCookies(manager);
+  TestMultipleCookies(manager, event);
 }
 
 // Test creation of multiple cookies.
 TEST(CookieTest, MultipleCookiesInMemory) {
+  base::WaitableEvent event(false, false);
+
   CefRefPtr<CefCookieManager> manager =
-      CefCookieManager::CreateManager(CefString(), false);
+      CefCookieManager::CreateManager(CefString(), false,
+                                      new TestCompletionCallback(&event));
+  event.Wait();
   EXPECT_TRUE(manager.get());
 
-  TestMultipleCookies(manager);
+  TestMultipleCookies(manager, event);
 }
 
 // Test creation of multiple cookies.
@@ -525,26 +619,38 @@ TEST(CookieTest, MultipleCookiesOnDisk) {
   // Create a new temporary directory.
   EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
 
+  base::WaitableEvent event(false, false);
+
   CefRefPtr<CefCookieManager> manager =
-      CefCookieManager::CreateManager(temp_dir.path().value(), false);
+      CefCookieManager::CreateManager(temp_dir.path().value(), false,
+                                      new TestCompletionCallback(&event));
+  event.Wait();
   EXPECT_TRUE(manager.get());
 
-  TestMultipleCookies(manager);
+  TestMultipleCookies(manager, event);
 }
 
 TEST(CookieTest, AllCookiesGlobal) {
-  CefRefPtr<CefCookieManager> manager = CefCookieManager::GetGlobalManager();
+  base::WaitableEvent event(false, false);
+
+  CefRefPtr<CefCookieManager> manager =
+      CefCookieManager::GetGlobalManager(new TestCompletionCallback(&event));
+  event.Wait();
   EXPECT_TRUE(manager.get());
 
-  TestAllCookies(manager);
+  TestAllCookies(manager, event);
 }
 
 TEST(CookieTest, AllCookiesInMemory) {
+  base::WaitableEvent event(false, false);
+
   CefRefPtr<CefCookieManager> manager =
-      CefCookieManager::CreateManager(CefString(), false);
+      CefCookieManager::CreateManager(CefString(), false,
+                                      new TestCompletionCallback(&event));
+  event.Wait();
   EXPECT_TRUE(manager.get());
 
-  TestAllCookies(manager);
+  TestAllCookies(manager, event);
 }
 
 TEST(CookieTest, AllCookiesOnDisk) {
@@ -553,50 +659,42 @@ TEST(CookieTest, AllCookiesOnDisk) {
   // Create a new temporary directory.
   EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
 
+  base::WaitableEvent event(false, false);
+
   CefRefPtr<CefCookieManager> manager =
-      CefCookieManager::CreateManager(temp_dir.path().value(), false);
+      CefCookieManager::CreateManager(temp_dir.path().value(), false,
+                                      new TestCompletionCallback(&event));
+  event.Wait();
   EXPECT_TRUE(manager.get());
 
-  TestAllCookies(manager);
+  TestAllCookies(manager, event);
 }
 
 TEST(CookieTest, ChangeDirectoryGlobal) {
-  CefRefPtr<CefCookieManager> manager = CefCookieManager::GetGlobalManager();
+  base::WaitableEvent event(false, false);
+
+  CefRefPtr<CefCookieManager> manager =
+      CefCookieManager::GetGlobalManager(new TestCompletionCallback(&event));
+  event.Wait();
   EXPECT_TRUE(manager.get());
 
   std::string cache_path;
   CefTestSuite::GetCachePath(cache_path);
 
-  TestChangeDirectory(manager, cache_path);
+  TestChangeDirectory(manager, event, cache_path);
 }
 
 TEST(CookieTest, ChangeDirectoryCreated) {
+  base::WaitableEvent event(false, false);
+
   CefRefPtr<CefCookieManager> manager =
-      CefCookieManager::CreateManager(CefString(), false);
+      CefCookieManager::CreateManager(CefString(), false,
+                                      new TestCompletionCallback(&event));
+  event.Wait();
   EXPECT_TRUE(manager.get());
 
-  TestChangeDirectory(manager, CefString());
+  TestChangeDirectory(manager, event, CefString());
 }
-
-
-namespace {
-
-class TestCompletionCallback : public CefCompletionCallback {
- public:
-  explicit TestCompletionCallback(base::WaitableEvent* event)
-    : event_(event) {}
-
-  void OnComplete() override {
-    event_->Signal();
-  }
-
- private:
-  base::WaitableEvent* event_;
-
-  IMPLEMENT_REFCOUNTING(TestCompletionCallback);
-};
-
-}  // namespace
 
 TEST(CookieTest, SessionCookieNoPersist) {
   base::ScopedTempDir temp_dir;
@@ -607,7 +705,9 @@ TEST(CookieTest, SessionCookieNoPersist) {
   EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
 
   CefRefPtr<CefCookieManager> manager =
-      CefCookieManager::CreateManager(temp_dir.path().value(), false);
+      CefCookieManager::CreateManager(temp_dir.path().value(), false,
+                                      new TestCompletionCallback(&event));
+  event.Wait();
   EXPECT_TRUE(manager.get());
 
   // Create a session cookie.
@@ -619,10 +719,12 @@ TEST(CookieTest, SessionCookieNoPersist) {
   // Flush the cookie store to disk.
   manager->FlushStore(new TestCompletionCallback(&event));
   event.Wait();
-  
+ 
   // Create a new manager to read the same cookie store.
-  manager =
-      CefCookieManager::CreateManager(temp_dir.path().value(), false);
+  manager = CefCookieManager::CreateManager(temp_dir.path().value(), false,
+                                            new TestCompletionCallback(&event));
+  event.Wait();
+  EXPECT_TRUE(manager.get());
 
   // Verify that the cookie doesn't exist.
   VerifyNoCookies(manager, event, true);
@@ -637,7 +739,9 @@ TEST(CookieTest, SessionCookieWillPersist) {
   EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
 
   CefRefPtr<CefCookieManager> manager =
-      CefCookieManager::CreateManager(temp_dir.path().value(), true);
+      CefCookieManager::CreateManager(temp_dir.path().value(), true,
+                                      new TestCompletionCallback(&event));
+  event.Wait();
   EXPECT_TRUE(manager.get());
 
   // Create a session cookie.
@@ -651,8 +755,10 @@ TEST(CookieTest, SessionCookieWillPersist) {
   event.Wait();
   
   // Create a new manager to read the same cookie store.
-  manager =
-      CefCookieManager::CreateManager(temp_dir.path().value(), true);
+  manager = CefCookieManager::CreateManager(temp_dir.path().value(), true,
+                                            new TestCompletionCallback(&event));
+  event.Wait();
+  EXPECT_TRUE(manager.get());
 
   // Verify that the cookie exists.
   GetCookie(manager, cookie, true, event, false);
@@ -704,9 +810,9 @@ class CookieTestJSHandler : public TestHandler {
   CookieTestJSHandler() {}
 
   void RunTest() override {
-    // Create =new in-memory managers.
-    manager1_ = CefCookieManager::CreateManager(CefString(), false);
-    manager2_ = CefCookieManager::CreateManager(CefString(), false);
+    // Create new in-memory managers.
+    manager1_ = CefCookieManager::CreateManager(CefString(), false, NULL);
+    manager2_ = CefCookieManager::CreateManager(CefString(), false, NULL);
 
     std::string page =
         "<html><head>"
@@ -727,9 +833,13 @@ class CookieTestJSHandler : public TestHandler {
     context_handler_ = new RequestContextHandler(this);
     context_handler_->SetURL(kCookieJSUrl1);
 
-    // Create the browser
-    CreateBrowser(kCookieJSUrl1,
-        CefRequestContext::CreateContext(context_handler_.get()));
+    // Create the request context that will use an in-memory cache.
+    CefRequestContextSettings settings;
+    CefRefPtr<CefRequestContext> request_context =
+        CefRequestContext::CreateContext(settings, context_handler_.get());
+
+    // Create the browser.
+    CreateBrowser(kCookieJSUrl1, request_context);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
@@ -773,7 +883,7 @@ class CookieTestJSHandler : public TestHandler {
     // Get the cookie.
     VisitUrlCookies(manager, url, false, cookies, false, event);
 
-    if (cookies.size() == 1 && CefString(&cookies[0].name) == name &&
+    if (cookies.size() == 1U && CefString(&cookies[0].name) == name &&
         CefString(&cookies[0].value) == value) {
       callback.yes();
     }
@@ -968,8 +1078,8 @@ class CookieTestSchemeHandler : public TestHandler {
 
   void RunTest() override {
     // Create new in-memory managers.
-    manager1_ = CefCookieManager::CreateManager(CefString(), false);
-    manager2_ = CefCookieManager::CreateManager(CefString(), false);
+    manager1_ = CefCookieManager::CreateManager(CefString(), false, NULL);
+    manager2_ = CefCookieManager::CreateManager(CefString(), false, NULL);
 
     if (scheme_ != "http") {
       std::vector<CefString> schemes;
@@ -977,20 +1087,24 @@ class CookieTestSchemeHandler : public TestHandler {
       schemes.push_back("https");
       schemes.push_back(scheme_);
 
-      manager1_->SetSupportedSchemes(schemes);
-      manager2_->SetSupportedSchemes(schemes);
+      manager1_->SetSupportedSchemes(schemes, NULL);
+      manager2_->SetSupportedSchemes(schemes, NULL);
     }
-
-    // Register the scheme handler.
-    CefRegisterSchemeHandlerFactory(scheme_, "cookie-tests",
-        new SchemeHandlerFactory(this));
 
     context_handler_ = new RequestContextHandler(this);
     context_handler_->SetURL(url1_);
 
-    // Create the browser
-    CreateBrowser(url1_,
-        CefRequestContext::CreateContext(context_handler_.get()));
+    // Create the request context that will use an in-memory cache.
+    CefRequestContextSettings settings;
+    CefRefPtr<CefRequestContext> request_context =
+        CefRequestContext::CreateContext(settings, context_handler_.get());
+
+    // Register the scheme handler.
+    request_context->RegisterSchemeHandlerFactory(scheme_, "cookie-tests",
+        new SchemeHandlerFactory(this));
+
+    // Create the browser.
+    CreateBrowser(url1_, request_context);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
@@ -1019,7 +1133,8 @@ class CookieTestSchemeHandler : public TestHandler {
       VerifyCookie(manager2_, url, "name2", "value2", got_cookie3_);
 
       // Unregister the scheme handler.
-      CefRegisterSchemeHandlerFactory(scheme_, "cookie-tests", NULL);
+      browser->GetHost()->GetRequestContext()->RegisterSchemeHandlerFactory(
+          scheme_, "cookie-tests", NULL);
 
       DestroyTest();
     }
@@ -1044,7 +1159,7 @@ class CookieTestSchemeHandler : public TestHandler {
     // Get the cookie.
     VisitUrlCookies(manager, url, false, cookies, false, event);
 
-    if (cookies.size() == 1 && CefString(&cookies[0].name) == name &&
+    if (cookies.size() == 1U && CefString(&cookies[0].name) == name &&
         CefString(&cookies[0].value) == value) {
       callback.yes();
     }

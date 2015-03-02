@@ -39,6 +39,7 @@
 #include "libcef_dll/cpptoc/context_menu_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/domvisitor_cpptoc.h"
+#include "libcef_dll/cpptoc/delete_cookies_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/dialog_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/download_handler_cpptoc.h"
@@ -62,6 +63,7 @@
 #include "libcef_dll/cpptoc/resource_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/run_file_dialog_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
+#include "libcef_dll/cpptoc/set_cookie_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/string_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/task_cpptoc.h"
 #include "libcef_dll/cpptoc/urlrequest_client_cpptoc.h"
@@ -194,6 +196,8 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefDOMDocumentCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefDOMNodeCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefDOMVisitorCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefDeleteCookiesCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefDialogHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefDictionaryValueCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefDisplayHandlerCppToC::DebugObjCt));
@@ -243,6 +247,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK(base::AtomicRefCountIsZero(
       &CefSchemeHandlerFactoryCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefSchemeRegistrarCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefSetCookieCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefStreamReaderCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefStreamWriterCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefStringVisitorCppToC::DebugObjCt));

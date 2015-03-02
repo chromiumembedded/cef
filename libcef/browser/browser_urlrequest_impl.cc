@@ -8,6 +8,7 @@
 
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/content_browser_client.h"
+#include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_request_user_data.h"
 #include "libcef/common/http_header_utils.h"
@@ -17,6 +18,7 @@
 #include "base/logging.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_util.h"
+#include "content/public/browser/browser_thread.h"
 #include "content/public/common/url_fetcher.h"
 #include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
@@ -28,6 +30,7 @@
 #include "net/url_request/url_fetcher_response_writer.h"
 #include "net/url_request/url_request_status.h"
 
+using content::BrowserThread;
 
 namespace {
 
@@ -128,10 +131,12 @@ class CefBrowserURLRequest::Context
  public:
   Context(CefRefPtr<CefBrowserURLRequest> url_request,
           CefRefPtr<CefRequest> request,
-          CefRefPtr<CefURLRequestClient> client)
+          CefRefPtr<CefURLRequestClient> client,
+          CefRefPtr<CefRequestContext> request_context)
     : url_request_(url_request),
       request_(request),
       client_(client),
+      request_context_(request_context),
       message_loop_proxy_(base::MessageLoop::current()->message_loop_proxy()),
     status_(UR_IO_PENDING),
     error_code_(ERR_NONE),
@@ -169,13 +174,48 @@ class CefBrowserURLRequest::Context
       return false;
     }
 
+    BrowserThread::PostTaskAndReply(
+      BrowserThread::UI,
+      FROM_HERE,
+      base::Bind(&CefBrowserURLRequest::Context::GetRequestContextOnUIThread,
+                 this),
+      base::Bind(&CefBrowserURLRequest::Context::ContinueOnOriginatingThread,
+                 this, url, request_type));
+
+    return true;
+  }
+
+  void GetRequestContextOnUIThread() {
+    CEF_REQUIRE_UIT();
+
+    // Get or create the request context and browser context.
+    CefRefPtr<CefRequestContextImpl> request_context_impl =
+        CefRequestContextImpl::GetForRequestContext(request_context_);
+    DCHECK(request_context_impl.get());
+    scoped_refptr<CefBrowserContext> browser_context =
+        request_context_impl->GetBrowserContext();
+    DCHECK(browser_context.get());
+
+    if (!request_context_.get())
+      request_context_ = request_context_impl.get();
+
+    // The request context is created on the UI thread but accessed and
+    // destroyed on the IO thread.
+    url_request_getter_ = browser_context->GetRequestContext();
+  }
+
+  void ContinueOnOriginatingThread(const GURL& url,
+                                   net::URLFetcher::RequestType request_type) {
+    DCHECK(CalledOnValidThread());
+
     fetcher_delegate_.reset(
         new CefURLFetcherDelegate(this, request_->GetFlags()));
 
     fetcher_.reset(net::URLFetcher::Create(url, request_type,
                                            fetcher_delegate_.get()));
-    fetcher_->SetRequestContext(
-        CefContentBrowserClient::Get()->request_context().get());
+
+    DCHECK(url_request_getter_.get());
+    fetcher_->SetRequestContext(url_request_getter_.get());
 
     CefRequest::HeaderMap headerMap;
     request_->GetHeaderMap(headerMap);
@@ -289,8 +329,6 @@ class CefBrowserURLRequest::Context
     fetcher_->SaveResponseWithWriter(response_writer.Pass());
 
     fetcher_->Start();
-
-    return true;
   }
 
   void Cancel() {
@@ -424,6 +462,7 @@ class CefBrowserURLRequest::Context
   CefRefPtr<CefBrowserURLRequest> url_request_;
   CefRefPtr<CefRequest> request_;
   CefRefPtr<CefURLRequestClient> client_;
+  CefRefPtr<CefRequestContext> request_context_;
   scoped_refptr<base::MessageLoopProxy> message_loop_proxy_;
   scoped_ptr<net::URLFetcher> fetcher_;
   scoped_ptr<CefURLFetcherDelegate> fetcher_delegate_;
@@ -432,6 +471,8 @@ class CefBrowserURLRequest::Context
   CefRefPtr<CefResponse> response_;
   int64 upload_data_size_;
   bool got_upload_progress_complete_;
+
+  scoped_refptr<net::URLRequestContextGetter> url_request_getter_;
 };
 
 
@@ -476,8 +517,9 @@ void CefURLFetcherDelegate::OnURLFetchUploadProgress(
 
 CefBrowserURLRequest::CefBrowserURLRequest(
     CefRefPtr<CefRequest> request,
-    CefRefPtr<CefURLRequestClient> client) {
-  context_ = new Context(this, request, client);
+    CefRefPtr<CefURLRequestClient> client,
+    CefRefPtr<CefRequestContext> request_context) {
+  context_ = new Context(this, request, client, request_context);
 }
 
 CefBrowserURLRequest::~CefBrowserURLRequest() {

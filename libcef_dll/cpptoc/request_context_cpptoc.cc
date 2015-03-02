@@ -10,8 +10,11 @@
 // for more information.
 //
 
+#include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
+#include "libcef_dll/ctocpp/completion_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/request_context_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
 
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
@@ -27,13 +30,44 @@ CEF_EXPORT cef_request_context_t* cef_request_context_get_global_context() {
 }
 
 CEF_EXPORT cef_request_context_t* cef_request_context_create_context(
+    const struct _cef_request_context_settings_t* settings,
     struct _cef_request_context_handler_t* handler) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+  // Verify param: settings; type: struct_byref_const
+  DCHECK(settings);
+  if (!settings)
+    return NULL;
+  // Unverified params: handler
+
+  // Translate param: settings; type: struct_byref_const
+  CefRequestContextSettings settingsObj;
+  if (settings)
+    settingsObj.Set(*settings, false);
+
+  // Execute
+  CefRefPtr<CefRequestContext> _retval = CefRequestContext::CreateContext(
+      settingsObj,
+      CefRequestContextHandlerCToCpp::Wrap(handler));
+
+  // Return type: refptr_same
+  return CefRequestContextCppToC::Wrap(_retval);
+}
+
+CEF_EXPORT cef_request_context_t* create_context_shared(
+    cef_request_context_t* other,
+    struct _cef_request_context_handler_t* handler) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: other; type: refptr_same
+  DCHECK(other);
+  if (!other)
+    return NULL;
   // Unverified params: handler
 
   // Execute
   CefRefPtr<CefRequestContext> _retval = CefRequestContext::CreateContext(
+      CefRequestContextCppToC::Unwrap(other),
       CefRequestContextHandlerCToCpp::Wrap(handler));
 
   // Return type: refptr_same
@@ -57,6 +91,27 @@ int CEF_CALLBACK request_context_is_same(struct _cef_request_context_t* self,
 
   // Execute
   bool _retval = CefRequestContextCppToC::Get(self)->IsSame(
+      CefRequestContextCppToC::Unwrap(other));
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK request_context_is_sharing_with(
+    struct _cef_request_context_t* self,
+    struct _cef_request_context_t* other) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: other; type: refptr_same
+  DCHECK(other);
+  if (!other)
+    return 0;
+
+  // Execute
+  bool _retval = CefRequestContextCppToC::Get(self)->IsSharingWith(
       CefRequestContextCppToC::Unwrap(other));
 
   // Return type: bool
@@ -94,6 +149,81 @@ struct _cef_request_context_handler_t* CEF_CALLBACK request_context_get_handler(
   return CefRequestContextHandlerCToCpp::Unwrap(_retval);
 }
 
+cef_string_userfree_t CEF_CALLBACK request_context_get_cache_path(
+    struct _cef_request_context_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefString _retval = CefRequestContextCppToC::Get(self)->GetCachePath();
+
+  // Return type: string
+  return _retval.DetachToUserFree();
+}
+
+cef_cookie_manager_t* CEF_CALLBACK request_context_get_default_cookie_manager(
+    struct _cef_request_context_t* self, cef_completion_callback_t* callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+  // Unverified params: callback
+
+  // Execute
+  CefRefPtr<CefCookieManager> _retval = CefRequestContextCppToC::Get(
+      self)->GetDefaultCookieManager(
+      CefCompletionCallbackCToCpp::Wrap(callback));
+
+  // Return type: refptr_same
+  return CefCookieManagerCppToC::Wrap(_retval);
+}
+
+int CEF_CALLBACK request_context_register_scheme_handler_factory(
+    struct _cef_request_context_t* self, const cef_string_t* scheme_name,
+    const cef_string_t* domain_name,
+    struct _cef_scheme_handler_factory_t* factory) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: scheme_name; type: string_byref_const
+  DCHECK(scheme_name);
+  if (!scheme_name)
+    return 0;
+  // Unverified params: domain_name, factory
+
+  // Execute
+  bool _retval = CefRequestContextCppToC::Get(
+      self)->RegisterSchemeHandlerFactory(
+      CefString(scheme_name),
+      CefString(domain_name),
+      CefSchemeHandlerFactoryCToCpp::Wrap(factory));
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK request_context_clear_scheme_handler_factories(
+    struct _cef_request_context_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefRequestContextCppToC::Get(
+      self)->ClearSchemeHandlerFactories();
+
+  // Return type: bool
+  return _retval;
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -101,8 +231,16 @@ CefRequestContextCppToC::CefRequestContextCppToC(CefRequestContext* cls)
     : CefCppToC<CefRequestContextCppToC, CefRequestContext,
         cef_request_context_t>(cls) {
   struct_.struct_.is_same = request_context_is_same;
+  struct_.struct_.is_sharing_with = request_context_is_sharing_with;
   struct_.struct_.is_global = request_context_is_global;
   struct_.struct_.get_handler = request_context_get_handler;
+  struct_.struct_.get_cache_path = request_context_get_cache_path;
+  struct_.struct_.get_default_cookie_manager =
+      request_context_get_default_cookie_manager;
+  struct_.struct_.register_scheme_handler_factory =
+      request_context_register_scheme_handler_factory;
+  struct_.struct_.clear_scheme_handler_factories =
+      request_context_clear_scheme_handler_factories;
 }
 
 #ifndef NDEBUG

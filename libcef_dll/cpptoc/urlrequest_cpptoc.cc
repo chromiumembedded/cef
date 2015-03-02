@@ -11,6 +11,7 @@
 //
 
 #include "libcef_dll/cpptoc/request_cpptoc.h"
+#include "libcef_dll/cpptoc/request_context_cpptoc.h"
 #include "libcef_dll/cpptoc/response_cpptoc.h"
 #include "libcef_dll/cpptoc/urlrequest_cpptoc.h"
 #include "libcef_dll/ctocpp/urlrequest_client_ctocpp.h"
@@ -19,7 +20,8 @@
 // GLOBAL FUNCTIONS - Body may be edited by hand.
 
 CEF_EXPORT cef_urlrequest_t* cef_urlrequest_create(cef_request_t* request,
-    struct _cef_urlrequest_client_t* client) {
+    struct _cef_urlrequest_client_t* client,
+    cef_request_context_t* request_context) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: request; type: refptr_same
@@ -30,11 +32,13 @@ CEF_EXPORT cef_urlrequest_t* cef_urlrequest_create(cef_request_t* request,
   DCHECK(client);
   if (!client)
     return NULL;
+  // Unverified params: request_context
 
   // Execute
   CefRefPtr<CefURLRequest> _retval = CefURLRequest::Create(
       CefRequestCppToC::Unwrap(request),
-      CefURLRequestClientCToCpp::Wrap(client));
+      CefURLRequestClientCToCpp::Wrap(client),
+      CefRequestContextCppToC::Unwrap(request_context));
 
   // Return type: refptr_same
   return CefURLRequestCppToC::Wrap(_retval);

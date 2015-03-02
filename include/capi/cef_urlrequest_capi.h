@@ -41,6 +41,7 @@
 #include "include/capi/cef_auth_callback_capi.h"
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_request_capi.h"
+#include "include/capi/cef_request_context_capi.h"
 #include "include/capi/cef_response_capi.h"
 
 #ifdef __cplusplus
@@ -113,10 +114,14 @@ typedef struct _cef_urlrequest_t {
 // not normally be rendered then the response may receive special handling
 // inside the browser (for example, via the file download code path instead of
 // the URL request code path). The |request| object will be marked as read-only
-// after calling this function.
+// after calling this function. In the browser process if |request_context| is
+// NULL the global request context will be used. In the render process
+// |request_context| must be NULL and the context associated with the current
+// renderer process' browser will be used.
 ///
 CEF_EXPORT cef_urlrequest_t* cef_urlrequest_create(
-    struct _cef_request_t* request, struct _cef_urlrequest_client_t* client);
+    struct _cef_request_t* request, struct _cef_urlrequest_client_t* client,
+    struct _cef_request_context_t* request_context);
 
 
 ///

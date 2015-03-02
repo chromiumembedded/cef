@@ -12,32 +12,40 @@
 
 #include "libcef_dll/cpptoc/completion_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
+#include "libcef_dll/cpptoc/delete_cookies_callback_cpptoc.h"
+#include "libcef_dll/cpptoc/set_cookie_callback_cpptoc.h"
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
 
 // STATIC METHODS - Body may be edited by hand.
 
-CefRefPtr<CefCookieManager> CefCookieManager::GetGlobalManager() {
+CefRefPtr<CefCookieManager> CefCookieManager::GetGlobalManager(
+    CefRefPtr<CefCompletionCallback> callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
+  // Unverified params: callback
+
   // Execute
-  cef_cookie_manager_t* _retval = cef_cookie_manager_get_global_manager();
+  cef_cookie_manager_t* _retval = cef_cookie_manager_get_global_manager(
+      CefCompletionCallbackCppToC::Wrap(callback));
 
   // Return type: refptr_same
   return CefCookieManagerCToCpp::Wrap(_retval);
 }
 
 CefRefPtr<CefCookieManager> CefCookieManager::CreateManager(
-    const CefString& path, bool persist_session_cookies) {
+    const CefString& path, bool persist_session_cookies,
+    CefRefPtr<CefCompletionCallback> callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Unverified params: path
+  // Unverified params: path, callback
 
   // Execute
   cef_cookie_manager_t* _retval = cef_cookie_manager_create_manager(
       path.GetStruct(),
-      persist_session_cookies);
+      persist_session_cookies,
+      CefCompletionCallbackCppToC::Wrap(callback));
 
   // Return type: refptr_same
   return CefCookieManagerCToCpp::Wrap(_retval);
@@ -47,11 +55,14 @@ CefRefPtr<CefCookieManager> CefCookieManager::CreateManager(
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefCookieManagerCToCpp::SetSupportedSchemes(
-    const std::vector<CefString>& schemes) {
+    const std::vector<CefString>& schemes,
+    CefRefPtr<CefCompletionCallback> callback) {
   if (CEF_MEMBER_MISSING(struct_, set_supported_schemes))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: callback
 
   // Translate param: schemes; type: string_vec_byref_const
   cef_string_list_t schemesList = cef_string_list_alloc();
@@ -61,7 +72,8 @@ void CefCookieManagerCToCpp::SetSupportedSchemes(
 
   // Execute
   struct_->set_supported_schemes(struct_,
-      schemesList);
+      schemesList,
+      CefCompletionCallbackCppToC::Wrap(callback));
 
   // Restore param:schemes; type: string_vec_byref_const
   if (schemesList)
@@ -115,7 +127,7 @@ bool CefCookieManagerCToCpp::VisitUrlCookies(const CefString& url,
 }
 
 bool CefCookieManagerCToCpp::SetCookie(const CefString& url,
-    const CefCookie& cookie) {
+    const CefCookie& cookie, CefRefPtr<CefSetCookieCallback> callback) {
   if (CEF_MEMBER_MISSING(struct_, set_cookie))
     return false;
 
@@ -125,47 +137,52 @@ bool CefCookieManagerCToCpp::SetCookie(const CefString& url,
   DCHECK(!url.empty());
   if (url.empty())
     return false;
+  // Unverified params: callback
 
   // Execute
   int _retval = struct_->set_cookie(struct_,
       url.GetStruct(),
-      &cookie);
+      &cookie,
+      CefSetCookieCallbackCppToC::Wrap(callback));
 
   // Return type: bool
   return _retval?true:false;
 }
 
 bool CefCookieManagerCToCpp::DeleteCookies(const CefString& url,
-    const CefString& cookie_name) {
+    const CefString& cookie_name,
+    CefRefPtr<CefDeleteCookiesCallback> callback) {
   if (CEF_MEMBER_MISSING(struct_, delete_cookies))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Unverified params: url, cookie_name
+  // Unverified params: url, cookie_name, callback
 
   // Execute
   int _retval = struct_->delete_cookies(struct_,
       url.GetStruct(),
-      cookie_name.GetStruct());
+      cookie_name.GetStruct(),
+      CefDeleteCookiesCallbackCppToC::Wrap(callback));
 
   // Return type: bool
   return _retval?true:false;
 }
 
 bool CefCookieManagerCToCpp::SetStoragePath(const CefString& path,
-    bool persist_session_cookies) {
+    bool persist_session_cookies, CefRefPtr<CefCompletionCallback> callback) {
   if (CEF_MEMBER_MISSING(struct_, set_storage_path))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Unverified params: path
+  // Unverified params: path, callback
 
   // Execute
   int _retval = struct_->set_storage_path(struct_,
       path.GetStruct(),
-      persist_session_cookies);
+      persist_session_cookies,
+      CefCompletionCallbackCppToC::Wrap(callback));
 
   // Return type: bool
   return _retval?true:false;
@@ -178,10 +195,7 @@ bool CefCookieManagerCToCpp::FlushStore(
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: callback; type: refptr_diff
-  DCHECK(callback.get());
-  if (!callback.get())
-    return false;
+  // Unverified params: callback
 
   // Execute
   int _retval = struct_->flush_store(struct_,

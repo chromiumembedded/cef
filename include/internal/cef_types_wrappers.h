@@ -418,6 +418,7 @@ struct CefSettingsTraits {
   static inline void clear(struct_type* s) {
     cef_string_clear(&s->browser_subprocess_path);
     cef_string_clear(&s->cache_path);
+    cef_string_clear(&s->user_data_path);
     cef_string_clear(&s->user_agent);
     cef_string_clear(&s->product_version);
     cef_string_clear(&s->locale);
@@ -441,6 +442,8 @@ struct CefSettingsTraits {
 
     cef_string_set(src->cache_path.str, src->cache_path.length,
         &target->cache_path, copy);
+    cef_string_set(src->user_data_path.str, src->user_data_path.length,
+        &target->user_data_path, copy);
     target->persist_session_cookies = src->persist_session_cookies;
 
     cef_string_set(src->user_agent.str, src->user_agent.length,
@@ -475,6 +478,36 @@ struct CefSettingsTraits {
 // Class representing initialization settings.
 ///
 typedef CefStructBase<CefSettingsTraits> CefSettings;
+
+
+struct CefRequestContextSettingsTraits {
+  typedef cef_request_context_settings_t struct_type;
+
+  static inline void init(struct_type* s) {
+    s->size = sizeof(struct_type);
+  }
+
+  static inline void clear(struct_type* s) {
+    cef_string_clear(&s->cache_path);
+    cef_string_clear(&s->accept_language_list);
+  }
+
+  static inline void set(const struct_type* src, struct_type* target,
+      bool copy) {
+    cef_string_set(src->cache_path.str, src->cache_path.length,
+        &target->cache_path, copy);
+    target->persist_session_cookies = src->persist_session_cookies;
+    target->ignore_certificate_errors = src->ignore_certificate_errors;
+    cef_string_set(src->accept_language_list.str,
+        src->accept_language_list.length, &target->accept_language_list, copy);
+  }
+};
+
+///
+// Class representing request context initialization settings.
+///
+typedef CefStructBase<CefRequestContextSettingsTraits>
+    CefRequestContextSettings;
 
 
 struct CefBrowserSettingsTraits {

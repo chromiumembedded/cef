@@ -579,7 +579,8 @@ GtkWidget* RootWindowGtk::CreateMenuBar() {
   GtkWidget* test_menu = CreateMenu(menu_bar, "Tests");
   AddMenuEntry(test_menu, "Get Source",    ID_TESTS_GETSOURCE);
   AddMenuEntry(test_menu, "Get Text",      ID_TESTS_GETTEXT);
-  AddMenuEntry(test_menu, "Popup Window",  ID_TESTS_POPUP);
+  AddMenuEntry(test_menu, "New Window",    ID_TESTS_WINDOW_NEW);
+  AddMenuEntry(test_menu, "Popup Window",  ID_TESTS_WINDOW_POPUP);
   AddMenuEntry(test_menu, "Request",       ID_TESTS_REQUEST);
   AddMenuEntry(test_menu, "Plugin Info",   ID_TESTS_PLUGIN_INFO);
   AddMenuEntry(test_menu, "Zoom In",       ID_TESTS_ZOOM_IN);

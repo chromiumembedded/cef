@@ -131,7 +131,9 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
           base::Bind(&Handler::OnRequestComplete, base::Unretained(this));
 
       // Create and start the new CefURLRequest.
-      urlrequest_ = CefURLRequest::Create(request, new RequestClient(callback));
+      urlrequest_ = CefURLRequest::Create(request,
+                                          new RequestClient(callback),
+                                          NULL);
 
       return true;
     }

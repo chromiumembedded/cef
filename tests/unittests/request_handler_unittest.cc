@@ -102,7 +102,7 @@ class NetNotifyTestHandler : public TestHandler {
     url2_ = base::StringPrintf("%snav2.html?t=%d",
         same_origin_ ? kNetNotifyOrigin1 : kNetNotifyOrigin2, test_type_);
 
-    cookie_manager_ = CefCookieManager::CreateManager(CefString(), true);
+    cookie_manager_ = CefCookieManager::CreateManager(CefString(), true, NULL);
 
     AddResource(url1_,
         "<html>"
@@ -118,9 +118,13 @@ class NetNotifyTestHandler : public TestHandler {
     context_handler_ = new RequestContextHandler(this);
     context_handler_->SetURL(url1_);
 
+    // Create the request context that will use an in-memory cache.
+    CefRequestContextSettings settings;
+    CefRefPtr<CefRequestContext> request_context =
+        CefRequestContext::CreateContext(settings, context_handler_.get());
+
     // Create browser that loads the 1st URL.
-    CreateBrowser(url1_,
-        CefRequestContext::CreateContext(context_handler_.get()));
+    CreateBrowser(url1_, request_context);
   }
 
   void RunTest() override {

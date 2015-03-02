@@ -12,7 +12,8 @@ CefURLRequestContextGetterProxy::CefURLRequestContextGetterProxy(
     scoped_refptr<CefURLRequestContextGetterImpl> parent)
     : handler_(handler),
       parent_(parent) {
-  DCHECK(parent);
+  DCHECK(handler_.get());
+  DCHECK(parent_.get());
 }
 
 CefURLRequestContextGetterProxy::~CefURLRequestContextGetterProxy() {

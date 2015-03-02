@@ -21,7 +21,6 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/synchronization/lock.h"
 #include "content/public/browser/content_browser_client.h"
-#include "net/proxy/proxy_config_service.h"
 #include "url/gurl.h"
 
 class CefBrowserInfo;
@@ -168,12 +167,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   void set_last_create_window_params(const LastCreateWindowParams& params);
 
   scoped_refptr<CefBrowserContextImpl> browser_context() const;
-  scoped_refptr<CefURLRequestContextGetterImpl> request_context() const;
   CefDevToolsDelegate* devtools_delegate() const;
   PrefService* pref_service() const;
-
-  // Passes ownership.
-  scoped_ptr<net::ProxyConfigService> proxy_config_service() const;
 
  private:
   CefBrowserMainParts* browser_main_parts_;

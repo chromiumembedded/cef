@@ -43,7 +43,8 @@
 #include <vector>
 
 class CefCookieVisitor;
-
+class CefSetCookieCallback;
+class CefDeleteCookiesCallback;
 
 ///
 // Class used for managing cookies. The methods of this class may be called on
@@ -54,10 +55,14 @@ class CefCookieManager : public virtual CefBase {
  public:
   ///
   // Returns the global cookie manager. By default data will be stored at
-  // CefSettings.cache_path if specified or in memory otherwise.
+  // CefSettings.cache_path if specified or in memory otherwise. If |callback|
+  // is non-NULL it will be executed asnychronously on the IO thread after the
+  // manager's storage has been initialized. Using this method is equivalent to
+  // calling CefRequestContext::GetGlobalContext()->GetDefaultCookieManager().
   ///
-  /*--cef()--*/
-  static CefRefPtr<CefCookieManager> GetGlobalManager();
+  /*--cef(optional_param=callback)--*/
+  static CefRefPtr<CefCookieManager> GetGlobalManager(
+      CefRefPtr<CefCompletionCallback> callback);
 
   ///
   // Creates a new cookie manager. If |path| is empty data will be stored in
@@ -65,81 +70,98 @@ class CefCookieManager : public virtual CefBase {
   // persist session cookies (cookies without an expiry date or validity
   // interval) set |persist_session_cookies| to true. Session cookies are
   // generally intended to be transient and most Web browsers do not persist
-  // them. Returns NULL if creation fails.
+  // them. If |callback| is non-NULL it will be executed asnychronously on the
+  // IO thread after the manager's storage has been initialized.
   ///
-  /*--cef(optional_param=path)--*/
+  /*--cef(optional_param=path,optional_param=callback)--*/
   static CefRefPtr<CefCookieManager> CreateManager(
       const CefString& path,
-      bool persist_session_cookies);
+      bool persist_session_cookies,
+      CefRefPtr<CefCompletionCallback> callback);
 
   ///
   // Set the schemes supported by this manager. By default only "http" and
-  // "https" schemes are supported. Must be called before any cookies are
-  // accessed.
+  // "https" schemes are supported. If |callback| is non-NULL it will be
+  // executed asnychronously on the IO thread after the change has been applied.
+  // Must be called before any cookies are accessed.
   ///
-  /*--cef()--*/
-  virtual void SetSupportedSchemes(const std::vector<CefString>& schemes) =0;
+  /*--cef(optional_param=callback)--*/
+  virtual void SetSupportedSchemes(
+      const std::vector<CefString>& schemes,
+      CefRefPtr<CefCompletionCallback> callback) =0;
 
   ///
-  // Visit all cookies. The returned cookies are ordered by longest path, then
-  // by earliest creation date. Returns false if cookies cannot be accessed.
+  // Visit all cookies on the IO thread. The returned cookies are ordered by
+  // longest path, then by earliest creation date. Returns false if cookies
+  // cannot be accessed.
   ///
   /*--cef()--*/
   virtual bool VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) =0;
 
   ///
-  // Visit a subset of cookies. The results are filtered by the given url
-  // scheme, host, domain and path. If |includeHttpOnly| is true HTTP-only
-  // cookies will also be included in the results. The returned cookies are
-  // ordered by longest path, then by earliest creation date. Returns false if
-  // cookies cannot be accessed.
+  // Visit a subset of cookies on the IO thread. The results are filtered by the
+  // given url scheme, host, domain and path. If |includeHttpOnly| is true
+  // HTTP-only cookies will also be included in the results. The returned
+  // cookies are ordered by longest path, then by earliest creation date.
+  // Returns false if cookies cannot be accessed.
   ///
   /*--cef()--*/
-  virtual bool VisitUrlCookies(const CefString& url, bool includeHttpOnly,
+  virtual bool VisitUrlCookies(const CefString& url,
+                               bool includeHttpOnly,
                                CefRefPtr<CefCookieVisitor> visitor) =0;
 
   ///
   // Sets a cookie given a valid URL and explicit user-provided cookie
   // attributes. This function expects each attribute to be well-formed. It will
   // check for disallowed characters (e.g. the ';' character is disallowed
-  // within the cookie value attribute) and will return false without setting
-  // the cookie if such characters are found. This method must be called on the
-  // IO thread.
+  // within the cookie value attribute) and fail without setting the cookie if
+  // such characters are found. If |callback| is non-NULL it will be executed
+  // asnychronously on the IO thread after the cookie has been set. Returns
+  // false if an invalid URL is specified or if cookies cannot be accessed.
   ///
-  /*--cef()--*/
-  virtual bool SetCookie(const CefString& url, const CefCookie& cookie) =0;
+  /*--cef(optional_param=callback)--*/
+  virtual bool SetCookie(const CefString& url,
+                         const CefCookie& cookie,
+                         CefRefPtr<CefSetCookieCallback> callback) =0;
 
   ///
   // Delete all cookies that match the specified parameters. If both |url| and
-  // values |cookie_name| are specified all host and domain cookies matching
+  // |cookie_name| values are specified all host and domain cookies matching
   // both will be deleted. If only |url| is specified all host cookies (but not
   // domain cookies) irrespective of path will be deleted. If |url| is empty all
-  // cookies for all hosts and domains will be deleted. Returns false if a non-
-  // empty invalid URL is specified or if cookies cannot be accessed. This
-  // method must be called on the IO thread.
+  // cookies for all hosts and domains will be deleted. If |callback| is
+  // non-NULL it will be executed asnychronously on the IO thread after the
+  // cookies have been deleted. Returns false if a non-empty invalid URL is
+  // specified or if cookies cannot be accessed. Cookies can alternately be
+  // deleted using the Visit*Cookies() methods.
   ///
-  /*--cef(optional_param=url,optional_param=cookie_name)--*/
+  /*--cef(optional_param=url,optional_param=cookie_name,
+          optional_param=callback)--*/
   virtual bool DeleteCookies(const CefString& url,
-                             const CefString& cookie_name) =0;
+                             const CefString& cookie_name,
+                             CefRefPtr<CefDeleteCookiesCallback> callback) =0;
 
   ///
   // Sets the directory path that will be used for storing cookie data. If
   // |path| is empty data will be stored in memory only. Otherwise, data will be
   // stored at the specified |path|. To persist session cookies (cookies without
   // an expiry date or validity interval) set |persist_session_cookies| to true.
-  // Session cookies are generally intended to be transient and most Web browsers
-  // do not persist them. Returns false if cookies cannot be accessed.
+  // Session cookies are generally intended to be transient and most Web
+  // browsers do not persist them. If |callback| is non-NULL it will be executed
+  // asnychronously on the IO thread after the manager's storage has been
+  // initialized. Returns false if cookies cannot be accessed.
   ///
-  /*--cef(optional_param=path)--*/
+  /*--cef(optional_param=path,optional_param=callback)--*/
   virtual bool SetStoragePath(const CefString& path,
-                              bool persist_session_cookies) =0;
+                              bool persist_session_cookies,
+                              CefRefPtr<CefCompletionCallback> callback) =0;
 
   ///
-  // Flush the backing store (if any) to disk and execute the specified
-  // |callback| on the IO thread when done. Returns false if cookies cannot be
-  // accessed.
+  // Flush the backing store (if any) to disk. If |callback| is non-NULL it will
+  // be executed asnychronously on the IO thread after the flush is complete.
+  // Returns false if cookies cannot be accessed.
   ///
-  /*--cef(optional_param=handler)--*/
+  /*--cef(optional_param=callback)--*/
   virtual bool FlushStore(CefRefPtr<CefCompletionCallback> callback) =0;
 };
 
@@ -161,6 +183,38 @@ class CefCookieVisitor : public virtual CefBase {
   /*--cef()--*/
   virtual bool Visit(const CefCookie& cookie, int count, int total,
                      bool& deleteCookie) =0;
+};
+
+
+///
+// Interface to implement to be notified of asynchronous completion via
+// CefCookieManager::SetCookie().
+///
+/*--cef(source=client)--*/
+class CefSetCookieCallback : public virtual CefBase {
+ public:
+  ///
+  // Method that will be called upon completion. |success| will be true if the
+  // cookie was set successfully.
+  ///
+  /*--cef()--*/
+  virtual void OnComplete(bool success) =0;
+};
+
+
+///
+// Interface to implement to be notified of asynchronous completion via
+// CefCookieManager::DeleteCookies().
+///
+/*--cef(source=client)--*/
+class CefDeleteCookiesCallback : public virtual CefBase {
+ public:
+  ///
+  // Method that will be called upon completion. |num_deleted| will be the
+  // number of cookies that were deleted or -1 if unknown.
+  ///
+  /*--cef()--*/
+  virtual void OnComplete(int num_deleted) =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_COOKIE_H_

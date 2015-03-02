@@ -64,12 +64,14 @@ namespace {
 // In-memory store for access tokens used by geolocation.
 class CefAccessTokenStore : public content::AccessTokenStore {
  public:
-  CefAccessTokenStore() {}
+  // |system_context| is used by NetworkLocationProvider to communicate with a
+  // remote geolocation service.
+  explicit CefAccessTokenStore(net::URLRequestContextGetter* system_context)
+      : system_context_(system_context) {}
 
   void LoadAccessTokens(
       const LoadAccessTokensCallbackType& callback) override {
-    callback.Run(access_token_set_,
-        CefContentBrowserClient::Get()->request_context().get());
+    callback.Run(access_token_set_, system_context_);
   }
 
   void SaveAccessToken(
@@ -78,6 +80,7 @@ class CefAccessTokenStore : public content::AccessTokenStore {
   }
 
  private:
+  net::URLRequestContextGetter* system_context_;
   AccessTokenSet access_token_set_;
 
   DISALLOW_COPY_AND_ASSIGN(CefAccessTokenStore);
@@ -754,7 +757,8 @@ void CefContentBrowserClient::AllowCertificateError(
 }
 
 content::AccessTokenStore* CefContentBrowserClient::CreateAccessTokenStore() {
-  return new CefAccessTokenStore;
+  return new CefAccessTokenStore(
+      browser_main_parts_->browser_context()->request_context().get());
 }
 
 void CefContentBrowserClient::RequestPermission(
@@ -986,7 +990,7 @@ std::string CefContentBrowserClient::GetDefaultDownloadName() {
 
 content::DevToolsManagerDelegate*
     CefContentBrowserClient::GetDevToolsManagerDelegate() {
-  return new CefDevToolsManagerDelegate(browser_context().get());
+  return new CefDevToolsManagerDelegate();
 }
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
@@ -1041,20 +1045,10 @@ CefContentBrowserClient::browser_context() const {
   return browser_main_parts_->browser_context();
 }
 
-scoped_refptr<CefURLRequestContextGetterImpl>
-CefContentBrowserClient::request_context() const {
-  return browser_main_parts_->request_context();
-}
-
 CefDevToolsDelegate* CefContentBrowserClient::devtools_delegate() const {
   return browser_main_parts_->devtools_delegate();
 }
 
 PrefService* CefContentBrowserClient::pref_service() const {
   return browser_main_parts_->pref_service();
-}
-
-scoped_ptr<net::ProxyConfigService>
-CefContentBrowserClient::proxy_config_service() const {
-  return browser_main_parts_->proxy_config_service();
 }

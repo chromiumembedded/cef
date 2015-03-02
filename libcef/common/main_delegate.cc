@@ -49,6 +49,11 @@
 #include "components/crash/app/breakpad_linux.h"
 #endif
 
+#if defined(OS_LINUX)
+#include "base/environment.h"
+#include "base/nix/xdg_util.h"
+#endif
+
 namespace {
 
 base::LazyInstance<CefCrashReporterClient>::Leaky g_crash_reporter_client =
@@ -116,6 +121,64 @@ base::FilePath GetLibrariesFilePath() {
 }
 
 #endif  // !defined(OS_MACOSX)
+
+#if defined(OS_LINUX)
+
+// Based on chrome/common/chrome_paths_linux.cc.
+// See http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+// for a spec on where config files go.  The net effect for most
+// systems is we use ~/.config/chromium/ for Chromium and
+// ~/.config/google-chrome/ for official builds.
+// (This also helps us sidestep issues with other apps grabbing ~/.chromium .)
+bool GetDefaultUserDataDirectory(base::FilePath* result) {
+  scoped_ptr<base::Environment> env(base::Environment::Create());
+  base::FilePath config_dir(
+      base::nix::GetXDGDirectory(env.get(),
+                                 base::nix::kXdgConfigHomeEnvVar,
+                                 base::nix::kDotConfigDir));
+  *result = config_dir.Append(FILE_PATH_LITERAL("cef_user_data"));
+  return true;
+}
+
+#elif defined(OS_MACOSX)
+
+// Based on chrome/common/chrome_paths_mac.mm.
+bool GetDefaultUserDataDirectory(base::FilePath* result) {
+  if (!PathService::Get(base::DIR_APP_DATA, result))
+    return false;
+  *result = result->Append(FILE_PATH_LITERAL("CEF"));
+  *result = result->Append(FILE_PATH_LITERAL("User Data"));
+  return true;
+}
+
+#elif defined(OS_WIN)
+
+// Based on chrome/common/chrome_paths_win.cc.
+bool GetDefaultUserDataDirectory(base::FilePath* result) {
+  if (!PathService::Get(base::DIR_LOCAL_APP_DATA, result))
+    return false;
+  *result = result->Append(FILE_PATH_LITERAL("CEF"));
+  *result = result->Append(FILE_PATH_LITERAL("User Data"));
+  return true;
+}
+
+#endif
+
+base::FilePath GetUserDataPath() {
+  const CefSettings& settings = CefContext::Get()->settings();
+  if (settings.user_data_path.length > 0)
+    return base::FilePath(CefString(&settings.user_data_path));
+
+  base::FilePath result;
+  if (GetDefaultUserDataDirectory(&result))
+    return result;
+
+  if (PathService::Get(base::DIR_TEMP, &result))
+    return result;
+
+  NOTREACHED();
+  return result;
+}
 
 // File name of the internal PDF plugin on different platforms.
 const base::FilePath::CharType kInternalPDFPluginFileName[] =
@@ -417,14 +480,11 @@ void CefMainDelegate::PreSandboxStartup() {
 #endif
 
     // Paths used to locate spell checking dictionary files.
-    // TODO(cef): It may be better to use a persistent location for
-    // DIR_USER_DATA. See the implementation of GetDefaultUserDataDirectory in
-    // chrome/common/chrome_paths_*.
-    const base::FilePath& cache_path = CefContext::Get()->cache_path();
-    PathService::Override(chrome::DIR_USER_DATA, cache_path);
+    const base::FilePath& user_data_path = GetUserDataPath();
+    PathService::Override(chrome::DIR_USER_DATA, user_data_path);
     PathService::OverrideAndCreateIfNeeded(
         chrome::DIR_APP_DICTIONARIES,
-        cache_path.AppendASCII("Dictionaries"),
+        user_data_path.AppendASCII("Dictionaries"),
         false,  // May not be an absolute path.
         true);  // Create if necessary.
   }

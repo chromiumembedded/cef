@@ -15,8 +15,9 @@
 class CefURLRequestContextProxy;
 
 // URLRequestContextGetter implementation for a particular CefRequestContext.
-// Life span is primarily controlled by CefResourceContext. Only accessed on the
-// IO thread. See browser_context.h for an object relationship diagram.
+// Life span is primarily controlled by CefResourceContext. Created on the UI
+// thread but accessed and destroyed on the IO thread. See browser_context.h for
+// an object relationship diagram.
 class CefURLRequestContextGetterProxy : public CefURLRequestContextGetter {
  public:
   CefURLRequestContextGetterProxy(

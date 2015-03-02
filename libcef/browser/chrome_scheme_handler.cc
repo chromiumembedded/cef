@@ -10,10 +10,9 @@
 
 #include "include/cef_version.h"
 #include "include/cef_web_plugin.h"
-#include "libcef/browser/context.h"
 #include "libcef/browser/frame_host_impl.h"
 #include "libcef/browser/internal_scheme_handler.h"
-#include "libcef/browser/scheme_impl.h"
+#include "libcef/browser/url_request_manager.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/content_client.h"
 
@@ -182,7 +181,8 @@ class Delegate : public InternalHandlerDelegate {
  public:
   Delegate() {}
 
-  bool OnRequest(CefRefPtr<CefRequest> request,
+  bool OnRequest(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefRequest> request,
                  Action* action) override {
     GURL url = GURL(request->GetURL().ToString());
     std::string path = url.path();
@@ -200,7 +200,7 @@ class Delegate : public InternalHandlerDelegate {
         handled = OnLicense(action);
         break;
       case CHROME_VERSION:
-        handled = OnVersion(action);
+        handled = OnVersion(browser, action);
         break;
       default:
         break;
@@ -245,7 +245,8 @@ class Delegate : public InternalHandlerDelegate {
     return true;
   }
 
-  bool OnVersion(Action* action) {
+  bool OnVersion(CefRefPtr<CefBrowser> browser,
+                 Action* action) {
     base::StringPiece piece = CefContentClient::Get()->GetDataResource(
           IDR_CEF_VERSION_HTML, ui::SCALE_FACTOR_NONE);
     if (piece.empty()) {
@@ -276,7 +277,8 @@ class Delegate : public InternalHandlerDelegate {
     parser.Add("USERAGENT", CefContentClient::Get()->GetUserAgent());
     parser.Add("COMMANDLINE", GetCommandLine());
     parser.Add("MODULEPATH", GetModulePath());
-    parser.Add("CACHEPATH", CefString(CefContext::Get()->cache_path().value()));
+    parser.Add("CACHEPATH",
+               browser->GetHost()->GetRequestContext()->GetCachePath());
 
     std::string tmpl = piece.as_string();
     parser.Parse(&tmpl);
@@ -328,15 +330,20 @@ void DidFinishChromeVersionLoad(CefRefPtr<CefFrame> frame) {
 class ChromeProtocolHandlerWrapper :
     public net::URLRequestJobFactory::ProtocolHandler {
  public:
-  explicit ChromeProtocolHandlerWrapper(
-      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler> chrome_protocol_handler)
-      : chrome_protocol_handler_(chrome_protocol_handler.Pass()) {
+  ChromeProtocolHandlerWrapper(
+      CefURLRequestManager* request_manager,
+      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+          chrome_protocol_handler)
+      : request_manager_(request_manager),
+        chrome_protocol_handler_(chrome_protocol_handler.Pass()) {
+    DCHECK(request_manager_);
   }
 
   net::URLRequestJob* MaybeCreateJob(
       net::URLRequest* request,
       net::NetworkDelegate* network_delegate) const override {
-    // Keep synchronized with the checks in ChromeProtocolHandler::MaybeCreateJob.
+    // Keep synchronized with the checks in
+    // ChromeProtocolHandler::MaybeCreateJob.
     if (content::ViewHttpCacheJobFactory::IsSupportedURL(request->url()) ||
         (request->url().SchemeIs(content::kChromeUIScheme) &&
          request->url().host() == content::kChromeUIAppCacheInternalsHost) ||
@@ -347,21 +354,24 @@ class ChromeProtocolHandlerWrapper :
 #endif
         (request->url().SchemeIs(content::kChromeUIScheme) &&
          request->url().host() == content::kChromeUIHistogramHost)) {
-      return chrome_protocol_handler_->MaybeCreateJob(request, network_delegate);
+      return chrome_protocol_handler_->MaybeCreateJob(request,
+                                                      network_delegate);
     }
 
     // Use the protocol handler registered with CEF.
-    return scheme::GetRequestJob(request, network_delegate);
+    return request_manager_->GetRequestJob(request, network_delegate);
   }
 
  private:
-  scoped_ptr<net::URLRequestJobFactory::ProtocolHandler> chrome_protocol_handler_;
+  CefURLRequestManager* request_manager_;
+  scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+      chrome_protocol_handler_;
 };
 
 }  // namespace
 
-void RegisterChromeHandler() {
-  CefRegisterSchemeHandlerFactory(
+void RegisterChromeHandler(CefURLRequestManager* request_manager) {
+  request_manager->AddFactory(
       content::kChromeUIScheme,
       std::string(),
       CreateInternalHandlerFactory(
@@ -393,10 +403,12 @@ void DidFinishChromeLoad(CefRefPtr<CefFrame> frame,
 
 scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
 WrapChromeProtocolHandler(
+    CefURLRequestManager* request_manager,
     scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
         chrome_protocol_handler) {
   scoped_ptr<net::URLRequestJobFactory::ProtocolHandler> ret(
-      new ChromeProtocolHandlerWrapper(chrome_protocol_handler.Pass()));
+      new ChromeProtocolHandlerWrapper(request_manager,
+                                       chrome_protocol_handler.Pass()));
   return ret.Pass();
 }
 

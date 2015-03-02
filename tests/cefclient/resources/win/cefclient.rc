@@ -73,7 +73,8 @@ BEGIN
     BEGIN
         MENUITEM "Get Source",                  ID_TESTS_GETSOURCE
         MENUITEM "Get Text",                    ID_TESTS_GETTEXT
-        MENUITEM "Popup Window",                ID_TESTS_POPUP
+        MENUITEM "New Window",                  ID_TESTS_WINDOW_NEW
+        MENUITEM "Popup Window",                ID_TESTS_WINDOW_POPUP
         MENUITEM "Request",                     ID_TESTS_REQUEST
         MENUITEM "Plugin Info",                 ID_TESTS_PLUGIN_INFO
         MENUITEM "Zoom In",                     ID_TESTS_ZOOM_IN

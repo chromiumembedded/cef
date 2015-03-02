@@ -397,15 +397,16 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
   DCHECK(opener == kNullWindowHandle || browser_info->is_popup());
 
   if (!web_contents) {
-    scoped_refptr<CefBrowserContext> browser_context = NULL;
-    if (request_context.get()) {
-      CefRequestContextImpl* request_context_impl =
-          static_cast<CefRequestContextImpl*>(request_context.get());
-      browser_context = request_context_impl->GetOrCreateBrowserContext();
-    } else {
-      browser_context = CefContentBrowserClient::Get()->browser_context();
-    }
-    DCHECK(browser_context);
+    // Get or create the request context and browser context.
+    CefRefPtr<CefRequestContextImpl> request_context_impl =
+        CefRequestContextImpl::GetForRequestContext(request_context);
+    DCHECK(request_context_impl.get());
+    scoped_refptr<CefBrowserContext> browser_context =
+        request_context_impl->GetBrowserContext();
+    DCHECK(browser_context.get());
+
+    if (!request_context.get())
+      request_context = request_context_impl.get();
 
     content::WebContents::CreateParams create_params(
         browser_context.get());
@@ -424,7 +425,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
 
   CefRefPtr<CefBrowserHostImpl> browser =
       new CefBrowserHostImpl(window_info, settings, client, web_contents,
-                             browser_info, opener);
+                             browser_info, opener, request_context);
   if (!browser->IsWindowless() && !browser->PlatformCreateWindow())
     return NULL;
 
@@ -2236,6 +2237,8 @@ void CefBrowserHostImpl::WebContentsCreated(
     const base::string16& frame_name,
     const GURL& target_url,
     content::WebContents* new_contents) {
+  DCHECK(new_contents);
+
   scoped_ptr<PendingPopupInfo> pending_popup_info;
   {
     base::AutoLock lock_scope(pending_popup_info_lock_);
@@ -2261,11 +2264,19 @@ void CefBrowserHostImpl::WebContentsCreated(
     DCHECK(!info->is_popup());
   }
 
+  scoped_refptr<CefBrowserContext> browser_context =
+      static_cast<CefBrowserContext*>(new_contents->GetBrowserContext());
+  DCHECK(browser_context.get());
+  CefRefPtr<CefRequestContext> request_context =
+      CefRequestContextImpl::GetForBrowserContext(browser_context).get();
+  DCHECK(request_context.get());
+
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::CreateInternal(pending_popup_info->window_info,
                                          pending_popup_info->settings,
                                          pending_popup_info->client,
-                                         new_contents, info, opener, NULL);
+                                         new_contents, info, opener,
+                                         request_context);
 }
 
 void CefBrowserHostImpl::DidNavigateMainFramePostCommit(
@@ -2725,13 +2736,15 @@ CefBrowserHostImpl::CefBrowserHostImpl(
     CefRefPtr<CefClient> client,
     content::WebContents* web_contents,
     scoped_refptr<CefBrowserInfo> browser_info,
-    CefWindowHandle opener)
+    CefWindowHandle opener,
+    CefRefPtr<CefRequestContext> request_context)
     : content::WebContentsObserver(web_contents),
       window_info_(window_info),
       settings_(settings),
       client_(client),
       browser_info_(browser_info),
       opener_(opener),
+      request_context_(request_context),
       is_loading_(false),
       can_go_back_(false),
       can_go_forward_(false),
@@ -2753,15 +2766,13 @@ CefBrowserHostImpl::CefBrowserHostImpl(
   window_x11_ = NULL;
 #endif
 
+  DCHECK(request_context_.get());
+
   DCHECK(!browser_info_->browser().get());
   browser_info_->set_browser(this);
 
   web_contents_.reset(web_contents);
   web_contents->SetDelegate(this);
-
-  scoped_refptr<CefBrowserContext> browser_context =
-      static_cast<CefBrowserContext*>(web_contents->GetBrowserContext());
-  request_context_ = new CefRequestContextImpl(browser_context);
 
   registrar_.reset(new content::NotificationRegistrar);
   registrar_->Add(this, content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,

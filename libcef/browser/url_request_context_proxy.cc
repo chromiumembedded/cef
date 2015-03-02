@@ -12,6 +12,8 @@ CefURLRequestContextProxy::CefURLRequestContextProxy(
     CefURLRequestContextImpl* parent,
     CefRefPtr<CefRequestContextHandler> handler) {
   CEF_REQUIRE_IOT();
+  DCHECK(parent);
+  DCHECK(handler.get());
 
   // Cookie store that proxies to the browser implementation.
   cookie_store_proxy_ = new CefCookieStoreProxy(parent, handler);

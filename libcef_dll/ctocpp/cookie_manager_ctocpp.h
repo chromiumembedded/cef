@@ -34,17 +34,18 @@ class CefCookieManagerCToCpp
           cef_cookie_manager_t>(str) {}
 
   // CefCookieManager methods
-  virtual void SetSupportedSchemes(
-      const std::vector<CefString>& schemes) OVERRIDE;
+  virtual void SetSupportedSchemes(const std::vector<CefString>& schemes,
+      CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
   virtual bool VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;
   virtual bool VisitUrlCookies(const CefString& url, bool includeHttpOnly,
       CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;
-  virtual bool SetCookie(const CefString& url,
-      const CefCookie& cookie) OVERRIDE;
-  virtual bool DeleteCookies(const CefString& url,
-      const CefString& cookie_name) OVERRIDE;
+  virtual bool SetCookie(const CefString& url, const CefCookie& cookie,
+      CefRefPtr<CefSetCookieCallback> callback) OVERRIDE;
+  virtual bool DeleteCookies(const CefString& url, const CefString& cookie_name,
+      CefRefPtr<CefDeleteCookiesCallback> callback) OVERRIDE;
   virtual bool SetStoragePath(const CefString& path,
-      bool persist_session_cookies) OVERRIDE;
+      bool persist_session_cookies,
+      CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
   virtual bool FlushStore(CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
 };
 

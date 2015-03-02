@@ -23,6 +23,7 @@ namespace scheme {
 
 void InstallInternalProtectedHandlers(
     net::URLRequestJobFactoryImpl* job_factory,
+    CefURLRequestManager* request_manager,
     content::ProtocolHandlerMap* protocol_handlers,
     net::FtpTransactionFactory* ftp_transaction_factory) {
   protocol_handlers->insert(
@@ -58,6 +59,7 @@ void InstallInternalProtectedHandlers(
       // not to interfere with CEF's "chrome" handler.
       protocol_handler.reset(
           scheme::WrapChromeProtocolHandler(
+              request_manager,
               make_scoped_ptr(it->second.release())).release());
     } else {
       protocol_handler.reset(it->second.release());
@@ -73,9 +75,9 @@ void InstallInternalProtectedHandlers(
   }
 }
 
-void RegisterInternalHandlers() {
-  scheme::RegisterChromeHandler();
-  scheme::RegisterChromeDevToolsHandler();
+void RegisterInternalHandlers(CefURLRequestManager* request_manager) {
+  scheme::RegisterChromeHandler(request_manager);
+  scheme::RegisterChromeDevToolsHandler(request_manager);
 }
 
 void DidFinishLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url) {

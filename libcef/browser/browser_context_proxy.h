@@ -6,7 +6,6 @@
 #define CEF_LIBCEF_BROWSER_BROWSER_CONTEXT_PROXY_H_
 #pragma once
 
-#include "include/cef_request_context_handler.h"
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_context_impl.h"
 
@@ -52,6 +51,9 @@ class CefBrowserContextProxy : public CefBrowserContext {
   content::SSLHostStateDelegate* GetSSLHostStateDelegate() override;
 
   // CefBrowserContext methods.
+  bool IsProxy() const override;
+  const CefRequestContextSettings& GetSettings() const override;
+  CefRefPtr<CefRequestContextHandler> GetHandler() const override;
   net::URLRequestContextGetter* CreateRequestContext(
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors)
@@ -63,7 +65,9 @@ class CefBrowserContextProxy : public CefBrowserContext {
       content::URLRequestInterceptorScopedVector request_interceptors)
       override;
 
-  CefRefPtr<CefRequestContextHandler> handler() const { return handler_; }
+  scoped_refptr<CefBrowserContextImpl> parent() const {
+    return parent_;
+  }
 
  private:
   // Only allow deletion via scoped_refptr().
@@ -73,8 +77,10 @@ class CefBrowserContextProxy : public CefBrowserContext {
 
   ~CefBrowserContextProxy() override;
 
+  // Members initialized during construction are safe to access from any thread.
   CefRefPtr<CefRequestContextHandler> handler_;
   scoped_refptr<CefBrowserContextImpl> parent_;
+
   scoped_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<CefURLRequestContextGetterProxy> url_request_getter_;
 

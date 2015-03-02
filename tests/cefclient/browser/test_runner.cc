@@ -18,6 +18,7 @@
 #include "cefclient/browser/main_context.h"
 #include "cefclient/browser/resource.h"
 #include "cefclient/browser/resource_util.h"
+#include "cefclient/browser/root_window_manager.h"
 #include "cefclient/browser/scheme_test.h"
 #include "cefclient/browser/urlrequest_test.h"
 #include "cefclient/browser/window_test.h"
@@ -112,7 +113,15 @@ void RunRequestTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadRequest(request);
 }
 
-void RunPopupTest(CefRefPtr<CefBrowser> browser) {
+void RunNewWindowTest(CefRefPtr<CefBrowser> browser) {
+  MainContext::Get()->GetRootWindowManager()->CreateRootWindow(
+      true,             // Show controls.
+      browser->GetHost()->IsWindowRenderingDisabled(),
+      CefRect(),        // Use default system size.
+      std::string());   // Use default URL.
+}
+
+void RunPopupWindowTest(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->ExecuteJavaScript(
       "window.open('http://www.google.com');", "about:blank", 0);
 }
@@ -288,8 +297,11 @@ void RunTest(CefRefPtr<CefBrowser> browser, int id) {
     case ID_TESTS_GETTEXT:
       RunGetTextTest(browser);
       break;
-    case ID_TESTS_POPUP:
-      RunPopupTest(browser);
+    case ID_TESTS_WINDOW_NEW:
+      RunNewWindowTest(browser);
+      break;
+    case ID_TESTS_WINDOW_POPUP:
+      RunPopupWindowTest(browser);
       break;
     case ID_TESTS_REQUEST:
       RunRequestTest(browser);

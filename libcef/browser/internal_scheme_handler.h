@@ -39,7 +39,8 @@ class InternalHandlerDelegate {
   virtual ~InternalHandlerDelegate() {}
 
   // Populate |action| and return true if the request was handled.
-  virtual bool OnRequest(CefRefPtr<CefRequest> request,
+  virtual bool OnRequest(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefRequest> request,
                          Action* action) = 0;
 };
 

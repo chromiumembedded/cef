@@ -128,7 +128,8 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
   NSMenu *testMenu = [[[NSMenu alloc] initWithTitle:@"Tests"] autorelease];
   AddMenuItem(testMenu, @"Get Text",      ID_TESTS_GETSOURCE);
   AddMenuItem(testMenu, @"Get Source",    ID_TESTS_GETTEXT);
-  AddMenuItem(testMenu, @"Popup Window",  ID_TESTS_POPUP);
+  AddMenuItem(testMenu, @"New Window",    ID_TESTS_WINDOW_NEW);
+  AddMenuItem(testMenu, @"Popup Window",  ID_TESTS_WINDOW_POPUP);
   AddMenuItem(testMenu, @"Request",       ID_TESTS_REQUEST);
   AddMenuItem(testMenu, @"Plugin Info",   ID_TESTS_PLUGIN_INFO);
   AddMenuItem(testMenu, @"Zoom In",       ID_TESTS_ZOOM_IN);

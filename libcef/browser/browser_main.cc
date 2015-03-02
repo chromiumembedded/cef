@@ -10,6 +10,7 @@
 #include "libcef/browser/browser_context_proxy.h"
 #include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/content_browser_client.h"
+#include "libcef/browser/context.h"
 #include "libcef/browser/devtools_delegate.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/net_resource_provider.h"
@@ -18,7 +19,6 @@
 #include "base/command_line.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
-#include "chrome/browser/net/proxy_service_factory.h"
 #include "content/browser/webui/content_web_ui_controller_factory.h"
 #include "content/public/browser/gpu_data_manager.h"
 #include "content/public/browser/web_ui_controller_factory.h"
@@ -118,31 +118,16 @@ int CefBrowserMainParts::PreCreateThreads() {
   // Initialize the V8 proxy integration.
   net::ProxyResolverV8::EnsureIsolateCreated();
 
-  // Initialize proxy configuration tracker.
-  pref_proxy_config_tracker_.reset(
-      ProxyServiceFactory::CreatePrefProxyConfigTrackerOfLocalState(
-          pref_service_.get()));
-
   return 0;
 }
 
 void CefBrowserMainParts::PreMainMessageLoopRun() {
+  CefRequestContextSettings settings;
+  CefContext::Get()->PopulateRequestContextSettings(&settings);
+
   // Create the global BrowserContext.
-  global_browser_context_ = new CefBrowserContextImpl();
-
-  // Initialize the proxy configuration service. This needs to occur before
-  // CefURLRequestContextGetter::GetURLRequestContext() is called for the
-  // first time.
-  proxy_config_service_.reset(
-      ProxyServiceFactory::CreateProxyConfigService(
-          pref_proxy_config_tracker_.get()));
-
-  // Create the global URLRequestContextGetter via an indirect call to
-  // CefBrowserContextImpl::CreateRequestContext. Triggers a call to
-  // CefURLRequestContextGetter::GetURLRequestContext() on the IO thread which
-  // creates the URLRequestContext.
-  global_request_context_ = static_cast<CefURLRequestContextGetterImpl*>(
-      global_browser_context_->GetRequestContext());
+  global_browser_context_ = new CefBrowserContextImpl(settings);
+  global_browser_context_->Initialize();
 
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
@@ -164,9 +149,7 @@ void CefBrowserMainParts::PostMainMessageLoopRun() {
     devtools_delegate_->Stop();
     devtools_delegate_ = NULL;
   }
-  pref_proxy_config_tracker_->DetachFromPrefService();
 
-  global_request_context_ = NULL;
   global_browser_context_ = NULL;
 
 #ifndef NDEBUG
@@ -176,8 +159,6 @@ void CefBrowserMainParts::PostMainMessageLoopRun() {
 }
 
 void CefBrowserMainParts::PostDestroyThreads() {
-  pref_proxy_config_tracker_.reset(NULL);
-
 #if defined(USE_AURA)
   aura::Env::DeleteInstance();
   delete views::ViewsDelegate::views_delegate;

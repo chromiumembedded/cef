@@ -32,9 +32,11 @@ TestHandler::CompletionState::CompletionState(int total)
 
 void TestHandler::CompletionState::TestComplete() {
   if (++count_ == total_) {
-    // Signal that the test is now complete.
-    event_.Signal();
     count_ = 0;
+
+    // Signal that the test is now complete. Do not access any object members
+    // after this call because |this| might be deleted.
+    event_.Signal();
   }
 }
 

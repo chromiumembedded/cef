@@ -38,27 +38,30 @@
 #define CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
 #pragma once
 
+#include "include/capi/cef_cookie_capi.h"
 #include "include/capi/cef_request_context_handler_capi.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+struct _cef_scheme_handler_factory_t;
 
 ///
-// A request context provides request handling for a set of related browser
-// objects. A request context is specified when creating a new browser object
-// via the cef_browser_host_t static factory functions. Browser objects with
-// different request contexts will never be hosted in the same render process.
-// Browser objects with the same request context may or may not be hosted in the
-// same render process depending on the process model. Browser objects created
-// indirectly via the JavaScript window.open function or targeted links will
-// share the same render process and the same request context as the source
-// browser. When running in single-process mode there is only a single render
-// process (the main process) and so all browsers created in single-process mode
-// will share the same request context. This will be the first request context
-// passed into a cef_browser_host_t static factory function and all other
-// request context objects will be ignored.
+// A request context provides request handling for a set of related browser or
+// URL request objects. A request context can be specified when creating a new
+// browser via the cef_browser_host_t static factory functions or when creating
+// a new URL request via the cef_urlrequest_t static factory functions. Browser
+// objects with different request contexts will never be hosted in the same
+// render process. Browser objects with the same request context may or may not
+// be hosted in the same render process depending on the process model. Browser
+// objects created indirectly via the JavaScript window.open function or
+// targeted links will share the same render process and the same request
+// context as the source browser. When running in single-process mode there is
+// only a single render process (the main process) and so all browsers created
+// in single-process mode will share the same request context. This will be the
+// first request context passed into a cef_browser_host_t static factory
+// function and all other request context objects will be ignored.
 ///
 typedef struct _cef_request_context_t {
   ///
@@ -74,7 +77,16 @@ typedef struct _cef_request_context_t {
       struct _cef_request_context_t* other);
 
   ///
-  // Returns true (1) if this object is the global context.
+  // Returns true (1) if this object is sharing the same storage as |that|
+  // object.
+  ///
+  int (CEF_CALLBACK *is_sharing_with)(struct _cef_request_context_t* self,
+      struct _cef_request_context_t* other);
+
+  ///
+  // Returns true (1) if this object is the global context. The global context
+  // is used by default when creating a browser or URL request with a NULL
+  // context argument.
   ///
   int (CEF_CALLBACK *is_global)(struct _cef_request_context_t* self);
 
@@ -82,6 +94,51 @@ typedef struct _cef_request_context_t {
   // Returns the handler for this context if any.
   ///
   struct _cef_request_context_handler_t* (CEF_CALLBACK *get_handler)(
+      struct _cef_request_context_t* self);
+
+  ///
+  // Returns the cache path for this object. If NULL an "incognito mode" in-
+  // memory cache is being used.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_cache_path)(
+      struct _cef_request_context_t* self);
+
+  ///
+  // Returns the default cookie manager for this object. This will be the global
+  // cookie manager if this object is the global request context. Otherwise,
+  // this will be the default cookie manager used when this request context does
+  // not receive a value via cef_request_tContextHandler::get_cookie_manager().
+  // If |callback| is non-NULL it will be executed asnychronously on the IO
+  // thread after the manager's storage has been initialized.
+  ///
+  struct _cef_cookie_manager_t* (CEF_CALLBACK *get_default_cookie_manager)(
+      struct _cef_request_context_t* self,
+      struct _cef_completion_callback_t* callback);
+
+  ///
+  // Register a scheme handler factory for the specified |scheme_name| and
+  // optional |domain_name|. An NULL |domain_name| value for a standard scheme
+  // will cause the factory to match all domain names. The |domain_name| value
+  // will be ignored for non-standard schemes. If |scheme_name| is a built-in
+  // scheme and no handler is returned by |factory| then the built-in scheme
+  // handler factory will be called. If |scheme_name| is a custom scheme then
+  // you must also implement the cef_app_t::on_register_custom_schemes()
+  // function in all processes. This function may be called multiple times to
+  // change or remove the factory that matches the specified |scheme_name| and
+  // optional |domain_name|. Returns false (0) if an error occurs. This function
+  // may be called on any thread in the browser process.
+  ///
+  int (CEF_CALLBACK *register_scheme_handler_factory)(
+      struct _cef_request_context_t* self, const cef_string_t* scheme_name,
+      const cef_string_t* domain_name,
+      struct _cef_scheme_handler_factory_t* factory);
+
+  ///
+  // Clear all registered scheme handler factories. Returns false (0) on error.
+  // This function may be called on any thread in the browser process.
+  ///
+  int (CEF_CALLBACK *clear_scheme_handler_factories)(
       struct _cef_request_context_t* self);
 } cef_request_context_t;
 
@@ -92,9 +149,19 @@ typedef struct _cef_request_context_t {
 CEF_EXPORT cef_request_context_t* cef_request_context_get_global_context();
 
 ///
-// Creates a new context object with the specified handler.
+// Creates a new context object with the specified |settings| and optional
+// |handler|.
 ///
 CEF_EXPORT cef_request_context_t* cef_request_context_create_context(
+    const struct _cef_request_context_settings_t* settings,
+    struct _cef_request_context_handler_t* handler);
+
+///
+// Creates a new context object that shares storage with |other| and uses an
+// optional |handler|.
+///
+CEF_EXPORT cef_request_context_t* create_context_shared(
+    cef_request_context_t* other,
     struct _cef_request_context_handler_t* handler);
 
 

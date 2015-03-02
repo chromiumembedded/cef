@@ -15,9 +15,7 @@
 #include "base/memory/scoped_vector.h"
 #include "base/prefs/pref_service.h"
 #include "base/strings/string_piece.h"
-#include "chrome/browser/net/pref_proxy_config_tracker.h"
 #include "content/public/browser/browser_main_parts.h"
-#include "net/proxy/proxy_config_service.h"
 #include "net/url_request/url_request_context_getter.h"
 
 namespace base {
@@ -48,27 +46,18 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   scoped_refptr<CefBrowserContextImpl> browser_context() const {
     return global_browser_context_;
   }
-  scoped_refptr<CefURLRequestContextGetterImpl> request_context() const {
-    return global_request_context_;
-  }
   CefDevToolsDelegate* devtools_delegate() const {
     return devtools_delegate_;
   }
   PrefService* pref_service() const { return pref_service_.get(); }
-  scoped_ptr<net::ProxyConfigService> proxy_config_service() {
-    return proxy_config_service_.Pass();
-  }
 
  private:
   void PlatformInitialize();
   void PlatformCleanup();
 
   scoped_refptr<CefBrowserContextImpl> global_browser_context_;
-  scoped_refptr<CefURLRequestContextGetterImpl> global_request_context_;
   CefDevToolsDelegate* devtools_delegate_;  // Deletes itself.
   scoped_ptr<base::MessageLoop> message_loop_;
-  scoped_ptr<PrefProxyConfigTracker> pref_proxy_config_tracker_;
-  scoped_ptr<net::ProxyConfigService> proxy_config_service_;
   scoped_refptr<CefBrowserPrefStore> pref_store_;
   scoped_ptr<PrefService> pref_service_;
 

@@ -10,7 +10,10 @@
 // for more information.
 //
 
+#include "libcef_dll/cpptoc/completion_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/request_context_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
+#include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
 
 
@@ -27,6 +30,7 @@ CefRefPtr<CefRequestContext> CefRequestContext::GetGlobalContext() {
 }
 
 CefRefPtr<CefRequestContext> CefRequestContext::CreateContext(
+    const CefRequestContextSettings& settings,
     CefRefPtr<CefRequestContextHandler> handler) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -34,6 +38,27 @@ CefRefPtr<CefRequestContext> CefRequestContext::CreateContext(
 
   // Execute
   cef_request_context_t* _retval = cef_request_context_create_context(
+      &settings,
+      CefRequestContextHandlerCppToC::Wrap(handler));
+
+  // Return type: refptr_same
+  return CefRequestContextCToCpp::Wrap(_retval);
+}
+
+CefRefPtr<CefRequestContext> CefRequestContext::CreateContext(
+    CefRefPtr<CefRequestContext> other,
+    CefRefPtr<CefRequestContextHandler> handler) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: other; type: refptr_same
+  DCHECK(other.get());
+  if (!other.get())
+    return NULL;
+  // Unverified params: handler
+
+  // Execute
+  cef_request_context_t* _retval = create_context_shared(
+      CefRequestContextCToCpp::Unwrap(other),
       CefRequestContextHandlerCppToC::Wrap(handler));
 
   // Return type: refptr_same
@@ -56,6 +81,26 @@ bool CefRequestContextCToCpp::IsSame(CefRefPtr<CefRequestContext> other) {
 
   // Execute
   int _retval = struct_->is_same(struct_,
+      CefRequestContextCToCpp::Unwrap(other));
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+bool CefRequestContextCToCpp::IsSharingWith(
+    CefRefPtr<CefRequestContext> other) {
+  if (CEF_MEMBER_MISSING(struct_, is_sharing_with))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: other; type: refptr_same
+  DCHECK(other.get());
+  if (!other.get())
+    return false;
+
+  // Execute
+  int _retval = struct_->is_sharing_with(struct_,
       CefRequestContextCToCpp::Unwrap(other));
 
   // Return type: bool
@@ -86,6 +131,75 @@ CefRefPtr<CefRequestContextHandler> CefRequestContextCToCpp::GetHandler() {
 
   // Return type: refptr_diff
   return CefRequestContextHandlerCppToC::Unwrap(_retval);
+}
+
+CefString CefRequestContextCToCpp::GetCachePath() {
+  if (CEF_MEMBER_MISSING(struct_, get_cache_path))
+    return CefString();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_string_userfree_t _retval = struct_->get_cache_path(struct_);
+
+  // Return type: string
+  CefString _retvalStr;
+  _retvalStr.AttachToUserFree(_retval);
+  return _retvalStr;
+}
+
+CefRefPtr<CefCookieManager> CefRequestContextCToCpp::GetDefaultCookieManager(
+    CefRefPtr<CefCompletionCallback> callback) {
+  if (CEF_MEMBER_MISSING(struct_, get_default_cookie_manager))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: callback
+
+  // Execute
+  cef_cookie_manager_t* _retval = struct_->get_default_cookie_manager(struct_,
+      CefCompletionCallbackCppToC::Wrap(callback));
+
+  // Return type: refptr_same
+  return CefCookieManagerCToCpp::Wrap(_retval);
+}
+
+bool CefRequestContextCToCpp::RegisterSchemeHandlerFactory(
+    const CefString& scheme_name, const CefString& domain_name,
+    CefRefPtr<CefSchemeHandlerFactory> factory) {
+  if (CEF_MEMBER_MISSING(struct_, register_scheme_handler_factory))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: scheme_name; type: string_byref_const
+  DCHECK(!scheme_name.empty());
+  if (scheme_name.empty())
+    return false;
+  // Unverified params: domain_name, factory
+
+  // Execute
+  int _retval = struct_->register_scheme_handler_factory(struct_,
+      scheme_name.GetStruct(),
+      domain_name.GetStruct(),
+      CefSchemeHandlerFactoryCppToC::Wrap(factory));
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+bool CefRequestContextCToCpp::ClearSchemeHandlerFactories() {
+  if (CEF_MEMBER_MISSING(struct_, clear_scheme_handler_factories))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = struct_->clear_scheme_handler_factories(struct_);
+
+  // Return type: bool
+  return _retval?true:false;
 }
 
 

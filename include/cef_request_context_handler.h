@@ -42,14 +42,17 @@
 #include "include/cef_cookie.h"
 
 ///
-// Implement this interface to provide handler implementations.
+// Implement this interface to provide handler implementations. The handler
+// instance will not be released until all objects related to the context have
+// been destroyed.
 ///
 /*--cef(source=client,no_debugct_check)--*/
 class CefRequestContextHandler : public virtual CefBase {
  public:
   ///
-  // Called on the IO thread to retrieve the cookie manager. The global cookie
-  // manager will be used if this method returns NULL.
+  // Called on the IO thread to retrieve the cookie manager. If this method
+  // returns NULL the default cookie manager retrievable via
+  // CefRequestContext::GetDefaultCookieManager() will be used.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefCookieManager> GetCookieManager() { return NULL; }

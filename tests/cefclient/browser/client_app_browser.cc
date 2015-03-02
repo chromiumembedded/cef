@@ -16,9 +16,10 @@ void ClientAppBrowser::OnContextInitialized() {
   CreateDelegates(delegates_);
 
   // Register cookieable schemes with the global cookie manager.
-  CefRefPtr<CefCookieManager> manager = CefCookieManager::GetGlobalManager();
+  CefRefPtr<CefCookieManager> manager =
+      CefCookieManager::GetGlobalManager(NULL);
   DCHECK(manager.get());
-  manager->SetSupportedSchemes(cookieable_schemes_);
+  manager->SetSupportedSchemes(cookieable_schemes_, NULL);
 
   print_handler_ = CreatePrintHandler();
 

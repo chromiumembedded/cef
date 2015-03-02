@@ -17,6 +17,8 @@ CefBrowserContextProxy::CefBrowserContextProxy(
     scoped_refptr<CefBrowserContextImpl> parent)
     : handler_(handler),
       parent_(parent) {
+  DCHECK(handler_.get());
+  DCHECK(parent_.get());
 }
 
 CefBrowserContextProxy::~CefBrowserContextProxy() {
@@ -93,13 +95,25 @@ content::SSLHostStateDelegate*
   return parent_->GetSSLHostStateDelegate();
 }
 
+bool CefBrowserContextProxy::IsProxy() const {
+  return true;
+}
+
+const CefRequestContextSettings& CefBrowserContextProxy::GetSettings() const {
+  return parent_->GetSettings();
+}
+
+CefRefPtr<CefRequestContextHandler> CefBrowserContextProxy::GetHandler() const {
+  return handler_;
+}
+
 net::URLRequestContextGetter* CefBrowserContextProxy::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
+  CEF_REQUIRE_UIT();
   DCHECK(!url_request_getter_.get());
   url_request_getter_ =
-      new CefURLRequestContextGetterProxy(handler_,
-          CefContentBrowserClient::Get()->request_context().get());
+      new CefURLRequestContextGetterProxy(handler_, parent_->request_context());
   resource_context()->set_url_request_context_getter(url_request_getter_.get());
   return url_request_getter_.get();
 }

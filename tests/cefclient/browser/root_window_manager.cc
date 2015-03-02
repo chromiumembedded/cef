@@ -4,6 +4,8 @@
 
 #include "cefclient/browser/root_window_manager.h"
 
+#include <sstream>
+
 #include "include/base/cef_bind.h"
 #include "include/base/cef_logging.h"
 #include "include/wrapper/cef_helpers.h"
@@ -113,7 +115,20 @@ CefRefPtr<CefRequestContext> RootWindowManager::GetRequestContext(
 
   if (request_context_per_browser_) {
     // Create a new request context for each browser.
-    return CefRequestContext::CreateContext(NULL);
+    CefRequestContextSettings settings;
+
+    CefRefPtr<CefCommandLine> command_line =
+        CefCommandLine::GetGlobalCommandLine();
+    if (command_line->HasSwitch(switches::kCachePath)) {
+      // If a global cache path value is specified then give each browser a
+      // unique cache path.
+      std::stringstream ss;
+      ss << command_line->GetSwitchValue(switches::kCachePath).ToString() <<
+          time(NULL);
+      CefString(&settings.cache_path) = ss.str();
+    }
+
+    return CefRequestContext::CreateContext(settings, NULL);
   }
 
   // All browsers will share the global request context.

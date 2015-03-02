@@ -12,8 +12,6 @@
 
 #include "include/cef_app.h"
 
-#include "base/files/file_path.h"
-#include "base/files/scoped_temp_dir.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/threading/platform_thread.h"
 
@@ -59,9 +57,6 @@ class CefContext {
   // Returns true if the context is shutting down.
   bool shutting_down() { return shutting_down_; }
 
-  // Retrieve the path at which cache data will be stored on disk.
-  const base::FilePath& cache_path() const { return cache_path_; }
-
   const CefSettings& settings() const { return settings_; }
 
   printing::PrintJobManager* print_job_manager() const {
@@ -69,6 +64,10 @@ class CefContext {
   }
 
   CefTraceSubscriber* GetTraceSubscriber();
+
+  // Populate the request context settings based on CefSettings and command-
+  // line flags.
+  void PopulateRequestContextSettings(CefRequestContextSettings* settings);
 
  private:
   void OnContextInitialized();
@@ -88,8 +87,6 @@ class CefContext {
   base::PlatformThreadId init_thread_id_;
 
   CefSettings settings_;
-  base::FilePath cache_path_;
-  base::ScopedTempDir cache_temp_dir_;
 
   scoped_ptr<CefMainDelegate> main_delegate_;
   scoped_ptr<content::ContentMainRunner> main_runner_;

@@ -234,20 +234,34 @@ typedef struct _cef_settings_t {
   int command_line_args_disabled;
 
   ///
-  // The location where cache data will be stored on disk. If empty an in-memory
-  // cache will be used for some features and a temporary disk cache for others.
-  // HTML5 databases such as localStorage will only persist across sessions if a
-  // cache path is specified.
+  // The location where cache data will be stored on disk. If empty then
+  // browsers will be created in "incognito mode" where in-memory caches are
+  // used for storage and no data is persisted to disk. HTML5 databases such as
+  // localStorage will only persist across sessions if a cache path is
+  // specified. Can be overridden for individual CefRequestContext instances via
+  // the CefRequestContextSettings.cache_path value.
   ///
   cef_string_t cache_path;
+
+  ///
+  // The location where user data such as spell checking dictionary files will
+  // be stored on disk. If empty then the default platform-specific user data
+  // directory will be used ("~/.cef_user_data" directory on Linux,
+  // "~/Library/Application Support/CEF/User Data" directory on Mac OS X,
+  // "Local Settings\Application Data\CEF\User Data" directory under the user
+  // profile directory on Windows).
+  ///
+  cef_string_t user_data_path;
 
   ///
   // To persist session cookies (cookies without an expiry date or validity
   // interval) by default when using the global cookie manager set this value to
   // true. Session cookies are generally intended to be transient and most Web
-  // browsers do not persist them. A |cache_path| value must also be specified to
-  // enable this feature. Also configurable using the "persist-session-cookies"
-  // command-line switch.
+  // browsers do not persist them. A |cache_path| value must also be specified
+  // to enable this feature. Also configurable using the
+  // "persist-session-cookies" command-line switch. Can be overridden for
+  // individual CefRequestContext instances via the
+  // CefRequestContextSettings.persist_session_cookies value.
   ///
   int persist_session_cookies;
 
@@ -370,7 +384,9 @@ typedef struct _cef_settings_t {
   // Enabling this setting can lead to potential security vulnerabilities like
   // "man in the middle" attacks. Applications that load content from the
   // internet should not enable this setting. Also configurable using the
-  // "ignore-certificate-errors" command-line switch.
+  // "ignore-certificate-errors" command-line switch. Can be overridden for
+  // individual CefRequestContext instances via the
+  // CefRequestContextSettings.ignore_certificate_errors value.
   ///
   int ignore_certificate_errors;
 
@@ -386,10 +402,63 @@ typedef struct _cef_settings_t {
   // Comma delimited ordered list of language codes without any whitespace that
   // will be used in the "Accept-Language" HTTP header. May be overridden on a
   // per-browser basis using the CefBrowserSettings.accept_language_list value.
-  // If both values are empty then "en-US,en" will be used.
+  // If both values are empty then "en-US,en" will be used. Can be overridden
+  // for individual CefRequestContext instances via the
+  // CefRequestContextSettings.accept_language_list value.
   ///
   cef_string_t accept_language_list;
 } cef_settings_t;
+
+///
+// Request context initialization settings. Specify NULL or 0 to get the
+// recommended default values.
+///
+typedef struct _cef_request_context_settings_t {
+  ///
+  // Size of this structure.
+  ///
+  size_t size;
+
+  ///
+  // The location where cache data will be stored on disk. If empty then
+  // browsers will be created in "incognito mode" where in-memory caches are
+  // used for storage and no data is persisted to disk. HTML5 databases such as
+  // localStorage will only persist across sessions if a cache path is
+  // specified. To share the global browser cache and related configuration set
+  // this value to match the CefSettings.cache_path value.
+  ///
+  cef_string_t cache_path;
+
+  ///
+  // To persist session cookies (cookies without an expiry date or validity
+  // interval) by default when using the global cookie manager set this value to
+  // true. Session cookies are generally intended to be transient and most Web
+  // browsers do not persist them. Can be set globally using the
+  // CefSettings.persist_session_cookies value. This value will be ignored if
+  // |cache_path| is empty or if it matches the CefSettings.cache_path value.
+  ///
+  int persist_session_cookies;
+
+  ///
+  // Set to true (1) to ignore errors related to invalid SSL certificates.
+  // Enabling this setting can lead to potential security vulnerabilities like
+  // "man in the middle" attacks. Applications that load content from the
+  // internet should not enable this setting. Can be set globally using the
+  // CefSettings.ignore_certificate_errors value. This value will be ignored if
+  // |cache_path| matches the CefSettings.cache_path value.
+  ///
+  int ignore_certificate_errors;
+
+  ///
+  // Comma delimited ordered list of language codes without any whitespace that
+  // will be used in the "Accept-Language" HTTP header. Can be set globally
+  // using the CefSettings.accept_language_list value or overridden on a per-
+  // browser basis using the CefBrowserSettings.accept_language_list value. If
+  // all values are empty then "en-US,en" will be used. This value will be
+  // ignored if |cache_path| matches the CefSettings.cache_path value.
+  ///
+  cef_string_t accept_language_list;
+} cef_request_context_settings_t;
 
 ///
 // Browser initialization settings. Specify NULL or 0 to get the recommended
@@ -746,6 +815,18 @@ typedef enum {
   // module).
   ///
   PK_FILE_MODULE,
+
+  ///
+  // "Local Settings\Application Data" directory under the user profile
+  // directory on Windows.
+  ///
+  PK_LOCAL_APP_DATA,
+
+  ///
+  // "Application Data" directory under the user profile directory on Windows
+  // and "~/Library/Application Support" directory on Mac OS X.
+  ///
+  PK_USER_DATA,
 } cef_path_key_t;
 
 ///

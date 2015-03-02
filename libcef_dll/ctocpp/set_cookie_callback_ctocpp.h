@@ -10,29 +10,32 @@
 // for more information.
 //
 
-#ifndef CEF_LIBCEF_DLL_CPPTOC_REQUEST_CONTEXT_CPPTOC_H_
-#define CEF_LIBCEF_DLL_CPPTOC_REQUEST_CONTEXT_CPPTOC_H_
+#ifndef CEF_LIBCEF_DLL_CTOCPP_SET_COOKIE_CALLBACK_CTOCPP_H_
+#define CEF_LIBCEF_DLL_CTOCPP_SET_COOKIE_CALLBACK_CTOCPP_H_
 #pragma once
 
 #ifndef BUILDING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
 #else  // BUILDING_CEF_SHARED
 
-#include "include/cef_request_context.h"
-#include "include/capi/cef_request_context_capi.h"
-#include "include/cef_scheme.h"
-#include "include/capi/cef_scheme_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "include/cef_cookie.h"
+#include "include/capi/cef_cookie_capi.h"
+#include "libcef_dll/ctocpp/ctocpp.h"
 
-// Wrap a C++ class with a C structure.
+// Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
-class CefRequestContextCppToC
-    : public CefCppToC<CefRequestContextCppToC, CefRequestContext,
-        cef_request_context_t> {
+class CefSetCookieCallbackCToCpp
+    : public CefCToCpp<CefSetCookieCallbackCToCpp, CefSetCookieCallback,
+        cef_set_cookie_callback_t> {
  public:
-  explicit CefRequestContextCppToC(CefRequestContext* cls);
+  explicit CefSetCookieCallbackCToCpp(cef_set_cookie_callback_t* str)
+      : CefCToCpp<CefSetCookieCallbackCToCpp, CefSetCookieCallback,
+          cef_set_cookie_callback_t>(str) {}
+
+  // CefSetCookieCallback methods
+  void OnComplete(bool success) override;
 };
 
 #endif  // BUILDING_CEF_SHARED
-#endif  // CEF_LIBCEF_DLL_CPPTOC_REQUEST_CONTEXT_CPPTOC_H_
+#endif  // CEF_LIBCEF_DLL_CTOCPP_SET_COOKIE_CALLBACK_CTOCPP_H_
 

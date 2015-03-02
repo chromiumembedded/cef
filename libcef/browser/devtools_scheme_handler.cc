@@ -7,6 +7,7 @@
 #include <string>
 
 #include "libcef/browser/internal_scheme_handler.h"
+#include "libcef/browser/url_request_manager.h"
 
 #include "base/strings/string_util.h"
 #include "content/public/common/url_constants.h"
@@ -22,7 +23,8 @@ class Delegate : public InternalHandlerDelegate {
  public:
   Delegate() {}
 
-  bool OnRequest(CefRefPtr<CefRequest> request,
+  bool OnRequest(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefRequest> request,
                  Action* action) override {
     GURL url = GURL(request->GetURL().ToString());
     std::string path = url.path();
@@ -43,8 +45,8 @@ class Delegate : public InternalHandlerDelegate {
 
 }  // namespace
 
-void RegisterChromeDevToolsHandler() {
-  CefRegisterSchemeHandlerFactory(
+void RegisterChromeDevToolsHandler(CefURLRequestManager* request_manager) {
+  request_manager->AddFactory(
       content::kChromeDevToolsScheme,
       kChromeDevToolsHost,
       CreateInternalHandlerFactory(

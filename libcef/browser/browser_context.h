@@ -6,7 +6,9 @@
 #define CEF_LIBCEF_BROWSER_BROWSER_CONTEXT_H_
 #pragma once
 
+#include "include/cef_request_context_handler.h"
 #include "libcef/browser/resource_context.h"
+#include "libcef/browser/url_request_context_getter_impl.h"
 
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
@@ -26,11 +28,12 @@
 //
 // RCI = CefRequestContextImpl
 //  Implements the CefRequestContext interface which is exposed to clients.
-//  References the global BCI or creates a new BCP.
+//  References the isolated BCI or creates a new BCP.
 //
 // BCI = CefBrowserContextImpl
-//   Entry point from WC when using the global RCI. Owns the RC and creates the
-//   URCGI. Life span controlled by RCI and CefBrowserMainParts.
+//   Entry point from WC when using an isolated RCI. Owns the RC and creates the
+//   URCGI. Life span controlled by RCI and (for the global context)
+//   CefBrowserMainParts.
 //
 // BCP = CefBrowserContextProxy
 //   Entry point from WC when using a custom RCI. Owns the RC and creates the
@@ -42,14 +45,14 @@
 //   controlled by BCI/BCP.
 //
 // URCGI = CefURLRequestContextGetterImpl
-//   Creates and owns the URCI. Life span is controlled by RC and
-//   CefBrowserMainParts.
+//   Creates and owns the URCI. Life span is controlled by RC and (for the
+//   global context) CefBrowserMainParts.
 //
 // URCGP = CefURLRequestContextGetterProxy
 //   Creates and owns the URCP. Life span is controlled by RC.
 //
 // URCI = CefURLRequestContextImpl
-//   Owns various network-related objects including the global cookie manager.
+//   Owns various network-related objects including the isolated cookie manager.
 //   Owns URLRequest objects which must be destroyed first. Life span is
 //   controlled by URCGI.
 //
@@ -61,7 +64,7 @@
 // CSP = CefCookieStoreProxy
 //   Gives the CefCookieManager instance retrieved via CefRequestContextHandler
 //   an opportunity to handle cookie requests. Otherwise forwards requests via
-//   URCI to the global cookie manager. Life span is controlled by URCP.
+//   URCI to the isolated cookie manager. Life span is controlled by URCP.
 //
 //
 // Relationship diagram:
@@ -69,7 +72,7 @@
 //   own = ownership (scoped_ptr)
 //   ptr = raw pointer
 //
-//                    CefBrowserMainParts      global cookie manager, etc...
+//                    CefBrowserMainParts      isolated cookie manager, etc...
 //                       |           |            ^
 //                      ref         ref        ref/own
 //                       v           v            |
@@ -103,7 +106,7 @@
 
 // Main entry point for configuring behavior on a per-browser basis. An instance
 // of this class is passed to WebContents::Create in CefBrowserHostImpl::
-// CreateInternal. Only accessed on the UI thread.
+// CreateInternal. Only accessed on the UI thread unless otherwise indicated.
 class CefBrowserContext
     : public content::BrowserContext,
       public base::RefCountedThreadSafe<
@@ -113,6 +116,18 @@ class CefBrowserContext
 
   // BrowserContext methods.
   content::ResourceContext* GetResourceContext() override;
+
+  // Returns true if this is a CefBrowserContextProxy object. Safe to call from
+  // any thread.
+  virtual bool IsProxy() const = 0;
+
+  // Returns the settings associated with this object. Safe to call from any
+  // thread.
+  virtual const CefRequestContextSettings& GetSettings() const = 0;
+
+  // Returns the handler associated with this object. Safe to call from any
+  // thread.
+  virtual CefRefPtr<CefRequestContextHandler> GetHandler() const = 0;
 
   // Called from CefContentBrowserClient to create the URLRequestContextGetter.
   virtual net::URLRequestContextGetter* CreateRequestContext(

@@ -16,6 +16,8 @@ CefCookieStoreProxy::CefCookieStoreProxy(
     : parent_(parent),
       handler_(handler) {
   CEF_REQUIRE_IOT();
+  DCHECK(parent_);
+  DCHECK(handler_.get());
 }
 
 CefCookieStoreProxy::~CefCookieStoreProxy() {
@@ -117,20 +119,18 @@ net::CookieStore* CefCookieStoreProxy::GetCookieStore() {
 
   scoped_refptr<net::CookieStore> cookie_store;
 
-  if (handler_.get()) {
-    // Get the manager from the handler.
-    CefRefPtr<CefCookieManager> manager = handler_->GetCookieManager();
-    if (manager.get()) {
-      cookie_store = reinterpret_cast<CefCookieManagerImpl*>(manager.get())->
-          cookie_monster();
-      DCHECK(cookie_store.get());
-      return cookie_store.get();
-    }
+  CefRefPtr<CefCookieManager> manager = handler_->GetCookieManager();
+  if (manager.get()) {
+    // Use the cookie store provided by the manager.
+    cookie_store = reinterpret_cast<CefCookieManagerImpl*>(manager.get())->
+        GetExistingCookieMonster();
+    DCHECK(cookie_store.get());
+    return cookie_store.get();
   }
 
   DCHECK(parent_);
   if (parent_) {
-    // Use the global cookie store.
+    // Use the cookie store from the parent.
     cookie_store = parent_->cookie_store();
     DCHECK(cookie_store.get());
   }

@@ -16,17 +16,20 @@ class FtpTransactionFactory;
 class URLRequestJobFactoryImpl;
 }
 
+class CefURLRequestManager;
+
 namespace scheme {
 
 // Install the internal scheme handlers provided by Chromium that cannot be
 // overridden.
 void InstallInternalProtectedHandlers(
     net::URLRequestJobFactoryImpl* job_factory,
+    CefURLRequestManager* request_manager,
     content::ProtocolHandlerMap* protocol_handlers,
     net::FtpTransactionFactory* ftp_transaction_factory);
 
 // Register the internal scheme handlers that can be overridden.
-void RegisterInternalHandlers();
+void RegisterInternalHandlers(CefURLRequestManager* request_manager);
 
 // Used to fire any asynchronous content updates.
 void DidFinishLoad(CefRefPtr<CefFrame> frame, const GURL& validated_url);

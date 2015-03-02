@@ -49,17 +49,18 @@ class CefSchemeHandlerFactory;
 
 
 ///
-// Register a scheme handler factory for the specified |scheme_name| and
-// optional |domain_name|. An empty |domain_name| value for a standard scheme
-// will cause the factory to match all domain names. The |domain_name| value
-// will be ignored for non-standard schemes. If |scheme_name| is a built-in
-// scheme and no handler is returned by |factory| then the built-in scheme
-// handler factory will be called. If |scheme_name| is a custom scheme then
-// also implement the CefApp::OnRegisterCustomSchemes() method in all processes.
-// This function may be called multiple times to change or remove the factory
-// that matches the specified |scheme_name| and optional |domain_name|.
-// Returns false if an error occurs. This function may be called on any thread
-// in the browser process.
+// Register a scheme handler factory with the global request context. An empty
+// |domain_name| value for a standard scheme will cause the factory to match all
+// domain names. The |domain_name| value will be ignored for non-standard
+// schemes. If |scheme_name| is a built-in scheme and no handler is returned by
+// |factory| then the built-in scheme handler factory will be called. If
+// |scheme_name| is a custom scheme then you must also implement the
+// CefApp::OnRegisterCustomSchemes() method in all processes. This function may
+// be called multiple times to change or remove the factory that matches the
+// specified |scheme_name| and optional |domain_name|. Returns false if an error
+// occurs. This function may be called on any thread in the browser process.
+// Using this function is equivalent to calling
+// CefRequestContext::GetGlobalContext()->RegisterSchemeHandlerFactory().
 ///
 /*--cef(optional_param=domain_name,optional_param=factory)--*/
 bool CefRegisterSchemeHandlerFactory(
@@ -68,8 +69,10 @@ bool CefRegisterSchemeHandlerFactory(
     CefRefPtr<CefSchemeHandlerFactory> factory);
 
 ///
-// Clear all registered scheme handler factories. Returns false on error. This
-// function may be called on any thread in the browser process.
+// Clear all scheme handler factories registered with the global request
+// context. Returns false on error. This function may be called on any thread in
+// the browser process. Using this function is equivalent to calling
+// CefRequestContext::GetGlobalContext()->ClearSchemeHandlerFactories().
 ///
 /*--cef()--*/
 bool CefClearSchemeHandlerFactories();

@@ -10,8 +10,6 @@
 #include <string>
 #include <vector>
 
-#include "libcef/browser/content_browser_client.h"
-#include "libcef/browser/context.h"
 #include "libcef/browser/scheme_handler.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_network_delegate.h"
@@ -98,12 +96,16 @@ class CefHttpUserAgentSettings : public net::HttpUserAgentSettings {
 }  // namespace
 
 CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
+    const CefRequestContextSettings& settings,
     base::MessageLoop* io_loop,
     base::MessageLoop* file_loop,
     content::ProtocolHandlerMap* protocol_handlers,
+    scoped_ptr<net::ProxyConfigService> proxy_config_service,
     content::URLRequestInterceptorScopedVector request_interceptors)
-    : io_loop_(io_loop),
+    : settings_(settings),
+      io_loop_(io_loop),
       file_loop_(file_loop),
+      proxy_config_service_(proxy_config_service.Pass()),
       request_interceptors_(request_interceptors.Pass()) {
   // Must first be created on the UI thread.
   CEF_REQUIRE_UIT();
@@ -124,19 +126,19 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
   CEF_REQUIRE_IOT();
 
   if (!url_request_context_.get()) {
-    const base::FilePath& cache_path = CefContext::Get()->cache_path();
     const base::CommandLine* command_line =
         base::CommandLine::ForCurrentProcess();
-    const CefSettings& settings = CefContext::Get()->settings();
+
+    base::FilePath cache_path;
+    if (settings_.cache_path.length > 0)
+      cache_path = base::FilePath(CefString(&settings_.cache_path));
 
     url_request_context_.reset(new CefURLRequestContextImpl());
     storage_.reset(
         new net::URLRequestContextStorage(url_request_context_.get()));
 
-    bool persist_session_cookies =
-        (settings.persist_session_cookies ||
-         command_line->HasSwitch(switches::kPersistSessionCookies));
-    SetCookieStoragePath(cache_path, persist_session_cookies);
+    SetCookieStoragePath(cache_path,
+                         settings_.persist_session_cookies ? true : false);
 
     storage_->set_network_delegate(new CefNetworkDelegate);
 
@@ -146,8 +148,8 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
             base::WorkerPool::GetTaskRunner(true))));
 
     const std::string& accept_language =
-        settings.accept_language_list.length > 0 ?
-            CefString(&settings.accept_language_list): "en-US,en";
+        settings_.accept_language_list.length > 0 ?
+            CefString(&settings_.accept_language_list): "en-US,en";
     storage_->set_http_user_agent_settings(
         new CefHttpUserAgentSettings(accept_language));
 
@@ -161,7 +163,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
             NULL,
             url_request_context_.get(),
             url_request_context_->network_delegate(),
-            CefContentBrowserClient::Get()->proxy_config_service().release(),
+            proxy_config_service_.release(),
             *command_line,
             true));
     storage_->set_proxy_service(system_proxy_service.release());
@@ -218,8 +220,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     network_session_params.http_server_properties =
         url_request_context_->http_server_properties();
     network_session_params.ignore_certificate_errors =
-        (settings.ignore_certificate_errors ||
-         command_line->HasSwitch(switches::kIgnoreCertificateErrors));
+        settings_.ignore_certificate_errors ? true : false;
 
     net::HttpCache* main_cache = new net::HttpCache(network_session_params,
                                                     main_backend);
@@ -232,12 +233,17 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
 
     scoped_ptr<net::URLRequestJobFactoryImpl> job_factory(
         new net::URLRequestJobFactoryImpl());
-    job_factory_impl_ = job_factory.get();
+    url_request_manager_.reset(new CefURLRequestManager(job_factory.get()));
 
+    // Install internal scheme handlers that cannot be overridden.
     scheme::InstallInternalProtectedHandlers(job_factory.get(),
+                                             url_request_manager_.get(),
                                              &protocol_handlers_,
                                              ftp_transaction_factory_.get());
     protocol_handlers_.clear();
+
+    // Register internal scheme handlers that can be overridden.
+    scheme::RegisterInternalHandlers(url_request_manager_.get());
 
     request_interceptors_.push_back(new CefRequestInterceptor());
 
@@ -256,7 +262,12 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     storage_->set_job_factory(top_job_factory.release());
 
 #if defined(USE_NSS)
-    net::SetURLRequestContextForNSSHttpIO(url_request_context_.get());
+    // Only do this for the first (global) request context.
+    static bool request_context_for_nss_set = false;
+    if (!request_context_for_nss_set) {
+      net::SetURLRequestContextForNSSHttpIO(url_request_context_.get());
+      request_context_for_nss_set = true;
+    }
 #endif
   }
 
@@ -345,6 +356,16 @@ void CefURLRequestContextGetterImpl::SetCookieSupportedSchemes(
       SetCookieableSchemes(arr, scheme_set.size());
 
   delete [] arr;
+}
+
+void CefURLRequestContextGetterImpl::AddHandler(
+    CefRefPtr<CefRequestContextHandler> handler) {
+  if (!CEF_CURRENTLY_ON_IOT()) {
+    CEF_POST_TASK(CEF_IOT,
+        base::Bind(&CefURLRequestContextGetterImpl::AddHandler, this, handler));
+    return;
+  }
+  handler_list_.push_back(handler);
 }
 
 void CefURLRequestContextGetterImpl::CreateProxyConfigService() {

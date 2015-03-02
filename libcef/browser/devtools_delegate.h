@@ -45,8 +45,7 @@ class CefDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
 
 class CefDevToolsManagerDelegate : public content::DevToolsManagerDelegate {
  public:
-  explicit CefDevToolsManagerDelegate(
-      content::BrowserContext* browser_context);
+  CefDevToolsManagerDelegate();
   ~CefDevToolsManagerDelegate() override;
 
   // DevToolsManagerDelegate implementation.
@@ -63,8 +62,6 @@ class CefDevToolsManagerDelegate : public content::DevToolsManagerDelegate {
   std::string GetPageThumbnailData(const GURL& url) override;
 
  private:
-  content::BrowserContext* browser_context_;
-
   DISALLOW_COPY_AND_ASSIGN(CefDevToolsManagerDelegate);
 };
 

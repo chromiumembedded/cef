@@ -10,9 +10,9 @@
 #include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/chrome_browser_process_stub.h"
 #include "libcef/browser/content_browser_client.h"
-#include "libcef/browser/scheme_handler.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/trace_subscriber.h"
+#include "libcef/common/cef_switches.h"
 #include "libcef/common/main_delegate.h"
 #include "libcef/renderer/content_renderer_client.h"
 
@@ -232,22 +232,6 @@ bool CefContext::Initialize(const CefMainArgs& args,
   init_thread_id_ = base::PlatformThread::CurrentId();
   settings_ = settings;
 
-  cache_path_ = base::FilePath(CefString(&settings.cache_path));
-  if (!cache_path_.empty() &&
-      !base::DirectoryExists(cache_path_) &&
-      !base::CreateDirectory(cache_path_)) {
-    NOTREACHED() << "The cache_path directory could not be created";
-    cache_path_ = base::FilePath();
-  }
-  if (cache_path_.empty()) {
-    // Create and use a temporary directory.
-    if (cache_temp_dir_.CreateUniqueTempDir()) {
-      cache_path_ = cache_temp_dir_.path();
-    } else {
-      NOTREACHED() << "Failed to create temporary cache_path directory";
-    }
-  }
-
 #if !defined(OS_WIN)
   if (settings.multi_threaded_message_loop) {
     NOTIMPLEMENTED() << "multi_threaded_message_loop is not supported.";
@@ -346,11 +330,23 @@ CefTraceSubscriber* CefContext::GetTraceSubscriber() {
   return trace_subscriber_.get();
 }
 
+void CefContext::PopulateRequestContextSettings(
+    CefRequestContextSettings* settings) {
+  CefRefPtr<CefCommandLine> command_line =
+      CefCommandLine::GetGlobalCommandLine();
+  CefString(&settings->cache_path) = CefString(&settings_.cache_path);
+  settings->persist_session_cookies =
+      settings_.persist_session_cookies ||
+      command_line->HasSwitch(switches::kPersistSessionCookies);
+  settings->ignore_certificate_errors =
+      settings_.ignore_certificate_errors ||
+      command_line->HasSwitch(switches::kIgnoreCertificateErrors);
+  CefString(&settings->accept_language_list) =
+      CefString(&settings_.accept_language_list);
+}
+
 void CefContext::OnContextInitialized() {
   CEF_REQUIRE_UIT();
-
-  // Register internal scheme handlers.
-  scheme::RegisterInternalHandlers();
 
   // Must be created after the NotificationService.
   print_job_manager_.reset(new printing::PrintJobManager());

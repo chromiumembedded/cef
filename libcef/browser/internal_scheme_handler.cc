@@ -125,7 +125,7 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
     GURL url = GURL(request->GetURL().ToString());
 
     InternalHandlerDelegate::Action action;
-    if (delegate_->OnRequest(request, &action)) {
+    if (delegate_->OnRequest(browser, request, &action)) {
       if (!action.redirect_url.is_empty() && action.redirect_url.is_valid())
         return new RedirectHandler(action.redirect_url);
 

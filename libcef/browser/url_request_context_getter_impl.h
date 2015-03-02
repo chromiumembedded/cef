@@ -9,8 +9,10 @@
 #include <string>
 #include <vector>
 
+#include "include/internal/cef_types_wrappers.h"
 #include "libcef/browser/url_request_context_getter.h"
 #include "libcef/browser/url_request_context_impl.h"
+#include "libcef/browser/url_request_manager.h"
 
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
@@ -32,16 +34,18 @@ class URLRequestJobFactoryImpl;
 class URLSecurityManager;
 }
 
-// Global URLRequestContextGetter implementation. Life span is primarily
-// controlled by CefResourceContext and CefBrowserMainParts. Created on the UI
-// thread but accessed and destroyed on the IO thread. See browser_context.h
-// for an object relationship diagram.
+// Isolated URLRequestContextGetter implementation. Life span is primarily
+// controlled by CefResourceContext and (for the global context)
+// CefBrowserMainParts. Created on the UI thread but accessed and destroyed on
+// the IO thread. See browser_context.h for an object relationship diagram.
 class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
  public:
   CefURLRequestContextGetterImpl(
+      const CefRequestContextSettings& settings,
       base::MessageLoop* io_loop,
       base::MessageLoop* file_loop,
       content::ProtocolHandlerMap* protocol_handlers,
+      scoped_ptr<net::ProxyConfigService> proxy_config_service,
       content::URLRequestInterceptorScopedVector request_interceptors);
   ~CefURLRequestContextGetterImpl() override;
 
@@ -53,16 +57,22 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
   // CefURLRequestContextGetter implementation.
   net::HostResolver* GetHostResolver() const override;
 
-  net::URLRequestJobFactoryImpl* job_factory_impl() const {
-    return job_factory_impl_;
-  }
-
   void SetCookieStoragePath(const base::FilePath& path,
                             bool persist_session_cookies);
   void SetCookieSupportedSchemes(const std::vector<std::string>& schemes);
 
+  // Keep a reference to all handlers sharing this context so that they'll be
+  // kept alive until the context is destroyed.
+  void AddHandler(CefRefPtr<CefRequestContextHandler> handler);
+
+  CefURLRequestManager* request_manager() const {
+    return url_request_manager_.get();
+  }
+
  private:
   void CreateProxyConfigService();
+
+  const CefRequestContextSettings settings_;
 
   base::MessageLoop* io_loop_;
   base::MessageLoop* file_loop_;
@@ -70,14 +80,16 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
   scoped_ptr<net::ProxyConfigService> proxy_config_service_;
   scoped_ptr<net::URLRequestContextStorage> storage_;
   scoped_ptr<CefURLRequestContextImpl> url_request_context_;
+  scoped_ptr<CefURLRequestManager> url_request_manager_;
   scoped_ptr<net::URLSecurityManager> url_security_manager_;
   scoped_ptr<net::FtpTransactionFactory> ftp_transaction_factory_;
   content::ProtocolHandlerMap protocol_handlers_;
   content::URLRequestInterceptorScopedVector request_interceptors_;
-  net::URLRequestJobFactoryImpl* job_factory_impl_;
 
   base::FilePath cookie_store_path_;
   std::vector<std::string> cookie_supported_schemes_;
+
+  std::vector<CefRefPtr<CefRequestContextHandler> > handler_list_;
 
   DISALLOW_COPY_AND_ASSIGN(CefURLRequestContextGetterImpl);
 };

@@ -173,9 +173,7 @@ std::string CefDevToolsDelegate::GetChromeDevToolsURL() {
 
 // CefDevToolsManagerDelegate
 
-CefDevToolsManagerDelegate::CefDevToolsManagerDelegate(
-    content::BrowserContext* browser_context)
-    : browser_context_(browser_context) {
+CefDevToolsManagerDelegate::CefDevToolsManagerDelegate() {
 }
 
 CefDevToolsManagerDelegate::~CefDevToolsManagerDelegate() {

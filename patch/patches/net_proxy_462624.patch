@@ -1,0 +1,130 @@
+diff --git proxy_config_service_linux.cc proxy_config_service_linux.cc
+index e0a9372..be8068d 100644
+--- proxy_config_service_linux.cc
++++ proxy_config_service_linux.cc
+@@ -202,8 +202,11 @@ const int kDebounceTimeoutMilliseconds = 250;
+ class SettingGetterImplGConf : public ProxyConfigServiceLinux::SettingGetter {
+  public:
+   SettingGetterImplGConf()
+-      : client_(NULL), system_proxy_id_(0), system_http_proxy_id_(0),
+-        notify_delegate_(NULL) {
++      : client_(NULL),
++        system_proxy_id_(0),
++        system_http_proxy_id_(0),
++        notify_delegate_(NULL),
++        debounce_timer_(new base::OneShotTimer<SettingGetterImplGConf>()) {
+   }
+ 
+   ~SettingGetterImplGConf() override {
+@@ -287,6 +290,7 @@ class SettingGetterImplGConf : public ProxyConfigServiceLinux::SettingGetter {
+       client_ = NULL;
+       task_runner_ = NULL;
+     }
++    debounce_timer_.reset();
+   }
+ 
+   bool SetUpNotifications(
+@@ -475,8 +479,8 @@ class SettingGetterImplGConf : public ProxyConfigServiceLinux::SettingGetter {
+   void OnChangeNotification() {
+     // We don't use Reset() because the timer may not yet be running.
+     // (In that case Stop() is a no-op.)
+-    debounce_timer_.Stop();
+-    debounce_timer_.Start(FROM_HERE,
++    debounce_timer_->Stop();
++    debounce_timer_->Start(FROM_HERE,
+         base::TimeDelta::FromMilliseconds(kDebounceTimeoutMilliseconds),
+         this, &SettingGetterImplGConf::OnDebouncedNotification);
+   }
+@@ -499,7 +503,7 @@ class SettingGetterImplGConf : public ProxyConfigServiceLinux::SettingGetter {
+   guint system_http_proxy_id_;
+ 
+   ProxyConfigServiceLinux::Delegate* notify_delegate_;
+-  base::OneShotTimer<SettingGetterImplGConf> debounce_timer_;
++  scoped_ptr<base::OneShotTimer<SettingGetterImplGConf> > debounce_timer_;
+ 
+   // Task runner for the thread that we make gconf calls on. It should
+   // be the UI thread and all our methods should be called on this
+@@ -523,7 +527,8 @@ class SettingGetterImplGSettings
+     https_client_(NULL),
+     ftp_client_(NULL),
+     socks_client_(NULL),
+-    notify_delegate_(NULL) {
++    notify_delegate_(NULL),
++    debounce_timer_(new base::OneShotTimer<SettingGetterImplGSettings>()) {
+   }
+ 
+   ~SettingGetterImplGSettings() override {
+@@ -598,6 +603,7 @@ class SettingGetterImplGSettings
+       client_ = NULL;
+       task_runner_ = NULL;
+     }
++    debounce_timer_.reset();
+   }
+ 
+   bool SetUpNotifications(
+@@ -746,8 +752,8 @@ class SettingGetterImplGSettings
+   void OnChangeNotification() {
+     // We don't use Reset() because the timer may not yet be running.
+     // (In that case Stop() is a no-op.)
+-    debounce_timer_.Stop();
+-    debounce_timer_.Start(FROM_HERE,
++    debounce_timer_->Stop();
++    debounce_timer_->Start(FROM_HERE,
+         base::TimeDelta::FromMilliseconds(kDebounceTimeoutMilliseconds),
+         this, &SettingGetterImplGSettings::OnDebouncedNotification);
+   }
+@@ -768,7 +774,7 @@ class SettingGetterImplGSettings
+   GSettings* ftp_client_;
+   GSettings* socks_client_;
+   ProxyConfigServiceLinux::Delegate* notify_delegate_;
+-  base::OneShotTimer<SettingGetterImplGSettings> debounce_timer_;
++  scoped_ptr<base::OneShotTimer<SettingGetterImplGSettings> > debounce_timer_;
+ 
+   // Task runner for the thread that we make gsettings calls on. It should
+   // be the UI thread and all our methods should be called on this
+@@ -852,9 +858,14 @@ class SettingGetterImplKDE : public ProxyConfigServiceLinux::SettingGetter,
+                              public base::MessagePumpLibevent::Watcher {
+  public:
+   explicit SettingGetterImplKDE(base::Environment* env_var_getter)
+-      : inotify_fd_(-1), notify_delegate_(NULL), indirect_manual_(false),
+-        auto_no_pac_(false), reversed_bypass_list_(false),
+-        env_var_getter_(env_var_getter), file_task_runner_(NULL) {
++      : inotify_fd_(-1),
++        notify_delegate_(NULL),
++        debounce_timer_(new base::OneShotTimer<SettingGetterImplKDE>()),
++        indirect_manual_(false),
++        auto_no_pac_(false),
++        reversed_bypass_list_(false),
++        env_var_getter_(env_var_getter),
++        file_task_runner_(NULL) {
+     // This has to be called on the UI thread (http://crbug.com/69057).
+     base::ThreadRestrictions::ScopedAllowIO allow_io;
+ 
+@@ -956,6 +967,7 @@ class SettingGetterImplKDE : public ProxyConfigServiceLinux::SettingGetter,
+       close(inotify_fd_);
+       inotify_fd_ = -1;
+     }
++    debounce_timer_.reset();
+   }
+ 
+   bool SetUpNotifications(
+@@ -1305,8 +1317,8 @@ class SettingGetterImplKDE : public ProxyConfigServiceLinux::SettingGetter,
+     if (kioslaverc_touched) {
+       // We don't use Reset() because the timer may not yet be running.
+       // (In that case Stop() is a no-op.)
+-      debounce_timer_.Stop();
+-      debounce_timer_.Start(FROM_HERE, base::TimeDelta::FromMilliseconds(
++      debounce_timer_->Stop();
++      debounce_timer_->Start(FROM_HERE, base::TimeDelta::FromMilliseconds(
+           kDebounceTimeoutMilliseconds), this,
+           &SettingGetterImplKDE::OnDebouncedNotification);
+     }
+@@ -1319,7 +1331,7 @@ class SettingGetterImplKDE : public ProxyConfigServiceLinux::SettingGetter,
+   int inotify_fd_;
+   base::MessagePumpLibevent::FileDescriptorWatcher inotify_watcher_;
+   ProxyConfigServiceLinux::Delegate* notify_delegate_;
+-  base::OneShotTimer<SettingGetterImplKDE> debounce_timer_;
++  scoped_ptr<base::OneShotTimer<SettingGetterImplKDE> > debounce_timer_;
+   base::FilePath kde_config_dir_;
+   bool indirect_manual_;
+   bool auto_no_pac_;

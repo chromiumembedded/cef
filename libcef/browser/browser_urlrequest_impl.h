@@ -13,7 +13,8 @@ class CefBrowserURLRequest : public CefURLRequest {
   class Context;
 
   CefBrowserURLRequest(CefRefPtr<CefRequest> request,
-                       CefRefPtr<CefURLRequestClient> client);
+                       CefRefPtr<CefURLRequestClient> client,
+                       CefRefPtr<CefRequestContext> request_context);
   ~CefBrowserURLRequest() override;
 
   bool Start();

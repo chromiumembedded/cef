@@ -8,7 +8,7 @@
 
 #include "libcef/browser/url_request_context.h"
 
-// Global URLRequestContext implementation. Life span is controlled by
+// Isolated URLRequestContext implementation. Life span is controlled by
 // CefURLRequestContextGetterImpl. Only accessed on the IO thread. See
 // browser_context.h for an object relationship diagram.
 class CefURLRequestContextImpl : public CefURLRequestContext {
