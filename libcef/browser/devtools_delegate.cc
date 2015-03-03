@@ -139,8 +139,11 @@ CefDevToolsDelegate::~CefDevToolsDelegate() {
 }
 
 void CefDevToolsDelegate::Stop() {
-  // The call below deletes |this|.
-  devtools_http_handler_.reset();
+  // Release the reference before deleting the handler. Deleting the handler
+  // will delete |this| and no members of |this| should be accessed after that
+  // call.
+  content::DevToolsHttpHandler* handler = devtools_http_handler_.release();
+  delete handler;
 }
 
 std::string CefDevToolsDelegate::GetDiscoveryPageHTML() {
