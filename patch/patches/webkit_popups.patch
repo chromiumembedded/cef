@@ -1,5 +1,5 @@
 diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
-index 304ffd6..24dfc21 100644
+index 91cf3f9..6bd6fd0 100644
 --- Source/web/ChromeClientImpl.cpp
 +++ Source/web/ChromeClientImpl.cpp
 @@ -741,7 +741,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
@@ -12,10 +12,10 @@ index 304ffd6..24dfc21 100644
  
      return adoptRefWillBeNoop(new PopupMenuChromium(frame, client));
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index 2dc201a..d1cc85e 100644
+index c073bea..1f1cfe2 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
-@@ -379,6 +379,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client)
+@@ -380,6 +380,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client)
      , m_fakePageScaleAnimationPageScaleFactor(0)
      , m_fakePageScaleAnimationUseAnchor(false)
      , m_contextMenuAllowed(false)
@@ -23,7 +23,7 @@ index 2dc201a..d1cc85e 100644
      , m_doingDragAndDrop(false)
      , m_ignoreInputEvents(false)
      , m_compositorDeviceScaleFactorOverride(0)
-@@ -3973,9 +3974,14 @@ void WebViewImpl::deviceOrPageScaleFactorChanged()
+@@ -3975,9 +3976,14 @@ void WebViewImpl::deviceOrPageScaleFactorChanged()
      m_page->inspectorController().deviceOrPageScaleFactorChanged();
  }
  

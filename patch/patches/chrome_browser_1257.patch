@@ -1,8 +1,8 @@
 diff --git ui/browser.cc ui/browser.cc
-index 6c926b9..a809f0f 100644
+index fef353c..9c9aad7 100644
 --- ui/browser.cc
 +++ ui/browser.cc
-@@ -1567,7 +1567,9 @@ bool Browser::ShouldCreateWebContents(
+@@ -1584,7 +1584,9 @@ bool Browser::ShouldCreateWebContents(
      const base::string16& frame_name,
      const GURL& target_url,
      const std::string& partition_id,

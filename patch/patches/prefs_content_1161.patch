@@ -35,7 +35,7 @@ index 78559f2..028a94e 100644
    bool v8_script_streaming_enabled;
    V8ScriptStreamingMode v8_script_streaming_mode;
 diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
-index 623cb14..5d21fc5 100644
+index 17e27bd..984f286 100644
 --- renderer/render_view_impl.cc
 +++ renderer/render_view_impl.cc
 @@ -958,6 +958,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,

@@ -1,8 +1,8 @@
 diff --git web_contents_impl.cc web_contents_impl.cc
-index f9ba939..5555235 100644
+index ac0a7dc..478e468 100644
 --- web_contents_impl.cc
 +++ web_contents_impl.cc
-@@ -1164,22 +1164,29 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1175,22 +1175,29 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
        params.browser_context, params.site_instance, params.routing_id,
        params.main_frame_routing_id);
  
@@ -48,7 +48,7 @@ index f9ba939..5555235 100644
    }
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
-@@ -1517,6 +1524,9 @@ void WebContentsImpl::CreateNewWindow(
+@@ -1528,6 +1535,9 @@ void WebContentsImpl::CreateNewWindow(
        static_cast<SessionStorageNamespaceImpl*>(session_storage_namespace);
    CHECK(session_storage_namespace_impl->IsFromContext(dom_storage_context));
  
@@ -58,7 +58,7 @@ index f9ba939..5555235 100644
    if (delegate_ &&
        !delegate_->ShouldCreateWebContents(this,
                                            route_id,
-@@ -1525,7 +1535,9 @@ void WebContentsImpl::CreateNewWindow(
+@@ -1536,7 +1546,9 @@ void WebContentsImpl::CreateNewWindow(
                                            params.frame_name,
                                            params.target_url,
                                            partition_id,
@@ -69,7 +69,7 @@ index f9ba939..5555235 100644
      if (route_id != MSG_ROUTING_NONE &&
          !RenderViewHost::FromID(render_process_id, route_id)) {
        // If the embedder didn't create a WebContents for this route, we need to
-@@ -1545,6 +1557,8 @@ void WebContentsImpl::CreateNewWindow(
+@@ -1556,6 +1568,8 @@ void WebContentsImpl::CreateNewWindow(
    create_params.main_frame_routing_id = main_frame_route_id;
    create_params.opener = this;
    create_params.opener_suppressed = params.opener_suppressed;
