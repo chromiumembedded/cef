@@ -104,7 +104,11 @@ CefStreamResourceHandler::CefStreamResourceHandler(
       status_text_(status_text),
       mime_type_(mime_type),
       header_map_(header_map),
-      stream_(stream) {
+      stream_(stream)
+#ifndef NDEBUG
+      , buffer_owned_by_file_thread_(false)
+#endif
+{
   DCHECK(!mime_type_.empty());
   DCHECK(stream_.get());
   read_on_file_thread_ = stream_->MayBlock();
