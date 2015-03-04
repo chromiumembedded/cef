@@ -239,6 +239,12 @@ component_updater::PnaclComponentInstaller*
   return NULL;
 }
 
+component_updater::SupervisedUserWhitelistInstaller*
+    ChromeBrowserProcessStub::supervised_user_whitelist_installer() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
 MediaFileSystemRegistry*
     ChromeBrowserProcessStub::media_file_system_registry() {
   NOTIMPLEMENTED();

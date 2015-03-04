@@ -31,23 +31,19 @@ MSVC_POP_WARNING();
 #include "libcef/renderer/webkit_glue.h"
 
 #include "base/command_line.h"
-#include "base/files/file_util.h"
 #include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/utf_string_conversions.h"
-#include "chrome/common/chrome_paths.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
-#include "chrome/renderer/pepper/chrome_pdf_print_client.h"
 #include "chrome/renderer/spellchecker/spellcheck.h"
 #include "chrome/renderer/spellchecker/spellcheck_provider.h"
-#include "components/pdf/renderer/ppb_pdf_impl.h"
 #include "components/printing/renderer/print_web_view_helper.h"
 #include "components/web_cache/renderer/web_cache_render_process_observer.h"
-#include "content/child/child_thread.h"
 #include "content/child/worker_task_runner.h"
 #include "content/common/frame_messages.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_process_host.h"
+#include "content/public/child/child_thread.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_paths.h"
 #include "content/public/renderer/plugin_instance_throttler.h"
@@ -57,11 +53,9 @@ MSVC_POP_WARNING();
 #include "content/renderer/render_frame_impl.h"
 #include "ipc/ipc_sync_channel.h"
 #include "media/base/media.h"
-#include "ppapi/c/private/ppb_pdf.h"
 #include "third_party/WebKit/public/platform/WebPrerenderingSupport.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
-#include "third_party/WebKit/public/platform/WebWorkerRunLoop.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebElement.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
@@ -73,10 +67,6 @@ MSVC_POP_WARNING();
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "third_party/WebKit/public/web/WebView.h"
 #include "v8/include/v8.h"
-
-#if defined(OS_WIN)
-#include "base/win/iat_patch_function.h"
-#endif
 
 namespace {
 
@@ -182,43 +172,6 @@ class CefPrintWebViewHelperDelegate :
   DISALLOW_COPY_AND_ASSIGN(CefPrintWebViewHelperDelegate);
 };
 
-#if defined(OS_WIN)
-static base::win::IATPatchFunction g_iat_patch_createdca;
-HDC WINAPI CreateDCAPatch(LPCSTR driver_name,
-                          LPCSTR device_name,
-                          LPCSTR output,
-                          const void* init_data) {
-  DCHECK(std::string("DISPLAY") == std::string(driver_name));
-  DCHECK(!device_name);
-  DCHECK(!output);
-  DCHECK(!init_data);
-
-  // CreateDC fails behind the sandbox, but not CreateCompatibleDC.
-  return CreateCompatibleDC(NULL);
-}
-
-static base::win::IATPatchFunction g_iat_patch_get_font_data;
-DWORD WINAPI GetFontDataPatch(HDC hdc,
-                              DWORD table,
-                              DWORD offset,
-                              LPVOID buffer,
-                              DWORD length) {
-  int rv = GetFontData(hdc, table, offset, buffer, length);
-  if (rv == GDI_ERROR && hdc) {
-    HFONT font = static_cast<HFONT>(GetCurrentObject(hdc, OBJ_FONT));
-
-    LOGFONT logfont;
-    if (GetObject(font, sizeof(LOGFONT), &logfont)) {
-      std::vector<char> font_data;
-      content::RenderThread::Get()->PreCacheFont(logfont);
-      rv = GetFontData(hdc, table, offset, buffer, length);
-      content::RenderThread::Get()->ReleaseCachedFonts();
-    }
-  }
-  return rv;
-}
-#endif  // OS_WIN
-
 }  // namespace
 
 CefContentRendererClient::CefContentRendererClient()
@@ -288,18 +241,9 @@ void CefContentRendererClient::WebKitInitialized() {
   // TODO(cef): Enable these once the implementation supports it.
   blink::WebRuntimeFeatures::enableNotifications(false);
 
-#if defined(OS_WIN)
-  // Need to patch a few functions for font loading to work correctly.
-  // From chrome/renderer/chrome_render_process_observer.cc.
-  base::FilePath pdf;
-  if (PathService::Get(chrome::FILE_PDF_PLUGIN, &pdf) &&
-      base::PathExists(pdf)) {
-    g_iat_patch_createdca.Patch(
-        pdf.value().c_str(), "gdi32.dll", "CreateDCA", CreateDCAPatch);
-    g_iat_patch_get_font_data.Patch(
-        pdf.value().c_str(), "gdi32.dll", "GetFontData", GetFontDataPatch);
-  }
-#endif  // defined(OS_WIN)
+  // TODO(cef): Remove this line once off-screen rendering is fixed to work
+  // with the new popup menu implementation (issue #1566).
+  blink::WebRuntimeFeatures::enableFeatureFromString("HTMLPopupMenu", false);
 
   const CefContentClient::SchemeInfoList* schemes =
       CefContentClient::Get()->GetCustomSchemes();
@@ -510,9 +454,6 @@ void CefContentRendererClient::RenderThreadStarted() {
   // Cross-origin entries need to be added after WebKit is initialized.
   cross_origin_whitelist_entries_ = params.cross_origin_whitelist_entries;
 
-  pdf_print_client_.reset(new ChromePDFPrintClient());
-  pdf::PPB_PDF_Impl::SetPrintClient(pdf_print_client_.get());
-
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();
   if (application.get()) {
@@ -708,16 +649,6 @@ void CefContentRendererClient::DidCreateScriptContext(
     if (handler.get())
       handler->OnContextCreated(browserPtr.get(), framePtr.get(), contextPtr);
   }
-}
-
-const void* CefContentRendererClient::CreatePPAPIInterface(
-    const std::string& interface_name) {
-#if defined(ENABLE_PLUGINS)
-  // Used for in-process PDF plugin.
-  if (interface_name == PPB_PDF_INTERFACE)
-    return pdf::PPB_PDF_Impl::GetInterface();
-#endif
-  return NULL;
 }
 
 void CefContentRendererClient::WillReleaseScriptContext(

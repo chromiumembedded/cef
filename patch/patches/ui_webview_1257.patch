@@ -1,5 +1,5 @@
 diff --git web_dialog_view.cc web_dialog_view.cc
-index 0bffda9..c584bc9 100644
+index 8fe27bf..04bd1a6 100644
 --- web_dialog_view.cc
 +++ web_dialog_view.cc
 @@ -339,7 +339,9 @@ bool WebDialogView::ShouldCreateWebContents(
@@ -14,7 +14,7 @@ index 0bffda9..c584bc9 100644
      return delegate_->HandleShouldCreateWebContents();
    return true;
 diff --git web_dialog_view.h web_dialog_view.h
-index ce69cfc..a890771 100644
+index 22550dd..8d72f6d 100644
 --- web_dialog_view.h
 +++ web_dialog_view.h
 @@ -119,7 +119,9 @@ class WEBVIEW_EXPORT WebDialogView : public views::ClientView,

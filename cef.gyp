@@ -863,9 +863,6 @@
         '<(DEPTH)/components/components.gyp:keyed_service_content',
         '<(DEPTH)/components/components.gyp:keyed_service_core',
         '<(DEPTH)/components/components.gyp:navigation_interception',
-        '<(DEPTH)/components/components.gyp:pdf_browser',
-        '<(DEPTH)/components/components.gyp:pdf_common',
-        '<(DEPTH)/components/components.gyp:pdf_renderer',
         '<(DEPTH)/components/components.gyp:pref_registry',
         '<(DEPTH)/components/components.gyp:printing_common',
         '<(DEPTH)/components/components.gyp:printing_renderer',
@@ -886,17 +883,16 @@
         '<(DEPTH)/media/media.gyp:media',
         '<(DEPTH)/net/net.gyp:net',
         '<(DEPTH)/net/net.gyp:net_with_v8',
-        '<(DEPTH)/pdf/pdf.gyp:pdf',
         '<(DEPTH)/skia/skia.gyp:skia',
         '<(DEPTH)/storage/storage_browser.gyp:storage',
         '<(DEPTH)/sync/sync.gyp:sync',
         '<(DEPTH)/third_party/hunspell/hunspell.gyp:hunspell',
         '<(DEPTH)/third_party/libxml/libxml.gyp:libxml',
-        '<(DEPTH)/third_party/re2/re2.gyp:re2',
         '<(DEPTH)/third_party/WebKit/public/blink.gyp:blink',
         '<(DEPTH)/third_party/WebKit/Source/core/core.gyp:webcore',
         '<(DEPTH)/third_party/zlib/zlib.gyp:minizip',
         '<(DEPTH)/ui/gl/gl.gyp:gl',
+        '<(DEPTH)/ui/base/ime/ui_base_ime.gyp:ui_base_ime',
         '<(DEPTH)/ui/base/ui_base.gyp:ui_base',
         '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
         # Necessary to generate the grit include files.
@@ -1152,8 +1148,6 @@
         '<(DEPTH)/chrome/browser/printing/printer_query.h',
         '<(DEPTH)/chrome/common/extensions/extension_constants.cc',
         '<(DEPTH)/chrome/common/extensions/extension_constants.h',
-        '<(DEPTH)/chrome/renderer/pepper/chrome_pdf_print_client.cc',
-        '<(DEPTH)/chrome/renderer/pepper/chrome_pdf_print_client.h',
         '<(DEPTH)/extensions/common/constants.cc',
         '<(DEPTH)/extensions/common/constants.h',
         # Include header for stub creation (BrowserProcess) so print_job_worker can
@@ -1199,6 +1193,10 @@
       ],
       'conditions': [
         ['OS=="win"', {
+          'dependencies': [
+            # For printing using PDF.
+            '<(DEPTH)/pdf/pdf.gyp:pdf',
+          ],
           'sources': [
             '<@(includes_win)',
             'libcef/browser/browser_host_impl_win.cc',
@@ -1351,11 +1349,10 @@
           ],
           'copies': [
             {
-              # Copy binaries for HTML5 audio/video and PDF support.
+              # Copy binaries for HTML5 audio/video support.
               'destination': '<(PRODUCT_DIR)/$(CONTENTS_FOLDER_PATH)/Libraries',
               'files': [
                 '<(PRODUCT_DIR)/ffmpegsumo.so',
-                '<(PRODUCT_DIR)/PDF.plugin',
               ],
             },
             {

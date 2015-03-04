@@ -1,5 +1,5 @@
 diff --git core/frame/FrameView.cpp core/frame/FrameView.cpp
-index 8719a5c..555d59d 100644
+index 06ced1c..a638814 100644
 --- core/frame/FrameView.cpp
 +++ core/frame/FrameView.cpp
 @@ -146,8 +146,10 @@ FrameView::FrameView(LocalFrame* frame)

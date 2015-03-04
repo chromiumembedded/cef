@@ -18,8 +18,6 @@ class CefContentUtilityClient : public content::ContentUtilityClient {
 
   bool OnMessageReceived(const IPC::Message& message) override;
 
-  static void PreSandboxStartup();
-
  private:
   // IPC message handlers.
   void OnStartupPing();

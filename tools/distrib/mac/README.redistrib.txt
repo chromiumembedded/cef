@@ -16,7 +16,6 @@ cefclient.app/
         Chromium Embedded Framework <= main application library
         Libraries/
           ffmpegsumo.so <= HTML5 audio/video support library
-          PDF.plugin <= Pepper plugin for PDF support
         Resources/
           cef.pak <= non-localized resources and strings
           cef_100_percent.pak <====^
@@ -102,9 +101,6 @@ Optional components:
 * FFmpeg audio and video support
     Chromium Embedded Framework.framework/Libraries/ffmpegsumo.so
   Note: Without this component HTML5 audio and video will not function.
-
-* PDF support
-    Chromium Embedded Framework.framework/Libraries/PDF.plugin
 
 * Breakpad support
     Chromium Embedded Framework.framework/Resources/crash_inspector

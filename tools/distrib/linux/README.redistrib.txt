@@ -42,6 +42,3 @@ Optional components:
 * FFmpeg audio and video support
     libffmpegsumo.so
   Note: Without this component HTML5 audio and video will not function.
-
-* PDF support
-    libpdf.so

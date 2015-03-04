@@ -1,12 +1,17 @@
 diff --git message_loop.cc message_loop.cc
-index 24db543..d57673d 100644
+index daa7782..6fea3c2 100644
 --- message_loop.cc
 +++ message_loop.cc
-@@ -159,7 +159,6 @@ MessageLoop::MessageLoop(scoped_ptr<MessagePump> pump)
+@@ -152,12 +152,6 @@ MessageLoop::MessageLoop(scoped_ptr<MessagePump> pump)
  MessageLoop::~MessageLoop() {
    DCHECK_EQ(this, current());
  
+-  // iOS just attaches to the loop, it doesn't Run it.
+-  // TODO(stuartmorgan): Consider wiring up a Detach().
+-#if !defined(OS_IOS)
 -  DCHECK(!run_loop_);
+-#endif
+-
  #if defined(OS_WIN)
    if (in_high_res_mode_)
      Time::ActivateHighResolutionTimer(false);

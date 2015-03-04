@@ -6,8 +6,8 @@
 #include "include/cef_trace.h"
 #include "libcef/browser/thread_util.h"
 
-#include "base/debug/trace_event.h"
 #include "base/files/file_util.h"
+#include "base/trace_event/trace_event.h"
 #include "content/public/browser/tracing_controller.h"
 
 namespace {
@@ -57,8 +57,8 @@ bool CefTraceSubscriber::BeginTracing(
   }
 
   TracingController::GetInstance()->EnableRecording(
-      base::debug::CategoryFilter(categories),
-      base::debug::TraceOptions(),
+      base::trace_event::CategoryFilter(categories),
+      base::trace_event::TraceOptions(),
       done_callback);
   return true;
 }

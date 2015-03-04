@@ -132,7 +132,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
                        bool* no_javascript_access) override;
   void ResourceDispatcherHostCreated() override;
   void OverrideWebkitPrefs(content::RenderViewHost* rvh,
-                           const GURL& url,
                            content::WebPreferences* prefs) override;
   SkColor GetBaseBackgroundColor(content::RenderViewHost* rvh) override;
   void BrowserURLHandlerCreated(

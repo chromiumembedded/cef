@@ -9,6 +9,7 @@
 #include "base/macros.h"
 #include "chrome/utility/utility_message_handler.h"
 #include "ipc/ipc_platform_file.h"
+#include "pdf/pdf.h"
 #include "printing/pdf_render_settings.h"
 
 #if !defined(OS_WIN)
@@ -26,8 +27,6 @@ class PrintingHandler : public UtilityMessageHandler {
  public:
   PrintingHandler();
   ~PrintingHandler() override;
-
-  static void PreSandboxStartup();
 
   // IPC::Listener:
   bool OnMessageReceived(const IPC::Message& message) override;

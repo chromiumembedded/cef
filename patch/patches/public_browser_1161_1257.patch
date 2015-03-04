@@ -1,5 +1,5 @@
 diff --git content_browser_client.cc content_browser_client.cc
-index 8f3d06c..e67e698 100644
+index 67d2df7..e29a5d9 100644
 --- content_browser_client.cc
 +++ content_browser_client.cc
 @@ -278,6 +278,10 @@ bool ContentBrowserClient::IsFastShutdownPossible() {
@@ -14,7 +14,7 @@ index 8f3d06c..e67e698 100644
    return base::FilePath();
  }
 diff --git content_browser_client.h content_browser_client.h
-index d2ae7a0..a5b36d5 100644
+index c4ab6f3..08583cf 100644
 --- content_browser_client.h
 +++ content_browser_client.h
 @@ -28,6 +28,7 @@
@@ -25,7 +25,7 @@ index d2ae7a0..a5b36d5 100644
  #include "third_party/WebKit/public/platform/WebPageVisibilityState.h"
  #include "ui/base/window_open_disposition.h"
  
-@@ -509,6 +510,9 @@ class CONTENT_EXPORT ContentBrowserClient {
+@@ -510,6 +511,9 @@ class CONTENT_EXPORT ContentBrowserClient {
    // Clears browser cookies.
    virtual void ClearCookies(RenderViewHost* rvh) {}
  
@@ -36,33 +36,33 @@ index d2ae7a0..a5b36d5 100644
    // This can be called on any thread.
    virtual base::FilePath GetDefaultDownloadDirectory();
 diff --git web_contents.cc web_contents.cc
-index 6768411..1dd382b 100644
+index aece7c6..63da2c9 100644
 --- web_contents.cc
 +++ web_contents.cc
-@@ -17,7 +17,9 @@ WebContents::CreateParams::CreateParams(BrowserContext* context)
-       main_frame_routing_id(MSG_ROUTING_NONE),
+@@ -18,7 +18,9 @@ WebContents::CreateParams::CreateParams(BrowserContext* context)
        initially_hidden(false),
        guest_delegate(nullptr),
--      context(nullptr) {}
-+      context(nullptr),
+       context(nullptr),
+-      renderer_initiated_creation(false) {}
++      renderer_initiated_creation(false),
 +      view(nullptr),
 +      delegate_view(nullptr) {}
  
  WebContents::CreateParams::CreateParams(
      BrowserContext* context, SiteInstance* site)
-@@ -29,7 +31,9 @@ WebContents::CreateParams::CreateParams(
-       main_frame_routing_id(MSG_ROUTING_NONE),
+@@ -31,7 +33,9 @@ WebContents::CreateParams::CreateParams(
        initially_hidden(false),
        guest_delegate(nullptr),
--      context(nullptr) {}
-+      context(nullptr),
+       context(nullptr),
+-      renderer_initiated_creation(false) {}
++      renderer_initiated_creation(false),
 +      view(nullptr),
 +      delegate_view(nullptr) {}
  
  WebContents::CreateParams::~CreateParams() {
  }
 diff --git web_contents.h web_contents.h
-index 879e8d8..0287912 100644
+index 493abd8..eface7b 100644
 --- web_contents.h
 +++ web_contents.h
 @@ -52,9 +52,11 @@ class PageState;
@@ -77,11 +77,11 @@ index 879e8d8..0287912 100644
  struct CustomContextMenuContext;
  struct DropData;
  struct Manifest;
-@@ -122,6 +124,10 @@ class WebContents : public PageNavigator,
-     // Used to specify the location context which display the new view should
-     // belong. This can be nullptr if not needed.
-     gfx::NativeView context;
-+    
+@@ -128,6 +130,10 @@ class WebContents : public PageNavigator,
+     // RenderFrame, have already been created on the renderer side, and
+     // WebContents construction should take this into account.
+     bool renderer_initiated_creation;
++
 +    // Optionally specify the view and delegate view.
 +    content::WebContentsView* view;
 +    content::RenderViewHostDelegateView* delegate_view;
@@ -104,7 +104,7 @@ index 461927c..2217377 100644
  }
  
 diff --git web_contents_delegate.h web_contents_delegate.h
-index 13d1c1d..ddf88d8 100644
+index d88b27c..fefbed2 100644
 --- web_contents_delegate.h
 +++ web_contents_delegate.h
 @@ -36,9 +36,11 @@ class DownloadItem;

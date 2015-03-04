@@ -84,10 +84,6 @@ base::FilePath GetResourcesFilePath() {
   return GetFrameworkBundlePath().Append(FILE_PATH_LITERAL("Resources"));
 }
 
-base::FilePath GetLibrariesFilePath() {
-  return GetFrameworkBundlePath().Append(FILE_PATH_LITERAL("Libraries"));
-}
-
 void OverrideFrameworkBundlePath() {
   base::mac::SetOverrideFrameworkBundlePath(GetFrameworkBundlePath());
 }
@@ -114,10 +110,6 @@ base::FilePath GetResourcesFilePath() {
   base::FilePath pak_dir;
   PathService::Get(base::DIR_MODULE, &pak_dir);
   return pak_dir;
-}
-
-base::FilePath GetLibrariesFilePath() {
-  return GetResourcesFilePath();
 }
 
 #endif  // !defined(OS_MACOSX)
@@ -178,22 +170,6 @@ base::FilePath GetUserDataPath() {
 
   NOTREACHED();
   return result;
-}
-
-// File name of the internal PDF plugin on different platforms.
-const base::FilePath::CharType kInternalPDFPluginFileName[] =
-#if defined(OS_WIN)
-    FILE_PATH_LITERAL("pdf.dll");
-#elif defined(OS_MACOSX)
-    FILE_PATH_LITERAL("PDF.plugin");
-#else  // Linux and Chrome OS
-    FILE_PATH_LITERAL("libpdf.so");
-#endif
-
-void OverridePdfPluginPath() {
-  base::FilePath plugin_path = GetLibrariesFilePath();
-  plugin_path = plugin_path.Append(kInternalPDFPluginFileName);
-  PathService::Override(chrome::FILE_PDF_PLUGIN, plugin_path);
 }
 
 // Returns true if |scale_factor| is supported by this platform.
@@ -489,17 +465,10 @@ void CefMainDelegate::PreSandboxStartup() {
         true);  // Create if necessary.
   }
 
-  OverridePdfPluginPath();
-
   if (command_line->HasSwitch(switches::kDisablePackLoading))
     content_client_.set_pack_loading_disabled(true);
 
   InitializeResourceBundle();
-
-  if (process_type == switches::kUtilityProcess ||
-      process_type == switches::kZygoteProcess) {
-    CefContentUtilityClient::PreSandboxStartup();
-  }
 }
 
 int CefMainDelegate::RunProcess(

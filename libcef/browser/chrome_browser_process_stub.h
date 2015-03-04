@@ -86,6 +86,8 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   CRLSetFetcher* crl_set_fetcher() override;
   component_updater::PnaclComponentInstaller*
       pnacl_component_installer() override;
+  component_updater::SupervisedUserWhitelistInstaller*
+      supervised_user_whitelist_installer() override;
   MediaFileSystemRegistry*
       media_file_system_registry() override;
   bool created_local_state() const override;

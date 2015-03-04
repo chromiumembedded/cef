@@ -545,6 +545,7 @@ void CefCookieManagerImpl::SetCookieInternal(
       expiration_time,
       cookie.secure ? true : false,
       cookie.httponly ? true : false,
+      false,  // First-party only.
       net::COOKIE_PRIORITY_DEFAULT,
       base::Bind(SetCookieCallbackImpl, callback));
 }

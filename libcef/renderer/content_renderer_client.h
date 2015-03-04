@@ -26,7 +26,6 @@ class WebCacheRenderProcessObserver;
 
 class CefRenderProcessObserver;
 struct Cef_CrossOriginWhiteListEntry_Params;
-class ChromePDFPrintClient;
 class SpellCheck;
 
 class CefContentRendererClient : public content::ContentRendererClient,
@@ -99,8 +98,6 @@ class CefContentRendererClient : public content::ContentRendererClient,
                              v8::Handle<v8::Context> context,
                              int extension_group,
                              int world_id) override;
-  const void* CreatePPAPIInterface(
-      const std::string& interface_name) override;
 
   void WillReleaseScriptContext(blink::WebLocalFrame* frame,
                                 v8::Handle<v8::Context> context,
@@ -128,8 +125,6 @@ class CefContentRendererClient : public content::ContentRendererClient,
   // Cross-origin white list entries that need to be registered with WebKit.
   typedef std::vector<Cef_CrossOriginWhiteListEntry_Params> CrossOriginList;
   CrossOriginList cross_origin_whitelist_entries_;
-
-  scoped_ptr<ChromePDFPrintClient> pdf_print_client_;
 
   int devtools_agent_count_;
   int uncaught_exception_stack_size_;

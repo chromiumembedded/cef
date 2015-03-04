@@ -6,9 +6,9 @@
 #include "include/internal/cef_logging_internal.h"
 #include "include/internal/cef_thread_internal.h"
 
-#include "base/debug/trace_event.h"
 #include "base/logging.h"
 #include "base/threading/platform_thread.h"
+#include "base/trace_event/trace_event.h"
 
 // The contents of this file are a compilation unit that is not called by other
 // functions in the the library. Consiquently MSVS will exclude it during the

@@ -478,16 +478,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void OnRequest(const Cef_Request_Params& params);
   void OnResponse(const Cef_Response_Params& params);
   void OnResponseAck(int request_id);
-  void OnPDFHasUnsupportedFeature();
-  void OnPDFSaveURLAs(const GURL& url,
-                      const content::Referrer& referrer);
-  void OnPDFUpdateContentRestrictions(int content_restrictions);
-  void OnPDFModalPromptForPassword(const std::string& prompt,
-                                   IPC::Message* reply_message);
-
-  void OnPDFModalPromptForPasswordClosed(IPC::Message* reply_message,
-                                         bool success,
-                                         const base::string16& actual_value);
 
   // content::NotificationObserver methods.
   void Observe(int type,

@@ -932,7 +932,6 @@ void CefContentBrowserClient::ResourceDispatcherHostCreated() {
 
 void CefContentBrowserClient::OverrideWebkitPrefs(
     content::RenderViewHost* rvh,
-    const GURL& url,
     content::WebPreferences* prefs) {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();

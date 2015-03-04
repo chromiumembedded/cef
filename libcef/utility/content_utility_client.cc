@@ -47,13 +47,6 @@ bool CefContentUtilityClient::OnMessageReceived(
   return handled;
 }
 
-// static
-void CefContentUtilityClient::PreSandboxStartup() {
-#if defined(OS_WIN)
-  PrintingHandler::PreSandboxStartup();
-#endif
-}
-
 void CefContentUtilityClient::OnStartupPing() {
   Send(new ChromeUtilityHostMsg_ProcessStarted);
   // Don't release the process, we assume further messages are on the way.

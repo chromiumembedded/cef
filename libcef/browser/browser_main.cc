@@ -24,7 +24,6 @@
 #include "content/public/browser/web_ui_controller_factory.h"
 #include "content/public/common/content_switches.h"
 #include "net/base/net_module.h"
-#include "net/proxy/proxy_resolver_v8.h"
 #include "ui/base/resource/resource_bundle.h"
 
 #if defined(USE_AURA)
@@ -114,9 +113,6 @@ int CefBrowserMainParts::PreCreateThreads() {
   pref_store_ = new CefBrowserPrefStore();
   pref_store_->SetInitializationCompleted();
   pref_service_ = pref_store_->CreateService().Pass();
-
-  // Initialize the V8 proxy integration.
-  net::ProxyResolverV8::EnsureIsolateCreated();
 
   return 0;
 }
