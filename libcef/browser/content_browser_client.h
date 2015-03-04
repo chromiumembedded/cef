@@ -21,6 +21,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/synchronization/lock.h"
 #include "content/public/browser/content_browser_client.h"
+#include "third_party/skia/include/core/SkColor.h"
 #include "url/gurl.h"
 
 class CefBrowserInfo;
@@ -133,7 +134,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   void ResourceDispatcherHostCreated() override;
   void OverrideWebkitPrefs(content::RenderViewHost* rvh,
                            content::WebPreferences* prefs) override;
-  SkColor GetBaseBackgroundColor(content::RenderViewHost* rvh) override;
   void BrowserURLHandlerCreated(
       content::BrowserURLHandler* handler) override;
   std::string GetDefaultDownloadName() override;
@@ -170,6 +170,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   PrefService* pref_service() const;
 
  private:
+  SkColor GetBaseBackgroundColor(content::RenderViewHost* rvh);
+
   CefBrowserMainParts* browser_main_parts_;
 
   scoped_ptr<content::PluginServiceFilter> plugin_service_filter_;

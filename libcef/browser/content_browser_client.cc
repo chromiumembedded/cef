@@ -951,31 +951,6 @@ void CefContentBrowserClient::OverrideWebkitPrefs(
       !command_line->HasSwitch(switches::kEnableSpellingAutoCorrect);
 }
 
-SkColor CefContentBrowserClient::GetBaseBackgroundColor(
-    content::RenderViewHost* rvh) {
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForHost(rvh);
-  DCHECK(browser.get());
-
-  const CefBrowserSettings& browser_settings = browser->settings();
-  if (CefColorGetA(browser_settings.background_color) > 0) {
-    return SkColorSetRGB(
-        CefColorGetR(browser_settings.background_color),
-        CefColorGetG(browser_settings.background_color),
-        CefColorGetB(browser_settings.background_color));
-  } else {
-    const CefSettings& settings = CefContext::Get()->settings();
-    if (CefColorGetA(settings.background_color) > 0) {
-      return SkColorSetRGB(
-          CefColorGetR(settings.background_color),
-          CefColorGetG(settings.background_color),
-          CefColorGetB(settings.background_color));
-    }
-  }
-
-  return SK_ColorWHITE;
-}
-
 void CefContentBrowserClient::BrowserURLHandlerCreated(
     content::BrowserURLHandler* handler) {
   // Used to redirect about: URLs to chrome: URLs.
@@ -1050,4 +1025,29 @@ CefDevToolsDelegate* CefContentBrowserClient::devtools_delegate() const {
 
 PrefService* CefContentBrowserClient::pref_service() const {
   return browser_main_parts_->pref_service();
+}
+
+SkColor CefContentBrowserClient::GetBaseBackgroundColor(
+    content::RenderViewHost* rvh) {
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserForHost(rvh);
+  DCHECK(browser.get());
+
+  const CefBrowserSettings& browser_settings = browser->settings();
+  if (CefColorGetA(browser_settings.background_color) > 0) {
+    return SkColorSetRGB(
+        CefColorGetR(browser_settings.background_color),
+        CefColorGetG(browser_settings.background_color),
+        CefColorGetB(browser_settings.background_color));
+  } else {
+    const CefSettings& settings = CefContext::Get()->settings();
+    if (CefColorGetA(settings.background_color) > 0) {
+      return SkColorSetRGB(
+          CefColorGetR(settings.background_color),
+          CefColorGetG(settings.background_color),
+          CefColorGetB(settings.background_color));
+    }
+  }
+
+  return SK_ColorWHITE;
 }
