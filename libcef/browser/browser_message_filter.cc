@@ -35,6 +35,8 @@ void CefBrowserMessageFilter::OnFilterAdded(IPC::Sender* sender) {
 }
 
 void CefBrowserMessageFilter::OnFilterRemoved() {
+  host_ = NULL;
+  sender_ = NULL;
 }
 
 bool CefBrowserMessageFilter::OnMessageReceived(const IPC::Message& message) {
@@ -123,6 +125,9 @@ void CefBrowserMessageFilter::OnFrameFocused(int32 render_frame_routing_id) {
                    render_frame_routing_id));
     return;
   }
+
+  if (!host_)
+    return;
 
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForFrame(host_->GetID(),
