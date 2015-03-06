@@ -1805,6 +1805,8 @@ class PopupNavTestHandler : public TestHandler {
                      CefRefPtr<CefFrame> frame,
                      const CefString& target_url,
                      const CefString& target_frame_name,
+                     WindowOpenDisposition target_disposition,
+                     bool user_gesture,
                      const CefPopupFeatures& popupFeatures,
                      CefWindowInfo& windowInfo,
                      CefRefPtr<CefClient>& client,
@@ -1817,6 +1819,8 @@ class PopupNavTestHandler : public TestHandler {
     EXPECT_STREQ(kPopupNavPageUrl, frame->GetURL().ToString().c_str());
     EXPECT_STREQ(kPopupNavPopupUrl, target_url.ToString().c_str());
     EXPECT_STREQ(kPopupNavPopupName, target_frame_name.ToString().c_str());
+    EXPECT_EQ(WOD_NEW_FOREGROUND_TAB, target_disposition);
+    EXPECT_FALSE(user_gesture);
     EXPECT_FALSE(*no_javascript_access);
 
     return (mode_ == DENY);  // Return true to cancel the popup.

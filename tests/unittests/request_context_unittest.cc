@@ -475,6 +475,8 @@ class PopupTestHandler : public TestHandler {
                      CefRefPtr<CefFrame> frame,
                      const CefString& target_url,
                      const CefString& target_frame_name,
+                     WindowOpenDisposition target_disposition,
+                     bool user_gesture,
                      const CefPopupFeatures& popupFeatures,
                      CefWindowInfo& windowInfo,
                      CefRefPtr<CefClient>& client,
@@ -484,6 +486,14 @@ class PopupTestHandler : public TestHandler {
 
     const std::string& url = target_url;
     EXPECT_STREQ(url.c_str(), popup_url_.c_str());
+
+    EXPECT_EQ(WOD_NEW_FOREGROUND_TAB, target_disposition);
+
+    if (mode_ == MODE_WINDOW_OPEN)
+      EXPECT_FALSE(user_gesture);
+    else
+      EXPECT_TRUE(user_gesture);
+
     return false;
   }
 

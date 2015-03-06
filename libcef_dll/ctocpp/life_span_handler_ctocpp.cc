@@ -20,9 +20,11 @@
 
 bool CefLifeSpanHandlerCToCpp::OnBeforePopup(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, const CefString& target_url,
-    const CefString& target_frame_name, const CefPopupFeatures& popupFeatures,
-    CefWindowInfo& windowInfo, CefRefPtr<CefClient>& client,
-    CefBrowserSettings& settings, bool* no_javascript_access) {
+    const CefString& target_frame_name,
+    WindowOpenDisposition target_disposition, bool user_gesture,
+    const CefPopupFeatures& popupFeatures, CefWindowInfo& windowInfo,
+    CefRefPtr<CefClient>& client, CefBrowserSettings& settings,
+    bool* no_javascript_access) {
   if (CEF_MEMBER_MISSING(struct_, on_before_popup))
     return false;
 
@@ -56,6 +58,8 @@ bool CefLifeSpanHandlerCToCpp::OnBeforePopup(CefRefPtr<CefBrowser> browser,
       CefFrameCppToC::Wrap(frame),
       target_url.GetStruct(),
       target_frame_name.GetStruct(),
+      target_disposition,
+      user_gesture,
       &popupFeatures,
       &windowInfo,
       &clientStruct,

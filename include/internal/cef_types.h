@@ -894,6 +894,23 @@ typedef enum {
 } cef_errorcode_t;
 
 ///
+// The manner in which a link click should be opened.
+///
+typedef enum {
+  WOD_UNKNOWN,
+  WOD_SUPPRESS_OPEN,
+  WOD_CURRENT_TAB,
+  WOD_SINGLETON_TAB,
+  WOD_NEW_FOREGROUND_TAB,
+  WOD_NEW_BACKGROUND_TAB,
+  WOD_NEW_POPUP,
+  WOD_NEW_WINDOW,
+  WOD_SAVE_TO_DISK,
+  WOD_OFF_THE_RECORD,
+  WOD_IGNORE_ACTION
+} cef_window_open_disposition_t;
+
+///
 // "Verb" of a drag-and-drop operation as negotiated between the source and
 // destination. These constants match their equivalents in WebCore's
 // DragActions.h and should not be renumbered.

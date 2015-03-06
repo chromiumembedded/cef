@@ -901,6 +901,8 @@ bool CefContentBrowserClient::CanCreateWindow(
           frame,
           last_create_window_params_.target_url.spec(),
           last_create_window_params_.target_frame_name,
+          static_cast<cef_window_open_disposition_t>(disposition),
+          user_gesture,
           cef_features,
           pending_info->window_info,
           pending_info->client,
