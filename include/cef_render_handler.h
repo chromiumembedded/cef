@@ -172,7 +172,9 @@ class CefRenderHandler : public virtual CefBase {
   // Called when the scroll offset has changed.
   ///
   /*--cef()--*/
-  virtual void OnScrollOffsetChanged(CefRefPtr<CefBrowser> browser) {}
+  virtual void OnScrollOffsetChanged(CefRefPtr<CefBrowser> browser,
+                                     double x,
+                                     double y) {}
 };
 
 #endif  // CEF_INCLUDE_CEF_RENDER_HANDLER_H_

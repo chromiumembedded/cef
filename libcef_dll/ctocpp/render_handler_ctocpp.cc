@@ -254,7 +254,7 @@ void CefRenderHandlerCToCpp::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
 }
 
 void CefRenderHandlerCToCpp::OnScrollOffsetChanged(
-    CefRefPtr<CefBrowser> browser) {
+    CefRefPtr<CefBrowser> browser, double x, double y) {
   if (CEF_MEMBER_MISSING(struct_, on_scroll_offset_changed))
     return;
 
@@ -267,7 +267,9 @@ void CefRenderHandlerCToCpp::OnScrollOffsetChanged(
 
   // Execute
   struct_->on_scroll_offset_changed(struct_,
-      CefBrowserCppToC::Wrap(browser));
+      CefBrowserCppToC::Wrap(browser),
+      x,
+      y);
 }
 
 

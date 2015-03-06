@@ -1366,8 +1366,11 @@ void CefRenderWidgetHostViewOSR::OnScrollOffsetChanged() {
   if (browser_impl_.get()) {
     CefRefPtr<CefRenderHandler> handler =
         browser_impl_->client()->GetRenderHandler();
-    if (handler.get())
-      handler->OnScrollOffsetChanged(browser_impl_.get());
+    if (handler.get()) {
+      handler->OnScrollOffsetChanged(browser_impl_.get(),
+                                     last_scroll_offset_.x(),
+                                     last_scroll_offset_.y());
+    }
   }
   is_scroll_offset_changed_pending_ = false;
 }
