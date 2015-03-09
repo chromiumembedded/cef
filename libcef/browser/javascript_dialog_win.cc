@@ -80,7 +80,7 @@ INT_PTR CALLBACK CefJavaScriptDialog::DialogProc(HWND dialog,
       break;
     }
     default:
-      return DefWindowProc(dialog, message, wparam, lparam);
+      break;
   }
   return 0;
 }
