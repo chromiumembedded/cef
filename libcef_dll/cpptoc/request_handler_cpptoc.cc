@@ -397,6 +397,23 @@ void CEF_CALLBACK request_handler_on_plugin_crashed(
       CefString(plugin_path));
 }
 
+void CEF_CALLBACK request_handler_on_render_view_ready(
+    struct _cef_request_handler_t* self, cef_browser_t* browser) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+
+  // Execute
+  CefRequestHandlerCppToC::Get(self)->OnRenderViewReady(
+      CefBrowserCToCpp::Wrap(browser));
+}
+
 void CEF_CALLBACK request_handler_on_render_process_terminated(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
     cef_termination_status_t status) {
@@ -434,6 +451,7 @@ CefRequestHandlerCppToC::CefRequestHandlerCppToC(CefRequestHandler* cls)
   struct_.struct_.on_certificate_error = request_handler_on_certificate_error;
   struct_.struct_.on_before_plugin_load = request_handler_on_before_plugin_load;
   struct_.struct_.on_plugin_crashed = request_handler_on_plugin_crashed;
+  struct_.struct_.on_render_view_ready = request_handler_on_render_view_ready;
   struct_.struct_.on_render_process_terminated =
       request_handler_on_render_process_terminated;
 }

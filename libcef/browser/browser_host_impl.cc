@@ -2447,6 +2447,12 @@ void CefBrowserHostImpl::RenderViewReady() {
     Send(queued_messages_.front());
     queued_messages_.pop();
   }
+
+  if (client_.get()) {
+    CefRefPtr<CefRequestHandler> handler = client_->GetRequestHandler();
+    if (handler.get())
+      handler->OnRenderViewReady(this);
+  }
 }
 
 void CefBrowserHostImpl::RenderProcessGone(base::TerminationStatus status) {

@@ -262,6 +262,14 @@ class CefRequestHandler : public virtual CefBase {
                                const CefString& plugin_path) {}
 
   ///
+  // Called on the browser process UI thread when the render view associated
+  // with |browser| is ready to receive/handle IPC messages in the render
+  // process.
+  ///
+  /*--cef()--*/
+  virtual void OnRenderViewReady(CefRefPtr<CefBrowser> browser) {}
+
+  ///
   // Called on the browser process UI thread when the render process
   // terminates unexpectedly. |status| indicates how the process
   // terminated.

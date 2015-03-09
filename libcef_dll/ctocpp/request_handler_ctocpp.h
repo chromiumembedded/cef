@@ -63,6 +63,7 @@ class CefRequestHandlerCToCpp
       const CefString& policy_url, CefRefPtr<CefWebPluginInfo> info) override;
   void OnPluginCrashed(CefRefPtr<CefBrowser> browser,
       const CefString& plugin_path) override;
+  void OnRenderViewReady(CefRefPtr<CefBrowser> browser) override;
   void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
       TerminationStatus status) override;
 };

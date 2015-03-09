@@ -233,6 +233,14 @@ typedef struct _cef_request_handler_t {
       struct _cef_browser_t* browser, const cef_string_t* plugin_path);
 
   ///
+  // Called on the browser process UI thread when the render view associated
+  // with |browser| is ready to receive/handle IPC messages in the render
+  // process.
+  ///
+  void (CEF_CALLBACK *on_render_view_ready)(struct _cef_request_handler_t* self,
+      struct _cef_browser_t* browser);
+
+  ///
   // Called on the browser process UI thread when the render process terminates
   // unexpectedly. |status| indicates how the process terminated.
   ///

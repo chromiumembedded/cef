@@ -375,6 +375,22 @@ void CefRequestHandlerCToCpp::OnPluginCrashed(CefRefPtr<CefBrowser> browser,
       plugin_path.GetStruct());
 }
 
+void CefRequestHandlerCToCpp::OnRenderViewReady(CefRefPtr<CefBrowser> browser) {
+  if (CEF_MEMBER_MISSING(struct_, on_render_view_ready))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+
+  // Execute
+  struct_->on_render_view_ready(struct_,
+      CefBrowserCppToC::Wrap(browser));
+}
+
 void CefRequestHandlerCToCpp::OnRenderProcessTerminated(
     CefRefPtr<CefBrowser> browser, TerminationStatus status) {
   if (CEF_MEMBER_MISSING(struct_, on_render_process_terminated))
