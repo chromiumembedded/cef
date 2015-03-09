@@ -35,6 +35,9 @@ class CefRequestHandlerCToCpp
   // CefRequestHandler methods
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request, bool is_redirect) override;
+  bool OnOpenURLFromTab(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame, const CefString& target_url,
+      WindowOpenDisposition target_disposition, bool user_gesture) override;
   bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request) override;
   CefRefPtr<CefResourceHandler> GetResourceHandler(

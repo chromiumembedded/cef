@@ -93,6 +93,7 @@ class CefAllowCertificateErrorCallback : public virtual CefBase {
 class CefRequestHandler : public virtual CefBase {
  public:
   typedef cef_termination_status_t TerminationStatus;
+  typedef cef_window_open_disposition_t WindowOpenDisposition;
 
   ///
   // Called on the UI thread before browser navigation. Return true to cancel
@@ -109,6 +110,31 @@ class CefRequestHandler : public virtual CefBase {
                               CefRefPtr<CefFrame> frame,
                               CefRefPtr<CefRequest> request,
                               bool is_redirect) {
+    return false;
+  }
+
+  ///
+  // Called on the UI thread before OnBeforeBrowse in certain limited cases
+  // where navigating a new or different browser might be desirable. This
+  // includes user-initiated navigation that might open in a special way (e.g.
+  // links clicked via middle-click or ctrl + left-click) and certain types of
+  // cross-origin navigation initiated from the renderer process (e.g.
+  // navigating the top-level frame to/from a file URL). The |browser| and
+  // |frame| values represent the source of the navigation. The
+  // |target_disposition| value indicates where the user intended to navigate
+  // the browser based on standard Chromium behaviors (e.g. current tab,
+  // new tab, etc). The |user_gesture| value will be true if the browser
+  // navigated via explicit user gesture (e.g. clicking a link) or false if it
+  // navigated automatically (e.g. via the DomContentLoaded event). Return true
+  // to cancel the navigation or false to allow the navigation to proceed in the
+  // source browser's top-level frame.
+  ///
+  /*--cef()--*/
+  virtual bool OnOpenURLFromTab(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
+                                const CefString& target_url,
+                                WindowOpenDisposition target_disposition,
+                                bool user_gesture) {
     return false;
   }
 

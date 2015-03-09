@@ -119,6 +119,27 @@ typedef struct _cef_request_handler_t {
       struct _cef_request_t* request, int is_redirect);
 
   ///
+  // Called on the UI thread before OnBeforeBrowse in certain limited cases
+  // where navigating a new or different browser might be desirable. This
+  // includes user-initiated navigation that might open in a special way (e.g.
+  // links clicked via middle-click or ctrl + left-click) and certain types of
+  // cross-origin navigation initiated from the renderer process (e.g.
+  // navigating the top-level frame to/from a file URL). The |browser| and
+  // |frame| values represent the source of the navigation. The
+  // |target_disposition| value indicates where the user intended to navigate
+  // the browser based on standard Chromium behaviors (e.g. current tab, new
+  // tab, etc). The |user_gesture| value will be true (1) if the browser
+  // navigated via explicit user gesture (e.g. clicking a link) or false (0) if
+  // it navigated automatically (e.g. via the DomContentLoaded event). Return
+  // true (1) to cancel the navigation or false (0) to allow the navigation to
+  // proceed in the source browser's top-level frame.
+  ///
+  int (CEF_CALLBACK *on_open_urlfrom_tab)(struct _cef_request_handler_t* self,
+      struct _cef_browser_t* browser, struct _cef_frame_t* frame,
+      const cef_string_t* target_url,
+      cef_window_open_disposition_t target_disposition, int user_gesture);
+
+  ///
   // Called on the IO thread before a resource request is loaded. The |request|
   // object may be modified. To cancel the request return true (1) otherwise
   // return false (0).

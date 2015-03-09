@@ -322,17 +322,18 @@ bool ClientHandler::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
   return false;
 }
 
-bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser,
-                                  CefRefPtr<CefFrame> frame,
-                                  const CefString& target_url,
-                                  const CefString& target_frame_name,
-                                  WindowOpenDisposition target_disposition,
-                                  bool user_gesture,
-                                  const CefPopupFeatures& popupFeatures,
-                                  CefWindowInfo& windowInfo,
-                                  CefRefPtr<CefClient>& client,
-                                  CefBrowserSettings& settings,
-                                  bool* no_javascript_access) {
+bool ClientHandler::OnBeforePopup(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    const CefString& target_url,
+    const CefString& target_frame_name,
+    CefLifeSpanHandler::WindowOpenDisposition target_disposition,
+    bool user_gesture,
+    const CefPopupFeatures& popupFeatures,
+    CefWindowInfo& windowInfo,
+    CefRefPtr<CefClient>& client,
+    CefBrowserSettings& settings,
+    bool* no_javascript_access) {
   CEF_REQUIRE_IO_THREAD();
 
   // Return true to cancel the popup window.
@@ -431,6 +432,24 @@ bool ClientHandler::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
   CEF_REQUIRE_UI_THREAD();
 
   message_router_->OnBeforeBrowse(browser, frame);
+  return false;
+}
+
+bool ClientHandler::OnOpenURLFromTab(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    const CefString& target_url,
+    CefRequestHandler::WindowOpenDisposition target_disposition,
+    bool user_gesture) {
+  if (user_gesture && target_disposition == WOD_NEW_BACKGROUND_TAB) {
+    // Handle middle-click and ctrl + left-click by opening the URL in a new
+    // browser window.
+    MainContext::Get()->GetRootWindowManager()->CreateRootWindow(
+        true, is_osr(), CefRect(), target_url);
+    return true;
+  }
+
+  // Open the URL in the current browser window.
   return false;
 }
 

@@ -1438,50 +1438,53 @@ TEST(NavigationTest, Order) {
 
 namespace {
 
-const char kCrossOriginNav1[] = "http://tests-conav1/nav1.html";
-const char kCrossOriginNav2[] = "http://tests-conav2/nav2.html";
-const char kCrossOriginNavMsg[] = "NavigationTest.CrossOriginNav";
+const char kLoadNav1[] = "http://tests-conav1.com/nav1.html";
+const char kLoadNavSameOrigin2[] = "http://tests-conav1.com/nav2.html";
+const char kLoadNavCrossOrigin2[] = "http://tests-conav2.com/nav2.html";
+const char kLoadNavMsg[] = "NavigationTest.LoadNav";
 
-bool g_cross_origin_nav_test = false;
+bool g_load_nav_test = false;
 
 // Browser side.
-class CrossOriginNavBrowserTest : public ClientAppBrowser::Delegate {
+class LoadNavBrowserTest : public ClientAppBrowser::Delegate {
  public:
-  CrossOriginNavBrowserTest() {}
+  LoadNavBrowserTest() {}
 
   void OnBeforeChildProcessLaunch(
       CefRefPtr<ClientAppBrowser> app,
       CefRefPtr<CefCommandLine> command_line) override {
-    if (!g_cross_origin_nav_test)
+    if (!g_load_nav_test)
       return;
 
     // Indicate to the render process that the test should be run.
-    command_line->AppendSwitchWithValue("test", kCrossOriginNavMsg);
+    command_line->AppendSwitchWithValue("test", kLoadNavMsg);
   }
 
  protected:
-  IMPLEMENT_REFCOUNTING(CrossOriginNavBrowserTest);
+  IMPLEMENT_REFCOUNTING(LoadNavBrowserTest);
 };
 
 // Renderer side.
-class CrossOriginNavRendererTest : public ClientAppRenderer::Delegate,
-                                   public CefLoadHandler {
+class LoadNavRendererTest : public ClientAppRenderer::Delegate,
+                            public CefLoadHandler {
  public:
-  CrossOriginNavRendererTest()
-      : run_test_(false) {}
-  ~CrossOriginNavRendererTest() override {
-    EXPECT_TRUE(status_list_.empty());
+  LoadNavRendererTest()
+      : run_test_(false),
+        browser_id_(0),
+        load_ct_(0) {}
+  ~LoadNavRendererTest() override {
+    EXPECT_EQ(0, browser_id_);
   }
 
   void OnRenderThreadCreated(
       CefRefPtr<ClientAppRenderer> app,
       CefRefPtr<CefListValue> extra_info) override {
-    if (!g_cross_origin_nav_test) {
+    if (!g_load_nav_test) {
       // Check that the test should be run.
       CefRefPtr<CefCommandLine> command_line =
           CefCommandLine::GetGlobalCommandLine();
       const std::string& test = command_line->GetSwitchValue("test");
-      if (test != kCrossOriginNavMsg)
+      if (test != kLoadNavMsg)
         return;
     }
 
@@ -1509,9 +1512,10 @@ class CrossOriginNavRendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(got_render_thread_created_);
     EXPECT_TRUE(got_webkit_initialized_);
 
-    EXPECT_FALSE(GetStatus(browser));
-    Status* status = AddStatus(browser);
-    status->got_browser_created.yes();
+    EXPECT_EQ(0, browser_id_);
+    browser_id_ = browser->GetIdentifier();
+    EXPECT_GT(browser_id_, 0);
+    got_browser_created_.yes();
   }
 
   void OnBrowserDestroyed(CefRefPtr<ClientAppRenderer> app,
@@ -1522,15 +1526,11 @@ class CrossOriginNavRendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(got_render_thread_created_);
     EXPECT_TRUE(got_webkit_initialized_);
 
-    Status* status = GetStatus(browser);
-    EXPECT_TRUE(status);
+    EXPECT_TRUE(got_browser_created_);
+    EXPECT_TRUE(got_loading_state_end_);
 
-    EXPECT_TRUE(status->got_browser_created);
-    EXPECT_TRUE(status->got_loading_state_end);
-
-    EXPECT_EQ(status->browser_id, browser->GetIdentifier());
-
-    EXPECT_TRUE(RemoveStatus(browser));
+    EXPECT_EQ(browser_id_, browser->GetIdentifier());
+    browser_id_ = 0;
   }
 
   CefRefPtr<CefLoadHandler> GetLoadHandler(
@@ -1549,16 +1549,13 @@ class CrossOriginNavRendererTest : public ClientAppRenderer::Delegate,
       EXPECT_TRUE(got_render_thread_created_);
       EXPECT_TRUE(got_webkit_initialized_);
 
-      Status* status = GetStatus(browser);
-      EXPECT_TRUE(status);
+      EXPECT_TRUE(got_browser_created_);
 
-      EXPECT_TRUE(status->got_browser_created);
-      EXPECT_FALSE(status->got_loading_state_end);
+      got_loading_state_end_.yes();
 
-      status->got_loading_state_end.yes();
+      EXPECT_EQ(browser_id_, browser->GetIdentifier());
 
-      EXPECT_EQ(status->browser_id, browser->GetIdentifier());
-
+      load_ct_++;
       SendTestResults(browser);
     }
   }
@@ -1571,11 +1568,12 @@ class CrossOriginNavRendererTest : public ClientAppRenderer::Delegate,
 
     // Return the result to the browser process.
     CefRefPtr<CefProcessMessage> return_msg =
-        CefProcessMessage::Create(kCrossOriginNavMsg);
+        CefProcessMessage::Create(kLoadNavMsg);
     CefRefPtr<CefListValue> args = return_msg->GetArgumentList();
     EXPECT_TRUE(args.get());
     EXPECT_TRUE(args->SetBool(0, result));
     EXPECT_TRUE(args->SetInt(1, browser->GetIdentifier()));
+    EXPECT_TRUE(args->SetInt(2, load_ct_));
     EXPECT_TRUE(browser->SendProcessMessage(PID_BROWSER, return_msg));
   }
 
@@ -1584,68 +1582,60 @@ class CrossOriginNavRendererTest : public ClientAppRenderer::Delegate,
   TrackCallback got_render_thread_created_;
   TrackCallback got_webkit_initialized_;
 
-  struct Status {
-    Status() : browser_id(0) {}
+  int browser_id_;
+  int load_ct_;
+  TrackCallback got_browser_created_;
+  TrackCallback got_loading_state_end_;
 
-    CefRefPtr<CefBrowser> browser;
-    int browser_id;
-    TrackCallback got_browser_created;
-    TrackCallback got_loading_state_end;
-  };
-  typedef std::list<Status> StatusList;
-  StatusList status_list_;
-
-  Status* GetStatus(CefRefPtr<CefBrowser> browser) {
-    StatusList::iterator it = status_list_.begin();
-    for (; it != status_list_.end(); ++it) {
-      Status& status = (*it);
-      if (status.browser->IsSame(browser))
-        return &status;
-    }
-
-    return NULL;
-  }
-
-  Status* AddStatus(CefRefPtr<CefBrowser> browser) {
-    Status status;
-    status.browser = browser;
-    status.browser_id = browser->GetIdentifier();
-    EXPECT_GT(status.browser_id, 0);
-    status_list_.push_back(status);
-    return &status_list_.back();
-  }
-
-  bool RemoveStatus(CefRefPtr<CefBrowser> browser) {
-    StatusList::iterator it = status_list_.begin();
-    for (; it != status_list_.end(); ++it) {
-      Status& status = (*it);
-      if (status.browser->IsSame(browser)) {
-        status_list_.erase(it);
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  IMPLEMENT_REFCOUNTING(CrossOriginNavRendererTest);
+  IMPLEMENT_REFCOUNTING(LoadNavRendererTest);
 };
 
 // Browser side.
-class CrossOriginNavTestHandler : public TestHandler {
+class LoadNavTestHandler : public TestHandler {
  public:
-  CrossOriginNavTestHandler()
-      : browser_id_current_(0),
-        got_message_(false),
-        got_load_end_(false) {}
+  enum TestMode {
+    LOAD,
+    LEFT_CLICK,
+    MIDDLE_CLICK,
+    CTRL_LEFT_CLICK,
+  };
+
+  LoadNavTestHandler(TestMode mode,
+                     bool same_origin,
+                     bool cancel_in_open_url = false)
+      : mode_(mode),
+        same_origin_(same_origin),
+        cancel_in_open_url_(cancel_in_open_url),
+        browser_id_current_(0),
+        renderer_load_ct_(0) {
+    g_load_nav_test = true;
+  }
+
+  ~LoadNavTestHandler() override {
+    g_load_nav_test = false;
+  }
+
+  std::string GetURL2() const {
+    return same_origin_ ? kLoadNavSameOrigin2 : kLoadNavCrossOrigin2;
+  }
+
+  bool ExpectOpenURL() const {
+    return mode_ == MIDDLE_CLICK || mode_ == CTRL_LEFT_CLICK;
+  }
 
   void RunTest() override {
+    const std::string& url2 = GetURL2();
+    std::string link;
+    if (mode_ != LOAD)
+      link = "<a href=\"" + url2 + "\">CLICK ME</a>";
+
     // Add the resources that we will navigate to/from.
-    AddResource(kCrossOriginNav1, "<html>Nav1</html>", "text/html");
-    AddResource(kCrossOriginNav2, "<html>Nav2</html>", "text/html");
+    AddResource(kLoadNav1, "<html><body><h1>" + link +
+                                  "Nav1</h1></body></html>", "text/html");
+    AddResource(url2, "<html>Nav2</html>", "text/html");
 
     // Create the browser.
-    CreateBrowser(kCrossOriginNav1);
+    CreateBrowser(kLoadNav1);
 
     // Time out the test after a reasonable period of time.
     SetTestTimeout();
@@ -1655,13 +1645,48 @@ class CrossOriginNavTestHandler : public TestHandler {
     if (!got_message_ || !got_load_end_)
       return;
 
-    got_message_ = false;
-    got_load_end_ = false;
-
     std::string url = browser->GetMainFrame()->GetURL();
-    if (url == kCrossOriginNav1) {
+    if (url == kLoadNav1) {
+      // Verify the behavior of the previous load.
+      EXPECT_TRUE(got_before_browse_);
+      EXPECT_TRUE(got_before_resource_load_);
+      EXPECT_TRUE(got_load_start_);
+      EXPECT_TRUE(got_load_end_);
+      EXPECT_FALSE(got_open_url_from_tab_);
+
+      got_before_browse_.reset();
+      got_before_resource_load_.reset();
+      got_load_start_.reset();
+      got_load_end_.reset();
+      got_message_.reset();
+
+      EXPECT_EQ(1, renderer_load_ct_);
+
       // Load the next url.
-      browser->GetMainFrame()->LoadURL(kCrossOriginNav2);
+      if (mode_ == LOAD) {
+        browser->GetMainFrame()->LoadURL(GetURL2());
+      } else  {
+        // Navigate to the URL by clicking a link.
+        CefMouseEvent mouse_event;
+        mouse_event.x = 20;
+        mouse_event.y = 20;
+        mouse_event.modifiers =
+            (mode_ == CTRL_LEFT_CLICK ? EVENTFLAG_CONTROL_DOWN : 0);
+
+        cef_mouse_button_type_t button_type =
+            (mode_ == MIDDLE_CLICK ? MBT_MIDDLE : MBT_LEFT);
+        browser->GetHost()->SendMouseClickEvent(
+            mouse_event, button_type, false, 1);
+        browser->GetHost()->SendMouseClickEvent(
+            mouse_event, button_type, true, 1);
+      }
+
+      if (cancel_in_open_url_) {
+        // The next navigation should not occur. Therefore call DestroyTest()
+        // after a reasonable timeout.
+        CefPostDelayedTask(TID_UI,
+            base::Bind(&LoadNavTestHandler::DestroyTest, this), 500);
+      }
     } else {
       // Done with the test.
       DestroyTest();
@@ -1681,22 +1706,67 @@ class CrossOriginNavTestHandler : public TestHandler {
                       CefRefPtr<CefRequest> request,
                       bool is_redirect) override {
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
-    EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+    if (mode_ == LOAD || request->GetURL() == kLoadNav1)
+      EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+    else
+      EXPECT_EQ(TT_LINK, request->GetTransitionType());
 
     EXPECT_GT(browser_id_current_, 0);
     EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
 
+    if (ExpectOpenURL() && request->GetURL() == GetURL2()) {
+      // OnOpenURLFromTab should be called first for the file URL navigation.
+      EXPECT_TRUE(got_open_url_from_tab_);
+    } else {
+      EXPECT_FALSE(got_open_url_from_tab_);
+    }
+
+    got_before_browse_.yes();
+
     return false;
+  }
+
+  bool OnOpenURLFromTab(CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefFrame> frame,
+                        const CefString& target_url,
+                        cef_window_open_disposition_t target_disposition,
+                        bool user_gesture) override {
+    EXPECT_TRUE(CefCurrentlyOn(TID_UI));
+
+    EXPECT_GT(browser_id_current_, 0);
+    EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
+
+    // OnOpenURLFromTab should only be called for the file URL.
+    EXPECT_STREQ(GetURL2().c_str(), target_url.ToString().c_str());
+
+    if (mode_ == LOAD)
+      EXPECT_FALSE(user_gesture);
+    else
+      EXPECT_TRUE(user_gesture);
+
+    EXPECT_EQ(WOD_NEW_BACKGROUND_TAB, target_disposition);
+
+    // OnOpenURLFromTab should be called before OnBeforeBrowse for the file URL.
+    EXPECT_FALSE(got_before_browse_);
+
+    got_open_url_from_tab_.yes();
+
+    return cancel_in_open_url_;
   }
 
   bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
                             CefRefPtr<CefFrame> frame,
                             CefRefPtr<CefRequest> request) override {
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
-    EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+    if (mode_ == LOAD || request->GetURL() == kLoadNav1)
+      EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
+    else
+      EXPECT_EQ(TT_LINK, request->GetTransitionType());
 
     EXPECT_GT(browser_id_current_, 0);
     EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
+
+    got_before_resource_load_.yes();
     
     return false;
   }
@@ -1705,6 +1775,8 @@ class CrossOriginNavTestHandler : public TestHandler {
                    CefRefPtr<CefFrame> frame) override {
     EXPECT_GT(browser_id_current_, 0);
     EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
+
+    got_load_start_.yes();
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
@@ -1713,7 +1785,7 @@ class CrossOriginNavTestHandler : public TestHandler {
     EXPECT_GT(browser_id_current_, 0);
     EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
 
-    got_load_end_ = true;
+    got_load_end_.yes();
     ContinueIfReady(browser);
   }
 
@@ -1725,7 +1797,7 @@ class CrossOriginNavTestHandler : public TestHandler {
     EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
 
     const std::string& msg_name = message->GetName();
-    if (msg_name == kCrossOriginNavMsg) {
+    if (msg_name == kLoadNavMsg) {
       // Test that the renderer side succeeded.
       CefRefPtr<CefListValue> args = message->GetArgumentList();
       EXPECT_TRUE(args.get());
@@ -1733,8 +1805,11 @@ class CrossOriginNavTestHandler : public TestHandler {
 
       EXPECT_EQ(browser_id_current_, args->GetInt(1));
 
+      renderer_load_ct_ = args->GetInt(2);
+      EXPECT_GE(renderer_load_ct_, 1);
+
       // Continue with the test.
-      got_message_ = true;
+      got_message_.yes();
       ContinueIfReady(browser);
 
       return true;
@@ -1744,22 +1819,161 @@ class CrossOriginNavTestHandler : public TestHandler {
     return false;
   }
 
- protected:
-  int browser_id_current_;
+  void DestroyTest() override {
+    if (cancel_in_open_url_) {
+      EXPECT_FALSE(got_before_browse_);
+      EXPECT_FALSE(got_before_resource_load_);
+      EXPECT_FALSE(got_load_start_);
+      EXPECT_FALSE(got_load_end_);
+      EXPECT_FALSE(got_message_);
 
-  bool got_message_;
-  bool got_load_end_;
+      // We should only navigate a single time if the 2nd load is canceled.
+      EXPECT_EQ(1, renderer_load_ct_);
+    } else {
+      EXPECT_TRUE(got_before_browse_);
+      EXPECT_TRUE(got_before_resource_load_);
+      EXPECT_TRUE(got_load_start_);
+      EXPECT_TRUE(got_load_end_);
+      EXPECT_TRUE(got_message_);
+
+      if (same_origin_) {
+        // The renderer process should always be reused.
+        EXPECT_EQ(2, renderer_load_ct_);
+      } else {
+        if (mode_ == LEFT_CLICK) {
+          // For left click on link the renderer process will be reused.
+          EXPECT_EQ(2, renderer_load_ct_);
+        } else {
+          // Each renderer process is only used for a single navigation.
+          EXPECT_EQ(1, renderer_load_ct_);
+        }
+      }
+    }
+
+    if (ExpectOpenURL())
+      EXPECT_TRUE(got_open_url_from_tab_);
+    else
+      EXPECT_FALSE(got_open_url_from_tab_);
+
+    TestHandler::DestroyTest();
+  }
+
+ protected:
+  const TestMode mode_;
+  const bool same_origin_;
+  const bool cancel_in_open_url_;
+
+  int browser_id_current_;
+  int renderer_load_ct_;
+
+  TrackCallback got_before_browse_;
+  TrackCallback got_open_url_from_tab_;
+  TrackCallback got_before_resource_load_;
+  TrackCallback got_load_start_;
+  TrackCallback got_load_end_;
+  TrackCallback got_message_;
 };
 
 }  // namespace
 
-// Verify navigation-related callbacks when browsing cross-origin.
-TEST(NavigationTest, CrossOrigin) {
-  g_cross_origin_nav_test = true;
-  CefRefPtr<CrossOriginNavTestHandler> handler =
-      new CrossOriginNavTestHandler();
+// Verify navigation-related callbacks when browsing same-origin via LoadURL().
+TEST(NavigationTest, SameOriginLoadURL) {
+  CefRefPtr<LoadNavTestHandler> handler =
+      new LoadNavTestHandler(LoadNavTestHandler::LOAD, true);
   handler->ExecuteTest();
-  g_cross_origin_nav_test = false;
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Verify navigation-related callbacks when browsing same-origin via left-click.
+TEST(NavigationTest, SameOriginLeftClick) {
+  CefRefPtr<LoadNavTestHandler> handler =
+      new LoadNavTestHandler(LoadNavTestHandler::LEFT_CLICK, true);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Verify navigation-related callbacks when browsing same-origin via middle-
+// click.
+TEST(NavigationTest, SameOriginMiddleClick) {
+  CefRefPtr<LoadNavTestHandler> handler =
+      new LoadNavTestHandler(LoadNavTestHandler::MIDDLE_CLICK, true);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Same as above but cancel the 2nd navigation in OnOpenURLFromTab.
+TEST(NavigationTest, SameOriginMiddleClickCancel) {
+  CefRefPtr<LoadNavTestHandler> handler =
+      new LoadNavTestHandler(LoadNavTestHandler::MIDDLE_CLICK, true, true);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Verify navigation-related callbacks when browsing same-origin via ctrl+left-
+// click.
+TEST(NavigationTest, SameOriginCtrlLeftClick) {
+  CefRefPtr<LoadNavTestHandler> handler =
+      new LoadNavTestHandler(LoadNavTestHandler::CTRL_LEFT_CLICK, true);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Same as above but cancel the 2nd navigation in OnOpenURLFromTab.
+TEST(NavigationTest, SameOriginCtrlLeftClickCancel) {
+  CefRefPtr<LoadNavTestHandler> handler =
+      new LoadNavTestHandler(LoadNavTestHandler::CTRL_LEFT_CLICK, true, true);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Verify navigation-related callbacks when browsing cross-origin via LoadURL().
+TEST(NavigationTest, CrossOriginLoadURL) {
+  CefRefPtr<LoadNavTestHandler> handler =
+      new LoadNavTestHandler(LoadNavTestHandler::LOAD, false);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Verify navigation-related callbacks when browsing cross-origin via left-
+// click.
+TEST(NavigationTest, CrossOriginLeftClick) {
+  CefRefPtr<LoadNavTestHandler> handler =
+      new LoadNavTestHandler(LoadNavTestHandler::LEFT_CLICK, false);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Verify navigation-related callbacks when browsing cross-origin via middle-
+// click.
+TEST(NavigationTest, CrossOriginMiddleClick) {
+  CefRefPtr<LoadNavTestHandler> handler =
+      new LoadNavTestHandler(LoadNavTestHandler::MIDDLE_CLICK, false);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Same as above but cancel the 2nd navigation in OnOpenURLFromTab.
+TEST(NavigationTest, CrossOriginMiddleClickCancel) {
+  CefRefPtr<LoadNavTestHandler> handler =
+      new LoadNavTestHandler(LoadNavTestHandler::MIDDLE_CLICK, false, true);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Verify navigation-related callbacks when browsing cross-origin via ctrl+left-
+// click.
+TEST(NavigationTest, CrossOriginCtrlLeftClick) {
+  CefRefPtr<LoadNavTestHandler> handler =
+      new LoadNavTestHandler(LoadNavTestHandler::CTRL_LEFT_CLICK, false);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Same as above but cancel the 2nd navigation in OnOpenURLFromTab.
+TEST(NavigationTest, CrossOriginCtrlLeftClickCancel) {
+  CefRefPtr<LoadNavTestHandler> handler =
+      new LoadNavTestHandler(LoadNavTestHandler::CTRL_LEFT_CLICK, false, true);
+  handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
 
@@ -1805,7 +2019,7 @@ class PopupNavTestHandler : public TestHandler {
                      CefRefPtr<CefFrame> frame,
                      const CefString& target_url,
                      const CefString& target_frame_name,
-                     WindowOpenDisposition target_disposition,
+                     cef_window_open_disposition_t target_disposition,
                      bool user_gesture,
                      const CefPopupFeatures& popupFeatures,
                      CefWindowInfo& windowInfo,
@@ -2079,7 +2293,7 @@ TEST(NavigationTest, BrowseDeny) {
 void CreateNavigationBrowserTests(ClientAppBrowser::DelegateSet& delegates) {
   delegates.insert(new HistoryNavBrowserTest);
   delegates.insert(new OrderNavBrowserTest);
-  delegates.insert(new CrossOriginNavBrowserTest);
+  delegates.insert(new LoadNavBrowserTest);
 }
 
 // Entry point for creating navigation renderer test objects.
@@ -2087,5 +2301,5 @@ void CreateNavigationBrowserTests(ClientAppBrowser::DelegateSet& delegates) {
 void CreateNavigationRendererTests(ClientAppRenderer::DelegateSet& delegates) {
   delegates.insert(new HistoryNavRendererTest);
   delegates.insert(new OrderNavRendererTest);
-  delegates.insert(new CrossOriginNavRendererTest);
+  delegates.insert(new LoadNavRendererTest);
 }

@@ -2005,12 +2005,30 @@ void CefBrowserHostImpl::DragSourceEndedAt(
 content::WebContents* CefBrowserHostImpl::OpenURLFromTab(
     content::WebContents* source,
     const content::OpenURLParams& params) {
-  // Start a navigation that will result in the creation of a new render
-  // process.
-  LoadURL(CefFrameHostImpl::kMainFrameId, params.url.spec(), params.referrer,
-          params.transition, params.extra_headers);
+  bool cancel = false;
 
-  return source;
+  if (client_.get()) {
+    CefRefPtr<CefRequestHandler> handler = client_->GetRequestHandler();
+    if (handler.get()) {
+      cancel = handler->OnOpenURLFromTab(
+          this,
+          GetFrame(params.frame_tree_node_id),
+          params.url.spec(),
+          static_cast<cef_window_open_disposition_t>(params.disposition),
+          params.user_gesture);
+    }
+  }
+
+  if (!cancel) {
+    // Start a navigation in the current browser that will result in the
+    // creation of a new render process.
+    LoadURL(CefFrameHostImpl::kMainFrameId, params.url.spec(), params.referrer,
+            params.transition, params.extra_headers);
+    return source;
+  }
+
+  // We don't know where the navigation, if any, will occur.
+  return nullptr;
 }
 
 void CefBrowserHostImpl::LoadingStateChanged(content::WebContents* source,

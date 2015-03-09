@@ -166,17 +166,18 @@ class ClientHandler : public CefClient,
                      bool* is_keyboard_shortcut) OVERRIDE;
 
   // CefLifeSpanHandler methods
-  bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
-                     CefRefPtr<CefFrame> frame,
-                     const CefString& target_url,
-                     const CefString& target_frame_name,
-                     WindowOpenDisposition target_disposition,
-                     bool user_gesture,
-                     const CefPopupFeatures& popupFeatures,
-                     CefWindowInfo& windowInfo,
-                     CefRefPtr<CefClient>& client,
-                     CefBrowserSettings& settings,
-                     bool* no_javascript_access) OVERRIDE;
+  bool OnBeforePopup(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      const CefString& target_url,
+      const CefString& target_frame_name,
+      CefLifeSpanHandler::WindowOpenDisposition target_disposition,
+      bool user_gesture,
+      const CefPopupFeatures& popupFeatures,
+      CefWindowInfo& windowInfo,
+      CefRefPtr<CefClient>& client,
+      CefBrowserSettings& settings,
+      bool* no_javascript_access) OVERRIDE;
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
   bool DoClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
@@ -197,6 +198,12 @@ class ClientHandler : public CefClient,
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
                       bool is_redirect) OVERRIDE;
+  bool OnOpenURLFromTab(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      const CefString& target_url,
+      CefRequestHandler::WindowOpenDisposition target_disposition,
+      bool user_gesture) OVERRIDE;
   CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,

@@ -56,6 +56,40 @@ int CEF_CALLBACK request_handler_on_before_browse(
   return _retval;
 }
 
+int CEF_CALLBACK request_handler_on_open_urlfrom_tab(
+    struct _cef_request_handler_t* self, cef_browser_t* browser,
+    cef_frame_t* frame, const cef_string_t* target_url,
+    cef_window_open_disposition_t target_disposition, int user_gesture) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return 0;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame);
+  if (!frame)
+    return 0;
+  // Verify param: target_url; type: string_byref_const
+  DCHECK(target_url);
+  if (!target_url)
+    return 0;
+
+  // Execute
+  bool _retval = CefRequestHandlerCppToC::Get(self)->OnOpenURLFromTab(
+      CefBrowserCToCpp::Wrap(browser),
+      CefFrameCToCpp::Wrap(frame),
+      CefString(target_url),
+      target_disposition,
+      user_gesture?true:false);
+
+  // Return type: bool
+  return _retval;
+}
+
 int CEF_CALLBACK request_handler_on_before_resource_load(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
     cef_frame_t* frame, cef_request_t* request) {
@@ -389,6 +423,7 @@ CefRequestHandlerCppToC::CefRequestHandlerCppToC(CefRequestHandler* cls)
     : CefCppToC<CefRequestHandlerCppToC, CefRequestHandler,
         cef_request_handler_t>(cls) {
   struct_.struct_.on_before_browse = request_handler_on_before_browse;
+  struct_.struct_.on_open_urlfrom_tab = request_handler_on_open_urlfrom_tab;
   struct_.struct_.on_before_resource_load =
       request_handler_on_before_resource_load;
   struct_.struct_.get_resource_handler = request_handler_get_resource_handler;

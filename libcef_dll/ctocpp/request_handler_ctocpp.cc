@@ -56,6 +56,39 @@ bool CefRequestHandlerCToCpp::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
   return _retval?true:false;
 }
 
+bool CefRequestHandlerCToCpp::OnOpenURLFromTab(CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame, const CefString& target_url,
+    WindowOpenDisposition target_disposition, bool user_gesture) {
+  if (CEF_MEMBER_MISSING(struct_, on_open_urlfrom_tab))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame.get());
+  if (!frame.get())
+    return false;
+  // Verify param: target_url; type: string_byref_const
+  DCHECK(!target_url.empty());
+  if (target_url.empty())
+    return false;
+
+  // Execute
+  int _retval = struct_->on_open_urlfrom_tab(struct_,
+      CefBrowserCppToC::Wrap(browser),
+      CefFrameCppToC::Wrap(frame),
+      target_url.GetStruct(),
+      target_disposition,
+      user_gesture);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 bool CefRequestHandlerCToCpp::OnBeforeResourceLoad(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request) {

@@ -475,7 +475,7 @@ class PopupTestHandler : public TestHandler {
                      CefRefPtr<CefFrame> frame,
                      const CefString& target_url,
                      const CefString& target_frame_name,
-                     WindowOpenDisposition target_disposition,
+                     cef_window_open_disposition_t target_disposition,
                      bool user_gesture,
                      const CefPopupFeatures& popupFeatures,
                      CefWindowInfo& windowInfo,
