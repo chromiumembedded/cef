@@ -2343,24 +2343,22 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
   if (microphone_requested || webcam_requested) {
     switch (request.request_type) {
       case content::MEDIA_OPEN_DEVICE:
-        // For open device request pick the desired device or fall back to the
-        // first available of the given type.
-        CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-            (microphone_requested ? request.requested_audio_device_id :
-                                    request.requested_video_device_id),
-            microphone_requested,
-            webcam_requested,
-            &devices);
-        break;
       case content::MEDIA_DEVICE_ACCESS:
       case content::MEDIA_GENERATE_STREAM:
       case content::MEDIA_ENUMERATE_DEVICES:
-        // Get the default devices for the request.
-        CefMediaCaptureDevicesDispatcher::GetInstance()->
-            GetDefaultDevices(CefContentBrowserClient::Get()->pref_service(),
-                              microphone_requested,
-                              webcam_requested,
-                              &devices);
+        // Pick the desired device or fall back to the first available of the
+        // given type.
+        CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
+            request.requested_audio_device_id,
+            microphone_requested,
+            false,
+            &devices);
+
+        CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
+            request.requested_video_device_id,
+            false,
+            webcam_requested,
+            &devices);
         break;
     }
   }
