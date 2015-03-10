@@ -4,6 +4,9 @@
 
 #include "cefclient/browser/dialog_handler_gtk.h"
 
+#include <libgen.h>
+#include <sys/stat.h>
+
 #include "include/cef_browser.h"
 #include "include/cef_url.h"
 #include "include/wrapper/cef_helpers.h"
@@ -176,7 +179,7 @@ bool ClientDialogHandlerGtk::OnFileDialog(
   if (!title.empty()) {
     title_str = title;
   } else {
-    switch (mode) {
+    switch (mode_type) {
       case FILE_DIALOG_OPEN:
         title_str = "Open File";
         break;
@@ -218,8 +221,25 @@ bool ClientDialogHandlerGtk::OnFileDialog(
                                    !(mode & FILE_DIALOG_HIDEREADONLY_FLAG));
 
   if (!default_file_path.empty()) {
-    gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog),
-                                  default_file_path.ToString().c_str());
+    const std::string& file_path = default_file_path;
+    bool exists = false;
+
+    if (mode_type == FILE_DIALOG_SAVE) {
+      struct stat sb;
+      if (stat(file_path.c_str(), &sb) == 0 && S_ISREG(sb.st_mode)) {
+        // Use the directory and name of the existing file.
+        gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog),
+                                      file_path.data());
+        exists = true;
+      }
+    }
+
+    if (!exists) {
+      // Set the current file name but let the user choose the directory.
+      std::string file_name_str = file_path;
+      const char* file_name = basename(const_cast<char*>(file_name_str.data()));
+      gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), file_name);
+    }
   }
 
   std::vector<GtkFileFilter*> filters;
