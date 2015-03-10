@@ -427,6 +427,8 @@ if platform == 'windows':
     'libcef.dll',
     'libEGL.dll',
     'libGLESv2.dll',
+    'natives_blob.bin',
+    'snapshot_blob.bin',
   ]
   if not options.x64build:
     binaries.append('wow_helper.exe')
@@ -507,8 +509,6 @@ if platform == 'windows':
     copy_file(os.path.join(build_dir, 'cef_200_percent.pak'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'devtools_resources.pak'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'icudtl.dat'), dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, 'natives_blob.bin'), dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, 'snapshot_blob.bin'), dst_dir, options.quiet)
     copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), options.quiet)
 
   if mode == 'standard':
@@ -628,6 +628,8 @@ elif platform == 'linux':
       copy_file(os.path.join(build_dir, 'chrome_sandbox'), os.path.join(dst_dir, 'chrome-sandbox'), options.quiet)
       copy_file(os.path.join(build_dir, lib_dir_name, 'libcef.so'), dst_dir, options.quiet)
       copy_file(os.path.join(build_dir, 'libffmpegsumo.so'), dst_dir, options.quiet)
+      copy_file(os.path.join(build_dir, 'natives_blob.bin'), dst_dir, options.quiet)
+      copy_file(os.path.join(build_dir, 'snapshot_blob.bin'), dst_dir, options.quiet)
     else:
       sys.stderr.write("No Debug build files.\n")
 
@@ -647,6 +649,8 @@ elif platform == 'linux':
       copy_file(os.path.join(build_dir, lib_dir_name, 'libcef.so'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'chrome_sandbox'), os.path.join(dst_dir, 'chrome-sandbox'), options.quiet)
     copy_file(os.path.join(build_dir, 'libffmpegsumo.so'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'natives_blob.bin'), dst_dir, options.quiet)
+    copy_file(os.path.join(build_dir, 'snapshot_blob.bin'), dst_dir, options.quiet)
   else:
     sys.stderr.write("No Release build files.\n")
 
@@ -664,8 +668,6 @@ elif platform == 'linux':
     copy_file(os.path.join(build_dir, 'cef_200_percent.pak'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'devtools_resources.pak'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'icudtl.dat'), dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, 'natives_blob.bin'), dst_dir, options.quiet)
-    copy_file(os.path.join(build_dir, 'snapshot_blob.bin'), dst_dir, options.quiet)
     copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), options.quiet)
 
   if mode == 'standard':

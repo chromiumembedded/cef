@@ -43,7 +43,6 @@
       'sources': [
         '<@(includes_common)',
         '<@(includes_wrapper)',
-        '<@(cefclient_sources_common)',
       ],
       'mac_bundle_resources': [
         '<@(cefclient_bundle_resources_mac)',
@@ -52,17 +51,17 @@
         # TODO(mark): Come up with a fancier way to do this (mac_info_plist?)
         # that automatically sets the correct INFOPLIST_FILE setting and adds
         # the file to a source group.
-        'cefclient/mac/Info.plist',
+        'cefclient/resources/mac/Info.plist',
       ],
       'xcode_settings': {
-        'INFOPLIST_FILE': 'cefclient/mac/Info.plist',
+        'INFOPLIST_FILE': 'cefclient/resources/mac/Info.plist',
         # Target build path.
         'SYMROOT': 'xcodebuild',
       },
       'conditions': [
         ['OS=="win"', {
           'variables': {
-            'win_exe_compatibility_manifest': 'cefclient/compatibility.manifest',
+            'win_exe_compatibility_manifest': 'cefclient/resources/win/compatibility.manifest',
           },
           'actions': [
             {
@@ -104,6 +103,19 @@
                 '$(OutDir)',
               ],
             },
+            {
+              'action_name': 'copy_bin_files',
+              'msvs_cygwin_shell': 0,
+              'inputs': [],
+              'outputs': [
+                '<(PRODUCT_DIR)/copy_bin_files.stamp',
+              ],
+              'action': [
+                'xcopy /efy',
+                '$(ConfigurationName)\*.bin',
+                '$(OutDir)',
+              ],
+            },
           ],
           'msvs_settings': {
             'VCLinkerTool': {
@@ -112,7 +124,7 @@
             },
             'VCManifestTool': {
               'AdditionalManifestFiles': [
-                'cefclient/cefclient.exe.manifest',
+                'cefclient/resources/win/cefclient.exe.manifest',
               ],
             },
           },
@@ -235,12 +247,11 @@
                 'Resources/devtools_resources.pak',
                 'Resources/icudtl.dat',
                 'Resources/locales/',
-                'Resources/natives_blob.bin',
-                'Resources/snapshot_blob.bin',
                 '$(BUILDTYPE)/chrome-sandbox',
                 '$(BUILDTYPE)/libcef.so',
                 '$(BUILDTYPE)/libffmpegsumo.so',
-                '$(BUILDTYPE)/libpdf.so',
+                '$(BUILDTYPE)/natives_blob.bin',
+                '$(BUILDTYPE)/snapshot_blob.bin',
               ],
             },
           ],
@@ -341,6 +352,19 @@
               'action': [
                 'xcopy /efy',
                 '$(ConfigurationName)\*.dll',
+                '$(OutDir)',
+              ],
+            },
+            {
+              'action_name': 'copy_bin_files',
+              'msvs_cygwin_shell': 0,
+              'inputs': [],
+              'outputs': [
+                '<(PRODUCT_DIR)/copy_bin_files.stamp',
+              ],
+              'action': [
+                'xcopy /efy',
+                '$(ConfigurationName)\*.bin',
                 '$(OutDir)',
               ],
             },
@@ -466,12 +490,11 @@
                 'Resources/devtools_resources.pak',
                 'Resources/icudtl.dat',
                 'Resources/locales/',
-                'Resources/natives_blob.bin',
-                'Resources/snapshot_blob.bin',
                 '$(BUILDTYPE)/chrome-sandbox',
                 '$(BUILDTYPE)/libcef.so',
                 '$(BUILDTYPE)/libffmpegsumo.so',
-                '$(BUILDTYPE)/libpdf.so',
+                '$(BUILDTYPE)/natives_blob.bin',
+                '$(BUILDTYPE)/snapshot_blob.bin',
               ],
             },
           ],
@@ -568,7 +591,7 @@
           # be necessary to list helper-Info.plist once, not the three times it
           # is listed here.
           'mac_bundle_resources!': [
-            'cefclient/mac/helper-Info.plist',
+            'cefclient/resources/mac/helper-Info.plist',
           ],
           # TODO(mark): For now, don't put any resources into this app.  Its
           # resources directory will be a symbolic link to the browser app's
@@ -577,7 +600,7 @@
             ['exclude', '.*'],
           ],
           'xcode_settings': {
-            'INFOPLIST_FILE': 'cefclient/mac/helper-Info.plist',
+            'INFOPLIST_FILE': 'cefclient/resources/mac/helper-Info.plist',
           },
           'postbuilds': [
             {
