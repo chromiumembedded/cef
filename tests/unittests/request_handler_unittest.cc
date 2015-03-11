@@ -10,10 +10,12 @@
 #include "include/base/cef_bind.h"
 #include "include/cef_cookie.h"
 #include "include/wrapper/cef_closure_task.h"
+#include "include/wrapper/cef_stream_resource_handler.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/cefclient/browser/client_app_browser.h"
 #include "tests/cefclient/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
+#include "tests/unittests/test_util.h"
 
 using client::ClientAppBrowser;
 using client::ClientAppRenderer;
@@ -506,6 +508,413 @@ TEST(RequestHandlerTest, NotificationsCrossOriginDelayedRenderer) {
 // the browser process.
 TEST(RequestHandlerTest, NotificationsCrossOriginDelayedBrowser) {
   RunNetNotifyTest(NNTT_DELAYED_BROWSER, false);
+}
+
+
+namespace {
+
+const char kResourceTestHtml[] = "http://test.com/resource.html";
+
+class ResourceResponseTest : public TestHandler {
+ public:
+  enum TestMode {
+    URL,
+    HEADER,
+    POST,
+  };
+
+  explicit ResourceResponseTest(TestMode mode)
+      : browser_id_(0),
+        main_request_id_(0U),
+        sub_request_id_(0U) {
+    if (mode == URL)
+      resource_test_.reset(new UrlResourceTest);
+    else if (mode == HEADER)
+      resource_test_.reset(new HeaderResourceTest);
+    else
+      resource_test_.reset(new PostResourceTest);
+  }
+
+  void RunTest() override {
+    AddResource(kResourceTestHtml, GetHtml(), "text/html");
+    CreateBrowser(kResourceTestHtml);
+    SetTestTimeout();
+  }
+
+  bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                      CefRefPtr<CefFrame> frame,
+                      CefRefPtr<CefRequest> request,
+                      bool is_redirect) override {
+    EXPECT_UI_THREAD();
+    EXPECT_EQ(0, browser_id_);
+    browser_id_ = browser->GetIdentifier();
+    EXPECT_GT(browser_id_, 0);
+
+    // This method is only called for the main resource.
+    EXPECT_STREQ(kResourceTestHtml, request->GetURL().ToString().c_str());
+
+    // All loads of the main resource should keep the same request id.
+    EXPECT_EQ(0U, main_request_id_);
+    main_request_id_ = request->GetIdentifier();
+    EXPECT_GT(main_request_id_, 0U);
+
+    return false;
+  }
+
+  bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
+                            CefRefPtr<CefFrame> frame,
+                            CefRefPtr<CefRequest> request) override {
+    EXPECT_IO_THREAD();
+    EXPECT_EQ(browser_id_, browser->GetIdentifier());
+
+    if (request->GetURL() == kResourceTestHtml) {
+      EXPECT_EQ(main_request_id_, request->GetIdentifier());
+      return false;
+    }
+
+    // All redirects of the sub-resource should keep the same request id.
+    if (sub_request_id_ == 0U) {
+      sub_request_id_ = request->GetIdentifier();
+      EXPECT_GT(sub_request_id_, 0U);
+    } else {
+      EXPECT_EQ(sub_request_id_, request->GetIdentifier());
+    }
+
+    return resource_test_->OnBeforeResourceLoad(browser, frame, request);
+  }
+
+  CefRefPtr<CefResourceHandler> GetResourceHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request) override {
+    EXPECT_IO_THREAD();
+    EXPECT_EQ(browser_id_, browser->GetIdentifier());
+
+    if (request->GetURL() == kResourceTestHtml) {
+      EXPECT_EQ(main_request_id_, request->GetIdentifier());
+      return TestHandler::GetResourceHandler(browser, frame, request);
+    }
+
+    EXPECT_EQ(sub_request_id_, request->GetIdentifier());
+    return resource_test_->GetResourceHandler(browser, frame, request);
+  }
+
+  void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
+                          CefRefPtr<CefFrame> frame,
+                          CefRefPtr<CefRequest> request,
+                          CefString& new_url) override {
+    EXPECT_IO_THREAD();
+    EXPECT_EQ(browser_id_, browser->GetIdentifier());
+    EXPECT_EQ(sub_request_id_, request->GetIdentifier());
+
+    resource_test_->OnResourceRedirect(browser, frame, request, new_url);
+  }
+
+  bool OnResourceResponse(CefRefPtr<CefBrowser> browser,
+                          CefRefPtr<CefFrame> frame,
+                          CefRefPtr<CefRequest> request,
+                          CefRefPtr<CefResponse> response) override {
+    EXPECT_IO_THREAD();
+    EXPECT_TRUE(browser.get());
+    EXPECT_EQ(browser_id_, browser->GetIdentifier());
+
+    EXPECT_TRUE(frame.get());
+    EXPECT_TRUE(frame->IsMain());
+
+    if (request->GetURL() == kResourceTestHtml) {
+      EXPECT_EQ(main_request_id_, request->GetIdentifier());
+      return false;
+    }
+
+    EXPECT_EQ(sub_request_id_, request->GetIdentifier());
+    return resource_test_->OnResourceResponse(browser, frame, request,
+                                              response);
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    EXPECT_UI_THREAD();
+    EXPECT_EQ(browser_id_, browser->GetIdentifier());
+
+    TestHandler::OnLoadEnd(browser, frame, httpStatusCode);
+    DestroyTest();
+  }
+
+  void DestroyTest() override {
+    resource_test_->CheckExpected();
+    resource_test_.reset(NULL);
+
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  std::string GetHtml() const {
+    std::stringstream html;
+    html << "<html><head>";
+
+    const std::string& url = resource_test_->start_url();
+    html << "<script type=\"text/javascript\" src=\""
+          << url
+          << "\"></script>";
+
+    html << "</head><body><p>Main</p></body></html>";
+    return html.str();
+  }
+
+  class ResourceTest {
+   public:
+    ResourceTest(const std::string& start_url,
+                 size_t expected_resource_response_ct = 2U,
+                 size_t expected_before_resource_load_ct = 1U,
+                 size_t expected_resource_redirect_ct = 0U)
+        : start_url_(start_url),
+          resource_response_ct_(0U),
+          expected_resource_response_ct_(expected_resource_response_ct),
+          before_resource_load_ct_(0),
+          expected_before_resource_load_ct_(expected_before_resource_load_ct),
+          get_resource_handler_ct_(0U),
+          resource_redirect_ct_(0U),
+          expected_resource_redirect_ct_(expected_resource_redirect_ct) {
+    }
+    virtual ~ResourceTest() {
+    }
+
+    const std::string& start_url() const {
+      return start_url_;
+    }
+
+    virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
+                                      CefRefPtr<CefFrame> frame,
+                                      CefRefPtr<CefRequest> request) {
+      before_resource_load_ct_++;
+      return false;
+    }
+
+    virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
+        CefRefPtr<CefBrowser> browser,
+        CefRefPtr<CefFrame> frame,
+        CefRefPtr<CefRequest> request) {
+      get_resource_handler_ct_++;
+
+      const std::string& js_content = "<!-- -->";
+
+      CefRefPtr<CefStreamReader> stream =
+          CefStreamReader::CreateForData(const_cast<char*>(js_content.c_str()),
+                                         js_content.size());
+
+      return new CefStreamResourceHandler(200, "OK", "text/javascript",
+                                          CefResponse::HeaderMap(), stream);
+    }
+
+    virtual void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame,
+                                    CefRefPtr<CefRequest> request,
+                                    CefString& new_url) {
+      resource_redirect_ct_++;
+    }
+
+    bool OnResourceResponse(CefRefPtr<CefBrowser> browser,
+                            CefRefPtr<CefFrame> frame,
+                            CefRefPtr<CefRequest> request,
+                            CefRefPtr<CefResponse> response) {
+      EXPECT_TRUE(CheckUrl(request->GetURL()));
+
+      // Verify the response returned by GetResourceHandler.
+      EXPECT_EQ(200, response->GetStatus());
+      EXPECT_STREQ("OK", response->GetStatusText().ToString().c_str());
+      EXPECT_STREQ("text/javascript",
+                    response->GetMimeType().ToString().c_str());
+
+      if (resource_response_ct_++ == 0U) {
+        // Always redirect at least one time.
+        OnResourceReceived(browser, frame, request, response);
+        return true;
+      }
+
+      OnRetryReceived(browser, frame, request, response);
+      return (resource_response_ct_ < expected_resource_response_ct_);
+    }
+
+    virtual bool CheckUrl(const std::string& url) const {
+      return (url == start_url_);
+    }
+
+    virtual void CheckExpected() {
+      EXPECT_TRUE(got_resource_);
+      EXPECT_TRUE(got_resource_retry_);
+
+      EXPECT_EQ(expected_resource_response_ct_, resource_response_ct_);
+      EXPECT_EQ(expected_resource_response_ct_, get_resource_handler_ct_);
+      EXPECT_EQ(expected_before_resource_load_ct_, before_resource_load_ct_);
+      EXPECT_EQ(expected_resource_redirect_ct_, resource_redirect_ct_);
+    }
+
+   protected:
+    virtual void OnResourceReceived(CefRefPtr<CefBrowser> browser,
+                                    CefRefPtr<CefFrame> frame,
+                                    CefRefPtr<CefRequest> request,
+                                    CefRefPtr<CefResponse> response) {
+      got_resource_.yes();
+    }
+
+    virtual void OnRetryReceived(CefRefPtr<CefBrowser> browser,
+                                 CefRefPtr<CefFrame> frame,
+                                 CefRefPtr<CefRequest> request,
+                                 CefRefPtr<CefResponse> response) {
+      got_resource_retry_.yes();
+    }
+
+   private:
+    std::string start_url_;
+
+    size_t resource_response_ct_;
+    size_t expected_resource_response_ct_;
+    size_t before_resource_load_ct_;
+    size_t expected_before_resource_load_ct_;
+    size_t get_resource_handler_ct_;
+    size_t resource_redirect_ct_;
+    size_t expected_resource_redirect_ct_;
+
+    TrackCallback got_resource_;
+    TrackCallback got_resource_retry_;
+  };
+
+  class UrlResourceTest : public ResourceTest {
+   public:
+    UrlResourceTest()
+        : ResourceTest("http://test.com/start_url.js", 3U, 2U, 1U) {
+      redirect_url_ = "http://test.com/redirect_url.js";
+    }
+
+    bool CheckUrl(const std::string& url) const override {
+      if (url == redirect_url_)
+        return true;
+
+      return ResourceTest::CheckUrl(url);
+    }
+
+    void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
+                            CefRefPtr<CefFrame> frame,
+                            CefRefPtr<CefRequest> request,
+                            CefString& new_url) override {
+      ResourceTest::OnResourceRedirect(browser, frame, request, new_url);
+      const std::string& old_url = request->GetURL();
+      EXPECT_STREQ(start_url().c_str(), old_url.c_str());
+      EXPECT_STREQ(redirect_url_.c_str(), new_url.ToString().c_str());
+    }
+
+   private:
+    void OnResourceReceived(CefRefPtr<CefBrowser> browser,
+                            CefRefPtr<CefFrame> frame,
+                            CefRefPtr<CefRequest> request,
+                            CefRefPtr<CefResponse> response) override {
+      ResourceTest::OnResourceReceived(browser, frame, request, response);
+      request->SetURL(redirect_url_);
+    }
+
+    void OnRetryReceived(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         CefRefPtr<CefRequest> request,
+                         CefRefPtr<CefResponse> response) override {
+      ResourceTest::OnRetryReceived(browser, frame, request, response);
+      const std::string& new_url = request->GetURL();
+      EXPECT_STREQ(redirect_url_.c_str(), new_url.c_str());
+    }
+
+    std::string redirect_url_;
+  };
+
+  class HeaderResourceTest : public ResourceTest {
+   public:
+    HeaderResourceTest()
+        : ResourceTest("http://test.com/start_header.js") {
+      expected_headers_.insert(std::make_pair("Test-Key1", "Value1"));
+      expected_headers_.insert(std::make_pair("Test-Key2", "Value2"));
+    }
+
+   private:
+    void OnResourceReceived(CefRefPtr<CefBrowser> browser,
+                            CefRefPtr<CefFrame> frame,
+                            CefRefPtr<CefRequest> request,
+                            CefRefPtr<CefResponse> response) override {
+      ResourceTest::OnResourceReceived(browser, frame, request, response);
+      request->SetHeaderMap(expected_headers_);
+    }
+
+    void OnRetryReceived(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         CefRefPtr<CefRequest> request,
+                         CefRefPtr<CefResponse> response) override {
+      ResourceTest::OnRetryReceived(browser, frame, request, response);
+      CefRequest::HeaderMap actual_headers;
+      request->GetHeaderMap(actual_headers);
+      TestMapEqual(expected_headers_, actual_headers, true);
+    }
+
+    CefRequest::HeaderMap expected_headers_;
+  };
+
+  class PostResourceTest : public ResourceTest {
+   public:
+    PostResourceTest()
+        : ResourceTest("http://test.com/start_post.js") {
+      CefRefPtr<CefPostDataElement> elem = CefPostDataElement::Create();
+      const std::string data("Test Post Data");
+      elem->SetToBytes(data.size(), data.c_str());
+
+      expected_post_ = CefPostData::Create();
+      expected_post_->AddElement(elem);
+    }
+
+   private:
+    void OnResourceReceived(CefRefPtr<CefBrowser> browser,
+                            CefRefPtr<CefFrame> frame,
+                            CefRefPtr<CefRequest> request,
+                            CefRefPtr<CefResponse> response) override {
+      ResourceTest::OnResourceReceived(browser, frame, request, response);
+      request->SetPostData(expected_post_);
+    }
+
+    void OnRetryReceived(CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         CefRefPtr<CefRequest> request,
+                         CefRefPtr<CefResponse> response) override {
+      ResourceTest::OnRetryReceived(browser, frame, request, response);
+      CefRefPtr<CefPostData> actual_post = request->GetPostData();
+      TestPostDataEqual(expected_post_, actual_post);
+    }
+
+    CefRefPtr<CefPostData> expected_post_;
+  };
+
+  int browser_id_;
+  uint64 main_request_id_;
+  uint64 sub_request_id_;
+  scoped_ptr<ResourceTest> resource_test_;
+};
+
+}  // namespace
+
+TEST(RequestHandlerTest, ResourceResponseURL) {
+  CefRefPtr<ResourceResponseTest> handler =
+      new ResourceResponseTest(ResourceResponseTest::URL);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(RequestHandlerTest, ResourceResponseHeader) {
+  CefRefPtr<ResourceResponseTest> handler =
+      new ResourceResponseTest(ResourceResponseTest::HEADER);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(RequestHandlerTest, ResourceResponsePost) {
+  CefRefPtr<ResourceResponseTest> handler =
+      new ResourceResponseTest(ResourceResponseTest::POST);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
 }
 
 

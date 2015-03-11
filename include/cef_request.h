@@ -168,6 +168,14 @@ class CefRequest : public virtual CefBase {
   ///
   /*--cef(default_retval=TT_EXPLICIT)--*/
   virtual TransitionType GetTransitionType() =0;
+
+  ///
+  // Returns the globally unique identifier for this request or 0 if not
+  // specified. Can be used by CefRequestHandler implementations in the browser
+  // process to track a single request across multiple callbacks.
+  ///
+  /*--cef()--*/
+  virtual uint64 GetIdentifier() =0;
 };
 
 

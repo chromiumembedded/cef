@@ -16,6 +16,7 @@
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/quota_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
+#include "libcef_dll/cpptoc/response_cpptoc.h"
 #include "libcef_dll/cpptoc/sslinfo_cpptoc.h"
 #include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
@@ -152,7 +153,8 @@ CefRefPtr<CefResourceHandler> CefRequestHandlerCToCpp::GetResourceHandler(
 }
 
 void CefRequestHandlerCToCpp::OnResourceRedirect(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame, const CefString& old_url, CefString& new_url) {
+    CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
+    CefString& new_url) {
   if (CEF_MEMBER_MISSING(struct_, on_resource_redirect))
     return;
 
@@ -166,17 +168,53 @@ void CefRequestHandlerCToCpp::OnResourceRedirect(CefRefPtr<CefBrowser> browser,
   DCHECK(frame.get());
   if (!frame.get())
     return;
-  // Verify param: old_url; type: string_byref_const
-  DCHECK(!old_url.empty());
-  if (old_url.empty())
+  // Verify param: request; type: refptr_diff
+  DCHECK(request.get());
+  if (!request.get())
     return;
 
   // Execute
   struct_->on_resource_redirect(struct_,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame),
-      old_url.GetStruct(),
+      CefRequestCppToC::Wrap(request),
       new_url.GetWritableStruct());
+}
+
+bool CefRequestHandlerCToCpp::OnResourceResponse(CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
+    CefRefPtr<CefResponse> response) {
+  if (CEF_MEMBER_MISSING(struct_, on_resource_response))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame.get());
+  if (!frame.get())
+    return false;
+  // Verify param: request; type: refptr_diff
+  DCHECK(request.get());
+  if (!request.get())
+    return false;
+  // Verify param: response; type: refptr_diff
+  DCHECK(response.get());
+  if (!response.get())
+    return false;
+
+  // Execute
+  int _retval = struct_->on_resource_response(struct_,
+      CefBrowserCppToC::Wrap(browser),
+      CefFrameCppToC::Wrap(frame),
+      CefRequestCppToC::Wrap(request),
+      CefResponseCppToC::Wrap(response));
+
+  // Return type: bool
+  return _retval?true:false;
 }
 
 bool CefRequestHandlerCToCpp::GetAuthCredentials(CefRefPtr<CefBrowser> browser,

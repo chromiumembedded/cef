@@ -165,15 +165,30 @@ class CefRequestHandler : public virtual CefBase {
   }
 
   ///
-  // Called on the IO thread when a resource load is redirected. The |old_url|
-  // parameter will contain the old URL. The |new_url| parameter will contain
-  // the new URL and can be changed if desired.
+  // Called on the IO thread when a resource load is redirected. The |request|
+  // parameter will contain the old URL and other request-related information.
+  // The |new_url| parameter will contain the new URL and can be changed if
+  // desired. The |request| object cannot be modified in this callback.
   ///
   /*--cef()--*/
   virtual void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
                                   CefRefPtr<CefFrame> frame,
-                                  const CefString& old_url,
+                                  CefRefPtr<CefRequest> request,
                                   CefString& new_url) {}
+
+  ///
+  // Called on the IO thread when a resource response is received. To allow the
+  // resource to load normally return false. To redirect or retry the resource
+  // modify |request| (url, headers or post body) and return true. The
+  // |response| object cannot be modified in this callback.
+  ///
+  /*--cef()--*/
+  virtual bool OnResourceResponse(CefRefPtr<CefBrowser> browser,
+                                  CefRefPtr<CefFrame> frame,
+                                  CefRefPtr<CefRequest> request,
+                                  CefRefPtr<CefResponse> response) {
+    return false;
+  }
 
   ///
   // Called on the IO thread when the browser needs credentials from the user.

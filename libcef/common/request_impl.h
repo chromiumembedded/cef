@@ -48,6 +48,7 @@ class CefRequestImpl : public CefRequest {
   void SetFirstPartyForCookies(const CefString& url) override;
   ResourceType GetResourceType() override;
   TransitionType GetTransitionType() override;
+  uint64 GetIdentifier() override;
 
   // Populate this object from the URLRequest object.
   void Set(net::URLRequest* request);
@@ -77,6 +78,7 @@ class CefRequestImpl : public CefRequest {
   HeaderMap headermap_;
   ResourceType resource_type_;
   TransitionType transition_type_;
+  uint64 identifier_;
 
   // The below members are used by CefURLRequest.
   int flags_;

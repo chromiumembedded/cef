@@ -104,6 +104,7 @@ CefRequestImpl::CefRequestImpl()
     : method_("GET"),
       resource_type_(RT_SUB_RESOURCE),
       transition_type_(TT_EXPLICIT),
+      identifier_(0U),
       flags_(UR_FLAG_NONE),
       read_only_(false) {
 }
@@ -199,6 +200,11 @@ CefRequestImpl::TransitionType CefRequestImpl::GetTransitionType() {
   return transition_type_;
 }
 
+uint64 CefRequestImpl::GetIdentifier() {
+  base::AutoLock lock_scope(lock_);
+  return identifier_;
+}
+
 void CefRequestImpl::Set(net::URLRequest* request) {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
@@ -206,6 +212,7 @@ void CefRequestImpl::Set(net::URLRequest* request) {
   url_ = request->url().spec();
   method_ = request->method();
   first_party_for_cookies_ = request->first_party_for_cookies().spec();
+  identifier_ = request->identifier();
 
   net::HttpRequestHeaders headers = request->extra_request_headers();
 

@@ -762,10 +762,11 @@ class RedirectTestHandler : public TestHandler {
 
   void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
                           CefRefPtr<CefFrame> frame,
-                          const CefString& old_url,
+                          CefRefPtr<CefRequest> request,
                           CefString& new_url) override {
     // Should be called for each redirected URL.
 
+    const std::string& old_url = request->GetURL();
     if (old_url == kRNav1 && new_url == kRNav2) {
       // Called due to the nav1 redirect response.
       got_nav1_redirect_.yes();
@@ -1670,8 +1671,14 @@ class LoadNavTestHandler : public TestHandler {
         CefMouseEvent mouse_event;
         mouse_event.x = 20;
         mouse_event.y = 20;
+#if defined(OS_MACOSX)
+        // Use cmd instead of ctrl on OS X.
+        mouse_event.modifiers =
+            (mode_ == CTRL_LEFT_CLICK ? EVENTFLAG_COMMAND_DOWN : 0);
+#else
         mouse_event.modifiers =
             (mode_ == CTRL_LEFT_CLICK ? EVENTFLAG_CONTROL_DOWN : 0);
+#endif
 
         cef_mouse_button_type_t button_type =
             (mode_ == MIDDLE_CLICK ? MBT_MIDDLE : MBT_LEFT);

@@ -309,6 +309,20 @@ cef_transition_type_t CEF_CALLBACK request_get_transition_type(
   return _retval;
 }
 
+uint64 CEF_CALLBACK request_get_identifier(struct _cef_request_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  uint64 _retval = CefRequestCppToC::Get(self)->GetIdentifier();
+
+  // Return type: simple
+  return _retval;
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -332,6 +346,7 @@ CefRequestCppToC::CefRequestCppToC(CefRequest* cls)
       request_set_first_party_for_cookies;
   struct_.struct_.get_resource_type = request_get_resource_type;
   struct_.struct_.get_transition_type = request_get_transition_type;
+  struct_.struct_.get_identifier = request_get_identifier;
 }
 
 #ifndef NDEBUG

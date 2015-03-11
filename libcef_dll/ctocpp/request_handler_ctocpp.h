@@ -44,8 +44,11 @@ class CefRequestHandlerCToCpp
       CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request) override;
   void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, const CefString& old_url,
+      CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
       CefString& new_url) override;
+  bool OnResourceResponse(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
+      CefRefPtr<CefResponse> response) override;
   bool GetAuthCredentials(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, bool isProxy, const CefString& host, int port,
       const CefString& realm, const CefString& scheme,

@@ -159,13 +159,24 @@ typedef struct _cef_request_handler_t {
       struct _cef_frame_t* frame, struct _cef_request_t* request);
 
   ///
-  // Called on the IO thread when a resource load is redirected. The |old_url|
-  // parameter will contain the old URL. The |new_url| parameter will contain
-  // the new URL and can be changed if desired.
+  // Called on the IO thread when a resource load is redirected. The |request|
+  // parameter will contain the old URL and other request-related information.
+  // The |new_url| parameter will contain the new URL and can be changed if
+  // desired. The |request| object cannot be modified in this callback.
   ///
   void (CEF_CALLBACK *on_resource_redirect)(struct _cef_request_handler_t* self,
       struct _cef_browser_t* browser, struct _cef_frame_t* frame,
-      const cef_string_t* old_url, cef_string_t* new_url);
+      struct _cef_request_t* request, cef_string_t* new_url);
+
+  ///
+  // Called on the IO thread when a resource response is received. To allow the
+  // resource to load normally return false (0). To redirect or retry the
+  // resource modify |request| (url, headers or post body) and return true (1).
+  // The |response| object cannot be modified in this callback.
+  ///
+  int (CEF_CALLBACK *on_resource_response)(struct _cef_request_handler_t* self,
+      struct _cef_browser_t* browser, struct _cef_frame_t* frame,
+      struct _cef_request_t* request, struct _cef_response_t* response);
 
   ///
   // Called on the IO thread when the browser needs credentials from the user.

@@ -28,3 +28,4 @@ Czarek Tomczak <czarek.tomczak@gmail.com>
 Felix Bruns <felixbruns@spotify.com>
 YuTeh Shen <shenyute@gmail.com>
 Andrei Kurushin <ajax16384@gmail.com>
+Gonzo Berman <gberman@factset.com>

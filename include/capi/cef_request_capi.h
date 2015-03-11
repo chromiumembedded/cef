@@ -159,6 +159,13 @@ typedef struct _cef_request_t {
   ///
   cef_transition_type_t (CEF_CALLBACK *get_transition_type)(
       struct _cef_request_t* self);
+
+  ///
+  // Returns the globally unique identifier for this request or 0 if not
+  // specified. Can be used by cef_request_tHandler implementations in the
+  // browser process to track a single request across multiple callbacks.
+  ///
+  uint64 (CEF_CALLBACK *get_identifier)(struct _cef_request_t* self);
 } cef_request_t;
 
 

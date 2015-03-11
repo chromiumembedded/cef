@@ -10,6 +10,7 @@
 #include "base/strings/stringprintf.h"
 #include "net/http/http_request_headers.h"
 #include "net/http/http_response_headers.h"
+#include "net/url_request/url_request.h"
 #include "third_party/WebKit/public/platform/WebHTTPHeaderVisitor.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURLResponse.h"
@@ -152,6 +153,7 @@ net::HttpResponseHeaders* CefResponseImpl::GetResponseHeaders() {
 void CefResponseImpl::SetResponseHeaders(
     const net::HttpResponseHeaders& headers) {
   base::AutoLock lock_scope(lock_);
+  CHECK_READONLY_RETURN_VOID();
 
   header_map_.empty();
 
@@ -166,6 +168,8 @@ void CefResponseImpl::SetResponseHeaders(
   std::string mime_type;
   if (headers.GetMimeType(&mime_type))
     mime_type_ = mime_type;
+  else
+    mime_type_.clear();
 }
 
 void CefResponseImpl::Set(const blink::WebURLResponse& response) {
@@ -197,6 +201,14 @@ void CefResponseImpl::Set(const blink::WebURLResponse& response) {
 
   HeaderVisitor visitor(&header_map_);
   response.visitHTTPHeaderFields(&visitor);
+}
+
+void CefResponseImpl::Set(const net::URLRequest* request) {
+  DCHECK(request);
+
+  const net::HttpResponseHeaders* headers = request->response_headers();
+  if (headers)
+    SetResponseHeaders(*headers);
 }
 
 void CefResponseImpl::SetReadOnly(bool read_only) {

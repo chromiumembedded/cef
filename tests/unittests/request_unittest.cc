@@ -21,7 +21,8 @@ using client::ClientAppRenderer;
 TEST(RequestTest, SetGet) {
   // CefRequest CreateRequest
   CefRefPtr<CefRequest> request(CefRequest::Create());
-  ASSERT_TRUE(request.get() != NULL);
+  EXPECT_TRUE(request.get() != NULL);
+  EXPECT_EQ(0U, request->GetIdentifier());
 
   CefString url = "http://tests/run.html";
   CefString method = "POST";
@@ -31,45 +32,45 @@ TEST(RequestTest, SetGet) {
 
   // CefPostData CreatePostData
   CefRefPtr<CefPostData> postData(CefPostData::Create());
-  ASSERT_TRUE(postData.get() != NULL);
+  EXPECT_TRUE(postData.get() != NULL);
 
   // CefPostDataElement CreatePostDataElement
   CefRefPtr<CefPostDataElement> element1(CefPostDataElement::Create());
-  ASSERT_TRUE(element1.get() != NULL);
+  EXPECT_TRUE(element1.get() != NULL);
   CefRefPtr<CefPostDataElement> element2(CefPostDataElement::Create());
-  ASSERT_TRUE(element2.get() != NULL);
+  EXPECT_TRUE(element2.get() != NULL);
 
   // CefPostDataElement SetToFile
   CefString file = "c:\\path\\to\\file.ext";
   element1->SetToFile(file);
-  ASSERT_EQ(PDE_TYPE_FILE, element1->GetType());
-  ASSERT_EQ(file, element1->GetFile());
+  EXPECT_EQ(PDE_TYPE_FILE, element1->GetType());
+  EXPECT_EQ(file, element1->GetFile());
 
   // CefPostDataElement SetToBytes
   char bytes[] = "Test Bytes";
   element2->SetToBytes(sizeof(bytes), bytes);
-  ASSERT_EQ(PDE_TYPE_BYTES, element2->GetType());
-  ASSERT_EQ(sizeof(bytes), element2->GetBytesCount());
+  EXPECT_EQ(PDE_TYPE_BYTES, element2->GetType());
+  EXPECT_EQ(sizeof(bytes), element2->GetBytesCount());
   char bytesOut[sizeof(bytes)];
   element2->GetBytes(sizeof(bytes), bytesOut);
-  ASSERT_TRUE(!memcmp(bytes, bytesOut, sizeof(bytes)));
+  EXPECT_TRUE(!memcmp(bytes, bytesOut, sizeof(bytes)));
 
   // CefPostData AddElement
   postData->AddElement(element1);
   postData->AddElement(element2);
-  ASSERT_EQ((size_t)2, postData->GetElementCount());
+  EXPECT_EQ((size_t)2, postData->GetElementCount());
 
   // CefPostData RemoveElement
   postData->RemoveElement(element1);
-  ASSERT_EQ((size_t)1, postData->GetElementCount());
+  EXPECT_EQ((size_t)1, postData->GetElementCount());
 
   // CefPostData RemoveElements
   postData->RemoveElements();
-  ASSERT_EQ((size_t)0, postData->GetElementCount());
+  EXPECT_EQ((size_t)0, postData->GetElementCount());
 
   postData->AddElement(element1);
   postData->AddElement(element2);
-  ASSERT_EQ((size_t)2, postData->GetElementCount());
+  EXPECT_EQ((size_t)2, postData->GetElementCount());
   CefPostData::ElementVector elements;
   postData->GetElements(elements);
   CefPostData::ElementVector::const_iterator it = elements.begin();
@@ -82,11 +83,11 @@ TEST(RequestTest, SetGet) {
 
   // CefRequest SetURL
   request->SetURL(url);
-  ASSERT_EQ(url, request->GetURL());
+  EXPECT_EQ(url, request->GetURL());
 
   // CefRequest SetMethod
   request->SetMethod(method);
-  ASSERT_EQ(method, request->GetMethod());
+  EXPECT_EQ(method, request->GetMethod());
 
   // CefRequest SetHeaderMap
   request->SetHeaderMap(setHeaders);
@@ -98,13 +99,17 @@ TEST(RequestTest, SetGet) {
   request->SetPostData(postData);
   TestPostDataEqual(postData, request->GetPostData());
 
+  EXPECT_EQ(0U, request->GetIdentifier());
+
   request = CefRequest::Create();
-  ASSERT_TRUE(request.get() != NULL);
+  EXPECT_TRUE(request.get() != NULL);
+  EXPECT_EQ(0U, request->GetIdentifier());
 
   // CefRequest Set
   request->Set(url, method, postData, setHeaders);
-  ASSERT_EQ(url, request->GetURL());
-  ASSERT_EQ(method, request->GetMethod());
+  EXPECT_EQ(0U, request->GetIdentifier());
+  EXPECT_EQ(url, request->GetURL());
+  EXPECT_EQ(method, request->GetMethod());
   request->GetHeaderMap(getHeaders);
   TestMapEqual(setHeaders, getHeaders, false);
   getHeaders.clear();
@@ -115,7 +120,7 @@ namespace {
 
 void CreateRequest(CefRefPtr<CefRequest>& request) {
   request = CefRequest::Create();
-  ASSERT_TRUE(request.get() != NULL);
+  EXPECT_TRUE(request.get() != NULL);
 
   request->SetURL("http://tests/run.html");
   request->SetMethod("POST");
@@ -126,11 +131,11 @@ void CreateRequest(CefRefPtr<CefRequest>& request) {
   request->SetHeaderMap(headers);
 
   CefRefPtr<CefPostData> postData(CefPostData::Create());
-  ASSERT_TRUE(postData.get() != NULL);
+  EXPECT_TRUE(postData.get() != NULL);
 
   CefRefPtr<CefPostDataElement> element1(
       CefPostDataElement::Create());
-  ASSERT_TRUE(element1.get() != NULL);
+  EXPECT_TRUE(element1.get() != NULL);
   char bytes[] = "Test Bytes";
   element1->SetToBytes(sizeof(bytes), bytes);
   postData->AddElement(element1);
@@ -204,8 +209,8 @@ TEST(RequestTest, SendRecv) {
       new RequestSendRecvTestHandler();
   handler->ExecuteTest();
 
-  ASSERT_TRUE(handler->got_before_resource_load_);
-  ASSERT_TRUE(handler->got_resource_handler_);
+  EXPECT_TRUE(handler->got_before_resource_load_);
+  EXPECT_TRUE(handler->got_resource_handler_);
 
   ReleaseAndWaitForDestructor(handler);
 }

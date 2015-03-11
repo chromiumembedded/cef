@@ -295,6 +295,19 @@ CefRequest::TransitionType CefRequestCToCpp::GetTransitionType() {
   return _retval;
 }
 
+uint64 CefRequestCToCpp::GetIdentifier() {
+  if (CEF_MEMBER_MISSING(struct_, get_identifier))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  uint64 _retval = struct_->get_identifier(struct_);
+
+  // Return type: simple
+  return _retval;
+}
+
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefRequestCToCpp, CefRequest,
