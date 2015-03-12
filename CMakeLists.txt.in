@@ -281,6 +281,8 @@ if(OS_LINUX)
     libffmpegsumo.so
     libcef.so
     libpdf.so
+    natives_blob.bin
+    snapshot_blob.bin
     )
 
   # List of CEF resource files.
@@ -291,8 +293,6 @@ if(OS_LINUX)
     devtools_resources.pak
     icudtl.dat
     locales
-    natives_blob.bin
-    snapshot_blob.bin
     )
 endif()
 
