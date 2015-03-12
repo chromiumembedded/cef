@@ -686,7 +686,6 @@ elif platform == 'linux':
                         'tests/cefsimple/', cefsimple_dir, options.quiet)
 
     # transfer additional files, if any
-    copy_file(os.path.join(script_dir, 'distrib/linux/build.sh'), output_dir, options.quiet)
     transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/linux/transfer.cfg'), \
                   output_dir, options.quiet)
 
