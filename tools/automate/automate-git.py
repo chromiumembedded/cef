@@ -10,7 +10,6 @@ import subprocess
 import sys
 import tempfile
 import urllib
-import xml.etree.ElementTree as ET
 import zipfile
 
 ##
@@ -20,10 +19,7 @@ import zipfile
 depot_tools_url = 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
 depot_tools_archive_url = 'https://src.chromium.org/svn/trunk/tools/depot_tools.zip'
 
-cef_git_trunk_url = 'https://chromiumembedded@bitbucket.org/chromiumembedded/trunk-cef3.git'
-cef_git_branch_url = 'https://chromiumembedded@bitbucket.org/chromiumembedded/branches-%1-cef3.git'
-cef_svn_trunk_url = 'https://chromiumembedded.googlecode.com/svn/trunk/cef3'
-cef_svn_branch_url = 'https://chromiumembedded.googlecode.com/svn/branches/%1/cef3'
+cef_git_url = 'https://chromiumembedded@bitbucket.org/chromiumembedded/cef.git'
 
 
 ##
@@ -102,10 +98,6 @@ def is_git_checkout(path):
   """ Returns true if the path represents a git checkout. """
   return os.path.exists(os.path.join(path, '.git'))
 
-def is_svn_checkout(path):
-  """ Returns true if the path represents an svn checkout. """
-  return os.path.exists(os.path.join(path, '.svn'))
-
 def exec_cmd(cmd, path):
   """ Execute the specified command and return the result. """
   out = ''
@@ -139,36 +131,6 @@ def get_git_url(path):
   if result['out'] != '':
     return result['out'].strip()
   return 'Unknown'
-
-def get_git_svn_revision(path, branch):
-  """ Returns the SVN revision associated with the specified path and git
-      branch/tag/hash. """
-  svn_rev = "None"
-  cmd = "%s log --grep=^git-svn-id: -n 1 %s" % (git_exe, branch)
-  result = exec_cmd(cmd, path)
-  if result['err'] == '':
-    for line in result['out'].split('\n'):
-      if line.find("git-svn-id") > 0:
-        svn_rev = line.split("@")[1].split()[0]
-        break
-  return svn_rev
-
-def get_svn_info(path):
-  """ Retrieves the URL and revision from svn info. """
-  url = 'None'
-  rev = 'None'
-  cmd = "%s info --xml %s" % (svn_exe, path)
-  is_http = path[0:4] == 'http'
-  if is_http or os.path.exists(path):
-    result = exec_cmd(cmd, path if not is_http else '.')
-    if result['err'] == '':
-      tree = ET.ElementTree(ET.fromstring(result['out']))
-      entry = tree.getroot().find('entry')
-      url = entry.find('url').text
-      rev = entry.attrib['revision']
-    else:
-      raise Exception("Failed to execute svn info: %s" % (result['err']))
-  return {'url': url, 'revision': rev}
 
 def download_and_extract(src, target, contents_prefix):
   """ Extracts the contents of src, which may be a URL or local file, to the
@@ -332,17 +294,12 @@ parser.add_option('--branch', dest='branch',
                   default='trunk')
 parser.add_option('--url', dest='url',
                   help='CEF download URL. If not specified the default URL '+\
-                       'will be used for the chosen branch.',
+                       'will be used.',
                   default='')
 parser.add_option('--checkout', dest='checkout',
                   help='Version of CEF to checkout. If not specified the '+\
-                       'most recent version of the branch will be used. '+\
-                       'If --use-git is specified this should be a Git '+\
-                       'branch/hash/tag instead of an SVN revision number.',
+                       'most recent remote version of the branch will be used.',
                   default='')
-parser.add_option('--use-svn',
-                  action='store_true', dest='usesvn', default=False,
-                  help="Download CEF source code using SVN instead of Git.")
 parser.add_option('--chromium-checkout', dest='chromiumcheckout',
                   help='Version of Chromium to checkout (Git '+\
                        'branch/hash/tag). This overrides the value specified '+\
@@ -496,6 +453,10 @@ if options.branch != 'trunk' and not options.branch.isdigit():
   print 'Invalid branch value: %s' % (options.branch)
 cef_branch = options.branch
 
+if cef_branch != 'trunk' and int(cef_branch) <= 1453:
+  print 'The requested branch is too old to build using this tool'
+  sys.exit()
+
 # True if the requested branch is 2272 or newer.
 branch_is_2272_or_newer = (cef_branch == 'trunk' or int(cef_branch) >= 2272)
 
@@ -511,6 +472,10 @@ gyp_needs_target_arch_x64 = options.x64build and \
 
 # Options that force the sources to change.
 force_change = options.forceclean or options.forceupdate
+
+if platform == 'windows':
+  # Avoid errors when the "vs_toolchain.py update" Chromium hook runs.
+  os.environ['DEPOT_TOOLS_WIN_TOOLCHAIN'] = '0'
 
 
 ##
@@ -561,20 +526,16 @@ if not options.noupdate:
   else:
     run('update_depot_tools', depot_tools_dir, depot_tools_dir);
 
-# Determine the svn/git executables to use.
+# Determine the git executables to use.
 if platform == 'windows':
   # Force use of the version bundled with depot_tools.
-  svn_exe = os.path.join(depot_tools_dir, 'svn.bat')
   git_exe = os.path.join(depot_tools_dir, 'git.bat')
-  if options.dryrun and (not os.path.exists(svn_exe) or \
-                         not os.path.exists(git_exe)):
+  if options.dryrun and not os.path.exists(git_exe):
     sys.stdout.write("WARNING: --dry-run assumes that depot_tools" \
                      " is already in your PATH. If it isn't\nplease" \
                      " specify a --depot-tools-dir value.\n")
-    svn_exe = 'svn.bat'
     git_exe = 'git.bat'
 else:
-  svn_exe = 'svn'
   git_exe = 'git'
 
 
@@ -582,49 +543,25 @@ else:
 # Manage the cef directory.
 ##
 
-cef_dir = os.path.join(download_dir, 'cef_' + cef_branch)
+cef_dir = os.path.join(download_dir, 'cef')
 
 # Delete the existing CEF directory if requested.
 if options.forceclean and os.path.exists(cef_dir):
   delete_directory(cef_dir)
 
 # Determine the type of CEF checkout to use.
-if os.path.exists(cef_dir):
-  if is_git_checkout(cef_dir):
-    cef_use_git = True
-  elif is_svn_checkout(cef_dir):
-    cef_use_git = False
-  else:
-    raise Exception("Not a valid CEF checkout: %s" % (cef_dir))
-
-  if cef_use_git == options.usesvn:
-    raise Exception(
-        "The existing and requested CEF checkout types do not match")
-else:
-  cef_use_git = not options.usesvn
+if os.path.exists(cef_dir) and not is_git_checkout(cef_dir):
+  raise Exception("Not a valid CEF Git checkout: %s" % (cef_dir))
 
 # Determine the CEF download URL to use.
 if options.url == '':
-  if cef_branch == 'trunk':
-    if cef_use_git:
-      cef_url = cef_git_trunk_url
-    else:
-      cef_url = cef_svn_trunk_url
-  else:
-    if cef_use_git:
-      cef_url = cef_git_branch_url
-    else:
-      cef_url = cef_svn_branch_url
-    cef_url = cef_url.replace('%1', cef_branch)
+  cef_url = cef_git_url
 else:
   cef_url = options.url
 
 # Verify that the requested CEF URL matches the existing checkout.
 if os.path.exists(cef_dir):
-  if cef_use_git:
-    cef_existing_url = get_git_url(cef_dir)
-  else:
-    cef_existing_url = get_svn_info(cef_dir)['url']
+  cef_existing_url = get_git_url(cef_dir)
   if cef_url != cef_existing_url:
     raise Exception('Requested CEF checkout URL %s does not match existing '+\
                     'URL %s' % (cef_url, cef_existing_url))
@@ -633,77 +570,44 @@ msg("CEF Branch: %s" % (cef_branch))
 msg("CEF URL: %s" % (cef_url))
 msg("CEF Source Directory: %s" % (cef_dir))
 
-# Determine the CEF SVN revision or Git checkout to use.
+# Determine the CEF Git branch to use.
 if options.checkout == '':
-  # Use the CEF head revision.
-  if cef_use_git:
+  # Target the most recent branch commit from the remote repo.
+  if cef_branch == 'trunk':
     cef_checkout = 'origin/master'
   else:
-    cef_checkout = get_svn_info(cef_url)['revision']
+    cef_checkout = 'origin/' + cef_branch
 else:
   cef_checkout = options.checkout
-  if not cef_use_git and not cef_checkout.isdigit():
-    raise Exception("Invalid SVN revision number: %s" % (cef_checkout))
 
 # Create the CEF checkout if necessary.
 if not options.noupdate and not os.path.exists(cef_dir):
   cef_checkout_new = True
-  if cef_use_git:
-    run('%s clone %s %s' % (git_exe, cef_url, cef_dir), download_dir, \
-        depot_tools_dir)
-  else:
-    run('%s checkout %s -r %s %s' % (svn_exe, cef_url, cef_checkout, cef_dir), \
-        download_dir, depot_tools_dir)
+  run('%s clone %s %s' % (git_exe, cef_url, cef_dir), download_dir, \
+      depot_tools_dir)
 else:
   cef_checkout_new = False
 
-# Verify the CEF checkout.
-if not options.dryrun:
-  if cef_use_git and not is_git_checkout(cef_dir):
-    raise Exception('Not a valid git checkout: %s' % (cef_dir))
-  if not cef_use_git and not is_svn_checkout(cef_dir):
-    raise Exception('Not a valid svn checkout: %s' % (cef_dir))
-
 # Update the CEF checkout if necessary.
 if not options.noupdate and os.path.exists(cef_dir):
-  if cef_use_git:
-    cef_current_hash = get_git_hash(cef_dir, 'HEAD')
+  cef_current_hash = get_git_hash(cef_dir, 'HEAD')
 
-    if not cef_checkout_new:
-      # Fetch new sources.
-      run('%s fetch' % (git_exe), cef_dir, depot_tools_dir)
+  if not cef_checkout_new:
+    # Fetch new sources.
+    run('%s fetch' % (git_exe), cef_dir, depot_tools_dir)
 
-    cef_desired_hash = get_git_hash(cef_dir, cef_checkout)
-    cef_checkout_changed = cef_checkout_new or force_change or \
-                           cef_current_hash != cef_desired_hash
+  cef_desired_hash = get_git_hash(cef_dir, cef_checkout)
+  cef_checkout_changed = cef_checkout_new or force_change or \
+                         cef_current_hash != cef_desired_hash
 
-    msg("CEF Current Checkout: %s" % (cef_current_hash))
-    msg("CEF Current Revision: %s" % \
-        (get_git_svn_revision(cef_dir, cef_current_hash)))
-    msg("CEF Desired Checkout: %s (%s)" % (cef_desired_hash, cef_checkout))
-    msg("CEF Desired Revision: %s" % \
-        (get_git_svn_revision(cef_dir, cef_desired_hash)))
+  msg("CEF Current Checkout: %s" % (cef_current_hash))
+  msg("CEF Desired Checkout: %s (%s)" % (cef_desired_hash, cef_checkout))
 
-    if cef_checkout_changed:
-      # Checkout the requested branch.
-      run('%s checkout %s%s' %
-        (git_exe, ('--force ' if options.forceclean else ''), cef_checkout), \
-        cef_dir, depot_tools_dir)
-  else:
-    cef_current_info = get_svn_info(cef_dir)
-    if cef_current_info['url'] != cef_url:
-      raise Exception("CEF URL does not match; found %s, expected %s" %
-                      (cef_current_info['url'], cef_url))
-
-    cef_checkout_changed = cef_checkout_new or force_change or \
-                           cef_current_info['revision'] != cef_checkout
-
-    msg("CEF Current Revision: %s" % (cef_current_info['revision']))
-    msg("CEF Desired Revision: %s" % (cef_checkout))
-
-    if cef_checkout_changed and not cef_checkout_new:
-      # Update to the requested revision.
-      run('%s update -r %s' % (svn_exe, cef_checkout), cef_dir, depot_tools_dir)
+  if cef_checkout_changed:
+    # Checkout the requested branch.
+    run('%s checkout %s%s' %
+      (git_exe, ('--force ' if options.forceclean else ''), cef_checkout), \
+      cef_dir, depot_tools_dir)
 else:
   cef_checkout_changed = False
 
@@ -806,12 +710,8 @@ if not options.noupdate and os.path.exists(chromium_src_dir):
                               chromium_current_hash != chromium_desired_hash
 
   msg("Chromium Current Checkout: %s" % (chromium_current_hash))
-  msg("Chromium Current Revision: %s" % \
-      (get_git_svn_revision(chromium_src_dir, chromium_current_hash)))
   msg("Chromium Desired Checkout: %s (%s)" % \
       (chromium_desired_hash, chromium_checkout))
-  msg("Chromium Desired Revision: %s" % \
-      (get_git_svn_revision(chromium_src_dir, chromium_desired_hash)))
 else:
   chromium_checkout_changed = options.dryrun
 
@@ -828,7 +728,8 @@ if options.forceclean and os.path.exists(out_src_dir):
 # directory. It will be moved back from the download directory later.
 if os.path.exists(out_src_dir):
   old_branch = read_branch_config_file(out_src_dir)
-  if chromium_checkout_changed or old_branch != cef_branch:
+  if old_branch != '' and (chromium_checkout_changed or \
+                           old_branch != cef_branch):
     old_out_dir = os.path.join(download_dir, 'out_' + old_branch)
     move_directory(out_src_dir, old_out_dir)
 
@@ -873,8 +774,15 @@ if os.path.exists(cef_dir) and not os.path.exists(cef_src_dir):
   copy_directory(cef_dir, cef_src_dir)
 
 # Restore the src/out directory.
-if os.path.exists(out_dir) and not os.path.exists(out_src_dir):
+out_src_dir_exists = os.path.exists(out_src_dir)
+if os.path.exists(out_dir) and not out_src_dir_exists:
   move_directory(out_dir, out_src_dir)
+  out_src_dir_exists = True
+elif not out_src_dir_exists:
+  create_directory(out_src_dir)
+
+# Write the config file for identifying the branch.
+write_branch_config_file(out_src_dir, cef_branch)
 
 
 ##
@@ -883,7 +791,7 @@ if os.path.exists(out_dir) and not os.path.exists(out_src_dir):
 
 if not options.nobuild and (chromium_checkout_changed or \
                             cef_checkout_changed or options.forcebuild or \
-                            not os.path.exists(out_src_dir)):
+                            not out_src_dir_exists):
   # Building should also force a distribution.
   options.forcedistrib = True
 
@@ -905,9 +813,6 @@ if not options.nobuild and (chromium_checkout_changed or \
   # Run the cef_create_projects script to generate project files.
   path = os.path.join(cef_src_dir, 'cef_create_projects'+script_ext)
   run(path, cef_src_dir, depot_tools_dir)
-
-  # Write the config file for identifying the branch.
-  write_branch_config_file(out_src_dir, cef_branch)
 
   # Build using Ninja.
   command = 'ninja -C '
