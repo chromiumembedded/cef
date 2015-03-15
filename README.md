@@ -1,8 +1,20 @@
+The Chromium Embedded Framework (CEF) is a simple framework for embedding Chromium-based browsers in other applications.
+
 **Note: This project is currently in the process of moving from Google Code to Bitbucket. The original project page is [here](https://code.google.com/p/chromiumembedded/). Additional details about the move are available [here](http://magpcss.org/ceforum/viewtopic.php?f=10&t=12759).**
 
+# Quick Links #
+
+* Tutorial - http://code.google.com/p/chromiumembedded/wiki/Tutorial
+* General Usage - http://code.google.com/p/chromiumembedded/wiki/GeneralUsage
+* Branches and Building - http://code.google.com/p/chromiumembedded/wiki/BranchesAndBuilding
+* Support Forum - http://www.magpcss.org/ceforum/
+* CEF1 C++ API Docs - http://magpcss.org/ceforum/apidocs/
+* CEF3 C++ API Docs - http://magpcss.org/ceforum/apidocs3/
+* Downloads - http://www.magpcss.net/cef_downloads/ and http://cefbuilds.com (automated nightly builds)
+* Donations - http://www.magpcss.org/ceforum/donate.php
 # Introduction #
 
-The Chromium Embedded Framework (CEF) is a simple framework for embedding Chromium-based browsers in other applications. It is a BSD-licensed open source project founded by Marshall Greenblatt in 2008 and based on the [Google Chromium](http://www.chromium.org/Home) project. Unlike the Chromium project itself, which focuses mainly on Google Chrome application development, CEF focuses on facilitating embedded browser use cases in third-party applications. CEF insulates the user from the underlying Chromium and Blink code complexity by offering production-quality stable APIs, release branches tracking specific Chromium releases, and binary distributions. Most features in CEF have default implementations that provide rich functionality while requiring little or no integration work from the user. There are currently over 100 million installed instances of CEF around the world embedded in products from a wide range of companies and industries. A partial list of companies and products using CEF is available on the [CEF Wikipedia page](http://en.wikipedia.org/wiki/Chromium_Embedded_Framework#Applications_using_CEF). Some use cases for CEF include:
+CEF is a BSD-licensed open source project founded by Marshall Greenblatt in 2008 and based on the [Google Chromium](http://www.chromium.org/Home) project. Unlike the Chromium project itself, which focuses mainly on Google Chrome application development, CEF focuses on facilitating embedded browser use cases in third-party applications. CEF insulates the user from the underlying Chromium and Blink code complexity by offering production-quality stable APIs, release branches tracking specific Chromium releases, and binary distributions. Most features in CEF have default implementations that provide rich functionality while requiring little or no integration work from the user. There are currently over 100 million installed instances of CEF around the world embedded in products from a wide range of companies and industries. A partial list of companies and products using CEF is available on the [CEF Wikipedia page](http://en.wikipedia.org/wiki/Chromium_Embedded_Framework#Applications_using_CEF). Some use cases for CEF include:
 
 * Embedding an HTML5-compliant Web browser control in an existing native application.
 * Creating a light-weight native “shell” application that hosts a user interface developed primarily using Web technologies.
@@ -41,3 +53,30 @@ The base CEF framework includes support for the C and C++ programming languages.
 * Python - http://code.google.com/p/cefpython/
 
 If you're the maintainer of a project not listed above and would like your project listed here please either post to the [CEF Forum](http://www.magpcss.org/ceforum/) or contact Marshall directly.
+
+# Helping Out #
+
+CEF is still very much a work in progress. Some ways that you can help out:
+
+\- Vote for issues in the [CEF issue tracker](https://bitbucket.org/chromiumembedded/cef/issues?status=new&status=open) that are important to you. This helps with development prioritization.
+
+\- Report any bugs that you find or feature requests that are important to you. Make sure to first search for existing issues before creating new ones. Please use the [CEF Forum](http://magpcss.org/ceforum) and not the issue tracker for usage questions. Each CEF issue should:
+
+* Include the CEF revision or binary distribution version.
+* Include information about your OS and compiler version.
+* If the issue is a bug please provide detailed reproduction information.
+* If the issue is a feature please describe why the feature is beneficial.
+
+\- Write unit tests for new or existing functionality.
+
+\- Pull requests and patches are welcome. View open issues in the [CEF issue tracker](https://bitbucket.org/chromiumembedded/cef/issues?status=new&status=open) or search for TODO(cef) in the source code for ideas.
+
+If you would like to contribute source code changes to CEF please follow the below guidelines:
+
+\- Create or find an appropriate issue for each distinct bug, feature or change. 
+
+\- Submit a pull request or create a patch with your changes and attach it to the CEF issue. Changes should:
+
+* Be submitted against the current [CEF master branch](https://bitbucket.org/chromiumembedded/cef/src/?at=master) unless explicitly fixing a bug in a CEF release branch.
+* Follow the style of existing CEF source files. In general CEF uses the [Chromium coding style](http://www.chromium.org/developers/coding-style).
+* Not include unnecessary or unrelated changes.
