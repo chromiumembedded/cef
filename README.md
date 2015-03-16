@@ -1,12 +1,10 @@
 The Chromium Embedded Framework (CEF) is a simple framework for embedding Chromium-based browsers in other applications.
 
-**Note: This project is currently in the process of moving from Google Code to Bitbucket. The original project page is [here](https://code.google.com/p/chromiumembedded/). Additional details about the move are available [here](http://magpcss.org/ceforum/viewtopic.php?f=10&t=12759).**
-
 # Quick Links #
 
-* Tutorial - http://code.google.com/p/chromiumembedded/wiki/Tutorial
-* General Usage - http://code.google.com/p/chromiumembedded/wiki/GeneralUsage
-* Branches and Building - http://code.google.com/p/chromiumembedded/wiki/BranchesAndBuilding
+* Tutorial - https://bitbucket.org/chromiumembedded/cef/wiki/Tutorial
+* General Usage - https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage
+* Branches and Building - https://bitbucket.org/chromiumembedded/cef/wiki/BranchesAndBuilding
 * Support Forum - http://www.magpcss.org/ceforum/
 * CEF1 C++ API Docs - http://magpcss.org/ceforum/apidocs/
 * CEF3 C++ API Docs - http://magpcss.org/ceforum/apidocs3/
@@ -23,7 +21,7 @@ CEF is a BSD-licensed open source project founded by Marshall Greenblatt in 2008
 
 CEF supports a wide range of programming languages and operating systems and can be easily integrated into both new and existing applications. It was designed from the ground up with both performance and ease of use in mind. The base framework includes C and C++ programming interfaces exposed via native libraries that insulate the host application from Chromium and Blink implementation details. It provides close integration between the browser and the host application including support for custom plugins, protocols, JavaScript objects and JavaScript extensions. The host application can optionally control resource loading, navigation, context menus, printing and more, while taking advantage of the same performance and HTML5 technologies available in the Google Chrome Web browser.
 
-Users new to CEF development should start by reading the [Tutorial](http://code.google.com/p/chromiumembedded/wiki/Tutorial) Wiki page for an overview of CEF usage and then proceed to the [GeneralUsage](http://code.google.com/p/chromiumembedded/wiki/GeneralUsage) Wiki page for a more in-depth discussion or architectural and usage issues. Complete API documentation is available [here](http://magpcss.org/ceforum/apidocs3/). CEF support and related discussion is available on the [CEF Forum](http://www.magpcss.org/ceforum/).
+Users new to CEF development should start by reading the [Tutorial](Tutorial.md) Wiki page for an overview of CEF usage and then proceed to the [GeneralUsage](GeneralUsage.md) Wiki page for a more in-depth discussion or architectural and usage issues. Complete API documentation is available [here](http://magpcss.org/ceforum/apidocs3/). CEF support and related discussion is available on the [CEF Forum](http://www.magpcss.org/ceforum/).
 
 Numerous individuals and organizations contribute time and resources to support CEF development, but more involvement from the community is always welcome. This includes support for both the core CEF project and external projects that integrate CEF with additional programming languages and frameworks (see the "External Projects" section below). If you are interested in donating time to help with CEF development please see the "Helping Out" section below. If you are interested in donating money to support general CEF development and infrastructure efforts please visit the [CEF Donations](http://www.magpcss.org/ceforum/donate.php) page.
 
@@ -31,11 +29,11 @@ Numerous individuals and organizations contribute time and resources to support 
 
 Binary distributions, which include all files necessary to build a CEF-based application, are available on the [Downloads](http://www.magpcss.net/cef_downloads/) page. Automated nightly builds, available from http://cefbuilds.com, include the newest changes but may not be fully tested. Binary distributions are stand-alone and do not require the download of CEF or Chromium source code. Symbol files for debugging binary distributions of libcef can also be downloaded from the above links.
 
-Release notes for past and current CEF binary distributions are available [here](http://code.google.com/p/chromiumembedded/wiki/ReleaseNotes).
+Release notes for past and current CEF binary distributions are available [here](ReleaseNotes.md).
 
 # Source Distributions #
 
-The CEF project is an extension of the Chromium project. CEF maintains development and release branches that track Chromium branches. CEF source code can be downloaded, built and packaged manually or with automated tools. Visit the [BranchesAndBuilding](http://code.google.com/p/chromiumembedded/wiki/BranchesAndBuilding) Wiki page for more information.
+The CEF project is an extension of the Chromium project. CEF maintains development and release branches that track Chromium branches. CEF source code can be downloaded, built and packaged manually or with automated tools. Visit the [BranchesAndBuilding](BranchesAndBuilding.md) Wiki page for more information.
 
 # External Projects #
 
