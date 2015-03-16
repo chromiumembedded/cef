@@ -24,24 +24,18 @@ void CefCrashReporterClient::GetProductNameAndVersion(
     base::string16* special_build,
     base::string16* channel_name) {
   *product_name = base::ASCIIToUTF16("cef");
-  *version = base::UTF8ToUTF16(base::StringPrintf(
-        "%d.%d.%d", CEF_VERSION_MAJOR, CHROME_VERSION_BUILD, CEF_REVISION));
+  *version = base::ASCIIToUTF16(CEF_VERSION);
   *special_build = base::string16();
   *channel_name = base::string16();
 }
 #endif
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX) && !defined(OS_IOS)
-#define PRODUCT_VERSION \
-    MAKE_STRING(CEF_VERSION_MAJOR) "." \
-    MAKE_STRING(CHROME_VERSION_BUILD) "." \
-    MAKE_STRING(CEF_REVISION)
-
 void CefCrashReporterClient::GetProductNameAndVersion(
     const char** product_name,
     const char** version) {
   *product_name = "cef";
-  *version = PRODUCT_VERSION;
+  *version = CEF_VERSION;
 }
 
 base::FilePath CefCrashReporterClient::GetReporterLogFilename() {

@@ -7,7 +7,6 @@ import os
 import re
 import sys
 from exec_util import exec_cmd
-import svn_util as svn
 import git_util as git
 
 def msg(message):
@@ -62,11 +61,7 @@ cef_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 src_dir = os.path.join(cef_dir, os.pardir)
 
 # Determine the type of Chromium checkout.
-if svn.is_checkout(src_dir):
-  src_is_git = False
-elif git.is_checkout(src_dir):
-  src_is_git = True
-else:
+if not git.is_checkout(src_dir):
   raise Exception('Not a valid checkout: %s' % src_dir)
 
 patch_dir = os.path.join(cef_dir, 'patch')
@@ -104,10 +99,7 @@ for patch in patches:
                                                       patch_path))
         if os.path.exists(patch_path_abs):
           msg('Reverting changes to %s' % patch_path_abs)
-          if src_is_git:
-            cmd = 'git checkout -- %s' % (patch_path_abs)
-          else:
-            cmd = 'svn revert %s' % (patch_path_abs)
+          cmd = 'git checkout -- %s' % (patch_path_abs)
           result = exec_cmd(cmd, patch_root_abs)
           if result['err'] != '':
             msg('Failed to revert file: %s' % result['err'])
@@ -134,7 +126,7 @@ for patch in patches:
 
     if not options.revert:
       msg('Saving changes to %s' % patch_file)
-      if src_is_git and added_paths:
+      if added_paths:
         # Inform git of the added paths so they appear in the patch file.
         cmd = 'git add -N %s' % ' '.join(added_paths)
         result = exec_cmd(cmd, patch_root_abs)
@@ -143,10 +135,7 @@ for patch in patches:
 
       # Re-create the patch file.
       patch_paths_str = ' '.join(patch_paths)
-      if src_is_git:
-        cmd = 'git diff --no-prefix --relative %s' % patch_paths_str
-      else:
-        cmd = 'svn diff %s' % patch_paths_str
+      cmd = 'git diff --no-prefix --relative %s' % patch_paths_str
       result = exec_cmd(cmd, patch_root_abs)
       if result['err'] != '' and result['err'].find('warning:') != 0:
         raise Exception('Failed to create patch file: %s' % result['err'])

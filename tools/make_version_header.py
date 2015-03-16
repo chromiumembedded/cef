@@ -6,7 +6,6 @@ from date_util import *
 from file_util import *
 from optparse import OptionParser
 from cef_api_hash import cef_api_hash
-import svn_util as svn
 import git_util as git
 import sys
 
@@ -40,7 +39,7 @@ if options.header is None or options.cef_version is None or options.chrome_versi
     parser.print_help(sys.stdout)
     sys.exit()
 
-def write_svn_header(header, chrome_version, cef_version, cpp_header_dir):
+def write_version_header(header, chrome_version, cef_version, cpp_header_dir):
     """ Creates the header file for the current revision and Chrome version information
        if the information has changed or if the file doesn't already exist. """
 
@@ -60,12 +59,12 @@ def write_svn_header(header, chrome_version, cef_version, cpp_header_dir):
 
     year = get_year()
 
-    if svn.is_checkout('.'):
-      revision = svn.get_revision()
-    elif git.is_checkout('.'):
-      revision = git.get_svn_revision()
-    else:
-      raise Exception('Not a valid checkout')
+    if not git.is_checkout('.'):
+       raise Exception('Not a valid checkout')
+
+    commit_number = git.get_commit_number()
+    commit_hash = git.get_hash()
+    version = '%s.%s.%s.g%s' % (args['CEF_MAJOR'], args['BUILD'], commit_number, commit_hash[:7])
 
     # calculate api hashes
     api_hash_calculator = cef_api_hash(cpp_header_dir, verbose = False)
@@ -106,8 +105,10 @@ def write_svn_header(header, chrome_version, cef_version, cpp_header_dir):
                   '//\n\n'+\
                   '#ifndef CEF_INCLUDE_CEF_VERSION_H_\n'+\
                   '#define CEF_INCLUDE_CEF_VERSION_H_\n\n'+\
+                  '#define CEF_VERSION "' + version + '"\n'+\
                   '#define CEF_VERSION_MAJOR ' + args['CEF_MAJOR'] + '\n'+\
-                  '#define CEF_REVISION ' + revision + '\n'+\
+                  '#define CEF_COMMIT_NUMBER ' + commit_number + '\n'+\
+                  '#define CEF_COMMIT_HASH "' + commit_hash + '"\n'+\
                   '#define COPYRIGHT_YEAR ' + year + '\n\n'+\
                   '#define CHROME_VERSION_MAJOR ' + args['MAJOR'] + '\n'+\
                   '#define CHROME_VERSION_MINOR ' + args['MINOR'] + '\n'+\
@@ -134,15 +135,10 @@ def write_svn_header(header, chrome_version, cef_version, cpp_header_dir):
                   '#elif defined(OS_LINUX)\n'+\
                   '#define CEF_API_HASH_PLATFORM "' + api_hashes['linux'] + '"\n'+\
                   '#endif\n\n'+\
-                  '///\n'+\
-                  '// Returns the CEF build revision for the libcef library.\n'+\
-                  '///\n'+\
-                  'CEF_EXPORT int cef_build_revision();\n\n'+\
-                  '///\n'+\
                   '// Returns CEF version information for the libcef library. The |entry|\n'+\
                   '// parameter describes which version component will be returned:\n'+\
                   '// 0 - CEF_VERSION_MAJOR\n'+\
-                  '// 1 - CEF_REVISION\n'+\
+                  '// 1 - CEF_COMMIT_NUMBER\n'+\
                   '// 2 - CHROME_VERSION_MAJOR\n'+\
                   '// 3 - CHROME_VERSION_MINOR\n'+\
                   '// 4 - CHROME_VERSION_BUILD\n'+\
@@ -155,6 +151,7 @@ def write_svn_header(header, chrome_version, cef_version, cpp_header_dir):
                   '// hash value will be returned:\n'+\
                   '// 0 - CEF_API_HASH_PLATFORM\n'+\
                   '// 1 - CEF_API_HASH_UNIVERSAL\n'+\
+                  '// 2 - CEF_COMMIT_HASH\n'+\
                   '///\n'+\
                   'CEF_EXPORT const char* cef_api_hash(int entry);\n\n'+\
                   '#ifdef __cplusplus\n'+\
@@ -168,7 +165,7 @@ def write_svn_header(header, chrome_version, cef_version, cpp_header_dir):
 
     return False
 
-written = write_svn_header(options.header, options.chrome_version, options.cef_version, options.cpp_header_dir)
+written = write_version_header(options.header, options.chrome_version, options.cef_version, options.cpp_header_dir)
 if not options.quiet:
   if written:
     sys.stdout.write('File '+options.header+' updated.\n')
