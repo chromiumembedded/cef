@@ -256,11 +256,7 @@ class Delegate : public InternalHandlerDelegate {
 
     TemplateParser parser;
     parser.Add("YEAR", MAKE_STRING(COPYRIGHT_YEAR));
-    parser.Add("CEF",
-        base::StringPrintf("%d.%d.%d",
-            CEF_VERSION_MAJOR,
-            CHROME_VERSION_BUILD,
-            CEF_REVISION));
+    parser.Add("CEF", CEF_VERSION);
     parser.Add("CHROMIUM",
         base::StringPrintf("%d.%d.%d.%d",
             CHROME_VERSION_MAJOR,

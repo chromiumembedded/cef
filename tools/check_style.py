@@ -6,7 +6,6 @@
 import os, re, string, sys
 from file_util import *
 import git_util as git
-import svn_util as svn
 
 # script directory
 script_dir = os.path.dirname(__file__)
@@ -41,9 +40,9 @@ except ImportError, e:
   import cpplint_chromium
 
 # The default implementation of FileInfo.RepositoryName looks for the top-most
-# directory that contains a .git or .svn folder. This is a problem for CEF
-# because the CEF root folder (which may have an arbitrary name) lives inside
-# the Chromium src folder. Reimplement in a dumb but sane way.
+# directory that contains a .git folder. This is a problem for CEF because the
+# CEF root folder (which may have an arbitrary name) lives inside the Chromium
+# src folder. Reimplement in a dumb but sane way.
 def patch_RepositoryName(self):
   fullname = self.FullName()
   project_dir = os.path.dirname(fullname)
@@ -87,13 +86,6 @@ def check_style(args, white_list = None, black_list = None):
   print "Total errors found: %d\n" % cpplint._cpplint_state.error_count
   return 1
 
-def get_changed_files():
-  """ Retrieve the list of changed files. """
-  try:
-    return svn.get_changed_files(cef_dir)
-  except:
-    return git.get_changed_files(cef_dir)
-
 if __name__ == "__main__":
   # Start with the default parameters.
   args = [
@@ -115,7 +107,7 @@ if __name__ == "__main__":
   for arg in args:
     if arg == '--changed':
       # Add any changed files.
-      changed = get_changed_files()
+      changed = git.get_changed_files(cef_dir)
     elif arg[:2] == '--' or not os.path.isdir(arg):
       # Pass argument unchanged.
       new_args.append(arg)
