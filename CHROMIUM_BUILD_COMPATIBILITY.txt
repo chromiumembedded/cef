@@ -4,7 +4,7 @@
 # revisions is available by viewing this file's change history.
 #
 # Instructions for building CEF are available at:
-# https://code.google.com/p/chromiumembedded/wiki/BranchesAndBuilding
+# https://bitbucket.org/chromiumembedded/cef/wiki/BranchesAndBuilding
 
 {
   'chromium_checkout': 'refs/tags/39.0.2171.95',

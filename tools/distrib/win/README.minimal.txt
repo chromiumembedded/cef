@@ -16,4 +16,4 @@ USAGE
 
 Please visit the CEF Website for additional usage information.
 
-http://code.google.com/p/chromiumembedded
+https://bitbucket.org/chromiumembedded/cef/
