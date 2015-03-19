@@ -47,7 +47,7 @@ The base CEF framework includes support for the C and C++ programming languages.
 * Delphi (CEF1) - http://code.google.com/p/delphichromiumembedded/
 * Delphi (CEF3) - http://code.google.com/p/dcef3/
 * Go - https://github.com/CzarekTomczak/cef2go
-* Java - http://code.google.com/p/javachromiumembedded/
+* Java - https://bitbucket.org/chromiumembedded/java-cef
 * Java - http://code.google.com/p/javacef/
 * Python - http://code.google.com/p/cefpython/
 
