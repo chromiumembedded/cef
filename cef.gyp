@@ -646,6 +646,7 @@
       'type': 'none',
       'dependencies': [
         '<(DEPTH)/ui/strings/ui_strings.gyp:ui_strings',
+        '<(DEPTH)/components/components_strings.gyp:components_strings',
         '<(DEPTH)/content/app/strings/content_strings.gyp:content_strings',
         'cef_strings',
       ],
