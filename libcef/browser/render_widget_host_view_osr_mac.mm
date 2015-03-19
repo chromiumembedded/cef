@@ -294,12 +294,17 @@ void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
   [content_view setWantsLayer:YES];
 
   browser_compositor_ = content::BrowserCompositorMac::Create();
+
   compositor_.reset(browser_compositor_->compositor());
   compositor_->SetRootLayer(root_layer_.get());
   browser_compositor_->accelerated_widget_mac()->SetNSView(this);
   browser_compositor_->compositor()->SetVisible(true);
 
-  DCHECK(compositor_);
+  // CEF needs the browser compositor to remain responsive whereas normal
+  // rendering on OS X does not. This effectively reverts the changes from
+  // https://crbug.com/463988#c6
+  compositor_->SetLocksWillTimeOut(true);
+  browser_compositor_->Unsuspend();
 }
 
 void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {

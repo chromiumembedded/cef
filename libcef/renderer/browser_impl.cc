@@ -24,6 +24,7 @@
 #include "content/public/renderer/document_state.h"
 #include "content/public/renderer/navigation_state.h"
 #include "content/public/renderer/render_view.h"
+#include "content/renderer/navigation_state_impl.h"
 #include "content/renderer/render_view_impl.h"
 #include "net/http/http_util.h"
 #include "third_party/WebKit/public/platform/WebString.h"
@@ -582,8 +583,10 @@ void CefBrowserImpl::DidCreateDataSource(blink::WebLocalFrame* frame,
     content::DocumentState* document_state =
         content::DocumentState::FromDataSource(ds);
     document_state->set_navigation_state(
-        content::NavigationState::CreateBrowserInitiated(-1, -1, false,
-            ui::PAGE_TRANSITION_LINK));
+        content::NavigationStateImpl::CreateBrowserInitiated(
+            content::CommonNavigationParams(),
+            content::StartNavigationParams(),
+            content::HistoryNavigationParams()));
   }
 
   if (frame->parent() == 0) {

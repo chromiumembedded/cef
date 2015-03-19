@@ -17,6 +17,7 @@ class CefContentUtilityClient : public content::ContentUtilityClient {
   ~CefContentUtilityClient() override;
 
   bool OnMessageReceived(const IPC::Message& message) override;
+  void RegisterMojoServices(content::ServiceRegistry* registry) override;
 
  private:
   // IPC message handlers.

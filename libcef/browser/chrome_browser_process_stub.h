@@ -40,6 +40,7 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   PrefService* local_state() override;
   net::URLRequestContextGetter* system_request_context() override;
   chrome_variations::VariationsService* variations_service() override;
+  PromoResourceService* promo_resource_service() override;
   BrowserProcessPlatformPart* platform_part() override;
   extensions::EventRouterForwarder*
       extension_event_router_forwarder() override;
@@ -80,7 +81,6 @@ class ChromeBrowserProcessStub : public BrowserProcess {
 #endif
 
   ChromeNetLog* net_log() override;
-  prerender::PrerenderTracker* prerender_tracker() override;
   component_updater::ComponentUpdateService*
       component_updater() override;
   CRLSetFetcher* crl_set_fetcher() override;

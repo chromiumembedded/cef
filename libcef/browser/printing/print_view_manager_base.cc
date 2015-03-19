@@ -187,8 +187,7 @@ void PrintViewManagerBase::OnPrintingFailed(int cookie) {
 void PrintViewManagerBase::OnShowInvalidPrinterSettingsError() {
 }
 
-void PrintViewManagerBase::DidStartLoading(
-    content::RenderViewHost* render_view_host) {
+void PrintViewManagerBase::DidStartLoading() {
   UpdateScriptedPrintingBlocked();
 }
 

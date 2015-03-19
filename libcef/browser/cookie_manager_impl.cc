@@ -19,7 +19,6 @@
 #include "base/logging.h"
 #include "base/threading/thread_restrictions.h"
 #include "content/browser/net/sqlite_persistent_cookie_store.h"
-#include "content/public/browser/cookie_crypto_delegate.h"
 #include "net/cookies/cookie_util.h"
 #include "net/cookies/parsed_cookie.h"
 #include "net/url_request/url_request_context.h"

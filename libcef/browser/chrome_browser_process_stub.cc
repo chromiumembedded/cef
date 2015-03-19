@@ -72,6 +72,11 @@ chrome_variations::VariationsService*
   return NULL;
 }
 
+PromoResourceService* ChromeBrowserProcessStub::promo_resource_service() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
 BrowserProcessPlatformPart* ChromeBrowserProcessStub::platform_part() {
   NOTIMPLEMENTED();
   return NULL;
@@ -213,11 +218,6 @@ void ChromeBrowserProcessStub::StartAutoupdateTimer() {
 #endif
 
 ChromeNetLog* ChromeBrowserProcessStub::net_log() {
-  NOTIMPLEMENTED();
-  return NULL;
-}
-
-prerender::PrerenderTracker* ChromeBrowserProcessStub::prerender_tracker() {
   NOTIMPLEMENTED();
   return NULL;
 }

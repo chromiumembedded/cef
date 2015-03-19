@@ -25,7 +25,7 @@ index aece7c6..63da2c9 100644
  WebContents::CreateParams::~CreateParams() {
  }
 diff --git web_contents.h web_contents.h
-index 493abd8..eface7b 100644
+index 4380412..a67739d 100644
 --- web_contents.h
 +++ web_contents.h
 @@ -52,9 +52,11 @@ class PageState;

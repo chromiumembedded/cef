@@ -184,8 +184,7 @@ class CefAllowCertificateErrorCallbackImpl
 
 class CefGeolocationCallbackImpl : public CefGeolocationCallback {
  public:
-  typedef base::Callback<void(bool)>  // NOLINT(readability/function)
-      CallbackType;
+  typedef base::Callback<void(content::PermissionStatus)> CallbackType;
 
   explicit CefGeolocationCallbackImpl(const CallbackType& callback)
       : callback_(callback) {}
@@ -198,7 +197,8 @@ class CefGeolocationCallbackImpl : public CefGeolocationCallback {
               UserDidOptIntoLocationServices();
         }
 
-        callback_.Run(allow);
+        callback_.Run(allow ? content::PERMISSION_STATUS_GRANTED :
+                              content::PERMISSION_STATUS_DENIED);
         callback_.Reset();
       }
     } else {
@@ -212,9 +212,10 @@ class CefGeolocationCallbackImpl : public CefGeolocationCallback {
   }
 
  private:
-  static void Run(const CallbackType& callback, bool allow) {
+  static void Run(const CallbackType& callback,
+                  content::PermissionStatus status) {
     CEF_REQUIRE_UIT();
-    callback.Run(allow);
+    callback.Run(status);
   }
 
   CallbackType callback_;
@@ -767,11 +768,11 @@ void CefContentBrowserClient::RequestPermission(
     int bridge_id,
     const GURL& requesting_frame,
     bool user_gesture,
-    const base::Callback<void(bool)>& result_callback) {
+    const base::Callback<void(content::PermissionStatus)>& result_callback) {
   CEF_REQUIRE_UIT();
 
   if (permission != content::PermissionType::PERMISSION_GEOLOCATION) {
-    result_callback.Run(false);
+    result_callback.Run(content::PERMISSION_STATUS_DENIED);
     return;
   }
 
@@ -800,7 +801,7 @@ void CefContentBrowserClient::RequestPermission(
 
   if (!proceed) {
     // Disallow geolocation access by default.
-    result_callback.Run(false);
+    result_callback.Run(content::PERMISSION_STATUS_DENIED);
   }
 }
 

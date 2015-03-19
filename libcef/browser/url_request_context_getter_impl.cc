@@ -27,7 +27,6 @@
 #include "chrome/browser/net/proxy_service_factory.h"
 #include "content/browser/net/sqlite_persistent_cookie_store.h"
 #include "content/public/browser/browser_thread.h"
-#include "content/public/browser/cookie_crypto_delegate.h"
 #include "content/public/common/content_client.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"

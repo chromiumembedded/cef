@@ -1,5 +1,5 @@
 diff --git public/common/common_param_traits_macros.h public/common/common_param_traits_macros.h
-index df89031..82d9293 100644
+index 53f1128..46bbcf8 100644
 --- public/common/common_param_traits_macros.h
 +++ public/common/common_param_traits_macros.h
 @@ -194,6 +194,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
@@ -11,11 +11,11 @@ index df89031..82d9293 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git public/common/web_preferences.cc public/common/web_preferences.cc
-index 97b464e..98e7b4e 100644
+index b61e1dc..5b55207 100644
 --- public/common/web_preferences.cc
 +++ public/common/web_preferences.cc
-@@ -185,6 +185,7 @@ WebPreferences::WebPreferences()
-       rubber_banding_on_compositor_thread(false),
+@@ -189,6 +189,7 @@ WebPreferences::WebPreferences()
+       pinch_overlay_scrollbar_thickness(0),
        use_solid_color_scrollbars(false),
        navigate_on_drag_drop(true),
 +      base_background_color(0xFFFFFFFF),  // Color::white
@@ -23,11 +23,11 @@ index 97b464e..98e7b4e 100644
        slimming_paint_enabled(false),
        cookie_enabled(true),
 diff --git public/common/web_preferences.h public/common/web_preferences.h
-index 250b546..b679e26 100644
+index 8d25487..23b25ae 100644
 --- public/common/web_preferences.h
 +++ public/common/web_preferences.h
 @@ -181,6 +181,7 @@ struct CONTENT_EXPORT WebPreferences {
-   bool rubber_banding_on_compositor_thread;
+   int pinch_overlay_scrollbar_thickness;
    bool use_solid_color_scrollbars;
    bool navigate_on_drag_drop;
 +  uint32_t base_background_color;
@@ -35,10 +35,10 @@ index 250b546..b679e26 100644
    bool slimming_paint_enabled;
  
 diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
-index 6519f37..27b6699 100644
+index 3f0f76f..bf84bdb 100644
 --- renderer/render_view_impl.cc
 +++ renderer/render_view_impl.cc
-@@ -954,6 +954,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+@@ -940,6 +940,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
  
    settings->setJavaEnabled(prefs.java_enabled);
  

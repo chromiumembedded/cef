@@ -62,7 +62,7 @@ void WriteTempFileAndView(scoped_refptr<base::RefCountedString> str) {
   int write_ct = base::WriteFile(tmp_file, data.c_str(), data.size());
   DCHECK_EQ(static_cast<int>(data.size()), write_ct);
 
-  ui::win::OpenItemViaShell(tmp_file);
+  ui::win::OpenFileViaShell(tmp_file);
 }
 
 // From ui/base/dialogs/select_file_dialog_win.cc.

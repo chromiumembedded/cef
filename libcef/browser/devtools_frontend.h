@@ -56,7 +56,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
 
  private:
   CefDevToolsFrontend(CefRefPtr<CefBrowserHostImpl> frontend_browser,
-                      content::DevToolsAgentHost* agent_host);
+                      content::WebContents* inspected_contents);
   ~CefDevToolsFrontend() override;
 
   // content::DevToolsAgentHostClient implementation.
@@ -64,13 +64,10 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
                        bool replaced) override;
   void DispatchProtocolMessage(content::DevToolsAgentHost* agent_host,
                                const std::string& message) override;
-  void AttachTo(content::WebContents* inspected_contents);
 
   // WebContentsObserver overrides
   void RenderViewCreated(content::RenderViewHost* render_view_host) override;
-  void DidNavigateMainFrame(
-      const content::LoadCommittedDetails& details,
-      const content::FrameNavigateParams& params) override;
+  void DocumentAvailableInMainFrame() override;
   void WebContentsDestroyed() override;
 
   // content::DevToolsFrontendHost::Delegate implementation.
@@ -85,6 +82,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
                       const base::Value* arg1);
 
   CefRefPtr<CefBrowserHostImpl> frontend_browser_;
+  content::WebContents* inspected_contents_;
   scoped_refptr<content::DevToolsAgentHost> agent_host_;
   scoped_ptr<content::DevToolsFrontendHost> frontend_host_;
   using PendingRequestsMap = std::map<const net::URLFetcher*, int>;

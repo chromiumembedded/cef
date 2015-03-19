@@ -70,8 +70,7 @@ class PrintViewManagerBase : public content::NotificationObserver,
                const content::NotificationDetails& details) override;
 
   // content::WebContentsObserver implementation.
-  void DidStartLoading(
-      content::RenderViewHost* render_view_host) override;
+  void DidStartLoading() override;
 
   // Cancels the print job.
   void NavigationStopped() override;

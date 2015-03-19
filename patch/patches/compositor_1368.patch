@@ -1,8 +1,8 @@
 diff --git content/browser/compositor/gpu_process_transport_factory.cc content/browser/compositor/gpu_process_transport_factory.cc
-index 3658c25..74acc61 100644
+index dfb1041..4a4b14d 100644
 --- content/browser/compositor/gpu_process_transport_factory.cc
 +++ content/browser/compositor/gpu_process_transport_factory.cc
-@@ -98,6 +98,13 @@ GpuProcessTransportFactory::CreateOffscreenCommandBufferContext() {
+@@ -100,6 +100,13 @@ GpuProcessTransportFactory::CreateOffscreenCommandBufferContext() {
  
  scoped_ptr<cc::SoftwareOutputDevice> CreateSoftwareOutputDevice(
      ui::Compositor* compositor) {
@@ -17,7 +17,7 @@ index 3658c25..74acc61 100644
    return scoped_ptr<cc::SoftwareOutputDevice>(new SoftwareOutputDeviceWin(
        compositor));
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 47d4cd0..793bbe3 100644
+index 3a3e4cc..9fed916 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -13,6 +13,7 @@
@@ -28,7 +28,7 @@ index 47d4cd0..793bbe3 100644
  #include "cc/surfaces/surface_sequence.h"
  #include "cc/trees/layer_tree_host_client.h"
  #include "cc/trees/layer_tree_host_single_thread_client.h"
-@@ -131,6 +132,17 @@ class COMPOSITOR_EXPORT CompositorLock
+@@ -132,6 +133,17 @@ class COMPOSITOR_EXPORT CompositorLock
    DISALLOW_COPY_AND_ASSIGN(CompositorLock);
  };
  
@@ -46,7 +46,7 @@ index 47d4cd0..793bbe3 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -152,6 +164,9 @@ class COMPOSITOR_EXPORT Compositor
+@@ -153,6 +165,9 @@ class COMPOSITOR_EXPORT Compositor
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -56,7 +56,7 @@ index 47d4cd0..793bbe3 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -297,6 +312,8 @@ class COMPOSITOR_EXPORT Compositor
+@@ -305,6 +320,8 @@ class COMPOSITOR_EXPORT Compositor
  
    ui::ContextFactory* context_factory_;
  

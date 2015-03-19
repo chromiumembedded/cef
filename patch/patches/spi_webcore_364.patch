@@ -1,18 +1,3 @@
-diff --git core/frame/FrameView.cpp core/frame/FrameView.cpp
-index 06ced1c..a638814 100644
---- core/frame/FrameView.cpp
-+++ core/frame/FrameView.cpp
-@@ -146,8 +146,10 @@ FrameView::FrameView(LocalFrame* frame)
-     if (!m_frame->isMainFrame())
-         return;
- 
-+#if 0
-     ScrollableArea::setVerticalScrollElasticity(ScrollElasticityAllowed);
-     ScrollableArea::setHorizontalScrollElasticity(ScrollElasticityAllowed);
-+#endif
- }
- 
- PassRefPtrWillBeRawPtr<FrameView> FrameView::create(LocalFrame* frame)
 diff --git platform/scroll/ScrollbarThemeMacCommon.mm platform/scroll/ScrollbarThemeMacCommon.mm
 index 90abb7c..6bb16c6 100644
 --- platform/scroll/ScrollbarThemeMacCommon.mm

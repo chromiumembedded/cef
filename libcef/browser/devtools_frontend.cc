@@ -112,17 +112,19 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
                                  inspected_browser->GetWindowHandle(), true,
                                  inspected_browser->GetRequestContext());
 
-  scoped_refptr<content::DevToolsAgentHost> agent_host =
-      content::DevToolsAgentHost::GetOrCreateFor(
-          inspected_browser->GetWebContents());
-  if (!inspect_element_at.IsEmpty())
+  content::WebContents* inspected_contents =
+      inspected_browser->GetWebContents();
+  if (!inspect_element_at.IsEmpty()) {
+    scoped_refptr<content::DevToolsAgentHost> agent_host =
+        content::DevToolsAgentHost::GetOrCreateFor(inspected_contents);
     agent_host->InspectElement(inspect_element_at.x, inspect_element_at.y);
+  }
 
   // CefDevToolsFrontend will delete itself when the frontend WebContents is
   // destroyed.
   CefDevToolsFrontend* devtools_frontend = new CefDevToolsFrontend(
       static_cast<CefBrowserHostImpl*>(frontend_browser.get()),
-      agent_host.get());
+      inspected_contents);
 
   // Need to load the URL after creating the DevTools objects.
   CefDevToolsDelegate* delegate =
@@ -163,10 +165,10 @@ void CefDevToolsFrontend::DisconnectFromTarget() {
 
 CefDevToolsFrontend::CefDevToolsFrontend(
     CefRefPtr<CefBrowserHostImpl> frontend_browser,
-    content::DevToolsAgentHost* agent_host)
+    content::WebContents* inspected_contents)
     : WebContentsObserver(frontend_browser->GetWebContents()),
       frontend_browser_(frontend_browser),
-      agent_host_(agent_host),
+      inspected_contents_(inspected_contents),
       weak_factory_(this) {
 }
 
@@ -184,11 +186,10 @@ void CefDevToolsFrontend::RenderViewCreated(
   }
 }
 
-void CefDevToolsFrontend::DidNavigateMainFrame(
-    const content::LoadCommittedDetails& details,
-    const content::FrameNavigateParams& params) {
-  if (agent_host_)
-    agent_host_->AttachClient(this);
+void CefDevToolsFrontend::DocumentAvailableInMainFrame() {
+  agent_host_ =
+      content::DevToolsAgentHost::GetOrCreateFor(inspected_contents_);
+  agent_host_->AttachClient(this);
 }
 
 void CefDevToolsFrontend::WebContentsDestroyed() {
@@ -338,11 +339,6 @@ void CefDevToolsFrontend::SendMessageAck(int request_id,
   base::FundamentalValue id_value(request_id);
   CallClientFunction("DevToolsAPI.embedderMessageAck",
                      &id_value, arg, nullptr);
-}
-
-void CefDevToolsFrontend::AttachTo(content::WebContents* inspected_contents) {
-  DisconnectFromTarget();
-  agent_host_ = content::DevToolsAgentHost::GetOrCreateFor(inspected_contents);
 }
 
 void CefDevToolsFrontend::AgentHostClosed(
