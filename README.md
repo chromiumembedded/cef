@@ -2,6 +2,7 @@ The Chromium Embedded Framework (CEF) is a simple framework for embedding Chromi
 
 # Quick Links
 
+* Project Page - https://bitbucket.org/chromiumembedded/cef
 * Tutorial - https://bitbucket.org/chromiumembedded/cef/wiki/Tutorial
 * General Usage - https://bitbucket.org/chromiumembedded/cef/wiki/GeneralUsage
 * Branches and Building - https://bitbucket.org/chromiumembedded/cef/wiki/BranchesAndBuilding
@@ -43,7 +44,7 @@ The base CEF framework includes support for the C and C++ programming languages.
 * .Net - https://github.com/chillitom/CefSharp
 * .Net (CEF1) - https://bitbucket.org/fddima/cefglue
 * .Net/Mono (CEF3) - https://bitbucket.org/xilium/xilium.cefglue
-* .Net (CEF3) - https://bitbucket.org/wborgsm/chromiumfx
+* .Net (CEF3) - https://bitbucket.org/chromiumfx/chromiumfx
 * Delphi (CEF1) - http://code.google.com/p/delphichromiumembedded/
 * Delphi (CEF3) - http://code.google.com/p/dcef3/
 * Go - https://github.com/CzarekTomczak/cef2go
