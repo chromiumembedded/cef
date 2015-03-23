@@ -12,7 +12,7 @@ index 91cf3f9..6bd6fd0 100644
  
      return adoptRefWillBeNoop(new PopupMenuChromium(frame, client));
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index c073bea..1f1cfe2 100644
+index 51d04a4..150537d 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
 @@ -380,6 +380,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client)
@@ -23,7 +23,7 @@ index c073bea..1f1cfe2 100644
      , m_doingDragAndDrop(false)
      , m_ignoreInputEvents(false)
      , m_compositorDeviceScaleFactorOverride(0)
-@@ -3975,9 +3976,14 @@ void WebViewImpl::deviceOrPageScaleFactorChanged()
+@@ -3970,9 +3971,14 @@ void WebViewImpl::deviceOrPageScaleFactorChanged()
      m_page->inspectorController().deviceOrPageScaleFactorChanged();
  }
  
