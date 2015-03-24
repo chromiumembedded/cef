@@ -95,6 +95,7 @@
 #include "libcef_dll/ctocpp/life_span_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/load_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/navigation_entry_visitor_ctocpp.h"
+#include "libcef_dll/ctocpp/pdf_print_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/print_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/read_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
@@ -232,6 +233,7 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefNavigationEntryCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefNavigationEntryVisitorCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefPdfPrintCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefPrintDialogCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefPrintHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefPrintJobCallbackCppToC::DebugObjCt));

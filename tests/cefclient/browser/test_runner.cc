@@ -227,7 +227,8 @@ void EndTracing(CefRefPtr<CefBrowser> browser) {
 
       // Results in a call to OnFileDialogDismissed.
       browser_->GetHost()->RunFileDialog(
-          FILE_DIALOG_SAVE,
+          static_cast<cef_file_dialog_mode_t>(
+              FILE_DIALOG_SAVE | FILE_DIALOG_OVERWRITEPROMPT_FLAG),
           CefString(),  // title
           path,
           std::vector<CefString>(),  // accept_filters
@@ -235,7 +236,7 @@ void EndTracing(CefRefPtr<CefBrowser> browser) {
           this);
     }
 
-    virtual void OnFileDialogDismissed(
+    void OnFileDialogDismissed(
         int selected_accept_filter,
         const std::vector<CefString>& file_paths) OVERRIDE {
       if (!file_paths.empty()) {
@@ -247,10 +248,75 @@ void EndTracing(CefRefPtr<CefBrowser> browser) {
       }
     }
 
-    virtual void OnEndTracingComplete(
+    void OnEndTracingComplete(
         const CefString& tracing_file) OVERRIDE {
       Alert(browser_,
             "File \"" + tracing_file.ToString() + "\" saved successfully.");
+    }
+
+   private:
+    CefRefPtr<CefBrowser> browser_;
+
+    IMPLEMENT_REFCOUNTING(Client);
+  };
+
+  new Client(browser);
+}
+
+void PrintToPDF(CefRefPtr<CefBrowser> browser) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    // Execute on the UI thread.
+    CefPostTask(TID_UI, base::Bind(&PrintToPDF, browser));
+    return;
+  }
+
+  class Client : public CefPdfPrintCallback,
+                 public CefRunFileDialogCallback {
+   public:
+    explicit Client(CefRefPtr<CefBrowser> browser)
+        : browser_(browser) {
+      RunDialog();
+    }
+
+    void RunDialog() {
+      static const char kDefaultFileName[] = "output.pdf";
+      std::string path = MainContext::Get()->GetDownloadPath(kDefaultFileName);
+      if (path.empty())
+        path = kDefaultFileName;
+
+      std::vector<CefString> accept_filters;
+      accept_filters.push_back(".pdf");
+
+      // Results in a call to OnFileDialogDismissed.
+      browser_->GetHost()->RunFileDialog(
+          static_cast<cef_file_dialog_mode_t>(
+              FILE_DIALOG_SAVE | FILE_DIALOG_OVERWRITEPROMPT_FLAG),
+          CefString(),  // title
+          path,
+          accept_filters,
+          0,  // selected_accept_filter
+          this);
+    }
+
+    void OnFileDialogDismissed(
+        int selected_accept_filter,
+        const std::vector<CefString>& file_paths) OVERRIDE {
+      if (!file_paths.empty()) {
+        CefPdfPrintSettings settings;
+
+        // Show the URL in the footer.
+        settings.header_footer_enabled = true;
+        CefString(&settings.header_footer_url) =
+            browser_->GetMainFrame()->GetURL();
+
+        // Print to the selected PDF file.
+        browser_->GetHost()->PrintToPDF(file_paths[0], settings, this);
+      }
+    }
+
+    void OnPdfPrintFinished(const CefString& path, bool ok) OVERRIDE {
+      Alert(browser_, "File \"" + path.ToString() +"\" " +
+          (ok ? "saved successfully." : "failed to save."));
     }
 
    private:
@@ -388,6 +454,9 @@ void RunTest(CefRefPtr<CefBrowser> browser, int id) {
       break;
     case ID_TESTS_PRINT:
       browser->GetHost()->Print();
+      break;
+    case ID_TESTS_PRINT_TO_PDF:
+      PrintToPDF(browser);
       break;
     case ID_TESTS_OTHER_TESTS:
       RunOtherTests(browser);

@@ -115,6 +115,15 @@ class CefPrintHandler : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual void OnPrintReset() =0;
+
+  ///
+  // Return the PDF paper size in device units. Used in combination with
+  // CefBrowserHost::PrintToPDF().
+  ///
+  /*--cef()--*/
+  virtual CefSize GetPdfPaperSize(int device_units_per_inch) {
+    return CefSize();
+  }
 };
 
 #endif  // CEF_INCLUDE_CEF_PRINT_HANDLER_H_

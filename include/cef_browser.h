@@ -235,6 +235,23 @@ class CefNavigationEntryVisitor : public virtual CefBase {
 
 
 ///
+// Callback interface for CefBrowserHost::PrintToPDF. The methods of this class
+// will be called on the browser process UI thread.
+///
+/*--cef(source=client)--*/
+class CefPdfPrintCallback : public virtual CefBase {
+ public:
+  ///
+  // Method that will be executed when the PDF printing has completed. |path|
+  // is the output path. |ok| will be true if the printing completed
+  // successfully or false otherwise.
+  ///
+  /*--cef()--*/
+  virtual void OnPdfPrintFinished(const CefString& path, bool ok) =0;
+};
+
+
+///
 // Class used to represent the browser process aspects of a browser window. The
 // methods of this class can only be called in the browser process. They may be
 // called on any thread in that process unless otherwise indicated in the
@@ -388,6 +405,17 @@ class CefBrowserHost : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual void Print() =0;
+
+  ///
+  // Print the current browser contents to the PDF file specified by |path| and
+  // execute |callback| on completion. The caller is responsible for deleting
+  // |path| when done. For PDF printing to work on Linux you must implement the
+  // CefPrintHandler::GetPdfPaperSize method.
+  ///
+  /*--cef(optional_param=callback)--*/
+  virtual void PrintToPDF(const CefString& path,
+                          const CefPdfPrintSettings& settings,
+                          CefRefPtr<CefPdfPrintCallback> callback) =0;
 
   ///
   // Search for |searchText|. |identifier| can be used to have multiple searches

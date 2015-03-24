@@ -12,6 +12,7 @@
 
 #include "libcef_dll/cpptoc/client_cpptoc.h"
 #include "libcef_dll/cpptoc/navigation_entry_visitor_cpptoc.h"
+#include "libcef_dll/cpptoc/pdf_print_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/run_file_dialog_callback_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
@@ -263,6 +264,28 @@ void CefBrowserHostCToCpp::Print() {
 
   // Execute
   _struct->print(_struct);
+}
+
+void CefBrowserHostCToCpp::PrintToPDF(const CefString& path,
+    const CefPdfPrintSettings& settings,
+    CefRefPtr<CefPdfPrintCallback> callback) {
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, print_to_pdf))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: path; type: string_byref_const
+  DCHECK(!path.empty());
+  if (path.empty())
+    return;
+  // Unverified params: callback
+
+  // Execute
+  _struct->print_to_pdf(_struct,
+      path.GetStruct(),
+      &settings,
+      CefPdfPrintCallbackCppToC::Wrap(callback));
 }
 
 void CefBrowserHostCToCpp::Find(int identifier, const CefString& searchText,

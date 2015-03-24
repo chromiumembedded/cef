@@ -440,6 +440,17 @@ void ClientPrintHandlerGtk::OnPrintReset() {
   }
 }
 
+CefSize ClientPrintHandlerGtk::GetPdfPaperSize(int device_units_per_inch) {
+  GtkPageSetup* page_setup = gtk_page_setup_new();
+
+  float width = gtk_page_setup_get_paper_width(page_setup, GTK_UNIT_INCH);
+  float height = gtk_page_setup_get_paper_height(page_setup, GTK_UNIT_INCH);
+
+  g_object_unref(page_setup);
+
+  return CefSize(width * device_units_per_inch, height * device_units_per_inch);
+}
+
 void ClientPrintHandlerGtk::OnDialogResponse(GtkDialog *dialog,
                                              gint response_id) {
   int num_matched_handlers = g_signal_handlers_disconnect_by_func(

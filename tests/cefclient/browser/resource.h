@@ -41,7 +41,8 @@
 #define ID_TESTS_FPS_INCREASE           32713
 #define ID_TESTS_FPS_DECREASE           32714
 #define ID_TESTS_FPS_RESET              32715
-#define ID_TESTS_LAST                   32715
+#define ID_TESTS_PRINT_TO_PDF           32716
+#define ID_TESTS_LAST                   32716
 #define IDC_STATIC                      -1
 #define IDS_BINDING                     1000
 #define IDS_DIALOGS                     1001

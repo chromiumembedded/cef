@@ -832,6 +832,27 @@ void CefBrowserHostImpl::Print() {
   }
 }
 
+void CefBrowserHostImpl::PrintToPDF(const CefString& path,
+                                    const CefPdfPrintSettings& settings,
+                                    CefRefPtr<CefPdfPrintCallback> callback) {
+  if (CEF_CURRENTLY_ON_UIT()) {
+    if (!web_contents_)
+      return;
+
+    printing::PrintViewManager::PdfPrintCallback pdf_callback;
+    if (callback.get()) {
+      pdf_callback = base::Bind(&CefPdfPrintCallback::OnPdfPrintFinished,
+                                callback.get(), path);
+    }
+    printing::PrintViewManager::FromWebContents(web_contents_.get())->
+        PrintToPDF(base::FilePath(path), settings, pdf_callback);
+  } else {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::PrintToPDF, this, path, settings,
+                   callback));
+  }
+}
+
 void CefBrowserHostImpl::Find(int identifier, const CefString& searchText,
                               bool forward, bool matchCase, bool findNext) {
   if (CEF_CURRENTLY_ON_UIT()) {

@@ -602,6 +602,7 @@ GtkWidget* RootWindowGtk::CreateMenuBar() {
   AddMenuEntry(test_menu, "Begin Tracing", ID_TESTS_TRACING_BEGIN);
   AddMenuEntry(test_menu, "End Tracing",   ID_TESTS_TRACING_END);
   AddMenuEntry(test_menu, "Print",         ID_TESTS_PRINT);
+  AddMenuEntry(test_menu, "Print to PDF",  ID_TESTS_PRINT_TO_PDF);
   AddMenuEntry(test_menu, "Other Tests",   ID_TESTS_OTHER_TESTS);
 
   return menu_bar;

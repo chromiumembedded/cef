@@ -162,6 +162,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
       CefRefPtr<CefRunFileDialogCallback> callback) override;
   void StartDownload(const CefString& url) override;
   void Print() override;
+  void PrintToPDF(const CefString& path,
+                  const CefPdfPrintSettings& settings,
+                  CefRefPtr<CefPdfPrintCallback> callback) override;
   void Find(int identifier, const CefString& searchText,
             bool forward, bool matchCase, bool findNext) override;
   void StopFinding(bool clearSelection) override;

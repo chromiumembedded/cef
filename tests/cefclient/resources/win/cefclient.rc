@@ -86,6 +86,7 @@ BEGIN
         MENUITEM "Begin Tracing",               ID_TESTS_TRACING_BEGIN
         MENUITEM "End Tracing",                 ID_TESTS_TRACING_END
         MENUITEM "Print",                       ID_TESTS_PRINT
+        MENUITEM "Print to PDF",                ID_TESTS_PRINT_TO_PDF
         MENUITEM "Other Tests",                 ID_TESTS_OTHER_TESTS
    END
 END

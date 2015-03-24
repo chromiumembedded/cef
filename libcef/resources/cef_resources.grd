@@ -14,7 +14,6 @@
       <include name="IDR_CEF_CREDITS_JS" file="..\..\..\chrome\browser\resources\about_credits.js" type="BINDATA" />
       <include name="IDR_CEF_LICENSE_TXT" file="..\..\LICENSE.txt" type="BINDATA" />
       <include name="IDR_CEF_VERSION_HTML" file="about_version.html" type="BINDATA" />
-      <include name="IDR_PRINT_PREVIEW_PAGE" file="print_preview_page_stub.html" type="BINDATA" />
     </includes>
   </release>
 </grit>

@@ -34,10 +34,6 @@ using content::BrowserThread;
 
 namespace printing {
 
-namespace {
-
-}  // namespace
-
 PrintViewManagerBase::PrintViewManagerBase(content::WebContents* web_contents)
     : content::WebContentsObserver(web_contents),
       number_pages_(0),

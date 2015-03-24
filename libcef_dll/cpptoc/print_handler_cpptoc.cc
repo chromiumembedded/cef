@@ -104,6 +104,22 @@ void CEF_CALLBACK print_handler_on_print_reset(
   CefPrintHandlerCppToC::Get(self)->OnPrintReset();
 }
 
+cef_size_t CEF_CALLBACK print_handler_get_pdf_paper_size(
+    struct _cef_print_handler_t* self, int device_units_per_inch) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return CefSize();
+
+  // Execute
+  cef_size_t _retval = CefPrintHandlerCppToC::Get(self)->GetPdfPaperSize(
+      device_units_per_inch);
+
+  // Return type: simple
+  return _retval;
+}
+
 }  // namespace
 
 
@@ -114,6 +130,7 @@ CefPrintHandlerCppToC::CefPrintHandlerCppToC() {
   GetStruct()->on_print_dialog = print_handler_on_print_dialog;
   GetStruct()->on_print_job = print_handler_on_print_job;
   GetStruct()->on_print_reset = print_handler_on_print_reset;
+  GetStruct()->get_pdf_paper_size = print_handler_get_pdf_paper_size;
 }
 
 template<> CefRefPtr<CefPrintHandler> CefCppToC<CefPrintHandlerCppToC,

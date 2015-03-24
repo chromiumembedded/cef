@@ -101,6 +101,21 @@ void CefPrintHandlerCToCpp::OnPrintReset() {
   _struct->on_print_reset(_struct);
 }
 
+CefSize CefPrintHandlerCToCpp::GetPdfPaperSize(int device_units_per_inch) {
+  cef_print_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_pdf_paper_size))
+    return CefSize();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_size_t _retval = _struct->get_pdf_paper_size(_struct,
+      device_units_per_inch);
+
+  // Return type: simple
+  return _retval;
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 

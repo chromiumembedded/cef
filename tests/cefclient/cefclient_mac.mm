@@ -143,6 +143,7 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
   AddMenuItem(testMenu, @"Begin Tracing", ID_TESTS_TRACING_BEGIN);
   AddMenuItem(testMenu, @"End Tracing",   ID_TESTS_TRACING_END);
   AddMenuItem(testMenu, @"Print",         ID_TESTS_PRINT);
+  AddMenuItem(testMenu, @"Print to PDF",  ID_TESTS_PRINT_TO_PDF);
   AddMenuItem(testMenu, @"Other Tests",   ID_TESTS_OTHER_TESTS);
   [testItem setSubmenu:testMenu];
   [menubar addItem:testItem];

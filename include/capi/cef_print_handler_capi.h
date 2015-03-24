@@ -124,6 +124,13 @@ typedef struct _cef_print_handler_t {
   // Reset client state related to printing.
   ///
   void (CEF_CALLBACK *on_print_reset)(struct _cef_print_handler_t* self);
+
+  ///
+  // Return the PDF paper size in device units. Used in combination with
+  // cef_browser_host_t::print_to_pdf().
+  ///
+  cef_size_t (CEF_CALLBACK *get_pdf_paper_size)(
+      struct _cef_print_handler_t* self, int device_units_per_inch);
 } cef_print_handler_t;
 
 

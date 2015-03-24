@@ -39,6 +39,7 @@ class CefPrintHandlerCToCpp
       const CefString& pdf_file_path,
       CefRefPtr<CefPrintJobCallback> callback) override;
   void OnPrintReset() override;
+  CefSize GetPdfPaperSize(int device_units_per_inch) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

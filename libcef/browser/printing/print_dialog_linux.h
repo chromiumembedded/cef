@@ -33,6 +33,10 @@ class CefPrintDialogLinux
   static printing::PrintDialogGtkInterface* CreatePrintDialog(
       PrintingContextLinux* context);
 
+  // Returns the paper size in device units.
+  static gfx::Size GetPdfPaperSize(
+    printing::PrintingContextLinux* context);
+
   // printing::CefPrintDialogLinuxInterface implementation.
   void UseDefaultSettings() override;
   bool UpdateSettings(printing::PrintSettings* settings) override;

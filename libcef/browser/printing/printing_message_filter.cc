@@ -126,6 +126,7 @@ bool PrintingMessageFilter::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER_DELAY_REPLY(PrintHostMsg_ScriptedPrint, OnScriptedPrint)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(PrintHostMsg_UpdatePrintSettings,
                                     OnUpdatePrintSettings)
+    IPC_MESSAGE_HANDLER(PrintHostMsg_CheckForCancel, OnCheckForCancel)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -418,6 +419,12 @@ void PrintingMessageFilter::OnUpdatePrintSettingsReply(
       printer_query->StopWorker();
     }
   }
+}
+
+void PrintingMessageFilter::OnCheckForCancel(int32 preview_ui_id,
+                                             int preview_request_id,
+                                             bool* cancel) {
+    *cancel = false;
 }
 
 }  // namespace printing

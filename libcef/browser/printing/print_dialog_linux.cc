@@ -106,6 +106,35 @@ printing::PrintDialogGtkInterface* CefPrintDialogLinux::CreatePrintDialog(
   return new CefPrintDialogLinux(context);
 }
 
+// static
+gfx::Size CefPrintDialogLinux::GetPdfPaperSize(
+    printing::PrintingContextLinux* context) {
+  CEF_REQUIRE_UIT();
+
+  gfx::Size size;
+
+  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
+  if (app.get()) {
+    CefRefPtr<CefBrowserProcessHandler> browser_handler =
+        app->GetBrowserProcessHandler();
+    if (browser_handler.get()) {
+      CefRefPtr<CefPrintHandler> handler = browser_handler->GetPrintHandler();
+      if (handler.get()) {
+        const printing::PrintSettings& settings = context->settings();
+        CefSize cef_size = handler->GetPdfPaperSize(
+            settings.device_units_per_inch());
+        size.SetSize(cef_size.width, cef_size.height);
+      }
+    }
+  }
+
+  if (size.IsEmpty()) {
+    LOG(ERROR) << "Empty size value returned in GetPdfPaperSize; "
+                  "PDF printing will fail.";
+  }
+  return size;
+}
+
 CefPrintDialogLinux::CefPrintDialogLinux(PrintingContextLinux* context)
     : context_(context) {
 }
@@ -192,10 +221,10 @@ void CefPrintDialogLinux::ReleaseDialog() {
 }
 
 void CefPrintDialogLinux::SetHandler() {
- if (handler_.get())
-   return;
+  if (handler_.get())
+    return;
 
- CefRefPtr<CefApp> app = CefContentClient::Get()->application();
+  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
   if (app.get()) {
     CefRefPtr<CefBrowserProcessHandler> browser_handler =
         app->GetBrowserProcessHandler();

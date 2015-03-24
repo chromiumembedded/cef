@@ -93,6 +93,8 @@ void CefBrowserMainParts::PostMainMessageLoopStart() {
 #if defined(OS_LINUX)
   printing::PrintingContextLinux::SetCreatePrintDialogFunction(
       &CefPrintDialogLinux::CreatePrintDialog);
+  printing::PrintingContextLinux::SetPdfPaperSizeFunction(
+      &CefPrintDialogLinux::GetPdfPaperSize);
 #endif
 }
 

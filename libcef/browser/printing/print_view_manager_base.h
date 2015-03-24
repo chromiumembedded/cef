@@ -54,6 +54,9 @@ class PrintViewManagerBase : public content::NotificationObserver,
   // Helper method for Print*Now().
   bool PrintNowInternal(IPC::Message* message);
 
+  // Cancels the print job.
+  void NavigationStopped() override;
+
   // Terminates or cancels the print job if one was pending.
   void RenderProcessGone(base::TerminationStatus status) override;
 
@@ -71,9 +74,6 @@ class PrintViewManagerBase : public content::NotificationObserver,
 
   // content::WebContentsObserver implementation.
   void DidStartLoading() override;
-
-  // Cancels the print job.
-  void NavigationStopped() override;
 
   // IPC Message handlers.
   void OnDidGetPrintedPagesCount(int cookie, int number_pages);

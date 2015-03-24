@@ -28,6 +28,7 @@ class ClientPrintHandlerGtk : public CefPrintHandler {
                   const CefString& pdf_file_path,
                   CefRefPtr<CefPrintJobCallback> callback) OVERRIDE;
   void OnPrintReset() OVERRIDE;
+  CefSize GetPdfPaperSize(int device_units_per_inch) OVERRIDE;
 
  private:
   void OnDialogResponse(GtkDialog *dialog,

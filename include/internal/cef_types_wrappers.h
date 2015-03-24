@@ -822,7 +822,7 @@ class CefPageRange : public CefStructBase<CefPageRangeTraits> {
   CefPageRange(const cef_page_range_t& r)  // NOLINT(runtime/explicit)
       : parent(r) {}
   CefPageRange(const CefPageRange& r)  // NOLINT(runtime/explicit)
-      : parent(r) {} 
+      : parent(r) {}
   CefPageRange(int from, int to) : parent() {
     Set(from, to);
   }
@@ -861,5 +861,45 @@ struct CefCursorInfoTraits {
 // Class representing cursor information.
 ///
 typedef CefStructBase<CefCursorInfoTraits> CefCursorInfo;
+
+
+struct CefPdfPrintSettingsTraits {
+  typedef cef_pdf_print_settings_t struct_type;
+
+  static inline void init(struct_type* s) {}
+
+  static inline void clear(struct_type* s) {
+    cef_string_clear(&s->header_footer_title);
+    cef_string_clear(&s->header_footer_url);
+  }
+
+  static inline void set(const struct_type* src, struct_type* target,
+      bool copy) {
+
+    cef_string_set(src->header_footer_title.str,
+        src->header_footer_title.length, &target->header_footer_title, copy);
+    cef_string_set(src->header_footer_url.str, src->header_footer_url.length,
+        &target->header_footer_url, copy);
+
+    target->page_width = src->page_width;
+    target->page_height = src->page_height;
+
+    target->margin_top = src->margin_top;
+    target->margin_right = src->margin_right;
+    target->margin_bottom = src->margin_bottom;
+    target->margin_left = src->margin_left;
+    target->margin_type = src->margin_type;
+
+    target->header_footer_enabled = src->header_footer_enabled;
+    target->selection_only = src->selection_only;
+    target->landscape = src->landscape;
+    target->backgrounds_enabled = src->backgrounds_enabled;
+  }
+};
+
+///
+// Class representing PDF print settings
+///
+typedef CefStructBase<CefPdfPrintSettingsTraits> CefPdfPrintSettings;
 
 #endif  // CEF_INCLUDE_INTERNAL_CEF_TYPES_WRAPPERS_H_

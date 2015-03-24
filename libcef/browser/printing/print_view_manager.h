@@ -8,6 +8,9 @@
 #include "libcef/browser/printing/print_view_manager_base.h"
 #include "content/public/browser/web_contents_user_data.h"
 
+struct PrintHostMsg_DidPreviewDocument_Params;
+struct PrintHostMsg_RequestPrintPreview_Params;
+
 namespace content {
 class RenderProcessHost;
 }
@@ -30,8 +33,18 @@ class PrintViewManager : public PrintViewManagerBase,
   bool OnMessageReceived(const IPC::Message& message) override;
 
   // content::WebContentsObserver implementation.
+  // Cancels the print job.
+  void NavigationStopped() override;
   // Terminates or cancels the print job if one was pending.
   void RenderProcessGone(base::TerminationStatus status) override;
+
+  // Callback executed on PDF printing completion.
+  typedef base::Callback<void(bool /*ok*/)> PdfPrintCallback;
+
+  // Print the current document to a PDF file. Execute |callback| on completion.
+  void PrintToPDF(const base::FilePath& path,
+                  const CefPdfPrintSettings& settings,
+                  const PdfPrintCallback& callback);
 
  private:
   explicit PrintViewManager(content::WebContents* web_contents);
@@ -39,6 +52,17 @@ class PrintViewManager : public PrintViewManagerBase,
 
   // IPC Message handlers.
   void OnDidShowPrintDialog();
+  void OnRequestPrintPreview(const PrintHostMsg_RequestPrintPreview_Params&);
+  void OnMetafileReadyForPrinting(
+      const PrintHostMsg_DidPreviewDocument_Params&);
+
+  void TerminatePdfPrintJob();
+
+  // Used for printing to PDF. Only accessed on the browser process UI thread.
+  int next_pdf_request_id_ = -1;
+  base::FilePath pdf_output_path_;
+  scoped_ptr<base::DictionaryValue> pdf_print_settings_;
+  PdfPrintCallback pdf_print_callback_;
 
   DISALLOW_COPY_AND_ASSIGN(PrintViewManager);
 };

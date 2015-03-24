@@ -16,6 +16,7 @@
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
 #include "libcef_dll/ctocpp/navigation_entry_visitor_ctocpp.h"
+#include "libcef_dll/ctocpp/pdf_print_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/run_file_dialog_callback_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -305,6 +306,36 @@ void CEF_CALLBACK browser_host_print(struct _cef_browser_host_t* self) {
 
   // Execute
   CefBrowserHostCppToC::Get(self)->Print();
+}
+
+void CEF_CALLBACK browser_host_print_to_pdf(struct _cef_browser_host_t* self,
+    const cef_string_t* path, const struct _cef_pdf_print_settings_t* settings,
+    cef_pdf_print_callback_t* callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: path; type: string_byref_const
+  DCHECK(path);
+  if (!path)
+    return;
+  // Verify param: settings; type: struct_byref_const
+  DCHECK(settings);
+  if (!settings)
+    return;
+  // Unverified params: callback
+
+  // Translate param: settings; type: struct_byref_const
+  CefPdfPrintSettings settingsObj;
+  if (settings)
+    settingsObj.Set(*settings, false);
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->PrintToPDF(
+      CefString(path),
+      settingsObj,
+      CefPdfPrintCallbackCToCpp::Wrap(callback));
 }
 
 void CEF_CALLBACK browser_host_find(struct _cef_browser_host_t* self,
@@ -881,6 +912,7 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->run_file_dialog = browser_host_run_file_dialog;
   GetStruct()->start_download = browser_host_start_download;
   GetStruct()->print = browser_host_print;
+  GetStruct()->print_to_pdf = browser_host_print_to_pdf;
   GetStruct()->find = browser_host_find;
   GetStruct()->stop_finding = browser_host_stop_finding;
   GetStruct()->show_dev_tools = browser_host_show_dev_tools;

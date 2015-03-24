@@ -50,6 +50,8 @@ class CefBrowserHostCToCpp
       CefRefPtr<CefRunFileDialogCallback> callback) OVERRIDE;
   void StartDownload(const CefString& url) OVERRIDE;
   void Print() OVERRIDE;
+  void PrintToPDF(const CefString& path, const CefPdfPrintSettings& settings,
+      CefRefPtr<CefPdfPrintCallback> callback) OVERRIDE;
   void Find(int identifier, const CefString& searchText, bool forward,
       bool matchCase, bool findNext) OVERRIDE;
   void StopFinding(bool clearSelection) OVERRIDE;

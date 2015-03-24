@@ -105,6 +105,10 @@ class PrintingMessageFilter : public content::BrowserMessageFilter {
   void OnUpdatePrintSettingsReply(scoped_refptr<PrinterQuery> printer_query,
                                   IPC::Message* reply_msg);
 
+  void OnCheckForCancel(int32 preview_ui_id,
+                        int preview_request_id,
+                        bool* cancel);
+
   const int render_process_id_;
 
   scoped_refptr<PrintQueriesQueue> queue_;
