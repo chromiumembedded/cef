@@ -50,6 +50,7 @@ class WebInputEvent;
 }
 
 namespace net {
+class DirectoryLister;
 class URLRequest;
 }
 
@@ -580,6 +581,14 @@ class CefBrowserHostImpl : public CefBrowserHost,
                                 int selected_accept_filter,
                                 const std::vector<base::FilePath>& file_paths);
 
+  // Used with WebContentsDelegate::RunFileChooser when mode is
+  // content::FileChooserParams::UploadFolder.
+  void OnRunFileChooserUploadFolderDelegateCallback(
+      content::WebContents* web_contents,
+      const content::FileChooserParams::Mode mode,
+      int selected_accept_filter,
+      const std::vector<base::FilePath>& file_paths);
+
   // Used with WebContentsDelegate::RunFileChooser to notify the WebContents.
   void OnRunFileChooserDelegateCallback(
       content::WebContents* web_contents,
@@ -666,6 +675,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // True if a file chooser is currently pending.
   bool file_chooser_pending_;
+
+  // Used for asynchronously listing directory contents.
+  scoped_ptr<net::DirectoryLister> lister_;
 
 #if defined(USE_AURA)
   // Widget hosting the web contents. It will be deleted automatically when the

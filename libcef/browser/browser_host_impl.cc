@@ -55,6 +55,7 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/resource_request_info.h"
 #include "content/public/common/file_chooser_params.h"
+#include "net/base/directory_lister.h"
 #include "third_party/WebKit/public/web/WebFindOptions.h"
 #include "ui/shell_dialogs/selected_file_info.h"
 
@@ -262,6 +263,54 @@ void RunFileDialogDismissed(
   }
   callback->OnFileDialogDismissed(selected_accept_filter, paths);
 }
+
+class UploadFolderHelper :
+    public net::DirectoryLister::DirectoryListerDelegate {
+ public:
+  explicit UploadFolderHelper(
+      const CefBrowserHostImpl::RunFileChooserCallback& callback)
+      : callback_(callback) {
+  }
+
+  ~UploadFolderHelper() override {
+    if (!callback_.is_null()) {
+      if (CEF_CURRENTLY_ON_UIT()) {
+        CancelNow(callback_);
+      } else {
+        CEF_POST_TASK(CEF_UIT,
+            base::Bind(&UploadFolderHelper::CancelNow, callback_));
+      }
+    }
+  }
+
+  void OnListFile(
+      const net::DirectoryLister::DirectoryListerData& data) override {
+    CEF_REQUIRE_UIT();
+    if (!data.info.IsDirectory())
+      select_files_.push_back(data.path);
+  }
+
+  void OnListDone(int error) override {
+    CEF_REQUIRE_UIT();
+    if (!callback_.is_null()) {
+      callback_.Run(0, select_files_);
+      callback_.Reset();
+    }
+  }
+
+ private:
+  static void CancelNow(
+      const CefBrowserHostImpl::RunFileChooserCallback& callback) {
+    CEF_REQUIRE_UIT();
+    std::vector<base::FilePath> file_paths;
+    callback.Run(0, file_paths);
+  }
+
+  CefBrowserHostImpl::RunFileChooserCallback callback_;
+  std::vector<base::FilePath> select_files_;
+
+  DISALLOW_COPY_AND_ASSIGN(UploadFolderHelper);
+};
 
 }  // namespace
 
@@ -2316,16 +2365,23 @@ void CefBrowserHostImpl::RunFileChooser(
   if (!render_view_host)
     return;
 
+  FileChooserParams cef_params;
+  static_cast<content::FileChooserParams&>(cef_params) = params;
+
+  if (lister_) {
+    // Cancel the previous upload folder run.
+    lister_->Cancel();
+    lister_.reset();
+  }
+
   if (params.mode == content::FileChooserParams::UploadFolder) {
-    // TODO(cef): Implement the logic necessary for the 'webkitdirectory'
-    // attribute. See CEF issue #958.
-    OnRunFileChooserDelegateCallback(
-        web_contents, params.mode, 0, std::vector<base::FilePath>());
+    RunFileChooserOnUIThread(cef_params,
+        base::Bind(
+            &CefBrowserHostImpl::OnRunFileChooserUploadFolderDelegateCallback,
+            this, web_contents, params.mode));
     return;
   }
 
-  FileChooserParams cef_params;
-  static_cast<content::FileChooserParams&>(cef_params) = params;
   RunFileChooserOnUIThread(cef_params,
       base::Bind(&CefBrowserHostImpl::OnRunFileChooserDelegateCallback, this,
                  web_contents, params.mode));
@@ -3035,12 +3091,39 @@ void CefBrowserHostImpl::OnRunFileChooserCallback(
       base::Bind(callback, selected_accept_filter, file_paths));
 }
 
+void CefBrowserHostImpl::OnRunFileChooserUploadFolderDelegateCallback(
+    content::WebContents* web_contents,
+    const content::FileChooserParams::Mode mode,
+    int selected_accept_filter,
+    const std::vector<base::FilePath>& file_paths) {
+  CEF_REQUIRE_UIT();
+  DCHECK (mode == content::FileChooserParams::UploadFolder);
+
+  if (file_paths.size() == 0) {
+    // Client canceled the file chooser.
+    OnRunFileChooserDelegateCallback(web_contents, mode,
+        selected_accept_filter, file_paths);
+  } else {
+    lister_.reset(new net::DirectoryLister(
+        file_paths[0],
+        true,
+        net::DirectoryLister::NO_SORT,
+        new UploadFolderHelper(
+            base::Bind(&CefBrowserHostImpl::OnRunFileChooserDelegateCallback,
+                       this, web_contents, mode))));
+    lister_->Start();
+  }
+}
+
 void CefBrowserHostImpl::OnRunFileChooserDelegateCallback(
     content::WebContents* web_contents,
     content::FileChooserParams::Mode mode,
     int selected_accept_filter,
     const std::vector<base::FilePath>& file_paths) {
   CEF_REQUIRE_UIT();
+
+  if (lister_.get())
+    lister_.reset();
 
   content::RenderViewHost* render_view_host = web_contents->GetRenderViewHost();
   if (!render_view_host)
