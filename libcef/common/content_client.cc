@@ -6,21 +6,159 @@
 #include "include/cef_stream.h"
 #include "include/cef_version.h"
 #include "libcef/browser/content_browser_client.h"
+#include "libcef/common/cef_switches.h"
 #include "libcef/common/scheme_registrar_impl.h"
 #include "libcef/common/scheme_registration.h"
 
 #include "base/command_line.h"
 #include "base/logging.h"
+#include "base/path_service.h"
+#include "base/files/file_util.h"
+#include "base/json/json_reader.h"
 #include "base/strings/string_piece.h"
+#include "base/strings/string_split.h"
+#include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
+#include "base/strings/utf_string_conversions.h"
+#include "chrome/common/chrome_constants.h"
+#include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/pepper_flash.h"
+#include "content/public/common/content_constants.h"
 #include "content/public/common/content_switches.h"
+#include "content/public/common/pepper_plugin_info.h"
 #include "content/public/common/user_agent.h"
 #include "ui/base/resource/resource_bundle.h"
+
 
 namespace {
 
 CefContentClient* g_content_client = NULL;
+
+// The following Flash-related methods are from
+// chrome/common/chrome_content_client.cc
+
+content::PepperPluginInfo CreatePepperFlashInfo(const base::FilePath& path,
+                                                const std::string& version) {
+  content::PepperPluginInfo plugin;
+
+  plugin.is_out_of_process = true;
+  plugin.name = content::kFlashPluginName;
+  plugin.path = path;
+  plugin.permissions = chrome::kPepperFlashPermissions;
+
+  std::vector<std::string> flash_version_numbers;
+  base::SplitString(version, '.', &flash_version_numbers);
+  if (flash_version_numbers.size() < 1)
+    flash_version_numbers.push_back("11");
+  // |SplitString()| puts in an empty string given an empty string. :(
+  else if (flash_version_numbers[0].empty())
+    flash_version_numbers[0] = "11";
+  if (flash_version_numbers.size() < 2)
+    flash_version_numbers.push_back("2");
+  if (flash_version_numbers.size() < 3)
+    flash_version_numbers.push_back("999");
+  if (flash_version_numbers.size() < 4)
+    flash_version_numbers.push_back("999");
+  // E.g., "Shockwave Flash 10.2 r154":
+  plugin.description = plugin.name + " " + flash_version_numbers[0] + "." +
+      flash_version_numbers[1] + " r" + flash_version_numbers[2];
+  plugin.version = JoinString(flash_version_numbers, '.');
+  content::WebPluginMimeType swf_mime_type(content::kFlashPluginSwfMimeType,
+                                           content::kFlashPluginSwfExtension,
+                                           content::kFlashPluginSwfDescription);
+  plugin.mime_types.push_back(swf_mime_type);
+  content::WebPluginMimeType spl_mime_type(content::kFlashPluginSplMimeType,
+                                           content::kFlashPluginSplExtension,
+                                           content::kFlashPluginSplDescription);
+  plugin.mime_types.push_back(spl_mime_type);
+
+  return plugin;
+}
+
+void AddPepperFlashFromCommandLine(
+    std::vector<content::PepperPluginInfo>* plugins) {
+  const base::CommandLine::StringType flash_path =
+      base::CommandLine::ForCurrentProcess()->GetSwitchValueNative(
+          switches::kPpapiFlashPath);
+  if (flash_path.empty())
+    return;
+
+  // Also get the version from the command-line. Should be something like 11.2
+  // or 11.2.123.45.
+  std::string flash_version =
+      base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
+          switches::kPpapiFlashVersion);
+
+  plugins->push_back(
+      CreatePepperFlashInfo(base::FilePath(flash_path), flash_version));
+}
+
+#if defined(OS_WIN)
+const char kPepperFlashDLLBaseName[] =
+#if defined(ARCH_CPU_X86)
+    "pepflashplayer32_";
+#elif defined(ARCH_CPU_X86_64)
+    "pepflashplayer64_";
+#else
+#error Unsupported Windows CPU architecture.
+#endif  // defined(ARCH_CPU_X86)
+#endif  // defined(OS_WIN)
+
+bool GetSystemPepperFlash(content::PepperPluginInfo* plugin) {
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+
+  if (!command_line->HasSwitch(switches::kEnableSystemFlash))
+    return false;
+
+  // Do not try and find System Pepper Flash if there is a specific path on
+  // the commmand-line.
+  if (command_line->HasSwitch(switches::kPpapiFlashPath))
+    return false;
+
+  base::FilePath flash_path;
+  if (!PathService::Get(chrome::DIR_PEPPER_FLASH_SYSTEM_PLUGIN, &flash_path))
+    return false;
+
+  if (!base::PathExists(flash_path))
+    return false;
+
+  base::FilePath manifest_path(flash_path.AppendASCII("manifest.json"));
+
+  std::string manifest_data;
+  if (!base::ReadFileToString(manifest_path, &manifest_data))
+    return false;
+  scoped_ptr<base::Value> manifest_value(
+      base::JSONReader::Read(manifest_data, base::JSON_ALLOW_TRAILING_COMMAS));
+  if (!manifest_value.get())
+    return false;
+  base::DictionaryValue* manifest = NULL;
+  if (!manifest_value->GetAsDictionary(&manifest))
+    return false;
+
+  Version version;
+  if (!chrome::CheckPepperFlashManifest(*manifest, &version))
+    return false;
+
+#if defined(OS_WIN)
+  // PepperFlash DLLs on Windows look like basename_v_x_y_z.dll.
+  std::string filename(kPepperFlashDLLBaseName);
+  filename.append(version.GetString());
+  base::ReplaceChars(filename, ".", "_", &filename);
+  filename.append(".dll");
+
+  base::FilePath path(flash_path.Append(base::ASCIIToUTF16(filename)));
+#else
+  // PepperFlash on OS X is called PepperFlashPlayer.plugin
+  base::FilePath path(flash_path.Append(chrome::kPepperFlashPluginFilename));
+#endif
+
+  if (!base::PathExists(path))
+    return false;
+
+  *plugin = CreatePepperFlashInfo(path, version.GetString());
+  return true;
+}
 
 }  // namespace
 
@@ -40,6 +178,15 @@ CefContentClient::~CefContentClient() {
 // static
 CefContentClient* CefContentClient::Get() {
   return g_content_client;
+}
+
+void CefContentClient::AddPepperPlugins(
+    std::vector<content::PepperPluginInfo>* plugins) {
+  AddPepperFlashFromCommandLine(plugins);
+
+  content::PepperPluginInfo plugin;
+  if (GetSystemPepperFlash(&plugin))
+    plugins->push_back(plugin);
 }
 
 void CefContentClient::AddAdditionalSchemes(

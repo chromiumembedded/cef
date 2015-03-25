@@ -138,6 +138,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   void BrowserURLHandlerCreated(
       content::BrowserURLHandler* handler) override;
   std::string GetDefaultDownloadName() override;
+  void DidCreatePpapiPlugin(content::BrowserPpapiHost* browser_host) override;
   content::DevToolsManagerDelegate* GetDevToolsManagerDelegate()
       override;
 

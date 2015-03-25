@@ -23,6 +23,7 @@ MSVC_POP_WARNING();
 #include "libcef/common/request_impl.h"
 #include "libcef/common/values_impl.h"
 #include "libcef/renderer/browser_impl.h"
+#include "libcef/renderer/pepper/pepper_helper.h"
 #include "libcef/renderer/render_frame_observer.h"
 #include "libcef/renderer/render_message_filter.h"
 #include "libcef/renderer/render_process_observer.h"
@@ -471,6 +472,7 @@ void CefContentRendererClient::RenderThreadStarted() {
 void CefContentRendererClient::RenderFrameCreated(
     content::RenderFrame* render_frame) {
   new CefRenderFrameObserver(render_frame);
+  new CefPepperHelper(render_frame);
   BrowserCreated(render_frame->GetRenderView(), render_frame);
 }
 
@@ -511,46 +513,24 @@ bool CefContentRendererClient::OverrideCreatePlugin(
   if (!found)
     return false;
 
-  bool flash = LowerCaseEqualsASCII(mime_type,
-                                    "application/x-shockwave-flash");
   bool silverlight = StartsWithASCII(mime_type,
                                      "application/x-silverlight", false);
-
-  if (flash) {
-    // "wmode" values of "opaque" or "transparent" are allowed.
-    size_t size = params.attributeNames.size();
-    for (size_t i = 0; i < size; ++i) {
-      std::string name = params.attributeNames[i].utf8();
-      if (name == "wmode") {
-        std::string value = params.attributeValues[i].utf8();
-        if (value == "opaque" || value == "transparent")
-          flash = false;
-        break;
-      }
-    }
-  }
-
-  if (flash || silverlight) {
+  if (silverlight) {
     // Force Flash and Silverlight plugins to use windowless mode.
     blink::WebPluginParams params_to_use = params;
     params_to_use.mimeType = blink::WebString::fromUTF8(mime_type);
   
     size_t size = params.attributeNames.size();
     blink::WebVector<blink::WebString> new_names(size+1),
-                                         new_values(size+1);
+                                       new_values(size+1);
 
     for (size_t i = 0; i < size; ++i) {
       new_names[i] = params.attributeNames[i];
       new_values[i] = params.attributeValues[i];
     }
 
-    if (flash) {
-      new_names[size] = "wmode";
-      new_values[size] = "opaque";
-    } else if (silverlight) {
-      new_names[size] = "windowless";
-      new_values[size] = "true";
-    }
+    new_names[size] = "windowless";
+    new_values[size] = "true";
 
     params_to_use.attributeNames.swap(new_names);
     params_to_use.attributeValues.swap(new_values);

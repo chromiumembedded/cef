@@ -34,10 +34,12 @@
 
 #if defined(OS_WIN)
 #include <Objbase.h>  // NOLINT(build/include_order)
+#include "base/win/registry.h"
 #include "components/crash/app/breakpad_win.h"
 #endif
 
 #if defined(OS_MACOSX)
+#include "libcef/common/util_mac.h"
 #include "base/mac/os_crash_dumps.h"
 #include "base/mac/bundle_locations.h"
 #include "base/mac/foundation_util.h"
@@ -113,6 +115,47 @@ base::FilePath GetResourcesFilePath() {
 }
 
 #endif  // !defined(OS_MACOSX)
+
+#if defined(OS_WIN)
+
+const wchar_t kFlashRegistryRoot[] = L"SOFTWARE\\Macromedia\\FlashPlayerPepper";
+const wchar_t kFlashPlayerPathValueName[] = L"PlayerPath";
+
+// Gets the Flash path if installed on the system.
+bool GetSystemFlashDirectory(base::FilePath* out_path) {
+  base::win::RegKey path_key(HKEY_LOCAL_MACHINE, kFlashRegistryRoot, KEY_READ);
+  base::string16 path_str;
+  if (FAILED(path_key.ReadValue(kFlashPlayerPathValueName, &path_str)))
+    return false;
+  base::FilePath plugin_path = base::FilePath(path_str).DirName();
+
+  *out_path = plugin_path;
+  return true;
+}
+
+#elif defined(OS_MACOSX)
+
+const base::FilePath::CharType kPepperFlashSystemBaseDirectory[] =
+    FILE_PATH_LITERAL("Internet Plug-Ins/PepperFlashPlayer");
+
+#endif
+
+void OverridePepperFlashSystemPluginPath() {
+  base::FilePath plugin_path;
+#if defined(OS_WIN)
+  if (!GetSystemFlashDirectory(&plugin_path))
+    return;
+#elif defined(OS_MACOSX)
+  if (!util_mac::GetLocalLibraryDirectory(&plugin_path))
+    return;
+  plugin_path = plugin_path.Append(kPepperFlashSystemBaseDirectory);
+#else
+  // A system plugin is not available on other platforms.
+  return;
+#endif
+
+  PathService::Override(chrome::DIR_PEPPER_FLASH_SYSTEM_PLUGIN, plugin_path);
+}
 
 #if defined(OS_LINUX)
 
@@ -450,10 +493,12 @@ void CefMainDelegate::PreSandboxStartup() {
   }
 
   if (!command_line->HasSwitch(switches::kProcessType)) {
-    // Only these paths when executing the main process.
+    // Only override these paths when executing the main process.
 #if defined(OS_MACOSX)
     OverrideChildProcessPath();
 #endif
+
+    OverridePepperFlashSystemPluginPath();
 
     // Paths used to locate spell checking dictionary files.
     const base::FilePath& user_data_path = GetUserDataPath();

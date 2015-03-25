@@ -1,0 +1,13 @@
+diff --git pepper_flash_file_message_filter.cc pepper_flash_file_message_filter.cc
+index 48da55d..2bbb939 100644
+--- pepper_flash_file_message_filter.cc
++++ pepper_flash_file_message_filter.cc
+@@ -53,7 +53,7 @@ PepperFlashFileMessageFilter::PepperFlashFileMessageFilter(
+     // will construct a bad path and could provide access to the wrong files.
+     // In this case, |plugin_data_directory_| will remain unset and
+     // |ValidateAndConvertPepperFilePath| will fail.
+-    NOTREACHED();
++    //NOTREACHED();
+   } else {
+     plugin_data_directory_ = GetDataDirName(profile_data_directory).Append(
+         base::FilePath::FromUTF8Unsafe(plugin_name));

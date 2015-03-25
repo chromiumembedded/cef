@@ -92,6 +92,7 @@ scoped_ptr<PrefService> CefBrowserPrefStore::CreateService() {
   registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);
 
   // Spell checking settings.
+  // Based on SpellcheckServiceFactory::RegisterProfilePrefs.
   std::string spellcheck_lang =
       command_line->GetSwitchValueASCII(switches::kOverrideSpellCheckLang);
   if (!spellcheck_lang.empty()) {
@@ -109,6 +110,11 @@ scoped_ptr<PrefService> CefBrowserPrefStore::CreateService() {
   // SpellCheckProvider::autoCorrectWord.
   registry->RegisterBooleanPref(prefs::kEnableAutoSpellCorrect,
       command_line->HasSwitch(switches::kEnableSpellingAutoCorrect));
+
+  // Pepper flash settings.
+  // Based on DeviceIDFetcher::RegisterProfilePrefs.
+  registry->RegisterBooleanPref(prefs::kEnableDRM, false);
+  registry->RegisterStringPref(prefs::kDRMSalt, "");
 
   return factory.Create(registry.get());
 }

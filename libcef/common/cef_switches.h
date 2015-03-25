@@ -41,6 +41,7 @@ extern const char kCrashDumpsDir[];
 extern const char kDisableSpellChecking[];
 extern const char kEnableSpellingService[];
 extern const char kOverrideSpellCheckLang[];
+extern const char kEnableSystemFlash[];
 
 }  // namespace switches
 

@@ -2394,6 +2394,17 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
                scoped_ptr<content::MediaStreamUI>());
 }
 
+bool CefBrowserHostImpl::CheckMediaAccessPermission(
+   content::WebContents* web_contents,
+   const GURL& security_origin,
+   content::MediaStreamType type) {
+  // Check media access permission without prompting the user. This is called
+  // when loading the Pepper Flash plugin.
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  return command_line->HasSwitch(switches::kEnableMediaStream);
+}
+
 
 // content::WebContentsObserver methods.
 // -----------------------------------------------------------------------------

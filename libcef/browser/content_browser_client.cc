@@ -15,6 +15,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools_delegate.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
+#include "libcef/browser/pepper/browser_pepper_host_factory.h"
 #include "libcef/browser/printing/printing_message_filter.h"
 #include "libcef/browser/resource_dispatcher_host_delegate.h"
 #include "libcef/browser/speech_recognition_manager_delegate.h"
@@ -658,6 +659,10 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
       switches::kDisableSpellChecking,
       switches::kEnableSpeechInput,
       switches::kEnableSpellingAutoCorrect,
+      switches::kEnableSystemFlash,
+      switches::kPpapiFlashArgs,
+      switches::kPpapiFlashPath,
+      switches::kPpapiFlashVersion,
       switches::kUncaughtExceptionStackSize,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
@@ -665,13 +670,23 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
   }
 
 #if defined(OS_LINUX)
-  if (process_type == switches::kZygoteProcess &&
-      browser_cmd->HasSwitch(switches::kBrowserSubprocessPath)) {
-    // Force use of the sub-process executable path for the zygote process.
-    const base::FilePath& subprocess_path =
-        browser_cmd->GetSwitchValuePath(switches::kBrowserSubprocessPath);
-    if (!subprocess_path.empty())
-      command_line->SetProgram(subprocess_path);
+  if (process_type == switches::kZygoteProcess) {
+    // Propagate the following switches to the zygone command line (along with
+    // any associated values) if present in the browser command line.
+    static const char* const kSwitchNames[] = {
+      switches::kPpapiFlashPath,
+      switches::kPpapiFlashVersion,
+    };
+    command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
+                                   arraysize(kSwitchNames));
+
+    if (browser_cmd->HasSwitch(switches::kBrowserSubprocessPath)) {
+      // Force use of the sub-process executable path for the zygote process.
+      const base::FilePath& subprocess_path =
+          browser_cmd->GetSwitchValuePath(switches::kBrowserSubprocessPath);
+      if (!subprocess_path.empty())
+        command_line->SetProgram(subprocess_path);
+    }
   }
 #endif  // defined(OS_LINUX)
 
@@ -963,6 +978,13 @@ void CefContentBrowserClient::BrowserURLHandlerCreated(
 
 std::string CefContentBrowserClient::GetDefaultDownloadName() {
   return "download";
+}
+
+void CefContentBrowserClient::DidCreatePpapiPlugin(
+    content::BrowserPpapiHost* browser_host) {
+  browser_host->GetPpapiHost()->AddHostFactoryFilter(
+      scoped_ptr<ppapi::host::HostFactory>(
+          new CefBrowserPepperHostFactory(browser_host)));
 }
 
 content::DevToolsManagerDelegate*

@@ -1,0 +1,27 @@
+diff --git pepper_flash.cc pepper_flash.cc
+index b21d4d1..11fac76 100644
+--- pepper_flash.cc
++++ pepper_flash.cc
+@@ -117,6 +117,14 @@ bool CheckPepperFlashManifest(const base::DictionaryValue& manifest,
+   if (os != kPepperFlashOperatingSystem)
+     return false;
+ 
++#if defined(OS_MACOSX)
++  // On Mac newer versions of the plugin are a universal binary and use "mac"
++  // as the value.
++  std::string arch;
++  manifest.GetStringASCII("x-ppapi-arch", &arch);
++  if (arch != kPepperFlashArch && arch != kPepperFlashOperatingSystem)
++    return false;
++#else
+ // On Win64, PepperFlash manifests have "ia32" instead of "x64" so skip the
+ // architecture check. TODO(wfh): remove this when crbug.com/458894 is fixed.
+ #if !defined(OS_WIN) || !defined(ARCH_CPU_X86_64)
+@@ -125,6 +133,7 @@ bool CheckPepperFlashManifest(const base::DictionaryValue& manifest,
+   if (arch != kPepperFlashArch)
+     return false;
+ #endif
++#endif
+ 
+   *version_out = version;
+   return true;
