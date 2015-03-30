@@ -640,9 +640,9 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_double(double value);
 
 ///
 // Create a new cef_v8value_t object of type Date. This function should only be
-// called from within the scope of a cef_v8context_tHandler, cef_v8handler_t or
-// cef_v8accessor_t callback, or in combination with calling enter() and exit()
-// on a stored cef_v8context_t reference.
+// called from within the scope of a cef_render_process_handler_t,
+// cef_v8handler_t or cef_v8accessor_t callback, or in combination with calling
+// enter() and exit() on a stored cef_v8context_t reference.
 ///
 CEF_EXPORT cef_v8value_t* cef_v8value_create_date(const cef_time_t* date);
 
@@ -654,8 +654,8 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const cef_string_t* value);
 ///
 // Create a new cef_v8value_t object of type object with optional accessor. This
 // function should only be called from within the scope of a
-// cef_v8context_tHandler, cef_v8handler_t or cef_v8accessor_t callback, or in
-// combination with calling enter() and exit() on a stored cef_v8context_t
+// cef_render_process_handler_t, cef_v8handler_t or cef_v8accessor_t callback,
+// or in combination with calling enter() and exit() on a stored cef_v8context_t
 // reference.
 ///
 CEF_EXPORT cef_v8value_t* cef_v8value_create_object(cef_v8accessor_t* accessor);
@@ -663,17 +663,18 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_object(cef_v8accessor_t* accessor);
 ///
 // Create a new cef_v8value_t object of type array with the specified |length|.
 // If |length| is negative the returned array will have length 0. This function
-// should only be called from within the scope of a cef_v8context_tHandler,
-// cef_v8handler_t or cef_v8accessor_t callback, or in combination with calling
-// enter() and exit() on a stored cef_v8context_t reference.
+// should only be called from within the scope of a
+// cef_render_process_handler_t, cef_v8handler_t or cef_v8accessor_t callback,
+// or in combination with calling enter() and exit() on a stored cef_v8context_t
+// reference.
 ///
 CEF_EXPORT cef_v8value_t* cef_v8value_create_array(int length);
 
 ///
 // Create a new cef_v8value_t object of type function. This function should only
-// be called from within the scope of a cef_v8context_tHandler, cef_v8handler_t
-// or cef_v8accessor_t callback, or in combination with calling enter() and
-// exit() on a stored cef_v8context_t reference.
+// be called from within the scope of a cef_render_process_handler_t,
+// cef_v8handler_t or cef_v8accessor_t callback, or in combination with calling
+// enter() and exit() on a stored cef_v8context_t reference.
 ///
 CEF_EXPORT cef_v8value_t* cef_v8value_create_function(const cef_string_t* name,
     cef_v8handler_t* handler);

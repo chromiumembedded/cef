@@ -390,7 +390,7 @@ class CefV8Value : public virtual CefBase {
 
   ///
   // Create a new CefV8Value object of type Date. This method should only be
-  // called from within the scope of a CefV8ContextHandler, CefV8Handler or
+  // called from within the scope of a CefRenderProcessHandler, CefV8Handler or
   // CefV8Accessor callback, or in combination with calling Enter() and Exit()
   // on a stored CefV8Context reference.
   ///
@@ -406,7 +406,7 @@ class CefV8Value : public virtual CefBase {
   ///
   // Create a new CefV8Value object of type object with optional accessor. This
   // method should only be called from within the scope of a
-  // CefV8ContextHandler, CefV8Handler or CefV8Accessor callback, or in
+  // CefRenderProcessHandler, CefV8Handler or CefV8Accessor callback, or in
   // combination with calling Enter() and Exit() on a stored CefV8Context
   // reference.
   ///
@@ -416,7 +416,7 @@ class CefV8Value : public virtual CefBase {
   ///
   // Create a new CefV8Value object of type array with the specified |length|.
   // If |length| is negative the returned array will have length 0. This method
-  // should only be called from within the scope of a CefV8ContextHandler,
+  // should only be called from within the scope of a CefRenderProcessHandler,
   // CefV8Handler or CefV8Accessor callback, or in combination with calling
   // Enter() and Exit() on a stored CefV8Context reference.
   ///
@@ -425,7 +425,7 @@ class CefV8Value : public virtual CefBase {
 
   ///
   // Create a new CefV8Value object of type function. This method should only be
-  // called from within the scope of a CefV8ContextHandler, CefV8Handler or
+  // called from within the scope of a CefRenderProcessHandler, CefV8Handler or
   // CefV8Accessor callback, or in combination with calling Enter() and Exit()
   // on a stored CefV8Context reference.
   ///

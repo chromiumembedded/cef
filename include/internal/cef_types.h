@@ -350,7 +350,7 @@ typedef struct _cef_settings_t {
 
   ///
   // The number of stack trace frames to capture for uncaught exceptions.
-  // Specify a positive value to enable the CefV8ContextHandler::
+  // Specify a positive value to enable the CefRenderProcessHandler::
   // OnUncaughtException() callback. Specify 0 (default value) and
   // OnUncaughtException() will not be called. Also configurable using the
   // "uncaught-exception-stack-size" command-line switch.
