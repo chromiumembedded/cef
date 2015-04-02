@@ -542,7 +542,7 @@ CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
 bool ClientHandler::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
                                    const CefString& origin_url,
                                    int64 new_size,
-                                   CefRefPtr<CefQuotaCallback> callback) {
+                                   CefRefPtr<CefRequestCallback> callback) {
   CEF_REQUIRE_IO_THREAD();
 
   static const int64 max_size = 1024 * 1024 * 20;  // 20mb.
@@ -569,7 +569,7 @@ bool ClientHandler::OnCertificateError(
     ErrorCode cert_error,
     const CefString& request_url,
     CefRefPtr<CefSSLInfo> ssl_info,
-    CefRefPtr<CefAllowCertificateErrorCallback> callback) {
+    CefRefPtr<CefRequestCallback> callback) {
   CEF_REQUIRE_UI_THREAD();
 
   CefRefPtr<CefSSLCertPrincipal> subject = ssl_info->GetSubject();

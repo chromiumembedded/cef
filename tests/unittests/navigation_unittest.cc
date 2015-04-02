@@ -443,9 +443,11 @@ class HistoryNavTestHandler : public TestHandler {
     return false;
   }
 
-  bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-                            CefRefPtr<CefFrame> frame,
-                            CefRefPtr<CefRequest> request) override {
+  cef_return_value_t OnBeforeResourceLoad(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefRequestCallback> callback) override {
     const NavListItem& item = kHNavList[nav_];
 
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
@@ -460,7 +462,7 @@ class HistoryNavTestHandler : public TestHandler {
     if (url == item.target)
       got_correct_target_[nav_].yes();
 
-    return false;
+    return RV_CONTINUE;
   }
 
   void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
@@ -736,9 +738,11 @@ class RedirectTestHandler : public TestHandler {
     SetTestTimeout();
   }
 
-  bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-                            CefRefPtr<CefFrame> frame,
-                            CefRefPtr<CefRequest> request) override {
+  cef_return_value_t OnBeforeResourceLoad(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefRequestCallback> callback) override {
     // Should be called for all but the second URL.
     std::string url = request->GetURL();
 
@@ -755,7 +759,7 @@ class RedirectTestHandler : public TestHandler {
       got_invalid_before_resource_load_.yes();
     }
 
-    return false;
+    return RV_CONTINUE;
   }
 
   void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
@@ -1302,9 +1306,11 @@ class OrderNavTestHandler : public TestHandler {
     return false;
   }
 
-  bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-                            CefRefPtr<CefFrame> frame,
-                            CefRefPtr<CefRequest> request) override {
+  cef_return_value_t OnBeforeResourceLoad(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefRequestCallback> callback) override {
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
 
     if (browser->IsPopup()) {
@@ -1317,7 +1323,7 @@ class OrderNavTestHandler : public TestHandler {
       EXPECT_EQ(browser_id_main_, browser->GetIdentifier());
     }
     
-    return false;
+    return RV_CONTINUE;
   }
 
   void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
@@ -1687,16 +1693,18 @@ class CrossOriginNavTestHandler : public TestHandler {
     return false;
   }
 
-  bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-                            CefRefPtr<CefFrame> frame,
-                            CefRefPtr<CefRequest> request) override {
+  cef_return_value_t OnBeforeResourceLoad(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefRequestCallback> callback) override {
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
     EXPECT_EQ(TT_EXPLICIT, request->GetTransitionType());
 
     EXPECT_GT(browser_id_current_, 0);
     EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
     
-    return false;
+    return RV_CONTINUE;
   }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser,

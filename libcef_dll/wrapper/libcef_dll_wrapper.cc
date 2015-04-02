@@ -70,7 +70,6 @@
 #include "libcef_dll/cpptoc/web_plugin_info_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/web_plugin_unstable_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/write_handler_cpptoc.h"
-#include "libcef_dll/ctocpp/allow_certificate_error_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/auth_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/before_download_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/binary_value_ctocpp.h"
@@ -96,7 +95,7 @@
 #include "libcef_dll/ctocpp/print_job_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/print_settings_ctocpp.h"
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
-#include "libcef_dll/ctocpp/quota_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/request_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/sslcert_principal_ctocpp.h"
 #include "libcef_dll/ctocpp/sslinfo_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_registrar_ctocpp.h"
@@ -176,8 +175,6 @@ CEF_GLOBAL void CefShutdown() {
 
 #ifndef NDEBUG
   // Check that all wrapper objects have been destroyed
-  DCHECK(base::AtomicRefCountIsZero(
-      &CefAllowCertificateErrorCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefAuthCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefBeforeDownloadCallbackCToCpp::DebugObjCt));
@@ -227,11 +224,11 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefPrintJobCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefPrintSettingsCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefProcessMessageCToCpp::DebugObjCt));
-  DCHECK(base::AtomicRefCountIsZero(&CefQuotaCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefReadHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefRenderHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefRenderProcessHandlerCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefRequestCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefRequestHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefResourceBundleHandlerCppToC::DebugObjCt));

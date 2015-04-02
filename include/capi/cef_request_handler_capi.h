@@ -54,32 +54,9 @@ extern "C" {
 
 
 ///
-// Callback structure used for asynchronous continuation of quota requests.
+// Callback structure used for asynchronous continuation of url requests.
 ///
-typedef struct _cef_quota_callback_t {
-  ///
-  // Base structure.
-  ///
-  cef_base_t base;
-
-  ///
-  // Continue the quota request. If |allow| is true (1) the request will be
-  // allowed. Otherwise, the request will be denied.
-  ///
-  void (CEF_CALLBACK *cont)(struct _cef_quota_callback_t* self, int allow);
-
-  ///
-  // Cancel the quota request.
-  ///
-  void (CEF_CALLBACK *cancel)(struct _cef_quota_callback_t* self);
-} cef_quota_callback_t;
-
-
-///
-// Callback structure used for asynchronous continuation of url requests when
-// invalid SSL certificates are encountered.
-///
-typedef struct _cef_allow_certificate_error_callback_t {
+typedef struct _cef_request_callback_t {
   ///
   // Base structure.
   ///
@@ -89,9 +66,13 @@ typedef struct _cef_allow_certificate_error_callback_t {
   // Continue the url request. If |allow| is true (1) the request will be
   // continued. Otherwise, the request will be canceled.
   ///
-  void (CEF_CALLBACK *cont)(
-      struct _cef_allow_certificate_error_callback_t* self, int allow);
-} cef_allow_certificate_error_callback_t;
+  void (CEF_CALLBACK *cont)(struct _cef_request_callback_t* self, int allow);
+
+  ///
+  // Cancel the url request.
+  ///
+  void (CEF_CALLBACK *cancel)(struct _cef_request_callback_t* self);
+} cef_request_callback_t;
 
 
 ///
@@ -120,12 +101,16 @@ typedef struct _cef_request_handler_t {
 
   ///
   // Called on the IO thread before a resource request is loaded. The |request|
-  // object may be modified. To cancel the request return true (1) otherwise
-  // return false (0).
+  // object may be modified. Return RV_CONTINUE to continue the request
+  // immediately. Return RV_CONTINUE_ASYNC and call cef_request_tCallback::
+  // cont() at a later time to continue or cancel the request asynchronously.
+  // Return RV_CANCEL to cancel the request immediately.
+  //
   ///
-  int (CEF_CALLBACK *on_before_resource_load)(
+  cef_return_value_t (CEF_CALLBACK *on_before_resource_load)(
       struct _cef_request_handler_t* self, struct _cef_browser_t* browser,
-      struct _cef_frame_t* frame, struct _cef_request_t* request);
+      struct _cef_frame_t* frame, struct _cef_request_t* request,
+      struct _cef_request_callback_t* callback);
 
   ///
   // Called on the IO thread before a resource is loaded. To allow the resource
@@ -150,8 +135,9 @@ typedef struct _cef_request_handler_t {
   // Called on the IO thread when the browser needs credentials from the user.
   // |isProxy| indicates whether the host is a proxy server. |host| contains the
   // hostname and |port| contains the port number. Return true (1) to continue
-  // the request and call cef_auth_callback_t::cont() when the authentication
-  // information is available. Return false (0) to cancel the request.
+  // the request and call cef_auth_callback_t::cont() either in this function or
+  // at a later time when the authentication information is available. Return
+  // false (0) to cancel the request immediately.
   ///
   int (CEF_CALLBACK *get_auth_credentials)(struct _cef_request_handler_t* self,
       struct _cef_browser_t* browser, struct _cef_frame_t* frame, int isProxy,
@@ -162,13 +148,14 @@ typedef struct _cef_request_handler_t {
   // Called on the IO thread when JavaScript requests a specific storage quota
   // size via the webkitStorageInfo.requestQuota function. |origin_url| is the
   // origin of the page making the request. |new_size| is the requested quota
-  // size in bytes. Return true (1) and call cef_quota_callback_t::cont() either
-  // in this function or at a later time to grant or deny the request. Return
-  // false (0) to cancel the request.
+  // size in bytes. Return true (1) to continue the request and call
+  // cef_request_tCallback::cont() either in this function or at a later time to
+  // grant or deny the request. Return false (0) to cancel the request
+  // immediately.
   ///
   int (CEF_CALLBACK *on_quota_request)(struct _cef_request_handler_t* self,
       struct _cef_browser_t* browser, const cef_string_t* origin_url,
-      int64 new_size, struct _cef_quota_callback_t* callback);
+      int64 new_size, struct _cef_request_callback_t* callback);
 
   ///
   // Called on the UI thread to handle requests for URLs with an unknown
@@ -183,18 +170,17 @@ typedef struct _cef_request_handler_t {
 
   ///
   // Called on the UI thread to handle requests for URLs with an invalid SSL
-  // certificate. Return true (1) and call
-  // cef_allow_certificate_error_callback_t:: cont() either in this function or
-  // at a later time to continue or cancel the request. Return false (0) to
-  // cancel the request immediately. If |callback| is NULL the error cannot be
-  // recovered from and the request will be canceled automatically. If
-  // CefSettings.ignore_certificate_errors is set all invalid certificates will
-  // be accepted without calling this function.
+  // certificate. Return true (1) and call cef_request_tCallback::cont() either
+  // in this function or at a later time to continue or cancel the request.
+  // Return false (0) to cancel the request immediately. If |callback| is NULL
+  // the error cannot be recovered from and the request will be canceled
+  // automatically. If CefSettings.ignore_certificate_errors is set all invalid
+  // certificates will be accepted without calling this function.
   ///
   int (CEF_CALLBACK *on_certificate_error)(struct _cef_request_handler_t* self,
       struct _cef_browser_t* browser, cef_errorcode_t cert_error,
       const cef_string_t* request_url, struct _cef_sslinfo_t* ssl_info,
-      struct _cef_allow_certificate_error_callback_t* callback);
+      struct _cef_request_callback_t* callback);
 
   ///
   // Called on the browser process IO thread before a plugin is loaded. Return

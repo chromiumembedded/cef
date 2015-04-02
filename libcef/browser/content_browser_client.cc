@@ -85,7 +85,7 @@ class CefAccessTokenStore : public content::AccessTokenStore {
   DISALLOW_COPY_AND_ASSIGN(CefAccessTokenStore);
 };
 
-class CefQuotaCallbackImpl : public CefQuotaCallback {
+class CefQuotaCallbackImpl : public CefRequestCallback {
  public:
   explicit CefQuotaCallbackImpl(
       const content::QuotaPermissionContext::PermissionCallback& callback)
@@ -96,10 +96,10 @@ class CefQuotaCallbackImpl : public CefQuotaCallback {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
       if (CEF_CURRENTLY_ON_IOT()) {
-        CancelNow(callback_);
+        RunNow(callback_, false);
       } else {
         CEF_POST_TASK(CEF_IOT,
-            base::Bind(&CefQuotaCallbackImpl::CancelNow, callback_));
+            base::Bind(&CefQuotaCallbackImpl::RunNow, callback_, false));
       }
     }
   }
@@ -107,9 +107,7 @@ class CefQuotaCallbackImpl : public CefQuotaCallback {
   void Continue(bool allow) override {
     if (CEF_CURRENTLY_ON_IOT()) {
       if (!callback_.is_null()) {
-        callback_.Run(allow ?
-          content::QuotaPermissionContext::QUOTA_PERMISSION_RESPONSE_ALLOW :
-          content::QuotaPermissionContext::QUOTA_PERMISSION_RESPONSE_DISALLOW);
+        RunNow(callback_, allow);
         callback_.Reset();
       }
     } else {
@@ -119,14 +117,7 @@ class CefQuotaCallbackImpl : public CefQuotaCallback {
   }
 
   void Cancel() override {
-    if (CEF_CURRENTLY_ON_IOT()) {
-      if (!callback_.is_null()) {
-        CancelNow(callback_);
-        callback_.Reset();
-      }
-    } else {
-      CEF_POST_TASK(CEF_IOT, base::Bind(&CefQuotaCallbackImpl::Cancel, this));
-    }
+    Continue(false);
   }
 
   void Disconnect() {
@@ -134,11 +125,13 @@ class CefQuotaCallbackImpl : public CefQuotaCallback {
   }
 
  private:
-  static void CancelNow(
-      const content::QuotaPermissionContext::PermissionCallback& callback) {
+  static void RunNow(
+      const content::QuotaPermissionContext::PermissionCallback& callback,
+      bool allow) {
     CEF_REQUIRE_IOT();
-    callback.Run(
-        content::QuotaPermissionContext::QUOTA_PERMISSION_RESPONSE_CANCELLED);
+    callback.Run(allow ?
+          content::QuotaPermissionContext::QUOTA_PERMISSION_RESPONSE_ALLOW :
+          content::QuotaPermissionContext::QUOTA_PERMISSION_RESPONSE_DISALLOW);
   }
 
   content::QuotaPermissionContext::PermissionCallback callback_;
@@ -147,8 +140,7 @@ class CefQuotaCallbackImpl : public CefQuotaCallback {
   DISALLOW_COPY_AND_ASSIGN(CefQuotaCallbackImpl);
 };
 
-class CefAllowCertificateErrorCallbackImpl
-    : public CefAllowCertificateErrorCallback {
+class CefAllowCertificateErrorCallbackImpl : public CefRequestCallback {
  public:
   typedef base::Callback<void(bool)>  // NOLINT(readability/function)
       CallbackType;
@@ -157,17 +149,34 @@ class CefAllowCertificateErrorCallbackImpl
       : callback_(callback) {
   }
 
+  ~CefAllowCertificateErrorCallbackImpl() {
+    if (!callback_.is_null()) {
+      // The callback is still pending. Cancel it now.
+      if (CEF_CURRENTLY_ON_UIT()) {
+        RunNow(callback_, false);
+      } else {
+        CEF_POST_TASK(CEF_UIT,
+            base::Bind(&CefAllowCertificateErrorCallbackImpl::RunNow,
+                       callback_, false));
+      }
+    }
+  }
+
   void Continue(bool allow) override {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (!callback_.is_null()) {
-        callback_.Run(allow);
+        RunNow(callback_, allow);
         callback_.Reset();
       }
     } else {
       CEF_POST_TASK(CEF_UIT,
           base::Bind(&CefAllowCertificateErrorCallbackImpl::Continue,
-              this, allow));
+                     this, allow));
     }
+  }
+
+  void Cancel() override {
+    Continue(false);
   }
 
   void Disconnect() {
@@ -175,6 +184,11 @@ class CefAllowCertificateErrorCallbackImpl
   }
 
  private:
+  static void RunNow(const CallbackType& callback, bool allow) {
+    CEF_REQUIRE_IOT();
+    callback.Run(allow);
+  }
+
   CallbackType callback_;
 
   IMPLEMENT_REFCOUNTING(CefAllowCertificateErrorCallbackImpl);
@@ -211,11 +225,6 @@ class CefGeolocationCallbackImpl : public CefGeolocationCallback {
   }
 
  private:
-  static void Run(const CallbackType& callback, bool allow) {
-    CEF_REQUIRE_UIT();
-    callback.Run(allow);
-  }
-
   CallbackType callback_;
 
   IMPLEMENT_REFCOUNTING(CefGeolocationCallbackImpl);

@@ -10,12 +10,12 @@
 // for more information.
 //
 
-#include "libcef_dll/cpptoc/quota_callback_cpptoc.h"
+#include "libcef_dll/cpptoc/request_callback_cpptoc.h"
 
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
-void CEF_CALLBACK quota_callback_cont(struct _cef_quota_callback_t* self,
+void CEF_CALLBACK request_callback_cont(struct _cef_request_callback_t* self,
     int allow) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -24,11 +24,12 @@ void CEF_CALLBACK quota_callback_cont(struct _cef_quota_callback_t* self,
     return;
 
   // Execute
-  CefQuotaCallbackCppToC::Get(self)->Continue(
+  CefRequestCallbackCppToC::Get(self)->Continue(
       allow?true:false);
 }
 
-void CEF_CALLBACK quota_callback_cancel(struct _cef_quota_callback_t* self) {
+void CEF_CALLBACK request_callback_cancel(
+    struct _cef_request_callback_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -36,21 +37,21 @@ void CEF_CALLBACK quota_callback_cancel(struct _cef_quota_callback_t* self) {
     return;
 
   // Execute
-  CefQuotaCallbackCppToC::Get(self)->Cancel();
+  CefRequestCallbackCppToC::Get(self)->Cancel();
 }
 
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefQuotaCallbackCppToC::CefQuotaCallbackCppToC(CefQuotaCallback* cls)
-    : CefCppToC<CefQuotaCallbackCppToC, CefQuotaCallback, cef_quota_callback_t>(
-        cls) {
-  struct_.struct_.cont = quota_callback_cont;
-  struct_.struct_.cancel = quota_callback_cancel;
+CefRequestCallbackCppToC::CefRequestCallbackCppToC(CefRequestCallback* cls)
+    : CefCppToC<CefRequestCallbackCppToC, CefRequestCallback,
+        cef_request_callback_t>(cls) {
+  struct_.struct_.cont = request_callback_cont;
+  struct_.struct_.cancel = request_callback_cancel;
 }
 
 #ifndef NDEBUG
-template<> base::AtomicRefCount CefCppToC<CefQuotaCallbackCppToC,
-    CefQuotaCallback, cef_quota_callback_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToC<CefRequestCallbackCppToC,
+    CefRequestCallback, cef_request_callback_t>::DebugObjCt = 0;
 #endif
 

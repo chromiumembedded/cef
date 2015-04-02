@@ -10,8 +10,8 @@
 // for more information.
 //
 
-#ifndef CEF_LIBCEF_DLL_CPPTOC_QUOTA_CALLBACK_CPPTOC_H_
-#define CEF_LIBCEF_DLL_CPPTOC_QUOTA_CALLBACK_CPPTOC_H_
+#ifndef CEF_LIBCEF_DLL_CPPTOC_REQUEST_CALLBACK_CPPTOC_H_
+#define CEF_LIBCEF_DLL_CPPTOC_REQUEST_CALLBACK_CPPTOC_H_
 #pragma once
 
 #ifndef BUILDING_CEF_SHARED
@@ -24,13 +24,13 @@
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
-class CefQuotaCallbackCppToC
-    : public CefCppToC<CefQuotaCallbackCppToC, CefQuotaCallback,
-        cef_quota_callback_t> {
+class CefRequestCallbackCppToC
+    : public CefCppToC<CefRequestCallbackCppToC, CefRequestCallback,
+        cef_request_callback_t> {
  public:
-  explicit CefQuotaCallbackCppToC(CefQuotaCallback* cls);
+  explicit CefRequestCallbackCppToC(CefRequestCallback* cls);
 };
 
 #endif  // BUILDING_CEF_SHARED
-#endif  // CEF_LIBCEF_DLL_CPPTOC_QUOTA_CALLBACK_CPPTOC_H_
+#endif  // CEF_LIBCEF_DLL_CPPTOC_REQUEST_CALLBACK_CPPTOC_H_
 
