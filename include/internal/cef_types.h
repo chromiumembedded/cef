@@ -566,6 +566,26 @@ typedef struct _cef_browser_settings_t {
 } cef_browser_settings_t;
 
 ///
+// Return value types.
+///
+typedef enum {
+  ///
+  // Cancel immediately.
+  ///
+  RV_CANCEL = 0,
+
+  ///
+  // Continue immediately.
+  ///
+  RV_CONTINUE,
+
+  ///
+  // Continue asynchronously (usually via a callback).
+  ///
+  RV_CONTINUE_ASYNC,
+} cef_return_value_t;
+
+///
 // URL component parts.
 ///
 typedef struct _cef_urlparts_t {

@@ -37,8 +37,9 @@ class CefRequestHandlerCToCpp
   virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
       bool is_redirect) OVERRIDE;
-  virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request) OVERRIDE;
+  virtual ReturnValue OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
+      CefRefPtr<CefRequestCallback> callback) OVERRIDE;
   virtual CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request) OVERRIDE;
@@ -51,12 +52,12 @@ class CefRequestHandlerCToCpp
       CefRefPtr<CefAuthCallback> callback) OVERRIDE;
   virtual bool OnQuotaRequest(CefRefPtr<CefBrowser> browser,
       const CefString& origin_url, int64 new_size,
-      CefRefPtr<CefQuotaCallback> callback) OVERRIDE;
+      CefRefPtr<CefRequestCallback> callback) OVERRIDE;
   virtual void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
       const CefString& url, bool& allow_os_execution) OVERRIDE;
   virtual bool OnCertificateError(cef_errorcode_t cert_error,
       const CefString& request_url,
-      CefRefPtr<CefAllowCertificateErrorCallback> callback) OVERRIDE;
+      CefRefPtr<CefRequestCallback> callback) OVERRIDE;
   virtual bool OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,
       const CefString& url, const CefString& policy_url,
       CefRefPtr<CefWebPluginInfo> info) OVERRIDE;

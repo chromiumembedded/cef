@@ -208,7 +208,7 @@ class ClientHandler : public CefClient,
   virtual bool OnQuotaRequest(CefRefPtr<CefBrowser> browser,
                               const CefString& origin_url,
                               int64 new_size,
-                              CefRefPtr<CefQuotaCallback> callback) OVERRIDE;
+                              CefRefPtr<CefRequestCallback> callback) OVERRIDE;
   virtual void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
                                    const CefString& url,
                                    bool& allow_os_execution) OVERRIDE;

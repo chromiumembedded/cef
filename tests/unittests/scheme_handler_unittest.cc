@@ -97,9 +97,11 @@ class TestSchemeHandler : public TestHandler {
     TestHandler::DestroyTest();
   }
 
-  virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-                                    CefRefPtr<CefFrame> frame,
-                                    CefRefPtr<CefRequest> request) OVERRIDE {
+  cef_return_value_t OnBeforeResourceLoad(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefRequestCallback> callback) OVERRIDE {
     std::string newUrl = request->GetURL();
     if (!test_results_->exit_url.empty() &&
         newUrl.find(test_results_->exit_url) != std::string::npos) {
@@ -107,7 +109,7 @@ class TestSchemeHandler : public TestHandler {
       if (newUrl.find("SUCCESS") != std::string::npos)
         test_results_->got_sub_success.yes();
       DestroyTest();
-      return true;
+      return RV_CANCEL;
     }
 
     if (!test_results_->sub_redirect_url.empty() &&
@@ -127,7 +129,7 @@ class TestSchemeHandler : public TestHandler {
       test_results_->redirect_url.clear();
     }
 
-    return false;
+    return RV_CONTINUE;
   }
 
   virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,

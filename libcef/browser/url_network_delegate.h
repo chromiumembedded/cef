@@ -26,7 +26,7 @@ class CefNetworkDelegate : public net::NetworkDelegate {
       const AuthCallback& callback,
       net::AuthCredentials* credentials) OVERRIDE;
   virtual bool OnCanAccessFile(const net::URLRequest& request,
-                               const base::FilePath& path) const;
+                               const base::FilePath& path) const OVERRIDE;
 
   DISALLOW_COPY_AND_ASSIGN(CefNetworkDelegate);
 };
