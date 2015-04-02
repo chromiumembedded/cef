@@ -10,12 +10,11 @@
 // for more information.
 //
 
-#include "libcef_dll/cpptoc/allow_certificate_error_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
-#include "libcef_dll/cpptoc/quota_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/request_cpptoc.h"
+#include "libcef_dll/cpptoc/request_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/response_cpptoc.h"
 #include "libcef_dll/cpptoc/sslinfo_cpptoc.h"
 #include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
@@ -90,35 +89,40 @@ bool CefRequestHandlerCToCpp::OnOpenURLFromTab(CefRefPtr<CefBrowser> browser,
   return _retval?true:false;
 }
 
-bool CefRequestHandlerCToCpp::OnBeforeResourceLoad(
+CefRequestHandler::ReturnValue CefRequestHandlerCToCpp::OnBeforeResourceLoad(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request) {
+    CefRefPtr<CefRequest> request, CefRefPtr<CefRequestCallback> callback) {
   if (CEF_MEMBER_MISSING(struct_, on_before_resource_load))
-    return false;
+    return RV_CONTINUE;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: browser; type: refptr_diff
   DCHECK(browser.get());
   if (!browser.get())
-    return false;
+    return RV_CONTINUE;
   // Verify param: frame; type: refptr_diff
   DCHECK(frame.get());
   if (!frame.get())
-    return false;
+    return RV_CONTINUE;
   // Verify param: request; type: refptr_diff
   DCHECK(request.get());
   if (!request.get())
-    return false;
+    return RV_CONTINUE;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback.get());
+  if (!callback.get())
+    return RV_CONTINUE;
 
   // Execute
-  int _retval = struct_->on_before_resource_load(struct_,
+  cef_return_value_t _retval = struct_->on_before_resource_load(struct_,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame),
-      CefRequestCppToC::Wrap(request));
+      CefRequestCppToC::Wrap(request),
+      CefRequestCallbackCppToC::Wrap(callback));
 
-  // Return type: bool
-  return _retval?true:false;
+  // Return type: simple
+  return _retval;
 }
 
 CefRefPtr<CefResourceHandler> CefRequestHandlerCToCpp::GetResourceHandler(
@@ -265,7 +269,7 @@ bool CefRequestHandlerCToCpp::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
 
 bool CefRequestHandlerCToCpp::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
     const CefString& origin_url, int64 new_size,
-    CefRefPtr<CefQuotaCallback> callback) {
+    CefRefPtr<CefRequestCallback> callback) {
   if (CEF_MEMBER_MISSING(struct_, on_quota_request))
     return false;
 
@@ -289,7 +293,7 @@ bool CefRequestHandlerCToCpp::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
       CefBrowserCppToC::Wrap(browser),
       origin_url.GetStruct(),
       new_size,
-      CefQuotaCallbackCppToC::Wrap(callback));
+      CefRequestCallbackCppToC::Wrap(callback));
 
   // Return type: bool
   return _retval?true:false;
@@ -326,8 +330,7 @@ void CefRequestHandlerCToCpp::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
 
 bool CefRequestHandlerCToCpp::OnCertificateError(CefRefPtr<CefBrowser> browser,
     cef_errorcode_t cert_error, const CefString& request_url,
-    CefRefPtr<CefSSLInfo> ssl_info,
-    CefRefPtr<CefAllowCertificateErrorCallback> callback) {
+    CefRefPtr<CefSSLInfo> ssl_info, CefRefPtr<CefRequestCallback> callback) {
   if (CEF_MEMBER_MISSING(struct_, on_certificate_error))
     return false;
 
@@ -356,7 +359,7 @@ bool CefRequestHandlerCToCpp::OnCertificateError(CefRefPtr<CefBrowser> browser,
       cert_error,
       request_url.GetStruct(),
       CefSSLInfoCppToC::Wrap(ssl_info),
-      CefAllowCertificateErrorCallbackCppToC::Wrap(callback));
+      CefRequestCallbackCppToC::Wrap(callback));
 
   // Return type: bool
   return _retval?true:false;

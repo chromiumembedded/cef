@@ -165,9 +165,11 @@ class RequestSendRecvTestHandler : public TestHandler {
     browser->GetMainFrame()->LoadRequest(request_);
   }
 
-  bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-                            CefRefPtr<CefFrame> frame,
-                            CefRefPtr<CefRequest> request) override {
+  cef_return_value_t OnBeforeResourceLoad(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefRequestCallback> callback) override {
     // Verify that the request is the same
     TestRequestEqual(request_, request, true);
     EXPECT_EQ(RT_MAIN_FRAME, request->GetResourceType());
@@ -175,7 +177,7 @@ class RequestSendRecvTestHandler : public TestHandler {
 
     got_before_resource_load_.yes();
 
-    return false;
+    return RV_CONTINUE;
   }
 
   CefRefPtr<CefResourceHandler> GetResourceHandler(
@@ -459,12 +461,14 @@ class TypeTestHandler : public TestHandler {
     return false;
   }
 
-  bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-                            CefRefPtr<CefFrame> frame,
-                            CefRefPtr<CefRequest> request) override {
+  cef_return_value_t OnBeforeResourceLoad(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefRequestCallback> callback) override {
     load_expectations_.GotRequest(request);
     
-    return false;
+    return RV_CONTINUE;
   }
 
   CefRefPtr<CefResourceHandler> GetResourceHandler(

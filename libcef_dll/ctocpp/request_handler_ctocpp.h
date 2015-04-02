@@ -38,8 +38,9 @@ class CefRequestHandlerCToCpp
   bool OnOpenURLFromTab(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, const CefString& target_url,
       WindowOpenDisposition target_disposition, bool user_gesture) override;
-  bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-      CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request) override;
+  ReturnValue OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
+      CefRefPtr<CefRequestCallback> callback) override;
   CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request) override;
@@ -55,13 +56,13 @@ class CefRequestHandlerCToCpp
       CefRefPtr<CefAuthCallback> callback) override;
   bool OnQuotaRequest(CefRefPtr<CefBrowser> browser,
       const CefString& origin_url, int64 new_size,
-      CefRefPtr<CefQuotaCallback> callback) override;
+      CefRefPtr<CefRequestCallback> callback) override;
   void OnProtocolExecution(CefRefPtr<CefBrowser> browser, const CefString& url,
       bool& allow_os_execution) override;
   bool OnCertificateError(CefRefPtr<CefBrowser> browser,
       cef_errorcode_t cert_error, const CefString& request_url,
       CefRefPtr<CefSSLInfo> ssl_info,
-      CefRefPtr<CefAllowCertificateErrorCallback> callback) override;
+      CefRefPtr<CefRequestCallback> callback) override;
   bool OnBeforePluginLoad(CefRefPtr<CefBrowser> browser, const CefString& url,
       const CefString& policy_url, CefRefPtr<CefWebPluginInfo> info) override;
   void OnPluginCrashed(CefRefPtr<CefBrowser> browser,

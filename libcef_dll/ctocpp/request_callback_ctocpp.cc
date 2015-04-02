@@ -10,12 +10,12 @@
 // for more information.
 //
 
-#include "libcef_dll/ctocpp/quota_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/request_callback_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-void CefQuotaCallbackCToCpp::Continue(bool allow) {
+void CefRequestCallbackCToCpp::Continue(bool allow) {
   if (CEF_MEMBER_MISSING(struct_, cont))
     return;
 
@@ -26,7 +26,7 @@ void CefQuotaCallbackCToCpp::Continue(bool allow) {
       allow);
 }
 
-void CefQuotaCallbackCToCpp::Cancel() {
+void CefRequestCallbackCToCpp::Cancel() {
   if (CEF_MEMBER_MISSING(struct_, cancel))
     return;
 
@@ -38,7 +38,7 @@ void CefQuotaCallbackCToCpp::Cancel() {
 
 
 #ifndef NDEBUG
-template<> base::AtomicRefCount CefCToCpp<CefQuotaCallbackCToCpp,
-    CefQuotaCallback, cef_quota_callback_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefRequestCallbackCToCpp,
+    CefRequestCallback, cef_request_callback_t>::DebugObjCt = 0;
 #endif
 

@@ -138,9 +138,11 @@ class NetNotifyTestHandler : public TestHandler {
     SetTestTimeout();
   }
 
-  bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-                            CefRefPtr<CefFrame> frame,
-                            CefRefPtr<CefRequest> request) override {
+  cef_return_value_t OnBeforeResourceLoad(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefRequestCallback> callback) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
 
     const std::string& url = request->GetURL();
@@ -151,7 +153,7 @@ class NetNotifyTestHandler : public TestHandler {
     else
       EXPECT_TRUE(false);  // Not reached
 
-    return false;
+    return RV_CONTINUE;
   }
 
   CefRefPtr<CefResourceHandler> GetResourceHandler(
@@ -561,15 +563,17 @@ class ResourceResponseTest : public TestHandler {
     return false;
   }
 
-  bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser,
-                            CefRefPtr<CefFrame> frame,
-                            CefRefPtr<CefRequest> request) override {
+  cef_return_value_t OnBeforeResourceLoad(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefRequestCallback> callback) override {
     EXPECT_IO_THREAD();
     EXPECT_EQ(browser_id_, browser->GetIdentifier());
 
     if (request->GetURL() == kResourceTestHtml) {
       EXPECT_EQ(main_request_id_, request->GetIdentifier());
-      return false;
+      return RV_CONTINUE;
     }
 
     // All redirects of the sub-resource should keep the same request id.
@@ -580,7 +584,8 @@ class ResourceResponseTest : public TestHandler {
       EXPECT_EQ(sub_request_id_, request->GetIdentifier());
     }
 
-    return resource_test_->OnBeforeResourceLoad(browser, frame, request);
+    return resource_test_->OnBeforeResourceLoad(browser, frame, request) ?
+        RV_CANCEL : RV_CONTINUE;
   }
 
   CefRefPtr<CefResourceHandler> GetResourceHandler(
@@ -913,6 +918,173 @@ TEST(RequestHandlerTest, ResourceResponseHeader) {
 TEST(RequestHandlerTest, ResourceResponsePost) {
   CefRefPtr<ResourceResponseTest> handler =
       new ResourceResponseTest(ResourceResponseTest::POST);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+
+namespace {
+
+const char kResourceTestHtml2[] = "http://test.com/resource2.html";
+
+class BeforeResourceLoadTest : public TestHandler {
+ public:
+  enum TestMode {
+    CANCEL,
+    CANCEL_ASYNC,
+    CANCEL_NAV,
+    CONTINUE,
+    CONTINUE_ASYNC,
+  };
+
+  explicit BeforeResourceLoadTest(TestMode mode)
+      : test_mode_(mode) {
+  }
+
+  void RunTest() override {
+    AddResource(kResourceTestHtml, "<html><body>Test</body></html>",
+                "text/html");
+    AddResource(kResourceTestHtml2, "<html><body>Test2</body></html>",
+                "text/html");
+    CreateBrowser(kResourceTestHtml);
+    SetTestTimeout();
+  }
+
+  cef_return_value_t OnBeforeResourceLoad(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefRequestCallback> callback) override {
+    EXPECT_IO_THREAD();
+
+    // Allow the 2nd navigation to continue.
+    const std::string& url = request->GetURL();
+    if (url == kResourceTestHtml2) {
+      got_before_resource_load2_.yes();
+      EXPECT_EQ(CANCEL_NAV, test_mode_);
+      return RV_CONTINUE;
+    }
+    
+    EXPECT_FALSE(got_before_resource_load_);
+    got_before_resource_load_.yes();
+
+    if (test_mode_ == CANCEL) {
+      // Cancel immediately.
+      return RV_CANCEL;
+    } else if (test_mode_ == CONTINUE) {
+      // Continue immediately.
+      return RV_CONTINUE;
+    } else {
+      if (test_mode_ == CANCEL_NAV) {
+        // Cancel the request by navigating to a new URL.
+        browser->GetMainFrame()->LoadURL(kResourceTestHtml2);
+      } else {
+        // Continue or cancel asynchronously.
+        CefPostTask(TID_UI,
+            base::Bind(&CefRequestCallback::Continue, callback.get(),
+                       test_mode_ == CONTINUE_ASYNC));
+      }
+      return RV_CONTINUE_ASYNC;
+    }
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    EXPECT_UI_THREAD();
+
+    EXPECT_FALSE(got_load_end_);
+    got_load_end_.yes();
+
+    const std::string& url = frame->GetURL();
+    if (test_mode_ == CANCEL_NAV)
+      EXPECT_STREQ(kResourceTestHtml2, url.data());
+    else
+      EXPECT_STREQ(kResourceTestHtml, url.data());
+
+    TestHandler::OnLoadEnd(browser, frame, httpStatusCode);
+    DestroyTest();
+  }
+
+  void OnLoadError(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   ErrorCode errorCode,
+                   const CefString& errorText,
+                   const CefString& failedUrl) override {
+    EXPECT_UI_THREAD();
+
+    EXPECT_FALSE(got_load_error_);
+    got_load_error_.yes();
+
+    const std::string& url = failedUrl;
+    EXPECT_STREQ(kResourceTestHtml, url.data());
+
+    TestHandler::OnLoadError(browser, frame, errorCode, errorText, failedUrl);
+    if (test_mode_ != CANCEL_NAV)
+      DestroyTest();
+  }
+
+  void DestroyTest() override {
+    EXPECT_TRUE(got_before_resource_load_);
+
+    if (test_mode_ == CANCEL_NAV)
+      EXPECT_TRUE(got_before_resource_load2_);
+    else
+      EXPECT_FALSE(got_before_resource_load2_);
+
+    if (test_mode_ == CONTINUE || test_mode_ == CONTINUE_ASYNC) {
+      EXPECT_TRUE(got_load_end_);
+      EXPECT_FALSE(got_load_error_);
+    } else if (test_mode_ == CANCEL || test_mode_ == CANCEL_ASYNC) {
+      EXPECT_FALSE(got_load_end_);
+      EXPECT_TRUE(got_load_error_);
+    }
+    
+    TestHandler::DestroyTest();
+  }
+
+ private:
+  const TestMode test_mode_;
+
+  TrackCallback got_before_resource_load_;
+  TrackCallback got_before_resource_load2_;
+  TrackCallback got_load_end_;
+  TrackCallback got_load_error_;
+};
+
+}  // namespace
+
+TEST(RequestHandlerTest, BeforeResourceLoadCancel) {
+  CefRefPtr<BeforeResourceLoadTest> handler =
+      new BeforeResourceLoadTest(BeforeResourceLoadTest::CANCEL);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(RequestHandlerTest, BeforeResourceLoadCancelAsync) {
+  CefRefPtr<BeforeResourceLoadTest> handler =
+      new BeforeResourceLoadTest(BeforeResourceLoadTest::CANCEL_ASYNC);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(RequestHandlerTest, BeforeResourceLoadCancelNav) {
+  CefRefPtr<BeforeResourceLoadTest> handler =
+      new BeforeResourceLoadTest(BeforeResourceLoadTest::CANCEL_NAV);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(RequestHandlerTest, BeforeResourceLoadContinue) {
+  CefRefPtr<BeforeResourceLoadTest> handler =
+      new BeforeResourceLoadTest(BeforeResourceLoadTest::CONTINUE);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+TEST(RequestHandlerTest, BeforeResourceLoadContinueAsync) {
+  CefRefPtr<BeforeResourceLoadTest> handler =
+      new BeforeResourceLoadTest(BeforeResourceLoadTest::CONTINUE_ASYNC);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }

@@ -211,7 +211,7 @@ class ClientHandler : public CefClient,
   bool OnQuotaRequest(CefRefPtr<CefBrowser> browser,
                       const CefString& origin_url,
                       int64 new_size,
-                      CefRefPtr<CefQuotaCallback> callback) OVERRIDE;
+                      CefRefPtr<CefRequestCallback> callback) OVERRIDE;
   void OnProtocolExecution(CefRefPtr<CefBrowser> browser,
                            const CefString& url,
                            bool& allow_os_execution) OVERRIDE;
@@ -220,7 +220,7 @@ class ClientHandler : public CefClient,
       ErrorCode cert_error,
       const CefString& request_url,
       CefRefPtr<CefSSLInfo> ssl_info,
-      CefRefPtr<CefAllowCertificateErrorCallback> callback) OVERRIDE;
+      CefRefPtr<CefRequestCallback> callback) OVERRIDE;
   void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
                                  TerminationStatus status) OVERRIDE;
 

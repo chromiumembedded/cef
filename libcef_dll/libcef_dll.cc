@@ -32,7 +32,6 @@
 #include "include/capi/cef_v8_capi.h"
 #include "include/cef_web_plugin.h"
 #include "include/capi/cef_web_plugin_capi.h"
-#include "libcef_dll/cpptoc/allow_certificate_error_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/before_download_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
@@ -58,7 +57,7 @@
 #include "libcef_dll/cpptoc/print_job_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/print_settings_cpptoc.h"
 #include "libcef_dll/cpptoc/process_message_cpptoc.h"
-#include "libcef_dll/cpptoc/quota_callback_cpptoc.h"
+#include "libcef_dll/cpptoc/request_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/sslcert_principal_cpptoc.h"
 #include "libcef_dll/cpptoc/sslinfo_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_registrar_cpptoc.h"
@@ -186,8 +185,6 @@ CEF_EXPORT void cef_shutdown() {
 
 #ifndef NDEBUG
   // Check that all wrapper objects have been destroyed
-  DCHECK(base::AtomicRefCountIsZero(
-      &CefAllowCertificateErrorCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefAuthCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefBeforeDownloadCallbackCppToC::DebugObjCt));
@@ -239,11 +236,11 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefPrintJobCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefPrintSettingsCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefProcessMessageCppToC::DebugObjCt));
-  DCHECK(base::AtomicRefCountIsZero(&CefQuotaCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefReadHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefRenderHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefRenderProcessHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefRequestCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefRequestHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefResourceBundleHandlerCToCpp::DebugObjCt));
