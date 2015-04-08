@@ -73,6 +73,11 @@ MSVC_POP_WARNING();
 #include "third_party/WebKit/public/web/WebView.h"
 #include "v8/include/v8.h"
 
+#if defined(OS_MACOSX)
+#include "base/mac/mac_util.h"
+#include "base/strings/sys_string_conversions.h"
+#endif
+
 #if defined(OS_WIN)
 #include "base/win/iat_patch_function.h"
 #endif
@@ -499,6 +504,23 @@ void CefContentRendererClient::RenderThreadStarted() {
 
   pdf_print_client_.reset(new ChromePDFPrintClient());
   pdf::PPB_PDF_Impl::SetPrintClient(pdf_print_client_.get());
+
+#if defined(OS_MACOSX)
+  if (base::mac::IsOSLionOrLater()) {
+    base::ScopedCFTypeRef<CFStringRef> key(
+        base::SysUTF8ToCFStringRef("NSScrollViewRubberbanding"));
+    base::ScopedCFTypeRef<CFStringRef> value;
+
+    // If the command-line switch is specified then set the value that will be
+    // checked in RenderThreadImpl::Init(). Otherwise, remove the application-
+    // level value.
+    if (command_line->HasSwitch(switches::kDisableScrollBounce))
+      value.reset(base::SysUTF8ToCFStringRef("false"));
+
+    CFPreferencesSetAppValue(key, value, kCFPreferencesCurrentApplication);
+    CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication);
+  }
+#endif  // defined(OS_MACOSX)
 
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();

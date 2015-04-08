@@ -94,4 +94,7 @@ const char kEnableSpellingService[]       = "enable-spelling-service";
 // Override the default spellchecking language which comes from locales.pak.
 const char kOverrideSpellCheckLang[]      = "override-spell-check-lang";
 
+// Disable scroll bounce (rubber-banding) on OS X Lion and newer.
+const char kDisableScrollBounce[]         = "disable-scroll-bounce";
+
 }  // namespace switches
