@@ -41,6 +41,7 @@
 #include "content/public/browser/plugin_service_filter.h"
 #include "content/public/browser/quota_permission_context.h"
 #include "content/public/browser/render_process_host.h"
+#include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/resource_dispatcher_host.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/storage_quota_params.h"
@@ -971,6 +972,7 @@ void CefContentBrowserClient::OverrideWebkitPrefs(
   BrowserToWebSettings(browser->settings(), *prefs);
 
   prefs->base_background_color = GetBaseBackgroundColor(rvh);
+  rvh->GetView()->SetBackgroundColor(prefs->base_background_color);
 
   prefs->asynchronous_spell_checking_enabled = true;
   // Auto-correct does not work in combination with the unified text checker.
