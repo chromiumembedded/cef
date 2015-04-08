@@ -664,6 +664,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     // any associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
       switches::kContextSafetyImplementation,
+      switches::kDisableScrollBounce,
       switches::kDisableSpellChecking,
       switches::kEnableSpeechInput,
       switches::kEnableSpellingAutoCorrect,

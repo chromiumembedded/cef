@@ -69,6 +69,11 @@ MSVC_POP_WARNING();
 #include "third_party/WebKit/public/web/WebView.h"
 #include "v8/include/v8.h"
 
+#if defined(OS_MACOSX)
+#include "base/mac/mac_util.h"
+#include "base/strings/sys_string_conversions.h"
+#endif
+
 namespace {
 
 // Stub implementation of blink::WebPrerenderingSupport.
@@ -454,6 +459,23 @@ void CefContentRendererClient::RenderThreadStarted() {
 
   // Cross-origin entries need to be added after WebKit is initialized.
   cross_origin_whitelist_entries_ = params.cross_origin_whitelist_entries;
+
+#if defined(OS_MACOSX)
+  if (base::mac::IsOSLionOrLater()) {
+    base::ScopedCFTypeRef<CFStringRef> key(
+        base::SysUTF8ToCFStringRef("NSScrollViewRubberbanding"));
+    base::ScopedCFTypeRef<CFStringRef> value;
+
+    // If the command-line switch is specified then set the value that will be
+    // checked in RenderThreadImpl::Init(). Otherwise, remove the application-
+    // level value.
+    if (command_line->HasSwitch(switches::kDisableScrollBounce))
+      value.reset(base::SysUTF8ToCFStringRef("false"));
+
+    CFPreferencesSetAppValue(key, value, kCFPreferencesCurrentApplication);
+    CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication);
+  }
+#endif  // defined(OS_MACOSX)
 
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();
