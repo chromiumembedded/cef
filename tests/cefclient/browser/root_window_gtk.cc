@@ -15,6 +15,7 @@
 #include "include/cef_app.h"
 #include "cefclient/browser/browser_window_osr_gtk.h"
 #include "cefclient/browser/browser_window_std_gtk.h"
+#include "cefclient/browser/main_context.h"
 #include "cefclient/browser/main_message_loop.h"
 #include "cefclient/browser/resource.h"
 #include "cefclient/browser/temp_window.h"
@@ -205,15 +206,9 @@ ClientWindowHandle RootWindowGtk::GetWindowHandle() const {
 
 void RootWindowGtk::CreateBrowserWindow(const std::string& startup_url) {
   if (with_osr_) {
-    CefRefPtr<CefCommandLine> command_line =
-        CefCommandLine::GetGlobalCommandLine();
-    const bool transparent =
-        command_line->HasSwitch(switches::kTransparentPaintingEnabled);
-    const bool show_update_rect =
-        command_line->HasSwitch(switches::kShowUpdateRect);
-    browser_window_.reset(new BrowserWindowOsrGtk(this, startup_url,
-                                                  transparent,
-                                                  show_update_rect));
+    OsrRenderer::Settings settings;
+    MainContext::Get()->PopulateOsrSettings(&settings);
+    browser_window_.reset(new BrowserWindowOsrGtk(this, startup_url, settings));
   } else {
     browser_window_.reset(new BrowserWindowStdGtk(this, startup_url));
   }
@@ -249,6 +244,13 @@ void RootWindowGtk::CreateRootWindow(const CefBrowserSettings& settings) {
                    G_CALLBACK(&RootWindowGtk::WindowDestroy), this);
   g_signal_connect(G_OBJECT(window_), "delete_event",
                    G_CALLBACK(&RootWindowGtk::WindowDelete), this);
+
+  const cef_color_t background_color = MainContext::Get()->GetBackgroundColor();
+  GdkColor color = {0};
+  color.red = CefColorGetR(background_color) * 65535 / 255;
+  color.green = CefColorGetG(background_color) * 65535 / 255;
+  color.blue = CefColorGetB(background_color) * 65535 / 255;
+  gtk_widget_modify_bg(window_, GTK_STATE_NORMAL, &color);
 
   GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
   g_signal_connect(vbox, "size-allocate",

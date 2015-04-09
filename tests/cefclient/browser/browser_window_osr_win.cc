@@ -10,12 +10,11 @@ namespace client {
 
 BrowserWindowOsrWin::BrowserWindowOsrWin(BrowserWindow::Delegate* delegate,
                                          const std::string& startup_url,
-                                         bool transparent,
-                                         bool show_update_rect)
+                                         const OsrRenderer::Settings& settings)
     : BrowserWindow(delegate),
-      transparent_(transparent),
+      transparent_(settings.transparent),
       osr_hwnd_(NULL) {
-  osr_window_ = new OsrWindowWin(this, transparent, show_update_rect);
+  osr_window_ = new OsrWindowWin(this, settings);
   client_handler_ = new ClientHandlerOsr(this, osr_window_.get(), startup_url);
 }
 

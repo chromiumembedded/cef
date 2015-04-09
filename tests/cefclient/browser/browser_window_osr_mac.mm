@@ -9,7 +9,7 @@
 #include <OpenGL/gl.h>
 
 #include "include/base/cef_logging.h"
-#include "include/cef_url.h"
+#include "include/cef_parser.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "cefclient/browser/bytes_write_handler.h"
 #include "cefclient/browser/main_message_loop.h"
@@ -662,12 +662,22 @@ BrowserOpenGLView* GLView(NSView* view) {
 }
 
 - (void)drawRect: (NSRect) dirtyRect {
-  // The Invalidate below fixes flicker when resizing
-  if ([self inLiveResize]) {
-    CefRefPtr<CefBrowser> browser = [self getBrowser];
-    if (browser.get())
-      browser->GetHost()->Invalidate(PET_VIEW);
+  CefRefPtr<CefBrowser> browser = [self getBrowser];
+  if ([self inLiveResize] || !browser.get()) {
+    // Fill with the background color.
+    const cef_color_t background_color = renderer_->GetBackgroundColor();
+    NSColor* color =
+        [NSColor colorWithRed:float(CefColorGetR(background_color)) / 255.0f
+                        green:float(CefColorGetG(background_color)) / 255.0f
+                         blue:float(CefColorGetB(background_color)) / 255.0f
+                        alpha:1.f];
+    [color setFill];
+    NSRectFill(dirtyRect);
   }
+
+  // The Invalidate below fixes flicker when resizing.
+  if ([self inLiveResize] && browser.get())
+    browser->GetHost()->Invalidate(PET_VIEW);
 }
 
 // Drag and drop
@@ -1083,10 +1093,9 @@ namespace client {
 
 BrowserWindowOsrMac::BrowserWindowOsrMac(BrowserWindow::Delegate* delegate,
                                          const std::string& startup_url,
-                                         bool transparent,
-                                         bool show_update_rect)
+                                         const OsrRenderer::Settings& settings)
     : BrowserWindow(delegate),
-      renderer_(transparent, show_update_rect),
+      renderer_(settings),
       nsview_(NULL),
       hidden_(false),
       painting_popup_(false) {

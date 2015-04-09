@@ -5,11 +5,11 @@
 // Include this first to avoid type conflicts with CEF headers.
 #include "tests/unittests/chromium_includes.h"
 
-#include "include/cef_url.h"
+#include "include/cef_parser.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 // Create the URL using the spec.
-TEST(URLTest, CreateURLSpec) {
+TEST(ParserTest, CreateURLSpec) {
   CefURLParts parts;
   CefString url;
   CefString(&parts.spec).FromASCII(
@@ -21,7 +21,7 @@ TEST(URLTest, CreateURLSpec) {
 }
 
 // Test that host is required.
-TEST(URLTest, CreateURLHostRequired) {
+TEST(ParserTest, CreateURLHostRequired) {
   CefURLParts parts;
   CefString url;
   CefString(&parts.scheme).FromASCII("http");
@@ -29,7 +29,7 @@ TEST(URLTest, CreateURLHostRequired) {
 }
 
 // Test that scheme is required.
-TEST(URLTest, CreateURLSchemeRequired) {
+TEST(ParserTest, CreateURLSchemeRequired) {
   CefURLParts parts;
   CefString url;
   CefString(&parts.host).FromASCII("www.example.com");
@@ -37,7 +37,7 @@ TEST(URLTest, CreateURLSchemeRequired) {
 }
 
 // Create the URL using scheme and host.
-TEST(URLTest, CreateURLSchemeHost) {
+TEST(ParserTest, CreateURLSchemeHost) {
   CefURLParts parts;
   CefString url;
   CefString(&parts.scheme).FromASCII("http");
@@ -47,7 +47,7 @@ TEST(URLTest, CreateURLSchemeHost) {
 }
 
 // Create the URL using scheme, host and path.
-TEST(URLTest, CreateURLSchemeHostPath) {
+TEST(ParserTest, CreateURLSchemeHostPath) {
   CefURLParts parts;
   CefString url;
   CefString(&parts.scheme).FromASCII("http");
@@ -58,7 +58,7 @@ TEST(URLTest, CreateURLSchemeHostPath) {
 }
 
 // Create the URL using scheme, host, path and query.
-TEST(URLTest, CreateURLSchemeHostPathQuery) {
+TEST(ParserTest, CreateURLSchemeHostPathQuery) {
   CefURLParts parts;
   CefString url;
   CefString(&parts.scheme).FromASCII("http");
@@ -71,7 +71,7 @@ TEST(URLTest, CreateURLSchemeHostPathQuery) {
 }
 
 // Create the URL using all the various components.
-TEST(URLTest, CreateURLAll) {
+TEST(ParserTest, CreateURLAll) {
   CefURLParts parts;
   CefString url;
   CefString(&parts.scheme).FromASCII("http");
@@ -88,7 +88,7 @@ TEST(URLTest, CreateURLAll) {
 }
 
 // Parse the URL using scheme and host.
-TEST(URLTest, ParseURLSchemeHost) {
+TEST(ParserTest, ParseURLSchemeHost) {
   CefURLParts parts;
   CefString url;
   url.FromASCII("http://www.example.com");
@@ -111,7 +111,7 @@ TEST(URLTest, ParseURLSchemeHost) {
 }
 
 // Parse the URL using scheme, host and path.
-TEST(URLTest, ParseURLSchemeHostPath) {
+TEST(ParserTest, ParseURLSchemeHostPath) {
   CefURLParts parts;
   CefString url;
   url.FromASCII("http://www.example.com/path/to.html");
@@ -135,7 +135,7 @@ TEST(URLTest, ParseURLSchemeHostPath) {
 }
 
 // Parse the URL using scheme, host, path and query.
-TEST(URLTest, ParseURLSchemeHostPathQuery) {
+TEST(ParserTest, ParseURLSchemeHostPathQuery) {
   CefURLParts parts;
   CefString url;
   url.FromASCII("http://www.example.com/path/to.html?foo=test&bar=test2");
@@ -160,7 +160,7 @@ TEST(URLTest, ParseURLSchemeHostPathQuery) {
 }
 
 // Parse the URL using all the various components.
-TEST(URLTest, ParseURLAll) {
+TEST(ParserTest, ParseURLAll) {
   CefURLParts parts;
   CefString url;
   url.FromASCII(
@@ -190,7 +190,7 @@ TEST(URLTest, ParseURLAll) {
 }
 
 // Parse an invalid URL.
-TEST(URLTest, ParseURLInvalid) {
+TEST(ParserTest, ParseURLInvalid) {
   CefURLParts parts;
   CefString url;
   url.FromASCII("www.example.com");
@@ -198,7 +198,7 @@ TEST(URLTest, ParseURLInvalid) {
 }
 
 // Parse a non-standard scheme.
-TEST(URLTest, ParseURLNonStandard) {
+TEST(ParserTest, ParseURLNonStandard) {
   CefURLParts parts;
   CefString url;
   url.FromASCII("custom:something%20else?foo");
@@ -219,7 +219,7 @@ TEST(URLTest, ParseURLNonStandard) {
   EXPECT_STREQ("foo", query.ToString().c_str());
 }
 
-TEST(URLTest, GetMimeType) {
+TEST(ParserTest, GetMimeType) {
   CefString mime_type;
 
   mime_type = CefGetMimeType("html");
@@ -232,7 +232,7 @@ TEST(URLTest, GetMimeType) {
   EXPECT_STREQ("image/gif", mime_type.ToString().c_str());
 }
 
-TEST(URLTest, Base64Encode) {
+TEST(ParserTest, Base64Encode) {
   const std::string& test_str_decoded = "A test string";
   const std::string& test_str_encoded = "QSB0ZXN0IHN0cmluZw==";
   const CefString& encoded_value =
@@ -240,7 +240,7 @@ TEST(URLTest, Base64Encode) {
   EXPECT_STREQ(test_str_encoded.c_str(), encoded_value.ToString().c_str());
 }
 
-TEST(URLTest, Base64Decode) {
+TEST(ParserTest, Base64Decode) {
   const std::string& test_str_decoded = "A test string";
   const std::string& test_str_encoded = "QSB0ZXN0IHN0cmluZw==";
   CefRefPtr<CefBinaryValue> decoded_value = CefBase64Decode(test_str_encoded);
@@ -258,14 +258,14 @@ TEST(URLTest, Base64Decode) {
   EXPECT_STREQ(test_str_decoded.c_str(), decoded_str.c_str());
 }
 
-TEST(URLTest, URIEncode) {
+TEST(ParserTest, URIEncode) {
   const std::string& test_str_decoded = "A test string=";
   const std::string& test_str_encoded = "A%20test%20string%3D";
   const CefString& encoded_value = CefURIEncode(test_str_decoded, false);
   EXPECT_STREQ(test_str_encoded.c_str(), encoded_value.ToString().c_str());
 }
 
-TEST(URLTest, URIDecode) {
+TEST(ParserTest, URIDecode) {
   const std::string& test_str_decoded = "A test string=";
   const std::string& test_str_encoded = "A%20test%20string%3D";
   const CefString& decoded_value =
@@ -273,4 +273,39 @@ TEST(URLTest, URIDecode) {
                    static_cast<cef_uri_unescape_rule_t>(
                       UU_SPACES | UU_URL_SPECIAL_CHARS));
   EXPECT_STREQ(test_str_decoded.c_str(), decoded_value.ToString().c_str());
+}
+
+TEST(ParserTest, ParseCSSColor) {
+  std::string value;
+  cef_color_t color;
+
+  // Color by name.
+  value = "red";
+  color = 0;
+  EXPECT_TRUE(CefParseCSSColor(value, false, color));
+  EXPECT_EQ(CefColorSetARGB(255, 255, 0, 0), color);
+
+  // Color by RGB.
+  value = "rgb(1,2,3)";
+  color = 0;
+  EXPECT_TRUE(CefParseCSSColor(value, false, color));
+  EXPECT_EQ(CefColorSetARGB(255, 1, 2, 3), color);
+
+  // Color by RGBA.
+  value = "rgba(1,2,3,0.0)";
+  color = 0;
+  EXPECT_TRUE(CefParseCSSColor(value, false, color));
+  EXPECT_EQ(CefColorSetARGB(0, 1, 2, 3), color);
+
+  // Color by hex code.
+  value = "#FFAACC";
+  color = 0;
+  EXPECT_TRUE(CefParseCSSColor(value, false, color));
+  EXPECT_EQ(CefColorSetARGB(255, 0xFF, 0xAA, 0xCC), color);
+
+  // Invalid color.
+  value = "not_a_color";
+  color = 0;
+  EXPECT_FALSE(CefParseCSSColor(value, false, color));
+  EXPECT_EQ(0U, color);
 }

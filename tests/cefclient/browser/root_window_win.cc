@@ -8,6 +8,7 @@
 #include "include/cef_app.h"
 #include "cefclient/browser/browser_window_osr_win.h"
 #include "cefclient/browser/browser_window_std_win.h"
+#include "cefclient/browser/main_context.h"
 #include "cefclient/browser/main_message_loop.h"
 #include "cefclient/browser/resource.h"
 #include "cefclient/browser/temp_window.h"
@@ -201,15 +202,9 @@ ClientWindowHandle RootWindowWin::GetWindowHandle() const {
 void RootWindowWin::CreateBrowserWindow(bool with_osr,
                                         const std::string& startup_url) {
   if (with_osr) {
-    CefRefPtr<CefCommandLine> command_line =
-        CefCommandLine::GetGlobalCommandLine();
-    const bool transparent =
-        command_line->HasSwitch(switches::kTransparentPaintingEnabled);
-    const bool show_update_rect =
-        command_line->HasSwitch(switches::kShowUpdateRect);
-    browser_window_.reset(new BrowserWindowOsrWin(this, startup_url,
-                                                  transparent,
-                                                  show_update_rect));
+    OsrRenderer::Settings settings;
+    MainContext::Get()->PopulateOsrSettings(&settings);
+    browser_window_.reset(new BrowserWindowOsrWin(this, startup_url, settings));
   } else {
     browser_window_.reset(new BrowserWindowStdWin(this, startup_url));
   }
@@ -225,8 +220,14 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings) {
   const std::wstring& window_title = GetResourceString(IDS_APP_TITLE);
   const std::wstring& window_class = GetResourceString(IDC_CEFCLIENT);
 
+  const cef_color_t background_color = MainContext::Get()->GetBackgroundColor();
+  const HBRUSH background_brush = CreateSolidBrush(
+      RGB(CefColorGetR(background_color),
+          CefColorGetG(background_color),
+          CefColorGetB(background_color)));
+
   // Register the window class.
-  RegisterRootClass(hInstance, window_class);
+  RegisterRootClass(hInstance, window_class, background_brush);
 
   // Register the message used with the find dialog.
   find_message_id_ = RegisterWindowMessage(FINDMSGSTRING);
@@ -342,7 +343,8 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings) {
 
 // static
 void RootWindowWin::RegisterRootClass(HINSTANCE hInstance,
-                                      const std::wstring& window_class) {
+                                      const std::wstring& window_class,
+                                      HBRUSH background_brush) {
   // Only register the class one time.
   static bool class_registered = false;
   if (class_registered)
@@ -360,7 +362,7 @@ void RootWindowWin::RegisterRootClass(HINSTANCE hInstance,
   wcex.hInstance     = hInstance;
   wcex.hIcon         = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_CEFCLIENT));
   wcex.hCursor       = LoadCursor(NULL, IDC_ARROW);
-  wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+  wcex.hbrBackground = background_brush;
   wcex.lpszMenuName  = MAKEINTRESOURCE(IDC_CEFCLIENT);
   wcex.lpszClassName = window_class.c_str();
   wcex.hIconSm       = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
@@ -472,7 +474,9 @@ LRESULT CALLBACK RootWindowWin::RootWndProc(HWND hWnd, UINT message,
       return 0;
 
     case WM_ERASEBKGND:
-      // Never erase the background.
+      if (self->OnEraseBkgnd())
+        break;
+      // Don't erase the background.
       return 0;
 
     case WM_ENTERMENULOOP:
@@ -561,6 +565,11 @@ void RootWindowWin::OnMove() {
   CefRefPtr<CefBrowser> browser = GetBrowser();
   if (browser)
     browser->GetHost()->NotifyMoveOrResizeStarted();
+}
+
+bool RootWindowWin::OnEraseBkgnd() {
+  // Erase the background when the browser does not exist.
+  return (GetBrowser() == NULL);
 }
 
 bool RootWindowWin::OnCommand(UINT id) {

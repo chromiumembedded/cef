@@ -54,7 +54,8 @@ class RootWindowWin : public RootWindow,
 
   // Register the root window class.
   static void RegisterRootClass(HINSTANCE hInstance,
-                                const std::wstring& window_class);
+                                const std::wstring& window_class,
+                                HBRUSH background_brush);
 
   // Window procedure for the edit field.
   static LRESULT CALLBACK EditWndProc(HWND hWnd, UINT message, WPARAM wParam,
@@ -73,6 +74,7 @@ class RootWindowWin : public RootWindow,
   void OnFocus();
   void OnSize(bool minimized);
   void OnMove();
+  bool OnEraseBkgnd();
   bool OnCommand(UINT id);
   void OnFind();
   void OnFindEvent();

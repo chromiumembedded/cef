@@ -34,8 +34,8 @@
 // more information.
 //
 
-#ifndef CEF_INCLUDE_CAPI_CEF_URL_CAPI_H_
-#define CEF_INCLUDE_CAPI_CEF_URL_CAPI_H_
+#ifndef CEF_INCLUDE_CAPI_CEF_PARSER_CAPI_H_
+#define CEF_INCLUDE_CAPI_CEF_PARSER_CAPI_H_
 #pragma once
 
 #include "include/capi/cef_base_capi.h"
@@ -113,8 +113,17 @@ CEF_EXPORT cef_string_userfree_t cef_uriencode(const cef_string_t* text,
 CEF_EXPORT cef_string_userfree_t cef_uridecode(const cef_string_t* text,
     int convert_to_utf8, cef_uri_unescape_rule_t unescape_rule);
 
+///
+// Parses |string| which represents a CSS color value. If |strict| is true (1)
+// strict parsing rules will be applied. Returns true (1) on success or false
+// (0) on error. If parsing succeeds |color| will be set to the color value
+// otherwise |color| will remain unchanged.
+///
+CEF_EXPORT int cef_parse_csscolor(const cef_string_t* string, int strict,
+    cef_color_t* color);
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif  // CEF_INCLUDE_CAPI_CEF_URL_CAPI_H_
+#endif  // CEF_INCLUDE_CAPI_CEF_PARSER_CAPI_H_

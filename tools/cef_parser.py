@@ -377,6 +377,7 @@ _simpletypes = {
     'bool' : ['int', '0'],
     'char': ['char', '0'],
     'char* const': ['char* const', 'NULL'],
+    'cef_color_t': ['cef_color_t', '0'],
     'CefCursorHandle' : ['cef_cursor_handle_t', 'kNullCursorHandle'],
     'CefEventHandle' : ['cef_event_handle_t', 'kNullEventHandle'],
     'CefWindowHandle' : ['cef_window_handle_t', 'kNullWindowHandle'],

@@ -26,8 +26,10 @@ class MainContextImpl : public MainContext {
   std::string GetDownloadPath(const std::string& file_name) OVERRIDE;
   std::string GetAppWorkingDirectory() OVERRIDE;
   std::string GetMainURL() OVERRIDE;
+  cef_color_t GetBackgroundColor() OVERRIDE;
   void PopulateSettings(CefSettings* settings) OVERRIDE;
   void PopulateBrowserSettings(CefBrowserSettings* settings) OVERRIDE;
+  void PopulateOsrSettings(OsrRenderer::Settings* settings) OVERRIDE;
   RootWindowManager* GetRootWindowManager() OVERRIDE;
 
   // Initialize CEF and associated main context state. This method must be
@@ -63,6 +65,7 @@ class MainContextImpl : public MainContext {
   bool shutdown_;
 
   std::string main_url_;
+  cef_color_t background_color_;
 
   scoped_ptr<RootWindowManager> root_window_manager_;
 

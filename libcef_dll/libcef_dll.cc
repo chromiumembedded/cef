@@ -16,6 +16,8 @@
 #include "include/capi/cef_geolocation_capi.h"
 #include "include/cef_origin_whitelist.h"
 #include "include/capi/cef_origin_whitelist_capi.h"
+#include "include/cef_parser.h"
+#include "include/capi/cef_parser_capi.h"
 #include "include/cef_path_util.h"
 #include "include/capi/cef_path_util_capi.h"
 #include "include/cef_process_util.h"
@@ -26,8 +28,6 @@
 #include "include/capi/cef_task_capi.h"
 #include "include/cef_trace.h"
 #include "include/capi/cef_trace_capi.h"
-#include "include/cef_url.h"
-#include "include/capi/cef_url_capi.h"
 #include "include/cef_v8.h"
 #include "include/capi/cef_v8_capi.h"
 #include "include/cef_web_plugin.h"
@@ -386,161 +386,6 @@ CEF_EXPORT int cef_clear_cross_origin_whitelist() {
   return _retval;
 }
 
-CEF_EXPORT int cef_get_path(cef_path_key_t key, cef_string_t* path) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: path; type: string_byref
-  DCHECK(path);
-  if (!path)
-    return 0;
-
-  // Translate param: path; type: string_byref
-  CefString pathStr(path);
-
-  // Execute
-  bool _retval = CefGetPath(
-      key,
-      pathStr);
-
-  // Return type: bool
-  return _retval;
-}
-
-CEF_EXPORT int cef_launch_process(struct _cef_command_line_t* command_line) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: command_line; type: refptr_same
-  DCHECK(command_line);
-  if (!command_line)
-    return 0;
-
-  // Execute
-  bool _retval = CefLaunchProcess(
-      CefCommandLineCppToC::Unwrap(command_line));
-
-  // Return type: bool
-  return _retval;
-}
-
-CEF_EXPORT int cef_register_scheme_handler_factory(
-    const cef_string_t* scheme_name, const cef_string_t* domain_name,
-    struct _cef_scheme_handler_factory_t* factory) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: scheme_name; type: string_byref_const
-  DCHECK(scheme_name);
-  if (!scheme_name)
-    return 0;
-  // Unverified params: domain_name, factory
-
-  // Execute
-  bool _retval = CefRegisterSchemeHandlerFactory(
-      CefString(scheme_name),
-      CefString(domain_name),
-      CefSchemeHandlerFactoryCToCpp::Wrap(factory));
-
-  // Return type: bool
-  return _retval;
-}
-
-CEF_EXPORT int cef_clear_scheme_handler_factories() {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  bool _retval = CefClearSchemeHandlerFactories();
-
-  // Return type: bool
-  return _retval;
-}
-
-CEF_EXPORT int cef_currently_on(cef_thread_id_t threadId) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  bool _retval = CefCurrentlyOn(
-      threadId);
-
-  // Return type: bool
-  return _retval;
-}
-
-CEF_EXPORT int cef_post_task(cef_thread_id_t threadId,
-    struct _cef_task_t* task) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: task; type: refptr_diff
-  DCHECK(task);
-  if (!task)
-    return 0;
-
-  // Execute
-  bool _retval = CefPostTask(
-      threadId,
-      CefTaskCToCpp::Wrap(task));
-
-  // Return type: bool
-  return _retval;
-}
-
-CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId,
-    struct _cef_task_t* task, int64 delay_ms) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: task; type: refptr_diff
-  DCHECK(task);
-  if (!task)
-    return 0;
-
-  // Execute
-  bool _retval = CefPostDelayedTask(
-      threadId,
-      CefTaskCToCpp::Wrap(task),
-      delay_ms);
-
-  // Return type: bool
-  return _retval;
-}
-
-CEF_EXPORT int cef_begin_tracing(const cef_string_t* categories,
-    struct _cef_completion_callback_t* callback) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: categories, callback
-
-  // Execute
-  bool _retval = CefBeginTracing(
-      CefString(categories),
-      CefCompletionCallbackCToCpp::Wrap(callback));
-
-  // Return type: bool
-  return _retval;
-}
-
-CEF_EXPORT int cef_end_tracing(const cef_string_t* tracing_file,
-    struct _cef_end_tracing_callback_t* callback) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: tracing_file, callback
-
-  // Execute
-  bool _retval = CefEndTracing(
-      CefString(tracing_file),
-      CefEndTracingCallbackCToCpp::Wrap(callback));
-
-  // Return type: bool
-  return _retval;
-}
-
-CEF_EXPORT int64 cef_now_from_system_trace_time() {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  int64 _retval = CefNowFromSystemTraceTime();
-
-  // Return type: simple
-  return _retval;
-}
-
 CEF_EXPORT int cef_parse_url(const cef_string_t* url,
     struct _cef_urlparts_t* parts) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -715,6 +560,191 @@ CEF_EXPORT cef_string_userfree_t cef_uridecode(const cef_string_t* text,
 
   // Return type: string
   return _retval.DetachToUserFree();
+}
+
+CEF_EXPORT int cef_parse_csscolor(const cef_string_t* string, int strict,
+    cef_color_t* color) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: string; type: string_byref_const
+  DCHECK(string);
+  if (!string)
+    return 0;
+  // Verify param: color; type: simple_byref
+  DCHECK(color);
+  if (!color)
+    return 0;
+
+  // Translate param: color; type: simple_byref
+  cef_color_t colorVal = color?*color:0;
+
+  // Execute
+  bool _retval = CefParseCSSColor(
+      CefString(string),
+      strict?true:false,
+      colorVal);
+
+  // Restore param: color; type: simple_byref
+  if (color)
+    *color = colorVal;
+
+  // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT int cef_get_path(cef_path_key_t key, cef_string_t* path) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: path; type: string_byref
+  DCHECK(path);
+  if (!path)
+    return 0;
+
+  // Translate param: path; type: string_byref
+  CefString pathStr(path);
+
+  // Execute
+  bool _retval = CefGetPath(
+      key,
+      pathStr);
+
+  // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT int cef_launch_process(struct _cef_command_line_t* command_line) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: command_line; type: refptr_same
+  DCHECK(command_line);
+  if (!command_line)
+    return 0;
+
+  // Execute
+  bool _retval = CefLaunchProcess(
+      CefCommandLineCppToC::Unwrap(command_line));
+
+  // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT int cef_register_scheme_handler_factory(
+    const cef_string_t* scheme_name, const cef_string_t* domain_name,
+    struct _cef_scheme_handler_factory_t* factory) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: scheme_name; type: string_byref_const
+  DCHECK(scheme_name);
+  if (!scheme_name)
+    return 0;
+  // Unverified params: domain_name, factory
+
+  // Execute
+  bool _retval = CefRegisterSchemeHandlerFactory(
+      CefString(scheme_name),
+      CefString(domain_name),
+      CefSchemeHandlerFactoryCToCpp::Wrap(factory));
+
+  // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT int cef_clear_scheme_handler_factories() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  bool _retval = CefClearSchemeHandlerFactories();
+
+  // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT int cef_currently_on(cef_thread_id_t threadId) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  bool _retval = CefCurrentlyOn(
+      threadId);
+
+  // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT int cef_post_task(cef_thread_id_t threadId,
+    struct _cef_task_t* task) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: task; type: refptr_diff
+  DCHECK(task);
+  if (!task)
+    return 0;
+
+  // Execute
+  bool _retval = CefPostTask(
+      threadId,
+      CefTaskCToCpp::Wrap(task));
+
+  // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT int cef_post_delayed_task(cef_thread_id_t threadId,
+    struct _cef_task_t* task, int64 delay_ms) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: task; type: refptr_diff
+  DCHECK(task);
+  if (!task)
+    return 0;
+
+  // Execute
+  bool _retval = CefPostDelayedTask(
+      threadId,
+      CefTaskCToCpp::Wrap(task),
+      delay_ms);
+
+  // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT int cef_begin_tracing(const cef_string_t* categories,
+    struct _cef_completion_callback_t* callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: categories, callback
+
+  // Execute
+  bool _retval = CefBeginTracing(
+      CefString(categories),
+      CefCompletionCallbackCToCpp::Wrap(callback));
+
+  // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT int cef_end_tracing(const cef_string_t* tracing_file,
+    struct _cef_end_tracing_callback_t* callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: tracing_file, callback
+
+  // Execute
+  bool _retval = CefEndTracing(
+      CefString(tracing_file),
+      CefEndTracingCallbackCToCpp::Wrap(callback));
+
+  // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT int64 cef_now_from_system_trace_time() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int64 _retval = CefNowFromSystemTraceTime();
+
+  // Return type: simple
+  return _retval;
 }
 
 CEF_EXPORT int cef_register_extension(const cef_string_t* extension_name,

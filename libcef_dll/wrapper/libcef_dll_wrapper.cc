@@ -16,6 +16,8 @@
 #include "include/capi/cef_geolocation_capi.h"
 #include "include/cef_origin_whitelist.h"
 #include "include/capi/cef_origin_whitelist_capi.h"
+#include "include/cef_parser.h"
+#include "include/capi/cef_parser_capi.h"
 #include "include/cef_path_util.h"
 #include "include/capi/cef_path_util_capi.h"
 #include "include/cef_process_util.h"
@@ -26,8 +28,6 @@
 #include "include/capi/cef_task_capi.h"
 #include "include/cef_trace.h"
 #include "include/capi/cef_trace_capi.h"
-#include "include/cef_url.h"
-#include "include/capi/cef_url_capi.h"
 #include "include/cef_v8.h"
 #include "include/capi/cef_v8_capi.h"
 #include "include/cef_web_plugin.h"
@@ -378,152 +378,6 @@ CEF_GLOBAL bool CefClearCrossOriginWhitelist() {
   return _retval?true:false;
 }
 
-CEF_GLOBAL bool CefGetPath(PathKey key, CefString& path) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  int _retval = cef_get_path(
-      key,
-      path.GetWritableStruct());
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefLaunchProcess(CefRefPtr<CefCommandLine> command_line) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: command_line; type: refptr_same
-  DCHECK(command_line.get());
-  if (!command_line.get())
-    return false;
-
-  // Execute
-  int _retval = cef_launch_process(
-      CefCommandLineCToCpp::Unwrap(command_line));
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefRegisterSchemeHandlerFactory(const CefString& scheme_name,
-    const CefString& domain_name,
-    CefRefPtr<CefSchemeHandlerFactory> factory) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: scheme_name; type: string_byref_const
-  DCHECK(!scheme_name.empty());
-  if (scheme_name.empty())
-    return false;
-  // Unverified params: domain_name, factory
-
-  // Execute
-  int _retval = cef_register_scheme_handler_factory(
-      scheme_name.GetStruct(),
-      domain_name.GetStruct(),
-      CefSchemeHandlerFactoryCppToC::Wrap(factory));
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefClearSchemeHandlerFactories() {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  int _retval = cef_clear_scheme_handler_factories();
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefCurrentlyOn(CefThreadId threadId) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  int _retval = cef_currently_on(
-      threadId);
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: task; type: refptr_diff
-  DCHECK(task.get());
-  if (!task.get())
-    return false;
-
-  // Execute
-  int _retval = cef_post_task(
-      threadId,
-      CefTaskCppToC::Wrap(task));
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefPostDelayedTask(CefThreadId threadId,
-    CefRefPtr<CefTask> task, int64 delay_ms) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: task; type: refptr_diff
-  DCHECK(task.get());
-  if (!task.get())
-    return false;
-
-  // Execute
-  int _retval = cef_post_delayed_task(
-      threadId,
-      CefTaskCppToC::Wrap(task),
-      delay_ms);
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefBeginTracing(const CefString& categories,
-    CefRefPtr<CefCompletionCallback> callback) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: categories, callback
-
-  // Execute
-  int _retval = cef_begin_tracing(
-      categories.GetStruct(),
-      CefCompletionCallbackCppToC::Wrap(callback));
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL bool CefEndTracing(const CefString& tracing_file,
-    CefRefPtr<CefEndTracingCallback> callback) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Unverified params: tracing_file, callback
-
-  // Execute
-  int _retval = cef_end_tracing(
-      tracing_file.GetStruct(),
-      CefEndTracingCallbackCppToC::Wrap(callback));
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CEF_GLOBAL int64 CefNowFromSystemTraceTime() {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  int64 _retval = cef_now_from_system_trace_time();
-
-  // Return type: simple
-  return _retval;
-}
-
 CEF_GLOBAL bool CefParseURL(const CefString& url, CefURLParts& parts) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -672,6 +526,171 @@ CEF_GLOBAL CefString CefURIDecode(const CefString& text, bool convert_to_utf8,
   CefString _retvalStr;
   _retvalStr.AttachToUserFree(_retval);
   return _retvalStr;
+}
+
+CEF_GLOBAL bool CefParseCSSColor(const CefString& string, bool strict,
+    cef_color_t& color) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: string; type: string_byref_const
+  DCHECK(!string.empty());
+  if (string.empty())
+    return false;
+
+  // Execute
+  int _retval = cef_parse_csscolor(
+      string.GetStruct(),
+      strict,
+      &color);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefGetPath(PathKey key, CefString& path) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = cef_get_path(
+      key,
+      path.GetWritableStruct());
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefLaunchProcess(CefRefPtr<CefCommandLine> command_line) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: command_line; type: refptr_same
+  DCHECK(command_line.get());
+  if (!command_line.get())
+    return false;
+
+  // Execute
+  int _retval = cef_launch_process(
+      CefCommandLineCToCpp::Unwrap(command_line));
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefRegisterSchemeHandlerFactory(const CefString& scheme_name,
+    const CefString& domain_name,
+    CefRefPtr<CefSchemeHandlerFactory> factory) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: scheme_name; type: string_byref_const
+  DCHECK(!scheme_name.empty());
+  if (scheme_name.empty())
+    return false;
+  // Unverified params: domain_name, factory
+
+  // Execute
+  int _retval = cef_register_scheme_handler_factory(
+      scheme_name.GetStruct(),
+      domain_name.GetStruct(),
+      CefSchemeHandlerFactoryCppToC::Wrap(factory));
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefClearSchemeHandlerFactories() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = cef_clear_scheme_handler_factories();
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefCurrentlyOn(CefThreadId threadId) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = cef_currently_on(
+      threadId);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefPostTask(CefThreadId threadId, CefRefPtr<CefTask> task) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: task; type: refptr_diff
+  DCHECK(task.get());
+  if (!task.get())
+    return false;
+
+  // Execute
+  int _retval = cef_post_task(
+      threadId,
+      CefTaskCppToC::Wrap(task));
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefPostDelayedTask(CefThreadId threadId,
+    CefRefPtr<CefTask> task, int64 delay_ms) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: task; type: refptr_diff
+  DCHECK(task.get());
+  if (!task.get())
+    return false;
+
+  // Execute
+  int _retval = cef_post_delayed_task(
+      threadId,
+      CefTaskCppToC::Wrap(task),
+      delay_ms);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefBeginTracing(const CefString& categories,
+    CefRefPtr<CefCompletionCallback> callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: categories, callback
+
+  // Execute
+  int _retval = cef_begin_tracing(
+      categories.GetStruct(),
+      CefCompletionCallbackCppToC::Wrap(callback));
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefEndTracing(const CefString& tracing_file,
+    CefRefPtr<CefEndTracingCallback> callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: tracing_file, callback
+
+  // Execute
+  int _retval = cef_end_tracing(
+      tracing_file.GetStruct(),
+      CefEndTracingCallbackCppToC::Wrap(callback));
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL int64 CefNowFromSystemTraceTime() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int64 _retval = cef_now_from_system_trace_time();
+
+  // Return type: simple
+  return _retval;
 }
 
 CEF_GLOBAL bool CefRegisterExtension(const CefString& extension_name,

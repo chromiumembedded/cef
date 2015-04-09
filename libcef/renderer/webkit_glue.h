@@ -8,6 +8,7 @@
 
 #include <string>
 #include "base/basictypes.h"
+#include "third_party/skia/include/core/SkColor.h"
 
 namespace v8 {
 class Context;
@@ -42,6 +43,8 @@ int64 GetIdentifier(blink::WebFrame* frame);
 // |relative_to_frame| in the frame hierarchy.
 blink::WebFrame* FindFrameByUniqueName(const blink::WebString& unique_name,
                                        blink::WebFrame* relative_to_frame);
+
+bool ParseCSSColor(const blink::WebString& string, bool strict, SkColor& color);
 
 }  // webkit_glue
 

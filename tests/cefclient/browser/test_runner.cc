@@ -7,9 +7,9 @@
 #include <sstream>
 
 #include "include/base/cef_bind.h"
+#include "include/cef_parser.h"
 #include "include/cef_task.h"
 #include "include/cef_trace.h"
-#include "include/cef_url.h"
 #include "include/cef_web_plugin.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"

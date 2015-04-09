@@ -9,6 +9,7 @@
 #include "include/cef_application_mac.h"
 #include "cefclient/browser/browser_window_osr_mac.h"
 #include "cefclient/browser/browser_window_std_mac.h"
+#include "cefclient/browser/main_context.h"
 #include "cefclient/browser/main_message_loop.h"
 #include "cefclient/browser/temp_window.h"
 #include "cefclient/common/client_switches.h"
@@ -414,15 +415,9 @@ void RootWindowMac::WindowDestroyed() {
 
 void RootWindowMac::CreateBrowserWindow(const std::string& startup_url) {
   if (with_osr_) {
-    CefRefPtr<CefCommandLine> command_line =
-        CefCommandLine::GetGlobalCommandLine();
-    const bool transparent =
-        command_line->HasSwitch(switches::kTransparentPaintingEnabled);
-    const bool show_update_rect =
-        command_line->HasSwitch(switches::kShowUpdateRect);
-    browser_window_.reset(new BrowserWindowOsrMac(this, startup_url,
-                                                  transparent,
-                                                  show_update_rect));
+    OsrRenderer::Settings settings;
+    MainContext::Get()->PopulateOsrSettings(&settings);
+    browser_window_.reset(new BrowserWindowOsrMac(this, startup_url, settings));
   } else {
     browser_window_.reset(new BrowserWindowStdMac(this, startup_url));
   }
@@ -469,6 +464,13 @@ void RootWindowMac::CreateRootWindow(const CefBrowserSettings& settings) {
   // everything from the autorelease pool so the window isn't on the stack
   // during cleanup (ie, a window close from javascript).
   [window_ setReleasedWhenClosed:NO];
+
+  const cef_color_t background_color = MainContext::Get()->GetBackgroundColor();
+  [window_ setBackgroundColor:
+      [NSColor colorWithRed:float(CefColorGetR(background_color)) / 255.0f
+                      green:float(CefColorGetG(background_color)) / 255.0f
+                       blue:float(CefColorGetB(background_color)) / 255.0f
+                      alpha:1.f]];
 
   NSView* contentView = [window_ contentView];
   NSRect contentBounds = [contentView bounds];

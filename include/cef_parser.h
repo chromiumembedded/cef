@@ -34,8 +34,8 @@
 // tools directory for more information.
 //
 
-#ifndef CEF_INCLUDE_CEF_URL_H_
-#define CEF_INCLUDE_CEF_URL_H_
+#ifndef CEF_INCLUDE_CEF_PARSER_H_
+#define CEF_INCLUDE_CEF_PARSER_H_
 #pragma once
 
 #include <vector>
@@ -112,4 +112,15 @@ CefString CefURIDecode(const CefString& text,
                        bool convert_to_utf8,
                        cef_uri_unescape_rule_t unescape_rule);
 
-#endif  // CEF_INCLUDE_CEF_URL_H_
+///
+// Parses |string| which represents a CSS color value. If |strict| is true
+// strict parsing rules will be applied. Returns true on success or false on
+// error. If parsing succeeds |color| will be set to the color value otherwise
+// |color| will remain unchanged.
+///
+/*--cef()--*/
+bool CefParseCSSColor(const CefString& string,
+                      bool strict,
+                      cef_color_t& color);
+
+#endif  // CEF_INCLUDE_CEF_PARSER_H_

@@ -913,10 +913,9 @@ class ScopedGLContext {
 
 BrowserWindowOsrGtk::BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
                                          const std::string& startup_url,
-                                         bool transparent,
-                                         bool show_update_rect)
+                                         const OsrRenderer::Settings& settings)
     : BrowserWindow(delegate),
-      renderer_(transparent, show_update_rect),
+      renderer_(settings),
       glarea_(NULL),
       hidden_(false),
       gl_enabled_(false),

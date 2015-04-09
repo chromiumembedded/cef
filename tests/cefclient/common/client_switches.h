@@ -20,6 +20,7 @@ extern const char kTransparentPaintingEnabled[];
 extern const char kShowUpdateRect[];
 extern const char kMouseCursorChangeDisabled[];
 extern const char kRequestContextPerBrowser[];
+extern const char kBackgroundColor[];
 
 }  // namespace switches
 }  // namespace client

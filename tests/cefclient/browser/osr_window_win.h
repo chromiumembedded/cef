@@ -40,8 +40,7 @@ class OsrWindowWin :
 
   // |delegate| must outlive this object.
   OsrWindowWin(Delegate* delegate,
-               bool transparent,
-               bool show_update_rect);
+               const OsrRenderer::Settings& settings);
 
   // Create a new browser and native window.
   void CreateBrowser(HWND parent_hwnd,
@@ -80,7 +79,8 @@ class OsrWindowWin :
 
   void NotifyNativeWindowCreated(HWND hwnd);
 
-  static void RegisterOsrClass(HINSTANCE hInstance);
+  static void RegisterOsrClass(HINSTANCE hInstance,
+                               HBRUSH background_brush);
   static LRESULT CALLBACK OsrWndProc(HWND hWnd, UINT message, WPARAM wParam,
                                      LPARAM lParam);
 
@@ -91,6 +91,7 @@ class OsrWindowWin :
   void OnCaptureLost();
   void OnKeyEvent(UINT message, WPARAM wParam, LPARAM lParam);
   void OnPaint();
+  bool OnEraseBkgnd();
 
   // Manage popup bounds.
   bool IsOverPopupWidget(int x, int y) const;

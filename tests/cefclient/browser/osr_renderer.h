@@ -13,8 +13,20 @@ namespace client {
 
 class OsrRenderer {
  public:
-  OsrRenderer(bool transparent,
-              bool show_update_rect);
+  struct Settings {
+    Settings();
+
+    // If true use transparent rendering.
+    bool transparent;
+
+    // If true draw a border around update rectangles.
+    bool show_update_rect;
+
+    // Background color.
+    cef_color_t background_color;
+  };
+
+  explicit OsrRenderer(const Settings& settings);
   ~OsrRenderer();
 
   // Initialize the OpenGL environment.
@@ -41,10 +53,11 @@ class OsrRenderer {
   void SetSpin(float spinX, float spinY);
   void IncrementSpin(float spinDX, float spinDY);
 
-  bool IsTransparent() { return transparent_; }
+  bool IsTransparent() const { return settings_.transparent; }
+  cef_color_t GetBackgroundColor() const { return settings_.background_color; }
 
-  int GetViewWidth() { return view_width_; }
-  int GetViewHeight() { return view_height_; }
+  int GetViewWidth() const { return view_width_; }
+  int GetViewHeight() const { return view_height_; }
 
   const CefRect& popup_rect() const { return popup_rect_; }
   const CefRect& original_popup_rect() const { return original_popup_rect_; }
@@ -53,8 +66,7 @@ class OsrRenderer {
   void ClearPopupRects();
 
  private:
-  const bool transparent_;
-  const bool show_update_rect_;
+  const Settings settings_;
   bool initialized_;
   unsigned int texture_id_;
   int view_width_;

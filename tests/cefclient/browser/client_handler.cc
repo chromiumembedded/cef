@@ -13,7 +13,7 @@
 #include "include/base/cef_bind.h"
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
-#include "include/cef_url.h"
+#include "include/cef_parser.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "cefclient/browser/main_context.h"
 #include "cefclient/browser/resource_util.h"

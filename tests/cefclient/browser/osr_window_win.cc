@@ -48,10 +48,9 @@ class ScopedGLContext {
 
 
 OsrWindowWin::OsrWindowWin(Delegate* delegate,
-                           bool transparent,
-                           bool show_update_rect)
+                           const OsrRenderer::Settings& settings)
     : delegate_(delegate),
-      renderer_(transparent, show_update_rect),
+      renderer_(settings),
       hwnd_(NULL),
       hdc_(NULL),
       hrc_(NULL),
@@ -208,7 +207,13 @@ void OsrWindowWin::Create(HWND parent_hwnd, const RECT& rect) {
 
   HINSTANCE hInst = ::GetModuleHandle(NULL);
 
-  RegisterOsrClass(hInst);
+  const cef_color_t background_color = renderer_.GetBackgroundColor();
+  const HBRUSH background_brush = CreateSolidBrush(
+      RGB(CefColorGetR(background_color),
+          CefColorGetG(background_color),
+          CefColorGetB(background_color)));
+
+  RegisterOsrClass(hInst, background_brush);
 
   // Create the native window with a border so it's easier to visually identify
   // OSR windows.
@@ -339,7 +344,8 @@ void OsrWindowWin::NotifyNativeWindowCreated(HWND hwnd) {
 }
 
 // static
-void OsrWindowWin::RegisterOsrClass(HINSTANCE hInstance) {
+void OsrWindowWin::RegisterOsrClass(HINSTANCE hInstance,
+                                    HBRUSH background_brush) {
   // Only register the class one time.
   static bool class_registered = false;
   if (class_registered)
@@ -356,7 +362,7 @@ void OsrWindowWin::RegisterOsrClass(HINSTANCE hInstance) {
   wcex.hInstance     = hInstance;
   wcex.hIcon         = NULL;
   wcex.hCursor       = LoadCursor(NULL, IDC_ARROW);
-  wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+  wcex.hbrBackground = background_brush;
   wcex.lpszMenuName  = NULL;
   wcex.lpszClassName = kWndClass;
   wcex.hIconSm       = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
@@ -383,25 +389,21 @@ LRESULT CALLBACK OsrWindowWin::OsrWndProc(HWND hWnd, UINT message,
     case WM_MOUSEMOVE:
     case WM_MOUSELEAVE:
     case WM_MOUSEWHEEL:
-      if (self)
-        self->OnMouseEvent(message, wParam, lParam);
+      self->OnMouseEvent(message, wParam, lParam);
       break;
 
     case WM_SIZE:
-      if (self)
-        self->OnSize();
+      self->OnSize();
       break;
 
     case WM_SETFOCUS:
     case WM_KILLFOCUS:
-      if (self)
-        self->OnFocus(message == WM_SETFOCUS);
+      self->OnFocus(message == WM_SETFOCUS);
       break;
 
     case WM_CAPTURECHANGED:
     case WM_CANCELMODE:
-      if (self)
-        self->OnCaptureLost();
+      self->OnCaptureLost();
       break;
 
     case WM_SYSCHAR:
@@ -410,17 +412,17 @@ LRESULT CALLBACK OsrWindowWin::OsrWndProc(HWND hWnd, UINT message,
     case WM_KEYDOWN:
     case WM_KEYUP:
     case WM_CHAR:
-      if (self)
-        self->OnKeyEvent(message, wParam, lParam);
+      self->OnKeyEvent(message, wParam, lParam);
       break;
 
     case WM_PAINT:
-      if (self)
-        self->OnPaint();
+      self->OnPaint();
       return 0;
 
     case WM_ERASEBKGND:
-      // Never erase the background.
+      if (self->OnEraseBkgnd())
+        break;
+      // Don't erase the background.
       return 0;
 
     case WM_NCDESTROY:
@@ -672,6 +674,11 @@ void OsrWindowWin::OnPaint() {
 
   if (browser_)
     browser_->GetHost()->Invalidate(PET_VIEW);
+}
+
+bool OsrWindowWin::OnEraseBkgnd() {
+  // Erase the background when the browser does not exist.
+  return (browser_ == NULL);
 }
 
 bool OsrWindowWin::IsOverPopupWidget(int x, int y) const {

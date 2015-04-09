@@ -4,6 +4,7 @@
 
 #include "cefclient/browser/main_context_impl.h"
 
+#include "include/cef_parser.h"
 #include "cefclient/common/client_switches.h"
 
 namespace client {
@@ -20,7 +21,8 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
     : command_line_(command_line),
       terminate_when_all_windows_closed_(terminate_when_all_windows_closed),
       initialized_(false),
-      shutdown_(false) {
+      shutdown_(false),
+      background_color_(CefColorSetARGB(255, 255, 255, 255)) {
   DCHECK(command_line_.get());
 
   // Set the main URL.
@@ -28,6 +30,12 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
     main_url_ = command_line_->GetSwitchValue(switches::kUrl);
   if (main_url_.empty())
     main_url_ = kDefaultUrl;
+
+  if (command_line_->HasSwitch(switches::kBackgroundColor)) {
+    // Parse the background color value.
+    CefParseCSSColor(command_line_->GetSwitchValue(switches::kBackgroundColor),
+                     false, background_color_);
+  }
 }
 
 MainContextImpl::~MainContextImpl() {
@@ -44,6 +52,10 @@ std::string MainContextImpl::GetMainURL() {
   return main_url_;
 }
 
+cef_color_t MainContextImpl::GetBackgroundColor() {
+  return background_color_;
+}
+
 void MainContextImpl::PopulateSettings(CefSettings* settings) {
 #if defined(OS_WIN)
   settings->multi_threaded_message_loop =
@@ -55,6 +67,8 @@ void MainContextImpl::PopulateSettings(CefSettings* settings) {
 
   if (command_line_->HasSwitch(switches::kOffScreenRenderingEnabled))
     settings->windowless_rendering_enabled = true;
+
+  settings->background_color = background_color_;
 }
 
 void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {
@@ -62,6 +76,14 @@ void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {
     settings->windowless_frame_rate = atoi(command_line_->
         GetSwitchValue(switches::kOffScreenFrameRate).ToString().c_str());
   }
+}
+
+void MainContextImpl::PopulateOsrSettings(OsrRenderer::Settings* settings) {
+  settings->transparent =
+      command_line_->HasSwitch(switches::kTransparentPaintingEnabled);
+  settings->show_update_rect =
+      command_line_->HasSwitch(switches::kShowUpdateRect);
+  settings->background_color = background_color_;
 }
 
 RootWindowManager* MainContextImpl::GetRootWindowManager() {
