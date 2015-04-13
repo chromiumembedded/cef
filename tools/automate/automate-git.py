@@ -563,8 +563,9 @@ else:
 if os.path.exists(cef_dir):
   cef_existing_url = get_git_url(cef_dir)
   if cef_url != cef_existing_url:
-    raise Exception('Requested CEF checkout URL %s does not match existing '+\
-                    'URL %s' % (cef_url, cef_existing_url))
+    raise Exception(
+        'Requested CEF checkout URL %s does not match existing URL %s' %
+        (cef_url, cef_existing_url))
 
 msg("CEF Branch: %s" % (cef_branch))
 msg("CEF URL: %s" % (cef_url))
@@ -760,11 +761,18 @@ if chromium_checkout_changed:
     deps_path = os.path.join(chromium_src_dir, '.DEPS.git')
     remove_deps_entry(deps_path, "'src'")
 
+  # Set the GYP_CHROMIUM_NO_ACTION value temporarily so that `gclient sync` does
+  # not run gyp.
+  os.environ['GYP_CHROMIUM_NO_ACTION'] = '1'
+
   # Update third-party dependencies including branch/tag information.
   run("gclient sync %s%s--with_branch_heads --jobs 16" % \
       (('--reset ' if options.forceclean else ''), \
       ('--nohooks ' if chromium_nohooks else '')), \
       chromium_dir, depot_tools_dir)
+
+  # Clear the GYP_CHROMIUM_NO_ACTION value.
+  del os.environ['GYP_CHROMIUM_NO_ACTION']
 
   # Delete the src/out directory created by `gclient sync`.
   delete_directory(out_src_dir)
