@@ -70,6 +70,7 @@
 #include "libcef_dll/cpptoc/v8stack_frame_cpptoc.h"
 #include "libcef_dll/cpptoc/v8stack_trace_cpptoc.h"
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
+#include "libcef_dll/cpptoc/value_cpptoc.h"
 #include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
 #include "libcef_dll/cpptoc/xml_reader_cpptoc.h"
 #include "libcef_dll/cpptoc/zip_reader_cpptoc.h"
@@ -267,6 +268,7 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefV8StackFrameCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefV8StackTraceCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefV8ValueCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefValueCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefWebPluginInfoCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefWebPluginInfoVisitorCToCpp::DebugObjCt));

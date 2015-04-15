@@ -36,6 +36,8 @@ class CefDictionaryValueCToCpp
   virtual bool IsValid() OVERRIDE;
   virtual bool IsOwned() OVERRIDE;
   virtual bool IsReadOnly() OVERRIDE;
+  virtual bool IsSame(CefRefPtr<CefDictionaryValue> that) OVERRIDE;
+  virtual bool IsEqual(CefRefPtr<CefDictionaryValue> that) OVERRIDE;
   virtual CefRefPtr<CefDictionaryValue> Copy(
       bool exclude_empty_children) OVERRIDE;
   virtual size_t GetSize() OVERRIDE;
@@ -44,6 +46,7 @@ class CefDictionaryValueCToCpp
   virtual bool GetKeys(KeyList& keys) OVERRIDE;
   virtual bool Remove(const CefString& key) OVERRIDE;
   virtual CefValueType GetType(const CefString& key) OVERRIDE;
+  virtual CefRefPtr<CefValue> GetValue(const CefString& key) OVERRIDE;
   virtual bool GetBool(const CefString& key) OVERRIDE;
   virtual int GetInt(const CefString& key) OVERRIDE;
   virtual double GetDouble(const CefString& key) OVERRIDE;
@@ -52,6 +55,8 @@ class CefDictionaryValueCToCpp
   virtual CefRefPtr<CefDictionaryValue> GetDictionary(
       const CefString& key) OVERRIDE;
   virtual CefRefPtr<CefListValue> GetList(const CefString& key) OVERRIDE;
+  virtual bool SetValue(const CefString& key,
+      CefRefPtr<CefValue> value) OVERRIDE;
   virtual bool SetNull(const CefString& key) OVERRIDE;
   virtual bool SetBool(const CefString& key, bool value) OVERRIDE;
   virtual bool SetInt(const CefString& key, int value) OVERRIDE;

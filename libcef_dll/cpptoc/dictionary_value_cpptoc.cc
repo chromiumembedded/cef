@@ -13,6 +13,7 @@
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/dictionary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/list_value_cpptoc.h"
+#include "libcef_dll/cpptoc/value_cpptoc.h"
 #include "libcef_dll/transfer_util.h"
 
 
@@ -71,6 +72,46 @@ int CEF_CALLBACK dictionary_value_is_read_only(
 
   // Execute
   bool _retval = CefDictionaryValueCppToC::Get(self)->IsReadOnly();
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK dictionary_value_is_same(struct _cef_dictionary_value_t* self,
+    struct _cef_dictionary_value_t* that) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: that; type: refptr_same
+  DCHECK(that);
+  if (!that)
+    return 0;
+
+  // Execute
+  bool _retval = CefDictionaryValueCppToC::Get(self)->IsSame(
+      CefDictionaryValueCppToC::Unwrap(that));
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK dictionary_value_is_equal(struct _cef_dictionary_value_t* self,
+    struct _cef_dictionary_value_t* that) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: that; type: refptr_same
+  DCHECK(that);
+  if (!that)
+    return 0;
+
+  // Execute
+  bool _retval = CefDictionaryValueCppToC::Get(self)->IsEqual(
+      CefDictionaryValueCppToC::Unwrap(that));
 
   // Return type: bool
   return _retval;
@@ -208,6 +249,26 @@ cef_value_type_t CEF_CALLBACK dictionary_value_get_type(
 
   // Return type: simple
   return _retval;
+}
+
+cef_value_t* CEF_CALLBACK dictionary_value_get_value(
+    struct _cef_dictionary_value_t* self, const cef_string_t* key) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+  // Verify param: key; type: string_byref_const
+  DCHECK(key);
+  if (!key)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefValue> _retval = CefDictionaryValueCppToC::Get(self)->GetValue(
+      CefString(key));
+
+  // Return type: refptr_same
+  return CefValueCppToC::Wrap(_retval);
 }
 
 int CEF_CALLBACK dictionary_value_get_bool(struct _cef_dictionary_value_t* self,
@@ -351,6 +412,32 @@ struct _cef_list_value_t* CEF_CALLBACK dictionary_value_get_list(
 
   // Return type: refptr_same
   return CefListValueCppToC::Wrap(_retval);
+}
+
+int CEF_CALLBACK dictionary_value_set_value(
+    struct _cef_dictionary_value_t* self, const cef_string_t* key,
+    cef_value_t* value) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: key; type: string_byref_const
+  DCHECK(key);
+  if (!key)
+    return 0;
+  // Verify param: value; type: refptr_same
+  DCHECK(value);
+  if (!value)
+    return 0;
+
+  // Execute
+  bool _retval = CefDictionaryValueCppToC::Get(self)->SetValue(
+      CefString(key),
+      CefValueCppToC::Unwrap(value));
+
+  // Return type: bool
+  return _retval;
 }
 
 int CEF_CALLBACK dictionary_value_set_null(struct _cef_dictionary_value_t* self,
@@ -546,6 +633,8 @@ CefDictionaryValueCppToC::CefDictionaryValueCppToC(CefDictionaryValue* cls)
   struct_.struct_.is_valid = dictionary_value_is_valid;
   struct_.struct_.is_owned = dictionary_value_is_owned;
   struct_.struct_.is_read_only = dictionary_value_is_read_only;
+  struct_.struct_.is_same = dictionary_value_is_same;
+  struct_.struct_.is_equal = dictionary_value_is_equal;
   struct_.struct_.copy = dictionary_value_copy;
   struct_.struct_.get_size = dictionary_value_get_size;
   struct_.struct_.clear = dictionary_value_clear;
@@ -553,6 +642,7 @@ CefDictionaryValueCppToC::CefDictionaryValueCppToC(CefDictionaryValue* cls)
   struct_.struct_.get_keys = dictionary_value_get_keys;
   struct_.struct_.remove = dictionary_value_remove;
   struct_.struct_.get_type = dictionary_value_get_type;
+  struct_.struct_.get_value = dictionary_value_get_value;
   struct_.struct_.get_bool = dictionary_value_get_bool;
   struct_.struct_.get_int = dictionary_value_get_int;
   struct_.struct_.get_double = dictionary_value_get_double;
@@ -560,6 +650,7 @@ CefDictionaryValueCppToC::CefDictionaryValueCppToC(CefDictionaryValue* cls)
   struct_.struct_.get_binary = dictionary_value_get_binary;
   struct_.struct_.get_dictionary = dictionary_value_get_dictionary;
   struct_.struct_.get_list = dictionary_value_get_list;
+  struct_.struct_.set_value = dictionary_value_set_value;
   struct_.struct_.set_null = dictionary_value_set_null;
   struct_.struct_.set_bool = dictionary_value_set_bool;
   struct_.struct_.set_int = dictionary_value_set_int;

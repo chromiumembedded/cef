@@ -13,6 +13,7 @@
 #include "libcef_dll/cpptoc/binary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/dictionary_value_cpptoc.h"
 #include "libcef_dll/cpptoc/list_value_cpptoc.h"
+#include "libcef_dll/cpptoc/value_cpptoc.h"
 
 
 // GLOBAL FUNCTIONS - Body may be edited by hand.
@@ -67,6 +68,46 @@ int CEF_CALLBACK list_value_is_read_only(struct _cef_list_value_t* self) {
 
   // Execute
   bool _retval = CefListValueCppToC::Get(self)->IsReadOnly();
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK list_value_is_same(struct _cef_list_value_t* self,
+    struct _cef_list_value_t* that) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: that; type: refptr_same
+  DCHECK(that);
+  if (!that)
+    return 0;
+
+  // Execute
+  bool _retval = CefListValueCppToC::Get(self)->IsSame(
+      CefListValueCppToC::Unwrap(that));
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK list_value_is_equal(struct _cef_list_value_t* self,
+    struct _cef_list_value_t* that) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: that; type: refptr_same
+  DCHECK(that);
+  if (!that)
+    return 0;
+
+  // Execute
+  bool _retval = CefListValueCppToC::Get(self)->IsEqual(
+      CefListValueCppToC::Unwrap(that));
 
   // Return type: bool
   return _retval;
@@ -168,6 +209,26 @@ cef_value_type_t CEF_CALLBACK list_value_get_type(
 
   // Return type: simple
   return _retval;
+}
+
+cef_value_t* CEF_CALLBACK list_value_get_value(struct _cef_list_value_t* self,
+    int index) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+  // Verify param: index; type: simple_byval
+  DCHECK_GE(index, 0);
+  if (index < 0)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefValue> _retval = CefListValueCppToC::Get(self)->GetValue(
+      index);
+
+  // Return type: refptr_same
+  return CefValueCppToC::Wrap(_retval);
 }
 
 int CEF_CALLBACK list_value_get_bool(struct _cef_list_value_t* self,
@@ -308,6 +369,31 @@ struct _cef_list_value_t* CEF_CALLBACK list_value_get_list(
 
   // Return type: refptr_same
   return CefListValueCppToC::Wrap(_retval);
+}
+
+int CEF_CALLBACK list_value_set_value(struct _cef_list_value_t* self, int index,
+    cef_value_t* value) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: index; type: simple_byval
+  DCHECK_GE(index, 0);
+  if (index < 0)
+    return 0;
+  // Verify param: value; type: refptr_same
+  DCHECK(value);
+  if (!value)
+    return 0;
+
+  // Execute
+  bool _retval = CefListValueCppToC::Get(self)->SetValue(
+      index,
+      CefValueCppToC::Unwrap(value));
+
+  // Return type: bool
+  return _retval;
 }
 
 int CEF_CALLBACK list_value_set_null(struct _cef_list_value_t* self,
@@ -498,12 +584,15 @@ CefListValueCppToC::CefListValueCppToC(CefListValue* cls)
   struct_.struct_.is_valid = list_value_is_valid;
   struct_.struct_.is_owned = list_value_is_owned;
   struct_.struct_.is_read_only = list_value_is_read_only;
+  struct_.struct_.is_same = list_value_is_same;
+  struct_.struct_.is_equal = list_value_is_equal;
   struct_.struct_.copy = list_value_copy;
   struct_.struct_.set_size = list_value_set_size;
   struct_.struct_.get_size = list_value_get_size;
   struct_.struct_.clear = list_value_clear;
   struct_.struct_.remove = list_value_remove;
   struct_.struct_.get_type = list_value_get_type;
+  struct_.struct_.get_value = list_value_get_value;
   struct_.struct_.get_bool = list_value_get_bool;
   struct_.struct_.get_int = list_value_get_int;
   struct_.struct_.get_double = list_value_get_double;
@@ -511,6 +600,7 @@ CefListValueCppToC::CefListValueCppToC(CefListValue* cls)
   struct_.struct_.get_binary = list_value_get_binary;
   struct_.struct_.get_dictionary = list_value_get_dictionary;
   struct_.struct_.get_list = list_value_get_list;
+  struct_.struct_.set_value = list_value_set_value;
   struct_.struct_.set_null = list_value_set_null;
   struct_.struct_.set_bool = list_value_set_bool;
   struct_.struct_.set_int = list_value_set_int;

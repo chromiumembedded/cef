@@ -35,6 +35,8 @@ class CefBinaryValueCToCpp
   // CefBinaryValue methods
   virtual bool IsValid() OVERRIDE;
   virtual bool IsOwned() OVERRIDE;
+  virtual bool IsSame(CefRefPtr<CefBinaryValue> that) OVERRIDE;
+  virtual bool IsEqual(CefRefPtr<CefBinaryValue> that) OVERRIDE;
   virtual CefRefPtr<CefBinaryValue> Copy() OVERRIDE;
   virtual size_t GetSize() OVERRIDE;
   virtual size_t GetData(void* buffer, size_t buffer_size,

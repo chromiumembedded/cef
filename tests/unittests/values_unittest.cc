@@ -47,7 +47,7 @@ const char* kStringValue = "My string value";
 // Test a binary value.
 void TestBinary(CefRefPtr<CefBinaryValue> value, char* data, size_t data_size) {
   // Testing requires strings longer than 15 characters.
-  EXPECT_GT(data_size, (size_t)15);
+  EXPECT_GT(data_size, 15U);
 
   EXPECT_EQ(data_size, value->GetSize());
 
@@ -63,7 +63,7 @@ void TestBinary(CefRefPtr<CefBinaryValue> value, char* data, size_t data_size) {
   memset(buff, 0, data_size+1);
   old_char = data[15];
   data[15] = 0;
-  EXPECT_EQ((size_t)10, value->GetData(buff, 10, 5));
+  EXPECT_EQ(10U, value->GetData(buff, 10, 5));
   EXPECT_TRUE(!strcmp(buff, data+5));
   data[15] = old_char;
 
@@ -71,7 +71,7 @@ void TestBinary(CefRefPtr<CefBinaryValue> value, char* data, size_t data_size) {
   memset(buff, 0, data_size+1);
   old_char = data[0];
   data[0] = '.';
-  EXPECT_EQ((size_t)1, value->GetData(buff, 1, 0));
+  EXPECT_EQ(1U, value->GetData(buff, 1, 0));
   EXPECT_EQ(old_char, buff[0]);
   data[0] = old_char;
 
@@ -178,7 +178,7 @@ void TestDictionaryDictionary(CefRefPtr<CefDictionaryValue> value,
   EXPECT_FALSE(dictionary_value->IsOwned());
   EXPECT_FALSE(dictionary_value->IsReadOnly());
   EXPECT_TRUE(dictionary_value->SetInt(kIntKey, kIntValue));
-  EXPECT_EQ((size_t)1, dictionary_value->GetSize());
+  EXPECT_EQ(1U, dictionary_value->GetSize());
   EXPECT_FALSE(value->HasKey(kDictionaryKey));
   EXPECT_TRUE(value->SetDictionary(kDictionaryKey, dictionary_value));
   EXPECT_FALSE(dictionary_value->IsValid());  // Value should be detached
@@ -189,7 +189,7 @@ void TestDictionaryDictionary(CefRefPtr<CefDictionaryValue> value,
   EXPECT_TRUE(dictionary_value->IsValid());
   EXPECT_TRUE(dictionary_value->IsOwned());
   EXPECT_FALSE(dictionary_value->IsReadOnly());
-  EXPECT_EQ((size_t)1, dictionary_value->GetSize());
+  EXPECT_EQ(1U, dictionary_value->GetSize());
   EXPECT_EQ(kIntValue, dictionary_value->GetInt(kIntKey));
 }
 
@@ -202,7 +202,7 @@ void TestDictionaryList(CefRefPtr<CefDictionaryValue> value,
   EXPECT_FALSE(list_value->IsOwned());
   EXPECT_FALSE(list_value->IsReadOnly());
   EXPECT_TRUE(list_value->SetInt(0, kIntValue));
-  EXPECT_EQ((size_t)1, list_value->GetSize());
+  EXPECT_EQ(1U, list_value->GetSize());
   EXPECT_FALSE(value->HasKey(kListKey));
   EXPECT_TRUE(value->SetList(kListKey, list_value));
   EXPECT_FALSE(list_value->IsValid());  // Value should be detached
@@ -213,7 +213,7 @@ void TestDictionaryList(CefRefPtr<CefDictionaryValue> value,
   EXPECT_TRUE(list_value->IsValid());
   EXPECT_TRUE(list_value->IsOwned());
   EXPECT_FALSE(list_value->IsReadOnly());
-  EXPECT_EQ((size_t)1, list_value->GetSize());
+  EXPECT_EQ(1U, list_value->GetSize());
   EXPECT_EQ(kIntValue, list_value->GetInt(0));
 }
 
@@ -225,7 +225,7 @@ void TestDictionary(CefRefPtr<CefDictionaryValue> value,
   CefRefPtr<CefListValue> list_value;
 
   // Test the size.
-  EXPECT_EQ((size_t)0, value->GetSize());
+  EXPECT_EQ(0U, value->GetSize());
 
   TestDictionaryNull(value);
   TestDictionaryBool(value);
@@ -237,7 +237,7 @@ void TestDictionary(CefRefPtr<CefDictionaryValue> value,
   TestDictionaryList(value, list_value);
 
   // Test the size.
-  EXPECT_EQ((size_t)8, value->GetSize());
+  EXPECT_EQ(8U, value->GetSize());
 
   // Test copy.
   CefRefPtr<CefDictionaryValue> copy = value->Copy(false);
@@ -272,7 +272,7 @@ void TestDictionary(CefRefPtr<CefDictionaryValue> value,
   EXPECT_FALSE(list_value->IsValid());  // Value should be detached
 
   // Test the size.
-  EXPECT_EQ((size_t)0, value->GetSize());
+  EXPECT_EQ(0U, value->GetSize());
 
   // Re-add some values.
   TestDictionaryNull(value);
@@ -280,11 +280,11 @@ void TestDictionary(CefRefPtr<CefDictionaryValue> value,
   TestDictionaryDictionary(value, dictionary_value);
 
   // Test the size.
-  EXPECT_EQ((size_t)3, value->GetSize());
+  EXPECT_EQ(3U, value->GetSize());
 
   // Clear the values.
   EXPECT_TRUE(value->Clear());
-  EXPECT_EQ((size_t)0, value->GetSize());
+  EXPECT_EQ(0U, value->GetSize());
   EXPECT_FALSE(dictionary_value->IsValid());  // Value should be detached
 }
 
@@ -363,8 +363,8 @@ void TestListString(CefRefPtr<CefListValue> value, int index) {
 
 // Test list binary value.
 void TestListBinary(CefRefPtr<CefListValue> value, int index,
-                          char* binary_data, size_t binary_data_size,
-                          CefRefPtr<CefBinaryValue>& binary_value) {
+                    char* binary_data, size_t binary_data_size,
+                    CefRefPtr<CefBinaryValue>& binary_value) {
   binary_value = CefBinaryValue::Create(binary_data, binary_data_size);
   EXPECT_TRUE(binary_value.get());
   EXPECT_TRUE(binary_value->IsValid());
@@ -392,7 +392,7 @@ void TestListDictionary(CefRefPtr<CefListValue> value, int index,
   EXPECT_FALSE(dictionary_value->IsOwned());
   EXPECT_FALSE(dictionary_value->IsReadOnly());
   EXPECT_TRUE(dictionary_value->SetInt(kIntKey, kIntValue));
-  EXPECT_EQ((size_t)1, dictionary_value->GetSize());
+  EXPECT_EQ(1U, dictionary_value->GetSize());
 
   CefValueType type = value->GetType(index);
   EXPECT_TRUE(type == VTYPE_INVALID || type == VTYPE_NULL);
@@ -405,7 +405,7 @@ void TestListDictionary(CefRefPtr<CefListValue> value, int index,
   EXPECT_TRUE(dictionary_value->IsValid());
   EXPECT_TRUE(dictionary_value->IsOwned());
   EXPECT_FALSE(dictionary_value->IsReadOnly());
-  EXPECT_EQ((size_t)1, dictionary_value->GetSize());
+  EXPECT_EQ(1U, dictionary_value->GetSize());
   EXPECT_EQ(kIntValue, dictionary_value->GetInt(kIntKey));
 }
 
@@ -418,7 +418,7 @@ void TestListList(CefRefPtr<CefListValue> value, int index,
   EXPECT_FALSE(list_value->IsOwned());
   EXPECT_FALSE(list_value->IsReadOnly());
   EXPECT_TRUE(list_value->SetInt(0, kIntValue));
-  EXPECT_EQ((size_t)1, list_value->GetSize());
+  EXPECT_EQ(1U, list_value->GetSize());
 
   CefValueType type = value->GetType(index);
   EXPECT_TRUE(type == VTYPE_INVALID || type == VTYPE_NULL);
@@ -431,7 +431,7 @@ void TestListList(CefRefPtr<CefListValue> value, int index,
   EXPECT_TRUE(list_value->IsValid());
   EXPECT_TRUE(list_value->IsOwned());
   EXPECT_FALSE(list_value->IsReadOnly());
-  EXPECT_EQ((size_t)1, list_value->GetSize());
+  EXPECT_EQ(1U, list_value->GetSize());
   EXPECT_EQ(kIntValue, list_value->GetInt(0));
 }
 
@@ -443,11 +443,11 @@ void TestList(CefRefPtr<CefListValue> value,
   CefRefPtr<CefListValue> list_value;
 
   // Test the size.
-  EXPECT_EQ((size_t)0, value->GetSize());
+  EXPECT_EQ(0U, value->GetSize());
 
   // Set the size.
   EXPECT_TRUE(value->SetSize(8));
-  EXPECT_EQ((size_t)8, value->GetSize());
+  EXPECT_EQ(8U, value->GetSize());
 
   EXPECT_EQ(VTYPE_NULL, value->GetType(kNullIndex));
   TestListNull(value, kNullIndex);
@@ -468,7 +468,7 @@ void TestList(CefRefPtr<CefListValue> value,
   TestListList(value, kListIndex, list_value);
 
   // Test the size.
-  EXPECT_EQ((size_t)8, value->GetSize());
+  EXPECT_EQ(8U, value->GetSize());
 
   // Test copy.
   CefRefPtr<CefListValue> copy = value->Copy();
@@ -476,31 +476,31 @@ void TestList(CefRefPtr<CefListValue> value,
 
   // Test removal (in reverse order so indexes stay valid).
   EXPECT_TRUE(value->Remove(kListIndex));
-  EXPECT_EQ((size_t)7, value->GetSize());
+  EXPECT_EQ(7U, value->GetSize());
   EXPECT_FALSE(list_value->IsValid());  // Value should be detached
 
   EXPECT_TRUE(value->Remove(kDictionaryIndex));
-  EXPECT_EQ((size_t)6, value->GetSize());
+  EXPECT_EQ(6U, value->GetSize());
   EXPECT_FALSE(dictionary_value->IsValid());  // Value should be detached
 
   EXPECT_TRUE(value->Remove(kBinaryIndex));
-  EXPECT_EQ((size_t)5, value->GetSize());
+  EXPECT_EQ(5U, value->GetSize());
   EXPECT_FALSE(binary_value->IsValid());  // Value should be detached
 
   EXPECT_TRUE(value->Remove(kStringIndex));
-  EXPECT_EQ((size_t)4, value->GetSize());
+  EXPECT_EQ(4U, value->GetSize());
 
   EXPECT_TRUE(value->Remove(kDoubleIndex));
-  EXPECT_EQ((size_t)3, value->GetSize());
+  EXPECT_EQ(3U, value->GetSize());
 
   EXPECT_TRUE(value->Remove(kIntIndex));
-  EXPECT_EQ((size_t)2, value->GetSize());
+  EXPECT_EQ(2U, value->GetSize());
 
   EXPECT_TRUE(value->Remove(kBoolIndex));
-  EXPECT_EQ((size_t)1, value->GetSize());
+  EXPECT_EQ(1U, value->GetSize());
 
   EXPECT_TRUE(value->Remove(kNullIndex));
-  EXPECT_EQ((size_t)0, value->GetSize());
+  EXPECT_EQ(0U, value->GetSize());
 
   // Re-add some values.
   EXPECT_EQ(VTYPE_INVALID, value->GetType(0));
@@ -511,11 +511,11 @@ void TestList(CefRefPtr<CefListValue> value,
   TestListList(value, 2, list_value);
 
   // Test the size.
-  EXPECT_EQ((size_t)3, value->GetSize());
+  EXPECT_EQ(3U, value->GetSize());
 
   // Clear the values.
   EXPECT_TRUE(value->Clear());
-  EXPECT_EQ((size_t)0, value->GetSize());
+  EXPECT_EQ(0U, value->GetSize());
   EXPECT_FALSE(list_value->IsValid());  // Value should be detached
 
   // Add some values in random order.
@@ -531,11 +531,11 @@ void TestList(CefRefPtr<CefListValue> value,
   EXPECT_EQ(VTYPE_INT, value->GetType(2));
 
   // Test the size.
-  EXPECT_EQ((size_t)3, value->GetSize());
+  EXPECT_EQ(3U, value->GetSize());
 
   // Clear some values.
   EXPECT_TRUE(value->SetSize(1));
-  EXPECT_EQ((size_t)1, value->GetSize());
+  EXPECT_EQ(1U, value->GetSize());
   EXPECT_FALSE(list_value->IsValid());  // Value should be detached
 
   EXPECT_EQ(VTYPE_BOOL, value->GetType(0));
@@ -544,7 +544,7 @@ void TestList(CefRefPtr<CefListValue> value,
 
   // Clear all values.
   EXPECT_TRUE(value->Clear());
-  EXPECT_EQ((size_t)0, value->GetSize());
+  EXPECT_EQ(0U, value->GetSize());
 }
 
 // Used to test access of list data on a different thread.
@@ -567,6 +567,58 @@ class ListTask : public CefTask {
 
   IMPLEMENT_REFCOUNTING(ListTask);
 };
+
+
+void CreateAndCompareCopy(CefRefPtr<CefValue> value) {
+  CefRefPtr<CefValue> value2 = value->Copy();
+  EXPECT_TRUE(value->IsEqual(value));
+  EXPECT_TRUE(value->IsSame(value));
+  EXPECT_TRUE(value2->IsEqual(value2));
+  EXPECT_TRUE(value2->IsSame(value2));
+  EXPECT_TRUE(value->IsEqual(value2));
+  EXPECT_FALSE(value->IsSame(value2));
+  EXPECT_TRUE(value2->IsEqual(value));
+  EXPECT_FALSE(value2->IsSame(value));
+}
+
+CefRefPtr<CefBinaryValue> CreateBinaryValue() {
+  char binary_data[] = "This is my test data";
+  const size_t binary_data_size = sizeof(binary_data) - 1;
+
+  CefRefPtr<CefBinaryValue> binary_value =
+      CefBinaryValue::Create(binary_data, binary_data_size);
+  EXPECT_TRUE(binary_value.get());
+  EXPECT_TRUE(binary_value->IsValid());
+  EXPECT_FALSE(binary_value->IsOwned());
+  TestBinary(binary_value, binary_data, binary_data_size);
+  return binary_value;
+}
+
+CefRefPtr<CefListValue> CreateListValue() {
+  CefRefPtr<CefListValue> list_value = CefListValue::Create();
+  EXPECT_TRUE(list_value.get());
+  EXPECT_TRUE(list_value->IsValid());
+  EXPECT_FALSE(list_value->IsOwned());
+  EXPECT_FALSE(list_value->IsReadOnly());
+  EXPECT_TRUE(list_value->SetInt(0, kIntValue));
+  EXPECT_TRUE(list_value->SetInt(1, kDoubleValue));
+  return list_value;
+}
+
+const char* kKey1 = "key1";
+const char* kKey2 = "key2";
+
+CefRefPtr<CefDictionaryValue> CreateDictionaryValue() {
+  // Create the dictionary.
+  CefRefPtr<CefDictionaryValue> dict_value = CefDictionaryValue::Create();
+  EXPECT_TRUE(dict_value.get());
+  EXPECT_TRUE(dict_value->IsValid());
+  EXPECT_FALSE(dict_value->IsOwned());
+  EXPECT_FALSE(dict_value->IsReadOnly());
+  EXPECT_TRUE(dict_value->SetInt(kKey1, kIntValue));
+  EXPECT_TRUE(dict_value->SetInt(kKey2, kDoubleValue));
+  return dict_value;
+}
 
 }  // namespace
 
@@ -733,4 +785,593 @@ TEST(ValuesTest, ListDetachment) {
   EXPECT_FALSE(list_value->IsValid());
   EXPECT_FALSE(list_value2->IsValid());
   EXPECT_FALSE(list_value3->IsValid());
+}
+
+// Test get/set of a CefValue simple types.
+TEST(ValuesTest, ValueSimple) {
+  CefRefPtr<CefValue> value = CefValue::Create();
+  EXPECT_TRUE(value.get());
+  EXPECT_TRUE(value->IsValid());
+  EXPECT_FALSE(value->IsReadOnly());
+  EXPECT_FALSE(value->IsOwned());
+  EXPECT_EQ(VTYPE_NULL, value->GetType());
+  CreateAndCompareCopy(value);
+
+  EXPECT_TRUE(value->SetBool(true));
+  EXPECT_EQ(VTYPE_BOOL, value->GetType());
+  EXPECT_EQ(true, value->GetBool());
+  EXPECT_TRUE(value->IsValid());
+  EXPECT_FALSE(value->IsReadOnly());
+  EXPECT_FALSE(value->IsOwned());
+  CreateAndCompareCopy(value);
+
+  EXPECT_TRUE(value->SetBool(false));
+  EXPECT_EQ(VTYPE_BOOL, value->GetType());
+  EXPECT_EQ(false, value->GetBool());
+  EXPECT_TRUE(value->IsValid());
+  EXPECT_FALSE(value->IsReadOnly());
+  EXPECT_FALSE(value->IsOwned());
+  CreateAndCompareCopy(value);
+
+  EXPECT_TRUE(value->SetInt(3));
+  EXPECT_EQ(VTYPE_INT, value->GetType());
+  EXPECT_EQ(3, value->GetInt());
+  EXPECT_TRUE(value->IsValid());
+  EXPECT_FALSE(value->IsReadOnly());
+  EXPECT_FALSE(value->IsOwned());
+  CreateAndCompareCopy(value);
+
+  EXPECT_TRUE(value->SetDouble(5.665));
+  EXPECT_EQ(VTYPE_DOUBLE, value->GetType());
+  EXPECT_EQ(5.665, value->GetDouble());
+  EXPECT_TRUE(value->IsValid());
+  EXPECT_FALSE(value->IsReadOnly());
+  EXPECT_FALSE(value->IsOwned());
+  CreateAndCompareCopy(value);
+
+  const char* str = "Test string";
+  EXPECT_TRUE(value->SetString(str));
+  EXPECT_EQ(VTYPE_STRING, value->GetType());
+  EXPECT_STREQ(str, value->GetString().ToString().data());
+  EXPECT_TRUE(value->IsValid());
+  EXPECT_FALSE(value->IsReadOnly());
+  EXPECT_FALSE(value->IsOwned());
+  CreateAndCompareCopy(value);
+
+  EXPECT_TRUE(value->SetNull());
+  EXPECT_EQ(VTYPE_NULL, value->GetType());
+  EXPECT_TRUE(value->IsValid());
+  EXPECT_FALSE(value->IsReadOnly());
+  EXPECT_FALSE(value->IsOwned());
+  CreateAndCompareCopy(value);
+}
+
+// Test association of a CefValue simple type with a CefListValue.
+TEST(ValuesTest, ValueSimpleToList) {
+  const double double_value = 5.665;
+
+  CefRefPtr<CefValue> value = CefValue::Create();
+  EXPECT_TRUE(value->SetDouble(double_value));
+
+  // Add the value to the target list.
+  CefRefPtr<CefListValue> target_list = CefListValue::Create();
+  EXPECT_TRUE(target_list->SetValue(0, value));
+
+  // Test the value in the target list.
+  EXPECT_EQ(VTYPE_DOUBLE, target_list->GetType(0));
+  EXPECT_EQ(double_value, target_list->GetDouble(0));
+
+  // Get the value from the target list.
+  CefRefPtr<CefValue> value2 = target_list->GetValue(0);
+  EXPECT_TRUE(value2.get());
+  EXPECT_FALSE(value2->IsOwned());
+  EXPECT_FALSE(value2->IsReadOnly());
+  EXPECT_EQ(VTYPE_DOUBLE, value2->GetType());
+  EXPECT_EQ(double_value, value2->GetDouble());
+
+  // Values are equal but not the same.
+  EXPECT_TRUE(value->IsEqual(value2));
+  EXPECT_TRUE(value2->IsEqual(value));
+  EXPECT_FALSE(value->IsSame(value2));
+  EXPECT_FALSE(value2->IsSame(value));
+
+  // Change the value in the target list.
+  EXPECT_TRUE(target_list->SetInt(0, 5));
+  EXPECT_EQ(VTYPE_INT, target_list->GetType(0));
+  EXPECT_EQ(5, target_list->GetInt(0));
+
+  // The other values are still valid.
+  EXPECT_TRUE(value->IsValid());
+  EXPECT_TRUE(value2->IsValid());
+}
+
+// Test association of a CefValue simple type with a CefDictionaryValue.
+TEST(ValuesTest, ValueSimpleToDictionary) {
+  const double double_value = 5.665;
+  const char* key = "key";
+
+  CefRefPtr<CefValue> value = CefValue::Create();
+  EXPECT_TRUE(value->SetDouble(double_value));
+
+  // Add the value to the target dictionary.
+  CefRefPtr<CefDictionaryValue> target_dict = CefDictionaryValue::Create();
+  EXPECT_TRUE(target_dict->SetValue(key, value));
+
+  // Test the value in the target dictionary.
+  EXPECT_EQ(VTYPE_DOUBLE, target_dict->GetType(key));
+  EXPECT_EQ(double_value, target_dict->GetDouble(key));
+
+  // Get the value from the target dictionary.
+  CefRefPtr<CefValue> value2 = target_dict->GetValue(key);
+  EXPECT_TRUE(value2.get());
+  EXPECT_FALSE(value2->IsOwned());
+  EXPECT_FALSE(value2->IsReadOnly());
+  EXPECT_EQ(VTYPE_DOUBLE, value2->GetType());
+  EXPECT_EQ(double_value, value2->GetDouble());
+
+  // Values are equal but not the same.
+  EXPECT_TRUE(value->IsEqual(value2));
+  EXPECT_TRUE(value2->IsEqual(value));
+  EXPECT_FALSE(value->IsSame(value2));
+  EXPECT_FALSE(value2->IsSame(value));
+
+  // Change the value in the target dictionary.
+  EXPECT_TRUE(target_dict->SetInt(key, 5));
+  EXPECT_EQ(VTYPE_INT, target_dict->GetType(key));
+  EXPECT_EQ(5, target_dict->GetInt(key));
+
+  // The other values are still valid.
+  EXPECT_TRUE(value->IsValid());
+  EXPECT_TRUE(value2->IsValid());
+}
+
+// Test get/set of a CefValue binary type.
+TEST(ValuesTest, ValueBinary) {
+  // Create the binary.
+  CefRefPtr<CefBinaryValue> binary_value = CreateBinaryValue();
+
+  // Create the value.
+  CefRefPtr<CefValue> value = CefValue::Create();
+  EXPECT_TRUE(value->SetBinary(binary_value));
+  EXPECT_EQ(VTYPE_BINARY, value->GetType());
+  EXPECT_TRUE(value->IsValid());
+  EXPECT_TRUE(value->IsReadOnly());  // Binary values are always read-only.
+  EXPECT_FALSE(value->IsOwned());
+  CreateAndCompareCopy(value);
+
+  // Get the binary reference from the value.
+  CefRefPtr<CefBinaryValue> binary_value2 = value->GetBinary();
+  EXPECT_TRUE(binary_value2.get());
+  EXPECT_TRUE(binary_value2->IsValid());
+  EXPECT_FALSE(binary_value2->IsOwned());
+
+  // The binaries are the same and equal.
+  TestBinaryEqual(binary_value, binary_value2);
+  EXPECT_TRUE(binary_value->IsSame(binary_value2));
+  EXPECT_TRUE(binary_value2->IsSame(binary_value));
+}
+
+// Test association of a CefValue binary with a CefListValue.
+TEST(ValuesTest, ValueBinaryToList) {
+  // Create the binary.
+  CefRefPtr<CefBinaryValue> binary_value = CreateBinaryValue();
+
+  // Add the binary to a value.
+  CefRefPtr<CefValue> value = CefValue::Create();
+  EXPECT_TRUE(value->SetBinary(binary_value));
+
+  // Add the value to the target list.
+  CefRefPtr<CefListValue> target_list = CefListValue::Create();
+  EXPECT_TRUE(target_list->SetValue(0, value));
+
+  // The binary value is now owned by the target list.
+  EXPECT_FALSE(binary_value->IsValid());
+
+  // The value is still valid and points to the new reference list.
+  EXPECT_TRUE(value->IsValid());
+
+  CefRefPtr<CefBinaryValue> binary_value2 = value->GetBinary();
+  CefRefPtr<CefBinaryValue> binary_value3 = target_list->GetBinary(0);
+  CefRefPtr<CefValue> value2 = target_list->GetValue(0);
+  CefRefPtr<CefBinaryValue> binary_value4 = value2->GetBinary();
+
+  // All values are owned by the target list.
+  EXPECT_TRUE(value->IsOwned());
+  EXPECT_TRUE(value2->IsOwned());
+  EXPECT_TRUE(binary_value2->IsOwned());
+  EXPECT_TRUE(binary_value3->IsOwned());
+  EXPECT_TRUE(binary_value4->IsOwned());
+
+  // All values are the same.
+  EXPECT_TRUE(binary_value2->IsSame(binary_value3));
+  TestBinaryEqual(binary_value2, binary_value3);
+  EXPECT_TRUE(binary_value2->IsSame(binary_value4));
+  TestBinaryEqual(binary_value2, binary_value4);
+
+  // Change the value to something else.
+  EXPECT_TRUE(target_list->SetInt(0, kIntValue));
+  EXPECT_EQ(VTYPE_INT, target_list->GetType(0));
+  EXPECT_EQ(kIntValue, target_list->GetInt(0));
+
+  // Now the references are invalid.
+  EXPECT_FALSE(value->IsValid());
+  EXPECT_FALSE(value2->IsValid());
+  EXPECT_FALSE(binary_value2->IsValid());
+  EXPECT_FALSE(binary_value3->IsValid());
+  EXPECT_FALSE(binary_value4->IsValid());
+
+  // Verify that adding a binary to a list directly invalidates both the binary
+  // and the value that references it.
+  binary_value = CreateBinaryValue();
+  value = CefValue::Create();
+  EXPECT_TRUE(value->SetBinary(binary_value));
+  target_list->SetBinary(0, binary_value);
+  EXPECT_FALSE(binary_value->IsValid());
+  EXPECT_FALSE(value->IsValid());
+}
+
+// Test association of a CefValue binary with a CefDictionaryValue.
+TEST(ValuesTest, ValueBinaryToDictionary) {
+  const char* key = "key";
+
+  // Create the binary.
+  CefRefPtr<CefBinaryValue> binary_value = CreateBinaryValue();
+
+  // Add the binary to a value.
+  CefRefPtr<CefValue> value = CefValue::Create();
+  EXPECT_TRUE(value->SetBinary(binary_value));
+
+  // Add the value to the target dictionary.
+  CefRefPtr<CefDictionaryValue> target_dict = CefDictionaryValue::Create();
+  EXPECT_TRUE(target_dict->SetValue(key, value));
+
+  // The list value is now owned by the target dictionary.
+  EXPECT_FALSE(binary_value->IsValid());
+
+  // The value is still valid and points to the new reference list.
+  EXPECT_TRUE(value->IsValid());
+
+  CefRefPtr<CefBinaryValue> binary_value2 = value->GetBinary();
+  CefRefPtr<CefBinaryValue> binary_value3 = target_dict->GetBinary(key);
+  CefRefPtr<CefValue> value2 = target_dict->GetValue(key);
+  CefRefPtr<CefBinaryValue> binary_value4 = value2->GetBinary();
+
+  // All values are owned by the target dictionary.
+  EXPECT_TRUE(value->IsOwned());
+  EXPECT_TRUE(value2->IsOwned());
+  EXPECT_TRUE(binary_value2->IsOwned());
+  EXPECT_TRUE(binary_value3->IsOwned());
+  EXPECT_TRUE(binary_value4->IsOwned());
+
+  // All values are the same.
+  EXPECT_TRUE(binary_value2->IsSame(binary_value3));
+  TestBinaryEqual(binary_value2, binary_value3);
+  EXPECT_TRUE(binary_value2->IsSame(binary_value4));
+  TestBinaryEqual(binary_value2, binary_value4);
+
+  // Change the value to something else.
+  EXPECT_TRUE(target_dict->SetInt(key, kIntValue));
+  EXPECT_EQ(VTYPE_INT, target_dict->GetType(key));
+  EXPECT_EQ(kIntValue, target_dict->GetInt(key));
+
+  // Now the references are invalid.
+  EXPECT_FALSE(value->IsValid());
+  EXPECT_FALSE(value2->IsValid());
+  EXPECT_FALSE(binary_value2->IsValid());
+  EXPECT_FALSE(binary_value3->IsValid());
+  EXPECT_FALSE(binary_value4->IsValid());
+
+  // Verify that adding a binary to a dictionary directly invalidates both the
+  // binary and the value that references it.
+  binary_value = CreateBinaryValue();
+  value = CefValue::Create();
+  EXPECT_TRUE(value->SetBinary(binary_value));
+  target_dict->SetBinary(key, binary_value);
+  EXPECT_FALSE(binary_value->IsValid());
+  EXPECT_FALSE(value->IsValid());
+}
+
+// Test get/set of a CefValue list type.
+TEST(ValuesTest, ValueList) {
+  // Create the list.
+  CefRefPtr<CefListValue> list_value = CreateListValue();
+
+  // Create the value.
+  CefRefPtr<CefValue> value = CefValue::Create();
+  EXPECT_TRUE(value->SetList(list_value));
+  EXPECT_EQ(VTYPE_LIST, value->GetType());
+  EXPECT_TRUE(value->IsValid());
+  EXPECT_FALSE(value->IsReadOnly());
+  EXPECT_FALSE(value->IsOwned());
+  CreateAndCompareCopy(value);
+
+  // Get the list reference from the value.
+  CefRefPtr<CefListValue> list_value2 = value->GetList();
+  EXPECT_TRUE(list_value2.get());
+  EXPECT_TRUE(list_value2->IsValid());
+  EXPECT_FALSE(list_value2->IsOwned());
+  EXPECT_FALSE(list_value2->IsReadOnly());
+
+  // The lists are the same and equal.
+  TestListEqual(list_value, list_value2);
+  EXPECT_TRUE(list_value->IsSame(list_value2));
+  EXPECT_TRUE(list_value2->IsSame(list_value));
+
+  // Change a value in one list and verify that it's changed in the other list.
+  EXPECT_TRUE(list_value->SetString(0, kStringValue));
+  EXPECT_EQ(VTYPE_STRING, list_value->GetType(0));
+  EXPECT_STREQ(kStringValue, list_value->GetString(0).ToString().data());
+}
+
+// Test association of a CefValue list with a CefListValue.
+TEST(ValuesTest, ValueListToList) {
+  // Create the list.
+  CefRefPtr<CefListValue> list_value = CreateListValue();
+
+  // Add the list to a value.
+  CefRefPtr<CefValue> value = CefValue::Create();
+  EXPECT_TRUE(value->SetList(list_value));
+
+  // Add the value to the target list.
+  CefRefPtr<CefListValue> target_list = CefListValue::Create();
+  EXPECT_TRUE(target_list->SetValue(0, value));
+
+  // The list value is now owned by the target list.
+  EXPECT_FALSE(list_value->IsValid());
+
+  // The value is still valid and points to the new reference list.
+  EXPECT_TRUE(value->IsValid());
+
+  CefRefPtr<CefListValue> list_value2 = value->GetList();
+  CefRefPtr<CefListValue> list_value3 = target_list->GetList(0);
+  CefRefPtr<CefValue> value2 = target_list->GetValue(0);
+  CefRefPtr<CefListValue> list_value4 = value2->GetList();
+
+  // All values are owned by the target list.
+  EXPECT_TRUE(value->IsOwned());
+  EXPECT_TRUE(value2->IsOwned());
+  EXPECT_TRUE(list_value2->IsOwned());
+  EXPECT_TRUE(list_value3->IsOwned());
+  EXPECT_TRUE(list_value4->IsOwned());
+
+  // All values are the same.
+  EXPECT_TRUE(list_value2->IsSame(list_value3));
+  TestListEqual(list_value2, list_value3);
+  EXPECT_TRUE(list_value2->IsSame(list_value4));
+  TestListEqual(list_value2, list_value4);
+
+  // Change the value to something else.
+  EXPECT_TRUE(target_list->SetInt(0, kIntValue));
+  EXPECT_EQ(VTYPE_INT, target_list->GetType(0));
+  EXPECT_EQ(kIntValue, target_list->GetInt(0));
+
+  // Now the references are invalid.
+  EXPECT_FALSE(value->IsValid());
+  EXPECT_FALSE(value2->IsValid());
+  EXPECT_FALSE(list_value2->IsValid());
+  EXPECT_FALSE(list_value3->IsValid());
+  EXPECT_FALSE(list_value4->IsValid());
+
+  // Verify that adding a list to a list directly invalidates both the list
+  // and the value that references it.
+  list_value = CreateListValue();
+  value = CefValue::Create();
+  EXPECT_TRUE(value->SetList(list_value));
+  target_list->SetList(0, list_value);
+  EXPECT_FALSE(list_value->IsValid());
+  EXPECT_FALSE(value->IsValid());
+}
+
+// Test association of a CefValue list with a CefDictionaryValue.
+TEST(ValuesTest, ValueListToDictionary) {
+  const char* key = "key";
+
+  // Create the list.
+  CefRefPtr<CefListValue> list_value = CreateListValue();
+
+  // Add the list to a value.
+  CefRefPtr<CefValue> value = CefValue::Create();
+  EXPECT_TRUE(value->SetList(list_value));
+
+  // Add the value to the target dictionary.
+  CefRefPtr<CefDictionaryValue> target_dict = CefDictionaryValue::Create();
+  EXPECT_TRUE(target_dict->SetValue(key, value));
+
+  // The list value is now owned by the target dictionary.
+  EXPECT_FALSE(list_value->IsValid());
+
+  // The value is still valid and points to the new reference list.
+  EXPECT_TRUE(value->IsValid());
+
+  CefRefPtr<CefListValue> list_value2 = value->GetList();
+  CefRefPtr<CefListValue> list_value3 = target_dict->GetList(key);
+  CefRefPtr<CefValue> value2 = target_dict->GetValue(key);
+  CefRefPtr<CefListValue> list_value4 = value2->GetList();
+
+  // All values are owned by the target dictionary.
+  EXPECT_TRUE(value->IsOwned());
+  EXPECT_TRUE(value2->IsOwned());
+  EXPECT_TRUE(list_value2->IsOwned());
+  EXPECT_TRUE(list_value3->IsOwned());
+  EXPECT_TRUE(list_value4->IsOwned());
+
+  // All values are the same.
+  EXPECT_TRUE(list_value2->IsSame(list_value3));
+  TestListEqual(list_value2, list_value3);
+  EXPECT_TRUE(list_value2->IsSame(list_value4));
+  TestListEqual(list_value2, list_value4);
+
+  // Change the value to something else.
+  EXPECT_TRUE(target_dict->SetInt(key, kIntValue));
+  EXPECT_EQ(VTYPE_INT, target_dict->GetType(key));
+  EXPECT_EQ(kIntValue, target_dict->GetInt(key));
+
+  // Now the references are invalid.
+  EXPECT_FALSE(value->IsValid());
+  EXPECT_FALSE(value2->IsValid());
+  EXPECT_FALSE(list_value2->IsValid());
+  EXPECT_FALSE(list_value3->IsValid());
+  EXPECT_FALSE(list_value4->IsValid());
+
+  // Verify that adding a list to a dictionary directly invalidates both the
+  // list and the value that references it.
+  list_value = CreateListValue();
+  value = CefValue::Create();
+  EXPECT_TRUE(value->SetList(list_value));
+  target_dict->SetList(key, list_value);
+  EXPECT_FALSE(list_value->IsValid());
+  EXPECT_FALSE(value->IsValid());
+}
+
+// Test get/set of a CefValue dictionary type.
+TEST(ValuesTest, ValueDictionary) {
+  // Create the dictionary.
+  CefRefPtr<CefDictionaryValue> dict_value = CreateDictionaryValue();
+
+  // Create the value.
+  CefRefPtr<CefValue> value = CefValue::Create();
+  EXPECT_TRUE(value->SetDictionary(dict_value));
+  EXPECT_EQ(VTYPE_DICTIONARY, value->GetType());
+  EXPECT_TRUE(value->IsValid());
+  EXPECT_FALSE(value->IsReadOnly());
+  EXPECT_FALSE(value->IsOwned());
+  CreateAndCompareCopy(value);
+
+  // Get the dictionary reference from the value.
+  CefRefPtr<CefDictionaryValue> dict_value2 = value->GetDictionary();
+  EXPECT_TRUE(dict_value2.get());
+  EXPECT_TRUE(dict_value2->IsValid());
+  EXPECT_FALSE(dict_value2->IsOwned());
+  EXPECT_FALSE(dict_value2->IsReadOnly());
+
+  // The dictionaries are the same and equal.
+  TestDictionaryEqual(dict_value, dict_value2);
+  EXPECT_TRUE(dict_value->IsSame(dict_value2));
+  EXPECT_TRUE(dict_value2->IsSame(dict_value));
+
+  // Change a value in one dictionary and verify that it's changed in the other
+  // dictionary.
+  EXPECT_TRUE(dict_value->SetString(kKey1, kStringValue));
+  EXPECT_EQ(VTYPE_STRING, dict_value->GetType(kKey1));
+  EXPECT_STREQ(kStringValue, dict_value->GetString(kKey1).ToString().data());
+}
+
+// Test association of a CefValue dictionary with a CefListValue.
+TEST(ValuesTest, ValueDictionaryToList) {
+  // Create the dictionary.
+  CefRefPtr<CefDictionaryValue> dict_value = CreateDictionaryValue();
+
+  // Add the list to a value.
+  CefRefPtr<CefValue> value = CefValue::Create();
+  EXPECT_TRUE(value->SetDictionary(dict_value));
+
+  // Add the value to the target list.
+  CefRefPtr<CefListValue> target_list = CefListValue::Create();
+  EXPECT_TRUE(target_list->SetValue(0, value));
+
+  // The list value is now owned by the target list.
+  EXPECT_FALSE(dict_value->IsValid());
+
+  // The value is still valid and points to the new reference list.
+  EXPECT_TRUE(value->IsValid());
+
+  CefRefPtr<CefDictionaryValue> dict_value2 = value->GetDictionary();
+  CefRefPtr<CefDictionaryValue> dict_value3 = target_list->GetDictionary(0);
+  CefRefPtr<CefValue> value2 = target_list->GetValue(0);
+  CefRefPtr<CefDictionaryValue> dict_value4 = value2->GetDictionary();
+
+  // All values are owned by the target list.
+  EXPECT_TRUE(value->IsOwned());
+  EXPECT_TRUE(value2->IsOwned());
+  EXPECT_TRUE(dict_value2->IsOwned());
+  EXPECT_TRUE(dict_value3->IsOwned());
+  EXPECT_TRUE(dict_value4->IsOwned());
+
+  // All values are the same.
+  EXPECT_TRUE(dict_value2->IsSame(dict_value3));
+  TestDictionaryEqual(dict_value2, dict_value3);
+  EXPECT_TRUE(dict_value2->IsSame(dict_value4));
+  TestDictionaryEqual(dict_value2, dict_value4);
+
+  // Change the value to something else.
+  EXPECT_TRUE(target_list->SetInt(0, kIntValue));
+  EXPECT_EQ(VTYPE_INT, target_list->GetType(0));
+  EXPECT_EQ(kIntValue, target_list->GetInt(0));
+
+  // Now the references are invalid.
+  EXPECT_FALSE(value->IsValid());
+  EXPECT_FALSE(value2->IsValid());
+  EXPECT_FALSE(dict_value2->IsValid());
+  EXPECT_FALSE(dict_value3->IsValid());
+  EXPECT_FALSE(dict_value4->IsValid());
+
+  // Verify that adding a dictionary to a list directly invalidates both the
+  // dictionary and the value that references it.
+  dict_value = CreateDictionaryValue();
+  value = CefValue::Create();
+  EXPECT_TRUE(value->SetDictionary(dict_value));
+  target_list->SetDictionary(0, dict_value);
+  EXPECT_FALSE(dict_value->IsValid());
+  EXPECT_FALSE(value->IsValid());
+}
+
+// Test association of a CefValue dictionary with a CefDictionaryValue.
+TEST(ValuesTest, ValueDictionaryToDictionary) {
+  const char* key = "key";
+
+  // Create the dictionary.
+  CefRefPtr<CefDictionaryValue> dict_value = CreateDictionaryValue();
+
+  // Add the list to a value.
+  CefRefPtr<CefValue> value = CefValue::Create();
+  EXPECT_TRUE(value->SetDictionary(dict_value));
+
+  // Add the value to the target dictionary.
+  CefRefPtr<CefDictionaryValue> target_dict = CefDictionaryValue::Create();
+  EXPECT_TRUE(target_dict->SetValue(key, value));
+
+  // The list value is now owned by the target dictionary.
+  EXPECT_FALSE(dict_value->IsValid());
+
+  // The value is still valid and points to the new reference list.
+  EXPECT_TRUE(value->IsValid());
+
+  CefRefPtr<CefDictionaryValue> dict_value2 = value->GetDictionary();
+  CefRefPtr<CefDictionaryValue> dict_value3 = target_dict->GetDictionary(key);
+  CefRefPtr<CefValue> value2 = target_dict->GetValue(key);
+  CefRefPtr<CefDictionaryValue> dict_value4 = value2->GetDictionary();
+
+  // All values are owned by the target dictionary.
+  EXPECT_TRUE(value->IsOwned());
+  EXPECT_TRUE(value2->IsOwned());
+  EXPECT_TRUE(dict_value2->IsOwned());
+  EXPECT_TRUE(dict_value3->IsOwned());
+  EXPECT_TRUE(dict_value4->IsOwned());
+
+  // All values are the same.
+  EXPECT_TRUE(dict_value2->IsSame(dict_value3));
+  TestDictionaryEqual(dict_value2, dict_value3);
+  EXPECT_TRUE(dict_value2->IsSame(dict_value4));
+  TestDictionaryEqual(dict_value2, dict_value4);
+
+  // Change the value to something else.
+  EXPECT_TRUE(target_dict->SetInt(key, kIntValue));
+  EXPECT_EQ(VTYPE_INT, target_dict->GetType(key));
+  EXPECT_EQ(kIntValue, target_dict->GetInt(key));
+
+  // Now the references are invalid.
+  EXPECT_FALSE(value->IsValid());
+  EXPECT_FALSE(value2->IsValid());
+  EXPECT_FALSE(dict_value2->IsValid());
+  EXPECT_FALSE(dict_value3->IsValid());
+  EXPECT_FALSE(dict_value4->IsValid());
+
+  // Verify that adding a dictionary to a dictionary directly invalidates both
+  // the dictionary and the value that references it.
+  dict_value = CreateDictionaryValue();
+  value = CefValue::Create();
+  EXPECT_TRUE(value->SetDictionary(dict_value));
+  target_dict->SetDictionary(key, dict_value);
+  EXPECT_FALSE(dict_value->IsValid());
+  EXPECT_FALSE(value->IsValid());
 }

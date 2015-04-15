@@ -62,6 +62,44 @@ bool CefBinaryValueCToCpp::IsOwned() {
   return _retval?true:false;
 }
 
+bool CefBinaryValueCToCpp::IsSame(CefRefPtr<CefBinaryValue> that) {
+  if (CEF_MEMBER_MISSING(struct_, is_same))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: that; type: refptr_same
+  DCHECK(that.get());
+  if (!that.get())
+    return false;
+
+  // Execute
+  int _retval = struct_->is_same(struct_,
+      CefBinaryValueCToCpp::Unwrap(that));
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+bool CefBinaryValueCToCpp::IsEqual(CefRefPtr<CefBinaryValue> that) {
+  if (CEF_MEMBER_MISSING(struct_, is_equal))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: that; type: refptr_same
+  DCHECK(that.get());
+  if (!that.get())
+    return false;
+
+  // Execute
+  int _retval = struct_->is_equal(struct_,
+      CefBinaryValueCToCpp::Unwrap(that));
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 CefRefPtr<CefBinaryValue> CefBinaryValueCToCpp::Copy() {
   if (CEF_MEMBER_MISSING(struct_, copy))
     return NULL;

@@ -115,6 +115,9 @@ void TestBinaryEqual(CefRefPtr<CefBinaryValue> val1,
   EXPECT_TRUE(val1.get());
   EXPECT_TRUE(val2.get());
 
+  EXPECT_TRUE(val1->IsEqual(val2));
+  EXPECT_TRUE(val2->IsEqual(val1));
+
   size_t data_size = val1->GetSize();
   EXPECT_EQ(data_size, val2->GetSize());
 
@@ -138,6 +141,9 @@ void TestDictionaryEqual(CefRefPtr<CefDictionaryValue> val1,
                          CefRefPtr<CefDictionaryValue> val2) {
   EXPECT_TRUE(val1.get());
   EXPECT_TRUE(val2.get());
+
+  EXPECT_TRUE(val1->IsEqual(val2));
+  EXPECT_TRUE(val2->IsEqual(val1));
 
   EXPECT_EQ(val1->GetSize(), val2->GetSize());
 
@@ -183,6 +189,9 @@ void TestListEqual(CefRefPtr<CefListValue> val1,
                    CefRefPtr<CefListValue> val2) {
   EXPECT_TRUE(val1.get());
   EXPECT_TRUE(val2.get());
+
+  EXPECT_TRUE(val1->IsEqual(val2));
+  EXPECT_TRUE(val2->IsEqual(val1));
 
   int size = static_cast<int>(val1->GetSize());
   EXPECT_EQ(size, static_cast<int>(val2->GetSize()));

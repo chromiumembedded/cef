@@ -64,6 +64,46 @@ int CEF_CALLBACK binary_value_is_owned(struct _cef_binary_value_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK binary_value_is_same(struct _cef_binary_value_t* self,
+    struct _cef_binary_value_t* that) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: that; type: refptr_same
+  DCHECK(that);
+  if (!that)
+    return 0;
+
+  // Execute
+  bool _retval = CefBinaryValueCppToC::Get(self)->IsSame(
+      CefBinaryValueCppToC::Unwrap(that));
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK binary_value_is_equal(struct _cef_binary_value_t* self,
+    struct _cef_binary_value_t* that) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: that; type: refptr_same
+  DCHECK(that);
+  if (!that)
+    return 0;
+
+  // Execute
+  bool _retval = CefBinaryValueCppToC::Get(self)->IsEqual(
+      CefBinaryValueCppToC::Unwrap(that));
+
+  // Return type: bool
+  return _retval;
+}
+
 struct _cef_binary_value_t* CEF_CALLBACK binary_value_copy(
     struct _cef_binary_value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -122,6 +162,8 @@ CefBinaryValueCppToC::CefBinaryValueCppToC(CefBinaryValue* cls)
     : CefCppToC<CefBinaryValueCppToC, CefBinaryValue, cef_binary_value_t>(cls) {
   struct_.struct_.is_valid = binary_value_is_valid;
   struct_.struct_.is_owned = binary_value_is_owned;
+  struct_.struct_.is_same = binary_value_is_same;
+  struct_.struct_.is_equal = binary_value_is_equal;
   struct_.struct_.copy = binary_value_copy;
   struct_.struct_.get_size = binary_value_get_size;
   struct_.struct_.get_data = binary_value_get_data;

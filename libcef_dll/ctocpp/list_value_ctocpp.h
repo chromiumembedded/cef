@@ -34,12 +34,15 @@ class CefListValueCToCpp
   virtual bool IsValid() OVERRIDE;
   virtual bool IsOwned() OVERRIDE;
   virtual bool IsReadOnly() OVERRIDE;
+  virtual bool IsSame(CefRefPtr<CefListValue> that) OVERRIDE;
+  virtual bool IsEqual(CefRefPtr<CefListValue> that) OVERRIDE;
   virtual CefRefPtr<CefListValue> Copy() OVERRIDE;
   virtual bool SetSize(size_t size) OVERRIDE;
   virtual size_t GetSize() OVERRIDE;
   virtual bool Clear() OVERRIDE;
   virtual bool Remove(int index) OVERRIDE;
   virtual CefValueType GetType(int index) OVERRIDE;
+  virtual CefRefPtr<CefValue> GetValue(int index) OVERRIDE;
   virtual bool GetBool(int index) OVERRIDE;
   virtual int GetInt(int index) OVERRIDE;
   virtual double GetDouble(int index) OVERRIDE;
@@ -47,6 +50,7 @@ class CefListValueCToCpp
   virtual CefRefPtr<CefBinaryValue> GetBinary(int index) OVERRIDE;
   virtual CefRefPtr<CefDictionaryValue> GetDictionary(int index) OVERRIDE;
   virtual CefRefPtr<CefListValue> GetList(int index) OVERRIDE;
+  virtual bool SetValue(int index, CefRefPtr<CefValue> value) OVERRIDE;
   virtual bool SetNull(int index) OVERRIDE;
   virtual bool SetBool(int index, bool value) OVERRIDE;
   virtual bool SetInt(int index, int value) OVERRIDE;

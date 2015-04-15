@@ -44,8 +44,182 @@
 extern "C" {
 #endif
 
+struct _cef_binary_value_t;
 struct _cef_dictionary_value_t;
 struct _cef_list_value_t;
+
+///
+// Structure that wraps other data value types. Complex types (binary,
+// dictionary and list) will be referenced but not owned by this object. Can be
+// used on any process and thread.
+///
+typedef struct _cef_value_t {
+  ///
+  // Base structure.
+  ///
+  cef_base_t base;
+
+  ///
+  // Returns true (1) if the underlying data is valid. This will always be true
+  // (1) for simple types. For complex types (binary, dictionary and list) the
+  // underlying data may become invalid if owned by another object (e.g. list or
+  // dictionary) and that other object is then modified or destroyed. This value
+  // object can be re-used by calling Set*() even if the underlying data is
+  // invalid.
+  ///
+  int (CEF_CALLBACK *is_valid)(struct _cef_value_t* self);
+
+  ///
+  // Returns true (1) if the underlying data is owned by another object.
+  ///
+  int (CEF_CALLBACK *is_owned)(struct _cef_value_t* self);
+
+  ///
+  // Returns true (1) if the underlying data is read-only. Some APIs may expose
+  // read-only objects.
+  ///
+  int (CEF_CALLBACK *is_read_only)(struct _cef_value_t* self);
+
+  ///
+  // Returns true (1) if this object and |that| object have the same underlying
+  // data. If true (1) modifications to this object will also affect |that|
+  // object and vice-versa.
+  ///
+  int (CEF_CALLBACK *is_same)(struct _cef_value_t* self,
+      struct _cef_value_t* that);
+
+  ///
+  // Returns true (1) if this object and |that| object have an equivalent
+  // underlying value but are not necessarily the same object.
+  ///
+  int (CEF_CALLBACK *is_equal)(struct _cef_value_t* self,
+      struct _cef_value_t* that);
+
+  ///
+  // Returns a copy of this object. The underlying data will also be copied.
+  ///
+  struct _cef_value_t* (CEF_CALLBACK *copy)(struct _cef_value_t* self);
+
+  ///
+  // Returns the underlying value type.
+  ///
+  cef_value_type_t (CEF_CALLBACK *get_type)(struct _cef_value_t* self);
+
+  ///
+  // Returns the underlying value as type bool.
+  ///
+  int (CEF_CALLBACK *get_bool)(struct _cef_value_t* self);
+
+  ///
+  // Returns the underlying value as type int.
+  ///
+  int (CEF_CALLBACK *get_int)(struct _cef_value_t* self);
+
+  ///
+  // Returns the underlying value as type double.
+  ///
+  double (CEF_CALLBACK *get_double)(struct _cef_value_t* self);
+
+  ///
+  // Returns the underlying value as type string.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_string)(struct _cef_value_t* self);
+
+  ///
+  // Returns the underlying value as type binary. The returned reference may
+  // become invalid if the value is owned by another object or if ownership is
+  // transferred to another object in the future. To maintain a reference to the
+  // value after assigning ownership to a dictionary or list pass this object to
+  // the set_value() function instead of passing the returned reference to
+  // set_binary().
+  ///
+  struct _cef_binary_value_t* (CEF_CALLBACK *get_binary)(
+      struct _cef_value_t* self);
+
+  ///
+  // Returns the underlying value as type dictionary. The returned reference may
+  // become invalid if the value is owned by another object or if ownership is
+  // transferred to another object in the future. To maintain a reference to the
+  // value after assigning ownership to a dictionary or list pass this object to
+  // the set_value() function instead of passing the returned reference to
+  // set_dictionary().
+  ///
+  struct _cef_dictionary_value_t* (CEF_CALLBACK *get_dictionary)(
+      struct _cef_value_t* self);
+
+  ///
+  // Returns the underlying value as type list. The returned reference may
+  // become invalid if the value is owned by another object or if ownership is
+  // transferred to another object in the future. To maintain a reference to the
+  // value after assigning ownership to a dictionary or list pass this object to
+  // the set_value() function instead of passing the returned reference to
+  // set_list().
+  ///
+  struct _cef_list_value_t* (CEF_CALLBACK *get_list)(struct _cef_value_t* self);
+
+  ///
+  // Sets the underlying value as type null. Returns true (1) if the value was
+  // set successfully.
+  ///
+  int (CEF_CALLBACK *set_null)(struct _cef_value_t* self);
+
+  ///
+  // Sets the underlying value as type bool. Returns true (1) if the value was
+  // set successfully.
+  ///
+  int (CEF_CALLBACK *set_bool)(struct _cef_value_t* self, int value);
+
+  ///
+  // Sets the underlying value as type int. Returns true (1) if the value was
+  // set successfully.
+  ///
+  int (CEF_CALLBACK *set_int)(struct _cef_value_t* self, int value);
+
+  ///
+  // Sets the underlying value as type double. Returns true (1) if the value was
+  // set successfully.
+  ///
+  int (CEF_CALLBACK *set_double)(struct _cef_value_t* self, double value);
+
+  ///
+  // Sets the underlying value as type string. Returns true (1) if the value was
+  // set successfully.
+  ///
+  int (CEF_CALLBACK *set_string)(struct _cef_value_t* self,
+      const cef_string_t* value);
+
+  ///
+  // Sets the underlying value as type binary. Returns true (1) if the value was
+  // set successfully. This object keeps a reference to |value| and ownership of
+  // the underlying data remains unchanged.
+  ///
+  int (CEF_CALLBACK *set_binary)(struct _cef_value_t* self,
+      struct _cef_binary_value_t* value);
+
+  ///
+  // Sets the underlying value as type dict. Returns true (1) if the value was
+  // set successfully. This object keeps a reference to |value| and ownership of
+  // the underlying data remains unchanged.
+  ///
+  int (CEF_CALLBACK *set_dictionary)(struct _cef_value_t* self,
+      struct _cef_dictionary_value_t* value);
+
+  ///
+  // Sets the underlying value as type list. Returns true (1) if the value was
+  // set successfully. This object keeps a reference to |value| and ownership of
+  // the underlying data remains unchanged.
+  ///
+  int (CEF_CALLBACK *set_list)(struct _cef_value_t* self,
+      struct _cef_list_value_t* value);
+} cef_value_t;
+
+
+///
+// Creates a new object.
+///
+CEF_EXPORT cef_value_t* cef_value_create();
+
 
 ///
 // Structure representing a binary value. Can be used on any process and thread.
@@ -57,8 +231,10 @@ typedef struct _cef_binary_value_t {
   cef_base_t base;
 
   ///
-  // Returns true (1) if this object is valid. Do not call any other functions
-  // if this function returns false (0).
+  // Returns true (1) if this object is valid. This object may become invalid if
+  // the underlying data is owned by another object (e.g. list or dictionary)
+  // and that other object is then modified or destroyed. Do not call any other
+  // functions if this function returns false (0).
   ///
   int (CEF_CALLBACK *is_valid)(struct _cef_binary_value_t* self);
 
@@ -66,6 +242,20 @@ typedef struct _cef_binary_value_t {
   // Returns true (1) if this object is currently owned by another object.
   ///
   int (CEF_CALLBACK *is_owned)(struct _cef_binary_value_t* self);
+
+  ///
+  // Returns true (1) if this object and |that| object have the same underlying
+  // data.
+  ///
+  int (CEF_CALLBACK *is_same)(struct _cef_binary_value_t* self,
+      struct _cef_binary_value_t* that);
+
+  ///
+  // Returns true (1) if this object and |that| object have an equivalent
+  // underlying value but are not necessarily the same object.
+  ///
+  int (CEF_CALLBACK *is_equal)(struct _cef_binary_value_t* self,
+      struct _cef_binary_value_t* that);
 
   ///
   // Returns a copy of this object. The data in this object will also be copied.
@@ -106,8 +296,10 @@ typedef struct _cef_dictionary_value_t {
   cef_base_t base;
 
   ///
-  // Returns true (1) if this object is valid. Do not call any other functions
-  // if this function returns false (0).
+  // Returns true (1) if this object is valid. This object may become invalid if
+  // the underlying data is owned by another object (e.g. list or dictionary)
+  // and that other object is then modified or destroyed. Do not call any other
+  // functions if this function returns false (0).
   ///
   int (CEF_CALLBACK *is_valid)(struct _cef_dictionary_value_t* self);
 
@@ -121,6 +313,21 @@ typedef struct _cef_dictionary_value_t {
   // expose read-only objects.
   ///
   int (CEF_CALLBACK *is_read_only)(struct _cef_dictionary_value_t* self);
+
+  ///
+  // Returns true (1) if this object and |that| object have the same underlying
+  // data. If true (1) modifications to this object will also affect |that|
+  // object and vice-versa.
+  ///
+  int (CEF_CALLBACK *is_same)(struct _cef_dictionary_value_t* self,
+      struct _cef_dictionary_value_t* that);
+
+  ///
+  // Returns true (1) if this object and |that| object have an equivalent
+  // underlying value but are not necessarily the same object.
+  ///
+  int (CEF_CALLBACK *is_equal)(struct _cef_dictionary_value_t* self,
+      struct _cef_dictionary_value_t* that);
 
   ///
   // Returns a writable copy of this object. If |exclude_NULL_children| is true
@@ -165,6 +372,16 @@ typedef struct _cef_dictionary_value_t {
       struct _cef_dictionary_value_t* self, const cef_string_t* key);
 
   ///
+  // Returns the value at the specified key. For simple types the returned value
+  // will copy existing data and modifications to the value will not modify this
+  // object. For complex types (binary, dictionary and list) the returned value
+  // will reference existing data and modifications to the value will modify
+  // this object.
+  ///
+  struct _cef_value_t* (CEF_CALLBACK *get_value)(
+      struct _cef_dictionary_value_t* self, const cef_string_t* key);
+
+  ///
   // Returns the value at the specified key as type bool.
   ///
   int (CEF_CALLBACK *get_bool)(struct _cef_dictionary_value_t* self,
@@ -190,22 +407,38 @@ typedef struct _cef_dictionary_value_t {
       struct _cef_dictionary_value_t* self, const cef_string_t* key);
 
   ///
-  // Returns the value at the specified key as type binary.
+  // Returns the value at the specified key as type binary. The returned value
+  // will reference existing data.
   ///
   struct _cef_binary_value_t* (CEF_CALLBACK *get_binary)(
       struct _cef_dictionary_value_t* self, const cef_string_t* key);
 
   ///
-  // Returns the value at the specified key as type dictionary.
+  // Returns the value at the specified key as type dictionary. The returned
+  // value will reference existing data and modifications to the value will
+  // modify this object.
   ///
   struct _cef_dictionary_value_t* (CEF_CALLBACK *get_dictionary)(
       struct _cef_dictionary_value_t* self, const cef_string_t* key);
 
   ///
-  // Returns the value at the specified key as type list.
+  // Returns the value at the specified key as type list. The returned value
+  // will reference existing data and modifications to the value will modify
+  // this object.
   ///
   struct _cef_list_value_t* (CEF_CALLBACK *get_list)(
       struct _cef_dictionary_value_t* self, const cef_string_t* key);
+
+  ///
+  // Sets the value at the specified key. Returns true (1) if the value was set
+  // successfully. If |value| represents simple data then the underlying data
+  // will be copied and modifications to |value| will not modify this object. If
+  // |value| represents complex data (binary, dictionary or list) then the
+  // underlying data will be referenced and modifications to |value| will modify
+  // this object.
+  ///
+  int (CEF_CALLBACK *set_value)(struct _cef_dictionary_value_t* self,
+      const cef_string_t* key, struct _cef_value_t* value);
 
   ///
   // Sets the value at the specified key as type null. Returns true (1) if the
@@ -254,8 +487,7 @@ typedef struct _cef_dictionary_value_t {
 
   ///
   // Sets the value at the specified key as type dict. Returns true (1) if the
-  // value was set successfully. After calling this function the |value| object
-  // will no longer be valid. If |value| is currently owned by another object
+  // value was set successfully. If |value| is currently owned by another object
   // then the value will be copied and the |value| reference will not change.
   // Otherwise, ownership will be transferred to this object and the |value|
   // reference will be invalidated.
@@ -265,8 +497,7 @@ typedef struct _cef_dictionary_value_t {
 
   ///
   // Sets the value at the specified key as type list. Returns true (1) if the
-  // value was set successfully. After calling this function the |value| object
-  // will no longer be valid. If |value| is currently owned by another object
+  // value was set successfully. If |value| is currently owned by another object
   // then the value will be copied and the |value| reference will not change.
   // Otherwise, ownership will be transferred to this object and the |value|
   // reference will be invalidated.
@@ -292,8 +523,10 @@ typedef struct _cef_list_value_t {
   cef_base_t base;
 
   ///
-  // Returns true (1) if this object is valid. Do not call any other functions
-  // if this function returns false (0).
+  // Returns true (1) if this object is valid. This object may become invalid if
+  // the underlying data is owned by another object (e.g. list or dictionary)
+  // and that other object is then modified or destroyed. Do not call any other
+  // functions if this function returns false (0).
   ///
   int (CEF_CALLBACK *is_valid)(struct _cef_list_value_t* self);
 
@@ -307,6 +540,21 @@ typedef struct _cef_list_value_t {
   // expose read-only objects.
   ///
   int (CEF_CALLBACK *is_read_only)(struct _cef_list_value_t* self);
+
+  ///
+  // Returns true (1) if this object and |that| object have the same underlying
+  // data. If true (1) modifications to this object will also affect |that|
+  // object and vice-versa.
+  ///
+  int (CEF_CALLBACK *is_same)(struct _cef_list_value_t* self,
+      struct _cef_list_value_t* that);
+
+  ///
+  // Returns true (1) if this object and |that| object have an equivalent
+  // underlying value but are not necessarily the same object.
+  ///
+  int (CEF_CALLBACK *is_equal)(struct _cef_list_value_t* self,
+      struct _cef_list_value_t* that);
 
   ///
   // Returns a writable copy of this object.
@@ -342,6 +590,16 @@ typedef struct _cef_list_value_t {
       int index);
 
   ///
+  // Returns the value at the specified index. For simple types the returned
+  // value will copy existing data and modifications to the value will not
+  // modify this object. For complex types (binary, dictionary and list) the
+  // returned value will reference existing data and modifications to the value
+  // will modify this object.
+  ///
+  struct _cef_value_t* (CEF_CALLBACK *get_value)(struct _cef_list_value_t* self,
+      int index);
+
+  ///
   // Returns the value at the specified index as type bool.
   ///
   int (CEF_CALLBACK *get_bool)(struct _cef_list_value_t* self, int index);
@@ -364,22 +622,38 @@ typedef struct _cef_list_value_t {
       struct _cef_list_value_t* self, int index);
 
   ///
-  // Returns the value at the specified index as type binary.
+  // Returns the value at the specified index as type binary. The returned value
+  // will reference existing data.
   ///
   struct _cef_binary_value_t* (CEF_CALLBACK *get_binary)(
       struct _cef_list_value_t* self, int index);
 
   ///
-  // Returns the value at the specified index as type dictionary.
+  // Returns the value at the specified index as type dictionary. The returned
+  // value will reference existing data and modifications to the value will
+  // modify this object.
   ///
   struct _cef_dictionary_value_t* (CEF_CALLBACK *get_dictionary)(
       struct _cef_list_value_t* self, int index);
 
   ///
-  // Returns the value at the specified index as type list.
+  // Returns the value at the specified index as type list. The returned value
+  // will reference existing data and modifications to the value will modify
+  // this object.
   ///
   struct _cef_list_value_t* (CEF_CALLBACK *get_list)(
       struct _cef_list_value_t* self, int index);
+
+  ///
+  // Sets the value at the specified index. Returns true (1) if the value was
+  // set successfully. If |value| represents simple data then the underlying
+  // data will be copied and modifications to |value| will not modify this
+  // object. If |value| represents complex data (binary, dictionary or list)
+  // then the underlying data will be referenced and modifications to |value|
+  // will modify this object.
+  ///
+  int (CEF_CALLBACK *set_value)(struct _cef_list_value_t* self, int index,
+      struct _cef_value_t* value);
 
   ///
   // Sets the value at the specified index as type null. Returns true (1) if the
@@ -417,8 +691,7 @@ typedef struct _cef_list_value_t {
 
   ///
   // Sets the value at the specified index as type binary. Returns true (1) if
-  // the value was set successfully. After calling this function the |value|
-  // object will no longer be valid. If |value| is currently owned by another
+  // the value was set successfully. If |value| is currently owned by another
   // object then the value will be copied and the |value| reference will not
   // change. Otherwise, ownership will be transferred to this object and the
   // |value| reference will be invalidated.
@@ -428,8 +701,7 @@ typedef struct _cef_list_value_t {
 
   ///
   // Sets the value at the specified index as type dict. Returns true (1) if the
-  // value was set successfully. After calling this function the |value| object
-  // will no longer be valid. If |value| is currently owned by another object
+  // value was set successfully. If |value| is currently owned by another object
   // then the value will be copied and the |value| reference will not change.
   // Otherwise, ownership will be transferred to this object and the |value|
   // reference will be invalidated.
@@ -439,8 +711,7 @@ typedef struct _cef_list_value_t {
 
   ///
   // Sets the value at the specified index as type list. Returns true (1) if the
-  // value was set successfully. After calling this function the |value| object
-  // will no longer be valid. If |value| is currently owned by another object
+  // value was set successfully. If |value| is currently owned by another object
   // then the value will be copied and the |value| reference will not change.
   // Otherwise, ownership will be transferred to this object and the |value|
   // reference will be invalidated.
