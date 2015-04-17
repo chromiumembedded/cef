@@ -549,6 +549,65 @@ CEF_GLOBAL bool CefParseCSSColor(const CefString& string, bool strict,
   return _retval?true:false;
 }
 
+CEF_GLOBAL CefRefPtr<CefValue> CefParseJSON(const CefString& json_string,
+    cef_json_parser_options_t options) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: json_string; type: string_byref_const
+  DCHECK(!json_string.empty());
+  if (json_string.empty())
+    return NULL;
+
+  // Execute
+  cef_value_t* _retval = cef_parse_json(
+      json_string.GetStruct(),
+      options);
+
+  // Return type: refptr_same
+  return CefValueCToCpp::Wrap(_retval);
+}
+
+CEF_GLOBAL CefRefPtr<CefValue> CefParseJSONAndReturnError(
+    const CefString& json_string, cef_json_parser_options_t options,
+    cef_json_parser_error_t& error_code_out, CefString& error_msg_out) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: json_string; type: string_byref_const
+  DCHECK(!json_string.empty());
+  if (json_string.empty())
+    return NULL;
+
+  // Execute
+  cef_value_t* _retval = cef_parse_jsonand_return_error(
+      json_string.GetStruct(),
+      options,
+      &error_code_out,
+      error_msg_out.GetWritableStruct());
+
+  // Return type: refptr_same
+  return CefValueCToCpp::Wrap(_retval);
+}
+
+CEF_GLOBAL CefString CefWriteJSON(CefRefPtr<CefValue> node,
+    cef_json_writer_options_t options) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: node; type: refptr_same
+  DCHECK(node.get());
+  if (!node.get())
+    return CefString();
+
+  // Execute
+  cef_string_userfree_t _retval = cef_write_json(
+      CefValueCToCpp::Unwrap(node),
+      options);
+
+  // Return type: string
+  CefString _retvalStr;
+  _retvalStr.AttachToUserFree(_retval);
+  return _retvalStr;
+}
+
 CEF_GLOBAL bool CefGetPath(PathKey key, CefString& path) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
