@@ -363,6 +363,55 @@ void CefValueImpl::SetValueInternal(base::Value* value) {
   }
 }
 
+CefValueController* CefValueImpl::GetValueController() const {
+  lock_.AssertAcquired();
+
+  if (binary_value_) {
+    return static_cast<CefBinaryValueImpl*>(binary_value_.get())->controller();
+  } else if (dictionary_value_) {
+    return static_cast<CefDictionaryValueImpl*>(dictionary_value_.get())->
+        controller();
+  } else if (list_value_) {
+    return static_cast<CefListValueImpl*>(list_value_.get())->controller();
+  }
+
+  return NULL;
+}
+
+void CefValueImpl::AcquireLock() {
+  lock_.Acquire();
+
+  CefValueController* controller = GetValueController();
+  if (controller)
+    controller->lock();
+}
+
+void CefValueImpl::ReleaseLock() {
+  CefValueController* controller = GetValueController();
+  if (controller) {
+    controller->AssertLockAcquired();
+    controller->unlock();
+  }
+
+  lock_.Release();
+}
+
+base::Value* CefValueImpl::GetValueUnsafe() const {
+  lock_.AssertAcquired();
+
+  if (binary_value_) {
+    return static_cast<CefBinaryValueImpl*>(binary_value_.get())->
+        GetValueUnsafe();
+  } else if (dictionary_value_) {
+    return static_cast<CefDictionaryValueImpl*>(dictionary_value_.get())->
+        GetValueUnsafe();
+  } else if (list_value_) {
+    return static_cast<CefListValueImpl*>(list_value_.get())->GetValueUnsafe();
+  }
+
+  return value_.get();
+}
+
 
 // CefBinaryValueImpl implementation.
 
@@ -439,6 +488,13 @@ bool CefBinaryValueImpl::IsSameValue(const base::BinaryValue* that) {
 bool CefBinaryValueImpl::IsEqualValue(const base::BinaryValue* that) {
   CEF_VALUE_VERIFY_RETURN(false, false);
   return const_value().Equals(that);
+}
+
+base::BinaryValue* CefBinaryValueImpl::GetValueUnsafe() {
+  if (!VerifyAttached())
+    return NULL;
+  controller()->AssertLockAcquired();
+  return const_cast<base::BinaryValue*>(&const_value());
 }
 
 bool CefBinaryValueImpl::IsValid() {
@@ -570,6 +626,13 @@ bool CefDictionaryValueImpl::IsSameValue(const base::DictionaryValue* that) {
 bool CefDictionaryValueImpl::IsEqualValue(const base::DictionaryValue* that) {
   CEF_VALUE_VERIFY_RETURN(false, false);
   return const_value().Equals(that);
+}
+
+base::DictionaryValue* CefDictionaryValueImpl::GetValueUnsafe() {
+  if (!VerifyAttached())
+    return NULL;
+  controller()->AssertLockAcquired();
+  return const_cast<base::DictionaryValue*>(&const_value());
 }
 
 bool CefDictionaryValueImpl::IsValid() {
@@ -977,6 +1040,13 @@ bool CefListValueImpl::IsSameValue(const base::ListValue* that) {
 bool CefListValueImpl::IsEqualValue(const base::ListValue* that) {
   CEF_VALUE_VERIFY_RETURN(false, false);
   return const_value().Equals(that);
+}
+
+base::ListValue* CefListValueImpl::GetValueUnsafe() {
+  if (!VerifyAttached())
+    return NULL;
+  controller()->AssertLockAcquired();
+  return const_cast<base::ListValue*>(&const_value());
 }
 
 bool CefListValueImpl::IsValid() {

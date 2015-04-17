@@ -71,6 +71,9 @@ class CefValueController
   // Returns true if the controller is locked on the current thread.
   virtual bool locked() =0;
 
+  // Assert that the lock has been acquired.
+  virtual void AssertLockAcquired() =0;
+
   // Verify that the current thread is correct for accessing the controller.
   inline bool VerifyThread() {
     if (!thread_safe() && !on_correct_thread()) {
@@ -149,6 +152,9 @@ class CefValueControllerThreadSafe : public CefValueController {
   bool locked() override {
     return (locked_thread_id_ == base::PlatformThread::CurrentId());
   }
+  void AssertLockAcquired() override {
+    lock_.AssertAcquired();
+  }
 
  private:
   base::Lock lock_;
@@ -171,6 +177,9 @@ class CefValueControllerNonThreadSafe : public CefValueController {
   void lock() override {}
   void unlock() override {}
   bool locked() override { return on_correct_thread(); }
+  void AssertLockAcquired() override {
+    DCHECK(locked());
+  }
 
  private:
   base::PlatformThreadId thread_id_;

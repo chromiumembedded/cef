@@ -73,8 +73,40 @@ class CefValueImpl : public CefValue {
   bool SetDictionary(CefRefPtr<CefDictionaryValue> value) override;
   bool SetList(CefRefPtr<CefListValue> value) override;
 
+  // Ensures exclusive access to the underlying data for the life of this scoped
+  // object.
+  class ScopedLockedValue {
+   public:
+    explicit ScopedLockedValue(CefRefPtr<CefValueImpl> impl)
+      : impl_(impl) {
+      impl_->AcquireLock();
+    }
+    ~ScopedLockedValue() {
+      impl_->ReleaseLock();
+    }
+
+    base::Value* value() const {
+      return impl_->GetValueUnsafe();
+    }
+
+   private:
+    CefRefPtr<CefValueImpl> impl_;
+    DISALLOW_COPY_AND_ASSIGN(ScopedLockedValue);
+  };
+
  private:
   void SetValueInternal(base::Value* value);
+
+  // Returns the controller for the current value, if any.
+  CefValueController* GetValueController() const;
+
+  // Explicitly lock/unlock this object and the underlying data.
+  void AcquireLock();
+  void ReleaseLock();
+
+  // Returns a reference to the underlying data. Access must be protected by
+  // calling AcquireLock/ReleaseLock.
+  base::Value* GetValueUnsafe() const;
 
   // Access to all members must be protected by |lock_|.
   base::Lock lock_;
@@ -126,6 +158,10 @@ class CefBinaryValueImpl
 
   bool IsSameValue(const base::BinaryValue* that);
   bool IsEqualValue(const base::BinaryValue* that);
+
+  // Returns the underlying value. Access must be protected by calling
+  // lock/unlock on the controller.
+  base::BinaryValue* GetValueUnsafe();
 
   // CefBinaryValue methods.
   bool IsValid() override;
@@ -180,6 +216,10 @@ class CefDictionaryValueImpl
 
   bool IsSameValue(const base::DictionaryValue* that);
   bool IsEqualValue(const base::DictionaryValue* that);
+
+  // Returns the underlying value. Access must be protected by calling
+  // lock/unlock on the controller.
+  base::DictionaryValue* GetValueUnsafe();
 
   // CefDictionaryValue methods.
   bool IsValid() override;
@@ -264,7 +304,11 @@ class CefListValueImpl
   bool IsSameValue(const base::ListValue* that);
   bool IsEqualValue(const base::ListValue* that);
 
-  /// CefListValue methods.
+  // Returns the underlying value. Access must be protected by calling
+  // lock/unlock on the controller.
+  base::ListValue* GetValueUnsafe();
+
+  // CefListValue methods.
   bool IsValid() override;
   bool IsOwned() override;
   bool IsReadOnly() override;

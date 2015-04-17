@@ -396,6 +396,7 @@ _simpletypes = {
     'char': ['char', '0'],
     'char* const': ['char* const', 'NULL'],
     'cef_color_t': ['cef_color_t', '0'],
+    'cef_json_parser_error_t': ['cef_json_parser_error_t', 'JSON_NO_ERROR'],
     'CefCursorHandle' : ['cef_cursor_handle_t', 'kNullCursorHandle'],
     'CefEventHandle' : ['cef_event_handle_t', 'kNullEventHandle'],
     'CefWindowHandle' : ['cef_window_handle_t', 'kNullWindowHandle'],

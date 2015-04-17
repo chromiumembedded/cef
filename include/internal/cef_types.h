@@ -2130,6 +2130,70 @@ typedef enum {
   UU_REPLACE_PLUS_WITH_SPACE = 16,
 } cef_uri_unescape_rule_t;
 
+///
+// Options that can be passed to CefParseJSON.
+///
+typedef enum {
+  ///
+  // Parses the input strictly according to RFC 4627. See comments in Chromium's
+  // base/json/json_reader.h file for known limitations/deviations from the RFC.
+  ///
+  JSON_PARSER_RFC = 0,
+
+  ///
+  // Allows commas to exist after the last element in structures.
+  ///
+  JSON_PARSER_ALLOW_TRAILING_COMMAS = 1 << 0,
+} cef_json_parser_options_t;
+
+///
+// Error codes that can be returned from CefParseJSONAndReturnError.
+///
+typedef enum {
+  JSON_NO_ERROR = 0,
+  JSON_INVALID_ESCAPE,
+  JSON_SYNTAX_ERROR,
+  JSON_UNEXPECTED_TOKEN,
+  JSON_TRAILING_COMMA,
+  JSON_TOO_MUCH_NESTING,
+  JSON_UNEXPECTED_DATA_AFTER_ROOT,
+  JSON_UNSUPPORTED_ENCODING,
+  JSON_UNQUOTED_DICTIONARY_KEY,
+  JSON_PARSE_ERROR_COUNT
+} cef_json_parser_error_t;
+
+///
+// Options that can be passed to CefWriteJSON.
+///
+typedef enum {
+  ///
+  // Default behavior.
+  ///
+  JSON_WRITER_DEFAULT = 0,
+
+  ///
+  // This option instructs the writer that if a Binary value is encountered,
+  // the value (and key if within a dictionary) will be omitted from the
+  // output, and success will be returned. Otherwise, if a binary value is
+  // encountered, failure will be returned.
+  ///
+  JSON_WRITER_OMIT_BINARY_VALUES = 1 << 0,
+
+  ///
+  // This option instructs the writer to write doubles that have no fractional
+  // part as a normal integer (i.e., without using exponential notation
+  // or appending a '.0') as long as the value is within the range of a
+  // 64-bit int.
+  ///
+  JSON_WRITER_OMIT_DOUBLE_TYPE_PRESERVATION = 1 << 1,
+
+  ///
+  // Return a slightly nicer formatted json string (pads with whitespace to
+  // help with readability).
+  ///
+  JSON_WRITER_PRETTY_PRINT = 1 << 2,
+} cef_json_writer_options_t;
+
 #ifdef __cplusplus
 }
 #endif

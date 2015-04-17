@@ -123,4 +123,28 @@ bool CefParseCSSColor(const CefString& string,
                       bool strict,
                       cef_color_t& color);
 
+// Parses the specified |json_string| and returns a dictionary or list
+// representation. If JSON parsing fails this method returns NULL.
+/*--cef()--*/
+CefRefPtr<CefValue> CefParseJSON(const CefString& json_string,
+                                 cef_json_parser_options_t options);
+
+// Parses the specified |json_string| and returns a dictionary or list
+// representation. If JSON parsing fails this method returns NULL and populates
+// |error_code_out| and |error_msg_out| with an error code and a formatted error
+// message respectively.
+/*--cef()--*/
+CefRefPtr<CefValue> CefParseJSONAndReturnError(
+    const CefString& json_string,
+    cef_json_parser_options_t options,
+    cef_json_parser_error_t& error_code_out,
+    CefString& error_msg_out);
+
+// Generates a JSON string from the specified root |node| which should be a
+// dictionary or list value. Returns an empty string on failure. This method
+// requires exclusive access to |node| including any underlying data.
+/*--cef()--*/
+CefString CefWriteJSON(CefRefPtr<CefValue> node,
+                       cef_json_writer_options_t options);
+
 #endif  // CEF_INCLUDE_CEF_PARSER_H_

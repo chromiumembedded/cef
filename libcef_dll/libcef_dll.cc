@@ -594,6 +594,81 @@ CEF_EXPORT int cef_parse_csscolor(const cef_string_t* string, int strict,
   return _retval;
 }
 
+CEF_EXPORT struct _cef_value_t* cef_parse_json(const cef_string_t* json_string,
+    cef_json_parser_options_t options) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: json_string; type: string_byref_const
+  DCHECK(json_string);
+  if (!json_string)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefValue> _retval = CefParseJSON(
+      CefString(json_string),
+      options);
+
+  // Return type: refptr_same
+  return CefValueCppToC::Wrap(_retval);
+}
+
+CEF_EXPORT struct _cef_value_t* cef_parse_jsonand_return_error(
+    const cef_string_t* json_string, cef_json_parser_options_t options,
+    cef_json_parser_error_t* error_code_out, cef_string_t* error_msg_out) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: json_string; type: string_byref_const
+  DCHECK(json_string);
+  if (!json_string)
+    return NULL;
+  // Verify param: error_code_out; type: simple_byref
+  DCHECK(error_code_out);
+  if (!error_code_out)
+    return NULL;
+  // Verify param: error_msg_out; type: string_byref
+  DCHECK(error_msg_out);
+  if (!error_msg_out)
+    return NULL;
+
+  // Translate param: error_code_out; type: simple_byref
+  cef_json_parser_error_t error_code_outVal =
+      error_code_out?*error_code_out:JSON_NO_ERROR;
+  // Translate param: error_msg_out; type: string_byref
+  CefString error_msg_outStr(error_msg_out);
+
+  // Execute
+  CefRefPtr<CefValue> _retval = CefParseJSONAndReturnError(
+      CefString(json_string),
+      options,
+      error_code_outVal,
+      error_msg_outStr);
+
+  // Restore param: error_code_out; type: simple_byref
+  if (error_code_out)
+    *error_code_out = error_code_outVal;
+
+  // Return type: refptr_same
+  return CefValueCppToC::Wrap(_retval);
+}
+
+CEF_EXPORT cef_string_userfree_t cef_write_json(struct _cef_value_t* node,
+    cef_json_writer_options_t options) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: node; type: refptr_same
+  DCHECK(node);
+  if (!node)
+    return NULL;
+
+  // Execute
+  CefString _retval = CefWriteJSON(
+      CefValueCppToC::Unwrap(node),
+      options);
+
+  // Return type: string
+  return _retval.DetachToUserFree();
+}
+
 CEF_EXPORT int cef_get_path(cef_path_key_t key, cef_string_t* path) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

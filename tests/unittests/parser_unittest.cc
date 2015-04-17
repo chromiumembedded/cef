@@ -309,3 +309,134 @@ TEST(ParserTest, ParseCSSColor) {
   EXPECT_FALSE(CefParseCSSColor(value, false, color));
   EXPECT_EQ(0U, color);
 }
+
+
+TEST(ParserTest, ParseJSONInvalid) {
+  const char data[] = "This is my test data";
+  CefRefPtr<CefValue> value = CefParseJSON(data, JSON_PARSER_RFC);
+  EXPECT_FALSE(value.get());
+}
+
+TEST(ParserTest, ParseJSONNull) {
+  const char data[] = "{\"key1\":null}";
+  CefRefPtr<CefValue> value = CefParseJSON(data, JSON_PARSER_RFC);
+  EXPECT_TRUE(value.get());
+  EXPECT_TRUE(value->IsValid());
+  EXPECT_TRUE(value->GetType() == VTYPE_DICTIONARY);
+  EXPECT_FALSE(value->IsOwned());
+  CefRefPtr<CefDictionaryValue> dict = value->GetDictionary();
+  CefDictionaryValue::KeyList key_list;
+  EXPECT_TRUE(dict->GetKeys(key_list));
+  EXPECT_EQ((size_t)1, key_list.size());
+  EXPECT_EQ("key1", key_list[0].ToString());
+  EXPECT_EQ(VTYPE_NULL, dict->GetType("key1"));
+
+  // generate string from parsed result
+  CefString result = CefWriteJSON(value, JSON_WRITER_DEFAULT);
+  CefString expected_result = data;
+  EXPECT_EQ(expected_result, result);
+}
+
+TEST(ParserTest, WriteJSONBinary) {
+  const char data[] = "\00\01\02";
+  CefRefPtr<CefDictionaryValue> dict = CefDictionaryValue::Create();
+  CefRefPtr<CefBinaryValue> binary = CefBinaryValue::Create(data, sizeof(data));
+  dict->SetBinary("key1", binary);
+  CefRefPtr<CefValue> node = CefValue::Create();
+  node->SetDictionary(dict);
+  CefString result = CefWriteJSON(node, JSON_WRITER_DEFAULT);
+  CefString expect_result = "";
+  // binary data will be omitted.
+  EXPECT_EQ(expect_result, result);
+}
+
+TEST(ParserTest, ParseJSONDictionary) {
+  const char data[] = "{\"key1\":\"value1\",\"key2\":123,\"key3\":[1,2,3]}";
+  CefRefPtr<CefValue> value = CefParseJSON(data, JSON_PARSER_RFC);
+  EXPECT_TRUE(value.get());
+  EXPECT_TRUE(value->IsValid());
+  EXPECT_FALSE(value->IsOwned());
+  EXPECT_TRUE(value->GetType() == VTYPE_DICTIONARY);
+  CefRefPtr<CefDictionaryValue> dict = value->GetDictionary();
+  CefDictionaryValue::KeyList key_list;
+  EXPECT_TRUE(dict->GetKeys(key_list));
+  EXPECT_EQ((size_t)3, key_list.size());
+  EXPECT_EQ("key1", key_list[0].ToString());
+  EXPECT_EQ("key2", key_list[1].ToString());
+  EXPECT_EQ("key3", key_list[2].ToString());
+  EXPECT_EQ(VTYPE_STRING, dict->GetType("key1"));
+  EXPECT_EQ(dict->GetString("key1"), "value1");
+  EXPECT_EQ(VTYPE_INT, dict->GetType("key2"));
+  EXPECT_EQ(123, dict->GetInt("key2"));
+  EXPECT_EQ(VTYPE_LIST, dict->GetType("key3"));
+  CefRefPtr<CefListValue> key3 = dict->GetList("key3");
+  EXPECT_TRUE(NULL != key3);
+  EXPECT_TRUE(key3->IsValid());
+  EXPECT_EQ((size_t)3, key3->GetSize());
+  EXPECT_EQ(1, key3->GetInt(0));
+  EXPECT_EQ(2, key3->GetInt(1));
+  EXPECT_EQ(3, key3->GetInt(2));
+
+  // generate string from parsed result
+  CefString result = CefWriteJSON(value, JSON_WRITER_DEFAULT);
+  CefString expected_result = data;
+  EXPECT_EQ(expected_result, result);
+}
+
+TEST(ParserTest, ParseJSONList) {
+  const char data[] = "[\"value1\", 123, {\"key3\": [1, 2, 3]}]";
+  CefRefPtr<CefValue> value = CefParseJSON(data, JSON_PARSER_RFC);
+  EXPECT_TRUE(value.get());
+  EXPECT_TRUE(value->IsValid());
+  EXPECT_TRUE(value->GetType() == VTYPE_LIST);
+  EXPECT_FALSE(value->IsOwned());
+  CefRefPtr<CefListValue> list = value->GetList();
+  EXPECT_TRUE(NULL != list);
+  EXPECT_TRUE(list->IsValid());
+  EXPECT_EQ((size_t)3, list->GetSize());
+
+  EXPECT_EQ(VTYPE_STRING, list->GetType(0));
+  EXPECT_EQ(list->GetString(0), "value1");
+  EXPECT_EQ(VTYPE_INT, list->GetType(1));
+  EXPECT_EQ(123, list->GetInt(1));
+  EXPECT_EQ(VTYPE_DICTIONARY, list->GetType(2));
+  CefRefPtr<CefDictionaryValue> dict = list->GetDictionary(2);
+  CefDictionaryValue::KeyList key_list2;
+  EXPECT_TRUE(dict->GetKeys(key_list2));
+  EXPECT_EQ((size_t)1, key_list2.size());
+  CefRefPtr<CefListValue> list2 = dict->GetList("key3");
+  EXPECT_EQ((size_t)3, list2->GetSize());
+  EXPECT_EQ(1, list2->GetInt(0));
+  EXPECT_EQ(2, list2->GetInt(1));
+  EXPECT_EQ(3, list2->GetInt(2));
+
+  // generate string from parsed result
+  CefString result = CefWriteJSON(value, JSON_WRITER_DEFAULT);
+  CefString expected_result = "[\"value1\",123,{\"key3\":[1,2,3]}]";
+  EXPECT_EQ(expected_result.ToString(), result.ToString());
+}
+
+TEST(ParserTest, ParseJSONAndReturnErrorInvalid) {
+  const char data[] = "This is my test data";
+  cef_json_parser_error_t error_code;
+  CefString error_msg;
+  CefRefPtr<CefValue> value = CefParseJSONAndReturnError(data,
+      JSON_PARSER_RFC, error_code, error_msg);
+  CefString expect_error_msg = "Line: 1, column: 1, Unexpected token.";
+  EXPECT_FALSE(value.get());
+  EXPECT_EQ(JSON_UNEXPECTED_TOKEN, error_code);
+  EXPECT_EQ(expect_error_msg, error_msg);
+}
+
+TEST(ParserTest, ParseJSONAndReturnErrorTrailingComma) {
+  const char data[] = "{\"key1\":123,}";
+  cef_json_parser_error_t error_code;
+  CefString error_msg;
+  CefRefPtr<CefValue> value = CefParseJSONAndReturnError(data,
+      JSON_PARSER_RFC, error_code, error_msg);
+  CefString expect_error_msg =
+      "Line: 1, column: 13, Trailing comma not allowed.";
+  EXPECT_FALSE(value.get());
+  EXPECT_EQ(JSON_TRAILING_COMMA, error_code);
+  EXPECT_EQ(expect_error_msg, error_msg);
+}

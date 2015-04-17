@@ -1072,6 +1072,7 @@
         'libcef/common/drag_data_impl.h',
         'libcef/common/http_header_utils.cc',
         'libcef/common/http_header_utils.h',
+        'libcef/common/json_impl.cc',
         'libcef/common/main_delegate.cc',
         'libcef/common/main_delegate.h',
         'libcef/common/net_resource_provider.cc',
