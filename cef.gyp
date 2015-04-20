@@ -762,6 +762,7 @@
           'action_name': 'repack_cef_100_percent_pack',
           'variables': {
             'pak_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/blink/public/resources/blink_image_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/components/components_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/app/resources/content_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/resources/ui_resources_100_percent.pak',
@@ -774,6 +775,7 @@
           'action_name': 'repack_cef_200_percent_pack',
           'variables': {
             'pak_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/blink/public/resources/blink_image_resources_200_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/components/components_resources_200_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/app/resources/content_resources_200_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/resources/ui_resources_200_percent.pak',
@@ -860,6 +862,9 @@
         '<(DEPTH)/base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
         '<(DEPTH)/cc/blink/cc_blink.gyp:cc_blink',
         '<(DEPTH)/cc/cc.gyp:cc',
+        # Generate chrome/common/safe_browsing/csd.pb.h required by
+        # zip_analyzer_results.h via chrome_utility_messages.h
+        '<(DEPTH)/chrome/chrome.gyp:safe_browsing_proto',
         '<(DEPTH)/components/components.gyp:crash_component_breakpad_mac_to_be_deleted',
         '<(DEPTH)/components/components.gyp:keyed_service_content',
         '<(DEPTH)/components/components.gyp:keyed_service_core',
@@ -976,6 +981,8 @@
         'libcef/browser/pepper/pepper_flash_browser_host.cc',
         'libcef/browser/pepper/pepper_flash_browser_host.h',
         'libcef/browser/pepper/device_id_fetcher.cc',
+        'libcef/browser/permission_manager.cc',
+        'libcef/browser/permission_manager.h',
         'libcef/browser/print_settings_impl.cc',
         'libcef/browser/print_settings_impl.h',
         'libcef/browser/printing/printing_message_filter.cc',
@@ -1170,6 +1177,12 @@
         '<(DEPTH)/chrome/browser/browser_process.cc',
         '<(DEPTH)/chrome/browser/browser_process.h',
         # Include sources for spell checking support.
+        '<(DEPTH)/chrome/browser/spellchecker/feedback.cc',
+        '<(DEPTH)/chrome/browser/spellchecker/feedback.h',
+        '<(DEPTH)/chrome/browser/spellchecker/feedback_sender.cc',
+        '<(DEPTH)/chrome/browser/spellchecker/feedback_sender.h',
+        '<(DEPTH)/chrome/browser/spellchecker/misspelling.cc',
+        '<(DEPTH)/chrome/browser/spellchecker/misspelling.h',
         '<(DEPTH)/chrome/browser/spellchecker/spellcheck_action.cc',
         '<(DEPTH)/chrome/browser/spellchecker/spellcheck_action.h',
         '<(DEPTH)/chrome/browser/spellchecker/spellcheck_custom_dictionary.cc',
@@ -1186,6 +1199,8 @@
         '<(DEPTH)/chrome/browser/spellchecker/spellcheck_service.h',
         '<(DEPTH)/chrome/browser/spellchecker/spelling_service_client.cc',
         '<(DEPTH)/chrome/browser/spellchecker/spelling_service_client.h',
+        '<(DEPTH)/chrome/browser/spellchecker/word_trimmer.cc',
+        '<(DEPTH)/chrome/browser/spellchecker/word_trimmer.h',
         '<(DEPTH)/chrome/common/chrome_constants.cc',
         '<(DEPTH)/chrome/common/chrome_constants.h',
         '<(DEPTH)/chrome/common/spellcheck_common.cc',

@@ -37,7 +37,6 @@
 #include "content/public/browser/access_token_store.h"
 #include "content/public/browser/browser_url_handler.h"
 #include "content/public/browser/child_process_security_policy.h"
-#include "content/public/browser/geolocation_provider.h"
 #include "content/public/browser/plugin_service_filter.h"
 #include "content/public/browser/quota_permission_context.h"
 #include "content/public/browser/render_process_host.h"
@@ -196,42 +195,6 @@ class CefAllowCertificateErrorCallbackImpl : public CefRequestCallback {
 
   IMPLEMENT_REFCOUNTING(CefAllowCertificateErrorCallbackImpl);
   DISALLOW_COPY_AND_ASSIGN(CefAllowCertificateErrorCallbackImpl);
-};
-
-class CefGeolocationCallbackImpl : public CefGeolocationCallback {
- public:
-  typedef base::Callback<void(content::PermissionStatus)> CallbackType;
-
-  explicit CefGeolocationCallbackImpl(const CallbackType& callback)
-      : callback_(callback) {}
-
-  void Continue(bool allow) override {
-    if (CEF_CURRENTLY_ON_UIT()) {
-      if (!callback_.is_null()) {
-        if (allow) {
-          content::GeolocationProvider::GetInstance()->
-              UserDidOptIntoLocationServices();
-        }
-
-        callback_.Run(allow ? content::PERMISSION_STATUS_GRANTED :
-                              content::PERMISSION_STATUS_DENIED);
-        callback_.Reset();
-      }
-    } else {
-      CEF_POST_TASK(CEF_UIT,
-          base::Bind(&CefGeolocationCallbackImpl::Continue, this, allow));
-    }
-  }
-
-  void Disconnect() {
-    callback_.Reset();
-  }
-
- private:
-  CallbackType callback_;
-
-  IMPLEMENT_REFCOUNTING(CefGeolocationCallbackImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefGeolocationCallbackImpl);
 };
 
 class CefQuotaPermissionContext : public content::QuotaPermissionContext {
@@ -785,75 +748,6 @@ void CefContentBrowserClient::AllowCertificateError(
 content::AccessTokenStore* CefContentBrowserClient::CreateAccessTokenStore() {
   return new CefAccessTokenStore(
       browser_main_parts_->browser_context()->request_context().get());
-}
-
-void CefContentBrowserClient::RequestPermission(
-    content::PermissionType permission,
-    content::WebContents* web_contents,
-    int bridge_id,
-    const GURL& requesting_frame,
-    bool user_gesture,
-    const base::Callback<void(content::PermissionStatus)>& result_callback) {
-  CEF_REQUIRE_UIT();
-
-  if (permission != content::PermissionType::PERMISSION_GEOLOCATION) {
-    result_callback.Run(content::PERMISSION_STATUS_DENIED);
-    return;
-  }
-
-  bool proceed = false;
-
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForContents(web_contents);
-  if (browser.get()) {
-    CefRefPtr<CefClient> client = browser->GetClient();
-    if (client.get()) {
-      CefRefPtr<CefGeolocationHandler> handler =
-          client->GetGeolocationHandler();
-      if (handler.get()) {
-        CefRefPtr<CefGeolocationCallbackImpl> callbackImpl(
-            new CefGeolocationCallbackImpl(result_callback));
-
-        // Notify the handler.
-        proceed = handler->OnRequestGeolocationPermission(
-            browser.get(), requesting_frame.spec(), bridge_id,
-            callbackImpl.get());
-        if (!proceed)
-          callbackImpl->Disconnect();
-      }
-    }
-  }
-
-  if (!proceed) {
-    // Disallow geolocation access by default.
-    result_callback.Run(content::PERMISSION_STATUS_DENIED);
-  }
-}
-
-void CefContentBrowserClient::CancelPermissionRequest(
-    content::PermissionType permission,
-    content::WebContents* web_contents,
-    int bridge_id,
-    const GURL& requesting_frame) {
-  CEF_REQUIRE_UIT();
-
-  if (permission != content::PermissionType::PERMISSION_GEOLOCATION)
-    return;
-
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForContents(web_contents);
-  if (browser.get()) {
-    CefRefPtr<CefClient> client = browser->GetClient();
-    if (client.get()) {
-      CefRefPtr<CefGeolocationHandler> handler =
-          client->GetGeolocationHandler();
-      if (handler.get()) {
-        handler->OnCancelGeolocationPermission(browser.get(),
-                                               requesting_frame.spec(),
-                                               bridge_id);
-      }
-    }
-  }
 }
 
 bool CefContentBrowserClient::CanCreateWindow(

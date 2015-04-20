@@ -1620,9 +1620,6 @@ void CefBrowserHostImpl::LoadURL(
           return;
         }
 
-        // Update the loading URL.
-        OnLoadingURLChange(gurl);
-
         web_contents_->GetController().LoadURL(
             gurl,
             referrer,
@@ -1784,11 +1781,6 @@ void CefBrowserHostImpl::HandleExternalProtocol(const GURL& url) {
 
 int CefBrowserHostImpl::browser_id() const {
   return browser_info_->browser_id();
-}
-
-GURL CefBrowserHostImpl::GetLoadingURL() {
-  base::AutoLock lock_scope(state_lock_);
-  return loading_url_;
 }
 
 void CefBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
@@ -2641,7 +2633,6 @@ bool CefBrowserHostImpl::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(CefBrowserHostImpl, message)
     IPC_MESSAGE_HANDLER(CefHostMsg_FrameIdentified, OnFrameIdentified)
     IPC_MESSAGE_HANDLER(CefHostMsg_DidFinishLoad, OnDidFinishLoad)
-    IPC_MESSAGE_HANDLER(CefHostMsg_LoadingURLChange, OnLoadingURLChange)
     IPC_MESSAGE_HANDLER(CefHostMsg_Request, OnRequest)
     IPC_MESSAGE_HANDLER(CefHostMsg_Response, OnResponse)
     IPC_MESSAGE_HANDLER(CefHostMsg_ResponseAck, OnResponseAck)
@@ -2689,11 +2680,6 @@ void CefBrowserHostImpl::OnDidFinishLoad(int64 frame_id,
   scheme::DidFinishLoad(frame, validated_url);
 
   OnLoadEnd(frame, validated_url, http_status_code);
-}
-
-void CefBrowserHostImpl::OnLoadingURLChange(const GURL& loading_url) {
-  base::AutoLock lock_scope(state_lock_);
-  loading_url_ = loading_url;
 }
 
 void CefBrowserHostImpl::OnRequest(const Cef_Request_Params& params) {

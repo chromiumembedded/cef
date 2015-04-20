@@ -12,6 +12,7 @@
 #include "base/command_line.h"
 #include "cc/output/copy_output_request.h"
 #include "cc/scheduler/delay_based_time_source.h"
+#include "content/browser/bad_message.h"
 #include "content/browser/compositor/image_transport_factory.h"
 #include "content/browser/compositor/resize_lock.h"
 #include "content/browser/renderer_host/dip_util.h"
@@ -651,8 +652,11 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
 
   if (frame->software_frame_data) {
     DLOG(ERROR) << "Unable to use software frame in CEF windowless rendering";
-    if (render_widget_host_)
-      render_widget_host_->GetProcess()->ReceivedBadMessage();
+    if (render_widget_host_) {
+      content::bad_message::ReceivedBadMessage(
+          render_widget_host_->GetProcess(),
+          content::bad_message::RWHVM_UNEXPECTED_FRAME_TYPE);
+    }
     return;
   }
 }

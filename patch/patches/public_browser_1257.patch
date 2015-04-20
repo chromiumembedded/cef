@@ -52,10 +52,10 @@ index 4380412..a67739d 100644
  
    // Creates a new WebContents.
 diff --git web_contents_delegate.cc web_contents_delegate.cc
-index 461927c..2217377 100644
+index 0e48d7c..aa46ad9 100644
 --- web_contents_delegate.cc
 +++ web_contents_delegate.cc
-@@ -137,7 +137,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
+@@ -133,7 +133,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
      const base::string16& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
@@ -67,7 +67,7 @@ index 461927c..2217377 100644
  }
  
 diff --git web_contents_delegate.h web_contents_delegate.h
-index d88b27c..fefbed2 100644
+index 1367f0b..7da1128 100644
 --- web_contents_delegate.h
 +++ web_contents_delegate.h
 @@ -36,9 +36,11 @@ class DownloadItem;
@@ -82,7 +82,7 @@ index d88b27c..fefbed2 100644
  struct ColorSuggestion;
  struct ContextMenuParams;
  struct DropData;
-@@ -314,7 +316,9 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -294,7 +296,9 @@ class CONTENT_EXPORT WebContentsDelegate {
        const base::string16& frame_name,
        const GURL& target_url,
        const std::string& partition_id,

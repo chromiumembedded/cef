@@ -175,11 +175,6 @@ IPC_MESSAGE_ROUTED4(CefHostMsg_DidFinishLoad,
                     bool /* is_main_frame */,
                     int /* http_status_code */)
 
-// Sent when a new URL is about to be loaded in the main frame. Used for the
-// cookie manager.
-IPC_MESSAGE_ROUTED1(CefHostMsg_LoadingURLChange,
-                    GURL /* loading_url */)
-
 // Sent when the renderer has a request for the browser. The browser may respond
 // with a CefMsg_Response.
 IPC_MESSAGE_ROUTED1(CefHostMsg_Request,

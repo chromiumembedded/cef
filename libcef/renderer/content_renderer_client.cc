@@ -3,17 +3,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/compiler_specific.h"
-
-#include "config.h"
-MSVC_PUSH_WARNING_LEVEL(0);
-#include "bindings/core/v8/V8Binding.h"
-#include "bindings/core/v8/V8RecursionScope.h"
-MSVC_POP_WARNING();
-#undef ceil
-#undef FROM_HERE
-#undef LOG
-
 #include "libcef/renderer/content_renderer_client.h"
 
 #include "libcef/browser/context.h"
@@ -61,13 +50,11 @@ MSVC_POP_WARNING();
 #include "third_party/WebKit/public/web/WebElement.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
-#include "third_party/WebKit/public/web/WebKit.h"
 #include "third_party/WebKit/public/web/WebPluginParams.h"
 #include "third_party/WebKit/public/web/WebPrerendererClient.h"
 #include "third_party/WebKit/public/web/WebRuntimeFeatures.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "third_party/WebKit/public/web/WebView.h"
-#include "v8/include/v8.h"
 
 #if defined(OS_MACOSX)
 #include "base/mac/mac_util.h"
@@ -623,69 +610,6 @@ bool CefContentRendererClient::HandleNavigation(
   }
 
   return false;
-}
-
-void CefContentRendererClient::DidCreateScriptContext(
-    blink::WebLocalFrame* frame,
-    v8::Handle<v8::Context> context,
-    int extension_group,
-    int world_id) {
-  CefRefPtr<CefBrowserImpl> browserPtr =
-      CefBrowserImpl::GetBrowserForMainFrame(frame->top());
-  DCHECK(browserPtr.get());
-  if (!browserPtr.get())
-    return;
-
-  CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
-
-  v8::Isolate* isolate = blink::mainThreadIsolate();
-  v8::HandleScope handle_scope(isolate);
-  v8::Context::Scope scope(context);
-  blink::V8RecursionScope recursion_scope(isolate);
-
-  CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(isolate, context));
-
-  // Notify the render process handler.
-  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
-  if (application.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler =
-        application->GetRenderProcessHandler();
-    if (handler.get())
-      handler->OnContextCreated(browserPtr.get(), framePtr.get(), contextPtr);
-  }
-}
-
-void CefContentRendererClient::WillReleaseScriptContext(
-    blink::WebLocalFrame* frame,
-    v8::Handle<v8::Context> context,
-    int world_id) {
-  // Notify the render process handler.
-  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
-  if (application.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler =
-        application->GetRenderProcessHandler();
-    if (handler.get()) {
-      CefRefPtr<CefBrowserImpl> browserPtr =
-          CefBrowserImpl::GetBrowserForMainFrame(frame->top());
-      DCHECK(browserPtr.get());
-      if (browserPtr.get()) {
-        CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
-
-        v8::Isolate* isolate = blink::mainThreadIsolate();
-        v8::HandleScope handle_scope(isolate);
-        v8::Context::Scope scope(context);
-        blink::V8RecursionScope recursion_scope(isolate);
-
-        CefRefPtr<CefV8Context> contextPtr(
-            new CefV8ContextImpl(isolate, context));
-
-        handler->OnContextReleased(browserPtr.get(), framePtr.get(),
-                                   contextPtr);
-      }
-    }
-  }
-
-  CefV8ReleaseContext(context);
 }
 
 void CefContentRendererClient::WillDestroyCurrentMessageLoop() {

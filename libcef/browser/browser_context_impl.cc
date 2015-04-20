@@ -9,6 +9,7 @@
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/download_manager_delegate.h"
+#include "libcef/browser/permission_manager.h"
 #include "libcef/browser/thread_util.h"
 
 #include "base/files/file_util.h"
@@ -195,6 +196,12 @@ content::PushMessagingService*
 content::SSLHostStateDelegate*
     CefBrowserContextImpl::GetSSLHostStateDelegate() {
   return NULL;
+}
+
+content::PermissionManager* CefBrowserContextImpl::GetPermissionManager() {
+  if (!permission_manager_.get())
+    permission_manager_.reset(new CefPermissionManager());
+  return permission_manager_.get();
 }
 
 bool CefBrowserContextImpl::IsProxy() const {

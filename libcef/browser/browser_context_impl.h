@@ -58,6 +58,7 @@ class CefBrowserContextImpl : public CefBrowserContext {
   storage::SpecialStoragePolicy* GetSpecialStoragePolicy() override;
   content::PushMessagingService* GetPushMessagingService() override;
   content::SSLHostStateDelegate* GetSSLHostStateDelegate() override;
+  content::PermissionManager* GetPermissionManager() override;
 
   // CefBrowserContext methods.
   bool IsProxy() const override;
@@ -95,6 +96,7 @@ class CefBrowserContextImpl : public CefBrowserContext {
 
   scoped_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<CefURLRequestContextGetterImpl> url_request_getter_;
+  scoped_ptr<content::PermissionManager> permission_manager_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserContextImpl);
 };

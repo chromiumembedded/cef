@@ -49,6 +49,7 @@ class CefBrowserContextProxy : public CefBrowserContext {
   storage::SpecialStoragePolicy* GetSpecialStoragePolicy() override;
   content::PushMessagingService* GetPushMessagingService() override;
   content::SSLHostStateDelegate* GetSSLHostStateDelegate() override;
+  content::PermissionManager* GetPermissionManager() override;
 
   // CefBrowserContext methods.
   bool IsProxy() const override;

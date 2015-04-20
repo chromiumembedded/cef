@@ -106,18 +106,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       const base::Callback<void(bool)>& callback,
       content::CertificateRequestResultType* result) override;
   content::AccessTokenStore* CreateAccessTokenStore() override;
-  void RequestPermission(
-      content::PermissionType permission,
-      content::WebContents* web_contents,
-      int bridge_id,
-      const GURL& requesting_frame,
-      bool user_gesture,
-      const base::Callback<void(content::PermissionStatus)>& result_callback)
-      override;
-  void CancelPermissionRequest(content::PermissionType permission,
-                               content::WebContents* web_contents,
-                               int bridge_id,
-                               const GURL& requesting_frame) override;
   bool CanCreateWindow(const GURL& opener_url,
                        const GURL& opener_top_level_frame_url,
                        const GURL& source_origin,

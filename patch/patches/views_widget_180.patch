@@ -12,10 +12,10 @@ index a8e088c..838b6a0 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git desktop_aura/desktop_window_tree_host_win.cc desktop_aura/desktop_window_tree_host_win.cc
-index b54a643..5a589e5 100644
+index b53fc7f..0b24d2a 100644
 --- desktop_aura/desktop_window_tree_host_win.cc
 +++ desktop_aura/desktop_window_tree_host_win.cc
-@@ -133,7 +133,9 @@ void DesktopWindowTreeHostWin::Init(aura::Window* content_window,
+@@ -134,7 +134,9 @@ void DesktopWindowTreeHostWin::Init(aura::Window* content_window,
                          native_widget_delegate_);
  
    HWND parent_hwnd = NULL;
@@ -26,7 +26,7 @@ index b54a643..5a589e5 100644
      parent_hwnd = params.parent->GetHost()->GetAcceleratedWidget();
  
    message_handler_->set_remove_standard_frame(params.remove_standard_frame);
-@@ -820,6 +822,7 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -821,6 +823,7 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
    // TODO(beng): inform the native_widget_delegate_.
@@ -34,7 +34,7 @@ index b54a643..5a589e5 100644
    InputMethod* input_method = GetInputMethod();
    if (input_method)
      input_method->OnFocus();
-@@ -827,6 +830,7 @@ void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
+@@ -828,6 +831,7 @@ void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
  
  void DesktopWindowTreeHostWin::HandleNativeBlur(HWND focused_window) {
    // TODO(beng): inform the native_widget_delegate_.
@@ -153,26 +153,26 @@ index 94d4b1b..2609f46 100644
  };
  
 diff --git widget.cc widget.cc
-index 15b810a..2f01d9e 100644
+index 8893d8c..e517828 100644
 --- widget.cc
 +++ widget.cc
-@@ -110,6 +110,7 @@ Widget::InitParams::InitParams()
+@@ -111,6 +111,7 @@ Widget::InitParams::InitParams()
        use_system_default_icon(false),
        show_state(ui::SHOW_STATE_DEFAULT),
        parent(NULL),
 +      parent_widget(gfx::kNullAcceleratedWidget),
        native_widget(NULL),
        desktop_window_tree_host(NULL),
-       layer_type(aura::WINDOW_LAYER_TEXTURED),
-@@ -133,6 +134,7 @@ Widget::InitParams::InitParams(Type type)
+       layer_type(ui::LAYER_TEXTURED),
+@@ -134,6 +135,7 @@ Widget::InitParams::InitParams(Type type)
        use_system_default_icon(false),
        show_state(ui::SHOW_STATE_DEFAULT),
        parent(NULL),
 +      parent_widget(gfx::kNullAcceleratedWidget),
        native_widget(NULL),
        desktop_window_tree_host(NULL),
-       layer_type(aura::WINDOW_LAYER_TEXTURED),
-@@ -307,7 +309,7 @@ void Widget::Init(const InitParams& in_params) {
+       layer_type(ui::LAYER_TEXTURED),
+@@ -308,7 +310,7 @@ void Widget::Init(const InitParams& in_params) {
    InitParams params = in_params;
  
    params.child |= (params.type == InitParams::TYPE_CONTROL);
@@ -181,7 +181,7 @@ index 15b810a..2f01d9e 100644
  
    if (params.opacity == views::Widget::InitParams::INFER_OPACITY &&
        params.type != views::Widget::InitParams::TYPE_WINDOW &&
-@@ -370,7 +372,12 @@ void Widget::Init(const InitParams& in_params) {
+@@ -371,7 +373,12 @@ void Widget::Init(const InitParams& in_params) {
        Minimize();
    } else if (params.delegate) {
      SetContentsView(params.delegate->GetContentsView());
@@ -196,10 +196,10 @@ index 15b810a..2f01d9e 100644
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
 diff --git widget.h widget.h
-index 2f6030b..fdf4172 100644
+index 59e7b1d..bf888d7 100644
 --- widget.h
 +++ widget.h
-@@ -235,6 +235,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
+@@ -234,6 +234,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
      // Whether the widget should be maximized or minimized.
      ui::WindowShowState show_state;
      gfx::NativeView parent;

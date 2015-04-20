@@ -1,8 +1,8 @@
 diff --git url_request.h url_request.h
-index 1623368..16d292d 100644
+index e623c20..c6c9058 100644
 --- url_request.h
 +++ url_request.h
-@@ -609,10 +609,10 @@ class NET_EXPORT URLRequest : NON_EXPORTED_BASE(public base::NonThreadSafe),
+@@ -608,10 +608,10 @@ class NET_EXPORT URLRequest : NON_EXPORTED_BASE(public base::NonThreadSafe),
      return proxy_server_;
    }
  

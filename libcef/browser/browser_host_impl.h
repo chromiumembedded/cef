@@ -307,9 +307,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefWindowX11* window_x11() const { return window_x11_; }
 #endif
 
-  // Returns the URL that is currently loading (or loaded) in the main frame.
-  GURL GetLoadingURL();
-
 #if defined(OS_WIN)
   static void RegisterWindowClass();
 #endif
@@ -478,7 +475,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const GURL& validated_url,
       bool is_main_frame,
       int http_status_code);
-  void OnLoadingURLChange(const GURL& pending_url);
   void OnRequest(const Cef_Request_Params& params);
   void OnResponse(const Cef_Response_Params& params);
   void OnResponseAck(int request_id);
@@ -617,7 +613,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   bool can_go_back_;
   bool can_go_forward_;
   bool has_document_;
-  GURL loading_url_;
 
   // Messages we queue while waiting for the RenderView to be ready. We queue
   // them here instead of in the RenderProcessHost to ensure that they're sent

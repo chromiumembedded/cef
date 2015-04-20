@@ -307,9 +307,6 @@ void CefBrowserImpl::LoadRequest(const CefMsg_LoadRequest_Params& params) {
 
   blink::WebURLRequest request(params.url);
 
-  // DidCreateDataSource checks for this value.
-  request.setRequestorID(-1);
-
   if (!params.method.empty())
     request.setHTTPMethod(base::ASCIIToUTF16(params.method));
 
@@ -570,30 +567,6 @@ void CefBrowserImpl::FocusedNodeChanged(const blink::WebNode& node) {
           documentImpl->Detach();
         }
       }
-    }
-  }
-}
-
-void CefBrowserImpl::DidCreateDataSource(blink::WebLocalFrame* frame,
-                                         blink::WebDataSource* ds) {
-  const blink::WebURLRequest& request = ds->request();
-  if (request.requestorID() == -1) {
-    // Mark the request as browser-initiated so
-    // RenderViewImpl::decidePolicyForNavigation won't attempt to fork it.
-    content::DocumentState* document_state =
-        content::DocumentState::FromDataSource(ds);
-    document_state->set_navigation_state(
-        content::NavigationStateImpl::CreateBrowserInitiated(
-            content::CommonNavigationParams(),
-            content::StartNavigationParams(),
-            content::HistoryNavigationParams()));
-  }
-
-  if (frame->parent() == 0) {
-    GURL url = ds->request().url();
-    if (!url.is_empty()) {
-      // Notify that the loading URL has changed.
-      Send(new CefHostMsg_LoadingURLChange(routing_id(), url));
     }
   }
 }

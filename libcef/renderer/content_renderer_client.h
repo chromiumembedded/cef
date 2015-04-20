@@ -94,14 +94,6 @@ class CefContentRendererClient : public content::ContentRendererClient,
                         blink::WebNavigationType type,
                         blink::WebNavigationPolicy default_policy,
                         bool is_redirect) override;
- void DidCreateScriptContext(blink::WebLocalFrame* frame,
-                             v8::Handle<v8::Context> context,
-                             int extension_group,
-                             int world_id) override;
-
-  void WillReleaseScriptContext(blink::WebLocalFrame* frame,
-                                v8::Handle<v8::Context> context,
-                                int world_id);
 
   // MessageLoop::DestructionObserver implementation.
   void WillDestroyCurrentMessageLoop() override;

@@ -1,8 +1,8 @@
 diff --git ui/browser.cc ui/browser.cc
-index 21e292e..074b41e 100644
+index 50b6506..cc6a201 100644
 --- ui/browser.cc
 +++ ui/browser.cc
-@@ -1596,7 +1596,9 @@ bool Browser::ShouldCreateWebContents(
+@@ -1592,7 +1592,9 @@ bool Browser::ShouldCreateWebContents(
      const base::string16& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
@@ -14,10 +14,10 @@ index 21e292e..074b41e 100644
      // If a BackgroundContents is created, suppress the normal WebContents.
      return !MaybeCreateBackgroundContents(route_id,
 diff --git ui/browser.h ui/browser.h
-index fcb711c..5a59434 100644
+index 49c3962..4fac697 100644
 --- ui/browser.h
 +++ ui/browser.h
-@@ -588,7 +588,9 @@ class Browser : public TabStripModelObserver,
+@@ -587,7 +587,9 @@ class Browser : public TabStripModelObserver,
        const base::string16& frame_name,
        const GURL& target_url,
        const std::string& partition_id,

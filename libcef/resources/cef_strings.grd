@@ -328,6 +328,11 @@ need to be translated for each locale.-->
         The selected printer is not available or not installed correctly.  Check your printer or try selecting another printer.
       </message>
 
+      <!-- Proxy settings -->
+      <message name="IDS_UTILITY_PROCESS_PROXY_RESOLVER_NAME" desc="The name of the utility process used for out-of-process V8 proxy resolution.">
+        V8 Proxy Resolver
+      </message>
+
       <!-- Spell checking -->
       <!-- The file name of the spellchecking dictionary without the extension (case-sensitive). -->
       <message name="IDS_SPELLCHECK_DICTIONARY" use_name_for_id="true">

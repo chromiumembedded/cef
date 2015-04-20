@@ -95,6 +95,10 @@ content::SSLHostStateDelegate*
   return parent_->GetSSLHostStateDelegate();
 }
 
+content::PermissionManager* CefBrowserContextProxy::GetPermissionManager() {
+  return parent_->GetPermissionManager();
+}
+
 bool CefBrowserContextProxy::IsProxy() const {
   return true;
 }

@@ -31,7 +31,7 @@ void CefV8IsolateCreated();
 void CefV8IsolateDestroyed();
 
 // Call to detach all handles associated with the specified context.
-void CefV8ReleaseContext(v8::Handle<v8::Context> context);
+void CefV8ReleaseContext(v8::Local<v8::Context> context);
 
 // Set the stack size for uncaught exceptions.
 void CefV8SetUncaughtExceptionStackSize(int stack_size);
@@ -117,7 +117,7 @@ class CefV8HandleBase :
   // |context| is the context that owns this handle. If empty the current
   // context will be used.
   CefV8HandleBase(v8::Isolate* isolate,
-                  v8::Handle<v8::Context> context);
+                  v8::Local<v8::Context> context);
   virtual ~CefV8HandleBase();
 
  protected:
@@ -135,7 +135,7 @@ class CefV8Handle : public CefV8HandleBase {
   typedef v8::Persistent<v8class> persistentType;
 
   CefV8Handle(v8::Isolate* isolate,
-              v8::Handle<v8::Context> context,
+              v8::Local<v8::Context> context,
               handleType v)
       : CefV8HandleBase(isolate, context),
         handle_(isolate, v) {
@@ -170,7 +170,7 @@ class CefV8Handle<v8::Value> {
 class CefV8ContextImpl : public CefV8Context {
  public:
   CefV8ContextImpl(v8::Isolate* isolate,
-                   v8::Handle<v8::Context> context);
+                   v8::Local<v8::Context> context);
   ~CefV8ContextImpl() override;
 
   CefRefPtr<CefTaskRunner> GetTaskRunner() override;
@@ -185,7 +185,7 @@ class CefV8ContextImpl : public CefV8Context {
             CefRefPtr<CefV8Value>& retval,
             CefRefPtr<CefV8Exception>& exception) override;
 
-  v8::Handle<v8::Context> GetV8Context();
+  v8::Local<v8::Context> GetV8Context();
   blink::WebFrame* GetWebFrame();
 
  protected:
@@ -205,12 +205,12 @@ class CefV8ValueImpl : public CefV8Value {
  public:
   explicit CefV8ValueImpl(v8::Isolate* isolate);
   CefV8ValueImpl(v8::Isolate* isolate,
-                 v8::Handle<v8::Value> value);
+                 v8::Local<v8::Value> value);
   ~CefV8ValueImpl() override;
 
   // Used for initializing the CefV8ValueImpl. Should be called a single time
   // after the CefV8ValueImpl is created.
-  void InitFromV8Value(v8::Handle<v8::Value> value);
+  void InitFromV8Value(v8::Local<v8::Value> value);
   void InitUndefined();
   void InitNull();
   void InitBool(bool value);
@@ -219,11 +219,11 @@ class CefV8ValueImpl : public CefV8Value {
   void InitDouble(double value);
   void InitDate(const CefTime& value);
   void InitString(CefString& value);
-  void InitObject(v8::Handle<v8::Value> value, CefTrackNode* tracker);
+  void InitObject(v8::Local<v8::Value> value, CefTrackNode* tracker);
 
   // Creates a new V8 value for the underlying value or returns the existing
   // object handle.
-  v8::Handle<v8::Value> GetV8Value(bool should_persist);
+  v8::Local<v8::Value> GetV8Value(bool should_persist);
 
   bool IsValid() override;
   bool IsUndefined() override;
@@ -287,7 +287,7 @@ class CefV8ValueImpl : public CefV8Value {
     typedef v8::Persistent<v8::Value> persistentType;
 
     Handle(v8::Isolate* isolate,
-           v8::Handle<v8::Context> context,
+           v8::Local<v8::Context> context,
            handleType v,
            CefTrackNode* tracker);
 
@@ -356,7 +356,7 @@ class CefV8ValueImpl : public CefV8Value {
 class CefV8StackTraceImpl : public CefV8StackTrace {
  public:
   CefV8StackTraceImpl(v8::Isolate* isolate,
-                      v8::Handle<v8::StackTrace> handle);
+                      v8::Local<v8::StackTrace> handle);
   ~CefV8StackTraceImpl() override;
 
   bool IsValid() override;
@@ -373,7 +373,7 @@ class CefV8StackTraceImpl : public CefV8StackTrace {
 class CefV8StackFrameImpl : public CefV8StackFrame {
  public:
   CefV8StackFrameImpl(v8::Isolate* isolate,
-                      v8::Handle<v8::StackFrame> handle);
+                      v8::Local<v8::StackFrame> handle);
   ~CefV8StackFrameImpl() override;
 
   bool IsValid() override;
