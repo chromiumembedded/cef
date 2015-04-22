@@ -1,0 +1,22 @@
+diff --git .DEPS.git .DEPS.git
+index e430c58..c45292e 100644
+--- .DEPS.git
++++ .DEPS.git
+@@ -797,17 +797,5 @@ hooks = [
+          'src/tools/.*\\.py',
+     'name':
+          'remove_stale_pyc_files'
+-},
+-    {
+-    'action':
+-         [
+-    'python',
+-    'build/scripts/tools/runit.py',
+-    'python',
+-    'build/scripts/common/cros_chromite.py',
+-    '-v'
+-],
+-    'pattern':
+-         '.*/cros_chromite\\.py'
+ }
+ ]
