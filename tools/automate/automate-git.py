@@ -555,7 +555,7 @@ if platform == 'windows':
     python_exe = 'python.bat'
 else:
   git_exe = 'git'
-  python_exe = 'git'
+  python_exe = 'python'
 
 
 ##
