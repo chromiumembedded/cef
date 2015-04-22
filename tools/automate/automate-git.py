@@ -216,7 +216,7 @@ def write_branch_config_file(path, branch):
     write_config_file(config_file, {'branch': branch})
 
 def remove_deps_entry(path, entry):
-  """ Remove an entry from the DEPS file at the specified path. """
+  """ Remove an entry from the Chromium DEPS file at the specified path. """
   msg('Updating DEPS file: %s' % path)
   if not options.dryrun:
     if not os.path.isfile(path):
@@ -240,6 +240,22 @@ def remove_deps_entry(path, entry):
         continue
       fp.write(line)
     fp.close()
+
+def apply_deps_patch():
+  """ Patch the Chromium DEPS file if necessary. """
+  deps_file = '.DEPS.git'
+  patch_file = os.path.join(cef_dir, 'patch', 'patches', deps_file + '.patch')
+  if os.path.exists(patch_file):
+    # Attempt to apply the DEPS patch file that may exist with newer branches.
+    patch_tool = os.path.join(cef_dir, 'tools', 'patcher.py')
+    run('%s %s --patch-file "%s" --patch-dir "%s"' %
+            (python_exe, patch_tool, patch_file, chromium_src_dir),
+        chromium_src_dir, depot_tools_dir)
+  elif cef_branch != 'trunk':
+    # Older release branch DEPS files may include a 'src' entry. This entry
+    # needs to be removed otherwise `gclient sync` will fail.
+    deps_path = os.path.join(chromium_src_dir, deps_file)
+    remove_deps_entry(deps_path, "'src'")
 
 def onerror(func, path, exc_info):
   """
@@ -526,17 +542,20 @@ if not options.noupdate:
   else:
     run('update_depot_tools', depot_tools_dir, depot_tools_dir);
 
-# Determine the git executables to use.
+# Determine the executables to use.
 if platform == 'windows':
   # Force use of the version bundled with depot_tools.
   git_exe = os.path.join(depot_tools_dir, 'git.bat')
+  python_exe = os.path.join(depot_tools_dir, 'python.bat')
   if options.dryrun and not os.path.exists(git_exe):
     sys.stdout.write("WARNING: --dry-run assumes that depot_tools" \
                      " is already in your PATH. If it isn't\nplease" \
                      " specify a --depot-tools-dir value.\n")
     git_exe = 'git.bat'
+    python_exe = 'python.bat'
 else:
   git_exe = 'git'
+  python_exe = 'git'
 
 
 ##
@@ -652,6 +671,7 @@ if not os.path.exists(gclient_file) or options.forceconfig:
           "u'build/scripts/command_wrapper/bin': None, "+\
           "u'build/scripts/gsd_generate_index': None, "+\
           "u'build/scripts/private/data/reliability': None, "+\
+          "u'build/scripts/tools/deps2git': None, "+\
           "u'build/third_party/lighttpd': None, "+\
           "u'commit-queue': None, "+\
           "u'depot_tools': None, "+\
@@ -686,7 +706,6 @@ if os.path.exists(chromium_src_dir):
   msg("Chromium URL: %s" % (get_git_url(chromium_src_dir)))
 
 # Determine the Chromium checkout options required by CEF.
-chromium_nohooks = False
 if options.chromiumcheckout == '':
   # Read the build compatibility file to identify the checkout name.
   compat_path = os.path.join(cef_dir, 'CHROMIUM_BUILD_COMPATIBILITY.txt')
@@ -696,10 +715,6 @@ if options.chromiumcheckout == '':
     chromium_checkout = config['chromium_checkout']
   else:
     raise Exception("Missing chromium_checkout value in %s" % (compat_path))
-
-  # Some branches run hooks using CEF instead of Chromium.
-  if 'chromium_nohooks' in config:
-    chromium_nohooks = config['chromium_nohooks']
 else:
   chromium_checkout = options.chromiumcheckout
 
@@ -755,20 +770,16 @@ if chromium_checkout_changed:
     (git_exe, ('--force ' if options.forceclean else ''), chromium_checkout), \
     chromium_src_dir, depot_tools_dir)
 
-  if cef_branch != 'trunk':
-    # Remove the 'src' entry from .DEPS.git for release branches.
-    # Otherwise, `gclient sync` will fail.
-    deps_path = os.path.join(chromium_src_dir, '.DEPS.git')
-    remove_deps_entry(deps_path, "'src'")
+  # Patch the Chromium DEPS file if necessary.
+  apply_deps_patch()
 
   # Set the GYP_CHROMIUM_NO_ACTION value temporarily so that `gclient sync` does
   # not run gyp.
   os.environ['GYP_CHROMIUM_NO_ACTION'] = '1'
 
   # Update third-party dependencies including branch/tag information.
-  run("gclient sync %s%s--with_branch_heads --jobs 16" % \
-      (('--reset ' if options.forceclean else ''), \
-      ('--nohooks ' if chromium_nohooks else '')), \
+  run("gclient sync %s--with_branch_heads --jobs 16" % \
+      (('--reset ' if options.forceclean else '')), \
       chromium_dir, depot_tools_dir)
 
   # Clear the GYP_CHROMIUM_NO_ACTION value.

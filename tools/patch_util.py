@@ -8,7 +8,10 @@
     
     CEF Changes
     -----------
-    
+
+    2015/04/22
+        - Write to stdout instead of using warning() for messages
+
     2013/01/03
         - Add support for patches containing new files
 
@@ -28,7 +31,7 @@ import re
 from stat import *
 # cStringIO doesn't support unicode in 2.5
 from StringIO import StringIO
-from logging import debug, info, warning
+from logging import debug, info
 
 from os.path import exists, isfile
 from os import unlink
@@ -53,6 +56,11 @@ def from_string(s):
   return PatchInfo(
            StringIO.StringIO(s)    
          )
+
+
+def msg(message):
+  """ Output a message. """
+  sys.stdout.write('--> ' + message + "\n")
 
 
 class HunkInfo(object):
@@ -160,7 +168,7 @@ class PatchInfo(object):
             hunkinfo.text.append(line)
             # todo: handle \ No newline cases
         else:
-            warning("invalid hunk no.%d at %d for target file %s" % (nexthunkno, lineno+1, self.target[nextfileno-1]))
+            msg("invalid hunk no.%d at %d for target file %s" % (nexthunkno, lineno+1, self.target[nextfileno-1]))
             # add hunk status node
             self.hunks[nextfileno-1].append(hunkinfo.copy())
             self.hunks[nextfileno-1][nexthunkno-1]["invalid"] = True
@@ -170,7 +178,7 @@ class PatchInfo(object):
 
         # check exit conditions
         if hunkactual["linessrc"] > hunkinfo.linessrc or hunkactual["linestgt"] > hunkinfo.linestgt:
-            warning("extra hunk no.%d lines at %d for target %s" % (nexthunkno, lineno+1, self.target[nextfileno-1]))
+            msg("extra hunk no.%d lines at %d for target %s" % (nexthunkno, lineno+1, self.target[nextfileno-1]))
             # add hunk status node
             self.hunks[nextfileno-1].append(hunkinfo.copy())
             self.hunks[nextfileno-1][nexthunkno-1]["invalid"] = True
@@ -186,7 +194,7 @@ class PatchInfo(object):
             # detect mixed window/unix line ends
             ends = self.hunkends[nextfileno-1]
             if ((ends["cr"]!=0) + (ends["crlf"]!=0) + (ends["lf"]!=0)) > 1:
-              warning("inconsistent line ends in patch hunks for %s" % self.source[nextfileno-1])
+              msg("inconsistent line ends in patch hunks for %s" % self.source[nextfileno-1])
             if debugmode:
               debuglines = dict(ends)
               debuglines.update(file=self.target[nextfileno-1], hunk=nexthunkno)
@@ -208,14 +216,14 @@ class PatchInfo(object):
       if filenames:
         if line.startswith("--- "):
           if nextfileno in self.source:
-            warning("skipping invalid patch for %s" % self.source[nextfileno])
+            msg("skipping invalid patch for %s" % self.source[nextfileno])
             del self.source[nextfileno]
             # double source filename line is encountered
             # attempt to restart from this second line
           re_filename = "^--- ([^\t]+)"
           match = re.match(re_filename, line)
           if not match:
-            warning("skipping invalid filename at line %d" % lineno)
+            msg("skipping invalid filename at line %d" % lineno)
             # switch back to header state
             filenames = False
             header = True
@@ -223,16 +231,16 @@ class PatchInfo(object):
             self.source.append(match.group(1).strip())
         elif not line.startswith("+++ "):
           if nextfileno in self.source:
-            warning("skipping invalid patch with no target for %s" % self.source[nextfileno])
+            msg("skipping invalid patch with no target for %s" % self.source[nextfileno])
             del self.source[nextfileno]
           else:
             # this should be unreachable
-            warning("skipping invalid target patch")
+            msg("skipping invalid target patch")
           filenames = False
           header = True
         else:
           if nextfileno in self.target:
-            warning("skipping invalid patch - double target at line %d" % lineno)
+            msg("skipping invalid patch - double target at line %d" % lineno)
             del self.source[nextfileno]
             del self.target[nextfileno]
             nextfileno -= 1
@@ -244,7 +252,7 @@ class PatchInfo(object):
             re_filename = "^\+\+\+ ([^\t]+)"
             match = re.match(re_filename, line)
             if not match:
-              warning("skipping invalid patch - no target filename at line %d" % lineno)
+              msg("skipping invalid patch - no target filename at line %d" % lineno)
               # switch back to header state
               filenames = False
               header = True
@@ -264,7 +272,7 @@ class PatchInfo(object):
         match = re.match("^@@ -(\d+)(,(\d+))? \+(\d+)(,(\d+))?", line)
         if not match:
           if nextfileno-1 not in self.hunks:
-            warning("skipping invalid patch with no hunks for file %s" % self.target[nextfileno-1])
+            msg("skipping invalid patch with no hunks for file %s" % self.target[nextfileno-1])
             # switch to header state
             hunkhead = False
             header = True
@@ -296,7 +304,7 @@ class PatchInfo(object):
           continue
     else:
       if not hunkskip:
-        warning("patch file incomplete - %s" % filename)
+        msg("patch file incomplete - %s" % filename)
         # sys.exit(?)
       else:
         # duplicated message when an eof is reached
@@ -319,7 +327,7 @@ class PatchInfo(object):
         if len(self.hunks[fileno]) == 1 and self.hunks[fileno][0].startsrc == 0:
           hunklines = [x[1:].rstrip("\r\n") for x in self.hunks[fileno][0].text if x[0] in " +"]
           if len(hunklines) > 0:
-            warning("creating file %s" % (f2patch))
+            msg("creating file %s" % (f2patch))
             f = open(f2patch, "wb")
             for line in hunklines:
               f.write(line + "\n")
@@ -328,10 +336,10 @@ class PatchInfo(object):
 
         f2patch = self.target[fileno]
         if not exists(f2patch):
-          warning("source/target file does not exist\n--- %s\n+++ %s" % (filename, f2patch))
+          msg("source/target file does not exist\n--- %s\n+++ %s" % (filename, f2patch))
           continue
       if not isfile(f2patch):
-        warning("not a file - %s" % f2patch)
+        msg("not a file - %s" % f2patch)
         continue
       filename = f2patch
 
@@ -385,29 +393,29 @@ class PatchInfo(object):
       else:
         if hunkno < len(self.hunks[fileno]) and \
             (len(self.hunks[fileno]) != 1 or self.hunks[fileno][0].startsrc != 0):
-          warning("premature end of source file %s at hunk %d" % (filename, hunkno+1))
+          msg("premature end of source file %s at hunk %d" % (filename, hunkno+1))
 
       f2fp.close()
 
       if validhunks < len(self.hunks[fileno]):
         if check_patched(filename, self.hunks[fileno]):
-          warning("already patched  %s" % filename)
+          msg("already patched  %s" % filename)
         else:
-          warning("source file is different - %s" % filename)
+          msg("source file is different - %s" % filename)
       if canpatch:
         backupname = filename+".orig"
         if exists(backupname):
-          warning("can't backup original file to %s - aborting" % backupname)
+          msg("can't backup original file to %s - aborting" % backupname)
         else:
           import shutil
           shutil.move(filename, backupname)
           if patch_hunks(backupname, filename, self.hunks[fileno]):
-            warning("successfully patched %s" % filename)
+            msg("successfully patched %s" % filename)
             unlink(backupname)
           else:
-            warning("error patching file %s" % filename)
+            msg("error patching file %s" % filename)
             shutil.copy(filename, filename+".invalid")
-            warning("invalid version is saved to %s" % filename+".invalid")
+            msg("invalid version is saved to %s" % filename+".invalid")
             # todo: proper rejects
             shutil.move(backupname, filename)
 
@@ -461,7 +469,7 @@ def check_patched(filename, hunks):
           if not len(line):
             raise NoMatch
           if line.rstrip("\r\n") != hline[1:].rstrip("\r\n"):
-            warning("file is not patched - failed hunk: %d" % (hno+1))
+            msg("file is not patched - failed hunk: %d" % (hno+1))
             raise NoMatch
   except NoMatch:
     matched = False
