@@ -35,10 +35,10 @@ index 8d25487..23b25ae 100644
    bool slimming_paint_enabled;
  
 diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
-index c9cbd66..8124639 100644
+index 66d2c0d..1502e0a 100644
 --- renderer/render_view_impl.cc
 +++ renderer/render_view_impl.cc
-@@ -932,6 +932,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+@@ -950,6 +950,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
  
    settings->setJavaEnabled(prefs.java_enabled);
  

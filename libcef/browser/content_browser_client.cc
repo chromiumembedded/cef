@@ -45,6 +45,7 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/storage_quota_params.h"
 #include "content/public/common/web_preferences.h"
+#include "gin/v8_initializer.h"
 #include "third_party/WebKit/public/web/WebWindowFeatures.h"
 #include "ui/base/ui_base_switches.h"
 #include "url/gurl.h"
@@ -642,6 +643,15 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
                                    arraysize(kSwitchNames));
   }
 
+#if defined(OS_POSIX) && !defined(OS_MACOSX)
+#if defined(V8_USE_EXTERNAL_STARTUP_DATA)
+  if (process_type != switches::kZygoteProcess) {
+    command_line->AppendSwitch(switches::kV8NativesPassedByFD);
+    command_line->AppendSwitch(switches::kV8SnapshotPassedByFD);
+  }
+#endif  // V8_USE_EXTERNAL_STARTUP_DATA
+#endif  // OS_POSIX && !OS_MACOSX
+
 #if defined(OS_LINUX)
   if (process_type == switches::kZygoteProcess) {
     // Propagate the following switches to the zygone command line (along with
@@ -902,6 +912,21 @@ void CefContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
     const base::CommandLine& command_line,
     int child_process_id,
     content::FileDescriptorInfo* mappings) {
+#if defined(V8_USE_EXTERNAL_STARTUP_DATA)
+  if (v8_natives_fd_.get() == -1 || v8_snapshot_fd_.get() == -1) {
+    int v8_natives_fd = -1;
+    int v8_snapshot_fd = -1;
+    if (gin::V8Initializer::OpenV8FilesForChildProcesses(&v8_natives_fd,
+                                                         &v8_snapshot_fd)) {
+      v8_natives_fd_.reset(v8_natives_fd);
+      v8_snapshot_fd_.reset(v8_snapshot_fd);
+    }
+  }
+  DCHECK(v8_natives_fd_.get() != -1 && v8_snapshot_fd_.get() != -1);
+  mappings->Share(kV8NativesDataDescriptor, v8_natives_fd_.get());
+  mappings->Share(kV8SnapshotDataDescriptor, v8_snapshot_fd_.get());
+#endif  // V8_USE_EXTERNAL_STARTUP_DATA
+
   int crash_signal_fd = GetCrashSignalFD(command_line);
   if (crash_signal_fd >= 0) {
     mappings->Share(kCrashDumpSignal, crash_signal_fd);

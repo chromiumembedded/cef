@@ -1,8 +1,8 @@
 diff --git spellcheck_factory.cc spellcheck_factory.cc
-index 7d7e1df..b623657 100644
+index bd4ac1f..ce1d28e 100644
 --- spellcheck_factory.cc
 +++ spellcheck_factory.cc
-@@ -15,6 +15,13 @@
+@@ -16,6 +16,13 @@
  #include "content/public/browser/render_process_host.h"
  #include "ui/base/l10n/l10n_util.h"
  
@@ -16,7 +16,7 @@ index 7d7e1df..b623657 100644
  // static
  SpellcheckService* SpellcheckServiceFactory::GetForContext(
      content::BrowserContext* context) {
-@@ -37,7 +44,7 @@ SpellcheckService* SpellcheckServiceFactory::GetForRenderProcessId(
+@@ -38,7 +45,7 @@ SpellcheckService* SpellcheckServiceFactory::GetForRenderProcessId(
  
  // static
  SpellcheckServiceFactory* SpellcheckServiceFactory::GetInstance() {

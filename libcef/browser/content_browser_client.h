@@ -168,6 +168,11 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   scoped_ptr<CefResourceDispatcherHostDelegate>
       resource_dispatcher_host_delegate_;
 
+#if defined(OS_POSIX) && !defined(OS_MACOSX)
+  base::ScopedFD v8_natives_fd_;
+  base::ScopedFD v8_snapshot_fd_;
+#endif
+
   base::Lock browser_info_lock_;
 
   // Access must be protected by |browser_info_lock_|.

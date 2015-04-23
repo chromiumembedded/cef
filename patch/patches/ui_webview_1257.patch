@@ -1,8 +1,8 @@
 diff --git web_dialog_view.cc web_dialog_view.cc
-index 8fe27bf..04bd1a6 100644
+index 4a5a114..b28fb3c 100644
 --- web_dialog_view.cc
 +++ web_dialog_view.cc
-@@ -339,7 +339,9 @@ bool WebDialogView::ShouldCreateWebContents(
+@@ -340,7 +340,9 @@ bool WebDialogView::ShouldCreateWebContents(
      const base::string16& frame_name,
      const GURL& target_url,
      const std::string& partition_id,

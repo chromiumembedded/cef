@@ -208,7 +208,7 @@ void CefJavaScriptDialogManager::CancelActiveAndPendingDialogs(
 #endif
 }
 
-void CefJavaScriptDialogManager::WebContentsDestroyed(
+void CefJavaScriptDialogManager::ResetDialogState(
     content::WebContents* web_contents) {
 }
 

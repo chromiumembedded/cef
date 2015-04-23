@@ -1,8 +1,8 @@
 diff --git render_process_host_impl.cc render_process_host_impl.cc
-index 91dd8b3..3cba806 100644
+index 1e20d8e..6c0f5f4 100644
 --- render_process_host_impl.cc
 +++ render_process_host_impl.cc
-@@ -2089,6 +2089,8 @@ void RenderProcessHostImpl::ProcessDied(bool already_dead,
+@@ -2111,6 +2111,8 @@ void RenderProcessHostImpl::ProcessDied(bool already_dead,
  #endif
    RemoveUserData(kSessionStorageHolderKey);
  
@@ -11,7 +11,7 @@ index 91dd8b3..3cba806 100644
    IDMap<IPC::Listener>::iterator iter(&listeners_);
    while (!iter.IsAtEnd()) {
      iter.GetCurrentValue()->OnMessageReceived(
-@@ -2098,8 +2100,6 @@ void RenderProcessHostImpl::ProcessDied(bool already_dead,
+@@ -2120,8 +2122,6 @@ void RenderProcessHostImpl::ProcessDied(bool already_dead,
      iter.Advance();
    }
  

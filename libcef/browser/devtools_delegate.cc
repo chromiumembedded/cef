@@ -17,7 +17,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/devtools_agent_host.h"
 #include "base/time/time.h"
-#include "content/public/browser/devtools_http_handler.h"
+#include "content/public/browser/devtools_frontend_host.h"
 #include "content/public/browser/devtools_target.h"
 #include "content/public/browser/favicon_status.h"
 #include "content/public/browser/navigation_entry.h"
@@ -42,7 +42,7 @@ const char kTargetTypeOther[] = "other";
 const int kBackLog = 10;
 
 class TCPServerSocketFactory
-    : public content::DevToolsHttpHandler::ServerSocketFactory {
+    : public devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory {
  public:
   TCPServerSocketFactory(const std::string& address, uint16 port)
       : address_(address), port_(port) {
@@ -65,10 +65,11 @@ class TCPServerSocketFactory
   DISALLOW_COPY_AND_ASSIGN(TCPServerSocketFactory);
 };
 
-scoped_ptr<content::DevToolsHttpHandler::ServerSocketFactory>
+scoped_ptr<devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory>
     CreateSocketFactory(uint16 port) {
-  return scoped_ptr<content::DevToolsHttpHandler::ServerSocketFactory>(
-      new TCPServerSocketFactory("127.0.0.1", port));
+  return scoped_ptr<
+      devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory>(
+          new TCPServerSocketFactory("127.0.0.1", port));
 }
 
 class Target : public content::DevToolsTarget {
@@ -137,11 +138,15 @@ bool Target::Close() const {
 // CefDevToolsDelegate
 
 CefDevToolsDelegate::CefDevToolsDelegate(uint16 port) {
-  devtools_http_handler_.reset(content::DevToolsHttpHandler::Start(
+  devtools_http_handler_.reset(new devtools_http_handler::DevToolsHttpHandler(
       CreateSocketFactory(port),
       std::string(),
       this,
-      base::FilePath()));
+      new CefDevToolsManagerDelegate(),
+      base::FilePath(),
+      base::FilePath(),
+      std::string(),
+      CefContentClient::Get()->GetUserAgent()));
 }
 
 CefDevToolsDelegate::~CefDevToolsDelegate() {
@@ -152,7 +157,8 @@ void CefDevToolsDelegate::Stop() {
   // Release the reference before deleting the handler. Deleting the handler
   // will delete |this| and no members of |this| should be accessed after that
   // call.
-  content::DevToolsHttpHandler* handler = devtools_http_handler_.release();
+  devtools_http_handler::DevToolsHttpHandler* handler =
+      devtools_http_handler_.release();
   delete handler;
 }
 
@@ -161,12 +167,9 @@ std::string CefDevToolsDelegate::GetDiscoveryPageHTML() {
       IDR_CEF_DEVTOOLS_DISCOVERY_PAGE, ui::SCALE_FACTOR_NONE).as_string();
 }
 
-bool CefDevToolsDelegate::BundlesFrontendResources() {
-  return true;
-}
-
-base::FilePath CefDevToolsDelegate::GetDebugFrontendDir() {
-  return base::FilePath();
+std::string CefDevToolsDelegate::GetFrontendResource(
+    const std::string& path) {
+  return content::DevToolsFrontendHost::GetFrontendResource(path).as_string();
 }
 
 std::string CefDevToolsDelegate::GetChromeDevToolsURL() {

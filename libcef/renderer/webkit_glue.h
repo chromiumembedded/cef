@@ -10,12 +10,6 @@
 #include "base/basictypes.h"
 #include "third_party/skia/include/core/SkColor.h"
 
-namespace v8 {
-class Context;
-template <class T> class Handle;
-class Isolate;
-}
-
 namespace blink {
 class WebFrame;
 class WebNode;

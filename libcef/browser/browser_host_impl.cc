@@ -479,7 +479,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
 #if defined(OS_LINUX) || defined(OS_ANDROID)
   content::RendererPreferences* prefs = web_contents->GetMutableRendererPrefs();
   CR_DEFINE_STATIC_LOCAL(const gfx::FontRenderParams, params,
-      (gfx::GetFontRenderParams(gfx::FontRenderParamsQuery(true), NULL)));
+      (gfx::GetFontRenderParams(gfx::FontRenderParamsQuery(), NULL)));
   prefs->should_antialias_text = params.antialiasing;
   prefs->use_subpixel_positioning = params.subpixel_positioning;
   prefs->hinting = params.hinting;
@@ -2183,14 +2183,6 @@ bool CefBrowserHostImpl::TakeFocus(content::WebContents* source,
   return false;
 }
 
-void CefBrowserHostImpl::WebContentsFocused(content::WebContents* contents) {
-  if (client_.get()) {
-    CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
-    if (handler.get())
-      handler->OnGotFocus(this);
-  }
-}
-
 bool CefBrowserHostImpl::HandleContextMenu(
     const content::ContextMenuParams& params) {
   if (!menu_creator_.get())
@@ -2639,6 +2631,14 @@ bool CefBrowserHostImpl::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
+}
+
+void CefBrowserHostImpl::OnWebContentsFocused() {
+  if (client_.get()) {
+    CefRefPtr<CefFocusHandler> handler = client_->GetFocusHandler();
+    if (handler.get())
+      handler->OnGotFocus(this);
+  }
 }
 
 bool CefBrowserHostImpl::Send(IPC::Message* message) {

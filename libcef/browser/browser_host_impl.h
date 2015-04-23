@@ -363,7 +363,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
                          bool* proceed_to_fire_unload) override;
   bool TakeFocus(content::WebContents* source,
                  bool reverse) override;
-  void WebContentsFocused(content::WebContents* contents) override;
   bool HandleContextMenu(
       const content::ContextMenuParams& params) override;
   bool PreHandleKeyboardEvent(
@@ -451,6 +450,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void DidUpdateFaviconURL(
       const std::vector<content::FaviconURL>& candidates) override;
   bool OnMessageReceived(const IPC::Message& message) override;
+  void OnWebContentsFocused() override;
   // Override to provide a thread safe implementation.
   bool Send(IPC::Message* message) override;
 

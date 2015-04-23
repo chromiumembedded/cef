@@ -541,13 +541,13 @@ void AccessorSetterCallbackImpl(
   }
 }
 
-v8::Local<v8::Value> CallV8Function(v8::Local<v8::Context> context,
-                                    v8::Local<v8::Function> function,
-                                    v8::Local<v8::Object> receiver,
-                                    int argc,
-                                    v8::Local<v8::Value> args[],
-                                    v8::Isolate* isolate) {
-  v8::Local<v8::Value> func_rv;
+v8::MaybeLocal<v8::Value> CallV8Function(v8::Local<v8::Context> context,
+                                         v8::Local<v8::Function> function,
+                                         v8::Local<v8::Object> receiver,
+                                         int argc,
+                                         v8::Local<v8::Value> args[],
+                                         v8::Isolate* isolate) {
+  v8::MaybeLocal<v8::Value> func_rv;
 
   // Execute the function call using the ScriptController so that inspector
   // instrumentation works.
@@ -954,14 +954,14 @@ bool CefV8ContextImpl::Eval(const CefString& code,
   retval = NULL;
   exception = NULL;
 
-  v8::Local<v8::Value> func_rv =
+  v8::MaybeLocal<v8::Value> func_rv =
       CallV8Function(context, func, obj, 1, &code_val, handle_->isolate());
 
   if (try_catch.HasCaught()) {
     exception = new CefV8ExceptionImpl(try_catch.Message());
     return false;
   } else if (!func_rv.IsEmpty()) {
-    retval = new CefV8ValueImpl(isolate, func_rv);
+    retval = new CefV8ValueImpl(isolate, func_rv.ToLocalChecked());
   }
   return true;
 }
@@ -1999,12 +1999,12 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::ExecuteFunctionWithContext(
     v8::TryCatch try_catch;
     try_catch.SetVerbose(true);
 
-    v8::Local<v8::Value> func_rv =
+    v8::MaybeLocal<v8::Value> func_rv =
         CallV8Function(context_local, func, recv, argc, argv,
                        handle_->isolate());
 
     if (!HasCaught(try_catch) && !func_rv.IsEmpty())
-      retval = new CefV8ValueImpl(isolate, func_rv);
+      retval = new CefV8ValueImpl(isolate, func_rv.ToLocalChecked());
   }
 
   if (argv)

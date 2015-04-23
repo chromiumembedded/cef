@@ -43,7 +43,7 @@ index b53fc7f..0b24d2a 100644
    if (input_method)
      input_method->OnBlur();
 diff --git desktop_aura/desktop_window_tree_host_x11.cc desktop_aura/desktop_window_tree_host_x11.cc
-index 1316b8b..588e591 100644
+index 125e8f0..275e0d8 100644
 --- desktop_aura/desktop_window_tree_host_x11.cc
 +++ desktop_aura/desktop_window_tree_host_x11.cc
 @@ -153,7 +153,8 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
@@ -108,7 +108,7 @@ index 1316b8b..588e591 100644
                             bounds_in_pixels_.y(), bounds_in_pixels_.width(),
                             bounds_in_pixels_.height(),
                             0,  // border width
-@@ -1717,6 +1729,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
+@@ -1719,6 +1731,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
        }
        break;
      }
@@ -153,10 +153,10 @@ index 94d4b1b..2609f46 100644
  };
  
 diff --git widget.cc widget.cc
-index 8893d8c..e517828 100644
+index 64e131e..aec1b43 100644
 --- widget.cc
 +++ widget.cc
-@@ -111,6 +111,7 @@ Widget::InitParams::InitParams()
+@@ -110,6 +110,7 @@ Widget::InitParams::InitParams()
        use_system_default_icon(false),
        show_state(ui::SHOW_STATE_DEFAULT),
        parent(NULL),
@@ -164,7 +164,7 @@ index 8893d8c..e517828 100644
        native_widget(NULL),
        desktop_window_tree_host(NULL),
        layer_type(ui::LAYER_TEXTURED),
-@@ -134,6 +135,7 @@ Widget::InitParams::InitParams(Type type)
+@@ -133,6 +134,7 @@ Widget::InitParams::InitParams(Type type)
        use_system_default_icon(false),
        show_state(ui::SHOW_STATE_DEFAULT),
        parent(NULL),
@@ -172,7 +172,7 @@ index 8893d8c..e517828 100644
        native_widget(NULL),
        desktop_window_tree_host(NULL),
        layer_type(ui::LAYER_TEXTURED),
-@@ -308,7 +310,7 @@ void Widget::Init(const InitParams& in_params) {
+@@ -307,7 +309,7 @@ void Widget::Init(const InitParams& in_params) {
    InitParams params = in_params;
  
    params.child |= (params.type == InitParams::TYPE_CONTROL);
@@ -181,7 +181,7 @@ index 8893d8c..e517828 100644
  
    if (params.opacity == views::Widget::InitParams::INFER_OPACITY &&
        params.type != views::Widget::InitParams::TYPE_WINDOW &&
-@@ -371,7 +373,12 @@ void Widget::Init(const InitParams& in_params) {
+@@ -370,7 +372,12 @@ void Widget::Init(const InitParams& in_params) {
        Minimize();
    } else if (params.delegate) {
      SetContentsView(params.delegate->GetContentsView());

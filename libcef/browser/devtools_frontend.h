@@ -12,6 +12,7 @@
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
+#include "base/values.h"
 #include "content/public/browser/devtools_agent_host.h"
 #include "content/public/browser/devtools_frontend_host.h"
 #include "content/public/browser/web_contents_observer.h"
@@ -64,6 +65,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
                        bool replaced) override;
   void DispatchProtocolMessage(content::DevToolsAgentHost* agent_host,
                                const std::string& message) override;
+  base::DictionaryValue* preferences() { return &preferences_; }
 
   // WebContentsObserver overrides
   void RenderViewCreated(content::RenderViewHost* render_view_host) override;
@@ -87,6 +89,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   scoped_ptr<content::DevToolsFrontendHost> frontend_host_;
   using PendingRequestsMap = std::map<const net::URLFetcher*, int>;
   PendingRequestsMap pending_requests_;
+  base::DictionaryValue preferences_;
   base::WeakPtrFactory<CefDevToolsFrontend> weak_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(CefDevToolsFrontend);

@@ -327,6 +327,11 @@ need to be translated for each locale.-->
       <message name="IDS_PRINT_INVALID_PRINTER_SETTINGS" desc="Message to display when selected printer is not reachable or its settings are invalid.">
         The selected printer is not available or not installed correctly.  Check your printer or try selecting another printer.
       </message>
+      <if expr="is_win">
+        <message name="IDS_UTILITY_PROCESS_EMF_CONVERTOR_NAME" desc="The name of the utility process used for converting PDFs to EMFs.">
+          EMF Convertor
+        </message>
+      </if>
 
       <!-- Proxy settings -->
       <message name="IDS_UTILITY_PROCESS_PROXY_RESOLVER_NAME" desc="The name of the utility process used for out-of-process V8 proxy resolution.">
