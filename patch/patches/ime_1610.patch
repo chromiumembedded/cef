@@ -1,13 +1,15 @@
 diff --git input_method_win.cc input_method_win.cc
-index 6961683..9072906 100644
+index 6961683..1f8c4b2 100644
 --- input_method_win.cc
 +++ input_method_win.cc
-@@ -26,7 +26,7 @@ static const size_t kExtraNumberOfChars = 20;
+@@ -601,7 +601,9 @@ bool InputMethodWin::IsWindowFocused(const TextInputClient* client) const {
+   // receiving keyboard input as long as it is an active window. This works well
+   // even when the |attached_window_handle| becomes active but has not received
+   // WM_FOCUS yet.
+-  return attached_window_handle && GetActiveWindow() == attached_window_handle;
++  // With CEF |attached_window_handle| may be a child window.
++  return attached_window_handle &&
++         GetActiveWindow() == ::GetAncestor(attached_window_handle, GA_ROOT);
+ }
  
- InputMethodWin::InputMethodWin(internal::InputMethodDelegate* delegate,
-                                HWND toplevel_window_handle)
--    : toplevel_window_handle_(toplevel_window_handle),
-+    : toplevel_window_handle_(::GetAncestor(toplevel_window_handle, GA_ROOT)),
-       pending_requested_direction_(base::i18n::UNKNOWN_DIRECTION),
-       accept_carriage_return_(false),
-       active_(false),
+ bool InputMethodWin::DispatchFabricatedKeyEvent(const ui::KeyEvent& event) {
