@@ -1,0 +1,13 @@
+diff --git input_method_win.cc input_method_win.cc
+index 6961683..9072906 100644
+--- input_method_win.cc
++++ input_method_win.cc
+@@ -26,7 +26,7 @@ static const size_t kExtraNumberOfChars = 20;
+ 
+ InputMethodWin::InputMethodWin(internal::InputMethodDelegate* delegate,
+                                HWND toplevel_window_handle)
+-    : toplevel_window_handle_(toplevel_window_handle),
++    : toplevel_window_handle_(::GetAncestor(toplevel_window_handle, GA_ROOT)),
+       pending_requested_direction_(base::i18n::UNKNOWN_DIRECTION),
+       accept_carriage_return_(false),
+       active_(false),
