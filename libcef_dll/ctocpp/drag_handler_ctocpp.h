@@ -18,6 +18,7 @@
 #pragma message("Warning: "__FILE__" may be accessed DLL-side only")
 #else  // BUILDING_CEF_SHARED
 
+#include <vector>
 #include "include/cef_drag_handler.h"
 #include "include/capi/cef_drag_handler_capi.h"
 #include "libcef_dll/ctocpp/ctocpp.h"
@@ -33,6 +34,8 @@ class CefDragHandlerCToCpp
   // CefDragHandler methods.
   bool OnDragEnter(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefDragData> dragData, DragOperationsMask mask) override;
+  void OnDraggableRegionsChanged(CefRefPtr<CefBrowser> browser,
+      const std::vector<CefDraggableRegion>& regions) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

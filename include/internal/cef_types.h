@@ -1266,6 +1266,21 @@ typedef struct _cef_size_t {
 } cef_size_t;
 
 ///
+// Structure representing a draggable region.
+///
+typedef struct _cef_draggable_region_t {
+  ///
+  // Bounds of the region.
+  ///
+  cef_rect_t bounds;
+
+  ///
+  // True (1) this this region is draggable and false (0) otherwise.
+  ///
+  int draggable;
+} cef_draggable_region_t;
+
+///
 // Existing process IDs.
 ///
 typedef enum {

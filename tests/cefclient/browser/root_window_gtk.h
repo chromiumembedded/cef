@@ -58,6 +58,8 @@ class RootWindowGtk : public RootWindow,
   void OnSetLoadingState(bool isLoading,
                          bool canGoBack,
                          bool canGoForward) OVERRIDE;
+  void OnSetDraggableRegions(
+      const std::vector<CefDraggableRegion>& regions) OVERRIDE;
 
   void NotifyDestroyedIfDone();
 

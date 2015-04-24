@@ -61,6 +61,18 @@ class CefDragHandler : public virtual CefBase {
   virtual bool OnDragEnter(CefRefPtr<CefBrowser> browser,
                            CefRefPtr<CefDragData> dragData,
                            DragOperationsMask mask) { return false; }
+
+  ///
+  // Called whenever draggable regions for the browser window change. These can
+  // be specified using the '-webkit-app-region: drag/no-drag' CSS-property. If
+  // draggable regions are never defined in a document this method will also
+  // never be called. If the last draggable region is removed from a document
+  // this method will be called with an empty vector.
+  ///
+  /*--cef()--*/
+  virtual void OnDraggableRegionsChanged(
+      CefRefPtr<CefBrowser> browser,
+      const std::vector<CefDraggableRegion>& regions) {}
 };
 
 #endif  // CEF_INCLUDE_CEF_DRAG_HANDLER_H_

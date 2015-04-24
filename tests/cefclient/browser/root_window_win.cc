@@ -5,6 +5,7 @@
 #include "cefclient/browser/root_window_win.h"
 
 #include "include/base/cef_bind.h"
+#include "include/base/cef_build.h"
 #include "include/cef_app.h"
 #include "cefclient/browser/browser_window_osr_win.h"
 #include "cefclient/browser/browser_window_std_win.h"
@@ -51,6 +52,7 @@ RootWindowWin::RootWindowWin()
       start_rect_(),
       initialized_(false),
       hwnd_(NULL),
+      draggable_region_(NULL),
       back_hwnd_(NULL),
       forward_hwnd_(NULL),
       reload_hwnd_(NULL),
@@ -66,10 +68,15 @@ RootWindowWin::RootWindowWin()
       window_destroyed_(false),
       browser_destroyed_(false) {
   find_buff_[0] = 0;
+
+  // Create a HRGN representing the draggable window area.
+  draggable_region_ = ::CreateRectRgn(0, 0, 0, 0);
 }
 
 RootWindowWin::~RootWindowWin() {
   REQUIRE_MAIN_THREAD();
+
+  ::DeleteObject(draggable_region_);
 
   // The window and browser should already have been destroyed.
   DCHECK(window_destroyed_);
@@ -513,6 +520,21 @@ LRESULT CALLBACK RootWindowWin::RootWndProc(HWND hWnd, UINT message,
         return 0;  // Cancel the close.
       break;
 
+    case WM_NCHITTEST: {
+      LRESULT hit = DefWindowProc(hWnd, message, wParam, lParam);
+      if (hit == HTCLIENT) {
+        POINTS points = MAKEPOINTS(lParam);
+        POINT point = { points.x, points.y };
+        ::ScreenToClient(hWnd, &point);
+        if (::PtInRegion(self->draggable_region_, point.x, point.y)) {
+          // If cursor is inside a draggable region return HTCAPTION to allow
+          // dragging.
+          return HTCAPTION;
+        }
+      }
+      return hit;
+    }
+
     case WM_NCDESTROY:
       // Clear the reference to |self|.
       SetUserDataPtr(hWnd, NULL);
@@ -761,6 +783,111 @@ void RootWindowWin::OnSetLoadingState(bool isLoading,
     EnableWindow(reload_hwnd_, !isLoading);
     EnableWindow(stop_hwnd_, isLoading);
     EnableWindow(edit_hwnd_, TRUE);
+  }
+}
+
+namespace {
+
+LPCWSTR kParentWndProc = L"CefParentWndProc";
+LPCWSTR kDraggableRegion = L"CefDraggableRegion";
+
+LRESULT CALLBACK SubclassedWindowProc(
+    HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+  WNDPROC hParentWndProc = reinterpret_cast<WNDPROC>(
+      ::GetPropW(hWnd, kParentWndProc));
+  HRGN hRegion = reinterpret_cast<HRGN>(
+      ::GetPropW(hWnd, kDraggableRegion));
+
+  if (message == WM_NCHITTEST) {
+    LRESULT hit = CallWindowProc(
+        hParentWndProc, hWnd, message, wParam, lParam);
+    if (hit == HTCLIENT) {
+      POINTS points = MAKEPOINTS(lParam);
+      POINT point = { points.x, points.y };
+      ::ScreenToClient(hWnd, &point);
+      if (::PtInRegion(hRegion, point.x, point.y)) {
+        // Let the parent window handle WM_NCHITTEST by returning HTTRANSPARENT
+        // in child windows.
+        return HTTRANSPARENT;
+      }
+    }
+    return hit;
+  }
+
+  return CallWindowProc(hParentWndProc, hWnd, message, wParam, lParam);
+}
+
+void SubclassWindow(HWND hWnd, HRGN hRegion) {
+  HANDLE hParentWndProc = ::GetPropW(hWnd, kParentWndProc);
+  if (hParentWndProc) {
+    return;
+  }
+
+  SetLastError(0);
+  LONG_PTR hOldWndProc = SetWindowLongPtr(
+      hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(SubclassedWindowProc));
+  if (hOldWndProc == 0 && GetLastError() != ERROR_SUCCESS) {
+    return;
+  }
+
+  ::SetPropW(hWnd, kParentWndProc, reinterpret_cast<HANDLE>(hOldWndProc));
+  ::SetPropW(hWnd, kDraggableRegion, reinterpret_cast<HANDLE>(hRegion));
+}
+
+void UnSubclassWindow(HWND hWnd) {
+  LONG_PTR hParentWndProc = reinterpret_cast<LONG_PTR>(
+    ::GetPropW(hWnd, kParentWndProc));
+  if (hParentWndProc) {
+      LONG_PTR hPreviousWndProc =
+          SetWindowLongPtr(hWnd, GWLP_WNDPROC, hParentWndProc);
+      ALLOW_UNUSED_LOCAL(hPreviousWndProc);
+      DCHECK_EQ(hPreviousWndProc,
+                reinterpret_cast<LONG_PTR>(SubclassedWindowProc));
+  }
+
+  ::RemovePropW(hWnd, kParentWndProc);
+  ::RemovePropW(hWnd, kDraggableRegion);
+}
+
+BOOL CALLBACK SubclassWindowsProc(HWND hwnd, LPARAM lParam) {
+  SubclassWindow(hwnd, reinterpret_cast<HRGN>(lParam));
+  return TRUE;
+}
+
+BOOL CALLBACK UnSubclassWindowsProc(HWND hwnd, LPARAM lParam) {
+  UnSubclassWindow(hwnd);
+  return TRUE;
+}
+
+}  // namespace
+
+void RootWindowWin::OnSetDraggableRegions(
+    const std::vector<CefDraggableRegion>& regions) {
+  REQUIRE_MAIN_THREAD();
+
+  // Reset draggable region.
+  ::SetRectRgn(draggable_region_, 0, 0, 0, 0);
+
+  // Determine new draggable region.
+  std::vector<CefDraggableRegion>::const_iterator it = regions.begin();
+  for (;it != regions.end(); ++it) {
+    HRGN region = ::CreateRectRgn(
+        it->bounds.x, it->bounds.y,
+        it->bounds.x + it->bounds.width,
+        it->bounds.y + it->bounds.height);
+    ::CombineRgn(
+        draggable_region_, draggable_region_, region,
+        it->draggable ? RGN_OR : RGN_DIFF);
+    ::DeleteObject(region);
+  }
+
+  // Subclass child window procedures in order to do hit-testing.
+  // This will be a no-op, if it is already subclassed.
+  if (hwnd_) {
+    WNDENUMPROC proc = !regions.empty() ?
+        SubclassWindowsProc : UnSubclassWindowsProc;
+    ::EnumChildWindows(
+        hwnd_, proc, reinterpret_cast<LPARAM>(draggable_region_));
   }
 }
 

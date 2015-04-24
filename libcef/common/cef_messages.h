@@ -68,6 +68,12 @@ IPC_STRUCT_BEGIN(Cef_CrossOriginWhiteListEntry_Params)
   IPC_STRUCT_MEMBER(bool, allow_target_subdomains)
 IPC_STRUCT_END()
 
+// Parameters structure for a draggable region.
+IPC_STRUCT_BEGIN(Cef_DraggableRegion_Params)
+  IPC_STRUCT_MEMBER(gfx::Rect, bounds)
+  IPC_STRUCT_MEMBER(bool, draggable)
+IPC_STRUCT_END()
+
 
 // Messages sent from the browser to the renderer.
 
@@ -188,6 +194,10 @@ IPC_MESSAGE_ROUTED1(CefHostMsg_Response,
 // has been processed.
 IPC_MESSAGE_ROUTED1(CefHostMsg_ResponseAck,
                     int /* request_id */)
+
+// Sent by the renderer when the draggable regions are updated.
+IPC_MESSAGE_ROUTED1(CefHostMsg_UpdateDraggableRegions,
+                    std::vector<Cef_DraggableRegion_Params> /* regions */)
 
 
 // Singly-included section for struct and custom IPC traits.

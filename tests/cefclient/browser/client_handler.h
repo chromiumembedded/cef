@@ -57,6 +57,10 @@ class ClientHandler : public CefClient,
                                    bool canGoBack,
                                    bool canGoForward) = 0;
 
+    // Set the draggable regions.
+    virtual void OnSetDraggableRegions(
+        const std::vector<CefDraggableRegion>& regions) = 0;
+
    protected:
     virtual ~Delegate() {}
   };
@@ -151,6 +155,10 @@ class ClientHandler : public CefClient,
   bool OnDragEnter(CefRefPtr<CefBrowser> browser,
                    CefRefPtr<CefDragData> dragData,
                    CefDragHandler::DragOperationsMask mask) OVERRIDE;
+
+  void OnDraggableRegionsChanged(
+      CefRefPtr<CefBrowser> browser,
+      const std::vector<CefDraggableRegion>& regions) OVERRIDE;
 
   // CefGeolocationHandler methods
   bool OnRequestGeolocationPermission(
@@ -263,6 +271,8 @@ class ClientHandler : public CefClient,
   void NotifyLoadingState(bool isLoading,
                           bool canGoBack,
                           bool canGoForward);
+  void NotifyDraggableRegions(
+      const std::vector<CefDraggableRegion>& regions);
 
   // Test context menu creation.
   void BuildTestMenu(CefRefPtr<CefMenuModel> model);
@@ -288,7 +298,7 @@ class ClientHandler : public CefClient,
   // Handles the browser side of query routing. The renderer side is handled
   // in client_renderer.cc.
   CefRefPtr<CefMessageRouterBrowserSide> message_router_;
-  
+
   // MAIN THREAD MEMBERS
   // The following members will only be accessed on the main thread. This will
   // be the same as the CEF UI thread except when using multi-threaded message

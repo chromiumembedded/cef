@@ -2659,6 +2659,8 @@ bool CefBrowserHostImpl::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(CefBrowserHostImpl, message)
     IPC_MESSAGE_HANDLER(CefHostMsg_FrameIdentified, OnFrameIdentified)
     IPC_MESSAGE_HANDLER(CefHostMsg_DidFinishLoad, OnDidFinishLoad)
+    IPC_MESSAGE_HANDLER(CefHostMsg_UpdateDraggableRegions,
+                        OnUpdateDraggableRegions)
     IPC_MESSAGE_HANDLER(CefHostMsg_Request, OnRequest)
     IPC_MESSAGE_HANDLER(CefHostMsg_Response, OnResponse)
     IPC_MESSAGE_HANDLER(CefHostMsg_ResponseAck, OnResponseAck)
@@ -2714,6 +2716,26 @@ void CefBrowserHostImpl::OnDidFinishLoad(int64 frame_id,
   scheme::DidFinishLoad(frame, validated_url);
 
   OnLoadEnd(frame, validated_url, http_status_code);
+}
+
+void CefBrowserHostImpl::OnUpdateDraggableRegions(
+    const std::vector<Cef_DraggableRegion_Params>& regions) {
+  std::vector<CefDraggableRegion> draggable_regions;
+  draggable_regions.reserve(regions.size());
+
+  std::vector<Cef_DraggableRegion_Params>::const_iterator it = regions.begin();
+  for (; it != regions.end(); ++it) {
+    const gfx::Rect& rect(it->bounds);
+    const CefRect bounds(rect.x(), rect.y(), rect.width(), rect.height());
+    draggable_regions.push_back(CefDraggableRegion(bounds, it->draggable));
+  }
+
+  if (client_.get()) {
+    CefRefPtr<CefDragHandler> handler = client_->GetDragHandler();
+    if (handler.get()) {
+      handler->OnDraggableRegionsChanged(this, draggable_regions);
+    }
+  }
 }
 
 void CefBrowserHostImpl::OnRequest(const Cef_Request_Params& params) {

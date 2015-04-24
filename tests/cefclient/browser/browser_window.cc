@@ -68,4 +68,10 @@ void BrowserWindow::OnSetLoadingState(bool isLoading,
   delegate_->OnSetLoadingState(isLoading, canGoBack, canGoForward);
 }
 
+void BrowserWindow::OnSetDraggableRegions(
+      const std::vector<CefDraggableRegion>& regions) {
+  REQUIRE_MAIN_THREAD();
+  delegate_->OnSetDraggableRegions(regions);
+}
+
 }  // namespace client

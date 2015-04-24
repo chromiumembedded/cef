@@ -44,6 +44,44 @@ bool CefDragHandlerCToCpp::OnDragEnter(CefRefPtr<CefBrowser> browser,
   return _retval?true:false;
 }
 
+void CefDragHandlerCToCpp::OnDraggableRegionsChanged(
+    CefRefPtr<CefBrowser> browser,
+    const std::vector<CefDraggableRegion>& regions) {
+  cef_drag_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_draggable_regions_changed))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+
+  // Translate param: regions; type: simple_vec_byref_const
+  const size_t regionsCount = regions.size();
+  cef_draggable_region_t* regionsList = NULL;
+  if (regionsCount > 0) {
+    regionsList = new cef_draggable_region_t[regionsCount];
+    DCHECK(regionsList);
+    if (regionsList) {
+      for (size_t i = 0; i < regionsCount; ++i) {
+        regionsList[i] = regions[i];
+      }
+    }
+  }
+
+  // Execute
+  _struct->on_draggable_regions_changed(_struct,
+      CefBrowserCppToC::Wrap(browser),
+      regionsCount,
+      regionsList);
+
+  // Restore param:regions; type: simple_vec_byref_const
+  if (regionsList)
+    delete [] regionsList;
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 

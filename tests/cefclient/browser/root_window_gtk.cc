@@ -387,6 +387,12 @@ void RootWindowGtk::OnSetLoadingState(bool isLoading,
   }
 }
 
+void RootWindowGtk::OnSetDraggableRegions(
+    const std::vector<CefDraggableRegion>& regions) {
+  REQUIRE_MAIN_THREAD();
+  // TODO(cef): Implement support for draggable regions on this platform.
+}
+
 void RootWindowGtk::NotifyDestroyedIfDone() {
   // Notify once both the window and the browser have been destroyed.
   if (window_destroyed_ && browser_destroyed_)
