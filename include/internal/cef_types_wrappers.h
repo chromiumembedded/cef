@@ -257,6 +257,50 @@ inline bool operator!=(const CefSize& a, const CefSize& b) {
 }
 
 
+struct CefDraggableRegionTraits {
+  typedef cef_draggable_region_t struct_type;
+
+  static inline void init(struct_type* s) {}
+  static inline void clear(struct_type* s) {}
+
+  static inline void set(const struct_type* src, struct_type* target,
+      bool copy) {
+    *target = *src;
+  }
+};
+
+///
+// Class representing a draggable region.
+///
+class CefDraggableRegion : public CefStructBase<CefDraggableRegionTraits> {
+ public:
+  typedef CefStructBase<CefDraggableRegionTraits> parent;
+
+  CefDraggableRegion() : parent() {}
+  CefDraggableRegion(const cef_draggable_region_t& r)  // NOLINT(runtime/explicit)
+    : parent(r) {}
+  CefDraggableRegion(const CefDraggableRegion& r)  // NOLINT(runtime/explicit)
+    : parent(r) {}
+  CefDraggableRegion(const CefRect& bounds, bool draggable) : parent() {
+    Set(bounds, draggable);
+  }
+
+  void Set(const CefRect& bounds, bool draggable) {
+    this->bounds = bounds, this->draggable = draggable;
+  }
+};
+
+inline bool operator==(const CefDraggableRegion& a,
+    const CefDraggableRegion& b) {
+  return a.bounds == b.bounds && a.draggable == b.draggable;
+}
+
+inline bool operator!=(const CefDraggableRegion& a,
+    const CefDraggableRegion& b) {
+  return !(a == b);
+}
+
+
 struct CefScreenInfoTraits {
   typedef cef_screen_info_t struct_type;
 

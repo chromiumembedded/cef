@@ -805,7 +805,7 @@ class OSRTestHandler : public RoutingTestHandler,
 
   bool StartDragging(CefRefPtr<CefBrowser> browser,
                      CefRefPtr<CefDragData> drag_data,
-                     DragOperationsMask allowed_ops,
+                     CefRenderHandler::DragOperationsMask allowed_ops,
                      int x, int y) override {
     if (test_type_ == OSR_TEST_DRAG_DROP_START_DRAGGING && started()) {
       DestroySucceededTestSoon();

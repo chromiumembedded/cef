@@ -64,6 +64,7 @@ class Widget;
 class CefWindowX11;
 #endif
 
+struct Cef_DraggableRegion_Params;
 struct Cef_Request_Params;
 struct Cef_Response_Params;
 class CefBrowserInfo;
@@ -475,6 +476,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const GURL& validated_url,
       bool is_main_frame,
       int http_status_code);
+  void OnUpdateDraggableRegions(
+      const std::vector<Cef_DraggableRegion_Params>& regions);
   void OnRequest(const Cef_Request_Params& params);
   void OnResponse(const Cef_Response_Params& params);
   void OnResponseAck(int request_id);

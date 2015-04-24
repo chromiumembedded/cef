@@ -290,6 +290,14 @@ bool ClientHandler::OnDragEnter(CefRefPtr<CefBrowser> browser,
   return false;
 }
 
+void ClientHandler::OnDraggableRegionsChanged(
+    CefRefPtr<CefBrowser> browser,
+    const std::vector<CefDraggableRegion>& regions) {
+  CEF_REQUIRE_UI_THREAD();
+
+  NotifyDraggableRegions(regions);
+}
+
 bool ClientHandler::OnRequestGeolocationPermission(
       CefRefPtr<CefBrowser> browser,
       const CefString& requesting_url,
@@ -674,6 +682,19 @@ void ClientHandler::NotifyLoadingState(bool isLoading,
 
   if (delegate_)
     delegate_->OnSetLoadingState(isLoading, canGoBack, canGoForward);
+}
+
+void ClientHandler::NotifyDraggableRegions(
+    const std::vector<CefDraggableRegion>& regions) {
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute this method on the main thread.
+    MAIN_POST_CLOSURE(
+        base::Bind(&ClientHandler::NotifyDraggableRegions, this, regions));
+    return;
+  }
+
+  if (delegate_)
+    delegate_->OnSetDraggableRegions(regions);
 }
 
 void ClientHandler::BuildTestMenu(CefRefPtr<CefMenuModel> model) {

@@ -39,6 +39,10 @@ class BrowserWindow : public ClientHandler::Delegate {
                                    bool canGoBack,
                                    bool canGoForward) = 0;
 
+    // Set the draggable regions.
+    virtual void OnSetDraggableRegions(
+        const std::vector<CefDraggableRegion>& regions) = 0;
+
    protected:
     virtual ~Delegate() {}
   };
@@ -101,6 +105,8 @@ class BrowserWindow : public ClientHandler::Delegate {
   void OnSetLoadingState(bool isLoading,
                          bool canGoBack,
                          bool canGoForward) OVERRIDE;
+  void OnSetDraggableRegions(
+      const std::vector<CefDraggableRegion>& regions) OVERRIDE;
 
   Delegate* delegate_;
   CefRefPtr<CefBrowser> browser_;

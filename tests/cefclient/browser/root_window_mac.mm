@@ -576,6 +576,12 @@ void RootWindowMac::OnSetAddress(const std::string& url) {
   }
 }
 
+void RootWindowMac::OnSetDraggableRegions(
+    const std::vector<CefDraggableRegion>& regions) {
+  REQUIRE_MAIN_THREAD();
+  // TODO(cef): Implement support for draggable regions on this platform.
+}
+
 void RootWindowMac::OnSetTitle(const std::string& title) {
   REQUIRE_MAIN_THREAD();
 

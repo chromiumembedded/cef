@@ -385,6 +385,7 @@ _simpletypes = {
     'CefPoint' : ['cef_point_t', 'CefPoint()'],
     'CefRect' : ['cef_rect_t', 'CefRect()'],
     'CefSize' : ['cef_size_t', 'CefSize()'],
+    'CefDraggableRegion' : ['cef_draggable_region_t', 'CefDraggableRegion()'],
     'CefPageRange' : ['cef_page_range_t', 'CefPageRange()'],
     'CefThreadId' : ['cef_thread_id_t', 'TID_UI'],
     'CefTime' : ['cef_time_t', 'CefTime()'],

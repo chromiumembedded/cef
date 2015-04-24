@@ -571,6 +571,19 @@ void CefBrowserImpl::FocusedNodeChanged(const blink::WebNode& node) {
   }
 }
 
+void CefBrowserImpl::DraggableRegionsChanged(blink::WebFrame* frame) {
+  blink::WebVector<blink::WebDraggableRegion> webregions =
+      frame->document().draggableRegions();
+  std::vector<Cef_DraggableRegion_Params> regions;
+  for (size_t i = 0; i < webregions.size(); ++i) {
+    Cef_DraggableRegion_Params region;
+    region.bounds = webregions[i].bounds;
+    region.draggable = webregions[i].draggable;
+    regions.push_back(region);
+  }
+  Send(new CefHostMsg_UpdateDraggableRegions(routing_id(), regions));
+}
+
 bool CefBrowserImpl::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(CefBrowserImpl, message)

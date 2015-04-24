@@ -37,6 +37,7 @@ class TestHandler : public CefClient,
                     public CefDialogHandler,
                     public CefDisplayHandler,
                     public CefDownloadHandler,
+                    public CefDragHandler,
                     public CefGeolocationHandler,
                     public CefJSDialogHandler,
                     public CefLifeSpanHandler,
@@ -139,6 +140,9 @@ class TestHandler : public CefClient,
   CefRefPtr<CefDownloadHandler> GetDownloadHandler() override {
     return this;
   }
+  CefRefPtr<CefDragHandler> GetDragHandler() override {
+    return this;
+  }
   CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() override {
     return this;
   }
@@ -161,6 +165,11 @@ class TestHandler : public CefClient,
       CefRefPtr<CefDownloadItem> download_item,
       const CefString& suggested_name,
       CefRefPtr<CefBeforeDownloadCallback> callback) override {}
+
+  // CefDragHandler methods
+  void OnDraggableRegionsChanged(
+      CefRefPtr<CefBrowser> browser,
+      const std::vector<CefDraggableRegion>& regions) override {}
 
   // CefLifeSpanHandler methods
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;

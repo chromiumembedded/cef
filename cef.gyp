@@ -415,6 +415,7 @@
         'tests/unittests/display_unittest.cc',
         'tests/unittests/dom_unittest.cc',
         'tests/unittests/download_unittest.cc',
+        'tests/unittests/draggable_regions_unittest.cc',
         'tests/unittests/frame_unittest.cc',
         'tests/unittests/geolocation_unittest.cc',
         'tests/unittests/jsdialog_unittest.cc',

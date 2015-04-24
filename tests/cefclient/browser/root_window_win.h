@@ -90,6 +90,8 @@ class RootWindowWin : public RootWindow,
   void OnSetLoadingState(bool isLoading,
                          bool canGoBack,
                          bool canGoForward) OVERRIDE;
+  void OnSetDraggableRegions(
+      const std::vector<CefDraggableRegion>& regions) OVERRIDE;
 
   void NotifyDestroyedIfDone();
 
@@ -105,6 +107,9 @@ class RootWindowWin : public RootWindow,
   // Main window.
   HWND hwnd_;
 
+  // Draggable region.
+  HRGN draggable_region_;
+
   // Buttons.
   HWND back_hwnd_;
   HWND forward_hwnd_;
@@ -114,7 +119,7 @@ class RootWindowWin : public RootWindow,
   // URL text field.
   HWND edit_hwnd_;
   WNDPROC edit_wndproc_old_;
-  
+
   // Find dialog.
   HWND find_hwnd_;
   UINT find_message_id_;
