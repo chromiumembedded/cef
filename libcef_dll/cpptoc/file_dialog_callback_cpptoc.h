@@ -28,9 +28,8 @@ class CefFileDialogCallbackCppToC
     : public CefCppToC<CefFileDialogCallbackCppToC, CefFileDialogCallback,
         cef_file_dialog_callback_t> {
  public:
-  explicit CefFileDialogCallbackCppToC(CefFileDialogCallback* cls);
+  CefFileDialogCallbackCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_FILE_DIALOG_CALLBACK_CPPTOC_H_
-

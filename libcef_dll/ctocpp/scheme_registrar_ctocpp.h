@@ -28,15 +28,12 @@ class CefSchemeRegistrarCToCpp
     : public CefCToCpp<CefSchemeRegistrarCToCpp, CefSchemeRegistrar,
         cef_scheme_registrar_t> {
  public:
-  explicit CefSchemeRegistrarCToCpp(cef_scheme_registrar_t* str)
-      : CefCToCpp<CefSchemeRegistrarCToCpp, CefSchemeRegistrar,
-          cef_scheme_registrar_t>(str) {}
+  CefSchemeRegistrarCToCpp();
 
-  // CefSchemeRegistrar methods
-  virtual bool AddCustomScheme(const CefString& scheme_name, bool is_standard,
+  // CefSchemeRegistrar methods.
+  bool AddCustomScheme(const CefString& scheme_name, bool is_standard,
       bool is_local, bool is_display_isolated) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_SCHEME_REGISTRAR_CTOCPP_H_
-

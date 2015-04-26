@@ -13,6 +13,8 @@
 #include "libcef_dll/cpptoc/download_item_callback_cpptoc.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK download_item_callback_cancel(
@@ -51,16 +53,22 @@ void CEF_CALLBACK download_item_callback_resume(
   CefDownloadItemCallbackCppToC::Get(self)->Resume();
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDownloadItemCallbackCppToC::CefDownloadItemCallbackCppToC(
-    CefDownloadItemCallback* cls)
-    : CefCppToC<CefDownloadItemCallbackCppToC, CefDownloadItemCallback,
-        cef_download_item_callback_t>(cls) {
-  struct_.struct_.cancel = download_item_callback_cancel;
-  struct_.struct_.pause = download_item_callback_pause;
-  struct_.struct_.resume = download_item_callback_resume;
+CefDownloadItemCallbackCppToC::CefDownloadItemCallbackCppToC() {
+  GetStruct()->cancel = download_item_callback_cancel;
+  GetStruct()->pause = download_item_callback_pause;
+  GetStruct()->resume = download_item_callback_resume;
+}
+
+template<> CefRefPtr<CefDownloadItemCallback> CefCppToC<CefDownloadItemCallbackCppToC,
+    CefDownloadItemCallback, cef_download_item_callback_t>::UnwrapDerived(
+    CefWrapperType type, cef_download_item_callback_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -68,3 +76,6 @@ template<> base::AtomicRefCount CefCppToC<CefDownloadItemCallbackCppToC,
     CefDownloadItemCallback, cef_download_item_callback_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefDownloadItemCallbackCppToC,
+    CefDownloadItemCallback, cef_download_item_callback_t>::kWrapperType =
+    WT_DOWNLOAD_ITEM_CALLBACK;

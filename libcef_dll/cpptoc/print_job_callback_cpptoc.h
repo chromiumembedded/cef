@@ -28,9 +28,8 @@ class CefPrintJobCallbackCppToC
     : public CefCppToC<CefPrintJobCallbackCppToC, CefPrintJobCallback,
         cef_print_job_callback_t> {
  public:
-  explicit CefPrintJobCallbackCppToC(CefPrintJobCallback* cls);
+  CefPrintJobCallbackCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_PRINT_JOB_CALLBACK_CPPTOC_H_
-

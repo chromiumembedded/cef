@@ -28,6 +28,8 @@ CEF_EXPORT cef_drag_data_t* cef_drag_data_create() {
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 struct _cef_drag_data_t* CEF_CALLBACK drag_data_clone(
@@ -365,33 +367,40 @@ void CEF_CALLBACK drag_data_add_file(struct _cef_drag_data_t* self,
       CefString(display_name));
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDragDataCppToC::CefDragDataCppToC(CefDragData* cls)
-    : CefCppToC<CefDragDataCppToC, CefDragData, cef_drag_data_t>(cls) {
-  struct_.struct_.clone = drag_data_clone;
-  struct_.struct_.is_read_only = drag_data_is_read_only;
-  struct_.struct_.is_link = drag_data_is_link;
-  struct_.struct_.is_fragment = drag_data_is_fragment;
-  struct_.struct_.is_file = drag_data_is_file;
-  struct_.struct_.get_link_url = drag_data_get_link_url;
-  struct_.struct_.get_link_title = drag_data_get_link_title;
-  struct_.struct_.get_link_metadata = drag_data_get_link_metadata;
-  struct_.struct_.get_fragment_text = drag_data_get_fragment_text;
-  struct_.struct_.get_fragment_html = drag_data_get_fragment_html;
-  struct_.struct_.get_fragment_base_url = drag_data_get_fragment_base_url;
-  struct_.struct_.get_file_name = drag_data_get_file_name;
-  struct_.struct_.get_file_contents = drag_data_get_file_contents;
-  struct_.struct_.get_file_names = drag_data_get_file_names;
-  struct_.struct_.set_link_url = drag_data_set_link_url;
-  struct_.struct_.set_link_title = drag_data_set_link_title;
-  struct_.struct_.set_link_metadata = drag_data_set_link_metadata;
-  struct_.struct_.set_fragment_text = drag_data_set_fragment_text;
-  struct_.struct_.set_fragment_html = drag_data_set_fragment_html;
-  struct_.struct_.set_fragment_base_url = drag_data_set_fragment_base_url;
-  struct_.struct_.reset_file_contents = drag_data_reset_file_contents;
-  struct_.struct_.add_file = drag_data_add_file;
+CefDragDataCppToC::CefDragDataCppToC() {
+  GetStruct()->clone = drag_data_clone;
+  GetStruct()->is_read_only = drag_data_is_read_only;
+  GetStruct()->is_link = drag_data_is_link;
+  GetStruct()->is_fragment = drag_data_is_fragment;
+  GetStruct()->is_file = drag_data_is_file;
+  GetStruct()->get_link_url = drag_data_get_link_url;
+  GetStruct()->get_link_title = drag_data_get_link_title;
+  GetStruct()->get_link_metadata = drag_data_get_link_metadata;
+  GetStruct()->get_fragment_text = drag_data_get_fragment_text;
+  GetStruct()->get_fragment_html = drag_data_get_fragment_html;
+  GetStruct()->get_fragment_base_url = drag_data_get_fragment_base_url;
+  GetStruct()->get_file_name = drag_data_get_file_name;
+  GetStruct()->get_file_contents = drag_data_get_file_contents;
+  GetStruct()->get_file_names = drag_data_get_file_names;
+  GetStruct()->set_link_url = drag_data_set_link_url;
+  GetStruct()->set_link_title = drag_data_set_link_title;
+  GetStruct()->set_link_metadata = drag_data_set_link_metadata;
+  GetStruct()->set_fragment_text = drag_data_set_fragment_text;
+  GetStruct()->set_fragment_html = drag_data_set_fragment_html;
+  GetStruct()->set_fragment_base_url = drag_data_set_fragment_base_url;
+  GetStruct()->reset_file_contents = drag_data_reset_file_contents;
+  GetStruct()->add_file = drag_data_add_file;
+}
+
+template<> CefRefPtr<CefDragData> CefCppToC<CefDragDataCppToC, CefDragData,
+    cef_drag_data_t>::UnwrapDerived(CefWrapperType type, cef_drag_data_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -399,3 +408,5 @@ template<> base::AtomicRefCount CefCppToC<CefDragDataCppToC, CefDragData,
     cef_drag_data_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefDragDataCppToC, CefDragData,
+    cef_drag_data_t>::kWrapperType = WT_DRAG_DATA;

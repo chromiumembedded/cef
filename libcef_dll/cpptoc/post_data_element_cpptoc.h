@@ -28,9 +28,8 @@ class CefPostDataElementCppToC
     : public CefCppToC<CefPostDataElementCppToC, CefPostDataElement,
         cef_post_data_element_t> {
  public:
-  explicit CefPostDataElementCppToC(CefPostDataElement* cls);
+  CefPostDataElementCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_POST_DATA_ELEMENT_CPPTOC_H_
-

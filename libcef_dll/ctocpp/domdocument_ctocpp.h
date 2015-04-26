@@ -28,27 +28,24 @@ class CefDOMDocumentCToCpp
     : public CefCToCpp<CefDOMDocumentCToCpp, CefDOMDocument,
         cef_domdocument_t> {
  public:
-  explicit CefDOMDocumentCToCpp(cef_domdocument_t* str)
-      : CefCToCpp<CefDOMDocumentCToCpp, CefDOMDocument, cef_domdocument_t>(
-          str) {}
+  CefDOMDocumentCToCpp();
 
-  // CefDOMDocument methods
-  virtual Type GetType() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetDocument() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetBody() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetHead() OVERRIDE;
-  virtual CefString GetTitle() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetElementById(const CefString& id) OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetFocusedNode() OVERRIDE;
-  virtual bool HasSelection() OVERRIDE;
-  virtual int GetSelectionStartOffset() OVERRIDE;
-  virtual int GetSelectionEndOffset() OVERRIDE;
-  virtual CefString GetSelectionAsMarkup() OVERRIDE;
-  virtual CefString GetSelectionAsText() OVERRIDE;
-  virtual CefString GetBaseURL() OVERRIDE;
-  virtual CefString GetCompleteURL(const CefString& partialURL) OVERRIDE;
+  // CefDOMDocument methods.
+  Type GetType() OVERRIDE;
+  CefRefPtr<CefDOMNode> GetDocument() OVERRIDE;
+  CefRefPtr<CefDOMNode> GetBody() OVERRIDE;
+  CefRefPtr<CefDOMNode> GetHead() OVERRIDE;
+  CefString GetTitle() OVERRIDE;
+  CefRefPtr<CefDOMNode> GetElementById(const CefString& id) OVERRIDE;
+  CefRefPtr<CefDOMNode> GetFocusedNode() OVERRIDE;
+  bool HasSelection() OVERRIDE;
+  int GetSelectionStartOffset() OVERRIDE;
+  int GetSelectionEndOffset() OVERRIDE;
+  CefString GetSelectionAsMarkup() OVERRIDE;
+  CefString GetSelectionAsText() OVERRIDE;
+  CefString GetBaseURL() OVERRIDE;
+  CefString GetCompleteURL(const CefString& partialURL) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DOMDOCUMENT_CTOCPP_H_
-

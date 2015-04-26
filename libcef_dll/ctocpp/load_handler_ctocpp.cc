@@ -19,7 +19,8 @@
 
 void CefLoadHandlerCToCpp::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
     bool isLoading, bool canGoBack, bool canGoForward) {
-  if (CEF_MEMBER_MISSING(struct_, on_loading_state_change))
+  cef_load_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_loading_state_change))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -30,7 +31,7 @@ void CefLoadHandlerCToCpp::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  struct_->on_loading_state_change(struct_,
+  _struct->on_loading_state_change(_struct,
       CefBrowserCppToC::Wrap(browser),
       isLoading,
       canGoBack,
@@ -39,7 +40,8 @@ void CefLoadHandlerCToCpp::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
 
 void CefLoadHandlerCToCpp::OnLoadStart(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame) {
-  if (CEF_MEMBER_MISSING(struct_, on_load_start))
+  cef_load_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_load_start))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -54,14 +56,15 @@ void CefLoadHandlerCToCpp::OnLoadStart(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  struct_->on_load_start(struct_,
+  _struct->on_load_start(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame));
 }
 
 void CefLoadHandlerCToCpp::OnLoadEnd(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, int httpStatusCode) {
-  if (CEF_MEMBER_MISSING(struct_, on_load_end))
+  cef_load_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_load_end))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -76,7 +79,7 @@ void CefLoadHandlerCToCpp::OnLoadEnd(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  struct_->on_load_end(struct_,
+  _struct->on_load_end(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame),
       httpStatusCode);
@@ -85,7 +88,8 @@ void CefLoadHandlerCToCpp::OnLoadEnd(CefRefPtr<CefBrowser> browser,
 void CefLoadHandlerCToCpp::OnLoadError(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, ErrorCode errorCode, const CefString& errorText,
     const CefString& failedUrl) {
-  if (CEF_MEMBER_MISSING(struct_, on_load_error))
+  cef_load_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_load_error))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -105,7 +109,7 @@ void CefLoadHandlerCToCpp::OnLoadError(CefRefPtr<CefBrowser> browser,
   // Unverified params: errorText
 
   // Execute
-  struct_->on_load_error(struct_,
+  _struct->on_load_error(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame),
       errorCode,
@@ -114,8 +118,22 @@ void CefLoadHandlerCToCpp::OnLoadError(CefRefPtr<CefBrowser> browser,
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefLoadHandlerCToCpp::CefLoadHandlerCToCpp() {
+}
+
+template<> cef_load_handler_t* CefCToCpp<CefLoadHandlerCToCpp, CefLoadHandler,
+    cef_load_handler_t>::UnwrapDerived(CefWrapperType type,
+    CefLoadHandler* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefLoadHandlerCToCpp, CefLoadHandler,
     cef_load_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefLoadHandlerCToCpp, CefLoadHandler,
+    cef_load_handler_t>::kWrapperType = WT_LOAD_HANDLER;

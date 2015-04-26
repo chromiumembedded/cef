@@ -28,9 +28,8 @@ class CefNavigationEntryCppToC
     : public CefCppToC<CefNavigationEntryCppToC, CefNavigationEntry,
         cef_navigation_entry_t> {
  public:
-  explicit CefNavigationEntryCppToC(CefNavigationEntry* cls);
+  CefNavigationEntryCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_NAVIGATION_ENTRY_CPPTOC_H_
-

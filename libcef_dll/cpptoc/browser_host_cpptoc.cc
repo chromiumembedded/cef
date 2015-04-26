@@ -97,6 +97,8 @@ CEF_EXPORT cef_browser_t* cef_browser_host_create_browser_sync(
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 cef_browser_t* CEF_CALLBACK browser_host_get_browser(
@@ -832,65 +834,70 @@ void CEF_CALLBACK browser_host_drag_source_system_drag_ended(
   CefBrowserHostCppToC::Get(self)->DragSourceSystemDragEnded();
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefBrowserHostCppToC::CefBrowserHostCppToC(CefBrowserHost* cls)
-    : CefCppToC<CefBrowserHostCppToC, CefBrowserHost, cef_browser_host_t>(cls) {
-  struct_.struct_.get_browser = browser_host_get_browser;
-  struct_.struct_.close_browser = browser_host_close_browser;
-  struct_.struct_.set_focus = browser_host_set_focus;
-  struct_.struct_.set_window_visibility = browser_host_set_window_visibility;
-  struct_.struct_.get_window_handle = browser_host_get_window_handle;
-  struct_.struct_.get_opener_window_handle =
-      browser_host_get_opener_window_handle;
-  struct_.struct_.get_client = browser_host_get_client;
-  struct_.struct_.get_request_context = browser_host_get_request_context;
-  struct_.struct_.get_zoom_level = browser_host_get_zoom_level;
-  struct_.struct_.set_zoom_level = browser_host_set_zoom_level;
-  struct_.struct_.run_file_dialog = browser_host_run_file_dialog;
-  struct_.struct_.start_download = browser_host_start_download;
-  struct_.struct_.print = browser_host_print;
-  struct_.struct_.find = browser_host_find;
-  struct_.struct_.stop_finding = browser_host_stop_finding;
-  struct_.struct_.show_dev_tools = browser_host_show_dev_tools;
-  struct_.struct_.close_dev_tools = browser_host_close_dev_tools;
-  struct_.struct_.get_navigation_entries = browser_host_get_navigation_entries;
-  struct_.struct_.set_mouse_cursor_change_disabled =
+CefBrowserHostCppToC::CefBrowserHostCppToC() {
+  GetStruct()->get_browser = browser_host_get_browser;
+  GetStruct()->close_browser = browser_host_close_browser;
+  GetStruct()->set_focus = browser_host_set_focus;
+  GetStruct()->set_window_visibility = browser_host_set_window_visibility;
+  GetStruct()->get_window_handle = browser_host_get_window_handle;
+  GetStruct()->get_opener_window_handle = browser_host_get_opener_window_handle;
+  GetStruct()->get_client = browser_host_get_client;
+  GetStruct()->get_request_context = browser_host_get_request_context;
+  GetStruct()->get_zoom_level = browser_host_get_zoom_level;
+  GetStruct()->set_zoom_level = browser_host_set_zoom_level;
+  GetStruct()->run_file_dialog = browser_host_run_file_dialog;
+  GetStruct()->start_download = browser_host_start_download;
+  GetStruct()->print = browser_host_print;
+  GetStruct()->find = browser_host_find;
+  GetStruct()->stop_finding = browser_host_stop_finding;
+  GetStruct()->show_dev_tools = browser_host_show_dev_tools;
+  GetStruct()->close_dev_tools = browser_host_close_dev_tools;
+  GetStruct()->get_navigation_entries = browser_host_get_navigation_entries;
+  GetStruct()->set_mouse_cursor_change_disabled =
       browser_host_set_mouse_cursor_change_disabled;
-  struct_.struct_.is_mouse_cursor_change_disabled =
+  GetStruct()->is_mouse_cursor_change_disabled =
       browser_host_is_mouse_cursor_change_disabled;
-  struct_.struct_.replace_misspelling = browser_host_replace_misspelling;
-  struct_.struct_.add_word_to_dictionary = browser_host_add_word_to_dictionary;
-  struct_.struct_.is_window_rendering_disabled =
+  GetStruct()->replace_misspelling = browser_host_replace_misspelling;
+  GetStruct()->add_word_to_dictionary = browser_host_add_word_to_dictionary;
+  GetStruct()->is_window_rendering_disabled =
       browser_host_is_window_rendering_disabled;
-  struct_.struct_.was_resized = browser_host_was_resized;
-  struct_.struct_.was_hidden = browser_host_was_hidden;
-  struct_.struct_.notify_screen_info_changed =
+  GetStruct()->was_resized = browser_host_was_resized;
+  GetStruct()->was_hidden = browser_host_was_hidden;
+  GetStruct()->notify_screen_info_changed =
       browser_host_notify_screen_info_changed;
-  struct_.struct_.invalidate = browser_host_invalidate;
-  struct_.struct_.send_key_event = browser_host_send_key_event;
-  struct_.struct_.send_mouse_click_event = browser_host_send_mouse_click_event;
-  struct_.struct_.send_mouse_move_event = browser_host_send_mouse_move_event;
-  struct_.struct_.send_mouse_wheel_event = browser_host_send_mouse_wheel_event;
-  struct_.struct_.send_focus_event = browser_host_send_focus_event;
-  struct_.struct_.send_capture_lost_event =
-      browser_host_send_capture_lost_event;
-  struct_.struct_.notify_move_or_resize_started =
+  GetStruct()->invalidate = browser_host_invalidate;
+  GetStruct()->send_key_event = browser_host_send_key_event;
+  GetStruct()->send_mouse_click_event = browser_host_send_mouse_click_event;
+  GetStruct()->send_mouse_move_event = browser_host_send_mouse_move_event;
+  GetStruct()->send_mouse_wheel_event = browser_host_send_mouse_wheel_event;
+  GetStruct()->send_focus_event = browser_host_send_focus_event;
+  GetStruct()->send_capture_lost_event = browser_host_send_capture_lost_event;
+  GetStruct()->notify_move_or_resize_started =
       browser_host_notify_move_or_resize_started;
-  struct_.struct_.get_nstext_input_context =
-      browser_host_get_nstext_input_context;
-  struct_.struct_.handle_key_event_before_text_input_client =
+  GetStruct()->get_nstext_input_context = browser_host_get_nstext_input_context;
+  GetStruct()->handle_key_event_before_text_input_client =
       browser_host_handle_key_event_before_text_input_client;
-  struct_.struct_.handle_key_event_after_text_input_client =
+  GetStruct()->handle_key_event_after_text_input_client =
       browser_host_handle_key_event_after_text_input_client;
-  struct_.struct_.drag_target_drag_enter = browser_host_drag_target_drag_enter;
-  struct_.struct_.drag_target_drag_over = browser_host_drag_target_drag_over;
-  struct_.struct_.drag_target_drag_leave = browser_host_drag_target_drag_leave;
-  struct_.struct_.drag_target_drop = browser_host_drag_target_drop;
-  struct_.struct_.drag_source_ended_at = browser_host_drag_source_ended_at;
-  struct_.struct_.drag_source_system_drag_ended =
+  GetStruct()->drag_target_drag_enter = browser_host_drag_target_drag_enter;
+  GetStruct()->drag_target_drag_over = browser_host_drag_target_drag_over;
+  GetStruct()->drag_target_drag_leave = browser_host_drag_target_drag_leave;
+  GetStruct()->drag_target_drop = browser_host_drag_target_drop;
+  GetStruct()->drag_source_ended_at = browser_host_drag_source_ended_at;
+  GetStruct()->drag_source_system_drag_ended =
       browser_host_drag_source_system_drag_ended;
+}
+
+template<> CefRefPtr<CefBrowserHost> CefCppToC<CefBrowserHostCppToC,
+    CefBrowserHost, cef_browser_host_t>::UnwrapDerived(CefWrapperType type,
+    cef_browser_host_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -898,3 +905,5 @@ template<> base::AtomicRefCount CefCppToC<CefBrowserHostCppToC, CefBrowserHost,
     cef_browser_host_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefBrowserHostCppToC, CefBrowserHost,
+    cef_browser_host_t>::kWrapperType = WT_BROWSER_HOST;

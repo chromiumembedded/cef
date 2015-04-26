@@ -36,52 +36,56 @@ CefRefPtr<CefProcessMessage> CefProcessMessage::Create(const CefString& name) {
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefProcessMessageCToCpp::IsValid() {
-  if (CEF_MEMBER_MISSING(struct_, is_valid))
+  cef_process_message_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_valid))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_valid(struct_);
+  int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 bool CefProcessMessageCToCpp::IsReadOnly() {
-  if (CEF_MEMBER_MISSING(struct_, is_read_only))
+  cef_process_message_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_read_only))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_read_only(struct_);
+  int _retval = _struct->is_read_only(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 CefRefPtr<CefProcessMessage> CefProcessMessageCToCpp::Copy() {
-  if (CEF_MEMBER_MISSING(struct_, copy))
+  cef_process_message_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, copy))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_process_message_t* _retval = struct_->copy(struct_);
+  cef_process_message_t* _retval = _struct->copy(_struct);
 
   // Return type: refptr_same
   return CefProcessMessageCToCpp::Wrap(_retval);
 }
 
 CefString CefProcessMessageCToCpp::GetName() {
-  if (CEF_MEMBER_MISSING(struct_, get_name))
+  cef_process_message_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_name))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_name(struct_);
+  cef_string_userfree_t _retval = _struct->get_name(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -90,21 +94,36 @@ CefString CefProcessMessageCToCpp::GetName() {
 }
 
 CefRefPtr<CefListValue> CefProcessMessageCToCpp::GetArgumentList() {
-  if (CEF_MEMBER_MISSING(struct_, get_argument_list))
+  cef_process_message_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_argument_list))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_list_value_t* _retval = struct_->get_argument_list(struct_);
+  cef_list_value_t* _retval = _struct->get_argument_list(_struct);
 
   // Return type: refptr_same
   return CefListValueCToCpp::Wrap(_retval);
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefProcessMessageCToCpp::CefProcessMessageCToCpp() {
+}
+
+template<> cef_process_message_t* CefCToCpp<CefProcessMessageCToCpp,
+    CefProcessMessage, cef_process_message_t>::UnwrapDerived(
+    CefWrapperType type, CefProcessMessage* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefProcessMessageCToCpp,
     CefProcessMessage, cef_process_message_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefProcessMessageCToCpp, CefProcessMessage,
+    cef_process_message_t>::kWrapperType = WT_PROCESS_MESSAGE;

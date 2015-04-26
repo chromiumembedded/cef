@@ -28,9 +28,8 @@ class CefDialogHandlerCppToC
     : public CefCppToC<CefDialogHandlerCppToC, CefDialogHandler,
         cef_dialog_handler_t> {
  public:
-  explicit CefDialogHandlerCppToC(CefDialogHandler* cls);
+  CefDialogHandlerCppToC();
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_DIALOG_HANDLER_CPPTOC_H_
-

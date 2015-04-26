@@ -17,16 +17,29 @@
 
 void CefGetGeolocationCallbackCToCpp::OnLocationUpdate(
     const CefGeoposition& position) {
-  if (CEF_MEMBER_MISSING(struct_, on_location_update))
+  cef_get_geolocation_callback_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_location_update))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->on_location_update(struct_,
+  _struct->on_location_update(_struct,
       &position);
 }
 
+
+// CONSTRUCTOR - Do not edit by hand.
+
+CefGetGeolocationCallbackCToCpp::CefGetGeolocationCallbackCToCpp() {
+}
+
+template<> cef_get_geolocation_callback_t* CefCToCpp<CefGetGeolocationCallbackCToCpp,
+    CefGetGeolocationCallback, cef_get_geolocation_callback_t>::UnwrapDerived(
+    CefWrapperType type, CefGetGeolocationCallback* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefGetGeolocationCallbackCToCpp,
@@ -34,3 +47,6 @@ template<> base::AtomicRefCount CefCToCpp<CefGetGeolocationCallbackCToCpp,
     0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefGetGeolocationCallbackCToCpp,
+    CefGetGeolocationCallback, cef_get_geolocation_callback_t>::kWrapperType =
+    WT_GET_GEOLOCATION_CALLBACK;

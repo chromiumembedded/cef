@@ -28,11 +28,9 @@ class CefJSDialogHandlerCToCpp
     : public CefCToCpp<CefJSDialogHandlerCToCpp, CefJSDialogHandler,
         cef_jsdialog_handler_t> {
  public:
-  explicit CefJSDialogHandlerCToCpp(cef_jsdialog_handler_t* str)
-      : CefCToCpp<CefJSDialogHandlerCToCpp, CefJSDialogHandler,
-          cef_jsdialog_handler_t>(str) {}
+  CefJSDialogHandlerCToCpp();
 
-  // CefJSDialogHandler methods
+  // CefJSDialogHandler methods.
   bool OnJSDialog(CefRefPtr<CefBrowser> browser, const CefString& origin_url,
       const CefString& accept_lang, JSDialogType dialog_type,
       const CefString& message_text, const CefString& default_prompt_text,
@@ -47,4 +45,3 @@ class CefJSDialogHandlerCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_JSDIALOG_HANDLER_CTOCPP_H_
-

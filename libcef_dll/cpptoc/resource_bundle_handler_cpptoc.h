@@ -28,9 +28,8 @@ class CefResourceBundleHandlerCppToC
     : public CefCppToC<CefResourceBundleHandlerCppToC, CefResourceBundleHandler,
         cef_resource_bundle_handler_t> {
  public:
-  explicit CefResourceBundleHandlerCppToC(CefResourceBundleHandler* cls);
+  CefResourceBundleHandlerCppToC();
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_RESOURCE_BUNDLE_HANDLER_CPPTOC_H_
-

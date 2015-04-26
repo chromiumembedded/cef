@@ -30,11 +30,9 @@ class CefLifeSpanHandlerCToCpp
     : public CefCToCpp<CefLifeSpanHandlerCToCpp, CefLifeSpanHandler,
         cef_life_span_handler_t> {
  public:
-  explicit CefLifeSpanHandlerCToCpp(cef_life_span_handler_t* str)
-      : CefCToCpp<CefLifeSpanHandlerCToCpp, CefLifeSpanHandler,
-          cef_life_span_handler_t>(str) {}
+  CefLifeSpanHandlerCToCpp();
 
-  // CefLifeSpanHandler methods
+  // CefLifeSpanHandler methods.
   bool OnBeforePopup(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
       const CefString& target_url, const CefString& target_frame_name,
       WindowOpenDisposition target_disposition, bool user_gesture,
@@ -49,4 +47,3 @@ class CefLifeSpanHandlerCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_LIFE_SPAN_HANDLER_CTOCPP_H_
-

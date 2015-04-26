@@ -18,7 +18,8 @@
 
 void CefFileDialogCallbackCToCpp::Continue(int selected_accept_filter,
     const std::vector<CefString>& file_paths) {
-  if (CEF_MEMBER_MISSING(struct_, cont))
+  cef_file_dialog_callback_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, cont))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -36,7 +37,7 @@ void CefFileDialogCallbackCToCpp::Continue(int selected_accept_filter,
     transfer_string_list_contents(file_paths, file_pathsList);
 
   // Execute
-  struct_->cont(struct_,
+  _struct->cont(_struct,
       selected_accept_filter,
       file_pathsList);
 
@@ -46,18 +47,34 @@ void CefFileDialogCallbackCToCpp::Continue(int selected_accept_filter,
 }
 
 void CefFileDialogCallbackCToCpp::Cancel() {
-  if (CEF_MEMBER_MISSING(struct_, cancel))
+  cef_file_dialog_callback_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, cancel))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->cancel(struct_);
+  _struct->cancel(_struct);
 }
 
+
+// CONSTRUCTOR - Do not edit by hand.
+
+CefFileDialogCallbackCToCpp::CefFileDialogCallbackCToCpp() {
+}
+
+template<> cef_file_dialog_callback_t* CefCToCpp<CefFileDialogCallbackCToCpp,
+    CefFileDialogCallback, cef_file_dialog_callback_t>::UnwrapDerived(
+    CefWrapperType type, CefFileDialogCallback* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefFileDialogCallbackCToCpp,
     CefFileDialogCallback, cef_file_dialog_callback_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefFileDialogCallbackCToCpp,
+    CefFileDialogCallback, cef_file_dialog_callback_t>::kWrapperType =
+    WT_FILE_DIALOG_CALLBACK;

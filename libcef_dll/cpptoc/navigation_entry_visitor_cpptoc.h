@@ -30,9 +30,8 @@ class CefNavigationEntryVisitorCppToC
     : public CefCppToC<CefNavigationEntryVisitorCppToC,
         CefNavigationEntryVisitor, cef_navigation_entry_visitor_t> {
  public:
-  explicit CefNavigationEntryVisitorCppToC(CefNavigationEntryVisitor* cls);
+  CefNavigationEntryVisitorCppToC();
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_NAVIGATION_ENTRY_VISITOR_CPPTOC_H_
-

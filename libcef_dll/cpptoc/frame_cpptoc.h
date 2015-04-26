@@ -31,9 +31,8 @@
 class CefFrameCppToC
     : public CefCppToC<CefFrameCppToC, CefFrame, cef_frame_t> {
  public:
-  explicit CefFrameCppToC(CefFrame* cls);
+  CefFrameCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_FRAME_CPPTOC_H_
-

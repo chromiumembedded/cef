@@ -28,9 +28,8 @@ class CefCompletionCallbackCppToC
     : public CefCppToC<CefCompletionCallbackCppToC, CefCompletionCallback,
         cef_completion_callback_t> {
  public:
-  explicit CefCompletionCallbackCppToC(CefCompletionCallback* cls);
+  CefCompletionCallbackCppToC();
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_COMPLETION_CALLBACK_CPPTOC_H_
-

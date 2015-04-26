@@ -37,6 +37,8 @@ CEF_EXPORT cef_command_line_t* cef_command_line_get_global() {
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK command_line_is_valid(struct _cef_command_line_t* self) {
@@ -392,33 +394,39 @@ void CEF_CALLBACK command_line_prepend_wrapper(struct _cef_command_line_t* self,
       CefString(wrapper));
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefCommandLineCppToC::CefCommandLineCppToC(CefCommandLine* cls)
-    : CefCppToC<CefCommandLineCppToC, CefCommandLine, cef_command_line_t>(cls) {
-  struct_.struct_.is_valid = command_line_is_valid;
-  struct_.struct_.is_read_only = command_line_is_read_only;
-  struct_.struct_.copy = command_line_copy;
-  struct_.struct_.init_from_argv = command_line_init_from_argv;
-  struct_.struct_.init_from_string = command_line_init_from_string;
-  struct_.struct_.reset = command_line_reset;
-  struct_.struct_.get_argv = command_line_get_argv;
-  struct_.struct_.get_command_line_string =
-      command_line_get_command_line_string;
-  struct_.struct_.get_program = command_line_get_program;
-  struct_.struct_.set_program = command_line_set_program;
-  struct_.struct_.has_switches = command_line_has_switches;
-  struct_.struct_.has_switch = command_line_has_switch;
-  struct_.struct_.get_switch_value = command_line_get_switch_value;
-  struct_.struct_.get_switches = command_line_get_switches;
-  struct_.struct_.append_switch = command_line_append_switch;
-  struct_.struct_.append_switch_with_value =
-      command_line_append_switch_with_value;
-  struct_.struct_.has_arguments = command_line_has_arguments;
-  struct_.struct_.get_arguments = command_line_get_arguments;
-  struct_.struct_.append_argument = command_line_append_argument;
-  struct_.struct_.prepend_wrapper = command_line_prepend_wrapper;
+CefCommandLineCppToC::CefCommandLineCppToC() {
+  GetStruct()->is_valid = command_line_is_valid;
+  GetStruct()->is_read_only = command_line_is_read_only;
+  GetStruct()->copy = command_line_copy;
+  GetStruct()->init_from_argv = command_line_init_from_argv;
+  GetStruct()->init_from_string = command_line_init_from_string;
+  GetStruct()->reset = command_line_reset;
+  GetStruct()->get_argv = command_line_get_argv;
+  GetStruct()->get_command_line_string = command_line_get_command_line_string;
+  GetStruct()->get_program = command_line_get_program;
+  GetStruct()->set_program = command_line_set_program;
+  GetStruct()->has_switches = command_line_has_switches;
+  GetStruct()->has_switch = command_line_has_switch;
+  GetStruct()->get_switch_value = command_line_get_switch_value;
+  GetStruct()->get_switches = command_line_get_switches;
+  GetStruct()->append_switch = command_line_append_switch;
+  GetStruct()->append_switch_with_value = command_line_append_switch_with_value;
+  GetStruct()->has_arguments = command_line_has_arguments;
+  GetStruct()->get_arguments = command_line_get_arguments;
+  GetStruct()->append_argument = command_line_append_argument;
+  GetStruct()->prepend_wrapper = command_line_prepend_wrapper;
+}
+
+template<> CefRefPtr<CefCommandLine> CefCppToC<CefCommandLineCppToC,
+    CefCommandLine, cef_command_line_t>::UnwrapDerived(CefWrapperType type,
+    cef_command_line_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -426,3 +434,5 @@ template<> base::AtomicRefCount CefCppToC<CefCommandLineCppToC, CefCommandLine,
     cef_command_line_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefCommandLineCppToC, CefCommandLine,
+    cef_command_line_t>::kWrapperType = WT_COMMAND_LINE;

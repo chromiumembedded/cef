@@ -120,6 +120,9 @@ def transfer_gypi_files(src_dir, gypi_paths, gypi_path_prefix, dst_dir, quiet):
     # skip gyp includes
     if path[:2] == '<@':
         continue
+    # skip test files
+    if path.find('/test/') >= 0:
+        continue
     src = os.path.join(src_dir, path)
     dst = os.path.join(dst_dir, path.replace(gypi_path_prefix, ''))
     dst_path = os.path.dirname(dst)

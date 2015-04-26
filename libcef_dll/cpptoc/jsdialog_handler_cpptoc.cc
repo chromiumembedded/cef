@@ -15,6 +15,8 @@
 #include "libcef_dll/ctocpp/jsdialog_callback_ctocpp.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK jsdialog_handler_on_jsdialog(
@@ -130,18 +132,24 @@ void CEF_CALLBACK jsdialog_handler_on_dialog_closed(
       CefBrowserCToCpp::Wrap(browser));
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefJSDialogHandlerCppToC::CefJSDialogHandlerCppToC(CefJSDialogHandler* cls)
-    : CefCppToC<CefJSDialogHandlerCppToC, CefJSDialogHandler,
-        cef_jsdialog_handler_t>(cls) {
-  struct_.struct_.on_jsdialog = jsdialog_handler_on_jsdialog;
-  struct_.struct_.on_before_unload_dialog =
+CefJSDialogHandlerCppToC::CefJSDialogHandlerCppToC() {
+  GetStruct()->on_jsdialog = jsdialog_handler_on_jsdialog;
+  GetStruct()->on_before_unload_dialog =
       jsdialog_handler_on_before_unload_dialog;
-  struct_.struct_.on_reset_dialog_state =
-      jsdialog_handler_on_reset_dialog_state;
-  struct_.struct_.on_dialog_closed = jsdialog_handler_on_dialog_closed;
+  GetStruct()->on_reset_dialog_state = jsdialog_handler_on_reset_dialog_state;
+  GetStruct()->on_dialog_closed = jsdialog_handler_on_dialog_closed;
+}
+
+template<> CefRefPtr<CefJSDialogHandler> CefCppToC<CefJSDialogHandlerCppToC,
+    CefJSDialogHandler, cef_jsdialog_handler_t>::UnwrapDerived(
+    CefWrapperType type, cef_jsdialog_handler_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -149,3 +157,6 @@ template<> base::AtomicRefCount CefCppToC<CefJSDialogHandlerCppToC,
     CefJSDialogHandler, cef_jsdialog_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefJSDialogHandlerCppToC,
+    CefJSDialogHandler, cef_jsdialog_handler_t>::kWrapperType =
+    WT_JSDIALOG_HANDLER;

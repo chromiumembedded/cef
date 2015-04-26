@@ -28,16 +28,13 @@ class CefDownloadItemCallbackCToCpp
     : public CefCToCpp<CefDownloadItemCallbackCToCpp, CefDownloadItemCallback,
         cef_download_item_callback_t> {
  public:
-  explicit CefDownloadItemCallbackCToCpp(cef_download_item_callback_t* str)
-      : CefCToCpp<CefDownloadItemCallbackCToCpp, CefDownloadItemCallback,
-          cef_download_item_callback_t>(str) {}
+  CefDownloadItemCallbackCToCpp();
 
-  // CefDownloadItemCallback methods
-  virtual void Cancel() OVERRIDE;
-  virtual void Pause() OVERRIDE;
-  virtual void Resume() OVERRIDE;
+  // CefDownloadItemCallback methods.
+  void Cancel() OVERRIDE;
+  void Pause() OVERRIDE;
+  void Resume() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_ITEM_CALLBACK_CTOCPP_H_
-

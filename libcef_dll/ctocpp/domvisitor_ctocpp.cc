@@ -17,7 +17,8 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefDOMVisitorCToCpp::Visit(CefRefPtr<CefDOMDocument> document) {
-  if (CEF_MEMBER_MISSING(struct_, visit))
+  cef_domvisitor_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, visit))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -28,13 +29,26 @@ void CefDOMVisitorCToCpp::Visit(CefRefPtr<CefDOMDocument> document) {
     return;
 
   // Execute
-  struct_->visit(struct_,
+  _struct->visit(_struct,
       CefDOMDocumentCppToC::Wrap(document));
 }
 
+
+// CONSTRUCTOR - Do not edit by hand.
+
+CefDOMVisitorCToCpp::CefDOMVisitorCToCpp() {
+}
+
+template<> cef_domvisitor_t* CefCToCpp<CefDOMVisitorCToCpp, CefDOMVisitor,
+    cef_domvisitor_t>::UnwrapDerived(CefWrapperType type, CefDOMVisitor* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefDOMVisitorCToCpp, CefDOMVisitor,
     cef_domvisitor_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefDOMVisitorCToCpp, CefDOMVisitor,
+    cef_domvisitor_t>::kWrapperType = WT_DOMVISITOR;

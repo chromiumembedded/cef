@@ -28,9 +28,8 @@ class CefRequestCallbackCppToC
     : public CefCppToC<CefRequestCallbackCppToC, CefRequestCallback,
         cef_request_callback_t> {
  public:
-  explicit CefRequestCallbackCppToC(CefRequestCallback* cls);
+  CefRequestCallbackCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_REQUEST_CALLBACK_CPPTOC_H_
-

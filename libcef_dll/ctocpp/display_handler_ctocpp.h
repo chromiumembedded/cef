@@ -29,11 +29,9 @@ class CefDisplayHandlerCToCpp
     : public CefCToCpp<CefDisplayHandlerCToCpp, CefDisplayHandler,
         cef_display_handler_t> {
  public:
-  explicit CefDisplayHandlerCToCpp(cef_display_handler_t* str)
-      : CefCToCpp<CefDisplayHandlerCToCpp, CefDisplayHandler,
-          cef_display_handler_t>(str) {}
+  CefDisplayHandlerCToCpp();
 
-  // CefDisplayHandler methods
+  // CefDisplayHandler methods.
   void OnAddressChange(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
       const CefString& url) override;
   void OnTitleChange(CefRefPtr<CefBrowser> browser,
@@ -49,4 +47,3 @@ class CefDisplayHandlerCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DISPLAY_HANDLER_CTOCPP_H_
-

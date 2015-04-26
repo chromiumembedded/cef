@@ -14,6 +14,8 @@
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK keyboard_handler_on_pre_key_event(
@@ -93,14 +95,21 @@ int CEF_CALLBACK keyboard_handler_on_key_event(
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefKeyboardHandlerCppToC::CefKeyboardHandlerCppToC(CefKeyboardHandler* cls)
-    : CefCppToC<CefKeyboardHandlerCppToC, CefKeyboardHandler,
-        cef_keyboard_handler_t>(cls) {
-  struct_.struct_.on_pre_key_event = keyboard_handler_on_pre_key_event;
-  struct_.struct_.on_key_event = keyboard_handler_on_key_event;
+CefKeyboardHandlerCppToC::CefKeyboardHandlerCppToC() {
+  GetStruct()->on_pre_key_event = keyboard_handler_on_pre_key_event;
+  GetStruct()->on_key_event = keyboard_handler_on_key_event;
+}
+
+template<> CefRefPtr<CefKeyboardHandler> CefCppToC<CefKeyboardHandlerCppToC,
+    CefKeyboardHandler, cef_keyboard_handler_t>::UnwrapDerived(
+    CefWrapperType type, cef_keyboard_handler_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -108,3 +117,6 @@ template<> base::AtomicRefCount CefCppToC<CefKeyboardHandlerCppToC,
     CefKeyboardHandler, cef_keyboard_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefKeyboardHandlerCppToC,
+    CefKeyboardHandler, cef_keyboard_handler_t>::kWrapperType =
+    WT_KEYBOARD_HANDLER;

@@ -27,10 +27,9 @@
 class CefV8AccessorCToCpp
     : public CefCToCpp<CefV8AccessorCToCpp, CefV8Accessor, cef_v8accessor_t> {
  public:
-  explicit CefV8AccessorCToCpp(cef_v8accessor_t* str)
-      : CefCToCpp<CefV8AccessorCToCpp, CefV8Accessor, cef_v8accessor_t>(str) {}
+  CefV8AccessorCToCpp();
 
-  // CefV8Accessor methods
+  // CefV8Accessor methods.
   bool Get(const CefString& name, const CefRefPtr<CefV8Value> object,
       CefRefPtr<CefV8Value>& retval, CefString& exception) override;
   bool Set(const CefString& name, const CefRefPtr<CefV8Value> object,
@@ -39,4 +38,3 @@ class CefV8AccessorCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_V8ACCESSOR_CTOCPP_H_
-

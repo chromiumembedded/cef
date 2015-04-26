@@ -28,11 +28,9 @@ class CefBrowserProcessHandlerCToCpp
     : public CefCToCpp<CefBrowserProcessHandlerCToCpp, CefBrowserProcessHandler,
         cef_browser_process_handler_t> {
  public:
-  explicit CefBrowserProcessHandlerCToCpp(cef_browser_process_handler_t* str)
-      : CefCToCpp<CefBrowserProcessHandlerCToCpp, CefBrowserProcessHandler,
-          cef_browser_process_handler_t>(str) {}
+  CefBrowserProcessHandlerCToCpp();
 
-  // CefBrowserProcessHandler methods
+  // CefBrowserProcessHandler methods.
   void OnContextInitialized() override;
   void OnBeforeChildProcessLaunch(
       CefRefPtr<CefCommandLine> command_line) override;
@@ -43,4 +41,3 @@ class CefBrowserProcessHandlerCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BROWSER_PROCESS_HANDLER_CTOCPP_H_
-

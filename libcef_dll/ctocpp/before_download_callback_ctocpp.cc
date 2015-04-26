@@ -17,7 +17,8 @@
 
 void CefBeforeDownloadCallbackCToCpp::Continue(const CefString& download_path,
     bool show_dialog) {
-  if (CEF_MEMBER_MISSING(struct_, cont))
+  cef_before_download_callback_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, cont))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -25,11 +26,23 @@ void CefBeforeDownloadCallbackCToCpp::Continue(const CefString& download_path,
   // Unverified params: download_path
 
   // Execute
-  struct_->cont(struct_,
+  _struct->cont(_struct,
       download_path.GetStruct(),
       show_dialog);
 }
 
+
+// CONSTRUCTOR - Do not edit by hand.
+
+CefBeforeDownloadCallbackCToCpp::CefBeforeDownloadCallbackCToCpp() {
+}
+
+template<> cef_before_download_callback_t* CefCToCpp<CefBeforeDownloadCallbackCToCpp,
+    CefBeforeDownloadCallback, cef_before_download_callback_t>::UnwrapDerived(
+    CefWrapperType type, CefBeforeDownloadCallback* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefBeforeDownloadCallbackCToCpp,
@@ -37,3 +50,6 @@ template<> base::AtomicRefCount CefCToCpp<CefBeforeDownloadCallbackCToCpp,
     0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefBeforeDownloadCallbackCToCpp,
+    CefBeforeDownloadCallback, cef_before_download_callback_t>::kWrapperType =
+    WT_BEFORE_DOWNLOAD_CALLBACK;

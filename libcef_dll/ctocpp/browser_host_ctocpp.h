@@ -31,71 +31,64 @@ class CefBrowserHostCToCpp
     : public CefCToCpp<CefBrowserHostCToCpp, CefBrowserHost,
         cef_browser_host_t> {
  public:
-  explicit CefBrowserHostCToCpp(cef_browser_host_t* str)
-      : CefCToCpp<CefBrowserHostCToCpp, CefBrowserHost, cef_browser_host_t>(
-          str) {}
+  CefBrowserHostCToCpp();
 
-  // CefBrowserHost methods
-  virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
-  virtual void CloseBrowser(bool force_close) OVERRIDE;
-  virtual void SetFocus(bool focus) OVERRIDE;
-  virtual void SetWindowVisibility(bool visible) OVERRIDE;
-  virtual CefWindowHandle GetWindowHandle() OVERRIDE;
-  virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE;
-  virtual CefRefPtr<CefClient> GetClient() OVERRIDE;
-  virtual CefRefPtr<CefRequestContext> GetRequestContext() OVERRIDE;
-  virtual double GetZoomLevel() OVERRIDE;
-  virtual void SetZoomLevel(double zoomLevel) OVERRIDE;
-  virtual void RunFileDialog(FileDialogMode mode, const CefString& title,
+  // CefBrowserHost methods.
+  CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
+  void CloseBrowser(bool force_close) OVERRIDE;
+  void SetFocus(bool focus) OVERRIDE;
+  void SetWindowVisibility(bool visible) OVERRIDE;
+  CefWindowHandle GetWindowHandle() OVERRIDE;
+  CefWindowHandle GetOpenerWindowHandle() OVERRIDE;
+  CefRefPtr<CefClient> GetClient() OVERRIDE;
+  CefRefPtr<CefRequestContext> GetRequestContext() OVERRIDE;
+  double GetZoomLevel() OVERRIDE;
+  void SetZoomLevel(double zoomLevel) OVERRIDE;
+  void RunFileDialog(FileDialogMode mode, const CefString& title,
       const CefString& default_file_path,
       const std::vector<CefString>& accept_filters, int selected_accept_filter,
       CefRefPtr<CefRunFileDialogCallback> callback) OVERRIDE;
-  virtual void StartDownload(const CefString& url) OVERRIDE;
-  virtual void Print() OVERRIDE;
-  virtual void Find(int identifier, const CefString& searchText, bool forward,
+  void StartDownload(const CefString& url) OVERRIDE;
+  void Print() OVERRIDE;
+  void Find(int identifier, const CefString& searchText, bool forward,
       bool matchCase, bool findNext) OVERRIDE;
-  virtual void StopFinding(bool clearSelection) OVERRIDE;
-  virtual void ShowDevTools(const CefWindowInfo& windowInfo,
+  void StopFinding(bool clearSelection) OVERRIDE;
+  void ShowDevTools(const CefWindowInfo& windowInfo,
       CefRefPtr<CefClient> client, const CefBrowserSettings& settings,
       const CefPoint& inspect_element_at) OVERRIDE;
-  virtual void CloseDevTools() OVERRIDE;
-  virtual void GetNavigationEntries(
-      CefRefPtr<CefNavigationEntryVisitor> visitor,
+  void CloseDevTools() OVERRIDE;
+  void GetNavigationEntries(CefRefPtr<CefNavigationEntryVisitor> visitor,
       bool current_only) OVERRIDE;
-  virtual void SetMouseCursorChangeDisabled(bool disabled) OVERRIDE;
-  virtual bool IsMouseCursorChangeDisabled() OVERRIDE;
-  virtual void ReplaceMisspelling(const CefString& word) OVERRIDE;
-  virtual void AddWordToDictionary(const CefString& word) OVERRIDE;
-  virtual bool IsWindowRenderingDisabled() OVERRIDE;
-  virtual void WasResized() OVERRIDE;
-  virtual void WasHidden(bool hidden) OVERRIDE;
-  virtual void NotifyScreenInfoChanged() OVERRIDE;
-  virtual void Invalidate(PaintElementType type) OVERRIDE;
-  virtual void SendKeyEvent(const CefKeyEvent& event) OVERRIDE;
-  virtual void SendMouseClickEvent(const CefMouseEvent& event,
-      MouseButtonType type, bool mouseUp, int clickCount) OVERRIDE;
-  virtual void SendMouseMoveEvent(const CefMouseEvent& event,
-      bool mouseLeave) OVERRIDE;
-  virtual void SendMouseWheelEvent(const CefMouseEvent& event, int deltaX,
+  void SetMouseCursorChangeDisabled(bool disabled) OVERRIDE;
+  bool IsMouseCursorChangeDisabled() OVERRIDE;
+  void ReplaceMisspelling(const CefString& word) OVERRIDE;
+  void AddWordToDictionary(const CefString& word) OVERRIDE;
+  bool IsWindowRenderingDisabled() OVERRIDE;
+  void WasResized() OVERRIDE;
+  void WasHidden(bool hidden) OVERRIDE;
+  void NotifyScreenInfoChanged() OVERRIDE;
+  void Invalidate(PaintElementType type) OVERRIDE;
+  void SendKeyEvent(const CefKeyEvent& event) OVERRIDE;
+  void SendMouseClickEvent(const CefMouseEvent& event, MouseButtonType type,
+      bool mouseUp, int clickCount) OVERRIDE;
+  void SendMouseMoveEvent(const CefMouseEvent& event, bool mouseLeave) OVERRIDE;
+  void SendMouseWheelEvent(const CefMouseEvent& event, int deltaX,
       int deltaY) OVERRIDE;
-  virtual void SendFocusEvent(bool setFocus) OVERRIDE;
-  virtual void SendCaptureLostEvent() OVERRIDE;
-  virtual void NotifyMoveOrResizeStarted() OVERRIDE;
-  virtual CefTextInputContext GetNSTextInputContext() OVERRIDE;
-  virtual void HandleKeyEventBeforeTextInputClient(
-      CefEventHandle keyEvent) OVERRIDE;
-  virtual void HandleKeyEventAfterTextInputClient(
-      CefEventHandle keyEvent) OVERRIDE;
-  virtual void DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
+  void SendFocusEvent(bool setFocus) OVERRIDE;
+  void SendCaptureLostEvent() OVERRIDE;
+  void NotifyMoveOrResizeStarted() OVERRIDE;
+  CefTextInputContext GetNSTextInputContext() OVERRIDE;
+  void HandleKeyEventBeforeTextInputClient(CefEventHandle keyEvent) OVERRIDE;
+  void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent) OVERRIDE;
+  void DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
       const CefMouseEvent& event, DragOperationsMask allowed_ops) OVERRIDE;
-  virtual void DragTargetDragOver(const CefMouseEvent& event,
+  void DragTargetDragOver(const CefMouseEvent& event,
       DragOperationsMask allowed_ops) OVERRIDE;
-  virtual void DragTargetDragLeave() OVERRIDE;
-  virtual void DragTargetDrop(const CefMouseEvent& event) OVERRIDE;
-  virtual void DragSourceEndedAt(int x, int y, DragOperationsMask op) OVERRIDE;
-  virtual void DragSourceSystemDragEnded() OVERRIDE;
+  void DragTargetDragLeave() OVERRIDE;
+  void DragTargetDrop(const CefMouseEvent& event) OVERRIDE;
+  void DragSourceEndedAt(int x, int y, DragOperationsMask op) OVERRIDE;
+  void DragSourceSystemDragEnded() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_
-

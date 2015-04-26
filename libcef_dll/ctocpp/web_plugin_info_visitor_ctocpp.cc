@@ -18,7 +18,8 @@
 
 bool CefWebPluginInfoVisitorCToCpp::Visit(CefRefPtr<CefWebPluginInfo> info,
     int count, int total) {
-  if (CEF_MEMBER_MISSING(struct_, visit))
+  cef_web_plugin_info_visitor_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, visit))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -29,7 +30,7 @@ bool CefWebPluginInfoVisitorCToCpp::Visit(CefRefPtr<CefWebPluginInfo> info,
     return false;
 
   // Execute
-  int _retval = struct_->visit(struct_,
+  int _retval = _struct->visit(_struct,
       CefWebPluginInfoCppToC::Wrap(info),
       count,
       total);
@@ -39,8 +40,23 @@ bool CefWebPluginInfoVisitorCToCpp::Visit(CefRefPtr<CefWebPluginInfo> info,
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefWebPluginInfoVisitorCToCpp::CefWebPluginInfoVisitorCToCpp() {
+}
+
+template<> cef_web_plugin_info_visitor_t* CefCToCpp<CefWebPluginInfoVisitorCToCpp,
+    CefWebPluginInfoVisitor, cef_web_plugin_info_visitor_t>::UnwrapDerived(
+    CefWrapperType type, CefWebPluginInfoVisitor* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefWebPluginInfoVisitorCToCpp,
     CefWebPluginInfoVisitor, cef_web_plugin_info_visitor_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefWebPluginInfoVisitorCToCpp,
+    CefWebPluginInfoVisitor, cef_web_plugin_info_visitor_t>::kWrapperType =
+    WT_WEB_PLUGIN_INFO_VISITOR;

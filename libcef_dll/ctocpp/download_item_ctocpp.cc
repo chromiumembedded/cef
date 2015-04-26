@@ -16,143 +16,154 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefDownloadItemCToCpp::IsValid() {
-  if (CEF_MEMBER_MISSING(struct_, is_valid))
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_valid))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_valid(struct_);
+  int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 bool CefDownloadItemCToCpp::IsInProgress() {
-  if (CEF_MEMBER_MISSING(struct_, is_in_progress))
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_in_progress))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_in_progress(struct_);
+  int _retval = _struct->is_in_progress(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 bool CefDownloadItemCToCpp::IsComplete() {
-  if (CEF_MEMBER_MISSING(struct_, is_complete))
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_complete))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_complete(struct_);
+  int _retval = _struct->is_complete(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 bool CefDownloadItemCToCpp::IsCanceled() {
-  if (CEF_MEMBER_MISSING(struct_, is_canceled))
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_canceled))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_canceled(struct_);
+  int _retval = _struct->is_canceled(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 int64 CefDownloadItemCToCpp::GetCurrentSpeed() {
-  if (CEF_MEMBER_MISSING(struct_, get_current_speed))
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_current_speed))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int64 _retval = struct_->get_current_speed(struct_);
+  int64 _retval = _struct->get_current_speed(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 int CefDownloadItemCToCpp::GetPercentComplete() {
-  if (CEF_MEMBER_MISSING(struct_, get_percent_complete))
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_percent_complete))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_percent_complete(struct_);
+  int _retval = _struct->get_percent_complete(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 int64 CefDownloadItemCToCpp::GetTotalBytes() {
-  if (CEF_MEMBER_MISSING(struct_, get_total_bytes))
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_total_bytes))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int64 _retval = struct_->get_total_bytes(struct_);
+  int64 _retval = _struct->get_total_bytes(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 int64 CefDownloadItemCToCpp::GetReceivedBytes() {
-  if (CEF_MEMBER_MISSING(struct_, get_received_bytes))
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_received_bytes))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int64 _retval = struct_->get_received_bytes(struct_);
+  int64 _retval = _struct->get_received_bytes(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 CefTime CefDownloadItemCToCpp::GetStartTime() {
-  if (CEF_MEMBER_MISSING(struct_, get_start_time))
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_start_time))
     return CefTime();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_time_t _retval = struct_->get_start_time(struct_);
+  cef_time_t _retval = _struct->get_start_time(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 CefTime CefDownloadItemCToCpp::GetEndTime() {
-  if (CEF_MEMBER_MISSING(struct_, get_end_time))
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_end_time))
     return CefTime();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_time_t _retval = struct_->get_end_time(struct_);
+  cef_time_t _retval = _struct->get_end_time(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 CefString CefDownloadItemCToCpp::GetFullPath() {
-  if (CEF_MEMBER_MISSING(struct_, get_full_path))
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_full_path))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_full_path(struct_);
+  cef_string_userfree_t _retval = _struct->get_full_path(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -161,26 +172,28 @@ CefString CefDownloadItemCToCpp::GetFullPath() {
 }
 
 uint32 CefDownloadItemCToCpp::GetId() {
-  if (CEF_MEMBER_MISSING(struct_, get_id))
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_id))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  uint32 _retval = struct_->get_id(struct_);
+  uint32 _retval = _struct->get_id(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 CefString CefDownloadItemCToCpp::GetURL() {
-  if (CEF_MEMBER_MISSING(struct_, get_url))
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_url))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_url(struct_);
+  cef_string_userfree_t _retval = _struct->get_url(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -189,13 +202,14 @@ CefString CefDownloadItemCToCpp::GetURL() {
 }
 
 CefString CefDownloadItemCToCpp::GetOriginalUrl() {
-  if (CEF_MEMBER_MISSING(struct_, get_original_url))
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_original_url))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_original_url(struct_);
+  cef_string_userfree_t _retval = _struct->get_original_url(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -204,13 +218,14 @@ CefString CefDownloadItemCToCpp::GetOriginalUrl() {
 }
 
 CefString CefDownloadItemCToCpp::GetSuggestedFileName() {
-  if (CEF_MEMBER_MISSING(struct_, get_suggested_file_name))
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_suggested_file_name))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_suggested_file_name(struct_);
+  cef_string_userfree_t _retval = _struct->get_suggested_file_name(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -219,13 +234,14 @@ CefString CefDownloadItemCToCpp::GetSuggestedFileName() {
 }
 
 CefString CefDownloadItemCToCpp::GetContentDisposition() {
-  if (CEF_MEMBER_MISSING(struct_, get_content_disposition))
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_content_disposition))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_content_disposition(struct_);
+  cef_string_userfree_t _retval = _struct->get_content_disposition(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -234,13 +250,14 @@ CefString CefDownloadItemCToCpp::GetContentDisposition() {
 }
 
 CefString CefDownloadItemCToCpp::GetMimeType() {
-  if (CEF_MEMBER_MISSING(struct_, get_mime_type))
+  cef_download_item_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_mime_type))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_mime_type(struct_);
+  cef_string_userfree_t _retval = _struct->get_mime_type(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -249,8 +266,22 @@ CefString CefDownloadItemCToCpp::GetMimeType() {
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefDownloadItemCToCpp::CefDownloadItemCToCpp() {
+}
+
+template<> cef_download_item_t* CefCToCpp<CefDownloadItemCToCpp,
+    CefDownloadItem, cef_download_item_t>::UnwrapDerived(CefWrapperType type,
+    CefDownloadItem* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefDownloadItemCToCpp,
     CefDownloadItem, cef_download_item_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefDownloadItemCToCpp, CefDownloadItem,
+    cef_download_item_t>::kWrapperType = WT_DOWNLOAD_ITEM;

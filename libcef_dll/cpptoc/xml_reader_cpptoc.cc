@@ -40,6 +40,8 @@ CEF_EXPORT cef_xml_reader_t* cef_xml_reader_create(cef_stream_reader_t* stream,
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK xml_reader_move_to_next_node(struct _cef_xml_reader_t* self) {
@@ -511,44 +513,48 @@ int CEF_CALLBACK xml_reader_move_to_carrying_element(
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefXmlReaderCppToC::CefXmlReaderCppToC(CefXmlReader* cls)
-    : CefCppToC<CefXmlReaderCppToC, CefXmlReader, cef_xml_reader_t>(cls) {
-  struct_.struct_.move_to_next_node = xml_reader_move_to_next_node;
-  struct_.struct_.close = xml_reader_close;
-  struct_.struct_.has_error = xml_reader_has_error;
-  struct_.struct_.get_error = xml_reader_get_error;
-  struct_.struct_.get_type = xml_reader_get_type;
-  struct_.struct_.get_depth = xml_reader_get_depth;
-  struct_.struct_.get_local_name = xml_reader_get_local_name;
-  struct_.struct_.get_prefix = xml_reader_get_prefix;
-  struct_.struct_.get_qualified_name = xml_reader_get_qualified_name;
-  struct_.struct_.get_namespace_uri = xml_reader_get_namespace_uri;
-  struct_.struct_.get_base_uri = xml_reader_get_base_uri;
-  struct_.struct_.get_xml_lang = xml_reader_get_xml_lang;
-  struct_.struct_.is_empty_element = xml_reader_is_empty_element;
-  struct_.struct_.has_value = xml_reader_has_value;
-  struct_.struct_.get_value = xml_reader_get_value;
-  struct_.struct_.has_attributes = xml_reader_has_attributes;
-  struct_.struct_.get_attribute_count = xml_reader_get_attribute_count;
-  struct_.struct_.get_attribute_byindex = xml_reader_get_attribute_byindex;
-  struct_.struct_.get_attribute_byqname = xml_reader_get_attribute_byqname;
-  struct_.struct_.get_attribute_bylname = xml_reader_get_attribute_bylname;
-  struct_.struct_.get_inner_xml = xml_reader_get_inner_xml;
-  struct_.struct_.get_outer_xml = xml_reader_get_outer_xml;
-  struct_.struct_.get_line_number = xml_reader_get_line_number;
-  struct_.struct_.move_to_attribute_byindex =
-      xml_reader_move_to_attribute_byindex;
-  struct_.struct_.move_to_attribute_byqname =
-      xml_reader_move_to_attribute_byqname;
-  struct_.struct_.move_to_attribute_bylname =
-      xml_reader_move_to_attribute_bylname;
-  struct_.struct_.move_to_first_attribute = xml_reader_move_to_first_attribute;
-  struct_.struct_.move_to_next_attribute = xml_reader_move_to_next_attribute;
-  struct_.struct_.move_to_carrying_element =
-      xml_reader_move_to_carrying_element;
+CefXmlReaderCppToC::CefXmlReaderCppToC() {
+  GetStruct()->move_to_next_node = xml_reader_move_to_next_node;
+  GetStruct()->close = xml_reader_close;
+  GetStruct()->has_error = xml_reader_has_error;
+  GetStruct()->get_error = xml_reader_get_error;
+  GetStruct()->get_type = xml_reader_get_type;
+  GetStruct()->get_depth = xml_reader_get_depth;
+  GetStruct()->get_local_name = xml_reader_get_local_name;
+  GetStruct()->get_prefix = xml_reader_get_prefix;
+  GetStruct()->get_qualified_name = xml_reader_get_qualified_name;
+  GetStruct()->get_namespace_uri = xml_reader_get_namespace_uri;
+  GetStruct()->get_base_uri = xml_reader_get_base_uri;
+  GetStruct()->get_xml_lang = xml_reader_get_xml_lang;
+  GetStruct()->is_empty_element = xml_reader_is_empty_element;
+  GetStruct()->has_value = xml_reader_has_value;
+  GetStruct()->get_value = xml_reader_get_value;
+  GetStruct()->has_attributes = xml_reader_has_attributes;
+  GetStruct()->get_attribute_count = xml_reader_get_attribute_count;
+  GetStruct()->get_attribute_byindex = xml_reader_get_attribute_byindex;
+  GetStruct()->get_attribute_byqname = xml_reader_get_attribute_byqname;
+  GetStruct()->get_attribute_bylname = xml_reader_get_attribute_bylname;
+  GetStruct()->get_inner_xml = xml_reader_get_inner_xml;
+  GetStruct()->get_outer_xml = xml_reader_get_outer_xml;
+  GetStruct()->get_line_number = xml_reader_get_line_number;
+  GetStruct()->move_to_attribute_byindex = xml_reader_move_to_attribute_byindex;
+  GetStruct()->move_to_attribute_byqname = xml_reader_move_to_attribute_byqname;
+  GetStruct()->move_to_attribute_bylname = xml_reader_move_to_attribute_bylname;
+  GetStruct()->move_to_first_attribute = xml_reader_move_to_first_attribute;
+  GetStruct()->move_to_next_attribute = xml_reader_move_to_next_attribute;
+  GetStruct()->move_to_carrying_element = xml_reader_move_to_carrying_element;
+}
+
+template<> CefRefPtr<CefXmlReader> CefCppToC<CefXmlReaderCppToC, CefXmlReader,
+    cef_xml_reader_t>::UnwrapDerived(CefWrapperType type,
+    cef_xml_reader_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -556,3 +562,5 @@ template<> base::AtomicRefCount CefCppToC<CefXmlReaderCppToC, CefXmlReader,
     cef_xml_reader_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefXmlReaderCppToC, CefXmlReader,
+    cef_xml_reader_t>::kWrapperType = WT_XML_READER;

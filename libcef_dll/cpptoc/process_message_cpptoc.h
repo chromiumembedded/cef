@@ -28,9 +28,8 @@ class CefProcessMessageCppToC
     : public CefCppToC<CefProcessMessageCppToC, CefProcessMessage,
         cef_process_message_t> {
  public:
-  explicit CefProcessMessageCppToC(CefProcessMessage* cls);
+  CefProcessMessageCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_PROCESS_MESSAGE_CPPTOC_H_
-

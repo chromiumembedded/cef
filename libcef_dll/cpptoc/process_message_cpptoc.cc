@@ -34,6 +34,8 @@ CEF_EXPORT cef_process_message_t* cef_process_message_create(
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK process_message_is_valid(struct _cef_process_message_t* self) {
@@ -112,17 +114,24 @@ struct _cef_list_value_t* CEF_CALLBACK process_message_get_argument_list(
   return CefListValueCppToC::Wrap(_retval);
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefProcessMessageCppToC::CefProcessMessageCppToC(CefProcessMessage* cls)
-    : CefCppToC<CefProcessMessageCppToC, CefProcessMessage,
-        cef_process_message_t>(cls) {
-  struct_.struct_.is_valid = process_message_is_valid;
-  struct_.struct_.is_read_only = process_message_is_read_only;
-  struct_.struct_.copy = process_message_copy;
-  struct_.struct_.get_name = process_message_get_name;
-  struct_.struct_.get_argument_list = process_message_get_argument_list;
+CefProcessMessageCppToC::CefProcessMessageCppToC() {
+  GetStruct()->is_valid = process_message_is_valid;
+  GetStruct()->is_read_only = process_message_is_read_only;
+  GetStruct()->copy = process_message_copy;
+  GetStruct()->get_name = process_message_get_name;
+  GetStruct()->get_argument_list = process_message_get_argument_list;
+}
+
+template<> CefRefPtr<CefProcessMessage> CefCppToC<CefProcessMessageCppToC,
+    CefProcessMessage, cef_process_message_t>::UnwrapDerived(
+    CefWrapperType type, cef_process_message_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -130,3 +139,5 @@ template<> base::AtomicRefCount CefCppToC<CefProcessMessageCppToC,
     CefProcessMessage, cef_process_message_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefProcessMessageCppToC, CefProcessMessage,
+    cef_process_message_t>::kWrapperType = WT_PROCESS_MESSAGE;

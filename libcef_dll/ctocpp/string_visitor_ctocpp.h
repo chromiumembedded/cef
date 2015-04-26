@@ -28,14 +28,11 @@ class CefStringVisitorCToCpp
     : public CefCToCpp<CefStringVisitorCToCpp, CefStringVisitor,
         cef_string_visitor_t> {
  public:
-  explicit CefStringVisitorCToCpp(cef_string_visitor_t* str)
-      : CefCToCpp<CefStringVisitorCToCpp, CefStringVisitor,
-          cef_string_visitor_t>(str) {}
+  CefStringVisitorCToCpp();
 
-  // CefStringVisitor methods
+  // CefStringVisitor methods.
   void Visit(const CefString& string) override;
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_STRING_VISITOR_CTOCPP_H_
-

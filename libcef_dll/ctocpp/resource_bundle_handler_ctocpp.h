@@ -28,11 +28,9 @@ class CefResourceBundleHandlerCToCpp
     : public CefCToCpp<CefResourceBundleHandlerCToCpp, CefResourceBundleHandler,
         cef_resource_bundle_handler_t> {
  public:
-  explicit CefResourceBundleHandlerCToCpp(cef_resource_bundle_handler_t* str)
-      : CefCToCpp<CefResourceBundleHandlerCToCpp, CefResourceBundleHandler,
-          cef_resource_bundle_handler_t>(str) {}
+  CefResourceBundleHandlerCToCpp();
 
-  // CefResourceBundleHandler methods
+  // CefResourceBundleHandler methods.
   bool GetLocalizedString(int message_id, CefString& string) override;
   bool GetDataResource(int resource_id, void*& data,
       size_t& data_size) override;
@@ -40,4 +38,3 @@ class CefResourceBundleHandlerCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_RESOURCE_BUNDLE_HANDLER_CTOCPP_H_
-

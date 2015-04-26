@@ -28,21 +28,17 @@ class CefBinaryValueCToCpp
     : public CefCToCpp<CefBinaryValueCToCpp, CefBinaryValue,
         cef_binary_value_t> {
  public:
-  explicit CefBinaryValueCToCpp(cef_binary_value_t* str)
-      : CefCToCpp<CefBinaryValueCToCpp, CefBinaryValue, cef_binary_value_t>(
-          str) {}
+  CefBinaryValueCToCpp();
 
-  // CefBinaryValue methods
-  virtual bool IsValid() OVERRIDE;
-  virtual bool IsOwned() OVERRIDE;
-  virtual bool IsSame(CefRefPtr<CefBinaryValue> that) OVERRIDE;
-  virtual bool IsEqual(CefRefPtr<CefBinaryValue> that) OVERRIDE;
-  virtual CefRefPtr<CefBinaryValue> Copy() OVERRIDE;
-  virtual size_t GetSize() OVERRIDE;
-  virtual size_t GetData(void* buffer, size_t buffer_size,
-      size_t data_offset) OVERRIDE;
+  // CefBinaryValue methods.
+  bool IsValid() OVERRIDE;
+  bool IsOwned() OVERRIDE;
+  bool IsSame(CefRefPtr<CefBinaryValue> that) OVERRIDE;
+  bool IsEqual(CefRefPtr<CefBinaryValue> that) OVERRIDE;
+  CefRefPtr<CefBinaryValue> Copy() OVERRIDE;
+  size_t GetSize() OVERRIDE;
+  size_t GetData(void* buffer, size_t buffer_size, size_t data_offset) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BINARY_VALUE_CTOCPP_H_
-

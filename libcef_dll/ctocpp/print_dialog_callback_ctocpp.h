@@ -28,15 +28,12 @@ class CefPrintDialogCallbackCToCpp
     : public CefCToCpp<CefPrintDialogCallbackCToCpp, CefPrintDialogCallback,
         cef_print_dialog_callback_t> {
  public:
-  explicit CefPrintDialogCallbackCToCpp(cef_print_dialog_callback_t* str)
-      : CefCToCpp<CefPrintDialogCallbackCToCpp, CefPrintDialogCallback,
-          cef_print_dialog_callback_t>(str) {}
+  CefPrintDialogCallbackCToCpp();
 
-  // CefPrintDialogCallback methods
-  virtual void Continue(CefRefPtr<CefPrintSettings> settings) OVERRIDE;
-  virtual void Cancel() OVERRIDE;
+  // CefPrintDialogCallback methods.
+  void Continue(CefRefPtr<CefPrintSettings> settings) OVERRIDE;
+  void Cancel() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_PRINT_DIALOG_CALLBACK_CTOCPP_H_
-

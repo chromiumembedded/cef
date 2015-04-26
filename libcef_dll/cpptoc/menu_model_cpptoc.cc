@@ -13,6 +13,8 @@
 #include "libcef_dll/cpptoc/menu_model_cpptoc.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK menu_model_clear(struct _cef_menu_model_t* self) {
@@ -957,60 +959,68 @@ int CEF_CALLBACK menu_model_get_accelerator_at(struct _cef_menu_model_t* self,
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefMenuModelCppToC::CefMenuModelCppToC(CefMenuModel* cls)
-    : CefCppToC<CefMenuModelCppToC, CefMenuModel, cef_menu_model_t>(cls) {
-  struct_.struct_.clear = menu_model_clear;
-  struct_.struct_.get_count = menu_model_get_count;
-  struct_.struct_.add_separator = menu_model_add_separator;
-  struct_.struct_.add_item = menu_model_add_item;
-  struct_.struct_.add_check_item = menu_model_add_check_item;
-  struct_.struct_.add_radio_item = menu_model_add_radio_item;
-  struct_.struct_.add_sub_menu = menu_model_add_sub_menu;
-  struct_.struct_.insert_separator_at = menu_model_insert_separator_at;
-  struct_.struct_.insert_item_at = menu_model_insert_item_at;
-  struct_.struct_.insert_check_item_at = menu_model_insert_check_item_at;
-  struct_.struct_.insert_radio_item_at = menu_model_insert_radio_item_at;
-  struct_.struct_.insert_sub_menu_at = menu_model_insert_sub_menu_at;
-  struct_.struct_.remove = menu_model_remove;
-  struct_.struct_.remove_at = menu_model_remove_at;
-  struct_.struct_.get_index_of = menu_model_get_index_of;
-  struct_.struct_.get_command_id_at = menu_model_get_command_id_at;
-  struct_.struct_.set_command_id_at = menu_model_set_command_id_at;
-  struct_.struct_.get_label = menu_model_get_label;
-  struct_.struct_.get_label_at = menu_model_get_label_at;
-  struct_.struct_.set_label = menu_model_set_label;
-  struct_.struct_.set_label_at = menu_model_set_label_at;
-  struct_.struct_.get_type = menu_model_get_type;
-  struct_.struct_.get_type_at = menu_model_get_type_at;
-  struct_.struct_.get_group_id = menu_model_get_group_id;
-  struct_.struct_.get_group_id_at = menu_model_get_group_id_at;
-  struct_.struct_.set_group_id = menu_model_set_group_id;
-  struct_.struct_.set_group_id_at = menu_model_set_group_id_at;
-  struct_.struct_.get_sub_menu = menu_model_get_sub_menu;
-  struct_.struct_.get_sub_menu_at = menu_model_get_sub_menu_at;
-  struct_.struct_.is_visible = menu_model_is_visible;
-  struct_.struct_.is_visible_at = menu_model_is_visible_at;
-  struct_.struct_.set_visible = menu_model_set_visible;
-  struct_.struct_.set_visible_at = menu_model_set_visible_at;
-  struct_.struct_.is_enabled = menu_model_is_enabled;
-  struct_.struct_.is_enabled_at = menu_model_is_enabled_at;
-  struct_.struct_.set_enabled = menu_model_set_enabled;
-  struct_.struct_.set_enabled_at = menu_model_set_enabled_at;
-  struct_.struct_.is_checked = menu_model_is_checked;
-  struct_.struct_.is_checked_at = menu_model_is_checked_at;
-  struct_.struct_.set_checked = menu_model_set_checked;
-  struct_.struct_.set_checked_at = menu_model_set_checked_at;
-  struct_.struct_.has_accelerator = menu_model_has_accelerator;
-  struct_.struct_.has_accelerator_at = menu_model_has_accelerator_at;
-  struct_.struct_.set_accelerator = menu_model_set_accelerator;
-  struct_.struct_.set_accelerator_at = menu_model_set_accelerator_at;
-  struct_.struct_.remove_accelerator = menu_model_remove_accelerator;
-  struct_.struct_.remove_accelerator_at = menu_model_remove_accelerator_at;
-  struct_.struct_.get_accelerator = menu_model_get_accelerator;
-  struct_.struct_.get_accelerator_at = menu_model_get_accelerator_at;
+CefMenuModelCppToC::CefMenuModelCppToC() {
+  GetStruct()->clear = menu_model_clear;
+  GetStruct()->get_count = menu_model_get_count;
+  GetStruct()->add_separator = menu_model_add_separator;
+  GetStruct()->add_item = menu_model_add_item;
+  GetStruct()->add_check_item = menu_model_add_check_item;
+  GetStruct()->add_radio_item = menu_model_add_radio_item;
+  GetStruct()->add_sub_menu = menu_model_add_sub_menu;
+  GetStruct()->insert_separator_at = menu_model_insert_separator_at;
+  GetStruct()->insert_item_at = menu_model_insert_item_at;
+  GetStruct()->insert_check_item_at = menu_model_insert_check_item_at;
+  GetStruct()->insert_radio_item_at = menu_model_insert_radio_item_at;
+  GetStruct()->insert_sub_menu_at = menu_model_insert_sub_menu_at;
+  GetStruct()->remove = menu_model_remove;
+  GetStruct()->remove_at = menu_model_remove_at;
+  GetStruct()->get_index_of = menu_model_get_index_of;
+  GetStruct()->get_command_id_at = menu_model_get_command_id_at;
+  GetStruct()->set_command_id_at = menu_model_set_command_id_at;
+  GetStruct()->get_label = menu_model_get_label;
+  GetStruct()->get_label_at = menu_model_get_label_at;
+  GetStruct()->set_label = menu_model_set_label;
+  GetStruct()->set_label_at = menu_model_set_label_at;
+  GetStruct()->get_type = menu_model_get_type;
+  GetStruct()->get_type_at = menu_model_get_type_at;
+  GetStruct()->get_group_id = menu_model_get_group_id;
+  GetStruct()->get_group_id_at = menu_model_get_group_id_at;
+  GetStruct()->set_group_id = menu_model_set_group_id;
+  GetStruct()->set_group_id_at = menu_model_set_group_id_at;
+  GetStruct()->get_sub_menu = menu_model_get_sub_menu;
+  GetStruct()->get_sub_menu_at = menu_model_get_sub_menu_at;
+  GetStruct()->is_visible = menu_model_is_visible;
+  GetStruct()->is_visible_at = menu_model_is_visible_at;
+  GetStruct()->set_visible = menu_model_set_visible;
+  GetStruct()->set_visible_at = menu_model_set_visible_at;
+  GetStruct()->is_enabled = menu_model_is_enabled;
+  GetStruct()->is_enabled_at = menu_model_is_enabled_at;
+  GetStruct()->set_enabled = menu_model_set_enabled;
+  GetStruct()->set_enabled_at = menu_model_set_enabled_at;
+  GetStruct()->is_checked = menu_model_is_checked;
+  GetStruct()->is_checked_at = menu_model_is_checked_at;
+  GetStruct()->set_checked = menu_model_set_checked;
+  GetStruct()->set_checked_at = menu_model_set_checked_at;
+  GetStruct()->has_accelerator = menu_model_has_accelerator;
+  GetStruct()->has_accelerator_at = menu_model_has_accelerator_at;
+  GetStruct()->set_accelerator = menu_model_set_accelerator;
+  GetStruct()->set_accelerator_at = menu_model_set_accelerator_at;
+  GetStruct()->remove_accelerator = menu_model_remove_accelerator;
+  GetStruct()->remove_accelerator_at = menu_model_remove_accelerator_at;
+  GetStruct()->get_accelerator = menu_model_get_accelerator;
+  GetStruct()->get_accelerator_at = menu_model_get_accelerator_at;
+}
+
+template<> CefRefPtr<CefMenuModel> CefCppToC<CefMenuModelCppToC, CefMenuModel,
+    cef_menu_model_t>::UnwrapDerived(CefWrapperType type,
+    cef_menu_model_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -1018,3 +1028,5 @@ template<> base::AtomicRefCount CefCppToC<CefMenuModelCppToC, CefMenuModel,
     cef_menu_model_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefMenuModelCppToC, CefMenuModel,
+    cef_menu_model_t>::kWrapperType = WT_MENU_MODEL;

@@ -28,9 +28,8 @@ class CefCookieManagerCppToC
     : public CefCppToC<CefCookieManagerCppToC, CefCookieManager,
         cef_cookie_manager_t> {
  public:
-  explicit CefCookieManagerCppToC(CefCookieManager* cls);
+  CefCookieManagerCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_COOKIE_MANAGER_CPPTOC_H_
-

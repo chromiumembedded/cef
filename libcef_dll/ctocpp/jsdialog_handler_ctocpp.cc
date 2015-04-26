@@ -22,7 +22,8 @@ bool CefJSDialogHandlerCToCpp::OnJSDialog(CefRefPtr<CefBrowser> browser,
     JSDialogType dialog_type, const CefString& message_text,
     const CefString& default_prompt_text,
     CefRefPtr<CefJSDialogCallback> callback, bool& suppress_message) {
-  if (CEF_MEMBER_MISSING(struct_, on_jsdialog))
+  cef_jsdialog_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_jsdialog))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -42,7 +43,7 @@ bool CefJSDialogHandlerCToCpp::OnJSDialog(CefRefPtr<CefBrowser> browser,
   int suppress_messageInt = suppress_message;
 
   // Execute
-  int _retval = struct_->on_jsdialog(struct_,
+  int _retval = _struct->on_jsdialog(_struct,
       CefBrowserCppToC::Wrap(browser),
       origin_url.GetStruct(),
       accept_lang.GetStruct(),
@@ -62,7 +63,8 @@ bool CefJSDialogHandlerCToCpp::OnJSDialog(CefRefPtr<CefBrowser> browser,
 bool CefJSDialogHandlerCToCpp::OnBeforeUnloadDialog(
     CefRefPtr<CefBrowser> browser, const CefString& message_text,
     bool is_reload, CefRefPtr<CefJSDialogCallback> callback) {
-  if (CEF_MEMBER_MISSING(struct_, on_before_unload_dialog))
+  cef_jsdialog_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_before_unload_dialog))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -78,7 +80,7 @@ bool CefJSDialogHandlerCToCpp::OnBeforeUnloadDialog(
   // Unverified params: message_text
 
   // Execute
-  int _retval = struct_->on_before_unload_dialog(struct_,
+  int _retval = _struct->on_before_unload_dialog(_struct,
       CefBrowserCppToC::Wrap(browser),
       message_text.GetStruct(),
       is_reload,
@@ -90,7 +92,8 @@ bool CefJSDialogHandlerCToCpp::OnBeforeUnloadDialog(
 
 void CefJSDialogHandlerCToCpp::OnResetDialogState(
     CefRefPtr<CefBrowser> browser) {
-  if (CEF_MEMBER_MISSING(struct_, on_reset_dialog_state))
+  cef_jsdialog_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_reset_dialog_state))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -101,12 +104,13 @@ void CefJSDialogHandlerCToCpp::OnResetDialogState(
     return;
 
   // Execute
-  struct_->on_reset_dialog_state(struct_,
+  _struct->on_reset_dialog_state(_struct,
       CefBrowserCppToC::Wrap(browser));
 }
 
 void CefJSDialogHandlerCToCpp::OnDialogClosed(CefRefPtr<CefBrowser> browser) {
-  if (CEF_MEMBER_MISSING(struct_, on_dialog_closed))
+  cef_jsdialog_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_dialog_closed))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -117,13 +121,28 @@ void CefJSDialogHandlerCToCpp::OnDialogClosed(CefRefPtr<CefBrowser> browser) {
     return;
 
   // Execute
-  struct_->on_dialog_closed(struct_,
+  _struct->on_dialog_closed(_struct,
       CefBrowserCppToC::Wrap(browser));
 }
 
+
+// CONSTRUCTOR - Do not edit by hand.
+
+CefJSDialogHandlerCToCpp::CefJSDialogHandlerCToCpp() {
+}
+
+template<> cef_jsdialog_handler_t* CefCToCpp<CefJSDialogHandlerCToCpp,
+    CefJSDialogHandler, cef_jsdialog_handler_t>::UnwrapDerived(
+    CefWrapperType type, CefJSDialogHandler* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefJSDialogHandlerCToCpp,
     CefJSDialogHandler, cef_jsdialog_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefJSDialogHandlerCToCpp,
+    CefJSDialogHandler, cef_jsdialog_handler_t>::kWrapperType =
+    WT_JSDIALOG_HANDLER;

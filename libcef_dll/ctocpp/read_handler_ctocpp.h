@@ -28,11 +28,9 @@ class CefReadHandlerCToCpp
     : public CefCToCpp<CefReadHandlerCToCpp, CefReadHandler,
         cef_read_handler_t> {
  public:
-  explicit CefReadHandlerCToCpp(cef_read_handler_t* str)
-      : CefCToCpp<CefReadHandlerCToCpp, CefReadHandler, cef_read_handler_t>(
-          str) {}
+  CefReadHandlerCToCpp();
 
-  // CefReadHandler methods
+  // CefReadHandler methods.
   size_t Read(void* ptr, size_t size, size_t n) override;
   int Seek(int64 offset, int whence) override;
   int64 Tell() override;
@@ -42,4 +40,3 @@ class CefReadHandlerCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_READ_HANDLER_CTOCPP_H_
-

@@ -28,9 +28,8 @@ class CefBrowserProcessHandlerCppToC
     : public CefCppToC<CefBrowserProcessHandlerCppToC, CefBrowserProcessHandler,
         cef_browser_process_handler_t> {
  public:
-  explicit CefBrowserProcessHandlerCppToC(CefBrowserProcessHandler* cls);
+  CefBrowserProcessHandlerCppToC();
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_BROWSER_PROCESS_HANDLER_CPPTOC_H_
-

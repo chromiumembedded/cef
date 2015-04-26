@@ -27,10 +27,9 @@
 class CefClientCToCpp
     : public CefCToCpp<CefClientCToCpp, CefClient, cef_client_t> {
  public:
-  explicit CefClientCToCpp(cef_client_t* str)
-      : CefCToCpp<CefClientCToCpp, CefClient, cef_client_t>(str) {}
+  CefClientCToCpp();
 
-  // CefClient methods
+  // CefClient methods.
   CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override;
   CefRefPtr<CefDialogHandler> GetDialogHandler() override;
   CefRefPtr<CefDisplayHandler> GetDisplayHandler() override;
@@ -52,4 +51,3 @@ class CefClientCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_CLIENT_CTOCPP_H_
-

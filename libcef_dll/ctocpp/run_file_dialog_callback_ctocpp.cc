@@ -18,7 +18,8 @@
 
 void CefRunFileDialogCallbackCToCpp::OnFileDialogDismissed(
     int selected_accept_filter, const std::vector<CefString>& file_paths) {
-  if (CEF_MEMBER_MISSING(struct_, on_file_dialog_dismissed))
+  cef_run_file_dialog_callback_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_file_dialog_dismissed))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -36,7 +37,7 @@ void CefRunFileDialogCallbackCToCpp::OnFileDialogDismissed(
     transfer_string_list_contents(file_paths, file_pathsList);
 
   // Execute
-  struct_->on_file_dialog_dismissed(struct_,
+  _struct->on_file_dialog_dismissed(_struct,
       selected_accept_filter,
       file_pathsList);
 
@@ -46,8 +47,23 @@ void CefRunFileDialogCallbackCToCpp::OnFileDialogDismissed(
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefRunFileDialogCallbackCToCpp::CefRunFileDialogCallbackCToCpp() {
+}
+
+template<> cef_run_file_dialog_callback_t* CefCToCpp<CefRunFileDialogCallbackCToCpp,
+    CefRunFileDialogCallback, cef_run_file_dialog_callback_t>::UnwrapDerived(
+    CefWrapperType type, CefRunFileDialogCallback* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefRunFileDialogCallbackCToCpp,
     CefRunFileDialogCallback, cef_run_file_dialog_callback_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefRunFileDialogCallbackCToCpp,
+    CefRunFileDialogCallback, cef_run_file_dialog_callback_t>::kWrapperType =
+    WT_RUN_FILE_DIALOG_CALLBACK;

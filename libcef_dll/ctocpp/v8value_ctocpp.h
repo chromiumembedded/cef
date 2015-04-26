@@ -28,61 +28,59 @@
 class CefV8ValueCToCpp
     : public CefCToCpp<CefV8ValueCToCpp, CefV8Value, cef_v8value_t> {
  public:
-  explicit CefV8ValueCToCpp(cef_v8value_t* str)
-      : CefCToCpp<CefV8ValueCToCpp, CefV8Value, cef_v8value_t>(str) {}
+  CefV8ValueCToCpp();
 
-  // CefV8Value methods
-  virtual bool IsValid() OVERRIDE;
-  virtual bool IsUndefined() OVERRIDE;
-  virtual bool IsNull() OVERRIDE;
-  virtual bool IsBool() OVERRIDE;
-  virtual bool IsInt() OVERRIDE;
-  virtual bool IsUInt() OVERRIDE;
-  virtual bool IsDouble() OVERRIDE;
-  virtual bool IsDate() OVERRIDE;
-  virtual bool IsString() OVERRIDE;
-  virtual bool IsObject() OVERRIDE;
-  virtual bool IsArray() OVERRIDE;
-  virtual bool IsFunction() OVERRIDE;
-  virtual bool IsSame(CefRefPtr<CefV8Value> that) OVERRIDE;
-  virtual bool GetBoolValue() OVERRIDE;
-  virtual int32 GetIntValue() OVERRIDE;
-  virtual uint32 GetUIntValue() OVERRIDE;
-  virtual double GetDoubleValue() OVERRIDE;
-  virtual CefTime GetDateValue() OVERRIDE;
-  virtual CefString GetStringValue() OVERRIDE;
-  virtual bool IsUserCreated() OVERRIDE;
-  virtual bool HasException() OVERRIDE;
-  virtual CefRefPtr<CefV8Exception> GetException() OVERRIDE;
-  virtual bool ClearException() OVERRIDE;
-  virtual bool WillRethrowExceptions() OVERRIDE;
-  virtual bool SetRethrowExceptions(bool rethrow) OVERRIDE;
-  virtual bool HasValue(const CefString& key) OVERRIDE;
-  virtual bool HasValue(int index) OVERRIDE;
-  virtual bool DeleteValue(const CefString& key) OVERRIDE;
-  virtual bool DeleteValue(int index) OVERRIDE;
-  virtual CefRefPtr<CefV8Value> GetValue(const CefString& key) OVERRIDE;
-  virtual CefRefPtr<CefV8Value> GetValue(int index) OVERRIDE;
-  virtual bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value,
+  // CefV8Value methods.
+  bool IsValid() OVERRIDE;
+  bool IsUndefined() OVERRIDE;
+  bool IsNull() OVERRIDE;
+  bool IsBool() OVERRIDE;
+  bool IsInt() OVERRIDE;
+  bool IsUInt() OVERRIDE;
+  bool IsDouble() OVERRIDE;
+  bool IsDate() OVERRIDE;
+  bool IsString() OVERRIDE;
+  bool IsObject() OVERRIDE;
+  bool IsArray() OVERRIDE;
+  bool IsFunction() OVERRIDE;
+  bool IsSame(CefRefPtr<CefV8Value> that) OVERRIDE;
+  bool GetBoolValue() OVERRIDE;
+  int32 GetIntValue() OVERRIDE;
+  uint32 GetUIntValue() OVERRIDE;
+  double GetDoubleValue() OVERRIDE;
+  CefTime GetDateValue() OVERRIDE;
+  CefString GetStringValue() OVERRIDE;
+  bool IsUserCreated() OVERRIDE;
+  bool HasException() OVERRIDE;
+  CefRefPtr<CefV8Exception> GetException() OVERRIDE;
+  bool ClearException() OVERRIDE;
+  bool WillRethrowExceptions() OVERRIDE;
+  bool SetRethrowExceptions(bool rethrow) OVERRIDE;
+  bool HasValue(const CefString& key) OVERRIDE;
+  bool HasValue(int index) OVERRIDE;
+  bool DeleteValue(const CefString& key) OVERRIDE;
+  bool DeleteValue(int index) OVERRIDE;
+  CefRefPtr<CefV8Value> GetValue(const CefString& key) OVERRIDE;
+  CefRefPtr<CefV8Value> GetValue(int index) OVERRIDE;
+  bool SetValue(const CefString& key, CefRefPtr<CefV8Value> value,
       PropertyAttribute attribute) OVERRIDE;
-  virtual bool SetValue(int index, CefRefPtr<CefV8Value> value) OVERRIDE;
-  virtual bool SetValue(const CefString& key, AccessControl settings,
+  bool SetValue(int index, CefRefPtr<CefV8Value> value) OVERRIDE;
+  bool SetValue(const CefString& key, AccessControl settings,
       PropertyAttribute attribute) OVERRIDE;
-  virtual bool GetKeys(std::vector<CefString>& keys) OVERRIDE;
-  virtual bool SetUserData(CefRefPtr<CefBase> user_data) OVERRIDE;
-  virtual CefRefPtr<CefBase> GetUserData() OVERRIDE;
-  virtual int GetExternallyAllocatedMemory() OVERRIDE;
-  virtual int AdjustExternallyAllocatedMemory(int change_in_bytes) OVERRIDE;
-  virtual int GetArrayLength() OVERRIDE;
-  virtual CefString GetFunctionName() OVERRIDE;
-  virtual CefRefPtr<CefV8Handler> GetFunctionHandler() OVERRIDE;
-  virtual CefRefPtr<CefV8Value> ExecuteFunction(CefRefPtr<CefV8Value> object,
+  bool GetKeys(std::vector<CefString>& keys) OVERRIDE;
+  bool SetUserData(CefRefPtr<CefBase> user_data) OVERRIDE;
+  CefRefPtr<CefBase> GetUserData() OVERRIDE;
+  int GetExternallyAllocatedMemory() OVERRIDE;
+  int AdjustExternallyAllocatedMemory(int change_in_bytes) OVERRIDE;
+  int GetArrayLength() OVERRIDE;
+  CefString GetFunctionName() OVERRIDE;
+  CefRefPtr<CefV8Handler> GetFunctionHandler() OVERRIDE;
+  CefRefPtr<CefV8Value> ExecuteFunction(CefRefPtr<CefV8Value> object,
       const CefV8ValueList& arguments) OVERRIDE;
-  virtual CefRefPtr<CefV8Value> ExecuteFunctionWithContext(
+  CefRefPtr<CefV8Value> ExecuteFunctionWithContext(
       CefRefPtr<CefV8Context> context, CefRefPtr<CefV8Value> object,
       const CefV8ValueList& arguments) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_V8VALUE_CTOCPP_H_
-

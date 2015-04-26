@@ -16,6 +16,8 @@
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK life_span_handler_on_before_popup(
@@ -194,17 +196,24 @@ void CEF_CALLBACK life_span_handler_on_before_close(
       CefBrowserCToCpp::Wrap(browser));
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefLifeSpanHandlerCppToC::CefLifeSpanHandlerCppToC(CefLifeSpanHandler* cls)
-    : CefCppToC<CefLifeSpanHandlerCppToC, CefLifeSpanHandler,
-        cef_life_span_handler_t>(cls) {
-  struct_.struct_.on_before_popup = life_span_handler_on_before_popup;
-  struct_.struct_.on_after_created = life_span_handler_on_after_created;
-  struct_.struct_.run_modal = life_span_handler_run_modal;
-  struct_.struct_.do_close = life_span_handler_do_close;
-  struct_.struct_.on_before_close = life_span_handler_on_before_close;
+CefLifeSpanHandlerCppToC::CefLifeSpanHandlerCppToC() {
+  GetStruct()->on_before_popup = life_span_handler_on_before_popup;
+  GetStruct()->on_after_created = life_span_handler_on_after_created;
+  GetStruct()->run_modal = life_span_handler_run_modal;
+  GetStruct()->do_close = life_span_handler_do_close;
+  GetStruct()->on_before_close = life_span_handler_on_before_close;
+}
+
+template<> CefRefPtr<CefLifeSpanHandler> CefCppToC<CefLifeSpanHandlerCppToC,
+    CefLifeSpanHandler, cef_life_span_handler_t>::UnwrapDerived(
+    CefWrapperType type, cef_life_span_handler_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -212,3 +221,6 @@ template<> base::AtomicRefCount CefCppToC<CefLifeSpanHandlerCppToC,
     CefLifeSpanHandler, cef_life_span_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefLifeSpanHandlerCppToC,
+    CefLifeSpanHandler, cef_life_span_handler_t>::kWrapperType =
+    WT_LIFE_SPAN_HANDLER;

@@ -17,7 +17,8 @@
 
 bool CefCookieVisitorCToCpp::Visit(const CefCookie& cookie, int count,
     int total, bool& deleteCookie) {
-  if (CEF_MEMBER_MISSING(struct_, visit))
+  cef_cookie_visitor_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, visit))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -26,7 +27,7 @@ bool CefCookieVisitorCToCpp::Visit(const CefCookie& cookie, int count,
   int deleteCookieInt = deleteCookie;
 
   // Execute
-  int _retval = struct_->visit(struct_,
+  int _retval = _struct->visit(_struct,
       &cookie,
       count,
       total,
@@ -40,8 +41,22 @@ bool CefCookieVisitorCToCpp::Visit(const CefCookie& cookie, int count,
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefCookieVisitorCToCpp::CefCookieVisitorCToCpp() {
+}
+
+template<> cef_cookie_visitor_t* CefCToCpp<CefCookieVisitorCToCpp,
+    CefCookieVisitor, cef_cookie_visitor_t>::UnwrapDerived(CefWrapperType type,
+    CefCookieVisitor* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefCookieVisitorCToCpp,
     CefCookieVisitor, cef_cookie_visitor_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefCookieVisitorCToCpp, CefCookieVisitor,
+    cef_cookie_visitor_t>::kWrapperType = WT_COOKIE_VISITOR;

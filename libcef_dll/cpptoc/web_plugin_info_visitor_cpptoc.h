@@ -28,9 +28,8 @@ class CefWebPluginInfoVisitorCppToC
     : public CefCppToC<CefWebPluginInfoVisitorCppToC, CefWebPluginInfoVisitor,
         cef_web_plugin_info_visitor_t> {
  public:
-  explicit CefWebPluginInfoVisitorCppToC(CefWebPluginInfoVisitor* cls);
+  CefWebPluginInfoVisitorCppToC();
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_WEB_PLUGIN_INFO_VISITOR_CPPTOC_H_
-

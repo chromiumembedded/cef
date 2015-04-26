@@ -28,9 +28,8 @@ class CefGeolocationHandlerCppToC
     : public CefCppToC<CefGeolocationHandlerCppToC, CefGeolocationHandler,
         cef_geolocation_handler_t> {
  public:
-  explicit CefGeolocationHandlerCppToC(CefGeolocationHandler* cls);
+  CefGeolocationHandlerCppToC();
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_GEOLOCATION_HANDLER_CPPTOC_H_
-

@@ -77,7 +77,8 @@ typedef struct _cef_base_t {
 // Check that the structure |s|, which is defined with a cef_base_t member named
 // |base|, is large enough to contain the specified member |f|.
 #define CEF_MEMBER_EXISTS(s, f)   \
-  ((intptr_t)&((s)->f) - (intptr_t)(s) + sizeof((s)->f) <= (s)->base.size)
+  ((intptr_t)&((s)->f) - (intptr_t)(s) + sizeof((s)->f) <= \
+  reinterpret_cast<cef_base_t*>(s)->size)
 
 #define CEF_MEMBER_MISSING(s, f)  (!CEF_MEMBER_EXISTS(s, f) || !((s)->f))
 

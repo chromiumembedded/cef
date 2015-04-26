@@ -16,19 +16,35 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefSetCookieCallbackCToCpp::OnComplete(bool success) {
-  if (CEF_MEMBER_MISSING(struct_, on_complete))
+  cef_set_cookie_callback_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_complete))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->on_complete(struct_,
+  _struct->on_complete(_struct,
       success);
 }
 
+
+// CONSTRUCTOR - Do not edit by hand.
+
+CefSetCookieCallbackCToCpp::CefSetCookieCallbackCToCpp() {
+}
+
+template<> cef_set_cookie_callback_t* CefCToCpp<CefSetCookieCallbackCToCpp,
+    CefSetCookieCallback, cef_set_cookie_callback_t>::UnwrapDerived(
+    CefWrapperType type, CefSetCookieCallback* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefSetCookieCallbackCToCpp,
     CefSetCookieCallback, cef_set_cookie_callback_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefSetCookieCallbackCToCpp,
+    CefSetCookieCallback, cef_set_cookie_callback_t>::kWrapperType =
+    WT_SET_COOKIE_CALLBACK;

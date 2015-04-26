@@ -27,22 +27,20 @@
 class CefResponseCToCpp
     : public CefCToCpp<CefResponseCToCpp, CefResponse, cef_response_t> {
  public:
-  explicit CefResponseCToCpp(cef_response_t* str)
-      : CefCToCpp<CefResponseCToCpp, CefResponse, cef_response_t>(str) {}
+  CefResponseCToCpp();
 
-  // CefResponse methods
-  virtual bool IsReadOnly() OVERRIDE;
-  virtual int GetStatus() OVERRIDE;
-  virtual void SetStatus(int status) OVERRIDE;
-  virtual CefString GetStatusText() OVERRIDE;
-  virtual void SetStatusText(const CefString& statusText) OVERRIDE;
-  virtual CefString GetMimeType() OVERRIDE;
-  virtual void SetMimeType(const CefString& mimeType) OVERRIDE;
-  virtual CefString GetHeader(const CefString& name) OVERRIDE;
-  virtual void GetHeaderMap(HeaderMap& headerMap) OVERRIDE;
-  virtual void SetHeaderMap(const HeaderMap& headerMap) OVERRIDE;
+  // CefResponse methods.
+  bool IsReadOnly() OVERRIDE;
+  int GetStatus() OVERRIDE;
+  void SetStatus(int status) OVERRIDE;
+  CefString GetStatusText() OVERRIDE;
+  void SetStatusText(const CefString& statusText) OVERRIDE;
+  CefString GetMimeType() OVERRIDE;
+  void SetMimeType(const CefString& mimeType) OVERRIDE;
+  CefString GetHeader(const CefString& name) OVERRIDE;
+  void GetHeaderMap(HeaderMap& headerMap) OVERRIDE;
+  void SetHeaderMap(const HeaderMap& headerMap) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_RESPONSE_CTOCPP_H_
-

@@ -30,34 +30,32 @@
 class CefBrowserCToCpp
     : public CefCToCpp<CefBrowserCToCpp, CefBrowser, cef_browser_t> {
  public:
-  explicit CefBrowserCToCpp(cef_browser_t* str)
-      : CefCToCpp<CefBrowserCToCpp, CefBrowser, cef_browser_t>(str) {}
+  CefBrowserCToCpp();
 
-  // CefBrowser methods
-  virtual CefRefPtr<CefBrowserHost> GetHost() OVERRIDE;
-  virtual bool CanGoBack() OVERRIDE;
-  virtual void GoBack() OVERRIDE;
-  virtual bool CanGoForward() OVERRIDE;
-  virtual void GoForward() OVERRIDE;
-  virtual bool IsLoading() OVERRIDE;
-  virtual void Reload() OVERRIDE;
-  virtual void ReloadIgnoreCache() OVERRIDE;
-  virtual void StopLoad() OVERRIDE;
-  virtual int GetIdentifier() OVERRIDE;
-  virtual bool IsSame(CefRefPtr<CefBrowser> that) OVERRIDE;
-  virtual bool IsPopup() OVERRIDE;
-  virtual bool HasDocument() OVERRIDE;
-  virtual CefRefPtr<CefFrame> GetMainFrame() OVERRIDE;
-  virtual CefRefPtr<CefFrame> GetFocusedFrame() OVERRIDE;
-  virtual CefRefPtr<CefFrame> GetFrame(int64 identifier) OVERRIDE;
-  virtual CefRefPtr<CefFrame> GetFrame(const CefString& name) OVERRIDE;
-  virtual size_t GetFrameCount() OVERRIDE;
-  virtual void GetFrameIdentifiers(std::vector<int64>& identifiers) OVERRIDE;
-  virtual void GetFrameNames(std::vector<CefString>& names) OVERRIDE;
-  virtual bool SendProcessMessage(CefProcessId target_process,
+  // CefBrowser methods.
+  CefRefPtr<CefBrowserHost> GetHost() OVERRIDE;
+  bool CanGoBack() OVERRIDE;
+  void GoBack() OVERRIDE;
+  bool CanGoForward() OVERRIDE;
+  void GoForward() OVERRIDE;
+  bool IsLoading() OVERRIDE;
+  void Reload() OVERRIDE;
+  void ReloadIgnoreCache() OVERRIDE;
+  void StopLoad() OVERRIDE;
+  int GetIdentifier() OVERRIDE;
+  bool IsSame(CefRefPtr<CefBrowser> that) OVERRIDE;
+  bool IsPopup() OVERRIDE;
+  bool HasDocument() OVERRIDE;
+  CefRefPtr<CefFrame> GetMainFrame() OVERRIDE;
+  CefRefPtr<CefFrame> GetFocusedFrame() OVERRIDE;
+  CefRefPtr<CefFrame> GetFrame(int64 identifier) OVERRIDE;
+  CefRefPtr<CefFrame> GetFrame(const CefString& name) OVERRIDE;
+  size_t GetFrameCount() OVERRIDE;
+  void GetFrameIdentifiers(std::vector<int64>& identifiers) OVERRIDE;
+  void GetFrameNames(std::vector<CefString>& names) OVERRIDE;
+  bool SendProcessMessage(CefProcessId target_process,
       CefRefPtr<CefProcessMessage> message) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BROWSER_CTOCPP_H_
-

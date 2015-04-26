@@ -28,9 +28,8 @@ class CefCookieVisitorCppToC
     : public CefCppToC<CefCookieVisitorCppToC, CefCookieVisitor,
         cef_cookie_visitor_t> {
  public:
-  explicit CefCookieVisitorCppToC(CefCookieVisitor* cls);
+  CefCookieVisitorCppToC();
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_COOKIE_VISITOR_CPPTOC_H_
-

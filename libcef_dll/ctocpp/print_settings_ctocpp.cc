@@ -30,63 +30,68 @@ CefRefPtr<CefPrintSettings> CefPrintSettings::Create() {
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefPrintSettingsCToCpp::IsValid() {
-  if (CEF_MEMBER_MISSING(struct_, is_valid))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_valid))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_valid(struct_);
+  int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 bool CefPrintSettingsCToCpp::IsReadOnly() {
-  if (CEF_MEMBER_MISSING(struct_, is_read_only))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_read_only))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_read_only(struct_);
+  int _retval = _struct->is_read_only(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 CefRefPtr<CefPrintSettings> CefPrintSettingsCToCpp::Copy() {
-  if (CEF_MEMBER_MISSING(struct_, copy))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, copy))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_print_settings_t* _retval = struct_->copy(struct_);
+  cef_print_settings_t* _retval = _struct->copy(_struct);
 
   // Return type: refptr_same
   return CefPrintSettingsCToCpp::Wrap(_retval);
 }
 
 void CefPrintSettingsCToCpp::SetOrientation(bool landscape) {
-  if (CEF_MEMBER_MISSING(struct_, set_orientation))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_orientation))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->set_orientation(struct_,
+  _struct->set_orientation(_struct,
       landscape);
 }
 
 bool CefPrintSettingsCToCpp::IsLandscape() {
-  if (CEF_MEMBER_MISSING(struct_, is_landscape))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_landscape))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_landscape(struct_);
+  int _retval = _struct->is_landscape(_struct);
 
   // Return type: bool
   return _retval?true:false;
@@ -95,20 +100,22 @@ bool CefPrintSettingsCToCpp::IsLandscape() {
 void CefPrintSettingsCToCpp::SetPrinterPrintableArea(
     const CefSize& physical_size_device_units,
     const CefRect& printable_area_device_units, bool landscape_needs_flip) {
-  if (CEF_MEMBER_MISSING(struct_, set_printer_printable_area))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_printer_printable_area))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->set_printer_printable_area(struct_,
+  _struct->set_printer_printable_area(_struct,
       &physical_size_device_units,
       &printable_area_device_units,
       landscape_needs_flip);
 }
 
 void CefPrintSettingsCToCpp::SetDeviceName(const CefString& name) {
-  if (CEF_MEMBER_MISSING(struct_, set_device_name))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_device_name))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -116,18 +123,19 @@ void CefPrintSettingsCToCpp::SetDeviceName(const CefString& name) {
   // Unverified params: name
 
   // Execute
-  struct_->set_device_name(struct_,
+  _struct->set_device_name(_struct,
       name.GetStruct());
 }
 
 CefString CefPrintSettingsCToCpp::GetDeviceName() {
-  if (CEF_MEMBER_MISSING(struct_, get_device_name))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_device_name))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_device_name(struct_);
+  cef_string_userfree_t _retval = _struct->get_device_name(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -136,31 +144,34 @@ CefString CefPrintSettingsCToCpp::GetDeviceName() {
 }
 
 void CefPrintSettingsCToCpp::SetDPI(int dpi) {
-  if (CEF_MEMBER_MISSING(struct_, set_dpi))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_dpi))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->set_dpi(struct_,
+  _struct->set_dpi(_struct,
       dpi);
 }
 
 int CefPrintSettingsCToCpp::GetDPI() {
-  if (CEF_MEMBER_MISSING(struct_, get_dpi))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_dpi))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_dpi(struct_);
+  int _retval = _struct->get_dpi(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 void CefPrintSettingsCToCpp::SetPageRanges(const PageRangeList& ranges) {
-  if (CEF_MEMBER_MISSING(struct_, set_page_ranges))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_page_ranges))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -179,7 +190,7 @@ void CefPrintSettingsCToCpp::SetPageRanges(const PageRangeList& ranges) {
   }
 
   // Execute
-  struct_->set_page_ranges(struct_,
+  _struct->set_page_ranges(_struct,
       rangesCount,
       rangesList);
 
@@ -189,20 +200,22 @@ void CefPrintSettingsCToCpp::SetPageRanges(const PageRangeList& ranges) {
 }
 
 size_t CefPrintSettingsCToCpp::GetPageRangesCount() {
-  if (CEF_MEMBER_MISSING(struct_, get_page_ranges_count))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_page_ranges_count))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  size_t _retval = struct_->get_page_ranges_count(struct_);
+  size_t _retval = _struct->get_page_ranges_count(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 void CefPrintSettingsCToCpp::GetPageRanges(PageRangeList& ranges) {
-  if (CEF_MEMBER_MISSING(struct_, get_page_ranges))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_page_ranges))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -225,7 +238,7 @@ void CefPrintSettingsCToCpp::GetPageRanges(PageRangeList& ranges) {
   }
 
   // Execute
-  struct_->get_page_ranges(struct_,
+  _struct->get_page_ranges(_struct,
       &rangesCount,
       rangesList);
 
@@ -240,128 +253,152 @@ void CefPrintSettingsCToCpp::GetPageRanges(PageRangeList& ranges) {
 }
 
 void CefPrintSettingsCToCpp::SetSelectionOnly(bool selection_only) {
-  if (CEF_MEMBER_MISSING(struct_, set_selection_only))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_selection_only))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->set_selection_only(struct_,
+  _struct->set_selection_only(_struct,
       selection_only);
 }
 
 bool CefPrintSettingsCToCpp::IsSelectionOnly() {
-  if (CEF_MEMBER_MISSING(struct_, is_selection_only))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_selection_only))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_selection_only(struct_);
+  int _retval = _struct->is_selection_only(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 void CefPrintSettingsCToCpp::SetCollate(bool collate) {
-  if (CEF_MEMBER_MISSING(struct_, set_collate))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_collate))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->set_collate(struct_,
+  _struct->set_collate(_struct,
       collate);
 }
 
 bool CefPrintSettingsCToCpp::WillCollate() {
-  if (CEF_MEMBER_MISSING(struct_, will_collate))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, will_collate))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->will_collate(struct_);
+  int _retval = _struct->will_collate(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 void CefPrintSettingsCToCpp::SetColorModel(ColorModel model) {
-  if (CEF_MEMBER_MISSING(struct_, set_color_model))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_color_model))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->set_color_model(struct_,
+  _struct->set_color_model(_struct,
       model);
 }
 
 CefPrintSettings::ColorModel CefPrintSettingsCToCpp::GetColorModel() {
-  if (CEF_MEMBER_MISSING(struct_, get_color_model))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_color_model))
     return COLOR_MODEL_UNKNOWN;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_color_model_t _retval = struct_->get_color_model(struct_);
+  cef_color_model_t _retval = _struct->get_color_model(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 void CefPrintSettingsCToCpp::SetCopies(int copies) {
-  if (CEF_MEMBER_MISSING(struct_, set_copies))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_copies))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->set_copies(struct_,
+  _struct->set_copies(_struct,
       copies);
 }
 
 int CefPrintSettingsCToCpp::GetCopies() {
-  if (CEF_MEMBER_MISSING(struct_, get_copies))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_copies))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_copies(struct_);
+  int _retval = _struct->get_copies(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 void CefPrintSettingsCToCpp::SetDuplexMode(DuplexMode mode) {
-  if (CEF_MEMBER_MISSING(struct_, set_duplex_mode))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_duplex_mode))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->set_duplex_mode(struct_,
+  _struct->set_duplex_mode(_struct,
       mode);
 }
 
 CefPrintSettings::DuplexMode CefPrintSettingsCToCpp::GetDuplexMode() {
-  if (CEF_MEMBER_MISSING(struct_, get_duplex_mode))
+  cef_print_settings_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_duplex_mode))
     return DUPLEX_MODE_UNKNOWN;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_duplex_mode_t _retval = struct_->get_duplex_mode(struct_);
+  cef_duplex_mode_t _retval = _struct->get_duplex_mode(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefPrintSettingsCToCpp::CefPrintSettingsCToCpp() {
+}
+
+template<> cef_print_settings_t* CefCToCpp<CefPrintSettingsCToCpp,
+    CefPrintSettings, cef_print_settings_t>::UnwrapDerived(CefWrapperType type,
+    CefPrintSettings* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefPrintSettingsCToCpp,
     CefPrintSettings, cef_print_settings_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefPrintSettingsCToCpp, CefPrintSettings,
+    cef_print_settings_t>::kWrapperType = WT_PRINT_SETTINGS;

@@ -28,11 +28,9 @@ class CefRenderHandlerCToCpp
     : public CefCToCpp<CefRenderHandlerCToCpp, CefRenderHandler,
         cef_render_handler_t> {
  public:
-  explicit CefRenderHandlerCToCpp(cef_render_handler_t* str)
-      : CefCToCpp<CefRenderHandlerCToCpp, CefRenderHandler,
-          cef_render_handler_t>(str) {}
+  CefRenderHandlerCToCpp();
 
-  // CefRenderHandler methods
+  // CefRenderHandler methods.
   bool GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
   bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
   bool GetScreenPoint(CefRefPtr<CefBrowser> browser, int viewX, int viewY,
@@ -57,4 +55,3 @@ class CefRenderHandlerCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_RENDER_HANDLER_CTOCPP_H_
-

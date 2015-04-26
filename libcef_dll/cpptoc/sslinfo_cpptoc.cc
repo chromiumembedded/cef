@@ -15,6 +15,8 @@
 #include "libcef_dll/cpptoc/sslinfo_cpptoc.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 cef_sslcert_principal_t* CEF_CALLBACK sslinfo_get_subject(
@@ -125,18 +127,25 @@ struct _cef_binary_value_t* CEF_CALLBACK sslinfo_get_pemencoded(
   return CefBinaryValueCppToC::Wrap(_retval);
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefSSLInfoCppToC::CefSSLInfoCppToC(CefSSLInfo* cls)
-    : CefCppToC<CefSSLInfoCppToC, CefSSLInfo, cef_sslinfo_t>(cls) {
-  struct_.struct_.get_subject = sslinfo_get_subject;
-  struct_.struct_.get_issuer = sslinfo_get_issuer;
-  struct_.struct_.get_serial_number = sslinfo_get_serial_number;
-  struct_.struct_.get_valid_start = sslinfo_get_valid_start;
-  struct_.struct_.get_valid_expiry = sslinfo_get_valid_expiry;
-  struct_.struct_.get_derencoded = sslinfo_get_derencoded;
-  struct_.struct_.get_pemencoded = sslinfo_get_pemencoded;
+CefSSLInfoCppToC::CefSSLInfoCppToC() {
+  GetStruct()->get_subject = sslinfo_get_subject;
+  GetStruct()->get_issuer = sslinfo_get_issuer;
+  GetStruct()->get_serial_number = sslinfo_get_serial_number;
+  GetStruct()->get_valid_start = sslinfo_get_valid_start;
+  GetStruct()->get_valid_expiry = sslinfo_get_valid_expiry;
+  GetStruct()->get_derencoded = sslinfo_get_derencoded;
+  GetStruct()->get_pemencoded = sslinfo_get_pemencoded;
+}
+
+template<> CefRefPtr<CefSSLInfo> CefCppToC<CefSSLInfoCppToC, CefSSLInfo,
+    cef_sslinfo_t>::UnwrapDerived(CefWrapperType type, cef_sslinfo_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -144,3 +153,5 @@ template<> base::AtomicRefCount CefCppToC<CefSSLInfoCppToC, CefSSLInfo,
     cef_sslinfo_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefSSLInfoCppToC, CefSSLInfo,
+    cef_sslinfo_t>::kWrapperType = WT_SSLINFO;

@@ -28,9 +28,8 @@ class CefV8StackTraceCppToC
     : public CefCppToC<CefV8StackTraceCppToC, CefV8StackTrace,
         cef_v8stack_trace_t> {
  public:
-  explicit CefV8StackTraceCppToC(CefV8StackTrace* cls);
+  CefV8StackTraceCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_V8STACK_TRACE_CPPTOC_H_
-

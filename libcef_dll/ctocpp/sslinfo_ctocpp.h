@@ -27,19 +27,17 @@
 class CefSSLInfoCToCpp
     : public CefCToCpp<CefSSLInfoCToCpp, CefSSLInfo, cef_sslinfo_t> {
  public:
-  explicit CefSSLInfoCToCpp(cef_sslinfo_t* str)
-      : CefCToCpp<CefSSLInfoCToCpp, CefSSLInfo, cef_sslinfo_t>(str) {}
+  CefSSLInfoCToCpp();
 
-  // CefSSLInfo methods
-  virtual CefRefPtr<CefSSLCertPrincipal> GetSubject() OVERRIDE;
-  virtual CefRefPtr<CefSSLCertPrincipal> GetIssuer() OVERRIDE;
-  virtual CefRefPtr<CefBinaryValue> GetSerialNumber() OVERRIDE;
-  virtual CefTime GetValidStart() OVERRIDE;
-  virtual CefTime GetValidExpiry() OVERRIDE;
-  virtual CefRefPtr<CefBinaryValue> GetDEREncoded() OVERRIDE;
-  virtual CefRefPtr<CefBinaryValue> GetPEMEncoded() OVERRIDE;
+  // CefSSLInfo methods.
+  CefRefPtr<CefSSLCertPrincipal> GetSubject() OVERRIDE;
+  CefRefPtr<CefSSLCertPrincipal> GetIssuer() OVERRIDE;
+  CefRefPtr<CefBinaryValue> GetSerialNumber() OVERRIDE;
+  CefTime GetValidStart() OVERRIDE;
+  CefTime GetValidExpiry() OVERRIDE;
+  CefRefPtr<CefBinaryValue> GetDEREncoded() OVERRIDE;
+  CefRefPtr<CefBinaryValue> GetPEMEncoded() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_SSLINFO_CTOCPP_H_
-

@@ -28,14 +28,11 @@ class CefDeleteCookiesCallbackCToCpp
     : public CefCToCpp<CefDeleteCookiesCallbackCToCpp, CefDeleteCookiesCallback,
         cef_delete_cookies_callback_t> {
  public:
-  explicit CefDeleteCookiesCallbackCToCpp(cef_delete_cookies_callback_t* str)
-      : CefCToCpp<CefDeleteCookiesCallbackCToCpp, CefDeleteCookiesCallback,
-          cef_delete_cookies_callback_t>(str) {}
+  CefDeleteCookiesCallbackCToCpp();
 
-  // CefDeleteCookiesCallback methods
+  // CefDeleteCookiesCallback methods.
   void OnComplete(int num_deleted) override;
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DELETE_COOKIES_CALLBACK_CTOCPP_H_
-

@@ -28,14 +28,11 @@ class CefJSDialogCallbackCToCpp
     : public CefCToCpp<CefJSDialogCallbackCToCpp, CefJSDialogCallback,
         cef_jsdialog_callback_t> {
  public:
-  explicit CefJSDialogCallbackCToCpp(cef_jsdialog_callback_t* str)
-      : CefCToCpp<CefJSDialogCallbackCToCpp, CefJSDialogCallback,
-          cef_jsdialog_callback_t>(str) {}
+  CefJSDialogCallbackCToCpp();
 
-  // CefJSDialogCallback methods
-  virtual void Continue(bool success, const CefString& user_input) OVERRIDE;
+  // CefJSDialogCallback methods.
+  void Continue(bool success, const CefString& user_input) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_JSDIALOG_CALLBACK_CTOCPP_H_
-

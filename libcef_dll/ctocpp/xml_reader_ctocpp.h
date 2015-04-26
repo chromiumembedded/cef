@@ -27,43 +27,41 @@
 class CefXmlReaderCToCpp
     : public CefCToCpp<CefXmlReaderCToCpp, CefXmlReader, cef_xml_reader_t> {
  public:
-  explicit CefXmlReaderCToCpp(cef_xml_reader_t* str)
-      : CefCToCpp<CefXmlReaderCToCpp, CefXmlReader, cef_xml_reader_t>(str) {}
+  CefXmlReaderCToCpp();
 
-  // CefXmlReader methods
-  virtual bool MoveToNextNode() OVERRIDE;
-  virtual bool Close() OVERRIDE;
-  virtual bool HasError() OVERRIDE;
-  virtual CefString GetError() OVERRIDE;
-  virtual NodeType GetType() OVERRIDE;
-  virtual int GetDepth() OVERRIDE;
-  virtual CefString GetLocalName() OVERRIDE;
-  virtual CefString GetPrefix() OVERRIDE;
-  virtual CefString GetQualifiedName() OVERRIDE;
-  virtual CefString GetNamespaceURI() OVERRIDE;
-  virtual CefString GetBaseURI() OVERRIDE;
-  virtual CefString GetXmlLang() OVERRIDE;
-  virtual bool IsEmptyElement() OVERRIDE;
-  virtual bool HasValue() OVERRIDE;
-  virtual CefString GetValue() OVERRIDE;
-  virtual bool HasAttributes() OVERRIDE;
-  virtual size_t GetAttributeCount() OVERRIDE;
-  virtual CefString GetAttribute(int index) OVERRIDE;
-  virtual CefString GetAttribute(const CefString& qualifiedName) OVERRIDE;
-  virtual CefString GetAttribute(const CefString& localName,
+  // CefXmlReader methods.
+  bool MoveToNextNode() OVERRIDE;
+  bool Close() OVERRIDE;
+  bool HasError() OVERRIDE;
+  CefString GetError() OVERRIDE;
+  NodeType GetType() OVERRIDE;
+  int GetDepth() OVERRIDE;
+  CefString GetLocalName() OVERRIDE;
+  CefString GetPrefix() OVERRIDE;
+  CefString GetQualifiedName() OVERRIDE;
+  CefString GetNamespaceURI() OVERRIDE;
+  CefString GetBaseURI() OVERRIDE;
+  CefString GetXmlLang() OVERRIDE;
+  bool IsEmptyElement() OVERRIDE;
+  bool HasValue() OVERRIDE;
+  CefString GetValue() OVERRIDE;
+  bool HasAttributes() OVERRIDE;
+  size_t GetAttributeCount() OVERRIDE;
+  CefString GetAttribute(int index) OVERRIDE;
+  CefString GetAttribute(const CefString& qualifiedName) OVERRIDE;
+  CefString GetAttribute(const CefString& localName,
       const CefString& namespaceURI) OVERRIDE;
-  virtual CefString GetInnerXml() OVERRIDE;
-  virtual CefString GetOuterXml() OVERRIDE;
-  virtual int GetLineNumber() OVERRIDE;
-  virtual bool MoveToAttribute(int index) OVERRIDE;
-  virtual bool MoveToAttribute(const CefString& qualifiedName) OVERRIDE;
-  virtual bool MoveToAttribute(const CefString& localName,
+  CefString GetInnerXml() OVERRIDE;
+  CefString GetOuterXml() OVERRIDE;
+  int GetLineNumber() OVERRIDE;
+  bool MoveToAttribute(int index) OVERRIDE;
+  bool MoveToAttribute(const CefString& qualifiedName) OVERRIDE;
+  bool MoveToAttribute(const CefString& localName,
       const CefString& namespaceURI) OVERRIDE;
-  virtual bool MoveToFirstAttribute() OVERRIDE;
-  virtual bool MoveToNextAttribute() OVERRIDE;
-  virtual bool MoveToCarryingElement() OVERRIDE;
+  bool MoveToFirstAttribute() OVERRIDE;
+  bool MoveToNextAttribute() OVERRIDE;
+  bool MoveToCarryingElement() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_XML_READER_CTOCPP_H_
-

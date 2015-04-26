@@ -28,11 +28,9 @@ class CefLoadHandlerCToCpp
     : public CefCToCpp<CefLoadHandlerCToCpp, CefLoadHandler,
         cef_load_handler_t> {
  public:
-  explicit CefLoadHandlerCToCpp(cef_load_handler_t* str)
-      : CefCToCpp<CefLoadHandlerCToCpp, CefLoadHandler, cef_load_handler_t>(
-          str) {}
+  CefLoadHandlerCToCpp();
 
-  // CefLoadHandler methods
+  // CefLoadHandler methods.
   void OnLoadingStateChange(CefRefPtr<CefBrowser> browser, bool isLoading,
       bool canGoBack, bool canGoForward) override;
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
@@ -46,4 +44,3 @@ class CefLoadHandlerCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_LOAD_HANDLER_CTOCPP_H_
-

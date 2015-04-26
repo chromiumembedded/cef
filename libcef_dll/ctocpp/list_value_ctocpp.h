@@ -27,41 +27,38 @@
 class CefListValueCToCpp
     : public CefCToCpp<CefListValueCToCpp, CefListValue, cef_list_value_t> {
  public:
-  explicit CefListValueCToCpp(cef_list_value_t* str)
-      : CefCToCpp<CefListValueCToCpp, CefListValue, cef_list_value_t>(str) {}
+  CefListValueCToCpp();
 
-  // CefListValue methods
-  virtual bool IsValid() OVERRIDE;
-  virtual bool IsOwned() OVERRIDE;
-  virtual bool IsReadOnly() OVERRIDE;
-  virtual bool IsSame(CefRefPtr<CefListValue> that) OVERRIDE;
-  virtual bool IsEqual(CefRefPtr<CefListValue> that) OVERRIDE;
-  virtual CefRefPtr<CefListValue> Copy() OVERRIDE;
-  virtual bool SetSize(size_t size) OVERRIDE;
-  virtual size_t GetSize() OVERRIDE;
-  virtual bool Clear() OVERRIDE;
-  virtual bool Remove(int index) OVERRIDE;
-  virtual CefValueType GetType(int index) OVERRIDE;
-  virtual CefRefPtr<CefValue> GetValue(int index) OVERRIDE;
-  virtual bool GetBool(int index) OVERRIDE;
-  virtual int GetInt(int index) OVERRIDE;
-  virtual double GetDouble(int index) OVERRIDE;
-  virtual CefString GetString(int index) OVERRIDE;
-  virtual CefRefPtr<CefBinaryValue> GetBinary(int index) OVERRIDE;
-  virtual CefRefPtr<CefDictionaryValue> GetDictionary(int index) OVERRIDE;
-  virtual CefRefPtr<CefListValue> GetList(int index) OVERRIDE;
-  virtual bool SetValue(int index, CefRefPtr<CefValue> value) OVERRIDE;
-  virtual bool SetNull(int index) OVERRIDE;
-  virtual bool SetBool(int index, bool value) OVERRIDE;
-  virtual bool SetInt(int index, int value) OVERRIDE;
-  virtual bool SetDouble(int index, double value) OVERRIDE;
-  virtual bool SetString(int index, const CefString& value) OVERRIDE;
-  virtual bool SetBinary(int index, CefRefPtr<CefBinaryValue> value) OVERRIDE;
-  virtual bool SetDictionary(int index,
-      CefRefPtr<CefDictionaryValue> value) OVERRIDE;
-  virtual bool SetList(int index, CefRefPtr<CefListValue> value) OVERRIDE;
+  // CefListValue methods.
+  bool IsValid() OVERRIDE;
+  bool IsOwned() OVERRIDE;
+  bool IsReadOnly() OVERRIDE;
+  bool IsSame(CefRefPtr<CefListValue> that) OVERRIDE;
+  bool IsEqual(CefRefPtr<CefListValue> that) OVERRIDE;
+  CefRefPtr<CefListValue> Copy() OVERRIDE;
+  bool SetSize(size_t size) OVERRIDE;
+  size_t GetSize() OVERRIDE;
+  bool Clear() OVERRIDE;
+  bool Remove(int index) OVERRIDE;
+  CefValueType GetType(int index) OVERRIDE;
+  CefRefPtr<CefValue> GetValue(int index) OVERRIDE;
+  bool GetBool(int index) OVERRIDE;
+  int GetInt(int index) OVERRIDE;
+  double GetDouble(int index) OVERRIDE;
+  CefString GetString(int index) OVERRIDE;
+  CefRefPtr<CefBinaryValue> GetBinary(int index) OVERRIDE;
+  CefRefPtr<CefDictionaryValue> GetDictionary(int index) OVERRIDE;
+  CefRefPtr<CefListValue> GetList(int index) OVERRIDE;
+  bool SetValue(int index, CefRefPtr<CefValue> value) OVERRIDE;
+  bool SetNull(int index) OVERRIDE;
+  bool SetBool(int index, bool value) OVERRIDE;
+  bool SetInt(int index, int value) OVERRIDE;
+  bool SetDouble(int index, double value) OVERRIDE;
+  bool SetString(int index, const CefString& value) OVERRIDE;
+  bool SetBinary(int index, CefRefPtr<CefBinaryValue> value) OVERRIDE;
+  bool SetDictionary(int index, CefRefPtr<CefDictionaryValue> value) OVERRIDE;
+  bool SetList(int index, CefRefPtr<CefListValue> value) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_LIST_VALUE_CTOCPP_H_
-

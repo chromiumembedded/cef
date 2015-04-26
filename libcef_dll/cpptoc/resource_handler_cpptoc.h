@@ -28,9 +28,8 @@ class CefResourceHandlerCppToC
     : public CefCppToC<CefResourceHandlerCppToC, CefResourceHandler,
         cef_resource_handler_t> {
  public:
-  explicit CefResourceHandlerCppToC(CefResourceHandler* cls);
+  CefResourceHandlerCppToC();
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_RESOURCE_HANDLER_CPPTOC_H_
-

@@ -28,18 +28,15 @@ class CefStreamReaderCToCpp
     : public CefCToCpp<CefStreamReaderCToCpp, CefStreamReader,
         cef_stream_reader_t> {
  public:
-  explicit CefStreamReaderCToCpp(cef_stream_reader_t* str)
-      : CefCToCpp<CefStreamReaderCToCpp, CefStreamReader, cef_stream_reader_t>(
-          str) {}
+  CefStreamReaderCToCpp();
 
-  // CefStreamReader methods
-  virtual size_t Read(void* ptr, size_t size, size_t n) OVERRIDE;
-  virtual int Seek(int64 offset, int whence) OVERRIDE;
-  virtual int64 Tell() OVERRIDE;
-  virtual int Eof() OVERRIDE;
-  virtual bool MayBlock() OVERRIDE;
+  // CefStreamReader methods.
+  size_t Read(void* ptr, size_t size, size_t n) OVERRIDE;
+  int Seek(int64 offset, int whence) OVERRIDE;
+  int64 Tell() OVERRIDE;
+  int Eof() OVERRIDE;
+  bool MayBlock() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_STREAM_READER_CTOCPP_H_
-

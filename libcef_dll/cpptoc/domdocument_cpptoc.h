@@ -28,9 +28,8 @@ class CefDOMDocumentCppToC
     : public CefCppToC<CefDOMDocumentCppToC, CefDOMDocument,
         cef_domdocument_t> {
  public:
-  explicit CefDOMDocumentCppToC(CefDOMDocument* cls);
+  CefDOMDocumentCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_DOMDOCUMENT_CPPTOC_H_
-

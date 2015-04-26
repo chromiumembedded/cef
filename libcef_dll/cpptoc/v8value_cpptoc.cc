@@ -165,6 +165,8 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_function(const cef_string_t* name,
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK v8value_is_valid(struct _cef_v8value_t* self) {
@@ -912,58 +914,65 @@ struct _cef_v8value_t* CEF_CALLBACK v8value_execute_function_with_context(
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefV8ValueCppToC::CefV8ValueCppToC(CefV8Value* cls)
-    : CefCppToC<CefV8ValueCppToC, CefV8Value, cef_v8value_t>(cls) {
-  struct_.struct_.is_valid = v8value_is_valid;
-  struct_.struct_.is_undefined = v8value_is_undefined;
-  struct_.struct_.is_null = v8value_is_null;
-  struct_.struct_.is_bool = v8value_is_bool;
-  struct_.struct_.is_int = v8value_is_int;
-  struct_.struct_.is_uint = v8value_is_uint;
-  struct_.struct_.is_double = v8value_is_double;
-  struct_.struct_.is_date = v8value_is_date;
-  struct_.struct_.is_string = v8value_is_string;
-  struct_.struct_.is_object = v8value_is_object;
-  struct_.struct_.is_array = v8value_is_array;
-  struct_.struct_.is_function = v8value_is_function;
-  struct_.struct_.is_same = v8value_is_same;
-  struct_.struct_.get_bool_value = v8value_get_bool_value;
-  struct_.struct_.get_int_value = v8value_get_int_value;
-  struct_.struct_.get_uint_value = v8value_get_uint_value;
-  struct_.struct_.get_double_value = v8value_get_double_value;
-  struct_.struct_.get_date_value = v8value_get_date_value;
-  struct_.struct_.get_string_value = v8value_get_string_value;
-  struct_.struct_.is_user_created = v8value_is_user_created;
-  struct_.struct_.has_exception = v8value_has_exception;
-  struct_.struct_.get_exception = v8value_get_exception;
-  struct_.struct_.clear_exception = v8value_clear_exception;
-  struct_.struct_.will_rethrow_exceptions = v8value_will_rethrow_exceptions;
-  struct_.struct_.set_rethrow_exceptions = v8value_set_rethrow_exceptions;
-  struct_.struct_.has_value_bykey = v8value_has_value_bykey;
-  struct_.struct_.has_value_byindex = v8value_has_value_byindex;
-  struct_.struct_.delete_value_bykey = v8value_delete_value_bykey;
-  struct_.struct_.delete_value_byindex = v8value_delete_value_byindex;
-  struct_.struct_.get_value_bykey = v8value_get_value_bykey;
-  struct_.struct_.get_value_byindex = v8value_get_value_byindex;
-  struct_.struct_.set_value_bykey = v8value_set_value_bykey;
-  struct_.struct_.set_value_byindex = v8value_set_value_byindex;
-  struct_.struct_.set_value_byaccessor = v8value_set_value_byaccessor;
-  struct_.struct_.get_keys = v8value_get_keys;
-  struct_.struct_.set_user_data = v8value_set_user_data;
-  struct_.struct_.get_user_data = v8value_get_user_data;
-  struct_.struct_.get_externally_allocated_memory =
+CefV8ValueCppToC::CefV8ValueCppToC() {
+  GetStruct()->is_valid = v8value_is_valid;
+  GetStruct()->is_undefined = v8value_is_undefined;
+  GetStruct()->is_null = v8value_is_null;
+  GetStruct()->is_bool = v8value_is_bool;
+  GetStruct()->is_int = v8value_is_int;
+  GetStruct()->is_uint = v8value_is_uint;
+  GetStruct()->is_double = v8value_is_double;
+  GetStruct()->is_date = v8value_is_date;
+  GetStruct()->is_string = v8value_is_string;
+  GetStruct()->is_object = v8value_is_object;
+  GetStruct()->is_array = v8value_is_array;
+  GetStruct()->is_function = v8value_is_function;
+  GetStruct()->is_same = v8value_is_same;
+  GetStruct()->get_bool_value = v8value_get_bool_value;
+  GetStruct()->get_int_value = v8value_get_int_value;
+  GetStruct()->get_uint_value = v8value_get_uint_value;
+  GetStruct()->get_double_value = v8value_get_double_value;
+  GetStruct()->get_date_value = v8value_get_date_value;
+  GetStruct()->get_string_value = v8value_get_string_value;
+  GetStruct()->is_user_created = v8value_is_user_created;
+  GetStruct()->has_exception = v8value_has_exception;
+  GetStruct()->get_exception = v8value_get_exception;
+  GetStruct()->clear_exception = v8value_clear_exception;
+  GetStruct()->will_rethrow_exceptions = v8value_will_rethrow_exceptions;
+  GetStruct()->set_rethrow_exceptions = v8value_set_rethrow_exceptions;
+  GetStruct()->has_value_bykey = v8value_has_value_bykey;
+  GetStruct()->has_value_byindex = v8value_has_value_byindex;
+  GetStruct()->delete_value_bykey = v8value_delete_value_bykey;
+  GetStruct()->delete_value_byindex = v8value_delete_value_byindex;
+  GetStruct()->get_value_bykey = v8value_get_value_bykey;
+  GetStruct()->get_value_byindex = v8value_get_value_byindex;
+  GetStruct()->set_value_bykey = v8value_set_value_bykey;
+  GetStruct()->set_value_byindex = v8value_set_value_byindex;
+  GetStruct()->set_value_byaccessor = v8value_set_value_byaccessor;
+  GetStruct()->get_keys = v8value_get_keys;
+  GetStruct()->set_user_data = v8value_set_user_data;
+  GetStruct()->get_user_data = v8value_get_user_data;
+  GetStruct()->get_externally_allocated_memory =
       v8value_get_externally_allocated_memory;
-  struct_.struct_.adjust_externally_allocated_memory =
+  GetStruct()->adjust_externally_allocated_memory =
       v8value_adjust_externally_allocated_memory;
-  struct_.struct_.get_array_length = v8value_get_array_length;
-  struct_.struct_.get_function_name = v8value_get_function_name;
-  struct_.struct_.get_function_handler = v8value_get_function_handler;
-  struct_.struct_.execute_function = v8value_execute_function;
-  struct_.struct_.execute_function_with_context =
+  GetStruct()->get_array_length = v8value_get_array_length;
+  GetStruct()->get_function_name = v8value_get_function_name;
+  GetStruct()->get_function_handler = v8value_get_function_handler;
+  GetStruct()->execute_function = v8value_execute_function;
+  GetStruct()->execute_function_with_context =
       v8value_execute_function_with_context;
+}
+
+template<> CefRefPtr<CefV8Value> CefCppToC<CefV8ValueCppToC, CefV8Value,
+    cef_v8value_t>::UnwrapDerived(CefWrapperType type, cef_v8value_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -971,3 +980,5 @@ template<> base::AtomicRefCount CefCppToC<CefV8ValueCppToC, CefV8Value,
     cef_v8value_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefV8ValueCppToC, CefV8Value,
+    cef_v8value_t>::kWrapperType = WT_V8VALUE;

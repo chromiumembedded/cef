@@ -13,6 +13,8 @@
 #include "libcef_dll/cpptoc/print_job_callback_cpptoc.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK print_job_callback_cont(
@@ -27,13 +29,20 @@ void CEF_CALLBACK print_job_callback_cont(
   CefPrintJobCallbackCppToC::Get(self)->Continue();
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefPrintJobCallbackCppToC::CefPrintJobCallbackCppToC(CefPrintJobCallback* cls)
-    : CefCppToC<CefPrintJobCallbackCppToC, CefPrintJobCallback,
-        cef_print_job_callback_t>(cls) {
-  struct_.struct_.cont = print_job_callback_cont;
+CefPrintJobCallbackCppToC::CefPrintJobCallbackCppToC() {
+  GetStruct()->cont = print_job_callback_cont;
+}
+
+template<> CefRefPtr<CefPrintJobCallback> CefCppToC<CefPrintJobCallbackCppToC,
+    CefPrintJobCallback, cef_print_job_callback_t>::UnwrapDerived(
+    CefWrapperType type, cef_print_job_callback_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -41,3 +50,6 @@ template<> base::AtomicRefCount CefCppToC<CefPrintJobCallbackCppToC,
     CefPrintJobCallback, cef_print_job_callback_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefPrintJobCallbackCppToC,
+    CefPrintJobCallback, cef_print_job_callback_t>::kWrapperType =
+    WT_PRINT_JOB_CALLBACK;

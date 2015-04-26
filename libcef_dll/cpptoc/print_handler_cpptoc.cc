@@ -16,6 +16,8 @@
 #include "libcef_dll/ctocpp/print_settings_ctocpp.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK print_handler_on_print_settings(
@@ -102,16 +104,23 @@ void CEF_CALLBACK print_handler_on_print_reset(
   CefPrintHandlerCppToC::Get(self)->OnPrintReset();
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefPrintHandlerCppToC::CefPrintHandlerCppToC(CefPrintHandler* cls)
-    : CefCppToC<CefPrintHandlerCppToC, CefPrintHandler, cef_print_handler_t>(
-        cls) {
-  struct_.struct_.on_print_settings = print_handler_on_print_settings;
-  struct_.struct_.on_print_dialog = print_handler_on_print_dialog;
-  struct_.struct_.on_print_job = print_handler_on_print_job;
-  struct_.struct_.on_print_reset = print_handler_on_print_reset;
+CefPrintHandlerCppToC::CefPrintHandlerCppToC() {
+  GetStruct()->on_print_settings = print_handler_on_print_settings;
+  GetStruct()->on_print_dialog = print_handler_on_print_dialog;
+  GetStruct()->on_print_job = print_handler_on_print_job;
+  GetStruct()->on_print_reset = print_handler_on_print_reset;
+}
+
+template<> CefRefPtr<CefPrintHandler> CefCppToC<CefPrintHandlerCppToC,
+    CefPrintHandler, cef_print_handler_t>::UnwrapDerived(CefWrapperType type,
+    cef_print_handler_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -119,3 +128,5 @@ template<> base::AtomicRefCount CefCppToC<CefPrintHandlerCppToC,
     CefPrintHandler, cef_print_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefPrintHandlerCppToC, CefPrintHandler,
+    cef_print_handler_t>::kWrapperType = WT_PRINT_HANDLER;

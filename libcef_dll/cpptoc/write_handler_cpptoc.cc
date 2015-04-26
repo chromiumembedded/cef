@@ -13,6 +13,8 @@
 #include "libcef_dll/cpptoc/write_handler_cpptoc.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 size_t CEF_CALLBACK write_handler_write(struct _cef_write_handler_t* self,
@@ -96,17 +98,24 @@ int CEF_CALLBACK write_handler_may_block(struct _cef_write_handler_t* self) {
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefWriteHandlerCppToC::CefWriteHandlerCppToC(CefWriteHandler* cls)
-    : CefCppToC<CefWriteHandlerCppToC, CefWriteHandler, cef_write_handler_t>(
-        cls) {
-  struct_.struct_.write = write_handler_write;
-  struct_.struct_.seek = write_handler_seek;
-  struct_.struct_.tell = write_handler_tell;
-  struct_.struct_.flush = write_handler_flush;
-  struct_.struct_.may_block = write_handler_may_block;
+CefWriteHandlerCppToC::CefWriteHandlerCppToC() {
+  GetStruct()->write = write_handler_write;
+  GetStruct()->seek = write_handler_seek;
+  GetStruct()->tell = write_handler_tell;
+  GetStruct()->flush = write_handler_flush;
+  GetStruct()->may_block = write_handler_may_block;
+}
+
+template<> CefRefPtr<CefWriteHandler> CefCppToC<CefWriteHandlerCppToC,
+    CefWriteHandler, cef_write_handler_t>::UnwrapDerived(CefWrapperType type,
+    cef_write_handler_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -114,3 +123,5 @@ template<> base::AtomicRefCount CefCppToC<CefWriteHandlerCppToC,
     CefWriteHandler, cef_write_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefWriteHandlerCppToC, CefWriteHandler,
+    cef_write_handler_t>::kWrapperType = WT_WRITE_HANDLER;

@@ -28,9 +28,8 @@ class CefFocusHandlerCppToC
     : public CefCppToC<CefFocusHandlerCppToC, CefFocusHandler,
         cef_focus_handler_t> {
  public:
-  explicit CefFocusHandlerCppToC(CefFocusHandler* cls);
+  CefFocusHandlerCppToC();
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_FOCUS_HANDLER_CPPTOC_H_
-

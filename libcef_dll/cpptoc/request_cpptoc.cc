@@ -28,6 +28,8 @@ CEF_EXPORT cef_request_t* cef_request_create() {
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK request_is_read_only(struct _cef_request_t* self) {
@@ -323,30 +325,37 @@ uint64 CEF_CALLBACK request_get_identifier(struct _cef_request_t* self) {
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefRequestCppToC::CefRequestCppToC(CefRequest* cls)
-    : CefCppToC<CefRequestCppToC, CefRequest, cef_request_t>(cls) {
-  struct_.struct_.is_read_only = request_is_read_only;
-  struct_.struct_.get_url = request_get_url;
-  struct_.struct_.set_url = request_set_url;
-  struct_.struct_.get_method = request_get_method;
-  struct_.struct_.set_method = request_set_method;
-  struct_.struct_.get_post_data = request_get_post_data;
-  struct_.struct_.set_post_data = request_set_post_data;
-  struct_.struct_.get_header_map = request_get_header_map;
-  struct_.struct_.set_header_map = request_set_header_map;
-  struct_.struct_.set = request_set;
-  struct_.struct_.get_flags = request_get_flags;
-  struct_.struct_.set_flags = request_set_flags;
-  struct_.struct_.get_first_party_for_cookies =
+CefRequestCppToC::CefRequestCppToC() {
+  GetStruct()->is_read_only = request_is_read_only;
+  GetStruct()->get_url = request_get_url;
+  GetStruct()->set_url = request_set_url;
+  GetStruct()->get_method = request_get_method;
+  GetStruct()->set_method = request_set_method;
+  GetStruct()->get_post_data = request_get_post_data;
+  GetStruct()->set_post_data = request_set_post_data;
+  GetStruct()->get_header_map = request_get_header_map;
+  GetStruct()->set_header_map = request_set_header_map;
+  GetStruct()->set = request_set;
+  GetStruct()->get_flags = request_get_flags;
+  GetStruct()->set_flags = request_set_flags;
+  GetStruct()->get_first_party_for_cookies =
       request_get_first_party_for_cookies;
-  struct_.struct_.set_first_party_for_cookies =
+  GetStruct()->set_first_party_for_cookies =
       request_set_first_party_for_cookies;
-  struct_.struct_.get_resource_type = request_get_resource_type;
-  struct_.struct_.get_transition_type = request_get_transition_type;
-  struct_.struct_.get_identifier = request_get_identifier;
+  GetStruct()->get_resource_type = request_get_resource_type;
+  GetStruct()->get_transition_type = request_get_transition_type;
+  GetStruct()->get_identifier = request_get_identifier;
+}
+
+template<> CefRefPtr<CefRequest> CefCppToC<CefRequestCppToC, CefRequest,
+    cef_request_t>::UnwrapDerived(CefWrapperType type, cef_request_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -354,3 +363,5 @@ template<> base::AtomicRefCount CefCppToC<CefRequestCppToC, CefRequest,
     cef_request_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefRequestCppToC, CefRequest,
+    cef_request_t>::kWrapperType = WT_REQUEST;

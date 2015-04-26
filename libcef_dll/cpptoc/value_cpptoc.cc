@@ -29,6 +29,8 @@ CEF_EXPORT cef_value_t* cef_value_create() {
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK value_is_valid(struct _cef_value_t* self) {
@@ -379,33 +381,40 @@ int CEF_CALLBACK value_set_list(struct _cef_value_t* self,
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefValueCppToC::CefValueCppToC(CefValue* cls)
-    : CefCppToC<CefValueCppToC, CefValue, cef_value_t>(cls) {
-  struct_.struct_.is_valid = value_is_valid;
-  struct_.struct_.is_owned = value_is_owned;
-  struct_.struct_.is_read_only = value_is_read_only;
-  struct_.struct_.is_same = value_is_same;
-  struct_.struct_.is_equal = value_is_equal;
-  struct_.struct_.copy = value_copy;
-  struct_.struct_.get_type = value_get_type;
-  struct_.struct_.get_bool = value_get_bool;
-  struct_.struct_.get_int = value_get_int;
-  struct_.struct_.get_double = value_get_double;
-  struct_.struct_.get_string = value_get_string;
-  struct_.struct_.get_binary = value_get_binary;
-  struct_.struct_.get_dictionary = value_get_dictionary;
-  struct_.struct_.get_list = value_get_list;
-  struct_.struct_.set_null = value_set_null;
-  struct_.struct_.set_bool = value_set_bool;
-  struct_.struct_.set_int = value_set_int;
-  struct_.struct_.set_double = value_set_double;
-  struct_.struct_.set_string = value_set_string;
-  struct_.struct_.set_binary = value_set_binary;
-  struct_.struct_.set_dictionary = value_set_dictionary;
-  struct_.struct_.set_list = value_set_list;
+CefValueCppToC::CefValueCppToC() {
+  GetStruct()->is_valid = value_is_valid;
+  GetStruct()->is_owned = value_is_owned;
+  GetStruct()->is_read_only = value_is_read_only;
+  GetStruct()->is_same = value_is_same;
+  GetStruct()->is_equal = value_is_equal;
+  GetStruct()->copy = value_copy;
+  GetStruct()->get_type = value_get_type;
+  GetStruct()->get_bool = value_get_bool;
+  GetStruct()->get_int = value_get_int;
+  GetStruct()->get_double = value_get_double;
+  GetStruct()->get_string = value_get_string;
+  GetStruct()->get_binary = value_get_binary;
+  GetStruct()->get_dictionary = value_get_dictionary;
+  GetStruct()->get_list = value_get_list;
+  GetStruct()->set_null = value_set_null;
+  GetStruct()->set_bool = value_set_bool;
+  GetStruct()->set_int = value_set_int;
+  GetStruct()->set_double = value_set_double;
+  GetStruct()->set_string = value_set_string;
+  GetStruct()->set_binary = value_set_binary;
+  GetStruct()->set_dictionary = value_set_dictionary;
+  GetStruct()->set_list = value_set_list;
+}
+
+template<> CefRefPtr<CefValue> CefCppToC<CefValueCppToC, CefValue,
+    cef_value_t>::UnwrapDerived(CefWrapperType type, cef_value_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -413,3 +422,5 @@ template<> base::AtomicRefCount CefCppToC<CefValueCppToC, CefValue,
     cef_value_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefValueCppToC, CefValue,
+    cef_value_t>::kWrapperType = WT_VALUE;

@@ -36,6 +36,9 @@ def get_files_for_variable(cmake_path, variables, variable):
         if path[0] == '<':
             # Skip gyp include variables
             continue
+        if path.find('/test/') >= 0:
+            # Skip test files
+            continue
 
         abspath = os.path.join(cef_dir, path)
         newpath = normalize_path(os.path.relpath(abspath, cmake_dirname))

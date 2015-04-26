@@ -75,6 +75,8 @@ CEF_EXPORT cef_request_context_t* create_context_shared(
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK request_context_is_same(struct _cef_request_context_t* self,
@@ -224,23 +226,30 @@ int CEF_CALLBACK request_context_clear_scheme_handler_factories(
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefRequestContextCppToC::CefRequestContextCppToC(CefRequestContext* cls)
-    : CefCppToC<CefRequestContextCppToC, CefRequestContext,
-        cef_request_context_t>(cls) {
-  struct_.struct_.is_same = request_context_is_same;
-  struct_.struct_.is_sharing_with = request_context_is_sharing_with;
-  struct_.struct_.is_global = request_context_is_global;
-  struct_.struct_.get_handler = request_context_get_handler;
-  struct_.struct_.get_cache_path = request_context_get_cache_path;
-  struct_.struct_.get_default_cookie_manager =
+CefRequestContextCppToC::CefRequestContextCppToC() {
+  GetStruct()->is_same = request_context_is_same;
+  GetStruct()->is_sharing_with = request_context_is_sharing_with;
+  GetStruct()->is_global = request_context_is_global;
+  GetStruct()->get_handler = request_context_get_handler;
+  GetStruct()->get_cache_path = request_context_get_cache_path;
+  GetStruct()->get_default_cookie_manager =
       request_context_get_default_cookie_manager;
-  struct_.struct_.register_scheme_handler_factory =
+  GetStruct()->register_scheme_handler_factory =
       request_context_register_scheme_handler_factory;
-  struct_.struct_.clear_scheme_handler_factories =
+  GetStruct()->clear_scheme_handler_factories =
       request_context_clear_scheme_handler_factories;
+}
+
+template<> CefRefPtr<CefRequestContext> CefCppToC<CefRequestContextCppToC,
+    CefRequestContext, cef_request_context_t>::UnwrapDerived(
+    CefWrapperType type, cef_request_context_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -248,3 +257,5 @@ template<> base::AtomicRefCount CefCppToC<CefRequestContextCppToC,
     CefRequestContext, cef_request_context_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefRequestContextCppToC, CefRequestContext,
+    cef_request_context_t>::kWrapperType = WT_REQUEST_CONTEXT;

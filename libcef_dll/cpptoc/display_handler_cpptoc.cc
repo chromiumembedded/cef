@@ -16,6 +16,8 @@
 #include "libcef_dll/transfer_util.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK display_handler_on_address_change(
@@ -160,18 +162,25 @@ int CEF_CALLBACK display_handler_on_console_message(
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDisplayHandlerCppToC::CefDisplayHandlerCppToC(CefDisplayHandler* cls)
-    : CefCppToC<CefDisplayHandlerCppToC, CefDisplayHandler,
-        cef_display_handler_t>(cls) {
-  struct_.struct_.on_address_change = display_handler_on_address_change;
-  struct_.struct_.on_title_change = display_handler_on_title_change;
-  struct_.struct_.on_favicon_urlchange = display_handler_on_favicon_urlchange;
-  struct_.struct_.on_tooltip = display_handler_on_tooltip;
-  struct_.struct_.on_status_message = display_handler_on_status_message;
-  struct_.struct_.on_console_message = display_handler_on_console_message;
+CefDisplayHandlerCppToC::CefDisplayHandlerCppToC() {
+  GetStruct()->on_address_change = display_handler_on_address_change;
+  GetStruct()->on_title_change = display_handler_on_title_change;
+  GetStruct()->on_favicon_urlchange = display_handler_on_favicon_urlchange;
+  GetStruct()->on_tooltip = display_handler_on_tooltip;
+  GetStruct()->on_status_message = display_handler_on_status_message;
+  GetStruct()->on_console_message = display_handler_on_console_message;
+}
+
+template<> CefRefPtr<CefDisplayHandler> CefCppToC<CefDisplayHandlerCppToC,
+    CefDisplayHandler, cef_display_handler_t>::UnwrapDerived(
+    CefWrapperType type, cef_display_handler_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -179,3 +188,5 @@ template<> base::AtomicRefCount CefCppToC<CefDisplayHandlerCppToC,
     CefDisplayHandler, cef_display_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefDisplayHandlerCppToC, CefDisplayHandler,
+    cef_display_handler_t>::kWrapperType = WT_DISPLAY_HANDLER;

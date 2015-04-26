@@ -27,6 +27,8 @@ CEF_EXPORT cef_print_settings_t* cef_print_settings_create() {
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK print_settings_is_valid(struct _cef_print_settings_t* self) {
@@ -408,36 +410,43 @@ cef_duplex_mode_t CEF_CALLBACK print_settings_get_duplex_mode(
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefPrintSettingsCppToC::CefPrintSettingsCppToC(CefPrintSettings* cls)
-    : CefCppToC<CefPrintSettingsCppToC, CefPrintSettings, cef_print_settings_t>(
-        cls) {
-  struct_.struct_.is_valid = print_settings_is_valid;
-  struct_.struct_.is_read_only = print_settings_is_read_only;
-  struct_.struct_.copy = print_settings_copy;
-  struct_.struct_.set_orientation = print_settings_set_orientation;
-  struct_.struct_.is_landscape = print_settings_is_landscape;
-  struct_.struct_.set_printer_printable_area =
+CefPrintSettingsCppToC::CefPrintSettingsCppToC() {
+  GetStruct()->is_valid = print_settings_is_valid;
+  GetStruct()->is_read_only = print_settings_is_read_only;
+  GetStruct()->copy = print_settings_copy;
+  GetStruct()->set_orientation = print_settings_set_orientation;
+  GetStruct()->is_landscape = print_settings_is_landscape;
+  GetStruct()->set_printer_printable_area =
       print_settings_set_printer_printable_area;
-  struct_.struct_.set_device_name = print_settings_set_device_name;
-  struct_.struct_.get_device_name = print_settings_get_device_name;
-  struct_.struct_.set_dpi = print_settings_set_dpi;
-  struct_.struct_.get_dpi = print_settings_get_dpi;
-  struct_.struct_.set_page_ranges = print_settings_set_page_ranges;
-  struct_.struct_.get_page_ranges_count = print_settings_get_page_ranges_count;
-  struct_.struct_.get_page_ranges = print_settings_get_page_ranges;
-  struct_.struct_.set_selection_only = print_settings_set_selection_only;
-  struct_.struct_.is_selection_only = print_settings_is_selection_only;
-  struct_.struct_.set_collate = print_settings_set_collate;
-  struct_.struct_.will_collate = print_settings_will_collate;
-  struct_.struct_.set_color_model = print_settings_set_color_model;
-  struct_.struct_.get_color_model = print_settings_get_color_model;
-  struct_.struct_.set_copies = print_settings_set_copies;
-  struct_.struct_.get_copies = print_settings_get_copies;
-  struct_.struct_.set_duplex_mode = print_settings_set_duplex_mode;
-  struct_.struct_.get_duplex_mode = print_settings_get_duplex_mode;
+  GetStruct()->set_device_name = print_settings_set_device_name;
+  GetStruct()->get_device_name = print_settings_get_device_name;
+  GetStruct()->set_dpi = print_settings_set_dpi;
+  GetStruct()->get_dpi = print_settings_get_dpi;
+  GetStruct()->set_page_ranges = print_settings_set_page_ranges;
+  GetStruct()->get_page_ranges_count = print_settings_get_page_ranges_count;
+  GetStruct()->get_page_ranges = print_settings_get_page_ranges;
+  GetStruct()->set_selection_only = print_settings_set_selection_only;
+  GetStruct()->is_selection_only = print_settings_is_selection_only;
+  GetStruct()->set_collate = print_settings_set_collate;
+  GetStruct()->will_collate = print_settings_will_collate;
+  GetStruct()->set_color_model = print_settings_set_color_model;
+  GetStruct()->get_color_model = print_settings_get_color_model;
+  GetStruct()->set_copies = print_settings_set_copies;
+  GetStruct()->get_copies = print_settings_get_copies;
+  GetStruct()->set_duplex_mode = print_settings_set_duplex_mode;
+  GetStruct()->get_duplex_mode = print_settings_get_duplex_mode;
+}
+
+template<> CefRefPtr<CefPrintSettings> CefCppToC<CefPrintSettingsCppToC,
+    CefPrintSettings, cef_print_settings_t>::UnwrapDerived(CefWrapperType type,
+    cef_print_settings_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -445,3 +454,5 @@ template<> base::AtomicRefCount CefCppToC<CefPrintSettingsCppToC,
     CefPrintSettings, cef_print_settings_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefPrintSettingsCppToC, CefPrintSettings,
+    cef_print_settings_t>::kWrapperType = WT_PRINT_SETTINGS;

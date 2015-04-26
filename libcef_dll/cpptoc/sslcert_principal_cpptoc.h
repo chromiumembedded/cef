@@ -28,9 +28,8 @@ class CefSSLCertPrincipalCppToC
     : public CefCppToC<CefSSLCertPrincipalCppToC, CefSSLCertPrincipal,
         cef_sslcert_principal_t> {
  public:
-  explicit CefSSLCertPrincipalCppToC(CefSSLCertPrincipal* cls);
+  CefSSLCertPrincipalCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_SSLCERT_PRINCIPAL_CPPTOC_H_
-

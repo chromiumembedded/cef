@@ -16,18 +16,32 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefTaskCToCpp::Execute() {
-  if (CEF_MEMBER_MISSING(struct_, execute))
+  cef_task_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, execute))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->execute(struct_);
+  _struct->execute(_struct);
 }
 
+
+// CONSTRUCTOR - Do not edit by hand.
+
+CefTaskCToCpp::CefTaskCToCpp() {
+}
+
+template<> cef_task_t* CefCToCpp<CefTaskCToCpp, CefTask,
+    cef_task_t>::UnwrapDerived(CefWrapperType type, CefTask* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefTaskCToCpp, CefTask,
     cef_task_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefTaskCToCpp, CefTask,
+    cef_task_t>::kWrapperType = WT_TASK;

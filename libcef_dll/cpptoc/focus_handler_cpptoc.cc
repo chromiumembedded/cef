@@ -14,6 +14,8 @@
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK focus_handler_on_take_focus(struct _cef_focus_handler_t* self,
@@ -72,15 +74,22 @@ void CEF_CALLBACK focus_handler_on_got_focus(struct _cef_focus_handler_t* self,
       CefBrowserCToCpp::Wrap(browser));
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefFocusHandlerCppToC::CefFocusHandlerCppToC(CefFocusHandler* cls)
-    : CefCppToC<CefFocusHandlerCppToC, CefFocusHandler, cef_focus_handler_t>(
-        cls) {
-  struct_.struct_.on_take_focus = focus_handler_on_take_focus;
-  struct_.struct_.on_set_focus = focus_handler_on_set_focus;
-  struct_.struct_.on_got_focus = focus_handler_on_got_focus;
+CefFocusHandlerCppToC::CefFocusHandlerCppToC() {
+  GetStruct()->on_take_focus = focus_handler_on_take_focus;
+  GetStruct()->on_set_focus = focus_handler_on_set_focus;
+  GetStruct()->on_got_focus = focus_handler_on_got_focus;
+}
+
+template<> CefRefPtr<CefFocusHandler> CefCppToC<CefFocusHandlerCppToC,
+    CefFocusHandler, cef_focus_handler_t>::UnwrapDerived(CefWrapperType type,
+    cef_focus_handler_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -88,3 +97,5 @@ template<> base::AtomicRefCount CefCppToC<CefFocusHandlerCppToC,
     CefFocusHandler, cef_focus_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefFocusHandlerCppToC, CefFocusHandler,
+    cef_focus_handler_t>::kWrapperType = WT_FOCUS_HANDLER;

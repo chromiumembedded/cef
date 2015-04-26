@@ -28,9 +28,8 @@ class CefPrintDialogCallbackCppToC
     : public CefCppToC<CefPrintDialogCallbackCppToC, CefPrintDialogCallback,
         cef_print_dialog_callback_t> {
  public:
-  explicit CefPrintDialogCallbackCppToC(CefPrintDialogCallback* cls);
+  CefPrintDialogCallbackCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_PRINT_DIALOG_CALLBACK_CPPTOC_H_
-

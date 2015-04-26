@@ -16,13 +16,14 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 CefString CefV8ExceptionCToCpp::GetMessage() {
-  if (CEF_MEMBER_MISSING(struct_, get_message))
+  cef_v8exception_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_message))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_message(struct_);
+  cef_string_userfree_t _retval = _struct->get_message(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -31,13 +32,14 @@ CefString CefV8ExceptionCToCpp::GetMessage() {
 }
 
 CefString CefV8ExceptionCToCpp::GetSourceLine() {
-  if (CEF_MEMBER_MISSING(struct_, get_source_line))
+  cef_v8exception_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_source_line))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_source_line(struct_);
+  cef_string_userfree_t _retval = _struct->get_source_line(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -46,13 +48,14 @@ CefString CefV8ExceptionCToCpp::GetSourceLine() {
 }
 
 CefString CefV8ExceptionCToCpp::GetScriptResourceName() {
-  if (CEF_MEMBER_MISSING(struct_, get_script_resource_name))
+  cef_v8exception_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_script_resource_name))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_script_resource_name(struct_);
+  cef_string_userfree_t _retval = _struct->get_script_resource_name(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -61,73 +64,92 @@ CefString CefV8ExceptionCToCpp::GetScriptResourceName() {
 }
 
 int CefV8ExceptionCToCpp::GetLineNumber() {
-  if (CEF_MEMBER_MISSING(struct_, get_line_number))
+  cef_v8exception_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_line_number))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_line_number(struct_);
+  int _retval = _struct->get_line_number(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 int CefV8ExceptionCToCpp::GetStartPosition() {
-  if (CEF_MEMBER_MISSING(struct_, get_start_position))
+  cef_v8exception_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_start_position))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_start_position(struct_);
+  int _retval = _struct->get_start_position(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 int CefV8ExceptionCToCpp::GetEndPosition() {
-  if (CEF_MEMBER_MISSING(struct_, get_end_position))
+  cef_v8exception_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_end_position))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_end_position(struct_);
+  int _retval = _struct->get_end_position(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 int CefV8ExceptionCToCpp::GetStartColumn() {
-  if (CEF_MEMBER_MISSING(struct_, get_start_column))
+  cef_v8exception_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_start_column))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_start_column(struct_);
+  int _retval = _struct->get_start_column(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 int CefV8ExceptionCToCpp::GetEndColumn() {
-  if (CEF_MEMBER_MISSING(struct_, get_end_column))
+  cef_v8exception_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_end_column))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_end_column(struct_);
+  int _retval = _struct->get_end_column(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefV8ExceptionCToCpp::CefV8ExceptionCToCpp() {
+}
+
+template<> cef_v8exception_t* CefCToCpp<CefV8ExceptionCToCpp, CefV8Exception,
+    cef_v8exception_t>::UnwrapDerived(CefWrapperType type,
+    CefV8Exception* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefV8ExceptionCToCpp, CefV8Exception,
     cef_v8exception_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefV8ExceptionCToCpp, CefV8Exception,
+    cef_v8exception_t>::kWrapperType = WT_V8EXCEPTION;

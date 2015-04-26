@@ -28,39 +28,35 @@ class CefPrintSettingsCToCpp
     : public CefCToCpp<CefPrintSettingsCToCpp, CefPrintSettings,
         cef_print_settings_t> {
  public:
-  explicit CefPrintSettingsCToCpp(cef_print_settings_t* str)
-      : CefCToCpp<CefPrintSettingsCToCpp, CefPrintSettings,
-          cef_print_settings_t>(str) {}
+  CefPrintSettingsCToCpp();
 
-  // CefPrintSettings methods
-  virtual bool IsValid() OVERRIDE;
-  virtual bool IsReadOnly() OVERRIDE;
-  virtual CefRefPtr<CefPrintSettings> Copy() OVERRIDE;
-  virtual void SetOrientation(bool landscape) OVERRIDE;
-  virtual bool IsLandscape() OVERRIDE;
-  virtual void SetPrinterPrintableArea(
-      const CefSize& physical_size_device_units,
+  // CefPrintSettings methods.
+  bool IsValid() OVERRIDE;
+  bool IsReadOnly() OVERRIDE;
+  CefRefPtr<CefPrintSettings> Copy() OVERRIDE;
+  void SetOrientation(bool landscape) OVERRIDE;
+  bool IsLandscape() OVERRIDE;
+  void SetPrinterPrintableArea(const CefSize& physical_size_device_units,
       const CefRect& printable_area_device_units,
       bool landscape_needs_flip) OVERRIDE;
-  virtual void SetDeviceName(const CefString& name) OVERRIDE;
-  virtual CefString GetDeviceName() OVERRIDE;
-  virtual void SetDPI(int dpi) OVERRIDE;
-  virtual int GetDPI() OVERRIDE;
-  virtual void SetPageRanges(const PageRangeList& ranges) OVERRIDE;
-  virtual size_t GetPageRangesCount() OVERRIDE;
-  virtual void GetPageRanges(PageRangeList& ranges) OVERRIDE;
-  virtual void SetSelectionOnly(bool selection_only) OVERRIDE;
-  virtual bool IsSelectionOnly() OVERRIDE;
-  virtual void SetCollate(bool collate) OVERRIDE;
-  virtual bool WillCollate() OVERRIDE;
-  virtual void SetColorModel(ColorModel model) OVERRIDE;
-  virtual ColorModel GetColorModel() OVERRIDE;
-  virtual void SetCopies(int copies) OVERRIDE;
-  virtual int GetCopies() OVERRIDE;
-  virtual void SetDuplexMode(DuplexMode mode) OVERRIDE;
-  virtual DuplexMode GetDuplexMode() OVERRIDE;
+  void SetDeviceName(const CefString& name) OVERRIDE;
+  CefString GetDeviceName() OVERRIDE;
+  void SetDPI(int dpi) OVERRIDE;
+  int GetDPI() OVERRIDE;
+  void SetPageRanges(const PageRangeList& ranges) OVERRIDE;
+  size_t GetPageRangesCount() OVERRIDE;
+  void GetPageRanges(PageRangeList& ranges) OVERRIDE;
+  void SetSelectionOnly(bool selection_only) OVERRIDE;
+  bool IsSelectionOnly() OVERRIDE;
+  void SetCollate(bool collate) OVERRIDE;
+  bool WillCollate() OVERRIDE;
+  void SetColorModel(ColorModel model) OVERRIDE;
+  ColorModel GetColorModel() OVERRIDE;
+  void SetCopies(int copies) OVERRIDE;
+  int GetCopies() OVERRIDE;
+  void SetDuplexMode(DuplexMode mode) OVERRIDE;
+  DuplexMode GetDuplexMode() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_PRINT_SETTINGS_CTOCPP_H_
-

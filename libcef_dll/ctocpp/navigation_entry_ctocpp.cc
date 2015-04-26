@@ -16,26 +16,28 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefNavigationEntryCToCpp::IsValid() {
-  if (CEF_MEMBER_MISSING(struct_, is_valid))
+  cef_navigation_entry_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_valid))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_valid(struct_);
+  int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 CefString CefNavigationEntryCToCpp::GetURL() {
-  if (CEF_MEMBER_MISSING(struct_, get_url))
+  cef_navigation_entry_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_url))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_url(struct_);
+  cef_string_userfree_t _retval = _struct->get_url(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -44,13 +46,14 @@ CefString CefNavigationEntryCToCpp::GetURL() {
 }
 
 CefString CefNavigationEntryCToCpp::GetDisplayURL() {
-  if (CEF_MEMBER_MISSING(struct_, get_display_url))
+  cef_navigation_entry_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_display_url))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_display_url(struct_);
+  cef_string_userfree_t _retval = _struct->get_display_url(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -59,13 +62,14 @@ CefString CefNavigationEntryCToCpp::GetDisplayURL() {
 }
 
 CefString CefNavigationEntryCToCpp::GetOriginalURL() {
-  if (CEF_MEMBER_MISSING(struct_, get_original_url))
+  cef_navigation_entry_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_original_url))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_original_url(struct_);
+  cef_string_userfree_t _retval = _struct->get_original_url(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -74,13 +78,14 @@ CefString CefNavigationEntryCToCpp::GetOriginalURL() {
 }
 
 CefString CefNavigationEntryCToCpp::GetTitle() {
-  if (CEF_MEMBER_MISSING(struct_, get_title))
+  cef_navigation_entry_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_title))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_title(struct_);
+  cef_string_userfree_t _retval = _struct->get_title(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -90,39 +95,42 @@ CefString CefNavigationEntryCToCpp::GetTitle() {
 
 CefNavigationEntry::TransitionType CefNavigationEntryCToCpp::GetTransitionType(
     ) {
-  if (CEF_MEMBER_MISSING(struct_, get_transition_type))
+  cef_navigation_entry_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_transition_type))
     return TT_EXPLICIT;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_transition_type_t _retval = struct_->get_transition_type(struct_);
+  cef_transition_type_t _retval = _struct->get_transition_type(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 bool CefNavigationEntryCToCpp::HasPostData() {
-  if (CEF_MEMBER_MISSING(struct_, has_post_data))
+  cef_navigation_entry_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, has_post_data))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->has_post_data(struct_);
+  int _retval = _struct->has_post_data(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 CefString CefNavigationEntryCToCpp::GetFrameName() {
-  if (CEF_MEMBER_MISSING(struct_, get_frame_name))
+  cef_navigation_entry_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_frame_name))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_frame_name(struct_);
+  cef_string_userfree_t _retval = _struct->get_frame_name(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -131,34 +139,51 @@ CefString CefNavigationEntryCToCpp::GetFrameName() {
 }
 
 CefTime CefNavigationEntryCToCpp::GetCompletionTime() {
-  if (CEF_MEMBER_MISSING(struct_, get_completion_time))
+  cef_navigation_entry_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_completion_time))
     return CefTime();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_time_t _retval = struct_->get_completion_time(struct_);
+  cef_time_t _retval = _struct->get_completion_time(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 int CefNavigationEntryCToCpp::GetHttpStatusCode() {
-  if (CEF_MEMBER_MISSING(struct_, get_http_status_code))
+  cef_navigation_entry_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_http_status_code))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_http_status_code(struct_);
+  int _retval = _struct->get_http_status_code(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefNavigationEntryCToCpp::CefNavigationEntryCToCpp() {
+}
+
+template<> cef_navigation_entry_t* CefCToCpp<CefNavigationEntryCToCpp,
+    CefNavigationEntry, cef_navigation_entry_t>::UnwrapDerived(
+    CefWrapperType type, CefNavigationEntry* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefNavigationEntryCToCpp,
     CefNavigationEntry, cef_navigation_entry_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefNavigationEntryCToCpp,
+    CefNavigationEntry, cef_navigation_entry_t>::kWrapperType =
+    WT_NAVIGATION_ENTRY;

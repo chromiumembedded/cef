@@ -29,32 +29,28 @@ class CefContextMenuParamsCToCpp
     : public CefCToCpp<CefContextMenuParamsCToCpp, CefContextMenuParams,
         cef_context_menu_params_t> {
  public:
-  explicit CefContextMenuParamsCToCpp(cef_context_menu_params_t* str)
-      : CefCToCpp<CefContextMenuParamsCToCpp, CefContextMenuParams,
-          cef_context_menu_params_t>(str) {}
+  CefContextMenuParamsCToCpp();
 
-  // CefContextMenuParams methods
-  virtual int GetXCoord() OVERRIDE;
-  virtual int GetYCoord() OVERRIDE;
-  virtual TypeFlags GetTypeFlags() OVERRIDE;
-  virtual CefString GetLinkUrl() OVERRIDE;
-  virtual CefString GetUnfilteredLinkUrl() OVERRIDE;
-  virtual CefString GetSourceUrl() OVERRIDE;
-  virtual bool HasImageContents() OVERRIDE;
-  virtual CefString GetPageUrl() OVERRIDE;
-  virtual CefString GetFrameUrl() OVERRIDE;
-  virtual CefString GetFrameCharset() OVERRIDE;
-  virtual MediaType GetMediaType() OVERRIDE;
-  virtual MediaStateFlags GetMediaStateFlags() OVERRIDE;
-  virtual CefString GetSelectionText() OVERRIDE;
-  virtual CefString GetMisspelledWord() OVERRIDE;
-  virtual bool GetDictionarySuggestions(
-      std::vector<CefString>& suggestions) OVERRIDE;
-  virtual bool IsEditable() OVERRIDE;
-  virtual bool IsSpellCheckEnabled() OVERRIDE;
-  virtual EditStateFlags GetEditStateFlags() OVERRIDE;
+  // CefContextMenuParams methods.
+  int GetXCoord() OVERRIDE;
+  int GetYCoord() OVERRIDE;
+  TypeFlags GetTypeFlags() OVERRIDE;
+  CefString GetLinkUrl() OVERRIDE;
+  CefString GetUnfilteredLinkUrl() OVERRIDE;
+  CefString GetSourceUrl() OVERRIDE;
+  bool HasImageContents() OVERRIDE;
+  CefString GetPageUrl() OVERRIDE;
+  CefString GetFrameUrl() OVERRIDE;
+  CefString GetFrameCharset() OVERRIDE;
+  MediaType GetMediaType() OVERRIDE;
+  MediaStateFlags GetMediaStateFlags() OVERRIDE;
+  CefString GetSelectionText() OVERRIDE;
+  CefString GetMisspelledWord() OVERRIDE;
+  bool GetDictionarySuggestions(std::vector<CefString>& suggestions) OVERRIDE;
+  bool IsEditable() OVERRIDE;
+  bool IsSpellCheckEnabled() OVERRIDE;
+  EditStateFlags GetEditStateFlags() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_CONTEXT_MENU_PARAMS_CTOCPP_H_
-

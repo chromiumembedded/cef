@@ -28,11 +28,9 @@ class CefFindHandlerCToCpp
     : public CefCToCpp<CefFindHandlerCToCpp, CefFindHandler,
         cef_find_handler_t> {
  public:
-  explicit CefFindHandlerCToCpp(cef_find_handler_t* str)
-      : CefCToCpp<CefFindHandlerCToCpp, CefFindHandler, cef_find_handler_t>(
-          str) {}
+  CefFindHandlerCToCpp();
 
-  // CefFindHandler methods
+  // CefFindHandler methods.
   void OnFindResult(CefRefPtr<CefBrowser> browser, int identifier, int count,
       const CefRect& selectionRect, int activeMatchOrdinal,
       bool finalUpdate) override;
@@ -40,4 +38,3 @@ class CefFindHandlerCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_FIND_HANDLER_CTOCPP_H_
-

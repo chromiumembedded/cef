@@ -28,17 +28,14 @@ class CefWebPluginInfoCToCpp
     : public CefCToCpp<CefWebPluginInfoCToCpp, CefWebPluginInfo,
         cef_web_plugin_info_t> {
  public:
-  explicit CefWebPluginInfoCToCpp(cef_web_plugin_info_t* str)
-      : CefCToCpp<CefWebPluginInfoCToCpp, CefWebPluginInfo,
-          cef_web_plugin_info_t>(str) {}
+  CefWebPluginInfoCToCpp();
 
-  // CefWebPluginInfo methods
-  virtual CefString GetName() OVERRIDE;
-  virtual CefString GetPath() OVERRIDE;
-  virtual CefString GetVersion() OVERRIDE;
-  virtual CefString GetDescription() OVERRIDE;
+  // CefWebPluginInfo methods.
+  CefString GetName() OVERRIDE;
+  CefString GetPath() OVERRIDE;
+  CefString GetVersion() OVERRIDE;
+  CefString GetDescription() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_WEB_PLUGIN_INFO_CTOCPP_H_
-

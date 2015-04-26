@@ -52,6 +52,8 @@ CEF_EXPORT cef_cookie_manager_t* cef_cookie_manager_create_manager(
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK cookie_manager_set_supported_schemes(
@@ -217,19 +219,26 @@ int CEF_CALLBACK cookie_manager_flush_store(struct _cef_cookie_manager_t* self,
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefCookieManagerCppToC::CefCookieManagerCppToC(CefCookieManager* cls)
-    : CefCppToC<CefCookieManagerCppToC, CefCookieManager, cef_cookie_manager_t>(
-        cls) {
-  struct_.struct_.set_supported_schemes = cookie_manager_set_supported_schemes;
-  struct_.struct_.visit_all_cookies = cookie_manager_visit_all_cookies;
-  struct_.struct_.visit_url_cookies = cookie_manager_visit_url_cookies;
-  struct_.struct_.set_cookie = cookie_manager_set_cookie;
-  struct_.struct_.delete_cookies = cookie_manager_delete_cookies;
-  struct_.struct_.set_storage_path = cookie_manager_set_storage_path;
-  struct_.struct_.flush_store = cookie_manager_flush_store;
+CefCookieManagerCppToC::CefCookieManagerCppToC() {
+  GetStruct()->set_supported_schemes = cookie_manager_set_supported_schemes;
+  GetStruct()->visit_all_cookies = cookie_manager_visit_all_cookies;
+  GetStruct()->visit_url_cookies = cookie_manager_visit_url_cookies;
+  GetStruct()->set_cookie = cookie_manager_set_cookie;
+  GetStruct()->delete_cookies = cookie_manager_delete_cookies;
+  GetStruct()->set_storage_path = cookie_manager_set_storage_path;
+  GetStruct()->flush_store = cookie_manager_flush_store;
+}
+
+template<> CefRefPtr<CefCookieManager> CefCppToC<CefCookieManagerCppToC,
+    CefCookieManager, cef_cookie_manager_t>::UnwrapDerived(CefWrapperType type,
+    cef_cookie_manager_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -237,3 +246,5 @@ template<> base::AtomicRefCount CefCppToC<CefCookieManagerCppToC,
     CefCookieManager, cef_cookie_manager_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefCookieManagerCppToC, CefCookieManager,
+    cef_cookie_manager_t>::kWrapperType = WT_COOKIE_MANAGER;

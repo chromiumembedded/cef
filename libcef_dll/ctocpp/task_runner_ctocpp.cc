@@ -41,7 +41,8 @@ CefRefPtr<CefTaskRunner> CefTaskRunner::GetForThread(CefThreadId threadId) {
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefTaskRunnerCToCpp::IsSame(CefRefPtr<CefTaskRunner> that) {
-  if (CEF_MEMBER_MISSING(struct_, is_same))
+  cef_task_runner_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_same))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -52,7 +53,7 @@ bool CefTaskRunnerCToCpp::IsSame(CefRefPtr<CefTaskRunner> that) {
     return false;
 
   // Execute
-  int _retval = struct_->is_same(struct_,
+  int _retval = _struct->is_same(_struct,
       CefTaskRunnerCToCpp::Unwrap(that));
 
   // Return type: bool
@@ -60,26 +61,28 @@ bool CefTaskRunnerCToCpp::IsSame(CefRefPtr<CefTaskRunner> that) {
 }
 
 bool CefTaskRunnerCToCpp::BelongsToCurrentThread() {
-  if (CEF_MEMBER_MISSING(struct_, belongs_to_current_thread))
+  cef_task_runner_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, belongs_to_current_thread))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->belongs_to_current_thread(struct_);
+  int _retval = _struct->belongs_to_current_thread(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 bool CefTaskRunnerCToCpp::BelongsToThread(CefThreadId threadId) {
-  if (CEF_MEMBER_MISSING(struct_, belongs_to_thread))
+  cef_task_runner_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, belongs_to_thread))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->belongs_to_thread(struct_,
+  int _retval = _struct->belongs_to_thread(_struct,
       threadId);
 
   // Return type: bool
@@ -87,7 +90,8 @@ bool CefTaskRunnerCToCpp::BelongsToThread(CefThreadId threadId) {
 }
 
 bool CefTaskRunnerCToCpp::PostTask(CefRefPtr<CefTask> task) {
-  if (CEF_MEMBER_MISSING(struct_, post_task))
+  cef_task_runner_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, post_task))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -98,7 +102,7 @@ bool CefTaskRunnerCToCpp::PostTask(CefRefPtr<CefTask> task) {
     return false;
 
   // Execute
-  int _retval = struct_->post_task(struct_,
+  int _retval = _struct->post_task(_struct,
       CefTaskCppToC::Wrap(task));
 
   // Return type: bool
@@ -107,7 +111,8 @@ bool CefTaskRunnerCToCpp::PostTask(CefRefPtr<CefTask> task) {
 
 bool CefTaskRunnerCToCpp::PostDelayedTask(CefRefPtr<CefTask> task,
     int64 delay_ms) {
-  if (CEF_MEMBER_MISSING(struct_, post_delayed_task))
+  cef_task_runner_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, post_delayed_task))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -118,7 +123,7 @@ bool CefTaskRunnerCToCpp::PostDelayedTask(CefRefPtr<CefTask> task,
     return false;
 
   // Execute
-  int _retval = struct_->post_delayed_task(struct_,
+  int _retval = _struct->post_delayed_task(_struct,
       CefTaskCppToC::Wrap(task),
       delay_ms);
 
@@ -127,8 +132,21 @@ bool CefTaskRunnerCToCpp::PostDelayedTask(CefRefPtr<CefTask> task,
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefTaskRunnerCToCpp::CefTaskRunnerCToCpp() {
+}
+
+template<> cef_task_runner_t* CefCToCpp<CefTaskRunnerCToCpp, CefTaskRunner,
+    cef_task_runner_t>::UnwrapDerived(CefWrapperType type, CefTaskRunner* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefTaskRunnerCToCpp, CefTaskRunner,
     cef_task_runner_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefTaskRunnerCToCpp, CefTaskRunner,
+    cef_task_runner_t>::kWrapperType = WT_TASK_RUNNER;

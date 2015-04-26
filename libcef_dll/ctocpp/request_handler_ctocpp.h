@@ -28,11 +28,9 @@ class CefRequestHandlerCToCpp
     : public CefCToCpp<CefRequestHandlerCToCpp, CefRequestHandler,
         cef_request_handler_t> {
  public:
-  explicit CefRequestHandlerCToCpp(cef_request_handler_t* str)
-      : CefCToCpp<CefRequestHandlerCToCpp, CefRequestHandler,
-          cef_request_handler_t>(str) {}
+  CefRequestHandlerCToCpp();
 
-  // CefRequestHandler methods
+  // CefRequestHandler methods.
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request, bool is_redirect) override;
   bool OnOpenURLFromTab(CefRefPtr<CefBrowser> browser,
@@ -74,4 +72,3 @@ class CefRequestHandlerCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_REQUEST_HANDLER_CTOCPP_H_
-

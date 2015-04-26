@@ -28,30 +28,27 @@ class CefDownloadItemCToCpp
     : public CefCToCpp<CefDownloadItemCToCpp, CefDownloadItem,
         cef_download_item_t> {
  public:
-  explicit CefDownloadItemCToCpp(cef_download_item_t* str)
-      : CefCToCpp<CefDownloadItemCToCpp, CefDownloadItem, cef_download_item_t>(
-          str) {}
+  CefDownloadItemCToCpp();
 
-  // CefDownloadItem methods
-  virtual bool IsValid() OVERRIDE;
-  virtual bool IsInProgress() OVERRIDE;
-  virtual bool IsComplete() OVERRIDE;
-  virtual bool IsCanceled() OVERRIDE;
-  virtual int64 GetCurrentSpeed() OVERRIDE;
-  virtual int GetPercentComplete() OVERRIDE;
-  virtual int64 GetTotalBytes() OVERRIDE;
-  virtual int64 GetReceivedBytes() OVERRIDE;
-  virtual CefTime GetStartTime() OVERRIDE;
-  virtual CefTime GetEndTime() OVERRIDE;
-  virtual CefString GetFullPath() OVERRIDE;
-  virtual uint32 GetId() OVERRIDE;
-  virtual CefString GetURL() OVERRIDE;
-  virtual CefString GetOriginalUrl() OVERRIDE;
-  virtual CefString GetSuggestedFileName() OVERRIDE;
-  virtual CefString GetContentDisposition() OVERRIDE;
-  virtual CefString GetMimeType() OVERRIDE;
+  // CefDownloadItem methods.
+  bool IsValid() OVERRIDE;
+  bool IsInProgress() OVERRIDE;
+  bool IsComplete() OVERRIDE;
+  bool IsCanceled() OVERRIDE;
+  int64 GetCurrentSpeed() OVERRIDE;
+  int GetPercentComplete() OVERRIDE;
+  int64 GetTotalBytes() OVERRIDE;
+  int64 GetReceivedBytes() OVERRIDE;
+  CefTime GetStartTime() OVERRIDE;
+  CefTime GetEndTime() OVERRIDE;
+  CefString GetFullPath() OVERRIDE;
+  uint32 GetId() OVERRIDE;
+  CefString GetURL() OVERRIDE;
+  CefString GetOriginalUrl() OVERRIDE;
+  CefString GetSuggestedFileName() OVERRIDE;
+  CefString GetContentDisposition() OVERRIDE;
+  CefString GetMimeType() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_ITEM_CTOCPP_H_
-

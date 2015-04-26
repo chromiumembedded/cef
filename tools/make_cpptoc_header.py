@@ -8,17 +8,24 @@ def make_cpptoc_header(header, clsname):
     cls = header.get_class(clsname)
     if cls is None:
         raise Exception('Class does not exist: '+clsname)
-    
+
     dllside = cls.is_library_side()
-    defname = string.upper(get_capi_name(clsname[3:], False))
+
+    directory = cls.get_file_directory()
+    defname = ''
+    if not directory is None:
+        defname += directory + '_'
+    defname += get_capi_name(clsname[3:], False)
+    defname = defname.upper()
+
     capiname = cls.get_capi_name()
-    
+
     result = get_copyright()
 
     result += '#ifndef CEF_LIBCEF_DLL_CPPTOC_'+defname+'_CPPTOC_H_\n'+ \
               '#define CEF_LIBCEF_DLL_CPPTOC_'+defname+'_CPPTOC_H_\n' + \
               '#pragma once\n'
-    
+
     if dllside:
         result += """
 #ifndef BUILDING_CEF_SHARED
@@ -53,53 +60,56 @@ def make_cpptoc_header(header, clsname):
         result += '// This class may be instantiated and accessed DLL-side only.\n'
     else:
         result += '// This class may be instantiated and accessed wrapper-side only.\n'
-    
+
     result +=  'class '+clsname+'CppToC\n'+ \
                '    : public CefCppToC<'+clsname+'CppToC, '+clsname+', '+capiname+'> {\n'+ \
                ' public:\n'+ \
-               '  explicit '+clsname+'CppToC('+clsname+'* cls);\n'+ \
+               '  '+clsname+'CppToC();\n'+ \
                '};\n\n'
-    
+
     if dllside:
         result += '#endif  // BUILDING_CEF_SHARED\n'
     else:
         result += '#endif  // USING_CEF_SHARED\n'
-    
-    result += '#endif  // CEF_LIBCEF_DLL_CPPTOC_'+defname+'_CPPTOC_H_\n'
-    
+
+    result += '#endif  // CEF_LIBCEF_DLL_CPPTOC_'+defname+'_CPPTOC_H_'
+
     return wrap_code(result)
 
 
 def write_cpptoc_header(header, clsname, dir, backup):
-    file = dir+os.sep+get_capi_name(clsname[3:], False)+'_cpptoc.h'
-    
+    # give the output file the same directory offset as the input file
+    cls = header.get_class(clsname)
+    dir = os.path.dirname(os.path.join(dir, cls.get_file_name()))
+    file = os.path.join(dir, get_capi_name(clsname[3:], False)+'_cpptoc.h')
+
     if path_exists(file):
         oldcontents = read_file(file)
     else:
         oldcontents = ''
-    
+
     newcontents = make_cpptoc_header(header, clsname)
     if newcontents != oldcontents:
         if backup and oldcontents != '':
             backup_file(file)
         write_file(file, newcontents)
         return True
-    
+
     return False
 
 
 # test the module
 if __name__ == "__main__":
     import sys
-    
+
     # verify that the correct number of command-line arguments are provided
     if len(sys.argv) < 3:
         sys.stderr.write('Usage: '+sys.argv[0]+' <infile> <classname>')
         sys.exit()
-        
+
     # create the header object
     header = obj_header()
     header.add_file(sys.argv[1])
-    
+
     # dump the result to stdout
     sys.stdout.write(make_cpptoc_header(header, sys.argv[2]))

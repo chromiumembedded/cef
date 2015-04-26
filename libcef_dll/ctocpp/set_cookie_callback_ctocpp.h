@@ -28,14 +28,11 @@ class CefSetCookieCallbackCToCpp
     : public CefCToCpp<CefSetCookieCallbackCToCpp, CefSetCookieCallback,
         cef_set_cookie_callback_t> {
  public:
-  explicit CefSetCookieCallbackCToCpp(cef_set_cookie_callback_t* str)
-      : CefCToCpp<CefSetCookieCallbackCToCpp, CefSetCookieCallback,
-          cef_set_cookie_callback_t>(str) {}
+  CefSetCookieCallbackCToCpp();
 
-  // CefSetCookieCallback methods
+  // CefSetCookieCallback methods.
   void OnComplete(bool success) override;
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_SET_COOKIE_CALLBACK_CTOCPP_H_
-

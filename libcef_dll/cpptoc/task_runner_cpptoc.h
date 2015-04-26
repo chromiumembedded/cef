@@ -27,9 +27,8 @@
 class CefTaskRunnerCppToC
     : public CefCppToC<CefTaskRunnerCppToC, CefTaskRunner, cef_task_runner_t> {
  public:
-  explicit CefTaskRunnerCppToC(CefTaskRunner* cls);
+  CefTaskRunnerCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_TASK_RUNNER_CPPTOC_H_
-

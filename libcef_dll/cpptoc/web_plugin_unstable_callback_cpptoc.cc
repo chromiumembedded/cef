@@ -13,6 +13,8 @@
 #include "libcef_dll/cpptoc/web_plugin_unstable_callback_cpptoc.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK web_plugin_unstable_callback_is_unstable(
@@ -34,15 +36,21 @@ void CEF_CALLBACK web_plugin_unstable_callback_is_unstable(
       unstable?true:false);
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefWebPluginUnstableCallbackCppToC::CefWebPluginUnstableCallbackCppToC(
-    CefWebPluginUnstableCallback* cls)
-    : CefCppToC<CefWebPluginUnstableCallbackCppToC,
-        CefWebPluginUnstableCallback, cef_web_plugin_unstable_callback_t>(
-        cls) {
-  struct_.struct_.is_unstable = web_plugin_unstable_callback_is_unstable;
+CefWebPluginUnstableCallbackCppToC::CefWebPluginUnstableCallbackCppToC() {
+  GetStruct()->is_unstable = web_plugin_unstable_callback_is_unstable;
+}
+
+template<> CefRefPtr<CefWebPluginUnstableCallback> CefCppToC<CefWebPluginUnstableCallbackCppToC,
+    CefWebPluginUnstableCallback,
+    cef_web_plugin_unstable_callback_t>::UnwrapDerived(CefWrapperType type,
+    cef_web_plugin_unstable_callback_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -51,3 +59,7 @@ template<> base::AtomicRefCount CefCppToC<CefWebPluginUnstableCallbackCppToC,
     cef_web_plugin_unstable_callback_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefWebPluginUnstableCallbackCppToC,
+    CefWebPluginUnstableCallback,
+    cef_web_plugin_unstable_callback_t>::kWrapperType =
+    WT_WEB_PLUGIN_UNSTABLE_CALLBACK;

@@ -28,9 +28,8 @@ class CefStringVisitorCppToC
     : public CefCppToC<CefStringVisitorCppToC, CefStringVisitor,
         cef_string_visitor_t> {
  public:
-  explicit CefStringVisitorCppToC(CefStringVisitor* cls);
+  CefStringVisitorCppToC();
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_STRING_VISITOR_CPPTOC_H_
-

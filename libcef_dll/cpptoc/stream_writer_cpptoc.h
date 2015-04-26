@@ -28,9 +28,8 @@ class CefStreamWriterCppToC
     : public CefCppToC<CefStreamWriterCppToC, CefStreamWriter,
         cef_stream_writer_t> {
  public:
-  explicit CefStreamWriterCppToC(CefStreamWriter* cls);
+  CefStreamWriterCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_STREAM_WRITER_CPPTOC_H_
-

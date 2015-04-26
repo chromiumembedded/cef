@@ -16,7 +16,8 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 size_t CefWriteHandlerCToCpp::Write(const void* ptr, size_t size, size_t n) {
-  if (CEF_MEMBER_MISSING(struct_, write))
+  cef_write_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, write))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -27,7 +28,7 @@ size_t CefWriteHandlerCToCpp::Write(const void* ptr, size_t size, size_t n) {
     return 0;
 
   // Execute
-  size_t _retval = struct_->write(struct_,
+  size_t _retval = _struct->write(_struct,
       ptr,
       size,
       n);
@@ -37,13 +38,14 @@ size_t CefWriteHandlerCToCpp::Write(const void* ptr, size_t size, size_t n) {
 }
 
 int CefWriteHandlerCToCpp::Seek(int64 offset, int whence) {
-  if (CEF_MEMBER_MISSING(struct_, seek))
+  cef_write_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, seek))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->seek(struct_,
+  int _retval = _struct->seek(_struct,
       offset,
       whence);
 
@@ -52,47 +54,64 @@ int CefWriteHandlerCToCpp::Seek(int64 offset, int whence) {
 }
 
 int64 CefWriteHandlerCToCpp::Tell() {
-  if (CEF_MEMBER_MISSING(struct_, tell))
+  cef_write_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, tell))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int64 _retval = struct_->tell(struct_);
+  int64 _retval = _struct->tell(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 int CefWriteHandlerCToCpp::Flush() {
-  if (CEF_MEMBER_MISSING(struct_, flush))
+  cef_write_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, flush))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->flush(struct_);
+  int _retval = _struct->flush(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 bool CefWriteHandlerCToCpp::MayBlock() {
-  if (CEF_MEMBER_MISSING(struct_, may_block))
+  cef_write_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, may_block))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->may_block(struct_);
+  int _retval = _struct->may_block(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefWriteHandlerCToCpp::CefWriteHandlerCToCpp() {
+}
+
+template<> cef_write_handler_t* CefCToCpp<CefWriteHandlerCToCpp,
+    CefWriteHandler, cef_write_handler_t>::UnwrapDerived(CefWrapperType type,
+    CefWriteHandler* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefWriteHandlerCToCpp,
     CefWriteHandler, cef_write_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefWriteHandlerCToCpp, CefWriteHandler,
+    cef_write_handler_t>::kWrapperType = WT_WRITE_HANDLER;

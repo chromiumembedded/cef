@@ -27,9 +27,8 @@
 class CefMenuModelCppToC
     : public CefCppToC<CefMenuModelCppToC, CefMenuModel, cef_menu_model_t> {
  public:
-  explicit CefMenuModelCppToC(CefMenuModel* cls);
+  CefMenuModelCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_MENU_MODEL_CPPTOC_H_
-

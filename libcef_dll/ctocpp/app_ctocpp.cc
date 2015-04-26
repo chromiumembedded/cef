@@ -22,7 +22,8 @@
 
 void CefAppCToCpp::OnBeforeCommandLineProcessing(const CefString& process_type,
     CefRefPtr<CefCommandLine> command_line) {
-  if (CEF_MEMBER_MISSING(struct_, on_before_command_line_processing))
+  cef_app_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_before_command_line_processing))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -34,14 +35,15 @@ void CefAppCToCpp::OnBeforeCommandLineProcessing(const CefString& process_type,
   // Unverified params: process_type
 
   // Execute
-  struct_->on_before_command_line_processing(struct_,
+  _struct->on_before_command_line_processing(_struct,
       process_type.GetStruct(),
       CefCommandLineCppToC::Wrap(command_line));
 }
 
 void CefAppCToCpp::OnRegisterCustomSchemes(
     CefRefPtr<CefSchemeRegistrar> registrar) {
-  if (CEF_MEMBER_MISSING(struct_, on_register_custom_schemes))
+  cef_app_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_register_custom_schemes))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -52,55 +54,71 @@ void CefAppCToCpp::OnRegisterCustomSchemes(
     return;
 
   // Execute
-  struct_->on_register_custom_schemes(struct_,
+  _struct->on_register_custom_schemes(_struct,
       CefSchemeRegistrarCppToC::Wrap(registrar));
 }
 
 CefRefPtr<CefResourceBundleHandler> CefAppCToCpp::GetResourceBundleHandler() {
-  if (CEF_MEMBER_MISSING(struct_, get_resource_bundle_handler))
+  cef_app_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_resource_bundle_handler))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_resource_bundle_handler_t* _retval = struct_->get_resource_bundle_handler(
-      struct_);
+  cef_resource_bundle_handler_t* _retval = _struct->get_resource_bundle_handler(
+      _struct);
 
   // Return type: refptr_same
   return CefResourceBundleHandlerCToCpp::Wrap(_retval);
 }
 
 CefRefPtr<CefBrowserProcessHandler> CefAppCToCpp::GetBrowserProcessHandler() {
-  if (CEF_MEMBER_MISSING(struct_, get_browser_process_handler))
+  cef_app_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_browser_process_handler))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_browser_process_handler_t* _retval = struct_->get_browser_process_handler(
-      struct_);
+  cef_browser_process_handler_t* _retval = _struct->get_browser_process_handler(
+      _struct);
 
   // Return type: refptr_same
   return CefBrowserProcessHandlerCToCpp::Wrap(_retval);
 }
 
 CefRefPtr<CefRenderProcessHandler> CefAppCToCpp::GetRenderProcessHandler() {
-  if (CEF_MEMBER_MISSING(struct_, get_render_process_handler))
+  cef_app_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_render_process_handler))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_render_process_handler_t* _retval = struct_->get_render_process_handler(
-      struct_);
+  cef_render_process_handler_t* _retval = _struct->get_render_process_handler(
+      _struct);
 
   // Return type: refptr_same
   return CefRenderProcessHandlerCToCpp::Wrap(_retval);
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefAppCToCpp::CefAppCToCpp() {
+}
+
+template<> cef_app_t* CefCToCpp<CefAppCToCpp, CefApp, cef_app_t>::UnwrapDerived(
+    CefWrapperType type, CefApp* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefAppCToCpp, CefApp,
     cef_app_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefAppCToCpp, CefApp,
+    cef_app_t>::kWrapperType = WT_APP;

@@ -23,6 +23,8 @@
 #include "libcef_dll/ctocpp/v8stack_trace_ctocpp.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK render_process_handler_on_render_thread_created(
@@ -284,34 +286,37 @@ int CEF_CALLBACK render_process_handler_on_process_message_received(
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefRenderProcessHandlerCppToC::CefRenderProcessHandlerCppToC(
-    CefRenderProcessHandler* cls)
-    : CefCppToC<CefRenderProcessHandlerCppToC, CefRenderProcessHandler,
-        cef_render_process_handler_t>(cls) {
-  struct_.struct_.on_render_thread_created =
+CefRenderProcessHandlerCppToC::CefRenderProcessHandlerCppToC() {
+  GetStruct()->on_render_thread_created =
       render_process_handler_on_render_thread_created;
-  struct_.struct_.on_web_kit_initialized =
+  GetStruct()->on_web_kit_initialized =
       render_process_handler_on_web_kit_initialized;
-  struct_.struct_.on_browser_created =
-      render_process_handler_on_browser_created;
-  struct_.struct_.on_browser_destroyed =
+  GetStruct()->on_browser_created = render_process_handler_on_browser_created;
+  GetStruct()->on_browser_destroyed =
       render_process_handler_on_browser_destroyed;
-  struct_.struct_.get_load_handler = render_process_handler_get_load_handler;
-  struct_.struct_.on_before_navigation =
+  GetStruct()->get_load_handler = render_process_handler_get_load_handler;
+  GetStruct()->on_before_navigation =
       render_process_handler_on_before_navigation;
-  struct_.struct_.on_context_created =
-      render_process_handler_on_context_created;
-  struct_.struct_.on_context_released =
-      render_process_handler_on_context_released;
-  struct_.struct_.on_uncaught_exception =
+  GetStruct()->on_context_created = render_process_handler_on_context_created;
+  GetStruct()->on_context_released = render_process_handler_on_context_released;
+  GetStruct()->on_uncaught_exception =
       render_process_handler_on_uncaught_exception;
-  struct_.struct_.on_focused_node_changed =
+  GetStruct()->on_focused_node_changed =
       render_process_handler_on_focused_node_changed;
-  struct_.struct_.on_process_message_received =
+  GetStruct()->on_process_message_received =
       render_process_handler_on_process_message_received;
+}
+
+template<> CefRefPtr<CefRenderProcessHandler> CefCppToC<CefRenderProcessHandlerCppToC,
+    CefRenderProcessHandler, cef_render_process_handler_t>::UnwrapDerived(
+    CefWrapperType type, cef_render_process_handler_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -319,3 +324,6 @@ template<> base::AtomicRefCount CefCppToC<CefRenderProcessHandlerCppToC,
     CefRenderProcessHandler, cef_render_process_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefRenderProcessHandlerCppToC,
+    CefRenderProcessHandler, cef_render_process_handler_t>::kWrapperType =
+    WT_RENDER_PROCESS_HANDLER;

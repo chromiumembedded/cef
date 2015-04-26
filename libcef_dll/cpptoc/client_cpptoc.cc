@@ -29,6 +29,8 @@
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 struct _cef_context_menu_handler_t* CEF_CALLBACK client_get_context_menu_handler(
@@ -282,27 +284,33 @@ int CEF_CALLBACK client_on_process_message_received(struct _cef_client_t* self,
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefClientCppToC::CefClientCppToC(CefClient* cls)
-    : CefCppToC<CefClientCppToC, CefClient, cef_client_t>(cls) {
-  struct_.struct_.get_context_menu_handler = client_get_context_menu_handler;
-  struct_.struct_.get_dialog_handler = client_get_dialog_handler;
-  struct_.struct_.get_display_handler = client_get_display_handler;
-  struct_.struct_.get_download_handler = client_get_download_handler;
-  struct_.struct_.get_drag_handler = client_get_drag_handler;
-  struct_.struct_.get_find_handler = client_get_find_handler;
-  struct_.struct_.get_focus_handler = client_get_focus_handler;
-  struct_.struct_.get_geolocation_handler = client_get_geolocation_handler;
-  struct_.struct_.get_jsdialog_handler = client_get_jsdialog_handler;
-  struct_.struct_.get_keyboard_handler = client_get_keyboard_handler;
-  struct_.struct_.get_life_span_handler = client_get_life_span_handler;
-  struct_.struct_.get_load_handler = client_get_load_handler;
-  struct_.struct_.get_render_handler = client_get_render_handler;
-  struct_.struct_.get_request_handler = client_get_request_handler;
-  struct_.struct_.on_process_message_received =
-      client_on_process_message_received;
+CefClientCppToC::CefClientCppToC() {
+  GetStruct()->get_context_menu_handler = client_get_context_menu_handler;
+  GetStruct()->get_dialog_handler = client_get_dialog_handler;
+  GetStruct()->get_display_handler = client_get_display_handler;
+  GetStruct()->get_download_handler = client_get_download_handler;
+  GetStruct()->get_drag_handler = client_get_drag_handler;
+  GetStruct()->get_find_handler = client_get_find_handler;
+  GetStruct()->get_focus_handler = client_get_focus_handler;
+  GetStruct()->get_geolocation_handler = client_get_geolocation_handler;
+  GetStruct()->get_jsdialog_handler = client_get_jsdialog_handler;
+  GetStruct()->get_keyboard_handler = client_get_keyboard_handler;
+  GetStruct()->get_life_span_handler = client_get_life_span_handler;
+  GetStruct()->get_load_handler = client_get_load_handler;
+  GetStruct()->get_render_handler = client_get_render_handler;
+  GetStruct()->get_request_handler = client_get_request_handler;
+  GetStruct()->on_process_message_received = client_on_process_message_received;
+}
+
+template<> CefRefPtr<CefClient> CefCppToC<CefClientCppToC, CefClient,
+    cef_client_t>::UnwrapDerived(CefWrapperType type, cef_client_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -310,3 +318,5 @@ template<> base::AtomicRefCount CefCppToC<CefClientCppToC, CefClient,
     cef_client_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefClientCppToC, CefClient,
+    cef_client_t>::kWrapperType = WT_CLIENT;

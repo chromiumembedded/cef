@@ -22,7 +22,8 @@
 CefRefPtr<CefResourceHandler> CefSchemeHandlerFactoryCToCpp::Create(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
     const CefString& scheme_name, CefRefPtr<CefRequest> request) {
-  if (CEF_MEMBER_MISSING(struct_, create))
+  cef_scheme_handler_factory_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, create))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -38,7 +39,7 @@ CefRefPtr<CefResourceHandler> CefSchemeHandlerFactoryCToCpp::Create(
   // Unverified params: browser, frame
 
   // Execute
-  cef_resource_handler_t* _retval = struct_->create(struct_,
+  cef_resource_handler_t* _retval = _struct->create(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame),
       scheme_name.GetStruct(),
@@ -49,8 +50,23 @@ CefRefPtr<CefResourceHandler> CefSchemeHandlerFactoryCToCpp::Create(
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefSchemeHandlerFactoryCToCpp::CefSchemeHandlerFactoryCToCpp() {
+}
+
+template<> cef_scheme_handler_factory_t* CefCToCpp<CefSchemeHandlerFactoryCToCpp,
+    CefSchemeHandlerFactory, cef_scheme_handler_factory_t>::UnwrapDerived(
+    CefWrapperType type, CefSchemeHandlerFactory* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefSchemeHandlerFactoryCToCpp,
     CefSchemeHandlerFactory, cef_scheme_handler_factory_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefSchemeHandlerFactoryCToCpp,
+    CefSchemeHandlerFactory, cef_scheme_handler_factory_t>::kWrapperType =
+    WT_SCHEME_HANDLER_FACTORY;

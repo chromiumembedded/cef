@@ -28,9 +28,8 @@ class CefSchemeHandlerFactoryCppToC
     : public CefCppToC<CefSchemeHandlerFactoryCppToC, CefSchemeHandlerFactory,
         cef_scheme_handler_factory_t> {
  public:
-  explicit CefSchemeHandlerFactoryCppToC(CefSchemeHandlerFactory* cls);
+  CefSchemeHandlerFactoryCppToC();
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_SCHEME_HANDLER_FACTORY_CPPTOC_H_
-

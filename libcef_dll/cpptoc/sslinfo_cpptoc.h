@@ -27,9 +27,8 @@
 class CefSSLInfoCppToC
     : public CefCppToC<CefSSLInfoCppToC, CefSSLInfo, cef_sslinfo_t> {
  public:
-  explicit CefSSLInfoCppToC(CefSSLInfo* cls);
+  CefSSLInfoCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_SSLINFO_CPPTOC_H_
-

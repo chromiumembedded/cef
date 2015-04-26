@@ -28,9 +28,8 @@ class CefStreamReaderCppToC
     : public CefCppToC<CefStreamReaderCppToC, CefStreamReader,
         cef_stream_reader_t> {
  public:
-  explicit CefStreamReaderCppToC(CefStreamReader* cls);
+  CefStreamReaderCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_STREAM_READER_CPPTOC_H_
-

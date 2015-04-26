@@ -48,83 +48,102 @@ CefRefPtr<CefURLRequest> CefURLRequest::Create(CefRefPtr<CefRequest> request,
 // VIRTUAL METHODS - Body may be edited by hand.
 
 CefRefPtr<CefRequest> CefURLRequestCToCpp::GetRequest() {
-  if (CEF_MEMBER_MISSING(struct_, get_request))
+  cef_urlrequest_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_request))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_request_t* _retval = struct_->get_request(struct_);
+  cef_request_t* _retval = _struct->get_request(_struct);
 
   // Return type: refptr_same
   return CefRequestCToCpp::Wrap(_retval);
 }
 
 CefRefPtr<CefURLRequestClient> CefURLRequestCToCpp::GetClient() {
-  if (CEF_MEMBER_MISSING(struct_, get_client))
+  cef_urlrequest_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_client))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_urlrequest_client_t* _retval = struct_->get_client(struct_);
+  cef_urlrequest_client_t* _retval = _struct->get_client(_struct);
 
   // Return type: refptr_diff
   return CefURLRequestClientCppToC::Unwrap(_retval);
 }
 
 CefURLRequest::Status CefURLRequestCToCpp::GetRequestStatus() {
-  if (CEF_MEMBER_MISSING(struct_, get_request_status))
+  cef_urlrequest_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_request_status))
     return UR_UNKNOWN;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_urlrequest_status_t _retval = struct_->get_request_status(struct_);
+  cef_urlrequest_status_t _retval = _struct->get_request_status(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 CefURLRequest::ErrorCode CefURLRequestCToCpp::GetRequestError() {
-  if (CEF_MEMBER_MISSING(struct_, get_request_error))
+  cef_urlrequest_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_request_error))
     return ERR_NONE;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_errorcode_t _retval = struct_->get_request_error(struct_);
+  cef_errorcode_t _retval = _struct->get_request_error(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 CefRefPtr<CefResponse> CefURLRequestCToCpp::GetResponse() {
-  if (CEF_MEMBER_MISSING(struct_, get_response))
+  cef_urlrequest_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_response))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_response_t* _retval = struct_->get_response(struct_);
+  cef_response_t* _retval = _struct->get_response(_struct);
 
   // Return type: refptr_same
   return CefResponseCToCpp::Wrap(_retval);
 }
 
 void CefURLRequestCToCpp::Cancel() {
-  if (CEF_MEMBER_MISSING(struct_, cancel))
+  cef_urlrequest_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, cancel))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->cancel(struct_);
+  _struct->cancel(_struct);
 }
 
+
+// CONSTRUCTOR - Do not edit by hand.
+
+CefURLRequestCToCpp::CefURLRequestCToCpp() {
+}
+
+template<> cef_urlrequest_t* CefCToCpp<CefURLRequestCToCpp, CefURLRequest,
+    cef_urlrequest_t>::UnwrapDerived(CefWrapperType type, CefURLRequest* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefURLRequestCToCpp, CefURLRequest,
     cef_urlrequest_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefURLRequestCToCpp, CefURLRequest,
+    cef_urlrequest_t>::kWrapperType = WT_URLREQUEST;

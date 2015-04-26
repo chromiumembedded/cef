@@ -30,50 +30,54 @@ CefRefPtr<CefResponse> CefResponse::Create() {
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefResponseCToCpp::IsReadOnly() {
-  if (CEF_MEMBER_MISSING(struct_, is_read_only))
+  cef_response_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_read_only))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_read_only(struct_);
+  int _retval = _struct->is_read_only(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 int CefResponseCToCpp::GetStatus() {
-  if (CEF_MEMBER_MISSING(struct_, get_status))
+  cef_response_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_status))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_status(struct_);
+  int _retval = _struct->get_status(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 void CefResponseCToCpp::SetStatus(int status) {
-  if (CEF_MEMBER_MISSING(struct_, set_status))
+  cef_response_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_status))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->set_status(struct_,
+  _struct->set_status(_struct,
       status);
 }
 
 CefString CefResponseCToCpp::GetStatusText() {
-  if (CEF_MEMBER_MISSING(struct_, get_status_text))
+  cef_response_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_status_text))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_status_text(struct_);
+  cef_string_userfree_t _retval = _struct->get_status_text(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -82,7 +86,8 @@ CefString CefResponseCToCpp::GetStatusText() {
 }
 
 void CefResponseCToCpp::SetStatusText(const CefString& statusText) {
-  if (CEF_MEMBER_MISSING(struct_, set_status_text))
+  cef_response_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_status_text))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -93,18 +98,19 @@ void CefResponseCToCpp::SetStatusText(const CefString& statusText) {
     return;
 
   // Execute
-  struct_->set_status_text(struct_,
+  _struct->set_status_text(_struct,
       statusText.GetStruct());
 }
 
 CefString CefResponseCToCpp::GetMimeType() {
-  if (CEF_MEMBER_MISSING(struct_, get_mime_type))
+  cef_response_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_mime_type))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_mime_type(struct_);
+  cef_string_userfree_t _retval = _struct->get_mime_type(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -113,7 +119,8 @@ CefString CefResponseCToCpp::GetMimeType() {
 }
 
 void CefResponseCToCpp::SetMimeType(const CefString& mimeType) {
-  if (CEF_MEMBER_MISSING(struct_, set_mime_type))
+  cef_response_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_mime_type))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -124,12 +131,13 @@ void CefResponseCToCpp::SetMimeType(const CefString& mimeType) {
     return;
 
   // Execute
-  struct_->set_mime_type(struct_,
+  _struct->set_mime_type(_struct,
       mimeType.GetStruct());
 }
 
 CefString CefResponseCToCpp::GetHeader(const CefString& name) {
-  if (CEF_MEMBER_MISSING(struct_, get_header))
+  cef_response_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_header))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -140,7 +148,7 @@ CefString CefResponseCToCpp::GetHeader(const CefString& name) {
     return CefString();
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_header(struct_,
+  cef_string_userfree_t _retval = _struct->get_header(_struct,
       name.GetStruct());
 
   // Return type: string
@@ -150,7 +158,8 @@ CefString CefResponseCToCpp::GetHeader(const CefString& name) {
 }
 
 void CefResponseCToCpp::GetHeaderMap(HeaderMap& headerMap) {
-  if (CEF_MEMBER_MISSING(struct_, get_header_map))
+  cef_response_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_header_map))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -162,7 +171,7 @@ void CefResponseCToCpp::GetHeaderMap(HeaderMap& headerMap) {
     transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
-  struct_->get_header_map(struct_,
+  _struct->get_header_map(_struct,
       headerMapMultimap);
 
   // Restore param:headerMap; type: string_map_multi_byref
@@ -174,7 +183,8 @@ void CefResponseCToCpp::GetHeaderMap(HeaderMap& headerMap) {
 }
 
 void CefResponseCToCpp::SetHeaderMap(const HeaderMap& headerMap) {
-  if (CEF_MEMBER_MISSING(struct_, set_header_map))
+  cef_response_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_header_map))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -186,7 +196,7 @@ void CefResponseCToCpp::SetHeaderMap(const HeaderMap& headerMap) {
     transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
-  struct_->set_header_map(struct_,
+  _struct->set_header_map(_struct,
       headerMapMultimap);
 
   // Restore param:headerMap; type: string_map_multi_byref_const
@@ -195,8 +205,21 @@ void CefResponseCToCpp::SetHeaderMap(const HeaderMap& headerMap) {
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefResponseCToCpp::CefResponseCToCpp() {
+}
+
+template<> cef_response_t* CefCToCpp<CefResponseCToCpp, CefResponse,
+    cef_response_t>::UnwrapDerived(CefWrapperType type, CefResponse* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefResponseCToCpp, CefResponse,
     cef_response_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefResponseCToCpp, CefResponse,
+    cef_response_t>::kWrapperType = WT_RESPONSE;

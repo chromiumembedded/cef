@@ -10,6 +10,7 @@ from make_cpptoc_impl import *
 from make_ctocpp_header import *
 from make_ctocpp_impl import *
 from make_gypi_file import *
+from make_wrapper_types_header import *
 from optparse import OptionParser
 
 
@@ -17,7 +18,7 @@ from optparse import OptionParser
 if __name__ != "__main__":
     sys.stderr.write('This file cannot be loaded as a module!')
     sys.exit()
-    
+
 
 # parse command-line options
 disc = """
@@ -25,35 +26,11 @@ This utility generates files for the CEF C++ to C API translation layer.
 """
 
 parser = OptionParser(description=disc)
-parser.add_option('--cpp-header-dir', dest='cppheaderdir', metavar='DIR',
-                  help='input directory for C++ header files [required]')
-parser.add_option('--capi-header-dir', dest='capiheaderdir', metavar='DIR',
-                  help='output directory for C API header files')
-parser.add_option('--cpptoc-global-impl', dest='cpptocglobalimpl', metavar='FILE',
-                  help='input/output file for CppToC global translations')
-parser.add_option('--ctocpp-global-impl', dest='ctocppglobalimpl', metavar='FILE',
-                  help='input/output file for CppToC global translations')
-parser.add_option('--cpptoc-dir', dest='cpptocdir', metavar='DIR',
-                  help='input/output directory for CppToC class translations')
-parser.add_option('--ctocpp-dir', dest='ctocppdir', metavar='DIR',
-                  help='input/output directory for CppToC class translations')
-parser.add_option('--gypi-file', dest='gypifile', metavar='FILE',
-                  help='output file for path information')
-parser.add_option('--no-cpptoc-header',
-                  action='store_true', dest='nocpptocheader', default=False,
-                  help='do not output the CppToC headers')
-parser.add_option('--no-cpptoc-impl',
-                  action='store_true', dest='nocpptocimpl', default=False,
-                  help='do not output the CppToC implementations')
-parser.add_option('--no-ctocpp-header',
-                  action='store_true', dest='noctocppheader', default=False,
-                  help='do not output the CToCpp headers')
-parser.add_option('--no-ctocpp-impl',
-                  action='store_true', dest='noctocppimpl', default=False,
-                  help='do not output the CToCpp implementations')
-parser.add_option('--no-backup',
-                  action='store_true', dest='nobackup', default=False,
-                  help='do not create a backup of modified files')
+parser.add_option('--root-dir', dest='rootdir', metavar='DIR',
+                  help='CEF root directory [required]')
+parser.add_option('--backup',
+                  action='store_true', dest='backup', default=False,
+                  help='create a backup of modified files')
 parser.add_option('-c', '--classes', dest='classes', action='append',
                   help='only translate the specified classes')
 parser.add_option('-q', '--quiet',
@@ -61,37 +38,59 @@ parser.add_option('-q', '--quiet',
                   help='do not output detailed status information')
 (options, args) = parser.parse_args()
 
-# the cppheader option is required
-if options.cppheaderdir is None:
+# the rootdir option is required
+if options.rootdir is None:
     parser.print_help(sys.stdout)
     sys.exit()
 
-# make sure the header exists
-if not path_exists(options.cppheaderdir):
-    sys.stderr.write('File '+options.cppheaderdir+' does not exist.')
+# determine the paths
+root_dir = os.path.abspath(options.rootdir)
+cpp_header_dir = os.path.join(root_dir, 'include')
+cpp_header_test_dir = os.path.join(cpp_header_dir, 'test')
+capi_header_dir = os.path.join(cpp_header_dir, 'capi')
+libcef_dll_dir = os.path.join(root_dir, 'libcef_dll')
+cpptoc_global_impl = os.path.join(libcef_dll_dir, 'libcef_dll.cc')
+ctocpp_global_impl = os.path.join(libcef_dll_dir, 'wrapper', 'libcef_dll_wrapper.cc')
+wrapper_types_header = os.path.join(libcef_dll_dir, 'wrapper_types.h')
+cpptoc_dir = os.path.join(libcef_dll_dir, 'cpptoc')
+ctocpp_dir = os.path.join(libcef_dll_dir, 'ctocpp')
+gypi_file = os.path.join(root_dir, 'cef_paths.gypi')
+
+# make sure the header directory exists
+if not path_exists(cpp_header_dir):
+    sys.stderr.write('Directory '+cpp_header_dir+' does not exist.')
     sys.exit()
 
 # create the header object
 if not options.quiet:
-    sys.stdout.write('Parsing C++ headers from '+options.cppheaderdir+'...\n')
+    sys.stdout.write('Parsing C++ headers from '+cpp_header_dir+'...\n')
 header = obj_header()
+
+# add include files to be processed
+header.set_root_directory(cpp_header_dir)
 excluded_files = ['cef_application_mac.h', 'cef_version.h']
-header.add_directory(options.cppheaderdir, excluded_files)
+header.add_directory(cpp_header_dir, excluded_files)
+header.add_directory(cpp_header_test_dir)
 
 writect = 0
 
-if not options.capiheaderdir is None:
-    #output the C API header
+#output the C API header
+if not options.quiet:
+    sys.stdout.write('In C API header directory '+capi_header_dir+'...\n')
+filenames = sorted(header.get_file_names())
+for filename in filenames:
     if not options.quiet:
-        sys.stdout.write('In C API header directory '+options.capiheaderdir+'...\n')
-    filenames = sorted(header.get_file_names())
-    for filename in filenames:
-        if not options.quiet:
-            sys.stdout.write('Generating '+filename+' C API header...\n')
-        writect += write_capi_header(header,
-                                     os.path.join(options.capiheaderdir, filename),
-                                     not options.nobackup)
-    
+        sys.stdout.write('Generating '+filename+' C API header...\n')
+    writect += write_capi_header(header, capi_header_dir, filename,
+                                 options.backup)
+
+# output the wrapper types header
+if not options.quiet:
+    sys.stdout.write('Generating wrapper types header...\n')
+writect += write_wrapper_types_header(header,
+                                      wrapper_types_header,
+                                      options.backup)
+
 # build the list of classes to parse
 allclasses = header.get_class_names()
 if not options.classes is None:
@@ -105,60 +104,42 @@ else:
 
 classes = sorted(classes)
 
-if not options.cpptocglobalimpl is None:
-    # output CppToC global file
-    if not options.quiet:
-        sys.stdout.write('Generating CppToC global implementation...\n')
-    writect += write_cpptoc_impl(header, None, options.cpptocglobalimpl, \
-                                 not options.nobackup)
+# output CppToC global file
+if not options.quiet:
+    sys.stdout.write('Generating CppToC global implementation...\n')
+writect += write_cpptoc_impl(header, None, cpptoc_global_impl, options.backup)
 
-if not options.ctocppglobalimpl is None:
-    # output CToCpp global file
-    if not options.quiet:
-        sys.stdout.write('Generating CToCpp global implementation...\n')
-    writect += write_ctocpp_impl(header, None, options.ctocppglobalimpl, \
-                                 not options.nobackup)
+# output CToCpp global file
+if not options.quiet:
+    sys.stdout.write('Generating CToCpp global implementation...\n')
+writect += write_ctocpp_impl(header, None, ctocpp_global_impl, options.backup)
 
-if not options.cpptocdir is None:
-    # output CppToC class files
+# output CppToC class files
+if not options.quiet:
+    sys.stdout.write('In CppToC directory '+cpptoc_dir+'...\n')
+for cls in classes:
     if not options.quiet:
-        sys.stdout.write('In CppToC directory '+options.cpptocdir+'...\n')
-    
-    for cls in classes:
-        if not options.nocpptocheader:
-            if not options.quiet:
-                sys.stdout.write('Generating '+cls+'CppToC class header...\n')
-            writect += write_cpptoc_header(header, cls, options.cpptocdir,
-                                           not options.nobackup)
-        if not options.nocpptocimpl:
-            if not options.quiet:
-                sys.stdout.write('Generating '+cls+'CppToC class implementation...\n')
-            writect += write_cpptoc_impl(header, cls, options.cpptocdir,
-                                         not options.nobackup)
+        sys.stdout.write('Generating '+cls+'CppToC class header...\n')
+    writect += write_cpptoc_header(header, cls, cpptoc_dir, options.backup)
+    if not options.quiet:
+        sys.stdout.write('Generating '+cls+'CppToC class implementation...\n')
+    writect += write_cpptoc_impl(header, cls, cpptoc_dir, options.backup)
 
-if not options.ctocppdir is None:
-    # output CppToC class files
+# output CppToC class files
+if not options.quiet:
+    sys.stdout.write('In CToCpp directory '+ctocpp_dir+'...\n')
+for cls in classes:
     if not options.quiet:
-        sys.stdout.write('In CToCpp directory '+options.ctocppdir+'...\n')
-    for cls in classes:
-        if not options.nocpptocheader:
-            if not options.quiet:
-                sys.stdout.write('Generating '+cls+'CToCpp class header...\n')
-            writect += write_ctocpp_header(header, cls, options.ctocppdir,
-                                           not options.nobackup)
-        if not options.nocpptocimpl:
-            if not options.quiet:
-                sys.stdout.write('Generating '+cls+'CToCpp class implementation...\n')
-            writect += write_ctocpp_impl(header, cls, options.ctocppdir,
-                                         not options.nobackup)
+        sys.stdout.write('Generating '+cls+'CToCpp class header...\n')
+    writect += write_ctocpp_header(header, cls, ctocpp_dir, options.backup)
+    if not options.quiet:
+        sys.stdout.write('Generating '+cls+'CToCpp class implementation...\n')
+    writect += write_ctocpp_impl(header, cls, ctocpp_dir, options.backup)
 
-if not options.gypifile is None:
-    # output the gypi file
-    if not options.quiet:
-        sys.stdout.write('Generating '+options.gypifile+' file...\n')
-    writect += write_gypi_file(header, options.gypifile, not options.nobackup)
+# output the gypi file
+if not options.quiet:
+    sys.stdout.write('Generating '+gypi_file+' file...\n')
+writect += write_gypi_file(header, gypi_file, options.backup)
 
 if not options.quiet:
     sys.stdout.write('Done - Wrote '+str(writect)+' files.\n')
-
-

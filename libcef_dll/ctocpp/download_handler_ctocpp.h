@@ -28,11 +28,9 @@ class CefDownloadHandlerCToCpp
     : public CefCToCpp<CefDownloadHandlerCToCpp, CefDownloadHandler,
         cef_download_handler_t> {
  public:
-  explicit CefDownloadHandlerCToCpp(cef_download_handler_t* str)
-      : CefCToCpp<CefDownloadHandlerCToCpp, CefDownloadHandler,
-          cef_download_handler_t>(str) {}
+  CefDownloadHandlerCToCpp();
 
-  // CefDownloadHandler methods
+  // CefDownloadHandler methods.
   void OnBeforeDownload(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefDownloadItem> download_item,
       const CefString& suggested_name,
@@ -44,4 +42,3 @@ class CefDownloadHandlerCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_HANDLER_CTOCPP_H_
-

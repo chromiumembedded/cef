@@ -28,9 +28,8 @@ class CefDownloadItemCallbackCppToC
     : public CefCppToC<CefDownloadItemCallbackCppToC, CefDownloadItemCallback,
         cef_download_item_callback_t> {
  public:
-  explicit CefDownloadItemCallbackCppToC(CefDownloadItemCallback* cls);
+  CefDownloadItemCallbackCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_DOWNLOAD_ITEM_CALLBACK_CPPTOC_H_
-

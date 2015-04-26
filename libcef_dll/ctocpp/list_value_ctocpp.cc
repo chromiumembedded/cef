@@ -32,46 +32,50 @@ CefRefPtr<CefListValue> CefListValue::Create() {
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefListValueCToCpp::IsValid() {
-  if (CEF_MEMBER_MISSING(struct_, is_valid))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_valid))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_valid(struct_);
+  int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 bool CefListValueCToCpp::IsOwned() {
-  if (CEF_MEMBER_MISSING(struct_, is_owned))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_owned))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_owned(struct_);
+  int _retval = _struct->is_owned(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 bool CefListValueCToCpp::IsReadOnly() {
-  if (CEF_MEMBER_MISSING(struct_, is_read_only))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_read_only))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_read_only(struct_);
+  int _retval = _struct->is_read_only(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 bool CefListValueCToCpp::IsSame(CefRefPtr<CefListValue> that) {
-  if (CEF_MEMBER_MISSING(struct_, is_same))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_same))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -82,7 +86,7 @@ bool CefListValueCToCpp::IsSame(CefRefPtr<CefListValue> that) {
     return false;
 
   // Execute
-  int _retval = struct_->is_same(struct_,
+  int _retval = _struct->is_same(_struct,
       CefListValueCToCpp::Unwrap(that));
 
   // Return type: bool
@@ -90,7 +94,8 @@ bool CefListValueCToCpp::IsSame(CefRefPtr<CefListValue> that) {
 }
 
 bool CefListValueCToCpp::IsEqual(CefRefPtr<CefListValue> that) {
-  if (CEF_MEMBER_MISSING(struct_, is_equal))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_equal))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -101,7 +106,7 @@ bool CefListValueCToCpp::IsEqual(CefRefPtr<CefListValue> that) {
     return false;
 
   // Execute
-  int _retval = struct_->is_equal(struct_,
+  int _retval = _struct->is_equal(_struct,
       CefListValueCToCpp::Unwrap(that));
 
   // Return type: bool
@@ -109,26 +114,28 @@ bool CefListValueCToCpp::IsEqual(CefRefPtr<CefListValue> that) {
 }
 
 CefRefPtr<CefListValue> CefListValueCToCpp::Copy() {
-  if (CEF_MEMBER_MISSING(struct_, copy))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, copy))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_list_value_t* _retval = struct_->copy(struct_);
+  cef_list_value_t* _retval = _struct->copy(_struct);
 
   // Return type: refptr_same
   return CefListValueCToCpp::Wrap(_retval);
 }
 
 bool CefListValueCToCpp::SetSize(size_t size) {
-  if (CEF_MEMBER_MISSING(struct_, set_size))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_size))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->set_size(struct_,
+  int _retval = _struct->set_size(_struct,
       size);
 
   // Return type: bool
@@ -136,33 +143,36 @@ bool CefListValueCToCpp::SetSize(size_t size) {
 }
 
 size_t CefListValueCToCpp::GetSize() {
-  if (CEF_MEMBER_MISSING(struct_, get_size))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_size))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  size_t _retval = struct_->get_size(struct_);
+  size_t _retval = _struct->get_size(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 bool CefListValueCToCpp::Clear() {
-  if (CEF_MEMBER_MISSING(struct_, clear))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, clear))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->clear(struct_);
+  int _retval = _struct->clear(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 bool CefListValueCToCpp::Remove(int index) {
-  if (CEF_MEMBER_MISSING(struct_, remove))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, remove))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -173,7 +183,7 @@ bool CefListValueCToCpp::Remove(int index) {
     return false;
 
   // Execute
-  int _retval = struct_->remove(struct_,
+  int _retval = _struct->remove(_struct,
       index);
 
   // Return type: bool
@@ -181,7 +191,8 @@ bool CefListValueCToCpp::Remove(int index) {
 }
 
 CefValueType CefListValueCToCpp::GetType(int index) {
-  if (CEF_MEMBER_MISSING(struct_, get_type))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_type))
     return VTYPE_INVALID;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -192,7 +203,7 @@ CefValueType CefListValueCToCpp::GetType(int index) {
     return VTYPE_INVALID;
 
   // Execute
-  cef_value_type_t _retval = struct_->get_type(struct_,
+  cef_value_type_t _retval = _struct->get_type(_struct,
       index);
 
   // Return type: simple
@@ -200,7 +211,8 @@ CefValueType CefListValueCToCpp::GetType(int index) {
 }
 
 CefRefPtr<CefValue> CefListValueCToCpp::GetValue(int index) {
-  if (CEF_MEMBER_MISSING(struct_, get_value))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_value))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -211,7 +223,7 @@ CefRefPtr<CefValue> CefListValueCToCpp::GetValue(int index) {
     return NULL;
 
   // Execute
-  cef_value_t* _retval = struct_->get_value(struct_,
+  cef_value_t* _retval = _struct->get_value(_struct,
       index);
 
   // Return type: refptr_same
@@ -219,7 +231,8 @@ CefRefPtr<CefValue> CefListValueCToCpp::GetValue(int index) {
 }
 
 bool CefListValueCToCpp::GetBool(int index) {
-  if (CEF_MEMBER_MISSING(struct_, get_bool))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_bool))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -230,7 +243,7 @@ bool CefListValueCToCpp::GetBool(int index) {
     return false;
 
   // Execute
-  int _retval = struct_->get_bool(struct_,
+  int _retval = _struct->get_bool(_struct,
       index);
 
   // Return type: bool
@@ -238,7 +251,8 @@ bool CefListValueCToCpp::GetBool(int index) {
 }
 
 int CefListValueCToCpp::GetInt(int index) {
-  if (CEF_MEMBER_MISSING(struct_, get_int))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_int))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -249,7 +263,7 @@ int CefListValueCToCpp::GetInt(int index) {
     return 0;
 
   // Execute
-  int _retval = struct_->get_int(struct_,
+  int _retval = _struct->get_int(_struct,
       index);
 
   // Return type: simple
@@ -257,7 +271,8 @@ int CefListValueCToCpp::GetInt(int index) {
 }
 
 double CefListValueCToCpp::GetDouble(int index) {
-  if (CEF_MEMBER_MISSING(struct_, get_double))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_double))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -268,7 +283,7 @@ double CefListValueCToCpp::GetDouble(int index) {
     return 0;
 
   // Execute
-  double _retval = struct_->get_double(struct_,
+  double _retval = _struct->get_double(_struct,
       index);
 
   // Return type: simple
@@ -276,7 +291,8 @@ double CefListValueCToCpp::GetDouble(int index) {
 }
 
 CefString CefListValueCToCpp::GetString(int index) {
-  if (CEF_MEMBER_MISSING(struct_, get_string))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_string))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -287,7 +303,7 @@ CefString CefListValueCToCpp::GetString(int index) {
     return CefString();
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_string(struct_,
+  cef_string_userfree_t _retval = _struct->get_string(_struct,
       index);
 
   // Return type: string
@@ -297,7 +313,8 @@ CefString CefListValueCToCpp::GetString(int index) {
 }
 
 CefRefPtr<CefBinaryValue> CefListValueCToCpp::GetBinary(int index) {
-  if (CEF_MEMBER_MISSING(struct_, get_binary))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_binary))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -308,7 +325,7 @@ CefRefPtr<CefBinaryValue> CefListValueCToCpp::GetBinary(int index) {
     return NULL;
 
   // Execute
-  cef_binary_value_t* _retval = struct_->get_binary(struct_,
+  cef_binary_value_t* _retval = _struct->get_binary(_struct,
       index);
 
   // Return type: refptr_same
@@ -316,7 +333,8 @@ CefRefPtr<CefBinaryValue> CefListValueCToCpp::GetBinary(int index) {
 }
 
 CefRefPtr<CefDictionaryValue> CefListValueCToCpp::GetDictionary(int index) {
-  if (CEF_MEMBER_MISSING(struct_, get_dictionary))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_dictionary))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -327,7 +345,7 @@ CefRefPtr<CefDictionaryValue> CefListValueCToCpp::GetDictionary(int index) {
     return NULL;
 
   // Execute
-  cef_dictionary_value_t* _retval = struct_->get_dictionary(struct_,
+  cef_dictionary_value_t* _retval = _struct->get_dictionary(_struct,
       index);
 
   // Return type: refptr_same
@@ -335,7 +353,8 @@ CefRefPtr<CefDictionaryValue> CefListValueCToCpp::GetDictionary(int index) {
 }
 
 CefRefPtr<CefListValue> CefListValueCToCpp::GetList(int index) {
-  if (CEF_MEMBER_MISSING(struct_, get_list))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_list))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -346,7 +365,7 @@ CefRefPtr<CefListValue> CefListValueCToCpp::GetList(int index) {
     return NULL;
 
   // Execute
-  cef_list_value_t* _retval = struct_->get_list(struct_,
+  cef_list_value_t* _retval = _struct->get_list(_struct,
       index);
 
   // Return type: refptr_same
@@ -354,7 +373,8 @@ CefRefPtr<CefListValue> CefListValueCToCpp::GetList(int index) {
 }
 
 bool CefListValueCToCpp::SetValue(int index, CefRefPtr<CefValue> value) {
-  if (CEF_MEMBER_MISSING(struct_, set_value))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_value))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -369,7 +389,7 @@ bool CefListValueCToCpp::SetValue(int index, CefRefPtr<CefValue> value) {
     return false;
 
   // Execute
-  int _retval = struct_->set_value(struct_,
+  int _retval = _struct->set_value(_struct,
       index,
       CefValueCToCpp::Unwrap(value));
 
@@ -378,7 +398,8 @@ bool CefListValueCToCpp::SetValue(int index, CefRefPtr<CefValue> value) {
 }
 
 bool CefListValueCToCpp::SetNull(int index) {
-  if (CEF_MEMBER_MISSING(struct_, set_null))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_null))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -389,7 +410,7 @@ bool CefListValueCToCpp::SetNull(int index) {
     return false;
 
   // Execute
-  int _retval = struct_->set_null(struct_,
+  int _retval = _struct->set_null(_struct,
       index);
 
   // Return type: bool
@@ -397,7 +418,8 @@ bool CefListValueCToCpp::SetNull(int index) {
 }
 
 bool CefListValueCToCpp::SetBool(int index, bool value) {
-  if (CEF_MEMBER_MISSING(struct_, set_bool))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_bool))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -408,7 +430,7 @@ bool CefListValueCToCpp::SetBool(int index, bool value) {
     return false;
 
   // Execute
-  int _retval = struct_->set_bool(struct_,
+  int _retval = _struct->set_bool(_struct,
       index,
       value);
 
@@ -417,7 +439,8 @@ bool CefListValueCToCpp::SetBool(int index, bool value) {
 }
 
 bool CefListValueCToCpp::SetInt(int index, int value) {
-  if (CEF_MEMBER_MISSING(struct_, set_int))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_int))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -428,7 +451,7 @@ bool CefListValueCToCpp::SetInt(int index, int value) {
     return false;
 
   // Execute
-  int _retval = struct_->set_int(struct_,
+  int _retval = _struct->set_int(_struct,
       index,
       value);
 
@@ -437,7 +460,8 @@ bool CefListValueCToCpp::SetInt(int index, int value) {
 }
 
 bool CefListValueCToCpp::SetDouble(int index, double value) {
-  if (CEF_MEMBER_MISSING(struct_, set_double))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_double))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -448,7 +472,7 @@ bool CefListValueCToCpp::SetDouble(int index, double value) {
     return false;
 
   // Execute
-  int _retval = struct_->set_double(struct_,
+  int _retval = _struct->set_double(_struct,
       index,
       value);
 
@@ -457,7 +481,8 @@ bool CefListValueCToCpp::SetDouble(int index, double value) {
 }
 
 bool CefListValueCToCpp::SetString(int index, const CefString& value) {
-  if (CEF_MEMBER_MISSING(struct_, set_string))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_string))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -469,7 +494,7 @@ bool CefListValueCToCpp::SetString(int index, const CefString& value) {
   // Unverified params: value
 
   // Execute
-  int _retval = struct_->set_string(struct_,
+  int _retval = _struct->set_string(_struct,
       index,
       value.GetStruct());
 
@@ -478,7 +503,8 @@ bool CefListValueCToCpp::SetString(int index, const CefString& value) {
 }
 
 bool CefListValueCToCpp::SetBinary(int index, CefRefPtr<CefBinaryValue> value) {
-  if (CEF_MEMBER_MISSING(struct_, set_binary))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_binary))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -493,7 +519,7 @@ bool CefListValueCToCpp::SetBinary(int index, CefRefPtr<CefBinaryValue> value) {
     return false;
 
   // Execute
-  int _retval = struct_->set_binary(struct_,
+  int _retval = _struct->set_binary(_struct,
       index,
       CefBinaryValueCToCpp::Unwrap(value));
 
@@ -503,7 +529,8 @@ bool CefListValueCToCpp::SetBinary(int index, CefRefPtr<CefBinaryValue> value) {
 
 bool CefListValueCToCpp::SetDictionary(int index,
     CefRefPtr<CefDictionaryValue> value) {
-  if (CEF_MEMBER_MISSING(struct_, set_dictionary))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_dictionary))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -518,7 +545,7 @@ bool CefListValueCToCpp::SetDictionary(int index,
     return false;
 
   // Execute
-  int _retval = struct_->set_dictionary(struct_,
+  int _retval = _struct->set_dictionary(_struct,
       index,
       CefDictionaryValueCToCpp::Unwrap(value));
 
@@ -527,7 +554,8 @@ bool CefListValueCToCpp::SetDictionary(int index,
 }
 
 bool CefListValueCToCpp::SetList(int index, CefRefPtr<CefListValue> value) {
-  if (CEF_MEMBER_MISSING(struct_, set_list))
+  cef_list_value_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_list))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -542,7 +570,7 @@ bool CefListValueCToCpp::SetList(int index, CefRefPtr<CefListValue> value) {
     return false;
 
   // Execute
-  int _retval = struct_->set_list(struct_,
+  int _retval = _struct->set_list(_struct,
       index,
       CefListValueCToCpp::Unwrap(value));
 
@@ -551,8 +579,21 @@ bool CefListValueCToCpp::SetList(int index, CefRefPtr<CefListValue> value) {
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefListValueCToCpp::CefListValueCToCpp() {
+}
+
+template<> cef_list_value_t* CefCToCpp<CefListValueCToCpp, CefListValue,
+    cef_list_value_t>::UnwrapDerived(CefWrapperType type, CefListValue* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefListValueCToCpp, CefListValue,
     cef_list_value_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefListValueCToCpp, CefListValue,
+    cef_list_value_t>::kWrapperType = WT_LIST_VALUE;

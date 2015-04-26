@@ -27,9 +27,8 @@
 class CefDOMNodeCppToC
     : public CefCppToC<CefDOMNodeCppToC, CefDOMNode, cef_domnode_t> {
  public:
-  explicit CefDOMNodeCppToC(CefDOMNode* cls);
+  CefDOMNodeCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_DOMNODE_CPPTOC_H_
-

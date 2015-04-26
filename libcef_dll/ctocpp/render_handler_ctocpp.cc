@@ -19,7 +19,8 @@
 
 bool CefRenderHandlerCToCpp::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
     CefRect& rect) {
-  if (CEF_MEMBER_MISSING(struct_, get_root_screen_rect))
+  cef_render_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_root_screen_rect))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -30,7 +31,7 @@ bool CefRenderHandlerCToCpp::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = struct_->get_root_screen_rect(struct_,
+  int _retval = _struct->get_root_screen_rect(_struct,
       CefBrowserCppToC::Wrap(browser),
       &rect);
 
@@ -40,7 +41,8 @@ bool CefRenderHandlerCToCpp::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
 
 bool CefRenderHandlerCToCpp::GetViewRect(CefRefPtr<CefBrowser> browser,
     CefRect& rect) {
-  if (CEF_MEMBER_MISSING(struct_, get_view_rect))
+  cef_render_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_view_rect))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -51,7 +53,7 @@ bool CefRenderHandlerCToCpp::GetViewRect(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = struct_->get_view_rect(struct_,
+  int _retval = _struct->get_view_rect(_struct,
       CefBrowserCppToC::Wrap(browser),
       &rect);
 
@@ -61,7 +63,8 @@ bool CefRenderHandlerCToCpp::GetViewRect(CefRefPtr<CefBrowser> browser,
 
 bool CefRenderHandlerCToCpp::GetScreenPoint(CefRefPtr<CefBrowser> browser,
     int viewX, int viewY, int& screenX, int& screenY) {
-  if (CEF_MEMBER_MISSING(struct_, get_screen_point))
+  cef_render_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_screen_point))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -72,7 +75,7 @@ bool CefRenderHandlerCToCpp::GetScreenPoint(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = struct_->get_screen_point(struct_,
+  int _retval = _struct->get_screen_point(_struct,
       CefBrowserCppToC::Wrap(browser),
       viewX,
       viewY,
@@ -85,7 +88,8 @@ bool CefRenderHandlerCToCpp::GetScreenPoint(CefRefPtr<CefBrowser> browser,
 
 bool CefRenderHandlerCToCpp::GetScreenInfo(CefRefPtr<CefBrowser> browser,
     CefScreenInfo& screen_info) {
-  if (CEF_MEMBER_MISSING(struct_, get_screen_info))
+  cef_render_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_screen_info))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -96,7 +100,7 @@ bool CefRenderHandlerCToCpp::GetScreenInfo(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = struct_->get_screen_info(struct_,
+  int _retval = _struct->get_screen_info(_struct,
       CefBrowserCppToC::Wrap(browser),
       &screen_info);
 
@@ -106,7 +110,8 @@ bool CefRenderHandlerCToCpp::GetScreenInfo(CefRefPtr<CefBrowser> browser,
 
 void CefRenderHandlerCToCpp::OnPopupShow(CefRefPtr<CefBrowser> browser,
     bool show) {
-  if (CEF_MEMBER_MISSING(struct_, on_popup_show))
+  cef_render_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_popup_show))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -117,14 +122,15 @@ void CefRenderHandlerCToCpp::OnPopupShow(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  struct_->on_popup_show(struct_,
+  _struct->on_popup_show(_struct,
       CefBrowserCppToC::Wrap(browser),
       show);
 }
 
 void CefRenderHandlerCToCpp::OnPopupSize(CefRefPtr<CefBrowser> browser,
     const CefRect& rect) {
-  if (CEF_MEMBER_MISSING(struct_, on_popup_size))
+  cef_render_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_popup_size))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -135,7 +141,7 @@ void CefRenderHandlerCToCpp::OnPopupSize(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  struct_->on_popup_size(struct_,
+  _struct->on_popup_size(_struct,
       CefBrowserCppToC::Wrap(browser),
       &rect);
 }
@@ -143,7 +149,8 @@ void CefRenderHandlerCToCpp::OnPopupSize(CefRefPtr<CefBrowser> browser,
 void CefRenderHandlerCToCpp::OnPaint(CefRefPtr<CefBrowser> browser,
     PaintElementType type, const RectList& dirtyRects, const void* buffer,
     int width, int height) {
-  if (CEF_MEMBER_MISSING(struct_, on_paint))
+  cef_render_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_paint))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -171,7 +178,7 @@ void CefRenderHandlerCToCpp::OnPaint(CefRefPtr<CefBrowser> browser,
   }
 
   // Execute
-  struct_->on_paint(struct_,
+  _struct->on_paint(_struct,
       CefBrowserCppToC::Wrap(browser),
       type,
       dirtyRectsCount,
@@ -188,7 +195,8 @@ void CefRenderHandlerCToCpp::OnPaint(CefRefPtr<CefBrowser> browser,
 void CefRenderHandlerCToCpp::OnCursorChange(CefRefPtr<CefBrowser> browser,
     CefCursorHandle cursor, CursorType type,
     const CefCursorInfo& custom_cursor_info) {
-  if (CEF_MEMBER_MISSING(struct_, on_cursor_change))
+  cef_render_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_cursor_change))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -199,7 +207,7 @@ void CefRenderHandlerCToCpp::OnCursorChange(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  struct_->on_cursor_change(struct_,
+  _struct->on_cursor_change(_struct,
       CefBrowserCppToC::Wrap(browser),
       cursor,
       type,
@@ -209,7 +217,8 @@ void CefRenderHandlerCToCpp::OnCursorChange(CefRefPtr<CefBrowser> browser,
 bool CefRenderHandlerCToCpp::StartDragging(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDragData> drag_data, DragOperationsMask allowed_ops, int x,
     int y) {
-  if (CEF_MEMBER_MISSING(struct_, start_dragging))
+  cef_render_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, start_dragging))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -224,7 +233,7 @@ bool CefRenderHandlerCToCpp::StartDragging(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = struct_->start_dragging(struct_,
+  int _retval = _struct->start_dragging(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefDragDataCppToC::Wrap(drag_data),
       allowed_ops,
@@ -237,7 +246,8 @@ bool CefRenderHandlerCToCpp::StartDragging(CefRefPtr<CefBrowser> browser,
 
 void CefRenderHandlerCToCpp::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
     DragOperation operation) {
-  if (CEF_MEMBER_MISSING(struct_, update_drag_cursor))
+  cef_render_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, update_drag_cursor))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -248,14 +258,15 @@ void CefRenderHandlerCToCpp::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  struct_->update_drag_cursor(struct_,
+  _struct->update_drag_cursor(_struct,
       CefBrowserCppToC::Wrap(browser),
       operation);
 }
 
 void CefRenderHandlerCToCpp::OnScrollOffsetChanged(
     CefRefPtr<CefBrowser> browser, double x, double y) {
-  if (CEF_MEMBER_MISSING(struct_, on_scroll_offset_changed))
+  cef_render_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_scroll_offset_changed))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -266,15 +277,29 @@ void CefRenderHandlerCToCpp::OnScrollOffsetChanged(
     return;
 
   // Execute
-  struct_->on_scroll_offset_changed(struct_,
+  _struct->on_scroll_offset_changed(_struct,
       CefBrowserCppToC::Wrap(browser),
       x,
       y);
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefRenderHandlerCToCpp::CefRenderHandlerCToCpp() {
+}
+
+template<> cef_render_handler_t* CefCToCpp<CefRenderHandlerCToCpp,
+    CefRenderHandler, cef_render_handler_t>::UnwrapDerived(CefWrapperType type,
+    CefRenderHandler* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefRenderHandlerCToCpp,
     CefRenderHandler, cef_render_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefRenderHandlerCToCpp, CefRenderHandler,
+    cef_render_handler_t>::kWrapperType = WT_RENDER_HANDLER;

@@ -30,15 +30,12 @@ class CefNavigationEntryVisitorCToCpp
     : public CefCToCpp<CefNavigationEntryVisitorCToCpp,
         CefNavigationEntryVisitor, cef_navigation_entry_visitor_t> {
  public:
-  explicit CefNavigationEntryVisitorCToCpp(cef_navigation_entry_visitor_t* str)
-      : CefCToCpp<CefNavigationEntryVisitorCToCpp, CefNavigationEntryVisitor,
-          cef_navigation_entry_visitor_t>(str) {}
+  CefNavigationEntryVisitorCToCpp();
 
-  // CefNavigationEntryVisitor methods
+  // CefNavigationEntryVisitor methods.
   bool Visit(CefRefPtr<CefNavigationEntry> entry, bool current, int index,
       int total) override;
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_NAVIGATION_ENTRY_VISITOR_CTOCPP_H_
-

@@ -19,7 +19,8 @@
 bool CefV8AccessorCToCpp::Get(const CefString& name,
     const CefRefPtr<CefV8Value> object, CefRefPtr<CefV8Value>& retval,
     CefString& exception) {
-  if (CEF_MEMBER_MISSING(struct_, get))
+  cef_v8accessor_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -40,7 +41,7 @@ bool CefV8AccessorCToCpp::Get(const CefString& name,
   cef_v8value_t* retvalOrig = retvalStruct;
 
   // Execute
-  int _retval = struct_->get(struct_,
+  int _retval = _struct->get(_struct,
       name.GetStruct(),
       CefV8ValueCppToC::Wrap(object),
       &retvalStruct,
@@ -62,7 +63,8 @@ bool CefV8AccessorCToCpp::Get(const CefString& name,
 bool CefV8AccessorCToCpp::Set(const CefString& name,
     const CefRefPtr<CefV8Value> object, const CefRefPtr<CefV8Value> value,
     CefString& exception) {
-  if (CEF_MEMBER_MISSING(struct_, set))
+  cef_v8accessor_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -81,7 +83,7 @@ bool CefV8AccessorCToCpp::Set(const CefString& name,
     return false;
 
   // Execute
-  int _retval = struct_->set(struct_,
+  int _retval = _struct->set(_struct,
       name.GetStruct(),
       CefV8ValueCppToC::Wrap(object),
       CefV8ValueCppToC::Wrap(value),
@@ -92,8 +94,21 @@ bool CefV8AccessorCToCpp::Set(const CefString& name,
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefV8AccessorCToCpp::CefV8AccessorCToCpp() {
+}
+
+template<> cef_v8accessor_t* CefCToCpp<CefV8AccessorCToCpp, CefV8Accessor,
+    cef_v8accessor_t>::UnwrapDerived(CefWrapperType type, CefV8Accessor* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefV8AccessorCToCpp, CefV8Accessor,
     cef_v8accessor_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefV8AccessorCToCpp, CefV8Accessor,
+    cef_v8accessor_t>::kWrapperType = WT_V8ACCESSOR;

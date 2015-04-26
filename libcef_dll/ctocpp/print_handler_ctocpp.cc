@@ -20,7 +20,8 @@
 
 void CefPrintHandlerCToCpp::OnPrintSettings(
     CefRefPtr<CefPrintSettings> settings, bool get_defaults) {
-  if (CEF_MEMBER_MISSING(struct_, on_print_settings))
+  cef_print_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_print_settings))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -31,14 +32,15 @@ void CefPrintHandlerCToCpp::OnPrintSettings(
     return;
 
   // Execute
-  struct_->on_print_settings(struct_,
+  _struct->on_print_settings(_struct,
       CefPrintSettingsCppToC::Wrap(settings),
       get_defaults);
 }
 
 bool CefPrintHandlerCToCpp::OnPrintDialog(bool has_selection,
     CefRefPtr<CefPrintDialogCallback> callback) {
-  if (CEF_MEMBER_MISSING(struct_, on_print_dialog))
+  cef_print_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_print_dialog))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -49,7 +51,7 @@ bool CefPrintHandlerCToCpp::OnPrintDialog(bool has_selection,
     return false;
 
   // Execute
-  int _retval = struct_->on_print_dialog(struct_,
+  int _retval = _struct->on_print_dialog(_struct,
       has_selection,
       CefPrintDialogCallbackCppToC::Wrap(callback));
 
@@ -59,7 +61,8 @@ bool CefPrintHandlerCToCpp::OnPrintDialog(bool has_selection,
 
 bool CefPrintHandlerCToCpp::OnPrintJob(const CefString& document_name,
     const CefString& pdf_file_path, CefRefPtr<CefPrintJobCallback> callback) {
-  if (CEF_MEMBER_MISSING(struct_, on_print_job))
+  cef_print_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_print_job))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -78,7 +81,7 @@ bool CefPrintHandlerCToCpp::OnPrintJob(const CefString& document_name,
     return false;
 
   // Execute
-  int _retval = struct_->on_print_job(struct_,
+  int _retval = _struct->on_print_job(_struct,
       document_name.GetStruct(),
       pdf_file_path.GetStruct(),
       CefPrintJobCallbackCppToC::Wrap(callback));
@@ -88,18 +91,33 @@ bool CefPrintHandlerCToCpp::OnPrintJob(const CefString& document_name,
 }
 
 void CefPrintHandlerCToCpp::OnPrintReset() {
-  if (CEF_MEMBER_MISSING(struct_, on_print_reset))
+  cef_print_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_print_reset))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->on_print_reset(struct_);
+  _struct->on_print_reset(_struct);
 }
 
+
+// CONSTRUCTOR - Do not edit by hand.
+
+CefPrintHandlerCToCpp::CefPrintHandlerCToCpp() {
+}
+
+template<> cef_print_handler_t* CefCToCpp<CefPrintHandlerCToCpp,
+    CefPrintHandler, cef_print_handler_t>::UnwrapDerived(CefWrapperType type,
+    CefPrintHandler* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefPrintHandlerCToCpp,
     CefPrintHandler, cef_print_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefPrintHandlerCToCpp, CefPrintHandler,
+    cef_print_handler_t>::kWrapperType = WT_PRINT_HANDLER;

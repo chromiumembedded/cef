@@ -28,11 +28,9 @@ class CefSchemeHandlerFactoryCToCpp
     : public CefCToCpp<CefSchemeHandlerFactoryCToCpp, CefSchemeHandlerFactory,
         cef_scheme_handler_factory_t> {
  public:
-  explicit CefSchemeHandlerFactoryCToCpp(cef_scheme_handler_factory_t* str)
-      : CefCToCpp<CefSchemeHandlerFactoryCToCpp, CefSchemeHandlerFactory,
-          cef_scheme_handler_factory_t>(str) {}
+  CefSchemeHandlerFactoryCToCpp();
 
-  // CefSchemeHandlerFactory methods
+  // CefSchemeHandlerFactory methods.
   CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, const CefString& scheme_name,
       CefRefPtr<CefRequest> request) override;
@@ -40,4 +38,3 @@ class CefSchemeHandlerFactoryCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_SCHEME_HANDLER_FACTORY_CTOCPP_H_
-

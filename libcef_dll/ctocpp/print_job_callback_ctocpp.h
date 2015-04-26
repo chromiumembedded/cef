@@ -28,14 +28,11 @@ class CefPrintJobCallbackCToCpp
     : public CefCToCpp<CefPrintJobCallbackCToCpp, CefPrintJobCallback,
         cef_print_job_callback_t> {
  public:
-  explicit CefPrintJobCallbackCToCpp(cef_print_job_callback_t* str)
-      : CefCToCpp<CefPrintJobCallbackCToCpp, CefPrintJobCallback,
-          cef_print_job_callback_t>(str) {}
+  CefPrintJobCallbackCToCpp();
 
-  // CefPrintJobCallback methods
-  virtual void Continue() OVERRIDE;
+  // CefPrintJobCallback methods.
+  void Continue() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_PRINT_JOB_CALLBACK_CTOCPP_H_
-

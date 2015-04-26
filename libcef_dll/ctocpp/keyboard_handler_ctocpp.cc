@@ -19,7 +19,8 @@
 bool CefKeyboardHandlerCToCpp::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
     const CefKeyEvent& event, CefEventHandle os_event,
     bool* is_keyboard_shortcut) {
-  if (CEF_MEMBER_MISSING(struct_, on_pre_key_event))
+  cef_keyboard_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_pre_key_event))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -37,7 +38,7 @@ bool CefKeyboardHandlerCToCpp::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
   int is_keyboard_shortcutInt = is_keyboard_shortcut?*is_keyboard_shortcut:0;
 
   // Execute
-  int _retval = struct_->on_pre_key_event(struct_,
+  int _retval = _struct->on_pre_key_event(_struct,
       CefBrowserCppToC::Wrap(browser),
       &event,
       os_event,
@@ -53,7 +54,8 @@ bool CefKeyboardHandlerCToCpp::OnPreKeyEvent(CefRefPtr<CefBrowser> browser,
 
 bool CefKeyboardHandlerCToCpp::OnKeyEvent(CefRefPtr<CefBrowser> browser,
     const CefKeyEvent& event, CefEventHandle os_event) {
-  if (CEF_MEMBER_MISSING(struct_, on_key_event))
+  cef_keyboard_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_key_event))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -64,7 +66,7 @@ bool CefKeyboardHandlerCToCpp::OnKeyEvent(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = struct_->on_key_event(struct_,
+  int _retval = _struct->on_key_event(_struct,
       CefBrowserCppToC::Wrap(browser),
       &event,
       os_event);
@@ -74,8 +76,23 @@ bool CefKeyboardHandlerCToCpp::OnKeyEvent(CefRefPtr<CefBrowser> browser,
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefKeyboardHandlerCToCpp::CefKeyboardHandlerCToCpp() {
+}
+
+template<> cef_keyboard_handler_t* CefCToCpp<CefKeyboardHandlerCToCpp,
+    CefKeyboardHandler, cef_keyboard_handler_t>::UnwrapDerived(
+    CefWrapperType type, CefKeyboardHandler* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefKeyboardHandlerCToCpp,
     CefKeyboardHandler, cef_keyboard_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefKeyboardHandlerCToCpp,
+    CefKeyboardHandler, cef_keyboard_handler_t>::kWrapperType =
+    WT_KEYBOARD_HANDLER;

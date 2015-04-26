@@ -28,9 +28,8 @@ class CefContextMenuParamsCppToC
     : public CefCppToC<CefContextMenuParamsCppToC, CefContextMenuParams,
         cef_context_menu_params_t> {
  public:
-  explicit CefContextMenuParamsCppToC(CefContextMenuParams* cls);
+  CefContextMenuParamsCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_CONTEXT_MENU_PARAMS_CPPTOC_H_
-

@@ -28,10 +28,8 @@ class CefWebPluginUnstableCallbackCppToC
     : public CefCppToC<CefWebPluginUnstableCallbackCppToC,
         CefWebPluginUnstableCallback, cef_web_plugin_unstable_callback_t> {
  public:
-  explicit CefWebPluginUnstableCallbackCppToC(
-      CefWebPluginUnstableCallback* cls);
+  CefWebPluginUnstableCallbackCppToC();
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_WEB_PLUGIN_UNSTABLE_CALLBACK_CPPTOC_H_
-

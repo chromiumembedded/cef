@@ -28,14 +28,11 @@ class CefEndTracingCallbackCToCpp
     : public CefCToCpp<CefEndTracingCallbackCToCpp, CefEndTracingCallback,
         cef_end_tracing_callback_t> {
  public:
-  explicit CefEndTracingCallbackCToCpp(cef_end_tracing_callback_t* str)
-      : CefCToCpp<CefEndTracingCallbackCToCpp, CefEndTracingCallback,
-          cef_end_tracing_callback_t>(str) {}
+  CefEndTracingCallbackCToCpp();
 
-  // CefEndTracingCallback methods
+  // CefEndTracingCallback methods.
   void OnEndTracingComplete(const CefString& tracing_file) override;
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_END_TRACING_CALLBACK_CTOCPP_H_
-

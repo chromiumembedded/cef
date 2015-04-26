@@ -27,9 +27,8 @@
 class CefValueCppToC
     : public CefCppToC<CefValueCppToC, CefValue, cef_value_t> {
  public:
-  explicit CefValueCppToC(CefValue* cls);
+  CefValueCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_VALUE_CPPTOC_H_
-

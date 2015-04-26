@@ -43,6 +43,9 @@ def make_gypi_file(header):
     for clsname in classes:
         cls = header.get_class(clsname)
         filename = get_capi_name(clsname[3:], False)
+        dir = cls.get_file_directory()
+        if not dir is None:
+            filename = dir+'/'+filename
         if cls.is_library_side():
             result += "      'libcef_dll/cpptoc/"+filename+"_cpptoc.cc',\n" \
                       "      'libcef_dll/cpptoc/"+filename+"_cpptoc.h',\n"
@@ -56,6 +59,9 @@ def make_gypi_file(header):
     for clsname in classes:
         cls = header.get_class(clsname)
         filename = get_capi_name(clsname[3:], False)
+        dir = cls.get_file_directory()
+        if not dir is None:
+            filename = dir+'/'+filename
         if cls.is_library_side():
             result += "      'libcef_dll/ctocpp/"+filename+"_ctocpp.cc',\n" \
                       "      'libcef_dll/ctocpp/"+filename+"_ctocpp.h',\n"  

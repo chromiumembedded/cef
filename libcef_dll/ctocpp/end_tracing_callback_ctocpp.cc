@@ -17,7 +17,8 @@
 
 void CefEndTracingCallbackCToCpp::OnEndTracingComplete(
     const CefString& tracing_file) {
-  if (CEF_MEMBER_MISSING(struct_, on_end_tracing_complete))
+  cef_end_tracing_callback_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_end_tracing_complete))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -28,13 +29,28 @@ void CefEndTracingCallbackCToCpp::OnEndTracingComplete(
     return;
 
   // Execute
-  struct_->on_end_tracing_complete(struct_,
+  _struct->on_end_tracing_complete(_struct,
       tracing_file.GetStruct());
 }
 
+
+// CONSTRUCTOR - Do not edit by hand.
+
+CefEndTracingCallbackCToCpp::CefEndTracingCallbackCToCpp() {
+}
+
+template<> cef_end_tracing_callback_t* CefCToCpp<CefEndTracingCallbackCToCpp,
+    CefEndTracingCallback, cef_end_tracing_callback_t>::UnwrapDerived(
+    CefWrapperType type, CefEndTracingCallback* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefEndTracingCallbackCToCpp,
     CefEndTracingCallback, cef_end_tracing_callback_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefEndTracingCallbackCToCpp,
+    CefEndTracingCallback, cef_end_tracing_callback_t>::kWrapperType =
+    WT_END_TRACING_CALLBACK;

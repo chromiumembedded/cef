@@ -13,6 +13,8 @@
 #include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 cef_string_userfree_t CEF_CALLBACK web_plugin_info_get_name(
@@ -75,16 +77,23 @@ cef_string_userfree_t CEF_CALLBACK web_plugin_info_get_description(
   return _retval.DetachToUserFree();
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefWebPluginInfoCppToC::CefWebPluginInfoCppToC(CefWebPluginInfo* cls)
-    : CefCppToC<CefWebPluginInfoCppToC, CefWebPluginInfo,
-        cef_web_plugin_info_t>(cls) {
-  struct_.struct_.get_name = web_plugin_info_get_name;
-  struct_.struct_.get_path = web_plugin_info_get_path;
-  struct_.struct_.get_version = web_plugin_info_get_version;
-  struct_.struct_.get_description = web_plugin_info_get_description;
+CefWebPluginInfoCppToC::CefWebPluginInfoCppToC() {
+  GetStruct()->get_name = web_plugin_info_get_name;
+  GetStruct()->get_path = web_plugin_info_get_path;
+  GetStruct()->get_version = web_plugin_info_get_version;
+  GetStruct()->get_description = web_plugin_info_get_description;
+}
+
+template<> CefRefPtr<CefWebPluginInfo> CefCppToC<CefWebPluginInfoCppToC,
+    CefWebPluginInfo, cef_web_plugin_info_t>::UnwrapDerived(
+    CefWrapperType type, cef_web_plugin_info_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -92,3 +101,5 @@ template<> base::AtomicRefCount CefCppToC<CefWebPluginInfoCppToC,
     CefWebPluginInfo, cef_web_plugin_info_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefWebPluginInfoCppToC, CefWebPluginInfo,
+    cef_web_plugin_info_t>::kWrapperType = WT_WEB_PLUGIN_INFO;

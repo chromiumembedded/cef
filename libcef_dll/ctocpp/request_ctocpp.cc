@@ -31,26 +31,28 @@ CefRefPtr<CefRequest> CefRequest::Create() {
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefRequestCToCpp::IsReadOnly() {
-  if (CEF_MEMBER_MISSING(struct_, is_read_only))
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_read_only))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_read_only(struct_);
+  int _retval = _struct->is_read_only(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 CefString CefRequestCToCpp::GetURL() {
-  if (CEF_MEMBER_MISSING(struct_, get_url))
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_url))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_url(struct_);
+  cef_string_userfree_t _retval = _struct->get_url(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -59,7 +61,8 @@ CefString CefRequestCToCpp::GetURL() {
 }
 
 void CefRequestCToCpp::SetURL(const CefString& url) {
-  if (CEF_MEMBER_MISSING(struct_, set_url))
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_url))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -70,18 +73,19 @@ void CefRequestCToCpp::SetURL(const CefString& url) {
     return;
 
   // Execute
-  struct_->set_url(struct_,
+  _struct->set_url(_struct,
       url.GetStruct());
 }
 
 CefString CefRequestCToCpp::GetMethod() {
-  if (CEF_MEMBER_MISSING(struct_, get_method))
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_method))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_method(struct_);
+  cef_string_userfree_t _retval = _struct->get_method(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -90,7 +94,8 @@ CefString CefRequestCToCpp::GetMethod() {
 }
 
 void CefRequestCToCpp::SetMethod(const CefString& method) {
-  if (CEF_MEMBER_MISSING(struct_, set_method))
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_method))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -101,25 +106,27 @@ void CefRequestCToCpp::SetMethod(const CefString& method) {
     return;
 
   // Execute
-  struct_->set_method(struct_,
+  _struct->set_method(_struct,
       method.GetStruct());
 }
 
 CefRefPtr<CefPostData> CefRequestCToCpp::GetPostData() {
-  if (CEF_MEMBER_MISSING(struct_, get_post_data))
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_post_data))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_post_data_t* _retval = struct_->get_post_data(struct_);
+  cef_post_data_t* _retval = _struct->get_post_data(_struct);
 
   // Return type: refptr_same
   return CefPostDataCToCpp::Wrap(_retval);
 }
 
 void CefRequestCToCpp::SetPostData(CefRefPtr<CefPostData> postData) {
-  if (CEF_MEMBER_MISSING(struct_, set_post_data))
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_post_data))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -130,12 +137,13 @@ void CefRequestCToCpp::SetPostData(CefRefPtr<CefPostData> postData) {
     return;
 
   // Execute
-  struct_->set_post_data(struct_,
+  _struct->set_post_data(_struct,
       CefPostDataCToCpp::Unwrap(postData));
 }
 
 void CefRequestCToCpp::GetHeaderMap(HeaderMap& headerMap) {
-  if (CEF_MEMBER_MISSING(struct_, get_header_map))
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_header_map))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -147,7 +155,7 @@ void CefRequestCToCpp::GetHeaderMap(HeaderMap& headerMap) {
     transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
-  struct_->get_header_map(struct_,
+  _struct->get_header_map(_struct,
       headerMapMultimap);
 
   // Restore param:headerMap; type: string_map_multi_byref
@@ -159,7 +167,8 @@ void CefRequestCToCpp::GetHeaderMap(HeaderMap& headerMap) {
 }
 
 void CefRequestCToCpp::SetHeaderMap(const HeaderMap& headerMap) {
-  if (CEF_MEMBER_MISSING(struct_, set_header_map))
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_header_map))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -171,7 +180,7 @@ void CefRequestCToCpp::SetHeaderMap(const HeaderMap& headerMap) {
     transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
-  struct_->set_header_map(struct_,
+  _struct->set_header_map(_struct,
       headerMapMultimap);
 
   // Restore param:headerMap; type: string_map_multi_byref_const
@@ -181,7 +190,8 @@ void CefRequestCToCpp::SetHeaderMap(const HeaderMap& headerMap) {
 
 void CefRequestCToCpp::Set(const CefString& url, const CefString& method,
     CefRefPtr<CefPostData> postData, const HeaderMap& headerMap) {
-  if (CEF_MEMBER_MISSING(struct_, set))
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -203,7 +213,7 @@ void CefRequestCToCpp::Set(const CefString& url, const CefString& method,
     transfer_string_multimap_contents(headerMap, headerMapMultimap);
 
   // Execute
-  struct_->set(struct_,
+  _struct->set(_struct,
       url.GetStruct(),
       method.GetStruct(),
       CefPostDataCToCpp::Unwrap(postData),
@@ -215,37 +225,40 @@ void CefRequestCToCpp::Set(const CefString& url, const CefString& method,
 }
 
 int CefRequestCToCpp::GetFlags() {
-  if (CEF_MEMBER_MISSING(struct_, get_flags))
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_flags))
     return UR_FLAG_NONE;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_flags(struct_);
+  int _retval = _struct->get_flags(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 void CefRequestCToCpp::SetFlags(int flags) {
-  if (CEF_MEMBER_MISSING(struct_, set_flags))
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_flags))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->set_flags(struct_,
+  _struct->set_flags(_struct,
       flags);
 }
 
 CefString CefRequestCToCpp::GetFirstPartyForCookies() {
-  if (CEF_MEMBER_MISSING(struct_, get_first_party_for_cookies))
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_first_party_for_cookies))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_first_party_for_cookies(struct_);
+  cef_string_userfree_t _retval = _struct->get_first_party_for_cookies(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -254,7 +267,8 @@ CefString CefRequestCToCpp::GetFirstPartyForCookies() {
 }
 
 void CefRequestCToCpp::SetFirstPartyForCookies(const CefString& url) {
-  if (CEF_MEMBER_MISSING(struct_, set_first_party_for_cookies))
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_first_party_for_cookies))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -265,52 +279,68 @@ void CefRequestCToCpp::SetFirstPartyForCookies(const CefString& url) {
     return;
 
   // Execute
-  struct_->set_first_party_for_cookies(struct_,
+  _struct->set_first_party_for_cookies(_struct,
       url.GetStruct());
 }
 
 CefRequest::ResourceType CefRequestCToCpp::GetResourceType() {
-  if (CEF_MEMBER_MISSING(struct_, get_resource_type))
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_resource_type))
     return RT_SUB_RESOURCE;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_resource_type_t _retval = struct_->get_resource_type(struct_);
+  cef_resource_type_t _retval = _struct->get_resource_type(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 CefRequest::TransitionType CefRequestCToCpp::GetTransitionType() {
-  if (CEF_MEMBER_MISSING(struct_, get_transition_type))
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_transition_type))
     return TT_EXPLICIT;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_transition_type_t _retval = struct_->get_transition_type(struct_);
+  cef_transition_type_t _retval = _struct->get_transition_type(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 uint64 CefRequestCToCpp::GetIdentifier() {
-  if (CEF_MEMBER_MISSING(struct_, get_identifier))
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_identifier))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  uint64 _retval = struct_->get_identifier(struct_);
+  uint64 _retval = _struct->get_identifier(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefRequestCToCpp::CefRequestCToCpp() {
+}
+
+template<> cef_request_t* CefCToCpp<CefRequestCToCpp, CefRequest,
+    cef_request_t>::UnwrapDerived(CefWrapperType type, CefRequest* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefRequestCToCpp, CefRequest,
     cef_request_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefRequestCToCpp, CefRequest,
+    cef_request_t>::kWrapperType = WT_REQUEST;

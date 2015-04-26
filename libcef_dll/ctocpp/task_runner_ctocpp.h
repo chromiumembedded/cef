@@ -27,18 +27,15 @@
 class CefTaskRunnerCToCpp
     : public CefCToCpp<CefTaskRunnerCToCpp, CefTaskRunner, cef_task_runner_t> {
  public:
-  explicit CefTaskRunnerCToCpp(cef_task_runner_t* str)
-      : CefCToCpp<CefTaskRunnerCToCpp, CefTaskRunner, cef_task_runner_t>(str) {}
+  CefTaskRunnerCToCpp();
 
-  // CefTaskRunner methods
-  virtual bool IsSame(CefRefPtr<CefTaskRunner> that) OVERRIDE;
-  virtual bool BelongsToCurrentThread() OVERRIDE;
-  virtual bool BelongsToThread(CefThreadId threadId) OVERRIDE;
-  virtual bool PostTask(CefRefPtr<CefTask> task) OVERRIDE;
-  virtual bool PostDelayedTask(CefRefPtr<CefTask> task,
-      int64 delay_ms) OVERRIDE;
+  // CefTaskRunner methods.
+  bool IsSame(CefRefPtr<CefTaskRunner> that) OVERRIDE;
+  bool BelongsToCurrentThread() OVERRIDE;
+  bool BelongsToThread(CefThreadId threadId) OVERRIDE;
+  bool PostTask(CefRefPtr<CefTask> task) OVERRIDE;
+  bool PostDelayedTask(CefRefPtr<CefTask> task, int64 delay_ms) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_TASK_RUNNER_CTOCPP_H_
-

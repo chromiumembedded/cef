@@ -30,9 +30,8 @@ class CefBrowserHostCppToC
     : public CefCppToC<CefBrowserHostCppToC, CefBrowserHost,
         cef_browser_host_t> {
  public:
-  explicit CefBrowserHostCppToC(CefBrowserHost* cls);
+  CefBrowserHostCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_BROWSER_HOST_CPPTOC_H_
-

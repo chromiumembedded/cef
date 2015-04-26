@@ -51,6 +51,8 @@ CEF_EXPORT cef_stream_writer_t* cef_stream_writer_create_for_handler(
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 size_t CEF_CALLBACK stream_writer_write(struct _cef_stream_writer_t* self,
@@ -134,17 +136,24 @@ int CEF_CALLBACK stream_writer_may_block(struct _cef_stream_writer_t* self) {
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefStreamWriterCppToC::CefStreamWriterCppToC(CefStreamWriter* cls)
-    : CefCppToC<CefStreamWriterCppToC, CefStreamWriter, cef_stream_writer_t>(
-        cls) {
-  struct_.struct_.write = stream_writer_write;
-  struct_.struct_.seek = stream_writer_seek;
-  struct_.struct_.tell = stream_writer_tell;
-  struct_.struct_.flush = stream_writer_flush;
-  struct_.struct_.may_block = stream_writer_may_block;
+CefStreamWriterCppToC::CefStreamWriterCppToC() {
+  GetStruct()->write = stream_writer_write;
+  GetStruct()->seek = stream_writer_seek;
+  GetStruct()->tell = stream_writer_tell;
+  GetStruct()->flush = stream_writer_flush;
+  GetStruct()->may_block = stream_writer_may_block;
+}
+
+template<> CefRefPtr<CefStreamWriter> CefCppToC<CefStreamWriterCppToC,
+    CefStreamWriter, cef_stream_writer_t>::UnwrapDerived(CefWrapperType type,
+    cef_stream_writer_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -152,3 +161,5 @@ template<> base::AtomicRefCount CefCppToC<CefStreamWriterCppToC,
     CefStreamWriter, cef_stream_writer_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefStreamWriterCppToC, CefStreamWriter,
+    cef_stream_writer_t>::kWrapperType = WT_STREAM_WRITER;

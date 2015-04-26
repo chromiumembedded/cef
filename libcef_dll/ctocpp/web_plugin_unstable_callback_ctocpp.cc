@@ -17,7 +17,8 @@
 
 void CefWebPluginUnstableCallbackCToCpp::IsUnstable(const CefString& path,
     bool unstable) {
-  if (CEF_MEMBER_MISSING(struct_, is_unstable))
+  cef_web_plugin_unstable_callback_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_unstable))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -28,11 +29,24 @@ void CefWebPluginUnstableCallbackCToCpp::IsUnstable(const CefString& path,
     return;
 
   // Execute
-  struct_->is_unstable(struct_,
+  _struct->is_unstable(_struct,
       path.GetStruct(),
       unstable);
 }
 
+
+// CONSTRUCTOR - Do not edit by hand.
+
+CefWebPluginUnstableCallbackCToCpp::CefWebPluginUnstableCallbackCToCpp() {
+}
+
+template<> cef_web_plugin_unstable_callback_t* CefCToCpp<CefWebPluginUnstableCallbackCToCpp,
+    CefWebPluginUnstableCallback,
+    cef_web_plugin_unstable_callback_t>::UnwrapDerived(CefWrapperType type,
+    CefWebPluginUnstableCallback* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefWebPluginUnstableCallbackCToCpp,
@@ -40,3 +54,7 @@ template<> base::AtomicRefCount CefCToCpp<CefWebPluginUnstableCallbackCToCpp,
     cef_web_plugin_unstable_callback_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefWebPluginUnstableCallbackCToCpp,
+    CefWebPluginUnstableCallback,
+    cef_web_plugin_unstable_callback_t>::kWrapperType =
+    WT_WEB_PLUGIN_UNSTABLE_CALLBACK;

@@ -20,7 +20,8 @@
 bool CefGeolocationHandlerCToCpp::OnRequestGeolocationPermission(
     CefRefPtr<CefBrowser> browser, const CefString& requesting_url,
     int request_id, CefRefPtr<CefGeolocationCallback> callback) {
-  if (CEF_MEMBER_MISSING(struct_, on_request_geolocation_permission))
+  cef_geolocation_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_request_geolocation_permission))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -39,7 +40,7 @@ bool CefGeolocationHandlerCToCpp::OnRequestGeolocationPermission(
     return false;
 
   // Execute
-  int _retval = struct_->on_request_geolocation_permission(struct_,
+  int _retval = _struct->on_request_geolocation_permission(_struct,
       CefBrowserCppToC::Wrap(browser),
       requesting_url.GetStruct(),
       request_id,
@@ -52,7 +53,8 @@ bool CefGeolocationHandlerCToCpp::OnRequestGeolocationPermission(
 void CefGeolocationHandlerCToCpp::OnCancelGeolocationPermission(
     CefRefPtr<CefBrowser> browser, const CefString& requesting_url,
     int request_id) {
-  if (CEF_MEMBER_MISSING(struct_, on_cancel_geolocation_permission))
+  cef_geolocation_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_cancel_geolocation_permission))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -67,15 +69,30 @@ void CefGeolocationHandlerCToCpp::OnCancelGeolocationPermission(
     return;
 
   // Execute
-  struct_->on_cancel_geolocation_permission(struct_,
+  _struct->on_cancel_geolocation_permission(_struct,
       CefBrowserCppToC::Wrap(browser),
       requesting_url.GetStruct(),
       request_id);
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefGeolocationHandlerCToCpp::CefGeolocationHandlerCToCpp() {
+}
+
+template<> cef_geolocation_handler_t* CefCToCpp<CefGeolocationHandlerCToCpp,
+    CefGeolocationHandler, cef_geolocation_handler_t>::UnwrapDerived(
+    CefWrapperType type, CefGeolocationHandler* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefGeolocationHandlerCToCpp,
     CefGeolocationHandler, cef_geolocation_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefGeolocationHandlerCToCpp,
+    CefGeolocationHandler, cef_geolocation_handler_t>::kWrapperType =
+    WT_GEOLOCATION_HANDLER;

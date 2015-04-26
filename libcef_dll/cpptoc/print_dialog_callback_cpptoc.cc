@@ -14,6 +14,8 @@
 #include "libcef_dll/cpptoc/print_settings_cpptoc.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK print_dialog_callback_cont(
@@ -46,15 +48,21 @@ void CEF_CALLBACK print_dialog_callback_cancel(
   CefPrintDialogCallbackCppToC::Get(self)->Cancel();
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefPrintDialogCallbackCppToC::CefPrintDialogCallbackCppToC(
-    CefPrintDialogCallback* cls)
-    : CefCppToC<CefPrintDialogCallbackCppToC, CefPrintDialogCallback,
-        cef_print_dialog_callback_t>(cls) {
-  struct_.struct_.cont = print_dialog_callback_cont;
-  struct_.struct_.cancel = print_dialog_callback_cancel;
+CefPrintDialogCallbackCppToC::CefPrintDialogCallbackCppToC() {
+  GetStruct()->cont = print_dialog_callback_cont;
+  GetStruct()->cancel = print_dialog_callback_cancel;
+}
+
+template<> CefRefPtr<CefPrintDialogCallback> CefCppToC<CefPrintDialogCallbackCppToC,
+    CefPrintDialogCallback, cef_print_dialog_callback_t>::UnwrapDerived(
+    CefWrapperType type, cef_print_dialog_callback_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -62,3 +70,6 @@ template<> base::AtomicRefCount CefCppToC<CefPrintDialogCallbackCppToC,
     CefPrintDialogCallback, cef_print_dialog_callback_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefPrintDialogCallbackCppToC,
+    CefPrintDialogCallback, cef_print_dialog_callback_t>::kWrapperType =
+    WT_PRINT_DIALOG_CALLBACK;

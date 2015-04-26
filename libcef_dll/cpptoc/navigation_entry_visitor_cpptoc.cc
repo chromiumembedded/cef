@@ -14,6 +14,8 @@
 #include "libcef_dll/ctocpp/navigation_entry_ctocpp.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK navigation_entry_visitor_visit(
@@ -41,14 +43,20 @@ int CEF_CALLBACK navigation_entry_visitor_visit(
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefNavigationEntryVisitorCppToC::CefNavigationEntryVisitorCppToC(
-    CefNavigationEntryVisitor* cls)
-    : CefCppToC<CefNavigationEntryVisitorCppToC, CefNavigationEntryVisitor,
-        cef_navigation_entry_visitor_t>(cls) {
-  struct_.struct_.visit = navigation_entry_visitor_visit;
+CefNavigationEntryVisitorCppToC::CefNavigationEntryVisitorCppToC() {
+  GetStruct()->visit = navigation_entry_visitor_visit;
+}
+
+template<> CefRefPtr<CefNavigationEntryVisitor> CefCppToC<CefNavigationEntryVisitorCppToC,
+    CefNavigationEntryVisitor, cef_navigation_entry_visitor_t>::UnwrapDerived(
+    CefWrapperType type, cef_navigation_entry_visitor_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -57,3 +65,6 @@ template<> base::AtomicRefCount CefCppToC<CefNavigationEntryVisitorCppToC,
     0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefNavigationEntryVisitorCppToC,
+    CefNavigationEntryVisitor, cef_navigation_entry_visitor_t>::kWrapperType =
+    WT_NAVIGATION_ENTRY_VISITOR;

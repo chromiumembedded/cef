@@ -28,18 +28,15 @@ class CefStreamWriterCToCpp
     : public CefCToCpp<CefStreamWriterCToCpp, CefStreamWriter,
         cef_stream_writer_t> {
  public:
-  explicit CefStreamWriterCToCpp(cef_stream_writer_t* str)
-      : CefCToCpp<CefStreamWriterCToCpp, CefStreamWriter, cef_stream_writer_t>(
-          str) {}
+  CefStreamWriterCToCpp();
 
-  // CefStreamWriter methods
-  virtual size_t Write(const void* ptr, size_t size, size_t n) OVERRIDE;
-  virtual int Seek(int64 offset, int whence) OVERRIDE;
-  virtual int64 Tell() OVERRIDE;
-  virtual int Flush() OVERRIDE;
-  virtual bool MayBlock() OVERRIDE;
+  // CefStreamWriter methods.
+  size_t Write(const void* ptr, size_t size, size_t n) OVERRIDE;
+  int Seek(int64 offset, int whence) OVERRIDE;
+  int64 Tell() OVERRIDE;
+  int Flush() OVERRIDE;
+  bool MayBlock() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_STREAM_WRITER_CTOCPP_H_
-

@@ -69,6 +69,8 @@ CEF_EXPORT cef_stream_reader_t* cef_stream_reader_create_for_handler(
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 size_t CEF_CALLBACK stream_reader_read(struct _cef_stream_reader_t* self,
@@ -152,17 +154,24 @@ int CEF_CALLBACK stream_reader_may_block(struct _cef_stream_reader_t* self) {
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefStreamReaderCppToC::CefStreamReaderCppToC(CefStreamReader* cls)
-    : CefCppToC<CefStreamReaderCppToC, CefStreamReader, cef_stream_reader_t>(
-        cls) {
-  struct_.struct_.read = stream_reader_read;
-  struct_.struct_.seek = stream_reader_seek;
-  struct_.struct_.tell = stream_reader_tell;
-  struct_.struct_.eof = stream_reader_eof;
-  struct_.struct_.may_block = stream_reader_may_block;
+CefStreamReaderCppToC::CefStreamReaderCppToC() {
+  GetStruct()->read = stream_reader_read;
+  GetStruct()->seek = stream_reader_seek;
+  GetStruct()->tell = stream_reader_tell;
+  GetStruct()->eof = stream_reader_eof;
+  GetStruct()->may_block = stream_reader_may_block;
+}
+
+template<> CefRefPtr<CefStreamReader> CefCppToC<CefStreamReaderCppToC,
+    CefStreamReader, cef_stream_reader_t>::UnwrapDerived(CefWrapperType type,
+    cef_stream_reader_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -170,3 +179,5 @@ template<> base::AtomicRefCount CefCppToC<CefStreamReaderCppToC,
     CefStreamReader, cef_stream_reader_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefStreamReaderCppToC, CefStreamReader,
+    cef_stream_reader_t>::kWrapperType = WT_STREAM_READER;

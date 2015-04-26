@@ -17,13 +17,14 @@
 
 bool CefResourceBundleHandlerCToCpp::GetLocalizedString(int message_id,
     CefString& string) {
-  if (CEF_MEMBER_MISSING(struct_, get_localized_string))
+  cef_resource_bundle_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_localized_string))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_localized_string(struct_,
+  int _retval = _struct->get_localized_string(_struct,
       message_id,
       string.GetWritableStruct());
 
@@ -33,13 +34,14 @@ bool CefResourceBundleHandlerCToCpp::GetLocalizedString(int message_id,
 
 bool CefResourceBundleHandlerCToCpp::GetDataResource(int resource_id,
     void*& data, size_t& data_size) {
-  if (CEF_MEMBER_MISSING(struct_, get_data_resource))
+  cef_resource_bundle_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_data_resource))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_data_resource(struct_,
+  int _retval = _struct->get_data_resource(_struct,
       resource_id,
       &data,
       &data_size);
@@ -49,8 +51,23 @@ bool CefResourceBundleHandlerCToCpp::GetDataResource(int resource_id,
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefResourceBundleHandlerCToCpp::CefResourceBundleHandlerCToCpp() {
+}
+
+template<> cef_resource_bundle_handler_t* CefCToCpp<CefResourceBundleHandlerCToCpp,
+    CefResourceBundleHandler, cef_resource_bundle_handler_t>::UnwrapDerived(
+    CefWrapperType type, CefResourceBundleHandler* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefResourceBundleHandlerCToCpp,
     CefResourceBundleHandler, cef_resource_bundle_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefResourceBundleHandlerCToCpp,
+    CefResourceBundleHandler, cef_resource_bundle_handler_t>::kWrapperType =
+    WT_RESOURCE_BUNDLE_HANDLER;

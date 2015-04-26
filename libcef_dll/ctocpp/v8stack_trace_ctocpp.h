@@ -28,16 +28,13 @@ class CefV8StackTraceCToCpp
     : public CefCToCpp<CefV8StackTraceCToCpp, CefV8StackTrace,
         cef_v8stack_trace_t> {
  public:
-  explicit CefV8StackTraceCToCpp(cef_v8stack_trace_t* str)
-      : CefCToCpp<CefV8StackTraceCToCpp, CefV8StackTrace, cef_v8stack_trace_t>(
-          str) {}
+  CefV8StackTraceCToCpp();
 
-  // CefV8StackTrace methods
-  virtual bool IsValid() OVERRIDE;
-  virtual int GetFrameCount() OVERRIDE;
-  virtual CefRefPtr<CefV8StackFrame> GetFrame(int index) OVERRIDE;
+  // CefV8StackTrace methods.
+  bool IsValid() OVERRIDE;
+  int GetFrameCount() OVERRIDE;
+  CefRefPtr<CefV8StackFrame> GetFrame(int index) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_V8STACK_TRACE_CTOCPP_H_
-

@@ -17,7 +17,8 @@
 
 bool CefSchemeRegistrarCToCpp::AddCustomScheme(const CefString& scheme_name,
     bool is_standard, bool is_local, bool is_display_isolated) {
-  if (CEF_MEMBER_MISSING(struct_, add_custom_scheme))
+  cef_scheme_registrar_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, add_custom_scheme))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -28,7 +29,7 @@ bool CefSchemeRegistrarCToCpp::AddCustomScheme(const CefString& scheme_name,
     return false;
 
   // Execute
-  int _retval = struct_->add_custom_scheme(struct_,
+  int _retval = _struct->add_custom_scheme(_struct,
       scheme_name.GetStruct(),
       is_standard,
       is_local,
@@ -39,8 +40,23 @@ bool CefSchemeRegistrarCToCpp::AddCustomScheme(const CefString& scheme_name,
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefSchemeRegistrarCToCpp::CefSchemeRegistrarCToCpp() {
+}
+
+template<> cef_scheme_registrar_t* CefCToCpp<CefSchemeRegistrarCToCpp,
+    CefSchemeRegistrar, cef_scheme_registrar_t>::UnwrapDerived(
+    CefWrapperType type, CefSchemeRegistrar* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefSchemeRegistrarCToCpp,
     CefSchemeRegistrar, cef_scheme_registrar_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefSchemeRegistrarCToCpp,
+    CefSchemeRegistrar, cef_scheme_registrar_t>::kWrapperType =
+    WT_SCHEME_REGISTRAR;

@@ -20,7 +20,8 @@
 
 bool CefResourceHandlerCToCpp::ProcessRequest(CefRefPtr<CefRequest> request,
     CefRefPtr<CefCallback> callback) {
-  if (CEF_MEMBER_MISSING(struct_, process_request))
+  cef_resource_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, process_request))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -35,7 +36,7 @@ bool CefResourceHandlerCToCpp::ProcessRequest(CefRefPtr<CefRequest> request,
     return false;
 
   // Execute
-  int _retval = struct_->process_request(struct_,
+  int _retval = _struct->process_request(_struct,
       CefRequestCppToC::Wrap(request),
       CefCallbackCppToC::Wrap(callback));
 
@@ -46,7 +47,8 @@ bool CefResourceHandlerCToCpp::ProcessRequest(CefRefPtr<CefRequest> request,
 void CefResourceHandlerCToCpp::GetResponseHeaders(
     CefRefPtr<CefResponse> response, int64& response_length,
     CefString& redirectUrl) {
-  if (CEF_MEMBER_MISSING(struct_, get_response_headers))
+  cef_resource_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_response_headers))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -57,7 +59,7 @@ void CefResourceHandlerCToCpp::GetResponseHeaders(
     return;
 
   // Execute
-  struct_->get_response_headers(struct_,
+  _struct->get_response_headers(_struct,
       CefResponseCppToC::Wrap(response),
       &response_length,
       redirectUrl.GetWritableStruct());
@@ -65,7 +67,8 @@ void CefResourceHandlerCToCpp::GetResponseHeaders(
 
 bool CefResourceHandlerCToCpp::ReadResponse(void* data_out, int bytes_to_read,
     int& bytes_read, CefRefPtr<CefCallback> callback) {
-  if (CEF_MEMBER_MISSING(struct_, read_response))
+  cef_resource_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, read_response))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -80,7 +83,7 @@ bool CefResourceHandlerCToCpp::ReadResponse(void* data_out, int bytes_to_read,
     return false;
 
   // Execute
-  int _retval = struct_->read_response(struct_,
+  int _retval = _struct->read_response(_struct,
       data_out,
       bytes_to_read,
       &bytes_read,
@@ -91,13 +94,14 @@ bool CefResourceHandlerCToCpp::ReadResponse(void* data_out, int bytes_to_read,
 }
 
 bool CefResourceHandlerCToCpp::CanGetCookie(const CefCookie& cookie) {
-  if (CEF_MEMBER_MISSING(struct_, can_get_cookie))
+  cef_resource_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, can_get_cookie))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->can_get_cookie(struct_,
+  int _retval = _struct->can_get_cookie(_struct,
       &cookie);
 
   // Return type: bool
@@ -105,13 +109,14 @@ bool CefResourceHandlerCToCpp::CanGetCookie(const CefCookie& cookie) {
 }
 
 bool CefResourceHandlerCToCpp::CanSetCookie(const CefCookie& cookie) {
-  if (CEF_MEMBER_MISSING(struct_, can_set_cookie))
+  cef_resource_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, can_set_cookie))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->can_set_cookie(struct_,
+  int _retval = _struct->can_set_cookie(_struct,
       &cookie);
 
   // Return type: bool
@@ -119,18 +124,34 @@ bool CefResourceHandlerCToCpp::CanSetCookie(const CefCookie& cookie) {
 }
 
 void CefResourceHandlerCToCpp::Cancel() {
-  if (CEF_MEMBER_MISSING(struct_, cancel))
+  cef_resource_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, cancel))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->cancel(struct_);
+  _struct->cancel(_struct);
 }
 
+
+// CONSTRUCTOR - Do not edit by hand.
+
+CefResourceHandlerCToCpp::CefResourceHandlerCToCpp() {
+}
+
+template<> cef_resource_handler_t* CefCToCpp<CefResourceHandlerCToCpp,
+    CefResourceHandler, cef_resource_handler_t>::UnwrapDerived(
+    CefWrapperType type, CefResourceHandler* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefResourceHandlerCToCpp,
     CefResourceHandler, cef_resource_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefResourceHandlerCToCpp,
+    CefResourceHandler, cef_resource_handler_t>::kWrapperType =
+    WT_RESOURCE_HANDLER;

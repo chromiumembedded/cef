@@ -28,11 +28,9 @@ class CefContextMenuHandlerCToCpp
     : public CefCToCpp<CefContextMenuHandlerCToCpp, CefContextMenuHandler,
         cef_context_menu_handler_t> {
  public:
-  explicit CefContextMenuHandlerCToCpp(cef_context_menu_handler_t* str)
-      : CefCToCpp<CefContextMenuHandlerCToCpp, CefContextMenuHandler,
-          cef_context_menu_handler_t>(str) {}
+  CefContextMenuHandlerCToCpp();
 
-  // CefContextMenuHandler methods
+  // CefContextMenuHandler methods.
   void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params,
       CefRefPtr<CefMenuModel> model) override;
@@ -45,4 +43,3 @@ class CefContextMenuHandlerCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_CONTEXT_MENU_HANDLER_CTOCPP_H_
-

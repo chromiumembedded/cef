@@ -27,13 +27,11 @@
 class CefTaskCToCpp
     : public CefCToCpp<CefTaskCToCpp, CefTask, cef_task_t> {
  public:
-  explicit CefTaskCToCpp(cef_task_t* str)
-      : CefCToCpp<CefTaskCToCpp, CefTask, cef_task_t>(str) {}
+  CefTaskCToCpp();
 
-  // CefTask methods
+  // CefTask methods.
   void Execute() override;
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_TASK_CTOCPP_H_
-

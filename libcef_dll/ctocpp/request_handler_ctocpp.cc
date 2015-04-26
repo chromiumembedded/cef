@@ -27,7 +27,8 @@
 bool CefRequestHandlerCToCpp::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
     bool is_redirect) {
-  if (CEF_MEMBER_MISSING(struct_, on_before_browse))
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_before_browse))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -46,7 +47,7 @@ bool CefRequestHandlerCToCpp::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = struct_->on_before_browse(struct_,
+  int _retval = _struct->on_before_browse(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame),
       CefRequestCppToC::Wrap(request),
@@ -59,7 +60,8 @@ bool CefRequestHandlerCToCpp::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
 bool CefRequestHandlerCToCpp::OnOpenURLFromTab(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, const CefString& target_url,
     WindowOpenDisposition target_disposition, bool user_gesture) {
-  if (CEF_MEMBER_MISSING(struct_, on_open_urlfrom_tab))
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_open_urlfrom_tab))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -78,7 +80,7 @@ bool CefRequestHandlerCToCpp::OnOpenURLFromTab(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = struct_->on_open_urlfrom_tab(struct_,
+  int _retval = _struct->on_open_urlfrom_tab(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame),
       target_url.GetStruct(),
@@ -92,7 +94,8 @@ bool CefRequestHandlerCToCpp::OnOpenURLFromTab(CefRefPtr<CefBrowser> browser,
 CefRequestHandler::ReturnValue CefRequestHandlerCToCpp::OnBeforeResourceLoad(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request, CefRefPtr<CefRequestCallback> callback) {
-  if (CEF_MEMBER_MISSING(struct_, on_before_resource_load))
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_before_resource_load))
     return RV_CONTINUE;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -115,7 +118,7 @@ CefRequestHandler::ReturnValue CefRequestHandlerCToCpp::OnBeforeResourceLoad(
     return RV_CONTINUE;
 
   // Execute
-  cef_return_value_t _retval = struct_->on_before_resource_load(struct_,
+  cef_return_value_t _retval = _struct->on_before_resource_load(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame),
       CefRequestCppToC::Wrap(request),
@@ -128,7 +131,8 @@ CefRequestHandler::ReturnValue CefRequestHandlerCToCpp::OnBeforeResourceLoad(
 CefRefPtr<CefResourceHandler> CefRequestHandlerCToCpp::GetResourceHandler(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request) {
-  if (CEF_MEMBER_MISSING(struct_, get_resource_handler))
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_resource_handler))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -147,7 +151,7 @@ CefRefPtr<CefResourceHandler> CefRequestHandlerCToCpp::GetResourceHandler(
     return NULL;
 
   // Execute
-  cef_resource_handler_t* _retval = struct_->get_resource_handler(struct_,
+  cef_resource_handler_t* _retval = _struct->get_resource_handler(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame),
       CefRequestCppToC::Wrap(request));
@@ -159,7 +163,8 @@ CefRefPtr<CefResourceHandler> CefRequestHandlerCToCpp::GetResourceHandler(
 void CefRequestHandlerCToCpp::OnResourceRedirect(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
     CefString& new_url) {
-  if (CEF_MEMBER_MISSING(struct_, on_resource_redirect))
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_resource_redirect))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -178,7 +183,7 @@ void CefRequestHandlerCToCpp::OnResourceRedirect(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  struct_->on_resource_redirect(struct_,
+  _struct->on_resource_redirect(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame),
       CefRequestCppToC::Wrap(request),
@@ -188,7 +193,8 @@ void CefRequestHandlerCToCpp::OnResourceRedirect(CefRefPtr<CefBrowser> browser,
 bool CefRequestHandlerCToCpp::OnResourceResponse(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
     CefRefPtr<CefResponse> response) {
-  if (CEF_MEMBER_MISSING(struct_, on_resource_response))
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_resource_response))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -211,7 +217,7 @@ bool CefRequestHandlerCToCpp::OnResourceResponse(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = struct_->on_resource_response(struct_,
+  int _retval = _struct->on_resource_response(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame),
       CefRequestCppToC::Wrap(request),
@@ -225,7 +231,8 @@ bool CefRequestHandlerCToCpp::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, bool isProxy, const CefString& host, int port,
     const CefString& realm, const CefString& scheme,
     CefRefPtr<CefAuthCallback> callback) {
-  if (CEF_MEMBER_MISSING(struct_, get_auth_credentials))
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_auth_credentials))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -253,7 +260,7 @@ bool CefRequestHandlerCToCpp::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
   // Unverified params: realm
 
   // Execute
-  int _retval = struct_->get_auth_credentials(struct_,
+  int _retval = _struct->get_auth_credentials(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame),
       isProxy,
@@ -270,7 +277,8 @@ bool CefRequestHandlerCToCpp::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
 bool CefRequestHandlerCToCpp::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
     const CefString& origin_url, int64 new_size,
     CefRefPtr<CefRequestCallback> callback) {
-  if (CEF_MEMBER_MISSING(struct_, on_quota_request))
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_quota_request))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -289,7 +297,7 @@ bool CefRequestHandlerCToCpp::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = struct_->on_quota_request(struct_,
+  int _retval = _struct->on_quota_request(_struct,
       CefBrowserCppToC::Wrap(browser),
       origin_url.GetStruct(),
       new_size,
@@ -301,7 +309,8 @@ bool CefRequestHandlerCToCpp::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
 
 void CefRequestHandlerCToCpp::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
     const CefString& url, bool& allow_os_execution) {
-  if (CEF_MEMBER_MISSING(struct_, on_protocol_execution))
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_protocol_execution))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -319,7 +328,7 @@ void CefRequestHandlerCToCpp::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
   int allow_os_executionInt = allow_os_execution;
 
   // Execute
-  struct_->on_protocol_execution(struct_,
+  _struct->on_protocol_execution(_struct,
       CefBrowserCppToC::Wrap(browser),
       url.GetStruct(),
       &allow_os_executionInt);
@@ -331,7 +340,8 @@ void CefRequestHandlerCToCpp::OnProtocolExecution(CefRefPtr<CefBrowser> browser,
 bool CefRequestHandlerCToCpp::OnCertificateError(CefRefPtr<CefBrowser> browser,
     cef_errorcode_t cert_error, const CefString& request_url,
     CefRefPtr<CefSSLInfo> ssl_info, CefRefPtr<CefRequestCallback> callback) {
-  if (CEF_MEMBER_MISSING(struct_, on_certificate_error))
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_certificate_error))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -354,7 +364,7 @@ bool CefRequestHandlerCToCpp::OnCertificateError(CefRefPtr<CefBrowser> browser,
     return false;
 
   // Execute
-  int _retval = struct_->on_certificate_error(struct_,
+  int _retval = _struct->on_certificate_error(_struct,
       CefBrowserCppToC::Wrap(browser),
       cert_error,
       request_url.GetStruct(),
@@ -368,7 +378,8 @@ bool CefRequestHandlerCToCpp::OnCertificateError(CefRefPtr<CefBrowser> browser,
 bool CefRequestHandlerCToCpp::OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,
     const CefString& url, const CefString& policy_url,
     CefRefPtr<CefWebPluginInfo> info) {
-  if (CEF_MEMBER_MISSING(struct_, on_before_plugin_load))
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_before_plugin_load))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -384,7 +395,7 @@ bool CefRequestHandlerCToCpp::OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,
   // Unverified params: url, policy_url
 
   // Execute
-  int _retval = struct_->on_before_plugin_load(struct_,
+  int _retval = _struct->on_before_plugin_load(_struct,
       CefBrowserCppToC::Wrap(browser),
       url.GetStruct(),
       policy_url.GetStruct(),
@@ -396,7 +407,8 @@ bool CefRequestHandlerCToCpp::OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,
 
 void CefRequestHandlerCToCpp::OnPluginCrashed(CefRefPtr<CefBrowser> browser,
     const CefString& plugin_path) {
-  if (CEF_MEMBER_MISSING(struct_, on_plugin_crashed))
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_plugin_crashed))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -411,13 +423,14 @@ void CefRequestHandlerCToCpp::OnPluginCrashed(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  struct_->on_plugin_crashed(struct_,
+  _struct->on_plugin_crashed(_struct,
       CefBrowserCppToC::Wrap(browser),
       plugin_path.GetStruct());
 }
 
 void CefRequestHandlerCToCpp::OnRenderViewReady(CefRefPtr<CefBrowser> browser) {
-  if (CEF_MEMBER_MISSING(struct_, on_render_view_ready))
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_render_view_ready))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -428,13 +441,14 @@ void CefRequestHandlerCToCpp::OnRenderViewReady(CefRefPtr<CefBrowser> browser) {
     return;
 
   // Execute
-  struct_->on_render_view_ready(struct_,
+  _struct->on_render_view_ready(_struct,
       CefBrowserCppToC::Wrap(browser));
 }
 
 void CefRequestHandlerCToCpp::OnRenderProcessTerminated(
     CefRefPtr<CefBrowser> browser, TerminationStatus status) {
-  if (CEF_MEMBER_MISSING(struct_, on_render_process_terminated))
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_render_process_terminated))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -445,14 +459,28 @@ void CefRequestHandlerCToCpp::OnRenderProcessTerminated(
     return;
 
   // Execute
-  struct_->on_render_process_terminated(struct_,
+  _struct->on_render_process_terminated(_struct,
       CefBrowserCppToC::Wrap(browser),
       status);
 }
 
+
+// CONSTRUCTOR - Do not edit by hand.
+
+CefRequestHandlerCToCpp::CefRequestHandlerCToCpp() {
+}
+
+template<> cef_request_handler_t* CefCToCpp<CefRequestHandlerCToCpp,
+    CefRequestHandler, cef_request_handler_t>::UnwrapDerived(
+    CefWrapperType type, CefRequestHandler* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefRequestHandlerCToCpp,
     CefRequestHandler, cef_request_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefRequestHandlerCToCpp, CefRequestHandler,
+    cef_request_handler_t>::kWrapperType = WT_REQUEST_HANDLER;

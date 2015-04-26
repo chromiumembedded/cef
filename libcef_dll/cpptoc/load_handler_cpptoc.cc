@@ -15,6 +15,8 @@
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK load_handler_on_loading_state_change(
@@ -114,16 +116,23 @@ void CEF_CALLBACK load_handler_on_load_error(struct _cef_load_handler_t* self,
       CefString(failedUrl));
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefLoadHandlerCppToC::CefLoadHandlerCppToC(CefLoadHandler* cls)
-    : CefCppToC<CefLoadHandlerCppToC, CefLoadHandler, cef_load_handler_t>(cls) {
-  struct_.struct_.on_loading_state_change =
-      load_handler_on_loading_state_change;
-  struct_.struct_.on_load_start = load_handler_on_load_start;
-  struct_.struct_.on_load_end = load_handler_on_load_end;
-  struct_.struct_.on_load_error = load_handler_on_load_error;
+CefLoadHandlerCppToC::CefLoadHandlerCppToC() {
+  GetStruct()->on_loading_state_change = load_handler_on_loading_state_change;
+  GetStruct()->on_load_start = load_handler_on_load_start;
+  GetStruct()->on_load_end = load_handler_on_load_end;
+  GetStruct()->on_load_error = load_handler_on_load_error;
+}
+
+template<> CefRefPtr<CefLoadHandler> CefCppToC<CefLoadHandlerCppToC,
+    CefLoadHandler, cef_load_handler_t>::UnwrapDerived(CefWrapperType type,
+    cef_load_handler_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -131,3 +140,5 @@ template<> base::AtomicRefCount CefCppToC<CefLoadHandlerCppToC, CefLoadHandler,
     cef_load_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefLoadHandlerCppToC, CefLoadHandler,
+    cef_load_handler_t>::kWrapperType = WT_LOAD_HANDLER;

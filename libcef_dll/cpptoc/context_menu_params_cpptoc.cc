@@ -14,6 +14,8 @@
 #include "libcef_dll/transfer_util.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK context_menu_params_get_xcoord(
@@ -306,36 +308,41 @@ cef_context_menu_edit_state_flags_t CEF_CALLBACK context_menu_params_get_edit_st
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefContextMenuParamsCppToC::CefContextMenuParamsCppToC(
-    CefContextMenuParams* cls)
-    : CefCppToC<CefContextMenuParamsCppToC, CefContextMenuParams,
-        cef_context_menu_params_t>(cls) {
-  struct_.struct_.get_xcoord = context_menu_params_get_xcoord;
-  struct_.struct_.get_ycoord = context_menu_params_get_ycoord;
-  struct_.struct_.get_type_flags = context_menu_params_get_type_flags;
-  struct_.struct_.get_link_url = context_menu_params_get_link_url;
-  struct_.struct_.get_unfiltered_link_url =
+CefContextMenuParamsCppToC::CefContextMenuParamsCppToC() {
+  GetStruct()->get_xcoord = context_menu_params_get_xcoord;
+  GetStruct()->get_ycoord = context_menu_params_get_ycoord;
+  GetStruct()->get_type_flags = context_menu_params_get_type_flags;
+  GetStruct()->get_link_url = context_menu_params_get_link_url;
+  GetStruct()->get_unfiltered_link_url =
       context_menu_params_get_unfiltered_link_url;
-  struct_.struct_.get_source_url = context_menu_params_get_source_url;
-  struct_.struct_.has_image_contents = context_menu_params_has_image_contents;
-  struct_.struct_.get_page_url = context_menu_params_get_page_url;
-  struct_.struct_.get_frame_url = context_menu_params_get_frame_url;
-  struct_.struct_.get_frame_charset = context_menu_params_get_frame_charset;
-  struct_.struct_.get_media_type = context_menu_params_get_media_type;
-  struct_.struct_.get_media_state_flags =
+  GetStruct()->get_source_url = context_menu_params_get_source_url;
+  GetStruct()->has_image_contents = context_menu_params_has_image_contents;
+  GetStruct()->get_page_url = context_menu_params_get_page_url;
+  GetStruct()->get_frame_url = context_menu_params_get_frame_url;
+  GetStruct()->get_frame_charset = context_menu_params_get_frame_charset;
+  GetStruct()->get_media_type = context_menu_params_get_media_type;
+  GetStruct()->get_media_state_flags =
       context_menu_params_get_media_state_flags;
-  struct_.struct_.get_selection_text = context_menu_params_get_selection_text;
-  struct_.struct_.get_misspelled_word = context_menu_params_get_misspelled_word;
-  struct_.struct_.get_dictionary_suggestions =
+  GetStruct()->get_selection_text = context_menu_params_get_selection_text;
+  GetStruct()->get_misspelled_word = context_menu_params_get_misspelled_word;
+  GetStruct()->get_dictionary_suggestions =
       context_menu_params_get_dictionary_suggestions;
-  struct_.struct_.is_editable = context_menu_params_is_editable;
-  struct_.struct_.is_spell_check_enabled =
+  GetStruct()->is_editable = context_menu_params_is_editable;
+  GetStruct()->is_spell_check_enabled =
       context_menu_params_is_spell_check_enabled;
-  struct_.struct_.get_edit_state_flags =
-      context_menu_params_get_edit_state_flags;
+  GetStruct()->get_edit_state_flags = context_menu_params_get_edit_state_flags;
+}
+
+template<> CefRefPtr<CefContextMenuParams> CefCppToC<CefContextMenuParamsCppToC,
+    CefContextMenuParams, cef_context_menu_params_t>::UnwrapDerived(
+    CefWrapperType type, cef_context_menu_params_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -343,3 +350,6 @@ template<> base::AtomicRefCount CefCppToC<CefContextMenuParamsCppToC,
     CefContextMenuParams, cef_context_menu_params_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefContextMenuParamsCppToC,
+    CefContextMenuParams, cef_context_menu_params_t>::kWrapperType =
+    WT_CONTEXT_MENU_PARAMS;

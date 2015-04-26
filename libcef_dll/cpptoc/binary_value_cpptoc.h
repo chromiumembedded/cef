@@ -28,9 +28,8 @@ class CefBinaryValueCppToC
     : public CefCppToC<CefBinaryValueCppToC, CefBinaryValue,
         cef_binary_value_t> {
  public:
-  explicit CefBinaryValueCppToC(CefBinaryValue* cls);
+  CefBinaryValueCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_BINARY_VALUE_CPPTOC_H_
-

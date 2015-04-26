@@ -22,7 +22,8 @@
 void CefContextMenuHandlerCToCpp::OnBeforeContextMenu(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
     CefRefPtr<CefContextMenuParams> params, CefRefPtr<CefMenuModel> model) {
-  if (CEF_MEMBER_MISSING(struct_, on_before_context_menu))
+  cef_context_menu_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_before_context_menu))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -45,7 +46,7 @@ void CefContextMenuHandlerCToCpp::OnBeforeContextMenu(
     return;
 
   // Execute
-  struct_->on_before_context_menu(struct_,
+  _struct->on_before_context_menu(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame),
       CefContextMenuParamsCppToC::Wrap(params),
@@ -56,7 +57,8 @@ bool CefContextMenuHandlerCToCpp::OnContextMenuCommand(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
     CefRefPtr<CefContextMenuParams> params, int command_id,
     EventFlags event_flags) {
-  if (CEF_MEMBER_MISSING(struct_, on_context_menu_command))
+  cef_context_menu_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_context_menu_command))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -75,7 +77,7 @@ bool CefContextMenuHandlerCToCpp::OnContextMenuCommand(
     return false;
 
   // Execute
-  int _retval = struct_->on_context_menu_command(struct_,
+  int _retval = _struct->on_context_menu_command(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame),
       CefContextMenuParamsCppToC::Wrap(params),
@@ -88,7 +90,8 @@ bool CefContextMenuHandlerCToCpp::OnContextMenuCommand(
 
 void CefContextMenuHandlerCToCpp::OnContextMenuDismissed(
     CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame) {
-  if (CEF_MEMBER_MISSING(struct_, on_context_menu_dismissed))
+  cef_context_menu_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_context_menu_dismissed))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -103,14 +106,29 @@ void CefContextMenuHandlerCToCpp::OnContextMenuDismissed(
     return;
 
   // Execute
-  struct_->on_context_menu_dismissed(struct_,
+  _struct->on_context_menu_dismissed(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame));
 }
 
+
+// CONSTRUCTOR - Do not edit by hand.
+
+CefContextMenuHandlerCToCpp::CefContextMenuHandlerCToCpp() {
+}
+
+template<> cef_context_menu_handler_t* CefCToCpp<CefContextMenuHandlerCToCpp,
+    CefContextMenuHandler, cef_context_menu_handler_t>::UnwrapDerived(
+    CefWrapperType type, CefContextMenuHandler* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefContextMenuHandlerCToCpp,
     CefContextMenuHandler, cef_context_menu_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefContextMenuHandlerCToCpp,
+    CefContextMenuHandler, cef_context_menu_handler_t>::kWrapperType =
+    WT_CONTEXT_MENU_HANDLER;

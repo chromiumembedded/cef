@@ -28,14 +28,11 @@ class CefRequestContextHandlerCToCpp
     : public CefCToCpp<CefRequestContextHandlerCToCpp, CefRequestContextHandler,
         cef_request_context_handler_t> {
  public:
-  explicit CefRequestContextHandlerCToCpp(cef_request_context_handler_t* str)
-      : CefCToCpp<CefRequestContextHandlerCToCpp, CefRequestContextHandler,
-          cef_request_context_handler_t>(str) {}
+  CefRequestContextHandlerCToCpp();
 
-  // CefRequestContextHandler methods
+  // CefRequestContextHandler methods.
   CefRefPtr<CefCookieManager> GetCookieManager() override;
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_REQUEST_CONTEXT_HANDLER_CTOCPP_H_
-

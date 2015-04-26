@@ -55,46 +55,50 @@ CefRefPtr<CefCommandLine> CefCommandLine::GetGlobalCommandLine() {
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefCommandLineCToCpp::IsValid() {
-  if (CEF_MEMBER_MISSING(struct_, is_valid))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_valid))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_valid(struct_);
+  int _retval = _struct->is_valid(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 bool CefCommandLineCToCpp::IsReadOnly() {
-  if (CEF_MEMBER_MISSING(struct_, is_read_only))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_read_only))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_read_only(struct_);
+  int _retval = _struct->is_read_only(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 CefRefPtr<CefCommandLine> CefCommandLineCToCpp::Copy() {
-  if (CEF_MEMBER_MISSING(struct_, copy))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, copy))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_command_line_t* _retval = struct_->copy(struct_);
+  cef_command_line_t* _retval = _struct->copy(_struct);
 
   // Return type: refptr_same
   return CefCommandLineCToCpp::Wrap(_retval);
 }
 
 void CefCommandLineCToCpp::InitFromArgv(int argc, const char* const* argv) {
-  if (CEF_MEMBER_MISSING(struct_, init_from_argv))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, init_from_argv))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -105,13 +109,14 @@ void CefCommandLineCToCpp::InitFromArgv(int argc, const char* const* argv) {
     return;
 
   // Execute
-  struct_->init_from_argv(struct_,
+  _struct->init_from_argv(_struct,
       argc,
       argv);
 }
 
 void CefCommandLineCToCpp::InitFromString(const CefString& command_line) {
-  if (CEF_MEMBER_MISSING(struct_, init_from_string))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, init_from_string))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -122,22 +127,24 @@ void CefCommandLineCToCpp::InitFromString(const CefString& command_line) {
     return;
 
   // Execute
-  struct_->init_from_string(struct_,
+  _struct->init_from_string(_struct,
       command_line.GetStruct());
 }
 
 void CefCommandLineCToCpp::Reset() {
-  if (CEF_MEMBER_MISSING(struct_, reset))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, reset))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->reset(struct_);
+  _struct->reset(_struct);
 }
 
 void CefCommandLineCToCpp::GetArgv(std::vector<CefString>& argv) {
-  if (CEF_MEMBER_MISSING(struct_, get_argv))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_argv))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -149,7 +156,7 @@ void CefCommandLineCToCpp::GetArgv(std::vector<CefString>& argv) {
     transfer_string_list_contents(argv, argvList);
 
   // Execute
-  struct_->get_argv(struct_,
+  _struct->get_argv(_struct,
       argvList);
 
   // Restore param:argv; type: string_vec_byref
@@ -161,13 +168,14 @@ void CefCommandLineCToCpp::GetArgv(std::vector<CefString>& argv) {
 }
 
 CefString CefCommandLineCToCpp::GetCommandLineString() {
-  if (CEF_MEMBER_MISSING(struct_, get_command_line_string))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_command_line_string))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_command_line_string(struct_);
+  cef_string_userfree_t _retval = _struct->get_command_line_string(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -176,13 +184,14 @@ CefString CefCommandLineCToCpp::GetCommandLineString() {
 }
 
 CefString CefCommandLineCToCpp::GetProgram() {
-  if (CEF_MEMBER_MISSING(struct_, get_program))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_program))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_program(struct_);
+  cef_string_userfree_t _retval = _struct->get_program(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -191,7 +200,8 @@ CefString CefCommandLineCToCpp::GetProgram() {
 }
 
 void CefCommandLineCToCpp::SetProgram(const CefString& program) {
-  if (CEF_MEMBER_MISSING(struct_, set_program))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_program))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -202,25 +212,27 @@ void CefCommandLineCToCpp::SetProgram(const CefString& program) {
     return;
 
   // Execute
-  struct_->set_program(struct_,
+  _struct->set_program(_struct,
       program.GetStruct());
 }
 
 bool CefCommandLineCToCpp::HasSwitches() {
-  if (CEF_MEMBER_MISSING(struct_, has_switches))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, has_switches))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->has_switches(struct_);
+  int _retval = _struct->has_switches(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 bool CefCommandLineCToCpp::HasSwitch(const CefString& name) {
-  if (CEF_MEMBER_MISSING(struct_, has_switch))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, has_switch))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -231,7 +243,7 @@ bool CefCommandLineCToCpp::HasSwitch(const CefString& name) {
     return false;
 
   // Execute
-  int _retval = struct_->has_switch(struct_,
+  int _retval = _struct->has_switch(_struct,
       name.GetStruct());
 
   // Return type: bool
@@ -239,7 +251,8 @@ bool CefCommandLineCToCpp::HasSwitch(const CefString& name) {
 }
 
 CefString CefCommandLineCToCpp::GetSwitchValue(const CefString& name) {
-  if (CEF_MEMBER_MISSING(struct_, get_switch_value))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_switch_value))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -250,7 +263,7 @@ CefString CefCommandLineCToCpp::GetSwitchValue(const CefString& name) {
     return CefString();
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_switch_value(struct_,
+  cef_string_userfree_t _retval = _struct->get_switch_value(_struct,
       name.GetStruct());
 
   // Return type: string
@@ -260,7 +273,8 @@ CefString CefCommandLineCToCpp::GetSwitchValue(const CefString& name) {
 }
 
 void CefCommandLineCToCpp::GetSwitches(SwitchMap& switches) {
-  if (CEF_MEMBER_MISSING(struct_, get_switches))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_switches))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -272,7 +286,7 @@ void CefCommandLineCToCpp::GetSwitches(SwitchMap& switches) {
     transfer_string_map_contents(switches, switchesMap);
 
   // Execute
-  struct_->get_switches(struct_,
+  _struct->get_switches(_struct,
       switchesMap);
 
   // Restore param:switches; type: string_map_single_byref
@@ -284,7 +298,8 @@ void CefCommandLineCToCpp::GetSwitches(SwitchMap& switches) {
 }
 
 void CefCommandLineCToCpp::AppendSwitch(const CefString& name) {
-  if (CEF_MEMBER_MISSING(struct_, append_switch))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, append_switch))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -295,13 +310,14 @@ void CefCommandLineCToCpp::AppendSwitch(const CefString& name) {
     return;
 
   // Execute
-  struct_->append_switch(struct_,
+  _struct->append_switch(_struct,
       name.GetStruct());
 }
 
 void CefCommandLineCToCpp::AppendSwitchWithValue(const CefString& name,
     const CefString& value) {
-  if (CEF_MEMBER_MISSING(struct_, append_switch_with_value))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, append_switch_with_value))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -316,26 +332,28 @@ void CefCommandLineCToCpp::AppendSwitchWithValue(const CefString& name,
     return;
 
   // Execute
-  struct_->append_switch_with_value(struct_,
+  _struct->append_switch_with_value(_struct,
       name.GetStruct(),
       value.GetStruct());
 }
 
 bool CefCommandLineCToCpp::HasArguments() {
-  if (CEF_MEMBER_MISSING(struct_, has_arguments))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, has_arguments))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->has_arguments(struct_);
+  int _retval = _struct->has_arguments(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 void CefCommandLineCToCpp::GetArguments(ArgumentList& arguments) {
-  if (CEF_MEMBER_MISSING(struct_, get_arguments))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_arguments))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -347,7 +365,7 @@ void CefCommandLineCToCpp::GetArguments(ArgumentList& arguments) {
     transfer_string_list_contents(arguments, argumentsList);
 
   // Execute
-  struct_->get_arguments(struct_,
+  _struct->get_arguments(_struct,
       argumentsList);
 
   // Restore param:arguments; type: string_vec_byref
@@ -359,7 +377,8 @@ void CefCommandLineCToCpp::GetArguments(ArgumentList& arguments) {
 }
 
 void CefCommandLineCToCpp::AppendArgument(const CefString& argument) {
-  if (CEF_MEMBER_MISSING(struct_, append_argument))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, append_argument))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -370,12 +389,13 @@ void CefCommandLineCToCpp::AppendArgument(const CefString& argument) {
     return;
 
   // Execute
-  struct_->append_argument(struct_,
+  _struct->append_argument(_struct,
       argument.GetStruct());
 }
 
 void CefCommandLineCToCpp::PrependWrapper(const CefString& wrapper) {
-  if (CEF_MEMBER_MISSING(struct_, prepend_wrapper))
+  cef_command_line_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, prepend_wrapper))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -386,13 +406,27 @@ void CefCommandLineCToCpp::PrependWrapper(const CefString& wrapper) {
     return;
 
   // Execute
-  struct_->prepend_wrapper(struct_,
+  _struct->prepend_wrapper(_struct,
       wrapper.GetStruct());
 }
 
+
+// CONSTRUCTOR - Do not edit by hand.
+
+CefCommandLineCToCpp::CefCommandLineCToCpp() {
+}
+
+template<> cef_command_line_t* CefCToCpp<CefCommandLineCToCpp, CefCommandLine,
+    cef_command_line_t>::UnwrapDerived(CefWrapperType type,
+    CefCommandLine* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefCommandLineCToCpp, CefCommandLine,
     cef_command_line_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefCommandLineCToCpp, CefCommandLine,
+    cef_command_line_t>::kWrapperType = WT_COMMAND_LINE;

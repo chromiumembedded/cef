@@ -16,7 +16,8 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefStringVisitorCToCpp::Visit(const CefString& string) {
-  if (CEF_MEMBER_MISSING(struct_, visit))
+  cef_string_visitor_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, visit))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -24,13 +25,27 @@ void CefStringVisitorCToCpp::Visit(const CefString& string) {
   // Unverified params: string
 
   // Execute
-  struct_->visit(struct_,
+  _struct->visit(_struct,
       string.GetStruct());
 }
 
+
+// CONSTRUCTOR - Do not edit by hand.
+
+CefStringVisitorCToCpp::CefStringVisitorCToCpp() {
+}
+
+template<> cef_string_visitor_t* CefCToCpp<CefStringVisitorCToCpp,
+    CefStringVisitor, cef_string_visitor_t>::UnwrapDerived(CefWrapperType type,
+    CefStringVisitor* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefStringVisitorCToCpp,
     CefStringVisitor, cef_string_visitor_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefStringVisitorCToCpp, CefStringVisitor,
+    cef_string_visitor_t>::kWrapperType = WT_STRING_VISITOR;

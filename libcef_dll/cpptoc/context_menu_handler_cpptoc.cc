@@ -17,6 +17,8 @@
 #include "libcef_dll/ctocpp/menu_model_ctocpp.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK context_menu_handler_on_before_context_menu(
@@ -110,19 +112,25 @@ void CEF_CALLBACK context_menu_handler_on_context_menu_dismissed(
       CefFrameCToCpp::Wrap(frame));
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefContextMenuHandlerCppToC::CefContextMenuHandlerCppToC(
-    CefContextMenuHandler* cls)
-    : CefCppToC<CefContextMenuHandlerCppToC, CefContextMenuHandler,
-        cef_context_menu_handler_t>(cls) {
-  struct_.struct_.on_before_context_menu =
+CefContextMenuHandlerCppToC::CefContextMenuHandlerCppToC() {
+  GetStruct()->on_before_context_menu =
       context_menu_handler_on_before_context_menu;
-  struct_.struct_.on_context_menu_command =
+  GetStruct()->on_context_menu_command =
       context_menu_handler_on_context_menu_command;
-  struct_.struct_.on_context_menu_dismissed =
+  GetStruct()->on_context_menu_dismissed =
       context_menu_handler_on_context_menu_dismissed;
+}
+
+template<> CefRefPtr<CefContextMenuHandler> CefCppToC<CefContextMenuHandlerCppToC,
+    CefContextMenuHandler, cef_context_menu_handler_t>::UnwrapDerived(
+    CefWrapperType type, cef_context_menu_handler_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -130,3 +138,6 @@ template<> base::AtomicRefCount CefCppToC<CefContextMenuHandlerCppToC,
     CefContextMenuHandler, cef_context_menu_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefContextMenuHandlerCppToC,
+    CefContextMenuHandler, cef_context_menu_handler_t>::kWrapperType =
+    WT_CONTEXT_MENU_HANDLER;

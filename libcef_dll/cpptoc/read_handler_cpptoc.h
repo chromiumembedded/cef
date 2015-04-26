@@ -28,9 +28,8 @@ class CefReadHandlerCppToC
     : public CefCppToC<CefReadHandlerCppToC, CefReadHandler,
         cef_read_handler_t> {
  public:
-  explicit CefReadHandlerCppToC(CefReadHandler* cls);
+  CefReadHandlerCppToC();
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_READ_HANDLER_CPPTOC_H_
-

@@ -28,11 +28,9 @@ class CefPrintHandlerCToCpp
     : public CefCToCpp<CefPrintHandlerCToCpp, CefPrintHandler,
         cef_print_handler_t> {
  public:
-  explicit CefPrintHandlerCToCpp(cef_print_handler_t* str)
-      : CefCToCpp<CefPrintHandlerCToCpp, CefPrintHandler, cef_print_handler_t>(
-          str) {}
+  CefPrintHandlerCToCpp();
 
-  // CefPrintHandler methods
+  // CefPrintHandler methods.
   void OnPrintSettings(CefRefPtr<CefPrintSettings> settings,
       bool get_defaults) override;
   bool OnPrintDialog(bool has_selection,
@@ -45,4 +43,3 @@ class CefPrintHandlerCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_PRINT_HANDLER_CTOCPP_H_
-

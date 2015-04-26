@@ -28,9 +28,8 @@ class CefJSDialogCallbackCppToC
     : public CefCppToC<CefJSDialogCallbackCppToC, CefJSDialogCallback,
         cef_jsdialog_callback_t> {
  public:
-  explicit CefJSDialogCallbackCppToC(CefJSDialogCallback* cls);
+  CefJSDialogCallbackCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_JSDIALOG_CALLBACK_CPPTOC_H_
-

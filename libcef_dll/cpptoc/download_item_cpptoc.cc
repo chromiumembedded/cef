@@ -13,6 +13,8 @@
 #include "libcef_dll/cpptoc/download_item_cpptoc.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK download_item_is_valid(struct _cef_download_item_t* self) {
@@ -266,31 +268,36 @@ cef_string_userfree_t CEF_CALLBACK download_item_get_mime_type(
   return _retval.DetachToUserFree();
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDownloadItemCppToC::CefDownloadItemCppToC(CefDownloadItem* cls)
-    : CefCppToC<CefDownloadItemCppToC, CefDownloadItem, cef_download_item_t>(
-        cls) {
-  struct_.struct_.is_valid = download_item_is_valid;
-  struct_.struct_.is_in_progress = download_item_is_in_progress;
-  struct_.struct_.is_complete = download_item_is_complete;
-  struct_.struct_.is_canceled = download_item_is_canceled;
-  struct_.struct_.get_current_speed = download_item_get_current_speed;
-  struct_.struct_.get_percent_complete = download_item_get_percent_complete;
-  struct_.struct_.get_total_bytes = download_item_get_total_bytes;
-  struct_.struct_.get_received_bytes = download_item_get_received_bytes;
-  struct_.struct_.get_start_time = download_item_get_start_time;
-  struct_.struct_.get_end_time = download_item_get_end_time;
-  struct_.struct_.get_full_path = download_item_get_full_path;
-  struct_.struct_.get_id = download_item_get_id;
-  struct_.struct_.get_url = download_item_get_url;
-  struct_.struct_.get_original_url = download_item_get_original_url;
-  struct_.struct_.get_suggested_file_name =
-      download_item_get_suggested_file_name;
-  struct_.struct_.get_content_disposition =
-      download_item_get_content_disposition;
-  struct_.struct_.get_mime_type = download_item_get_mime_type;
+CefDownloadItemCppToC::CefDownloadItemCppToC() {
+  GetStruct()->is_valid = download_item_is_valid;
+  GetStruct()->is_in_progress = download_item_is_in_progress;
+  GetStruct()->is_complete = download_item_is_complete;
+  GetStruct()->is_canceled = download_item_is_canceled;
+  GetStruct()->get_current_speed = download_item_get_current_speed;
+  GetStruct()->get_percent_complete = download_item_get_percent_complete;
+  GetStruct()->get_total_bytes = download_item_get_total_bytes;
+  GetStruct()->get_received_bytes = download_item_get_received_bytes;
+  GetStruct()->get_start_time = download_item_get_start_time;
+  GetStruct()->get_end_time = download_item_get_end_time;
+  GetStruct()->get_full_path = download_item_get_full_path;
+  GetStruct()->get_id = download_item_get_id;
+  GetStruct()->get_url = download_item_get_url;
+  GetStruct()->get_original_url = download_item_get_original_url;
+  GetStruct()->get_suggested_file_name = download_item_get_suggested_file_name;
+  GetStruct()->get_content_disposition = download_item_get_content_disposition;
+  GetStruct()->get_mime_type = download_item_get_mime_type;
+}
+
+template<> CefRefPtr<CefDownloadItem> CefCppToC<CefDownloadItemCppToC,
+    CefDownloadItem, cef_download_item_t>::UnwrapDerived(CefWrapperType type,
+    cef_download_item_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -298,3 +305,5 @@ template<> base::AtomicRefCount CefCppToC<CefDownloadItemCppToC,
     CefDownloadItem, cef_download_item_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefDownloadItemCppToC, CefDownloadItem,
+    cef_download_item_t>::kWrapperType = WT_DOWNLOAD_ITEM;

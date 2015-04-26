@@ -28,6 +28,8 @@ CEF_EXPORT cef_post_data_t* cef_post_data_create() {
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK post_data_is_read_only(struct _cef_post_data_t* self) {
@@ -144,17 +146,24 @@ void CEF_CALLBACK post_data_remove_elements(struct _cef_post_data_t* self) {
   CefPostDataCppToC::Get(self)->RemoveElements();
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefPostDataCppToC::CefPostDataCppToC(CefPostData* cls)
-    : CefCppToC<CefPostDataCppToC, CefPostData, cef_post_data_t>(cls) {
-  struct_.struct_.is_read_only = post_data_is_read_only;
-  struct_.struct_.get_element_count = post_data_get_element_count;
-  struct_.struct_.get_elements = post_data_get_elements;
-  struct_.struct_.remove_element = post_data_remove_element;
-  struct_.struct_.add_element = post_data_add_element;
-  struct_.struct_.remove_elements = post_data_remove_elements;
+CefPostDataCppToC::CefPostDataCppToC() {
+  GetStruct()->is_read_only = post_data_is_read_only;
+  GetStruct()->get_element_count = post_data_get_element_count;
+  GetStruct()->get_elements = post_data_get_elements;
+  GetStruct()->remove_element = post_data_remove_element;
+  GetStruct()->add_element = post_data_add_element;
+  GetStruct()->remove_elements = post_data_remove_elements;
+}
+
+template<> CefRefPtr<CefPostData> CefCppToC<CefPostDataCppToC, CefPostData,
+    cef_post_data_t>::UnwrapDerived(CefWrapperType type, cef_post_data_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -162,3 +171,5 @@ template<> base::AtomicRefCount CefCppToC<CefPostDataCppToC, CefPostData,
     cef_post_data_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefPostDataCppToC, CefPostData,
+    cef_post_data_t>::kWrapperType = WT_POST_DATA;

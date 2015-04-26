@@ -51,6 +51,8 @@ CEF_EXPORT int cef_v8context_in_context() {
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 cef_task_runner_t* CEF_CALLBACK v8context_get_task_runner(
@@ -238,20 +240,27 @@ int CEF_CALLBACK v8context_eval(struct _cef_v8context_t* self,
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefV8ContextCppToC::CefV8ContextCppToC(CefV8Context* cls)
-    : CefCppToC<CefV8ContextCppToC, CefV8Context, cef_v8context_t>(cls) {
-  struct_.struct_.get_task_runner = v8context_get_task_runner;
-  struct_.struct_.is_valid = v8context_is_valid;
-  struct_.struct_.get_browser = v8context_get_browser;
-  struct_.struct_.get_frame = v8context_get_frame;
-  struct_.struct_.get_global = v8context_get_global;
-  struct_.struct_.enter = v8context_enter;
-  struct_.struct_.exit = v8context_exit;
-  struct_.struct_.is_same = v8context_is_same;
-  struct_.struct_.eval = v8context_eval;
+CefV8ContextCppToC::CefV8ContextCppToC() {
+  GetStruct()->get_task_runner = v8context_get_task_runner;
+  GetStruct()->is_valid = v8context_is_valid;
+  GetStruct()->get_browser = v8context_get_browser;
+  GetStruct()->get_frame = v8context_get_frame;
+  GetStruct()->get_global = v8context_get_global;
+  GetStruct()->enter = v8context_enter;
+  GetStruct()->exit = v8context_exit;
+  GetStruct()->is_same = v8context_is_same;
+  GetStruct()->eval = v8context_eval;
+}
+
+template<> CefRefPtr<CefV8Context> CefCppToC<CefV8ContextCppToC, CefV8Context,
+    cef_v8context_t>::UnwrapDerived(CefWrapperType type, cef_v8context_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -259,3 +268,5 @@ template<> base::AtomicRefCount CefCppToC<CefV8ContextCppToC, CefV8Context,
     cef_v8context_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefV8ContextCppToC, CefV8Context,
+    cef_v8context_t>::kWrapperType = WT_V8CONTEXT;

@@ -27,6 +27,8 @@ CEF_EXPORT cef_response_t* cef_response_create() {
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK response_is_read_only(struct _cef_response_t* self) {
@@ -200,21 +202,28 @@ void CEF_CALLBACK response_set_header_map(struct _cef_response_t* self,
       headerMapMultimap);
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefResponseCppToC::CefResponseCppToC(CefResponse* cls)
-    : CefCppToC<CefResponseCppToC, CefResponse, cef_response_t>(cls) {
-  struct_.struct_.is_read_only = response_is_read_only;
-  struct_.struct_.get_status = response_get_status;
-  struct_.struct_.set_status = response_set_status;
-  struct_.struct_.get_status_text = response_get_status_text;
-  struct_.struct_.set_status_text = response_set_status_text;
-  struct_.struct_.get_mime_type = response_get_mime_type;
-  struct_.struct_.set_mime_type = response_set_mime_type;
-  struct_.struct_.get_header = response_get_header;
-  struct_.struct_.get_header_map = response_get_header_map;
-  struct_.struct_.set_header_map = response_set_header_map;
+CefResponseCppToC::CefResponseCppToC() {
+  GetStruct()->is_read_only = response_is_read_only;
+  GetStruct()->get_status = response_get_status;
+  GetStruct()->set_status = response_set_status;
+  GetStruct()->get_status_text = response_get_status_text;
+  GetStruct()->set_status_text = response_set_status_text;
+  GetStruct()->get_mime_type = response_get_mime_type;
+  GetStruct()->set_mime_type = response_set_mime_type;
+  GetStruct()->get_header = response_get_header;
+  GetStruct()->get_header_map = response_get_header_map;
+  GetStruct()->set_header_map = response_set_header_map;
+}
+
+template<> CefRefPtr<CefResponse> CefCppToC<CefResponseCppToC, CefResponse,
+    cef_response_t>::UnwrapDerived(CefWrapperType type, cef_response_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -222,3 +231,5 @@ template<> base::AtomicRefCount CefCppToC<CefResponseCppToC, CefResponse,
     cef_response_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefResponseCppToC, CefResponse,
+    cef_response_t>::kWrapperType = WT_RESPONSE;

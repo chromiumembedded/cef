@@ -27,30 +27,28 @@
 class CefRequestCToCpp
     : public CefCToCpp<CefRequestCToCpp, CefRequest, cef_request_t> {
  public:
-  explicit CefRequestCToCpp(cef_request_t* str)
-      : CefCToCpp<CefRequestCToCpp, CefRequest, cef_request_t>(str) {}
+  CefRequestCToCpp();
 
-  // CefRequest methods
-  virtual bool IsReadOnly() OVERRIDE;
-  virtual CefString GetURL() OVERRIDE;
-  virtual void SetURL(const CefString& url) OVERRIDE;
-  virtual CefString GetMethod() OVERRIDE;
-  virtual void SetMethod(const CefString& method) OVERRIDE;
-  virtual CefRefPtr<CefPostData> GetPostData() OVERRIDE;
-  virtual void SetPostData(CefRefPtr<CefPostData> postData) OVERRIDE;
-  virtual void GetHeaderMap(HeaderMap& headerMap) OVERRIDE;
-  virtual void SetHeaderMap(const HeaderMap& headerMap) OVERRIDE;
-  virtual void Set(const CefString& url, const CefString& method,
+  // CefRequest methods.
+  bool IsReadOnly() OVERRIDE;
+  CefString GetURL() OVERRIDE;
+  void SetURL(const CefString& url) OVERRIDE;
+  CefString GetMethod() OVERRIDE;
+  void SetMethod(const CefString& method) OVERRIDE;
+  CefRefPtr<CefPostData> GetPostData() OVERRIDE;
+  void SetPostData(CefRefPtr<CefPostData> postData) OVERRIDE;
+  void GetHeaderMap(HeaderMap& headerMap) OVERRIDE;
+  void SetHeaderMap(const HeaderMap& headerMap) OVERRIDE;
+  void Set(const CefString& url, const CefString& method,
       CefRefPtr<CefPostData> postData, const HeaderMap& headerMap) OVERRIDE;
-  virtual int GetFlags() OVERRIDE;
-  virtual void SetFlags(int flags) OVERRIDE;
-  virtual CefString GetFirstPartyForCookies() OVERRIDE;
-  virtual void SetFirstPartyForCookies(const CefString& url) OVERRIDE;
-  virtual ResourceType GetResourceType() OVERRIDE;
-  virtual TransitionType GetTransitionType() OVERRIDE;
-  virtual uint64 GetIdentifier() OVERRIDE;
+  int GetFlags() OVERRIDE;
+  void SetFlags(int flags) OVERRIDE;
+  CefString GetFirstPartyForCookies() OVERRIDE;
+  void SetFirstPartyForCookies(const CefString& url) OVERRIDE;
+  ResourceType GetResourceType() OVERRIDE;
+  TransitionType GetTransitionType() OVERRIDE;
+  uint64 GetIdentifier() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_REQUEST_CTOCPP_H_
-

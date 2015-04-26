@@ -13,6 +13,8 @@
 #include "libcef_dll/cpptoc/auth_callback_cpptoc.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK auth_callback_cont(struct _cef_auth_callback_t* self,
@@ -48,14 +50,21 @@ void CEF_CALLBACK auth_callback_cancel(struct _cef_auth_callback_t* self) {
   CefAuthCallbackCppToC::Get(self)->Cancel();
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefAuthCallbackCppToC::CefAuthCallbackCppToC(CefAuthCallback* cls)
-    : CefCppToC<CefAuthCallbackCppToC, CefAuthCallback, cef_auth_callback_t>(
-        cls) {
-  struct_.struct_.cont = auth_callback_cont;
-  struct_.struct_.cancel = auth_callback_cancel;
+CefAuthCallbackCppToC::CefAuthCallbackCppToC() {
+  GetStruct()->cont = auth_callback_cont;
+  GetStruct()->cancel = auth_callback_cancel;
+}
+
+template<> CefRefPtr<CefAuthCallback> CefCppToC<CefAuthCallbackCppToC,
+    CefAuthCallback, cef_auth_callback_t>::UnwrapDerived(CefWrapperType type,
+    cef_auth_callback_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -63,3 +72,5 @@ template<> base::AtomicRefCount CefCppToC<CefAuthCallbackCppToC,
     CefAuthCallback, cef_auth_callback_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefAuthCallbackCppToC, CefAuthCallback,
+    cef_auth_callback_t>::kWrapperType = WT_AUTH_CALLBACK;

@@ -29,9 +29,8 @@
 class CefBrowserCppToC
     : public CefCppToC<CefBrowserCppToC, CefBrowser, cef_browser_t> {
  public:
-  explicit CefBrowserCppToC(CefBrowser* cls);
+  CefBrowserCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_BROWSER_CPPTOC_H_
-

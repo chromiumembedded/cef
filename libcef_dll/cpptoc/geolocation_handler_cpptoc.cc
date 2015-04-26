@@ -15,6 +15,8 @@
 #include "libcef_dll/ctocpp/geolocation_callback_ctocpp.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK geolocation_handler_on_request_geolocation_permission(
@@ -75,17 +77,23 @@ void CEF_CALLBACK geolocation_handler_on_cancel_geolocation_permission(
       request_id);
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefGeolocationHandlerCppToC::CefGeolocationHandlerCppToC(
-    CefGeolocationHandler* cls)
-    : CefCppToC<CefGeolocationHandlerCppToC, CefGeolocationHandler,
-        cef_geolocation_handler_t>(cls) {
-  struct_.struct_.on_request_geolocation_permission =
+CefGeolocationHandlerCppToC::CefGeolocationHandlerCppToC() {
+  GetStruct()->on_request_geolocation_permission =
       geolocation_handler_on_request_geolocation_permission;
-  struct_.struct_.on_cancel_geolocation_permission =
+  GetStruct()->on_cancel_geolocation_permission =
       geolocation_handler_on_cancel_geolocation_permission;
+}
+
+template<> CefRefPtr<CefGeolocationHandler> CefCppToC<CefGeolocationHandlerCppToC,
+    CefGeolocationHandler, cef_geolocation_handler_t>::UnwrapDerived(
+    CefWrapperType type, cef_geolocation_handler_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -93,3 +101,6 @@ template<> base::AtomicRefCount CefCppToC<CefGeolocationHandlerCppToC,
     CefGeolocationHandler, cef_geolocation_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefGeolocationHandlerCppToC,
+    CefGeolocationHandler, cef_geolocation_handler_t>::kWrapperType =
+    WT_GEOLOCATION_HANDLER;

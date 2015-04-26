@@ -22,7 +22,8 @@
 void CefDownloadHandlerCToCpp::OnBeforeDownload(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDownloadItem> download_item, const CefString& suggested_name,
     CefRefPtr<CefBeforeDownloadCallback> callback) {
-  if (CEF_MEMBER_MISSING(struct_, on_before_download))
+  cef_download_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_before_download))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -45,7 +46,7 @@ void CefDownloadHandlerCToCpp::OnBeforeDownload(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  struct_->on_before_download(struct_,
+  _struct->on_before_download(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefDownloadItemCppToC::Wrap(download_item),
       suggested_name.GetStruct(),
@@ -55,7 +56,8 @@ void CefDownloadHandlerCToCpp::OnBeforeDownload(CefRefPtr<CefBrowser> browser,
 void CefDownloadHandlerCToCpp::OnDownloadUpdated(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefDownloadItem> download_item,
     CefRefPtr<CefDownloadItemCallback> callback) {
-  if (CEF_MEMBER_MISSING(struct_, on_download_updated))
+  cef_download_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_download_updated))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -74,15 +76,30 @@ void CefDownloadHandlerCToCpp::OnDownloadUpdated(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  struct_->on_download_updated(struct_,
+  _struct->on_download_updated(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefDownloadItemCppToC::Wrap(download_item),
       CefDownloadItemCallbackCppToC::Wrap(callback));
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefDownloadHandlerCToCpp::CefDownloadHandlerCToCpp() {
+}
+
+template<> cef_download_handler_t* CefCToCpp<CefDownloadHandlerCToCpp,
+    CefDownloadHandler, cef_download_handler_t>::UnwrapDerived(
+    CefWrapperType type, CefDownloadHandler* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefDownloadHandlerCToCpp,
     CefDownloadHandler, cef_download_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefDownloadHandlerCToCpp,
+    CefDownloadHandler, cef_download_handler_t>::kWrapperType =
+    WT_DOWNLOAD_HANDLER;

@@ -28,11 +28,9 @@ class CefURLRequestClientCToCpp
     : public CefCToCpp<CefURLRequestClientCToCpp, CefURLRequestClient,
         cef_urlrequest_client_t> {
  public:
-  explicit CefURLRequestClientCToCpp(cef_urlrequest_client_t* str)
-      : CefCToCpp<CefURLRequestClientCToCpp, CefURLRequestClient,
-          cef_urlrequest_client_t>(str) {}
+  CefURLRequestClientCToCpp();
 
-  // CefURLRequestClient methods
+  // CefURLRequestClient methods.
   void OnRequestComplete(CefRefPtr<CefURLRequest> request) override;
   void OnUploadProgress(CefRefPtr<CefURLRequest> request, int64 current,
       int64 total) override;
@@ -47,4 +45,3 @@ class CefURLRequestClientCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_URLREQUEST_CLIENT_CTOCPP_H_
-

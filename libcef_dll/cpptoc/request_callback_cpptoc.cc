@@ -13,6 +13,8 @@
 #include "libcef_dll/cpptoc/request_callback_cpptoc.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK request_callback_cont(struct _cef_request_callback_t* self,
@@ -40,14 +42,21 @@ void CEF_CALLBACK request_callback_cancel(
   CefRequestCallbackCppToC::Get(self)->Cancel();
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefRequestCallbackCppToC::CefRequestCallbackCppToC(CefRequestCallback* cls)
-    : CefCppToC<CefRequestCallbackCppToC, CefRequestCallback,
-        cef_request_callback_t>(cls) {
-  struct_.struct_.cont = request_callback_cont;
-  struct_.struct_.cancel = request_callback_cancel;
+CefRequestCallbackCppToC::CefRequestCallbackCppToC() {
+  GetStruct()->cont = request_callback_cont;
+  GetStruct()->cancel = request_callback_cancel;
+}
+
+template<> CefRefPtr<CefRequestCallback> CefCppToC<CefRequestCallbackCppToC,
+    CefRequestCallback, cef_request_callback_t>::UnwrapDerived(
+    CefWrapperType type, cef_request_callback_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -55,3 +64,6 @@ template<> base::AtomicRefCount CefCppToC<CefRequestCallbackCppToC,
     CefRequestCallback, cef_request_callback_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefRequestCallbackCppToC,
+    CefRequestCallback, cef_request_callback_t>::kWrapperType =
+    WT_REQUEST_CALLBACK;

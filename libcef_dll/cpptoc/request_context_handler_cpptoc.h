@@ -28,9 +28,8 @@ class CefRequestContextHandlerCppToC
     : public CefCppToC<CefRequestContextHandlerCppToC, CefRequestContextHandler,
         cef_request_context_handler_t> {
  public:
-  explicit CefRequestContextHandlerCppToC(CefRequestContextHandler* cls);
+  CefRequestContextHandlerCppToC();
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_REQUEST_CONTEXT_HANDLER_CPPTOC_H_
-

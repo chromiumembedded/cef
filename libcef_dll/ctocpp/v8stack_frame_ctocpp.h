@@ -28,21 +28,18 @@ class CefV8StackFrameCToCpp
     : public CefCToCpp<CefV8StackFrameCToCpp, CefV8StackFrame,
         cef_v8stack_frame_t> {
  public:
-  explicit CefV8StackFrameCToCpp(cef_v8stack_frame_t* str)
-      : CefCToCpp<CefV8StackFrameCToCpp, CefV8StackFrame, cef_v8stack_frame_t>(
-          str) {}
+  CefV8StackFrameCToCpp();
 
-  // CefV8StackFrame methods
-  virtual bool IsValid() OVERRIDE;
-  virtual CefString GetScriptName() OVERRIDE;
-  virtual CefString GetScriptNameOrSourceURL() OVERRIDE;
-  virtual CefString GetFunctionName() OVERRIDE;
-  virtual int GetLineNumber() OVERRIDE;
-  virtual int GetColumn() OVERRIDE;
-  virtual bool IsEval() OVERRIDE;
-  virtual bool IsConstructor() OVERRIDE;
+  // CefV8StackFrame methods.
+  bool IsValid() OVERRIDE;
+  CefString GetScriptName() OVERRIDE;
+  CefString GetScriptNameOrSourceURL() OVERRIDE;
+  CefString GetFunctionName() OVERRIDE;
+  int GetLineNumber() OVERRIDE;
+  int GetColumn() OVERRIDE;
+  bool IsEval() OVERRIDE;
+  bool IsConstructor() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_V8STACK_FRAME_CTOCPP_H_
-

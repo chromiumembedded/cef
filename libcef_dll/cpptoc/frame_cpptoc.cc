@@ -18,6 +18,8 @@
 #include "libcef_dll/ctocpp/string_visitor_ctocpp.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK frame_is_valid(struct _cef_frame_t* self) {
@@ -363,35 +365,42 @@ void CEF_CALLBACK frame_visit_dom(struct _cef_frame_t* self,
       CefDOMVisitorCToCpp::Wrap(visitor));
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefFrameCppToC::CefFrameCppToC(CefFrame* cls)
-    : CefCppToC<CefFrameCppToC, CefFrame, cef_frame_t>(cls) {
-  struct_.struct_.is_valid = frame_is_valid;
-  struct_.struct_.undo = frame_undo;
-  struct_.struct_.redo = frame_redo;
-  struct_.struct_.cut = frame_cut;
-  struct_.struct_.copy = frame_copy;
-  struct_.struct_.paste = frame_paste;
-  struct_.struct_.del = frame_del;
-  struct_.struct_.select_all = frame_select_all;
-  struct_.struct_.view_source = frame_view_source;
-  struct_.struct_.get_source = frame_get_source;
-  struct_.struct_.get_text = frame_get_text;
-  struct_.struct_.load_request = frame_load_request;
-  struct_.struct_.load_url = frame_load_url;
-  struct_.struct_.load_string = frame_load_string;
-  struct_.struct_.execute_java_script = frame_execute_java_script;
-  struct_.struct_.is_main = frame_is_main;
-  struct_.struct_.is_focused = frame_is_focused;
-  struct_.struct_.get_name = frame_get_name;
-  struct_.struct_.get_identifier = frame_get_identifier;
-  struct_.struct_.get_parent = frame_get_parent;
-  struct_.struct_.get_url = frame_get_url;
-  struct_.struct_.get_browser = frame_get_browser;
-  struct_.struct_.get_v8context = frame_get_v8context;
-  struct_.struct_.visit_dom = frame_visit_dom;
+CefFrameCppToC::CefFrameCppToC() {
+  GetStruct()->is_valid = frame_is_valid;
+  GetStruct()->undo = frame_undo;
+  GetStruct()->redo = frame_redo;
+  GetStruct()->cut = frame_cut;
+  GetStruct()->copy = frame_copy;
+  GetStruct()->paste = frame_paste;
+  GetStruct()->del = frame_del;
+  GetStruct()->select_all = frame_select_all;
+  GetStruct()->view_source = frame_view_source;
+  GetStruct()->get_source = frame_get_source;
+  GetStruct()->get_text = frame_get_text;
+  GetStruct()->load_request = frame_load_request;
+  GetStruct()->load_url = frame_load_url;
+  GetStruct()->load_string = frame_load_string;
+  GetStruct()->execute_java_script = frame_execute_java_script;
+  GetStruct()->is_main = frame_is_main;
+  GetStruct()->is_focused = frame_is_focused;
+  GetStruct()->get_name = frame_get_name;
+  GetStruct()->get_identifier = frame_get_identifier;
+  GetStruct()->get_parent = frame_get_parent;
+  GetStruct()->get_url = frame_get_url;
+  GetStruct()->get_browser = frame_get_browser;
+  GetStruct()->get_v8context = frame_get_v8context;
+  GetStruct()->visit_dom = frame_visit_dom;
+}
+
+template<> CefRefPtr<CefFrame> CefCppToC<CefFrameCppToC, CefFrame,
+    cef_frame_t>::UnwrapDerived(CefWrapperType type, cef_frame_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -399,3 +408,5 @@ template<> base::AtomicRefCount CefCppToC<CefFrameCppToC, CefFrame,
     cef_frame_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefFrameCppToC, CefFrame,
+    cef_frame_t>::kWrapperType = WT_FRAME;

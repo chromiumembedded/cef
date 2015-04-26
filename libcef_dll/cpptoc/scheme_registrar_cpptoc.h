@@ -28,9 +28,8 @@ class CefSchemeRegistrarCppToC
     : public CefCppToC<CefSchemeRegistrarCppToC, CefSchemeRegistrar,
         cef_scheme_registrar_t> {
  public:
-  explicit CefSchemeRegistrarCppToC(CefSchemeRegistrar* cls);
+  CefSchemeRegistrarCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_SCHEME_REGISTRAR_CPPTOC_H_
-

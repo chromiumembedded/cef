@@ -27,71 +27,68 @@
 class CefMenuModelCToCpp
     : public CefCToCpp<CefMenuModelCToCpp, CefMenuModel, cef_menu_model_t> {
  public:
-  explicit CefMenuModelCToCpp(cef_menu_model_t* str)
-      : CefCToCpp<CefMenuModelCToCpp, CefMenuModel, cef_menu_model_t>(str) {}
+  CefMenuModelCToCpp();
 
-  // CefMenuModel methods
-  virtual bool Clear() OVERRIDE;
-  virtual int GetCount() OVERRIDE;
-  virtual bool AddSeparator() OVERRIDE;
-  virtual bool AddItem(int command_id, const CefString& label) OVERRIDE;
-  virtual bool AddCheckItem(int command_id, const CefString& label) OVERRIDE;
-  virtual bool AddRadioItem(int command_id, const CefString& label,
+  // CefMenuModel methods.
+  bool Clear() OVERRIDE;
+  int GetCount() OVERRIDE;
+  bool AddSeparator() OVERRIDE;
+  bool AddItem(int command_id, const CefString& label) OVERRIDE;
+  bool AddCheckItem(int command_id, const CefString& label) OVERRIDE;
+  bool AddRadioItem(int command_id, const CefString& label,
       int group_id) OVERRIDE;
-  virtual CefRefPtr<CefMenuModel> AddSubMenu(int command_id,
+  CefRefPtr<CefMenuModel> AddSubMenu(int command_id,
       const CefString& label) OVERRIDE;
-  virtual bool InsertSeparatorAt(int index) OVERRIDE;
-  virtual bool InsertItemAt(int index, int command_id,
+  bool InsertSeparatorAt(int index) OVERRIDE;
+  bool InsertItemAt(int index, int command_id, const CefString& label) OVERRIDE;
+  bool InsertCheckItemAt(int index, int command_id,
       const CefString& label) OVERRIDE;
-  virtual bool InsertCheckItemAt(int index, int command_id,
+  bool InsertRadioItemAt(int index, int command_id, const CefString& label,
+      int group_id) OVERRIDE;
+  CefRefPtr<CefMenuModel> InsertSubMenuAt(int index, int command_id,
       const CefString& label) OVERRIDE;
-  virtual bool InsertRadioItemAt(int index, int command_id,
-      const CefString& label, int group_id) OVERRIDE;
-  virtual CefRefPtr<CefMenuModel> InsertSubMenuAt(int index, int command_id,
-      const CefString& label) OVERRIDE;
-  virtual bool Remove(int command_id) OVERRIDE;
-  virtual bool RemoveAt(int index) OVERRIDE;
-  virtual int GetIndexOf(int command_id) OVERRIDE;
-  virtual int GetCommandIdAt(int index) OVERRIDE;
-  virtual bool SetCommandIdAt(int index, int command_id) OVERRIDE;
-  virtual CefString GetLabel(int command_id) OVERRIDE;
-  virtual CefString GetLabelAt(int index) OVERRIDE;
-  virtual bool SetLabel(int command_id, const CefString& label) OVERRIDE;
-  virtual bool SetLabelAt(int index, const CefString& label) OVERRIDE;
-  virtual MenuItemType GetType(int command_id) OVERRIDE;
-  virtual MenuItemType GetTypeAt(int index) OVERRIDE;
-  virtual int GetGroupId(int command_id) OVERRIDE;
-  virtual int GetGroupIdAt(int index) OVERRIDE;
-  virtual bool SetGroupId(int command_id, int group_id) OVERRIDE;
-  virtual bool SetGroupIdAt(int index, int group_id) OVERRIDE;
-  virtual CefRefPtr<CefMenuModel> GetSubMenu(int command_id) OVERRIDE;
-  virtual CefRefPtr<CefMenuModel> GetSubMenuAt(int index) OVERRIDE;
-  virtual bool IsVisible(int command_id) OVERRIDE;
-  virtual bool IsVisibleAt(int index) OVERRIDE;
-  virtual bool SetVisible(int command_id, bool visible) OVERRIDE;
-  virtual bool SetVisibleAt(int index, bool visible) OVERRIDE;
-  virtual bool IsEnabled(int command_id) OVERRIDE;
-  virtual bool IsEnabledAt(int index) OVERRIDE;
-  virtual bool SetEnabled(int command_id, bool enabled) OVERRIDE;
-  virtual bool SetEnabledAt(int index, bool enabled) OVERRIDE;
-  virtual bool IsChecked(int command_id) OVERRIDE;
-  virtual bool IsCheckedAt(int index) OVERRIDE;
-  virtual bool SetChecked(int command_id, bool checked) OVERRIDE;
-  virtual bool SetCheckedAt(int index, bool checked) OVERRIDE;
-  virtual bool HasAccelerator(int command_id) OVERRIDE;
-  virtual bool HasAcceleratorAt(int index) OVERRIDE;
-  virtual bool SetAccelerator(int command_id, int key_code, bool shift_pressed,
+  bool Remove(int command_id) OVERRIDE;
+  bool RemoveAt(int index) OVERRIDE;
+  int GetIndexOf(int command_id) OVERRIDE;
+  int GetCommandIdAt(int index) OVERRIDE;
+  bool SetCommandIdAt(int index, int command_id) OVERRIDE;
+  CefString GetLabel(int command_id) OVERRIDE;
+  CefString GetLabelAt(int index) OVERRIDE;
+  bool SetLabel(int command_id, const CefString& label) OVERRIDE;
+  bool SetLabelAt(int index, const CefString& label) OVERRIDE;
+  MenuItemType GetType(int command_id) OVERRIDE;
+  MenuItemType GetTypeAt(int index) OVERRIDE;
+  int GetGroupId(int command_id) OVERRIDE;
+  int GetGroupIdAt(int index) OVERRIDE;
+  bool SetGroupId(int command_id, int group_id) OVERRIDE;
+  bool SetGroupIdAt(int index, int group_id) OVERRIDE;
+  CefRefPtr<CefMenuModel> GetSubMenu(int command_id) OVERRIDE;
+  CefRefPtr<CefMenuModel> GetSubMenuAt(int index) OVERRIDE;
+  bool IsVisible(int command_id) OVERRIDE;
+  bool IsVisibleAt(int index) OVERRIDE;
+  bool SetVisible(int command_id, bool visible) OVERRIDE;
+  bool SetVisibleAt(int index, bool visible) OVERRIDE;
+  bool IsEnabled(int command_id) OVERRIDE;
+  bool IsEnabledAt(int index) OVERRIDE;
+  bool SetEnabled(int command_id, bool enabled) OVERRIDE;
+  bool SetEnabledAt(int index, bool enabled) OVERRIDE;
+  bool IsChecked(int command_id) OVERRIDE;
+  bool IsCheckedAt(int index) OVERRIDE;
+  bool SetChecked(int command_id, bool checked) OVERRIDE;
+  bool SetCheckedAt(int index, bool checked) OVERRIDE;
+  bool HasAccelerator(int command_id) OVERRIDE;
+  bool HasAcceleratorAt(int index) OVERRIDE;
+  bool SetAccelerator(int command_id, int key_code, bool shift_pressed,
       bool ctrl_pressed, bool alt_pressed) OVERRIDE;
-  virtual bool SetAcceleratorAt(int index, int key_code, bool shift_pressed,
+  bool SetAcceleratorAt(int index, int key_code, bool shift_pressed,
       bool ctrl_pressed, bool alt_pressed) OVERRIDE;
-  virtual bool RemoveAccelerator(int command_id) OVERRIDE;
-  virtual bool RemoveAcceleratorAt(int index) OVERRIDE;
-  virtual bool GetAccelerator(int command_id, int& key_code,
-      bool& shift_pressed, bool& ctrl_pressed, bool& alt_pressed) OVERRIDE;
-  virtual bool GetAcceleratorAt(int index, int& key_code, bool& shift_pressed,
+  bool RemoveAccelerator(int command_id) OVERRIDE;
+  bool RemoveAcceleratorAt(int index) OVERRIDE;
+  bool GetAccelerator(int command_id, int& key_code, bool& shift_pressed,
+      bool& ctrl_pressed, bool& alt_pressed) OVERRIDE;
+  bool GetAcceleratorAt(int index, int& key_code, bool& shift_pressed,
       bool& ctrl_pressed, bool& alt_pressed) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_MENU_MODEL_CTOCPP_H_
-

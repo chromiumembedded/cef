@@ -27,9 +27,8 @@
 class CefZipReaderCppToC
     : public CefCppToC<CefZipReaderCppToC, CefZipReader, cef_zip_reader_t> {
  public:
-  explicit CefZipReaderCppToC(CefZipReader* cls);
+  CefZipReaderCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_ZIP_READER_CPPTOC_H_
-

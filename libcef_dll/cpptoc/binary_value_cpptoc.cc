@@ -34,6 +34,8 @@ CEF_EXPORT cef_binary_value_t* cef_binary_value_create(const void* data,
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK binary_value_is_valid(struct _cef_binary_value_t* self) {
@@ -155,18 +157,26 @@ size_t CEF_CALLBACK binary_value_get_data(struct _cef_binary_value_t* self,
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefBinaryValueCppToC::CefBinaryValueCppToC(CefBinaryValue* cls)
-    : CefCppToC<CefBinaryValueCppToC, CefBinaryValue, cef_binary_value_t>(cls) {
-  struct_.struct_.is_valid = binary_value_is_valid;
-  struct_.struct_.is_owned = binary_value_is_owned;
-  struct_.struct_.is_same = binary_value_is_same;
-  struct_.struct_.is_equal = binary_value_is_equal;
-  struct_.struct_.copy = binary_value_copy;
-  struct_.struct_.get_size = binary_value_get_size;
-  struct_.struct_.get_data = binary_value_get_data;
+CefBinaryValueCppToC::CefBinaryValueCppToC() {
+  GetStruct()->is_valid = binary_value_is_valid;
+  GetStruct()->is_owned = binary_value_is_owned;
+  GetStruct()->is_same = binary_value_is_same;
+  GetStruct()->is_equal = binary_value_is_equal;
+  GetStruct()->copy = binary_value_copy;
+  GetStruct()->get_size = binary_value_get_size;
+  GetStruct()->get_data = binary_value_get_data;
+}
+
+template<> CefRefPtr<CefBinaryValue> CefCppToC<CefBinaryValueCppToC,
+    CefBinaryValue, cef_binary_value_t>::UnwrapDerived(CefWrapperType type,
+    cef_binary_value_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -174,3 +184,5 @@ template<> base::AtomicRefCount CefCppToC<CefBinaryValueCppToC, CefBinaryValue,
     cef_binary_value_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefBinaryValueCppToC, CefBinaryValue,
+    cef_binary_value_t>::kWrapperType = WT_BINARY_VALUE;

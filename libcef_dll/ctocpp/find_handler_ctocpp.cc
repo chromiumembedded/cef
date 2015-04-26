@@ -19,7 +19,8 @@
 void CefFindHandlerCToCpp::OnFindResult(CefRefPtr<CefBrowser> browser,
     int identifier, int count, const CefRect& selectionRect,
     int activeMatchOrdinal, bool finalUpdate) {
-  if (CEF_MEMBER_MISSING(struct_, on_find_result))
+  cef_find_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_find_result))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -30,7 +31,7 @@ void CefFindHandlerCToCpp::OnFindResult(CefRefPtr<CefBrowser> browser,
     return;
 
   // Execute
-  struct_->on_find_result(struct_,
+  _struct->on_find_result(_struct,
       CefBrowserCppToC::Wrap(browser),
       identifier,
       count,
@@ -40,8 +41,22 @@ void CefFindHandlerCToCpp::OnFindResult(CefRefPtr<CefBrowser> browser,
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefFindHandlerCToCpp::CefFindHandlerCToCpp() {
+}
+
+template<> cef_find_handler_t* CefCToCpp<CefFindHandlerCToCpp, CefFindHandler,
+    cef_find_handler_t>::UnwrapDerived(CefWrapperType type,
+    CefFindHandler* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefFindHandlerCToCpp, CefFindHandler,
     cef_find_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefFindHandlerCToCpp, CefFindHandler,
+    cef_find_handler_t>::kWrapperType = WT_FIND_HANDLER;

@@ -17,13 +17,14 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 CefString CefSSLCertPrincipalCToCpp::GetDisplayName() {
-  if (CEF_MEMBER_MISSING(struct_, get_display_name))
+  cef_sslcert_principal_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_display_name))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_display_name(struct_);
+  cef_string_userfree_t _retval = _struct->get_display_name(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -32,13 +33,14 @@ CefString CefSSLCertPrincipalCToCpp::GetDisplayName() {
 }
 
 CefString CefSSLCertPrincipalCToCpp::GetCommonName() {
-  if (CEF_MEMBER_MISSING(struct_, get_common_name))
+  cef_sslcert_principal_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_common_name))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_common_name(struct_);
+  cef_string_userfree_t _retval = _struct->get_common_name(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -47,13 +49,14 @@ CefString CefSSLCertPrincipalCToCpp::GetCommonName() {
 }
 
 CefString CefSSLCertPrincipalCToCpp::GetLocalityName() {
-  if (CEF_MEMBER_MISSING(struct_, get_locality_name))
+  cef_sslcert_principal_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_locality_name))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_locality_name(struct_);
+  cef_string_userfree_t _retval = _struct->get_locality_name(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -62,13 +65,14 @@ CefString CefSSLCertPrincipalCToCpp::GetLocalityName() {
 }
 
 CefString CefSSLCertPrincipalCToCpp::GetStateOrProvinceName() {
-  if (CEF_MEMBER_MISSING(struct_, get_state_or_province_name))
+  cef_sslcert_principal_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_state_or_province_name))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_state_or_province_name(struct_);
+  cef_string_userfree_t _retval = _struct->get_state_or_province_name(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -77,13 +81,14 @@ CefString CefSSLCertPrincipalCToCpp::GetStateOrProvinceName() {
 }
 
 CefString CefSSLCertPrincipalCToCpp::GetCountryName() {
-  if (CEF_MEMBER_MISSING(struct_, get_country_name))
+  cef_sslcert_principal_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_country_name))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_country_name(struct_);
+  cef_string_userfree_t _retval = _struct->get_country_name(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -93,7 +98,8 @@ CefString CefSSLCertPrincipalCToCpp::GetCountryName() {
 
 void CefSSLCertPrincipalCToCpp::GetStreetAddresses(
     std::vector<CefString>& addresses) {
-  if (CEF_MEMBER_MISSING(struct_, get_street_addresses))
+  cef_sslcert_principal_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_street_addresses))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -105,7 +111,7 @@ void CefSSLCertPrincipalCToCpp::GetStreetAddresses(
     transfer_string_list_contents(addresses, addressesList);
 
   // Execute
-  struct_->get_street_addresses(struct_,
+  _struct->get_street_addresses(_struct,
       addressesList);
 
   // Restore param:addresses; type: string_vec_byref
@@ -118,7 +124,8 @@ void CefSSLCertPrincipalCToCpp::GetStreetAddresses(
 
 void CefSSLCertPrincipalCToCpp::GetOrganizationNames(
     std::vector<CefString>& names) {
-  if (CEF_MEMBER_MISSING(struct_, get_organization_names))
+  cef_sslcert_principal_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_organization_names))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -130,7 +137,7 @@ void CefSSLCertPrincipalCToCpp::GetOrganizationNames(
     transfer_string_list_contents(names, namesList);
 
   // Execute
-  struct_->get_organization_names(struct_,
+  _struct->get_organization_names(_struct,
       namesList);
 
   // Restore param:names; type: string_vec_byref
@@ -143,7 +150,8 @@ void CefSSLCertPrincipalCToCpp::GetOrganizationNames(
 
 void CefSSLCertPrincipalCToCpp::GetOrganizationUnitNames(
     std::vector<CefString>& names) {
-  if (CEF_MEMBER_MISSING(struct_, get_organization_unit_names))
+  cef_sslcert_principal_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_organization_unit_names))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -155,7 +163,7 @@ void CefSSLCertPrincipalCToCpp::GetOrganizationUnitNames(
     transfer_string_list_contents(names, namesList);
 
   // Execute
-  struct_->get_organization_unit_names(struct_,
+  _struct->get_organization_unit_names(_struct,
       namesList);
 
   // Restore param:names; type: string_vec_byref
@@ -168,7 +176,8 @@ void CefSSLCertPrincipalCToCpp::GetOrganizationUnitNames(
 
 void CefSSLCertPrincipalCToCpp::GetDomainComponents(
     std::vector<CefString>& components) {
-  if (CEF_MEMBER_MISSING(struct_, get_domain_components))
+  cef_sslcert_principal_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_domain_components))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -180,7 +189,7 @@ void CefSSLCertPrincipalCToCpp::GetDomainComponents(
     transfer_string_list_contents(components, componentsList);
 
   // Execute
-  struct_->get_domain_components(struct_,
+  _struct->get_domain_components(_struct,
       componentsList);
 
   // Restore param:components; type: string_vec_byref
@@ -192,8 +201,23 @@ void CefSSLCertPrincipalCToCpp::GetDomainComponents(
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefSSLCertPrincipalCToCpp::CefSSLCertPrincipalCToCpp() {
+}
+
+template<> cef_sslcert_principal_t* CefCToCpp<CefSSLCertPrincipalCToCpp,
+    CefSSLCertPrincipal, cef_sslcert_principal_t>::UnwrapDerived(
+    CefWrapperType type, CefSSLCertPrincipal* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefSSLCertPrincipalCToCpp,
     CefSSLCertPrincipal, cef_sslcert_principal_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefSSLCertPrincipalCToCpp,
+    CefSSLCertPrincipal, cef_sslcert_principal_t>::kWrapperType =
+    WT_SSLCERT_PRINCIPAL;

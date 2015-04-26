@@ -29,11 +29,9 @@ class CefDialogHandlerCToCpp
     : public CefCToCpp<CefDialogHandlerCToCpp, CefDialogHandler,
         cef_dialog_handler_t> {
  public:
-  explicit CefDialogHandlerCToCpp(cef_dialog_handler_t* str)
-      : CefCToCpp<CefDialogHandlerCToCpp, CefDialogHandler,
-          cef_dialog_handler_t>(str) {}
+  CefDialogHandlerCToCpp();
 
-  // CefDialogHandler methods
+  // CefDialogHandler methods.
   bool OnFileDialog(CefRefPtr<CefBrowser> browser, FileDialogMode mode,
       const CefString& title, const CefString& default_file_path,
       const std::vector<CefString>& accept_filters, int selected_accept_filter,
@@ -42,4 +40,3 @@ class CefDialogHandlerCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DIALOG_HANDLER_CTOCPP_H_
-

@@ -27,18 +27,16 @@
 class CefPostDataCToCpp
     : public CefCToCpp<CefPostDataCToCpp, CefPostData, cef_post_data_t> {
  public:
-  explicit CefPostDataCToCpp(cef_post_data_t* str)
-      : CefCToCpp<CefPostDataCToCpp, CefPostData, cef_post_data_t>(str) {}
+  CefPostDataCToCpp();
 
-  // CefPostData methods
-  virtual bool IsReadOnly() OVERRIDE;
-  virtual size_t GetElementCount() OVERRIDE;
-  virtual void GetElements(ElementVector& elements) OVERRIDE;
-  virtual bool RemoveElement(CefRefPtr<CefPostDataElement> element) OVERRIDE;
-  virtual bool AddElement(CefRefPtr<CefPostDataElement> element) OVERRIDE;
-  virtual void RemoveElements() OVERRIDE;
+  // CefPostData methods.
+  bool IsReadOnly() OVERRIDE;
+  size_t GetElementCount() OVERRIDE;
+  void GetElements(ElementVector& elements) OVERRIDE;
+  bool RemoveElement(CefRefPtr<CefPostDataElement> element) OVERRIDE;
+  bool AddElement(CefRefPtr<CefPostDataElement> element) OVERRIDE;
+  void RemoveElements() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_POST_DATA_CTOCPP_H_
-

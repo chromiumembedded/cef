@@ -28,11 +28,9 @@ class CefGeolocationHandlerCToCpp
     : public CefCToCpp<CefGeolocationHandlerCToCpp, CefGeolocationHandler,
         cef_geolocation_handler_t> {
  public:
-  explicit CefGeolocationHandlerCToCpp(cef_geolocation_handler_t* str)
-      : CefCToCpp<CefGeolocationHandlerCToCpp, CefGeolocationHandler,
-          cef_geolocation_handler_t>(str) {}
+  CefGeolocationHandlerCToCpp();
 
-  // CefGeolocationHandler methods
+  // CefGeolocationHandler methods.
   bool OnRequestGeolocationPermission(CefRefPtr<CefBrowser> browser,
       const CefString& requesting_url, int request_id,
       CefRefPtr<CefGeolocationCallback> callback) override;
@@ -42,4 +40,3 @@ class CefGeolocationHandlerCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_GEOLOCATION_HANDLER_CTOCPP_H_
-

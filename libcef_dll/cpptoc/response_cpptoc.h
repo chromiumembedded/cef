@@ -27,9 +27,8 @@
 class CefResponseCppToC
     : public CefCppToC<CefResponseCppToC, CefResponse, cef_response_t> {
  public:
-  explicit CefResponseCppToC(CefResponse* cls);
+  CefResponseCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_RESPONSE_CPPTOC_H_
-

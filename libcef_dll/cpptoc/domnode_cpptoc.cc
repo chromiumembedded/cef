@@ -15,6 +15,8 @@
 #include "libcef_dll/transfer_util.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 cef_dom_node_type_t CEF_CALLBACK domnode_get_type(struct _cef_domnode_t* self) {
@@ -427,37 +429,44 @@ cef_string_userfree_t CEF_CALLBACK domnode_get_element_inner_text(
   return _retval.DetachToUserFree();
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDOMNodeCppToC::CefDOMNodeCppToC(CefDOMNode* cls)
-    : CefCppToC<CefDOMNodeCppToC, CefDOMNode, cef_domnode_t>(cls) {
-  struct_.struct_.get_type = domnode_get_type;
-  struct_.struct_.is_text = domnode_is_text;
-  struct_.struct_.is_element = domnode_is_element;
-  struct_.struct_.is_editable = domnode_is_editable;
-  struct_.struct_.is_form_control_element = domnode_is_form_control_element;
-  struct_.struct_.get_form_control_element_type =
+CefDOMNodeCppToC::CefDOMNodeCppToC() {
+  GetStruct()->get_type = domnode_get_type;
+  GetStruct()->is_text = domnode_is_text;
+  GetStruct()->is_element = domnode_is_element;
+  GetStruct()->is_editable = domnode_is_editable;
+  GetStruct()->is_form_control_element = domnode_is_form_control_element;
+  GetStruct()->get_form_control_element_type =
       domnode_get_form_control_element_type;
-  struct_.struct_.is_same = domnode_is_same;
-  struct_.struct_.get_name = domnode_get_name;
-  struct_.struct_.get_value = domnode_get_value;
-  struct_.struct_.set_value = domnode_set_value;
-  struct_.struct_.get_as_markup = domnode_get_as_markup;
-  struct_.struct_.get_document = domnode_get_document;
-  struct_.struct_.get_parent = domnode_get_parent;
-  struct_.struct_.get_previous_sibling = domnode_get_previous_sibling;
-  struct_.struct_.get_next_sibling = domnode_get_next_sibling;
-  struct_.struct_.has_children = domnode_has_children;
-  struct_.struct_.get_first_child = domnode_get_first_child;
-  struct_.struct_.get_last_child = domnode_get_last_child;
-  struct_.struct_.get_element_tag_name = domnode_get_element_tag_name;
-  struct_.struct_.has_element_attributes = domnode_has_element_attributes;
-  struct_.struct_.has_element_attribute = domnode_has_element_attribute;
-  struct_.struct_.get_element_attribute = domnode_get_element_attribute;
-  struct_.struct_.get_element_attributes = domnode_get_element_attributes;
-  struct_.struct_.set_element_attribute = domnode_set_element_attribute;
-  struct_.struct_.get_element_inner_text = domnode_get_element_inner_text;
+  GetStruct()->is_same = domnode_is_same;
+  GetStruct()->get_name = domnode_get_name;
+  GetStruct()->get_value = domnode_get_value;
+  GetStruct()->set_value = domnode_set_value;
+  GetStruct()->get_as_markup = domnode_get_as_markup;
+  GetStruct()->get_document = domnode_get_document;
+  GetStruct()->get_parent = domnode_get_parent;
+  GetStruct()->get_previous_sibling = domnode_get_previous_sibling;
+  GetStruct()->get_next_sibling = domnode_get_next_sibling;
+  GetStruct()->has_children = domnode_has_children;
+  GetStruct()->get_first_child = domnode_get_first_child;
+  GetStruct()->get_last_child = domnode_get_last_child;
+  GetStruct()->get_element_tag_name = domnode_get_element_tag_name;
+  GetStruct()->has_element_attributes = domnode_has_element_attributes;
+  GetStruct()->has_element_attribute = domnode_has_element_attribute;
+  GetStruct()->get_element_attribute = domnode_get_element_attribute;
+  GetStruct()->get_element_attributes = domnode_get_element_attributes;
+  GetStruct()->set_element_attribute = domnode_set_element_attribute;
+  GetStruct()->get_element_inner_text = domnode_get_element_inner_text;
+}
+
+template<> CefRefPtr<CefDOMNode> CefCppToC<CefDOMNodeCppToC, CefDOMNode,
+    cef_domnode_t>::UnwrapDerived(CefWrapperType type, cef_domnode_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -465,3 +474,5 @@ template<> base::AtomicRefCount CefCppToC<CefDOMNodeCppToC, CefDOMNode,
     cef_domnode_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefDOMNodeCppToC, CefDOMNode,
+    cef_domnode_t>::kWrapperType = WT_DOMNODE;

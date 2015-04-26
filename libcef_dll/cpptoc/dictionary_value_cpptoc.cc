@@ -30,6 +30,8 @@ CEF_EXPORT cef_dictionary_value_t* cef_dictionary_value_create() {
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK dictionary_value_is_valid(
@@ -624,41 +626,48 @@ int CEF_CALLBACK dictionary_value_set_list(struct _cef_dictionary_value_t* self,
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDictionaryValueCppToC::CefDictionaryValueCppToC(CefDictionaryValue* cls)
-    : CefCppToC<CefDictionaryValueCppToC, CefDictionaryValue,
-        cef_dictionary_value_t>(cls) {
-  struct_.struct_.is_valid = dictionary_value_is_valid;
-  struct_.struct_.is_owned = dictionary_value_is_owned;
-  struct_.struct_.is_read_only = dictionary_value_is_read_only;
-  struct_.struct_.is_same = dictionary_value_is_same;
-  struct_.struct_.is_equal = dictionary_value_is_equal;
-  struct_.struct_.copy = dictionary_value_copy;
-  struct_.struct_.get_size = dictionary_value_get_size;
-  struct_.struct_.clear = dictionary_value_clear;
-  struct_.struct_.has_key = dictionary_value_has_key;
-  struct_.struct_.get_keys = dictionary_value_get_keys;
-  struct_.struct_.remove = dictionary_value_remove;
-  struct_.struct_.get_type = dictionary_value_get_type;
-  struct_.struct_.get_value = dictionary_value_get_value;
-  struct_.struct_.get_bool = dictionary_value_get_bool;
-  struct_.struct_.get_int = dictionary_value_get_int;
-  struct_.struct_.get_double = dictionary_value_get_double;
-  struct_.struct_.get_string = dictionary_value_get_string;
-  struct_.struct_.get_binary = dictionary_value_get_binary;
-  struct_.struct_.get_dictionary = dictionary_value_get_dictionary;
-  struct_.struct_.get_list = dictionary_value_get_list;
-  struct_.struct_.set_value = dictionary_value_set_value;
-  struct_.struct_.set_null = dictionary_value_set_null;
-  struct_.struct_.set_bool = dictionary_value_set_bool;
-  struct_.struct_.set_int = dictionary_value_set_int;
-  struct_.struct_.set_double = dictionary_value_set_double;
-  struct_.struct_.set_string = dictionary_value_set_string;
-  struct_.struct_.set_binary = dictionary_value_set_binary;
-  struct_.struct_.set_dictionary = dictionary_value_set_dictionary;
-  struct_.struct_.set_list = dictionary_value_set_list;
+CefDictionaryValueCppToC::CefDictionaryValueCppToC() {
+  GetStruct()->is_valid = dictionary_value_is_valid;
+  GetStruct()->is_owned = dictionary_value_is_owned;
+  GetStruct()->is_read_only = dictionary_value_is_read_only;
+  GetStruct()->is_same = dictionary_value_is_same;
+  GetStruct()->is_equal = dictionary_value_is_equal;
+  GetStruct()->copy = dictionary_value_copy;
+  GetStruct()->get_size = dictionary_value_get_size;
+  GetStruct()->clear = dictionary_value_clear;
+  GetStruct()->has_key = dictionary_value_has_key;
+  GetStruct()->get_keys = dictionary_value_get_keys;
+  GetStruct()->remove = dictionary_value_remove;
+  GetStruct()->get_type = dictionary_value_get_type;
+  GetStruct()->get_value = dictionary_value_get_value;
+  GetStruct()->get_bool = dictionary_value_get_bool;
+  GetStruct()->get_int = dictionary_value_get_int;
+  GetStruct()->get_double = dictionary_value_get_double;
+  GetStruct()->get_string = dictionary_value_get_string;
+  GetStruct()->get_binary = dictionary_value_get_binary;
+  GetStruct()->get_dictionary = dictionary_value_get_dictionary;
+  GetStruct()->get_list = dictionary_value_get_list;
+  GetStruct()->set_value = dictionary_value_set_value;
+  GetStruct()->set_null = dictionary_value_set_null;
+  GetStruct()->set_bool = dictionary_value_set_bool;
+  GetStruct()->set_int = dictionary_value_set_int;
+  GetStruct()->set_double = dictionary_value_set_double;
+  GetStruct()->set_string = dictionary_value_set_string;
+  GetStruct()->set_binary = dictionary_value_set_binary;
+  GetStruct()->set_dictionary = dictionary_value_set_dictionary;
+  GetStruct()->set_list = dictionary_value_set_list;
+}
+
+template<> CefRefPtr<CefDictionaryValue> CefCppToC<CefDictionaryValueCppToC,
+    CefDictionaryValue, cef_dictionary_value_t>::UnwrapDerived(
+    CefWrapperType type, cef_dictionary_value_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -666,3 +675,6 @@ template<> base::AtomicRefCount CefCppToC<CefDictionaryValueCppToC,
     CefDictionaryValue, cef_dictionary_value_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefDictionaryValueCppToC,
+    CefDictionaryValue, cef_dictionary_value_t>::kWrapperType =
+    WT_DICTIONARY_VALUE;

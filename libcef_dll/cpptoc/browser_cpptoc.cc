@@ -18,6 +18,8 @@
 #include "libcef_dll/transfer_util.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 struct _cef_browser_host_t* CEF_CALLBACK browser_get_host(
@@ -352,32 +354,39 @@ int CEF_CALLBACK browser_send_process_message(struct _cef_browser_t* self,
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefBrowserCppToC::CefBrowserCppToC(CefBrowser* cls)
-    : CefCppToC<CefBrowserCppToC, CefBrowser, cef_browser_t>(cls) {
-  struct_.struct_.get_host = browser_get_host;
-  struct_.struct_.can_go_back = browser_can_go_back;
-  struct_.struct_.go_back = browser_go_back;
-  struct_.struct_.can_go_forward = browser_can_go_forward;
-  struct_.struct_.go_forward = browser_go_forward;
-  struct_.struct_.is_loading = browser_is_loading;
-  struct_.struct_.reload = browser_reload;
-  struct_.struct_.reload_ignore_cache = browser_reload_ignore_cache;
-  struct_.struct_.stop_load = browser_stop_load;
-  struct_.struct_.get_identifier = browser_get_identifier;
-  struct_.struct_.is_same = browser_is_same;
-  struct_.struct_.is_popup = browser_is_popup;
-  struct_.struct_.has_document = browser_has_document;
-  struct_.struct_.get_main_frame = browser_get_main_frame;
-  struct_.struct_.get_focused_frame = browser_get_focused_frame;
-  struct_.struct_.get_frame_byident = browser_get_frame_byident;
-  struct_.struct_.get_frame = browser_get_frame;
-  struct_.struct_.get_frame_count = browser_get_frame_count;
-  struct_.struct_.get_frame_identifiers = browser_get_frame_identifiers;
-  struct_.struct_.get_frame_names = browser_get_frame_names;
-  struct_.struct_.send_process_message = browser_send_process_message;
+CefBrowserCppToC::CefBrowserCppToC() {
+  GetStruct()->get_host = browser_get_host;
+  GetStruct()->can_go_back = browser_can_go_back;
+  GetStruct()->go_back = browser_go_back;
+  GetStruct()->can_go_forward = browser_can_go_forward;
+  GetStruct()->go_forward = browser_go_forward;
+  GetStruct()->is_loading = browser_is_loading;
+  GetStruct()->reload = browser_reload;
+  GetStruct()->reload_ignore_cache = browser_reload_ignore_cache;
+  GetStruct()->stop_load = browser_stop_load;
+  GetStruct()->get_identifier = browser_get_identifier;
+  GetStruct()->is_same = browser_is_same;
+  GetStruct()->is_popup = browser_is_popup;
+  GetStruct()->has_document = browser_has_document;
+  GetStruct()->get_main_frame = browser_get_main_frame;
+  GetStruct()->get_focused_frame = browser_get_focused_frame;
+  GetStruct()->get_frame_byident = browser_get_frame_byident;
+  GetStruct()->get_frame = browser_get_frame;
+  GetStruct()->get_frame_count = browser_get_frame_count;
+  GetStruct()->get_frame_identifiers = browser_get_frame_identifiers;
+  GetStruct()->get_frame_names = browser_get_frame_names;
+  GetStruct()->send_process_message = browser_send_process_message;
+}
+
+template<> CefRefPtr<CefBrowser> CefCppToC<CefBrowserCppToC, CefBrowser,
+    cef_browser_t>::UnwrapDerived(CefWrapperType type, cef_browser_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -385,3 +394,5 @@ template<> base::AtomicRefCount CefCppToC<CefBrowserCppToC, CefBrowser,
     cef_browser_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefBrowserCppToC, CefBrowser,
+    cef_browser_t>::kWrapperType = WT_BROWSER;

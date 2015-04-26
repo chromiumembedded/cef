@@ -27,22 +27,20 @@
 class CefV8ContextCToCpp
     : public CefCToCpp<CefV8ContextCToCpp, CefV8Context, cef_v8context_t> {
  public:
-  explicit CefV8ContextCToCpp(cef_v8context_t* str)
-      : CefCToCpp<CefV8ContextCToCpp, CefV8Context, cef_v8context_t>(str) {}
+  CefV8ContextCToCpp();
 
-  // CefV8Context methods
-  virtual CefRefPtr<CefTaskRunner> GetTaskRunner() OVERRIDE;
-  virtual bool IsValid() OVERRIDE;
-  virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
-  virtual CefRefPtr<CefFrame> GetFrame() OVERRIDE;
-  virtual CefRefPtr<CefV8Value> GetGlobal() OVERRIDE;
-  virtual bool Enter() OVERRIDE;
-  virtual bool Exit() OVERRIDE;
-  virtual bool IsSame(CefRefPtr<CefV8Context> that) OVERRIDE;
-  virtual bool Eval(const CefString& code, CefRefPtr<CefV8Value>& retval,
+  // CefV8Context methods.
+  CefRefPtr<CefTaskRunner> GetTaskRunner() OVERRIDE;
+  bool IsValid() OVERRIDE;
+  CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
+  CefRefPtr<CefFrame> GetFrame() OVERRIDE;
+  CefRefPtr<CefV8Value> GetGlobal() OVERRIDE;
+  bool Enter() OVERRIDE;
+  bool Exit() OVERRIDE;
+  bool IsSame(CefRefPtr<CefV8Context> that) OVERRIDE;
+  bool Eval(const CefString& code, CefRefPtr<CefV8Value>& retval,
       CefRefPtr<CefV8Exception>& exception) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_V8CONTEXT_CTOCPP_H_
-

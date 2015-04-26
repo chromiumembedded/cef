@@ -16,6 +16,8 @@
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK browser_process_handler_on_context_initialized(
@@ -82,20 +84,26 @@ struct _cef_print_handler_t* CEF_CALLBACK browser_process_handler_get_print_hand
   return CefPrintHandlerCppToC::Wrap(_retval);
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefBrowserProcessHandlerCppToC::CefBrowserProcessHandlerCppToC(
-    CefBrowserProcessHandler* cls)
-    : CefCppToC<CefBrowserProcessHandlerCppToC, CefBrowserProcessHandler,
-        cef_browser_process_handler_t>(cls) {
-  struct_.struct_.on_context_initialized =
+CefBrowserProcessHandlerCppToC::CefBrowserProcessHandlerCppToC() {
+  GetStruct()->on_context_initialized =
       browser_process_handler_on_context_initialized;
-  struct_.struct_.on_before_child_process_launch =
+  GetStruct()->on_before_child_process_launch =
       browser_process_handler_on_before_child_process_launch;
-  struct_.struct_.on_render_process_thread_created =
+  GetStruct()->on_render_process_thread_created =
       browser_process_handler_on_render_process_thread_created;
-  struct_.struct_.get_print_handler = browser_process_handler_get_print_handler;
+  GetStruct()->get_print_handler = browser_process_handler_get_print_handler;
+}
+
+template<> CefRefPtr<CefBrowserProcessHandler> CefCppToC<CefBrowserProcessHandlerCppToC,
+    CefBrowserProcessHandler, cef_browser_process_handler_t>::UnwrapDerived(
+    CefWrapperType type, cef_browser_process_handler_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -103,3 +111,6 @@ template<> base::AtomicRefCount CefCppToC<CefBrowserProcessHandlerCppToC,
     CefBrowserProcessHandler, cef_browser_process_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefBrowserProcessHandlerCppToC,
+    CefBrowserProcessHandler, cef_browser_process_handler_t>::kWrapperType =
+    WT_BROWSER_PROCESS_HANDLER;

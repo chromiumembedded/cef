@@ -29,6 +29,8 @@ CEF_EXPORT cef_list_value_t* cef_list_value_create() {
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK list_value_is_valid(struct _cef_list_value_t* self) {
@@ -576,39 +578,47 @@ int CEF_CALLBACK list_value_set_list(struct _cef_list_value_t* self, int index,
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefListValueCppToC::CefListValueCppToC(CefListValue* cls)
-    : CefCppToC<CefListValueCppToC, CefListValue, cef_list_value_t>(cls) {
-  struct_.struct_.is_valid = list_value_is_valid;
-  struct_.struct_.is_owned = list_value_is_owned;
-  struct_.struct_.is_read_only = list_value_is_read_only;
-  struct_.struct_.is_same = list_value_is_same;
-  struct_.struct_.is_equal = list_value_is_equal;
-  struct_.struct_.copy = list_value_copy;
-  struct_.struct_.set_size = list_value_set_size;
-  struct_.struct_.get_size = list_value_get_size;
-  struct_.struct_.clear = list_value_clear;
-  struct_.struct_.remove = list_value_remove;
-  struct_.struct_.get_type = list_value_get_type;
-  struct_.struct_.get_value = list_value_get_value;
-  struct_.struct_.get_bool = list_value_get_bool;
-  struct_.struct_.get_int = list_value_get_int;
-  struct_.struct_.get_double = list_value_get_double;
-  struct_.struct_.get_string = list_value_get_string;
-  struct_.struct_.get_binary = list_value_get_binary;
-  struct_.struct_.get_dictionary = list_value_get_dictionary;
-  struct_.struct_.get_list = list_value_get_list;
-  struct_.struct_.set_value = list_value_set_value;
-  struct_.struct_.set_null = list_value_set_null;
-  struct_.struct_.set_bool = list_value_set_bool;
-  struct_.struct_.set_int = list_value_set_int;
-  struct_.struct_.set_double = list_value_set_double;
-  struct_.struct_.set_string = list_value_set_string;
-  struct_.struct_.set_binary = list_value_set_binary;
-  struct_.struct_.set_dictionary = list_value_set_dictionary;
-  struct_.struct_.set_list = list_value_set_list;
+CefListValueCppToC::CefListValueCppToC() {
+  GetStruct()->is_valid = list_value_is_valid;
+  GetStruct()->is_owned = list_value_is_owned;
+  GetStruct()->is_read_only = list_value_is_read_only;
+  GetStruct()->is_same = list_value_is_same;
+  GetStruct()->is_equal = list_value_is_equal;
+  GetStruct()->copy = list_value_copy;
+  GetStruct()->set_size = list_value_set_size;
+  GetStruct()->get_size = list_value_get_size;
+  GetStruct()->clear = list_value_clear;
+  GetStruct()->remove = list_value_remove;
+  GetStruct()->get_type = list_value_get_type;
+  GetStruct()->get_value = list_value_get_value;
+  GetStruct()->get_bool = list_value_get_bool;
+  GetStruct()->get_int = list_value_get_int;
+  GetStruct()->get_double = list_value_get_double;
+  GetStruct()->get_string = list_value_get_string;
+  GetStruct()->get_binary = list_value_get_binary;
+  GetStruct()->get_dictionary = list_value_get_dictionary;
+  GetStruct()->get_list = list_value_get_list;
+  GetStruct()->set_value = list_value_set_value;
+  GetStruct()->set_null = list_value_set_null;
+  GetStruct()->set_bool = list_value_set_bool;
+  GetStruct()->set_int = list_value_set_int;
+  GetStruct()->set_double = list_value_set_double;
+  GetStruct()->set_string = list_value_set_string;
+  GetStruct()->set_binary = list_value_set_binary;
+  GetStruct()->set_dictionary = list_value_set_dictionary;
+  GetStruct()->set_list = list_value_set_list;
+}
+
+template<> CefRefPtr<CefListValue> CefCppToC<CefListValueCppToC, CefListValue,
+    cef_list_value_t>::UnwrapDerived(CefWrapperType type,
+    cef_list_value_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -616,3 +626,5 @@ template<> base::AtomicRefCount CefCppToC<CefListValueCppToC, CefListValue,
     cef_list_value_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefListValueCppToC, CefListValue,
+    cef_list_value_t>::kWrapperType = WT_LIST_VALUE;

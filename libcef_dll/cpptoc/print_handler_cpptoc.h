@@ -28,9 +28,8 @@ class CefPrintHandlerCppToC
     : public CefCppToC<CefPrintHandlerCppToC, CefPrintHandler,
         cef_print_handler_t> {
  public:
-  explicit CefPrintHandlerCppToC(CefPrintHandler* cls);
+  CefPrintHandlerCppToC();
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_PRINT_HANDLER_CPPTOC_H_
-

@@ -27,9 +27,8 @@
 class CefURLRequestCppToC
     : public CefCppToC<CefURLRequestCppToC, CefURLRequest, cef_urlrequest_t> {
  public:
-  explicit CefURLRequestCppToC(CefURLRequest* cls);
+  CefURLRequestCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_URLREQUEST_CPPTOC_H_
-

@@ -14,6 +14,8 @@
 #include "libcef_dll/cpptoc/domnode_cpptoc.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 cef_dom_document_type_t CEF_CALLBACK domdocument_get_type(
@@ -238,27 +240,34 @@ cef_string_userfree_t CEF_CALLBACK domdocument_get_complete_url(
   return _retval.DetachToUserFree();
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDOMDocumentCppToC::CefDOMDocumentCppToC(CefDOMDocument* cls)
-    : CefCppToC<CefDOMDocumentCppToC, CefDOMDocument, cef_domdocument_t>(cls) {
-  struct_.struct_.get_type = domdocument_get_type;
-  struct_.struct_.get_document = domdocument_get_document;
-  struct_.struct_.get_body = domdocument_get_body;
-  struct_.struct_.get_head = domdocument_get_head;
-  struct_.struct_.get_title = domdocument_get_title;
-  struct_.struct_.get_element_by_id = domdocument_get_element_by_id;
-  struct_.struct_.get_focused_node = domdocument_get_focused_node;
-  struct_.struct_.has_selection = domdocument_has_selection;
-  struct_.struct_.get_selection_start_offset =
+CefDOMDocumentCppToC::CefDOMDocumentCppToC() {
+  GetStruct()->get_type = domdocument_get_type;
+  GetStruct()->get_document = domdocument_get_document;
+  GetStruct()->get_body = domdocument_get_body;
+  GetStruct()->get_head = domdocument_get_head;
+  GetStruct()->get_title = domdocument_get_title;
+  GetStruct()->get_element_by_id = domdocument_get_element_by_id;
+  GetStruct()->get_focused_node = domdocument_get_focused_node;
+  GetStruct()->has_selection = domdocument_has_selection;
+  GetStruct()->get_selection_start_offset =
       domdocument_get_selection_start_offset;
-  struct_.struct_.get_selection_end_offset =
-      domdocument_get_selection_end_offset;
-  struct_.struct_.get_selection_as_markup = domdocument_get_selection_as_markup;
-  struct_.struct_.get_selection_as_text = domdocument_get_selection_as_text;
-  struct_.struct_.get_base_url = domdocument_get_base_url;
-  struct_.struct_.get_complete_url = domdocument_get_complete_url;
+  GetStruct()->get_selection_end_offset = domdocument_get_selection_end_offset;
+  GetStruct()->get_selection_as_markup = domdocument_get_selection_as_markup;
+  GetStruct()->get_selection_as_text = domdocument_get_selection_as_text;
+  GetStruct()->get_base_url = domdocument_get_base_url;
+  GetStruct()->get_complete_url = domdocument_get_complete_url;
+}
+
+template<> CefRefPtr<CefDOMDocument> CefCppToC<CefDOMDocumentCppToC,
+    CefDOMDocument, cef_domdocument_t>::UnwrapDerived(CefWrapperType type,
+    cef_domdocument_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -266,3 +275,5 @@ template<> base::AtomicRefCount CefCppToC<CefDOMDocumentCppToC, CefDOMDocument,
     cef_domdocument_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefDOMDocumentCppToC, CefDOMDocument,
+    cef_domdocument_t>::kWrapperType = WT_DOMDOCUMENT;

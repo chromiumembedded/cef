@@ -40,10 +40,10 @@ def make_capi_member_funcs(funcs, defined_names, translate_map, indent):
 def make_capi_header(header, filename):
     # structure names that have already been defined
     defined_names = header.get_defined_structs()
-    
+
     # map of strings that will be changed in C++ comments
     translate_map = header.get_capi_translations()
-    
+
     # header string
     result = \
 """// Copyright (c) $YEAR$ Marshall A. Greenblatt. All rights reserved.
@@ -127,15 +127,18 @@ extern "C" {
         # virtual functions are inside the structure
         classname = cls.get_capi_name()
         result += '\n'+format_comment(cls.get_comment(), '', translate_map);
-        result += 'typedef struct _'+classname+ \
-                  ' {\n  ///\n  // Base structure.\n  ///\n  cef_base_t base;\n'
+        result += 'typedef struct _'+classname+' {\n'+\
+                  '  ///\n'+\
+                  '  // Base structure.\n'+\
+                  '  ///\n'+\
+                  '  '+cls.get_parent_capi_name()+' base;\n'
         funcs = cls.get_virtual_funcs()
         result += make_capi_member_funcs(funcs, defined_names,
                                          translate_map, '  ')
         result += '} '+classname+';\n\n'
-        
+
         defined_names.append(cls.get_capi_name())
-        
+
         # static functions become global
         funcs = cls.get_static_funcs()
         if len(funcs) > 0:
@@ -156,47 +159,46 @@ extern "C" {
 
 #endif  // $GUARD$
 """
-    
+
     # add the copyright year
     result = result.replace('$YEAR$', get_year())
     # add the guard string
-    guard = 'CEF_INCLUDE_CAPI_'+string.upper(filename.replace('.', '_capi_'))+'_'
+    guard = 'CEF_INCLUDE_CAPI_'+string.upper(filename.replace('/', '_').replace('.', '_capi_'))+'_'
     result = result.replace('$GUARD$', guard)
-    
+
     return result
 
 
-def write_capi_header(header, filepath, backup):
-    capi_path = get_capi_file_name(filepath)
+def write_capi_header(header, header_dir, filename, backup):
+    capi_path = get_capi_file_name(os.path.join(header_dir, filename))
     if path_exists(capi_path):
         oldcontents = read_file(capi_path)
     else:
         oldcontents = ''
 
-    filename = os.path.split(filepath)[1]
     newcontents = make_capi_header(header, filename)
     if newcontents != oldcontents:
         if backup and oldcontents != '':
             backup_file(capi_path)
         write_file(capi_path, newcontents)
         return True
-    
+
     return False
 
 
 # test the module
 if __name__ == "__main__":
     import sys
-    
+
     # verify that the correct number of command-line arguments are provided
     if len(sys.argv) < 2:
         sys.stderr.write('Usage: '+sys.argv[0]+' <infile>')
         sys.exit()
-        
+
     # create the header object
     header = obj_header()
     header.add_file(sys.argv[1])
-    
+
     # dump the result to stdout
     filename = os.path.split(sys.argv[1])[1]
     sys.stdout.write(make_capi_header(header, filename))

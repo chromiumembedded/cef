@@ -16,38 +16,56 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefDownloadItemCallbackCToCpp::Cancel() {
-  if (CEF_MEMBER_MISSING(struct_, cancel))
+  cef_download_item_callback_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, cancel))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->cancel(struct_);
+  _struct->cancel(_struct);
 }
 
 void CefDownloadItemCallbackCToCpp::Pause() {
-  if (CEF_MEMBER_MISSING(struct_, pause))
+  cef_download_item_callback_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, pause))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->pause(struct_);
+  _struct->pause(_struct);
 }
 
 void CefDownloadItemCallbackCToCpp::Resume() {
-  if (CEF_MEMBER_MISSING(struct_, resume))
+  cef_download_item_callback_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, resume))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->resume(struct_);
+  _struct->resume(_struct);
 }
 
+
+// CONSTRUCTOR - Do not edit by hand.
+
+CefDownloadItemCallbackCToCpp::CefDownloadItemCallbackCToCpp() {
+}
+
+template<> cef_download_item_callback_t* CefCToCpp<CefDownloadItemCallbackCToCpp,
+    CefDownloadItemCallback, cef_download_item_callback_t>::UnwrapDerived(
+    CefWrapperType type, CefDownloadItemCallback* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
 
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefDownloadItemCallbackCToCpp,
     CefDownloadItemCallback, cef_download_item_callback_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefDownloadItemCallbackCToCpp,
+    CefDownloadItemCallback, cef_download_item_callback_t>::kWrapperType =
+    WT_DOWNLOAD_ITEM_CALLBACK;

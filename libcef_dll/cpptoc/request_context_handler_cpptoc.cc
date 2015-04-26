@@ -14,6 +14,8 @@
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 cef_cookie_manager_t* CEF_CALLBACK request_context_handler_get_cookie_manager(
@@ -32,15 +34,20 @@ cef_cookie_manager_t* CEF_CALLBACK request_context_handler_get_cookie_manager(
   return CefCookieManagerCToCpp::Unwrap(_retval);
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefRequestContextHandlerCppToC::CefRequestContextHandlerCppToC(
-    CefRequestContextHandler* cls)
-    : CefCppToC<CefRequestContextHandlerCppToC, CefRequestContextHandler,
-        cef_request_context_handler_t>(cls) {
-  struct_.struct_.get_cookie_manager =
-      request_context_handler_get_cookie_manager;
+CefRequestContextHandlerCppToC::CefRequestContextHandlerCppToC() {
+  GetStruct()->get_cookie_manager = request_context_handler_get_cookie_manager;
+}
+
+template<> CefRefPtr<CefRequestContextHandler> CefCppToC<CefRequestContextHandlerCppToC,
+    CefRequestContextHandler, cef_request_context_handler_t>::UnwrapDerived(
+    CefWrapperType type, cef_request_context_handler_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -48,3 +55,6 @@ template<> base::AtomicRefCount CefCppToC<CefRequestContextHandlerCppToC,
     CefRequestContextHandler, cef_request_context_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefRequestContextHandlerCppToC,
+    CefRequestContextHandler, cef_request_context_handler_t>::kWrapperType =
+    WT_REQUEST_CONTEXT_HANDLER;

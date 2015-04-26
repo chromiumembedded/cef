@@ -28,9 +28,8 @@ class CefDictionaryValueCppToC
     : public CefCppToC<CefDictionaryValueCppToC, CefDictionaryValue,
         cef_dictionary_value_t> {
  public:
-  explicit CefDictionaryValueCppToC(CefDictionaryValue* cls);
+  CefDictionaryValueCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_DICTIONARY_VALUE_CPPTOC_H_
-

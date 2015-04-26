@@ -28,15 +28,12 @@ class CefDragHandlerCToCpp
     : public CefCToCpp<CefDragHandlerCToCpp, CefDragHandler,
         cef_drag_handler_t> {
  public:
-  explicit CefDragHandlerCToCpp(cef_drag_handler_t* str)
-      : CefCToCpp<CefDragHandlerCToCpp, CefDragHandler, cef_drag_handler_t>(
-          str) {}
+  CefDragHandlerCToCpp();
 
-  // CefDragHandler methods
+  // CefDragHandler methods.
   bool OnDragEnter(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefDragData> dragData, DragOperationsMask mask) override;
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DRAG_HANDLER_CTOCPP_H_
-

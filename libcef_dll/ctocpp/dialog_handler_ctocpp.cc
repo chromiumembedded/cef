@@ -23,7 +23,8 @@ bool CefDialogHandlerCToCpp::OnFileDialog(CefRefPtr<CefBrowser> browser,
     const CefString& default_file_path,
     const std::vector<CefString>& accept_filters, int selected_accept_filter,
     CefRefPtr<CefFileDialogCallback> callback) {
-  if (CEF_MEMBER_MISSING(struct_, on_file_dialog))
+  cef_dialog_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_file_dialog))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -49,7 +50,7 @@ bool CefDialogHandlerCToCpp::OnFileDialog(CefRefPtr<CefBrowser> browser,
     transfer_string_list_contents(accept_filters, accept_filtersList);
 
   // Execute
-  int _retval = struct_->on_file_dialog(struct_,
+  int _retval = _struct->on_file_dialog(_struct,
       CefBrowserCppToC::Wrap(browser),
       mode,
       title.GetStruct(),
@@ -67,8 +68,22 @@ bool CefDialogHandlerCToCpp::OnFileDialog(CefRefPtr<CefBrowser> browser,
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefDialogHandlerCToCpp::CefDialogHandlerCToCpp() {
+}
+
+template<> cef_dialog_handler_t* CefCToCpp<CefDialogHandlerCToCpp,
+    CefDialogHandler, cef_dialog_handler_t>::UnwrapDerived(CefWrapperType type,
+    CefDialogHandler* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefDialogHandlerCToCpp,
     CefDialogHandler, cef_dialog_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefDialogHandlerCToCpp, CefDialogHandler,
+    cef_dialog_handler_t>::kWrapperType = WT_DIALOG_HANDLER;

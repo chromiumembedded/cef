@@ -30,9 +30,8 @@ class CefRequestContextCppToC
     : public CefCppToC<CefRequestContextCppToC, CefRequestContext,
         cef_request_context_t> {
  public:
-  explicit CefRequestContextCppToC(CefRequestContext* cls);
+  CefRequestContextCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_REQUEST_CONTEXT_CPPTOC_H_
-

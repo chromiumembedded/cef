@@ -34,6 +34,8 @@ CEF_EXPORT cef_zip_reader_t* cef_zip_reader_create(
 }
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK zip_reader_move_to_first_file(struct _cef_zip_reader_t* self) {
@@ -223,23 +225,31 @@ int CEF_CALLBACK zip_reader_eof(struct _cef_zip_reader_t* self) {
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefZipReaderCppToC::CefZipReaderCppToC(CefZipReader* cls)
-    : CefCppToC<CefZipReaderCppToC, CefZipReader, cef_zip_reader_t>(cls) {
-  struct_.struct_.move_to_first_file = zip_reader_move_to_first_file;
-  struct_.struct_.move_to_next_file = zip_reader_move_to_next_file;
-  struct_.struct_.move_to_file = zip_reader_move_to_file;
-  struct_.struct_.close = zip_reader_close;
-  struct_.struct_.get_file_name = zip_reader_get_file_name;
-  struct_.struct_.get_file_size = zip_reader_get_file_size;
-  struct_.struct_.get_file_last_modified = zip_reader_get_file_last_modified;
-  struct_.struct_.open_file = zip_reader_open_file;
-  struct_.struct_.close_file = zip_reader_close_file;
-  struct_.struct_.read_file = zip_reader_read_file;
-  struct_.struct_.tell = zip_reader_tell;
-  struct_.struct_.eof = zip_reader_eof;
+CefZipReaderCppToC::CefZipReaderCppToC() {
+  GetStruct()->move_to_first_file = zip_reader_move_to_first_file;
+  GetStruct()->move_to_next_file = zip_reader_move_to_next_file;
+  GetStruct()->move_to_file = zip_reader_move_to_file;
+  GetStruct()->close = zip_reader_close;
+  GetStruct()->get_file_name = zip_reader_get_file_name;
+  GetStruct()->get_file_size = zip_reader_get_file_size;
+  GetStruct()->get_file_last_modified = zip_reader_get_file_last_modified;
+  GetStruct()->open_file = zip_reader_open_file;
+  GetStruct()->close_file = zip_reader_close_file;
+  GetStruct()->read_file = zip_reader_read_file;
+  GetStruct()->tell = zip_reader_tell;
+  GetStruct()->eof = zip_reader_eof;
+}
+
+template<> CefRefPtr<CefZipReader> CefCppToC<CefZipReaderCppToC, CefZipReader,
+    cef_zip_reader_t>::UnwrapDerived(CefWrapperType type,
+    cef_zip_reader_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -247,3 +257,5 @@ template<> base::AtomicRefCount CefCppToC<CefZipReaderCppToC, CefZipReader,
     cef_zip_reader_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefZipReaderCppToC, CefZipReader,
+    cef_zip_reader_t>::kWrapperType = WT_ZIP_READER;

@@ -13,6 +13,8 @@
 #include "libcef_dll/cpptoc/v8exception_cpptoc.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 cef_string_userfree_t CEF_CALLBACK v8exception_get_message(
@@ -131,20 +133,27 @@ int CEF_CALLBACK v8exception_get_end_column(struct _cef_v8exception_t* self) {
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefV8ExceptionCppToC::CefV8ExceptionCppToC(CefV8Exception* cls)
-    : CefCppToC<CefV8ExceptionCppToC, CefV8Exception, cef_v8exception_t>(cls) {
-  struct_.struct_.get_message = v8exception_get_message;
-  struct_.struct_.get_source_line = v8exception_get_source_line;
-  struct_.struct_.get_script_resource_name =
-      v8exception_get_script_resource_name;
-  struct_.struct_.get_line_number = v8exception_get_line_number;
-  struct_.struct_.get_start_position = v8exception_get_start_position;
-  struct_.struct_.get_end_position = v8exception_get_end_position;
-  struct_.struct_.get_start_column = v8exception_get_start_column;
-  struct_.struct_.get_end_column = v8exception_get_end_column;
+CefV8ExceptionCppToC::CefV8ExceptionCppToC() {
+  GetStruct()->get_message = v8exception_get_message;
+  GetStruct()->get_source_line = v8exception_get_source_line;
+  GetStruct()->get_script_resource_name = v8exception_get_script_resource_name;
+  GetStruct()->get_line_number = v8exception_get_line_number;
+  GetStruct()->get_start_position = v8exception_get_start_position;
+  GetStruct()->get_end_position = v8exception_get_end_position;
+  GetStruct()->get_start_column = v8exception_get_start_column;
+  GetStruct()->get_end_column = v8exception_get_end_column;
+}
+
+template<> CefRefPtr<CefV8Exception> CefCppToC<CefV8ExceptionCppToC,
+    CefV8Exception, cef_v8exception_t>::UnwrapDerived(CefWrapperType type,
+    cef_v8exception_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -152,3 +161,5 @@ template<> base::AtomicRefCount CefCppToC<CefV8ExceptionCppToC, CefV8Exception,
     cef_v8exception_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefV8ExceptionCppToC, CefV8Exception,
+    cef_v8exception_t>::kWrapperType = WT_V8EXCEPTION;

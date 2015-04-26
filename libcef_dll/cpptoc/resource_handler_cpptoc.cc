@@ -16,6 +16,8 @@
 #include "libcef_dll/ctocpp/response_ctocpp.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK resource_handler_process_request(
@@ -182,18 +184,25 @@ void CEF_CALLBACK resource_handler_cancel(
   CefResourceHandlerCppToC::Get(self)->Cancel();
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefResourceHandlerCppToC::CefResourceHandlerCppToC(CefResourceHandler* cls)
-    : CefCppToC<CefResourceHandlerCppToC, CefResourceHandler,
-        cef_resource_handler_t>(cls) {
-  struct_.struct_.process_request = resource_handler_process_request;
-  struct_.struct_.get_response_headers = resource_handler_get_response_headers;
-  struct_.struct_.read_response = resource_handler_read_response;
-  struct_.struct_.can_get_cookie = resource_handler_can_get_cookie;
-  struct_.struct_.can_set_cookie = resource_handler_can_set_cookie;
-  struct_.struct_.cancel = resource_handler_cancel;
+CefResourceHandlerCppToC::CefResourceHandlerCppToC() {
+  GetStruct()->process_request = resource_handler_process_request;
+  GetStruct()->get_response_headers = resource_handler_get_response_headers;
+  GetStruct()->read_response = resource_handler_read_response;
+  GetStruct()->can_get_cookie = resource_handler_can_get_cookie;
+  GetStruct()->can_set_cookie = resource_handler_can_set_cookie;
+  GetStruct()->cancel = resource_handler_cancel;
+}
+
+template<> CefRefPtr<CefResourceHandler> CefCppToC<CefResourceHandlerCppToC,
+    CefResourceHandler, cef_resource_handler_t>::UnwrapDerived(
+    CefWrapperType type, cef_resource_handler_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -201,3 +210,6 @@ template<> base::AtomicRefCount CefCppToC<CefResourceHandlerCppToC,
     CefResourceHandler, cef_resource_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefResourceHandlerCppToC,
+    CefResourceHandler, cef_resource_handler_t>::kWrapperType =
+    WT_RESOURCE_HANDLER;

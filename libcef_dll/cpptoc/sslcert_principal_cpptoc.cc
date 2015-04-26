@@ -14,6 +14,8 @@
 #include "libcef_dll/transfer_util.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 cef_string_userfree_t CEF_CALLBACK sslcert_principal_get_display_name(
@@ -192,25 +194,31 @@ void CEF_CALLBACK sslcert_principal_get_domain_components(
   transfer_string_list_contents(componentsList, components);
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefSSLCertPrincipalCppToC::CefSSLCertPrincipalCppToC(CefSSLCertPrincipal* cls)
-    : CefCppToC<CefSSLCertPrincipalCppToC, CefSSLCertPrincipal,
-        cef_sslcert_principal_t>(cls) {
-  struct_.struct_.get_display_name = sslcert_principal_get_display_name;
-  struct_.struct_.get_common_name = sslcert_principal_get_common_name;
-  struct_.struct_.get_locality_name = sslcert_principal_get_locality_name;
-  struct_.struct_.get_state_or_province_name =
+CefSSLCertPrincipalCppToC::CefSSLCertPrincipalCppToC() {
+  GetStruct()->get_display_name = sslcert_principal_get_display_name;
+  GetStruct()->get_common_name = sslcert_principal_get_common_name;
+  GetStruct()->get_locality_name = sslcert_principal_get_locality_name;
+  GetStruct()->get_state_or_province_name =
       sslcert_principal_get_state_or_province_name;
-  struct_.struct_.get_country_name = sslcert_principal_get_country_name;
-  struct_.struct_.get_street_addresses = sslcert_principal_get_street_addresses;
-  struct_.struct_.get_organization_names =
+  GetStruct()->get_country_name = sslcert_principal_get_country_name;
+  GetStruct()->get_street_addresses = sslcert_principal_get_street_addresses;
+  GetStruct()->get_organization_names =
       sslcert_principal_get_organization_names;
-  struct_.struct_.get_organization_unit_names =
+  GetStruct()->get_organization_unit_names =
       sslcert_principal_get_organization_unit_names;
-  struct_.struct_.get_domain_components =
-      sslcert_principal_get_domain_components;
+  GetStruct()->get_domain_components = sslcert_principal_get_domain_components;
+}
+
+template<> CefRefPtr<CefSSLCertPrincipal> CefCppToC<CefSSLCertPrincipalCppToC,
+    CefSSLCertPrincipal, cef_sslcert_principal_t>::UnwrapDerived(
+    CefWrapperType type, cef_sslcert_principal_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -218,3 +226,6 @@ template<> base::AtomicRefCount CefCppToC<CefSSLCertPrincipalCppToC,
     CefSSLCertPrincipal, cef_sslcert_principal_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefSSLCertPrincipalCppToC,
+    CefSSLCertPrincipal, cef_sslcert_principal_t>::kWrapperType =
+    WT_SSLCERT_PRINCIPAL;

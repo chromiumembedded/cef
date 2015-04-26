@@ -28,9 +28,8 @@ class CefPrintSettingsCppToC
     : public CefCppToC<CefPrintSettingsCppToC, CefPrintSettings,
         cef_print_settings_t> {
  public:
-  explicit CefPrintSettingsCppToC(CefPrintSettings* cls);
+  CefPrintSettingsCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_PRINT_SETTINGS_CPPTOC_H_
-

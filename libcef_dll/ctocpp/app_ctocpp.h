@@ -27,10 +27,9 @@
 class CefAppCToCpp
     : public CefCToCpp<CefAppCToCpp, CefApp, cef_app_t> {
  public:
-  explicit CefAppCToCpp(cef_app_t* str)
-      : CefCToCpp<CefAppCToCpp, CefApp, cef_app_t>(str) {}
+  CefAppCToCpp();
 
-  // CefApp methods
+  // CefApp methods.
   void OnBeforeCommandLineProcessing(const CefString& process_type,
       CefRefPtr<CefCommandLine> command_line) override;
   void OnRegisterCustomSchemes(
@@ -42,4 +41,3 @@ class CefAppCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_APP_CTOCPP_H_
-

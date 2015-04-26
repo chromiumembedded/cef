@@ -6,7 +6,7 @@ from cef_parser import *
 
 def make_ctocpp_impl_proto(clsname, name, func, parts):
     const = ''
-    
+
     if clsname is None:
         proto = 'CEF_GLOBAL '+parts['retval']+' '
     else:
@@ -15,22 +15,22 @@ def make_ctocpp_impl_proto(clsname, name, func, parts):
             proto += 'CToCpp'
             if func.is_const():
                 const = ' const'
-        
+
         proto += '::'
-    
+
     proto += name+'('+string.join(parts['args'], ', ')+')'+const
     return proto
 
 def make_ctocpp_function_impl_existing(clsname, name, func, impl):
     notify(name+' has manual edits')
-    
+
     # retrieve the C++ prototype parts
     parts = func.get_cpp_parts(True)
-    
+
     changes = format_translation_changes(impl, parts)
     if len(changes) > 0:
         notify(name+' prototype changed')
-    
+
     return wrap_code(make_ctocpp_impl_proto(clsname, name, func, parts))+'{'+ \
            changes+impl['body']+'\n}\n'
 
@@ -38,17 +38,25 @@ def make_ctocpp_function_impl_new(clsname, name, func):
     # build the C++ prototype
     parts = func.get_cpp_parts(True)
     result = make_ctocpp_impl_proto(clsname, name, func, parts)+' {'
-    
+
+    if isinstance(func, obj_function_virtual):
+        # determine how the struct should be referenced
+        if clsname == func.parent.get_name():
+            result += '\n  '+get_capi_name(clsname, True)+'* _struct = GetStruct();'
+        else:
+            result += '\n  '+func.parent.get_capi_name()+'* _struct = reinterpret_cast<'+\
+                      func.parent.get_capi_name()+'*>(GetStruct());'
+
     invalid = []
-    
+
     # retrieve the function arguments
     args = func.get_arguments()
-    
+
     # determine the argument types
     for arg in args:
         if arg.get_arg_type() == 'invalid':
             invalid.append(arg.get_name())
-    
+
     # retrieve the function return value
     retval = func.get_retval()
     retval_type = retval.get_retval_type()
@@ -59,7 +67,7 @@ def make_ctocpp_function_impl_new(clsname, name, func):
         retval_default = retval.get_retval_default(False)
         if len(retval_default) > 0:
             retval_default = ' '+retval_default;
-    
+
     # add API hash check
     if func.has_attrib('api_hash_check'):
         result += '\n  const char* api_hash = cef_api_hash(0);'\
@@ -68,10 +76,10 @@ def make_ctocpp_function_impl_new(clsname, name, func):
                   '\n    NOTREACHED();'\
                   '\n    return'+retval_default+';'\
                   '\n  }\n'
-    
+
     if isinstance(func, obj_function_virtual):
         # add the structure size check
-        result += '\n  if (CEF_MEMBER_MISSING(struct_, '+func.get_capi_name()+'))'
+        result += '\n  if (CEF_MEMBER_MISSING(_struct, '+func.get_capi_name()+'))'
         result += '\n    return'+retval_default+';\n'
 
     if len(invalid) > 0:
@@ -84,24 +92,24 @@ def make_ctocpp_function_impl_new(clsname, name, func):
         result += '\n  // END DELETE BEFORE MODIFYING'
         result += '\n}\n\n'
         return wrap_code(result)
-    
+
     result += '\n  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING\n'
-    
+
     result_len = len(result)
-    
+
     optional = []
-    
+
     # parameter verification
     for arg in args:
         arg_type = arg.get_arg_type()
         arg_name = arg.get_type().get_name()
-        
+
         # skip optional params
         optional_params = arg.parent.get_attrib_list('optional_param')
         if not optional_params is None and arg_name in optional_params:
             optional.append(arg_name)
             continue
-        
+
         comment = '\n  // Verify param: '+arg_name+'; type: '+arg_type
 
         if arg_type == 'simple_byaddr' or arg_type == 'bool_byaddr':
@@ -118,7 +126,7 @@ def make_ctocpp_function_impl_new(clsname, name, func):
             result += comment+\
                       '\n  DCHECK(!'+arg_name+'.empty());'\
                       '\n  if ('+arg_name+'.empty())'\
-                      '\n    return'+retval_default+';'  
+                      '\n    return'+retval_default+';'
 
         # check index params
         index_params = arg.parent.get_attrib_list('index_param')
@@ -142,16 +150,16 @@ def make_ctocpp_function_impl_new(clsname, name, func):
     if len(result) != result_len:
         result += '\n'
     result_len = len(result)
-    
+
     # parameter translation
     params = []
     if isinstance(func, obj_function_virtual):
-        params.append('struct_')
-    
+        params.append('_struct')
+
     for arg in args:
         arg_type = arg.get_arg_type()
         arg_name = arg.get_type().get_name()
-        
+
         comment = '\n  // Translate param: '+arg_name+'; type: '+arg_type
 
         if arg_type == 'simple_byval' or arg_type == 'simple_byaddr' or \
@@ -272,7 +280,7 @@ def make_ctocpp_function_impl_new(clsname, name, func):
     if len(result) != result_len:
         result += '\n'
     result_len = len(result)
-    
+
     # execution
     result += '\n  // Execute\n  '
 
@@ -285,27 +293,27 @@ def make_ctocpp_function_impl_new(clsname, name, func):
         elif retval_type == 'refptr_same' or retval_type == 'refptr_diff':
             refptr_struct = retval.get_type().get_result_refptr_type_root()
             result += refptr_struct+'*'
-        
+
         result += ' _retval = '
-    
+
     if isinstance(func, obj_function_virtual):
-        result += 'struct_->'
+        result += '_struct->'
     result += func.get_capi_name()+'('
-    
+
     if len(params) > 0:
         if not isinstance(func, obj_function_virtual):
             result += '\n      '
         result += string.join(params,',\n      ')
-    
+
     result += ');\n'
-    
+
     result_len = len(result)
-    
+
     # parameter restoration
     for arg in args:
         arg_type = arg.get_arg_type()
         arg_name = arg.get_type().get_name()
-        
+
         comment = '\n  // Restore param:'+arg_name+'; type: '+arg_type
 
         if arg_type == 'bool_byref':
@@ -394,11 +402,11 @@ def make_ctocpp_function_impl_new(clsname, name, func):
     if len(result) != result_len:
         result += '\n'
     result_len = len(result)
-    
+
     # special handling for the global CefShutdown function
     if name == 'CefShutdown' and isinstance(func.parent, obj_header):
         classes = func.parent.get_classes()
-        
+
         names = []
         for cls in classes:
             if cls.has_attrib('no_debugct_check'):
@@ -408,7 +416,7 @@ def make_ctocpp_function_impl_new(clsname, name, func):
                 names.append(cls.get_name()+'CToCpp')
             else:
                 names.append(cls.get_name()+'CppToC')
-        
+
         if len(names) > 0:
             names = sorted(names)
             result += '\n#ifndef NDEBUG'\
@@ -416,11 +424,11 @@ def make_ctocpp_function_impl_new(clsname, name, func):
             for name in names:
                 result += '\n  DCHECK(base::AtomicRefCountIsZero(&'+name+'::DebugObjCt));';
             result += '\n#endif  // !NDEBUG'
-    
+
     if len(result) != result_len:
         result += '\n'
     result_len = len(result)
-    
+
     # return translation
     if retval_type != 'none':
         # has a return value
@@ -439,10 +447,10 @@ def make_ctocpp_function_impl_new(clsname, name, func):
         elif retval_type == 'refptr_diff':
             refptr_class = retval.get_type().get_refptr_type()
             result += '\n  return '+refptr_class+'CppToC::Unwrap(_retval);'
-    
+
     if len(result) != result_len:
         result += '\n'
-    
+
     result += '}\n'
     return wrap_code(result)
 
@@ -458,53 +466,107 @@ def make_ctocpp_function_impl(clsname, funcs, existing):
             impl += make_ctocpp_function_impl_existing(clsname, name, func, value)
         else:
             impl += make_ctocpp_function_impl_new(clsname, name, func)
+
+    return impl
+
+def make_ctocpp_virtual_function_impl(header, cls, existing):
+    impl = make_ctocpp_function_impl(cls.get_name(), cls.get_virtual_funcs(), existing)
+
+    cur_cls = cls
+    while True:
+        parent_name = cur_cls.get_parent_name()
+        if parent_name == 'CefBase':
+            break
+        else:
+            parent_cls = header.get_class(parent_name)
+            if parent_cls is None:
+                raise Exception('Class does not exist: '+parent_name)
+            impl += make_ctocpp_function_impl(cls.get_name(), parent_cls.get_virtual_funcs(), existing)
+        cur_cls = header.get_class(parent_name)
     
     return impl
+
+def make_ctocpp_unwrap_derived(header, cls):
+    # identify all classes that derive from cls
+    derived_classes = []
+    clsname = cls.get_name()
+    allclasses = header.get_classes()
+    for cur_cls in allclasses:
+        if cur_cls.get_name() == clsname:
+            continue
+        if cur_cls.has_parent(clsname):
+            derived_classes.append(cur_cls.get_name())
+
+    derived_classes = sorted(derived_classes)
     
+    impl = ''
+    for clsname in derived_classes:
+      impl += '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
+              '    return reinterpret_cast<'+get_capi_name(cls.get_name(), True)+'*>('+\
+              clsname+'CToCpp::Unwrap(reinterpret_cast<'+clsname+'*>(c)));\n'+\
+              '  }\n'
+    return impl
+
 def make_ctocpp_class_impl(header, clsname, impl):
     cls = header.get_class(clsname)
     if cls is None:
         raise Exception('Class does not exist: '+clsname)
-    
+
     capiname = cls.get_capi_name()
-    
+
     # retrieve the existing virtual function implementations
     existing = get_function_impls(impl, clsname+'CToCpp::')
-    
+
     # generate virtual functions
-    virtualimpl = make_ctocpp_function_impl(clsname, cls.get_virtual_funcs(), existing)
+    virtualimpl = make_ctocpp_virtual_function_impl(header, cls, existing)
     if len(virtualimpl) > 0:
         virtualimpl = '\n// VIRTUAL METHODS - Body may be edited by hand.\n\n'+virtualimpl
-      
+
     # retrieve the existing static function implementations
     existing = get_function_impls(impl, clsname+'::')
-    
+
     # generate static functions
     staticimpl = make_ctocpp_function_impl(clsname, cls.get_static_funcs(), existing)
     if len(staticimpl) > 0:
         staticimpl = '\n// STATIC METHODS - Body may be edited by hand.\n\n'+staticimpl
-      
+
     resultingimpl = staticimpl + virtualimpl
     
+    # any derived classes can be unwrapped
+    unwrapderived = make_ctocpp_unwrap_derived(header, cls)
+
     # determine what includes are required by identifying what translation
     # classes are being used
-    includes = format_translation_includes(resultingimpl)
-        
+    includes = format_translation_includes(header, resultingimpl + unwrapderived)
+
     # build the final output
     result = get_copyright()
 
     result += includes+'\n'+resultingimpl+'\n'
-    
-    result += wrap_code('#ifndef NDEBUG\n'+ \
-              'template<> base::AtomicRefCount CefCToCpp<'+clsname+'CToCpp, '+clsname+', '+capiname+'>::DebugObjCt = 0;\n'+ \
-              '#endif\n')
+
+    parent_sig = 'CefCToCpp<'+clsname+'CToCpp, '+clsname+', '+capiname+'>'
+
+    const =  '// CONSTRUCTOR - Do not edit by hand.\n\n'+ \
+             clsname+'CToCpp::'+clsname+'CToCpp() {\n'+ \
+             '}\n\n'+ \
+             'template<> '+capiname+'* '+parent_sig+'::UnwrapDerived(CefWrapperType type, '+clsname+'* c) {\n'+ \
+             unwrapderived + \
+             '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
+             '  return NULL;\n'+ \
+             '}\n\n'+ \
+             '#ifndef NDEBUG\n'+ \
+             'template<> base::AtomicRefCount '+parent_sig+'::DebugObjCt = 0;\n'+ \
+             '#endif\n\n'+ \
+             'template<> CefWrapperType '+parent_sig+'::kWrapperType = '+get_wrapper_type_enum(clsname)+';'
+
+    result += wrap_code(const)
 
     return result
 
 def make_ctocpp_global_impl(header, impl):
     # retrieve the existing global function implementations
     existing = get_function_impls(impl, 'CEF_GLOBAL')
-    
+
     # generate static functions
     impl = make_ctocpp_function_impl(None, header.get_funcs(), existing)
     if len(impl) > 0:
@@ -520,11 +582,11 @@ def make_ctocpp_global_impl(header, impl):
             includes += '#include "include/'+func.get_file_name()+'"\n' \
                         '#include "include/capi/'+func.get_capi_file_name()+'"\n'
             filenames.append(filename)
-        
+
     # determine what includes are required by identifying what translation
     # classes are being used
-    includes += format_translation_includes(impl)
-    
+    includes += format_translation_includes(header, impl)
+
     # build the final output
     result = get_copyright()
 
@@ -538,13 +600,16 @@ def write_ctocpp_impl(header, clsname, dir, backup):
         file = dir
     else:
         # class file
-        file = dir+os.sep+get_capi_name(clsname[3:], False)+'_ctocpp.cc'
-    
+        # give the output file the same directory offset as the input file
+        cls = header.get_class(clsname)
+        dir = os.path.dirname(os.path.join(dir, cls.get_file_name()))
+        file = os.path.join(dir, get_capi_name(clsname[3:], False)+'_ctocpp.cc')
+
     if path_exists(file):
         oldcontents = read_file(file)
     else:
         oldcontents = ''
-    
+
     if clsname is None:
         newcontents = make_ctocpp_global_impl(header, oldcontents)
     else:
@@ -554,23 +619,23 @@ def write_ctocpp_impl(header, clsname, dir, backup):
             backup_file(file)
         write_file(file, newcontents)
         return True
-    
+
     return False
 
 
 # test the module
 if __name__ == "__main__":
     import sys
-    
+
     # verify that the correct number of command-line arguments are provided
     if len(sys.argv) < 4:
         sys.stderr.write('Usage: '+sys.argv[0]+' <infile> <classname> <existing_impl>')
         sys.exit()
-        
+
     # create the header object
     header = obj_header()
     header.add_file(sys.argv[1])
-    
+
     # read the existing implementation file into memory
     try:
         f = open(sys.argv[3], 'r')
@@ -579,6 +644,6 @@ if __name__ == "__main__":
         raise Exception('Failed to read file '+sys.argv[3]+': '+strerror)
     else:
         f.close()
-    
+
     # dump the result to stdout
     sys.stdout.write(make_ctocpp_class_impl(header, sys.argv[2], data))

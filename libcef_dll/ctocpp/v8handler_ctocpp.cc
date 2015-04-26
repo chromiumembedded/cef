@@ -19,7 +19,8 @@
 bool CefV8HandlerCToCpp::Execute(const CefString& name,
     CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments,
     CefRefPtr<CefV8Value>& retval, CefString& exception) {
-  if (CEF_MEMBER_MISSING(struct_, execute))
+  cef_v8handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, execute))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -52,7 +53,7 @@ bool CefV8HandlerCToCpp::Execute(const CefString& name,
   cef_v8value_t* retvalOrig = retvalStruct;
 
   // Execute
-  int _retval = struct_->execute(struct_,
+  int _retval = _struct->execute(_struct,
       name.GetStruct(),
       CefV8ValueCppToC::Wrap(object),
       argumentsCount,
@@ -77,8 +78,21 @@ bool CefV8HandlerCToCpp::Execute(const CefString& name,
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefV8HandlerCToCpp::CefV8HandlerCToCpp() {
+}
+
+template<> cef_v8handler_t* CefCToCpp<CefV8HandlerCToCpp, CefV8Handler,
+    cef_v8handler_t>::UnwrapDerived(CefWrapperType type, CefV8Handler* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefV8HandlerCToCpp, CefV8Handler,
     cef_v8handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefV8HandlerCToCpp, CefV8Handler,
+    cef_v8handler_t>::kWrapperType = WT_V8HANDLER;

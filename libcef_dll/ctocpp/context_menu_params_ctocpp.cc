@@ -17,52 +17,56 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 int CefContextMenuParamsCToCpp::GetXCoord() {
-  if (CEF_MEMBER_MISSING(struct_, get_xcoord))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_xcoord))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_xcoord(struct_);
+  int _retval = _struct->get_xcoord(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 int CefContextMenuParamsCToCpp::GetYCoord() {
-  if (CEF_MEMBER_MISSING(struct_, get_ycoord))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_ycoord))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_ycoord(struct_);
+  int _retval = _struct->get_ycoord(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 CefContextMenuParams::TypeFlags CefContextMenuParamsCToCpp::GetTypeFlags() {
-  if (CEF_MEMBER_MISSING(struct_, get_type_flags))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_type_flags))
     return CM_TYPEFLAG_NONE;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_context_menu_type_flags_t _retval = struct_->get_type_flags(struct_);
+  cef_context_menu_type_flags_t _retval = _struct->get_type_flags(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 CefString CefContextMenuParamsCToCpp::GetLinkUrl() {
-  if (CEF_MEMBER_MISSING(struct_, get_link_url))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_link_url))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_link_url(struct_);
+  cef_string_userfree_t _retval = _struct->get_link_url(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -71,13 +75,14 @@ CefString CefContextMenuParamsCToCpp::GetLinkUrl() {
 }
 
 CefString CefContextMenuParamsCToCpp::GetUnfilteredLinkUrl() {
-  if (CEF_MEMBER_MISSING(struct_, get_unfiltered_link_url))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_unfiltered_link_url))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_unfiltered_link_url(struct_);
+  cef_string_userfree_t _retval = _struct->get_unfiltered_link_url(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -86,13 +91,14 @@ CefString CefContextMenuParamsCToCpp::GetUnfilteredLinkUrl() {
 }
 
 CefString CefContextMenuParamsCToCpp::GetSourceUrl() {
-  if (CEF_MEMBER_MISSING(struct_, get_source_url))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_source_url))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_source_url(struct_);
+  cef_string_userfree_t _retval = _struct->get_source_url(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -101,26 +107,28 @@ CefString CefContextMenuParamsCToCpp::GetSourceUrl() {
 }
 
 bool CefContextMenuParamsCToCpp::HasImageContents() {
-  if (CEF_MEMBER_MISSING(struct_, has_image_contents))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, has_image_contents))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->has_image_contents(struct_);
+  int _retval = _struct->has_image_contents(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 CefString CefContextMenuParamsCToCpp::GetPageUrl() {
-  if (CEF_MEMBER_MISSING(struct_, get_page_url))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_page_url))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_page_url(struct_);
+  cef_string_userfree_t _retval = _struct->get_page_url(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -129,13 +137,14 @@ CefString CefContextMenuParamsCToCpp::GetPageUrl() {
 }
 
 CefString CefContextMenuParamsCToCpp::GetFrameUrl() {
-  if (CEF_MEMBER_MISSING(struct_, get_frame_url))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_frame_url))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_frame_url(struct_);
+  cef_string_userfree_t _retval = _struct->get_frame_url(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -144,13 +153,14 @@ CefString CefContextMenuParamsCToCpp::GetFrameUrl() {
 }
 
 CefString CefContextMenuParamsCToCpp::GetFrameCharset() {
-  if (CEF_MEMBER_MISSING(struct_, get_frame_charset))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_frame_charset))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_frame_charset(struct_);
+  cef_string_userfree_t _retval = _struct->get_frame_charset(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -159,13 +169,14 @@ CefString CefContextMenuParamsCToCpp::GetFrameCharset() {
 }
 
 CefContextMenuParams::MediaType CefContextMenuParamsCToCpp::GetMediaType() {
-  if (CEF_MEMBER_MISSING(struct_, get_media_type))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_media_type))
     return CM_MEDIATYPE_NONE;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_context_menu_media_type_t _retval = struct_->get_media_type(struct_);
+  cef_context_menu_media_type_t _retval = _struct->get_media_type(_struct);
 
   // Return type: simple
   return _retval;
@@ -173,27 +184,29 @@ CefContextMenuParams::MediaType CefContextMenuParamsCToCpp::GetMediaType() {
 
 CefContextMenuParams::MediaStateFlags CefContextMenuParamsCToCpp::GetMediaStateFlags(
     ) {
-  if (CEF_MEMBER_MISSING(struct_, get_media_state_flags))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_media_state_flags))
     return CM_MEDIAFLAG_NONE;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_context_menu_media_state_flags_t _retval = struct_->get_media_state_flags(
-      struct_);
+  cef_context_menu_media_state_flags_t _retval = _struct->get_media_state_flags(
+      _struct);
 
   // Return type: simple
   return _retval;
 }
 
 CefString CefContextMenuParamsCToCpp::GetSelectionText() {
-  if (CEF_MEMBER_MISSING(struct_, get_selection_text))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_selection_text))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_selection_text(struct_);
+  cef_string_userfree_t _retval = _struct->get_selection_text(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -202,13 +215,14 @@ CefString CefContextMenuParamsCToCpp::GetSelectionText() {
 }
 
 CefString CefContextMenuParamsCToCpp::GetMisspelledWord() {
-  if (CEF_MEMBER_MISSING(struct_, get_misspelled_word))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_misspelled_word))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_misspelled_word(struct_);
+  cef_string_userfree_t _retval = _struct->get_misspelled_word(_struct);
 
   // Return type: string
   CefString _retvalStr;
@@ -218,7 +232,8 @@ CefString CefContextMenuParamsCToCpp::GetMisspelledWord() {
 
 bool CefContextMenuParamsCToCpp::GetDictionarySuggestions(
     std::vector<CefString>& suggestions) {
-  if (CEF_MEMBER_MISSING(struct_, get_dictionary_suggestions))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_dictionary_suggestions))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -230,7 +245,7 @@ bool CefContextMenuParamsCToCpp::GetDictionarySuggestions(
     transfer_string_list_contents(suggestions, suggestionsList);
 
   // Execute
-  int _retval = struct_->get_dictionary_suggestions(struct_,
+  int _retval = _struct->get_dictionary_suggestions(_struct,
       suggestionsList);
 
   // Restore param:suggestions; type: string_vec_byref
@@ -245,26 +260,28 @@ bool CefContextMenuParamsCToCpp::GetDictionarySuggestions(
 }
 
 bool CefContextMenuParamsCToCpp::IsEditable() {
-  if (CEF_MEMBER_MISSING(struct_, is_editable))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_editable))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_editable(struct_);
+  int _retval = _struct->is_editable(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 bool CefContextMenuParamsCToCpp::IsSpellCheckEnabled() {
-  if (CEF_MEMBER_MISSING(struct_, is_spell_check_enabled))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_spell_check_enabled))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_spell_check_enabled(struct_);
+  int _retval = _struct->is_spell_check_enabled(_struct);
 
   // Return type: bool
   return _retval?true:false;
@@ -272,22 +289,38 @@ bool CefContextMenuParamsCToCpp::IsSpellCheckEnabled() {
 
 CefContextMenuParams::EditStateFlags CefContextMenuParamsCToCpp::GetEditStateFlags(
     ) {
-  if (CEF_MEMBER_MISSING(struct_, get_edit_state_flags))
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_edit_state_flags))
     return CM_EDITFLAG_NONE;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_context_menu_edit_state_flags_t _retval = struct_->get_edit_state_flags(
-      struct_);
+  cef_context_menu_edit_state_flags_t _retval = _struct->get_edit_state_flags(
+      _struct);
 
   // Return type: simple
   return _retval;
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefContextMenuParamsCToCpp::CefContextMenuParamsCToCpp() {
+}
+
+template<> cef_context_menu_params_t* CefCToCpp<CefContextMenuParamsCToCpp,
+    CefContextMenuParams, cef_context_menu_params_t>::UnwrapDerived(
+    CefWrapperType type, CefContextMenuParams* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefContextMenuParamsCToCpp,
     CefContextMenuParams, cef_context_menu_params_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefContextMenuParamsCToCpp,
+    CefContextMenuParams, cef_context_menu_params_t>::kWrapperType =
+    WT_CONTEXT_MENU_PARAMS;

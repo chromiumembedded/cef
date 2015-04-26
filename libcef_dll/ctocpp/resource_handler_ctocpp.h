@@ -28,11 +28,9 @@ class CefResourceHandlerCToCpp
     : public CefCToCpp<CefResourceHandlerCToCpp, CefResourceHandler,
         cef_resource_handler_t> {
  public:
-  explicit CefResourceHandlerCToCpp(cef_resource_handler_t* str)
-      : CefCToCpp<CefResourceHandlerCToCpp, CefResourceHandler,
-          cef_resource_handler_t>(str) {}
+  CefResourceHandlerCToCpp();
 
-  // CefResourceHandler methods
+  // CefResourceHandler methods.
   bool ProcessRequest(CefRefPtr<CefRequest> request,
       CefRefPtr<CefCallback> callback) override;
   void GetResponseHeaders(CefRefPtr<CefResponse> response,
@@ -46,4 +44,3 @@ class CefResourceHandlerCToCpp
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_RESOURCE_HANDLER_CTOCPP_H_
-

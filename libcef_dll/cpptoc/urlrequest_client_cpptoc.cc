@@ -15,6 +15,8 @@
 #include "libcef_dll/ctocpp/urlrequest_ctocpp.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK urlrequest_client_on_request_complete(
@@ -134,17 +136,24 @@ int CEF_CALLBACK urlrequest_client_get_auth_credentials(
   return _retval;
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefURLRequestClientCppToC::CefURLRequestClientCppToC(CefURLRequestClient* cls)
-    : CefCppToC<CefURLRequestClientCppToC, CefURLRequestClient,
-        cef_urlrequest_client_t>(cls) {
-  struct_.struct_.on_request_complete = urlrequest_client_on_request_complete;
-  struct_.struct_.on_upload_progress = urlrequest_client_on_upload_progress;
-  struct_.struct_.on_download_progress = urlrequest_client_on_download_progress;
-  struct_.struct_.on_download_data = urlrequest_client_on_download_data;
-  struct_.struct_.get_auth_credentials = urlrequest_client_get_auth_credentials;
+CefURLRequestClientCppToC::CefURLRequestClientCppToC() {
+  GetStruct()->on_request_complete = urlrequest_client_on_request_complete;
+  GetStruct()->on_upload_progress = urlrequest_client_on_upload_progress;
+  GetStruct()->on_download_progress = urlrequest_client_on_download_progress;
+  GetStruct()->on_download_data = urlrequest_client_on_download_data;
+  GetStruct()->get_auth_credentials = urlrequest_client_get_auth_credentials;
+}
+
+template<> CefRefPtr<CefURLRequestClient> CefCppToC<CefURLRequestClientCppToC,
+    CefURLRequestClient, cef_urlrequest_client_t>::UnwrapDerived(
+    CefWrapperType type, cef_urlrequest_client_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -152,3 +161,6 @@ template<> base::AtomicRefCount CefCppToC<CefURLRequestClientCppToC,
     CefURLRequestClient, cef_urlrequest_client_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefURLRequestClientCppToC,
+    CefURLRequestClient, cef_urlrequest_client_t>::kWrapperType =
+    WT_URLREQUEST_CLIENT;

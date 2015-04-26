@@ -29,26 +29,22 @@ class CefCookieManagerCToCpp
     : public CefCToCpp<CefCookieManagerCToCpp, CefCookieManager,
         cef_cookie_manager_t> {
  public:
-  explicit CefCookieManagerCToCpp(cef_cookie_manager_t* str)
-      : CefCToCpp<CefCookieManagerCToCpp, CefCookieManager,
-          cef_cookie_manager_t>(str) {}
+  CefCookieManagerCToCpp();
 
-  // CefCookieManager methods
-  virtual void SetSupportedSchemes(const std::vector<CefString>& schemes,
+  // CefCookieManager methods.
+  void SetSupportedSchemes(const std::vector<CefString>& schemes,
       CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
-  virtual bool VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;
-  virtual bool VisitUrlCookies(const CefString& url, bool includeHttpOnly,
+  bool VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;
+  bool VisitUrlCookies(const CefString& url, bool includeHttpOnly,
       CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;
-  virtual bool SetCookie(const CefString& url, const CefCookie& cookie,
+  bool SetCookie(const CefString& url, const CefCookie& cookie,
       CefRefPtr<CefSetCookieCallback> callback) OVERRIDE;
-  virtual bool DeleteCookies(const CefString& url, const CefString& cookie_name,
+  bool DeleteCookies(const CefString& url, const CefString& cookie_name,
       CefRefPtr<CefDeleteCookiesCallback> callback) OVERRIDE;
-  virtual bool SetStoragePath(const CefString& path,
-      bool persist_session_cookies,
+  bool SetStoragePath(const CefString& path, bool persist_session_cookies,
       CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
-  virtual bool FlushStore(CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
+  bool FlushStore(CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_COOKIE_MANAGER_CTOCPP_H_
-

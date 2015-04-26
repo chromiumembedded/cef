@@ -28,9 +28,8 @@ class CefAuthCallbackCppToC
     : public CefCppToC<CefAuthCallbackCppToC, CefAuthCallback,
         cef_auth_callback_t> {
  public:
-  explicit CefAuthCallbackCppToC(CefAuthCallback* cls);
+  CefAuthCallbackCppToC();
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_AUTH_CALLBACK_CPPTOC_H_
-

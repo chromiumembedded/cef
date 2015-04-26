@@ -19,18 +19,20 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 void CefBrowserProcessHandlerCToCpp::OnContextInitialized() {
-  if (CEF_MEMBER_MISSING(struct_, on_context_initialized))
+  cef_browser_process_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_context_initialized))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  struct_->on_context_initialized(struct_);
+  _struct->on_context_initialized(_struct);
 }
 
 void CefBrowserProcessHandlerCToCpp::OnBeforeChildProcessLaunch(
     CefRefPtr<CefCommandLine> command_line) {
-  if (CEF_MEMBER_MISSING(struct_, on_before_child_process_launch))
+  cef_browser_process_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_before_child_process_launch))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -41,13 +43,14 @@ void CefBrowserProcessHandlerCToCpp::OnBeforeChildProcessLaunch(
     return;
 
   // Execute
-  struct_->on_before_child_process_launch(struct_,
+  _struct->on_before_child_process_launch(_struct,
       CefCommandLineCppToC::Wrap(command_line));
 }
 
 void CefBrowserProcessHandlerCToCpp::OnRenderProcessThreadCreated(
     CefRefPtr<CefListValue> extra_info) {
-  if (CEF_MEMBER_MISSING(struct_, on_render_process_thread_created))
+  cef_browser_process_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_render_process_thread_created))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -58,26 +61,42 @@ void CefBrowserProcessHandlerCToCpp::OnRenderProcessThreadCreated(
     return;
 
   // Execute
-  struct_->on_render_process_thread_created(struct_,
+  _struct->on_render_process_thread_created(_struct,
       CefListValueCppToC::Wrap(extra_info));
 }
 
 CefRefPtr<CefPrintHandler> CefBrowserProcessHandlerCToCpp::GetPrintHandler() {
-  if (CEF_MEMBER_MISSING(struct_, get_print_handler))
+  cef_browser_process_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_print_handler))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_print_handler_t* _retval = struct_->get_print_handler(struct_);
+  cef_print_handler_t* _retval = _struct->get_print_handler(_struct);
 
   // Return type: refptr_same
   return CefPrintHandlerCToCpp::Wrap(_retval);
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefBrowserProcessHandlerCToCpp::CefBrowserProcessHandlerCToCpp() {
+}
+
+template<> cef_browser_process_handler_t* CefCToCpp<CefBrowserProcessHandlerCToCpp,
+    CefBrowserProcessHandler, cef_browser_process_handler_t>::UnwrapDerived(
+    CefWrapperType type, CefBrowserProcessHandler* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefBrowserProcessHandlerCToCpp,
     CefBrowserProcessHandler, cef_browser_process_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefBrowserProcessHandlerCToCpp,
+    CefBrowserProcessHandler, cef_browser_process_handler_t>::kWrapperType =
+    WT_BROWSER_PROCESS_HANDLER;

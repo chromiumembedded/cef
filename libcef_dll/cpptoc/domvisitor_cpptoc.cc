@@ -14,6 +14,8 @@
 #include "libcef_dll/ctocpp/domdocument_ctocpp.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK domvisitor_visit(struct _cef_domvisitor_t* self,
@@ -33,12 +35,20 @@ void CEF_CALLBACK domvisitor_visit(struct _cef_domvisitor_t* self,
       CefDOMDocumentCToCpp::Wrap(document));
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDOMVisitorCppToC::CefDOMVisitorCppToC(CefDOMVisitor* cls)
-    : CefCppToC<CefDOMVisitorCppToC, CefDOMVisitor, cef_domvisitor_t>(cls) {
-  struct_.struct_.visit = domvisitor_visit;
+CefDOMVisitorCppToC::CefDOMVisitorCppToC() {
+  GetStruct()->visit = domvisitor_visit;
+}
+
+template<> CefRefPtr<CefDOMVisitor> CefCppToC<CefDOMVisitorCppToC,
+    CefDOMVisitor, cef_domvisitor_t>::UnwrapDerived(CefWrapperType type,
+    cef_domvisitor_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
 }
 
 #ifndef NDEBUG
@@ -46,3 +56,5 @@ template<> base::AtomicRefCount CefCppToC<CefDOMVisitorCppToC, CefDOMVisitor,
     cef_domvisitor_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefDOMVisitorCppToC, CefDOMVisitor,
+    cef_domvisitor_t>::kWrapperType = WT_DOMVISITOR;

@@ -28,16 +28,11 @@ class CefWebPluginUnstableCallbackCToCpp
     : public CefCToCpp<CefWebPluginUnstableCallbackCToCpp,
         CefWebPluginUnstableCallback, cef_web_plugin_unstable_callback_t> {
  public:
-  explicit CefWebPluginUnstableCallbackCToCpp(
-      cef_web_plugin_unstable_callback_t* str)
-      : CefCToCpp<CefWebPluginUnstableCallbackCToCpp,
-          CefWebPluginUnstableCallback, cef_web_plugin_unstable_callback_t>(
-          str) {}
+  CefWebPluginUnstableCallbackCToCpp();
 
-  // CefWebPluginUnstableCallback methods
+  // CefWebPluginUnstableCallback methods.
   void IsUnstable(const CefString& path, bool unstable) override;
 };
 
 #endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_WEB_PLUGIN_UNSTABLE_CALLBACK_CTOCPP_H_
-

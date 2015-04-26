@@ -16,7 +16,8 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 size_t CefReadHandlerCToCpp::Read(void* ptr, size_t size, size_t n) {
-  if (CEF_MEMBER_MISSING(struct_, read))
+  cef_read_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, read))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -27,7 +28,7 @@ size_t CefReadHandlerCToCpp::Read(void* ptr, size_t size, size_t n) {
     return 0;
 
   // Execute
-  size_t _retval = struct_->read(struct_,
+  size_t _retval = _struct->read(_struct,
       ptr,
       size,
       n);
@@ -37,13 +38,14 @@ size_t CefReadHandlerCToCpp::Read(void* ptr, size_t size, size_t n) {
 }
 
 int CefReadHandlerCToCpp::Seek(int64 offset, int whence) {
-  if (CEF_MEMBER_MISSING(struct_, seek))
+  cef_read_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, seek))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->seek(struct_,
+  int _retval = _struct->seek(_struct,
       offset,
       whence);
 
@@ -52,47 +54,64 @@ int CefReadHandlerCToCpp::Seek(int64 offset, int whence) {
 }
 
 int64 CefReadHandlerCToCpp::Tell() {
-  if (CEF_MEMBER_MISSING(struct_, tell))
+  cef_read_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, tell))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int64 _retval = struct_->tell(struct_);
+  int64 _retval = _struct->tell(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 int CefReadHandlerCToCpp::Eof() {
-  if (CEF_MEMBER_MISSING(struct_, eof))
+  cef_read_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, eof))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->eof(struct_);
+  int _retval = _struct->eof(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 bool CefReadHandlerCToCpp::MayBlock() {
-  if (CEF_MEMBER_MISSING(struct_, may_block))
+  cef_read_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, may_block))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->may_block(struct_);
+  int _retval = _struct->may_block(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 
+// CONSTRUCTOR - Do not edit by hand.
+
+CefReadHandlerCToCpp::CefReadHandlerCToCpp() {
+}
+
+template<> cef_read_handler_t* CefCToCpp<CefReadHandlerCToCpp, CefReadHandler,
+    cef_read_handler_t>::UnwrapDerived(CefWrapperType type,
+    CefReadHandler* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
 #ifndef NDEBUG
 template<> base::AtomicRefCount CefCToCpp<CefReadHandlerCToCpp, CefReadHandler,
     cef_read_handler_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefReadHandlerCToCpp, CefReadHandler,
+    cef_read_handler_t>::kWrapperType = WT_READ_HANDLER;
