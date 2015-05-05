@@ -41,7 +41,7 @@ class CefJavaScriptDialogManager : public content::JavaScriptDialogManager {
   void CancelActiveAndPendingDialogs(
       content::WebContents* web_contents) override;
 
-  void WebContentsDestroyed(
+  void ResetDialogState(
       content::WebContents* web_contents) override;
 
   // Called by the CefJavaScriptDialog when it closes.
