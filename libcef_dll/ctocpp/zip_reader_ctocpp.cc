@@ -130,15 +130,15 @@ int64 CefZipReaderCToCpp::GetFileSize() {
   return _retval;
 }
 
-time_t CefZipReaderCToCpp::GetFileLastModified() {
+CefTime CefZipReaderCToCpp::GetFileLastModified() {
   cef_zip_reader_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_file_last_modified))
-    return 0;
+    return CefTime();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  time_t _retval = _struct->get_file_last_modified(_struct);
+  cef_time_t _retval = _struct->get_file_last_modified(_struct);
 
   // Return type: simple
   return _retval;

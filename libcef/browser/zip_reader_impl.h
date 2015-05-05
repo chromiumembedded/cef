@@ -27,7 +27,7 @@ class CefZipReaderImpl : public CefZipReader {
   bool Close() override;
   CefString GetFileName() override;
   int64 GetFileSize() override;
-  time_t GetFileLastModified() override;
+  CefTime GetFileLastModified() override;
   bool OpenFile(const CefString& password) override;
   bool CloseFile() override;
   int ReadFile(void* buffer, size_t bufferSize) override;

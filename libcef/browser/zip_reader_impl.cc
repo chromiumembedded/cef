@@ -180,11 +180,13 @@ int64 CefZipReaderImpl::GetFileSize() {
   return filesize_;
 }
 
-time_t CefZipReaderImpl::GetFileLastModified() {
+CefTime CefZipReaderImpl::GetFileLastModified() {
+  CefTime time;
   if (!VerifyContext() || !GetFileInfo())
-    return 0;
+    return time;
 
-  return filemodified_;
+  cef_time_from_timet(filemodified_, &time);
+  return time;
 }
 
 bool CefZipReaderImpl::OpenFile(const CefString& password) {

@@ -392,7 +392,6 @@ _simpletypes = {
     'unsigned long' : ['unsigned long', '0'],
     'long long' : ['long long', '0'],
     'size_t' : ['size_t', '0'],
-    'time_t' : ['time_t', '0'],
     'bool' : ['int', '0'],
     'char': ['char', '0'],
     'char* const': ['char* const', 'NULL'],

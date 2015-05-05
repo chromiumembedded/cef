@@ -130,16 +130,16 @@ int64 CEF_CALLBACK zip_reader_get_file_size(struct _cef_zip_reader_t* self) {
   return _retval;
 }
 
-time_t CEF_CALLBACK zip_reader_get_file_last_modified(
+cef_time_t CEF_CALLBACK zip_reader_get_file_last_modified(
     struct _cef_zip_reader_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
-    return 0;
+    return CefTime();
 
   // Execute
-  time_t _retval = CefZipReaderCppToC::Get(self)->GetFileLastModified();
+  cef_time_t _retval = CefZipReaderCppToC::Get(self)->GetFileLastModified();
 
   // Return type: simple
   return _retval;

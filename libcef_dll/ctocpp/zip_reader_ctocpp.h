@@ -36,7 +36,7 @@ class CefZipReaderCToCpp
   bool Close() OVERRIDE;
   CefString GetFileName() OVERRIDE;
   int64 GetFileSize() OVERRIDE;
-  time_t GetFileLastModified() OVERRIDE;
+  CefTime GetFileLastModified() OVERRIDE;
   bool OpenFile(const CefString& password) OVERRIDE;
   bool CloseFile() OVERRIDE;
   int ReadFile(void* buffer, size_t bufferSize) OVERRIDE;
