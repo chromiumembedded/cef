@@ -188,7 +188,7 @@ class CefAllowCertificateErrorCallbackImpl : public CefRequestCallback {
 
  private:
   static void RunNow(const CallbackType& callback, bool allow) {
-    CEF_REQUIRE_IOT();
+    CEF_REQUIRE_UIT();
     callback.Run(allow);
   }
 
