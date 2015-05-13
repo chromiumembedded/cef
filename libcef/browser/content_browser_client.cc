@@ -876,7 +876,8 @@ void CefContentBrowserClient::OverrideWebkitPrefs(
   BrowserToWebSettings(browser->settings(), *prefs);
 
   prefs->base_background_color = GetBaseBackgroundColor(rvh);
-  rvh->GetView()->SetBackgroundColor(prefs->base_background_color);
+  if (rvh->GetView())
+    rvh->GetView()->SetBackgroundColor(prefs->base_background_color);
 
   prefs->asynchronous_spell_checking_enabled = true;
   // Auto-correct does not work in combination with the unified text checker.
