@@ -192,6 +192,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void SendFocusEvent(bool setFocus) override;
   void SendCaptureLostEvent() override;
   void NotifyMoveOrResizeStarted() override;
+  int GetWindowlessFrameRate() override;
+  void SetWindowlessFrameRate(int frame_rate) override;
   CefTextInputContext GetNSTextInputContext() override;
   void HandleKeyEventBeforeTextInputClient(CefEventHandle keyEvent) override;
   void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent) override;

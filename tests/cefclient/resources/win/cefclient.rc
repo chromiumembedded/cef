@@ -80,6 +80,9 @@ BEGIN
         MENUITEM "Zoom In",                     ID_TESTS_ZOOM_IN
         MENUITEM "Zoom Out",                    ID_TESTS_ZOOM_OUT
         MENUITEM "Zoom Reset",                  ID_TESTS_ZOOM_RESET
+        MENUITEM "FPS Increase",                ID_TESTS_FPS_INCREASE
+        MENUITEM "FPS Decrease",                ID_TESTS_FPS_DECREASE
+        MENUITEM "FPS Reset",                   ID_TESTS_FPS_RESET
         MENUITEM "Begin Tracing",               ID_TESTS_TRACING_BEGIN
         MENUITEM "End Tracing",                 ID_TESTS_TRACING_END
         MENUITEM "Print",                       ID_TESTS_PRINT

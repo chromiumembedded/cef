@@ -556,6 +556,26 @@ class CefBrowserHost : public virtual CefBase {
   virtual void NotifyMoveOrResizeStarted() =0;
 
   ///
+  // Returns the maximum rate in frames per second (fps) that CefRenderHandler::
+  // OnPaint will be called for a windowless browser. The actual fps may be
+  // lower if the browser cannot generate frames at the requested rate. The
+  // minimum value is 1 and the maximum value is 60 (default 30). This method
+  // can only be called on the UI thread.
+  ///
+  /*--cef()--*/
+  virtual int GetWindowlessFrameRate() =0;
+
+  ///
+  // Set the maximum rate in frames per second (fps) that CefRenderHandler::
+  // OnPaint will be called for a windowless browser. The actual fps may be
+  // lower if the browser cannot generate frames at the requested rate. The
+  // minimum value is 1 and the maximum value is 60 (default 30). Can also be
+  // set at browser creation via CefBrowserSettings.windowless_frame_rate.
+  ///
+  /*--cef()--*/
+  virtual void SetWindowlessFrameRate(int frame_rate) =0;
+
+  ///
   // Get the NSTextInputContext implementation for enabling IME on Mac when
   // window rendering is disabled.
   ///

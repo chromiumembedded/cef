@@ -172,6 +172,10 @@ class CefCopyFrameGenerator {
 
   bool frame_pending() const { return frame_pending_; }
 
+  void set_frame_rate_threshold_ms(int frame_rate_threshold_ms) {
+    frame_rate_threshold_ms_ = frame_rate_threshold_ms;
+  }
+
  private:
   void InternalGenerateCopyFrame() {
     frame_pending_ = false;
@@ -375,7 +379,7 @@ class CefCopyFrameGenerator {
     }
   }
 
-  const int frame_rate_threshold_ms_;
+  int frame_rate_threshold_ms_;
   CefRenderWidgetHostViewOSR* view_;
 
   base::TimeTicks frame_start_time_;
@@ -409,6 +413,12 @@ class CefBeginFrameTimer : public cc::TimeSourceClient {
 
   bool IsActive() const {
     return time_source_->Active();
+  }
+
+  void SetFrameRateThresholdMs(int frame_rate_threshold_ms) {
+    time_source_->SetTimebaseAndInterval(
+        time_source_->Now(),
+        base::TimeDelta::FromMilliseconds(frame_rate_threshold_ms));
   }
 
  private:
@@ -1182,6 +1192,11 @@ void CefRenderWidgetHostViewOSR::SendFocusEvent(bool focus) {
   }
 }
 
+void CefRenderWidgetHostViewOSR::UpdateFrameRate() {
+  frame_rate_threshold_ms_ = 0;
+  SetFrameRate();
+}
+
 void CefRenderWidgetHostViewOSR::HoldResize() {
   if (!hold_resize_)
     hold_resize_ = true;
@@ -1233,6 +1248,15 @@ void CefRenderWidgetHostViewOSR::OnPaint(
   ReleaseResize();
 }
 
+// static
+int CefRenderWidgetHostViewOSR::ClampFrameRate(int frame_rate) {
+  if (frame_rate < 1)
+    return kDefaultFrameRate;
+  else if (frame_rate > kMaximumFrameRate)
+    return kMaximumFrameRate;
+  return frame_rate;
+}
+
 void CefRenderWidgetHostViewOSR::SetFrameRate() {
   DCHECK(browser_impl_.get());
   if (!browser_impl_.get())
@@ -1242,24 +1266,29 @@ void CefRenderWidgetHostViewOSR::SetFrameRate() {
   if (frame_rate_threshold_ms_ != 0)
     return;
 
-  int frame_rate = browser_impl_->settings().windowless_frame_rate;
-  if (frame_rate < 1)
-    frame_rate = kDefaultFrameRate;
-  else if (frame_rate > kMaximumFrameRate)
-    frame_rate = kMaximumFrameRate;
+  const int frame_rate =
+      ClampFrameRate(browser_impl_->settings().windowless_frame_rate);
   frame_rate_threshold_ms_ = 1000 / frame_rate;
 
   // Configure the VSync interval for the browser process.
   compositor_->vsync_manager()->SetAuthoritativeVSyncInterval(
       base::TimeDelta::FromMilliseconds(frame_rate_threshold_ms_));
 
+  if (copy_frame_generator_.get()) {
+    copy_frame_generator_->set_frame_rate_threshold_ms(
+        frame_rate_threshold_ms_);
+  }
+
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kEnableBeginFrameScheduling)) {
-    DCHECK(!begin_frame_timer_.get());
-    begin_frame_timer_.reset(new CefBeginFrameTimer(
-        frame_rate_threshold_ms_,
-        base::Bind(&CefRenderWidgetHostViewOSR::OnBeginFrameTimerTick,
-                   weak_ptr_factory_.GetWeakPtr())));
+    if (begin_frame_timer_.get()) {
+      begin_frame_timer_->SetFrameRateThresholdMs(frame_rate_threshold_ms_);
+    } else {
+      begin_frame_timer_.reset(new CefBeginFrameTimer(
+          frame_rate_threshold_ms_,
+          base::Bind(&CefRenderWidgetHostViewOSR::OnBeginFrameTimerTick,
+                     weak_ptr_factory_.GetWeakPtr())));
+    }
   }
 }
 

@@ -676,6 +676,34 @@ void CEF_CALLBACK browser_host_notify_move_or_resize_started(
   CefBrowserHostCppToC::Get(self)->NotifyMoveOrResizeStarted();
 }
 
+int CEF_CALLBACK browser_host_get_windowless_frame_rate(
+    struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  int _retval = CefBrowserHostCppToC::Get(self)->GetWindowlessFrameRate();
+
+  // Return type: simple
+  return _retval;
+}
+
+void CEF_CALLBACK browser_host_set_windowless_frame_rate(
+    struct _cef_browser_host_t* self, int frame_rate) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->SetWindowlessFrameRate(
+      frame_rate);
+}
+
 cef_text_input_context_t CEF_CALLBACK browser_host_get_nstext_input_context(
     struct _cef_browser_host_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -879,6 +907,10 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->send_capture_lost_event = browser_host_send_capture_lost_event;
   GetStruct()->notify_move_or_resize_started =
       browser_host_notify_move_or_resize_started;
+  GetStruct()->get_windowless_frame_rate =
+      browser_host_get_windowless_frame_rate;
+  GetStruct()->set_windowless_frame_rate =
+      browser_host_set_windowless_frame_rate;
   GetStruct()->get_nstext_input_context = browser_host_get_nstext_input_context;
   GetStruct()->handle_key_event_before_text_input_client =
       browser_host_handle_key_event_before_text_input_client;

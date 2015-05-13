@@ -506,6 +506,26 @@ typedef struct _cef_browser_host_t {
       struct _cef_browser_host_t* self);
 
   ///
+  // Returns the maximum rate in frames per second (fps) that
+  // cef_render_handler_t:: OnPaint will be called for a windowless browser. The
+  // actual fps may be lower if the browser cannot generate frames at the
+  // requested rate. The minimum value is 1 and the maximum value is 60 (default
+  // 30). This function can only be called on the UI thread.
+  ///
+  int (CEF_CALLBACK *get_windowless_frame_rate)(
+      struct _cef_browser_host_t* self);
+
+  ///
+  // Set the maximum rate in frames per second (fps) that cef_render_handler_t::
+  // OnPaint will be called for a windowless browser. The actual fps may be
+  // lower if the browser cannot generate frames at the requested rate. The
+  // minimum value is 1 and the maximum value is 60 (default 30). Can also be
+  // set at browser creation via cef_browser_tSettings.windowless_frame_rate.
+  ///
+  void (CEF_CALLBACK *set_windowless_frame_rate)(
+      struct _cef_browser_host_t* self, int frame_rate);
+
+  ///
   // Get the NSTextInputContext implementation for enabling IME on Mac when
   // window rendering is disabled.
   ///

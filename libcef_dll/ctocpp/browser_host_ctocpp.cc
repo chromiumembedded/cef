@@ -563,6 +563,32 @@ void CefBrowserHostCToCpp::NotifyMoveOrResizeStarted() {
   _struct->notify_move_or_resize_started(_struct);
 }
 
+int CefBrowserHostCToCpp::GetWindowlessFrameRate() {
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_windowless_frame_rate))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->get_windowless_frame_rate(_struct);
+
+  // Return type: simple
+  return _retval;
+}
+
+void CefBrowserHostCToCpp::SetWindowlessFrameRate(int frame_rate) {
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_windowless_frame_rate))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->set_windowless_frame_rate(_struct,
+      frame_rate);
+}
+
 CefTextInputContext CefBrowserHostCToCpp::GetNSTextInputContext() {
   cef_browser_host_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_nstext_input_context))

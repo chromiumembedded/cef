@@ -49,7 +49,7 @@ class RootWindowWin : public RootWindow,
   ClientWindowHandle GetWindowHandle() const OVERRIDE;
 
  private:
-  void CreateBrowserWindow(bool with_osr, const std::string& startup_url);
+  void CreateBrowserWindow(const std::string& startup_url);
   void CreateRootWindow(const CefBrowserSettings& settings);
 
   // Register the root window class.
@@ -97,6 +97,7 @@ class RootWindowWin : public RootWindow,
   // Members set during initialization.
   RootWindow::Delegate* delegate_;
   bool with_controls_;
+  bool with_osr_;
   bool is_popup_;
   RECT start_rect_;
   scoped_ptr<BrowserWindow> browser_window_;

@@ -234,6 +234,7 @@ class CefRenderWidgetHostViewOSR
   void SendMouseEvent(const blink::WebMouseEvent& event);
   void SendMouseWheelEvent(const blink::WebMouseWheelEvent& event);
   void SendFocusEvent(bool focus);
+  void UpdateFrameRate();
 
   void HoldResize();
   void ReleaseResize();
@@ -268,6 +269,8 @@ class CefRenderWidgetHostViewOSR
   ui::Compositor* compositor() const { return compositor_.get(); }
   content::RenderWidgetHostImpl* render_widget_host() const
       { return render_widget_host_; }
+
+  static int ClampFrameRate(int frame_rate);
 
  private:
   void SetFrameRate();

@@ -135,6 +135,11 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
   AddMenuItem(testMenu, @"Zoom In",       ID_TESTS_ZOOM_IN);
   AddMenuItem(testMenu, @"Zoom Out",      ID_TESTS_ZOOM_OUT);
   AddMenuItem(testMenu, @"Zoom Reset",    ID_TESTS_ZOOM_RESET);
+  if (with_osr_) {
+    AddMenuItem(testMenu, @"FPS Increase",  ID_TESTS_FPS_INCREASE);
+    AddMenuItem(testMenu, @"FPS Decrease",  ID_TESTS_FPS_DECREASE);
+    AddMenuItem(testMenu, @"FPS Reset",     ID_TESTS_FPS_RESET);
+  }
   AddMenuItem(testMenu, @"Begin Tracing", ID_TESTS_TRACING_BEGIN);
   AddMenuItem(testMenu, @"End Tracing",   ID_TESTS_TRACING_END);
   AddMenuItem(testMenu, @"Print",         ID_TESTS_PRINT);

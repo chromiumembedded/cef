@@ -77,6 +77,8 @@ class CefBrowserHostCToCpp
   void SendFocusEvent(bool setFocus) OVERRIDE;
   void SendCaptureLostEvent() OVERRIDE;
   void NotifyMoveOrResizeStarted() OVERRIDE;
+  int GetWindowlessFrameRate() OVERRIDE;
+  void SetWindowlessFrameRate(int frame_rate) OVERRIDE;
   CefTextInputContext GetNSTextInputContext() OVERRIDE;
   void HandleKeyEventBeforeTextInputClient(CefEventHandle keyEvent) OVERRIDE;
   void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent) OVERRIDE;

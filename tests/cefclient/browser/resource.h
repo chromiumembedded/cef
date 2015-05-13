@@ -38,7 +38,10 @@
 #define ID_TESTS_ZOOM_IN                32710
 #define ID_TESTS_ZOOM_OUT               32711
 #define ID_TESTS_ZOOM_RESET             32712
-#define ID_TESTS_LAST                   32712
+#define ID_TESTS_FPS_INCREASE           32713
+#define ID_TESTS_FPS_DECREASE           32714
+#define ID_TESTS_FPS_RESET              32715
+#define ID_TESTS_LAST                   32715
 #define IDC_STATIC                      -1
 #define IDS_BINDING                     1000
 #define IDS_DIALOGS                     1001

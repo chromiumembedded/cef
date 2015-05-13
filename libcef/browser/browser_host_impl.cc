@@ -1267,6 +1267,40 @@ void CefBrowserHostImpl::NotifyMoveOrResizeStarted() {
   PlatformNotifyMoveOrResizeStarted();
 }
 
+int CefBrowserHostImpl::GetWindowlessFrameRate() {
+  // Verify that this method is being called on the UI thread.
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    NOTREACHED() << "called on invalid thread";
+    return 0;
+  }
+
+  return CefRenderWidgetHostViewOSR::ClampFrameRate(
+      settings_.windowless_frame_rate);
+}
+
+void CefBrowserHostImpl::SetWindowlessFrameRate(int frame_rate) {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::SetWindowlessFrameRate, this,
+                   frame_rate));
+    return;
+  }
+
+  if (!IsWindowless())
+    return;
+
+  settings_.windowless_frame_rate = frame_rate;
+
+  if (!web_contents())
+    return;
+
+  CefRenderWidgetHostViewOSR* view =
+      static_cast<CefRenderWidgetHostViewOSR*>(
+          web_contents()->GetRenderViewHost()->GetView());
+  if (view)
+    view->UpdateFrameRate();
+}
+
 // CefBrowser methods.
 // -----------------------------------------------------------------------------
 

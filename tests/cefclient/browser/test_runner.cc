@@ -171,6 +171,29 @@ void ModifyZoom(CefRefPtr<CefBrowser> browser, double delta) {
       browser->GetHost()->GetZoomLevel() + delta);
 }
 
+void ModifyFPS(CefRefPtr<CefBrowser> browser, int fps_delta) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    // Execute on the UI thread.
+    CefPostTask(TID_UI, base::Bind(&ModifyFPS, browser, fps_delta));
+    return;
+  }
+
+  int fps;
+  if (fps_delta == 0) {
+    // Reset to the default value.
+    CefBrowserSettings settings;
+    MainContext::Get()->PopulateBrowserSettings(&settings);
+    fps = settings.windowless_frame_rate;
+  } else {
+    // Modify the existing value.
+    fps = browser->GetHost()->GetWindowlessFrameRate() + fps_delta;
+    if (fps <= 0)
+      fps = 1;
+  }
+
+  browser->GetHost()->SetWindowlessFrameRate(fps);
+}
+
 void BeginTracing() {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute on the UI thread.
@@ -317,6 +340,15 @@ void RunTest(CefRefPtr<CefBrowser> browser, int id) {
       break;
     case ID_TESTS_ZOOM_RESET:
       browser->GetHost()->SetZoomLevel(0.0);
+      break;
+    case ID_TESTS_FPS_INCREASE:
+      ModifyFPS(browser, 10);
+      break;
+    case ID_TESTS_FPS_DECREASE:
+      ModifyFPS(browser, -10);
+      break;
+    case ID_TESTS_FPS_RESET:
+      ModifyFPS(browser, 0);
       break;
     case ID_TESTS_TRACING_BEGIN:
       BeginTracing();

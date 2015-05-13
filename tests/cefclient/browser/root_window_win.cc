@@ -46,6 +46,7 @@ INT_PTR CALLBACK AboutWndProc(HWND hDlg, UINT message,
 RootWindowWin::RootWindowWin()
     : delegate_(NULL),
       with_controls_(false),
+      with_osr_(false),
       is_popup_(false),
       start_rect_(),
       initialized_(false),
@@ -86,13 +87,14 @@ void RootWindowWin::Init(RootWindow::Delegate* delegate,
 
   delegate_ = delegate;
   with_controls_ = with_controls;
+  with_osr_ = with_osr;
 
   start_rect_.left = bounds.x;
   start_rect_.top = bounds.y;
   start_rect_.right = bounds.x + bounds.width;
   start_rect_.bottom = bounds.y + bounds.height;
 
-  CreateBrowserWindow(with_osr, url);
+  CreateBrowserWindow(url);
 
   initialized_ = true;
 
@@ -117,6 +119,7 @@ void RootWindowWin::InitAsPopup(RootWindow::Delegate* delegate,
 
   delegate_ = delegate;
   with_controls_ = with_controls;
+  with_osr_ = with_osr;
   is_popup_ = true;
 
   if (popupFeatures.xSet)
@@ -128,7 +131,7 @@ void RootWindowWin::InitAsPopup(RootWindow::Delegate* delegate,
   if (popupFeatures.heightSet)
     start_rect_.bottom = start_rect_.top + popupFeatures.height;
 
-  CreateBrowserWindow(with_osr, std::string());
+  CreateBrowserWindow(std::string());
 
   initialized_ = true;
 
@@ -199,9 +202,8 @@ ClientWindowHandle RootWindowWin::GetWindowHandle() const {
   return hwnd_;
 }
 
-void RootWindowWin::CreateBrowserWindow(bool with_osr,
-                                        const std::string& startup_url) {
-  if (with_osr) {
+void RootWindowWin::CreateBrowserWindow(const std::string& startup_url) {
+  if (with_osr_) {
     OsrRenderer::Settings settings;
     MainContext::Get()->PopulateOsrSettings(&settings);
     browser_window_.reset(new BrowserWindowOsrWin(this, startup_url, settings));
@@ -316,6 +318,19 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings) {
     SetUserDataPtr(edit_hwnd_, this);
 
     rect.top += URLBAR_HEIGHT;
+
+    if (!with_osr_) {
+      // Remove the menu items that are only used with OSR.
+      HMENU hMenu = ::GetMenu(hwnd_);
+      if (hMenu) {
+        HMENU hTestMenu = ::GetSubMenu(hMenu, 2);
+        if (hTestMenu) {
+          ::RemoveMenu(hTestMenu, ID_TESTS_FPS_INCREASE, MF_BYCOMMAND);
+          ::RemoveMenu(hTestMenu, ID_TESTS_FPS_DECREASE, MF_BYCOMMAND);
+          ::RemoveMenu(hTestMenu, ID_TESTS_FPS_RESET, MF_BYCOMMAND);
+        }
+      }
+    }
   } else {
     // No controls so also remove the default menu.
     ::SetMenu(hwnd_, NULL);

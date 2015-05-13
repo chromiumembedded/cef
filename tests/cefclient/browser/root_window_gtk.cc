@@ -588,6 +588,11 @@ GtkWidget* RootWindowGtk::CreateMenuBar() {
   AddMenuEntry(test_menu, "Zoom In",       ID_TESTS_ZOOM_IN);
   AddMenuEntry(test_menu, "Zoom Out",      ID_TESTS_ZOOM_OUT);
   AddMenuEntry(test_menu, "Zoom Reset",    ID_TESTS_ZOOM_RESET);
+  if (with_osr_) {
+    AddMenuEntry(test_menu, "FPS Increase",  ID_TESTS_FPS_INCREASE);
+    AddMenuEntry(test_menu, "FPS Decrease",  ID_TESTS_FPS_DECREASE);
+    AddMenuEntry(test_menu, "FPS Reset",     ID_TESTS_FPS_RESET);
+  }
   AddMenuEntry(test_menu, "Begin Tracing", ID_TESTS_TRACING_BEGIN);
   AddMenuEntry(test_menu, "End Tracing",   ID_TESTS_TRACING_END);
   AddMenuEntry(test_menu, "Print",         ID_TESTS_PRINT);
