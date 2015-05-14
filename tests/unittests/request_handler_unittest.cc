@@ -521,7 +521,6 @@ class BeforeResourceLoadTest : public TestHandler {
     AddResource(kResourceTestHtml2, "<html><body>Test2</body></html>",
                 "text/html");
     CreateBrowser(kResourceTestHtml);
-    SetTestTimeout();
   }
 
   cef_return_value_t OnBeforeResourceLoad(
@@ -632,35 +631,30 @@ TEST(RequestHandlerTest, BeforeResourceLoadCancel) {
   CefRefPtr<BeforeResourceLoadTest> handler =
       new BeforeResourceLoadTest(BeforeResourceLoadTest::CANCEL);
   handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(RequestHandlerTest, BeforeResourceLoadCancelAsync) {
   CefRefPtr<BeforeResourceLoadTest> handler =
       new BeforeResourceLoadTest(BeforeResourceLoadTest::CANCEL_ASYNC);
   handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(RequestHandlerTest, BeforeResourceLoadCancelNav) {
   CefRefPtr<BeforeResourceLoadTest> handler =
       new BeforeResourceLoadTest(BeforeResourceLoadTest::CANCEL_NAV);
   handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(RequestHandlerTest, BeforeResourceLoadContinue) {
   CefRefPtr<BeforeResourceLoadTest> handler =
       new BeforeResourceLoadTest(BeforeResourceLoadTest::CONTINUE);
   handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
 }
 
 TEST(RequestHandlerTest, BeforeResourceLoadContinueAsync) {
   CefRefPtr<BeforeResourceLoadTest> handler =
       new BeforeResourceLoadTest(BeforeResourceLoadTest::CONTINUE_ASYNC);
   handler->ExecuteTest();
-  ReleaseAndWaitForDestructor(handler);
 }
 
 
