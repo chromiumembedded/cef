@@ -594,6 +594,10 @@
               ],
             },
           ],
+          # Need to fix their ODR violations. See issue #1604.
+          'ldflags!': [
+            '-Wl,--detect-odr-violations',
+          ],
         }],
       ],
     },
