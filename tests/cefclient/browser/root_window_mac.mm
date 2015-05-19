@@ -467,7 +467,8 @@ void RootWindowMac::CreateRootWindow(const CefBrowserSettings& settings) {
 
   const cef_color_t background_color = MainContext::Get()->GetBackgroundColor();
   [window_ setBackgroundColor:
-      [NSColor colorWithRed:float(CefColorGetR(background_color)) / 255.0f
+      [NSColor colorWithCalibratedRed:
+                            float(CefColorGetR(background_color)) / 255.0f
                       green:float(CefColorGetG(background_color)) / 255.0f
                        blue:float(CefColorGetB(background_color)) / 255.0f
                       alpha:1.f]];
