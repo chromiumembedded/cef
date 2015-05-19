@@ -37,6 +37,7 @@
 #include "content/public/browser/access_token_store.h"
 #include "content/public/browser/browser_url_handler.h"
 #include "content/public/browser/child_process_security_policy.h"
+#include "content/public/browser/client_certificate_delegate.h"
 #include "content/public/browser/plugin_service_filter.h"
 #include "content/public/browser/quota_permission_context.h"
 #include "content/public/browser/render_process_host.h"
@@ -45,6 +46,7 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/storage_quota_params.h"
 #include "content/public/common/web_preferences.h"
+#include "net/ssl/ssl_cert_request_info.h"
 #include "third_party/WebKit/public/web/WebWindowFeatures.h"
 #include "ui/base/ui_base_switches.h"
 #include "url/gurl.h"
@@ -743,6 +745,16 @@ void CefContentBrowserClient::AllowCertificateError(
 
   *result = proceed ? content::CERTIFICATE_REQUEST_RESULT_TYPE_CONTINUE :
                       content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL;
+}
+
+void CefContentBrowserClient::SelectClientCertificate(
+    content::WebContents* web_contents,
+    net::SSLCertRequestInfo* cert_request_info,
+    scoped_ptr<content::ClientCertificateDelegate> delegate) {
+  if (!cert_request_info->client_certs.empty()) {
+    // Use the first certificate.
+    delegate->ContinueWithCertificate(cert_request_info->client_certs[0].get());
+  }
 }
 
 content::AccessTokenStore* CefContentBrowserClient::CreateAccessTokenStore() {
