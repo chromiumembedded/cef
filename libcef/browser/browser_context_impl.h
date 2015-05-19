@@ -21,6 +21,7 @@ class SpeechRecognitionPreferences;
 }
 
 class CefDownloadManagerDelegate;
+class CefSSLHostStateDelegate;
 
 // Isolated BrowserContext implementation. Life span is controlled by
 // CefRequestContextImpl and (for the main context) CefBrowserMainParts. Only
@@ -97,6 +98,7 @@ class CefBrowserContextImpl : public CefBrowserContext {
   scoped_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<CefURLRequestContextGetterImpl> url_request_getter_;
   scoped_ptr<content::PermissionManager> permission_manager_;
+  scoped_ptr<CefSSLHostStateDelegate> ssl_host_state_delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserContextImpl);
 };

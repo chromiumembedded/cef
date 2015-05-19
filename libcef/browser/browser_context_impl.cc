@@ -10,6 +10,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/download_manager_delegate.h"
 #include "libcef/browser/permission_manager.h"
+#include "libcef/browser/ssl_host_state_delegate.h"
 #include "libcef/browser/thread_util.h"
 
 #include "base/files/file_util.h"
@@ -195,7 +196,9 @@ content::PushMessagingService*
 
 content::SSLHostStateDelegate*
     CefBrowserContextImpl::GetSSLHostStateDelegate() {
-  return NULL;
+  if (!ssl_host_state_delegate_.get())
+    ssl_host_state_delegate_.reset(new CefSSLHostStateDelegate());
+  return ssl_host_state_delegate_.get();
 }
 
 content::PermissionManager* CefBrowserContextImpl::GetPermissionManager() {

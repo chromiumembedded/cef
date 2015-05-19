@@ -1018,6 +1018,8 @@
         'libcef/browser/speech_recognition_manager_delegate.h',
         'libcef/browser/ssl_cert_principal_impl.cc',
         'libcef/browser/ssl_cert_principal_impl.h',
+        'libcef/browser/ssl_host_state_delegate.cc',
+        'libcef/browser/ssl_host_state_delegate.h',
         'libcef/browser/ssl_info_impl.cc',
         'libcef/browser/ssl_info_impl.h',
         'libcef/browser/stream_impl.cc',

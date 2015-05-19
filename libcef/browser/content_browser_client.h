@@ -105,6 +105,10 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       bool expired_previous_decision,
       const base::Callback<void(bool)>& callback,
       content::CertificateRequestResultType* result) override;
+  void SelectClientCertificate(
+      content::WebContents* web_contents,
+      net::SSLCertRequestInfo* cert_request_info,
+      scoped_ptr<content::ClientCertificateDelegate> delegate) override;
   content::AccessTokenStore* CreateAccessTokenStore() override;
   bool CanCreateWindow(const GURL& opener_url,
                        const GURL& opener_top_level_frame_url,
