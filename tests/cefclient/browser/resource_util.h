@@ -9,6 +9,10 @@
 #include <string>
 #include "include/cef_stream.h"
 
+#if defined(OS_WIN)
+#include "include/wrapper/cef_resource_manager.h"
+#endif
+
 namespace client {
 
 #if defined(OS_POSIX)
@@ -21,6 +25,12 @@ bool LoadBinaryResource(const char* resource_name, std::string& resource_data);
 
 // Retrieve a resource as a steam reader.
 CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name);
+
+#if defined(OS_WIN)
+// Create a new provider for loading binary resources.
+CefResourceManager::Provider* CreateBinaryResourceProvider(
+    const std::string& url_path);
+#endif
 
 }  // namespace client
 

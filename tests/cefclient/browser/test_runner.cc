@@ -266,45 +266,75 @@ void RunOtherTests(CefRefPtr<CefBrowser> browser) {
   browser->GetMainFrame()->LoadURL("http://tests/other_tests");
 }
 
-// Retrieve the file name and mime type based on the specified url.
-bool ParseTestUrl(const std::string& url,
-                  std::string* file_name,
-                  std::string* mime_type) {
-  // Retrieve the path component.
-  CefURLParts parts;
-  CefParseURL(url, parts);
-  std::string file = CefString(&parts.path);
-  if (file.size() < 2)
-    return false;
-
-  // Remove the leading slash.
-  file = file.substr(1);
-
-  // Verify that the file name is valid.
-  for(size_t i = 0; i < file.size(); ++i) {
-    const char c = file[i];
-    if (!isalpha(c) && !isdigit(c) && c != '_' && c != '.')
-      return false;
+// Provider that dumps the request contents.
+class RequestDumpResourceProvider : public CefResourceManager::Provider {
+ public:
+  explicit RequestDumpResourceProvider(const std::string& url)
+    : url_(url) {
+    DCHECK(!url.empty());
   }
 
-  // Determine the mime type based on the file extension, if any.
-  size_t pos = file.rfind(".");
-  if (pos != std::string::npos) {
-    std::string ext = file.substr(pos + 1);
-    if (ext == "html")
-      *mime_type = "text/html";
-    else if (ext == "png")
-      *mime_type = "image/png";
-    else
+  bool OnRequest(scoped_refptr<CefResourceManager::Request> request) OVERRIDE {
+    CEF_REQUIRE_IO_THREAD();
+
+    const std::string& url = request->url();
+    if (url != url_) {
+      // Not handled by this provider.
       return false;
+    }
+
+    const std::string& dump = DumpRequestContents(request->request());
+    std::string str = "<html><body bgcolor=\"white\"><pre>" + dump +
+                      "</pre></body></html>";
+    CefRefPtr<CefStreamReader> stream =
+        CefStreamReader::CreateForData(
+            static_cast<void*>(const_cast<char*>(str.c_str())),
+            str.size());
+    DCHECK(stream.get());
+    request->Continue(new CefStreamResourceHandler("text/html", stream));
+    return true;
+  }
+
+ private:
+  std::string url_;
+
+  DISALLOW_COPY_AND_ASSIGN(RequestDumpResourceProvider);
+};
+
+// Add a file extension to |url| if none is currently specified.
+std::string RequestUrlFilter(const std::string& url) {
+  if (url.find(kTestOrigin) != 0U) {
+    // Don't filter anything outside of the test origin.
+    return url;
+  }
+
+  // Identify where the query or fragment component, if any, begins.
+  size_t suffix_pos = url.find('?');
+  if (suffix_pos == std::string::npos)
+    suffix_pos = url.find('#');
+
+  std::string url_base, url_suffix;
+  if (suffix_pos == std::string::npos) {
+    url_base = url;
   } else {
-    // Default to an html extension if none is specified.
-    *mime_type = "text/html";
-    file += ".html";
+    url_base = url.substr(0, suffix_pos);
+    url_suffix = url.substr(suffix_pos);
   }
 
-  *file_name = file;
-  return true;
+  // Identify the last path component.
+  size_t path_pos = url_base.rfind('/');
+  if (path_pos == std::string::npos)
+    return url;
+
+  const std::string& path_component = url_base.substr(path_pos);
+
+  // Identify if a file extension is currently specified.
+  size_t ext_pos = path_component.rfind(".");
+  if (ext_pos != std::string::npos)
+    return url;
+
+  // Rebuild the URL with a file extension.
+  return url_base + ".html" + url_suffix;
 }
 
 }  // namespace
@@ -480,37 +510,30 @@ std::string GetErrorString(cef_errorcode_t code) {
   }
 }
 
-CefRefPtr<CefResourceHandler> GetResourceHandler(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request) {
-  std::string url = request->GetURL();
-  if (url.find(kTestOrigin) == 0) {
-    // Handle URLs in the test origin.
-    std::string file_name, mime_type;
-    if (ParseTestUrl(url, &file_name, &mime_type)) {
-      if (file_name == "request.html") {
-        // Show the request contents.
-        const std::string& dump = DumpRequestContents(request);
-        std::string str = "<html><body bgcolor=\"white\"><pre>" + dump +
-                          "</pre></body></html>";
-        CefRefPtr<CefStreamReader> stream =
-            CefStreamReader::CreateForData(
-                static_cast<void*>(const_cast<char*>(str.c_str())),
-                str.size());
-        DCHECK(stream.get());
-        return new CefStreamResourceHandler("text/html", stream);
-      } else {
-        // Load the resource from file.
-        CefRefPtr<CefStreamReader> stream =
-            GetBinaryResourceReader(file_name.c_str());
-        if (stream.get())
-          return new CefStreamResourceHandler(mime_type, stream);
-      }
-    }
-  }
+void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager) {
+  const std::string& test_origin = kTestOrigin;
 
-  return NULL;
+  // Add the URL filter.
+  resource_manager->SetUrlFilter(base::Bind(RequestUrlFilter));
+
+  // Add provider for resource dumps.
+  resource_manager->AddProvider(
+      new RequestDumpResourceProvider(test_origin + "request.html"),
+      0, std::string());
+
+  // Add provider for bundled resource files.
+#if defined(OS_WIN)
+  // Read resources from the binary.
+  resource_manager->AddProvider(CreateBinaryResourceProvider(test_origin),
+                                100, std::string());
+#elif defined(OS_POSIX)
+  // Read resources from a directory on disk.
+  std::string resource_dir;
+  if (GetResourceDir(resource_dir)) {
+    resource_manager->AddDirectoryProvider(test_origin, resource_dir,
+                                           100, std::string());
+  }
+#endif
 }
 
 void Alert(CefRefPtr<CefBrowser> browser, const std::string& message) {

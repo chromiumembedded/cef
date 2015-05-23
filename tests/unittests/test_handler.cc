@@ -274,9 +274,10 @@ void TestHandler::DestroyTest() {
     ui_thread_helper_.reset(NULL);
 }
 
-void TestHandler::OnTestTimeout(int timeout_ms) {
+void TestHandler::OnTestTimeout(int timeout_ms, bool treat_as_error) {
   EXPECT_UI_THREAD();
-  EXPECT_TRUE(false) << "Test timed out after " << timeout_ms << "ms";
+  if (treat_as_error)
+    EXPECT_TRUE(false) << "Test timed out after " << timeout_ms << "ms";
   DestroyTest();
 }
 
@@ -322,21 +323,24 @@ void TestHandler::ClearResources() {
   resource_map_.clear();
 }
 
-void TestHandler::SetTestTimeout(int timeout_ms) {
+void TestHandler::SetTestTimeout(int timeout_ms, bool treat_as_error) {
   if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI, base::Bind(&TestHandler::SetTestTimeout, this,
-                timeout_ms));
+                timeout_ms, treat_as_error));
     return;
   }
 
-  if (CefCommandLine::GetGlobalCommandLine()->HasSwitch("disable-test-timeout"))
+  if (treat_as_error &&
+      CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+          "disable-test-timeout")) {
     return;
+  }
 
   // Use a weak reference to |this| via UIThreadHelper so that the TestHandler
   // can be destroyed before the timeout expires.
   GetUIThreadHelper()->PostDelayedTask(
       base::Bind(&TestHandler::OnTestTimeout, base::Unretained(this),
-                 timeout_ms),
+                 timeout_ms, treat_as_error),
       timeout_ms);
 }
 

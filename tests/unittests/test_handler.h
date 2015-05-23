@@ -221,7 +221,7 @@ class TestHandler : public CefClient,
 
   // Called on the UI thread if the test times out as a result of calling
   // SetTestTimeout(). Calls DestroyTest() by default.
-  virtual void OnTestTimeout(int timeout_ms);
+  virtual void OnTestTimeout(int timeout_ms, bool treat_as_error);
 
   // Called from CreateBrowser() to optionally set per-browser settings.
   virtual void PopulateBrowserSettings(CefBrowserSettings* settings) {}
@@ -242,7 +242,7 @@ class TestHandler : public CefClient,
   }
 
   // Call OnTestTimeout() after the specified amount of time.
-  void SetTestTimeout(int timeout_ms = 5000);
+  void SetTestTimeout(int timeout_ms = 5000, bool treat_as_error = true);
 
   // Signal that the test is complete. This will be called automatically when
   // all existing non-popup browsers are closed if

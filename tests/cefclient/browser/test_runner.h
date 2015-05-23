@@ -10,9 +10,9 @@
 #include <string>
 
 #include "include/cef_browser.h"
-#include "include/cef_resource_handler.h"
 #include "include/cef_request.h"
 #include "include/wrapper/cef_message_router.h"
+#include "include/wrapper/cef_resource_manager.h"
 
 namespace client {
 namespace test_runner {
@@ -30,11 +30,8 @@ std::string GetDataURI(const std::string& data,
 // Returns the string representation of the specified error code.
 std::string GetErrorString(cef_errorcode_t code);
 
-// Get test resources.
-CefRefPtr<CefResourceHandler> GetResourceHandler(
-    CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame,
-    CefRefPtr<CefRequest> request);
+// Set up the resource manager for tests.
+void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager);
 
 // Show a JS alert message.
 void Alert(CefRefPtr<CefBrowser> browser, const std::string& message);
