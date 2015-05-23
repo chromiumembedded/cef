@@ -121,6 +121,9 @@ ClientHandler::ClientHandler(Delegate* delegate,
   dialog_handler_ = new ClientDialogHandlerGtk();
 #endif
 
+  resource_manager_ = new CefResourceManager();
+  test_runner::SetupResourceManager(resource_manager_);
+
   // Read command line settings.
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
@@ -461,13 +464,24 @@ bool ClientHandler::OnOpenURLFromTab(
   return false;
 }
 
+cef_return_value_t ClientHandler::OnBeforeResourceLoad(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefRequestCallback> callback) {
+  CEF_REQUIRE_IO_THREAD();
+
+  return resource_manager_->OnBeforeResourceLoad(browser, frame, request,
+                                                 callback);
+}
+
 CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
     CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request) {
   CEF_REQUIRE_IO_THREAD();
 
-  return test_runner::GetResourceHandler(browser, frame, request);
+  return resource_manager_->GetResourceHandler(browser, frame, request);
 }
 
 bool ClientHandler::OnQuotaRequest(CefRefPtr<CefBrowser> browser,

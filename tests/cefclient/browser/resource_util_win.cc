@@ -7,6 +7,7 @@
 #include "include/base/cef_logging.h"
 #include "include/cef_stream.h"
 #include "include/wrapper/cef_byte_read_handler.h"
+#include "include/wrapper/cef_stream_resource_handler.h"
 #include "cefclient/browser/resource.h"
 
 namespace client {
@@ -58,6 +59,46 @@ int GetResourceId(const char* resource_name) {
   return 0;
 }
 
+// Provider of binary resources.
+class BinaryResourceProvider : public CefResourceManager::Provider {
+ public:
+  explicit BinaryResourceProvider(const std::string& url_path)
+    : url_path_(url_path) {
+    DCHECK(!url_path.empty());
+  }
+
+  bool OnRequest(scoped_refptr<CefResourceManager::Request> request) OVERRIDE {
+    CEF_REQUIRE_IO_THREAD();
+
+    const std::string& url = request->url();
+    if (url.find(url_path_) != 0L) {
+      // Not handled by this provider.
+      return false;
+    }
+
+    CefRefPtr<CefResourceHandler> handler;
+
+    const std::string& relative_path = url.substr(url_path_.length());
+    if (!relative_path.empty()) {
+      CefRefPtr<CefStreamReader> stream =
+          GetBinaryResourceReader(relative_path.data());
+      if (stream.get()) {
+        handler = new CefStreamResourceHandler(
+            request->mime_type_resolver().Run(url),
+            stream);
+      }
+    }
+
+    request->Continue(handler);
+    return true;
+  }
+
+ private:
+  std::string url_path_;
+
+  DISALLOW_COPY_AND_ASSIGN(BinaryResourceProvider);
+};
+
 }  // namespace
 
 bool LoadBinaryResource(const char* resource_name, std::string& resource_data) {
@@ -92,6 +133,11 @@ CefRefPtr<CefStreamReader> GetBinaryResourceReader(const char* resource_name) {
 
   NOTREACHED();  // The resource should be found.
   return NULL;
+}
+
+CefResourceManager::Provider* CreateBinaryResourceProvider(
+    const std::string& url_path) {
+  return new BinaryResourceProvider(url_path);
 }
 
 }  // namespace client

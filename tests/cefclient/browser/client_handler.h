@@ -12,6 +12,7 @@
 #include "include/cef_client.h"
 #include "include/wrapper/cef_helpers.h"
 #include "include/wrapper/cef_message_router.h"
+#include "include/wrapper/cef_resource_manager.h"
 #include "cefclient/browser/client_types.h"
 
 #if defined(OS_LINUX)
@@ -212,6 +213,11 @@ class ClientHandler : public CefClient,
       const CefString& target_url,
       CefRequestHandler::WindowOpenDisposition target_disposition,
       bool user_gesture) OVERRIDE;
+  cef_return_value_t OnBeforeResourceLoad(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefRequestCallback> callback) OVERRIDE;
   CefRefPtr<CefResourceHandler> GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
@@ -298,6 +304,9 @@ class ClientHandler : public CefClient,
   // Handles the browser side of query routing. The renderer side is handled
   // in client_renderer.cc.
   CefRefPtr<CefMessageRouterBrowserSide> message_router_;
+
+  // Manages the registration and delivery of resources.
+  CefRefPtr<CefResourceManager> resource_manager_;
 
   // MAIN THREAD MEMBERS
   // The following members will only be accessed on the main thread. This will
