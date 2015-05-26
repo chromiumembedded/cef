@@ -8,7 +8,7 @@
 #include "base/logging.h"
 #include "content/public/browser/browser_thread.h"
 
-#if defined(USE_NSS_CERTS)
+#if defined(USE_NSS)
 #include "net/ssl/client_cert_store_nss.h"
 #endif
 
@@ -48,7 +48,7 @@ net::URLRequestContext* CefResourceContext::GetRequestContext() {
 }
 
 scoped_ptr<net::ClientCertStore> CefResourceContext::CreateClientCertStore() {
-#if defined(USE_NSS_CERTS)
+#if defined(USE_NSS)
   return scoped_ptr<net::ClientCertStore>(new net::ClientCertStoreNSS(
       net::ClientCertStoreNSS::PasswordDelegateFactory()));
 #elif defined(OS_WIN)
