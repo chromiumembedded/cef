@@ -11,7 +11,7 @@ index 53f1128..46bbcf8 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git public/common/web_preferences.cc public/common/web_preferences.cc
-index b61e1dc..5b55207 100644
+index 039a5ff..6c2e08c 100644
 --- public/common/web_preferences.cc
 +++ public/common/web_preferences.cc
 @@ -189,6 +189,7 @@ WebPreferences::WebPreferences()
@@ -35,7 +35,7 @@ index 8d25487..23b25ae 100644
    bool slimming_paint_enabled;
  
 diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
-index c9cbd66..8124639 100644
+index 84340d4..76187de 100644
 --- renderer/render_view_impl.cc
 +++ renderer/render_view_impl.cc
 @@ -932,6 +932,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
