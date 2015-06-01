@@ -1,0 +1,36 @@
+diff --git core/html/parser/HTMLConstructionSite.cpp core/html/parser/HTMLConstructionSite.cpp
+index 679749a..487323d 100644
+--- core/html/parser/HTMLConstructionSite.cpp
++++ core/html/parser/HTMLConstructionSite.cpp
+@@ -50,7 +50,6 @@
+ #include "core/loader/FrameLoaderClient.h"
+ #include "core/svg/SVGScriptElement.h"
+ #include "platform/NotImplemented.h"
+-#include "platform/ScriptForbiddenScope.h"
+ #include "platform/text/TextBreakIterator.h"
+ #include <limits>
+ 
+@@ -103,10 +102,8 @@ static inline void insert(HTMLConstructionSiteTask& task)
+     if (isHTMLTemplateElement(*task.parent))
+         task.parent = toHTMLTemplateElement(task.parent.get())->content();
+ 
+-    if (ContainerNode* parent = task.child->parentNode()) {
+-        ScriptForbiddenScope forbidScript;
++    if (ContainerNode* parent = task.child->parentNode())
+         parent->parserRemoveChild(*task.child);
+-    }
+ 
+     if (task.nextChild)
+         task.parent->parserInsertBefore(task.child.get(), *task.nextChild);
+@@ -153,10 +150,8 @@ static inline void executeReparentTask(HTMLConstructionSiteTask& task)
+ {
+     ASSERT(task.operation == HTMLConstructionSiteTask::Reparent);
+ 
+-    if (ContainerNode* parent = task.child->parentNode()) {
+-        ScriptForbiddenScope forbidScript;
++    if (ContainerNode* parent = task.child->parentNode())
+         parent->parserRemoveChild(*task.child);
+-    }
+ 
+     task.parent->parserAppendChild(task.child);
+ }
