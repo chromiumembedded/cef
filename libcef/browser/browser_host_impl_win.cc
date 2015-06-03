@@ -511,6 +511,9 @@ bool RunSaveFileDialog(const CefBrowserHostImpl::FileChooserParams& params,
     ofn.lpstrFilter = filter.c_str();
     // Indices into |lpstrFilter| start at 1.
     ofn.nFilterIndex = *filter_index + 1;
+    // If a filter is specified and the default file name is changed then append
+    // a file extension to the new name.
+    ofn.lpstrDefExt = L"";
   }
 
   bool success = !!GetSaveFileName(&ofn);
