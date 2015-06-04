@@ -14,6 +14,7 @@
 #include "cefclient/browser/resource.h"
 #include "cefclient/browser/temp_window.h"
 #include "cefclient/browser/util_win.h"
+#include "cefclient/browser/window_test.h"
 #include "cefclient/common/client_switches.h"
 
 #define MAX_URL_LENGTH  255
@@ -770,6 +771,18 @@ void RootWindowWin::OnSetTitle(const std::string& title) {
 
   if (hwnd_)
     SetWindowText(hwnd_, CefString(title).ToWString().c_str());
+}
+
+void RootWindowWin::OnSetFullscreen(bool fullscreen) {
+  REQUIRE_MAIN_THREAD();
+
+  CefRefPtr<CefBrowser> browser = GetBrowser();
+  if (browser) {
+    if (fullscreen)
+      window_test::Maximize(browser);
+    else
+      window_test::Restore(browser);
+  }
 }
 
 void RootWindowWin::OnSetLoadingState(bool isLoading,

@@ -230,6 +230,13 @@ void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
   NotifyTitle(title);
 }
 
+void ClientHandler::OnFullscreenModeChange(CefRefPtr<CefBrowser> browser,
+                                           bool fullscreen) {
+  CEF_REQUIRE_UI_THREAD();
+
+  NotifyFullscreen(fullscreen);
+}
+
 bool ClientHandler::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
                                      const CefString& message,
                                      const CefString& source,
@@ -681,6 +688,18 @@ void ClientHandler::NotifyTitle(const CefString& title) {
 
   if (delegate_)
     delegate_->OnSetTitle(title);
+}
+
+void ClientHandler::NotifyFullscreen(bool fullscreen) {
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute this method on the main thread.
+    MAIN_POST_CLOSURE(
+        base::Bind(&ClientHandler::NotifyFullscreen, this, fullscreen));
+    return;
+  }
+
+  if (delegate_)
+    delegate_->OnSetFullscreen(fullscreen);
 }
 
 void ClientHandler::NotifyLoadingState(bool isLoading,

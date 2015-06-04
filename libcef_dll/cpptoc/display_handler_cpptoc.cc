@@ -92,6 +92,25 @@ void CEF_CALLBACK display_handler_on_favicon_urlchange(
       icon_urlsList);
 }
 
+void CEF_CALLBACK display_handler_on_fullscreen_mode_change(
+    struct _cef_display_handler_t* self, cef_browser_t* browser,
+    int fullscreen) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+
+  // Execute
+  CefDisplayHandlerCppToC::Get(self)->OnFullscreenModeChange(
+      CefBrowserCToCpp::Wrap(browser),
+      fullscreen?true:false);
+}
+
 int CEF_CALLBACK display_handler_on_tooltip(struct _cef_display_handler_t* self,
     cef_browser_t* browser, cef_string_t* text) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -171,6 +190,8 @@ CefDisplayHandlerCppToC::CefDisplayHandlerCppToC() {
   GetStruct()->on_address_change = display_handler_on_address_change;
   GetStruct()->on_title_change = display_handler_on_title_change;
   GetStruct()->on_favicon_urlchange = display_handler_on_favicon_urlchange;
+  GetStruct()->on_fullscreen_mode_change =
+      display_handler_on_fullscreen_mode_change;
   GetStruct()->on_tooltip = display_handler_on_tooltip;
   GetStruct()->on_status_message = display_handler_on_status_message;
   GetStruct()->on_console_message = display_handler_on_console_message;

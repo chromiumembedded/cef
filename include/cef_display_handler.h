@@ -72,6 +72,17 @@ class CefDisplayHandler : public virtual CefBase {
                                   const std::vector<CefString>& icon_urls) {}
 
   ///
+  // Called when web content in the page has toggled fullscreen mode. If
+  // |fullscreen| is true the content will automatically be sized to fill the
+  // browser content area. If |fullscreen| is false the content will
+  // automatically return to its original size and position. The client is
+  // responsible for resizing the browser if desired.
+  ///
+  /*--cef()--*/
+  virtual void OnFullscreenModeChange(CefRefPtr<CefBrowser> browser,
+                                      bool fullscreen) {}
+
+  ///
   // Called when the browser is about to display a tooltip. |text| contains the
   // text that will be displayed in the tooltip. To handle the display of the
   // tooltip yourself return true. Otherwise, you can optionally modify |text|

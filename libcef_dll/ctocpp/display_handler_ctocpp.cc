@@ -96,6 +96,25 @@ void CefDisplayHandlerCToCpp::OnFaviconURLChange(CefRefPtr<CefBrowser> browser,
     cef_string_list_free(icon_urlsList);
 }
 
+void CefDisplayHandlerCToCpp::OnFullscreenModeChange(
+    CefRefPtr<CefBrowser> browser, bool fullscreen) {
+  cef_display_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_fullscreen_mode_change))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+
+  // Execute
+  _struct->on_fullscreen_mode_change(_struct,
+      CefBrowserCppToC::Wrap(browser),
+      fullscreen);
+}
+
 bool CefDisplayHandlerCToCpp::OnTooltip(CefRefPtr<CefBrowser> browser,
     CefString& text) {
   cef_display_handler_t* _struct = GetStruct();

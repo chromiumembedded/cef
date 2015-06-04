@@ -12,6 +12,7 @@
 #include "cefclient/browser/main_context.h"
 #include "cefclient/browser/main_message_loop.h"
 #include "cefclient/browser/temp_window.h"
+#include "cefclient/browser/window_test.h"
 #include "cefclient/common/client_switches.h"
 
 // Receives notifications from controls and the browser window. Will delete
@@ -589,6 +590,18 @@ void RootWindowMac::OnSetTitle(const std::string& title) {
     std::string titleStr(title);
     NSString* str = [NSString stringWithUTF8String:titleStr.c_str()];
     [window_ setTitle:str];
+  }
+}
+
+void RootWindowMac::OnSetFullscreen(bool fullscreen) {
+  REQUIRE_MAIN_THREAD();
+
+  CefRefPtr<CefBrowser> browser = GetBrowser();
+  if (browser) {
+    if (fullscreen)
+      window_test::Maximize(browser);
+    else
+      window_test::Restore(browser);
   }
 }
 

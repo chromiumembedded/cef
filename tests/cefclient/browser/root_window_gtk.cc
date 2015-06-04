@@ -19,6 +19,7 @@
 #include "cefclient/browser/main_message_loop.h"
 #include "cefclient/browser/resource.h"
 #include "cefclient/browser/temp_window.h"
+#include "cefclient/browser/window_test.h"
 #include "cefclient/common/client_switches.h"
 
 namespace client {
@@ -371,6 +372,18 @@ void RootWindowGtk::OnSetTitle(const std::string& title) {
   if (window_) {
     std::string titleStr(title);
     gtk_window_set_title(GTK_WINDOW(window_), titleStr.c_str());
+  }
+}
+
+void RootWindowGtk::OnSetFullscreen(bool fullscreen) {
+  REQUIRE_MAIN_THREAD();
+
+  CefRefPtr<CefBrowser> browser = GetBrowser();
+  if (browser) {
+    if (fullscreen)
+      window_test::Maximize(browser);
+    else
+      window_test::Restore(browser);
   }
 }
 

@@ -61,6 +61,7 @@ class RootWindowMac : public RootWindow,
   void OnBrowserWindowDestroyed() OVERRIDE;
   void OnSetAddress(const std::string& url) OVERRIDE;
   void OnSetTitle(const std::string& title) OVERRIDE;
+  void OnSetFullscreen(bool fullscreen) OVERRIDE;
   void OnSetLoadingState(bool isLoading,
                          bool canGoBack,
                          bool canGoForward) OVERRIDE;

@@ -38,6 +38,8 @@ class CefDisplayHandlerCToCpp
       const CefString& title) override;
   void OnFaviconURLChange(CefRefPtr<CefBrowser> browser,
       const std::vector<CefString>& icon_urls) override;
+  void OnFullscreenModeChange(CefRefPtr<CefBrowser> browser,
+      bool fullscreen) override;
   bool OnTooltip(CefRefPtr<CefBrowser> browser, CefString& text) override;
   void OnStatusMessage(CefRefPtr<CefBrowser> browser,
       const CefString& value) override;

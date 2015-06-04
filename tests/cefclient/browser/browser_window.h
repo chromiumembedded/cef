@@ -34,6 +34,9 @@ class BrowserWindow : public ClientHandler::Delegate {
     // Set the window title.
     virtual void OnSetTitle(const std::string& title) = 0;
 
+    // Set fullscreen mode.
+    virtual void OnSetFullscreen(bool fullscreen) = 0;
+
     // Set the loading state.
     virtual void OnSetLoadingState(bool isLoading,
                                    bool canGoBack,
@@ -102,6 +105,7 @@ class BrowserWindow : public ClientHandler::Delegate {
   void OnBrowserClosed(CefRefPtr<CefBrowser> browser) OVERRIDE;
   void OnSetAddress(const std::string& url) OVERRIDE;
   void OnSetTitle(const std::string& title) OVERRIDE;
+  void OnSetFullscreen(bool fullscreen) OVERRIDE;
   void OnSetLoadingState(bool isLoading,
                          bool canGoBack,
                          bool canGoForward) OVERRIDE;

@@ -53,6 +53,9 @@ class ClientHandler : public CefClient,
     // Set the window title.
     virtual void OnSetTitle(const std::string& title) = 0;
 
+    // Set fullscreen mode.
+    virtual void OnSetFullscreen(bool fullscreen) = 0;
+
     // Set the loading state.
     virtual void OnSetLoadingState(bool isLoading,
                                    bool canGoBack,
@@ -136,6 +139,8 @@ class ClientHandler : public CefClient,
                        const CefString& url) OVERRIDE;
   void OnTitleChange(CefRefPtr<CefBrowser> browser,
                      const CefString& title) OVERRIDE;
+  void OnFullscreenModeChange(CefRefPtr<CefBrowser> browser,
+                              bool fullscreen) OVERRIDE;
   bool OnConsoleMessage(CefRefPtr<CefBrowser> browser,
                         const CefString& message,
                         const CefString& source,
@@ -274,6 +279,7 @@ class ClientHandler : public CefClient,
   void NotifyBrowserClosed(CefRefPtr<CefBrowser> browser);
   void NotifyAddress(const CefString& url);
   void NotifyTitle(const CefString& title);
+  void NotifyFullscreen(bool fullscreen);
   void NotifyLoadingState(bool isLoading,
                           bool canGoBack,
                           bool canGoForward);

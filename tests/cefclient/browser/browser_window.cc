@@ -61,6 +61,11 @@ void BrowserWindow::OnSetTitle(const std::string& title) {
   delegate_->OnSetTitle(title);
 }
 
+void BrowserWindow::OnSetFullscreen(bool fullscreen) {
+  REQUIRE_MAIN_THREAD();
+  delegate_->OnSetFullscreen(fullscreen);
+}
+
 void BrowserWindow::OnSetLoadingState(bool isLoading,
                                       bool canGoBack,
                                       bool canGoForward) {

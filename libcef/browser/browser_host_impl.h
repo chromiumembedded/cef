@@ -405,6 +405,13 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void RunFileChooser(
       content::WebContents* web_contents,
       const content::FileChooserParams& params) override;
+  void EnterFullscreenModeForTab(content::WebContents* web_contents,
+                                 const GURL& origin) override;
+  void ExitFullscreenModeForTab(content::WebContents* web_contents) override;
+  bool IsFullscreenForTabOrPending(
+      const content::WebContents* web_contents) const override;
+  blink::WebDisplayMode GetDisplayMode(
+      const content::WebContents* web_contents) const override;
   void FindReply(
       content::WebContents* web_contents,
       int request_id,
@@ -413,7 +420,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       int active_match_ordinal,
       bool final_update) override;
   void UpdatePreferredSize(content::WebContents* source,
-                                   const gfx::Size& pref_size) override;
+                           const gfx::Size& pref_size) override;
   void RequestMediaAccessPermission(
       content::WebContents* web_contents,
       const content::MediaStreamRequest& request,
@@ -575,6 +582,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void OnLoadEnd(CefRefPtr<CefFrame> frame,
                  const GURL& url,
                  int http_status_code);
+  void OnFullscreenModeChange(bool fullscreen);
 
   // Continuation from RunFileChooser.
   void RunFileChooserOnUIThread(const FileChooserParams& params,
@@ -621,6 +629,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   bool can_go_back_;
   bool can_go_forward_;
   bool has_document_;
+  bool is_fullscreen_;
 
   // Messages we queue while waiting for the RenderView to be ready. We queue
   // them here instead of in the RenderProcessHost to ensure that they're sent

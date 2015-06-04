@@ -77,6 +77,17 @@ typedef struct _cef_display_handler_t {
       struct _cef_browser_t* browser, cef_string_list_t icon_urls);
 
   ///
+  // Called when web content in the page has toggled fullscreen mode. If
+  // |fullscreen| is true (1) the content will automatically be sized to fill
+  // the browser content area. If |fullscreen| is false (0) the content will
+  // automatically return to its original size and position. The client is
+  // responsible for resizing the browser if desired.
+  ///
+  void (CEF_CALLBACK *on_fullscreen_mode_change)(
+      struct _cef_display_handler_t* self, struct _cef_browser_t* browser,
+      int fullscreen);
+
+  ///
   // Called when the browser is about to display a tooltip. |text| contains the
   // text that will be displayed in the tooltip. To handle the display of the
   // tooltip yourself return true (1). Otherwise, you can optionally modify
