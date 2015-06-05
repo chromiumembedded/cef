@@ -1,8 +1,8 @@
 diff --git web_contents.cc web_contents.cc
-index aece7c6..63da2c9 100644
+index a0c8a4d..1c102ae 100644
 --- web_contents.cc
 +++ web_contents.cc
-@@ -18,7 +18,9 @@ WebContents::CreateParams::CreateParams(BrowserContext* context)
+@@ -19,7 +19,9 @@ WebContents::CreateParams::CreateParams(BrowserContext* context)
        initially_hidden(false),
        guest_delegate(nullptr),
        context(nullptr),
@@ -13,7 +13,7 @@ index aece7c6..63da2c9 100644
  
  WebContents::CreateParams::CreateParams(
      BrowserContext* context, SiteInstance* site)
-@@ -31,7 +33,9 @@ WebContents::CreateParams::CreateParams(
+@@ -33,7 +35,9 @@ WebContents::CreateParams::CreateParams(
        initially_hidden(false),
        guest_delegate(nullptr),
        context(nullptr),
@@ -25,7 +25,7 @@ index aece7c6..63da2c9 100644
  WebContents::CreateParams::~CreateParams() {
  }
 diff --git web_contents.h web_contents.h
-index 4380412..a67739d 100644
+index 768ece2..9c2d863 100644
 --- web_contents.h
 +++ web_contents.h
 @@ -52,9 +52,11 @@ class PageState;
@@ -40,7 +40,7 @@ index 4380412..a67739d 100644
  struct CustomContextMenuContext;
  struct DropData;
  struct Manifest;
-@@ -128,6 +130,10 @@ class WebContents : public PageNavigator,
+@@ -139,6 +141,10 @@ class WebContents : public PageNavigator,
      // RenderFrame, have already been created on the renderer side, and
      // WebContents construction should take this into account.
      bool renderer_initiated_creation;
@@ -52,10 +52,10 @@ index 4380412..a67739d 100644
  
    // Creates a new WebContents.
 diff --git web_contents_delegate.cc web_contents_delegate.cc
-index d4028fb..285f0c3 100644
+index b1fc250..555e25d 100644
 --- web_contents_delegate.cc
 +++ web_contents_delegate.cc
-@@ -133,7 +133,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
+@@ -136,7 +136,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
      const base::string16& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
@@ -67,7 +67,7 @@ index d4028fb..285f0c3 100644
  }
  
 diff --git web_contents_delegate.h web_contents_delegate.h
-index ef73451..17374f1 100644
+index 66439df..c8779c9 100644
 --- web_contents_delegate.h
 +++ web_contents_delegate.h
 @@ -37,9 +37,11 @@ class DownloadItem;
@@ -82,7 +82,7 @@ index ef73451..17374f1 100644
  struct ColorSuggestion;
  struct ContextMenuParams;
  struct DropData;
-@@ -292,7 +294,9 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -296,7 +298,9 @@ class CONTENT_EXPORT WebContentsDelegate {
        const base::string16& frame_name,
        const GURL& target_url,
        const std::string& partition_id,

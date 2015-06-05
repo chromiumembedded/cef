@@ -57,8 +57,7 @@ bool CefTraceSubscriber::BeginTracing(
   }
 
   TracingController::GetInstance()->EnableRecording(
-      base::trace_event::CategoryFilter(categories),
-      base::trace_event::TraceOptions(),
+      base::trace_event::TraceConfig(categories, ""),
       done_callback);
   return true;
 }

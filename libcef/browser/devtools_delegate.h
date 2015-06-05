@@ -33,6 +33,7 @@ class CefDevToolsDelegate :
   // DevToolsHttpHandlerDelegate overrides.
   std::string GetDiscoveryPageHTML() override;
   std::string GetFrontendResource(const std::string& path) override;
+  std::string GetPageThumbnailData(const GURL& url) override;
 
   // Returns the chrome-devtools URL.
   std::string GetChromeDevToolsURL();
@@ -56,10 +57,6 @@ class CefDevToolsManagerDelegate : public content::DevToolsManagerDelegate {
   base::DictionaryValue* HandleCommand(
       content::DevToolsAgentHost* agent_host,
       base::DictionaryValue* command) override;
-  scoped_ptr<content::DevToolsTarget> CreateNewTarget(
-      const GURL& url) override;
-  void EnumerateTargets(TargetCallback callback) override;
-  std::string GetPageThumbnailData(const GURL& url) override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CefDevToolsManagerDelegate);

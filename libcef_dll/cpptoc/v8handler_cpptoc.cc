@@ -52,7 +52,8 @@ int CEF_CALLBACK v8handler_execute(struct _cef_v8handler_t* self,
   std::vector<CefRefPtr<CefV8Value> > argumentsList;
   if (argumentsCount > 0) {
     for (size_t i = 0; i < argumentsCount; ++i) {
-      argumentsList.push_back(CefV8ValueCToCpp::Wrap(arguments[i]));
+      CefRefPtr<CefV8Value> argumentsVal = CefV8ValueCToCpp::Wrap(arguments[i]);
+      argumentsList.push_back(argumentsVal);
     }
   }
   // Translate param: retval; type: refptr_diff_byref

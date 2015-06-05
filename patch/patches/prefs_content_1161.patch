@@ -1,8 +1,8 @@
 diff --git public/common/common_param_traits_macros.h public/common/common_param_traits_macros.h
-index 53f1128..46bbcf8 100644
+index 9c8e453..03f5d51 100644
 --- public/common/common_param_traits_macros.h
 +++ public/common/common_param_traits_macros.h
-@@ -194,6 +194,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+@@ -192,6 +192,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
    IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
@@ -11,10 +11,10 @@ index 53f1128..46bbcf8 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git public/common/web_preferences.cc public/common/web_preferences.cc
-index b61e1dc..5b55207 100644
+index 6279aba..242fd16 100644
 --- public/common/web_preferences.cc
 +++ public/common/web_preferences.cc
-@@ -189,6 +189,7 @@ WebPreferences::WebPreferences()
+@@ -187,6 +187,7 @@ WebPreferences::WebPreferences()
        pinch_overlay_scrollbar_thickness(0),
        use_solid_color_scrollbars(false),
        navigate_on_drag_drop(true),
@@ -23,10 +23,10 @@ index b61e1dc..5b55207 100644
        slimming_paint_enabled(false),
        cookie_enabled(true),
 diff --git public/common/web_preferences.h public/common/web_preferences.h
-index 8d25487..23b25ae 100644
+index 5dfc5d5..150bdf5 100644
 --- public/common/web_preferences.h
 +++ public/common/web_preferences.h
-@@ -181,6 +181,7 @@ struct CONTENT_EXPORT WebPreferences {
+@@ -179,6 +179,7 @@ struct CONTENT_EXPORT WebPreferences {
    int pinch_overlay_scrollbar_thickness;
    bool use_solid_color_scrollbars;
    bool navigate_on_drag_drop;
@@ -35,10 +35,10 @@ index 8d25487..23b25ae 100644
    bool slimming_paint_enabled;
  
 diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
-index 66d2c0d..1502e0a 100644
+index 53ba225..d5ebdd8 100644
 --- renderer/render_view_impl.cc
 +++ renderer/render_view_impl.cc
-@@ -950,6 +950,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+@@ -945,6 +945,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
  
    settings->setJavaEnabled(prefs.java_enabled);
  

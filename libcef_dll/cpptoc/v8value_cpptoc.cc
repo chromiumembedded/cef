@@ -863,7 +863,9 @@ struct _cef_v8value_t* CEF_CALLBACK v8value_execute_function(
   std::vector<CefRefPtr<CefV8Value> > argumentsList;
   if (argumentsCount > 0) {
     for (size_t i = 0; i < argumentsCount; ++i) {
-      argumentsList.push_back(CefV8ValueCppToC::Unwrap(arguments[i]));
+      CefRefPtr<CefV8Value> argumentsVal = CefV8ValueCppToC::Unwrap(
+          arguments[i]);
+      argumentsList.push_back(argumentsVal);
     }
   }
 
@@ -899,7 +901,9 @@ struct _cef_v8value_t* CEF_CALLBACK v8value_execute_function_with_context(
   std::vector<CefRefPtr<CefV8Value> > argumentsList;
   if (argumentsCount > 0) {
     for (size_t i = 0; i < argumentsCount; ++i) {
-      argumentsList.push_back(CefV8ValueCppToC::Unwrap(arguments[i]));
+      CefRefPtr<CefV8Value> argumentsVal = CefV8ValueCppToC::Unwrap(
+          arguments[i]);
+      argumentsList.push_back(argumentsVal);
     }
   }
 

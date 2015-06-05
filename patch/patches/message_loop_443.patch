@@ -1,10 +1,10 @@
 diff --git message_loop.cc message_loop.cc
-index eb0f968..1852eb1 100644
+index 4222c77..bbc04b4 100644
 --- message_loop.cc
 +++ message_loop.cc
-@@ -152,12 +152,6 @@ MessageLoop::MessageLoop(scoped_ptr<MessagePump> pump)
- MessageLoop::~MessageLoop() {
-   DCHECK_EQ(this, current());
+@@ -134,12 +134,6 @@ MessageLoop::~MessageLoop() {
+   // bound to a thread.
+   DCHECK(current() == this || !current());
  
 -  // iOS just attaches to the loop, it doesn't Run it.
 -  // TODO(stuartmorgan): Consider wiring up a Detach().

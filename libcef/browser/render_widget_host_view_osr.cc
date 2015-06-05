@@ -10,6 +10,7 @@
 
 #include "base/callback_helpers.h"
 #include "base/command_line.h"
+#include "cc/base/switches.h"
 #include "cc/output/copy_output_request.h"
 #include "cc/scheduler/delay_based_time_source.h"
 #include "content/browser/bad_message.h"
@@ -710,9 +711,6 @@ void CefRenderWidgetHostViewOSR::MovePluginWindows(
     const std::vector<content::WebPluginGeometry>& moves) {
 }
 
-void CefRenderWidgetHostViewOSR::Blur() {
-}
-
 void CefRenderWidgetHostViewOSR::UpdateCursor(
     const content::WebCursor& cursor) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::UpdateCursor");
@@ -1280,7 +1278,7 @@ void CefRenderWidgetHostViewOSR::SetFrameRate() {
   }
 
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-  if (command_line->HasSwitch(switches::kEnableBeginFrameScheduling)) {
+  if (command_line->HasSwitch(cc::switches::kEnableBeginFrameScheduling)) {
     if (begin_frame_timer_.get()) {
       begin_frame_timer_->SetFrameRateThresholdMs(frame_rate_threshold_ms_);
     } else {

@@ -31,7 +31,9 @@ struct ParamTraits<net::UploadElement> {
       }
     }
   }
-  static bool Read(const Message* m, PickleIterator* iter, param_type* r) {
+  static bool Read(const Message* m,
+                   base::PickleIterator* iter,
+                   param_type* r) {
     int type;
     if (!ReadParam(m, iter, &type))
       return false;
@@ -80,9 +82,10 @@ void ParamTraits<scoped_refptr<net::UploadData> >::Write(Message* m,
   }
 }
 
-bool ParamTraits<scoped_refptr<net::UploadData> >::Read(const Message* m,
-                                                        PickleIterator* iter,
-                                                        param_type* r) {
+bool ParamTraits<scoped_refptr<net::UploadData> >::Read(
+    const Message* m,
+    base::PickleIterator* iter,
+    param_type* r) {
   bool has_object;
   if (!ReadParam(m, iter, &has_object))
     return false;

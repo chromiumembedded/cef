@@ -25,7 +25,10 @@ class CefResourceDispatcherHostDelegate
       ScopedVector<content::ResourceThrottle>* throttles) override;
   bool HandleExternalProtocol(const GURL& url,
                               int child_id,
-                              int route_id) override;
+                              int route_id,
+                              bool is_main_frame,
+                              ui::PageTransition page_transition,
+                              bool has_user_gesture) override;
   void OnRequestRedirected(
       const GURL& redirect_url,
       net::URLRequest* request,

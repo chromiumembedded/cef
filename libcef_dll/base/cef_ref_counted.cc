@@ -7,7 +7,7 @@
 
 namespace base {
 
-namespace subtle {
+namespace cef_subtle {
 
 bool RefCountedThreadSafeBase::HasOneRef() const {
   return AtomicRefCountIsOne(
@@ -48,6 +48,6 @@ bool RefCountedThreadSafeBase::Release() const {
   return false;
 }
 
-}  // namespace subtle
+}  // namespace cef_subtle
 
 }  // namespace base

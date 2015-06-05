@@ -1,8 +1,8 @@
 diff --git printing/renderer/print_web_view_helper.cc printing/renderer/print_web_view_helper.cc
-index cef7a95..f05255a 100644
+index 313d12d..558052c 100644
 --- printing/renderer/print_web_view_helper.cc
 +++ printing/renderer/print_web_view_helper.cc
-@@ -73,6 +73,7 @@ const double kMinDpi = 1.0;
+@@ -75,6 +75,7 @@ const double kMinDpi = 1.0;
  bool g_is_preview_enabled_ = false;
  #else
  bool g_is_preview_enabled_ = true;
@@ -10,7 +10,7 @@ index cef7a95..f05255a 100644
  
  const char kPageLoadScriptFormat[] =
      "document.open(); document.write(%s); document.close();";
-@@ -87,7 +88,6 @@ void ExecuteScript(blink::WebFrame* frame,
+@@ -89,7 +90,6 @@ void ExecuteScript(blink::WebFrame* frame,
    std::string script = base::StringPrintf(script_format, json.c_str());
    frame->executeScript(blink::WebString(base::UTF8ToUTF16(script)));
  }
@@ -18,7 +18,7 @@ index cef7a95..f05255a 100644
  
  int GetDPI(const PrintMsg_Print_Params* print_params) {
  #if defined(OS_MACOSX)
-@@ -484,7 +484,6 @@ blink::WebView* FrameReference::view() {
+@@ -474,7 +474,6 @@ blink::WebView* FrameReference::view() {
    return view_;
  }
  
@@ -26,7 +26,7 @@ index cef7a95..f05255a 100644
  // static - Not anonymous so that platform implementations can use it.
  void PrintWebViewHelper::PrintHeaderAndFooter(
      blink::WebCanvas* canvas,
-@@ -541,7 +540,6 @@ void PrintWebViewHelper::PrintHeaderAndFooter(
+@@ -532,7 +531,6 @@ void PrintWebViewHelper::PrintHeaderAndFooter(
    web_view->close();
    frame->close();
  }
@@ -35,10 +35,10 @@ index cef7a95..f05255a 100644
  // static - Not anonymous so that platform implementations can use it.
  float PrintWebViewHelper::RenderPageContent(blink::WebFrame* frame,
 diff --git printing/renderer/print_web_view_helper.h printing/renderer/print_web_view_helper.h
-index d040dbc..72dd76e 100644
+index 341ec8e..47777b8 100644
 --- printing/renderer/print_web_view_helper.h
 +++ printing/renderer/print_web_view_helper.h
-@@ -305,7 +305,6 @@ class PrintWebViewHelper
+@@ -309,7 +309,6 @@ class PrintWebViewHelper
        double* scale_factor,
        PageSizeMargins* page_layout_in_points);
  
@@ -46,7 +46,7 @@ index d040dbc..72dd76e 100644
    // Given the |device| and |canvas| to draw on, prints the appropriate headers
    // and footers using strings from |header_footer_info| on to the canvas.
    static void PrintHeaderAndFooter(blink::WebCanvas* canvas,
-@@ -315,7 +314,6 @@ class PrintWebViewHelper
+@@ -319,7 +318,6 @@ class PrintWebViewHelper
                                     float webkit_scale_factor,
                                     const PageSizeMargins& page_layout_in_points,
                                     const PrintMsg_Print_Params& params);

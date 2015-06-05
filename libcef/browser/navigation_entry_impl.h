@@ -13,7 +13,7 @@ namespace content {
 class NavigationEntry;
 }
 
-// CefDownloadItem implementation
+// CefNavigationEntry implementation
 class CefNavigationEntryImpl
     : public CefValueBase<CefNavigationEntry, content::NavigationEntry> {
  public:
@@ -27,7 +27,6 @@ class CefNavigationEntryImpl
   CefString GetTitle() override;
   TransitionType GetTransitionType() override;
   bool HasPostData() override;
-  CefString GetFrameName() override;
   CefTime GetCompletionTime() override;
   int GetHttpStatusCode() override;
 

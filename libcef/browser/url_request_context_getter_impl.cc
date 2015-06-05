@@ -25,13 +25,13 @@
 #include "base/threading/thread_restrictions.h"
 #include "base/threading/worker_pool.h"
 #include "chrome/browser/net/proxy_service_factory.h"
-#include "content/browser/net/sqlite_persistent_cookie_store.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_client.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
 #include "net/cert/cert_verifier.h"
 #include "net/cookies/cookie_monster.h"
+#include "net/extras/sqlite/sqlite_persistent_cookie_store.h"
 #include "net/dns/host_resolver.h"
 #include "net/ftp/ftp_network_layer.h"
 #include "net/http/http_auth_handler_factory.h"
@@ -294,7 +294,7 @@ void CefURLRequestContextGetterImpl::SetCookieStoragePath(
     return;
   }
 
-  scoped_refptr<content::SQLitePersistentCookieStore> persistent_store;
+  scoped_refptr<net::SQLitePersistentCookieStore> persistent_store;
   if (!path.empty()) {
     // TODO(cef): Move directory creation to the blocking pool instead of
     // allowing file IO on this thread.
@@ -303,12 +303,11 @@ void CefURLRequestContextGetterImpl::SetCookieStoragePath(
         base::CreateDirectory(path)) {
       const base::FilePath& cookie_path = path.AppendASCII("Cookies");
       persistent_store =
-          new content::SQLitePersistentCookieStore(
+          new net::SQLitePersistentCookieStore(
               cookie_path,
               BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
               BrowserThread::GetMessageLoopProxyForThread(BrowserThread::DB),
               persist_session_cookies,
-              NULL,
               NULL);
     } else {
       NOTREACHED() << "The cookie storage directory could not be created";

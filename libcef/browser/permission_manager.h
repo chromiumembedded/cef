@@ -17,13 +17,13 @@ class CefPermissionManager : public content::PermissionManager {
   // PermissionManager implementation.
   void RequestPermission(
       content::PermissionType permission,
-      content::WebContents* web_contents,
+      content::RenderFrameHost* render_frame_host,
       int request_id,
       const GURL& requesting_origin,
       bool user_gesture,
       const base::Callback<void(content::PermissionStatus)>& callback) override;
   void CancelPermissionRequest(content::PermissionType permission,
-                               content::WebContents* web_contents,
+                               content::RenderFrameHost* render_frame_host,
                                int request_id,
                                const GURL& requesting_origin) override;
   void ResetPermission(content::PermissionType permission,

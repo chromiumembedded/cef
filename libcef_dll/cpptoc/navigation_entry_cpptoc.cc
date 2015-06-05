@@ -123,21 +123,6 @@ int CEF_CALLBACK navigation_entry_has_post_data(
   return _retval;
 }
 
-cef_string_userfree_t CEF_CALLBACK navigation_entry_get_frame_name(
-    struct _cef_navigation_entry_t* self) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return NULL;
-
-  // Execute
-  CefString _retval = CefNavigationEntryCppToC::Get(self)->GetFrameName();
-
-  // Return type: string
-  return _retval.DetachToUserFree();
-}
-
 cef_time_t CEF_CALLBACK navigation_entry_get_completion_time(
     struct _cef_navigation_entry_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -181,7 +166,6 @@ CefNavigationEntryCppToC::CefNavigationEntryCppToC() {
   GetStruct()->get_title = navigation_entry_get_title;
   GetStruct()->get_transition_type = navigation_entry_get_transition_type;
   GetStruct()->has_post_data = navigation_entry_has_post_data;
-  GetStruct()->get_frame_name = navigation_entry_get_frame_name;
   GetStruct()->get_completion_time = navigation_entry_get_completion_time;
   GetStruct()->get_http_status_code = navigation_entry_get_http_status_code;
 }

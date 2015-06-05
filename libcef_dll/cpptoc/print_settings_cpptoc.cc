@@ -209,7 +209,8 @@ void CEF_CALLBACK print_settings_set_page_ranges(
   std::vector<CefPageRange > rangesList;
   if (rangesCount > 0) {
     for (size_t i = 0; i < rangesCount; ++i) {
-      rangesList.push_back(ranges[i]);
+      CefPageRange rangesVal = ranges[i];
+      rangesList.push_back(rangesVal);
     }
   }
 

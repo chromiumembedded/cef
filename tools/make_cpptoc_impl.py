@@ -254,7 +254,8 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names):
                       '\n  std::vector<'+vec_type+' > '+arg_name+'List;'\
                       '\n  if ('+arg_name+'Count > 0) {'\
                       '\n    for (size_t i = 0; i < '+arg_name+'Count; ++i) {'\
-                      '\n      '+arg_name+'List.push_back('+assign+');'\
+                      '\n      '+vec_type+' '+arg_name+'Val = '+assign+';'\
+                      '\n      '+arg_name+'List.push_back('+arg_name+'Val);'\
                       '\n    }'\
                       '\n  }'
             params.append(arg_name+'List')

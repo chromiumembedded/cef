@@ -76,7 +76,7 @@ std::string DumpDocumentText(blink::WebFrame* frame) {
   if (document_element.isNull())
     return std::string();
 
-  return document_element.innerText().utf8();
+  return document_element.textContent().utf8();
 }
 
 bool SetNodeValue(blink::WebNode& node, const blink::WebString& value) {

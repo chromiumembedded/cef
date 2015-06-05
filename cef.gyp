@@ -874,11 +874,13 @@
         # zip_analyzer_results.h via chrome_utility_messages.h
         '<(DEPTH)/chrome/chrome.gyp:safe_browsing_proto',
         '<(DEPTH)/components/components.gyp:crash_component_breakpad_mac_to_be_deleted',
+        '<(DEPTH)/components/components.gyp:devtools_discovery',
         '<(DEPTH)/components/components.gyp:devtools_http_handler',
         '<(DEPTH)/components/components.gyp:keyed_service_content',
         '<(DEPTH)/components/components.gyp:keyed_service_core',
         '<(DEPTH)/components/components.gyp:navigation_interception',
         '<(DEPTH)/components/components.gyp:pdf_renderer',
+        '<(DEPTH)/components/components.gyp:plugins_renderer',
         '<(DEPTH)/components/components.gyp:pref_registry',
         '<(DEPTH)/components/components.gyp:printing_common',
         '<(DEPTH)/components/components.gyp:printing_renderer',

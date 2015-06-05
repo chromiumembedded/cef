@@ -1,5 +1,5 @@
 diff --git spellcheck_factory.cc spellcheck_factory.cc
-index bd4ac1f..ce1d28e 100644
+index edbed40..b9a192b 100644
 --- spellcheck_factory.cc
 +++ spellcheck_factory.cc
 @@ -16,6 +16,13 @@

@@ -18,9 +18,9 @@
 #include "base/format_macros.h"
 #include "base/logging.h"
 #include "base/threading/thread_restrictions.h"
-#include "content/browser/net/sqlite_persistent_cookie_store.h"
 #include "net/cookies/cookie_util.h"
 #include "net/cookies/parsed_cookie.h"
+#include "net/extras/sqlite/sqlite_persistent_cookie_store.h"
 #include "net/url_request/url_request_context.h"
 #include "url/gurl.h"
 
@@ -309,7 +309,7 @@ bool CefCookieManagerImpl::SetStoragePath(
     return true;
   }
 
-  scoped_refptr<content::SQLitePersistentCookieStore> persistent_store;
+  scoped_refptr<net::SQLitePersistentCookieStore> persistent_store;
   if (!new_path.empty()) {
     // TODO(cef): Move directory creation to the blocking pool instead of
     // allowing file IO on this thread.
@@ -318,12 +318,11 @@ bool CefCookieManagerImpl::SetStoragePath(
         base::CreateDirectory(new_path)) {
       const base::FilePath& cookie_path = new_path.AppendASCII("Cookies");
       persistent_store =
-          new content::SQLitePersistentCookieStore(
+          new net::SQLitePersistentCookieStore(
               cookie_path,
               BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
               BrowserThread::GetMessageLoopProxyForThread(BrowserThread::DB),
               persist_session_cookies,
-              NULL,
               NULL);
     } else {
       NOTREACHED() << "The cookie storage directory could not be created";

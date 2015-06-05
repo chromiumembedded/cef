@@ -14,7 +14,7 @@ namespace base {
 class CommandLine;
 }
 
-class CefTestSuite : public TestSuite {
+class CefTestSuite : public base::TestSuite {
  public:
   CefTestSuite(int argc, char** argv);
 

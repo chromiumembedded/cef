@@ -67,7 +67,8 @@ void CEF_CALLBACK drag_handler_on_draggable_regions_changed(
   std::vector<CefDraggableRegion > regionsList;
   if (regionsCount > 0) {
     for (size_t i = 0; i < regionsCount; ++i) {
-      regionsList.push_back(regions[i]);
+      CefDraggableRegion regionsVal = regions[i];
+      regionsList.push_back(regionsVal);
     }
   }
 

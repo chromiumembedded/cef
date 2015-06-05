@@ -11,7 +11,7 @@
 
 // static
 CefRefPtr<CefValue> CefValue::Create() {
-  return new CefValueImpl(base::Value::CreateNullValue());
+  return new CefValueImpl(base::Value::CreateNullValue().release());
 }
 
 // static
@@ -290,7 +290,7 @@ CefRefPtr<CefListValue> CefValueImpl::GetList() {
 }
 
 bool CefValueImpl::SetNull() {
-  SetValue(base::Value::CreateNullValue());
+  SetValue(base::Value::CreateNullValue().release());
   return true;
 }
 
@@ -676,7 +676,7 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValueImpl::Copy(
   base::DictionaryValue* value;
   if (exclude_empty_children) {
     value = const_cast<base::DictionaryValue&>(
-        const_value()).DeepCopyWithoutEmptyChildren();
+        const_value()).DeepCopyWithoutEmptyChildren().release();
   } else {
     value = const_value().DeepCopy();
   }
@@ -884,7 +884,7 @@ bool CefDictionaryValueImpl::SetValue(const CefString& key,
 
 bool CefDictionaryValueImpl::SetNull(const CefString& key) {
   CEF_VALUE_VERIFY_RETURN(true, false);
-  SetInternal(key, base::Value::CreateNullValue());
+  SetInternal(key, base::Value::CreateNullValue().release());
   return true;
 }
 
@@ -1285,7 +1285,7 @@ bool CefListValueImpl::SetValue(int index, CefRefPtr<CefValue> value) {
 
 bool CefListValueImpl::SetNull(int index) {
   CEF_VALUE_VERIFY_RETURN(true, false);
-  SetInternal(index, base::Value::CreateNullValue());
+  SetInternal(index, base::Value::CreateNullValue().release());
   return true;
 }
 

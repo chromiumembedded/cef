@@ -122,22 +122,6 @@ bool CefNavigationEntryCToCpp::HasPostData() {
   return _retval?true:false;
 }
 
-CefString CefNavigationEntryCToCpp::GetFrameName() {
-  cef_navigation_entry_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_frame_name))
-    return CefString();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_string_userfree_t _retval = _struct->get_frame_name(_struct);
-
-  // Return type: string
-  CefString _retvalStr;
-  _retvalStr.AttachToUserFree(_retval);
-  return _retvalStr;
-}
-
 CefTime CefNavigationEntryCToCpp::GetCompletionTime() {
   cef_navigation_entry_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_completion_time))

@@ -654,7 +654,6 @@ void MessageListenerCallbackImpl(v8::Handle<v8::Message> message,
   v8::Isolate* isolate = GetIsolateManager()->isolate();
   CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
   v8::Local<v8::StackTrace> v8Stack = message->GetStackTrace();
-  DCHECK(!v8Stack.IsEmpty());
   CefRefPtr<CefV8StackTrace> stackTrace =
       new CefV8StackTraceImpl(isolate, v8Stack);
 
@@ -2049,11 +2048,14 @@ CefRefPtr<CefV8StackTrace> CefV8StackTrace::GetCurrent(int frame_limit) {
 CefV8StackTraceImpl::CefV8StackTraceImpl(
     v8::Isolate* isolate,
     v8::Local<v8::StackTrace> handle) {
-  int frame_count = handle->GetFrameCount();
-  if (frame_count > 0) {
-    frames_.reserve(frame_count);
-    for (int i = 0; i < frame_count; ++i)
-      frames_.push_back(new CefV8StackFrameImpl(isolate, handle->GetFrame(i)));
+  if  (!handle.IsEmpty()) {
+    int frame_count = handle->GetFrameCount();
+    if (frame_count > 0) {
+      frames_.reserve(frame_count);
+      for (int i = 0; i < frame_count; ++i)
+        frames_.push_back(
+            new CefV8StackFrameImpl(isolate, handle->GetFrame(i)));
+    }
   }
 }
 

@@ -13,6 +13,8 @@
 #include "net/cert/cert_status_flags.h"
 #include "net/cert/x509_certificate.h"
 
+// Implementation based on android_webview/browser/aw_ssl_host_state_delegate.h.
+
 namespace internal {
 
 // This class maintains the policy for storing actions on certificate errors.
@@ -29,6 +31,10 @@ class CertPolicy {
   // remember the user's choice.
   void Allow(const net::X509Certificate& cert, net::CertStatus error);
 
+  // Returns true if and only if there exists a user allow exception for some
+  // certificate.
+  bool HasAllowException() const { return allowed_.size() > 0; }
+
  private:
   // The set of fingerprints of allowed certificates.
   std::map<net::SHA256HashValue, net::CertStatus, net::SHA256HashValueLessThan>
@@ -42,27 +48,21 @@ class CefSSLHostStateDelegate : public content::SSLHostStateDelegate {
   CefSSLHostStateDelegate();
   ~CefSSLHostStateDelegate() override;
 
-  // Records that |cert| is permitted to be used for |host| in the future, for
-  // a specified |error| type.
+  // SSLHostStateDelegate methods:
   void AllowCert(const std::string& host,
                  const net::X509Certificate& cert,
                  net::CertStatus error) override;
-
   void Clear() override;
-
-  // Queries whether |cert| is allowed or denied for |host| and |error|.
   content::SSLHostStateDelegate::CertJudgment QueryPolicy(
       const std::string& host,
       const net::X509Certificate& cert,
       net::CertStatus error,
       bool* expired_previous_decision) override;
-
-  // Records that a host has run insecure content.
   void HostRanInsecureContent(const std::string& host, int pid) override;
-
-  // Returns whether the specified host ran insecure content.
   bool DidHostRunInsecureContent(const std::string& host,
                                  int pid) const override;
+  void RevokeUserAllowExceptions(const std::string& host) override;
+  bool HasAllowException(const std::string& host) const override;
 
  private:
   // Certificate policies for each host.

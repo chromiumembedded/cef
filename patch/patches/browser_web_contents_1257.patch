@@ -1,10 +1,10 @@
 diff --git web_contents_impl.cc web_contents_impl.cc
-index 3ce4b68..465b5e1 100644
+index 4ab69e9..7c119d1 100644
 --- web_contents_impl.cc
 +++ web_contents_impl.cc
-@@ -1205,22 +1205,29 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
-       params.browser_context, params.site_instance, params.routing_id,
+@@ -1232,22 +1232,29 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
        params.main_frame_routing_id);
+   frame_tree_.root()->SetFrameName(params.main_frame_name);
  
 -  WebContentsViewDelegate* delegate =
 -      GetContentClient()->browser()->GetWebContentsViewDelegate(this);
@@ -48,7 +48,7 @@ index 3ce4b68..465b5e1 100644
    }
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
-@@ -1556,6 +1563,9 @@ void WebContentsImpl::CreateNewWindow(
+@@ -1583,6 +1590,9 @@ void WebContentsImpl::CreateNewWindow(
        static_cast<SessionStorageNamespaceImpl*>(session_storage_namespace);
    CHECK(session_storage_namespace_impl->IsFromContext(dom_storage_context));
  
@@ -58,7 +58,7 @@ index 3ce4b68..465b5e1 100644
    if (delegate_ &&
        !delegate_->ShouldCreateWebContents(this,
                                            route_id,
-@@ -1564,7 +1574,9 @@ void WebContentsImpl::CreateNewWindow(
+@@ -1591,7 +1601,9 @@ void WebContentsImpl::CreateNewWindow(
                                            params.frame_name,
                                            params.target_url,
                                            partition_id,
@@ -69,8 +69,8 @@ index 3ce4b68..465b5e1 100644
      if (route_id != MSG_ROUTING_NONE &&
          !RenderViewHost::FromID(render_process_id, route_id)) {
        // If the embedder didn't create a WebContents for this route, we need to
-@@ -1584,6 +1596,8 @@ void WebContentsImpl::CreateNewWindow(
-   create_params.main_frame_routing_id = main_frame_route_id;
+@@ -1612,6 +1624,8 @@ void WebContentsImpl::CreateNewWindow(
+   create_params.main_frame_name = base::UTF16ToUTF8(params.frame_name);
    create_params.opener = this;
    create_params.opener_suppressed = params.opener_suppressed;
 +  create_params.view = view;

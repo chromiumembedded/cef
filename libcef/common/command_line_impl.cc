@@ -87,12 +87,12 @@ bool CefCommandLineImpl::HasSwitches() {
 
 bool CefCommandLineImpl::HasSwitch(const CefString& name) {
   CEF_VALUE_VERIFY_RETURN(false, false);
-  return const_value().HasSwitch(name);
+  return const_value().HasSwitch(name.ToString());
 }
 
 CefString CefCommandLineImpl::GetSwitchValue(const CefString& name) {
   CEF_VALUE_VERIFY_RETURN(false, CefString());
-  return const_value().GetSwitchValueNative(name);
+  return const_value().GetSwitchValueNative(name.ToString());
 }
 
 void CefCommandLineImpl::GetSwitches(SwitchMap& switches) {

@@ -388,7 +388,7 @@ CefString CefDOMNodeImpl::GetElementInnerText() {
   }
 
   WebElement element = node_.to<blink::WebElement>();
-  const WebString& text = element.innerText();
+  const WebString& text = element.textContent();
   if (!text.isNull())
     str = text;
 

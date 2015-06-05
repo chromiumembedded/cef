@@ -2027,9 +2027,11 @@ class V8TestHandler : public TestHandler {
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
     if (test_mode_ == V8TEST_ON_UNCAUGHT_EXCEPTION_DEV_TOOLS &&
         browser->IsPopup()) {
-      // Generate the uncaught exception in the main browser.
+      // Generate the uncaught exception in the main browser. Use a 200ms delay
+      // because there's a bit of a lag between destroying the DevToolsAgent and
+      // re-registering for uncaught exceptions.
       GetBrowser()->GetMainFrame()->ExecuteJavaScript(
-          "window.setTimeout(test, 0);",
+          "window.setTimeout(test, 200);",
           GetBrowser()->GetMainFrame()->GetURL(), 0);
     }
 

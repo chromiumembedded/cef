@@ -34,10 +34,10 @@ int GetJSONWriterOptions(cef_json_writer_options_t options) {
 CefRefPtr<CefValue> CefParseJSON(const CefString& json_string,
                                  cef_json_parser_options_t options) {
   const std::string& json = json_string.ToString();
-  base::Value* parse_result =
+  scoped_ptr<base::Value> parse_result =
       base::JSONReader::Read(json, GetJSONReaderOptions(options));
   if (parse_result)
-    return new CefValueImpl(parse_result);
+    return new CefValueImpl(parse_result.release());
   return NULL;
 }
 
@@ -50,10 +50,10 @@ CefRefPtr<CefValue> CefParseJSONAndReturnError(
 
   int error_code;
   std::string error_msg;
-  base::Value* parse_result = base::JSONReader::ReadAndReturnError(
+  scoped_ptr<base::Value> parse_result = base::JSONReader::ReadAndReturnError(
       json, GetJSONReaderOptions(options), &error_code, &error_msg);
   if (parse_result)
-    return new CefValueImpl(parse_result);
+    return new CefValueImpl(parse_result.release());
 
   error_code_out = static_cast<cef_json_parser_error_t>(error_code);
   error_msg_out = error_msg;
@@ -69,7 +69,7 @@ CefString CefWriteJSON(CefRefPtr<CefValue> node,
   CefValueImpl::ScopedLockedValue scoped_value(impl);
 
   std::string json_string;
-  if (base::JSONWriter::WriteWithOptions(scoped_value.value(),
+  if (base::JSONWriter::WriteWithOptions(*scoped_value.value(),
                                          GetJSONWriterOptions(options),
                                          &json_string)) {
     return json_string;

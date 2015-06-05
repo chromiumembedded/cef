@@ -102,14 +102,6 @@ typedef struct _cef_navigation_entry_t {
   int (CEF_CALLBACK *has_post_data)(struct _cef_navigation_entry_t* self);
 
   ///
-  // Returns the name of the sub-frame that navigated or an NULL value if the
-  // main frame navigated.
-  ///
-  // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_frame_name)(
-      struct _cef_navigation_entry_t* self);
-
-  ///
   // Returns the time for the last known successful navigation completion. A
   // navigation may be completed more than once if the page is reloaded. May be
   // 0 if the navigation has not yet completed.

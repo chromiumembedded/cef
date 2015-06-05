@@ -3226,7 +3226,6 @@ void CefBrowserHostImpl::OnRunFileChooserUploadFolderDelegateCallback(
   } else {
     lister_.reset(new net::DirectoryLister(
         file_paths[0],
-        true,
         net::DirectoryLister::NO_SORT,
         new UploadFolderHelper(
             base::Bind(&CefBrowserHostImpl::OnRunFileChooserDelegateCallback,

@@ -56,7 +56,7 @@
 #define CEF_INCLUDE_BASE_CEF_TUPLE_H_
 #pragma once
 
-#if defined(BASE_TUPLE_H__)
+#if defined(BASE_TUPLE_H_)
 // The Chromium header has already been included.
 // This can happen in cases where Chromium code is used directly by the
 // client application. When using Chromium code directly always include
@@ -64,6 +64,8 @@
 
 // For legacy compatibility, we name the first 8 tuple elements "a", "b", ...
 // TODO(cef): Remove this code when cef_runnable.h is deleted.
+
+namespace base {
 
 #define DEFINE_TUPLE_LEAF(N, x)                                        \
   template <typename T>                                                \
@@ -127,6 +129,8 @@ template <typename A,
           typename H>
 using Tuple8 = Tuple<A, B, C, D, E, F, G, H>;
 
+}  // namespace base
+
 #elif defined(BUILDING_CEF_SHARED)
 // When building CEF include the Chromium header directly.
 #include "base/tuple.h"
@@ -136,6 +140,8 @@ using Tuple8 = Tuple<A, B, C, D, E, F, G, H>;
 // updated to match.
 
 #include "include/base/cef_bind_helpers.h"
+
+namespace base {
 
 // Traits ----------------------------------------------------------------------
 //
@@ -1393,6 +1399,8 @@ inline void DispatchToMethod(ObjT* obj, Method method,
                  &out->d,
                  &out->e);
 }
+
+}  // namespace base
 
 #endif // !BUILDING_CEF_SHARED
 

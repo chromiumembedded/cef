@@ -38,7 +38,6 @@ class CefNavigationEntryCToCpp
   CefString GetTitle() OVERRIDE;
   TransitionType GetTransitionType() OVERRIDE;
   bool HasPostData() OVERRIDE;
-  CefString GetFrameName() OVERRIDE;
   CefTime GetCompletionTime() OVERRIDE;
   int GetHttpStatusCode() OVERRIDE;
 };

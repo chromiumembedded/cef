@@ -149,10 +149,6 @@ class CefPrintWebViewHelperDelegate :
     return blink::WebElement();
   }
 
-  bool IsOutOfProcessPdfEnabled() override {
-    return false;
-  }
-
   bool IsPrintPreviewEnabled() override {
     return false;
   }
@@ -233,10 +229,6 @@ void CefContentRendererClient::WebKitInitialized() {
 
   // TODO(cef): Enable these once the implementation supports it.
   blink::WebRuntimeFeatures::enableNotifications(false);
-
-  // TODO(cef): Remove this line once off-screen rendering is fixed to work
-  // with the new popup menu implementation (issue #1566).
-  blink::WebRuntimeFeatures::enableFeatureFromString("HTMLPopupMenu", false);
 
   const CefContentClient::SchemeInfoList* schemes =
       CefContentClient::Get()->GetCustomSchemes();

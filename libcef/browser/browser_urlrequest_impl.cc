@@ -211,8 +211,8 @@ class CefBrowserURLRequest::Context
     fetcher_delegate_.reset(
         new CefURLFetcherDelegate(this, request_->GetFlags()));
 
-    fetcher_.reset(net::URLFetcher::Create(url, request_type,
-                                           fetcher_delegate_.get()));
+    fetcher_ = net::URLFetcher::Create(url, request_type,
+                                       fetcher_delegate_.get());
 
     DCHECK(url_request_getter_.get());
     fetcher_->SetRequestContext(url_request_getter_.get());

@@ -62,7 +62,7 @@ CefPermissionManager::~CefPermissionManager() {
 
 void CefPermissionManager::RequestPermission(
     content::PermissionType permission,
-    content::WebContents* web_contents,
+    content::RenderFrameHost* render_frame_host,
     int request_id,
     const GURL& requesting_origin,
     bool user_gesture,
@@ -77,7 +77,7 @@ void CefPermissionManager::RequestPermission(
   bool proceed = false;
 
   CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForContents(web_contents);
+      CefBrowserHostImpl::GetBrowserForHost(render_frame_host);
   if (browser.get()) {
     CefRefPtr<CefClient> client = browser->GetClient();
     if (client.get()) {
@@ -105,7 +105,7 @@ void CefPermissionManager::RequestPermission(
 
 void CefPermissionManager::CancelPermissionRequest(
     content::PermissionType permission,
-    content::WebContents* web_contents,
+    content::RenderFrameHost* render_frame_host,
     int request_id,
     const GURL& requesting_origin) {
   CEF_REQUIRE_UIT();
@@ -114,7 +114,7 @@ void CefPermissionManager::CancelPermissionRequest(
     return;
 
   CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForContents(web_contents);
+      CefBrowserHostImpl::GetBrowserForHost(render_frame_host);
   if (browser.get()) {
     CefRefPtr<CefClient> client = browser->GetClient();
     if (client.get()) {

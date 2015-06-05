@@ -14,6 +14,33 @@
 #include "cefclient/browser/bytes_write_handler.h"
 #include "cefclient/browser/main_message_loop.h"
 
+// Forward declare methods and constants that are only available with newer SDK
+// versions to avoid -Wpartial-availability compiler warnings.
+
+#if !defined(MAC_OS_X_VERSION_10_7) || \
+    MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_7
+
+@interface NSEvent (LionSDK)
+- (NSEventPhase)phase;
+@end
+
+@interface NSView (LionSDK)
+- (NSRect)convertRectFromBacking:(NSRect)aRect;
+- (NSRect)convertRectToBacking:(NSRect)aRect;
+- (void)setWantsBestResolutionOpenGLSurface:(BOOL)flag;
+@end
+
+@interface NSWindow (LionSDK)
+- (CGFloat)backingScaleFactor;
+@end
+
+extern "C" {
+extern NSString* const NSWindowDidChangeBackingPropertiesNotification;
+}  // extern "C"
+
+#endif  // MAC_OS_X_VERSION_10_7
+
+
 @interface BrowserOpenGLView
     : NSOpenGLView <NSDraggingSource, NSDraggingDestination> {
  @private
@@ -652,9 +679,11 @@ BrowserOpenGLView* GLView(NSView* view) {
   // This delegate method is only called on 10.7 and later, so don't worry about
   // other backing changes calling it on 10.6 or earlier
   CGFloat newBackingScaleFactor = [self getDeviceScaleFactor];
-  NSNumber* oldBackingScaleFactor =
-      [[notification userInfo] objectForKey:NSBackingPropertyOldScaleFactorKey];
-  if (newBackingScaleFactor != [oldBackingScaleFactor doubleValue]) {
+  CGFloat oldBackingScaleFactor = (CGFloat)[
+      [notification.userInfo objectForKey:@"NSBackingPropertyOldScaleFactorKey"]
+          doubleValue
+  ];
+  if (newBackingScaleFactor != oldBackingScaleFactor) {
     CefRefPtr<CefBrowser> browser = [self getBrowser];
     if (browser.get())
       browser->GetHost()->NotifyScreenInfoChanged();

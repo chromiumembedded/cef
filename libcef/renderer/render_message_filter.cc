@@ -10,6 +10,7 @@
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
 #include "content/common/devtools_messages.h"
+#include "content/renderer/devtools/devtools_agent.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "url/gurl.h"
@@ -31,15 +32,17 @@ void CefRenderMessageFilter::OnFilterRemoved() {
 
 bool CefRenderMessageFilter::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
-  if (message.type() == DevToolsAgentMsg_Attach::ID ||
-      message.type() == DevToolsAgentMsg_Detach::ID) {
-    // Observe the DevTools messages but don't handle them.
+
+  // Observe the DevTools messages but don't handle them.
+  if (message.type() == DevToolsAgentMsg_Attach::ID) {
     handled = false;
+  } else if (message.type() == DevToolsAgentMsg_Detach::ID) {
+    OnDevToolsAgentDetach(message.routing_id());
+    return false;
   }
 
   IPC_BEGIN_MESSAGE_MAP(CefRenderMessageFilter, message)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_Attach, OnDevToolsAgentAttach)
-    IPC_MESSAGE_HANDLER(DevToolsAgentMsg_Detach, OnDevToolsAgentDetach)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -51,12 +54,10 @@ void CefRenderMessageFilter::OnDevToolsAgentAttach(
       base::Bind(&CefRenderMessageFilter::OnDevToolsAgentAttach_RT, this));
 }
 
-void CefRenderMessageFilter::OnDevToolsAgentDetach() {
-  // CefContentRendererClient::DevToolsAgentDetached() needs to be called after
-  // the IPC message has been handled by DevToolsAgent. A workaround for this is
-  // to first post to the IO thread and then post to the renderer thread.
-  base::MessageLoop::current()->PostTask(FROM_HERE,
-      base::Bind(&CefRenderMessageFilter::OnDevToolsAgentDetach_IOT, this));
+void CefRenderMessageFilter::OnDevToolsAgentDetach(int32 routing_id) {
+  CEF_POST_TASK_RT(
+      base::Bind(&CefRenderMessageFilter::OnDevToolsAgentDetach_RT, this,
+                 routing_id));
 }
 
 void CefRenderMessageFilter::OnDevToolsAgentAttach_RT() {
@@ -64,12 +65,21 @@ void CefRenderMessageFilter::OnDevToolsAgentAttach_RT() {
   CefContentRendererClient::Get()->DevToolsAgentAttached();
 }
 
-void CefRenderMessageFilter::OnDevToolsAgentDetach_IOT() {
-  CEF_POST_TASK_RT(
-      base::Bind(&CefRenderMessageFilter::OnDevToolsAgentDetach_RT, this));
-}
-
-void CefRenderMessageFilter::OnDevToolsAgentDetach_RT() {
+void CefRenderMessageFilter::OnDevToolsAgentDetach_RT(int32 routing_id) {
   CEF_REQUIRE_RT();
+
+  // Wait for the DevToolsAgent to detach. It would be better to receive
+  // notification when the DevToolsAgent detaches but that's not currently
+  // available.
+  content::DevToolsAgent* agent =
+      content::DevToolsAgent::FromRoutingId(routing_id);
+  if (agent && agent->IsAttached()) {
+    // Try again in a bit.
+    CEF_POST_DELAYED_TASK_RT(
+        base::Bind(&CefRenderMessageFilter::OnDevToolsAgentDetach_RT, this,
+                   routing_id), 50);
+    return;
+  }
+
   CefContentRendererClient::Get()->DevToolsAgentDetached();
 }

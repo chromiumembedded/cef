@@ -123,7 +123,6 @@ class CefRenderWidgetHostViewOSR
       content::RenderWidgetHostView* reference_host_view) override;
   void MovePluginWindows(
       const std::vector<content::WebPluginGeometry>& moves) override;
-  void Blur() override;
   void UpdateCursor(const content::WebCursor& cursor) override;
   void SetIsLoading(bool is_loading) override;
   void TextInputTypeChanged(ui::TextInputType type,

@@ -235,7 +235,8 @@ void CEF_CALLBACK render_handler_on_paint(struct _cef_render_handler_t* self,
   std::vector<CefRect > dirtyRectsList;
   if (dirtyRectsCount > 0) {
     for (size_t i = 0; i < dirtyRectsCount; ++i) {
-      dirtyRectsList.push_back(dirtyRects[i]);
+      CefRect dirtyRectsVal = dirtyRects[i];
+      dirtyRectsList.push_back(dirtyRectsVal);
     }
   }
 

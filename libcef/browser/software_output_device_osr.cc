@@ -81,14 +81,6 @@ void CefSoftwareOutputDeviceOSR::EndPaint(cc::SoftwareFrameData* frame_data) {
     OnPaint(damage_rect_);
 }
 
-void CefSoftwareOutputDeviceOSR::CopyToPixels(const gfx::Rect& rect,
-                                              void* pixels) {
-  CEF_REQUIRE_UIT();
-  DCHECK(canvas_.get());
-  SkImageInfo info = SkImageInfo::MakeN32Premul(rect.width(), rect.height());
-  canvas_->readPixels(info, pixels, info.minRowBytes(), rect.x(), rect.y());
-}
-
 void CefSoftwareOutputDeviceOSR::SetActive(bool active) {
   if (active == active_)
     return;

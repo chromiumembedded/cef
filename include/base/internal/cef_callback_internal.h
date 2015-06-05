@@ -38,25 +38,43 @@
 
 #include <stddef.h>
 
+#include "include/base/cef_atomic_ref_count.h"
+#include "include/base/cef_macros.h"
 #include "include/base/cef_ref_counted.h"
 #include "include/base/cef_scoped_ptr.h"
+#include "include/base/cef_template_util.h"
 
 template <typename T>
 class ScopedVector;
 
 namespace base {
 namespace cef_internal {
+class CallbackBase;
 
-// BindStateBase is used to provide an opaque handle that the Callback
-// class can use to represent a function object with bound arguments.  It
-// behaves as an existential type that is used by a corresponding
-// DoInvoke function to perform the function execution.  This allows
-// us to shield the Callback class from the types of the bound argument via
-// "type erasure."
-class BindStateBase : public RefCountedThreadSafe<BindStateBase> {
+// At the base level, the only task is to add reference counting data. Don't use
+// RefCountedThreadSafe since it requires the destructor to be a virtual method.
+// Creating a vtable for every BindState template instantiation results in a lot
+// of bloat. Its only task is to call the destructor which can be done with a
+// function pointer.
+class BindStateBase {
  protected:
-  friend class RefCountedThreadSafe<BindStateBase>;
-  virtual ~BindStateBase() {}
+  explicit BindStateBase(void (*destructor)(BindStateBase*))
+      : ref_count_(0), destructor_(destructor) {}
+  ~BindStateBase() = default;
+
+ private:
+  friend class scoped_refptr<BindStateBase>;
+  friend class CallbackBase;
+
+  void AddRef();
+  void Release();
+
+  AtomicRefCount ref_count_;
+
+  // Pointer to a function that will properly destroy |this|.
+  void (*destructor_)(BindStateBase*);
+
+  DISALLOW_COPY_AND_ASSIGN(BindStateBase);
 };
 
 // Holds the Callback methods that don't require specialization to reduce

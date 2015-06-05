@@ -76,7 +76,7 @@ const CefRect kExpectedRectLI[] = {
 const CefRect kEditBoxRect(412, 245, 60, 22);
 const CefRect kNavigateButtonRect(360, 271, 140, 22);
 const CefRect kSelectRect(467, 22, 75, 20);
-const CefRect kExpandedSelectRect(465, 42, 81, 302);
+const CefRect kExpandedSelectRect(466, 42, 81, 334);
 const CefRect kDropDivRect(8, 332, 52, 52);
 const CefRect kDragDivRect(71, 342, 30, 30);
 const int kDefaultVerticalScrollbarWidth = 17;
@@ -85,7 +85,7 @@ const int kVerticalScrollbarWidth = GetSystemMetrics(SM_CXVSCROLL);
 const CefRect kEditBoxRect(442, 251, 46, 16);
 const CefRect kNavigateButtonRect(375, 275, 130, 20);
 const CefRect kSelectRect(461, 21, 87, 26);
-const CefRect kExpandedSelectRect(465, 42, 80, 262);
+const CefRect kExpandedSelectRect(466, 42, 81, 286);
 const CefRect kDropDivRect(9, 330, 52, 52);
 const CefRect kDragDivRect(60, 330, 52, 52);
 const int kVerticalScrollbarWidth = 15;
@@ -93,7 +93,7 @@ const int kVerticalScrollbarWidth = 15;
 const CefRect kEditBoxRect(434, 246, 60, 20);
 const CefRect kNavigateButtonRect(380, 271, 140, 22);
 const CefRect kSelectRect(467, 22, 75, 20);
-const CefRect kExpandedSelectRect(465, 42, 80, 302);
+const CefRect kExpandedSelectRect(466, 42, 79, 334);
 const CefRect kDropDivRect(8, 332, 52, 52);
 const CefRect kDragDivRect(71, 342, 30, 30);
 const int kDefaultVerticalScrollbarWidth = 14;
@@ -383,7 +383,10 @@ class OSRTestHandler : public RoutingTestHandler,
     if (started()) {
       switch (test_type_) {
       case OSR_TEST_POPUP_SIZE:
-        EXPECT_EQ(kExpandedSelectRect, rect);
+        EXPECT_EQ(kExpandedSelectRect.x, rect.x);
+        EXPECT_EQ(kExpandedSelectRect.y, rect.y);
+        EXPECT_EQ(kExpandedSelectRect.width, rect.width);
+        EXPECT_EQ(kExpandedSelectRect.height, rect.height);
         DestroySucceededTestSoon();
         break;
       default:
@@ -564,46 +567,14 @@ class OSRTestHandler : public RoutingTestHandler,
           size_t word_length = strlen(kKeyTestWord);
           for (size_t i = 0; i < word_length; ++i) {
 #if defined(OS_WIN)
-            BYTE VkCode = LOBYTE(VkKeyScanA(kKeyTestWord[i]));
-            UINT scanCode = MapVirtualKey(VkCode, MAPVK_VK_TO_VSC);
-            event.native_key_code = (scanCode << 16) |  // key scan code
-                                                    1;  // key repeat count
-            event.windows_key_code = VkCode;
+            SendKeyEvent(browser, kKeyTestWord[i]);
 #elif defined(OS_MACOSX)
-            osr_unittests::GetKeyEvent(event, kKeyTestCodes[i], 0);
+            SendKeyEvent(browser, kKeyTestCodes[i]);
 #elif defined(OS_LINUX)
-            event.native_key_code = kNativeKeyTestCodes[i];
-            event.windows_key_code = kKeyTestCodes[i];
-            event.character = event.unmodified_character =
-                kNativeKeyTestCodes[i];
+            SendKeyEvent(browser, kNativeKeyTestCodes[i], kKeyTestCodes[i]);
 #else
-            NOTREACHED();
+#error "Unsupported platform"
 #endif
-            event.type = KEYEVENT_RAWKEYDOWN;
-            browser->GetHost()->SendKeyEvent(event);
-#if defined(OS_WIN)
-            event.windows_key_code = kKeyTestWord[i];
-#elif defined(OS_MACOSX)
-            osr_unittests::GetKeyEvent(event, kKeyTestCodes[i], 0);
-#elif defined(OS_LINUX)
-            event.native_key_code = kNativeKeyTestCodes[i];
-            event.windows_key_code = kKeyTestCodes[i];
-            event.character = event.unmodified_character =
-                kNativeKeyTestCodes[i];
-#endif
-            event.type = KEYEVENT_CHAR;
-            browser->GetHost()->SendKeyEvent(event);
-#if defined(OS_WIN)
-            event.windows_key_code = VkCode;
-            // bits 30 and 31 should be always 1 for WM_KEYUP
-            event.native_key_code |= 0xC0000000;
-#elif defined(OS_MACOSX)
-            osr_unittests::GetKeyEvent(event, kKeyTestCodes[i], 0);
-#elif defined(OS_LINUX)
-            event.native_key_code = kKeyTestCodes[i];
-#endif
-            event.type = KEYEVENT_KEYUP;
-            browser->GetHost()->SendKeyEvent(event);
           }
           // click button to navigate
           mouse_event.x = MiddleX(kNavigateButtonRect);
@@ -690,25 +661,15 @@ class OSRTestHandler : public RoutingTestHandler,
           ExpandDropDown();
           // Wait for the first popup paint to occur
         } else if (type == PET_POPUP) {
-          CefKeyEvent event;
-          event.is_system_key = false;
 #if defined(OS_WIN)
-          BYTE VkCode = LOBYTE(VK_ESCAPE);
-          UINT scanCode = MapVirtualKey(VkCode, MAPVK_VK_TO_VSC);
-          event.native_key_code = (scanCode << 16) |  // key scan code
-                                                  1;  // key repeat count
-          event.windows_key_code = VkCode;
+          SendKeyEvent(browser, VK_ESCAPE);
 #elif defined(OS_MACOSX)
-          osr_unittests::GetKeyEvent(event, ui::VKEY_ESCAPE, 0);
+          SendKeyEvent(browser, ui::VKEY_ESCAPE);
 #elif defined(OS_LINUX)
-          event.windows_key_code = ui::VKEY_ESCAPE;
-          event.native_key_code = XK_Escape;
-          event.character = event.unmodified_character = XK_Escape;
+          SendKeyEvent(browser, XK_Escape, ui::VKEY_ESCAPE);
 #else
 #error "Unsupported platform"
-#endif  // defined(OS_WIN)
-          event.type = KEYEVENT_CHAR;
-          browser->GetHost()->SendKeyEvent(event);
+#endif
         }
         break;
       case OSR_TEST_POPUP_SHOW:
@@ -729,7 +690,14 @@ class OSRTestHandler : public RoutingTestHandler,
                       expanded_select_rect.width,
                       expanded_select_rect.height));
           // first pixel of border
-          EXPECT_EQ(*(reinterpret_cast<const uint32*>(buffer)), 0xff7f9db9);
+#if defined(OS_MACOSX)
+          EXPECT_EQ(0xff719bc1, *(reinterpret_cast<const uint32*>(buffer)));
+#else
+          if (scale_factor_ == 1.0f)
+            EXPECT_EQ(0xffd69c2b, *(reinterpret_cast<const uint32*>(buffer)));
+          else if (scale_factor_ == 2.0f)
+            EXPECT_EQ(0xffe59700, *(reinterpret_cast<const uint32*>(buffer)));
+#endif
           EXPECT_EQ(expanded_select_rect.width, width);
           EXPECT_EQ(expanded_select_rect.height, height);
           DestroySucceededTestSoon();
@@ -975,6 +943,49 @@ class OSRTestHandler : public RoutingTestHandler,
     mouse_event.modifiers = 0;
     GetBrowser()->GetHost()->SendMouseClickEvent(
         mouse_event, MBT_LEFT, false, 1);
+  }
+
+  void SendKeyEvent(CefRefPtr<CefBrowser> browser,
+#if defined(OS_LINUX)
+                    unsigned int native_key_code,
+#endif
+                    int key_code) {
+    CefKeyEvent event;
+    event.is_system_key = false;
+    event.modifiers = 0;
+
+#if defined(OS_WIN)
+    BYTE VkCode = LOBYTE(VkKeyScanA(key_code));
+    UINT scanCode = MapVirtualKey(VkCode, MAPVK_VK_TO_VSC);
+    event.native_key_code = (scanCode << 16) |  // key scan code
+                                            1;  // key repeat count
+    event.windows_key_code = VkCode;
+#elif defined(OS_MACOSX)
+    osr_unittests::GetKeyEvent(
+        event, static_cast<ui::KeyboardCode>(key_code), 0);
+#elif defined(OS_LINUX)
+    event.native_key_code = native_key_code;
+    event.windows_key_code = key_code;
+    event.character = event.unmodified_character = native_key_code;
+#else
+    NOTREACHED();
+#endif
+    event.type = KEYEVENT_RAWKEYDOWN;
+    browser->GetHost()->SendKeyEvent(event);
+
+#if defined(OS_WIN)
+    event.windows_key_code = key_code;
+#endif
+    event.type = KEYEVENT_CHAR;
+    browser->GetHost()->SendKeyEvent(event);
+
+#if defined(OS_WIN)
+    event.windows_key_code = VkCode;
+    // bits 30 and 31 should be always 1 for WM_KEYUP
+    event.native_key_code |= 0xC0000000;
+#endif
+    event.type = KEYEVENT_KEYUP;
+    browser->GetHost()->SendKeyEvent(event);
   }
 
   // true if the events for this test are already sent

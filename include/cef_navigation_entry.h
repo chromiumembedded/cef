@@ -94,13 +94,6 @@ class CefNavigationEntry : public virtual CefBase {
   virtual bool HasPostData() =0;
 
   ///
-  // Returns the name of the sub-frame that navigated or an empty value if the
-  // main frame navigated.
-  ///
-  /*--cef()--*/
-  virtual CefString GetFrameName() =0;
-
-  ///
   // Returns the time for the last known successful navigation completion. A
   // navigation may be completed more than once if the page is reloaded. May be
   // 0 if the navigation has not yet completed.

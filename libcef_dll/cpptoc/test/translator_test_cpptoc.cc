@@ -231,7 +231,8 @@ int CEF_CALLBACK translator_test_set_int_list(
   std::vector<int > valList;
   if (valCount > 0) {
     for (size_t i = 0; i < valCount; ++i) {
-      valList.push_back(val[i]);
+      int valVal = val[i];
+      valList.push_back(valVal);
     }
   }
 
@@ -586,7 +587,8 @@ int CEF_CALLBACK translator_test_set_point_list(
   std::vector<CefPoint > valList;
   if (valCount > 0) {
     for (size_t i = 0; i < valCount; ++i) {
-      valList.push_back(val[i]);
+      CefPoint valVal = val[i];
+      valList.push_back(valVal);
     }
   }
 
@@ -770,7 +772,9 @@ int CEF_CALLBACK translator_test_set_object_list(
   std::vector<CefRefPtr<CefTranslatorTestObject> > valList;
   if (valCount > 0) {
     for (size_t i = 0; i < valCount; ++i) {
-      valList.push_back(CefTranslatorTestObjectCppToC::Unwrap(val[i]));
+      CefRefPtr<CefTranslatorTestObject> valVal =
+          CefTranslatorTestObjectCppToC::Unwrap(val[i]);
+      valList.push_back(valVal);
     }
   }
 
@@ -943,7 +947,9 @@ int CEF_CALLBACK translator_test_set_handler_list(
   std::vector<CefRefPtr<CefTranslatorTestHandler> > valList;
   if (valCount > 0) {
     for (size_t i = 0; i < valCount; ++i) {
-      valList.push_back(CefTranslatorTestHandlerCToCpp::Wrap(val[i]));
+      CefRefPtr<CefTranslatorTestHandler> valVal =
+          CefTranslatorTestHandlerCToCpp::Wrap(val[i]);
+      valList.push_back(valVal);
     }
   }
 

@@ -51,11 +51,6 @@ bool CefNavigationEntryImpl::HasPostData() {
   return const_value().GetHasPostData();
 }
 
-CefString CefNavigationEntryImpl::GetFrameName() {
-  CEF_VALUE_VERIFY_RETURN(false, CefString());
-  return const_value().GetFrameToNavigate();
-}
-
 CefTime CefNavigationEntryImpl::GetCompletionTime() {
   CefTime time;
   CEF_VALUE_VERIFY_RETURN(false, time);
