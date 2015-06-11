@@ -63,6 +63,10 @@
 #include "content/public/common/content_descriptors.h"
 #endif
 
+#if defined(OS_WIN)
+#include "sandbox/win/src/sandbox_policy.h"
+#endif
+
 namespace {
 
 // In-memory store for access tokens used by geolocation.
@@ -963,6 +967,20 @@ const wchar_t* CefContentBrowserClient::GetResourceDllName() {
   }
 
   return file_path;
+}
+
+void CefContentBrowserClient::PreSpawnRenderer(
+    sandbox::TargetPolicy* policy,
+    bool* success) {
+  // Flash requires this permission to play video files.
+  sandbox::ResultCode result = policy->AddRule(
+      sandbox::TargetPolicy::SUBSYS_HANDLES,
+      sandbox::TargetPolicy::HANDLES_DUP_ANY,
+      L"File");
+  if (result != sandbox::SBOX_ALL_OK) {
+    *success = false;
+    return;
+  }
 }
 #endif  // defined(OS_WIN)
 

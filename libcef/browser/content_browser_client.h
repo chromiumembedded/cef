@@ -143,6 +143,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
 
 #if defined(OS_WIN)
   const wchar_t* GetResourceDllName() override;
+  void PreSpawnRenderer(sandbox::TargetPolicy* policy, bool* success) override;
 #endif
 
   // Perform browser process registration for the custom scheme.
