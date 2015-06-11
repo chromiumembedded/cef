@@ -13,6 +13,7 @@
 
 #if defined(OS_WIN)
 #include "libcef/utility/printing_handler.h"
+#include "chrome/utility/font_cache_handler_win.h"
 #endif
 
 namespace {
@@ -35,6 +36,7 @@ void CreateProxyResolverFactory(
 CefContentUtilityClient::CefContentUtilityClient() {
 #if defined(OS_WIN)
   handlers_.push_back(new PrintingHandler());
+  handlers_.push_back(new FontCacheHandler());
 #endif
 }
 

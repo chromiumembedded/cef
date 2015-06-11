@@ -99,7 +99,10 @@ void CefBrowserMainParts::PostMainMessageLoopStart() {
 }
 
 int CefBrowserMainParts::PreCreateThreads() {
+#if defined(OS_WIN)
   PlatformInitialize();
+#endif
+
   net::NetModule::SetResourceProvider(&NetResourceProvider);
 
   // Initialize the GpuDataManager before IO access restrictions are applied and
@@ -140,6 +143,10 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
       LOG(WARNING) << "Invalid http debugger port number " << port;
     }
   }
+
+#if defined(OS_WIN)
+  PlatformPreMainMessageLoopRun();
+#endif
 }
 
 void CefBrowserMainParts::PostMainMessageLoopRun() {
@@ -166,6 +173,4 @@ void CefBrowserMainParts::PostDestroyThreads() {
   // No CefURLRequestContext instances should exist at this point.
   DCHECK_EQ(0, CefURLRequestContext::DebugObjCt);
 #endif
-
-  PlatformCleanup();
 }

@@ -52,8 +52,10 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   PrefService* pref_service() const { return pref_service_.get(); }
 
  private:
+#if defined(OS_WIN)
   void PlatformInitialize();
-  void PlatformCleanup();
+  void PlatformPreMainMessageLoopRun();
+#endif  // defined(OS_WIN)
 
   scoped_refptr<CefBrowserContextImpl> global_browser_context_;
   CefDevToolsDelegate* devtools_delegate_;  // Deletes itself.

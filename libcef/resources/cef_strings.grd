@@ -349,6 +349,13 @@ need to be translated for each locale.-->
       <message name="IDS_CONTENT_CONTEXT_NO_SPELLING_SUGGESTIONS" desc="The name of the No Spelling Suggestions display in the content area context menu">
         &amp;No spelling suggestions
       </message>
+
+      <!-- Font cache -->
+      <if expr="is_win">
+        <message name="IDS_UTILITY_PROCESS_FONT_CACHE_BUILDER_NAME" desc="The name of the utility process used for building the DirectWrite font cache.">
+          DirectWrite Font Cache Builder
+        </message>
+      </if>
     </messages>
   </release>
 </grit>

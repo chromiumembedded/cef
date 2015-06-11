@@ -1255,6 +1255,9 @@
         '<(DEPTH)/chrome/renderer/pepper/pepper_flash_menu_host.h',
         '<(DEPTH)/chrome/renderer/pepper/pepper_flash_renderer_host.cc',
         '<(DEPTH)/chrome/renderer/pepper/pepper_flash_renderer_host.h',
+        # Include sources required by chrome_utility_messages.h.
+        '<(DEPTH)/chrome/common/safe_browsing/zip_analyzer_results.h',
+        '<(DEPTH)/chrome/common/safe_browsing/zip_analyzer_results.cc',
       ],
       'conditions': [
         ['OS=="win"', {
@@ -1276,13 +1279,15 @@
             '<(DEPTH)/chrome/browser/printing/pdf_to_emf_converter.cc',
             '<(DEPTH)/chrome/browser/printing/pdf_to_emf_converter.h',
             '<(DEPTH)/chrome/common/chrome_utility_printing_messages.h',
+            # Include sources for font cache.
+            '<(DEPTH)/chrome/utility/font_cache_handler_win.cc',
+            '<(DEPTH)/chrome/utility/font_cache_handler_win.h',
           ],
         }],
         [ 'OS=="mac"', {
           'sources': [
             '<@(includes_mac)',
             'libcef/browser/browser_host_impl_mac.mm',
-            'libcef/browser/browser_main_mac.mm',
             'libcef/browser/javascript_dialog_mac.mm',
             'libcef/browser/menu_creator_runner_mac.h',
             'libcef/browser/menu_creator_runner_mac.mm',
@@ -1307,7 +1312,6 @@
           'sources': [
             '<@(includes_linux)',
             'libcef/browser/browser_host_impl_linux.cc',
-            'libcef/browser/browser_main_linux.cc',
             'libcef/browser/javascript_dialog_linux.cc',
             'libcef/browser/menu_creator_runner_linux.cc',
             'libcef/browser/menu_creator_runner_linux.h',
