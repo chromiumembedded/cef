@@ -312,6 +312,20 @@ class UploadFolderHelper :
   DISALLOW_COPY_AND_ASSIGN(UploadFolderHelper);
 };
 
+CefRenderWidgetHostViewOSR* GetOSRHostView(content::WebContents* web_contents) {
+  CefRenderWidgetHostViewOSR* fs_view =
+      static_cast<CefRenderWidgetHostViewOSR*>(
+          web_contents->GetFullscreenRenderWidgetHostView());
+  if (fs_view)
+    return fs_view;
+
+  content::RenderViewHost* host = web_contents->GetRenderViewHost();
+  if (host)
+    return static_cast<CefRenderWidgetHostViewOSR*>(host->GetView());
+
+  return NULL;
+}
+
 }  // namespace
 
 
@@ -1020,15 +1034,12 @@ void CefBrowserHostImpl::WasResized() {
   if (!web_contents())
     return;
 
-  content::RenderViewHost* host = web_contents()->GetRenderViewHost();
-  if (!host)
-    return;
-
   if (!IsWindowless()) {
-    host->WasResized();
+    content::RenderViewHost* host = web_contents()->GetRenderViewHost();
+    if (host)
+      host->WasResized();
   } else {
-    CefRenderWidgetHostViewOSR* view =
-        static_cast<CefRenderWidgetHostViewOSR*>(host->GetView());
+    CefRenderWidgetHostViewOSR* view = GetOSRHostView(web_contents());
     if (view)
       view->WasResized();
   }
@@ -1049,12 +1060,7 @@ void CefBrowserHostImpl::WasHidden(bool hidden) {
   if (!web_contents())
     return;
 
-  content::RenderViewHost* host = web_contents()->GetRenderViewHost();
-  if (!host)
-    return;
-
-  CefRenderWidgetHostViewOSR* view =
-      static_cast<CefRenderWidgetHostViewOSR*>(host->GetView());
+  CefRenderWidgetHostViewOSR* view = GetOSRHostView(web_contents());
   if (view) {
     if (hidden)
       view->Hide();
@@ -1078,12 +1084,7 @@ void CefBrowserHostImpl::NotifyScreenInfoChanged() {
   if (!web_contents())
     return;
 
-  content::RenderViewHost* host = web_contents()->GetRenderViewHost();
-  if (!host)
-    return;
-
-  CefRenderWidgetHostViewOSR* view =
-      static_cast<CefRenderWidgetHostViewOSR*>(host->GetView());
+  CefRenderWidgetHostViewOSR* view = GetOSRHostView(web_contents());
   if (view)
     view->OnScreenInfoChanged();
 }
@@ -1103,12 +1104,7 @@ void CefBrowserHostImpl::Invalidate(PaintElementType type) {
   if (!web_contents())
     return;
 
-  content::RenderViewHost* host = web_contents()->GetRenderViewHost();
-  if (!host)
-    return;
-
-  CefRenderWidgetHostViewOSR* view =
-      static_cast<CefRenderWidgetHostViewOSR*>(host->GetView());
+  CefRenderWidgetHostViewOSR* view = GetOSRHostView(web_contents());
   if (view)
     view->Invalidate(type);
 }
@@ -1123,18 +1119,15 @@ void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
   if (!web_contents())
     return;
 
-  content::RenderViewHost* host = web_contents()->GetRenderViewHost();
-  if (!host)
-    return;
-
   content::NativeWebKeyboardEvent web_event;
   PlatformTranslateKeyEvent(web_event, event);
 
   if (!IsWindowless()) {
-    host->ForwardKeyboardEvent(web_event);
+    content::RenderViewHost* host = web_contents()->GetRenderViewHost();
+    if (host)
+      host->ForwardKeyboardEvent(web_event);
   } else {
-    CefRenderWidgetHostViewOSR* view =
-        static_cast<CefRenderWidgetHostViewOSR*>(host->GetView());
+    CefRenderWidgetHostViewOSR* view = GetOSRHostView(web_contents());
     if (view)
       view->SendKeyEvent(web_event);
   }
@@ -1182,18 +1175,15 @@ void CefBrowserHostImpl::SendMouseWheelEvent(const CefMouseEvent& event,
   if (!web_contents())
     return;
 
-  content::RenderViewHost* host = web_contents()->GetRenderViewHost();
-  if (!host)
-    return;
-
   blink::WebMouseWheelEvent web_event;
   PlatformTranslateWheelEvent(web_event, event, deltaX, deltaY);
 
   if (!IsWindowless()) {
-    host->ForwardWheelEvent(web_event);
+    content::RenderViewHost* host = web_contents()->GetRenderViewHost();
+    if (host)
+      host->ForwardWheelEvent(web_event);
   } else {
-    CefRenderWidgetHostViewOSR* view =
-        static_cast<CefRenderWidgetHostViewOSR*>(host->GetView());
+    CefRenderWidgetHostViewOSR* view = GetOSRHostView(web_contents());
     if (view)
       view->SendMouseWheelEvent(web_event);
   }
@@ -1233,15 +1223,12 @@ void CefBrowserHostImpl::SendMouseEvent(const blink::WebMouseEvent& event) {
   if (!web_contents())
     return;
 
-  content::RenderViewHost* host = web_contents()->GetRenderViewHost();
-  if (!host)
-    return;
-
   if (!IsWindowless()) {
-    host->ForwardMouseEvent(event);
+    content::RenderViewHost* host = web_contents()->GetRenderViewHost();
+    if (host)
+      host->ForwardMouseEvent(event);
   } else {
-    CefRenderWidgetHostViewOSR* view =
-      static_cast<CefRenderWidgetHostViewOSR*>(host->GetView());
+    CefRenderWidgetHostViewOSR* view = GetOSRHostView(web_contents());
     if (view)
       view->SendMouseEvent(event);
   }
@@ -1260,12 +1247,7 @@ void CefBrowserHostImpl::SendFocusEvent(bool setFocus) {
     if (!web_contents())
       return;
 
-    content::RenderViewHost* host = web_contents()->GetRenderViewHost();
-    if (!host)
-      return;
-
-    CefRenderWidgetHostViewOSR* view =
-      static_cast<CefRenderWidgetHostViewOSR*>(host->GetView());
+    CefRenderWidgetHostViewOSR* view = GetOSRHostView(web_contents());
     if (view)
       view->SendFocusEvent(setFocus);
   }
@@ -1332,12 +1314,7 @@ void CefBrowserHostImpl::SetWindowlessFrameRate(int frame_rate) {
   if (!web_contents())
     return;
 
-  content::RenderViewHost* host = web_contents()->GetRenderViewHost();
-  if (!host)
-    return;
-
-  CefRenderWidgetHostViewOSR* view =
-      static_cast<CefRenderWidgetHostViewOSR*>(host->GetView());
+  CefRenderWidgetHostViewOSR* view = GetOSRHostView(web_contents());
   if (view)
     view->UpdateFrameRate();
 }
@@ -1889,6 +1866,12 @@ void CefBrowserHostImpl::RunFileChooser(
   CEF_POST_TASK(CEF_UIT,
       base::Bind(&CefBrowserHostImpl::RunFileChooserOnUIThread, this, params,
                  callback));
+}
+
+bool CefBrowserHostImpl::EmbedsFullscreenWidget() const {
+  // When using windowless rendering do not allow Flash to create its own full-
+  // screen widget.
+  return IsWindowless();
 }
 
 void CefBrowserHostImpl::EnterFullscreenModeForTab(
@@ -2954,9 +2937,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(
   RenderViewCreated(web_contents->GetRenderViewHost());
 
   if (IsWindowless()) {
-    CefRenderWidgetHostViewOSR* view =
-        static_cast<CefRenderWidgetHostViewOSR*>(
-            web_contents->GetRenderViewHost()->GetView());
+    CefRenderWidgetHostViewOSR* view = GetOSRHostView(web_contents);
     if (view)
       view->set_browser_impl(this);
   }

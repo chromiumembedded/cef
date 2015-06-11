@@ -436,7 +436,8 @@ class CefBeginFrameTimer : public cc::TimeSourceClient {
 
 
 CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
-    content::RenderWidgetHost* widget)
+    content::RenderWidgetHost* widget,
+    CefRenderWidgetHostViewOSR* parent_host_view)
     : scale_factor_(kDefaultScaleFactor),
       frame_rate_threshold_ms_(0),
       delegated_frame_host_(new content::DelegatedFrameHost(this)),
@@ -445,8 +446,10 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       hold_resize_(false),
       pending_resize_(false),
       render_widget_host_(content::RenderWidgetHostImpl::From(widget)),
-      parent_host_view_(NULL),
+      has_parent_(parent_host_view != NULL),
+      parent_host_view_(parent_host_view),
       popup_host_view_(NULL),
+      child_host_view_(NULL),
       is_showing_(true),
       is_destroyed_(false),
       is_scroll_offset_changed_pending_(false),
@@ -497,7 +500,21 @@ CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
   root_layer_.reset(NULL);
 }
 
+// Called for full-screen widgets.
 void CefRenderWidgetHostViewOSR::InitAsChild(gfx::NativeView parent_view) {
+  DCHECK(parent_host_view_);
+  browser_impl_ = parent_host_view_->browser_impl();
+  DCHECK(browser_impl_.get());
+
+  if (parent_host_view_->child_host_view_) {
+    // Cancel the previous popup widget.
+    parent_host_view_->child_host_view_->CancelChildWidget();
+  }
+
+  parent_host_view_->set_child_host_view(this);
+
+  ResizeRootLayer();
+  Show();
 }
 
 content::RenderWidgetHost*
@@ -675,8 +692,7 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
 void CefRenderWidgetHostViewOSR::InitAsPopup(
     content::RenderWidgetHostView* parent_host_view,
     const gfx::Rect& pos) {
-  parent_host_view_ = static_cast<CefRenderWidgetHostViewOSR*>(
-      parent_host_view);
+  DCHECK_EQ(parent_host_view_, parent_host_view);
   browser_impl_ = parent_host_view_->browser_impl();
   DCHECK(browser_impl_.get());
 
@@ -785,17 +801,23 @@ void CefRenderWidgetHostViewOSR::RenderProcessGone(
   render_widget_host_ = NULL;
   parent_host_view_ = NULL;
   popup_host_view_ = NULL;
+  child_host_view_ = NULL;
 }
 
 void CefRenderWidgetHostViewOSR::Destroy() {
   if (!is_destroyed_) {
     is_destroyed_ = true;
 
-    if (IsPopupWidget()) {
-      CancelPopupWidget();
+    if (has_parent_) {
+      if (IsPopupWidget())
+        CancelPopupWidget();
+      else
+        CancelChildWidget();
     } else {
       if (popup_host_view_)
         popup_host_view_->CancelPopupWidget();
+      if (child_host_view_)
+        child_host_view_->CancelChildWidget();
       Hide();
     }
   }
@@ -1383,6 +1405,24 @@ void CefRenderWidgetHostViewOSR::CancelPopupWidget() {
 
   if (parent_host_view_) {
     parent_host_view_->set_popup_host_view(NULL);
+    parent_host_view_ = NULL;
+  }
+
+  if (render_widget_host_ && !is_destroyed_) {
+    is_destroyed_ = true;
+    // Results in a call to Destroy().
+    render_widget_host_->Shutdown();
+  }
+}
+
+void CefRenderWidgetHostViewOSR::CancelChildWidget() {
+  if (render_widget_host_)
+    render_widget_host_->LostCapture();
+
+  Hide();
+
+  if (parent_host_view_) {
+    parent_host_view_->set_child_host_view(NULL);
     parent_host_view_ = NULL;
   }
 

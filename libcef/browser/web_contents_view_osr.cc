@@ -75,14 +75,15 @@ content::RenderWidgetHostViewBase* CefWebContentsViewOSR::CreateViewForWidget(
         render_widget_host->GetView());
   }
 
-  view_ = new CefRenderWidgetHostViewOSR(render_widget_host);
+  view_ = new CefRenderWidgetHostViewOSR(render_widget_host, NULL);
   return view_;
 }
 
+// Called for popup and fullscreen widgets.
 content::RenderWidgetHostViewBase*
     CefWebContentsViewOSR::CreateViewForPopupWidget(
     content::RenderWidgetHost* render_widget_host) {
-  return new CefRenderWidgetHostViewOSR(render_widget_host);
+  return new CefRenderWidgetHostViewOSR(render_widget_host, view_);
 }
 
 void CefWebContentsViewOSR::SetPageTitle(const base::string16& title) {

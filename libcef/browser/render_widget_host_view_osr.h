@@ -78,7 +78,8 @@ class CefRenderWidgetHostViewOSR
       public ui::CompositorDelegate,
       public content::DelegatedFrameHostClient {
  public:
-  explicit CefRenderWidgetHostViewOSR(content::RenderWidgetHost* widget);
+  CefRenderWidgetHostViewOSR(content::RenderWidgetHost* widget,
+                             CefRenderWidgetHostViewOSR* parent_host_view);
   ~CefRenderWidgetHostViewOSR() override;
 
   // RenderWidgetHostView implementation.
@@ -264,6 +265,9 @@ class CefRenderWidgetHostViewOSR
   void set_popup_host_view(CefRenderWidgetHostViewOSR* popup_view) {
     popup_host_view_ = popup_view;
   }
+  void set_child_host_view(CefRenderWidgetHostViewOSR* popup_view) {
+    child_host_view_ = popup_view;
+  }
 
   ui::Compositor* compositor() const { return compositor_.get(); }
   content::RenderWidgetHostImpl* render_widget_host() const
@@ -285,6 +289,7 @@ class CefRenderWidgetHostViewOSR
                       base::TimeDelta vsync_period);
 
   void CancelPopupWidget();
+  void CancelChildWidget();
 
   void OnScrollOffsetChanged();
 
@@ -349,8 +354,11 @@ class CefRenderWidgetHostViewOSR
   // |render_widget_host_| is NULL and the message loop is run one last time
   // Message handlers must check for a NULL |render_widget_host_|.
   content::RenderWidgetHostImpl* render_widget_host_;
+
+  bool has_parent_;
   CefRenderWidgetHostViewOSR* parent_host_view_;
   CefRenderWidgetHostViewOSR* popup_host_view_;
+  CefRenderWidgetHostViewOSR* child_host_view_;
 
   CefRefPtr<CefBrowserHostImpl> browser_impl_;
 

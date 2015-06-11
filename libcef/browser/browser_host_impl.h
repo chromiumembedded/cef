@@ -405,6 +405,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void RunFileChooser(
       content::WebContents* web_contents,
       const content::FileChooserParams& params) override;
+  bool EmbedsFullscreenWidget() const override;
   void EnterFullscreenModeForTab(content::WebContents* web_contents,
                                  const GURL& origin) override;
   void ExitFullscreenModeForTab(content::WebContents* web_contents) override;
