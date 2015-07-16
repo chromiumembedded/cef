@@ -214,6 +214,8 @@
       'tests/cefclient/resources/logo.png',
       'tests/cefclient/resources/osr_test.html',
       'tests/cefclient/resources/other_tests.html',
+      'tests/cefclient/resources/pdf.html',
+      'tests/cefclient/resources/pdf.pdf',
       'tests/cefclient/resources/performance.html',
       'tests/cefclient/resources/performance2.html',
       'tests/cefclient/resources/transparency.html',

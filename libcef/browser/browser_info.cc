@@ -8,7 +8,8 @@
 CefBrowserInfo::CefBrowserInfo(int browser_id, bool is_popup)
     : browser_id_(browser_id),
       is_popup_(is_popup),
-      is_windowless_(false) {
+      is_windowless_(false),
+      is_mime_handler_view_(false) {
   DCHECK_GT(browser_id, 0);
 }
 
@@ -17,6 +18,10 @@ CefBrowserInfo::~CefBrowserInfo() {
 
 void CefBrowserInfo::set_windowless(bool windowless) {
   is_windowless_ = windowless;
+}
+
+void CefBrowserInfo::set_mime_handler_view(bool mime_handler_view) {
+  is_mime_handler_view_ = mime_handler_view;
 }
 
 void CefBrowserInfo::add_render_view_id(

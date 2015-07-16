@@ -10,6 +10,8 @@
 #include "chrome/renderer/pepper/pepper_flash_fullscreen_host.h"
 #include "chrome/renderer/pepper/pepper_flash_menu_host.h"
 #include "chrome/renderer/pepper/pepper_flash_renderer_host.h"
+#include "chrome/renderer/pepper/pepper_uma_host.h"
+#include "components/pdf/renderer/pepper_pdf_host.h"
 #include "content/public/renderer/renderer_ppapi_host.h"
 #include "ppapi/host/ppapi_host.h"
 #include "ppapi/host/resource_host.h"
@@ -83,5 +85,27 @@ scoped_ptr<ResourceHost> CefRendererPepperHostFactory::CreateResourceHost(
     }
   }
 
+  if (host_->GetPpapiHost()->permissions().HasPermission(
+          ppapi::PERMISSION_PRIVATE)) {
+    switch (message.type()) {
+      case PpapiHostMsg_PDF_Create::ID: {
+        return scoped_ptr<ResourceHost>(
+            new pdf::PepperPDFHost(host_, instance, resource));
+      }
+    }
+  }
+
+  // Permissions for the following interfaces will be checked at the
+  // time of the corresponding instance's method calls.  Currently these
+  // interfaces are available only for whitelisted apps which may not have
+  // access to the other private interfaces.
+  switch (message.type()) {
+    case PpapiHostMsg_UMA_Create::ID: {
+      return scoped_ptr<ResourceHost>(
+          new PepperUMAHost(host_, instance, resource));
+    }
+  }
+
+  NOTREACHED() << "Unhandled message type: " << message.type();
   return scoped_ptr<ResourceHost>();
 }

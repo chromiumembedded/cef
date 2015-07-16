@@ -64,6 +64,11 @@ def calc_inputs(locale):
   inputs.append(os.path.join(SHARE_INT_DIR, 'content', 'app', 'strings',
                 'content_strings_%s.pak' % locale))
 
+  #e.g.
+  # '<(SHARED_INTERMEDIATE_DIR)/extensions/strings/extensions_strings_da.pak'
+  inputs.append(os.path.join(SHARE_INT_DIR, 'extensions', 'strings',
+                'extensions_strings_%s.pak' % locale))
+
   #e.g. '<(SHARED_INTERMEDIATE_DIR)/ui/strings/ui_strings_da.pak',
   inputs.append(os.path.join(SHARE_INT_DIR, 'ui', 'strings',
                 'ui_strings_%s.pak' % locale))

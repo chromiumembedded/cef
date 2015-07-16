@@ -4,29 +4,33 @@
 // found in the LICENSE file.
 
 #include "libcef/browser/internal_scheme_handler.h"
+
 #include <string>
+
 #include "libcef/common/content_client.h"
+
 #include "base/strings/string_util.h"
+#include "base/strings/utf_string_conversions.h"
+#include "net/base/mime_util.h"
 #include "ui/base/resource/resource_bundle.h"
 
 namespace scheme {
 
 namespace {
 
+base::FilePath FilePathFromASCII(const std::string& str) {
+#if defined(OS_WIN)
+  return base::FilePath(base::ASCIIToUTF16(str));
+#else
+  return base::FilePath(str);
+#endif
+}
+
 static std::string GetMimeType(const std::string& filename) {
-  if (EndsWith(filename, ".html", false)) {
-    return "text/html";
-  } else if (EndsWith(filename, ".css", false)) {
-    return "text/css";
-  } else if (EndsWith(filename, ".jpg", false)) {
-    return "image/jpeg";
-  } else if (EndsWith(filename, ".js", false)) {
-    return "application/javascript";
-  } else if (EndsWith(filename, ".png", false)) {
-    return "image/png";
-  } else if (EndsWith(filename, ".gif", false)) {
-    return "image/gif";
-  }
+  std::string mime_type;
+  if (net::GetMimeTypeFromFile(FilePathFromASCII(filename), &mime_type))
+    return mime_type;
+
   NOTREACHED() << "No known mime type for file: " << filename.c_str();
   return "text/plain";
 }

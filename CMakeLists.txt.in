@@ -289,6 +289,7 @@ if(OS_LINUX)
     cef.pak
     cef_100_percent.pak
     cef_200_percent.pak
+    cef_extensions.pak
     devtools_resources.pak
     icudtl.dat
     locales
@@ -457,6 +458,7 @@ if(OS_WINDOWS)
     cef.pak
     cef_100_percent.pak
     cef_200_percent.pak
+    cef_extensions.pak
     devtools_resources.pak
     icudtl.dat
     locales

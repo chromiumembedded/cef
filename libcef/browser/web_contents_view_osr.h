@@ -10,6 +10,7 @@
 #include "content/browser/web_contents/web_contents_view.h"
 
 namespace content {
+class BrowserPluginGuest;
 class WebContents;
 class WebContentsViewDelegate;
 }
@@ -24,6 +25,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   ~CefWebContentsViewOSR() override;
 
   void set_web_contents(content::WebContents* web_contents);
+  void set_guest(content::BrowserPluginGuest* guest);
 
   // WebContentsView methods.
   gfx::NativeView GetNativeView() const override;
@@ -68,6 +70,9 @@ class CefWebContentsViewOSR : public content::WebContentsView,
  private:
   content::WebContents* web_contents_;
   CefRenderWidgetHostViewOSR* view_;
+
+  content::BrowserPluginGuest* guest_;
+  gfx::Size size_;
 
   DISALLOW_COPY_AND_ASSIGN(CefWebContentsViewOSR);
 };

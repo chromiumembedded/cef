@@ -18,12 +18,6 @@ namespace {
 
 base::StaticAtomicSequenceNumber g_next_id;
 
-CefRefPtr<CefBrowserContextImpl> GetImpl(CefRefPtr<CefBrowserContext> context) {
-  if (context->IsProxy())
-    return static_cast<CefBrowserContextProxy*>(context.get())->parent();
-  return static_cast<CefBrowserContextImpl*>(context.get());
-}
-
 }  // namespace
 
 
@@ -106,7 +100,8 @@ scoped_refptr<CefBrowserContext> CefRequestContextImpl::GetBrowserContext() {
 
     if (other_.get()) {
       // Share storage with |other_|.
-      parent = GetImpl(other_->GetBrowserContext());
+      parent = CefBrowserContextImpl::GetForContext(
+          other_->GetBrowserContext().get());
     }
 
     if (!parent.get()) {
@@ -136,6 +131,7 @@ scoped_refptr<CefBrowserContext> CefRequestContextImpl::GetBrowserContext() {
       // Use a proxy that will execute handler callbacks where appropriate and
       // otherwise forward all requests to the parent implementation.
       browser_context_ = new CefBrowserContextProxy(handler_, parent);
+      browser_context_->Initialize();
     } else {
       // Use the parent implementation directly.
       browser_context_ = parent;
@@ -152,7 +148,9 @@ scoped_refptr<CefBrowserContext> CefRequestContextImpl::GetBrowserContext() {
   }
 
   if (!request_context_impl_) {
-    request_context_impl_ = GetImpl(browser_context_)->request_context().get();
+    request_context_impl_ =
+        CefBrowserContextImpl::GetForContext(browser_context_.get())->
+            request_context().get();
     DCHECK(request_context_impl_);
   }
 

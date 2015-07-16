@@ -18,6 +18,8 @@
 #include "chrome/browser/prefs/proxy_config_dictionary.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
+#include "components/pref_registry/pref_registry_syncable.h"
+#include "extensions/browser/extension_prefs.h"
 #include "grit/cef_strings.h"
 #include "ui/base/l10n/l10n_util.h"
 
@@ -82,11 +84,13 @@ scoped_ptr<PrefService> CefBrowserPrefStore::CreateService() {
       new CommandLinePrefStore(command_line));
   factory.set_user_prefs(this);
 
-  scoped_refptr<PrefRegistrySimple> registry(new PrefRegistrySimple());
+  scoped_refptr< user_prefs::PrefRegistrySyncable> registry(
+      new user_prefs::PrefRegistrySyncable());
 
   // Default settings.
   CefMediaCaptureDevicesDispatcher::RegisterPrefs(registry.get());
   PrefProxyConfigTrackerImpl::RegisterPrefs(registry.get());
+  extensions::ExtensionPrefs::RegisterProfilePrefs(registry.get());
 
   // Print settings.
   registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);

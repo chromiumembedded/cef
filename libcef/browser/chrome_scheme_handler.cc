@@ -31,6 +31,9 @@
 #include "grit/cef_resources.h"
 #include "ipc/ipc_channel.h"
 #include "net/url_request/url_request.h"
+#include "ui/base/webui/web_ui_util.h"
+#include "ui/resources/grit/webui_resources.h"
+#include "ui/resources/grit/webui_resources_map.h"
 #include "v8/include/v8.h"
 
 namespace scheme {
@@ -41,12 +44,14 @@ namespace {
 
 const char kChromeCreditsDomain[] = "credits";
 const char kChromeLicenseDomain[] = "license";
+const char kChromeResourcesDomain[] = "resources";
 const char kChromeVersionDomain[] = "version";
 
 enum ChromeDomain {
   CHROME_UNKNOWN = 0,
   CHROME_CREDITS,
   CHROME_LICENSE,
+  CHROME_RESOURCES,
   CHROME_VERSION,
 };
 
@@ -57,6 +62,7 @@ ChromeDomain GetChromeDomain(const std::string& domain_name) {
   } domains[] = {
     { kChromeCreditsDomain, CHROME_CREDITS },
     { kChromeLicenseDomain, CHROME_LICENSE },
+    { kChromeResourcesDomain, CHROME_RESOURCES },
     { kChromeVersionDomain, CHROME_VERSION },
   };
 
@@ -177,6 +183,48 @@ class TemplateParser {
   std::string ident_end_;
 };
 
+// From content/browser/webui/shared_resources_data_source.cc.
+using ResourcesMap = base::hash_map<std::string, int>;
+
+// TODO(rkc): Once we have a separate source for apps, remove '*/apps/' aliases.
+const char* kPathAliases[][2] = {
+    {"../../../third_party/polymer/v1_0/components-chromium/", "polymer/v1_0/"},
+    {"../../../third_party/web-animations-js/sources/",
+     "polymer/v1_0/web-animations-js/"},
+    {"../../views/resources/default_100_percent/common/", "images/apps/"},
+    {"../../views/resources/default_200_percent/common/", "images/2x/apps/"},
+    {"../../webui/resources/cr_elements/", "cr_elements/"}};
+
+void AddResource(const std::string& path,
+                 int resource_id,
+                 ResourcesMap* resources_map) {
+  if (!resources_map->insert(std::make_pair(path, resource_id)).second)
+    NOTREACHED() << "Redefinition of '" << path << "'";
+}
+
+const ResourcesMap* CreateResourcesMap() {
+  ResourcesMap* result = new ResourcesMap();
+  for (size_t i = 0; i < kWebuiResourcesSize; ++i) {
+    const std::string resource_name = kWebuiResources[i].name;
+    const int resource_id = kWebuiResources[i].value;
+    AddResource(resource_name, resource_id, result);
+    for (const char* (&alias)[2]: kPathAliases) {
+      if (StartsWithASCII(resource_name, alias[0], true)) {
+        AddResource(alias[1] + resource_name.substr(strlen(alias[0])),
+                    resource_id, result);
+      }
+    }
+  }
+
+  return result;
+}
+
+const ResourcesMap& GetResourcesMap() {
+  // This pointer will be intentionally leaked on shutdown.
+  static const ResourcesMap* resources_map = CreateResourcesMap();
+  return *resources_map;
+}
+
 class Delegate : public InternalHandlerDelegate {
  public:
   Delegate() {}
@@ -199,6 +247,9 @@ class Delegate : public InternalHandlerDelegate {
       case CHROME_LICENSE:
         handled = OnLicense(action);
         break;
+      case CHROME_RESOURCES:
+        handled = OnResources(path, action);
+        break;
       case CHROME_VERSION:
         handled = OnVersion(browser, action);
         break;
@@ -209,11 +260,15 @@ class Delegate : public InternalHandlerDelegate {
     if (!handled && domain != CHROME_VERSION) {
       LOG(INFO) << "Reguest for unknown chrome resource: " <<
           url.spec().c_str();
-      action->redirect_url =
-          GURL(std::string(kChromeURL) + kChromeVersionDomain);
+
+      if (domain != CHROME_RESOURCES) {
+        action->redirect_url =
+            GURL(std::string(kChromeURL) + kChromeVersionDomain);
+        return true;
+      }
     }
 
-    return true;
+    return handled;
   }
 
   bool OnCredits(const std::string& path, Action* action) {
@@ -241,6 +296,31 @@ class Delegate : public InternalHandlerDelegate {
     action->stream =  CefStreamReader::CreateForData(
         const_cast<char*>(html.c_str()), html.length());
     action->stream_size = html.length();
+
+    return true;
+  }
+
+  bool OnResources(const std::string& path, Action* action) {
+    // Implementation based on SharedResourcesDataSource::StartDataRequest.
+    const ResourcesMap& resources_map = GetResourcesMap();
+    auto it = resources_map.find(path);
+    int resource_id = (it != resources_map.end()) ? it->second : -1;
+
+    if (resource_id == -1) {
+      NOTREACHED() << "Failed to find resource id for " << path;
+      return false;
+    }
+
+    if (resource_id == IDR_WEBUI_CSS_TEXT_DEFAULTS) {
+      const std::string& css = webui::GetWebUiCssTextDefaults();
+      DCHECK(!css.empty());
+      action->mime_type = "text/css";
+      action->stream =  CefStreamReader::CreateForData(
+          const_cast<char*>(css.c_str()), css.length());
+      action->stream_size = css.length();
+    } else {
+      action->resource_id = resource_id;
+    }
 
     return true;
   }
@@ -273,8 +353,8 @@ class Delegate : public InternalHandlerDelegate {
     parser.Add("USERAGENT", CefContentClient::Get()->GetUserAgent());
     parser.Add("COMMANDLINE", GetCommandLine());
     parser.Add("MODULEPATH", GetModulePath());
-    parser.Add("CACHEPATH",
-               browser->GetHost()->GetRequestContext()->GetCachePath());
+    parser.Add("CACHEPATH", browser.get() ?
+                  browser->GetHost()->GetRequestContext()->GetCachePath() : "");
 
     std::string tmpl = piece.as_string();
     parser.Parse(&tmpl);

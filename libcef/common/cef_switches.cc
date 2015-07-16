@@ -100,4 +100,7 @@ const char kEnableSystemFlash[]           = "enable-system-flash";
 // Disable scroll bounce (rubber-banding) on OS X Lion and newer.
 const char kDisableScrollBounce[]         = "disable-scroll-bounce";
 
+// Disable the PDF extension.
+const char kDisablePdfExtension[]         = "disable-pdf-extension";
+
 }  // namespace switches

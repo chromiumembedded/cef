@@ -20,6 +20,7 @@ class DownloadManagerDelegate;
 class SpeechRecognitionPreferences;
 }
 
+class CefBrowserContextProxy;
 class CefDownloadManagerDelegate;
 class CefSSLHostStateDelegate;
 
@@ -36,8 +37,20 @@ class CefBrowserContextImpl : public CefBrowserContext {
   static scoped_refptr<CefBrowserContextImpl> GetForCachePath(
       const base::FilePath& cache_path);
 
+  // Returns the underlying CefBrowserContextImpl if any.
+  static CefRefPtr<CefBrowserContextImpl> GetForContext(
+      content::BrowserContext* context);
+
+  // Returns all existing CefBrowserContextImpl.
+  static std::vector<CefBrowserContextImpl*> GetAll();
+
   // Must be called immediately after this object is created.
-  void Initialize();
+  void Initialize() override;
+
+  // Track associated proxy objects.
+  void AddProxy(const CefBrowserContextProxy* proxy);
+  void RemoveProxy(const CefBrowserContextProxy* proxy);
+  bool HasProxy(const content::BrowserContext* context) const;
 
   // BrowserContext methods.
   base::FilePath GetPath() const override;
@@ -62,7 +75,6 @@ class CefBrowserContextImpl : public CefBrowserContext {
   content::PermissionManager* GetPermissionManager() override;
 
   // CefBrowserContext methods.
-  bool IsProxy() const override;
   const CefRequestContextSettings& GetSettings() const override;
   CefRefPtr<CefRequestContextHandler> GetHandler() const override;
   net::URLRequestContextGetter* CreateRequestContext(
@@ -92,6 +104,10 @@ class CefBrowserContextImpl : public CefBrowserContext {
   // Members initialized during construction are safe to access from any thread.
   CefRequestContextSettings settings_;
   base::FilePath cache_path_;
+
+  // Not owned by this class.
+  typedef std::vector<const CefBrowserContextProxy*> ProxyList;
+  ProxyList proxy_list_;
 
   scoped_ptr<PrefProxyConfigTracker> pref_proxy_config_tracker_;
 

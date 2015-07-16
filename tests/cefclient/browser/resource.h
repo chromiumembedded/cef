@@ -44,19 +44,20 @@
 #define ID_TESTS_PRINT_TO_PDF           32716
 #define ID_TESTS_LAST                   32716
 #define IDC_STATIC                      -1
-#define IDS_BINDING                     1000
-#define IDS_DIALOGS                     1001
-#define IDS_LOCALSTORAGE                1002
-#define IDS_LOGO                        1003
-#define IDS_LOGOBALL                    1004
-#define IDS_OSRTEST                     1005
-#define IDS_OTHER_TESTS                 1006
-#define IDS_PERFORMANCE                 1007
-#define IDS_PERFORMANCE2                1008
-#define IDS_TRANSPARENCY                1009
-#define IDS_URLREQUEST                  1010
-#define IDS_WINDOW                      1011
-#define IDS_XMLHTTPREQUEST              1012
+#define IDS_BINDING_HTML                1000
+#define IDS_DIALOGS_HTML                1001
+#define IDS_LOCALSTORAGE_HTML           1002
+#define IDS_LOGO_PNG                    1003
+#define IDS_OSRTEST_HTML                1004
+#define IDS_OTHER_TESTS_HTML            1005
+#define IDS_PDF_HTML                    1006
+#define IDS_PDF_PDF                     1007
+#define IDS_PERFORMANCE_HTML            1008
+#define IDS_PERFORMANCE2_HTML           1009
+#define IDS_TRANSPARENCY_HTML           1010
+#define IDS_URLREQUEST_HTML             1011
+#define IDS_WINDOW_HTML                 1012
+#define IDS_XMLHTTPREQUEST_HTML         1013
 
 // Next default values for new objects
 // 

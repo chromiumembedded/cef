@@ -1,0 +1,18 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+// This file defines extension APIs implemented in CEF.
+// See extensions/common/features/* to understand this file, in particular
+// feature.h, simple_feature.h, and base_feature_provider.h.
+
+{
+  // From chrome/common/extensions/api/_api_features.json.
+  // Required by the PDF extension which is hosted in a guest view.
+  "mimeHandlerViewGuestInternal": {
+    "internal": true,
+    "contexts": "all",
+    "channel": "stable",
+    "matches": ["<all_urls>"]
+  }
+}

@@ -27,6 +27,11 @@ namespace content {
 struct MainFunctionParams;
 }
 
+namespace extensions {
+class ExtensionsBrowserClient;
+class ExtensionsClient;
+}
+
 class CefDevToolsDelegate;
 
 class CefBrowserMainParts : public content::BrowserMainParts {
@@ -62,6 +67,9 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   scoped_ptr<base::MessageLoop> message_loop_;
   scoped_refptr<CefBrowserPrefStore> pref_store_;
   scoped_ptr<PrefService> pref_service_;
+
+  scoped_ptr<extensions::ExtensionsClient> extensions_client_;
+  scoped_ptr<extensions::ExtensionsBrowserClient> extensions_browser_client_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserMainParts);
 };

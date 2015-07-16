@@ -20,7 +20,11 @@
 #include "net/ssl/client_cert_store_mac.h"
 #endif
 
-CefResourceContext::CefResourceContext() {
+CefResourceContext::CefResourceContext(
+    bool is_off_the_record,
+    extensions::InfoMap* extension_info_map)
+    : is_off_the_record_(is_off_the_record),
+      extension_info_map_(extension_info_map) {
 }
 
 CefResourceContext::~CefResourceContext() {

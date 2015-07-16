@@ -1,4 +1,5 @@
-// Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Copyright 2015 The Chromium Embedded Framework Authors.
+// Portions copyright 2014 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -14,11 +15,14 @@
 
 #include "base/compiler_specific.h"
 #include "content/public/common/content_client.h"
+#include "content/public/common/pepper_plugin_info.h"
 #include "ui/base/resource/resource_bundle.h"
 
 class CefContentClient : public content::ContentClient,
                          public ui::ResourceBundle::Delegate {
  public:
+  static const char kPDFPluginPath[];
+
   explicit CefContentClient(CefRefPtr<CefApp> application);
   ~CefContentClient() override;
 
@@ -41,6 +45,7 @@ class CefContentClient : public content::ContentClient,
   struct SchemeInfo {
     std::string scheme_name;
     bool is_standard;
+    bool is_savable;
     bool is_local;
     bool is_display_isolated;
   };
@@ -56,6 +61,11 @@ class CefContentClient : public content::ContentClient,
   void set_pack_loading_disabled(bool val) { pack_loading_disabled_ = val; }
   bool pack_loading_disabled() const { return pack_loading_disabled_; }
   void set_allow_pack_file_load(bool val) { allow_pack_file_load_ = val; }
+
+  static void SetPDFEntryFunctions(
+      content::PepperPluginInfo::GetInterfaceFunc get_interface,
+      content::PepperPluginInfo::PPP_InitializeModuleFunc initialize_module,
+      content::PepperPluginInfo::PPP_ShutdownModuleFunc shutdown_module);
 
  private:
   // ui::ResourceBundle::Delegate methods.

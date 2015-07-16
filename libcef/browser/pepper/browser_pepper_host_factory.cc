@@ -56,5 +56,6 @@ scoped_ptr<ResourceHost> CefBrowserPepperHostFactory::CreateResourceHost(
     }
   }
 
+  NOTREACHED() << "Unhandled message type: " << message.type();
   return scoped_ptr<ResourceHost>();
 }

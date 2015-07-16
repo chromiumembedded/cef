@@ -7,6 +7,7 @@
 #pragma once
 
 #include "content/public/browser/resource_context.h"
+#include "extensions/browser/info_map.h"
 
 class CefURLRequestContextGetter;
 
@@ -20,7 +21,8 @@ class CefURLRequestContextGetter;
 // See browser_context.h for an object relationship diagram.
 class CefResourceContext : public content::ResourceContext {
  public:
-  CefResourceContext();
+  CefResourceContext(bool is_off_the_record,
+                     extensions::InfoMap* extension_info_map);
   ~CefResourceContext() override;
 
   // ResourceContext implementation.
@@ -31,8 +33,17 @@ class CefResourceContext : public content::ResourceContext {
   void set_url_request_context_getter(
       scoped_refptr<CefURLRequestContextGetter> getter);
 
+  // State transferred from the BrowserContext for use on the IO thread.
+  bool IsOffTheRecord() const { return is_off_the_record_; }
+  const extensions::InfoMap* GetExtensionInfoMap() const {
+    return extension_info_map_.get();
+  }
+
  private:
   scoped_refptr<CefURLRequestContextGetter> getter_;
+
+  bool is_off_the_record_;
+  scoped_refptr<extensions::InfoMap> extension_info_map_;
 
   DISALLOW_COPY_AND_ASSIGN(CefResourceContext);
 };

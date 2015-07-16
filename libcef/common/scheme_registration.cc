@@ -6,20 +6,26 @@
 #include "libcef/common/content_client.h"
 
 #include "content/public/common/url_constants.h"
+#include "extensions/common/constants.h"
 #include "url/url_constants.h"
 
 namespace scheme {
 
-void AddInternalSchemes(std::vector<std::string>* standard_schemes) {
+void AddInternalSchemes(std::vector<std::string>* standard_schemes,
+                        std::vector<std::string>* savable_schemes) {
   static CefContentClient::SchemeInfo schemes[] = {
-    { content::kChromeUIScheme,        true,  true,  true  },
-    { content::kChromeDevToolsScheme,  true,  false, true  }
+    { content::kChromeUIScheme,             true,  false, true,  true  },
+    { content::kChromeDevToolsScheme,       true,  false, false, true  },
+    { extensions::kExtensionScheme,         true,  true,  true,  true  },
+    { extensions::kExtensionResourceScheme, true,  true,  false, true  },
   };
 
   CefContentClient* client = CefContentClient::Get();
   for (size_t i = 0; i < sizeof(schemes) / sizeof(schemes[0]); ++i) {
-    if (schemes[0].is_standard)
+    if (schemes[i].is_standard)
       standard_schemes->push_back(schemes[i].scheme_name);
+    if (schemes[i].is_savable)
+      savable_schemes->push_back(schemes[i].scheme_name);
     client->AddCustomScheme(schemes[i]);
   }
 }
@@ -29,6 +35,8 @@ bool IsInternalHandledScheme(const std::string& scheme) {
     url::kBlobScheme,
     content::kChromeDevToolsScheme,
     content::kChromeUIScheme,
+    extensions::kExtensionScheme,
+    extensions::kExtensionResourceScheme,
     url::kDataScheme,
     url::kFileScheme,
     url::kFileSystemScheme,
@@ -49,6 +57,8 @@ bool IsInternalProtectedScheme(const std::string& scheme) {
   static const char* schemes[] = {
     url::kBlobScheme,
     content::kChromeUIScheme,
+    extensions::kExtensionScheme,
+    extensions::kExtensionResourceScheme,
     url::kDataScheme,
     url::kFileScheme,
     url::kFileSystemScheme,

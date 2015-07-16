@@ -1,0 +1,30 @@
+diff --git browser/guest_view/extension_options/extension_options_guest.cc browser/guest_view/extension_options/extension_options_guest.cc
+index c882315..ff6d25f 100644
+--- browser/guest_view/extension_options/extension_options_guest.cc
++++ browser/guest_view/extension_options/extension_options_guest.cc
+@@ -208,7 +208,9 @@ bool ExtensionOptionsGuest::ShouldCreateWebContents(
+     const base::string16& frame_name,
+     const GURL& target_url,
+     const std::string& partition_id,
+-    content::SessionStorageNamespace* session_storage_namespace) {
++    content::SessionStorageNamespace* session_storage_namespace,
++    content::WebContentsView** view,
++    content::RenderViewHostDelegateView** delegate_view) {
+   // This method handles opening links from within the guest. Since this guest
+   // view is used for displaying embedded extension options, we want any
+   // external links to be opened in a new tab, not in a new guest view.
+diff --git browser/guest_view/extension_options/extension_options_guest.h browser/guest_view/extension_options/extension_options_guest.h
+index b62d81a..8176f84 100644
+--- browser/guest_view/extension_options/extension_options_guest.h
++++ browser/guest_view/extension_options/extension_options_guest.h
+@@ -54,7 +54,9 @@ class ExtensionOptionsGuest
+       const base::string16& frame_name,
+       const GURL& target_url,
+       const std::string& partition_id,
+-      content::SessionStorageNamespace* session_storage_namespace) override;
++      content::SessionStorageNamespace* session_storage_namespace,
++      content::WebContentsView** view,
++      content::RenderViewHostDelegateView** delegate_view) override;
+ 
+   // content::WebContentsObserver implementation.
+   void DidNavigateMainFrame(

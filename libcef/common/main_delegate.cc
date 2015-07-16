@@ -8,6 +8,7 @@
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
 #include "libcef/common/crash_reporter_client.h"
+#include "libcef/common/extensions/extensions_util.h"
 #include "libcef/renderer/content_renderer_client.h"
 #include "libcef/utility/content_utility_client.h"
 
@@ -21,12 +22,14 @@
 #include "base/strings/string_util.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
+#include "chrome/child/pdf_child_init.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
+#include "pdf/pdf.h"
 #include "ui/base/layout.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
@@ -524,6 +527,14 @@ void CefMainDelegate::PreSandboxStartup() {
     content_client_.set_pack_loading_disabled(true);
 
   InitializeResourceBundle();
+  chrome::InitializePDF();
+}
+
+void CefMainDelegate::SandboxInitialized(const std::string& process_type) {
+  CefContentClient::SetPDFEntryFunctions(
+      chrome_pdf::PPP_GetInterface,
+      chrome_pdf::PPP_InitializeModule,
+      chrome_pdf::PPP_ShutdownModule);
 }
 
 int CefMainDelegate::RunProcess(
@@ -608,23 +619,28 @@ void CefMainDelegate::InitializeResourceBundle() {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
   base::FilePath cef_pak_file, cef_100_percent_pak_file,
-                 cef_200_percent_pak_file, devtools_pak_file, locales_dir;
+                 cef_200_percent_pak_file, cef_extensions_pak_file,
+                 devtools_pak_file, locales_dir;
+
+  base::FilePath resources_dir;
+  if (command_line->HasSwitch(switches::kResourcesDirPath)) {
+    resources_dir =
+        command_line->GetSwitchValuePath(switches::kResourcesDirPath);
+  }
+  if (resources_dir.empty())
+    resources_dir = GetResourcesFilePath();
+  if (!resources_dir.empty())
+    PathService::Override(chrome::DIR_RESOURCES, resources_dir);
 
   if (!content_client_.pack_loading_disabled()) {
-    base::FilePath resources_dir;
-    if (command_line->HasSwitch(switches::kResourcesDirPath)) {
-      resources_dir =
-          command_line->GetSwitchValuePath(switches::kResourcesDirPath);
-    }
-    if (resources_dir.empty())
-      resources_dir = GetResourcesFilePath();
-
     if (!resources_dir.empty()) {
       cef_pak_file = resources_dir.Append(FILE_PATH_LITERAL("cef.pak"));
       cef_100_percent_pak_file =
           resources_dir.Append(FILE_PATH_LITERAL("cef_100_percent.pak"));
       cef_200_percent_pak_file =
           resources_dir.Append(FILE_PATH_LITERAL("cef_200_percent.pak"));
+      cef_extensions_pak_file =
+          resources_dir.Append(FILE_PATH_LITERAL("cef_extensions.pak"));
       devtools_pak_file =
           resources_dir.Append(FILE_PATH_LITERAL("devtools_resources.pak"));
     }
@@ -682,6 +698,15 @@ void CefMainDelegate::InitializeResourceBundle() {
             cef_200_percent_pak_file, ui::SCALE_FACTOR_200P);
       } else {
         LOG(ERROR) << "Could not load cef_200_percent.pak";
+      }
+    }
+
+    if (extensions::ExtensionsEnabled()) {
+      if (base::PathExists(cef_extensions_pak_file)) {
+        resource_bundle.AddDataPackFromPath(
+            cef_extensions_pak_file, ui::SCALE_FACTOR_NONE);
+      } else {
+        LOG(ERROR) << "Could not load cef_extensions.pak";
       }
     }
 

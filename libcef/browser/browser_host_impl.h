@@ -131,10 +131,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
       const content::RenderFrameHost* host);
   // Returns the browser associated with the specified WebContents.
   static CefRefPtr<CefBrowserHostImpl> GetBrowserForContents(
-      content::WebContents* contents);
+      const content::WebContents* contents);
   // Returns the browser associated with the specified URLRequest.
   static CefRefPtr<CefBrowserHostImpl> GetBrowserForRequest(
-      net::URLRequest* request);
+      const net::URLRequest* request);
   // Returns the browser associated with the specified view routing IDs.
   static CefRefPtr<CefBrowserHostImpl> GetBrowserForView(
       int render_process_id, int render_routing_id);
@@ -332,6 +332,16 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // after the dialog is dismissed or if another dialog is already pending.
   void RunFileChooser(const FileChooserParams& params,
                       const RunFileChooserCallback& callback);
+
+  bool HandleContextMenu(
+      content::WebContents* web_contents,
+      const content::ContextMenuParams& params);
+
+  // Returns the WebContents most likely to handle an action. If extensions are
+  // enabled and this browser has a full-page guest (for example, a full-page
+  // PDF viewer extension) then the guest's WebContents will be returned.
+  // Otherwise, the browser's WebContents will be returned.
+  content::WebContents* GetActionableWebContents();
 
   // Used when creating a new popup window.
   struct PendingPopupInfo {

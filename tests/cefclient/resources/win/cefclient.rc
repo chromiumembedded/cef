@@ -29,18 +29,20 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Binary
 //
 
-IDS_BINDING BINARY "..\\binding.html"
-IDS_DIALOGS BINARY "..\\dialogs.html"
-IDS_LOCALSTORAGE BINARY "..\\localstorage.html"
-IDS_LOGO BINARY "..\\logo.png"
-IDS_OSRTEST BINARY "..\\osr_test.html"
-IDS_OTHER_TESTS BINARY "..\\other_tests.html"
-IDS_PERFORMANCE BINARY "..\\performance.html"
-IDS_PERFORMANCE2 BINARY "..\\performance2.html"
-IDS_TRANSPARENCY BINARY "..\\transparency.html"
-IDS_URLREQUEST BINARY "..\\urlrequest.html"
-IDS_WINDOW BINARY "..\\window.html"
-IDS_XMLHTTPREQUEST BINARY "..\\xmlhttprequest.html"
+IDS_BINDING_HTML BINARY "..\\binding.html"
+IDS_DIALOGS_HTML BINARY "..\\dialogs.html"
+IDS_LOCALSTORAGE_HTML BINARY "..\\localstorage.html"
+IDS_LOGO_PNG BINARY "..\\logo.png"
+IDS_OSRTEST_HTML BINARY "..\\osr_test.html"
+IDS_OTHER_TESTS_HTML BINARY "..\\other_tests.html"
+IDS_PDF_HTML BINARY "..\\pdf.html"
+IDS_PDF_PDF BINARY "..\\pdf.pdf"
+IDS_PERFORMANCE_HTML BINARY "..\\performance.html"
+IDS_PERFORMANCE2_HTML BINARY "..\\performance2.html"
+IDS_TRANSPARENCY_HTML BINARY "..\\transparency.html"
+IDS_URLREQUEST_HTML BINARY "..\\urlrequest.html"
+IDS_WINDOW_HTML BINARY "..\\window.html"
+IDS_XMLHTTPREQUEST_HTML BINARY "..\\xmlhttprequest.html"
 
 /////////////////////////////////////////////////////////////////////////////
 //

@@ -1,4 +1,5 @@
-// Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Copyright 2015 The Chromium Embedded Framework Authors.
+// Portions copyright 2014 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -6,7 +7,9 @@
 #include "include/cef_stream.h"
 #include "include/cef_version.h"
 #include "libcef/browser/content_browser_client.h"
+#include "libcef/browser/extensions/pdf_extension_util.h"
 #include "libcef/common/cef_switches.h"
+#include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/scheme_registrar_impl.h"
 #include "libcef/common/scheme_registration.h"
 
@@ -28,15 +31,53 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/pepper_plugin_info.h"
 #include "content/public/common/user_agent.h"
+#include "ppapi/shared_impl/ppapi_permissions.h"
 #include "ui/base/resource/resource_bundle.h"
-
 
 namespace {
 
 CefContentClient* g_content_client = NULL;
 
-// The following Flash-related methods are from
+// The following plugin-related methods are from
 // chrome/common/chrome_content_client.cc
+
+const char kPDFPluginExtension[] = "pdf";
+const char kPDFPluginDescription[] = "Portable Document Format";
+const char kPDFPluginOutOfProcessMimeType[] =
+    "application/x-google-chrome-pdf";
+const uint32 kPDFPluginPermissions = ppapi::PERMISSION_PRIVATE |
+                                     ppapi::PERMISSION_DEV;
+
+content::PepperPluginInfo::GetInterfaceFunc g_pdf_get_interface;
+content::PepperPluginInfo::PPP_InitializeModuleFunc g_pdf_initialize_module;
+content::PepperPluginInfo::PPP_ShutdownModuleFunc g_pdf_shutdown_module;
+
+// Appends the known built-in plugins to the given vector. Some built-in
+// plugins are "internal" which means they are compiled into the Chrome binary,
+// and some are extra shared libraries distributed with the browser (these are
+// not marked internal, aside from being automatically registered, they're just
+// regular plugins).
+void ComputeBuiltInPlugins(std::vector<content::PepperPluginInfo>* plugins) {
+  if (extensions::PdfExtensionEnabled()) {
+    content::PepperPluginInfo pdf_info;
+    pdf_info.is_internal = true;
+    pdf_info.is_out_of_process = true;
+    pdf_info.name = extensions::pdf_extension_util::kPdfPluginName;
+    pdf_info.description = kPDFPluginDescription;
+    pdf_info.path =
+        base::FilePath::FromUTF8Unsafe(CefContentClient::kPDFPluginPath);
+    content::WebPluginMimeType pdf_mime_type(
+        kPDFPluginOutOfProcessMimeType,
+        kPDFPluginExtension,
+        kPDFPluginDescription);
+    pdf_info.mime_types.push_back(pdf_mime_type);
+    pdf_info.internal_entry_points.get_interface = g_pdf_get_interface;
+    pdf_info.internal_entry_points.initialize_module = g_pdf_initialize_module;
+    pdf_info.internal_entry_points.shutdown_module = g_pdf_shutdown_module;
+    pdf_info.permissions = kPDFPluginPermissions;
+    plugins->push_back(pdf_info);
+  }
+}
 
 content::PepperPluginInfo CreatePepperFlashInfo(const base::FilePath& path,
                                                 const std::string& version) {
@@ -162,6 +203,8 @@ bool GetSystemPepperFlash(content::PepperPluginInfo* plugin) {
 
 }  // namespace
 
+const char CefContentClient::kPDFPluginPath[] = "internal-pdf-viewer";
+
 CefContentClient::CefContentClient(CefRefPtr<CefApp> application)
     : application_(application),
       pack_loading_disabled_(false),
@@ -182,6 +225,7 @@ CefContentClient* CefContentClient::Get() {
 
 void CefContentClient::AddPepperPlugins(
     std::vector<content::PepperPluginInfo>* plugins) {
+  ComputeBuiltInPlugins(plugins);
   AddPepperFlashFromCommandLine(plugins);
 
   content::PepperPluginInfo plugin;
@@ -205,7 +249,7 @@ void CefContentClient::AddAdditionalSchemes(
     DCHECK(schemeRegistrar->VerifyRefCount());
   }
 
-  scheme::AddInternalSchemes(standard_schemes);
+  scheme::AddInternalSchemes(standard_schemes, savable_schemes);
 
   scheme_info_list_locked_ = true;
 }
@@ -287,6 +331,16 @@ bool CefContentClient::HasCustomScheme(const std::string& scheme_name) {
   }
 
   return false;
+}
+
+// static
+void CefContentClient::SetPDFEntryFunctions(
+    content::PepperPluginInfo::GetInterfaceFunc get_interface,
+    content::PepperPluginInfo::PPP_InitializeModuleFunc initialize_module,
+    content::PepperPluginInfo::PPP_ShutdownModuleFunc shutdown_module) {
+  g_pdf_get_interface = get_interface;
+  g_pdf_initialize_module = initialize_module;
+  g_pdf_shutdown_module = shutdown_module;
 }
 
 base::FilePath CefContentClient::GetPathForResourcePack(

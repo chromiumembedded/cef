@@ -24,6 +24,7 @@
 #include "third_party/skia/include/core/SkColor.h"
 #include "url/gurl.h"
 
+class CefBrowserHostImpl;
 class CefBrowserInfo;
 class CefBrowserMainParts;
 class CefDevToolsDelegate;
@@ -73,6 +74,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       const content::MainFunctionParams& parameters) override;
   void RenderProcessWillLaunch(
       content::RenderProcessHost* host) override;
+  bool ShouldUseProcessPerSite(content::BrowserContext* browser_context,
+                               const GURL& effective_url) override;
   net::URLRequestContextGetter* CreateRequestContext(
       content::BrowserContext* browser_context,
       content::ProtocolHandlerMap* protocol_handlers,
@@ -165,7 +168,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   PrefService* pref_service() const;
 
  private:
-  SkColor GetBaseBackgroundColor(content::RenderViewHost* rvh);
+  static SkColor GetBaseBackgroundColor(CefRefPtr<CefBrowserHostImpl> browser);
 
   CefBrowserMainParts* browser_main_parts_;
 

@@ -34,6 +34,7 @@ class CefMainDelegate : public content::ContentMainDelegate {
 
   bool BasicStartupComplete(int* exit_code) override;
   void PreSandboxStartup() override;
+  void SandboxInitialized(const std::string& process_type) override;
   int RunProcess(
       const std::string& process_type,
       const content::MainFunctionParams& main_function_params) override;

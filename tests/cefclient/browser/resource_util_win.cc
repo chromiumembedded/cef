@@ -37,18 +37,20 @@ int GetResourceId(const char* resource_name) {
     char* name;
     int id;
   } resource_map[] = {
-    {"binding.html", IDS_BINDING},
-    {"dialogs.html", IDS_DIALOGS},
-    {"localstorage.html", IDS_LOCALSTORAGE},
-    {"logo.png", IDS_LOGO},
-    {"osr_test.html", IDS_OSRTEST},
-    {"other_tests.html", IDS_OTHER_TESTS},
-    {"performance.html", IDS_PERFORMANCE},
-    {"performance2.html", IDS_PERFORMANCE2},
-    {"transparency.html", IDS_TRANSPARENCY},
-    {"urlrequest.html", IDS_URLREQUEST},
-    {"window.html", IDS_WINDOW},
-    {"xmlhttprequest.html", IDS_XMLHTTPREQUEST},
+    {"binding.html", IDS_BINDING_HTML},
+    {"dialogs.html", IDS_DIALOGS_HTML},
+    {"localstorage.html", IDS_LOCALSTORAGE_HTML},
+    {"logo.png", IDS_LOGO_PNG},
+    {"osr_test.html", IDS_OSRTEST_HTML},
+    {"other_tests.html", IDS_OTHER_TESTS_HTML},
+    {"pdf.html", IDS_PDF_HTML},
+    {"pdf.pdf", IDS_PDF_PDF},
+    {"performance.html", IDS_PERFORMANCE_HTML},
+    {"performance2.html", IDS_PERFORMANCE2_HTML},
+    {"transparency.html", IDS_TRANSPARENCY_HTML},
+    {"urlrequest.html", IDS_URLREQUEST_HTML},
+    {"window.html", IDS_WINDOW_HTML},
+    {"xmlhttprequest.html", IDS_XMLHTTPREQUEST_HTML},
   };
 
   for (int i = 0; i < sizeof(resource_map)/sizeof(_resource_map); ++i) {

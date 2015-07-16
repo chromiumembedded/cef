@@ -12,7 +12,8 @@
 namespace scheme {
 
 // Add internal schemes.
-void AddInternalSchemes(std::vector<std::string>* standard_schemes);
+void AddInternalSchemes(std::vector<std::string>* standard_schemes,
+                        std::vector<std::string>* savable_schemes);
 
 // Returns true if the specified |scheme| is handled internally.
 bool IsInternalHandledScheme(const std::string& scheme);

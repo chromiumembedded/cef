@@ -12,7 +12,12 @@
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools_delegate.h"
+#include "libcef/browser/extensions/browser_context_keyed_service_factories.h"
+#include "libcef/browser/extensions/extensions_browser_client.h"
+#include "libcef/browser/extensions/extension_system_factory.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/extensions/extensions_client.h"
+#include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/net_resource_provider.h"
 
 #include "base/bind.h"
@@ -20,9 +25,12 @@
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
 #include "content/browser/webui/content_web_ui_controller_factory.h"
+#include "content/public/browser/child_process_security_policy.h"
 #include "content/public/browser/gpu_data_manager.h"
 #include "content/public/browser/web_ui_controller_factory.h"
 #include "content/public/common/content_switches.h"
+#include "extensions/browser/extension_system.h"
+#include "extensions/common/constants.h"
 #include "net/base/net_module.h"
 #include "ui/base/resource/resource_bundle.h"
 
@@ -123,6 +131,20 @@ int CefBrowserMainParts::PreCreateThreads() {
 }
 
 void CefBrowserMainParts::PreMainMessageLoopRun() {
+  if (extensions::ExtensionsEnabled()) {
+    // Initialize extension global objects before creating the global
+    // BrowserContext.
+    extensions_client_.reset(new extensions::CefExtensionsClient());
+    extensions::ExtensionsClient::Set(extensions_client_.get());
+    extensions_browser_client_.reset(new extensions::CefExtensionsBrowserClient);
+    extensions::ExtensionsBrowserClient::Set(extensions_browser_client_.get());
+
+    // Register additional KeyedService factories here. See
+    // ChromeBrowserMainExtraPartsProfiles for details.
+    extensions::cef::EnsureBrowserContextKeyedServiceFactoriesBuilt();
+    extensions::CefExtensionSystemFactory::GetInstance();
+  }
+
   CefRequestContextSettings settings;
   CefContext::Get()->PopulateRequestContextSettings(&settings);
 
@@ -150,6 +172,11 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
 }
 
 void CefBrowserMainParts::PostMainMessageLoopRun() {
+  if (extensions::ExtensionsEnabled()) {
+    extensions::ExtensionsBrowserClient::Set(NULL);
+    extensions_browser_client_.reset();
+  }
+
   if (devtools_delegate_) {
     devtools_delegate_->Stop();
     devtools_delegate_ = NULL;

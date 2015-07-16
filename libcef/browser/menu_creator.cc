@@ -33,8 +33,12 @@ CefString GetLabel(int message_id) {
 
 }  // namespace
 
-CefMenuCreator::CefMenuCreator(CefBrowserHostImpl* browser)
-  : browser_(browser) {
+CefMenuCreator::CefMenuCreator(content::WebContents* web_contents,
+                               CefBrowserHostImpl* browser)
+  : content::WebContentsObserver(web_contents),
+    browser_(browser) {
+  DCHECK(web_contents);
+  DCHECK(browser_);
   model_ = new CefMenuModelImpl(this);
 }
 
@@ -45,10 +49,10 @@ CefMenuCreator::~CefMenuCreator() {
 }
 
 bool CefMenuCreator::IsShowingContextMenu() {
-  content::WebContents* web_contents = browser_->GetWebContents();
-  if (!web_contents)
+  if (!web_contents())
     return false;
-  content::RenderWidgetHostView* view = web_contents->GetRenderWidgetHostView();
+  content::RenderWidgetHostView* view =
+      web_contents()->GetRenderWidgetHostView();
   return (view && view->IsShowingContextMenu());
 }
 
@@ -162,12 +166,12 @@ void CefMenuCreator::MenuWillShow(CefRefPtr<CefMenuModelImpl> source) {
   if (source.get() != model_.get())
     return;
 
-  content::WebContents* web_contents = browser_->GetWebContents();
-  if (!web_contents)
+  if (!web_contents())
     return;
 
   // Notify the host before showing the context menu.
-  content::RenderWidgetHostView* view = web_contents->GetRenderWidgetHostView();
+  content::RenderWidgetHostView* view =
+      web_contents()->GetRenderWidgetHostView();
   if (view)
     view->SetShowingContextMenu(true);
 }
@@ -187,14 +191,13 @@ void CefMenuCreator::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
       }
   }
 
-  if (IsShowingContextMenu()) {
+  if (IsShowingContextMenu() && web_contents()) {
     // Notify the host after closing the context menu.
-    content::WebContents* web_contents = browser_->GetWebContents();
     content::RenderWidgetHostView* view =
-        web_contents->GetRenderWidgetHostView();
+        web_contents()->GetRenderWidgetHostView();
     if (view)
       view->SetShowingContextMenu(false);
-    web_contents->NotifyContextMenuClosed(params_.custom_context);
+    web_contents()->NotifyContextMenuClosed(params_.custom_context);
   }
 }
 

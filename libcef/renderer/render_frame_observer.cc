@@ -38,8 +38,14 @@ void CefRenderFrameObserver::DidCreateScriptContext(
 
   CefRefPtr<CefBrowserImpl> browserPtr =
       CefBrowserImpl::GetBrowserForMainFrame(frame->top());
-  DCHECK(browserPtr.get());
   if (!browserPtr.get())
+    return;
+
+  CefRefPtr<CefRenderProcessHandler> handler;
+  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
+  if (application.get())
+    handler = application->GetRenderProcessHandler();
+  if (!handler.get())
     return;
 
   CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
@@ -51,14 +57,7 @@ void CefRenderFrameObserver::DidCreateScriptContext(
 
   CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(isolate, context));
 
-  // Notify the render process handler.
-  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
-  if (application.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler =
-        application->GetRenderProcessHandler();
-    if (handler.get())
-      handler->OnContextCreated(browserPtr.get(), framePtr.get(), contextPtr);
-  }
+  handler->OnContextCreated(browserPtr.get(), framePtr.get(), contextPtr);
 }
 
 void CefRenderFrameObserver::WillReleaseScriptContext(
@@ -66,16 +65,14 @@ void CefRenderFrameObserver::WillReleaseScriptContext(
     int world_id) {
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
 
-  // Notify the render process handler.
-  CefRefPtr<CefApp> application = CefContentClient::Get()->application();
-  if (application.get()) {
-    CefRefPtr<CefRenderProcessHandler> handler =
-        application->GetRenderProcessHandler();
-    if (handler.get()) {
-      CefRefPtr<CefBrowserImpl> browserPtr =
-          CefBrowserImpl::GetBrowserForMainFrame(frame->top());
-      DCHECK(browserPtr.get());
-      if (browserPtr.get()) {
+  CefRefPtr<CefBrowserImpl> browserPtr =
+      CefBrowserImpl::GetBrowserForMainFrame(frame->top());
+  if (browserPtr.get()) {
+    CefRefPtr<CefApp> application = CefContentClient::Get()->application();
+    if (application.get()) {
+      CefRefPtr<CefRenderProcessHandler> handler =
+          application->GetRenderProcessHandler();
+      if (handler.get()) {
         CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
         v8::Isolate* isolate = blink::mainThreadIsolate();

@@ -19,9 +19,11 @@ CefBrowserContextProxy::CefBrowserContextProxy(
       parent_(parent) {
   DCHECK(handler_.get());
   DCHECK(parent_.get());
+  parent_->AddProxy(this);
 }
 
 CefBrowserContextProxy::~CefBrowserContextProxy() {
+  parent_->RemoveProxy(this);
 }
 
 base::FilePath CefBrowserContextProxy::GetPath() const {
@@ -97,10 +99,6 @@ content::SSLHostStateDelegate*
 
 content::PermissionManager* CefBrowserContextProxy::GetPermissionManager() {
   return parent_->GetPermissionManager();
-}
-
-bool CefBrowserContextProxy::IsProxy() const {
-  return true;
 }
 
 const CefRequestContextSettings& CefBrowserContextProxy::GetSettings() const {

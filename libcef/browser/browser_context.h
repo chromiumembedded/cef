@@ -104,6 +104,10 @@
 //    CefURLRequestContextGetter* destruction. 
 */
 
+namespace extensions {
+class CefExtensionSystem;
+}
+
 // Main entry point for configuring behavior on a per-browser basis. An instance
 // of this class is passed to WebContents::Create in CefBrowserHostImpl::
 // CreateInternal. Only accessed on the UI thread unless otherwise indicated.
@@ -114,12 +118,11 @@ class CefBrowserContext
  public:
   CefBrowserContext();
 
+  // Must be called immediately after this object is created.
+  virtual void Initialize();
+
   // BrowserContext methods.
   content::ResourceContext* GetResourceContext() override;
-
-  // Returns true if this is a CefBrowserContextProxy object. Safe to call from
-  // any thread.
-  virtual bool IsProxy() const = 0;
 
   // Returns the settings associated with this object. Safe to call from any
   // thread.
@@ -140,7 +143,10 @@ class CefBrowserContext
       content::URLRequestInterceptorScopedVector request_interceptors) = 0;
 
   CefResourceContext* resource_context() const {
-      return resource_context_.get();
+    return resource_context_.get();
+  }
+  extensions::CefExtensionSystem* extension_system() const {
+    return extension_system_;
   }
 
 #ifndef NDEBUG
@@ -158,6 +164,9 @@ class CefBrowserContext
   friend class base::DeleteHelper<CefBrowserContext>;
 
   scoped_ptr<CefResourceContext> resource_context_;
+
+  // Owned by the KeyedService system.
+  extensions::CefExtensionSystem* extension_system_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserContext);
 };

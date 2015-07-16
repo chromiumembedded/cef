@@ -9,15 +9,18 @@
 #include "libcef/browser/menu_model_impl.h"
 
 #include "base/memory/scoped_ptr.h"
+#include "content/public/browser/web_contents_observer.h"
 #include "content/public/common/context_menu_params.h"
 
 namespace content {
 class RenderFrameHost;
+class WebContents;
 };
 
 class CefBrowserHostImpl;
 
-class CefMenuCreator : public CefMenuModelImpl::Delegate {
+class CefMenuCreator : public CefMenuModelImpl::Delegate,
+                       public content::WebContentsObserver {
  public:
   // Used for OS-specific menu implementations.
   class Runner {
@@ -28,7 +31,8 @@ class CefMenuCreator : public CefMenuModelImpl::Delegate {
     virtual bool FormatLabel(base::string16& label) { return false; }
   };
 
-  explicit CefMenuCreator(CefBrowserHostImpl* browser);
+  CefMenuCreator(content::WebContents* web_contents,
+                 CefBrowserHostImpl* browser);
   ~CefMenuCreator() override;
 
   // Returns true if the context menu is currently showing.

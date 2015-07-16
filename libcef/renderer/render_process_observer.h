@@ -17,6 +17,8 @@ class CefRenderProcessObserver : public content::RenderProcessObserver {
   CefRenderProcessObserver();
   ~CefRenderProcessObserver() override;
 
+  static bool is_incognito_process() { return is_incognito_process_; }
+
   // RenderProcessObserver implementation.
   bool OnControlMessageReceived(const IPC::Message& message) override;
   void WebKitInitialized() override;
@@ -24,10 +26,13 @@ class CefRenderProcessObserver : public content::RenderProcessObserver {
 
  private:
   // Message handlers called on the render thread.
+  void OnSetIsIncognitoProcess(bool is_incognito_process);
   void OnModifyCrossOriginWhitelistEntry(
       bool add,
       const Cef_CrossOriginWhiteListEntry_Params& params);
   void OnClearCrossOriginWhitelist();
+
+  static bool is_incognito_process_;
 
   DISALLOW_COPY_AND_ASSIGN(CefRenderProcessObserver);
 };

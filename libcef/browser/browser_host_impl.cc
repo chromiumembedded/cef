@@ -16,6 +16,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools_delegate.h"
 #include "libcef/browser/devtools_frontend.h"
+#include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/navigate_params.h"
 #include "libcef/browser/navigation_entry_impl.h"
@@ -28,6 +29,7 @@
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/drag_data_impl.h"
+#include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/http_header_utils.h"
 #include "libcef/common/main_delegate.h"
 #include "libcef/common/process_message_impl.h"
@@ -72,6 +74,63 @@
 #endif
 
 namespace {
+
+// Manages the global list of Impl instances.
+class ImplManager {
+ public:
+  typedef std::vector<CefBrowserHostImpl*> Vector;
+
+  ImplManager() {}
+  ~ImplManager() {
+    DCHECK(all_.empty());
+  }
+
+  void AddImpl(CefBrowserHostImpl* impl) {
+    CEF_REQUIRE_UIT();
+    DCHECK(!IsValidImpl(impl));
+    all_.push_back(impl);
+  }
+
+  void RemoveImpl(CefBrowserHostImpl* impl) {
+    CEF_REQUIRE_UIT();
+    Vector::iterator it = GetImplPos(impl);
+    DCHECK(it != all_.end());
+    all_.erase(it);
+  }
+
+  bool IsValidImpl(const CefBrowserHostImpl* impl) {
+    CEF_REQUIRE_UIT();
+    return GetImplPos(impl) != all_.end();
+  }
+
+  CefBrowserHostImpl* GetImplForWebContents(
+      const content::WebContents* web_contents) {
+    CEF_REQUIRE_UIT();
+    Vector::const_iterator it = all_.begin();
+    for (; it != all_.end(); ++it) {
+      if ((*it)->web_contents() == web_contents)
+        return *it;
+    }
+    return NULL;
+  }
+
+ private:
+  Vector::iterator GetImplPos(const CefBrowserHostImpl* impl) {
+    Vector::iterator it = all_.begin();
+    for (; it != all_.end(); ++it) {
+      if (*it == impl)
+        return it;
+    }
+    return all_.end();
+  }
+
+  Vector all_;
+
+  DISALLOW_COPY_AND_ASSIGN(ImplManager);
+};
+
+base::LazyInstance<ImplManager> g_manager = LAZY_INSTANCE_INITIALIZER;
+
 
 class CreateBrowserHelper {
  public:
@@ -520,7 +579,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForHost(
   content::WebContents* web_contents =
       content::WebContents::FromRenderViewHost(host);
   if (web_contents)
-    return static_cast<CefBrowserHostImpl*>(web_contents->GetDelegate());
+    return GetBrowserForContents(web_contents);
   return NULL;
 }
 
@@ -533,21 +592,20 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForHost(
       content::WebContents::FromRenderFrameHost(
           const_cast<content::RenderFrameHost*>(host));
   if (web_contents)
-    return static_cast<CefBrowserHostImpl*>(web_contents->GetDelegate());
+    return GetBrowserForContents(web_contents);
   return NULL;
 }
 
 // static
 CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForContents(
-    content::WebContents* contents) {
+    const content::WebContents* contents) {
   DCHECK(contents);
-  CEF_REQUIRE_UIT();
-  return static_cast<CefBrowserHostImpl*>(contents->GetDelegate());
+  return g_manager.Get().GetImplForWebContents(contents);
 }
 
 // static
 CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForRequest(
-    net::URLRequest* request) {
+    const net::URLRequest* request) {
   DCHECK(request);
   CEF_REQUIRE_IOT();
   int render_process_id = -1;
@@ -584,7 +642,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForView(
             render_routing_id);
     if (info.get()) {
       CefRefPtr<CefBrowserHostImpl> browser = info->browser();
-      if (!browser.get()) {
+      if (!browser.get() && !info->is_mime_handler_view()) {
         LOG(WARNING) << "Found browser id " << info->browser_id() <<
                         " but no browser object matching view process id " <<
                         render_process_id << " and routing id " <<
@@ -617,7 +675,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForFrame(
             render_routing_id);
     if (info.get()) {
       CefRefPtr<CefBrowserHostImpl> browser = info->browser();
-      if (!browser.get()) {
+      if (!browser.get() && !info->is_mime_handler_view()) {
         LOG(WARNING) << "Found browser id " << info->browser_id() <<
                         " but no browser object matching frame process id " <<
                         render_process_id << " and routing id " <<
@@ -836,10 +894,11 @@ void CefBrowserHostImpl::StartDownload(const CefString& url) {
 
 void CefBrowserHostImpl::Print() {
   if (CEF_CURRENTLY_ON_UIT()) {
-    if (!web_contents_)
+    content::WebContents* actionable_contents = GetActionableWebContents();
+    if (!actionable_contents)
       return;
     printing::PrintViewManager::FromWebContents(
-        web_contents_.get())->PrintNow();
+        actionable_contents)->PrintNow();
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::Print, this));
@@ -850,7 +909,8 @@ void CefBrowserHostImpl::PrintToPDF(const CefString& path,
                                     const CefPdfPrintSettings& settings,
                                     CefRefPtr<CefPdfPrintCallback> callback) {
   if (CEF_CURRENTLY_ON_UIT()) {
-    if (!web_contents_)
+    content::WebContents* actionable_contents = GetActionableWebContents();
+    if (!actionable_contents)
       return;
 
     printing::PrintViewManager::PdfPrintCallback pdf_callback;
@@ -858,7 +918,7 @@ void CefBrowserHostImpl::PrintToPDF(const CefString& path,
       pdf_callback = base::Bind(&CefPdfPrintCallback::OnPdfPrintFinished,
                                 callback.get(), path);
     }
-    printing::PrintViewManager::FromWebContents(web_contents_.get())->
+    printing::PrintViewManager::FromWebContents(actionable_contents)->
         PrintToPDF(base::FilePath(path), settings, pdf_callback);
   } else {
     CEF_POST_TASK(CEF_UIT,
@@ -1537,6 +1597,8 @@ void CefBrowserHostImpl::DestroyBrowser() {
     delete queued_messages_.front();
     queued_messages_.pop();
   }
+
+  g_manager.Get().RemoveImpl(this);
 
   registrar_.reset(NULL);
   response_manager_.reset(NULL);
@@ -2265,9 +2327,17 @@ bool CefBrowserHostImpl::TakeFocus(content::WebContents* source,
 
 bool CefBrowserHostImpl::HandleContextMenu(
     const content::ContextMenuParams& params) {
-  if (!menu_creator_.get())
-    menu_creator_.reset(new CefMenuCreator(this));
-  return menu_creator_->CreateContextMenu(params);
+  return HandleContextMenu(web_contents(), params);
+}
+
+content::WebContents* CefBrowserHostImpl::GetActionableWebContents() {
+  if (web_contents() && extensions::ExtensionsEnabled()) {
+    content::WebContents* guest_contents =
+        extensions::GetGuestForOwnerContents(web_contents());
+    if (guest_contents)
+      return guest_contents;
+  }
+  return web_contents();
 }
 
 bool CefBrowserHostImpl::PreHandleKeyboardEvent(
@@ -2449,6 +2519,14 @@ void CefBrowserHostImpl::RunFileChooser(
   RunFileChooserOnUIThread(cef_params,
       base::Bind(&CefBrowserHostImpl::OnRunFileChooserDelegateCallback, this,
                  web_contents, params.mode));
+}
+
+bool CefBrowserHostImpl::HandleContextMenu(
+    content::WebContents* web_contents,
+    const content::ContextMenuParams& params) {
+  if (!menu_creator_.get())
+    menu_creator_.reset(new CefMenuCreator(web_contents, this));
+  return menu_creator_->CreateContextMenu(params);
 }
 
 bool CefBrowserHostImpl::SetPendingPopupInfo(
@@ -2910,6 +2988,8 @@ CefBrowserHostImpl::CefBrowserHostImpl(
 
   web_contents_.reset(web_contents);
   web_contents->SetDelegate(this);
+
+  g_manager.Get().AddImpl(this);
 
   registrar_.reset(new content::NotificationRegistrar);
   registrar_->Add(this, content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,

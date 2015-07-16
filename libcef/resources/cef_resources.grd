@@ -14,6 +14,12 @@
       <include name="IDR_CEF_CREDITS_JS" file="..\..\..\chrome\browser\resources\about_credits.js" type="BINDATA" />
       <include name="IDR_CEF_LICENSE_TXT" file="..\..\LICENSE.txt" type="BINDATA" />
       <include name="IDR_CEF_VERSION_HTML" file="about_version.html" type="BINDATA" />
+
+      <!-- Features specific to CEF. -->
+      <include name="IDR_CEF_EXTENSION_API_FEATURES" file="..\common\extensions\api\_api_features.json" type="BINDATA" />
+
+      <!-- Manifest files for built-in extensions. -->
+      <include name="IDR_PDF_MANIFEST" file="..\..\..\chrome\browser\resources\pdf\manifest.json" type="BINDATA" />
     </includes>
   </release>
 </grit>

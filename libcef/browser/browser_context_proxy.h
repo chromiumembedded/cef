@@ -52,7 +52,6 @@ class CefBrowserContextProxy : public CefBrowserContext {
   content::PermissionManager* GetPermissionManager() override;
 
   // CefBrowserContext methods.
-  bool IsProxy() const override;
   const CefRequestContextSettings& GetSettings() const override;
   CefRefPtr<CefRequestContextHandler> GetHandler() const override;
   net::URLRequestContextGetter* CreateRequestContext(

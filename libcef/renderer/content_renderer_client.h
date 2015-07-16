@@ -20,12 +20,22 @@
 #include "base/sequenced_task_runner.h"
 #include "content/public/renderer/content_renderer_client.h"
 
+namespace extensions {
+class Dispatcher;
+class DispatcherDelegate;
+class ExtensionsClient;
+class ExtensionsGuestViewContainerDispatcher;
+class ExtensionsRendererClient;
+}
+
 namespace web_cache {
 class WebCacheRenderProcessObserver;
 }
 
 class CefRenderProcessObserver;
 struct Cef_CrossOriginWhiteListEntry_Params;
+struct CefViewHostMsg_GetPluginInfo_Output;
+class ChromePDFPrintClient;
 class SpellCheck;
 
 class CefContentRendererClient : public content::ContentRendererClient,
@@ -94,9 +104,16 @@ class CefContentRendererClient : public content::ContentRendererClient,
                         blink::WebNavigationType type,
                         blink::WebNavigationPolicy default_policy,
                         bool is_redirect) override;
+  content::BrowserPluginDelegate* CreateBrowserPluginDelegate(
+      content::RenderFrame* render_frame,
+      const std::string& mime_type,
+      const GURL& original_url) override;
 
   // MessageLoop::DestructionObserver implementation.
   void WillDestroyCurrentMessageLoop() override;
+
+  static bool IsExtensionOrSharedModuleWhitelisted(
+      const GURL& url, const std::set<std::string>& whitelist);
 
  private:
   void BrowserCreated(content::RenderView* render_view,
@@ -104,6 +121,12 @@ class CefContentRendererClient : public content::ContentRendererClient,
 
   // Perform cleanup work for single-process mode.
   void RunSingleProcessCleanupOnUIThread();
+
+  static blink::WebPlugin* CreatePlugin(
+      content::RenderFrame* render_frame,
+      blink::WebLocalFrame* frame,
+      const blink::WebPluginParams& params,
+      const CefViewHostMsg_GetPluginInfo_Output& output);
 
   scoped_refptr<base::SequencedTaskRunner> render_task_runner_;
   scoped_ptr<CefRenderProcessObserver> observer_;
@@ -117,6 +140,15 @@ class CefContentRendererClient : public content::ContentRendererClient,
   // Cross-origin white list entries that need to be registered with WebKit.
   typedef std::vector<Cef_CrossOriginWhiteListEntry_Params> CrossOriginList;
   CrossOriginList cross_origin_whitelist_entries_;
+
+  scoped_ptr<ChromePDFPrintClient> pdf_print_client_;
+
+  scoped_ptr<extensions::ExtensionsClient> extensions_client_;
+  scoped_ptr<extensions::ExtensionsRendererClient> extensions_renderer_client_;
+  scoped_ptr<extensions::DispatcherDelegate> extension_dispatcher_delegate_;
+  scoped_ptr<extensions::Dispatcher> extension_dispatcher_;
+  scoped_ptr<extensions::ExtensionsGuestViewContainerDispatcher>
+      guest_view_container_dispatcher_;
 
   int devtools_agent_count_;
   int uncaught_exception_stack_size_;

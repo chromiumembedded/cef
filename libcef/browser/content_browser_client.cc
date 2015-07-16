@@ -14,6 +14,9 @@
 #include "libcef/browser/chrome_scheme_handler.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools_delegate.h"
+#include "libcef/browser/extensions/browser_extensions_util.h"
+#include "libcef/browser/extensions/extension_system.h"
+#include "libcef/browser/extensions/plugin_info_message_filter.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/pepper/browser_pepper_host_factory.h"
 #include "libcef/browser/printing/printing_message_filter.h"
@@ -22,9 +25,11 @@
 #include "libcef/browser/ssl_info_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/web_plugin_impl.h"
+#include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
 #include "libcef/common/content_client.h"
+#include "libcef/common/extensions/extensions_util.h"
 #include "libcef/common/scheme_registration.h"
 
 #include "base/base_switches.h"
@@ -46,6 +51,12 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/storage_quota_params.h"
 #include "content/public/common/web_preferences.h"
+#include "extensions/browser/extension_message_filter.h"
+#include "extensions/browser/extension_protocols.h"
+#include "extensions/browser/extension_registry.h"
+#include "extensions/browser/guest_view/extensions_guest_view_message_filter.h"
+#include "extensions/browser/io_thread_extension_message_filter.h"
+#include "extensions/common/constants.h"
 #include "gin/v8_initializer.h"
 #include "net/ssl/ssl_cert_request_info.h"
 #include "third_party/WebKit/public/web/WebWindowFeatures.h"
@@ -561,6 +572,49 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
     host->AddFilter(new SpellCheckMessageFilterMac(id));
 #endif
   }
+
+  content::BrowserContext* browser_context = host->GetBrowserContext();
+
+  if (extensions::ExtensionsEnabled()) {
+    host->AddFilter(
+        new extensions::CefPluginInfoMessageFilter(id, browser_context));
+    host->AddFilter(
+        new extensions::ExtensionMessageFilter(id, browser_context));
+    host->AddFilter(
+        new extensions::IOThreadExtensionMessageFilter(id, browser_context));
+    host->AddFilter(
+        new extensions::ExtensionsGuestViewMessageFilter(id, browser_context));
+  }
+
+  host->Send(new CefProcessMsg_SetIsIncognitoProcess(
+      browser_context->IsOffTheRecord()));
+}
+
+bool CefContentBrowserClient::ShouldUseProcessPerSite(
+    content::BrowserContext* browser_context,
+    const GURL& effective_url) {
+  if (!extensions::ExtensionsEnabled())
+    return false;
+
+  if (!effective_url.SchemeIs(extensions::kExtensionScheme))
+    return false;
+
+  extensions::ExtensionRegistry* registry =
+      extensions::ExtensionRegistry::Get(browser_context);
+  if (!registry)
+    return false;
+
+  const extensions::Extension* extension =
+      registry->enabled_extensions().GetByID(effective_url.host());
+  if (!extension)
+    return false;
+
+  // TODO(extensions): Extra checks required if type is TYPE_HOSTED_APP.
+
+  // Hosted apps that have script access to their background page must use
+  // process per site, since all instances can make synchronous calls to the
+  // background window.  Other extensions should use process per site as well.
+  return true;
 }
 
 net::URLRequestContextGetter* CefContentBrowserClient::CreateRequestContext(
@@ -569,6 +623,19 @@ net::URLRequestContextGetter* CefContentBrowserClient::CreateRequestContext(
     content::URLRequestInterceptorScopedVector request_interceptors) {
   scoped_refptr<CefBrowserContext> context =
       static_cast<CefBrowserContext*>(content_browser_context);
+
+  if (extensions::ExtensionsEnabled()) {
+    // Handle only chrome-extension:// requests. CEF does not support
+    // chrome-extension-resource:// requests (it does not store shared extension
+    // data in its installation directory).
+    extensions::InfoMap* extension_info_map =
+        context->extension_system()->info_map();
+    (*protocol_handlers)[extensions::kExtensionScheme] =
+        linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
+            extensions::CreateExtensionProtocolHandler(
+                context->IsOffTheRecord(), extension_info_map));
+  }
+
   return context->CreateRequestContext(
       protocol_handlers,
       request_interceptors.Pass());
@@ -635,6 +702,8 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     // any associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
       switches::kContextSafetyImplementation,
+      switches::kDisableExtensions,
+      switches::kDisablePdfExtension,
       switches::kDisableScrollBounce,
       switches::kDisableSpellChecking,
       switches::kEnableSpeechInput,
@@ -802,11 +871,8 @@ bool CefContentBrowserClient::CanCreateWindow(
       CefBrowserHostImpl::GetBrowserForView(
           last_create_window_params_.opener_process_id,
           last_create_window_params_.opener_view_id);
-  DCHECK(browser.get());
-  if (!browser.get()) {
-    LOG(WARNING) << "CanCreateWindow called before browser was created";
+  if (!browser.get())
     return false;
-  }
 
   CefRefPtr<CefClient> client = browser->GetClient();
   bool allow = true;
@@ -886,12 +952,20 @@ void CefContentBrowserClient::OverrideWebkitPrefs(
 
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForHost(rvh);
-  DCHECK(browser.get());
+  if (!browser.get() && extensions::ExtensionsEnabled()) {
+    // Retrieve the owner browser, if any.
+    content::WebContents* owner = extensions::GetOwnerForGuestContents(
+        content::WebContents::FromRenderViewHost(rvh));
+    if (owner)
+      browser = CefBrowserHostImpl::GetBrowserForContents(owner);
+  }
 
-  // Populate WebPreferences based on CefBrowserSettings.
-  BrowserToWebSettings(browser->settings(), *prefs);
+  if (browser.get()) {
+    // Populate WebPreferences based on CefBrowserSettings.
+    BrowserToWebSettings(browser->settings(), *prefs);
+  }
 
-  prefs->base_background_color = GetBaseBackgroundColor(rvh);
+  prefs->base_background_color = GetBaseBackgroundColor(browser);
   if (rvh->GetView())
     rvh->GetView()->SetBackgroundColor(prefs->base_background_color);
 
@@ -1013,26 +1087,25 @@ PrefService* CefContentBrowserClient::pref_service() const {
   return browser_main_parts_->pref_service();
 }
 
+// static
 SkColor CefContentBrowserClient::GetBaseBackgroundColor(
-    content::RenderViewHost* rvh) {
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForHost(rvh);
-  DCHECK(browser.get());
-
-  const CefBrowserSettings& browser_settings = browser->settings();
-  if (CefColorGetA(browser_settings.background_color) > 0) {
-    return SkColorSetRGB(
-        CefColorGetR(browser_settings.background_color),
-        CefColorGetG(browser_settings.background_color),
-        CefColorGetB(browser_settings.background_color));
-  } else {
-    const CefSettings& settings = CefContext::Get()->settings();
-    if (CefColorGetA(settings.background_color) > 0) {
+    CefRefPtr<CefBrowserHostImpl> browser) {
+  if (browser.get()) {
+    const CefBrowserSettings& browser_settings = browser->settings();
+    if (CefColorGetA(browser_settings.background_color) > 0) {
       return SkColorSetRGB(
-          CefColorGetR(settings.background_color),
-          CefColorGetG(settings.background_color),
-          CefColorGetB(settings.background_color));
+          CefColorGetR(browser_settings.background_color),
+          CefColorGetG(browser_settings.background_color),
+          CefColorGetB(browser_settings.background_color));
     }
+  }
+
+  const CefSettings& settings = CefContext::Get()->settings();
+  if (CefColorGetA(settings.background_color) > 0) {
+    return SkColorSetRGB(
+        CefColorGetR(settings.background_color),
+        CefColorGetG(settings.background_color),
+        CefColorGetB(settings.background_color));
   }
 
   return SK_ColorWHITE;

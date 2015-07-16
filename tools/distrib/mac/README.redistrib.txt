@@ -20,6 +20,7 @@ cefclient.app/
           cef.pak <= non-localized resources and strings
           cef_100_percent.pak <====^
           cef_200_percent.pak <====^
+          cef_extensions.pak <=====^
           devtools_resources.pak <=^
           crash_inspector, crash_report_sender <= breakpad support
           icudtl.dat <= unicode support
@@ -69,41 +70,60 @@ file for a better idea of the script dependencies.
 
 Required components:
 
-* CEF framework library
-    Chromium Embedded Framework.framework/Chromium Embedded Framework
+The following components are required. CEF will not function without them.
 
-* Unicode support
-    Chromium Embedded Framework.framework/Resources/icudtl.dat
+* CEF core library.
+  * Chromium Embedded Framework.framework/Chromium Embedded Framework
 
-* V8 initial snapshot
-    Chromium Embedded Framework.framework/Resources/natives_blob.bin
-    Chromium Embedded Framework.framework/Resources/snapshot_blob.bin
+* Unicode support data.
+  * Chromium Embedded Framework.framework/Resources/icudtl.dat
+
+* V8 snapshot data.
+  * Chromium Embedded Framework.framework/Resources/natives_blob.bin
+  * Chromium Embedded Framework.framework/Resources/snapshot_blob.bin
 
 Optional components:
 
-* Localized resources
-    Chromium Embedded Framework.framework/Resources/*.lproj/
-  Note: Contains localized strings for WebKit UI controls. A .pak file is loaded
-  from this folder based on the CefSettings.locale value. Only configured
-  locales need to be distributed. If no locale is configured the default locale
-  of "en" will be used. Locale file loading can be disabled completely using
+The following components are optional. If they are missing CEF will continue to
+run but any related functionality may become broken or disabled.
+
+* Localized resources.
+  Locale file loading can be disabled completely using
   CefSettings.pack_loading_disabled.
 
-* Other resources
-    Chromium Embedded Framework.framework/Resources/cef.pak
-    Chromium Embedded Framework.framework/Resources/cef_100_percent.pak
-    Chromium Embedded Framework.framework/Resources/cef_200_percent.pak
-    Chromium Embedded Framework.framework/Resources/devtools_resources.pak
-  Note: Contains WebKit image and inspector resources. Pack file loading can be
-  disabled completely using CefSettings.pack_loading_disabled. The resources
-  directory path can be customized using CefSettings.resources_dir_path.
+  * Chromium Embedded Framework.framework/Resources/*.lproj/
+    Directory containing localized resources used by CEF, Chromium and Blink. A
+    .pak file is loaded from this directory based on the CefSettings.locale
+    value. Only configured locales need to be distributed. If no locale is
+    configured the default locale of "en" will be used. Without these files
+    arbitrary Web components may display incorrectly.
 
-* FFmpeg audio and video support
-    Chromium Embedded Framework.framework/Libraries/ffmpegsumo.so
-  Note: Without this component HTML5 audio and video will not function.
+* Other resources.
+  Pack file loading can be disabled completely using
+  CefSettings.pack_loading_disabled.
 
-* Breakpad support
-    Chromium Embedded Framework.framework/Resources/crash_inspector
-    Chromium Embedded Framework.framework/Resources/crash_report_sender
-    Chromium Embedded Framework.framework/Resources/Info.plist
-  Note: Without these components breakpad support will not function.
+  * Chromium Embedded Framework.framework/Resources/cef.pak
+  * Chromium Embedded Framework.framework/Resources/cef_100_percent.pak
+  * Chromium Embedded Framework.framework/Resources/cef_200_percent.pak
+    These files contain non-localized resources used by CEF, Chromium and Blink.
+    Without these files arbitrary Web components may display incorrectly.
+
+  * Chromium Embedded Framework.framework/Resources/cef_extensions.pak
+    This file contains non-localized resources required for extension loading.
+    Pass the `--disable-extensions` command-line flag to disable use of this
+    file. Without this file components that depend on the extension system,
+    such as the PDF viewer, will not function.
+
+  * Chromium Embedded Framework.framework/Resources/devtools_resources.pak
+    This file contains non-localized resources required for Chrome Developer
+    Tools. Without this file Chrome Developer Tools will not function.
+
+* FFmpeg audio and video support.
+  * Chromium Embedded Framework.framework/Libraries/ffmpegsumo.so
+    Without this file HTML5 audio and video will not function.
+
+* Breakpad support.
+  * Chromium Embedded Framework.framework/Resources/crash_inspector
+  * Chromium Embedded Framework.framework/Resources/crash_report_sender
+  * Chromium Embedded Framework.framework/Resources/Info.plist
+    Without these files breakpad support (crash reporting) will not function.
