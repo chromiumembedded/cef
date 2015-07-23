@@ -33,8 +33,9 @@ std::string CreateContents(const std::string& message) {
 }
 
 void WriteFile(const base::FilePath& path, const std::string& contents) {
-  int write_ct = base::WriteFile(path, contents.data(), contents.size());
-  EXPECT_EQ(static_cast<int>(contents.size()), write_ct);
+  int contents_size = static_cast<int>(contents.size());
+  int write_ct = base::WriteFile(path, contents.data(), contents_size);
+  EXPECT_EQ(contents_size, write_ct);
 }
 
 CefRefPtr<CefResourceHandler> CreateContentsResourceHandler(
