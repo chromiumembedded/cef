@@ -1,5 +1,5 @@
 diff --git printing/renderer/print_web_view_helper.cc printing/renderer/print_web_view_helper.cc
-index 313d12d..558052c 100644
+index d315efa..a312f77 100644
 --- printing/renderer/print_web_view_helper.cc
 +++ printing/renderer/print_web_view_helper.cc
 @@ -75,6 +75,7 @@ const double kMinDpi = 1.0;
@@ -18,7 +18,7 @@ index 313d12d..558052c 100644
  
  int GetDPI(const PrintMsg_Print_Params* print_params) {
  #if defined(OS_MACOSX)
-@@ -474,7 +474,6 @@ blink::WebView* FrameReference::view() {
+@@ -480,7 +480,6 @@ blink::WebView* FrameReference::view() {
    return view_;
  }
  
@@ -26,7 +26,7 @@ index 313d12d..558052c 100644
  // static - Not anonymous so that platform implementations can use it.
  void PrintWebViewHelper::PrintHeaderAndFooter(
      blink::WebCanvas* canvas,
-@@ -532,7 +531,6 @@ void PrintWebViewHelper::PrintHeaderAndFooter(
+@@ -538,7 +537,6 @@ void PrintWebViewHelper::PrintHeaderAndFooter(
    web_view->close();
    frame->close();
  }
@@ -34,8 +34,35 @@ index 313d12d..558052c 100644
  
  // static - Not anonymous so that platform implementations can use it.
  float PrintWebViewHelper::RenderPageContent(blink::WebFrame* frame,
+@@ -813,6 +811,7 @@ PrintWebViewHelper::PrintWebViewHelper(content::RenderView* render_view,
+       print_for_preview_(false),
+       delegate_(delegate.Pass()),
+       print_node_in_progress_(false),
++      force_print_preview_(false),
+       is_loading_(false),
+       is_scripted_preview_delayed_(false),
+       ipc_nesting_level_(0),
+@@ -1254,7 +1253,9 @@ void PrintWebViewHelper::OnInitiatePrintPreview(bool selection_only) {
+   // that instead.
+   auto plugin = delegate_->GetPdfElement(frame);
+   if (!plugin.isNull()) {
++    force_print_preview_ = true;
+     PrintNode(plugin);
++    force_print_preview_ = false;
+     return;
+   }
+   print_preview_context_.InitWithFrame(frame);
+@@ -1287,7 +1288,7 @@ void PrintWebViewHelper::PrintNode(const blink::WebNode& node) {
+ 
+   // Make a copy of the node, in case RenderView::OnContextMenuClosed resets
+   // its |context_menu_node_|.
+-  if (!g_is_preview_enabled_) {
++  if (!g_is_preview_enabled_ && !force_print_preview_) {
+     blink::WebNode duplicate_node(node);
+     Print(duplicate_node.document().frame(), duplicate_node, false);
+   } else {
 diff --git printing/renderer/print_web_view_helper.h printing/renderer/print_web_view_helper.h
-index 341ec8e..47777b8 100644
+index 54179ff..0c48602 100644
 --- printing/renderer/print_web_view_helper.h
 +++ printing/renderer/print_web_view_helper.h
 @@ -309,7 +309,6 @@ class PrintWebViewHelper
@@ -54,11 +81,19 @@ index 341ec8e..47777b8 100644
  
    bool GetPrintFrame(blink::WebLocalFrame** frame);
  
+@@ -498,6 +496,7 @@ class PrintWebViewHelper
+   ScriptingThrottler scripting_throttler_;
+ 
+   bool print_node_in_progress_;
++  bool force_print_preview_;
+   PrintPreviewContext print_preview_context_;
+   bool is_loading_;
+   bool is_scripted_preview_delayed_;
 diff --git printing/renderer/print_web_view_helper_linux.cc printing/renderer/print_web_view_helper_linux.cc
-index 79b82e9..8d1f6f4 100644
+index 61a1a1d..f931979 100644
 --- printing/renderer/print_web_view_helper_linux.cc
 +++ printing/renderer/print_web_view_helper_linux.cc
-@@ -169,7 +169,6 @@ void PrintWebViewHelper::PrintPageInternal(
+@@ -172,7 +172,6 @@ void PrintWebViewHelper::PrintPageInternal(
    MetafileSkiaWrapper::SetMetafileOnCanvas(*canvas, metafile);
    skia::SetIsDraftMode(*canvas, is_print_ready_metafile_sent_);
  
@@ -66,7 +101,7 @@ index 79b82e9..8d1f6f4 100644
    if (params.params.display_header_footer) {
      // |page_number| is 0-based, so 1 is added.
      // TODO(vitalybuka) : why does it work only with 1.25?
-@@ -178,7 +177,6 @@ void PrintWebViewHelper::PrintPageInternal(
+@@ -181,7 +180,6 @@ void PrintWebViewHelper::PrintPageInternal(
                           scale_factor / 1.25, page_layout_in_points,
                           params.params);
    }

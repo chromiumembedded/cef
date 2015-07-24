@@ -92,7 +92,11 @@ class TracingTestHandler : public CefEndTracingCallback,
   void OnEndTracingComplete(const CefString& tracing_file) override {
     EXPECT_UI_THREAD();
 
-    base::FilePath file_path(tracing_file);
+#if defined(OS_WIN)
+    base::FilePath file_path(tracing_file.ToWString());
+#else
+    base::FilePath file_path(tracing_file.ToString());
+#endif
     CefPostTask(TID_FILE,
         base::Bind(&TracingTestHandler::ReadTracingFile, this, file_path));
   }

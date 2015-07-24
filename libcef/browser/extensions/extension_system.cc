@@ -256,22 +256,26 @@ CefExtensionSystem::ComponentExtensionInfo::ComponentExtensionInfo(
   extension_id = GenerateId(manifest, root_directory);
 }
 
-// Implementation based on ComponentLoader::Load and
-// ExtensionService::AddExtension.
-const Extension* CefExtensionSystem::LoadExtension(
-    const ComponentExtensionInfo& info) {
+// Implementation based on ComponentLoader::CreateExtension.
+scoped_refptr<const Extension> CefExtensionSystem::CreateExtension(
+    const ComponentExtensionInfo& info, std::string* utf8_error) {
   // TODO(abarth): We should REQUIRE_MODERN_MANIFEST_VERSION once we've updated
   //               our component extensions to the new manifest version.
   int flags = Extension::REQUIRE_KEY;
-
-  std::string error;
-
-  scoped_refptr<const Extension> extension(Extension::Create(
+  return Extension::Create(
       info.root_directory,
       Manifest::COMPONENT,
       *info.manifest,
       flags,
-      &error));
+      utf8_error);
+}
+
+// Implementation based on ComponentLoader::Load and
+// ExtensionService::AddExtension.
+const Extension* CefExtensionSystem::LoadExtension(
+    const ComponentExtensionInfo& info) {
+  std::string error;
+  scoped_refptr<const Extension> extension(CreateExtension(info, &error));
   if (!extension.get()) {
     LOG(ERROR) << error;
     return NULL;

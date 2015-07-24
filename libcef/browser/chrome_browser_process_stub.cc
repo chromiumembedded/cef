@@ -273,3 +273,8 @@ gcm::GCMDriver* ChromeBrowserProcessStub::gcm_driver() {
   NOTIMPLEMENTED();
   return NULL;
 }
+
+memory::OomPriorityManager* ChromeBrowserProcessStub::GetOomPriorityManager() {
+  NOTIMPLEMENTED();
+  return NULL;
+}

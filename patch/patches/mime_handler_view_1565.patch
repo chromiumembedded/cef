@@ -1,8 +1,8 @@
 diff --git mime_handler_view_guest.cc mime_handler_view_guest.cc
-index 61fd142..ed9a58d 100644
+index 2f44662..26524c4 100644
 --- mime_handler_view_guest.cc
 +++ mime_handler_view_guest.cc
-@@ -142,6 +142,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -134,6 +134,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -11,7 +11,7 @@ index 61fd142..ed9a58d 100644
    callback.Run(WebContents::Create(params));
  }
  
-@@ -183,6 +185,30 @@ bool MimeHandlerViewGuest::StopFinding(content::StopFindAction action) {
+@@ -172,6 +174,30 @@ bool MimeHandlerViewGuest::StopFinding(content::StopFindAction action) {
    return false;
  }
  
@@ -43,10 +43,10 @@ index 61fd142..ed9a58d 100644
      content::WebContents* source,
      const content::OpenURLParams& params) {
 diff --git mime_handler_view_guest.h mime_handler_view_guest.h
-index f95aab7..fe4944e 100644
+index 33ff28e..2d9a00e 100644
 --- mime_handler_view_guest.h
 +++ mime_handler_view_guest.h
-@@ -76,6 +76,13 @@ class MimeHandlerViewGuest : public guest_view::GuestView<MimeHandlerViewGuest>,
+@@ -71,6 +71,13 @@ class MimeHandlerViewGuest :
              const base::string16& search_text,
              const blink::WebFindOptions& options) override;
    bool StopFinding(content::StopFindAction action) override;
@@ -90,7 +90,7 @@ index 63b81b8..0f63f48 100644
      content::WebContents* web_contents,
      const content::ContextMenuParams& params) {
 diff --git mime_handler_view_guest_delegate.h mime_handler_view_guest_delegate.h
-index b9a6fe3..6a2c3b0 100644
+index e065104..f68b66c 100644
 --- mime_handler_view_guest_delegate.h
 +++ mime_handler_view_guest_delegate.h
 @@ -6,10 +6,11 @@
@@ -106,10 +106,11 @@ index b9a6fe3..6a2c3b0 100644
  }  // namespace content
  
  namespace extensions {
-@@ -22,6 +23,21 @@ class MimeHandlerViewGuestDelegate {
-   explicit MimeHandlerViewGuestDelegate(MimeHandlerViewGuest* guest) {}
+@@ -21,6 +22,21 @@ class MimeHandlerViewGuestDelegate {
+  public:
+   MimeHandlerViewGuestDelegate() {}
    virtual ~MimeHandlerViewGuestDelegate() {}
- 
++  
 +  // Provides an opportunity to supply a custom view implementation.
 +  virtual void OverrideWebContentsCreateParams(
 +      content::WebContents::CreateParams* params) {}
@@ -124,7 +125,6 @@ index b9a6fe3..6a2c3b0 100644
 +  virtual bool CreateViewForWidget(
 +      content::WebContentsView* guest_view,
 +      content::RenderWidgetHost* render_widget_host);
-+
-   // Attaches helpers upon initializing the WebContents.
-   virtual void AttachHelpers() {}
  
+   // Handles context menu, or returns false if unhandled.
+   virtual bool HandleContextMenu(content::WebContents* web_contents,

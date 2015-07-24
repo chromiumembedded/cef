@@ -110,7 +110,8 @@ void EventRouterForwarder::CallEventRouter(
     scoped_ptr<base::ListValue> event_args,
     content::BrowserContext* restrict_to_profile,
     const GURL& event_url) {
-  scoped_ptr<Event> event(new Event(event_name, event_args.Pass()));
+  scoped_ptr<Event> event(
+      new Event(events::UNKNOWN, event_name, event_args.Pass()));
   event->restrict_to_browser_context = restrict_to_profile;
   event->event_url = event_url;
   if (extension_id.empty()) {

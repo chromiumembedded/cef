@@ -40,13 +40,13 @@ std::string GetManifest() {
       ResourceBundle::GetSharedInstance().GetRawDataResource(
           IDR_PDF_MANIFEST).as_string();
   DCHECK(manifest_contents.find(kNameTag) != std::string::npos);
-  ReplaceFirstSubstringAfterOffset(
+  base::ReplaceFirstSubstringAfterOffset(
       &manifest_contents, 0, kNameTag, kPdfPluginName);
 
   DCHECK(manifest_contents.find(kIndexTag) != std::string::npos);
   std::string index = switches::PdfMaterialUIEnabled() ?
       kMaterialIndex : kRegularIndex;
-  ReplaceSubstringsAfterOffset(&manifest_contents, 0, kIndexTag, index);
+  base::ReplaceSubstringsAfterOffset(&manifest_contents, 0, kIndexTag, index);
   return manifest_contents;
 }
 

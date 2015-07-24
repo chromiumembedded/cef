@@ -8,6 +8,7 @@
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/extensions/component_extension_resource_manager.h"
 #include "libcef/browser/extensions/extension_system_factory.h"
+#include "libcef/browser/extensions/extension_web_contents_observer.h"
 #include "libcef/browser/extensions/extensions_api_client.h"
 #include "libcef/browser/extensions/url_request_util.h"
 
@@ -224,6 +225,12 @@ bool CefExtensionsBrowserClient::IsBackgroundUpdateAllowed() {
 bool CefExtensionsBrowserClient::IsMinBrowserVersionSupported(
     const std::string& min_version) {
   return true;
+}
+
+ExtensionWebContentsObserver*
+CefExtensionsBrowserClient::GetExtensionWebContentsObserver(
+    content::WebContents* web_contents) {
+  return CefExtensionWebContentsObserver::FromWebContents(web_contents);
 }
 
 void CefExtensionsBrowserClient::SetAPIClientForTest(

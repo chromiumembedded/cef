@@ -98,7 +98,8 @@ class URLRequestResourceBundleJob : public net::URLRequestSimpleJob {
                       const net::CompletionCallback& callback,
                       bool read_result) {
     *out_mime_type = *read_mime_type;
-    if (StartsWithASCII(*read_mime_type, "text/", false)) {
+    if (base::StartsWith(*read_mime_type, "text/",
+                         base::CompareCase::INSENSITIVE_ASCII)) {
       // All of our HTML files should be UTF-8 and for other resource types
       // (like images), charset doesn't matter.
       DCHECK(base::IsStringUTF8(base::StringPiece(

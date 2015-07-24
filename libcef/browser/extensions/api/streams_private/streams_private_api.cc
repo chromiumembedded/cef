@@ -108,9 +108,9 @@ void StreamsPrivateAPI::ExecuteMimeTypeHandler(
   CreateResponseHeadersDictionary(stream->response_headers.get(),
                                   &info.response_headers.additional_properties);
 
-  scoped_ptr<Event> event(
-      new Event(streams_private::OnExecuteMimeTypeHandler::kEventName,
-                streams_private::OnExecuteMimeTypeHandler::Create(info)));
+  scoped_ptr<Event> event(new Event(
+      events::UNKNOWN, streams_private::OnExecuteMimeTypeHandler::kEventName,
+      streams_private::OnExecuteMimeTypeHandler::Create(info)));
 
   EventRouter::Get(browser_context_)
       ->DispatchEventToExtension(extension_id, event.Pass());

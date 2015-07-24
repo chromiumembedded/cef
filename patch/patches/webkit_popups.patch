@@ -1,8 +1,8 @@
 diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
-index e1fd006..fa9486b 100644
+index 58e8166..23c0cea 100644
 --- Source/web/ChromeClientImpl.cpp
 +++ Source/web/ChromeClientImpl.cpp
-@@ -768,7 +768,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
+@@ -774,7 +774,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
  PassRefPtrWillBeRawPtr<PopupMenu> ChromeClientImpl::openPopupMenu(LocalFrame& frame, PopupMenuClient* client)
  {
      notifyPopupOpeningObservers();
@@ -12,7 +12,7 @@ index e1fd006..fa9486b 100644
  
      ASSERT(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index 9a4161a..cf68085 100644
+index 1f8413a..efeff15 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
 @@ -397,6 +397,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client)
@@ -23,7 +23,7 @@ index 9a4161a..cf68085 100644
      , m_doingDragAndDrop(false)
      , m_ignoreInputEvents(false)
      , m_compositorDeviceScaleFactorOverride(0)
-@@ -3946,9 +3947,14 @@ void WebViewImpl::pageScaleFactorChanged()
+@@ -3925,9 +3926,14 @@ void WebViewImpl::pageScaleFactorChanged()
      m_client->pageScaleFactorChanged();
  }
  
@@ -40,10 +40,10 @@ index 9a4161a..cf68085 100644
  
  void WebViewImpl::startDragging(LocalFrame* frame,
 diff --git Source/web/WebViewImpl.h Source/web/WebViewImpl.h
-index f222ca0..51478ce 100644
+index a3ece01..60adce4 100644
 --- Source/web/WebViewImpl.h
 +++ Source/web/WebViewImpl.h
-@@ -390,7 +390,8 @@ public:
+@@ -389,7 +389,8 @@ public:
  
      // Returns true if popup menus should be rendered by the browser, false if
      // they should be rendered by WebKit (which is the default).
@@ -53,7 +53,7 @@ index f222ca0..51478ce 100644
  
      bool contextMenuAllowed() const
      {
-@@ -677,6 +678,8 @@ private:
+@@ -675,6 +676,8 @@ private:
  
      bool m_contextMenuAllowed;
  

@@ -14,8 +14,6 @@ cefclient.app/
     Frameworks/
       Chromium Embedded Framework.framework/
         Chromium Embedded Framework <= main application library
-        Libraries/
-          ffmpegsumo.so <= HTML5 audio/video support library
         Resources/
           cef.pak <= non-localized resources and strings
           cef_100_percent.pak <====^
@@ -117,10 +115,6 @@ run but any related functionality may become broken or disabled.
   * Chromium Embedded Framework.framework/Resources/devtools_resources.pak
     This file contains non-localized resources required for Chrome Developer
     Tools. Without this file Chrome Developer Tools will not function.
-
-* FFmpeg audio and video support.
-  * Chromium Embedded Framework.framework/Libraries/ffmpegsumo.so
-    Without this file HTML5 audio and video will not function.
 
 * Breakpad support.
   * Chromium Embedded Framework.framework/Resources/crash_inspector

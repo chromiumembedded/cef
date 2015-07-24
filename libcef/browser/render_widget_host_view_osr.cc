@@ -397,7 +397,7 @@ class CefCopyFrameGenerator {
 
 // Used to control the VSync rate in subprocesses when BeginFrame scheduling is
 // enabled.
-class CefBeginFrameTimer : public cc::TimeSourceClient {
+class CefBeginFrameTimer : public cc::DelayBasedTimeSourceClient {
  public:
   CefBeginFrameTimer(int frame_rate_threshold_ms,
                      const base::Closure& callback)
@@ -418,7 +418,7 @@ class CefBeginFrameTimer : public cc::TimeSourceClient {
 
   void SetFrameRateThresholdMs(int frame_rate_threshold_ms) {
     time_source_->SetTimebaseAndInterval(
-        time_source_->Now(),
+        base::TimeTicks::Now(),
         base::TimeDelta::FromMilliseconds(frame_rate_threshold_ms));
   }
 
@@ -429,7 +429,7 @@ class CefBeginFrameTimer : public cc::TimeSourceClient {
   }
 
   const base::Closure callback_;
-  scoped_refptr<cc::DelayBasedTimeSource> time_source_;
+  scoped_ptr<cc::DelayBasedTimeSource> time_source_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBeginFrameTimer);
 };
@@ -474,7 +474,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
   compositor_.reset(
       new ui::Compositor(compositor_widget_,
                          content::GetContextFactory(),
-                         base::MessageLoopProxy::current()));
+                         base::ThreadTaskRunnerHandle::Get()));
 #endif
   compositor_->SetDelegate(this);
   compositor_->SetRootLayer(root_layer_.get());

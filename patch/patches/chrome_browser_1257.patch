@@ -1,9 +1,9 @@
 diff --git ui/browser.cc ui/browser.cc
-index 1cc78f2..e2c4de0 100644
+index 242f79b..66326ef 100644
 --- ui/browser.cc
 +++ ui/browser.cc
-@@ -1606,7 +1606,9 @@ bool Browser::ShouldCreateWebContents(
-     const base::string16& frame_name,
+@@ -1666,7 +1666,9 @@ bool Browser::ShouldCreateWebContents(
+     const std::string& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
 -    content::SessionStorageNamespace* session_storage_namespace) {
@@ -14,11 +14,11 @@ index 1cc78f2..e2c4de0 100644
      // If a BackgroundContents is created, suppress the normal WebContents.
      return !MaybeCreateBackgroundContents(route_id,
 diff --git ui/browser.h ui/browser.h
-index c4a3a62..0cfedfa 100644
+index 9bb2137..6dbdcbf 100644
 --- ui/browser.h
 +++ ui/browser.h
-@@ -590,7 +590,9 @@ class Browser : public TabStripModelObserver,
-       const base::string16& frame_name,
+@@ -593,7 +593,9 @@ class Browser : public TabStripModelObserver,
+       const std::string& frame_name,
        const GURL& target_url,
        const std::string& partition_id,
 -      content::SessionStorageNamespace* session_storage_namespace) override;
@@ -27,4 +27,4 @@ index c4a3a62..0cfedfa 100644
 +      content::RenderViewHostDelegateView** delegate_view) override;
    void WebContentsCreated(content::WebContents* source_contents,
                            int opener_render_frame_id,
-                           const base::string16& frame_name,
+                           const std::string& frame_name,

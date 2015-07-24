@@ -86,6 +86,9 @@ class CefExtensionSystem : public ExtensionSystem {
     std::string extension_id;
   };
 
+  scoped_refptr<const Extension> CreateExtension(
+      const ComponentExtensionInfo& info, std::string* utf8_error);
+
   // Loads a registered component extension.
   const Extension* LoadExtension(const ComponentExtensionInfo& info);
 

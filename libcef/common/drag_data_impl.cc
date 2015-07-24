@@ -98,7 +98,7 @@ CefString CefDragDataImpl::GetFileName() {
   // Images without ALT text will only have a file extension so we need to
   // synthesize one from the provided extension and URL.
   if (file_name.BaseName().RemoveExtension().empty()) {
-    CefString extension = file_name.Extension();
+    base::FilePath::StringType extension = file_name.Extension();
     // Retrieve the name from the URL.
     CefString suggested_file_name =
         net::GetSuggestedFilename(data_.url, "", "", "", "", "");

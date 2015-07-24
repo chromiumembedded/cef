@@ -120,7 +120,7 @@ extern "C" {
     // We ignore commands that insert characters, because this was causing
     // strange behavior (e.g. tab always inserted a tab rather than moving to
     // the next field on the page).
-    if (!StartsWithASCII(command, "insert", false))
+    if (!base::StartsWithASCII(command, "insert", false))
       editCommands_.push_back(content::EditCommand(command, ""));
   } else {
     renderWidgetHostView_->render_widget_host()->Send(

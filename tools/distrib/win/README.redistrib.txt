@@ -55,10 +55,6 @@ run but any related functionality may become broken or disabled.
     This file contains non-localized resources required for Chrome Developer
     Tools. Without this file Chrome Developer Tools will not function.
 
-* FFmpeg audio and video support.
-  * ffmpegsumo.dll
-    Without this file HTML5 audio and video will not function.
-
 * Angle and Direct3D support.
   * d3dcompiler_43.dll (required for Windows XP)
   * d3dcompiler_47.dll (required for Windows Vista and newer)

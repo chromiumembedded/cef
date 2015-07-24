@@ -1,8 +1,8 @@
 diff --git content/browser/compositor/gpu_process_transport_factory.cc content/browser/compositor/gpu_process_transport_factory.cc
-index 68ee72c..6c8e8eb7 100644
+index 35db2b9..b9adc3f 100644
 --- content/browser/compositor/gpu_process_transport_factory.cc
 +++ content/browser/compositor/gpu_process_transport_factory.cc
-@@ -141,6 +141,13 @@ GpuProcessTransportFactory::CreateOffscreenCommandBufferContext() {
+@@ -139,6 +139,13 @@ GpuProcessTransportFactory::CreateOffscreenCommandBufferContext() {
  scoped_ptr<cc::SoftwareOutputDevice>
  GpuProcessTransportFactory::CreateSoftwareOutputDevice(
      ui::Compositor* compositor) {
@@ -17,7 +17,7 @@ index 68ee72c..6c8e8eb7 100644
    return scoped_ptr<cc::SoftwareOutputDevice>(
        new SoftwareOutputDeviceWin(software_backing_.get(), compositor));
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index e82c49d..97b438bf 100644
+index f703771..307a2ab 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -15,6 +15,7 @@
@@ -56,7 +56,7 @@ index e82c49d..97b438bf 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -331,6 +346,8 @@ class COMPOSITOR_EXPORT Compositor
+@@ -335,6 +350,8 @@ class COMPOSITOR_EXPORT Compositor
  
    ui::ContextFactory* context_factory_;
  

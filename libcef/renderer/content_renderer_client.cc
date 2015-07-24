@@ -247,9 +247,6 @@ void CefContentRendererClient::WebKitInitialized() {
   // Create global objects associated with the default Isolate.
   CefV8IsolateCreated();
 
-  blink::WebRuntimeFeatures::enableMediaPlayer(
-      media::IsMediaLibraryInitialized());
-
   // TODO(cef): Enable these once the implementation supports it.
   blink::WebRuntimeFeatures::enableNotifications(false);
 
@@ -425,7 +422,7 @@ void CefContentRendererClient::RenderThreadStarted() {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
 
-  render_task_runner_ = base::MessageLoopProxy::current();
+  render_task_runner_ = base::ThreadTaskRunnerHandle::Get();
   observer_.reset(new CefRenderProcessObserver());
   web_cache_observer_.reset(new web_cache::WebCacheRenderProcessObserver());
 
@@ -445,13 +442,6 @@ void CefContentRendererClient::RenderThreadStarted() {
     // on the render thread's MessageLoop.
     base::MessageLoop::current()->AddDestructionObserver(this);
   }
-
-  // Note that under Linux, the media library will normally already have
-  // been initialized by the Zygote before this instance became a Renderer.
-  base::FilePath media_path;
-  PathService::Get(content::DIR_MEDIA_LIBS, &media_path);
-  if (!media_path.empty())
-    media::InitializeMediaLibrary(media_path);
 
   blink::WebPrerenderingSupport::initialize(new CefPrerenderingSupport());
 
@@ -566,7 +556,7 @@ bool CefContentRendererClient::OverrideCreatePlugin(
   if (orig_mime_type == content::kBrowserPluginMimeType) {
     bool guest_view_api_available = false;
     extension_dispatcher_->script_context_set().ForEach(
-        render_frame->GetRenderView(),
+        render_frame,
         base::Bind(&IsGuestViewApiAvailableToScriptContext,
                    &guest_view_api_available));
     if (guest_view_api_available)

@@ -17,7 +17,6 @@
 #include "base/files/file_util_proxy.h"
 #include "base/lazy_instance.h"
 #include "base/logging.h"
-#include "base/message_loop/message_loop_proxy.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/values.h"
 #include "printing/metafile.h"

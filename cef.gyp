@@ -949,6 +949,7 @@
         '<(DEPTH)/components/components.gyp:pref_registry',
         '<(DEPTH)/components/components.gyp:printing_common',
         '<(DEPTH)/components/components.gyp:printing_renderer',
+        '<(DEPTH)/components/components.gyp:proxy_config',
         '<(DEPTH)/components/components.gyp:update_client',
         '<(DEPTH)/components/components.gyp:user_prefs',
         '<(DEPTH)/components/components.gyp:web_cache_renderer',
@@ -1276,10 +1277,6 @@
         '<(DEPTH)/chrome/browser/net/utility_process_mojo_proxy_resolver_factory.h',
         '<(DEPTH)/chrome/browser/prefs/command_line_pref_store.cc',
         '<(DEPTH)/chrome/browser/prefs/command_line_pref_store.h',
-        '<(DEPTH)/chrome/browser/prefs/proxy_config_dictionary.cc',
-        '<(DEPTH)/chrome/browser/prefs/proxy_config_dictionary.h',
-        '<(DEPTH)/chrome/browser/prefs/proxy_prefs.cc',
-        '<(DEPTH)/chrome/browser/prefs/proxy_prefs.h',
         '<(DEPTH)/chrome/common/pref_names.cc',
         '<(DEPTH)/chrome/common/pref_names.h',
         '<(DEPTH)/components/data_reduction_proxy/core/common/data_reduction_proxy_switches.cc',
@@ -1546,13 +1543,6 @@
             },
           ],
           'copies': [
-            {
-              # Copy binaries for HTML5 audio/video support.
-              'destination': '<(PRODUCT_DIR)/$(CONTENTS_FOLDER_PATH)/Libraries',
-              'files': [
-                '<(PRODUCT_DIR)/ffmpegsumo.so',
-              ],
-            },
             {
               # Copy binaries for breakpad support.
               'destination': '<(PRODUCT_DIR)/$(CONTENTS_FOLDER_PATH)/Resources',

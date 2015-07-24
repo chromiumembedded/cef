@@ -1,5 +1,5 @@
 diff --git public/renderer/content_renderer_client.cc public/renderer/content_renderer_client.cc
-index 524a6cd..29aac98 100644
+index 7c6957b..c7270f1 100644
 --- public/renderer/content_renderer_client.cc
 +++ public/renderer/content_renderer_client.cc
 @@ -101,7 +101,6 @@ bool ContentRendererClient::AllowPopup() {
@@ -16,13 +16,13 @@ index 524a6cd..29aac98 100644
  }
 -#endif
  
- bool ContentRendererClient::ShouldFork(blink::WebFrame* frame,
+ bool ContentRendererClient::ShouldFork(blink::WebLocalFrame* frame,
                                         const GURL& url,
 diff --git public/renderer/content_renderer_client.h public/renderer/content_renderer_client.h
-index 8c7d4fe..b88a6c9 100644
+index 2a0517a..9a0d4e4 100644
 --- public/renderer/content_renderer_client.h
 +++ public/renderer/content_renderer_client.h
-@@ -197,7 +197,6 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -198,7 +198,6 @@ class CONTENT_EXPORT ContentRendererClient {
    // Returns true if a popup window should be allowed.
    virtual bool AllowPopup();
  
@@ -30,7 +30,7 @@ index 8c7d4fe..b88a6c9 100644
    // TODO(sgurun) This callback is deprecated and will be removed as soon
    // as android webview completes implementation of a resource throttle based
    // shouldoverrideurl implementation. See crbug.com/325351
-@@ -212,7 +211,6 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -213,7 +212,6 @@ class CONTENT_EXPORT ContentRendererClient {
                                  blink::WebNavigationType type,
                                  blink::WebNavigationPolicy default_policy,
                                  bool is_redirect);
@@ -39,10 +39,10 @@ index 8c7d4fe..b88a6c9 100644
    // Returns true if we should fork a new process for the given navigation.
    // If |send_referrer| is set to false (which is the default), no referrer
 diff --git renderer/render_frame_impl.cc renderer/render_frame_impl.cc
-index f67a40a..4b5b3f2 100644
+index bee5039..a818d6e 100644
 --- renderer/render_frame_impl.cc
 +++ renderer/render_frame_impl.cc
-@@ -4088,7 +4088,6 @@ void RenderFrameImpl::OnFailedNavigation(
+@@ -4186,7 +4186,6 @@ void RenderFrameImpl::OnFailedNavigation(
  WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
      RenderFrame* render_frame,
      const NavigationPolicyInfo& info) {
@@ -50,7 +50,7 @@ index f67a40a..4b5b3f2 100644
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
    if (info.urlRequest.url() != GURL(kSwappedOutURL) &&
-@@ -4103,7 +4102,6 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
+@@ -4201,7 +4200,6 @@ WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
            info.isRedirect)) {
      return blink::WebNavigationPolicyIgnore;
    }

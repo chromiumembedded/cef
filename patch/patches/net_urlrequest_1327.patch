@@ -1,5 +1,5 @@
 diff --git url_request.h url_request.h
-index a2b2f6b..150f19f 100644
+index 4176689..1fe5976 100644
 --- url_request.h
 +++ url_request.h
 @@ -614,10 +614,10 @@ class NET_EXPORT URLRequest : NON_EXPORTED_BASE(public base::NonThreadSafe),

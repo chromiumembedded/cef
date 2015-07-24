@@ -418,7 +418,6 @@ if mode == 'standard':
 if platform == 'windows':
   binaries = [
     'd3dcompiler_47.dll',
-    'ffmpegsumo.dll',
     'libcef.dll',
     'libEGL.dll',
     'libGLESv2.dll',
@@ -623,7 +622,6 @@ elif platform == 'linux':
       make_dir(dst_dir, options.quiet)
       copy_file(os.path.join(build_dir, 'chrome_sandbox'), os.path.join(dst_dir, 'chrome-sandbox'), options.quiet)
       copy_file(os.path.join(build_dir, lib_dir_name, 'libcef.so'), dst_dir, options.quiet)
-      copy_file(os.path.join(build_dir, 'libffmpegsumo.so'), dst_dir, options.quiet)
       copy_file(os.path.join(build_dir, 'natives_blob.bin'), dst_dir, options.quiet)
       copy_file(os.path.join(build_dir, 'snapshot_blob.bin'), dst_dir, options.quiet)
     else:
@@ -644,7 +642,6 @@ elif platform == 'linux':
     else:
       copy_file(os.path.join(build_dir, lib_dir_name, 'libcef.so'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'chrome_sandbox'), os.path.join(dst_dir, 'chrome-sandbox'), options.quiet)
-    copy_file(os.path.join(build_dir, 'libffmpegsumo.so'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'natives_blob.bin'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'snapshot_blob.bin'), dst_dir, options.quiet)
   else:

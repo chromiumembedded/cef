@@ -37,6 +37,10 @@
 #include "include/base/cef_string16.h"
 #include "include/internal/cef_string_types.h"
 
+#if defined(BUILDING_CEF_SHARED)
+#include "base/files/file_path.h"
+#endif
+
 ///
 // Traits implementation for wide character strings.
 ///
@@ -692,6 +696,17 @@ class CefStringBase {
     return *this;
   }
 #endif  // WCHAR_T_IS_UTF32
+#if defined(BUILDING_CEF_SHARED)
+  // The base::FilePath constructor is marked as explicit so provide the
+  // conversion here for convenience.
+  operator base::FilePath() const {
+#if defined(OS_WIN)
+    return base::FilePath(ToWString());
+#else
+    return base::FilePath(ToString());
+#endif
+  }
+#endif  // BUILDING_CEF_SHARED
 
  private:
   // Allocate the string structure if it doesn't already exist.

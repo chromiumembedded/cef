@@ -1,9 +1,9 @@
 diff --git web_dialog_view.cc web_dialog_view.cc
-index 4a5a114..b28fb3c 100644
+index 4b5e8b2..1501d0b 100644
 --- web_dialog_view.cc
 +++ web_dialog_view.cc
 @@ -340,7 +340,9 @@ bool WebDialogView::ShouldCreateWebContents(
-     const base::string16& frame_name,
+     const std::string& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
 -    content::SessionStorageNamespace* session_storage_namespace) {
@@ -14,11 +14,11 @@ index 4a5a114..b28fb3c 100644
      return delegate_->HandleShouldCreateWebContents();
    return true;
 diff --git web_dialog_view.h web_dialog_view.h
-index 22550dd..8d72f6d 100644
+index dc6598d..ce2616c 100644
 --- web_dialog_view.h
 +++ web_dialog_view.h
 @@ -119,7 +119,9 @@ class WEBVIEW_EXPORT WebDialogView : public views::ClientView,
-       const base::string16& frame_name,
+       const std::string& frame_name,
        const GURL& target_url,
        const std::string& partition_id,
 -      content::SessionStorageNamespace* session_storage_namespace) override;

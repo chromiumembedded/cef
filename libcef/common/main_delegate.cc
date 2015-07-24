@@ -452,17 +452,17 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
   std::string log_severity_str =
       command_line->GetSwitchValueASCII(switches::kLogSeverity);
   if (!log_severity_str.empty()) {
-    if (LowerCaseEqualsASCII(log_severity_str,
-                             switches::kLogSeverity_Verbose)) {
+    if (base::LowerCaseEqualsASCII(log_severity_str,
+                                   switches::kLogSeverity_Verbose)) {
       log_severity = logging::LOG_VERBOSE;
-    } else if (LowerCaseEqualsASCII(log_severity_str,
-                                    switches::kLogSeverity_Warning)) {
+    } else if (base::LowerCaseEqualsASCII(log_severity_str,
+                                          switches::kLogSeverity_Warning)) {
       log_severity = logging::LOG_WARNING;
-    } else if (LowerCaseEqualsASCII(log_severity_str,
-                                    switches::kLogSeverity_Error)) {
+    } else if (base::LowerCaseEqualsASCII(log_severity_str,
+                                          switches::kLogSeverity_Error)) {
       log_severity = logging::LOG_ERROR;
-    } else if (LowerCaseEqualsASCII(log_severity_str,
-                                    switches::kLogSeverity_Disable)) {
+    } else if (base::LowerCaseEqualsASCII(log_severity_str,
+                                          switches::kLogSeverity_Disable)) {
       log_severity = LOGSEVERITY_DISABLE;
     }
   }

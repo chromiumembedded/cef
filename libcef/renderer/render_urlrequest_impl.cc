@@ -81,7 +81,7 @@ class CefRenderURLRequest::Context
     : url_request_(url_request),
       request_(request),
       client_(client),
-      message_loop_proxy_(base::MessageLoop::current()->message_loop_proxy()),
+      task_runner_(base::MessageLoop::current()->task_runner()),
       status_(UR_IO_PENDING),
       error_code_(ERR_NONE),
       upload_data_size_(0),
@@ -93,7 +93,7 @@ class CefRenderURLRequest::Context
   }
 
   inline bool CalledOnValidThread() {
-    return message_loop_proxy_->BelongsToCurrentThread();
+    return task_runner_->RunsTasksOnCurrentThread();
   }
 
   bool Start() {
@@ -233,7 +233,7 @@ class CefRenderURLRequest::Context
   CefRefPtr<CefRenderURLRequest> url_request_;
   CefRefPtr<CefRequest> request_;
   CefRefPtr<CefURLRequestClient> client_;
-  scoped_refptr<base::MessageLoopProxy> message_loop_proxy_;
+  scoped_refptr<base::SequencedTaskRunner> task_runner_;
   CefURLRequest::Status status_;
   CefURLRequest::ErrorCode error_code_;
   CefRefPtr<CefResponse> response_;

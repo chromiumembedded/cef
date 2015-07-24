@@ -397,7 +397,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       int route_id,
       int main_frame_route_id,
       WindowContainerType window_container_type,
-      const base::string16& frame_name,
+      const std::string& frame_name,
       const GURL& target_url,
       const std::string& partition_id,
       content::SessionStorageNamespace* session_storage_namespace,
@@ -405,7 +405,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       content::RenderViewHostDelegateView** delegate_view) override;
   void WebContentsCreated(content::WebContents* source_contents,
                           int opener_render_frame_id,
-                          const base::string16& frame_name,
+                          const std::string& frame_name,
                           const GURL& target_url,
                           content::WebContents* new_contents) override;
   void DidNavigateMainFramePostCommit(
@@ -461,12 +461,14 @@ class CefBrowserHostImpl : public CefBrowserHost,
       content::RenderFrameHost* render_frame_host,
       const GURL& validated_url,
       int error_code,
-      const base::string16& error_description) override;
+      const base::string16& error_description,
+      bool was_ignored_by_handler) override;
   void DocumentAvailableInMainFrame() override;
   void DidFailLoad(content::RenderFrameHost* render_frame_host,
                    const GURL& validated_url,
                    int error_code,
-                   const base::string16& error_description) override;
+                   const base::string16& error_description,
+                   bool was_ignored_by_handler) override;
   void FrameDeleted(
       content::RenderFrameHost* render_frame_host) override;
   void PluginCrashed(const base::FilePath& plugin_path,
@@ -661,6 +663,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Represents the current browser destruction state. Only accessed on the UI
   // thread.
   DestructionState destruction_state_;
+
+  // True if frame destruction is currently pending. Navigation should not occur
+  // while this flag is true.
+  bool frame_destruction_pending_;
 
   // True if the OS window hosting the browser has been destroyed. Only accessed
   // on the UI thread.

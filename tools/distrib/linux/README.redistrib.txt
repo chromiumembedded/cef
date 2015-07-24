@@ -56,7 +56,3 @@ run but any related functionality may become broken or disabled.
   * devtools_resources.pak
     This file contains non-localized resources required for Chrome Developer
     Tools. Without this file Chrome Developer Tools will not function.
-
-* FFmpeg audio and video support.
-  * libffmpegsumo.so
-    Without this file HTML5 audio and video will not function.

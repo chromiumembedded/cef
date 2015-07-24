@@ -1,8 +1,8 @@
 diff --git browser/browser_plugin/browser_plugin_guest.cc browser/browser_plugin/browser_plugin_guest.cc
-index f438805..d199c6b 100644
+index 092a045..baea4bb 100644
 --- browser/browser_plugin/browser_plugin_guest.cc
 +++ browser/browser_plugin/browser_plugin_guest.cc
-@@ -19,7 +19,7 @@
+@@ -23,7 +23,7 @@
  #include "content/browser/renderer_host/render_widget_host_impl.h"
  #include "content/browser/renderer_host/render_widget_host_view_base.h"
  #include "content/browser/web_contents/web_contents_impl.h"
@@ -11,29 +11,33 @@ index f438805..d199c6b 100644
  #include "content/common/browser_plugin/browser_plugin_constants.h"
  #include "content/common/browser_plugin/browser_plugin_messages.h"
  #include "content/common/content_constants_internal.h"
-@@ -262,15 +262,16 @@ void BrowserPluginGuest::InitInternal(
+@@ -277,21 +277,20 @@ void BrowserPluginGuest::InitInternal(
    guest_window_rect_ = params.view_rect;
  
    if (owner_web_contents_ != owner_web_contents) {
--    WebContentsViewGuest* new_view =
--        static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
--    if (owner_web_contents_)
+-    WebContentsViewGuest* new_view = nullptr;
++    WebContentsView* new_view = nullptr;
+     if (!base::CommandLine::ForCurrentProcess()->HasSwitch(
+             switches::kSitePerProcess)) {
+-      new_view =
+-          static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
++      new_view = GetWebContents()->GetView();
+     }
+ 
+     if (owner_web_contents_ && new_view)
 -      new_view->OnGuestDetached(owner_web_contents_->GetView());
-+    if (owner_web_contents_) {
-+      delegate_->OnGuestDetached(GetWebContents()->GetView(),
-+                                 owner_web_contents_->GetView());
-+    }
++      delegate_->OnGuestDetached(new_view, owner_web_contents_->GetView());
  
      // Once a BrowserPluginGuest has an embedder WebContents, it's considered to
      // be attached.
      owner_web_contents_ = owner_web_contents;
--    new_view->OnGuestAttached(owner_web_contents_->GetView());
-+    delegate_->OnGuestAttached(GetWebContents()->GetView(),
-+                               owner_web_contents_->GetView());
+     if (new_view)
+-      new_view->OnGuestAttached(owner_web_contents_->GetView());
++      delegate_->OnGuestAttached(new_view, owner_web_contents_->GetView());
    }
  
    RendererPreferences* renderer_prefs =
-@@ -656,12 +657,9 @@ void BrowserPluginGuest::OnWillAttachComplete(
+@@ -733,12 +732,9 @@ void BrowserPluginGuest::OnWillAttachComplete(
      // This will trigger a callback to RenderViewReady after a round-trip IPC.
      static_cast<RenderViewHostImpl*>(
          GetWebContents()->GetRenderViewHost())->Init();

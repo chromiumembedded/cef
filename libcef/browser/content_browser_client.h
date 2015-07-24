@@ -125,7 +125,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
                        bool opener_suppressed,
                        content::ResourceContext* context,
                        int render_process_id,
-                       int opener_id,
+                       int opener_render_view_id,
+                       int opener_render_frame_id,
                        bool* no_javascript_access) override;
   void ResourceDispatcherHostCreated() override;
   void OverrideWebkitPrefs(content::RenderViewHost* rvh,
@@ -159,7 +160,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
     int opener_view_id;
     int64 opener_frame_id;
     GURL target_url;
-    base::string16 target_frame_name;
+    std::string target_frame_name;
   };
   void set_last_create_window_params(const LastCreateWindowParams& params);
 
@@ -175,11 +176,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   scoped_ptr<content::PluginServiceFilter> plugin_service_filter_;
   scoped_ptr<CefResourceDispatcherHostDelegate>
       resource_dispatcher_host_delegate_;
-
-#if defined(OS_POSIX) && !defined(OS_MACOSX)
-  base::ScopedFD v8_natives_fd_;
-  base::ScopedFD v8_snapshot_fd_;
-#endif
 
   base::Lock browser_info_lock_;
 

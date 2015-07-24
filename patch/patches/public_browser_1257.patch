@@ -1,8 +1,8 @@
 diff --git web_contents.cc web_contents.cc
-index a0c8a4d..1c102ae 100644
+index 887f242..a7cc318 100644
 --- web_contents.cc
 +++ web_contents.cc
-@@ -19,7 +19,9 @@ WebContents::CreateParams::CreateParams(BrowserContext* context)
+@@ -21,7 +21,9 @@ WebContents::CreateParams::CreateParams(BrowserContext* context)
        initially_hidden(false),
        guest_delegate(nullptr),
        context(nullptr),
@@ -13,7 +13,7 @@ index a0c8a4d..1c102ae 100644
  
  WebContents::CreateParams::CreateParams(
      BrowserContext* context, SiteInstance* site)
-@@ -33,7 +35,9 @@ WebContents::CreateParams::CreateParams(
+@@ -36,7 +38,9 @@ WebContents::CreateParams::CreateParams(
        initially_hidden(false),
        guest_delegate(nullptr),
        context(nullptr),
@@ -25,7 +25,7 @@ index a0c8a4d..1c102ae 100644
  WebContents::CreateParams::~CreateParams() {
  }
 diff --git web_contents.h web_contents.h
-index 768ece2..9c2d863 100644
+index 4ed6a40..2bbba64 100644
 --- web_contents.h
 +++ web_contents.h
 @@ -52,9 +52,11 @@ class PageState;
@@ -40,7 +40,7 @@ index 768ece2..9c2d863 100644
  struct CustomContextMenuContext;
  struct DropData;
  struct Manifest;
-@@ -139,6 +141,10 @@ class WebContents : public PageNavigator,
+@@ -141,6 +143,10 @@ class WebContents : public PageNavigator,
      // RenderFrame, have already been created on the renderer side, and
      // WebContents construction should take this into account.
      bool renderer_initiated_creation;
@@ -52,11 +52,11 @@ index 768ece2..9c2d863 100644
  
    // Creates a new WebContents.
 diff --git web_contents_delegate.cc web_contents_delegate.cc
-index b1fc250..555e25d 100644
+index 016097b..4fb00ed 100644
 --- web_contents_delegate.cc
 +++ web_contents_delegate.cc
-@@ -136,7 +136,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
-     const base::string16& frame_name,
+@@ -138,7 +138,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
+     const std::string& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
 -    SessionStorageNamespace* session_storage_namespace) {
@@ -67,10 +67,10 @@ index b1fc250..555e25d 100644
  }
  
 diff --git web_contents_delegate.h web_contents_delegate.h
-index 66439df..c8779c9 100644
+index 34ddd26..7a850af 100644
 --- web_contents_delegate.h
 +++ web_contents_delegate.h
-@@ -37,9 +37,11 @@ class DownloadItem;
+@@ -38,9 +38,11 @@ class DownloadItem;
  class JavaScriptDialogManager;
  class PageState;
  class RenderViewHost;
@@ -82,8 +82,8 @@ index 66439df..c8779c9 100644
  struct ColorSuggestion;
  struct ContextMenuParams;
  struct DropData;
-@@ -296,7 +298,9 @@ class CONTENT_EXPORT WebContentsDelegate {
-       const base::string16& frame_name,
+@@ -298,7 +300,9 @@ class CONTENT_EXPORT WebContentsDelegate {
+       const std::string& frame_name,
        const GURL& target_url,
        const std::string& partition_id,
 -      SessionStorageNamespace* session_storage_namespace);

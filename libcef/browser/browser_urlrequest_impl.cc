@@ -58,9 +58,9 @@ class NET_EXPORT CefURLFetcherResponseWriter :
  public:
   CefURLFetcherResponseWriter(
       CefRefPtr<CefBrowserURLRequest> url_request,
-      scoped_refptr<base::MessageLoopProxy> message_loop_proxy)
+      scoped_refptr<base::SequencedTaskRunner> task_runner)
       : url_request_(url_request),
-        message_loop_proxy_(message_loop_proxy) {
+        task_runner_(task_runner) {
   }
 
   // net::URLFetcherResponseWriter methods.
@@ -72,11 +72,11 @@ class NET_EXPORT CefURLFetcherResponseWriter :
             int num_bytes,
             const net::CompletionCallback& callback) override {
     if (url_request_.get()) {
-      message_loop_proxy_->PostTask(FROM_HERE,
+      task_runner_->PostTask(FROM_HERE,
           base::Bind(&CefURLFetcherResponseWriter::WriteOnClientThread,
                      url_request_, scoped_refptr<net::IOBuffer>(buffer),
                      num_bytes, callback,
-                     base::MessageLoop::current()->message_loop_proxy()));
+                     base::MessageLoop::current()->task_runner()));
       return net::ERR_IO_PENDING;
     }
     return num_bytes;
@@ -94,7 +94,7 @@ class NET_EXPORT CefURLFetcherResponseWriter :
       scoped_refptr<net::IOBuffer> buffer,
       int num_bytes,
       const net::CompletionCallback& callback,
-      scoped_refptr<base::MessageLoopProxy> source_message_loop_proxy) {
+      scoped_refptr<base::SequencedTaskRunner> source_message_loop_proxy) {
     CefRefPtr<CefURLRequestClient> client = url_request->GetClient();
     if (client.get())
       client->OnDownloadData(url_request.get(), buffer->data(), num_bytes);
@@ -111,7 +111,7 @@ class NET_EXPORT CefURLFetcherResponseWriter :
   }
 
   CefRefPtr<CefBrowserURLRequest> url_request_;
-  scoped_refptr<base::MessageLoopProxy> message_loop_proxy_;
+  scoped_refptr<base::SequencedTaskRunner> task_runner_;
 
   DISALLOW_COPY_AND_ASSIGN(CefURLFetcherResponseWriter);
 };
@@ -137,7 +137,7 @@ class CefBrowserURLRequest::Context
       request_(request),
       client_(client),
       request_context_(request_context),
-      message_loop_proxy_(base::MessageLoop::current()->message_loop_proxy()),
+      task_runner_(base::MessageLoop::current()->task_runner()),
     status_(UR_IO_PENDING),
     error_code_(ERR_NONE),
     upload_data_size_(0),
@@ -147,7 +147,7 @@ class CefBrowserURLRequest::Context
   }
 
   inline bool CalledOnValidThread() {
-    return message_loop_proxy_->BelongsToCurrentThread();
+    return task_runner_->RunsTasksOnCurrentThread();
   }
 
   bool Start() {
@@ -160,14 +160,14 @@ class CefBrowserURLRequest::Context
     std::string method = request_->GetMethod();
     base::StringToLowerASCII(&method);
     net::URLFetcher::RequestType request_type = net::URLFetcher::GET;
-    if (LowerCaseEqualsASCII(method, "get")) {
-    } else if (LowerCaseEqualsASCII(method, "post")) {
+    if (base::LowerCaseEqualsASCII(method, "get")) {
+    } else if (base::LowerCaseEqualsASCII(method, "post")) {
       request_type = net::URLFetcher::POST;
-    } else if (LowerCaseEqualsASCII(method, "head")) {
+    } else if (base::LowerCaseEqualsASCII(method, "head")) {
       request_type = net::URLFetcher::HEAD;
-    } else if (LowerCaseEqualsASCII(method, "delete")) {
+    } else if (base::LowerCaseEqualsASCII(method, "delete")) {
       request_type = net::URLFetcher::DELETE_REQUEST;
-    } else if (LowerCaseEqualsASCII(method, "put")) {
+    } else if (base::LowerCaseEqualsASCII(method, "put")) {
       request_type = net::URLFetcher::PUT;
     } else {
       NOTREACHED() << "invalid request type";
@@ -324,7 +324,7 @@ class CefBrowserURLRequest::Context
       response_writer.reset(new CefURLFetcherResponseWriter(NULL, NULL));
     } else {
       response_writer.reset(
-          new CefURLFetcherResponseWriter(url_request_, message_loop_proxy_));
+          new CefURLFetcherResponseWriter(url_request_, task_runner_));
     }
     fetcher_->SaveResponseWithWriter(response_writer.Pass());
 
@@ -429,7 +429,7 @@ class CefBrowserURLRequest::Context
   ~Context() {
     if (fetcher_.get()) {
       // Delete the fetcher object on the thread that created it.
-      message_loop_proxy_->DeleteSoon(FROM_HERE, fetcher_.release());
+      task_runner_->DeleteSoon(FROM_HERE, fetcher_.release());
     }
   }
 
@@ -463,7 +463,7 @@ class CefBrowserURLRequest::Context
   CefRefPtr<CefRequest> request_;
   CefRefPtr<CefURLRequestClient> client_;
   CefRefPtr<CefRequestContext> request_context_;
-  scoped_refptr<base::MessageLoopProxy> message_loop_proxy_;
+  scoped_refptr<base::SequencedTaskRunner> task_runner_;
   scoped_ptr<net::URLFetcher> fetcher_;
   scoped_ptr<CefURLFetcherDelegate> fetcher_delegate_;
   CefURLRequest::Status status_;

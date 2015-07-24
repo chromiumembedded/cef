@@ -184,6 +184,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
             url_security_manager_.get(),
             url_request_context_->host_resolver(),
             std::string(),
+            std::string(),
             false,
             false));
     storage_->set_http_server_properties(
@@ -372,5 +373,5 @@ void CefURLRequestContextGetterImpl::CreateProxyConfigService() {
 
   proxy_config_service_.reset(
       net::ProxyService::CreateSystemProxyConfigService(
-          io_loop_->message_loop_proxy(), file_loop_->message_loop_proxy()));
+          io_loop_->task_runner(), file_loop_->task_runner()));
 }

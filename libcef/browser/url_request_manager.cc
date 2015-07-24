@@ -47,7 +47,7 @@ static const SchemeToFactory kBuiltinFactories[] = {
 
 bool IsBuiltinScheme(const std::string& scheme) {
   for (size_t i = 0; i < arraysize(kBuiltinFactories); ++i)
-    if (LowerCaseEqualsASCII(scheme, kBuiltinFactories[i].scheme))
+    if (base::LowerCaseEqualsASCII(scheme, kBuiltinFactories[i].scheme))
       return true;
   return false;
 }

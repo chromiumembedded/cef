@@ -15,7 +15,7 @@ namespace {
 // Create the temporary file and then execute |callback| on the thread
 // represented by |message_loop_proxy|. 
 void CreateTemporaryFileOnFileThread(
-    scoped_refptr<base::MessageLoopProxy> message_loop_proxy,
+    scoped_refptr<base::SequencedTaskRunner> message_loop_proxy,
     base::Callback<void(const base::FilePath&)> callback) {
   CEF_REQUIRE_FILET();
   base::FilePath file_path;
@@ -81,7 +81,7 @@ bool CefTraceSubscriber::EndTracing(
     // Create a new temporary file path on the FILE thread, then continue.
     CEF_POST_TASK(CEF_FILET,
         base::Bind(CreateTemporaryFileOnFileThread,
-            base::MessageLoop::current()->message_loop_proxy(),
+            base::MessageLoop::current()->task_runner(),
             base::Bind(&CefTraceSubscriber::ContinueEndTracing,
                        weak_factory_.GetWeakPtr(), callback)));
     return true;

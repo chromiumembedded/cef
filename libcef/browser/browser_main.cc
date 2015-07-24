@@ -82,7 +82,6 @@ void CefBrowserMainParts::ToolkitInitialized() {
 #if defined(USE_AURA)
   CHECK(aura::Env::GetInstance());
 
-  DCHECK(!views::ViewsDelegate::views_delegate);
   new views::DesktopTestViewsDelegate;
 
 #if defined(OS_WIN)
@@ -193,7 +192,9 @@ void CefBrowserMainParts::PostMainMessageLoopRun() {
 void CefBrowserMainParts::PostDestroyThreads() {
 #if defined(USE_AURA)
   aura::Env::DeleteInstance();
-  delete views::ViewsDelegate::views_delegate;
+
+  // Delete the DesktopTestViewsDelegate.
+  delete views::ViewsDelegate::GetInstance();
 #endif
 
 #ifndef NDEBUG

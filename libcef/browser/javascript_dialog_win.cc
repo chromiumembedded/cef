@@ -63,7 +63,7 @@ INT_PTR CALLBACK CefJavaScriptDialog::DialogProc(HWND dialog,
                 GetWindowTextLength(GetDlgItem(dialog, IDC_PROMPTEDIT)) + 1;
             if (length > 1) {
               GetDlgItemText(dialog, IDC_PROMPTEDIT,
-                             WriteInto(&user_input, length), length);
+                             base::WriteInto(&user_input, length), length);
             }
           }
           break;
@@ -94,9 +94,9 @@ CefJavaScriptDialog::CefJavaScriptDialog(
     const content::JavaScriptDialogManager::DialogClosedCallback& callback)
     : creator_(creator),
       callback_(callback),
+      message_type_(message_type),
       message_text_(message_text),
-      default_prompt_text_(default_prompt_text),
-      message_type_(message_type) {
+      default_prompt_text_(default_prompt_text) {
   InstallMessageHook();
 
   int dialog_type;

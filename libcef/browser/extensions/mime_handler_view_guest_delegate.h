@@ -29,7 +29,6 @@ class CefMimeHandlerViewGuestDelegate : public MimeHandlerViewGuestDelegate {
   bool CreateViewForWidget(
       content::WebContentsView* guest_view,
       content::RenderWidgetHost* render_widget_host) override;
-  void AttachHelpers() override;
   bool HandleContextMenu(content::WebContents* web_contents,
                          const content::ContextMenuParams& params) override;
 

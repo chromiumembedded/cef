@@ -886,8 +886,7 @@ void CefBrowserHostImpl::StartDownload(const CefString& url) {
   if (!manager)
     return;
 
-  scoped_ptr<content::DownloadUrlParameters> params;
-  params.reset(
+  scoped_ptr<content::DownloadUrlParameters> params(
       content::DownloadUrlParameters::FromWebContents(web_contents(), gurl));
   manager->DownloadUrl(params.Pass());
 }
@@ -1393,6 +1392,13 @@ bool CefBrowserHostImpl::CanGoBack() {
 
 void CefBrowserHostImpl::GoBack() {
   if (CEF_CURRENTLY_ON_UIT()) {
+    if (frame_destruction_pending_) {
+      // Try again after frame destruction has completed.
+      CEF_POST_TASK(CEF_UIT,
+          base::Bind(&CefBrowserHostImpl::GoBack, this));
+      return;
+    }
+
     if (web_contents_.get() && web_contents_->GetController().CanGoBack())
       web_contents_->GetController().GoBack();
   } else {
@@ -1408,6 +1414,13 @@ bool CefBrowserHostImpl::CanGoForward() {
 
 void CefBrowserHostImpl::GoForward() {
   if (CEF_CURRENTLY_ON_UIT()) {
+    if (frame_destruction_pending_) {
+      // Try again after frame destruction has completed.
+      CEF_POST_TASK(CEF_UIT,
+          base::Bind(&CefBrowserHostImpl::GoForward, this));
+      return;
+    }
+
     if (web_contents_.get() && web_contents_->GetController().CanGoForward())
       web_contents_->GetController().GoForward();
   } else {
@@ -1423,6 +1436,13 @@ bool CefBrowserHostImpl::IsLoading() {
 
 void CefBrowserHostImpl::Reload() {
   if (CEF_CURRENTLY_ON_UIT()) {
+    if (frame_destruction_pending_) {
+      // Try again after frame destruction has completed.
+      CEF_POST_TASK(CEF_UIT,
+          base::Bind(&CefBrowserHostImpl::Reload, this));
+      return;
+    }
+
     if (web_contents_.get())
       web_contents_->GetController().Reload(true);
   } else {
@@ -1433,6 +1453,13 @@ void CefBrowserHostImpl::Reload() {
 
 void CefBrowserHostImpl::ReloadIgnoreCache() {
   if (CEF_CURRENTLY_ON_UIT()) {
+    if (frame_destruction_pending_) {
+      // Try again after frame destruction has completed.
+      CEF_POST_TASK(CEF_UIT,
+          base::Bind(&CefBrowserHostImpl::ReloadIgnoreCache, this));
+      return;
+    }
+
     if (web_contents_.get())
       web_contents_->GetController().ReloadIgnoringCache(true);
   } else {
@@ -1443,6 +1470,13 @@ void CefBrowserHostImpl::ReloadIgnoreCache() {
 
 void CefBrowserHostImpl::StopLoad() {
   if (CEF_CURRENTLY_ON_UIT()) {
+    if (frame_destruction_pending_) {
+      // Try again after frame destruction has completed.
+      CEF_POST_TASK(CEF_UIT,
+          base::Bind(&CefBrowserHostImpl::StopLoad, this));
+      return;
+    }
+
     if (web_contents_.get())
       web_contents_->Stop();
   } else {
@@ -1719,6 +1753,14 @@ void CefBrowserHostImpl::LoadURL(
   if (frame_id == CefFrameHostImpl::kMainFrameId) {
     // Go through the navigation controller.
     if (CEF_CURRENTLY_ON_UIT()) {
+      if (frame_destruction_pending_) {
+        // Try again after frame destruction has completed.
+        CEF_POST_TASK(CEF_UIT,
+            base::Bind(&CefBrowserHostImpl::LoadURL, this, frame_id, url,
+                       referrer, transition, extra_headers));
+        return;
+      }
+
       if (web_contents_.get()) {
         GURL gurl = GURL(url);
 
@@ -2407,7 +2449,7 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
     int route_id,
     int main_frame_route_id,
     WindowContainerType window_container_type,
-    const base::string16& frame_name,
+    const std::string& frame_name,
     const GURL& target_url,
     const std::string& partition_id,
     content::SessionStorageNamespace* session_storage_namespace,
@@ -2433,7 +2475,7 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
 void CefBrowserHostImpl::WebContentsCreated(
     content::WebContents* source_contents,
     int opener_render_frame_id,
-    const base::string16& frame_name,
+    const std::string& frame_name,
     const GURL& target_url,
     content::WebContents* new_contents) {
   DCHECK(new_contents);
@@ -2675,8 +2717,11 @@ void CefBrowserHostImpl::RenderProcessGone(base::TerminationStatus status) {
 
   if (client_.get()) {
     CefRefPtr<CefRequestHandler> handler = client_->GetRequestHandler();
-    if (handler.get())
+    if (handler.get()) {
+      frame_destruction_pending_ = true;
       handler->OnRenderProcessTerminated(this, ts);
+      frame_destruction_pending_ = false;
+    }
   }
 }
 
@@ -2700,7 +2745,8 @@ void CefBrowserHostImpl::DidFailProvisionalLoad(
     content::RenderFrameHost* render_frame_host,
     const GURL& validated_url,
     int error_code,
-    const base::string16& error_description) {
+    const base::string16& error_description,
+    bool was_ignored_by_handler) {
   const bool is_main_frame = !render_frame_host->GetParent();
   CefRefPtr<CefFrame> frame = GetOrCreateFrame(
       render_frame_host->GetRoutingID(),
@@ -2720,7 +2766,8 @@ void CefBrowserHostImpl::DidFailLoad(
     content::RenderFrameHost* render_frame_host,
     const GURL& validated_url,
     int error_code,
-    const base::string16& error_description) {
+    const base::string16& error_description,
+    bool was_ignored_by_handler) {
   const bool is_main_frame = !render_frame_host->GetParent();
   CefRefPtr<CefFrame> frame = GetOrCreateFrame(
       render_frame_host->GetRoutingID(),
@@ -2968,6 +3015,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(
       main_frame_id_(CefFrameHostImpl::kInvalidFrameId),
       focused_frame_id_(CefFrameHostImpl::kInvalidFrameId),
       destruction_state_(DESTRUCTION_STATE_NONE),
+      frame_destruction_pending_(false),
       window_destroyed_(false),
       is_in_onsetfocus_(false),
       focus_on_editable_field_(false),
@@ -3147,11 +3195,13 @@ void CefBrowserHostImpl::OnLoadError(CefRefPtr<CefFrame> frame,
   if (client_.get()) {
     CefRefPtr<CefLoadHandler> handler = client_->GetLoadHandler();
     if (handler.get()) {
+      frame_destruction_pending_ = true;
       // Notify the handler that loading has failed.
       handler->OnLoadError(this, frame,
           static_cast<cef_errorcode_t>(error_code),
           CefString(error_description),
           url.spec());
+      frame_destruction_pending_ = false;
     }
   }
 }

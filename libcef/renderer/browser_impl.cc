@@ -668,10 +668,10 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
         params.arguments.GetString(0, &command);
         DCHECK(!command.empty());
 
-        if (LowerCaseEqualsASCII(command, "getsource")) {
+        if (base::LowerCaseEqualsASCII(command, "getsource")) {
           response = web_frame->contentAsMarkup().utf8();
           success = true;
-        } else if (LowerCaseEqualsASCII(command, "gettext")) {
+        } else if (base::LowerCaseEqualsASCII(command, "gettext")) {
           response = webkit_glue::DumpDocumentText(web_frame);
           success = true;
         } else if (web_frame->executeCommand(base::UTF8ToUTF16(command))) {

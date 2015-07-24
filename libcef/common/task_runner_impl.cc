@@ -10,7 +10,7 @@
 #include "base/location.h"
 #include "base/logging.h"
 #include "base/message_loop/message_loop.h"
-#include "base/message_loop/message_loop_proxy.h"
+#include "base/thread_task_runner_handle.h"
 #include "content/public/browser/browser_thread.h"
 
 using content::BrowserThread;
@@ -94,7 +94,7 @@ scoped_refptr<base::SequencedTaskRunner>
         BrowserThread::UnsafeGetMessageLoopForThread(
             static_cast<BrowserThread::ID>(id));
     if (message_loop)
-      return message_loop->message_loop_proxy();
+      return message_loop->task_runner();
   }
 
   return NULL;
@@ -107,7 +107,7 @@ scoped_refptr<base::SequencedTaskRunner>
 
   // Check for a MessageLoopProxy. This covers all of the named browser and
   // render process threads, plus a few extra.
-  task_runner = base::MessageLoopProxy::current();
+  task_runner = base::ThreadTaskRunnerHandle::Get();
 
   if (!task_runner.get()) {
     // Check for a WebWorker thread.
