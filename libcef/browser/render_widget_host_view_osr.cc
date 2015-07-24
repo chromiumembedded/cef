@@ -649,7 +649,8 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
           output_surface_id,
           frame->delegated_frame_data.Pass(),
           frame->metadata.device_scale_factor,
-          frame->metadata.latency_info);
+          frame->metadata.latency_info,
+          &frame->metadata.satisfies_sequences);
     } else {
       if (!copy_frame_generator_.get()) {
         copy_frame_generator_.reset(
@@ -668,7 +669,8 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
           output_surface_id,
           frame->delegated_frame_data.Pass(),
           frame->metadata.device_scale_factor,
-          frame->metadata.latency_info);
+          frame->metadata.latency_info,
+          &frame->metadata.satisfies_sequences);
 
       // Request a copy of the last compositor frame which will eventually call
       // OnPaint asynchronously.
