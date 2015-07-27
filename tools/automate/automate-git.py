@@ -219,9 +219,6 @@ def remove_deps_entry(path, entry):
   """ Remove an entry from the Chromium DEPS file at the specified path. """
   msg('Updating DEPS file: %s' % path)
   if not options.dryrun:
-    if not os.path.isfile(path):
-      raise Exception('Path does not exist: %s' % path)
-
     # Read the DEPS file.
     fp = open(path, 'r')
     lines = fp.readlines()
@@ -243,19 +240,31 @@ def remove_deps_entry(path, entry):
 
 def apply_deps_patch():
   """ Patch the Chromium DEPS file if necessary. """
+  # Starting with 43.0.2357.126 the DEPS file is now 100% Git and the .DEPS.git
+  # file is no longer created. Look for the older file first in case we're
+  # building an older branch version.
   deps_file = '.DEPS.git'
-  patch_file = os.path.join(cef_dir, 'patch', 'patches', deps_file + '.patch')
-  if os.path.exists(patch_file):
-    # Attempt to apply the DEPS patch file that may exist with newer branches.
-    patch_tool = os.path.join(cef_dir, 'tools', 'patcher.py')
-    run('%s %s --patch-file "%s" --patch-dir "%s"' %
-            (python_exe, patch_tool, patch_file, chromium_src_dir),
-        chromium_src_dir, depot_tools_dir)
-  elif cef_branch != 'trunk':
-    # Older release branch DEPS files may include a 'src' entry. This entry
-    # needs to be removed otherwise `gclient sync` will fail.
+  deps_path = os.path.join(chromium_src_dir, deps_file)
+  if not os.path.isfile(deps_path):
+    deps_file = 'DEPS'
     deps_path = os.path.join(chromium_src_dir, deps_file)
-    remove_deps_entry(deps_path, "'src'")
+
+  if os.path.isfile(deps_path):
+    msg("Chromium DEPS file: %s" % (deps_path))
+    patch_file = os.path.join(cef_dir, 'patch', 'patches', deps_file + '.patch')
+    if os.path.exists(patch_file):
+      # Attempt to apply the DEPS patch file that may exist with newer branches.
+      patch_tool = os.path.join(cef_dir, 'tools', 'patcher.py')
+      run('%s %s --patch-file "%s" --patch-dir "%s"' %
+              (python_exe, patch_tool, patch_file, chromium_src_dir),
+          chromium_src_dir, depot_tools_dir)
+    elif cef_branch != 'trunk' and int(cef_branch) <= 1916:
+      # Release branch DEPS files older than 37.0.2007.0 may include a 'src'
+      # entry. This entry needs to be removed otherwise `gclient sync` will
+      # fail.
+      remove_deps_entry(deps_path, "'src'")
+  else:
+    raise Exception("Path does not exist: %s" % (deps_path))
 
 def onerror(func, path, exc_info):
   """
@@ -476,6 +485,16 @@ if cef_branch != 'trunk' and int(cef_branch) <= 1453:
 # True if the requested branch is 2272 or newer.
 branch_is_2272_or_newer = (cef_branch == 'trunk' or int(cef_branch) >= 2272)
 
+# True if the requested branch is 2357 or newer.
+branch_is_2357_or_newer = (cef_branch == 'trunk' or int(cef_branch) >= 2357)
+
+# Starting with 43.0.2357.126 the DEPS file is now 100% Git and the .DEPS.git
+# file is no longer created.
+if branch_is_2357_or_newer:
+  deps_file = 'DEPS'
+else:
+  deps_file = '.DEPS.git'
+
 if platform == 'macosx' and not options.x64build and branch_is_2272_or_newer:
   print '32-bit Mac OS X builds are no longer supported with 2272 branch and '+\
         'newer. Add --x64-build flag to generate a 64-bit build.'
@@ -680,7 +699,7 @@ if not os.path.exists(gclient_file) or options.forceconfig:
           "u'src/chrome/tools/test/reference_build/chrome_mac': None, "+\
           "u'src/chrome/tools/test/reference_build/chrome_win': None, "+\
         "}, "+\
-        "u'deps_file': u'.DEPS.git', "+\
+        "u'deps_file': u'" + deps_file + "', "+\
         "u'safesync_url': u''"+\
       "}]"
 
