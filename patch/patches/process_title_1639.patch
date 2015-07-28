@@ -1,0 +1,13 @@
+diff --git set_process_title.cc set_process_title.cc
+index 74651ca6..439d5ea 100644
+--- set_process_title.cc
++++ set_process_title.cc
+@@ -42,7 +42,7 @@ void SetProcessTitleFromCommandLine(const char** main_argv) {
+   bool have_argv0 = false;
+ 
+ #if defined(OS_LINUX)
+-  DCHECK_EQ(base::PlatformThread::CurrentId(), getpid());
++  //DCHECK_EQ(base::PlatformThread::CurrentId(), getpid());
+ 
+   if (main_argv)
+     setproctitle_init(main_argv);
