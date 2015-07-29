@@ -634,6 +634,7 @@ void CefMainDelegate::InitializeResourceBundle() {
 
   if (!content_client_.pack_loading_disabled()) {
     if (!resources_dir.empty()) {
+      CHECK(resources_dir.IsAbsolute());
       cef_pak_file = resources_dir.Append(FILE_PATH_LITERAL("cef.pak"));
       cef_100_percent_pak_file =
           resources_dir.Append(FILE_PATH_LITERAL("cef_100_percent.pak"));
