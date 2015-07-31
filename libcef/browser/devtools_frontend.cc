@@ -186,9 +186,15 @@ void CefDevToolsFrontend::RenderViewCreated(
 }
 
 void CefDevToolsFrontend::DocumentAvailableInMainFrame() {
-  agent_host_ =
+  // Don't call AttachClient multiple times for the same DevToolsAgentHost.
+  // Otherwise it will call AgentHostClosed which closes the DevTools window.
+  // This may happen in cases where the DevTools content fails to load.
+  scoped_refptr<content::DevToolsAgentHost> agent_host =
       content::DevToolsAgentHost::GetOrCreateFor(inspected_contents_);
-  agent_host_->AttachClient(this);
+  if (agent_host != agent_host_) {
+    agent_host_ = agent_host;
+    agent_host_->AttachClient(this);
+  }
 }
 
 void CefDevToolsFrontend::WebContentsDestroyed() {
