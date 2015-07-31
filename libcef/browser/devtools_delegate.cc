@@ -112,7 +112,7 @@ std::string CefDevToolsDelegate::GetFrontendResource(
 }
 
 std::string CefDevToolsDelegate::GetChromeDevToolsURL() {
-  return base::StringPrintf("%s://%s/devtools.html",
+  return base::StringPrintf("%s://%s/inspector.html",
       content::kChromeDevToolsScheme, scheme::kChromeDevToolsHost);
 }
 
