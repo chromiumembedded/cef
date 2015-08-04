@@ -1,0 +1,32 @@
+diff --git window.cc window.cc
+index 0c021f8..ec62e3e 100644
+--- window.cc
++++ window.cc
+@@ -637,6 +637,12 @@ void Window::Focus() {
+   client->FocusWindow(this);
+ }
+ 
++void Window::Blur() {
++  client::FocusClient* client = client::GetFocusClient(this);
++  DCHECK(client);
++  client->FocusWindow(NULL);
++}
++
+ bool Window::HasFocus() const {
+   client::FocusClient* client = client::GetFocusClient(this);
+   return client && client->GetFocusedWindow() == this;
+diff --git window.h window.h
+index 749a66a..229a867 100644
+--- window.h
++++ window.h
+@@ -262,8 +262,9 @@ class AURA_EXPORT Window : public ui::LayerDelegate,
+   // that has a delegate set).  The toplevel window may be |this|.
+   Window* GetToplevelWindow();
+ 
+-  // Claims focus.
++  // Claims or relinquishes the claim to focus.
+   void Focus();
++  void Blur();
+ 
+   // Returns true if the Window is currently the focused window.
+   bool HasFocus() const;
