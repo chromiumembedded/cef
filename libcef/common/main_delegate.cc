@@ -562,6 +562,7 @@ int CefMainDelegate::RunProcess(
         NOTREACHED() << "failed to start UI thread";
         return 1;
       }
+      thread->WaitUntilThreadStarted();
       ui_thread_.swap(thread);
     }
 
