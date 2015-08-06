@@ -11,6 +11,7 @@
 
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
+#include "base/threading/thread_restrictions.h"
 #include "net/base/mime_util.h"
 #include "ui/base/resource/resource_bundle.h"
 
@@ -27,6 +28,10 @@ base::FilePath FilePathFromASCII(const std::string& str) {
 }
 
 static std::string GetMimeType(const std::string& filename) {
+  // Requests should not block on the disk!  On POSIX this goes to disk.
+  // http://code.google.com/p/chromium/issues/detail?id=59849
+  base::ThreadRestrictions::ScopedAllowIO allow_io;
+
   std::string mime_type;
   if (net::GetMimeTypeFromFile(FilePathFromASCII(filename), &mime_type))
     return mime_type;
