@@ -97,6 +97,8 @@ scoped_ptr<PrefService> CefBrowserPrefStore::CreateService() {
 
   // Spell checking settings.
   // Based on SpellcheckServiceFactory::RegisterProfilePrefs.
+  registry->RegisterListPref(prefs::kSpellCheckDictionaries,
+                             new base::ListValue);
   std::string spellcheck_lang =
       command_line->GetSwitchValueASCII(switches::kOverrideSpellCheckLang);
   if (!spellcheck_lang.empty()) {
