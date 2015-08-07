@@ -125,6 +125,14 @@ void CefQuitMessageLoop();
 void CefSetOSModalLoop(bool osModalLoop);
 
 ///
+// Call during process startup to enable High-DPI support on Windows 7 or newer.
+// Older versions of Windows should be left DPI-unaware because they do not
+// support DirectWrite and GDI fonts are kerned very badly.
+///
+/*--cef(capi_name=cef_enable_highdpi_support)--*/
+void CefEnableHighDPISupport();
+
+///
 // Implement this interface to provide handler implementations. Methods will be
 // called by the process and/or thread indicated.
 ///

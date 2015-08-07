@@ -37,6 +37,7 @@
 #include "ui/aura/window_tree_host.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/win/shell.h"
+#include "ui/gfx/screen.h"
 #include "ui/gfx/win/hwnd_util.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_win.h"
 #include "ui/views/widget/widget.h"
@@ -809,11 +810,17 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
         CefColorGetB(settings.background_color));
   }
 
+  // Adjust for potential display scaling.
+  gfx::Point point = gfx::Point(cr.right, cr.bottom);
+  float scale = gfx::Screen::GetNativeScreen()->
+      GetDisplayNearestPoint(point).device_scale_factor();
+  point = gfx::ToFlooredPoint(gfx::ScalePoint(point, 1.0f / scale));
+
   CefWindowDelegateView* delegate_view =
       new CefWindowDelegateView(background_color);
   delegate_view->Init(window_info_.window,
                       web_contents(),
-                      gfx::Rect(0, 0, cr.right, cr.bottom));
+                      gfx::Rect(0, 0, point.x(), point.y()));
 
   window_widget_ = delegate_view->GetWidget();
   window_widget_->Show();
