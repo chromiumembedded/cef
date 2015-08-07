@@ -9,6 +9,8 @@
 #include <windows.h>
 #include <string>
 
+#include "include/internal/cef_types_wrappers.h"
+
 namespace client {
 
 // Set the window's user data pointer.
@@ -29,6 +31,19 @@ std::wstring GetResourceString(UINT id);
 int GetCefMouseModifiers(WPARAM wparam);
 int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam);
 bool IsKeyDown(WPARAM wparam);
+
+// Returns the device scale factor. For example, 200% display scaling will
+// return 2.0.
+float GetDeviceScaleFactor();
+
+// Convert |value| from logical coordinates to device coordinates.
+int LogicalToDevice(int value, float device_scale_factor);
+CefRect LogicalToDevice(const CefRect& value, float device_scale_factor);
+
+// Convert |value| from device coordinates to logical coordinates.
+int DeviceToLogical(int value, float device_scale_factor);
+CefRect DeviceToLogical(const CefRect& value, float device_scale_factor);
+void DeviceToLogical(CefMouseEvent& value, float device_scale_factor);
 
 }  // namespace client
 
