@@ -311,6 +311,13 @@ CEF_EXPORT void cef_set_osmodal_loop(int osModalLoop) {
       osModalLoop?true:false);
 }
 
+CEF_EXPORT void cef_enable_highdpi_support() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  CefEnableHighDPISupport();
+}
+
 CEF_EXPORT int cef_get_geolocation(
     struct _cef_get_geolocation_callback_t* callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING

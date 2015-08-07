@@ -303,6 +303,13 @@ CEF_GLOBAL void CefSetOSModalLoop(bool osModalLoop) {
       osModalLoop);
 }
 
+CEF_GLOBAL void CefEnableHighDPISupport() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_enable_highdpi_support();
+}
+
 CEF_GLOBAL bool CefGetGeolocation(
     CefRefPtr<CefGetGeolocationCallback> callback) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING

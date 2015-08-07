@@ -175,6 +175,13 @@ CEF_EXPORT void cef_quit_message_loop();
 ///
 CEF_EXPORT void cef_set_osmodal_loop(int osModalLoop);
 
+///
+// Call during process startup to enable High-DPI support on Windows 7 or newer.
+// Older versions of Windows should be left DPI-unaware because they do not
+// support DirectWrite and GDI fonts are kerned very badly.
+///
+CEF_EXPORT void cef_enable_highdpi_support();
+
 #ifdef __cplusplus
 }
 #endif

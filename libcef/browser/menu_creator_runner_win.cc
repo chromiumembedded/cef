@@ -8,6 +8,8 @@
 #include "base/message_loop/message_loop.h"
 #include "ui/aura/window.h"
 #include "ui/gfx/geometry/point.h"
+#include "ui/gfx/geometry/point_conversions.h"
+#include "ui/gfx/screen.h"
 #include "ui/views/controls/menu/menu_2.h"
 
 CefMenuCreatorRunnerWin::CefMenuCreatorRunnerWin() {
@@ -46,6 +48,11 @@ bool CefMenuCreatorRunnerWin::RunContextMenu(CefMenuCreator* manager) {
     const gfx::Rect& bounds_in_screen = window->GetBoundsInScreen();
     screen_point = gfx::Point(bounds_in_screen.x() + manager->params().x,
                               bounds_in_screen.y() + manager->params().y);
+
+    // Adjust for potential display scaling.
+    float scale = gfx::Screen::GetScreenFor(window)->
+        GetDisplayNearestWindow(window).device_scale_factor();
+    screen_point = gfx::ToFlooredPoint(gfx::ScalePoint(screen_point, scale));
   }
 
   // Show the menu. Blocks until the menu is dismissed.
