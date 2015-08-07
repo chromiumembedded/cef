@@ -29,6 +29,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 
+  // Enable High-DPI support on Windows 7 or newer.
+  CefEnableHighDPISupport();
+
   void* sandbox_info = NULL;
 
 #if defined(CEF_USE_SANDBOX)
