@@ -110,6 +110,9 @@ class RootWindowWin : public RootWindow,
   // Draggable region.
   HRGN draggable_region_;
 
+  // Font for buttons and text fields.
+  HFONT font_;
+
   // Buttons.
   HWND back_hwnd_;
   HWND forward_hwnd_;

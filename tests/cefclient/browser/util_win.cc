@@ -5,7 +5,6 @@
 #include "cefclient/browser/util_win.h"
 
 #include "include/base/cef_logging.h"
-#include "include/internal/cef_types.h"
 
 namespace client {
 
@@ -138,6 +137,53 @@ int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam) {
 
 bool IsKeyDown(WPARAM wparam) {
   return (GetKeyState(wparam) & 0x8000) != 0;
+}
+
+float GetDeviceScaleFactor() {
+  static float scale_factor = 1.0;
+  static bool initialized = false;
+
+  if (!initialized) {
+    // This value is safe to cache for the life time of the app since the user
+    // must logout to change the DPI setting. This value also applies to all
+    // screens.
+    HDC screen_dc = ::GetDC(NULL);
+    int dpi_x = GetDeviceCaps(screen_dc, LOGPIXELSX);
+    scale_factor = static_cast<float>(dpi_x) / 96.0f;
+    ::ReleaseDC(NULL, screen_dc);
+    initialized = true;
+  }
+
+  return scale_factor;
+}
+
+int LogicalToDevice(int value, float device_scale_factor) {
+  float scaled_val = static_cast<float>(value) * device_scale_factor;
+  return static_cast<int>(std::floor(scaled_val));
+}
+
+CefRect LogicalToDevice(const CefRect& value, float device_scale_factor) {
+  return CefRect(LogicalToDevice(value.x, device_scale_factor),
+                 LogicalToDevice(value.y, device_scale_factor),
+                 LogicalToDevice(value.width, device_scale_factor),
+                 LogicalToDevice(value.height, device_scale_factor));
+}
+
+int DeviceToLogical(int value, float device_scale_factor) {
+  float scaled_val = static_cast<float>(value) / device_scale_factor;
+  return static_cast<int>(std::floor(scaled_val));
+}
+
+CefRect DeviceToLogical(const CefRect& value, float device_scale_factor) {
+  return CefRect(DeviceToLogical(value.x, device_scale_factor),
+                 DeviceToLogical(value.y, device_scale_factor),
+                 DeviceToLogical(value.width, device_scale_factor),
+                 DeviceToLogical(value.height, device_scale_factor));
+}
+
+void DeviceToLogical(CefMouseEvent& value, float device_scale_factor) {
+  value.x = DeviceToLogical(value.x, device_scale_factor);
+  value.y = DeviceToLogical(value.y, device_scale_factor);
 }
 
 }  // namespace client
