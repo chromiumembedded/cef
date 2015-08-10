@@ -19,6 +19,7 @@
 
 #include "include/base/cef_logging.h"
 #include "include/wrapper/cef_closure_task.h"
+#include "cefclient/browser/geometry_util.h"
 #include "cefclient/browser/main_message_loop.h"
 
 namespace client {
@@ -919,7 +920,8 @@ BrowserWindowOsrGtk::BrowserWindowOsrGtk(BrowserWindow::Delegate* delegate,
       glarea_(NULL),
       hidden_(false),
       gl_enabled_(false),
-      painting_popup_(false) {
+      painting_popup_(false),
+      device_scale_factor_(1.0f) {
   client_handler_ = new ClientHandlerOsr(this, this, startup_url);
 }
 
@@ -1012,6 +1014,28 @@ void BrowserWindowOsrGtk::SetFocus(bool focus) {
     gtk_widget_grab_focus(glarea_);
 }
 
+void BrowserWindowOsrGtk::SetDeviceScaleFactor(float device_scale_factor) {
+  REQUIRE_MAIN_THREAD();
+  if (device_scale_factor == device_scale_factor_)
+    return;
+
+  // Apply some sanity checks.
+  if (device_scale_factor < 1.0f || device_scale_factor > 4.0f)
+    return;
+
+  device_scale_factor_ = device_scale_factor;
+
+  if (browser_) {
+    browser_->GetHost()->NotifyScreenInfoChanged();
+    browser_->GetHost()->WasResized();
+  }
+}
+
+float BrowserWindowOsrGtk::GetDeviceScaleFactor() const {
+  REQUIRE_MAIN_THREAD();
+  return device_scale_factor_;
+}
+
 ClientWindowHandle BrowserWindowOsrGtk::GetWindowHandle() const {
   REQUIRE_MAIN_THREAD();
   return glarea_;
@@ -1052,8 +1076,9 @@ bool BrowserWindowOsrGtk::GetViewRect(CefRefPtr<CefBrowser> browser,
   // The simulated screen and view rectangle are the same. This is necessary
   // for popup menus to be located and sized inside the view.
   rect.x = rect.y = 0;
-  rect.width = glarea_->allocation.width;
-  rect.height = glarea_->allocation.height;
+  rect.width = DeviceToLogical(glarea_->allocation.width, device_scale_factor_);
+  rect.height = DeviceToLogical(glarea_->allocation.height,
+                                device_scale_factor_);
   return true;
 }
 
@@ -1067,15 +1092,25 @@ bool BrowserWindowOsrGtk::GetScreenPoint(CefRefPtr<CefBrowser> browser,
 
   GdkRectangle screen_rect;
   GetWidgetRectInScreen(glarea_, &screen_rect);
-  screenX = screen_rect.x + viewX;
-  screenY = screen_rect.y + viewY;
+  screenX = screen_rect.x + LogicalToDevice(viewX, device_scale_factor_);
+  screenY = screen_rect.y + LogicalToDevice(viewY, device_scale_factor_);
   return true;
 }
 
 bool BrowserWindowOsrGtk::GetScreenInfo(CefRefPtr<CefBrowser> browser,
                                         CefScreenInfo& screen_info) {
   CEF_REQUIRE_UI_THREAD();
-  return false;
+
+  CefRect view_rect;
+  GetViewRect(browser, view_rect);
+
+  screen_info.device_scale_factor = device_scale_factor_;
+
+  // The screen info rectangles are used by the renderer to create and position
+  // popups. Keep popups inside the view rectangle.
+  screen_info.rect = view_rect;
+  screen_info.available_rect = view_rect;
+  return true;
 }
 
 void BrowserWindowOsrGtk::OnPopupShow(CefRefPtr<CefBrowser> browser,
@@ -1095,7 +1130,7 @@ void BrowserWindowOsrGtk::OnPopupSize(CefRefPtr<CefBrowser> browser,
   CEF_REQUIRE_UI_THREAD();
   REQUIRE_MAIN_THREAD();
 
-  renderer_.OnPopupSize(browser, rect);
+  renderer_.OnPopupSize(browser, LogicalToDevice(rect, device_scale_factor_));
 }
 
 void BrowserWindowOsrGtk::OnPaint(
@@ -1270,6 +1305,7 @@ gint BrowserWindowOsrGtk::ClickEvent(GtkWidget* widget,
   mouse_event.x = event->x;
   mouse_event.y = event->y;
   self->ApplyPopupOffset(mouse_event.x, mouse_event.y);
+  DeviceToLogical(mouse_event, self->device_scale_factor_);
   mouse_event.modifiers = GetCefStateModifiers(event->state);
 
   bool mouse_up = (event->type == GDK_BUTTON_RELEASE);
@@ -1376,6 +1412,7 @@ gint BrowserWindowOsrGtk::MoveEvent(GtkWidget* widget,
   mouse_event.x = x;
   mouse_event.y = y;
   self->ApplyPopupOffset(mouse_event.x, mouse_event.y);
+  DeviceToLogical(mouse_event, self->device_scale_factor_);
   mouse_event.modifiers = GetCefStateModifiers(state);
 
   bool mouse_leave = (event->type == GDK_LEAVE_NOTIFY);
@@ -1399,6 +1436,7 @@ gint BrowserWindowOsrGtk::ScrollEvent(GtkWidget* widget,
   mouse_event.x = event->x;
   mouse_event.y = event->y;
   self->ApplyPopupOffset(mouse_event.x, mouse_event.y);
+  DeviceToLogical(mouse_event, self->device_scale_factor_);
   mouse_event.modifiers = GetCefStateModifiers(event->state);
 
   static const int scrollbarPixelsPerGtkTick = 40;

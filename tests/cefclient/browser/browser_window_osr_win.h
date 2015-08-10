@@ -38,6 +38,8 @@ class BrowserWindowOsrWin : public BrowserWindow,
   void Hide() OVERRIDE;
   void SetBounds(int x, int y, size_t width, size_t height) OVERRIDE;
   void SetFocus(bool focus) OVERRIDE;
+  void SetDeviceScaleFactor(float device_scale_factor) OVERRIDE;
+  float GetDeviceScaleFactor() const OVERRIDE;
   ClientWindowHandle GetWindowHandle() const OVERRIDE;
 
  private:
@@ -52,6 +54,8 @@ class BrowserWindowOsrWin : public BrowserWindow,
   // The below members are only accessed on the main thread.
   scoped_refptr<OsrWindowWin> osr_window_;
   HWND osr_hwnd_;
+
+  float device_scale_factor_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserWindowOsrWin);
 };

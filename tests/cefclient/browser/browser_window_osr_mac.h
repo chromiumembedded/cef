@@ -40,6 +40,8 @@ class BrowserWindowOsrMac : public BrowserWindow,
   void Hide() OVERRIDE;
   void SetBounds(int x, int y, size_t width, size_t height) OVERRIDE;
   void SetFocus(bool focus) OVERRIDE;
+  void SetDeviceScaleFactor(float device_scale_factor) OVERRIDE;
+  float GetDeviceScaleFactor() const OVERRIDE;
   ClientWindowHandle GetWindowHandle() const OVERRIDE;
 
   // ClientHandlerOsr::OsrDelegate methods.

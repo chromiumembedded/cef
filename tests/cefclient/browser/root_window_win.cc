@@ -9,6 +9,7 @@
 #include "include/cef_app.h"
 #include "cefclient/browser/browser_window_osr_win.h"
 #include "cefclient/browser/browser_window_std_win.h"
+#include "cefclient/browser/geometry_util.h"
 #include "cefclient/browser/main_context.h"
 #include "cefclient/browser/main_message_loop.h"
 #include "cefclient/browser/resource.h"
@@ -209,7 +210,7 @@ void RootWindowWin::SetBounds(int x, int y, size_t width, size_t height) {
   REQUIRE_MAIN_THREAD();
 
   if (hwnd_)
-    SetWindowPos(hwnd_, NULL, 0, 0, 0, 0, SWP_NOZORDER);
+    SetWindowPos(hwnd_, NULL, x, y, width, height, SWP_NOZORDER);
 }
 
 void RootWindowWin::Close(bool force) {
@@ -221,6 +222,21 @@ void RootWindowWin::Close(bool force) {
     else
       PostMessage(hwnd_, WM_CLOSE, 0, 0);
   }
+}
+
+void RootWindowWin::SetDeviceScaleFactor(float device_scale_factor) {
+  REQUIRE_MAIN_THREAD();
+
+  if (browser_window_)
+    browser_window_->SetDeviceScaleFactor(device_scale_factor);
+}
+
+float RootWindowWin::GetDeviceScaleFactor() const {
+  REQUIRE_MAIN_THREAD();
+
+  if (browser_window_)
+    return browser_window_->GetDeviceScaleFactor();
+  return client::GetDeviceScaleFactor();
 }
 
 CefRefPtr<CefBrowser> RootWindowWin::GetBrowser() const {
@@ -307,7 +323,8 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings) {
 
     static int button_width = GetButtonWidth();
     static int urlbar_height = GetURLBarHeight();
-    static int font_height = LogicalToDevice(14, GetDeviceScaleFactor());
+    static int font_height =
+        LogicalToDevice(14, client::GetDeviceScaleFactor());
 
     // Create a scaled font.
     font_ = ::CreateFont(
@@ -376,9 +393,8 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings) {
       if (hMenu) {
         HMENU hTestMenu = ::GetSubMenu(hMenu, 2);
         if (hTestMenu) {
-          ::RemoveMenu(hTestMenu, ID_TESTS_FPS_INCREASE, MF_BYCOMMAND);
-          ::RemoveMenu(hTestMenu, ID_TESTS_FPS_DECREASE, MF_BYCOMMAND);
-          ::RemoveMenu(hTestMenu, ID_TESTS_FPS_RESET, MF_BYCOMMAND);
+          ::RemoveMenu(hTestMenu, ID_TESTS_OSR_FPS, MF_BYCOMMAND);
+          ::RemoveMenu(hTestMenu, ID_TESTS_OSR_DSF, MF_BYCOMMAND);
         }
       }
     }

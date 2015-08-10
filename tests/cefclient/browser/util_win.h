@@ -36,15 +36,6 @@ bool IsKeyDown(WPARAM wparam);
 // return 2.0.
 float GetDeviceScaleFactor();
 
-// Convert |value| from logical coordinates to device coordinates.
-int LogicalToDevice(int value, float device_scale_factor);
-CefRect LogicalToDevice(const CefRect& value, float device_scale_factor);
-
-// Convert |value| from device coordinates to logical coordinates.
-int DeviceToLogical(int value, float device_scale_factor);
-CefRect DeviceToLogical(const CefRect& value, float device_scale_factor);
-void DeviceToLogical(CefMouseEvent& value, float device_scale_factor);
-
 }  // namespace client
 
 #endif  // CEF_TESTS_CEFCLIENT_BROWSER_UTIL_WIN_H_

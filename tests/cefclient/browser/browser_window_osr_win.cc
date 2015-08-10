@@ -5,6 +5,7 @@
 #include "cefclient/browser/browser_window_osr_win.h"
 
 #include "cefclient/browser/main_message_loop.h"
+#include "cefclient/browser/util_win.h"
 
 namespace client {
 
@@ -13,7 +14,8 @@ BrowserWindowOsrWin::BrowserWindowOsrWin(BrowserWindow::Delegate* delegate,
                                          const OsrRenderer::Settings& settings)
     : BrowserWindow(delegate),
       transparent_(settings.transparent),
-      osr_hwnd_(NULL) {
+      osr_hwnd_(NULL),
+      device_scale_factor_(client::GetDeviceScaleFactor()) {
   osr_window_ = new OsrWindowWin(this, settings);
   client_handler_ = new ClientHandlerOsr(this, osr_window_.get(), startup_url);
 }
@@ -69,6 +71,25 @@ void BrowserWindowOsrWin::SetFocus(bool focus) {
   REQUIRE_MAIN_THREAD();
   if (osr_window_ && focus)
     osr_window_->SetFocus();
+}
+
+void BrowserWindowOsrWin::SetDeviceScaleFactor(float device_scale_factor) {
+  REQUIRE_MAIN_THREAD();
+  if (device_scale_factor == device_scale_factor_)
+    return;
+
+  // Apply some sanity checks.
+  if (device_scale_factor < 1.0f || device_scale_factor > 4.0f)
+    return;
+
+  device_scale_factor_ = device_scale_factor;
+  if (osr_window_)
+    osr_window_->SetDeviceScaleFactor(device_scale_factor);
+}
+
+float BrowserWindowOsrWin::GetDeviceScaleFactor() const {
+  REQUIRE_MAIN_THREAD();
+  return device_scale_factor_;
 }
 
 ClientWindowHandle BrowserWindowOsrWin::GetWindowHandle() const {

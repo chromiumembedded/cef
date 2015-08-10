@@ -15,6 +15,13 @@ BrowserWindow::BrowserWindow(Delegate* delegate)
   DCHECK(delegate_);
 }
 
+void BrowserWindow::SetDeviceScaleFactor(float device_scale_factor) {
+}
+
+float BrowserWindow::GetDeviceScaleFactor() const {
+  return 1.0f;
+}
+
 CefRefPtr<CefBrowser> BrowserWindow::GetBrowser() const {
   REQUIRE_MAIN_THREAD();
   return browser_;
