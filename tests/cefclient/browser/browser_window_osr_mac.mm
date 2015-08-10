@@ -12,6 +12,7 @@
 #include "include/cef_parser.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "cefclient/browser/bytes_write_handler.h"
+#include "cefclient/browser/geometry_util.h"
 #include "cefclient/browser/main_message_loop.h"
 
 // Forward declare methods and constants that are only available with newer SDK
@@ -25,6 +26,8 @@
 @end
 
 @interface NSView (LionSDK)
+- (NSPoint)convertPointFromBacking:(NSPoint)aPoint;
+- (NSPoint)convertPointToBacking:(NSPoint)aPoint;
 - (NSRect)convertRectFromBacking:(NSRect)aRect;
 - (NSRect)convertRectToBacking:(NSRect)aRect;
 - (void)setWantsBestResolutionOpenGLSurface:(BOOL)flag;
@@ -53,6 +56,8 @@ extern NSString* const NSWindowDidChangeBackingPropertiesNotification;
 
   bool was_last_mouse_down_on_view_;
 
+  float device_scale_factor_;
+
   // Drag and drop
   CefRefPtr<CefDragData> current_drag_data_;
   NSDragOperation current_drag_op_;
@@ -73,6 +78,8 @@ extern NSString* const NSWindowDidChangeBackingPropertiesNotification;
 - (NSPoint)getClickPointForEvent:(NSEvent*)event;
 - (void)getKeyEvent:(CefKeyEvent&)keyEvent forEvent:(NSEvent*)event;
 - (void)getMouseEvent:(CefMouseEvent&)mouseEvent forEvent:(NSEvent*)event;
+- (void)getMouseEvent:(CefMouseEvent&)mouseEvent
+          forDragInfo:(id<NSDraggingInfo>)info;
 - (int)getModifiersForEvent:(NSEvent*)event;
 - (BOOL)isKeyUpEvent:(NSEvent*)event;
 - (BOOL)isKeyPadEvent:(NSEvent*)event;
@@ -85,6 +92,8 @@ extern NSString* const NSWindowDidChangeBackingPropertiesNotification;
 - (void)populateDropData:(CefRefPtr<CefDragData>)data
           fromPasteboard:(NSPasteboard*)pboard;
 - (NSPoint)flipWindowPointToView:(const NSPoint&)windowPoint;
+- (void)resetDeviceScaleFactor;
+- (void)setDeviceScaleFactor:(float)device_scale_factor;
 - (float)getDeviceScaleFactor;
 - (void)windowDidChangeBackingProperties:(NSNotification*)notification;
 
@@ -97,8 +106,10 @@ extern NSString* const NSWindowDidChangeBackingPropertiesNotification;
                 button:(CefBrowserHost::MouseButtonType)type
                   isUp:(bool)isUp;
 
-- (CefRect)convertRectToBackingInternal:(const CefRect&)rect;
-- (CefRect)convertRectFromBackingInternal:(const CefRect&)rect;
+- (NSPoint)convertPointFromBackingInternal:(NSPoint)aPoint;
+- (NSPoint)convertPointToBackingInternal:(NSPoint)aPoint;
+- (NSRect)convertRectFromBackingInternal:(NSRect)aRect;
+- (NSRect)convertRectToBackingInternal:(NSRect)aRect;
 
 @end
 
@@ -126,15 +137,6 @@ BOOL SupportsBackingPropertiesChangedNotification() {
   // If the protocol does not contain the method, the returned method
   // description is {NULL, NULL}
   return methodDescription.name != NULL || methodDescription.types != NULL;
-}
-
-CefRect convertRect(const NSRect& target, const NSRect& frame) {
-  NSRect rect = target;
-  rect.origin.y = NSMaxY(frame) - NSMaxY(target);
-  return CefRect(rect.origin.x,
-                 rect.origin.y,
-                 rect.size.width,
-                 rect.size.height);
 }
 
 NSString* const kCEFDragDummyPboardType = @"org.CEF.drag-dummy-type";
@@ -184,6 +186,7 @@ BrowserOpenGLView* GLView(NSView* view) {
     renderer_ = renderer;
     rotating_ = false;
     endWheelMonitor_ = nil;
+    device_scale_factor_ = 1.0f;
 
     tracking_area_ =
         [[NSTrackingArea alloc] initWithRect:frame
@@ -255,14 +258,20 @@ BrowserOpenGLView* GLView(NSView* view) {
     return;
 
   CefMouseEvent mouseEvent;
-  [self getMouseEvent: mouseEvent forEvent: event];
+  [self getMouseEvent:mouseEvent forEvent:event];
+
+  // |point| is in OS X view coordinates.
   NSPoint point = [self getClickPointForEvent:event];
-  if (!isUp)
-    was_last_mouse_down_on_view_ = ![self isOverPopupWidgetX: point.x
-                                                        andY: point.y];
-  else if (was_last_mouse_down_on_view_ &&
-           [self isOverPopupWidgetX:point.x andY: point.y] &&
-           ([self getPopupXOffset] || [self getPopupYOffset])) {
+
+  // Convert to device coordinates.
+  point = [self convertPointToBackingInternal:point];
+
+  if (!isUp) {
+    was_last_mouse_down_on_view_ = ![self isOverPopupWidgetX:point.x
+                                                        andY:point.y];
+  } else if (was_last_mouse_down_on_view_ &&
+             [self isOverPopupWidgetX:point.x andY:point.y] &&
+             ([self getPopupXOffset] || [self getPopupYOffset])) {
     return;
   }
 
@@ -326,7 +335,8 @@ BrowserOpenGLView* GLView(NSView* view) {
   }
 
   CefMouseEvent mouseEvent;
-  [self getMouseEvent: mouseEvent forEvent: event];
+  [self getMouseEvent:mouseEvent forEvent:event];
+
   browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
 }
 
@@ -352,7 +362,8 @@ BrowserOpenGLView* GLView(NSView* view) {
     return;
 
   CefMouseEvent mouseEvent;
-  [self getMouseEvent: mouseEvent forEvent: event];
+  [self getMouseEvent:mouseEvent forEvent:event];
+
   browser->GetHost()->SendMouseMoveEvent(mouseEvent, true);
 }
 
@@ -439,7 +450,8 @@ BrowserOpenGLView* GLView(NSView* view) {
       CGEventGetIntegerValueField(cgEvent, kCGScrollWheelEventPointDeltaAxis1);
 
   CefMouseEvent mouseEvent;
-  [self getMouseEvent: mouseEvent forEvent: event];
+  [self getMouseEvent:mouseEvent forEvent:event];
+
   browser->GetHost()->SendMouseWheelEvent(mouseEvent, deltaX, deltaY);
 }
 
@@ -554,15 +566,42 @@ BrowserOpenGLView* GLView(NSView* view) {
 }
 
 - (void)getMouseEvent:(CefMouseEvent&)mouseEvent forEvent:(NSEvent*)event {
-  NSPoint point = [self getClickPointForEvent:event];
-  mouseEvent.x = point.x;
-  mouseEvent.y = point.y;
+  const float device_scale_factor = [self getDeviceScaleFactor];
 
-  if ([self isOverPopupWidgetX:mouseEvent.x andY: mouseEvent.y]) {
-    [self applyPopupOffsetToX:mouseEvent.x andY: mouseEvent.y];
-  }
+  // |point| is in OS X view coordinates.
+  NSPoint point = [self getClickPointForEvent:event];
+
+  // Convert to device coordinates.
+  point = [self convertPointToBackingInternal:point];
+
+  int device_x = point.x;
+  int device_y = point.y;
+  if ([self isOverPopupWidgetX:device_x andY:device_y])
+    [self applyPopupOffsetToX:device_x andY:device_y];
+
+  // Convert to browser view coordinates.
+  mouseEvent.x = client::DeviceToLogical(device_x, device_scale_factor);
+  mouseEvent.y = client::DeviceToLogical(device_y, device_scale_factor);
 
   mouseEvent.modifiers = [self getModifiersForEvent:event];
+}
+
+- (void)getMouseEvent:(CefMouseEvent&)mouseEvent
+          forDragInfo:(id<NSDraggingInfo>)info {
+  const float device_scale_factor = [self getDeviceScaleFactor];
+
+  // |point| is in OS X view coordinates.
+  NSPoint windowPoint = [info draggingLocation];
+  NSPoint point = [self flipWindowPointToView:windowPoint];
+
+  // Convert to device coordinates.
+  point = [self convertPointToBackingInternal:point];
+
+  // Convert to browser view coordinates.
+  mouseEvent.x = client::DeviceToLogical(point.x, device_scale_factor);
+  mouseEvent.y = client::DeviceToLogical(point.y, device_scale_factor);
+
+  mouseEvent.modifiers = [NSEvent modifierFlags];
 }
 
 - (int)getModifiersForEvent:(NSEvent*)event {
@@ -678,16 +717,7 @@ BrowserOpenGLView* GLView(NSView* view) {
 - (void)windowDidChangeBackingProperties:(NSNotification*)notification {
   // This delegate method is only called on 10.7 and later, so don't worry about
   // other backing changes calling it on 10.6 or earlier
-  CGFloat newBackingScaleFactor = [self getDeviceScaleFactor];
-  CGFloat oldBackingScaleFactor = (CGFloat)[
-      [notification.userInfo objectForKey:@"NSBackingPropertyOldScaleFactorKey"]
-          doubleValue
-  ];
-  if (newBackingScaleFactor != oldBackingScaleFactor) {
-    CefRefPtr<CefBrowser> browser = [self getBrowser];
-    if (browser.get())
-      browser->GetHost()->NotifyScreenInfoChanged();
-  }
+  [self resetDeviceScaleFactor];
 }
 
 - (void)drawRect: (NSRect) dirtyRect {
@@ -814,7 +844,7 @@ BrowserOpenGLView* GLView(NSView* view) {
 
 // NSDraggingDestination Protocol
 
-- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)info {
+- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)info {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
   if (!browser.get())
     return NSDragOperationNone;
@@ -829,44 +859,39 @@ BrowserOpenGLView* GLView(NSView* view) {
     drag_data->ResetFileContents();
   }
 
-  NSPoint windowPoint = [info draggingLocation];
-  NSPoint viewPoint = [self flipWindowPointToView:windowPoint];
+  CefMouseEvent mouseEvent;
+  [self getMouseEvent:mouseEvent forDragInfo:info];
+
   NSDragOperation mask = [info draggingSourceOperationMask];
-  CefMouseEvent ev;
-  ev.x = viewPoint.x;
-  ev.y = viewPoint.y;
-  ev.modifiers = [NSEvent modifierFlags];
   CefBrowserHost::DragOperationsMask allowed_ops =
       static_cast<CefBrowserHost::DragOperationsMask>(mask);
-  browser->GetHost()->DragTargetDragEnter(drag_data, ev, allowed_ops);
-  browser->GetHost()->DragTargetDragOver(ev, allowed_ops);
+
+  browser->GetHost()->DragTargetDragEnter(drag_data, mouseEvent, allowed_ops);
+  browser->GetHost()->DragTargetDragOver(mouseEvent, allowed_ops);
 
   current_drag_op_ = NSDragOperationCopy;
   return current_drag_op_;
 }
 
-- (void)draggingExited:(id <NSDraggingInfo>)sender {
+- (void)draggingExited:(id<NSDraggingInfo>)sender {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
   if (browser.get())
     browser->GetHost()->DragTargetDragLeave();
 }
 
-- (BOOL)prepareForDragOperation:(id <NSDraggingInfo>)info {
+- (BOOL)prepareForDragOperation:(id<NSDraggingInfo>)info {
   return YES;
 }
 
-- (BOOL)performDragOperation:(id <NSDraggingInfo>)info {
+- (BOOL)performDragOperation:(id<NSDraggingInfo>)info {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
   if (!browser.get())
     return NO;
 
-  NSPoint windowPoint = [info draggingLocation];
-  NSPoint viewPoint = [self flipWindowPointToView:windowPoint];
-  CefMouseEvent ev;
-  ev.x = viewPoint.x;
-  ev.y = viewPoint.y;
-  ev.modifiers = [NSEvent modifierFlags];
-  browser->GetHost()->DragTargetDrop(ev);
+  CefMouseEvent mouseEvent;
+  [self getMouseEvent:mouseEvent forDragInfo:info];
+
+  browser->GetHost()->DragTargetDrop(mouseEvent);
 
   return YES;
 }
@@ -876,16 +901,14 @@ BrowserOpenGLView* GLView(NSView* view) {
   if (!browser.get())
     return NSDragOperationNone;
 
-  NSPoint windowPoint = [info draggingLocation];
-  NSPoint viewPoint = [self flipWindowPointToView:windowPoint];
+  CefMouseEvent mouseEvent;
+  [self getMouseEvent:mouseEvent forDragInfo:info];
+
   NSDragOperation mask = [info draggingSourceOperationMask];
-  CefMouseEvent ev;
-  ev.x = viewPoint.x;
-  ev.y = viewPoint.y;
-  ev.modifiers = [NSEvent modifierFlags];
   CefBrowserHost::DragOperationsMask allowed_ops =
-  static_cast<CefBrowserHost::DragOperationsMask>(mask);
-  browser->GetHost()->DragTargetDragOver(ev, allowed_ops);
+      static_cast<CefBrowserHost::DragOperationsMask>(mask);
+
+  browser->GetHost()->DragTargetDragOver(mouseEvent, allowed_ops);
 
   return current_drag_op_;
 }
@@ -1041,22 +1064,41 @@ BrowserOpenGLView* GLView(NSView* view) {
   return viewPoint;
 }
 
-- (float)getDeviceScaleFactor {
-  float deviceScaleFactor = 1;
+- (void)resetDeviceScaleFactor {
+  float device_scale_factor = 1.0f;
   NSWindow* window = [self window];
-  if (!window)
-    return deviceScaleFactor;
+  if (window) {
+    if ([window respondsToSelector:@selector(backingScaleFactor)])
+      device_scale_factor = [window backingScaleFactor];
+    else
+      device_scale_factor = [window userSpaceScaleFactor];
+  }
+  [self setDeviceScaleFactor:device_scale_factor];
+}
 
-  if ([window respondsToSelector:@selector(backingScaleFactor)])
-    deviceScaleFactor = [window backingScaleFactor];
-  else
-    deviceScaleFactor = [window userSpaceScaleFactor];
+- (void)setDeviceScaleFactor:(float)device_scale_factor {
+  if (device_scale_factor == device_scale_factor_)
+    return;
 
-  return deviceScaleFactor;
+  // Apply some sanity checks.
+  if (device_scale_factor < 1.0f || device_scale_factor > 4.0f)
+    return;
+
+  device_scale_factor_ = device_scale_factor;
+
+  CefRefPtr<CefBrowser> browser = [self getBrowser];
+  if (browser) {
+    browser->GetHost()->NotifyScreenInfoChanged();
+    browser->GetHost()->WasResized();
+  }
+}
+
+- (float)getDeviceScaleFactor {
+  return device_scale_factor_;
 }
 
 - (bool)isOverPopupWidgetX:(int)x andY:(int)y {
-  CefRect rc = [self convertRectFromBackingInternal:renderer_->popup_rect()];
+  CefRect rc = renderer_->popup_rect();
   int popup_right = rc.x + rc.width;
   int popup_bottom = rc.y + rc.height;
   return (x >= rc.x) && (x < popup_right) &&
@@ -1064,21 +1106,11 @@ BrowserOpenGLView* GLView(NSView* view) {
 }
 
 - (int)getPopupXOffset {
-  int original_x =
-      [self convertRectFromBackingInternal:renderer_->original_popup_rect()].x;
-  int popup_x =
-      [self convertRectFromBackingInternal:renderer_->popup_rect()].x;
-
-  return original_x - popup_x;
+  return renderer_->original_popup_rect().x - renderer_->popup_rect().x;
 }
 
 - (int)getPopupYOffset {
-  int original_y =
-      [self convertRectFromBackingInternal:renderer_->original_popup_rect()].y;
-  int popup_y =
-      [self convertRectFromBackingInternal:renderer_->popup_rect()].y;
-
-  return original_y - popup_y;
+  return renderer_->original_popup_rect().y - renderer_->popup_rect().y;
 }
 
 - (void)applyPopupOffsetToX:(int&)x andY:(int&)y {
@@ -1088,32 +1120,32 @@ BrowserOpenGLView* GLView(NSView* view) {
   }
 }
 
-// Convert the rect from view coordinates to scaled coordinates.
-- (CefRect) convertRectToBackingInternal:(const CefRect&)rect {
-  if ([self respondsToSelector:@selector(convertRectToBacking:)]) {
-    NSRect view_rect = NSMakeRect(rect.x, rect.y, rect.width, rect.height);
-    NSRect scaled_rect = [self convertRectToBacking:view_rect];
-    return CefRect((int)scaled_rect.origin.x,
-                   (int)scaled_rect.origin.y,
-                   (int)scaled_rect.size.width,
-                   (int)scaled_rect.size.height);
-  }
-
-  return rect;
+// Convert from scaled coordinates to view coordinates.
+- (NSPoint)convertPointFromBackingInternal:(NSPoint)aPoint {
+  if ([self respondsToSelector:@selector(convertPointFromBacking:)])
+    return [self convertPointFromBacking:aPoint];
+  return aPoint;
 }
 
-// Convert the rect from scaled coordinates to view coordinates.
-- (CefRect) convertRectFromBackingInternal: (const CefRect&) rect {
-  if ([self respondsToSelector:@selector(convertRectFromBacking:)]) {
-    NSRect scaled_rect = NSMakeRect(rect.x, rect.y, rect.width, rect.height);
-    NSRect view_rect = [self convertRectFromBacking:scaled_rect];
-    return CefRect((int)view_rect.origin.x,
-                   (int)view_rect.origin.y,
-                   (int)view_rect.size.width,
-                   (int)view_rect.size.height);
-  }
+// Convert from view coordinates to scaled coordinates.
+- (NSPoint)convertPointToBackingInternal:(NSPoint)aPoint {
+  if ([self respondsToSelector:@selector(convertPointToBacking:)])
+    return [self convertPointToBacking:aPoint];
+  return aPoint;
+}
 
-  return rect;
+// Convert from scaled coordinates to view coordinates.
+- (NSRect)convertRectFromBackingInternal:(NSRect)aRect {
+  if ([self respondsToSelector:@selector(convertRectFromBacking:)])
+    return [self convertRectFromBacking:aRect];
+  return aRect;
+}
+
+// Convert from view coordinates to scaled coordinates.
+- (NSRect)convertRectToBackingInternal:(NSRect)aRect {
+  if ([self respondsToSelector:@selector(convertRectToBacking:)])
+    return [self convertRectToBacking:aRect];
+  return aRect;
 }
 
 @end
@@ -1223,6 +1255,19 @@ void BrowserWindowOsrMac::SetFocus(bool focus) {
     [[nsview_ window] makeFirstResponder:nsview_];
 }
 
+void BrowserWindowOsrMac::SetDeviceScaleFactor(float device_scale_factor) {
+  REQUIRE_MAIN_THREAD();
+  if (nsview_)
+    [GLView(nsview_) setDeviceScaleFactor:device_scale_factor];
+}
+
+float BrowserWindowOsrMac::GetDeviceScaleFactor() const {
+  REQUIRE_MAIN_THREAD();
+  if (nsview_)
+    return [GLView(nsview_) getDeviceScaleFactor];
+  return 1.0f;
+}
+
 ClientWindowHandle BrowserWindowOsrMac::GetWindowHandle() const {
   REQUIRE_MAIN_THREAD();
   return nsview_;
@@ -1254,12 +1299,19 @@ bool BrowserWindowOsrMac::GetViewRect(CefRefPtr<CefBrowser> browser,
   if (!nsview_)
     return false;
 
-  // The simulated screen and view rectangle are the same. This is necessary
-  // for popup menus to be located and sized inside the view.
-  const NSRect bounds = [nsview_ bounds];
+  const float device_scale_factor = [GLView(nsview_) getDeviceScaleFactor];
+
+  // |bounds| is in OS X view coordinates.
+  NSRect bounds = [nsview_ bounds];
+
+  // Convert to device coordinates.
+  bounds = [GLView(nsview_) convertRectToBackingInternal:bounds];
+
+  // Convert to browser view coordinates.
   rect.x = rect.y = 0;
-  rect.width = bounds.size.width;
-  rect.height = bounds.size.height;
+  rect.width = DeviceToLogical(bounds.size.width, device_scale_factor);
+  rect.height = DeviceToLogical(bounds.size.height, device_scale_factor);
+
   return true;
 }
 
@@ -1274,11 +1326,25 @@ bool BrowserWindowOsrMac::GetScreenPoint(CefRefPtr<CefBrowser> browser,
   if (!nsview_)
     return false;
 
-  // Convert the point from view coordinates to actual screen coordinates.
-  NSRect bounds = [nsview_ bounds];
-  NSPoint view_pt = NSMakePoint(viewX, bounds.size.height - viewY);
+  const float device_scale_factor = [GLView(nsview_) getDeviceScaleFactor];
+
+  // (viewX, viewX) is in browser view coordinates.
+  // Convert to device coordinates.
+  NSPoint view_pt = NSMakePoint(
+      LogicalToDevice(viewX, device_scale_factor),
+      LogicalToDevice(viewY, device_scale_factor));
+
+  // Convert to OS X view coordinates.
+  view_pt = [GLView(nsview_) convertPointFromBackingInternal:view_pt];
+
+  // Reverse the Y component.
+  const NSRect bounds = [nsview_ bounds];
+  view_pt.y = bounds.size.height - view_pt.y;
+
+  // Convert to screen coordinates.
   NSPoint window_pt = [nsview_ convertPoint:view_pt toView:nil];
   NSPoint screen_pt = [[nsview_ window] convertBaseToScreen:window_pt];
+
   screenX = screen_pt.x;
   screenY = screen_pt.y;
   return true;
@@ -1292,23 +1358,15 @@ bool BrowserWindowOsrMac::GetScreenInfo(CefRefPtr<CefBrowser> browser,
   if (!nsview_)
     return false;
 
-  NSWindow* window = [nsview_ window];
-  if (!window)
-    return false;
+  CefRect view_rect;
+  GetViewRect(browser, view_rect);
 
   screen_info.device_scale_factor = [GLView(nsview_) getDeviceScaleFactor];
 
-  NSScreen* screen = [window screen];
-  if (!screen)
-    screen = [NSScreen deepestScreen];
-
-  screen_info.depth = NSBitsPerPixelFromDepth([screen depth]);
-  screen_info.depth_per_component = NSBitsPerSampleFromDepth([screen depth]);
-  screen_info.is_monochrome =
-      [[screen colorSpace] colorSpaceModel] == NSGrayColorSpaceModel;
-  screen_info.rect = convertRect([screen frame], [screen frame]);
-  screen_info.available_rect =
-      convertRect([screen visibleFrame], [screen frame]);
+  // The screen info rectangles are used by the renderer to create and position
+  // popups. Keep popups inside the view rectangle.
+  screen_info.rect = view_rect;
+  screen_info.available_rect = view_rect;
 
   return true;
 }
@@ -1336,8 +1394,12 @@ void BrowserWindowOsrMac::OnPopupSize(CefRefPtr<CefBrowser> browser,
   if (!nsview_)
     return;
 
-  renderer_.OnPopupSize(browser,
-                        [GLView(nsview_) convertRectToBackingInternal:rect]);
+  const float device_scale_factor = [GLView(nsview_) getDeviceScaleFactor];
+
+  // |rect| is in browser view coordinates. Convert to device coordinates.
+  CefRect device_rect = LogicalToDevice(rect, device_scale_factor);
+
+  renderer_.OnPopupSize(browser, device_rect);
 }
 
 void BrowserWindowOsrMac::OnPaint(
@@ -1396,10 +1458,22 @@ bool BrowserWindowOsrMac::StartDragging(
   if (!nsview_)
     return false;
 
+  static float device_scale_factor = [GLView(nsview_) getDeviceScaleFactor];
+
+  // |point| is in browser view coordinates.
+  NSPoint point = NSMakePoint(x, y);
+
+  // Convert to device coordinates.
+  point.x = LogicalToDevice(point.x, device_scale_factor);
+  point.y = LogicalToDevice(point.y, device_scale_factor);
+
+  // Convert to OS X view coordinates.
+  point = [GLView(nsview_) convertPointFromBackingInternal:point];
+
   return [GLView(nsview_)
       startDragging:drag_data
          allowedOps:static_cast<NSDragOperation>(allowed_ops)
-              point:NSMakePoint(x, y)];
+              point:point];
 }
 
 void BrowserWindowOsrMac::UpdateDragCursor(
@@ -1425,6 +1499,9 @@ void BrowserWindowOsrMac::Create(ClientWindowHandle parent_handle,
   [nsview_ setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
   [nsview_ setAutoresizesSubviews: true];
   [parent_handle addSubview:nsview_];
+
+  // Determine the default scale factor.
+  [GLView(nsview_) resetDeviceScaleFactor];
 
   // Backing property notifications crash on 10.6 when building with the 10.7
   // SDK, see http://crbug.com/260595.

@@ -82,6 +82,14 @@ class BrowserWindow : public ClientHandler::Delegate {
   // Set focus to the window.
   virtual void SetFocus(bool focus) = 0;
 
+  // Set the device scale factor. Only used in combination with off-screen
+  // rendering.
+  virtual void SetDeviceScaleFactor(float device_scale_factor);
+
+  // Returns the device scale factor. Only used in combination with off-screen
+  // rendering.
+  virtual float GetDeviceScaleFactor() const;
+
   // Returns the window handle.
   virtual ClientWindowHandle GetWindowHandle() const = 0;
 

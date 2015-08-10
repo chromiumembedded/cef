@@ -103,6 +103,14 @@ class RootWindow :
   // executed.
   virtual void Close(bool force) = 0;
 
+  // Set the device scale factor. Only used in combination with off-screen
+  // rendering.
+  virtual void SetDeviceScaleFactor(float device_scale_factor) = 0;
+
+  // Returns the device scale factor. Only used in combination with off-screen
+  // rendering.
+  virtual float GetDeviceScaleFactor() const = 0;
+
   // Returns the browser that this window contains, if any.
   virtual CefRefPtr<CefBrowser> GetBrowser() const = 0;
 

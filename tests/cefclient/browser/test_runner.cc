@@ -171,27 +171,113 @@ void ModifyZoom(CefRefPtr<CefBrowser> browser, double delta) {
       browser->GetHost()->GetZoomLevel() + delta);
 }
 
-void ModifyFPS(CefRefPtr<CefBrowser> browser, int fps_delta) {
+const char kPrompt[] = "Prompt.";
+const char kPromptFPS[] = "FPS";
+const char kPromptDSF[] = "DSF";
+
+// Handles execution of prompt results.
+class PromptHandler : public CefMessageRouterBrowserSide::Handler {
+ public:
+  PromptHandler() {}
+
+  // Called due to cefQuery execution.
+  virtual bool OnQuery(CefRefPtr<CefBrowser> browser,
+                       CefRefPtr<CefFrame> frame,
+                       int64 query_id,
+                       const CefString& request,
+                       bool persistent,
+                       CefRefPtr<Callback> callback) OVERRIDE {
+    // Parse |request| which takes the form "Prompt.[type]:[value]".
+    const std::string& request_str = request;
+    if (request_str.find(kPrompt) != 0)
+      return false;
+
+    std::string type = request_str.substr(sizeof(kPrompt) - 1);
+    size_t delim = type.find(':');
+    if (delim == std::string::npos)
+      return false;
+
+    const std::string& value = type.substr(delim + 1);
+    type = type.substr(0, delim);
+
+    // Canceling the prompt dialog returns a value of "null".
+    if (value != "null") {
+      if (type == kPromptFPS)
+        SetFPS(browser, atoi(value.c_str()));
+      else if (type == kPromptDSF)
+        SetDSF(browser, static_cast<float>(atof(value.c_str())));
+    }
+
+    // Nothing is done with the response.
+    callback->Success(CefString());
+    return true;
+  }
+
+ private:
+  void SetFPS(CefRefPtr<CefBrowser> browser, int fps) {
+    if (fps <= 0) {
+      // Reset to the default value.
+      CefBrowserSettings settings;
+      MainContext::Get()->PopulateBrowserSettings(&settings);
+      fps = settings.windowless_frame_rate;
+    }
+
+    browser->GetHost()->SetWindowlessFrameRate(fps);
+  }
+
+  void SetDSF(CefRefPtr<CefBrowser> browser, float dsf) {
+    MainMessageLoop::Get()->PostClosure(
+        base::Bind(&PromptHandler::SetDSFOnMainThread, browser, dsf));
+  }
+
+  static void SetDSFOnMainThread(CefRefPtr<CefBrowser> browser, float dsf) {
+    RootWindow::GetForBrowser(browser->GetIdentifier())->
+        SetDeviceScaleFactor(dsf);
+  }
+};
+
+void Prompt(CefRefPtr<CefBrowser> browser,
+            const std::string& type,
+            const std::string& label,
+            const std::string& default_value) {
+  // Prompt the user for a new value. Works as follows:
+  // 1. Show a prompt() dialog via JavaScript.
+  // 2. Pass the result to window.cefQuery().
+  // 3. Handle the result in PromptHandler::OnQuery.
+  const std::string& code =
+      "window.cefQuery({'request': '" + std::string(kPrompt) + type +
+      ":' + prompt('" + label + "', '" + default_value + "')});";
+  browser->GetMainFrame()->ExecuteJavaScript(
+      code, browser->GetMainFrame()->GetURL(), 0);
+}
+
+void PromptFPS(CefRefPtr<CefBrowser> browser) {
   if (!CefCurrentlyOn(TID_UI)) {
     // Execute on the UI thread.
-    CefPostTask(TID_UI, base::Bind(&ModifyFPS, browser, fps_delta));
+    CefPostTask(TID_UI, base::Bind(&PromptFPS, browser));
     return;
   }
 
-  int fps;
-  if (fps_delta == 0) {
-    // Reset to the default value.
-    CefBrowserSettings settings;
-    MainContext::Get()->PopulateBrowserSettings(&settings);
-    fps = settings.windowless_frame_rate;
-  } else {
-    // Modify the existing value.
-    fps = browser->GetHost()->GetWindowlessFrameRate() + fps_delta;
-    if (fps <= 0)
-      fps = 1;
+  // Format the default value string.
+  std::stringstream ss;
+  ss << browser->GetHost()->GetWindowlessFrameRate();
+
+  Prompt(browser, kPromptFPS, "Enter FPS", ss.str());
+}
+
+void PromptDSF(CefRefPtr<CefBrowser> browser) {
+  if (!MainMessageLoop::Get()->RunsTasksOnCurrentThread()) {
+    // Execute on the main thread.
+    MainMessageLoop::Get()->PostClosure(base::Bind(&PromptDSF, browser));
+    return;
   }
 
-  browser->GetHost()->SetWindowlessFrameRate(fps);
+  // Format the default value string.
+  std::stringstream ss;
+  ss << RootWindow::GetForBrowser(browser->GetIdentifier())->
+            GetDeviceScaleFactor();
+
+  Prompt(browser, kPromptDSF, "Enter Device Scale Factor", ss.str());
 }
 
 void BeginTracing() {
@@ -437,14 +523,11 @@ void RunTest(CefRefPtr<CefBrowser> browser, int id) {
     case ID_TESTS_ZOOM_RESET:
       browser->GetHost()->SetZoomLevel(0.0);
       break;
-    case ID_TESTS_FPS_INCREASE:
-      ModifyFPS(browser, 10);
+    case ID_TESTS_OSR_FPS:
+      PromptFPS(browser);
       break;
-    case ID_TESTS_FPS_DECREASE:
-      ModifyFPS(browser, -10);
-      break;
-    case ID_TESTS_FPS_RESET:
-      ModifyFPS(browser, 0);
+    case ID_TESTS_OSR_DSF:
+      PromptDSF(browser);
       break;
     case ID_TESTS_TRACING_BEGIN:
       BeginTracing();
@@ -616,6 +699,8 @@ void Alert(CefRefPtr<CefBrowser> browser, const std::string& message) {
 }
 
 void CreateMessageHandlers(MessageHandlerSet& handlers) {
+  handlers.insert(new PromptHandler);
+
   // Create the dialog test handlers.
   dialog_test::CreateMessageHandlers(handlers);
 

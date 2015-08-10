@@ -395,6 +395,21 @@ void RootWindowMac::Close(bool force) {
   }
 }
 
+void RootWindowMac::SetDeviceScaleFactor(float device_scale_factor) {
+  REQUIRE_MAIN_THREAD();
+
+  if (browser_window_)
+    browser_window_->SetDeviceScaleFactor(device_scale_factor);
+}
+
+float RootWindowMac::GetDeviceScaleFactor() const {
+  REQUIRE_MAIN_THREAD();
+
+  if (browser_window_)
+    return browser_window_->GetDeviceScaleFactor();
+  return 1.0f;
+}
+
 CefRefPtr<CefBrowser> RootWindowMac::GetBrowser() const {
   REQUIRE_MAIN_THREAD();
 

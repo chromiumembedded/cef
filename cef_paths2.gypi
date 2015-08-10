@@ -158,6 +158,8 @@
       'tests/cefclient/browser/client_types.h',
       'tests/cefclient/browser/dialog_test.cc',
       'tests/cefclient/browser/dialog_test.h',
+      'tests/cefclient/browser/geometry_util.cc',
+      'tests/cefclient/browser/geometry_util.h',
       'tests/cefclient/browser/main_context.cc',
       'tests/cefclient/browser/main_context.h',
       'tests/cefclient/browser/main_context_impl.cc',

@@ -39,6 +39,8 @@ class BrowserWindowOsrGtk : public BrowserWindow,
   void Hide() OVERRIDE;
   void SetBounds(int x, int y, size_t width, size_t height) OVERRIDE;
   void SetFocus(bool focus) OVERRIDE;
+  void SetDeviceScaleFactor(float device_scale_factor) OVERRIDE;
+  float GetDeviceScaleFactor() const OVERRIDE;
   ClientWindowHandle GetWindowHandle() const OVERRIDE;
 
   // ClientHandlerOsr::OsrDelegate methods.
@@ -114,6 +116,8 @@ class BrowserWindowOsrGtk : public BrowserWindow,
   bool hidden_;
   bool gl_enabled_;
   bool painting_popup_;
+
+  float device_scale_factor_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserWindowOsrGtk);
 };

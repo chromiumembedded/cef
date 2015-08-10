@@ -192,6 +192,21 @@ void RootWindowGtk::Close(bool force) {
   }
 }
 
+void RootWindowGtk::SetDeviceScaleFactor(float device_scale_factor) {
+  REQUIRE_MAIN_THREAD();
+
+  if (browser_window_)
+    browser_window_->SetDeviceScaleFactor(device_scale_factor);
+}
+
+float RootWindowGtk::GetDeviceScaleFactor() const {
+  REQUIRE_MAIN_THREAD();
+
+  if (browser_window_)
+    return browser_window_->GetDeviceScaleFactor();
+  return 1.0f;
+}
+
 CefRefPtr<CefBrowser> RootWindowGtk::GetBrowser() const {
   REQUIRE_MAIN_THREAD();
 
@@ -608,9 +623,8 @@ GtkWidget* RootWindowGtk::CreateMenuBar() {
   AddMenuEntry(test_menu, "Zoom Out",      ID_TESTS_ZOOM_OUT);
   AddMenuEntry(test_menu, "Zoom Reset",    ID_TESTS_ZOOM_RESET);
   if (with_osr_) {
-    AddMenuEntry(test_menu, "FPS Increase",  ID_TESTS_FPS_INCREASE);
-    AddMenuEntry(test_menu, "FPS Decrease",  ID_TESTS_FPS_DECREASE);
-    AddMenuEntry(test_menu, "FPS Reset",     ID_TESTS_FPS_RESET);
+    AddMenuEntry(test_menu, "Set FPS",          ID_TESTS_OSR_FPS);
+    AddMenuEntry(test_menu, "Set Scale Factor", ID_TESTS_OSR_DSF);
   }
   AddMenuEntry(test_menu, "Begin Tracing", ID_TESTS_TRACING_BEGIN);
   AddMenuEntry(test_menu, "End Tracing",   ID_TESTS_TRACING_END);

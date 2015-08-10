@@ -57,6 +57,7 @@ class OsrWindowWin :
   void Hide();
   void SetBounds(int x, int y, size_t width, size_t height);
   void SetFocus();
+  void SetDeviceScaleFactor(float device_scale_factor);
 
  private:
   // Only allow deletion via scoped_refptr.
@@ -156,6 +157,7 @@ class OsrWindowWin :
   HGLRC hrc_;
 
   RECT client_rect_;
+  float device_scale_factor_;
 
   CefRefPtr<CefBrowser> browser_;
 
