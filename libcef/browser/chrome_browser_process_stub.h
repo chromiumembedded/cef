@@ -97,6 +97,8 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   network_time::NetworkTimeTracker* network_time_tracker() override;
   gcm::GCMDriver* gcm_driver() override;
   memory::OomPriorityManager* GetOomPriorityManager() override;
+  ShellIntegration::DefaultWebClientState
+      CachedDefaultWebClientState() override;
 
  private:
   std::string locale_;

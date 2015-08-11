@@ -278,3 +278,9 @@ memory::OomPriorityManager* ChromeBrowserProcessStub::GetOomPriorityManager() {
   NOTIMPLEMENTED();
   return NULL;
 }
+
+ShellIntegration::DefaultWebClientState
+ChromeBrowserProcessStub::CachedDefaultWebClientState() {
+  NOTIMPLEMENTED();
+  return ShellIntegration::UNKNOWN_DEFAULT;
+}
