@@ -63,7 +63,7 @@
 #include "url/gurl.h"
 
 #if defined(OS_MACOSX)
-#include "chrome/browser/spellchecker/spellcheck_message_filter_mac.h"
+#include "chrome/browser/spellchecker/spellcheck_message_filter_platform.h"
 #endif
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
@@ -568,7 +568,7 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
   if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
     host->AddFilter(new SpellCheckMessageFilter(id));
 #if defined(OS_MACOSX)
-    host->AddFilter(new SpellCheckMessageFilterMac(id));
+    host->AddFilter(new SpellCheckMessageFilterPlatform(id));
 #endif
   }
 
@@ -666,6 +666,16 @@ bool CefContentBrowserClient::IsHandledURL(const GURL& url) {
     return true;
 
   return CefContentClient::Get()->HasCustomScheme(scheme);
+}
+
+bool CefContentBrowserClient::IsNPAPIEnabled() {
+#if defined(OS_WIN) || defined(OS_MACOSX)
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  return command_line->HasSwitch(switches::kEnableNPAPI);
+#else
+  return false;
+#endif
 }
 
 void CefContentBrowserClient::AppendExtraCommandLineSwitches(

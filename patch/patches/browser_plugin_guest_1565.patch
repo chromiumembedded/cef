@@ -1,8 +1,8 @@
 diff --git browser/browser_plugin/browser_plugin_guest.cc browser/browser_plugin/browser_plugin_guest.cc
-index 092a045..baea4bb 100644
+index 6991a29..6aed799 100644
 --- browser/browser_plugin/browser_plugin_guest.cc
 +++ browser/browser_plugin/browser_plugin_guest.cc
-@@ -23,7 +23,7 @@
+@@ -22,7 +22,7 @@
  #include "content/browser/renderer_host/render_widget_host_impl.h"
  #include "content/browser/renderer_host/render_widget_host_view_base.h"
  #include "content/browser/web_contents/web_contents_impl.h"
@@ -11,14 +11,13 @@ index 092a045..baea4bb 100644
  #include "content/common/browser_plugin/browser_plugin_constants.h"
  #include "content/common/browser_plugin/browser_plugin_messages.h"
  #include "content/common/content_constants_internal.h"
-@@ -277,21 +277,20 @@ void BrowserPluginGuest::InitInternal(
+@@ -275,20 +275,19 @@ void BrowserPluginGuest::InitInternal(
    guest_window_rect_ = params.view_rect;
  
    if (owner_web_contents_ != owner_web_contents) {
 -    WebContentsViewGuest* new_view = nullptr;
 +    WebContentsView* new_view = nullptr;
-     if (!base::CommandLine::ForCurrentProcess()->HasSwitch(
-             switches::kSitePerProcess)) {
+     if (!BrowserPluginGuestMode::UseCrossProcessFramesForGuests()) {
 -      new_view =
 -          static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
 +      new_view = GetWebContents()->GetView();
@@ -37,7 +36,7 @@ index 092a045..baea4bb 100644
    }
  
    RendererPreferences* renderer_prefs =
-@@ -733,12 +732,9 @@ void BrowserPluginGuest::OnWillAttachComplete(
+@@ -720,12 +719,9 @@ void BrowserPluginGuest::OnWillAttachComplete(
      // This will trigger a callback to RenderViewReady after a round-trip IPC.
      static_cast<RenderViewHostImpl*>(
          GetWebContents()->GetRenderViewHost())->Init();

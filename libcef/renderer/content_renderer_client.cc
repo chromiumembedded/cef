@@ -14,6 +14,7 @@
 #include "libcef/common/request_impl.h"
 #include "libcef/common/values_impl.h"
 #include "libcef/renderer/browser_impl.h"
+#include "libcef/renderer/extensions/extensions_dispatcher_delegate.h"
 #include "libcef/renderer/extensions/extensions_renderer_client.h"
 #include "libcef/renderer/extensions/print_web_view_helper_delegate.h"
 #include "libcef/renderer/pepper/pepper_helper.h"
@@ -430,7 +431,6 @@ void CefContentRendererClient::RenderThreadStarted() {
   thread->AddObserver(observer_.get());
   thread->AddObserver(web_cache_observer_.get());
   thread->GetChannel()->AddFilter(new CefRenderMessageFilter);
-  thread->RegisterExtension(extensions_v8::LoadTimesExtension::Get());
 
   if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
     spellcheck_.reset(new SpellCheck());
@@ -483,7 +483,8 @@ void CefContentRendererClient::RenderThreadStarted() {
     extensions::ExtensionsRendererClient::Set(
         extensions_renderer_client_.get());
 
-    extension_dispatcher_delegate_.reset(new extensions::DispatcherDelegate());
+    extension_dispatcher_delegate_.reset(
+        new extensions::CefExtensionsDispatcherDelegate());
 
     // Must be initialized after ExtensionsRendererClient.
     extension_dispatcher_.reset(
@@ -507,6 +508,9 @@ void CefContentRendererClient::RenderThreadStarted() {
       listValuePtr->Detach(NULL);
     }
   }
+
+  // Register extensions last because it will trigger WebKit initialization.
+  thread->RegisterExtension(extensions_v8::LoadTimesExtension::Get());
 }
 
 void CefContentRendererClient::RenderFrameCreated(

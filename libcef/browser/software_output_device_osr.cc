@@ -66,16 +66,15 @@ SkCanvas* CefSoftwareOutputDeviceOSR::BeginPaint(const gfx::Rect& damage_rect) {
   return canvas_.get();
 }
 
-void CefSoftwareOutputDeviceOSR::EndPaint(cc::SoftwareFrameData* frame_data) {
+void CefSoftwareOutputDeviceOSR::EndPaint() {
   CEF_REQUIRE_UIT();
   DCHECK(canvas_.get());
   DCHECK(bitmap_.get());
-  DCHECK(frame_data);
 
   if (!bitmap_.get())
     return;
 
-  cc::SoftwareOutputDevice::EndPaint(frame_data);
+  cc::SoftwareOutputDevice::EndPaint();
 
   if (active_)
     OnPaint(damage_rect_);

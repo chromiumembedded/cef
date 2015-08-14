@@ -32,6 +32,7 @@
 #include "extensions/browser/extension_registry.h"
 #include "extensions/browser/info_map.h"
 #include "extensions/browser/notification_types.h"
+#include "extensions/browser/null_app_sorting.h"
 #include "extensions/browser/quota_service.h"
 #include "extensions/browser/runtime_data.h"
 #include "extensions/common/constants.h"
@@ -77,7 +78,8 @@ base::DictionaryValue* ParseManifest(
 
 CefExtensionSystem::CefExtensionSystem(BrowserContext* browser_context)
     : browser_context_(browser_context),
-      registry_(ExtensionRegistry::Get(browser_context)) {
+      registry_(ExtensionRegistry::Get(browser_context)),
+      weak_ptr_factory_(this) {
 }
 
 CefExtensionSystem::~CefExtensionSystem() {
@@ -128,6 +130,9 @@ void CefExtensionSystem::Init() {
   //    kPDFPluginOutOfProcessMimeType which loads the PDF PPAPI plugin.
   // 10.Routing of print-related commands are handled by ChromePDFPrintClient
   //    and CefPrintWebViewHelperDelegate in the renderer process.
+  // 11.The PDF extension is granted access to chrome://resources via
+  //    CefExtensionsDispatcherDelegate::InitOriginPermissions in the renderer
+  //    process.
   if (PdfExtensionEnabled()) {
     AddExtension(pdf_extension_util::GetManifest(),
                  base::FilePath(FILE_PATH_LITERAL("pdf")));
@@ -166,6 +171,7 @@ void CefExtensionSystem::Shutdown() {
 void CefExtensionSystem::InitForRegularProfile(bool extensions_enabled) {
   runtime_data_.reset(new RuntimeData(registry_));
   quota_service_.reset(new QuotaService);
+  app_sorting_.reset(new NullAppSorting);
 }
 
 ExtensionService* CefExtensionSystem::extension_service() {
@@ -202,13 +208,18 @@ QuotaService* CefExtensionSystem::quota_service() {
   return quota_service_.get();
 }
 
+AppSorting* CefExtensionSystem::app_sorting() {
+  return app_sorting_.get();
+}
+
 // Implementation based on
 // ExtensionSystemImpl::RegisterExtensionWithRequestContexts.
 void CefExtensionSystem::RegisterExtensionWithRequestContexts(
-    const Extension* extension) {
+    const Extension* extension,
+    const base::Closure& callback) {
   // TODO(extensions): The |incognito_enabled| value should be set based on
   // manifest settings.
-  BrowserThread::PostTask(
+  BrowserThread::PostTaskAndReply(
       BrowserThread::IO,
       FROM_HERE,
       base::Bind(&InfoMap::AddExtension,
@@ -216,7 +227,8 @@ void CefExtensionSystem::RegisterExtensionWithRequestContexts(
                   make_scoped_refptr(extension),
                   base::Time::Now(),
                   true,     // incognito_enabled
-                  false));  // notifications_disabled
+                  false),   // notifications_disabled
+      callback);
 }
 
 // Implementation based on
@@ -336,7 +348,11 @@ void CefExtensionSystem::NotifyExtensionLoaded(const Extension* extension) {
   // that the request context doesn't yet know about. The profile is responsible
   // for ensuring its URLRequestContexts appropriately discover the loaded
   // extension.
-  RegisterExtensionWithRequestContexts(extension);
+  RegisterExtensionWithRequestContexts(
+      extension,
+      base::Bind(&CefExtensionSystem::OnExtensionRegisteredWithRequestContexts,
+                 weak_ptr_factory_.GetWeakPtr(),
+                 make_scoped_refptr(extension)));
 
   // Tell renderers about the new extension, unless it's a theme (renderers
   // don't need to know about themes).
@@ -398,6 +414,13 @@ void CefExtensionSystem::NotifyExtensionLoaded(const Extension* extension) {
       extensions::NOTIFICATION_EXTENSION_LOADED_DEPRECATED,
       content::Source<content::BrowserContext>(browser_context_),
       content::Details<const Extension>(extension));
+}
+
+void CefExtensionSystem::OnExtensionRegisteredWithRequestContexts(
+    scoped_refptr<const extensions::Extension> extension) {
+  registry_->AddReady(extension);
+  if (registry_->enabled_extensions().Contains(extension->id()))
+    registry_->TriggerOnReady(extension.get());
 }
 
 // Implementation based on ExtensionService::NotifyExtensionUnloaded.

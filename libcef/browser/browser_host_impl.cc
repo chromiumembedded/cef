@@ -66,7 +66,7 @@
 #endif
 
 #if defined(OS_MACOSX)
-#include "chrome/browser/spellchecker/spellcheck_platform_mac.h"
+#include "chrome/browser/spellchecker/spellcheck_platform.h"
 #endif
 
 #if defined(USE_AURA)
@@ -1080,7 +1080,7 @@ void CefBrowserHostImpl::AddWordToDictionary(const CefString& word) {
       spellcheck->GetCustomDictionary()->AddWord(word);
   }
 #if defined(OS_MACOSX)
-  spellcheck_mac::AddWord(word);
+  spellcheck_platform::AddWord(word);
 #endif
 }
 
@@ -2796,6 +2796,11 @@ void CefBrowserHostImpl::FrameDeleted(
     focused_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
 }
 
+void CefBrowserHostImpl::TitleWasSet(content::NavigationEntry* entry,
+                                     bool explicit_set) {
+  OnTitleChange(entry->GetTitle());
+}
+
 void CefBrowserHostImpl::PluginCrashed(const base::FilePath& plugin_path,
                                        base::ProcessId plugin_pid) {
   if (client_.get()) {
@@ -2960,28 +2965,12 @@ void CefBrowserHostImpl::Observe(int type,
                                  const content::NotificationSource& source,
                                  const content::NotificationDetails& details) {
   DCHECK(type == content::NOTIFICATION_LOAD_STOP ||
-         type == content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE ||
-         type == content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED);
+         type == content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE);
 
-   if (type == content::NOTIFICATION_LOAD_STOP ||
-       type == content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED) {
-    base::string16 title;
-
-    if (type == content::NOTIFICATION_LOAD_STOP) {
-      content::NavigationController* controller =
-          content::Source<content::NavigationController>(source).ptr();
-      title = controller->GetWebContents()->GetTitle();
-    } else {
-      content::WebContents* web_contents =
-          content::Source<content::WebContents>(source).ptr();
-      title = web_contents->GetTitle();
-    }
-
-    if (client_.get()) {
-      CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
-      if (handler.get())
-        handler->OnTitleChange(this, title);
-    }
+   if (type == content::NOTIFICATION_LOAD_STOP) {
+    content::NavigationController* controller =
+        content::Source<content::NavigationController>(source).ptr();
+    OnTitleChange(controller->GetWebContents()->GetTitle());
   } else if (type == content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE) {
     focus_on_editable_field_ = *content::Details<bool>(details).ptr();
   }
@@ -3040,8 +3029,6 @@ CefBrowserHostImpl::CefBrowserHostImpl(
   g_manager.Get().AddImpl(this);
 
   registrar_.reset(new content::NotificationRegistrar);
-  registrar_->Add(this, content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
-                  content::Source<content::WebContents>(web_contents));
 
   // When navigating through the history, the restored NavigationEntry's title
   // will be used. If the entry ends up having the same title after we return
@@ -3227,6 +3214,14 @@ void CefBrowserHostImpl::OnFullscreenModeChange(bool fullscreen) {
     CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
     if (handler.get())
       handler->OnFullscreenModeChange(this, fullscreen);
+  }
+}
+
+void CefBrowserHostImpl::OnTitleChange(const base::string16& title) {
+  if (client_.get()) {
+    CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
+    if (handler.get())
+      handler->OnTitleChange(this, title);
   }
 }
 

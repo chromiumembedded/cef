@@ -649,7 +649,8 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
           output_surface_id,
           frame->delegated_frame_data.Pass(),
           frame->metadata.device_scale_factor,
-          frame->metadata.latency_info);
+          frame->metadata.latency_info,
+          &frame->metadata.satisfies_sequences);
     } else {
       if (!copy_frame_generator_.get()) {
         copy_frame_generator_.reset(
@@ -668,23 +669,14 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
           output_surface_id,
           frame->delegated_frame_data.Pass(),
           frame->metadata.device_scale_factor,
-          frame->metadata.latency_info);
+          frame->metadata.latency_info,
+          &frame->metadata.satisfies_sequences);
 
       // Request a copy of the last compositor frame which will eventually call
       // OnPaint asynchronously.
       copy_frame_generator_->GenerateCopyFrame(true, damage_rect);
     }
 
-    return;
-  }
-
-  if (frame->software_frame_data) {
-    DLOG(ERROR) << "Unable to use software frame in CEF windowless rendering";
-    if (render_widget_host_) {
-      content::bad_message::ReceivedBadMessage(
-          render_widget_host_->GetProcess(),
-          content::bad_message::RWHVM_UNEXPECTED_FRAME_TYPE);
-    }
     return;
   }
 }
@@ -783,10 +775,8 @@ void CefRenderWidgetHostViewOSR::SetIsLoading(bool is_loading) {
 }
 
 #if !defined(OS_MACOSX)
-void CefRenderWidgetHostViewOSR::TextInputTypeChanged(ui::TextInputType type,
-                                                      ui::TextInputMode mode,
-                                                      bool can_compose_inline,
-                                                      int flags) {
+void CefRenderWidgetHostViewOSR::TextInputStateChanged(
+    const ViewHostMsg_TextInputState_Params& params) {
 }
 
 void CefRenderWidgetHostViewOSR::ImeCancelComposition() {

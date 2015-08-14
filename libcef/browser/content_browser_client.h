@@ -89,6 +89,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       content::URLRequestInterceptorScopedVector request_interceptors)
       override;
   bool IsHandledURL(const GURL& url) override;
+  bool IsNPAPIEnabled() override;
   void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
                                               int child_process_id) override;
   content::QuotaPermissionContext*

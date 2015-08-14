@@ -33,6 +33,7 @@ class CefResourceDispatcherHostDelegate
                               ui::PageTransition page_transition,
                               bool has_user_gesture) override;
   bool ShouldInterceptResourceAsStream(net::URLRequest* request,
+                                       const base::FilePath& plugin_path,
                                        const std::string& mime_type,
                                        GURL* origin,
                                        std::string* payload) override;

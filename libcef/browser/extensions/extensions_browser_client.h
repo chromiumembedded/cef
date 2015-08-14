@@ -62,7 +62,6 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
   CreateExtensionHostDelegate() override;
   bool DidVersionUpdate(content::BrowserContext* context) override;
   void PermitExternalProtocolHandler() override;
-  scoped_ptr<AppSorting> CreateAppSorting() override;
   bool IsRunningInForcedAppMode() override;
   ApiActivityMonitor* GetApiActivityMonitor(
       content::BrowserContext* context) override;
@@ -75,7 +74,8 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
       content::BrowserContext* context) const override;
   const ComponentExtensionResourceManager*
   GetComponentExtensionResourceManager() override;
-  void BroadcastEventToRenderers(const std::string& event_name,
+  void BroadcastEventToRenderers(events::HistogramValue histogram_value,
+                                 const std::string& event_name,
                                  scoped_ptr<base::ListValue> args) override;
   net::NetLog* GetNetLog() override;
   ExtensionCache* GetExtensionCache() override;

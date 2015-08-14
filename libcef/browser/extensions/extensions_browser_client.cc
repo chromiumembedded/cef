@@ -24,7 +24,6 @@
 #include "extensions/browser/extension_function_registry.h"
 #include "extensions/browser/extension_host_delegate.h"
 #include "extensions/browser/mojo/service_registration.h"
-#include "extensions/browser/null_app_sorting.h"
 #include "extensions/browser/url_request_util.h"
 
 using content::BrowserContext;
@@ -154,10 +153,6 @@ bool CefExtensionsBrowserClient::DidVersionUpdate(BrowserContext* context) {
 void CefExtensionsBrowserClient::PermitExternalProtocolHandler() {
 }
 
-scoped_ptr<AppSorting> CefExtensionsBrowserClient::CreateAppSorting() {
-  return scoped_ptr<AppSorting>(new NullAppSorting);
-}
-
 bool CefExtensionsBrowserClient::IsRunningInForcedAppMode() {
   return false;
 }
@@ -176,10 +171,10 @@ CefExtensionsBrowserClient::GetExtensionSystemFactory() {
 void CefExtensionsBrowserClient::RegisterExtensionFunctions(
     ExtensionFunctionRegistry* registry) const {
   // Register core extension-system APIs.
-  core_api::GeneratedFunctionRegistry::RegisterAll(registry);
+  api::GeneratedFunctionRegistry::RegisterAll(registry);
 
   // CEF-only APIs.
-  api::GeneratedFunctionRegistry::RegisterAll(registry);
+  api::ChromeGeneratedFunctionRegistry::RegisterAll(registry);
 }
 
 void CefExtensionsBrowserClient::RegisterMojoServices(
@@ -202,10 +197,11 @@ CefExtensionsBrowserClient::GetComponentExtensionResourceManager() {
 }
 
 void CefExtensionsBrowserClient::BroadcastEventToRenderers(
+    events::HistogramValue histogram_value,
     const std::string& event_name,
     scoped_ptr<base::ListValue> args) {
   event_router_forwarder_->BroadcastEventToRenderers(
-      event_name, args.Pass(), GURL());
+      histogram_value, event_name, args.Pass(), GURL());
 }
 
 net::NetLog* CefExtensionsBrowserClient::GetNetLog() {

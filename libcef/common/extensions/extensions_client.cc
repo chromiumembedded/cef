@@ -45,27 +45,9 @@ class CefPermissionMessageProvider : public PermissionMessageProvider {
   ~CefPermissionMessageProvider() override {}
 
   // PermissionMessageProvider implementation.
-  PermissionMessageIDs GetLegacyPermissionMessageIDs(
-      const PermissionSet* permissions,
-      Manifest::Type extension_type) const override {
-    return PermissionMessageIDs();
-  }
-
-  CoalescedPermissionMessages GetCoalescedPermissionMessages(
+  CoalescedPermissionMessages GetPermissionMessages(
       const PermissionIDSet& permissions) const override {
     return CoalescedPermissionMessages();
-  }
-
-  std::vector<base::string16> GetLegacyWarningMessages(
-      const PermissionSet* permissions,
-      Manifest::Type extension_type) const override {
-    return std::vector<base::string16>();
-  }
-
-  std::vector<base::string16> GetLegacyWarningMessagesDetails(
-      const PermissionSet* permissions,
-      Manifest::Type extension_type) const override {
-    return std::vector<base::string16>();
   }
 
   bool IsPrivilegeIncrease(const PermissionSet* old_permissions,
@@ -201,18 +183,18 @@ bool CefExtensionsClient::IsScriptableURL(const GURL& url,
 
 bool CefExtensionsClient::IsAPISchemaGenerated(
     const std::string& name) const {
-  return core_api::GeneratedSchemas::IsGenerated(name) ||
-         api::GeneratedSchemas::IsGenerated(name);
+  return api::GeneratedSchemas::IsGenerated(name) ||
+         api::ChromeGeneratedSchemas::IsGenerated(name);
 }
 
 base::StringPiece CefExtensionsClient::GetAPISchema(
     const std::string& name) const {
   // Schema for CEF-only APIs.
-  if (api::GeneratedSchemas::IsGenerated(name))
-    return api::GeneratedSchemas::Get(name);
+  if (api::ChromeGeneratedSchemas::IsGenerated(name))
+    return api::ChromeGeneratedSchemas::Get(name);
 
   // Core extensions APIs.
-  return core_api::GeneratedSchemas::Get(name);
+  return api::GeneratedSchemas::Get(name);
 }
 
 void CefExtensionsClient::RegisterAPISchemaResources(

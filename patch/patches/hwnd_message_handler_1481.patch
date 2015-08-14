@@ -1,8 +1,8 @@
 diff --git hwnd_message_handler.cc hwnd_message_handler.cc
-index bd2072b..c3fd2ea 100644
+index 5cadce1..26c27ca 100644
 --- hwnd_message_handler.cc
 +++ hwnd_message_handler.cc
-@@ -2649,8 +2649,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -2650,8 +2650,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
              "440919 HWNDMessageHandler::HandleMouseEventInternal6"));
  
      // Reroute the mouse wheel to the window under the pointer if applicable.

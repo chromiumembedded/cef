@@ -67,7 +67,7 @@ index 016097b..4fb00ed 100644
  }
  
 diff --git web_contents_delegate.h web_contents_delegate.h
-index 34ddd26..7a850af 100644
+index 685c1e6..782ab86 100644
 --- web_contents_delegate.h
 +++ web_contents_delegate.h
 @@ -38,9 +38,11 @@ class DownloadItem;

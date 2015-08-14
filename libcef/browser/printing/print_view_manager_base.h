@@ -8,10 +8,9 @@
 #include "base/memory/ref_counted.h"
 #include "base/prefs/pref_member.h"
 #include "base/strings/string16.h"
+#include "components/printing/browser/print_manager.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
-#include "content/public/browser/web_contents_observer.h"
-#include "content/public/browser/web_contents_user_data.h"
 #include "printing/printed_pages_source.h"
 
 struct PrintHostMsg_DidPrintPage_Params;
@@ -31,7 +30,7 @@ class PrintQueriesQueue;
 // Base class for managing the print commands for a WebContents.
 class PrintViewManagerBase : public content::NotificationObserver,
                              public PrintedPagesSource,
-                             public content::WebContentsObserver {
+                             public PrintManager {
  public:
   ~PrintViewManagerBase() override;
 
@@ -63,9 +62,6 @@ class PrintViewManagerBase : public content::NotificationObserver,
   // content::WebContentsObserver implementation.
   bool OnMessageReceived(const IPC::Message& message) override;
 
-  // IPC Message handlers.
-  virtual void OnPrintingFailed(int cookie);
-
  private:
   // content::NotificationObserver implementation.
   void Observe(int type,
@@ -76,9 +72,9 @@ class PrintViewManagerBase : public content::NotificationObserver,
   void DidStartLoading() override;
 
   // IPC Message handlers.
-  void OnDidGetPrintedPagesCount(int cookie, int number_pages);
-  void OnDidGetDocumentCookie(int cookie);
+  void OnDidGetPrintedPagesCount(int cookie, int number_pages) override;
   void OnDidPrintPage(const PrintHostMsg_DidPrintPage_Params& params);
+  void OnPrintingFailed(int cookie) override;
   void OnShowInvalidPrinterSettingsError();
 
   // Processes a NOTIFY_PRINT_JOB_EVENT notification.
@@ -137,9 +133,6 @@ class PrintViewManagerBase : public content::NotificationObserver,
   // Manages the low-level talk to the printer.
   scoped_refptr<PrintJob> print_job_;
 
-  // Number of pages to print in the print job.
-  int number_pages_;
-
   // Indication of success of the print job.
   bool printing_succeeded_;
 
@@ -152,9 +145,6 @@ class PrintViewManagerBase : public content::NotificationObserver,
   // Set to true when OnDidPrintPage() should be expecting the first page.
   bool expecting_first_page_;
 #endif  // OS_MACOSX
-
-  // The document cookie of the current PrinterQuery.
-  int cookie_;
 
   // Whether printing is enabled.
   BooleanPrefMember printing_enabled_;

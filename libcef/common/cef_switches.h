@@ -44,6 +44,7 @@ extern const char kOverrideSpellCheckLang[];
 extern const char kEnableSystemFlash[];
 extern const char kDisableScrollBounce[];
 extern const char kDisablePdfExtension[];
+extern const char kEnableNPAPI[];
 
 }  // namespace switches
 

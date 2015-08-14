@@ -23,6 +23,7 @@
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
 #include "chrome/child/pdf_child_init.h"
+#include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "content/public/browser/browser_main_runner.h"
@@ -131,18 +132,19 @@ base::FilePath GetResourcesFilePath() {
 
 #if defined(OS_WIN)
 
-const wchar_t kFlashRegistryRoot[] = L"SOFTWARE\\Macromedia\\FlashPlayerPepper";
-const wchar_t kFlashPlayerPathValueName[] = L"PlayerPath";
-
 // Gets the Flash path if installed on the system.
-bool GetSystemFlashDirectory(base::FilePath* out_path) {
-  base::win::RegKey path_key(HKEY_LOCAL_MACHINE, kFlashRegistryRoot, KEY_READ);
+bool GetSystemFlashFilename(base::FilePath* out_path) {
+  const wchar_t kPepperFlashRegistryRoot[] =
+      L"SOFTWARE\\Macromedia\\FlashPlayerPepper";
+  const wchar_t kFlashPlayerPathValueName[] = L"PlayerPath";
+
+  base::win::RegKey path_key(
+      HKEY_LOCAL_MACHINE, kPepperFlashRegistryRoot, KEY_READ);
   base::string16 path_str;
   if (FAILED(path_key.ReadValue(kFlashPlayerPathValueName, &path_str)))
     return false;
-  base::FilePath plugin_path = base::FilePath(path_str).DirName();
 
-  *out_path = plugin_path;
+  *out_path = base::FilePath(path_str);
   return true;
 }
 
@@ -154,20 +156,22 @@ const base::FilePath::CharType kPepperFlashSystemBaseDirectory[] =
 #endif
 
 void OverridePepperFlashSystemPluginPath() {
-  base::FilePath plugin_path;
+  base::FilePath plugin_filename;
 #if defined(OS_WIN)
-  if (!GetSystemFlashDirectory(&plugin_path))
+  if (!GetSystemFlashFilename(&plugin_filename))
     return;
 #elif defined(OS_MACOSX)
-  if (!util_mac::GetLocalLibraryDirectory(&plugin_path))
+  if (!util_mac::GetLocalLibraryDirectory(&plugin_filename))
     return;
-  plugin_path = plugin_path.Append(kPepperFlashSystemBaseDirectory);
+  plugin_filename = plugin_filename.Append(kPepperFlashSystemBaseDirectory)
+                                   .Append(chrome::kPepperFlashPluginFilename);
 #else
   // A system plugin is not available on other platforms.
   return;
 #endif
 
-  PathService::Override(chrome::DIR_PEPPER_FLASH_SYSTEM_PLUGIN, plugin_path);
+  PathService::Override(chrome::FILE_PEPPER_FLASH_SYSTEM_PLUGIN,
+                        plugin_filename);
 }
 
 #if defined(OS_LINUX)

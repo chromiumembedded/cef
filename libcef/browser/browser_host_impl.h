@@ -471,6 +471,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                    bool was_ignored_by_handler) override;
   void FrameDeleted(
       content::RenderFrameHost* render_frame_host) override;
+  void TitleWasSet(content::NavigationEntry* entry, bool explicit_set) override;
   void PluginCrashed(const base::FilePath& plugin_path,
                      base::ProcessId plugin_pid) override;
   void DidUpdateFaviconURL(
@@ -596,6 +597,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                  const GURL& url,
                  int http_status_code);
   void OnFullscreenModeChange(bool fullscreen);
+  void OnTitleChange(const base::string16& title);
 
   // Continuation from RunFileChooser.
   void RunFileChooserOnUIThread(const FileChooserParams& params,

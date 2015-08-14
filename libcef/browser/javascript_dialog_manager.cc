@@ -11,6 +11,7 @@
 #include "base/bind.h"
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
+#include "components/url_formatter/url_formatter.h"
 #include "net/base/net_util.h"
 
 namespace {
@@ -119,7 +120,8 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
     return;
   }
 
-  base::string16 display_url = net::FormatUrl(origin_url, accept_lang);
+  base::string16 display_url =
+      url_formatter::FormatUrl(origin_url, accept_lang);
 
   dialog_.reset(new CefJavaScriptDialog(this,
                                         message_type,

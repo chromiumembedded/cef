@@ -126,10 +126,8 @@ class CefRenderWidgetHostViewOSR
       const std::vector<content::WebPluginGeometry>& moves) override;
   void UpdateCursor(const content::WebCursor& cursor) override;
   void SetIsLoading(bool is_loading) override;
-  void TextInputTypeChanged(ui::TextInputType type,
-                            ui::TextInputMode mode,
-                            bool can_compose_inline,
-                            int flags) override;
+  void TextInputStateChanged(
+      const ViewHostMsg_TextInputState_Params& params) override;
   void ImeCancelComposition() override;
   void RenderProcessGone(base::TerminationStatus status,
                          int error_code) override;

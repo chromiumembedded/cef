@@ -12,7 +12,7 @@ index a8e088c..838b6a0 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git desktop_aura/desktop_window_tree_host_win.cc desktop_aura/desktop_window_tree_host_win.cc
-index 93b3c5b..a0940ce 100644
+index 5bee7fd..53e6c22 100644
 --- desktop_aura/desktop_window_tree_host_win.cc
 +++ desktop_aura/desktop_window_tree_host_win.cc
 @@ -131,7 +131,9 @@ void DesktopWindowTreeHostWin::Init(aura::Window* content_window,
@@ -40,10 +40,10 @@ index 93b3c5b..a0940ce 100644
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(const ui::MouseEvent& event) {
 diff --git desktop_aura/desktop_window_tree_host_x11.cc desktop_aura/desktop_window_tree_host_x11.cc
-index a56deb7..a5e8422 100644
+index 4a69310..3b00233 100644
 --- desktop_aura/desktop_window_tree_host_x11.cc
 +++ desktop_aura/desktop_window_tree_host_x11.cc
-@@ -171,7 +171,8 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
+@@ -172,7 +172,8 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
        window_parent_(NULL),
        custom_window_shape_(false),
        urgency_hint_set_(false),
@@ -53,7 +53,7 @@ index a56deb7..a5e8422 100644
  }
  
  DesktopWindowTreeHostX11::~DesktopWindowTreeHostX11() {
-@@ -381,7 +382,8 @@ void DesktopWindowTreeHostX11::CloseNow() {
+@@ -382,7 +383,8 @@ void DesktopWindowTreeHostX11::CloseNow() {
    // Actually free our native resources.
    if (ui::PlatformEventSource::GetInstance())
      ui::PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
@@ -63,7 +63,7 @@ index a56deb7..a5e8422 100644
    xwindow_ = None;
  
    desktop_native_widget_aura_->OnHostClosed();
-@@ -525,6 +527,8 @@ void DesktopWindowTreeHostX11::GetWindowPlacement(
+@@ -526,6 +528,8 @@ void DesktopWindowTreeHostX11::GetWindowPlacement(
  }
  
  gfx::Rect DesktopWindowTreeHostX11::GetWindowBoundsInScreen() const {
@@ -72,7 +72,7 @@ index a56deb7..a5e8422 100644
    return ToDIPRect(bounds_in_pixels_);
  }
  
-@@ -962,6 +966,8 @@ void DesktopWindowTreeHostX11::HideImpl() {
+@@ -963,6 +967,8 @@ void DesktopWindowTreeHostX11::HideImpl() {
  }
  
  gfx::Rect DesktopWindowTreeHostX11::GetBounds() const {
@@ -81,7 +81,7 @@ index a56deb7..a5e8422 100644
    return bounds_in_pixels_;
  }
  
-@@ -1018,6 +1024,8 @@ void DesktopWindowTreeHostX11::SetBounds(
+@@ -1019,6 +1025,8 @@ void DesktopWindowTreeHostX11::SetBounds(
  }
  
  gfx::Point DesktopWindowTreeHostX11::GetLocationOnNativeScreen() const {
@@ -90,7 +90,7 @@ index a56deb7..a5e8422 100644
    return bounds_in_pixels_.origin();
  }
  
-@@ -1131,9 +1139,13 @@ void DesktopWindowTreeHostX11::InitX11Window(
+@@ -1132,9 +1140,13 @@ void DesktopWindowTreeHostX11::InitX11Window(
      }
    }
  
@@ -105,7 +105,7 @@ index a56deb7..a5e8422 100644
                             bounds_in_pixels_.y(), bounds_in_pixels_.width(),
                             bounds_in_pixels_.height(),
                             0,  // border width
-@@ -1782,6 +1794,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
+@@ -1787,6 +1799,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
        }
        break;
      }
@@ -117,7 +117,7 @@ index a56deb7..a5e8422 100644
        if (xev->xfocus.mode != NotifyGrab) {
          ReleaseCapture();
 diff --git desktop_aura/desktop_window_tree_host_x11.h desktop_aura/desktop_window_tree_host_x11.h
-index 787372d..d9d57b8 100644
+index 73e9e3e..deb2cef 100644
 --- desktop_aura/desktop_window_tree_host_x11.h
 +++ desktop_aura/desktop_window_tree_host_x11.h
 @@ -85,6 +85,8 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
@@ -129,7 +129,7 @@ index 787372d..d9d57b8 100644
   protected:
    // Overridden from DesktopWindowTreeHost:
    void Init(aura::Window* content_window,
-@@ -262,6 +264,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
+@@ -265,6 +267,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
    // The bounds of |xwindow_|.
    gfx::Rect bounds_in_pixels_;
  
@@ -139,7 +139,7 @@ index 787372d..d9d57b8 100644
    // Whenever the bounds are set, we keep the previous set of bounds around so
    // we can have a better chance of getting the real
    // |restored_bounds_in_pixels_|. Window managers tend to send a Configure
-@@ -348,6 +353,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
+@@ -351,6 +356,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
  
    base::WeakPtrFactory<DesktopWindowTreeHostX11> close_widget_factory_;
  

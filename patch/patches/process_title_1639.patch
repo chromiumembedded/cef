@@ -1,5 +1,5 @@
 diff --git set_process_title.cc set_process_title.cc
-index 229524e..86559f6 100644
+index d74af96..5c7ebd2 100644
 --- set_process_title.cc
 +++ set_process_title.cc
 @@ -42,7 +42,7 @@ void SetProcessTitleFromCommandLine(const char** main_argv) {

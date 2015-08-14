@@ -13,11 +13,11 @@ namespace scheme {
 
 void AddInternalSchemes(std::vector<std::string>* standard_schemes,
                         std::vector<std::string>* savable_schemes) {
+  // chrome: and chrome-devtools: schemes are registered in
+  // RenderThreadImpl::RegisterSchemes().
   static CefContentClient::SchemeInfo schemes[] = {
-    { content::kChromeUIScheme,             true,  false, true,  true  },
-    { content::kChromeDevToolsScheme,       true,  false, false, true  },
-    { extensions::kExtensionScheme,         true,  true,  true,  true  },
-    { extensions::kExtensionResourceScheme, true,  true,  false, true  },
+    { extensions::kExtensionScheme,         true,  true,  false, true  },
+    { extensions::kExtensionResourceScheme, true,  true,  false, false },
   };
 
   CefContentClient* client = CefContentClient::Get();

@@ -209,7 +209,8 @@ const ResourcesMap* CreateResourcesMap() {
     const int resource_id = kWebuiResources[i].value;
     AddResource(resource_name, resource_id, result);
     for (const char* (&alias)[2]: kPathAliases) {
-      if (base::StartsWithASCII(resource_name, alias[0], true)) {
+      if (base::StartsWith(resource_name, alias[0],
+                           base::CompareCase::SENSITIVE)) {
         AddResource(alias[1] + resource_name.substr(strlen(alias[0])),
                     resource_id, result);
       }
