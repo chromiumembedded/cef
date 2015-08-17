@@ -21,6 +21,7 @@ extern const char kShowUpdateRect[];
 extern const char kMouseCursorChangeDisabled[];
 extern const char kRequestContextPerBrowser[];
 extern const char kBackgroundColor[];
+extern const char kEnableGPU[];
 
 }  // namespace switches
 }  // namespace client
