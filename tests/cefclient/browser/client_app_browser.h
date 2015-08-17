@@ -46,6 +46,9 @@ class ClientAppBrowser : public ClientApp,
   static CefRefPtr<CefPrintHandler> CreatePrintHandler();
 
   // CefApp methods.
+  void OnBeforeCommandLineProcessing(
+      const CefString& process_type,
+      CefRefPtr<CefCommandLine> command_line) OVERRIDE;
   CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() OVERRIDE {
     return this;
   }
