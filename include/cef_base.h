@@ -113,17 +113,17 @@ class CefRefCount {
 ///
 #define IMPLEMENT_REFCOUNTING(ClassName)            \
   public:                                           \
-    void AddRef() const {                           \
+    void AddRef() const OVERRIDE {                  \
       ref_count_.AddRef();                          \
     }                                               \
-    bool Release() const {                          \
+    bool Release() const OVERRIDE {                 \
       if (ref_count_.Release()) {                   \
         delete static_cast<const ClassName*>(this); \
         return true;                                \
       }                                             \
       return false;                                 \
     }                                               \
-    bool HasOneRef() const {                        \
+    bool HasOneRef() const OVERRIDE {               \
       return ref_count_.HasOneRef();                \
     }                                               \
   private:                                          \

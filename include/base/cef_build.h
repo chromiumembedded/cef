@@ -132,22 +132,6 @@
 #error Please add support for your compiler in cef_build.h
 #endif
 
-// Annotate a virtual method indicating it must be overriding a virtual
-// method in the parent class.
-// Use like:
-//   virtual void foo() OVERRIDE;
-#ifndef OVERRIDE
-#if defined(__clang__) || defined(COMPILER_MSVC)
-#define OVERRIDE override
-#elif defined(COMPILER_GCC) && __cplusplus >= 201103 && \
-      (__GNUC__ * 10000 + __GNUC_MINOR__ * 100) >= 40700
-// GCC 4.7 supports explicit virtual overrides when C++11 support is enabled.
-#define OVERRIDE override
-#else
-#define OVERRIDE
-#endif
-#endif  // OVERRIDE
-
 // Annotate a function indicating the caller must examine the return value.
 // Use like:
 //   int foo() WARN_UNUSED_RESULT;
@@ -182,5 +166,24 @@
 #endif
 
 #endif  // !BUILDING_CEF_SHARED
+
+// Annotate a virtual method indicating it must be overriding a virtual method
+// in the parent class.
+// Use like:
+//   void foo() OVERRIDE;
+// NOTE: This define should only be used in classes exposed to the client since
+// C++11 support may not be enabled in client applications. CEF internal classes
+// should use the `override` keyword directly.
+#ifndef OVERRIDE
+#if defined(__clang__) || defined(COMPILER_MSVC)
+#define OVERRIDE override
+#elif defined(COMPILER_GCC) && __cplusplus >= 201103 && \
+      (__GNUC__ * 10000 + __GNUC_MINOR__ * 100) >= 40700
+// GCC 4.7 supports explicit virtual overrides when C++11 support is enabled.
+#define OVERRIDE override
+#else
+#define OVERRIDE
+#endif
+#endif  // OVERRIDE
 
 #endif  // CEF_INCLUDE_BASE_CEF_BUILD_H_
