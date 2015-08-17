@@ -498,6 +498,11 @@ CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
   delegated_frame_host_.reset(NULL);
   compositor_.reset(NULL);
   root_layer_.reset(NULL);
+
+  DCHECK(parent_host_view_ == NULL);
+  DCHECK(popup_host_view_ == NULL);
+  DCHECK(child_host_view_ == NULL);
+  DCHECK(guest_host_views_.empty());
 }
 
 // Called for full-screen widgets.
@@ -508,7 +513,7 @@ void CefRenderWidgetHostViewOSR::InitAsChild(gfx::NativeView parent_view) {
 
   if (parent_host_view_->child_host_view_) {
     // Cancel the previous popup widget.
-    parent_host_view_->child_host_view_->CancelChildWidget();
+    parent_host_view_->child_host_view_->CancelWidget();
   }
 
   parent_host_view_->set_child_host_view(this);
@@ -690,7 +695,7 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
 
   if (parent_host_view_->popup_host_view_) {
     // Cancel the previous popup widget.
-    parent_host_view_->popup_host_view_->CancelPopupWidget();
+    parent_host_view_->popup_host_view_->CancelWidget();
   }
 
   parent_host_view_->set_popup_host_view(this);
@@ -792,6 +797,7 @@ void CefRenderWidgetHostViewOSR::RenderProcessGone(
   parent_host_view_ = NULL;
   popup_host_view_ = NULL;
   child_host_view_ = NULL;
+  guest_host_views_.clear();
 }
 
 void CefRenderWidgetHostViewOSR::Destroy() {
@@ -799,15 +805,14 @@ void CefRenderWidgetHostViewOSR::Destroy() {
     is_destroyed_ = true;
 
     if (has_parent_) {
-      if (IsPopupWidget())
-        CancelPopupWidget();
-      else
-        CancelChildWidget();
+      CancelWidget();
     } else {
       if (popup_host_view_)
-        popup_host_view_->CancelPopupWidget();
+        popup_host_view_->CancelWidget();
       if (child_host_view_)
-        child_host_view_->CancelChildWidget();
+        child_host_view_->CancelWidget();
+      for (auto guest_host_view : guest_host_views_)
+        guest_host_view->CancelWidget();
       Hide();
     }
   }
@@ -978,6 +983,8 @@ bool CefRenderWidgetHostViewOSR::OnMessageReceived(const IPC::Message& msg) {
 }
 
 void CefRenderWidgetHostViewOSR::OnSetNeedsBeginFrames(bool enabled) {
+  SetFrameRate();
+
   // Start/stop the timer that sends BeginFrame requests.
   begin_frame_timer_->SetActive(enabled);
   if (software_output_device_) {
@@ -1094,6 +1101,10 @@ void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
   // We might want to change the cursor scale factor here as well - see the
   // cache for the current_cursor_, as passed by UpdateCursor from the renderer
   // in the rwhv_aura (current_cursor_.SetScaleFactor)
+
+  // Notify the guest hosts if any.
+  for (auto guest_host_view : guest_host_views_)
+    guest_host_view->OnScreenInfoChanged();
 }
 
 void CefRenderWidgetHostViewOSR::Invalidate(
@@ -1174,7 +1185,7 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
         // Execute asynchronously to avoid deleting the widget from inside some
         // other callback.
         CEF_POST_TASK(CEF_UIT,
-            base::Bind(&CefRenderWidgetHostViewOSR::CancelPopupWidget,
+            base::Bind(&CefRenderWidgetHostViewOSR::CancelWidget,
                        popup_host_view_->weak_ptr_factory_.GetWeakPtr()));
       }
     }
@@ -1205,6 +1216,10 @@ void CefRenderWidgetHostViewOSR::SendFocusEvent(bool focus) {
 void CefRenderWidgetHostViewOSR::UpdateFrameRate() {
   frame_rate_threshold_ms_ = 0;
   SetFrameRate();
+
+  // Notify the guest hosts if any.
+  for (auto guest_host_view : guest_host_views_)
+    guest_host_view->UpdateFrameRate();
 }
 
 void CefRenderWidgetHostViewOSR::HoldResize() {
@@ -1258,6 +1273,16 @@ void CefRenderWidgetHostViewOSR::OnPaint(
   ReleaseResize();
 }
 
+void CefRenderWidgetHostViewOSR::AddGuestHostView(
+    CefRenderWidgetHostViewOSR* guest_host) {
+  guest_host_views_.insert(guest_host);
+}
+
+void CefRenderWidgetHostViewOSR::RemoveGuestHostView(
+    CefRenderWidgetHostViewOSR* guest_host) {
+  guest_host_views_.erase(guest_host);
+}
+
 // static
 int CefRenderWidgetHostViewOSR::ClampFrameRate(int frame_rate) {
   if (frame_rate < 1)
@@ -1268,16 +1293,21 @@ int CefRenderWidgetHostViewOSR::ClampFrameRate(int frame_rate) {
 }
 
 void CefRenderWidgetHostViewOSR::SetFrameRate() {
-  DCHECK(browser_impl_.get());
-  if (!browser_impl_.get())
-    return;
+  CefRefPtr<CefBrowserHostImpl> browser;
+  if (parent_host_view_) {
+    // Use the same frame rate as the embedding browser.
+    browser = parent_host_view_->browser_impl_;
+  } else {
+    browser = browser_impl_;
+  }
+  CHECK(browser);
 
   // Only set the frame rate one time.
   if (frame_rate_threshold_ms_ != 0)
     return;
 
   const int frame_rate =
-      ClampFrameRate(browser_impl_->settings().windowless_frame_rate);
+      ClampFrameRate(browser->settings().windowless_frame_rate);
   frame_rate_threshold_ms_ = 1000 / frame_rate;
 
   // Configure the VSync interval for the browser process.
@@ -1377,15 +1407,13 @@ void CefRenderWidgetHostViewOSR::SendBeginFrame(base::TimeTicks frame_time,
                                  vsync_period, cc::BeginFrameArgs::NORMAL)));
 }
 
-void CefRenderWidgetHostViewOSR::CancelPopupWidget() {
-  DCHECK(IsPopupWidget());
-
+void CefRenderWidgetHostViewOSR::CancelWidget() {
   if (render_widget_host_)
     render_widget_host_->LostCapture();
 
   Hide();
 
-  if (browser_impl_.get()) {
+  if (IsPopupWidget() && browser_impl_.get()) {
     CefRefPtr<CefRenderHandler> handler =
         browser_impl_->client()->GetRenderHandler();
     if (handler.get())
@@ -1394,25 +1422,12 @@ void CefRenderWidgetHostViewOSR::CancelPopupWidget() {
   }
 
   if (parent_host_view_) {
-    parent_host_view_->set_popup_host_view(NULL);
-    parent_host_view_ = NULL;
-  }
-
-  if (render_widget_host_ && !is_destroyed_) {
-    is_destroyed_ = true;
-    // Results in a call to Destroy().
-    render_widget_host_->Shutdown();
-  }
-}
-
-void CefRenderWidgetHostViewOSR::CancelChildWidget() {
-  if (render_widget_host_)
-    render_widget_host_->LostCapture();
-
-  Hide();
-
-  if (parent_host_view_) {
-    parent_host_view_->set_child_host_view(NULL);
+    if (parent_host_view_->popup_host_view_ == this)
+      parent_host_view_->set_popup_host_view(NULL);
+    else if (parent_host_view_->child_host_view_ == this)
+      parent_host_view_->set_child_host_view(NULL);
+    else
+      parent_host_view_->RemoveGuestHostView(this);
     parent_host_view_ = NULL;
   }
 

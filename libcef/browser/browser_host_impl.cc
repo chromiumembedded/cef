@@ -371,6 +371,9 @@ class UploadFolderHelper :
   DISALLOW_COPY_AND_ASSIGN(UploadFolderHelper);
 };
 
+// Returns the primary OSR host view for the specified |web_contents|. If a
+// full-screen host view currently exists then it will be returned. Otherwise,
+// the main host view will be returned.
 CefRenderWidgetHostViewOSR* GetOSRHostView(content::WebContents* web_contents) {
   CefRenderWidgetHostViewOSR* fs_view =
       static_cast<CefRenderWidgetHostViewOSR*>(
@@ -2375,7 +2378,7 @@ bool CefBrowserHostImpl::HandleContextMenu(
 content::WebContents* CefBrowserHostImpl::GetActionableWebContents() {
   if (web_contents() && extensions::ExtensionsEnabled()) {
     content::WebContents* guest_contents =
-        extensions::GetGuestForOwnerContents(web_contents());
+        extensions::GetFullPageGuestForOwnerContents(web_contents());
     if (guest_contents)
       return guest_contents;
   }

@@ -119,8 +119,16 @@ content::RenderWidgetHostViewBase* CefWebContentsViewOSR::CreateViewForWidget(
 
   if (guest_) {
     // Based on WebContentsViewGuest::CreateViewForWidget.
+    content::WebContents* embedder_web_contents =
+        guest_->embedder_web_contents();
+    CefRenderWidgetHostViewOSR* embedder_host_view =
+        static_cast<CefRenderWidgetHostViewOSR*>(
+            embedder_web_contents->GetRenderViewHost()->GetView());
+
     CefRenderWidgetHostViewOSR* platform_widget =
-        new CefRenderWidgetHostViewOSR(render_widget_host, NULL);
+        new CefRenderWidgetHostViewOSR(render_widget_host, embedder_host_view);
+    embedder_host_view->AddGuestHostView(platform_widget);
+
     return new content::RenderWidgetHostViewGuest(
         render_widget_host,
         guest_,

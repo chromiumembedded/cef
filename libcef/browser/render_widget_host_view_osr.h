@@ -7,6 +7,7 @@
 #define CEF_LIBCEF_BROWSER_RENDER_WIDGET_HOST_VIEW_OSR_H_
 #pragma once
 
+#include <set>
 #include <vector>
 
 #include "include/cef_base.h"
@@ -255,6 +256,9 @@ class CefRenderWidgetHostViewOSR
                                            gfx::Range* actual_range) const;
 #endif  // defined(OS_MACOSX)
 
+  void AddGuestHostView(CefRenderWidgetHostViewOSR* guest_host);
+  void RemoveGuestHostView(CefRenderWidgetHostViewOSR* guest_host);
+
   CefRefPtr<CefBrowserHostImpl> browser_impl() const { return browser_impl_; }
   void set_browser_impl(CefRefPtr<CefBrowserHostImpl> browser) {
     browser_impl_ = browser;
@@ -286,8 +290,7 @@ class CefRenderWidgetHostViewOSR
   void SendBeginFrame(base::TimeTicks frame_time,
                       base::TimeDelta vsync_period);
 
-  void CancelPopupWidget();
-  void CancelChildWidget();
+  void CancelWidget();
 
   void OnScrollOffsetChanged();
 
@@ -357,6 +360,7 @@ class CefRenderWidgetHostViewOSR
   CefRenderWidgetHostViewOSR* parent_host_view_;
   CefRenderWidgetHostViewOSR* popup_host_view_;
   CefRenderWidgetHostViewOSR* child_host_view_;
+  std::set<CefRenderWidgetHostViewOSR*> guest_host_views_;
 
   CefRefPtr<CefBrowserHostImpl> browser_impl_;
 

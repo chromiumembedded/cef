@@ -7,28 +7,51 @@
 #include "content/browser/browser_plugin/browser_plugin_embedder.h"
 #include "content/browser/browser_plugin/browser_plugin_guest.h"
 #include "content/browser/web_contents/web_contents_impl.h"
+#include "content/public/browser/browser_context.h"
+#include "content/public/browser/browser_plugin_guest_manager.h"
 
 namespace extensions {
 
-content::WebContents* GetGuestForOwnerContents(content::WebContents* guest) {
-  content::WebContentsImpl* guest_impl =
-      static_cast<content::WebContentsImpl*>(guest);
-  content::BrowserPluginEmbedder* embedder =
-      guest_impl->GetBrowserPluginEmbedder();
-  if (embedder) {
-    content::BrowserPluginGuest* guest = embedder->GetFullPageGuest();
-    if (guest)
-      return guest->web_contents();
+namespace {
+
+bool InsertWebContents(std::vector<content::WebContents*>* vector,
+                       content::WebContents* web_contents) {
+  vector->push_back(web_contents);
+  return false;  // Continue iterating.
+}
+
+}  // namespace
+
+content::WebContents* GetFullPageGuestForOwnerContents(
+    content::WebContents* owner) {
+  content::WebContentsImpl* owner_impl =
+      static_cast<content::WebContentsImpl*>(owner);
+  content::BrowserPluginEmbedder* plugin_embedder =
+      owner_impl->GetBrowserPluginEmbedder();
+  if (plugin_embedder) {
+    content::BrowserPluginGuest* plugin_guest =
+        plugin_embedder->GetFullPageGuest();
+    if (plugin_guest)
+      return plugin_guest->web_contents();
   }
   return NULL;
 }
 
-content::WebContents* GetOwnerForGuestContents(content::WebContents* owner) {
-  content::WebContentsImpl* owner_impl =
-      static_cast<content::WebContentsImpl*>(owner);
-  content::BrowserPluginGuest* guest = owner_impl->GetBrowserPluginGuest();
-  if (guest)
-    return guest->embedder_web_contents();
+void GetAllGuestsForOwnerContents(content::WebContents* owner,
+                                  std::vector<content::WebContents*>* guests) {
+  content::BrowserPluginGuestManager* plugin_guest_manager =
+      owner->GetBrowserContext()->GetGuestManager();
+  plugin_guest_manager->ForEachGuest(owner,
+                                     base::Bind(InsertWebContents, guests));
+}
+
+content::WebContents* GetOwnerForGuestContents(content::WebContents* guest) {
+  content::WebContentsImpl* guest_impl =
+      static_cast<content::WebContentsImpl*>(guest);
+  content::BrowserPluginGuest* plugin_guest =
+      guest_impl->GetBrowserPluginGuest();
+  if (plugin_guest)
+    return plugin_guest->embedder_web_contents();
   return NULL;
 }
 
