@@ -32,7 +32,7 @@
 #define CEF_INCLUDE_INTERNAL_CEF_TYPES_H_
 #pragma once
 
-#include "include/base/cef_build.h"
+#include "include/base/cef_basictypes.h"
 #include "include/internal/cef_string.h"
 #include "include/internal/cef_string_list.h"
 #include "include/internal/cef_time.h"
@@ -44,45 +44,6 @@
 #include "include/internal/cef_types_mac.h"
 #elif defined(OS_LINUX)
 #include "include/internal/cef_types_linux.h"
-#endif
-
-#include <limits.h>         // For UINT_MAX
-#include <stddef.h>         // For size_t
-
-// The NSPR system headers define 64-bit as |long| when possible, except on
-// Mac OS X.  In order to not have typedef mismatches, we do the same on LP64.
-//
-// On Mac OS X, |long long| is used for 64-bit types for compatibility with
-// <inttypes.h> format macros even in the LP64 model.
-#if defined(__LP64__) && !defined(OS_MACOSX) && !defined(OS_OPENBSD)
-typedef long                int64;  // NOLINT(runtime/int)
-typedef unsigned long       uint64;  // NOLINT(runtime/int)
-#else
-typedef long long           int64;  // NOLINT(runtime/int)
-typedef unsigned long long  uint64;  // NOLINT(runtime/int)
-#endif
-
-// TODO: Remove these type guards.  These are to avoid conflicts with
-// obsolete/protypes.h in the Gecko SDK.
-#ifndef _INT32
-#define _INT32
-typedef int                 int32;
-#endif
-
-// TODO: Remove these type guards.  These are to avoid conflicts with
-// obsolete/protypes.h in the Gecko SDK.
-#ifndef _UINT32
-#define _UINT32
-typedef unsigned int       uint32;
-#endif
-
-// UTF-16 character type
-#ifndef char16
-#if defined(WIN32)
-typedef wchar_t             char16;
-#else
-typedef unsigned short      char16;
-#endif
 #endif
 
 // 32-bit ARGB color value, not premultiplied. The color components are always
