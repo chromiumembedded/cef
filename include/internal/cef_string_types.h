@@ -38,25 +38,12 @@
 
 #include <stddef.h>
 
-#include "include/base/cef_build.h"
+#include "include/base/cef_basictypes.h"
 #include "include/internal/cef_export.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-// CEF character type definitions. wchar_t is 2 bytes on Windows and 4 bytes on
-// most other platforms.
-
-#if defined(OS_WIN)
-typedef wchar_t char16;
-#else  // !OS_WIN
-typedef unsigned short char16;  // NOLINT (runtime/int)
-#ifndef WCHAR_T_IS_UTF32
-#define WCHAR_T_IS_UTF32
-#endif  // WCHAR_T_IS_UTF32
-#endif  // !OS_WIN
-
 
 // CEF string type definitions. Whomever allocates |str| is responsible for
 // providing an appropriate |dtor| implementation that will free the string in
