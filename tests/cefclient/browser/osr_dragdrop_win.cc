@@ -336,9 +336,9 @@ CefRefPtr<CefDragData> DataObjectToDragData(IDataObject* data_object) {
           HDROP hdrop = (HDROP)hGlobal;
           const int kMaxFilenameLen = 4096;
           const unsigned num_files = DragQueryFileW(hdrop, 0xffffffff, 0, 0);
-          for (unsigned int i = 0; i < num_files; ++i) {
+          for (unsigned int x = 0; x < num_files; ++x) {
             wchar_t filename[kMaxFilenameLen];
-            if (!DragQueryFileW(hdrop, i, filename, kMaxFilenameLen))
+            if (!DragQueryFileW(hdrop, x, filename, kMaxFilenameLen))
               continue;
             WCHAR* name = wcsrchr(filename, '\\');
             drag_data->AddFile(filename, (name ? name + 1 : filename));

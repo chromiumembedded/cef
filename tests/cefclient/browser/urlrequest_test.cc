@@ -103,13 +103,13 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
     CEF_REQUIRE_UI_THREAD();
 
     // Only handle messages from the test URL.
-    const std::string& url = frame->GetURL();
+    std::string url = frame->GetURL();
     if (url.find(kTestUrl) != 0)
       return false;
 
     const std::string& message_name = request;
     if (message_name.find(kTestMessageName) == 0) {
-      const std::string& url = message_name.substr(sizeof(kTestMessageName));
+      url = message_name.substr(sizeof(kTestMessageName));
 
       CancelPendingRequest();
 
@@ -119,20 +119,20 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
       callback_ = callback;
 
       // Create a CefRequest for the specified URL.
-      CefRefPtr<CefRequest> request = CefRequest::Create();
-      request->SetURL(url);
-      request->SetMethod("GET");
+      CefRefPtr<CefRequest> cef_request = CefRequest::Create();
+      cef_request->SetURL(url);
+      cef_request->SetMethod("GET");
 
       // Callback to be executed on request completion.
       // It's safe to use base::Unretained() here because there is only one
       // RequestClient pending at any given time and we explicitly detach the
       // callback in the Handler destructor.
-      const RequestClient::Callback& callback =
+      const RequestClient::Callback& request_callback =
           base::Bind(&Handler::OnRequestComplete, base::Unretained(this));
 
       // Create and start the new CefURLRequest.
-      urlrequest_ = CefURLRequest::Create(request,
-                                          new RequestClient(callback),
+      urlrequest_ = CefURLRequest::Create(cef_request,
+                                          new RequestClient(request_callback),
                                           NULL);
 
       return true;
