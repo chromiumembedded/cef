@@ -60,7 +60,7 @@ class BindStateBase {
  protected:
   explicit BindStateBase(void (*destructor)(BindStateBase*))
       : ref_count_(0), destructor_(destructor) {}
-  ~BindStateBase() = default;
+  ~BindStateBase() {}
 
  private:
   friend class scoped_refptr<BindStateBase>;
