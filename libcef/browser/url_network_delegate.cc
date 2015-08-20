@@ -122,7 +122,9 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
     disconnector->Disconnect();
     request->RemoveUserData(UserDataKey());
 
-    callback.Run(allow ? net::OK : net::ERR_ABORTED);
+    // Only execute the callback if the request has not been canceled.
+    if (request->status().status() != net::URLRequestStatus::CANCELED)
+      callback.Run(allow ? net::OK : net::ERR_ABORTED);
   }
 
   static inline void* UserDataKey() {
