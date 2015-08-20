@@ -638,7 +638,7 @@ LPCWSTR ToCursorID(WebCursorInfo::Type type) {
     case WebCursorInfo::TypeCell:
       return MAKEINTRESOURCE(IDC_CELL);
     case WebCursorInfo::TypeContextMenu:
-      return MAKEINTRESOURCE(IDC_ARROW);
+      return IDC_ARROW;
     case WebCursorInfo::TypeAlias:
       return MAKEINTRESOURCE(IDC_ALIAS);
     case WebCursorInfo::TypeProgress:
