@@ -509,7 +509,6 @@ void OsrWindowWin::OnMouseEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         last_click_time_ = currentTime;
         last_click_button_ = btnType;
 
-        CefRefPtr<CefBrowserHost> browser_host = browser_->GetHost();
         if (browser_host) {
           CefMouseEvent mouse_event;
           mouse_event.x = x;

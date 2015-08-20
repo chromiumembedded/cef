@@ -161,8 +161,8 @@ class CefPoint : public CefStructBase<CefPointTraits> {
   }
 
   bool IsEmpty() const { return x <= 0 && y <= 0; }
-  void Set(int x, int y) {
-    this->x = x, this->y = y;
+  void Set(int x_val, int y_val) {
+    x = x_val, y = y_val;
   }
 };
 
@@ -202,8 +202,8 @@ class CefRect : public CefStructBase<CefRectTraits> {
   }
 
   bool IsEmpty() const { return width <= 0 || height <= 0; }
-  void Set(int x, int y, int width, int height) {
-    this->x = x, this->y = y, this->width = width, this->height = height;
+  void Set(int x_val, int y_val, int width_val, int height_val) {
+    x = x_val, y = y_val, width = width_val, height = height_val;
   }
 };
 
@@ -243,8 +243,8 @@ class CefSize : public CefStructBase<CefSizeTraits> {
   }
 
   bool IsEmpty() const { return width <= 0 || height <= 0; }
-  void Set(int width, int height) {
-    this->width = width, this->height = height;
+  void Set(int width_val, int height_val) {
+    width = width_val, height = height_val;
   }
 };
 
@@ -285,8 +285,8 @@ class CefDraggableRegion : public CefStructBase<CefDraggableRegionTraits> {
     Set(bounds, draggable);
   }
 
-  void Set(const CefRect& bounds, bool draggable) {
-    this->bounds = bounds, this->draggable = draggable;
+  void Set(const CefRect& bounds_val, bool draggable_val) {
+    bounds = bounds_val, draggable = draggable_val;
   }
 };
 
@@ -340,18 +340,18 @@ class CefScreenInfo : public CefStructBase<CefScreenInfoTraits> {
         is_monochrome, rect, available_rect);
   }
 
-  void Set(float device_scale_factor,
-           int depth,
-           int depth_per_component,
-           bool is_monochrome,
-           const CefRect& rect,
-           const CefRect& available_rect) {
-    this->device_scale_factor = device_scale_factor;
-    this->depth = depth;
-    this->depth_per_component = depth_per_component;
-    this->is_monochrome = is_monochrome;
-    this->rect = rect;
-    this->available_rect = available_rect;
+  void Set(float device_scale_factor_val,
+           int depth_val,
+           int depth_per_component_val,
+           bool is_monochrome_val,
+           const CefRect& rect_val,
+           const CefRect& available_rect_val) {
+    device_scale_factor = device_scale_factor_val;
+    depth = depth_val;
+    depth_per_component = depth_per_component_val;
+    is_monochrome = is_monochrome_val;
+    rect = rect_val;
+    available_rect = available_rect_val;
   }
 };
 
@@ -827,8 +827,8 @@ class CefPageRange : public CefStructBase<CefPageRangeTraits> {
     Set(from, to);
   }
 
-  void Set(int from, int to) {
-    this->from = from, this->to = to;
+  void Set(int from_val, int to_val) {
+    from = from_val, to = to_val;
   }
 };
 

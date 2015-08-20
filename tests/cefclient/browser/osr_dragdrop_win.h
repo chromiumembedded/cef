@@ -80,7 +80,7 @@ class DropTargetWin : public IDropTarget {
                          DWORD* effect);
 
   DEFAULT_QUERY_INTERFACE(IDropTarget)
-  IUNKNOWN_IMPLEMENTATION()
+  IUNKNOWN_IMPLEMENTATION
 
  protected:
   DropTargetWin(OsrDragEvents* callback, HWND hWnd)
@@ -106,7 +106,8 @@ class DropSourceWin : public IDropSource {
   HRESULT __stdcall QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState);
 
   DEFAULT_QUERY_INTERFACE(IDropSource)
-  IUNKNOWN_IMPLEMENTATION()
+  IUNKNOWN_IMPLEMENTATION
+
  protected:
   explicit DropSourceWin() : ref_count_(0) {}
   virtual ~DropSourceWin() {}
@@ -137,7 +138,7 @@ class DragEnumFormatEtc : public IEnumFORMATETC {
   static void DeepCopyFormatEtc(FORMATETC *dest, FORMATETC *source);
 
   DEFAULT_QUERY_INTERFACE(IEnumFORMATETC)
-  IUNKNOWN_IMPLEMENTATION()
+  IUNKNOWN_IMPLEMENTATION
 
  private:
   ULONG m_nIndex;  // current enumerator index
@@ -171,7 +172,7 @@ class DataObjectWin : public IDataObject {
   HRESULT __stdcall GetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium);
 
   DEFAULT_QUERY_INTERFACE(IDataObject)
-  IUNKNOWN_IMPLEMENTATION()
+  IUNKNOWN_IMPLEMENTATION
 
  protected:
   int m_nNumFormats;

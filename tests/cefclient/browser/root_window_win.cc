@@ -319,11 +319,11 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings) {
 
   if (with_controls_) {
     // Create the child controls.
-    int x = 0;
+    int x_offset = 0;
 
-    static int button_width = GetButtonWidth();
-    static int urlbar_height = GetURLBarHeight();
-    static int font_height =
+    const int button_width = GetButtonWidth();
+    const int urlbar_height = GetURLBarHeight();
+    const int font_height =
         LogicalToDevice(14, client::GetDeviceScaleFactor());
 
     // Create a scaled font.
@@ -335,46 +335,46 @@ void RootWindowWin::CreateRootWindow(const CefBrowserSettings& settings) {
     back_hwnd_ = CreateWindow(
         L"BUTTON", L"Back",
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED,
-        x, 0, button_width, urlbar_height,
+        x_offset, 0, button_width, urlbar_height,
         hwnd_, reinterpret_cast<HMENU>(IDC_NAV_BACK), hInstance, 0);
     CHECK(back_hwnd_);
     SendMessage(back_hwnd_, WM_SETFONT, reinterpret_cast<WPARAM>(font_), TRUE);
-    x += button_width;
+    x_offset += button_width;
 
     forward_hwnd_ = CreateWindow(
         L"BUTTON", L"Forward",
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED,
-        x, 0, button_width, urlbar_height,
+        x_offset, 0, button_width, urlbar_height,
         hwnd_, reinterpret_cast<HMENU>(IDC_NAV_FORWARD), hInstance, 0);
     CHECK(forward_hwnd_);
     SendMessage(forward_hwnd_, WM_SETFONT,
                 reinterpret_cast<WPARAM>(font_), TRUE);
-    x += button_width;
+    x_offset += button_width;
 
     reload_hwnd_ = CreateWindow(
         L"BUTTON", L"Reload",
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON| WS_DISABLED,
-        x, 0, button_width, urlbar_height,
+        x_offset, 0, button_width, urlbar_height,
         hwnd_, reinterpret_cast<HMENU>(IDC_NAV_RELOAD), hInstance, 0);
     CHECK(reload_hwnd_);
     SendMessage(reload_hwnd_, WM_SETFONT,
                 reinterpret_cast<WPARAM>(font_), TRUE);
-    x += button_width;
+    x_offset += button_width;
 
     stop_hwnd_ = CreateWindow(
         L"BUTTON", L"Stop",
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED,
-        x, 0, button_width, urlbar_height,
+        x_offset, 0, button_width, urlbar_height,
         hwnd_, reinterpret_cast<HMENU>(IDC_NAV_STOP), hInstance, 0);
     CHECK(stop_hwnd_);
     SendMessage(stop_hwnd_, WM_SETFONT, reinterpret_cast<WPARAM>(font_), TRUE);
-    x += button_width;
+    x_offset += button_width;
 
     edit_hwnd_ = CreateWindow(
         L"EDIT", 0,
         WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT | ES_AUTOVSCROLL |
         ES_AUTOHSCROLL| WS_DISABLED,
-        x, 0, rect.right - button_width * 4, urlbar_height,
+        x_offset, 0, rect.right - button_width * 4, urlbar_height,
         hwnd_, 0, hInstance, 0);
     SendMessage(edit_hwnd_, WM_SETFONT, reinterpret_cast<WPARAM>(font_), TRUE);
     CHECK(edit_hwnd_);

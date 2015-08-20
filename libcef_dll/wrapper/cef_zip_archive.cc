@@ -85,7 +85,6 @@ size_t CefZipArchive::Load(CefRefPtr<CefStreamReader> stream,
   if (!reader->MoveToFirstFile())
     return 0;
 
-  CefRefPtr<CefZipFile> contents;
   FileMap::iterator it;
   size_t count = 0;
 
