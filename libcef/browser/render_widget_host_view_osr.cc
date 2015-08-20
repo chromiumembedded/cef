@@ -518,6 +518,9 @@ void CefRenderWidgetHostViewOSR::InitAsChild(gfx::NativeView parent_view) {
 
   parent_host_view_->set_child_host_view(this);
 
+  // The parent view should not render while the full-screen view exists.
+  parent_host_view_->Hide();
+
   ResizeRootLayer();
   Show();
 }
@@ -1422,12 +1425,16 @@ void CefRenderWidgetHostViewOSR::CancelWidget() {
   }
 
   if (parent_host_view_) {
-    if (parent_host_view_->popup_host_view_ == this)
+    if (parent_host_view_->popup_host_view_ == this) {
       parent_host_view_->set_popup_host_view(NULL);
-    else if (parent_host_view_->child_host_view_ == this)
+    } else if (parent_host_view_->child_host_view_ == this) {
       parent_host_view_->set_child_host_view(NULL);
-    else
+
+      // Start rendering the parent view again.
+      parent_host_view_->Show();
+    } else {
       parent_host_view_->RemoveGuestHostView(this);
+    }
     parent_host_view_ = NULL;
   }
 
