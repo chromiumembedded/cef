@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include "libcef/browser/cookie_manager_impl.h"
 #include "libcef/browser/scheme_handler.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/url_network_delegate.h"
@@ -326,35 +327,17 @@ void CefURLRequestContextGetterImpl::SetCookieStoragePath(
   cookie_store_path_ = path;
 
   // Restore the previously supported schemes.
-  SetCookieSupportedSchemes(cookie_supported_schemes_);
+  CefCookieManagerImpl::SetCookieMonsterSchemes(cookie_monster.get(),
+                                                cookie_supported_schemes_);
 }
 
 void CefURLRequestContextGetterImpl::SetCookieSupportedSchemes(
-    const std::vector<std::string>& schemes) {
+    const std::set<std::string>& schemes) {
   CEF_REQUIRE_IOT();
 
   cookie_supported_schemes_ = schemes;
-
-  if (cookie_supported_schemes_.empty()) {
-    cookie_supported_schemes_.push_back("http");
-    cookie_supported_schemes_.push_back("https");
-  }
-
-  std::set<std::string> scheme_set;
-  std::vector<std::string>::const_iterator it =
-      cookie_supported_schemes_.begin();
-  for (; it != cookie_supported_schemes_.end(); ++it)
-    scheme_set.insert(*it);
-
-  const char** arr = new const char*[scheme_set.size()];
-  std::set<std::string>::const_iterator it2 = scheme_set.begin();
-  for (int i = 0; it2 != scheme_set.end(); ++it2, ++i)
-    arr[i] = it2->c_str();
-
-  url_request_context_->cookie_store()->GetCookieMonster()->
-      SetCookieableSchemes(arr, scheme_set.size());
-
-  delete [] arr;
+  CefCookieManagerImpl::SetCookieMonsterSchemes(GetCookieMonster(),
+                                                cookie_supported_schemes_);
 }
 
 void CefURLRequestContextGetterImpl::AddHandler(
@@ -365,6 +348,11 @@ void CefURLRequestContextGetterImpl::AddHandler(
     return;
   }
   handler_list_.push_back(handler);
+}
+
+net::CookieMonster* CefURLRequestContextGetterImpl::GetCookieMonster() const {
+  CEF_REQUIRE_IOT();
+  return url_request_context_->cookie_store()->GetCookieMonster();
 }
 
 void CefURLRequestContextGetterImpl::CreateProxyConfigService() {
