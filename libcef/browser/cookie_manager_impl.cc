@@ -174,8 +174,7 @@ CefCookieManagerImpl::GetExistingCookieMonster() {
     return cookie_monster_;
   } else if (request_context_impl_.get()) {
     scoped_refptr<net::CookieMonster> cookie_monster =
-        request_context_impl_->GetURLRequestContext()->cookie_store()->
-            GetCookieMonster();
+        request_context_impl_->GetCookieMonster();
     DCHECK(cookie_monster.get());
     return cookie_monster;
   }
@@ -194,39 +193,12 @@ void CefCookieManagerImpl::SetSupportedSchemes(
     return;
   }
 
-  if (HasContext()) {
-    RunMethodWithContext(
-        base::Bind(&CefCookieManagerImpl::SetSupportedSchemesWithContext, this,
-                   schemes, callback));
-    return;
-  }
-
-  DCHECK(cookie_monster_.get());
-  if (!cookie_monster_.get())
-    return;
-
-  supported_schemes_ = schemes;
-
-  if (supported_schemes_.empty()) {
-    supported_schemes_.push_back("http");
-    supported_schemes_.push_back("https");
-  }
-
   std::set<std::string> scheme_set;
-  std::vector<CefString>::const_iterator it = supported_schemes_.begin();
-  for (; it != supported_schemes_.end(); ++it)
+  std::vector<CefString>::const_iterator it = schemes.begin();
+  for (; it != schemes.end(); ++it)
     scheme_set.insert(*it);
 
-  const char** arr = new const char*[scheme_set.size()];
-  std::set<std::string>::const_iterator it2 = scheme_set.begin();
-  for (int i = 0; it2 != scheme_set.end(); ++it2, ++i)
-    arr[i] = it2->c_str();
-
-  cookie_monster_->SetCookieableSchemes(arr, scheme_set.size());
-
-  delete [] arr;
-
-  RunAsyncCompletionOnIOThread(callback);
+  SetSupportedSchemesInternal(scheme_set, callback);
 }
 
 bool CefCookieManagerImpl::VisitAllCookies(
@@ -339,7 +311,7 @@ bool CefCookieManagerImpl::SetStoragePath(
   storage_path_ = new_path;
 
   // Restore the previously supported schemes.
-  SetSupportedSchemes(supported_schemes_, callback);
+  SetSupportedSchemesInternal(supported_schemes_, callback);
 
   return true;
 }
@@ -403,6 +375,30 @@ bool CefCookieManagerImpl::GetCefCookie(const GURL& url,
   return true;
 }
 
+// static
+void CefCookieManagerImpl::SetCookieMonsterSchemes(
+    net::CookieMonster* cookie_monster,
+    const std::set<std::string>& schemes) {
+  CEF_REQUIRE_IOT();
+
+  std::set<std::string> all_schemes = schemes;
+
+  // Add default schemes that should always support cookies.
+  all_schemes.insert("http");
+  all_schemes.insert("https");
+  all_schemes.insert("ws");
+  all_schemes.insert("wss");
+
+  const char** arr = new const char*[all_schemes.size()];
+  std::set<std::string>::const_iterator it2 = all_schemes.begin();
+  for (int i = 0; it2 != all_schemes.end(); ++it2, ++i)
+    arr[i] = it2->c_str();
+
+  cookie_monster->SetCookieableSchemes(arr, all_schemes.size());
+
+  delete [] arr;
+}
+
 bool CefCookieManagerImpl::HasContext() {
   CEF_REQUIRE_IOT();
   return (request_context_impl_.get() || request_context_.get());
@@ -457,17 +453,12 @@ void CefCookieManagerImpl::SetStoragePathWithContext(
 }
 
 void CefCookieManagerImpl::SetSupportedSchemesWithContext(
-    const std::vector<CefString>& schemes,
+    const std::set<std::string>& schemes,
     CefRefPtr<CefCompletionCallback> callback,
     scoped_refptr<CefURLRequestContextGetterImpl> request_context) {
   CEF_REQUIRE_IOT();
 
-  std::vector<std::string> scheme_vec;
-  std::vector<CefString>::const_iterator it = schemes.begin();
-  for (; it != schemes.end(); ++it)
-    scheme_vec.push_back(it->ToString());
-
-  request_context->SetCookieSupportedSchemes(scheme_vec);
+  request_context->SetCookieSupportedSchemes(schemes);
 
   RunAsyncCompletionOnIOThread(callback);
 }
@@ -479,8 +470,7 @@ void CefCookieManagerImpl::GetCookieMonsterWithContext(
   CEF_REQUIRE_IOT();
 
   scoped_refptr<net::CookieMonster> cookie_monster =
-      request_context->GetURLRequestContext()->cookie_store()->
-          GetCookieMonster();
+      request_context->GetCookieMonster();
 
   if (task_runner->BelongsToCurrentThread()) {
     // Execute the callback immediately.
@@ -489,6 +479,28 @@ void CefCookieManagerImpl::GetCookieMonsterWithContext(
     // Execute the callback on the target thread.
     task_runner->PostTask(FROM_HERE, base::Bind(callback, cookie_monster));
   }
+}
+
+void CefCookieManagerImpl::SetSupportedSchemesInternal(
+    const std::set<std::string>& schemes,
+    CefRefPtr<CefCompletionCallback> callback){
+  CEF_REQUIRE_IOT();
+
+  if (HasContext()) {
+    RunMethodWithContext(
+        base::Bind(&CefCookieManagerImpl::SetSupportedSchemesWithContext, this,
+                   schemes, callback));
+    return;
+  }
+
+  DCHECK(cookie_monster_.get());
+  if (!cookie_monster_.get())
+    return;
+
+  supported_schemes_ = schemes;
+  SetCookieMonsterSchemes(cookie_monster_.get(), supported_schemes_);
+
+  RunAsyncCompletionOnIOThread(callback);
 }
 
 void CefCookieManagerImpl::VisitAllCookiesInternal(

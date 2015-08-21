@@ -1083,8 +1083,6 @@ class CookieTestSchemeHandler : public TestHandler {
 
     if (scheme_ != "http") {
       std::vector<CefString> schemes;
-      schemes.push_back("http");
-      schemes.push_back("https");
       schemes.push_back(scheme_);
 
       manager1_->SetSupportedSchemes(schemes, NULL);

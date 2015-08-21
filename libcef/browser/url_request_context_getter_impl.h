@@ -6,8 +6,8 @@
 #define CEF_LIBCEF_BROWSER_URL_REQUEST_CONTEXT_GETTER_IMPL_H_
 #pragma once
 
+#include <set>
 #include <string>
-#include <vector>
 
 #include "include/internal/cef_types_wrappers.h"
 #include "libcef/browser/url_request_context_getter.h"
@@ -26,6 +26,7 @@ class MessageLoop;
 }
 
 namespace net {
+class CookieMonster;
 class FtpTransactionFactory;
 class ProxyConfigService;
 class URLRequestContextStorage;
@@ -59,11 +60,13 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
 
   void SetCookieStoragePath(const base::FilePath& path,
                             bool persist_session_cookies);
-  void SetCookieSupportedSchemes(const std::vector<std::string>& schemes);
+  void SetCookieSupportedSchemes(const std::set<std::string>& schemes);
 
   // Keep a reference to all handlers sharing this context so that they'll be
   // kept alive until the context is destroyed.
   void AddHandler(CefRefPtr<CefRequestContextHandler> handler);
+
+  net::CookieMonster* GetCookieMonster() const;
 
   CefURLRequestManager* request_manager() const {
     return url_request_manager_.get();
@@ -87,7 +90,7 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
   content::URLRequestInterceptorScopedVector request_interceptors_;
 
   base::FilePath cookie_store_path_;
-  std::vector<std::string> cookie_supported_schemes_;
+  std::set<std::string> cookie_supported_schemes_;
 
   std::vector<CefRefPtr<CefRequestContextHandler> > handler_list_;
 

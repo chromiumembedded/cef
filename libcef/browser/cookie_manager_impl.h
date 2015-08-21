@@ -5,6 +5,8 @@
 #ifndef CEF_LIBCEF_BROWSER_COOKIE_MANAGER_IMPL_H_
 #define CEF_LIBCEF_BROWSER_COOKIE_MANAGER_IMPL_H_
 
+#include <set>
+
 #include "include/cef_cookie.h"
 #include "libcef/browser/request_context_impl.h"
 
@@ -58,6 +60,11 @@ class CefCookieManagerImpl : public CefCookieManager {
   static bool GetCefCookie(const GURL& url, const std::string& cookie_line,
                            CefCookie& cookie);
 
+  // Set the schemes supported by |cookie_monster|. Default schemes will always
+  // be supported.
+  static void SetCookieMonsterSchemes(net::CookieMonster* cookie_monster,
+                                      const std::set<std::string>& schemes);
+
  private:
   // Returns true if a context is or will be available.
   bool HasContext();
@@ -75,7 +82,7 @@ class CefCookieManagerImpl : public CefCookieManager {
       CefRefPtr<CefCompletionCallback> callback,
       scoped_refptr<CefURLRequestContextGetterImpl> request_context);
   void SetSupportedSchemesWithContext(
-      const std::vector<CefString>& schemes,
+      const std::set<std::string>& schemes,
       CefRefPtr<CefCompletionCallback> callback,
       scoped_refptr<CefURLRequestContextGetterImpl> request_context);
   void GetCookieMonsterWithContext(
@@ -83,6 +90,9 @@ class CefCookieManagerImpl : public CefCookieManager {
       const CookieMonsterCallback& callback,
       scoped_refptr<CefURLRequestContextGetterImpl> request_context);
 
+  void SetSupportedSchemesInternal(
+      const std::set<std::string>& schemes,
+      CefRefPtr<CefCompletionCallback> callback);
   void VisitAllCookiesInternal(
       CefRefPtr<CefCookieVisitor> visitor,
       scoped_refptr<net::CookieMonster> cookie_monster);
@@ -111,7 +121,7 @@ class CefCookieManagerImpl : public CefCookieManager {
 
   // Used for cookie monsters owned by this object.
   base::FilePath storage_path_;
-  std::vector<CefString> supported_schemes_;
+  std::set<std::string> supported_schemes_;
   scoped_refptr<net::CookieMonster> cookie_monster_;
 
   IMPLEMENT_REFCOUNTING(CefCookieManagerImpl);

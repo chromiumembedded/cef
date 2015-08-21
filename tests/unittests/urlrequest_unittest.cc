@@ -1003,8 +1003,6 @@ class RequestTestHandler : public TestHandler,
 
       // Set the schemes that are allowed to store cookies.
       std::vector<CefString> supported_schemes;
-      supported_schemes.push_back("http");
-      supported_schemes.push_back("https");
       supported_schemes.push_back(kRequestScheme);
 
       // Continue the test once supported schemes has been set.
