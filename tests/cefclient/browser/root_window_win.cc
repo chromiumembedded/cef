@@ -204,8 +204,11 @@ void RootWindowWin::Hide() {
 void RootWindowWin::SetBounds(int x, int y, size_t width, size_t height) {
   REQUIRE_MAIN_THREAD();
 
-  if (hwnd_)
-    SetWindowPos(hwnd_, NULL, 0, 0, 0, 0, SWP_NOZORDER);
+  if (hwnd_) {
+    SetWindowPos(hwnd_, NULL,
+                 x, y, static_cast<int>(width), static_cast<int>(height),
+                 SWP_NOZORDER);
+  }
 }
 
 void RootWindowWin::Close(bool force) {
