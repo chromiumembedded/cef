@@ -70,7 +70,7 @@ void InstallInternalProtectedHandlers(
     DCHECK(IsInternalProtectedScheme(scheme));
 
     bool set_protocol = job_factory->SetProtocolHandler(
-        scheme, protocol_handler.release());
+        scheme, make_scoped_ptr(protocol_handler.release()));
     DCHECK(set_protocol);
   }
 }

@@ -1451,6 +1451,11 @@
             '<(DEPTH)/components/components.gyp:breakpad_host',
           ],
         }],
+        ['cld_version==2', {
+          'dependencies': [
+            '<(DEPTH)/third_party/cld_2/cld_2.gyp:cld2_platform_impl',
+          ],
+        }],
         ['use_aura==1', {
           'dependencies': [
             '<(DEPTH)/ui/views/controls/webview/webview.gyp:webview',
@@ -1850,7 +1855,6 @@
               '<@(includes_win)',
               # TODO(cef): Remove ui_unscaled_resources.rc once custom cursor
               # resources can be loaded via ResourceBundle. See crbug.com/147663.
-              '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.rc',
               '<(SHARED_INTERMEDIATE_DIR)/ui/resources/ui_unscaled_resources.rc',
               'libcef_dll/libcef_dll.rc',
             ],

@@ -93,6 +93,12 @@ bool CefRenderWidgetHostViewOSR::AcceleratedWidgetShouldIgnoreBackpressure()
   return true;
 }
 
+void CefRenderWidgetHostViewOSR::AcceleratedWidgetGetVSyncParameters(
+    base::TimeTicks* timebase, base::TimeDelta* interval) const {
+  *timebase = base::TimeTicks();
+  *interval = base::TimeDelta();
+}
+
 void CefRenderWidgetHostViewOSR::AcceleratedWidgetSwapCompleted(
     const std::vector<ui::LatencyInfo>& all_latency_info) {
   if (!render_widget_host_)

@@ -658,7 +658,7 @@ bool CefContentRendererClient::IsExtensionOrSharedModuleWhitelisted(
     const GURL& url, const std::set<std::string>& whitelist) {
   DCHECK(extensions::ExtensionsEnabled());
   const extensions::ExtensionSet* extension_set =
-      CefContentRendererClient::Get()->extension_dispatcher_->extensions();
+      extensions::RendererExtensionRegistry::Get()->GetMainThreadExtensionSet();
   return chrome::IsExtensionOrSharedModuleWhitelisted(url, extension_set,
       whitelist);
 }

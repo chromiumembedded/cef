@@ -67,7 +67,7 @@ ChromeDomain GetChromeDomain(const std::string& domain_name) {
   };
 
   for (size_t i = 0; i < sizeof(domains) / sizeof(domains[0]); ++i) {
-    if (base::strcasecmp(domains[i].name, domain_name.c_str()) == 0)
+    if (base::EqualsCaseInsensitiveASCII(domains[i].name, domain_name.c_str()))
       return domains[i].domain;
   }
 

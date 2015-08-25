@@ -153,12 +153,12 @@ class CefBrowserURLRequest::Context
   bool Start() {
     DCHECK(CalledOnValidThread());
 
-    GURL url = GURL(request_->GetURL().ToString());
+    const GURL& url = GURL(request_->GetURL().ToString());
     if (!url.is_valid())
       return false;
 
-    std::string method = request_->GetMethod();
-    base::StringToLowerASCII(&method);
+    const std::string& method =
+        base::ToLowerASCII(request_->GetMethod().ToString());
     net::URLFetcher::RequestType request_type = net::URLFetcher::GET;
     if (base::LowerCaseEqualsASCII(method, "get")) {
     } else if (base::LowerCaseEqualsASCII(method, "post")) {

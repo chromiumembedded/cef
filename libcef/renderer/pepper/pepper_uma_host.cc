@@ -33,10 +33,18 @@ namespace {
 const char* const kPredefinedAllowedUMAOrigins[] = {
     "6EAED1924DB611B6EEF2A664BD077BE7EAD33B8F",  // see http://crbug.com/317833
     "4EB74897CB187C7633357C2FE832E0AD6A44883A",  // see http://crbug.com/317833
+    "9E527CDA9D7C50844E8A5DB964A54A640AE48F98",  // see http://crbug.com/521189
+    "DF52618D0B040D8A054D8348D2E84DDEEE5974E7",  // see http://crbug.com/521189
+    "269D721F163E587BC53C6F83553BF9CE2BB143CD",  // see http://crbug.com/521189
+    "6B55A5329E3F1F30F6032BDB20B2EB4378DBF767",  // see http://crbug.com/521189
+    "C449A798C495E6CF7D6AF10162113D564E67AD12",  // see http://crbug.com/521189
+    "01E9FFA9A8F3C18271FE91BEE46207F3B81755CC",  // see http://crbug.com/521189
+    "97B23E01B2AA064E8332EE43A7A85C628AADC3F2",  // see http://crbug.com/521189
 };
 
 const char* const kWhitelistedHistogramPrefixes[] = {
     "22F67DA2061FFC4DC9A4974036348D9C38C22919",  // see http://crbug.com/390221
+    "3FEA4650221C5E6C39CF5C5C9F464FF74EAB6CE1",  // see http://crbug.com/521189
 };
 
 const char* const kWhitelistedPluginBaseNames[] = {

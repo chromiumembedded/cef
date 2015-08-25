@@ -201,7 +201,7 @@ void CefURLRequestManager::SetProtocolHandlerIfNecessary(
 
   bool set_protocol = job_factory_->SetProtocolHandler(
       scheme,
-      (add ? new CefProtocolHandler(this, scheme) : NULL));
+      make_scoped_ptr(add ? new CefProtocolHandler(this, scheme) : NULL));
   DCHECK(set_protocol);
 }
 

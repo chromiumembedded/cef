@@ -1,5 +1,5 @@
 diff --git public/common/common_param_traits_macros.h public/common/common_param_traits_macros.h
-index 3c0c982..26d1b55 100644
+index 119fc1d..c7e8699 100644
 --- public/common/common_param_traits_macros.h
 +++ public/common/common_param_traits_macros.h
 @@ -196,6 +196,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
@@ -11,7 +11,7 @@ index 3c0c982..26d1b55 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git public/common/web_preferences.cc public/common/web_preferences.cc
-index 39db29a..b7e102c 100644
+index 11803fa..efe32ff 100644
 --- public/common/web_preferences.cc
 +++ public/common/web_preferences.cc
 @@ -171,6 +171,7 @@ WebPreferences::WebPreferences()
@@ -21,9 +21,9 @@ index 39db29a..b7e102c 100644
 +      base_background_color(0xFFFFFFFF),  // Color::white
        v8_cache_options(V8_CACHE_OPTIONS_DEFAULT),
        slimming_paint_enabled(false),
-       cookie_enabled(true),
+       slimming_paint_v2_enabled(false),
 diff --git public/common/web_preferences.h public/common/web_preferences.h
-index 8cc35b7..e1031ad 100644
+index bfb67a1..b7170ef 100644
 --- public/common/web_preferences.h
 +++ public/common/web_preferences.h
 @@ -173,6 +173,7 @@ struct CONTENT_EXPORT WebPreferences {
@@ -33,12 +33,12 @@ index 8cc35b7..e1031ad 100644
 +  uint32_t base_background_color;
    V8CacheOptions v8_cache_options;
    bool slimming_paint_enabled;
- 
+   bool slimming_paint_v2_enabled;
 diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
-index 29f4d4f..cb19708 100644
+index 5f1e6d8..09e81e2 100644
 --- renderer/render_view_impl.cc
 +++ renderer/render_view_impl.cc
-@@ -1003,6 +1003,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+@@ -970,6 +970,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
  
    settings->setJavaEnabled(prefs.java_enabled);
  

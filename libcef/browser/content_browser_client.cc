@@ -632,7 +632,7 @@ net::URLRequestContextGetter* CefContentBrowserClient::CreateRequestContext(
     (*protocol_handlers)[extensions::kExtensionScheme] =
         linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
             extensions::CreateExtensionProtocolHandler(
-                context->IsOffTheRecord(), extension_info_map));
+                context->IsOffTheRecord(), extension_info_map).release());
   }
 
   return context->CreateRequestContext(
@@ -660,7 +660,7 @@ bool CefContentBrowserClient::IsHandledURL(const GURL& url) {
   if (!url.is_valid())
     return false;
   const std::string& scheme = url.scheme();
-  DCHECK_EQ(scheme, base::StringToLowerASCII(scheme));
+  DCHECK_EQ(scheme, base::ToLowerASCII(scheme));
 
   if (scheme::IsInternalHandledScheme(scheme))
     return true;

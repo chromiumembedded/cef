@@ -17,6 +17,7 @@
 #include "content/public/common/content_client.h"
 #include "content/public/common/pepper_plugin_info.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "url/url_util.h"
 
 class CefContentClient : public content::ContentClient,
                          public ui::ResourceBundle::Delegate {
@@ -33,7 +34,7 @@ class CefContentClient : public content::ContentClient,
   void AddPepperPlugins(
       std::vector<content::PepperPluginInfo>* plugins) override;
   void AddAdditionalSchemes(
-      std::vector<std::string>* standard_schemes,
+      std::vector<url::SchemeWithType>* standard_schemes,
       std::vector<std::string>* savable_schemes) override;
   std::string GetUserAgent() const override;
   base::string16 GetLocalizedString(int message_id) const override;
@@ -112,6 +113,8 @@ class CefContentClient : public content::ContentClient,
   // Custom schemes handled by the client.
   SchemeInfoList scheme_info_list_;
   bool scheme_info_list_locked_;
+
+  std::vector<std::string> standard_schemes_;
 };
 
 #endif  // CEF_LIBCEF_COMMON_CONTENT_CLIENT_H_

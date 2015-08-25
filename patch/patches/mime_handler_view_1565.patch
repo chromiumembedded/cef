@@ -1,8 +1,8 @@
 diff --git mime_handler_view_guest.cc mime_handler_view_guest.cc
-index 2f44662..26524c4 100644
+index aee7d72..951d0cc 100644
 --- mime_handler_view_guest.cc
 +++ mime_handler_view_guest.cc
-@@ -134,6 +134,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -131,6 +131,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -11,7 +11,7 @@ index 2f44662..26524c4 100644
    callback.Run(WebContents::Create(params));
  }
  
-@@ -172,6 +174,30 @@ bool MimeHandlerViewGuest::StopFinding(content::StopFindAction action) {
+@@ -155,6 +157,30 @@ bool MimeHandlerViewGuest::ZoomPropagatesFromEmbedderToGuest() const {
    return false;
  }
  
@@ -39,17 +39,18 @@ index 2f44662..26524c4 100644
 +  }
 +}
 +
- content::WebContents* MimeHandlerViewGuest::OpenURLFromTab(
-     content::WebContents* source,
+ WebContents* MimeHandlerViewGuest::OpenURLFromTab(
+     WebContents* source,
      const content::OpenURLParams& params) {
 diff --git mime_handler_view_guest.h mime_handler_view_guest.h
-index 33ff28e..2d9a00e 100644
+index 26c0e11..a568b45 100644
 --- mime_handler_view_guest.h
 +++ mime_handler_view_guest.h
-@@ -71,6 +71,13 @@ class MimeHandlerViewGuest :
-             const base::string16& search_text,
-             const blink::WebFindOptions& options) override;
-   bool StopFinding(content::StopFindAction action) override;
+@@ -67,6 +67,15 @@ class MimeHandlerViewGuest :
+   bool ShouldHandleFindRequestsForEmbedder() const override;
+   bool ZoomPropagatesFromEmbedderToGuest() const override;
+ 
++  // content::BrowserPluginGuestDelegate implementation
 +  void OnGuestAttached(content::WebContentsView* guest_view,
 +                       content::WebContentsView* parent_view) override;
 +  void OnGuestDetached(content::WebContentsView* guest_view,
@@ -57,9 +58,10 @@ index 33ff28e..2d9a00e 100644
 +  void CreateViewForWidget(
 +      content::WebContentsView* guest_view,
 +      content::RenderWidgetHost* render_widget_host) override;
- 
++
    // WebContentsDelegate implementation.
    content::WebContents* OpenURLFromTab(
+       content::WebContents* source,
 diff --git mime_handler_view_guest_delegate.cc mime_handler_view_guest_delegate.cc
 index 63b81b8..0f63f48 100644
 --- mime_handler_view_guest_delegate.cc

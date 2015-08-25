@@ -211,8 +211,11 @@ void AddFilters(NSPopUpButton *button,
       // Treat as a filter of the form "Filter Name|.ext1;.ext2;.ext3".
       description = filter.substr(0, sep_index);
 
-      std::vector<base::string16> ext;
-      base::SplitString(filter.substr(sep_index + 1), ';', &ext);
+      const std::vector<base::string16>& ext =
+          base::SplitString(filter.substr(sep_index + 1),
+                            base::ASCIIToUTF16(";"),
+                            base::TRIM_WHITESPACE,
+                            base::SPLIT_WANT_NONEMPTY);
       for (size_t x = 0; x < ext.size(); ++x) {
         const base::string16& file_ext = ext[x];
         if (!file_ext.empty() && file_ext[0] == '.')

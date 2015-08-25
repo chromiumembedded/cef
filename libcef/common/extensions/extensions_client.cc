@@ -148,13 +148,6 @@ CefExtensionsClient::CreateFeatureProviderSource(
 void CefExtensionsClient::FilterHostPermissions(
     const URLPatternSet& hosts,
     URLPatternSet* new_hosts,
-    std::set<PermissionMessage>* messages) const {
-  NOTIMPLEMENTED();
-}
-
-void CefExtensionsClient::FilterHostPermissions(
-    const URLPatternSet& hosts,
-    URLPatternSet* new_hosts,
     PermissionIDSet* permissions) const {
   NOTIMPLEMENTED();
 }

@@ -28,10 +28,6 @@ class CefExtensionsClient : public ExtensionsClient {
       const std::string& name) const override;
   scoped_ptr<JSONFeatureProviderSource> CreateFeatureProviderSource(
       const std::string& name) const override;
-  void FilterHostPermissions(
-      const URLPatternSet& hosts,
-      URLPatternSet* new_hosts,
-      std::set<PermissionMessage>* messages) const override;
   void FilterHostPermissions(const URLPatternSet& hosts,
                              URLPatternSet* new_hosts,
                              PermissionIDSet* permissions) const override;

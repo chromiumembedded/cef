@@ -32,8 +32,8 @@ class Delegate : public InternalHandlerDelegate {
       path = path.substr(1);
 
     for (size_t i = 0; i < kDevtoolsResourcesSize; ++i) {
-      if (base::strcasecmp(kDevtoolsResources[i].name,
-                           path.c_str()) == 0) {
+      if (base::EqualsCaseInsensitiveASCII(kDevtoolsResources[i].name,
+                                           path.c_str())) {
         action->resource_id = kDevtoolsResources[i].value;
         return true;
       }

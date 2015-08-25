@@ -1,5 +1,5 @@
 diff --git common.gypi common.gypi
-index 4a55516..cbef796 100644
+index cff7376..d16e12d 100644
 --- common.gypi
 +++ common.gypi
 @@ -9,6 +9,9 @@
@@ -25,3 +25,18 @@ index c9cf226..0dedbe3 100755
                                stdout=subprocess.PIPE)
  
    archs = []
+diff --git vs_toolchain.py vs_toolchain.py
+index cea0d6d..158d0a8 100755
+--- vs_toolchain.py
++++ vs_toolchain.py
+@@ -32,8 +32,8 @@ def SetEnvironmentAndGetRuntimeDllDirs():
+       bool(int(os.environ.get('DEPOT_TOOLS_WIN_TOOLCHAIN', '1')))
+   # When running on a non-Windows host, only do this if the SDK has explicitly
+   # been downloaded before (in which case json_data_file will exist).
+-  if ((sys.platform in ('win32', 'cygwin') and depot_tools_win_toolchain) or
+-      os.path.exists(json_data_file)):
++  if ((sys.platform in ('win32', 'cygwin') or os.path.exists(json_data_file)) and
++      depot_tools_win_toolchain):
+     if not os.path.exists(json_data_file):
+       Update()
+     with open(json_data_file, 'r') as tempf:

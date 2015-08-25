@@ -201,8 +201,11 @@ std::wstring GetFilterString(
     if (sep_index != base::string16::npos) {
       // Treat as a filter of the form "Filter Name|.ext1;.ext2;.ext3".
       const base::string16& desc = filter.substr(0, sep_index);
-      std::vector<base::string16> ext;
-      base::SplitString(filter.substr(sep_index + 1), ';', &ext);
+      const std::vector<base::string16>& ext =
+          base::SplitString(filter.substr(sep_index + 1),
+                            base::ASCIIToUTF16(";"),
+                            base::TRIM_WHITESPACE,
+                            base::SPLIT_WANT_NONEMPTY);
       std::wstring ext_str;
       for (size_t x = 0; x < ext.size(); ++x) {
         const base::string16& file_ext = ext[x];

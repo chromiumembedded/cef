@@ -1,5 +1,5 @@
 diff --git gyp/generator/ninja.py gyp/generator/ninja.py
-index 6823f4f..e8ee2b7 100644
+index 51c288b..d996bbd 100644
 --- gyp/generator/ninja.py
 +++ gyp/generator/ninja.py
 @@ -741,7 +741,16 @@ class NinjaWriter(object):
@@ -20,3 +20,19 @@ index 6823f4f..e8ee2b7 100644
          src = self.GypPathToNinja(path, env)
          dst = self.GypPathToNinja(os.path.join(copy['destination'], basename),
                                    env)
+diff --git gyp/msvs_emulation.py gyp/msvs_emulation.py
+index ce5c46e..2f03c01 100644
+--- gyp/msvs_emulation.py
++++ gyp/msvs_emulation.py
+@@ -1017,8 +1017,10 @@ def GenerateEnvironmentFiles(toplevel_build_dir, generator_flags,
+     args = vs.SetupScript(arch)
+     args.extend(('&&', 'set'))
+     popen = subprocess.Popen(
+-        args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
++        args, shell=True, stdout=subprocess.PIPE)
+     variables, _ = popen.communicate()
++    if popen.returncode != 0:
++      raise Exception('Error invoking setup script: ' + repr(args))
+     env = _ExtractImportantEnvironment(variables)
+ 
+     # Inject system includes from gyp files into INCLUDE.
