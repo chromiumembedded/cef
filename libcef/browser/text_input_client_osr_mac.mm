@@ -348,8 +348,13 @@ extern "C" {
   // doesn't call any NSTextInput functions, such as setMarkedText or
   // insertText. So, we need to send an IPC message to a renderer so it can
   // delete the composition node.
+  // TODO(erikchen): NSInputManager is deprecated since OSX 10.6. Switch to
+  // NSTextInputContext. http://www.crbug.com/479010.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSInputManager *currentInputManager = [NSInputManager currentInputManager];
   [currentInputManager markedTextAbandoned:self];
+#pragma clang diagnostic pop
 
   hasMarkedText_ = NO;
   // Should not call [self unmarkText] here, because it'll send unnecessary
