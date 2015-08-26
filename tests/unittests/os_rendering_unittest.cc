@@ -85,7 +85,7 @@ const int kVerticalScrollbarWidth = GetSystemMetrics(SM_CXVSCROLL);
 const CefRect kEditBoxRect(442, 251, 46, 16);
 const CefRect kNavigateButtonRect(375, 275, 130, 20);
 const CefRect kSelectRect(461, 21, 87, 26);
-const CefRect kExpandedSelectRect(466, 42, 81, 286);
+const CefRect kExpandedSelectRect(466, 42, 79, 286);
 const CefRect kDropDivRect(9, 330, 52, 52);
 const CefRect kDragDivRect(60, 330, 52, 52);
 const int kVerticalScrollbarWidth = 15;
@@ -691,7 +691,7 @@ class OSRTestHandler : public RoutingTestHandler,
                       expanded_select_rect.height));
           // first pixel of border
 #if defined(OS_MACOSX)
-          EXPECT_EQ(0xff719bc1, *(reinterpret_cast<const uint32*>(buffer)));
+          EXPECT_EQ(0xff5d99d6, *(reinterpret_cast<const uint32*>(buffer)));
 #else
           if (scale_factor_ == 1.0f)
             EXPECT_EQ(0xffd69c2b, *(reinterpret_cast<const uint32*>(buffer)));

@@ -11,7 +11,7 @@
 #include "include/wrapper/cef_helpers.h"
 
 // Receives notifications from the application.
-@interface SimpleAppDelegate : NSObject
+@interface SimpleAppDelegate : NSObject<NSApplicationDelegate>
 - (void)createApplication:(id)object;
 - (void)tryToTerminateApplication:(NSApplication*)app;
 @end
@@ -90,7 +90,7 @@
   [NSBundle loadNibNamed:@"MainMenu" owner:NSApp];
 
   // Set the delegate for application events.
-  [NSApp setDelegate:self];
+  [[NSApplication sharedApplication] setDelegate:self];
 }
 
 - (void)tryToTerminateApplication:(NSApplication*)app {

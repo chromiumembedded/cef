@@ -648,6 +648,8 @@ BrowserOpenGLView* GLView(NSView* view) {
     case NSOtherMouseUp:
       modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
     break;
+    default:
+    break;
   }
 
   return modifiers;
