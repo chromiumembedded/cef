@@ -41,6 +41,13 @@ void CefWindowDelegateView::Init(
   params.opacity = views::Widget::InitParams::OPAQUE_WINDOW;
   // Tell Aura not to draw the window frame on resize.
   params.remove_standard_frame = true;
+#if defined(OS_WIN)
+  // Cause WidgetDelegate::CanActivate to return true. See comments in
+  // CefBrowserHostImpl::PlatformSetFocus.
+  // TODO(cef): Do we need similar logic on Linux for proper activation/focus
+  // handling?
+  params.activatable = views::Widget::InitParams::ACTIVATABLE_YES;
+#endif
 
   // Results in a call to InitContent().
   widget->Init(params);
@@ -49,6 +56,10 @@ void CefWindowDelegateView::Init(
   DCHECK_EQ(widget, GetWidget());
   // |widget| must be top-level for focus handling to work correctly.
   DCHECK(widget->is_top_level());
+#if defined(OS_WIN)
+  // |widget| must be activatable for focus handling to work correctly.
+  DCHECK(widget->widget_delegate()->CanActivate());
+#endif
 }
 
 void CefWindowDelegateView::InitContent() {

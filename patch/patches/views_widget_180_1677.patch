@@ -12,7 +12,7 @@ index a8e088c..838b6a0 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git desktop_aura/desktop_window_tree_host_win.cc desktop_aura/desktop_window_tree_host_win.cc
-index 5bee7fd..53e6c22 100644
+index 5bee7fd..3d89853 100644
 --- desktop_aura/desktop_window_tree_host_win.cc
 +++ desktop_aura/desktop_window_tree_host_win.cc
 @@ -131,7 +131,9 @@ void DesktopWindowTreeHostWin::Init(aura::Window* content_window,
@@ -26,16 +26,21 @@ index 5bee7fd..53e6c22 100644
      parent_hwnd = params.parent->GetHost()->GetAcceleratedWidget();
  
    message_handler_->set_remove_standard_frame(params.remove_standard_frame);
-@@ -793,10 +795,12 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -792,11 +794,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+ }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
-   // TODO(beng): inform the native_widget_delegate_.
-+  GetWidget()->GetNativeWindow()->Focus();
+-  // TODO(beng): inform the native_widget_delegate_.
++  // See comments in CefBrowserHostImpl::PlatformSetFocus.
++  if (CanActivate())
++    HandleActivationChanged(true);
  }
  
  void DesktopWindowTreeHostWin::HandleNativeBlur(HWND focused_window) {
-   // TODO(beng): inform the native_widget_delegate_.
-+  GetWidget()->GetNativeWindow()->Blur();
+-  // TODO(beng): inform the native_widget_delegate_.
++  // See comments in CefBrowserHostImpl::PlatformSetFocus.
++  if (CanActivate())
++    HandleActivationChanged(false);
  }
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(const ui::MouseEvent& event) {

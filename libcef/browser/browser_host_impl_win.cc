@@ -864,10 +864,34 @@ void CefBrowserHostImpl::PlatformSetFocus(bool focus) {
   }
 
   if (window_widget_) {
-    // Give native focus to the DesktopNativeWidgetAura for the root window.
-    // Needs to be done via the HWND so that keyboard focus is assigned
-    // correctly. DesktopNativeWidgetAura will update focus state on the
-    // aura::Window when WM_SETFOCUS and WM_KILLFOCUS are received.
+    // Give native focus to the DesktopWindowTreeHostWin associated with the
+    // root window.
+    //
+    // The DesktopWindowTreeHostWin HandleNativeFocus/HandleNativeBlur methods
+    // are called in response to WM_SETFOCUS/WM_KILLFOCUS respectively. The
+    // implementation has been patched to call HandleActivationChanged which
+    // results in the following behaviors:
+    // 1. Update focus/activation state of the aura::Window indirectly via
+    //    wm::FocusController. This allows focus-related behaviors (e.g. focus
+    //    rings, flashing caret, onFocus/onBlur JS events, etc.) to work as
+    //    expected (see issue #1677).
+    // 2. Update focus state of the ui::InputMethod. If this does not occur
+    //    then InputMethodBase::GetTextInputClient will return NULL and
+    //    InputMethodWin::OnChar will fail to sent character events to the
+    //    renderer (see issue #1700).
+    //
+    // This differs from activation in Chrome which is handled via
+    // HWNDMessageHandler::PostProcessActivateMessage (Widget::Show indirectly
+    // calls HWNDMessageHandler::Activate which calls ::SetForegroundWindow
+    // resulting in a WM_ACTIVATE message being sent to the window). The Chrome
+    // code path doesn't work for CEF because IsTopLevelWindow in
+    // hwnd_message_handler.cc will return false and consequently
+    // HWNDMessageHandler::PostProcessActivateMessage will not be called.
+    //
+    // Activation events are usually reserved for the top-level window so
+    // triggering activation based on focus events may be incorrect in some
+    // circumstances. Revisit this implementation if additional problems are
+    // discovered.
     ::SetFocus(HWNDForWidget(window_widget_));
   }
 }
