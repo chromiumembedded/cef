@@ -423,6 +423,7 @@ if platform == 'windows':
     'libGLESv2.dll',
     'natives_blob.bin',
     'snapshot_blob.bin',
+    'widevinecdmadapter.dll',
   ]
   if not options.x64build:
     binaries.append('wow_helper.exe')

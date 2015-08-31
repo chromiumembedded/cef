@@ -34,6 +34,14 @@
 #include "ppapi/shared_impl/ppapi_permissions.h"
 #include "ui/base/resource/resource_bundle.h"
 
+#include "widevine_cdm_version.h"  // In SHARED_INTERMEDIATE_DIR.
+
+// The following must be after widevine_cdm_version.h.
+#if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS) && \
+    !defined(WIDEVINE_CDM_IS_COMPONENT)
+#include "chrome/common/widevine_cdm_constants.h"
+#endif
+
 namespace {
 
 CefContentClient* g_content_client = NULL;
@@ -171,6 +179,68 @@ bool GetSystemPepperFlash(content::PepperPluginInfo* plugin) {
   return true;
 }
 
+void AddWidevineCdmFromCommandLine(
+    std::vector<content::PepperPluginInfo>* plugins) {
+#if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS) && \
+    !defined(WIDEVINE_CDM_IS_COMPONENT)
+  static bool skip_widevine_cdm_file_check = false;
+
+  base::FilePath widevine_cdm_path =
+      base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
+          switches::kWidevineCdmPath);
+  if (!widevine_cdm_path.empty()) {
+    widevine_cdm_path =
+        widevine_cdm_path.AppendASCII(kWidevineCdmAdapterFileName);
+  }
+
+  // Also get the version from the command-line. Should be something like
+  // 1.4.8.824.
+  const std::string& widevine_cdm_version =
+      base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
+          switches::kWidevineCdmVersion);
+
+  if (!widevine_cdm_path.empty() && !widevine_cdm_version.empty()) {
+    if (skip_widevine_cdm_file_check || base::PathExists(widevine_cdm_path)) {
+      content::PepperPluginInfo widevine_cdm;
+      widevine_cdm.is_out_of_process = true;
+      widevine_cdm.path = widevine_cdm_path;
+      widevine_cdm.name = kWidevineCdmDisplayName;
+      widevine_cdm.description = kWidevineCdmDescription +
+                                 std::string(" (version: ") +
+                                 widevine_cdm_version + ")";
+      widevine_cdm.version = widevine_cdm_version;
+      content::WebPluginMimeType widevine_cdm_mime_type(
+          kWidevineCdmPluginMimeType,
+          kWidevineCdmPluginExtension,
+          kWidevineCdmPluginMimeTypeDescription);
+
+      // Add the supported codecs as if they came from the component manifest.
+      std::vector<std::string> codecs;
+      codecs.push_back(kCdmSupportedCodecVorbis);
+      codecs.push_back(kCdmSupportedCodecVp8);
+      codecs.push_back(kCdmSupportedCodecVp9);
+#if defined(USE_PROPRIETARY_CODECS)
+      codecs.push_back(kCdmSupportedCodecAac);
+      codecs.push_back(kCdmSupportedCodecAvc1);
+#endif  // defined(USE_PROPRIETARY_CODECS)
+      std::string codec_string = base::JoinString(
+          codecs, std::string(1, kCdmSupportedCodecsValueDelimiter));
+      widevine_cdm_mime_type.additional_param_names.push_back(
+          base::ASCIIToUTF16(kCdmSupportedCodecsParamName));
+      widevine_cdm_mime_type.additional_param_values.push_back(
+          base::ASCIIToUTF16(codec_string));
+
+      widevine_cdm.mime_types.push_back(widevine_cdm_mime_type);
+      widevine_cdm.permissions = kWidevineCdmPluginPermissions;
+      plugins->push_back(widevine_cdm);
+
+      skip_widevine_cdm_file_check = true;
+    }
+  }
+#endif  // defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS) &&
+        // !defined(WIDEVINE_CDM_IS_COMPONENT)
+}
+
 }  // namespace
 
 const char CefContentClient::kPDFPluginPath[] = "internal-pdf-viewer";
@@ -197,6 +267,7 @@ void CefContentClient::AddPepperPlugins(
     std::vector<content::PepperPluginInfo>* plugins) {
   ComputeBuiltInPlugins(plugins);
   AddPepperFlashFromCommandLine(plugins);
+  AddWidevineCdmFromCommandLine(plugins);
 
   content::PepperPluginInfo plugin;
   if (GetSystemPepperFlash(&plugin))

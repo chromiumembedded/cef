@@ -76,6 +76,11 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
                        const GURL& top_origin_url,
                        const std::string& mime_type,
                        IPC::Message* reply_msg);
+  void OnIsInternalPluginAvailableForMimeType(
+      const std::string& mime_type,
+      bool* is_available,
+      std::vector<base::string16>* additional_param_names,
+      std::vector<base::string16>* additional_param_values);
 
   // |params| wraps the parameters passed to |OnGetPluginInfo|, because
   // |base::Bind| doesn't support the required arity <http://crbug.com/98542>.

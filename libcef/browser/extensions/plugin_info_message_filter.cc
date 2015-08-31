@@ -67,6 +67,8 @@ bool CefPluginInfoMessageFilter::OnMessageReceived(const IPC::Message& message) 
   IPC_BEGIN_MESSAGE_MAP(CefPluginInfoMessageFilter, message)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(CefViewHostMsg_GetPluginInfo,
                                     OnGetPluginInfo)
+    IPC_MESSAGE_HANDLER(CefViewHostMsg_IsInternalPluginAvailableForMimeType,
+                        OnIsInternalPluginAvailableForMimeType)
     IPC_MESSAGE_UNHANDLED(return false)
   IPC_END_MESSAGE_MAP()
   return true;
@@ -212,6 +214,32 @@ bool CefPluginInfoMessageFilter::Context::FindEnabledPlugin(
   *actual_mime_type = mime_types[i];
 
   return enabled;
+}
+
+void CefPluginInfoMessageFilter::OnIsInternalPluginAvailableForMimeType(
+    const std::string& mime_type,
+    bool* is_available,
+    std::vector<base::string16>* additional_param_names,
+    std::vector<base::string16>* additional_param_values) {
+  std::vector<WebPluginInfo> plugins;
+  PluginService::GetInstance()->GetInternalPlugins(&plugins);
+
+  for (size_t i = 0; i < plugins.size(); ++i) {
+    const WebPluginInfo& plugin = plugins[i];
+    const std::vector<content::WebPluginMimeType>& mime_types =
+        plugin.mime_types;
+    for (size_t j = 0; j < mime_types.size(); ++j) {
+      if (mime_types[j].mime_type == mime_type) {
+        // TODO(cef): Maybe allow plugins to be disabled here.
+        *is_available = true;
+        *additional_param_names = mime_types[j].additional_param_names;
+        *additional_param_values = mime_types[j].additional_param_values;
+        return;
+      }
+    }
+  }
+
+  *is_available = false;
 }
 
 }  // namespace extensions

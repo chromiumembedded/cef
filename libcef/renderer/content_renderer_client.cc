@@ -17,6 +17,7 @@
 #include "libcef/renderer/extensions/extensions_dispatcher_delegate.h"
 #include "libcef/renderer/extensions/extensions_renderer_client.h"
 #include "libcef/renderer/extensions/print_web_view_helper_delegate.h"
+#include "libcef/renderer/media/cef_key_systems.h"
 #include "libcef/renderer/pepper/pepper_helper.h"
 #include "libcef/renderer/render_frame_observer.h"
 #include "libcef/renderer/render_message_filter.h"
@@ -647,6 +648,11 @@ CefContentRendererClient::CreateBrowserPluginDelegate(
     return new extensions::MimeHandlerViewContainer(
         render_frame, mime_type, original_url);
   }
+}
+
+void CefContentRendererClient::AddKeySystems(
+    std::vector<media::KeySystemInfo>* key_systems) {
+  AddCefKeySystems(key_systems);
 }
 
 void CefContentRendererClient::WillDestroyCurrentMessageLoop() {
