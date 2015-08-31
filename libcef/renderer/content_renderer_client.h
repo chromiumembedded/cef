@@ -108,6 +108,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
       content::RenderFrame* render_frame,
       const std::string& mime_type,
       const GURL& original_url) override;
+  void AddKeySystems(std::vector<media::KeySystemInfo>* key_systems) override;
 
   // MessageLoop::DestructionObserver implementation.
   void WillDestroyCurrentMessageLoop() override;

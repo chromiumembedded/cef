@@ -712,6 +712,8 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
       switches::kPpapiFlashPath,
       switches::kPpapiFlashVersion,
       switches::kUncaughtExceptionStackSize,
+      switches::kWidevineCdmPath,
+      switches::kWidevineCdmVersion,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));
@@ -724,6 +726,8 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     static const char* const kSwitchNames[] = {
       switches::kPpapiFlashPath,
       switches::kPpapiFlashVersion,
+      switches::kWidevineCdmPath,
+      switches::kWidevineCdmVersion,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));

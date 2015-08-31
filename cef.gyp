@@ -936,6 +936,8 @@
         # Generate chrome/common/safe_browsing/csd.pb.h required by
         # zip_analyzer_results.h via chrome_utility_messages.h
         '<(DEPTH)/chrome/chrome.gyp:safe_browsing_proto',
+        '<(DEPTH)/components/components.gyp:cdm_renderer',
+        '<(DEPTH)/components/components.gyp:component_updater',
         '<(DEPTH)/components/components.gyp:crash_component_breakpad_mac_to_be_deleted',
         '<(DEPTH)/components/components.gyp:crx_file',
         '<(DEPTH)/components/components.gyp:devtools_discovery',
@@ -986,6 +988,8 @@
         '<(DEPTH)/third_party/libxml/libxml.gyp:libxml',
         '<(DEPTH)/third_party/WebKit/public/blink.gyp:blink',
         '<(DEPTH)/third_party/WebKit/Source/core/core.gyp:webcore',
+        '<(DEPTH)/third_party/widevine/cdm/widevine_cdm.gyp:widevinecdmadapter',
+        '<(DEPTH)/third_party/widevine/cdm/widevine_cdm.gyp:widevine_cdm_version_h',
         '<(DEPTH)/third_party/zlib/zlib.gyp:minizip',
         '<(DEPTH)/ui/gl/gl.gyp:gl',
         '<(DEPTH)/ui/base/ime/ui_base_ime.gyp:ui_base_ime',
@@ -1045,6 +1049,10 @@
         'libcef/browser/download_item_impl.h',
         'libcef/browser/download_manager_delegate.cc',
         'libcef/browser/download_manager_delegate.h',
+        'libcef/browser/component_updater/cef_component_updater_configurator.cc',
+        'libcef/browser/component_updater/cef_component_updater_configurator.h',
+        'libcef/browser/component_updater/widevine_cdm_component_installer.cc',
+        'libcef/browser/component_updater/widevine_cdm_component_installer.h',
         'libcef/browser/extensions/api/streams_private/streams_private_api.cc',
         'libcef/browser/extensions/api/streams_private/streams_private_api.h',
         'libcef/browser/extensions/browser_context_keyed_service_factories.cc',
@@ -1100,6 +1108,8 @@
         'libcef/browser/pepper/browser_pepper_host_factory.h',
         'libcef/browser/pepper/pepper_flash_browser_host.cc',
         'libcef/browser/pepper/pepper_flash_browser_host.h',
+        'libcef/browser/pepper/pepper_isolated_file_system_message_filter.cc',
+        'libcef/browser/pepper/pepper_isolated_file_system_message_filter.h',
         'libcef/browser/pepper/device_id_fetcher.cc',
         'libcef/browser/permission_manager.cc',
         'libcef/browser/permission_manager.h',
@@ -1242,6 +1252,8 @@
         'libcef/renderer/extensions/print_web_view_helper_delegate.h',
         'libcef/renderer/frame_impl.cc',
         'libcef/renderer/frame_impl.h',
+        'libcef/renderer/media/cef_key_systems.cc',
+        'libcef/renderer/media/cef_key_systems.h',
         'libcef/renderer/pepper/pepper_helper.cc',
         'libcef/renderer/pepper/pepper_helper.h',
         'libcef/renderer/pepper/pepper_uma_host.cc',
@@ -1382,6 +1394,12 @@
         '<(DEPTH)/extensions/shell/browser/shell_display_info_provider.h',
         '<(DEPTH)/extensions/shell/browser/shell_web_contents_modal_dialog_manager.cc',
         '<(grit_out_dir)/grit/component_extension_resources_map.cc',
+        # Include sources for component-updater support.
+        '<(DEPTH)/chrome/browser/component_updater/component_updater_url_constants.cc',
+        '<(DEPTH)/chrome/browser/component_updater/component_updater_url_constants.h',
+        # Include sources for widevine support.
+        '<(DEPTH)/chrome/common/widevine_cdm_constants.cc',
+        '<(DEPTH)/chrome/common/widevine_cdm_constants.h',
       ],
       'conditions': [
         ['OS=="win"', {
@@ -1488,6 +1506,7 @@
             '<(PRODUCT_DIR)/icudtl.dat',
             '<(PRODUCT_DIR)/natives_blob.bin',
             '<(PRODUCT_DIR)/snapshot_blob.bin',
+            '<(PRODUCT_DIR)/widevinecdmadapter.plugin',
             'libcef/resources/framework-Info.plist',
           ],
           'mac_bundle_resources!': [

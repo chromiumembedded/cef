@@ -230,6 +230,20 @@ IPC_SYNC_MESSAGE_CONTROL4_1(CefViewHostMsg_GetPluginInfo,
                             std::string /* mime_type */,
                             CefViewHostMsg_GetPluginInfo_Output /* output */)
 
+// Returns whether any internal plugin supporting |mime_type| is registered and
+// enabled. Does not determine whether the plugin can actually be instantiated
+// (e.g. whether it has all its dependencies).
+// When the returned *|is_available| is true, |additional_param_names| and
+// |additional_param_values| contain the name-value pairs, if any, specified
+// for the *first* non-disabled plugin found that is registered for |mime_type|.
+// Based on ChromeViewHostMsg_IsInternalPluginAvailableForMimeType.
+IPC_SYNC_MESSAGE_CONTROL1_3(
+    CefViewHostMsg_IsInternalPluginAvailableForMimeType,
+    std::string /* mime_type */,
+    bool /* is_available */,
+    std::vector<base::string16> /* additional_param_names */,
+    std::vector<base::string16> /* additional_param_values */)
+
 // Sent when a frame is identified for the first time.
 IPC_MESSAGE_ROUTED3(CefHostMsg_FrameIdentified,
                     int64 /* frame_id */,

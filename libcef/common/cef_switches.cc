@@ -103,4 +103,13 @@ const char kDisableScrollBounce[]         = "disable-scroll-bounce";
 // Disable the PDF extension.
 const char kDisablePdfExtension[]         = "disable-pdf-extension";
 
+// Enable Widevine CDM.
+const char kEnableWidevineCdm[]           = "enable-widevine-cdm";
+
+// Path to Widevine CDM binaries.
+const char kWidevineCdmPath[]             = "widevine-cdm-path";
+
+// Widevine CDM version.
+const char kWidevineCdmVersion[]          = "widevine-cdm-version";
+
 }  // namespace switches

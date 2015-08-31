@@ -26,6 +26,7 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/widevine_cdm_constants.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
@@ -35,6 +36,8 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
 #include "ui/base/ui_base_switches.h"
+
+#include "widevine_cdm_version.h"  // In SHARED_INTERMEDIATE_DIR.
 
 #include "ipc/ipc_message.h"  // For IPC_MESSAGE_LOG_ENABLED.
 
@@ -525,6 +528,18 @@ void CefMainDelegate::PreSandboxStartup() {
         user_data_path.AppendASCII("Dictionaries"),
         false,  // May not be an absolute path.
         true);  // Create if necessary.
+
+#if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
+    const base::FilePath& widevine_plugin_path = GetResourcesFilePath();
+    PathService::Override(chrome::FILE_WIDEVINE_CDM_ADAPTER,
+                          widevine_plugin_path.AppendASCII(
+                              kWidevineCdmAdapterFileName));
+#if defined(WIDEVINE_CDM_IS_COMPONENT)
+    PathService::Override(chrome::DIR_COMPONENT_WIDEVINE_CDM,
+                          user_data_path.Append(kWidevineCdmBaseDirectory));
+#endif  // defined(WIDEVINE_CDM_IS_COMPONENT)
+#endif  // defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
+
   }
 
   if (command_line->HasSwitch(switches::kDisablePackLoading))

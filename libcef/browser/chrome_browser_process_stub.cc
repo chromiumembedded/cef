@@ -224,8 +224,7 @@ ChromeNetLog* ChromeBrowserProcessStub::net_log() {
 
 component_updater::ComponentUpdateService*
     ChromeBrowserProcessStub::component_updater() {
-  NOTIMPLEMENTED();
-  return NULL;
+  return CefContext::Get()->component_updater();
 }
 
 CRLSetFetcher* ChromeBrowserProcessStub::crl_set_fetcher() {

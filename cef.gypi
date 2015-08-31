@@ -9,6 +9,8 @@
     # Set ENABLE_PRINTING=1 ENABLE_BASIC_PRINTING=1.
     'enable_basic_printing': 1,
     'enable_print_preview': 0,
+    # Enable support for Widevine CDM.
+    'enable_widevine': 1,
     'conditions': [
       # Directory for CEF source files.
       [ 'OS=="win"', {

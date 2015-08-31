@@ -44,6 +44,9 @@ extern const char kOverrideSpellCheckLang[];
 extern const char kEnableSystemFlash[];
 extern const char kDisableScrollBounce[];
 extern const char kDisablePdfExtension[];
+extern const char kEnableWidevineCdm[];
+extern const char kWidevineCdmPath[];
+extern const char kWidevineCdmVersion[];
 
 }  // namespace switches
 
