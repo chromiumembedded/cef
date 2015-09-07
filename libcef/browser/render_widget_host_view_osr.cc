@@ -794,13 +794,7 @@ void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
 void CefRenderWidgetHostViewOSR::RenderProcessGone(
     base::TerminationStatus status,
     int error_code) {
-  // TODO(OSR): Need to also clear WebContentsViewOSR::view_?
   Destroy();
-  render_widget_host_ = NULL;
-  parent_host_view_ = NULL;
-  popup_host_view_ = NULL;
-  child_host_view_ = NULL;
-  guest_host_views_.clear();
 }
 
 void CefRenderWidgetHostViewOSR::Destroy() {
