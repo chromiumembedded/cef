@@ -46,7 +46,6 @@
 #include "include/capi/cef_resource_handler_capi.h"
 #include "include/capi/cef_response_capi.h"
 #include "include/capi/cef_ssl_info_capi.h"
-#include "include/capi/cef_web_plugin_capi.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -213,14 +212,6 @@ typedef struct _cef_request_handler_t {
       struct _cef_browser_t* browser, cef_errorcode_t cert_error,
       const cef_string_t* request_url, struct _cef_sslinfo_t* ssl_info,
       struct _cef_request_callback_t* callback);
-
-  ///
-  // Called on the browser process IO thread before a plugin is loaded. Return
-  // true (1) to block loading of the plugin.
-  ///
-  int (CEF_CALLBACK *on_before_plugin_load)(struct _cef_request_handler_t* self,
-      struct _cef_browser_t* browser, const cef_string_t* url,
-      const cef_string_t* policy_url, struct _cef_web_plugin_info_t* info);
 
   ///
   // Called on the browser process UI thread when a plugin has crashed.

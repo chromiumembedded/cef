@@ -40,6 +40,7 @@
 
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_cookie_capi.h"
+#include "include/capi/cef_web_plugin_capi.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,12 +59,30 @@ typedef struct _cef_request_context_handler_t {
   cef_base_t base;
 
   ///
-  // Called on the IO thread to retrieve the cookie manager. If this function
-  // returns NULL the default cookie manager retrievable via
+  // Called on the browser process IO thread to retrieve the cookie manager. If
+  // this function returns NULL the default cookie manager retrievable via
   // cef_request_tContext::get_default_cookie_manager() will be used.
   ///
   struct _cef_cookie_manager_t* (CEF_CALLBACK *get_cookie_manager)(
       struct _cef_request_context_handler_t* self);
+
+  ///
+  // Called on the browser process IO thread before a plugin instance is loaded.
+  // |mime_type| is the mime type of the plugin that will be loaded.
+  // |plugin_url| is the content URL that the plugin will load and may be NULL.
+  // |top_origin_url| is the URL for the top-level frame that contains the
+  // plugin. |plugin_info| includes additional information about the plugin that
+  // will be loaded. |plugin_policy| is the recommended policy. Modify
+  // |plugin_policy| and return true (1) to change the policy. Return false (0)
+  // to use the recommended policy. The default plugin policy can be set at
+  // runtime using the `--plugin-policy=[allow|detect|block]` command-line flag.
+  ///
+  int (CEF_CALLBACK *on_before_plugin_load)(
+      struct _cef_request_context_handler_t* self,
+      const cef_string_t* mime_type, const cef_string_t* plugin_url,
+      const cef_string_t* top_origin_url,
+      struct _cef_web_plugin_info_t* plugin_info,
+      cef_plugin_policy_t* plugin_policy);
 } cef_request_context_handler_t;
 
 

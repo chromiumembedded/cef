@@ -133,3 +133,13 @@ CefContextMenuParamsImpl::EditStateFlags
   CEF_VALUE_VERIFY_RETURN(false, CM_EDITFLAG_NONE);
   return static_cast<EditStateFlags>(const_value().edit_flags);
 }
+
+bool CefContextMenuParamsImpl::IsCustomMenu() {
+  CEF_VALUE_VERIFY_RETURN(false, false);
+  return !const_value().custom_items.empty();
+}
+
+bool CefContextMenuParamsImpl::IsPepperMenu() {
+  CEF_VALUE_VERIFY_RETURN(false, false);
+  return const_value().custom_context.is_pepper_menu;
+}

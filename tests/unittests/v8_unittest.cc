@@ -2094,6 +2094,8 @@ class V8TestHandler : public TestHandler {
   const char* test_url_;
   TrackCallback got_message_;
   TrackCallback got_success_;
+
+  IMPLEMENT_REFCOUNTING(V8TestHandler);
 };
 
 }  // namespace

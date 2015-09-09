@@ -13,13 +13,17 @@
 #include "libcef/browser/permission_manager.h"
 #include "libcef/browser/ssl_host_state_delegate.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/cef_switches.h"
 #include "libcef/common/extensions/extensions_util.h"
 
+#include "base/command_line.h"
 #include "base/files/file_util.h"
 #include "base/lazy_instance.h"
 #include "base/logging.h"
+#include "base/strings/string_util.h"
 #include "base/threading/thread_restrictions.h"
 #include "chrome/browser/net/proxy_service_factory.h"
+#include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/guest_view/browser/guest_view_manager.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/browser_thread.h"
@@ -129,6 +133,9 @@ CefBrowserContextImpl::CefBrowserContextImpl(
 CefBrowserContextImpl::~CefBrowserContextImpl() {
   pref_proxy_config_tracker_->DetachFromPrefService();
 
+  if (host_content_settings_map_.get())
+    host_content_settings_map_->ShutdownOnUIThread();
+
   // Delete the download manager delegate here because otherwise we'll crash
   // when it's accessed from the content::BrowserContext destructor.
   if (download_manager_delegate_.get())
@@ -164,7 +171,7 @@ void CefBrowserContextImpl::Initialize() {
   // Initialize proxy configuration tracker.
   pref_proxy_config_tracker_.reset(
       ProxyServiceFactory::CreatePrefProxyConfigTrackerOfLocalState(
-          CefContentBrowserClient::Get()->pref_service()));
+          GetPrefs()));
 
   // Create the CefURLRequestContextGetterImpl via an indirect call to
   // CreateRequestContext. Triggers a call to CefURLRequestContextGetterImpl::
@@ -339,4 +346,38 @@ net::URLRequestContextGetter*
         content::ProtocolHandlerMap* protocol_handlers,
         content::URLRequestInterceptorScopedVector request_interceptors) {
   return NULL;
+}
+
+HostContentSettingsMap* CefBrowserContextImpl::GetHostContentSettingsMap() {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+  if (!host_content_settings_map_.get()) {
+    // The |incognito| argument is intentionally set to false as it otherwise
+    // limits the types of values that can be stored in the settings map (for
+    // example, default values set via DefaultProvider::SetWebsiteSetting).
+    host_content_settings_map_ = new HostContentSettingsMap(GetPrefs(), false);
+
+    // Change the default plugin policy.
+    const base::CommandLine* command_line =
+        base::CommandLine::ForCurrentProcess();
+    const std::string& plugin_policy_str =
+      command_line->GetSwitchValueASCII(switches::kPluginPolicy);
+    if (!plugin_policy_str.empty()) {
+      ContentSetting plugin_policy = CONTENT_SETTING_ALLOW;
+      if (base::LowerCaseEqualsASCII(plugin_policy_str,
+                                     switches::kPluginPolicy_Detect)) {
+        plugin_policy = CONTENT_SETTING_DETECT_IMPORTANT_CONTENT;
+      } else if (base::LowerCaseEqualsASCII(plugin_policy_str,
+                                            switches::kPluginPolicy_Block)) {
+        plugin_policy = CONTENT_SETTING_BLOCK;
+      }
+      host_content_settings_map_->SetDefaultContentSetting(
+          CONTENT_SETTINGS_TYPE_PLUGINS, plugin_policy);
+    }
+  }
+  return host_content_settings_map_.get();
+}
+
+PrefService* CefBrowserContextImpl::GetPrefs() {
+  // TODO(cef): Perhaps use per-context settings.
+  return CefContentBrowserClient::Get()->pref_service();
 }

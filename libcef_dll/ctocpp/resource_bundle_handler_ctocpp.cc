@@ -15,7 +15,7 @@
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-bool CefResourceBundleHandlerCToCpp::GetLocalizedString(int message_id,
+bool CefResourceBundleHandlerCToCpp::GetLocalizedString(int string_id,
     CefString& string) {
   cef_resource_bundle_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_localized_string))
@@ -25,7 +25,7 @@ bool CefResourceBundleHandlerCToCpp::GetLocalizedString(int message_id,
 
   // Execute
   int _retval = _struct->get_localized_string(_struct,
-      message_id,
+      string_id,
       string.GetWritableStruct());
 
   // Return type: bool
@@ -43,6 +43,25 @@ bool CefResourceBundleHandlerCToCpp::GetDataResource(int resource_id,
   // Execute
   int _retval = _struct->get_data_resource(_struct,
       resource_id,
+      &data,
+      &data_size);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+bool CefResourceBundleHandlerCToCpp::GetDataResourceForScale(int resource_id,
+    ScaleFactor scale_factor, void*& data, size_t& data_size) {
+  cef_resource_bundle_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_data_resource_for_scale))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->get_data_resource_for_scale(_struct,
+      resource_id,
+      scale_factor,
       &data,
       &data_size);
 

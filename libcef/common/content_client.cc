@@ -433,8 +433,15 @@ bool CefContentClient::GetRawDataResource(int resource_id,
     if (handler.get()) {
       void* data = NULL;
       size_t data_size = 0;
-      if (handler->GetDataResource(resource_id, data, data_size))
+      if (scale_factor != ui::SCALE_FACTOR_NONE) {
+        if (handler->GetDataResourceForScale(
+              resource_id, static_cast<cef_scale_factor_t>(scale_factor), data,
+              data_size)) {
+          *value = base::StringPiece(static_cast<char*>(data), data_size);
+        }
+      } else if (handler->GetDataResource(resource_id, data, data_size)) {
         *value = base::StringPiece(static_cast<char*>(data), data_size);
+      }
     }
   }
 

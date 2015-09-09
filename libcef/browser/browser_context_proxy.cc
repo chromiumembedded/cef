@@ -169,3 +169,11 @@ net::URLRequestContextGetter*
         content::URLRequestInterceptorScopedVector request_interceptors) {
   return NULL;
 }
+
+HostContentSettingsMap* CefBrowserContextProxy::GetHostContentSettingsMap() {
+  return parent_->GetHostContentSettingsMap();
+}
+
+PrefService* CefBrowserContextProxy::GetPrefs() {
+  return parent_->GetPrefs();
+}

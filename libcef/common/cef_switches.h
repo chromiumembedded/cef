@@ -48,6 +48,10 @@ extern const char kEnableNPAPI[];
 extern const char kEnableWidevineCdm[];
 extern const char kWidevineCdmPath[];
 extern const char kWidevineCdmVersion[];
+extern const char kPluginPolicy[];
+extern const char kPluginPolicy_Allow[];
+extern const char kPluginPolicy_Detect[];
+extern const char kPluginPolicy_Block[];
 
 }  // namespace switches
 

@@ -32,7 +32,6 @@ class CefResourceDispatcherHostDelegate;
 class PrefService;
 
 namespace content {
-class PluginServiceFilter;
 class SiteInstance;
 }
 
@@ -174,7 +173,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
 
   CefBrowserMainParts* browser_main_parts_;
 
-  scoped_ptr<content::PluginServiceFilter> plugin_service_filter_;
   scoped_ptr<CefResourceDispatcherHostDelegate>
       resource_dispatcher_host_delegate_;
 

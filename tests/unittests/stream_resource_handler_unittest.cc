@@ -170,6 +170,8 @@ class ReadTestHandler : public RoutingTestHandler {
   TrackCallback got_resource_handler_;
   TrackCallback got_on_query_;
   TrackCallback got_on_loading_state_change_done_;
+
+  IMPLEMENT_REFCOUNTING(ReadTestHandler);
 };
 
 }  // namespace

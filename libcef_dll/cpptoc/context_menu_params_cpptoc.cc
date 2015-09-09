@@ -308,6 +308,36 @@ cef_context_menu_edit_state_flags_t CEF_CALLBACK context_menu_params_get_edit_st
   return _retval;
 }
 
+int CEF_CALLBACK context_menu_params_is_custom_menu(
+    struct _cef_context_menu_params_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefContextMenuParamsCppToC::Get(self)->IsCustomMenu();
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK context_menu_params_is_pepper_menu(
+    struct _cef_context_menu_params_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefContextMenuParamsCppToC::Get(self)->IsPepperMenu();
+
+  // Return type: bool
+  return _retval;
+}
+
 }  // namespace
 
 
@@ -336,6 +366,8 @@ CefContextMenuParamsCppToC::CefContextMenuParamsCppToC() {
   GetStruct()->is_spell_check_enabled =
       context_menu_params_is_spell_check_enabled;
   GetStruct()->get_edit_state_flags = context_menu_params_get_edit_state_flags;
+  GetStruct()->is_custom_menu = context_menu_params_is_custom_menu;
+  GetStruct()->is_pepper_menu = context_menu_params_is_pepper_menu;
 }
 
 template<> CefRefPtr<CefContextMenuParams> CefCppToC<CefContextMenuParamsCppToC,

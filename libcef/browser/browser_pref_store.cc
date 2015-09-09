@@ -17,6 +17,7 @@
 #include "chrome/browser/prefs/command_line_pref_store.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
+#include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "components/proxy_config/proxy_config_dictionary.h"
 #include "extensions/browser/extension_prefs.h"
@@ -84,13 +85,14 @@ scoped_ptr<PrefService> CefBrowserPrefStore::CreateService() {
       new CommandLinePrefStore(command_line));
   factory.set_user_prefs(this);
 
-  scoped_refptr< user_prefs::PrefRegistrySyncable> registry(
+  scoped_refptr<user_prefs::PrefRegistrySyncable> registry(
       new user_prefs::PrefRegistrySyncable());
 
   // Default settings.
   CefMediaCaptureDevicesDispatcher::RegisterPrefs(registry.get());
   PrefProxyConfigTrackerImpl::RegisterPrefs(registry.get());
   extensions::ExtensionPrefs::RegisterProfilePrefs(registry.get());
+  HostContentSettingsMap::RegisterProfilePrefs(registry.get());
 
   // Print settings.
   registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);
@@ -121,6 +123,11 @@ scoped_ptr<PrefService> CefBrowserPrefStore::CreateService() {
   // Based on DeviceIDFetcher::RegisterProfilePrefs.
   registry->RegisterBooleanPref(prefs::kEnableDRM, false);
   registry->RegisterStringPref(prefs::kDRMSalt, "");
+
+  // Plugin settings.
+  // Based on chrome::RegisterBrowserUserPrefs.
+  registry->RegisterBooleanPref(prefs::kPluginsAllowOutdated, false);
+  registry->RegisterBooleanPref(prefs::kPluginsAlwaysAuthorize, false);
 
   return factory.Create(registry.get());
 }

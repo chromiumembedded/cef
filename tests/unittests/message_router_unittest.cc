@@ -297,6 +297,8 @@ class MRTestHandler : public TestHandler {
 
  private:
   CefRefPtr<CefMessageRouterBrowserSide> message_router_;
+
+  IMPLEMENT_REFCOUNTING(MRTestHandler);
 };
 
 

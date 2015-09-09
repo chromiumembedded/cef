@@ -20,6 +20,8 @@
 
 #include "include/cef_web_plugin.h"
 #include "include/capi/cef_web_plugin_capi.h"
+#include "include/cef_browser.h"
+#include "include/capi/cef_browser_capi.h"
 #include "libcef_dll/cpptoc/cpptoc.h"
 
 // Wrap a C++ class with a C structure.

@@ -5,7 +5,7 @@
 
 #include "libcef/browser/extensions/extensions_browser_client.h"
 
-#include "libcef/browser/content_browser_client.h"
+#include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/extensions/component_extension_resource_manager.h"
 #include "libcef/browser/extensions/extension_system_factory.h"
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
@@ -124,8 +124,7 @@ bool CefExtensionsBrowserClient::AllowCrossRendererResourceLoad(
 
 PrefService* CefExtensionsBrowserClient::GetPrefServiceForContext(
     BrowserContext* context) {
-  // TODO(extensions): Do we need a per-context PrefService?
-  return CefContentBrowserClient::Get()->pref_service();
+  return CefBrowserContextImpl::GetForContext(context)->GetPrefs();
 }
 
 void CefExtensionsBrowserClient::GetEarlyExtensionPrefsObservers(

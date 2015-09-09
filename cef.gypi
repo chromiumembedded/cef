@@ -11,6 +11,8 @@
     'enable_print_preview': 0,
     # Enable support for Widevine CDM.
     'enable_widevine': 1,
+    # Disable support for plugin installation.
+    'enable_plugin_installation': 0,
     'conditions': [
       # Directory for CEF source files.
       [ 'OS=="win"', {

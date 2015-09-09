@@ -9,6 +9,7 @@
 #include "libcef/browser/menu_model_impl.h"
 
 #include "base/memory/scoped_ptr.h"
+#include "base/memory/weak_ptr.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/common/context_menu_params.h"
 
@@ -17,6 +18,7 @@ class RenderFrameHost;
 class WebContents;
 };
 
+class CefRunContextMenuCallback;
 class CefBrowserHostImpl;
 
 class CefMenuCreator : public CefMenuModelImpl::Delegate,
@@ -58,10 +60,16 @@ class CefMenuCreator : public CefMenuModelImpl::Delegate,
   void MenuClosed(CefRefPtr<CefMenuModelImpl> source) override;
   bool FormatLabel(base::string16& label) override;
 
+  void ExecuteCommandCallback(int command_id,
+                              cef_event_flags_t event_flags);
+
   // Create the default menu model.
   void CreateDefaultModel();
   // Execute the default command handling.
   void ExecuteDefaultCommand(int command_id);
+
+  // Returns true if the specified id is a custom context menu command.
+  bool IsCustomContextMenuCommand(int command_id);
 
   // CefBrowserHostImpl pointer is guaranteed to outlive this object.
   CefBrowserHostImpl* browser_;
@@ -69,6 +77,12 @@ class CefMenuCreator : public CefMenuModelImpl::Delegate,
   CefRefPtr<CefMenuModelImpl> model_;
   content::ContextMenuParams params_;
   scoped_ptr<Runner> runner_;
+
+  // Not owned by this class.
+  CefRunContextMenuCallback* custom_menu_callback_;
+
+  // Must be the last member.
+  base::WeakPtrFactory<CefMenuCreator> weak_ptr_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(CefMenuCreator);
 };

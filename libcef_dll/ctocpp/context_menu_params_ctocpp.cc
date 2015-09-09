@@ -303,6 +303,34 @@ CefContextMenuParams::EditStateFlags CefContextMenuParamsCToCpp::GetEditStateFla
   return _retval;
 }
 
+bool CefContextMenuParamsCToCpp::IsCustomMenu() {
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_custom_menu))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->is_custom_menu(_struct);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+bool CefContextMenuParamsCToCpp::IsPepperMenu() {
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_pepper_menu))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->is_pepper_menu(_struct);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 

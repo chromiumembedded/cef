@@ -16,9 +16,9 @@
 #include "libcef/browser/devtools_delegate.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/extensions/extension_system.h"
-#include "libcef/browser/extensions/plugin_info_message_filter.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/pepper/browser_pepper_host_factory.h"
+#include "libcef/browser/plugins/plugin_info_message_filter.h"
 #include "libcef/browser/printing/printing_message_filter.h"
 #include "libcef/browser/resource_dispatcher_host_delegate.h"
 #include "libcef/browser/speech_recognition_manager_delegate.h"
@@ -38,14 +38,14 @@
 #include "base/path_service.h"
 #include "chrome/browser/spellchecker/spellcheck_message_filter.h"
 #include "chrome/common/chrome_switches.h"
-#include "content/browser/plugin_service_impl.h"
 #include "content/public/browser/access_token_store.h"
+#include "content/public/browser/browser_ppapi_host.h"
 #include "content/public/browser/browser_url_handler.h"
 #include "content/public/browser/child_process_security_policy.h"
 #include "content/public/browser/client_certificate_delegate.h"
-#include "content/public/browser/plugin_service_filter.h"
 #include "content/public/browser/quota_permission_context.h"
 #include "content/public/browser/render_process_host.h"
+#include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/resource_dispatcher_host.h"
 #include "content/public/common/content_switches.h"
@@ -58,6 +58,7 @@
 #include "extensions/browser/io_thread_extension_message_filter.h"
 #include "extensions/common/constants.h"
 #include "net/ssl/ssl_cert_request_info.h"
+#include "ppapi/host/ppapi_host.h"
 #include "third_party/WebKit/public/web/WebWindowFeatures.h"
 #include "ui/base/ui_base_switches.h"
 #include "url/gurl.h"
@@ -265,48 +266,6 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
   DISALLOW_COPY_AND_ASSIGN(CefQuotaPermissionContext);
 };
 
-class CefPluginServiceFilter : public content::PluginServiceFilter {
- public:
-  CefPluginServiceFilter() {}
-
-  bool IsPluginAvailable(int render_process_id,
-                         int render_frame_id,
-                         const void* context,
-                         const GURL& url,
-                         const GURL& policy_url,
-                         content::WebPluginInfo* plugin) override {
-    bool allowed = true;
-
-    CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserForFrame(render_process_id,
-                                               render_frame_id);
-    if (browser.get()) {
-      CefRefPtr<CefClient> client = browser->GetClient();
-      if (client.get()) {
-        CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
-        if (handler.get()) {
-          CefRefPtr<CefWebPluginInfoImpl> pluginInfo(
-              new CefWebPluginInfoImpl(*plugin));
-          allowed =
-              !handler->OnBeforePluginLoad(browser.get(),
-                                           url.possibly_invalid_spec(),
-                                           policy_url.possibly_invalid_spec(),
-                                           pluginInfo.get());
-        }
-      }
-    }
-
-    return allowed;
-  }
-
-  bool CanLoadPlugin(int render_process_id,
-                     const base::FilePath& path) override {
-    return true;
-  }
-
-  DISALLOW_COPY_AND_ASSIGN(CefPluginServiceFilter);
-};
-
 void TranslatePopupFeatures(const blink::WebWindowFeatures& webKitFeatures,
                             CefPopupFeatures& features) {
   features.x = static_cast<int>(webKitFeatures.x);
@@ -399,10 +358,6 @@ int GetCrashSignalFD(const base::CommandLine& command_line) {
 CefContentBrowserClient::CefContentBrowserClient()
     : browser_main_parts_(NULL),
       next_browser_id_(0) {
-  plugin_service_filter_.reset(new CefPluginServiceFilter);
-  content::PluginServiceImpl::GetInstance()->SetFilter(
-      plugin_service_filter_.get());
-
   last_create_window_params_.opener_process_id = MSG_ROUTING_NONE;
 }
 
@@ -574,9 +529,10 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
 
   content::BrowserContext* browser_context = host->GetBrowserContext();
 
+  host->AddFilter(new CefPluginInfoMessageFilter(id,
+      static_cast<CefBrowserContext*>(browser_context)));
+
   if (extensions::ExtensionsEnabled()) {
-    host->AddFilter(
-        new extensions::CefPluginInfoMessageFilter(id, browser_context));
     host->AddFilter(
         new extensions::ExtensionMessageFilter(id, browser_context));
     host->AddFilter(

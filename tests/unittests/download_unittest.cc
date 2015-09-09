@@ -256,6 +256,8 @@ class DownloadTestHandler : public TestHandler {
   TrackCallback got_on_before_download_;
   TrackCallback got_on_download_updated_;
   TrackCallback got_full_path_;
+
+  IMPLEMENT_REFCOUNTING(DownloadTestHandler);
 };
 
 }  // namespace

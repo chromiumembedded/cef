@@ -173,6 +173,8 @@ class TestSchemeHandler : public TestHandler {
 
  protected:
   TestResults* test_results_;
+
+  IMPLEMENT_REFCOUNTING(TestSchemeHandler);
 };
 
 class ClientSchemeHandler : public CefResourceHandler {

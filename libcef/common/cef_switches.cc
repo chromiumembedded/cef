@@ -116,4 +116,14 @@ const char kWidevineCdmPath[]             = "widevine-cdm-path";
 // Widevine CDM version.
 const char kWidevineCdmVersion[]          = "widevine-cdm-version";
 
+// Default plugin policy action.
+const char kPluginPolicy[]                = "plugin-policy";
+// Allow the content. This is the default value.
+const char kPluginPolicy_Allow[]          = "allow";
+// Allow important content and block unimportant content based on heuristics.
+// The user can manually load blocked content.
+const char kPluginPolicy_Detect[]         = "detect";
+// Block the content. The user can manually load blocked content.
+const char kPluginPolicy_Block[]          = "block";
+
 }  // namespace switches

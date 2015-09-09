@@ -11,6 +11,7 @@
 namespace client {
 
 ClientAppBrowser::ClientAppBrowser() {
+  CreateDelegates(delegates_);
 }
 
 void ClientAppBrowser::OnBeforeCommandLineProcessing(
@@ -46,12 +47,14 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
       // See https://bitbucket.org/chromiumembedded/cef/issues/1368 for details.
       command_line->AppendSwitch("enable-begin-frame-scheduling");
     }
+
+    DelegateSet::iterator it = delegates_.begin();
+    for (; it != delegates_.end(); ++it)
+      (*it)->OnBeforeCommandLineProcessing(this, command_line);
   }
 }
 
 void ClientAppBrowser::OnContextInitialized() {
-  CreateDelegates(delegates_);
-
   // Register cookieable schemes with the global cookie manager.
   CefRefPtr<CefCookieManager> manager =
       CefCookieManager::GetGlobalManager(NULL);

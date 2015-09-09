@@ -5,6 +5,7 @@
 #include "libcef/browser/menu_creator.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/context_menu_params_impl.h"
+#include "libcef/browser/thread_util.h"
 #include "libcef/common/content_client.h"
 
 #include "base/compiler_specific.h"
@@ -31,12 +32,73 @@ CefString GetLabel(int message_id) {
   return label;
 }
 
+const int kInvalidCommandId = -1;
+const cef_event_flags_t kEmptyEventFlags = static_cast<cef_event_flags_t>(0);
+
+class CefRunContextMenuCallbackImpl : public CefRunContextMenuCallback {
+ public:
+  typedef base::Callback<void(int,cef_event_flags_t)> Callback;
+
+  explicit CefRunContextMenuCallbackImpl(const Callback& callback)
+      : callback_(callback) {
+  }
+
+  ~CefRunContextMenuCallbackImpl() {
+    if (!callback_.is_null()) {
+      // The callback is still pending. Cancel it now.
+      if (CEF_CURRENTLY_ON_UIT()) {
+        RunNow(callback_, kInvalidCommandId, kEmptyEventFlags);
+      } else {
+        CEF_POST_TASK(CEF_UIT,
+            base::Bind(&CefRunContextMenuCallbackImpl::RunNow, callback_,
+                       kInvalidCommandId, kEmptyEventFlags));
+      }
+    }
+  }
+
+  void Continue(int command_id, cef_event_flags_t event_flags) override {
+    if (CEF_CURRENTLY_ON_UIT()) {
+      if (!callback_.is_null()) {
+        RunNow(callback_, command_id, event_flags);
+        callback_.Reset();
+      }
+    } else {
+      CEF_POST_TASK(CEF_UIT,
+          base::Bind(&CefRunContextMenuCallbackImpl::Continue, this,
+                     command_id, event_flags));
+    }
+  }
+
+  void Cancel() override {
+    Continue(kInvalidCommandId, kEmptyEventFlags);
+  }
+
+  void Disconnect() {
+    callback_.Reset();
+  }
+
+ private:
+  static void RunNow(const Callback& callback,
+                     int command_id,
+                     cef_event_flags_t event_flags) {
+    CEF_REQUIRE_UIT();
+    callback.Run(command_id, event_flags);
+  }
+
+  Callback callback_;
+
+  IMPLEMENT_REFCOUNTING(CefRunContextMenuCallbackImpl);
+  DISALLOW_COPY_AND_ASSIGN(CefRunContextMenuCallbackImpl);
+};
+
 }  // namespace
 
 CefMenuCreator::CefMenuCreator(content::WebContents* web_contents,
                                CefBrowserHostImpl* browser)
   : content::WebContentsObserver(web_contents),
-    browser_(browser) {
+    browser_(browser),
+    custom_menu_callback_(NULL),
+    weak_ptr_factory_(this) {
   DCHECK(web_contents);
   DCHECK(browser_);
   model_ = new CefMenuModelImpl(this);
@@ -77,39 +139,75 @@ bool CefMenuCreator::CreateContextMenu(
   // Create the default menu model.
   CreateDefaultModel();
 
+  bool custom_menu = false;
+  DCHECK(!custom_menu_callback_);
+
   // Give the client a chance to modify the model.
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
-      CefRefPtr<CefContextMenuHandler> handler =
-          client->GetContextMenuHandler();
-      if (handler.get()) {
-        CefRefPtr<CefContextMenuParamsImpl> paramsPtr(
-            new CefContextMenuParamsImpl(&params_));
+    CefRefPtr<CefContextMenuHandler> handler =
+        client->GetContextMenuHandler();
+    if (handler.get()) {
+      CefRefPtr<CefContextMenuParamsImpl> paramsPtr(
+          new CefContextMenuParamsImpl(&params_));
+      CefRefPtr<CefFrame> frame = browser_->GetFocusedFrame();
 
-        handler->OnBeforeContextMenu(browser_,
-                                     browser_->GetFocusedFrame(),
-                                     paramsPtr.get(),
-                                     model_.get());
+      handler->OnBeforeContextMenu(browser_,
+                                    frame,
+                                    paramsPtr.get(),
+                                    model_.get());
 
-        // Do not keep references to the parameters in the callback.
-        paramsPtr->Detach(NULL);
-        DCHECK(paramsPtr->HasOneRef());
-        DCHECK(model_->VerifyRefCount());
+      MenuWillShow(model_);
 
-        // Menu is empty so notify the client and return.
-        if (model_->GetCount() == 0) {
-          MenuClosed(model_);
-          return true;
+      if (model_->GetCount() > 0) {
+        CefRefPtr<CefRunContextMenuCallbackImpl> callbackImpl(
+            new CefRunContextMenuCallbackImpl(
+                base::Bind(&CefMenuCreator::ExecuteCommandCallback,
+                            weak_ptr_factory_.GetWeakPtr())));
+
+        // This reference will be cleared when the callback is executed or
+        // the callback object is deleted.
+        custom_menu_callback_ = callbackImpl.get();
+
+        if (handler->RunContextMenu(browser_,
+                                    frame,
+                                    paramsPtr.get(),
+                                    model_.get(),
+                                    callbackImpl.get())) {
+          custom_menu = true;
+        } else {
+          // Callback should not be executed if the handler returns false.
+          DCHECK(custom_menu_callback_);
+          custom_menu_callback_ = NULL;
+          callbackImpl->Disconnect();
         }
       }
+
+      // Do not keep references to the parameters in the callback.
+      paramsPtr->Detach(NULL);
+      DCHECK(paramsPtr->HasOneRef());
+      DCHECK(model_->VerifyRefCount());
+
+      // Menu is empty so notify the client and return.
+      if (model_->GetCount() == 0 && !custom_menu) {
+        MenuClosed(model_);
+        return true;
+      }
+    }
   }
 
+  if (custom_menu)
+    return true;
   return runner_->RunContextMenu(this);
 }
 
 void CefMenuCreator::CancelContextMenu() {
-  if (IsShowingContextMenu())
-    runner_->CancelContextMenu();
+  if (IsShowingContextMenu()) {
+    if (custom_menu_callback_)
+      custom_menu_callback_->Cancel();
+    else
+      runner_->CancelContextMenu();
+  }
 }
 
 bool CefMenuCreator::CreateRunner() {
@@ -135,26 +233,26 @@ void CefMenuCreator::ExecuteCommand(CefRefPtr<CefMenuModelImpl> source,
   // Give the client a chance to handle the command.
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
-      CefRefPtr<CefContextMenuHandler> handler =
-          client->GetContextMenuHandler();
-      if (handler.get()) {
-        CefRefPtr<CefContextMenuParamsImpl> paramsPtr(
-            new CefContextMenuParamsImpl(&params_));
+    CefRefPtr<CefContextMenuHandler> handler =
+        client->GetContextMenuHandler();
+    if (handler.get()) {
+      CefRefPtr<CefContextMenuParamsImpl> paramsPtr(
+          new CefContextMenuParamsImpl(&params_));
 
-        bool handled = handler->OnContextMenuCommand(
-            browser_,
-            browser_->GetFocusedFrame(),
-            paramsPtr.get(),
-            command_id,
-            event_flags);
+      bool handled = handler->OnContextMenuCommand(
+          browser_,
+          browser_->GetFocusedFrame(),
+          paramsPtr.get(),
+          command_id,
+          event_flags);
 
-        // Do not keep references to the parameters in the callback.
-        paramsPtr->Detach(NULL);
-        DCHECK(paramsPtr->HasOneRef());
+      // Do not keep references to the parameters in the callback.
+      paramsPtr->Detach(NULL);
+      DCHECK(paramsPtr->HasOneRef());
 
-        if (handled)
-          return;
-      }
+      if (handled)
+        return;
+    }
   }
 
   // Execute the default command handling.
@@ -169,6 +267,10 @@ void CefMenuCreator::MenuWillShow(CefRefPtr<CefMenuModelImpl> source) {
   if (!web_contents())
     return;
 
+  // May be called multiple times.
+  if (IsShowingContextMenu())
+    return;
+
   // Notify the host before showing the context menu.
   content::RenderWidgetHostView* view =
       web_contents()->GetRenderWidgetHostView();
@@ -181,31 +283,56 @@ void CefMenuCreator::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
   if (source.get() != model_.get())
     return;
 
+  if (!web_contents())
+    return;
+
+  DCHECK(IsShowingContextMenu());
+
   // Notify the client.
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
-      CefRefPtr<CefContextMenuHandler> handler =
-          client->GetContextMenuHandler();
-      if (handler.get()) {
-        handler->OnContextMenuDismissed(browser_, browser_->GetFocusedFrame());
-      }
+    CefRefPtr<CefContextMenuHandler> handler =
+        client->GetContextMenuHandler();
+    if (handler.get()) {
+      handler->OnContextMenuDismissed(browser_, browser_->GetFocusedFrame());
+    }
   }
 
-  if (IsShowingContextMenu() && web_contents()) {
-    // Notify the host after closing the context menu.
-    content::RenderWidgetHostView* view =
-        web_contents()->GetRenderWidgetHostView();
-    if (view)
-      view->SetShowingContextMenu(false);
-    web_contents()->NotifyContextMenuClosed(params_.custom_context);
-  }
+  // Notify the host after closing the context menu.
+  content::RenderWidgetHostView* view =
+      web_contents()->GetRenderWidgetHostView();
+  if (view)
+    view->SetShowingContextMenu(false);
+  web_contents()->NotifyContextMenuClosed(params_.custom_context);
 }
 
 bool CefMenuCreator::FormatLabel(base::string16& label) {
   return runner_->FormatLabel(label);
 }
 
+void CefMenuCreator::ExecuteCommandCallback(int command_id,
+                                            cef_event_flags_t event_flags) {
+  DCHECK(IsShowingContextMenu());
+  DCHECK(custom_menu_callback_);
+  if (command_id != kInvalidCommandId)
+    ExecuteCommand(model_, command_id, event_flags);
+  MenuClosed(model_);
+  custom_menu_callback_ = NULL;
+}
+
 void CefMenuCreator::CreateDefaultModel() {
+  if (!params_.custom_items.empty()) {
+    // Custom menu items originating from the renderer process. For example,
+    // plugin placeholder menu items or Flash menu items.
+    for (size_t i = 0; i < params_.custom_items.size(); ++i) {
+      content::MenuItem menu_item = params_.custom_items[i];
+      menu_item.action += MENU_ID_CUSTOM_FIRST;
+      DCHECK_LE(static_cast<int>(menu_item.action), MENU_ID_CUSTOM_LAST);
+      model_->AddMenuItem(menu_item);
+    }
+    return;
+  }
+
   if (params_.is_editable) {
     // Editable node.
     model_->AddItem(MENU_ID_UNDO, GetLabel(IDS_MENU_UNDO));
@@ -284,6 +411,14 @@ void CefMenuCreator::CreateDefaultModel() {
 }
 
 void CefMenuCreator::ExecuteDefaultCommand(int command_id) {
+  if (IsCustomContextMenuCommand(command_id)) {
+    if (web_contents()) {
+      web_contents()->ExecuteCustomContextMenuCommand(
+          command_id - MENU_ID_CUSTOM_FIRST, params_.custom_context);
+    }
+    return;
+  }
+
   // If the user chose a replacement word for a misspelling, replace it here.
   if (command_id >= MENU_ID_SPELLCHECK_SUGGESTION_0 &&
       command_id <= MENU_ID_SPELLCHECK_SUGGESTION_LAST) {
@@ -357,4 +492,21 @@ void CefMenuCreator::ExecuteDefaultCommand(int command_id) {
   default:
     break;
   }
+}
+
+bool CefMenuCreator::IsCustomContextMenuCommand(int command_id) {
+  // Verify that the command ID is in the correct range.
+  if (command_id < MENU_ID_CUSTOM_FIRST || command_id > MENU_ID_CUSTOM_LAST)
+    return false;
+
+  command_id -= MENU_ID_CUSTOM_FIRST;
+
+  // Verify that the specific command ID was passed from the renderer process.
+  if (!params_.custom_items.empty()) {
+    for (size_t i = 0; i < params_.custom_items.size(); ++i) {
+      if (static_cast<int>(params_.custom_items[i].action) == command_id)
+        return true;
+    }
+  }
+  return false;
 }

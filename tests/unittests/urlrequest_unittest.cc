@@ -1147,6 +1147,8 @@ class RequestTestHandler : public TestHandler,
   // Only used when the test runs in the render process.
   TrackCallback got_message_;
   TrackCallback got_success_;
+
+  IMPLEMENT_REFCOUNTING(RequestTestHandler);
 };
 
 }  // namespace

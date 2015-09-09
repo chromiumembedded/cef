@@ -288,9 +288,6 @@ class TestHandler : public CefClient,
   // Used to track the number of currently existing browser windows.
   static int browser_count_;
 
-  // Include the default reference counting implementation.
-  IMPLEMENT_REFCOUNTING(TestHandler);
-
   DISALLOW_COPY_AND_ASSIGN(TestHandler);
 };
 

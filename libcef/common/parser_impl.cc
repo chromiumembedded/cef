@@ -8,6 +8,7 @@
 #include "libcef/renderer/webkit_glue.h"
 
 #include "base/base64.h"
+#include "base/threading/thread_restrictions.h"
 #include "net/base/escape.h"
 #include "net/base/mime_util.h"
 #include "third_party/WebKit/public/platform/WebString.h"
@@ -76,6 +77,10 @@ bool CefCreateURL(const CefURLParts& parts,
 }
 
 CefString CefGetMimeType(const CefString& extension) {
+  // Requests should not block on the disk!  On POSIX this goes to disk.
+  // http://code.google.com/p/chromium/issues/detail?id=59849
+  base::ThreadRestrictions::ScopedAllowIO allow_io;
+
   std::string mime_type;
   net::GetMimeTypeFromExtension(extension, &mime_type);
   return mime_type;

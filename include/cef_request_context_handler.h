@@ -40,6 +40,7 @@
 
 #include "include/cef_base.h"
 #include "include/cef_cookie.h"
+#include "include/cef_web_plugin.h"
 
 ///
 // Implement this interface to provide handler implementations. The handler
@@ -49,13 +50,35 @@
 /*--cef(source=client,no_debugct_check)--*/
 class CefRequestContextHandler : public virtual CefBase {
  public:
+  typedef cef_plugin_policy_t PluginPolicy;
+
   ///
-  // Called on the IO thread to retrieve the cookie manager. If this method
-  // returns NULL the default cookie manager retrievable via
+  // Called on the browser process IO thread to retrieve the cookie manager. If
+  // this method returns NULL the default cookie manager retrievable via
   // CefRequestContext::GetDefaultCookieManager() will be used.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefCookieManager> GetCookieManager() { return NULL; }
+
+  ///
+  // Called on the browser process IO thread before a plugin instance is loaded. 
+  // |mime_type| is the mime type of the plugin that will be loaded.
+  // |plugin_url| is the content URL that the plugin will load and may be empty.
+  // |top_origin_url| is the URL for the top-level frame that contains the
+  // plugin. |plugin_info| includes additional information about the plugin that
+  // will be loaded. |plugin_policy| is the recommended policy. Modify
+  // |plugin_policy| and return true to change the policy. Return false to use
+  // the recommended policy. The default plugin policy can be set at runtime
+  // using the `--plugin-policy=[allow|detect|block]` command-line flag.
+  ///
+  /*--cef(optional_param=plugin_url)--*/
+  virtual bool OnBeforePluginLoad(const CefString& mime_type,
+                                  const CefString& plugin_url,
+                                  const CefString& top_origin_url,
+                                  CefRefPtr<CefWebPluginInfo> plugin_info,
+                                  PluginPolicy* plugin_policy) {
+    return false;
+  }
 };
 
 #endif  // CEF_INCLUDE_CEF_REQUEST_CONTEXT_HANDLER_H_

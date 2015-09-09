@@ -34,6 +34,9 @@ class CefContextMenuHandlerCToCpp
   void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params,
       CefRefPtr<CefMenuModel> model) override;
+  bool RunContextMenu(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefContextMenuParams> params, CefRefPtr<CefMenuModel> model,
+      CefRefPtr<CefRunContextMenuCallback> callback) override;
   bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params,
       int command_id, EventFlags event_flags) override;

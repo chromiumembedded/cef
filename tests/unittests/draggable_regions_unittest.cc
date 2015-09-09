@@ -158,6 +158,8 @@ class DraggableRegionsTestHandler : public TestHandler {
   } step_;
 
   TrackCallback did_call_on_draggable_regions_changed_;
+
+  IMPLEMENT_REFCOUNTING(DraggableRegionsTestHandler);
 };
 
 }  // namespace

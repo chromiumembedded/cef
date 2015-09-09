@@ -19,7 +19,6 @@
 #include "libcef_dll/ctocpp/request_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/response_ctocpp.h"
 #include "libcef_dll/ctocpp/sslinfo_ctocpp.h"
-#include "libcef_dll/ctocpp/web_plugin_info_ctocpp.h"
 
 
 namespace {
@@ -389,36 +388,6 @@ int CEF_CALLBACK request_handler_on_certificate_error(
   return _retval;
 }
 
-int CEF_CALLBACK request_handler_on_before_plugin_load(
-    struct _cef_request_handler_t* self, cef_browser_t* browser,
-    const cef_string_t* url, const cef_string_t* policy_url,
-    struct _cef_web_plugin_info_t* info) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return 0;
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser);
-  if (!browser)
-    return 0;
-  // Verify param: info; type: refptr_diff
-  DCHECK(info);
-  if (!info)
-    return 0;
-  // Unverified params: url, policy_url
-
-  // Execute
-  bool _retval = CefRequestHandlerCppToC::Get(self)->OnBeforePluginLoad(
-      CefBrowserCToCpp::Wrap(browser),
-      CefString(url),
-      CefString(policy_url),
-      CefWebPluginInfoCToCpp::Wrap(info));
-
-  // Return type: bool
-  return _retval;
-}
-
 void CEF_CALLBACK request_handler_on_plugin_crashed(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
     const cef_string_t* plugin_path) {
@@ -495,7 +464,6 @@ CefRequestHandlerCppToC::CefRequestHandlerCppToC() {
   GetStruct()->on_quota_request = request_handler_on_quota_request;
   GetStruct()->on_protocol_execution = request_handler_on_protocol_execution;
   GetStruct()->on_certificate_error = request_handler_on_certificate_error;
-  GetStruct()->on_before_plugin_load = request_handler_on_before_plugin_load;
   GetStruct()->on_plugin_crashed = request_handler_on_plugin_crashed;
   GetStruct()->on_render_view_ready = request_handler_on_render_view_ready;
   GetStruct()->on_render_process_terminated =

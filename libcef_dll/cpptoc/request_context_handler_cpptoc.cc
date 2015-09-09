@@ -12,6 +12,7 @@
 
 #include "libcef_dll/cpptoc/request_context_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/cookie_manager_ctocpp.h"
+#include "libcef_dll/ctocpp/web_plugin_info_ctocpp.h"
 
 
 namespace {
@@ -34,6 +35,46 @@ cef_cookie_manager_t* CEF_CALLBACK request_context_handler_get_cookie_manager(
   return CefCookieManagerCToCpp::Unwrap(_retval);
 }
 
+int CEF_CALLBACK request_context_handler_on_before_plugin_load(
+    struct _cef_request_context_handler_t* self, const cef_string_t* mime_type,
+    const cef_string_t* plugin_url, const cef_string_t* top_origin_url,
+    struct _cef_web_plugin_info_t* plugin_info,
+    cef_plugin_policy_t* plugin_policy) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: mime_type; type: string_byref_const
+  DCHECK(mime_type);
+  if (!mime_type)
+    return 0;
+  // Verify param: top_origin_url; type: string_byref_const
+  DCHECK(top_origin_url);
+  if (!top_origin_url)
+    return 0;
+  // Verify param: plugin_info; type: refptr_diff
+  DCHECK(plugin_info);
+  if (!plugin_info)
+    return 0;
+  // Verify param: plugin_policy; type: simple_byaddr
+  DCHECK(plugin_policy);
+  if (!plugin_policy)
+    return 0;
+  // Unverified params: plugin_url
+
+  // Execute
+  bool _retval = CefRequestContextHandlerCppToC::Get(self)->OnBeforePluginLoad(
+      CefString(mime_type),
+      CefString(plugin_url),
+      CefString(top_origin_url),
+      CefWebPluginInfoCToCpp::Wrap(plugin_info),
+      plugin_policy);
+
+  // Return type: bool
+  return _retval;
+}
+
 }  // namespace
 
 
@@ -41,6 +82,8 @@ cef_cookie_manager_t* CEF_CALLBACK request_context_handler_get_cookie_manager(
 
 CefRequestContextHandlerCppToC::CefRequestContextHandlerCppToC() {
   GetStruct()->get_cookie_manager = request_context_handler_get_cookie_manager;
+  GetStruct()->on_before_plugin_load =
+      request_context_handler_on_before_plugin_load;
 }
 
 template<> CefRefPtr<CefRequestContextHandler> CefCppToC<CefRequestContextHandlerCppToC,

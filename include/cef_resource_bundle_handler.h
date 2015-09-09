@@ -41,33 +41,51 @@
 #include "include/cef_base.h"
 
 ///
-// Class used to implement a custom resource bundle interface. The methods of
+// Class used to implement a custom resource bundle interface. See CefSettings
+// for additional options related to resource bundle loading. The methods of
 // this class may be called on multiple threads.
 ///
 /*--cef(source=client)--*/
 class CefResourceBundleHandler : public virtual CefBase {
  public:
+  typedef cef_scale_factor_t ScaleFactor;
+
   ///
-  // Called to retrieve a localized translation for the string specified by
-  // |message_id|. To provide the translation set |string| to the translation
-  // string and return true. To use the default translation return false.
-  // Supported message IDs are listed in cef_pack_strings.h.
+  // Called to retrieve a localized translation for the specified |string_id|.
+  // To provide the translation set |string| to the translation string and
+  // return true. To use the default translation return false. Include
+  // cef_pack_strings.h for a listing of valid string ID values.
   ///
   /*--cef()--*/
-  virtual bool GetLocalizedString(int message_id,
+  virtual bool GetLocalizedString(int string_id,
                                   CefString& string) =0;
 
   ///
-  // Called to retrieve data for the resource specified by |resource_id|. To
-  // provide the resource data set |data| and |data_size| to the data pointer
+  // Called to retrieve data for the specified scale independent |resource_id|.
+  // To provide the resource data set |data| and |data_size| to the data pointer
   // and size respectively and return true. To use the default resource data
   // return false. The resource data will not be copied and must remain resident
-  // in memory. Supported resource IDs are listed in cef_pack_resources.h.
+  // in memory. Include cef_pack_resources.h for a listing of valid resource ID
+  // values.
   ///
   /*--cef()--*/
   virtual bool GetDataResource(int resource_id,
                                void*& data,
                                size_t& data_size) =0;
+
+  ///
+  // Called to retrieve data for the specified |resource_id| nearest the scale
+  // factor |scale_factor|. To provide the resource data set |data| and
+  // |data_size| to the data pointer and size respectively and return true. To
+  // use the default resource data return false. The resource data will not be
+  // copied and must remain resident in memory. Include cef_pack_resources.h for
+  // a listing of valid resource ID values.
+  ///
+  /*--cef()--*/
+  virtual bool GetDataResourceForScale(int resource_id,
+                                       ScaleFactor scale_factor,
+                                       void*& data,
+                                       size_t& data_size) =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_RESOURCE_BUNDLE_HANDLER_H_

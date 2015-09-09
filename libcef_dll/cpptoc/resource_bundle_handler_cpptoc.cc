@@ -18,7 +18,7 @@ namespace {
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 int CEF_CALLBACK resource_bundle_handler_get_localized_string(
-    struct _cef_resource_bundle_handler_t* self, int message_id,
+    struct _cef_resource_bundle_handler_t* self, int string_id,
     cef_string_t* string) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -35,7 +35,7 @@ int CEF_CALLBACK resource_bundle_handler_get_localized_string(
 
   // Execute
   bool _retval = CefResourceBundleHandlerCppToC::Get(self)->GetLocalizedString(
-      message_id,
+      string_id,
       stringStr);
 
   // Return type: bool
@@ -81,6 +81,47 @@ int CEF_CALLBACK resource_bundle_handler_get_data_resource(
   return _retval;
 }
 
+int CEF_CALLBACK resource_bundle_handler_get_data_resource_for_scale(
+    struct _cef_resource_bundle_handler_t* self, int resource_id,
+    cef_scale_factor_t scale_factor, void** data, size_t* data_size) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: data; type: simple_byref
+  DCHECK(data);
+  if (!data)
+    return 0;
+  // Verify param: data_size; type: simple_byref
+  DCHECK(data_size);
+  if (!data_size)
+    return 0;
+
+  // Translate param: data; type: simple_byref
+  void* dataVal = data?*data:NULL;
+  // Translate param: data_size; type: simple_byref
+  size_t data_sizeVal = data_size?*data_size:0;
+
+  // Execute
+  bool _retval = CefResourceBundleHandlerCppToC::Get(
+      self)->GetDataResourceForScale(
+      resource_id,
+      scale_factor,
+      dataVal,
+      data_sizeVal);
+
+  // Restore param: data; type: simple_byref
+  if (data)
+    *data = dataVal;
+  // Restore param: data_size; type: simple_byref
+  if (data_size)
+    *data_size = data_sizeVal;
+
+  // Return type: bool
+  return _retval;
+}
+
 }  // namespace
 
 
@@ -90,6 +131,8 @@ CefResourceBundleHandlerCppToC::CefResourceBundleHandlerCppToC() {
   GetStruct()->get_localized_string =
       resource_bundle_handler_get_localized_string;
   GetStruct()->get_data_resource = resource_bundle_handler_get_data_resource;
+  GetStruct()->get_data_resource_for_scale =
+      resource_bundle_handler_get_data_resource_for_scale;
 }
 
 template<> CefRefPtr<CefResourceBundleHandler> CefCppToC<CefResourceBundleHandlerCppToC,

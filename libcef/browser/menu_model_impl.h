@@ -15,6 +15,10 @@
 #include "base/threading/platform_thread.h"
 #include "ui/base/models/menu_model.h"
 
+namespace content {
+struct MenuItem;
+}
+
 class CefMenuModelImpl : public CefMenuModel {
  public:
   class Delegate {
@@ -111,6 +115,9 @@ class CefMenuModelImpl : public CefMenuModel {
 
   // Verify that only a single reference exists to all CefMenuModelImpl objects.
   bool VerifyRefCount();
+
+  // Helper for adding custom menu items originating from the renderer process.
+  void AddMenuItem(const content::MenuItem& menu_item);
 
   ui::MenuModel* model() { return model_.get(); }
   Delegate* delegate() { return delegate_; }
