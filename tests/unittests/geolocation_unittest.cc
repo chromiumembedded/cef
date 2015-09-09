@@ -140,6 +140,8 @@ class GeolocationTestHandler : public TestHandler {
   TrackCallback got_allow_;
   TrackCallback got_cancel_;
   TrackCallback got_deny_;
+
+  IMPLEMENT_REFCOUNTING(GeolocationTestHandler);
 };
 
 }  // namespace

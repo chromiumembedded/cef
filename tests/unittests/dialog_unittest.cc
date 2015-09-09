@@ -145,6 +145,8 @@ class DialogTestHandler : public TestHandler {
 
   TrackCallback got_onfiledialog_;
   TrackCallback got_onfiledialogdismissed_;
+
+  IMPLEMENT_REFCOUNTING(DialogTestHandler);
 };
 
 }  // namespace

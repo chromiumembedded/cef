@@ -27,10 +27,12 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/widevine_cdm_constants.h"
+#include "components/content_settings/core/common/content_settings_pattern.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
+#include "extensions/common/constants.h"
 #include "pdf/pdf.h"
 #include "ui/base/layout.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -482,6 +484,9 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
   }
 
   logging::InitLogging(log_settings);
+
+  ContentSettingsPattern::SetNonWildcardDomainNonPortScheme(
+      extensions::kExtensionScheme);
 
   content::SetContentClient(&content_client_);
 

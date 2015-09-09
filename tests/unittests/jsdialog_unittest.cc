@@ -175,6 +175,8 @@ class JSDialogTestHandler : public TestHandler {
   TrackCallback got_onbeforeunloaddialog_;
   TrackCallback got_onresetdialogstate_;
   TrackCallback got_onloadend_;
+
+  IMPLEMENT_REFCOUNTING(JSDialogTestHandler);
 };
 
 }  // namespace

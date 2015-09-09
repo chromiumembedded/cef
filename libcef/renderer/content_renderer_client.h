@@ -116,18 +116,18 @@ class CefContentRendererClient : public content::ContentRendererClient,
   static bool IsExtensionOrSharedModuleWhitelisted(
       const GURL& url, const std::set<std::string>& whitelist);
 
+  static blink::WebPlugin* CreatePlugin(
+      content::RenderFrame* render_frame,
+      blink::WebLocalFrame* frame,
+      const blink::WebPluginParams& params,
+      const CefViewHostMsg_GetPluginInfo_Output& output);
+
  private:
   void BrowserCreated(content::RenderView* render_view,
                       content::RenderFrame* render_frame);
 
   // Perform cleanup work for single-process mode.
   void RunSingleProcessCleanupOnUIThread();
-
-  static blink::WebPlugin* CreatePlugin(
-      content::RenderFrame* render_frame,
-      blink::WebLocalFrame* frame,
-      const blink::WebPluginParams& params,
-      const CefViewHostMsg_GetPluginInfo_Output& output);
 
   scoped_refptr<base::SequencedTaskRunner> render_task_runner_;
   scoped_ptr<CefRenderProcessObserver> observer_;

@@ -59,7 +59,7 @@ void CefBrowserContext::Initialize() {
 
   // Spell checking support and possibly other subsystems retrieve the
   // PrefService associated with a BrowserContext via UserPrefs::Get().
-  PrefService* pref_service = CefContentBrowserClient::Get()->pref_service();
+  PrefService* pref_service = GetPrefs();
   DCHECK(pref_service);
   user_prefs::UserPrefs::Set(this, pref_service);
 

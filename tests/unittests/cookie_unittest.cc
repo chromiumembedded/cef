@@ -900,6 +900,8 @@ class CookieTestJSHandler : public TestHandler {
   TrackCallback got_load_end2_;
   TrackCallback got_cookie1_;
   TrackCallback got_cookie2_;
+
+  IMPLEMENT_REFCOUNTING(CookieTestJSHandler);
 };
 
 }  // namespace
@@ -1186,6 +1188,8 @@ class CookieTestSchemeHandler : public TestHandler {
   TrackCallback got_cookie1_;
   TrackCallback got_cookie2_;
   TrackCallback got_cookie3_;
+
+  IMPLEMENT_REFCOUNTING(CookieTestSchemeHandler);
 };
 
 }  // namespace

@@ -17,7 +17,6 @@
 #include "libcef_dll/cpptoc/request_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/response_cpptoc.h"
 #include "libcef_dll/cpptoc/sslinfo_cpptoc.h"
-#include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
 
@@ -370,36 +369,6 @@ bool CefRequestHandlerCToCpp::OnCertificateError(CefRefPtr<CefBrowser> browser,
       request_url.GetStruct(),
       CefSSLInfoCppToC::Wrap(ssl_info),
       CefRequestCallbackCppToC::Wrap(callback));
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-bool CefRequestHandlerCToCpp::OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,
-    const CefString& url, const CefString& policy_url,
-    CefRefPtr<CefWebPluginInfo> info) {
-  cef_request_handler_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, on_before_plugin_load))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: browser; type: refptr_diff
-  DCHECK(browser.get());
-  if (!browser.get())
-    return false;
-  // Verify param: info; type: refptr_diff
-  DCHECK(info.get());
-  if (!info.get())
-    return false;
-  // Unverified params: url, policy_url
-
-  // Execute
-  int _retval = _struct->on_before_plugin_load(_struct,
-      CefBrowserCppToC::Wrap(browser),
-      url.GetStruct(),
-      policy_url.GetStruct(),
-      CefWebPluginInfoCppToC::Wrap(info));
 
   // Return type: bool
   return _retval?true:false;

@@ -346,6 +346,8 @@ class CookieTestHandler : public TestHandler {
 
   TrackCallback got_get_cookie_manager_;
   TrackCallback got_cookie_;
+
+  IMPLEMENT_REFCOUNTING(CookieTestHandler);
 };
 
 }  // namespace
@@ -587,6 +589,8 @@ class PopupTestHandler : public TestHandler {
   TrackCallback got_load_end2_;
   TrackCallback got_cookie1_;
   TrackCallback got_cookie2_;
+
+  IMPLEMENT_REFCOUNTING(PopupTestHandler);
 };
 
 }  // namespace

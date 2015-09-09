@@ -11,6 +11,7 @@
 //
 
 #include "libcef_dll/cpptoc/cookie_manager_cpptoc.h"
+#include "libcef_dll/cpptoc/web_plugin_info_cpptoc.h"
 #include "libcef_dll/ctocpp/request_context_handler_ctocpp.h"
 
 
@@ -28,6 +29,46 @@ CefRefPtr<CefCookieManager> CefRequestContextHandlerCToCpp::GetCookieManager() {
 
   // Return type: refptr_diff
   return CefCookieManagerCppToC::Unwrap(_retval);
+}
+
+bool CefRequestContextHandlerCToCpp::OnBeforePluginLoad(
+    const CefString& mime_type, const CefString& plugin_url,
+    const CefString& top_origin_url, CefRefPtr<CefWebPluginInfo> plugin_info,
+    PluginPolicy* plugin_policy) {
+  cef_request_context_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_before_plugin_load))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: mime_type; type: string_byref_const
+  DCHECK(!mime_type.empty());
+  if (mime_type.empty())
+    return false;
+  // Verify param: top_origin_url; type: string_byref_const
+  DCHECK(!top_origin_url.empty());
+  if (top_origin_url.empty())
+    return false;
+  // Verify param: plugin_info; type: refptr_diff
+  DCHECK(plugin_info.get());
+  if (!plugin_info.get())
+    return false;
+  // Verify param: plugin_policy; type: simple_byaddr
+  DCHECK(plugin_policy);
+  if (!plugin_policy)
+    return false;
+  // Unverified params: plugin_url
+
+  // Execute
+  int _retval = _struct->on_before_plugin_load(_struct,
+      mime_type.GetStruct(),
+      plugin_url.GetStruct(),
+      top_origin_url.GetStruct(),
+      CefWebPluginInfoCppToC::Wrap(plugin_info),
+      plugin_policy);
+
+  // Return type: bool
+  return _retval?true:false;
 }
 
 

@@ -565,6 +565,8 @@ class HistoryNavTestHandler : public TestHandler {
   TrackCallback got_correct_load_end_url_[NAV_LIST_SIZE()];
   TrackCallback got_correct_can_go_back2_[NAV_LIST_SIZE()];
   TrackCallback got_correct_can_go_forward2_[NAV_LIST_SIZE()];
+
+  IMPLEMENT_REFCOUNTING(HistoryNavTestHandler);
 };
 
 }  // namespace
@@ -825,6 +827,8 @@ class RedirectTestHandler : public TestHandler {
   TrackCallback got_nav2_redirect_;
   TrackCallback got_nav3_redirect_;
   TrackCallback got_invalid_redirect_;
+
+  IMPLEMENT_REFCOUNTING(RedirectTestHandler);
 };
 
 }  // namespace
@@ -1427,6 +1431,8 @@ class OrderNavTestHandler : public TestHandler {
   OrderNavLoadState state_popup_;
 
   bool got_message_;
+
+  IMPLEMENT_REFCOUNTING(OrderNavTestHandler);
 };
 
 }  // namespace
@@ -1886,6 +1892,8 @@ class LoadNavTestHandler : public TestHandler {
   TrackCallback got_load_start_;
   TrackCallback got_load_end_;
   TrackCallback got_message_;
+
+  IMPLEMENT_REFCOUNTING(LoadNavTestHandler);
 };
 
 }  // namespace
@@ -2111,6 +2119,8 @@ class PopupNavTestHandler : public TestHandler {
 
   TrackCallback got_on_before_popup_;
   TrackCallback got_popup_load_end_;
+
+  IMPLEMENT_REFCOUNTING(PopupNavTestHandler);
 };
 
 }  // namespace
@@ -2283,6 +2293,8 @@ class BrowseNavTestHandler : public TestHandler {
   TrackCallback got_load_error_;
   TrackCallback got_loading_state_changed_start_;
   TrackCallback got_loading_state_changed_end_;
+
+  IMPLEMENT_REFCOUNTING(BrowseNavTestHandler);
 };
 
 }  // namespace

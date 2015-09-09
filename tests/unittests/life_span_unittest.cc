@@ -168,6 +168,8 @@ class LifeSpanTestHandler : public RoutingTestHandler {
 
   // Forces the window to close (bypasses test conditions).
   bool executing_delay_close_;
+
+  IMPLEMENT_REFCOUNTING(LifeSpanTestHandler);
 };
 
 }  // namespace

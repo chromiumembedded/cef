@@ -15,6 +15,32 @@
 
 namespace client {
 
+namespace {
+
+class ClientRequestContextHandler : public CefRequestContextHandler {
+ public:
+  ClientRequestContextHandler() {}
+
+  bool OnBeforePluginLoad(const CefString& mime_type,
+                          const CefString& plugin_url,
+                          const CefString& top_origin_url,
+                          CefRefPtr<CefWebPluginInfo> plugin_info,
+                          PluginPolicy* plugin_policy) OVERRIDE {
+    // Always allow the PDF plugin to load.
+    if (*plugin_policy != PLUGIN_POLICY_ALLOW &&
+        mime_type == "application/pdf") {
+      *plugin_policy = PLUGIN_POLICY_ALLOW;
+      return true;
+    }
+    return false;
+  }
+
+ private:
+  IMPLEMENT_REFCOUNTING(ClientRequestContextHandler);
+};
+
+}  // namespace
+
 RootWindowManager::RootWindowManager(bool terminate_when_all_windows_closed)
     : terminate_when_all_windows_closed_(terminate_when_all_windows_closed) {
   CefRefPtr<CefCommandLine> command_line =
@@ -128,11 +154,17 @@ CefRefPtr<CefRequestContext> RootWindowManager::GetRequestContext(
       CefString(&settings.cache_path) = ss.str();
     }
 
-    return CefRequestContext::CreateContext(settings, NULL);
+    return CefRequestContext::CreateContext(settings,
+                                            new ClientRequestContextHandler);
   }
 
   // All browsers will share the global request context.
-  return NULL;
+  if (!shared_request_context_.get()) {
+    shared_request_context_ =
+        CefRequestContext::CreateContext(CefRequestContext::GetGlobalContext(),
+                                         new ClientRequestContextHandler);
+  }
+  return shared_request_context_;
 }
 
 void RootWindowManager::OnTest(RootWindow* root_window, int test_id) {

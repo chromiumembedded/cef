@@ -116,6 +116,8 @@ class SendRecvTestHandler : public TestHandler {
 
   CefRefPtr<CefProcessMessage> message_;
   TrackCallback got_message_;
+
+  IMPLEMENT_REFCOUNTING(SendRecvTestHandler);
 };
 
 }  // namespace

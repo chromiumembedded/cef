@@ -61,8 +61,6 @@ class CefRequestHandlerCToCpp
       cef_errorcode_t cert_error, const CefString& request_url,
       CefRefPtr<CefSSLInfo> ssl_info,
       CefRefPtr<CefRequestCallback> callback) override;
-  bool OnBeforePluginLoad(CefRefPtr<CefBrowser> browser, const CefString& url,
-      const CefString& policy_url, CefRefPtr<CefWebPluginInfo> info) override;
   void OnPluginCrashed(CefRefPtr<CefBrowser> browser,
       const CefString& plugin_path) override;
   void OnRenderViewReady(CefRefPtr<CefBrowser> browser) override;

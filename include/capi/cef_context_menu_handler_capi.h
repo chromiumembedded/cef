@@ -50,6 +50,29 @@ extern "C" {
 struct _cef_context_menu_params_t;
 
 ///
+// Callback structure used for continuation of custom context menu display.
+///
+typedef struct _cef_run_context_menu_callback_t {
+  ///
+  // Base structure.
+  ///
+  cef_base_t base;
+
+  ///
+  // Complete context menu display by selecting the specified |command_id| and
+  // |event_flags|.
+  ///
+  void (CEF_CALLBACK *cont)(struct _cef_run_context_menu_callback_t* self,
+      int command_id, cef_event_flags_t event_flags);
+
+  ///
+  // Cancel context menu display.
+  ///
+  void (CEF_CALLBACK *cancel)(struct _cef_run_context_menu_callback_t* self);
+} cef_run_context_menu_callback_t;
+
+
+///
 // Implement this structure to handle context menu events. The functions of this
 // structure will be called on the UI thread.
 ///
@@ -70,6 +93,20 @@ typedef struct _cef_context_menu_handler_t {
       struct _cef_context_menu_handler_t* self, struct _cef_browser_t* browser,
       struct _cef_frame_t* frame, struct _cef_context_menu_params_t* params,
       struct _cef_menu_model_t* model);
+
+  ///
+  // Called to allow custom display of the context menu. |params| provides
+  // information about the context menu state. |model| contains the context menu
+  // model resulting from OnBeforeContextMenu. For custom display return true
+  // (1) and execute |callback| either synchronously or asynchronously with the
+  // selected command ID. For default display return false (0). Do not keep
+  // references to |params| or |model| outside of this callback.
+  ///
+  int (CEF_CALLBACK *run_context_menu)(struct _cef_context_menu_handler_t* self,
+      struct _cef_browser_t* browser, struct _cef_frame_t* frame,
+      struct _cef_context_menu_params_t* params,
+      struct _cef_menu_model_t* model,
+      struct _cef_run_context_menu_callback_t* callback);
 
   ///
   // Called to execute a command selected from the context menu. Return true (1)
@@ -232,6 +269,18 @@ typedef struct _cef_context_menu_params_t {
   ///
   cef_context_menu_edit_state_flags_t (CEF_CALLBACK *get_edit_state_flags)(
       struct _cef_context_menu_params_t* self);
+
+  ///
+  // Returns true (1) if the context menu contains items specified by the
+  // renderer process (for example, plugin placeholder or pepper plugin menu
+  // items).
+  ///
+  int (CEF_CALLBACK *is_custom_menu)(struct _cef_context_menu_params_t* self);
+
+  ///
+  // Returns true (1) if the context menu was invoked from a pepper plugin.
+  ///
+  int (CEF_CALLBACK *is_pepper_menu)(struct _cef_context_menu_params_t* self);
 } cef_context_menu_params_t;
 
 

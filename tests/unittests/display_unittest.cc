@@ -104,6 +104,8 @@ class TitleTestHandler : public TestHandler {
   int step_;
 
   TrackCallback got_title_[5];
+
+  IMPLEMENT_REFCOUNTING(TitleTestHandler);
 };
 
 }  // namespace

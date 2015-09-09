@@ -557,6 +557,8 @@ class FrameNavTestHandler : public TestHandler {
   TrackCallback got_destroyed_;
   scoped_ptr<FrameNavExpectationsFactoryBrowser> factory_;
   scoped_ptr<FrameNavExpectationsBrowser> expectations_;
+
+  IMPLEMENT_REFCOUNTING(FrameNavTestHandler);
 };
 
 // Helper for defining frame tests.

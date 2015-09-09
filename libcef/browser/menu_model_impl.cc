@@ -10,6 +10,7 @@
 #include "base/bind.h"
 #include "base/logging.h"
 #include "base/message_loop/message_loop.h"
+#include "content/public/common/menu_item.h"
 #include "ui/base/accelerators/accelerator.h"
 
 namespace {
@@ -659,6 +660,41 @@ bool CefMenuModelImpl::VerifyRefCount() {
   }
 
   return true;
+}
+
+void CefMenuModelImpl::AddMenuItem(const content::MenuItem& menu_item) {
+  const int command_id = static_cast<int>(menu_item.action);
+
+  switch (menu_item.type) {
+    case content::MenuItem::OPTION:
+      AddItem(command_id, menu_item.label);
+      break;
+    case content::MenuItem::CHECKABLE_OPTION:
+      AddCheckItem(command_id, menu_item.label);
+      break;
+    case content::MenuItem::GROUP:
+      AddRadioItem(command_id, menu_item.label, 0);
+      break;
+    case content::MenuItem::SEPARATOR:
+      AddSeparator();
+      break;
+    case content::MenuItem::SUBMENU: {
+      CefRefPtr<CefMenuModelImpl> sub_menu = static_cast<CefMenuModelImpl*>(
+          AddSubMenu(command_id, menu_item.label).get());
+      for (size_t i = 0; i < menu_item.submenu.size(); ++i)
+        sub_menu->AddMenuItem(menu_item.submenu[i]);
+      break;
+    }
+  }
+
+  if (!menu_item.enabled && menu_item.type != content::MenuItem::SEPARATOR)
+    SetEnabled(command_id, false);
+
+  if (menu_item.checked &&
+      (menu_item.type == content::MenuItem::CHECKABLE_OPTION ||
+       menu_item.type == content::MenuItem::GROUP)) {
+    SetChecked(command_id, true);
+  }
 }
 
 void CefMenuModelImpl::AppendItem(const Item& item) {

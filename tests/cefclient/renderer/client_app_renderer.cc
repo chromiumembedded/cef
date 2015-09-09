@@ -9,12 +9,11 @@
 namespace client {
 
 ClientAppRenderer::ClientAppRenderer() {
+  CreateDelegates(delegates_);
 }
 
 void ClientAppRenderer::OnRenderThreadCreated(
     CefRefPtr<CefListValue> extra_info) {
-  CreateDelegates(delegates_);
-
   DelegateSet::iterator it = delegates_.begin();
   for (; it != delegates_.end(); ++it)
     (*it)->OnRenderThreadCreated(this, extra_info);

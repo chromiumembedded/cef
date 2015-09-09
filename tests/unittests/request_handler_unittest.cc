@@ -367,6 +367,8 @@ class NetNotifyTestHandler : public TestHandler {
   TrackCallback got_process_message2_;
   TrackCallback got_before_browse2_will_delay_;
   TrackCallback got_before_browse2_delayed_;
+
+  IMPLEMENT_REFCOUNTING(NetNotifyTestHandler);
 };
 
 // Renderer side.
@@ -897,6 +899,8 @@ class ResourceResponseTest : public TestHandler {
   uint64 main_request_id_;
   uint64 sub_request_id_;
   scoped_ptr<ResourceTest> resource_test_;
+
+  IMPLEMENT_REFCOUNTING(ResourceResponseTest);
 };
 
 }  // namespace
@@ -1050,6 +1054,8 @@ class BeforeResourceLoadTest : public TestHandler {
   TrackCallback got_before_resource_load2_;
   TrackCallback got_load_end_;
   TrackCallback got_load_error_;
+
+  IMPLEMENT_REFCOUNTING(BeforeResourceLoadTest);
 };
 
 }  // namespace

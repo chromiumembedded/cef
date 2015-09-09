@@ -309,6 +309,8 @@ class TestDOMHandler : public TestHandler {
   DOMTestType test_type_;
   TrackCallback got_message_;
   TrackCallback got_success_;
+
+  IMPLEMENT_REFCOUNTING(TestDOMHandler);
 };
 
 }  // namespace

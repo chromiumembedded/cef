@@ -14,6 +14,7 @@
 #include "libcef_dll/cpptoc/context_menu_params_cpptoc.h"
 #include "libcef_dll/cpptoc/frame_cpptoc.h"
 #include "libcef_dll/cpptoc/menu_model_cpptoc.h"
+#include "libcef_dll/cpptoc/run_context_menu_callback_cpptoc.h"
 #include "libcef_dll/ctocpp/context_menu_handler_ctocpp.h"
 
 
@@ -51,6 +52,49 @@ void CefContextMenuHandlerCToCpp::OnBeforeContextMenu(
       CefFrameCppToC::Wrap(frame),
       CefContextMenuParamsCppToC::Wrap(params),
       CefMenuModelCppToC::Wrap(model));
+}
+
+bool CefContextMenuHandlerCToCpp::RunContextMenu(CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params,
+    CefRefPtr<CefMenuModel> model,
+    CefRefPtr<CefRunContextMenuCallback> callback) {
+  cef_context_menu_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, run_context_menu))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame.get());
+  if (!frame.get())
+    return false;
+  // Verify param: params; type: refptr_diff
+  DCHECK(params.get());
+  if (!params.get())
+    return false;
+  // Verify param: model; type: refptr_diff
+  DCHECK(model.get());
+  if (!model.get())
+    return false;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback.get());
+  if (!callback.get())
+    return false;
+
+  // Execute
+  int _retval = _struct->run_context_menu(_struct,
+      CefBrowserCppToC::Wrap(browser),
+      CefFrameCppToC::Wrap(frame),
+      CefContextMenuParamsCppToC::Wrap(params),
+      CefMenuModelCppToC::Wrap(model),
+      CefRunContextMenuCallbackCppToC::Wrap(callback));
+
+  // Return type: bool
+  return _retval?true:false;
 }
 
 bool CefContextMenuHandlerCToCpp::OnContextMenuCommand(

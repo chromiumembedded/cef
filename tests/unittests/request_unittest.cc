@@ -201,6 +201,8 @@ class RequestSendRecvTestHandler : public TestHandler {
 
   TrackCallback got_before_resource_load_;
   TrackCallback got_resource_handler_;
+
+  IMPLEMENT_REFCOUNTING(RequestSendRecvTestHandler);
 };
 
 }  // namespace
@@ -537,6 +539,8 @@ class TypeTestHandler : public TestHandler {
   bool completed_browser_side_;
   bool completed_render_side_;
   bool destroyed_;
+
+  IMPLEMENT_REFCOUNTING(TypeTestHandler);
 };
 
 }  // namespace

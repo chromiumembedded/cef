@@ -46,7 +46,6 @@
 #include "include/cef_response.h"
 #include "include/cef_request.h"
 #include "include/cef_ssl_info.h"
-#include "include/cef_web_plugin.h"
 
 
 ///
@@ -245,18 +244,6 @@ class CefRequestHandler : public virtual CefBase {
       const CefString& request_url,
       CefRefPtr<CefSSLInfo> ssl_info,
       CefRefPtr<CefRequestCallback> callback) {
-    return false;
-  }
-
-  ///
-  // Called on the browser process IO thread before a plugin is loaded. Return
-  // true to block loading of the plugin.
-  ///
-  /*--cef(optional_param=url,optional_param=policy_url)--*/
-  virtual bool OnBeforePluginLoad(CefRefPtr<CefBrowser> browser,
-                                  const CefString& url,
-                                  const CefString& policy_url,
-                                  CefRefPtr<CefWebPluginInfo> info) {
     return false;
   }
 

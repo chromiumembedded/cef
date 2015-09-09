@@ -24,6 +24,7 @@
 #include "base/command_line.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
+#include "chrome/browser/plugins/plugin_finder.h"
 #include "content/browser/webui/content_web_ui_controller_factory.h"
 #include "content/public/browser/child_process_security_policy.h"
 #include "content/public/browser/gpu_data_manager.h"
@@ -164,6 +165,9 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
       LOG(WARNING) << "Invalid http debugger port number " << port;
     }
   }
+
+  // Triggers initialization of the singleton instance on UI thread.
+  PluginFinder::GetInstance()->Init();
 
 #if defined(OS_WIN)
   PlatformPreMainMessageLoopRun();

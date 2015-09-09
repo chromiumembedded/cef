@@ -39,12 +39,12 @@
 #pragma once
 
 #include "include/capi/cef_base_capi.h"
-#include "include/capi/cef_browser_capi.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+struct _cef_browser_t;
 
 ///
 // Information about a specific web plugin.

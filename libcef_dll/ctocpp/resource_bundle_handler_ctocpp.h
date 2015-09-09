@@ -31,9 +31,11 @@ class CefResourceBundleHandlerCToCpp
   CefResourceBundleHandlerCToCpp();
 
   // CefResourceBundleHandler methods.
-  bool GetLocalizedString(int message_id, CefString& string) override;
+  bool GetLocalizedString(int string_id, CefString& string) override;
   bool GetDataResource(int resource_id, void*& data,
       size_t& data_size) override;
+  bool GetDataResourceForScale(int resource_id, ScaleFactor scale_factor,
+      void*& data, size_t& data_size) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

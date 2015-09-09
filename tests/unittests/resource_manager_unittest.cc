@@ -158,6 +158,8 @@ class ResourceManagerTestHandler : public RoutingTestHandler {
 
   State* state_;
   size_t current_url_;
+
+  IMPLEMENT_REFCOUNTING(ResourceManagerTestHandler);
 };
 
 }  // namespace
