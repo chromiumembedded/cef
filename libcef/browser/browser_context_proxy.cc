@@ -10,7 +10,27 @@
 #include "libcef/browser/url_request_context_getter_proxy.h"
 
 #include "base/logging.h"
+#include "components/guest_view/common/guest_view_constants.h"
+#include "content/browser/streams/stream_context.h"
 #include "content/public/browser/storage_partition.h"
+
+namespace {
+
+bool ShouldProxyUserData(const void* key) {
+  // If this value is not proxied the blob data fails to load for the PDF
+  // extension.
+  if (key == content::StreamContext::GetUserDataKey())
+    return true;
+
+  // If this value is not proxied then CefBrowserContextImpl::GetGuestManager()
+  // returns NULL.
+  if (key == guest_view::kGuestViewManagerKeyName)
+    return true;
+
+  return false;
+}
+
+}  // namespace
 
 CefBrowserContextProxy::CefBrowserContextProxy(
     CefRefPtr<CefRequestContextHandler> handler,
@@ -24,6 +44,27 @@ CefBrowserContextProxy::CefBrowserContextProxy(
 
 CefBrowserContextProxy::~CefBrowserContextProxy() {
   parent_->RemoveProxy(this);
+}
+
+base::SupportsUserData::Data*
+    CefBrowserContextProxy::GetUserData(const void* key) const {
+  if (ShouldProxyUserData(key))
+    return parent_->GetUserData(key);
+  return BrowserContext::GetUserData(key);
+}
+
+void CefBrowserContextProxy::SetUserData(const void* key, Data* data) {
+  if (ShouldProxyUserData(key))
+    parent_->SetUserData(key, data);
+  else
+    BrowserContext::SetUserData(key, data);
+}
+
+void CefBrowserContextProxy::RemoveUserData(const void* key) {
+  if (ShouldProxyUserData(key))
+    parent_->RemoveUserData(key);
+  else
+    BrowserContext::RemoveUserData(key);
 }
 
 base::FilePath CefBrowserContextProxy::GetPath() const {

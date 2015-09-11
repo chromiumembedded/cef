@@ -1,0 +1,17 @@
+diff --git supports_user_data.h supports_user_data.h
+index 711ee7d..cf38fc0 100644
+--- supports_user_data.h
++++ supports_user_data.h
+@@ -32,9 +32,9 @@ class BASE_EXPORT SupportsUserData {
+   // Multiple user data values can be stored under different keys.
+   // This object will TAKE OWNERSHIP of the given data pointer, and will
+   // delete the object if it is changed or the object is destroyed.
+-  Data* GetUserData(const void* key) const;
+-  void SetUserData(const void* key, Data* data);
+-  void RemoveUserData(const void* key);
++  virtual Data* GetUserData(const void* key) const;
++  virtual void SetUserData(const void* key, Data* data);
++  virtual void RemoveUserData(const void* key);
+ 
+   // SupportsUserData is not thread-safe, and on debug build will assert it is
+   // only used on one thread. Calling this method allows the caller to hand
