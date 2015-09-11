@@ -1,0 +1,27 @@
+diff --git stream_context.cc stream_context.cc
+index e338396..150cde5 100644
+--- stream_context.cc
++++ stream_context.cc
+@@ -19,6 +19,10 @@ namespace content {
+ 
+ StreamContext::StreamContext() {}
+ 
++const void* StreamContext::GetUserDataKey() {
++  return kStreamContextKeyName;
++}
++
+ StreamContext* StreamContext::GetFor(BrowserContext* context) {
+   if (!context->GetUserData(kStreamContextKeyName)) {
+     scoped_refptr<StreamContext> stream = new StreamContext();
+diff --git stream_context.h stream_context.h
+index ad8f65c..60310db 100644
+--- stream_context.h
++++ stream_context.h
+@@ -28,6 +28,7 @@ class StreamContext
+  public:
+   StreamContext();
+ 
++  CONTENT_EXPORT static const void* GetUserDataKey();
+   CONTENT_EXPORT static StreamContext* GetFor(BrowserContext* browser_context);
+ 
+   void InitializeOnIOThread();
