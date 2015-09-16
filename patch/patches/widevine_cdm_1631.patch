@@ -1,0 +1,37 @@
+diff --git stub_cdm.cc stub_cdm.cc
+index 0bfa25e..0db23db 100644
+--- stub_cdm.cc
++++ stub_cdm.cc
+@@ -5,6 +5,7 @@
+ #include "media/cdm/stub/stub_cdm.h"
+ 
+ #include "base/logging.h"
++#include "base/numerics/safe_conversions.h"
+ #include "base/strings/string_number_conversions.h"
+ 
+ // Version number for this stub. The third number represents the
+@@ -61,9 +62,11 @@ void StubCdm::CreateSessionAndGenerateRequest(
+   // Provide a dummy message (with a trivial session ID) to enable some testing
+   // and be consistent with existing testing without a license server.
+   std::string session_id(base::UintToString(next_session_id_++));
+-  host_->OnResolveNewSessionPromise(promise_id, session_id.data(),
+-                                    session_id.length());
+-  host_->OnSessionMessage(session_id.data(), session_id.length(),
++  host_->OnResolveNewSessionPromise(
++      promise_id, session_id.data(),
++      base::checked_cast<uint32_t>(session_id.length()));
++  host_->OnSessionMessage(session_id.data(),
++                          base::checked_cast<uint32_t>(session_id.length()),
+                           cdm::kLicenseRequest, nullptr, 0, nullptr, 0);
+ }
+ 
+@@ -156,7 +159,8 @@ void StubCdm::OnQueryOutputProtectionStatus(
+ void StubCdm::FailRequest(uint32 promise_id) {
+   std::string message("Operation not supported by stub CDM.");
+   host_->OnRejectPromise(promise_id, cdm::kInvalidAccessError, 0,
+-                         message.data(), message.length());
++                         message.data(),
++                         base::checked_cast<uint32_t>(message.length()));
+ }
+ 
+ }  // namespace media
