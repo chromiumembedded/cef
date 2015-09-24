@@ -535,16 +535,19 @@ void CefMainDelegate::PreSandboxStartup() {
         true);  // Create if necessary.
 
 #if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
-    const base::FilePath& widevine_plugin_path = GetResourcesFilePath();
-    PathService::Override(chrome::FILE_WIDEVINE_CDM_ADAPTER,
-                          widevine_plugin_path.AppendASCII(
-                              kWidevineCdmAdapterFileName));
+    const base::FilePath& widevine_plugin_path =
+        GetResourcesFilePath().AppendASCII(kWidevineCdmAdapterFileName);
+    if (base::PathExists(widevine_plugin_path)) {
+      PathService::Override(chrome::FILE_WIDEVINE_CDM_ADAPTER,
+                            widevine_plugin_path);
+    }
 #if defined(WIDEVINE_CDM_IS_COMPONENT)
-    PathService::Override(chrome::DIR_COMPONENT_WIDEVINE_CDM,
-                          user_data_path.Append(kWidevineCdmBaseDirectory));
+    if (command_line->HasSwitch(switches::kEnableWidevineCdm)) {
+      PathService::Override(chrome::DIR_COMPONENT_WIDEVINE_CDM,
+                            user_data_path.Append(kWidevineCdmBaseDirectory));
+    }
 #endif  // defined(WIDEVINE_CDM_IS_COMPONENT)
 #endif  // defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
-
   }
 
   if (command_line->HasSwitch(switches::kDisablePackLoading))
