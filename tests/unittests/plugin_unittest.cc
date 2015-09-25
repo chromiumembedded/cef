@@ -83,6 +83,10 @@ class PluginTestHandler : public RoutingTestHandler,
     // plugin via the context menu.
     GLOBAL_DISABLE_HIDE,
 
+    // Global context with handler that removes the plugin from the
+    // `navigator.plugins` list and consequently disables plugin load.
+    GLOBAL_NO_LIST,
+
     // Custom context with no handler.
     CUSTOM_NO_HANDLER,
 
@@ -100,6 +104,10 @@ class PluginTestHandler : public RoutingTestHandler,
     // Custom context with handler that disables plugin load. Then, hide the
     // plugin via the context menu.
     CUSTOM_DISABLE_HIDE,
+
+    // Custom context with handler that removes the plugin from the
+    // `navigator.plugins` list and consequently disables plugin load.
+    CUSTOM_NO_LIST,
   };
 
   class RequestContextHandler : public CefRequestContextHandler {
@@ -113,6 +121,20 @@ class PluginTestHandler : public RoutingTestHandler,
                             CefRefPtr<CefWebPluginInfo> plugin_info,
                             PluginPolicy* plugin_policy) override {
       const std::string& mime_type_str = mime_type;
+
+      if (top_origin_url.empty()) {
+        handler_->got_on_before_plugin_empty_origin_.yes();
+
+        if (mime_type_str == "application/pdf" && handler_->HasNoList()) {
+          // Remove the PDF plugin from the `navigator.plugins` list.
+          *plugin_policy = PLUGIN_POLICY_DISABLE;
+          return true;
+        } else {
+          // Ignore requests for building the plugin list.
+          return false;
+        }
+      }
+
       if (mime_type_str == "application/pdf") {
         if (!handler_->got_on_before_plugin_load_pdf1_)
           handler_->got_on_before_plugin_load_pdf1_.yes();
@@ -167,7 +189,7 @@ class PluginTestHandler : public RoutingTestHandler,
 
   // Using the global request context, either directly or with a custom handler.
   bool HasGlobalRequestContext() const {
-    return mode_ >= GLOBAL_DEFAULT && mode_ <= GLOBAL_DISABLE_HIDE;
+    return mode_ >= GLOBAL_DEFAULT && mode_ <= GLOBAL_NO_LIST;
   }
 
   // Should allow the plugin load via the custom handler.
@@ -185,7 +207,14 @@ class PluginTestHandler : public RoutingTestHandler,
 
   // Should disable the plugin load via the custom handler.
   bool HasDisable() const {
-    return mode_ == GLOBAL_DISABLE_HIDE || mode_ == CUSTOM_DISABLE_HIDE;
+    return mode_ == GLOBAL_DISABLE_HIDE ||
+           mode_ == CUSTOM_DISABLE_HIDE;
+  }
+
+  // Should exclude the plugin from the `navigator.plugins` list.
+  bool HasNoList() const {
+    return mode_ == GLOBAL_NO_LIST ||
+           mode_ == CUSTOM_NO_LIST;
   }
 
   // Should load the plugin via the context menu.
@@ -203,6 +232,18 @@ class PluginTestHandler : public RoutingTestHandler,
 
   std::string GetPluginNode() const {
     return "document.getElementsByTagName('embed')[0]";
+  }
+
+  void WaitForNavigatorPlugins(CefRefPtr<CefFrame> frame) const {
+    // Test if the `navigator.plugins` list includes the PDF extension.
+    const std::string& code =
+        " if (navigator.plugins['Chromium PDF Viewer'].filename == "
+        "       'mhjfbmdgcfjbbpaeojofohoefgiehjai') {"
+        "  window.testQuery({request:'pdf_plugin_found'});"
+        "} else {"
+        "  window.testQuery({request:'pdf_plugin_missing'});"
+        "}";
+    frame->ExecuteJavaScript(code, frame->GetURL(), 0);
   }
 
   void WaitForPlaceholderLoad(CefRefPtr<CefFrame> frame) const {
@@ -280,6 +321,10 @@ class PluginTestHandler : public RoutingTestHandler,
     frame->ExecuteJavaScript(code, frame->GetURL(), 0);
   }
 
+  void EndTest() {
+    CefPostTask(TID_UI, base::Bind(&PluginTestHandler::DestroyTest, this));
+  }
+
   CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override {
     return this;
   }
@@ -352,15 +397,13 @@ class PluginTestHandler : public RoutingTestHandler,
       NOTREACHED();
     }
 
-    if (HasBlock() || HasDisable()) {
-      if (is_pdf1) {
-        // Wait for the plugin placeholder for the first PDF file to load. The
-        // test will continue from OnQuery.
-        WaitForPlaceholderLoad(frame);
-      }
+    if (HasNoList()) {
+      // If the plugin is not listed then the PDF documents will never load.
+      EXPECT_STREQ(kPdfHtmlUrl, url.c_str());
+      WaitForNavigatorPlugins(frame);
     } else if (is_pdf1) {
-      // Wait for the first PDF file to load.
-      WaitForPluginLoad(frame);
+      // The first PDF document has loaded.
+      WaitForNavigatorPlugins(frame);
     }
   }
 
@@ -370,7 +413,24 @@ class PluginTestHandler : public RoutingTestHandler,
                const CefString& request,
                bool persistent,
                CefRefPtr<Callback> callback) override {
-    if (request == "placeholder_ready") {
+    if (request == "pdf_plugin_found" || request == "pdf_plugin_missing") {
+      if (request == "pdf_plugin_found")
+        got_pdf_plugin_found_.yes();
+      else
+        got_pdf_plugin_missing_.yes();
+
+      if (HasNoList()) {
+        // The plugin will not load. End the test.
+        EndTest();
+      } else if (HasBlock() || HasDisable()) {
+        // Wait for the plugin placeholder for the first PDF file to load. The
+        // test will continue from OnQuery.
+        WaitForPlaceholderLoad(frame);
+      } else {
+        // Wait for the first PDF file to load.
+        WaitForPluginLoad(frame);
+      }
+    } else if (request == "placeholder_ready") {
       EXPECT_FALSE(got_placeholder_ready_);
       got_placeholder_ready_.yes();
 
@@ -382,18 +442,16 @@ class PluginTestHandler : public RoutingTestHandler,
       EXPECT_FALSE(got_placeholder_hidden_);
       got_placeholder_hidden_.yes();
 
-      // The plugin placeholder has been hidden.
-      CefPostTask(TID_UI,
-          base::Bind(&PluginTestHandler::DestroyTest, this));
+      // The plugin placeholder has been hidden. End the test.
+      EndTest();
     } else if (request == "plugin_ready") {
       EXPECT_FALSE(got_plugin_ready_);
       got_plugin_ready_.yes();
 
       // The plugin has loaded the PDF file.
       if (got_context_menu_dismissed_) {
-        // After context menu display. Destroy the test.
-        CefPostTask(TID_UI,
-            base::Bind(&PluginTestHandler::DestroyTest, this));
+        // After context menu display. End the test.
+        EndTest();
       } else {
         // Trigger the context menu.
         CefPostTask(TID_UI,
@@ -469,7 +527,7 @@ class PluginTestHandler : public RoutingTestHandler,
       return;
     }
 
-    CefPostTask(TID_UI, base::Bind(&PluginTestHandler::DestroyTest, this));
+    EndTest();
   }
 
   void DestroyTest() override {
@@ -495,18 +553,33 @@ class PluginTestHandler : public RoutingTestHandler,
         EXPECT_FALSE(got_plugin_ready_);
     }
 
-    EXPECT_TRUE(got_run_context_menu_);
-    EXPECT_TRUE(got_context_menu_dismissed_);
+    if (HasRequestContextHandler())
+      EXPECT_TRUE(got_on_before_plugin_empty_origin_);
+
+    if (HasNoList()) {
+      EXPECT_FALSE(got_pdf_plugin_found_);
+      EXPECT_TRUE(got_pdf_plugin_missing_);
+      EXPECT_FALSE(got_run_context_menu_);
+      EXPECT_FALSE(got_context_menu_dismissed_);
+    } else {
+      EXPECT_TRUE(got_pdf_plugin_found_);
+      EXPECT_FALSE(got_pdf_plugin_missing_);
+      EXPECT_TRUE(got_run_context_menu_);
+      EXPECT_TRUE(got_context_menu_dismissed_);
+    }
 
     if (url_ == kPdfHtmlUrl) {
       // The HTML file will load the PDF twice in iframes.
       EXPECT_TRUE(got_on_load_end_html_);
-      EXPECT_TRUE(got_on_load_end_pdf1_);
-      EXPECT_TRUE(got_on_load_end_pdf2_);
 
-      if (HasRequestContextHandler()) {
-        EXPECT_TRUE(got_on_before_plugin_load_pdf1_);
-        EXPECT_TRUE(got_on_before_plugin_load_pdf2_);
+      if (!HasNoList()) {
+        EXPECT_TRUE(got_on_load_end_pdf1_);
+        EXPECT_TRUE(got_on_load_end_pdf2_);
+
+        if (HasRequestContextHandler()) {
+          EXPECT_TRUE(got_on_before_plugin_load_pdf1_);
+          EXPECT_TRUE(got_on_before_plugin_load_pdf2_);
+        }
       }
     } else if (url_ == kPdfDirectUrl) {
       // Load the PDF file directly.
@@ -522,7 +595,7 @@ class PluginTestHandler : public RoutingTestHandler,
       NOTREACHED();
     }
 
-    if (!HasRequestContextHandler()) {
+    if (!HasRequestContextHandler() || HasNoList()) {
       EXPECT_FALSE(got_on_before_plugin_load_pdf1_);
       EXPECT_FALSE(got_on_before_plugin_load_pdf2_);
     }
@@ -533,11 +606,14 @@ class PluginTestHandler : public RoutingTestHandler,
   const Mode mode_;
   const std::string url_;
 
+  TrackCallback got_on_before_plugin_empty_origin_;
   TrackCallback got_on_before_plugin_load_pdf1_;
   TrackCallback got_on_before_plugin_load_pdf2_;
   TrackCallback got_on_load_end_html_;
   TrackCallback got_on_load_end_pdf1_;
   TrackCallback got_on_load_end_pdf2_;
+  TrackCallback got_pdf_plugin_found_;
+  TrackCallback got_pdf_plugin_missing_;
   TrackCallback got_placeholder_ready_;
   TrackCallback got_placeholder_hidden_;
   TrackCallback got_plugin_ready_;
@@ -572,6 +648,7 @@ RUN_TEST(GlobalBlockThenHidePdfDirect, GLOBAL_BLOCK_HIDE, kPdfDirectUrl);
 RUN_TEST(GlobalBlockThenHidePdfHtml, GLOBAL_BLOCK_HIDE, kPdfHtmlUrl);
 RUN_TEST(GlobalDisableThenHidePdfDirect, GLOBAL_DISABLE_HIDE, kPdfDirectUrl);
 RUN_TEST(GlobalDisableThenHidePdfHtml, GLOBAL_DISABLE_HIDE, kPdfHtmlUrl);
+RUN_TEST(GlobalNoListHtml, GLOBAL_NO_LIST, kPdfHtmlUrl);
 
 RUN_TEST(CustomNoHandlerPdfDirect, CUSTOM_NO_HANDLER, kPdfDirectUrl);
 RUN_TEST(CustomNoHandlerPdfHtml, CUSTOM_NO_HANDLER, kPdfHtmlUrl);
@@ -583,6 +660,7 @@ RUN_TEST(CustomBlockThenHidePdfDirect, CUSTOM_BLOCK_HIDE, kPdfDirectUrl);
 RUN_TEST(CustomBlockThenHidePdfHtml, CUSTOM_BLOCK_HIDE, kPdfHtmlUrl);
 RUN_TEST(CustomDisableThenHidePdfDirect, CUSTOM_DISABLE_HIDE, kPdfDirectUrl);
 RUN_TEST(CustomDisableThenHidePdfHtml, CUSTOM_DISABLE_HIDE, kPdfHtmlUrl);
+RUN_TEST(CustomNoListHtml, CUSTOM_NO_LIST, kPdfHtmlUrl);
 
 
 // Entry point for creating plugin browser test objects.

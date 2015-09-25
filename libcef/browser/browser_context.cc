@@ -52,7 +52,8 @@ void CefBrowserContext::Initialize() {
 
   resource_context_.reset(new CefResourceContext(
       IsOffTheRecord(),
-      extensions_enabled ? extension_system_->info_map() : NULL));
+      extensions_enabled ? extension_system_->info_map() : NULL,
+      GetHandler()));
 
   BrowserContextDependencyManager::GetInstance()->CreateBrowserContextServices(
       this);

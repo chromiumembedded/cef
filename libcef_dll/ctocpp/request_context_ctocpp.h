@@ -44,6 +44,7 @@ class CefRequestContextCToCpp
       const CefString& domain_name,
       CefRefPtr<CefSchemeHandlerFactory> factory) OVERRIDE;
   bool ClearSchemeHandlerFactories() OVERRIDE;
+  void PurgePluginListCache(bool reload_pages) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED

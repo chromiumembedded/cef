@@ -157,6 +157,15 @@ class CefRequestContext : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual bool ClearSchemeHandlerFactories() =0;
+
+  ///
+  // Tells all renderer processes associated with this context to throw away
+  // their plugin list cache. If |reload_pages| is true they will also reload
+  // all pages with plugins. CefRequestContextHandler::OnBeforePluginLoad may
+  // be called to rebuild the plugin list cache.
+  ///
+  /*--cef()--*/
+  virtual void PurgePluginListCache(bool reload_pages) =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_REQUEST_CONTEXT_H_

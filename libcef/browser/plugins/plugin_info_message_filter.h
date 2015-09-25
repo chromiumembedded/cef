@@ -20,6 +20,7 @@
 #include "content/public/browser/browser_message_filter.h"
 
 class CefBrowserContext;
+class CefRequestContextHandler;
 struct CefViewHostMsg_GetPluginInfo_Output;
 enum class CefViewHostMsg_GetPluginInfo_Status;
 class GURL;
@@ -50,10 +51,8 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
         const content::WebPluginInfo& plugin,
         const PluginMetadata* plugin_metadata,
         CefViewHostMsg_GetPluginInfo_Status* status) const;
-    bool FindEnabledPlugin(int render_frame_id,
-                           const GURL& url,
-                           const GURL& top_origin_url,
-                           const std::string& mime_type,
+    bool FindEnabledPlugin(const GetPluginInfo_Params& params,
+                           CefRequestContextHandler* handler,
                            CefViewHostMsg_GetPluginInfo_Status* status,
                            content::WebPluginInfo* plugin,
                            std::string* actual_mime_type,

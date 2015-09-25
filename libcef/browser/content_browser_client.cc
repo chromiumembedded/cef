@@ -19,12 +19,12 @@
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/pepper/browser_pepper_host_factory.h"
 #include "libcef/browser/plugins/plugin_info_message_filter.h"
+#include "libcef/browser/plugins/plugin_service_filter.h"
 #include "libcef/browser/printing/printing_message_filter.h"
 #include "libcef/browser/resource_dispatcher_host_delegate.h"
 #include "libcef/browser/speech_recognition_manager_delegate.h"
 #include "libcef/browser/ssl_info_impl.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/browser/web_plugin_impl.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
@@ -38,6 +38,7 @@
 #include "base/path_service.h"
 #include "chrome/browser/spellchecker/spellcheck_message_filter.h"
 #include "chrome/common/chrome_switches.h"
+#include "content/browser/plugin_service_impl.h"
 #include "content/public/browser/access_token_store.h"
 #include "content/public/browser/browser_ppapi_host.h"
 #include "content/public/browser/browser_url_handler.h"
@@ -358,6 +359,10 @@ int GetCrashSignalFD(const base::CommandLine& command_line) {
 CefContentBrowserClient::CefContentBrowserClient()
     : browser_main_parts_(NULL),
       next_browser_id_(0) {
+  plugin_service_filter_.reset(new CefPluginServiceFilter);
+  content::PluginServiceImpl::GetInstance()->SetFilter(
+      plugin_service_filter_.get());
+
   last_create_window_params_.opener_process_id = MSG_ROUTING_NONE;
 }
 

@@ -226,6 +226,19 @@ int CEF_CALLBACK request_context_clear_scheme_handler_factories(
   return _retval;
 }
 
+void CEF_CALLBACK request_context_purge_plugin_list_cache(
+    struct _cef_request_context_t* self, int reload_pages) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefRequestContextCppToC::Get(self)->PurgePluginListCache(
+      reload_pages?true:false);
+}
+
 }  // namespace
 
 
@@ -243,6 +256,8 @@ CefRequestContextCppToC::CefRequestContextCppToC() {
       request_context_register_scheme_handler_factory;
   GetStruct()->clear_scheme_handler_factories =
       request_context_clear_scheme_handler_factories;
+  GetStruct()->purge_plugin_list_cache =
+      request_context_purge_plugin_list_cache;
 }
 
 template<> CefRefPtr<CefRequestContext> CefCppToC<CefRequestContextCppToC,
