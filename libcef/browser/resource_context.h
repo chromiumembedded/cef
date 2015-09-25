@@ -6,6 +6,8 @@
 #define CEF_LIBCEF_BROWSER_RESOURCE_CONTEXT_H_
 #pragma once
 
+#include "include/cef_request_context_handler.h"
+
 #include "content/public/browser/resource_context.h"
 #include "extensions/browser/info_map.h"
 
@@ -22,7 +24,8 @@ class CefURLRequestContextGetter;
 class CefResourceContext : public content::ResourceContext {
  public:
   CefResourceContext(bool is_off_the_record,
-                     extensions::InfoMap* extension_info_map);
+                     extensions::InfoMap* extension_info_map,
+                     CefRefPtr<CefRequestContextHandler> handler);
   ~CefResourceContext() override;
 
   // ResourceContext implementation.
@@ -38,12 +41,14 @@ class CefResourceContext : public content::ResourceContext {
   const extensions::InfoMap* GetExtensionInfoMap() const {
     return extension_info_map_.get();
   }
+  CefRefPtr<CefRequestContextHandler> GetHandler() const { return handler_; }
 
  private:
   scoped_refptr<CefURLRequestContextGetter> getter_;
 
   bool is_off_the_record_;
   scoped_refptr<extensions::InfoMap> extension_info_map_;
+  CefRefPtr<CefRequestContextHandler> handler_;
 
   DISALLOW_COPY_AND_ASSIGN(CefResourceContext);
 };

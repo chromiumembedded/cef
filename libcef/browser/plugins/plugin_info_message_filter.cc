@@ -6,9 +6,9 @@
 #include "libcef/browser/plugins/plugin_info_message_filter.h"
 
 #include "libcef/browser/browser_context.h"
+#include "libcef/browser/plugins/plugin_service_filter.h"
 #include "libcef/browser/web_plugin_impl.h"
 #include "libcef/common/cef_messages.h"
-#include "libcef/common/content_client.h"
 
 #include "base/bind.h"
 #include "base/memory/scoped_ptr.h"
@@ -243,83 +243,15 @@ void CefPluginInfoMessageFilter::PluginsLoaded(
     IPC::Message* reply_msg,
     const std::vector<WebPluginInfo>& plugins) {
   CefViewHostMsg_GetPluginInfo_Output output;
+  CefRefPtr<CefRequestContextHandler> handler =
+        browser_context_->GetHandler();
+
   // This also fills in |actual_mime_type|.
   scoped_ptr<PluginMetadata> plugin_metadata;
-  if (context_.FindEnabledPlugin(params.render_frame_id, params.url,
-                                 params.top_origin_url, params.mime_type,
-                                 &output.status, &output.plugin,
-                                 &output.actual_mime_type,
-                                 &plugin_metadata)) {
-    context_.DecidePluginStatus(params, output.plugin, plugin_metadata.get(),
-                                &output.status);
-
-    const bool is_found =
-      output.status != CefViewHostMsg_GetPluginInfo_Status::kNotFound &&
-      output.status != CefViewHostMsg_GetPluginInfo_Status::kNPAPINotSupported;
-
-    const bool is_internal_pdf_plugin =
-        is_found &&
-        (output.plugin.path == CefString(CefContentClient::kPDFPluginPath));
-    if (is_internal_pdf_plugin &&
-        output.status != CefViewHostMsg_GetPluginInfo_Status::kAllowed) {
-      // Always allow the internal PDF plugin to load if it exists.
-      output.status = CefViewHostMsg_GetPluginInfo_Status::kAllowed;
-    }
-
-    // Give the handler an opportunity to modify the policy.
-    CefRefPtr<CefRequestContextHandler> handler =
-        browser_context_->GetHandler();
-    if (handler.get() &&
-        is_found &&
-        !is_internal_pdf_plugin) {
-      cef_plugin_policy_t plugin_policy = PLUGIN_POLICY_DISABLE;
-      switch (output.status) {
-        case CefViewHostMsg_GetPluginInfo_Status::kAllowed:
-          plugin_policy = PLUGIN_POLICY_ALLOW;
-          break;
-        case CefViewHostMsg_GetPluginInfo_Status::kBlocked:
-        case CefViewHostMsg_GetPluginInfo_Status::kBlockedByPolicy:
-        case CefViewHostMsg_GetPluginInfo_Status::kOutdatedBlocked:
-        case CefViewHostMsg_GetPluginInfo_Status::kOutdatedDisallowed:
-        case CefViewHostMsg_GetPluginInfo_Status::kUnauthorized:
-          plugin_policy = PLUGIN_POLICY_BLOCK;
-          break;
-        case CefViewHostMsg_GetPluginInfo_Status::kDisabled:
-          plugin_policy = PLUGIN_POLICY_DISABLE;
-          break;
-        case CefViewHostMsg_GetPluginInfo_Status::kPlayImportantContent:
-          plugin_policy = PLUGIN_POLICY_DETECT_IMPORTANT;
-          break;
-        default:
-          NOTREACHED();
-          break;
-      }
-
-      CefRefPtr<CefWebPluginInfoImpl> pluginInfo(
-          new CefWebPluginInfoImpl(output.plugin));
-      if (handler->OnBeforePluginLoad(output.actual_mime_type,
-                                      params.url.spec(),
-                                      params.top_origin_url.spec(),
-                                      pluginInfo.get(),
-                                      &plugin_policy)) {
-        switch (plugin_policy) {
-          case PLUGIN_POLICY_ALLOW:
-            output.status = CefViewHostMsg_GetPluginInfo_Status::kAllowed;
-            break;
-          case PLUGIN_POLICY_DETECT_IMPORTANT:
-            output.status =
-                CefViewHostMsg_GetPluginInfo_Status::kPlayImportantContent;
-            break;
-          case PLUGIN_POLICY_BLOCK:
-            output.status = CefViewHostMsg_GetPluginInfo_Status::kBlocked;
-            break;
-          case PLUGIN_POLICY_DISABLE:
-            output.status = CefViewHostMsg_GetPluginInfo_Status::kDisabled;
-            break;
-        }
-      }
-    }
-  }
+  context_.FindEnabledPlugin(params, handler.get(),
+                             &output.status, &output.plugin,
+                             &output.actual_mime_type,
+                             &plugin_metadata);
 
   if (plugin_metadata) {
     output.group_identifier = plugin_metadata->identifier();
@@ -488,10 +420,8 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
 }
 
 bool CefPluginInfoMessageFilter::Context::FindEnabledPlugin(
-    int render_frame_id,
-    const GURL& url,
-    const GURL& top_origin_url,
-    const std::string& mime_type,
+    const GetPluginInfo_Params& params,
+    CefRequestContextHandler* handler,
     CefViewHostMsg_GetPluginInfo_Status* status,
     WebPluginInfo* plugin,
     std::string* actual_mime_type,
@@ -502,7 +432,8 @@ bool CefPluginInfoMessageFilter::Context::FindEnabledPlugin(
   std::vector<WebPluginInfo> matching_plugins;
   std::vector<std::string> mime_types;
   PluginService::GetInstance()->GetPluginInfoArray(
-      url, mime_type, allow_wildcard, &matching_plugins, &mime_types);
+      params.url, params.mime_type, allow_wildcard, &matching_plugins,
+      &mime_types);
   if (matching_plugins.empty()) {
     *status = CefViewHostMsg_GetPluginInfo_Status::kNotFound;
 #if defined(OS_WIN) || defined(OS_MACOSX)
@@ -511,39 +442,48 @@ bool CefPluginInfoMessageFilter::Context::FindEnabledPlugin(
       // could be a not-yet-installed Pepper plugin. To avoid notifying on
       // these types, bail early based on a blacklist of pepper mime types.
       for (auto pepper_mime_type : kPepperPluginMimeTypes)
-        if (pepper_mime_type == mime_type)
+        if (pepper_mime_type == params.mime_type)
           return false;
     }
 #endif
     return false;
   }
 
-  content::PluginServiceFilter* filter =
-      PluginService::GetInstance()->GetFilter();
+  CefPluginServiceFilter* filter = static_cast<CefPluginServiceFilter*>(
+      PluginService::GetInstance()->GetFilter());
+  DCHECK(filter);
+
+  CefViewHostMsg_GetPluginInfo_Status first_status = *status;
+
   size_t i = 0;
   for (; i < matching_plugins.size(); ++i) {
-    if (!filter || filter->IsPluginAvailable(render_process_id_,
-                                             render_frame_id,
-                                             resource_context_,
-                                             url,
-                                             top_origin_url,
-                                             &matching_plugins[i])) {
+    *plugin = matching_plugins[i];
+    *actual_mime_type = mime_types[i];
+    *plugin_metadata = PluginFinder::GetInstance()->GetPluginMetadata(*plugin);
+
+    DecidePluginStatus(params, *plugin, (*plugin_metadata).get(), status);
+    if (filter->IsPluginAvailable(handler,
+                                  params.url,
+                                  params.top_origin_url,
+                                  plugin,
+                                  status)) {
       break;
     }
+
+    if (i == 0)
+      first_status = *status;
   }
 
   // If we broke out of the loop, we have found an enabled plugin.
   bool enabled = i < matching_plugins.size();
   if (!enabled) {
-    // Otherwise, we only found disabled plugins, so we take the first one.
-    i = 0;
-    *status = CefViewHostMsg_GetPluginInfo_Status::kDisabled;
-  }
-
-  *plugin = matching_plugins[i];
-  *actual_mime_type = mime_types[i];
-  if (plugin_metadata)
+    // Otherwise, we only found disabled/not-found plugins, so we take the first
+    // one.
+    *plugin = matching_plugins[0];
+    *actual_mime_type = mime_types[0];
     *plugin_metadata = PluginFinder::GetInstance()->GetPluginMetadata(*plugin);
+    *status = first_status;
+  }
 
   return enabled;
 }

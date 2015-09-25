@@ -45,10 +45,6 @@ bool CefRequestContextHandlerCToCpp::OnBeforePluginLoad(
   DCHECK(!mime_type.empty());
   if (mime_type.empty())
     return false;
-  // Verify param: top_origin_url; type: string_byref_const
-  DCHECK(!top_origin_url.empty());
-  if (top_origin_url.empty())
-    return false;
   // Verify param: plugin_info; type: refptr_diff
   DCHECK(plugin_info.get());
   if (!plugin_info.get())
@@ -57,7 +53,7 @@ bool CefRequestContextHandlerCToCpp::OnBeforePluginLoad(
   DCHECK(plugin_policy);
   if (!plugin_policy)
     return false;
-  // Unverified params: plugin_url
+  // Unverified params: plugin_url, top_origin_url
 
   // Execute
   int _retval = _struct->on_before_plugin_load(_struct,

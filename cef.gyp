@@ -1124,6 +1124,8 @@
         'libcef/browser/permission_manager.h',
         'libcef/browser/plugins/plugin_info_message_filter.cc',
         'libcef/browser/plugins/plugin_info_message_filter.h',
+        'libcef/browser/plugins/plugin_service_filter.cc',
+        'libcef/browser/plugins/plugin_service_filter.h',
         'libcef/browser/print_settings_impl.cc',
         'libcef/browser/print_settings_impl.h',
         'libcef/browser/printing/printing_message_filter.cc',

@@ -22,9 +22,11 @@
 
 CefResourceContext::CefResourceContext(
     bool is_off_the_record,
-    extensions::InfoMap* extension_info_map)
+    extensions::InfoMap* extension_info_map,
+    CefRefPtr<CefRequestContextHandler> handler)
     : is_off_the_record_(is_off_the_record),
-      extension_info_map_(extension_info_map) {
+      extension_info_map_(extension_info_map),
+      handler_(handler) {
 }
 
 CefResourceContext::~CefResourceContext() {

@@ -9,8 +9,10 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/cookie_manager_impl.h"
 #include "libcef/browser/thread_util.h"
+
 #include "base/atomic_sequence_num.h"
 #include "base/logging.h"
+#include "content/public/browser/plugin_service.h"
 
 using content::BrowserThread;
 
@@ -283,6 +285,13 @@ bool CefRequestContextImpl::ClearSchemeHandlerFactories() {
   return true;
 }
 
+void CefRequestContextImpl::PurgePluginListCache(bool reload_pages) {
+  GetBrowserContext(
+      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::UI),
+      base::Bind(&CefRequestContextImpl::PurgePluginListCacheInternal,
+                 this, reload_pages));
+}
+
 CefRequestContextImpl::CefRequestContextImpl(
     scoped_refptr<CefBrowserContext> browser_context)
     : browser_context_(browser_context),
@@ -374,4 +383,12 @@ void CefRequestContextImpl::ClearSchemeHandlerFactoriesInternal(
     scoped_refptr<CefURLRequestContextGetterImpl> request_context) {
   CEF_REQUIRE_IOT();
   request_context->request_manager()->ClearFactories();
+}
+
+void CefRequestContextImpl::PurgePluginListCacheInternal(
+    bool reload_pages,
+    scoped_refptr<CefBrowserContext> browser_context) {
+  CEF_REQUIRE_UIT();
+  content::PluginService::GetInstance()->PurgePluginListCache(
+      browser_context.get(), false);
 }

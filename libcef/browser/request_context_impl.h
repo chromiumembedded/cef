@@ -60,6 +60,7 @@ class CefRequestContextImpl : public CefRequestContext {
       const CefString& domain_name,
       CefRefPtr<CefSchemeHandlerFactory> factory) override;
   bool ClearSchemeHandlerFactories() override;
+  void PurgePluginListCache(bool reload_pages) override;
 
   const CefRequestContextSettings& settings() const { return settings_; }
 
@@ -85,9 +86,12 @@ class CefRequestContextImpl : public CefRequestContext {
       const CefString& scheme_name,
       const CefString& domain_name,
       CefRefPtr<CefSchemeHandlerFactory> factory,
-    scoped_refptr<CefURLRequestContextGetterImpl> request_context);
+      scoped_refptr<CefURLRequestContextGetterImpl> request_context);
   void ClearSchemeHandlerFactoriesInternal(
-    scoped_refptr<CefURLRequestContextGetterImpl> request_context);
+      scoped_refptr<CefURLRequestContextGetterImpl> request_context);
+  void PurgePluginListCacheInternal(
+      bool reload_pages,
+      scoped_refptr<CefBrowserContext> browser_context);
 
   scoped_refptr<CefBrowserContext> browser_context_;
   CefRequestContextSettings settings_;

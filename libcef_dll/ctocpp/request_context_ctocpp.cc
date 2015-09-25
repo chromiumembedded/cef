@@ -210,6 +210,18 @@ bool CefRequestContextCToCpp::ClearSchemeHandlerFactories() {
   return _retval?true:false;
 }
 
+void CefRequestContextCToCpp::PurgePluginListCache(bool reload_pages) {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, purge_plugin_list_cache))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->purge_plugin_list_cache(_struct,
+      reload_pages);
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
