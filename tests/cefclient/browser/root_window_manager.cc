@@ -33,8 +33,7 @@ class ClientRequestContextHandler : public CefRequestContextHandler {
       return true;
     }
 
-    *plugin_policy = PLUGIN_POLICY_DISABLE;
-    return true;
+    return false;
   }
 
  private:
