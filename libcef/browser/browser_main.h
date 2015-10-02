@@ -6,7 +6,6 @@
 #define CEF_LIBCEF_BROWSER_BROWSER_MAIN_H_
 #pragma once
 
-#include "libcef/browser/browser_pref_store.h"
 #include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/url_request_context_getter_impl.h"
 
@@ -54,7 +53,6 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   CefDevToolsDelegate* devtools_delegate() const {
     return devtools_delegate_;
   }
-  PrefService* pref_service() const { return pref_service_.get(); }
 
  private:
 #if defined(OS_WIN)
@@ -65,8 +63,6 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   scoped_refptr<CefBrowserContextImpl> global_browser_context_;
   CefDevToolsDelegate* devtools_delegate_;  // Deletes itself.
   scoped_ptr<base::MessageLoop> message_loop_;
-  scoped_refptr<CefBrowserPrefStore> pref_store_;
-  scoped_ptr<PrefService> pref_service_;
 
   scoped_ptr<extensions::ExtensionsClient> extensions_client_;
   scoped_ptr<extensions::ExtensionsBrowserClient> extensions_browser_client_;

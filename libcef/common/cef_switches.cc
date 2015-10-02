@@ -126,4 +126,7 @@ const char kPluginPolicy_Detect[]         = "detect";
 // Block the content. The user can manually load blocked content.
 const char kPluginPolicy_Block[]          = "block";
 
+// Expose preferences used only by unit tests.
+const char kEnablePreferenceTesting[]     = "enable-preference-testing";
+
 }  // namespace switches

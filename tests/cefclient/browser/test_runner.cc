@@ -16,6 +16,7 @@
 #include "cefclient/browser/binding_test.h"
 #include "cefclient/browser/dialog_test.h"
 #include "cefclient/browser/main_context.h"
+#include "cefclient/browser/preferences_test.h"
 #include "cefclient/browser/resource.h"
 #include "cefclient/browser/resource_util.h"
 #include "cefclient/browser/root_window_manager.h"
@@ -663,6 +664,12 @@ std::string GetErrorString(cef_errorcode_t code) {
 }
 
 void SetupResourceManager(CefRefPtr<CefResourceManager> resource_manager) {
+  if (!CefCurrentlyOn(TID_IO)) {
+    // Execute on the browser IO thread.
+    CefPostTask(TID_IO, base::Bind(SetupResourceManager, resource_manager));
+    return;
+  }
+
   const std::string& test_origin = kTestOrigin;
 
   // Add the URL filter.
@@ -701,11 +708,14 @@ void Alert(CefRefPtr<CefBrowser> browser, const std::string& message) {
 void CreateMessageHandlers(MessageHandlerSet& handlers) {
   handlers.insert(new PromptHandler);
 
+  // Create the binding test handlers.
+  binding_test::CreateMessageHandlers(handlers);
+
   // Create the dialog test handlers.
   dialog_test::CreateMessageHandlers(handlers);
 
-  // Create the binding test handlers.
-  binding_test::CreateMessageHandlers(handlers);
+  // Create the preferences test handlers.
+  preferences_test::CreateMessageHandlers(handlers);
 
   // Create the urlrequest test handlers.
   urlrequest_test::CreateMessageHandlers(handlers);

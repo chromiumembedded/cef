@@ -45,6 +45,13 @@ class CefRequestContextCToCpp
       CefRefPtr<CefSchemeHandlerFactory> factory) OVERRIDE;
   bool ClearSchemeHandlerFactories() OVERRIDE;
   void PurgePluginListCache(bool reload_pages) OVERRIDE;
+  bool HasPreference(const CefString& name) OVERRIDE;
+  CefRefPtr<CefValue> GetPreference(const CefString& name) OVERRIDE;
+  CefRefPtr<CefDictionaryValue> GetAllPreferences(
+      bool include_defaults) OVERRIDE;
+  bool CanSetPreference(const CefString& name) OVERRIDE;
+  bool SetPreference(const CefString& name, CefRefPtr<CefValue> value,
+      CefString& error) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED

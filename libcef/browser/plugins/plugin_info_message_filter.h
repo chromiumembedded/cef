@@ -121,8 +121,12 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
       std::vector<base::string16>* additional_param_values);
 #endif
 
+  scoped_refptr<CefBrowserContext> browser_context_;
+
+  // Members will be destroyed in reverse order of declaration. Due to Context
+  // depending on the PrefService owned by CefBrowserContext the Context object
+  // must be destroyed before the CefBrowserContext object.
   Context context_;
-  CefBrowserContext* browser_context_;
 
   scoped_refptr<base::SingleThreadTaskRunner> main_thread_task_runner_;
   base::WeakPtrFactory<CefPluginInfoMessageFilter> weak_ptr_factory_;

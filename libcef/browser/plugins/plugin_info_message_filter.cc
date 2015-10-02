@@ -182,8 +182,8 @@ CefPluginInfoMessageFilter::CefPluginInfoMessageFilter(
     int render_process_id,
     CefBrowserContext* profile)
     : BrowserMessageFilter(ExtensionMsgStart),
-      context_(render_process_id, profile),
       browser_context_(profile),
+      context_(render_process_id, profile),
       main_thread_task_runner_(base::ThreadTaskRunnerHandle::Get()),
       weak_ptr_factory_(this) {
 }

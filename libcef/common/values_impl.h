@@ -49,6 +49,10 @@ class CefValueImpl : public CefValue {
                                    bool new_read_only,
                                    CefValueController* new_controller);
 
+  // Returns a reference to the underlying data. Access must be protected by
+  // calling AcquireLock/ReleaseLock.
+  base::Value* GetValueUnsafe() const;
+
   // CefValue methods.
   bool IsValid() override;
   bool IsOwned() override;
@@ -103,10 +107,6 @@ class CefValueImpl : public CefValue {
   // Explicitly lock/unlock this object and the underlying data.
   void AcquireLock();
   void ReleaseLock();
-
-  // Returns a reference to the underlying data. Access must be protected by
-  // calling AcquireLock/ReleaseLock.
-  base::Value* GetValueUnsafe() const;
 
   // Access to all members must be protected by |lock_|.
   base::Lock lock_;

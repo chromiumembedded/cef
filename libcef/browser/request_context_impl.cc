@@ -9,9 +9,12 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/cookie_manager_impl.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/common/values_impl.h"
 
 #include "base/atomic_sequence_num.h"
 #include "base/logging.h"
+#include "base/prefs/pref_service.h"
+#include "base/strings/stringprintf.h"
 #include "content/public/browser/plugin_service.h"
 
 using content::BrowserThread;
@@ -19,6 +22,30 @@ using content::BrowserThread;
 namespace {
 
 base::StaticAtomicSequenceNumber g_next_id;
+
+const char* GetTypeString(base::Value::Type type) {
+  switch (type) {
+    case base::Value::TYPE_NULL:
+      return "NULL";
+    case base::Value::TYPE_BOOLEAN:
+      return "BOOLEAN";
+    case base::Value::TYPE_INTEGER:
+      return "INTEGER";
+    case base::Value::TYPE_DOUBLE:
+      return "DOUBLE";
+    case base::Value::TYPE_STRING:
+      return "STRING";
+    case base::Value::TYPE_BINARY:
+      return "BINARY";
+    case base::Value::TYPE_DICTIONARY:
+      return "DICTIONARY";
+    case base::Value::TYPE_LIST:
+      return "LIST";
+  }
+
+  NOTREACHED();
+  return "UNKNOWN";
+}
 
 }  // namespace
 
@@ -292,6 +319,131 @@ void CefRequestContextImpl::PurgePluginListCache(bool reload_pages) {
                  this, reload_pages));
 }
 
+bool CefRequestContextImpl::HasPreference(const CefString& name) {
+  // Verify that this method is being called on the UI thread.
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    NOTREACHED() << "called on invalid thread";
+    return false;
+  }
+
+  // Make sure the browser context exists.
+  EnsureBrowserContext();
+
+  PrefService* pref_service = browser_context_->GetPrefs();
+  return (pref_service->FindPreference(name) != NULL);
+}
+
+CefRefPtr<CefValue> CefRequestContextImpl::GetPreference(
+    const CefString& name) {
+  // Verify that this method is being called on the UI thread.
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    NOTREACHED() << "called on invalid thread";
+    return NULL;
+  }
+
+  // Make sure the browser context exists.
+  EnsureBrowserContext();
+
+  PrefService* pref_service = browser_context_->GetPrefs();
+  const PrefService::Preference* pref = pref_service->FindPreference(name);
+  if (!pref)
+    return NULL;
+  return new CefValueImpl(pref->GetValue()->DeepCopy());
+}
+
+CefRefPtr<CefDictionaryValue> CefRequestContextImpl::GetAllPreferences(
+    bool include_defaults) {
+  // Verify that this method is being called on the UI thread.
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    NOTREACHED() << "called on invalid thread";
+    return NULL;
+  }
+
+  // Make sure the browser context exists.
+  EnsureBrowserContext();
+
+  PrefService* pref_service = browser_context_->GetPrefs();
+
+  scoped_ptr<base::DictionaryValue> values;
+  if (include_defaults)
+    values = pref_service->GetPreferenceValues();
+  else
+    values = pref_service->GetPreferenceValuesOmitDefaults();
+
+  // CefDictionaryValueImpl takes ownership of |values|.
+  return new CefDictionaryValueImpl(values.release(), true, false);
+}
+
+bool CefRequestContextImpl::CanSetPreference(const CefString& name) {
+  // Verify that this method is being called on the UI thread.
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    NOTREACHED() << "called on invalid thread";
+    return false;
+  }
+
+  // Make sure the browser context exists.
+  EnsureBrowserContext();
+
+  PrefService* pref_service = browser_context_->GetPrefs();
+  const PrefService::Preference* pref = pref_service->FindPreference(name);
+  return (pref && pref->IsUserModifiable());
+}
+
+bool CefRequestContextImpl::SetPreference(const CefString& name,
+                                          CefRefPtr<CefValue> value,
+                                          CefString& error) {
+  // Verify that this method is being called on the UI thread.
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    NOTREACHED() << "called on invalid thread";
+    return false;
+  }
+
+  // Make sure the browser context exists.
+  EnsureBrowserContext();
+
+  PrefService* pref_service = browser_context_->GetPrefs();
+
+  // The below validation logic should match PrefService::SetUserPrefValue.
+
+  const PrefService::Preference* pref = pref_service->FindPreference(name);
+  if (!pref) {
+    error = "Trying to modify an unregistered preference";
+    return false;
+  }
+
+  if (!pref->IsUserModifiable()) {
+    error = "Trying to modify a preference that is not user modifiable";
+    return false;
+  }
+
+  if (!value.get()) {
+    // Reset the preference to its default value.
+    pref_service->ClearPref(name);
+    return true;
+  }
+
+  if (!value->IsValid()) {
+    error = "A valid value is required";
+    return false;
+  }
+
+  CefValueImpl* impl = static_cast<CefValueImpl*>(value.get());
+
+  CefValueImpl::ScopedLockedValue scoped_locked_value(impl);
+  base::Value* impl_value = impl->GetValueUnsafe();
+
+  if (pref->GetType() != impl_value->GetType()) {
+    error = base::StringPrintf(
+        "Trying to set a preference of type %s to value of type %s",
+        GetTypeString(pref->GetType()), GetTypeString(impl_value->GetType()));
+    return false;
+  }
+
+  // PrefService will make a DeepCopy of |impl_value|.
+  pref_service->Set(name, *impl_value);
+  return true;
+}
+
 CefRequestContextImpl::CefRequestContextImpl(
     scoped_refptr<CefBrowserContext> browser_context)
     : browser_context_(browser_context),
@@ -319,6 +471,12 @@ CefRequestContextImpl::CefRequestContextImpl(
       request_context_impl_(NULL) {
 }
 
+void CefRequestContextImpl::EnsureBrowserContext() {
+  GetBrowserContext();
+  DCHECK(browser_context_.get());
+  DCHECK(request_context_impl_);
+}
+
 void CefRequestContextImpl::GetBrowserContextOnUIThread(
     scoped_refptr<base::SingleThreadTaskRunner> task_runner,
     const BrowserContextCallback& callback) {
@@ -330,9 +488,7 @@ void CefRequestContextImpl::GetBrowserContextOnUIThread(
   }
 
   // Make sure the browser context exists.
-  GetBrowserContext();
-  DCHECK(browser_context_.get());
-  DCHECK(request_context_impl_);
+  EnsureBrowserContext();
 
   if (task_runner->BelongsToCurrentThread()) {
     // Execute the callback immediately.

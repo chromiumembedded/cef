@@ -1034,10 +1034,6 @@ CefDevToolsDelegate* CefContentBrowserClient::devtools_delegate() const {
   return browser_main_parts_->devtools_delegate();
 }
 
-PrefService* CefContentBrowserClient::pref_service() const {
-  return browser_main_parts_->pref_service();
-}
-
 // static
 SkColor CefContentBrowserClient::GetBaseBackgroundColor(
     CefRefPtr<CefBrowserHostImpl> browser) {

@@ -124,7 +124,7 @@ bool CefExtensionsBrowserClient::AllowCrossRendererResourceLoad(
 
 PrefService* CefExtensionsBrowserClient::GetPrefServiceForContext(
     BrowserContext* context) {
-  return CefBrowserContextImpl::GetForContext(context)->GetPrefs();
+  return static_cast<CefBrowserContext*>(context)->GetPrefs();
 }
 
 void CefExtensionsBrowserClient::GetEarlyExtensionPrefsObservers(

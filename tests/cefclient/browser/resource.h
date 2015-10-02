@@ -53,10 +53,11 @@
 #define IDS_PDF_PDF                     1007
 #define IDS_PERFORMANCE_HTML            1008
 #define IDS_PERFORMANCE2_HTML           1009
-#define IDS_TRANSPARENCY_HTML           1010
-#define IDS_URLREQUEST_HTML             1011
-#define IDS_WINDOW_HTML                 1012
-#define IDS_XMLHTTPREQUEST_HTML         1013
+#define IDS_PREFERENCES_HTML            1010
+#define IDS_TRANSPARENCY_HTML           1011
+#define IDS_URLREQUEST_HTML             1012
+#define IDS_WINDOW_HTML                 1013
+#define IDS_XMLHTTPREQUEST_HTML         1014
 
 // Next default values for new objects
 // 

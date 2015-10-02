@@ -29,7 +29,6 @@ class CefBrowserInfo;
 class CefBrowserMainParts;
 class CefDevToolsDelegate;
 class CefResourceDispatcherHostDelegate;
-class PrefService;
 
 namespace content {
 class PluginServiceFilter;
@@ -167,7 +166,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
 
   scoped_refptr<CefBrowserContextImpl> browser_context() const;
   CefDevToolsDelegate* devtools_delegate() const;
-  PrefService* pref_service() const;
 
  private:
   static SkColor GetBaseBackgroundColor(CefRefPtr<CefBrowserHostImpl> browser);

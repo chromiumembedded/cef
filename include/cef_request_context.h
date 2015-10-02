@@ -40,6 +40,7 @@
 
 #include "include/cef_cookie.h"
 #include "include/cef_request_context_handler.h"
+#include "include/cef_values.h"
 
 class CefSchemeHandlerFactory;
 
@@ -166,6 +167,56 @@ class CefRequestContext : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual void PurgePluginListCache(bool reload_pages) =0;
+
+  ///
+  // Returns true if a preference with the specified |name| exists. This method
+  // must be called on the browser process UI thread.
+  ///
+  /*--cef()--*/
+  virtual bool HasPreference(const CefString& name) =0;
+
+  ///
+  // Returns the value for the preference with the specified |name|. Returns
+  // NULL if the preference does not exist. The returned object contains a copy
+  // of the underlying preference value and modifications to the returned object
+  // will not modify the underlying preference value. This method must be called
+  // on the browser process UI thread.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefValue> GetPreference(const CefString& name) =0;
+
+  ///
+  // Returns all preferences as a dictionary. If |include_defaults| is true then
+  // preferences currently at their default value will be included. The returned
+  // object contains a copy of the underlying preference values and
+  // modifications to the returned object will not modify the underlying
+  // preference values. This method must be called on the browser process UI
+  // thread.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefDictionaryValue> GetAllPreferences(
+      bool include_defaults) =0;
+
+  ///
+  // Returns true if the preference with the specified |name| can be modified
+  // using SetPreference. As one example preferences set via the command-line
+  // usually cannot be modified. This method must be called on the browser
+  // process UI thread.
+  ///
+  /*--cef()--*/
+  virtual bool CanSetPreference(const CefString& name) =0;
+
+  ///
+  // Set the |value| associated with preference |name|. Returns true if the
+  // value is set successfully and false otherwise. If |value| is NULL the
+  // preference will be restored to its default value. If setting the preference
+  // fails then |error| will be populated with a detailed description of the
+  // problem. This method must be called on the browser process UI thread.
+  ///
+  /*--cef(optional_param=value)--*/
+  virtual bool SetPreference(const CefString& name,
+                             CefRefPtr<CefValue> value,
+                             CefString& error) =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_REQUEST_CONTEXT_H_

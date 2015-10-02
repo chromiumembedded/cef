@@ -8,6 +8,7 @@
 
 #include "libcef/browser/browser_context.h"
 
+#include "libcef/browser/browser_pref_store.h"
 #include "libcef/browser/url_request_context_getter_impl.h"
 
 #include "base/files/file_path.h"
@@ -111,6 +112,8 @@ class CefBrowserContextImpl : public CefBrowserContext {
   typedef std::vector<const CefBrowserContextProxy*> ProxyList;
   ProxyList proxy_list_;
 
+  scoped_refptr<CefBrowserPrefStore> pref_store_;
+  scoped_ptr<PrefService> pref_service_;
   scoped_ptr<PrefProxyConfigTracker> pref_proxy_config_tracker_;
 
   scoped_ptr<CefDownloadManagerDelegate> download_manager_delegate_;

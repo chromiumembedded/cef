@@ -122,11 +122,6 @@ int CefBrowserMainParts::PreCreateThreads() {
                                  views::CreateDesktopScreen());
 #endif
 
-  // Initialize user preferences.
-  pref_store_ = new CefBrowserPrefStore();
-  pref_store_->SetInitializationCompleted();
-  pref_service_ = pref_store_->CreateService().Pass();
-
   return 0;
 }
 

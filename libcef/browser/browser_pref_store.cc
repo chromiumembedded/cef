@@ -129,6 +129,16 @@ scoped_ptr<PrefService> CefBrowserPrefStore::CreateService() {
   registry->RegisterBooleanPref(prefs::kPluginsAllowOutdated, false);
   registry->RegisterBooleanPref(prefs::kPluginsAlwaysAuthorize, false);
 
+  if (command_line->HasSwitch(switches::kEnablePreferenceTesting)) {
+    // Register preferences used with unit tests.
+    registry->RegisterBooleanPref("test.bool", true);
+    registry->RegisterIntegerPref("test.int", 2);
+    registry->RegisterDoublePref("test.double", 5.0);
+    registry->RegisterStringPref("test.string", "default");
+    registry->RegisterListPref("test.list");
+    registry->RegisterDictionaryPref("test.dict");
+  }
+
   return factory.Create(registry.get());
 }
 

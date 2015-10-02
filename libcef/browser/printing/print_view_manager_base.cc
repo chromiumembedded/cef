@@ -47,9 +47,12 @@ PrintViewManagerBase::PrintViewManagerBase(content::WebContents* web_contents)
 #if !defined(OS_MACOSX)
   expecting_first_page_ = true;
 #endif  // OS_MACOSX
+  PrefService* pref_service =
+      static_cast<CefBrowserContext*>(web_contents->GetBrowserContext())->
+          GetPrefs();
   printing_enabled_.Init(
       prefs::kPrintingEnabled,
-      CefContentBrowserClient::Get()->pref_service(),
+      pref_service,
       base::Bind(&PrintViewManagerBase::UpdateScriptedPrintingBlocked,
                  base::Unretained(this)));
 }

@@ -7,7 +7,6 @@
 #include <map>
 
 #include "libcef/browser/browser_context_proxy.h"
-#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/download_manager_delegate.h"
 #include "libcef/browser/permission_manager.h"
@@ -20,6 +19,7 @@
 #include "base/files/file_util.h"
 #include "base/lazy_instance.h"
 #include "base/logging.h"
+#include "base/prefs/pref_service.h"
 #include "base/strings/string_util.h"
 #include "base/threading/thread_restrictions.h"
 #include "chrome/browser/net/proxy_service_factory.h"
@@ -165,6 +165,11 @@ void CefBrowserContextImpl::Initialize() {
     CefString(&settings_.accept_language_list) =
         CefString(&CefContext::Get()->settings().accept_language_list);
   }
+
+  // Initialize user preferences.
+  pref_store_ = new CefBrowserPrefStore();
+  pref_store_->SetInitializationCompleted();
+  pref_service_ = pref_store_->CreateService().Pass();
 
   CefBrowserContext::Initialize();
 
@@ -378,6 +383,5 @@ HostContentSettingsMap* CefBrowserContextImpl::GetHostContentSettingsMap() {
 }
 
 PrefService* CefBrowserContextImpl::GetPrefs() {
-  // TODO(cef): Perhaps use per-context settings.
-  return CefContentBrowserClient::Get()->pref_service();
+  return pref_service_.get();
 }
