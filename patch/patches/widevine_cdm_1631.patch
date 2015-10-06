@@ -1,5 +1,5 @@
 diff --git stub_cdm.cc stub_cdm.cc
-index 0bfa25e..0db23db 100644
+index 0bfa25e..9fb1592 100644
 --- stub_cdm.cc
 +++ stub_cdm.cc
 @@ -5,6 +5,7 @@

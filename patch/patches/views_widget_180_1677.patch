@@ -12,7 +12,7 @@ index a8e088c..838b6a0 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git desktop_aura/desktop_window_tree_host_win.cc desktop_aura/desktop_window_tree_host_win.cc
-index 93b3c5b..a0940ce 100644
+index 9278c29..d4531c2 100644
 --- desktop_aura/desktop_window_tree_host_win.cc
 +++ desktop_aura/desktop_window_tree_host_win.cc
 @@ -131,7 +131,9 @@ void DesktopWindowTreeHostWin::Init(aura::Window* content_window,
