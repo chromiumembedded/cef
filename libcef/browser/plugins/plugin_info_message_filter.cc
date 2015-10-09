@@ -9,6 +9,7 @@
 #include "libcef/browser/plugins/plugin_service_filter.h"
 #include "libcef/browser/web_plugin_impl.h"
 #include "libcef/common/cef_messages.h"
+#include "libcef/common/extensions/extensions_util.h"
 
 #include "base/bind.h"
 #include "base/memory/scoped_ptr.h"
@@ -159,10 +160,12 @@ CefPluginInfoMessageFilter::Context::Context(
     CefBrowserContext* profile)
     : render_process_id_(render_process_id),
       resource_context_(profile->GetResourceContext()),
-#if defined(ENABLE_EXTENSIONS)
-      extension_registry_(extensions::ExtensionRegistry::Get(profile)),
-#endif
       host_content_settings_map_(profile->GetHostContentSettingsMap()) {
+#if defined(ENABLE_EXTENSIONS)
+  if (extensions::ExtensionsEnabled())
+      extension_registry_ = extensions::ExtensionRegistry::Get(profile);
+#endif
+
   allow_outdated_plugins_.Init(prefs::kPluginsAllowOutdated,
                                profile->GetPrefs());
   allow_outdated_plugins_.MoveToThread(
@@ -387,7 +390,8 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
   // If an app has explicitly made internal resources available by listing them
   // in |accessible_resources| in the manifest, then allow them to be loaded by
   // plugins inside a guest-view.
-  if (params.url.SchemeIs(extensions::kExtensionScheme) && !is_managed &&
+  if (extensions::ExtensionsEnabled() &&
+      params.url.SchemeIs(extensions::kExtensionScheme) && !is_managed &&
       plugin_setting == CONTENT_SETTING_BLOCK &&
       IsPluginLoadingAccessibleResourceInWebView(
           extension_registry_, render_process_id_, params.url)) {
