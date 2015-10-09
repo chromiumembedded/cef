@@ -21,6 +21,9 @@ class CefExtensionWebContentsObserver
       content::WebContents* web_contents);
   ~CefExtensionWebContentsObserver() override;
 
+  // content::WebContentsObserver overrides.
+  void RenderViewCreated(content::RenderViewHost* render_view_host) override;
+
   DISALLOW_COPY_AND_ASSIGN(CefExtensionWebContentsObserver);
 };
 

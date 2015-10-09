@@ -414,15 +414,10 @@ bool CefBrowserHost::CreateBrowser(
   }
 
   // Verify windowless rendering requirements.
-  if (windowInfo.windowless_rendering_enabled) {
-    if (!client->GetRenderHandler().get()) {
-      NOTREACHED() << "CefRenderHandler implementation is required";
-      return false;
-    }
-    if (!content::IsDelegatedRendererEnabled()) {
-      NOTREACHED() << "Delegated renderer must be enabled";
-      return false;
-    }
+  if (windowInfo.windowless_rendering_enabled &&
+      !client->GetRenderHandler().get()) {
+    NOTREACHED() << "CefRenderHandler implementation is required";
+    return false;
   }
 
   // Create the browser on the UI thread.
@@ -479,15 +474,10 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
     bool is_popup,
     CefRefPtr<CefRequestContext> request_context) {
   // Verify windowless rendering requirements.
-  if (windowInfo.windowless_rendering_enabled) {
-    if (!client->GetRenderHandler().get()) {
-      NOTREACHED() << "CefRenderHandler implementation is required";
-      return NULL;
-    }
-    if (!content::IsDelegatedRendererEnabled()) {
-      NOTREACHED() << "Delegated renderer must be enabled";
-      return NULL;
-    }
+  if (windowInfo.windowless_rendering_enabled &&
+      !client->GetRenderHandler().get()) {
+    NOTREACHED() << "CefRenderHandler implementation is required";
+    return NULL;
   }
 
   scoped_refptr<CefBrowserInfo> info =

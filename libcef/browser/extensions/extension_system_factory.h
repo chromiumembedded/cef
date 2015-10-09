@@ -20,7 +20,7 @@ class CefExtensionSystemFactory : public ExtensionSystemProvider {
   static CefExtensionSystemFactory* GetInstance();
 
  private:
-  friend struct DefaultSingletonTraits<CefExtensionSystemFactory>;
+  friend struct base::DefaultSingletonTraits<CefExtensionSystemFactory>;
 
   CefExtensionSystemFactory();
   ~CefExtensionSystemFactory() override;

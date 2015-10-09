@@ -21,19 +21,6 @@
 // mac when window rendering is disabled.
 
 @interface CefTextInputClientOSRMac : NSObject<NSTextInputClient> {
-
- @public
-  // The range of current marked text inside the whole content of the DOM node
-  // being edited.
-  NSRange markedRange_;
-
-  // The current composition character range and its bounds.
-  gfx::Range composition_range_;
-  std::vector<gfx::Rect> composition_bounds_;
-
-  // The current caret bounds.
-  gfx::Rect caret_rect_;
-
  @private
   // Represents the input-method attributes supported by this object.
   base::scoped_nsobject<NSArray> validAttributesForMarkedText_;

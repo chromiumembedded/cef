@@ -16,10 +16,6 @@ class CefExtensionsDispatcherDelegate : public DispatcherDelegate {
   ~CefExtensionsDispatcherDelegate() override;
 
  private:
-  // DispatcherDelegate implementation.
-  void InitOriginPermissions(const Extension* extension,
-                             bool is_extension_active) override;
-
   DISALLOW_COPY_AND_ASSIGN(CefExtensionsDispatcherDelegate);
 };
 

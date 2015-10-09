@@ -55,7 +55,7 @@ class CefMediaCaptureDevicesDispatcher : public content::MediaObserver {
                               int render_view_id) override;
 
  private:
-  friend struct DefaultSingletonTraits<CefMediaCaptureDevicesDispatcher>;
+  friend struct base::DefaultSingletonTraits<CefMediaCaptureDevicesDispatcher>;
 
   CefMediaCaptureDevicesDispatcher();
   ~CefMediaCaptureDevicesDispatcher() override;

@@ -12,6 +12,8 @@
 #include "base/callback.h"
 #include "content/public/browser/geolocation_provider.h"
 #include "content/public/browser/permission_type.h"
+#include "content/public/browser/render_frame_host.h"
+#include "content/public/browser/render_process_host.h"
 
 namespace {
 
@@ -53,6 +55,22 @@ class CefGeolocationCallbackImpl : public CefGeolocationCallback {
 
 }  // namespace
 
+struct CefPermissionManager::PendingRequest {
+  PendingRequest(content::PermissionType permission,
+                 content::RenderFrameHost* render_frame_host,
+                 const GURL& requesting_origin)
+    : permission(permission),
+      render_process_id(render_frame_host->GetProcess()->GetID()),
+      render_frame_id(render_frame_host->GetRoutingID()),
+      requesting_origin(requesting_origin) {
+  }
+
+  content::PermissionType permission;
+  int render_process_id;
+  int render_frame_id;
+  GURL requesting_origin;
+};
+
 CefPermissionManager::CefPermissionManager()
     : PermissionManager() {
 }
@@ -60,10 +78,9 @@ CefPermissionManager::CefPermissionManager()
 CefPermissionManager::~CefPermissionManager() {
 }
 
-void CefPermissionManager::RequestPermission(
+int CefPermissionManager::RequestPermission(
     content::PermissionType permission,
     content::RenderFrameHost* render_frame_host,
-    int request_id,
     const GURL& requesting_origin,
     bool user_gesture,
     const base::Callback<void(content::PermissionStatus)>& callback) {
@@ -71,10 +88,14 @@ void CefPermissionManager::RequestPermission(
 
   if (permission != content::PermissionType::GEOLOCATION) {
     callback.Run(content::PERMISSION_STATUS_DENIED);
-    return;
+    return kNoPendingOperation;
   }
 
   bool proceed = false;
+
+  PendingRequest* pending_request = new PendingRequest(
+      permission, render_frame_host, requesting_origin);
+  const int request_id = pending_requests_.Add(pending_request);
 
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForHost(render_frame_host);
@@ -97,36 +118,45 @@ void CefPermissionManager::RequestPermission(
     }
   }
 
-  if (!proceed) {
-    // Disallow geolocation access by default.
-    callback.Run(content::PERMISSION_STATUS_DENIED);
-  }
+  if (proceed)
+    return request_id;
+
+  pending_requests_.Remove(request_id);
+
+  // Disallow geolocation access by default.
+  callback.Run(content::PERMISSION_STATUS_DENIED);
+  return kNoPendingOperation;
 }
 
 void CefPermissionManager::CancelPermissionRequest(
-    content::PermissionType permission,
-    content::RenderFrameHost* render_frame_host,
-    int request_id,
-    const GURL& requesting_origin) {
+    int request_id) {
   CEF_REQUIRE_UIT();
 
-  if (permission != content::PermissionType::GEOLOCATION)
+  PendingRequest* pending_request = pending_requests_.Lookup(request_id);
+  if (!pending_request)
+    return;
+
+  if (pending_request->permission != content::PermissionType::GEOLOCATION)
     return;
 
   CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForHost(render_frame_host);
+      CefBrowserHostImpl::GetBrowserForFrame(pending_request->render_process_id,
+                                             pending_request->render_frame_id);
   if (browser.get()) {
     CefRefPtr<CefClient> client = browser->GetClient();
     if (client.get()) {
       CefRefPtr<CefGeolocationHandler> handler =
           client->GetGeolocationHandler();
       if (handler.get()) {
-        handler->OnCancelGeolocationPermission(browser.get(),
-                                               requesting_origin.spec(),
-                                               request_id);
+        handler->OnCancelGeolocationPermission(
+            browser.get(),
+            pending_request->requesting_origin.spec(),
+            request_id);
       }
     }
   }
+
+  pending_requests_.Remove(request_id);
 }
 
 void CefPermissionManager::ResetPermission(

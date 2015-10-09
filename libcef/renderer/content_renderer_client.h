@@ -71,17 +71,9 @@ class CefContentRendererClient : public content::ContentRendererClient,
   void DevToolsAgentAttached();
   void DevToolsAgentDetached();
 
-  // Returns the task runner for the current thread. If this is a WebWorker
-  // thread and the task runner does not already exist it will be created.
-  // Returns NULL if the current thread is not a valid render process thread.
+  // Returns the task runner for the current thread. Returns NULL if the current
+  // thread is not the main render process thread.
   scoped_refptr<base::SequencedTaskRunner> GetCurrentTaskRunner();
-
-  // Returns the task runner for the specified worker ID or NULL if the
-  // specified worker ID is not valid.
-  scoped_refptr<base::SequencedTaskRunner> GetWorkerTaskRunner(int worker_id);
-
-  // Remove the task runner associated with the specified worker ID.
-  void RemoveWorkerTaskRunner(int worker_id);
 
   // Perform cleanup work that needs to occur before shutdown when running in
   // single-process mode. Blocks until cleanup is complete.
@@ -153,13 +145,6 @@ class CefContentRendererClient : public content::ContentRendererClient,
 
   int devtools_agent_count_;
   int uncaught_exception_stack_size_;
-
-  // Map of worker thread IDs to task runners. Access must be protected by
-  // |worker_task_runner_lock_|.
-  typedef std::map<int, scoped_refptr<base::SequencedTaskRunner> >
-      WorkerTaskRunnerMap;
-  WorkerTaskRunnerMap worker_task_runner_map_;
-  base::Lock worker_task_runner_lock_;
 
   // Used in single-process mode to test when cleanup is complete.
   // Access must be protected by |single_process_cleanup_lock_|.

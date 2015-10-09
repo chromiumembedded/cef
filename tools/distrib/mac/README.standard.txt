@@ -22,8 +22,6 @@ Release     Contains the "Chromium Embedded Framework.framework" and other
             components required to run the release version of CEF-based
             applications.
 
-tools       Scripts that perform post-processing on Mac release targets.
-
 
 USAGE
 -----

@@ -175,11 +175,24 @@ class FrameNavExpectationsBrowser : public FrameNavExpectations {
   virtual std::string GetContentForURL(const std::string& url) =0;
 
   // Browser-only notifications.
-  virtual bool OnAfterCreated(CefRefPtr<CefBrowser> browser) { return true; }
+  virtual bool OnAfterCreated(CefRefPtr<CefBrowser> browser) {
+    EXPECT_TRUE(browser.get());
+    return true;
+  }
   virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
-                              CefRefPtr<CefFrame> frame) { return true; }
+                              CefRefPtr<CefFrame> frame,
+                              const std::string& url) {
+    EXPECT_TRUE(browser.get());
+    EXPECT_TRUE(frame.get());
+    EXPECT_FALSE(url.empty());
+    return true;
+  }
   virtual bool GetResourceHandler(CefRefPtr<CefBrowser> browser,
-                                  CefRefPtr<CefFrame> frame) { return true; }
+                                  CefRefPtr<CefFrame> frame) {
+    EXPECT_TRUE(browser.get());
+    EXPECT_TRUE(frame.get());
+    return true;
+  }
 
   // Called when the renderer signals completion.
   virtual bool OnRendererComplete(CefRefPtr<CefBrowser> browser,
@@ -495,8 +508,9 @@ class FrameNavTestHandler : public TestHandler {
                       CefRefPtr<CefFrame> frame,
                       CefRefPtr<CefRequest> request,
                       bool is_redirect) override {
-    EXPECT_TRUE(expectations_->OnBeforeBrowse(browser, frame)) <<
-                "nav = " << nav_;
+    EXPECT_TRUE(
+        expectations_->OnBeforeBrowse(browser, frame, request->GetURL())) <<
+        "nav = " << nav_;
 
     return false;
   }
@@ -618,7 +632,8 @@ class FrameNavExpectationsBrowserSingleNav :
   }
 
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
-                      CefRefPtr<CefFrame> frame) override {
+                      CefRefPtr<CefFrame> frame,
+                      const std::string& url) override {
     EXPECT_FALSE(got_before_browse_);
     got_before_browse_.yes();
     return true;
@@ -1019,11 +1034,12 @@ class FrameNavExpectationsBrowserTestSingleNav :
   }
 
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
-                      CefRefPtr<CefFrame> frame) override {
+                      CefRefPtr<CefFrame> frame,
+                      const std::string& url) override {
     V_DECLARE();
     V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, frame, true,
                                             std::string()));
-    V_EXPECT_TRUE(parent::OnBeforeBrowse(browser, frame));
+    V_EXPECT_TRUE(parent::OnBeforeBrowse(browser, frame, url));
     V_RETURN();
   }
 
@@ -1555,14 +1571,15 @@ class FrameNavExpectationsBrowserTestMultiNav :
   }
 
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
-                      CefRefPtr<CefFrame> frame) override {
+                      CefRefPtr<CefFrame> frame,
+                      const std::string& url) override {
     V_DECLARE();
     std::string expected_url;
     if (nav() > 0)
       expected_url = GetPreviousMainURL();
     V_EXPECT_TRUE(VerifySingleBrowserFrames(browser, frame, true,
                                             expected_url));
-    V_EXPECT_TRUE(parent::OnBeforeBrowse(browser, frame));
+    V_EXPECT_TRUE(parent::OnBeforeBrowse(browser, frame, url));
     V_RETURN();
   }
 
@@ -1891,6 +1908,23 @@ class FrameNavExpectationsBrowserTestNestedIframes :
   bool IsNavigationDone() const override {
     return got_load_state_change_done_ && got_renderer_complete_ &&
            got_load_end_[0] && got_load_end_[1] && got_load_end_[2];
+  }
+
+  bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                      CefRefPtr<CefFrame> frame,
+                      const std::string& url) override {
+    V_DECLARE();
+    V_EXPECT_TRUE(frame.get());
+    const int frame_number = GetNavFromMultiNavURL(url);
+    if (frame_number == 0) {
+      // Main frame.
+      V_EXPECT_TRUE(frame->IsMain());
+    } else {
+      // Sub frame.
+      V_EXPECT_FALSE(frame->IsMain());
+    }
+    V_EXPECT_TRUE(parent::OnBeforeBrowse(browser, frame, url));
+    V_RETURN();
   }
 
   bool OnLoadingStateChange(CefRefPtr<CefBrowser> browser,

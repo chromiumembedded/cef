@@ -112,54 +112,6 @@ class CefPrerendererClient : public content::RenderViewObserver,
   void willAddPrerender(blink::WebPrerender* prerender) override {}
 };
 
-// Implementation of SequencedTaskRunner for WebWorker threads.
-class CefWebWorkerTaskRunner : public base::SequencedTaskRunner,
-                               public content::WorkerTaskRunner::Observer {
- public:
-  CefWebWorkerTaskRunner(content::WorkerTaskRunner* runner,
-                         int worker_id)
-      : runner_(runner),
-        worker_id_(worker_id) {
-    DCHECK(runner_);
-    DCHECK_GT(worker_id_, 0);
-    DCHECK(RunsTasksOnCurrentThread());
-
-    // Adds an observer for the current thread.
-    runner_->AddStopObserver(this);
-  }
-
-  // SequencedTaskRunner methods:
-  bool PostNonNestableDelayedTask(
-      const tracked_objects::Location& from_here,
-      const base::Closure& task,
-      base::TimeDelta delay) override {
-    return PostDelayedTask(from_here, task, delay);
-  }
-
-  // TaskRunner methods:
-  bool PostDelayedTask(const tracked_objects::Location& from_here,
-                       const base::Closure& task,
-                       base::TimeDelta delay) override {
-    if (delay != base::TimeDelta())
-      LOG(WARNING) << "Delayed tasks are not supported on WebWorker threads";
-    runner_->PostTask(worker_id_, task);
-    return true;
-  }
-
-  bool RunsTasksOnCurrentThread() const override {
-    return (runner_->CurrentWorkerId() == worker_id_);
-  }
-
-  // WorkerTaskRunner::Observer methods:
-  void OnWorkerRunLoopStopped() override {
-    CefContentRendererClient::Get()->RemoveWorkerTaskRunner(worker_id_);
-  }
-
- private:
-  content::WorkerTaskRunner* runner_;
-  int worker_id_;
-};
-
 void IsGuestViewApiAvailableToScriptContext(
     bool* api_is_available,
     extensions::ScriptContext* context) {
@@ -351,21 +303,6 @@ void CefContentRendererClient::DevToolsAgentDetached() {
     // When the last DevToolsAgent is detached the stack size is set to 0.
     // Restore the user-specified stack size here.
     CefV8SetUncaughtExceptionStackSize(uncaught_exception_stack_size_);
-
-    // And do the same for any WebWorker threads.
-    WorkerTaskRunnerMap map_copy;
-
-    {
-      base::AutoLock lock_scope(worker_task_runner_lock_);
-      map_copy = worker_task_runner_map_;
-    }
-
-    WorkerTaskRunnerMap::const_iterator it = map_copy.begin();
-    for (; it != map_copy.end(); ++it) {
-      it->second->PostTask(FROM_HERE,
-          base::Bind(CefV8SetUncaughtExceptionStackSize,
-                     uncaught_exception_stack_size_));
-    }
   }
 }
 
@@ -374,43 +311,7 @@ scoped_refptr<base::SequencedTaskRunner>
   // Check if currently on the render thread.
   if (CEF_CURRENTLY_ON_RT())
     return render_task_runner_;
-
-  // Check if a WebWorker exists for the current thread.
-  content::WorkerTaskRunner* worker_runner =
-      content::WorkerTaskRunner::Instance();
-  int worker_id = worker_runner->CurrentWorkerId();
-  if (worker_id > 0) {
-    base::AutoLock lock_scope(worker_task_runner_lock_);
-    WorkerTaskRunnerMap::const_iterator it =
-        worker_task_runner_map_.find(worker_id);
-    if (it != worker_task_runner_map_.end())
-      return it->second;
-
-    scoped_refptr<base::SequencedTaskRunner> task_runner =
-        new CefWebWorkerTaskRunner(worker_runner, worker_id);
-    worker_task_runner_map_[worker_id] = task_runner;
-    return task_runner;
-  }
-
   return NULL;
-}
-
-scoped_refptr<base::SequencedTaskRunner>
-    CefContentRendererClient::GetWorkerTaskRunner(int worker_id) {
-  base::AutoLock lock_scope(worker_task_runner_lock_);
-  WorkerTaskRunnerMap::const_iterator it =
-      worker_task_runner_map_.find(worker_id);
-  if (it != worker_task_runner_map_.end())
-    return it->second;
-
-  return NULL;
-}
-
-void CefContentRendererClient::RemoveWorkerTaskRunner(int worker_id) {
-  base::AutoLock lock_scope(worker_task_runner_lock_);
-  WorkerTaskRunnerMap::iterator it = worker_task_runner_map_.find(worker_id);
-  if (it != worker_task_runner_map_.end())
-    worker_task_runner_map_.erase(it);
 }
 
 void CefContentRendererClient::RunSingleProcessCleanup() {

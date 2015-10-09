@@ -111,6 +111,11 @@ std::string CefDevToolsDelegate::GetFrontendResource(
   return content::DevToolsFrontendHost::GetFrontendResource(path).as_string();
 }
 
+content::DevToolsExternalAgentProxyDelegate*
+CefDevToolsDelegate::HandleWebSocketConnection(const std::string& path) {
+  return nullptr;
+}
+
 std::string CefDevToolsDelegate::GetChromeDevToolsURL() {
   return base::StringPrintf("%s://%s/inspector.html",
       content::kChromeDevToolsScheme, scheme::kChromeDevToolsHost);

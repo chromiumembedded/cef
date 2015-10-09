@@ -472,9 +472,9 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 #if !defined(OS_MACOSX)
   // On OS X the ui::Compositor is created/owned by the platform view.
   compositor_.reset(
-      new ui::Compositor(compositor_widget_,
-                         content::GetContextFactory(),
+      new ui::Compositor(content::GetContextFactory(),
                          base::ThreadTaskRunnerHandle::Get()));
+  compositor_->SetAcceleratedWidgetAndStartCompositor(compositor_widget_);
 #endif
   compositor_->SetDelegate(this);
   compositor_->SetRootLayer(root_layer_.get());
@@ -670,7 +670,8 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
       cc::RenderPass* root_pass =
           frame->delegated_frame_data->render_pass_list.back();
       gfx::Size frame_size = root_pass->output_rect.size();
-      gfx::Rect damage_rect = gfx::ToEnclosingRect(root_pass->damage_rect);
+      gfx::Rect damage_rect =
+          gfx::ToEnclosingRect(gfx::RectF(root_pass->damage_rect));
       damage_rect.Intersect(gfx::Rect(frame_size));
 
       delegated_frame_host_->SwapDelegatedFrame(
@@ -687,6 +688,10 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
 
     return;
   }
+}
+
+void CefRenderWidgetHostViewOSR::ClearCompositorFrame() {
+  delegated_frame_host_->ClearDelegatedFrame();
 }
 
 void CefRenderWidgetHostViewOSR::InitAsPopup(
@@ -830,12 +835,6 @@ void CefRenderWidgetHostViewOSR::SetTooltipText(
   }
 }
 
-void CefRenderWidgetHostViewOSR::SelectionChanged(
-    const base::string16& text,
-    size_t offset,
-    const gfx::Range& range) {
-}
-
 gfx::Size CefRenderWidgetHostViewOSR::GetRequestedRendererSize() const {
   return delegated_frame_host_->GetRequestedRendererSize();
 }
@@ -844,14 +843,16 @@ gfx::Size CefRenderWidgetHostViewOSR::GetPhysicalBackingSize() const {
   return gfx::ConvertSizeToPixel(scale_factor_, GetRequestedRendererSize());
 }
 
+#if !defined(OS_MACOSX)
 void CefRenderWidgetHostViewOSR::SelectionBoundsChanged(
     const ViewHostMsg_SelectionBounds_Params& params) {
 }
+#endif
 
 void CefRenderWidgetHostViewOSR::CopyFromCompositingSurface(
     const gfx::Rect& src_subrect,
     const gfx::Size& dst_size,
-    content::ReadbackRequestCallback& callback,
+    const content::ReadbackRequestCallback& callback,
     const SkColorType color_type) {
   delegated_frame_host_->CopyFromCompositingSurface(
       src_subrect, dst_size, callback, color_type);
@@ -869,10 +870,6 @@ bool CefRenderWidgetHostViewOSR::CanCopyToVideoFrame() const {
   return delegated_frame_host_->CanCopyToVideoFrame();
 }
 
-bool CefRenderWidgetHostViewOSR::CanSubscribeFrame() const {
-  return delegated_frame_host_->CanSubscribeFrame();
-}
-
 void CefRenderWidgetHostViewOSR::BeginFrameSubscription(
     scoped_ptr<content::RenderWidgetHostViewFrameSubscriber> subscriber) {
   delegated_frame_host_->BeginFrameSubscription(subscriber.Pass());
@@ -880,10 +877,6 @@ void CefRenderWidgetHostViewOSR::BeginFrameSubscription(
 
 void CefRenderWidgetHostViewOSR::EndFrameSubscription() {
   delegated_frame_host_->EndFrameSubscription();
-}
-
-void CefRenderWidgetHostViewOSR::AcceleratedSurfaceInitialized(
-    int route_id) {
 }
 
 bool CefRenderWidgetHostViewOSR::HasAcceleratedSurface(
@@ -929,6 +922,13 @@ void CefRenderWidgetHostViewOSR::GetScreenInfo(blink::WebScreenInfo* results) {
   *results = webScreenInfoFrom(screen_info);
 }
 
+bool CefRenderWidgetHostViewOSR::GetScreenColorProfile(
+    std::vector<char>* color_profile) {
+  DCHECK(color_profile->empty());
+  // TODO(cef): Maybe expose this method to the client?
+  return false;
+}
+
 gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
   if (!browser_impl_.get())
     return gfx::Rect();
@@ -939,11 +939,6 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
   if (handler.get() && handler->GetRootScreenRect(browser_impl_.get(), rc))
     return gfx::Rect(rc.x, rc.y, rc.width, rc.height);
   return gfx::Rect();
-}
-
-gfx::GLSurfaceHandle CefRenderWidgetHostViewOSR::GetCompositingSurface() {
-  return content::ImageTransportFactory::GetInstance()->
-      GetSharedSurfaceHandle();
 }
 
 content::BrowserAccessibilityManager*

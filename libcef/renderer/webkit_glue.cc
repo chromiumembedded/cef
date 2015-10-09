@@ -27,6 +27,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 
 #include "third_party/WebKit/Source/core/css/parser/CSSParser.h"
 #include "third_party/WebKit/Source/core/dom/Node.h"
+#include "third_party/WebKit/Source/core/editing/serializers/Serialization.h"
 #include "third_party/WebKit/Source/web/WebLocalFrameImpl.h"
 #include "third_party/WebKit/Source/web/WebViewImpl.h"
 MSVC_POP_WARNING();
@@ -77,6 +78,41 @@ std::string DumpDocumentText(blink::WebFrame* frame) {
     return std::string();
 
   return document_element.textContent().utf8();
+}
+
+cef_dom_node_type_t GetNodeType(const blink::WebNode& node) {
+  const blink::Node* web_node = node.constUnwrap<blink::Node>();
+  switch (web_node->nodeType()) {
+    case blink::Node::ELEMENT_NODE:
+      return DOM_NODE_TYPE_ELEMENT;
+    case blink::Node::ATTRIBUTE_NODE:
+      return DOM_NODE_TYPE_ATTRIBUTE;
+    case blink::Node::TEXT_NODE:
+      return DOM_NODE_TYPE_TEXT;
+    case blink::Node::CDATA_SECTION_NODE:
+      return DOM_NODE_TYPE_CDATA_SECTION;
+    case blink::Node::PROCESSING_INSTRUCTION_NODE:
+      return DOM_NODE_TYPE_PROCESSING_INSTRUCTIONS;
+    case blink::Node::COMMENT_NODE:
+      return DOM_NODE_TYPE_COMMENT;
+    case blink::Node::DOCUMENT_NODE:
+      return DOM_NODE_TYPE_DOCUMENT;
+    case blink::Node::DOCUMENT_TYPE_NODE:
+      return DOM_NODE_TYPE_DOCUMENT_TYPE;
+    case blink::Node::DOCUMENT_FRAGMENT_NODE:
+      return DOM_NODE_TYPE_DOCUMENT_FRAGMENT;
+  }
+  return DOM_NODE_TYPE_UNSUPPORTED;
+}
+
+blink::WebString GetNodeName(const blink::WebNode& node) {
+  const blink::Node* web_node = node.constUnwrap<blink::Node>();
+  return web_node->nodeName();
+}
+
+blink::WebString CreateNodeMarkup(const blink::WebNode& node) {
+  const blink::Node* web_node = node.constUnwrap<blink::Node>();
+  return blink::createMarkup(web_node);
 }
 
 bool SetNodeValue(blink::WebNode& node, const blink::WebString& value) {

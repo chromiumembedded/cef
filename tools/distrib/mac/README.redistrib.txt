@@ -31,18 +31,6 @@ cefclient.app/
           MacOS/
             cefclient Helper <= helper executable
           Pkginfo
-      cefclient Helper EH.app/
-        Contents/
-          Info.plist
-          MacOS/
-            cefclient Helper EH <= helper executable
-          Pkginfo
-      cefclient Helper NP.app/
-        Contents/
-          Info.plist
-          MacOS/
-            cefclient Helper NP <= helper executable
-          Pkginfo
       Info.plist
     MacOS/
       cefclient <= cefclient application executable
@@ -55,16 +43,10 @@ contains CEF binaries and resources. Executables (cefclient, cefclient Helper,
 etc) are linked to the "Chromium Embedded Framework" library using
 install_name_tool and a path relative to @executable_path.
 
-The "cefclient Helper" apps are used for executing separate processes
-(renderer, plugin, etc) with different characteristics. They need to have
-separate app bundles and Info.plist files so that, among other things, they
-don't show dock icons. The "EH" helper, which is used when launching plugin
-processes, has the MH_NO_HEAP_EXECUTION bit cleared to allow an executable
-heap. The "NP" helper, which is used when launching NaCl plugin processes
-only, has the MH_PIE bit cleared to disable ASLR. This is set up as part of
-the build process using scripts from the tools/ directory. Examine the Xcode
-project included with the binary distribution or the originating cefclient.gyp
-file for a better idea of the script dependencies.
+The "cefclient Helper" app is used for executing separate processes (renderer,
+plugin, etc) with different characteristics. It needs to have a separate app
+bundle and Info.plist files so that, among other things, it does not show dock
+icons.
 
 Required components:
 

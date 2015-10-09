@@ -53,8 +53,8 @@
 #include "net/url_request/url_request_job_factory_impl.h"
 #include "net/url_request/url_request_job_manager.h"
 
-#if defined(USE_NSS)
-#include "net/ocsp/nss_ocsp.h"
+#if defined(USE_NSS_CERTS)
+#include "net/cert_net/nss_ocsp.h"
 #endif
 
 using content::BrowserThread;
@@ -140,7 +140,8 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     SetCookieStoragePath(cache_path,
                          settings_.persist_session_cookies ? true : false);
 
-    storage_->set_network_delegate(new CefNetworkDelegate);
+    storage_->set_network_delegate(
+        make_scoped_ptr<net::NetworkDelegate>(new CefNetworkDelegate));
 
     storage_->set_channel_id_service(make_scoped_ptr(
         new net::ChannelIDService(
@@ -151,22 +152,23 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
         settings_.accept_language_list.length > 0 ?
             CefString(&settings_.accept_language_list): "en-US,en";
     storage_->set_http_user_agent_settings(
-        new CefHttpUserAgentSettings(accept_language));
+        make_scoped_ptr<net::HttpUserAgentSettings>(
+            new CefHttpUserAgentSettings(accept_language)));
 
     storage_->set_host_resolver(net::HostResolver::CreateDefaultResolver(NULL));
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
-    storage_->set_transport_security_state(new net::TransportSecurityState);
+    storage_->set_transport_security_state(
+        make_scoped_ptr(new net::TransportSecurityState));
 
-    scoped_ptr<net::ProxyService> system_proxy_service;
-    system_proxy_service.reset(
+    scoped_ptr<net::ProxyService> system_proxy_service =
         ProxyServiceFactory::CreateProxyService(
             NULL,
             url_request_context_.get(),
             url_request_context_->network_delegate(),
-            proxy_config_service_.release(),
+            proxy_config_service_.Pass(),
             *command_line,
-            true));
-    storage_->set_proxy_service(system_proxy_service.release());
+            true);
+    storage_->set_proxy_service(system_proxy_service.Pass());
 
     storage_->set_ssl_config_service(new net::SSLConfigServiceDefaults);
 
@@ -179,7 +181,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     supported_schemes.push_back("ntlm");
     supported_schemes.push_back("negotiate");
 
-    storage_->set_http_auth_handler_factory(
+    storage_->set_http_auth_handler_factory(make_scoped_ptr(
         net::HttpAuthHandlerRegistryFactory::Create(
             supported_schemes,
             url_security_manager_.get(),
@@ -187,7 +189,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
             std::string(),
             std::string(),
             false,
-            false));
+            false)));
     storage_->set_http_server_properties(
         make_scoped_ptr<net::HttpServerProperties>(
             new net::HttpServerPropertiesImpl));
@@ -223,9 +225,10 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     network_session_params.ignore_certificate_errors =
         settings_.ignore_certificate_errors ? true : false;
 
-    net::HttpCache* main_cache = new net::HttpCache(network_session_params,
-                                                    main_backend);
-    storage_->set_http_transaction_factory(main_cache);
+    scoped_ptr<net::HttpCache> main_cache(
+        new net::HttpCache(network_session_params,
+                           main_backend));
+    storage_->set_http_transaction_factory(main_cache.Pass());
 
 #if !defined(DISABLE_FTP_SUPPORT)
     ftp_transaction_factory_.reset(
@@ -260,9 +263,9 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     }
     request_interceptors_.weak_clear();
 
-    storage_->set_job_factory(top_job_factory.release());
+    storage_->set_job_factory(top_job_factory.Pass());
 
-#if defined(USE_NSS)
+#if defined(USE_NSS_CERTS)
     // Only do this for the first (global) request context.
     static bool request_context_for_nss_set = false;
     if (!request_context_for_nss_set) {
@@ -359,7 +362,7 @@ void CefURLRequestContextGetterImpl::CreateProxyConfigService() {
   if (proxy_config_service_.get())
     return;
 
-  proxy_config_service_.reset(
+  proxy_config_service_ =
       net::ProxyService::CreateSystemProxyConfigService(
-          io_loop_->task_runner(), file_loop_->task_runner()));
+          io_loop_->task_runner(), file_loop_->task_runner());
 }

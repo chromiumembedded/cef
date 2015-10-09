@@ -1,5 +1,5 @@
 diff --git browser/browser_plugin/browser_plugin_guest.cc browser/browser_plugin/browser_plugin_guest.cc
-index b0de6b9..d0cab8f 100644
+index 00529ff..57ccf08 100644
 --- browser/browser_plugin/browser_plugin_guest.cc
 +++ browser/browser_plugin/browser_plugin_guest.cc
 @@ -23,7 +23,7 @@
@@ -11,7 +11,7 @@ index b0de6b9..d0cab8f 100644
  #include "content/common/browser_plugin/browser_plugin_constants.h"
  #include "content/common/browser_plugin/browser_plugin_messages.h"
  #include "content/common/content_constants_internal.h"
-@@ -286,20 +286,19 @@ void BrowserPluginGuest::InitInternal(
+@@ -289,20 +289,19 @@ void BrowserPluginGuest::InitInternal(
    guest_window_rect_ = params.view_rect;
  
    if (owner_web_contents_ != owner_web_contents) {
@@ -36,7 +36,7 @@ index b0de6b9..d0cab8f 100644
    }
  
    RendererPreferences* renderer_prefs =
-@@ -731,12 +730,9 @@ void BrowserPluginGuest::OnWillAttachComplete(
+@@ -748,12 +747,9 @@ void BrowserPluginGuest::OnWillAttachComplete(
      // This will trigger a callback to RenderViewReady after a round-trip IPC.
      static_cast<RenderViewHostImpl*>(
          GetWebContents()->GetRenderViewHost())->Init();
@@ -90,7 +90,7 @@ index fd7dec4..49d4f99 100644
 +
  }  // namespace content
 diff --git public/browser/browser_plugin_guest_delegate.h public/browser/browser_plugin_guest_delegate.h
-index 000e3b6..ced8765 100644
+index aabe27b..8ff46f4 100644
 --- public/browser/browser_plugin_guest_delegate.h
 +++ public/browser/browser_plugin_guest_delegate.h
 @@ -21,6 +21,8 @@ class Size;
@@ -102,11 +102,10 @@ index 000e3b6..ced8765 100644
  
  // Objects implement this interface to get notified about changes in the guest
  // WebContents and to provide necessary functionality.
-@@ -86,6 +88,17 @@ class CONTENT_EXPORT BrowserPluginGuestDelegate {
-   // Provides the delegate with an interface with which to communicate with the
+@@ -87,6 +89,17 @@ class CONTENT_EXPORT BrowserPluginGuestDelegate {
    // content module.
    virtual void SetGuestHost(GuestHost* guest_host) {}
-+
+ 
 +  // Called when a guest is attached or detached.
 +  virtual void OnGuestAttached(content::WebContentsView* guest_view,
 +                               content::WebContentsView* parent_view);
@@ -117,6 +116,7 @@ index 000e3b6..ced8765 100644
 +  virtual void CreateViewForWidget(
 +      content::WebContentsView* guest_view,
 +      content::RenderWidgetHost* render_widget_host);
- };
- 
- }  // namespace content
++
+   // Sets the position of the context menu for the guest contents. The value
+   // reported from the guest renderer should be ignored. The reported value
+   // fromt he guest renderer is incorrect in situations where BrowserPlugin is

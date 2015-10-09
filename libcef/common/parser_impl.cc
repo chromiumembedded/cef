@@ -9,6 +9,7 @@
 
 #include "base/base64.h"
 #include "base/threading/thread_restrictions.h"
+#include "components/url_formatter/elide_url.h"
 #include "net/base/escape.h"
 #include "net/base/mime_util.h"
 #include "third_party/WebKit/public/platform/WebString.h"
@@ -74,6 +75,12 @@ bool CefCreateURL(const CefURLParts& parts,
   }
 
   return false;
+}
+
+CefString CefFormatUrlForSecurityDisplay(const CefString& origin_url,
+                                         const CefString& languages) {
+  return url_formatter::FormatUrlForSecurityDisplay(
+      GURL(origin_url.ToString()), languages);
 }
 
 CefString CefGetMimeType(const CefString& extension) {

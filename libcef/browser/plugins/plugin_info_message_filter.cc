@@ -9,6 +9,7 @@
 #include "libcef/browser/plugins/plugin_service_filter.h"
 #include "libcef/browser/web_plugin_impl.h"
 #include "libcef/common/cef_messages.h"
+#include "libcef/common/extensions/extensions_util.h"
 
 #include "base/bind.h"
 #include "base/memory/scoped_ptr.h"
@@ -29,7 +30,6 @@
 #include "extensions/browser/guest_view/web_view/web_view_renderer_state.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/extension.h"
-#include "extensions/common/manifest_constants.h"
 #include "extensions/common/manifest_handlers/webview_info.h"
 #include "url/gurl.h"
 
@@ -130,17 +130,10 @@ bool IsPluginLoadingAccessibleResourceInWebView(
   }
 
   const std::string extension_id = resource.host();
-  const extensions::Extension* extension =
-      extension_registry->GetExtensionById(extension_id,
-                             extensions::ExtensionRegistry::ENABLED);
-  if (!extension)
-    return false;
-  const extensions::WebviewInfo* webview_info =
-      static_cast<const extensions::WebviewInfo*>(extension->GetManifestData(
-          extensions::manifest_keys::kWebviewAccessibleResources));
-  if (!webview_info ||
-      !webview_info->IsResourceWebviewAccessible(extension, partition_id,
-                                                 resource.path())) {
+  const extensions::Extension* extension = extension_registry->GetExtensionById(
+      extension_id, extensions::ExtensionRegistry::ENABLED);
+  if (!extension || !extensions::WebviewInfo::IsResourceWebviewAccessible(
+          extension, partition_id, resource.path())) {
     return false;
   }
 
@@ -159,10 +152,12 @@ CefPluginInfoMessageFilter::Context::Context(
     CefBrowserContext* profile)
     : render_process_id_(render_process_id),
       resource_context_(profile->GetResourceContext()),
-#if defined(ENABLE_EXTENSIONS)
-      extension_registry_(extensions::ExtensionRegistry::Get(profile)),
-#endif
       host_content_settings_map_(profile->GetHostContentSettingsMap()) {
+#if defined(ENABLE_EXTENSIONS)
+  if (extensions::ExtensionsEnabled())
+    extension_registry_ = extensions::ExtensionRegistry::Get(profile);
+#endif
+
   allow_outdated_plugins_.Init(prefs::kPluginsAllowOutdated,
                                profile->GetPrefs());
   allow_outdated_plugins_.MoveToThread(
@@ -387,7 +382,8 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
   // If an app has explicitly made internal resources available by listing them
   // in |accessible_resources| in the manifest, then allow them to be loaded by
   // plugins inside a guest-view.
-  if (params.url.SchemeIs(extensions::kExtensionScheme) && !is_managed &&
+  if (extensions::ExtensionsEnabled() &&
+      params.url.SchemeIs(extensions::kExtensionScheme) && !is_managed &&
       plugin_setting == CONTENT_SETTING_BLOCK &&
       IsPluginLoadingAccessibleResourceInWebView(
           extension_registry_, render_process_id_, params.url)) {
@@ -405,18 +401,21 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
                   : CefViewHostMsg_GetPluginInfo_Status::kBlocked;
   }
 
-  if (*status == CefViewHostMsg_GetPluginInfo_Status::kAllowed) {
-    // Allow an embedder of <webview> to block a plugin from being loaded inside
-    // the guest. In order to do this, set the status to 'Unauthorized' here,
-    // and update the status as appropriate depending on the response from the
-    // embedder.
 #if defined(ENABLE_EXTENSIONS)
+  // Allow an embedder of <webview> to block a plugin from being loaded inside
+  // the guest. In order to do this, set the status to 'Unauthorized' here,
+  // and update the status as appropriate depending on the response from the
+  // embedder.
+  if (*status == CefViewHostMsg_GetPluginInfo_Status::kAllowed ||
+      *status == CefViewHostMsg_GetPluginInfo_Status::kBlocked ||
+      *status ==
+          CefViewHostMsg_GetPluginInfo_Status::kPlayImportantContent) {
     if (extensions::WebViewRendererState::GetInstance()->IsGuest(
             render_process_id_)) {
       *status = CefViewHostMsg_GetPluginInfo_Status::kUnauthorized;
     }
-#endif
   }
+#endif
 }
 
 bool CefPluginInfoMessageFilter::Context::FindEnabledPlugin(

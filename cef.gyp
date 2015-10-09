@@ -7,7 +7,6 @@
     'pkg-config': 'pkg-config',
     'chromium_code': 1,
     'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/cef',
-    'about_credits_file': '<(SHARED_INTERMEDIATE_DIR)/about_credits.html',
     'framework_name': 'Chromium Embedded Framework',
     'commit_number': '<!(python tools/commit_number.py)',
     'chrome_version': '<!(python ../build/util/version.py -f ../chrome/VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
@@ -152,22 +151,6 @@
               'postbuild_name': 'Tweak Info.plist',
               'action': ['../build/mac/tweak_info_plist.py',
                          '--scm=1'],
-            },
-            {
-              # This postbuid step is responsible for creating the following
-              # helpers:
-              #
-              # cefclient Helper EH.app and cefclient Helper NP.app are created
-              # from cefclient Helper.app.
-              #
-              # The EH helper is marked for an executable heap. The NP helper
-              # is marked for no PIE (ASLR).
-              'postbuild_name': 'Make More Helpers',
-              'action': [
-                '../build/mac/make_more_helpers.sh',
-                'Frameworks',
-                'cefclient',
-              ],
             },
           ],
           'link_settings': {
@@ -336,22 +319,6 @@
               'postbuild_name': 'Tweak Info.plist',
               'action': ['../build/mac/tweak_info_plist.py',
                          '--scm=1'],
-            },
-            {
-              # This postbuid step is responsible for creating the following
-              # helpers:
-              #
-              # cefsimple Helper EH.app and cefsimple Helper NP.app are created
-              # from cefsimple Helper.app.
-              #
-              # The EH helper is marked for an executable heap. The NP helper
-              # is marked for no PIE (ASLR).
-              'postbuild_name': 'Make More Helpers',
-              'action': [
-                '../build/mac/make_more_helpers.sh',
-                'Frameworks',
-                'cefsimple',
-              ],
             },
           ],
           'link_settings': {
@@ -558,22 +525,6 @@
               'action': ['../build/mac/tweak_info_plist.py',
                          '--scm=1'],
             },
-            {
-              # This postbuid step is responsible for creating the following
-              # helpers:
-              #
-              # cefclient Helper EH.app and cefclient Helper NP.app are created
-              # from cefclient Helper.app.
-              #
-              # The EH helper is marked for an executable heap. The NP helper
-              # is marked for no PIE (ASLR).
-              'postbuild_name': 'Make More Helpers',
-              'action': [
-                '../build/mac/make_more_helpers.sh',
-                'Frameworks',
-                'cef_unittests',
-              ],
-            },
           ],
           'link_settings': {
             'libraries': [
@@ -688,46 +639,14 @@
       ],
     },
     {
-      'target_name': 'about_credits',
-      'type': 'none',
-      'actions': [
-        {
-          'variables': {
-            'generator_path': '../tools/licenses.py',
-          },
-          'action_name': 'generate_about_credits',
-          'inputs': [
-            # TODO(phajdan.jr): make licenses.py print inputs too.
-            '<(generator_path)',
-          ],
-          'outputs': [
-            '<(about_credits_file)',
-          ],
-          'hard_dependency': 1,
-          'action': ['python',
-                     '<(generator_path)',
-                     'credits',
-                     '<(about_credits_file)',
-          ],
-          'message': 'Generating about:credits.',
-        },
-      ],
-    },
-    {
       # Create the pack file for CEF resources.
       'target_name': 'cef_resources',
       'type': 'none',
-      'dependencies': [
-        'about_credits',
-      ],
       'actions': [
         {
           'action_name': 'cef_resources',
           'variables': {
             'grit_grd_file': 'libcef/resources/cef_resources.grd',
-            'grit_additional_defines': [
-              '-E', 'about_credits_file=<(about_credits_file)',
-            ],
           },
           'includes': [ '../build/grit_action.gypi' ],
         },
@@ -931,9 +850,9 @@
         '<(DEPTH)/cef/libcef/resources/grit_stub',
         '<(DEPTH)/cef/libcef/resources/grit_stub/chrome',
         '<(grit_out_dir)',
+        '<(SHARED_INTERMEDIATE_DIR)/components',
         '<(SHARED_INTERMEDIATE_DIR)/ui/resources',
         '<(SHARED_INTERMEDIATE_DIR)/ui/strings',
-        '<(SHARED_INTERMEDIATE_DIR)/webkit',
       ],
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
@@ -951,6 +870,7 @@
         '<(DEPTH)/components/components.gyp:content_settings_core_common',
         '<(DEPTH)/components/components.gyp:crash_component_breakpad_mac_to_be_deleted',
         '<(DEPTH)/components/components.gyp:crx_file',
+        '<(DEPTH)/components/components.gyp:data_use_measurement_core',
         '<(DEPTH)/components/components.gyp:devtools_discovery',
         '<(DEPTH)/components/components.gyp:devtools_http_handler',
         '<(DEPTH)/components/components.gyp:keyed_service_content',
@@ -1301,10 +1221,6 @@
         # Include sources for proxy support.
         '<(DEPTH)/base/prefs/testing_pref_store.cc',
         '<(DEPTH)/base/prefs/testing_pref_store.h',
-        '<(DEPTH)/chrome/browser/net/pref_proxy_config_tracker.cc',
-        '<(DEPTH)/chrome/browser/net/pref_proxy_config_tracker.h',
-        '<(DEPTH)/chrome/browser/net/pref_proxy_config_tracker_impl.cc',
-        '<(DEPTH)/chrome/browser/net/pref_proxy_config_tracker_impl.h',
         '<(DEPTH)/chrome/browser/net/proxy_service_factory.cc',
         '<(DEPTH)/chrome/browser/net/proxy_service_factory.h',
         '<(DEPTH)/chrome/browser/net/utility_process_mojo_proxy_resolver_factory.cc',

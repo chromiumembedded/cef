@@ -328,8 +328,7 @@ net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
   DCHECK(!url_request_getter_.get());
 
   // Initialize the proxy configuration service.
-  scoped_ptr<net::ProxyConfigService> proxy_config_service;
-  proxy_config_service.reset(
+  scoped_ptr<net::ProxyConfigService> proxy_config_service(
       ProxyServiceFactory::CreateProxyConfigService(
           pref_proxy_config_tracker_.get()));
 

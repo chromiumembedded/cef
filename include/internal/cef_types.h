@@ -514,12 +514,6 @@ typedef struct _cef_browser_settings_t {
   cef_state_t caret_browsing;
 
   ///
-  // Controls whether the Java plugin will be loaded. Also configurable using
-  // the "disable-java" command-line switch.
-  ///
-  cef_state_t java;
-
-  ///
   // Controls whether any plugins will be loaded. Also configurable using the
   // "disable-plugins" command-line switch.
   ///
@@ -1150,11 +1144,6 @@ typedef enum {
   // If set upload progress events will be generated when a request has a body.
   ///
   UR_FLAG_REPORT_UPLOAD_PROGRESS    = 1 << 3,
-
-  ///
-  // If set the headers sent and received for the request will be recorded.
-  ///
-  UR_FLAG_REPORT_RAW_HEADERS        = 1 << 5,
 
   ///
   // If set the CefURLRequestClient::OnDownloadData method will not be called.

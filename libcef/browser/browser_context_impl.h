@@ -14,7 +14,7 @@
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
-#include "chrome/browser/net/pref_proxy_config_tracker.h"
+#include "components/proxy_config/pref_proxy_config_tracker.h"
 
 namespace content {
 class DownloadManagerDelegate;

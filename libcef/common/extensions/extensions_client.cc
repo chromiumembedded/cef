@@ -45,13 +45,13 @@ class CefPermissionMessageProvider : public PermissionMessageProvider {
   ~CefPermissionMessageProvider() override {}
 
   // PermissionMessageProvider implementation.
-  CoalescedPermissionMessages GetPermissionMessages(
+  PermissionMessages GetPermissionMessages(
       const PermissionIDSet& permissions) const override {
-    return CoalescedPermissionMessages();
+    return PermissionMessages();
   }
 
-  bool IsPrivilegeIncrease(const PermissionSet* old_permissions,
-                           const PermissionSet* new_permissions,
+  bool IsPrivilegeIncrease(const PermissionSet& old_permissions,
+                           const PermissionSet& new_permissions,
                            Manifest::Type extension_type) const override {
     // Ensure we implement this before shipping.
     CHECK(false);
@@ -59,7 +59,7 @@ class CefPermissionMessageProvider : public PermissionMessageProvider {
   }
 
   PermissionIDSet GetAllPermissionIDs(
-      const PermissionSet* permissions,
+      const PermissionSet& permissions,
       Manifest::Type extension_type) const override {
     return PermissionIDSet();
   }

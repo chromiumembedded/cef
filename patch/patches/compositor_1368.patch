@@ -1,8 +1,8 @@
 diff --git content/browser/compositor/gpu_process_transport_factory.cc content/browser/compositor/gpu_process_transport_factory.cc
-index 4c0b363..092ad56 100644
+index b7ed844..c6ec2a9 100644
 --- content/browser/compositor/gpu_process_transport_factory.cc
 +++ content/browser/compositor/gpu_process_transport_factory.cc
-@@ -140,6 +140,13 @@ GpuProcessTransportFactory::CreateOffscreenCommandBufferContext() {
+@@ -142,6 +142,13 @@ GpuProcessTransportFactory::CreateOffscreenCommandBufferContext() {
  scoped_ptr<cc::SoftwareOutputDevice>
  GpuProcessTransportFactory::CreateSoftwareOutputDevice(
      ui::Compositor* compositor) {
@@ -17,7 +17,7 @@ index 4c0b363..092ad56 100644
    return scoped_ptr<cc::SoftwareOutputDevice>(
        new SoftwareOutputDeviceWin(software_backing_.get(), compositor));
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 7c4166f..afeea2f 100644
+index fe2a033..b6cd7c9 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -15,6 +15,7 @@
@@ -46,7 +46,7 @@ index 7c4166f..afeea2f 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -170,6 +182,9 @@ class COMPOSITOR_EXPORT Compositor
+@@ -169,6 +181,9 @@ class COMPOSITOR_EXPORT Compositor
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  

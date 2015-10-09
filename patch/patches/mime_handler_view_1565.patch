@@ -92,7 +92,7 @@ index 63b81b8..0f63f48 100644
      content::WebContents* web_contents,
      const content::ContextMenuParams& params) {
 diff --git mime_handler_view_guest_delegate.h mime_handler_view_guest_delegate.h
-index e065104..f68b66c 100644
+index e065104d..f68b66c 100644
 --- mime_handler_view_guest_delegate.h
 +++ mime_handler_view_guest_delegate.h
 @@ -6,10 +6,11 @@

@@ -460,6 +460,25 @@ CEF_EXPORT int cef_create_url(const struct _cef_urlparts_t* parts,
   return _retval;
 }
 
+CEF_EXPORT cef_string_userfree_t cef_format_url_for_security_display(
+    const cef_string_t* origin_url, const cef_string_t* languages) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: origin_url; type: string_byref_const
+  DCHECK(origin_url);
+  if (!origin_url)
+    return NULL;
+  // Unverified params: languages
+
+  // Execute
+  CefString _retval = CefFormatUrlForSecurityDisplay(
+      CefString(origin_url),
+      CefString(languages));
+
+  // Return type: string
+  return _retval.DetachToUserFree();
+}
+
 CEF_EXPORT cef_string_userfree_t cef_get_mime_type(
     const cef_string_t* extension) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING

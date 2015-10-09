@@ -21,10 +21,10 @@ index 51c288b..d996bbd 100644
          dst = self.GypPathToNinja(os.path.join(copy['destination'], basename),
                                    env)
 diff --git gyp/msvs_emulation.py gyp/msvs_emulation.py
-index ce5c46e..2f03c01 100644
+index ca67b12..a3fd903 100644
 --- gyp/msvs_emulation.py
 +++ gyp/msvs_emulation.py
-@@ -1017,8 +1017,10 @@ def GenerateEnvironmentFiles(toplevel_build_dir, generator_flags,
+@@ -1027,8 +1027,10 @@ def GenerateEnvironmentFiles(toplevel_build_dir, generator_flags,
      args = vs.SetupScript(arch)
      args.extend(('&&', 'set'))
      popen = subprocess.Popen(

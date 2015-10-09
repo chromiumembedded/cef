@@ -25,7 +25,7 @@ index 887f242..a7cc318 100644
  WebContents::CreateParams::~CreateParams() {
  }
 diff --git web_contents.h web_contents.h
-index 803b816..1457ef3 100644
+index 08c5ba9..459fe19 100644
 --- web_contents.h
 +++ web_contents.h
 @@ -52,9 +52,11 @@ class PageState;
@@ -40,7 +40,7 @@ index 803b816..1457ef3 100644
  struct CustomContextMenuContext;
  struct DropData;
  struct Manifest;
-@@ -141,6 +143,10 @@ class WebContents : public PageNavigator,
+@@ -142,6 +144,10 @@ class WebContents : public PageNavigator,
      // RenderFrame, have already been created on the renderer side, and
      // WebContents construction should take this into account.
      bool renderer_initiated_creation;
@@ -52,7 +52,7 @@ index 803b816..1457ef3 100644
  
    // Creates a new WebContents.
 diff --git web_contents_delegate.cc web_contents_delegate.cc
-index 016097b..4fb00ed 100644
+index b3d2d70..727401c 100644
 --- web_contents_delegate.cc
 +++ web_contents_delegate.cc
 @@ -138,7 +138,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
@@ -67,10 +67,10 @@ index 016097b..4fb00ed 100644
  }
  
 diff --git web_contents_delegate.h web_contents_delegate.h
-index 685c1e6..782ab86 100644
+index 76dfd36..f3bec13 100644
 --- web_contents_delegate.h
 +++ web_contents_delegate.h
-@@ -38,9 +38,11 @@ class DownloadItem;
+@@ -39,9 +39,11 @@ class DownloadItem;
  class JavaScriptDialogManager;
  class PageState;
  class RenderViewHost;
@@ -82,7 +82,7 @@ index 685c1e6..782ab86 100644
  struct ColorSuggestion;
  struct ContextMenuParams;
  struct DropData;
-@@ -298,7 +300,9 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -299,7 +301,9 @@ class CONTENT_EXPORT WebContentsDelegate {
        const std::string& frame_name,
        const GURL& target_url,
        const std::string& partition_id,

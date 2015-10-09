@@ -605,7 +605,6 @@ struct CefBrowserSettingsTraits {
     target->javascript_access_clipboard = src->javascript_access_clipboard;
     target->javascript_dom_paste = src->javascript_dom_paste;
     target->caret_browsing = src->caret_browsing;
-    target->java = src->java;
     target->plugins = src->plugins;
     target->universal_access_from_file_urls =
         src->universal_access_from_file_urls;

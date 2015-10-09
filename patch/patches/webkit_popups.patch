@@ -1,8 +1,8 @@
 diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
-index 7f94b2d..1390a1f 100644
+index 5577228..74ccf53 100644
 --- Source/web/ChromeClientImpl.cpp
 +++ Source/web/ChromeClientImpl.cpp
-@@ -801,7 +801,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
+@@ -814,7 +814,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
  PassRefPtrWillBeRawPtr<PopupMenu> ChromeClientImpl::openPopupMenu(LocalFrame& frame, HTMLSelectElement& select)
  {
      notifyPopupOpeningObservers();
@@ -12,18 +12,18 @@ index 7f94b2d..1390a1f 100644
  
      ASSERT(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index c1d869d..e11d102 100644
+index b708684..769c127 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
-@@ -427,6 +427,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client)
+@@ -421,6 +421,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client)
+     , m_enableFakePageScaleAnimationForTesting(false)
      , m_fakePageScaleAnimationPageScaleFactor(0)
      , m_fakePageScaleAnimationUseAnchor(false)
-     , m_contextMenuAllowed(false)
 +    , m_shouldUseExternalPopupMenus(shouldUseExternalPopupMenus)
      , m_doingDragAndDrop(false)
      , m_ignoreInputEvents(false)
      , m_compositorDeviceScaleFactorOverride(0)
-@@ -3959,9 +3960,14 @@ void WebViewImpl::pageScaleFactorChanged()
+@@ -4018,9 +4019,14 @@ void WebViewImpl::pageScaleFactorChanged()
      m_client->pageScaleFactorChanged();
  }
  
@@ -40,10 +40,10 @@ index c1d869d..e11d102 100644
  
  void WebViewImpl::startDragging(LocalFrame* frame,
 diff --git Source/web/WebViewImpl.h Source/web/WebViewImpl.h
-index 98268d4..9b2f03a 100644
+index a1f3e54..24f60a9 100644
 --- Source/web/WebViewImpl.h
 +++ Source/web/WebViewImpl.h
-@@ -394,7 +394,8 @@ public:
+@@ -393,7 +393,8 @@ public:
  
      // Returns true if popup menus should be rendered by the browser, false if
      // they should be rendered by WebKit (which is the default).
@@ -51,11 +51,11 @@ index 98268d4..9b2f03a 100644
 +    void setUseExternalPopupMenusThisInstance(bool);
 +    bool useExternalPopupMenus();
  
-     bool contextMenuAllowed() const
+     bool shouldAutoResize() const
      {
-@@ -687,6 +688,8 @@ private:
- 
-     bool m_contextMenuAllowed;
+@@ -671,6 +672,8 @@ private:
+     float m_fakePageScaleAnimationPageScaleFactor;
+     bool m_fakePageScaleAnimationUseAnchor;
  
 +    bool m_shouldUseExternalPopupMenus;
 +
@@ -63,10 +63,10 @@ index 98268d4..9b2f03a 100644
  
      bool m_ignoreInputEvents;
 diff --git public/web/WebView.h public/web/WebView.h
-index fac145a..0fc5c23 100644
+index 1bce1b2..3ea51c1 100644
 --- public/web/WebView.h
 +++ public/web/WebView.h
-@@ -399,6 +399,7 @@ public:
+@@ -400,6 +400,7 @@ public:
  
      // Sets whether select popup menus should be rendered by the browser.
      BLINK_EXPORT static void setUseExternalPopupMenus(bool);

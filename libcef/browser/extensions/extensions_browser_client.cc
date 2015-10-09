@@ -156,6 +156,10 @@ bool CefExtensionsBrowserClient::IsRunningInForcedAppMode() {
   return false;
 }
 
+bool CefExtensionsBrowserClient::IsLoggedInAsPublicAccount()  {
+  return false;
+}
+
 ApiActivityMonitor* CefExtensionsBrowserClient::GetApiActivityMonitor(
     BrowserContext* context) {
   // CEF doesn't monitor API function calls or events.

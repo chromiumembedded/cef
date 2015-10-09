@@ -36,7 +36,7 @@ const content::MediaStreamDevice* FindDefaultDeviceWithId(
 
 CefMediaCaptureDevicesDispatcher*
     CefMediaCaptureDevicesDispatcher::GetInstance() {
-  return Singleton<CefMediaCaptureDevicesDispatcher>::get();
+  return base::Singleton<CefMediaCaptureDevicesDispatcher>::get();
 }
 
 CefMediaCaptureDevicesDispatcher::CefMediaCaptureDevicesDispatcher() {}

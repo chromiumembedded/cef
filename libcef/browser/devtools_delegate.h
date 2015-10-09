@@ -34,6 +34,8 @@ class CefDevToolsDelegate :
   std::string GetDiscoveryPageHTML() override;
   std::string GetFrontendResource(const std::string& path) override;
   std::string GetPageThumbnailData(const GURL& url) override;
+  content::DevToolsExternalAgentProxyDelegate*
+      HandleWebSocketConnection(const std::string& path) override;
 
   // Returns the chrome-devtools URL.
   std::string GetChromeDevToolsURL();

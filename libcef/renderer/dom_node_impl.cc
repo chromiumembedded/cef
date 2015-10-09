@@ -51,28 +51,7 @@ CefDOMNodeImpl::Type CefDOMNodeImpl::GetType() {
   if (!VerifyContext())
     return DOM_NODE_TYPE_UNSUPPORTED;
 
-  switch (node_.nodeType()) {
-    case WebNode::ElementNode:
-      return DOM_NODE_TYPE_ELEMENT;
-    case WebNode::AttributeNode:
-      return DOM_NODE_TYPE_ATTRIBUTE;
-    case WebNode::TextNode:
-      return DOM_NODE_TYPE_TEXT;
-    case WebNode::CDataSectionNode:
-      return DOM_NODE_TYPE_CDATA_SECTION;
-    case WebNode::ProcessingInstructionsNode:
-      return DOM_NODE_TYPE_PROCESSING_INSTRUCTIONS;
-    case WebNode::CommentNode:
-      return DOM_NODE_TYPE_COMMENT;
-    case WebNode::DocumentNode:
-      return DOM_NODE_TYPE_DOCUMENT;
-    case WebNode::DocumentTypeNode:
-      return DOM_NODE_TYPE_DOCUMENT_TYPE;
-    case WebNode::DocumentFragmentNode:
-      return DOM_NODE_TYPE_DOCUMENT_FRAGMENT;
-    default:
-      return DOM_NODE_TYPE_UNSUPPORTED;
-  }
+  return webkit_glue::GetNodeType(node_);
 }
 
 bool CefDOMNodeImpl::IsText() {
@@ -166,7 +145,7 @@ CefString CefDOMNodeImpl::GetName() {
   if (!VerifyContext())
     return str;
 
-  const WebString& name = node_.nodeName();
+  const WebString& name = webkit_glue::GetNodeName(node_);
   if (!name.isNull())
     str = name;
 
@@ -226,7 +205,7 @@ CefString CefDOMNodeImpl::GetAsMarkup() {
   if (!VerifyContext())
     return str;
 
-  const WebString& markup = node_.createMarkup();
+  const WebString& markup = webkit_glue::CreateNodeMarkup(node_);
   if (!markup.isNull())
     str = markup;
 

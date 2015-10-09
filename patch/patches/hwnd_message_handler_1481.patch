@@ -1,10 +1,10 @@
 diff --git hwnd_message_handler.cc hwnd_message_handler.cc
-index b394556..729cacf 100644
+index 5348080..4f9bec5 100644
 --- hwnd_message_handler.cc
 +++ hwnd_message_handler.cc
-@@ -2687,8 +2687,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
-             "440919 HWNDMessageHandler::HandleMouseEventInternal6"));
- 
+@@ -2364,8 +2364,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+     active_mouse_tracking_flags_ = 0;
+   } else if (event.type() == ui::ET_MOUSEWHEEL) {
      // Reroute the mouse wheel to the window under the pointer if applicable.
 -    return (ui::RerouteMouseWheel(hwnd(), w_param, l_param) ||
 -            delegate_->HandleMouseEvent(ui::MouseWheelEvent(msg))) ? 0 : 1;
@@ -16,4 +16,4 @@ index b394556..729cacf 100644
 +    return 1;
    }
  
-   // TODO(vadimt): Remove ScopedTracker below once crbug.com/440919 is fixed.
+   // There are cases where the code handling the message destroys the window,

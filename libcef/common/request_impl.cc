@@ -11,6 +11,7 @@
 #include "libcef/common/upload_data.h"
 
 #include "base/logging.h"
+#include "components/navigation_interception/navigation_params.h"
 #include "content/public/browser/resource_request_info.h"
 #include "content/public/common/resource_type.h"
 #include "net/base/elements_upload_data_stream.h"
@@ -101,12 +102,9 @@ CefRefPtr<CefRequest> CefRequest::Create() {
 // CefRequestImpl -------------------------------------------------------------
 
 CefRequestImpl::CefRequestImpl()
-    : method_("GET"),
-      resource_type_(RT_SUB_RESOURCE),
-      transition_type_(TT_EXPLICIT),
-      identifier_(0U),
-      flags_(UR_FLAG_NONE),
-      read_only_(false) {
+    : read_only_(false) {
+  base::AutoLock lock_scope(lock_);
+  Reset();
 }
 
 bool CefRequestImpl::IsReadOnly() {
@@ -209,6 +207,8 @@ void CefRequestImpl::Set(net::URLRequest* request) {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
 
+  Reset();
+
   url_ = request->url().spec();
   method_ = request->method();
   first_party_for_cookies_ = request->first_party_for_cookies().spec();
@@ -238,8 +238,6 @@ void CefRequestImpl::Set(net::URLRequest* request) {
   if (data) {
     postdata_ = CefPostData::Create();
     static_cast<CefPostDataImpl*>(postdata_.get())->Set(*data);
-  } else if (postdata_.get()) {
-    postdata_ = NULL;
   }
 
   const content::ResourceRequestInfo* info =
@@ -249,9 +247,6 @@ void CefRequestImpl::Set(net::URLRequest* request) {
         static_cast<cef_resource_type_t>(info->GetResourceType());
     transition_type_ =
         static_cast<cef_transition_type_t>(info->GetPageTransition());
-  } else {
-    resource_type_ = RT_SUB_RESOURCE;
-    transition_type_ = TT_EXPLICIT;
   }
 }
 
@@ -286,11 +281,36 @@ void CefRequestImpl::Get(net::URLRequest* request) {
   }
 }
 
+void CefRequestImpl::Set(
+    const navigation_interception::NavigationParams& params,
+    bool is_main_frame) {
+  base::AutoLock lock_scope(lock_);
+  CHECK_READONLY_RETURN_VOID();
+
+  Reset();
+
+  url_ = params.url().spec();
+  method_ = params.is_post() ? "POST" : "GET";
+
+  const content::Referrer& sanitized_referrer =
+      content::Referrer::SanitizeForRequest(params.url(), params.referrer());
+  if (!sanitized_referrer.url.is_empty()) {
+    headermap_.insert(std::make_pair(
+        CefString("Referrer"), sanitized_referrer.url.spec()));
+  }
+
+  resource_type_ = is_main_frame ? RT_MAIN_FRAME : RT_SUB_FRAME;
+  transition_type_ =
+      static_cast<cef_transition_type_t>(params.transition_type());
+}
+
 void CefRequestImpl::Set(const blink::WebURLRequest& request) {
   DCHECK(!request.isNull());
 
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
+
+  Reset();
 
   url_ = request.url().spec().utf16();
   method_ = request.httpMethod();
@@ -299,22 +319,16 @@ void CefRequestImpl::Set(const blink::WebURLRequest& request) {
   if (!body.isNull()) {
     postdata_ = new CefPostDataImpl();
     static_cast<CefPostDataImpl*>(postdata_.get())->Set(body);
-  } else if (postdata_.get()) {
-    postdata_ = NULL;
   }
 
-  headermap_.clear();
   GetHeaderMap(request, headermap_);
 
-  flags_ = UR_FLAG_NONE;
   if (request.cachePolicy() == blink::WebURLRequest::ReloadIgnoringCacheData)
     flags_ |= UR_FLAG_SKIP_CACHE;
   if (request.allowStoredCredentials())
     flags_ |= UR_FLAG_ALLOW_CACHED_CREDENTIALS;
   if (request.reportUploadProgress())
     flags_ |= UR_FLAG_REPORT_UPLOAD_PROGRESS;
-  if (request.reportRawHeaders())
-    flags_ |= UR_FLAG_REPORT_RAW_HEADERS;
 
   first_party_for_cookies_ = request.firstPartyForCookies().spec().utf16();
 }
@@ -349,8 +363,6 @@ void CefRequestImpl::Get(blink::WebURLRequest& request) {
               UR_FLAG_ALLOW_CACHED_CREDENTIALS);
   SETBOOLFLAG(request, flags_, setReportUploadProgress,
               UR_FLAG_REPORT_UPLOAD_PROGRESS);
-  SETBOOLFLAG(request, flags_, setReportRawHeaders,
-              UR_FLAG_REPORT_RAW_HEADERS);
 
   if (!first_party_for_cookies_.empty()) {
     GURL gurl = GURL(first_party_for_cookies_.ToString());
@@ -410,6 +422,21 @@ void CefRequestImpl::SetHeaderMap(const HeaderMap& map,
   for (; it != map.end(); ++it)
     request.setHTTPHeaderField(base::string16(it->first),
                                base::string16(it->second));
+}
+
+void CefRequestImpl::Reset() {
+  lock_.AssertAcquired();
+  DCHECK(!read_only_);
+
+  url_.clear();
+  method_ = "GET";
+  postdata_ = NULL;
+  headermap_.clear();
+  resource_type_ = RT_SUB_RESOURCE;
+  transition_type_ = TT_EXPLICIT;
+  identifier_ = 0U;
+  flags_ = UR_FLAG_NONE;
+  first_party_for_cookies_.clear();
 }
 
 // CefPostData ----------------------------------------------------------------

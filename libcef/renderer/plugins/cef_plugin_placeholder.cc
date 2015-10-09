@@ -99,6 +99,7 @@ CefPluginPlaceholder* CefPluginPlaceholder::CreateBlockedPlugin(
   values.SetString("name", name);
   values.SetString("hide", l10n_util::GetStringUTF8(IDS_PLUGIN_HIDE));
   values.SetString("pluginType",
+                   frame->view()->mainFrame()->isWebLocalFrame() &&
                    frame->view()->mainFrame()->document().isPluginDocument()
                        ? "document"
                        : "embedded");
@@ -240,8 +241,10 @@ void CefPluginPlaceholder::ShowContextMenu(
 
   content::MenuItem hide_item;
   hide_item.action = chrome::MENU_COMMAND_PLUGIN_HIDE;
-  hide_item.enabled =
-      !GetFrame()->view()->mainFrame()->document().isPluginDocument();
+  bool is_main_frame_plugin_document =
+      GetFrame()->view()->mainFrame()->isWebLocalFrame() &&
+      GetFrame()->view()->mainFrame()->document().isPluginDocument();
+  hide_item.enabled = !is_main_frame_plugin_document;
   hide_item.label = l10n_util::GetStringUTF16(IDS_CONTENT_CONTEXT_PLUGIN_HIDE);
   params.custom_items.push_back(hide_item);
 

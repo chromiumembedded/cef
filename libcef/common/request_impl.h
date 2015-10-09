@@ -11,6 +11,10 @@
 #include "base/synchronization/lock.h"
 #include "third_party/WebKit/public/platform/WebHTTPBody.h"
 
+namespace navigation_interception {
+class NavigationParams;
+}
+
 namespace net {
 class HttpRequestHeaders;
 class UploadData;
@@ -56,6 +60,12 @@ class CefRequestImpl : public CefRequest {
   // Populate the URLRequest object from this object.
   void Get(net::URLRequest* request);
 
+  // Populate this object from the NavigationParams object.
+  // TODO(cef): Remove the |is_main_frame| argument once NavigationParams is
+  // reliable in reporting that value.
+  void Set(const navigation_interception::NavigationParams& params,
+           bool is_main_frame);
+
   // Populate this object from a WebURLRequest object.
   void Set(const blink::WebURLRequest& request);
 
@@ -71,7 +81,9 @@ class CefRequestImpl : public CefRequest {
   static void SetHeaderMap(const HeaderMap& map,
                            blink::WebURLRequest& request);
 
- protected:
+ private:
+  void Reset();
+
   CefString url_;
   CefString method_;
   CefRefPtr<CefPostData> postdata_;
@@ -113,7 +125,7 @@ class CefPostDataImpl : public CefPostData {
 
   void SetReadOnly(bool read_only);
 
- protected:
+ private:
   ElementVector elements_;
 
   // True if this object is read-only.
@@ -150,7 +162,7 @@ class CefPostDataElementImpl : public CefPostDataElement {
 
   void SetReadOnly(bool read_only);
 
- protected:
+ private:
   void Cleanup();
 
   Type type_;

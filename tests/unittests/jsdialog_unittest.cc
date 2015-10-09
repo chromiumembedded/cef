@@ -102,7 +102,7 @@ class JSDialogTestHandler : public TestHandler {
                   bool& suppress_message) override {
     got_onjsdialog_.yes();
 
-    EXPECT_STREQ("http://tests/", origin_url.ToString().c_str());
+    EXPECT_STREQ(kStartUrl, origin_url.ToString().c_str());
     EXPECT_TRUE(accept_lang.empty());
 
     if (type_ == TYPE_ALERT) {

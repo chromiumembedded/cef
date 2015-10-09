@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_PERMISSION_MANAGER_H_
 
 #include "base/callback_forward.h"
+#include "base/id_map.h"
 #include "base/macros.h"
 #include "content/public/browser/permission_manager.h"
 
@@ -15,17 +16,13 @@ class CefPermissionManager : public content::PermissionManager {
   ~CefPermissionManager() override;
 
   // PermissionManager implementation.
-  void RequestPermission(
+  int RequestPermission(
       content::PermissionType permission,
       content::RenderFrameHost* render_frame_host,
-      int request_id,
       const GURL& requesting_origin,
       bool user_gesture,
       const base::Callback<void(content::PermissionStatus)>& callback) override;
-  void CancelPermissionRequest(content::PermissionType permission,
-                               content::RenderFrameHost* render_frame_host,
-                               int request_id,
-                               const GURL& requesting_origin) override;
+  void CancelPermissionRequest(int request_id) override;
   void ResetPermission(content::PermissionType permission,
                        const GURL& requesting_origin,
                        const GURL& embedding_origin) override;
@@ -44,6 +41,10 @@ class CefPermissionManager : public content::PermissionManager {
   void UnsubscribePermissionStatusChange(int subscription_id) override;
 
  private:
+  struct PendingRequest;
+  using PendingRequestsMap = IDMap<PendingRequest, IDMapOwnPointer>;
+  PendingRequestsMap pending_requests_;
+
   DISALLOW_COPY_AND_ASSIGN(CefPermissionManager);
 };
 

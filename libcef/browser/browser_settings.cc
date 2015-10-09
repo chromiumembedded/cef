@@ -106,7 +106,6 @@ void BrowserToWebSettings(const CefBrowserSettings& cef,
       web.javascript_can_access_clipboard);
   SET_STATE(cef.javascript_dom_paste, web.dom_paste_enabled);
   SET_STATE(cef.caret_browsing, web.caret_browsing_enabled);
-  SET_STATE(cef.java, web.java_enabled);
   SET_STATE(cef.plugins, web.plugins_enabled);
   SET_STATE(cef.universal_access_from_file_urls,
       web.allow_universal_access_from_file_urls);

@@ -127,9 +127,6 @@ if(OS_MACOSX)
   # Fix the framework link in the main executable.
   FIX_MACOSX_MAIN_FRAMEWORK_LINK(${CEF_TARGET} ${CEF_APP})
 
-  # Make the other helper app bundles.
-  MAKE_MACOSX_HELPERS(${CEF_TARGET} ${CEF_APP})
-
   if(NOT ${CMAKE_GENERATOR} STREQUAL "Xcode")
     # Manually process and copy over resource files.
     # The Xcode generator handles this via the set_target_properties RESOURCE directive.

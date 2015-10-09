@@ -11,6 +11,8 @@
 #include "libcef/browser/text_input_client_osr_mac.h"
 
 #include "base/compiler_specific.h"
+#include "base/strings/utf_string_conversions.h"
+#include "content/common/view_messages.h"
 #include "ui/events/latency_info.h"
 
 namespace {
@@ -79,9 +81,36 @@ void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
   if (!client)
     return;
 
-  client->markedRange_ = range.ToNSRange();
-  client->composition_range_ = range;
-  client->composition_bounds_ = character_bounds;
+  composition_range_ = range;
+  composition_bounds_ = character_bounds;
+}
+
+void CefRenderWidgetHostViewOSR::SelectionChanged(
+    const base::string16& text,
+    size_t offset,
+    const gfx::Range& range) {
+  if (range.is_empty() || text.empty()) {
+    selected_text_.clear();
+  } else {
+    size_t pos = range.GetMin() - offset;
+    size_t n = range.length();
+
+    DCHECK(pos + n <= text.length()) << "The text can not fully cover range.";
+    if (pos >= text.length()) {
+      DCHECK(false) << "The text can not cover range.";
+      return;
+    }
+    selected_text_ = base::UTF16ToUTF8(text.substr(pos, n));
+  }
+
+  RenderWidgetHostViewBase::SelectionChanged(text, offset, range);
+}
+
+void CefRenderWidgetHostViewOSR::SelectionBoundsChanged(
+    const ViewHostMsg_SelectionBounds_Params& params) {
+  if (params.anchor_rect == params.focus_rect)
+    caret_rect_ = params.anchor_rect;
+  first_selection_rect_ = params.anchor_rect;
 }
 
 NSView* CefRenderWidgetHostViewOSR::AcceleratedWidgetGetNSView() const {
@@ -147,99 +176,98 @@ void CefRenderWidgetHostViewOSR::HandleKeyEventAfterTextInputClient(
 bool CefRenderWidgetHostViewOSR::GetCachedFirstRectForCharacterRange(
     gfx::Range range, gfx::Rect* rect, gfx::Range* actual_range) const {
   DCHECK(rect);
-  CefTextInputClientOSRMac* client = GetInputClientFromContext(
-     text_input_context_osr_mac_);
 
+  const gfx::Range requested_range(range);
   // If requested range is same as caret location, we can just return it.
-  if (selection_range_.is_empty() && gfx::Range(range) == selection_range_) {
+  if (selection_range_.is_empty() && requested_range == selection_range_) {
     if (actual_range)
       *actual_range = range;
-    *rect = client->caret_rect_;
+    *rect = caret_rect_;
+    return true;
+  }
+
+  if (composition_range_.is_empty()) {
+    if (!selection_range_.Contains(requested_range))
+      return false;
+    if (actual_range)
+      *actual_range = selection_range_;
+    *rect = first_selection_rect_;
     return true;
   }
 
   const gfx::Range request_range_in_composition =
-      ConvertCharacterRangeToCompositionRange(gfx::Range(range));
+      ConvertCharacterRangeToCompositionRange(requested_range);
   if (request_range_in_composition == gfx::Range::InvalidRange())
     return false;
 
   // If firstRectForCharacterRange in WebFrame is failed in renderer,
   // ImeCompositionRangeChanged will be sent with empty vector.
-  if (client->composition_bounds_.empty())
+  if (composition_bounds_.empty())
     return false;
-
-  DCHECK_EQ(client->composition_bounds_.size(),
-      client->composition_range_.length());
+  DCHECK_EQ(composition_bounds_.size(), composition_range_.length());
 
   gfx::Range ui_actual_range;
   *rect = GetFirstRectForCompositionRange(request_range_in_composition,
                                           &ui_actual_range);
   if (actual_range) {
     *actual_range = gfx::Range(
-        client->composition_range_.start() + ui_actual_range.start(),
-        client->composition_range_.start() + ui_actual_range.end()).ToNSRange();
+        composition_range_.start() + ui_actual_range.start(),
+        composition_range_.start() + ui_actual_range.end());
   }
   return true;
 }
 
 gfx::Rect CefRenderWidgetHostViewOSR::GetFirstRectForCompositionRange(
     const gfx::Range& range, gfx::Range* actual_range) const {
-  CefTextInputClientOSRMac* client = GetInputClientFromContext(
-     text_input_context_osr_mac_);
-
-  DCHECK(client);
   DCHECK(actual_range);
-  DCHECK(!client->composition_bounds_.empty());
-  DCHECK_LE(range.start(), client->composition_bounds_.size());
-  DCHECK_LE(range.end(), client->composition_bounds_.size());
+  DCHECK(!composition_bounds_.empty());
+  DCHECK(range.start() <= composition_bounds_.size());
+  DCHECK(range.end() <= composition_bounds_.size());
 
   if (range.is_empty()) {
     *actual_range = range;
-    if (range.start() == client->composition_bounds_.size()) {
-      return gfx::Rect(client->composition_bounds_[range.start() - 1].right(),
-                       client->composition_bounds_[range.start() - 1].y(),
+    if (range.start() == composition_bounds_.size()) {
+      return gfx::Rect(composition_bounds_[range.start() - 1].right(),
+                       composition_bounds_[range.start() - 1].y(),
                        0,
-                       client->composition_bounds_[range.start() - 1].height());
+                       composition_bounds_[range.start() - 1].height());
     } else {
-      return gfx::Rect(client->composition_bounds_[range.start()].x(),
-                       client->composition_bounds_[range.start()].y(),
+      return gfx::Rect(composition_bounds_[range.start()].x(),
+                       composition_bounds_[range.start()].y(),
                        0,
-                       client->composition_bounds_[range.start()].height());
+                       composition_bounds_[range.start()].height());
     }
   }
 
   size_t end_idx;
-  if (!GetLineBreakIndex(client->composition_bounds_,
-      range, &end_idx)) {
+  if (!GetLineBreakIndex(composition_bounds_, range, &end_idx)) {
     end_idx = range.end();
   }
   *actual_range = gfx::Range(range.start(), end_idx);
-  gfx::Rect rect = client->composition_bounds_[range.start()];
+  gfx::Rect rect = composition_bounds_[range.start()];
   for (size_t i = range.start() + 1; i < end_idx; ++i) {
-    rect.Union(client->composition_bounds_[i]);
+    rect.Union(composition_bounds_[i]);
   }
   return rect;
 }
 
 gfx::Range CefRenderWidgetHostViewOSR::ConvertCharacterRangeToCompositionRange(
     const gfx::Range& request_range) const {
-  CefTextInputClientOSRMac* client = GetInputClientFromContext(
-     text_input_context_osr_mac_);
-  DCHECK(client);
-
-  if (client->composition_range_.is_empty())
+  if (composition_range_.is_empty())
     return gfx::Range::InvalidRange();
 
   if (request_range.is_reversed())
     return gfx::Range::InvalidRange();
 
-  if (request_range.start() < client->composition_range_.start()
-      || request_range.start() > client->composition_range_.end()
-      || request_range.end() > client->composition_range_.end())
+  if (request_range.start() < composition_range_.start() ||
+      request_range.start() > composition_range_.end() ||
+      request_range.end() > composition_range_.end()) {
     return gfx::Range::InvalidRange();
+  }
 
-  return gfx::Range(request_range.start() - client->composition_range_.start(),
-                    request_range.end() - client->composition_range_.start());
+  return gfx::Range(
+      request_range.start() - composition_range_.start(),
+      request_range.end() - composition_range_.start());
 }
 
 bool CefRenderWidgetHostViewOSR::GetLineBreakIndex(

@@ -557,10 +557,8 @@ class ResourceResponseTest : public TestHandler {
     // This method is only called for the main resource.
     EXPECT_STREQ(kResourceTestHtml, request->GetURL().ToString().c_str());
 
-    // All loads of the main resource should keep the same request id.
-    EXPECT_EQ(0U, main_request_id_);
-    main_request_id_ = request->GetIdentifier();
-    EXPECT_GT(main_request_id_, 0U);
+    // Browser-side navigation no longer exposes the actual request information.
+    EXPECT_EQ(0U, request->GetIdentifier());
 
     return false;
   }
@@ -574,7 +572,10 @@ class ResourceResponseTest : public TestHandler {
     EXPECT_EQ(browser_id_, browser->GetIdentifier());
 
     if (request->GetURL() == kResourceTestHtml) {
-      EXPECT_EQ(main_request_id_, request->GetIdentifier());
+      // All loads of the main resource should keep the same request id.
+      EXPECT_EQ(0U, main_request_id_);
+      main_request_id_ = request->GetIdentifier();
+      EXPECT_GT(main_request_id_, 0U);
       return RV_CONTINUE;
     }
 

@@ -28,7 +28,6 @@
 #include "grit/ui_strings.h"
 #include "net/base/mime_util.h"
 #include "third_party/WebKit/public/web/WebInputEvent.h"
-#include "third_party/WebKit/public/web/mac/WebInputEventFactory.h"
 #import  "ui/base/cocoa/underlay_opengl_hosting_window.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/events/keycodes/keyboard_codes_posix.h"

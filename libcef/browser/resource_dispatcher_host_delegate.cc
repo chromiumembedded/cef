@@ -9,13 +9,10 @@
 #include "libcef/browser/origin_whitelist_impl.h"
 #include "libcef/browser/resource_context.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/common/request_impl.h"
 #include "libcef/common/extensions/extensions_util.h"
 
 #include "base/guid.h"
 #include "base/memory/scoped_vector.h"
-#include "components/navigation_interception/intercept_navigation_resource_throttle.h"
-#include "components/navigation_interception/navigation_params.h"
 #include "content/public/browser/plugin_service.h"
 #include "content/public/browser/plugin_service_filter.h"
 #include "content/public/browser/resource_request_info.h"
@@ -29,37 +26,6 @@
 #include "net/url_request/url_request.h"
 
 namespace {
-
-bool NavigationOnUIThread(
-    int64 frame_id,
-    CefRefPtr<CefRequestImpl> request,
-    content::WebContents* source,
-    const navigation_interception::NavigationParams& params) {
-  CEF_REQUIRE_UIT();
-
-  bool ignore_navigation = false;
-
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForContents(source);
-  if (browser.get()) {
-    CefRefPtr<CefClient> client = browser->GetClient();
-    if (client.get()) {
-      CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
-      if (handler.get()) {
-        CefRefPtr<CefFrame> frame;
-        if (frame_id >= 0)
-          frame = browser->GetFrame(frame_id);
-        DCHECK(frame.get());
-        if (frame.get()) {
-          ignore_navigation = handler->OnBeforeBrowse(
-              browser.get(), frame, request.get(), params.is_redirect());
-        }
-      }
-    }
-  }
-
-  return ignore_navigation;
-}
 
 void SendExecuteMimeTypeHandlerEvent(scoped_ptr<content::StreamInfo> stream,
                                      int64 expected_content_size,
@@ -103,37 +69,6 @@ CefResourceDispatcherHostDelegate::CefResourceDispatcherHostDelegate() {
 }
 
 CefResourceDispatcherHostDelegate::~CefResourceDispatcherHostDelegate() {
-}
-
-void CefResourceDispatcherHostDelegate::RequestBeginning(
-    net::URLRequest* request,
-    content::ResourceContext* resource_context,
-    content::AppCacheService* appcache_service,
-    content::ResourceType resource_type,
-    ScopedVector<content::ResourceThrottle>* throttles) {
-  if (resource_type == content::ResourceType::RESOURCE_TYPE_MAIN_FRAME ||
-      resource_type == content::ResourceType::RESOURCE_TYPE_SUB_FRAME) {
-    int64 frame_id = -1;
-
-    // ResourceRequestInfo will not exist for requests originating from
-    // WebURLLoader in the render process.
-    const content::ResourceRequestInfo* info =
-        content::ResourceRequestInfo::ForRequest(request);
-    if (info)
-      frame_id = info->GetRenderFrameID();
-
-    if (frame_id >= 0) {
-      CefRefPtr<CefRequestImpl> cef_request(new CefRequestImpl);
-      cef_request->Set(request);
-      cef_request->SetReadOnly(true);
-
-      content::ResourceThrottle* throttle =
-        new navigation_interception::InterceptNavigationResourceThrottle(
-            request,
-            base::Bind(&NavigationOnUIThread, frame_id, cef_request));
-      throttles->push_back(throttle);
-    }
-  }
 }
 
 bool CefResourceDispatcherHostDelegate::HandleExternalProtocol(

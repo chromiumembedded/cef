@@ -1,5 +1,5 @@
 diff --git spellcheck_factory.cc spellcheck_factory.cc
-index 4c61d34..9e4f3d1 100644
+index fcf2ce8..9e4f3d1 100644
 --- spellcheck_factory.cc
 +++ spellcheck_factory.cc
 @@ -16,6 +16,13 @@
@@ -20,13 +20,13 @@ index 4c61d34..9e4f3d1 100644
  
  // static
  SpellcheckServiceFactory* SpellcheckServiceFactory::GetInstance() {
--  return Singleton<SpellcheckServiceFactory>::get();
+-  return base::Singleton<SpellcheckServiceFactory>::get();
 +  return g_spellcheck_service_factory.Pointer();
  }
  
  SpellcheckServiceFactory::SpellcheckServiceFactory()
 diff --git spellcheck_factory.h spellcheck_factory.h
-index 3e4ad0e..d52b881 100644
+index 7cdf471..d52b881 100644
 --- spellcheck_factory.h
 +++ spellcheck_factory.h
 @@ -7,7 +7,7 @@
@@ -42,7 +42,7 @@ index 3e4ad0e..d52b881 100644
    static SpellcheckServiceFactory* GetInstance();
  
   private:
--  friend struct DefaultSingletonTraits<SpellcheckServiceFactory>;
+-  friend struct base::DefaultSingletonTraits<SpellcheckServiceFactory>;
 +  friend struct base::DefaultLazyInstanceTraits<SpellcheckServiceFactory>;
  
    SpellcheckServiceFactory();

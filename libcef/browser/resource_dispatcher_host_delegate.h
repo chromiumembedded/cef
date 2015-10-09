@@ -20,12 +20,6 @@ class CefResourceDispatcherHostDelegate
   ~CefResourceDispatcherHostDelegate() override;
 
   // ResourceDispatcherHostDelegate methods.
-  void RequestBeginning(
-      net::URLRequest* request,
-      content::ResourceContext* resource_context,
-      content::AppCacheService* appcache_service,
-      content::ResourceType resource_type,
-      ScopedVector<content::ResourceThrottle>* throttles) override;
   bool HandleExternalProtocol(const GURL& url,
                               int child_id,
                               int route_id,

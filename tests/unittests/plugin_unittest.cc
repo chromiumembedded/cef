@@ -51,11 +51,7 @@ const char kPdfHtmlUrl[] = "http://tests/pdf.html";
 const char kPdfDirectUrl[] = "http://tests/pdf.pdf";
 
 // Delay waiting for iframe tests to load the PDF file.
-#if defined(OS_WIN) || defined(OS_MACOSX)
-const int64 kPdfLoadDelayMs = 2000;
-#else
 const int64 kPdfLoadDelayMs = 5000;
-#endif
 
 // Browser-side test handler.
 class PluginTestHandler : public RoutingTestHandler,

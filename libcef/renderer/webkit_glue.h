@@ -10,6 +10,8 @@
 #include "base/basictypes.h"
 #include "third_party/skia/include/core/SkColor.h"
 
+#include "include/internal/cef_types.h"
+
 namespace blink {
 class WebFrame;
 class WebNode;
@@ -29,6 +31,10 @@ void GoForward(blink::WebView* view);
 // Returns the text of the document element.
 std::string DumpDocumentText(blink::WebFrame* frame);
 
+// Expose additional actions on WebNode.
+cef_dom_node_type_t GetNodeType(const blink::WebNode& node);
+blink::WebString GetNodeName(const blink::WebNode& node);
+blink::WebString CreateNodeMarkup(const blink::WebNode& node);
 bool SetNodeValue(blink::WebNode& node, const blink::WebString& value);
 
 int64 GetIdentifier(blink::WebFrame* frame);

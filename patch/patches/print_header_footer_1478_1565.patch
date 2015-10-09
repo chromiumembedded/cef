@@ -1,20 +1,24 @@
 diff --git printing/renderer/print_web_view_helper.cc printing/renderer/print_web_view_helper.cc
-index d315efa..a312f77 100644
+index 27419d6..0a6757b 100644
 --- printing/renderer/print_web_view_helper.cc
 +++ printing/renderer/print_web_view_helper.cc
-@@ -75,6 +75,7 @@ const double kMinDpi = 1.0;
- bool g_is_preview_enabled_ = false;
- #else
- bool g_is_preview_enabled_ = true;
-+#endif  // !defined(ENABLE_PRINT_PREVIEW)
+@@ -73,6 +73,9 @@ const double kMinDpi = 1.0;
+ 
+ #if defined(ENABLE_PRINT_PREVIEW)
+ bool g_is_preview_enabled = true;
++#else
++bool g_is_preview_enabled = false;
++#endif  // defined(ENABLE_PRINT_PREVIEW)
  
  const char kPageLoadScriptFormat[] =
      "document.open(); document.write(%s); document.close();";
-@@ -89,7 +90,6 @@ void ExecuteScript(blink::WebFrame* frame,
+@@ -87,9 +90,6 @@ void ExecuteScript(blink::WebFrame* frame,
    std::string script = base::StringPrintf(script_format, json.c_str());
    frame->executeScript(blink::WebString(base::UTF8ToUTF16(script)));
  }
--#endif  // !defined(ENABLE_PRINT_PREVIEW)
+-#else
+-bool g_is_preview_enabled = false;
+-#endif  // defined(ENABLE_PRINT_PREVIEW)
  
  int GetDPI(const PrintMsg_Print_Params* print_params) {
  #if defined(OS_MACOSX)
@@ -26,7 +30,7 @@ index d315efa..a312f77 100644
  // static - Not anonymous so that platform implementations can use it.
  void PrintWebViewHelper::PrintHeaderAndFooter(
      blink::WebCanvas* canvas,
-@@ -538,7 +537,6 @@ void PrintWebViewHelper::PrintHeaderAndFooter(
+@@ -536,7 +535,6 @@ void PrintWebViewHelper::PrintHeaderAndFooter(
    web_view->close();
    frame->close();
  }
@@ -34,7 +38,7 @@ index d315efa..a312f77 100644
  
  // static - Not anonymous so that platform implementations can use it.
  float PrintWebViewHelper::RenderPageContent(blink::WebFrame* frame,
-@@ -813,6 +811,7 @@ PrintWebViewHelper::PrintWebViewHelper(content::RenderView* render_view,
+@@ -807,6 +805,7 @@ PrintWebViewHelper::PrintWebViewHelper(content::RenderView* render_view,
        print_for_preview_(false),
        delegate_(delegate.Pass()),
        print_node_in_progress_(false),
@@ -42,7 +46,7 @@ index d315efa..a312f77 100644
        is_loading_(false),
        is_scripted_preview_delayed_(false),
        ipc_nesting_level_(0),
-@@ -1254,7 +1253,9 @@ void PrintWebViewHelper::OnInitiatePrintPreview(bool selection_only) {
+@@ -1246,7 +1245,9 @@ void PrintWebViewHelper::OnInitiatePrintPreview(bool selection_only) {
    // that instead.
    auto plugin = delegate_->GetPdfElement(frame);
    if (!plugin.isNull()) {
@@ -52,17 +56,17 @@ index d315efa..a312f77 100644
      return;
    }
    print_preview_context_.InitWithFrame(frame);
-@@ -1287,7 +1288,7 @@ void PrintWebViewHelper::PrintNode(const blink::WebNode& node) {
+@@ -1279,7 +1280,7 @@ void PrintWebViewHelper::PrintNode(const blink::WebNode& node) {
  
    // Make a copy of the node, in case RenderView::OnContextMenuClosed resets
    // its |context_menu_node_|.
--  if (!g_is_preview_enabled_) {
-+  if (!g_is_preview_enabled_ && !force_print_preview_) {
+-  if (!g_is_preview_enabled) {
++  if (!g_is_preview_enabled && !force_print_preview_) {
      blink::WebNode duplicate_node(node);
      Print(duplicate_node.document().frame(), duplicate_node, false);
    } else {
 diff --git printing/renderer/print_web_view_helper.h printing/renderer/print_web_view_helper.h
-index 54179ff..0c48602 100644
+index d9ea441..dce6b9e 100644
 --- printing/renderer/print_web_view_helper.h
 +++ printing/renderer/print_web_view_helper.h
 @@ -309,7 +309,6 @@ class PrintWebViewHelper
@@ -90,10 +94,10 @@ index 54179ff..0c48602 100644
    bool is_loading_;
    bool is_scripted_preview_delayed_;
 diff --git printing/renderer/print_web_view_helper_linux.cc printing/renderer/print_web_view_helper_linux.cc
-index 61a1a1d..f931979 100644
+index 52f92ec..85f7adb 100644
 --- printing/renderer/print_web_view_helper_linux.cc
 +++ printing/renderer/print_web_view_helper_linux.cc
-@@ -172,7 +172,6 @@ void PrintWebViewHelper::PrintPageInternal(
+@@ -154,7 +154,6 @@ void PrintWebViewHelper::PrintPageInternal(
    MetafileSkiaWrapper::SetMetafileOnCanvas(*canvas, metafile);
    skia::SetIsDraftMode(*canvas, is_print_ready_metafile_sent_);
  
@@ -101,7 +105,7 @@ index 61a1a1d..f931979 100644
    if (params.params.display_header_footer) {
      // |page_number| is 0-based, so 1 is added.
      // TODO(vitalybuka) : why does it work only with 1.25?
-@@ -181,7 +180,6 @@ void PrintWebViewHelper::PrintPageInternal(
+@@ -163,7 +162,6 @@ void PrintWebViewHelper::PrintPageInternal(
                           scale_factor / 1.25, page_layout_in_points,
                           params.params);
    }
@@ -110,10 +114,10 @@ index 61a1a1d..f931979 100644
    RenderPageContent(frame, params.page_number, canvas_area, content_area,
                      scale_factor, canvas);
 diff --git printing/renderer/print_web_view_helper_mac.mm printing/renderer/print_web_view_helper_mac.mm
-index 7aa503c..a6413be 100644
+index f2b94e7..8c5df5e 100644
 --- printing/renderer/print_web_view_helper_mac.mm
 +++ printing/renderer/print_web_view_helper_mac.mm
-@@ -125,14 +125,12 @@ void PrintWebViewHelper::RenderPage(const PrintMsg_Print_Params& params,
+@@ -126,14 +126,12 @@ void PrintWebViewHelper::RenderPage(const PrintMsg_Print_Params& params,
      MetafileSkiaWrapper::SetMetafileOnCanvas(*canvas, metafile);
      skia::SetIsDraftMode(*canvas, is_print_ready_metafile_sent_);
      skia::SetIsPreviewMetafile(*canvas, is_preview);
@@ -129,10 +133,10 @@ index 7aa503c..a6413be 100644
                        scale_factor, static_cast<blink::WebCanvas*>(canvas));
    }
 diff --git printing/renderer/print_web_view_helper_pdf_win.cc printing/renderer/print_web_view_helper_pdf_win.cc
-index a121448..f2a1a0a 100644
+index 56acc74..ac85bf6 100644
 --- printing/renderer/print_web_view_helper_pdf_win.cc
 +++ printing/renderer/print_web_view_helper_pdf_win.cc
-@@ -185,14 +185,12 @@ void PrintWebViewHelper::PrintPageInternal(
+@@ -162,14 +162,12 @@ void PrintWebViewHelper::PrintPageInternal(
    MetafileSkiaWrapper::SetMetafileOnCanvas(*canvas, metafile);
    skia::SetIsDraftMode(*canvas, is_print_ready_metafile_sent_);
  

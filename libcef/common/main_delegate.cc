@@ -54,7 +54,7 @@
 #if defined(OS_WIN)
 #include <Objbase.h>  // NOLINT(build/include_order)
 #include "base/win/registry.h"
-#include "components/crash/app/breakpad_win.h"
+#include "components/crash/content/app/breakpad_win.h"
 #endif
 
 #if defined(OS_MACOSX)
@@ -62,12 +62,12 @@
 #include "base/mac/os_crash_dumps.h"
 #include "base/mac/bundle_locations.h"
 #include "base/mac/foundation_util.h"
-#include "components/crash/app/breakpad_mac.h"
+#include "components/crash/content/app/breakpad_mac.h"
 #include "content/public/common/content_paths.h"
 #endif
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
-#include "components/crash/app/breakpad_linux.h"
+#include "components/crash/content/app/breakpad_linux.h"
 #endif
 
 #if defined(OS_LINUX)
@@ -429,13 +429,6 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
     if (settings.context_safety_implementation != 0) {
       command_line->AppendSwitchASCII(switches::kContextSafetyImplementation,
           base::IntToString(settings.context_safety_implementation));
-    }
-
-    if (settings.windowless_rendering_enabled) {
-#if defined(OS_MACOSX)
-      // The delegated renderer is not yet enabled by default on OS X.
-      command_line->AppendSwitch(switches::kEnableDelegatedRenderer);
-#endif
     }
   }
 

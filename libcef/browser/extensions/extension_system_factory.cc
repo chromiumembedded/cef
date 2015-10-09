@@ -22,7 +22,7 @@ ExtensionSystem* CefExtensionSystemFactory::GetForBrowserContext(
 
 // static
 CefExtensionSystemFactory* CefExtensionSystemFactory::GetInstance() {
-  return Singleton<CefExtensionSystemFactory>::get();
+  return base::Singleton<CefExtensionSystemFactory>::get();
 }
 
 CefExtensionSystemFactory::CefExtensionSystemFactory()

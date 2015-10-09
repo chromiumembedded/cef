@@ -307,9 +307,6 @@ class CefBrowserURLRequest::Context
       upload_data_size_ = upload_data_size;
     }
 
-    if (cef_flags & UR_FLAG_REPORT_RAW_HEADERS)
-      load_flags |= net::LOAD_REPORT_RAW_HEADERS;
-
     fetcher_->SetLoadFlags(load_flags);
 
     fetcher_->SetExtraRequestHeaders(

@@ -35,6 +35,7 @@
 #include "extensions/browser/null_app_sorting.h"
 #include "extensions/browser/quota_service.h"
 #include "extensions/browser/runtime_data.h"
+#include "extensions/browser/service_worker_manager.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/extension_messages.h"
 #include "extensions/common/file_util.h"
@@ -131,7 +132,7 @@ void CefExtensionSystem::Init() {
   // 10.Routing of print-related commands are handled by ChromePDFPrintClient
   //    and CefPrintWebViewHelperDelegate in the renderer process.
   // 11.The PDF extension is granted access to chrome://resources via
-  //    CefExtensionsDispatcherDelegate::InitOriginPermissions in the renderer
+  //    CefExtensionWebContentsObserver::RenderViewCreated in the browser
   //    process.
   if (PdfExtensionEnabled()) {
     AddExtension(pdf_extension_util::GetManifest(),
@@ -169,6 +170,7 @@ void CefExtensionSystem::Shutdown() {
 }
 
 void CefExtensionSystem::InitForRegularProfile(bool extensions_enabled) {
+  service_worker_manager_.reset(new ServiceWorkerManager(browser_context_));
   runtime_data_.reset(new RuntimeData(registry_));
   quota_service_.reset(new QuotaService);
   app_sorting_.reset(new NullAppSorting);
@@ -184,6 +186,10 @@ RuntimeData* CefExtensionSystem::runtime_data() {
 
 ManagementPolicy* CefExtensionSystem::management_policy() {
   return nullptr;
+}
+
+ServiceWorkerManager* CefExtensionSystem::service_worker_manager() {
+  return service_worker_manager_.get();
 }
 
 SharedUserScriptMaster* CefExtensionSystem::shared_user_script_master() {

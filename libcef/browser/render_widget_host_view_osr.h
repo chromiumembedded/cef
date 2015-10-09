@@ -119,6 +119,7 @@ class CefRenderWidgetHostViewOSR
   void OnSwapCompositorFrame(
       uint32 output_surface_id,
       scoped_ptr<cc::CompositorFrame> frame) override;
+  void ClearCompositorFrame() override;
   void InitAsPopup(content::RenderWidgetHostView* parent_host_view,
                    const gfx::Rect& pos) override;
   void InitAsFullscreen(
@@ -134,9 +135,13 @@ class CefRenderWidgetHostViewOSR
                          int error_code) override;
   void Destroy() override;
   void SetTooltipText(const base::string16& tooltip_text) override;
+
+#if defined(OS_MACOSX)
   void SelectionChanged(const base::string16& text,
                         size_t offset,
                         const gfx::Range& range) override;
+#endif
+
   gfx::Size GetRequestedRendererSize() const override;
   gfx::Size GetPhysicalBackingSize() const override;
   void SelectionBoundsChanged(
@@ -144,23 +149,21 @@ class CefRenderWidgetHostViewOSR
   void CopyFromCompositingSurface(
       const gfx::Rect& src_subrect,
       const gfx::Size& dst_size,
-      content::ReadbackRequestCallback& callback,
+      const content::ReadbackRequestCallback& callback,
       const SkColorType color_type) override;
   void CopyFromCompositingSurfaceToVideoFrame(
       const gfx::Rect& src_subrect,
       const scoped_refptr<media::VideoFrame>& target,
       const base::Callback<void(bool)>& callback) override;
   bool CanCopyToVideoFrame() const override;
-  bool CanSubscribeFrame() const override;
   void BeginFrameSubscription(
       scoped_ptr<content::RenderWidgetHostViewFrameSubscriber> subscriber)
       override;
   void EndFrameSubscription() override;
-  void AcceleratedSurfaceInitialized(int route_id) override;
   bool HasAcceleratedSurface(const gfx::Size& desired_size) override;
   void GetScreenInfo(blink::WebScreenInfo* results) override;
+  bool GetScreenColorProfile(std::vector<char>* color_profile) override;
   gfx::Rect GetBoundsInRootWindow() override;
-  gfx::GLSurfaceHandle GetCompositingSurface() override;
   content::BrowserAccessibilityManager*
       CreateBrowserAccessibilityManager(
           content::BrowserAccessibilityDelegate* delegate) override;
@@ -256,6 +259,11 @@ class CefRenderWidgetHostViewOSR
 
   bool GetCachedFirstRectForCharacterRange(gfx::Range range, gfx::Rect* rect,
                                            gfx::Range* actual_range) const;
+
+  const std::string& selected_text() const { return selected_text_; }
+  const gfx::Range& composition_range() const { return composition_range_; }
+  const base::string16& selection_text() const { return selection_text_; }
+  size_t selection_text_offset() const { return selection_text_offset_; }
 #endif  // defined(OS_MACOSX)
 
   void AddGuestHostView(CefRenderWidgetHostViewOSR* guest_host);
@@ -376,6 +384,19 @@ class CefRenderWidgetHostViewOSR
 
 #if defined(OS_MACOSX)
   NSTextInputContext* text_input_context_osr_mac_;
+
+  // Selected text on the renderer.
+  std::string selected_text_;
+
+  // The current composition character range and its bounds.
+  gfx::Range composition_range_;
+  std::vector<gfx::Rect> composition_bounds_;
+
+  // The current caret bounds.
+  gfx::Rect caret_rect_;
+
+  // The current first selection bounds.
+  gfx::Rect first_selection_rect_;
 #endif
 
   base::WeakPtrFactory<CefRenderWidgetHostViewOSR> weak_ptr_factory_;

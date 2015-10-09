@@ -1,8 +1,8 @@
 diff --git public/renderer/content_renderer_client.cc public/renderer/content_renderer_client.cc
-index 9513339..75ddff8 100644
+index e09e803..ff26996 100644
 --- public/renderer/content_renderer_client.cc
 +++ public/renderer/content_renderer_client.cc
-@@ -103,6 +103,18 @@ bool ContentRendererClient::AllowPopup() {
+@@ -98,6 +98,18 @@ bool ContentRendererClient::AllowPopup() {
    return false;
  }
  
@@ -22,7 +22,7 @@ index 9513339..75ddff8 100644
                                         const GURL& url,
                                         const std::string& http_method,
 diff --git public/renderer/content_renderer_client.h public/renderer/content_renderer_client.h
-index ccf4b5f..91a5be3 100644
+index df8d501..f3a2068 100644
 --- public/renderer/content_renderer_client.h
 +++ public/renderer/content_renderer_client.h
 @@ -16,6 +16,8 @@
@@ -34,7 +34,7 @@ index ccf4b5f..91a5be3 100644
  #include "ui/base/page_transition_types.h"
  #include "v8/include/v8.h"
  
-@@ -198,6 +200,17 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -191,6 +193,17 @@ class CONTENT_EXPORT ContentRendererClient {
    // Returns true if a popup window should be allowed.
    virtual bool AllowPopup();
  
@@ -53,10 +53,10 @@ index ccf4b5f..91a5be3 100644
    // If |send_referrer| is set to false (which is the default), no referrer
    // header will be send for the navigation. Otherwise, the referrer header is
 diff --git renderer/render_frame_impl.cc renderer/render_frame_impl.cc
-index 8568626..9a746d2 100644
+index ff5d269..6ca4948 100644
 --- renderer/render_frame_impl.cc
 +++ renderer/render_frame_impl.cc
-@@ -4240,6 +4240,19 @@ void RenderFrameImpl::OnFailedNavigation(
+@@ -4274,6 +4274,19 @@ void RenderFrameImpl::OnFailedNavigation(
  WebNavigationPolicy RenderFrameImpl::DecidePolicyForNavigation(
      RenderFrame* render_frame,
      const NavigationPolicyInfo& info) {

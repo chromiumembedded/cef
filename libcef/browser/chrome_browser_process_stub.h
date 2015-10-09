@@ -39,8 +39,8 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   ProfileManager* profile_manager() override;
   PrefService* local_state() override;
   net::URLRequestContextGetter* system_request_context() override;
-  chrome_variations::VariationsService* variations_service() override;
-  PromoResourceService* promo_resource_service() override;
+  variations::VariationsService* variations_service() override;
+  web_resource::PromoResourceService* promo_resource_service() override;
   BrowserProcessPlatformPart* platform_part() override;
   extensions::EventRouterForwarder*
       extension_event_router_forwarder() override;
@@ -80,7 +80,7 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   void StartAutoupdateTimer() override;
 #endif
 
-  ChromeNetLog* net_log() override;
+  net_log::ChromeNetLog* net_log() override;
   component_updater::ComponentUpdateService*
       component_updater() override;
   CRLSetFetcher* crl_set_fetcher() override;
@@ -96,9 +96,9 @@ class ChromeBrowserProcessStub : public BrowserProcess {
 #endif
   network_time::NetworkTimeTracker* network_time_tracker() override;
   gcm::GCMDriver* gcm_driver() override;
-  memory::OomPriorityManager* GetOomPriorityManager() override;
   ShellIntegration::DefaultWebClientState
       CachedDefaultWebClientState() override;
+  memory::TabManager* GetTabManager() override;
 
  private:
   std::string locale_;

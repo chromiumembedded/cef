@@ -137,6 +137,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   void DidCreatePpapiPlugin(content::BrowserPpapiHost* browser_host) override;
   content::DevToolsManagerDelegate* GetDevToolsManagerDelegate()
       override;
+  ScopedVector<content::NavigationThrottle> CreateThrottlesForNavigation(
+      content::NavigationHandle* navigation_handle) override;
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
   void GetAdditionalMappedFilesForChildProcess(

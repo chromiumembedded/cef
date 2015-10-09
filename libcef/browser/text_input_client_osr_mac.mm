@@ -5,6 +5,7 @@
 #include "libcef/browser/text_input_client_osr_mac.h"
 #include "libcef/browser/browser_host_impl.h"
 
+#include "base/numerics/safe_conversions.h"
 #include "base/strings/sys_string_conversions.h"
 #import "content/browser/renderer_host/render_widget_host_view_mac_editcommand_helper.h"
 #import "content/browser/renderer_host/text_input_client_mac.h"
@@ -81,7 +82,9 @@ extern "C" {
 }
 
 - (NSRange)markedRange {
-  return hasMarkedText_ ? markedRange_ : NSMakeRange(NSNotFound, 0);
+  return hasMarkedText_ ?
+      renderWidgetHostView_->composition_range().ToNSRange() :
+      NSMakeRange(NSNotFound, 0);
 }
 
 - (BOOL)hasMarkedText {
@@ -192,10 +195,40 @@ extern "C" {
     actualRange:(NSRangePointer)actualRange {
   if (actualRange)
     *actualRange = range;
-  NSAttributedString* str = content::TextInputClientMac::GetInstance()->
-      GetAttributedSubstringFromRange(
-          renderWidgetHostView_->GetRenderWidgetHost(), range);
-  return str;
+
+  const gfx::Range requested_range(range);
+  if (requested_range.is_reversed())
+    return nil;
+
+  gfx::Range expected_range;
+  const base::string16* expected_text;
+
+  if (!renderWidgetHostView_->composition_range().is_empty()) {
+    expected_text = &markedText_;
+    expected_range = renderWidgetHostView_->composition_range();
+  } else {
+    expected_text = &renderWidgetHostView_->selection_text();
+    size_t offset = renderWidgetHostView_->selection_text_offset();
+    expected_range = gfx::Range(offset, offset + expected_text->size());
+  }
+
+  if (!expected_range.Contains(requested_range))
+    return nil;
+
+  // Gets the raw bytes to avoid unnecessary string copies for generating
+  // NSString.
+  const base::char16* bytes =
+      &(*expected_text)[requested_range.start() - expected_range.start()];
+  // Avoid integer overflow.
+  base::CheckedNumeric<size_t> requested_len = requested_range.length();
+  requested_len *= sizeof(base::char16);
+  NSUInteger bytes_len = base::strict_cast<NSUInteger, size_t>(
+      requested_len.ValueOrDefault(0));
+  base::scoped_nsobject<NSString> ns_string(
+      [[NSString alloc] initWithBytes:bytes
+                               length:bytes_len
+                             encoding:NSUTF16LittleEndianStringEncoding]);
+  return [[[NSAttributedString alloc] initWithString:ns_string] autorelease];
 }
 
 - (NSRect)firstViewRectForCharacterRange:(NSRange)theRange

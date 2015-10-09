@@ -33,8 +33,15 @@ static std::string GetMimeType(const std::string& filename) {
   base::ThreadRestrictions::ScopedAllowIO allow_io;
 
   std::string mime_type;
-  if (net::GetMimeTypeFromFile(FilePathFromASCII(filename), &mime_type))
+  const base::FilePath& file_path = FilePathFromASCII(filename);
+  if (net::GetMimeTypeFromFile(file_path, &mime_type))
     return mime_type;
+
+  // Check for newer extensions used by internal resources but not yet
+  // recognized by the mime type detector.
+  const std::string& extension = CefString(file_path.FinalExtension());
+  if (extension == ".woff2")
+    return "application/font-woff2";
 
   NOTREACHED() << "No known mime type for file: " << filename.c_str();
   return "text/plain";

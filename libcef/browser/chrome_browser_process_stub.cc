@@ -66,13 +66,14 @@ net::URLRequestContextGetter*
   return NULL;
 }
 
-chrome_variations::VariationsService*
+variations::VariationsService*
   ChromeBrowserProcessStub::variations_service() {
   NOTIMPLEMENTED();
   return NULL;
 }
 
-PromoResourceService* ChromeBrowserProcessStub::promo_resource_service() {
+web_resource::PromoResourceService*
+ChromeBrowserProcessStub::promo_resource_service() {
   NOTIMPLEMENTED();
   return NULL;
 }
@@ -217,7 +218,7 @@ void ChromeBrowserProcessStub::StartAutoupdateTimer() {
 }
 #endif
 
-ChromeNetLog* ChromeBrowserProcessStub::net_log() {
+net_log::ChromeNetLog* ChromeBrowserProcessStub::net_log() {
   NOTIMPLEMENTED();
   return NULL;
 }
@@ -273,13 +274,13 @@ gcm::GCMDriver* ChromeBrowserProcessStub::gcm_driver() {
   return NULL;
 }
 
-memory::OomPriorityManager* ChromeBrowserProcessStub::GetOomPriorityManager() {
-  NOTIMPLEMENTED();
-  return NULL;
-}
-
 ShellIntegration::DefaultWebClientState
 ChromeBrowserProcessStub::CachedDefaultWebClientState() {
   NOTIMPLEMENTED();
   return ShellIntegration::UNKNOWN_DEFAULT;
+}
+
+memory::TabManager* ChromeBrowserProcessStub::GetTabManager() {
+  NOTIMPLEMENTED();
+  return NULL;
 }

@@ -192,19 +192,6 @@ macro(FIX_MACOSX_MAIN_FRAMEWORK_LINK target app_path)
     )
 endmacro()
 
-# Make the other helper app bundles.
-macro(MAKE_MACOSX_HELPERS target app_path)
-  add_custom_command(TARGET ${target}
-    POST_BUILD
-    # The exported variables need to be set for generators other than Xcode.
-    COMMAND export BUILT_PRODUCTS_DIR=${app_path} &&
-            export CONTENTS_FOLDER_PATH=/Contents &&
-            tools/make_more_helpers.sh "Frameworks" "${target}"
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-    VERBATIM
-    )
-endmacro()
-
 # Manually process and copy over resource files.
 macro(COPY_MACOSX_RESOURCES resource_list prefix_list target source_dir app_path)
   foreach(FILENAME ${resource_list})

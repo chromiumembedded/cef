@@ -29,6 +29,7 @@
 #include "content/public/common/url_constants.h"
 #include "content/public/common/user_agent.h"
 #include "grit/cef_resources.h"
+#include "grit/components_resources.h"
 #include "ipc/ipc_channel.h"
 #include "net/url_request/url_request.h"
 #include "ui/base/webui/web_ui_util.h"
@@ -274,10 +275,10 @@ class Delegate : public InternalHandlerDelegate {
 
   bool OnCredits(const std::string& path, Action* action) {
     if (path == "credits.js") {
-      action->resource_id = IDR_CEF_CREDITS_JS;
+      action->resource_id = IDR_ABOUT_UI_CREDITS_JS;
     } else {
       action->mime_type = "text/html";
-      action->resource_id = IDR_CEF_CREDITS_HTML;
+      action->resource_id = IDR_ABOUT_UI_CREDITS_HTML;
     }
     return true;
   }

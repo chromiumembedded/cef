@@ -30,6 +30,7 @@
 #include "libcef/common/command_line_impl.h"
 #include "libcef/common/content_client.h"
 #include "libcef/common/extensions/extensions_util.h"
+#include "libcef/common/request_impl.h"
 #include "libcef/common/scheme_registration.h"
 
 #include "base/base_switches.h"
@@ -38,13 +39,19 @@
 #include "base/path_service.h"
 #include "chrome/browser/spellchecker/spellcheck_message_filter.h"
 #include "chrome/common/chrome_switches.h"
+#include "components/navigation_interception/intercept_navigation_throttle.h"
+#include "components/navigation_interception/navigation_params.h"
+#include "content/browser/frame_host/navigation_handle_impl.h"
+#include "content/browser/frame_host/render_frame_host_impl.h"
 #include "content/browser/plugin_service_impl.h"
 #include "content/public/browser/access_token_store.h"
 #include "content/public/browser/browser_ppapi_host.h"
 #include "content/public/browser/browser_url_handler.h"
 #include "content/public/browser/child_process_security_policy.h"
 #include "content/public/browser/client_certificate_delegate.h"
+#include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/quota_permission_context.h"
+#include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host_view.h"
@@ -70,8 +77,8 @@
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
 #include "base/debug/leak_annotations.h"
-#include "components/crash/app/breakpad_linux.h"
-#include "components/crash/browser/crash_handler_host_linux.h"
+#include "components/crash/content/app/breakpad_linux.h"
+#include "components/crash/content/browser/crash_handler_host_linux.h"
 #include "content/public/common/content_descriptors.h"
 #endif
 
@@ -352,6 +359,67 @@ int GetCrashSignalFD(const base::CommandLine& command_line) {
   return -1;
 }
 #endif  // defined(OS_POSIX) && !defined(OS_MACOSX)
+
+// TODO(cef): We can't currently trust NavigationParams::is_main_frame() because
+// it's always set to true in
+// InterceptNavigationThrottle::CheckIfShouldIgnoreNavigation. Remove the
+// |is_main_frame| argument once this problem is fixed.
+bool NavigationOnUIThread(
+    bool is_main_frame,
+    int64 frame_id,
+    int64 parent_frame_id,
+    content::WebContents* source,
+    const navigation_interception::NavigationParams& params) {
+  CEF_REQUIRE_UIT();
+
+  bool ignore_navigation = false;
+
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserForContents(source);
+  if (browser.get()) {
+    CefRefPtr<CefClient> client = browser->GetClient();
+    if (client.get()) {
+      CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
+      if (handler.get()) {
+        CefRefPtr<CefFrame> frame;
+        if (is_main_frame) {
+          frame = browser->GetMainFrame();
+        } else if (frame_id >= 0) {
+          frame = browser->GetFrame(frame_id);
+          DCHECK(frame);
+        } else {
+          // Create a temporary frame object for navigation of sub-frames that
+          // don't yet exist.
+          frame = new CefFrameHostImpl(browser.get(),
+                                       CefFrameHostImpl::kInvalidFrameId,
+                                       false,
+                                       CefString(),
+                                       CefString(),
+                                       parent_frame_id);
+        }
+
+        CefRefPtr<CefRequestImpl> request = new CefRequestImpl();
+        request->Set(params, is_main_frame);
+        request->SetReadOnly(true);
+
+        ignore_navigation = handler->OnBeforeBrowse(
+            browser.get(), frame, request.get(), params.is_redirect());
+      }
+    }
+  }
+
+  return ignore_navigation;
+}
+
+void FindFrameHostForNavigationHandle(
+    content::NavigationHandle* navigation_handle,
+    content::RenderFrameHost** matching_frame_host,
+    content::RenderFrameHost* current_frame_host) {
+  content::RenderFrameHostImpl* current_impl =
+      static_cast<content::RenderFrameHostImpl*>(current_frame_host);
+  if (current_impl->navigation_handle() == navigation_handle)
+    *matching_frame_host = current_frame_host;
+}
 
 }  // namespace
 
@@ -962,6 +1030,51 @@ void CefContentBrowserClient::DidCreatePpapiPlugin(
 content::DevToolsManagerDelegate*
     CefContentBrowserClient::GetDevToolsManagerDelegate() {
   return new CefDevToolsManagerDelegate();
+}
+
+ScopedVector<content::NavigationThrottle>
+CefContentBrowserClient::CreateThrottlesForNavigation(
+    content::NavigationHandle* navigation_handle) {
+  CEF_REQUIRE_UIT();
+
+  ScopedVector<content::NavigationThrottle> throttles;
+
+  const bool is_main_frame = navigation_handle->IsInMainFrame();
+
+  int64 parent_frame_id = CefFrameHostImpl::kUnspecifiedFrameId;
+  if (!is_main_frame) {
+    // Identify the RenderFrameHostImpl that originated the navigation.
+    // TODO(cef): It would be better if NavigationHandle could directly report
+    // the owner RenderFrameHostImpl.
+    // There is additional complexity here if PlzNavigate is enabled. See
+    // comments in content/browser/frame_host/navigation_handle_impl.h.
+    content::WebContents* web_contents = navigation_handle->GetWebContents();
+    content::RenderFrameHost* parent_frame_host = NULL;
+    web_contents->ForEachFrame(
+        base::Bind(FindFrameHostForNavigationHandle,
+                   navigation_handle, &parent_frame_host));
+    DCHECK(parent_frame_host);
+
+    parent_frame_id = parent_frame_host->GetRoutingID();
+    if (parent_frame_id < 0)
+      parent_frame_id = CefFrameHostImpl::kUnspecifiedFrameId;
+  }
+
+  int64 frame_id = CefFrameHostImpl::kInvalidFrameId;
+  if (!is_main_frame && navigation_handle->HasCommitted()) {
+    frame_id = navigation_handle->GetRenderFrameHost()->GetRoutingID();
+    if (frame_id < 0)
+      frame_id = CefFrameHostImpl::kInvalidFrameId;
+  }
+
+  content::NavigationThrottle* throttle =
+      new navigation_interception::InterceptNavigationThrottle(
+          navigation_handle,
+          base::Bind(&NavigationOnUIThread, is_main_frame, frame_id,
+                     parent_frame_id));
+  throttles.push_back(throttle);
+
+  return throttles.Pass();
 }
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
