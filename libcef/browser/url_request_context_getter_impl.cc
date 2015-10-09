@@ -53,8 +53,8 @@
 #include "net/url_request/url_request_job_factory_impl.h"
 #include "net/url_request/url_request_job_manager.h"
 
-#if defined(USE_NSS)
-#include "net/ocsp/nss_ocsp.h"
+#if defined(USE_NSS_CERTS)
+#include "net/cert_net/nss_ocsp.h"
 #endif
 
 using content::BrowserThread;
@@ -262,7 +262,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
 
     storage_->set_job_factory(top_job_factory.release());
 
-#if defined(USE_NSS)
+#if defined(USE_NSS_CERTS)
     // Only do this for the first (global) request context.
     static bool request_context_for_nss_set = false;
     if (!request_context_for_nss_set) {
