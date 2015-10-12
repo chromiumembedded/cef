@@ -2554,7 +2554,7 @@ template <typename Runnable, typename RunType, typename BoundArgsType>
 struct BindState;
 
 template <typename Runnable, typename RunType>
-struct BindState<Runnable, RunType, void()> final : public BindStateBase {
+struct BindState<Runnable, RunType, void()> : public BindStateBase {
   typedef Runnable RunnableType;
   typedef false_type IsWeakCall;
   typedef Invoker<0, BindState, RunType> InvokerType;
@@ -2574,7 +2574,7 @@ struct BindState<Runnable, RunType, void()> final : public BindStateBase {
 };
 
 template <typename Runnable, typename RunType, typename P1>
-struct BindState<Runnable, RunType, void(P1)> final : public BindStateBase {
+struct BindState<Runnable, RunType, void(P1)> : public BindStateBase {
   typedef Runnable RunnableType;
   typedef IsWeakMethod<HasIsMethodTag<Runnable>::value, P1> IsWeakCall;
   typedef Invoker<1, BindState, RunType> InvokerType;
@@ -2602,7 +2602,7 @@ struct BindState<Runnable, RunType, void(P1)> final : public BindStateBase {
 };
 
 template <typename Runnable, typename RunType, typename P1, typename P2>
-struct BindState<Runnable, RunType, void(P1, P2)> final : public BindStateBase {
+struct BindState<Runnable, RunType, void(P1, P2)> : public BindStateBase {
   typedef Runnable RunnableType;
   typedef IsWeakMethod<HasIsMethodTag<Runnable>::value, P1> IsWeakCall;
   typedef Invoker<2, BindState, RunType> InvokerType;
@@ -2634,7 +2634,7 @@ struct BindState<Runnable, RunType, void(P1, P2)> final : public BindStateBase {
 
 template <typename Runnable, typename RunType, typename P1, typename P2,
     typename P3>
-struct BindState<Runnable, RunType, void(P1, P2, P3)> final
+struct BindState<Runnable, RunType, void(P1, P2, P3)>
     : public BindStateBase {
   typedef Runnable RunnableType;
   typedef IsWeakMethod<HasIsMethodTag<Runnable>::value, P1> IsWeakCall;
@@ -2670,7 +2670,7 @@ struct BindState<Runnable, RunType, void(P1, P2, P3)> final
 
 template <typename Runnable, typename RunType, typename P1, typename P2,
     typename P3, typename P4>
-struct BindState<Runnable, RunType, void(P1, P2, P3, P4)> final
+struct BindState<Runnable, RunType, void(P1, P2, P3, P4)>
     : public BindStateBase {
   typedef Runnable RunnableType;
   typedef IsWeakMethod<HasIsMethodTag<Runnable>::value, P1> IsWeakCall;
@@ -2710,7 +2710,7 @@ struct BindState<Runnable, RunType, void(P1, P2, P3, P4)> final
 
 template <typename Runnable, typename RunType, typename P1, typename P2,
     typename P3, typename P4, typename P5>
-struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5)> final
+struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5)>
     : public BindStateBase {
   typedef Runnable RunnableType;
   typedef IsWeakMethod<HasIsMethodTag<Runnable>::value, P1> IsWeakCall;
@@ -2753,7 +2753,7 @@ struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5)> final
 
 template <typename Runnable, typename RunType, typename P1, typename P2,
     typename P3, typename P4, typename P5, typename P6>
-struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5, P6)> final
+struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5, P6)>
     : public BindStateBase {
   typedef Runnable RunnableType;
   typedef IsWeakMethod<HasIsMethodTag<Runnable>::value, P1> IsWeakCall;
@@ -2799,7 +2799,7 @@ struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5, P6)> final
 
 template <typename Runnable, typename RunType, typename P1, typename P2,
     typename P3, typename P4, typename P5, typename P6, typename P7>
-struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5, P6, P7)> final
+struct BindState<Runnable, RunType, void(P1, P2, P3, P4, P5, P6, P7)>
     : public BindStateBase {
   typedef Runnable RunnableType;
   typedef IsWeakMethod<HasIsMethodTag<Runnable>::value, P1> IsWeakCall;
