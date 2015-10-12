@@ -26,6 +26,7 @@ class DispatcherDelegate;
 class ExtensionsClient;
 class ExtensionsGuestViewContainerDispatcher;
 class ExtensionsRendererClient;
+class ResourceRequestPolicy;
 }
 
 namespace web_cache {
@@ -96,6 +97,11 @@ class CefContentRendererClient : public content::ContentRendererClient,
                         blink::WebNavigationType type,
                         blink::WebNavigationPolicy default_policy,
                         bool is_redirect) override;
+  bool WillSendRequest(blink::WebFrame* frame,
+                       ui::PageTransition transition_type,
+                       const GURL& url,
+                       const GURL& first_party_for_cookies,
+                       GURL* new_url) override;
   content::BrowserPluginDelegate* CreateBrowserPluginDelegate(
       content::RenderFrame* render_frame,
       const std::string& mime_type,
@@ -142,6 +148,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
   scoped_ptr<extensions::Dispatcher> extension_dispatcher_;
   scoped_ptr<extensions::ExtensionsGuestViewContainerDispatcher>
       guest_view_container_dispatcher_;
+  scoped_ptr<extensions::ResourceRequestPolicy> resource_request_policy_;
 
   int devtools_agent_count_;
   int uncaught_exception_stack_size_;

@@ -35,8 +35,10 @@
 #include "base/strings/utf_string_conversions.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pepper_permission_util.h"
+#include "chrome/common/url_constants.h"
 #include "chrome/grit/generated_resources.h"
 #include "chrome/renderer/content_settings_observer.h"
+#include "chrome/renderer/extensions/resource_request_policy.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
 #include "chrome/renderer/pepper/chrome_pdf_print_client.h"
 #include "chrome/renderer/spellchecker/spellcheck.h"
@@ -57,6 +59,7 @@
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/render_view_visitor.h"
 #include "content/renderer/render_frame_impl.h"
+#include "extensions/common/constants.h"
 #include "extensions/renderer/dispatcher.h"
 #include "extensions/renderer/dispatcher_delegate.h"
 #include "extensions/renderer/extension_frame_helper.h"
@@ -418,6 +421,9 @@ void CefContentRendererClient::RenderThreadStarted() {
     guest_view_container_dispatcher_.reset(
         new extensions::ExtensionsGuestViewContainerDispatcher());
     thread->AddObserver(guest_view_container_dispatcher_.get());
+
+    resource_request_policy_.reset(
+      new extensions::ResourceRequestPolicy(extension_dispatcher_.get()));
   }
 
   // Notify the render process handler.
@@ -553,6 +559,33 @@ bool CefContentRendererClient::HandleNavigation(
           return true;
         }
       }
+    }
+  }
+
+  return false;
+}
+
+bool CefContentRendererClient::WillSendRequest(
+    blink::WebFrame* frame,
+    ui::PageTransition transition_type,
+    const GURL& url,
+    const GURL& first_party_for_cookies,
+    GURL* new_url) {
+  if (extensions::ExtensionsEnabled()) {
+    // Check whether the request should be allowed. If not allowed, we reset the
+    // URL to something invalid to prevent the request and cause an error.
+    if (url.SchemeIs(extensions::kExtensionScheme) &&
+        !resource_request_policy_->CanRequestResource(url, frame,
+                                                      transition_type)) {
+      *new_url = GURL(chrome::kExtensionInvalidRequestURL);
+      return true;
+    }
+
+    if (url.SchemeIs(extensions::kExtensionResourceScheme) &&
+        !resource_request_policy_->CanRequestExtensionResourceScheme(url,
+                                                                     frame)) {
+      *new_url = GURL(chrome::kExtensionResourceInvalidRequestURL);
+      return true;
     }
   }
 

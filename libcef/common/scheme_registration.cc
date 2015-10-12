@@ -15,8 +15,10 @@ void AddInternalSchemes(std::vector<std::string>* standard_schemes,
                         std::vector<std::string>* savable_schemes) {
   // chrome: and chrome-devtools: schemes are registered in
   // RenderThreadImpl::RegisterSchemes().
+  // Access restrictions for chrome-extension: and chrome-extension-resource:
+  // schemes will be applied in CefContentRendererClient::WillSendRequest().
   static CefContentClient::SchemeInfo schemes[] = {
-    { extensions::kExtensionScheme,         true,  true,  false, true  },
+    { extensions::kExtensionScheme,         true,  true,  false, false },
     { extensions::kExtensionResourceScheme, true,  true,  false, false },
   };
 
