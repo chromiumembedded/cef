@@ -10,6 +10,7 @@
 // for more information.
 //
 
+#include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/print_dialog_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/print_job_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/print_settings_cpptoc.h"
@@ -17,6 +18,23 @@
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
+
+void CefPrintHandlerCToCpp::OnPrintStart(CefRefPtr<CefBrowser> browser) {
+  cef_print_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_print_start))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+
+  // Execute
+  _struct->on_print_start(_struct,
+      CefBrowserCppToC::Wrap(browser));
+}
 
 void CefPrintHandlerCToCpp::OnPrintSettings(
     CefRefPtr<CefPrintSettings> settings, bool get_defaults) {

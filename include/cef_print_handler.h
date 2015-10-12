@@ -83,6 +83,15 @@ class CefPrintJobCallback : public virtual CefBase {
 class CefPrintHandler : public virtual CefBase {
  public:
   ///
+  // Called when printing has started for the specified |browser|. This method
+  // will be called before the other OnPrint*() methods and irrespective of how
+  // printing was initiated (e.g. CefBrowserHost::Print(), JavaScript
+  // window.print() or PDF extension print button).
+  ///
+  /*--cef()--*/
+  virtual void OnPrintStart(CefRefPtr<CefBrowser> browser) =0;
+
+  ///
   // Synchronize |settings| with client state. If |get_defaults| is true then
   // populate |settings| with the default print settings. Do not keep a
   // reference to |settings| outside of this callback.

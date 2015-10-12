@@ -7,7 +7,10 @@
 
 #include <vector>
 
+#include "libcef/browser/browser_host_impl.h"
+
 namespace content {
+class RenderViewHost;
 class WebContents;
 }
 
@@ -23,6 +26,15 @@ void GetAllGuestsForOwnerContents(content::WebContents* owner,
 
 // Returns the WebContents that owns the specified |guest|, if any.
 content::WebContents* GetOwnerForGuestContents(content::WebContents* guest);
+
+// Returns the CefBrowserHostImpl that owns the host identified by the specified
+// view routing IDs, if any.
+CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForView(int render_process_id,
+                                                     int render_routing_id);
+
+// Returns the CefBrowserHostImpl that owns the specified |host|, if any.
+CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForHost(
+    content::RenderViewHost* host);
 
 }  // namespace extensions
 

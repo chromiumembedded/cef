@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/print_settings_impl.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/content_client.h"
@@ -132,6 +134,35 @@ gfx::Size CefPrintDialogLinux::GetPdfPaperSize(
                   "PDF printing will fail.";
   }
   return size;
+}
+
+// static
+void CefPrintDialogLinux::OnPrintStart(int render_process_id,
+                                       int render_routing_id) {
+  if (!CEF_CURRENTLY_ON(CEF_UIT)) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefPrintDialogLinux::OnPrintStart,
+                   render_process_id, render_routing_id));
+    return;
+  }
+
+  CefRefPtr<CefApp> app = CefContentClient::Get()->application();
+  if (!app.get())
+    return;
+
+  CefRefPtr<CefBrowserProcessHandler> browser_handler =
+      app->GetBrowserProcessHandler();
+  if (!browser_handler.get())
+    return;
+
+  CefRefPtr<CefPrintHandler> handler = browser_handler->GetPrintHandler();
+  if (!handler.get())
+    return;
+
+  CefRefPtr<CefBrowserHostImpl> browser =
+      extensions::GetOwnerBrowserForView(render_process_id, render_routing_id);
+  if (browser.get())
+    handler->OnPrintStart(browser.get());
 }
 
 CefPrintDialogLinux::CefPrintDialogLinux(PrintingContextLinux* context)

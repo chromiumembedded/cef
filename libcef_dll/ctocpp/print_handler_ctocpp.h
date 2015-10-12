@@ -31,6 +31,7 @@ class CefPrintHandlerCToCpp
   CefPrintHandlerCToCpp();
 
   // CefPrintHandler methods.
+  void OnPrintStart(CefRefPtr<CefBrowser> browser) override;
   void OnPrintSettings(CefRefPtr<CefPrintSettings> settings,
       bool get_defaults) override;
   bool OnPrintDialog(bool has_selection,

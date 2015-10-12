@@ -282,6 +282,9 @@ ClientPrintHandlerGtk::ClientPrintHandlerGtk()
       printer_(NULL) {
 }
 
+void ClientPrintHandlerGtk::OnPrintStart(CefRefPtr<CefBrowser> browser) {
+}
+
 void ClientPrintHandlerGtk::OnPrintSettings(
     CefRefPtr<CefPrintSettings> settings,
     bool get_defaults) {

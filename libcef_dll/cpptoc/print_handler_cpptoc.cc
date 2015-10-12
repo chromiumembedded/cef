@@ -11,6 +11,7 @@
 //
 
 #include "libcef_dll/cpptoc/print_handler_cpptoc.h"
+#include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/print_dialog_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/print_job_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/print_settings_ctocpp.h"
@@ -19,6 +20,23 @@
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
+
+void CEF_CALLBACK print_handler_on_print_start(
+    struct _cef_print_handler_t* self, cef_browser_t* browser) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+
+  // Execute
+  CefPrintHandlerCppToC::Get(self)->OnPrintStart(
+      CefBrowserCToCpp::Wrap(browser));
+}
 
 void CEF_CALLBACK print_handler_on_print_settings(
     struct _cef_print_handler_t* self, struct _cef_print_settings_t* settings,
@@ -126,6 +144,7 @@ cef_size_t CEF_CALLBACK print_handler_get_pdf_paper_size(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefPrintHandlerCppToC::CefPrintHandlerCppToC() {
+  GetStruct()->on_print_start = print_handler_on_print_start;
   GetStruct()->on_print_settings = print_handler_on_print_settings;
   GetStruct()->on_print_dialog = print_handler_on_print_dialog;
   GetStruct()->on_print_job = print_handler_on_print_job;

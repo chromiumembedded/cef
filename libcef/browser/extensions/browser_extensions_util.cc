@@ -4,6 +4,8 @@
 
 #include "libcef/browser/extensions/browser_extensions_util.h"
 
+#include "libcef/common/extensions/extensions_util.h"
+
 #include "content/browser/browser_plugin/browser_plugin_embedder.h"
 #include "content/browser/browser_plugin/browser_plugin_guest.h"
 #include "content/browser/web_contents/web_contents_impl.h"
@@ -53,6 +55,29 @@ content::WebContents* GetOwnerForGuestContents(content::WebContents* guest) {
   if (plugin_guest)
     return plugin_guest->embedder_web_contents();
   return NULL;
+}
+
+CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForView(int render_process_id,
+                                                     int render_routing_id) {
+  content::RenderViewHost* host =
+      content::RenderViewHost::FromID(render_process_id, render_routing_id);
+  if (host)
+    return GetOwnerBrowserForHost(host);
+  return NULL;
+}
+
+CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForHost(
+    content::RenderViewHost* host) {
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserForHost(host);
+  if (!browser.get() && ExtensionsEnabled()) {
+    // Retrieve the owner browser, if any.
+    content::WebContents* owner = GetOwnerForGuestContents(
+        content::WebContents::FromRenderViewHost(host));
+    if (owner)
+      browser = CefBrowserHostImpl::GetBrowserForContents(owner);
+  }
+  return browser;
 }
 
 }  // namespace extensions
