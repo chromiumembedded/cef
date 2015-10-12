@@ -17,6 +17,10 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/child_process_host.h"
 
+#if defined(OS_LINUX)
+#include "libcef/browser/printing/print_dialog_linux.h"
+#endif
+
 using content::BrowserThread;
 
 namespace printing {
@@ -72,6 +76,12 @@ void PrintingMessageFilter::OnIsPrintingEnabled(bool* is_enabled) {
 
 void PrintingMessageFilter::OnGetDefaultPrintSettings(IPC::Message* reply_msg) {
   DCHECK_CURRENTLY_ON(BrowserThread::IO);
+#if defined(OS_LINUX)
+  // Send notification to the client.
+  CefPrintDialogLinux::OnPrintStart(render_process_id_,
+                                    reply_msg->routing_id());
+#endif
+
   scoped_refptr<PrinterQuery> printer_query;
   printer_query = queue_->PopPrinterQuery(0);
   if (!printer_query.get()) {

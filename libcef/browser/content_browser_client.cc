@@ -985,15 +985,7 @@ void CefContentBrowserClient::OverrideWebkitPrefs(
       base::CommandLine::ForCurrentProcess();
 
   CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForHost(rvh);
-  if (!browser.get() && extensions::ExtensionsEnabled()) {
-    // Retrieve the owner browser, if any.
-    content::WebContents* owner = extensions::GetOwnerForGuestContents(
-        content::WebContents::FromRenderViewHost(rvh));
-    if (owner)
-      browser = CefBrowserHostImpl::GetBrowserForContents(owner);
-  }
-
+      extensions::GetOwnerBrowserForHost(rvh);
   if (browser.get()) {
     // Populate WebPreferences based on CefBrowserSettings.
     BrowserToWebSettings(browser->settings(), *prefs);

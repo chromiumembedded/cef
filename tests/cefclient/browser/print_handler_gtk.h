@@ -19,6 +19,7 @@ class ClientPrintHandlerGtk : public CefPrintHandler {
   ClientPrintHandlerGtk();
 
   // CefPrintHandler methods.
+  void OnPrintStart(CefRefPtr<CefBrowser> browser) OVERRIDE;
   void OnPrintSettings(CefRefPtr<CefPrintSettings> settings,
                        bool get_defaults) OVERRIDE;
   bool OnPrintDialog(
