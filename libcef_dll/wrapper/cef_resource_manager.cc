@@ -22,13 +22,10 @@ namespace {
   
 // Returns |url| without the query or fragment components, if any.
 std::string GetUrlWithoutQueryOrFragment(const std::string& url) {
-  size_t query_pos = url.find('?');
-  if (query_pos != std::string::npos)
-    return url.substr(0, query_pos);
-
-  size_t fragment_pos = url.find('#');
-  if (fragment_pos != std::string::npos)
-    return url.substr(0, fragment_pos);
+  // Find the first instance of '?' or '#'.
+  const size_t pos = std::min(url.find('?'), url.find('#'));
+  if (pos != std::string::npos)
+    return url.substr(0, pos);
 
   return url;
 }

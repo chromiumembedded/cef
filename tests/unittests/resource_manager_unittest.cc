@@ -194,6 +194,7 @@ class TestProvider : public CefResourceManager::Provider {
     TrackCallback got_on_request_;
     TrackCallback got_on_request_canceled_;
     TrackCallback got_destruct_;
+    std::string request_url_;
   };
 
   explicit TestProvider(State* state)
@@ -212,6 +213,7 @@ class TestProvider : public CefResourceManager::Provider {
     EXPECT_FALSE(state_->got_on_request_canceled_);
 
     state_->got_on_request_.yes();
+    state_->request_url_ = request->url();
 
     return false;
   }
@@ -223,6 +225,7 @@ class TestProvider : public CefResourceManager::Provider {
     EXPECT_FALSE(state_->got_on_request_canceled_);
 
     state_->got_on_request_canceled_.yes();
+    EXPECT_STREQ(state_->request_url_.c_str(), request->url().c_str());
   }
 
  private:
@@ -230,6 +233,67 @@ class TestProvider : public CefResourceManager::Provider {
 
   DISALLOW_COPY_AND_ASSIGN(TestProvider);
 };
+
+// Test that that the URL retrieved via Request::url() is parsed as expected.
+// Fragment or query components in any order should be removed.
+void TestUrlParsing(const char *kUrl) {
+  const char kRequestUrl[] = "http://test.com/ResourceManagerTest";
+
+  ResourceManagerTestHandler::State state;
+  state.urls_.push_back(kUrl);
+
+  TestProvider::State provider_state;
+
+  state.manager_->AddProvider(new TestProvider(&provider_state), 0,
+                              std::string());
+
+  CefRefPtr<ResourceManagerTestHandler> handler =
+      new ResourceManagerTestHandler(&state);
+  handler->ExecuteTest();
+
+  ReleaseAndWaitForDestructor(handler);
+
+  state.manager_ = NULL;
+
+  // Wait for the manager to be deleted.
+  WaitForIOThread();
+
+  // The provider is called.
+  EXPECT_TRUE(provider_state.got_on_request_);
+  EXPECT_FALSE(provider_state.got_on_request_canceled_);
+  EXPECT_TRUE(provider_state.got_destruct_);
+
+  // The expected URL is received.
+  EXPECT_STREQ(kRequestUrl, provider_state.request_url_.c_str());
+
+  // The request is not handled.
+  EXPECT_EQ(state.messages_.size(), 1U);
+  EXPECT_EQ(CreateMessage(kDoneMsg, kNotHandled), state.messages_[0]);
+}
+
+}  // namespace
+
+TEST(ResourceManagerTest, UrlParsingNoQueryOrFragment) {
+  TestUrlParsing("http://test.com/ResourceManagerTest");
+}
+
+TEST(ResourceManagerTest, UrlParsingWithQuery) {
+  TestUrlParsing("http://test.com/ResourceManagerTest?foo=bar&choo=too");
+}
+
+TEST(ResourceManagerTest, UrlParsingWithFragment) {
+  TestUrlParsing("http://test.com/ResourceManagerTest#some/fragment");
+}
+
+TEST(ResourceManagerTest, UrlParsingWithQueryAndFragment) {
+  TestUrlParsing("http://test.com/ResourceManagerTest?foo=bar#some/fragment");
+}
+
+TEST(ResourceManagerTest, UrlParsingWithFragmentAndQuery) {
+  TestUrlParsing("http://test.com/ResourceManagerTest#some/fragment?foo=bar");
+}
+
+namespace {
 
 const char kProviderId[] = "provider";
 
