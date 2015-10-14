@@ -603,7 +603,31 @@ gboolean RootWindowGtk::URLEntryButtonPress(GtkWidget* widget,
   GdkWindow* gdk_window = gtk_widget_get_window(window);
   ::Display* xdisplay = GDK_WINDOW_XDISPLAY(gdk_window);
   ::Window xwindow = GDK_WINDOW_XID(gdk_window);
-  XSetInputFocus(xdisplay, xwindow, RevertToParent, CurrentTime);
+
+  // Retrieve the atoms required by the below XSendEvent call.
+  const char* kAtoms[] = {
+    "WM_PROTOCOLS",
+    "WM_TAKE_FOCUS"
+  };
+  Atom atoms[2];
+  int result = XInternAtoms(xdisplay, const_cast<char**>(kAtoms), 2, false,
+                            atoms);
+  if (!result)
+    NOTREACHED();
+
+  XEvent e;
+  e.type = ClientMessage;
+  e.xany.display = xdisplay;
+  e.xany.window = xwindow;
+  e.xclient.format = 32;
+  e.xclient.message_type = atoms[0];
+  e.xclient.data.l[0] = atoms[1];
+  e.xclient.data.l[1] = CurrentTime;
+  e.xclient.data.l[2] = 0;
+  e.xclient.data.l[3] = 0;
+  e.xclient.data.l[4] = 0;
+
+  XSendEvent(xdisplay, xwindow, false, 0, &e);
 
   return FALSE;
 }
