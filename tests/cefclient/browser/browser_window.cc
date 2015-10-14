@@ -48,8 +48,10 @@ void BrowserWindow::OnBrowserClosing(CefRefPtr<CefBrowser> browser) {
 
 void BrowserWindow::OnBrowserClosed(CefRefPtr<CefBrowser> browser) {
   REQUIRE_MAIN_THREAD();
-  DCHECK_EQ(browser->GetIdentifier(), browser_->GetIdentifier());
-  browser_ = NULL;
+  if (browser_.get()) {
+    DCHECK_EQ(browser->GetIdentifier(), browser_->GetIdentifier());
+    browser_ = NULL;
+  }
 
   client_handler_->DetachDelegate();
   client_handler_ = NULL;
