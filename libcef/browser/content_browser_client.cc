@@ -65,6 +65,7 @@
 #include "extensions/browser/guest_view/extensions_guest_view_message_filter.h"
 #include "extensions/browser/io_thread_extension_message_filter.h"
 #include "extensions/common/constants.h"
+#include "extensions/common/switches.h"
 #include "net/ssl/ssl_cert_request_info.h"
 #include "ppapi/host/ppapi_host.h"
 #include "third_party/WebKit/public/web/WebWindowFeatures.h"
@@ -324,6 +325,14 @@ breakpad::CrashHandlerHostLinux* CreateCrashHandlerHost(
 int GetCrashSignalFD(const base::CommandLine& command_line) {
   if (!breakpad::IsCrashReporterEnabled())
     return -1;
+
+  // Extensions have the same process type as renderers.
+  if (command_line.HasSwitch(extensions::switches::kExtensionProcess)) {
+    static breakpad::CrashHandlerHostLinux* crash_handler = NULL;
+    if (!crash_handler)
+      crash_handler = CreateCrashHandlerHost("extension");
+    return crash_handler->GetDeathSignalSocket();
+  }
 
   std::string process_type =
       command_line.GetSwitchValueASCII(switches::kProcessType);
@@ -756,6 +765,20 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));
+
+    if (extensions::ExtensionsEnabled()) {
+      // Based on ChromeContentBrowserClientExtensionsPart::
+      // AppendExtraRendererCommandLineSwitches
+      content::RenderProcessHost* process =
+          content::RenderProcessHost::FromID(child_process_id);
+      content::BrowserContext* browser_context =
+          process ? process->GetBrowserContext() : NULL;
+      if (browser_context &&
+          extensions::ProcessMap::Get(browser_context)->Contains(
+              process->GetID())) {
+        command_line->AppendSwitch(extensions::switches::kExtensionProcess);
+      }
+    }
   }
 
 #if defined(OS_LINUX)

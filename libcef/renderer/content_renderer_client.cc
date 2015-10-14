@@ -34,6 +34,7 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/utf_string_conversions.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/extensions/extension_process_policy.h"
 #include "chrome/common/pepper_permission_util.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/grit/generated_resources.h"
@@ -60,6 +61,7 @@
 #include "content/public/renderer/render_view_visitor.h"
 #include "content/renderer/render_frame_impl.h"
 #include "extensions/common/constants.h"
+#include "extensions/common/switches.h"
 #include "extensions/renderer/dispatcher.h"
 #include "extensions/renderer/dispatcher_delegate.h"
 #include "extensions/renderer/extension_frame_helper.h"
@@ -161,6 +163,67 @@ std::string GetPluginInstancePosterAttribute(
     }
   }
   return std::string();
+}
+
+bool IsStandaloneExtensionProcess() {
+  return base::CommandLine::ForCurrentProcess()->HasSwitch(
+      extensions::switches::kExtensionProcess);
+}
+
+bool CrossesExtensionExtents(
+    blink::WebLocalFrame* frame,
+    const GURL& new_url,
+    bool is_extension_url,
+    bool is_initial_navigation) {
+  DCHECK(!frame->parent());
+  GURL old_url(frame->document().url());
+
+  extensions::RendererExtensionRegistry* extension_registry =
+      extensions::RendererExtensionRegistry::Get();
+
+  // If old_url is still empty and this is an initial navigation, then this is
+  // a window.open operation.  We should look at the opener URL.  Note that the
+  // opener is a local frame in this case.
+  if (is_initial_navigation && old_url.is_empty() && frame->opener()) {
+    blink::WebLocalFrame* opener_frame = frame->opener()->toWebLocalFrame();
+
+    // If we're about to open a normal web page from a same-origin opener stuck
+    // in an extension process, we want to keep it in process to allow the
+    // opener to script it.
+    blink::WebDocument opener_document = opener_frame->document();
+    blink::WebSecurityOrigin opener_origin = opener_document.securityOrigin();
+    bool opener_is_extension_url = !opener_origin.isUnique() &&
+                                   extension_registry->GetExtensionOrAppByURL(
+                                       opener_document.url()) != NULL;
+    if (!is_extension_url &&
+        !opener_is_extension_url &&
+        IsStandaloneExtensionProcess() &&
+        opener_origin.canRequest(blink::WebURL(new_url)))
+      return false;
+
+    // In all other cases, we want to compare against the URL that determines
+    // the type of process.  In default Chrome, that's the URL of the opener's
+    // top frame and not the opener frame itself.  In --site-per-process, we
+    // can use the opener frame itself.
+    // TODO(nick): Either wire this up to SiteIsolationPolicy, or to state on
+    // |opener_frame|/its ancestors.
+    if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+            switches::kSitePerProcess) ||
+        base::CommandLine::ForCurrentProcess()->HasSwitch(
+            switches::kIsolateExtensions))
+      old_url = opener_frame->document().url();
+    else
+      old_url = opener_frame->top()->document().url();
+  }
+
+  // Only consider keeping non-app URLs in an app process if this window
+  // has an opener (in which case it might be an OAuth popup that tries to
+  // script an iframe within the app).
+  bool should_consider_workaround = !!frame->opener();
+
+  return extensions::CrossesExtensionProcessBoundary(
+      *extension_registry->GetMainThreadExtensionSet(), old_url, new_url,
+      should_consider_workaround);
 }
 
 }  // namespace
@@ -559,6 +622,63 @@ bool CefContentRendererClient::HandleNavigation(
           return true;
         }
       }
+    }
+  }
+
+  return false;
+}
+
+bool CefContentRendererClient::ShouldFork(blink::WebLocalFrame* frame,
+                                          const GURL& url,
+                                          const std::string& http_method,
+                                          bool is_initial_navigation,
+                                          bool is_server_redirect,
+                                          bool* send_referrer) {
+  DCHECK(!frame->parent());
+
+  // For now, we skip the rest for POST submissions.  This is because
+  // http://crbug.com/101395 is more likely to cause compatibility issues
+  // with hosted apps and extensions than WebUI pages.  We will remove this
+  // check when cross-process POST submissions are supported.
+  if (http_method != "GET")
+    return false;
+
+  if (extensions::ExtensionsEnabled()) {
+    const extensions::RendererExtensionRegistry* extension_registry =
+        extensions::RendererExtensionRegistry::Get();
+
+    // Determine if the new URL is an extension (excluding bookmark apps).
+    const extensions::Extension* new_url_extension =
+        extensions::GetNonBookmarkAppExtension(
+            *extension_registry->GetMainThreadExtensionSet(), url);
+    bool is_extension_url = !!new_url_extension;
+
+    // If the navigation would cross an app extent boundary, we also need
+    // to defer to the browser to ensure process isolation.  This is not
+    // necessary for server redirects, which will be transferred to a new
+    // process by the browser process when they are ready to commit.  It is
+    // necessary for client redirects, which won't be transferred in the same
+    // way.
+    if (!is_server_redirect &&
+        CrossesExtensionExtents(frame, url, is_extension_url,
+                                is_initial_navigation)) {
+      // Include the referrer in this case since we're going from a hosted web
+      // page. (the packaged case is handled previously by the extension
+      // navigation test)
+      *send_referrer = true;
+      return true;
+    }
+
+    // If this is a reload, check whether it has the wrong process type.  We
+    // should send it to the browser if it's an extension URL (e.g., hosted app)
+    // in a normal process, or if it's a process for an extension that has been
+    // uninstalled.  Without --site-per-process mode, we never fork processes
+    // for subframes, so this check only makes sense for top-level frames.
+    // TODO(alexmos,nasko): Figure out how this check should work when reloading
+    // subframes in --site-per-process mode.
+    if (!frame->parent() && frame->document().url() == url) {
+      if (is_extension_url != IsStandaloneExtensionProcess())
+        return true;
     }
   }
 

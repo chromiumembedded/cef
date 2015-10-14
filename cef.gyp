@@ -1328,6 +1328,8 @@
         # Include sources for extensions support.
         '<(DEPTH)/chrome/common/extensions/chrome_manifest_url_handlers.cc',
         '<(DEPTH)/chrome/common/extensions/chrome_manifest_url_handlers.h',
+        '<(DEPTH)/chrome/common/extensions/extension_process_policy.cc',
+        '<(DEPTH)/chrome/common/extensions/extension_process_policy.h',
         '<(DEPTH)/chrome/common/pepper_permission_util.cc',
         '<(DEPTH)/chrome/common/pepper_permission_util.h',
         '<(DEPTH)/chrome/common/url_constants.cc',

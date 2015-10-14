@@ -97,6 +97,12 @@ class CefContentRendererClient : public content::ContentRendererClient,
                         blink::WebNavigationType type,
                         blink::WebNavigationPolicy default_policy,
                         bool is_redirect) override;
+  bool ShouldFork(blink::WebLocalFrame* frame,
+                  const GURL& url,
+                  const std::string& http_method,
+                  bool is_initial_navigation,
+                  bool is_server_redirect,
+                  bool* send_referrer) override;
   bool WillSendRequest(blink::WebFrame* frame,
                        ui::PageTransition transition_type,
                        const GURL& url,
