@@ -87,7 +87,6 @@ class CefBrowserContextImpl : public CefBrowserContext {
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors)
       override;
-  HostContentSettingsMap* GetHostContentSettingsMap() override;
   PrefService* GetPrefs() override;
 
   // Guaranteed to exist once this object has been initialized.
@@ -117,7 +116,6 @@ class CefBrowserContextImpl : public CefBrowserContext {
   scoped_refptr<CefURLRequestContextGetterImpl> url_request_getter_;
   scoped_ptr<content::PermissionManager> permission_manager_;
   scoped_ptr<CefSSLHostStateDelegate> ssl_host_state_delegate_;
-  scoped_refptr<HostContentSettingsMap> host_content_settings_map_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserContextImpl);
 };

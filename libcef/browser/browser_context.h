@@ -104,7 +104,6 @@
 //    CefURLRequestContextGetter* destruction. 
 */
 
-class HostContentSettingsMap;
 class PrefService;
 
 namespace extensions {
@@ -144,9 +143,6 @@ class CefBrowserContext
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors) = 0;
-
-  // Settings for plugins and extensions.
-  virtual HostContentSettingsMap* GetHostContentSettingsMap() = 0;
 
   // Preferences.
   virtual PrefService* GetPrefs() = 0;

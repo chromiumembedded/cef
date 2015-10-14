@@ -9,11 +9,14 @@
 #include "libcef/browser/plugins/plugin_service_filter.h"
 #include "libcef/browser/web_plugin_impl.h"
 #include "libcef/common/cef_messages.h"
+#include "libcef/common/cef_switches.h"
 #include "libcef/common/extensions/extensions_util.h"
 
 #include "base/bind.h"
+#include "base/command_line.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/metrics/histogram_macros.h"
+#include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/thread_task_runner_handle.h"
 #include "chrome/browser/plugins/plugin_finder.h"
@@ -159,8 +162,7 @@ CefPluginInfoMessageFilter::Context::Context(
     int render_process_id,
     CefBrowserContext* profile)
     : render_process_id_(render_process_id),
-      resource_context_(profile->GetResourceContext()),
-      host_content_settings_map_(profile->GetHostContentSettingsMap()) {
+      resource_context_(profile->GetResourceContext()) {
 #if defined(ENABLE_EXTENSIONS)
   if (extensions::ExtensionsEnabled())
       extension_registry_ = extensions::ExtensionRegistry::Get(profile);
@@ -500,57 +502,24 @@ void CefPluginInfoMessageFilter::Context::GetPluginContentSetting(
     ContentSetting* setting,
     bool* uses_default_content_setting,
     bool* is_managed) const {
-  scoped_ptr<base::Value> value;
-  content_settings::SettingInfo info;
-  bool uses_plugin_specific_setting = false;
-  if (ShouldUseJavaScriptSettingForPlugin(plugin)) {
-    value = host_content_settings_map_->GetWebsiteSetting(
-        policy_url,
-        policy_url,
-        CONTENT_SETTINGS_TYPE_JAVASCRIPT,
-        std::string(),
-        &info);
-  } else {
-    content_settings::SettingInfo specific_info;
-    scoped_ptr<base::Value> specific_setting =
-        host_content_settings_map_->GetWebsiteSetting(
-            policy_url,
-            plugin_url,
-            CONTENT_SETTINGS_TYPE_PLUGINS,
-            resource,
-            &specific_info);
-    content_settings::SettingInfo general_info;
-    scoped_ptr<base::Value> general_setting =
-        host_content_settings_map_->GetWebsiteSetting(
-            policy_url,
-            plugin_url,
-            CONTENT_SETTINGS_TYPE_PLUGINS,
-            std::string(),
-            &general_info);
+  *setting = CONTENT_SETTING_ALLOW;
+  *uses_default_content_setting = true;
+  *is_managed = false;
 
-    // If there is a plugin-specific setting, we use it, unless the general
-    // setting was set by policy, in which case it takes precedence.
-    // TODO(tommycli): Remove once we deprecate the plugin ASK policy.
-    bool legacy_ask_user = content_settings::ValueToContentSetting(
-                               general_setting.get()) == CONTENT_SETTING_ASK;
-    bool use_policy =
-        general_info.source == content_settings::SETTING_SOURCE_POLICY &&
-        !legacy_ask_user;
-    uses_plugin_specific_setting = specific_setting && !use_policy;
-    if (uses_plugin_specific_setting) {
-      value = specific_setting.Pass();
-      info = specific_info;
-    } else {
-      value = general_setting.Pass();
-      info = general_info;
+  // Change the default plugin policy.
+  const base::CommandLine* command_line =
+      base::CommandLine::ForCurrentProcess();
+  const std::string& plugin_policy_str =
+    command_line->GetSwitchValueASCII(switches::kPluginPolicy);
+  if (!plugin_policy_str.empty()) {
+    if (base::LowerCaseEqualsASCII(plugin_policy_str,
+                                    switches::kPluginPolicy_Detect)) {
+      *setting = CONTENT_SETTING_DETECT_IMPORTANT_CONTENT;
+    } else if (base::LowerCaseEqualsASCII(plugin_policy_str,
+                                          switches::kPluginPolicy_Block)) {
+      *setting = CONTENT_SETTING_BLOCK;
     }
   }
-  *setting = content_settings::ValueToContentSetting(value.get());
-  *uses_default_content_setting =
-      !uses_plugin_specific_setting &&
-      info.primary_pattern == ContentSettingsPattern::Wildcard() &&
-      info.secondary_pattern == ContentSettingsPattern::Wildcard();
-  *is_managed = info.source == content_settings::SETTING_SOURCE_POLICY;
 }
 
 bool CefPluginInfoMessageFilter::Context::IsPluginEnabled(

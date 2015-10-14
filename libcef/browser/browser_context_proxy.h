@@ -69,7 +69,6 @@ class CefBrowserContextProxy : public CefBrowserContext {
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors)
       override;
-  HostContentSettingsMap* GetHostContentSettingsMap() override;
   PrefService* GetPrefs() override;
 
   scoped_refptr<CefBrowserContextImpl> parent() const {

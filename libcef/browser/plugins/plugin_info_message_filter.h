@@ -15,7 +15,6 @@
 #include "base/prefs/pref_member.h"
 #include "base/sequenced_task_runner_helpers.h"
 #include "chrome/browser/plugins/plugin_metadata.h"
-#include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/content_settings/core/common/content_settings.h"
 #include "content/public/browser/browser_message_filter.h"
 
@@ -74,7 +73,6 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
 #if defined(ENABLE_EXTENSIONS)
     extensions::ExtensionRegistry* extension_registry_;
 #endif
-    const HostContentSettingsMap* host_content_settings_map_;
 
     BooleanPrefMember allow_outdated_plugins_;
     BooleanPrefMember always_authorize_plugins_;
