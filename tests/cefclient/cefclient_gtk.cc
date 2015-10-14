@@ -88,11 +88,6 @@ int RunMain(int argc, char* argv[]) {
   // Populate the settings based on command line arguments.
   context->PopulateSettings(&settings);
 
-  // Install xlib error handlers so that the application won't be terminated
-  // on non-fatal errors.
-  XSetErrorHandler(XErrorHandlerImpl);
-  XSetIOErrorHandler(XIOErrorHandlerImpl);
-
   // Create the main message loop object.
   scoped_ptr<MainMessageLoop> message_loop(new MainMessageLoopStd);
 
@@ -105,6 +100,11 @@ int RunMain(int argc, char* argv[]) {
 
   // Perform gtkglext initialization required by the OSR example.
   gtk_gl_init(&argc, &argv_copy);
+
+  // Install xlib error handlers so that the application won't be terminated
+  // on non-fatal errors. Must be done after initializing GTK.
+  XSetErrorHandler(XErrorHandlerImpl);
+  XSetIOErrorHandler(XIOErrorHandlerImpl);
 
   // Install a signal handler so we clean up after ourselves.
   signal(SIGINT, TerminationSignalHandler);
