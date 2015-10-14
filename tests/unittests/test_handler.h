@@ -299,10 +299,15 @@ template<typename T>
 void ReleaseAndWaitForDestructor(CefRefPtr<T>& handler, int delay_ms = 2000) {
   base::WaitableEvent event(true, false);
   handler->SetDestroyEvent(&event);
+  T* _handler_ptr = handler.get();
   handler = NULL;
   bool handler_destructed =
       event.TimedWait(base::TimeDelta::FromMilliseconds(delay_ms));
   EXPECT_TRUE(handler_destructed);
+  if (!handler_destructed) {
+   // |event| is a stack variable so clear the reference before returning.
+    _handler_ptr->SetDestroyEvent(NULL);
+  }
 }
 
 // Post a task to the specified thread and wait for the task to execute as
