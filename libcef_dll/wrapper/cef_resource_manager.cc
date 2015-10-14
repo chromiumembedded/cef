@@ -435,8 +435,7 @@ void CefResourceManager::Request::StopOnIOThread(
 
 CefResourceManager::CefResourceManager()
     : url_filter_(base::Bind(GetFilteredUrl)),
-      mime_type_resolver_(base::Bind(GetMimeType)),
-      weak_ptr_factory_(this) {
+      mime_type_resolver_(base::Bind(GetMimeType)) {
 }
 
 CefResourceManager::~CefResourceManager() {
@@ -589,7 +588,15 @@ cef_return_value_t CefResourceManager::OnBeforeResourceLoad(
 
   scoped_ptr<RequestState> state(new RequestState);
 
-  state->manager_ = weak_ptr_factory_.GetWeakPtr();
+  if (!weak_ptr_factory_.get()) {
+    // WeakPtrFactory instances need to be created and destroyed on the same
+    // thread. This object performs most of its work on the IO thread and will
+    // be destroyed on the IO thread so, now that we're on the IO thread,
+    // properly initialize the WeakPtrFactory.
+    weak_ptr_factory_.reset(new base::WeakPtrFactory<CefResourceManager>(this));
+  }
+
+  state->manager_ = weak_ptr_factory_->GetWeakPtr();
   state->callback_ = callback;
 
   state->params_.url_ =
@@ -684,7 +691,7 @@ void CefResourceManager::StopRequest(scoped_ptr<RequestState> state) {
 // Move state to the next provider if any and return true if there are more
 // providers.
 bool CefResourceManager::IncrementProvider(RequestState* state) {
-   // Identify the next provider.
+  // Identify the next provider.
   ProviderEntryList::iterator next_entry_pos = state->current_entry_pos_;
   GetNextValidProvider(++next_entry_pos);
 

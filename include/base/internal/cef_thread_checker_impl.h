@@ -37,6 +37,7 @@
 #include "include/base/cef_platform_thread.h"
 
 namespace base {
+namespace cef_internal {
 
 // Real implementation of ThreadChecker, for use in debug mode, or
 // for temporary use in release mode (e.g. to CHECK on a threading issue
@@ -65,6 +66,7 @@ class ThreadCheckerImpl {
   mutable PlatformThreadRef valid_thread_id_;
 };
 
+}  // namespace cef_internal
 }  // namespace base
 
 #endif  // CEF_INCLUDE_BASE_INTERNAL_THREAD_CHECKER_IMPL_H_

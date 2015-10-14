@@ -42,6 +42,7 @@
 //
 //  class Controller {
 //   public:
+//    Controller() : weak_factory_(this) {}
 //    void SpawnWorker() { Worker::StartNew(weak_factory_.GetWeakPtr()); }
 //    void WorkComplete(const Result& result) { ... }
 //   private:
@@ -83,8 +84,13 @@
 // WeakPtrs can still be handed off to other threads, e.g. to use to post tasks
 // back to object on the bound thread.
 //
-// Invalidating the factory's WeakPtrs un-binds it from the thread, allowing it
-// to be passed for a different thread to use or delete it.
+// If all WeakPtr objects are destroyed or invalidated then the factory is
+// unbound from the SequencedTaskRunner/Thread. The WeakPtrFactory may then be
+// destroyed, or new WeakPtr objects may be used, from a different sequence.
+//
+// Thus, at least one WeakPtr object must exist and have been dereferenced on
+// the correct thread to enforce that other WeakPtr objects will enforce they
+// are used on the desired thread.
 
 #ifndef CEF_INCLUDE_BASE_CEF_WEAK_PTR_H_
 #define CEF_INCLUDE_BASE_CEF_WEAK_PTR_H_

@@ -363,8 +363,8 @@ class CefResourceManager :
   UrlFilter url_filter_;
   MimeTypeResolver mime_type_resolver_;
 
-  // Must be the last member.
-  base::WeakPtrFactory<CefResourceManager> weak_ptr_factory_;
+  // Must be the last member. Created and accessed on the IO thread.
+  scoped_ptr<base::WeakPtrFactory<CefResourceManager> > weak_ptr_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(CefResourceManager);
 };
