@@ -52,7 +52,7 @@ index 08c5ba9..459fe19 100644
  
    // Creates a new WebContents.
 diff --git web_contents_delegate.cc web_contents_delegate.cc
-index b3d2d70..727401c 100644
+index 3d18cee..b9ed440 100644
 --- web_contents_delegate.cc
 +++ web_contents_delegate.cc
 @@ -138,7 +138,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
@@ -67,7 +67,7 @@ index b3d2d70..727401c 100644
  }
  
 diff --git web_contents_delegate.h web_contents_delegate.h
-index 76dfd36..f3bec13 100644
+index 9c344f2..439c243 100644
 --- web_contents_delegate.h
 +++ web_contents_delegate.h
 @@ -39,9 +39,11 @@ class DownloadItem;

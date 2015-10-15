@@ -12,7 +12,7 @@ index a8e088c..838b6a0 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git desktop_aura/desktop_window_tree_host_win.cc desktop_aura/desktop_window_tree_host_win.cc
-index 270bd54..72748cf 100644
+index 48368f9..90ef876 100644
 --- desktop_aura/desktop_window_tree_host_win.cc
 +++ desktop_aura/desktop_window_tree_host_win.cc
 @@ -131,7 +131,9 @@ void DesktopWindowTreeHostWin::Init(aura::Window* content_window,
@@ -155,7 +155,7 @@ index 73e9e3e6..deb2cef 100644
  };
  
 diff --git widget.cc widget.cc
-index 154d107..cf276b1 100644
+index e1fc508..e4fa275 100644
 --- widget.cc
 +++ widget.cc
 @@ -119,6 +119,7 @@ Widget::InitParams::InitParams()
@@ -166,7 +166,7 @@ index 154d107..cf276b1 100644
        native_widget(NULL),
        desktop_window_tree_host(NULL),
        layer_type(ui::LAYER_TEXTURED),
-@@ -142,6 +143,7 @@ Widget::InitParams::InitParams(Type type)
+@@ -143,6 +144,7 @@ Widget::InitParams::InitParams(Type type)
        use_system_default_icon(false),
        show_state(ui::SHOW_STATE_DEFAULT),
        parent(NULL),
@@ -174,7 +174,7 @@ index 154d107..cf276b1 100644
        native_widget(NULL),
        desktop_window_tree_host(NULL),
        layer_type(ui::LAYER_TEXTURED),
-@@ -316,7 +318,7 @@ void Widget::Init(const InitParams& in_params) {
+@@ -318,7 +320,7 @@ void Widget::Init(const InitParams& in_params) {
    InitParams params = in_params;
  
    params.child |= (params.type == InitParams::TYPE_CONTROL);
@@ -183,7 +183,7 @@ index 154d107..cf276b1 100644
  
    if (params.opacity == views::Widget::InitParams::INFER_OPACITY &&
        params.type != views::Widget::InitParams::TYPE_WINDOW &&
-@@ -379,7 +381,12 @@ void Widget::Init(const InitParams& in_params) {
+@@ -381,7 +383,12 @@ void Widget::Init(const InitParams& in_params) {
        Minimize();
    } else if (params.delegate) {
      SetContentsView(params.delegate->GetContentsView());
@@ -198,7 +198,7 @@ index 154d107..cf276b1 100644
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
 diff --git widget.h widget.h
-index 1342625..7fbc24c 100644
+index 301c0af..de63108 100644
 --- widget.h
 +++ widget.h
 @@ -232,6 +232,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
