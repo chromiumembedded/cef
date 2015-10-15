@@ -26,6 +26,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/WebKit/public/web/WebViewClient.h"
 
 #include "third_party/WebKit/Source/core/css/parser/CSSParser.h"
+#include "third_party/WebKit/Source/core/dom/Element.h"
 #include "third_party/WebKit/Source/core/dom/Node.h"
 #include "third_party/WebKit/Source/core/editing/serializers/Serialization.h"
 #include "third_party/WebKit/Source/web/WebLocalFrameImpl.h"
@@ -66,7 +67,7 @@ void GoForward(blink::WebView* view) {
   if (!view)
     return;
   blink::WebViewImpl* impl = reinterpret_cast<blink::WebViewImpl*>(view);
- if (impl->client()->historyForwardListCount() > 0)
+  if (impl->client()->historyForwardListCount() > 0)
     impl->client()->navigateBackForwardSoon(1);
 }
 
@@ -77,7 +78,8 @@ std::string DumpDocumentText(blink::WebFrame* frame) {
   if (document_element.isNull())
     return std::string();
 
-  return document_element.textContent().utf8();
+  blink::Element* web_element = document_element.unwrap<blink::Element>();
+  return blink::WebString(web_element->innerText()).utf8();
 }
 
 cef_dom_node_type_t GetNodeType(const blink::WebNode& node) {
