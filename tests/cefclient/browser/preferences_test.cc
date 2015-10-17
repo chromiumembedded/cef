@@ -196,6 +196,11 @@ class Handler : public CefMessageRouterBrowserSide::Handler {
         command_line->HasSwitch("proxy-pac-url") ||
         command_line->HasSwitch("proxy-server"));
 
+    // If allow running insecure content is enabled via the command-line then it
+    // cannot be enabled via preferences.
+    dict->SetBool("allow_running_insecure_content",
+        command_line->HasSwitch("allow-running-insecure-content"));
+
     // Serialize the state to JSON and return to the JavaScript caller.
     callback->Success(GetJSON(dict));
   }

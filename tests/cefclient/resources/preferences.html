@@ -35,6 +35,12 @@
         <tr>
           <td>
             <br/>
+            <input type="checkbox" id="allow_running_insecure_content"/> Allow running insecure content
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <br/>
             Proxy type:
             <select id="proxy_type" onChange="proxyTypeChange()">
               <option value="direct">Direct</option>
@@ -214,6 +220,19 @@
               response.browser.enable_spellchecking;
         }
 
+        // Web content settings.
+        if (preferences_state.allow_running_insecure_content) {
+          // Cannot disable running insecure content when enabled via the
+          // command-line.
+          document.getElementById("allow_running_insecure_content").checked =
+              true;
+          document.getElementById("allow_running_insecure_content").disabled =
+              true;
+        } else {
+          document.getElementById("allow_running_insecure_content").checked =
+              response.webkit.webprefs.allow_running_insecure_content;
+        }
+
         // Proxy settings.
         document.getElementById("proxy_type").value = response.proxy.mode;
 
@@ -250,6 +269,16 @@
         preferences.browser = {};
         preferences.browser.enable_spellchecking =
             document.getElementById("enable_spellchecking").checked;
+      }
+
+      // Web content settings.
+      if (!preferences_state.allow_running_insecure_content) {
+        has_preferences = true;
+
+        preferences.webkit = {};
+        preferences.webkit.webprefs = {};
+        preferences.webkit.webprefs.allow_running_insecure_content =
+            document.getElementById("allow_running_insecure_content").checked;
       }
 
       // Proxy settings.

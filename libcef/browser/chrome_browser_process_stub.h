@@ -12,8 +12,8 @@
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
 
-// This file provides a stub implementation of chrome::BrowserProcess so that
-// PrintJobWorker can determine the current locale.
+// This file provides a stub implementation of Chrome's BrowserProcess object
+// for use as an interop layer between CEF and files that live in chrome/.
 
 class BackgroundModeManager {
  public:

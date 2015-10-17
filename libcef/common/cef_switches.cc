@@ -73,6 +73,9 @@ const char kDisableTabToLinks[]           = "disable-tab-to-links";
 // Persist session cookies.
 const char kPersistSessionCookies[]       = "persist-session-cookies";
 
+// Persist user preferences.
+const char kPersistUserPreferences[]      = "persist-user-preferences";
+
 // Enable media (WebRTC audio/video) streaming.
 const char kEnableMediaStream[]           = "enable-media-stream";
 

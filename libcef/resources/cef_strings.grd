@@ -402,6 +402,84 @@ need to be translated for each locale.-->
           Hide This Plugin
         </message>
       </if>
+      
+      <!-- Preferences. -->
+      <!-- The default value for HTTP Accept-Language header. -->
+      <message name="IDS_ACCEPT_LANGUAGES" use_name_for_id="true">
+        en-US,en
+      </message>
+      <!-- The default value for |WebPreference::default_encoding|. -->
+      <message name="IDS_DEFAULT_ENCODING" use_name_for_id="true">
+        windows-1252
+      </message>
+      <!-- The default value for |WebPreference::uses_universal_detector|. -->
+      <message name="IDS_USES_UNIVERSAL_DETECTOR" use_name_for_id="true">
+        false
+      </message>
+      <!-- Locale-dependent static encodings string -->
+      <message name="IDS_STATIC_ENCODING_LIST" use_name_for_id="true">
+        windows-1252
+      </message>
+      <message name="IDS_ENCODING_DISPLAY_TEMPLATE" desc="The format of encodings in the encoding menu. Encoding categories are Unicode, Western, Turkish, Cyrillic, Chinese Simplified, Thai, Arabic, Hebrew and so forth. Encoding names are UTF-8, Windows-1252, ISO-8859-8, GB2312, etc.">
+        <ph name="ENCODING_CATEGORY">$1<ex>Japanese</ex></ph> (<ph name="ENCODING_NAME">$2<ex>Shift_JIS</ex></ph>)
+      </message>
+      <message name="IDS_ENCODING_UNICODE" desc="The text label of Unicode encodings">
+        Unicode
+      </message>
+      <message name="IDS_ENCODING_WESTERN" desc="The text label of West European character encoding">
+        Western
+      </message>
+      <message name="IDS_ENCODING_SIMP_CHINESE" desc="The text label of Simplified Chinese encodings">
+        Chinese Simplified
+      </message>
+      <message name="IDS_ENCODING_TRAD_CHINESE" desc="The text label of Traditional Chinese encodings">
+        Chinese Traditional
+      </message>
+      <message name="IDS_ENCODING_KOREAN" desc="The text label of Korean encoding">
+        Korean
+      </message>
+      <message name="IDS_ENCODING_JAPANESE" desc="The text label of Japanese encodings">
+        Japanese
+      </message>
+      <message name="IDS_ENCODING_THAI" desc="The text label of encoding thai language">
+        Thai
+      </message>
+      <message name="IDS_ENCODING_CENTRAL_EUROPEAN" desc="The text label of encoding Central European">
+        Central European
+      </message>
+      <message name="IDS_ENCODING_CYRILLIC" desc="The text label of Cyrillic encodings">
+        Cyrillic
+      </message>
+      <message name="IDS_ENCODING_GREEK" desc="The text label of Greek encodings">
+        Greek
+      </message>
+      <message name="IDS_ENCODING_BALTIC" desc="The text label of Baltic encodings">
+        Baltic
+      </message>
+      <message name="IDS_ENCODING_SOUTH_EUROPEAN" desc="The text label of South European encodings">
+        South European
+      </message>
+      <message name="IDS_ENCODING_NORDIC" desc="The text label of Nordic encoding">
+        Nordic
+      </message>
+      <message name="IDS_ENCODING_CELTIC" desc="The text label of Celtic encodings">
+        Celtic
+      </message>
+      <message name="IDS_ENCODING_ROMANIAN" desc="The text label of Romanian encoding">
+        Romanian
+      </message>
+      <message name="IDS_ENCODING_TURKISH" desc="The text label of Turkish encodings">
+        Turkish
+      </message>
+      <message name="IDS_ENCODING_ARABIC" desc="The text label of Arabic encodings">
+        Arabic
+      </message>
+      <message name="IDS_ENCODING_HEBREW" desc="The text label of Hebrew encodings">
+        Hebrew
+      </message>
+      <message name="IDS_ENCODING_VIETNAMESE" desc="The text label of Vietnamese encoding">
+        Vietnamese
+      </message>
     </messages>
   </release>
 </grit>

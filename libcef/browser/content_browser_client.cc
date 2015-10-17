@@ -10,7 +10,6 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_main.h"
 #include "libcef/browser/browser_message_filter.h"
-#include "libcef/browser/browser_settings.h"
 #include "libcef/browser/chrome_scheme_handler.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools_delegate.h"
@@ -20,6 +19,7 @@
 #include "libcef/browser/pepper/browser_pepper_host_factory.h"
 #include "libcef/browser/plugins/plugin_info_message_filter.h"
 #include "libcef/browser/plugins/plugin_service_filter.h"
+#include "libcef/browser/prefs/renderer_prefs.h"
 #include "libcef/browser/printing/printing_message_filter.h"
 #include "libcef/browser/resource_dispatcher_host_delegate.h"
 #include "libcef/browser/speech_recognition_manager_delegate.h"
@@ -1004,24 +1004,10 @@ void CefContentBrowserClient::ResourceDispatcherHostCreated() {
 void CefContentBrowserClient::OverrideWebkitPrefs(
     content::RenderViewHost* rvh,
     content::WebPreferences* prefs) {
-  const base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
+  renderer_prefs::PopulateWebPreferences(rvh, *prefs);
 
-  CefRefPtr<CefBrowserHostImpl> browser =
-      extensions::GetOwnerBrowserForHost(rvh);
-  if (browser.get()) {
-    // Populate WebPreferences based on CefBrowserSettings.
-    BrowserToWebSettings(browser->settings(), *prefs);
-  }
-
-  prefs->base_background_color = GetBaseBackgroundColor(browser);
   if (rvh->GetView())
     rvh->GetView()->SetBackgroundColor(prefs->base_background_color);
-
-  prefs->asynchronous_spell_checking_enabled = true;
-  // Auto-correct does not work in combination with the unified text checker.
-  prefs->unified_textchecker_enabled =
-      !command_line->HasSwitch(switches::kEnableSpellingAutoCorrect);
 }
 
 void CefContentBrowserClient::BrowserURLHandlerCreated(
@@ -1160,28 +1146,4 @@ CefContentBrowserClient::browser_context() const {
 
 CefDevToolsDelegate* CefContentBrowserClient::devtools_delegate() const {
   return browser_main_parts_->devtools_delegate();
-}
-
-// static
-SkColor CefContentBrowserClient::GetBaseBackgroundColor(
-    CefRefPtr<CefBrowserHostImpl> browser) {
-  if (browser.get()) {
-    const CefBrowserSettings& browser_settings = browser->settings();
-    if (CefColorGetA(browser_settings.background_color) > 0) {
-      return SkColorSetRGB(
-          CefColorGetR(browser_settings.background_color),
-          CefColorGetG(browser_settings.background_color),
-          CefColorGetB(browser_settings.background_color));
-    }
-  }
-
-  const CefSettings& settings = CefContext::Get()->settings();
-  if (CefColorGetA(settings.background_color) > 0) {
-    return SkColorSetRGB(
-        CefColorGetR(settings.background_color),
-        CefColorGetG(settings.background_color),
-        CefColorGetB(settings.background_color));
-  }
-
-  return SK_ColorWHITE;
 }

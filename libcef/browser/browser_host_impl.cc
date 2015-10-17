@@ -10,7 +10,6 @@
 
 #include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/browser_info.h"
-#include "libcef/browser/browser_pref_store.h"
 #include "libcef/browser/chrome_scheme_handler.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
@@ -40,6 +39,7 @@
 #include "base/command_line.h"
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_service.h"
+#include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "content/browser/gpu/compositor_util.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/common/view_messages.h"
@@ -3039,6 +3039,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(
                            CefString(), CefString(),
                            CefFrameHostImpl::kInvalidFrameId);
 
+  PrefsTabHelper::CreateForWebContents(web_contents_.get());
   printing::PrintViewManager::CreateForWebContents(web_contents_.get());
 
   // Make sure RenderViewCreated is called at least one time.

@@ -218,14 +218,24 @@ typedef struct _cef_settings_t {
   ///
   // To persist session cookies (cookies without an expiry date or validity
   // interval) by default when using the global cookie manager set this value to
-  // true. Session cookies are generally intended to be transient and most Web
-  // browsers do not persist them. A |cache_path| value must also be specified
-  // to enable this feature. Also configurable using the
+  // true (1). Session cookies are generally intended to be transient and most
+  // Web browsers do not persist them. A |cache_path| value must also be
+  // specified to enable this feature. Also configurable using the
   // "persist-session-cookies" command-line switch. Can be overridden for
   // individual CefRequestContext instances via the
   // CefRequestContextSettings.persist_session_cookies value.
   ///
   int persist_session_cookies;
+
+  ///
+  // To persist user preferences as a JSON file in the cache path directory set
+  // this value to true (1). A |cache_path| value must also be specified
+  // to enable this feature. Also configurable using the
+  // "persist-user-preferences" command-line switch. Can be overridden for
+  // individual CefRequestContext instances via the
+  // CefRequestContextSettings.persist_user_preferences value.
+  ///
+  int persist_user_preferences;
 
   ///
   // Value that will be returned as the User-Agent HTTP header. If empty the
@@ -394,12 +404,20 @@ typedef struct _cef_request_context_settings_t {
   ///
   // To persist session cookies (cookies without an expiry date or validity
   // interval) by default when using the global cookie manager set this value to
-  // true. Session cookies are generally intended to be transient and most Web
-  // browsers do not persist them. Can be set globally using the
+  // true (1). Session cookies are generally intended to be transient and most
+  // Web browsers do not persist them. Can be set globally using the
   // CefSettings.persist_session_cookies value. This value will be ignored if
   // |cache_path| is empty or if it matches the CefSettings.cache_path value.
   ///
   int persist_session_cookies;
+
+  ///
+  // To persist user preferences as a JSON file in the cache path directory set
+  // this value to true (1). Can be set globally using the
+  // CefSettings.persist_user_preferences value. This value will be ignored if
+  // |cache_path| is empty or if it matches the CefSettings.cache_path value.
+  ///
+  int persist_user_preferences;
 
   ///
   // Set to true (1) to ignore errors related to invalid SSL certificates.

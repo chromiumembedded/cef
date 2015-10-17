@@ -10,6 +10,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/browser/download_manager_delegate.h"
 #include "libcef/browser/permission_manager.h"
+#include "libcef/browser/prefs/browser_prefs.h"
 #include "libcef/browser/ssl_host_state_delegate.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
@@ -22,9 +23,12 @@
 #include "base/prefs/pref_service.h"
 #include "base/strings/string_util.h"
 #include "base/threading/thread_restrictions.h"
+#include "chrome/browser/font_family_cache.h"
 #include "chrome/browser/net/proxy_service_factory.h"
+#include "chrome/browser/ui/zoom/chrome_zoom_level_prefs.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/guest_view/browser/guest_view_manager.h"
+#include "components/ui/zoom/zoom_event_manager.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/storage_partition.h"
@@ -131,6 +135,12 @@ CefBrowserContextImpl::CefBrowserContextImpl(
 }
 
 CefBrowserContextImpl::~CefBrowserContextImpl() {
+  Shutdown();
+
+  // The FontFamilyCache references the ProxyService so delete it before the
+  // ProxyService is deleted.
+  SetUserData(&kFontFamilyCacheKey, NULL);
+
   pref_proxy_config_tracker_->DetachFromPrefService();
 
   if (host_content_settings_map_.get())
@@ -166,10 +176,11 @@ void CefBrowserContextImpl::Initialize() {
         CefString(&CefContext::Get()->settings().accept_language_list);
   }
 
-  // Initialize user preferences.
-  pref_store_ = new CefBrowserPrefStore();
-  pref_store_->SetInitializationCompleted();
-  pref_service_ = pref_store_->CreateService().Pass();
+  // Initialize preferences.
+  base::FilePath pref_path;
+  if (!cache_path_.empty() && settings_.persist_user_preferences)
+    pref_path = cache_path_.AppendASCII(browser_prefs::kUserPrefsFileName);
+  pref_service_ = browser_prefs::CreatePrefService(pref_path);
 
   CefBrowserContext::Initialize();
 
@@ -239,8 +250,14 @@ base::FilePath CefBrowserContextImpl::GetPath() const {
 }
 
 scoped_ptr<content::ZoomLevelDelegate>
-    CefBrowserContextImpl::CreateZoomLevelDelegate(const base::FilePath&) {
-  return scoped_ptr<content::ZoomLevelDelegate>();
+    CefBrowserContextImpl::CreateZoomLevelDelegate(
+        const base::FilePath& partition_path) {
+  if (cache_path_.empty())
+    return scoped_ptr<content::ZoomLevelDelegate>();
+
+  return make_scoped_ptr(new ChromeZoomLevelPrefs(
+      GetPrefs(), cache_path_, partition_path,
+      ui_zoom::ZoomEventManager::GetForBrowserContext(this)->GetWeakPtr()));
 }
 
 bool CefBrowserContextImpl::IsOffTheRecord() const {
@@ -313,6 +330,14 @@ content::PermissionManager* CefBrowserContextImpl::GetPermissionManager() {
   return permission_manager_.get();
 }
 
+PrefService* CefBrowserContextImpl::GetPrefs() {
+  return pref_service_.get();
+}
+
+const PrefService* CefBrowserContextImpl::GetPrefs() const {
+  return pref_service_.get();
+}
+
 const CefRequestContextSettings& CefBrowserContextImpl::GetSettings() const {
   return settings_;
 }
@@ -379,8 +404,4 @@ HostContentSettingsMap* CefBrowserContextImpl::GetHostContentSettingsMap() {
     }
   }
   return host_content_settings_map_.get();
-}
-
-PrefService* CefBrowserContextImpl::GetPrefs() {
-  return pref_service_.get();
 }

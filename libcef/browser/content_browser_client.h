@@ -170,8 +170,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   CefDevToolsDelegate* devtools_delegate() const;
 
  private:
-  static SkColor GetBaseBackgroundColor(CefRefPtr<CefBrowserHostImpl> browser);
-
   CefBrowserMainParts* browser_main_parts_;
 
   scoped_ptr<content::PluginServiceFilter> plugin_service_filter_;
