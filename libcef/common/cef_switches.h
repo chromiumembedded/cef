@@ -34,6 +34,7 @@ extern const char kImageShrinkStandaloneToFit[];
 extern const char kDisableTextAreaResize[];
 extern const char kDisableTabToLinks[];
 extern const char kPersistSessionCookies[];
+extern const char kPersistUserPreferences[];
 extern const char kEnableMediaStream[];
 extern const char kEnableSpeechInput[];
 extern const char kEnableProfanityFilter[];

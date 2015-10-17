@@ -360,6 +360,9 @@ void CefContext::PopulateRequestContextSettings(
   settings->persist_session_cookies =
       settings_.persist_session_cookies ||
       command_line->HasSwitch(switches::kPersistSessionCookies);
+  settings->persist_user_preferences =
+      settings_.persist_user_preferences ||
+      command_line->HasSwitch(switches::kPersistUserPreferences);
   settings->ignore_certificate_errors =
       settings_.ignore_certificate_errors ||
       command_line->HasSwitch(switches::kIgnoreCertificateErrors);

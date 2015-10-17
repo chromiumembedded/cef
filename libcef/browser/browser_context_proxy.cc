@@ -10,6 +10,7 @@
 #include "libcef/browser/url_request_context_getter_proxy.h"
 
 #include "base/logging.h"
+#include "chrome/browser/font_family_cache.h"
 #include "components/guest_view/common/guest_view_constants.h"
 #include "content/browser/streams/stream_context.h"
 #include "content/public/browser/storage_partition.h"
@@ -25,6 +26,12 @@ bool ShouldProxyUserData(const void* key) {
   // If this value is not proxied then CefBrowserContextImpl::GetGuestManager()
   // returns NULL.
   if (key == guest_view::kGuestViewManagerKeyName)
+    return true;
+
+  // If this value is not proxied then there will be a use-after-free while
+  // destroying the FontFamilyCache because it will try to access the
+  // ProxyService owned by CefBrowserContextImpl (which has already been freed).
+  if (key == kFontFamilyCacheKey)
     return true;
 
   return false;
@@ -43,6 +50,8 @@ CefBrowserContextProxy::CefBrowserContextProxy(
 }
 
 CefBrowserContextProxy::~CefBrowserContextProxy() {
+  Shutdown();
+
   parent_->RemoveProxy(this);
 }
 
@@ -142,6 +151,14 @@ content::PermissionManager* CefBrowserContextProxy::GetPermissionManager() {
   return parent_->GetPermissionManager();
 }
 
+PrefService* CefBrowserContextProxy::GetPrefs() {
+  return parent_->GetPrefs();
+}
+
+const PrefService* CefBrowserContextProxy::GetPrefs() const {
+  return parent_->GetPrefs();
+}
+
 const CefRequestContextSettings& CefBrowserContextProxy::GetSettings() const {
   return parent_->GetSettings();
 }
@@ -172,8 +189,4 @@ net::URLRequestContextGetter*
 
 HostContentSettingsMap* CefBrowserContextProxy::GetHostContentSettingsMap() {
   return parent_->GetHostContentSettingsMap();
-}
-
-PrefService* CefBrowserContextProxy::GetPrefs() {
-  return parent_->GetPrefs();
 }

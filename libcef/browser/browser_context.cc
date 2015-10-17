@@ -5,12 +5,15 @@
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/extensions/extension_system.h"
+#include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_util.h"
 
 #include "base/logging.h"
+#include "chrome/browser/ui/zoom/chrome_zoom_level_prefs.h"
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "components/user_prefs/user_prefs.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/storage_partition.h"
 
 #ifndef NDEBUG
 base::AtomicRefCount CefBrowserContext::DebugObjCt = 0;
@@ -24,16 +27,8 @@ CefBrowserContext::CefBrowserContext()
 }
 
 CefBrowserContext::~CefBrowserContext() {
-  if (resource_context_.get()) {
-    // Destruction of the ResourceContext will trigger destruction of all
-    // associated URLRequests.
-    content::BrowserThread::DeleteSoon(
-        content::BrowserThread::IO, FROM_HERE, resource_context_.release());
-  }
-
-  // Remove any BrowserContextKeyedServiceFactory associations.
-  BrowserContextDependencyManager::GetInstance()->DestroyBrowserContextServices(
-      this);
+  // Should be cleared in Shutdown().
+  DCHECK(!resource_context_.get());
 
 #ifndef NDEBUG
   base::AtomicRefCountDec(&DebugObjCt);
@@ -68,6 +63,27 @@ void CefBrowserContext::Initialize() {
     extension_system_->Init();
 }
 
+void CefBrowserContext::Shutdown() {
+  CEF_REQUIRE_UIT();
+
+  if (resource_context_.get()) {
+    // Destruction of the ResourceContext will trigger destruction of all
+    // associated URLRequests.
+    content::BrowserThread::DeleteSoon(
+        content::BrowserThread::IO, FROM_HERE, resource_context_.release());
+  }
+
+  // Remove any BrowserContextKeyedServiceFactory associations. This must be
+  // called before the ProxyService owned by CefBrowserContextImpl is destroyed.
+  BrowserContextDependencyManager::GetInstance()->DestroyBrowserContextServices(
+      this);
+}
+
 content::ResourceContext* CefBrowserContext::GetResourceContext() {
   return resource_context_.get();
+}
+
+ChromeZoomLevelPrefs* CefBrowserContext::GetZoomLevelPrefs() {
+  return static_cast<ChromeZoomLevelPrefs*>(
+      GetStoragePartition(this, NULL)->GetZoomLevelDelegate());
 }

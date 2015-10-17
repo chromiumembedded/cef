@@ -8,18 +8,12 @@
 
 #include "libcef/browser/browser_context.h"
 
-#include "libcef/browser/browser_pref_store.h"
 #include "libcef/browser/url_request_context_getter_impl.h"
 
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
 #include "components/proxy_config/pref_proxy_config_tracker.h"
-
-namespace content {
-class DownloadManagerDelegate;
-class SpeechRecognitionPreferences;
-}
 
 class CefBrowserContextProxy;
 class CefDownloadManagerDelegate;
@@ -75,6 +69,10 @@ class CefBrowserContextImpl : public CefBrowserContext {
   content::SSLHostStateDelegate* GetSSLHostStateDelegate() override;
   content::PermissionManager* GetPermissionManager() override;
 
+  // Profile methods.
+  PrefService* GetPrefs() override;
+  const PrefService* GetPrefs() const override;
+
   // CefBrowserContext methods.
   const CefRequestContextSettings& GetSettings() const override;
   CefRefPtr<CefRequestContextHandler> GetHandler() const override;
@@ -89,7 +87,6 @@ class CefBrowserContextImpl : public CefBrowserContext {
       content::URLRequestInterceptorScopedVector request_interceptors)
       override;
   HostContentSettingsMap* GetHostContentSettingsMap() override;
-  PrefService* GetPrefs() override;
 
   // Guaranteed to exist once this object has been initialized.
   scoped_refptr<CefURLRequestContextGetterImpl> request_context() const {
@@ -112,7 +109,6 @@ class CefBrowserContextImpl : public CefBrowserContext {
   typedef std::vector<const CefBrowserContextProxy*> ProxyList;
   ProxyList proxy_list_;
 
-  scoped_refptr<CefBrowserPrefStore> pref_store_;
   scoped_ptr<PrefService> pref_service_;
   scoped_ptr<PrefProxyConfigTracker> pref_proxy_config_tracker_;
 

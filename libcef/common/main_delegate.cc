@@ -22,6 +22,7 @@
 #include "base/strings/string_util.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/child/pdf_child_init.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
@@ -682,6 +683,9 @@ void CefMainDelegate::InitializeResourceBundle() {
           locale,
           &content_client_,
           ui::ResourceBundle::LOAD_COMMON_RESOURCES);
+  if (!loaded_locale.empty() && g_browser_process)
+    g_browser_process->SetApplicationLocale(loaded_locale);
+
   ResourceBundle& resource_bundle = ResourceBundle::GetSharedInstance();
 
   if (!content_client_.pack_loading_disabled()) {

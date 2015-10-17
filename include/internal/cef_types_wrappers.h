@@ -489,6 +489,7 @@ struct CefSettingsTraits {
     cef_string_set(src->user_data_path.str, src->user_data_path.length,
         &target->user_data_path, copy);
     target->persist_session_cookies = src->persist_session_cookies;
+    target->persist_user_preferences = src->persist_user_preferences;
 
     cef_string_set(src->user_agent.str, src->user_agent.length,
         &target->user_agent, copy);
@@ -541,6 +542,7 @@ struct CefRequestContextSettingsTraits {
     cef_string_set(src->cache_path.str, src->cache_path.length,
         &target->cache_path, copy);
     target->persist_session_cookies = src->persist_session_cookies;
+    target->persist_user_preferences = src->persist_user_preferences;
     target->ignore_certificate_errors = src->ignore_certificate_errors;
     cef_string_set(src->accept_language_list.str,
         src->accept_language_list.length, &target->accept_language_list, copy);

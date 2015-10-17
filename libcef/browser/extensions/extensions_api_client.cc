@@ -11,6 +11,7 @@
 #include "libcef/browser/extensions/pdf_web_contents_helper_client.h"
 #include "libcef/browser/printing/print_view_manager.h"
 
+#include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "components/pdf/browser/pdf_web_contents_helper.h"
 
 namespace extensions {
@@ -33,6 +34,7 @@ CefExtensionsAPIClient::CreateMimeHandlerViewGuestDelegate(
 
 void CefExtensionsAPIClient::AttachWebContentsHelpers(
     content::WebContents* web_contents) const {
+  PrefsTabHelper::CreateForWebContents(web_contents);
   printing::PrintViewManager::CreateForWebContents(web_contents);
   pdf::PDFWebContentsHelper::CreateForWebContentsWithClient(
       web_contents,

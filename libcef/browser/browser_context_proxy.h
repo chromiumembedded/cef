@@ -13,11 +13,6 @@
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
 
-namespace content {
-class DownloadManagerDelegate;
-class SpeechRecognitionPreferences;
-}
-
 class CefDownloadManagerDelegate;
 class CefURLRequestContextGetterProxy;
 
@@ -56,6 +51,10 @@ class CefBrowserContextProxy : public CefBrowserContext {
   content::SSLHostStateDelegate* GetSSLHostStateDelegate() override;
   content::PermissionManager* GetPermissionManager() override;
 
+  // Profile methods.
+  PrefService* GetPrefs() override;
+  const PrefService* GetPrefs() const override;
+
   // CefBrowserContext methods.
   const CefRequestContextSettings& GetSettings() const override;
   CefRefPtr<CefRequestContextHandler> GetHandler() const override;
@@ -70,7 +69,6 @@ class CefBrowserContextProxy : public CefBrowserContext {
       content::URLRequestInterceptorScopedVector request_interceptors)
       override;
   HostContentSettingsMap* GetHostContentSettingsMap() override;
-  PrefService* GetPrefs() override;
 
   scoped_refptr<CefBrowserContextImpl> parent() const {
     return parent_;

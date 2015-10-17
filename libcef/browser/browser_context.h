@@ -7,6 +7,7 @@
 #pragma once
 
 #include "include/cef_request_context_handler.h"
+#include "libcef/browser/chrome_profile_stub.h"
 #include "libcef/browser/resource_context.h"
 #include "libcef/browser/url_request_context_getter_impl.h"
 
@@ -115,7 +116,7 @@ class CefExtensionSystem;
 // of this class is passed to WebContents::Create in CefBrowserHostImpl::
 // CreateInternal. Only accessed on the UI thread unless otherwise indicated.
 class CefBrowserContext
-    : public content::BrowserContext,
+    : public ChromeProfileStub,
       public base::RefCountedThreadSafe<
           CefBrowserContext, content::BrowserThread::DeleteOnUIThread> {
  public:
@@ -126,6 +127,9 @@ class CefBrowserContext
 
   // BrowserContext methods.
   content::ResourceContext* GetResourceContext() override;
+
+  // Profile methods.
+  ChromeZoomLevelPrefs* GetZoomLevelPrefs() override;
 
   // Returns the settings associated with this object. Safe to call from any
   // thread.
@@ -148,9 +152,6 @@ class CefBrowserContext
   // Settings for plugins and extensions.
   virtual HostContentSettingsMap* GetHostContentSettingsMap() = 0;
 
-  // Preferences.
-  virtual PrefService* GetPrefs() = 0;
-
   CefResourceContext* resource_context() const {
     return resource_context_.get();
   }
@@ -165,6 +166,9 @@ class CefBrowserContext
 
  protected:
   ~CefBrowserContext() override;
+
+  // Must be called before the child object destructor has completed.
+  void Shutdown();
 
  private:
   // Only allow deletion via scoped_refptr().
