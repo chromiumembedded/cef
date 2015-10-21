@@ -28,13 +28,19 @@ void GetAllGuestsForOwnerContents(content::WebContents* owner,
 content::WebContents* GetOwnerForGuestContents(content::WebContents* guest);
 
 // Returns the CefBrowserHostImpl that owns the host identified by the specified
-// view routing IDs, if any.
+// view routing IDs, if any. |is_guest_view| will be set to true if the IDs
+// match a guest view associated with the returned browser instead of the
+// browser itself.
 CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForView(int render_process_id,
-                                                     int render_routing_id);
+                                                     int render_routing_id,
+                                                     bool* is_guest_view);
 
 // Returns the CefBrowserHostImpl that owns the specified |host|, if any.
+// |is_guest_view| will be set to true if the host matches a guest view
+// associated with the returned browser instead of the browser itself.
 CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForHost(
-    content::RenderViewHost* host);
+    content::RenderViewHost* host,
+    bool* is_guest_view);
 
 }  // namespace extensions
 

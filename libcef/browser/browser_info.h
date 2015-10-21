@@ -8,8 +8,12 @@
 
 #include <set>
 
-#include "libcef/browser/browser_host_impl.h"
+#include "include/internal/cef_ptr.h"
+
 #include "base/memory/ref_counted.h"
+#include "base/synchronization/lock.h"
+
+class CefBrowserHostImpl;
 
 // CefBrowserInfo is used to associate a browser ID and render view/process
 // IDs with a particular CefBrowserHostImpl. Render view/process IDs may change
@@ -19,27 +23,70 @@
 // be created directly.
 class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
  public:
+  class RenderIDManager {
+   public:
+    explicit RenderIDManager(base::Lock* lock);
+
+    // Adds an ID pair if it doesn't already exist.
+    void add_render_view_id(int render_process_id, int render_routing_id);
+    void add_render_frame_id(int render_process_id, int render_routing_id);
+
+    // Remove an ID pair if it exists.
+    void remove_render_view_id(int render_process_id, int render_routing_id);
+    void remove_render_frame_id(int render_process_id, int render_routing_id);
+
+    // Returns true if this browser matches the specified ID pair.
+    bool is_render_view_id_match(int render_process_id, int render_routing_id);
+    bool is_render_frame_id_match(int render_process_id, int render_routing_id);
+
+   private:
+    typedef std::set<std::pair<int, int> > RenderIdSet;
+
+    void add_render_id(RenderIdSet* id_set,
+                       int render_process_id,
+                       int render_routing_id);
+    void remove_render_id(RenderIdSet* id_set,
+                          int render_process_id,
+                          int render_routing_id);
+    bool is_render_id_match(const RenderIdSet* id_set,
+                            int render_process_id,
+                            int render_routing_id);
+
+    base::Lock* lock_;
+
+    // The below members must be protected by |lock_|.
+
+    // Set of mapped (process_id, routing_id) pairs. Keeping this set is
+    // necessary for the following reasons:
+    // 1. When navigating cross-origin the new (pending) RenderViewHost will be
+    //    created before the old (current) RenderViewHost is destroyed.
+    // 2. When canceling and asynchronously continuing navigation of the same
+    //    URL a new RenderViewHost may be created for the first (canceled)
+    //    navigation and then destroyed as a result of the second (allowed)
+    //    navigation.
+    // 3. Out-of-process iframes have their own render IDs which must also be
+    //    associated with the host browser.
+    RenderIdSet render_view_id_set_;
+    RenderIdSet render_frame_id_set_;
+  };
+
   CefBrowserInfo(int browser_id, bool is_popup);
 
   int browser_id() const { return browser_id_; };
   bool is_popup() const { return is_popup_; }
   bool is_windowless() const { return is_windowless_; }
-  bool is_mime_handler_view() const { return is_mime_handler_view_; }
 
   void set_windowless(bool windowless);
-  void set_mime_handler_view(bool mime_handler_view);
 
-  // Adds an ID pair if it doesn't already exist.
-  void add_render_view_id(int render_process_id, int render_routing_id);
-  void add_render_frame_id(int render_process_id, int render_routing_id);
+  // Returns the render ID manager for this browser.
+  RenderIDManager* render_id_manager() {
+    return &render_id_manager_;
+  }
 
-  // Remove an ID pair if it exists.
-  void remove_render_view_id(int render_process_id, int render_routing_id);
-  void remove_render_frame_id(int render_process_id, int render_routing_id);
-
-  // Returns true if this browser matches the specified ID pair.
-  bool is_render_view_id_match(int render_process_id, int render_routing_id);
-  bool is_render_frame_id_match(int render_process_id, int render_routing_id);
+  // Returns the render ID manager for guest views owned by this browser.
+  RenderIDManager* guest_render_id_manager() {
+    return &guest_render_id_manager_;
+  }
 
   CefRefPtr<CefBrowserHostImpl> browser();
   void set_browser(CefRefPtr<CefBrowserHostImpl> browser);
@@ -49,38 +96,16 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
 
   ~CefBrowserInfo();
 
-  typedef std::set<std::pair<int, int> > RenderIdSet;
-
-  void add_render_id(RenderIdSet* id_set,
-                     int render_process_id,
-                     int render_routing_id);
-  void remove_render_id(RenderIdSet* id_set,
-                        int render_process_id,
-                        int render_routing_id);
-  bool is_render_id_match(const RenderIdSet* id_set,
-                          int render_process_id,
-                          int render_routing_id);
-
   int browser_id_;
   bool is_popup_;
   bool is_windowless_;
-  bool is_mime_handler_view_;
 
   base::Lock lock_;
 
   // The below members must be protected by |lock_|.
 
-  // Set of mapped (process_id, routing_id) pairs. Keeping this set is
-  // necessary for the following reasons:
-  // 1. When navigating cross-origin the new (pending) RenderViewHost will be
-  //    created before the old (current) RenderViewHost is destroyed.
-  // 2. When canceling and asynchronously continuing navigation of the same URL
-  //    a new RenderViewHost may be created for the first (canceled) navigation
-  //    and then destroyed as a result of the second (allowed) navigation.
-  // 3. Out-of-process iframes have their own render IDs which must also be
-  //    associated with the host browser.
-  RenderIdSet render_view_id_set_;
-  RenderIdSet render_frame_id_set_;
+  RenderIDManager render_id_manager_;
+  RenderIDManager guest_render_id_manager_;
 
   // May be NULL if the browser has not yet been created or if the browser has
   // been destroyed.
