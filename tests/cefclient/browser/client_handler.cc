@@ -459,7 +459,8 @@ bool ClientHandler::OnOpenURLFromTab(
     const CefString& target_url,
     CefRequestHandler::WindowOpenDisposition target_disposition,
     bool user_gesture) {
-  if (user_gesture && target_disposition == WOD_NEW_BACKGROUND_TAB) {
+  if (target_disposition == WOD_NEW_BACKGROUND_TAB ||
+      target_disposition == WOD_NEW_FOREGROUND_TAB) {
     // Handle middle-click and ctrl + left-click by opening the URL in a new
     // browser window.
     MainContext::Get()->GetRootWindowManager()->CreateRootWindow(

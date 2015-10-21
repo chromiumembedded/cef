@@ -97,11 +97,11 @@ void CefBrowserMessageFilter::OnGetNewBrowserInfo(
           host_->GetID(),
           render_view_routing_id,
           host_->GetID(),
-          render_frame_routing_id);
+          render_frame_routing_id,
+          &params->is_guest_view);
   params->browser_id = info->browser_id();
   params->is_popup = info->is_popup();
   params->is_windowless = info->is_windowless();
-  params->is_mime_handler_view = info->is_mime_handler_view();
 }
 
 void CefBrowserMessageFilter::OnCreateWindow(

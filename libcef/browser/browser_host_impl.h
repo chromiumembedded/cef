@@ -15,6 +15,7 @@
 #include "include/cef_browser.h"
 #include "include/cef_client.h"
 #include "include/cef_frame.h"
+#include "libcef/browser/browser_info.h"
 #include "libcef/browser/frame_host_impl.h"
 #include "libcef/browser/javascript_dialog_manager.h"
 #include "libcef/browser/menu_creator.h"
@@ -303,6 +304,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Thread safe accessors.
   const CefBrowserSettings& settings() const { return settings_; }
   CefRefPtr<CefClient> client() const { return client_; }
+  scoped_refptr<CefBrowserInfo> browser_info() const { return browser_info_; }
   int browser_id() const;
 
 #if defined(USE_AURA)

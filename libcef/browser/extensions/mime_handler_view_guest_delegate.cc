@@ -55,18 +55,20 @@ bool CefMimeHandlerViewGuestDelegate::OnGuestAttached(
   content::WebContents* web_contents = guest_->web_contents();
   DCHECK(web_contents);
 
-  // Associate state information with the new WebContents.
   content::RenderViewHost* view_host = web_contents->GetRenderViewHost();
   content::RenderFrameHost* main_frame_host = web_contents->GetMainFrame();
-  scoped_refptr<CefBrowserInfo> info =
-      CefContentBrowserClient::Get()->GetOrCreateBrowserInfo(
-          view_host->GetProcess()->GetID(),
-          view_host->GetRoutingID(),
-          main_frame_host->GetProcess()->GetID(),
-          main_frame_host->GetRoutingID());
-  info->set_mime_handler_view(true);
 
   CefRefPtr<CefBrowserHostImpl> owner_browser = GetOwnerBrowser(guest_);
+
+  // Associate guest state information with the owner browser.
+  scoped_refptr<CefBrowserInfo> info = owner_browser->browser_info();
+  info->guest_render_id_manager()->add_render_view_id(
+      view_host->GetProcess()->GetID(),
+      view_host->GetRoutingID());
+  info->guest_render_id_manager()->add_render_frame_id(
+      main_frame_host->GetProcess()->GetID(),
+      main_frame_host->GetRoutingID());
+
   if (owner_browser->IsWindowless()) {
     // Use the OSR view instead of the default WebContentsViewGuest.
     content::WebContentsImpl* web_contents_impl =
@@ -85,8 +87,25 @@ bool CefMimeHandlerViewGuestDelegate::OnGuestAttached(
 bool CefMimeHandlerViewGuestDelegate::OnGuestDetached(
     content::WebContentsView* guest_view,
     content::WebContentsView* parent_view) {
+  content::WebContents* web_contents = guest_->web_contents();
+  DCHECK(web_contents);
+
+  content::RenderViewHost* view_host = web_contents->GetRenderViewHost();
+  content::RenderFrameHost* main_frame_host = web_contents->GetMainFrame();
+
+  CefRefPtr<CefBrowserHostImpl> owner_browser = GetOwnerBrowser(guest_);
+
+  // Disassociate guest state information with the owner browser.
+  scoped_refptr<CefBrowserInfo> info = owner_browser->browser_info();
+  info->guest_render_id_manager()->remove_render_view_id(
+      view_host->GetProcess()->GetID(),
+      view_host->GetRoutingID());
+  info->guest_render_id_manager()->remove_render_frame_id(
+      main_frame_host->GetProcess()->GetID(),
+      main_frame_host->GetRoutingID());
+
   // Do nothing when the browser is windowless.
-  return GetOwnerBrowser(guest_)->IsWindowless();
+  return owner_browser->IsWindowless();
 }
 
 bool CefMimeHandlerViewGuestDelegate::CreateViewForWidget(

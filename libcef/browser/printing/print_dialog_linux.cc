@@ -160,7 +160,9 @@ void CefPrintDialogLinux::OnPrintStart(int render_process_id,
     return;
 
   CefRefPtr<CefBrowserHostImpl> browser =
-      extensions::GetOwnerBrowserForView(render_process_id, render_routing_id);
+      extensions::GetOwnerBrowserForView(render_process_id,
+                                         render_routing_id,
+                                         NULL);
   if (browser.get())
     handler->OnPrintStart(browser.get());
 }
