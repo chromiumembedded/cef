@@ -50,23 +50,30 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   // to CefBrowserHostImpl::ShouldCreateWebContents on the UI thread. To resolve
   // this race CefBrowserInfo may be created when requested for the first time
   // and before the associated CefBrowserHostImpl is created.
+  // |is_guest_view| will be set to true if the IDs match a guest view
+  // associated with the returned browser info instead of the browser itself.
   scoped_refptr<CefBrowserInfo> CreateBrowserInfo(bool is_popup);
   scoped_refptr<CefBrowserInfo> GetOrCreateBrowserInfo(
       int render_view_process_id,
       int render_view_routing_id,
       int render_frame_process_id,
-      int render_frame_routing_id);
+      int render_frame_routing_id,
+      bool* is_guest_view);
   void RemoveBrowserInfo(scoped_refptr<CefBrowserInfo> browser_info);
   void DestroyAllBrowsers();
 
   // Retrieves the CefBrowserInfo matching the specified IDs or an empty
   // pointer if no match is found. It is allowed to add new callers of this
   // method but consider using CefBrowserHostImpl::GetBrowserFor[View|Frame]()
-  // instead.
+  // or extensions::GetOwnerBrowserForView() instead.
+  // |is_guest_view| will be set to true if the IDs match a guest view
+  // associated with the returned browser info instead of the browser itself.
   scoped_refptr<CefBrowserInfo> GetBrowserInfoForView(int render_process_id,
-                                                      int render_routing_id);
+                                                      int render_routing_id,
+                                                      bool* is_guest_view);
   scoped_refptr<CefBrowserInfo> GetBrowserInfoForFrame(int render_process_id,
-                                                       int render_routing_id);
+                                                       int render_routing_id,
+                                                       bool* is_guest_view);
 
   // ContentBrowserClient implementation.
   content::BrowserMainParts* CreateBrowserMainParts(

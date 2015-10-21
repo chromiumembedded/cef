@@ -920,8 +920,8 @@ void CefContentRendererClient::BrowserCreated(
           &params));
   DCHECK_GT(params.browser_id, 0);
 
-  if (params.is_mime_handler_view) {
-    // Don't create a CefBrowser for mime handler views.
+  if (params.is_guest_view) {
+    // Don't create a CefBrowser for guest views.
     return;
   }
 
