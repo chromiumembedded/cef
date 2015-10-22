@@ -440,8 +440,12 @@ void RunOpenFileDialog(const CefBrowserHostImpl::FileChooserParams& params,
   [openPanel setShowsHiddenFiles:!params.hidereadonly];
 
   // Show panel.
-  [openPanel beginSheetModalForWindow:[view window] completionHandler:nil];
-  if ([openPanel runModal] == NSFileHandlingPanelOKButton) {
+  [openPanel beginSheetModalForWindow:[view window]
+                    completionHandler:^(NSInteger returnCode) {
+    [NSApp stopModalWithCode:returnCode];
+  }];
+  NSInteger result = [NSApp runModalForWindow:[view window]];
+  if (result == NSFileHandlingPanelOKButton) {
     NSArray *urls = [openPanel URLs];
     int i, count = [urls count];
     for (i=0; i<count; i++) {
@@ -453,8 +457,6 @@ void RunOpenFileDialog(const CefBrowserHostImpl::FileChooserParams& params,
 
   if (filter_delegate != nil)
     *filter_index = [filter_delegate filter];
-
-  [NSApp endSheet:openPanel];
 }
 
 bool RunSaveFileDialog(const CefBrowserHostImpl::FileChooserParams& params,
@@ -503,9 +505,14 @@ bool RunSaveFileDialog(const CefBrowserHostImpl::FileChooserParams& params,
 
   bool success = false;
 
-  [savePanel beginSheetModalForWindow:[view window] completionHandler:nil];
-  if ([savePanel runModal] == NSFileHandlingPanelOKButton) {
-    NSURL * url = [savePanel URL];
+  // Show panel.
+  [savePanel beginSheetModalForWindow:[view window]
+                    completionHandler:^(NSInteger resultCode) {
+    [NSApp stopModalWithCode:resultCode];
+  }];
+  NSInteger result = [NSApp runModalForWindow:[view window]];
+  if (result == NSFileHandlingPanelOKButton) {
+    NSURL* url = [savePanel URL];
     NSString* path = [url path];
     *file = base::FilePath([path UTF8String]);
     success = true;
@@ -513,8 +520,6 @@ bool RunSaveFileDialog(const CefBrowserHostImpl::FileChooserParams& params,
 
   if (filter_delegate != nil)
     *filter_index = [filter_delegate filter];
-
-  [NSApp endSheet:savePanel];
 
   return success;
 }
