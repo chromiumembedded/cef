@@ -643,16 +643,24 @@ void RootWindowWin::OnSize(bool minimized) {
 
     int urloffset = rect.left + button_width * 4;
 
-    if (browser_window_) {
-      HWND browser_hwnd = browser_window_->GetWindowHandle();
-      HDWP hdwp = BeginDeferWindowPos(1);
+    // |browser_hwnd| may be NULL if the browser has not yet been created.
+    HWND browser_hwnd = NULL;
+    if (browser_window_)
+      browser_hwnd = browser_window_->GetWindowHandle();
+
+    if (browser_hwnd) {
+      // Resize both the browser and the URL edit field.
+      HDWP hdwp = BeginDeferWindowPos(2);
       hdwp = DeferWindowPos(hdwp, edit_hwnd_, NULL, urloffset,
           0, rect.right - urloffset, urlbar_height, SWP_NOZORDER);
       hdwp = DeferWindowPos(hdwp, browser_hwnd, NULL,
           rect.left, rect.top, rect.right - rect.left,
           rect.bottom - rect.top, SWP_NOZORDER);
-      EndDeferWindowPos(hdwp);
+      BOOL result = EndDeferWindowPos(hdwp);
+      ALLOW_UNUSED_LOCAL(result);
+      DCHECK(result);
     } else {
+      // Resize just the URL edit field.
       SetWindowPos(edit_hwnd_, NULL, urloffset,
           0, rect.right - urloffset, urlbar_height, SWP_NOZORDER);
     }
@@ -802,10 +810,14 @@ void RootWindowWin::OnDestroyed() {
 void RootWindowWin::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {
   REQUIRE_MAIN_THREAD();
 
-  // For popup browsers create the root window once the browser has been
-  // created.
-  if (is_popup_)
+  if (is_popup_) {
+    // For popup browsers create the root window once the browser has been
+    // created.
     CreateRootWindow(CefBrowserSettings());
+  } else {
+    // Make sure the browser is sized correctly.
+    OnSize(false);
+  }
 }
 
 void RootWindowWin::OnBrowserWindowDestroyed() {
