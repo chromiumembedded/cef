@@ -106,22 +106,32 @@ base::FilePath GetResourcesFilePath() {
   return GetFrameworkBundlePath().Append(FILE_PATH_LITERAL("Resources"));
 }
 
+// Retrieve the name of the running executable.
+std::string GetExecutableName() {
+  base::FilePath path;
+  PathService::Get(base::FILE_EXE, &path);
+  return path.BaseName().value();
+}
+
+// Use a "~/Library/Logs/<app name>_debug.log" file where <app name> is the name
+// of the running executable.
+base::FilePath GetDefaultLogFile() {
+  return base::mac::GetUserLibraryPath()
+      .Append(FILE_PATH_LITERAL("Logs"))
+      .Append(FILE_PATH_LITERAL(GetExecutableName() + "_debug.log"));
+}
+
 void OverrideFrameworkBundlePath() {
   base::mac::SetOverrideFrameworkBundlePath(GetFrameworkBundlePath());
 }
 
 void OverrideChildProcessPath() {
-  // Retrieve the name of the running executable.
-  base::FilePath path;
-  PathService::Get(base::FILE_EXE, &path);
-
-  std::string name = path.BaseName().value();
-
+  const std::string& exe_name = GetExecutableName();
   base::FilePath helper_path = GetFrameworksPath()
-      .Append(FILE_PATH_LITERAL(name+" Helper.app"))
+      .Append(FILE_PATH_LITERAL(exe_name + " Helper.app"))
       .Append(FILE_PATH_LITERAL("Contents"))
       .Append(FILE_PATH_LITERAL("MacOS"))
-      .Append(FILE_PATH_LITERAL(name+" Helper"));
+      .Append(FILE_PATH_LITERAL(exe_name + " Helper"));
 
   PathService::Override(content::CHILD_PROCESS_EXE, helper_path);
 }
@@ -132,6 +142,13 @@ base::FilePath GetResourcesFilePath() {
   base::FilePath pak_dir;
   PathService::Get(base::DIR_MODULE, &pak_dir);
   return pak_dir;
+}
+
+// Use a "debug.log" file in the running executable's directory.
+base::FilePath GetDefaultLogFile() {
+  base::FilePath log_path;
+  PathService::Get(base::DIR_EXE, &log_path);
+  return log_path.Append(FILE_PATH_LITERAL("debug.log"));
 }
 
 #endif  // !defined(OS_MACOSX)
@@ -360,11 +377,20 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       command_line->AppendSwitchASCII(switches::kLang, "en-US");
     }
 
-    if (settings.log_file.length > 0) {
-      base::FilePath file_path = base::FilePath(CefString(&settings.log_file));
-      if (!file_path.empty())
-        command_line->AppendSwitchPath(switches::kLogFile, file_path);
+    base::FilePath log_file;
+    bool has_log_file_cmdline = false;
+    if (settings.log_file.length > 0)
+      log_file = base::FilePath(CefString(&settings.log_file));
+    if (log_file.empty() && command_line->HasSwitch(switches::kLogFile)) {
+      log_file = command_line->GetSwitchValuePath(switches::kLogFile);
+      if (!log_file.empty())
+        has_log_file_cmdline = true;
     }
+    if (log_file.empty())
+      log_file = GetDefaultLogFile();
+    DCHECK(!log_file.empty());
+    if (!has_log_file_cmdline)
+      command_line->AppendSwitchPath(switches::kLogFile, log_file);
 
     if (settings.log_severity != LOGSEVERITY_DEFAULT) {
       std::string log_severity;
@@ -444,9 +470,12 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 
   // Initialize logging.
   logging::LoggingSettings log_settings;
+
   const base::FilePath& log_file =
       command_line->GetSwitchValuePath(switches::kLogFile);
+  DCHECK(!log_file.empty());
   log_settings.log_file = log_file.value().c_str();
+
   log_settings.lock_log = logging::DONT_LOCK_LOG_FILE;
   log_settings.delete_old = logging::APPEND_TO_OLD_LOG_FILE;
 
