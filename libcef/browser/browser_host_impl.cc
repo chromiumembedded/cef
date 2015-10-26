@@ -2676,6 +2676,11 @@ void CefBrowserHostImpl::RenderViewCreated(
     registrar_->Add(this, content::NOTIFICATION_FOCUS_CHANGED_IN_PAGE,
                     content::Source<content::RenderViewHost>(render_view_host));
   }
+
+  // Indicate that the view has an external parent (namely us). This changes the
+  // default view behavior in some cases (e.g. focus handling on Linux).
+  if (render_view_host->GetView())
+    render_view_host->GetView()->SetHasExternalParent(true);
 }
 
 void CefBrowserHostImpl::RenderViewDeleted(
