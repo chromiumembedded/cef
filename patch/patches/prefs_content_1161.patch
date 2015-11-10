@@ -1,8 +1,8 @@
 diff --git public/common/common_param_traits_macros.h public/common/common_param_traits_macros.h
-index a308f84..bbbe950 100644
+index 48ba994..039d8fe 100644
 --- public/common/common_param_traits_macros.h
 +++ public/common/common_param_traits_macros.h
-@@ -196,6 +196,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+@@ -195,6 +195,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
    IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
@@ -11,7 +11,7 @@ index a308f84..bbbe950 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git public/common/web_preferences.cc public/common/web_preferences.cc
-index deb82db..2da2957 100644
+index 6b599c0..d2ff454 100644
 --- public/common/web_preferences.cc
 +++ public/common/web_preferences.cc
 @@ -176,6 +176,7 @@ WebPreferences::WebPreferences()
@@ -21,9 +21,9 @@ index deb82db..2da2957 100644
 +      base_background_color(0xFFFFFFFF),  // Color::white
        v8_cache_options(V8_CACHE_OPTIONS_DEFAULT),
        slimming_paint_v2_enabled(false),
-       inert_visual_viewport(false),
+       cookie_enabled(true),
 diff --git public/common/web_preferences.h public/common/web_preferences.h
-index 75012d1..8da71be 100644
+index 0378cd7..484342b 100644
 --- public/common/web_preferences.h
 +++ public/common/web_preferences.h
 @@ -173,6 +173,7 @@ struct CONTENT_EXPORT WebPreferences {
@@ -33,12 +33,12 @@ index 75012d1..8da71be 100644
 +  uint32_t base_background_color;
    V8CacheOptions v8_cache_options;
    bool slimming_paint_v2_enabled;
-   bool inert_visual_viewport;
+ 
 diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
-index d6d5d6e..82b499e 100644
+index 3fd5464..4bf3639 100644
 --- renderer/render_view_impl.cc
 +++ renderer/render_view_impl.cc
-@@ -949,6 +949,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+@@ -953,6 +953,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
    settings->setCookieEnabled(prefs.cookie_enabled);
    settings->setNavigateOnDragDrop(prefs.navigate_on_drag_drop);
  

@@ -52,7 +52,8 @@ bool CefMenuCreatorRunnerWin::RunContextMenu(CefMenuCreator* manager) {
     // Adjust for potential display scaling.
     float scale = gfx::Screen::GetScreenFor(window)->
         GetDisplayNearestWindow(window).device_scale_factor();
-    screen_point = gfx::ToFlooredPoint(gfx::ScalePoint(screen_point, scale));
+    screen_point = gfx::ToFlooredPoint(
+        gfx::ScalePoint(gfx::PointF(screen_point), scale));
   }
 
   // Show the menu. Blocks until the menu is dismissed.

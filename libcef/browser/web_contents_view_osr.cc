@@ -123,7 +123,7 @@ content::RenderWidgetHostViewBase* CefWebContentsViewOSR::CreateViewForWidget(
         guest_->embedder_web_contents();
     CefRenderWidgetHostViewOSR* embedder_host_view =
         static_cast<CefRenderWidgetHostViewOSR*>(
-            embedder_web_contents->GetRenderViewHost()->GetView());
+            embedder_web_contents->GetRenderViewHost()->GetWidget()->GetView());
 
     CefRenderWidgetHostViewOSR* platform_widget =
         new CefRenderWidgetHostViewOSR(render_widget_host, embedder_host_view);

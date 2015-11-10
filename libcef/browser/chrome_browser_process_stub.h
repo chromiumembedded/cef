@@ -31,7 +31,8 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   // BrowserProcess implementation.
   void ResourceDispatcherHostCreated() override;
   void EndSession() override;
-  MetricsServicesManager* GetMetricsServicesManager() override;
+  metrics_services_manager::MetricsServicesManager*
+      GetMetricsServicesManager() override;
   metrics::MetricsService* metrics_service() override;
   rappor::RapporService* rappor_service() override;
   IOThread* io_thread() override;

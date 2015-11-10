@@ -35,7 +35,7 @@ class CefGeolocationHandlerCToCpp
       const CefString& requesting_url, int request_id,
       CefRefPtr<CefGeolocationCallback> callback) override;
   void OnCancelGeolocationPermission(CefRefPtr<CefBrowser> browser,
-      const CefString& requesting_url, int request_id) override;
+      int request_id) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

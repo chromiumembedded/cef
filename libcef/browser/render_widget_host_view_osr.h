@@ -167,6 +167,8 @@ class CefRenderWidgetHostViewOSR
   content::BrowserAccessibilityManager*
       CreateBrowserAccessibilityManager(
           content::BrowserAccessibilityDelegate* delegate) override;
+  void LockCompositingSurface() override;
+  void UnlockCompositingSurface() override;
 
 #if defined(TOOLKIT_VIEWS) || defined(USE_AURA)
   void ShowDisambiguationPopup(const gfx::Rect& rect_pixels,
@@ -193,12 +195,9 @@ class CefRenderWidgetHostViewOSR
 #if defined(OS_MACOSX)
   // AcceleratedWidgetMacNSView implementation.
   NSView* AcceleratedWidgetGetNSView() const override;
-  bool AcceleratedWidgetShouldIgnoreBackpressure() const override;
   void AcceleratedWidgetGetVSyncParameters(
       base::TimeTicks* timebase, base::TimeDelta* interval) const override;
-  void AcceleratedWidgetSwapCompleted(
-      const std::vector<ui::LatencyInfo>& latency_info) override;
-  void AcceleratedWidgetHitError() override;
+  void AcceleratedWidgetSwapCompleted() override;
 #endif  // defined(OS_MACOSX)
 
   bool OnMessageReceived(const IPC::Message& msg) override;

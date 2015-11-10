@@ -1823,7 +1823,8 @@ bool VerifyBrowserIframe(CefRefPtr<CefBrowser> browser,
   V_EXPECT_TRUE(frame1b->GetIdentifier() == frame1id);
   V_EXPECT_TRUE(frame2b->GetIdentifier() == frame2id);
 
-  V_EXPECT_TRUE(browser->GetFrameCount() == 3U);
+  size_t frame_count = browser->GetFrameCount();
+  V_EXPECT_TRUE(frame_count == 3U) << "actual " << frame_count;
 
   // Verify the GetFrameNames result.
   std::vector<CefString> names;
@@ -1958,6 +1959,8 @@ class FrameNavExpectationsBrowserTestNestedIframes :
     } else if (frame_number == 2) {
       V_EXPECT_TRUE(got_load_start_[0]);
       V_EXPECT_TRUE(got_load_start_[1]);
+    } else {
+      V_EXPECT_TRUE(false);  // Not reached.
     }
 
     got_load_start_[frame_number].yes();
@@ -1984,6 +1987,8 @@ class FrameNavExpectationsBrowserTestNestedIframes :
     } else if (frame_number == 2) {
       V_EXPECT_FALSE(got_load_end_[0]);
       V_EXPECT_FALSE(got_load_end_[1]);
+    } else {
+      V_EXPECT_TRUE(false);  // Not reached.
     }
 
     V_EXPECT_TRUE(VerifyBrowserIframe(browser, frame, origin_, frame_number)) <<

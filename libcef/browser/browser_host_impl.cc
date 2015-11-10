@@ -382,8 +382,10 @@ CefRenderWidgetHostViewOSR* GetOSRHostView(content::WebContents* web_contents) {
     return fs_view;
 
   content::RenderViewHost* host = web_contents->GetRenderViewHost();
-  if (host)
-    return static_cast<CefRenderWidgetHostViewOSR*>(host->GetView());
+  if (host) {
+    return static_cast<CefRenderWidgetHostViewOSR*>(
+        host->GetWidget()->GetView());
+  }
 
   return NULL;
 }
@@ -570,7 +572,8 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::GetBrowserForHost(
   DCHECK(host);
   CEF_REQUIRE_UIT();
   content::WebContents* web_contents =
-      content::WebContents::FromRenderViewHost(host);
+      content::WebContents::FromRenderViewHost(
+          const_cast<content::RenderViewHost*>(host));
   if (web_contents)
     return GetBrowserForContents(web_contents);
   return NULL;
@@ -1089,7 +1092,7 @@ void CefBrowserHostImpl::WasResized() {
   if (!IsWindowless()) {
     content::RenderViewHost* host = web_contents()->GetRenderViewHost();
     if (host)
-      host->WasResized();
+      host->GetWidget()->WasResized();
   } else {
     CefRenderWidgetHostViewOSR* view = GetOSRHostView(web_contents());
     if (view)
@@ -1177,7 +1180,7 @@ void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
   if (!IsWindowless()) {
     content::RenderViewHost* host = web_contents()->GetRenderViewHost();
     if (host)
-      host->ForwardKeyboardEvent(web_event);
+      host->GetWidget()->ForwardKeyboardEvent(web_event);
   } else {
     CefRenderWidgetHostViewOSR* view = GetOSRHostView(web_contents());
     if (view)
@@ -1233,7 +1236,7 @@ void CefBrowserHostImpl::SendMouseWheelEvent(const CefMouseEvent& event,
   if (!IsWindowless()) {
     content::RenderViewHost* host = web_contents()->GetRenderViewHost();
     if (host)
-      host->ForwardWheelEvent(web_event);
+      host->GetWidget()->ForwardWheelEvent(web_event);
   } else {
     CefRenderWidgetHostViewOSR* view = GetOSRHostView(web_contents());
     if (view)
@@ -1278,7 +1281,7 @@ void CefBrowserHostImpl::SendMouseEvent(const blink::WebMouseEvent& event) {
   if (!IsWindowless()) {
     content::RenderViewHost* host = web_contents()->GetRenderViewHost();
     if (host)
-      host->ForwardMouseEvent(event);
+      host->GetWidget()->ForwardMouseEvent(event);
   } else {
     CefRenderWidgetHostViewOSR* view = GetOSRHostView(web_contents());
     if (view)
@@ -1316,7 +1319,8 @@ void CefBrowserHostImpl::SendCaptureLostEvent() {
     return;
 
   content::RenderWidgetHostImpl* widget =
-      content::RenderWidgetHostImpl::From(web_contents()->GetRenderViewHost());
+      content::RenderWidgetHostImpl::From(
+          web_contents()->GetRenderViewHost()->GetWidget());
   if (widget)
     widget->LostCapture();
 }
@@ -2443,6 +2447,7 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
     content::WebContents* web_contents,
     int route_id,
     int main_frame_route_id,
+    int32_t main_frame_widget_route_id,
     WindowContainerType window_container_type,
     const std::string& frame_name,
     const GURL& target_url,
@@ -2609,7 +2614,7 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
       (request.video_type == content::MEDIA_DEVICE_VIDEO_CAPTURE);
   if (microphone_requested || webcam_requested) {
     switch (request.request_type) {
-      case content::MEDIA_OPEN_DEVICE:
+      case content::MEDIA_OPEN_DEVICE_PEPPER_ONLY:
       case content::MEDIA_DEVICE_ACCESS:
       case content::MEDIA_GENERATE_STREAM:
       case content::MEDIA_ENUMERATE_DEVICES:
@@ -2679,8 +2684,8 @@ void CefBrowserHostImpl::RenderViewCreated(
 
   // Indicate that the view has an external parent (namely us). This changes the
   // default view behavior in some cases (e.g. focus handling on Linux).
-  if (render_view_host->GetView())
-    render_view_host->GetView()->SetHasExternalParent(true);
+  if (render_view_host->GetWidget()->GetView())
+    render_view_host->GetWidget()->GetView()->SetHasExternalParent(true);
 }
 
 void CefBrowserHostImpl::RenderViewDeleted(
@@ -3088,8 +3093,26 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetOrCreateFrame(
   {
     base::AutoLock lock_scope(state_lock_);
 
-    if (is_main_frame)
+    if (is_main_frame && main_frame_id_ != frame_id) {
+      if (main_frame_id_ != CefFrameHostImpl::kInvalidFrameId) {
+        // Remove the old main frame object before adding the new one.
+        FrameMap::iterator it = frames_.find(main_frame_id_);
+        if (it != frames_.end()) {
+          // Persist URL and name to the new main frame.
+          if (url.empty())
+            url = it->second->GetURL();
+          if (name.empty())
+            name = it->second->GetName();
+
+          it->second->Detach();
+          frames_.erase(it);
+        }
+
+        if (focused_frame_id_ ==  main_frame_id_)
+          focused_frame_id_ = frame_id;
+      }
       main_frame_id_ = frame_id;
+    }
 
     // Check if a frame object already exists.
     FrameMap::const_iterator it = frames_.find(frame_id);

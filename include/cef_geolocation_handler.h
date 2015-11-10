@@ -82,14 +82,12 @@ class CefGeolocationHandler : public virtual CefBase {
   }
 
   ///
-  // Called when a geolocation access request is canceled. |requesting_url| is
-  // the URL that originally requested permission and |request_id| is the unique
-  // ID for the permission request.
+  // Called when a geolocation access request is canceled. |request_id| is the
+  // unique ID for the permission request.
   ///
   /*--cef()--*/
   virtual void OnCancelGeolocationPermission(
       CefRefPtr<CefBrowser> browser,
-      const CefString& requesting_url,
       int request_id) {
   }
 };

@@ -556,6 +556,7 @@ void CefCookieManagerImpl::SetCookieInternal(
       cookie.secure ? true : false,
       cookie.httponly ? true : false,
       false,  // First-party only.
+      false,  // Enforces prefixes.
       net::COOKIE_PRIORITY_DEFAULT,
       base::Bind(SetCookieCallbackImpl, callback));
 }

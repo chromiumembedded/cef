@@ -28,7 +28,6 @@ class WebContents;
 }
 
 class CefDevToolsFrontend : public content::WebContentsObserver,
-                            public content::DevToolsFrontendHost::Delegate,
                             public content::DevToolsAgentHostClient,
                             public net::URLFetcherDelegate {
  public:
@@ -72,10 +71,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   void DocumentAvailableInMainFrame() override;
   void WebContentsDestroyed() override;
 
-  // content::DevToolsFrontendHost::Delegate implementation.
-  void HandleMessageFromDevToolsFrontend(const std::string& message) override;
-  void HandleMessageFromDevToolsFrontendToBackend(
-      const std::string& message) override;
+  void HandleMessageFromDevToolsFrontend(const std::string& message);
 
   // net::URLFetcherDelegate overrides.
   void OnURLFetchComplete(const net::URLFetcher* source) override;

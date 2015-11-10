@@ -1,8 +1,8 @@
 diff --git ui/browser.cc ui/browser.cc
-index 36d24b6..bbc5075 100644
+index d6a2493..c352fd6a 100644
 --- ui/browser.cc
 +++ ui/browser.cc
-@@ -1669,7 +1669,9 @@ bool Browser::ShouldCreateWebContents(
+@@ -1673,7 +1673,9 @@ bool Browser::ShouldCreateWebContents(
      const std::string& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
@@ -12,9 +12,9 @@ index 36d24b6..bbc5075 100644
 +    content::RenderViewHostDelegateView** delegate_view) {
    if (window_container_type == WINDOW_CONTAINER_TYPE_BACKGROUND) {
      // If a BackgroundContents is created, suppress the normal WebContents.
-     return !MaybeCreateBackgroundContents(route_id,
+     return !MaybeCreateBackgroundContents(
 diff --git ui/browser.h ui/browser.h
-index e296569..bf03785 100644
+index 1511788..23ffe53 100644
 --- ui/browser.h
 +++ ui/browser.h
 @@ -591,7 +591,9 @@ class Browser : public TabStripModelObserver,

@@ -143,6 +143,9 @@ CefString CefURIDecode(const CefString& text,
 bool CefParseCSSColor(const CefString& string,
                       bool strict,
                       cef_color_t& color) {
+  // Blink types depend on PartitionAlloc. Safe to call multiple times.
+  webkit_glue::InitializePartitionAlloc();
+
   return webkit_glue::ParseCSSColor(
       blink::WebString::fromUTF8(string.ToString().data()), strict, color);
 }

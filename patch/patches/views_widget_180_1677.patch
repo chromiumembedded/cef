@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index c7aac43..ae08073 100644
+index bbb79c9..bf9a924 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -758,6 +758,13 @@ void RenderWidgetHostViewAura::SetKeyboardFocus() {
@@ -40,7 +40,7 @@ index 1b40705..52599e5 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 2fbfb1e..33aa009 100644
+index bf3b8e1..351c601 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -78,6 +78,7 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
@@ -51,7 +51,7 @@ index 2fbfb1e..33aa009 100644
  
    // IPC::Listener implementation:
    bool OnMessageReceived(const IPC::Message& msg) override;
-@@ -416,6 +417,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+@@ -414,6 +415,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
    // renderer.
    bool pinch_zoom_enabled_;
  
@@ -91,7 +91,7 @@ index a8e088c..838b6a0 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 270bd54..53d979b 100644
+index 48368f9..6a566ba 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -85,6 +85,7 @@ DesktopWindowTreeHostWin::DesktopWindowTreeHostWin(
@@ -150,7 +150,7 @@ index 363c019..97ada1d 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
-index ed0cb1d..d4a2221 100644
+index 298c92b..393a5dc 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 @@ -165,6 +165,7 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
@@ -161,17 +161,17 @@ index ed0cb1d..d4a2221 100644
        drag_drop_client_(NULL),
        native_widget_delegate_(native_widget_delegate),
        desktop_native_widget_aura_(desktop_native_widget_aura),
-@@ -172,7 +173,8 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
-       window_parent_(NULL),
+@@ -173,7 +174,8 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
        custom_window_shape_(false),
        urgency_hint_set_(false),
+       activatable_(true),
 -      close_widget_factory_(this) {
 +      close_widget_factory_(this),
 +      xwindow_destroyed_(false) {
  }
  
  DesktopWindowTreeHostX11::~DesktopWindowTreeHostX11() {
-@@ -382,7 +384,8 @@ void DesktopWindowTreeHostX11::CloseNow() {
+@@ -384,7 +386,8 @@ void DesktopWindowTreeHostX11::CloseNow() {
    // Actually free our native resources.
    if (ui::PlatformEventSource::GetInstance())
      ui::PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
@@ -181,7 +181,7 @@ index ed0cb1d..d4a2221 100644
    xwindow_ = None;
  
    desktop_native_widget_aura_->OnHostClosed();
-@@ -526,6 +529,8 @@ void DesktopWindowTreeHostX11::GetWindowPlacement(
+@@ -533,6 +536,8 @@ void DesktopWindowTreeHostX11::GetWindowPlacement(
  }
  
  gfx::Rect DesktopWindowTreeHostX11::GetWindowBoundsInScreen() const {
@@ -190,7 +190,7 @@ index ed0cb1d..d4a2221 100644
    return ToDIPRect(bounds_in_pixels_);
  }
  
-@@ -963,6 +968,8 @@ void DesktopWindowTreeHostX11::HideImpl() {
+@@ -970,6 +975,8 @@ void DesktopWindowTreeHostX11::HideImpl() {
  }
  
  gfx::Rect DesktopWindowTreeHostX11::GetBounds() const {
@@ -199,7 +199,7 @@ index ed0cb1d..d4a2221 100644
    return bounds_in_pixels_;
  }
  
-@@ -1020,6 +1027,8 @@ void DesktopWindowTreeHostX11::SetBounds(
+@@ -1027,6 +1034,8 @@ void DesktopWindowTreeHostX11::SetBounds(
  }
  
  gfx::Point DesktopWindowTreeHostX11::GetLocationOnNativeScreen() const {
@@ -208,7 +208,7 @@ index ed0cb1d..d4a2221 100644
    return bounds_in_pixels_.origin();
  }
  
-@@ -1133,9 +1142,15 @@ void DesktopWindowTreeHostX11::InitX11Window(
+@@ -1140,9 +1149,15 @@ void DesktopWindowTreeHostX11::InitX11Window(
      }
    }
  
@@ -225,7 +225,7 @@ index ed0cb1d..d4a2221 100644
                             bounds_in_pixels_.y(), bounds_in_pixels_.width(),
                             bounds_in_pixels_.height(),
                             0,  // border width
-@@ -1789,6 +1804,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
+@@ -1797,6 +1812,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
        }
        break;
      }
@@ -237,7 +237,7 @@ index ed0cb1d..d4a2221 100644
        if (xev->xfocus.mode != NotifyGrab) {
          ReleaseCapture();
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h
-index 73e9e3e6..8c2f0f7 100644
+index 09b5993..db1b2bc 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h
 @@ -85,6 +85,12 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
@@ -274,7 +274,7 @@ index 73e9e3e6..8c2f0f7 100644
    DesktopDragDropClientAuraX11* drag_drop_client_;
  
    scoped_ptr<ui::EventHandler> x11_non_client_event_filter_;
-@@ -351,6 +364,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
+@@ -353,6 +366,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
  
    base::WeakPtrFactory<DesktopWindowTreeHostX11> close_widget_factory_;
  
@@ -346,10 +346,10 @@ index 5ab84f9..c4095fa 100644
            x_active_window_ = None;
          }
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 154d107..cf276b1 100644
+index 6c0168d..fbcfbfc 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
-@@ -119,6 +119,7 @@ Widget::InitParams::InitParams()
+@@ -124,6 +124,7 @@ Widget::InitParams::InitParams()
        use_system_default_icon(false),
        show_state(ui::SHOW_STATE_DEFAULT),
        parent(NULL),
@@ -357,7 +357,7 @@ index 154d107..cf276b1 100644
        native_widget(NULL),
        desktop_window_tree_host(NULL),
        layer_type(ui::LAYER_TEXTURED),
-@@ -142,6 +143,7 @@ Widget::InitParams::InitParams(Type type)
+@@ -148,6 +149,7 @@ Widget::InitParams::InitParams(Type type)
        use_system_default_icon(false),
        show_state(ui::SHOW_STATE_DEFAULT),
        parent(NULL),
@@ -365,7 +365,7 @@ index 154d107..cf276b1 100644
        native_widget(NULL),
        desktop_window_tree_host(NULL),
        layer_type(ui::LAYER_TEXTURED),
-@@ -316,7 +318,7 @@ void Widget::Init(const InitParams& in_params) {
+@@ -323,7 +325,7 @@ void Widget::Init(const InitParams& in_params) {
    InitParams params = in_params;
  
    params.child |= (params.type == InitParams::TYPE_CONTROL);
@@ -374,7 +374,7 @@ index 154d107..cf276b1 100644
  
    if (params.opacity == views::Widget::InitParams::INFER_OPACITY &&
        params.type != views::Widget::InitParams::TYPE_WINDOW &&
-@@ -379,7 +381,12 @@ void Widget::Init(const InitParams& in_params) {
+@@ -386,7 +388,12 @@ void Widget::Init(const InitParams& in_params) {
        Minimize();
    } else if (params.delegate) {
      SetContentsView(params.delegate->GetContentsView());
@@ -389,7 +389,7 @@ index 154d107..cf276b1 100644
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 1342625..7fbc24c 100644
+index 301c0af..de63108 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -232,6 +232,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,

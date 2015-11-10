@@ -253,13 +253,14 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     const std::string& message_name = message->GetName();
     if (message_name == query_message_name_) {
       CefRefPtr<CefListValue> args = message->GetArgumentList();
-      DCHECK_EQ(args->GetSize(), 6U);
+      DCHECK_EQ(args->GetSize(), 7U);
 
       const int64 frame_id = CefInt64Set(args->GetInt(0), args->GetInt(1));
-      const int context_id = args->GetInt(2);
-      const int request_id = args->GetInt(3);
-      const CefString& request = args->GetString(4);
-      const bool persistent = args->GetBool(5);
+      const bool is_main_frame = args->GetBool(2);
+      const int context_id = args->GetInt(3);
+      const int request_id = args->GetInt(4);
+      const CefString& request = args->GetString(5);
+      const bool persistent = args->GetBool(6);
 
       if (handler_set_.empty()) {
         // No handlers so cancel the query.
@@ -270,7 +271,11 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
       const int browser_id = browser->GetIdentifier();
       const int64 query_id = query_id_generator_.GetNextId();
 
-      CefRefPtr<CefFrame> frame = browser->GetFrame(frame_id);
+      CefRefPtr<CefFrame> frame;
+      if (is_main_frame)
+        frame = browser->GetMainFrame();
+      else
+        frame = browser->GetFrame(frame_id);
       CefRefPtr<CallbackImpl> callback(
           new CallbackImpl(this, browser_id, query_id, persistent));
     
@@ -298,6 +303,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
         QueryInfo* info = new QueryInfo;
         info->browser = browser;
         info->frame_id = frame_id;
+        info->is_main_frame = is_main_frame;
         info->context_id = context_id;
         info->request_id = request_id;
         info->persistent = persistent;
@@ -334,6 +340,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     // Browser and frame originated the query.
     CefRefPtr<CefBrowser> browser;
     int64 frame_id;
+    bool is_main_frame;
 
     // IDs that uniquely identify the query in the renderer process. These
     // values are opaque to the browser process but must be returned with the
@@ -476,7 +483,11 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
     if (notify_renderer)
       SendQueryFailure(info, kCanceledErrorCode, kCanceledErrorMessage);
 
-    CefRefPtr<CefFrame> frame = info->browser->GetFrame(info->frame_id);
+    CefRefPtr<CefFrame> frame;
+    if (info->is_main_frame)
+      frame = info->browser->GetMainFrame();
+    else
+      frame = info->browser->GetFrame(info->frame_id);
     info->handler->OnQueryCanceled(info->browser, frame, query_id);
 
     // Invalidate the callback.
@@ -668,11 +679,12 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
         CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
         const int context_id = GetIDForContext(context);
         const int64 frame_id = context->GetFrame()->GetIdentifier();
+        const bool is_main_frame = context->GetFrame()->IsMain();
         const bool persistent =
             (persistentVal.get() && persistentVal->GetBoolValue());
 
         const int request_id = router_->SendQuery(
-            context->GetBrowser(), frame_id, context_id,
+            context->GetBrowser(), frame_id, is_main_frame, context_id,
             requestVal->GetStringValue(), persistent, successVal, failureVal);
         retval = CefV8Value::CreateInt(request_id);
         return true;
@@ -687,9 +699,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
         if (request_id != kReservedId) {
           CefRefPtr<CefV8Context> context = CefV8Context::GetCurrentContext();
           const int context_id = GetIDForContext(context);
-          const int64 frame_id = context->GetFrame()->GetIdentifier();
-
-          result = router_->SendCancel(context->GetBrowser(), frame_id,
+          result = router_->SendCancel(context->GetBrowser(),
                                        context_id, request_id);
         }
         retval = CefV8Value::CreateBool(result);
@@ -817,7 +827,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
     const int context_id = GetIDForContext(context, true);
     if (context_id != kReservedId) {
       // Cancel all pending requests for the context.
-      SendCancel(browser, frame->GetIdentifier(), context_id, kReservedId);
+      SendCancel(browser, context_id, kReservedId);
     }
   }
 
@@ -915,6 +925,7 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
   // Returns the new request ID.
   int SendQuery(CefRefPtr<CefBrowser> browser,
                 int64 frame_id,
+                bool is_main_frame,
                 int context_id,
                 const CefString& request,
                 bool persistent,
@@ -937,10 +948,11 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
     CefRefPtr<CefListValue> args = message->GetArgumentList();
     args->SetInt(0, CefInt64GetLow(frame_id));
     args->SetInt(1, CefInt64GetHigh(frame_id));
-    args->SetInt(2, context_id);
-    args->SetInt(3, request_id);
-    args->SetString(4, request);
-    args->SetBool(5, persistent);
+    args->SetBool(2, is_main_frame);
+    args->SetInt(3, context_id);
+    args->SetInt(4, request_id);
+    args->SetString(5, request);
+    args->SetBool(6, persistent);
 
     browser->SendProcessMessage(PID_BROWSER, message);
 
@@ -951,7 +963,6 @@ class CefMessageRouterRendererSideImpl : public CefMessageRouterRendererSide {
   // will be canceled, otherwise only the specified |request_id| will be
   // canceled. Returns true if any request was canceled. 
   bool SendCancel(CefRefPtr<CefBrowser> browser,
-                  int64 frame_id,
                   int context_id,
                   int request_id) {
     CEF_REQUIRE_RENDERER_THREAD();

@@ -56,6 +56,7 @@
   textField_ = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 300, 22)];
   [[textField_ cell] setLineBreakMode:NSLineBreakByTruncatingTail];
   [alert_ setAccessoryView:textField_];
+  [[alert_ window] setInitialFirstResponder:textField_];
   [textField_ release];
 
   return textField_;

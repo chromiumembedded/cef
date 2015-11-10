@@ -110,13 +110,11 @@ class GeolocationTestHandler : public TestHandler {
 
   void OnCancelGeolocationPermission(
       CefRefPtr<CefBrowser> browser,
-      const CefString& requesting_url,
       int request_id) override {
     got_cancelgeolocationpermission_.yes();
 
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
 
-    EXPECT_STREQ(kTestOrigin, requesting_url.ToString().c_str());
     EXPECT_EQ(request_id, request_id_);
   }
 

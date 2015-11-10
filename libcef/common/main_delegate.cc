@@ -27,7 +27,6 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/widevine_cdm_constants.h"
 #include "components/content_settings/core/common/content_settings_pattern.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/browser/render_process_host.h"
@@ -193,8 +192,10 @@ void OverridePepperFlashSystemPluginPath() {
   return;
 #endif
 
-  PathService::Override(chrome::FILE_PEPPER_FLASH_SYSTEM_PLUGIN,
-                        plugin_filename);
+  if (!plugin_filename.empty()) {
+    PathService::Override(chrome::FILE_PEPPER_FLASH_SYSTEM_PLUGIN,
+                          plugin_filename);
+  }
 }
 
 #if defined(OS_LINUX)
@@ -566,8 +567,9 @@ void CefMainDelegate::PreSandboxStartup() {
     }
 #if defined(WIDEVINE_CDM_IS_COMPONENT)
     if (command_line->HasSwitch(switches::kEnableWidevineCdm)) {
-      PathService::Override(chrome::DIR_COMPONENT_WIDEVINE_CDM,
-                            user_data_path.Append(kWidevineCdmBaseDirectory));
+      PathService::Override(
+          chrome::DIR_COMPONENT_WIDEVINE_CDM,
+          user_data_path.Append(FILE_PATH_LITERAL("WidevineCDM")));
     }
 #endif  // defined(WIDEVINE_CDM_IS_COMPONENT)
 #endif  // defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)

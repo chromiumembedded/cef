@@ -455,7 +455,7 @@ void CefBrowserHostImpl::PlatformNotifyMoveOrResizeStarted() {
 
   // Send updated screen rectangle information to the renderer process so that
   // popups are displayed in the correct location.
-  content::RenderWidgetHostImpl::From(web_contents()->GetRenderViewHost())->
-      SendScreenRects();
+  content::RenderWidgetHostImpl::From(
+      web_contents()->GetRenderViewHost()->GetWidget())->SendScreenRects();
 }
 

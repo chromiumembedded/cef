@@ -34,7 +34,7 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
   ~CefWebURLLoaderClient() override;
 
   // blink::WebURLLoaderClient methods.
-  void willSendRequest(
+  void willFollowRedirect(
       WebURLLoader* loader,
       WebURLRequest& newRequest,
       const WebURLResponse& redirectResponse) override;
@@ -260,7 +260,7 @@ CefWebURLLoaderClient::CefWebURLLoaderClient(
 CefWebURLLoaderClient::~CefWebURLLoaderClient() {
 }
 
-void CefWebURLLoaderClient::willSendRequest(
+void CefWebURLLoaderClient::willFollowRedirect(
     WebURLLoader* loader,
     WebURLRequest& newRequest,
     const WebURLResponse& redirectResponse) {

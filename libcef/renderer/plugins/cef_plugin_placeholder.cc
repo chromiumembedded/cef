@@ -8,12 +8,14 @@
 #include "libcef/renderer/content_renderer_client.h"
 #include "libcef/renderer/plugins/plugin_preroller.h"
 
+#include "base/command_line.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/values.h"
 #include "chrome/grit/generated_resources.h"
 #include "chrome/renderer/custom_menu_commands.h"
 #include "components/content_settings/content/common/content_settings_messages.h"
+#include "content/public/common/content_switches.h"
 #include "content/public/common/context_menu_params.h"
 #include "content/public/renderer/render_frame.h"
 #include "content/public/renderer/render_thread.h"
@@ -274,15 +276,24 @@ blink::WebPlugin* CefPluginPlaceholder::CreatePlugin() {
 
 gin::ObjectTemplateBuilder CefPluginPlaceholder::GetObjectTemplateBuilder(
     v8::Isolate* isolate) {
-  return gin::Wrappable<CefPluginPlaceholder>::GetObjectTemplateBuilder(
-             isolate)
-      .SetMethod<void (CefPluginPlaceholder::*)()>(
-           "hide", &CefPluginPlaceholder::HideCallback)
-      .SetMethod<void (CefPluginPlaceholder::*)()>(
-           "load", &CefPluginPlaceholder::LoadCallback)
-      .SetMethod<void (CefPluginPlaceholder::*)()>(
-           "didFinishLoading",
-           &CefPluginPlaceholder::DidFinishLoadingCallback)
-      .SetMethod("openAboutPlugins",
-                 &CefPluginPlaceholder::OpenAboutPluginsCallback);
+  gin::ObjectTemplateBuilder builder =
+      gin::Wrappable<CefPluginPlaceholder>::GetObjectTemplateBuilder(isolate)
+          .SetMethod<void (CefPluginPlaceholder::*)()>(
+              "hide", &CefPluginPlaceholder::HideCallback)
+          .SetMethod<void (CefPluginPlaceholder::*)()>(
+              "load", &CefPluginPlaceholder::LoadCallback)
+          .SetMethod<void (CefPluginPlaceholder::*)()>(
+              "didFinishLoading",
+              &CefPluginPlaceholder::DidFinishLoadingCallback)
+          .SetMethod("openAboutPlugins",
+                     &CefPluginPlaceholder::OpenAboutPluginsCallback);
+
+  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kEnablePluginPlaceholderTesting)) {
+    builder.SetMethod<void (CefPluginPlaceholder::*)()>(
+        "didFinishIconRepositionForTesting",
+        &CefPluginPlaceholder::DidFinishIconRepositionForTestingCallback);
+  }
+
+  return builder;
 }

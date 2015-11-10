@@ -317,6 +317,7 @@ void WaitForThread(CefRefPtr<CefTaskRunner> task_runner);
 
 #define WaitForIOThread() WaitForThread(TID_IO)
 #define WaitForUIThread() WaitForThread(TID_UI)
+#define WaitForDBThread() WaitForThread(TID_DB)
 
 // Returns true if the currently running test has failed.
 bool TestFailed();

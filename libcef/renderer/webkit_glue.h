@@ -44,6 +44,10 @@ int64 GetIdentifier(blink::WebFrame* frame);
 blink::WebFrame* FindFrameByUniqueName(const blink::WebString& unique_name,
                                        blink::WebFrame* relative_to_frame);
 
+// Initialize PartitionAlloc before calling Blink functions from the browser
+// process. Safe to call multiple times.
+void InitializePartitionAlloc();
+
 bool ParseCSSColor(const blink::WebString& string, bool strict, SkColor& color);
 
 }  // webkit_glue

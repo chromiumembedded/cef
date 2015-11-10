@@ -297,9 +297,9 @@ bool PrintViewManagerBase::RenderAllMissingPagesNow() {
   // to actually spool the pages, only to have the renderer generate them. Run
   // a message loop until we get our signal that the print job is satisfied.
   // PrintJob will send a ALL_PAGES_REQUESTED after having received all the
-  // pages it needs. MessageLoop::current()->Quit() will be called as soon as
-  // print_job_->document()->IsComplete() is true on either ALL_PAGES_REQUESTED
-  // or in DidPrintPage(). The check is done in
+  // pages it needs. MessageLoop::current()->QuitWhenIdle() will be called as
+  // soon as print_job_->document()->IsComplete() is true on either
+  // ALL_PAGES_REQUESTED or in DidPrintPage(). The check is done in
   // ShouldQuitFromInnerMessageLoop().
   // BLOCKS until all the pages are received. (Need to enable recursive task)
   if (!RunInnerMessageLoop()) {
@@ -318,7 +318,7 @@ void PrintViewManagerBase::ShouldQuitFromInnerMessageLoop() {
       inside_inner_message_loop_) {
     // We are in a message loop created by RenderAllMissingPagesNow. Quit from
     // it.
-    base::MessageLoop::current()->Quit();
+    base::MessageLoop::current()->QuitWhenIdle();
     inside_inner_message_loop_ = false;
   }
 }
@@ -424,9 +424,9 @@ bool PrintViewManagerBase::RunInnerMessageLoop() {
   // memory-bound.
   static const int kPrinterSettingsTimeout = 60000;
   base::OneShotTimer quit_timer;
-  quit_timer.Start(FROM_HERE,
-                   TimeDelta::FromMilliseconds(kPrinterSettingsTimeout),
-                   base::MessageLoop::current(), &base::MessageLoop::Quit);
+  quit_timer.Start(
+      FROM_HERE, TimeDelta::FromMilliseconds(kPrinterSettingsTimeout),
+      base::MessageLoop::current(), &base::MessageLoop::QuitWhenIdle);
 
   inside_inner_message_loop_ = true;
 
@@ -477,8 +477,9 @@ bool PrintViewManagerBase::OpportunisticallyCreatePrintJob(int cookie) {
 }
 
 bool PrintViewManagerBase::PrintNowInternal(IPC::Message* message) {
-  // Don't print / print preview interstitials.
-  if (web_contents()->ShowingInterstitialPage()) {
+  // Don't print / print preview interstitials or crashed tabs.
+  if (web_contents()->ShowingInterstitialPage() ||
+      web_contents()->IsCrashed()) {
     delete message;
     return false;
   }

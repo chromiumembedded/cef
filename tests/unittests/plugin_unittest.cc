@@ -35,10 +35,6 @@ class PluginBrowserTest : public client::ClientAppBrowser::Delegate {
   void OnBeforeCommandLineProcessing(
       CefRefPtr<client::ClientAppBrowser> app,
       CefRefPtr<CefCommandLine> command_line) override {
-    // Enables testing of the plugin placeholder.
-    // See LoadablePluginPlaceholder::DidFinishLoadingCallback.
-    command_line->AppendSwitch("enable-plugin-placeholder-testing");
-
     // Allow all plugin loading by default.
     command_line->AppendSwitchWithValue("plugin-policy", "allow");
   }
@@ -49,6 +45,9 @@ class PluginBrowserTest : public client::ClientAppBrowser::Delegate {
 
 const char kPdfHtmlUrl[] = "http://tests/pdf.html";
 const char kPdfDirectUrl[] = "http://tests/pdf.pdf";
+
+// Delay waiting for the plugin placeholder to load.
+const int64 kPlaceholderLoadDelayMs = 1000;
 
 // Delay waiting for iframe tests to load the PDF file.
 #if defined(OS_LINUX)
@@ -246,29 +245,12 @@ class PluginTestHandler : public RoutingTestHandler,
     frame->ExecuteJavaScript(code, frame->GetURL(), 0);
   }
 
-  void WaitForPlaceholderLoad(CefRefPtr<CefFrame> frame) const {
+  void WaitForPlaceholderLoad(CefRefPtr<CefFrame> frame) {
     // Waits for the placeholder to load.
-    // See LoadablePluginPlaceholder::DidFinishLoadingCallback and
-    // chrome/browser/plugins/plugin_power_saver_browsertest.cc.
-    const std::string& code =
-        "var plugin = " + GetPluginNode() +";"
-        "if (plugin === undefined ||"
-        "    (plugin.nodeName !== 'OBJECT' && plugin.nodeName !== 'EMBED')) {"
-        "  window.testQuery({request:'placeholder_error'});"
-        "} else {"
-        "  function handleEvent(event) {"
-        "   if (event.data === 'placeholderLoaded') {"
-        "     window.testQuery({request:'placeholder_ready'});"
-        "     plugin.removeEventListener('message', handleEvent);"
-        "   }"
-        " }"
-        " plugin.addEventListener('message', handleEvent);"
-        " if (plugin.hasAttribute('placeholderLoaded')) {"
-        "   window.testQuery({request:'placeholder_ready'});"
-        "   plugin.removeEventListener('message', handleEvent);"
-        " }"
-        "}";
-    frame->ExecuteJavaScript(code, frame->GetURL(), 0);
+    CefPostDelayedTask(TID_UI,
+        base::Bind(&PluginTestHandler::TriggerContextMenu, this,
+                   frame->GetBrowser()),
+        kPlaceholderLoadDelayMs);
   }
 
   void WaitForPlaceholderHide(CefRefPtr<CefFrame> frame) const {
@@ -430,15 +412,7 @@ class PluginTestHandler : public RoutingTestHandler,
         // Wait for the first PDF file to load.
         WaitForPluginLoad(frame);
       }
-    } else if (request == "placeholder_ready") {
-      EXPECT_FALSE(got_placeholder_ready_);
-      got_placeholder_ready_.yes();
-
-      // The plugin placeholder has loaded.
-      CefPostTask(TID_UI,
-          base::Bind(&PluginTestHandler::TriggerContextMenu, this, browser));
     } else if (request == "placeholder_hidden") {
-      EXPECT_TRUE(got_placeholder_ready_);
       EXPECT_FALSE(got_placeholder_hidden_);
       got_placeholder_hidden_.yes();
 
@@ -536,11 +510,6 @@ class PluginTestHandler : public RoutingTestHandler,
       context_handler_ = NULL;
     }
 
-    if (HasBlock() || HasDisable())
-      EXPECT_TRUE(got_placeholder_ready_);
-    else
-      EXPECT_FALSE(got_placeholder_ready_);
-
     if (HasContextHide()) {
       EXPECT_TRUE(got_placeholder_hidden_);
       EXPECT_FALSE(got_plugin_ready_);
@@ -614,7 +583,6 @@ class PluginTestHandler : public RoutingTestHandler,
   TrackCallback got_on_load_end_pdf2_;
   TrackCallback got_pdf_plugin_found_;
   TrackCallback got_pdf_plugin_missing_;
-  TrackCallback got_placeholder_ready_;
   TrackCallback got_placeholder_hidden_;
   TrackCallback got_plugin_ready_;
   TrackCallback got_run_context_menu_;

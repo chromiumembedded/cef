@@ -1,8 +1,8 @@
 diff --git web_dialog_view.cc web_dialog_view.cc
-index 4b5e8b2..1501d0b 100644
+index c5a2b03..0594c4a 100644
 --- web_dialog_view.cc
 +++ web_dialog_view.cc
-@@ -340,7 +340,9 @@ bool WebDialogView::ShouldCreateWebContents(
+@@ -341,7 +341,9 @@ bool WebDialogView::ShouldCreateWebContents(
      const std::string& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
@@ -14,10 +14,10 @@ index 4b5e8b2..1501d0b 100644
      return delegate_->HandleShouldCreateWebContents();
    return true;
 diff --git web_dialog_view.h web_dialog_view.h
-index dc6598d..ce2616c 100644
+index d897dbf..92bb481 100644
 --- web_dialog_view.h
 +++ web_dialog_view.h
-@@ -119,7 +119,9 @@ class WEBVIEW_EXPORT WebDialogView : public views::ClientView,
+@@ -120,7 +120,9 @@ class WEBVIEW_EXPORT WebDialogView : public views::ClientView,
        const std::string& frame_name,
        const GURL& target_url,
        const std::string& partition_id,

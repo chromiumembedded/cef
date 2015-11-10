@@ -1,9 +1,9 @@
 diff --git web_contents_impl.cc web_contents_impl.cc
-index 7c84d90..2aaace4 100644
+index bf45da9..19ef2c7 100644
 --- web_contents_impl.cc
 +++ web_contents_impl.cc
-@@ -1353,23 +1353,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
-                            MSG_ROUTING_NONE);
+@@ -1351,23 +1351,30 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+                            main_frame_widget_routing_id);
    frame_tree_.root()->SetFrameName(params.main_frame_name);
  
 -  WebContentsViewDelegate* delegate =
@@ -50,7 +50,7 @@ index 7c84d90..2aaace4 100644
    }
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
-@@ -1715,6 +1722,9 @@ void WebContentsImpl::CreateNewWindow(
+@@ -1719,11 +1726,14 @@ void WebContentsImpl::CreateNewWindow(
        static_cast<SessionStorageNamespaceImpl*>(session_storage_namespace);
    CHECK(session_storage_namespace_impl->IsFromContext(dom_storage_context));
  
@@ -58,20 +58,15 @@ index 7c84d90..2aaace4 100644
 +  content::RenderViewHostDelegateView* delegate_view = NULL;
 +
    if (delegate_ &&
-       !delegate_->ShouldCreateWebContents(this,
-                                           route_id,
-@@ -1723,7 +1733,9 @@ void WebContentsImpl::CreateNewWindow(
-                                           params.frame_name,
-                                           params.target_url,
-                                           partition_id,
--                                          session_storage_namespace)) {
-+                                          session_storage_namespace,
-+                                          &view,
-+                                          &delegate_view)) {
+       !delegate_->ShouldCreateWebContents(
+           this, route_id, main_frame_route_id, main_frame_widget_route_id,
+           params.window_container_type, params.frame_name, params.target_url,
+-          partition_id, session_storage_namespace)) {
++          partition_id, session_storage_namespace, &view, &delegate_view)) {
      if (route_id != MSG_ROUTING_NONE &&
          !RenderViewHost::FromID(render_process_id, route_id)) {
        // If the embedder didn't create a WebContents for this route, we need to
-@@ -1745,6 +1757,8 @@ void WebContentsImpl::CreateNewWindow(
+@@ -1748,6 +1758,8 @@ void WebContentsImpl::CreateNewWindow(
    create_params.opener_render_process_id = render_process_id;
    create_params.opener_render_frame_id = params.opener_render_frame_id;
    create_params.opener_suppressed = params.opener_suppressed;

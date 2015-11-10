@@ -117,31 +117,13 @@ NSView* CefRenderWidgetHostViewOSR::AcceleratedWidgetGetNSView() const {
   return [window_ contentView];
 }
 
-bool CefRenderWidgetHostViewOSR::AcceleratedWidgetShouldIgnoreBackpressure()
-    const {
-  return true;
-}
-
 void CefRenderWidgetHostViewOSR::AcceleratedWidgetGetVSyncParameters(
     base::TimeTicks* timebase, base::TimeDelta* interval) const {
   *timebase = base::TimeTicks();
   *interval = base::TimeDelta();
 }
 
-void CefRenderWidgetHostViewOSR::AcceleratedWidgetSwapCompleted(
-    const std::vector<ui::LatencyInfo>& all_latency_info) {
-  if (!render_widget_host_)
-    return;
-  for (auto latency_info : all_latency_info) {
-    latency_info.AddLatencyNumber(
-        ui::INPUT_EVENT_LATENCY_TERMINATED_FRAME_SWAP_COMPONENT, 0, 0);
-    render_widget_host_->FrameSwapped(latency_info);
-  }
-}
-
-void CefRenderWidgetHostViewOSR::AcceleratedWidgetHitError() {
-  // Request a new frame be drawn.
-  browser_compositor_->compositor()->ScheduleFullRedraw();
+void CefRenderWidgetHostViewOSR::AcceleratedWidgetSwapCompleted() {
 }
 
 CefTextInputContext CefRenderWidgetHostViewOSR::GetNSTextInputContext() {

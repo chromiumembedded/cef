@@ -55,6 +55,7 @@
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
+#include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/resource_dispatcher_host.h"
 #include "content/public/common/content_switches.h"
@@ -1068,8 +1069,10 @@ void CefContentBrowserClient::OverrideWebkitPrefs(
     content::WebPreferences* prefs) {
   renderer_prefs::PopulateWebPreferences(rvh, *prefs);
 
-  if (rvh->GetView())
-    rvh->GetView()->SetBackgroundColor(prefs->base_background_color);
+  if (rvh->GetWidget()->GetView()) {
+    rvh->GetWidget()->GetView()->SetBackgroundColor(
+        prefs->base_background_color);
+  }
 }
 
 void CefContentBrowserClient::BrowserURLHandlerCreated(

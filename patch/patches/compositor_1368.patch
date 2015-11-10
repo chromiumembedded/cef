@@ -1,8 +1,8 @@
 diff --git content/browser/compositor/gpu_process_transport_factory.cc content/browser/compositor/gpu_process_transport_factory.cc
-index b7ed844..c6ec2a9 100644
+index b74845f..4ac77c3 100644
 --- content/browser/compositor/gpu_process_transport_factory.cc
 +++ content/browser/compositor/gpu_process_transport_factory.cc
-@@ -142,6 +142,13 @@ GpuProcessTransportFactory::CreateOffscreenCommandBufferContext() {
+@@ -143,6 +143,13 @@ GpuProcessTransportFactory::CreateOffscreenCommandBufferContext() {
  scoped_ptr<cc::SoftwareOutputDevice>
  GpuProcessTransportFactory::CreateSoftwareOutputDevice(
      ui::Compositor* compositor) {
@@ -17,10 +17,10 @@ index b7ed844..c6ec2a9 100644
    return scoped_ptr<cc::SoftwareOutputDevice>(
        new SoftwareOutputDeviceWin(software_backing_.get(), compositor));
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index fe2a033..b6cd7c9 100644
+index 1602d30..3dd3e3e 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
-@@ -15,6 +15,7 @@
+@@ -14,6 +14,7 @@
  #include "base/single_thread_task_runner.h"
  #include "base/time/time.h"
  #include "cc/output/begin_frame_args.h"
@@ -28,7 +28,7 @@ index fe2a033..b6cd7c9 100644
  #include "cc/surfaces/surface_sequence.h"
  #include "cc/trees/layer_tree_host_client.h"
  #include "cc/trees/layer_tree_host_single_thread_client.h"
-@@ -149,6 +150,17 @@ class COMPOSITOR_EXPORT CompositorBeginFrameObserver {
+@@ -148,6 +149,17 @@ class COMPOSITOR_EXPORT CompositorBeginFrameObserver {
    virtual void OnSendBeginFrame(const cc::BeginFrameArgs& args) = 0;
  };
  
@@ -46,7 +46,7 @@ index fe2a033..b6cd7c9 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -169,6 +181,9 @@ class COMPOSITOR_EXPORT Compositor
+@@ -168,6 +180,9 @@ class COMPOSITOR_EXPORT Compositor
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  
@@ -56,7 +56,7 @@ index fe2a033..b6cd7c9 100644
    // Sets the root of the layer tree drawn by this Compositor. The root layer
    // must have no parent. The compositor's root layer is reset if the root layer
    // is destroyed. NULL can be passed to reset the root layer, in which case the
-@@ -335,6 +350,8 @@ class COMPOSITOR_EXPORT Compositor
+@@ -338,6 +353,8 @@ class COMPOSITOR_EXPORT Compositor
  
    ui::ContextFactory* context_factory_;
  

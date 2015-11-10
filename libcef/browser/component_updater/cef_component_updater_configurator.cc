@@ -126,8 +126,6 @@ class CefConfigurator : public Configurator {
   bool UseBackgroundDownloader() const override;
   scoped_refptr<base::SequencedTaskRunner> GetSequencedTaskRunner()
       const override;
-  scoped_refptr<base::SingleThreadTaskRunner> GetSingleThreadTaskRunner()
-      const override;
 
  private:
   friend class base::RefCountedThreadSafe<CefConfigurator>;
@@ -287,12 +285,6 @@ CefConfigurator::GetSequencedTaskRunner() const {
       ->GetSequencedTaskRunnerWithShutdownBehavior(
           content::BrowserThread::GetBlockingPool()->GetSequenceToken(),
           base::SequencedWorkerPool::SKIP_ON_SHUTDOWN);
-}
-
-scoped_refptr<base::SingleThreadTaskRunner>
-CefConfigurator::GetSingleThreadTaskRunner() const {
-  return content::BrowserThread::GetMessageLoopProxyForThread(
-      content::BrowserThread::FILE);
 }
 
 }  // namespace

@@ -261,6 +261,13 @@ scoped_ptr<ExtensionSet> CefExtensionSystem::GetDependentExtensions(
   return make_scoped_ptr(new ExtensionSet());
 }
 
+void CefExtensionSystem::InstallUpdate(const std::string& extension_id,
+                                       const base::FilePath& temp_dir) {
+  NOTREACHED();
+  base::DeleteFile(temp_dir, true /* recursive */);
+}
+
+
 CefExtensionSystem::ComponentExtensionInfo::ComponentExtensionInfo(
     const base::DictionaryValue* manifest, const base::FilePath& directory)
     : manifest(manifest),

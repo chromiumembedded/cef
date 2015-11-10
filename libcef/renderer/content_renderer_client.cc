@@ -14,7 +14,6 @@
 #include "libcef/common/request_impl.h"
 #include "libcef/common/values_impl.h"
 #include "libcef/renderer/browser_impl.h"
-#include "libcef/renderer/extensions/extensions_dispatcher_delegate.h"
 #include "libcef/renderer/extensions/extensions_renderer_client.h"
 #include "libcef/renderer/extensions/print_web_view_helper_delegate.h"
 #include "libcef/renderer/media/cef_key_systems.h"
@@ -34,12 +33,10 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/utf_string_conversions.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/extensions/extension_process_policy.h"
 #include "chrome/common/pepper_permission_util.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/grit/generated_resources.h"
 #include "chrome/renderer/content_settings_observer.h"
-#include "chrome/renderer/extensions/resource_request_policy.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
 #include "chrome/renderer/pepper/chrome_pdf_print_client.h"
 #include "chrome/renderer/spellchecker/spellcheck.h"
@@ -55,31 +52,22 @@
 #include "content/public/child/child_thread.h"
 #include "content/public/common/content_constants.h"
 #include "content/public/common/content_paths.h"
+#include "content/public/common/content_switches.h"
 #include "content/public/renderer/plugin_instance_throttler.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/render_view_visitor.h"
 #include "content/renderer/render_frame_impl.h"
-#include "extensions/common/constants.h"
-#include "extensions/common/switches.h"
-#include "extensions/renderer/dispatcher.h"
-#include "extensions/renderer/dispatcher_delegate.h"
-#include "extensions/renderer/extension_frame_helper.h"
-#include "extensions/renderer/extension_helper.h"
-#include "extensions/renderer/guest_view/extensions_guest_view_container.h"
-#include "extensions/renderer/guest_view/extensions_guest_view_container_dispatcher.h"
-#include "extensions/renderer/guest_view/mime_handler_view/mime_handler_view_container.h"
+#include "extensions/renderer/renderer_extension_registry.h"
 #include "ipc/ipc_sync_channel.h"
 #include "media/base/media.h"
 #include "third_party/WebKit/public/platform/WebPrerenderingSupport.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/web/WebConsoleMessage.h"
-#include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebElement.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
-#include "third_party/WebKit/public/web/WebPluginParams.h"
 #include "third_party/WebKit/public/web/WebPrerendererClient.h"
 #include "third_party/WebKit/public/web/WebRuntimeFeatures.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
@@ -116,14 +104,6 @@ class CefPrerendererClient : public content::RenderViewObserver,
 
   void willAddPrerender(blink::WebPrerender* prerender) override {}
 };
-
-void IsGuestViewApiAvailableToScriptContext(
-    bool* api_is_available,
-    extensions::ScriptContext* context) {
-  if (context->GetAvailability("guestViewInternal").is_available()) {
-    *api_is_available = true;
-  }
-}
 
 void AppendParams(const std::vector<base::string16>& additional_names,
                   const std::vector<base::string16>& additional_values,
@@ -165,73 +145,20 @@ std::string GetPluginInstancePosterAttribute(
   return std::string();
 }
 
-bool IsStandaloneExtensionProcess() {
-  return base::CommandLine::ForCurrentProcess()->HasSwitch(
-      extensions::switches::kExtensionProcess);
-}
-
-bool CrossesExtensionExtents(
-    blink::WebLocalFrame* frame,
-    const GURL& new_url,
-    bool is_extension_url,
-    bool is_initial_navigation) {
-  DCHECK(!frame->parent());
-  GURL old_url(frame->document().url());
-
-  extensions::RendererExtensionRegistry* extension_registry =
-      extensions::RendererExtensionRegistry::Get();
-
-  // If old_url is still empty and this is an initial navigation, then this is
-  // a window.open operation.  We should look at the opener URL.  Note that the
-  // opener is a local frame in this case.
-  if (is_initial_navigation && old_url.is_empty() && frame->opener()) {
-    blink::WebLocalFrame* opener_frame = frame->opener()->toWebLocalFrame();
-
-    // If we're about to open a normal web page from a same-origin opener stuck
-    // in an extension process, we want to keep it in process to allow the
-    // opener to script it.
-    blink::WebDocument opener_document = opener_frame->document();
-    blink::WebSecurityOrigin opener_origin = opener_document.securityOrigin();
-    bool opener_is_extension_url = !opener_origin.isUnique() &&
-                                   extension_registry->GetExtensionOrAppByURL(
-                                       opener_document.url()) != NULL;
-    if (!is_extension_url &&
-        !opener_is_extension_url &&
-        IsStandaloneExtensionProcess() &&
-        opener_origin.canRequest(blink::WebURL(new_url)))
-      return false;
-
-    // In all other cases, we want to compare against the URL that determines
-    // the type of process.  In default Chrome, that's the URL of the opener's
-    // top frame and not the opener frame itself.  In --site-per-process, we
-    // can use the opener frame itself.
-    // TODO(nick): Either wire this up to SiteIsolationPolicy, or to state on
-    // |opener_frame|/its ancestors.
-    if (base::CommandLine::ForCurrentProcess()->HasSwitch(
-            switches::kSitePerProcess) ||
-        base::CommandLine::ForCurrentProcess()->HasSwitch(
-            switches::kIsolateExtensions))
-      old_url = opener_frame->document().url();
-    else
-      old_url = opener_frame->top()->document().url();
-  }
-
-  // Only consider keeping non-app URLs in an app process if this window
-  // has an opener (in which case it might be an OAuth popup that tries to
-  // script an iframe within the app).
-  bool should_consider_workaround = !!frame->opener();
-
-  return extensions::CrossesExtensionProcessBoundary(
-      *extension_registry->GetMainThreadExtensionSet(), old_url, new_url,
-      should_consider_workaround);
-}
-
 }  // namespace
 
 CefContentRendererClient::CefContentRendererClient()
     : devtools_agent_count_(0),
       uncaught_exception_stack_size_(0),
       single_process_cleanup_complete_(false) {
+  if (extensions::ExtensionsEnabled()) {
+    extensions_client_.reset(new extensions::CefExtensionsClient);
+    extensions::ExtensionsClient::Set(extensions_client_.get());
+    extensions_renderer_client_.reset(
+        new extensions::CefExtensionsRendererClient);
+    extensions::ExtensionsRendererClient::Set(
+        extensions_renderer_client_.get());
+  }
 }
 
 CefContentRendererClient::~CefContentRendererClient() {
@@ -464,30 +391,8 @@ void CefContentRendererClient::RenderThreadStarted() {
     pdf::PepperPDFHost::SetPrintClient(pdf_print_client_.get());
   }
 
-  if (extensions::ExtensionsEnabled()) {
-    extensions_client_.reset(new extensions::CefExtensionsClient);
-    extensions::ExtensionsClient::Set(extensions_client_.get());
-
-    extensions_renderer_client_.reset(
-        new extensions::CefExtensionsRendererClient);
-    extensions::ExtensionsRendererClient::Set(
-        extensions_renderer_client_.get());
-
-    extension_dispatcher_delegate_.reset(
-        new extensions::CefExtensionsDispatcherDelegate());
-
-    // Must be initialized after ExtensionsRendererClient.
-    extension_dispatcher_.reset(
-        new extensions::Dispatcher(extension_dispatcher_delegate_.get()));
-    thread->AddObserver(extension_dispatcher_.get());
-
-    guest_view_container_dispatcher_.reset(
-        new extensions::ExtensionsGuestViewContainerDispatcher());
-    thread->AddObserver(guest_view_container_dispatcher_.get());
-
-    resource_request_policy_.reset(
-      new extensions::ResourceRequestPolicy(extension_dispatcher_.get()));
-  }
+  if (extensions::ExtensionsEnabled())
+    extensions_renderer_client_->RenderThreadStarted();
 
   // Notify the render process handler.
   CefRefPtr<CefApp> application = CefContentClient::Get()->application();
@@ -511,11 +416,8 @@ void CefContentRendererClient::RenderFrameCreated(
   new CefRenderFrameObserver(render_frame);
   new CefPepperHelper(render_frame);
 
-  if (extensions::ExtensionsEnabled()) {
-    new extensions::ExtensionFrameHelper(render_frame,
-                                         extension_dispatcher_.get());
-    extension_dispatcher_->OnRenderFrameCreated(render_frame);
-  }
+  if (extensions::ExtensionsEnabled())
+    extensions_renderer_client_->RenderFrameCreated(render_frame);
 
   BrowserCreated(render_frame->GetRenderView(), render_frame);
 }
@@ -528,9 +430,8 @@ void CefContentRendererClient::RenderViewCreated(
       make_scoped_ptr<printing::PrintWebViewHelper::Delegate>(
           new extensions::CefPrintWebViewHelperDelegate()));
 
-  if (extensions::ExtensionsEnabled()) {
-    new extensions::ExtensionHelper(render_view, extension_dispatcher_.get());
-  }
+  if (extensions::ExtensionsEnabled())
+    extensions_renderer_client_->RenderViewCreated(render_view);
 
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
@@ -545,26 +446,19 @@ bool CefContentRendererClient::OverrideCreatePlugin(
     blink::WebLocalFrame* frame,
     const blink::WebPluginParams& params,
     blink::WebPlugin** plugin) {
-  if (!extensions::ExtensionsEnabled())
-    return false;
-
-  // Based on ChromeContentRendererClient::OverrideCreatePlugin.
   std::string orig_mime_type = params.mimeType.utf8();
-  if (orig_mime_type == content::kBrowserPluginMimeType) {
-    bool guest_view_api_available = false;
-    extension_dispatcher_->script_context_set().ForEach(
-        render_frame,
-        base::Bind(&IsGuestViewApiAvailableToScriptContext,
-                   &guest_view_api_available));
-    if (guest_view_api_available)
-      return false;
+  if (extensions::ExtensionsEnabled() &&
+      !extensions_renderer_client_->OverrideCreatePlugin(render_frame,
+                                                         params)) {
+    return false;
   }
 
   GURL url(params.url);
   CefViewHostMsg_GetPluginInfo_Output output;
+  blink::WebString top_origin = frame->top()->securityOrigin().toString();
   render_frame->Send(new CefViewHostMsg_GetPluginInfo(
-      render_frame->GetRoutingID(), url, frame->top()->document().url(),
-      orig_mime_type, &output));
+      render_frame->GetRoutingID(), url, GURL(top_origin), orig_mime_type,
+      &output));
 
   *plugin = CreatePlugin(render_frame, frame, params, output);
   return true;
@@ -572,7 +466,7 @@ bool CefContentRendererClient::OverrideCreatePlugin(
 
 bool CefContentRendererClient::HandleNavigation(
     content::RenderFrame* render_frame,
-    content::DocumentState* document_state,
+    bool is_content_initiated,
     int opener_id,
     blink::WebFrame* frame,
     const blink::WebURLRequest& request,
@@ -644,42 +538,8 @@ bool CefContentRendererClient::ShouldFork(blink::WebLocalFrame* frame,
     return false;
 
   if (extensions::ExtensionsEnabled()) {
-    const extensions::RendererExtensionRegistry* extension_registry =
-        extensions::RendererExtensionRegistry::Get();
-
-    // Determine if the new URL is an extension (excluding bookmark apps).
-    const extensions::Extension* new_url_extension =
-        extensions::GetNonBookmarkAppExtension(
-            *extension_registry->GetMainThreadExtensionSet(), url);
-    bool is_extension_url = !!new_url_extension;
-
-    // If the navigation would cross an app extent boundary, we also need
-    // to defer to the browser to ensure process isolation.  This is not
-    // necessary for server redirects, which will be transferred to a new
-    // process by the browser process when they are ready to commit.  It is
-    // necessary for client redirects, which won't be transferred in the same
-    // way.
-    if (!is_server_redirect &&
-        CrossesExtensionExtents(frame, url, is_extension_url,
-                                is_initial_navigation)) {
-      // Include the referrer in this case since we're going from a hosted web
-      // page. (the packaged case is handled previously by the extension
-      // navigation test)
-      *send_referrer = true;
-      return true;
-    }
-
-    // If this is a reload, check whether it has the wrong process type.  We
-    // should send it to the browser if it's an extension URL (e.g., hosted app)
-    // in a normal process, or if it's a process for an extension that has been
-    // uninstalled.  Without --site-per-process mode, we never fork processes
-    // for subframes, so this check only makes sense for top-level frames.
-    // TODO(alexmos,nasko): Figure out how this check should work when reloading
-    // subframes in --site-per-process mode.
-    if (!frame->parent() && frame->document().url() == url) {
-      if (is_extension_url != IsStandaloneExtensionProcess())
-        return true;
-    }
+    return extensions::CefExtensionsRendererClient::ShouldFork(
+        frame, url, is_initial_navigation, is_server_redirect, send_referrer);
   }
 
   return false;
@@ -692,21 +552,8 @@ bool CefContentRendererClient::WillSendRequest(
     const GURL& first_party_for_cookies,
     GURL* new_url) {
   if (extensions::ExtensionsEnabled()) {
-    // Check whether the request should be allowed. If not allowed, we reset the
-    // URL to something invalid to prevent the request and cause an error.
-    if (url.SchemeIs(extensions::kExtensionScheme) &&
-        !resource_request_policy_->CanRequestResource(url, frame,
-                                                      transition_type)) {
-      *new_url = GURL(chrome::kExtensionInvalidRequestURL);
-      return true;
-    }
-
-    if (url.SchemeIs(extensions::kExtensionResourceScheme) &&
-        !resource_request_policy_->CanRequestExtensionResourceScheme(url,
-                                                                     frame)) {
-      *new_url = GURL(chrome::kExtensionResourceInvalidRequestURL);
-      return true;
-    }
+    return extensions_renderer_client_->WillSendRequest(frame, transition_type,
+                                                        url, new_url);
   }
 
   return false;
@@ -718,12 +565,8 @@ CefContentRendererClient::CreateBrowserPluginDelegate(
     const std::string& mime_type,
     const GURL& original_url) {
   DCHECK(extensions::ExtensionsEnabled());
-  if (mime_type == content::kBrowserPluginMimeType) {
-    return new extensions::ExtensionsGuestViewContainer(render_frame);
-  } else {
-    return new extensions::MimeHandlerViewContainer(
-        render_frame, mime_type, original_url);
-  }
+  return extensions::CefExtensionsRendererClient::CreateBrowserPluginDelegate(
+       render_frame, mime_type, original_url);
 }
 
 void CefContentRendererClient::AddKeySystems(
@@ -787,6 +630,7 @@ blink::WebPlugin* CefContentRendererClient::CreatePlugin(
       params.mimeType = blink::WebString::fromUTF8(actual_mime_type.c_str());
     }
 
+    base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
     auto create_blocked_plugin =
         [&render_frame, &frame, &params, &info, &identifier, &group_name](
             int template_id, const base::string16& message) {
@@ -806,11 +650,26 @@ blink::WebPlugin* CefContentRendererClient::CreatePlugin(
         //                CefContentRendererClient::CreatePlugin instead, to
         //                reduce the chance of future regressions.
         bool is_prerendering = false;
-        bool power_saver_enabled =
+        bool is_flash =
+            info.name == base::ASCIIToUTF16(content::kFlashPluginName);
+
+        std::string override_for_testing = command_line->GetSwitchValueASCII(
+            switches::kOverridePluginPowerSaverForTesting);
+
+        // This feature has only been tested throughly with Flash thus far.
+        // It is also enabled for the Power Saver test plugin for browser tests.
+        bool can_throttle_plugin_type =
+            is_flash || override_for_testing == "ignore-list";
+
+        bool power_saver_setting_on =
             status ==
-                CefViewHostMsg_GetPluginInfo_Status::kPlayImportantContent;
+            CefViewHostMsg_GetPluginInfo_Status::kPlayImportantContent;
+
+        bool power_saver_enabled =
+            override_for_testing == "always" ||
+            (power_saver_setting_on && can_throttle_plugin_type);
         bool blocked_for_background_tab =
-            render_frame->IsHidden() && power_saver_enabled;
+            power_saver_enabled && render_frame->IsHidden();
 
         PlaceholderPosterInfo poster_info;
         if (power_saver_enabled) {

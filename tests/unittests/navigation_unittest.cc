@@ -347,6 +347,7 @@ class HistoryNavTestHandler : public TestHandler {
   HistoryNavTestHandler()
       : nav_(0),
         load_end_confirmation_(false),
+        load_state_change_loaded_confirmation_(false),
         renderer_confirmation_(false) {}
 
   void RunTest() override {
@@ -401,8 +402,10 @@ class HistoryNavTestHandler : public TestHandler {
   }
 
   void RunNextNavIfReady(CefRefPtr<CefBrowser> browser) {
-    if (load_end_confirmation_ && renderer_confirmation_) {
+    if (load_end_confirmation_ && load_state_change_loaded_confirmation_ &&
+        renderer_confirmation_) {
       load_end_confirmation_ = false;
+      load_state_change_loaded_confirmation_ = false;
       renderer_confirmation_ = false;
       nav_++;
       RunNav(browser);
@@ -470,6 +473,9 @@ class HistoryNavTestHandler : public TestHandler {
                             bool isLoading,
                             bool canGoBack,
                             bool canGoForward) override {
+    if (isLoading)
+      return;
+
     const NavListItem& item = kHNavList[nav_];
 
     got_loading_state_change_[nav_].yes();
@@ -478,6 +484,9 @@ class HistoryNavTestHandler : public TestHandler {
       got_correct_can_go_back_[nav_].yes();
     if (item.can_go_forward == canGoForward)
       got_correct_can_go_forward_[nav_].yes();
+
+    load_state_change_loaded_confirmation_ = true;
+    RunNextNavIfReady(browser);
   }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
@@ -516,11 +525,6 @@ class HistoryNavTestHandler : public TestHandler {
     if (url1 == item.target && url2 == item.target)
       got_correct_load_end_url_[nav_].yes();
 
-    if (item.can_go_back == browser->CanGoBack())
-      got_correct_can_go_back2_[nav_].yes();
-    if (item.can_go_forward == browser->CanGoForward())
-      got_correct_can_go_forward2_[nav_].yes();
-
     load_end_confirmation_ = true;
     RunNextNavIfReady(browser);
   }
@@ -549,6 +553,7 @@ class HistoryNavTestHandler : public TestHandler {
 
   int nav_;
   bool load_end_confirmation_;
+  bool load_state_change_loaded_confirmation_;
   bool renderer_confirmation_;
 
   TrackCallback got_before_browse_[NAV_LIST_SIZE()];
@@ -563,8 +568,6 @@ class HistoryNavTestHandler : public TestHandler {
   TrackCallback got_load_end_[NAV_LIST_SIZE()];
   TrackCallback got_correct_history_[NAV_LIST_SIZE()];
   TrackCallback got_correct_load_end_url_[NAV_LIST_SIZE()];
-  TrackCallback got_correct_can_go_back2_[NAV_LIST_SIZE()];
-  TrackCallback got_correct_can_go_forward2_[NAV_LIST_SIZE()];
 
   IMPLEMENT_REFCOUNTING(HistoryNavTestHandler);
 };
@@ -597,8 +600,6 @@ TEST(NavigationTest, History) {
       ASSERT_TRUE(handler->got_load_end_[i]) << "i = " << i;
       ASSERT_TRUE(handler->got_correct_history_[i]) << "i = " << i;
       ASSERT_TRUE(handler->got_correct_load_end_url_[i]) << "i = " << i;
-      ASSERT_TRUE(handler->got_correct_can_go_back2_[i]) << "i = " << i;
-      ASSERT_TRUE(handler->got_correct_can_go_forward2_[i]) << "i = " << i;
     }
   }
 
@@ -931,7 +932,7 @@ class OrderNavLoadState {
 
       got_loading_state_start_.yes();
     } else {
-      EXPECT_TRUE(Verify(true, false, true, false));
+      EXPECT_TRUE(Verify(true, false, true, true));
 
       got_loading_state_end_.yes();
     }
@@ -947,7 +948,7 @@ class OrderNavLoadState {
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) {
-    EXPECT_TRUE(Verify(true, true, true, false));
+    EXPECT_TRUE(Verify(true, false, true, false));
 
     got_load_end_.yes();
   }

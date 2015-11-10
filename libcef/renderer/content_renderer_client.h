@@ -21,6 +21,7 @@
 #include "content/public/renderer/content_renderer_client.h"
 
 namespace extensions {
+class CefExtensionsRendererClient;
 class Dispatcher;
 class DispatcherDelegate;
 class ExtensionsClient;
@@ -90,7 +91,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
       const blink::WebPluginParams& params,
       blink::WebPlugin** plugin) override;
   bool HandleNavigation(content::RenderFrame* render_frame,
-                        content::DocumentState* document_state,
+                        bool is_content_initiated,
                         int opener_id,
                         blink::WebFrame* frame,
                         const blink::WebURLRequest& request,
@@ -149,12 +150,8 @@ class CefContentRendererClient : public content::ContentRendererClient,
   scoped_ptr<ChromePDFPrintClient> pdf_print_client_;
 
   scoped_ptr<extensions::ExtensionsClient> extensions_client_;
-  scoped_ptr<extensions::ExtensionsRendererClient> extensions_renderer_client_;
-  scoped_ptr<extensions::DispatcherDelegate> extension_dispatcher_delegate_;
-  scoped_ptr<extensions::Dispatcher> extension_dispatcher_;
-  scoped_ptr<extensions::ExtensionsGuestViewContainerDispatcher>
-      guest_view_container_dispatcher_;
-  scoped_ptr<extensions::ResourceRequestPolicy> resource_request_policy_;
+  scoped_ptr<extensions::CefExtensionsRendererClient>
+      extensions_renderer_client_;
 
   int devtools_agent_count_;
   int uncaught_exception_stack_size_;

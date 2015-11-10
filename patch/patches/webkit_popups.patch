@@ -1,8 +1,8 @@
 diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
-index 5577228..74ccf53 100644
+index 499991c..b5d6d32 100644
 --- Source/web/ChromeClientImpl.cpp
 +++ Source/web/ChromeClientImpl.cpp
-@@ -814,7 +814,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
+@@ -809,7 +809,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
  PassRefPtrWillBeRawPtr<PopupMenu> ChromeClientImpl::openPopupMenu(LocalFrame& frame, HTMLSelectElement& select)
  {
      notifyPopupOpeningObservers();
@@ -12,10 +12,10 @@ index 5577228..74ccf53 100644
  
      ASSERT(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index b708684..769c127 100644
+index c97a89c..6d2fb40 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
-@@ -421,6 +421,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client)
+@@ -418,6 +418,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client)
      , m_enableFakePageScaleAnimationForTesting(false)
      , m_fakePageScaleAnimationPageScaleFactor(0)
      , m_fakePageScaleAnimationUseAnchor(false)
@@ -40,10 +40,10 @@ index b708684..769c127 100644
  
  void WebViewImpl::startDragging(LocalFrame* frame,
 diff --git Source/web/WebViewImpl.h Source/web/WebViewImpl.h
-index a1f3e54..24f60a9 100644
+index 09b718d..a1bc2ffc 100644
 --- Source/web/WebViewImpl.h
 +++ Source/web/WebViewImpl.h
-@@ -393,7 +393,8 @@ public:
+@@ -389,7 +389,8 @@ public:
  
      // Returns true if popup menus should be rendered by the browser, false if
      // they should be rendered by WebKit (which is the default).
@@ -53,7 +53,7 @@ index a1f3e54..24f60a9 100644
  
      bool shouldAutoResize() const
      {
-@@ -671,6 +672,8 @@ private:
+@@ -670,6 +671,8 @@ private:
      float m_fakePageScaleAnimationPageScaleFactor;
      bool m_fakePageScaleAnimationUseAnchor;
  
@@ -63,7 +63,7 @@ index a1f3e54..24f60a9 100644
  
      bool m_ignoreInputEvents;
 diff --git public/web/WebView.h public/web/WebView.h
-index 1bce1b2..3ea51c1 100644
+index 83d8c13..350bca4 100644
 --- public/web/WebView.h
 +++ public/web/WebView.h
 @@ -400,6 +400,7 @@ public:

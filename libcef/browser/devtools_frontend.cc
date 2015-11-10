@@ -21,6 +21,7 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/content_client.h"
+#include "ipc/ipc_channel.h"
 #include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/http/http_response_headers.h"
@@ -179,9 +180,11 @@ CefDevToolsFrontend::~CefDevToolsFrontend() {
 void CefDevToolsFrontend::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
   if (!frontend_host_) {
-    frontend_host_.reset(
-        content::DevToolsFrontendHost::Create(
-            web_contents()->GetMainFrame(), this));
+    frontend_host_.reset(content::DevToolsFrontendHost::Create(
+        web_contents()->GetMainFrame(),
+        base::Bind(&CefDevToolsFrontend::HandleMessageFromDevToolsFrontend,
+                   base::Unretained(this))));
+
   }
 }
 
@@ -220,10 +223,12 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
   dict->GetInteger("id", &request_id);
   dict->GetList("params", &params);
 
-  std::string browser_message;
-  if (method == "sendMessageToBrowser" && params &&
-      params->GetSize() == 1 && params->GetString(0, &browser_message)) {
-    agent_host_->DispatchProtocolMessage(browser_message);
+  if (method == "dispatchProtocolMessage" && params && params->GetSize() == 1) {
+    std::string protocol_message;
+    if (!params->GetString(0, &protocol_message))
+      return;
+    if (agent_host_)
+      agent_host_->DispatchProtocolMessage(protocol_message);
   } else if (method == "loadCompleted") {
     web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
         base::ASCIIToUTF16("DevToolsAPI.setUseSoftMenu(true);"));
@@ -281,12 +286,6 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
 
   if (request_id)
     SendMessageAck(request_id, nullptr);
-}
-
-void CefDevToolsFrontend::HandleMessageFromDevToolsFrontendToBackend(
-    const std::string& message) {
-  if (agent_host_)
-    agent_host_->DispatchProtocolMessage(message);
 }
 
 void CefDevToolsFrontend::DispatchProtocolMessage(

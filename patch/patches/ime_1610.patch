@@ -1,8 +1,8 @@
 diff --git input_method_win.cc input_method_win.cc
-index df75bb2..a688138 100644
+index ef500a7..5454067 100644
 --- input_method_win.cc
 +++ input_method_win.cc
-@@ -548,8 +548,9 @@ bool InputMethodWin::IsWindowFocused(const TextInputClient* client) const {
+@@ -586,8 +586,9 @@ bool InputMethodWin::IsWindowFocused(const TextInputClient* client) const {
    // receiving keyboard input as long as it is an active window. This works well
    // even when the |attached_window_handle| becomes active but has not received
    // WM_FOCUS yet.

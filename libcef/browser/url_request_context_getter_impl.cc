@@ -194,14 +194,14 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
         make_scoped_ptr<net::HttpServerProperties>(
             new net::HttpServerPropertiesImpl));
 
-    net::HttpCache::DefaultBackend* main_backend =
+    scoped_ptr<net::HttpCache::DefaultBackend> main_backend(
         new net::HttpCache::DefaultBackend(
             cache_path.empty() ? net::MEMORY_CACHE : net::DISK_CACHE,
             net::CACHE_BACKEND_DEFAULT,
             cache_path,
             0,
             BrowserThread::GetMessageLoopProxyForThread(
-                BrowserThread::CACHE));
+                BrowserThread::CACHE)));
 
     net::HttpNetworkSession::Params network_session_params;
     network_session_params.host_resolver =
@@ -225,10 +225,12 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     network_session_params.ignore_certificate_errors =
         settings_.ignore_certificate_errors ? true : false;
 
-    scoped_ptr<net::HttpCache> main_cache(
-        new net::HttpCache(network_session_params,
-                           main_backend));
-    storage_->set_http_transaction_factory(main_cache.Pass());
+    storage_->set_http_network_session(
+        make_scoped_ptr(new net::HttpNetworkSession(network_session_params)));
+    storage_->set_http_transaction_factory(make_scoped_ptr(
+        new net::HttpCache(storage_->http_network_session(),
+                           main_backend.Pass(),
+                           true /* set_up_quic_server_info */)));
 
 #if !defined(DISABLE_FTP_SUPPORT)
     ftp_transaction_factory_.reset(

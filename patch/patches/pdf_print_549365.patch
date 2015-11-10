@@ -1,0 +1,103 @@
+diff --git pdf.cc pdf.cc
+index 1f580e4..9521fdf 100644
+--- pdf.cc
++++ pdf.cc
+@@ -10,8 +10,6 @@
+ 
+ #include "base/command_line.h"
+ #include "base/logging.h"
+-#include "gin/array_buffer.h"
+-#include "gin/public/isolate_holder.h"
+ #include "pdf/out_of_process_instance.h"
+ #include "ppapi/c/ppp.h"
+ #include "ppapi/cpp/private/internal_module.h"
+@@ -24,14 +22,6 @@ namespace {
+ 
+ bool g_sdk_initialized_via_pepper = false;
+ 
+-gin::IsolateHolder* g_isolate_holder = nullptr;
+-
+-void TearDownV8() {
+-  g_isolate_holder->isolate()->Exit();
+-  delete g_isolate_holder;
+-  g_isolate_holder = nullptr;
+-}
+-
+ }  // namespace
+ 
+ PDFModule::PDFModule() {
+@@ -39,7 +29,6 @@ PDFModule::PDFModule() {
+ 
+ PDFModule::~PDFModule() {
+   if (g_sdk_initialized_via_pepper) {
+-    TearDownV8();
+     chrome_pdf::ShutdownSDK();
+     g_sdk_initialized_via_pepper = false;
+   }
+@@ -60,15 +49,8 @@ pp::Instance* PDFModule::CreateInstance(PP_Instance instance) {
+       v8::V8::SetNativesDataBlob(&natives);
+       v8::V8::SetSnapshotDataBlob(&snapshot);
+     }
+-    gin::IsolateHolder::Initialize(gin::IsolateHolder::kNonStrictMode,
+-                                   gin::ArrayBufferAllocator::SharedInstance());
+-    g_isolate_holder =
+-        new gin::IsolateHolder(gin::IsolateHolder::kSingleThread);
+-    g_isolate_holder->isolate()->Enter();
+-    if (!chrome_pdf::InitializeSDK()) {
+-      TearDownV8();
++    if (!chrome_pdf::InitializeSDK())
+       return NULL;
+-    }
+     g_sdk_initialized_via_pepper = true;
+   }
+ 
+diff --git pdfium/pdfium_engine.cc pdfium/pdfium_engine.cc
+index 8631088..d23c141 100644
+--- pdfium/pdfium_engine.cc
++++ pdfium/pdfium_engine.cc
+@@ -18,7 +18,9 @@
+ #include "base/strings/string_util.h"
+ #include "base/strings/utf_string_conversions.h"
+ #include "base/values.h"
++#include "gin/array_buffer.h"
+ #include "gin/public/gin_embedders.h"
++#include "gin/public/isolate_holder.h"
+ #include "pdf/draw_utils.h"
+ #include "pdf/pdfium/pdfium_api_string_buffer_adapter.h"
+ #include "pdf/pdfium/pdfium_mem_buffer_file_read.h"
+@@ -449,9 +451,27 @@ std::string GetDocumentMetadata(FPDF_DOCUMENT doc, const std::string& key) {
+   return base::UTF16ToUTF8(value);
+ }
+ 
++gin::IsolateHolder* g_isolate_holder = nullptr;
++
++void SetUpV8() {
++  gin::IsolateHolder::Initialize(gin::IsolateHolder::kNonStrictMode,
++                                 gin::ArrayBufferAllocator::SharedInstance());
++  g_isolate_holder =
++      new gin::IsolateHolder(gin::IsolateHolder::kSingleThread);
++  g_isolate_holder->isolate()->Enter();
++}
++
++void TearDownV8() {
++  g_isolate_holder->isolate()->Exit();
++  delete g_isolate_holder;
++  g_isolate_holder = nullptr;
++}
++
+ }  // namespace
+ 
+ bool InitializeSDK() {
++  SetUpV8();
++
+   FPDF_LIBRARY_CONFIG config;
+   config.version = 2;
+   config.m_pUserFontPaths = nullptr;
+@@ -470,6 +490,7 @@ bool InitializeSDK() {
+ }
+ 
+ void ShutdownSDK() {
++  TearDownV8();
+   FPDF_DestroyLibrary();
+ }
+ 

@@ -160,17 +160,22 @@ blink::WebFrame* FindFrameByUniqueName(const blink::WebString& unique_name,
   return NULL;
 }
 
-bool ParseCSSColor(const blink::WebString& string, bool strict, SkColor& color) {
-  blink::RGBA32 rgba_color =
+void InitializePartitionAlloc() {
+  WTF::Partitions::initialize(nullptr);
+}
+
+bool ParseCSSColor(const blink::WebString& string,
+                   bool strict, SkColor& color) {
+  blink::Color rgba_color =
       blink::makeRGBA(SkColorGetR(color), SkColorGetG(color),
                       SkColorGetB(color), SkColorGetA(color));
   if (!blink::CSSParser::parseColor(rgba_color, string, strict))
     return false;
 
-  color = SkColorSetARGB(blink::alphaChannel(rgba_color),
-                         blink::redChannel(rgba_color),
-                         blink::greenChannel(rgba_color),
-                         blink::blueChannel(rgba_color));
+  color = SkColorSetARGB(rgba_color.alpha(),
+                         rgba_color.red(),
+                         rgba_color.green(),
+                         rgba_color.blue());
   return true;
 }
 

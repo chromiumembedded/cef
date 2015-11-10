@@ -817,7 +817,8 @@ bool CefBrowserHostImpl::PlatformCreateWindow() {
   gfx::Point point = gfx::Point(cr.right, cr.bottom);
   float scale = gfx::Screen::GetNativeScreen()->
       GetDisplayNearestPoint(point).device_scale_factor();
-  point = gfx::ToFlooredPoint(gfx::ScalePoint(point, 1.0f / scale));
+  point = gfx::ToFlooredPoint(
+      gfx::ScalePoint(gfx::PointF(point), 1.0f / scale));
 
   CefWindowDelegateView* delegate_view =
       new CefWindowDelegateView(background_color);

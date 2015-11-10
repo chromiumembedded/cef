@@ -6,6 +6,7 @@
 #include "libcef/browser/extensions/extensions_api_client.h"
 
 #include "include/internal/cef_types_wrappers.h"
+#include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
 #include "libcef/browser/extensions/mime_handler_view_guest_delegate.h"
 #include "libcef/browser/extensions/pdf_web_contents_helper_client.h"
@@ -13,6 +14,7 @@
 
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "components/pdf/browser/pdf_web_contents_helper.h"
+#include "extensions/browser/guest_view/extensions_guest_view_manager_delegate.h"
 
 namespace extensions {
 
@@ -24,6 +26,22 @@ AppViewGuestDelegate* CefExtensionsAPIClient::CreateAppViewGuestDelegate()
   // TODO(extensions): Implement to support Apps.
   NOTREACHED();
   return NULL;
+}
+
+scoped_ptr<guest_view::GuestViewManagerDelegate>
+CefExtensionsAPIClient::CreateGuestViewManagerDelegate(
+    content::BrowserContext* context) const {
+  // The GuestViewManager instance associated with the returned Delegate, which
+  // will be retrieved in the future via GuestViewManager::FromBrowserContext,
+  // will be associated with the CefBrowserContextImpl instead of |context| due
+  // to ShouldProxyUserData in browser_context_proxy.cc. Because the
+  // GuestViewManagerDelegate keeps a reference to the passed-in context we need
+  // to provide the *Impl object instead of |context| which may be a *Proxy
+  // object. If we don't do this then the Delegate may attempt to access a
+  // *Proxy object that has already been deleted.
+  return make_scoped_ptr(
+      new extensions::ExtensionsGuestViewManagerDelegate(
+          CefBrowserContextImpl::GetForContext(context).get()));
 }
 
 scoped_ptr<MimeHandlerViewGuestDelegate>

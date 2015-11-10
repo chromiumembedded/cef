@@ -20,7 +20,7 @@ namespace {
 
 CefRefPtr<CefBrowserHostImpl> GetOwnerBrowser(
     extensions::MimeHandlerViewGuest* guest) {
-  content::WebContents* owner_web_contents = guest->GetOwnerWebContents();
+  content::WebContents* owner_web_contents = guest->owner_web_contents();
   CefRefPtr<CefBrowserHostImpl> owner_browser =
       CefBrowserHostImpl::GetBrowserForContents(owner_web_contents);
   DCHECK(owner_browser);

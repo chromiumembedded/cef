@@ -1,0 +1,20 @@
+diff --git fpdfsdk/src/fpdfview.cpp fpdfsdk/src/fpdfview.cpp
+index 97da89e..0484d93 100644
+--- fpdfsdk/src/fpdfview.cpp
++++ fpdfsdk/src/fpdfview.cpp
+@@ -6,6 +6,7 @@
+ 
+ #include "../../core/include/fxcodec/fx_codec.h"
+ #include "../../core/include/fxcrt/fx_safe_types.h"
++#include "../../fpdfsdk/include/jsapi/fxjs_v8.h"
+ #include "../../public/fpdf_ext.h"
+ #include "../../public/fpdf_progressive.h"
+ #include "../../public/fpdfview.h"
+@@ -105,6 +106,7 @@ DLLEXPORT void STDCALL FPDF_InitLibraryWithConfig(
+ DLLEXPORT void STDCALL FPDF_DestroyLibrary() {
+   CPDF_ModuleMgr::Destroy();
+   CFX_GEModule::Destroy();
++  FXJS_Release();
+ 
+   delete g_pCodecModule;
+   g_pCodecModule = nullptr;

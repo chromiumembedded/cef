@@ -51,8 +51,7 @@ bool CefGeolocationHandlerCToCpp::OnRequestGeolocationPermission(
 }
 
 void CefGeolocationHandlerCToCpp::OnCancelGeolocationPermission(
-    CefRefPtr<CefBrowser> browser, const CefString& requesting_url,
-    int request_id) {
+    CefRefPtr<CefBrowser> browser, int request_id) {
   cef_geolocation_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_cancel_geolocation_permission))
     return;
@@ -63,15 +62,10 @@ void CefGeolocationHandlerCToCpp::OnCancelGeolocationPermission(
   DCHECK(browser.get());
   if (!browser.get())
     return;
-  // Verify param: requesting_url; type: string_byref_const
-  DCHECK(!requesting_url.empty());
-  if (requesting_url.empty())
-    return;
 
   // Execute
   _struct->on_cancel_geolocation_permission(_struct,
       CefBrowserCppToC::Wrap(browser),
-      requesting_url.GetStruct(),
       request_id);
 }
 

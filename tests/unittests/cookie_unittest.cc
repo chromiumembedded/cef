@@ -542,6 +542,11 @@ TEST(CookieTest, DomainCookieOnDisk) {
   EXPECT_TRUE(manager.get());
 
   TestDomainCookie(manager, event);
+
+  // The backing store will be closed on the DB thread after the CookieManager
+  // is destroyed.
+  manager = NULL;
+  WaitForDBThread();
 }
 
 // Test creation of a host cookie.
@@ -585,6 +590,11 @@ TEST(CookieTest, HostCookieOnDisk) {
   EXPECT_TRUE(manager.get());
 
   TestHostCookie(manager, event);
+
+  // The backing store will be closed on the DB thread after the CookieManager
+  // is destroyed.
+  manager = NULL;
+  WaitForDBThread();
 }
 
 // Test creation of multiple cookies.
@@ -628,6 +638,11 @@ TEST(CookieTest, MultipleCookiesOnDisk) {
   EXPECT_TRUE(manager.get());
 
   TestMultipleCookies(manager, event);
+
+  // The backing store will be closed on the DB thread after the CookieManager
+  // is destroyed.
+  manager = NULL;
+  WaitForDBThread();
 }
 
 TEST(CookieTest, AllCookiesGlobal) {
@@ -668,6 +683,11 @@ TEST(CookieTest, AllCookiesOnDisk) {
   EXPECT_TRUE(manager.get());
 
   TestAllCookies(manager, event);
+
+  // The backing store will be closed on the DB thread after the CookieManager
+  // is destroyed.
+  manager = NULL;
+  WaitForDBThread();
 }
 
 TEST(CookieTest, ChangeDirectoryGlobal) {

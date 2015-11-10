@@ -1,5 +1,5 @@
 diff --git browser/browser_plugin/browser_plugin_guest.cc browser/browser_plugin/browser_plugin_guest.cc
-index 00529ff..57ccf08 100644
+index cef0842..d79092d 100644
 --- browser/browser_plugin/browser_plugin_guest.cc
 +++ browser/browser_plugin/browser_plugin_guest.cc
 @@ -23,7 +23,7 @@
@@ -11,7 +11,7 @@ index 00529ff..57ccf08 100644
  #include "content/common/browser_plugin/browser_plugin_constants.h"
  #include "content/common/browser_plugin/browser_plugin_messages.h"
  #include "content/common/content_constants_internal.h"
-@@ -289,20 +289,19 @@ void BrowserPluginGuest::InitInternal(
+@@ -290,20 +290,19 @@ void BrowserPluginGuest::InitInternal(
    guest_window_rect_ = params.view_rect;
  
    if (owner_web_contents_ != owner_web_contents) {
@@ -36,24 +36,23 @@ index 00529ff..57ccf08 100644
    }
  
    RendererPreferences* renderer_prefs =
-@@ -748,12 +747,9 @@ void BrowserPluginGuest::OnWillAttachComplete(
+@@ -792,11 +791,10 @@ void BrowserPluginGuest::OnWillAttachComplete(
      // This will trigger a callback to RenderViewReady after a round-trip IPC.
      static_cast<RenderViewHostImpl*>(
          GetWebContents()->GetRenderViewHost())->Init();
 -    WebContentsViewGuest* web_contents_view =
 -        static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
--    if (!web_contents()->GetRenderViewHost()->GetView()) {
+     if (!web_contents()->GetRenderViewHost()->GetWidget()->GetView()) {
 -      web_contents_view->CreateViewForWidget(
--          web_contents()->GetRenderViewHost(), true);
--    }
-+    if (!web_contents()->GetRenderViewHost()->GetView())
-+      delegate_->CreateViewForWidget(GetWebContents()->GetView(),
-+                                     web_contents()->GetRenderViewHost());
+-          web_contents()->GetRenderViewHost()->GetWidget(), true);
++      delegate_->CreateViewForWidget(
++          GetWebContents()->GetView(),
++          web_contents()->GetRenderViewHost()->GetWidget());
+     }
    }
  
-   InitInternal(params, embedder_web_contents);
 diff --git public/browser/browser_plugin_guest_delegate.cc public/browser/browser_plugin_guest_delegate.cc
-index fd7dec4..49d4f99 100644
+index bfa19e4..d788495 100644
 --- public/browser/browser_plugin_guest_delegate.cc
 +++ public/browser/browser_plugin_guest_delegate.cc
 @@ -4,6 +4,8 @@
@@ -65,7 +64,7 @@ index fd7dec4..49d4f99 100644
  namespace content {
  
  bool BrowserPluginGuestDelegate::CanRunInDetachedState() const {
-@@ -30,4 +32,23 @@ bool BrowserPluginGuestDelegate::StopFinding(StopFindAction action) {
+@@ -32,4 +34,23 @@ bool BrowserPluginGuestDelegate::HandleStopFindingForEmbedder(
    return false;
  }
  
@@ -90,7 +89,7 @@ index fd7dec4..49d4f99 100644
 +
  }  // namespace content
 diff --git public/browser/browser_plugin_guest_delegate.h public/browser/browser_plugin_guest_delegate.h
-index aabe27b..8ff46f4 100644
+index 4dd1a4c..b299190 100644
 --- public/browser/browser_plugin_guest_delegate.h
 +++ public/browser/browser_plugin_guest_delegate.h
 @@ -21,6 +21,8 @@ class Size;

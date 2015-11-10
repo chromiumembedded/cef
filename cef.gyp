@@ -871,6 +871,9 @@
         # Generate chrome/common/safe_browsing/csd.pb.h required by
         # zip_analyzer_results.h via chrome_utility_messages.h
         '<(DEPTH)/chrome/chrome.gyp:safe_browsing_proto',
+        # Generate chrome/common/chrome_version.h required by
+        # chrome/common/chrome_contants.cc
+        '<(DEPTH)/chrome/common_constants.gyp:version_header',
         '<(DEPTH)/components/components.gyp:cdm_renderer',
         '<(DEPTH)/components/components.gyp:component_updater',
         '<(DEPTH)/components/components.gyp:content_settings_core_browser',
@@ -891,6 +894,7 @@
         '<(DEPTH)/components/components.gyp:printing_common',
         '<(DEPTH)/components/components.gyp:printing_renderer',
         '<(DEPTH)/components/components.gyp:proxy_config',
+        '<(DEPTH)/components/components.gyp:ssl_config',
         '<(DEPTH)/components/components.gyp:update_client',
         '<(DEPTH)/components/components.gyp:user_prefs',
         '<(DEPTH)/components/components.gyp:version_info',
@@ -1046,8 +1050,12 @@
         'libcef/browser/pepper/pepper_isolated_file_system_message_filter.cc',
         'libcef/browser/pepper/pepper_isolated_file_system_message_filter.h',
         'libcef/browser/pepper/device_id_fetcher.cc',
-        'libcef/browser/permission_manager.cc',
-        'libcef/browser/permission_manager.h',
+        'libcef/browser/permissions/permission_context.cc',
+        'libcef/browser/permissions/permission_context.h',
+        'libcef/browser/permissions/permission_manager.cc',
+        'libcef/browser/permissions/permission_manager.h',
+        'libcef/browser/permissions/permission_util.cc',
+        'libcef/browser/permissions/permission_util.h',
         'libcef/browser/plugins/plugin_info_message_filter.cc',
         'libcef/browser/plugins/plugin_info_message_filter.h',
         'libcef/browser/plugins/plugin_service_filter.cc',
@@ -1382,6 +1390,9 @@
         '<(DEPTH)/chrome/common/pref_names.h',
         '<(DEPTH)/chrome/common/pref_names_util.cc',
         '<(DEPTH)/chrome/common/pref_names_util.h',
+        # Include sources for permissions support.
+        '<(DEPTH)/chrome/browser/permissions/permission_request_id.h',
+        '<(DEPTH)/chrome/browser/permissions/permission_request_id.cc',
       ],
       'conditions': [
         ['OS=="win"', {

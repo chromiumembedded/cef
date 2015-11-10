@@ -25,7 +25,8 @@ void ChromeBrowserProcessStub::EndSession() {
   NOTIMPLEMENTED();
 };
 
-MetricsServicesManager* ChromeBrowserProcessStub::GetMetricsServicesManager() {
+metrics_services_manager::MetricsServicesManager*
+    ChromeBrowserProcessStub::GetMetricsServicesManager() {
   NOTIMPLEMENTED();
   return NULL;
 }

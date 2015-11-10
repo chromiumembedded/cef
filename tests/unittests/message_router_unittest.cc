@@ -64,13 +64,15 @@ class MRRenderDelegate : public ClientAppRenderer::Delegate {
         CefRefPtr<CefBrowser> browser = context->GetBrowser();
         CefRefPtr<CefFrame> frame = context->GetFrame();
         const int64 frame_id = frame->GetIdentifier();
+        const bool is_main_frame = frame->IsMain();
 
         CefRefPtr<CefProcessMessage> message =
             CefProcessMessage::Create(kDoneMessageName);
         CefRefPtr<CefListValue> args = message->GetArgumentList();
         args->SetInt(0, CefInt64GetLow(frame_id));
         args->SetInt(1, CefInt64GetHigh(frame_id));
-        args->SetString(2, msg);
+        args->SetBool(2, is_main_frame);
+        args->SetString(3, msg);
         EXPECT_TRUE(browser->SendProcessMessage(PID_BROWSER, message));
         return true;
       } else {
@@ -251,16 +253,22 @@ class MRTestHandler : public TestHandler {
     const std::string& message_name = message->GetName();
     if (message_name == kDoneMessageName) {
       CefRefPtr<CefListValue> args = message->GetArgumentList();
-      EXPECT_EQ(3U, args->GetSize());
+      EXPECT_EQ(4U, args->GetSize());
       EXPECT_EQ(VTYPE_INT, args->GetType(0));
       EXPECT_EQ(VTYPE_INT, args->GetType(1));
-      EXPECT_EQ(VTYPE_STRING, args->GetType(2));
+      EXPECT_EQ(VTYPE_BOOL, args->GetType(2));
+      EXPECT_EQ(VTYPE_STRING, args->GetType(3));
 
       const int64 frame_id = CefInt64Set(args->GetInt(0), args->GetInt(1));
-      CefRefPtr<CefFrame> frame = browser->GetFrame(frame_id);
+      const bool is_main_frame = args->GetBool(2);
+      CefRefPtr<CefFrame> frame;
+      if (is_main_frame)
+        frame = browser->GetMainFrame();
+      else
+        frame = browser->GetFrame(frame_id);
       EXPECT_TRUE(frame.get());
 
-      OnNotify(browser, frame, args->GetString(2));
+      OnNotify(browser, frame, args->GetString(3));
       return true;
     }
 
@@ -1268,6 +1276,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
     query.browser_id = browser->GetIdentifier();
     query.frame_id = frame->GetIdentifier();
+    query.is_main_frame = frame->IsMain();
 
     if (query.type == SUCCESS) {
       // Send the single success response.
@@ -1317,7 +1326,12 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
       if (query.query_id == query_id) {
         // Verify that browser and frame are the same.
         EXPECT_EQ(query.browser_id, browser->GetIdentifier()) << i;
-        EXPECT_EQ(query.frame_id, frame->GetIdentifier()) << i;
+        if (query.is_main_frame) {
+          EXPECT_TRUE(frame->IsMain()) << i;
+        } else {
+          EXPECT_FALSE(frame->IsMain()) << i;
+          EXPECT_EQ(query.frame_id, frame->GetIdentifier()) << i;
+        }
 
         // Verify a successful/expected result.
         EXPECT_TRUE(WillCancel(query.type)) << i;
@@ -1414,6 +1428,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
       : type(test_type),
         browser_id(0),
         frame_id(0),
+        is_main_frame(false),
         query_id(0) {}
 
     TestType type;
@@ -1421,6 +1436,7 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
     // Set in OnQuery and verified in OnNotify or OnQueryCanceled.
     int browser_id;
     int64 frame_id;
+    bool is_main_frame;
 
     // Used when a query is canceled.
     int64 query_id;

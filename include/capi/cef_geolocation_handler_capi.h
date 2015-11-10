@@ -89,13 +89,12 @@ typedef struct _cef_geolocation_handler_t {
       struct _cef_geolocation_callback_t* callback);
 
   ///
-  // Called when a geolocation access request is canceled. |requesting_url| is
-  // the URL that originally requested permission and |request_id| is the unique
-  // ID for the permission request.
+  // Called when a geolocation access request is canceled. |request_id| is the
+  // unique ID for the permission request.
   ///
   void (CEF_CALLBACK *on_cancel_geolocation_permission)(
       struct _cef_geolocation_handler_t* self, struct _cef_browser_t* browser,
-      const cef_string_t* requesting_url, int request_id);
+      int request_id);
 } cef_geolocation_handler_t;
 
 

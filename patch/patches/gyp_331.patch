@@ -1,8 +1,8 @@
 diff --git gyp/generator/ninja.py gyp/generator/ninja.py
-index 51c288b..d996bbd 100644
+index 58be3bf..4dcb2a6 100644
 --- gyp/generator/ninja.py
 +++ gyp/generator/ninja.py
-@@ -741,7 +741,16 @@ class NinjaWriter(object):
+@@ -745,7 +745,16 @@ class NinjaWriter(object):
        for path in copy['files']:
          # Normalize the path so trailing slashes don't confuse us.
          path = os.path.normpath(path)

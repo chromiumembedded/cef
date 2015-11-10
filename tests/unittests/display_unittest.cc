@@ -7,6 +7,8 @@
 // Include this first to avoid type conflicts with CEF headers.
 #include "tests/unittests/chromium_includes.h"
 
+#include "include/base/cef_bind.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/test_handler.h"
 
@@ -29,7 +31,9 @@ const char kTitleStr3[] = "Title 3";
 class TitleTestHandler : public TestHandler {
  public:
   TitleTestHandler()
-      : step_(0) {}
+      : step_(0),
+        got_title_change_(false),
+        got_loading_state_change_(false) {}
 
   void RunTest() override {
     // Add the resources that we will navigate to/from.
@@ -52,32 +56,57 @@ class TitleTestHandler : public TestHandler {
 
   void OnTitleChange(CefRefPtr<CefBrowser> browser,
                      const CefString& title) override {
+    // Ignore the 2nd OnTitleChange call which arrives after navigation
+    // completion.
+    if (got_title_change_)
+      return;
+
     std::string title_str = title;
     if (step_ == 0 || step_ == 2) {
       EXPECT_STREQ(kTitleStr1, title_str.c_str());
     } else if (step_ == 1 || step_ == 3) {
       EXPECT_STREQ(kTitleStr2, title_str.c_str());
     } else if (step_ == 4) {
-      // Ignore the unexpected notification of the page URL.
-      // Related bug: http://crbug.com/331351
-      if (title_str == &kTitleUrl2[7])
-        return;
-
       EXPECT_STREQ(kTitleStr3, title_str.c_str());
     }
 
     got_title_[step_].yes();
 
-    if (step_ == 4)
+    if (step_ == 4) {
       DestroyTest();
+    } else {
+      got_title_change_ = true;
+      NextIfReady(browser);
+    }
   }
 
-  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
-                 CefRefPtr<CefFrame> frame,
-                 int httpStatusCode) override {
+  void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                            bool isLoading,
+                            bool canGoBack,
+                            bool canGoForward) override {
+    if (isLoading)
+      return;
+
+    // Call NextIfReady asynchronously because an additional call to
+    // OnTitleChange will be triggered later in the current call stack due to
+    // navigation completion and we want that call to arrive before execution of
+    // NextIfReady.
+    got_loading_state_change_ = true;
+    CefPostTask(TID_UI,
+                base::Bind(&TitleTestHandler::NextIfReady, this, browser));
+  }
+
+ private:
+  void NextIfReady(CefRefPtr<CefBrowser> browser) {
+    if (!got_title_change_ || !got_loading_state_change_)
+      return;
+
+    got_title_change_ = false;
+    got_loading_state_change_ = false;
+
     switch (step_++) {
       case 0:
-        frame->LoadURL(kTitleUrl2);
+        browser->GetMainFrame()->LoadURL(kTitleUrl2);
         break;
       case 1:
         browser->GoBack();
@@ -86,14 +115,13 @@ class TitleTestHandler : public TestHandler {
         browser->GoForward();
         break;
       case 3:
-        frame->ExecuteJavaScript("setTitle()", kTitleUrl2, 0);
+        browser->GetMainFrame()->ExecuteJavaScript("setTitle()", kTitleUrl2, 0);
         break;
       default:
         EXPECT_TRUE(false); // Not reached.
     }
   }
 
- private:
   void DestroyTest() override {
     for (int i = 0; i < 5; ++i)
       EXPECT_TRUE(got_title_[i]) << "step " << i;
@@ -102,6 +130,9 @@ class TitleTestHandler : public TestHandler {
   }
 
   int step_;
+
+  bool got_title_change_;
+  bool got_loading_state_change_;
 
   TrackCallback got_title_[5];
 

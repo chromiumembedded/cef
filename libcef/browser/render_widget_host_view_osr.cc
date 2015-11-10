@@ -266,7 +266,7 @@ class CefCopyFrameGenerator {
 
     gl_helper->CropScaleReadbackAndCleanMailbox(
         texture_mailbox.mailbox(),
-        texture_mailbox.sync_point(),
+        texture_mailbox.sync_token(),
         result_size,
         gfx::Rect(result_size),
         result_size,
@@ -290,14 +290,15 @@ class CefCopyFrameGenerator {
       scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock,
       bool result) {
     // This method may be called after the view has been deleted.
-    uint32 sync_point = 0;
+    gpu::SyncToken sync_token;
     if (result) {
       content::GLHelper* gl_helper =
           content::ImageTransportFactory::GetInstance()->GetGLHelper();
-      sync_point = gl_helper->InsertSyncPoint();
+      if (gl_helper)
+        sync_token = gpu::SyncToken(gl_helper->InsertSyncPoint());
     }
-    bool lost_resource = sync_point == 0;
-    release_callback->Run(sync_point, lost_resource);
+    const bool lost_resource = !sync_token.HasData();
+    release_callback->Run(sync_token, lost_resource);
 
     if (generator) {
       generator->CopyFromCompositingSurfaceFinished(
@@ -461,7 +462,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
   render_widget_host_->SetView(this);
 
   // CefBrowserHostImpl might not be created at this time for popups.
-  if (render_widget_host_->IsRenderView()) {
+  if (content::RenderViewHost::From(render_widget_host_)) {
     browser_impl_ = CefBrowserHostImpl::GetBrowserForHost(
         content::RenderViewHost::From(render_widget_host_));
   }
@@ -474,7 +475,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
   compositor_.reset(
       new ui::Compositor(content::GetContextFactory(),
                          base::ThreadTaskRunnerHandle::Get()));
-  compositor_->SetAcceleratedWidgetAndStartCompositor(compositor_widget_);
+  compositor_->SetAcceleratedWidget(compositor_widget_);
 #endif
   compositor_->SetDelegate(this);
   compositor_->SetRootLayer(root_layer_.get());
@@ -945,6 +946,14 @@ content::BrowserAccessibilityManager*
     CefRenderWidgetHostViewOSR::CreateBrowserAccessibilityManager(
         content::BrowserAccessibilityDelegate* delegate) {
   return NULL;
+}
+
+void CefRenderWidgetHostViewOSR::LockCompositingSurface() {
+  NOTIMPLEMENTED();
+}
+
+void CefRenderWidgetHostViewOSR::UnlockCompositingSurface() {
+  NOTIMPLEMENTED();
 }
 
 #if defined(TOOLKIT_VIEWS) || defined(USE_AURA)

@@ -1,5 +1,5 @@
 diff --git hwnd_message_handler.cc hwnd_message_handler.cc
-index 5348080..4f9bec5 100644
+index 035df76..d1517b4 100644
 --- hwnd_message_handler.cc
 +++ hwnd_message_handler.cc
 @@ -2364,8 +2364,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
