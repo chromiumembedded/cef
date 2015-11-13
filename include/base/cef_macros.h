@@ -41,6 +41,7 @@
 // updated to match.
 
 #include <stddef.h>  // For size_t.
+#include "include/base/cef_build.h"  // For COMPILER_MSVC
 
 #if !defined(ALLOW_THIS_IN_INITIALIZER_LIST)
 #if defined(COMPILER_MSVC)
