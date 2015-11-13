@@ -199,6 +199,9 @@ This utility builds the CEF Binary Distribution.
 parser = OptionParser(description=disc)
 parser.add_option('--output-dir', dest='outputdir', metavar='DIR',
                   help='output directory [required]')
+parser.add_option('--distrib-subdir', dest='distribsubdir',
+                  help='name of the subdirectory for the distribution',
+                  default='')
 parser.add_option('--allow-partial',
                   action='store_true', dest='allowpartial', default=False,
                   help='allow creation of partial distributions')
@@ -307,7 +310,11 @@ if platform == 'linux':
 
 # output directory
 output_dir_base = 'cef_binary_' + cef_ver
-output_dir_name = output_dir_base + '_' + platform + platform_arch
+
+if options.distribsubdir == '':
+  output_dir_name = output_dir_base + '_' + platform + platform_arch
+else:
+  output_dir_name = options.distribsubdir
 
 if options.minimal:
   mode = 'minimal'
