@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <vector>
 
+#include "include/base/cef_macros.h"
 #include "include/base/cef_weak_ptr.h"
 #include "include/cef_parser.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
@@ -182,7 +183,7 @@ class ArchiveProvider : public CefResourceManager::Provider {
       password_(password),
       archive_load_started_(false),
       archive_load_ended_(false),
-      weak_ptr_factory_(this) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(weak_ptr_factory_(this)) {
     DCHECK(!url_path_.empty());
     DCHECK(!archive_path_.empty());
 

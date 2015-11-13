@@ -175,7 +175,10 @@
 // C++11 support may not be enabled in client applications. CEF internal classes
 // should use the `override` keyword directly.
 #ifndef OVERRIDE
-#if defined(__clang__) || defined(COMPILER_MSVC)
+#if defined(__clang__)
+#define OVERRIDE override
+#elif defined(COMPILER_MSVC) && _MSC_VER >= 1600
+// Visual Studio 2010 and later support override.
 #define OVERRIDE override
 #elif defined(COMPILER_GCC) && __cplusplus >= 201103 && \
       (__GNUC__ * 10000 + __GNUC_MINOR__ * 100) >= 40700
