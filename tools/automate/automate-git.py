@@ -321,6 +321,10 @@ parser.add_option('--url', dest='url',
                   help='CEF download URL. If not specified the default URL '+\
                        'will be used.',
                   default='')
+parser.add_option('--chromium-url', dest='chromiumurl',
+                  help='Chromium download URL. If not specified the default '+\
+                       'URL will be used.',
+                  default='')
 parser.add_option('--checkout', dest='checkout',
                   help='Version of CEF to checkout. If not specified the '+\
                        'most recent remote version of the branch will be used.',
@@ -361,6 +365,17 @@ parser.add_option('--no-update',
                   help='Do not update Chromium or CEF. Pass --force-build or '+\
                        '--force-distrib if you desire a new build or '+\
                        'distribution.')
+parser.add_option('--no-cef-update',
+                  action='store_true', dest='nocefupdate', default=False,
+                  help='Do not update CEF. Pass --force-build or '+\
+                       '--force-distrib if you desire a new build or '+\
+                       'distribution.')
+parser.add_option('--no-chromium-update',
+                  action='store_true', dest='nochromiumupdate', default=False,
+                  help='Do not update Chromium.')
+parser.add_option('--no-depot-tools-update',
+                  action='store_true', dest='nodepottoolsupdate', default=False,
+                  help='Do not update depot_tools.')
 
 # Build-related options.
 parser.add_option('--force-build',
@@ -420,6 +435,10 @@ parser.add_option('--no-distrib-archive',
 parser.add_option('--clean-artifacts',
                   action='store_true', dest='cleanartifacts', default=False,
                   help='Clean the artifacts output directory.')
+parser.add_option('--distrib-subdir', dest='distribsubdir',
+                  help='CEF distrib dir name, child of '+\
+                       'chromium/src/cef/binary_distrib',
+                  default='')
 
 (options, args) = parser.parse_args()
 
@@ -428,9 +447,16 @@ if options.downloaddir is None:
   parser.print_help(sys.stderr)
   sys.exit()
 
-if options.noupdate and options.forceupdate or \
-   options.nobuild and options.forcebuild or \
-   options.nodistrib and options.forcedistrib:
+# Opt into component-specific flags for later use.
+if options.noupdate:
+  options.nocefupdate = True
+  options.nochromiumupdate = True
+  options.nodepottoolsupdate = True
+
+if (options.nochromiumupdate and options.forceupdate) or \
+   (options.nocefupdate and options.forceupdate) or \
+   (options.nobuild and options.forcebuild) or \
+   (options.nodistrib and options.forcedistrib):
   print "Invalid combination of options."
   parser.print_help(sys.stderr)
   sys.exit()
@@ -553,9 +579,10 @@ if not os.path.exists(depot_tools_dir):
     # On Linux and OS X check out depot_tools using Git.
     run('git clone '+depot_tools_url+' '+depot_tools_dir, download_dir)
 
-if not options.noupdate:
+if not options.nodepottoolsupdate:
   # Update depot_tools.
   # On Windows this will download required python and git binaries.
+  msg('Updating depot_tools')
   if platform == 'windows':
     run('update_depot_tools.bat', depot_tools_dir, depot_tools_dir);
   else:
@@ -598,7 +625,7 @@ else:
   cef_url = options.url
 
 # Verify that the requested CEF URL matches the existing checkout.
-if os.path.exists(cef_dir):
+if not options.nocefupdate and os.path.exists(cef_dir):
   cef_existing_url = get_git_url(cef_dir)
   if cef_url != cef_existing_url:
     raise Exception(
@@ -620,7 +647,7 @@ else:
   cef_checkout = options.checkout
 
 # Create the CEF checkout if necessary.
-if not options.noupdate and not os.path.exists(cef_dir):
+if not options.nocefupdate and not os.path.exists(cef_dir):
   cef_checkout_new = True
   run('%s clone %s %s' % (git_exe, cef_url, cef_dir), download_dir, \
       depot_tools_dir)
@@ -628,7 +655,7 @@ else:
   cef_checkout_new = False
 
 # Update the CEF checkout if necessary.
-if not options.noupdate and os.path.exists(cef_dir):
+if not options.nocefupdate and os.path.exists(cef_dir):
   cef_current_hash = get_git_hash(cef_dir, 'HEAD')
 
   if not cef_checkout_new:
@@ -676,6 +703,11 @@ chromium_src_dir = os.path.join(chromium_dir, 'src')
 cef_src_dir = os.path.join(chromium_src_dir, 'cef')
 out_src_dir = os.path.join(chromium_src_dir, 'out')
 
+if options.chromiumurl != '':
+  chromium_url = options.chromiumurl;
+else:
+  chromium_url = 'https://chromium.googlesource.com/chromium/src.git'
+
 # Create gclient configuration file.
 gclient_file = os.path.join(chromium_dir, '.gclient')
 if not os.path.exists(gclient_file) or options.forceconfig:
@@ -684,7 +716,7 @@ if not os.path.exists(gclient_file) or options.forceconfig:
       "solutions = [{"+\
         "u'managed': False,"+\
         "u'name': u'src', "+\
-        "u'url': u'https://chromium.googlesource.com/chromium/src.git', "+\
+        "u'url': u'" + chromium_url + "', "+\
         "u'custom_deps': {"+\
           "u'build': None, "+\
           "u'build/scripts/command_wrapper/bin': None, "+\
@@ -710,7 +742,7 @@ if not os.path.exists(gclient_file) or options.forceconfig:
     fp.close()
 
 # Initial Chromium checkout.
-if not options.noupdate and not os.path.exists(chromium_src_dir):
+if not options.nochromiumupdate and not os.path.exists(chromium_src_dir):
   chromium_checkout_new = True
   run("gclient sync --nohooks --with_branch_heads --jobs 16", chromium_dir, \
       depot_tools_dir)
@@ -738,7 +770,7 @@ else:
   chromium_checkout = options.chromiumcheckout
 
 # Determine if the Chromium checkout needs to change.
-if not options.noupdate and os.path.exists(chromium_src_dir):
+if not options.nochromiumupdate and os.path.exists(chromium_src_dir):
   chromium_current_hash = get_git_hash(chromium_src_dir, 'HEAD')
   chromium_desired_hash = get_git_hash(chromium_src_dir, chromium_checkout)
   chromium_checkout_changed = chromium_checkout_new or force_change or \
@@ -879,6 +911,10 @@ if not options.nobuild and (chromium_checkout_changed or \
         os.path.join(download_dir, 'build-%s-release.log' % (cef_branch)) \
           if options.buildlogfile else None)
 
+elif not options.nobuild:
+  msg('Not building. The source hashes have not changed and ' +
+      'the output folder "%s" already exists' % (out_src_dir))
+
 
 ##
 # Create the CEF binary distribution.
@@ -930,6 +966,10 @@ if not options.nodistrib and (chromium_checkout_changed or \
     else:
       # Don't create the symbol archives or documentation more than once.
       path = path + ' --no-symbols --no-docs'
+
+    # Override the subdirectory name of binary_distrib if the caller requested.
+    if options.distribsubdir != '':
+      path = path + ' --distrib-subdir=' + options.distribsubdir
 
     # Create the distribution.
     run(path, cef_tools_dir, depot_tools_dir)
