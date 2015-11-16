@@ -31,6 +31,16 @@ class WebURLRequest;
 // Implementation of CefRequest
 class CefRequestImpl : public CefRequest {
  public:
+  enum Changes {
+    kChangedNone =                  0,
+    kChangedUrl =                   1 << 0,
+    kChangedMethod =                1 << 1,
+    kChangedPostData =              1 << 2,
+    kChangedHeaderMap =             1 << 3,
+    kChangedFlags =                 1 << 4,
+    kChangedFirstPartyForCookies =  1 << 5,
+  };
+
   CefRequestImpl();
 
   bool IsReadOnly() override;
@@ -58,7 +68,8 @@ class CefRequestImpl : public CefRequest {
   void Set(net::URLRequest* request);
 
   // Populate the URLRequest object from this object.
-  void Get(net::URLRequest* request);
+  // If |changed_only| is true then only the changed fields will be updated.
+  void Get(net::URLRequest* request, bool changed_only) const;
 
   // Populate this object from the NavigationParams object.
   // TODO(cef): Remove the |is_main_frame| argument once NavigationParams is
@@ -70,9 +81,13 @@ class CefRequestImpl : public CefRequest {
   void Set(const blink::WebURLRequest& request);
 
   // Populate the WebURLRequest object from this object.
-  void Get(blink::WebURLRequest& request);
+  // If |changed_only| is true then only the changed fields will be updated.
+  void Get(blink::WebURLRequest& request, bool changed_only) const;
 
   void SetReadOnly(bool read_only);
+
+  void SetTrackChanges(bool track_changes);
+  uint8 GetChanges() const;
 
   static void GetHeaderMap(const net::HttpRequestHeaders& headers,
                            HeaderMap& map);
@@ -82,6 +97,9 @@ class CefRequestImpl : public CefRequest {
                            blink::WebURLRequest& request);
 
  private:
+  void Changed(uint8 changes);
+  bool ShouldSet(uint8 changes, bool changed_only) const;
+
   void Reset();
 
   CefString url_;
@@ -99,7 +117,13 @@ class CefRequestImpl : public CefRequest {
   // True if this object is read-only.
   bool read_only_;
 
-  base::Lock lock_;
+  // True if this object should track changes.
+  bool track_changes_;
+
+  // Bitmask of |Changes| values which indicate which fields have changed.
+  uint8 changes_;
+
+  mutable base::Lock lock_;
 
   IMPLEMENT_REFCOUNTING(CefRequestImpl);
 };
@@ -118,20 +142,31 @@ class CefPostDataImpl : public CefPostData {
 
   void Set(const net::UploadData& data);
   void Set(const net::UploadDataStream& data_stream);
-  void Get(net::UploadData& data);
-  net::UploadDataStream* Get();
+  void Get(net::UploadData& data) const;
+  net::UploadDataStream* Get() const;
   void Set(const blink::WebHTTPBody& data);
-  void Get(blink::WebHTTPBody& data);
+  void Get(blink::WebHTTPBody& data) const;
 
   void SetReadOnly(bool read_only);
 
+  void SetTrackChanges(bool track_changes);
+  bool HasChanges() const;
+
  private:
+  void Changed();
+
   ElementVector elements_;
 
   // True if this object is read-only.
   bool read_only_;
 
-  base::Lock lock_;
+  // True if this object should track changes.
+  bool track_changes_;
+
+  // True if this object has changes.
+  bool has_changes_;
+
+  mutable base::Lock lock_;
 
   IMPLEMENT_REFCOUNTING(CefPostDataImpl);
 };
@@ -155,14 +190,18 @@ class CefPostDataElementImpl : public CefPostDataElement {
 
   void Set(const net::UploadElement& element);
   void Set(const net::UploadElementReader& element_reader);
-  void Get(net::UploadElement& element);
-  net::UploadElementReader* Get();
+  void Get(net::UploadElement& element) const;
+  net::UploadElementReader* Get() const;
   void Set(const blink::WebHTTPBody::Element& element);
-  void Get(blink::WebHTTPBody::Element& element);
+  void Get(blink::WebHTTPBody::Element& element) const;
 
   void SetReadOnly(bool read_only);
 
+  void SetTrackChanges(bool track_changes);
+  bool HasChanges() const;
+
  private:
+  void Changed();
   void Cleanup();
 
   Type type_;
@@ -177,7 +216,13 @@ class CefPostDataElementImpl : public CefPostDataElement {
   // True if this object is read-only.
   bool read_only_;
 
-  base::Lock lock_;
+  // True if this object should track changes.
+  bool track_changes_;
+
+  // True if this object has changes.
+  bool has_changes_;
+
+  mutable base::Lock lock_;
 
   IMPLEMENT_REFCOUNTING(CefPostDataElementImpl);
 };
