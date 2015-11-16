@@ -25,6 +25,7 @@ bool ShouldProxyUserData(const void* key) {
 
   // If this value is not proxied then CefBrowserContextImpl::GetGuestManager()
   // returns NULL.
+  // See also CefExtensionsAPIClient::CreateGuestViewManagerDelegate.
   if (key == guest_view::kGuestViewManagerKeyName)
     return true;
 
