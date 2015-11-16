@@ -107,12 +107,16 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
     CEF_REQUIRE_IOT();
 
     if (allow) {
-      const GURL& old_url = request->url();
-      GURL url = GURL(cef_request->GetURL().ToString());
-      if (old_url != url)
-        new_url->Swap(&url);
+      // Update the URLRequest with only the values that have been changed by
+      // the client.
+      cef_request->Get(request, true);
 
-      cef_request->Get(request);
+      if (!!(cef_request->GetChanges() & CefRequestImpl::kChangedUrl)) {
+        // If the URL was changed then redirect the request.
+        GURL url = GURL(cef_request->GetURL().ToString());
+        DCHECK_NE(url, request->url());
+        new_url->Swap(&url);
+      }
     }
 
     // Remove the association between the URLRequest and this object.
@@ -238,6 +242,7 @@ int CefNetworkDelegate::OnBeforeURLRequest(
         // Populate the request data.
         CefRefPtr<CefRequestImpl> requestPtr(new CefRequestImpl());
         requestPtr->Set(request);
+        requestPtr->SetTrackChanges(true);
 
         CefRefPtr<CefBeforeResourceLoadCallbackImpl> callbackImpl(
             new CefBeforeResourceLoadCallbackImpl(requestPtr, new_url, request,

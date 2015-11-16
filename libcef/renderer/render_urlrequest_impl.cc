@@ -107,7 +107,7 @@ class CefRenderURLRequest::Context
     url_client_.reset(new CefWebURLLoaderClient(this, request_->GetFlags()));
 
     WebURLRequest urlRequest;
-    static_cast<CefRequestImpl*>(request_.get())->Get(urlRequest);
+    static_cast<CefRequestImpl*>(request_.get())->Get(urlRequest, false);
 
     if (urlRequest.reportUploadProgress()) {
       // Attempt to determine the upload data size.

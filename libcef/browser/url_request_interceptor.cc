@@ -111,16 +111,17 @@ net::URLRequestJob* CefRequestInterceptor::MaybeInterceptResponse(
 
   CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(request);
 
-  CefRefPtr<CefRequest> cefRequest = new CefRequestImpl();
-  static_cast<CefRequestImpl*>(cefRequest.get())->Set(request);
+  CefRefPtr<CefRequestImpl> cefRequest = new CefRequestImpl();
+  cefRequest->Set(request);
+  cefRequest->SetTrackChanges(true);
 
-  CefRefPtr<CefResponse> cefResponse = new CefResponseImpl();
-  static_cast<CefResponseImpl*>(cefResponse.get())->Set(request);
-  static_cast<CefResponseImpl*>(cefResponse.get())->SetReadOnly(true);
+  CefRefPtr<CefResponseImpl> cefResponse = new CefResponseImpl();
+  cefResponse->Set(request);
+  cefResponse->SetReadOnly(true);
 
   // Give the client an opportunity to retry or redirect the request.
-  if (!handler->OnResourceResponse(browser.get(), frame, cefRequest,
-                                   cefResponse)) {
+  if (!handler->OnResourceResponse(browser.get(), frame, cefRequest.get(),
+                                   cefResponse.get())) {
     return NULL;
   }
 
@@ -129,34 +130,14 @@ net::URLRequestJob* CefRequestInterceptor::MaybeInterceptResponse(
   // reset sooner so that we can modify the request headers without asserting.
   request->set_is_pending(false);
 
-  // Update the request headers to match the CefRequest.
-  CefRequest::HeaderMap cefHeaders;
-  cefRequest->GetHeaderMap(cefHeaders);
+  // Update the URLRequest with only the values that have been changed by the
+  // client.
+  cefRequest->Get(request, true);
 
-  CefString referrerStr;
-  referrerStr.FromASCII(net::HttpRequestHeaders::kReferer);
-  CefRequest::HeaderMap::iterator it = cefHeaders.find(referrerStr);
-  if (it != cefHeaders.end()) {
-    request->SetReferrer(it->second);
-    cefHeaders.erase(it);
-  }
-
-  net::HttpRequestHeaders netHeaders;
-  netHeaders.AddHeadersFromString(HttpHeaderUtils::GenerateHeaders(cefHeaders));
-  request->SetExtraRequestHeaders(netHeaders);
-
-  // Update the request body to match the CefRequest.
-  CefRefPtr<CefPostData> post_data = cefRequest->GetPostData();
-  if (post_data.get()) {
-    request->set_upload(
-        make_scoped_ptr(static_cast<CefPostDataImpl*>(post_data.get())->Get()));
-  } else if (request->get_upload()) {
-    request->set_upload(scoped_ptr<net::UploadDataStream>());
-  }
-
-  // If the URL was modified redirect the request.
-  const GURL url(cefRequest->GetURL().ToString());
-  if (url != request->url()) {
+  // If the URL was changed then redirect the request.
+  if (!!(cefRequest->GetChanges() & CefRequestImpl::kChangedUrl)) {
+    const GURL url(cefRequest->GetURL().ToString());
+    DCHECK_NE(url, request->url());
     return new net::URLRequestRedirectJob(
         request, network_delegate, url,
         net::URLRequestRedirectJob::REDIRECT_307_TEMPORARY_REDIRECT,
