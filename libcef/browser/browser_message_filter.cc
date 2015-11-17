@@ -6,8 +6,7 @@
 #include "libcef/browser/browser_message_filter.h"
 
 #include "libcef/browser/browser_host_impl.h"
-#include "libcef/browser/browser_info.h"
-#include "libcef/browser/content_browser_client.h"
+#include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/origin_whitelist_impl.h"
 #include "libcef/browser/thread_util.h"
@@ -55,8 +54,8 @@ bool CefBrowserMessageFilter::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(CefBrowserMessageFilter, message)
     IPC_MESSAGE_HANDLER(CefProcessHostMsg_GetNewRenderThreadInfo,
                         OnGetNewRenderThreadInfo)
-    IPC_MESSAGE_HANDLER(CefProcessHostMsg_GetNewBrowserInfo,
-                        OnGetNewBrowserInfo)
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(CefProcessHostMsg_GetNewBrowserInfo,
+                                    OnGetNewBrowserInfo)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_CreateWindow, OnCreateWindow)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
@@ -87,33 +86,18 @@ void CefBrowserMessageFilter::OnGetNewRenderThreadInfo(
 void CefBrowserMessageFilter::OnGetNewBrowserInfo(
     int render_view_routing_id,
     int render_frame_routing_id,
-    CefProcessHostMsg_GetNewBrowserInfo_Params* params) {
-  DCHECK_GT(render_view_routing_id, 0);
-  DCHECK_GT(render_frame_routing_id, 0);
-
-  // Popup windows may not have info yet.
-  scoped_refptr<CefBrowserInfo> info =
-      CefContentBrowserClient::Get()->GetOrCreateBrowserInfo(
-          host_->GetID(),
-          render_view_routing_id,
-          host_->GetID(),
-          render_frame_routing_id,
-          &params->is_guest_view);
-  params->browser_id = info->browser_id();
-  params->is_popup = info->is_popup();
-  params->is_windowless = info->is_windowless();
+    IPC::Message* reply_msg) {
+  CefBrowserInfoManager::GetInstance()->OnGetNewBrowserInfo(
+      host_,
+      render_view_routing_id,
+      render_frame_routing_id,
+      reply_msg);
 }
 
 void CefBrowserMessageFilter::OnCreateWindow(
     const ViewHostMsg_CreateWindow_Params& params,
     IPC::Message* reply_msg) {
-  CefContentBrowserClient::LastCreateWindowParams lcwp;
-  lcwp.opener_process_id = host_->GetID();
-  lcwp.opener_view_id = params.opener_id;
-  lcwp.opener_frame_id = params.opener_render_frame_id;
-  lcwp.target_url = params.target_url;
-  lcwp.target_frame_name = params.frame_name;
-  CefContentBrowserClient::Get()->set_last_create_window_params(lcwp);
+  CefBrowserInfoManager::GetInstance()->OnCreateWindow(host_, params);
 
   // Reply message is not used.
   delete reply_msg;

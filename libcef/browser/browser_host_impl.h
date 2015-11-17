@@ -16,9 +16,11 @@
 #include "include/cef_client.h"
 #include "include/cef_frame.h"
 #include "libcef/browser/browser_info.h"
+#include "libcef/browser/browser_platform_delegate.h"
+#include "libcef/browser/file_dialog_manager.h"
 #include "libcef/browser/frame_host_impl.h"
 #include "libcef/browser/javascript_dialog_manager.h"
-#include "libcef/browser/menu_creator.h"
+#include "libcef/browser/menu_manager.h"
 #include "libcef/common/response_manager.h"
 
 #include "base/memory/scoped_ptr.h"
@@ -29,41 +31,10 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
-#include "content/public/common/file_chooser_params.h"
-
-#if defined(USE_AURA)
-#include "third_party/WebKit/public/platform/WebCursorInfo.h"
-#include "ui/base/cursor/cursor.h"
-#endif
-
-#if defined(USE_X11)
-#include "ui/base/x/x11_util.h"
-#endif
-
-namespace content {
-struct NativeWebKeyboardEvent;
-}
-
-namespace blink {
-class WebMouseEvent;
-class WebMouseWheelEvent;
-class WebInputEvent;
-}
 
 namespace net {
-class DirectoryLister;
 class URLRequest;
 }
-
-#if defined(USE_AURA)
-namespace views {
-class Widget;
-}
-#endif
-
-#if defined(USE_X11)
-class CefWindowX11;
-#endif
 
 struct Cef_DraggableRegion_Params;
 struct Cef_Request_Params;
@@ -100,18 +71,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
      virtual void OnResponse(const std::string& response) =0;
   };
 
-  // Extend content::FileChooserParams with some options unique to CEF.
-  struct FileChooserParams : public content::FileChooserParams {
-    // 0-based index of the selected value in |accept_types|.
-    int selected_accept_filter = 0;
-
-    // True if the Save dialog should prompt before overwriting files.
-    bool overwriteprompt = true;
-
-    // True if read-only files should be hidden.
-    bool hidereadonly = true;
-  };
-
   ~CefBrowserHostImpl() override;
 
   // Create a new CefBrowserHostImpl instance.
@@ -120,7 +79,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       CefRefPtr<CefClient> client,
       const CefString& url,
       const CefBrowserSettings& settings,
-      CefWindowHandle opener,
+      CefRefPtr<CefBrowserHostImpl> opener,
       bool is_popup,
       CefRefPtr<CefRequestContext> request_context);
 
@@ -239,8 +198,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Returns true if windowless rendering is enabled.
   bool IsWindowless() const;
-  // Returns true if transparent painting is enabled.
-  bool IsTransparent() const;
 
   // Called when the OS window hosting the browser is destroyed.
   void WindowDestroyed();
@@ -252,11 +209,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Cancel display of the context menu, if any.
   void CancelContextMenu();
 
-  // Returns the native view for the WebContents.
-  gfx::NativeView GetContentView() const;
-
-  // Returns a pointer to the WebContents.
-  content::WebContents* GetWebContents() const;
+#if defined(USE_AURA)
+  // Returns the Widget owner for the browser window. Only used with windowed
+  // rendering.
+  views::Widget* GetWindowWidget() const;
+#endif
 
   // Returns the frame associated with the specified URLRequest.
   CefRefPtr<CefFrame> GetFrameForRequest(net::URLRequest* request);
@@ -293,7 +250,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                           bool user_initiated);
 
   // Open the specified text in the default text editor.
-  bool ViewText(const std::string& text);
+  void ViewText(const std::string& text);
 
   // Handler for URLs involving external protocols.
   void HandleExternalProtocol(const GURL& url);
@@ -301,39 +258,23 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Set the frame that currently has focus.
   void SetFocusedFrame(int64 frame_id);
 
+  // Convert from view coordinates to screen coordinates.
+  gfx::Point GetScreenPoint(const gfx::Point& view) const;
+
   // Thread safe accessors.
   const CefBrowserSettings& settings() const { return settings_; }
   CefRefPtr<CefClient> client() const { return client_; }
   scoped_refptr<CefBrowserInfo> browser_info() const { return browser_info_; }
   int browser_id() const;
 
-#if defined(USE_AURA)
-  views::Widget* window_widget() const { return window_widget_; }
-#endif
-
-#if defined(USE_X11)
-  CefWindowX11* window_x11() const { return window_x11_; }
-#endif
-
-#if defined(OS_WIN)
-  static void RegisterWindowClass();
-#endif
-
-#if defined(USE_AURA)
-  ui::PlatformCursor GetPlatformCursor(blink::WebCursorInfo::Type type);
-#endif
-
   void OnSetFocus(cef_focus_source_t source);
-
-  // The argument vector will be empty if the dialog was cancelled.
-  typedef base::Callback<void(int, const std::vector<base::FilePath>&)>
-      RunFileChooserCallback;
 
   // Run the file chooser dialog specified by |params|. Only a single dialog may
   // be pending at any given time. |callback| will be executed asynchronously
   // after the dialog is dismissed or if another dialog is already pending.
-  void RunFileChooser(const FileChooserParams& params,
-                      const RunFileChooserCallback& callback);
+  void RunFileChooser(
+      const CefFileDialogRunner::FileChooserParams& params,
+      const CefFileDialogRunner::RunFileChooserCallback& callback);
 
   bool HandleContextMenu(
       content::WebContents* web_contents,
@@ -344,15 +285,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // PDF viewer extension) then the guest's WebContents will be returned.
   // Otherwise, the browser's WebContents will be returned.
   content::WebContents* GetActionableWebContents();
-
-  // Used when creating a new popup window.
-  struct PendingPopupInfo {
-    CefWindowInfo window_info;
-    CefBrowserSettings settings;
-    CefRefPtr<CefClient> client;
-  };
-  // Returns false if a popup is already pending.
-  bool SetPendingPopupInfo(scoped_ptr<PendingPopupInfo> info);
 
   enum DestructionState {
     DESTRUCTION_STATE_NONE = 0,
@@ -488,13 +420,13 @@ class CefBrowserHostImpl : public CefBrowserHost,
   class DevToolsWebContentsObserver;
 
   static CefRefPtr<CefBrowserHostImpl> CreateInternal(
-      const CefWindowInfo& window_info,
       const CefBrowserSettings& settings,
       CefRefPtr<CefClient> client,
       content::WebContents* web_contents,
       scoped_refptr<CefBrowserInfo> browser_info,
-      CefWindowHandle opener,
-      CefRefPtr<CefRequestContext> request_context);
+      CefRefPtr<CefBrowserHostImpl> opener,
+      CefRefPtr<CefRequestContext> request_context,
+      scoped_ptr<CefBrowserPlatformDelegate> platform_delegate);
 
   // content::WebContentsObserver::OnMessageReceived() message handlers.
   void OnFrameIdentified(int64 frame_id,
@@ -516,13 +448,16 @@ class CefBrowserHostImpl : public CefBrowserHost,
               const content::NotificationSource& source,
               const content::NotificationDetails& details) override;
 
-  CefBrowserHostImpl(const CefWindowInfo& window_info,
-                     const CefBrowserSettings& settings,
+  CefBrowserHostImpl(const CefBrowserSettings& settings,
                      CefRefPtr<CefClient> client,
                      content::WebContents* web_contents,
                      scoped_refptr<CefBrowserInfo> browser_info,
-                     CefWindowHandle opener,
-                     CefRefPtr<CefRequestContext> request_context);
+                     CefRefPtr<CefBrowserHostImpl> opener,
+                     CefRefPtr<CefRequestContext> request_context,
+                     scoped_ptr<CefBrowserPlatformDelegate> platform_delegate);
+
+  // Give the platform delegate an opportunity to create the host window.
+  bool CreateHostWindow();
 
   // Updates and returns an existing frame or creates a new frame. Pass
   // CefFrameHostImpl::kUnspecifiedFrameId for |parent_frame_id| if unknown.
@@ -533,59 +468,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
                                        const GURL& frame_url);
   // Remove the references to all frames and mark them as detached.
   void DetachAllFrames();
-
-#if defined(OS_WIN)
-  static LPCTSTR GetWndClass();
-  static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
-                                  WPARAM wParam, LPARAM lParam);
-#endif
-
-  // Create the window.
-  bool PlatformCreateWindow();
-  // Sends a message via the OS to close the native browser window.
-  // DestroyBrowser will be called after the native window has closed.
-  void PlatformCloseWindow();
-  // Resize the window to the given dimensions.
-  void PlatformSizeTo(int width, int height);
-  // Set or remove focus from the window.
-  void PlatformSetFocus(bool focus);
-#if defined(OS_MACOSX)
-  // Set or remove window visibility.
-  void PlatformSetWindowVisibility(bool visible);
-#endif
-  // Return the handle for this window.
-  CefWindowHandle PlatformGetWindowHandle();
-  // Open the specified text in the default text editor.
-  bool PlatformViewText(const std::string& text);
-  // Forward the keyboard event to the application or frame window to allow
-  // processing of shortcut keys.
-  void PlatformHandleKeyboardEvent(
-      const content::NativeWebKeyboardEvent& event);
-  // Invoke platform specific handling for the external protocol.
-  void PlatformHandleExternalProtocol(const GURL& url);
-  // Invoke platform specific file chooser dialog.
-  void PlatformRunFileChooser(const FileChooserParams& params,
-                              RunFileChooserCallback callback);
-
-  void PlatformTranslateKeyEvent(content::NativeWebKeyboardEvent& native_event,
-                                 const CefKeyEvent& key_event);
-  void PlatformTranslateClickEvent(blink::WebMouseEvent& web_event,
-                                   const CefMouseEvent& mouse_event,
-                                   CefBrowserHost::MouseButtonType type,
-                                   bool mouseUp, int clickCount);
-  void PlatformTranslateMoveEvent(blink::WebMouseEvent& web_event,
-                                  const CefMouseEvent& mouse_event,
-                                  bool mouseLeave);
-  void PlatformTranslateWheelEvent(blink::WebMouseWheelEvent& web_event,
-                                   const CefMouseEvent& mouse_event,
-                                   int deltaX, int deltaY);
-  void PlatformTranslateMouseEvent(blink::WebMouseEvent& web_event,
-                                   const CefMouseEvent& mouse_event);
-
-  void PlatformNotifyMoveOrResizeStarted();
-
-  int TranslateModifiers(uint32 cefKeyStates);
-  void SendMouseEvent(const blink::WebMouseEvent& web_event);
 
   void OnAddressChange(CefRefPtr<CefFrame> frame,
                        const GURL& url);
@@ -602,44 +484,18 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void OnFullscreenModeChange(bool fullscreen);
   void OnTitleChange(const base::string16& title);
 
-  // Continuation from RunFileChooser.
-  void RunFileChooserOnUIThread(const FileChooserParams& params,
-                                const RunFileChooserCallback& callback);
-
-  // Used with RunFileChooser to clear the |file_chooser_pending_| flag.
-  void OnRunFileChooserCallback(const RunFileChooserCallback& callback,
-                                int selected_accept_filter,
-                                const std::vector<base::FilePath>& file_paths);
-
-  // Used with WebContentsDelegate::RunFileChooser when mode is
-  // content::FileChooserParams::UploadFolder.
-  void OnRunFileChooserUploadFolderDelegateCallback(
-      content::WebContents* web_contents,
-      const content::FileChooserParams::Mode mode,
-      int selected_accept_filter,
-      const std::vector<base::FilePath>& file_paths);
-
-  // Used with WebContentsDelegate::RunFileChooser to notify the WebContents.
-  void OnRunFileChooserDelegateCallback(
-      content::WebContents* web_contents,
-      content::FileChooserParams::Mode mode,
-      int selected_accept_filter,
-      const std::vector<base::FilePath>& file_paths);
-
   void OnDevToolsWebContentsDestroyed();
 
-  CefWindowInfo window_info_;
+  // Create the CefFileDialogManager if it doesn't already exist.
+  void EnsureFileDialogManager();
+
   CefBrowserSettings settings_;
   CefRefPtr<CefClient> client_;
   scoped_ptr<content::WebContents> web_contents_;
   scoped_refptr<CefBrowserInfo> browser_info_;
   CefWindowHandle opener_;
   CefRefPtr<CefRequestContext> request_context_;
-
-  // Pending popup information. Access must be protected by
-  // |pending_popup_info_lock_|.
-  base::Lock pending_popup_info_lock_;
-  scoped_ptr<PendingPopupInfo> pending_popup_info_;
+  scoped_ptr<CefBrowserPlatformDelegate> platform_delegate_;
 
   // Volatile state information. All access must be protected by the state lock.
   base::Lock state_lock_;
@@ -694,11 +550,14 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Manages response registrations.
   scoped_ptr<CefResponseManager> response_manager_;
 
+  // Used for creating and managing file dialogs.
+  scoped_ptr<CefFileDialogManager> file_dialog_manager_;
+
   // Used for creating and managing JavaScript dialogs.
-  scoped_ptr<CefJavaScriptDialogManager> dialog_manager_;
+  scoped_ptr<CefJavaScriptDialogManager> javascript_dialog_manager_;
 
   // Used for creating and managing context menus.
-  scoped_ptr<CefMenuCreator> menu_creator_;
+  scoped_ptr<CefMenuManager> menu_manager_;
 
   // Track the lifespan of the frontend WebContents associated with this
   // browser.
@@ -707,24 +566,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // destroyed.
   CefDevToolsFrontend* devtools_frontend_;
 
-  // True if a file chooser is currently pending.
-  bool file_chooser_pending_;
-
-  // Used for asynchronously listing directory contents.
-  scoped_ptr<net::DirectoryLister> lister_;
-
-#if defined(USE_AURA)
-  // Widget hosting the web contents. It will be deleted automatically when the
-  // associated root window is destroyed.
-  views::Widget* window_widget_;
-#endif  // defined(USE_AURA)
-#if defined(USE_X11)
-  CefWindowX11* window_x11_;
-  scoped_ptr<ui::XScopedCursor> invisible_cursor_;
-#endif  // defined(USE_X11)
-
   IMPLEMENT_REFCOUNTING(CefBrowserHostImpl);
-  DISALLOW_EVIL_CONSTRUCTORS(CefBrowserHostImpl);
+  DISALLOW_COPY_AND_ASSIGN(CefBrowserHostImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_BROWSER_HOST_IMPL_H_

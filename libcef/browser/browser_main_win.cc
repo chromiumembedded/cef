@@ -6,7 +6,6 @@
 #include <commctrl.h>
 #include <Objbase.h>
 
-#include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_main.h"
 
 #include "chrome/common/chrome_utility_messages.h"
@@ -45,9 +44,6 @@ void CefBrowserMainParts::PlatformInitialize() {
   // Start COM stuff.
   res = OleInitialize(NULL);
   DCHECK(SUCCEEDED(res));
-
-  // Register the browser window class.
-  CefBrowserHostImpl::RegisterWindowClass();
 }
 
 void CefBrowserMainParts::PlatformPreMainMessageLoopRun() {

@@ -36,8 +36,10 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
     void remove_render_frame_id(int render_process_id, int render_routing_id);
 
     // Returns true if this browser matches the specified ID pair.
-    bool is_render_view_id_match(int render_process_id, int render_routing_id);
-    bool is_render_frame_id_match(int render_process_id, int render_routing_id);
+    bool is_render_view_id_match(int render_process_id,
+                                 int render_routing_id) const;
+    bool is_render_frame_id_match(int render_process_id,
+                                  int render_routing_id)const ;
 
    private:
     typedef std::set<std::pair<int, int> > RenderIdSet;
@@ -50,9 +52,9 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
                           int render_routing_id);
     bool is_render_id_match(const RenderIdSet* id_set,
                             int render_process_id,
-                            int render_routing_id);
+                            int render_routing_id) const;
 
-    base::Lock* lock_;
+    mutable base::Lock* lock_;
 
     // The below members must be protected by |lock_|.
 
@@ -88,7 +90,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
     return &guest_render_id_manager_;
   }
 
-  CefRefPtr<CefBrowserHostImpl> browser();
+  CefRefPtr<CefBrowserHostImpl> browser() const;
   void set_browser(CefRefPtr<CefBrowserHostImpl> browser);
 
  private:
@@ -100,7 +102,7 @@ class CefBrowserInfo : public base::RefCountedThreadSafe<CefBrowserInfo> {
   bool is_popup_;
   bool is_windowless_;
 
-  base::Lock lock_;
+  mutable base::Lock lock_;
 
   // The below members must be protected by |lock_|.
 

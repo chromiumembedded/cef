@@ -6,6 +6,7 @@
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_info.h"
+#include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_main.h"
 #include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/chrome_browser_process_stub.h"
@@ -246,6 +247,7 @@ bool CefContext::Initialize(const CefMainArgs& args,
 
   main_delegate_.reset(new CefMainDelegate(application));
   main_runner_.reset(content::ContentMainRunner::Create());
+  browser_info_manager_.reset(new CefBrowserInfoManager);
 
   int exit_code;
 
@@ -415,7 +417,7 @@ void CefContext::FinishShutdownOnUIThread(
   print_job_manager_->Shutdown();
   print_job_manager_.reset(NULL);
 
-  CefContentBrowserClient::Get()->DestroyAllBrowsers();
+  browser_info_manager_->DestroyAllBrowsers();
 
   if (trace_subscriber_.get())
     trace_subscriber_.reset(NULL);
@@ -436,6 +438,7 @@ void CefContext::FinalizeShutdown() {
   // Shut down the content runner.
   main_runner_->Shutdown();
 
+  browser_info_manager_.reset(NULL);
   main_runner_.reset(NULL);
   main_delegate_.reset(NULL);
 }

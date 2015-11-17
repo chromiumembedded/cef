@@ -9,17 +9,25 @@
 
 #include <string>
 
+#include "libcef/browser/javascript_dialog_runner.h"
+
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/memory/weak_ptr.h"
 #include "content/public/browser/javascript_dialog_manager.h"
 
 class CefBrowserHostImpl;
-class CefJavaScriptDialog;
 
 class CefJavaScriptDialogManager : public content::JavaScriptDialogManager {
  public:
-  explicit CefJavaScriptDialogManager(CefBrowserHostImpl* browser);
+  // |runner| may be NULL if the platform doesn't implement dialogs.
+  CefJavaScriptDialogManager(
+      CefBrowserHostImpl* browser,
+      scoped_ptr<CefJavaScriptDialogRunner> runner);
   ~CefJavaScriptDialogManager() override;
+
+  // Delete the runner to free any platform constructs.
+  void Destroy();
 
   // JavaScriptDialogManager methods.
   void RunJavaScriptDialog(
@@ -31,32 +39,32 @@ class CefJavaScriptDialogManager : public content::JavaScriptDialogManager {
       const base::string16& default_prompt_text,
       const DialogClosedCallback& callback,
       bool* did_suppress_message) override;
-
   void RunBeforeUnloadDialog(
       content::WebContents* web_contents,
       const base::string16& message_text,
       bool is_reload,
       const DialogClosedCallback& callback) override;
-
   void CancelActiveAndPendingDialogs(
       content::WebContents* web_contents) override;
-
   void ResetDialogState(
       content::WebContents* web_contents) override;
 
-  // Called by the CefJavaScriptDialog when it closes.
-  void DialogClosed(CefJavaScriptDialog* dialog);
-
-  CefBrowserHostImpl* browser() const { return browser_; }
-
  private:
-  // This pointer is guaranteed to outlive the CefJavaScriptDialogManager.
+  // Method executed by the callback passed to CefJavaScriptDialogRunner::Run.
+  void DialogClosed(const DialogClosedCallback& callback,
+                    bool success,
+                    const base::string16& user_input);
+
+  // CefBrowserHostImpl pointer is guaranteed to outlive this object.
   CefBrowserHostImpl* browser_;
 
-#if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
-  // The dialog being shown. No queueing.
-  scoped_ptr<CefJavaScriptDialog> dialog_;
-#endif
+  scoped_ptr<CefJavaScriptDialogRunner> runner_;
+
+  // True if a dialog is currently running.
+  bool dialog_running_;
+
+  // Must be the last member.
+  base::WeakPtrFactory<CefJavaScriptDialogManager> weak_ptr_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(CefJavaScriptDialogManager);
 };

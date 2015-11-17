@@ -109,11 +109,10 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
   CefRefPtr<CefBrowserHostImpl> frontend_browser =
       CefBrowserHostImpl::Create(windowInfo, client, CefString(),
                                  new_settings,
-                                 inspected_browser->GetWindowHandle(), true,
+                                 inspected_browser, true,
                                  inspected_browser->GetRequestContext());
 
-  content::WebContents* inspected_contents =
-      inspected_browser->GetWebContents();
+  content::WebContents* inspected_contents = inspected_browser->web_contents();
   if (!inspect_element_at.IsEmpty()) {
     scoped_refptr<content::DevToolsAgentHost> agent_host =
         content::DevToolsAgentHost::GetOrCreateFor(inspected_contents);
@@ -166,7 +165,7 @@ void CefDevToolsFrontend::DisconnectFromTarget() {
 CefDevToolsFrontend::CefDevToolsFrontend(
     CefRefPtr<CefBrowserHostImpl> frontend_browser,
     content::WebContents* inspected_contents)
-    : WebContentsObserver(frontend_browser->GetWebContents()),
+    : WebContentsObserver(frontend_browser->web_contents()),
       frontend_browser_(frontend_browser),
       inspected_contents_(inspected_contents),
       weak_factory_(this) {

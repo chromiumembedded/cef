@@ -142,7 +142,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
       if (browser.get()) {
         handled = true;
 
-        CefBrowserHostImpl::FileChooserParams params;
+        CefFileDialogRunner::FileChooserParams params;
         params.mode = content::FileChooserParams::Save;
         if (!suggested_path.empty()) {
           params.default_file_name = suggested_path;

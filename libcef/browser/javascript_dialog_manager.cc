@@ -5,7 +5,6 @@
 
 #include "libcef/browser/javascript_dialog_manager.h"
 #include "libcef/browser/browser_host_impl.h"
-#include "libcef/browser/javascript_dialog.h"
 #include "libcef/browser/thread_util.h"
 
 #include "base/bind.h"
@@ -68,11 +67,22 @@ class CefJSDialogCallbackImpl : public CefJSDialogCallback {
 
 
 CefJavaScriptDialogManager::CefJavaScriptDialogManager(
-    CefBrowserHostImpl* browser)
-    : browser_(browser) {
+    CefBrowserHostImpl* browser,
+    scoped_ptr<CefJavaScriptDialogRunner> runner)
+    : browser_(browser),
+      runner_(runner.Pass()),
+      dialog_running_(false),
+      weak_ptr_factory_(this) {
 }
 
 CefJavaScriptDialogManager::~CefJavaScriptDialogManager() {
+}
+
+void CefJavaScriptDialogManager::Destroy() {
+  if (runner_.get()) {
+    DCHECK(!dialog_running_);
+    runner_.reset(NULL);
+  }
 }
 
 void CefJavaScriptDialogManager::RunJavaScriptDialog(
@@ -111,29 +121,26 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
     }
   }
 
-#if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
   *did_suppress_message = false;
 
-  if (dialog_.get()) {
-    // One dialog at a time, please.
+  if (!runner_.get() || dialog_running_) {
+    // Suppress the dialog if there is no platform runner or if the dialog is
+    // currently running.
+    if (!runner_.get())
+      LOG(WARNING) << "No javascript dialog runner available for this platform";
     *did_suppress_message = true;
     return;
   }
 
+  dialog_running_ = true;
+
   base::string16 display_url =
       url_formatter::FormatUrlForSecurityDisplay(origin_url, accept_lang);
 
-  dialog_.reset(new CefJavaScriptDialog(this,
-                                        message_type,
-                                        display_url,
-                                        message_text,
-                                        default_prompt_text,
-                                        callback));
-#else
-  // TODO(port): implement CefJavaScriptDialog for other platforms.
-  *did_suppress_message = true;
-  return;
-#endif
+  runner_->Run(browser_, message_type, display_url, message_text,
+               default_prompt_text,
+               base::Bind(&CefJavaScriptDialogManager::DialogClosed,
+                          weak_ptr_factory_.GetWeakPtr(), callback));
 }
 
 void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
@@ -166,29 +173,28 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
     }
   }
 
-#if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
-  if (dialog_.get()) {
-    // Seriously!?
+  if (!runner_.get() || dialog_running_) {
+    if (!runner_.get())
+      LOG(WARNING) << "No javascript dialog runner available for this platform";
+    // Suppress the dialog if there is no platform runner or if the dialog is
+    // currently running.
     callback.Run(true, base::string16());
     return;
   }
+
+  dialog_running_ = true;
 
   base::string16 new_message_text =
       message_text +
       base::ASCIIToUTF16("\n\nIs it OK to leave/reload this page?");
 
-  dialog_.reset(
-      new CefJavaScriptDialog(this,
-                              content::JAVASCRIPT_MESSAGE_TYPE_CONFIRM,
-                              base::string16(),  // display_url
-                              new_message_text,
-                              base::string16(),  // default_prompt_text
-                              callback));
-#else
-  // TODO(port): implement CefJavaScriptDialog for other platforms.
-  callback.Run(true, base::string16());
-  return;
-#endif
+  runner_->Run(browser_,
+               content::JAVASCRIPT_MESSAGE_TYPE_CONFIRM,
+               base::string16(),  // display_url
+               new_message_text,
+               base::string16(),  // default_prompt_text
+               base::Bind(&CefJavaScriptDialogManager::DialogClosed,
+                          weak_ptr_factory_.GetWeakPtr(), callback));
 }
 
 void CefJavaScriptDialogManager::CancelActiveAndPendingDialogs(
@@ -202,27 +208,31 @@ void CefJavaScriptDialogManager::CancelActiveAndPendingDialogs(
     }
   }
 
-#if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
-  if (dialog_.get()) {
-    dialog_->Cancel();
-    dialog_.reset();
+  if (runner_.get() && dialog_running_) {
+    runner_->Cancel();
+    dialog_running_ = false;
   }
-#endif
 }
 
 void CefJavaScriptDialogManager::ResetDialogState(
     content::WebContents* web_contents) {
 }
 
-void CefJavaScriptDialogManager::DialogClosed(CefJavaScriptDialog* dialog) {
-#if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
-  DCHECK_EQ(dialog, dialog_.get());
-  dialog_.reset();
+void CefJavaScriptDialogManager::DialogClosed(
+    const DialogClosedCallback& callback,
+    bool success,
+    const base::string16& user_input) {
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
     CefRefPtr<CefJSDialogHandler> handler = client->GetJSDialogHandler();
     if (handler.get())
       handler->OnDialogClosed(browser_);
   }
-#endif
+
+  DCHECK(runner_.get());
+  DCHECK(dialog_running_);
+
+  dialog_running_ = false;
+
+  callback.Run(success, user_input);
 }

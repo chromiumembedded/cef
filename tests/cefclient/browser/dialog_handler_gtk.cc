@@ -220,18 +220,16 @@ bool ClientDialogHandlerGtk::OnFileDialog(
   gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(dialog),
                                    !(mode & FILE_DIALOG_HIDEREADONLY_FLAG));
 
-  if (!default_file_path.empty()) {
+  if (!default_file_path.empty() && mode_type == FILE_DIALOG_SAVE) {
     const std::string& file_path = default_file_path;
     bool exists = false;
 
-    if (mode_type == FILE_DIALOG_SAVE) {
-      struct stat sb;
-      if (stat(file_path.c_str(), &sb) == 0 && S_ISREG(sb.st_mode)) {
-        // Use the directory and name of the existing file.
-        gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog),
-                                      file_path.data());
-        exists = true;
-      }
+    struct stat sb;
+    if (stat(file_path.c_str(), &sb) == 0 && S_ISREG(sb.st_mode)) {
+      // Use the directory and name of the existing file.
+      gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog),
+                                    file_path.data());
+      exists = true;
     }
 
     if (!exists) {

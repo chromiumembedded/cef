@@ -38,7 +38,7 @@ class CefBrowserMessageFilter : public IPC::MessageFilter {
   void OnGetNewBrowserInfo(
       int render_view_routing_id,
       int render_frame_routing_id,
-      CefProcessHostMsg_GetNewBrowserInfo_Params* params);
+      IPC::Message* reply_msg);
   void OnCreateWindow(const ViewHostMsg_CreateWindow_Params& params,
                       IPC::Message* reply_msg);
   void OnFrameFocused(int32 render_frame_routing_id);

@@ -34,6 +34,7 @@ namespace web_cache {
 class WebCacheRenderProcessObserver;
 }
 
+class CefGuestView;
 class CefRenderProcessObserver;
 struct Cef_CrossOriginWhiteListEntry_Params;
 struct CefViewHostMsg_GetPluginInfo_Output;
@@ -57,6 +58,12 @@ class CefContentRendererClient : public content::ContentRendererClient,
 
   // Called from CefBrowserImpl::OnDestruct().
   void OnBrowserDestroyed(CefBrowserImpl* browser);
+
+  // Returns true if a guest view associated with the specified RenderView.
+  bool HasGuestViewForView(content::RenderView* view);
+
+  // Called from CefGuestView::OnDestruct().
+  void OnGuestViewDestroyed(CefGuestView* guest_view);
 
   // Render thread task runner.
   base::SequencedTaskRunner* render_task_runner() const {
@@ -142,6 +149,10 @@ class CefContentRendererClient : public content::ContentRendererClient,
   // Map of RenderView pointers to CefBrowserImpl references.
   typedef std::map<content::RenderView*, CefRefPtr<CefBrowserImpl> > BrowserMap;
   BrowserMap browsers_;
+
+  // Map of RenderView poiners to CefGuestView implementations.
+  typedef std::map<content::RenderView*, CefGuestView* > GuestViewMap;
+  GuestViewMap guest_views_;
 
   // Cross-origin white list entries that need to be registered with WebKit.
   typedef std::vector<Cef_CrossOriginWhiteListEntry_Params> CrossOriginList;

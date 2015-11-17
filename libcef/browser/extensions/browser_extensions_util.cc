@@ -4,7 +4,7 @@
 
 #include "libcef/browser/extensions/browser_extensions_util.h"
 
-#include "libcef/browser/content_browser_client.h"
+#include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_util.h"
 
@@ -72,7 +72,7 @@ CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForView(int render_process_id,
   } else {
     // Use the thread-safe approach.
     scoped_refptr<CefBrowserInfo> info =
-        CefContentBrowserClient::Get()->GetBrowserInfoForView(
+        CefBrowserInfoManager::GetInstance()->GetBrowserInfoForView(
             render_process_id, render_routing_id, is_guest_view);
     if (info.get()) {
       CefRefPtr<CefBrowserHostImpl> browser = info->browser();

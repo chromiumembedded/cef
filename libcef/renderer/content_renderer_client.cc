@@ -30,6 +30,7 @@
 #include "base/command_line.h"
 #include "base/metrics/user_metrics_action.h"
 #include "base/path_service.h"
+#include "base/stl_util.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/utf_string_conversions.h"
 #include "chrome/common/chrome_switches.h"
@@ -58,6 +59,7 @@
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/render_view_visitor.h"
 #include "content/renderer/render_frame_impl.h"
+#include "content/renderer/render_widget.h"
 #include "extensions/renderer/renderer_extension_registry.h"
 #include "ipc/ipc_sync_channel.h"
 #include "media/base/media.h"
@@ -147,6 +149,20 @@ std::string GetPluginInstancePosterAttribute(
 
 }  // namespace
 
+// Placeholder object for guest views.
+class CefGuestView : public content::RenderViewObserver {
+ public:
+  explicit CefGuestView(content::RenderView* render_view)
+      : content::RenderViewObserver(render_view) {
+  }
+
+ private:
+  // RenderViewObserver methods.
+  void OnDestruct() override {
+    CefContentRendererClient::Get()->OnGuestViewDestroyed(this);
+  }
+};
+
 CefContentRendererClient::CefContentRendererClient()
     : devtools_agent_count_(0),
       uncaught_exception_stack_size_(0),
@@ -162,6 +178,10 @@ CefContentRendererClient::CefContentRendererClient()
 }
 
 CefContentRendererClient::~CefContentRendererClient() {
+  if (!guest_views_.empty()) {
+    STLDeleteContainerPairSecondPointers(guest_views_.begin(),
+                                         guest_views_.end());
+  }
 }
 
 // static
@@ -206,6 +226,28 @@ void CefContentRendererClient::OnBrowserDestroyed(CefBrowserImpl* browser) {
   }
 
   // No browser was found in the map.
+  NOTREACHED();
+}
+
+bool CefContentRendererClient::HasGuestViewForView(
+    content::RenderView* view) {
+  CEF_REQUIRE_RT_RETURN(false);
+
+  GuestViewMap::const_iterator it = guest_views_.find(view);
+  return it != guest_views_.end();
+}
+
+void CefContentRendererClient::OnGuestViewDestroyed(CefGuestView* guest_view) {
+  GuestViewMap::iterator it = guest_views_.begin();
+  for (; it != guest_views_.end(); ++it) {
+    if (it->second == guest_view) {
+      delete it->second;
+      guest_views_.erase(it);
+      return;
+    }
+  }
+
+  // No guest view was found in the map.
   NOTREACHED();
 }
 
@@ -769,24 +811,42 @@ blink::WebPlugin* CefContentRendererClient::CreatePlugin(
 void CefContentRendererClient::BrowserCreated(
     content::RenderView* render_view,
     content::RenderFrame* render_frame) {
+  // Swapped out RenderWidgets will be created in the parent/owner process for
+  // frames that are hosted in a separate process (e.g. guest views or OOP
+  // frames). Don't create any CEF objects for swapped out RenderWidgets.
+  content::RenderFrameImpl* render_frame_impl =
+      static_cast<content::RenderFrameImpl*>(render_frame);
+  if (render_frame_impl->GetRenderWidget()->is_swapped_out())
+    return;
+
+  // Don't create another browser or guest view object if one already exists for
+  // the view.
+  if (GetBrowserForView(render_view).get() || HasGuestViewForView(render_view))
+    return;
+
+  const int render_view_routing_id = render_view->GetRoutingID();
+  const int render_frame_routing_id = render_frame->GetRoutingID();
+
   // Retrieve the browser information synchronously. This will also register
   // the routing ids with the browser info object in the browser process.
   CefProcessHostMsg_GetNewBrowserInfo_Params params;
   content::RenderThread::Get()->Send(
       new CefProcessHostMsg_GetNewBrowserInfo(
-          render_view->GetRoutingID(),
-          render_frame->GetRoutingID(),
+          render_view_routing_id,
+          render_frame_routing_id,
           &params));
   DCHECK_GT(params.browser_id, 0);
-
-  if (params.is_guest_view) {
-    // Don't create a CefBrowser for guest views.
+  if (params.browser_id == 0) {
+    // The request failed for some reason.
     return;
   }
 
-  // Don't create another browser object if one already exists for the view.
-  if (GetBrowserForView(render_view).get())
+  if (params.is_guest_view) {
+    // Don't create a CefBrowser for guest views.
+    guest_views_.insert(
+        std::make_pair(render_view, new CefGuestView(render_view)));
     return;
+  }
 
 #if defined(OS_MACOSX)
   // FIXME: It would be better if this API would be a callback from the

@@ -32,6 +32,7 @@ class PrintJobManager;
 }
 
 class CefBrowserHostImpl;
+class CefBrowserInfoManager;
 class CefMainDelegate;
 class CefTraceSubscriber;
 
@@ -97,6 +98,7 @@ class CefContext {
   scoped_ptr<CefMainDelegate> main_delegate_;
   scoped_ptr<content::ContentMainRunner> main_runner_;
   scoped_ptr<CefTraceSubscriber> trace_subscriber_;
+  scoped_ptr<CefBrowserInfoManager> browser_info_manager_;
 
   // Only accessed on the UI Thread.
   scoped_ptr<printing::PrintJobManager> print_job_manager_;

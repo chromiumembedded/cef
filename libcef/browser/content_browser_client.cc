@@ -7,13 +7,14 @@
 #include <algorithm>
 
 #include "libcef/browser/browser_info.h"
+#include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_main.h"
 #include "libcef/browser/browser_message_filter.h"
+#include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/chrome_scheme_handler.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/devtools_delegate.h"
-#include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/pepper/browser_pepper_host_factory.h"
@@ -277,37 +278,6 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
   DISALLOW_COPY_AND_ASSIGN(CefQuotaPermissionContext);
 };
 
-void TranslatePopupFeatures(const blink::WebWindowFeatures& webKitFeatures,
-                            CefPopupFeatures& features) {
-  features.x = static_cast<int>(webKitFeatures.x);
-  features.xSet = webKitFeatures.xSet;
-  features.y = static_cast<int>(webKitFeatures.y);
-  features.ySet = webKitFeatures.ySet;
-  features.width = static_cast<int>(webKitFeatures.width);
-  features.widthSet = webKitFeatures.widthSet;
-  features.height = static_cast<int>(webKitFeatures.height);
-  features.heightSet =  webKitFeatures.heightSet;
-
-  features.menuBarVisible =  webKitFeatures.menuBarVisible;
-  features.statusBarVisible =  webKitFeatures.statusBarVisible;
-  features.toolBarVisible =  webKitFeatures.toolBarVisible;
-  features.locationBarVisible =  webKitFeatures.locationBarVisible;
-  features.scrollbarsVisible =  webKitFeatures.scrollbarsVisible;
-  features.resizable =  webKitFeatures.resizable;
-
-  features.fullscreen =  webKitFeatures.fullscreen;
-  features.dialog =  webKitFeatures.dialog;
-  features.additionalFeatures = NULL;
-  if (webKitFeatures.additionalFeatures.size() > 0)
-     features.additionalFeatures = cef_string_list_alloc();
-
-  CefString str;
-  for (unsigned int i = 0; i < webKitFeatures.additionalFeatures.size(); ++i) {
-    str = base::string16(webKitFeatures.additionalFeatures[i]);
-    cef_string_list_append(features.additionalFeatures, str.GetStruct());
-  }
-}
-
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
 breakpad::CrashHandlerHostLinux* CreateCrashHandlerHost(
     const std::string& process_type) {
@@ -436,13 +406,10 @@ void FindFrameHostForNavigationHandle(
 
 
 CefContentBrowserClient::CefContentBrowserClient()
-    : browser_main_parts_(NULL),
-      next_browser_id_(0) {
+    : browser_main_parts_(NULL) {
   plugin_service_filter_.reset(new CefPluginServiceFilter);
   content::PluginServiceImpl::GetInstance()->SetFilter(
       plugin_service_filter_.get());
-
-  last_create_window_params_.opener_process_id = MSG_ROUTING_NONE;
 }
 
 CefContentBrowserClient::~CefContentBrowserClient() {
@@ -452,178 +419,6 @@ CefContentBrowserClient::~CefContentBrowserClient() {
 CefContentBrowserClient* CefContentBrowserClient::Get() {
   return static_cast<CefContentBrowserClient*>(
       CefContentClient::Get()->browser());
-}
-
-scoped_refptr<CefBrowserInfo> CefContentBrowserClient::CreateBrowserInfo(
-    bool is_popup) {
-  base::AutoLock lock_scope(browser_info_lock_);
-
-  scoped_refptr<CefBrowserInfo> browser_info =
-      new CefBrowserInfo(++next_browser_id_, is_popup);
-  browser_info_list_.push_back(browser_info);
-  return browser_info;
-}
-
-scoped_refptr<CefBrowserInfo>
-    CefContentBrowserClient::GetOrCreateBrowserInfo(
-        int render_view_process_id,
-        int render_view_routing_id,
-        int render_frame_process_id,
-        int render_frame_routing_id,
-        bool* is_guest_view) {
-  base::AutoLock lock_scope(browser_info_lock_);
-
-  if (is_guest_view)
-    *is_guest_view = false;
-
-  BrowserInfoList::const_iterator it = browser_info_list_.begin();
-  for (; it != browser_info_list_.end(); ++it) {
-    const scoped_refptr<CefBrowserInfo>& browser_info = *it;
-    if (browser_info->render_id_manager()->is_render_view_id_match(
-            render_view_process_id, render_view_routing_id)) {
-      // Make sure the frame id is also registered.
-      browser_info->render_id_manager()->add_render_frame_id(
-          render_frame_process_id, render_frame_routing_id);
-      return browser_info;
-    }
-    if (browser_info->render_id_manager()->is_render_frame_id_match(
-            render_frame_process_id, render_frame_routing_id)) {
-      // Make sure the view id is also registered.
-      browser_info->render_id_manager()->add_render_view_id(
-          render_view_process_id, render_view_routing_id);
-      return browser_info;
-    }
-    if (extensions::ExtensionsEnabled() &&
-        (browser_info->guest_render_id_manager()->is_render_view_id_match(
-             render_view_process_id, render_view_routing_id) ||
-         browser_info->guest_render_id_manager()->is_render_frame_id_match(
-             render_frame_process_id, render_frame_routing_id))) {
-      if (is_guest_view)
-        *is_guest_view = true;
-      return browser_info;
-    }
-  }
-
-  // Must be a popup if it hasn't already been created.
-  scoped_refptr<CefBrowserInfo> browser_info =
-      new CefBrowserInfo(++next_browser_id_, true);
-  browser_info->render_id_manager()->add_render_view_id(
-      render_view_process_id, render_view_routing_id);
-  browser_info->render_id_manager()->add_render_frame_id(
-      render_frame_process_id, render_frame_routing_id);
-  browser_info_list_.push_back(browser_info);
-  return browser_info;
-}
-
-void CefContentBrowserClient::RemoveBrowserInfo(
-    scoped_refptr<CefBrowserInfo> browser_info) {
-  base::AutoLock lock_scope(browser_info_lock_);
-
-  BrowserInfoList::iterator it = browser_info_list_.begin();
-  for (; it != browser_info_list_.end(); ++it) {
-    if (*it == browser_info) {
-      browser_info_list_.erase(it);
-      return;
-    }
-  }
-
-  NOTREACHED();
-}
-
-void CefContentBrowserClient::DestroyAllBrowsers() {
-  BrowserInfoList list;
-
-  {
-    base::AutoLock lock_scope(browser_info_lock_);
-    list = browser_info_list_;
-  }
-
-  // Destroy any remaining browser windows.
-  if (!list.empty()) {
-    BrowserInfoList::iterator it = list.begin();
-    for (; it != list.end(); ++it) {
-      CefRefPtr<CefBrowserHostImpl> browser = (*it)->browser();
-      if (browser.get()) {
-        // DestroyBrowser will call RemoveBrowserInfo.
-        browser->DestroyBrowser();
-      } else {
-        // Canceled popup windows may have browser info but no browser because
-        // CefBrowserMessageFilter::OnGetNewBrowserInfo is still called.
-        DCHECK((*it)->is_popup());
-        RemoveBrowserInfo(*it);
-      }
-    }
-  }
-
-#ifndef NDEBUG
-  {
-    // Verify that all browser windows have been destroyed.
-    base::AutoLock lock_scope(browser_info_lock_);
-    DCHECK(browser_info_list_.empty());
-  }
-#endif
-}
-
-scoped_refptr<CefBrowserInfo> CefContentBrowserClient::GetBrowserInfoForView(
-    int render_process_id,
-    int render_routing_id,
-    bool* is_guest_view) {
-  base::AutoLock lock_scope(browser_info_lock_);
-
-  if (is_guest_view)
-    *is_guest_view = false;
-
-  BrowserInfoList::const_iterator it = browser_info_list_.begin();
-  for (; it != browser_info_list_.end(); ++it) {
-    const scoped_refptr<CefBrowserInfo>& browser_info = *it;
-    if (browser_info->render_id_manager()->is_render_view_id_match(
-          render_process_id, render_routing_id)) {
-      return browser_info;
-    }
-    if (extensions::ExtensionsEnabled() &&
-        browser_info->guest_render_id_manager()->is_render_view_id_match(
-            render_process_id, render_routing_id)) {
-      if (is_guest_view)
-        *is_guest_view = true;
-      return browser_info;
-    }
-  }
-
-  LOG(WARNING) << "No browser info matching view process id " <<
-                  render_process_id << " and routing id " << render_routing_id;
-
-  return scoped_refptr<CefBrowserInfo>();
-}
-
-scoped_refptr<CefBrowserInfo> CefContentBrowserClient::GetBrowserInfoForFrame(
-    int render_process_id,
-    int render_routing_id,
-    bool* is_guest_view) {
-  base::AutoLock lock_scope(browser_info_lock_);
-
-  if (is_guest_view)
-    *is_guest_view = false;
-
-  BrowserInfoList::const_iterator it = browser_info_list_.begin();
-  for (; it != browser_info_list_.end(); ++it) {
-    const scoped_refptr<CefBrowserInfo>& browser_info = *it;
-    if (browser_info->render_id_manager()->is_render_frame_id_match(
-            render_process_id, render_routing_id)) {
-      return browser_info;
-    }
-    if (extensions::ExtensionsEnabled() &&
-        browser_info->guest_render_id_manager()->is_render_frame_id_match(
-            render_process_id, render_routing_id)) {
-      if (is_guest_view)
-        *is_guest_view = true;
-      return browser_info;
-    }
-  }
-
-  LOG(WARNING) << "No browser info matching frame process id " <<
-                  render_process_id << " and routing id " << render_routing_id;
-
-  return scoped_refptr<CefBrowserInfo>();
 }
 
 content::BrowserMainParts* CefContentBrowserClient::CreateBrowserMainParts(
@@ -661,6 +456,8 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
     host->AddFilter(
         new extensions::ExtensionsGuestViewMessageFilter(id, browser_context));
   }
+
+  host->AddObserver(CefBrowserInfoManager::GetInstance());
 
   host->Send(new CefProcessMsg_SetIsIncognitoProcess(
       browser_context->IsOffTheRecord()));
@@ -959,102 +756,10 @@ bool CefContentBrowserClient::CanCreateWindow(
   CEF_REQUIRE_IOT();
   *no_javascript_access = false;
 
-  DCHECK_NE(last_create_window_params_.opener_process_id, MSG_ROUTING_NONE);
-  if (last_create_window_params_.opener_process_id == MSG_ROUTING_NONE)
-    return false;
-
-  bool is_guest_view = false;
-  CefRefPtr<CefBrowserHostImpl> browser =
-      extensions::GetOwnerBrowserForView(
-          last_create_window_params_.opener_process_id,
-          last_create_window_params_.opener_view_id,
-          &is_guest_view);
-  DCHECK(browser.get());
-  if (!browser.get()) {
-    // Cancel the popup.
-    last_create_window_params_.opener_process_id = MSG_ROUTING_NONE;
-    return false;
-  }
-
-  if (is_guest_view) {
-    content::OpenURLParams params(target_url,
-                                  referrer,
-                                  disposition,
-                                  ui::PAGE_TRANSITION_LINK,
-                                  true);
-    params.user_gesture = user_gesture;
-
-    // Pass navigation to the owner browser.
-    CEF_POST_TASK(CEF_UIT,
-        base::Bind(base::IgnoreResult(&CefBrowserHostImpl::OpenURLFromTab),
-                   browser.get(), nullptr, params));
-
-    // Cancel the popup.
-    last_create_window_params_.opener_process_id = MSG_ROUTING_NONE;
-    return false;
-  }
-
-  CefRefPtr<CefClient> client = browser->GetClient();
-  bool allow = true;
-
-  scoped_ptr<CefBrowserHostImpl::PendingPopupInfo> pending_info;
-  pending_info.reset(new CefBrowserHostImpl::PendingPopupInfo);
-
-#if defined(OS_WIN)
-  pending_info->window_info.SetAsPopup(NULL, CefString());
-#endif
-
-  // Start with the current browser's settings.
-  pending_info->client = client;
-  pending_info->settings = browser->settings();
-
-  if (client.get()) {
-    CefRefPtr<CefLifeSpanHandler> handler = client->GetLifeSpanHandler();
-    if (handler.get()) {
-      CefRefPtr<CefFrame> frame =
-          browser->GetFrame(last_create_window_params_.opener_frame_id);
-
-      CefPopupFeatures cef_features;
-      TranslatePopupFeatures(features, cef_features);
-
-#if (defined(OS_WIN) || defined(OS_MACOSX))
-      // Default to the size from the popup features.
-      if (cef_features.xSet)
-        pending_info->window_info.x = cef_features.x;
-      if (cef_features.ySet)
-        pending_info->window_info.y = cef_features.y;
-      if (cef_features.widthSet)
-        pending_info->window_info.width = cef_features.width;
-      if (cef_features.heightSet)
-        pending_info->window_info.height = cef_features.height;
-#endif
-
-      allow = !handler->OnBeforePopup(browser.get(),
-          frame,
-          last_create_window_params_.target_url.spec(),
-          last_create_window_params_.target_frame_name,
-          static_cast<cef_window_open_disposition_t>(disposition),
-          user_gesture,
-          cef_features,
-          pending_info->window_info,
-          pending_info->client,
-          pending_info->settings,
-          no_javascript_access);
-    }
-  }
-
-  if (allow) {
-    CefRefPtr<CefClient> pending_client = pending_info->client;
-    allow = browser->SetPendingPopupInfo(pending_info.Pass());
-    if (!allow) {
-      LOG(WARNING) << "Creation of popup window denied because one is already "
-                      "pending.";
-    }
-  }
-
-  last_create_window_params_.opener_process_id = MSG_ROUTING_NONE;
-
-  return allow;
+  return CefBrowserInfoManager::GetInstance()->CanCreateWindow(
+      target_url, referrer, disposition, features, user_gesture,
+      opener_suppressed, render_process_id, opener_render_view_id,
+      opener_render_frame_id, no_javascript_access);
 }
 
 void CefContentBrowserClient::ResourceDispatcherHostCreated() {
@@ -1196,12 +901,6 @@ void CefContentBrowserClient::RegisterCustomScheme(const std::string& scheme) {
       content::ChildProcessSecurityPolicy::GetInstance();
   if (!policy->IsWebSafeScheme(scheme))
     policy->RegisterWebSafeScheme(scheme);
-}
-
-void CefContentBrowserClient::set_last_create_window_params(
-    const LastCreateWindowParams& params) {
-  CEF_REQUIRE_IOT();
-  last_create_window_params_ = params;
 }
 
 scoped_refptr<CefBrowserContextImpl>

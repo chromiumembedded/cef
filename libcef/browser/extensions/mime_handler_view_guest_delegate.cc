@@ -8,7 +8,7 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/content_browser_client.h"
-#include "libcef/browser/web_contents_view_osr.h"
+#include "libcef/browser/osr/web_contents_view_osr.h"
 
 #include "content/browser/browser_plugin/browser_plugin_guest.h"
 #include "content/browser/web_contents/web_contents_impl.h"
@@ -43,7 +43,7 @@ void CefMimeHandlerViewGuestDelegate::OverrideWebContentsCreateParams(
 
   CefRefPtr<CefBrowserHostImpl> owner_browser = GetOwnerBrowser(guest_);
   if (owner_browser->IsWindowless()) {
-    CefWebContentsViewOSR* view_osr = new CefWebContentsViewOSR();
+    CefWebContentsViewOSR* view_osr = new CefWebContentsViewOSR(false);
     params->view = view_osr;
     params->delegate_view = view_osr;
   }

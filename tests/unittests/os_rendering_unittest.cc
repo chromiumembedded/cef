@@ -85,7 +85,7 @@ const int kVerticalScrollbarWidth = GetSystemMetrics(SM_CXVSCROLL);
 const CefRect kEditBoxRect(442, 251, 46, 16);
 const CefRect kNavigateButtonRect(375, 275, 130, 20);
 const CefRect kSelectRect(461, 21, 87, 26);
-const CefRect kExpandedSelectRect(466, 42, 76, 286);
+const CefRect kExpandedSelectRect(466, 42, 78, 286);
 const CefRect kDropDivRect(9, 330, 52, 52);
 const CefRect kDragDivRect(60, 330, 52, 52);
 const int kVerticalScrollbarWidth = 15;
@@ -183,10 +183,15 @@ enum OSRTestType {
   OSR_TEST_DRAG_DROP_UPDATE_CURSOR,
   // dropping element inside drop region will move the element
   OSR_TEST_DRAG_DROP_DROP,
+
+  // Define the range for popup tests.
+  OSR_TEST_POPUP_FIRST = OSR_TEST_POPUP_PAINT,
+  OSR_TEST_POPUP_LAST  = OSR_TEST_POPUP_SCROLL_INSIDE,
 };
 
 // Used in the browser process.
 class OSRTestHandler : public RoutingTestHandler,
+                       public CefFocusHandler,
                        public CefRenderHandler,
                        public CefContextMenuHandler {
  public:
@@ -278,6 +283,10 @@ class OSRTestHandler : public RoutingTestHandler,
   }
 
   // CefClient methods, providing handlers
+  CefRefPtr<CefFocusHandler> GetFocusHandler() override {
+    return this;
+  }
+
   CefRefPtr<CefRenderHandler> GetRenderHandler() override {
     return this;
   }
@@ -762,6 +771,23 @@ class OSRTestHandler : public RoutingTestHandler,
     }
   }
 
+  bool OnSetFocus(CefRefPtr<CefBrowser> browser,
+                  FocusSource source) override {
+    if (source == FOCUS_SOURCE_NAVIGATION) {
+      got_navigation_focus_event_.yes();
+
+      // Ignore focus from the original navigation when we're testing focus
+      // event delivery.
+      if (test_type_ == OSR_TEST_FOCUS)
+        return true;
+      return false;
+    }
+
+    EXPECT_EQ(source, FOCUS_SOURCE_SYSTEM);
+    got_system_focus_event_.yes();
+    return false;
+  }
+
   void OnCursorChange(CefRefPtr<CefBrowser> browser,
                       CefCursorHandle cursor,
                       CursorType type,
@@ -937,6 +963,23 @@ class OSRTestHandler : public RoutingTestHandler,
       CefPostTask(TID_UI, base::Bind(&OSRTestHandler::DestroyTest, this));
   }
 
+  void DestroyTest() override {
+    // Always get the OnSetFocus call for the initial navigation.
+    EXPECT_TRUE(got_navigation_focus_event_);
+
+    if (test_type_ == OSR_TEST_FOCUS ||
+        (test_type_ >= OSR_TEST_POPUP_FIRST &&
+         test_type_ <= OSR_TEST_POPUP_LAST)) {
+      // SetFocus is called by the system when we explicitly set the focus and
+      // when popups are dismissed.
+      EXPECT_TRUE(got_system_focus_event_);
+    } else {
+      EXPECT_FALSE(got_system_focus_event_);
+    }
+
+    RoutingTestHandler::DestroyTest();
+  }
+
   void ExpandDropDown() {
     GetBrowser()->GetHost()->SendFocusEvent(true);
     CefMouseEvent mouse_event;
@@ -1013,6 +1056,8 @@ class OSRTestHandler : public RoutingTestHandler,
   int event_total_;
   bool started_;
   TrackCallback got_update_cursor_;
+  TrackCallback got_navigation_focus_event_;
+  TrackCallback got_system_focus_event_;
 
   IMPLEMENT_REFCOUNTING(OSRTestHandler);
 };

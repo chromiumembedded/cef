@@ -6,9 +6,6 @@
 #define CEF_LIBCEF_BROWSER_CONTENT_BROWSER_CLIENT_H_
 #pragma once
 
-#include <list>
-#include <map>
-#include <set>
 #include <string>
 #include <utility>
 
@@ -19,13 +16,9 @@
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
-#include "base/synchronization/lock.h"
 #include "content/public/browser/content_browser_client.h"
 #include "third_party/skia/include/core/SkColor.h"
-#include "url/gurl.h"
 
-class CefBrowserHostImpl;
-class CefBrowserInfo;
 class CefBrowserMainParts;
 class CefDevToolsDelegate;
 class CefResourceDispatcherHostDelegate;
@@ -42,38 +35,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
 
   // Returns the singleton CefContentBrowserClient instance.
   static CefContentBrowserClient* Get();
-
-  // Methods for managing CefBrowserInfo life span. Do not add new callers of
-  // these methods.
-  // During popup window creation there is a race between the call to
-  // CefBrowserMessageFilter::OnGetNewBrowserInfo on the IO thread and the call
-  // to CefBrowserHostImpl::ShouldCreateWebContents on the UI thread. To resolve
-  // this race CefBrowserInfo may be created when requested for the first time
-  // and before the associated CefBrowserHostImpl is created.
-  // |is_guest_view| will be set to true if the IDs match a guest view
-  // associated with the returned browser info instead of the browser itself.
-  scoped_refptr<CefBrowserInfo> CreateBrowserInfo(bool is_popup);
-  scoped_refptr<CefBrowserInfo> GetOrCreateBrowserInfo(
-      int render_view_process_id,
-      int render_view_routing_id,
-      int render_frame_process_id,
-      int render_frame_routing_id,
-      bool* is_guest_view);
-  void RemoveBrowserInfo(scoped_refptr<CefBrowserInfo> browser_info);
-  void DestroyAllBrowsers();
-
-  // Retrieves the CefBrowserInfo matching the specified IDs or an empty
-  // pointer if no match is found. It is allowed to add new callers of this
-  // method but consider using CefBrowserHostImpl::GetBrowserFor[View|Frame]()
-  // or extensions::GetOwnerBrowserForView() instead.
-  // |is_guest_view| will be set to true if the IDs match a guest view
-  // associated with the returned browser info instead of the browser itself.
-  scoped_refptr<CefBrowserInfo> GetBrowserInfoForView(int render_process_id,
-                                                      int render_routing_id,
-                                                      bool* is_guest_view);
-  scoped_refptr<CefBrowserInfo> GetBrowserInfoForFrame(int render_process_id,
-                                                       int render_routing_id,
-                                                       bool* is_guest_view);
 
   // ContentBrowserClient implementation.
   content::BrowserMainParts* CreateBrowserMainParts(
@@ -162,17 +123,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   // Perform browser process registration for the custom scheme.
   void RegisterCustomScheme(const std::string& scheme);
 
-  // Store additional state from the ViewHostMsg_CreateWindow message that will
-  // be used when CanCreateWindow() is called.
-  struct LastCreateWindowParams {
-    int opener_process_id;
-    int opener_view_id;
-    int64 opener_frame_id;
-    GURL target_url;
-    std::string target_frame_name;
-  };
-  void set_last_create_window_params(const LastCreateWindowParams& params);
-
   scoped_refptr<CefBrowserContextImpl> browser_context() const;
   CefDevToolsDelegate* devtools_delegate() const;
 
@@ -182,16 +132,6 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   scoped_ptr<content::PluginServiceFilter> plugin_service_filter_;
   scoped_ptr<CefResourceDispatcherHostDelegate>
       resource_dispatcher_host_delegate_;
-
-  base::Lock browser_info_lock_;
-
-  // Access must be protected by |browser_info_lock_|.
-  typedef std::list<scoped_refptr<CefBrowserInfo> > BrowserInfoList;
-  BrowserInfoList browser_info_list_;
-  int next_browser_id_;
-
-  // Only accessed on the IO thread.
-  LastCreateWindowParams last_create_window_params_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_CONTENT_BROWSER_CLIENT_H_

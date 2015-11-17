@@ -5,6 +5,7 @@
 #include "libcef/browser/browser_info.h"
 
 #include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/thread_util.h"
 
 #include "ipc/ipc_message.h"
 
@@ -36,14 +37,14 @@ void CefBrowserInfo::RenderIDManager::remove_render_frame_id(
 }
 
 bool CefBrowserInfo::RenderIDManager::is_render_view_id_match(
-    int render_process_id, int render_routing_id) {
+    int render_process_id, int render_routing_id) const {
   return is_render_id_match(&render_view_id_set_,
                             render_process_id,
                             render_routing_id);
 }
 
 bool CefBrowserInfo::RenderIDManager::is_render_frame_id_match(
-    int render_process_id, int render_routing_id) {
+    int render_process_id, int render_routing_id) const {
   return is_render_id_match(&render_frame_id_set_,
                             render_process_id,
                             render_routing_id);
@@ -87,7 +88,7 @@ void CefBrowserInfo::RenderIDManager::remove_render_id(RenderIdSet* id_set,
 bool CefBrowserInfo::RenderIDManager::is_render_id_match(
     const RenderIdSet* id_set,
     int render_process_id,
-    int render_routing_id) {
+    int render_routing_id) const {
   base::AutoLock lock_scope(*lock_);
 
   if (id_set->empty())
@@ -117,7 +118,7 @@ void CefBrowserInfo::set_windowless(bool windowless) {
   is_windowless_ = windowless;
 }
 
-CefRefPtr<CefBrowserHostImpl> CefBrowserInfo::browser() {
+CefRefPtr<CefBrowserHostImpl> CefBrowserInfo::browser() const {
   base::AutoLock lock_scope(lock_);
   return browser_;
 }
