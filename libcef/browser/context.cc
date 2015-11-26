@@ -422,6 +422,9 @@ void CefContext::FinishShutdownOnUIThread(
   if (trace_subscriber_.get())
     trace_subscriber_.reset(NULL);
 
+  if (component_updater_.get())
+    component_updater_.reset(NULL);
+
   if (uithread_shutdown_event)
     uithread_shutdown_event->Signal();
 }
