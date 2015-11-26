@@ -18,7 +18,7 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_client.h"
 #include "libcef/common/extensions/extensions_util.h"
-#include "libcef/common/net_resource_provider.h"
+#include "libcef/common/net/net_resource_provider.h"
 
 #include "base/bind.h"
 #include "base/command_line.h"

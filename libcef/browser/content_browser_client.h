@@ -11,7 +11,7 @@
 
 #include "include/cef_request_context_handler.h"
 #include "libcef/browser/browser_context_impl.h"
-#include "libcef/browser/url_request_context_getter_impl.h"
+#include "libcef/browser/net/url_request_context_getter_impl.h"
 
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"

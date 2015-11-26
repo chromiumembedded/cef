@@ -7,7 +7,7 @@
 #pragma once
 
 #include "libcef/browser/browser_context_impl.h"
-#include "libcef/browser/url_request_context_getter_impl.h"
+#include "libcef/browser/net/url_request_context_getter_impl.h"
 
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"

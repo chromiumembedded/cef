@@ -9,7 +9,7 @@
 
 #include <string>
 
-#include "libcef/common/upload_data.h"
+#include "libcef/common/net/upload_data.h"
 
 #include "content/public/browser/global_request_id.h"
 #include "content/public/common/referrer.h"

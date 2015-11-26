@@ -8,10 +8,10 @@
 
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/content_browser_client.h"
+#include "libcef/browser/net/url_request_user_data.h"
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/browser/url_request_user_data.h"
-#include "libcef/common/http_header_utils.h"
+#include "libcef/common/net/http_header_utils.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
 

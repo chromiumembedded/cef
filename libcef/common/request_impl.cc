@@ -5,10 +5,10 @@
 #include <string>
 #include <vector>
 
-#include "libcef/common/http_header_utils.h"
+#include "libcef/common/net/http_header_utils.h"
+#include "libcef/common/net/upload_data.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/task_runner_impl.h"
-#include "libcef/common/upload_data.h"
 
 #include "base/logging.h"
 #include "components/navigation_interception/navigation_params.h"

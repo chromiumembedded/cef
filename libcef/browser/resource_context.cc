@@ -3,7 +3,8 @@
 // found in the LICENSE file.
 
 #include "libcef/browser/resource_context.h"
-#include "libcef/browser/url_request_context_getter.h"
+
+#include "libcef/browser/net/url_request_context_getter.h"
 
 #include "base/logging.h"
 #include "content/public/browser/browser_thread.h"

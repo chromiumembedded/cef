@@ -3,7 +3,7 @@
 // governed by a BSD-style license that can be found in the LICENSE file.
 
 #include "libcef/browser/devtools_delegate.h"
-#include "libcef/browser/devtools_scheme_handler.h"
+#include "libcef/browser/net/devtools_scheme_handler.h"
 #include "libcef/common/content_client.h"
 
 #include <algorithm>

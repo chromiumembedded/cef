@@ -5,7 +5,7 @@
 #include "libcef/renderer/frame_impl.h"
 
 #include "libcef/common/cef_messages.h"
-#include "libcef/common/http_header_utils.h"
+#include "libcef/common/net/http_header_utils.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/renderer/browser_impl.h"
 #include "libcef/renderer/dom_document_impl.h"

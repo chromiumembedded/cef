@@ -6,8 +6,8 @@
 
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/download_manager_delegate.h"
+#include "libcef/browser/net/url_request_context_getter_proxy.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/browser/url_request_context_getter_proxy.h"
 
 #include "base/logging.h"
 #include "chrome/browser/font_family_cache.h"

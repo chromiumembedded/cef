@@ -8,8 +8,8 @@
 
 #include "include/cef_request_context_handler.h"
 #include "libcef/browser/chrome_profile_stub.h"
+#include "libcef/browser/net/url_request_context_getter_impl.h"
 #include "libcef/browser/resource_context.h"
-#include "libcef/browser/url_request_context_getter_impl.h"
 
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"

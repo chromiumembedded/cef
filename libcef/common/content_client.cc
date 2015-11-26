@@ -10,8 +10,8 @@
 #include "libcef/browser/extensions/pdf_extension_util.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/extensions/extensions_util.h"
+#include "libcef/common/net/scheme_registration.h"
 #include "libcef/common/scheme_registrar_impl.h"
-#include "libcef/common/scheme_registration.h"
 
 #include "base/command_line.h"
 #include "base/logging.h"

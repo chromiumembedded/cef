@@ -8,7 +8,7 @@
 
 #include "libcef/browser/browser_context.h"
 
-#include "libcef/browser/url_request_context_getter_impl.h"
+#include "libcef/browser/net/url_request_context_getter_impl.h"
 
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"

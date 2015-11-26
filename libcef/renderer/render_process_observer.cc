@@ -5,7 +5,7 @@
 
 #include "libcef/renderer/render_process_observer.h"
 #include "libcef/common/cef_messages.h"
-#include "libcef/common/net_resource_provider.h"
+#include "libcef/common/net/net_resource_provider.h"
 #include "libcef/renderer/content_renderer_client.h"
 
 #include "net/base/net_module.h"
