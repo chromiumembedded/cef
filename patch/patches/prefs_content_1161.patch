@@ -35,10 +35,10 @@ index 75012d1..8da71be 100644
    bool slimming_paint_v2_enabled;
    bool inert_visual_viewport;
 diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
-index d6d5d6e..82b499e 100644
+index 9aaca16..0b33354 100644
 --- renderer/render_view_impl.cc
 +++ renderer/render_view_impl.cc
-@@ -949,6 +949,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+@@ -948,6 +948,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
    settings->setCookieEnabled(prefs.cookie_enabled);
    settings->setNavigateOnDragDrop(prefs.navigate_on_drag_drop);
  
