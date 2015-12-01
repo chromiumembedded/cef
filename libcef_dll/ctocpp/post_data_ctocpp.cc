@@ -44,6 +44,20 @@ bool CefPostDataCToCpp::IsReadOnly() {
   return _retval?true:false;
 }
 
+bool CefPostDataCToCpp::HasExcludedElements() {
+  cef_post_data_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, has_excluded_elements))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->has_excluded_elements(_struct);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 size_t CefPostDataCToCpp::GetElementCount() {
   cef_post_data_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_element_count))

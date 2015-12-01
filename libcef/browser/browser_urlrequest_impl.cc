@@ -11,7 +11,6 @@
 #include "libcef/browser/net/url_request_user_data.h"
 #include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/thread_util.h"
-#include "libcef/common/net/http_header_utils.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
 
@@ -21,9 +20,7 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/url_fetcher.h"
 #include "net/base/io_buffer.h"
-#include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
-#include "net/http/http_request_headers.h"
 #include "net/http/http_response_headers.h"
 #include "net/url_request/url_fetcher.h"
 #include "net/url_request/url_fetcher_delegate.h"
@@ -208,116 +205,24 @@ class CefBrowserURLRequest::Context
                                    net::URLFetcher::RequestType request_type) {
     DCHECK(CalledOnValidThread());
 
-    fetcher_delegate_.reset(
-        new CefURLFetcherDelegate(this, request_->GetFlags()));
+    int request_flags = request_->GetFlags();
 
+    fetcher_delegate_.reset(new CefURLFetcherDelegate(this, request_flags));
     fetcher_ = net::URLFetcher::Create(url, request_type,
                                        fetcher_delegate_.get());
 
     DCHECK(url_request_getter_.get());
     fetcher_->SetRequestContext(url_request_getter_.get());
 
-    CefRequest::HeaderMap headerMap;
-    request_->GetHeaderMap(headerMap);
-
-    // Extract the Referer header value.
-    {
-      CefString referrerStr;
-      referrerStr.FromASCII(net::HttpRequestHeaders::kReferer);
-      CefRequest::HeaderMap::iterator it = headerMap.find(referrerStr);
-      if (it == headerMap.end()) {
-        fetcher_->SetReferrer("");
-      } else {
-        fetcher_->SetReferrer(it->second);
-        headerMap.erase(it);
-      }
-    }
-
-    std::string content_type;
-
-    // Extract the Content-Type header value.
-    {
-      CefString contentTypeStr;
-      contentTypeStr.FromASCII(net::HttpRequestHeaders::kContentType);
-      CefRequest::HeaderMap::iterator it = headerMap.find(contentTypeStr);
-      if (it != headerMap.end()) {
-        content_type = it->second;
-        headerMap.erase(it);
-      }
-    }
-
-    int64 upload_data_size = 0;
-
-    CefRefPtr<CefPostData> post_data = request_->GetPostData();
-    if (post_data.get()) {
-      CefPostData::ElementVector elements;
-      post_data->GetElements(elements);
-      if (elements.size() == 1) {
-        // Default to URL encoding if not specified.
-        if (content_type.empty())
-          content_type = "application/x-www-form-urlencoded";
-
-        CefPostDataElementImpl* impl =
-            static_cast<CefPostDataElementImpl*>(elements[0].get());
-
-        switch (elements[0]->GetType())
-          case PDE_TYPE_BYTES: {
-            upload_data_size = impl->GetBytesCount();
-            fetcher_->SetUploadData(content_type,
-                std::string(static_cast<char*>(impl->GetBytes()),
-                            upload_data_size));
-            break;
-          case PDE_TYPE_FILE:
-            fetcher_->SetUploadFilePath(
-                content_type, 
-                base::FilePath(impl->GetFile()),
-                0, kuint64max,
-                content::BrowserThread::GetMessageLoopProxyForThread(
-                    content::BrowserThread::FILE).get());
-            break;
-          case PDE_TYPE_EMPTY:
-            break;
-        }
-      } else if (elements.size() > 1) {
-        NOTIMPLEMENTED() << " multi-part form data is not supported";
-      }
-    }
-
-    std::string first_party_for_cookies = request_->GetFirstPartyForCookies();
-    if (!first_party_for_cookies.empty())
-      fetcher_->SetFirstPartyForCookies(GURL(first_party_for_cookies));
-
-    int cef_flags = request_->GetFlags();
-
-    if (cef_flags & UR_FLAG_NO_RETRY_ON_5XX)
-      fetcher_->SetAutomaticallyRetryOn5xx(false);
-
-    int load_flags = 0;
-
-    if (cef_flags & UR_FLAG_SKIP_CACHE)
-      load_flags |= net::LOAD_BYPASS_CACHE;
-
-    if (!(cef_flags & UR_FLAG_ALLOW_CACHED_CREDENTIALS)) {
-      load_flags |= net::LOAD_DO_NOT_SEND_AUTH_DATA;
-      load_flags |= net::LOAD_DO_NOT_SEND_COOKIES;
-      load_flags |= net::LOAD_DO_NOT_SAVE_COOKIES;
-    }
-
-    if (cef_flags & UR_FLAG_REPORT_UPLOAD_PROGRESS) {
-      upload_data_size_ = upload_data_size;
-    }
-
-    fetcher_->SetLoadFlags(load_flags);
-
-    fetcher_->SetExtraRequestHeaders(
-        HttpHeaderUtils::GenerateHeaders(headerMap));
+    static_cast<CefRequestImpl*>(request_.get())->Get(*fetcher_,
+                                                      upload_data_size_);
 
     fetcher_->SetURLRequestUserData(
         CefURLRequestUserData::kUserDataKey,
         base::Bind(&CreateURLRequestUserData, client_));
 
     scoped_ptr<net::URLFetcherResponseWriter> response_writer;
-    if (cef_flags & UR_FLAG_NO_DOWNLOAD_DATA) {
+    if (request_flags & UR_FLAG_NO_DOWNLOAD_DATA) {
       response_writer.reset(new CefURLFetcherResponseWriter(NULL, NULL));
     } else {
       response_writer.reset(

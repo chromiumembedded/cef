@@ -46,6 +46,21 @@ int CEF_CALLBACK post_data_is_read_only(struct _cef_post_data_t* self) {
   return _retval;
 }
 
+int CEF_CALLBACK post_data_has_excluded_elements(
+    struct _cef_post_data_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefPostDataCppToC::Get(self)->HasExcludedElements();
+
+  // Return type: bool
+  return _retval;
+}
+
 size_t CEF_CALLBACK post_data_get_element_count(struct _cef_post_data_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -153,6 +168,7 @@ void CEF_CALLBACK post_data_remove_elements(struct _cef_post_data_t* self) {
 
 CefPostDataCppToC::CefPostDataCppToC() {
   GetStruct()->is_read_only = post_data_is_read_only;
+  GetStruct()->has_excluded_elements = post_data_has_excluded_elements;
   GetStruct()->get_element_count = post_data_get_element_count;
   GetStruct()->get_elements = post_data_get_elements;
   GetStruct()->remove_element = post_data_remove_element;

@@ -21,12 +21,16 @@ class UploadData;
 class UploadDataStream;
 class UploadElement;
 class UploadElementReader;
+class URLFetcher;
 class URLRequest;
 };
 
 namespace blink {
 class WebURLRequest;
 }
+
+struct CefMsg_LoadRequest_Params;
+struct CefNavigateParams;
 
 // Implementation of CefRequest
 class CefRequestImpl : public CefRequest {
@@ -35,10 +39,11 @@ class CefRequestImpl : public CefRequest {
     kChangedNone =                  0,
     kChangedUrl =                   1 << 0,
     kChangedMethod =                1 << 1,
-    kChangedPostData =              1 << 2,
-    kChangedHeaderMap =             1 << 3,
-    kChangedFlags =                 1 << 4,
-    kChangedFirstPartyForCookies =  1 << 5,
+    kChangedReferrer =              1 << 2,
+    kChangedPostData =              1 << 3,
+    kChangedHeaderMap =             1 << 4,
+    kChangedFlags =                 1 << 5,
+    kChangedFirstPartyForCookies =  1 << 6,
   };
 
   CefRequestImpl();
@@ -48,6 +53,10 @@ class CefRequestImpl : public CefRequest {
   void SetURL(const CefString& url) override;
   CefString GetMethod() override;
   void SetMethod(const CefString& method) override;
+  void SetReferrer(const CefString& referrer_url,
+                   ReferrerPolicy policy) override;
+  CefString GetReferrerURL() override;
+  ReferrerPolicy GetReferrerPolicy() override;
   CefRefPtr<CefPostData> GetPostData() override;
   void SetPostData(CefRefPtr<CefPostData> postData) override;
   void GetHeaderMap(HeaderMap& headerMap) override;
@@ -74,27 +83,35 @@ class CefRequestImpl : public CefRequest {
   // Populate this object from the NavigationParams object.
   // TODO(cef): Remove the |is_main_frame| argument once NavigationParams is
   // reliable in reporting that value.
+  // Called from content_browser_client.cc NavigationOnUIThread().
   void Set(const navigation_interception::NavigationParams& params,
            bool is_main_frame);
 
   // Populate this object from a WebURLRequest object.
+  // Called from CefContentRendererClient::HandleNavigation().
   void Set(const blink::WebURLRequest& request);
 
   // Populate the WebURLRequest object from this object.
-  // If |changed_only| is true then only the changed fields will be updated.
-  void Get(blink::WebURLRequest& request, bool changed_only) const;
+  // Called from CefRenderURLRequest::Context::Start().
+  void Get(blink::WebURLRequest& request, int64& upload_data_size) const;
+
+  // Populate the WebURLRequest object based on the contents of |params|.
+  // Called from CefBrowserImpl::LoadRequest().
+  static void Get(const CefMsg_LoadRequest_Params& params,
+                  blink::WebURLRequest& request);
+
+  // Populate the CefNavigateParams object from this object.
+  // Called from CefBrowserHostImpl::LoadRequest().
+  void Get(CefNavigateParams& params) const;
+
+  // Populate the URLFetcher object from this object.
+  // Called from CefBrowserURLRequest::Context::ContinueOnOriginatingThread().
+  void Get(net::URLFetcher& fetcher, int64& upload_data_size) const;
 
   void SetReadOnly(bool read_only);
 
   void SetTrackChanges(bool track_changes);
   uint8 GetChanges() const;
-
-  static void GetHeaderMap(const net::HttpRequestHeaders& headers,
-                           HeaderMap& map);
-  static void GetHeaderMap(const blink::WebURLRequest& request,
-                           HeaderMap& map);
-  static void SetHeaderMap(const HeaderMap& map,
-                           blink::WebURLRequest& request);
 
  private:
   void Changed(uint8 changes);
@@ -104,6 +121,8 @@ class CefRequestImpl : public CefRequest {
 
   CefString url_;
   CefString method_;
+  CefString referrer_url_;
+  ReferrerPolicy referrer_policy_;
   CefRefPtr<CefPostData> postdata_;
   HeaderMap headermap_;
   ResourceType resource_type_;
@@ -134,6 +153,7 @@ class CefPostDataImpl : public CefPostData {
   CefPostDataImpl();
 
   bool IsReadOnly() override;
+  bool HasExcludedElements() override;
   size_t GetElementCount() override;
   void GetElements(ElementVector& elements) override;
   bool RemoveElement(CefRefPtr<CefPostDataElement> element) override;
@@ -159,6 +179,9 @@ class CefPostDataImpl : public CefPostData {
 
   // True if this object is read-only.
   bool read_only_;
+
+  // True if this object has excluded elements.
+  bool has_excluded_elements_;
 
   // True if this object should track changes.
   bool track_changes_;

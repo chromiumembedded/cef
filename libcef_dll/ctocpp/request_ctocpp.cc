@@ -110,6 +110,55 @@ void CefRequestCToCpp::SetMethod(const CefString& method) {
       method.GetStruct());
 }
 
+void CefRequestCToCpp::SetReferrer(const CefString& referrer_url,
+    ReferrerPolicy policy) {
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_referrer))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: referrer_url; type: string_byref_const
+  DCHECK(!referrer_url.empty());
+  if (referrer_url.empty())
+    return;
+
+  // Execute
+  _struct->set_referrer(_struct,
+      referrer_url.GetStruct(),
+      policy);
+}
+
+CefString CefRequestCToCpp::GetReferrerURL() {
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_referrer_url))
+    return CefString();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_string_userfree_t _retval = _struct->get_referrer_url(_struct);
+
+  // Return type: string
+  CefString _retvalStr;
+  _retvalStr.AttachToUserFree(_retval);
+  return _retvalStr;
+}
+
+CefRequest::ReferrerPolicy CefRequestCToCpp::GetReferrerPolicy() {
+  cef_request_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_referrer_policy))
+    return REFERRER_POLICY_DEFAULT;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_referrer_policy_t _retval = _struct->get_referrer_policy(_struct);
+
+  // Return type: simple
+  return _retval;
+}
+
 CefRefPtr<CefPostData> CefRequestCToCpp::GetPostData() {
   cef_request_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_post_data))

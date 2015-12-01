@@ -35,6 +35,10 @@ class CefRequestCToCpp
   void SetURL(const CefString& url) OVERRIDE;
   CefString GetMethod() OVERRIDE;
   void SetMethod(const CefString& method) OVERRIDE;
+  void SetReferrer(const CefString& referrer_url,
+      ReferrerPolicy policy) OVERRIDE;
+  CefString GetReferrerURL() OVERRIDE;
+  ReferrerPolicy GetReferrerPolicy() OVERRIDE;
   CefRefPtr<CefPostData> GetPostData() OVERRIDE;
   void SetPostData(CefRefPtr<CefPostData> postData) OVERRIDE;
   void GetHeaderMap(HeaderMap& headerMap) OVERRIDE;

@@ -107,21 +107,8 @@ class CefRenderURLRequest::Context
     url_client_.reset(new CefWebURLLoaderClient(this, request_->GetFlags()));
 
     WebURLRequest urlRequest;
-    static_cast<CefRequestImpl*>(request_.get())->Get(urlRequest, false);
-
-    if (urlRequest.reportUploadProgress()) {
-      // Attempt to determine the upload data size.
-      CefRefPtr<CefPostData> post_data = request_->GetPostData();
-      if (post_data.get()) {
-        CefPostData::ElementVector elements;
-        post_data->GetElements(elements);
-        if (elements.size() == 1 && elements[0]->GetType() == PDE_TYPE_BYTES) {
-          CefPostDataElementImpl* impl =
-              static_cast<CefPostDataElementImpl*>(elements[0].get());
-          upload_data_size_ = impl->GetBytesCount();
-        }
-      }
-    }
+    static_cast<CefRequestImpl*>(request_.get())->Get(urlRequest,
+                                                      upload_data_size_);
 
     loader_->loadAsynchronously(urlRequest, url_client_.get());
     return true;

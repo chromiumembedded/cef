@@ -89,6 +89,13 @@ TEST(RequestTest, SetGet) {
   request->SetMethod(method);
   EXPECT_EQ(method, request->GetMethod());
 
+  // CefRequest SetReferrer
+  CefString referrer = "http://tests.com/referrer.html";
+  CefRequest::ReferrerPolicy policy = REFERRER_POLICY_ORIGIN;
+  request->SetReferrer(referrer, policy);
+  EXPECT_EQ(referrer, request->GetReferrerURL());
+  EXPECT_EQ(policy, request->GetReferrerPolicy());
+
   // CefRequest SetHeaderMap
   request->SetHeaderMap(setHeaders);
   request->GetHeaderMap(getHeaders);
@@ -124,6 +131,9 @@ void CreateRequest(CefRefPtr<CefRequest>& request) {
 
   request->SetURL("http://tests/run.html");
   request->SetMethod("POST");
+
+  request->SetReferrer("http://tests/main.html",
+                       REFERRER_POLICY_NO_REFERRER_WHEN_DOWNGRADE);
 
   CefRequest::HeaderMap headers;
   headers.insert(std::make_pair("HeaderA", "ValueA"));
