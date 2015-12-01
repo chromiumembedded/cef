@@ -31,6 +31,7 @@ class CefPostDataCToCpp
 
   // CefPostData methods.
   bool IsReadOnly() OVERRIDE;
+  bool HasExcludedElements() OVERRIDE;
   size_t GetElementCount() OVERRIDE;
   void GetElements(ElementVector& elements) OVERRIDE;
   bool RemoveElement(CefRefPtr<CefPostDataElement> element) OVERRIDE;

@@ -80,6 +80,10 @@ void TestRequestEqual(CefRefPtr<CefRequest> request1,
   EXPECT_STREQ(request1->GetMethod().ToString().c_str(),
                request2->GetMethod().ToString().c_str());
 
+  EXPECT_STREQ(request1->GetReferrerURL().ToString().c_str(),
+               request2->GetReferrerURL().ToString().c_str());
+  EXPECT_EQ(request1->GetReferrerPolicy(), request2->GetReferrerPolicy());
+
   CefRequest::HeaderMap headers1, headers2;
   request1->GetHeaderMap(headers1);
   request2->GetHeaderMap(headers2);

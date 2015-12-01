@@ -1713,26 +1713,10 @@ void CefBrowserHostImpl::Navigate(const CefNavigateParams& params) {
 
 void CefBrowserHostImpl::LoadRequest(int64 frame_id,
                                      CefRefPtr<CefRequest> request) {
-  CefNavigateParams params(GURL(std::string(request->GetURL())),
-                           ui::PAGE_TRANSITION_TYPED);
-  params.method = request->GetMethod();
+  CefNavigateParams params(GURL(), ui::PAGE_TRANSITION_TYPED);
   params.frame_id = frame_id;
-  params.first_party_for_cookies =
-    GURL(std::string(request->GetFirstPartyForCookies()));
 
-  CefRequest::HeaderMap headerMap;
-  request->GetHeaderMap(headerMap);
-  if (!headerMap.empty())
-    params.headers = HttpHeaderUtils::GenerateHeaders(headerMap);
-
-  CefRefPtr<CefPostData> postData = request->GetPostData();
-  if (postData.get()) {
-    CefPostDataImpl* impl = static_cast<CefPostDataImpl*>(postData.get());
-    params.upload_data = new net::UploadData();
-    impl->Get(*params.upload_data.get());
-  }
-
-  params.load_flags = request->GetFlags();
+  static_cast<CefRequestImpl*>(request.get())->Get(params);
 
   Navigate(params);
 }

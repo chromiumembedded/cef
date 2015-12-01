@@ -110,6 +110,55 @@ void CEF_CALLBACK request_set_method(struct _cef_request_t* self,
       CefString(method));
 }
 
+void CEF_CALLBACK request_set_referrer(struct _cef_request_t* self,
+    const cef_string_t* referrer_url, cef_referrer_policy_t policy) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: referrer_url; type: string_byref_const
+  DCHECK(referrer_url);
+  if (!referrer_url)
+    return;
+
+  // Execute
+  CefRequestCppToC::Get(self)->SetReferrer(
+      CefString(referrer_url),
+      policy);
+}
+
+cef_string_userfree_t CEF_CALLBACK request_get_referrer_url(
+    struct _cef_request_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefString _retval = CefRequestCppToC::Get(self)->GetReferrerURL();
+
+  // Return type: string
+  return _retval.DetachToUserFree();
+}
+
+cef_referrer_policy_t CEF_CALLBACK request_get_referrer_policy(
+    struct _cef_request_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return REFERRER_POLICY_DEFAULT;
+
+  // Execute
+  cef_referrer_policy_t _retval = CefRequestCppToC::Get(
+      self)->GetReferrerPolicy();
+
+  // Return type: simple
+  return _retval;
+}
+
 struct _cef_post_data_t* CEF_CALLBACK request_get_post_data(
     struct _cef_request_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -336,6 +385,9 @@ CefRequestCppToC::CefRequestCppToC() {
   GetStruct()->set_url = request_set_url;
   GetStruct()->get_method = request_get_method;
   GetStruct()->set_method = request_set_method;
+  GetStruct()->set_referrer = request_set_referrer;
+  GetStruct()->get_referrer_url = request_get_referrer_url;
+  GetStruct()->get_referrer_policy = request_get_referrer_policy;
   GetStruct()->get_post_data = request_get_post_data;
   GetStruct()->set_post_data = request_set_post_data;
   GetStruct()->get_header_map = request_get_header_map;
