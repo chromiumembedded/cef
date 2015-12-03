@@ -1345,7 +1345,10 @@ void CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
 
 void CefRenderWidgetHostViewOSR::ResizeRootLayer() {
   SetFrameRate();
+
+  const float orgScaleFactor = scale_factor_;
   SetDeviceScaleFactor();
+  const bool scaleFactorDidChange = (orgScaleFactor != scale_factor_);
 
   gfx::Size size;
   if (!IsPopupWidget())
@@ -1353,7 +1356,7 @@ void CefRenderWidgetHostViewOSR::ResizeRootLayer() {
   else
     size = popup_position_.size();
 
-  if (size == root_layer_->bounds().size())
+  if (!scaleFactorDidChange && size == root_layer_->bounds().size())
     return;
 
   const gfx::Size& size_in_pixels =

@@ -1099,6 +1099,19 @@ BrowserOpenGLView* GLView(NSView* view) {
   return device_scale_factor_;
 }
 
+- (void)viewDidChangeBackingProperties {
+  const CGFloat device_scale_factor = [self getDeviceScaleFactor];
+
+  if (device_scale_factor == device_scale_factor_)
+    return;
+
+  CefRefPtr<CefBrowser> browser = [self getBrowser];
+  if (browser) {
+    browser->GetHost()->NotifyScreenInfoChanged();
+    browser->GetHost()->WasResized();
+  }
+}
+
 - (bool)isOverPopupWidgetX:(int)x andY:(int)y {
   CefRect rc = renderer_->popup_rect();
   int popup_right = rc.x + rc.width;
