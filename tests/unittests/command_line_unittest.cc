@@ -10,7 +10,9 @@
 
 namespace {
 
-void VerifyCommandLine(CefRefPtr<CefCommandLine> command_line) {
+void VerifyCommandLine(CefRefPtr<CefCommandLine> command_line,
+                       const char* expected_arg1 = "arg1",
+                       const char* expected_arg2 = "arg 2") {
   std::string program = command_line->GetProgram();
   EXPECT_EQ("test.exe", program);
 
@@ -67,9 +69,9 @@ void VerifyCommandLine(CefRefPtr<CefCommandLine> command_line) {
   command_line->GetArguments(args);
   EXPECT_EQ((size_t)2, args.size());
   std::string arg0 = args[0];
-  EXPECT_EQ("arg1", arg0);
+  EXPECT_EQ(expected_arg1, arg0);
   std::string arg1 = args[1];
-  EXPECT_EQ("arg 2", arg1);
+  EXPECT_EQ(expected_arg2, arg1);
 
   command_line->Reset();
   EXPECT_FALSE(command_line->HasSwitches());
@@ -118,4 +120,24 @@ TEST(CommandLineTest, Manual) {
   command_line->AppendArgument("arg 2");
 
   VerifyCommandLine(command_line);
+}
+
+// Test that any prefixes included with the switches are ignored.
+TEST(CommandLineTest, IgnorePrefixes) {
+  CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
+  EXPECT_TRUE(command_line.get() != NULL);
+
+  command_line->SetProgram("test.exe");
+  command_line->AppendSwitch("-switch1");
+  command_line->AppendSwitchWithValue("--switch2", "val2");
+  command_line->AppendSwitchWithValue("-switch3", "val3");
+  command_line->AppendSwitchWithValue("-switch4", "val 4");
+
+  // Prefixes will not be removed from arguments.
+  const char arg1[] = "-arg1";
+  const char arg2[] = "--arg 2";
+  command_line->AppendArgument(arg1);
+  command_line->AppendArgument(arg2);
+
+  VerifyCommandLine(command_line, arg1, arg2);
 }
