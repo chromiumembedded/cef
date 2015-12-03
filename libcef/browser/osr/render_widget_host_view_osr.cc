@@ -614,8 +614,12 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetViewBounds() const {
 }
 
 void CefRenderWidgetHostViewOSR::SetBackgroundColor(SkColor color) {
+  if (transparent_)
+    color = SkColorSetARGB(SK_AlphaTRANSPARENT, 0, 0, 0);
+
   content::RenderWidgetHostViewBase::SetBackgroundColor(color);
-  bool opaque = GetBackgroundOpaque();
+
+  const bool opaque = !transparent_ && GetBackgroundOpaque();
   if (render_widget_host_)
     render_widget_host_->SetBackgroundOpaque(opaque);
 }
@@ -1070,7 +1074,7 @@ void CefRenderWidgetHostViewOSR::DelegatedFrameHostUpdateVSyncParameters(
 
 bool CefRenderWidgetHostViewOSR::InstallTransparency() {
   if (transparent_) {
-    SetBackgroundColor(SkColorSetARGB(SK_AlphaTRANSPARENT, 0, 0, 0));
+    SetBackgroundColor(SkColor());
     compositor_->SetHostHasTransparentBackground(true);
     return true;
   }
