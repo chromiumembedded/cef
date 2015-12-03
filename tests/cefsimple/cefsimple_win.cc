@@ -44,14 +44,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   // Provide CEF with command-line arguments.
   CefMainArgs main_args(hInstance);
 
-  // SimpleApp implements application-level callbacks. It will create the first
-  // browser instance in OnContextInitialized() after CEF has initialized.
-  CefRefPtr<SimpleApp> app(new SimpleApp);
-
   // CEF applications have multiple sub-processes (render, plugin, GPU, etc)
   // that share the same executable. This function checks the command-line and,
   // if this is a sub-process, executes the appropriate logic.
-  int exit_code = CefExecuteProcess(main_args, app.get(), sandbox_info);
+  int exit_code = CefExecuteProcess(main_args, NULL, sandbox_info);
   if (exit_code >= 0) {
     // The sub-process has completed so return here.
     return exit_code;
@@ -63,6 +59,11 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 #if !defined(CEF_USE_SANDBOX)
   settings.no_sandbox = true;
 #endif
+
+  // SimpleApp implements application-level callbacks for the browser process.
+  // It will create the first browser instance in OnContextInitialized() after
+  // CEF has initialized.
+  CefRefPtr<SimpleApp> app(new SimpleApp);
 
   // Initialize CEF.
   CefInitialize(main_args, settings, app.get(), sandbox_info);

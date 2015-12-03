@@ -33,26 +33,27 @@ int main(int argc, char* argv[]) {
   // Provide CEF with command-line arguments.
   CefMainArgs main_args(argc, argv);
   
-  // SimpleApp implements application-level callbacks. It will create the first
-  // browser instance in OnContextInitialized() after CEF has initialized.
-  CefRefPtr<SimpleApp> app(new SimpleApp);
-
   // CEF applications have multiple sub-processes (render, plugin, GPU, etc)
   // that share the same executable. This function checks the command-line and,
   // if this is a sub-process, executes the appropriate logic.
-  int exit_code = CefExecuteProcess(main_args, app.get(), NULL);
+  int exit_code = CefExecuteProcess(main_args, NULL, NULL);
   if (exit_code >= 0) {
     // The sub-process has completed so return here.
     return exit_code;
   }
 
-  // Specify CEF global settings here.
-  CefSettings settings;
-
   // Install xlib error handlers so that the application won't be terminated
   // on non-fatal errors.
   XSetErrorHandler(XErrorHandlerImpl);
   XSetIOErrorHandler(XIOErrorHandlerImpl);
+
+  // Specify CEF global settings here.
+  CefSettings settings;
+
+  // SimpleApp implements application-level callbacks for the browser process.
+  // It will create the first browser instance in OnContextInitialized() after
+  // CEF has initialized.
+  CefRefPtr<SimpleApp> app(new SimpleApp);
 
   // Initialize CEF for the browser process.
   CefInitialize(main_args, settings, app.get(), NULL);
