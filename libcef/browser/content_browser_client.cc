@@ -457,6 +457,10 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
         new extensions::ExtensionsGuestViewMessageFilter(id, browser_context));
   }
 
+  // If the renderer process crashes then the host may already have
+  // CefBrowserInfoManager as an observer. Try to remove it first before adding
+  // to avoid DCHECKs.
+  host->RemoveObserver(CefBrowserInfoManager::GetInstance());
   host->AddObserver(CefBrowserInfoManager::GetInstance());
 
   host->Send(new CefProcessMsg_SetIsIncognitoProcess(

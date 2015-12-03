@@ -451,7 +451,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       parent_host_view_(parent_host_view),
       popup_host_view_(NULL),
       child_host_view_(NULL),
-      is_showing_(true),
+      is_showing_(!render_widget_host_->is_hidden()),
       is_destroyed_(false),
       is_scroll_offset_changed_pending_(false),
 #if defined(OS_MACOSX)
