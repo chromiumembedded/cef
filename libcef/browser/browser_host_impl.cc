@@ -2405,7 +2405,12 @@ void CefBrowserHostImpl::FrameDeleted(
 
 void CefBrowserHostImpl::TitleWasSet(content::NavigationEntry* entry,
                                      bool explicit_set) {
-  OnTitleChange(entry->GetTitle());
+  // |entry| may be NULL if a popup is created via window.open and never
+  // navigated.
+  if (entry)
+    OnTitleChange(entry->GetTitle());
+  else if (web_contents())
+    OnTitleChange(web_contents()->GetTitle());
 }
 
 void CefBrowserHostImpl::PluginCrashed(const base::FilePath& plugin_path,
