@@ -159,6 +159,8 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
     } step;
 
     // Initial state from ViewHostMsg_CreateWindow.
+    // |target_url| will be empty if a popup is created via window.open() and
+    // never navigated. For example: javascript:window.open();
     int opener_process_id;
     int opener_view_id;
     int64 opener_frame_id;

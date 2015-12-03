@@ -139,7 +139,6 @@ void CefBrowserInfoManager::OnCreateWindow(
     const ViewHostMsg_CreateWindow_Params& params) {
   DCHECK_GT(params.opener_id, 0);
   DCHECK_GT(params.opener_render_frame_id, 0);
-  DCHECK(!params.target_url.is_empty());
 
   scoped_ptr<CefBrowserInfoManager::PendingPopup> pending_popup(
       new CefBrowserInfoManager::PendingPopup);
@@ -465,7 +464,6 @@ scoped_ptr<CefBrowserInfoManager::PendingPopup>
     const GURL& target_url) {
   DCHECK_GT(opener_process_id, 0);
   DCHECK_GT(opener_view_id, 0);
-  DCHECK(!target_url.is_empty());
 
   base::AutoLock lock_scope(pending_popup_lock_);
 
