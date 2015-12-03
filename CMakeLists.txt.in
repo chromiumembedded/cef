@@ -379,12 +379,14 @@ endif()
 #
 
 if(OS_WINDOWS)
+  # Consumers who run into LNK4099 warnings can pass /Z7 instead (see issue #385).
+  set(CEF_DEBUG_INFO_FLAG "/Zi" CACHE STRING "Optional flag specifying specific /Z flag to use")
+
   # Platform-specific compiler/linker flags.
   set(CEF_LIBTYPE                 STATIC)
   # /MP                   = Multiprocess compilation
   # /Gy                   = Enable function-level linking
   # /GR-                  = Disable run-time type information
-  # /Zi                   = Enable program database
   # /W4                   = Warning level 4
   # /WX                   = Treat warnings as errors
   # /wd"4100"             = Ignore "unreferenced formal parameter" warning
@@ -394,7 +396,7 @@ if(OS_WINDOWS)
   # /wd"4701"             = Ignore "potentially uninitialized local variable" warning
   # /wd"4702"             = Ignore "unreachable code" warning
   # /wd"4996"             = Ignore "function or variable may be unsafe" warning
-  set(CEF_COMPILER_FLAGS          "/MP /Gy /GR- /Zi /W4 /WX /wd\"4100\" /wd\"4127\" /wd\"4244\" /wd\"4512\" /wd\"4701\" /wd\"4702\" /wd\"4996\"")
+  set(CEF_COMPILER_FLAGS          "/MP /Gy /GR- /W4 /WX /wd\"4100\" /wd\"4127\" /wd\"4244\" /wd\"4512\" /wd\"4701\" /wd\"4702\" /wd\"4996\" ${CEF_DEBUG_INFO_FLAG}")
   # /MTd                  = Multithreaded debug runtime
   # /Od                   = Disable optimizations
   # /RTC1                 = Enable basic run-time checks
