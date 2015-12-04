@@ -25,6 +25,7 @@ class CefNetworkDelegate : public net::NetworkDelegateImpl {
       const net::AuthChallengeInfo& auth_info,
       const AuthCallback& callback,
       net::AuthCredentials* credentials) override;
+  void OnCompleted(net::URLRequest* request, bool started) override;
   bool OnCanAccessFile(const net::URLRequest& request,
                        const base::FilePath& path) const override;
 

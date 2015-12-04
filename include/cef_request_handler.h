@@ -78,6 +78,7 @@ class CefRequestHandler : public virtual CefBase {
  public:
   typedef cef_return_value_t ReturnValue;
   typedef cef_termination_status_t TerminationStatus;
+  typedef cef_urlrequest_status_t URLRequestStatus;
   typedef cef_window_open_disposition_t WindowOpenDisposition;
 
   ///
@@ -179,6 +180,20 @@ class CefRequestHandler : public virtual CefBase {
                                   CefRefPtr<CefResponse> response) {
     return false;
   }
+
+  ///
+  // Called on the IO thread when a resource load has completed. |request| and
+  // |response| represent the request and response respectively and cannot be
+  // modified in this callback. |status| indicates the load completion status.
+  // |received_content_length| is the number of response bytes actually read.
+  ///
+  /*--cef()--*/
+  virtual void OnResourceLoadComplete(CefRefPtr<CefBrowser> browser,
+                                      CefRefPtr<CefFrame> frame,
+                                      CefRefPtr<CefRequest> request,
+                                      CefRefPtr<CefResponse> response,
+                                      URLRequestStatus status,
+                                      int64 received_content_length) {}
 
   ///
   // Called on the IO thread when the browser needs credentials from the user.

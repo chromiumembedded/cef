@@ -11,6 +11,7 @@
 #include "libcef/browser/net/url_request_user_data.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/request_impl.h"
+#include "libcef/common/response_impl.h"
 
 #include "net/base/net_errors.h"
 #include "net/http/http_util.h"
@@ -267,6 +268,56 @@ int CefNetworkDelegate::OnBeforeURLRequest(
 
   // Continue the request immediately.
   return net::OK;
+}
+
+void CefNetworkDelegate::OnCompleted(net::URLRequest* request, bool started) {
+  if (!started)
+    return;
+
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserForRequest(request);
+  if (browser.get()) {
+    CefRefPtr<CefClient> client = browser->GetClient();
+    if (client.get()) {
+      CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
+      if (handler.get()) {
+        CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(request);
+
+        CefRefPtr<CefRequestImpl> cefRequest = new CefRequestImpl();
+        cefRequest->Set(request);
+        cefRequest->SetReadOnly(true);
+
+        CefRefPtr<CefResponseImpl> cefResponse = new CefResponseImpl();
+        cefResponse->Set(request);
+        cefResponse->SetReadOnly(true);
+
+        cef_urlrequest_status_t status = UR_UNKNOWN;
+        switch (request->status().status()) {
+          case net::URLRequestStatus::SUCCESS:
+            status = UR_SUCCESS;
+            break;
+          case net::URLRequestStatus::CANCELED:
+            status = UR_CANCELED;
+            break;
+          case net::URLRequestStatus::FAILED:
+            status = UR_FAILED;
+            break;
+          default:
+            NOTREACHED();
+            break;
+        }
+
+        const int64 received_content_length =
+            request->received_response_content_length();
+        handler->OnResourceLoadComplete(browser.get(),
+                                        frame,
+                                        cefRequest.get(),
+                                        cefResponse.get(),
+                                        status,
+                                        received_content_length);
+      }
+    }
+  }
 }
 
 net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(

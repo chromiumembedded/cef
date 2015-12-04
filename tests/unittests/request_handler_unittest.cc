@@ -106,16 +106,21 @@ class NetNotifyTestHandler : public TestHandler {
 
     cookie_manager_ = CefCookieManager::CreateManager(CefString(), true, NULL);
 
-    AddResource(url1_,
+    const std::string& resource1 =
         "<html>"
         "<head><script>document.cookie='name1=value1';</script></head>"
         "<body>Nav1</body>"
-        "</html>", "text/html");
-    AddResource(url2_,
+        "</html>";
+    response_length1_ = static_cast<int64>(resource1.size());
+    AddResource(url1_, resource1, "text/html");
+
+    const std::string& resource2 =
         "<html>"
         "<head><script>document.cookie='name2=value2';</script></head>"
         "<body>Nav2</body>"
-        "</html>", "text/html");
+        "</html>";
+    response_length2_ = static_cast<int64>(resource2.size());
+    AddResource(url2_, resource2, "text/html");
 
     context_handler_ = new RequestContextHandler(this);
     context_handler_->SetURL(url1_);
@@ -171,6 +176,27 @@ class NetNotifyTestHandler : public TestHandler {
       EXPECT_TRUE(false);  // Not reached
 
     return TestHandler::GetResourceHandler(browser,  frame, request);
+  }
+
+  void OnResourceLoadComplete(CefRefPtr<CefBrowser> browser,
+                              CefRefPtr<CefFrame> frame,
+                              CefRefPtr<CefRequest> request,
+                              CefRefPtr<CefResponse> response,
+                              URLRequestStatus status,
+                              int64 received_content_length) override {
+    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+    EXPECT_EQ(UR_SUCCESS, status);
+
+    const std::string& url = request->GetURL();
+    if (url.find(url1_) == 0) {
+      got_resource_load_complete1_.yes();
+      EXPECT_EQ(response_length1_, received_content_length);
+    } else if (url.find(url2_) == 0) {
+      got_resource_load_complete2_.yes();
+      EXPECT_EQ(response_length2_, received_content_length);
+    } else {
+      EXPECT_TRUE(false);  // Not reached
+    }
   }
 
   bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
@@ -315,6 +341,7 @@ class NetNotifyTestHandler : public TestHandler {
     EXPECT_TRUE(got_load_end1_) << " browser " << browser_id;
     EXPECT_TRUE(got_before_resource_load1_) << " browser " << browser_id;
     EXPECT_TRUE(got_get_resource_handler1_) << " browser " << browser_id;
+    EXPECT_TRUE(got_resource_load_complete1_) << " browser " << browser_id;
     EXPECT_TRUE(got_get_cookie_manager1_) << " browser " << browser_id;
     EXPECT_TRUE(got_cookie1_) << " browser " << browser_id;
     EXPECT_TRUE(got_process_message1_) << " browser " << browser_id;
@@ -322,6 +349,7 @@ class NetNotifyTestHandler : public TestHandler {
     EXPECT_TRUE(got_load_end2_) << " browser " << browser_id;
     EXPECT_TRUE(got_before_resource_load2_) << " browser " << browser_id;
     EXPECT_TRUE(got_get_resource_handler2_) << " browser " << browser_id;
+    EXPECT_TRUE(got_resource_load_complete2_) << " browser " << browser_id;
     EXPECT_TRUE(got_get_cookie_manager2_) << " browser " << browser_id;
     EXPECT_TRUE(got_cookie2_) << " browser " << browser_id;
     EXPECT_TRUE(got_process_message2_) << " browser " << browser_id;
@@ -355,6 +383,7 @@ class NetNotifyTestHandler : public TestHandler {
   TrackCallback got_load_end1_;
   TrackCallback got_before_resource_load1_;
   TrackCallback got_get_resource_handler1_;
+  TrackCallback got_resource_load_complete1_;
   TrackCallback got_get_cookie_manager1_;
   TrackCallback got_cookie1_;
   TrackCallback got_process_message1_;
@@ -362,11 +391,15 @@ class NetNotifyTestHandler : public TestHandler {
   TrackCallback got_load_end2_;
   TrackCallback got_before_resource_load2_;
   TrackCallback got_get_resource_handler2_;
+  TrackCallback got_resource_load_complete2_;
   TrackCallback got_get_cookie_manager2_;
   TrackCallback got_cookie2_;
   TrackCallback got_process_message2_;
   TrackCallback got_before_browse2_will_delay_;
   TrackCallback got_before_browse2_delayed_;
+
+  int64 response_length1_;
+  int64 response_length2_;
 
   IMPLEMENT_REFCOUNTING(NetNotifyTestHandler);
 };
@@ -639,6 +672,29 @@ class ResourceResponseTest : public TestHandler {
                                               response);
   }
 
+  void OnResourceLoadComplete(CefRefPtr<CefBrowser> browser,
+                              CefRefPtr<CefFrame> frame,
+                              CefRefPtr<CefRequest> request,
+                              CefRefPtr<CefResponse> response,
+                              URLRequestStatus status,
+                              int64 received_content_length) override {
+    EXPECT_IO_THREAD();
+    EXPECT_TRUE(browser.get());
+    EXPECT_EQ(browser_id_, browser->GetIdentifier());
+
+    EXPECT_TRUE(frame.get());
+    EXPECT_TRUE(frame->IsMain());
+
+    if (request->GetURL() == kResourceTestHtml) {
+      EXPECT_EQ(main_request_id_, request->GetIdentifier());
+      return;
+    }
+
+    EXPECT_EQ(sub_request_id_, request->GetIdentifier());
+    resource_test_->OnResourceLoadComplete(browser, frame, request, response,
+                                           status, received_content_length);
+  }
+
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
@@ -675,7 +731,8 @@ class ResourceResponseTest : public TestHandler {
     ResourceTest(const std::string& start_url,
                  size_t expected_resource_response_ct = 2U,
                  size_t expected_before_resource_load_ct = 1U,
-                 size_t expected_resource_redirect_ct = 0U)
+                 size_t expected_resource_redirect_ct = 0U,
+                 size_t expected_resource_load_complete_ct = 1U)
         : start_url_(start_url),
           resource_response_ct_(0U),
           expected_resource_response_ct_(expected_resource_response_ct),
@@ -683,7 +740,10 @@ class ResourceResponseTest : public TestHandler {
           expected_before_resource_load_ct_(expected_before_resource_load_ct),
           get_resource_handler_ct_(0U),
           resource_redirect_ct_(0U),
-          expected_resource_redirect_ct_(expected_resource_redirect_ct) {
+          expected_resource_redirect_ct_(expected_resource_redirect_ct),
+          resource_load_complete_ct_(0U),
+          expected_resource_load_complete_ct_(
+              expected_resource_load_complete_ct) {
     }
     virtual ~ResourceTest() {
     }
@@ -732,7 +792,7 @@ class ResourceResponseTest : public TestHandler {
       EXPECT_EQ(200, response->GetStatus());
       EXPECT_STREQ("OK", response->GetStatusText().ToString().c_str());
       EXPECT_STREQ("text/javascript",
-                    response->GetMimeType().ToString().c_str());
+                   response->GetMimeType().ToString().c_str());
 
       if (resource_response_ct_++ == 0U) {
         // Always redirect at least one time.
@@ -742,6 +802,23 @@ class ResourceResponseTest : public TestHandler {
 
       OnRetryReceived(browser, frame, request, response);
       return (resource_response_ct_ < expected_resource_response_ct_);
+    }
+
+    void OnResourceLoadComplete(CefRefPtr<CefBrowser> browser,
+                                CefRefPtr<CefFrame> frame,
+                                CefRefPtr<CefRequest> request,
+                                CefRefPtr<CefResponse> response,
+                                URLRequestStatus status,
+                                int64 received_content_length) {
+      EXPECT_TRUE(CheckUrl(request->GetURL()));
+
+      // Verify the response returned by GetResourceHandler.
+      EXPECT_EQ(200, response->GetStatus());
+      EXPECT_STREQ("OK", response->GetStatusText().ToString().c_str());
+      EXPECT_STREQ("text/javascript",
+                   response->GetMimeType().ToString().c_str());
+
+      resource_load_complete_ct_++;
     }
 
     virtual bool CheckUrl(const std::string& url) const {
@@ -756,6 +833,8 @@ class ResourceResponseTest : public TestHandler {
       EXPECT_EQ(expected_resource_response_ct_, get_resource_handler_ct_);
       EXPECT_EQ(expected_before_resource_load_ct_, before_resource_load_ct_);
       EXPECT_EQ(expected_resource_redirect_ct_, resource_redirect_ct_);
+      EXPECT_EQ(expected_resource_load_complete_ct_,
+                resource_load_complete_ct_);
     }
 
    protected:
@@ -783,6 +862,8 @@ class ResourceResponseTest : public TestHandler {
     size_t get_resource_handler_ct_;
     size_t resource_redirect_ct_;
     size_t expected_resource_redirect_ct_;
+    size_t resource_load_complete_ct_;
+    size_t expected_resource_load_complete_ct_;
 
     TrackCallback got_resource_;
     TrackCallback got_resource_retry_;

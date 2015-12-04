@@ -234,6 +234,43 @@ int CEF_CALLBACK request_handler_on_resource_response(
   return _retval;
 }
 
+void CEF_CALLBACK request_handler_on_resource_load_complete(
+    struct _cef_request_handler_t* self, cef_browser_t* browser,
+    cef_frame_t* frame, cef_request_t* request,
+    struct _cef_response_t* response, cef_urlrequest_status_t status,
+    int64 received_content_length) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame);
+  if (!frame)
+    return;
+  // Verify param: request; type: refptr_diff
+  DCHECK(request);
+  if (!request)
+    return;
+  // Verify param: response; type: refptr_diff
+  DCHECK(response);
+  if (!response)
+    return;
+
+  // Execute
+  CefRequestHandlerCppToC::Get(self)->OnResourceLoadComplete(
+      CefBrowserCToCpp::Wrap(browser),
+      CefFrameCToCpp::Wrap(frame),
+      CefRequestCToCpp::Wrap(request),
+      CefResponseCToCpp::Wrap(response),
+      status,
+      received_content_length);
+}
+
 int CEF_CALLBACK request_handler_get_auth_credentials(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
     cef_frame_t* frame, int isProxy, const cef_string_t* host, int port,
@@ -460,6 +497,8 @@ CefRequestHandlerCppToC::CefRequestHandlerCppToC() {
   GetStruct()->get_resource_handler = request_handler_get_resource_handler;
   GetStruct()->on_resource_redirect = request_handler_on_resource_redirect;
   GetStruct()->on_resource_response = request_handler_on_resource_response;
+  GetStruct()->on_resource_load_complete =
+      request_handler_on_resource_load_complete;
   GetStruct()->get_auth_credentials = request_handler_get_auth_credentials;
   GetStruct()->on_quota_request = request_handler_on_quota_request;
   GetStruct()->on_protocol_execution = request_handler_on_protocol_execution;

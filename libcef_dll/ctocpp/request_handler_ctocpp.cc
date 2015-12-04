@@ -226,6 +226,43 @@ bool CefRequestHandlerCToCpp::OnResourceResponse(CefRefPtr<CefBrowser> browser,
   return _retval?true:false;
 }
 
+void CefRequestHandlerCToCpp::OnResourceLoadComplete(
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request, CefRefPtr<CefResponse> response,
+    URLRequestStatus status, int64 received_content_length) {
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_resource_load_complete))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame.get());
+  if (!frame.get())
+    return;
+  // Verify param: request; type: refptr_diff
+  DCHECK(request.get());
+  if (!request.get())
+    return;
+  // Verify param: response; type: refptr_diff
+  DCHECK(response.get());
+  if (!response.get())
+    return;
+
+  // Execute
+  _struct->on_resource_load_complete(_struct,
+      CefBrowserCppToC::Wrap(browser),
+      CefFrameCppToC::Wrap(frame),
+      CefRequestCppToC::Wrap(request),
+      CefResponseCppToC::Wrap(response),
+      status,
+      received_content_length);
+}
+
 bool CefRequestHandlerCToCpp::GetAuthCredentials(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, bool isProxy, const CefString& host, int port,
     const CefString& realm, const CefString& scheme,
