@@ -48,6 +48,10 @@ class CefRequestHandlerCToCpp
   bool OnResourceResponse(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
       CefRefPtr<CefResponse> response) override;
+  void OnResourceLoadComplete(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
+      CefRefPtr<CefResponse> response, URLRequestStatus status,
+      int64 received_content_length) override;
   bool GetAuthCredentials(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, bool isProxy, const CefString& host, int port,
       const CefString& realm, const CefString& scheme,

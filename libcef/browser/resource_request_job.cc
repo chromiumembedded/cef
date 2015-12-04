@@ -155,6 +155,7 @@ CefResourceRequestJob::CefResourceRequestJob(
       handler_(handler),
       done_(false),
       remaining_bytes_(0),
+      sent_bytes_(0),
       response_cookies_save_index_(0),
       weak_factory_(this) {
 }
@@ -239,7 +240,7 @@ bool CefResourceRequestJob::ReadRawData(net::IOBuffer* dest, int dest_size,
   if (remaining_bytes_ == 0) {
     // No more data to read.
     *bytes_read = 0;
-    done_ = true;
+    DoneWithRequest();
     return true;
   } else if (remaining_bytes_ > 0 && remaining_bytes_ < dest_size) {
     // The handler knows the content size beforehand.
@@ -259,7 +260,7 @@ bool CefResourceRequestJob::ReadRawData(net::IOBuffer* dest, int dest_size,
   if (!rv) {
     // The handler has indicated completion of the request.
     *bytes_read = 0;
-    done_ = true;
+    DoneWithRequest();
     return true;
   } else if (*bytes_read == 0) {
     // Continue reading asynchronously. May happen multiple times in a row so
@@ -273,6 +274,8 @@ bool CefResourceRequestJob::ReadRawData(net::IOBuffer* dest, int dest_size,
     // Normalize the return value.
     *bytes_read = dest_size;
   }
+
+  sent_bytes_ += *bytes_read;
 
   if (remaining_bytes_ > 0)
     remaining_bytes_ -= *bytes_read;
@@ -571,4 +574,12 @@ void CefResourceRequestJob::FetchResponseCookies(
     if (!value.empty())
       cookies->push_back(value);
   }
+}
+
+void CefResourceRequestJob::DoneWithRequest() {
+  DCHECK(!done_);
+  done_ = true;
+
+  if (request_)
+    request_->set_received_response_content_length(sent_bytes_);
 }
