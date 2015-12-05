@@ -44,6 +44,7 @@
 #include "include/cef_frame.h"
 #include "include/cef_resource_handler.h"
 #include "include/cef_response.h"
+#include "include/cef_response_filter.h"
 #include "include/cef_request.h"
 #include "include/cef_ssl_info.h"
 
@@ -179,6 +180,20 @@ class CefRequestHandler : public virtual CefBase {
                                   CefRefPtr<CefRequest> request,
                                   CefRefPtr<CefResponse> response) {
     return false;
+  }
+
+  ///
+  // Called on the IO thread to optionally filter resource response content.
+  // |request| and |response| represent the request and response respectively
+  // and cannot be modified in this callback.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefResponse> response) {
+    return NULL;
   }
 
   ///

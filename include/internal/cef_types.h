@@ -2304,7 +2304,7 @@ typedef enum {
 // If the `--no-referrers` command-line flag is specified then the policy value
 // will be ignored and the Referrer value will never be sent.
 ///
-typedef enum  {
+typedef enum {
   ///
   // Always send the complete Referrer value.
   ///
@@ -2340,6 +2340,28 @@ typedef enum  {
   ///
   REFERRER_POLICY_ORIGIN_WHEN_CROSS_ORIGIN,
 } cef_referrer_policy_t;
+
+///
+// Return values for CefResponseFilter::Filter().
+///
+typedef enum {
+  ///
+  // Some or all of the pre-filter data was read successfully but more data is
+  // needed in order to continue filtering (filtered output is pending).
+  ///
+  RESPONSE_FILTER_NEED_MORE_DATA,
+
+  ///
+  // Some or all of the pre-filter data was read successfully and all available
+  // filtered output has been written.
+  ///
+  RESPONSE_FILTER_DONE,
+
+  ///
+  // An error occurred during filtering.
+  ///
+  RESPONSE_FILTER_ERROR
+} cef_response_filter_status_t;
 
 #ifdef __cplusplus
 }

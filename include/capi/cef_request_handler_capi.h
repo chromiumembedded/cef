@@ -45,6 +45,7 @@
 #include "include/capi/cef_request_capi.h"
 #include "include/capi/cef_resource_handler_capi.h"
 #include "include/capi/cef_response_capi.h"
+#include "include/capi/cef_response_filter_capi.h"
 #include "include/capi/cef_ssl_info_capi.h"
 
 #ifdef __cplusplus
@@ -161,6 +162,16 @@ typedef struct _cef_request_handler_t {
   int (CEF_CALLBACK *on_resource_response)(struct _cef_request_handler_t* self,
       struct _cef_browser_t* browser, struct _cef_frame_t* frame,
       struct _cef_request_t* request, struct _cef_response_t* response);
+
+  ///
+  // Called on the IO thread to optionally filter resource response content.
+  // |request| and |response| represent the request and response respectively
+  // and cannot be modified in this callback.
+  ///
+  struct _cef_response_filter_t* (CEF_CALLBACK *get_resource_response_filter)(
+      struct _cef_request_handler_t* self, struct _cef_browser_t* browser,
+      struct _cef_frame_t* frame, struct _cef_request_t* request,
+      struct _cef_response_t* response);
 
   ///
   // Called on the IO thread when a resource load has completed. |request| and

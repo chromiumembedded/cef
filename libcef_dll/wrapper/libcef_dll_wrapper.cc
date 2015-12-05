@@ -62,6 +62,7 @@
 #include "libcef_dll/cpptoc/request_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/resource_bundle_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/resource_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/response_filter_cpptoc.h"
 #include "libcef_dll/cpptoc/run_file_dialog_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_handler_factory_cpptoc.h"
 #include "libcef_dll/cpptoc/set_cookie_callback_cpptoc.h"
@@ -241,6 +242,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK(base::AtomicRefCountIsZero(
       &CefResourceBundleHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefResourceHandlerCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefResponseFilterCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefRunContextMenuCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(

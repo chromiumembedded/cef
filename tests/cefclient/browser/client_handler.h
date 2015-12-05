@@ -227,6 +227,11 @@ class ClientHandler : public CefClient,
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request) OVERRIDE;
+  CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefResponse> response) OVERRIDE;
   bool OnQuotaRequest(CefRefPtr<CefBrowser> browser,
                       const CefString& origin_url,
                       int64 new_size,

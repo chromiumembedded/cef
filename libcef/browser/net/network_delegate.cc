@@ -8,16 +8,22 @@
 
 #include "include/cef_urlrequest.h"
 #include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/net/response_filter_wrapper.h"
 #include "libcef/browser/net/url_request_user_data.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
 
 #include "net/base/net_errors.h"
+#include "net/filter/filter.h"
 #include "net/http/http_util.h"
 #include "net/url_request/url_request.h"
 
 namespace {
+
+// Buffer size allocated when filtering data.
+// Should match the value in net/filter/filter.cc.
+const int kFilterBufSize = 32 * 1024;
 
 class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
  public:
@@ -379,4 +385,56 @@ net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
 bool CefNetworkDelegate::OnCanAccessFile(const net::URLRequest& request,
                                          const base::FilePath& path) const {
   return true;
+}
+
+net::Filter* CefNetworkDelegate::SetupFilter(net::URLRequest* request,
+                                             net::Filter* filter_list) {
+  CefRefPtr<CefResponseFilter> cef_filter;
+
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserForRequest(request);
+  if (browser.get()) {
+    CefRefPtr<CefClient> client = browser->GetClient();
+    if (client.get()) {
+      CefRefPtr<CefRequestHandler> handler = client->GetRequestHandler();
+      if (handler.get()) {
+        CefRefPtr<CefFrame> frame = browser->GetFrameForRequest(request);
+
+        CefRefPtr<CefRequestImpl> cefRequest = new CefRequestImpl();
+        cefRequest->Set(request);
+        cefRequest->SetReadOnly(true);
+
+        CefRefPtr<CefResponseImpl> cefResponse = new CefResponseImpl();
+        cefResponse->Set(request);
+        cefResponse->SetReadOnly(true);
+
+        cef_filter = handler->GetResourceResponseFilter(browser.get(), frame,
+                                                        cefRequest.get(),
+                                                        cefResponse.get());
+      }
+    }
+  }
+
+  if (cef_filter.get() && cef_filter->InitFilter()) {
+    scoped_ptr<CefResponseFilterWrapper> wrapper(
+        new CefResponseFilterWrapper(cef_filter, filter_list != nullptr));
+    wrapper->InitBuffer(kFilterBufSize);
+
+    if (filter_list) {
+      // Install the wrapper at the end of the filter list.
+      net::Filter* last_filter = filter_list;
+      do {
+        if (!last_filter->next_filter_.get()) {
+          last_filter->next_filter_ = wrapper.Pass();
+          break;
+        }
+        last_filter = last_filter->next_filter_.get();
+      } while (last_filter);
+    } else {
+      // Only the wrapper exists.
+      filter_list = wrapper.release();
+    }
+  }
+
+  return filter_list;
 }

@@ -231,6 +231,22 @@ class RequestSendRecvTestHandler : public TestHandler {
     return false;
   }
 
+  CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefResponse> response) override {
+    EXPECT_IO_THREAD();
+
+    TestRequest(request);
+    EXPECT_TRUE(request->IsReadOnly());
+    TestResponse(response);
+    EXPECT_TRUE(response->IsReadOnly());
+
+    got_resource_response_filter_.yes();
+    return NULL;
+  }
+
   void OnResourceLoadComplete(CefRefPtr<CefBrowser> browser,
                               CefRefPtr<CefFrame> frame,
                               CefRefPtr<CefRequest> request,
@@ -269,6 +285,7 @@ class RequestSendRecvTestHandler : public TestHandler {
     EXPECT_TRUE(got_before_resource_load_);
     EXPECT_TRUE(got_resource_handler_);
     EXPECT_TRUE(got_resource_response_);
+    EXPECT_TRUE(got_resource_response_filter_);
     EXPECT_TRUE(got_resource_load_complete_);
 
     TestHandler::DestroyTest();
@@ -281,6 +298,7 @@ class RequestSendRecvTestHandler : public TestHandler {
   TrackCallback got_before_resource_load_;
   TrackCallback got_resource_handler_;
   TrackCallback got_resource_response_;
+  TrackCallback got_resource_response_filter_;
   TrackCallback got_resource_load_complete_;
 
   IMPLEMENT_REFCOUNTING(RequestSendRecvTestHandler);

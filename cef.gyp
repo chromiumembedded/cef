@@ -1055,6 +1055,8 @@
         'libcef/browser/net/network_delegate.h',
         'libcef/browser/net/resource_request_job.cc',
         'libcef/browser/net/resource_request_job.h',
+        'libcef/browser/net/response_filter_wrapper.cc',
+        'libcef/browser/net/response_filter_wrapper.h',
         'libcef/browser/net/scheme_handler.cc',
         'libcef/browser/net/scheme_handler.h',
         'libcef/browser/net/url_request_context.cc',

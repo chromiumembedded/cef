@@ -19,6 +19,7 @@
 #include "cefclient/browser/preferences_test.h"
 #include "cefclient/browser/resource.h"
 #include "cefclient/browser/resource_util.h"
+#include "cefclient/browser/response_filter_test.h"
 #include "cefclient/browser/root_window_manager.h"
 #include "cefclient/browser/scheme_test.h"
 #include "cefclient/browser/urlrequest_test.h"
@@ -727,6 +728,16 @@ void CreateMessageHandlers(MessageHandlerSet& handlers) {
 void RegisterSchemeHandlers() {
   // Register the scheme handler.
   scheme_test::RegisterSchemeHandlers();
+}
+
+CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request,
+    CefRefPtr<CefResponse> response) {
+  // Create the response filter.
+  return response_filter_test::GetResourceResponseFilter(browser, frame,
+                                                         request, response);
 }
 
 }  // namespace test_runner

@@ -48,6 +48,10 @@ class CefRequestHandlerCToCpp
   bool OnResourceResponse(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
       CefRefPtr<CefResponse> response) override;
+  CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
+      CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefResponse> response) override;
   void OnResourceLoadComplete(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
       CefRefPtr<CefResponse> response, URLRequestStatus status,

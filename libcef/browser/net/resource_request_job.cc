@@ -577,7 +577,8 @@ void CefResourceRequestJob::FetchResponseCookies(
 }
 
 void CefResourceRequestJob::DoneWithRequest() {
-  DCHECK(!done_);
+  if (done_)
+    return;
   done_ = true;
 
   if (request_)

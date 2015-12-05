@@ -44,6 +44,13 @@ void CreateMessageHandlers(MessageHandlerSet& handlers);
 // Register scheme handlers for tests.
 void RegisterSchemeHandlers();
 
+// Create a resource response filter for tests.
+CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request,
+    CefRefPtr<CefResponse> response);
+
 }  // namespace test_runner
 }  // namespace client
 
