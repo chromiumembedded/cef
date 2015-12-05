@@ -1074,6 +1074,8 @@
         'libcef/browser/resource_dispatcher_host_delegate.h',
         'libcef/browser/resource_request_job.cc',
         'libcef/browser/resource_request_job.h',
+        'libcef/browser/response_filter_wrapper.cc',
+        'libcef/browser/response_filter_wrapper.h',
         'libcef/browser/request_context_impl.cc',
         'libcef/browser/request_context_impl.h',
         'libcef/browser/scheme_handler.cc',

@@ -5,6 +5,9 @@
 // Include this first to avoid type conflicts with CEF headers.
 #include "tests/unittests/chromium_includes.h"
 
+#include <algorithm>
+#include <string>
+
 #include "base/strings/stringprintf.h"
 
 #include "include/base/cef_bind.h"
@@ -1173,6 +1176,535 @@ TEST(RequestHandlerTest, BeforeResourceLoadContinue) {
 TEST(RequestHandlerTest, BeforeResourceLoadContinueAsync) {
   CefRefPtr<BeforeResourceLoadTest> handler =
       new BeforeResourceLoadTest(BeforeResourceLoadTest::CONTINUE_ASYNC);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+
+namespace {
+
+// For response filtering we need to test:
+// - Passing through content unchanged.
+// - Not reading all of the input buffer.
+// - Needing more input and getting it.
+// - Needing more input and not getting it.
+// - Filter error.
+
+const char kResponseFilterTestUrl[] = "http://tests.com/response_filter.html";
+const size_t kResponseBufferSize = 1024 * 32;  // 32kb
+
+const char kInputHeader[] = "<html><head></head><body>";
+const char kInputFooter[] = "</body></html>";
+
+// Repeat |content| the minimum number of times necessary to satisfy
+// |desired_min_size|. If |calculated_repeat_ct| is non-NULL it will be set to
+// the number of times that |content| was repeated.
+std::string CreateInput(const std::string& content,
+                        size_t desired_min_size,
+                        size_t* calculated_repeat_ct = nullptr) {
+  const size_t header_footer_size =
+      sizeof(kInputHeader) + sizeof(kInputFooter) - 2;
+  EXPECT_GE(desired_min_size, header_footer_size + content.size());
+  desired_min_size -= header_footer_size;
+
+  size_t repeat_ct = static_cast<size_t>(
+      std::ceil(static_cast<double>(desired_min_size) /
+                static_cast<double>(content.size())));
+  if (calculated_repeat_ct)
+    *calculated_repeat_ct = repeat_ct;
+
+  std::string result;
+  result.reserve(header_footer_size + (content.size() * repeat_ct));
+
+  result = kInputHeader;
+  while (repeat_ct--)
+    result += content;
+  result += kInputFooter;
+
+  return result;
+}
+
+std::string CreateOutput(const std::string& content,
+                         size_t repeat_ct) {
+  const size_t header_footer_size =
+      sizeof(kInputHeader) + sizeof(kInputFooter) - 2;
+
+  std::string result;
+  result.reserve(header_footer_size + (content.size() * repeat_ct));
+
+  result = kInputHeader;
+  while (repeat_ct--)
+    result += content;
+  result += kInputFooter;
+
+  return result;
+}
+
+// Base class for test filters.
+class ResponseFilterTestBase : public CefResponseFilter {
+ public:
+  ResponseFilterTestBase()
+      : filter_count_(0U) {
+  }
+
+  bool InitFilter() override {
+    EXPECT_FALSE(got_init_filter_);
+    got_init_filter_.yes();
+    return true;
+  }
+
+  FilterStatus Filter(void* data_in,
+                      size_t data_in_size,
+                      size_t& data_in_read,
+                      void* data_out,
+                      size_t data_out_size,
+                      size_t& data_out_written) override {
+    if (data_in_size == 0U)
+      EXPECT_FALSE(data_in);
+    else
+      EXPECT_TRUE(data_in);
+    EXPECT_EQ(data_in_read, 0U);
+    EXPECT_TRUE(data_out);
+    EXPECT_GT(data_out_size, 0U);
+    EXPECT_EQ(data_out_written, 0U);
+    filter_count_++;
+    return RESPONSE_FILTER_ERROR;
+  }
+
+  // Returns the input that will be fed into the filter.
+  virtual std::string GetInput() = 0;
+
+  // Verify the output from the filter.
+  virtual void VerifyOutput(cef_urlrequest_status_t status,
+                            int64 received_content_length,
+                            const std::string& received_content) {
+    EXPECT_TRUE(got_init_filter_);
+    EXPECT_GT(filter_count_, 0U);
+  }
+
+ protected:
+  TrackCallback got_init_filter_;
+  size_t filter_count_;
+
+  IMPLEMENT_REFCOUNTING(ResponseFilterTestBase);
+};
+
+// Pass through the contents unchanged.
+class ResponseFilterPassThru : public ResponseFilterTestBase {
+ public:
+  explicit ResponseFilterPassThru(bool limit_read)
+      : limit_read_(limit_read) {
+  }
+
+  FilterStatus Filter(void* data_in,
+                      size_t data_in_size,
+                      size_t& data_in_read,
+                      void* data_out,
+                      size_t data_out_size,
+                      size_t& data_out_written) override {
+    ResponseFilterTestBase::Filter(data_in, data_in_size, data_in_read,
+                                   data_out, data_out_size, data_out_written);
+
+    if (limit_read_) {
+      // Read at most 1k bytes.
+      data_in_read = std::min(data_in_size, static_cast<size_t>(1024U));
+    } else {
+      // Read all available bytes.
+      data_in_read = data_in_size;
+    }
+
+    data_out_written = std::min(data_in_read, data_out_size);
+    memcpy(data_out, data_in, data_out_written);
+
+    return RESPONSE_FILTER_DONE;
+  }
+
+  std::string GetInput() override {
+    input_ = CreateInput("FOOBAR ", kResponseBufferSize * 2U);
+    return input_;
+  }
+
+  void VerifyOutput(cef_urlrequest_status_t status,
+                    int64 received_content_length,
+                    const std::string& received_content) override {
+    ResponseFilterTestBase::VerifyOutput(status, received_content_length,
+                                         received_content);
+
+    if (limit_read_)
+      // Expected to read 2 full buffers of kResponseBufferSize at 1kb
+      // increments (2 * 32) and one partial buffer.
+      EXPECT_EQ(filter_count_, 2U * 32U + 1U);
+    else {
+      // Expected to read 2 full buffers of kResponseBufferSize and one partial
+      // buffer.
+      EXPECT_EQ(filter_count_, 3U);
+    }
+    EXPECT_STREQ(input_.c_str(), received_content.c_str());
+
+    // Input size and content size should match.
+    EXPECT_EQ(input_.size(), static_cast<size_t>(received_content_length));
+    EXPECT_EQ(input_.size(), received_content.size());
+  }
+
+ private:
+  std::string input_;
+  bool limit_read_;
+};
+
+const char kFindString[] = "REPLACE_THIS_STRING";
+const char kReplaceString[] = "This is the replaced string!";
+
+// Helper for passing params to Write().
+#define WRITE_PARAMS data_out_ptr, data_out_size, data_out_written
+
+// Replace all instances of |kFindString| with |kReplaceString|.
+// This implementation is similar to the example in
+// tests/cefclient/response_filter_test.cc.
+class ResponseFilterNeedMore : public ResponseFilterTestBase {
+ public:
+  ResponseFilterNeedMore()
+      : find_match_offset_(0U),
+        replace_overflow_size_(0U),
+        input_size_(0U),
+        repeat_ct_(0U) {
+  }
+
+  FilterStatus Filter(void* data_in,
+                      size_t data_in_size,
+                      size_t& data_in_read,
+                      void* data_out,
+                      size_t data_out_size,
+                      size_t& data_out_written) override {
+    ResponseFilterTestBase::Filter(data_in, data_in_size, data_in_read,
+                                   data_out, data_out_size, data_out_written);
+
+    // All data will be read.
+    data_in_read = data_in_size;
+
+    const size_t find_size = sizeof(kFindString) - 1;
+
+    const char* data_in_ptr = static_cast<char*>(data_in);
+    char* data_out_ptr = static_cast<char*>(data_out);
+
+    // Reset the overflow.
+    std::string old_overflow;
+    if (!overflow_.empty()) {
+      old_overflow = overflow_;
+      overflow_.clear();
+    }
+
+    const size_t likely_out_size =
+        data_in_size + replace_overflow_size_ + old_overflow.size();
+    if (data_out_size < likely_out_size) {
+      // We'll likely need to use the overflow buffer. Size it appropriately.
+      overflow_.reserve(likely_out_size - data_out_size);
+    }
+
+    if (!old_overflow.empty()) {
+      // Write the overflow from last time.
+      Write(old_overflow.c_str(), old_overflow.size(), WRITE_PARAMS);
+    }
+
+    // Evaluate each character in the input buffer. Track how many characters in
+    // a row match kFindString. If kFindString is completely matched then write
+    // kReplaceString. Otherwise, write the input characters as-is.
+    for (size_t i = 0U; i < data_in_size; ++i) {
+      if (data_in_ptr[i] == kFindString[find_match_offset_]) {
+        // Matched the next character in the find string.
+        if (++find_match_offset_ == find_size) {
+          // Complete match of the find string. Write the replace string.
+          Write(kReplaceString, sizeof(kReplaceString) - 1, WRITE_PARAMS);
+
+          // Start over looking for a match.
+          find_match_offset_ = 0;
+        }
+        continue;
+      }
+
+      // Character did not match the find string.
+      if (find_match_offset_ > 0) {
+        // Write the portion of the find string that has matched so far.
+        Write(kFindString, find_match_offset_, WRITE_PARAMS);
+
+        // Start over looking for a match.
+        find_match_offset_ = 0;
+      }
+
+      // Write the current character.
+      Write(&data_in_ptr[i], 1, WRITE_PARAMS);
+    }
+
+    // If a match is currently in-progress we need more data. Otherwise, we're
+    // done.
+    return find_match_offset_ > 0 ?
+        RESPONSE_FILTER_NEED_MORE_DATA : RESPONSE_FILTER_DONE;
+  }
+
+  std::string GetInput() override {
+    const std::string& input =
+        CreateInput(std::string(kFindString) + " ", kResponseBufferSize * 2U,
+                    &repeat_ct_);
+    input_size_ = input.size();
+
+    const size_t find_size = sizeof(kFindString) - 1;
+    const size_t replace_size = sizeof(kReplaceString) - 1;
+
+    // Determine a reasonable amount of space for find/replace overflow.
+    if (replace_size > find_size)
+      replace_overflow_size_ = (replace_size - find_size) * repeat_ct_;
+
+    return input;
+  }
+
+  void VerifyOutput(cef_urlrequest_status_t status,
+                    int64 received_content_length,
+                    const std::string& received_content) override {
+    ResponseFilterTestBase::VerifyOutput(status, received_content_length,
+                                         received_content);
+
+    const std::string& output =
+        CreateOutput(std::string(kReplaceString) + " ", repeat_ct_);
+    EXPECT_STREQ(output.c_str(), received_content.c_str());
+
+    // Pre-filter content length should be the original input size.
+    EXPECT_EQ(input_size_, static_cast<size_t>(received_content_length));
+
+    // Filtered content length should be the output size.
+    EXPECT_EQ(output.size(), received_content.size());
+
+    // Expected to read 2 full buffers of kResponseBufferSize and one partial
+    // buffer, and then one additional call to drain the overflow.
+    EXPECT_EQ(filter_count_, 4U);
+  }
+
+ private:
+  inline void Write(const char* str,
+                    size_t str_size,
+                    char*& data_out_ptr,
+                    size_t data_out_size,
+                    size_t& data_out_written) {
+    // Number of bytes remaining in the output buffer.
+    const size_t remaining_space = data_out_size - data_out_written;
+    // Maximum number of bytes we can write into the output buffer.
+    const size_t max_write = std::min(str_size, remaining_space);
+
+    // Write the maximum portion that fits in the output buffer.
+    if (max_write == 1) {
+      // Small optimization for single character writes.
+      *data_out_ptr = str[0];
+      data_out_ptr += 1;
+      data_out_written += 1;
+    } else if (max_write > 1) {
+      memcpy(data_out_ptr, str, max_write);
+      data_out_ptr += max_write;
+      data_out_written += max_write;
+    }
+
+    if (max_write < str_size) {
+      // Need to write more bytes than will fit in the output buffer. Store the
+      // remainder in the overflow buffer.
+      overflow_ += std::string(str + max_write, str_size - max_write);
+    }
+  }
+
+  // The portion of the find string that is currently matching.
+  size_t find_match_offset_;
+
+  // The likely amount of overflow.
+  size_t replace_overflow_size_;
+
+  // Overflow from the output buffer.
+  std::string overflow_;
+
+  // The original input size.
+  size_t input_size_;
+
+  // The number of times the find string was repeated.
+  size_t repeat_ct_;
+};
+
+// Return a filter error.
+class ResponseFilterError : public ResponseFilterTestBase {
+ public:
+  ResponseFilterError() {
+  }
+
+  FilterStatus Filter(void* data_in,
+                      size_t data_in_size,
+                      size_t& data_in_read,
+                      void* data_out,
+                      size_t data_out_size,
+                      size_t& data_out_written) override {
+    ResponseFilterTestBase::Filter(data_in, data_in_size, data_in_read,
+                                   data_out, data_out_size, data_out_written);
+
+    return RESPONSE_FILTER_ERROR;
+  }
+
+  std::string GetInput() override {
+    return kInputHeader + std::string("ERROR") + kInputFooter;
+  }
+
+  void VerifyOutput(cef_urlrequest_status_t status,
+                    int64 received_content_length,
+                    const std::string& received_content) override {
+    ResponseFilterTestBase::VerifyOutput(status, received_content_length,
+                                         received_content);
+
+    EXPECT_EQ(UR_FAILED, status);
+
+    // Expect empty content.
+    const std::string& output = std::string(kInputHeader) + kInputFooter;
+    EXPECT_STREQ(output.c_str(), received_content.c_str());
+    EXPECT_EQ(0U, received_content_length);
+
+    // Expect to only be called one time.
+    EXPECT_EQ(filter_count_, 1U);
+  }
+};
+
+// Browser side.
+class ResponseFilterTestHandler : public TestHandler {
+ public:
+  explicit ResponseFilterTestHandler(
+      CefRefPtr<ResponseFilterTestBase> response_filter)
+      : response_filter_(response_filter) {}
+
+  void RunTest() override {
+    const std::string& resource = response_filter_->GetInput();
+    AddResource(kResponseFilterTestUrl, resource, "text/html");
+
+    // Create the browser.
+    CreateBrowser(kResponseFilterTestUrl);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  CefRefPtr<CefResponseFilter> GetResourceResponseFilter(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request,
+      CefRefPtr<CefResponse> response) override {
+    EXPECT_IO_THREAD();
+
+    DCHECK(!got_resource_response_filter_);
+    got_resource_response_filter_.yes();
+    return response_filter_;
+  }
+
+  void OnResourceLoadComplete(CefRefPtr<CefBrowser> browser,
+                              CefRefPtr<CefFrame> frame,
+                              CefRefPtr<CefRequest> request,
+                              CefRefPtr<CefResponse> response,
+                              URLRequestStatus status,
+                              int64 received_content_length) override {
+    EXPECT_IO_THREAD();
+
+    DCHECK(!got_resource_load_complete_);
+    got_resource_load_complete_.yes();
+
+    status_ = status;
+    received_content_length_ = received_content_length;
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    DCHECK(!got_load_end_);
+    got_load_end_.yes();
+
+    EXPECT_EQ(200, httpStatusCode);
+
+    GetOutputContent(frame);
+  }
+
+ private:
+  // Retrieve the output content using a StringVisitor. This effectively
+  // serializes the DOM from the renderer process so any comparison to the
+  // filter output is somewhat error-prone.
+  void GetOutputContent(CefRefPtr<CefFrame> frame) {
+    class StringVisitor : public CefStringVisitor {
+     public:
+      typedef base::Callback<void(const std::string& /*received_content*/)>
+          VisitorCallback;
+
+      explicit StringVisitor(const VisitorCallback& callback)
+          : callback_(callback) {}
+
+      void Visit(const CefString& string) override {
+        callback_.Run(string);
+        callback_.Reset();
+      }
+
+     private:
+      VisitorCallback callback_;
+
+      IMPLEMENT_REFCOUNTING(StringVisitor);
+    };
+
+    frame->GetSource(new StringVisitor(
+        base::Bind(&ResponseFilterTestHandler::VerifyOutput, this)));
+  }
+
+  void VerifyOutput(const std::string& received_content) {
+    response_filter_->VerifyOutput(status_, received_content_length_,
+                                   received_content);
+    response_filter_ = nullptr;
+
+    DestroyTest();
+  }
+
+  void DestroyTest() override {
+    EXPECT_TRUE(got_resource_response_filter_);
+    EXPECT_TRUE(got_resource_load_complete_);
+    EXPECT_TRUE(got_load_end_);
+
+    TestHandler::DestroyTest();
+  }
+
+  CefRefPtr<ResponseFilterTestBase> response_filter_;
+
+  TrackCallback got_resource_response_filter_;
+  TrackCallback got_resource_load_complete_;
+  TrackCallback got_load_end_;
+
+  URLRequestStatus status_;
+  int64 received_content_length_;
+
+  IMPLEMENT_REFCOUNTING(ResponseFilterTestHandler);
+};
+
+}  // namespace
+
+// Pass through contents unchanged. Read all available input.
+TEST(RequestHandlerTest, ResponseFilterPassThruReadAll) {
+  CefRefPtr<ResponseFilterTestHandler> handler =
+      new ResponseFilterTestHandler(new ResponseFilterPassThru(false));
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Pass through contents unchanged. Read limited input.
+TEST(RequestHandlerTest, ResponseFilterPassThruReadLimited) {
+  CefRefPtr<ResponseFilterTestHandler> handler =
+      new ResponseFilterTestHandler(new ResponseFilterPassThru(true));
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Find/replace contents such that we occasionally need more data.
+TEST(RequestHandlerTest, ResponseFilterNeedMore) {
+  CefRefPtr<ResponseFilterTestHandler> handler =
+      new ResponseFilterTestHandler(new ResponseFilterNeedMore());
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Error during filtering.
+TEST(RequestHandlerTest, ResponseFilterError) {
+  CefRefPtr<ResponseFilterTestHandler> handler =
+      new ResponseFilterTestHandler(new ResponseFilterError());
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }

@@ -28,6 +28,8 @@ class CefNetworkDelegate : public net::NetworkDelegateImpl {
   void OnCompleted(net::URLRequest* request, bool started) override;
   bool OnCanAccessFile(const net::URLRequest& request,
                        const base::FilePath& path) const override;
+  net::Filter* SetupFilter(net::URLRequest* request,
+                           net::Filter* filter_list) override;
 
   DISALLOW_COPY_AND_ASSIGN(CefNetworkDelegate);
 };

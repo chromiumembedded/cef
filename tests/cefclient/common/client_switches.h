@@ -22,6 +22,7 @@ extern const char kMouseCursorChangeDisabled[];
 extern const char kRequestContextPerBrowser[];
 extern const char kBackgroundColor[];
 extern const char kEnableGPU[];
+extern const char kFilterURL[];
 
 }  // namespace switches
 }  // namespace client

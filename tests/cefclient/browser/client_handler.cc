@@ -492,6 +492,17 @@ CefRefPtr<CefResourceHandler> ClientHandler::GetResourceHandler(
   return resource_manager_->GetResourceHandler(browser, frame, request);
 }
 
+CefRefPtr<CefResponseFilter> ClientHandler::GetResourceResponseFilter(
+    CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request,
+    CefRefPtr<CefResponse> response) {
+  CEF_REQUIRE_IO_THREAD();
+
+  return test_runner::GetResourceResponseFilter(browser, frame, request,
+                                                response);
+}
+
 bool ClientHandler::OnQuotaRequest(CefRefPtr<CefBrowser> browser,
                                    const CefString& origin_url,
                                    int64 new_size,

@@ -19,6 +19,7 @@
 #include "libcef_dll/cpptoc/sslinfo_cpptoc.h"
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/response_filter_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -224,6 +225,44 @@ bool CefRequestHandlerCToCpp::OnResourceResponse(CefRefPtr<CefBrowser> browser,
 
   // Return type: bool
   return _retval?true:false;
+}
+
+CefRefPtr<CefResponseFilter> CefRequestHandlerCToCpp::GetResourceResponseFilter(
+    CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request, CefRefPtr<CefResponse> response) {
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_resource_response_filter))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return NULL;
+  // Verify param: frame; type: refptr_diff
+  DCHECK(frame.get());
+  if (!frame.get())
+    return NULL;
+  // Verify param: request; type: refptr_diff
+  DCHECK(request.get());
+  if (!request.get())
+    return NULL;
+  // Verify param: response; type: refptr_diff
+  DCHECK(response.get());
+  if (!response.get())
+    return NULL;
+
+  // Execute
+  cef_response_filter_t* _retval = _struct->get_resource_response_filter(
+      _struct,
+      CefBrowserCppToC::Wrap(browser),
+      CefFrameCppToC::Wrap(frame),
+      CefRequestCppToC::Wrap(request),
+      CefResponseCppToC::Wrap(response));
+
+  // Return type: refptr_same
+  return CefResponseFilterCToCpp::Wrap(_retval);
 }
 
 void CefRequestHandlerCToCpp::OnResourceLoadComplete(

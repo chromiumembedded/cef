@@ -28,6 +28,7 @@ const char kMouseCursorChangeDisabled[] = "mouse-cursor-change-disabled";
 const char kRequestContextPerBrowser[] = "request-context-per-browser";
 const char kBackgroundColor[] = "background-color";
 const char kEnableGPU[] = "enable-gpu";
+const char kFilterURL[] = "filter-url";
 
 }  // namespace switches
 }  // namespace client

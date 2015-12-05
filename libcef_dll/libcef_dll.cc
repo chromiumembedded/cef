@@ -104,6 +104,7 @@
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/resource_bundle_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
+#include "libcef_dll/ctocpp/response_filter_ctocpp.h"
 #include "libcef_dll/ctocpp/run_file_dialog_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_handler_factory_ctocpp.h"
 #include "libcef_dll/ctocpp/set_cookie_callback_ctocpp.h"
@@ -249,6 +250,7 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK(base::AtomicRefCountIsZero(
       &CefResourceBundleHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefResourceHandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefResponseFilterCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefRunContextMenuCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
