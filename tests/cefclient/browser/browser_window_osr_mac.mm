@@ -772,7 +772,11 @@ BrowserOpenGLView* GLView(NSView* view) {
                                         clickCount:1
                                           pressure:1.0];
 
-  [window dragImage:nil
+  // TODO(cef): Pass a non-nil value to dragImage (see issue #1715). For now
+  // work around the "callee requires a non-null argument" error that occurs
+  // when building with the 10.11 SDK.
+  id nilArg = nil;
+  [window dragImage:nilArg
                  at:position
              offset:NSZeroSize
               event:dragEvent

@@ -140,8 +140,13 @@ void CefJavaScriptDialogRunnerMac::Run(
     [other setKeyEquivalent:@"\e"];
   }
 
+  // Calling beginSheetModalForWindow:nil is wrong API usage. For now work
+  // around the "callee requires a non-null argument" error that occurs when
+  // building with the 10.11 SDK. See http://crbug.com/383820 for related
+  // discussion.
+  id nilArg = nil;
   [alert
-      beginSheetModalForWindow:nil  // nil here makes it app-modal
+      beginSheetModalForWindow:nilArg  // nil here makes it app-modal
                  modalDelegate:helper_
                 didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:)
                    contextInfo:this];
@@ -163,4 +168,3 @@ void CefJavaScriptDialogRunnerMac::DialogClosed(
   helper_.reset(nil);
   callback_.Run(success, user_input);
 }
-
