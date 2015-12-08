@@ -2,7 +2,7 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
-from optparse import OptionParser
+from optparse import Option, OptionParser, OptionValueError
 import os
 import re
 import sys
@@ -42,13 +42,30 @@ disc = """
 This utility updates existing patch files.
 """
 
-parser = OptionParser(description=disc)
+# Support options with multiple arguments.
+class MultipleOption(Option):
+  ACTIONS = Option.ACTIONS + ("extend",)
+  STORE_ACTIONS = Option.STORE_ACTIONS + ("extend",)
+  TYPED_ACTIONS = Option.TYPED_ACTIONS + ("extend",)
+  ALWAYS_TYPED_ACTIONS = Option.ALWAYS_TYPED_ACTIONS + ("extend",)
+
+  def take_action(self, action, dest, opt, value, values, parser):
+    if action == "extend":
+      values.ensure_value(dest, []).append(value)
+    else:
+      Option.take_action(self, action, dest, opt, value, values, parser)
+
+parser = OptionParser(option_class=MultipleOption,
+                      description=disc)
 parser.add_option('--resave',
                   action='store_true', dest='resave', default=False,
                   help='re-save existing patch files to pick up manual changes')
 parser.add_option('--revert',
                   action='store_true', dest='revert', default=False,
                   help='revert all changes from existing patch files')
+parser.add_option('--patch',
+                  action='extend', dest='patch', type='string', default=[],
+                  help='optional patch name to process (multiples allowed)')
 (options, args) = parser.parse_args()
 
 if options.resave and options.revert:
@@ -78,6 +95,10 @@ patches = scope["patches"]
 # Read each individual patch file.
 patches_dir = os.path.join(patch_dir, 'patches')
 for patch in patches:
+  # If specific patch names are specified only process those patches.
+  if options.patch and not patch['name'] in options.patch:
+    continue
+
   sys.stdout.write('\n')
   patch_file = os.path.join(patches_dir, patch['name']+'.patch')
 
