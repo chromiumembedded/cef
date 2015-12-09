@@ -364,6 +364,7 @@ net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
 
   url_request_getter_ = new CefURLRequestContextGetterImpl(
       settings_,
+      GetPrefs(),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
       protocol_handlers,

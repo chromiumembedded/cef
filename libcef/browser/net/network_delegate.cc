@@ -14,6 +14,10 @@
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
 
+#include "base/command_line.h"
+#include "base/metrics/field_trial.h"
+#include "base/strings/string_util.h"
+#include "content/public/common/content_switches.h"
 #include "net/base/net_errors.h"
 #include "net/filter/filter.h"
 #include "net/http/http_util.h"
@@ -225,6 +229,27 @@ CefNetworkDelegate::CefNetworkDelegate() {
 CefNetworkDelegate::~CefNetworkDelegate() {
 }
 
+// static
+bool CefNetworkDelegate::AreExperimentalCookieFeaturesEnabled() {
+  static bool initialized = false;
+  static bool enabled = false;
+  if (!initialized) {
+    enabled = base::CommandLine::ForCurrentProcess()->
+        HasSwitch(switches::kEnableExperimentalWebPlatformFeatures);
+    initialized = true;
+  }
+  return enabled;
+}
+
+// static
+bool CefNetworkDelegate::AreStrictSecureCookiesEnabled() {
+  const std::string enforce_strict_secure_group =
+      base::FieldTrialList::FindFullName("StrictSecureCookies");
+  return AreExperimentalCookieFeaturesEnabled() ||
+         base::StartsWith(enforce_strict_secure_group, "Enabled",
+                          base::CompareCase::INSENSITIVE_ASCII);
+}
+
 int CefNetworkDelegate::OnBeforeURLRequest(
     net::URLRequest* request,
     const net::CompletionCallback& callback,
@@ -385,6 +410,14 @@ net::NetworkDelegate::AuthRequiredResponse CefNetworkDelegate::OnAuthRequired(
 bool CefNetworkDelegate::OnCanAccessFile(const net::URLRequest& request,
                                          const base::FilePath& path) const {
   return true;
+}
+
+bool CefNetworkDelegate::OnAreExperimentalCookieFeaturesEnabled() const {
+  return AreExperimentalCookieFeaturesEnabled();
+}
+
+bool CefNetworkDelegate::OnAreStrictSecureCookiesEnabled() const {
+  return AreStrictSecureCookiesEnabled();
 }
 
 net::Filter* CefNetworkDelegate::SetupFilter(net::URLRequest* request,

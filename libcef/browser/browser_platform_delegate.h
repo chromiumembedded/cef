@@ -209,7 +209,7 @@ class CefBrowserPlatformDelegate {
 
  protected:
   // Allow deletion via scoped_ptr only.
-  friend struct base::DefaultDeleter<CefBrowserPlatformDelegate>;
+  friend std::default_delete<CefBrowserPlatformDelegate>;
 
   CefBrowserPlatformDelegate();
   virtual ~CefBrowserPlatformDelegate();

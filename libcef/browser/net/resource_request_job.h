@@ -33,7 +33,7 @@ class CefResourceRequestJob : public net::URLRequestJob {
   // net::URLRequestJob methods.
   void Start() override;
   void Kill() override;
-  bool ReadRawData(net::IOBuffer* dest, int dest_size, int* bytes_read) override;
+  int ReadRawData(net::IOBuffer* dest, int dest_size) override;
   void GetResponseInfo(net::HttpResponseInfo* info) override;
   void GetLoadTimingInfo(
       net::LoadTimingInfo* load_timing_info) const override;

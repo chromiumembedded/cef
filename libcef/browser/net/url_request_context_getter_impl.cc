@@ -21,11 +21,13 @@
 #include "base/command_line.h"
 #include "base/files/file_util.h"
 #include "base/logging.h"
+#include "base/prefs/pref_service.h"
 #include "base/stl_util.h"
 #include "base/strings/string_util.h"
 #include "base/threading/thread_restrictions.h"
 #include "base/threading/worker_pool.h"
 #include "chrome/browser/net/proxy_service_factory.h"
+#include "chrome/common/pref_names.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_client.h"
 #include "content/public/common/content_switches.h"
@@ -36,6 +38,7 @@
 #include "net/dns/host_resolver.h"
 #include "net/ftp/ftp_network_layer.h"
 #include "net/http/http_auth_handler_factory.h"
+#include "net/http/http_auth_preferences.h"
 #include "net/http/http_cache.h"
 #include "net/http/http_server_properties_impl.h"
 #include "net/http/http_util.h"
@@ -97,6 +100,7 @@ class CefHttpUserAgentSettings : public net::HttpUserAgentSettings {
 
 CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
     const CefRequestContextSettings& settings,
+    PrefService* pref_service,
     base::MessageLoop* io_loop,
     base::MessageLoop* file_loop,
     content::ProtocolHandlerMap* protocol_handlers,
@@ -111,6 +115,10 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
   CEF_REQUIRE_UIT();
 
   std::swap(protocol_handlers_, *protocol_handlers);
+
+#if defined(OS_POSIX) && !defined(OS_ANDROID)
+  gsapi_library_name_ = pref_service->GetString(prefs::kGSSAPILibraryName);
+#endif
 }
 
 CefURLRequestContextGetterImpl::~CefURLRequestContextGetterImpl() {
@@ -172,24 +180,23 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
 
     storage_->set_ssl_config_service(new net::SSLConfigServiceDefaults);
 
-    // Add support for single sign-on.
-    url_security_manager_.reset(net::URLSecurityManager::Create(NULL, NULL));
-
     std::vector<std::string> supported_schemes;
     supported_schemes.push_back("basic");
     supported_schemes.push_back("digest");
     supported_schemes.push_back("ntlm");
     supported_schemes.push_back("negotiate");
 
-    storage_->set_http_auth_handler_factory(make_scoped_ptr(
+    http_auth_preferences_.reset(
+        new net::HttpAuthPreferences(supported_schemes
+#if defined(OS_POSIX) && !defined(OS_ANDROID)
+                                     , gsapi_library_name_
+#endif
+        ));
+
+    storage_->set_http_auth_handler_factory(
         net::HttpAuthHandlerRegistryFactory::Create(
-            supported_schemes,
-            url_security_manager_.get(),
-            url_request_context_->host_resolver(),
-            std::string(),
-            std::string(),
-            false,
-            false)));
+            http_auth_preferences_.get(),
+            url_request_context_->host_resolver()));
     storage_->set_http_server_properties(
         make_scoped_ptr<net::HttpServerProperties>(
             new net::HttpServerPropertiesImpl));

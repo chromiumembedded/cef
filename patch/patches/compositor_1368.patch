@@ -1,8 +1,8 @@
 diff --git content/browser/compositor/gpu_process_transport_factory.cc content/browser/compositor/gpu_process_transport_factory.cc
-index b74845f..4ac77c3 100644
+index 1ae2b11..2379d27 100644
 --- content/browser/compositor/gpu_process_transport_factory.cc
 +++ content/browser/compositor/gpu_process_transport_factory.cc
-@@ -143,6 +143,13 @@ GpuProcessTransportFactory::CreateOffscreenCommandBufferContext() {
+@@ -136,6 +136,13 @@ GpuProcessTransportFactory::CreateOffscreenCommandBufferContext() {
  scoped_ptr<cc::SoftwareOutputDevice>
  GpuProcessTransportFactory::CreateSoftwareOutputDevice(
      ui::Compositor* compositor) {
@@ -13,9 +13,9 @@ index b74845f..4ac77c3 100644
 +      return output_device;
 +  }
 +
- #if defined(OS_WIN)
-   return scoped_ptr<cc::SoftwareOutputDevice>(
-       new SoftwareOutputDeviceWin(software_backing_.get(), compositor));
+ #if defined(MOJO_RUNNER_CLIENT)
+   if (IsRunningInMojoShell()) {
+     return scoped_ptr<cc::SoftwareOutputDevice>(
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
 index 1602d30..3dd3e3e 100644
 --- ui/compositor/compositor.h

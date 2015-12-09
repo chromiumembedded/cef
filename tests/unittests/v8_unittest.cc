@@ -522,9 +522,6 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     CefRefPtr<CefV8Value> value = CefV8Value::CreateObject(NULL);
 
-    // Exit the V8 context.
-    EXPECT_TRUE(context->Exit());
-
     EXPECT_TRUE(value.get());
     EXPECT_TRUE(value->IsObject());
     EXPECT_FALSE(value->GetUserData().get());
@@ -539,6 +536,9 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_FALSE(value->IsUInt());
     EXPECT_FALSE(value->IsNull());
     EXPECT_FALSE(value->IsString());
+
+    // Exit the V8 context.
+    EXPECT_TRUE(context->Exit());
 
     DestroyTest();
   }

@@ -871,6 +871,9 @@
         # Generate chrome/common/safe_browsing/csd.pb.h required by
         # zip_analyzer_results.h via chrome_utility_messages.h
         '<(DEPTH)/chrome/chrome.gyp:safe_browsing_proto',
+        # Generate chrome/common/features.h required by Chrome code that uses
+        # the BUILDFLAG() macro.
+        '<(DEPTH)/chrome/chrome_features.gyp:chrome_common_features',
         # Generate chrome/common/chrome_version.h required by
         # chrome/common/chrome_contants.cc
         '<(DEPTH)/chrome/common_constants.gyp:version_header',
@@ -878,7 +881,7 @@
         '<(DEPTH)/components/components.gyp:component_updater',
         '<(DEPTH)/components/components.gyp:content_settings_core_browser',
         '<(DEPTH)/components/components.gyp:content_settings_core_common',
-        '<(DEPTH)/components/components.gyp:crash_component_breakpad_mac_to_be_deleted',
+        '<(DEPTH)/components/components.gyp:crash_component_breakpad_to_be_deleted',
         '<(DEPTH)/components/components.gyp:crx_file',
         '<(DEPTH)/components/components.gyp:data_use_measurement_core',
         '<(DEPTH)/components/components.gyp:devtools_discovery',

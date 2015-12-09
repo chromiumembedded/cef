@@ -6,12 +6,10 @@
 
 #if defined(OS_WIN)
 #include <gl/gl.h>
-#include <gl/glu.h>
 #elif defined(OS_MACOSX)
 #include <OpenGL/gl.h>
 #elif defined(OS_LINUX)
 #include <GL/gl.h>
-#include <GL/glu.h>
 #else
 #error Platform is not supported.
 #endif

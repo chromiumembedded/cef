@@ -37,7 +37,7 @@ CefTraceSubscriber::CefTraceSubscriber()
 CefTraceSubscriber::~CefTraceSubscriber() {
   CEF_REQUIRE_UIT();
   if (collecting_trace_data_)
-    TracingController::GetInstance()->DisableRecording(NULL);
+    TracingController::GetInstance()->StopTracing(NULL);
 }
 
 bool CefTraceSubscriber::BeginTracing(
@@ -50,13 +50,13 @@ bool CefTraceSubscriber::BeginTracing(
 
   collecting_trace_data_ = true;
 
-  TracingController::EnableRecordingDoneCallback done_callback;
+  TracingController::StartTracingDoneCallback done_callback;
   if (callback.get()) {
     done_callback =
         base::Bind(&CefCompletionCallback::OnComplete, callback.get());
   }
 
-  TracingController::GetInstance()->EnableRecording(
+  TracingController::GetInstance()->StartTracing(
       base::trace_event::TraceConfig(categories, ""),
       done_callback);
   return true;
@@ -73,7 +73,7 @@ bool CefTraceSubscriber::EndTracing(
   if (!callback.get()) {
     // Discard the trace data.
     collecting_trace_data_ = false;
-    TracingController::GetInstance()->DisableRecording(NULL);
+    TracingController::GetInstance()->StopTracing(NULL);
     return true;
   }
 
@@ -91,7 +91,7 @@ bool CefTraceSubscriber::EndTracing(
       base::Bind(&CefTraceSubscriber::OnTracingFileResult,
                  weak_factory_.GetWeakPtr(), callback, tracing_file);
 
-  TracingController::GetInstance()->DisableRecording(
+  TracingController::GetInstance()->StopTracing(
       TracingController::CreateFileSink(tracing_file, result_callback));
   return true;
 }

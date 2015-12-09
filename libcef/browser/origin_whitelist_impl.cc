@@ -147,7 +147,7 @@ class CefOriginWhitelistManager {
   typedef std::vector<Cef_CrossOriginWhiteListEntry_Params> OriginList;
   OriginList origin_list_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(CefOriginWhitelistManager);
+  DISALLOW_COPY_AND_ASSIGN(CefOriginWhitelistManager);
 };
 
 base::LazyInstance<CefOriginWhitelistManager> g_manager =

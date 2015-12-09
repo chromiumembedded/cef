@@ -159,7 +159,7 @@ class CefRenderWidgetHostViewOSR
   void CopyFromCompositingSurfaceToVideoFrame(
       const gfx::Rect& src_subrect,
       const scoped_refptr<media::VideoFrame>& target,
-      const base::Callback<void(bool)>& callback) override;
+      const base::Callback<void(const gfx::Rect&, bool)>& callback) override;
   bool CanCopyToVideoFrame() const override;
   void BeginFrameSubscription(
       scoped_ptr<content::RenderWidgetHostViewFrameSubscriber> subscriber)

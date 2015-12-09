@@ -63,6 +63,7 @@
 #include "extensions/renderer/renderer_extension_registry.h"
 #include "ipc/ipc_sync_channel.h"
 #include "media/base/media.h"
+#include "printing/print_settings.h"
 #include "third_party/WebKit/public/platform/WebPrerenderingSupport.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
@@ -175,6 +176,9 @@ CefContentRendererClient::CefContentRendererClient()
     extensions::ExtensionsRendererClient::Set(
         extensions_renderer_client_.get());
   }
+#if defined(ENABLE_PRINTING)
+  printing::SetAgent(CefContentClient::Get()->GetUserAgent());
+#endif
 }
 
 CefContentRendererClient::~CefContentRendererClient() {

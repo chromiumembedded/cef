@@ -21,6 +21,8 @@
 #include "content/public/browser/content_browser_client.h"
 #include "net/url_request/url_request_job_factory.h"
 
+class PrefService;
+
 namespace base {
 class MessageLoop;
 }
@@ -28,11 +30,11 @@ class MessageLoop;
 namespace net {
 class CookieMonster;
 class FtpTransactionFactory;
+class HttpAuthPreferences;
 class ProxyConfigService;
 class URLRequestContextStorage;
 class URLRequestJobFactory;
 class URLRequestJobFactoryImpl;
-class URLSecurityManager;
 }
 
 // Isolated URLRequestContextGetter implementation. Life span is primarily
@@ -43,6 +45,7 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
  public:
   CefURLRequestContextGetterImpl(
       const CefRequestContextSettings& settings,
+      PrefService* pref_service,
       base::MessageLoop* io_loop,
       base::MessageLoop* file_loop,
       content::ProtocolHandlerMap* protocol_handlers,
@@ -80,11 +83,15 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
   base::MessageLoop* io_loop_;
   base::MessageLoop* file_loop_;
 
+#if defined(OS_POSIX) && !defined(OS_ANDROID)
+  std::string gsapi_library_name_;
+#endif
+
   scoped_ptr<net::ProxyConfigService> proxy_config_service_;
   scoped_ptr<net::URLRequestContextStorage> storage_;
+  scoped_ptr<net::HttpAuthPreferences> http_auth_preferences_;
   scoped_ptr<CefURLRequestContextImpl> url_request_context_;
   scoped_ptr<CefURLRequestManager> url_request_manager_;
-  scoped_ptr<net::URLSecurityManager> url_security_manager_;
   scoped_ptr<net::FtpTransactionFactory> ftp_transaction_factory_;
   content::ProtocolHandlerMap protocol_handlers_;
   content::URLRequestInterceptorScopedVector request_interceptors_;

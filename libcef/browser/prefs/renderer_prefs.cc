@@ -31,6 +31,7 @@
 #include "content/public/browser/site_instance.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/web_preferences.h"
+#include "content/public/common/webrtc_ip_handling_policy.h"
 #include "extensions/browser/extension_registry.h"
 #include "extensions/browser/view_type_utils.h"
 #include "extensions/common/constants.h"
@@ -58,11 +59,6 @@ void SetDefaultPrefs(content::WebPreferences& web) {
       command_line->HasSwitch(switches::kImageShrinkStandaloneToFit);
   web.text_areas_are_resizable =
       !command_line->HasSwitch(switches::kDisableTextAreaResize);
-
-  web.asynchronous_spell_checking_enabled = true;
-  // Auto-correct does not work in combination with the unified text checker.
-  web.unified_textchecker_enabled =
-      !command_line->HasSwitch(switches::kEnableSpellingAutoCorrect);
 }
 
 // Chrome preferences.
@@ -346,10 +342,15 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
       prefs::kEnableDoNotTrack,
       false,
       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
+
 #if defined(ENABLE_WEBRTC)
+  // TODO(guoweis): Remove next 2 options at M50.
   registry->RegisterBooleanPref(prefs::kWebRTCMultipleRoutesEnabled, true);
   registry->RegisterBooleanPref(prefs::kWebRTCNonProxiedUdpEnabled, true);
+  registry->RegisterStringPref(prefs::kWebRTCIPHandlingPolicy,
+                               content::kWebRTCIPHandlingDefault);
 #endif
+
 #if !defined(OS_MACOSX)
   registry->RegisterBooleanPref(prefs::kFullscreenAllowed, true);
 #endif

@@ -293,7 +293,7 @@ class CefCopyFrameGenerator {
       content::GLHelper* gl_helper =
           content::ImageTransportFactory::GetInstance()->GetGLHelper();
       if (gl_helper)
-        sync_token = gpu::SyncToken(gl_helper->InsertSyncPoint());
+        gl_helper->GenerateSyncToken(&sync_token);
     }
     const bool lost_resource = !sync_token.HasData();
     release_callback->Run(sync_token, lost_resource);
@@ -658,12 +658,8 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
 
       // The compositor will draw directly to the SoftwareOutputDevice which
       // then calls OnPaint.
-      delegated_frame_host_->SwapDelegatedFrame(
-          output_surface_id,
-          frame->delegated_frame_data.Pass(),
-          frame->metadata.device_scale_factor,
-          frame->metadata.latency_info,
-          &frame->metadata.satisfies_sequences);
+      delegated_frame_host_->SwapDelegatedFrame(output_surface_id,
+                                                frame.Pass());
     } else {
       if (!copy_frame_generator_.get()) {
         copy_frame_generator_.reset(
@@ -673,18 +669,14 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
       // Determine the damage rectangle for the current frame. This is the same
       // calculation that SwapDelegatedFrame uses.
       cc::RenderPass* root_pass =
-          frame->delegated_frame_data->render_pass_list.back();
+          frame->delegated_frame_data->render_pass_list.back().get();
       gfx::Size frame_size = root_pass->output_rect.size();
       gfx::Rect damage_rect =
           gfx::ToEnclosingRect(gfx::RectF(root_pass->damage_rect));
       damage_rect.Intersect(gfx::Rect(frame_size));
 
-      delegated_frame_host_->SwapDelegatedFrame(
-          output_surface_id,
-          frame->delegated_frame_data.Pass(),
-          frame->metadata.device_scale_factor,
-          frame->metadata.latency_info,
-          &frame->metadata.satisfies_sequences);
+      delegated_frame_host_->SwapDelegatedFrame(output_surface_id,
+                                                frame.Pass());
 
       // Request a copy of the last compositor frame which will eventually call
       // OnPaint asynchronously.
@@ -866,7 +858,7 @@ void CefRenderWidgetHostViewOSR::CopyFromCompositingSurface(
 void CefRenderWidgetHostViewOSR::CopyFromCompositingSurfaceToVideoFrame(
     const gfx::Rect& src_subrect,
     const scoped_refptr<media::VideoFrame>& target,
-    const base::Callback<void(bool)>& callback) {
+    const base::Callback<void(const gfx::Rect&, bool)>& callback) {
   delegated_frame_host_->CopyFromCompositingSurfaceToVideoFrame(
       src_subrect, target, callback);
 }

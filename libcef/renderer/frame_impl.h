@@ -64,7 +64,7 @@ class CefFrameImpl : public CefFrame {
   int64 frame_id_;
 
   IMPLEMENT_REFCOUNTING(CefFrameImpl);
-  DISALLOW_EVIL_CONSTRUCTORS(CefFrameImpl);
+  DISALLOW_COPY_AND_ASSIGN(CefFrameImpl);
 };
 
 #endif  // CEF_LIBCEF_RENDERER_FRAME_IMPL_H_

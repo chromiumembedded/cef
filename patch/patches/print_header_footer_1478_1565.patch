@@ -94,18 +94,18 @@ index d9ea441..dce6b9e 100644
    bool is_loading_;
    bool is_scripted_preview_delayed_;
 diff --git printing/renderer/print_web_view_helper_linux.cc printing/renderer/print_web_view_helper_linux.cc
-index 52f92ec..85f7adb 100644
+index 3e4033d..7a8b61f 100644
 --- printing/renderer/print_web_view_helper_linux.cc
 +++ printing/renderer/print_web_view_helper_linux.cc
-@@ -154,7 +154,6 @@ void PrintWebViewHelper::PrintPageInternal(
+@@ -152,7 +152,6 @@ void PrintWebViewHelper::PrintPageInternal(
+ 
    MetafileSkiaWrapper::SetMetafileOnCanvas(*canvas, metafile);
-   skia::SetIsDraftMode(*canvas, is_print_ready_metafile_sent_);
  
 -#if defined(ENABLE_PRINT_PREVIEW)
    if (params.params.display_header_footer) {
      // |page_number| is 0-based, so 1 is added.
      // TODO(vitalybuka) : why does it work only with 1.25?
-@@ -163,7 +162,6 @@ void PrintWebViewHelper::PrintPageInternal(
+@@ -161,7 +160,6 @@ void PrintWebViewHelper::PrintPageInternal(
                           scale_factor / 1.25, page_layout_in_points,
                           params.params);
    }
@@ -114,12 +114,12 @@ index 52f92ec..85f7adb 100644
    RenderPageContent(frame, params.page_number, canvas_area, content_area,
                      scale_factor, canvas);
 diff --git printing/renderer/print_web_view_helper_mac.mm printing/renderer/print_web_view_helper_mac.mm
-index f2b94e7..8c5df5e 100644
+index 293f567..601fee6 100644
 --- printing/renderer/print_web_view_helper_mac.mm
 +++ printing/renderer/print_web_view_helper_mac.mm
-@@ -126,14 +126,12 @@ void PrintWebViewHelper::RenderPage(const PrintMsg_Print_Params& params,
+@@ -125,14 +125,12 @@ void PrintWebViewHelper::RenderPage(const PrintMsg_Print_Params& params,
+ 
      MetafileSkiaWrapper::SetMetafileOnCanvas(*canvas, metafile);
-     skia::SetIsDraftMode(*canvas, is_print_ready_metafile_sent_);
      skia::SetIsPreviewMetafile(*canvas, is_preview);
 -#if defined(ENABLE_PRINT_PREVIEW)
      if (params.display_header_footer) {
@@ -133,12 +133,12 @@ index f2b94e7..8c5df5e 100644
                        scale_factor, static_cast<blink::WebCanvas*>(canvas));
    }
 diff --git printing/renderer/print_web_view_helper_pdf_win.cc printing/renderer/print_web_view_helper_pdf_win.cc
-index 56acc74..ac85bf6 100644
+index 13ad735..fffce71 100644
 --- printing/renderer/print_web_view_helper_pdf_win.cc
 +++ printing/renderer/print_web_view_helper_pdf_win.cc
-@@ -162,14 +162,12 @@ void PrintWebViewHelper::PrintPageInternal(
+@@ -160,14 +160,12 @@ void PrintWebViewHelper::PrintPageInternal(
+ 
    MetafileSkiaWrapper::SetMetafileOnCanvas(*canvas, metafile);
-   skia::SetIsDraftMode(*canvas, is_print_ready_metafile_sent_);
  
 -#if defined(ENABLE_PRINT_PREVIEW)
    if (params.params.display_header_footer) {

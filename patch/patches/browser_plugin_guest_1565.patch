@@ -1,5 +1,5 @@
 diff --git browser/browser_plugin/browser_plugin_guest.cc browser/browser_plugin/browser_plugin_guest.cc
-index cef0842..d79092d 100644
+index 61dbe6c..59d1673 100644
 --- browser/browser_plugin/browser_plugin_guest.cc
 +++ browser/browser_plugin/browser_plugin_guest.cc
 @@ -23,7 +23,7 @@
@@ -36,10 +36,10 @@ index cef0842..d79092d 100644
    }
  
    RendererPreferences* renderer_prefs =
-@@ -792,11 +791,10 @@ void BrowserPluginGuest::OnWillAttachComplete(
-     // This will trigger a callback to RenderViewReady after a round-trip IPC.
-     static_cast<RenderViewHostImpl*>(
-         GetWebContents()->GetRenderViewHost())->Init();
+@@ -787,11 +786,10 @@ void BrowserPluginGuest::OnWillAttachComplete(
+     static_cast<RenderViewHostImpl*>(GetWebContents()->GetRenderViewHost())
+         ->GetWidget()
+         ->Init();
 -    WebContentsViewGuest* web_contents_view =
 -        static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
      if (!web_contents()->GetRenderViewHost()->GetWidget()->GetView()) {

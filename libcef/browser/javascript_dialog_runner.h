@@ -34,7 +34,7 @@ class CefJavaScriptDialogRunner {
 
  protected:
   // Allow deletion via scoped_ptr only.
-  friend struct base::DefaultDeleter<CefJavaScriptDialogRunner>;
+  friend std::default_delete<CefJavaScriptDialogRunner>;
 
   CefJavaScriptDialogRunner() {}
   virtual ~CefJavaScriptDialogRunner() {}

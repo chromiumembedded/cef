@@ -49,7 +49,7 @@ bool CefRenderMessageFilter::OnMessageReceived(const IPC::Message& message) {
 }
 
 void CefRenderMessageFilter::OnDevToolsAgentAttach(
-    const std::string& host_id) {
+    const std::string& host_id, int session_id) {
   CEF_POST_TASK_RT(
       base::Bind(&CefRenderMessageFilter::OnDevToolsAgentAttach_RT, this));
 }

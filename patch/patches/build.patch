@@ -1,5 +1,5 @@
 diff --git common.gypi common.gypi
-index 780f43d..409a018 100644
+index 6b2cb0a..2bc614d 100644
 --- common.gypi
 +++ common.gypi
 @@ -9,6 +9,9 @@
@@ -12,6 +12,18 @@ index 780f43d..409a018 100644
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
+@@ -92,7 +95,10 @@
+           # depending on the packages installed on the local machine. Set this
+           # to 0 to build against locally installed headers and libraries (e.g.
+           # if packaging for a linux distro)
+-          'use_sysroot%': 1,
++          # Disable use of the sysroot image for CEF because it does not include
++          # the GTK dependency required by cefclient. It would be nice to enable
++          # this functionality in the future. See http://crbug.com/504446.
++          'use_sysroot%': 0,
+ 
+           # Override buildtype to select the desired build flavor.
+           # Dev - everyday build for development/testing
 diff --git mac/strip_save_dsym mac/strip_save_dsym
 index c9cf226..0dedbe3 100755
 --- mac/strip_save_dsym

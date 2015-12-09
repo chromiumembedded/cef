@@ -65,8 +65,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   content::SpeechRecognitionManagerDelegate*
       CreateSpeechRecognitionManagerDelegate() override;
   void AllowCertificateError(
-      int render_process_id,
-      int render_frame_id,
+      content::WebContents* web_contents,
       int cert_error,
       const net::SSLInfo& ssl_info,
       const GURL& request_url,
@@ -117,7 +116,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
 
 #if defined(OS_WIN)
   const wchar_t* GetResourceDllName() override;
-  void PreSpawnRenderer(sandbox::TargetPolicy* policy, bool* success) override;
+  bool PreSpawnRenderer(sandbox::TargetPolicy* policy) override;
 #endif
 
   // Perform browser process registration for the custom scheme.

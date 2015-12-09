@@ -90,7 +90,7 @@ class CefFrameHostImpl : public CefFrame {
   int64 parent_frame_id_;
 
   IMPLEMENT_REFCOUNTING(CefFrameHostImpl);
-  DISALLOW_EVIL_CONSTRUCTORS(CefFrameHostImpl);
+  DISALLOW_COPY_AND_ASSIGN(CefFrameHostImpl);
 };
 
 #endif  // CEF_LIBCEF_BROWSER_FRAME_HOST_IMPL_H_

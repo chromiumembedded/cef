@@ -147,10 +147,6 @@ scoped_ptr<PrefService> CreatePrefService(const base::FilePath& pref_path) {
   registry->RegisterBooleanPref(prefs::kSpellCheckUseSpellingService,
       command_line->HasSwitch(switches::kEnableSpellingService));
   registry->RegisterBooleanPref(prefs::kEnableContinuousSpellcheck, true);
-  // The kEnableSpellingAutoCorrect command-line value is also checked in
-  // SpellCheckProvider::autoCorrectWord.
-  registry->RegisterBooleanPref(prefs::kEnableAutoSpellCorrect,
-      command_line->HasSwitch(switches::kEnableSpellingAutoCorrect));
 
   // Pepper flash preferences.
   // Based on DeviceIDFetcher::RegisterProfilePrefs.
@@ -161,6 +157,12 @@ scoped_ptr<PrefService> CreatePrefService(const base::FilePath& pref_path) {
   // Based on chrome::RegisterBrowserUserPrefs.
   registry->RegisterBooleanPref(prefs::kPluginsAllowOutdated, false);
   registry->RegisterBooleanPref(prefs::kPluginsAlwaysAuthorize, false);
+
+  // Network preferences.
+  // Based on IOThread::RegisterPrefs.
+#if defined(OS_POSIX) && !defined(OS_ANDROID)
+  registry->RegisterStringPref(prefs::kGSSAPILibraryName, std::string());
+#endif
 
   if (command_line->HasSwitch(switches::kEnablePreferenceTesting)) {
     // Preferences used with unit tests.

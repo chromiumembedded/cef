@@ -1,5 +1,5 @@
 diff --git base/network_delegate.h base/network_delegate.h
-index e8d82a3..8b536d7 100644
+index 979d3ec..0ccfd16 100644
 --- base/network_delegate.h
 +++ base/network_delegate.h
 @@ -35,6 +35,7 @@ namespace net {
@@ -10,7 +10,7 @@ index e8d82a3..8b536d7 100644
  class HttpRequestHeaders;
  class HttpResponseHeaders;
  class ProxyInfo;
-@@ -118,6 +119,13 @@ class NET_EXPORT NetworkDelegate : public base::NonThreadSafe {
+@@ -119,6 +120,13 @@ class NET_EXPORT NetworkDelegate : public base::NonThreadSafe {
        const GURL& target_url,
        const GURL& referrer_url) const;
  
@@ -45,10 +45,10 @@ index 1904a8c..8d5f1ec 100644
    friend class SdchFilterChainingTest;
    FRIEND_TEST_ALL_PREFIXES(FilterTest, ThreeFilterChain);
 diff --git url_request/url_request_job.cc url_request/url_request_job.cc
-index 641c07b..e613c86 100644
+index fc9f4a9..4f6dbcc 100644
 --- url_request/url_request_job.cc
 +++ url_request/url_request_job.cc
-@@ -466,6 +466,9 @@ void URLRequestJob::NotifyHeadersComplete() {
+@@ -472,6 +472,9 @@ void URLRequestJob::NotifyHeadersComplete() {
    if (request_->status().is_success())
      filter_.reset(SetupFilter());
  

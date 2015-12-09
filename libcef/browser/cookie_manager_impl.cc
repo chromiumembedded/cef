@@ -10,6 +10,7 @@
 
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
+#include "libcef/browser/net/network_delegate.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/time_util.h"
 
@@ -556,7 +557,8 @@ void CefCookieManagerImpl::SetCookieInternal(
       cookie.secure ? true : false,
       cookie.httponly ? true : false,
       false,  // First-party only.
-      false,  // Enforces prefixes.
+      CefNetworkDelegate::AreExperimentalCookieFeaturesEnabled(),
+      CefNetworkDelegate::AreStrictSecureCookiesEnabled(),
       net::COOKIE_PRIORITY_DEFAULT,
       base::Bind(SetCookieCallbackImpl, callback));
 }

@@ -1,8 +1,8 @@
 diff --git browser/guest_view/extension_options/extension_options_guest.cc browser/guest_view/extension_options/extension_options_guest.cc
-index 6a34aa0..1743907 100644
+index 5806540..6d1a8a7 100644
 --- browser/guest_view/extension_options/extension_options_guest.cc
 +++ browser/guest_view/extension_options/extension_options_guest.cc
-@@ -197,7 +197,9 @@ bool ExtensionOptionsGuest::ShouldCreateWebContents(
+@@ -200,7 +200,9 @@ bool ExtensionOptionsGuest::ShouldCreateWebContents(
      const std::string& frame_name,
      const GURL& target_url,
      const std::string& partition_id,

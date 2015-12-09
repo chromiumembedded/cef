@@ -14,7 +14,7 @@ index 1b6d8a6..b606a30 100644
  WebContents::CreateParams::~CreateParams() {
  }
 diff --git web_contents.h web_contents.h
-index cda6487..6a84ed1 100644
+index c9fa8a01..e075a76 100644
 --- web_contents.h
 +++ web_contents.h
 @@ -52,9 +52,11 @@ class PageState;
@@ -41,10 +41,10 @@ index cda6487..6a84ed1 100644
  
    // Creates a new WebContents.
 diff --git web_contents_delegate.cc web_contents_delegate.cc
-index b39436d..bf257a7 100644
+index 70a1f06..b9673d2 100644
 --- web_contents_delegate.cc
 +++ web_contents_delegate.cc
-@@ -139,7 +139,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
+@@ -165,7 +165,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
      const std::string& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
@@ -56,7 +56,7 @@ index b39436d..bf257a7 100644
  }
  
 diff --git web_contents_delegate.h web_contents_delegate.h
-index 40a4904..e857dee 100644
+index f6a04a5..f41ec5b 100644
 --- web_contents_delegate.h
 +++ web_contents_delegate.h
 @@ -39,9 +39,11 @@ class DownloadItem;

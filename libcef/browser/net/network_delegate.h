@@ -15,6 +15,11 @@ class CefNetworkDelegate : public net::NetworkDelegateImpl {
   CefNetworkDelegate();
   ~CefNetworkDelegate() override;
 
+  // Match the logic from ChromeNetworkDelegate and
+  // RenderFrameMessageFilter::OnSetCookie.
+  static bool AreExperimentalCookieFeaturesEnabled();
+  static bool AreStrictSecureCookiesEnabled();
+
  private:
   // net::NetworkDelegate methods.
   int OnBeforeURLRequest(net::URLRequest* request,
@@ -28,6 +33,8 @@ class CefNetworkDelegate : public net::NetworkDelegateImpl {
   void OnCompleted(net::URLRequest* request, bool started) override;
   bool OnCanAccessFile(const net::URLRequest& request,
                        const base::FilePath& path) const override;
+  bool OnAreExperimentalCookieFeaturesEnabled() const override;
+  bool OnAreStrictSecureCookiesEnabled() const override;
   net::Filter* SetupFilter(net::URLRequest* request,
                            net::Filter* filter_list) override;
 

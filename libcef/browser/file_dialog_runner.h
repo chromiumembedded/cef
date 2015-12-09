@@ -41,7 +41,7 @@ class CefFileDialogRunner {
 
  protected:
   // Allow deletion via scoped_ptr only.
-  friend struct base::DefaultDeleter<CefFileDialogRunner>;
+  friend std::default_delete<CefFileDialogRunner>;
 
   CefFileDialogRunner() {}
   virtual ~CefFileDialogRunner() {}

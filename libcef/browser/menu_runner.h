@@ -29,7 +29,7 @@ class CefMenuRunner {
 
  protected:
   // Allow deletion via scoped_ptr only.
-  friend struct base::DefaultDeleter<CefMenuRunner>;
+  friend std::default_delete<CefMenuRunner>;
 
   CefMenuRunner() {}
   virtual ~CefMenuRunner() {}

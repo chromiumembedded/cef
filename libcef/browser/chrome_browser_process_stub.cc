@@ -203,7 +203,8 @@ StatusTray* ChromeBrowserProcessStub::status_tray() {
   return NULL;
 }
 
-SafeBrowsingService* ChromeBrowserProcessStub::safe_browsing_service() {
+safe_browsing::SafeBrowsingService*
+    ChromeBrowserProcessStub::safe_browsing_service() {
   NOTIMPLEMENTED();
   return NULL;
 }

@@ -594,7 +594,6 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
       switches::kDisableScrollBounce,
       switches::kDisableSpellChecking,
       switches::kEnableSpeechInput,
-      switches::kEnableSpellingAutoCorrect,
       switches::kEnableSystemFlash,
       switches::kPpapiFlashArgs,
       switches::kPpapiFlashPath,
@@ -677,8 +676,7 @@ content::SpeechRecognitionManagerDelegate*
 }
 
 void CefContentBrowserClient::AllowCertificateError(
-    int render_process_id,
-    int render_frame_id,
+    content::WebContents* web_contents,
     int cert_error,
     const net::SSLInfo& ssl_info,
     const GURL& request_url,
@@ -699,8 +697,7 @@ void CefContentBrowserClient::AllowCertificateError(
   }
 
   CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForFrame(render_process_id,
-                                             render_frame_id);
+      CefBrowserHostImpl::GetBrowserForContents(web_contents);
   if (!browser.get())
     return;
   CefRefPtr<CefClient> client = browser->GetClient();
@@ -846,7 +843,8 @@ CefContentBrowserClient::CreateThrottlesForNavigation(
       new navigation_interception::InterceptNavigationThrottle(
           navigation_handle,
           base::Bind(&NavigationOnUIThread, is_main_frame, frame_id,
-                     parent_frame_id));
+                     parent_frame_id),
+          true);
   throttles.push_back(throttle);
 
   return throttles.Pass();
@@ -882,18 +880,14 @@ const wchar_t* CefContentBrowserClient::GetResourceDllName() {
   return file_path;
 }
 
-void CefContentBrowserClient::PreSpawnRenderer(
-    sandbox::TargetPolicy* policy,
-    bool* success) {
+bool CefContentBrowserClient::PreSpawnRenderer(
+    sandbox::TargetPolicy* policy) {
   // Flash requires this permission to play video files.
   sandbox::ResultCode result = policy->AddRule(
       sandbox::TargetPolicy::SUBSYS_HANDLES,
       sandbox::TargetPolicy::HANDLES_DUP_ANY,
       L"File");
-  if (result != sandbox::SBOX_ALL_OK) {
-    *success = false;
-    return;
-  }
+  return result == sandbox::SBOX_ALL_OK;
 }
 #endif  // defined(OS_WIN)
 
