@@ -426,10 +426,6 @@ class ChromeProtocolHandlerWrapper :
         (request->url().SchemeIs(content::kChromeUIScheme) &&
          request->url().host() == content::kChromeUIAppCacheInternalsHost) ||
         content::ViewBlobInternalsJobFactory::IsSupportedURL(request->url()) ||
-#if defined(USE_TCMALLOC)
-        (request->url().SchemeIs(content::kChromeUIScheme) &&
-         request->url().host() == content::kChromeUITcmallocHost) ||
-#endif
         (request->url().SchemeIs(content::kChromeUIScheme) &&
          request->url().host() == content::kChromeUIHistogramHost)) {
       return chrome_protocol_handler_->MaybeCreateJob(request,
