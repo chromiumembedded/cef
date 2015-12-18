@@ -111,6 +111,28 @@ class CefSSLCertPrincipal : public virtual CefBase {
 /*--cef(source=library)--*/
 class CefSSLInfo : public virtual CefBase {
  public:
+  typedef std::vector<CefRefPtr<CefBinaryValue> > IssuerChainBinaryList;
+
+  ///
+  // Returns a bitmask containing any and all problems verifying the server
+  // certificate.
+  ///
+  /*--cef(default_retval=CERT_STATUS_NONE)--*/
+  virtual cef_cert_status_t GetCertStatus() =0;
+
+  ///
+  // Returns true if the certificate status has any error, major or minor.
+  ///
+  /*--cef()--*/
+  virtual bool IsCertStatusError() =0;
+
+  ///
+  // Returns true if the certificate status represents only minor errors
+  // (e.g. failure to verify certificate revocation).
+  ///
+  /*--cef()--*/
+  virtual bool IsCertStatusMinorError() =0;
+
   ///
   // Returns the subject of the X.509 certificate. For HTTPS server
   // certificates this represents the web server.  The common name of the
@@ -157,6 +179,29 @@ class CefSSLInfo : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefBinaryValue> GetPEMEncoded() =0;
+
+  ///
+  // Returns the number of certificates in the issuer chain.
+  // If 0, the certificate is self-signed.
+  ///
+  /*--cef()--*/
+  virtual size_t GetIssuerChainSize() =0;
+
+  ///
+  // Returns the DER encoded data for the certificate issuer chain.
+  // If we failed to encode a certificate in the chain it is still
+  // present in the array but is an empty string.
+  ///
+  /*--cef(count_func=chain:GetIssuerChainSize)--*/
+  virtual void GetDEREncodedIssuerChain(IssuerChainBinaryList& chain) =0;
+
+  ///
+  // Returns the PEM encoded data for the certificate issuer chain.
+  // If we failed to encode a certificate in the chain it is still
+  // present in the array but is an empty string.
+  ///
+  /*--cef(count_func=chain:GetIssuerChainSize)--*/
+  virtual void GetPEMEncodedIssuerChain(IssuerChainBinaryList& chain) =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_SSL_INFO_H_

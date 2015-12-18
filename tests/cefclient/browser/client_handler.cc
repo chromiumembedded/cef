@@ -82,6 +82,33 @@ std::string GetBinaryString(CefRefPtr<CefBinaryValue> value) {
   return CefBase64Encode(src.data(), src.size());
 }
 
+std::string GetCertStatusString(cef_cert_status_t status) {
+  #define FLAG(flag) if (status & flag) result += std::string(#flag) + "<br/>"
+  std::string result;
+
+  FLAG(CERT_STATUS_COMMON_NAME_INVALID);
+  FLAG(CERT_STATUS_DATE_INVALID);
+  FLAG(CERT_STATUS_AUTHORITY_INVALID);
+  FLAG(CERT_STATUS_NO_REVOCATION_MECHANISM);
+  FLAG(CERT_STATUS_UNABLE_TO_CHECK_REVOCATION);
+  FLAG(CERT_STATUS_REVOKED);
+  FLAG(CERT_STATUS_INVALID);
+  FLAG(CERT_STATUS_WEAK_SIGNATURE_ALGORITHM);
+  FLAG(CERT_STATUS_NON_UNIQUE_NAME);
+  FLAG(CERT_STATUS_WEAK_KEY);
+  FLAG(CERT_STATUS_PINNED_KEY_MISSING);
+  FLAG(CERT_STATUS_NAME_CONSTRAINT_VIOLATION);
+  FLAG(CERT_STATUS_VALIDITY_TOO_LONG);
+  FLAG(CERT_STATUS_IS_EV);
+  FLAG(CERT_STATUS_REV_CHECKING_ENABLED);
+  FLAG(CERT_STATUS_SHA1_SIGNATURE_PRESENT);
+  FLAG(CERT_STATUS_CT_COMPLIANCE_FAILED);
+
+  if (result.empty())
+    return "&nbsp;";
+  return result;
+}
+
 // Load a data: URI containing the error message.
 void LoadErrorPage(CefRefPtr<CefFrame> frame,
                    const std::string& failed_url,
@@ -539,7 +566,8 @@ bool ClientHandler::OnCertificateError(
   CefRefPtr<CefSSLCertPrincipal> subject = ssl_info->GetSubject();
   CefRefPtr<CefSSLCertPrincipal> issuer = ssl_info->GetIssuer();
 
-  // Build a table showing certificate information.
+  // Build a table showing certificate information. Various types of invalid
+  // certificates can be tested using https://badssl.com/.
   std::stringstream ss;
   ss << "X.509 Certificate Information:"
         "<table border=1><tr><th>Field</th><th>Value</th></tr>" <<
@@ -551,17 +579,32 @@ bool ClientHandler::OnCertificateError(
             "</td></tr>"
         "<tr><td>Serial #*</td><td>" <<
             GetBinaryString(ssl_info->GetSerialNumber()) << "</td></tr>"
+        "<tr><td>Status</td><td>" <<
+            GetCertStatusString(ssl_info->GetCertStatus()) << "</td></tr>"
         "<tr><td>Valid Start</td><td>" <<
             GetTimeString(ssl_info->GetValidStart()) << "</td></tr>"
         "<tr><td>Valid Expiry</td><td>" <<
-            GetTimeString(ssl_info->GetValidExpiry()) << "</td></tr>"
-        "<tr><td>DER Encoded*</td>"
-        "<td style=\"max-width:800px;overflow:scroll;\">" <<
-            GetBinaryString(ssl_info->GetDEREncoded()) << "</td></tr>"
-        "<tr><td>PEM Encoded*</td>"
-        "<td style=\"max-width:800px;overflow:scroll;\">" <<
-            GetBinaryString(ssl_info->GetPEMEncoded()) << "</td></tr>"
-        "</table> * Displayed value is base64 encoded.";
+            GetTimeString(ssl_info->GetValidExpiry()) << "</td></tr>";
+
+  CefSSLInfo::IssuerChainBinaryList der_chain_list;
+  CefSSLInfo::IssuerChainBinaryList pem_chain_list;
+  ssl_info->GetDEREncodedIssuerChain(der_chain_list);
+  ssl_info->GetPEMEncodedIssuerChain(pem_chain_list);
+  DCHECK_EQ(der_chain_list.size(), pem_chain_list.size());
+
+  der_chain_list.insert(der_chain_list.begin(), ssl_info->GetDEREncoded());
+  pem_chain_list.insert(pem_chain_list.begin(), ssl_info->GetPEMEncoded());
+
+  for (size_t i = 0U; i < der_chain_list.size(); ++i) {
+    ss << "<tr><td>DER Encoded*</td>"
+          "<td style=\"max-width:800px;overflow:scroll;\">" <<
+              GetBinaryString(der_chain_list[i]) << "</td></tr>"
+          "<tr><td>PEM Encoded*</td>"
+          "<td style=\"max-width:800px;overflow:scroll;\">" <<
+              GetBinaryString(pem_chain_list[i]) << "</td></tr>";
+  }
+
+  ss << "</table> * Displayed value is base64 encoded.";
 
   // Load the error page.
   LoadErrorPage(browser->GetMainFrame(), request_url, cert_error, ss.str());
