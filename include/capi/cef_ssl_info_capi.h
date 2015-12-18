@@ -127,6 +127,24 @@ typedef struct _cef_sslinfo_t {
   cef_base_t base;
 
   ///
+  // Returns a bitmask containing any and all problems verifying the server
+  // certificate.
+  ///
+  cef_cert_status_t (CEF_CALLBACK *get_cert_status)(
+      struct _cef_sslinfo_t* self);
+
+  ///
+  // Returns true (1) if the certificate status has any error, major or minor.
+  ///
+  int (CEF_CALLBACK *is_cert_status_error)(struct _cef_sslinfo_t* self);
+
+  ///
+  // Returns true (1) if the certificate status represents only minor errors
+  // (e.g. failure to verify certificate revocation).
+  ///
+  int (CEF_CALLBACK *is_cert_status_minor_error)(struct _cef_sslinfo_t* self);
+
+  ///
   // Returns the subject of the X.509 certificate. For HTTPS server certificates
   // this represents the web server.  The common name of the subject should
   // match the host name of the web server.
@@ -170,6 +188,28 @@ typedef struct _cef_sslinfo_t {
   ///
   struct _cef_binary_value_t* (CEF_CALLBACK *get_pemencoded)(
       struct _cef_sslinfo_t* self);
+
+  ///
+  // Returns the number of certificates in the issuer chain. If 0, the
+  // certificate is self-signed.
+  ///
+  size_t (CEF_CALLBACK *get_issuer_chain_size)(struct _cef_sslinfo_t* self);
+
+  ///
+  // Returns the DER encoded data for the certificate issuer chain. If we failed
+  // to encode a certificate in the chain it is still present in the array but
+  // is an NULL string.
+  ///
+  void (CEF_CALLBACK *get_derencoded_issuer_chain)(struct _cef_sslinfo_t* self,
+      size_t* chainCount, struct _cef_binary_value_t** chain);
+
+  ///
+  // Returns the PEM encoded data for the certificate issuer chain. If we failed
+  // to encode a certificate in the chain it is still present in the array but
+  // is an NULL string.
+  ///
+  void (CEF_CALLBACK *get_pemencoded_issuer_chain)(struct _cef_sslinfo_t* self,
+      size_t* chainCount, struct _cef_binary_value_t** chain);
 } cef_sslinfo_t;
 
 
