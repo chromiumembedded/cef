@@ -5,6 +5,9 @@
 
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
 
+#include <limits>
+#include <utility>
+
 #import <Cocoa/Cocoa.h>
 
 #include "libcef/browser/browser_host_impl.h"
@@ -266,7 +269,7 @@ bool CefRenderWidgetHostViewOSR::GetLineBreakIndex(
   // 75% of maximum height.
   const size_t loop_end_idx = std::min(bounds.size(), range.end());
   int max_height = 0;
-  int min_y_offset = kint32max;
+  int min_y_offset = std::numeric_limits<int32_t>::max();
   for (size_t idx = range.start(); idx < loop_end_idx; ++idx) {
     max_height = std::max(max_height, bounds[idx].height());
     min_y_offset = std::min(min_y_offset, bounds[idx].y());
@@ -337,5 +340,5 @@ void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {
   browser_compositor_->compositor()->SetVisible(false);
   browser_compositor_->compositor()->SetScaleAndSize(1.0, gfx::Size(0, 0));
   browser_compositor_->compositor()->SetRootLayer(NULL);
-  content::BrowserCompositorMac::Recycle(browser_compositor_.Pass());
+  content::BrowserCompositorMac::Recycle(std::move(browser_compositor_));
 }

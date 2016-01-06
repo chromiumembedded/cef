@@ -4,6 +4,8 @@
 
 #include "libcef/browser/pepper/pepper_isolated_file_system_message_filter.h"
 
+#include <stddef.h>
+
 #include "libcef/browser/browser_context_impl.h"
 
 #include "chrome/common/chrome_switches.h"

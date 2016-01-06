@@ -3,6 +3,9 @@
 // be found in the LICENSE file.
 
 #include "libcef/renderer/render_urlrequest_impl.h"
+
+#include <stdint.h>
+
 #include "libcef/common/request_impl.h"
 #include "libcef/common/response_impl.h"
 
@@ -169,7 +172,7 @@ class CefRenderURLRequest::Context
     url_request_ = NULL;
   }
 
-  void OnDownloadProgress(int64 current) {
+  void OnDownloadProgress(int64_t current) {
     DCHECK(CalledOnValidThread());
     DCHECK(url_request_.get());
 
@@ -186,7 +189,7 @@ class CefRenderURLRequest::Context
     client_->OnDownloadData(url_request_.get(), data, dataLength);
   }
 
-  void OnUploadProgress(int64 current, int64 total) {
+  void OnUploadProgress(int64_t current, int64_t total) {
     DCHECK(CalledOnValidThread());
     DCHECK(url_request_.get());
     if (current == total)
@@ -226,10 +229,10 @@ class CefRenderURLRequest::Context
   CefRefPtr<CefResponse> response_;
   scoped_ptr<blink::WebURLLoader> loader_;
   scoped_ptr<CefWebURLLoaderClient> url_client_;
-  int64 upload_data_size_;
+  int64_t upload_data_size_;
   bool got_upload_progress_complete_;
-  int64 download_data_received_;
-  int64 download_data_total_;
+  int64_t download_data_received_;
+  int64_t download_data_total_;
 };
 
 

@@ -5,9 +5,13 @@
 #ifndef CEF_LIBCEF_BROWSER_PRINTING_PRINTING_MESSAGE_FILTER_H_
 #define CEF_LIBCEF_BROWSER_PRINTING_PRINTING_MESSAGE_FILTER_H_
 
+#include <stdint.h>
+
 #include <string>
 
 #include "base/compiler_specific.h"
+#include "base/macros.h"
+#include "build/build_config.h"
 #include "content/public/browser/browser_message_filter.h"
 
 #if defined(OS_WIN)
@@ -82,7 +86,7 @@ class PrintingMessageFilter : public content::BrowserMessageFilter {
   void OnUpdatePrintSettingsReply(scoped_refptr<PrinterQuery> printer_query,
                                   IPC::Message* reply_msg);
 
-  void OnCheckForCancel(int32 preview_ui_id,
+  void OnCheckForCancel(int32_t preview_ui_id,
                         int preview_request_id,
                         bool* cancel);
 

@@ -4,6 +4,8 @@
 
 #include "libcef/browser/menu_manager.h"
 
+#include <utility>
+
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/context_menu_params_impl.h"
 #include "libcef/browser/menu_runner.h"
@@ -91,7 +93,7 @@ CefMenuManager::CefMenuManager(CefBrowserHostImpl* browser,
                                scoped_ptr<CefMenuRunner> runner)
   : content::WebContentsObserver(browser->web_contents()),
     browser_(browser),
-    runner_(runner.Pass()),
+    runner_(std::move(runner)),
     custom_menu_callback_(NULL),
     weak_ptr_factory_(this) {
   DCHECK(web_contents());

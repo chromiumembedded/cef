@@ -8,6 +8,7 @@
 
 #include "base/base64.h"
 #include "chrome/grit/generated_resources.h"
+#include "chrome/renderer/plugins/power_saver_info.h"
 #include "third_party/WebKit/public/platform/WebRect.h"
 #include "third_party/WebKit/public/web/WebElement.h"
 #include "third_party/WebKit/public/web/WebPlugin.h"
@@ -60,14 +61,15 @@ void CefPluginPreroller::OnThrottleStateChange() {
   if (!throttler_->IsThrottled())
     return;
 
-  PlaceholderPosterInfo poster_info;
-  poster_info.poster_attribute = keyframe_data_url_.spec();
-  poster_info.custom_poster_size = throttler_->GetSize();
+  PowerSaverInfo power_saver_info;
+  power_saver_info.power_saver_enabled = true;
+  power_saver_info.poster_attribute = keyframe_data_url_.spec();
+  power_saver_info.custom_poster_size = throttler_->GetSize();
 
   CefPluginPlaceholder* placeholder =
       CefPluginPlaceholder::CreateBlockedPlugin(
           render_frame(), frame_, params_, info_, identifier_, name_,
-          IDR_PLUGIN_POSTER_HTML, message_, poster_info);
+          IDR_PLUGIN_POSTER_HTML, message_, power_saver_info);
   placeholder->SetPremadePlugin(throttler_);
   placeholder->set_power_saver_enabled(true);
   placeholder->AllowLoading();

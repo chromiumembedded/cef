@@ -2,7 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include <limits>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "libcef/common/cef_messages.h"
@@ -51,7 +53,7 @@ class BytesElementReader : public net::UploadBytesElementReader {
   explicit BytesElementReader(scoped_ptr<net::UploadElement> element)
       : net::UploadBytesElementReader(element->bytes(),
                                       element->bytes_length()),
-        element_(element.Pass()) {
+        element_(std::move(element)) {
     DCHECK_EQ(net::UploadElement::TYPE_BYTES, element_->type());
   }
 
@@ -77,7 +79,7 @@ class FileElementReader : public net::UploadFileElementReader {
             element->file_range_offset(),
             element->file_range_length(),
             element->expected_file_modification_time()),
-        element_(element.Pass()) {
+        element_(std::move(element)) {
     DCHECK_EQ(net::UploadElement::TYPE_FILE, element_->type());
   }
 
@@ -518,7 +520,7 @@ void CefRequestImpl::Set(const blink::WebURLRequest& request) {
 
   Reset();
 
-  url_ = request.url().spec().utf16();
+  url_ = request.url().string();
   method_ = request.httpMethod();
 
   ::GetHeaderMap(request, headermap_, referrer_url_);
@@ -531,7 +533,7 @@ void CefRequestImpl::Set(const blink::WebURLRequest& request) {
     static_cast<CefPostDataImpl*>(postdata_.get())->Set(body);
   }
 
-  first_party_for_cookies_ = request.firstPartyForCookies().spec().utf16();
+  first_party_for_cookies_ = request.firstPartyForCookies().string();
 
   if (request.cachePolicy() == blink::WebURLRequest::ReloadIgnoringCacheData)
     flags_ |= UR_FLAG_SKIP_CACHE;
@@ -757,7 +759,7 @@ void CefRequestImpl::Get(net::URLFetcher& fetcher,
           fetcher.SetUploadFilePath(
               content_type,
               base::FilePath(impl->GetFile()),
-              0, kuint64max,
+              0, std::numeric_limits<uint64_t>::max(),
               GetFileTaskRunner());
           break;
         case PDE_TYPE_EMPTY:
@@ -815,10 +817,10 @@ void CefRequestImpl::SetTrackChanges(bool track_changes) {
   }
 }
 
-uint8 CefRequestImpl::GetChanges() const {
+uint8_t CefRequestImpl::GetChanges() const {
   base::AutoLock lock_scope(lock_);
 
-  uint8 changes = changes_;
+  uint8_t changes = changes_;
   if (postdata_.get() &&
       static_cast<CefPostDataImpl*>(postdata_.get())->HasChanges()) {
     changes |= kChangedPostData;
@@ -826,13 +828,13 @@ uint8 CefRequestImpl::GetChanges() const {
   return changes;
 }
 
-void CefRequestImpl::Changed(uint8 changes) {
+void CefRequestImpl::Changed(uint8_t changes) {
   lock_.AssertAcquired();
   if (track_changes_)
     changes_ |= changes;
 }
 
-bool CefRequestImpl::ShouldSet(uint8 changes, bool changed_only) const {
+bool CefRequestImpl::ShouldSet(uint8_t changes, bool changed_only) const {
   lock_.AssertAcquired();
 
   // Always change if changes are not being tracked.

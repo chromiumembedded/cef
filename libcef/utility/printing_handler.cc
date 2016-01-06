@@ -4,10 +4,15 @@
 
 #include "libcef/utility/printing_handler.h"
 
+#include <stdint.h>
+
+#include <utility>
+
 #include "base/files/file_util.h"
 #include "base/lazy_instance.h"
 #include "base/path_service.h"
 #include "base/scoped_native_library.h"
+#include "build/build_config.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_utility_printing_messages.h"
 #include "content/public/utility/utility_thread.h"
@@ -58,7 +63,7 @@ void PrintingHandler::OnRenderPDFPagesToMetafile(
     const printing::PdfRenderSettings& settings) {
   pdf_rendering_settings_ = settings;
   base::File pdf_file = IPC::PlatformFileForTransitToFile(pdf_transit);
-  int page_count = LoadPDF(pdf_file.Pass());
+  int page_count = LoadPDF(std::move(pdf_file));
   Send(
       new ChromeUtilityHostMsg_RenderPDFPagesToMetafiles_PageCount(page_count));
 }
@@ -69,7 +74,7 @@ void PrintingHandler::OnRenderPDFPagesToMetafileGetPage(
   base::File emf_file = IPC::PlatformFileForTransitToFile(output_file);
   double scale_factor = 1.0;
   bool success =
-      RenderPdfPageToMetafile(page_number, emf_file.Pass(), &scale_factor);
+      RenderPdfPageToMetafile(page_number, std::move(emf_file), &scale_factor);
   Send(new ChromeUtilityHostMsg_RenderPDFPagesToMetafiles_PageDone(
       success, scale_factor));
 }
@@ -79,7 +84,7 @@ void PrintingHandler::OnRenderPDFPagesToMetafileStop() {
 }
 
 int PrintingHandler::LoadPDF(base::File pdf_file) {
-  int64 length = pdf_file.GetLength();
+  int64_t length = pdf_file.GetLength();
   if (length < 0)
     return 0;
 

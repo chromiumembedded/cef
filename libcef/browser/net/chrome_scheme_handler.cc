@@ -7,6 +7,7 @@
 
 #include <map>
 #include <string>
+#include <utility>
 
 #include "include/cef_version.h"
 #include "include/cef_web_plugin.h"
@@ -413,7 +414,7 @@ class ChromeProtocolHandlerWrapper :
       scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
           chrome_protocol_handler)
       : request_manager_(request_manager),
-        chrome_protocol_handler_(chrome_protocol_handler.Pass()) {
+        chrome_protocol_handler_(std::move(chrome_protocol_handler)) {
     DCHECK(request_manager_);
   }
 
@@ -482,8 +483,8 @@ WrapChromeProtocolHandler(
         chrome_protocol_handler) {
   scoped_ptr<net::URLRequestJobFactory::ProtocolHandler> ret(
       new ChromeProtocolHandlerWrapper(request_manager,
-                                       chrome_protocol_handler.Pass()));
-  return ret.Pass();
+                                       std::move(chrome_protocol_handler)));
+  return ret;
 }
 
 }  // namespace scheme

@@ -5,7 +5,9 @@
 #ifndef CEF_LIBCEF_BROWSER_PEPPER_PEPPER_FLASH_BROWSER_HOST_H_
 #define CEF_LIBCEF_BROWSER_PEPPER_PEPPER_FLASH_BROWSER_HOST_H_
 
-#include "base/basictypes.h"
+#include <stdint.h>
+
+#include "base/macros.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/weak_ptr.h"
 #include "ppapi/host/host_message_context.h"

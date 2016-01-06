@@ -6,6 +6,8 @@
 #define CEF_LIBCEF_COMMON_REQUEST_IMPL_H_
 #pragma once
 
+#include <stdint.h>
+
 #include "include/cef_request.h"
 
 #include "base/synchronization/lock.h"
@@ -111,11 +113,11 @@ class CefRequestImpl : public CefRequest {
   void SetReadOnly(bool read_only);
 
   void SetTrackChanges(bool track_changes);
-  uint8 GetChanges() const;
+  uint8_t GetChanges() const;
 
  private:
-  void Changed(uint8 changes);
-  bool ShouldSet(uint8 changes, bool changed_only) const;
+  void Changed(uint8_t changes);
+  bool ShouldSet(uint8_t changes, bool changed_only) const;
 
   void Reset();
 
@@ -140,7 +142,7 @@ class CefRequestImpl : public CefRequest {
   bool track_changes_;
 
   // Bitmask of |Changes| values which indicate which fields have changed.
-  uint8 changes_;
+  uint8_t changes_;
 
   mutable base::Lock lock_;
 

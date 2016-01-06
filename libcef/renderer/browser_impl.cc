@@ -319,7 +319,7 @@ bool CefBrowserImpl::SendProcessMessage(CefProcessId target_process,
 CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
     blink::WebFrame* frame) {
   DCHECK(frame);
-  int64 frame_id = webkit_glue::GetIdentifier(frame);
+  int64_t frame_id = webkit_glue::GetIdentifier(frame);
 
   // Frames are re-used between page loads. Only add the frame to the map once.
   FrameMap::const_iterator it = frames_.find(frame_id);
@@ -329,7 +329,7 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
   CefRefPtr<CefFrameImpl> framePtr(new CefFrameImpl(this, frame));
   frames_.insert(std::make_pair(frame_id, framePtr));
 
-  int64 parent_id = frame->parent() == NULL ?
+  int64_t parent_id = frame->parent() == NULL ?
       webkit_glue::kInvalidFrameId :
       webkit_glue::GetIdentifier(frame->parent());
   base::string16 name = frame->uniqueName();
@@ -340,7 +340,7 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
   return framePtr;
 }
 
-CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(int64 frame_id) {
+CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(int64_t frame_id) {
   if (frame_id == webkit_glue::kInvalidFrameId) {
     if (render_view()->GetWebView() && render_view()->GetWebView()->mainFrame())
       return GetWebFrameImpl(render_view()->GetWebView()->mainFrame());
@@ -368,7 +368,7 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(int64 frame_id) {
   return NULL;
 }
 
-void CefBrowserImpl::AddFrameObject(int64 frame_id,
+void CefBrowserImpl::AddFrameObject(int64_t frame_id,
                                     CefTrackNode* tracked_object) {
   CefRefPtr<CefTrackManager> manager;
 
@@ -453,7 +453,7 @@ void CefBrowserImpl::DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
 }
 
 void CefBrowserImpl::FrameDetached(WebFrame* frame) {
-  int64 frame_id = webkit_glue::GetIdentifier(frame);
+  int64_t frame_id = webkit_glue::GetIdentifier(frame);
 
   if (!frames_.empty()) {
     // Remove the frame from the map.

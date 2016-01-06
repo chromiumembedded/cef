@@ -4,6 +4,9 @@
 // found in the LICENSE file.
 
 #include "libcef/common/content_client.h"
+
+#include <stdint.h>
+
 #include "include/cef_stream.h"
 #include "include/cef_version.h"
 #include "libcef/browser/content_browser_client.h"
@@ -53,8 +56,8 @@ const char kPDFPluginExtension[] = "pdf";
 const char kPDFPluginDescription[] = "Portable Document Format";
 const char kPDFPluginOutOfProcessMimeType[] =
     "application/x-google-chrome-pdf";
-const uint32 kPDFPluginPermissions = ppapi::PERMISSION_PRIVATE |
-                                     ppapi::PERMISSION_DEV;
+const uint32_t kPDFPluginPermissions = ppapi::PERMISSION_PRIVATE |
+                                       ppapi::PERMISSION_DEV;
 
 content::PepperPluginInfo::GetInterfaceFunc g_pdf_get_interface;
 content::PepperPluginInfo::PPP_InitializeModuleFunc g_pdf_initialize_module;

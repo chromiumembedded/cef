@@ -4,6 +4,9 @@
 // found in the LICENSE file.
 
 #include "libcef/browser/javascript_dialog_manager.h"
+
+#include <utility>
+
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/thread_util.h"
 
@@ -70,7 +73,7 @@ CefJavaScriptDialogManager::CefJavaScriptDialogManager(
     CefBrowserHostImpl* browser,
     scoped_ptr<CefJavaScriptDialogRunner> runner)
     : browser_(browser),
-      runner_(runner.Pass()),
+      runner_(std::move(runner)),
       dialog_running_(false),
       weak_ptr_factory_(this) {
 }

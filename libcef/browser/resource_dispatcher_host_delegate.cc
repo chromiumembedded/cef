@@ -4,6 +4,11 @@
 // found in the LICENSE file.
 
 #include "libcef/browser/resource_dispatcher_host_delegate.h"
+
+#include <stdint.h>
+
+#include <utility>
+
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/extensions/api/streams_private/streams_private_api.h"
 #include "libcef/browser/origin_whitelist_impl.h"
@@ -13,6 +18,7 @@
 
 #include "base/guid.h"
 #include "base/memory/scoped_vector.h"
+#include "build/build_config.h"
 #include "content/public/browser/plugin_service.h"
 #include "content/public/browser/plugin_service_filter.h"
 #include "content/public/browser/resource_request_info.h"
@@ -28,7 +34,7 @@
 namespace {
 
 void SendExecuteMimeTypeHandlerEvent(scoped_ptr<content::StreamInfo> stream,
-                                     int64 expected_content_size,
+                                     int64_t expected_content_size,
                                      int render_process_id,
                                      int render_frame_id,
                                      const std::string& extension_id,
@@ -59,7 +65,7 @@ void SendExecuteMimeTypeHandlerEvent(scoped_ptr<content::StreamInfo> stream,
   int tab_id = -1;
 
   streams_private->ExecuteMimeTypeHandler(
-      extension_id, tab_id, stream.Pass(), view_id, expected_content_size,
+      extension_id, tab_id, std::move(stream), view_id, expected_content_size,
       embedded, render_process_id, render_frame_id);
 }
 

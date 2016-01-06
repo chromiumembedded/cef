@@ -1,5 +1,5 @@
 diff --git common.gypi common.gypi
-index 6b2cb0a..2bc614d 100644
+index 577a95c..4c1cbfe 100644
 --- common.gypi
 +++ common.gypi
 @@ -9,6 +9,9 @@

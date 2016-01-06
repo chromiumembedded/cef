@@ -6,6 +6,8 @@
 #ifndef CEF_LIBCEF_BROWSER_RESOURCE_REQUEST_JOB_H_
 #define CEF_LIBCEF_BROWSER_RESOURCE_REQUEST_JOB_H_
 
+#include <stdint.h>
+
 #include <string>
 
 #include "include/cef_browser.h"
@@ -66,8 +68,8 @@ class CefResourceRequestJob : public net::URLRequestJob {
   bool done_;
   CefRefPtr<CefResponse> response_;
   GURL redirect_url_;
-  int64 remaining_bytes_;
-  int64 sent_bytes_;
+  int64_t remaining_bytes_;
+  int64_t sent_bytes_;
   CefRefPtr<CefRequest> cef_request_;
   CefRefPtr<CefResourceRequestJobCallback> callback_;
   scoped_refptr<net::HttpResponseHeaders> response_headers_;

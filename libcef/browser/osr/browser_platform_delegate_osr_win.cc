@@ -4,11 +4,13 @@
 
 #include "libcef/browser/osr/browser_platform_delegate_osr_win.h"
 
+#include <utility>
+
 #include "libcef/browser/browser_host_impl.h"
 
 CefBrowserPlatformDelegateOsrWin::CefBrowserPlatformDelegateOsrWin(
     scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate)
-    : CefBrowserPlatformDelegateOsr(native_delegate.Pass()) {
+    : CefBrowserPlatformDelegateOsr(std::move(native_delegate)) {
 }
 
 CefWindowHandle CefBrowserPlatformDelegateOsrWin::GetHostWindowHandle() const {

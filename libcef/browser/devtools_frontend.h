@@ -7,7 +7,6 @@
 
 #include "libcef/browser/browser_host_impl.h"
 
-#include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"

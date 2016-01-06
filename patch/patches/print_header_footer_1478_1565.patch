@@ -1,8 +1,8 @@
 diff --git printing/renderer/print_web_view_helper.cc printing/renderer/print_web_view_helper.cc
-index f2dc502..c0049d0 100644
+index c09ad6a..2a92296 100644
 --- printing/renderer/print_web_view_helper.cc
 +++ printing/renderer/print_web_view_helper.cc
-@@ -74,6 +74,9 @@ const double kMinDpi = 1.0;
+@@ -79,6 +79,9 @@ const double kMinDpi = 1.0;
  
  #if defined(ENABLE_PRINT_PREVIEW)
  bool g_is_preview_enabled = true;
@@ -12,7 +12,7 @@ index f2dc502..c0049d0 100644
  
  const char kPageLoadScriptFormat[] =
      "document.open(); document.write(%s); document.close();";
-@@ -88,9 +91,6 @@ void ExecuteScript(blink::WebFrame* frame,
+@@ -93,9 +96,6 @@ void ExecuteScript(blink::WebFrame* frame,
    std::string script = base::StringPrintf(script_format, json.c_str());
    frame->executeScript(blink::WebString(base::UTF8ToUTF16(script)));
  }
@@ -22,7 +22,7 @@ index f2dc502..c0049d0 100644
  
  int GetDPI(const PrintMsg_Print_Params* print_params) {
  #if defined(OS_MACOSX)
-@@ -481,7 +481,6 @@ blink::WebView* FrameReference::view() {
+@@ -486,7 +486,6 @@ blink::WebView* FrameReference::view() {
    return view_;
  }
  
@@ -30,7 +30,7 @@ index f2dc502..c0049d0 100644
  // static - Not anonymous so that platform implementations can use it.
  void PrintWebViewHelper::PrintHeaderAndFooter(
      blink::WebCanvas* canvas,
-@@ -537,7 +536,6 @@ void PrintWebViewHelper::PrintHeaderAndFooter(
+@@ -542,7 +541,6 @@ void PrintWebViewHelper::PrintHeaderAndFooter(
    web_view->close();
    frame->close();
  }
@@ -38,15 +38,15 @@ index f2dc502..c0049d0 100644
  
  // static - Not anonymous so that platform implementations can use it.
  float PrintWebViewHelper::RenderPageContent(blink::WebFrame* frame,
-@@ -810,6 +808,7 @@ PrintWebViewHelper::PrintWebViewHelper(content::RenderView* render_view,
+@@ -815,6 +813,7 @@ PrintWebViewHelper::PrintWebViewHelper(content::RenderView* render_view,
        print_for_preview_(false),
-       delegate_(delegate.Pass()),
+       delegate_(std::move(delegate)),
        print_node_in_progress_(false),
 +      force_print_preview_(false),
        is_loading_(false),
        is_scripted_preview_delayed_(false),
        ipc_nesting_level_(0),
-@@ -1249,7 +1248,9 @@ void PrintWebViewHelper::OnInitiatePrintPreview(bool selection_only) {
+@@ -1254,7 +1253,9 @@ void PrintWebViewHelper::OnInitiatePrintPreview(bool selection_only) {
    // that instead.
    auto plugin = delegate_->GetPdfElement(frame);
    if (!plugin.isNull()) {
@@ -56,7 +56,7 @@ index f2dc502..c0049d0 100644
      return;
    }
    print_preview_context_.InitWithFrame(frame);
-@@ -1282,7 +1283,7 @@ void PrintWebViewHelper::PrintNode(const blink::WebNode& node) {
+@@ -1287,7 +1288,7 @@ void PrintWebViewHelper::PrintNode(const blink::WebNode& node) {
  
    // Make a copy of the node, in case RenderView::OnContextMenuClosed resets
    // its |context_menu_node_|.
@@ -66,18 +66,18 @@ index f2dc502..c0049d0 100644
      Print(duplicate_node.document().frame(), duplicate_node, false);
    } else {
 diff --git printing/renderer/print_web_view_helper.h printing/renderer/print_web_view_helper.h
-index d9ea441..dce6b9e 100644
+index 0de51e5..da084d0 100644
 --- printing/renderer/print_web_view_helper.h
 +++ printing/renderer/print_web_view_helper.h
-@@ -309,7 +309,6 @@ class PrintWebViewHelper
-       double* scale_factor,
-       PageSizeMargins* page_layout_in_points);
+@@ -317,7 +317,6 @@ class PrintWebViewHelper
+       const PrintMsg_PrintPages_Params& params,
+       int page_count);
  
 -#if defined(ENABLE_PRINT_PREVIEW)
    // Given the |device| and |canvas| to draw on, prints the appropriate headers
    // and footers using strings from |header_footer_info| on to the canvas.
    static void PrintHeaderAndFooter(blink::WebCanvas* canvas,
-@@ -319,7 +318,6 @@ class PrintWebViewHelper
+@@ -327,7 +326,6 @@ class PrintWebViewHelper
                                     float webkit_scale_factor,
                                     const PageSizeMargins& page_layout_in_points,
                                     const PrintMsg_Print_Params& params);
@@ -85,7 +85,7 @@ index d9ea441..dce6b9e 100644
  
    bool GetPrintFrame(blink::WebLocalFrame** frame);
  
-@@ -498,6 +496,7 @@ class PrintWebViewHelper
+@@ -506,6 +504,7 @@ class PrintWebViewHelper
    ScriptingThrottler scripting_throttler_;
  
    bool print_node_in_progress_;
@@ -94,10 +94,10 @@ index d9ea441..dce6b9e 100644
    bool is_loading_;
    bool is_scripted_preview_delayed_;
 diff --git printing/renderer/print_web_view_helper_linux.cc printing/renderer/print_web_view_helper_linux.cc
-index 3e4033d..7a8b61f 100644
+index acc72ed..545178d 100644
 --- printing/renderer/print_web_view_helper_linux.cc
 +++ printing/renderer/print_web_view_helper_linux.cc
-@@ -152,7 +152,6 @@ void PrintWebViewHelper::PrintPageInternal(
+@@ -141,7 +141,6 @@ void PrintWebViewHelper::PrintPageInternal(
  
    MetafileSkiaWrapper::SetMetafileOnCanvas(*canvas, metafile);
  
@@ -105,7 +105,7 @@ index 3e4033d..7a8b61f 100644
    if (params.params.display_header_footer) {
      // |page_number| is 0-based, so 1 is added.
      // TODO(vitalybuka) : why does it work only with 1.25?
-@@ -161,7 +160,6 @@ void PrintWebViewHelper::PrintPageInternal(
+@@ -150,7 +149,6 @@ void PrintWebViewHelper::PrintPageInternal(
                           scale_factor / 1.25, page_layout_in_points,
                           params.params);
    }
@@ -114,10 +114,10 @@ index 3e4033d..7a8b61f 100644
    RenderPageContent(frame, params.page_number, canvas_area, content_area,
                      scale_factor, canvas);
 diff --git printing/renderer/print_web_view_helper_mac.mm printing/renderer/print_web_view_helper_mac.mm
-index 293f567..601fee6 100644
+index e682fa3..3a3aa8e 100644
 --- printing/renderer/print_web_view_helper_mac.mm
 +++ printing/renderer/print_web_view_helper_mac.mm
-@@ -125,14 +125,12 @@ void PrintWebViewHelper::RenderPage(const PrintMsg_Print_Params& params,
+@@ -143,14 +143,12 @@ void PrintWebViewHelper::RenderPage(const PrintMsg_Print_Params& params,
  
      MetafileSkiaWrapper::SetMetafileOnCanvas(*canvas, metafile);
      skia::SetIsPreviewMetafile(*canvas, is_preview);
@@ -133,10 +133,10 @@ index 293f567..601fee6 100644
                        scale_factor, static_cast<blink::WebCanvas*>(canvas));
    }
 diff --git printing/renderer/print_web_view_helper_pdf_win.cc printing/renderer/print_web_view_helper_pdf_win.cc
-index 13ad735..fffce71 100644
+index 11401bf..2ed0668 100644
 --- printing/renderer/print_web_view_helper_pdf_win.cc
 +++ printing/renderer/print_web_view_helper_pdf_win.cc
-@@ -160,14 +160,12 @@ void PrintWebViewHelper::PrintPageInternal(
+@@ -151,14 +151,12 @@ void PrintWebViewHelper::PrintPageInternal(
  
    MetafileSkiaWrapper::SetMetafileOnCanvas(*canvas, metafile);
  

@@ -5,6 +5,7 @@
 #include "libcef/browser/browser_urlrequest_impl.h"
 
 #include <string>
+#include <utility>
 
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/content_browser_client.h"
@@ -228,7 +229,7 @@ class CefBrowserURLRequest::Context
       response_writer.reset(
           new CefURLFetcherResponseWriter(url_request_, task_runner_));
     }
-    fetcher_->SaveResponseWithWriter(response_writer.Pass());
+    fetcher_->SaveResponseWithWriter(std::move(response_writer));
 
     fetcher_->Start();
   }

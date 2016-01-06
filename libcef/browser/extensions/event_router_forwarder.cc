@@ -4,10 +4,14 @@
 
 #include "libcef/browser/extensions/event_router_forwarder.h"
 
+#include <stddef.h>
+#include <utility>
+
 #include "libcef/browser/browser_context_impl.h"
 
 #include "base/bind.h"
 #include "base/values.h"
+#include "build/build_config.h"
 #include "content/public/browser/browser_thread.h"
 #include "extensions/browser/event_router.h"
 #include "url/gurl.h"
@@ -27,8 +31,8 @@ void EventRouterForwarder::BroadcastEventToRenderers(
     const std::string& event_name,
     scoped_ptr<base::ListValue> event_args,
     const GURL& event_url) {
-  HandleEvent(std::string(), histogram_value, event_name, event_args.Pass(), 0,
-              true, event_url);
+  HandleEvent(std::string(), histogram_value, event_name, std::move(event_args),
+              0, true, event_url);
 }
 
 void EventRouterForwarder::DispatchEventToRenderers(
@@ -40,7 +44,7 @@ void EventRouterForwarder::DispatchEventToRenderers(
     const GURL& event_url) {
   if (!profile)
     return;
-  HandleEvent(std::string(), histogram_value, event_name, event_args.Pass(),
+  HandleEvent(std::string(), histogram_value, event_name, std::move(event_args),
               profile, use_profile_to_restrict_events, event_url);
 }
 
@@ -50,8 +54,8 @@ void EventRouterForwarder::BroadcastEventToExtension(
     const std::string& event_name,
     scoped_ptr<base::ListValue> event_args,
     const GURL& event_url) {
-  HandleEvent(extension_id, histogram_value, event_name, event_args.Pass(), 0,
-              true, event_url);
+  HandleEvent(extension_id, histogram_value, event_name, std::move(event_args),
+              0, true, event_url);
 }
 
 void EventRouterForwarder::DispatchEventToExtension(
@@ -64,7 +68,7 @@ void EventRouterForwarder::DispatchEventToExtension(
     const GURL& event_url) {
   if (!profile)
     return;
-  HandleEvent(extension_id, histogram_value, event_name, event_args.Pass(),
+  HandleEvent(extension_id, histogram_value, event_name, std::move(event_args),
               profile, use_profile_to_restrict_events, event_url);
 }
 
@@ -92,7 +96,7 @@ void EventRouterForwarder::HandleEvent(const std::string& extension_id,
   }
   if (profile) {
     CallEventRouter(profile, extension_id, histogram_value, event_name,
-                    event_args.Pass(),
+                    std::move(event_args),
                     use_profile_to_restrict_events ? profile : NULL, event_url);
   } else {
     std::vector<CefBrowserContextImpl*> profiles(
@@ -101,7 +105,7 @@ void EventRouterForwarder::HandleEvent(const std::string& extension_id,
       scoped_ptr<base::ListValue> per_profile_event_args(
           event_args->DeepCopy());
       CallEventRouter(profiles[i], extension_id, histogram_value, event_name,
-                      per_profile_event_args.Pass(),
+                      std::move(per_profile_event_args),
                       use_profile_to_restrict_events ? profiles[i] : NULL,
                       event_url);
     }
@@ -117,14 +121,14 @@ void EventRouterForwarder::CallEventRouter(
     content::BrowserContext* restrict_to_profile,
     const GURL& event_url) {
   scoped_ptr<Event> event(
-      new Event(histogram_value, event_name, event_args.Pass()));
+      new Event(histogram_value, event_name, std::move(event_args)));
   event->restrict_to_browser_context = restrict_to_profile;
   event->event_url = event_url;
   if (extension_id.empty()) {
-    extensions::EventRouter::Get(profile)->BroadcastEvent(event.Pass());
+    extensions::EventRouter::Get(profile)->BroadcastEvent(std::move(event));
   } else {
     extensions::EventRouter::Get(profile)
-        ->DispatchEventToExtension(extension_id, event.Pass());
+        ->DispatchEventToExtension(extension_id, std::move(event));
   }
 }
 

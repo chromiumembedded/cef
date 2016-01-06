@@ -39,7 +39,7 @@ MSVC_POP_WARNING();
 
 namespace webkit_glue {
 
-const int64 kInvalidFrameId = -1;
+const int64_t kInvalidFrameId = -1;
 
 bool CanGoBack(blink::WebView* view) {
   if (!view)
@@ -123,7 +123,7 @@ bool SetNodeValue(blink::WebNode& node, const blink::WebString& value) {
   return true;
 }
 
-int64 GetIdentifier(blink::WebFrame* frame) {
+int64_t GetIdentifier(blink::WebFrame* frame) {
   // Each WebFrame will have an associated RenderFrame. The RenderFrame
   // routing IDs are unique within a given renderer process.
   content::RenderFrame* render_frame =

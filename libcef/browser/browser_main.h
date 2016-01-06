@@ -9,11 +9,12 @@
 #include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/net/url_request_context_getter_impl.h"
 
-#include "base/basictypes.h"
+#include "base/macros.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/scoped_vector.h"
 #include "base/prefs/pref_service.h"
 #include "base/strings/string_piece.h"
+#include "build/build_config.h"
 #include "content/public/browser/browser_main_parts.h"
 #include "net/url_request/url_request_context_getter.h"
 

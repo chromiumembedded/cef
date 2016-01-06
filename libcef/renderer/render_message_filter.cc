@@ -54,7 +54,7 @@ void CefRenderMessageFilter::OnDevToolsAgentAttach(
       base::Bind(&CefRenderMessageFilter::OnDevToolsAgentAttach_RT, this));
 }
 
-void CefRenderMessageFilter::OnDevToolsAgentDetach(int32 routing_id) {
+void CefRenderMessageFilter::OnDevToolsAgentDetach(int32_t routing_id) {
   CEF_POST_TASK_RT(
       base::Bind(&CefRenderMessageFilter::OnDevToolsAgentDetach_RT, this,
                  routing_id));
@@ -65,7 +65,7 @@ void CefRenderMessageFilter::OnDevToolsAgentAttach_RT() {
   CefContentRendererClient::Get()->DevToolsAgentAttached();
 }
 
-void CefRenderMessageFilter::OnDevToolsAgentDetach_RT(int32 routing_id) {
+void CefRenderMessageFilter::OnDevToolsAgentDetach_RT(int32_t routing_id) {
   CEF_REQUIRE_RT();
 
   // Wait for the DevToolsAgent to detach. It would be better to receive

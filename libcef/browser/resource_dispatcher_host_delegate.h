@@ -10,6 +10,7 @@
 #include <map>
 
 #include "base/compiler_specific.h"
+#include "base/macros.h"
 #include "content/public/browser/resource_dispatcher_host_delegate.h"
 
 // Implements ResourceDispatcherHostDelegate.

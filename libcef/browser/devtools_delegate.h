@@ -6,10 +6,11 @@
 #define CEF_LIBCEF_BROWSER_DEVTOOLS_DELEGATE_H_
 #pragma once
 
+#include <stdint.h>
+
 #include <map>
 #include <vector>
 
-#include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
 #include "components/devtools_http_handler/devtools_http_handler.h"
@@ -24,7 +25,7 @@ class RenderViewHost;
 class CefDevToolsDelegate :
     public devtools_http_handler::DevToolsHttpHandlerDelegate {
  public:
-  explicit CefDevToolsDelegate(uint16 port);
+  explicit CefDevToolsDelegate(uint16_t port);
   ~CefDevToolsDelegate() override;
 
   // Stops http server.

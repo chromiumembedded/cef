@@ -5,8 +5,10 @@
 #include "chrome/browser/renderer_host/pepper/device_id_fetcher.h"
 
 #include "base/files/file_util.h"
+#include "base/macros.h"
 #include "base/prefs/pref_service.h"
 #include "base/strings/string_number_conversions.h"
+#include "build/build_config.h"
 #include "chrome/common/pref_names.h"
 #if defined(OS_CHROMEOS)
 #include "chromeos/cryptohome/system_salt_getter.h"
@@ -149,7 +151,7 @@ void DeviceIDFetcher::ComputeOnUIThread(const std::string& salt,
 
   // Build the identifier as follows:
   // SHA256(machine-id||service||SHA256(machine-id||service||salt))
-  std::vector<uint8> salt_bytes;
+  std::vector<uint8_t> salt_bytes;
   if (!base::HexStringToBytes(salt, &salt_bytes))
     salt_bytes.clear();
   if (salt_bytes.size() != kSaltLength) {

@@ -293,7 +293,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::CreateInternal(settings, client, NULL, info, opener,
                                          request_context,
-                                         platform_delegate.Pass());
+                                         std::move(platform_delegate));
   if (browser.get() && !url.empty()) {
     browser->LoadURL(CefFrameHostImpl::kMainFrameId, url, content::Referrer(),
                      ui::PAGE_TRANSITION_TYPED, std::string());
@@ -343,7 +343,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
   CefRefPtr<CefBrowserHostImpl> browser =
       new CefBrowserHostImpl(settings, client, web_contents, browser_info,
                              opener, request_context,
-                             platform_delegate.Pass());
+                             std::move(platform_delegate));
   if (!browser->CreateHostWindow())
     return nullptr;
 
@@ -654,7 +654,7 @@ void CefBrowserHostImpl::StartDownload(const CefString& url) {
 
   scoped_ptr<content::DownloadUrlParameters> params(
       content::DownloadUrlParameters::FromWebContents(web_contents(), gurl));
-  manager->DownloadUrl(params.Pass());
+  manager->DownloadUrl(std::move(params));
 }
 
 void CefBrowserHostImpl::Print() {
@@ -1947,9 +1947,9 @@ void CefBrowserHostImpl::UpdateTargetURL(content::WebContents* source,
 }
 
 bool CefBrowserHostImpl::AddMessageToConsole(content::WebContents* source,
-                                             int32 level,
+                                             int32_t level,
                                              const base::string16& message,
-                                             int32 line_no,
+                                             int32_t line_no,
                                              const base::string16& source_id) {
   if (client_.get()) {
     CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
@@ -2118,7 +2118,7 @@ void CefBrowserHostImpl::WebContentsCreated(
 
   CefRefPtr<CefBrowserHostImpl> browser = CefBrowserHostImpl::CreateInternal(
       settings, client, new_contents, info, opener, request_context,
-      platform_delegate.Pass());
+      std::move(platform_delegate));
 }
 
 void CefBrowserHostImpl::DidNavigateMainFramePostCommit(
@@ -2133,7 +2133,7 @@ content::JavaScriptDialogManager*
   if (!javascript_dialog_manager_.get()) {
     javascript_dialog_manager_.reset(
         new CefJavaScriptDialogManager(this,
-              platform_delegate_->CreateJavaScriptDialogRunner().Pass()));
+              platform_delegate_->CreateJavaScriptDialogRunner()));
   }
   return javascript_dialog_manager_.get();
 }
@@ -2152,7 +2152,7 @@ bool CefBrowserHostImpl::HandleContextMenu(
   if (!menu_manager_.get()) {
     menu_manager_.reset(
         new CefMenuManager(this,
-            platform_delegate_->CreateMenuRunner().Pass()));
+            platform_delegate_->CreateMenuRunner()));
   }
   return menu_manager_->CreateContextMenu(params);
 }
@@ -2606,7 +2606,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(
       browser_info_(browser_info),
       opener_(kNullWindowHandle),
       request_context_(request_context),
-      platform_delegate_(platform_delegate.Pass()),
+      platform_delegate_(std::move(platform_delegate)),
       is_loading_(false),
       can_go_back_(false),
       can_go_forward_(false),
@@ -2871,6 +2871,6 @@ void CefBrowserHostImpl::EnsureFileDialogManager() {
   if (!file_dialog_manager_.get()) {
     file_dialog_manager_.reset(
         new CefFileDialogManager(this,
-            platform_delegate_->CreateFileDialogRunner().Pass()));
+            platform_delegate_->CreateFileDialogRunner()));
   }
 }

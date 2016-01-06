@@ -14,6 +14,7 @@
 #include "include/cef_browser.h"
 
 #include "base/memory/weak_ptr.h"
+#include "build/build_config.h"
 #include "content/browser/compositor/delegated_frame_host.h"
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
 #include "ui/compositor/compositor.h"
@@ -122,7 +123,7 @@ class CefRenderWidgetHostViewOSR
 
   // RenderWidgetHostViewBase implementation.
   void OnSwapCompositorFrame(
-      uint32 output_surface_id,
+      uint32_t output_surface_id,
       scoped_ptr<cc::CompositorFrame> frame) override;
   void ClearCompositorFrame() override;
   void InitAsPopup(content::RenderWidgetHostView* parent_host_view,

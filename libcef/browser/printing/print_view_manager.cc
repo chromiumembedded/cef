@@ -5,7 +5,10 @@
 #include "include/internal/cef_types_wrappers.h"
 #include "libcef/browser/printing/print_view_manager.h"
 
+#include <stdint.h>
+
 #include <map>
+#include <utility>
 
 #include "base/bind.h"
 #include "base/lazy_instance.h"
@@ -67,7 +70,7 @@ void FillInDictionaryFromPdfPrintSettings(
     scoped_ptr<base::DictionaryValue> dict(new base::DictionaryValue);
     dict->SetInteger(kSettingMediaSizeWidthMicrons, pdf_settings.page_width);
     dict->SetInteger(kSettingMediaSizeHeightMicrons, pdf_settings.page_height);
-    print_settings.Set(kSettingMediaSize, dict.Pass());
+    print_settings.Set(kSettingMediaSize, std::move(dict));
   }
 
   int margin_type = DEFAULT_MARGINS;
@@ -92,7 +95,7 @@ void FillInDictionaryFromPdfPrintSettings(
     dict->SetDouble(kSettingMarginRight, pdf_settings.margin_right);
     dict->SetDouble(kSettingMarginBottom, pdf_settings.margin_bottom);
     dict->SetDouble(kSettingMarginLeft, pdf_settings.margin_left);
-    print_settings.Set(kSettingMarginsCustom, dict.Pass());
+    print_settings.Set(kSettingMarginsCustom, std::move(dict));
   }
 
   // Service settings.
@@ -116,7 +119,7 @@ void StopWorker(int document_cookie) {
 }
 
 scoped_refptr<base::RefCountedBytes>
-GetDataFromHandle(base::SharedMemoryHandle handle, uint32 data_size) {
+GetDataFromHandle(base::SharedMemoryHandle handle, uint32_t data_size) {
   scoped_ptr<base::SharedMemory> shared_buf(
       new base::SharedMemory(handle, true));
 

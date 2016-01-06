@@ -3,11 +3,12 @@
 // governed by a BSD-style license that can be found in the LICENSE file.
 
 #include "libcef/browser/devtools_delegate.h"
-#include "libcef/browser/net/devtools_scheme_handler.h"
-#include "libcef/common/content_client.h"
 
 #include <algorithm>
 #include <string>
+
+#include "libcef/browser/net/devtools_scheme_handler.h"
+#include "libcef/common/content_client.h"
 
 #include "base/command_line.h"
 #include "base/md5.h"
@@ -41,7 +42,7 @@ const int kBackLog = 10;
 class TCPServerSocketFactory
     : public devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory {
  public:
-  TCPServerSocketFactory(const std::string& address, uint16 port)
+  TCPServerSocketFactory(const std::string& address, uint16_t port)
       : address_(address), port_(port) {
   }
 
@@ -57,13 +58,13 @@ class TCPServerSocketFactory
   }
 
   std::string address_;
-  uint16 port_;
+  uint16_t port_;
 
   DISALLOW_COPY_AND_ASSIGN(TCPServerSocketFactory);
 };
 
 scoped_ptr<devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory>
-    CreateSocketFactory(uint16 port) {
+    CreateSocketFactory(uint16_t port) {
   return scoped_ptr<
       devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory>(
           new TCPServerSocketFactory("127.0.0.1", port));
@@ -73,7 +74,7 @@ scoped_ptr<devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory>
 
 // CefDevToolsDelegate
 
-CefDevToolsDelegate::CefDevToolsDelegate(uint16 port) {
+CefDevToolsDelegate::CefDevToolsDelegate(uint16_t port) {
   devtools_http_handler_.reset(new devtools_http_handler::DevToolsHttpHandler(
       CreateSocketFactory(port),
       std::string(),

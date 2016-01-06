@@ -6,7 +6,10 @@
 #ifndef CEF_LIBCEF_BROWSER_BROWSER_MESSAGE_FILTER_H_
 #define CEF_LIBCEF_BROWSER_BROWSER_MESSAGE_FILTER_H_
 
+#include <stdint.h>
+
 #include <string>
+
 #include "ipc/ipc_channel_proxy.h"
 #include "ipc/message_filter.h"
 
@@ -41,7 +44,7 @@ class CefBrowserMessageFilter : public IPC::MessageFilter {
       IPC::Message* reply_msg);
   void OnCreateWindow(const ViewHostMsg_CreateWindow_Params& params,
                       IPC::Message* reply_msg);
-  void OnFrameFocused(int32 render_frame_routing_id);
+  void OnFrameFocused(int32_t render_frame_routing_id);
 
   content::RenderProcessHost* host_;
   IPC::Sender* sender_;

@@ -8,7 +8,7 @@
 
 #include "include/cef_response_filter.h"
 
-#include "base/basictypes.h"
+#include "base/macros.h"
 #include "net/filter/filter.h"
 
 class CefResponseFilterWrapper : public net::Filter {

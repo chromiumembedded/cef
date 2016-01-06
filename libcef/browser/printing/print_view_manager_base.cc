@@ -4,6 +4,8 @@
 
 #include "libcef/browser/printing/print_view_manager_base.h"
 
+#include <utility>
+
 #include "libcef/browser/content_browser_client.h"
 
 #include "base/auto_reset.h"
@@ -172,7 +174,7 @@ void PrintViewManagerBase::OnDidPrintPage(
 #else
   // Update the rendered document. It will send notifications to the listener.
   document->SetPage(params.page_number,
-                    metafile.Pass(),
+                    std::move(metafile),
                     params.page_size,
                     params.content_area);
 

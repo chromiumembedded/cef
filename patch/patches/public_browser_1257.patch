@@ -14,10 +14,10 @@ index 1b6d8a6..b606a30 100644
  WebContents::CreateParams::~CreateParams() {
  }
 diff --git web_contents.h web_contents.h
-index c9fa8a01..e075a76 100644
+index 6f68c96..2ba25d7 100644
 --- web_contents.h
 +++ web_contents.h
-@@ -52,9 +52,11 @@ class PageState;
+@@ -54,9 +54,11 @@ class PageState;
  class RenderFrameHost;
  class RenderProcessHost;
  class RenderViewHost;
@@ -29,7 +29,7 @@ index c9fa8a01..e075a76 100644
  struct CustomContextMenuContext;
  struct DropData;
  struct Manifest;
-@@ -144,6 +146,10 @@ class WebContents : public PageNavigator,
+@@ -146,6 +148,10 @@ class WebContents : public PageNavigator,
      // RenderFrame, have already been created on the renderer side, and
      // WebContents construction should take this into account.
      bool renderer_initiated_creation;
@@ -41,10 +41,10 @@ index c9fa8a01..e075a76 100644
  
    // Creates a new WebContents.
 diff --git web_contents_delegate.cc web_contents_delegate.cc
-index 70a1f06..b9673d2 100644
+index e247f5b..45968ce 100644
 --- web_contents_delegate.cc
 +++ web_contents_delegate.cc
-@@ -165,7 +165,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
+@@ -170,7 +170,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
      const std::string& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
@@ -56,10 +56,10 @@ index 70a1f06..b9673d2 100644
  }
  
 diff --git web_contents_delegate.h web_contents_delegate.h
-index f6a04a5..f41ec5b 100644
+index 6379fe4..d8e8844 100644
 --- web_contents_delegate.h
 +++ web_contents_delegate.h
-@@ -39,9 +39,11 @@ class DownloadItem;
+@@ -41,9 +41,11 @@ class DownloadItem;
  class JavaScriptDialogManager;
  class PageState;
  class RenderViewHost;
@@ -71,7 +71,7 @@ index f6a04a5..f41ec5b 100644
  struct ColorSuggestion;
  struct ContextMenuParams;
  struct DropData;
-@@ -296,7 +298,9 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -303,7 +305,9 @@ class CONTENT_EXPORT WebContentsDelegate {
        const std::string& frame_name,
        const GURL& target_url,
        const std::string& partition_id,

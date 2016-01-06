@@ -49,7 +49,7 @@ struct ParamTraits<net::UploadElement> {
       default: {
         DCHECK(type == net::UploadElement::TYPE_FILE);
         base::FilePath file_path;
-        uint64 offset, length;
+        uint64_t offset, length;
         base::Time expected_modification_time;
         if (!ReadParam(m, iter, &file_path))
           return false;
@@ -94,7 +94,7 @@ bool ParamTraits<scoped_refptr<net::UploadData> >::Read(
   ScopedVector<net::UploadElement> elements;
   if (!ReadParam(m, iter, &elements))
     return false;
-  int64 identifier;
+  int64_t identifier;
   if (!ReadParam(m, iter, &identifier))
     return false;
   bool is_chunked = false;

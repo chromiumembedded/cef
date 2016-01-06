@@ -26,13 +26,13 @@ index 87b5b9e..8e6dfff 100644
  
  SpellcheckServiceFactory::SpellcheckServiceFactory()
 diff --git spellcheck_factory.h spellcheck_factory.h
-index 7cdf471..d52b881 100644
+index e8eb9f7..48126000 100644
 --- spellcheck_factory.h
 +++ spellcheck_factory.h
 @@ -7,7 +7,7 @@
  
- #include "base/basictypes.h"
  #include "base/gtest_prod_util.h"
+ #include "base/macros.h"
 -#include "base/memory/singleton.h"
 +#include "base/lazy_instance.h"
  #include "components/keyed_service/content/browser_context_keyed_service_factory.h"

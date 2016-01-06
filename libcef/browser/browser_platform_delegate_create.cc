@@ -4,6 +4,10 @@
 
 #include "libcef/browser/browser_platform_delegate.h"
 
+#include <utility>
+
+#include "build/build_config.h"
+
 #if defined(OS_WIN)
 #include "libcef/browser/native/browser_platform_delegate_native_win.h"
 #include "libcef/browser/osr/browser_platform_delegate_osr_win.h"
@@ -35,13 +39,13 @@ scoped_ptr<CefBrowserPlatformDelegateOsr> CreateOSRDelegate(
     scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate) {
 #if defined(OS_WIN)
   return make_scoped_ptr(
-        new CefBrowserPlatformDelegateOsrWin(native_delegate.Pass()));
+        new CefBrowserPlatformDelegateOsrWin(std::move(native_delegate)));
 #elif defined(OS_MACOSX)
   return make_scoped_ptr(
-        new CefBrowserPlatformDelegateOsrMac(native_delegate.Pass()));
+        new CefBrowserPlatformDelegateOsrMac(std::move(native_delegate)));
 #elif defined(OS_LINUX)
   return make_scoped_ptr(
-        new CefBrowserPlatformDelegateOsrLinux(native_delegate.Pass()));
+        new CefBrowserPlatformDelegateOsrLinux(std::move(native_delegate)));
 #endif
 }
 
@@ -56,7 +60,7 @@ scoped_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
       CreateNativeDelegate(window_info);
   if (window_info.windowless_rendering_enabled &&
       client->GetRenderHandler().get()) {
-    return CreateOSRDelegate(native_delegate.Pass());
+    return CreateOSRDelegate(std::move(native_delegate));
   }
-  return native_delegate.Pass();
+  return std::move(native_delegate);
 }

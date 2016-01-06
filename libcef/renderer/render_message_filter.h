@@ -6,7 +6,10 @@
 #ifndef CEF_LIBCEF_RENDERER_RENDER_MESSAGE_FILTER_H_
 #define CEF_LIBCEF_RENDERER_RENDER_MESSAGE_FILTER_H_
 
+#include <stdint.h>
+
 #include <string>
+
 #include "ipc/ipc_channel_proxy.h"
 #include "ipc/message_filter.h"
 
@@ -24,10 +27,10 @@ class CefRenderMessageFilter : public IPC::MessageFilter {
  private:
   // Message handlers called on the IO thread.
   void OnDevToolsAgentAttach(const std::string& host_id, int session_id);
-  void OnDevToolsAgentDetach(int32 routing_id);
+  void OnDevToolsAgentDetach(int32_t routing_id);
 
   void OnDevToolsAgentAttach_RT();
-  void OnDevToolsAgentDetach_RT(int32 routing_id);
+  void OnDevToolsAgentDetach_RT(int32_t routing_id);
 
   IPC::Sender* sender_;
 

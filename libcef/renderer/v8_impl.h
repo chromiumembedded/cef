@@ -205,12 +205,14 @@ class CefV8ValueImpl : public CefV8Value {
  public:
   explicit CefV8ValueImpl(v8::Isolate* isolate);
   CefV8ValueImpl(v8::Isolate* isolate,
+                 v8::Local<v8::Context> context,
                  v8::Local<v8::Value> value);
   ~CefV8ValueImpl() override;
 
   // Used for initializing the CefV8ValueImpl. Should be called a single time
   // after the CefV8ValueImpl is created.
-  void InitFromV8Value(v8::Local<v8::Value> value);
+  void InitFromV8Value(v8::Local<v8::Context> context,
+                       v8::Local<v8::Value> value);
   void InitUndefined();
   void InitNull();
   void InitBool(bool value);
@@ -279,7 +281,7 @@ class CefV8ValueImpl : public CefV8Value {
 
  protected:
   // Test for and record any exception.
-  bool HasCaught(v8::TryCatch& try_catch);
+  bool HasCaught(v8::Local<v8::Context> context, v8::TryCatch& try_catch);
 
   class Handle : public CefV8HandleBase {
    public:
@@ -302,7 +304,7 @@ class CefV8ValueImpl : public CefV8Value {
 
    private:
     // Callback for weak persistent reference destruction.
-    static void Destructor(const v8::WeakCallbackData<v8::Value, Handle>& data);
+    static void Destructor(const v8::WeakCallbackInfo<Handle>& data);
 
     persistentType handle_;
 

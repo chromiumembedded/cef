@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_NET_NETWORK_DELEGATE_H_
 #pragma once
 
+#include "base/macros.h"
 #include "net/base/network_delegate_impl.h"
 
 // Used for intercepting resource requests, redirects and responses. The single

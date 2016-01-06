@@ -13,9 +13,10 @@
 #include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/net/url_request_context_getter_impl.h"
 
-#include "base/compiler_specific.h"
+#include "base/macros.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
+#include "build/build_config.h"
 #include "content/public/browser/content_browser_client.h"
 #include "third_party/skia/include/core/SkColor.h"
 

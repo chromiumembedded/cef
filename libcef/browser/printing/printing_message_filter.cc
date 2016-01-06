@@ -5,6 +5,7 @@
 #include "libcef/browser/printing/printing_message_filter.h"
 
 #include <string>
+#include <utility>
 
 #include "base/bind.h"
 #include "chrome/browser/browser_process.h"
@@ -204,7 +205,7 @@ void PrintingMessageFilter::OnUpdatePrintSettings(
     printer_query = queue_->CreatePrinterQuery(host_id, routing_id);
   }
   printer_query->SetSettings(
-      new_settings.Pass(),
+      std::move(new_settings),
       base::Bind(&PrintingMessageFilter::OnUpdatePrintSettingsReply, this,
                  printer_query, reply_msg));
 }
@@ -237,7 +238,7 @@ void PrintingMessageFilter::OnUpdatePrintSettingsReply(
   }
 }
 
-void PrintingMessageFilter::OnCheckForCancel(int32 preview_ui_id,
+void PrintingMessageFilter::OnCheckForCancel(int32_t preview_ui_id,
                                              int preview_request_id,
                                              bool* cancel) {
   *cancel = false;

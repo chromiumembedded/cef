@@ -24,6 +24,28 @@ void CreateTemporaryFileOnFileThread(
   message_loop_proxy->PostTask(FROM_HERE, base::Bind(callback, file_path));
 }
 
+// Release the wrapped callback object after completion.
+class CefCompletionCallbackWrapper : public CefCompletionCallback {
+ public:
+  explicit CefCompletionCallbackWrapper(
+      CefRefPtr<CefCompletionCallback> callback)
+      : callback_(callback) {
+  }
+
+  void OnComplete() override {
+    if (callback_) {
+      callback_->OnComplete();
+      callback_ = nullptr;
+    }
+  }
+
+ private:
+  CefRefPtr<CefCompletionCallback> callback_;
+
+  IMPLEMENT_REFCOUNTING(CefCompletionCallbackWrapper);
+  DISALLOW_COPY_AND_ASSIGN(CefCompletionCallbackWrapper);
+};
+
 }  // namespace
 
 using content::TracingController;
@@ -52,6 +74,9 @@ bool CefTraceSubscriber::BeginTracing(
 
   TracingController::StartTracingDoneCallback done_callback;
   if (callback.get()) {
+    // Work around a bug introduced in http://crbug.com/542390#c22 that keeps a
+    // reference to |done_callback| after execution.
+    callback = new CefCompletionCallbackWrapper(callback);
     done_callback =
         base::Bind(&CefCompletionCallback::OnComplete, callback.get());
   }

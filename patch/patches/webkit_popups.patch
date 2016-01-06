@@ -1,8 +1,8 @@
 diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
-index 5488a95..18c184f 100644
+index 8a40549..3011ab4 100644
 --- Source/web/ChromeClientImpl.cpp
 +++ Source/web/ChromeClientImpl.cpp
-@@ -821,7 +821,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
+@@ -829,7 +829,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
  PassRefPtrWillBeRawPtr<PopupMenu> ChromeClientImpl::openPopupMenu(LocalFrame& frame, HTMLSelectElement& select)
  {
      notifyPopupOpeningObservers();
@@ -12,10 +12,10 @@ index 5488a95..18c184f 100644
  
      ASSERT(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index 3efbcdf..18f0c9e3 100644
+index a065625..bbd9093 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
-@@ -414,6 +414,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client)
+@@ -476,6 +476,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client)
      , m_enableFakePageScaleAnimationForTesting(false)
      , m_fakePageScaleAnimationPageScaleFactor(0)
      , m_fakePageScaleAnimationUseAnchor(false)
@@ -23,7 +23,20 @@ index 3efbcdf..18f0c9e3 100644
      , m_doingDragAndDrop(false)
      , m_ignoreInputEvents(false)
      , m_compositorDeviceScaleFactorOverride(0)
-@@ -4050,9 +4051,14 @@ void WebViewImpl::pageScaleFactorChanged()
+@@ -2272,12 +2273,6 @@ void WebViewImpl::mouseCaptureLost()
+ 
+ void WebViewImpl::setFocus(bool enable)
+ {
+-    // On Windows, unnecessary setFocus(false) is called if a popup is shown and
+-    // the hotdog menu is clicked.
+-    // TODO(tkent): This should be fixed in Chromium.
+-    if (!enable && m_pagePopup)
+-        return;
+-
+     m_page->focusController().setFocused(enable);
+     if (enable) {
+         m_page->focusController().setActive(true);
+@@ -4151,9 +4146,14 @@ void WebViewImpl::pageScaleFactorChanged()
      m_client->pageScaleFactorChanged();
  }
  
@@ -40,10 +53,10 @@ index 3efbcdf..18f0c9e3 100644
  
  void WebViewImpl::startDragging(LocalFrame* frame,
 diff --git Source/web/WebViewImpl.h Source/web/WebViewImpl.h
-index c4453c1..bb6ee4e 100644
+index 9288a7f..18b0067 100644
 --- Source/web/WebViewImpl.h
 +++ Source/web/WebViewImpl.h
-@@ -395,7 +395,8 @@ public:
+@@ -396,7 +396,8 @@ public:
  
      // Returns true if popup menus should be rendered by the browser, false if
      // they should be rendered by WebKit (which is the default).
@@ -53,7 +66,7 @@ index c4453c1..bb6ee4e 100644
  
      bool shouldAutoResize() const
      {
-@@ -678,6 +679,8 @@ private:
+@@ -691,6 +692,8 @@ private:
      float m_fakePageScaleAnimationPageScaleFactor;
      bool m_fakePageScaleAnimationUseAnchor;
  
@@ -63,7 +76,7 @@ index c4453c1..bb6ee4e 100644
  
      bool m_ignoreInputEvents;
 diff --git public/web/WebView.h public/web/WebView.h
-index 843f633..f922327 100644
+index e21137b..e435d73 100644
 --- public/web/WebView.h
 +++ public/web/WebView.h
 @@ -411,6 +411,7 @@ public:

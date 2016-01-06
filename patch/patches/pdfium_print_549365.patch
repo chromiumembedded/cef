@@ -1,16 +1,16 @@
 diff --git fpdfsdk/src/fpdfview.cpp fpdfsdk/src/fpdfview.cpp
-index fcb6731..0c92fe5 100644
+index 041adda..407cbba 100644
 --- fpdfsdk/src/fpdfview.cpp
 +++ fpdfsdk/src/fpdfview.cpp
-@@ -12,6 +12,7 @@
+@@ -14,6 +14,7 @@
  #include "fpdfsdk/include/fsdk_mgr.h"
  #include "fpdfsdk/include/fsdk_rendercontext.h"
  #include "fpdfsdk/include/javascript/IJavaScript.h"
 +#include "fpdfsdk/include/jsapi/fxjs_v8.h"
  #include "public/fpdf_ext.h"
  #include "public/fpdf_progressive.h"
- #include "third_party/base/nonstd_unique_ptr.h"
-@@ -117,6 +118,7 @@ DLLEXPORT void STDCALL FPDF_InitLibraryWithConfig(
+ #include "third_party/base/numerics/safe_conversions_impl.h"
+@@ -116,6 +117,7 @@ DLLEXPORT void STDCALL FPDF_InitLibraryWithConfig(
  DLLEXPORT void STDCALL FPDF_DestroyLibrary() {
    CPDF_ModuleMgr::Destroy();
    CFX_GEModule::Destroy();

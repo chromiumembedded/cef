@@ -5,6 +5,8 @@
 
 #include "libcef/common/extensions/extensions_client.h"
 
+#include <utility>
+
 #include "libcef/common/cef_switches.h"
 
 #include "base/lazy_instance.h"
@@ -118,7 +120,7 @@ scoped_ptr<FeatureProvider> CefExtensionsClient::CreateFeatureProvider(
   } else {
     NOTREACHED();
   }
-  return provider.Pass();
+  return provider;
 }
 
 scoped_ptr<JSONFeatureProviderSource>
@@ -142,7 +144,7 @@ CefExtensionsClient::CreateFeatureProviderSource(
     NOTREACHED();
     source.reset();
   }
-  return source.Pass();
+  return source;
 }
 
 void CefExtensionsClient::FilterHostPermissions(

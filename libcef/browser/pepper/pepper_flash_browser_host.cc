@@ -5,6 +5,7 @@
 #include "libcef/browser/pepper/pepper_flash_browser_host.h"
 
 #include "base/time/time.h"
+#include "build/build_config.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_ppapi_host.h"
 #include "content/public/browser/browser_thread.h"

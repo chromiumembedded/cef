@@ -1,8 +1,8 @@
 diff --git pepper_flash.cc pepper_flash.cc
-index 16b4328..63b21c1 100644
+index 3b6cbd9..d4ba7ed 100644
 --- pepper_flash.cc
 +++ pepper_flash.cc
-@@ -119,8 +119,15 @@ bool CheckPepperFlashManifest(const base::DictionaryValue& manifest,
+@@ -121,8 +121,15 @@ bool CheckPepperFlashManifest(const base::DictionaryValue& manifest,
  
    std::string arch;
    manifest.GetStringASCII("x-ppapi-arch", &arch);

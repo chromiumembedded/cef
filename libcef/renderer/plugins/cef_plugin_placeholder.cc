@@ -4,6 +4,8 @@
 
 #include "libcef/renderer/plugins/cef_plugin_placeholder.h"
 
+#include <utility>
+
 #include "libcef/common/cef_messages.h"
 #include "libcef/renderer/content_renderer_client.h"
 #include "libcef/renderer/plugins/plugin_preroller.h"
@@ -95,7 +97,7 @@ CefPluginPlaceholder* CefPluginPlaceholder::CreateBlockedPlugin(
     const base::string16& name,
     int template_id,
     const base::string16& message,
-    const PlaceholderPosterInfo& poster_info) {
+    const PowerSaverInfo& power_saver_info) {
   base::DictionaryValue values;
   values.SetString("message", message);
   values.SetString("name", name);
@@ -106,16 +108,17 @@ CefPluginPlaceholder* CefPluginPlaceholder::CreateBlockedPlugin(
                        ? "document"
                        : "embedded");
 
-  if (!poster_info.poster_attribute.empty()) {
-    values.SetString("poster", poster_info.poster_attribute);
-    values.SetString("baseurl", poster_info.base_url.spec());
+  if (!power_saver_info.poster_attribute.empty()) {
+    values.SetString("poster", power_saver_info.poster_attribute);
+    values.SetString("baseurl", power_saver_info.base_url.spec());
 
-    if (!poster_info.custom_poster_size.IsEmpty()) {
+    if (!power_saver_info.custom_poster_size.IsEmpty()) {
       float zoom_factor =
           blink::WebView::zoomLevelToZoomFactor(frame->view()->zoomLevel());
-      int width = roundf(poster_info.custom_poster_size.width() / zoom_factor);
+      int width =
+          roundf(power_saver_info.custom_poster_size.width() / zoom_factor);
       int height =
-          roundf(poster_info.custom_poster_size.height() / zoom_factor);
+          roundf(power_saver_info.custom_poster_size.height() / zoom_factor);
       values.SetString("visibleWidth", base::IntToString(width) + "px");
       values.SetString("visibleHeight", base::IntToString(height) + "px");
     }
@@ -132,10 +135,15 @@ CefPluginPlaceholder* CefPluginPlaceholder::CreateBlockedPlugin(
   CefPluginPlaceholder* blocked_plugin = new CefPluginPlaceholder(
       render_frame, frame, params, html_data, name);
 
-  if (!poster_info.poster_attribute.empty())
+  if (!power_saver_info.poster_attribute.empty())
     blocked_plugin->BlockForPowerSaverPoster();
   blocked_plugin->SetPluginInfo(info);
   blocked_plugin->SetIdentifier(identifier);
+
+  blocked_plugin->set_power_saver_enabled(power_saver_info.power_saver_enabled);
+  blocked_plugin->set_blocked_for_background_tab(
+      power_saver_info.blocked_for_background_tab);
+
   return blocked_plugin;
 }
 
@@ -271,7 +279,7 @@ blink::WebPlugin* CefPluginPlaceholder::CreatePlugin() {
         throttler.get());
   }
   return render_frame()->CreatePlugin(GetFrame(), GetPluginInfo(),
-                                      GetPluginParams(), throttler.Pass());
+                                      GetPluginParams(), std::move(throttler));
 }
 
 gin::ObjectTemplateBuilder CefPluginPlaceholder::GetObjectTemplateBuilder(

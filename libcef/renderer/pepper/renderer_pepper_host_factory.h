@@ -5,8 +5,7 @@
 #ifndef LIBCEF_RENDERER_PEPPER_RENDERER_PEPPER_HOST_FACTORY_H_
 #define LIBCEF_RENDERER_PEPPER_RENDERER_PEPPER_HOST_FACTORY_H_
 
-#include "base/basictypes.h"
-#include "base/compiler_specific.h"
+#include "base/macros.h"
 #include "ppapi/host/host_factory.h"
 
 namespace content {

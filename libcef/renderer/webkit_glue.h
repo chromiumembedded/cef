@@ -6,8 +6,10 @@
 #ifndef CEF_LIBCEF_RENDERER_WEBKIT_GLUE_H_
 #define CEF_LIBCEF_RENDERER_WEBKIT_GLUE_H_
 
+#include <stdint.h>
+
 #include <string>
-#include "base/basictypes.h"
+
 #include "third_party/skia/include/core/SkColor.h"
 
 #include "include/internal/cef_types.h"
@@ -21,7 +23,7 @@ class WebView;
 
 namespace webkit_glue {
 
-extern const int64 kInvalidFrameId;
+extern const int64_t kInvalidFrameId;
 
 bool CanGoBack(blink::WebView* view);
 bool CanGoForward(blink::WebView* view);
@@ -37,7 +39,7 @@ blink::WebString GetNodeName(const blink::WebNode& node);
 blink::WebString CreateNodeMarkup(const blink::WebNode& node);
 bool SetNodeValue(blink::WebNode& node, const blink::WebString& value);
 
-int64 GetIdentifier(blink::WebFrame* frame);
+int64_t GetIdentifier(blink::WebFrame* frame);
 
 // Find the frame with the specified |unique_name| relative to
 // |relative_to_frame| in the frame hierarchy.

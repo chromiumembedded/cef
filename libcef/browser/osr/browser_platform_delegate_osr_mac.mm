@@ -4,12 +4,14 @@
 
 #include "libcef/browser/osr/browser_platform_delegate_osr_mac.h"
 
+#include <utility>
+
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
 
 CefBrowserPlatformDelegateOsrMac::CefBrowserPlatformDelegateOsrMac(
     scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate)
-    : CefBrowserPlatformDelegateOsr(native_delegate.Pass()) {
+    : CefBrowserPlatformDelegateOsr(std::move(native_delegate)) {
 }
 
 CefWindowHandle CefBrowserPlatformDelegateOsrMac::GetHostWindowHandle() const {

@@ -6,6 +6,8 @@
 // IPC messages for CEF.
 // Multiply-included message file, hence no include guard.
 
+#include <stdint.h>
+
 #include "libcef/common/net/upload_data.h"
 
 #include "base/memory/shared_memory.h"
@@ -63,7 +65,7 @@ IPC_STRUCT_BEGIN(Cef_Request_Params)
   IPC_STRUCT_MEMBER(int, request_id)
 
   // Unique id of the target frame. -1 if unknown / invalid.
-  IPC_STRUCT_MEMBER(int64, frame_id)
+  IPC_STRUCT_MEMBER(int64_t, frame_id)
 
   // True if the request is user-initiated instead of internal.
   IPC_STRUCT_MEMBER(bool, user_initiated)
@@ -126,7 +128,7 @@ IPC_STRUCT_BEGIN(CefMsg_LoadRequest_Params)
 
   // Identifies the frame within the RenderView that sent the request.
   // -1 if unknown / invalid.
-  IPC_STRUCT_MEMBER(int64, frame_id)
+  IPC_STRUCT_MEMBER(int64_t, frame_id)
 
   // Usually the URL of the document in the top-level window, which may be
   // checked by the third-party cookie blocking policy. Leaving it empty may
@@ -251,13 +253,13 @@ IPC_SYNC_MESSAGE_CONTROL1_3(
 
 // Sent when a frame is identified for the first time.
 IPC_MESSAGE_ROUTED3(CefHostMsg_FrameIdentified,
-                    int64 /* frame_id */,
-                    int64 /* parent_frame_id */,
+                    int64_t /* frame_id */,
+                    int64_t /* parent_frame_id */,
                     base::string16 /* frame_name */)
 
 // Sent when a frame has finished loading. Based on ViewHostMsg_DidFinishLoad.
 IPC_MESSAGE_ROUTED4(CefHostMsg_DidFinishLoad,
-                    int64 /* frame_id */,
+                    int64_t /* frame_id */,
                     GURL /* validated_url */,
                     bool /* is_main_frame */,
                     int /* http_status_code */)

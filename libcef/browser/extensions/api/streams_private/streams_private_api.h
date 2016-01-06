@@ -5,6 +5,8 @@
 #ifndef CEF_LIBCEF_BROWSER_EXTENSIONS_API_STREAMS_PRIVATE_STREAMS_PRIVATE_API_H_
 #define CEF_LIBCEF_BROWSER_EXTENSIONS_API_STREAMS_PRIVATE_STREAMS_PRIVATE_API_H_
 
+#include <stdint.h>
+
 #include <map>
 #include <string>
 
@@ -41,7 +43,7 @@ class StreamsPrivateAPI : public BrowserContextKeyedAPI,
                               int tab_id,
                               scoped_ptr<content::StreamInfo> stream,
                               const std::string& view_id,
-                              int64 expected_content_size,
+                              int64_t expected_content_size,
                               bool embedded,
                               int render_process_id,
                               int render_frame_id);

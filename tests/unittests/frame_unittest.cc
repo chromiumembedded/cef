@@ -245,7 +245,7 @@ class FrameNavExpectationsFactoryBrowser : public FrameNavExpectationsFactory {
     scoped_ptr<FrameNavExpectationsBrowser> expectations;
     expectations = Create(nav);
     expectations->set_completion_callback(completion_callback);
-    return expectations.Pass();
+    return expectations;
   }
 
  protected:
@@ -268,7 +268,7 @@ class FrameNavExpectationsFactoryRenderer : public FrameNavExpectationsFactory {
     scoped_ptr<FrameNavExpectationsRenderer> expectations;
     expectations = Create(nav);
     expectations->set_completion_callback(completion_callback);
-    return expectations.Pass();
+    return expectations;
   }
 
  protected:
@@ -2298,7 +2298,7 @@ scoped_ptr<FrameNavExpectationsFactoryBrowser>
   }
   EXPECT_TRUE(factory);
   EXPECT_EQ(id, factory->GetID());
-  return factory.Pass();
+  return factory;
 }
 
 // static
@@ -2332,7 +2332,7 @@ scoped_ptr<FrameNavExpectationsFactoryRenderer>
   }
   EXPECT_TRUE(factory);
   EXPECT_EQ(id, factory->GetID());
-  return factory.Pass();
+  return factory;
 }
 
 }  // namespace

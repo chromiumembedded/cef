@@ -8,8 +8,9 @@
 
 #include "libcef/browser/menu_runner.h"
 
+#include "libcef/browser/native/native_menu_win.h"
+
 #include "base/memory/scoped_ptr.h"
-#include "ui/views/controls/menu/native_menu_win.h"
 
 class CefMenuRunnerWin : public CefMenuRunner {
  public:

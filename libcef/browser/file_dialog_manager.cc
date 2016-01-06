@@ -5,6 +5,8 @@
 
 #include "libcef/browser/file_dialog_manager.h"
 
+#include <utility>
+
 #include "include/cef_dialog_handler.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/thread_util.h"
@@ -153,7 +155,7 @@ CefFileDialogManager::CefFileDialogManager(
     scoped_ptr<CefFileDialogRunner> runner)
     : content::WebContentsObserver(browser->web_contents()),
       browser_(browser),
-      runner_(runner.Pass()),
+      runner_(std::move(runner)),
       file_chooser_pending_(false),
       weak_ptr_factory_(this) {
   DCHECK(web_contents());

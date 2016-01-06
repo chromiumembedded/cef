@@ -1,8 +1,8 @@
 diff --git hwnd_message_handler.cc hwnd_message_handler.cc
-index b5bd8a8..997c4da 100644
+index 86ed8f8..8fb17b5 100644
 --- hwnd_message_handler.cc
 +++ hwnd_message_handler.cc
-@@ -2381,8 +2381,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -2382,8 +2382,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
      active_mouse_tracking_flags_ = 0;
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      // Reroute the mouse wheel to the window under the pointer if applicable.

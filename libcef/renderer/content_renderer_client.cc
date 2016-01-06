@@ -5,6 +5,8 @@
 
 #include "libcef/renderer/content_renderer_client.h"
 
+#include <utility>
+
 #include "libcef/browser/context.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
@@ -28,11 +30,13 @@
 #include "libcef/renderer/webkit_glue.h"
 
 #include "base/command_line.h"
+#include "base/macros.h"
 #include "base/metrics/user_metrics_action.h"
 #include "base/path_service.h"
 #include "base/stl_util.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/utf_string_conversions.h"
+#include "build/build_config.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pepper_permission_util.h"
 #include "chrome/common/url_constants.h"
@@ -40,13 +44,13 @@
 #include "chrome/renderer/content_settings_observer.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
 #include "chrome/renderer/pepper/chrome_pdf_print_client.h"
+#include "chrome/renderer/plugins/power_saver_info.h"
 #include "chrome/renderer/spellchecker/spellcheck.h"
 #include "chrome/renderer/spellchecker/spellcheck_provider.h"
 #include "components/content_settings/core/common/content_settings_types.h"
 #include "components/nacl/common/nacl_constants.h"
 #include "components/printing/renderer/print_web_view_helper.h"
 #include "components/web_cache/renderer/web_cache_render_process_observer.h"
-#include "content/child/worker_task_runner.h"
 #include "content/common/frame_messages.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_process_host.h"
@@ -133,19 +137,6 @@ void AppendParams(const std::vector<base::string16>& additional_names,
 
   existing_names->swap(names);
   existing_values->swap(values);
-}
-
-std::string GetPluginInstancePosterAttribute(
-    const blink::WebPluginParams& params) {
-  DCHECK_EQ(params.attributeNames.size(), params.attributeValues.size());
-
-  for (size_t i = 0; i < params.attributeNames.size(); ++i) {
-    if (params.attributeNames[i].utf8() == "poster" &&
-        !params.attributeValues[i].isEmpty()) {
-      return params.attributeValues[i].utf8();
-    }
-  }
-  return std::string();
 }
 
 }  // namespace
@@ -676,14 +667,13 @@ blink::WebPlugin* CefContentRendererClient::CreatePlugin(
       params.mimeType = blink::WebString::fromUTF8(actual_mime_type.c_str());
     }
 
-    base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-    auto create_blocked_plugin =
-        [&render_frame, &frame, &params, &info, &identifier, &group_name](
-            int template_id, const base::string16& message) {
-          return CefPluginPlaceholder::CreateBlockedPlugin(
-              render_frame, frame, params, info, identifier, group_name,
-              template_id, message, PlaceholderPosterInfo());
-        };
+    auto create_blocked_plugin = [&render_frame, &frame, &params, &info,
+                                  &identifier, &group_name](
+        int template_id, const base::string16& message) {
+      return CefPluginPlaceholder::CreateBlockedPlugin(
+          render_frame, frame, params, info, identifier, group_name,
+          template_id, message, PowerSaverInfo());
+    };
     switch (status) {
       case CefViewHostMsg_GetPluginInfo_Status::kNotFound: {
         NOTREACHED();
@@ -696,52 +686,29 @@ blink::WebPlugin* CefContentRendererClient::CreatePlugin(
         //                CefContentRendererClient::CreatePlugin instead, to
         //                reduce the chance of future regressions.
         bool is_prerendering = false;
-        bool is_flash =
-            info.name == base::ASCIIToUTF16(content::kFlashPluginName);
-
-        std::string override_for_testing = command_line->GetSwitchValueASCII(
-            switches::kOverridePluginPowerSaverForTesting);
-
-        // This feature has only been tested throughly with Flash thus far.
-        // It is also enabled for the Power Saver test plugin for browser tests.
-        bool can_throttle_plugin_type =
-            is_flash || override_for_testing == "ignore-list";
-
         bool power_saver_setting_on =
             status ==
             CefViewHostMsg_GetPluginInfo_Status::kPlayImportantContent;
 
-        bool power_saver_enabled =
-            override_for_testing == "always" ||
-            (power_saver_setting_on && can_throttle_plugin_type);
-        bool blocked_for_background_tab =
-            power_saver_enabled && render_frame->IsHidden();
-
-        PlaceholderPosterInfo poster_info;
-        if (power_saver_enabled) {
-          poster_info.poster_attribute =
-              GetPluginInstancePosterAttribute(params);
-          poster_info.base_url = frame->document().url();
-        }
-
-        if (blocked_for_background_tab || is_prerendering ||
-            !poster_info.poster_attribute.empty()) {
+        PowerSaverInfo power_saver_info =
+            PowerSaverInfo::Get(render_frame, power_saver_setting_on, params,
+                                info, frame->document().url());
+        if (power_saver_info.blocked_for_background_tab || is_prerendering ||
+            !power_saver_info.poster_attribute.empty()) {
           placeholder = CefPluginPlaceholder::CreateBlockedPlugin(
               render_frame, frame, params, info, identifier, group_name,
-              poster_info.poster_attribute.empty() ? IDR_BLOCKED_PLUGIN_HTML
-                                                   : IDR_PLUGIN_POSTER_HTML,
+              power_saver_info.poster_attribute.empty()
+                  ? IDR_BLOCKED_PLUGIN_HTML
+                  : IDR_PLUGIN_POSTER_HTML,
               l10n_util::GetStringFUTF16(IDS_PLUGIN_BLOCKED, group_name),
-              poster_info);
-          placeholder->set_blocked_for_background_tab(
-              blocked_for_background_tab);
+              power_saver_info);
           placeholder->set_blocked_for_prerendering(is_prerendering);
-          placeholder->set_power_saver_enabled(power_saver_enabled);
           placeholder->AllowLoading();
           break;
         }
 
         scoped_ptr<content::PluginInstanceThrottler> throttler;
-        if (power_saver_enabled) {
+        if (power_saver_info.power_saver_enabled) {
           throttler = content::PluginInstanceThrottler::Create();
           // PluginPreroller manages its own lifetime.
           new CefPluginPreroller(
@@ -751,7 +718,7 @@ blink::WebPlugin* CefContentRendererClient::CreatePlugin(
         }
 
         return render_frame->CreatePlugin(frame, info, params,
-                                          throttler.Pass());
+                                          std::move(throttler));
       }
       case CefViewHostMsg_GetPluginInfo_Status::kNPAPINotSupported: {
         content::RenderThread::Get()->RecordAction(
@@ -815,6 +782,9 @@ blink::WebPlugin* CefContentRendererClient::CreatePlugin(
 void CefContentRendererClient::BrowserCreated(
     content::RenderView* render_view,
     content::RenderFrame* render_frame) {
+  if (!render_view || !render_frame)
+    return;
+
   // Swapped out RenderWidgets will be created in the parent/owner process for
   // frames that are hosted in a separate process (e.g. guest views or OOP
   // frames). Don't create any CEF objects for swapped out RenderWidgets.

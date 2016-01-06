@@ -6,6 +6,8 @@
 #define CEF_LIBCEF_BROWSER_PRINTING_PRINT_VIEW_MANAGER_H_
 
 #include "libcef/browser/printing/print_view_manager_base.h"
+
+#include "base/macros.h"
 #include "content/public/browser/web_contents_user_data.h"
 
 struct PrintHostMsg_DidPreviewDocument_Params;

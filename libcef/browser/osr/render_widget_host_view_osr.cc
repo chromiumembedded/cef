@@ -5,6 +5,10 @@
 
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
 
+#include <stdint.h>
+
+#include <utility>
+
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/osr/osr_util.h"
 #include "libcef/browser/osr/software_output_device_osr.h"
@@ -155,7 +159,7 @@ class CefCopyFrameGenerator {
     frame_in_progress_ = true;
 
     // Don't exceed the frame rate threshold.
-    const int64 frame_rate_delta =
+    const int64_t frame_rate_delta =
         (base::TimeTicks::Now() - frame_start_time_).InMilliseconds();
     if (frame_rate_delta < frame_rate_threshold_ms_) {
       // Generate the frame after the necessary time has passed.
@@ -196,7 +200,8 @@ class CefCopyFrameGenerator {
             damage_rect));
 
     request->set_area(gfx::Rect(view_->GetPhysicalBackingSize()));
-    view_->DelegatedFrameHostGetLayer()->RequestCopyOfOutput(request.Pass());
+    view_->DelegatedFrameHostGetLayer()->RequestCopyOfOutput(
+        std::move(request));
   }
 
   void CopyFromCompositingSurfaceHasResult(
@@ -209,12 +214,12 @@ class CefCopyFrameGenerator {
     }
 
     if (result->HasTexture()) {
-      PrepareTextureCopyOutputResult(damage_rect, result.Pass());
+      PrepareTextureCopyOutputResult(damage_rect, std::move(result));
       return;
     }
 
     DCHECK(result->HasBitmap());
-    PrepareBitmapCopyOutputResult(damage_rect, result.Pass());
+    PrepareBitmapCopyOutputResult(damage_rect, std::move(result));
   }
 
   void PrepareTextureCopyOutputResult(
@@ -251,7 +256,7 @@ class CefCopyFrameGenerator {
 
     scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock(
         new SkAutoLockPixels(*bitmap_));
-    uint8* pixels = static_cast<uint8*>(bitmap_->getPixels());
+    uint8_t* pixels = static_cast<uint8_t*>(bitmap_->getPixels());
 
     cc::TextureMailbox texture_mailbox;
     scoped_ptr<cc::SingleReleaseCallback> release_callback;
@@ -300,7 +305,8 @@ class CefCopyFrameGenerator {
 
     if (generator) {
       generator->CopyFromCompositingSurfaceFinished(
-          damage_rect, bitmap.Pass(), bitmap_pixels_lock.Pass(), result);
+          damage_rect, std::move(bitmap), std::move(bitmap_pixels_lock),
+          result);
     } else {
       bitmap_pixels_lock.reset();
       bitmap.reset();
@@ -314,11 +320,11 @@ class CefCopyFrameGenerator {
       bool result) {
     // Restore ownership of the bitmap to the view.
     DCHECK(!bitmap_);
-    bitmap_ = bitmap.Pass();
+    bitmap_ = std::move(bitmap);
 
     if (result) {
       OnCopyFrameCaptureSuccess(damage_rect, *bitmap_,
-                                bitmap_pixels_lock.Pass());
+                                std::move(bitmap_pixels_lock));
     } else {
       bitmap_pixels_lock.reset();
       OnCopyFrameCaptureFailure(damage_rect);
@@ -335,7 +341,7 @@ class CefCopyFrameGenerator {
       scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock(
           new SkAutoLockPixels(*source));
       OnCopyFrameCaptureSuccess(damage_rect, *source,
-                                bitmap_pixels_lock.Pass());
+                                std::move(bitmap_pixels_lock));
     } else {
       OnCopyFrameCaptureFailure(damage_rect);
     }
@@ -632,7 +638,7 @@ void CefRenderWidgetHostViewOSR::UnlockMouse() {
 }
 
 void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
-    uint32 output_surface_id,
+    uint32_t output_surface_id,
     scoped_ptr<cc::CompositorFrame> frame) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::OnSwapCompositorFrame");
 
@@ -659,7 +665,7 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
       // The compositor will draw directly to the SoftwareOutputDevice which
       // then calls OnPaint.
       delegated_frame_host_->SwapDelegatedFrame(output_surface_id,
-                                                frame.Pass());
+                                                std::move(frame));
     } else {
       if (!copy_frame_generator_.get()) {
         copy_frame_generator_.reset(
@@ -676,7 +682,7 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
       damage_rect.Intersect(gfx::Rect(frame_size));
 
       delegated_frame_host_->SwapDelegatedFrame(output_surface_id,
-                                                frame.Pass());
+                                                std::move(frame));
 
       // Request a copy of the last compositor frame which will eventually call
       // OnPaint asynchronously.
@@ -869,7 +875,7 @@ bool CefRenderWidgetHostViewOSR::CanCopyToVideoFrame() const {
 
 void CefRenderWidgetHostViewOSR::BeginFrameSubscription(
     scoped_ptr<content::RenderWidgetHostViewFrameSubscriber> subscriber) {
-  delegated_frame_host_->BeginFrameSubscription(subscriber.Pass());
+  delegated_frame_host_->BeginFrameSubscription(std::move(subscriber));
 }
 
 void CefRenderWidgetHostViewOSR::EndFrameSubscription() {
@@ -1428,7 +1434,7 @@ void CefRenderWidgetHostViewOSR::CancelWidget() {
   if (render_widget_host_ && !is_destroyed_) {
     is_destroyed_ = true;
     // Results in a call to Destroy().
-    render_widget_host_->Shutdown();
+    render_widget_host_->ShutdownAndDestroyWidget(true);
   }
 }
 

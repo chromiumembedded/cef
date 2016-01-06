@@ -5,6 +5,7 @@
 #include "libcef/browser/browser_context_impl.h"
 
 #include <map>
+#include <utility>
 
 #include "libcef/browser/browser_context_proxy.h"
 #include "libcef/browser/context.h"
@@ -368,8 +369,8 @@ net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
       protocol_handlers,
-      proxy_config_service.Pass(),
-      request_interceptors.Pass());
+      std::move(proxy_config_service),
+      std::move(request_interceptors));
   resource_context()->set_url_request_context_getter(url_request_getter_.get());
   return url_request_getter_.get();
 }

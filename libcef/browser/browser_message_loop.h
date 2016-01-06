@@ -6,7 +6,7 @@
 #define CEF_LIBCEF_BROWSER_BROWSER_MESSAGE_LOOP_H_
 #pragma once
 
-#include "base/basictypes.h"
+#include "base/macros.h"
 #include "base/message_loop/message_loop.h"
 
 // Class used to process events on the current message loop.

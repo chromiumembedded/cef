@@ -135,7 +135,7 @@
 // Annotate a function indicating the caller must examine the return value.
 // Use like:
 //   int foo() WARN_UNUSED_RESULT;
-// To explicitly ignore a result, see |ignore_result()| in <base/basictypes.h>.
+// To explicitly ignore a result, see |ignore_result()| in <base/macros.h>.
 #ifndef WARN_UNUSED_RESULT
 #if defined(COMPILER_GCC)
 #define WARN_UNUSED_RESULT __attribute__((warn_unused_result))

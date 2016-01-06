@@ -1,8 +1,8 @@
 diff --git renderer_preferences_util.cc renderer_preferences_util.cc
-index 89b7d77..9996edf 100644
+index a6498fc..4bf2cf91 100644
 --- renderer_preferences_util.cc
 +++ renderer_preferences_util.cc
-@@ -26,7 +26,8 @@
+@@ -27,7 +27,8 @@
  #include "ui/views/controls/textfield/textfield.h"
  #endif
  
@@ -12,7 +12,7 @@ index 89b7d77..9996edf 100644
  #include "chrome/browser/themes/theme_service.h"
  #include "chrome/browser/themes/theme_service_factory.h"
  #include "ui/views/linux_ui/linux_ui.h"
-@@ -94,7 +95,8 @@ void UpdateFromSystemSettings(content::RendererPreferences* prefs,
+@@ -95,7 +96,8 @@ void UpdateFromSystemSettings(content::RendererPreferences* prefs,
    prefs->caret_blink_interval = views::Textfield::GetCaretBlinkMs() / 1000.0;
  #endif
  

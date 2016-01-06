@@ -7,6 +7,8 @@
 #define CEF_LIBCEF_RENDERER_BROWSER_IMPL_H_
 #pragma once
 
+#include <stdint.h>
+
 #include <map>
 #include <string>
 #include <vector>
@@ -89,10 +91,10 @@ class CefBrowserImpl : public CefBrowser,
 
   // Returns the matching CefFrameImpl reference or creates a new one.
   CefRefPtr<CefFrameImpl> GetWebFrameImpl(blink::WebFrame* frame);
-  CefRefPtr<CefFrameImpl> GetWebFrameImpl(int64 frame_id);
+  CefRefPtr<CefFrameImpl> GetWebFrameImpl(int64_t frame_id);
 
   // Frame objects will be deleted immediately before the frame is closed.
-  void AddFrameObject(int64 frame_id, CefTrackNode* tracked_object);
+  void AddFrameObject(int64_t frame_id, CefTrackNode* tracked_object);
 
   int browser_id() const { return browser_id_; }
   bool is_popup() const { return is_popup_; }

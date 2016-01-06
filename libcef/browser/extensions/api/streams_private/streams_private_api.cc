@@ -4,6 +4,9 @@
 
 #include "libcef/browser/extensions/api/streams_private/streams_private_api.h"
 
+#include <limits.h>
+#include <utility>
+
 #include "base/lazy_instance.h"
 #include "base/values.h"
 #include "cef/libcef/common/extensions/api/streams_private.h"
@@ -64,7 +67,7 @@ void StreamsPrivateAPI::ExecuteMimeTypeHandler(
     int tab_id,
     scoped_ptr<content::StreamInfo> stream,
     const std::string& view_id,
-    int64 expected_content_size,
+    int64_t expected_content_size,
     bool embedded,
     int render_process_id,
     int render_frame_id) {
@@ -82,9 +85,9 @@ void StreamsPrivateAPI::ExecuteMimeTypeHandler(
     GURL handler_url(Extension::GetBaseURLFromExtensionId(extension_id).spec() +
                      handler->handler_url());
     scoped_ptr<StreamContainer> stream_container(new StreamContainer(
-        stream.Pass(), tab_id, embedded, handler_url, extension_id));
+        std::move(stream), tab_id, embedded, handler_url, extension_id));
     MimeHandlerStreamManager::Get(browser_context_)
-        ->AddStream(view_id, stream_container.Pass(), render_process_id,
+        ->AddStream(view_id, std::move(stream_container), render_process_id,
                     render_frame_id);
     return;
   }
@@ -114,7 +117,7 @@ void StreamsPrivateAPI::ExecuteMimeTypeHandler(
                 streams_private::OnExecuteMimeTypeHandler::Create(info)));
 
   EventRouter::Get(browser_context_)
-      ->DispatchEventToExtension(extension_id, event.Pass());
+      ->DispatchEventToExtension(extension_id, std::move(event));
 
   GURL url = stream->handle->GetURL();
   streams_[extension_id][url] = make_linked_ptr(stream->handle.release());

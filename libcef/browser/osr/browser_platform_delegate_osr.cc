@@ -4,6 +4,8 @@
 
 #include "libcef/browser/osr/browser_platform_delegate_osr.h"
 
+#include <utility>
+
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
 #include "libcef/browser/osr/web_contents_view_osr.h"
@@ -13,7 +15,7 @@
 
 CefBrowserPlatformDelegateOsr::CefBrowserPlatformDelegateOsr(
     scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate)
-    : native_delegate_(native_delegate.Pass()),
+    : native_delegate_(std::move(native_delegate)),
       view_osr_(nullptr) {
   native_delegate_->set_windowless_handler(this);
 }
@@ -96,7 +98,6 @@ void CefBrowserPlatformDelegateOsr::SendFocusEvent(bool setFocus) {
   if (view)
     view->SendFocusEvent(setFocus);
 }
-
 
 gfx::Point CefBrowserPlatformDelegateOsr::GetScreenPoint(
     const gfx::Point& view) const {

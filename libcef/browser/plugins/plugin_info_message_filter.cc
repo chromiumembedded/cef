@@ -5,6 +5,8 @@
 
 #include "libcef/browser/plugins/plugin_info_message_filter.h"
 
+#include <utility>
+
 #include "libcef/browser/browser_context.h"
 #include "libcef/browser/plugins/plugin_service_filter.h"
 #include "libcef/browser/web_plugin_impl.h"
@@ -16,6 +18,7 @@
 #include "base/metrics/histogram_macros.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/thread_task_runner_handle.h"
+#include "build/build_config.h"
 #include "chrome/browser/plugins/plugin_finder.h"
 #include "chrome/common/pref_names.h"
 #include "components/content_settings/core/browser/content_settings_utils.h"
@@ -533,10 +536,10 @@ void CefPluginInfoMessageFilter::Context::GetPluginContentSetting(
         !legacy_ask_user;
     uses_plugin_specific_setting = specific_setting && !use_policy;
     if (uses_plugin_specific_setting) {
-      value = specific_setting.Pass();
+      value = std::move(specific_setting);
       info = specific_info;
     } else {
-      value = general_setting.Pass();
+      value = std::move(general_setting);
       info = general_info;
     }
   }

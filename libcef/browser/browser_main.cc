@@ -4,6 +4,8 @@
 
 #include "libcef/browser/browser_main.h"
 
+#include <stdint.h>
+
 #include <string>
 
 #include "libcef/browser/browser_context_impl.h"
@@ -155,7 +157,7 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
     int port;
     if (base::StringToInt(port_str, &port) && port > 0 && port < 65535) {
       devtools_delegate_ =
-          new CefDevToolsDelegate(static_cast<uint16>(port));
+          new CefDevToolsDelegate(static_cast<uint16_t>(port));
     } else {
       LOG(WARNING) << "Invalid http debugger port number " << port;
     }

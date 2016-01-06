@@ -6,8 +6,8 @@
 #ifndef CEF_LIBCEF_COMMON_EXTENSIONS_EXTENSIONS_CLIENT_H_
 #define CEF_LIBCEF_COMMON_EXTENSIONS_EXTENSIONS_CLIENT_H_
 
-#include "base/basictypes.h"
 #include "base/compiler_specific.h"
+#include "base/macros.h"
 #include "extensions/common/extensions_client.h"
 #include "extensions/common/permissions/extensions_api_permissions.h"
 

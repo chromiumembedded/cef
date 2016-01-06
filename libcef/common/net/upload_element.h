@@ -5,9 +5,11 @@
 #ifndef CEF_LIBCEF_COMMON_NET_UPLOAD_ELEMENT_H_
 #define CEF_LIBCEF_COMMON_NET_UPLOAD_ELEMENT_H_
 
+#include <stdint.h>
+
+#include <limits>
 #include <vector>
 
-#include "base/basictypes.h"
 #include "base/files/file_path.h"
 #include "base/time/time.h"
 #include "net/base/net_export.h"
@@ -28,10 +30,10 @@ class NET_EXPORT UploadElement {
   Type type() const { return type_; }
 
   const char* bytes() const { return bytes_start_ ? bytes_start_ : &buf_[0]; }
-  uint64 bytes_length() const { return buf_.size() + bytes_length_; }
+  uint64_t bytes_length() const { return buf_.size() + bytes_length_; }
   const base::FilePath& file_path() const { return file_path_; }
-  uint64 file_range_offset() const { return file_range_offset_; }
-  uint64 file_range_length() const { return file_range_length_; }
+  uint64_t file_range_offset() const { return file_range_offset_; }
+  uint64_t file_range_length() const { return file_range_length_; }
   // If NULL time is returned, we do not do the check.
   const base::Time& expected_file_modification_time() const {
     return expected_file_modification_time_;
@@ -52,14 +54,15 @@ class NET_EXPORT UploadElement {
   }
 
   void SetToFilePath(const base::FilePath& path) {
-    SetToFilePathRange(path, 0, kuint64max, base::Time());
+    SetToFilePathRange(path, 0, std::numeric_limits<uint64_t>::max(),
+                       base::Time());
   }
 
   // If expected_modification_time is NULL, we do not check for the file
   // change. Also note that the granularity for comparison is time_t, not
   // the full precision.
   void SetToFilePathRange(const base::FilePath& path,
-                          uint64 offset, uint64 length,
+                          uint64_t offset, uint64_t length,
                           const base::Time& expected_modification_time) {
     type_ = TYPE_FILE;
     file_path_ = path;
@@ -72,10 +75,10 @@ class NET_EXPORT UploadElement {
   Type type_;
   std::vector<char> buf_;
   const char* bytes_start_;
-  uint64 bytes_length_;
+  uint64_t bytes_length_;
   base::FilePath file_path_;
-  uint64 file_range_offset_;
-  uint64 file_range_length_;
+  uint64_t file_range_offset_;
+  uint64_t file_range_length_;
   base::Time expected_file_modification_time_;
 
   DISALLOW_COPY_AND_ASSIGN(UploadElement);

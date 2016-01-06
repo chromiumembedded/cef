@@ -1,8 +1,8 @@
 diff --git message_loop.cc message_loop.cc
-index a0c5f61..a3033dc 100644
+index cfa86d9..6775c3d 100644
 --- message_loop.cc
 +++ message_loop.cc
-@@ -136,12 +136,6 @@ MessageLoop::~MessageLoop() {
+@@ -137,12 +137,6 @@ MessageLoop::~MessageLoop() {
    // bound to a thread.
    DCHECK(current() == this || !current());
  

@@ -5,6 +5,7 @@
 #include "libcef/browser/net/network_delegate.h"
 
 #include <string>
+#include <utility>
 
 #include "include/cef_urlrequest.h"
 #include "libcef/browser/browser_host_impl.h"
@@ -458,7 +459,7 @@ net::Filter* CefNetworkDelegate::SetupFilter(net::URLRequest* request,
       net::Filter* last_filter = filter_list;
       do {
         if (!last_filter->next_filter_.get()) {
-          last_filter->next_filter_ = wrapper.Pass();
+          last_filter->next_filter_ = std::move(wrapper);
           break;
         }
         last_filter = last_filter->next_filter_.get();

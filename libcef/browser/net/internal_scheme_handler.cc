@@ -6,6 +6,7 @@
 #include "libcef/browser/net/internal_scheme_handler.h"
 
 #include <string>
+#include <utility>
 
 #include "libcef/common/content_client.h"
 
@@ -130,7 +131,7 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
  public:
   explicit InternalHandlerFactory(
       scoped_ptr<InternalHandlerDelegate> delegate)
-      : delegate_(delegate.Pass()) {
+      : delegate_(std::move(delegate)) {
   }
 
   CefRefPtr<CefResourceHandler> Create(
@@ -188,7 +189,7 @@ InternalHandlerDelegate::Action::Action()
 CefRefPtr<CefSchemeHandlerFactory> CreateInternalHandlerFactory(
     scoped_ptr<InternalHandlerDelegate> delegate) {
   DCHECK(delegate.get());
-  return new InternalHandlerFactory(delegate.Pass());
+  return new InternalHandlerFactory(std::move(delegate));
 }
 
 }  // namespace scheme

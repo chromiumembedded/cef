@@ -7,7 +7,6 @@
 
 #include <map>
 
-#include "base/basictypes.h"
 #include "base/files/file_path.h"
 #include "extensions/browser/component_extension_resource_manager.h"
 

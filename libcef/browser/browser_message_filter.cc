@@ -103,7 +103,7 @@ void CefBrowserMessageFilter::OnCreateWindow(
   delete reply_msg;
 }
 
-void CefBrowserMessageFilter::OnFrameFocused(int32 render_frame_routing_id) {
+void CefBrowserMessageFilter::OnFrameFocused(int32_t render_frame_routing_id) {
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserMessageFilter::OnFrameFocused, this,

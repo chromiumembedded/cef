@@ -5,6 +5,8 @@
 
 #include "libcef/browser/extensions/extensions_browser_client.h"
 
+#include <utility>
+
 #include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/extensions/component_extension_resource_manager.h"
 #include "libcef/browser/extensions/extension_system_factory.h"
@@ -204,7 +206,7 @@ void CefExtensionsBrowserClient::BroadcastEventToRenderers(
     const std::string& event_name,
     scoped_ptr<base::ListValue> args) {
   event_router_forwarder_->BroadcastEventToRenderers(
-      histogram_value, event_name, args.Pass(), GURL());
+      histogram_value, event_name, std::move(args), GURL());
 }
 
 net::NetLog* CefExtensionsBrowserClient::GetNetLog() {

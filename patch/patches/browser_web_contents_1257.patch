@@ -1,8 +1,8 @@
 diff --git web_contents_impl.cc web_contents_impl.cc
-index 18589f1..85f57e4 100644
+index 88f58a7..9e454db 100644
 --- web_contents_impl.cc
 +++ web_contents_impl.cc
-@@ -1383,30 +1383,38 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1366,32 +1366,40 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
                             main_frame_widget_routing_id);
    frame_tree_.root()->SetFrameName(params.main_frame_name);
  
@@ -12,54 +12,57 @@ index 18589f1..85f57e4 100644
 +    view_.reset(params.view);
 +    render_view_host_delegate_view_ = params.delegate_view;
 +  }
- 
--  view_.reset(
--      CreateWebContentsView(this, delegate, &render_view_host_delegate_view_));
++
 +  if (!view_) {
 +    WebContentsViewDelegate* delegate =
 +        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
- 
--  if (browser_plugin_guest_ &&
--      !BrowserPluginGuestMode::UseCrossProcessFramesForGuests()) {
--    view_.reset(new WebContentsViewGuest(this, browser_plugin_guest_.get(),
--                                         view_.Pass(),
--                                         &render_view_host_delegate_view_));
--  }
-+    view_.reset(
-+        CreateWebContentsView(this, delegate,
-+                              &render_view_host_delegate_view_));
-+
-+    if (browser_plugin_guest_ &&
-+        !BrowserPluginGuestMode::UseCrossProcessFramesForGuests()) {
-+      view_.reset(new WebContentsViewGuest(this, browser_plugin_guest_.get(),
-+                                           view_.Pass(),
-+                                           &render_view_host_delegate_view_));
-+    }
  
  #if defined(MOJO_SHELL_CLIENT)
 -  if (MojoShellConnection::Get() &&
 -      base::CommandLine::ForCurrentProcess()->HasSwitch(
 -          switches::kUseMusInRenderer)) {
--    mus::Window* window = aura::GetMusWindow(params.context);
--    if (window) {
--      view_.reset(new WebContentsViewMus(this, window, view_.Pass(),
+-    mus::Window* mus_window = aura::GetMusWindow(params.context);
+-    if (mus_window) {
+-      view_.reset(new WebContentsViewMus(mus_window, this, delegate,
 -                                         &render_view_host_delegate_view_));
 +    if (MojoShellConnection::Get() &&
 +        base::CommandLine::ForCurrentProcess()->HasSwitch(
 +            switches::kUseMusInRenderer)) {
-+      mus::Window* window = aura::GetMusWindow(params.context);
-+      if (window) {
-+        view_.reset(new WebContentsViewMus(this, window, view_.Pass(),
++      mus::Window* mus_window = aura::GetMusWindow(params.context);
++      if (mus_window) {
++        view_.reset(new WebContentsViewMus(mus_window, this, delegate,
 +                                           &render_view_host_delegate_view_));
 +      }
      }
 -  }
  #endif
-+  }
  
+-  if (!view_) {
+-    view_.reset(CreateWebContentsView(this, delegate,
+-                                      &render_view_host_delegate_view_));
+-  }
++    if (!view_) {
++      view_.reset(CreateWebContentsView(this, delegate,
++                                        &render_view_host_delegate_view_));
++    }
+ 
+-  if (browser_plugin_guest_ &&
+-      !BrowserPluginGuestMode::UseCrossProcessFramesForGuests()) {
+-    view_.reset(new WebContentsViewGuest(this, browser_plugin_guest_.get(),
+-                                         std::move(view_),
+-                                         &render_view_host_delegate_view_));
++    if (browser_plugin_guest_ &&
++        !BrowserPluginGuestMode::UseCrossProcessFramesForGuests()) {
++      view_.reset(new WebContentsViewGuest(this, browser_plugin_guest_.get(),
++                                           std::move(view_),
++                                           &render_view_host_delegate_view_));
++    }
+   }
++
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
-@@ -1810,11 +1818,14 @@ void WebContentsImpl::CreateNewWindow(
+ 
+@@ -1806,11 +1814,14 @@ void WebContentsImpl::CreateNewWindow(
        static_cast<SessionStorageNamespaceImpl*>(session_storage_namespace);
    CHECK(session_storage_namespace_impl->IsFromContext(dom_storage_context));
  
@@ -75,7 +78,7 @@ index 18589f1..85f57e4 100644
      if (route_id != MSG_ROUTING_NONE &&
          !RenderViewHost::FromID(render_process_id, route_id)) {
        // If the embedder didn't create a WebContents for this route, we need to
-@@ -1839,6 +1850,8 @@ void WebContentsImpl::CreateNewWindow(
+@@ -1831,6 +1842,8 @@ void WebContentsImpl::CreateNewWindow(
    create_params.opener_render_process_id = render_process_id;
    create_params.opener_render_frame_id = params.opener_render_frame_id;
    create_params.opener_suppressed = params.opener_suppressed;

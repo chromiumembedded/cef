@@ -5,6 +5,7 @@
 #include "libcef/browser/content_browser_client.h"
 
 #include <algorithm>
+#include <utility>
 
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_info_manager.h"
@@ -515,7 +516,7 @@ net::URLRequestContextGetter* CefContentBrowserClient::CreateRequestContext(
 
   return context->CreateRequestContext(
       protocol_handlers,
-      request_interceptors.Pass());
+      std::move(request_interceptors));
 }
 
 net::URLRequestContextGetter*
@@ -531,7 +532,7 @@ CefContentBrowserClient::CreateRequestContextForStoragePartition(
       partition_path,
       in_memory,
       protocol_handlers,
-      request_interceptors.Pass());
+      std::move(request_interceptors));
 }
 
 bool CefContentBrowserClient::IsHandledURL(const GURL& url) {
@@ -847,7 +848,7 @@ CefContentBrowserClient::CreateThrottlesForNavigation(
           true);
   throttles.push_back(throttle);
 
-  return throttles.Pass();
+  return throttles;
 }
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)

@@ -4,6 +4,8 @@
 
 #include "libcef/browser/browser_info_manager.h"
 
+#include <utility>
+
 #include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/thread_util.h"
@@ -148,7 +150,7 @@ void CefBrowserInfoManager::OnCreateWindow(
   pending_popup->opener_frame_id = params.opener_render_frame_id;
   pending_popup->target_url = params.target_url;
   pending_popup->target_frame_name = params.frame_name;
-  PushPendingPopup(pending_popup.Pass());
+  PushPendingPopup(std::move(pending_popup));
 }
 
 bool CefBrowserInfoManager::CanCreateWindow(
@@ -282,7 +284,7 @@ void CefBrowserInfoManager::ShouldCreateWebContents(
 
   pending_popup->step =
       CefBrowserInfoManager::PendingPopup::SHOULD_CREATE_WEB_CONTENTS;
-  PushPendingPopup(pending_popup.Pass());
+  PushPendingPopup(std::move(pending_popup));
 }
 
 void CefBrowserInfoManager::WebContentsCreated(
@@ -306,7 +308,7 @@ void CefBrowserInfoManager::WebContentsCreated(
 
   settings = pending_popup->settings;
   client = pending_popup->client;
-  platform_delegate = pending_popup->platform_delegate.Pass();
+  platform_delegate = std::move(pending_popup->platform_delegate);
 }
 
 void CefBrowserInfoManager::OnGetNewBrowserInfo(
@@ -358,7 +360,7 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(
   pending->render_view_routing_id = render_view_routing_id;
   pending->render_frame_routing_id = render_frame_routing_id;
   pending->reply_msg = reply_msg;
-  pending_new_browser_info_list_.push_back(pending.Pass());
+  pending_new_browser_info_list_.push_back(std::move(pending));
 }
 
 void CefBrowserInfoManager::RemoveBrowserInfo(
@@ -448,12 +450,12 @@ void CefBrowserInfoManager::FilterPendingPopupURL(
   DCHECK(rph);
   rph->FilterURL(false, &pending_popup->target_url);
 
-  GetInstance()->PushPendingPopup(pending_popup.Pass());
+  GetInstance()->PushPendingPopup(std::move(pending_popup));
 }
 
 void CefBrowserInfoManager::PushPendingPopup(scoped_ptr<PendingPopup> popup) {
   base::AutoLock lock_scope(pending_popup_lock_);
-  pending_popup_list_.push_back(popup.Pass());
+  pending_popup_list_.push_back(std::move(popup));
 }
 
 scoped_ptr<CefBrowserInfoManager::PendingPopup>

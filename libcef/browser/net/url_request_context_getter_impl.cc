@@ -4,10 +4,8 @@
 
 #include "libcef/browser/net/url_request_context_getter_impl.h"
 
-#if defined(OS_WIN)
-#include <winhttp.h>
-#endif
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "libcef/browser/cookie_manager_impl.h"
@@ -26,6 +24,7 @@
 #include "base/strings/string_util.h"
 #include "base/threading/thread_restrictions.h"
 #include "base/threading/worker_pool.h"
+#include "build/build_config.h"
 #include "chrome/browser/net/proxy_service_factory.h"
 #include "chrome/common/pref_names.h"
 #include "content/public/browser/browser_thread.h"
@@ -55,6 +54,10 @@
 #include "net/url_request/url_request_intercepting_job_factory.h"
 #include "net/url_request/url_request_job_factory_impl.h"
 #include "net/url_request/url_request_job_manager.h"
+
+#if defined(OS_WIN)
+#include <winhttp.h>
+#endif
 
 #if defined(USE_NSS_CERTS)
 #include "net/cert_net/nss_ocsp.h"
@@ -109,8 +112,8 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
     : settings_(settings),
       io_loop_(io_loop),
       file_loop_(file_loop),
-      proxy_config_service_(proxy_config_service.Pass()),
-      request_interceptors_(request_interceptors.Pass()) {
+      proxy_config_service_(std::move(proxy_config_service)),
+      request_interceptors_(std::move(request_interceptors)) {
   // Must first be created on the UI thread.
   CEF_REQUIRE_UIT();
 
@@ -173,10 +176,10 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
             NULL,
             url_request_context_.get(),
             url_request_context_->network_delegate(),
-            proxy_config_service_.Pass(),
+            std::move(proxy_config_service_),
             *command_line,
             true);
-    storage_->set_proxy_service(system_proxy_service.Pass());
+    storage_->set_proxy_service(std::move(system_proxy_service));
 
     storage_->set_ssl_config_service(new net::SSLConfigServiceDefaults);
 
@@ -236,7 +239,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
         make_scoped_ptr(new net::HttpNetworkSession(network_session_params)));
     storage_->set_http_transaction_factory(make_scoped_ptr(
         new net::HttpCache(storage_->http_network_session(),
-                           main_backend.Pass(),
+                           std::move(main_backend),
                            true /* set_up_quic_server_info */)));
 
 #if !defined(DISABLE_FTP_SUPPORT)
@@ -262,17 +265,17 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
 
     // Set up interceptors in the reverse order.
     scoped_ptr<net::URLRequestJobFactory> top_job_factory =
-        job_factory.Pass();
+        std::move(job_factory);
     for (content::URLRequestInterceptorScopedVector::reverse_iterator i =
              request_interceptors_.rbegin();
          i != request_interceptors_.rend();
          ++i) {
       top_job_factory.reset(new net::URLRequestInterceptingJobFactory(
-          top_job_factory.Pass(), make_scoped_ptr(*i)));
+          std::move(top_job_factory), make_scoped_ptr(*i)));
     }
     request_interceptors_.weak_clear();
 
-    storage_->set_job_factory(top_job_factory.Pass());
+    storage_->set_job_factory(std::move(top_job_factory));
 
 #if defined(USE_NSS_CERTS)
     // Only do this for the first (global) request context.

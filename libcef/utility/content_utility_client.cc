@@ -5,6 +5,9 @@
 
 #include "libcef/utility/content_utility_client.h"
 
+#include <utility>
+
+#include "build/build_config.h"
 #include "chrome/common/chrome_utility_messages.h"
 #include "chrome/utility/utility_message_handler.h"
 #include "content/public/common/service_registry.h"
@@ -28,7 +31,7 @@ void CreateProxyResolverFactory(
   // is connected to. When that message pipe is closed, either explicitly on the
   // other end (in the browser process), or by a connection error, this object
   // will be destroyed.
-  new net::MojoProxyResolverFactoryImpl(request.Pass());
+  new net::MojoProxyResolverFactoryImpl(std::move(request));
 }
 
 }  // namespace
