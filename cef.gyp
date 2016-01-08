@@ -4,7 +4,6 @@
 
 {
   'variables': {
-    'pkg-config': 'pkg-config',
     'chromium_code': 1,
     'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/cef',
     'framework_name': 'Chromium Embedded Framework',
@@ -1949,15 +1948,15 @@
           },
           'direct_dependent_settings': {
             'cflags': [
-              '<!@(pkg-config --cflags <(gtk_packages))',
+              '<!@(<(pkg-config) --cflags <(gtk_packages))',
             ],
           },
           'link_settings': {
             'ldflags': [
-              '<!@(pkg-config --libs-only-L --libs-only-other <(gtk_packages))',
+              '<!@(<(pkg-config) --libs-only-L --libs-only-other <(gtk_packages))',
             ],
             'libraries': [
-              '<!@(pkg-config --libs-only-l <(gtk_packages))',
+              '<!@(<(pkg-config) --libs-only-l <(gtk_packages))',
             ],
           },
         },
@@ -1970,15 +1969,15 @@
           },
           'direct_dependent_settings': {
             'cflags': [
-              '<!@(pkg-config --cflags <(gtk_packages))',
+              '<!@(<(pkg-config) --cflags <(gtk_packages))',
             ],
           },
           'link_settings': {
             'ldflags': [
-              '<!@(pkg-config --libs-only-L --libs-only-other <(gtk_packages))',
+              '<!@(<(pkg-config) --libs-only-L --libs-only-other <(gtk_packages))',
             ],
             'libraries': [
-              '<!@(pkg-config --libs-only-l <(gtk_packages))',
+              '<!@(<(pkg-config) --libs-only-l <(gtk_packages))',
             ],
           },
         },
