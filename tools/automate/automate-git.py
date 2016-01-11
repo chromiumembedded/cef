@@ -381,11 +381,13 @@ parser.add_option('--no-depot-tools-update',
 parser.add_option('--force-build',
                   action='store_true', dest='forcebuild', default=False,
                   help='Force CEF debug and release builds. This builds '+\
-                       'cefclient on all platforms and chrome_sandbox on '+\
-                       'Linux.')
+                       '[build-target] on all platforms and chrome_sandbox '+\
+                       'on Linux.')
 parser.add_option('--no-build',
                   action='store_true', dest='nobuild', default=False,
                   help='Do not build CEF.')
+parser.add_option('--build-target', dest='buildtarget', default='cefclient',
+                  help='Target name(s) to build (defaults to "cefclient").')
 parser.add_option('--build-tests',
                   action='store_true', dest='buildtests', default=False,
                   help='Also build the cef_unittests target.')
@@ -466,6 +468,13 @@ if (options.noreleasebuild and \
       options.clientdistrib or options.clientdistribonly)) or \
    (options.minimaldistribonly and options.clientdistribonly):
   print 'Invalid combination of options.'
+  parser.print_help(sys.stderr)
+  sys.exit()
+
+if (options.clientdistrib or options.clientdistribonly) and \
+   options.buildtarget.find('cefclient') == -1:
+  print "A client distribution cannot be generated if --build-target "+\
+        "excludes cefclient."
   parser.print_help(sys.stderr)
   sys.exit()
 
@@ -888,7 +897,7 @@ if not options.nobuild and (chromium_checkout_changed or \
   command = 'ninja -C '
   if options.verbosebuild:
     command = 'ninja -v -C'
-  target = ' cefclient'
+  target = ' ' + options.buildtarget
   if options.buildtests:
     target = target + ' cef_unittests'
   if platform == 'linux':
