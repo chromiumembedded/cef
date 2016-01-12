@@ -152,6 +152,10 @@ class CefBrowserContext
   // Settings for plugins and extensions.
   virtual HostContentSettingsMap* GetHostContentSettingsMap() = 0;
 
+  // Called from CefBrowserHostImpl::DidNavigateAnyFrame to update the table of
+  // visited links.
+  virtual void AddVisitedURLs(const std::vector<GURL>& urls) = 0;
+
   CefResourceContext* resource_context() const {
     return resource_context_.get();
   }
