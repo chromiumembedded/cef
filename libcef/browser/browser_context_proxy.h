@@ -70,6 +70,7 @@ class CefBrowserContextProxy : public CefBrowserContext {
       content::URLRequestInterceptorScopedVector request_interceptors)
       override;
   HostContentSettingsMap* GetHostContentSettingsMap() override;
+  void AddVisitedURLs(const std::vector<GURL>& urls) override;
 
   scoped_refptr<CefBrowserContextImpl> parent() const {
     return parent_;

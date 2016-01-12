@@ -30,6 +30,10 @@ class ExtensionsRendererClient;
 class ResourceRequestPolicy;
 }
 
+namespace visitedlink {
+class VisitedLinkSlave;
+}
+
 namespace web_cache {
 class WebCacheRenderProcessObserver;
 }
@@ -116,6 +120,9 @@ class CefContentRendererClient : public content::ContentRendererClient,
                        const GURL& url,
                        const GURL& first_party_for_cookies,
                        GURL* new_url) override;
+  unsigned long long VisitedLinkHash(const char* canonical_url,
+                                     size_t length) override;
+  bool IsLinkVisited(unsigned long long link_hash) override;
   content::BrowserPluginDelegate* CreateBrowserPluginDelegate(
       content::RenderFrame* render_frame,
       const std::string& mime_type,
@@ -145,6 +152,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
   scoped_ptr<CefRenderProcessObserver> observer_;
   scoped_ptr<web_cache::WebCacheRenderProcessObserver> web_cache_observer_;
   scoped_ptr<SpellCheck> spellcheck_;
+  scoped_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
 
   // Map of RenderView pointers to CefBrowserImpl references.
   typedef std::map<content::RenderView*, CefRefPtr<CefBrowserImpl> > BrowserMap;

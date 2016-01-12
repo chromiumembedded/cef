@@ -12,6 +12,7 @@
 #include "base/logging.h"
 #include "chrome/browser/font_family_cache.h"
 #include "components/guest_view/common/guest_view_constants.h"
+#include "components/visitedlink/browser/visitedlink_master.h"
 #include "content/browser/streams/stream_context.h"
 #include "content/public/browser/storage_partition.h"
 
@@ -195,4 +196,8 @@ net::URLRequestContextGetter*
 
 HostContentSettingsMap* CefBrowserContextProxy::GetHostContentSettingsMap() {
   return parent_->GetHostContentSettingsMap();
+}
+
+void CefBrowserContextProxy::AddVisitedURLs(const std::vector<GURL>& urls) {
+  parent_->AddVisitedURLs(urls);
 }

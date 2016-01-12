@@ -30,6 +30,8 @@
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/guest_view/browser/guest_view_manager.h"
 #include "components/ui/zoom/zoom_event_manager.h"
+#include "components/visitedlink/browser/visitedlink_event_listener.h"
+#include "components/visitedlink/browser/visitedlink_master.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/storage_partition.h"
@@ -129,6 +131,69 @@ base::LazyInstance<ImplManager> g_manager = LAZY_INSTANCE_INITIALIZER;
 
 }  // namespace
 
+// Creates and manages VisitedLinkEventListener objects for each
+// CefBrowserContext sharing the same VisitedLinkMaster.
+class CefVisitedLinkListener : public visitedlink::VisitedLinkMaster::Listener {
+ public:
+  CefVisitedLinkListener()
+      : master_(nullptr) {
+  }
+
+  void set_master(visitedlink::VisitedLinkMaster* master) {
+    DCHECK(!master_);
+    master_ = master;
+  }
+
+  void CreateListenerForContext(const CefBrowserContext* context) {
+    CEF_REQUIRE_UIT();
+    scoped_ptr<visitedlink::VisitedLinkEventListener> listener(
+        new visitedlink::VisitedLinkEventListener(
+            master_, const_cast<CefBrowserContext*>(context)));
+    listener_map_.insert(std::make_pair(context, std::move(listener)));
+  }
+
+  void RemoveListenerForContext(const CefBrowserContext* context) {
+    CEF_REQUIRE_UIT();
+    ListenerMap::iterator it = listener_map_.find(context);
+    DCHECK(it != listener_map_.end());
+    listener_map_.erase(it);
+  }
+
+  // visitedlink::VisitedLinkMaster::Listener methods.
+
+  void NewTable(base::SharedMemory* shared_memory) override {
+    CEF_REQUIRE_UIT();
+    ListenerMap::iterator it = listener_map_.begin();
+    for (; it != listener_map_.end(); ++it)
+      it->second->NewTable(shared_memory);
+  }
+
+  void Add(visitedlink::VisitedLinkCommon::Fingerprint fingerprint) override {
+    CEF_REQUIRE_UIT();
+    ListenerMap::iterator it = listener_map_.begin();
+    for (; it != listener_map_.end(); ++it)
+      it->second->Add(fingerprint);
+  }
+
+  void Reset(bool invalidate_hashes) override {
+    CEF_REQUIRE_UIT();
+    ListenerMap::iterator it = listener_map_.begin();
+    for (; it != listener_map_.end(); ++it)
+      it->second->Reset(invalidate_hashes);
+  }
+
+ private:
+  visitedlink::VisitedLinkMaster* master_;
+
+  // Map of CefBrowserContext to the associated VisitedLinkEventListener.
+  typedef std::map<const CefBrowserContext*,
+                   scoped_ptr<visitedlink::VisitedLinkEventListener> >
+                      ListenerMap;
+  ListenerMap listener_map_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefVisitedLinkListener);
+};
+
 CefBrowserContextImpl::CefBrowserContextImpl(
     const CefRequestContextSettings& settings)
     : settings_(settings) {
@@ -183,6 +248,19 @@ void CefBrowserContextImpl::Initialize() {
     pref_path = cache_path_.AppendASCII(browser_prefs::kUserPrefsFileName);
   pref_service_ = browser_prefs::CreatePrefService(pref_path);
 
+  // Initialize visited links management.
+  base::FilePath visited_link_path;
+  if (!cache_path_.empty())
+     visited_link_path = cache_path_.Append(FILE_PATH_LITERAL("Visited Links"));
+  visitedlink_listener_ = new CefVisitedLinkListener;
+  visitedlink_master_.reset(
+      new visitedlink::VisitedLinkMaster(visitedlink_listener_, this,
+                                         !visited_link_path.empty(), false,
+                                         visited_link_path, 0));
+  visitedlink_listener_->set_master(visitedlink_master_.get());
+  visitedlink_listener_->CreateListenerForContext(this);
+  visitedlink_master_->Init();
+
   CefBrowserContext::Initialize();
 
   // Initialize proxy configuration tracker.
@@ -202,10 +280,15 @@ void CefBrowserContextImpl::AddProxy(const CefBrowserContextProxy* proxy) {
   CEF_REQUIRE_UIT();
   DCHECK(!HasProxy(proxy));
   proxy_list_.push_back(proxy);
+
+  visitedlink_listener_->CreateListenerForContext(proxy);
 }
 
 void CefBrowserContextImpl::RemoveProxy(const CefBrowserContextProxy* proxy) {
   CEF_REQUIRE_UIT();
+
+  visitedlink_listener_->RemoveListenerForContext(proxy);
+
   bool found = false;
   ProxyList::iterator it = proxy_list_.begin();
   for (; it != proxy_list_.end(); ++it) {
@@ -411,4 +494,14 @@ HostContentSettingsMap* CefBrowserContextImpl::GetHostContentSettingsMap() {
     }
   }
   return host_content_settings_map_.get();
+}
+
+void CefBrowserContextImpl::AddVisitedURLs(const std::vector<GURL>& urls) {
+  visitedlink_master_->AddURLs(urls);
+}
+
+void CefBrowserContextImpl::RebuildTable(
+    const scoped_refptr<URLEnumerator>& enumerator) {
+  // Called when visited links will not or cannot be loaded from disk.
+  enumerator->OnComplete(true);
 }

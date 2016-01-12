@@ -49,6 +49,8 @@ RootWindowManager::RootWindowManager(bool terminate_when_all_windows_closed)
   DCHECK(command_line.get());
   request_context_per_browser_ =
       command_line->HasSwitch(switches::kRequestContextPerBrowser);
+  request_context_shared_cache_ =
+      command_line->HasSwitch(switches::kRequestContextSharedCache);
 }
 
 RootWindowManager::~RootWindowManager() {
@@ -147,12 +149,19 @@ CefRefPtr<CefRequestContext> RootWindowManager::GetRequestContext(
     CefRefPtr<CefCommandLine> command_line =
         CefCommandLine::GetGlobalCommandLine();
     if (command_line->HasSwitch(switches::kCachePath)) {
-      // If a global cache path value is specified then give each browser a
-      // unique cache path.
-      std::stringstream ss;
-      ss << command_line->GetSwitchValue(switches::kCachePath).ToString() <<
-          time(NULL);
-      CefString(&settings.cache_path) = ss.str();
+      if (request_context_shared_cache_) {
+        // Give each browser the same cache path. The resulting context objects
+        // will share the same storage internally.
+        CefString(&settings.cache_path) =
+            command_line->GetSwitchValue(switches::kCachePath);
+      } else {
+        // Give each browser a unique cache path. This will create completely
+        // isolated context objects.
+        std::stringstream ss;
+        ss << command_line->GetSwitchValue(switches::kCachePath).ToString() <<
+            time(NULL);
+        CefString(&settings.cache_path) = ss.str();
+      }
     }
 
     return CefRequestContext::CreateContext(settings,

@@ -50,6 +50,7 @@
 #include "components/content_settings/core/common/content_settings_types.h"
 #include "components/nacl/common/nacl_constants.h"
 #include "components/printing/renderer/print_web_view_helper.h"
+#include "components/visitedlink/renderer/visitedlink_slave.h"
 #include "components/web_cache/renderer/web_cache_render_process_observer.h"
 #include "content/common/frame_messages.h"
 #include "content/public/browser/browser_thread.h"
@@ -391,6 +392,9 @@ void CefContentRendererClient::RenderThreadStarted() {
     thread->AddObserver(spellcheck_.get());
   }
 
+  visited_link_slave_.reset(new visitedlink::VisitedLinkSlave());
+  thread->AddObserver(visited_link_slave_.get());
+
   if (content::RenderProcessHost::run_renderer_in_process()) {
     // When running in single-process mode register as a destruction observer
     // on the render thread's MessageLoop.
@@ -594,6 +598,15 @@ bool CefContentRendererClient::WillSendRequest(
   }
 
   return false;
+}
+
+unsigned long long CefContentRendererClient::VisitedLinkHash(
+    const char* canonical_url, size_t length) {
+  return visited_link_slave_->ComputeURLFingerprint(canonical_url, length);
+}
+
+bool CefContentRendererClient::IsLinkVisited(unsigned long long link_hash) {
+  return visited_link_slave_->IsVisited(link_hash);
 }
 
 content::BrowserPluginDelegate*

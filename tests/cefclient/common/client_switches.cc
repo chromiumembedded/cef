@@ -26,6 +26,7 @@ const char kTransparentPaintingEnabled[] = "transparent-painting-enabled";
 const char kShowUpdateRect[] = "show-update-rect";
 const char kMouseCursorChangeDisabled[] = "mouse-cursor-change-disabled";
 const char kRequestContextPerBrowser[] = "request-context-per-browser";
+const char kRequestContextSharedCache[] = "request-context-shared-cache";
 const char kBackgroundColor[] = "background-color";
 const char kEnableGPU[] = "enable-gpu";
 const char kFilterURL[] = "filter-url";

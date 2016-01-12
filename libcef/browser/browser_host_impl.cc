@@ -2403,6 +2403,21 @@ void CefBrowserHostImpl::FrameDeleted(
     focused_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
 }
 
+void CefBrowserHostImpl::DidNavigateAnyFrame(
+    content::RenderFrameHost* render_frame_host,
+    const content::LoadCommittedDetails& details,
+    const content::FrameNavigateParams& params) {
+  if (!web_contents())
+    return;
+
+  scoped_refptr<CefBrowserContext> context =
+      static_cast<CefBrowserContext*>(web_contents()->GetBrowserContext());
+  if (!context.get())
+    return;
+
+  context->AddVisitedURLs(params.redirects);
+}
+
 void CefBrowserHostImpl::TitleWasSet(content::NavigationEntry* entry,
                                      bool explicit_set) {
   // |entry| may be NULL if a popup is created via window.open and never

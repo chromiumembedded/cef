@@ -406,6 +406,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
                    bool was_ignored_by_handler) override;
   void FrameDeleted(
       content::RenderFrameHost* render_frame_host) override;
+  void DidNavigateAnyFrame(
+      content::RenderFrameHost* render_frame_host,
+      const content::LoadCommittedDetails& details,
+      const content::FrameNavigateParams& params) override;
   void TitleWasSet(content::NavigationEntry* entry, bool explicit_set) override;
   void PluginCrashed(const base::FilePath& plugin_path,
                      base::ProcessId plugin_pid) override;

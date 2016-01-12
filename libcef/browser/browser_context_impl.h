@@ -14,16 +14,23 @@
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
 #include "components/proxy_config/pref_proxy_config_tracker.h"
+#include "components/visitedlink/browser/visitedlink_delegate.h"
 
 class CefBrowserContextProxy;
 class CefDownloadManagerDelegate;
 class CefSSLHostStateDelegate;
+class CefVisitedLinkListener;
+
+namespace visitedlink {
+class VisitedLinkMaster;
+}
 
 // Isolated BrowserContext implementation. Life span is controlled by
 // CefRequestContextImpl and (for the main context) CefBrowserMainParts. Only
 // accessed on the UI thread unless otherwise indicated. See browser_context.h
 // for an object relationship diagram.
-class CefBrowserContextImpl : public CefBrowserContext {
+class CefBrowserContextImpl : public CefBrowserContext,
+                              public visitedlink::VisitedLinkDelegate {
  public:
   explicit CefBrowserContextImpl(const CefRequestContextSettings& settings);
 
@@ -88,6 +95,10 @@ class CefBrowserContextImpl : public CefBrowserContext {
       content::URLRequestInterceptorScopedVector request_interceptors)
       override;
   HostContentSettingsMap* GetHostContentSettingsMap() override;
+  void AddVisitedURLs(const std::vector<GURL>& urls) override;
+
+  // visitedlink::VisitedLinkDelegate methods.
+  void RebuildTable(const scoped_refptr<URLEnumerator>& enumerator) override;
 
   // Guaranteed to exist once this object has been initialized.
   scoped_refptr<CefURLRequestContextGetterImpl> request_context() const {
@@ -118,6 +129,9 @@ class CefBrowserContextImpl : public CefBrowserContext {
   scoped_ptr<content::PermissionManager> permission_manager_;
   scoped_ptr<CefSSLHostStateDelegate> ssl_host_state_delegate_;
   scoped_refptr<HostContentSettingsMap> host_content_settings_map_;
+  scoped_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
+  // |visitedlink_listener_| is owned by visitedlink_master_.
+  CefVisitedLinkListener* visitedlink_listener_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserContextImpl);
 };
