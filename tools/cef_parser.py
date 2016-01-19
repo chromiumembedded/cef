@@ -378,6 +378,8 @@ def dict_to_str(dict):
 _cre_attrib = '/\*--cef\(([A-Za-z0-9_ ,=:\n]{0,})\)--\*/'
 # regex for matching class and function names
 _cre_cfname = '([A-Za-z0-9_]{1,})'
+# regex for matching class and function names including path separators
+_cre_cfnameorpath = '([A-Za-z0-9_\/]{1,})'
 # regex for matching function return values
 _cre_retval = '([A-Za-z0-9_<>:,\*\&]{1,})'
 # regex for matching typedef value and name combination
@@ -420,8 +422,8 @@ _simpletypes = {
     'CefPoint' : ['cef_point_t', 'CefPoint()'],
     'CefRect' : ['cef_rect_t', 'CefRect()'],
     'CefSize' : ['cef_size_t', 'CefSize()'],
+    'CefRange' : ['cef_range_t', 'CefRange()'],
     'CefDraggableRegion' : ['cef_draggable_region_t', 'CefDraggableRegion()'],
-    'CefPageRange' : ['cef_page_range_t', 'CefPageRange()'],
     'CefThreadId' : ['cef_thread_id_t', 'TID_UI'],
     'CefTime' : ['cef_time_t', 'CefTime()'],
 }
@@ -570,7 +572,7 @@ class obj_header:
                                                argval, comment))
 
         # extract includes
-        p = re.compile('\n#include \"include/'+_cre_cfname+'.h')
+        p = re.compile('\n#include \"include/'+_cre_cfnameorpath+'.h')
         includes = p.findall(data)
 
         # extract forward declarations

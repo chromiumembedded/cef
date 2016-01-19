@@ -6,12 +6,21 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_ROOT_WINDOW_MAC_H_
 #pragma once
 
-#include <Cocoa/Cocoa.h>
 #include <string>
 
 #include "include/base/cef_scoped_ptr.h"
 #include "cefclient/browser/browser_window.h"
 #include "cefclient/browser/root_window.h"
+
+#ifdef __OBJC__
+@class NSWindow;
+@class NSButton;
+@class NSTextField;
+#else
+class NSWindow;
+class NSButton;
+class NSTextField;
+#endif
 
 namespace client {
 

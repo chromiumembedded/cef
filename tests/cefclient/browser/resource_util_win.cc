@@ -39,8 +39,11 @@ int GetResourceId(const char* resource_name) {
   } resource_map[] = {
     {"binding.html", IDS_BINDING_HTML},
     {"dialogs.html", IDS_DIALOGS_HTML},
-    {"localstorage.html", IDS_LOCALSTORAGE_HTML},
+    {"draggable.html", IDS_DRAGGABLE_HTML},
     {"logo.png", IDS_LOGO_PNG},
+    {"localstorage.html", IDS_LOCALSTORAGE_HTML},
+    {"menu_icon.1x.png", IDS_MENU_ICON_1X_PNG},
+    {"menu_icon.2x.png", IDS_MENU_ICON_2X_PNG},
     {"osr_test.html", IDS_OSRTEST_HTML},
     {"other_tests.html", IDS_OTHER_TESTS_HTML},
     {"pdf.html", IDS_PDF_HTML},
@@ -52,6 +55,8 @@ int GetResourceId(const char* resource_name) {
     {"transparency.html", IDS_TRANSPARENCY_HTML},
     {"urlrequest.html", IDS_URLREQUEST_HTML},
     {"window.html", IDS_WINDOW_HTML},
+    {"window_icon.1x.png", IDS_WINDOW_ICON_1X_PNG},
+    {"window_icon.2x.png", IDS_WINDOW_ICON_2X_PNG},
     {"xmlhttprequest.html", IDS_XMLHTTPREQUEST_HTML},
   };
 

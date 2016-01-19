@@ -92,6 +92,9 @@ def write_cpptoc_header(header, clsname, dir, backup):
     if newcontents != oldcontents:
         if backup and oldcontents != '':
             backup_file(file)
+        file_dir = os.path.split(file)[0]
+        if not os.path.isdir(file_dir):
+            make_dir(file_dir)
         write_file(file, newcontents)
         return True
 

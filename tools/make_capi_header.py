@@ -180,6 +180,9 @@ def write_capi_header(header, header_dir, filename, backup):
     if newcontents != oldcontents:
         if backup and oldcontents != '':
             backup_file(capi_path)
+        capi_dir = os.path.split(capi_path)[0]
+        if not os.path.isdir(capi_dir):
+            make_dir(capi_dir)
         write_file(capi_path, newcontents)
         return True
 

@@ -466,7 +466,7 @@ class PopupTestHandler : public TestHandler {
       got_load_end2_.yes();
       EXPECT_TRUE(browser->IsPopup());
       // Close the popup window.
-      browser->GetHost()->CloseBrowser(true);
+      CloseBrowser(browser, true);
     }
   }
 

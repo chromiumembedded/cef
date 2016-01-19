@@ -30,6 +30,9 @@ const char kRequestContextSharedCache[] = "request-context-shared-cache";
 const char kBackgroundColor[] = "background-color";
 const char kEnableGPU[] = "enable-gpu";
 const char kFilterURL[] = "filter-url";
+const char kUseViews[] = "use-views";
+const char kHideFrame[] = "hide-frame";
+const char kHideControls[] = "hide-controls";
 
 }  // namespace switches
 }  // namespace client

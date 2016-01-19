@@ -21,6 +21,10 @@
 #error A delegate implementation is not available for your platform.
 #endif
 
+#if defined(USE_AURA)
+#include "libcef/browser/views/browser_platform_delegate_views.h"
+#endif
+
 namespace {
 
 scoped_ptr<CefBrowserPlatformDelegateNative> CreateNativeDelegate(
@@ -53,14 +57,28 @@ scoped_ptr<CefBrowserPlatformDelegateOsr> CreateOSRDelegate(
 
 // static
 scoped_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
-    const CefWindowInfo& window_info,
-    const CefBrowserSettings& settings,
-    CefRefPtr<CefClient> client) {
-  scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate =
-      CreateNativeDelegate(window_info);
-  if (window_info.windowless_rendering_enabled &&
-      client->GetRenderHandler().get()) {
-    return CreateOSRDelegate(std::move(native_delegate));
+    CefBrowserHostImpl::CreateParams& create_params) {
+  if (create_params.window_info) {
+    scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate =
+        CreateNativeDelegate(*create_params.window_info.get());
+    if (create_params.window_info->windowless_rendering_enabled &&
+        create_params.client &&
+        create_params.client->GetRenderHandler().get()) {
+      return CreateOSRDelegate(std::move(native_delegate));
+    }
+    return std::move(native_delegate);
   }
-  return std::move(native_delegate);
+#if defined(USE_AURA)
+  else {
+    // CefWindowInfo is not used in this case.
+    scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate =
+        CreateNativeDelegate(CefWindowInfo());
+    return make_scoped_ptr(new CefBrowserPlatformDelegateViews(
+        std::move(native_delegate),
+        static_cast<CefBrowserViewImpl*>(create_params.browser_view.get())));
+  }
+#endif  // defined(USE_AURA)
+
+  NOTREACHED();
+  return nullptr;
 }

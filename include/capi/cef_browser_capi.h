@@ -41,6 +41,7 @@
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_drag_data_capi.h"
 #include "include/capi/cef_frame_capi.h"
+#include "include/capi/cef_image_capi.h"
 #include "include/capi/cef_navigation_entry_capi.h"
 #include "include/capi/cef_process_message_capi.h"
 #include "include/capi/cef_request_context_capi.h"
@@ -252,6 +253,29 @@ typedef struct _cef_pdf_print_callback_t {
 
 
 ///
+// Callback structure for cef_browser_host_t::DownloadImage. The functions of
+// this structure will be called on the browser process UI thread.
+///
+typedef struct _cef_download_image_callback_t {
+  ///
+  // Base structure.
+  ///
+  cef_base_t base;
+
+  ///
+  // Method that will be executed when the image download has completed.
+  // |image_url| is the URL that was downloaded and |http_status_code| is the
+  // resulting HTTP status code. |image| is the resulting image, possibly at
+  // multiple scale factors, or NULL if the download failed.
+  ///
+  void (CEF_CALLBACK *on_download_image_finished)(
+      struct _cef_download_image_callback_t* self,
+      const cef_string_t* image_url, int http_status_code,
+      struct _cef_image_t* image);
+} cef_download_image_callback_t;
+
+
+///
 // Structure used to represent the browser process aspects of a browser window.
 // The functions of this structure can only be called in the browser process.
 // They may be called on any thread in that process unless otherwise indicated
@@ -283,6 +307,16 @@ typedef struct _cef_browser_host_t {
       int force_close);
 
   ///
+  // Helper for closing a browser. Call this function from the top-level window
+  // close handler. Internally this calls CloseBrowser(false (0)) if the close
+  // has not yet been initiated. This function returns false (0) while the close
+  // is pending and true (1) after the close has completed. See close_browser()
+  // and cef_life_span_handler_t::do_close() documentation for additional usage
+  // information. This function must be called on the browser process UI thread.
+  ///
+  int (CEF_CALLBACK *try_close_browser)(struct _cef_browser_host_t* self);
+
+  ///
   // Set whether the browser is focused.
   ///
   void (CEF_CALLBACK *set_focus)(struct _cef_browser_host_t* self, int focus);
@@ -295,18 +329,26 @@ typedef struct _cef_browser_host_t {
       int visible);
 
   ///
-  // Retrieve the window handle for this browser.
+  // Retrieve the window handle for this browser. If this browser is wrapped in
+  // a cef_browser_view_t this function should be called on the browser process
+  // UI thread and it will return the handle for the top-level native window.
   ///
   cef_window_handle_t (CEF_CALLBACK *get_window_handle)(
       struct _cef_browser_host_t* self);
 
   ///
   // Retrieve the window handle of the browser that opened this browser. Will
-  // return NULL for non-popup windows. This function can be used in combination
-  // with custom handling of modal windows.
+  // return NULL for non-popup windows or if this browser is wrapped in a
+  // cef_browser_view_t. This function can be used in combination with custom
+  // handling of modal windows.
   ///
   cef_window_handle_t (CEF_CALLBACK *get_opener_window_handle)(
       struct _cef_browser_host_t* self);
+
+  ///
+  // Returns true (1) if this browser is wrapped in a cef_browser_view_t.
+  ///
+  int (CEF_CALLBACK *has_view)(struct _cef_browser_host_t* self);
 
   ///
   // Returns the client for this browser.
@@ -363,6 +405,22 @@ typedef struct _cef_browser_host_t {
       const cef_string_t* url);
 
   ///
+  // Download |image_url| and execute |callback| on completion with the images
+  // received from the renderer. If |is_favicon| is true (1) then cookies are
+  // not sent and not accepted during download. Images with density independent
+  // pixel (DIP) sizes larger than |max_image_size| are filtered out from the
+  // image results. Versions of the image at different scale factors may be
+  // downloaded up to the maximum scale factor supported by the system. If there
+  // are no image results <= |max_image_size| then the smallest image is resized
+  // to |max_image_size| and is the only result. A |max_image_size| of 0 means
+  // unlimited. If |bypass_cache| is true (1) then |image_url| is requested from
+  // the server even if it is present in the browser cache.
+  ///
+  void (CEF_CALLBACK *download_image)(struct _cef_browser_host_t* self,
+      const cef_string_t* image_url, int is_favicon, uint32 max_image_size,
+      int bypass_cache, struct _cef_download_image_callback_t* callback);
+
+  ///
   // Print the current browser contents.
   ///
   void (CEF_CALLBACK *print)(struct _cef_browser_host_t* self);
@@ -398,7 +456,9 @@ typedef struct _cef_browser_host_t {
 
   ///
   // Open developer tools in its own window. If |inspect_element_at| is non-
-  // NULL the element at the specified (x,y) location will be inspected.
+  // NULL the element at the specified (x,y) location will be inspected. The
+  // |windowInfo| parameter will be ignored if this browser is wrapped in a
+  // cef_browser_view_t.
   ///
   void (CEF_CALLBACK *show_dev_tools)(struct _cef_browser_host_t* self,
       const struct _cef_window_info_t* windowInfo,

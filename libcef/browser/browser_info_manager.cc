@@ -202,8 +202,10 @@ bool CefBrowserInfoManager::CanCreateWindow(
   CefRefPtr<CefClient> client = browser->GetClient();
   bool allow = true;
 
+  scoped_ptr<CefWindowInfo> window_info(new CefWindowInfo);
+
 #if defined(OS_WIN)
-  pending_popup->window_info.SetAsPopup(NULL, CefString());
+  window_info->SetAsPopup(NULL, CefString());
 #endif
 
   // Start with the current browser's settings.
@@ -222,13 +224,13 @@ bool CefBrowserInfoManager::CanCreateWindow(
 #if (defined(OS_WIN) || defined(OS_MACOSX))
       // Default to the size from the popup features.
       if (cef_features.xSet)
-        pending_popup->window_info.x = cef_features.x;
+        window_info->x = cef_features.x;
       if (cef_features.ySet)
-        pending_popup->window_info.y = cef_features.y;
+        window_info->y = cef_features.y;
       if (cef_features.widthSet)
-        pending_popup->window_info.width = cef_features.width;
+        window_info->width = cef_features.width;
       if (cef_features.heightSet)
-        pending_popup->window_info.height = cef_features.height;
+        window_info->height = cef_features.height;
 #endif
 
       allow = !handler->OnBeforePopup(browser.get(),
@@ -238,7 +240,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
           static_cast<cef_window_open_disposition_t>(disposition),
           user_gesture,
           cef_features,
-          pending_popup->window_info,
+          *window_info,
           pending_popup->client,
           pending_popup->settings,
           no_javascript_access);
@@ -246,10 +248,16 @@ bool CefBrowserInfoManager::CanCreateWindow(
   }
 
   if (allow) {
+    CefBrowserHostImpl::CreateParams create_params;
+
+    if (!browser->IsViewsHosted())
+      create_params.window_info = std::move(window_info);
+
+    create_params.settings = pending_popup->settings;
+    create_params.client = pending_popup->client;
+
     pending_popup->platform_delegate =
-        CefBrowserPlatformDelegate::Create(pending_popup->window_info,
-                                           pending_popup->settings,
-                                           pending_popup->client);
+        CefBrowserPlatformDelegate::Create(create_params);
     CHECK(pending_popup->platform_delegate.get());
 
     pending_popup->step =

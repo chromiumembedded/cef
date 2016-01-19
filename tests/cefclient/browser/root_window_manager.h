@@ -66,6 +66,7 @@ class RootWindowManager : public RootWindow::Delegate {
   // RootWindow::Delegate methods.
   CefRefPtr<CefRequestContext> GetRequestContext(
       RootWindow* root_window) OVERRIDE;
+  CefRefPtr<CefImage> GetDefaultWindowIcon() OVERRIDE;
   void OnTest(RootWindow* root_window, int test_id) OVERRIDE;
   void OnExit(RootWindow* root_window) OVERRIDE;
   void OnRootWindowDestroyed(RootWindow* root_window) OVERRIDE;
@@ -82,6 +83,7 @@ class RootWindowManager : public RootWindow::Delegate {
   TempWindow temp_window_;
 
   CefRefPtr<CefRequestContext> shared_request_context_;
+  CefRefPtr<CefImage> default_window_icon_;
 
   DISALLOW_COPY_AND_ASSIGN(RootWindowManager);
 };

@@ -9,12 +9,88 @@
 #include "include/cef_stream.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
+#include "tests/cefclient/common/client_switches.h"
+
+#if defined(USE_AURA)
+#include "include/views/cef_browser_view.h"
+#include "include/views/cef_window.h"
+#endif
 
 namespace {
 
-void NotifyEvent(base::WaitableEvent* event) {
-  event->Signal();
-}
+#if defined(USE_AURA)
+
+// Delegate implementation for the CefWindow that will host the Views-based
+// browser.
+class TestWindowDelegate : public CefWindowDelegate {
+ public:
+  // Create a new top-level Window hosting |browser_view|.
+  static void CreateBrowserWindow(CefRefPtr<CefBrowserView> browser_view,
+                                  const std::string& title) {
+    CefWindow::CreateTopLevelWindow(
+        new TestWindowDelegate(browser_view, "CefUnitTestViews " + title));
+  }
+
+  // CefWindowDelegate methods:
+
+  void OnWindowCreated(CefRefPtr<CefWindow> window) override {
+    // Add the browser view and show the window.
+    window->CenterWindow(CefSize(800, 600));
+    window->SetTitle(title_);
+    window->AddChildView(browser_view_);
+    window->Show();
+  }
+
+  void OnWindowDestroyed(CefRefPtr<CefWindow> window) override {
+    browser_view_ = nullptr;
+  }
+
+  bool CanClose(CefRefPtr<CefWindow> window) override {
+    // Allow the window to close if the browser says it's OK.
+    CefRefPtr<CefBrowser> browser = browser_view_->GetBrowser();
+    if (browser)
+      return browser->GetHost()->TryCloseBrowser();
+    return true;
+  }
+
+ private:
+  TestWindowDelegate(CefRefPtr<CefBrowserView> browser_view,
+                     const CefString& title)
+      : browser_view_(browser_view),
+        title_(title) {
+  }
+
+  CefRefPtr<CefBrowserView> browser_view_;
+  CefString title_;
+
+  IMPLEMENT_REFCOUNTING(TestWindowDelegate);
+  DISALLOW_COPY_AND_ASSIGN(TestWindowDelegate);
+};
+
+// Delegate implementation for the CefBrowserView.
+class TestBrowserViewDelegate : public CefBrowserViewDelegate {
+ public:
+  TestBrowserViewDelegate() {}
+
+  // CefBrowserViewDelegate methods:
+
+  bool OnPopupBrowserViewCreated(
+      CefRefPtr<CefBrowserView> browser_view,
+      CefRefPtr<CefBrowserView> popup_browser_view,
+      bool is_devtools) override {
+    // Create our own Window for popups. It will show itself after creation.
+    TestWindowDelegate::CreateBrowserWindow(
+        popup_browser_view,
+        is_devtools ? "DevTools" : "Popup");
+    return true;
+  }
+
+ private:
+  IMPLEMENT_REFCOUNTING(TestBrowserViewDelegate);
+  DISALLOW_COPY_AND_ASSIGN(TestBrowserViewDelegate);
+};
+
+#endif  // defined(USE_AURA)
 
 }  // namespace
 
@@ -264,7 +340,7 @@ void TestHandler::DestroyTest() {
     // Tell all non-popup browsers to close.
     BrowserMap::const_iterator it = browser_map.begin();
     for (; it != browser_map.end(); ++it)
-      it->second->GetHost()->CloseBrowser(false);
+      CloseBrowser(it->second, false);
   }
 
   if (ui_thread_helper_.get())
@@ -281,15 +357,45 @@ void TestHandler::OnTestTimeout(int timeout_ms, bool treat_as_error) {
 void TestHandler::CreateBrowser(
     const CefString& url,
     CefRefPtr<CefRequestContext> request_context) {
+#if defined(USE_AURA)
+  const bool use_views = CefCommandLine::GetGlobalCommandLine()->HasSwitch(
+      client::switches::kUseViews);
+  if (use_views && !CefCurrentlyOn(TID_UI)) {
+    // Views classes must be accessed on the UI thread.
+    CefPostTask(TID_UI,
+        base::Bind(&TestHandler::CreateBrowser, this, url, request_context));
+    return;
+  }
+#endif  // defined(USE_AURA)
+
   CefWindowInfo windowInfo;
   CefBrowserSettings settings;
-#if defined(OS_WIN)
-  windowInfo.SetAsPopup(NULL, "CefUnitTest");
-  windowInfo.style |= WS_VISIBLE;
-#endif
   PopulateBrowserSettings(&settings);
-  CefBrowserHost::CreateBrowser(windowInfo, this, url, settings,
-                                request_context);
+
+#if defined(USE_AURA)
+  if (use_views) {
+    // Create the BrowserView.
+    CefRefPtr<CefBrowserView> browser_view = CefBrowserView::CreateBrowserView(
+        this, url, settings, request_context, new TestBrowserViewDelegate());
+
+    // Create the Window. It will show itself after creation.
+    TestWindowDelegate::CreateBrowserWindow(browser_view, std::string());
+  } else
+#endif  // defined(USE_AURA)
+  {
+#if defined(OS_WIN)
+    windowInfo.SetAsPopup(NULL, "CefUnitTest");
+    windowInfo.style |= WS_VISIBLE;
+#endif
+    CefBrowserHost::CreateBrowser(windowInfo, this, url, settings,
+                                  request_context);
+  }
+}
+
+// static
+void TestHandler::CloseBrowser(CefRefPtr<CefBrowser> browser,
+                               bool force_close) {
+  browser->GetHost()->CloseBrowser(force_close);
 }
 
 void TestHandler::AddResource(const std::string& url,
@@ -362,18 +468,6 @@ TestHandler::UIThreadHelper* TestHandler::GetUIThreadHelper() {
 
 
 // global functions
-
-void WaitForThread(CefThreadId thread_id) {
-  base::WaitableEvent event(true, false);
-  CefPostTask(thread_id, base::Bind(&NotifyEvent, &event));
-  event.Wait();
-}
-
-void WaitForThread(CefRefPtr<CefTaskRunner> task_runner) {
-  base::WaitableEvent event(true, false);
-  task_runner->PostTask(CefCreateClosureTask(base::Bind(&NotifyEvent, &event)));
-  event.Wait();
-}
 
 bool TestFailed() {
   CefRefPtr<CefCommandLine> command_line =

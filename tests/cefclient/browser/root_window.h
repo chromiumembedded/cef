@@ -30,6 +30,9 @@ class RootWindow :
     virtual CefRefPtr<CefRequestContext> GetRequestContext(
         RootWindow* root_window) = 0;
 
+    // Returns the default window icon.
+    virtual CefRefPtr<CefImage> GetDefaultWindowIcon() = 0;
+
     // Called to execute a test. See resource.h for |test_id| values.
     virtual void OnTest(RootWindow* root_window, int test_id) = 0;
 
@@ -45,8 +48,9 @@ class RootWindow :
 
   // Create a new RootWindow object. This method may be called on any thread.
   // Use RootWindowManager::CreateRootWindow() or CreateRootWindowAsPopup()
-  // instead of calling this method directly.
-  static scoped_refptr<RootWindow> Create();
+  // instead of calling this method directly. |use_views| will be true if the
+  // Views framework should be used.
+  static scoped_refptr<RootWindow> Create(bool use_views);
 
   // Returns the RootWindow associated with the specified |browser_id|. Must be
   // called on the main thread.

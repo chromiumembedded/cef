@@ -7,12 +7,9 @@
 #import <Cocoa/Cocoa.h>
 
 #include "include/cef_browser.h"
-#include "include/wrapper/cef_helpers.h"
 
-void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
-                                  const CefString& title) {
-  CEF_REQUIRE_UI_THREAD();
-
+void SimpleHandler::PlatformTitleChange(CefRefPtr<CefBrowser> browser,
+                                        const CefString& title) {
   NSView* view = (NSView*)browser->GetHost()->GetWindowHandle();
   NSWindow* window = [view window];
   std::string titleStr(title);

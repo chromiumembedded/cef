@@ -15,10 +15,10 @@ CefMenuRunnerLinux::CefMenuRunnerLinux() {
 
 bool CefMenuRunnerLinux::RunContextMenu(
     CefBrowserHostImpl* browser,
-    ui::MenuModel* model,
+    CefMenuModelImpl* model,
     const content::ContextMenuParams& params) {
   menu_.reset(
-      new views::MenuRunner(model, views::MenuRunner::CONTEXT_MENU));
+      new views::MenuRunner(model->model(), views::MenuRunner::CONTEXT_MENU));
 
   const gfx::Point& screen_point =
       browser->GetScreenPoint(gfx::Point(params.x, params.y));

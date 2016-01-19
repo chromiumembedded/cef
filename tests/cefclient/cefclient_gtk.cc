@@ -23,6 +23,7 @@
 #include "cefclient/browser/main_message_loop_std.h"
 #include "cefclient/browser/test_runner.h"
 #include "cefclient/common/client_app_other.h"
+#include "cefclient/common/client_switches.h"
 #include "cefclient/renderer/client_app_renderer.h"
 
 namespace client {
@@ -115,7 +116,7 @@ int RunMain(int argc, char* argv[]) {
 
   // Create the first window.
   context->GetRootWindowManager()->CreateRootWindow(
-      true,             // Show controls.
+      !command_line->HasSwitch(switches::kHideControls),  // Show controls.
       settings.windowless_rendering_enabled ? true : false,
       CefRect(),        // Use default system size.
       std::string());   // Use default URL.

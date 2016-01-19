@@ -35,6 +35,8 @@
 #include "include/cef_version.h"
 #include "libcef_dll/cpptoc/app_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/views/browser_view_delegate_cpptoc.h"
+#include "libcef_dll/cpptoc/views/button_delegate_cpptoc.h"
 #include "libcef_dll/cpptoc/completion_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/context_menu_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/cookie_visitor_cpptoc.h"
@@ -43,6 +45,7 @@
 #include "libcef_dll/cpptoc/dialog_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/display_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/download_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/download_image_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/drag_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/end_tracing_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/find_handler_cpptoc.h"
@@ -53,7 +56,10 @@
 #include "libcef_dll/cpptoc/keyboard_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/life_span_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/load_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/views/menu_button_delegate_cpptoc.h"
+#include "libcef_dll/cpptoc/menu_model_delegate_cpptoc.h"
 #include "libcef_dll/cpptoc/navigation_entry_visitor_cpptoc.h"
+#include "libcef_dll/cpptoc/views/panel_delegate_cpptoc.h"
 #include "libcef_dll/cpptoc/pdf_print_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/print_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/read_handler_cpptoc.h"
@@ -69,33 +75,46 @@
 #include "libcef_dll/cpptoc/set_cookie_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/string_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/task_cpptoc.h"
+#include "libcef_dll/cpptoc/views/textfield_delegate_cpptoc.h"
 #include "libcef_dll/cpptoc/urlrequest_client_cpptoc.h"
 #include "libcef_dll/cpptoc/v8accessor_cpptoc.h"
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
+#include "libcef_dll/cpptoc/views/view_delegate_cpptoc.h"
 #include "libcef_dll/cpptoc/web_plugin_info_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/web_plugin_unstable_callback_cpptoc.h"
+#include "libcef_dll/cpptoc/views/window_delegate_cpptoc.h"
 #include "libcef_dll/cpptoc/write_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/auth_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/before_download_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/binary_value_ctocpp.h"
+#include "libcef_dll/ctocpp/views/box_layout_ctocpp.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
+#include "libcef_dll/ctocpp/views/browser_view_ctocpp.h"
+#include "libcef_dll/ctocpp/views/button_ctocpp.h"
 #include "libcef_dll/ctocpp/callback_ctocpp.h"
 #include "libcef_dll/ctocpp/command_line_ctocpp.h"
 #include "libcef_dll/ctocpp/context_menu_params_ctocpp.h"
 #include "libcef_dll/ctocpp/domdocument_ctocpp.h"
 #include "libcef_dll/ctocpp/domnode_ctocpp.h"
 #include "libcef_dll/ctocpp/dictionary_value_ctocpp.h"
+#include "libcef_dll/ctocpp/views/display_ctocpp.h"
 #include "libcef_dll/ctocpp/download_item_ctocpp.h"
 #include "libcef_dll/ctocpp/download_item_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/drag_data_ctocpp.h"
 #include "libcef_dll/ctocpp/file_dialog_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/views/fill_layout_ctocpp.h"
 #include "libcef_dll/ctocpp/frame_ctocpp.h"
 #include "libcef_dll/ctocpp/geolocation_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/image_ctocpp.h"
 #include "libcef_dll/ctocpp/jsdialog_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/views/label_button_ctocpp.h"
+#include "libcef_dll/ctocpp/views/layout_ctocpp.h"
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
+#include "libcef_dll/ctocpp/views/menu_button_ctocpp.h"
 #include "libcef_dll/ctocpp/menu_model_ctocpp.h"
 #include "libcef_dll/ctocpp/navigation_entry_ctocpp.h"
+#include "libcef_dll/ctocpp/views/panel_ctocpp.h"
 #include "libcef_dll/ctocpp/print_dialog_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/print_job_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/print_settings_ctocpp.h"
@@ -105,9 +124,11 @@
 #include "libcef_dll/ctocpp/sslcert_principal_ctocpp.h"
 #include "libcef_dll/ctocpp/sslinfo_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_registrar_ctocpp.h"
+#include "libcef_dll/ctocpp/views/scroll_view_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
 #include "libcef_dll/ctocpp/task_runner_ctocpp.h"
+#include "libcef_dll/ctocpp/views/textfield_ctocpp.h"
 #include "libcef_dll/ctocpp/urlrequest_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
 #include "libcef_dll/ctocpp/v8exception_ctocpp.h"
@@ -115,7 +136,9 @@
 #include "libcef_dll/ctocpp/v8stack_trace_ctocpp.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
 #include "libcef_dll/ctocpp/value_ctocpp.h"
+#include "libcef_dll/ctocpp/views/view_ctocpp.h"
 #include "libcef_dll/ctocpp/web_plugin_info_ctocpp.h"
+#include "libcef_dll/ctocpp/views/window_ctocpp.h"
 #include "libcef_dll/ctocpp/xml_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/zip_reader_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
@@ -186,10 +209,15 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK(base::AtomicRefCountIsZero(
       &CefBeforeDownloadCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefBinaryValueCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefBoxLayoutCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefBrowserCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefBrowserHostCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefBrowserProcessHandlerCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefBrowserViewCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefBrowserViewDelegateCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefButtonCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefButtonDelegateCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefCompletionCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefContextMenuHandlerCppToC::DebugObjCt));
@@ -202,8 +230,11 @@ CEF_GLOBAL void CefShutdown() {
       &CefDeleteCookiesCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefDialogHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefDictionaryValueCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefDisplayCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefDisplayHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefDownloadHandlerCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefDownloadImageCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefDownloadItemCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefDownloadItemCallbackCToCpp::DebugObjCt));
@@ -211,6 +242,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefDragHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefEndTracingCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefFileDialogCallbackCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefFillLayoutCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefFindHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefFocusHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefFrameCToCpp::DebugObjCt));
@@ -218,16 +250,24 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefGeolocationHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefGetGeolocationCallbackCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefImageCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefJSDialogCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefJSDialogHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefKeyboardHandlerCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefLabelButtonCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefLayoutCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefLifeSpanHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefListValueCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefLoadHandlerCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefMenuButtonCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefMenuButtonDelegateCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefMenuModelCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefMenuModelDelegateCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefNavigationEntryCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefNavigationEntryVisitorCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefPanelCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefPanelDelegateCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefPdfPrintCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefPrintDialogCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefPrintHandlerCppToC::DebugObjCt));
@@ -254,12 +294,15 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK(base::AtomicRefCountIsZero(
       &CefSchemeHandlerFactoryCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefSchemeRegistrarCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefScrollViewCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefSetCookieCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefStreamReaderCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefStreamWriterCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefStringVisitorCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefTaskCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefTaskRunnerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefTextfieldCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefTextfieldDelegateCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefURLRequestCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefURLRequestClientCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefV8AccessorCppToC::DebugObjCt));
@@ -270,11 +313,15 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefV8StackTraceCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefV8ValueCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefValueCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefViewCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefViewDelegateCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefWebPluginInfoCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefWebPluginInfoVisitorCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefWebPluginUnstableCallbackCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefWindowCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefWindowDelegateCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefWriteHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefXmlReaderCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefZipReaderCToCpp::DebugObjCt));

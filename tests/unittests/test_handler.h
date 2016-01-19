@@ -11,13 +11,14 @@
 #include <string>
 #include <utility>
 
-#include "base/synchronization/waitable_event.h"
-
 #include "include/base/cef_bind.h"
 #include "include/cef_browser.h"
 #include "include/cef_client.h"
 #include "include/cef_frame.h"
 #include "include/cef_task.h"
+#include "tests/unittests/thread_helper.h"
+
+#include "base/synchronization/waitable_event.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 class TrackCallback {
@@ -229,6 +230,8 @@ class TestHandler : public CefClient,
 
   void CreateBrowser(const CefString& url,
                      CefRefPtr<CefRequestContext> request_context = NULL);
+  static void CloseBrowser(CefRefPtr<CefBrowser> browser,
+                           bool force_close);
 
   void AddResource(const std::string& url,
                    const std::string& content,
@@ -311,22 +314,8 @@ void ReleaseAndWaitForDestructor(CefRefPtr<T>& handler, int delay_ms = 2000) {
   }
 }
 
-// Post a task to the specified thread and wait for the task to execute as
-// indication that all previously pending tasks on that thread have completed.
-void WaitForThread(CefThreadId thread_id);
-void WaitForThread(CefRefPtr<CefTaskRunner> task_runner);
-
-#define WaitForIOThread() WaitForThread(TID_IO)
-#define WaitForUIThread() WaitForThread(TID_UI)
-#define WaitForDBThread() WaitForThread(TID_DB)
-
 // Returns true if the currently running test has failed.
 bool TestFailed();
-
-#define EXPECT_UI_THREAD()       EXPECT_TRUE(CefCurrentlyOn(TID_UI));
-#define EXPECT_IO_THREAD()       EXPECT_TRUE(CefCurrentlyOn(TID_IO));
-#define EXPECT_FILE_THREAD()     EXPECT_TRUE(CefCurrentlyOn(TID_FILE));
-#define EXPECT_RENDERER_THREAD() EXPECT_TRUE(CefCurrentlyOn(TID_RENDERER));
 
 // Helper macros for executing checks in a method with a boolean return value.
 // For example:

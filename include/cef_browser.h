@@ -41,6 +41,7 @@
 #include "include/cef_base.h"
 #include "include/cef_drag_data.h"
 #include "include/cef_frame.h"
+#include "include/cef_image.h"
 #include "include/cef_navigation_entry.h"
 #include "include/cef_process_message.h"
 #include "include/cef_request_context.h"
@@ -252,6 +253,27 @@ class CefPdfPrintCallback : public virtual CefBase {
 
 
 ///
+// Callback interface for CefBrowserHost::DownloadImage. The methods of this
+// class will be called on the browser process UI thread.
+///
+/*--cef(source=client)--*/
+class CefDownloadImageCallback : public virtual CefBase {
+ public:
+  ///
+  // Method that will be executed when the image download has completed.
+  // |image_url| is the URL that was downloaded and |http_status_code| is the
+  // resulting HTTP status code. |image| is the resulting image, possibly at
+  // multiple scale factors, or empty if the download failed.
+  ///
+  /*--cef(optional_param=image)--*/
+  virtual void OnDownloadImageFinished(
+     const CefString& image_url,
+     int http_status_code,
+     CefRefPtr<CefImage> image) =0;
+};
+
+
+///
 // Class used to represent the browser process aspects of a browser window. The
 // methods of this class can only be called in the browser process. They may be
 // called on any thread in that process unless otherwise indicated in the
@@ -315,6 +337,17 @@ class CefBrowserHost : public virtual CefBase {
   virtual void CloseBrowser(bool force_close) =0;
 
   ///
+  // Helper for closing a browser. Call this method from the top-level window
+  // close handler. Internally this calls CloseBrowser(false) if the close has
+  // not yet been initiated. This method returns false while the close is
+  // pending and true after the close has completed. See CloseBrowser() and
+  // CefLifeSpanHandler::DoClose() documentation for additional usage
+  // information. This method must be called on the browser process UI thread.
+  ///
+  /*--cef()--*/
+  virtual bool TryCloseBrowser() =0;
+
+  ///
   // Set whether the browser is focused.
   ///
   /*--cef()--*/
@@ -328,18 +361,27 @@ class CefBrowserHost : public virtual CefBase {
   virtual void SetWindowVisibility(bool visible) =0;
 
   ///
-  // Retrieve the window handle for this browser.
+  // Retrieve the window handle for this browser. If this browser is wrapped in
+  // a CefBrowserView this method should be called on the browser process UI
+  // thread and it will return the handle for the top-level native window.
   ///
   /*--cef()--*/
   virtual CefWindowHandle GetWindowHandle() =0;
 
   ///
   // Retrieve the window handle of the browser that opened this browser. Will
-  // return NULL for non-popup windows. This method can be used in combination
-  // with custom handling of modal windows.
+  // return NULL for non-popup windows or if this browser is wrapped in a
+  // CefBrowserView. This method can be used in combination with custom handling
+  // of modal windows. 
   ///
   /*--cef()--*/
   virtual CefWindowHandle GetOpenerWindowHandle() =0;
+
+  ///
+  // Returns true if this browser is wrapped in a CefBrowserView.
+  ///
+  /*--cef()--*/
+  virtual bool HasView() =0;
 
   ///
   // Returns the client for this browser.
@@ -401,6 +443,25 @@ class CefBrowserHost : public virtual CefBase {
   virtual void StartDownload(const CefString& url) =0;
 
   ///
+  // Download |image_url| and execute |callback| on completion with the images
+  // received from the renderer. If |is_favicon| is true then cookies are not
+  // sent and not accepted during download. Images with density independent
+  // pixel (DIP) sizes larger than |max_image_size| are filtered out from the
+  // image results. Versions of the image at different scale factors may be
+  // downloaded up to the maximum scale factor supported by the system. If there
+  // are no image results <= |max_image_size| then the smallest image is resized
+  // to |max_image_size| and is the only result. A |max_image_size| of 0 means
+  // unlimited. If |bypass_cache| is true then |image_url| is requested from the
+  // server even if it is present in the browser cache.
+  ///
+  /*--cef()--*/
+  virtual void DownloadImage(const CefString& image_url,
+                             bool is_favicon,
+                             uint32 max_image_size,
+                             bool bypass_cache,
+                             CefRefPtr<CefDownloadImageCallback> callback) =0;
+
+  ///
   // Print the current browser contents.
   ///
   /*--cef()--*/
@@ -437,7 +498,9 @@ class CefBrowserHost : public virtual CefBase {
 
   ///
   // Open developer tools in its own window. If |inspect_element_at| is non-
-  // empty the element at the specified (x,y) location will be inspected.
+  // empty the element at the specified (x,y) location will be inspected. The
+  // |windowInfo| parameter will be ignored if this browser is wrapped in a
+  // CefBrowserView.
   ///
   /*--cef(optional_param=inspect_element_at)--*/
   virtual void ShowDevTools(const CefWindowInfo& windowInfo,

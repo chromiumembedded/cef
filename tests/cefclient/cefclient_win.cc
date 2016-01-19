@@ -14,6 +14,7 @@
 #include "cefclient/browser/root_window_manager.h"
 #include "cefclient/browser/test_runner.h"
 #include "cefclient/common/client_app_other.h"
+#include "cefclient/common/client_switches.h"
 #include "cefclient/renderer/client_app_renderer.h"
 
 // When generating projects with CMake the CEF_USE_SANDBOX value will be defined
@@ -92,7 +93,7 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
 
   // Create the first window.
   context->GetRootWindowManager()->CreateRootWindow(
-      true,             // Show controls.
+      !command_line->HasSwitch(switches::kHideControls),  // Show controls.
       settings.windowless_rendering_enabled ? true : false,
       CefRect(),        // Use default system size.
       std::string());   // Use default URL.

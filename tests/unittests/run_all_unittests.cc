@@ -94,7 +94,20 @@ int main(int argc, char* argv[]) {
   char** argv_copy = argv;
 #endif
 
+  // Parse command-line arguments.
+  CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
 #if defined(OS_WIN)
+  command_line->InitFromString(::GetCommandLineW());
+#else
+  command_line->InitFromArgv(argc, argv);
+#endif
+
+#if defined(OS_WIN)
+  if (command_line->HasSwitch("enable-high-dpi-support")) {
+    // Enable High-DPI support on Windows 7 and newer.
+    CefEnableHighDPISupport();
+  }
+
   CefMainArgs main_args(::GetModuleHandle(NULL));
 #else
   CefMainArgs main_args(argc, argv);
@@ -106,14 +119,6 @@ int main(int argc, char* argv[]) {
   // Manages the life span of the sandbox information object.
   CefScopedSandboxInfo scoped_sandbox;
   windows_sandbox_info = scoped_sandbox.sandbox_info();
-#endif
-
-  // Parse command-line arguments.
-  CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
-#if defined(OS_WIN)
-  command_line->InitFromString(::GetCommandLineW());
-#else
-  command_line->InitFromArgv(argc, argv);
 #endif
 
   // Create a ClientApp of the correct type.

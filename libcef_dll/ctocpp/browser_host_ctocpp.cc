@@ -11,6 +11,7 @@
 //
 
 #include "libcef_dll/cpptoc/client_cpptoc.h"
+#include "libcef_dll/cpptoc/download_image_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/navigation_entry_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/pdf_print_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/run_file_dialog_callback_cpptoc.h"
@@ -92,6 +93,20 @@ void CefBrowserHostCToCpp::CloseBrowser(bool force_close) {
       force_close);
 }
 
+bool CefBrowserHostCToCpp::TryCloseBrowser() {
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, try_close_browser))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->try_close_browser(_struct);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 void CefBrowserHostCToCpp::SetFocus(bool focus) {
   cef_browser_host_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_focus))
@@ -142,6 +157,20 @@ CefWindowHandle CefBrowserHostCToCpp::GetOpenerWindowHandle() {
 
   // Return type: simple
   return _retval;
+}
+
+bool CefBrowserHostCToCpp::HasView() {
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, has_view))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->has_view(_struct);
+
+  // Return type: bool
+  return _retval?true:false;
 }
 
 CefRefPtr<CefClient> CefBrowserHostCToCpp::GetClient() {
@@ -253,6 +282,33 @@ void CefBrowserHostCToCpp::StartDownload(const CefString& url) {
   // Execute
   _struct->start_download(_struct,
       url.GetStruct());
+}
+
+void CefBrowserHostCToCpp::DownloadImage(const CefString& image_url,
+    bool is_favicon, uint32 max_image_size, bool bypass_cache,
+    CefRefPtr<CefDownloadImageCallback> callback) {
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, download_image))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: image_url; type: string_byref_const
+  DCHECK(!image_url.empty());
+  if (image_url.empty())
+    return;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback.get());
+  if (!callback.get())
+    return;
+
+  // Execute
+  _struct->download_image(_struct,
+      image_url.GetStruct(),
+      is_favicon,
+      max_image_size,
+      bypass_cache,
+      CefDownloadImageCallbackCppToC::Wrap(callback));
 }
 
 void CefBrowserHostCToCpp::Print() {

@@ -17,7 +17,7 @@ class CefMenuRunnerLinux: public CefMenuRunner {
 
   // CefMenuRunner methods.
   bool RunContextMenu(CefBrowserHostImpl* browser,
-                      ui::MenuModel* model,
+                      CefMenuModelImpl* model,
                       const content::ContextMenuParams& params) override;
   void CancelContextMenu() override;
   bool FormatLabel(base::string16& label) override;

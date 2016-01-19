@@ -14,17 +14,6 @@ namespace window_test {
 // Create message handlers. Called from test_runner.cc.
 void CreateMessageHandlers(test_runner::MessageHandlerSet& handlers);
 
-// Fit |window| inside |display|. Coordinates are relative to the upper-left
-// corner of the display.
-void ModifyBounds(const CefRect& display, CefRect& window);
-
-// Platform implementations.
-void SetPos(CefRefPtr<CefBrowser> browser,
-            int x, int y, int width, int height);
-void Minimize(CefRefPtr<CefBrowser> browser);
-void Maximize(CefRefPtr<CefBrowser> browser);
-void Restore(CefRefPtr<CefBrowser> browser);
-
 }  // namespace window_test
 }  // namespace client
 

@@ -131,11 +131,36 @@ void LoadErrorPage(CefRefPtr<CefFrame> frame,
 
 }  // namespace
 
+
+class ClientDownloadImageCallback : public CefDownloadImageCallback {
+ public:
+  explicit ClientDownloadImageCallback(
+      CefRefPtr<ClientHandler> client_handler)
+      : client_handler_(client_handler) {
+  }
+
+  void OnDownloadImageFinished(
+      const CefString& image_url,
+      int http_status_code,
+      CefRefPtr<CefImage> image) OVERRIDE {
+    if (image)
+      client_handler_->NotifyFavicon(image);
+  }
+
+ private:
+  CefRefPtr<ClientHandler> client_handler_;
+
+  IMPLEMENT_REFCOUNTING(ClientDownloadImageCallback);
+  DISALLOW_COPY_AND_ASSIGN(ClientDownloadImageCallback);
+};
+
+
 ClientHandler::ClientHandler(Delegate* delegate,
                              bool is_osr,
                              const std::string& startup_url)
   : is_osr_(is_osr),
     startup_url_(startup_url),
+    download_favicon_images_(false),
     delegate_(delegate),
     browser_count_(0),
     console_log_file_(MainContext::Get()->GetConsoleLogPath()),
@@ -255,6 +280,17 @@ void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
   CEF_REQUIRE_UI_THREAD();
 
   NotifyTitle(title);
+}
+
+void ClientHandler::OnFaviconURLChange(
+    CefRefPtr<CefBrowser> browser,
+    const std::vector<CefString>& icon_urls) {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (!icon_urls.empty() && download_favicon_images_) {
+    browser->GetHost()->DownloadImage(icon_urls[0], true, 16, false,
+                                      new ClientDownloadImageCallback(this));
+  }
 }
 
 void ClientHandler::OnFullscreenModeChange(CefRefPtr<CefBrowser> browser,
@@ -743,6 +779,18 @@ void ClientHandler::NotifyTitle(const CefString& title) {
 
   if (delegate_)
     delegate_->OnSetTitle(title);
+}
+
+void ClientHandler::NotifyFavicon(CefRefPtr<CefImage> image) {
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute this method on the main thread.
+    MAIN_POST_CLOSURE(
+        base::Bind(&ClientHandler::NotifyFavicon, this, image));
+    return;
+  }
+
+  if (delegate_)
+    delegate_->OnSetFavicon(image);
 }
 
 void ClientHandler::NotifyFullscreen(bool fullscreen) {

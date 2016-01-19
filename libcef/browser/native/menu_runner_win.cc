@@ -15,10 +15,10 @@ CefMenuRunnerWin::CefMenuRunnerWin() {
 
 bool CefMenuRunnerWin::RunContextMenu(
     CefBrowserHostImpl* browser,
-    ui::MenuModel* model,
+    CefMenuModelImpl* model,
     const content::ContextMenuParams& params) {
   // Create a menu based on the model.
-  menu_.reset(new views::NativeMenuWin(model, NULL));
+  menu_.reset(new views::NativeMenuWin(model->model(), NULL));
   menu_->Rebuild(NULL);
 
   // Make sure events can be pumped while the menu is up.

@@ -576,16 +576,7 @@ LRESULT CALLBACK CefBrowserPlatformDelegateNativeWin::WndProc(
 
   switch (message) {
   case WM_CLOSE:
-    // Protect against multiple requests to close while the close is pending.
-    if (browser &&
-        browser->destruction_state() <=
-            CefBrowserHostImpl::DESTRUCTION_STATE_PENDING) {
-      if (browser->destruction_state() ==
-              CefBrowserHostImpl::DESTRUCTION_STATE_NONE) {
-        // Request that the browser close.
-        browser->CloseBrowser(false);
-      }
-
+    if (browser && !browser->TryCloseBrowser()) {
       // Cancel the close.
       return 0;
     }

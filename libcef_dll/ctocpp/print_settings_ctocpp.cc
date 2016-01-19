@@ -178,9 +178,9 @@ void CefPrintSettingsCToCpp::SetPageRanges(const PageRangeList& ranges) {
 
   // Translate param: ranges; type: simple_vec_byref_const
   const size_t rangesCount = ranges.size();
-  cef_page_range_t* rangesList = NULL;
+  cef_range_t* rangesList = NULL;
   if (rangesCount > 0) {
-    rangesList = new cef_page_range_t[rangesCount];
+    rangesList = new cef_range_t[rangesCount];
     DCHECK(rangesList);
     if (rangesList) {
       for (size_t i = 0; i < rangesCount; ++i) {
@@ -223,12 +223,12 @@ void CefPrintSettingsCToCpp::GetPageRanges(PageRangeList& ranges) {
   // Translate param: ranges; type: simple_vec_byref
   size_t rangesSize = ranges.size();
   size_t rangesCount = std::max(GetPageRangesCount(), rangesSize);
-  cef_page_range_t* rangesList = NULL;
+  cef_range_t* rangesList = NULL;
   if (rangesCount > 0) {
-    rangesList = new cef_page_range_t[rangesCount];
+    rangesList = new cef_range_t[rangesCount];
     DCHECK(rangesList);
     if (rangesList) {
-       memset(rangesList, 0, sizeof(cef_page_range_t)*rangesCount);
+       memset(rangesList, 0, sizeof(cef_range_t)*rangesCount);
     }
     if (rangesList && rangesSize > 0) {
       for (size_t i = 0; i < rangesSize; ++i) {

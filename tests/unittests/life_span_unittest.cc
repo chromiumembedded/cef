@@ -124,7 +124,7 @@ class LifeSpanTestHandler : public RoutingTestHandler {
     EXPECT_TRUE(browser->IsSame(GetBrowser()));
 
     // Attempt to close the browser.
-    browser->GetHost()->CloseBrowser(settings_.force_close);
+    CloseBrowser(browser, settings_.force_close);
   }
 
   bool OnQuery(CefRefPtr<CefBrowser> browser,

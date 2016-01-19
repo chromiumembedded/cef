@@ -51,6 +51,7 @@ class CefBrowserPlatformDelegateOsr :
   scoped_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner() override;
   scoped_ptr<CefMenuRunner> CreateMenuRunner() override;
   bool IsWindowless() const override;
+  bool IsViewsHosted() const override;
   void WasHidden(bool hidden) override;
   void NotifyScreenInfoChanged() override;
   void Invalidate(cef_paint_element_type_t type) override;

@@ -4,6 +4,8 @@
 
 #include "cefclient/browser/root_window_mac.h"
 
+#include <Cocoa/Cocoa.h>
+
 #include "include/base/cef_bind.h"
 #include "include/cef_app.h"
 #include "include/cef_application_mac.h"
@@ -12,7 +14,7 @@
 #include "cefclient/browser/main_context.h"
 #include "cefclient/browser/main_message_loop.h"
 #include "cefclient/browser/temp_window.h"
-#include "cefclient/browser/window_test.h"
+#include "cefclient/browser/window_test_runner_mac.h"
 #include "cefclient/common/client_switches.h"
 
 // Receives notifications from controls and the browser window. Will delete
@@ -613,10 +615,12 @@ void RootWindowMac::OnSetFullscreen(bool fullscreen) {
 
   CefRefPtr<CefBrowser> browser = GetBrowser();
   if (browser) {
+    scoped_ptr<window_test::WindowTestRunnerMac> test_runner(
+        new window_test::WindowTestRunnerMac());
     if (fullscreen)
-      window_test::Maximize(browser);
+      test_runner->Maximize(browser);
     else
-      window_test::Restore(browser);
+      test_runner->Restore(browser);
   }
 }
 
@@ -638,11 +642,6 @@ void RootWindowMac::NotifyDestroyedIfDone() {
   // Notify once both the window and the browser have been destroyed.
   if (window_destroyed_ && browser_destroyed_)
     delegate_->OnRootWindowDestroyed(this);
-}
-
-// static
-scoped_refptr<RootWindow> RootWindow::Create() {
-  return new RootWindowMac();
 }
 
 // static

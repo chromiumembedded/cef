@@ -10,6 +10,7 @@ from make_cpptoc_impl import *
 from make_ctocpp_header import *
 from make_ctocpp_impl import *
 from make_gypi_file import *
+from make_views_stub_impl import *
 from make_wrapper_types_header import *
 from optparse import OptionParser
 
@@ -47,6 +48,7 @@ if options.rootdir is None:
 root_dir = os.path.abspath(options.rootdir)
 cpp_header_dir = os.path.join(root_dir, 'include')
 cpp_header_test_dir = os.path.join(cpp_header_dir, 'test')
+cpp_header_views_dir = os.path.join(cpp_header_dir, 'views')
 capi_header_dir = os.path.join(cpp_header_dir, 'capi')
 libcef_dll_dir = os.path.join(root_dir, 'libcef_dll')
 cpptoc_global_impl = os.path.join(libcef_dll_dir, 'libcef_dll.cc')
@@ -55,6 +57,7 @@ wrapper_types_header = os.path.join(libcef_dll_dir, 'wrapper_types.h')
 cpptoc_dir = os.path.join(libcef_dll_dir, 'cpptoc')
 ctocpp_dir = os.path.join(libcef_dll_dir, 'ctocpp')
 gypi_file = os.path.join(root_dir, 'cef_paths.gypi')
+views_stub_impl = os.path.join(libcef_dll_dir, 'views_stub.cc')
 
 # make sure the header directory exists
 if not path_exists(cpp_header_dir):
@@ -71,6 +74,7 @@ header.set_root_directory(cpp_header_dir)
 excluded_files = ['cef_application_mac.h', 'cef_version.h']
 header.add_directory(cpp_header_dir, excluded_files)
 header.add_directory(cpp_header_test_dir)
+header.add_directory(cpp_header_views_dir)
 
 writect = 0
 
@@ -140,6 +144,11 @@ for cls in classes:
 if not options.quiet:
     sys.stdout.write('Generating '+gypi_file+' file...\n')
 writect += write_gypi_file(header, gypi_file, options.backup)
+
+# output the views stub file
+if not options.quiet:
+    sys.stdout.write('Generating '+views_stub_impl+' file...\n')
+writect += write_views_stub_impl(header, views_stub_impl, options.backup)
 
 if not options.quiet:
     sys.stdout.write('Done - Wrote '+str(writect)+' files.\n')

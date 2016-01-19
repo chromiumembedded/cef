@@ -1264,7 +1264,7 @@ class OrderNavTestHandler : public TestHandler {
           "window.open('" + std::string(KONav2) + "');", CefString(), 0);
     } else {
       // Close the popup window.
-      browser_popup_->GetHost()->CloseBrowser(false);
+      CloseBrowser(browser_popup_, false);
     }
   }
 
@@ -2106,7 +2106,7 @@ class PopupNavTestHandler : public TestHandler {
 
       if (mode_ != NAVIGATE_AFTER_CREATION) {
         if (mode_ != DENY) {
-          browser->GetHost()->CloseBrowser(false);
+          CloseBrowser(browser, false);
           DestroyTest();
         } else {
           EXPECT_FALSE(true); // Not reached.
@@ -2117,7 +2117,7 @@ class PopupNavTestHandler : public TestHandler {
       got_popup_load_end2_.yes();
 
       if (mode_ == NAVIGATE_AFTER_CREATION) {
-        browser->GetHost()->CloseBrowser(false);
+        CloseBrowser(browser, false);
         DestroyTest();
       } else {
         EXPECT_FALSE(true); // Not reached.
@@ -2276,7 +2276,7 @@ class PopupSimultaneousTestHandler : public TestHandler {
           EXPECT_STREQ(popup_url_[i].c_str(), url.c_str()) << i;
 
           got_loading_state_change_[i].yes();
-          browser->GetHost()->CloseBrowser(true);
+          CloseBrowser(browser, true);
           return;
         }
       }
@@ -2413,7 +2413,7 @@ class PopupJSWindowOpenTestHandler : public TestHandler {
         EXPECT_STREQ(kPopupJSOpenPopupUrl, url.c_str());
 
       load_end_ct_++;
-      browser->GetHost()->CloseBrowser(true);
+      CloseBrowser(browser, true);
     } else if (browser->GetMainFrame()->GetURL() == kPopupJSOpenMainUrl) {
       // Load the problematic JS URI.
       // This will result in 2 popups being created:

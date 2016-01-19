@@ -98,7 +98,7 @@ CefMenuManager::CefMenuManager(CefBrowserHostImpl* browser,
     weak_ptr_factory_(this) {
   DCHECK(web_contents());
   DCHECK(runner_.get());
-  model_ = new CefMenuModelImpl(this);
+  model_ = new CefMenuModelImpl(this, nullptr);
 }
 
 CefMenuManager::~CefMenuManager() {
@@ -197,7 +197,7 @@ bool CefMenuManager::CreateContextMenu(
 
   if (custom_menu)
     return true;
-  return runner_->RunContextMenu(browser_, model_->model(), params_);
+  return runner_->RunContextMenu(browser_, model_.get(), params_);
 }
 
 void CefMenuManager::CancelContextMenu() {

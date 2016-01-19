@@ -34,13 +34,19 @@ void CefBrowserPlatformDelegate::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
   // Indicate that the view has an external parent (namely us). This changes the
   // default view behavior in some cases (e.g. focus handling on Linux).
-  if (render_view_host->GetWidget()->GetView())
+  if (!IsViewsHosted() && render_view_host->GetWidget()->GetView())
     render_view_host->GetWidget()->GetView()->SetHasExternalParent(true);
 }
 
 void CefBrowserPlatformDelegate::BrowserCreated(CefBrowserHostImpl* browser) {
   DCHECK(!browser_);
   browser_ = browser;
+}
+
+void CefBrowserPlatformDelegate::NotifyBrowserCreated() {
+}
+
+void CefBrowserPlatformDelegate::NotifyBrowserDestroyed() {
 }
 
 void CefBrowserPlatformDelegate::BrowserDestroyed(CefBrowserHostImpl* browser) {
@@ -62,7 +68,25 @@ views::Widget* CefBrowserPlatformDelegate::GetWindowWidget() const {
   NOTREACHED();
   return nullptr;
 }
-#endif
+
+CefRefPtr<CefBrowserView> CefBrowserPlatformDelegate::GetBrowserView() const {
+  NOTREACHED();
+  return nullptr;
+}
+#endif  // defined(USE_AURA)
+
+void CefBrowserPlatformDelegate::PopupWebContentsCreated(
+    const CefBrowserSettings& settings,
+    CefRefPtr<CefClient> client,
+    content::WebContents* new_web_contents,
+    CefBrowserPlatformDelegate* new_platform_delegate,
+    bool is_devtools) {
+}
+
+void CefBrowserPlatformDelegate::PopupBrowserCreated(
+    CefBrowserHostImpl* new_browser,
+    bool is_devtools) {
+}
 
 void CefBrowserPlatformDelegate::SendCaptureLostEvent() {
   content::RenderWidgetHostImpl* widget =

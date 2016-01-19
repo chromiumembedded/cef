@@ -40,7 +40,6 @@ class CefLifeSpanHandlerCToCpp
       CefRefPtr<CefClient>& client, CefBrowserSettings& settings,
       bool* no_javascript_access) override;
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
-  bool RunModal(CefRefPtr<CefBrowser> browser) override;
   bool DoClose(CefRefPtr<CefBrowser> browser) override;
   void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
 };

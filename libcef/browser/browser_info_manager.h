@@ -168,7 +168,6 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
     std::string target_frame_name;
 
     // Values specified by OnBeforePopup.
-    CefWindowInfo window_info;
     CefBrowserSettings settings;
     CefRefPtr<CefClient> client;
 

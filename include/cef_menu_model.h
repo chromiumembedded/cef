@@ -39,6 +39,7 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_menu_model_delegate.h"
 
 ///
 // Supports creation and modification of menus. See cef_menu_id_t for the
@@ -50,6 +51,13 @@
 class CefMenuModel : public virtual CefBase {
  public:
   typedef cef_menu_item_type_t MenuItemType;
+
+  ///
+  // Create a new MenuModel with the specified |delegate|.
+  ///
+  /*--cef()--*/
+  static CefRefPtr<CefMenuModel> CreateMenuModel(
+      CefRefPtr<CefMenuModelDelegate> delegate);
 
   ///
   // Clears the menu. Returns true on success.

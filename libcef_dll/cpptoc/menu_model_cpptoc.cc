@@ -11,6 +11,27 @@
 //
 
 #include "libcef_dll/cpptoc/menu_model_cpptoc.h"
+#include "libcef_dll/ctocpp/menu_model_delegate_ctocpp.h"
+
+
+// GLOBAL FUNCTIONS - Body may be edited by hand.
+
+CEF_EXPORT cef_menu_model_t* cef_menu_model_create(
+    struct _cef_menu_model_delegate_t* delegate) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: delegate; type: refptr_diff
+  DCHECK(delegate);
+  if (!delegate)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefMenuModel> _retval = CefMenuModel::CreateMenuModel(
+      CefMenuModelDelegateCToCpp::Wrap(delegate));
+
+  // Return type: refptr_same
+  return CefMenuModelCppToC::Wrap(_retval);
+}
 
 
 namespace {

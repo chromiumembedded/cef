@@ -9,6 +9,8 @@
 
 #include "include/base/cef_bind.h"
 #include "include/cef_app.h"
+#include "include/views/cef_browser_view.h"
+#include "include/views/cef_window.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
 
@@ -18,8 +20,9 @@ SimpleHandler* g_instance = NULL;
 
 }  // namespace
 
-SimpleHandler::SimpleHandler()
-    : is_closing_(false) {
+SimpleHandler::SimpleHandler(bool use_views)
+    : use_views_(use_views),
+      is_closing_(false) {
   DCHECK(!g_instance);
   g_instance = this;
 }
@@ -31,6 +34,25 @@ SimpleHandler::~SimpleHandler() {
 // static
 SimpleHandler* SimpleHandler::GetInstance() {
   return g_instance;
+}
+
+void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
+                                  const CefString& title) {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (use_views_) {
+    // Set the title of the window using the Views framework.
+    CefRefPtr<CefBrowserView> browser_view =
+        CefBrowserView::GetForBrowser(browser);
+    if (browser_view) {
+      CefRefPtr<CefWindow> window = browser_view->GetWindow();
+      if (window)
+        window->SetTitle(title);
+    }
+  } else {
+    // Set the title of the window using platform APIs.
+    PlatformTitleChange(browser, title);
+  }
 }
 
 void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {

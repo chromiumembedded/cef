@@ -1857,7 +1857,7 @@ class MultiQuerySingleFrameTestHandler :
       } else if (cancel_type_ == CANCEL_BY_CLOSING_BROWSER) {
         // Change the expected behavior in the handler.
         SetSignalCompletionWhenAllBrowsersClose(false);
-        GetBrowser()->GetHost()->CloseBrowser(false);
+        CloseBrowser(GetBrowser(), false);
       }
     }
   }

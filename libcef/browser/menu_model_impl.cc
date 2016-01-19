@@ -7,6 +7,8 @@
 
 #include <vector>
 
+#include "libcef/browser/thread_util.h"
+
 #include "base/bind.h"
 #include "base/logging.h"
 #include "base/message_loop/message_loop.h"
@@ -162,6 +164,18 @@ class CefSimpleMenuModel : public ui::MenuModel {
 
 }  // namespace
 
+// static
+CefRefPtr<CefMenuModel> CefMenuModel::CreateMenuModel(
+    CefRefPtr<CefMenuModelDelegate> delegate) {
+  CEF_REQUIRE_UIT_RETURN(nullptr);
+  DCHECK(delegate);
+  if (!delegate)
+    return nullptr;
+
+  CefRefPtr<CefMenuModelImpl> menu_model =
+      new CefMenuModelImpl(nullptr, delegate);
+  return menu_model;
+}
 
 struct CefMenuModelImpl::Item {
   Item(cef_menu_item_type_t type,
@@ -203,9 +217,13 @@ struct CefMenuModelImpl::Item {
 };
 
 
-CefMenuModelImpl::CefMenuModelImpl(Delegate* delegate)
+CefMenuModelImpl::CefMenuModelImpl(
+    Delegate* delegate,
+    CefRefPtr<CefMenuModelDelegate> menu_model_delegate)
     : supported_thread_id_(base::PlatformThread::CurrentId()),
-      delegate_(delegate) {
+      delegate_(delegate),
+      menu_model_delegate_(menu_model_delegate) {
+  DCHECK(delegate_ || menu_model_delegate_);
   model_.reset(new CefSimpleMenuModel(this));
 }
 
@@ -266,7 +284,7 @@ CefRefPtr<CefMenuModel> CefMenuModelImpl::AddSubMenu(int command_id,
     return NULL;
 
   Item item(MENUITEMTYPE_SUBMENU, command_id, label, -1);
-  item.submenu_ = new CefMenuModelImpl(delegate_);
+  item.submenu_ = new CefMenuModelImpl(delegate_, menu_model_delegate_);
   AppendItem(item);
   return item.submenu_.get();
 }
@@ -313,7 +331,7 @@ CefRefPtr<CefMenuModel> CefMenuModelImpl::InsertSubMenuAt(
     return NULL;
 
   Item item(MENUITEMTYPE_SUBMENU, command_id, label, -1);
-  item.submenu_ = new CefMenuModelImpl(delegate_);
+  item.submenu_ = new CefMenuModelImpl(delegate_, menu_model_delegate_);
   InsertItemAt(item, index);
   return item.submenu_.get();
 }
@@ -618,13 +636,25 @@ bool CefMenuModelImpl::GetAcceleratorAt(int index, int& key_code,
 }
 
 void CefMenuModelImpl::ActivatedAt(int index, cef_event_flags_t event_flags) {
-  if (VerifyContext() && delegate_)
-    delegate_->ExecuteCommand(this, GetCommandIdAt(index), event_flags);
+  if (!VerifyContext())
+    return;
+  
+  const int command_id = GetCommandIdAt(index);
+  if (delegate_)
+    delegate_->ExecuteCommand(this, command_id, event_flags);
+  if (menu_model_delegate_)
+    menu_model_delegate_->ExecuteCommand(this, command_id, event_flags);
 }
 
 void CefMenuModelImpl::MenuWillShow() {
-  if (VerifyContext() && delegate_)
+  if (!VerifyContext())
+    return;
+  
+  if (delegate_)
     delegate_->MenuWillShow(this);
+  if (menu_model_delegate_)
+    menu_model_delegate_->MenuWillShow(this);
+  FOR_EACH_OBSERVER(Observer, observers_, MenuWillShow(this));
 }
 
 void CefMenuModelImpl::MenuClosed() {
@@ -641,7 +671,13 @@ void CefMenuModelImpl::MenuClosed() {
 
 base::string16 CefMenuModelImpl::GetFormattedLabelAt(int index) {
   base::string16 label = GetLabelAt(index).ToString16();
-  delegate_->FormatLabel(label);
+  if (delegate_)
+    delegate_->FormatLabel(label);
+  if (menu_model_delegate_) {
+    CefString new_label = label;
+    if (menu_model_delegate_->FormatLabel(this, new_label))
+      label = new_label;
+  }
   return label;
 }
 
@@ -660,6 +696,18 @@ bool CefMenuModelImpl::VerifyRefCount() {
   }
 
   return true;
+}
+
+void CefMenuModelImpl::AddObserver(Observer* observer) {
+  observers_.AddObserver(observer);
+}
+
+void CefMenuModelImpl::RemoveObserver(Observer* observer) {
+  observers_.RemoveObserver(observer);
+}
+
+bool CefMenuModelImpl::HasObserver(Observer* observer) const {
+  return observers_.HasObserver(observer);
 }
 
 void CefMenuModelImpl::AddMenuItem(const content::MenuItem& menu_item) {
@@ -726,6 +774,9 @@ void CefMenuModelImpl::ValidateItem(const Item& item) {
 void CefMenuModelImpl::OnMenuClosed() {
   if (delegate_)
     delegate_->MenuClosed(this);
+  if (menu_model_delegate_)
+    menu_model_delegate_->MenuClosed(this);
+  FOR_EACH_OBSERVER(Observer, observers_, MenuClosed(this));
 }
 
 bool CefMenuModelImpl::VerifyContext() {

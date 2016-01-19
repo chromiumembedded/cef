@@ -78,7 +78,7 @@ void CefPrintSettingsImpl::SetPageRanges(const PageRangeList& ranges) {
   printing::PageRanges page_ranges;
   PageRangeList::const_iterator it = ranges.begin();
   for(; it != ranges.end(); ++it) {
-    const CefPageRange& cef_range = *it;
+    const CefRange& cef_range = *it;
     printing::PageRange range;
     range.from = cef_range.from;
     range.to = cef_range.to;
@@ -100,7 +100,7 @@ void CefPrintSettingsImpl::GetPageRanges(PageRangeList& ranges) {
   printing::PageRanges::const_iterator it = page_ranges.begin();
   for (; it != page_ranges.end(); ++it) {
     const printing::PageRange& range = *it;
-    ranges.push_back(CefPageRange(range.from, range.to));
+    ranges.push_back(CefRange(range.from, range.to));
   }
 }
 

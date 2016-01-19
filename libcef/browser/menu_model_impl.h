@@ -10,8 +10,10 @@
 #include <vector>
 
 #include "include/cef_menu_model.h"
+#include "include/cef_menu_model_delegate.h"
 
 #include "base/memory/scoped_ptr.h"
+#include "base/observer_list.h"
 #include "base/threading/platform_thread.h"
 #include "ui/base/models/menu_model.h"
 
@@ -42,8 +44,22 @@ class CefMenuModelImpl : public CefMenuModel {
     virtual ~Delegate() {}
   };
 
-  // The delegate must outlive this class.
-  explicit CefMenuModelImpl(Delegate* delegate);
+  class Observer {
+   public:
+    // Notifies the delegate that the menu is about to show.
+    virtual void MenuWillShow(CefRefPtr<CefMenuModelImpl> source) {};
+
+    // Notifies the delegate that the menu has closed.
+    virtual void MenuClosed(CefRefPtr<CefMenuModelImpl> source) {};
+
+   protected:
+    virtual ~Observer() {}
+  };
+
+  // Either |delegate| or |menu_model_delegate| must be non-nullptr.
+  // If |delegate| is non-nullptr it must outlive this class.
+  CefMenuModelImpl(Delegate* delegate,
+                   CefRefPtr<CefMenuModelDelegate> menu_model_delegate);
   ~CefMenuModelImpl() override;
 
   // CefMenuModel methods.
@@ -116,12 +132,20 @@ class CefMenuModelImpl : public CefMenuModel {
   // Verify that only a single reference exists to all CefMenuModelImpl objects.
   bool VerifyRefCount();
 
+  // Manage observer objects. The observer must either outlive this object or
+  // remove itself before destruction.
+  void AddObserver(Observer* observer);
+  void RemoveObserver(Observer* observer);
+  bool HasObserver(Observer* observer) const;
+
   // Helper for adding custom menu items originating from the renderer process.
   void AddMenuItem(const content::MenuItem& menu_item);
 
   ui::MenuModel* model() { return model_.get(); }
+
+  // Used when created via CefMenuManager.
   Delegate* delegate() { return delegate_; }
-  void set_delegate(Delegate* delegate) { delegate_ = NULL; }
+  void set_delegate(Delegate* delegate) { delegate_ = delegate; }
 
  private:
   struct Item;
@@ -140,9 +164,18 @@ class CefMenuModelImpl : public CefMenuModel {
   bool VerifyContext();
 
   base::PlatformThreadId supported_thread_id_;
+
+  // Used when created via CefMenuManager.
   Delegate* delegate_;
+
+  // Used when created via CefMenuModel::CreateMenuModel().
+  CefRefPtr<CefMenuModelDelegate> menu_model_delegate_;
+
   ItemVector items_;
   scoped_ptr<ui::MenuModel> model_;
+
+  // Observers that want to be notified of changes to this object.
+  base::ObserverList<Observer> observers_;
 
   IMPLEMENT_REFCOUNTING(CefMenuModelImpl);
   DISALLOW_COPY_AND_ASSIGN(CefMenuModelImpl);

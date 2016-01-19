@@ -45,3 +45,7 @@ void CefBrowserPlatformDelegateNative::SendMouseWheelEvent(
 bool CefBrowserPlatformDelegateNative::IsWindowless() const {
   return false;
 }
+
+bool CefBrowserPlatformDelegateNative::IsViewsHosted() const {
+  return false;
+}

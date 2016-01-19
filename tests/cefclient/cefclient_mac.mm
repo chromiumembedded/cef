@@ -12,6 +12,7 @@
 #include "cefclient/browser/resource.h"
 #include "cefclient/browser/root_window.h"
 #include "cefclient/browser/test_runner.h"
+#include "cefclient/common/client_switches.h"
 
 namespace {
 
@@ -27,10 +28,11 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
 // Receives notifications from the application. Will delete itself when done.
 @interface ClientAppDelegate : NSObject<NSApplicationDelegate> {
  @private
+  bool with_controls_;
   bool with_osr_;
 }
 
-- (id)initWithOsr:(bool)with_osr;
+- (id)initWithControls:(bool)with_controls andOsr:(bool)with_osr;
 - (void)createApplication:(id)object;
 - (void)tryToTerminateApplication:(NSApplication*)app;
 - (IBAction)menuItemSelected:(id)sender;
@@ -105,8 +107,9 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
 
 @implementation ClientAppDelegate
 
-- (id)initWithOsr:(bool)with_osr {
+- (id)initWithControls:(bool)with_controls andOsr:(bool)with_osr {
   if (self = [super init]) {
+    with_controls_ = with_controls;
     with_osr_ = with_osr;
   }
   return self;
@@ -149,7 +152,7 @@ void AddMenuItem(NSMenu *menu, NSString* label, int idval) {
 
   // Create the first window.
   client::MainContext::Get()->GetRootWindowManager()->CreateRootWindow(
-      true,             // Show controls.
+      with_controls_,   // Show controls.
       with_osr_,        // Use off-screen rendering.
       CefRect(),        // Use default system size.
       std::string());   // Use default URL.
@@ -223,7 +226,8 @@ int RunMain(int argc, char* argv[]) {
 
   // Create the application delegate and window.
   ClientAppDelegate* delegate = [[ClientAppDelegate alloc]
-      initWithOsr:settings.windowless_rendering_enabled ? true : false];
+      initWithControls:!command_line->HasSwitch(switches::kHideControls)
+                andOsr:settings.windowless_rendering_enabled ? true : false];
   [delegate performSelectorOnMainThread:@selector(createApplication:)
                              withObject:nil
                           waitUntilDone:NO];

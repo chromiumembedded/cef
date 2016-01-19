@@ -129,11 +129,15 @@ void AddFilters(GtkFileChooser* chooser,
   }
 }
 
-GtkWidget* GetWindow(CefRefPtr<CefBrowser> browser) {
+GtkWindow* GetWindow(CefRefPtr<CefBrowser> browser) {
   scoped_refptr<RootWindow> root_window =
       RootWindow::GetForBrowser(browser->GetIdentifier());
-  if (root_window.get())
-    return root_window->GetWindowHandle();
+  if (root_window) {
+    GtkWindow* window = GTK_WINDOW(root_window->GetWindowHandle());
+    if (!window)
+      LOG(ERROR) << "No GtkWindow for browser";
+    return window;
+  }
   return NULL;
 }
 
@@ -197,8 +201,9 @@ bool ClientDialogHandlerGtk::OnFileDialog(
     }
   }
 
-  GtkWidget* window = GetWindow(browser);
-  DCHECK(window);
+  GtkWindow* window = GetWindow(browser);
+  if (!window)
+    return false;
 
   GtkWidget* dialog = gtk_file_chooser_dialog_new(
       title_str.c_str(),
@@ -337,8 +342,9 @@ bool ClientDialogHandlerGtk::OnJSDialog(
     title += CefFormatUrlForSecurityDisplay(origin_url, accept_lang).ToString();
   }
 
-  GtkWidget* window = GetWindow(browser);
-  DCHECK(window);
+  GtkWindow* window = GetWindow(browser);
+  if (!window)
+    return false;
 
   gtk_dialog_ = gtk_message_dialog_new(GTK_WINDOW(window),
                                        GTK_DIALOG_MODAL,

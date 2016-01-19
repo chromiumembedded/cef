@@ -45,20 +45,25 @@
 #define IDC_STATIC                      -1
 #define IDS_BINDING_HTML                1000
 #define IDS_DIALOGS_HTML                1001
-#define IDS_LOCALSTORAGE_HTML           1002
-#define IDS_LOGO_PNG                    1003
-#define IDS_OSRTEST_HTML                1004
-#define IDS_OTHER_TESTS_HTML            1005
-#define IDS_PDF_HTML                    1006
-#define IDS_PDF_PDF                     1007
-#define IDS_PERFORMANCE_HTML            1008
-#define IDS_PERFORMANCE2_HTML           1009
-#define IDS_PREFERENCES_HTML            1010
-#define IDS_RESPONSE_FILTER_HTML        1011
-#define IDS_TRANSPARENCY_HTML           1012
-#define IDS_URLREQUEST_HTML             1013
-#define IDS_WINDOW_HTML                 1014
-#define IDS_XMLHTTPREQUEST_HTML         1015
+#define IDS_DRAGGABLE_HTML              1002
+#define IDS_LOCALSTORAGE_HTML           1003
+#define IDS_LOGO_PNG                    1004
+#define IDS_MENU_ICON_1X_PNG            1005
+#define IDS_MENU_ICON_2X_PNG            1006
+#define IDS_OSRTEST_HTML                1007
+#define IDS_OTHER_TESTS_HTML            1008
+#define IDS_PDF_HTML                    1009
+#define IDS_PDF_PDF                     1010
+#define IDS_PERFORMANCE_HTML            1011
+#define IDS_PERFORMANCE2_HTML           1012
+#define IDS_PREFERENCES_HTML            1013
+#define IDS_RESPONSE_FILTER_HTML        1014
+#define IDS_TRANSPARENCY_HTML           1015
+#define IDS_URLREQUEST_HTML             1016
+#define IDS_WINDOW_HTML                 1017
+#define IDS_WINDOW_ICON_1X_PNG          1018
+#define IDS_WINDOW_ICON_2X_PNG          1019
+#define IDS_XMLHTTPREQUEST_HTML         1020
 
 // Next default values for new objects
 // 

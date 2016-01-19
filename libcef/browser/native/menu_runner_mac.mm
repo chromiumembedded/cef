@@ -20,10 +20,10 @@ CefMenuRunnerMac::~CefMenuRunnerMac() {
 
 bool CefMenuRunnerMac::RunContextMenu(
     CefBrowserHostImpl* browser,
-    ui::MenuModel* model,
+    CefMenuModelImpl* model,
     const content::ContextMenuParams& params) {
   // Create a menu controller based on the model.
-  menu_controller_.reset([[MenuController alloc] initWithModel:model
+  menu_controller_.reset([[MenuController alloc] initWithModel:model->model()
                                         useWithPopUpButtonCell:NO]);
 
   // Keep the menu controller alive (by adding an additional retain) until after

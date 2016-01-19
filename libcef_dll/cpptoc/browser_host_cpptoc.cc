@@ -15,6 +15,7 @@
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
+#include "libcef_dll/ctocpp/download_image_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/navigation_entry_visitor_ctocpp.h"
 #include "libcef_dll/ctocpp/pdf_print_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/run_file_dialog_callback_ctocpp.h"
@@ -130,6 +131,21 @@ void CEF_CALLBACK browser_host_close_browser(struct _cef_browser_host_t* self,
       force_close?true:false);
 }
 
+int CEF_CALLBACK browser_host_try_close_browser(
+    struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefBrowserHostCppToC::Get(self)->TryCloseBrowser();
+
+  // Return type: bool
+  return _retval;
+}
+
 void CEF_CALLBACK browser_host_set_focus(struct _cef_browser_host_t* self,
     int focus) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -185,6 +201,20 @@ cef_window_handle_t CEF_CALLBACK browser_host_get_opener_window_handle(
       self)->GetOpenerWindowHandle();
 
   // Return type: simple
+  return _retval;
+}
+
+int CEF_CALLBACK browser_host_has_view(struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefBrowserHostCppToC::Get(self)->HasView();
+
+  // Return type: bool
   return _retval;
 }
 
@@ -295,6 +325,32 @@ void CEF_CALLBACK browser_host_start_download(struct _cef_browser_host_t* self,
   // Execute
   CefBrowserHostCppToC::Get(self)->StartDownload(
       CefString(url));
+}
+
+void CEF_CALLBACK browser_host_download_image(struct _cef_browser_host_t* self,
+    const cef_string_t* image_url, int is_favicon, uint32 max_image_size,
+    int bypass_cache, cef_download_image_callback_t* callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: image_url; type: string_byref_const
+  DCHECK(image_url);
+  if (!image_url)
+    return;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback);
+  if (!callback)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->DownloadImage(
+      CefString(image_url),
+      is_favicon?true:false,
+      max_image_size,
+      bypass_cache?true:false,
+      CefDownloadImageCallbackCToCpp::Wrap(callback));
 }
 
 void CEF_CALLBACK browser_host_print(struct _cef_browser_host_t* self) {
@@ -901,16 +957,19 @@ void CEF_CALLBACK browser_host_drag_source_system_drag_ended(
 CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->get_browser = browser_host_get_browser;
   GetStruct()->close_browser = browser_host_close_browser;
+  GetStruct()->try_close_browser = browser_host_try_close_browser;
   GetStruct()->set_focus = browser_host_set_focus;
   GetStruct()->set_window_visibility = browser_host_set_window_visibility;
   GetStruct()->get_window_handle = browser_host_get_window_handle;
   GetStruct()->get_opener_window_handle = browser_host_get_opener_window_handle;
+  GetStruct()->has_view = browser_host_has_view;
   GetStruct()->get_client = browser_host_get_client;
   GetStruct()->get_request_context = browser_host_get_request_context;
   GetStruct()->get_zoom_level = browser_host_get_zoom_level;
   GetStruct()->set_zoom_level = browser_host_set_zoom_level;
   GetStruct()->run_file_dialog = browser_host_run_file_dialog;
   GetStruct()->start_download = browser_host_start_download;
+  GetStruct()->download_image = browser_host_download_image;
   GetStruct()->print = browser_host_print;
   GetStruct()->print_to_pdf = browser_host_print_to_pdf;
   GetStruct()->find = browser_host_find;

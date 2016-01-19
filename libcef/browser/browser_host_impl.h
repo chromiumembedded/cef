@@ -15,8 +15,8 @@
 #include "include/cef_browser.h"
 #include "include/cef_client.h"
 #include "include/cef_frame.h"
+#include "include/views/cef_browser_view.h"
 #include "libcef/browser/browser_info.h"
-#include "libcef/browser/browser_platform_delegate.h"
 #include "libcef/browser/file_dialog_manager.h"
 #include "libcef/browser/frame_host_impl.h"
 #include "libcef/browser/javascript_dialog_manager.h"
@@ -37,10 +37,17 @@ namespace net {
 class URLRequest;
 }
 
+#if defined(USE_AURA)
+namespace views {
+class Widget;
+}
+#endif  // defined(USE_AURA)
+
 struct Cef_DraggableRegion_Params;
 struct Cef_Request_Params;
 struct Cef_Response_Params;
 class CefBrowserInfo;
+class CefBrowserPlatformDelegate;
 class CefDevToolsFrontend;
 struct CefNavigateParams;
 class SiteInstance;
@@ -86,15 +93,37 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   ~CefBrowserHostImpl() override;
 
+  struct CreateParams {
+    // Platform-specific window creation info. Will be nullptr when creating a
+    // views-hosted browser.
+    scoped_ptr<CefWindowInfo> window_info;
+
+#if defined(USE_AURA)
+    // The BrowserView that will own a views-hosted browser. Will be nullptr for
+    // popup browsers (the BrowserView will be created later in that case).
+    CefRefPtr<CefBrowserView> browser_view;
+#endif
+
+    // Client implementation. May be nullptr.
+    CefRefPtr<CefClient> client;
+
+    // Initial URL to load. May be empty.
+    CefString url;
+
+    // Browser settings.
+    CefBrowserSettings settings;
+
+    // Other browser that opened this DevTools browser. Will be nullptr for non-
+    // DevTools browsers.
+    CefRefPtr<CefBrowserHostImpl> devtools_opener;
+
+    // Request context to use when creating the browser. If nullptr the global
+    // request context will be used.
+    CefRefPtr<CefRequestContext> request_context;
+  };
+
   // Create a new CefBrowserHostImpl instance.
-  static CefRefPtr<CefBrowserHostImpl> Create(
-      const CefWindowInfo& windowInfo,
-      CefRefPtr<CefClient> client,
-      const CefString& url,
-      const CefBrowserSettings& settings,
-      CefRefPtr<CefBrowserHostImpl> opener,
-      bool is_popup,
-      CefRefPtr<CefRequestContext> request_context);
+  static CefRefPtr<CefBrowserHostImpl> Create(CreateParams& create_params);
 
   // Returns the browser associated with the specified RenderViewHost.
   static CefRefPtr<CefBrowserHostImpl> GetBrowserForHost(
@@ -118,10 +147,12 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // CefBrowserHost methods.
   CefRefPtr<CefBrowser> GetBrowser() override;
   void CloseBrowser(bool force_close) override;
+  bool TryCloseBrowser() override;
   void SetFocus(bool focus) override;
   void SetWindowVisibility(bool visible) override;
   CefWindowHandle GetWindowHandle() override;
   CefWindowHandle GetOpenerWindowHandle() override;
+  bool HasView() override;
   CefRefPtr<CefClient> GetClient() override;
   CefRefPtr<CefRequestContext> GetRequestContext() override;
   double GetZoomLevel() override;
@@ -134,6 +165,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
       int selected_accept_filter,
       CefRefPtr<CefRunFileDialogCallback> callback) override;
   void StartDownload(const CefString& url) override;
+  void DownloadImage(const CefString& image_url,
+                     bool is_favicon,
+                     uint32 max_image_size,
+                     bool bypass_cache,
+                     CefRefPtr<CefDownloadImageCallback> callback) override;
   void Print() override;
   void PrintToPDF(const CefString& path,
                   const CefPdfPrintSettings& settings,
@@ -212,6 +248,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Returns true if windowless rendering is enabled.
   bool IsWindowless() const;
 
+  // Returns true if this browser is views-hosted.
+  bool IsViewsHosted() const;
+
   // Called when the OS window hosting the browser is destroyed.
   void WindowDestroyed();
 
@@ -226,6 +265,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Returns the Widget owner for the browser window. Only used with windowed
   // rendering.
   views::Widget* GetWindowWidget() const;
+
+  // Returns the BrowserView associated with this browser. Only used with views-
+  // based browsers.
+  CefRefPtr<CefBrowserView> GetBrowserView() const;
 #endif
 
   // Returns the frame associated with the specified URLRequest.
@@ -271,7 +314,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Set the frame that currently has focus.
   void SetFocusedFrame(int64 frame_id);
 
-  // Convert from view coordinates to screen coordinates.
+  // Convert from view coordinates to screen coordinates. Potential display
+  // scaling will be applied to the result.
   gfx::Point GetScreenPoint(const gfx::Point& view) const;
 
   // Thread safe accessors.
@@ -449,6 +493,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       content::WebContents* web_contents,
       scoped_refptr<CefBrowserInfo> browser_info,
       CefRefPtr<CefBrowserHostImpl> opener,
+      bool is_devtools_popup,
       CefRefPtr<CefRequestContext> request_context,
       scoped_ptr<CefBrowserPlatformDelegate> platform_delegate);
 
@@ -521,6 +566,8 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefRefPtr<CefRequestContext> request_context_;
   scoped_ptr<CefBrowserPlatformDelegate> platform_delegate_;
   const bool is_windowless_;
+  const bool is_views_hosted_;
+  CefWindowHandle host_window_handle_;
 
   // Volatile state information. All access must be protected by the state lock.
   base::Lock state_lock_;

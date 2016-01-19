@@ -15,7 +15,7 @@
 #include "cefclient/browser/resource.h"
 #include "cefclient/browser/temp_window.h"
 #include "cefclient/browser/util_win.h"
-#include "cefclient/browser/window_test.h"
+#include "cefclient/browser/window_test_runner_win.h"
 #include "cefclient/common/client_switches.h"
 
 #define MAX_URL_LENGTH  255
@@ -855,10 +855,12 @@ void RootWindowWin::OnSetFullscreen(bool fullscreen) {
 
   CefRefPtr<CefBrowser> browser = GetBrowser();
   if (browser) {
+    scoped_ptr<window_test::WindowTestRunnerWin> test_runner(
+        new window_test::WindowTestRunnerWin());
     if (fullscreen)
-      window_test::Maximize(browser);
+      test_runner->Maximize(browser);
     else
-      window_test::Restore(browser);
+      test_runner->Restore(browser);
   }
 }
 
@@ -985,11 +987,6 @@ void RootWindowWin::NotifyDestroyedIfDone() {
   // Notify once both the window and the browser have been destroyed.
   if (window_destroyed_ && browser_destroyed_)
     delegate_->OnRootWindowDestroyed(this);
-}
-
-// static
-scoped_refptr<RootWindow> RootWindow::Create() {
-  return new RootWindowWin();
 }
 
 }  // namespace client

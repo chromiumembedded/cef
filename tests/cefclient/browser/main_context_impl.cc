@@ -43,7 +43,8 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
       terminate_when_all_windows_closed_(terminate_when_all_windows_closed),
       initialized_(false),
       shutdown_(false),
-      background_color_(CefColorSetARGB(255, 255, 255, 255)) {
+      background_color_(CefColorSetARGB(255, 255, 255, 255)),
+      use_views_(false) {
   DCHECK(command_line_.get());
 
   // Set the main URL.
@@ -57,6 +58,27 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
     background_color_ =
         ParseColor(command_line_->GetSwitchValue(switches::kBackgroundColor));
   }
+
+  // Whether windowless (off-screen) rendering will be used.
+  use_windowless_rendering_ =
+      command_line_->HasSwitch(switches::kOffScreenRenderingEnabled);
+
+#if defined(OS_WIN) || defined(OS_LINUX)
+  // Whether the Views framework will be used.
+  use_views_ = command_line_->HasSwitch(switches::kUseViews);
+
+  if (use_windowless_rendering_ && use_views_) {
+    LOG(ERROR) <<
+        "Windowless rendering is not supported by the Views framework.";
+    use_views_ = false;
+  }
+
+  if (use_views_ && command_line->HasSwitch(switches::kHideFrame) &&
+      !command_line_->HasSwitch(switches::kUrl)) {
+    // Use the draggable regions test as the default URL for frameless windows.
+    main_url_ = "http://tests/draggable";
+  }
+#endif  // defined(OS_WIN) || defined(OS_LINUX)
 }
 
 MainContextImpl::~MainContextImpl() {
@@ -77,6 +99,14 @@ cef_color_t MainContextImpl::GetBackgroundColor() {
   return background_color_;
 }
 
+bool MainContextImpl::UseViews() {
+  return use_views_;
+}
+
+bool MainContextImpl::UseWindowlessRendering() {
+  return use_windowless_rendering_;
+}
+
 void MainContextImpl::PopulateSettings(CefSettings* settings) {
 #if defined(OS_WIN)
   settings->multi_threaded_message_loop =
@@ -86,7 +116,7 @@ void MainContextImpl::PopulateSettings(CefSettings* settings) {
   CefString(&settings->cache_path) =
       command_line_->GetSwitchValue(switches::kCachePath);
 
-  if (command_line_->HasSwitch(switches::kOffScreenRenderingEnabled))
+  if (use_windowless_rendering_)
     settings->windowless_rendering_enabled = true;
 
   settings->background_color = background_color_;

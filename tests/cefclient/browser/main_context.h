@@ -37,7 +37,13 @@ class MainContext {
 
   // Returns the background color.
   virtual cef_color_t GetBackgroundColor() = 0;
- 
+
+  // Returns true if the Views framework will be used.
+  virtual bool UseViews() = 0;
+
+  // Returns true if windowless (off-screen) rendering will be used.
+  virtual bool UseWindowlessRendering() = 0;
+
   // Populate |settings| based on command-line arguments.
   virtual void PopulateSettings(CefSettings* settings) = 0;
   virtual void PopulateBrowserSettings(CefBrowserSettings* settings) = 0;

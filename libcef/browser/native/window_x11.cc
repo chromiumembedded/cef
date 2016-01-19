@@ -339,16 +339,7 @@ uint32_t CefWindowX11::DispatchEvent(const ui::PlatformEvent& event) {
         Atom protocol = static_cast<Atom>(xev->xclient.data.l[0]);
         if (protocol == atom_cache_.GetAtom(kWMDeleteWindow)) {
           // We have received a close message from the window manager.
-          if (browser_.get() && browser_->destruction_state() <=
-              CefBrowserHostImpl::DESTRUCTION_STATE_PENDING) {
-            if (browser_->destruction_state() ==
-                CefBrowserHostImpl::DESTRUCTION_STATE_NONE) {
-              // Request that the browser close.
-              browser_->CloseBrowser(false);
-            }
-
-            // Cancel the close.
-          } else {
+          if (!browser_ || browser_->TryCloseBrowser()) {
             // Allow the close.
             XDestroyWindow(xdisplay_, xwindow_);
           }

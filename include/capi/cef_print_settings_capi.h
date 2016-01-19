@@ -121,7 +121,7 @@ typedef struct _cef_print_settings_t {
   // Set the page ranges.
   ///
   void (CEF_CALLBACK *set_page_ranges)(struct _cef_print_settings_t* self,
-      size_t rangesCount, cef_page_range_t const* ranges);
+      size_t rangesCount, cef_range_t const* ranges);
 
   ///
   // Returns the number of page ranges that currently exist.
@@ -133,7 +133,7 @@ typedef struct _cef_print_settings_t {
   // Retrieve the page ranges.
   ///
   void (CEF_CALLBACK *get_page_ranges)(struct _cef_print_settings_t* self,
-      size_t* rangesCount, cef_page_range_t* ranges);
+      size_t* rangesCount, cef_range_t* ranges);
 
   ///
   // Set whether only the selection will be printed.

@@ -31,8 +31,11 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 IDS_BINDING_HTML BINARY "..\\binding.html"
 IDS_DIALOGS_HTML BINARY "..\\dialogs.html"
+IDS_DRAGGABLE_HTML BINARY "..\\draggable.html"
 IDS_LOCALSTORAGE_HTML BINARY "..\\localstorage.html"
 IDS_LOGO_PNG BINARY "..\\logo.png"
+IDS_MENU_ICON_1X_PNG BINARY "..\\menu_icon.1x.png"
+IDS_MENU_ICON_2X_PNG BINARY "..\\menu_icon.2x.png"
 IDS_OSRTEST_HTML BINARY "..\\osr_test.html"
 IDS_OTHER_TESTS_HTML BINARY "..\\other_tests.html"
 IDS_PDF_HTML BINARY "..\\pdf.html"
@@ -44,6 +47,8 @@ IDS_RESPONSE_FILTER_HTML BINARY "..\\response_filter.html"
 IDS_TRANSPARENCY_HTML BINARY "..\\transparency.html"
 IDS_URLREQUEST_HTML BINARY "..\\urlrequest.html"
 IDS_WINDOW_HTML BINARY "..\\window.html"
+IDS_WINDOW_ICON_1X_PNG BINARY "..\\window_icon.1x.png"
+IDS_WINDOW_ICON_2X_PNG BINARY "..\\window_icon.2x.png"
 IDS_XMLHTTPREQUEST_HTML BINARY "..\\xmlhttprequest.html"
 
 /////////////////////////////////////////////////////////////////////////////

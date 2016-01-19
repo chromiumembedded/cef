@@ -177,6 +177,10 @@ bool CefBrowserPlatformDelegateOsr::IsWindowless() const {
   return true;
 }
 
+bool CefBrowserPlatformDelegateOsr::IsViewsHosted() const {
+  return false;
+}
+
 void CefBrowserPlatformDelegateOsr::WasHidden(bool hidden) {
   CefRenderWidgetHostViewOSR* view = GetOSRHostView();
   if (view) {

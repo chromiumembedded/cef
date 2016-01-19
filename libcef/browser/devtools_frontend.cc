@@ -109,11 +109,16 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
     new_settings.background_color = SK_ColorWHITE;
   }
 
+  CefBrowserHostImpl::CreateParams create_params;
+  if (!inspected_browser->IsViewsHosted())
+    create_params.window_info.reset(new CefWindowInfo(windowInfo));
+  create_params.client = client;
+  create_params.settings = new_settings;
+  create_params.devtools_opener = inspected_browser;
+  create_params.request_context = inspected_browser->GetRequestContext();
+
   CefRefPtr<CefBrowserHostImpl> frontend_browser =
-      CefBrowserHostImpl::Create(windowInfo, client, CefString(),
-                                 new_settings,
-                                 inspected_browser, true,
-                                 inspected_browser->GetRequestContext());
+      CefBrowserHostImpl::Create(create_params);
 
   content::WebContents* inspected_contents = inspected_browser->web_contents();
   if (!inspect_element_at.IsEmpty()) {

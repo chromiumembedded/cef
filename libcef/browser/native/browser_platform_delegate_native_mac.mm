@@ -133,15 +133,7 @@
 }
 
 - (BOOL)windowShouldClose:(id)window {
-  // Protect against multiple requests to close while the close is pending.
-  if (browser_ && browser_->destruction_state() <=
-      CefBrowserHostImpl::DESTRUCTION_STATE_PENDING) {
-    if (browser_->destruction_state() ==
-        CefBrowserHostImpl::DESTRUCTION_STATE_NONE) {
-      // Request that the browser close.
-      browser_->CloseBrowser(false);
-    }
-
+  if (browser_ && !browser_->TryCloseBrowser()) {
     // Cancel the close.
     return NO;
   }
