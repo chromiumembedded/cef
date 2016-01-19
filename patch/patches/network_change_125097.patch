@@ -1,0 +1,35 @@
+diff --git address_tracker_linux.cc address_tracker_linux.cc
+index 58a122f..8514790 100644
+--- address_tracker_linux.cc
++++ address_tracker_linux.cc
+@@ -221,7 +221,7 @@ void AddressTrackerLinux::Init() {
+   {
+     AddressTrackerAutoLock lock(*this, connection_type_lock_);
+     connection_type_initialized_ = true;
+-    connection_type_initialized_cv_.Signal();
++    connection_type_initialized_cv_.Broadcast();
+   }
+ 
+   if (tracking_) {
+@@ -240,7 +240,7 @@ void AddressTrackerLinux::AbortAndForceOnline() {
+   AddressTrackerAutoLock lock(*this, connection_type_lock_);
+   current_connection_type_ = NetworkChangeNotifier::CONNECTION_UNKNOWN;
+   connection_type_initialized_ = true;
+-  connection_type_initialized_cv_.Signal();
++  connection_type_initialized_cv_.Broadcast();
+ }
+ 
+ AddressTrackerLinux::AddressMap AddressTrackerLinux::GetAddressMap() const {
+diff --git network_change_notifier_mac.cc network_change_notifier_mac.cc
+index 4468c0b..bd1f2d8 100644
+--- network_change_notifier_mac.cc
++++ network_change_notifier_mac.cc
+@@ -157,7 +157,7 @@ void NetworkChangeNotifierMac::SetInitialConnectionType() {
+     base::AutoLock lock(connection_type_lock_);
+     connection_type_ = connection_type;
+     connection_type_initialized_ = true;
+-    initial_connection_type_cv_.Signal();
++    initial_connection_type_cv_.Broadcast();
+   }
+ }
+ 
