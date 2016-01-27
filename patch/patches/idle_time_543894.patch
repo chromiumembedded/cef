@@ -1,0 +1,41 @@
+diff --git idle_time_estimator.cc idle_time_estimator.cc
+index 5d572a2..52e72da 100644
+--- idle_time_estimator.cc
++++ idle_time_estimator.cc
+@@ -36,7 +36,8 @@ base::TimeDelta IdleTimeEstimator::GetExpectedIdleDuration(
+ void IdleTimeEstimator::DidCommitFrameToCompositor() {
+   // This will run inside of a WillProcessTask / DidProcessTask pair, let
+   // DidProcessTask know a frame was comitted.
+-  did_commit_ = true;
++  if (nesting_level_ == 1)
++    did_commit_ = true;
+ }
+ 
+ void IdleTimeEstimator::Clear() {
+@@ -54,11 +55,16 @@ void IdleTimeEstimator::SetTimeSourceForTesting(
+ 
+ void IdleTimeEstimator::WillProcessTask(const base::PendingTask& pending_task) {
+   nesting_level_++;
+-  task_start_time_ = time_source_->NowTicks();
++  if (nesting_level_ == 1)
++    task_start_time_ = time_source_->NowTicks();
+ }
+ 
+ void IdleTimeEstimator::DidProcessTask(const base::PendingTask& pending_task) {
+-  DCHECK_EQ(nesting_level_, 1);
++  nesting_level_--;
++  DCHECK_GE(nesting_level_, 0);
++  if (nesting_level_ != 0)
++    return;
++
+   cumulative_compositor_runtime_ += time_source_->NowTicks() - task_start_time_;
+ 
+   if (did_commit_) {
+@@ -67,7 +73,6 @@ void IdleTimeEstimator::DidProcessTask(const base::PendingTask& pending_task) {
+     cumulative_compositor_runtime_ = base::TimeDelta();
+     did_commit_ = false;
+   }
+-  nesting_level_--;
+ }
+ 
+ }  // namespace scheduler

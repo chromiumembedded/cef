@@ -1,0 +1,47 @@
+diff --git child/child_thread_impl.cc child/child_thread_impl.cc
+index 782c5d5..d1de033 100644
+--- child/child_thread_impl.cc
++++ child/child_thread_impl.cc
+@@ -512,10 +512,6 @@ void ChildThreadImpl::Init(const Options& options) {
+ }
+ 
+ ChildThreadImpl::~ChildThreadImpl() {
+-  // ChildDiscardableSharedMemoryManager has to be destroyed while
+-  // |thread_safe_sender_| is still valid.
+-  discardable_shared_memory_manager_.reset();
+-
+ #ifdef IPC_MESSAGE_LOG_ENABLED
+   IPC::Logging::GetInstance()->SetIPCSender(NULL);
+ #endif
+@@ -541,6 +537,9 @@ void ChildThreadImpl::Shutdown() {
+   file_system_dispatcher_.reset();
+   quota_dispatcher_.reset();
+   WebFileSystemImpl::DeleteThreadSpecificInstance();
++  // ChildDiscardableSharedMemoryManager has to be destroyed while
++  // |thread_safe_sender_| is still valid.
++  discardable_shared_memory_manager_.reset();
+ }
+ 
+ void ChildThreadImpl::OnChannelConnected(int32 peer_pid) {
+diff --git renderer/render_thread_impl.cc renderer/render_thread_impl.cc
+index aa5828c..52f65b1 100644
+--- renderer/render_thread_impl.cc
++++ renderer/render_thread_impl.cc
+@@ -765,8 +765,6 @@ void RenderThreadImpl::Shutdown() {
+   FOR_EACH_OBSERVER(
+       RenderProcessObserver, observers_, OnRenderProcessShutdown());
+ 
+-  ChildThreadImpl::Shutdown();
+-
+   if (memory_observer_) {
+     message_loop()->RemoveTaskObserver(memory_observer_.get());
+     memory_observer_.reset();
+@@ -857,6 +855,8 @@ void RenderThreadImpl::Shutdown() {
+   NPChannelBase::CleanupChannels();
+ #endif
+ 
++  ChildThreadImpl::Shutdown();
++
+   // Shut down the message loop and the renderer scheduler before shutting down
+   // Blink. This prevents a scenario where a pending task in the message loop
+   // accesses Blink objects after Blink shuts down.
