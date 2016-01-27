@@ -710,14 +710,13 @@ void CefContentBrowserClient::AllowCertificateError(
 
   CefRefPtr<CefSSLInfo> cef_ssl_info = new CefSSLInfoImpl(ssl_info);
 
-  CefRefPtr<CefAllowCertificateErrorCallbackImpl> callbackImpl;
-  if (overridable && !strict_enforcement)
-    callbackImpl = new CefAllowCertificateErrorCallbackImpl(callback);
+  CefRefPtr<CefAllowCertificateErrorCallbackImpl> callbackImpl(
+      new CefAllowCertificateErrorCallbackImpl(callback));
 
   bool proceed = handler->OnCertificateError(
       browser.get(), static_cast<cef_errorcode_t>(cert_error),
       request_url.spec(), cef_ssl_info, callbackImpl.get());
-  if (!proceed && callbackImpl.get())
+  if (!proceed)
     callbackImpl->Disconnect();
 
   *result = proceed ? content::CERTIFICATE_REQUEST_RESULT_TYPE_CONTINUE :

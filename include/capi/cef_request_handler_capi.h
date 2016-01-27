@@ -229,10 +229,9 @@ typedef struct _cef_request_handler_t {
   // Called on the UI thread to handle requests for URLs with an invalid SSL
   // certificate. Return true (1) and call cef_request_tCallback::cont() either
   // in this function or at a later time to continue or cancel the request.
-  // Return false (0) to cancel the request immediately. If |callback| is NULL
-  // the error cannot be recovered from and the request will be canceled
-  // automatically. If CefSettings.ignore_certificate_errors is set all invalid
-  // certificates will be accepted without calling this function.
+  // Return false (0) to cancel the request immediately. If
+  // CefSettings.ignore_certificate_errors is set all invalid certificates will
+  // be accepted without calling this function.
   ///
   int (CEF_CALLBACK *on_certificate_error)(struct _cef_request_handler_t* self,
       struct _cef_browser_t* browser, cef_errorcode_t cert_error,
