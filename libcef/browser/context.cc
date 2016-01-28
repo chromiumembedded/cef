@@ -59,11 +59,29 @@ class CefForceShutdown {
   }
 } g_force_shutdown;
 
+#if defined(OS_WIN) && defined(ARCH_CPU_X86_64)
+// VS2013 only checks the existence of FMA3 instructions, not the enabled-ness
+// of them at the OS level (this is fixed in VS2015). We force off usage of
+// FMA3 instructions in the CRT to avoid using that path and hitting illegal
+// instructions when running on CPUs that support FMA3, but OSs that don't.
+void DisableFMA3() {
+  static bool disabled = false;
+  if (disabled)
+    return;
+  disabled = true;
+  _set_FMA3_enable(0);
+}
+#endif  // WIN && ARCH_CPU_X86_64
+
 }  // namespace
 
 int CefExecuteProcess(const CefMainArgs& args,
                       CefRefPtr<CefApp> application,
                       void* windows_sandbox_info) {
+#if defined(OS_WIN) && defined(ARCH_CPU_X86_64)
+  DisableFMA3();
+#endif
+
   base::CommandLine command_line(base::CommandLine::NO_PROGRAM);
 #if defined(OS_WIN)
   command_line.ParseFromString(::GetCommandLineW());
@@ -111,6 +129,10 @@ bool CefInitialize(const CefMainArgs& args,
                    const CefSettings& settings,
                    CefRefPtr<CefApp> application,
                    void* windows_sandbox_info) {
+#if defined(OS_WIN) && defined(ARCH_CPU_X86_64)
+  DisableFMA3();
+#endif
+
   // Return true if the global context already exists.
   if (g_context)
     return true;
