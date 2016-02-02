@@ -80,14 +80,23 @@ CefResourceDispatcherHostDelegate::~CefResourceDispatcherHostDelegate() {
 bool CefResourceDispatcherHostDelegate::HandleExternalProtocol(
     const GURL& url,
     int child_id,
-    int route_id,
+    const content::ResourceRequestInfo::WebContentsGetter& web_contents_getter,
     bool is_main_frame,
     ui::PageTransition page_transition,
     bool has_user_gesture) {
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForView(child_id, route_id);
-  if (browser.get())
-    browser->HandleExternalProtocol(url);
+  if (CEF_CURRENTLY_ON_UIT()) {
+    content::WebContents* web_contents = web_contents_getter.Run();
+    CefRefPtr<CefBrowserHostImpl> browser =
+        CefBrowserHostImpl::GetBrowserForContents(web_contents);
+    if (browser.get())
+      browser->HandleExternalProtocol(url);
+  } else {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(base::IgnoreResult(&CefResourceDispatcherHostDelegate::
+                       HandleExternalProtocol),
+                   base::Unretained(this), url, child_id, web_contents_getter,
+                   is_main_frame, page_transition, has_user_gesture));
+  }
   return false;
 }
 

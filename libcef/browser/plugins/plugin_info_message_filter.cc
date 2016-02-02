@@ -38,10 +38,6 @@
 
 #include "widevine_cdm_version.h"  // In SHARED_INTERMEDIATE_DIR.
 
-#if defined(OS_WIN)
-#include "base/win/metro.h"
-#endif
-
 #if !defined(DISABLE_NACL)
 #include "components/nacl/common/nacl_constants.h"
 #endif
@@ -309,13 +305,6 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
     const WebPluginInfo& plugin,
     const PluginMetadata* plugin_metadata,
     CefViewHostMsg_GetPluginInfo_Status* status) const {
-#if defined(OS_WIN)
-  if (plugin.type == WebPluginInfo::PLUGIN_TYPE_NPAPI &&
-      base::win::IsMetroProcess()) {
-    *status = CefViewHostMsg_GetPluginInfo_Status::kNPAPINotSupported;
-    return;
-  }
-#endif
   if (plugin.type == WebPluginInfo::PLUGIN_TYPE_NPAPI) {
     CHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::IO));
     // NPAPI plugins are not supported inside <webview> guests.

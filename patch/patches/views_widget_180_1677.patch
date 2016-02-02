@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 6968dfc..ecb9129 100644
+index c5494d9..6515181 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -774,6 +774,13 @@ void RenderWidgetHostViewAura::SetKeyboardFocus() {
@@ -13,8 +13,8 @@ index 6968dfc..ecb9129 100644
 +      host->Show();
 +  }
 +#endif
-   if (host_ && set_focus_on_mouse_down_) {
-     set_focus_on_mouse_down_ = false;
+   if (host_ && set_focus_on_mouse_down_or_key_event_) {
+     set_focus_on_mouse_down_or_key_event_ = false;
      host_->Focus();
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
 index a2a0884..c6eef9d 100644
@@ -91,10 +91,10 @@ index a8e088c..838b6a0 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 48368f9..6a566ba 100644
+index c354154..c6f0fc9 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-@@ -85,6 +85,7 @@ DesktopWindowTreeHostWin::DesktopWindowTreeHostWin(
+@@ -84,6 +84,7 @@ DesktopWindowTreeHostWin::DesktopWindowTreeHostWin(
        should_animate_window_close_(false),
        pending_close_(false),
        has_non_client_view_(false),
@@ -102,7 +102,7 @@ index 48368f9..6a566ba 100644
        tooltip_(NULL) {
  }
  
-@@ -131,8 +132,12 @@ void DesktopWindowTreeHostWin::Init(aura::Window* content_window,
+@@ -133,8 +134,12 @@ void DesktopWindowTreeHostWin::Init(aura::Window* content_window,
                          native_widget_delegate_);
  
    HWND parent_hwnd = NULL;
@@ -116,7 +116,7 @@ index 48368f9..6a566ba 100644
  
    message_handler_->set_remove_standard_frame(params.remove_standard_frame);
  
-@@ -793,11 +798,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -799,11 +804,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -135,10 +135,10 @@ index 48368f9..6a566ba 100644
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(const ui::MouseEvent& event) {
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-index bee915a..23f93e2 100644
+index ad82485..13e74b9 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-@@ -243,6 +243,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
+@@ -244,6 +244,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
    // Init time, before the Widget has created the NonClientView.
    bool has_non_client_view_;
  
@@ -150,7 +150,7 @@ index bee915a..23f93e2 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
-index d3aafd9..8bbfd6a 100644
+index f7495f0..3d9b9a2 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 @@ -168,6 +168,7 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
@@ -208,7 +208,7 @@ index d3aafd9..8bbfd6a 100644
    return bounds_in_pixels_.origin();
  }
  
-@@ -1135,9 +1144,15 @@ void DesktopWindowTreeHostX11::InitX11Window(
+@@ -1139,9 +1148,15 @@ void DesktopWindowTreeHostX11::InitX11Window(
      use_argb_visual_ = true;
    }
  
@@ -225,7 +225,7 @@ index d3aafd9..8bbfd6a 100644
                             bounds_in_pixels_.y(), bounds_in_pixels_.width(),
                             bounds_in_pixels_.height(),
                             0,  // border width
-@@ -1766,6 +1781,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
+@@ -1770,6 +1785,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
        }
        break;
      }
@@ -346,7 +346,7 @@ index 9b20295..20b1aec 100644
            x_active_window_ = None;
          }
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index aaa9320..c9e17a0 100644
+index 18aa4c6..147c5a7 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -126,6 +126,7 @@ Widget::InitParams::InitParams()
@@ -389,7 +389,7 @@ index aaa9320..c9e17a0 100644
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 4ad8c2b..abf716c 100644
+index 80aadde..c278b84 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -234,6 +234,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,

@@ -314,8 +314,10 @@ class Delegate : public InternalHandlerDelegate {
       return false;
     }
 
-    if (resource_id == IDR_WEBUI_CSS_TEXT_DEFAULTS) {
-      const std::string& css = webui::GetWebUiCssTextDefaults();
+    if (resource_id == IDR_WEBUI_CSS_TEXT_DEFAULTS ||
+        resource_id == IDR_WEBUI_CSS_TEXT_DEFAULTS_MD) {
+      const std::string& css = resource_id == IDR_WEBUI_CSS_TEXT_DEFAULTS ?
+          webui::GetWebUiCssTextDefaults() : webui::GetWebUiCssTextDefaultsMd();
       DCHECK(!css.empty());
       action->mime_type = "text/css";
       action->stream =  CefStreamReader::CreateForData(

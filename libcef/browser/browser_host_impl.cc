@@ -1338,7 +1338,7 @@ CefRefPtr<CefFrame> CefBrowserHostImpl::GetFrameForRequest(
   if (!info)
     return nullptr;
   return GetOrCreateFrame(info->GetRenderFrameID(),
-                          info->GetParentRenderFrameID(),
+                          CefFrameHostImpl::kUnspecifiedFrameId,
                           info->IsMainFrame(),
                           base::string16(),
                           GURL());

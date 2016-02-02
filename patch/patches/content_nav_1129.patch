@@ -1,73 +1,60 @@
 diff --git public/renderer/content_renderer_client.cc public/renderer/content_renderer_client.cc
-index 32004d1..ccd1f58 100644
+index 3d0316f..ccd1f58 100644
 --- public/renderer/content_renderer_client.cc
 +++ public/renderer/content_renderer_client.cc
-@@ -98,6 +98,18 @@ bool ContentRendererClient::AllowPopup() {
+@@ -98,7 +98,6 @@ bool ContentRendererClient::AllowPopup() {
    return false;
  }
  
-+bool ContentRendererClient::HandleNavigation(
-+    RenderFrame* render_frame,
-+    bool is_content_initiated,
-+    int opener_id,
-+    blink::WebFrame* frame,
-+    const blink::WebURLRequest& request,
-+    blink::WebNavigationType type,
-+    blink::WebNavigationPolicy default_policy,
-+    bool is_redirect) {
-+  return false;
-+}
-+
+-#ifdef OS_ANDROID
+ bool ContentRendererClient::HandleNavigation(
+     RenderFrame* render_frame,
+     bool is_content_initiated,
+@@ -110,7 +109,6 @@ bool ContentRendererClient::HandleNavigation(
+     bool is_redirect) {
+   return false;
+ }
+-#endif
+ 
  bool ContentRendererClient::ShouldFork(blink::WebLocalFrame* frame,
                                         const GURL& url,
-                                        const std::string& http_method,
 diff --git public/renderer/content_renderer_client.h public/renderer/content_renderer_client.h
-index fd2f3af..40cca1d 100644
+index 45686b5..18548a0 100644
 --- public/renderer/content_renderer_client.h
 +++ public/renderer/content_renderer_client.h
-@@ -18,6 +18,8 @@
- #include "base/strings/string16.h"
- #include "content/public/common/content_client.h"
- #include "third_party/WebKit/public/platform/WebPageVisibilityState.h"
-+#include "third_party/WebKit/public/web/WebNavigationPolicy.h"
-+#include "third_party/WebKit/public/web/WebNavigationType.h"
- #include "ui/base/page_transition_types.h"
- #include "v8/include/v8.h"
- 
-@@ -191,6 +193,17 @@ class CONTENT_EXPORT ContentRendererClient {
- 
+@@ -194,7 +194,6 @@ class CONTENT_EXPORT ContentRendererClient {
    // Returns true if a popup window should be allowed.
    virtual bool AllowPopup();
-+  
-+  // Returns true if the navigation was handled by the embedder and should be
-+  // ignored by WebKit. This method is used by CEF and android_webview.
-+  virtual bool HandleNavigation(RenderFrame* render_frame,
-+                                bool is_content_initiated,
-+                                int opener_id,
-+                                blink::WebFrame* frame,
-+                                const blink::WebURLRequest& request,
-+                                blink::WebNavigationType type,
-+                                blink::WebNavigationPolicy default_policy,
-+                                bool is_redirect);
+ 
+-#ifdef OS_ANDROID
+   // TODO(sgurun) This callback is deprecated and will be removed as soon
+   // as android webview completes implementation of a resource throttle based
+   // shouldoverrideurl implementation. See crbug.com/325351
+@@ -209,7 +208,6 @@ class CONTENT_EXPORT ContentRendererClient {
+                                 blink::WebNavigationType type,
+                                 blink::WebNavigationPolicy default_policy,
+                                 bool is_redirect);
+-#endif
  
    // Returns true if we should fork a new process for the given navigation.
    // If |send_referrer| is set to false (which is the default), no referrer
 diff --git renderer/render_frame_impl.cc renderer/render_frame_impl.cc
-index 9ea32c4..adb478d 100644
+index 9b199d3..1a8b6fa 100644
 --- renderer/render_frame_impl.cc
 +++ renderer/render_frame_impl.cc
-@@ -4609,6 +4609,14 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -4684,7 +4684,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
        (pending_navigation_params_ &&
         !pending_navigation_params_->request_params.redirects.empty());
  
-+  if (info.urlRequest.url() != GURL(kSwappedOutURL) &&
-+      GetContentClient()->renderer()->HandleNavigation(
-+          this, is_content_initiated, render_view_->opener_id_, frame_,
-+          info.urlRequest, info.navigationType, info.defaultPolicy,
-+          is_redirect)) {
-+    return blink::WebNavigationPolicyIgnore;
-+  }
-+
+-#ifdef OS_ANDROID
+   // The handlenavigation API is deprecated and will be removed once
+   // crbug.com/325351 is resolved.
+   if (info.urlRequest.url() != GURL(kSwappedOutURL) &&
+@@ -4694,7 +4693,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+           is_redirect)) {
+     return blink::WebNavigationPolicyIgnore;
+   }
+-#endif
+ 
    Referrer referrer(
        RenderViewImpl::GetReferrerFromRequest(frame_, info.urlRequest));
- 

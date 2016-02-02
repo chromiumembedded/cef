@@ -1,5 +1,5 @@
 diff --git common.gypi common.gypi
-index 577a95c..4c1cbfe 100644
+index 514b129..036fe51 100644
 --- common.gypi
 +++ common.gypi
 @@ -9,6 +9,9 @@
@@ -12,7 +12,7 @@ index 577a95c..4c1cbfe 100644
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
-@@ -92,7 +95,10 @@
+@@ -95,7 +98,10 @@
            # depending on the packages installed on the local machine. Set this
            # to 0 to build against locally installed headers and libraries (e.g.
            # if packaging for a linux distro)

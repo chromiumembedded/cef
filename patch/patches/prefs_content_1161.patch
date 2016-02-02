@@ -1,5 +1,5 @@
 diff --git public/common/common_param_traits_macros.h public/common/common_param_traits_macros.h
-index e836e1b..f261e0d 100644
+index a9811c4..a43f9d1 100644
 --- public/common/common_param_traits_macros.h
 +++ public/common/common_param_traits_macros.h
 @@ -193,6 +193,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
@@ -11,7 +11,7 @@ index e836e1b..f261e0d 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git public/common/web_preferences.cc public/common/web_preferences.cc
-index c887f9a8..873ed91 100644
+index 4a83a70..98781c0 100644
 --- public/common/web_preferences.cc
 +++ public/common/web_preferences.cc
 @@ -171,6 +171,7 @@ WebPreferences::WebPreferences()
@@ -20,10 +20,10 @@ index c887f9a8..873ed91 100644
        navigate_on_drag_drop(true),
 +      base_background_color(0xFFFFFFFF),  // Color::white
        v8_cache_options(V8_CACHE_OPTIONS_DEFAULT),
-       slimming_paint_v2_enabled(false),
        cookie_enabled(true),
+       pepper_accelerated_video_decode_enabled(false),
 diff --git public/common/web_preferences.h public/common/web_preferences.h
-index fc1ee14..5094abb 100644
+index de5a3c5..afdf03f 100644
 --- public/common/web_preferences.h
 +++ public/common/web_preferences.h
 @@ -172,6 +172,7 @@ struct CONTENT_EXPORT WebPreferences {
@@ -32,13 +32,13 @@ index fc1ee14..5094abb 100644
    bool navigate_on_drag_drop;
 +  uint32_t base_background_color;
    V8CacheOptions v8_cache_options;
-   bool slimming_paint_v2_enabled;
  
+   // This flags corresponds to a Page's Settings' setCookieEnabled state. It
 diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
-index 00c278e..4435b20 100644
+index 8e6b887..77ef5ad 100644
 --- renderer/render_view_impl.cc
 +++ renderer/render_view_impl.cc
-@@ -939,6 +939,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
+@@ -938,6 +938,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,
    settings->setCookieEnabled(prefs.cookie_enabled);
    settings->setNavigateOnDragDrop(prefs.navigate_on_drag_drop);
  

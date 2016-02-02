@@ -1,8 +1,8 @@
 diff --git web_contents_impl.cc web_contents_impl.cc
-index 88f58a7..9e454db 100644
+index ccadfb2..b70b8e4 100644
 --- web_contents_impl.cc
 +++ web_contents_impl.cc
-@@ -1366,32 +1366,40 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1388,32 +1388,40 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
                             main_frame_widget_routing_id);
    frame_tree_.root()->SetFrameName(params.main_frame_name);
  
@@ -62,7 +62,7 @@ index 88f58a7..9e454db 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -1806,11 +1814,14 @@ void WebContentsImpl::CreateNewWindow(
+@@ -1835,11 +1843,14 @@ void WebContentsImpl::CreateNewWindow(
        static_cast<SessionStorageNamespaceImpl*>(session_storage_namespace);
    CHECK(session_storage_namespace_impl->IsFromContext(dom_storage_context));
  
@@ -78,7 +78,7 @@ index 88f58a7..9e454db 100644
      if (route_id != MSG_ROUTING_NONE &&
          !RenderViewHost::FromID(render_process_id, route_id)) {
        // If the embedder didn't create a WebContents for this route, we need to
-@@ -1831,6 +1842,8 @@ void WebContentsImpl::CreateNewWindow(
+@@ -1860,6 +1871,8 @@ void WebContentsImpl::CreateNewWindow(
    create_params.opener_render_process_id = render_process_id;
    create_params.opener_render_frame_id = params.opener_render_frame_id;
    create_params.opener_suppressed = params.opener_suppressed;

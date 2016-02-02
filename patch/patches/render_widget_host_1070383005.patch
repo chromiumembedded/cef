@@ -1,5 +1,5 @@
 diff --git render_widget_host_view_mac.mm render_widget_host_view_mac.mm
-index 8a8f916..200c7b6 100644
+index ef38d30..00fb343 100644
 --- render_widget_host_view_mac.mm
 +++ render_widget_host_view_mac.mm
 @@ -530,9 +530,6 @@ RenderWidgetHostViewMac::RenderWidgetHostViewMac(RenderWidgetHost* widget,

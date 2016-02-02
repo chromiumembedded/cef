@@ -1,8 +1,8 @@
 diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
-index 8a40549..3011ab4 100644
+index e728623..e0f051e 100644
 --- Source/web/ChromeClientImpl.cpp
 +++ Source/web/ChromeClientImpl.cpp
-@@ -829,7 +829,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
+@@ -825,7 +825,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
  PassRefPtrWillBeRawPtr<PopupMenu> ChromeClientImpl::openPopupMenu(LocalFrame& frame, HTMLSelectElement& select)
  {
      notifyPopupOpeningObservers();
@@ -12,7 +12,7 @@ index 8a40549..3011ab4 100644
  
      ASSERT(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index a065625..bbd9093 100644
+index 416f9d8..43934e3 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
 @@ -476,6 +476,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client)
@@ -23,20 +23,7 @@ index a065625..bbd9093 100644
      , m_doingDragAndDrop(false)
      , m_ignoreInputEvents(false)
      , m_compositorDeviceScaleFactorOverride(0)
-@@ -2272,12 +2273,6 @@ void WebViewImpl::mouseCaptureLost()
- 
- void WebViewImpl::setFocus(bool enable)
- {
--    // On Windows, unnecessary setFocus(false) is called if a popup is shown and
--    // the hotdog menu is clicked.
--    // TODO(tkent): This should be fixed in Chromium.
--    if (!enable && m_pagePopup)
--        return;
--
-     m_page->focusController().setFocused(enable);
-     if (enable) {
-         m_page->focusController().setActive(true);
-@@ -4151,9 +4146,14 @@ void WebViewImpl::pageScaleFactorChanged()
+@@ -4138,9 +4139,14 @@ void WebViewImpl::pageScaleFactorChanged()
      m_client->pageScaleFactorChanged();
  }
  
@@ -53,10 +40,10 @@ index a065625..bbd9093 100644
  
  void WebViewImpl::startDragging(LocalFrame* frame,
 diff --git Source/web/WebViewImpl.h Source/web/WebViewImpl.h
-index 9288a7f..18b0067 100644
+index cc4c325..b709524 100644
 --- Source/web/WebViewImpl.h
 +++ Source/web/WebViewImpl.h
-@@ -396,7 +396,8 @@ public:
+@@ -395,7 +395,8 @@ public:
  
      // Returns true if popup menus should be rendered by the browser, false if
      // they should be rendered by WebKit (which is the default).
@@ -66,7 +53,7 @@ index 9288a7f..18b0067 100644
  
      bool shouldAutoResize() const
      {
-@@ -691,6 +692,8 @@ private:
+@@ -692,6 +693,8 @@ private:
      float m_fakePageScaleAnimationPageScaleFactor;
      bool m_fakePageScaleAnimationUseAnchor;
  
@@ -76,10 +63,10 @@ index 9288a7f..18b0067 100644
  
      bool m_ignoreInputEvents;
 diff --git public/web/WebView.h public/web/WebView.h
-index e21137b..e435d73 100644
+index 18b2e9d..8b0b784 100644
 --- public/web/WebView.h
 +++ public/web/WebView.h
-@@ -411,6 +411,7 @@ public:
+@@ -408,6 +408,7 @@ public:
  
      // Sets whether select popup menus should be rendered by the browser.
      BLINK_EXPORT static void setUseExternalPopupMenus(bool);
