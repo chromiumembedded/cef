@@ -1,0 +1,58 @@
+diff --git render_widget_host_view_mac.h render_widget_host_view_mac.h
+index 13b1939..c306592 100644
+--- render_widget_host_view_mac.h
++++ render_widget_host_view_mac.h
+@@ -184,6 +184,9 @@ class Layer;
+   // The filter used to guide touch events towards a horizontal or vertical
+   // orientation.
+   content::MouseWheelRailsFilterMac mouseWheelFilter_;
++
++  // True if pinch-zoom using the touch pad is enabled.
++  BOOL touchPadPinchZoomEnabled_;
+ }
+ 
+ @property(nonatomic, readonly) NSRange selectedRange;
+diff --git render_widget_host_view_mac.mm render_widget_host_view_mac.mm
+index 8db1f59..f3824dc 100644
+--- render_widget_host_view_mac.mm
++++ render_widget_host_view_mac.mm
+@@ -62,6 +62,7 @@
+ #include "content/public/browser/render_widget_host_view_frame_subscriber.h"
+ #import "content/public/browser/render_widget_host_view_mac_delegate.h"
+ #include "content/public/browser/web_contents.h"
++#include "content/public/common/content_switches.h"
+ #include "skia/ext/platform_canvas.h"
+ #include "skia/ext/skia_utils_mac.h"
+ #include "third_party/WebKit/public/platform/WebScreenInfo.h"
+@@ -590,9 +591,6 @@ RenderWidgetHostViewMac::RenderWidgetHostViewMac(RenderWidgetHost* widget,
+   // Paint this view host with |background_color_| when there is no content
+   // ready to draw.
+   background_layer_.reset([[CALayer alloc] init]);
+-  // Set the default color to be white. This is the wrong thing to do, but many
+-  // UI components expect this view to be opaque.
+-  [background_layer_ setBackgroundColor:CGColorGetConstantColor(kCGColorWhite)];
+   [cocoa_view_ setLayer:background_layer_];
+   [cocoa_view_ setWantsLayer:YES];
+ 
+@@ -1841,6 +1839,11 @@ void RenderWidgetHostViewMac::OnDisplayMetricsChanged(
+     focusedPluginIdentifier_ = -1;
+     pinchHasReachedZoomThreshold_ = false;
+ 
++    const base::CommandLine& command_line =
++        *base::CommandLine::ForCurrentProcess();
++    touchPadPinchZoomEnabled_ =
++        !command_line.HasSwitch(switches::kDisablePinch);
++
+     // OpenGL support:
+     if ([self respondsToSelector:
+         @selector(setWantsBestResolutionOpenGLSurface:)]) {
+@@ -2560,6 +2563,9 @@ void RenderWidgetHostViewMac::OnDisplayMetricsChanged(
+   if (!gestureBeginEvent_)
+     return;
+ 
++  if (!touchPadPinchZoomEnabled_)
++    return;
++
+   if (!pinchHasReachedZoomThreshold_) {
+       pinchUnusedAmount_ *= (1 + [event magnification]);
+       if (pinchUnusedAmount_ < 0.667 || pinchUnusedAmount_ > 1.5)
