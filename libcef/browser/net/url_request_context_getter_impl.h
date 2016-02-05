@@ -63,7 +63,7 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
 
   void SetCookieStoragePath(const base::FilePath& path,
                             bool persist_session_cookies);
-  void SetCookieSupportedSchemes(const std::set<std::string>& schemes);
+  void SetCookieSupportedSchemes(const std::vector<std::string>& schemes);
 
   // Keep a reference to all handlers sharing this context so that they'll be
   // kept alive until the context is destroyed.
@@ -97,7 +97,7 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
   content::URLRequestInterceptorScopedVector request_interceptors_;
 
   base::FilePath cookie_store_path_;
-  std::set<std::string> cookie_supported_schemes_;
+  std::vector<std::string> cookie_supported_schemes_;
 
   std::vector<CefRefPtr<CefRequestContextHandler> > handler_list_;
 

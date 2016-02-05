@@ -165,10 +165,12 @@ extern "C" {
   // is empty to update the input method state. (Our input method backend can
   // automatically cancels an ongoing composition when we send an empty text.
   // So, it is OK to send an empty text to the renderer.)
-  if (!handlingKeyDown_) {
+  if (handlingKeyDown_) {
+    setMarkedTextReplacementRange_ = gfx::Range(replacementRange);
+  } else if (!handlingKeyDown_) {
     renderWidgetHostView_->render_widget_host()->ImeSetComposition(
-        markedText_, underlines_, newSelRange.location,
-        NSMaxRange(newSelRange));
+        markedText_, underlines_, gfx::Range(replacementRange),
+        newSelRange.location, NSMaxRange(newSelRange));
   }
 }
 
@@ -315,6 +317,7 @@ extern "C" {
   textToBeInserted_.clear();
   markedText_.clear();
   underlines_.clear();
+  setMarkedTextReplacementRange_ = gfx::Range::InvalidRange();
   unmarkTextCalled_ = NO;
   hasEditCommands_ = NO;
   editCommands_.clear();
@@ -362,8 +365,8 @@ extern "C" {
     // When marked text is available, |selectedRange_| will be the range being
     // selected inside the marked text.
     renderWidgetHostView_->render_widget_host()->ImeSetComposition(
-        markedText_, underlines_, selectedRange_.location,
-        NSMaxRange(selectedRange_));
+        markedText_, underlines_, setMarkedTextReplacementRange_,
+        selectedRange_.location, NSMaxRange(selectedRange_));
   } else if (oldHasMarkedText_ && !hasMarkedText_ && !textInserted) {
     if (unmarkTextCalled_) {
       renderWidgetHostView_->render_widget_host()->ImeConfirmComposition(
@@ -372,6 +375,8 @@ extern "C" {
       renderWidgetHostView_->render_widget_host()->ImeCancelComposition();
     }
   }
+
+  setMarkedTextReplacementRange_ = gfx::Range::InvalidRange();
 }
 
 - (void)cancelComposition {

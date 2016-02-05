@@ -16,11 +16,12 @@
 
 namespace {
 
-const char* kTestOrigin = "http://tests/";
-const char* kTestUrl = "http://tests/GeolocationTestHandler";
-const char* kTestAllowUrl = "http://tests/GeolocationTestHandler.Allow";
-const char* kTestDenyUrl = "http://tests/GeolocationTestHandler.Deny";
-const char* kTestCancelUrl = "http://tests/GeolocationTestHandler.Cancel";
+// Geolocation access is now restricted to "secure" origins.
+const char* kTestOrigin = "https://tests/";
+const char* kTestUrl = "https://tests/GeolocationTestHandler";
+const char* kTestAllowUrl = "https://tests/GeolocationTestHandler.Allow";
+const char* kTestDenyUrl = "https://tests/GeolocationTestHandler.Deny";
+const char* kTestCancelUrl = "https://tests/GeolocationTestHandler.Cancel";
 
 enum TestMode {
   TEST_ALLOW,

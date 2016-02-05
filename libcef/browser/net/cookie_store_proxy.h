@@ -30,9 +30,24 @@ class CefCookieStoreProxy : public net::CookieStore {
       const std::string& cookie_line,
       const net::CookieOptions& options,
       const SetCookiesCallback& callback) override;
+  void SetCookieWithDetailsAsync(
+      const GURL& url,
+      const std::string& name,
+      const std::string& value,
+      const std::string& domain,
+      const std::string& path,
+      const base::Time creation_time,
+      const base::Time expiration_time,
+      bool secure,
+      bool http_only,
+      bool same_site,
+      bool enforce_strict_secure,
+      net::CookiePriority priority,
+      const SetCookiesCallback& callback) override;
   void GetCookiesWithOptionsAsync(
       const GURL& url, const net::CookieOptions& options,
       const GetCookiesCallback& callback) override;
+  void GetAllCookiesAsync(const GetCookieListCallback& callback) override;
   void DeleteCookieAsync(const GURL& url,
                          const std::string& cookie_name,
                          const base::Closure& callback) override;
@@ -48,6 +63,7 @@ class CefCookieStoreProxy : public net::CookieStore {
       const GURL& url,
       const DeleteCallback& callback) override;
   void DeleteSessionCookiesAsync(const DeleteCallback& callback) override;
+  void FlushStore(const base::Closure& callback) override;
   net::CookieMonster* GetCookieMonster() override;
   scoped_ptr<CookieChangedSubscription> AddCallbackForCookie(
       const GURL& url,

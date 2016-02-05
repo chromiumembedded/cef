@@ -1,8 +1,8 @@
 diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
-index e728623..e0f051e 100644
+index 02bb02e..eca142e 100644
 --- Source/web/ChromeClientImpl.cpp
 +++ Source/web/ChromeClientImpl.cpp
-@@ -825,7 +825,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
+@@ -834,7 +834,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
  PassRefPtrWillBeRawPtr<PopupMenu> ChromeClientImpl::openPopupMenu(LocalFrame& frame, HTMLSelectElement& select)
  {
      notifyPopupOpeningObservers();
@@ -12,7 +12,7 @@ index e728623..e0f051e 100644
  
      ASSERT(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index 416f9d8..43934e3 100644
+index 25425db..26aac0f 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
 @@ -476,6 +476,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client)
@@ -23,7 +23,7 @@ index 416f9d8..43934e3 100644
      , m_doingDragAndDrop(false)
      , m_ignoreInputEvents(false)
      , m_compositorDeviceScaleFactorOverride(0)
-@@ -4138,9 +4139,14 @@ void WebViewImpl::pageScaleFactorChanged()
+@@ -4148,9 +4149,14 @@ void WebViewImpl::pageScaleFactorChanged()
      m_client->pageScaleFactorChanged();
  }
  
@@ -40,7 +40,7 @@ index 416f9d8..43934e3 100644
  
  void WebViewImpl::startDragging(LocalFrame* frame,
 diff --git Source/web/WebViewImpl.h Source/web/WebViewImpl.h
-index cc4c325..b709524 100644
+index 9ee6613..74e5494 100644
 --- Source/web/WebViewImpl.h
 +++ Source/web/WebViewImpl.h
 @@ -395,7 +395,8 @@ public:
@@ -53,7 +53,7 @@ index cc4c325..b709524 100644
  
      bool shouldAutoResize() const
      {
-@@ -692,6 +693,8 @@ private:
+@@ -691,6 +692,8 @@ private:
      float m_fakePageScaleAnimationPageScaleFactor;
      bool m_fakePageScaleAnimationUseAnchor;
  

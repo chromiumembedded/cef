@@ -24,11 +24,11 @@ PermissionStatus ContentSettingToPermissionStatus(ContentSetting setting) {
   switch (setting) {
     case CONTENT_SETTING_ALLOW:
     case CONTENT_SETTING_SESSION_ONLY:
-      return content::PERMISSION_STATUS_GRANTED;
+      return content::PermissionStatus::GRANTED;
     case CONTENT_SETTING_BLOCK:
-      return content::PERMISSION_STATUS_DENIED;
+      return content::PermissionStatus::DENIED;
     case CONTENT_SETTING_ASK:
-      return content::PERMISSION_STATUS_ASK;
+      return content::PermissionStatus::ASK;
     case CONTENT_SETTING_DETECT_IMPORTANT_CONTENT:
     case CONTENT_SETTING_DEFAULT:
     case CONTENT_SETTING_NUM_SETTINGS:
@@ -36,17 +36,17 @@ PermissionStatus ContentSettingToPermissionStatus(ContentSetting setting) {
   }
 
   NOTREACHED();
-  return content::PERMISSION_STATUS_DENIED;
+  return content::PermissionStatus::DENIED;
 }
 
 // Helper method to convert PermissionStatus to ContentSetting.
 ContentSetting PermissionStatusToContentSetting(PermissionStatus status) {
   switch (status) {
-    case content::PERMISSION_STATUS_GRANTED:
+    case content::PermissionStatus::GRANTED:
       return CONTENT_SETTING_ALLOW;
-    case content::PERMISSION_STATUS_DENIED:
+    case content::PermissionStatus::DENIED:
       return CONTENT_SETTING_BLOCK;
-    case content::PERMISSION_STATUS_ASK:
+    case content::PermissionStatus::ASK:
       return CONTENT_SETTING_ASK;
   }
 
@@ -112,7 +112,7 @@ class CefPermissionManager::PendingRequest {
       render_frame_id_(render_frame_host->GetRoutingID()),
       callback_(callback),
       permissions_(permissions),
-      results_(permissions.size(), content::PERMISSION_STATUS_DENIED),
+      results_(permissions.size(), content::PermissionStatus::DENIED),
       remaining_results_(permissions.size()) {
   }
 
@@ -286,7 +286,7 @@ PermissionStatus CefPermissionManager::GetPermissionStatus(
     return GetPermissionStatusForConstantPermission(permission);
 
   if (!context_.SupportsPermission(permission))
-    return content::PERMISSION_STATUS_DENIED;
+    return content::PermissionStatus::DENIED;
 
   return ContentSettingToPermissionStatus(
       context_.GetPermissionStatus(permission, requesting_origin,

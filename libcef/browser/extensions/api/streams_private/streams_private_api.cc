@@ -28,7 +28,7 @@ void CreateResponseHeadersDictionary(const net::HttpResponseHeaders* headers,
   if (!headers)
     return;
 
-  void* iter = NULL;
+  size_t iter = 0;
   std::string header_name;
   std::string header_value;
   while (headers->EnumerateHeaderLines(&iter, &header_name, &header_value)) {

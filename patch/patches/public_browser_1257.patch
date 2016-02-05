@@ -14,7 +14,7 @@ index 1b6d8a6..b606a30 100644
  WebContents::CreateParams::~CreateParams() {
  }
 diff --git web_contents.h web_contents.h
-index a96ed1c..d0a6772 100644
+index 5260b91..4495078 100644
 --- web_contents.h
 +++ web_contents.h
 @@ -54,9 +54,11 @@ class PageState;
@@ -41,7 +41,7 @@ index a96ed1c..d0a6772 100644
  
    // Creates a new WebContents.
 diff --git web_contents_delegate.cc web_contents_delegate.cc
-index 0a1d3f1..1d03511 100644
+index 71c3075..7abcac3 100644
 --- web_contents_delegate.cc
 +++ web_contents_delegate.cc
 @@ -144,7 +144,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
@@ -56,7 +56,7 @@ index 0a1d3f1..1d03511 100644
  }
  
 diff --git web_contents_delegate.h web_contents_delegate.h
-index ed46e43..9ffeee9 100644
+index b6015b0..75b53d4 100644
 --- web_contents_delegate.h
 +++ web_contents_delegate.h
 @@ -41,9 +41,11 @@ class DownloadItem;
@@ -71,7 +71,7 @@ index ed46e43..9ffeee9 100644
  struct ColorSuggestion;
  struct ContextMenuParams;
  struct DropData;
-@@ -305,7 +307,9 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -309,7 +311,9 @@ class CONTENT_EXPORT WebContentsDelegate {
        const std::string& frame_name,
        const GURL& target_url,
        const std::string& partition_id,

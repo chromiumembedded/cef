@@ -166,7 +166,7 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
 
   // Adjust for potential display scaling.
   gfx::Point point = gfx::Point(cr.right, cr.bottom);
-  float scale = gfx::Screen::GetNativeScreen()->
+  float scale = gfx::Screen::GetScreen()->
       GetDisplayNearestPoint(point).device_scale_factor();
   point = gfx::ToFlooredPoint(
       gfx::ScalePoint(gfx::PointF(point), 1.0f / scale));
@@ -296,8 +296,8 @@ gfx::Point CefBrowserPlatformDelegateNativeWin::GetScreenPoint(
                                               bounds_in_screen.y() + view.y());
 
   // Adjust for potential display scaling.
-  float scale = gfx::Screen::GetScreenFor(window)->
-      GetDisplayNearestWindow(window).device_scale_factor();
+  float scale = gfx::Screen::GetScreen()->
+      GetDisplayNearestPoint(screen_point).device_scale_factor();
   return gfx::ToFlooredPoint(
       gfx::ScalePoint(gfx::PointF(screen_point), scale));
 }

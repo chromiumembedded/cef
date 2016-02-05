@@ -1,5 +1,5 @@
 diff --git browser/browser_plugin/browser_plugin_guest.cc browser/browser_plugin/browser_plugin_guest.cc
-index 33262a8..5da1220 100644
+index 1855e5d..4e0cd1d 100644
 --- browser/browser_plugin/browser_plugin_guest.cc
 +++ browser/browser_plugin/browser_plugin_guest.cc
 @@ -27,7 +27,7 @@
@@ -36,10 +36,10 @@ index 33262a8..5da1220 100644
    }
  
    RendererPreferences* renderer_prefs =
-@@ -791,11 +790,10 @@ void BrowserPluginGuest::OnWillAttachComplete(
-     static_cast<RenderViewHostImpl*>(GetWebContents()->GetRenderViewHost())
+@@ -792,11 +791,10 @@ void BrowserPluginGuest::OnWillAttachComplete(
          ->GetWidget()
          ->Init();
+     GetWebContents()->GetMainFrame()->Init();
 -    WebContentsViewGuest* web_contents_view =
 -        static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
      if (!web_contents()->GetRenderViewHost()->GetWidget()->GetView()) {

@@ -88,7 +88,6 @@ const CefRect kSelectRect(461, 21, 87, 26);
 const CefRect kExpandedSelectRect(463, 42, 78, 286);
 const CefRect kDropDivRect(9, 330, 52, 52);
 const CefRect kDragDivRect(60, 330, 52, 52);
-const int kVerticalScrollbarWidth = 15;
 #elif defined(OS_LINUX)
 const CefRect kEditBoxRect(434, 246, 60, 20);
 const CefRect kNavigateButtonRect(380, 271, 140, 22);
@@ -537,11 +536,11 @@ class OSRTestHandler : public RoutingTestHandler,
       case OSR_TEST_RESIZE:
         if (StartTest()) {
           browser->GetHost()->WasResized();
-        } else {
+          // There may be some partial repaints before the full repaint.
+        } else if (IsFullRepaint(dirtyRects[0], width, height)) {
           EXPECT_EQ(GetScaledInt(kOsrWidth) * 2, width);
           EXPECT_EQ(GetScaledInt(kOsrHeight) * 2, height);
           EXPECT_EQ(dirtyRects.size(), 1U);
-          EXPECT_TRUE(IsFullRepaint(dirtyRects[0], width, height));
           DestroySucceededTestSoon();
         }
         break;
@@ -616,20 +615,11 @@ class OSRTestHandler : public RoutingTestHandler,
           browser->GetHost()->SendMouseWheelEvent(mouse_event, 0, - deltaY);
         } else {
           EXPECT_EQ(dirtyRects.size(), 1U);
-#if defined(OS_MACOSX)
-          const CefRect& expected_rect1 =
-              GetScaledRect(CefRect(0, 0, kOsrWidth, kOsrHeight));
-          const CefRect& expected_rect2 =
-              GetScaledRect(CefRect(0, 0, kOsrWidth - kVerticalScrollbarWidth,
-                                    kOsrHeight));
-          EXPECT_TRUE(dirtyRects[0] == expected_rect1 ||
-                      dirtyRects[0] == expected_rect2);
-#else
           const CefRect& expected_rect =
               GetScaledRect(CefRect(0, 0, kOsrWidth, kOsrHeight));
-          EXPECT_EQ(expected_rect, dirtyRects[0]);
-#endif
-          DestroySucceededTestSoon();
+          // There may be some partial repaints before the full repaint.
+          if (dirtyRects[0] == expected_rect)
+            DestroySucceededTestSoon();
         }
         break;
       }

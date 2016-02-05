@@ -12,9 +12,9 @@
 #include "base/macros.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/scoped_vector.h"
-#include "base/prefs/pref_service.h"
 #include "base/strings/string_piece.h"
 #include "build/build_config.h"
+#include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_main_parts.h"
 #include "net/url_request/url_request_context_getter.h"
 

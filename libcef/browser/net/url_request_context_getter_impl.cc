@@ -19,7 +19,6 @@
 #include "base/command_line.h"
 #include "base/files/file_util.h"
 #include "base/logging.h"
-#include "base/prefs/pref_service.h"
 #include "base/stl_util.h"
 #include "base/strings/string_util.h"
 #include "base/threading/thread_restrictions.h"
@@ -27,6 +26,7 @@
 #include "build/build_config.h"
 #include "chrome/browser/net/proxy_service_factory.h"
 #include "chrome/common/pref_names.h"
+#include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_client.h"
 #include "content/public/common/content_switches.h"
@@ -347,7 +347,7 @@ void CefURLRequestContextGetterImpl::SetCookieStoragePath(
 }
 
 void CefURLRequestContextGetterImpl::SetCookieSupportedSchemes(
-    const std::set<std::string>& schemes) {
+    const std::vector<std::string>& schemes) {
   CEF_REQUIRE_IOT();
 
   cookie_supported_schemes_ = schemes;

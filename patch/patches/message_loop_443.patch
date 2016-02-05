@@ -1,5 +1,5 @@
 diff --git message_loop.cc message_loop.cc
-index e84765a..560bd39 100644
+index 88f75e9..7abb471 100644
 --- message_loop.cc
 +++ message_loop.cc
 @@ -139,12 +139,6 @@ MessageLoop::~MessageLoop() {

@@ -126,17 +126,6 @@ CefString CefURIDecode(const CefString& text,
                        bool convert_to_utf8,
                        cef_uri_unescape_rule_t unescape_rule);
 
-///
-// Parses |string| which represents a CSS color value. If |strict| is true
-// strict parsing rules will be applied. Returns true on success or false on
-// error. If parsing succeeds |color| will be set to the color value otherwise
-// |color| will remain unchanged.
-///
-/*--cef()--*/
-bool CefParseCSSColor(const CefString& string,
-                      bool strict,
-                      cef_color_t& color);
-
 // Parses the specified |json_string| and returns a dictionary or list
 // representation. If JSON parsing fails this method returns NULL.
 /*--cef()--*/

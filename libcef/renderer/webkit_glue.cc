@@ -25,7 +25,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/WebKit/public/web/WebNode.h"
 #include "third_party/WebKit/public/web/WebViewClient.h"
 
-#include "third_party/WebKit/Source/core/css/parser/CSSParser.h"
 #include "third_party/WebKit/Source/core/dom/Element.h"
 #include "third_party/WebKit/Source/core/dom/Node.h"
 #include "third_party/WebKit/Source/core/editing/serializers/Serialization.h"
@@ -158,25 +157,6 @@ blink::WebFrame* FindFrameByUniqueName(const blink::WebString& unique_name,
     return blink::WebLocalFrameImpl::fromFrame(toLocalFrame(found_frame));
 
   return NULL;
-}
-
-void InitializePartitionAlloc() {
-  WTF::Partitions::initialize(nullptr);
-}
-
-bool ParseCSSColor(const blink::WebString& string,
-                   bool strict, SkColor& color) {
-  blink::Color rgba_color =
-      blink::makeRGBA(SkColorGetR(color), SkColorGetG(color),
-                      SkColorGetB(color), SkColorGetA(color));
-  if (!blink::CSSParser::parseColor(rgba_color, string, strict))
-    return false;
-
-  color = SkColorSetARGB(rgba_color.alpha(),
-                         rgba_color.red(),
-                         rgba_color.green(),
-                         rgba_color.blue());
-  return true;
 }
 
 }  // webkit_glue

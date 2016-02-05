@@ -303,42 +303,6 @@ TEST(ParserTest, URIDecode) {
   EXPECT_STREQ(test_str_decoded.c_str(), decoded_value.ToString().c_str());
 }
 
-TEST(ParserTest, ParseCSSColor) {
-  std::string value;
-  cef_color_t color;
-
-  // Color by name.
-  value = "red";
-  color = 0;
-  EXPECT_TRUE(CefParseCSSColor(value, false, color));
-  EXPECT_EQ(CefColorSetARGB(255, 255, 0, 0), color);
-
-  // Color by RGB.
-  value = "rgb(1,2,3)";
-  color = 0;
-  EXPECT_TRUE(CefParseCSSColor(value, false, color));
-  EXPECT_EQ(CefColorSetARGB(255, 1, 2, 3), color);
-
-  // Color by RGBA.
-  value = "rgba(1,2,3,0.0)";
-  color = 0;
-  EXPECT_TRUE(CefParseCSSColor(value, false, color));
-  EXPECT_EQ(CefColorSetARGB(0, 1, 2, 3), color);
-
-  // Color by hex code.
-  value = "#FFAACC";
-  color = 0;
-  EXPECT_TRUE(CefParseCSSColor(value, false, color));
-  EXPECT_EQ(CefColorSetARGB(255, 0xFF, 0xAA, 0xCC), color);
-
-  // Invalid color.
-  value = "not_a_color";
-  color = 0;
-  EXPECT_FALSE(CefParseCSSColor(value, false, color));
-  EXPECT_EQ(0U, color);
-}
-
-
 TEST(ParserTest, ParseJSONInvalid) {
   const char data[] = "This is my test data";
   CefRefPtr<CefValue> value = CefParseJSON(data, JSON_PARSER_RFC);

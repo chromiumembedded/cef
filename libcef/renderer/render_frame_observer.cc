@@ -77,8 +77,11 @@ void CefRenderFrameObserver::WillReleaseScriptContext(
 
         v8::Isolate* isolate = blink::mainThreadIsolate();
         v8::HandleScope handle_scope(isolate);
-        v8::Context::Scope scope(context);
-        blink::V8RecursionScope recursion_scope(isolate);
+
+        // The released context should not be used for script execution.
+        // Depending on how the context is released this may or may not already
+        // be set.
+        blink::ScriptForbiddenScope forbidScript;
 
         CefRefPtr<CefV8Context> contextPtr(
             new CefV8ContextImpl(isolate, context));

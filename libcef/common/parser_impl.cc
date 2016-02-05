@@ -5,14 +5,12 @@
 #include <sstream>
 
 #include "include/cef_parser.h"
-#include "libcef/renderer/webkit_glue.h"
 
 #include "base/base64.h"
 #include "base/threading/thread_restrictions.h"
 #include "components/url_formatter/elide_url.h"
 #include "net/base/escape.h"
 #include "net/base/mime_util.h"
-#include "third_party/WebKit/public/platform/WebString.h"
 #include "url/gurl.h"
 
 bool CefParseURL(const CefString& url,
@@ -138,14 +136,4 @@ CefString CefURIDecode(const CefString& text,
     return net::UnescapeAndDecodeUTF8URLComponent(text.ToString(), type);
   else
     return net::UnescapeURLComponent(text.ToString(), type);
-}
-
-bool CefParseCSSColor(const CefString& string,
-                      bool strict,
-                      cef_color_t& color) {
-  // Blink types depend on PartitionAlloc. Safe to call multiple times.
-  webkit_glue::InitializePartitionAlloc();
-
-  return webkit_glue::ParseCSSColor(
-      blink::WebString::fromUTF8(string.ToString().data()), strict, color);
 }

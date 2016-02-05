@@ -415,9 +415,7 @@ gfx::Image CefContentClient::GetImageNamed(int resource_id) {
   return gfx::Image();
 }
 
-gfx::Image CefContentClient::GetNativeImageNamed(
-    int resource_id,
-    ui::ResourceBundle::ImageRTL rtl) {
+gfx::Image CefContentClient::GetNativeImageNamed(int resource_id) {
   return gfx::Image();
 }
 

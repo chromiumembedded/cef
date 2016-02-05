@@ -13,8 +13,6 @@
 #include "libcef/common/extensions/extensions_util.h"
 
 #include "base/command_line.h"
-#include "base/prefs/pref_service.h"
-#include "base/prefs/pref_store.h"
 #include "base/values.h"
 #include "chrome/browser/accessibility/animation_policy_prefs.h"
 #include "chrome/browser/character_encoding.h"
@@ -25,6 +23,8 @@
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
+#include "components/prefs/pref_service.h"
+#include "components/prefs/pref_store.h"
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"

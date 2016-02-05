@@ -303,8 +303,9 @@ class CefV8ValueImpl : public CefV8Value {
     ~Handle() override;
 
    private:
-    // Callback for weak persistent reference destruction.
-    static void Destructor(const v8::WeakCallbackInfo<Handle>& data);
+    // Callbacks for weak persistent reference destruction.
+    static void FirstWeakCallback(const v8::WeakCallbackInfo<Handle>& data);
+    static void SecondWeakCallback(const v8::WeakCallbackInfo<Handle>& data);
 
     persistentType handle_;
 

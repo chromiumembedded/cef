@@ -120,8 +120,7 @@ int CefBrowserMainParts::PreCreateThreads() {
   content::GpuDataManager::GetInstance();
 
 #if defined(USE_AURA)
-  gfx::Screen::SetScreenInstance(gfx::SCREEN_TYPE_NATIVE,
-                                 views::CreateDesktopScreen());
+  gfx::Screen::SetScreenInstance(views::CreateDesktopScreen());
 #endif
 
   return 0;

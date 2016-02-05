@@ -10,18 +10,18 @@
 
 #include "base/command_line.h"
 #include "base/files/file_path.h"
-#include "base/prefs/json_pref_store.h"
-#include "base/prefs/pref_filter.h"
-#include "base/prefs/pref_registry_simple.h"
-#include "base/prefs/pref_service.h"
-#include "base/prefs/pref_service_factory.h"
-#include "base/prefs/testing_pref_store.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/values.h"
 #include "chrome/browser/prefs/command_line_pref_store.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
+#include "components/prefs/json_pref_store.h"
+#include "components/prefs/pref_filter.h"
+#include "components/prefs/pref_registry_simple.h"
+#include "components/prefs/pref_service.h"
+#include "components/prefs/pref_service_factory.h"
+#include "components/prefs/testing_pref_store.h"
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "components/proxy_config/pref_proxy_config_tracker_impl.h"
 #include "components/proxy_config/proxy_config_dictionary.h"
@@ -87,7 +87,7 @@ scoped_ptr<PrefService> CreatePrefService(const base::FilePath& pref_path) {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
 
-  base::PrefServiceFactory factory;
+  PrefServiceFactory factory;
 
   // Used to store command-line preferences, most of which will be evaluated in
   // the CommandLinePrefStore constructor. Preferences set in this manner cannot

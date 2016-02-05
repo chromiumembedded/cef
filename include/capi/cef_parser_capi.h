@@ -127,15 +127,6 @@ CEF_EXPORT cef_string_userfree_t cef_uriencode(const cef_string_t* text,
 CEF_EXPORT cef_string_userfree_t cef_uridecode(const cef_string_t* text,
     int convert_to_utf8, cef_uri_unescape_rule_t unescape_rule);
 
-///
-// Parses |string| which represents a CSS color value. If |strict| is true (1)
-// strict parsing rules will be applied. Returns true (1) on success or false
-// (0) on error. If parsing succeeds |color| will be set to the color value
-// otherwise |color| will remain unchanged.
-///
-CEF_EXPORT int cef_parse_csscolor(const cef_string_t* string, int strict,
-    cef_color_t* color);
-
 // Parses the specified |json_string| and returns a dictionary or list
 // representation. If JSON parsing fails this function returns NULL.
 CEF_EXPORT struct _cef_value_t* cef_parse_json(const cef_string_t* json_string,

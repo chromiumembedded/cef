@@ -21,7 +21,6 @@
 #include "base/files/file_util.h"
 #include "base/lazy_instance.h"
 #include "base/logging.h"
-#include "base/prefs/pref_service.h"
 #include "base/strings/string_util.h"
 #include "base/threading/thread_restrictions.h"
 #include "chrome/browser/font_family_cache.h"
@@ -29,6 +28,7 @@
 #include "chrome/browser/ui/zoom/chrome_zoom_level_prefs.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/guest_view/browser/guest_view_manager.h"
+#include "components/prefs/pref_service.h"
 #include "components/ui/zoom/zoom_event_manager.h"
 #include "components/visitedlink/browser/visitedlink_event_listener.h"
 #include "components/visitedlink/browser/visitedlink_master.h"
@@ -470,10 +470,12 @@ net::URLRequestContextGetter*
 HostContentSettingsMap* CefBrowserContextImpl::GetHostContentSettingsMap() {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   if (!host_content_settings_map_.get()) {
-    // The |incognito| argument is intentionally set to false as it otherwise
-    // limits the types of values that can be stored in the settings map (for
-    // example, default values set via DefaultProvider::SetWebsiteSetting).
-    host_content_settings_map_ = new HostContentSettingsMap(GetPrefs(), false);
+    // The |is_incognito_profile| and |is_guest_profile| arguments are
+    // intentionally set to false as they otherwise limit the types of values
+    // that can be stored in the settings map (for example, default values set
+    // via DefaultProvider::SetWebsiteSetting).
+    host_content_settings_map_ =
+        new HostContentSettingsMap(GetPrefs(), false, false);
 
     // Change the default plugin policy.
     const base::CommandLine* command_line =

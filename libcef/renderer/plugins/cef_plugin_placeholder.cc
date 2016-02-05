@@ -22,6 +22,7 @@
 #include "content/public/renderer/render_frame.h"
 #include "content/public/renderer/render_thread.h"
 #include "gin/object_template_builder.h"
+#include "third_party/WebKit/public/platform/URLConversion.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebInputEvent.h"
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
@@ -181,7 +182,7 @@ void CefPluginPlaceholder::PluginListChanged() {
   render_frame()->Send(
       new CefViewHostMsg_GetPluginInfo(routing_id(),
                                           GURL(GetPluginParams().url),
-                                          GURL(top_origin),
+                                          blink::WebStringToGURL(top_origin),
                                           mime_type,
                                           &output));
   if (output.status == status_)

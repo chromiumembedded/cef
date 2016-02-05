@@ -69,6 +69,7 @@
 #include "ipc/ipc_sync_channel.h"
 #include "media/base/media.h"
 #include "printing/print_settings.h"
+#include "third_party/WebKit/public/platform/URLConversion.h"
 #include "third_party/WebKit/public/platform/WebPrerenderingSupport.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
@@ -498,8 +499,8 @@ bool CefContentRendererClient::OverrideCreatePlugin(
   CefViewHostMsg_GetPluginInfo_Output output;
   blink::WebString top_origin = frame->top()->securityOrigin().toString();
   render_frame->Send(new CefViewHostMsg_GetPluginInfo(
-      render_frame->GetRoutingID(), url, GURL(top_origin), orig_mime_type,
-      &output));
+      render_frame->GetRoutingID(), url, blink::WebStringToGURL(top_origin),
+      orig_mime_type, &output));
 
   *plugin = CreatePlugin(render_frame, frame, params, output);
   return true;

@@ -63,7 +63,7 @@ class CefCookieManagerImpl : public CefCookieManager {
   // Set the schemes supported by |cookie_monster|. Default schemes will always
   // be supported.
   static void SetCookieMonsterSchemes(net::CookieMonster* cookie_monster,
-                                      const std::set<std::string>& schemes);
+                                      const std::vector<std::string>& schemes);
 
  private:
   // Returns true if a context is or will be available.
@@ -82,7 +82,7 @@ class CefCookieManagerImpl : public CefCookieManager {
       CefRefPtr<CefCompletionCallback> callback,
       scoped_refptr<CefURLRequestContextGetterImpl> request_context);
   void SetSupportedSchemesWithContext(
-      const std::set<std::string>& schemes,
+      const std::vector<std::string>& schemes,
       CefRefPtr<CefCompletionCallback> callback,
       scoped_refptr<CefURLRequestContextGetterImpl> request_context);
   void GetCookieMonsterWithContext(
@@ -91,7 +91,7 @@ class CefCookieManagerImpl : public CefCookieManager {
       scoped_refptr<CefURLRequestContextGetterImpl> request_context);
 
   void SetSupportedSchemesInternal(
-      const std::set<std::string>& schemes,
+      const std::vector<std::string>& schemes,
       CefRefPtr<CefCompletionCallback> callback);
   void VisitAllCookiesInternal(
       CefRefPtr<CefCookieVisitor> visitor,
@@ -121,7 +121,7 @@ class CefCookieManagerImpl : public CefCookieManager {
 
   // Used for cookie monsters owned by this object.
   base::FilePath storage_path_;
-  std::set<std::string> supported_schemes_;
+  std::vector<std::string> supported_schemes_;
   scoped_refptr<net::CookieMonster> cookie_monster_;
 
   IMPLEMENT_REFCOUNTING(CefCookieManagerImpl);

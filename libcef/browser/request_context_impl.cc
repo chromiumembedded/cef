@@ -13,8 +13,8 @@
 
 #include "base/atomic_sequence_num.h"
 #include "base/logging.h"
-#include "base/prefs/pref_service.h"
 #include "base/strings/stringprintf.h"
+#include "components/prefs/pref_service.h"
 #include "content/public/browser/plugin_service.h"
 
 using content::BrowserThread;

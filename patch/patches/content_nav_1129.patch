@@ -39,10 +39,10 @@ index 45686b5..18548a0 100644
    // Returns true if we should fork a new process for the given navigation.
    // If |send_referrer| is set to false (which is the default), no referrer
 diff --git renderer/render_frame_impl.cc renderer/render_frame_impl.cc
-index 9b199d3..1a8b6fa 100644
+index 0fc35cb..caed853 100644
 --- renderer/render_frame_impl.cc
 +++ renderer/render_frame_impl.cc
-@@ -4684,7 +4684,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -4750,7 +4750,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
        (pending_navigation_params_ &&
         !pending_navigation_params_->request_params.redirects.empty());
  
@@ -50,7 +50,7 @@ index 9b199d3..1a8b6fa 100644
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
    if (info.urlRequest.url() != GURL(kSwappedOutURL) &&
-@@ -4694,7 +4693,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -4760,7 +4759,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
            is_redirect)) {
      return blink::WebNavigationPolicyIgnore;
    }

@@ -10,8 +10,6 @@
 
 #include <string>
 
-#include "third_party/skia/include/core/SkColor.h"
-
 #include "include/internal/cef_types.h"
 
 namespace blink {
@@ -45,12 +43,6 @@ int64_t GetIdentifier(blink::WebFrame* frame);
 // |relative_to_frame| in the frame hierarchy.
 blink::WebFrame* FindFrameByUniqueName(const blink::WebString& unique_name,
                                        blink::WebFrame* relative_to_frame);
-
-// Initialize PartitionAlloc before calling Blink functions from the browser
-// process. Safe to call multiple times.
-void InitializePartitionAlloc();
-
-bool ParseCSSColor(const blink::WebString& string, bool strict, SkColor& color);
 
 }  // webkit_glue
 

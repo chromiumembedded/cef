@@ -565,25 +565,6 @@ CEF_GLOBAL CefString CefURIDecode(const CefString& text, bool convert_to_utf8,
   return _retvalStr;
 }
 
-CEF_GLOBAL bool CefParseCSSColor(const CefString& string, bool strict,
-    cef_color_t& color) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: string; type: string_byref_const
-  DCHECK(!string.empty());
-  if (string.empty())
-    return false;
-
-  // Execute
-  int _retval = cef_parse_csscolor(
-      string.GetStruct(),
-      strict,
-      &color);
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
 CEF_GLOBAL CefRefPtr<CefValue> CefParseJSON(const CefString& json_string,
     cef_json_parser_options_t options) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING

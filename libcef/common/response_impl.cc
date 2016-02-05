@@ -157,7 +157,7 @@ void CefResponseImpl::SetResponseHeaders(
 
   header_map_.empty();
 
-  void* iter = NULL;
+  size_t iter = 0;
   std::string name, value;
   while (headers.EnumerateHeaderLines(&iter, &name, &value))
     header_map_.insert(std::make_pair(name, value));

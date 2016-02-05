@@ -597,36 +597,6 @@ CEF_EXPORT cef_string_userfree_t cef_uridecode(const cef_string_t* text,
   return _retval.DetachToUserFree();
 }
 
-CEF_EXPORT int cef_parse_csscolor(const cef_string_t* string, int strict,
-    cef_color_t* color) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: string; type: string_byref_const
-  DCHECK(string);
-  if (!string)
-    return 0;
-  // Verify param: color; type: simple_byref
-  DCHECK(color);
-  if (!color)
-    return 0;
-
-  // Translate param: color; type: simple_byref
-  cef_color_t colorVal = color?*color:0;
-
-  // Execute
-  bool _retval = CefParseCSSColor(
-      CefString(string),
-      strict?true:false,
-      colorVal);
-
-  // Restore param: color; type: simple_byref
-  if (color)
-    *color = colorVal;
-
-  // Return type: bool
-  return _retval;
-}
-
 CEF_EXPORT struct _cef_value_t* cef_parse_json(const cef_string_t* json_string,
     cef_json_parser_options_t options) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING

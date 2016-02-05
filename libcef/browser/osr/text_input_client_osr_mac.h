@@ -51,6 +51,9 @@
   // Underline information of the |markedText_|.
   std::vector<blink::WebCompositionUnderline> underlines_;
 
+  // Replacement range information received from |setMarkedText:|.
+  gfx::Range setMarkedTextReplacementRange_;
+
   // Indicates if doCommandBySelector method receives any edit command when
   // handling a key down event.
   BOOL hasEditCommands_;

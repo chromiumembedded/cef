@@ -14,7 +14,7 @@ namespace IPC {
 template <>
 struct ParamTraits<net::UploadElement> {
   typedef net::UploadElement param_type;
-  static void Write(Message* m, const param_type& p) {
+  static void Write(base::Pickle* m, const param_type& p) {
     WriteParam(m, static_cast<int>(p.type()));
     switch (p.type()) {
       case net::UploadElement::TYPE_BYTES: {
@@ -31,7 +31,7 @@ struct ParamTraits<net::UploadElement> {
       }
     }
   }
-  static bool Read(const Message* m,
+  static bool Read(const base::Pickle* m,
                    base::PickleIterator* iter,
                    param_type* r) {
     int type;
@@ -71,7 +71,7 @@ struct ParamTraits<net::UploadElement> {
   }
 };
 
-void ParamTraits<scoped_refptr<net::UploadData> >::Write(Message* m,
+void ParamTraits<scoped_refptr<net::UploadData> >::Write(base::Pickle* m,
                                                          const param_type& p) {
   WriteParam(m, p.get() != NULL);
   if (p.get()) {
@@ -83,7 +83,7 @@ void ParamTraits<scoped_refptr<net::UploadData> >::Write(Message* m,
 }
 
 bool ParamTraits<scoped_refptr<net::UploadData> >::Read(
-    const Message* m,
+    const base::Pickle* m,
     base::PickleIterator* iter,
     param_type* r) {
   bool has_object;

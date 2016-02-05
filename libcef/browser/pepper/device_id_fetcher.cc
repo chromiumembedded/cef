@@ -6,13 +6,13 @@
 
 #include "base/files/file_util.h"
 #include "base/macros.h"
-#include "base/prefs/pref_service.h"
 #include "base/strings/string_number_conversions.h"
 #include "build/build_config.h"
 #include "chrome/common/pref_names.h"
 #if defined(OS_CHROMEOS)
 #include "chromeos/cryptohome/system_salt_getter.h"
 #endif
+#include "components/prefs/pref_service.h"
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "components/user_prefs/user_prefs.h"
 #include "content/public/browser/browser_context.h"

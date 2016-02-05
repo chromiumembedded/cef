@@ -42,12 +42,43 @@ void CefCookieStoreProxy::SetCookieWithOptionsAsync(
   }
 }
 
+void CefCookieStoreProxy::SetCookieWithDetailsAsync(
+    const GURL& url,
+    const std::string& name,
+    const std::string& value,
+    const std::string& domain,
+    const std::string& path,
+    const base::Time creation_time,
+    const base::Time expiration_time,
+    bool secure,
+    bool http_only,
+    bool same_site,
+    bool enforce_strict_secure,
+    net::CookiePriority priority,
+    const SetCookiesCallback& callback) {
+  scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
+  if (cookie_store.get()) {
+    cookie_store->SetCookieWithDetailsAsync(url, name, value, domain, path,
+                                            creation_time, expiration_time,
+                                            secure, http_only, same_site,
+                                            enforce_strict_secure, priority,
+                                            callback);
+  }
+}
+
 void CefCookieStoreProxy::GetCookiesWithOptionsAsync(
     const GURL& url, const net::CookieOptions& options,
     const GetCookiesCallback& callback) {
   scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
   if (cookie_store.get())
     cookie_store->GetCookiesWithOptionsAsync(url, options, callback);
+}
+
+void CefCookieStoreProxy::GetAllCookiesAsync(
+    const GetCookieListCallback& callback) {
+  scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
+  if (cookie_store.get())
+    cookie_store->GetAllCookiesAsync(callback);
 }
 
 void CefCookieStoreProxy::DeleteCookieAsync(
@@ -95,6 +126,12 @@ void CefCookieStoreProxy::DeleteSessionCookiesAsync(
   scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
   if (cookie_store.get())
     cookie_store->DeleteSessionCookiesAsync(callback);
+}
+
+void CefCookieStoreProxy::FlushStore(const base::Closure& callback) {
+  scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
+  if (cookie_store.get())
+    cookie_store->FlushStore(callback);
 }
 
 net::CookieMonster* CefCookieStoreProxy::GetCookieMonster() {

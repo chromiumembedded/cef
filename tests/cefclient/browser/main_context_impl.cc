@@ -14,6 +14,27 @@ namespace {
 // The default URL to load in a browser window.
 const char kDefaultUrl[] = "http://www.google.com";
 
+// Returns the ARGB value for |color|.
+cef_color_t ParseColor(const std::string& color) {
+  std::string colorToLower;
+  colorToLower.resize(color.size());
+  std::transform(color.begin(), color.end(), colorToLower.begin(), ::tolower);
+
+  if (colorToLower == "black")
+    return CefColorSetARGB(255, 0, 0, 0);
+  else if (colorToLower == "blue")
+    return CefColorSetARGB(255, 0, 0, 255);
+  else if (colorToLower == "green")
+    return CefColorSetARGB(255, 0, 255, 0);
+  else if (colorToLower == "red")
+    return CefColorSetARGB(255, 255, 0, 0);
+  else if (colorToLower == "white")
+    return CefColorSetARGB(255, 255, 255, 255);
+
+  // Use the default color.
+  return 0U;
+}
+
 }  // namespace
 
 MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
@@ -33,8 +54,8 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
 
   if (command_line_->HasSwitch(switches::kBackgroundColor)) {
     // Parse the background color value.
-    CefParseCSSColor(command_line_->GetSwitchValue(switches::kBackgroundColor),
-                     false, background_color_);
+    background_color_ =
+        ParseColor(command_line_->GetSwitchValue(switches::kBackgroundColor));
   }
 }
 

@@ -68,19 +68,6 @@ bool HasSwitchValue(const std::vector<std::string>& vec, const char* test) {
   return (std::find(vec.begin(), vec.end(), test) != vec.end());
 }
 
-// Returns true if falling back on an alternate, unsafe, service URL is
-// allowed. In the fallback case, the security of the component update relies
-// only on the integrity of the CRX payloads, which is self-validating.
-// This is allowed only for some of the pre-Windows Vista versions not including
-// Windows XP SP3. As a side note, pings could be sent to the alternate URL too.
-bool CanUseAltUrlSource() {
-#if defined(OS_WIN)
-  return !base::win::MaybeHasSHA256Support();
-#else
-  return false;
-#endif  // OS_WIN
-}
-
 // If there is an element of |vec| of the form |test|=.*, returns the right-
 // hand side of that assignment. Otherwise, returns an empty string.
 // The right-hand side may contain additional '=' characters, allowing for
@@ -119,6 +106,7 @@ class CefConfigurator : public Configurator {
   std::string GetLang() const override;
   std::string GetOSLongName() const override;
   std::string ExtraRequestParams() const override;
+  std::string GetDownloadPreference() const override;
   net::URLRequestContextGetter* RequestContext() const override;
   scoped_refptr<update_client::OutOfProcessPatcher>
       CreateOutOfProcessPatcher() const override;
@@ -139,7 +127,6 @@ class CefConfigurator : public Configurator {
   bool pings_enabled_;
   bool deltas_enabled_;
   bool background_downloads_enabled_;
-  bool fallback_to_alt_source_url_enabled_;
 };
 
 CefConfigurator::CefConfigurator(
@@ -149,8 +136,7 @@ CefConfigurator::CefConfigurator(
       fast_update_(false),
       pings_enabled_(false),
       deltas_enabled_(false),
-      background_downloads_enabled_(false),
-      fallback_to_alt_source_url_enabled_(false) {
+      background_downloads_enabled_(false) {
   // Parse comma-delimited debug flags.
   std::vector<std::string> switch_values = base::SplitString(
       cmdline->GetSwitchValueASCII(switches::kComponentUpdater),
@@ -179,8 +165,6 @@ CefConfigurator::CefConfigurator(
 
   if (HasSwitchValue(switch_values, kSwitchRequestParam))
     extra_info_ += "testrequest=\"1\"";
-
-  fallback_to_alt_source_url_enabled_ = CanUseAltUrlSource();
 }
 
 int CefConfigurator::InitialDelay() const {
@@ -209,9 +193,6 @@ std::vector<GURL> CefConfigurator::UpdateUrl() const {
     urls.push_back(GURL(url_source_override_));
   } else {
     urls.push_back(GURL(kUpdaterDefaultUrl));
-    if (fallback_to_alt_source_url_enabled_) {
-      urls.push_back(GURL(kUpdaterAltUrl));
-    }
   }
   return urls;
 }
@@ -262,6 +243,10 @@ std::string CefConfigurator::ExtraRequestParams() const {
   return extra_info_;
 }
 
+std::string CefConfigurator::GetDownloadPreference() const {
+  return std::string();
+}
+
 net::URLRequestContextGetter* CefConfigurator::RequestContext() const {
   return url_request_getter_;
 }
@@ -283,7 +268,7 @@ scoped_refptr<base::SequencedTaskRunner>
 CefConfigurator::GetSequencedTaskRunner() const {
   return content::BrowserThread::GetBlockingPool()
       ->GetSequencedTaskRunnerWithShutdownBehavior(
-          content::BrowserThread::GetBlockingPool()->GetSequenceToken(),
+          base::SequencedWorkerPool::GetSequenceToken(),
           base::SequencedWorkerPool::SKIP_ON_SHUTDOWN);
 }
 

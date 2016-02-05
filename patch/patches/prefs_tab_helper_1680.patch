@@ -1,5 +1,5 @@
 diff --git prefs_tab_helper.cc prefs_tab_helper.cc
-index ee406db..fc86170 100644
+index 36d6fe9..a875d1e 100644
 --- prefs_tab_helper.cc
 +++ prefs_tab_helper.cc
 @@ -12,7 +12,7 @@
@@ -9,8 +9,8 @@ index ee406db..fc86170 100644
 -#include "base/memory/singleton.h"
 +#include "base/lazy_instance.h"
  #include "base/metrics/field_trial.h"
- #include "base/prefs/overlay_user_pref_store.h"
- #include "base/prefs/pref_change_registrar.h"
+ #include "base/strings/string_number_conversions.h"
+ #include "base/strings/string_util.h"
 @@ -431,12 +431,10 @@ class PrefWatcherFactory : public BrowserContextKeyedServiceFactory {
          GetInstance()->GetServiceForBrowserContext(profile, true));
    }

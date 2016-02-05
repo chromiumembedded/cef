@@ -1,8 +1,8 @@
 diff --git content/browser/compositor/gpu_process_transport_factory.cc content/browser/compositor/gpu_process_transport_factory.cc
-index 874debf..ba26bdf 100644
+index eccd9dc..d0908c6 100644
 --- content/browser/compositor/gpu_process_transport_factory.cc
 +++ content/browser/compositor/gpu_process_transport_factory.cc
-@@ -137,6 +137,13 @@ GpuProcessTransportFactory::CreateOffscreenCommandBufferContext() {
+@@ -132,6 +132,13 @@ GpuProcessTransportFactory::CreateOffscreenCommandBufferContext() {
  scoped_ptr<cc::SoftwareOutputDevice>
  GpuProcessTransportFactory::CreateSoftwareOutputDevice(
      ui::Compositor* compositor) {

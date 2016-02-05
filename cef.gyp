@@ -862,7 +862,6 @@
       ],
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
-        '<(DEPTH)/base/base.gyp:base_prefs',
         '<(DEPTH)/base/base.gyp:base_static',
         '<(DEPTH)/base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
         '<(DEPTH)/cc/blink/cc_blink.gyp:cc_blink',
@@ -904,6 +903,7 @@
         '<(DEPTH)/components/components.gyp:visitedlink_common',
         '<(DEPTH)/components/components.gyp:visitedlink_renderer',
         '<(DEPTH)/components/components.gyp:web_cache_renderer',
+        '<(DEPTH)/components/prefs/prefs.gyp:prefs',
         '<(DEPTH)/components/url_formatter/url_formatter.gyp:url_formatter',
         '<(DEPTH)/content/content.gyp:content_app_both',
         '<(DEPTH)/content/content.gyp:content_browser',
@@ -1389,8 +1389,6 @@
         '<(DEPTH)/components/nacl/common/nacl_constants.cc',
         '<(DEPTH)/components/nacl/common/nacl_constants.h',
         # Include sources for preferences support.
-        '<(DEPTH)/base/prefs/testing_pref_store.cc',
-        '<(DEPTH)/base/prefs/testing_pref_store.h',
         '<(DEPTH)/chrome/browser/accessibility/animation_policy_prefs.cc',
         '<(DEPTH)/chrome/browser/accessibility/animation_policy_prefs.h',
         '<(DEPTH)/chrome/browser/character_encoding.cc',
@@ -1414,6 +1412,8 @@
         '<(DEPTH)/chrome/common/pref_names.h',
         '<(DEPTH)/chrome/common/pref_names_util.cc',
         '<(DEPTH)/chrome/common/pref_names_util.h',
+        '<(DEPTH)/components/prefs/testing_pref_store.cc',
+        '<(DEPTH)/components/prefs/testing_pref_store.h',
         # Include sources for permissions support.
         '<(DEPTH)/chrome/browser/permissions/permission_request_id.h',
         '<(DEPTH)/chrome/browser/permissions/permission_request_id.cc',
@@ -1892,11 +1892,6 @@
           '<@(libcef_sources_common)',
         ],
         'conditions': [
-          ['OS=="win" and win_use_allocator_shim==1', {
-            'dependencies': [
-              '<(DEPTH)/base/allocator/allocator.gyp:allocator',
-            ],
-          }],
           ['OS=="win"', {
             'configurations': {
               'Debug_Base': {
@@ -1930,11 +1925,6 @@
                 ],
               },
             },
-          }],
-          [ '(OS=="linux" or OS=="freebsd" or OS=="openbsd") and use_allocator!="none"', {
-            'dependencies':[
-              '<(DEPTH)/base/allocator/allocator.gyp:allocator',
-            ],
           }],
         ],
       }],

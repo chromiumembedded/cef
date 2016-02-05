@@ -1,5 +1,5 @@
 diff --git renderer_preferences_util.cc renderer_preferences_util.cc
-index a6498fc..4bf2cf91 100644
+index 2fff3f3..86c7f0c 100644
 --- renderer_preferences_util.cc
 +++ renderer_preferences_util.cc
 @@ -27,7 +27,8 @@
