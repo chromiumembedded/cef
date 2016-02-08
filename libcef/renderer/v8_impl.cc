@@ -23,6 +23,12 @@ MSVC_POP_WARNING();
 #undef FROM_HERE
 #undef LOG
 
+// Enable deprecation warnings for MSVC. See http://crbug.com/585142.
+#if defined(OS_WIN)
+#pragma warning(push)
+#pragma warning(default:4996)
+#endif
+
 #include "libcef/renderer/v8_impl.h"
 
 #include "libcef/common/cef_switches.h"
@@ -2401,3 +2407,9 @@ bool CefV8StackFrameImpl::IsEval() {
 bool CefV8StackFrameImpl::IsConstructor() {
   return is_constructor_;
 }
+
+
+// Enable deprecation warnings for MSVC. See http://crbug.com/585142.
+#if defined(OS_WIN)
+#pragma warning(pop)
+#endif
