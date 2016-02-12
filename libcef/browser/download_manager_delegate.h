@@ -8,6 +8,8 @@
 
 #include <set>
 
+#include "libcef/browser/browser_host_impl.h"
+
 #include "base/compiler_specific.h"
 #include "base/memory/weak_ptr.h"
 #include "content/public/browser/download_item.h"
@@ -17,15 +19,16 @@
 class CefDownloadManagerDelegate
     : public content::DownloadItem::Observer,
       public content::DownloadManager::Observer,
-      public content::DownloadManagerDelegate {
+      public content::DownloadManagerDelegate,
+      public CefBrowserHostImpl::Observer {
  public:
   explicit CefDownloadManagerDelegate(content::DownloadManager* manager);
   ~CefDownloadManagerDelegate() override;
 
  private:
   // DownloadItem::Observer methods.
-  void OnDownloadUpdated(content::DownloadItem* download) override;
-  void OnDownloadDestroyed(content::DownloadItem* download) override;
+  void OnDownloadUpdated(content::DownloadItem* item) override;
+  void OnDownloadDestroyed(content::DownloadItem* item) override;
 
   // DownloadManager::Observer methods.
   void OnDownloadCreated(content::DownloadManager* manager,
@@ -38,9 +41,19 @@ class CefDownloadManagerDelegate
       const content::DownloadTargetCallback& callback) override;
   void GetNextId(const content::DownloadIdCallback& callback) override;
 
+  // CefBrowserHostImpl::Observer methods.
+  void OnBrowserDestroyed(CefBrowserHostImpl* browser) override;
+
+  CefBrowserHostImpl* GetBrowser(content::DownloadItem* item);
+
   content::DownloadManager* manager_;
   base::WeakPtrFactory<content::DownloadManager> manager_ptr_factory_;
-  std::set<content::DownloadItem*> observing_;
+
+  // Map of DownloadItem to originating CefBrowserHostImpl. Maintaining this
+  // map is necessary because DownloadItem::GetWebContents() may return NULL if
+  // the browser navigates while the download is in progress.
+  typedef std::map<content::DownloadItem*, CefBrowserHostImpl* > ItemBrowserMap;
+  ItemBrowserMap item_browser_map_;
 
   DISALLOW_COPY_AND_ASSIGN(CefDownloadManagerDelegate);
 };

@@ -24,6 +24,7 @@
 #include "libcef/common/response_manager.h"
 
 #include "base/memory/scoped_ptr.h"
+#include "base/observer_list.h"
 #include "base/strings/string16.h"
 #include "base/synchronization/lock.h"
 #include "content/public/browser/notification_observer.h"
@@ -69,6 +70,18 @@ class CefBrowserHostImpl : public CefBrowserHost,
   class CommandResponseHandler : public virtual CefBase {
    public:
      virtual void OnResponse(const std::string& response) =0;
+  };
+
+  // Interface to implement for observers that wish to be informed of changes
+  // to the CefBrowserHostImpl. All methods will be called on the UI thread.
+  class Observer {
+   public:
+    // Called before |browser| is destroyed. Any references to |browser| should
+    // be cleared when this method is called.
+    virtual void OnBrowserDestroyed(CefBrowserHostImpl* browser) =0;
+
+   protected:
+    virtual ~Observer() {}
   };
 
   ~CefBrowserHostImpl() override;
@@ -420,6 +433,13 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Override to provide a thread safe implementation.
   bool Send(IPC::Message* message) override;
 
+  // Manage observer objects. The observer must either outlive this object or
+  // remove itself before destruction. These methods can only be called on the
+  // UI thread.
+  void AddObserver(Observer* observer);
+  void RemoveObserver(Observer* observer);
+  bool HasObserver(Observer* observer) const;
+
  private:
   class DevToolsWebContentsObserver;
 
@@ -569,6 +589,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // CefDevToolsFrontend will delete itself when the frontend WebContents is
   // destroyed.
   CefDevToolsFrontend* devtools_frontend_;
+
+  // Observers that want to be notified of changes to this object.
+  base::ObserverList<Observer> observers_;
 
   IMPLEMENT_REFCOUNTING(CefBrowserHostImpl);
   DISALLOW_COPY_AND_ASSIGN(CefBrowserHostImpl);
