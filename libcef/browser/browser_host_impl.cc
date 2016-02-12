@@ -1290,6 +1290,7 @@ void CefBrowserHostImpl::DestroyBrowser() {
   if (menu_manager_.get())
     menu_manager_->Destroy();
 
+  FOR_EACH_OBSERVER(Observer, observers_, OnBrowserDestroyed(this));
   platform_delegate_->BrowserDestroyed(this);
 
   while (!queued_messages_.empty()) {
@@ -2494,6 +2495,21 @@ bool CefBrowserHostImpl::Send(IPC::Message* message) {
                    message));
     return true;
   }
+}
+
+void CefBrowserHostImpl::AddObserver(Observer* observer) {
+  CEF_REQUIRE_UIT();
+  observers_.AddObserver(observer);
+}
+
+void CefBrowserHostImpl::RemoveObserver(Observer* observer) {
+  CEF_REQUIRE_UIT();
+  observers_.RemoveObserver(observer);
+}
+
+bool CefBrowserHostImpl::HasObserver(Observer* observer) const {
+  CEF_REQUIRE_UIT();
+  return observers_.HasObserver(observer);
 }
 
 

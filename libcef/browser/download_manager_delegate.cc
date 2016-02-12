@@ -5,9 +5,6 @@
 #include "libcef/browser/download_manager_delegate.h"
 
 #include "include/cef_download_handler.h"
-#include "libcef/browser/browser_context.h"
-#include "libcef/browser/browser_host_impl.h"
-#include "libcef/browser/context.h"
 #include "libcef/browser/download_item_impl.h"
 #include "libcef/browser/thread_util.h"
 
@@ -26,17 +23,7 @@ using content::DownloadItem;
 using content::DownloadManager;
 using content::WebContents;
 
-
 namespace {
-
-// Helper function to retrieve the CefBrowserHostImpl.
-CefRefPtr<CefBrowserHostImpl> GetBrowser(DownloadItem* item) {
-  content::WebContents* contents = item->GetWebContents();
-  if (!contents)
-    return NULL;
-
-  return CefBrowserHostImpl::GetBrowserForContents(contents).get();
-}
 
 // Helper function to retrieve the CefDownloadHandler.
 CefRefPtr<CefDownloadHandler> GetDownloadHandler(
@@ -274,10 +261,8 @@ CefDownloadManagerDelegate::CefDownloadManagerDelegate(
   DownloadManager::DownloadVector items;
   manager->GetAllDownloads(&items);
   DownloadManager::DownloadVector::const_iterator it = items.begin();
-  for (; it != items.end(); ++it) {
-    (*it)->AddObserver(this);
-    observing_.insert(*it);
-  }
+  for (; it != items.end(); ++it)
+    OnDownloadCreated(manager, *it);
 }
 
 CefDownloadManagerDelegate::~CefDownloadManagerDelegate() {
@@ -286,10 +271,8 @@ CefDownloadManagerDelegate::~CefDownloadManagerDelegate() {
     manager_->RemoveObserver(this);
   }
 
-  std::set<DownloadItem*>::const_iterator it = observing_.begin();
-  for (; it != observing_.end(); ++it)
-    (*it)->RemoveObserver(this);
-  observing_.clear();
+  while (!item_browser_map_.empty())
+    OnDownloadDestroyed(item_browser_map_.begin()->first);
 }
 
 void CefDownloadManagerDelegate::OnDownloadUpdated(
@@ -313,16 +296,52 @@ void CefDownloadManagerDelegate::OnDownloadUpdated(
 }
 
 void CefDownloadManagerDelegate::OnDownloadDestroyed(
-    DownloadItem* download) {
-  download->RemoveObserver(this);
-  observing_.erase(download);
+    DownloadItem* item) {
+  item->RemoveObserver(this);
+
+  CefBrowserHostImpl* browser = nullptr;
+
+  ItemBrowserMap::iterator it = item_browser_map_.find(item);
+  DCHECK(it != item_browser_map_.end());
+  if (it != item_browser_map_.end()) {
+    browser = it->second;
+    item_browser_map_.erase(it);
+  }
+
+  if (browser) {
+    // Determine if any remaining DownloadItems are associated with the same
+    // browser. If not, then unregister as an observer.
+    bool has_remaining = false;
+    ItemBrowserMap::const_iterator it2 = item_browser_map_.begin();
+    for (; it2 != item_browser_map_.end(); ++it2) {
+      if (it2->second == browser) {
+        has_remaining = true;
+        break;
+      }
+    }
+
+    if (!has_remaining)
+      browser->RemoveObserver(this);
+  }
 }
 
 void CefDownloadManagerDelegate::OnDownloadCreated(
     DownloadManager* manager,
     DownloadItem* item) {
   item->AddObserver(this);
-  observing_.insert(item);
+
+  CefBrowserHostImpl* browser = nullptr;
+  content::WebContents* contents = item->GetWebContents();
+  if (contents)
+    browser = CefBrowserHostImpl::GetBrowserForContents(contents).get();
+  DCHECK(browser);
+
+  item_browser_map_.insert(std::make_pair(item, browser));
+
+  // Register as an observer so that we can cancel associated DownloadItems when
+  // the browser is destroyed.
+  if (!browser->HasObserver(this))
+    browser->AddObserver(this);
 }
 
 void CefDownloadManagerDelegate::ManagerGoingDown(
@@ -378,4 +397,27 @@ void CefDownloadManagerDelegate::GetNextId(
     const content::DownloadIdCallback& callback) {
   static uint32 next_id = DownloadItem::kInvalidId + 1;
   callback.Run(next_id++);
+}
+
+void CefDownloadManagerDelegate::OnBrowserDestroyed(
+    CefBrowserHostImpl* browser) {
+  ItemBrowserMap::iterator it = item_browser_map_.begin();
+  for (; it != item_browser_map_.end(); ++it) {
+    if (it->second == browser) {
+      // Don't call back into browsers that have been destroyed. We're not
+      // canceling the download so it will continue silently until it completes
+      // or until the associated browser context is destroyed.
+      it->second = nullptr;
+    }
+  }
+}
+
+CefBrowserHostImpl* CefDownloadManagerDelegate::GetBrowser(DownloadItem* item) {
+  ItemBrowserMap::const_iterator it = item_browser_map_.find(item);
+  if (it != item_browser_map_.end())
+    return it->second;
+
+  // An entry should always exist for a DownloadItem.
+  NOTREACHED();
+  return nullptr;
 }
