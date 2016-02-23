@@ -38,6 +38,7 @@
 #define CEF_INCLUDE_CEF_REQUEST_CONTEXT_H_
 #pragma once
 
+#include "include/cef_callback.h"
 #include "include/cef_cookie.h"
 #include "include/cef_request_context_handler.h"
 #include "include/cef_values.h"
@@ -217,6 +218,28 @@ class CefRequestContext : public virtual CefBase {
   virtual bool SetPreference(const CefString& name,
                              CefRefPtr<CefValue> value,
                              CefString& error) =0;
+
+  ///
+  // Clears all certificate exceptions that were added as part of handling
+  // CefRequestHandler::OnCertificateError(). If you call this it is
+  // recommended that you also call CloseAllConnections() or you risk not
+  // being prompted again for server certificates if you reconnect quickly.
+  // If |callback| is non-NULL it will be executed on the UI thread after
+  // completion.
+  ///
+  /*--cef(optional_param=callback)--*/
+  virtual void ClearCertificateExceptions(
+      CefRefPtr<CefCompletionCallback> callback) =0;
+
+  ///
+  // Clears all active and idle connections that Chromium currently has.
+  // This is only recommended if you have released all other CEF objects but
+  // don't yet want to call CefShutdown(). If |callback| is non-NULL it will be
+  // executed on the UI thread after completion.
+  ///
+  /*--cef(optional_param=callback)--*/
+  virtual void CloseAllConnections(
+      CefRefPtr<CefCompletionCallback> callback) =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_REQUEST_CONTEXT_H_

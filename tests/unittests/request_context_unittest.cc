@@ -650,3 +650,135 @@ TEST(RequestContextTest, NoReferrerLinkDifferentOrigin) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
+
+
+namespace {
+
+class MethodTestHandler : public TestHandler {
+ public:
+  enum Method {
+    METHOD_CLEAR_CERTIFICATE_EXCEPTIONS,
+    METHOD_CLOSE_ALL_CONNECTIONS,
+  };
+
+  class CompletionCallback : public CefCompletionCallback {
+   public:
+    explicit CompletionCallback(MethodTestHandler* test_handler)
+      : test_handler_(test_handler) {
+    }
+
+    ~CompletionCallback() override {
+      EXPECT_UI_THREAD();
+
+      // OnComplete should be executed.
+      EXPECT_FALSE(test_handler_);
+    }
+
+    void OnComplete() override {
+      EXPECT_UI_THREAD();
+
+      // OnComplete should be executed only one time.
+      EXPECT_TRUE(test_handler_);
+      test_handler_->OnCompleteCallback();
+      test_handler_ = nullptr;
+    }
+
+   private:
+    MethodTestHandler* test_handler_;
+
+    IMPLEMENT_REFCOUNTING(CompletionCallback);
+  };
+
+  MethodTestHandler(bool global_context,
+                    Method method)
+      : global_context_(global_context),
+        method_(method) {
+  }
+
+  void RunTest() override {
+    const char kUrl[] = "http://tests/method.html";
+
+    AddResource(kUrl, "<html><body>Method</body></html>", "text/html");
+
+    CefRefPtr<CefRequestContext> request_context;
+    if (!global_context_) {
+      CefRequestContextSettings settings;
+      request_context = CefRequestContext::CreateContext(settings, nullptr);
+    }
+
+    CreateBrowser(kUrl, request_context);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    CefRefPtr<CefRequestContext> context =
+        browser->GetHost()->GetRequestContext();
+    CefRefPtr<CefCompletionCallback> callback = new CompletionCallback(this);
+    if (method_ == METHOD_CLEAR_CERTIFICATE_EXCEPTIONS)
+      context->ClearCertificateExceptions(callback);
+    else if (method_ == METHOD_CLOSE_ALL_CONNECTIONS)
+      context->CloseAllConnections(callback);
+  }
+
+  void OnCompleteCallback() {
+    EXPECT_UI_THREAD();
+    EXPECT_FALSE(got_completion_callback_);
+    got_completion_callback_.yes();
+    DestroyTest();
+  }
+
+ private:
+  void DestroyTest() override {
+    EXPECT_TRUE(got_completion_callback_);
+    TestHandler::DestroyTest();
+  }
+
+  const bool global_context_;
+  const Method method_;
+
+  TrackCallback got_completion_callback_;
+
+  IMPLEMENT_REFCOUNTING(MethodTestHandler);
+};
+
+}  // namespace
+
+// Test CefRequestContext::ClearCertificateExceptions with the global context.
+TEST(RequestContextTest, ClearCertificateExceptionsGlobal) {
+  CefRefPtr<MethodTestHandler> handler =
+      new MethodTestHandler(true,
+          MethodTestHandler::METHOD_CLEAR_CERTIFICATE_EXCEPTIONS);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Test CefRequestContext::ClearCertificateExceptions with a custom context.
+TEST(RequestContextTest, ClearCertificateExceptionsCustom) {
+  CefRefPtr<MethodTestHandler> handler =
+      new MethodTestHandler(false,
+          MethodTestHandler::METHOD_CLEAR_CERTIFICATE_EXCEPTIONS);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Test CefRequestContext::CloseAllConnections with the global context.
+TEST(RequestContextTest, CloseAllConnectionsGlobal) {
+  CefRefPtr<MethodTestHandler> handler =
+      new MethodTestHandler(true,
+          MethodTestHandler::METHOD_CLOSE_ALL_CONNECTIONS);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Test CefRequestContext::CloseAllConnections with a custom context.
+TEST(RequestContextTest, CloseAllConnectionsCustom) {
+  CefRefPtr<MethodTestHandler> handler =
+      new MethodTestHandler(false,
+          MethodTestHandler::METHOD_CLOSE_ALL_CONNECTIONS);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}

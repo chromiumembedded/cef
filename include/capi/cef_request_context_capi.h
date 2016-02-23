@@ -38,6 +38,7 @@
 #define CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_CAPI_H_
 #pragma once
 
+#include "include/capi/cef_callback_capi.h"
 #include "include/capi/cef_cookie_capi.h"
 #include "include/capi/cef_request_context_handler_capi.h"
 #include "include/capi/cef_values_capi.h"
@@ -199,6 +200,28 @@ typedef struct _cef_request_context_t {
   int (CEF_CALLBACK *set_preference)(struct _cef_request_context_t* self,
       const cef_string_t* name, struct _cef_value_t* value,
       cef_string_t* error);
+
+  ///
+  // Clears all certificate exceptions that were added as part of handling
+  // cef_request_tHandler::on_certificate_error(). If you call this it is
+  // recommended that you also call close_all_connections() or you risk not
+  // being prompted again for server certificates if you reconnect quickly. If
+  // |callback| is non-NULL it will be executed on the UI thread after
+  // completion.
+  ///
+  void (CEF_CALLBACK *clear_certificate_exceptions)(
+      struct _cef_request_context_t* self,
+      struct _cef_completion_callback_t* callback);
+
+  ///
+  // Clears all active and idle connections that Chromium currently has. This is
+  // only recommended if you have released all other CEF objects but don't yet
+  // want to call cef_shutdown(). If |callback| is non-NULL it will be executed
+  // on the UI thread after completion.
+  ///
+  void (CEF_CALLBACK *close_all_connections)(
+      struct _cef_request_context_t* self,
+      struct _cef_completion_callback_t* callback);
 } cef_request_context_t;
 
 

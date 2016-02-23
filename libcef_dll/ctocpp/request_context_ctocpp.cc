@@ -325,6 +325,36 @@ bool CefRequestContextCToCpp::SetPreference(const CefString& name,
   return _retval?true:false;
 }
 
+void CefRequestContextCToCpp::ClearCertificateExceptions(
+    CefRefPtr<CefCompletionCallback> callback) {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, clear_certificate_exceptions))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: callback
+
+  // Execute
+  _struct->clear_certificate_exceptions(_struct,
+      CefCompletionCallbackCppToC::Wrap(callback));
+}
+
+void CefRequestContextCToCpp::CloseAllConnections(
+    CefRefPtr<CefCompletionCallback> callback) {
+  cef_request_context_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, close_all_connections))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: callback
+
+  // Execute
+  _struct->close_all_connections(_struct,
+      CefCompletionCallbackCppToC::Wrap(callback));
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
