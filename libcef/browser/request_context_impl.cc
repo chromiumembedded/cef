@@ -50,6 +50,30 @@ const char* GetTypeString(base::Value::Type type) {
   return "UNKNOWN";
 }
 
+// Helper for HostResolver::Resolve.
+struct ResolveHostHelper {
+  explicit ResolveHostHelper(CefRefPtr<CefResolveCallback> callback)
+      : callback_(callback) {
+  }
+
+  void OnResolveCompleted(int result) {
+    std::vector<CefString> resolved_ips;
+
+    net::AddressList::const_iterator iter = address_list_.begin();
+    for (; iter != address_list_.end(); ++iter)
+      resolved_ips.push_back(iter->ToStringWithoutPort());
+
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefResolveCallback::OnResolveCompleted, callback_.get(),
+                   static_cast<cef_errorcode_t>(result), resolved_ips));
+
+    delete this;
+  }
+
+  CefRefPtr<CefResolveCallback> callback_;
+  net::AddressList address_list_;
+};
+
 }  // namespace
 
 
@@ -463,6 +487,47 @@ void CefRequestContextImpl::CloseAllConnections(
                  callback));
 }
 
+void CefRequestContextImpl::ResolveHost(
+    const CefString& origin,
+    CefRefPtr<CefResolveCallback> callback) {
+  GetRequestContextImpl(
+      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
+      base::Bind(&CefRequestContextImpl::ResolveHostInternal, this, origin,
+                 callback));
+}
+
+cef_errorcode_t CefRequestContextImpl::ResolveHostCached(
+    const CefString& origin,
+    std::vector<CefString>& resolved_ips) {
+  resolved_ips.clear();
+
+  if (!CEF_CURRENTLY_ON_IOT()) {
+    NOTREACHED() << "called on invalid thread";
+    return ERR_FAILED;
+  }
+
+  if (!request_context_impl_)
+    return ERR_FAILED;
+
+  int retval = ERR_FAILED;
+
+  net::HostResolver* host_resolver = request_context_impl_->GetHostResolver();
+  if (host_resolver) {
+    net::HostResolver::RequestInfo request_info(
+        net::HostPortPair::FromURL(GURL(origin.ToString())));
+    net::AddressList address_list;
+    retval = host_resolver->ResolveFromCache(request_info, &address_list,
+                                             net::BoundNetLog());
+    if (retval == net::OK) {
+      net::AddressList::const_iterator iter = address_list.begin();
+      for (; iter != address_list.end(); ++iter)
+        resolved_ips.push_back(iter->ToString());
+    }
+  }
+
+  return static_cast<cef_errorcode_t>(retval);
+}
+
 CefRequestContextImpl::CefRequestContextImpl(
     scoped_refptr<CefBrowserContext> browser_context)
     : browser_context_(browser_context),
@@ -604,4 +669,34 @@ void CefRequestContextImpl::CloseAllConnectionsInternal(
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefCompletionCallback::OnComplete, callback.get()));
   }
+}
+
+void CefRequestContextImpl::ResolveHostInternal(
+    const CefString& origin,
+    CefRefPtr<CefResolveCallback> callback,
+    scoped_refptr<CefURLRequestContextGetterImpl> request_context) {
+  CEF_REQUIRE_IOT();
+
+  int retval = ERR_FAILED;
+
+  // |helper| will be deleted in ResolveHostHelper::OnResolveCompleted().
+  ResolveHostHelper* helper = new ResolveHostHelper(callback);
+
+  net::HostResolver* host_resolver = request_context->GetHostResolver();
+  if (host_resolver) {
+    net::HostResolver::RequestInfo request_info(
+        net::HostPortPair::FromURL(GURL(origin.ToString())));
+    retval = host_resolver->Resolve(
+        request_info, net::DEFAULT_PRIORITY,
+        &helper->address_list_,
+        base::Bind(&ResolveHostHelper::OnResolveCompleted,
+                   base::Unretained(helper)),
+        NULL, net::BoundNetLog());
+    if (retval == net::ERR_IO_PENDING) {
+      // The result will be delivered asynchronously via the callback.
+      return;
+    }
+  }
+
+  helper->OnResolveCompleted(retval);
 }

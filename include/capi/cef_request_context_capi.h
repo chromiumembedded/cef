@@ -50,6 +50,26 @@ extern "C" {
 struct _cef_scheme_handler_factory_t;
 
 ///
+// Callback structure for cef_request_tContext::ResolveHost.
+///
+typedef struct _cef_resolve_callback_t {
+  ///
+  // Base structure.
+  ///
+  cef_base_t base;
+
+  ///
+  // Called after the ResolveHost request has completed. |result| will be the
+  // result code. |resolved_ips| will be the list of resolved IP addresses or
+  // NULL if the resolution failed.
+  ///
+  void (CEF_CALLBACK *on_resolve_completed)(
+      struct _cef_resolve_callback_t* self, cef_errorcode_t result,
+      cef_string_list_t resolved_ips);
+} cef_resolve_callback_t;
+
+
+///
 // A request context provides request handling for a set of related browser or
 // URL request objects. A request context can be specified when creating a new
 // browser via the cef_browser_host_t static factory functions or when creating
@@ -222,6 +242,23 @@ typedef struct _cef_request_context_t {
   void (CEF_CALLBACK *close_all_connections)(
       struct _cef_request_context_t* self,
       struct _cef_completion_callback_t* callback);
+
+  ///
+  // Attempts to resolve |origin| to a list of associated IP addresses.
+  // |callback| will be executed on the UI thread after completion.
+  ///
+  void (CEF_CALLBACK *resolve_host)(struct _cef_request_context_t* self,
+      const cef_string_t* origin, struct _cef_resolve_callback_t* callback);
+
+  ///
+  // Attempts to resolve |origin| to a list of associated IP addresses using
+  // cached data. |resolved_ips| will be populated with the list of resolved IP
+  // addresses or NULL if no cached data is available. Returns ERR_NONE on
+  // success. This function must be called on the browser process IO thread.
+  ///
+  cef_errorcode_t (CEF_CALLBACK *resolve_host_cached)(
+      struct _cef_request_context_t* self, const cef_string_t* origin,
+      cef_string_list_t resolved_ips);
 } cef_request_context_t;
 
 

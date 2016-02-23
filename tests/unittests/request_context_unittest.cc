@@ -654,17 +654,23 @@ TEST(RequestContextTest, NoReferrerLinkDifferentOrigin) {
 
 namespace {
 
+const char kResolveOrigin[] = "http://www.google.com";
+
 class MethodTestHandler : public TestHandler {
  public:
   enum Method {
     METHOD_CLEAR_CERTIFICATE_EXCEPTIONS,
     METHOD_CLOSE_ALL_CONNECTIONS,
+    METHOD_RESOLVE_HOST,
   };
 
-  class CompletionCallback : public CefCompletionCallback {
+  class CompletionCallback : public CefCompletionCallback,
+                             public CefResolveCallback {
    public:
-    explicit CompletionCallback(MethodTestHandler* test_handler)
-      : test_handler_(test_handler) {
+    CompletionCallback(MethodTestHandler* test_handler,
+                       CefRefPtr<CefBrowser> browser)
+      : test_handler_(test_handler),
+        browser_(browser) {
     }
 
     ~CompletionCallback() override {
@@ -679,12 +685,22 @@ class MethodTestHandler : public TestHandler {
 
       // OnComplete should be executed only one time.
       EXPECT_TRUE(test_handler_);
-      test_handler_->OnCompleteCallback();
+      test_handler_->OnCompleteCallback(browser_);
       test_handler_ = nullptr;
+      browser_ = nullptr;
+    }
+
+    void OnResolveCompleted(
+        cef_errorcode_t result,
+        const std::vector<CefString>& resolved_ips) override {
+      EXPECT_EQ(ERR_NONE, result);
+      EXPECT_TRUE(!resolved_ips.empty());
+      OnComplete();
     }
 
    private:
     MethodTestHandler* test_handler_;
+    CefRefPtr<CefBrowser> browser_;
 
     IMPLEMENT_REFCOUNTING(CompletionCallback);
   };
@@ -717,18 +733,42 @@ class MethodTestHandler : public TestHandler {
                  int httpStatusCode) override {
     CefRefPtr<CefRequestContext> context =
         browser->GetHost()->GetRequestContext();
-    CefRefPtr<CefCompletionCallback> callback = new CompletionCallback(this);
+    CefRefPtr<CompletionCallback> callback =
+        new CompletionCallback(this, browser);
     if (method_ == METHOD_CLEAR_CERTIFICATE_EXCEPTIONS)
       context->ClearCertificateExceptions(callback);
     else if (method_ == METHOD_CLOSE_ALL_CONNECTIONS)
       context->CloseAllConnections(callback);
+    else if (method_ == METHOD_RESOLVE_HOST)
+      context->ResolveHost(kResolveOrigin, callback);
   }
 
-  void OnCompleteCallback() {
+  void OnCompleteCallback(CefRefPtr<CefBrowser> browser) {
     EXPECT_UI_THREAD();
     EXPECT_FALSE(got_completion_callback_);
     got_completion_callback_.yes();
-    DestroyTest();
+
+    if (method_ == METHOD_RESOLVE_HOST) {
+      // Now try a cached request.
+      CefPostTask(TID_IO,
+          base::Bind(&MethodTestHandler::ResolveHostCached, this, browser));
+    } else {
+      DestroyTest();
+    }
+  }
+
+  void ResolveHostCached(CefRefPtr<CefBrowser> browser) {
+    EXPECT_IO_THREAD();
+
+    CefRefPtr<CefRequestContext> context =
+        browser->GetHost()->GetRequestContext();
+    std::vector<CefString> resolved_ips;
+    cef_errorcode_t result =
+        context->ResolveHostCached(kResolveOrigin, resolved_ips);
+    EXPECT_EQ(ERR_NONE, result);
+    EXPECT_TRUE(!resolved_ips.empty());
+
+    CefPostTask(TID_UI, base::Bind(&MethodTestHandler::DestroyTest, this));
   }
 
  private:
@@ -779,6 +819,24 @@ TEST(RequestContextTest, CloseAllConnectionsCustom) {
   CefRefPtr<MethodTestHandler> handler =
       new MethodTestHandler(false,
           MethodTestHandler::METHOD_CLOSE_ALL_CONNECTIONS);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Test CefRequestContext::ResolveHost with the global context.
+TEST(RequestContextTest, ResolveHostGlobal) {
+  CefRefPtr<MethodTestHandler> handler =
+      new MethodTestHandler(true,
+          MethodTestHandler::METHOD_RESOLVE_HOST);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+// Test CefRequestContext::ResolveHost with a custom context.
+TEST(RequestContextTest, ResolveHostCustom) {
+  CefRefPtr<MethodTestHandler> handler =
+      new MethodTestHandler(false,
+          MethodTestHandler::METHOD_RESOLVE_HOST);
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
