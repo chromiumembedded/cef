@@ -350,6 +350,34 @@ int CEF_CALLBACK request_context_set_preference(
   return _retval;
 }
 
+void CEF_CALLBACK request_context_clear_certificate_exceptions(
+    struct _cef_request_context_t* self, cef_completion_callback_t* callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Unverified params: callback
+
+  // Execute
+  CefRequestContextCppToC::Get(self)->ClearCertificateExceptions(
+      CefCompletionCallbackCToCpp::Wrap(callback));
+}
+
+void CEF_CALLBACK request_context_close_all_connections(
+    struct _cef_request_context_t* self, cef_completion_callback_t* callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Unverified params: callback
+
+  // Execute
+  CefRequestContextCppToC::Get(self)->CloseAllConnections(
+      CefCompletionCallbackCToCpp::Wrap(callback));
+}
+
 }  // namespace
 
 
@@ -374,6 +402,9 @@ CefRequestContextCppToC::CefRequestContextCppToC() {
   GetStruct()->get_all_preferences = request_context_get_all_preferences;
   GetStruct()->can_set_preference = request_context_can_set_preference;
   GetStruct()->set_preference = request_context_set_preference;
+  GetStruct()->clear_certificate_exceptions =
+      request_context_clear_certificate_exceptions;
+  GetStruct()->close_all_connections = request_context_close_all_connections;
 }
 
 template<> CefRefPtr<CefRequestContext> CefCppToC<CefRequestContextCppToC,

@@ -69,6 +69,9 @@ class CefRequestContextImpl : public CefRequestContext {
   bool SetPreference(const CefString& name,
                      CefRefPtr<CefValue> value,
                      CefString& error) override;
+  void ClearCertificateExceptions(
+      CefRefPtr<CefCompletionCallback> callback) override;
+  void CloseAllConnections(CefRefPtr<CefCompletionCallback> callback) override;
 
   const CefRequestContextSettings& settings() const { return settings_; }
 
@@ -103,6 +106,12 @@ class CefRequestContextImpl : public CefRequestContext {
   void PurgePluginListCacheInternal(
       bool reload_pages,
       scoped_refptr<CefBrowserContext> browser_context);
+  void ClearCertificateExceptionsInternal(
+      CefRefPtr<CefCompletionCallback> callback,
+      scoped_refptr<CefBrowserContext> browser_context);
+  void CloseAllConnectionsInternal(
+      CefRefPtr<CefCompletionCallback> callback,
+      scoped_refptr<CefURLRequestContextGetterImpl> request_context);
 
   scoped_refptr<CefBrowserContext> browser_context_;
   CefRequestContextSettings settings_;

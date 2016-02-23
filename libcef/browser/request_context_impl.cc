@@ -16,6 +16,9 @@
 #include "base/strings/stringprintf.h"
 #include "components/prefs/pref_service.h"
 #include "content/public/browser/plugin_service.h"
+#include "content/public/browser/ssl_host_state_delegate.h"
+#include "net/http/http_cache.h"
+#include "net/http/http_transaction_factory.h"
 
 using content::BrowserThread;
 
@@ -444,6 +447,22 @@ bool CefRequestContextImpl::SetPreference(const CefString& name,
   return true;
 }
 
+void CefRequestContextImpl::ClearCertificateExceptions(
+    CefRefPtr<CefCompletionCallback> callback) {
+  GetBrowserContext(
+      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::UI),
+      base::Bind(&CefRequestContextImpl::ClearCertificateExceptionsInternal,
+                 this, callback));
+}
+
+void CefRequestContextImpl::CloseAllConnections(
+    CefRefPtr<CefCompletionCallback> callback) {
+  GetRequestContextImpl(
+      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
+      base::Bind(&CefRequestContextImpl::CloseAllConnectionsInternal, this,
+                 callback));
+}
+
 CefRequestContextImpl::CefRequestContextImpl(
     scoped_refptr<CefBrowserContext> browser_context)
     : browser_context_(browser_context),
@@ -547,4 +566,42 @@ void CefRequestContextImpl::PurgePluginListCacheInternal(
   CEF_REQUIRE_UIT();
   content::PluginService::GetInstance()->PurgePluginListCache(
       browser_context.get(), false);
+}
+
+void CefRequestContextImpl::ClearCertificateExceptionsInternal(
+    CefRefPtr<CefCompletionCallback> callback,
+    scoped_refptr<CefBrowserContext> browser_context) {
+  CEF_REQUIRE_UIT();
+
+  content::SSLHostStateDelegate* ssl_delegate =
+      browser_context->GetSSLHostStateDelegate();
+  if (ssl_delegate)
+    ssl_delegate->Clear();
+
+  if (callback) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefCompletionCallback::OnComplete, callback.get()));
+  }
+}
+
+void CefRequestContextImpl::CloseAllConnectionsInternal(
+    CefRefPtr<CefCompletionCallback> callback,
+    scoped_refptr<CefURLRequestContextGetterImpl> request_context) {
+  CEF_REQUIRE_IOT();
+
+  net::URLRequestContext* url_context = request_context->GetURLRequestContext();
+  if (url_context) {
+    net::HttpTransactionFactory* http_factory =
+        url_context->http_transaction_factory();
+    if (http_factory) {
+      net::HttpCache* cache = http_factory->GetCache();
+      if (cache)
+        cache->CloseAllConnections();
+    }
+  }
+
+  if (callback) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefCompletionCallback::OnComplete, callback.get()));
+  }
 }

@@ -52,6 +52,9 @@ class CefRequestContextCToCpp
   bool CanSetPreference(const CefString& name) OVERRIDE;
   bool SetPreference(const CefString& name, CefRefPtr<CefValue> value,
       CefString& error) OVERRIDE;
+  void ClearCertificateExceptions(
+      CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
+  void CloseAllConnections(CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
