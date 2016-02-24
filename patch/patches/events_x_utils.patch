@@ -1,0 +1,13 @@
+diff --git events_x_utils.h events_x_utils.h
+index dfa821f..f918051 100644
+--- events_x_utils.h
++++ events_x_utils.h
+@@ -82,7 +82,7 @@ bool GetFlingDataFromXEvent(const XEvent& xev,
+                             float* vy_ordinal,
+                             bool* is_cancel);
+ 
+-EVENTS_X_EXPORT void ResetTimestampRolloverCountersForTesting();
++void ResetTimestampRolloverCountersForTesting();
+ 
+ }  // namespace ui
+ 
