@@ -1076,6 +1076,16 @@ typedef enum {
   // Main resource of a service worker.
   ///
   RT_SERVICE_WORKER,
+
+  ///
+  // A report of Content Security Policy violations.
+  ///
+  RT_CSP_REPORT,
+
+  ///
+  // A resource that a plugin requested.
+  ///
+  RT_PLUGIN_RESOURCE,
 } cef_resource_type_t;
 
 ///
