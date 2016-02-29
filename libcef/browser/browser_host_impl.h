@@ -520,6 +520,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   CefWindowHandle opener_;
   CefRefPtr<CefRequestContext> request_context_;
   scoped_ptr<CefBrowserPlatformDelegate> platform_delegate_;
+  const bool is_windowless_;
 
   // Volatile state information. All access must be protected by the state lock.
   base::Lock state_lock_;

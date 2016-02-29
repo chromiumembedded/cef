@@ -1259,7 +1259,7 @@ bool CefBrowserHostImpl::SendProcessMessage(
 // -----------------------------------------------------------------------------
 
 bool CefBrowserHostImpl::IsWindowless() const {
-  return platform_delegate_->IsWindowless();
+  return is_windowless_;
 }
 
 void CefBrowserHostImpl::WindowDestroyed() {
@@ -1725,6 +1725,11 @@ void CefBrowserHostImpl::HandleKeyEventAfterTextInputClient(
 void CefBrowserHostImpl::DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
     const CefMouseEvent& event,
     CefBrowserHost::DragOperationsMask allowed_ops) {
+  if (!IsWindowless()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::DragTargetDragEnter, this, drag_data,
@@ -1737,11 +1742,6 @@ void CefBrowserHostImpl::DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
     return;
   }
 
-  if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
-    return;
-  }
-
   if (!web_contents())
     return;
 
@@ -1750,15 +1750,15 @@ void CefBrowserHostImpl::DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
 
 void CefBrowserHostImpl::DragTargetDragOver(const CefMouseEvent& event,
     CefBrowserHost::DragOperationsMask allowed_ops) {
+  if (!IsWindowless()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+
   if (!CEF_CURRENTLY_ON_UIT()) {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::DragTargetDragOver, this, event,
                    allowed_ops));
-    return;
-  }
-
-  if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
     return;
   }
 
@@ -1769,14 +1769,14 @@ void CefBrowserHostImpl::DragTargetDragOver(const CefMouseEvent& event,
 }
 
 void CefBrowserHostImpl::DragTargetDragLeave() {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBrowserHostImpl::DragTargetDragLeave, this));
+  if (!IsWindowless()) {
+    NOTREACHED() << "Window rendering is not disabled";
     return;
   }
 
-  if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::DragTargetDragLeave, this));
     return;
   }
 
@@ -1787,14 +1787,14 @@ void CefBrowserHostImpl::DragTargetDragLeave() {
 }
 
 void CefBrowserHostImpl::DragTargetDrop(const CefMouseEvent& event) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBrowserHostImpl::DragTargetDrop, this, event));
+  if (!IsWindowless()) {
+    NOTREACHED() << "Window rendering is not disabled";
     return;
   }
 
-  if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::DragTargetDrop, this, event));
     return;
   }
 
@@ -1805,14 +1805,14 @@ void CefBrowserHostImpl::DragTargetDrop(const CefMouseEvent& event) {
 }
 
 void CefBrowserHostImpl::DragSourceSystemDragEnded() {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBrowserHostImpl::DragSourceSystemDragEnded, this));
+  if (!IsWindowless()) {
+    NOTREACHED() << "Window rendering is not disabled";
     return;
   }
 
-  if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::DragSourceSystemDragEnded, this));
     return;
   }
 
@@ -1821,14 +1821,14 @@ void CefBrowserHostImpl::DragSourceSystemDragEnded() {
 
 void CefBrowserHostImpl::DragSourceEndedAt(
     int x, int y, CefBrowserHost::DragOperationsMask op) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBrowserHostImpl::DragSourceEndedAt, this, x, y, op));
+  if (!IsWindowless()) {
+    NOTREACHED() << "Window rendering is not disabled";
     return;
   }
 
-  if (!IsWindowless()) {
-    NOTREACHED() << "Window rendering is not disabled";
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::DragSourceEndedAt, this, x, y, op));
     return;
   }
 
@@ -2638,6 +2638,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(
       opener_(kNullWindowHandle),
       request_context_(request_context),
       platform_delegate_(std::move(platform_delegate)),
+      is_windowless_(platform_delegate_->IsWindowless()),
       is_loading_(false),
       can_go_back_(false),
       can_go_forward_(false),
