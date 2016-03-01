@@ -181,7 +181,7 @@ class CefBrowser : public virtual CefBase {
   /*--cef()--*/
   virtual void GetFrameNames(std::vector<CefString>& names) =0;
 
-  //
+  ///
   // Send a message to the specified |target_process|. Returns true if the
   // message was sent successfully.
   ///
@@ -456,7 +456,6 @@ class CefBrowserHost : public virtual CefBase {
   // Retrieve a snapshot of current navigation entries as values sent to the
   // specified visitor. If |current_only| is true only the current navigation
   // entry will be sent, otherwise all navigation entries will be sent.
-  ///
   ///
   /*--cef()--*/
   virtual void GetNavigationEntries(

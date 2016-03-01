@@ -25,9 +25,8 @@ Release     Contains libcef.dll, libcef.lib and other components required to
             executable and will be copied there as part of the build process.
 
 Resources   Contains resources required by libcef.dll. By default these files
-            should be placed in the same directory as libcef.dll. By default
-            these files should be placed in the same directory as libcef.dll
-            and will be copied there as part of the build process.
+            should be placed in the same directory as libcef.dll and will be
+            copied there as part of the build process.
 
 
 USAGE

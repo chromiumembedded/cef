@@ -168,6 +168,21 @@ def get_comment(body, name):
     result.reverse()
     return result
 
+def validate_comment(file, name, comment):
+    """ Validate the comment array returned by get_comment(). """
+    # Verify that the comment contains beginning and ending '///' as required by
+    # CppDoc (the leading '//' from each line will already have been removed by
+    # the get_comment() logic). There may be additional comments proceeding the
+    # CppDoc block so we look at the quantity of lines equaling '/' and expect
+    # the last line to be '/'.
+    docct = 0
+    for line in comment:
+        if not line is None and len(line) > 0 and line == '/':
+            docct = docct + 1
+    if docct != 2 or len(comment) < 3 or comment[len(comment)-1] != '/':
+        raise Exception('Missing or incorrect comment in %s for: %s' % \
+            (file, name))
+
 def format_comment(comment, indent, translate_map = None, maxchars = 80):
     """ Return the comments array as a formatted string. """
     result = ''
@@ -550,6 +565,7 @@ class obj_header:
             # build the global function objects
             for attrib, retval, argval in list:
                 comment = get_comment(data, retval+'('+argval+');')
+                validate_comment(filename, retval, comment)
                 self.funcs.append(obj_function(self, filename, attrib, retval,
                                                argval, comment))
 
@@ -574,6 +590,7 @@ class obj_header:
             # build the class objects
             for attrib, name, parent_name, body in list:
                 comment = get_comment(data, name+' : public')
+                validate_comment(filename, name, comment)
                 self.classes.append(
                     obj_class(self, filename, attrib, name, parent_name, body,
                               comment, includes, forward_declares))
@@ -754,6 +771,7 @@ class obj_class:
         self.staticfuncs = []
         for attrib, retval, argval in list:
             comment = get_comment(body, retval+'('+argval+')')
+            validate_comment(filename, retval, comment)
             self.staticfuncs.append(
                 obj_function_static(self, attrib, retval, argval, comment))
 
@@ -767,6 +785,7 @@ class obj_class:
         self.virtualfuncs = []
         for attrib, retval, argval, vfmod in list:
             comment = get_comment(body, retval+'('+argval+')')
+            validate_comment(filename, retval, comment)
             self.virtualfuncs.append(
                 obj_function_virtual(self, attrib, retval, argval, comment,
                                      vfmod))
