@@ -147,25 +147,28 @@ blink::WebString FilePathStringToWebString(
 // Read |headers| into |map|.
 void GetHeaderMap(const net::HttpRequestHeaders& headers,
                   CefRequest::HeaderMap& map) {
+  map.clear();
+
   if (headers.IsEmpty())
     return;
 
   net::HttpRequestHeaders::Iterator it(headers);
-  do {
+  while (it.GetNext()) {
     const std::string& name = it.name();
 
     // Do not include Referer in the header map.
     if (!base::LowerCaseEqualsASCII(name, kReferrerLowerCase))
       map.insert(std::make_pair(name, it.value()));
-  } while (it.GetNext());
+  };
 }
-
 
 // Read |request| into |map|. If a Referer value is specified populate
 // |referrer|.
 void GetHeaderMap(const blink::WebURLRequest& request,
                   CefRequest::HeaderMap& map,
                   CefString& referrer) {
+  map.clear();
+
   class HeaderVisitor : public blink::WebHTTPHeaderVisitor {
    public:
     HeaderVisitor(CefRequest::HeaderMap* map, CefString* referrer)
@@ -195,6 +198,8 @@ void GetHeaderMap(const blink::WebURLRequest& request,
 // Read |source| into |map|.
 void GetHeaderMap(const CefRequest::HeaderMap& source,
                   CefRequest::HeaderMap& map) {
+  map.clear();
+
   CefRequest::HeaderMap::const_iterator it = source.begin();
   for (; it != source.end(); ++it) {
     const CefString& name = it->first;
