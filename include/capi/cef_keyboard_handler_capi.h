@@ -56,11 +56,13 @@ typedef struct _cef_keyboard_handler_t {
   ///
   cef_base_t base;
 
+  ///
   // Called before a keyboard event is sent to the renderer. |event| contains
   // information about the keyboard event. |os_event| is the operating system
   // event message, if any. Return true (1) if the event was handled or false
   // (0) otherwise. If the event will be handled in on_key_event() as a keyboard
   // shortcut set |is_keyboard_shortcut| to true (1) and return false (0).
+  ///
   int (CEF_CALLBACK *on_pre_key_event)(struct _cef_keyboard_handler_t* self,
       struct _cef_browser_t* browser, const struct _cef_key_event_t* event,
       cef_event_handle_t os_event, int* is_keyboard_shortcut);

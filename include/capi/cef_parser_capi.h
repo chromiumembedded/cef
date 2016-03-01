@@ -82,10 +82,12 @@ CEF_EXPORT cef_string_userfree_t cef_format_url_for_security_display(
 CEF_EXPORT cef_string_userfree_t cef_get_mime_type(
     const cef_string_t* extension);
 
+///
 // Get the extensions associated with the given mime type. This should be passed
 // in lower case. There could be multiple extensions for a given mime type, like
 // "html,htm" for "text/html", or "txt,text,html,..." for "text/*". Any existing
 // elements in the provided vector will not be erased.
+///
 CEF_EXPORT void cef_get_extensions_for_mime_type(const cef_string_t* mime_type,
     cef_string_list_t extensions);
 
@@ -136,22 +138,28 @@ CEF_EXPORT cef_string_userfree_t cef_uridecode(const cef_string_t* text,
 CEF_EXPORT int cef_parse_csscolor(const cef_string_t* string, int strict,
     cef_color_t* color);
 
+///
 // Parses the specified |json_string| and returns a dictionary or list
 // representation. If JSON parsing fails this function returns NULL.
+///
 CEF_EXPORT struct _cef_value_t* cef_parse_json(const cef_string_t* json_string,
     cef_json_parser_options_t options);
 
+///
 // Parses the specified |json_string| and returns a dictionary or list
 // representation. If JSON parsing fails this function returns NULL and
 // populates |error_code_out| and |error_msg_out| with an error code and a
 // formatted error message respectively.
+///
 CEF_EXPORT struct _cef_value_t* cef_parse_jsonand_return_error(
     const cef_string_t* json_string, cef_json_parser_options_t options,
     cef_json_parser_error_t* error_code_out, cef_string_t* error_msg_out);
 
+///
 // Generates a JSON string from the specified root |node| which should be a
 // dictionary or list value. Returns an NULL string on failure. This function
 // requires exclusive access to |node| including any underlying data.
+///
 // The resulting string must be freed by calling cef_string_userfree_free().
 CEF_EXPORT cef_string_userfree_t cef_write_json(struct _cef_value_t* node,
     cef_json_writer_options_t options);

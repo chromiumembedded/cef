@@ -174,7 +174,7 @@ typedef struct _cef_browser_t {
   void (CEF_CALLBACK *get_frame_names)(struct _cef_browser_t* self,
       cef_string_list_t names);
 
-  //
+  ///
   // Send a message to the specified |target_process|. Returns true (1) if the
   // message was sent successfully.
   ///
@@ -417,7 +417,6 @@ typedef struct _cef_browser_host_t {
   // specified visitor. If |current_only| is true (1) only the current
   // navigation entry will be sent, otherwise all navigation entries will be
   // sent.
-  ///
   ///
   void (CEF_CALLBACK *get_navigation_entries)(struct _cef_browser_host_t* self,
       struct _cef_navigation_entry_visitor_t* visitor, int current_only);

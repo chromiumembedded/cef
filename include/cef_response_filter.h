@@ -56,6 +56,7 @@ class CefResponseFilter : public virtual CefBase {
   /*--cef()--*/
   virtual bool InitFilter() =0;
 
+  ///
   // Called to filter a chunk of data. |data_in| is the input buffer containing
   // |data_in_size| bytes of pre-filter data (|data_in| will be NULL if
   // |data_in_size| is zero). |data_out| is the output buffer that can accept up
@@ -72,6 +73,7 @@ class CefResponseFilter : public virtual CefBase {
   // matches |data_in_size| (all available pre-filter bytes have been read), and
   // the method returns RESPONSE_FILTER_DONE or RESPONSE_FILTER_ERROR. Do not
   // keep a reference to the buffers passed to this method.
+  ///
   /*--cef(optional_param=data_in,default_retval=RESPONSE_FILTER_ERROR)--*/
   virtual FilterStatus Filter(void* data_in,
                               size_t data_in_size,

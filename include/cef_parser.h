@@ -81,10 +81,12 @@ CefString CefFormatUrlForSecurityDisplay(const CefString& origin_url,
 /*--cef()--*/
 CefString CefGetMimeType(const CefString& extension);
 
+///
 // Get the extensions associated with the given mime type. This should be passed
 // in lower case. There could be multiple extensions for a given mime type, like
 // "html,htm" for "text/html", or "txt,text,html,..." for "text/*". Any existing
 // elements in the provided vector will not be erased.
+///
 /*--cef()--*/
 void CefGetExtensionsForMimeType(const CefString& mime_type,
                                  std::vector<CefString>& extensions);
@@ -137,16 +139,20 @@ bool CefParseCSSColor(const CefString& string,
                       bool strict,
                       cef_color_t& color);
 
+///
 // Parses the specified |json_string| and returns a dictionary or list
 // representation. If JSON parsing fails this method returns NULL.
+///
 /*--cef()--*/
 CefRefPtr<CefValue> CefParseJSON(const CefString& json_string,
                                  cef_json_parser_options_t options);
 
+///
 // Parses the specified |json_string| and returns a dictionary or list
 // representation. If JSON parsing fails this method returns NULL and populates
 // |error_code_out| and |error_msg_out| with an error code and a formatted error
 // message respectively.
+///
 /*--cef()--*/
 CefRefPtr<CefValue> CefParseJSONAndReturnError(
     const CefString& json_string,
@@ -154,9 +160,11 @@ CefRefPtr<CefValue> CefParseJSONAndReturnError(
     cef_json_parser_error_t& error_code_out,
     CefString& error_msg_out);
 
+///
 // Generates a JSON string from the specified root |node| which should be a
 // dictionary or list value. Returns an empty string on failure. This method
 // requires exclusive access to |node| including any underlying data.
+///
 /*--cef()--*/
 CefString CefWriteJSON(CefRefPtr<CefValue> node,
                        cef_json_writer_options_t options);

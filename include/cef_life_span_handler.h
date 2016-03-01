@@ -70,6 +70,7 @@ class CefLifeSpanHandler : public virtual CefBase {
   // source browser's values. If the |no_javascript_access| value is set to
   // false the new browser will not be scriptable and may not be hosted in the
   // same renderer process as the source browser.
+  ///
   /*--cef(optional_param=target_url,optional_param=target_frame_name)--*/
   virtual bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
                              CefRefPtr<CefFrame> frame,

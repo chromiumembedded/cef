@@ -75,6 +75,7 @@ typedef struct _cef_life_span_handler_t {
   // default to the source browser's values. If the |no_javascript_access| value
   // is set to false (0) the new browser will not be scriptable and may not be
   // hosted in the same renderer process as the source browser.
+  ///
   int (CEF_CALLBACK *on_before_popup)(struct _cef_life_span_handler_t* self,
       struct _cef_browser_t* browser, struct _cef_frame_t* frame,
       const cef_string_t* target_url, const cef_string_t* target_frame_name,

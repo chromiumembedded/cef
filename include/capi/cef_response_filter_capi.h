@@ -61,6 +61,7 @@ typedef struct _cef_response_filter_t {
   ///
   int (CEF_CALLBACK *init_filter)(struct _cef_response_filter_t* self);
 
+  ///
   // Called to filter a chunk of data. |data_in| is the input buffer containing
   // |data_in_size| bytes of pre-filter data (|data_in| will be NULL if
   // |data_in_size| is zero). |data_out| is the output buffer that can accept up
@@ -77,6 +78,7 @@ typedef struct _cef_response_filter_t {
   // matches |data_in_size| (all available pre-filter bytes have been read), and
   // the function returns RESPONSE_FILTER_DONE or RESPONSE_FILTER_ERROR. Do not
   // keep a reference to the buffers passed to this function.
+  ///
   cef_response_filter_status_t (CEF_CALLBACK *filter)(
       struct _cef_response_filter_t* self, void* data_in, size_t data_in_size,
       size_t* data_in_read, void* data_out, size_t data_out_size,
