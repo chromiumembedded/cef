@@ -8,11 +8,15 @@
 #include "tests/unittests/test_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-void TestMapEqual(CefRequest::HeaderMap& map1,
-                  CefRequest::HeaderMap& map2,
+void TestMapEqual(const CefRequest::HeaderMap& map1,
+                  const CefRequest::HeaderMap& map2,
                   bool allowExtras) {
   if (!allowExtras)
     EXPECT_EQ(map1.size(), map2.size());
+
+  TestMapNoDuplicates(map1);
+  TestMapNoDuplicates(map2);
+
   CefRequest::HeaderMap::const_iterator it1, it2;
 
   for (it1 = map1.begin(); it1 != map1.end(); ++it1) {
@@ -21,6 +25,17 @@ void TestMapEqual(CefRequest::HeaderMap& map1,
     if (it2 != map2.end()) {
       EXPECT_STREQ(it1->second.ToString().c_str(),
                    it2->second.ToString().c_str());
+    }
+  }
+}
+
+void TestMapNoDuplicates(const CefRequest::HeaderMap& map) {
+  CefRequest::HeaderMap::const_iterator it1 = map.begin();
+  for (; it1 != map.end(); ++it1) {
+    CefRequest::HeaderMap::const_iterator it2 = it1;
+    for (++it2; it2 != map.end(); ++it2) {
+      EXPECT_FALSE(it1->first == it2->first && it1->second == it2->second) <<
+          "Duplicate entry for " << it1->first << ": " << it1->second;
     }
   }
 }

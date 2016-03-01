@@ -14,9 +14,12 @@
 // Test that CefRequest::HeaderMap objects are equal
 // If |allowExtras| is true then additional header fields will be allowed in
 // |map2|.
-void TestMapEqual(CefRequest::HeaderMap& map1,
-                  CefRequest::HeaderMap& map2,
+void TestMapEqual(const CefRequest::HeaderMap& map1,
+                  const CefRequest::HeaderMap& map2,
                   bool allowExtras);
+
+// Test that the CefRequest::HeaderMap object contains no duplicate entries.
+void TestMapNoDuplicates(const CefRequest::HeaderMap& map);
 
 // Test that CefPostDataElement objects are equal
 void TestPostDataElementEqual(CefRefPtr<CefPostDataElement> elem1,
