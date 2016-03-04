@@ -1,0 +1,219 @@
+diff --git Source/core/frame/FrameView.cpp Source/core/frame/FrameView.cpp
+index f9edd39..90947ba 100644
+--- Source/core/frame/FrameView.cpp
++++ Source/core/frame/FrameView.cpp
+@@ -356,24 +356,6 @@ void FrameView::invalidateAllCustomScrollbarsOnActiveChanged()
+         recalculateCustomScrollbarStyle();
+ }
+ 
+-void FrameView::recalculateScrollbarOverlayStyle()
+-{
+-    ScrollbarOverlayStyle oldOverlayStyle = scrollbarOverlayStyle();
+-    ScrollbarOverlayStyle overlayStyle = ScrollbarOverlayStyleDefault;
+-
+-    Color backgroundColor = documentBackgroundColor();
+-    // Reduce the background color from RGB to a lightness value
+-    // and determine which scrollbar style to use based on a lightness
+-    // heuristic.
+-    double hue, saturation, lightness;
+-    backgroundColor.getHSL(hue, saturation, lightness);
+-    if (lightness <= .5)
+-        overlayStyle = ScrollbarOverlayStyleLight;
+-
+-    if (oldOverlayStyle != overlayStyle)
+-        setScrollbarOverlayStyle(overlayStyle);
+-}
+-
+ void FrameView::clear()
+ {
+     reset();
+@@ -1833,7 +1815,7 @@ void FrameView::setBaseBackgroundColor(const Color& backgroundColor)
+         if (compositedLayerMapping->mainGraphicsLayer())
+             compositedLayerMapping->mainGraphicsLayer()->setNeedsDisplay();
+     }
+-    recalculateScrollbarOverlayStyle();
++    recalculateScrollbarOverlayStyle(documentBackgroundColor());
+ }
+ 
+ void FrameView::updateBackgroundRecursively(const Color& backgroundColor, bool transparent)
+diff --git Source/core/frame/FrameView.h Source/core/frame/FrameView.h
+index 09d6cb6..113a7b9 100644
+--- Source/core/frame/FrameView.h
++++ Source/core/frame/FrameView.h
+@@ -152,7 +152,6 @@ public:
+     void detachScrollbars();
+     void recalculateCustomScrollbarStyle();
+     void invalidateAllCustomScrollbarsOnActiveChanged();
+-    virtual void recalculateScrollbarOverlayStyle();
+ 
+     void clear();
+ 
+diff --git Source/core/layout/LayoutBox.cpp Source/core/layout/LayoutBox.cpp
+index 596df85..0dcaa00 100644
+--- Source/core/layout/LayoutBox.cpp
++++ Source/core/layout/LayoutBox.cpp
+@@ -249,7 +249,7 @@ void LayoutBox::styleDidChange(StyleDifference diff, const ComputedStyle* oldSty
+ 
+     if (isDocumentElement() || isBody()) {
+-        document().view()->recalculateScrollbarOverlayStyle();
++        document().view()->recalculateScrollbarOverlayStyle(document().view()->documentBackgroundColor());
+         document().view()->recalculateCustomScrollbarStyle();
+         if (LayoutView* layoutView = view()) {
+             if (PaintLayerScrollableArea* scrollableArea = layoutView->scrollableArea()) {
+                 if (scrollableArea->horizontalScrollbar() && scrollableArea->horizontalScrollbar()->isCustomScrollbar())
+diff --git Source/core/paint/PaintLayerScrollableArea.cpp Source/core/paint/PaintLayerScrollableArea.cpp
+index 0067b70..03c766c 100644
+--- Source/core/paint/PaintLayerScrollableArea.cpp
++++ Source/core/paint/PaintLayerScrollableArea.cpp
+@@ -847,6 +847,19 @@ void PaintLayerScrollableArea::updateAfterStyleChange(const ComputedStyle* oldSt
+     updateScrollCornerStyle();
+     updateResizerAreaSet();
+     updateResizerStyle();
++
++    // Whenever background changes on the scrollable element, the scroll bar
++    // overlay style might need to be changed to have contrast against the
++    // background.
++    Color oldBackground;
++    if (oldStyle) {
++        oldBackground = oldStyle->visitedDependentColor(CSSPropertyBackgroundColor);
++    }
++    Color newBackground = box().style()->visitedDependentColor(CSSPropertyBackgroundColor);
++
++    if (newBackground != oldBackground) {
++        recalculateScrollbarOverlayStyle(newBackground);
++    }
+ }
+ 
+ bool PaintLayerScrollableArea::updateAfterCompositingChange()
+@@ -1483,9 +1496,14 @@ void PaintLayerScrollableArea::ScrollbarManager::setHasHorizontalScrollbar(bool
+         // This doesn't hit in any tests, but since the equivalent code in setHasVerticalScrollbar
+         // does, presumably this code does as well.
+         DisableCompositingQueryAsserts disabler;
+-        if (!m_hBar)
++        if (!m_hBar) {
+             m_hBar = createScrollbar(HorizontalScrollbar);
+-        m_hBarIsAttached = 1;
++            m_hBarIsAttached = 1;
++            if (!m_hBar->isCustomScrollbar())
++                m_scrollableArea->didAddScrollbar(*m_hBar, HorizontalScrollbar);
++        } else {
++            m_hBarIsAttached = 1;
++        }
+     } else {
+         m_hBarIsAttached = 0;
+         if (!m_canDetachScrollbars)
+@@ -1497,9 +1515,14 @@ void PaintLayerScrollableArea::ScrollbarManager::setHasVerticalScrollbar(bool ha
+ {
+     if (hasScrollbar) {
+         DisableCompositingQueryAsserts disabler;
+-        if (!m_vBar)
++        if (!m_vBar) {
+             m_vBar = createScrollbar(VerticalScrollbar);
+-        m_vBarIsAttached = 1;
++            m_vBarIsAttached = 1;
++            if (!m_vBar->isCustomScrollbar())
++                m_scrollableArea->didAddScrollbar(*m_vBar, VerticalScrollbar);
++        } else {
++            m_vBarIsAttached = 1;
++        }
+     } else {
+         m_vBarIsAttached = 0;
+         if (!m_canDetachScrollbars)
+@@ -1520,10 +1543,6 @@ PassRefPtrWillBeRawPtr<Scrollbar> PaintLayerScrollableArea::ScrollbarManager::cr
+         if (actualLayoutObject.styleRef().hasAppearance())
+             scrollbarSize = LayoutTheme::theme().scrollbarControlSizeForPart(actualLayoutObject.styleRef().appearance());
+         scrollbar = Scrollbar::create(m_scrollableArea.get(), orientation, scrollbarSize, &m_scrollableArea->box().frame()->page()->chromeClient());
+-        if (orientation == HorizontalScrollbar)
+-            m_scrollableArea->didAddScrollbar(*scrollbar, HorizontalScrollbar);
+-        else
+-            m_scrollableArea->didAddScrollbar(*scrollbar, VerticalScrollbar);
+     }
+     m_scrollableArea->box().document().view()->addChild(scrollbar.get());
+     return scrollbar.release();
+diff --git Source/platform/scroll/ScrollableArea.cpp Source/platform/scroll/ScrollableArea.cpp
+index 98cf0470..bacdd5d 100644
+--- Source/platform/scroll/ScrollableArea.cpp
++++ Source/platform/scroll/ScrollableArea.cpp
+@@ -396,15 +396,32 @@ void ScrollableArea::setScrollbarOverlayStyle(ScrollbarOverlayStyle overlayStyle
+ 
+     if (Scrollbar* scrollbar = horizontalScrollbar()) {
+         ScrollbarTheme::theme().updateScrollbarOverlayStyle(*scrollbar);
+-        setScrollbarNeedsPaintInvalidation(HorizontalScrollbar);
++        scrollbar->setNeedsPaintInvalidation(AllParts);
+     }
+ 
+     if (Scrollbar* scrollbar = verticalScrollbar()) {
+         ScrollbarTheme::theme().updateScrollbarOverlayStyle(*scrollbar);
+-        setScrollbarNeedsPaintInvalidation(VerticalScrollbar);
++        scrollbar->setNeedsPaintInvalidation(AllParts);
+     }
+ }
+ 
++void ScrollableArea::recalculateScrollbarOverlayStyle(Color backgroundColor)
++{
++    ScrollbarOverlayStyle oldOverlayStyle = scrollbarOverlayStyle();
++    ScrollbarOverlayStyle overlayStyle = ScrollbarOverlayStyleDefault;
++
++    // Reduce the background color from RGB to a lightness value
++    // and determine which scrollbar style to use based on a lightness
++    // heuristic.
++    double hue, saturation, lightness;
++    backgroundColor.getHSL(hue, saturation, lightness);
++    if (lightness <= .5)
++        overlayStyle = ScrollbarOverlayStyleLight;
++
++    if (oldOverlayStyle != overlayStyle)
++        setScrollbarOverlayStyle(overlayStyle);
++}
++
+ void ScrollableArea::setScrollbarNeedsPaintInvalidation(ScrollbarOrientation orientation)
+ {
+     if (orientation == HorizontalScrollbar) {
+diff --git Source/platform/scroll/ScrollableArea.h Source/platform/scroll/ScrollableArea.h
+index 49b5b39..9940924 100644
+--- Source/platform/scroll/ScrollableArea.h
++++ Source/platform/scroll/ScrollableArea.h
+@@ -29,6 +29,7 @@
+ #include "platform/PlatformExport.h"
+ #include "platform/RuntimeEnabledFeatures.h"
+ #include "platform/geometry/DoublePoint.h"
++#include "platform/graphics/Color.h"
+ #include "platform/heap/Handle.h"
+ #include "platform/scroll/ScrollAnimatorBase.h"
+ #include "platform/scroll/ScrollTypes.h"
+@@ -122,6 +123,7 @@ public:
+ 
+     bool hasOverlayScrollbars() const;
+     void setScrollbarOverlayStyle(ScrollbarOverlayStyle);
++    void recalculateScrollbarOverlayStyle(Color);
+     ScrollbarOverlayStyle scrollbarOverlayStyle() const { return static_cast<ScrollbarOverlayStyle>(m_scrollbarOverlayStyle); }
+ 
+     // This getter will create a ScrollAnimatorBase if it doesn't already exist.
+diff --git Source/platform/scroll/ScrollableAreaTest.cpp Source/platform/scroll/ScrollableAreaTest.cpp
+index 87f1f60..33b33fa 100644
+--- Source/platform/scroll/ScrollableAreaTest.cpp
++++ Source/platform/scroll/ScrollableAreaTest.cpp
+@@ -4,6 +4,7 @@
+ 
+ #include "platform/scroll/ScrollableArea.h"
+ 
++#include "platform/graphics/Color.h"
+ #include "platform/graphics/GraphicsLayer.h"
+ #include "platform/scroll/ScrollbarTheme.h"
+ #include "platform/scroll/ScrollbarThemeMock.h"
+@@ -168,4 +169,15 @@ TEST_F(ScrollableAreaTest, ScrollbarGraphicsLayerInvalidation)
+     EXPECT_TRUE(graphicsLayer.hasTrackedPaintInvalidations());
+ }
+ 
++TEST_F(ScrollableAreaTest, RecalculatesScrollbarOverlayIfBackgroundChanges)
++{
++    OwnPtrWillBeRawPtr<MockScrollableArea> scrollableArea = MockScrollableArea::create(IntPoint(0, 100));
++
++    EXPECT_EQ(ScrollbarOverlayStyleDefault, scrollableArea->scrollbarOverlayStyle());
++    scrollableArea->recalculateScrollbarOverlayStyle(Color(34, 85, 51));
++    EXPECT_EQ(ScrollbarOverlayStyleLight, scrollableArea->scrollbarOverlayStyle());
++    scrollableArea->recalculateScrollbarOverlayStyle(Color(236, 143, 185));
++    EXPECT_EQ(ScrollbarOverlayStyleDefault, scrollableArea->scrollbarOverlayStyle());
++}
++
+ } // namespace blink
