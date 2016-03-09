@@ -346,7 +346,7 @@ index 5ab84f9..c4095fa 100644
            x_active_window_ = None;
          }
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 18aa4c6..147c5a7 100644
+index 02a570db6..2225c88 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -126,6 +126,7 @@ Widget::InitParams::InitParams()

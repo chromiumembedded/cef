@@ -1,8 +1,8 @@
 diff --git public/common/common_param_traits_macros.h public/common/common_param_traits_macros.h
-index e3efceb..f5b3e2f 100644
+index a1917f5..765fe1c 100644
 --- public/common/common_param_traits_macros.h
 +++ public/common/common_param_traits_macros.h
-@@ -194,6 +194,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+@@ -195,6 +195,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
    IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
@@ -11,7 +11,7 @@ index e3efceb..f5b3e2f 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git public/common/web_preferences.cc public/common/web_preferences.cc
-index 8ec979c..9fc043d 100644
+index 68ccbb4..8460874 100644
 --- public/common/web_preferences.cc
 +++ public/common/web_preferences.cc
 @@ -172,6 +172,7 @@ WebPreferences::WebPreferences()
@@ -20,10 +20,10 @@ index 8ec979c..9fc043d 100644
        navigate_on_drag_drop(true),
 +      base_background_color(0xFFFFFFFF),  // Color::white
        v8_cache_options(V8_CACHE_OPTIONS_DEFAULT),
+       inert_visual_viewport(false),
        cookie_enabled(true),
-       pepper_accelerated_video_decode_enabled(false),
 diff --git public/common/web_preferences.h public/common/web_preferences.h
-index 9926fc6..8cb6fee 100644
+index b784443..b04d69f 100644
 --- public/common/web_preferences.h
 +++ public/common/web_preferences.h
 @@ -173,6 +173,7 @@ struct CONTENT_EXPORT WebPreferences {
@@ -32,10 +32,10 @@ index 9926fc6..8cb6fee 100644
    bool navigate_on_drag_drop;
 +  uint32_t base_background_color;
    V8CacheOptions v8_cache_options;
+   bool inert_visual_viewport;
  
-   // This flags corresponds to a Page's Settings' setCookieEnabled state. It
 diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
-index 2f80795..9eddd24 100644
+index c2c266c..0a88250 100644
 --- renderer/render_view_impl.cc
 +++ renderer/render_view_impl.cc
 @@ -938,6 +938,8 @@ void RenderView::ApplyWebPreferences(const WebPreferences& prefs,

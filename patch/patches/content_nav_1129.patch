@@ -39,7 +39,7 @@ index 45686b5..18548a0 100644
    // Returns true if we should fork a new process for the given navigation.
    // If |send_referrer| is set to false (which is the default), no referrer
 diff --git renderer/render_frame_impl.cc renderer/render_frame_impl.cc
-index 16d742f..f9e4238 100644
+index 592cd08..7515ef2 100644
 --- renderer/render_frame_impl.cc
 +++ renderer/render_frame_impl.cc
 @@ -4687,7 +4687,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
