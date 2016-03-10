@@ -12,6 +12,9 @@
     # Need to be creative to match dylib version formatting requirements.
     'version_mac_dylib':
         '<!(python ../build/util/version.py -f VERSION -f ../chrome/VERSION -t "@CEF_MAJOR@<(commit_number).@BUILD_HI@.@BUILD_LO@" -e "BUILD_HI=int(BUILD)/256" -e "BUILD_LO=int(BUILD)%256")',
+    # For some reason we don't get the 'use_sysroot' default from common.gypi so
+    # set it here as well.
+    'use_sysroot%': 0,
   },
   'includes': [
     # Bring in the source file lists.
@@ -163,7 +166,10 @@
             '<@(cefclient_sources_mac)',
           ],
         }],
-        [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+        [ '(OS=="linux" or OS=="freebsd" or OS=="openbsd") and use_sysroot==0', {
+          # Required packages are not available when using the default sysroot
+          # environment. Consequently the cefclient target cannot be built with
+          # use_sysroot==1.
           'dependencies': [
             'gtk',
             'gtkglext',
@@ -1929,7 +1935,10 @@
         ],
       }],
     }],  # OS!="mac"
-    [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+    [ '(OS=="linux" or OS=="freebsd" or OS=="openbsd") and use_sysroot==0', {
+      # Required packages are not available when using the default sysroot
+      # environment. Consequently the cefclient target cannot be built with
+      # use_sysroot==1.
       'targets': [
         {
           'target_name': 'gtk',
@@ -1975,7 +1984,7 @@
           },
         },
       ],
-    }],  # OS=="linux" or OS=="freebsd" or OS=="openbsd"
+    }],  # (OS=="linux" or OS=="freebsd" or OS=="openbsd") and use_sysroot==0
     [ 'OS=="win"', {
       'targets': [
         {
