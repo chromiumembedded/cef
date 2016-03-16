@@ -498,6 +498,7 @@
         '<@(includes_common)',
         '<@(includes_capi)',
         '<@(includes_wrapper)',
+        '<@(libcef_dll_wrapper_sources_base)',
         '<@(libcef_dll_wrapper_sources_common)',
       ],
       'xcode_settings': {

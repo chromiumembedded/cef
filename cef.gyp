@@ -29,9 +29,6 @@
       'dependencies': [
         'libcef_dll_wrapper',
       ],
-      'defines': [
-        'USING_CEF_SHARED',
-      ],
       'include_dirs': [
         '.',
         # cefclient includes are relative to the tests directory to make
@@ -203,9 +200,6 @@
       'dependencies': [
         'libcef_dll_wrapper',
       ],
-      'defines': [
-        'USING_CEF_SHARED',
-      ],
       'include_dirs': [
         '.',
         # cefsimple includes are relative to the tests directory to make
@@ -366,7 +360,7 @@
         '<(DEPTH)/third_party/icu/icu.gyp:icuuc',
         '<(DEPTH)/third_party/zlib/google/zip.gyp:zip',
         '<(DEPTH)/ui/base/ui_base.gyp:ui_base',
-        'libcef_dll_wrapper',
+        'libcef_dll_wrapper_unittests',
       ],
       'sources': [
         'tests/cefclient/browser/client_app_browser.cc',
@@ -573,8 +567,53 @@
       'target_name': 'libcef_dll_wrapper',
       'type': 'static_library',
       'msvs_guid': 'A9D6DC71-C0DC-4549-AEA0-3B15B44E86A9',
+      'all_dependent_settings': {
+        'defines': [
+          'USING_CEF_SHARED',
+        ],
+      },
       'defines': [
         'USING_CEF_SHARED',
+      ],
+      'include_dirs': [
+        '.',
+      ],
+      'sources': [
+        '<@(includes_common)',
+        '<@(includes_capi)',
+        '<@(includes_wrapper)',
+        '<@(libcef_dll_wrapper_sources_base)',
+        '<@(libcef_dll_wrapper_sources_common)',
+      ],
+      'conditions': [
+        [ 'OS=="mac"', {
+          'dependencies': [
+            'cef_framework',
+          ],
+        }, {  # OS!="mac"
+          'dependencies': [
+            'libcef',
+          ],
+        }],
+      ],
+    },
+    {
+      # Like the libcef_dll_wrapper target but using Chromium base/ includes
+      # instead of CEF base/ includes. A separate target is necessary to resolve
+      # cef_unittests linker errors as the Chromium base/ implementation
+      # diverges from the CEF implementation.
+      'target_name': 'libcef_dll_wrapper_unittests',
+      'type': 'static_library',
+      'msvs_guid': 'A9D6DC71-C0DC-4549-AEA0-3B15B44E86A9',
+      'all_dependent_settings': {
+        'defines': [
+          'USING_CEF_SHARED',
+          'USING_CHROMIUM_INCLUDES',
+        ],
+      },
+      'defines': [
+        'USING_CEF_SHARED',
+        'USING_CHROMIUM_INCLUDES',
       ],
       'include_dirs': [
         '.',
@@ -852,6 +891,7 @@
       'msvs_guid': 'FA39524D-3067-4141-888D-28A86C66F2B9',
       'defines': [
         'BUILDING_CEF_SHARED',
+        'USING_CHROMIUM_INCLUDES',
       ],
       'include_dirs': [
         '.',
@@ -1575,12 +1615,13 @@
             'DYLIB_CURRENT_VERSION': '<(version_mac_dylib)',
             'INFOPLIST_FILE': 'libcef/resources/framework-Info.plist',
           },
+          'defines': [
+            'BUILDING_CEF_SHARED',
+            'USING_CHROMIUM_INCLUDES',
+          ],
           'dependencies': [
             'cef_pak',
             'libcef_static',
-          ],
-          'defines': [
-            'BUILDING_CEF_SHARED',
           ],
           'include_dirs': [
             '.',
@@ -1628,9 +1669,6 @@
           'dependencies': [
             'cef_framework',
             'libcef_dll_wrapper',
-          ],
-          'defines': [
-            'USING_CEF_SHARED',
           ],
           'include_dirs': [
             '.',
@@ -1702,9 +1740,6 @@
           'dependencies': [
             'cef_framework',
             'libcef_dll_wrapper',
-          ],
-          'defines': [
-            'USING_CEF_SHARED',
           ],
           'include_dirs': [
             '.',
@@ -1780,10 +1815,7 @@
             '<(DEPTH)/third_party/icu/icu.gyp:icui18n',
             '<(DEPTH)/third_party/icu/icu.gyp:icuuc',
             'cef_framework',
-            'libcef_dll_wrapper',
-          ],
-          'defines': [
-            'USING_CEF_SHARED',
+            'libcef_dll_wrapper_unittests',
           ],
           'include_dirs': [
             '.',
@@ -1883,11 +1915,12 @@
         'target_name': 'libcef',
         'type': 'shared_library',
         'msvs_guid': 'C13650D5-CF1A-4259-BE45-B1EBA6280E47',
-        'dependencies': [
-          'libcef_static',
-        ],
         'defines': [
           'BUILDING_CEF_SHARED',
+          'USING_CHROMIUM_INCLUDES',
+        ],
+        'dependencies': [
+          'libcef_static',
         ],
         'include_dirs': [
           '.',

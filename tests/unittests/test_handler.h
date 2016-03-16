@@ -13,6 +13,7 @@
 
 #include "base/synchronization/waitable_event.h"
 
+#include "include/base/cef_bind.h"
 #include "include/cef_browser.h"
 #include "include/cef_client.h"
 #include "include/cef_frame.h"

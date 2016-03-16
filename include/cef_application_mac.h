@@ -35,7 +35,7 @@
 
 #if defined(OS_MACOSX) && defined(__OBJC__)
 
-#ifdef BUILDING_CEF_SHARED
+#ifdef USING_CHROMIUM_INCLUDES
 
 // Use the existing CrAppControlProtocol definition.
 #import "base/mac/scoped_sending_event.h"
@@ -52,7 +52,7 @@
 // Use the existing empty protocol definitions.
 #import "base/mac/sdk_forward_declarations.h"
 
-#else  // BUILDING_CEF_SHARED
+#else  // USING_CHROMIUM_INCLUDES
 
 #import <AppKit/AppKit.h>
 #import <Cocoa/Cocoa.h>
@@ -146,7 +146,7 @@ DEFINE_EMPTY_PROTOCOL(NSWindowDelegate)
 
 #endif
 
-#endif  // BUILDING_CEF_SHARED
+#endif  // USING_CHROMIUM_INCLUDES
 
 // Forward declarations for APIs that are part of the 10.7 SDK. This will allow
 // using them when building with the 10.6 SDK.

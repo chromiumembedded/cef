@@ -36,6 +36,8 @@ ContentSettingsType PermissionTypeToContentSetting(PermissionType permission) {
       return CONTENT_SETTINGS_TYPE_MEDIASTREAM_MIC;
     case PermissionType::VIDEO_CAPTURE:
       return CONTENT_SETTINGS_TYPE_MEDIASTREAM_CAMERA;
+    case PermissionType::BACKGROUND_SYNC:
+      return CONTENT_SETTINGS_TYPE_BACKGROUND_SYNC;
     case PermissionType::NUM:
       // This will hit the NOTREACHED below.
       break;

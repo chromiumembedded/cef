@@ -4,9 +4,6 @@
 
 #include <algorithm>
 
-// Include this first to avoid type conflicts with CEF headers.
-#include "tests/unittests/chromium_includes.h"
-
 #include "include/base/cef_bind.h"
 #include "include/cef_origin_whitelist.h"
 #include "include/cef_callback.h"

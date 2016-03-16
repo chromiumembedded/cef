@@ -1,0 +1,20 @@
+diff --git texture_manager.h texture_manager.h
+index 2485146..b31c3b9 100644
+--- texture_manager.h
++++ texture_manager.h
+@@ -17,6 +17,7 @@
+ #include "base/macros.h"
+ #include "base/memory/ref_counted.h"
+ #include "gpu/command_buffer/service/feature_info.h"
++#include "gpu/command_buffer/service/gl_stream_texture_image.h"
+ #include "gpu/command_buffer/service/gl_utils.h"
+ #include "gpu/command_buffer/service/memory_tracking.h"
+ #include "gpu/command_buffer/service/sampler_manager.h"
+@@ -28,7 +29,6 @@ namespace gpu {
+ namespace gles2 {
+ 
+ class GLES2Decoder;
+-class GLStreamTextureImage;
+ struct ContextState;
+ struct DecoderFramebufferState;
+ class Display;

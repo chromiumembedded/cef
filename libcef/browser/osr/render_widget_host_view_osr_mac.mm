@@ -5,6 +5,7 @@
 
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
 
+#include <algorithm>
 #include <limits>
 #include <utility>
 
@@ -267,7 +268,8 @@ bool CefRenderWidgetHostViewOSR::GetLineBreakIndex(
   // assume the line breaking as the next character's y offset is larger than
   // a threshold. Currently the threshold is determined as minimum y offset plus
   // 75% of maximum height.
-  const size_t loop_end_idx = std::min(bounds.size(), range.end());
+  const size_t loop_end_idx =
+      std::min(bounds.size(), static_cast<size_t>(range.end()));
   int max_height = 0;
   int min_y_offset = std::numeric_limits<int32_t>::max();
   for (size_t idx = range.start(); idx < loop_end_idx; ++idx) {

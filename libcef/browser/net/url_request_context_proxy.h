@@ -7,12 +7,12 @@
 #pragma once
 
 #include "include/cef_request_context_handler.h"
-#include "libcef/browser/net/cookie_store_proxy.h"
 #include "libcef/browser/net/url_request_context.h"
 
 #include "base/memory/scoped_ptr.h"
 
 class CefBrowserHostImpl;
+class CefCookieStoreProxy;
 class CefURLRequestContextImpl;
 
 // URLRequestContext implementation for a particular CefRequestContext. Life
@@ -28,7 +28,7 @@ class CefURLRequestContextProxy : public CefURLRequestContext {
   ~CefURLRequestContextProxy() override;
 
  private:
-  scoped_refptr<CefCookieStoreProxy> cookie_store_proxy_;
+  scoped_ptr<CefCookieStoreProxy> cookie_store_proxy_;
 
   DISALLOW_COPY_AND_ASSIGN(CefURLRequestContextProxy);
 };

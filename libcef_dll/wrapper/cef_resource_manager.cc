@@ -379,7 +379,7 @@ void CefResourceManager::Request::Stop() {
 }
 
 CefResourceManager::Request::Request(scoped_ptr<RequestState> state)
-    : state_(state.Pass()),
+    : state_(MOVE_SCOPED_PTR(state)),
       params_(state_->params_) {
   CEF_REQUIRE_IO_THREAD();
 
@@ -401,7 +401,7 @@ scoped_ptr<CefResourceManager::RequestState>
   CEF_REQUIRE_IO_THREAD();
   Provider* provider = (*state_->current_entry_pos_)->provider_.get();
   if (!provider->OnRequest(this))
-    return state_.Pass();
+    return MOVE_SCOPED_PTR(state_);
   return scoped_ptr<RequestState>();
 }
 
@@ -418,7 +418,7 @@ void CefResourceManager::Request::ContinueOnIOThread(
   // The manager may already have been deleted.
   base::WeakPtr<CefResourceManager> manager = state->manager_;
   if (manager)
-    manager->ContinueRequest(state.Pass(), handler);
+    manager->ContinueRequest(MOVE_SCOPED_PTR(state), handler);
 }
 
 // static
@@ -428,7 +428,7 @@ void CefResourceManager::Request::StopOnIOThread(
   // The manager may already have been deleted.
   base::WeakPtr<CefResourceManager> manager = state->manager_;
   if (manager)
-    manager->StopRequest(state.Pass());
+    manager->StopRequest(MOVE_SCOPED_PTR(state));
 }
 
 
@@ -611,7 +611,7 @@ cef_return_value_t CefResourceManager::OnBeforeResourceLoad(
   state->current_entry_pos_ = current_entry_pos;
 
   // If the request is potentially handled we need to continue asynchronously.
-  return SendRequest(state.Pass()) ? RV_CONTINUE_ASYNC : RV_CONTINUE;
+  return SendRequest(MOVE_SCOPED_PTR(state)) ? RV_CONTINUE_ASYNC : RV_CONTINUE;
 }
 
 CefRefPtr<CefResourceHandler> CefResourceManager::GetResourceHandler(
@@ -643,7 +643,7 @@ bool CefResourceManager::SendRequest(scoped_ptr<RequestState> state) {
   do {
     // Should not be on the last provider entry.
     DCHECK(state->current_entry_pos_ != providers_.end());
-    scoped_refptr<Request> request = new Request(state.Pass());
+    scoped_refptr<Request> request = new Request(MOVE_SCOPED_PTR(state));
 
     // Give the provider an opportunity to handle the request.
     state = request->SendRequest();
@@ -651,7 +651,7 @@ bool CefResourceManager::SendRequest(scoped_ptr<RequestState> state) {
       // The provider will not handle the request. Move to the next provider if
       // any.
       if (!IncrementProvider(state.get()))
-        StopRequest(state.Pass());
+        StopRequest(MOVE_SCOPED_PTR(state));
     } else {
       potentially_handled = true;
     }
@@ -669,13 +669,13 @@ void CefResourceManager::ContinueRequest(
     // The request has been handled. Associate the request ID with the handler.
     pending_handlers_.insert(
         std::make_pair(state->params_.request_->GetIdentifier(), handler));
-    StopRequest(state.Pass());
+    StopRequest(MOVE_SCOPED_PTR(state));
   } else {
     // Move to the next provider if any.
     if (IncrementProvider(state.get()))
-      SendRequest(state.Pass());
+      SendRequest(MOVE_SCOPED_PTR(state));
     else
-      StopRequest(state.Pass());
+      StopRequest(MOVE_SCOPED_PTR(state));
   }
 }
 

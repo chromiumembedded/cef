@@ -14,7 +14,6 @@
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
 #include "components/url_formatter/elide_url.h"
-#include "net/base/net_util.h"
 
 namespace {
 
@@ -148,7 +147,6 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
 
 void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
     content::WebContents* web_contents,
-    const base::string16& message_text,
     bool is_reload,
     const DialogClosedCallback& callback) {
   if (browser_->destruction_state() >=
@@ -158,6 +156,9 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
     callback.Run(true, base::string16());
     return;
   }
+
+  const base::string16& message_text =
+      base::ASCIIToUTF16("Is it OK to leave/reload this page?");
 
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {
@@ -187,14 +188,10 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
 
   dialog_running_ = true;
 
-  base::string16 new_message_text =
-      message_text +
-      base::ASCIIToUTF16("\n\nIs it OK to leave/reload this page?");
-
   runner_->Run(browser_,
                content::JAVASCRIPT_MESSAGE_TYPE_CONFIRM,
                base::string16(),  // display_url
-               new_message_text,
+               message_text,
                base::string16(),  // default_prompt_text
                base::Bind(&CefJavaScriptDialogManager::DialogClosed,
                           weak_ptr_factory_.GetWeakPtr(), callback));

@@ -6,9 +6,6 @@
 #include <cstdlib>
 #include <string>
 
-// Include this first to avoid type conflicts with CEF headers.
-#include "tests/unittests/chromium_includes.h"
-
 #include "include/base/cef_bind.h"
 #include "include/cef_stream.h"
 #include "include/wrapper/cef_closure_task.h"

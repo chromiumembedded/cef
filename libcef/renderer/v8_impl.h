@@ -188,14 +188,12 @@ class CefV8ContextImpl : public CefV8Context {
   v8::Local<v8::Context> GetV8Context();
   blink::WebFrame* GetWebFrame();
 
- protected:
+ private:
   typedef CefV8Handle<v8::Context> Handle;
   scoped_refptr<Handle> handle_;
 
-#ifndef NDEBUG
-  // Used in debug builds to catch missing Exits in destructor.
   int enter_count_;
-#endif
+  scoped_ptr<v8::MicrotasksScope> microtasks_scope_;
 
   IMPLEMENT_REFCOUNTING(CefV8ContextImpl);
   DISALLOW_COPY_AND_ASSIGN(CefV8ContextImpl);
@@ -279,7 +277,7 @@ class CefV8ValueImpl : public CefV8Value {
       CefRefPtr<CefV8Value> object,
       const CefV8ValueList& arguments) override;
 
- protected:
+ private:
   // Test for and record any exception.
   bool HasCaught(v8::Local<v8::Context> context, v8::TryCatch& try_catch);
 
@@ -299,7 +297,7 @@ class CefV8ValueImpl : public CefV8Value {
 
     void SetWeakIfNecessary();
 
-   protected:
+   private:
     ~Handle() override;
 
    private:
@@ -366,7 +364,7 @@ class CefV8StackTraceImpl : public CefV8StackTrace {
   int GetFrameCount() override;
   CefRefPtr<CefV8StackFrame> GetFrame(int index) override;
 
- protected:
+ private:
   std::vector<CefRefPtr<CefV8StackFrame> > frames_;
 
   IMPLEMENT_REFCOUNTING(CefV8StackTraceImpl);
@@ -388,7 +386,7 @@ class CefV8StackFrameImpl : public CefV8StackFrame {
   bool IsEval() override;
   bool IsConstructor() override;
 
- protected:
+ private:
   CefString script_name_;
   CefString script_name_or_source_url_;
   CefString function_name_;

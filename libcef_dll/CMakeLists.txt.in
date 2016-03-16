@@ -30,6 +30,7 @@ endmacro()
     'includes_win:WINDOWS',
     'includes_mac:MACOSX',
     'includes_linux:LINUX',
+    'libcef_dll_wrapper_sources_base',
     'libcef_dll_wrapper_sources_common',
     'autogen_client_side',
   ],

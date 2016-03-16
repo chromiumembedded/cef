@@ -218,12 +218,11 @@ void AddWidevineCdmFromCommandLine(
           kWidevineCdmPluginMimeTypeDescription);
 
       // Add the supported codecs as if they came from the component manifest.
+      // This list must match the CDM that is being shipped with Chrome.
       std::vector<std::string> codecs;
-      codecs.push_back(kCdmSupportedCodecVorbis);
       codecs.push_back(kCdmSupportedCodecVp8);
       codecs.push_back(kCdmSupportedCodecVp9);
 #if defined(USE_PROPRIETARY_CODECS)
-      codecs.push_back(kCdmSupportedCodecAac);
       codecs.push_back(kCdmSupportedCodecAvc1);
 #endif  // defined(USE_PROPRIETARY_CODECS)
       std::string codec_string = base::JoinString(
@@ -279,6 +278,7 @@ void CefContentClient::AddPepperPlugins(
 
 void CefContentClient::AddAdditionalSchemes(
     std::vector<url::SchemeWithType>* standard_schemes,
+    std::vector<url::SchemeWithType>* referrer_schemes,
     std::vector<std::string>* savable_schemes) {
   DCHECK(!scheme_info_list_locked_);
 
@@ -462,9 +462,4 @@ bool CefContentClient::GetLocalizedString(int message_id,
   }
 
   return (pack_loading_disabled_ || !value->empty());
-}
-
-scoped_ptr<gfx::Font> CefContentClient::GetFont(
-    ui::ResourceBundle::FontStyle style) {
-  return scoped_ptr<gfx::Font>();
 }

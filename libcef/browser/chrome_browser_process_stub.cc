@@ -127,9 +127,13 @@ GpuModeManager* ChromeBrowserProcessStub::gpu_mode_manager() {
 }
 
 void ChromeBrowserProcessStub::CreateDevToolsHttpProtocolHandler(
-    chrome::HostDesktopType host_desktop_type,
     const std::string& ip,
     uint16_t port) {
+  NOTIMPLEMENTED();
+}
+
+void ChromeBrowserProcessStub::CreateDevToolsAutoOpener() {
+  NOTIMPLEMENTED();
 }
 
 unsigned int ChromeBrowserProcessStub::AddRefModule() {
@@ -276,10 +280,10 @@ gcm::GCMDriver* ChromeBrowserProcessStub::gcm_driver() {
   return NULL;
 }
 
-ShellIntegration::DefaultWebClientState
+shell_integration::DefaultWebClientState
 ChromeBrowserProcessStub::CachedDefaultWebClientState() {
   NOTIMPLEMENTED();
-  return ShellIntegration::UNKNOWN_DEFAULT;
+  return shell_integration::UNKNOWN_DEFAULT;
 }
 
 memory::TabManager* ChromeBrowserProcessStub::GetTabManager() {

@@ -4,9 +4,6 @@
 
 #include <vector>
 
-// Include this first to avoid type conflicts with CEF headers.
-#include "tests/unittests/chromium_includes.h"
-
 #include "base/files/scoped_temp_dir.h"
 #include "base/synchronization/waitable_event.h"
 

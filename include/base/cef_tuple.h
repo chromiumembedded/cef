@@ -57,84 +57,14 @@
 #pragma once
 
 #if defined(BASE_TUPLE_H_)
-// The Chromium header has already been included.
+// Do nothing if the Chromium header has already been included.
 // This can happen in cases where Chromium code is used directly by the
 // client application. When using Chromium code directly always include
 // the Chromium header first to avoid type conflicts.
-
-// For legacy compatibility, we name the first 8 tuple elements "a", "b", ...
-// TODO(cef): Remove this code when cef_runnable.h is deleted.
-
-namespace base {
-
-#define DEFINE_TUPLE_LEAF(N, x)                                        \
-  template <typename T>                                                \
-  struct TupleLeaf<N, T> {                                             \
-    TupleLeaf() {}                                                     \
-    explicit TupleLeaf(typename TupleTraits<T>::ParamType x) : x(x) {} \
-                                                                       \
-    T& get() { return x; }                                             \
-    const T& get() const { return x; }                                 \
-                                                                       \
-    T x;                                                               \
-  }
-
-DEFINE_TUPLE_LEAF(0, a);
-DEFINE_TUPLE_LEAF(1, b);
-DEFINE_TUPLE_LEAF(2, c);
-DEFINE_TUPLE_LEAF(3, d);
-DEFINE_TUPLE_LEAF(4, e);
-DEFINE_TUPLE_LEAF(5, f);
-DEFINE_TUPLE_LEAF(6, g);
-DEFINE_TUPLE_LEAF(7, h);
-
-#undef DEFINE_TUPLE_LEAF
-
-// Deprecated compat aliases
-// TODO(cef): Remove this code when cef_runnable.h is deleted.
-
-using Tuple0 = Tuple<>;
-template <typename A>
-using Tuple1 = Tuple<A>;
-template <typename A, typename B>
-using Tuple2 = Tuple<A, B>;
-template <typename A, typename B, typename C>
-using Tuple3 = Tuple<A, B, C>;
-template <typename A, typename B, typename C, typename D>
-using Tuple4 = Tuple<A, B, C, D>;
-template <typename A, typename B, typename C, typename D, typename E>
-using Tuple5 = Tuple<A, B, C, D, E>;
-template <typename A,
-          typename B,
-          typename C,
-          typename D,
-          typename E,
-          typename F>
-using Tuple6 = Tuple<A, B, C, D, E, F>;
-template <typename A,
-          typename B,
-          typename C,
-          typename D,
-          typename E,
-          typename F,
-          typename G>
-using Tuple7 = Tuple<A, B, C, D, E, F, G>;
-template <typename A,
-          typename B,
-          typename C,
-          typename D,
-          typename E,
-          typename F,
-          typename G,
-          typename H>
-using Tuple8 = Tuple<A, B, C, D, E, F, G, H>;
-
-}  // namespace base
-
-#elif defined(BUILDING_CEF_SHARED)
+#elif defined(USING_CHROMIUM_INCLUDES)
 // When building CEF include the Chromium header directly.
 #include "base/tuple.h"
-#else  // !BUILDING_CEF_SHARED
+#else  // !USING_CHROMIUM_INCLUDES
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.
@@ -1402,6 +1332,6 @@ inline void DispatchToMethod(ObjT* obj, Method method,
 
 }  // namespace base
 
-#endif // !BUILDING_CEF_SHARED
+#endif // !USING_CHROMIUM_INCLUDES
 
 #endif  // CEF_INCLUDE_BASE_CEF_TUPLE_H_

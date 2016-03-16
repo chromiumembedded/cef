@@ -2,9 +2,6 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-// Include this first to avoid type conflicts with CEF headers.
-#include "tests/unittests/chromium_includes.h"
-
 #include "include/cef_parser.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -299,7 +296,8 @@ TEST(ParserTest, URIDecode) {
   const CefString& decoded_value =
       CefURIDecode(test_str_encoded, false,
                    static_cast<cef_uri_unescape_rule_t>(
-                      UU_SPACES | UU_URL_SPECIAL_CHARS));
+                       UU_SPACES |
+                       UU_URL_SPECIAL_CHARS_EXCEPT_PATH_SEPARATORS));
   EXPECT_STREQ(test_str_decoded.c_str(), decoded_value.ToString().c_str());
 }
 

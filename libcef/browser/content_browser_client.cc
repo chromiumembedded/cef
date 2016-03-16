@@ -101,19 +101,18 @@ class CefAccessTokenStore : public content::AccessTokenStore {
   explicit CefAccessTokenStore(net::URLRequestContextGetter* system_context)
       : system_context_(system_context) {}
 
-  void LoadAccessTokens(
-      const LoadAccessTokensCallbackType& callback) override {
-    callback.Run(access_token_set_, system_context_);
+  void LoadAccessTokens(const LoadAccessTokensCallback& callback) override {
+    callback.Run(access_token_map_, system_context_);
   }
 
   void SaveAccessToken(
       const GURL& server_url, const base::string16& access_token) override {
-    access_token_set_[server_url] = access_token;
+    access_token_map_[server_url] = access_token;
   }
 
  private:
   net::URLRequestContextGetter* system_context_;
-  AccessTokenSet access_token_set_;
+  AccessTokenMap access_token_map_;
 
   DISALLOW_COPY_AND_ASSIGN(CefAccessTokenStore);
 };

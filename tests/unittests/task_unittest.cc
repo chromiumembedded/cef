@@ -2,11 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-// Include this first to avoid type conflicts with CEF headers.
-#include "tests/unittests/chromium_includes.h"
-
-#include "include/cef_runnable.h"
+#include "include/base/cef_bind.h"
 #include "include/cef_task.h"
+#include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/test_handler.h"
 
@@ -101,7 +99,8 @@ void PostTask1(bool* ran_test) {
   EXPECT_TRUE(runner->BelongsToThread(TID_IO));
   
   bool got_it = false;
-  runner->PostTask(NewCefRunnableFunction(&PostTaskEvent1, &got_it, runner));
+  runner->PostTask(
+      CefCreateClosureTask(base::Bind(&PostTaskEvent1, &got_it, runner)));
 
   WaitForThread(runner);
   EXPECT_TRUE(got_it);
@@ -118,7 +117,7 @@ void PostDelayedTask1(bool* ran_test) {
   
   bool got_it = false;
   runner->PostDelayedTask(
-      NewCefRunnableFunction(&PostTaskEvent1, &got_it, runner), 0);
+      CefCreateClosureTask(base::Bind(&PostTaskEvent1, &got_it, runner)), 0);
 
   WaitForThread(runner);
   EXPECT_TRUE(got_it);
@@ -138,7 +137,8 @@ void PostTask2(bool* ran_test) {
   EXPECT_FALSE(CefCurrentlyOn(TID_IO));
 
   bool got_it = false;
-  CefPostTask(TID_IO, NewCefRunnableFunction(&PostTaskEvent2, &got_it));
+  CefPostTask(TID_IO,
+      CefCreateClosureTask(base::Bind(&PostTaskEvent2, &got_it)));
 
   WaitForThread(TID_IO);
   EXPECT_TRUE(got_it);
@@ -152,7 +152,7 @@ void PostDelayedTask2(bool* ran_test) {
 
   bool got_it = false;
   CefPostDelayedTask(TID_IO,
-      NewCefRunnableFunction(&PostTaskEvent2, &got_it), 0);
+      CefCreateClosureTask(base::Bind(&PostTaskEvent2, &got_it)), 0);
 
   WaitForThread(TID_IO);
   EXPECT_TRUE(got_it);
@@ -164,42 +164,46 @@ void PostDelayedTask2(bool* ran_test) {
 
 TEST(TaskTest, GetForCurrentThread) {
   bool ran_test = false;
-  CefPostTask(TID_UI, NewCefRunnableFunction(&GetForCurrentThread, &ran_test));
+  CefPostTask(TID_UI,
+      CefCreateClosureTask(base::Bind(&GetForCurrentThread, &ran_test)));
   WaitForThread(TID_UI);
   EXPECT_TRUE(ran_test);
 }
 
 TEST(TaskTest, GetForThread) {
   bool ran_test = false;
-  CefPostTask(TID_UI, NewCefRunnableFunction(&GetForThread, &ran_test));
+  CefPostTask(TID_UI,
+      CefCreateClosureTask(base::Bind(&GetForThread, &ran_test)));
   WaitForThread(TID_UI);
   EXPECT_TRUE(ran_test);
 }
 
 TEST(TaskTest, PostTask1) {
   bool ran_test = false;
-  CefPostTask(TID_UI, NewCefRunnableFunction(&PostTask1, &ran_test));
+  CefPostTask(TID_UI, CefCreateClosureTask(base::Bind(&PostTask1, &ran_test)));
   WaitForThread(TID_UI);
   EXPECT_TRUE(ran_test);
 }
 
 TEST(TaskTest, PostDelayedTask1) {
   bool ran_test = false;
-  CefPostTask(TID_UI, NewCefRunnableFunction(&PostDelayedTask1, &ran_test));
+  CefPostTask(TID_UI,
+      CefCreateClosureTask(base::Bind(&PostDelayedTask1, &ran_test)));
   WaitForThread(TID_UI);
   EXPECT_TRUE(ran_test);
 }
 
 TEST(TaskTest, PostTask2) {
   bool ran_test = false;
-  CefPostTask(TID_UI, NewCefRunnableFunction(&PostTask2, &ran_test));
+  CefPostTask(TID_UI, CefCreateClosureTask(base::Bind(&PostTask2, &ran_test)));
   WaitForThread(TID_UI);
   EXPECT_TRUE(ran_test);
 }
 
 TEST(TaskTest, PostDelayedTask2) {
   bool ran_test = false;
-  CefPostTask(TID_UI, NewCefRunnableFunction(&PostDelayedTask2, &ran_test));
+  CefPostTask(TID_UI,
+      CefCreateClosureTask(base::Bind(&PostDelayedTask2, &ran_test)));
   WaitForThread(TID_UI);
   EXPECT_TRUE(ran_test);
 }

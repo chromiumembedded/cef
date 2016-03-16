@@ -11,6 +11,7 @@
 #include <X11/Xutil.h>
 
 #include "ui/base/x/x11_util.h"
+#include "ui/events/platform/platform_event_source.h"
 #include "ui/events/platform/x11/x11_event_source.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h"
 #include "ui/views/widget/desktop_aura/x11_topmost_window_finder.h"

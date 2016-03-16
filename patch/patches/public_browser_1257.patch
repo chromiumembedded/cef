@@ -1,5 +1,5 @@
 diff --git web_contents.cc web_contents.cc
-index 1b6d8a6..b606a30 100644
+index d4b5fd0..b804902 100644
 --- web_contents.cc
 +++ web_contents.cc
 @@ -26,7 +26,9 @@ WebContents::CreateParams::CreateParams(BrowserContext* context,
@@ -11,10 +11,10 @@ index 1b6d8a6..b606a30 100644
 +      view(nullptr),
 +      delegate_view(nullptr) {}
  
- WebContents::CreateParams::~CreateParams() {
- }
+ WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
+ 
 diff --git web_contents.h web_contents.h
-index 5260b91..4495078 100644
+index 9dd14bf..7c7b7c9 100644
 --- web_contents.h
 +++ web_contents.h
 @@ -54,9 +54,11 @@ class PageState;
@@ -29,7 +29,7 @@ index 5260b91..4495078 100644
  struct CustomContextMenuContext;
  struct DropData;
  struct Manifest;
-@@ -146,6 +148,10 @@ class WebContents : public PageNavigator,
+@@ -147,6 +149,10 @@ class WebContents : public PageNavigator,
      // RenderFrame, have already been created on the renderer side, and
      // WebContents construction should take this into account.
      bool renderer_initiated_creation;
@@ -41,7 +41,7 @@ index 5260b91..4495078 100644
  
    // Creates a new WebContents.
 diff --git web_contents_delegate.cc web_contents_delegate.cc
-index 71c3075..7abcac3 100644
+index c937d66..4ce571f 100644
 --- web_contents_delegate.cc
 +++ web_contents_delegate.cc
 @@ -144,7 +144,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
@@ -56,12 +56,12 @@ index 71c3075..7abcac3 100644
  }
  
 diff --git web_contents_delegate.h web_contents_delegate.h
-index b6015b0..75b53d4 100644
+index 2c2ac76..8f87caf 100644
 --- web_contents_delegate.h
 +++ web_contents_delegate.h
-@@ -41,9 +41,11 @@ class DownloadItem;
- class JavaScriptDialogManager;
+@@ -42,9 +42,11 @@ class JavaScriptDialogManager;
  class PageState;
+ class RenderFrameHost;
  class RenderViewHost;
 +class RenderViewHostDelegateView;
  class SessionStorageNamespace;
@@ -71,7 +71,7 @@ index b6015b0..75b53d4 100644
  struct ColorSuggestion;
  struct ContextMenuParams;
  struct DropData;
-@@ -309,7 +311,9 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -311,7 +313,9 @@ class CONTENT_EXPORT WebContentsDelegate {
        const std::string& frame_name,
        const GURL& target_url,
        const std::string& partition_id,

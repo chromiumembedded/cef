@@ -385,6 +385,8 @@ if mode == 'standard':
                       'tests/cefsimple/', cefsimple_dir, options.quiet)
 
   # transfer common libcef_dll_wrapper files
+  transfer_gypi_files(cef_dir, cef_paths2['libcef_dll_wrapper_sources_base'], \
+                      'libcef_dll/', wrapper_dir, options.quiet)
   transfer_gypi_files(cef_dir, cef_paths2['libcef_dll_wrapper_sources_common'], \
                       'libcef_dll/', wrapper_dir, options.quiet)
   transfer_gypi_files(cef_dir, cef_paths['autogen_client_side'], \

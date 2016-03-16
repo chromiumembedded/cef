@@ -112,6 +112,7 @@ class CefConfigurator : public Configurator {
       CreateOutOfProcessPatcher() const override;
   bool DeltasEnabled() const override;
   bool UseBackgroundDownloader() const override;
+  bool UseCupSigning() const override;
   scoped_refptr<base::SequencedTaskRunner> GetSequencedTaskRunner()
       const override;
 
@@ -262,6 +263,10 @@ bool CefConfigurator::DeltasEnabled() const {
 
 bool CefConfigurator::UseBackgroundDownloader() const {
   return background_downloads_enabled_;
+}
+
+bool CefConfigurator::UseCupSigning() const {
+  return true;
 }
 
 scoped_refptr<base::SequencedTaskRunner>

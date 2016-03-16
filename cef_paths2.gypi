@@ -42,7 +42,6 @@
       'include/cef_base.h',
       'include/cef_pack_resources.h',
       'include/cef_pack_strings.h',
-      'include/cef_runnable.h',
       'include/cef_version.h',
       'include/internal/cef_export.h',
       'include/internal/cef_logging_internal.h',
@@ -107,7 +106,7 @@
       'libcef_dll/wrapper_types.h',
       '<@(autogen_library_side)',
     ],
-    'libcef_dll_wrapper_sources_common': [
+    'libcef_dll_wrapper_sources_base': [
       'libcef_dll/base/cef_atomicops_x86_gcc.cc',
       'libcef_dll/base/cef_bind_helpers.cc',
       'libcef_dll/base/cef_callback_helpers.cc',
@@ -120,6 +119,8 @@
       'libcef_dll/base/cef_thread_checker_impl.cc',
       'libcef_dll/base/cef_thread_collision_warner.cc',
       'libcef_dll/base/cef_weak_ptr.cc',
+    ],
+    'libcef_dll_wrapper_sources_common': [
       'libcef_dll/cpptoc/base_cpptoc.cc',
       'libcef_dll/cpptoc/base_cpptoc.h',
       'libcef_dll/cpptoc/cpptoc.h',

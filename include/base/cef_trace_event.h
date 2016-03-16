@@ -145,10 +145,10 @@
 // This can happen in cases where Chromium code is used directly by the
 // client application. When using Chromium code directly always include
 // the Chromium header first to avoid type conflicts.
-#elif defined(BUILDING_CEF_SHARED)
+#elif defined(USING_CHROMIUM_INCLUDES)
 // When building CEF include the Chromium header directly.
-#include "base/debug/trace_event.h"
-#else  // !BUILDING_CEF_SHARED
+#include "base/trace_event/trace_event.h"
+#else  // !USING_CHROMIUM_INCLUDES
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.
@@ -422,6 +422,6 @@ class CefTraceEndOnScopeClose {
 
 }  // cef_trace_event
 
-#endif  // !BUILDING_CEF_SHARED
+#endif  // !USING_CHROMIUM_INCLUDES
 
 #endif  // CEF_INCLUDE_BASE_CEF_TRACE_EVENT_H_

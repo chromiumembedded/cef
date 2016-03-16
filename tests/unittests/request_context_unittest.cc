@@ -2,9 +2,6 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-// Include this first to avoid type conflicts with CEF headers.
-#include "tests/unittests/chromium_includes.h"
-
 #include "include/base/cef_bind.h"
 #include "base/files/scoped_temp_dir.h"
 #include "include/cef_request_context.h"

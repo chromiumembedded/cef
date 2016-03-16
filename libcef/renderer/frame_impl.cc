@@ -4,6 +4,14 @@
 
 #include "libcef/renderer/frame_impl.h"
 
+#include "base/compiler_specific.h"
+
+// Enable deprecation warnings for MSVC. See http://crbug.com/585142.
+#if defined(OS_WIN)
+#pragma warning(push)
+#pragma warning(default:4996)
+#endif
+
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/net/http_header_utils.h"
 #include "libcef/common/request_impl.h"
@@ -18,6 +26,7 @@
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebFrameContentDumper.h"
 #include "third_party/WebKit/public/web/WebKit.h"
 #include "third_party/WebKit/public/web/WebView.h"
 #include "third_party/WebKit/public/web/WebScriptSource.h"
@@ -88,9 +97,10 @@ void CefFrameImpl::ViewSource() {
 
 void CefFrameImpl::GetSource(CefRefPtr<CefStringVisitor> visitor) {
   CEF_REQUIRE_RT_RETURN_VOID();
-
-  if (frame_) {
-    CefString content = std::string(frame_->contentAsMarkup().utf8());
+  if (frame_ && frame_->isWebLocalFrame()) {
+    const CefString& content =
+        std::string(blink::WebFrameContentDumper::dumpAsMarkup(
+            frame_->toWebLocalFrame()).utf8());
     visitor->Visit(content);
   }
 }
@@ -99,7 +109,7 @@ void CefFrameImpl::GetText(CefRefPtr<CefStringVisitor> visitor) {
   CEF_REQUIRE_RT_RETURN_VOID();
 
   if (frame_) {
-    CefString content = webkit_glue::DumpDocumentText(frame_);
+    const CefString& content = webkit_glue::DumpDocumentText(frame_);
     visitor->Visit(content);
   }
 }
@@ -270,3 +280,9 @@ void CefFrameImpl::Detach() {
   browser_ = NULL;
   frame_ = NULL;
 }
+
+
+// Enable deprecation warnings for MSVC. See http://crbug.com/585142.
+#if defined(OS_WIN)
+#pragma warning(pop)
+#endif

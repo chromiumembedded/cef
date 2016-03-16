@@ -7,10 +7,14 @@
 
 #include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
-#include "bindings/core/v8/V8RecursionScope.h"
+#include "platform/ScriptForbiddenScope.h"
 MSVC_POP_WARNING();
-#undef FROM_HERE
-#undef LOG
+
+// Enable deprecation warnings for MSVC. See http://crbug.com/585142.
+#if defined(OS_WIN)
+#pragma warning(push)
+#pragma warning(default:4996)
+#endif
 
 #include "libcef/renderer/render_frame_observer.h"
 
@@ -53,7 +57,8 @@ void CefRenderFrameObserver::DidCreateScriptContext(
   v8::Isolate* isolate = blink::mainThreadIsolate();
   v8::HandleScope handle_scope(isolate);
   v8::Context::Scope scope(context);
-  blink::V8RecursionScope recursion_scope(isolate);
+  v8::MicrotasksScope microtasks_scope(isolate,
+                                       v8::MicrotasksScope::kRunMicrotasks);
 
   CefRefPtr<CefV8Context> contextPtr(new CefV8ContextImpl(isolate, context));
 
@@ -94,3 +99,9 @@ void CefRenderFrameObserver::WillReleaseScriptContext(
 
   CefV8ReleaseContext(context);
 }
+
+
+// Enable deprecation warnings for MSVC. See http://crbug.com/585142.
+#if defined(OS_WIN)
+#pragma warning(pop)
+#endif

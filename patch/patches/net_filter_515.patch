@@ -1,5 +1,5 @@
 diff --git base/network_delegate.h base/network_delegate.h
-index 0737137..60cfcd717 100644
+index 509a87b..c05483c 100644
 --- base/network_delegate.h
 +++ base/network_delegate.h
 @@ -35,6 +35,7 @@ namespace net {
@@ -10,7 +10,7 @@ index 0737137..60cfcd717 100644
  class HttpRequestHeaders;
  class HttpResponseHeaders;
  class ProxyInfo;
-@@ -119,6 +120,13 @@ class NET_EXPORT NetworkDelegate : public base::NonThreadSafe {
+@@ -111,6 +112,13 @@ class NET_EXPORT NetworkDelegate : public base::NonThreadSafe {
        const GURL& target_url,
        const GURL& referrer_url) const;
  
@@ -25,7 +25,7 @@ index 0737137..60cfcd717 100644
    // This is the interface for subclasses of NetworkDelegate to implement. These
    // member functions will be called by the respective public notification
 diff --git filter/filter.h filter/filter.h
-index e9df3db..768b7fc 100644
+index 31d08d4..1de8e84 100644
 --- filter/filter.h
 +++ filter/filter.h
 @@ -59,6 +59,7 @@
@@ -36,8 +36,8 @@ index e9df3db..768b7fc 100644
  class GURL;
  
  namespace net {
-@@ -234,6 +235,7 @@ class NET_EXPORT_PRIVATE Filter {
-   std::string OrderedFilterList() const;
+@@ -239,6 +240,7 @@ class NET_EXPORT_PRIVATE Filter {
+   FilterType type() const { return type_id_; }
  
   protected:
 +  friend class ::CefNetworkDelegate;
@@ -45,10 +45,10 @@ index e9df3db..768b7fc 100644
    friend class GZipUnitTest;
    friend class SdchFilterChainingTest;
 diff --git url_request/url_request_job.cc url_request/url_request_job.cc
-index e46d3f1..0c0430f 100644
+index cbefc9e..06a0123 100644
 --- url_request/url_request_job.cc
 +++ url_request/url_request_job.cc
-@@ -448,6 +448,9 @@ void URLRequestJob::NotifyHeadersComplete() {
+@@ -447,6 +447,9 @@ void URLRequestJob::NotifyHeadersComplete() {
    if (request_->status().is_success())
      filter_.reset(SetupFilter());
  

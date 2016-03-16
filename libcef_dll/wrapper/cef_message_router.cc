@@ -95,7 +95,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
       if (router_) {
         CefPostTask(TID_UI,
             base::Bind(&CefMessageRouterBrowserSideImpl::OnCallbackSuccess,
-                       router_, browser_id_, query_id_, response));
+                       router_.get(), browser_id_, query_id_, response));
 
         if (!persistent_) {
           // Non-persistent callbacks are only good for a single use.
@@ -117,7 +117,7 @@ class CefMessageRouterBrowserSideImpl : public CefMessageRouterBrowserSide {
       if (router_) {
         CefPostTask(TID_UI,
             base::Bind(&CefMessageRouterBrowserSideImpl::OnCallbackFailure,
-                       router_, browser_id_, query_id_, error_code,
+                       router_.get(), browser_id_, query_id_, error_code,
                        error_message));
 
         // Failure always invalidates the callback.

@@ -7,6 +7,14 @@
 
 #include <utility>
 
+#include "base/compiler_specific.h"
+
+// Enable deprecation warnings for MSVC. See http://crbug.com/585142.
+#if defined(OS_WIN)
+#pragma warning(push)
+#pragma warning(default:4996)
+#endif
+
 #include "libcef/browser/context.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
@@ -497,7 +505,7 @@ bool CefContentRendererClient::OverrideCreatePlugin(
 
   GURL url(params.url);
   CefViewHostMsg_GetPluginInfo_Output output;
-  blink::WebString top_origin = frame->top()->securityOrigin().toString();
+  blink::WebString top_origin = frame->top()->getSecurityOrigin().toString();
   render_frame->Send(new CefViewHostMsg_GetPluginInfo(
       render_frame->GetRoutingID(), url, blink::WebStringToGURL(top_origin),
       orig_mime_type, &output));
@@ -888,3 +896,9 @@ void CefContentRendererClient::RunSingleProcessCleanupOnUIThread() {
   if (!CefContext::Get()->settings().multi_threaded_message_loop)
     delete host;
 }
+
+
+// Enable deprecation warnings for MSVC. See http://crbug.com/585142.
+#if defined(OS_WIN)
+#pragma warning(pop)
+#endif

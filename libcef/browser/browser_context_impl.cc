@@ -449,8 +449,8 @@ net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
   url_request_getter_ = new CefURLRequestContextGetterImpl(
       settings_,
       GetPrefs(),
-      BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
-      BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
+      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
+      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::FILE),
       protocol_handlers,
       std::move(proxy_config_service),
       std::move(request_interceptors));

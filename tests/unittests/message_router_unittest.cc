@@ -6,9 +6,6 @@
 #include <set>
 #include <vector>
 
-// Include this first to avoid type conflicts with CEF headers.
-#include "tests/unittests/chromium_includes.h"
-
 #include "base/strings/stringprintf.h"
 
 #include "include/base/cef_bind.h"

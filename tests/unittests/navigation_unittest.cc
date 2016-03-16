@@ -5,9 +5,6 @@
 #include <algorithm>
 #include <list>
 
-// Include this first to avoid type conflicts with CEF headers.
-#include "tests/unittests/chromium_includes.h"
-
 #include "include/base/cef_bind.h"
 #include "include/cef_callback.h"
 #include "include/cef_scheme.h"
@@ -2049,6 +2046,7 @@ class PopupNavTestHandler : public TestHandler {
                      CefRefPtr<CefClient>& client,
                      CefBrowserSettings& settings,
                      bool* no_javascript_access) override {
+    EXPECT_FALSE(got_on_before_popup_);
     got_on_before_popup_.yes();
 
     EXPECT_TRUE(CefCurrentlyOn(TID_IO));
@@ -2066,15 +2064,35 @@ class PopupNavTestHandler : public TestHandler {
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
     TestHandler::OnAfterCreated(browser);
 
-    if (mode_ == NAVIGATE_AFTER_CREATION && browser->IsPopup())
+    if (mode_ == NAVIGATE_AFTER_CREATION && browser->IsPopup()) {
+      // Navigate to the 2nd popup URL instead of the 1st popup URL.
       browser->GetMainFrame()->LoadURL(kPopupNavPopupUrl2);
+    }
+  }
+
+  void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame) override {
+    const std::string& url = frame->GetURL();
+    if (url == kPopupNavPageUrl) {
+      EXPECT_FALSE(got_load_start_);
+      got_load_start_.yes();
+    } else if (url == kPopupNavPopupUrl) {
+      EXPECT_FALSE(got_popup_load_start_);
+      got_popup_load_start_.yes();
+    } else if (url == kPopupNavPopupUrl2) {
+      EXPECT_FALSE(got_popup_load_start2_);
+      got_popup_load_start2_.yes();
+    }
   }
 
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
-    std::string url = frame->GetURL();
+    const std::string& url = frame->GetURL();
     if (url == kPopupNavPageUrl) {
+      EXPECT_FALSE(got_load_end_);
+      got_load_end_.yes();
+
       frame->ExecuteJavaScript("doPopup()", kPopupNavPageUrl, 0);
 
       if (mode_ == DENY) {
@@ -2083,9 +2101,11 @@ class PopupNavTestHandler : public TestHandler {
             base::Bind(&PopupNavTestHandler::DestroyTest, this), 200);
       }
     } else if (url == kPopupNavPopupUrl) {
+      EXPECT_FALSE(got_popup_load_end_);
+      got_popup_load_end_.yes();
+
       if (mode_ != NAVIGATE_AFTER_CREATION) {
         if (mode_ != DENY) {
-          got_popup_load_end_.yes();
           browser->GetHost()->CloseBrowser(false);
           DestroyTest();
         } else {
@@ -2093,8 +2113,10 @@ class PopupNavTestHandler : public TestHandler {
         }
       }
     } else if (url == kPopupNavPopupUrl2) {
+      EXPECT_FALSE(got_popup_load_end2_);
+      got_popup_load_end2_.yes();
+
       if (mode_ == NAVIGATE_AFTER_CREATION) {
-        got_popup_load_end_.yes();
         browser->GetHost()->CloseBrowser(false);
         DestroyTest();
       } else {
@@ -2107,11 +2129,25 @@ class PopupNavTestHandler : public TestHandler {
 
  private:
   void DestroyTest() override {
+    EXPECT_TRUE(got_load_start_);
+    EXPECT_TRUE(got_load_end_);
     EXPECT_TRUE(got_on_before_popup_);
-    if (mode_ != DENY)
+    if (mode_ == ALLOW) {
+      EXPECT_TRUE(got_popup_load_start_);
       EXPECT_TRUE(got_popup_load_end_);
-    else
+      EXPECT_FALSE(got_popup_load_start2_);
+      EXPECT_FALSE(got_popup_load_end2_);
+    } else if (mode_ == DENY) {
+      EXPECT_FALSE(got_popup_load_start_);
       EXPECT_FALSE(got_popup_load_end_);
+      EXPECT_FALSE(got_popup_load_start2_);
+      EXPECT_FALSE(got_popup_load_end2_);
+    } else if (mode_ == NAVIGATE_AFTER_CREATION) {
+      EXPECT_FALSE(got_popup_load_start_);
+      EXPECT_FALSE(got_popup_load_end_);
+      EXPECT_TRUE(got_popup_load_start2_);
+      EXPECT_TRUE(got_popup_load_end2_);
+    }
 
     TestHandler::DestroyTest();
   }
@@ -2119,7 +2155,12 @@ class PopupNavTestHandler : public TestHandler {
   const Mode mode_;
 
   TrackCallback got_on_before_popup_;
+  TrackCallback got_load_start_;
+  TrackCallback got_load_end_;
+  TrackCallback got_popup_load_start_;
   TrackCallback got_popup_load_end_;
+  TrackCallback got_popup_load_start2_;
+  TrackCallback got_popup_load_end2_;
 
   IMPLEMENT_REFCOUNTING(PopupNavTestHandler);
 };

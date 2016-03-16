@@ -25,18 +25,13 @@ CefCookieStoreProxy::~CefCookieStoreProxy() {
   CEF_REQUIRE_IOT();
 }
 
-void CefCookieStoreProxy::Detach() {
-  CEF_REQUIRE_IOT();
-  parent_ = NULL;
-}
-
 void CefCookieStoreProxy::SetCookieWithOptionsAsync(
     const GURL& url,
     const std::string& cookie_line,
     const net::CookieOptions& options,
     const SetCookiesCallback& callback) {
-  scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
-  if (cookie_store.get()) {
+  net::CookieStore* cookie_store = GetCookieStore();
+  if (cookie_store) {
     cookie_store->SetCookieWithOptionsAsync(url, cookie_line, options,
                                             callback);
   }
@@ -48,36 +43,47 @@ void CefCookieStoreProxy::SetCookieWithDetailsAsync(
     const std::string& value,
     const std::string& domain,
     const std::string& path,
-    const base::Time creation_time,
-    const base::Time expiration_time,
+    base::Time creation_time,
+    base::Time expiration_time,
+    base::Time last_access_time,
     bool secure,
     bool http_only,
-    bool same_site,
+    net::CookieSameSite same_site,
     bool enforce_strict_secure,
     net::CookiePriority priority,
     const SetCookiesCallback& callback) {
-  scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
-  if (cookie_store.get()) {
+  net::CookieStore* cookie_store = GetCookieStore();
+  if (cookie_store) {
     cookie_store->SetCookieWithDetailsAsync(url, name, value, domain, path,
                                             creation_time, expiration_time,
-                                            secure, http_only, same_site,
-                                            enforce_strict_secure, priority,
-                                            callback);
+                                            last_access_time, secure, http_only,
+                                            same_site, enforce_strict_secure,
+                                            priority, callback);
   }
 }
 
 void CefCookieStoreProxy::GetCookiesWithOptionsAsync(
-    const GURL& url, const net::CookieOptions& options,
+    const GURL& url,
+    const net::CookieOptions& options,
     const GetCookiesCallback& callback) {
-  scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
-  if (cookie_store.get())
+  net::CookieStore* cookie_store = GetCookieStore();
+  if (cookie_store)
     cookie_store->GetCookiesWithOptionsAsync(url, options, callback);
+}
+
+void CefCookieStoreProxy::GetCookieListWithOptionsAsync(
+    const GURL& url,
+    const net::CookieOptions& options,
+    const GetCookieListCallback& callback) {
+  net::CookieStore* cookie_store = GetCookieStore();
+  if (cookie_store)
+    cookie_store->GetCookieListWithOptionsAsync(url, options, callback);
 }
 
 void CefCookieStoreProxy::GetAllCookiesAsync(
     const GetCookieListCallback& callback) {
-  scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
-  if (cookie_store.get())
+  net::CookieStore* cookie_store = GetCookieStore();
+  if (cookie_store)
     cookie_store->GetAllCookiesAsync(callback);
 }
 
@@ -85,25 +91,25 @@ void CefCookieStoreProxy::DeleteCookieAsync(
     const GURL& url,
     const std::string& cookie_name,
     const base::Closure& callback) {
-  scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
-  if (cookie_store.get())
+  net::CookieStore* cookie_store = GetCookieStore();
+  if (cookie_store)
     cookie_store->DeleteCookieAsync(url, cookie_name, callback);
 }
 
-void CefCookieStoreProxy::GetAllCookiesForURLAsync(
-    const GURL& url,
-    const GetCookieListCallback& callback) {
-  scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
-  if (cookie_store.get())
-    cookie_store->GetAllCookiesForURLAsync(url, callback);
+void CefCookieStoreProxy::DeleteCanonicalCookieAsync(
+    const net::CanonicalCookie& cookie,
+    const DeleteCallback& callback) {
+  net::CookieStore* cookie_store = GetCookieStore();
+  if (cookie_store)
+    cookie_store->DeleteCanonicalCookieAsync(cookie, callback);
 }
 
 void CefCookieStoreProxy::DeleteAllCreatedBetweenAsync(
     const base::Time& delete_begin,
     const base::Time& delete_end,
     const DeleteCallback& callback) {
-  scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
-  if (cookie_store.get()) {
+  net::CookieStore* cookie_store = GetCookieStore();
+  if (cookie_store) {
     cookie_store->DeleteAllCreatedBetweenAsync(delete_begin, delete_end,
                                                callback);
   }
@@ -114,8 +120,8 @@ void CefCookieStoreProxy::DeleteAllCreatedBetweenForHostAsync(
     const base::Time delete_end,
     const GURL& url,
     const DeleteCallback& callback) {
-  scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
-  if (cookie_store.get()) {
+  net::CookieStore* cookie_store = GetCookieStore();
+  if (cookie_store) {
     cookie_store->DeleteAllCreatedBetweenForHostAsync(delete_begin, delete_end,
                                                       url, callback);
   }
@@ -123,22 +129,15 @@ void CefCookieStoreProxy::DeleteAllCreatedBetweenForHostAsync(
 
 void CefCookieStoreProxy::DeleteSessionCookiesAsync(
     const DeleteCallback& callback) {
-  scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
-  if (cookie_store.get())
+  net::CookieStore* cookie_store = GetCookieStore();
+  if (cookie_store)
     cookie_store->DeleteSessionCookiesAsync(callback);
 }
 
 void CefCookieStoreProxy::FlushStore(const base::Closure& callback) {
-  scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
-  if (cookie_store.get())
+  net::CookieStore* cookie_store = GetCookieStore();
+  if (cookie_store)
     cookie_store->FlushStore(callback);
-}
-
-net::CookieMonster* CefCookieStoreProxy::GetCookieMonster() {
-  scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
-  if (cookie_store.get())
-    return cookie_store->GetCookieMonster();
-  return NULL;
 }
 
 scoped_ptr<net::CookieStore::CookieChangedSubscription>
@@ -146,32 +145,41 @@ CefCookieStoreProxy::AddCallbackForCookie(
     const GURL& url,
     const std::string& name,
     const CookieChangedCallback& callback) {
-  scoped_refptr<net::CookieStore> cookie_store = GetCookieStore();
-  if (cookie_store.get())
+  net::CookieStore* cookie_store = GetCookieStore();
+  if (cookie_store)
     return cookie_store->AddCallbackForCookie(url, name, callback);
   return NULL;
+}
+
+bool CefCookieStoreProxy::IsEphemeral() {
+  net::CookieStore* cookie_store = GetCookieStore();
+  if (cookie_store)
+    return cookie_store->IsEphemeral();
+  return true;
 }
 
 net::CookieStore* CefCookieStoreProxy::GetCookieStore() {
   CEF_REQUIRE_IOT();
 
-  scoped_refptr<net::CookieStore> cookie_store;
+  net::CookieStore* cookie_store = nullptr;
 
   CefRefPtr<CefCookieManager> manager = handler_->GetCookieManager();
   if (manager.get()) {
     // Use the cookie store provided by the manager.
     cookie_store = reinterpret_cast<CefCookieManagerImpl*>(manager.get())->
-        GetExistingCookieMonster();
-    DCHECK(cookie_store.get());
-    return cookie_store.get();
+        GetExistingCookieStore();
+    DCHECK(cookie_store);
+    return cookie_store;
   }
 
   DCHECK(parent_);
   if (parent_) {
     // Use the cookie store from the parent.
     cookie_store = parent_->cookie_store();
-    DCHECK(cookie_store.get());
+    DCHECK(cookie_store);
+    if (!cookie_store)
+      LOG(ERROR) << "Cookie store does not exist";
   }
 
-  return cookie_store.get();
+  return cookie_store;
 }

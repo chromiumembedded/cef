@@ -11,6 +11,7 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/thread_util.h"
 
+#include "base/threading/worker_pool.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/common/file_chooser_file_info.h"
 #include "net/base/directory_lister.h"
@@ -364,7 +365,7 @@ void CefFileDialogManager::OnRunFileChooserUploadFolderDelegateCallback(
         new UploadFolderHelper(
             base::Bind(&CefFileDialogManager::OnRunFileChooserDelegateCallback,
                        weak_ptr_factory_.GetWeakPtr(), mode))));
-    lister_->Start();
+    lister_->Start(base::WorkerPool::GetTaskRunner(true).get());
   }
 }
 

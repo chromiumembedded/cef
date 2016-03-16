@@ -2,9 +2,6 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-// Include this first to avoid type conflicts with CEF headers.
-#include "tests/unittests/chromium_includes.h"
-
 #include "include/base/cef_bind.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -145,7 +142,10 @@ class JSDialogTestHandler : public TestHandler {
     got_onbeforeunloaddialog_.yes();
 
     if (type_ == TYPE_ONBEFOREUNLOAD) {
-      EXPECT_STREQ("My unload message", message_text.ToString().c_str());
+      // The message is no longer configurable via JavaScript.
+      // See http://crbug.com/587940.
+      EXPECT_STREQ("Is it OK to leave/reload this page?",
+                   message_text.ToString().c_str());
       EXPECT_FALSE(is_reload);
     }
 

@@ -52,10 +52,9 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   IconManager* icon_manager() override;
   GLStringManager* gl_string_manager() override;
   GpuModeManager* gpu_mode_manager() override;
-  void CreateDevToolsHttpProtocolHandler(
-      chrome::HostDesktopType host_desktop_type,
-      const std::string& ip,
-      uint16_t port) override;
+  void CreateDevToolsHttpProtocolHandler(const std::string& ip,
+                                         uint16_t port) override;
+  void CreateDevToolsAutoOpener() override;
   unsigned int AddRefModule() override;
   unsigned int ReleaseModule() override;
   bool IsShuttingDown() override;
@@ -97,7 +96,7 @@ class ChromeBrowserProcessStub : public BrowserProcess {
 #endif
   network_time::NetworkTimeTracker* network_time_tracker() override;
   gcm::GCMDriver* gcm_driver() override;
-  ShellIntegration::DefaultWebClientState
+  shell_integration::DefaultWebClientState
       CachedDefaultWebClientState() override;
   memory::TabManager* GetTabManager() override;
 

@@ -540,7 +540,7 @@ void CefRequestImpl::Set(const blink::WebURLRequest& request) {
 
   first_party_for_cookies_ = request.firstPartyForCookies().string();
 
-  if (request.cachePolicy() == blink::WebURLRequest::ReloadIgnoringCacheData)
+  if (request.getCachePolicy() == blink::WebURLRequest::ReloadIgnoringCacheData)
     flags_ |= UR_FLAG_SKIP_CACHE;
   if (request.allowStoredCredentials())
     flags_ |= UR_FLAG_ALLOW_CACHED_CREDENTIALS;

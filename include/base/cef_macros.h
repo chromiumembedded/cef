@@ -32,10 +32,14 @@
 #define CEF_INCLUDE_BASE_CEF_MACROS_H_
 #pragma once
 
-#if defined(BUILDING_CEF_SHARED)
+#if defined(USING_CHROMIUM_INCLUDES)
 // When building CEF include the Chromium header directly.
 #include "base/macros.h"
-#else  // !BUILDING_CEF_SHARED
+
+// Chromium uses movable types.
+#define MOVE_SCOPED_PTR(var) std::move(var)
+
+#else  // !USING_CHROMIUM_INCLUDES
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.
@@ -43,40 +47,8 @@
 #include <stddef.h>  // For size_t.
 #include "include/base/cef_build.h"  // For COMPILER_MSVC
 
-#if !defined(ALLOW_THIS_IN_INITIALIZER_LIST)
-#if defined(COMPILER_MSVC)
-
-// MSVC_PUSH_DISABLE_WARNING pushes |n| onto a stack of warnings to be disabled.
-// The warning remains disabled until popped by MSVC_POP_WARNING.
-#define MSVC_PUSH_DISABLE_WARNING(n) __pragma(warning(push)) \
-                                     __pragma(warning(disable:n))
-
-// MSVC_PUSH_WARNING_LEVEL pushes |n| as the global warning level.  The level
-// remains in effect until popped by MSVC_POP_WARNING().  Use 0 to disable all
-// warnings.
-#define MSVC_PUSH_WARNING_LEVEL(n) __pragma(warning(push, n))
-
-// Pop effects of innermost MSVC_PUSH_* macro.
-#define MSVC_POP_WARNING() __pragma(warning(pop))
-
-// Allows |this| to be passed as an argument in constructor initializer lists.
-// This uses push/pop instead of the seemingly simpler suppress feature to avoid
-// having the warning be disabled for more than just |code|.
-//
-// Example usage:
-// Foo::Foo() : x(NULL), ALLOW_THIS_IN_INITIALIZER_LIST(y(this)), z(3) {}
-//
-// Compiler warning C4355: 'this': used in base member initializer list:
-// http://msdn.microsoft.com/en-us/library/3c594ae3(VS.80).aspx
-#define ALLOW_THIS_IN_INITIALIZER_LIST(code) MSVC_PUSH_DISABLE_WARNING(4355) \
-                                             code \
-                                             MSVC_POP_WARNING()
-#else  // !COMPILER_MSVC
-
-#define ALLOW_THIS_IN_INITIALIZER_LIST(code) code
-
-#endif  // !COMPILER_MSVC
-#endif  // !ALLOW_THIS_IN_INITIALIZER_LIST
+// CEF does not use movable types.
+#define MOVE_SCOPED_PTR(var) var.Pass()
 
 #if !defined(arraysize)
 
@@ -214,6 +186,41 @@ struct CompileAssert {
 
 #endif  // !defined(COMPILE_ASSERT)
 
-#endif  // !BUILDING_CEF_SHARED
+#endif  // !USING_CHROMIUM_INCLUDES
+
+#if !defined(ALLOW_THIS_IN_INITIALIZER_LIST)
+#if defined(COMPILER_MSVC)
+
+// MSVC_PUSH_DISABLE_WARNING pushes |n| onto a stack of warnings to be disabled.
+// The warning remains disabled until popped by MSVC_POP_WARNING.
+#define MSVC_PUSH_DISABLE_WARNING(n) __pragma(warning(push)) \
+                                     __pragma(warning(disable:n))
+
+// MSVC_PUSH_WARNING_LEVEL pushes |n| as the global warning level.  The level
+// remains in effect until popped by MSVC_POP_WARNING().  Use 0 to disable all
+// warnings.
+#define MSVC_PUSH_WARNING_LEVEL(n) __pragma(warning(push, n))
+
+// Pop effects of innermost MSVC_PUSH_* macro.
+#define MSVC_POP_WARNING() __pragma(warning(pop))
+
+// Allows |this| to be passed as an argument in constructor initializer lists.
+// This uses push/pop instead of the seemingly simpler suppress feature to avoid
+// having the warning be disabled for more than just |code|.
+//
+// Example usage:
+// Foo::Foo() : x(NULL), ALLOW_THIS_IN_INITIALIZER_LIST(y(this)), z(3) {}
+//
+// Compiler warning C4355: 'this': used in base member initializer list:
+// http://msdn.microsoft.com/en-us/library/3c594ae3(VS.80).aspx
+#define ALLOW_THIS_IN_INITIALIZER_LIST(code) MSVC_PUSH_DISABLE_WARNING(4355) \
+                                             code \
+                                             MSVC_POP_WARNING()
+#else  // !COMPILER_MSVC
+
+#define ALLOW_THIS_IN_INITIALIZER_LIST(code) code
+
+#endif  // !COMPILER_MSVC
+#endif  // !ALLOW_THIS_IN_INITIALIZER_LIST
 
 #endif  // CEF_INCLUDE_BASE_CEF_MACROS_H_

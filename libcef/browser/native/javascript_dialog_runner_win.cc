@@ -52,7 +52,7 @@ INT_PTR CALLBACK CefJavaScriptDialogRunnerWin::DialogProc(
               GetWindowLongPtr(dialog, DWLP_USER));
       base::string16 user_input;
       bool finish = false;
-      bool result;
+      bool result = false;
       switch (LOWORD(wparam)) {
         case IDOK:
           finish = true;

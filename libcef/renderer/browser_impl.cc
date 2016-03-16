@@ -33,6 +33,7 @@
 #include "third_party/WebKit/public/web/WebDataSource.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebFrameContentDumper.h"
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebNode.h"
 #include "third_party/WebKit/public/web/WebScriptSource.h"
@@ -595,8 +596,11 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
         DCHECK(!command.empty());
 
         if (base::LowerCaseEqualsASCII(command, "getsource")) {
-          response = web_frame->contentAsMarkup().utf8();
-          success = true;
+          if (web_frame->isWebLocalFrame()) {
+            response = blink::WebFrameContentDumper::dumpAsMarkup(
+                web_frame->toWebLocalFrame()).utf8();
+            success = true;
+          }
         } else if (base::LowerCaseEqualsASCII(command, "gettext")) {
           response = webkit_glue::DumpDocumentText(web_frame);
           success = true;

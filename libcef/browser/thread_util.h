@@ -46,4 +46,31 @@
     content::BrowserThread::PostDelayedTask(id, FROM_HERE, task, \
         base::TimeDelta::FromMilliseconds(delay_ms))
 
+// Same as IMPLEMENT_REFCOUNTING() but using the specified Destructor.
+#define IMPLEMENT_REFCOUNTING_EX(ClassName, Destructor) \
+  public:                                               \
+    void AddRef() const OVERRIDE {                      \
+      ref_count_.AddRef();                              \
+    }                                                   \
+    bool Release() const OVERRIDE {                     \
+      if (ref_count_.Release()) {                       \
+        Destructor::Destruct(this);                     \
+        return true;                                    \
+      }                                                 \
+      return false;                                     \
+    }                                                   \
+    bool HasOneRef() const OVERRIDE {                   \
+      return ref_count_.HasOneRef();                    \
+    }                                                   \
+  private:                                              \
+    CefRefCount ref_count_;
+
+#define IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(ClassName)                \
+    IMPLEMENT_REFCOUNTING_EX(ClassName,                               \
+                             content::BrowserThread::DeleteOnUIThread)
+
+#define IMPLEMENT_REFCOUNTING_DELETE_ON_IOT(ClassName)                \
+    IMPLEMENT_REFCOUNTING_EX(ClassName,                               \
+                             content::BrowserThread::DeleteOnIOThread)
+
 #endif  // CEF_LIBCEF_BROWSER_THREAD_UTIL_H_

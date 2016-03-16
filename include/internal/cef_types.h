@@ -2119,7 +2119,7 @@ typedef enum {
   // addition to their special meaning. Things like escaped letters, digits,
   // and most symbols will get unescaped with this mode.
   ///
-  UU_NORMAL = 1,
+  UU_NORMAL = 1 << 0,
 
   ///
   // Convert %20 to spaces. In some places where we're showing URLs, we may
@@ -2127,31 +2127,42 @@ typedef enum {
   // you wouldn't want this since it might not be interpreted in one piece
   // by other applications.
   ///
-  UU_SPACES = 2,
+  UU_SPACES = 1 << 1,
+
+  ///
+  // Unescapes '/' and '\\'. If these characters were unescaped, the resulting
+  // URL won't be the same as the source one. Moreover, they are dangerous to
+  // unescape in strings that will be used as file paths or names. This value
+  // should only be used when slashes don't have special meaning, like data
+  // URLs.
+  ///
+  UU_PATH_SEPARATORS = 1 << 2,
 
   ///
   // Unescapes various characters that will change the meaning of URLs,
-  // including '%', '+', '&', '/', '#'. If we unescaped these characters, the
-  // resulting URL won't be the same as the source one. This flag is used when
-  // generating final output like filenames for URLs where we won't be
-  // interpreting as a URL and want to do as much unescaping as possible.
+  // including '%', '+', '&', '#'. Does not unescape path separators.
+  // If these characters were unescaped, the resulting URL won't be the same
+  // as the source one. This flag is used when generating final output like
+  // filenames for URLs where we won't be interpreting as a URL and want to do
+  // as much unescaping as possible.
   ///
-  UU_URL_SPECIAL_CHARS = 4,
+  UU_URL_SPECIAL_CHARS_EXCEPT_PATH_SEPARATORS = 1 << 3,
 
   ///
-  // Unescapes control characters such as %01. This INCLUDES NULLs. This is
-  // used for rare cases such as data: URL decoding where the result is binary
-  // data. This flag also unescapes BiDi control characters.
+  // Unescapes characters that can be used in spoofing attempts (such as LOCK)
+  // and control characters (such as BiDi control characters and %01).  This
+  // INCLUDES NULLs.  This is used for rare cases such as data: URL decoding
+  // where the result is binary data.
   //
-  // DO NOT use CONTROL_CHARS if the URL is going to be displayed in the UI
-  // for security reasons.
+  // DO NOT use UU_SPOOFING_AND_CONTROL_CHARS if the URL is going to be
+  // displayed in the UI for security reasons.
   ///
-  UU_CONTROL_CHARS = 8,
+  UU_SPOOFING_AND_CONTROL_CHARS = 1 << 4,
 
   ///
   // URL queries use "+" for space. This flag controls that replacement.
   ///
-  UU_REPLACE_PLUS_WITH_SPACE = 16,
+  UU_REPLACE_PLUS_WITH_SPACE = 1 << 5,
 } cef_uri_unescape_rule_t;
 
 ///

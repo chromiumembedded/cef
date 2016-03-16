@@ -149,10 +149,10 @@
 #define DCHECK_IS_ON() 1
 #endif
 
-#elif defined(BUILDING_CEF_SHARED)
+#elif defined(USING_CHROMIUM_INCLUDES)
 // When building CEF include the Chromium header directly.
 #include "base/logging.h"
-#else  // !BUILDING_CEF_SHARED
+#else  // !USING_CHROMIUM_INCLUDES
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.
@@ -747,6 +747,6 @@ inline std::ostream& operator<<(std::ostream& out, const std::wstring& wstr) {
 EAT_STREAM_PARAMETERS
 #endif
 
-#endif  // !BUILDING_CEF_SHARED
+#endif  // !USING_CHROMIUM_INCLUDES
 
 #endif  // CEF_INCLUDE_BASE_CEF_LOGGING_H_

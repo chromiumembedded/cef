@@ -77,7 +77,6 @@ void CefPermissionContext::RequestPermission(
     content::WebContents* web_contents,
     const PermissionRequestID& id,
     const GURL& requesting_frame,
-    bool user_gesture,
     const BrowserPermissionCallback& callback) {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
 
@@ -86,7 +85,6 @@ void CefPermissionContext::RequestPermission(
                    id,
                    requesting_frame.GetOrigin(),
                    web_contents->GetLastCommittedURL().GetOrigin(),
-                   user_gesture,
                    callback);
 }
 
@@ -144,7 +142,6 @@ void CefPermissionContext::DecidePermission(
     const PermissionRequestID& id,
     const GURL& requesting_origin,
     const GURL& embedding_origin,
-    bool user_gesture,
     const BrowserPermissionCallback& callback) {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
 

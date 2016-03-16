@@ -46,8 +46,8 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
   CefURLRequestContextGetterImpl(
       const CefRequestContextSettings& settings,
       PrefService* pref_service,
-      base::MessageLoop* io_loop,
-      base::MessageLoop* file_loop,
+      scoped_refptr<base::SingleThreadTaskRunner> io_task_runner,
+      scoped_refptr<base::SingleThreadTaskRunner> file_task_runner,
       content::ProtocolHandlerMap* protocol_handlers,
       scoped_ptr<net::ProxyConfigService> proxy_config_service,
       content::URLRequestInterceptorScopedVector request_interceptors);
@@ -69,7 +69,9 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
   // kept alive until the context is destroyed.
   void AddHandler(CefRefPtr<CefRequestContextHandler> handler);
 
-  net::CookieMonster* GetCookieMonster() const;
+  // Returns the existing cookie store object. Logs an error if the cookie
+  // store does not yet exist. Must be called on the IO thread.
+  net::CookieStore* GetExistingCookieStore() const;
 
   CefURLRequestManager* request_manager() const {
     return url_request_manager_.get();
@@ -80,8 +82,8 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
 
   const CefRequestContextSettings settings_;
 
-  base::MessageLoop* io_loop_;
-  base::MessageLoop* file_loop_;
+  scoped_refptr<base::SingleThreadTaskRunner> io_task_runner_;
+  scoped_refptr<base::SingleThreadTaskRunner> file_task_runner_;
 
 #if defined(OS_POSIX) && !defined(OS_ANDROID)
   std::string gsapi_library_name_;

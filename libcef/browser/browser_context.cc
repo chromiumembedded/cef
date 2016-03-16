@@ -36,6 +36,8 @@ CefBrowserContext::~CefBrowserContext() {
 }
 
 void CefBrowserContext::Initialize() {
+  content::BrowserContext::Initialize(this, GetPath());
+
   const bool extensions_enabled = extensions::ExtensionsEnabled();
   if (extensions_enabled) {
     // Create the custom ExtensionSystem first because other KeyedServices

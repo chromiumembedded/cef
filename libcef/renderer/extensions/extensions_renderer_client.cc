@@ -82,7 +82,8 @@ bool CrossesExtensionExtents(blink::WebLocalFrame* frame,
     // in an extension process (other than the Chrome Web Store), we want to
     // keep it in process to allow the opener to script it.
     blink::WebDocument opener_document = opener_frame->document();
-    blink::WebSecurityOrigin opener_origin = opener_document.securityOrigin();
+    blink::WebSecurityOrigin opener_origin =
+        opener_document.getSecurityOrigin();
     bool opener_is_extension_url = !opener_origin.isUnique() &&
                                    extension_registry->GetExtensionOrAppByURL(
                                        opener_document.url()) != nullptr;

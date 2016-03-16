@@ -20,8 +20,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "bindings/core/v8/ScriptController.h"
 #include "bindings/core/v8/V8Binding.h"
 MSVC_POP_WARNING();
-#undef FROM_HERE
-#undef LOG
 
 // Enable deprecation warnings for MSVC. See http://crbug.com/585142.
 #if defined(OS_WIN)
@@ -945,11 +943,8 @@ bool CefV8Context::InContext() {
 
 CefV8ContextImpl::CefV8ContextImpl(v8::Isolate* isolate,
                                    v8::Local<v8::Context> context)
-  : handle_(new Handle(isolate, context, context))
-#ifndef NDEBUG
-    , enter_count_(0)
-#endif
-{  // NOLINT(whitespace/braces)
+  : handle_(new Handle(isolate, context, context)),
+    enter_count_(0) {
 }
 
 CefV8ContextImpl::~CefV8ContextImpl() {
@@ -1019,11 +1014,15 @@ bool CefV8ContextImpl::Enter() {
   v8::Isolate* isolate = handle_->isolate();
   v8::HandleScope handle_scope(isolate);
 
-  blink::V8PerIsolateData::from(isolate)->incrementRecursionLevel();
-  handle_->GetNewV8Handle()->Enter();
-#ifndef NDEBUG
+  if (!microtasks_scope_) {
+    // Increment the MicrotasksScope recursion level.
+    microtasks_scope_.reset(
+        new v8::MicrotasksScope(isolate, v8::MicrotasksScope::kRunMicrotasks));
+  }
+
   ++enter_count_;
-#endif
+  handle_->GetNewV8Handle()->Enter();
+
   return true;
 }
 
@@ -1033,15 +1032,21 @@ bool CefV8ContextImpl::Exit() {
   if (blink::ScriptForbiddenScope::isScriptForbidden())
     return false;
 
-  v8::Isolate* isolate = handle_->isolate();
+  if (enter_count_ <= 0) {
+    LOG(ERROR) << "Call to CefV8Context::Exit() without matching call to "
+                  "CefV8Context::Enter()";
+    return false;
+  }
+
   v8::HandleScope handle_scope(handle_->isolate());
 
-  DLOG_ASSERT(enter_count_ > 0);
   handle_->GetNewV8Handle()->Exit();
-  blink::V8PerIsolateData::from(isolate)->decrementRecursionLevel();
-#ifndef NDEBUG
-  --enter_count_;
-#endif
+
+  if (--enter_count_ == 0) {
+    // Decrement the MicrotasksScope recursion level.
+    microtasks_scope_.reset(nullptr);
+  }
+
   return true;
 }
 

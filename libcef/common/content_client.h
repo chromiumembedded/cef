@@ -35,6 +35,7 @@ class CefContentClient : public content::ContentClient,
       std::vector<content::PepperPluginInfo>* plugins) override;
   void AddAdditionalSchemes(
       std::vector<url::SchemeWithType>* standard_schemes,
+      std::vector<url::SchemeWithType>* referrer_schemes,
       std::vector<std::string>* savable_schemes) override;
   std::string GetUserAgent() const override;
   base::string16 GetLocalizedString(int message_id) const override;
@@ -101,8 +102,6 @@ class CefContentClient : public content::ContentClient,
                           base::StringPiece* value) override;
   bool GetLocalizedString(int message_id,
                           base::string16* value) override;
-  scoped_ptr<gfx::Font> GetFont(
-      ui::ResourceBundle::FontStyle style) override;
 
   CefRefPtr<CefApp> application_;
   bool pack_loading_disabled_;

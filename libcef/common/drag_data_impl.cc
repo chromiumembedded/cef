@@ -8,7 +8,6 @@
 #include "libcef/common/drag_data_impl.h"
 #include "base/files/file_path.h"
 #include "net/base/filename_util.h"
-#include "net/base/net_util.h"
 
 #define CHECK_READONLY_RETURN_VOID() \
   if (read_only_) { \

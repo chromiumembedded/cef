@@ -104,14 +104,14 @@ class CefHttpUserAgentSettings : public net::HttpUserAgentSettings {
 CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
     const CefRequestContextSettings& settings,
     PrefService* pref_service,
-    base::MessageLoop* io_loop,
-    base::MessageLoop* file_loop,
+    scoped_refptr<base::SingleThreadTaskRunner> io_task_runner,
+    scoped_refptr<base::SingleThreadTaskRunner> file_task_runner,
     content::ProtocolHandlerMap* protocol_handlers,
     scoped_ptr<net::ProxyConfigService> proxy_config_service,
     content::URLRequestInterceptorScopedVector request_interceptors)
     : settings_(settings),
-      io_loop_(io_loop),
-      file_loop_(file_loop),
+      io_task_runner_(std::move(io_task_runner)),
+      file_task_runner_(std::move(file_task_runner)),
       proxy_config_service_(std::move(proxy_config_service)),
       request_interceptors_(std::move(request_interceptors)) {
   // Must first be created on the UI thread.
@@ -334,9 +334,8 @@ void CefURLRequestContextGetterImpl::SetCookieStoragePath(
   // Set the new cookie store that will be used for all new requests. The old
   // cookie store, if any, will be automatically flushed and closed when no
   // longer referenced.
-  scoped_refptr<net::CookieMonster> cookie_monster =
-      new net::CookieMonster(persistent_store.get(), NULL);
-  storage_->set_cookie_store(cookie_monster.get());
+  scoped_ptr<net::CookieMonster> cookie_monster(
+      new net::CookieMonster(persistent_store.get(), NULL));
   if (persistent_store.get() && persist_session_cookies)
       cookie_monster->SetPersistSessionCookies(true);
   cookie_store_path_ = path;
@@ -344,6 +343,8 @@ void CefURLRequestContextGetterImpl::SetCookieStoragePath(
   // Restore the previously supported schemes.
   CefCookieManagerImpl::SetCookieMonsterSchemes(cookie_monster.get(),
                                                 cookie_supported_schemes_);
+
+  storage_->set_cookie_store(std::move(cookie_monster));
 }
 
 void CefURLRequestContextGetterImpl::SetCookieSupportedSchemes(
@@ -351,8 +352,9 @@ void CefURLRequestContextGetterImpl::SetCookieSupportedSchemes(
   CEF_REQUIRE_IOT();
 
   cookie_supported_schemes_ = schemes;
-  CefCookieManagerImpl::SetCookieMonsterSchemes(GetCookieMonster(),
-                                                cookie_supported_schemes_);
+  CefCookieManagerImpl::SetCookieMonsterSchemes(
+      static_cast<net::CookieMonster*>(GetExistingCookieStore()),
+      cookie_supported_schemes_);
 }
 
 void CefURLRequestContextGetterImpl::AddHandler(
@@ -365,9 +367,14 @@ void CefURLRequestContextGetterImpl::AddHandler(
   handler_list_.push_back(handler);
 }
 
-net::CookieMonster* CefURLRequestContextGetterImpl::GetCookieMonster() const {
+net::CookieStore*
+    CefURLRequestContextGetterImpl::GetExistingCookieStore() const {
   CEF_REQUIRE_IOT();
-  return url_request_context_->cookie_store()->GetCookieMonster();
+  if (url_request_context_ && url_request_context_->cookie_store())
+    return url_request_context_->cookie_store();
+
+  LOG(ERROR) << "Cookie store does not exist";
+  return nullptr;
 }
 
 void CefURLRequestContextGetterImpl::CreateProxyConfigService() {
@@ -376,5 +383,5 @@ void CefURLRequestContextGetterImpl::CreateProxyConfigService() {
 
   proxy_config_service_ =
       net::ProxyService::CreateSystemProxyConfigService(
-          io_loop_->task_runner(), file_loop_->task_runner());
+          io_task_runner_, file_task_runner_);
 }

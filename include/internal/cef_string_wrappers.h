@@ -37,7 +37,7 @@
 #include "include/base/cef_string16.h"
 #include "include/internal/cef_string_types.h"
 
-#if defined(BUILDING_CEF_SHARED)
+#if defined(USING_CHROMIUM_INCLUDES)
 #include "base/files/file_path.h"
 #endif
 
@@ -696,7 +696,7 @@ class CefStringBase {
     return *this;
   }
 #endif  // WCHAR_T_IS_UTF32
-#if defined(BUILDING_CEF_SHARED)
+#if defined(USING_CHROMIUM_INCLUDES)
   // The base::FilePath constructor is marked as explicit so provide the
   // conversion here for convenience.
   operator base::FilePath() const {
@@ -706,7 +706,7 @@ class CefStringBase {
     return base::FilePath(ToString());
 #endif
   }
-#endif  // BUILDING_CEF_SHARED
+#endif  // USING_CHROMIUM_INCLUDES
 
  private:
   // Allocate the string structure if it doesn't already exist.

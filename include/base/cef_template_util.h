@@ -37,10 +37,10 @@
 // This can happen in cases where Chromium code is used directly by the
 // client application. When using Chromium code directly always include
 // the Chromium header first to avoid type conflicts.
-#elif defined(BUILDING_CEF_SHARED)
+#elif defined(USING_CHROMIUM_INCLUDES)
 // When building CEF include the Chromium header directly.
 #include "base/template_util.h"
-#else  // !BUILDING_CEF_SHARED
+#else  // !USING_CHROMIUM_INCLUDES
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be
 // updated to match.
@@ -187,6 +187,6 @@ struct enable_if<true, T> { typedef T type; };
 
 }  // namespace base
 
-#endif  // !BUILDING_CEF_SHARED
+#endif  // !USING_CHROMIUM_INCLUDES
 
 #endif  // CEF_INCLUDE_BASE_CEF_TEMPLATE_UTIL_H_

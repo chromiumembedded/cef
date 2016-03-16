@@ -37,7 +37,6 @@ class CefPermissionContext {
                          content::WebContents* web_contents,
                          const PermissionRequestID& id,
                          const GURL& requesting_frame,
-                         bool user_gesture,
                          const BrowserPermissionCallback& callback);
 
   // Withdraw an existing permission request, no op if the permission request
@@ -65,7 +64,6 @@ class CefPermissionContext {
                         const PermissionRequestID& id,
                         const GURL& requesting_origin,
                         const GURL& embedding_origin,
-                        bool user_gesture,
                         const BrowserPermissionCallback& callback);
 
   void QueryPermission(content::PermissionType permission,

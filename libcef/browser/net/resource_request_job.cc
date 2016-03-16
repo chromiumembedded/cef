@@ -383,19 +383,13 @@ void CefResourceRequestJob::AddCookieHeaderAndStart() {
   if (!request_)
     return;
 
-  net::CookieStore* cookie_store =
-      request_->context()->cookie_store();
+  net::CookieStore* cookie_store = request_->context()->cookie_store();
   if (cookie_store &&
       !(request_->load_flags() & net::LOAD_DO_NOT_SEND_COOKIES)) {
-    net::CookieMonster* cookie_monster = cookie_store->GetCookieMonster();
-    if (cookie_monster) {
-      cookie_monster->GetAllCookiesForURLAsync(
-          request_->url(),
-          base::Bind(&CefResourceRequestJob::CheckCookiePolicyAndLoad,
-                      weak_factory_.GetWeakPtr()));
-    } else {
-      DoLoadCookies();
-    }
+    cookie_store->GetAllCookiesForURLAsync(
+        request_->url(),
+        base::Bind(&CefResourceRequestJob::CheckCookiePolicyAndLoad,
+                    weak_factory_.GetWeakPtr()));
   } else {
     DoStartTransaction();
   }

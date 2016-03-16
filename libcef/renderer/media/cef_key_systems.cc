@@ -119,7 +119,7 @@ static void AddPepperBasedWidevine(
   }
 
   cdm::AddWidevineWithCodecs(
-      cdm::WIDEVINE, supported_codecs,
+      supported_codecs,
       media::EmeRobustness::SW_SECURE_CRYPTO,       // Maximum audio robustness.
       media::EmeRobustness::SW_SECURE_DECODE,       // Maximum video robustness.
       media::EmeSessionTypeSupport::NOT_SUPPORTED,  // persistent-license.

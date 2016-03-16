@@ -4,9 +4,6 @@
 
 #include <list>
 
-// Include this first to avoid type conflicts with CEF headers.
-#include "tests/unittests/chromium_includes.h"
-
 #include "libcef_dll/wrapper/cef_browser_info_map.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

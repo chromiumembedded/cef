@@ -83,7 +83,7 @@ std::string DumpDocumentText(blink::WebFrame* frame) {
 
 cef_dom_node_type_t GetNodeType(const blink::WebNode& node) {
   const blink::Node* web_node = node.constUnwrap<blink::Node>();
-  switch (web_node->nodeType()) {
+  switch (web_node->getNodeType()) {
     case blink::Node::ELEMENT_NODE:
       return DOM_NODE_TYPE_ELEMENT;
     case blink::Node::ATTRIBUTE_NODE:
