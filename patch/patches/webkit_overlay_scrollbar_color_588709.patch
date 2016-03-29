@@ -1,5 +1,5 @@
 diff --git Source/core/frame/FrameView.cpp Source/core/frame/FrameView.cpp
-index 6e36bd9..e3bc581 100644
+index dcfefc8..4e82cc7 100644
 --- Source/core/frame/FrameView.cpp
 +++ Source/core/frame/FrameView.cpp
 @@ -357,24 +357,6 @@ void FrameView::invalidateAllCustomScrollbarsOnActiveChanged()
