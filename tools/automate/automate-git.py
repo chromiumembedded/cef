@@ -17,7 +17,7 @@ import zipfile
 ##
 
 depot_tools_url = 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
-depot_tools_archive_url = 'https://src.chromium.org/svn/trunk/tools/depot_tools.zip'
+depot_tools_archive_url = 'https://storage.googleapis.com/chrome-infra/depot_tools.zip'
 
 cef_git_url = 'https://bitbucket.org/chromiumembedded/cef.git'
 
