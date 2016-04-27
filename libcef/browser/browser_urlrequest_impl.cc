@@ -222,7 +222,7 @@ class CefBrowserURLRequest::Context
         CefURLRequestUserData::kUserDataKey,
         base::Bind(&CreateURLRequestUserData, client_));
 
-    scoped_ptr<net::URLFetcherResponseWriter> response_writer;
+    std::unique_ptr<net::URLFetcherResponseWriter> response_writer;
     if (request_flags & UR_FLAG_NO_DOWNLOAD_DATA) {
       response_writer.reset(new CefURLFetcherResponseWriter(NULL, NULL));
     } else {
@@ -301,7 +301,7 @@ class CefBrowserURLRequest::Context
     client_->OnDownloadProgress(url_request_.get(), current, total);
   }
 
-  void OnDownloadData(scoped_ptr<std::string> download_data) {
+  void OnDownloadData(std::unique_ptr<std::string> download_data) {
     DCHECK(CalledOnValidThread());
     DCHECK(url_request_.get());
 
@@ -367,8 +367,8 @@ class CefBrowserURLRequest::Context
   CefRefPtr<CefURLRequestClient> client_;
   CefRefPtr<CefRequestContext> request_context_;
   scoped_refptr<base::SequencedTaskRunner> task_runner_;
-  scoped_ptr<net::URLFetcher> fetcher_;
-  scoped_ptr<CefURLFetcherDelegate> fetcher_delegate_;
+  std::unique_ptr<net::URLFetcher> fetcher_;
+  std::unique_ptr<CefURLFetcherDelegate> fetcher_delegate_;
   CefURLRequest::Status status_;
   CefURLRequest::ErrorCode error_code_;
   CefRefPtr<CefResponse> response_;

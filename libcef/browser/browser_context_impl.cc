@@ -146,7 +146,7 @@ class CefVisitedLinkListener : public visitedlink::VisitedLinkMaster::Listener {
 
   void CreateListenerForContext(const CefBrowserContext* context) {
     CEF_REQUIRE_UIT();
-    scoped_ptr<visitedlink::VisitedLinkEventListener> listener(
+    std::unique_ptr<visitedlink::VisitedLinkEventListener> listener(
         new visitedlink::VisitedLinkEventListener(
             master_, const_cast<CefBrowserContext*>(context)));
     listener_map_.insert(std::make_pair(context, std::move(listener)));
@@ -187,7 +187,7 @@ class CefVisitedLinkListener : public visitedlink::VisitedLinkMaster::Listener {
 
   // Map of CefBrowserContext to the associated VisitedLinkEventListener.
   typedef std::map<const CefBrowserContext*,
-                   scoped_ptr<visitedlink::VisitedLinkEventListener> >
+                   std::unique_ptr<visitedlink::VisitedLinkEventListener> >
                       ListenerMap;
   ListenerMap listener_map_;
 
@@ -333,11 +333,11 @@ base::FilePath CefBrowserContextImpl::GetPath() const {
   return cache_path_;
 }
 
-scoped_ptr<content::ZoomLevelDelegate>
+std::unique_ptr<content::ZoomLevelDelegate>
     CefBrowserContextImpl::CreateZoomLevelDelegate(
         const base::FilePath& partition_path) {
   if (cache_path_.empty())
-    return scoped_ptr<content::ZoomLevelDelegate>();
+    return std::unique_ptr<content::ZoomLevelDelegate>();
 
   return make_scoped_ptr(new ChromeZoomLevelPrefs(
       GetPrefs(), cache_path_, partition_path,
@@ -360,12 +360,6 @@ content::DownloadManagerDelegate*
 net::URLRequestContextGetter* CefBrowserContextImpl::GetRequestContext() {
   CEF_REQUIRE_UIT();
   return GetDefaultStoragePartition(this)->GetURLRequestContext();
-}
-
-net::URLRequestContextGetter*
-    CefBrowserContextImpl::GetRequestContextForRenderProcess(
-        int renderer_child_id) {
-  return GetRequestContext();
 }
 
 net::URLRequestContextGetter*
@@ -442,9 +436,11 @@ net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
   DCHECK(!url_request_getter_.get());
 
   // Initialize the proxy configuration service.
-  scoped_ptr<net::ProxyConfigService> proxy_config_service(
+  std::unique_ptr<net::ProxyConfigService> proxy_config_service(
       ProxyServiceFactory::CreateProxyConfigService(
           pref_proxy_config_tracker_.get()));
+
+  CreateProtocolHandlers(protocol_handlers);
 
   url_request_getter_ = new CefURLRequestContextGetterImpl(
       settings_,

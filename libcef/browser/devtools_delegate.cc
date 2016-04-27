@@ -48,11 +48,11 @@ class TCPServerSocketFactory
 
  private:
   // DevToolsHttpHandler::ServerSocketFactory.
-  scoped_ptr<net::ServerSocket> CreateForHttpServer() override {
-    scoped_ptr<net::ServerSocket> socket(
+  std::unique_ptr<net::ServerSocket> CreateForHttpServer() override {
+    std::unique_ptr<net::ServerSocket> socket(
         new net::TCPServerSocket(nullptr, net::NetLog::Source()));
     if (socket->ListenWithAddressAndPort(address_, port_, kBackLog) != net::OK)
-      return scoped_ptr<net::ServerSocket>();
+      return std::unique_ptr<net::ServerSocket>();
 
     return socket;
   }
@@ -63,9 +63,9 @@ class TCPServerSocketFactory
   DISALLOW_COPY_AND_ASSIGN(TCPServerSocketFactory);
 };
 
-scoped_ptr<devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory>
+std::unique_ptr<devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory>
     CreateSocketFactory(uint16_t port) {
-  return scoped_ptr<
+  return std::unique_ptr<
       devtools_http_handler::DevToolsHttpHandler::ServerSocketFactory>(
           new TCPServerSocketFactory("127.0.0.1", port));
 }

@@ -143,19 +143,6 @@ bool IsSystemCursorID(LPCWSTR cursor_id) {
 
 }  // namespace
 
-void CefRenderWidgetHostViewOSR::SetParentNativeViewAccessible(
-    gfx::NativeViewAccessible accessible_parent) {
-}
-
-gfx::NativeViewId
-    CefRenderWidgetHostViewOSR::GetParentForWindowlessPlugin() const {
-  if (browser_impl_.get()) {
-    return reinterpret_cast<gfx::NativeViewId>(
-        browser_impl_->GetWindowHandle());
-  }
-  return NULL;
-}
-
 void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
   DCHECK(!window_);
   window_.reset(new CefCompositorHostWin());

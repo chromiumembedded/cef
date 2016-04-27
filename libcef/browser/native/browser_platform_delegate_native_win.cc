@@ -497,17 +497,17 @@ CefEventHandle CefBrowserPlatformDelegateNativeWin::GetEventHandle(
   return const_cast<CefEventHandle>(&event.os_event->native_event());
 }
 
-scoped_ptr<CefFileDialogRunner>
+std::unique_ptr<CefFileDialogRunner>
     CefBrowserPlatformDelegateNativeWin::CreateFileDialogRunner() {
   return make_scoped_ptr(new CefFileDialogRunnerWin);
 }
 
-scoped_ptr<CefJavaScriptDialogRunner>
+std::unique_ptr<CefJavaScriptDialogRunner>
     CefBrowserPlatformDelegateNativeWin::CreateJavaScriptDialogRunner() {
   return make_scoped_ptr(new CefJavaScriptDialogRunnerWin);
 }
 
-scoped_ptr<CefMenuRunner>
+std::unique_ptr<CefMenuRunner>
     CefBrowserPlatformDelegateNativeWin::CreateMenuRunner() {
   return make_scoped_ptr(new CefMenuRunnerWin);
 }

@@ -72,7 +72,7 @@ class CefLocationRequest :
 
   CefRefPtr<CefGetGeolocationCallback> callback_;
   content::GeolocationProvider::LocationUpdateCallback geo_callback_;
-  scoped_ptr<content::GeolocationProvider::Subscription> subscription_;
+  std::unique_ptr<content::GeolocationProvider::Subscription> subscription_;
 
   DISALLOW_COPY_AND_ASSIGN(CefLocationRequest);
 };

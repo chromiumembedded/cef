@@ -191,6 +191,16 @@ bool CefExtensionsRendererClient::WillSendRequest(
   return false;
 }
 
+void CefExtensionsRendererClient::RunScriptsAtDocumentStart(
+    content::RenderFrame* render_frame) {
+  extension_dispatcher_->RunScriptsAtDocumentStart(render_frame);
+}
+
+void CefExtensionsRendererClient::RunScriptsAtDocumentEnd(
+    content::RenderFrame* render_frame) {
+  extension_dispatcher_->RunScriptsAtDocumentEnd(render_frame);
+}
+
 // static
 bool CefExtensionsRendererClient::ShouldFork(blink::WebLocalFrame* frame,
                                              const GURL& url,

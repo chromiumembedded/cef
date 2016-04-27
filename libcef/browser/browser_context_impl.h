@@ -12,7 +12,6 @@
 
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
-#include "base/memory/scoped_ptr.h"
 #include "components/proxy_config/pref_proxy_config_tracker.h"
 #include "components/visitedlink/browser/visitedlink_delegate.h"
 
@@ -56,13 +55,11 @@ class CefBrowserContextImpl : public CefBrowserContext,
 
   // BrowserContext methods.
   base::FilePath GetPath() const override;
-  scoped_ptr<content::ZoomLevelDelegate> CreateZoomLevelDelegate(
+  std::unique_ptr<content::ZoomLevelDelegate> CreateZoomLevelDelegate(
       const base::FilePath& partition_path) override;
   bool IsOffTheRecord() const override;
   content::DownloadManagerDelegate* GetDownloadManagerDelegate() override;
   net::URLRequestContextGetter* GetRequestContext() override;
-  net::URLRequestContextGetter* GetRequestContextForRenderProcess(
-      int renderer_child_id) override;
   net::URLRequestContextGetter* GetMediaRequestContext() override;
   net::URLRequestContextGetter* GetMediaRequestContextForRenderProcess(
       int renderer_child_id) override;
@@ -121,15 +118,15 @@ class CefBrowserContextImpl : public CefBrowserContext,
   typedef std::vector<const CefBrowserContextProxy*> ProxyList;
   ProxyList proxy_list_;
 
-  scoped_ptr<PrefService> pref_service_;
-  scoped_ptr<PrefProxyConfigTracker> pref_proxy_config_tracker_;
+  std::unique_ptr<PrefService> pref_service_;
+  std::unique_ptr<PrefProxyConfigTracker> pref_proxy_config_tracker_;
 
-  scoped_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
+  std::unique_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<CefURLRequestContextGetterImpl> url_request_getter_;
-  scoped_ptr<content::PermissionManager> permission_manager_;
-  scoped_ptr<CefSSLHostStateDelegate> ssl_host_state_delegate_;
+  std::unique_ptr<content::PermissionManager> permission_manager_;
+  std::unique_ptr<CefSSLHostStateDelegate> ssl_host_state_delegate_;
   scoped_refptr<HostContentSettingsMap> host_content_settings_map_;
-  scoped_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
+  std::unique_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
   // |visitedlink_listener_| is owned by visitedlink_master_.
   CefVisitedLinkListener* visitedlink_listener_;
 

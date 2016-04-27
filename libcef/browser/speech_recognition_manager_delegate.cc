@@ -109,7 +109,7 @@ class CefSpeechRecognitionManagerDelegate::WebContentsWatcher
 
   // Lazy-initialized and used on the UI thread to handle web contents
   // notifications (tab closing).
-  scoped_ptr<content::NotificationRegistrar> registrar_;
+  std::unique_ptr<content::NotificationRegistrar> registrar_;
 
   // Keeps track of which WebContent(s) have been registered, in order to avoid
   // double registrations on |registrar_|

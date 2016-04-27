@@ -978,7 +978,6 @@
         '<(DEPTH)/content/content.gyp:content_browser',
         '<(DEPTH)/content/content.gyp:content_common',
         '<(DEPTH)/content/content.gyp:content_gpu',
-        '<(DEPTH)/content/content.gyp:content_plugin',
         '<(DEPTH)/content/content.gyp:content_ppapi_plugin',
         '<(DEPTH)/content/content.gyp:content_renderer',
         '<(DEPTH)/content/content.gyp:content_resources',
@@ -1518,9 +1517,6 @@
             '<(DEPTH)/chrome/browser/printing/pdf_to_emf_converter.cc',
             '<(DEPTH)/chrome/browser/printing/pdf_to_emf_converter.h',
             '<(DEPTH)/chrome/common/chrome_utility_printing_messages.h',
-            # Include sources for font cache.
-            '<(DEPTH)/chrome/utility/font_cache_handler_win.cc',
-            '<(DEPTH)/chrome/utility/font_cache_handler_win.h',
           ],
         }],
         [ 'OS=="mac"', {

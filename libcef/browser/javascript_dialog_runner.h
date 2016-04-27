@@ -8,7 +8,6 @@
 #pragma once
 
 #include "base/callback.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/strings/string16.h"
 #include "content/public/common/javascript_message_type.h"
 

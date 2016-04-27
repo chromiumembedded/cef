@@ -9,7 +9,6 @@
 
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "base/values.h"
 #include "content/public/browser/devtools_agent_host.h"
@@ -81,7 +80,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   CefRefPtr<CefBrowserHostImpl> frontend_browser_;
   content::WebContents* inspected_contents_;
   scoped_refptr<content::DevToolsAgentHost> agent_host_;
-  scoped_ptr<content::DevToolsFrontendHost> frontend_host_;
+  std::unique_ptr<content::DevToolsFrontendHost> frontend_host_;
   using PendingRequestsMap = std::map<const net::URLFetcher*, int>;
   PendingRequestsMap pending_requests_;
   base::DictionaryValue preferences_;

@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_PEPPER_BROWSER_PEPPER_HOST_FACTORY_H_
 
 #include "base/compiler_specific.h"
+#include "base/macros.h"
 #include "ppapi/host/host_factory.h"
 
 namespace content {
@@ -18,7 +19,7 @@ class CefBrowserPepperHostFactory : public ppapi::host::HostFactory {
   explicit CefBrowserPepperHostFactory(content::BrowserPpapiHost* host);
   ~CefBrowserPepperHostFactory() override;
 
-  scoped_ptr<ppapi::host::ResourceHost> CreateResourceHost(
+  std::unique_ptr<ppapi::host::ResourceHost> CreateResourceHost(
       ppapi::host::PpapiHost* host,
       PP_Resource resource,
       PP_Instance instance,

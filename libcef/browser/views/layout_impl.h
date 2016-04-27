@@ -15,7 +15,6 @@
 #include "libcef/browser/views/layout_util.h"
 
 #include "base/logging.h"
-#include "base/memory/scoped_ptr.h"
 #include "ui/views/layout/layout_manager.h"
 #include "ui/views/view.h"
 

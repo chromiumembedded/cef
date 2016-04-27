@@ -106,10 +106,6 @@ const char kDisableScrollBounce[]         = "disable-scroll-bounce";
 // Disable the PDF extension.
 const char kDisablePdfExtension[]         = "disable-pdf-extension";
 
-// Enable NPAPI plugins. Note that this functionality will be removed in an
-// upcoming version of Chromium.
-const char kEnableNPAPI[]                 = "enable-npapi";
-
 // Enable Widevine CDM.
 const char kEnableWidevineCdm[]           = "enable-widevine-cdm";
 

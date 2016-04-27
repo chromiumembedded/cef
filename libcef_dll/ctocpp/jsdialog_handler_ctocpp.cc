@@ -18,9 +18,8 @@
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefJSDialogHandlerCToCpp::OnJSDialog(CefRefPtr<CefBrowser> browser,
-    const CefString& origin_url, const CefString& accept_lang,
-    JSDialogType dialog_type, const CefString& message_text,
-    const CefString& default_prompt_text,
+    const CefString& origin_url, JSDialogType dialog_type,
+    const CefString& message_text, const CefString& default_prompt_text,
     CefRefPtr<CefJSDialogCallback> callback, bool& suppress_message) {
   cef_jsdialog_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_jsdialog))
@@ -36,8 +35,7 @@ bool CefJSDialogHandlerCToCpp::OnJSDialog(CefRefPtr<CefBrowser> browser,
   DCHECK(callback.get());
   if (!callback.get())
     return false;
-  // Unverified params: origin_url, accept_lang, message_text,
-  // default_prompt_text
+  // Unverified params: origin_url, message_text, default_prompt_text
 
   // Translate param: suppress_message; type: bool_byref
   int suppress_messageInt = suppress_message;
@@ -46,7 +44,6 @@ bool CefJSDialogHandlerCToCpp::OnJSDialog(CefRefPtr<CefBrowser> browser,
   int _retval = _struct->on_jsdialog(_struct,
       CefBrowserCppToC::Wrap(browser),
       origin_url.GetStruct(),
-      accept_lang.GetStruct(),
       dialog_type,
       message_text.GetStruct(),
       default_prompt_text.GetStruct(),

@@ -16,15 +16,16 @@
 
 #include "base/callback_helpers.h"
 #include "base/command_line.h"
+#include "base/memory/ptr_util.h"
 #include "cc/base/switches.h"
 #include "cc/output/copy_output_request.h"
 #include "cc/scheduler/delay_based_time_source.h"
 #include "content/browser/bad_message.h"
+#include "content/browser/compositor/gl_helper.h"
 #include "content/browser/compositor/image_transport_factory.h"
-#include "content/browser/compositor/resize_lock.h"
 #include "content/browser/renderer_host/dip_util.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
-#include "content/common/gpu/client/gl_helper.h"
+#include "content/browser/renderer_host/resize_lock.h"
 #include "content/common/view_messages.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/context_factory.h"
@@ -193,7 +194,7 @@ class CefCopyFrameGenerator {
     // The below code is similar in functionality to
     // DelegatedFrameHost::CopyFromCompositingSurface but we reuse the same
     // SkBitmap in the GPU codepath and avoid scaling where possible.
-    scoped_ptr<cc::CopyOutputRequest> request =
+    std::unique_ptr<cc::CopyOutputRequest> request =
         cc::CopyOutputRequest::CreateRequest(base::Bind(
             &CefCopyFrameGenerator::CopyFromCompositingSurfaceHasResult,
             weak_ptr_factory_.GetWeakPtr(),
@@ -206,7 +207,7 @@ class CefCopyFrameGenerator {
 
   void CopyFromCompositingSurfaceHasResult(
       const gfx::Rect& damage_rect,
-      scoped_ptr<cc::CopyOutputResult> result) {
+      std::unique_ptr<cc::CopyOutputResult> result) {
     if (result->IsEmpty() || result->size().IsEmpty() ||
         !view_->render_widget_host()) {
       OnCopyFrameCaptureFailure(damage_rect);
@@ -224,7 +225,7 @@ class CefCopyFrameGenerator {
 
   void PrepareTextureCopyOutputResult(
       const gfx::Rect& damage_rect,
-      scoped_ptr<cc::CopyOutputResult> result) {
+      std::unique_ptr<cc::CopyOutputResult> result) {
     DCHECK(result->HasTexture());
     base::ScopedClosureRunner scoped_callback_runner(
         base::Bind(&CefCopyFrameGenerator::OnCopyFrameCaptureFailure,
@@ -254,12 +255,12 @@ class CefCopyFrameGenerator {
     if (!gl_helper)
       return;
 
-    scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock(
+    std::unique_ptr<SkAutoLockPixels> bitmap_pixels_lock(
         new SkAutoLockPixels(*bitmap_));
     uint8_t* pixels = static_cast<uint8_t*>(bitmap_->getPixels());
 
     cc::TextureMailbox texture_mailbox;
-    scoped_ptr<cc::SingleReleaseCallback> release_callback;
+    std::unique_ptr<cc::SingleReleaseCallback> release_callback;
     result->TakeTexture(&texture_mailbox, &release_callback);
     DCHECK(texture_mailbox.IsTexture());
     if (!texture_mailbox.IsTexture())
@@ -287,10 +288,10 @@ class CefCopyFrameGenerator {
 
   static void CopyFromCompositingSurfaceFinishedProxy(
       base::WeakPtr<CefCopyFrameGenerator> generator,
-      scoped_ptr<cc::SingleReleaseCallback> release_callback,
+      std::unique_ptr<cc::SingleReleaseCallback> release_callback,
       const gfx::Rect& damage_rect,
-      scoped_ptr<SkBitmap> bitmap,
-      scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock,
+      std::unique_ptr<SkBitmap> bitmap,
+      std::unique_ptr<SkAutoLockPixels> bitmap_pixels_lock,
       bool result) {
     // This method may be called after the view has been deleted.
     gpu::SyncToken sync_token;
@@ -315,8 +316,8 @@ class CefCopyFrameGenerator {
 
   void CopyFromCompositingSurfaceFinished(
       const gfx::Rect& damage_rect,
-      scoped_ptr<SkBitmap> bitmap,
-      scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock,
+      std::unique_ptr<SkBitmap> bitmap,
+      std::unique_ptr<SkAutoLockPixels> bitmap_pixels_lock,
       bool result) {
     // Restore ownership of the bitmap to the view.
     DCHECK(!bitmap_);
@@ -333,12 +334,12 @@ class CefCopyFrameGenerator {
 
   void PrepareBitmapCopyOutputResult(
       const gfx::Rect& damage_rect,
-      scoped_ptr<cc::CopyOutputResult> result) {
+      std::unique_ptr<cc::CopyOutputResult> result) {
     DCHECK(result->HasBitmap());
-    scoped_ptr<SkBitmap> source = result->TakeBitmap();
+    std::unique_ptr<SkBitmap> source = result->TakeBitmap();
     DCHECK(source);
     if (source) {
-      scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock(
+      std::unique_ptr<SkAutoLockPixels> bitmap_pixels_lock(
           new SkAutoLockPixels(*source));
       OnCopyFrameCaptureSuccess(damage_rect, *source,
                                 std::move(bitmap_pixels_lock));
@@ -359,7 +360,7 @@ class CefCopyFrameGenerator {
   void OnCopyFrameCaptureSuccess(
       const gfx::Rect& damage_rect,
       const SkBitmap& bitmap,
-      scoped_ptr<SkAutoLockPixels> bitmap_pixels_lock) {
+      std::unique_ptr<SkAutoLockPixels> bitmap_pixels_lock) {
     view_->OnPaint(damage_rect, bitmap.width(), bitmap.height(),
                    bitmap.getPixels());
     bitmap_pixels_lock.reset();
@@ -392,7 +393,7 @@ class CefCopyFrameGenerator {
   bool frame_pending_;
   bool frame_in_progress_;
   int frame_retry_count_;
-  scoped_ptr<SkBitmap> bitmap_;
+  std::unique_ptr<SkBitmap> bitmap_;
   gfx::Rect pending_damage_rect_;
 
   base::WeakPtrFactory<CefCopyFrameGenerator> weak_ptr_factory_;
@@ -434,7 +435,7 @@ class CefBeginFrameTimer : public cc::DelayBasedTimeSourceClient {
   }
 
   const base::Closure callback_;
-  scoped_ptr<cc::DelayBasedTimeSource> time_source_;
+  std::unique_ptr<cc::DelayBasedTimeSource> time_source_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBeginFrameTimer);
 };
@@ -639,7 +640,7 @@ void CefRenderWidgetHostViewOSR::UnlockMouse() {
 
 void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
     uint32_t output_surface_id,
-    scoped_ptr<cc::CompositorFrame> frame) {
+    std::unique_ptr<cc::CompositorFrame> frame) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::OnSwapCompositorFrame");
 
   if (frame->metadata.root_scroll_offset != last_scroll_offset_) {
@@ -731,10 +732,6 @@ void CefRenderWidgetHostViewOSR::InitAsFullscreen(
   NOTREACHED() << "Fullscreen widgets are not supported in OSR";
 }
 
-void CefRenderWidgetHostViewOSR::MovePluginWindows(
-    const std::vector<content::WebPluginGeometry>& moves) {
-}
-
 void CefRenderWidgetHostViewOSR::UpdateCursor(
     const content::WebCursor& cursor) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::UpdateCursor");
@@ -791,8 +788,8 @@ void CefRenderWidgetHostViewOSR::SetIsLoading(bool is_loading) {
 }
 
 #if !defined(OS_MACOSX)
-void CefRenderWidgetHostViewOSR::TextInputStateChanged(
-    const ViewHostMsg_TextInputState_Params& params) {
+void CefRenderWidgetHostViewOSR::UpdateInputMethodIfNecessary(
+    bool text_input_state_changed) {
 }
 
 void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
@@ -874,7 +871,7 @@ bool CefRenderWidgetHostViewOSR::CanCopyToVideoFrame() const {
 }
 
 void CefRenderWidgetHostViewOSR::BeginFrameSubscription(
-    scoped_ptr<content::RenderWidgetHostViewFrameSubscriber> subscriber) {
+    std::unique_ptr<content::RenderWidgetHostViewFrameSubscriber> subscriber) {
   delegated_frame_host_->BeginFrameSubscription(std::move(subscriber));
 }
 
@@ -946,7 +943,8 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
 
 content::BrowserAccessibilityManager*
     CefRenderWidgetHostViewOSR::CreateBrowserAccessibilityManager(
-        content::BrowserAccessibilityDelegate* delegate) {
+        content::BrowserAccessibilityDelegate* delegate,
+        bool for_root_frame) {
   return NULL;
 }
 
@@ -998,7 +996,7 @@ void CefRenderWidgetHostViewOSR::OnSetNeedsBeginFrames(bool enabled) {
   }
 }
 
-scoped_ptr<cc::SoftwareOutputDevice>
+std::unique_ptr<cc::SoftwareOutputDevice>
 CefRenderWidgetHostViewOSR::CreateSoftwareOutputDevice(
     ui::Compositor* compositor) {
   DCHECK_EQ(compositor_.get(), compositor);
@@ -1008,7 +1006,7 @@ CefRenderWidgetHostViewOSR::CreateSoftwareOutputDevice(
       compositor, transparent_,
       base::Bind(&CefRenderWidgetHostViewOSR::OnPaint,
                  weak_ptr_factory_.GetWeakPtr()));
-  return make_scoped_ptr<cc::SoftwareOutputDevice>(software_output_device_);
+  return base::WrapUnique(software_output_device_);
 }
 
 ui::Layer* CefRenderWidgetHostViewOSR::DelegatedFrameHostGetLayer() const {
@@ -1028,11 +1026,11 @@ bool CefRenderWidgetHostViewOSR::DelegatedFrameCanCreateResizeLock() const {
   return !render_widget_host_->auto_resize_enabled();
 }
 
-scoped_ptr<content::ResizeLock>
+std::unique_ptr<content::ResizeLock>
 CefRenderWidgetHostViewOSR::DelegatedFrameHostCreateResizeLock(
     bool defer_compositor_lock) {
   const gfx::Size& desired_size = root_layer_->bounds().size();
-  return scoped_ptr<content::ResizeLock>(new CefResizeLock(
+  return std::unique_ptr<content::ResizeLock>(new CefResizeLock(
       this,
       desired_size,
       defer_compositor_lock,

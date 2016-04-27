@@ -322,13 +322,6 @@ typedef struct _cef_browser_host_t {
   void (CEF_CALLBACK *set_focus)(struct _cef_browser_host_t* self, int focus);
 
   ///
-  // Set whether the window containing the browser is visible
-  // (minimized/unminimized, app hidden/unhidden, etc). Only used on Mac OS X.
-  ///
-  void (CEF_CALLBACK *set_window_visibility)(struct _cef_browser_host_t* self,
-      int visible);
-
-  ///
   // Retrieve the window handle for this browser. If this browser is wrapped in
   // a cef_browser_view_t this function should be called on the browser process
   // UI thread and it will return the handle for the top-level native window.

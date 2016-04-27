@@ -42,7 +42,7 @@
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_service.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
-#include "content/browser/frame_host/render_frame_host_impl.h"
+#include "content/browser/renderer_host/render_view_host_impl.h"
 #include "content/browser/gpu/compositor_util.h"
 #include "content/common/view_messages.h"
 #include "content/public/browser/download_manager.h"
@@ -265,7 +265,7 @@ CefRefPtr<CefBrowser> CefBrowserHost::CreateBrowserSync(
 // static
 CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
     CreateParams& create_params) {
-  scoped_ptr<CefBrowserPlatformDelegate> platform_delegate =
+  std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate =
       CefBrowserPlatformDelegate::Create(create_params);
   CHECK(platform_delegate);
 
@@ -331,7 +331,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
     CefRefPtr<CefBrowserHostImpl> opener,
     bool is_devtools_popup,
     CefRefPtr<CefRequestContext> request_context,
-    scoped_ptr<CefBrowserPlatformDelegate> platform_delegate) {
+    std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate) {
   CEF_REQUIRE_UIT();
   DCHECK(web_contents);
   DCHECK(browser_info);
@@ -600,22 +600,6 @@ void CefBrowserHostImpl::SetFocus(bool focus) {
     platform_delegate_->SendFocusEvent(false);
 }
 
-void CefBrowserHostImpl::SetWindowVisibility(bool visible) {
-#if defined(OS_MACOSX)
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-        base::Bind(&CefBrowserHostImpl::SetWindowVisibility,
-                   this, visible));
-    return;
-  }
-
-  if (!web_contents())
-    return;
-
-  platform_delegate_->SetWindowVisibility(false);
-#endif
-}
-
 CefWindowHandle CefBrowserHostImpl::GetWindowHandle() {
   if (IsViewsHosted() && CEF_CURRENTLY_ON_UIT()) {
     // Always return the most up-to-date window handle for a views-hosted
@@ -710,7 +694,7 @@ void CefBrowserHostImpl::StartDownload(const CefString& url) {
   if (!manager)
     return;
 
-  scoped_ptr<content::DownloadUrlParameters> params(
+  std::unique_ptr<content::DownloadUrlParameters> params(
       content::DownloadUrlParameters::FromWebContents(web_contents(), gurl));
   manager->DownloadUrl(std::move(params));
 }
@@ -1206,7 +1190,7 @@ void CefBrowserHostImpl::ReloadIgnoreCache() {
     }
 
     if (web_contents_.get())
-      web_contents_->GetController().ReloadIgnoringCache(true);
+      web_contents_->GetController().ReloadBypassingCache(true);
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::ReloadIgnoreCache, this));
@@ -2201,7 +2185,7 @@ void CefBrowserHostImpl::WebContentsCreated(
     content::WebContents* new_contents) {
   CefBrowserSettings settings;
   CefRefPtr<CefClient> client;
-  scoped_ptr<CefBrowserPlatformDelegate> platform_delegate;
+  std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate;
 
   CefBrowserInfoManager::GetInstance()->WebContentsCreated(
       source_contents, target_url, new_contents, settings, client,
@@ -2285,7 +2269,7 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
   if (!command_line->HasSwitch(switches::kEnableMediaStream)) {
     // Cancel the request.
     callback.Run(devices, content::MEDIA_DEVICE_PERMISSION_DENIED,
-                 scoped_ptr<content::MediaStreamUI>());
+                 std::unique_ptr<content::MediaStreamUI>());
     return;
   }
 
@@ -2318,7 +2302,7 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
   }
 
   callback.Run(devices, content::MEDIA_DEVICE_OK,
-               scoped_ptr<content::MediaStreamUI>());
+               std::unique_ptr<content::MediaStreamUI>());
 }
 
 bool CefBrowserHostImpl::CheckMediaAccessPermission(
@@ -2357,10 +2341,9 @@ void CefBrowserHostImpl::RenderViewCreated(
   // The swapped out state of a RVH is determined by its main frame since
   // subframes should have their own widgets. We should never recieve creation
   // notifications for a RVH where the main frame is swapped out.
-  content::RenderFrameHostImpl* frame_host_impl =
-      static_cast<content::RenderFrameHostImpl*>(
-          render_view_host->GetMainFrame());
-  DCHECK(frame_host_impl && !frame_host_impl->is_swapped_out());
+  content::RenderViewHostImpl* render_view_host_impl =
+      static_cast<content::RenderViewHostImpl*>(render_view_host);
+  DCHECK(!render_view_host_impl->is_swapped_out());
 
   const int render_process_id = render_view_host->GetProcess()->GetID();
   const int render_routing_id = render_view_host->GetRoutingID();
@@ -2384,10 +2367,9 @@ void CefBrowserHostImpl::RenderViewDeleted(
   // subframes should have their own widgets. Ignore deletion notification for
   // a RVH where the main frame host is swapped out. We probably shouldn't be
   // getting these notifications to begin with.
-  content::RenderFrameHostImpl* frame_host_impl =
-      static_cast<content::RenderFrameHostImpl*>(
-          render_view_host->GetMainFrame());
-  if (!frame_host_impl || frame_host_impl->is_swapped_out())
+  content::RenderViewHostImpl* render_view_host_impl =
+      static_cast<content::RenderViewHostImpl*>(render_view_host);
+  if (render_view_host_impl->is_swapped_out())
     return;
 
   const int render_process_id = render_view_host->GetProcess()->GetID();
@@ -2739,7 +2721,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(
     scoped_refptr<CefBrowserInfo> browser_info,
     CefRefPtr<CefBrowserHostImpl> opener,
     CefRefPtr<CefRequestContext> request_context,
-    scoped_ptr<CefBrowserPlatformDelegate> platform_delegate)
+    std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate)
     : content::WebContentsObserver(web_contents),
       settings_(settings),
       client_(client),

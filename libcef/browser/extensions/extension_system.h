@@ -30,6 +30,7 @@ class InfoMap;
 class ProcessManager;
 class RendererStartupHelper;
 class SharedUserScriptMaster;
+class ValueStoreFactory;
 
 // Used to manage extensions.
 class CefExtensionSystem : public ExtensionSystem {
@@ -60,6 +61,7 @@ class CefExtensionSystem : public ExtensionSystem {
   SharedUserScriptMaster* shared_user_script_master() override;
   StateStore* state_store() override;
   StateStore* rules_store() override;
+  scoped_refptr<ValueStoreFactory> store_factory() override;
   InfoMap* info_map() override;
   QuotaService* quota_service() override;
   AppSorting* app_sorting() override;
@@ -71,7 +73,7 @@ class CefExtensionSystem : public ExtensionSystem {
       const UnloadedExtensionInfo::Reason reason) override;
   const OneShotEvent& ready() const override;
   ContentVerifier* content_verifier() override;
-  scoped_ptr<ExtensionSet> GetDependentExtensions(
+  std::unique_ptr<ExtensionSet> GetDependentExtensions(
       const Extension* extension) override;
   void InstallUpdate(const std::string& extension_id,
                      const base::FilePath& temp_dir) override;
@@ -121,10 +123,10 @@ class CefExtensionSystem : public ExtensionSystem {
   // Data to be accessed on the IO thread. Must outlive process_manager_.
   scoped_refptr<InfoMap> info_map_;
 
-  scoped_ptr<ServiceWorkerManager> service_worker_manager_;
-  scoped_ptr<RuntimeData> runtime_data_;
-  scoped_ptr<QuotaService> quota_service_;
-  scoped_ptr<AppSorting> app_sorting_;
+  std::unique_ptr<ServiceWorkerManager> service_worker_manager_;
+  std::unique_ptr<RuntimeData> runtime_data_;
+  std::unique_ptr<QuotaService> quota_service_;
+  std::unique_ptr<AppSorting> app_sorting_;
 
   // Signaled when the extension system has completed its startup tasks.
   OneShotEvent ready_;

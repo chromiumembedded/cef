@@ -1,5 +1,5 @@
 diff --git pepper_flash_file_message_filter.cc pepper_flash_file_message_filter.cc
-index 3059dd7..b327be5 100644
+index 6f03077..c61fed3 100644
 --- pepper_flash_file_message_filter.cc
 +++ pepper_flash_file_message_filter.cc
 @@ -55,7 +55,7 @@ PepperFlashFileMessageFilter::PepperFlashFileMessageFilter(

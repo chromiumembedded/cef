@@ -8,8 +8,6 @@
 
 #include "include/views/cef_view.h"
 
-#include "base/memory/scoped_ptr.h"
-
 namespace base {
 class DictionaryValue;
 }
@@ -35,7 +33,7 @@ class CefViewAdapter {
   // Pass ownership of the underlying views::View object to the caller. This
   // object keeps an unowned reference to the views::View object. This is called
   // when the views::View is parented to another views::View.
-  virtual scoped_ptr<views::View> PassOwnership() = 0;
+  virtual std::unique_ptr<views::View> PassOwnership() = 0;
 
   // Resume ownership of the underlying views::View object. This is called when
   // the views::View is no longer parented to another views::View.

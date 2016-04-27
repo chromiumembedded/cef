@@ -51,7 +51,7 @@ class PopupWindowDelegate : public CefWindowDelegate {
 }  // namespace
 
 CefBrowserPlatformDelegateViews::CefBrowserPlatformDelegateViews(
-    scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate,
+    std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate,
     CefRefPtr<CefBrowserViewImpl> browser_view)
     : native_delegate_(std::move(native_delegate)),
       browser_view_(browser_view) {
@@ -257,17 +257,17 @@ CefEventHandle CefBrowserPlatformDelegateViews::GetEventHandle(
   return native_delegate_->GetEventHandle(event);
 }
 
-scoped_ptr<CefFileDialogRunner>
+std::unique_ptr<CefFileDialogRunner>
     CefBrowserPlatformDelegateViews::CreateFileDialogRunner() {
   return native_delegate_->CreateFileDialogRunner();
 }
 
-scoped_ptr<CefJavaScriptDialogRunner>
+std::unique_ptr<CefJavaScriptDialogRunner>
     CefBrowserPlatformDelegateViews::CreateJavaScriptDialogRunner() {
   return native_delegate_->CreateJavaScriptDialogRunner();
 }
 
-scoped_ptr<CefMenuRunner> CefBrowserPlatformDelegateViews::CreateMenuRunner() {
+std::unique_ptr<CefMenuRunner> CefBrowserPlatformDelegateViews::CreateMenuRunner() {
   return make_scoped_ptr(new CefMenuRunnerViews(browser_view_.get()));
 }
 

@@ -164,10 +164,6 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
 
   // Triggers initialization of the singleton instance on UI thread.
   PluginFinder::GetInstance()->Init();
-
-#if defined(OS_WIN)
-  PlatformPreMainMessageLoopRun();
-#endif
 }
 
 void CefBrowserMainParts::PostMainMessageLoopRun() {

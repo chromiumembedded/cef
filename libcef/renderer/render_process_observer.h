@@ -21,7 +21,6 @@ class CefRenderProcessObserver : public content::RenderProcessObserver {
 
   // RenderProcessObserver implementation.
   bool OnControlMessageReceived(const IPC::Message& message) override;
-  void WebKitInitialized() override;
   void OnRenderProcessShutdown() override;
 
  private:

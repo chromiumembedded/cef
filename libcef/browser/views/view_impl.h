@@ -298,7 +298,6 @@
 
 #include "base/json/json_writer.h"
 #include "base/logging.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/values.h"
 #include "ui/views/background.h"
 #include "ui/views/view.h"
@@ -333,7 +332,7 @@ CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter,
   views::View* Get() const override {
     return root_view();
   }
-  scoped_ptr<views::View> PassOwnership() override {
+  std::unique_ptr<views::View> PassOwnership() override {
     DCHECK(root_view_);
     return std::move(root_view_);
   }
@@ -354,7 +353,7 @@ CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter,
 
     // Use GetBounds() because some subclasses (like CefWindowImpl) override it.
     const CefRect& bounds = GetBounds();
-    scoped_ptr<base::DictionaryValue> bounds_value(new base::DictionaryValue());
+    std::unique_ptr<base::DictionaryValue> bounds_value(new base::DictionaryValue());
     bounds_value->SetInteger("x", bounds.x);
     bounds_value->SetInteger("y", bounds.y);
     bounds_value->SetInteger("width", bounds.width);
@@ -438,7 +437,7 @@ CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter,
 
   // Owned reference to the views::View wrapped by this object. Will be nullptr
   // before the View is created and after the View's ownership is transferred.
-  scoped_ptr<ViewsViewClass> root_view_;
+  std::unique_ptr<ViewsViewClass> root_view_;
 
   // Unowned reference to the views::View wrapped by this object. Will be
   // nullptr before the View is created and after the View is destroyed.
@@ -452,7 +451,7 @@ CEF_VIEW_IMPL_T CefString CEF_VIEW_IMPL_D::GetTypeString() {
 
 CEF_VIEW_IMPL_T CefString CEF_VIEW_IMPL_D::ToString(bool include_children) {
   CEF_REQUIRE_UIT_RETURN(CefString());
-  scoped_ptr<base::DictionaryValue> info(new base::DictionaryValue());
+  std::unique_ptr<base::DictionaryValue> info(new base::DictionaryValue());
   if (IsValid())
     GetDebugInfo(info.get(), include_children);
   else

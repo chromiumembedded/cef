@@ -56,12 +56,12 @@ class CefMainDelegate : public content::ContentMainDelegate {
  private:
   void InitializeResourceBundle();
 
-  scoped_ptr<content::BrowserMainRunner> browser_runner_;
-  scoped_ptr<base::Thread> ui_thread_;
+  std::unique_ptr<content::BrowserMainRunner> browser_runner_;
+  std::unique_ptr<base::Thread> ui_thread_;
 
-  scoped_ptr<CefContentBrowserClient> browser_client_;
-  scoped_ptr<CefContentRendererClient> renderer_client_;
-  scoped_ptr<CefContentUtilityClient> utility_client_;
+  std::unique_ptr<CefContentBrowserClient> browser_client_;
+  std::unique_ptr<CefContentRendererClient> renderer_client_;
+  std::unique_ptr<CefContentUtilityClient> utility_client_;
   CefContentClient content_client_;
 
   DISALLOW_COPY_AND_ASSIGN(CefMainDelegate);

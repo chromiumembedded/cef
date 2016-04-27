@@ -227,8 +227,8 @@ class CefRenderURLRequest::Context
   CefURLRequest::Status status_;
   CefURLRequest::ErrorCode error_code_;
   CefRefPtr<CefResponse> response_;
-  scoped_ptr<blink::WebURLLoader> loader_;
-  scoped_ptr<CefWebURLLoaderClient> url_client_;
+  std::unique_ptr<blink::WebURLLoader> loader_;
+  std::unique_ptr<CefWebURLLoaderClient> url_client_;
   int64_t upload_data_size_;
   bool got_upload_progress_complete_;
   int64_t download_data_received_;

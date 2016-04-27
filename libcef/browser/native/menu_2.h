@@ -5,10 +5,11 @@
 #ifndef CEF_LIBCEF_BROWSER_NATIVE_MENU_2_H_
 #define CEF_LIBCEF_BROWSER_NATIVE_MENU_2_H_
 
+#include <memory>
+
 #include "libcef/browser/native/menu_wrapper.h"
 
 #include "base/macros.h"
-#include "base/memory/scoped_ptr.h"
 #include "ui/gfx/native_widget_types.h"
 
 namespace gfx {
@@ -86,7 +87,7 @@ class Menu2 {
   ui::MenuModel* model_;
 
   // The object that actually implements the menu.
-  scoped_ptr<MenuWrapper> wrapper_;
+  std::unique_ptr<MenuWrapper> wrapper_;
 
   DISALLOW_COPY_AND_ASSIGN(Menu2);
 };

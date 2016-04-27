@@ -20,6 +20,7 @@
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
 #include "third_party/WebKit/public/web/WebInputEvent.h"
+#import  "ui/base/cocoa/cocoa_base_utils.h"
 #import  "ui/base/cocoa/underlay_opengl_hosting_window.h"
 #include "ui/events/keycodes/keyboard_codes_posix.h"
 #include "ui/gfx/geometry/rect.h"
@@ -100,36 +101,6 @@
 - (void)windowDidResignKey:(NSNotification*)notification {
   if (browser_)
     browser_->SetFocus(false);
-}
-
-// Called when we have been minimized.
-- (void)windowDidMiniaturize:(NSNotification *)notification {
-  if (browser_)
-    browser_->SetWindowVisibility(false);
-}
-
-// Called when we have been unminimized.
-- (void)windowDidDeminiaturize:(NSNotification *)notification {
-  if (browser_)
-    browser_->SetWindowVisibility(true);
-}
-
-// Called when the application has been hidden.
-- (void)applicationDidHide:(NSNotification *)notification {
-  // If the window is miniaturized then nothing has really changed.
-  if (![window_ isMiniaturized]) {
-    if (browser_)
-      browser_->SetWindowVisibility(false);
-  }
-}
-
-// Called when the application has been unhidden.
-- (void)applicationDidUnhide:(NSNotification *)notification {
-  // If the window is miniaturized then nothing has really changed.
-  if (![window_ isMiniaturized]) {
-    if (browser_)
-      browser_->SetWindowVisibility(true);
-  }
 }
 
 - (BOOL)windowShouldClose:(id)window {
@@ -325,7 +296,8 @@ gfx::Point CefBrowserPlatformDelegateNativeMac::GetScreenPoint(
     NSRect bounds = [nsview bounds];
     NSPoint view_pt = {view.x(), bounds.size.height - view.y()};
     NSPoint window_pt = [nsview convertPoint:view_pt toView:nil];
-    NSPoint screen_pt = [[nsview window] convertBaseToScreen:window_pt];
+    NSPoint screen_pt =
+        ui::ConvertPointFromWindowToScreen([nsview window], window_pt);
     return gfx::Point(screen_pt.x, screen_pt.y);
   }
   return gfx::Point();
@@ -491,17 +463,17 @@ CefEventHandle CefBrowserPlatformDelegateNativeMac::GetEventHandle(
   return event.os_event;
 }
 
-scoped_ptr<CefFileDialogRunner>
+std::unique_ptr<CefFileDialogRunner>
     CefBrowserPlatformDelegateNativeMac::CreateFileDialogRunner() {
   return make_scoped_ptr(new CefFileDialogRunnerMac);
 }
 
-scoped_ptr<CefJavaScriptDialogRunner>
+std::unique_ptr<CefJavaScriptDialogRunner>
     CefBrowserPlatformDelegateNativeMac::CreateJavaScriptDialogRunner() {
   return make_scoped_ptr(new CefJavaScriptDialogRunnerMac);
 }
 
-scoped_ptr<CefMenuRunner>
+std::unique_ptr<CefMenuRunner>
     CefBrowserPlatformDelegateNativeMac::CreateMenuRunner() {
   return make_scoped_ptr(new CefMenuRunnerMac);
 }

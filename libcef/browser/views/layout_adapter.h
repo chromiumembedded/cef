@@ -8,8 +8,6 @@
 
 #include "include/views/cef_layout.h"
 
-#include "base/memory/scoped_ptr.h"
-
 namespace views {
 class LayoutManager;
 };

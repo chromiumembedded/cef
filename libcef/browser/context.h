@@ -12,7 +12,6 @@
 
 #include "include/cef_app.h"
 
-#include "base/memory/scoped_ptr.h"
 #include "base/threading/platform_thread.h"
 
 namespace base {
@@ -95,16 +94,16 @@ class CefContext {
 
   CefSettings settings_;
 
-  scoped_ptr<CefMainDelegate> main_delegate_;
-  scoped_ptr<content::ContentMainRunner> main_runner_;
-  scoped_ptr<CefTraceSubscriber> trace_subscriber_;
-  scoped_ptr<CefBrowserInfoManager> browser_info_manager_;
+  std::unique_ptr<CefMainDelegate> main_delegate_;
+  std::unique_ptr<content::ContentMainRunner> main_runner_;
+  std::unique_ptr<CefTraceSubscriber> trace_subscriber_;
+  std::unique_ptr<CefBrowserInfoManager> browser_info_manager_;
 
   // Only accessed on the UI Thread.
-  scoped_ptr<printing::PrintJobManager> print_job_manager_;
+  std::unique_ptr<printing::PrintJobManager> print_job_manager_;
 
   // Initially only for Widevine components.
-  scoped_ptr<component_updater::ComponentUpdateService> component_updater_;
+  std::unique_ptr<component_updater::ComponentUpdateService> component_updater_;
 };
 
 // Helper macro that returns true if the global context is in a valid state.

@@ -108,7 +108,7 @@ class CefWindowView :
   CefRefPtr<CefImage> window_icon_;
   CefRefPtr<CefImage> window_app_icon_;
 
-  scoped_ptr<SkRegion> draggable_region_;
+  std::unique_ptr<SkRegion> draggable_region_;
 
   DISALLOW_COPY_AND_ASSIGN(CefWindowView);
 };

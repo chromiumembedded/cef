@@ -218,30 +218,22 @@ TEST(ParserTest, ParseURLNonStandard) {
 
 TEST(ParserTest, FormatUrlForSecurityDisplay) {
   CefString result;
-  const char* kLang = "en-US";
 
   // Omits the protocol if it's standard.
-  result = CefFormatUrlForSecurityDisplay("http://tests.com/foo.html", kLang);
+  result = CefFormatUrlForSecurityDisplay("http://tests.com/foo.html");
   EXPECT_STREQ("http://tests.com", result.ToString().c_str());
 
   // Omits the port if it's the expected value for the protocol.
-  result = CefFormatUrlForSecurityDisplay("http://tests.com:80/foo.html",
-                                          kLang);
+  result = CefFormatUrlForSecurityDisplay("http://tests.com:80/foo.html");
   EXPECT_STREQ("http://tests.com", result.ToString().c_str());
 
   // Don't omit non-standard ports.
-  result = CefFormatUrlForSecurityDisplay("http://tests.com:8088/foo.html",
-                                          kLang);
+  result = CefFormatUrlForSecurityDisplay("http://tests.com:8088/foo.html");
   EXPECT_STREQ("http://tests.com:8088", result.ToString().c_str());
 
   // Don't omit the protocol for file URLs.
-  result = CefFormatUrlForSecurityDisplay("file:///c/tests/foo.html", kLang);
+  result = CefFormatUrlForSecurityDisplay("file:///c/tests/foo.html");
   EXPECT_STREQ("file:///c/tests/foo.html", result.ToString().c_str());
-
-  // Empty |languages| should be OK.
-  result = CefFormatUrlForSecurityDisplay("http://tests.com/foo.html",
-                                          CefString());
-  EXPECT_STREQ("http://tests.com", result.ToString().c_str());
 }
 
 TEST(ParserTest, GetMimeType) {

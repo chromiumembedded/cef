@@ -35,7 +35,7 @@ class CefResourceDispatcherHostDelegate
                                        GURL* origin,
                                        std::string* payload) override;
   void OnStreamCreated(net::URLRequest* request,
-                       scoped_ptr<content::StreamInfo> stream) override;
+                       std::unique_ptr<content::StreamInfo> stream) override;
   void OnRequestRedirected(
       const GURL& redirect_url,
       net::URLRequest* request,

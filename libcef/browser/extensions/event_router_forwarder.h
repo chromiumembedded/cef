@@ -40,7 +40,7 @@ class EventRouterForwarder
   // May be called on any thread.
   void BroadcastEventToRenderers(events::HistogramValue histogram_value,
                                  const std::string& event_name,
-                                 scoped_ptr<base::ListValue> event_args,
+                                 std::unique_ptr<base::ListValue> event_args,
                                  const GURL& event_url);
 
   // Calls
@@ -51,7 +51,7 @@ class EventRouterForwarder
   void BroadcastEventToExtension(const std::string& extension_id,
                                  events::HistogramValue histogram_value,
                                  const std::string& event_name,
-                                 scoped_ptr<base::ListValue> event_args,
+                                 std::unique_ptr<base::ListValue> event_args,
                                  const GURL& event_url);
 
   // Calls
@@ -60,7 +60,7 @@ class EventRouterForwarder
   // on |profile|'s EventRouter. May be called on any thread.
   void DispatchEventToRenderers(events::HistogramValue histogram_value,
                                 const std::string& event_name,
-                                scoped_ptr<base::ListValue> event_args,
+                                std::unique_ptr<base::ListValue> event_args,
                                 void* profile,
                                 bool use_profile_to_restrict_events,
                                 const GURL& event_url);
@@ -72,7 +72,7 @@ class EventRouterForwarder
   void DispatchEventToExtension(const std::string& extension_id,
                                 events::HistogramValue histogram_value,
                                 const std::string& event_name,
-                                scoped_ptr<base::ListValue> event_args,
+                                std::unique_ptr<base::ListValue> event_args,
                                 void* profile,
                                 bool use_profile_to_restrict_events,
                                 const GURL& event_url);
@@ -86,7 +86,7 @@ class EventRouterForwarder
   virtual void HandleEvent(const std::string& extension_id,
                            events::HistogramValue histogram_value,
                            const std::string& event_name,
-                           scoped_ptr<base::ListValue> event_args,
+                           std::unique_ptr<base::ListValue> event_args,
                            void* profile,
                            bool use_profile_to_restrict_events,
                            const GURL& event_url);
@@ -99,7 +99,7 @@ class EventRouterForwarder
                                const std::string& extension_id,
                                events::HistogramValue histogram_value,
                                const std::string& event_name,
-                               scoped_ptr<base::ListValue> event_args,
+                               std::unique_ptr<base::ListValue> event_args,
                                content::BrowserContext* restrict_to_profile,
                                const GURL& event_url);
 

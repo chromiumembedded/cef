@@ -36,6 +36,7 @@
 #include "extensions/browser/quota_service.h"
 #include "extensions/browser/runtime_data.h"
 #include "extensions/browser/service_worker_manager.h"
+#include "extensions/browser/value_store/value_store_factory.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/extension_messages.h"
 #include "extensions/common/file_util.h"
@@ -65,7 +66,7 @@ std::string GenerateId(const base::DictionaryValue* manifest,
 base::DictionaryValue* ParseManifest(
     const std::string& manifest_contents) {
   JSONStringValueDeserializer deserializer(manifest_contents);
-  scoped_ptr<base::Value> manifest(deserializer.Deserialize(NULL, NULL));
+  std::unique_ptr<base::Value> manifest(deserializer.Deserialize(NULL, NULL));
 
   if (!manifest.get() || !manifest->IsType(base::Value::TYPE_DICTIONARY)) {
     LOG(ERROR) << "Failed to parse extension manifest.";
@@ -204,6 +205,10 @@ StateStore* CefExtensionSystem::rules_store() {
   return nullptr;
 }
 
+scoped_refptr<ValueStoreFactory> CefExtensionSystem::store_factory() {
+  return nullptr;
+}
+
 InfoMap* CefExtensionSystem::info_map() {
   if (!info_map_.get())
     info_map_ = new InfoMap;
@@ -230,7 +235,7 @@ void CefExtensionSystem::RegisterExtensionWithRequestContexts(
       FROM_HERE,
       base::Bind(&InfoMap::AddExtension,
                   info_map(),
-                  make_scoped_refptr(extension),
+                  base::RetainedRef(extension),
                   base::Time::Now(),
                   true,     // incognito_enabled
                   false),   // notifications_disabled
@@ -256,7 +261,7 @@ ContentVerifier* CefExtensionSystem::content_verifier() {
   return nullptr;
 }
 
-scoped_ptr<ExtensionSet> CefExtensionSystem::GetDependentExtensions(
+std::unique_ptr<ExtensionSet> CefExtensionSystem::GetDependentExtensions(
     const Extension* extension) {
   return make_scoped_ptr(new ExtensionSet());
 }
@@ -451,7 +456,6 @@ void CefExtensionSystem::NotifyExtensionUnloaded(
     content::PluginService* plugin_service =
         content::PluginService::GetInstance();
     plugin_service->UnregisterInternalPlugin(path);
-    plugin_service->ForcePluginShutdown(path);
     plugin_service->RefreshPlugins();
   }
 

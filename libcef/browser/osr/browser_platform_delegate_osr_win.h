@@ -11,7 +11,7 @@
 class CefBrowserPlatformDelegateOsrWin : public CefBrowserPlatformDelegateOsr {
  public:
   explicit CefBrowserPlatformDelegateOsrWin(
-      scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate);
+      std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate);
 
   // CefBrowserPlatformDelegate methods:
   CefWindowHandle GetHostWindowHandle() const override;

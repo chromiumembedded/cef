@@ -21,10 +21,9 @@ namespace {
 
 int CEF_CALLBACK jsdialog_handler_on_jsdialog(
     struct _cef_jsdialog_handler_t* self, cef_browser_t* browser,
-    const cef_string_t* origin_url, const cef_string_t* accept_lang,
-    cef_jsdialog_type_t dialog_type, const cef_string_t* message_text,
-    const cef_string_t* default_prompt_text, cef_jsdialog_callback_t* callback,
-    int* suppress_message) {
+    const cef_string_t* origin_url, cef_jsdialog_type_t dialog_type,
+    const cef_string_t* message_text, const cef_string_t* default_prompt_text,
+    cef_jsdialog_callback_t* callback, int* suppress_message) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -42,8 +41,7 @@ int CEF_CALLBACK jsdialog_handler_on_jsdialog(
   DCHECK(suppress_message);
   if (!suppress_message)
     return 0;
-  // Unverified params: origin_url, accept_lang, message_text,
-  // default_prompt_text
+  // Unverified params: origin_url, message_text, default_prompt_text
 
   // Translate param: suppress_message; type: bool_byref
   bool suppress_messageBool = (
@@ -53,7 +51,6 @@ int CEF_CALLBACK jsdialog_handler_on_jsdialog(
   bool _retval = CefJSDialogHandlerCppToC::Get(self)->OnJSDialog(
       CefBrowserCToCpp::Wrap(browser),
       CefString(origin_url),
-      CefString(accept_lang),
       dialog_type,
       CefString(message_text),
       CefString(default_prompt_text),

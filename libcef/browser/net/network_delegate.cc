@@ -450,7 +450,7 @@ net::Filter* CefNetworkDelegate::SetupFilter(net::URLRequest* request,
   }
 
   if (cef_filter.get() && cef_filter->InitFilter()) {
-    scoped_ptr<CefResponseFilterWrapper> wrapper(
+    std::unique_ptr<CefResponseFilterWrapper> wrapper(
         new CefResponseFilterWrapper(cef_filter, filter_list != nullptr));
     wrapper->InitBuffer(kFilterBufSize);
 

@@ -92,7 +92,7 @@ std::string GetSwitchArgument(const std::vector<std::string>& vec,
 class CefConfigurator : public Configurator {
  public:
   CefConfigurator(const base::CommandLine* cmdline,
-                     net::URLRequestContextGetter* url_request_getter);
+                  net::URLRequestContextGetter* url_request_getter);
 
   int InitialDelay() const override;
   int NextCheckDelay() const override;
@@ -103,6 +103,7 @@ class CefConfigurator : public Configurator {
   std::vector<GURL> PingUrl() const override;
   base::Version GetBrowserVersion() const override;
   std::string GetChannel() const override;
+  std::string GetBrand() const override;
   std::string GetLang() const override;
   std::string GetOSLongName() const override;
   std::string ExtraRequestParams() const override;
@@ -211,6 +212,10 @@ base::Version CefConfigurator::GetBrowserVersion() const {
 }
 
 std::string CefConfigurator::GetChannel() const {
+  return "";
+}
+
+std::string CefConfigurator::GetBrand() const {
   return "";
 }
 

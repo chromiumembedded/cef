@@ -24,9 +24,9 @@ class CefExtensionsClient : public ExtensionsClient {
   const PermissionMessageProvider& GetPermissionMessageProvider()
       const override;
   const std::string GetProductName() override;
-  scoped_ptr<FeatureProvider> CreateFeatureProvider(
+  std::unique_ptr<FeatureProvider> CreateFeatureProvider(
       const std::string& name) const override;
-  scoped_ptr<JSONFeatureProviderSource> CreateFeatureProviderSource(
+  std::unique_ptr<JSONFeatureProviderSource> CreateFeatureProviderSource(
       const std::string& name) const override;
   void FilterHostPermissions(const URLPatternSet& hosts,
                              URLPatternSet* new_hosts,

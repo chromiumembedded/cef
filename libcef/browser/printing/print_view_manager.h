@@ -63,7 +63,7 @@ class PrintViewManager : public PrintViewManagerBase,
   // Used for printing to PDF. Only accessed on the browser process UI thread.
   int next_pdf_request_id_ = -1;
   base::FilePath pdf_output_path_;
-  scoped_ptr<base::DictionaryValue> pdf_print_settings_;
+  std::unique_ptr<base::DictionaryValue> pdf_print_settings_;
   PdfPrintCallback pdf_print_callback_;
 
   DISALLOW_COPY_AND_ASSIGN(PrintViewManager);

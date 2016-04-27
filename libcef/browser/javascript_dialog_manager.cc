@@ -70,7 +70,7 @@ class CefJSDialogCallbackImpl : public CefJSDialogCallback {
 
 CefJavaScriptDialogManager::CefJavaScriptDialogManager(
     CefBrowserHostImpl* browser,
-    scoped_ptr<CefJavaScriptDialogRunner> runner)
+    std::unique_ptr<CefJavaScriptDialogRunner> runner)
     : browser_(browser),
       runner_(std::move(runner)),
       dialog_running_(false),
@@ -90,7 +90,6 @@ void CefJavaScriptDialogManager::Destroy() {
 void CefJavaScriptDialogManager::RunJavaScriptDialog(
     content::WebContents* web_contents,
     const GURL& origin_url,
-    const std::string& accept_lang,
     content::JavaScriptMessageType message_type,
     const base::string16& message_text,
     const base::string16& default_prompt_text,
@@ -107,7 +106,6 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
 
       // Execute the user callback.
       bool handled = handler->OnJSDialog(browser_, origin_url.spec(),
-          accept_lang,
           static_cast<cef_jsdialog_type_t>(message_type),
           message_text, default_prompt_text, callbackPtr.get(),
           *did_suppress_message);
@@ -136,8 +134,8 @@ void CefJavaScriptDialogManager::RunJavaScriptDialog(
 
   dialog_running_ = true;
 
-  base::string16 display_url =
-      url_formatter::FormatUrlForSecurityDisplay(origin_url, accept_lang);
+  const base::string16& display_url =
+      url_formatter::FormatUrlForSecurityDisplay(origin_url);
 
   runner_->Run(browser_, message_type, display_url, message_text,
                default_prompt_text,

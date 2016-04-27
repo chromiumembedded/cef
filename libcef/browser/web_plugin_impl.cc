@@ -89,57 +89,6 @@ void CefRefreshWebPlugins() {
   content::PluginServiceImpl::GetInstance()->RefreshPlugins();
 }
 
-void CefAddWebPluginPath(const CefString& path) {
-  // Verify that the context is in a valid state.
-  if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
-    return;
-  }
-
-  if (path.empty()) {
-    NOTREACHED() << "invalid parameter";
-    return;
-  }
-
-  // No thread affinity.
-  content::PluginServiceImpl::GetInstance()->AddExtraPluginPath(
-      base::FilePath(path));
-}
-
-void CefAddWebPluginDirectory(const CefString& dir) {
-  // Verify that the context is in a valid state.
-  if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
-    return;
-  }
-
-  if (dir.empty()) {
-    NOTREACHED() << "invalid parameter";
-    return;
-  }
-
-  // No thread affinity.
-  content::PluginServiceImpl::GetInstance()->AddExtraPluginDir(
-      base::FilePath(dir));
-}
-
-void CefRemoveWebPluginPath(const CefString& path) {
-  // Verify that the context is in a valid state.
-  if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
-    return;
-  }
-
-  if (path.empty()) {
-    NOTREACHED() << "invalid parameter";
-    return;
-  }
-
-  // No thread affinity.
-  content::PluginServiceImpl::GetInstance()->RemoveExtraPluginPath(
-      base::FilePath(path));
-}
-
 void CefUnregisterInternalWebPlugin(const CefString& path) {
   // Verify that the context is in a valid state.
   if (!CONTEXT_STATE_VALID()) {
@@ -155,27 +104,6 @@ void CefUnregisterInternalWebPlugin(const CefString& path) {
   // No thread affinity.
   content::PluginServiceImpl::GetInstance()->UnregisterInternalPlugin(
       base::FilePath(path));
-}
-
-void CefForceWebPluginShutdown(const CefString& path) {
-  // Verify that the context is in a valid state.
-  if (!CONTEXT_STATE_VALID()) {
-    NOTREACHED() << "context not valid";
-    return;
-  }
-
-  if (path.empty()) {
-    NOTREACHED() << "invalid parameter";
-    return;
-  }
-
-  if (CEF_CURRENTLY_ON_IOT()) {
-    content::PluginServiceImpl::GetInstance()->ForcePluginShutdown(
-        base::FilePath(path));
-  } else {
-    // Execute on the IO thread.
-    CEF_POST_TASK(CEF_IOT, base::Bind(CefForceWebPluginShutdown, path));
-  }
 }
 
 void CefRegisterWebPluginCrash(const CefString& path) {

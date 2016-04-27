@@ -33,7 +33,7 @@
 
 namespace {
 
-void SendExecuteMimeTypeHandlerEvent(scoped_ptr<content::StreamInfo> stream,
+void SendExecuteMimeTypeHandlerEvent(std::unique_ptr<content::StreamInfo> stream,
                                      int64_t expected_content_size,
                                      int render_process_id,
                                      int render_frame_id,
@@ -170,7 +170,7 @@ bool CefResourceDispatcherHostDelegate::ShouldInterceptResourceAsStream(
 // ChromeResourceDispatcherHostDelegate::OnStreamCreated.
 void CefResourceDispatcherHostDelegate::OnStreamCreated(
     net::URLRequest* request,
-    scoped_ptr<content::StreamInfo> stream) {
+    std::unique_ptr<content::StreamInfo> stream) {
   DCHECK(extensions::ExtensionsEnabled());
   const content::ResourceRequestInfo* info =
       content::ResourceRequestInfo::ForRequest(request);

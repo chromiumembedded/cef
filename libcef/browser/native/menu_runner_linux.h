@@ -8,7 +8,6 @@
 
 #include "libcef/browser/menu_runner.h"
 
-#include "base/memory/scoped_ptr.h"
 #include "ui/views/controls/menu/menu_runner.h"
 
 class CefMenuRunnerLinux: public CefMenuRunner {
@@ -23,7 +22,7 @@ class CefMenuRunnerLinux: public CefMenuRunner {
   bool FormatLabel(base::string16& label) override;
 
  private:
-  scoped_ptr<views::MenuRunner> menu_;
+  std::unique_ptr<views::MenuRunner> menu_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NATIVE_MENU_RUNNER_LINUX_H_

@@ -1,8 +1,8 @@
 diff --git url_request.h url_request.h
-index d3b0b7a..0adec6f 100644
+index fcbc445..e424814 100644
 --- url_request.h
 +++ url_request.h
-@@ -675,10 +675,10 @@ class NET_EXPORT URLRequest : NON_EXPORTED_BASE(public base::NonThreadSafe),
+@@ -664,10 +664,10 @@ class NET_EXPORT URLRequest : NON_EXPORTED_BASE(public base::NonThreadSafe),
    // or after the response headers are received.
    void GetConnectionAttempts(ConnectionAttempts* out) const;
  

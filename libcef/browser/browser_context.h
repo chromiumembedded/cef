@@ -139,16 +139,6 @@ class CefBrowserContext
   // thread.
   virtual CefRefPtr<CefRequestContextHandler> GetHandler() const = 0;
 
-  // Called from CefContentBrowserClient to create the URLRequestContextGetter.
-  virtual net::URLRequestContextGetter* CreateRequestContext(
-      content::ProtocolHandlerMap* protocol_handlers,
-      content::URLRequestInterceptorScopedVector request_interceptors) = 0;
-  virtual net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
-      const base::FilePath& partition_path,
-      bool in_memory,
-      content::ProtocolHandlerMap* protocol_handlers,
-      content::URLRequestInterceptorScopedVector request_interceptors) = 0;
-
   // Settings for plugins and extensions.
   virtual HostContentSettingsMap* GetHostContentSettingsMap() = 0;
 
@@ -171,6 +161,8 @@ class CefBrowserContext
  protected:
   ~CefBrowserContext() override;
 
+  void CreateProtocolHandlers(content::ProtocolHandlerMap* protocol_handlers);
+
   // Must be called before the child object destructor has completed.
   void Shutdown();
 
@@ -180,7 +172,7 @@ class CefBrowserContext
       content::BrowserThread::UI>;
   friend class base::DeleteHelper<CefBrowserContext>;
 
-  scoped_ptr<CefResourceContext> resource_context_;
+  std::unique_ptr<CefResourceContext> resource_context_;
 
   // Owned by the KeyedService system.
   extensions::CefExtensionSystem* extension_system_;

@@ -14,7 +14,7 @@
 #include "content/public/browser/render_view_host.h"
 
 CefBrowserPlatformDelegateOsr::CefBrowserPlatformDelegateOsr(
-    scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate)
+    std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate)
     : native_delegate_(std::move(native_delegate)),
       view_osr_(nullptr) {
   native_delegate_->set_windowless_handler(this);
@@ -159,17 +159,17 @@ CefEventHandle CefBrowserPlatformDelegateOsr::GetEventHandle(
   return native_delegate_->GetEventHandle(event);
 }
 
-scoped_ptr<CefFileDialogRunner>
+std::unique_ptr<CefFileDialogRunner>
     CefBrowserPlatformDelegateOsr::CreateFileDialogRunner() {
   return native_delegate_->CreateFileDialogRunner();
 }
 
-scoped_ptr<CefJavaScriptDialogRunner>
+std::unique_ptr<CefJavaScriptDialogRunner>
     CefBrowserPlatformDelegateOsr::CreateJavaScriptDialogRunner() {
   return native_delegate_->CreateJavaScriptDialogRunner();
 }
 
-scoped_ptr<CefMenuRunner> CefBrowserPlatformDelegateOsr::CreateMenuRunner() {
+std::unique_ptr<CefMenuRunner> CefBrowserPlatformDelegateOsr::CreateMenuRunner() {
   return native_delegate_->CreateMenuRunner();
 }
 

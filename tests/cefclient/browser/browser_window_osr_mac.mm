@@ -15,35 +15,6 @@
 #include "cefclient/browser/geometry_util.h"
 #include "cefclient/browser/main_message_loop.h"
 
-// Forward declare methods and constants that are only available with newer SDK
-// versions to avoid -Wpartial-availability compiler warnings.
-
-#if !defined(MAC_OS_X_VERSION_10_7) || \
-    MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_7
-
-@interface NSEvent (LionSDK)
-- (NSEventPhase)phase;
-@end
-
-@interface NSView (LionSDK)
-- (NSPoint)convertPointFromBacking:(NSPoint)aPoint;
-- (NSPoint)convertPointToBacking:(NSPoint)aPoint;
-- (NSRect)convertRectFromBacking:(NSRect)aRect;
-- (NSRect)convertRectToBacking:(NSRect)aRect;
-- (void)setWantsBestResolutionOpenGLSurface:(BOOL)flag;
-@end
-
-@interface NSWindow (LionSDK)
-- (CGFloat)backingScaleFactor;
-@end
-
-extern "C" {
-extern NSString* const NSWindowDidChangeBackingPropertiesNotification;
-}  // extern "C"
-
-#endif  // MAC_OS_X_VERSION_10_7
-
-
 @interface BrowserOpenGLView
     : NSOpenGLView <NSDraggingSource, NSDraggingDestination> {
  @private
@@ -163,6 +134,11 @@ BrowserOpenGLView* GLView(NSView* view) {
   return static_cast<BrowserOpenGLView*>(view);
 }
 
+NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
+  NSRect point_rect = NSMakeRect(point.x, point.y, 0, 0);
+  return [window convertRectToScreen:point_rect].origin;
+}
+
 }  // namespace
 
 
@@ -197,11 +173,8 @@ BrowserOpenGLView* GLView(NSView* view) {
                                     userInfo:nil];
     [self addTrackingArea:tracking_area_];
 
-    if ([self respondsToSelector:
-            @selector(setWantsBestResolutionOpenGLSurface:)]) {
-      // enable HiDPI buffer
-      [self setWantsBestResolutionOpenGLSurface:YES];
-    }
+    // enable HiDPI buffer
+    [self setWantsBestResolutionOpenGLSurface:YES];
 
     [self resetDragDrop];
 
@@ -423,8 +396,7 @@ BrowserOpenGLView* GLView(NSView* view) {
   // the event is received even when the mouse cursor is no longer over the
   // view when the scrolling ends. Also it avoids sending duplicate scroll
   // events to the renderer.
-  if ([event respondsToSelector:@selector(phase)] &&
-      [event phase] == NSEventPhaseBegan && !endWheelMonitor_) {
+  if ([event phase] == NSEventPhaseBegan && !endWheelMonitor_) {
     endWheelMonitor_ =
         [NSEvent addLocalMonitorForEventsMatchingMask:NSScrollWheelMask
             handler:^(NSEvent* blockEvent) {
@@ -1073,12 +1045,8 @@ BrowserOpenGLView* GLView(NSView* view) {
 - (void)resetDeviceScaleFactor {
   float device_scale_factor = 1.0f;
   NSWindow* window = [self window];
-  if (window) {
-    if ([window respondsToSelector:@selector(backingScaleFactor)])
-      device_scale_factor = [window backingScaleFactor];
-    else
-      device_scale_factor = [window userSpaceScaleFactor];
-  }
+  if (window)
+    device_scale_factor = [window backingScaleFactor];
   [self setDeviceScaleFactor:device_scale_factor];
 }
 
@@ -1141,30 +1109,22 @@ BrowserOpenGLView* GLView(NSView* view) {
 
 // Convert from scaled coordinates to view coordinates.
 - (NSPoint)convertPointFromBackingInternal:(NSPoint)aPoint {
-  if ([self respondsToSelector:@selector(convertPointFromBacking:)])
-    return [self convertPointFromBacking:aPoint];
-  return aPoint;
+  return [self convertPointFromBacking:aPoint];
 }
 
 // Convert from view coordinates to scaled coordinates.
 - (NSPoint)convertPointToBackingInternal:(NSPoint)aPoint {
-  if ([self respondsToSelector:@selector(convertPointToBacking:)])
-    return [self convertPointToBacking:aPoint];
-  return aPoint;
+  return [self convertPointToBacking:aPoint];
 }
 
 // Convert from scaled coordinates to view coordinates.
 - (NSRect)convertRectFromBackingInternal:(NSRect)aRect {
-  if ([self respondsToSelector:@selector(convertRectFromBacking:)])
-    return [self convertRectFromBacking:aRect];
-  return aRect;
+  return [self convertRectFromBacking:aRect];
 }
 
 // Convert from view coordinates to scaled coordinates.
 - (NSRect)convertRectToBackingInternal:(NSRect)aRect {
-  if ([self respondsToSelector:@selector(convertRectToBacking:)])
-    return [self convertRectToBacking:aRect];
-  return aRect;
+  return [self convertRectToBacking:aRect];
 }
 
 @end
@@ -1239,7 +1199,7 @@ void BrowserWindowOsrMac::Show() {
 
   if (hidden_) {
     // Set the browser as visible.
-    browser_->GetHost()->SetWindowVisibility(true);
+    browser_->GetHost()->WasHidden(false);
     hidden_ = false;
   }
 
@@ -1258,7 +1218,7 @@ void BrowserWindowOsrMac::Hide() {
 
   if (!hidden_) {
     // Set the browser as hidden.
-    browser_->GetHost()->SetWindowVisibility(false);
+    browser_->GetHost()->WasHidden(true);
     hidden_ = true;
   }
 }
@@ -1362,7 +1322,8 @@ bool BrowserWindowOsrMac::GetScreenPoint(CefRefPtr<CefBrowser> browser,
 
   // Convert to screen coordinates.
   NSPoint window_pt = [nsview_ convertPoint:view_pt toView:nil];
-  NSPoint screen_pt = [[nsview_ window] convertBaseToScreen:window_pt];
+  NSPoint screen_pt =
+      ConvertPointFromWindowToScreen([nsview_ window], window_pt);
 
   screenX = screen_pt.x;
   screenY = screen_pt.y;

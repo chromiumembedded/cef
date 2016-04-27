@@ -10,7 +10,6 @@
 #include "libcef/browser/net/url_request_context_getter.h"
 #include "libcef/browser/net/url_request_context_getter_impl.h"
 
-#include "base/memory/scoped_ptr.h"
 
 class CefURLRequestContextProxy;
 
@@ -43,7 +42,7 @@ class CefURLRequestContextGetterProxy : public CefURLRequestContextGetter {
   // necessary to keep it alive.
   scoped_refptr<CefURLRequestContextGetterImpl> parent_;
 
-  scoped_ptr<CefURLRequestContextProxy> context_proxy_;
+  std::unique_ptr<CefURLRequestContextProxy> context_proxy_;
 
   DISALLOW_COPY_AND_ASSIGN(CefURLRequestContextGetterProxy);
 };

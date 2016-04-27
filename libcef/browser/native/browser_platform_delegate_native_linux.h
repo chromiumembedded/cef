@@ -44,7 +44,7 @@ class CefBrowserPlatformDelegateNativeLinux :
                            int deltaX, int deltaY) const override;
   CefEventHandle GetEventHandle(
       const content::NativeWebKeyboardEvent& event) const override;
-  scoped_ptr<CefMenuRunner> CreateMenuRunner() override;
+  std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
 
  private:
   void TranslateMouseEvent(blink::WebMouseEvent& result,

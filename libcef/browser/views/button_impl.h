@@ -12,7 +12,6 @@
 #include "libcef/browser/views/view_impl.h"
 
 #include "base/logging.h"
-#include "base/memory/scoped_ptr.h"
 #include "ui/views/controls/button/custom_button.h"
 
 // Helpers for template boiler-plate.

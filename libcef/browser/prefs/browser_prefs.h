@@ -19,7 +19,7 @@ namespace browser_prefs {
 extern const char kUserPrefsFileName[];
 
 // Create the PrefService used to manage pref registration and storage.
-scoped_ptr<PrefService> CreatePrefService(const base::FilePath& pref_path);
+std::unique_ptr<PrefService> CreatePrefService(const base::FilePath& pref_path);
 
 }  // namespace browser_prefs
 

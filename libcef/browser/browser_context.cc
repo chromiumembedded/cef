@@ -14,6 +14,8 @@
 #include "components/user_prefs/user_prefs.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/storage_partition.h"
+#include "extensions/browser/extension_protocols.h"
+#include "extensions/common/constants.h"
 
 #ifndef NDEBUG
 base::AtomicRefCount CefBrowserContext::DebugObjCt = 0;
@@ -63,6 +65,21 @@ void CefBrowserContext::Initialize() {
 
   if (extensions_enabled)
     extension_system_->Init();
+}
+
+void CefBrowserContext::CreateProtocolHandlers(
+    content::ProtocolHandlerMap* protocol_handlers) {
+  if (extensions::ExtensionsEnabled()) {
+    // Handle only chrome-extension:// requests. CEF does not support
+    // chrome-extension-resource:// requests (it does not store shared extension
+    // data in its installation directory).
+    extensions::InfoMap* extension_info_map =
+        extension_system()->info_map();
+    (*protocol_handlers)[extensions::kExtensionScheme] =
+        linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
+            extensions::CreateExtensionProtocolHandler(
+                IsOffTheRecord(), extension_info_map).release());
+  }
 }
 
 void CefBrowserContext::Shutdown() {

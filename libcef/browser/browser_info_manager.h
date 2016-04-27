@@ -93,7 +93,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
       content::WebContents* new_contents,
       CefBrowserSettings& settings,
       CefRefPtr<CefClient>& client,
-      scoped_ptr<CefBrowserPlatformDelegate>& platform_delegate);
+      std::unique_ptr<CefBrowserPlatformDelegate>& platform_delegate);
 
   // Called from CefBrowserMessageFilter::OnGetNewBrowserInfo for delivering
   // browser info to the renderer process. If the browser info already exists
@@ -172,7 +172,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
     CefRefPtr<CefClient> client;
 
     // Platform delegate specific to the new popup.
-    scoped_ptr<CefBrowserPlatformDelegate> platform_delegate;
+    std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate;
   };
 
   // Between the calls to CanCreateWindow and ShouldCreateWebContents
@@ -182,11 +182,11 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // otherwise ShouldCreateWebContents will fail to retrieve the PopupInfo.
   static void FilterPendingPopupURL(
     int render_process_id,
-    scoped_ptr<PendingPopup> pending_popup);
+    std::unique_ptr<PendingPopup> pending_popup);
 
   // Manage pending popups.
-  void PushPendingPopup(scoped_ptr<PendingPopup> popup);
-  scoped_ptr<PendingPopup> PopPendingPopup(
+  void PushPendingPopup(std::unique_ptr<PendingPopup> popup);
+  std::unique_ptr<PendingPopup> PopPendingPopup(
       PendingPopup::Step step,
       int opener_process_id,
       int opener_view_id,

@@ -10,7 +10,6 @@
 #include "libcef/browser/net/url_request_context_getter_impl.h"
 
 #include "base/macros.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/memory/scoped_vector.h"
 #include "base/strings/string_piece.h"
 #include "build/build_config.h"
@@ -58,15 +57,14 @@ class CefBrowserMainParts : public content::BrowserMainParts {
  private:
 #if defined(OS_WIN)
   void PlatformInitialize();
-  void PlatformPreMainMessageLoopRun();
 #endif  // defined(OS_WIN)
 
   scoped_refptr<CefBrowserContextImpl> global_browser_context_;
   CefDevToolsDelegate* devtools_delegate_;  // Deletes itself.
-  scoped_ptr<base::MessageLoop> message_loop_;
+  std::unique_ptr<base::MessageLoop> message_loop_;
 
-  scoped_ptr<extensions::ExtensionsClient> extensions_client_;
-  scoped_ptr<extensions::ExtensionsBrowserClient> extensions_browser_client_;
+  std::unique_ptr<extensions::ExtensionsClient> extensions_client_;
+  std::unique_ptr<extensions::ExtensionsBrowserClient> extensions_browser_client_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserMainParts);
 };

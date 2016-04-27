@@ -15,7 +15,6 @@
 #include "libcef/renderer/browser_impl.h"
 
 #include "base/compiler_specific.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/message_loop/message_loop.h"
 #include "base/sequenced_task_runner.h"
 #include "content/public/renderer/content_renderer_client.h"
@@ -128,6 +127,8 @@ class CefContentRendererClient : public content::ContentRendererClient,
       const std::string& mime_type,
       const GURL& original_url) override;
   void AddKeySystems(std::vector<media::KeySystemInfo>* key_systems) override;
+  void RunScriptsAtDocumentStart(content::RenderFrame* render_frame) override;
+  void RunScriptsAtDocumentEnd(content::RenderFrame* render_frame) override;
 
   // MessageLoop::DestructionObserver implementation.
   void WillDestroyCurrentMessageLoop() override;
@@ -149,10 +150,10 @@ class CefContentRendererClient : public content::ContentRendererClient,
   void RunSingleProcessCleanupOnUIThread();
 
   scoped_refptr<base::SequencedTaskRunner> render_task_runner_;
-  scoped_ptr<CefRenderProcessObserver> observer_;
-  scoped_ptr<web_cache::WebCacheRenderProcessObserver> web_cache_observer_;
-  scoped_ptr<SpellCheck> spellcheck_;
-  scoped_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
+  std::unique_ptr<CefRenderProcessObserver> observer_;
+  std::unique_ptr<web_cache::WebCacheRenderProcessObserver> web_cache_observer_;
+  std::unique_ptr<SpellCheck> spellcheck_;
+  std::unique_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
 
   // Map of RenderView pointers to CefBrowserImpl references.
   typedef std::map<content::RenderView*, CefRefPtr<CefBrowserImpl> > BrowserMap;
@@ -166,10 +167,10 @@ class CefContentRendererClient : public content::ContentRendererClient,
   typedef std::vector<Cef_CrossOriginWhiteListEntry_Params> CrossOriginList;
   CrossOriginList cross_origin_whitelist_entries_;
 
-  scoped_ptr<ChromePDFPrintClient> pdf_print_client_;
+  std::unique_ptr<ChromePDFPrintClient> pdf_print_client_;
 
-  scoped_ptr<extensions::ExtensionsClient> extensions_client_;
-  scoped_ptr<extensions::CefExtensionsRendererClient>
+  std::unique_ptr<extensions::ExtensionsClient> extensions_client_;
+  std::unique_ptr<extensions::CefExtensionsRendererClient>
       extensions_renderer_client_;
 
   int devtools_agent_count_;

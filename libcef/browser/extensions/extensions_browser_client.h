@@ -58,7 +58,7 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
       std::vector<ExtensionPrefsObserver*>* observers) const
       override;
   ProcessManagerDelegate* GetProcessManagerDelegate() const override;
-  scoped_ptr<ExtensionHostDelegate>
+  std::unique_ptr<ExtensionHostDelegate>
   CreateExtensionHostDelegate() override;
   bool DidVersionUpdate(content::BrowserContext* context) override;
   void PermitExternalProtocolHandler() override;
@@ -71,13 +71,13 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
       ExtensionFunctionRegistry* registry) const override;
   void RegisterMojoServices(content::RenderFrameHost* render_frame_host,
                             const Extension* extension) const override;
-  scoped_ptr<RuntimeAPIDelegate> CreateRuntimeAPIDelegate(
+  std::unique_ptr<RuntimeAPIDelegate> CreateRuntimeAPIDelegate(
       content::BrowserContext* context) const override;
   const ComponentExtensionResourceManager*
   GetComponentExtensionResourceManager() override;
   void BroadcastEventToRenderers(events::HistogramValue histogram_value,
                                  const std::string& event_name,
-                                 scoped_ptr<base::ListValue> args) override;
+                                 std::unique_ptr<base::ListValue> args) override;
   net::NetLog* GetNetLog() override;
   ExtensionCache* GetExtensionCache() override;
   bool IsBackgroundUpdateAllowed() override;
@@ -90,10 +90,10 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
 
  private:
   // Support for extension APIs.
-  scoped_ptr<ExtensionsAPIClient> api_client_;
+  std::unique_ptr<ExtensionsAPIClient> api_client_;
 
   // Resource manager used to supply resources from pak files.
-  scoped_ptr<ComponentExtensionResourceManager> resource_manager_;
+  std::unique_ptr<ComponentExtensionResourceManager> resource_manager_;
 
   scoped_refptr<EventRouterForwarder> event_router_forwarder_;
 

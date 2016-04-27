@@ -1,8 +1,8 @@
 diff --git public/common/common_param_traits_macros.h public/common/common_param_traits_macros.h
-index b0cf1d1..15285c0 100644
+index ae29c73..2b9c996 100644
 --- public/common/common_param_traits_macros.h
 +++ public/common/common_param_traits_macros.h
-@@ -195,6 +195,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+@@ -196,6 +196,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
    IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
@@ -11,39 +11,39 @@ index b0cf1d1..15285c0 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git public/common/web_preferences.cc public/common/web_preferences.cc
-index c0563f5..4118b5a 100644
+index c1cdd19..33af607 100644
 --- public/common/web_preferences.cc
 +++ public/common/web_preferences.cc
-@@ -157,6 +157,7 @@ WebPreferences::WebPreferences()
+@@ -156,6 +156,7 @@ WebPreferences::WebPreferences()
        pinch_overlay_scrollbar_thickness(0),
        use_solid_color_scrollbars(false),
        navigate_on_drag_drop(true),
 +      base_background_color(0xFFFFFFFF),  // Color::white
        v8_cache_options(V8_CACHE_OPTIONS_DEFAULT),
        inert_visual_viewport(false),
-       cookie_enabled(true),
+       record_whole_document(false),
 diff --git public/common/web_preferences.h public/common/web_preferences.h
-index 636f7a2..1936bed 100644
+index 7b72351..7513ce2 100644
 --- public/common/web_preferences.h
 +++ public/common/web_preferences.h
-@@ -174,6 +174,7 @@ struct CONTENT_EXPORT WebPreferences {
+@@ -173,6 +173,7 @@ struct CONTENT_EXPORT WebPreferences {
    int pinch_overlay_scrollbar_thickness;
    bool use_solid_color_scrollbars;
    bool navigate_on_drag_drop;
 +  uint32_t base_background_color;
    V8CacheOptions v8_cache_options;
    bool inert_visual_viewport;
- 
+   bool record_whole_document;
 diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
-index 9c56520..754ac04 100644
+index ae2d8ec..f90fba7 100644
 --- renderer/render_view_impl.cc
 +++ renderer/render_view_impl.cc
-@@ -1545,6 +1545,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
+@@ -1483,6 +1483,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
      blink::WebView* web_view,
      CompositorDependencies* compositor_deps) {
    ApplyWebPreferences(prefs, web_view);
 +  if (GetWebFrameWidget())
 +    GetWebFrameWidget()->setBaseBackgroundColor(prefs.base_background_color);
- #if defined(OS_MACOSX) && !defined(OS_IOS)
-   DCHECK(compositor_deps);
-   bool is_elastic_overscroll_enabled =
+ }
+ 
+ void RenderViewImpl::OnForceRedraw(int id) {

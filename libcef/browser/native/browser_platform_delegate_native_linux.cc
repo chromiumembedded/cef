@@ -367,7 +367,7 @@ CefEventHandle CefBrowserPlatformDelegateNativeLinux::GetEventHandle(
   return const_cast<CefEventHandle>(event.os_event->native_event());
 }
 
-scoped_ptr<CefMenuRunner>
+std::unique_ptr<CefMenuRunner>
     CefBrowserPlatformDelegateNativeLinux::CreateMenuRunner() {
   return make_scoped_ptr(new CefMenuRunnerLinux);
 }

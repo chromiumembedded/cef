@@ -10,7 +10,6 @@
 #include "libcef/browser/views/button_view.h"
 
 #include "base/logging.h"
-#include "base/memory/scoped_ptr.h"
 #include "ui/gfx/font_list.h"
 
 // Helpers for template boiler-plate.

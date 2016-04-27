@@ -64,7 +64,6 @@
 #include "content/public/common/storage_quota_params.h"
 #include "content/public/common/web_preferences.h"
 #include "extensions/browser/extension_message_filter.h"
-#include "extensions/browser/extension_protocols.h"
 #include "extensions/browser/extension_registry.h"
 #include "extensions/browser/guest_view/extensions_guest_view_message_filter.h"
 #include "extensions/browser/io_thread_extension_message_filter.h"
@@ -316,13 +315,6 @@ int GetCrashSignalFD(const base::CommandLine& command_line) {
     return crash_handler->GetDeathSignalSocket();
   }
 
-  if (process_type == switches::kPluginProcess) {
-    static breakpad::CrashHandlerHostLinux* crash_handler = NULL;
-    if (!crash_handler)
-      crash_handler = CreateCrashHandlerHost(process_type);
-    return crash_handler->GetDeathSignalSocket();
-  }
-
   if (process_type == switches::kPpapiPluginProcess) {
     static breakpad::CrashHandlerHostLinux* crash_handler = NULL;
     if (!crash_handler)
@@ -494,46 +486,6 @@ bool CefContentBrowserClient::ShouldUseProcessPerSite(
   return true;
 }
 
-net::URLRequestContextGetter* CefContentBrowserClient::CreateRequestContext(
-    content::BrowserContext* content_browser_context,
-    content::ProtocolHandlerMap* protocol_handlers,
-    content::URLRequestInterceptorScopedVector request_interceptors) {
-  scoped_refptr<CefBrowserContext> context =
-      static_cast<CefBrowserContext*>(content_browser_context);
-
-  if (extensions::ExtensionsEnabled()) {
-    // Handle only chrome-extension:// requests. CEF does not support
-    // chrome-extension-resource:// requests (it does not store shared extension
-    // data in its installation directory).
-    extensions::InfoMap* extension_info_map =
-        context->extension_system()->info_map();
-    (*protocol_handlers)[extensions::kExtensionScheme] =
-        linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-            extensions::CreateExtensionProtocolHandler(
-                context->IsOffTheRecord(), extension_info_map).release());
-  }
-
-  return context->CreateRequestContext(
-      protocol_handlers,
-      std::move(request_interceptors));
-}
-
-net::URLRequestContextGetter*
-CefContentBrowserClient::CreateRequestContextForStoragePartition(
-    content::BrowserContext* content_browser_context,
-    const base::FilePath& partition_path,
-    bool in_memory,
-    content::ProtocolHandlerMap* protocol_handlers,
-    content::URLRequestInterceptorScopedVector request_interceptors) {
-  scoped_refptr<CefBrowserContext> context =
-      static_cast<CefBrowserContext*>(content_browser_context);
-  return context->CreateRequestContextForStoragePartition(
-      partition_path,
-      in_memory,
-      protocol_handlers,
-      std::move(request_interceptors));
-}
-
 bool CefContentBrowserClient::IsHandledURL(const GURL& url) {
   if (!url.is_valid())
     return false;
@@ -544,16 +496,6 @@ bool CefContentBrowserClient::IsHandledURL(const GURL& url) {
     return true;
 
   return CefContentClient::Get()->HasCustomScheme(scheme);
-}
-
-bool CefContentBrowserClient::IsNPAPIEnabled() {
-#if defined(OS_WIN) || defined(OS_MACOSX)
-  const base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
-  return command_line->HasSwitch(switches::kEnableNPAPI);
-#else
-  return false;
-#endif
 }
 
 void CefContentBrowserClient::AppendExtraCommandLineSwitches(
@@ -725,7 +667,7 @@ void CefContentBrowserClient::AllowCertificateError(
 void CefContentBrowserClient::SelectClientCertificate(
     content::WebContents* web_contents,
     net::SSLCertRequestInfo* cert_request_info,
-    scoped_ptr<content::ClientCertificateDelegate> delegate) {
+    std::unique_ptr<content::ClientCertificateDelegate> delegate) {
   if (!cert_request_info->client_certs.empty()) {
     // Use the first certificate.
     delegate->ContinueWithCertificate(cert_request_info->client_certs[0].get());
@@ -794,7 +736,7 @@ std::string CefContentBrowserClient::GetDefaultDownloadName() {
 void CefContentBrowserClient::DidCreatePpapiPlugin(
     content::BrowserPpapiHost* browser_host) {
   browser_host->GetPpapiHost()->AddHostFactoryFilter(
-      scoped_ptr<ppapi::host::HostFactory>(
+      std::unique_ptr<ppapi::host::HostFactory>(
           new CefBrowserPepperHostFactory(browser_host)));
 }
 

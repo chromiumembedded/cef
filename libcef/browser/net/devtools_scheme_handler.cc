@@ -9,6 +9,7 @@
 #include "libcef/browser/net/internal_scheme_handler.h"
 #include "libcef/browser/net/url_request_manager.h"
 
+#include "base/memory/ptr_util.h"
 #include "base/strings/string_util.h"
 #include "content/public/common/url_constants.h"
 #include "grit/devtools_resources_map.h"
@@ -49,8 +50,7 @@ void RegisterChromeDevToolsHandler(CefURLRequestManager* request_manager) {
   request_manager->AddFactory(
       content::kChromeDevToolsScheme,
       kChromeDevToolsHost,
-      CreateInternalHandlerFactory(
-          make_scoped_ptr<InternalHandlerDelegate>(new Delegate())));
+      CreateInternalHandlerFactory(base::WrapUnique(new Delegate())));
 }
 
 }  // namespace scheme

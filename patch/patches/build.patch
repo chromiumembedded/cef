@@ -1,5 +1,5 @@
 diff --git common.gypi common.gypi
-index 5f389b2..b8725d5 100644
+index 1aad5054..5bccbed 100644
 --- common.gypi
 +++ common.gypi
 @@ -9,6 +9,9 @@
@@ -12,7 +12,7 @@ index 5f389b2..b8725d5 100644
      # Putting a variables dict inside another variables dict looks kind of
      # weird.  This is done so that 'host_arch', 'chromeos', etc are defined as
      # variables within the outer variables dict here.  This is necessary
-@@ -95,7 +98,10 @@
+@@ -96,7 +99,10 @@
            # depending on the packages installed on the local machine. Set this
            # to 0 to build against locally installed headers and libraries (e.g.
            # if packaging for a linux distro)
@@ -24,16 +24,3 @@ index 5f389b2..b8725d5 100644
  
            # Override buildtype to select the desired build flavor.
            # Dev - everyday build for development/testing
-diff --git mac/strip_save_dsym mac/strip_save_dsym
-index c9cf226..0dedbe3 100755
---- mac/strip_save_dsym
-+++ mac/strip_save_dsym
-@@ -48,7 +48,7 @@ def macho_archs(macho):
-                  "bundle"]
-   macho_types_re = "Mach-O (?:64-bit )?(?:" + "|".join(macho_types) + ")"
- 
--  file_cmd = subprocess.Popen(["/usr/bin/file", "-b", "--", macho],
-+  file_cmd = subprocess.Popen(["/usr/bin/file", "-b", "-L", "--", macho],
-                               stdout=subprocess.PIPE)
- 
-   archs = []

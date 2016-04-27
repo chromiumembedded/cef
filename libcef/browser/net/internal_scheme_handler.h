@@ -8,7 +8,6 @@
 
 #include <string>
 #include "include/cef_scheme.h"
-#include "base/memory/scoped_ptr.h"
 #include "url/gurl.h"
 
 namespace scheme {
@@ -47,7 +46,7 @@ class InternalHandlerDelegate {
 // Create an internal scheme handler factory. The factory will take ownership of
 // |delegate|.
 CefRefPtr<CefSchemeHandlerFactory> CreateInternalHandlerFactory(
-    scoped_ptr<InternalHandlerDelegate> delegate);
+    std::unique_ptr<InternalHandlerDelegate> delegate);
 
 }  // namespace scheme
 

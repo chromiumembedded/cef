@@ -33,16 +33,6 @@ CefTextInputClientOSRMac* GetInputClientFromContext(
 void CefRenderWidgetHostViewOSR::SetActive(bool active) {
 }
 
-void CefRenderWidgetHostViewOSR::SetWindowVisibility(bool visible) {
-  if (visible)
-    Hide();
-  else
-    Show();
-}
-
-void CefRenderWidgetHostViewOSR::WindowFrameChanged() {
-}
-
 void CefRenderWidgetHostViewOSR::ShowDefinitionForSelection() {
 }
 
@@ -60,8 +50,8 @@ bool CefRenderWidgetHostViewOSR::IsSpeaking() const {
 void CefRenderWidgetHostViewOSR::StopSpeaking() {
 }
 
-void CefRenderWidgetHostViewOSR::TextInputStateChanged(
-    const ViewHostMsg_TextInputState_Params& params) {
+void CefRenderWidgetHostViewOSR::UpdateInputMethodIfNecessary(
+    bool text_input_state_changed) {
   [NSApp updateWindows];
 }
 
@@ -70,11 +60,6 @@ void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
       text_input_context_osr_mac_);
   if (client)
     [client cancelComposition];
-}
-
-bool CefRenderWidgetHostViewOSR::PostProcessEventForPluginIme(
-    const content::NativeWebKeyboardEvent& event) {
-  return false;
 }
 
 void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(

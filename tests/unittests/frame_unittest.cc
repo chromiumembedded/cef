@@ -6,10 +6,12 @@
 #include "include/base/cef_scoped_ptr.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
-#include "testing/gtest/include/gtest/gtest.h"
 #include "tests/cefclient/browser/client_app_browser.h"
 #include "tests/cefclient/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
+
+#include "base/memory/ptr_util.h"
+#include "testing/gtest/include/gtest/gtest.h"
 
 using client::ClientAppBrowser;
 using client::ClientAppRenderer;
@@ -226,7 +228,7 @@ class FrameNavExpectationsFactoryBrowser : public FrameNavExpectationsFactory {
   FrameNavExpectationsFactoryBrowser() {}
 
   // Create a new factory instance of the specified type.
-  static scoped_ptr<FrameNavExpectationsFactoryBrowser>
+  static std::unique_ptr<FrameNavExpectationsFactoryBrowser>
       FromID(FrameNavFactoryId id);
 
   // Returns true if there will be more navigations in the browser process
@@ -236,10 +238,10 @@ class FrameNavExpectationsFactoryBrowser : public FrameNavExpectationsFactory {
   // Verify final expectations results.
   virtual bool Finalize() =0;
 
-  scoped_ptr<FrameNavExpectationsBrowser> Create(
+  std::unique_ptr<FrameNavExpectationsBrowser> Create(
       int nav,
       const FrameNavExpectations::CompletionCallback& completion_callback) {
-    scoped_ptr<FrameNavExpectationsBrowser> expectations;
+    std::unique_ptr<FrameNavExpectationsBrowser> expectations;
     expectations = Create(nav);
     expectations->set_completion_callback(completion_callback);
     return expectations;
@@ -247,7 +249,7 @@ class FrameNavExpectationsFactoryBrowser : public FrameNavExpectationsFactory {
 
  protected:
   // Implement in the test-specific factory instance.
-  virtual scoped_ptr<FrameNavExpectationsBrowser> Create(int nav) =0;
+  virtual std::unique_ptr<FrameNavExpectationsBrowser> Create(int nav) =0;
 };
 
 // Renderer process expectations factory abstact base class.
@@ -256,13 +258,13 @@ class FrameNavExpectationsFactoryRenderer : public FrameNavExpectationsFactory {
   FrameNavExpectationsFactoryRenderer() {}
 
   // Create a new factory instance of the specified type.
-  static scoped_ptr<FrameNavExpectationsFactoryRenderer>
+  static std::unique_ptr<FrameNavExpectationsFactoryRenderer>
       FromID(FrameNavFactoryId id);
 
-  scoped_ptr<FrameNavExpectationsRenderer> Create(
+  std::unique_ptr<FrameNavExpectationsRenderer> Create(
       int nav,
       const FrameNavExpectations::CompletionCallback& completion_callback) {
-    scoped_ptr<FrameNavExpectationsRenderer> expectations;
+    std::unique_ptr<FrameNavExpectationsRenderer> expectations;
     expectations = Create(nav);
     expectations->set_completion_callback(completion_callback);
     return expectations;
@@ -270,7 +272,7 @@ class FrameNavExpectationsFactoryRenderer : public FrameNavExpectationsFactory {
 
  protected:
   // Implement in the test-specific factory instance.
-  virtual scoped_ptr<FrameNavExpectationsRenderer> Create(int nav) =0;
+  virtual std::unique_ptr<FrameNavExpectationsRenderer> Create(int nav) =0;
 };
 
 
@@ -416,8 +418,8 @@ class FrameNavRendererTest : public ClientAppRenderer::Delegate,
 
   bool run_test_;
   int nav_;
-  scoped_ptr<FrameNavExpectationsFactoryRenderer> factory_;
-  scoped_ptr<FrameNavExpectationsRenderer> expectations_;
+  std::unique_ptr<FrameNavExpectationsFactoryRenderer> factory_;
+  std::unique_ptr<FrameNavExpectationsRenderer> expectations_;
 
   IMPLEMENT_REFCOUNTING(FrameNavRendererTest);
 };
@@ -566,8 +568,8 @@ class FrameNavTestHandler : public TestHandler {
 
   int nav_;
   TrackCallback got_destroyed_;
-  scoped_ptr<FrameNavExpectationsFactoryBrowser> factory_;
-  scoped_ptr<FrameNavExpectationsBrowser> expectations_;
+  std::unique_ptr<FrameNavExpectationsFactoryBrowser> factory_;
+  std::unique_ptr<FrameNavExpectationsBrowser> expectations_;
 
   IMPLEMENT_REFCOUNTING(FrameNavTestHandler);
 };
@@ -860,10 +862,10 @@ class FrameNavExpectationsFactoryBrowserTestSingleNavHarness :
   }
 
  protected:
-  scoped_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
+  std::unique_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
     EXPECT_FALSE(got_create_);
     got_create_.yes();
-    return make_scoped_ptr<FrameNavExpectationsBrowser>(
+    return base::WrapUnique(
         new FrameNavExpectationsBrowserTestSingleNavHarness(nav));
   }
 
@@ -883,8 +885,8 @@ class FrameNavExpectationsFactoryRendererTestSingleNavHarness :
   }
 
  protected:
-  scoped_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
-    return make_scoped_ptr<FrameNavExpectationsRenderer>(
+  std::unique_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
+    return base::WrapUnique(
         new FrameNavExpectationsRendererTestSingleNavHarness(nav));
   }
 };
@@ -1125,8 +1127,8 @@ class FrameNavExpectationsFactoryBrowserTestSingleNav :
   }
 
  protected:
-  scoped_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
-    return make_scoped_ptr<FrameNavExpectationsBrowser>(
+  std::unique_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
+    return base::WrapUnique(
         new FrameNavExpectationsBrowserTestSingleNav(nav));
   }
 };
@@ -1141,8 +1143,8 @@ class FrameNavExpectationsFactoryRendererTestSingleNav :
   }
 
  protected:
-  scoped_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
-    return make_scoped_ptr<FrameNavExpectationsRenderer>(
+  std::unique_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
+    return base::WrapUnique(
         new FrameNavExpectationsRendererTestSingleNav(nav));
   }
 };
@@ -1460,9 +1462,9 @@ class FrameNavExpectationsFactoryBrowserTestMultiNavHarness :
   }
 
  protected:
-  scoped_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
+  std::unique_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
     create_count_++;
-    return make_scoped_ptr<FrameNavExpectationsBrowser>(
+    return base::WrapUnique(
         new FrameNavExpectationsBrowserTestMultiNavHarness(nav));
   }
 
@@ -1482,8 +1484,8 @@ class FrameNavExpectationsFactoryRendererTestMultiNavHarness :
   }
 
  protected:
-  scoped_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
-    return make_scoped_ptr<FrameNavExpectationsRenderer>(
+  std::unique_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
+    return base::WrapUnique(
         new FrameNavExpectationsRendererTestMultiNavHarness(nav));
   }
 };
@@ -1719,9 +1721,9 @@ class FrameNavExpectationsFactoryBrowserTestMultiNav :
   }
 
  protected:
-  scoped_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
+  std::unique_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
     nav_count_++;
-    return make_scoped_ptr<FrameNavExpectationsBrowser>(
+    return base::WrapUnique(
         new FrameNavExpectationsBrowserTestMultiNav(nav));
   }
 
@@ -1739,8 +1741,8 @@ class FrameNavExpectationsFactoryRendererTestMultiNav :
   }
 
  protected:
-  scoped_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
-    return make_scoped_ptr<FrameNavExpectationsRenderer>(
+  std::unique_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
+    return base::WrapUnique(
         new FrameNavExpectationsRendererTestMultiNav(nav));
   }
 };
@@ -2173,9 +2175,9 @@ class FrameNavExpectationsFactoryBrowserTestNestedIframesSameOrigin :
   }
 
  protected:
-  scoped_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
+  std::unique_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
     create_count_++;
-    return make_scoped_ptr<FrameNavExpectationsBrowser>(
+    return base::WrapUnique(
         new FrameNavExpectationsBrowserTestNestedIframes(nav, true));
   }
 
@@ -2193,8 +2195,8 @@ class FrameNavExpectationsFactoryRendererTestNestedIframesSameOrigin :
   }
 
  protected:
-  scoped_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
-    return make_scoped_ptr<FrameNavExpectationsRenderer>(
+  std::unique_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
+    return base::WrapUnique(
         new FrameNavExpectationsRendererTestNestedIframes(nav,  true));
   }
 };
@@ -2228,9 +2230,9 @@ class FrameNavExpectationsFactoryBrowserTestNestedIframesDiffOrigin :
   }
 
  protected:
-  scoped_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
+  std::unique_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
     create_count_++;
-    return make_scoped_ptr<FrameNavExpectationsBrowser>(
+    return base::WrapUnique(
         new FrameNavExpectationsBrowserTestNestedIframes(nav, false));
   }
 
@@ -2248,8 +2250,8 @@ class FrameNavExpectationsFactoryRendererTestNestedIframesDiffOrigin :
   }
 
  protected:
-  scoped_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
-    return make_scoped_ptr<FrameNavExpectationsRenderer>(
+  std::unique_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
+    return base::WrapUnique(
         new FrameNavExpectationsRendererTestNestedIframes(nav, false));
   }
 };
@@ -2266,9 +2268,9 @@ namespace {
 // must be listed here.
 
 // static
-scoped_ptr<FrameNavExpectationsFactoryBrowser>
+std::unique_ptr<FrameNavExpectationsFactoryBrowser>
     FrameNavExpectationsFactoryBrowser::FromID(FrameNavFactoryId id) {
-  scoped_ptr<FrameNavExpectationsFactoryBrowser> factory;
+  std::unique_ptr<FrameNavExpectationsFactoryBrowser> factory;
   switch (id) {
     case FNF_ID_SINGLE_NAV_HARNESS:
       factory.reset(new FrameNavExpectationsFactoryBrowserTestSingleNavHarness);
@@ -2299,9 +2301,9 @@ scoped_ptr<FrameNavExpectationsFactoryBrowser>
 }
 
 // static
-scoped_ptr<FrameNavExpectationsFactoryRenderer>
+std::unique_ptr<FrameNavExpectationsFactoryRenderer>
     FrameNavExpectationsFactoryRenderer::FromID(FrameNavFactoryId id) {
-  scoped_ptr<FrameNavExpectationsFactoryRenderer> factory;
+  std::unique_ptr<FrameNavExpectationsFactoryRenderer> factory;
   switch (id) {
     case FNF_ID_SINGLE_NAV_HARNESS:
       factory.reset(

@@ -12,7 +12,6 @@
 #include "include/cef_menu_model.h"
 #include "include/cef_menu_model_delegate.h"
 
-#include "base/memory/scoped_ptr.h"
 #include "base/observer_list.h"
 #include "base/threading/platform_thread.h"
 #include "ui/base/models/menu_model.h"
@@ -172,7 +171,7 @@ class CefMenuModelImpl : public CefMenuModel {
   CefRefPtr<CefMenuModelDelegate> menu_model_delegate_;
 
   ItemVector items_;
-  scoped_ptr<ui::MenuModel> model_;
+  std::unique_ptr<ui::MenuModel> model_;
 
   // Observers that want to be notified of changes to this object.
   base::ObserverList<Observer> observers_;

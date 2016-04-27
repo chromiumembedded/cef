@@ -9,7 +9,7 @@
 #include "libcef/browser/browser_host_impl.h"
 
 CefBrowserPlatformDelegateOsrLinux::CefBrowserPlatformDelegateOsrLinux(
-    scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate)
+    std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate)
     : CefBrowserPlatformDelegateOsr(std::move(native_delegate)) {
 }
 

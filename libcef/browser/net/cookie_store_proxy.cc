@@ -140,7 +140,7 @@ void CefCookieStoreProxy::FlushStore(const base::Closure& callback) {
     cookie_store->FlushStore(callback);
 }
 
-scoped_ptr<net::CookieStore::CookieChangedSubscription>
+std::unique_ptr<net::CookieStore::CookieChangedSubscription>
 CefCookieStoreProxy::AddCallbackForCookie(
     const GURL& url,
     const std::string& name,

@@ -142,38 +142,11 @@ CEF_EXPORT void cef_visit_web_plugin_info(
 CEF_EXPORT void cef_refresh_web_plugins();
 
 ///
-// Add a plugin path (directory + file). This change may not take affect until
-// after cef_refresh_web_plugins() is called. Can be called on any thread in the
-// browser process.
-///
-CEF_EXPORT void cef_add_web_plugin_path(const cef_string_t* path);
-
-///
-// Add a plugin directory. This change may not take affect until after
-// cef_refresh_web_plugins() is called. Can be called on any thread in the
-// browser process.
-///
-CEF_EXPORT void cef_add_web_plugin_directory(const cef_string_t* dir);
-
-///
-// Remove a plugin path (directory + file). This change may not take affect
-// until after cef_refresh_web_plugins() is called. Can be called on any thread
-// in the browser process.
-///
-CEF_EXPORT void cef_remove_web_plugin_path(const cef_string_t* path);
-
-///
 // Unregister an internal plugin. This may be undone the next time
 // cef_refresh_web_plugins() is called. Can be called on any thread in the
 // browser process.
 ///
 CEF_EXPORT void cef_unregister_internal_web_plugin(const cef_string_t* path);
-
-///
-// Force a plugin to shutdown. Can be called on any thread in the browser
-// process but will be executed on the IO thread.
-///
-CEF_EXPORT void cef_force_web_plugin_shutdown(const cef_string_t* path);
 
 ///
 // Register a plugin crash. Can be called on any thread in the browser process

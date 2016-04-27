@@ -15,7 +15,6 @@
 
 #include "base/macros.h"
 #include "base/memory/ref_counted.h"
-#include "base/memory/scoped_ptr.h"
 #include "build/build_config.h"
 #include "content/public/browser/content_browser_client.h"
 #include "third_party/skia/include/core/SkColor.h"
@@ -44,20 +43,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       content::RenderProcessHost* host) override;
   bool ShouldUseProcessPerSite(content::BrowserContext* browser_context,
                                const GURL& effective_url) override;
-  net::URLRequestContextGetter* CreateRequestContext(
-      content::BrowserContext* browser_context,
-      content::ProtocolHandlerMap* protocol_handlers,
-      content::URLRequestInterceptorScopedVector request_interceptors)
-      override;
-  net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
-      content::BrowserContext* browser_context,
-      const base::FilePath& partition_path,
-      bool in_memory,
-      content::ProtocolHandlerMap* protocol_handlers,
-      content::URLRequestInterceptorScopedVector request_interceptors)
-      override;
   bool IsHandledURL(const GURL& url) override;
-  bool IsNPAPIEnabled() override;
   void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
                                               int child_process_id) override;
   content::QuotaPermissionContext*
@@ -79,7 +65,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   void SelectClientCertificate(
       content::WebContents* web_contents,
       net::SSLCertRequestInfo* cert_request_info,
-      scoped_ptr<content::ClientCertificateDelegate> delegate) override;
+      std::unique_ptr<content::ClientCertificateDelegate> delegate) override;
   content::AccessTokenStore* CreateAccessTokenStore() override;
   bool CanCreateWindow(const GURL& opener_url,
                        const GURL& opener_top_level_frame_url,
@@ -129,8 +115,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
  private:
   CefBrowserMainParts* browser_main_parts_;
 
-  scoped_ptr<content::PluginServiceFilter> plugin_service_filter_;
-  scoped_ptr<CefResourceDispatcherHostDelegate>
+  std::unique_ptr<content::PluginServiceFilter> plugin_service_filter_;
+  std::unique_ptr<CefResourceDispatcherHostDelegate>
       resource_dispatcher_host_delegate_;
 };
 

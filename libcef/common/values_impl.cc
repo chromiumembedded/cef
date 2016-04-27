@@ -455,7 +455,7 @@ CefBinaryValueImpl::CefBinaryValueImpl(char* data,
                                        bool copy)
   : CefValueBase<CefBinaryValue, base::BinaryValue>(
         copy ? base::BinaryValue::CreateWithCopiedBuffer(data, data_size) :
-               new base::BinaryValue(scoped_ptr<char[]>(data), data_size),
+               new base::BinaryValue(std::unique_ptr<char[]>(data), data_size),
         NULL, kOwnerWillDelete, true, NULL) {
 }
 
@@ -948,7 +948,7 @@ bool CefDictionaryValueImpl::SetList(const CefString& key,
 }
 
 bool CefDictionaryValueImpl::RemoveInternal(const CefString& key) {
-  scoped_ptr<base::Value> out_value;
+  std::unique_ptr<base::Value> out_value;
   if (!mutable_value()->RemoveWithoutPathExpansion(key, &out_value))
     return false;
 
@@ -1346,7 +1346,7 @@ bool CefListValueImpl::SetList(int index, CefRefPtr<CefListValue> value) {
 }
 
 bool CefListValueImpl::RemoveInternal(int index) {
-  scoped_ptr<base::Value> out_value;
+  std::unique_ptr<base::Value> out_value;
   if (!mutable_value()->Remove(index, &out_value))
     return false;
 

@@ -130,7 +130,7 @@ class InternalHandler : public CefResourceHandler {
 class InternalHandlerFactory : public CefSchemeHandlerFactory {
  public:
   explicit InternalHandlerFactory(
-      scoped_ptr<InternalHandlerDelegate> delegate)
+      std::unique_ptr<InternalHandlerDelegate> delegate)
       : delegate_(std::move(delegate)) {
   }
 
@@ -174,7 +174,7 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
   }
 
  private:
-  scoped_ptr<InternalHandlerDelegate> delegate_;
+  std::unique_ptr<InternalHandlerDelegate> delegate_;
 
   IMPLEMENT_REFCOUNTING(InternalHandlerFactory);
 };
@@ -187,7 +187,7 @@ InternalHandlerDelegate::Action::Action()
 }
 
 CefRefPtr<CefSchemeHandlerFactory> CreateInternalHandlerFactory(
-    scoped_ptr<InternalHandlerDelegate> delegate) {
+    std::unique_ptr<InternalHandlerDelegate> delegate) {
   DCHECK(delegate.get());
   return new InternalHandlerFactory(std::move(delegate));
 }

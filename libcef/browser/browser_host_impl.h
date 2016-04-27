@@ -23,7 +23,6 @@
 #include "libcef/browser/menu_manager.h"
 #include "libcef/common/response_manager.h"
 
-#include "base/memory/scoped_ptr.h"
 #include "base/observer_list.h"
 #include "base/strings/string16.h"
 #include "base/synchronization/lock.h"
@@ -96,7 +95,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   struct CreateParams {
     // Platform-specific window creation info. Will be nullptr when creating a
     // views-hosted browser.
-    scoped_ptr<CefWindowInfo> window_info;
+    std::unique_ptr<CefWindowInfo> window_info;
 
 #if defined(USE_AURA)
     // The BrowserView that will own a views-hosted browser. Will be nullptr for
@@ -149,7 +148,6 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void CloseBrowser(bool force_close) override;
   bool TryCloseBrowser() override;
   void SetFocus(bool focus) override;
-  void SetWindowVisibility(bool visible) override;
   CefWindowHandle GetWindowHandle() override;
   CefWindowHandle GetOpenerWindowHandle() override;
   bool HasView() override;
@@ -495,7 +493,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
       CefRefPtr<CefBrowserHostImpl> opener,
       bool is_devtools_popup,
       CefRefPtr<CefRequestContext> request_context,
-      scoped_ptr<CefBrowserPlatformDelegate> platform_delegate);
+      std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate);
 
   // content::WebContentsObserver::OnMessageReceived() message handlers.
   void OnFrameIdentified(int64 frame_id,
@@ -523,7 +521,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                      scoped_refptr<CefBrowserInfo> browser_info,
                      CefRefPtr<CefBrowserHostImpl> opener,
                      CefRefPtr<CefRequestContext> request_context,
-                     scoped_ptr<CefBrowserPlatformDelegate> platform_delegate);
+                     std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate);
 
   // Give the platform delegate an opportunity to create the host window.
   bool CreateHostWindow();
@@ -560,11 +558,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   CefBrowserSettings settings_;
   CefRefPtr<CefClient> client_;
-  scoped_ptr<content::WebContents> web_contents_;
+  std::unique_ptr<content::WebContents> web_contents_;
   scoped_refptr<CefBrowserInfo> browser_info_;
   CefWindowHandle opener_;
   CefRefPtr<CefRequestContext> request_context_;
-  scoped_ptr<CefBrowserPlatformDelegate> platform_delegate_;
+  std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate_;
   const bool is_windowless_;
   const bool is_views_hosted_;
   CefWindowHandle host_window_handle_;
@@ -617,23 +615,23 @@ class CefBrowserHostImpl : public CefBrowserHost,
   bool mouse_cursor_change_disabled_;
 
   // Used for managing notification subscriptions.
-  scoped_ptr<content::NotificationRegistrar> registrar_;
+  std::unique_ptr<content::NotificationRegistrar> registrar_;
 
   // Manages response registrations.
-  scoped_ptr<CefResponseManager> response_manager_;
+  std::unique_ptr<CefResponseManager> response_manager_;
 
   // Used for creating and managing file dialogs.
-  scoped_ptr<CefFileDialogManager> file_dialog_manager_;
+  std::unique_ptr<CefFileDialogManager> file_dialog_manager_;
 
   // Used for creating and managing JavaScript dialogs.
-  scoped_ptr<CefJavaScriptDialogManager> javascript_dialog_manager_;
+  std::unique_ptr<CefJavaScriptDialogManager> javascript_dialog_manager_;
 
   // Used for creating and managing context menus.
-  scoped_ptr<CefMenuManager> menu_manager_;
+  std::unique_ptr<CefMenuManager> menu_manager_;
 
   // Track the lifespan of the frontend WebContents associated with this
   // browser.
-  scoped_ptr<DevToolsWebContentsObserver> devtools_observer_;
+  std::unique_ptr<DevToolsWebContentsObserver> devtools_observer_;
   // CefDevToolsFrontend will delete itself when the frontend WebContents is
   // destroyed.
   CefDevToolsFrontend* devtools_frontend_;

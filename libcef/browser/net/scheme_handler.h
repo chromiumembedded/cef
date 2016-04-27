@@ -8,7 +8,7 @@
 
 #include "include/cef_frame.h"
 
-#include "content/public/browser/content_browser_client.h"
+#include "content/public/browser/browser_context.h"
 #include "url/gurl.h"
 
 namespace net {

@@ -5,7 +5,9 @@
 #ifndef CEF_LIBCEF_BROWSER_MENU_RUNNER_H_
 #define CEF_LIBCEF_BROWSER_MENU_RUNNER_H_
 
-#include "base/memory/scoped_ptr.h"
+#include <memory>
+
+#include "base/macros.h"
 #include "base/strings/string16.h"
 
 namespace content {

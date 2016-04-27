@@ -139,11 +139,11 @@ CefExtensionsBrowserClient::GetProcessManagerDelegate() const {
   return NULL;
 }
 
-scoped_ptr<ExtensionHostDelegate>
+std::unique_ptr<ExtensionHostDelegate>
 CefExtensionsBrowserClient::CreateExtensionHostDelegate() {
   // TODO(extensions): Implement to support Apps.
   NOTREACHED();
-  return scoped_ptr<ExtensionHostDelegate>();
+  return std::unique_ptr<ExtensionHostDelegate>();
 }
 
 bool CefExtensionsBrowserClient::DidVersionUpdate(BrowserContext* context) {
@@ -188,12 +188,12 @@ void CefExtensionsBrowserClient::RegisterMojoServices(
   RegisterServicesForFrame(render_frame_host, extension);
 }
 
-scoped_ptr<RuntimeAPIDelegate>
+std::unique_ptr<RuntimeAPIDelegate>
 CefExtensionsBrowserClient::CreateRuntimeAPIDelegate(
     content::BrowserContext* context) const {
   // TODO(extensions): Implement to support Apps.
   NOTREACHED();
-  return scoped_ptr<RuntimeAPIDelegate>();
+  return std::unique_ptr<RuntimeAPIDelegate>();
 }
 
 const ComponentExtensionResourceManager*
@@ -204,7 +204,7 @@ CefExtensionsBrowserClient::GetComponentExtensionResourceManager() {
 void CefExtensionsBrowserClient::BroadcastEventToRenderers(
     events::HistogramValue histogram_value,
     const std::string& event_name,
-    scoped_ptr<base::ListValue> args) {
+    std::unique_ptr<base::ListValue> args) {
   event_router_forwarder_->BroadcastEventToRenderers(
       histogram_value, event_name, std::move(args), GURL());
 }

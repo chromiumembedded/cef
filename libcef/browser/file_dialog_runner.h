@@ -11,7 +11,6 @@
 
 #include "base/files/file_path.h"
 #include "base/callback.h"
-#include "base/memory/scoped_ptr.h"
 #include "content/public/common/file_chooser_params.h"
 
 class CefBrowserHostImpl;

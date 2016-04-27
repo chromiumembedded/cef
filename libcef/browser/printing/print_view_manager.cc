@@ -67,7 +67,7 @@ void FillInDictionaryFromPdfPrintSettings(
   }
 
   if (pdf_settings.page_width > 0 && pdf_settings.page_height > 0) {
-    scoped_ptr<base::DictionaryValue> dict(new base::DictionaryValue);
+    std::unique_ptr<base::DictionaryValue> dict(new base::DictionaryValue);
     dict->SetInteger(kSettingMediaSizeWidthMicrons, pdf_settings.page_width);
     dict->SetInteger(kSettingMediaSizeHeightMicrons, pdf_settings.page_height);
     print_settings.Set(kSettingMediaSize, std::move(dict));
@@ -90,7 +90,7 @@ void FillInDictionaryFromPdfPrintSettings(
 
   print_settings.SetInteger(kSettingMarginsType, margin_type);
   if (margin_type == CUSTOM_MARGINS) {
-    scoped_ptr<base::DictionaryValue> dict(new base::DictionaryValue);
+    std::unique_ptr<base::DictionaryValue> dict(new base::DictionaryValue);
     dict->SetDouble(kSettingMarginTop, pdf_settings.margin_top);
     dict->SetDouble(kSettingMarginRight, pdf_settings.margin_right);
     dict->SetDouble(kSettingMarginBottom, pdf_settings.margin_bottom);
@@ -120,7 +120,7 @@ void StopWorker(int document_cookie) {
 
 scoped_refptr<base::RefCountedBytes>
 GetDataFromHandle(base::SharedMemoryHandle handle, uint32_t data_size) {
-  scoped_ptr<base::SharedMemory> shared_buf(
+  std::unique_ptr<base::SharedMemory> shared_buf(
       new base::SharedMemory(handle, true));
 
   if (!shared_buf->Map(data_size)) {

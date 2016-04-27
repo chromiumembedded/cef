@@ -39,6 +39,7 @@
 
 #include "base/command_line.h"
 #include "base/macros.h"
+#include "base/memory/ptr_util.h"
 #include "base/metrics/user_metrics_action.h"
 #include "base/path_service.h"
 #include "base/stl_util.h"
@@ -393,7 +394,6 @@ void CefContentRendererClient::RenderThreadStarted() {
 
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(observer_.get());
-  thread->AddObserver(web_cache_observer_.get());
   thread->GetChannel()->AddFilter(new CefRenderMessageFilter);
 
   if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
@@ -459,6 +459,8 @@ void CefContentRendererClient::RenderThreadStarted() {
 
   // Register extensions last because it will trigger WebKit initialization.
   thread->RegisterExtension(extensions_v8::LoadTimesExtension::Get());
+
+  WebKitInitialized();
 }
 
 void CefContentRendererClient::RenderFrameCreated(
@@ -477,8 +479,7 @@ void CefContentRendererClient::RenderViewCreated(
   new CefPrerendererClient(render_view);
   new printing::PrintWebViewHelper(
       render_view,
-      make_scoped_ptr<printing::PrintWebViewHelper::Delegate>(
-          new extensions::CefPrintWebViewHelperDelegate()));
+      base::WrapUnique(new extensions::CefPrintWebViewHelperDelegate()));
 
   if (extensions::ExtensionsEnabled())
     extensions_renderer_client_->RenderViewCreated(render_view);
@@ -633,6 +634,18 @@ void CefContentRendererClient::AddKeySystems(
   AddCefKeySystems(key_systems);
 }
 
+void CefContentRendererClient::RunScriptsAtDocumentStart(
+    content::RenderFrame* render_frame) {
+  if (extensions::ExtensionsEnabled())
+    extensions_renderer_client_->RunScriptsAtDocumentStart(render_frame);
+}
+
+void CefContentRendererClient::RunScriptsAtDocumentEnd(
+    content::RenderFrame* render_frame) {
+  if (extensions::ExtensionsEnabled())
+    extensions_renderer_client_->RunScriptsAtDocumentEnd(render_frame);
+}
+
 void CefContentRendererClient::WillDestroyCurrentMessageLoop() {
   base::AutoLock lock_scope(single_process_cleanup_lock_);
   single_process_cleanup_complete_ = true;
@@ -729,7 +742,7 @@ blink::WebPlugin* CefContentRendererClient::CreatePlugin(
           break;
         }
 
-        scoped_ptr<content::PluginInstanceThrottler> throttler;
+        std::unique_ptr<content::PluginInstanceThrottler> throttler;
         if (power_saver_info.power_saver_enabled) {
           throttler = content::PluginInstanceThrottler::Create();
           // PluginPreroller manages its own lifetime.
@@ -741,14 +754,6 @@ blink::WebPlugin* CefContentRendererClient::CreatePlugin(
 
         return render_frame->CreatePlugin(frame, info, params,
                                           std::move(throttler));
-      }
-      case CefViewHostMsg_GetPluginInfo_Status::kNPAPINotSupported: {
-        content::RenderThread::Get()->RecordAction(
-            base::UserMetricsAction("Plugin_NPAPINotSupported"));
-        placeholder = create_blocked_plugin(
-            IDR_BLOCKED_PLUGIN_HTML,
-            l10n_util::GetStringUTF16(IDS_PLUGIN_NOT_SUPPORTED_METRO));
-        break;
       }
       case CefViewHostMsg_GetPluginInfo_Status::kDisabled: {
         // Intentionally using the blocked plugin resources instead of the
@@ -795,6 +800,8 @@ blink::WebPlugin* CefContentRendererClient::CreatePlugin(
             base::UserMetricsAction("Plugin_BlockedByPolicy"));
         break;
       }
+      default:
+        break;
     }
   }
   placeholder->SetStatus(status);

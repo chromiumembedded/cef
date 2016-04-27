@@ -47,9 +47,9 @@ class CefBrowserPlatformDelegateOsr :
                            int deltaX, int deltaY) const override;
   CefEventHandle GetEventHandle(
       const content::NativeWebKeyboardEvent& event) const override;
-  scoped_ptr<CefFileDialogRunner> CreateFileDialogRunner() override;
-  scoped_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner() override;
-  scoped_ptr<CefMenuRunner> CreateMenuRunner() override;
+  std::unique_ptr<CefFileDialogRunner> CreateFileDialogRunner() override;
+  std::unique_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner() override;
+  std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
   bool IsWindowless() const override;
   bool IsViewsHosted() const override;
   void WasHidden(bool hidden) override;
@@ -74,14 +74,14 @@ class CefBrowserPlatformDelegateOsr :
  protected:
   // Platform-specific behaviors will be delegated to |native_delegate|.
   explicit CefBrowserPlatformDelegateOsr(
-      scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate);
+      std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate);
 
   // Returns the primary OSR host view for the underlying browser. If a
   // full-screen host view currently exists then it will be returned. Otherwise,
   // the main host view will be returned.
   CefRenderWidgetHostViewOSR* GetOSRHostView() const;
 
-  scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate_;
+  std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate_;
   CefWebContentsViewOSR* view_osr_;  // Not owned by this class.
 };
 

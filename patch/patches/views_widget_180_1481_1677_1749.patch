@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 27e1809..b522166 100644
+index 29e1eef0..2d3408d 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
-@@ -778,6 +778,13 @@ void RenderWidgetHostViewAura::SetKeyboardFocus() {
+@@ -674,6 +674,13 @@ void RenderWidgetHostViewAura::SetKeyboardFocus() {
      }
    }
  #endif
@@ -17,18 +17,18 @@ index 27e1809..b522166 100644
    if (host_ && set_focus_on_mouse_down_or_key_event_) {
      set_focus_on_mouse_down_or_key_event_ = false;
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index 9cdceb5..250911d0 100644
+index febe516..208bdad 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
-@@ -378,6 +378,7 @@ RenderWidgetHostViewBase::RenderWidgetHostViewBase()
+@@ -47,6 +47,7 @@ RenderWidgetHostViewBase::RenderWidgetHostViewBase()
        current_device_scale_factor_(0),
        current_display_rotation_(gfx::Display::ROTATE_0),
        pinch_zoom_enabled_(content::IsPinchToZoomEnabled()),
 +      has_external_parent_(false),
        renderer_frame_number_(0),
+       text_input_state_(new TextInputState()),
        weak_factory_(this) {}
- 
-@@ -588,6 +589,10 @@ void RenderWidgetHostViewBase::EndFrameSubscription() {
+@@ -300,6 +301,10 @@ void RenderWidgetHostViewBase::EndFrameSubscription() {
    NOTREACHED();
  }
  
@@ -40,10 +40,10 @@ index 9cdceb5..250911d0 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 1cace30..d5ca100 100644
+index c11775b..535caa2 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
-@@ -98,6 +98,7 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+@@ -97,6 +97,7 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
    void BeginFrameSubscription(
        scoped_ptr<RenderWidgetHostViewFrameSubscriber> subscriber) override;
    void EndFrameSubscription() override;
@@ -51,7 +51,7 @@ index 1cace30..d5ca100 100644
  
    // This only needs to be overridden by RenderWidgetHostViewBase subclasses
    // that handle content embedded within other RenderWidgetHostViews.
-@@ -461,6 +462,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+@@ -444,6 +445,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
    // renderer.
    bool pinch_zoom_enabled_;
  
@@ -63,7 +63,7 @@ index 1cace30..d5ca100 100644
    void FlushInput();
  
 diff --git content/public/browser/render_widget_host_view.h content/public/browser/render_widget_host_view.h
-index 7c749a2..df2a254 100644
+index 99459ad..bc1d7e7 100644
 --- content/public/browser/render_widget_host_view.h
 +++ content/public/browser/render_widget_host_view.h
 @@ -159,6 +159,10 @@ class CONTENT_EXPORT RenderWidgetHostView {
@@ -78,7 +78,7 @@ index 7c749a2..df2a254 100644
    // Set the view's active state (i.e., tint state of controls).
    virtual void SetActive(bool active) = 0;
 diff --git ui/views/widget/desktop_aura/desktop_screen_win.cc ui/views/widget/desktop_aura/desktop_screen_win.cc
-index a8e088c..838b6a0 100644
+index 4df7b7f..3427925 100644
 --- ui/views/widget/desktop_aura/desktop_screen_win.cc
 +++ ui/views/widget/desktop_aura/desktop_screen_win.cc
 @@ -32,6 +32,8 @@ gfx::Display DesktopScreenWin::GetDisplayMatching(
@@ -91,7 +91,7 @@ index a8e088c..838b6a0 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 92cc44e..2a59948 100644
+index fa9ea48..8e9ec16 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -84,6 +84,7 @@ DesktopWindowTreeHostWin::DesktopWindowTreeHostWin(
@@ -114,9 +114,9 @@ index 92cc44e..2a59948 100644
      parent_hwnd = params.parent->GetHost()->GetAcceleratedWidget();
 +  }
  
-   message_handler_->set_remove_standard_frame(params.remove_standard_frame);
- 
-@@ -627,6 +632,10 @@ bool DesktopWindowTreeHostWin::CanActivate() const {
+   remove_standard_frame_ = params.remove_standard_frame;
+   has_non_client_view_ = Widget::RequiresNonClientView(params.type);
+@@ -631,6 +636,10 @@ bool DesktopWindowTreeHostWin::CanActivate() const {
    return native_widget_delegate_->CanActivate();
  }
  
@@ -127,7 +127,7 @@ index 92cc44e..2a59948 100644
  bool DesktopWindowTreeHostWin::WantsMouseEventsWhenInactive() const {
    return wants_mouse_events_when_inactive_;
  }
-@@ -801,11 +810,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -805,11 +814,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -146,10 +146,10 @@ index 92cc44e..2a59948 100644
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(const ui::MouseEvent& event) {
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-index dee68df..af6f960 100644
+index 3465112..28822c6 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-@@ -135,6 +135,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
+@@ -136,6 +136,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
    bool CanMaximize() const override;
    bool CanMinimize() const override;
    bool CanActivate() const override;
@@ -157,9 +157,9 @@ index dee68df..af6f960 100644
    bool WantsMouseEventsWhenInactive() const override;
    bool WidgetSizeIsClientSize() const override;
    bool IsModal() const override;
-@@ -244,6 +245,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
-   // Init time, before the Widget has created the NonClientView.
-   bool has_non_client_view_;
+@@ -248,6 +249,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
+   // True if the window should have the frame removed.
+   bool remove_standard_frame_;
  
 +  // True if the widget has a external parent view/window outside of the
 +  // Chromium-controlled view/window hierarchy.
@@ -365,7 +365,7 @@ index 5ab84f9..c4095fa 100644
            x_active_window_ = None;
          }
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 4c44b65..bf0314e 100644
+index ffafd0d..e4a12ba 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -126,9 +126,11 @@ Widget::InitParams::InitParams(Type type)
@@ -388,7 +388,7 @@ index 4c44b65..bf0314e 100644
        observer_manager_(this) {
  }
  
-@@ -307,7 +310,8 @@ void Widget::Init(const InitParams& in_params) {
+@@ -291,7 +294,8 @@ void Widget::Init(const InitParams& in_params) {
    InitParams params = in_params;
  
    params.child |= (params.type == InitParams::TYPE_CONTROL);
@@ -398,7 +398,7 @@ index 4c44b65..bf0314e 100644
  
    if (params.opacity == views::Widget::InitParams::INFER_OPACITY &&
        params.type != views::Widget::InitParams::TYPE_WINDOW &&
-@@ -369,7 +373,12 @@ void Widget::Init(const InitParams& in_params) {
+@@ -353,7 +357,12 @@ void Widget::Init(const InitParams& in_params) {
        Minimize();
    } else if (params.delegate) {
      SetContentsView(params.delegate->GetContentsView());
@@ -413,10 +413,10 @@ index 4c44b65..bf0314e 100644
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 3512453..4442e8e 100644
+index 0ceaf82..7faed82 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
-@@ -228,12 +228,17 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
+@@ -230,12 +230,17 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
      // rendered, and that the client area should be equivalent to the window
      // area. Only used on some platforms (Windows and Linux).
      bool remove_standard_frame;
@@ -434,7 +434,7 @@ index 3512453..4442e8e 100644
      // Specifies the initial bounds of the Widget. Default is empty, which means
      // the NativeWidget may specify a default size. If the parent is specified,
      // |bounds| is in the parent's coordinate system. If the parent is not
-@@ -744,6 +749,10 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
+@@ -735,6 +740,10 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
    bool movement_disabled() const { return movement_disabled_; }
    void set_movement_disabled(bool disabled) { movement_disabled_ = disabled; }
  
@@ -445,7 +445,7 @@ index 3512453..4442e8e 100644
    // Returns the work area bounds of the screen the Widget belongs to.
    gfx::Rect GetWorkAreaBoundsInScreen() const;
  
-@@ -958,6 +967,10 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
+@@ -949,6 +958,10 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
    // disabled.
    bool movement_disabled_;
  
@@ -473,10 +473,10 @@ index ca561b6..7940b5a 100644
      }
      case Widget::InitParams::TYPE_CONTROL:
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 1f4bf47..ddd9bb4 100644
+index 74d5cd6..19d208e 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -859,6 +859,8 @@ void HWNDMessageHandler::SizeConstraintsChanged() {
+@@ -838,6 +838,8 @@ void HWNDMessageHandler::SizeConstraintsChanged() {
    } else {
      style &= ~WS_MINIMIZEBOX;
    }
@@ -485,7 +485,7 @@ index 1f4bf47..ddd9bb4 100644
    SetWindowLong(hwnd(), GWL_STYLE, style);
  }
  
-@@ -2439,8 +2441,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -2433,8 +2435,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
      active_mouse_tracking_flags_ = 0;
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      // Reroute the mouse wheel to the window under the pointer if applicable.
@@ -501,10 +501,10 @@ index 1f4bf47..ddd9bb4 100644
  
    // There are cases where the code handling the message destroys the window,
 diff --git ui/views/win/hwnd_message_handler_delegate.h ui/views/win/hwnd_message_handler_delegate.h
-index 3e68197..c3ea88f 100644
+index 007157a..78fa051 100644
 --- ui/views/win/hwnd_message_handler_delegate.h
 +++ ui/views/win/hwnd_message_handler_delegate.h
-@@ -45,6 +45,10 @@ class VIEWS_EXPORT HWNDMessageHandlerDelegate {
+@@ -57,6 +57,10 @@ class VIEWS_EXPORT HWNDMessageHandlerDelegate {
    virtual bool CanMinimize() const = 0;
    virtual bool CanActivate() const = 0;
  

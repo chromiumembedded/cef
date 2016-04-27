@@ -20,6 +20,7 @@
 #include "base/command_line.h"
 #include "base/files/file_util.h"
 #include "base/logging.h"
+#include "base/memory/ptr_util.h"
 #include "base/path_service.h"
 #include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
@@ -413,7 +414,7 @@ class ChromeProtocolHandlerWrapper :
  public:
   ChromeProtocolHandlerWrapper(
       CefURLRequestManager* request_manager,
-      scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+      std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler>
           chrome_protocol_handler)
       : request_manager_(request_manager),
         chrome_protocol_handler_(std::move(chrome_protocol_handler)) {
@@ -441,7 +442,7 @@ class ChromeProtocolHandlerWrapper :
 
  private:
   CefURLRequestManager* request_manager_;
-  scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+  std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler>
       chrome_protocol_handler_;
 };
 
@@ -451,8 +452,7 @@ void RegisterChromeHandler(CefURLRequestManager* request_manager) {
   request_manager->AddFactory(
       content::kChromeUIScheme,
       std::string(),
-      CreateInternalHandlerFactory(
-          make_scoped_ptr<InternalHandlerDelegate>(new Delegate())));
+      CreateInternalHandlerFactory(base::WrapUnique(new Delegate())));
 }
 
 bool WillHandleBrowserAboutURL(GURL* url,
@@ -478,12 +478,12 @@ void DidFinishChromeLoad(CefRefPtr<CefFrame> frame,
   }
 }
 
-scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler>
 WrapChromeProtocolHandler(
     CefURLRequestManager* request_manager,
-    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+    std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler>
         chrome_protocol_handler) {
-  scoped_ptr<net::URLRequestJobFactory::ProtocolHandler> ret(
+  std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler> ret(
       new ChromeProtocolHandlerWrapper(request_manager,
                                        std::move(chrome_protocol_handler)));
   return ret;

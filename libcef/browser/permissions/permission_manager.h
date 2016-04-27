@@ -36,18 +36,20 @@ class CefPermissionManager : public KeyedService,
       content::PermissionType permission,
       content::RenderFrameHost* render_frame_host,
       const GURL& requesting_origin,
-      const base::Callback<void(content::PermissionStatus)>& callback) override;
+      const base::Callback<void(blink::mojom::PermissionStatus)>& callback)
+      override;
   int RequestPermissions(
       const std::vector<content::PermissionType>& permissions,
       content::RenderFrameHost* render_frame_host,
       const GURL& requesting_origin,
       const base::Callback<void(
-          const std::vector<content::PermissionStatus>&)>& callback) override;
+          const std::vector<blink::mojom::PermissionStatus>&)>& callback)
+      override;
   void CancelPermissionRequest(int request_id) override;
   void ResetPermission(content::PermissionType permission,
                        const GURL& requesting_origin,
                        const GURL& embedding_origin) override;
-  content::PermissionStatus GetPermissionStatus(
+  blink::mojom::PermissionStatus GetPermissionStatus(
       content::PermissionType permission,
       const GURL& requesting_origin,
       const GURL& embedding_origin) override;
@@ -58,7 +60,8 @@ class CefPermissionManager : public KeyedService,
       content::PermissionType permission,
       const GURL& requesting_origin,
       const GURL& embedding_origin,
-      const base::Callback<void(content::PermissionStatus)>& callback) override;
+      const base::Callback<void(blink::mojom::PermissionStatus)>& callback)
+      override;
   void UnsubscribePermissionStatusChange(int subscription_id) override;
 
  private:
@@ -77,7 +80,7 @@ class CefPermissionManager : public KeyedService,
   void OnPermissionsRequestResponseStatus(
       int request_id,
       int permission_id,
-      content::PermissionStatus status);
+      blink::mojom::PermissionStatus status);
 
   // content_settings::Observer implementation.
   void OnContentSettingChanged(const ContentSettingsPattern& primary_pattern,

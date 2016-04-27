@@ -38,7 +38,6 @@ class CefBrowserHostCToCpp
   void CloseBrowser(bool force_close) OVERRIDE;
   bool TryCloseBrowser() OVERRIDE;
   void SetFocus(bool focus) OVERRIDE;
-  void SetWindowVisibility(bool visible) OVERRIDE;
   CefWindowHandle GetWindowHandle() OVERRIDE;
   CefWindowHandle GetOpenerWindowHandle() OVERRIDE;
   bool HasView() OVERRIDE;

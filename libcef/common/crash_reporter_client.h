@@ -37,6 +37,8 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
   // |crash_dir| was set.
   bool GetCrashDumpLocation(base::FilePath* crash_dir) override;
 
+  bool EnableBreakpadForProcess(const std::string& process_type) override;
+
 private:
   DISALLOW_COPY_AND_ASSIGN(CefCrashReporterClient);
 };

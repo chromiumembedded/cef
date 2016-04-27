@@ -27,7 +27,7 @@ void CefScrollViewImpl::SetContentView(CefRefPtr<CefView> view) {
   if (!view.get() || !view->IsValid() || view->IsAttached())
     return;
 
-  scoped_ptr<views::View> view_ptr = view_util::PassOwnership(view);
+  std::unique_ptr<views::View> view_ptr = view_util::PassOwnership(view);
   root_view()->SetContents(view_ptr.release());
 }
 
@@ -71,7 +71,7 @@ void CefScrollViewImpl::GetDebugInfo(base::DictionaryValue* info,
     views::View* view = root_view()->contents();
     CefViewAdapter* adapter = CefViewAdapter::GetFor(view);
     if (adapter) {
-      scoped_ptr<base::DictionaryValue> child_info(
+      std::unique_ptr<base::DictionaryValue> child_info(
           new base::DictionaryValue());
       adapter->GetDebugInfo(child_info.get(), include_children);
       info->Set("content_view", std::move(child_info));

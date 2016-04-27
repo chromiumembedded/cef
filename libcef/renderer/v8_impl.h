@@ -193,7 +193,7 @@ class CefV8ContextImpl : public CefV8Context {
   scoped_refptr<Handle> handle_;
 
   int enter_count_;
-  scoped_ptr<v8::MicrotasksScope> microtasks_scope_;
+  std::unique_ptr<v8::MicrotasksScope> microtasks_scope_;
 
   IMPLEMENT_REFCOUNTING(CefV8ContextImpl);
   DISALLOW_COPY_AND_ASSIGN(CefV8ContextImpl);

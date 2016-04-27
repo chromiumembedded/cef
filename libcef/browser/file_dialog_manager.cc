@@ -153,7 +153,7 @@ class UploadFolderHelper :
 
 CefFileDialogManager::CefFileDialogManager(
     CefBrowserHostImpl* browser,
-    scoped_ptr<CefFileDialogRunner> runner)
+    std::unique_ptr<CefFileDialogRunner> runner)
     : content::WebContentsObserver(browser->web_contents()),
       browser_(browser),
       runner_(std::move(runner)),

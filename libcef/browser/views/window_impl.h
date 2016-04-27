@@ -125,7 +125,7 @@ class CefWindowImpl :
 
   // The currently active menu model and runner.
   CefRefPtr<CefMenuModelImpl> menu_model_;
-  scoped_ptr<views::MenuRunner> menu_runner_;
+  std::unique_ptr<views::MenuRunner> menu_runner_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefWindowImpl);
   DISALLOW_COPY_AND_ASSIGN(CefWindowImpl);

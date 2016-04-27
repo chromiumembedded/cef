@@ -41,6 +41,7 @@
 
 #include "include/base/cef_macros.h"
 #include "include/base/cef_ref_counted.h"
+#include "include/base/cef_scoped_ptr.h"
 #include "include/base/cef_weak_ptr.h"
 #include "include/cef_request_handler.h"
 #include "include/wrapper/cef_closure_task.h"

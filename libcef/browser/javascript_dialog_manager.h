@@ -12,7 +12,6 @@
 #include "libcef/browser/javascript_dialog_runner.h"
 
 #include "base/compiler_specific.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "content/public/browser/javascript_dialog_manager.h"
 
@@ -23,7 +22,7 @@ class CefJavaScriptDialogManager : public content::JavaScriptDialogManager {
   // |runner| may be NULL if the platform doesn't implement dialogs.
   CefJavaScriptDialogManager(
       CefBrowserHostImpl* browser,
-      scoped_ptr<CefJavaScriptDialogRunner> runner);
+      std::unique_ptr<CefJavaScriptDialogRunner> runner);
   ~CefJavaScriptDialogManager() override;
 
   // Delete the runner to free any platform constructs.
@@ -33,7 +32,6 @@ class CefJavaScriptDialogManager : public content::JavaScriptDialogManager {
   void RunJavaScriptDialog(
       content::WebContents* web_contents,
       const GURL& origin_url,
-      const std::string& accept_lang,
       content::JavaScriptMessageType message_type,
       const base::string16& message_text,
       const base::string16& default_prompt_text,
@@ -57,7 +55,7 @@ class CefJavaScriptDialogManager : public content::JavaScriptDialogManager {
   // CefBrowserHostImpl pointer is guaranteed to outlive this object.
   CefBrowserHostImpl* browser_;
 
-  scoped_ptr<CefJavaScriptDialogRunner> runner_;
+  std::unique_ptr<CefJavaScriptDialogRunner> runner_;
 
   // True if a dialog is currently running.
   bool dialog_running_;

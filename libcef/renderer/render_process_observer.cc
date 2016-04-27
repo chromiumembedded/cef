@@ -37,10 +37,6 @@ bool CefRenderProcessObserver::OnControlMessageReceived(
   return handled;
 }
 
-void CefRenderProcessObserver::WebKitInitialized() {
-  CefContentRendererClient::Get()->WebKitInitialized();
-}
-
 void CefRenderProcessObserver::OnRenderProcessShutdown() {
   CefContentRendererClient::Get()->OnRenderProcessShutdown();
 }

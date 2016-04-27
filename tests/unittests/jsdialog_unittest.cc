@@ -91,7 +91,6 @@ class JSDialogTestHandler : public TestHandler {
 
   bool OnJSDialog(CefRefPtr<CefBrowser> browser,
                   const CefString& origin_url,
-                  const CefString& accept_lang,
                   JSDialogType dialog_type,
                   const CefString& message_text,
                   const CefString& default_prompt_text,
@@ -100,7 +99,6 @@ class JSDialogTestHandler : public TestHandler {
     got_onjsdialog_.yes();
 
     EXPECT_STREQ(kStartUrl, origin_url.ToString().c_str());
-    EXPECT_TRUE(accept_lang.empty());
 
     if (type_ == TYPE_ALERT) {
       EXPECT_EQ(JSDIALOGTYPE_ALERT, dialog_type);

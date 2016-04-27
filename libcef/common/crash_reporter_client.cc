@@ -12,6 +12,7 @@
 #include "base/strings/string16.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
+#include "content/public/common/content_switches.h"
 
 CefCrashReporterClient::CefCrashReporterClient() {}
 CefCrashReporterClient::~CefCrashReporterClient() {}
@@ -55,4 +56,12 @@ bool CefCrashReporterClient::GetCrashDumpLocation(base::FilePath* crash_dir) {
   NOTREACHED();
   return false;
 #endif
+}
+
+bool CefCrashReporterClient::EnableBreakpadForProcess(
+    const std::string& process_type) {
+  return process_type == switches::kRendererProcess ||
+         process_type == switches::kPpapiPluginProcess ||
+         process_type == switches::kZygoteProcess ||
+         process_type == switches::kGpuProcess;
 }

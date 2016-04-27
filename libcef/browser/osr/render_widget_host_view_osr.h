@@ -15,7 +15,7 @@
 
 #include "base/memory/weak_ptr.h"
 #include "build/build_config.h"
-#include "content/browser/compositor/delegated_frame_host.h"
+#include "content/browser/renderer_host/delegated_frame_host.h"
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
 #include "ui/compositor/compositor.h"
 
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(OS_MACOSX)
-#include "content/browser/compositor/browser_compositor_view_mac.h"
+#include "content/browser/renderer_host/browser_compositor_view_mac.h"
 #include "ui/accelerated_widget_mac/accelerated_widget_mac.h"
 #endif
 
@@ -112,8 +112,6 @@ class CefRenderWidgetHostViewOSR
 
 #if defined(OS_MACOSX)
   void SetActive(bool active) override;
-  void SetWindowVisibility(bool visible) override;
-  void WindowFrameChanged() override;
   void ShowDefinitionForSelection() override;
   bool SupportsSpeech() const override;
   void SpeakSelection() override;
@@ -124,18 +122,15 @@ class CefRenderWidgetHostViewOSR
   // RenderWidgetHostViewBase implementation.
   void OnSwapCompositorFrame(
       uint32_t output_surface_id,
-      scoped_ptr<cc::CompositorFrame> frame) override;
+      std::unique_ptr<cc::CompositorFrame> frame) override;
   void ClearCompositorFrame() override;
   void InitAsPopup(content::RenderWidgetHostView* parent_host_view,
                    const gfx::Rect& pos) override;
   void InitAsFullscreen(
       content::RenderWidgetHostView* reference_host_view) override;
-  void MovePluginWindows(
-      const std::vector<content::WebPluginGeometry>& moves) override;
   void UpdateCursor(const content::WebCursor& cursor) override;
   void SetIsLoading(bool is_loading) override;
-  void TextInputStateChanged(
-      const ViewHostMsg_TextInputState_Params& params) override;
+  void UpdateInputMethodIfNecessary(bool text_input_state_changed) override;
   void ImeCancelComposition() override;
   void RenderProcessGone(base::TerminationStatus status,
                          int error_code) override;
@@ -163,7 +158,7 @@ class CefRenderWidgetHostViewOSR
       const base::Callback<void(const gfx::Rect&, bool)>& callback) override;
   bool CanCopyToVideoFrame() const override;
   void BeginFrameSubscription(
-      scoped_ptr<content::RenderWidgetHostViewFrameSubscriber> subscriber)
+      std::unique_ptr<content::RenderWidgetHostViewFrameSubscriber> subscriber)
       override;
   void EndFrameSubscription() override;
   bool HasAcceleratedSurface(const gfx::Size& desired_size) override;
@@ -172,7 +167,8 @@ class CefRenderWidgetHostViewOSR
   gfx::Rect GetBoundsInRootWindow() override;
   content::BrowserAccessibilityManager*
       CreateBrowserAccessibilityManager(
-          content::BrowserAccessibilityDelegate* delegate) override;
+          content::BrowserAccessibilityDelegate* delegate,
+          bool for_root_frame) override;
   void LockCompositingSurface() override;
   void UnlockCompositingSurface() override;
 
@@ -181,21 +177,10 @@ class CefRenderWidgetHostViewOSR
                                const SkBitmap& zoomed_bitmap) override;
 #endif
 
-#if defined(OS_MACOSX)
-  bool PostProcessEventForPluginIme(
-      const content::NativeWebKeyboardEvent& event) override;
-#endif
-
 #if defined(OS_MACOSX) || defined(USE_AURA)
   void ImeCompositionRangeChanged(
       const gfx::Range& range,
       const std::vector<gfx::Rect>& character_bounds) override;
-#endif
-
-#if defined(OS_WIN)
-  void SetParentNativeViewAccessible(
-      gfx::NativeViewAccessible accessible_parent) override;
-  gfx::NativeViewId GetParentForWindowlessPlugin() const override;
 #endif
 
 #if defined(OS_MACOSX)
@@ -212,7 +197,7 @@ class CefRenderWidgetHostViewOSR
   void OnSetNeedsBeginFrames(bool enabled);
 
   // ui::CompositorDelegate implementation.
-  scoped_ptr<cc::SoftwareOutputDevice> CreateSoftwareOutputDevice(
+  std::unique_ptr<cc::SoftwareOutputDevice> CreateSoftwareOutputDevice(
       ui::Compositor* compositor) override;
 
   // DelegatedFrameHostClient implementation.
@@ -220,7 +205,7 @@ class CefRenderWidgetHostViewOSR
   bool DelegatedFrameHostIsVisible() const override;
   gfx::Size DelegatedFrameHostDesiredSizeInDIP() const override;
  bool DelegatedFrameCanCreateResizeLock() const override;
-  scoped_ptr<content::ResizeLock> DelegatedFrameHostCreateResizeLock(
+  std::unique_ptr<content::ResizeLock> DelegatedFrameHostCreateResizeLock(
       bool defer_compositor_lock) override;
   void DelegatedFrameHostResizeLockWasReleased() override;
   void DelegatedFrameHostSendCompositorSwapAck(
@@ -341,32 +326,32 @@ class CefRenderWidgetHostViewOSR
   float scale_factor_;
   int frame_rate_threshold_ms_;
 
-  scoped_ptr<content::DelegatedFrameHost> delegated_frame_host_;
-  scoped_ptr<ui::Compositor> compositor_;
+  std::unique_ptr<content::DelegatedFrameHost> delegated_frame_host_;
+  std::unique_ptr<ui::Compositor> compositor_;
   gfx::AcceleratedWidget compositor_widget_;
-  scoped_ptr<ui::Layer> root_layer_;
+  std::unique_ptr<ui::Layer> root_layer_;
 
 #if defined(OS_WIN)
-  scoped_ptr<gfx::WindowImpl> window_;
+  std::unique_ptr<gfx::WindowImpl> window_;
 #elif defined(OS_MACOSX)
   NSWindow* window_;
   CALayer* background_layer_;
-  scoped_ptr<content::BrowserCompositorMac> browser_compositor_;
+  std::unique_ptr<content::BrowserCompositorMac> browser_compositor_;
 #elif defined(USE_X11)
   CefWindowX11* window_;
-  scoped_ptr<ui::XScopedCursor> invisible_cursor_;
+  std::unique_ptr<ui::XScopedCursor> invisible_cursor_;
 #endif
 
   // Used to control the VSync rate in subprocesses when BeginFrame scheduling
   // is enabled.
-  scoped_ptr<CefBeginFrameTimer> begin_frame_timer_;
+  std::unique_ptr<CefBeginFrameTimer> begin_frame_timer_;
 
   // Used for direct rendering from the compositor when GPU compositing is
   // disabled. This object is owned by the compositor.
   CefSoftwareOutputDeviceOSR* software_output_device_;
 
   // Used for managing copy requests when GPU compositing is enabled.
-  scoped_ptr<CefCopyFrameGenerator> copy_frame_generator_;
+  std::unique_ptr<CefCopyFrameGenerator> copy_frame_generator_;
 
   bool hold_resize_;
   bool pending_resize_;

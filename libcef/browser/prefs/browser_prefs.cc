@@ -83,7 +83,7 @@ void RegisterLocalizedValue(PrefRegistrySimple* registry,
 
 const char kUserPrefsFileName[] = "UserPrefs.json";
 
-scoped_ptr<PrefService> CreatePrefService(const base::FilePath& pref_path) {
+std::unique_ptr<PrefService> CreatePrefService(const base::FilePath& pref_path) {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
 
@@ -106,7 +106,7 @@ scoped_ptr<PrefService> CreatePrefService(const base::FilePath& pref_path) {
             pref_path,
             content::BrowserThread::GetBlockingPool());
     scoped_refptr<JsonPrefStore> json_pref_store =
-        new JsonPrefStore(pref_path, task_runner, scoped_ptr<PrefFilter>());
+        new JsonPrefStore(pref_path, task_runner, std::unique_ptr<PrefFilter>());
     factory.set_user_prefs(json_pref_store.get());
   } else {
     // Store preferences in memory.

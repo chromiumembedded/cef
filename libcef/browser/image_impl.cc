@@ -166,7 +166,7 @@ bool CefImageImpl::AddJPEG(float scale_factor,
                            size_t jpeg_data_size) {
   CEF_REQUIRE_UIT_RETURN(false);
 
-  scoped_ptr<SkBitmap> bitmap(
+  std::unique_ptr<SkBitmap> bitmap(
       gfx::JPEGCodec::Decode(static_cast<const unsigned char*>(jpeg_data),
                              jpeg_data_size));
   if (!bitmap.get())

@@ -12,7 +12,6 @@
 #include "include/cef_frame.h"
 #include "include/cef_process_message.h"
 
-#include "base/memory/scoped_ptr.h"
 #include "net/url_request/url_request_job_factory.h"
 #include "url/gurl.h"
 
@@ -43,10 +42,10 @@ void DidFinishChromeLoad(CefRefPtr<CefFrame> frame,
 
 // Create a new ProtocolHandler that will filter the URLs passed to the default
 // "chrome" protocol handler and forward the rest to CEF's handler.
-scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler>
 WrapChromeProtocolHandler(
     CefURLRequestManager* request_manager,
-    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+    std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler>
         chrome_protocol_handler);
 
 }  // namespace scheme

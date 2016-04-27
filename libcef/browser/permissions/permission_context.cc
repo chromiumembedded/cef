@@ -112,7 +112,7 @@ void CefPermissionContext::ResetPermission(
     content::PermissionType permission,
     const GURL& requesting_origin,
     const GURL& embedding_origin) {
-  profile_->GetHostContentSettingsMap()->SetContentSetting(
+  profile_->GetHostContentSettingsMap()->SetContentSettingCustomScope(
       ContentSettingsPattern::FromURLNoWildcard(requesting_origin),
       ContentSettingsPattern::FromURLNoWildcard(embedding_origin),
       permission_util::PermissionTypeToContentSetting(permission),
@@ -256,7 +256,7 @@ void CefPermissionContext::UpdateContentSetting(
   DCHECK(content_setting == CONTENT_SETTING_ALLOW ||
          content_setting == CONTENT_SETTING_BLOCK);
 
-  profile_->GetHostContentSettingsMap()->SetContentSetting(
+  profile_->GetHostContentSettingsMap()->SetContentSettingCustomScope(
       ContentSettingsPattern::FromURLNoWildcard(requesting_origin),
       ContentSettingsPattern::FromURLNoWildcard(embedding_origin),
       permission_util::PermissionTypeToContentSetting(permission),

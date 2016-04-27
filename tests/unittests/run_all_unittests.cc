@@ -171,7 +171,7 @@ int main(int argc, char* argv[]) {
     retval = test_suite.Run();
   } else {
     // Create the test thread.
-    scoped_ptr<CefTestThread> thread;
+    std::unique_ptr<CefTestThread> thread;
     thread.reset(new CefTestThread(&test_suite));
     if (!thread->Start())
       return 1;

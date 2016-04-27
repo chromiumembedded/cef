@@ -17,7 +17,6 @@
 #include "libcef/browser/views/view_impl.h"
 
 #include "base/logging.h"
-#include "base/memory/scoped_ptr.h"
 
 // Helpers for template boiler-plate.
 #define CEF_PANEL_IMPL_T CEF_VIEW_IMPL_T
@@ -58,13 +57,13 @@ CEF_PANEL_IMPL_T class CefPanelImpl : public CEF_VIEW_IMPL_D {
     if (include_children) {
       const size_t count = ParentClass::content_view()->child_count();
       if (count > 0U) {
-        scoped_ptr<base::ListValue> children(new base::ListValue());
+        std::unique_ptr<base::ListValue> children(new base::ListValue());
 
         for (size_t i = 0U; i < count; ++i) {
           views::View* view = ParentClass::content_view()->child_at(i);
           CefViewAdapter* adapter = CefViewAdapter::GetFor(view);
           if (adapter) {
-            scoped_ptr<base::DictionaryValue> child_info(
+            std::unique_ptr<base::DictionaryValue> child_info(
                 new base::DictionaryValue());
             adapter->GetDebugInfo(child_info.get(), include_children);
             children->Append(std::move(child_info));
@@ -122,7 +121,7 @@ CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::AddChildView(
   if (!view.get() || !view->IsValid() || view->IsAttached())
     return;
 
-  scoped_ptr<views::View> view_ptr = view_util::PassOwnership(view);
+  std::unique_ptr<views::View> view_ptr = view_util::PassOwnership(view);
   ParentClass::content_view()->AddChildView(view_ptr.release());
 }
 
@@ -140,7 +139,7 @@ CEF_PANEL_IMPL_T void CEF_PANEL_IMPL_D::AddChildViewAt(
     return;
   }
 
-  scoped_ptr<views::View> view_ptr = view_util::PassOwnership(view);
+  std::unique_ptr<views::View> view_ptr = view_util::PassOwnership(view);
   ParentClass::content_view()->AddChildViewAt(view_ptr.release(), index);
 }
 

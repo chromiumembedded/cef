@@ -391,7 +391,7 @@ CefRefPtr<CefDictionaryValue> CefRequestContextImpl::GetAllPreferences(
 
   PrefService* pref_service = browser_context_->GetPrefs();
 
-  scoped_ptr<base::DictionaryValue> values;
+  std::unique_ptr<base::DictionaryValue> values;
   if (include_defaults)
     values = pref_service->GetPreferenceValues();
   else

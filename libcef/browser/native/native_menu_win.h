@@ -11,7 +11,6 @@
 
 #include "base/macros.h"
 #include "base/compiler_specific.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "base/observer_list.h"
 #include "base/strings/string16.h"
@@ -124,7 +123,7 @@ class NativeMenuWin : public MenuWrapper {
   // The window that receives notifications from the menu.
   class MenuHostWindow;
   friend MenuHostWindow;
-  scoped_ptr<MenuHostWindow> host_window_;
+  std::unique_ptr<MenuHostWindow> host_window_;
 
   // The HWND this menu is the system menu for, or NULL if the menu is not a
   // system menu.

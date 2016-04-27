@@ -9,7 +9,6 @@
 #include "include/cef_request_context_handler.h"
 #include "libcef/browser/net/url_request_context.h"
 
-#include "base/memory/scoped_ptr.h"
 
 class CefBrowserHostImpl;
 class CefCookieStoreProxy;
@@ -28,7 +27,7 @@ class CefURLRequestContextProxy : public CefURLRequestContext {
   ~CefURLRequestContextProxy() override;
 
  private:
-  scoped_ptr<CefCookieStoreProxy> cookie_store_proxy_;
+  std::unique_ptr<CefCookieStoreProxy> cookie_store_proxy_;
 
   DISALLOW_COPY_AND_ASSIGN(CefURLRequestContextProxy);
 };

@@ -166,7 +166,7 @@ bool GetSystemPepperFlash(content::PepperPluginInfo* plugin) {
   std::string manifest_data;
   if (!base::ReadFileToString(manifest_path, &manifest_data))
     return false;
-  scoped_ptr<base::Value> manifest_value(
+  std::unique_ptr<base::Value> manifest_value(
       base::JSONReader::Read(manifest_data, base::JSON_ALLOW_TRAILING_COMMAS));
   if (!manifest_value.get())
     return false;

@@ -19,6 +19,7 @@
 #include "base/command_line.h"
 #include "base/files/file_util.h"
 #include "base/logging.h"
+#include "base/memory/ptr_util.h"
 #include "base/stl_util.h"
 #include "base/strings/string_util.h"
 #include "base/threading/thread_restrictions.h"
@@ -107,7 +108,7 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
     scoped_refptr<base::SingleThreadTaskRunner> io_task_runner,
     scoped_refptr<base::SingleThreadTaskRunner> file_task_runner,
     content::ProtocolHandlerMap* protocol_handlers,
-    scoped_ptr<net::ProxyConfigService> proxy_config_service,
+    std::unique_ptr<net::ProxyConfigService> proxy_config_service,
     content::URLRequestInterceptorScopedVector request_interceptors)
     : settings_(settings),
       io_task_runner_(std::move(io_task_runner)),
@@ -151,8 +152,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     SetCookieStoragePath(cache_path,
                          settings_.persist_session_cookies ? true : false);
 
-    storage_->set_network_delegate(
-        make_scoped_ptr<net::NetworkDelegate>(new CefNetworkDelegate));
+    storage_->set_network_delegate(base::WrapUnique(new CefNetworkDelegate));
 
     storage_->set_channel_id_service(make_scoped_ptr(
         new net::ChannelIDService(
@@ -162,16 +162,15 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     const std::string& accept_language =
         settings_.accept_language_list.length > 0 ?
             CefString(&settings_.accept_language_list): "en-US,en";
-    storage_->set_http_user_agent_settings(
-        make_scoped_ptr<net::HttpUserAgentSettings>(
-            new CefHttpUserAgentSettings(accept_language)));
+    storage_->set_http_user_agent_settings(base::WrapUnique(
+        new CefHttpUserAgentSettings(accept_language)));
 
     storage_->set_host_resolver(net::HostResolver::CreateDefaultResolver(NULL));
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
     storage_->set_transport_security_state(
         make_scoped_ptr(new net::TransportSecurityState));
 
-    scoped_ptr<net::ProxyService> system_proxy_service =
+    std::unique_ptr<net::ProxyService> system_proxy_service =
         ProxyServiceFactory::CreateProxyService(
             NULL,
             url_request_context_.get(),
@@ -200,11 +199,10 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
         net::HttpAuthHandlerRegistryFactory::Create(
             http_auth_preferences_.get(),
             url_request_context_->host_resolver()));
-    storage_->set_http_server_properties(
-        make_scoped_ptr<net::HttpServerProperties>(
-            new net::HttpServerPropertiesImpl));
+    storage_->set_http_server_properties(base::WrapUnique(
+        new net::HttpServerPropertiesImpl));
 
-    scoped_ptr<net::HttpCache::DefaultBackend> main_backend(
+    std::unique_ptr<net::HttpCache::DefaultBackend> main_backend(
         new net::HttpCache::DefaultBackend(
             cache_path.empty() ? net::MEMORY_CACHE : net::DISK_CACHE,
             net::CACHE_BACKEND_DEFAULT,
@@ -228,8 +226,6 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
         url_request_context_->ssl_config_service();
     network_session_params.http_auth_handler_factory =
         url_request_context_->http_auth_handler_factory();
-    network_session_params.network_delegate =
-        url_request_context_->network_delegate();
     network_session_params.http_server_properties =
         url_request_context_->http_server_properties();
     network_session_params.ignore_certificate_errors =
@@ -247,7 +243,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
         new net::FtpNetworkLayer(network_session_params.host_resolver));
 #endif
 
-    scoped_ptr<net::URLRequestJobFactoryImpl> job_factory(
+    std::unique_ptr<net::URLRequestJobFactoryImpl> job_factory(
         new net::URLRequestJobFactoryImpl());
     url_request_manager_.reset(new CefURLRequestManager(job_factory.get()));
 
@@ -264,7 +260,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     request_interceptors_.push_back(new CefRequestInterceptor());
 
     // Set up interceptors in the reverse order.
-    scoped_ptr<net::URLRequestJobFactory> top_job_factory =
+    std::unique_ptr<net::URLRequestJobFactory> top_job_factory =
         std::move(job_factory);
     for (content::URLRequestInterceptorScopedVector::reverse_iterator i =
              request_interceptors_.rbegin();
@@ -334,7 +330,7 @@ void CefURLRequestContextGetterImpl::SetCookieStoragePath(
   // Set the new cookie store that will be used for all new requests. The old
   // cookie store, if any, will be automatically flushed and closed when no
   // longer referenced.
-  scoped_ptr<net::CookieMonster> cookie_monster(
+  std::unique_ptr<net::CookieMonster> cookie_monster(
       new net::CookieMonster(persistent_store.get(), NULL));
   if (persistent_store.get() && persist_session_cookies)
       cookie_monster->SetPersistSessionCookies(true);

@@ -512,19 +512,17 @@ CEF_EXPORT int cef_create_url(const struct _cef_urlparts_t* parts,
 }
 
 CEF_EXPORT cef_string_userfree_t cef_format_url_for_security_display(
-    const cef_string_t* origin_url, const cef_string_t* languages) {
+    const cef_string_t* origin_url) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: origin_url; type: string_byref_const
   DCHECK(origin_url);
   if (!origin_url)
     return NULL;
-  // Unverified params: languages
 
   // Execute
   CefString _retval = CefFormatUrlForSecurityDisplay(
-      CefString(origin_url),
-      CefString(languages));
+      CefString(origin_url));
 
   // Return type: string
   return _retval.DetachToUserFree();
@@ -921,45 +919,6 @@ CEF_EXPORT void cef_refresh_web_plugins() {
   CefRefreshWebPlugins();
 }
 
-CEF_EXPORT void cef_add_web_plugin_path(const cef_string_t* path) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: path; type: string_byref_const
-  DCHECK(path);
-  if (!path)
-    return;
-
-  // Execute
-  CefAddWebPluginPath(
-      CefString(path));
-}
-
-CEF_EXPORT void cef_add_web_plugin_directory(const cef_string_t* dir) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: dir; type: string_byref_const
-  DCHECK(dir);
-  if (!dir)
-    return;
-
-  // Execute
-  CefAddWebPluginDirectory(
-      CefString(dir));
-}
-
-CEF_EXPORT void cef_remove_web_plugin_path(const cef_string_t* path) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: path; type: string_byref_const
-  DCHECK(path);
-  if (!path)
-    return;
-
-  // Execute
-  CefRemoveWebPluginPath(
-      CefString(path));
-}
-
 CEF_EXPORT void cef_unregister_internal_web_plugin(const cef_string_t* path) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -970,19 +929,6 @@ CEF_EXPORT void cef_unregister_internal_web_plugin(const cef_string_t* path) {
 
   // Execute
   CefUnregisterInternalWebPlugin(
-      CefString(path));
-}
-
-CEF_EXPORT void cef_force_web_plugin_shutdown(const cef_string_t* path) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: path; type: string_byref_const
-  DCHECK(path);
-  if (!path)
-    return;
-
-  // Execute
-  CefForceWebPluginShutdown(
       CefString(path));
 }
 

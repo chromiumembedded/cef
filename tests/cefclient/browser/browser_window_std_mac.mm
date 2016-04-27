@@ -60,16 +60,10 @@ void BrowserWindowStdMac::ShowPopup(ClientWindowHandle parent_handle,
 
 void BrowserWindowStdMac::Show() {
   REQUIRE_MAIN_THREAD();
-
-  if (browser_)
-    browser_->GetHost()->SetWindowVisibility(true);
 }
 
 void BrowserWindowStdMac::Hide() {
   REQUIRE_MAIN_THREAD();
-
-  if (browser_)
-    browser_->GetHost()->SetWindowVisibility(false);
 }
 
 void BrowserWindowStdMac::SetBounds(int x, int y, size_t width, size_t height) {

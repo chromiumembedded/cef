@@ -12,7 +12,7 @@ class CefBrowserPlatformDelegateOsrLinux :
     public CefBrowserPlatformDelegateOsr {
  public:
   explicit CefBrowserPlatformDelegateOsrLinux(
-      scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate);
+      std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate);
 
   // CefBrowserPlatformDelegate methods:
   CefWindowHandle GetHostWindowHandle() const override;

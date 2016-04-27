@@ -9,7 +9,6 @@
 #include "include/views/cef_view.h"
 #include "include/views/cef_window.h"
 
-#include "base/memory/scoped_ptr.h"
 #include "ui/views/view.h"
 
 namespace gfx {
@@ -59,7 +58,7 @@ views::View* GetFor(CefRefPtr<CefView> view);
 // views::View will keep a ref-counted reference to |view|, and |view| will keep
 // an un-owned reference to the views::View. These references will reset when
 // the views::View object is deleted or when ResumeOwnership() is called.
-scoped_ptr<views::View> PassOwnership(CefRefPtr<CefView> view)
+std::unique_ptr<views::View> PassOwnership(CefRefPtr<CefView> view)
     WARN_UNUSED_RESULT;
 
 // Causes |view| to resume ownership of the views::View object. Should be called

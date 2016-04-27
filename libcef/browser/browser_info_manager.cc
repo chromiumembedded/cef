@@ -142,7 +142,7 @@ void CefBrowserInfoManager::OnCreateWindow(
   DCHECK_GT(params.opener_id, 0);
   DCHECK_GT(params.opener_render_frame_id, 0);
 
-  scoped_ptr<CefBrowserInfoManager::PendingPopup> pending_popup(
+  std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup(
       new CefBrowserInfoManager::PendingPopup);
   pending_popup->step = CefBrowserInfoManager::PendingPopup::ON_CREATE_WINDOW;
   pending_popup->opener_process_id = host->GetID();
@@ -164,7 +164,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
     int opener_render_view_id,
     int opener_render_frame_id,
     bool* no_javascript_access) {
-  scoped_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
+  std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
       PopPendingPopup(CefBrowserInfoManager::PendingPopup::ON_CREATE_WINDOW,
                       render_process_id, opener_render_view_id, target_url);
   DCHECK(pending_popup.get());
@@ -202,7 +202,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
   CefRefPtr<CefClient> client = browser->GetClient();
   bool allow = true;
 
-  scoped_ptr<CefWindowInfo> window_info(new CefWindowInfo);
+  std::unique_ptr<CefWindowInfo> window_info(new CefWindowInfo);
 
 #if defined(OS_WIN)
   window_info->SetAsPopup(NULL, CefString());
@@ -277,7 +277,7 @@ void CefBrowserInfoManager::ShouldCreateWebContents(
     const GURL& target_url,
     content::WebContentsView** view,
     content::RenderViewHostDelegateView** delegate_view) {
-  scoped_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
+  std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
       PopPendingPopup(CefBrowserInfoManager::PendingPopup::CAN_CREATE_WINDOW,
                       web_contents->GetRenderViewHost()->GetProcess()->GetID(),
                       web_contents->GetRenderViewHost()->GetRoutingID(),
@@ -301,11 +301,11 @@ void CefBrowserInfoManager::WebContentsCreated(
     content::WebContents* new_contents,
     CefBrowserSettings& settings,
     CefRefPtr<CefClient>& client,
-    scoped_ptr<CefBrowserPlatformDelegate>& platform_delegate) {
+    std::unique_ptr<CefBrowserPlatformDelegate>& platform_delegate) {
   DCHECK(source_contents);
   DCHECK(new_contents);
 
-  scoped_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
+  std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
       PopPendingPopup(
           CefBrowserInfoManager::PendingPopup::SHOULD_CREATE_WEB_CONTENTS,
           source_contents->GetRenderViewHost()->GetProcess()->GetID(),
@@ -363,7 +363,7 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(
 #endif
 
   // Queue the request.
-  scoped_ptr<PendingNewBrowserInfo> pending(new PendingNewBrowserInfo());
+  std::unique_ptr<PendingNewBrowserInfo> pending(new PendingNewBrowserInfo());
   pending->host = host;
   pending->render_view_routing_id = render_view_routing_id;
   pending->render_frame_routing_id = render_frame_routing_id;
@@ -452,7 +452,7 @@ void CefBrowserInfoManager::RenderProcessHostDestroyed(
 
 void CefBrowserInfoManager::FilterPendingPopupURL(
     int render_process_id,
-    scoped_ptr<CefBrowserInfoManager::PendingPopup> pending_popup) {
+    std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup) {
   content::RenderProcessHost* rph =
       content::RenderProcessHost::FromID(render_process_id);
   DCHECK(rph);
@@ -461,12 +461,12 @@ void CefBrowserInfoManager::FilterPendingPopupURL(
   GetInstance()->PushPendingPopup(std::move(pending_popup));
 }
 
-void CefBrowserInfoManager::PushPendingPopup(scoped_ptr<PendingPopup> popup) {
+void CefBrowserInfoManager::PushPendingPopup(std::unique_ptr<PendingPopup> popup) {
   base::AutoLock lock_scope(pending_popup_lock_);
   pending_popup_list_.push_back(std::move(popup));
 }
 
-scoped_ptr<CefBrowserInfoManager::PendingPopup>
+std::unique_ptr<CefBrowserInfoManager::PendingPopup>
     CefBrowserInfoManager::PopPendingPopup(
     PendingPopup::Step step,
     int opener_process_id,

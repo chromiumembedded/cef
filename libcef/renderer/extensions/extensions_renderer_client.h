@@ -52,6 +52,8 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
                        ui::PageTransition transition_type,
                        const GURL& url,
                        GURL* new_url);
+  void RunScriptsAtDocumentStart(content::RenderFrame* render_frame);
+  void RunScriptsAtDocumentEnd(content::RenderFrame* render_frame);
 
   static bool ShouldFork(blink::WebLocalFrame* frame,
                          const GURL& url,
@@ -64,11 +66,11 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
       const GURL& original_url);
 
  private:
-  scoped_ptr<extensions::DispatcherDelegate> extension_dispatcher_delegate_;
-  scoped_ptr<extensions::Dispatcher> extension_dispatcher_;
-  scoped_ptr<extensions::ExtensionsGuestViewContainerDispatcher>
+  std::unique_ptr<extensions::DispatcherDelegate> extension_dispatcher_delegate_;
+  std::unique_ptr<extensions::Dispatcher> extension_dispatcher_;
+  std::unique_ptr<extensions::ExtensionsGuestViewContainerDispatcher>
       guest_view_container_dispatcher_;
-  scoped_ptr<extensions::ResourceRequestPolicy> resource_request_policy_;
+  std::unique_ptr<extensions::ResourceRequestPolicy> resource_request_policy_;
 
   DISALLOW_COPY_AND_ASSIGN(CefExtensionsRendererClient);
 };

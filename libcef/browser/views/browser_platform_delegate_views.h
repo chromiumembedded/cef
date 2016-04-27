@@ -17,7 +17,7 @@ class CefBrowserPlatformDelegateViews :
   // Platform-specific behaviors will be delegated to |native_delegate|.
   // |browser_view_getter| may be initially empty for popup browsers.
   CefBrowserPlatformDelegateViews(
-      scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate,
+      std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate,
       CefRefPtr<CefBrowserViewImpl> browser_view);
 
   void set_browser_view(CefRefPtr<CefBrowserViewImpl> browser_view);
@@ -66,9 +66,9 @@ class CefBrowserPlatformDelegateViews :
                            int deltaX, int deltaY) const override;
   CefEventHandle GetEventHandle(
       const content::NativeWebKeyboardEvent& event) const override;
-  scoped_ptr<CefFileDialogRunner> CreateFileDialogRunner() override;
-  scoped_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner() override;
-  scoped_ptr<CefMenuRunner> CreateMenuRunner() override;
+  std::unique_ptr<CefFileDialogRunner> CreateFileDialogRunner() override;
+  std::unique_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner() override;
+  std::unique_ptr<CefMenuRunner> CreateMenuRunner() override;
   bool IsWindowless() const override;
   bool IsViewsHosted() const override;
 
@@ -77,7 +77,7 @@ class CefBrowserPlatformDelegateViews :
   gfx::Point GetParentScreenPoint(const gfx::Point& view) const override;
 
  private:
-  scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate_;
+  std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate_;
   CefRefPtr<CefBrowserViewImpl> browser_view_;
 };
 

@@ -82,7 +82,7 @@ base::FilePath CefBrowserContextProxy::GetPath() const {
   return parent_->GetPath();
 }
 
-scoped_ptr<content::ZoomLevelDelegate>
+std::unique_ptr<content::ZoomLevelDelegate>
     CefBrowserContextProxy::CreateZoomLevelDelegate(
         const base::FilePath& partition_path) {
   return parent_->CreateZoomLevelDelegate(partition_path);
@@ -104,12 +104,6 @@ content::DownloadManagerDelegate*
 net::URLRequestContextGetter* CefBrowserContextProxy::GetRequestContext() {
   CEF_REQUIRE_UIT();
   return GetDefaultStoragePartition(this)->GetURLRequestContext();
-}
-
-net::URLRequestContextGetter*
-    CefBrowserContextProxy::GetRequestContextForRenderProcess(
-        int renderer_child_id) {
-  return GetRequestContext();
 }
 
 net::URLRequestContextGetter*
@@ -179,6 +173,9 @@ net::URLRequestContextGetter* CefBrowserContextProxy::CreateRequestContext(
     content::URLRequestInterceptorScopedVector request_interceptors) {
   CEF_REQUIRE_UIT();
   DCHECK(!url_request_getter_.get());
+
+  CreateProtocolHandlers(protocol_handlers);
+
   url_request_getter_ =
       new CefURLRequestContextGetterProxy(handler_, parent_->request_context());
   resource_context()->set_url_request_context_getter(url_request_getter_.get());

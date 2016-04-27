@@ -4,8 +4,11 @@
 
 #include "libcef/renderer/pepper/pepper_helper.h"
 
+#include <memory>
+
 #include "libcef/renderer/pepper/renderer_pepper_host_factory.h"
 
+#include "base/memory/ptr_util.h"
 #include "content/public/renderer/renderer_ppapi_host.h"
 #include "ppapi/host/ppapi_host.h"
 
@@ -18,6 +21,5 @@ void CefPepperHelper::DidCreatePepperPlugin(content::RendererPpapiHost* host) {
   // TODO(brettw) figure out how to hook up the host factory. It needs some
   // kind of filter-like system to allow dynamic additions.
   host->GetPpapiHost()->AddHostFactoryFilter(
-      scoped_ptr<ppapi::host::HostFactory>(
-          new CefRendererPepperHostFactory(host)));
+      base::WrapUnique(new CefRendererPepperHostFactory(host)));
 }

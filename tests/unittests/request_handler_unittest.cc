@@ -980,7 +980,7 @@ class ResourceResponseTest : public TestHandler {
   int browser_id_;
   uint64 main_request_id_;
   uint64 sub_request_id_;
-  scoped_ptr<ResourceTest> resource_test_;
+  std::unique_ptr<ResourceTest> resource_test_;
 
   IMPLEMENT_REFCOUNTING(ResourceResponseTest);
 };

@@ -287,7 +287,7 @@ class TestHandler : public CefClient,
   bool destroy_test_expected_;
   bool destroy_test_called_;
 
-  scoped_ptr<UIThreadHelper> ui_thread_helper_;
+  std::unique_ptr<UIThreadHelper> ui_thread_helper_;
 
   // Used to track the number of currently existing browser windows.
   static int browser_count_;

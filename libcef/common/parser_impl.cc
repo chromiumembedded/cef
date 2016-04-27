@@ -75,10 +75,9 @@ bool CefCreateURL(const CefURLParts& parts,
   return false;
 }
 
-CefString CefFormatUrlForSecurityDisplay(const CefString& origin_url,
-                                         const CefString& languages) {
+CefString CefFormatUrlForSecurityDisplay(const CefString& origin_url) {
   return url_formatter::FormatUrlForSecurityDisplay(
-      GURL(origin_url.ToString()), languages);
+      GURL(origin_url.ToString()));
 }
 
 CefString CefGetMimeType(const CefString& extension) {

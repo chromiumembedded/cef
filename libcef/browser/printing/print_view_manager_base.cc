@@ -11,7 +11,6 @@
 #include "base/auto_reset.h"
 #include "base/bind.h"
 #include "base/location.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/single_thread_task_runner.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/thread_task_runner_handle.h"
@@ -130,7 +129,7 @@ void PrintViewManagerBase::OnDidPrintPage(
 #endif
 
   // Only used when |metafile_must_be_valid| is true.
-  scoped_ptr<base::SharedMemory> shared_buf;
+  std::unique_ptr<base::SharedMemory> shared_buf;
   if (metafile_must_be_valid) {
     if (!base::SharedMemory::IsHandleValid(params.metafile_data_handle)) {
       NOTREACHED() << "invalid memory handle";
@@ -152,7 +151,7 @@ void PrintViewManagerBase::OnDidPrintPage(
     }
   }
 
-  scoped_ptr<PdfMetafileSkia> metafile(new PdfMetafileSkia);
+  std::unique_ptr<PdfMetafileSkia> metafile(new PdfMetafileSkia);
   if (metafile_must_be_valid) {
     if (!metafile->InitFromData(shared_buf->memory(), params.data_size)) {
       NOTREACHED() << "Invalid metafile header";

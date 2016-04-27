@@ -28,7 +28,7 @@ AppViewGuestDelegate* CefExtensionsAPIClient::CreateAppViewGuestDelegate()
   return NULL;
 }
 
-scoped_ptr<guest_view::GuestViewManagerDelegate>
+std::unique_ptr<guest_view::GuestViewManagerDelegate>
 CefExtensionsAPIClient::CreateGuestViewManagerDelegate(
     content::BrowserContext* context) const {
   // The GuestViewManager instance associated with the returned Delegate, which
@@ -44,7 +44,7 @@ CefExtensionsAPIClient::CreateGuestViewManagerDelegate(
           CefBrowserContextImpl::GetForContext(context).get()));
 }
 
-scoped_ptr<MimeHandlerViewGuestDelegate>
+std::unique_ptr<MimeHandlerViewGuestDelegate>
 CefExtensionsAPIClient::CreateMimeHandlerViewGuestDelegate(
     MimeHandlerViewGuest* guest) const {
   return make_scoped_ptr(new CefMimeHandlerViewGuestDelegate(guest));
@@ -56,7 +56,7 @@ void CefExtensionsAPIClient::AttachWebContentsHelpers(
   printing::PrintViewManager::CreateForWebContents(web_contents);
   pdf::PDFWebContentsHelper::CreateForWebContentsWithClient(
       web_contents,
-      scoped_ptr<pdf::PDFWebContentsHelperClient>(
+      std::unique_ptr<pdf::PDFWebContentsHelperClient>(
           new CefPDFWebContentsHelperClient()));
   CefExtensionWebContentsObserver::CreateForWebContents(web_contents);
 }

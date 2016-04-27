@@ -49,7 +49,7 @@ class CefBrowserPlatformDelegate {
  public:
   // Create a new CefBrowserPlatformDelegate instance. May be called on multiple
   // threads.
-  static scoped_ptr<CefBrowserPlatformDelegate> Create(
+  static std::unique_ptr<CefBrowserPlatformDelegate> Create(
       CefBrowserHostImpl::CreateParams& create_params);
 
   // Called to create the view objects for a new WebContents. Will only be
@@ -159,11 +159,6 @@ class CefBrowserPlatformDelegate {
   virtual void SizeTo(int width, int height);
 #endif
 
-#if defined(OS_MACOSX)
-  // Set or remove host window visibility. Only used on OS X.
-  virtual void SetWindowVisibility(bool visible);
-#endif
-
   // Convert from view coordinates to screen coordinates. Potential display
   // scaling will be applied to the result.
   virtual gfx::Point GetScreenPoint(const gfx::Point& view) const = 0;
@@ -198,13 +193,13 @@ class CefBrowserPlatformDelegate {
       const content::NativeWebKeyboardEvent& event) const = 0;
 
   // Create the platform-specific file dialog runner.
-  virtual scoped_ptr<CefFileDialogRunner> CreateFileDialogRunner();
+  virtual std::unique_ptr<CefFileDialogRunner> CreateFileDialogRunner();
 
   // Create the platform-specific JavaScript dialog runner.
-  virtual scoped_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner();
+  virtual std::unique_ptr<CefJavaScriptDialogRunner> CreateJavaScriptDialogRunner();
 
   // Create the platform-specific menu runner.
-  virtual scoped_ptr<CefMenuRunner> CreateMenuRunner() = 0;
+  virtual std::unique_ptr<CefMenuRunner> CreateMenuRunner() = 0;
 
   // Returns true if this delegate implements windowless rendering. May be
   // called on multiple threads.

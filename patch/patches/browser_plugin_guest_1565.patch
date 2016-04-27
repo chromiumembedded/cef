@@ -1,5 +1,5 @@
 diff --git browser/browser_plugin/browser_plugin_guest.cc browser/browser_plugin/browser_plugin_guest.cc
-index 007c977..069e8d4 100644
+index ad4474f..d0318065 100644
 --- browser/browser_plugin/browser_plugin_guest.cc
 +++ browser/browser_plugin/browser_plugin_guest.cc
 @@ -28,7 +28,7 @@
@@ -36,7 +36,7 @@ index 007c977..069e8d4 100644
    }
  
    RendererPreferences* renderer_prefs =
-@@ -754,11 +753,10 @@ void BrowserPluginGuest::OnWillAttachComplete(
+@@ -749,11 +748,10 @@ void BrowserPluginGuest::OnWillAttachComplete(
          ->GetWidget()
          ->Init();
      GetWebContents()->GetMainFrame()->Init();

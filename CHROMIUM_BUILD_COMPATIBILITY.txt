@@ -7,5 +7,5 @@
 # https://bitbucket.org/chromiumembedded/cef/wiki/BranchesAndBuilding
 
 {
-  'chromium_checkout': '0bfd25d460a1cff98f9f0573a0d6cc072ecbe359',
+  'chromium_checkout': '6e53600def8f60d8c632fadc70d7c1939ccea347',
 }

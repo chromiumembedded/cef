@@ -13,7 +13,6 @@
 #include "libcef/browser/views/view_util.h"
 
 #include "base/logging.h"
-#include "base/memory/scoped_ptr.h"
 #include "ui/views/background.h"
 #include "ui/views/view.h"
 

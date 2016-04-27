@@ -14,7 +14,6 @@
 #include "libcef/common/extensions/extensions_util.h"
 
 #include "base/bind.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/metrics/histogram_macros.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/thread_task_runner_handle.h"
@@ -46,19 +45,6 @@ using content::PluginService;
 using content::WebPluginInfo;
 
 namespace {
-
-#if defined(OS_WIN) || defined(OS_MACOSX)
-// These are the mime-types of plugins which are known to have PPAPI versions.
-const char* kPepperPluginMimeTypes[] = {
-    "application/pdf",
-    "application/x-google-chrome-pdf",
-    "application/x-nacl",
-    "application/x-pnacl",
-    "application/vnd.chromium.remoting-viewer",
-    "application/x-shockwave-flash",
-    "application/futuresplash",
-};
-#endif
 
 // For certain sandboxed Pepper plugins, use the JavaScript Content Settings.
 bool ShouldUseJavaScriptSettingForPlugin(const WebPluginInfo& plugin) {
@@ -241,7 +227,7 @@ void CefPluginInfoMessageFilter::PluginsLoaded(
         browser_context_->GetHandler();
 
   // This also fills in |actual_mime_type|.
-  scoped_ptr<PluginMetadata> plugin_metadata;
+  std::unique_ptr<PluginMetadata> plugin_metadata;
   context_.FindEnabledPlugin(params, handler.get(),
                              &output.status, &output.plugin,
                              &output.actual_mime_type,
@@ -305,16 +291,12 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
     const WebPluginInfo& plugin,
     const PluginMetadata* plugin_metadata,
     CefViewHostMsg_GetPluginInfo_Status* status) const {
-  if (plugin.type == WebPluginInfo::PLUGIN_TYPE_NPAPI) {
-    CHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::IO));
-    // NPAPI plugins are not supported inside <webview> guests.
-#if defined(ENABLE_EXTENSIONS)
-    if (extensions::WebViewRendererState::GetInstance()->IsGuest(
-        render_process_id_)) {
-      *status = CefViewHostMsg_GetPluginInfo_Status::kNPAPINotSupported;
-      return;
-    }
-#endif
+  PluginMetadata::SecurityStatus plugin_status =
+      plugin_metadata->GetSecurityStatus(plugin);
+
+  if (plugin_status == PluginMetadata::SECURITY_STATUS_FULLY_TRUSTED) {
+    *status = CefViewHostMsg_GetPluginInfo_Status::kAllowed;
+    return;
   }
 
   ContentSetting plugin_setting = CONTENT_SETTING_DEFAULT;
@@ -334,8 +316,6 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
   DCHECK(plugin_setting != CONTENT_SETTING_DEFAULT);
   DCHECK(plugin_setting != CONTENT_SETTING_ASK);
 
-  PluginMetadata::SecurityStatus plugin_status =
-      plugin_metadata->GetSecurityStatus(plugin);
 #if defined(ENABLE_PLUGIN_INSTALLATION)
   // Check if the plugin is outdated.
   if (plugin_status == PluginMetadata::SECURITY_STATUS_OUT_OF_DATE &&
@@ -348,18 +328,6 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
     return;
   }
 #endif
-  // Check if the plugin requires authorization.
-  if (plugin_status ==
-          PluginMetadata::SECURITY_STATUS_REQUIRES_AUTHORIZATION &&
-      plugin.type != WebPluginInfo::PLUGIN_TYPE_PEPPER_IN_PROCESS &&
-      plugin.type != WebPluginInfo::PLUGIN_TYPE_PEPPER_OUT_OF_PROCESS &&
-      plugin.type != WebPluginInfo::PLUGIN_TYPE_BROWSER_PLUGIN &&
-      !always_authorize_plugins_.GetValue() &&
-      plugin_setting != CONTENT_SETTING_BLOCK &&
-      uses_default_content_setting) {
-    *status = CefViewHostMsg_GetPluginInfo_Status::kUnauthorized;
-    return;
-  }
 
   // Check if the plugin is crashing too much.
   if (PluginService::GetInstance()->IsPluginUnstable(plugin.path) &&
@@ -416,7 +384,7 @@ bool CefPluginInfoMessageFilter::Context::FindEnabledPlugin(
     CefViewHostMsg_GetPluginInfo_Status* status,
     WebPluginInfo* plugin,
     std::string* actual_mime_type,
-    scoped_ptr<PluginMetadata>* plugin_metadata) const {
+    std::unique_ptr<PluginMetadata>* plugin_metadata) const {
   *status = CefViewHostMsg_GetPluginInfo_Status::kAllowed;
 
   bool allow_wildcard = true;
@@ -427,16 +395,6 @@ bool CefPluginInfoMessageFilter::Context::FindEnabledPlugin(
       &mime_types);
   if (matching_plugins.empty()) {
     *status = CefViewHostMsg_GetPluginInfo_Status::kNotFound;
-#if defined(OS_WIN) || defined(OS_MACOSX)
-    if (!PluginService::GetInstance()->NPAPIPluginsSupported()) {
-      // At this point it is not known for sure this is an NPAPI plugin as it
-      // could be a not-yet-installed Pepper plugin. To avoid notifying on
-      // these types, bail early based on a blacklist of pepper mime types.
-      for (auto pepper_mime_type : kPepperPluginMimeTypes)
-        if (pepper_mime_type == params.mime_type)
-          return false;
-    }
-#endif
     return false;
   }
 
@@ -487,7 +445,7 @@ void CefPluginInfoMessageFilter::Context::GetPluginContentSetting(
     ContentSetting* setting,
     bool* uses_default_content_setting,
     bool* is_managed) const {
-  scoped_ptr<base::Value> value;
+  std::unique_ptr<base::Value> value;
   content_settings::SettingInfo info;
   bool uses_plugin_specific_setting = false;
   if (ShouldUseJavaScriptSettingForPlugin(plugin)) {
@@ -499,7 +457,7 @@ void CefPluginInfoMessageFilter::Context::GetPluginContentSetting(
         &info);
   } else {
     content_settings::SettingInfo specific_info;
-    scoped_ptr<base::Value> specific_setting =
+    std::unique_ptr<base::Value> specific_setting =
         host_content_settings_map_->GetWebsiteSetting(
             policy_url,
             plugin_url,
@@ -507,7 +465,7 @@ void CefPluginInfoMessageFilter::Context::GetPluginContentSetting(
             resource,
             &specific_info);
     content_settings::SettingInfo general_info;
-    scoped_ptr<base::Value> general_setting =
+    std::unique_ptr<base::Value> general_setting =
         host_content_settings_map_->GetWebsiteSetting(
             policy_url,
             plugin_url,

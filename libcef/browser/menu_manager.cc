@@ -90,7 +90,7 @@ class CefRunContextMenuCallbackImpl : public CefRunContextMenuCallback {
 }  // namespace
 
 CefMenuManager::CefMenuManager(CefBrowserHostImpl* browser,
-                               scoped_ptr<CefMenuRunner> runner)
+                               std::unique_ptr<CefMenuRunner> runner)
   : content::WebContentsObserver(browser->web_contents()),
     browser_(browser),
     runner_(std::move(runner)),

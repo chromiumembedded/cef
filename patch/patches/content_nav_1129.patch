@@ -1,56 +1,56 @@
 diff --git public/renderer/content_renderer_client.cc public/renderer/content_renderer_client.cc
-index d32eccc..17e3e38 100644
+index a1389fc..6dcaabb 100644
 --- public/renderer/content_renderer_client.cc
 +++ public/renderer/content_renderer_client.cc
 @@ -98,7 +98,6 @@ bool ContentRendererClient::AllowPopup() {
    return false;
  }
  
--#ifdef OS_ANDROID
+-#if defined(OS_ANDROID)
  bool ContentRendererClient::HandleNavigation(
      RenderFrame* render_frame,
      bool is_content_initiated,
-@@ -110,7 +109,6 @@ bool ContentRendererClient::HandleNavigation(
-     bool is_redirect) {
+@@ -111,6 +110,7 @@ bool ContentRendererClient::HandleNavigation(
    return false;
  }
--#endif
  
- bool ContentRendererClient::ShouldFork(blink::WebLocalFrame* frame,
-                                        const GURL& url,
++#if defined(OS_ANDROID)
+ bool ContentRendererClient::ShouldUseMediaPlayerForURL(const GURL& url) {
+   return false;
+ }
 diff --git public/renderer/content_renderer_client.h public/renderer/content_renderer_client.h
-index 880550c..3a59f3b 100644
+index 0fab037..848a8f7 100644
 --- public/renderer/content_renderer_client.h
 +++ public/renderer/content_renderer_client.h
-@@ -198,7 +198,6 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -200,7 +200,6 @@ class CONTENT_EXPORT ContentRendererClient {
    // Returns true if a popup window should be allowed.
    virtual bool AllowPopup();
  
--#ifdef OS_ANDROID
+-#if defined(OS_ANDROID)
    // TODO(sgurun) This callback is deprecated and will be removed as soon
    // as android webview completes implementation of a resource throttle based
    // shouldoverrideurl implementation. See crbug.com/325351
-@@ -213,7 +212,6 @@ class CONTENT_EXPORT ContentRendererClient {
-                                 blink::WebNavigationType type,
+@@ -216,6 +215,7 @@ class CONTENT_EXPORT ContentRendererClient {
                                  blink::WebNavigationPolicy default_policy,
                                  bool is_redirect);
--#endif
  
-   // Returns true if we should fork a new process for the given navigation.
-   // If |send_referrer| is set to false (which is the default), no referrer
++#if defined(OS_ANDROID)
+   // Indicates if the Android MediaPlayer should be used instead of Chrome's
+   // built in media player for the given |url|. Defaults to false.
+   virtual bool ShouldUseMediaPlayerForURL(const GURL& url);
 diff --git renderer/render_frame_impl.cc renderer/render_frame_impl.cc
-index 6d9f299..b90bf05 100644
+index af44d57..93a57ff 100644
 --- renderer/render_frame_impl.cc
 +++ renderer/render_frame_impl.cc
-@@ -4703,7 +4703,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -4697,7 +4697,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
        (pending_navigation_params_ &&
         !pending_navigation_params_->request_params.redirects.empty());
  
 -#ifdef OS_ANDROID
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
-   if (info.urlRequest.url() != GURL(kSwappedOutURL) &&
-@@ -4713,7 +4712,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+   if (GetContentClient()->renderer()->HandleNavigation(
+@@ -4706,7 +4705,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
            is_redirect)) {
      return blink::WebNavigationPolicyIgnore;
    }

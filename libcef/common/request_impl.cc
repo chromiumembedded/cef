@@ -33,6 +33,7 @@
 #include "net/http/http_util.h"
 #include "net/url_request/url_fetcher.h"
 #include "net/url_request/url_request.h"
+#include "third_party/WebKit/public/platform/WebCachePolicy.h"
 #include "third_party/WebKit/public/platform/WebHTTPHeaderVisitor.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
@@ -50,7 +51,7 @@ const char kApplicationFormURLEncoded[] = "application/x-www-form-urlencoded";
 // UploadElement alive until the request completes.
 class BytesElementReader : public net::UploadBytesElementReader {
  public:
-  explicit BytesElementReader(scoped_ptr<net::UploadElement> element)
+  explicit BytesElementReader(std::unique_ptr<net::UploadElement> element)
       : net::UploadBytesElementReader(element->bytes(),
                                       element->bytes_length()),
         element_(std::move(element)) {
@@ -58,7 +59,7 @@ class BytesElementReader : public net::UploadBytesElementReader {
   }
 
  private:
-  scoped_ptr<net::UploadElement> element_;
+  std::unique_ptr<net::UploadElement> element_;
 
   DISALLOW_COPY_AND_ASSIGN(BytesElementReader);
 };
@@ -72,7 +73,7 @@ base::TaskRunner* GetFileTaskRunner() {
 // UploadElement alive until the request completes.
 class FileElementReader : public net::UploadFileElementReader {
  public:
-  explicit FileElementReader(scoped_ptr<net::UploadElement> element)
+  explicit FileElementReader(std::unique_ptr<net::UploadElement> element)
       : net::UploadFileElementReader(
             GetFileTaskRunner(),
             element->file_path(),
@@ -84,7 +85,7 @@ class FileElementReader : public net::UploadFileElementReader {
   }
 
  private:
-  scoped_ptr<net::UploadElement> element_;
+  std::unique_ptr<net::UploadElement> element_;
 
   DISALLOW_COPY_AND_ASSIGN(FileElementReader);
 };
@@ -221,7 +222,7 @@ void SetHeaderMap(const CefRequest::HeaderMap& map,
 }
 
 // Type used in UploadDataStream.
-typedef std::vector<scoped_ptr<net::UploadElementReader>> UploadElementReaders;
+typedef std::vector<std::unique_ptr<net::UploadElementReader>> UploadElementReaders;
 
 }  // namespace
 
@@ -484,7 +485,7 @@ void CefRequestImpl::Get(net::URLRequest* request, bool changed_only) const {
       request->set_upload(make_scoped_ptr(
           static_cast<CefPostDataImpl*>(postdata_.get())->Get()));
     } else if (request->get_upload()) {
-      request->set_upload(scoped_ptr<net::UploadDataStream>());
+      request->set_upload(std::unique_ptr<net::UploadDataStream>());
     }
   }
 
@@ -540,7 +541,7 @@ void CefRequestImpl::Set(const blink::WebURLRequest& request) {
 
   first_party_for_cookies_ = request.firstPartyForCookies().string();
 
-  if (request.getCachePolicy() == blink::WebURLRequest::ReloadIgnoringCacheData)
+  if (request.getCachePolicy() == blink::WebCachePolicy::BypassingCache)
     flags_ |= UR_FLAG_SKIP_CACHE;
   if (request.allowStoredCredentials())
     flags_ |= UR_FLAG_ALLOW_CACHED_CREDENTIALS;
@@ -593,8 +594,8 @@ void CefRequestImpl::Get(blink::WebURLRequest& request,
     request.setFirstPartyForCookies(GURL(first_party_for_cookies_.ToString()));
 
   request.setCachePolicy((flags_ & UR_FLAG_SKIP_CACHE) ?
-      blink::WebURLRequest::ReloadIgnoringCacheData :
-      blink::WebURLRequest::UseProtocolCachePolicy);
+      blink::WebCachePolicy::BypassingCache :
+      blink::WebCachePolicy::UseProtocolCachePolicy);
 
   SETBOOLFLAG(request, flags_, setAllowStoredCredentials,
               UR_FLAG_ALLOW_CACHED_CREDENTIALS);
@@ -675,8 +676,8 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
     request.setFirstPartyForCookies(params.first_party_for_cookies);
 
   request.setCachePolicy((params.load_flags & UR_FLAG_SKIP_CACHE) ?
-      blink::WebURLRequest::ReloadIgnoringCacheData :
-      blink::WebURLRequest::UseProtocolCachePolicy);
+      blink::WebCachePolicy::BypassingCache :
+      blink::WebCachePolicy::UseProtocolCachePolicy);
 
   SETBOOLFLAG(request, params.load_flags, setAllowStoredCredentials,
               UR_FLAG_ALLOW_CACHED_CREDENTIALS);

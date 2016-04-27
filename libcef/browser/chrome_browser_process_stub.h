@@ -10,7 +10,6 @@
 
 #include "chrome/browser/browser_process.h"
 #include "base/compiler_specific.h"
-#include "base/memory/scoped_ptr.h"
 
 // This file provides a stub implementation of Chrome's BrowserProcess object
 // for use as an interop layer between CEF and files that live in chrome/.
@@ -55,8 +54,6 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   void CreateDevToolsHttpProtocolHandler(const std::string& ip,
                                          uint16_t port) override;
   void CreateDevToolsAutoOpener() override;
-  unsigned int AddRefModule() override;
-  unsigned int ReleaseModule() override;
   bool IsShuttingDown() override;
   printing::PrintJobManager* print_job_manager() override;
   printing::PrintPreviewDialogController*
@@ -70,7 +67,7 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   DownloadRequestLimiter* download_request_limiter() override;
   BackgroundModeManager* background_mode_manager() override;
   void set_background_mode_manager_for_test(
-      scoped_ptr<BackgroundModeManager> manager) override;
+      std::unique_ptr<BackgroundModeManager> manager) override;
   StatusTray* status_tray() override;
   safe_browsing::SafeBrowsingService* safe_browsing_service() override;
   safe_browsing::ClientSideDetectionService*

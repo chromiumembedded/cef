@@ -65,7 +65,7 @@ StreamsPrivateAPI::~StreamsPrivateAPI() {
 void StreamsPrivateAPI::ExecuteMimeTypeHandler(
     const std::string& extension_id,
     int tab_id,
-    scoped_ptr<content::StreamInfo> stream,
+    std::unique_ptr<content::StreamInfo> stream,
     const std::string& view_id,
     int64_t expected_content_size,
     bool embedded,
@@ -84,7 +84,7 @@ void StreamsPrivateAPI::ExecuteMimeTypeHandler(
   if (handler->HasPlugin()) {
     GURL handler_url(Extension::GetBaseURLFromExtensionId(extension_id).spec() +
                      handler->handler_url());
-    scoped_ptr<StreamContainer> stream_container(new StreamContainer(
+    std::unique_ptr<StreamContainer> stream_container(new StreamContainer(
         std::move(stream), tab_id, embedded, handler_url, extension_id));
     MimeHandlerStreamManager::Get(browser_context_)
         ->AddStream(view_id, std::move(stream_container), render_process_id,
@@ -111,7 +111,7 @@ void StreamsPrivateAPI::ExecuteMimeTypeHandler(
   CreateResponseHeadersDictionary(stream->response_headers.get(),
                                   &info.response_headers.additional_properties);
 
-  scoped_ptr<Event> event(
+  std::unique_ptr<Event> event(
       new Event(events::STREAMS_PRIVATE_ON_EXECUTE_MIME_TYPE_HANDLER,
                 streams_private::OnExecuteMimeTypeHandler::kEventName,
                 streams_private::OnExecuteMimeTypeHandler::Create(info)));

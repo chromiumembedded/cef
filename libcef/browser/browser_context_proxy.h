@@ -11,7 +11,6 @@
 
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
-#include "base/memory/scoped_ptr.h"
 
 class CefDownloadManagerDelegate;
 class CefURLRequestContextGetterProxy;
@@ -31,13 +30,11 @@ class CefBrowserContextProxy : public CefBrowserContext {
 
   // BrowserContext methods.
   base::FilePath GetPath() const override;
-  scoped_ptr<content::ZoomLevelDelegate> CreateZoomLevelDelegate(
+  std::unique_ptr<content::ZoomLevelDelegate> CreateZoomLevelDelegate(
       const base::FilePath& partition_path) override;
   bool IsOffTheRecord() const override;
   content::DownloadManagerDelegate* GetDownloadManagerDelegate() override;
   net::URLRequestContextGetter* GetRequestContext() override;
-  net::URLRequestContextGetter* GetRequestContextForRenderProcess(
-      int renderer_child_id) override;
   net::URLRequestContextGetter* GetMediaRequestContext() override;
   net::URLRequestContextGetter* GetMediaRequestContextForRenderProcess(
       int renderer_child_id) override;
@@ -88,7 +85,7 @@ class CefBrowserContextProxy : public CefBrowserContext {
   CefRefPtr<CefRequestContextHandler> handler_;
   scoped_refptr<CefBrowserContextImpl> parent_;
 
-  scoped_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
+  std::unique_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<CefURLRequestContextGetterProxy> url_request_getter_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserContextProxy);

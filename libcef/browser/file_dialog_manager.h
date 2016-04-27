@@ -11,7 +11,6 @@
 #include "libcef/browser/file_dialog_runner.h"
 
 #include "base/compiler_specific.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "content/public/browser/web_contents_observer.h"
 
@@ -30,7 +29,7 @@ class CefFileDialogManager : public content::WebContentsObserver {
   // |runner| may be NULL if the platform doesn't implement dialogs.
   CefFileDialogManager(
       CefBrowserHostImpl* browser,
-      scoped_ptr<CefFileDialogRunner> runner);
+      std::unique_ptr<CefFileDialogRunner> runner);
   ~CefFileDialogManager() override;
 
   // Delete the runner to free any platform constructs.
@@ -82,13 +81,13 @@ class CefFileDialogManager : public content::WebContentsObserver {
   // CefBrowserHostImpl pointer is guaranteed to outlive this object.
   CefBrowserHostImpl* browser_;
 
-  scoped_ptr<CefFileDialogRunner> runner_;
+  std::unique_ptr<CefFileDialogRunner> runner_;
 
   // True if a file chooser is currently pending.
   bool file_chooser_pending_;
 
   // Used for asynchronously listing directory contents.
-  scoped_ptr<net::DirectoryLister> lister_;
+  std::unique_ptr<net::DirectoryLister> lister_;
 
   // Must be the last member.
   base::WeakPtrFactory<CefFileDialogManager> weak_ptr_factory_;

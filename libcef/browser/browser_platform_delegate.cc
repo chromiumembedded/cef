@@ -108,21 +108,12 @@ void CefBrowserPlatformDelegate::SizeTo(int width, int height) {
 }
 #endif
 
-#if defined(OS_MACOSX)
-void CefBrowserPlatformDelegate::SetWindowVisibility(bool visible) {
-  content::RenderWidgetHostView* view =
-      browser_->web_contents()->GetRenderWidgetHostView();
-  if (view)
-    view->SetWindowVisibility(visible);
-}
-#endif
-
-scoped_ptr<CefFileDialogRunner>
+std::unique_ptr<CefFileDialogRunner>
     CefBrowserPlatformDelegate::CreateFileDialogRunner() {
   return nullptr;
 }
 
-scoped_ptr<CefJavaScriptDialogRunner>
+std::unique_ptr<CefJavaScriptDialogRunner>
     CefBrowserPlatformDelegate::CreateJavaScriptDialogRunner() {
   return nullptr;
 }

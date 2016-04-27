@@ -303,7 +303,6 @@ bool ClientDialogHandlerGtk::OnFileDialog(
 bool ClientDialogHandlerGtk::OnJSDialog(
     CefRefPtr<CefBrowser> browser,
     const CefString& origin_url,
-    const CefString& accept_lang,
     JSDialogType dialog_type,
     const CefString& message_text,
     const CefString& default_prompt_text,
@@ -339,7 +338,7 @@ bool ClientDialogHandlerGtk::OnJSDialog(
 
   if (!origin_url.empty()) {
     title += " - ";
-    title += CefFormatUrlForSecurityDisplay(origin_url, accept_lang).ToString();
+    title += CefFormatUrlForSecurityDisplay(origin_url).ToString();
   }
 
   GtkWindow* window = GetWindow(browser);
@@ -395,7 +394,7 @@ bool ClientDialogHandlerGtk::OnBeforeUnloadDialog(
       message_text.ToString() + "\n\nIs it OK to leave/reload this page?";
   bool suppress_message = false;
 
-  return OnJSDialog(browser, CefString(), CefString(), JSDIALOGTYPE_CONFIRM,
+  return OnJSDialog(browser, CefString(), JSDIALOGTYPE_CONFIRM,
                     new_message_text, CefString(), callback, suppress_message);
 }
 

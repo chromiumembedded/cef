@@ -29,7 +29,7 @@ EventRouterForwarder::~EventRouterForwarder() {
 void EventRouterForwarder::BroadcastEventToRenderers(
     events::HistogramValue histogram_value,
     const std::string& event_name,
-    scoped_ptr<base::ListValue> event_args,
+    std::unique_ptr<base::ListValue> event_args,
     const GURL& event_url) {
   HandleEvent(std::string(), histogram_value, event_name, std::move(event_args),
               0, true, event_url);
@@ -38,7 +38,7 @@ void EventRouterForwarder::BroadcastEventToRenderers(
 void EventRouterForwarder::DispatchEventToRenderers(
     events::HistogramValue histogram_value,
     const std::string& event_name,
-    scoped_ptr<base::ListValue> event_args,
+    std::unique_ptr<base::ListValue> event_args,
     void* profile,
     bool use_profile_to_restrict_events,
     const GURL& event_url) {
@@ -52,7 +52,7 @@ void EventRouterForwarder::BroadcastEventToExtension(
     const std::string& extension_id,
     events::HistogramValue histogram_value,
     const std::string& event_name,
-    scoped_ptr<base::ListValue> event_args,
+    std::unique_ptr<base::ListValue> event_args,
     const GURL& event_url) {
   HandleEvent(extension_id, histogram_value, event_name, std::move(event_args),
               0, true, event_url);
@@ -62,7 +62,7 @@ void EventRouterForwarder::DispatchEventToExtension(
     const std::string& extension_id,
     events::HistogramValue histogram_value,
     const std::string& event_name,
-    scoped_ptr<base::ListValue> event_args,
+    std::unique_ptr<base::ListValue> event_args,
     void* profile,
     bool use_profile_to_restrict_events,
     const GURL& event_url) {
@@ -72,13 +72,14 @@ void EventRouterForwarder::DispatchEventToExtension(
               profile, use_profile_to_restrict_events, event_url);
 }
 
-void EventRouterForwarder::HandleEvent(const std::string& extension_id,
-                                       events::HistogramValue histogram_value,
-                                       const std::string& event_name,
-                                       scoped_ptr<base::ListValue> event_args,
-                                       void* profile_ptr,
-                                       bool use_profile_to_restrict_events,
-                                       const GURL& event_url) {
+void EventRouterForwarder::HandleEvent(
+    const std::string& extension_id,
+    events::HistogramValue histogram_value,
+    const std::string& event_name,
+    std::unique_ptr<base::ListValue> event_args,
+    void* profile_ptr,
+    bool use_profile_to_restrict_events,
+    const GURL& event_url) {
   if (!BrowserThread::CurrentlyOn(BrowserThread::UI)) {
     BrowserThread::PostTask(
         BrowserThread::UI, FROM_HERE,
@@ -102,7 +103,7 @@ void EventRouterForwarder::HandleEvent(const std::string& extension_id,
     std::vector<CefBrowserContextImpl*> profiles(
         CefBrowserContextImpl::GetAll());
     for (size_t i = 0; i < profiles.size(); ++i) {
-      scoped_ptr<base::ListValue> per_profile_event_args(
+      std::unique_ptr<base::ListValue> per_profile_event_args(
           event_args->DeepCopy());
       CallEventRouter(profiles[i], extension_id, histogram_value, event_name,
                       std::move(per_profile_event_args),
@@ -117,10 +118,10 @@ void EventRouterForwarder::CallEventRouter(
     const std::string& extension_id,
     events::HistogramValue histogram_value,
     const std::string& event_name,
-    scoped_ptr<base::ListValue> event_args,
+    std::unique_ptr<base::ListValue> event_args,
     content::BrowserContext* restrict_to_profile,
     const GURL& event_url) {
-  scoped_ptr<Event> event(
+  std::unique_ptr<Event> event(
       new Event(histogram_value, event_name, std::move(event_args)));
   event->restrict_to_browser_context = restrict_to_profile;
   event->event_url = event_url;

@@ -1,0 +1,12 @@
+diff --git render_view_host_impl.h render_view_host_impl.h
+index 4ec87ca..6919986 100644
+--- render_view_host_impl.h
++++ render_view_host_impl.h
+@@ -193,6 +193,7 @@ class CONTENT_EXPORT RenderViewHostImpl : public RenderViewHost,
+   void set_is_swapped_out(bool is_swapped_out) {
+     is_swapped_out_ = is_swapped_out;
+   }
++  bool is_swapped_out() const { return is_swapped_out_; }
+ 
+   // TODO(creis): Remove as part of http://crbug.com/418265.
+   bool is_waiting_for_close_ack() const { return is_waiting_for_close_ack_; }

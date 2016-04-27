@@ -472,20 +472,18 @@ CEF_GLOBAL bool CefCreateURL(const CefURLParts& parts, CefString& url) {
   return _retval?true:false;
 }
 
-CEF_GLOBAL CefString CefFormatUrlForSecurityDisplay(const CefString& origin_url,
-    const CefString& languages) {
+CEF_GLOBAL CefString CefFormatUrlForSecurityDisplay(
+    const CefString& origin_url) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Verify param: origin_url; type: string_byref_const
   DCHECK(!origin_url.empty());
   if (origin_url.empty())
     return CefString();
-  // Unverified params: languages
 
   // Execute
   cef_string_userfree_t _retval = cef_format_url_for_security_display(
-      origin_url.GetStruct(),
-      languages.GetStruct());
+      origin_url.GetStruct());
 
   // Return type: string
   CefString _retvalStr;
@@ -864,45 +862,6 @@ CEF_GLOBAL void CefRefreshWebPlugins() {
   cef_refresh_web_plugins();
 }
 
-CEF_GLOBAL void CefAddWebPluginPath(const CefString& path) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: path; type: string_byref_const
-  DCHECK(!path.empty());
-  if (path.empty())
-    return;
-
-  // Execute
-  cef_add_web_plugin_path(
-      path.GetStruct());
-}
-
-CEF_GLOBAL void CefAddWebPluginDirectory(const CefString& dir) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: dir; type: string_byref_const
-  DCHECK(!dir.empty());
-  if (dir.empty())
-    return;
-
-  // Execute
-  cef_add_web_plugin_directory(
-      dir.GetStruct());
-}
-
-CEF_GLOBAL void CefRemoveWebPluginPath(const CefString& path) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: path; type: string_byref_const
-  DCHECK(!path.empty());
-  if (path.empty())
-    return;
-
-  // Execute
-  cef_remove_web_plugin_path(
-      path.GetStruct());
-}
-
 CEF_GLOBAL void CefUnregisterInternalWebPlugin(const CefString& path) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -913,19 +872,6 @@ CEF_GLOBAL void CefUnregisterInternalWebPlugin(const CefString& path) {
 
   // Execute
   cef_unregister_internal_web_plugin(
-      path.GetStruct());
-}
-
-CEF_GLOBAL void CefForceWebPluginShutdown(const CefString& path) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Verify param: path; type: string_byref_const
-  DCHECK(!path.empty());
-  if (path.empty())
-    return;
-
-  // Execute
-  cef_force_web_plugin_shutdown(
       path.GetStruct());
 }
 

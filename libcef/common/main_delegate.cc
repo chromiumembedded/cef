@@ -207,7 +207,7 @@ void OverridePepperFlashSystemPluginPath() {
 // ~/.config/google-chrome/ for official builds.
 // (This also helps us sidestep issues with other apps grabbing ~/.chromium .)
 bool GetDefaultUserDataDirectory(base::FilePath* result) {
-  scoped_ptr<base::Environment> env(base::Environment::Create());
+  std::unique_ptr<base::Environment> env(base::Environment::Create());
   base::FilePath config_dir(
       base::nix::GetXDGDirectory(env.get(),
                                  base::nix::kXdgConfigHomeEnvVar,
@@ -301,7 +301,7 @@ class CefUIThread : public base::Thread {
 
  protected:
   content::MainFunctionParams main_function_params_;
-  scoped_ptr<content::BrowserMainRunner> browser_runner_;
+  std::unique_ptr<content::BrowserMainRunner> browser_runner_;
 };
 
 }  // namespace
@@ -606,7 +606,7 @@ int CefMainDelegate::RunProcess(
         return exit_code;
     } else {
       // Run the UI on a separate thread.
-      scoped_ptr<base::Thread> thread;
+      std::unique_ptr<base::Thread> thread;
       thread.reset(new CefUIThread(main_function_params));
       base::Thread::Options options;
       options.message_loop_type = base::MessageLoop::TYPE_UI;

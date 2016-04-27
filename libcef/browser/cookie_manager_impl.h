@@ -124,7 +124,7 @@ class CefCookieManagerImpl : public CefCookieManager {
   // Used for cookie monsters owned by this object.
   base::FilePath storage_path_;
   std::vector<std::string> supported_schemes_;
-  scoped_ptr<net::CookieMonster> cookie_store_;
+  std::unique_ptr<net::CookieMonster> cookie_store_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_IOT(CefCookieManagerImpl);
 };

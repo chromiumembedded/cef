@@ -6,7 +6,6 @@
 #include "libcef/browser/chrome_browser_process_stub.h"
 #include "libcef/browser/context.h"
 
-#include "base/memory/scoped_ptr.h"
 #include "ui/message_center/message_center.h"
 
 ChromeBrowserProcessStub::ChromeBrowserProcessStub()
@@ -136,16 +135,6 @@ void ChromeBrowserProcessStub::CreateDevToolsAutoOpener() {
   NOTIMPLEMENTED();
 }
 
-unsigned int ChromeBrowserProcessStub::AddRefModule() {
-  NOTIMPLEMENTED();
-  return 0;
-}
-
-unsigned int ChromeBrowserProcessStub::ReleaseModule() {
-  NOTIMPLEMENTED();
-  return 0;
-}
-
 bool ChromeBrowserProcessStub::IsShuttingDown() {
   NOTIMPLEMENTED();
   return false;
@@ -198,7 +187,7 @@ BackgroundModeManager* ChromeBrowserProcessStub::background_mode_manager() {
 }
 
 void ChromeBrowserProcessStub::set_background_mode_manager_for_test(
-  scoped_ptr<BackgroundModeManager> manager) {
+  std::unique_ptr<BackgroundModeManager> manager) {
   NOTIMPLEMENTED();
 }
 

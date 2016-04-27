@@ -27,7 +27,7 @@
 
 namespace {
 
-scoped_ptr<CefBrowserPlatformDelegateNative> CreateNativeDelegate(
+std::unique_ptr<CefBrowserPlatformDelegateNative> CreateNativeDelegate(
     const CefWindowInfo& window_info) {
 #if defined(OS_WIN)
   return make_scoped_ptr(new CefBrowserPlatformDelegateNativeWin(window_info));
@@ -39,8 +39,8 @@ scoped_ptr<CefBrowserPlatformDelegateNative> CreateNativeDelegate(
 #endif
 }
 
-scoped_ptr<CefBrowserPlatformDelegateOsr> CreateOSRDelegate(
-    scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate) {
+std::unique_ptr<CefBrowserPlatformDelegateOsr> CreateOSRDelegate(
+    std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate) {
 #if defined(OS_WIN)
   return make_scoped_ptr(
         new CefBrowserPlatformDelegateOsrWin(std::move(native_delegate)));
@@ -56,10 +56,10 @@ scoped_ptr<CefBrowserPlatformDelegateOsr> CreateOSRDelegate(
 }  // namespace
 
 // static
-scoped_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
+std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
     CefBrowserHostImpl::CreateParams& create_params) {
   if (create_params.window_info) {
-    scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate =
+    std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate =
         CreateNativeDelegate(*create_params.window_info.get());
     if (create_params.window_info->windowless_rendering_enabled &&
         create_params.client &&
@@ -71,7 +71,7 @@ scoped_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
 #if defined(USE_AURA)
   else {
     // CefWindowInfo is not used in this case.
-    scoped_ptr<CefBrowserPlatformDelegateNative> native_delegate =
+    std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate =
         CreateNativeDelegate(CefWindowInfo());
     return make_scoped_ptr(new CefBrowserPlatformDelegateViews(
         std::move(native_delegate),

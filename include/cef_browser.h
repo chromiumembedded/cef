@@ -354,13 +354,6 @@ class CefBrowserHost : public virtual CefBase {
   virtual void SetFocus(bool focus) =0;
 
   ///
-  // Set whether the window containing the browser is visible
-  // (minimized/unminimized, app hidden/unhidden, etc). Only used on Mac OS X.
-  ///
-  /*--cef()--*/
-  virtual void SetWindowVisibility(bool visible) =0;
-
-  ///
   // Retrieve the window handle for this browser. If this browser is wrapped in
   // a CefBrowserView this method should be called on the browser process UI
   // thread and it will return the handle for the top-level native window.

@@ -18,7 +18,6 @@
 #include "libcef/common/tracker.h"
 #include "libcef/renderer/frame_impl.h"
 
-#include "base/memory/scoped_ptr.h"
 #include "content/public/renderer/render_view_observer.h"
 
 class GURL;
@@ -152,7 +151,7 @@ class CefBrowserImpl : public CefBrowser,
   FrameObjectMap frame_objects_;
 
   // Manages response registrations.
-  scoped_ptr<CefResponseManager> response_manager_;
+  std::unique_ptr<CefResponseManager> response_manager_;
 
   IMPLEMENT_REFCOUNTING(CefBrowserImpl);
   DISALLOW_COPY_AND_ASSIGN(CefBrowserImpl);

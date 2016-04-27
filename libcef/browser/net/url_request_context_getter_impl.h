@@ -17,8 +17,7 @@
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
-#include "base/memory/scoped_ptr.h"
-#include "content/public/browser/content_browser_client.h"
+#include "content/public/browser/browser_context.h"
 #include "net/url_request/url_request_job_factory.h"
 
 class PrefService;
@@ -49,7 +48,7 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
       scoped_refptr<base::SingleThreadTaskRunner> io_task_runner,
       scoped_refptr<base::SingleThreadTaskRunner> file_task_runner,
       content::ProtocolHandlerMap* protocol_handlers,
-      scoped_ptr<net::ProxyConfigService> proxy_config_service,
+      std::unique_ptr<net::ProxyConfigService> proxy_config_service,
       content::URLRequestInterceptorScopedVector request_interceptors);
   ~CefURLRequestContextGetterImpl() override;
 
@@ -89,12 +88,12 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
   std::string gsapi_library_name_;
 #endif
 
-  scoped_ptr<net::ProxyConfigService> proxy_config_service_;
-  scoped_ptr<net::URLRequestContextStorage> storage_;
-  scoped_ptr<net::HttpAuthPreferences> http_auth_preferences_;
-  scoped_ptr<CefURLRequestContextImpl> url_request_context_;
-  scoped_ptr<CefURLRequestManager> url_request_manager_;
-  scoped_ptr<net::FtpTransactionFactory> ftp_transaction_factory_;
+  std::unique_ptr<net::ProxyConfigService> proxy_config_service_;
+  std::unique_ptr<net::URLRequestContextStorage> storage_;
+  std::unique_ptr<net::HttpAuthPreferences> http_auth_preferences_;
+  std::unique_ptr<CefURLRequestContextImpl> url_request_context_;
+  std::unique_ptr<CefURLRequestManager> url_request_manager_;
+  std::unique_ptr<net::FtpTransactionFactory> ftp_transaction_factory_;
   content::ProtocolHandlerMap protocol_handlers_;
   content::URLRequestInterceptorScopedVector request_interceptors_;
 

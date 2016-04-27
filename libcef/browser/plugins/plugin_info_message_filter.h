@@ -56,7 +56,7 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
                            CefViewHostMsg_GetPluginInfo_Status* status,
                            content::WebPluginInfo* plugin,
                            std::string* actual_mime_type,
-                           scoped_ptr<PluginMetadata>* plugin_metadata) const;
+                           std::unique_ptr<PluginMetadata>* plugin_metadata) const;
     void GetPluginContentSetting(const content::WebPluginInfo& plugin,
                                  const GURL& policy_url,
                                  const GURL& plugin_url,

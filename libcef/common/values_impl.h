@@ -112,7 +112,7 @@ class CefValueImpl : public CefValue {
   base::Lock lock_;
 
   // Simple values only.
-  scoped_ptr<base::Value> value_;
+  std::unique_ptr<base::Value> value_;
 
   // Complex values.
   CefRefPtr<CefBinaryValue> binary_value_;

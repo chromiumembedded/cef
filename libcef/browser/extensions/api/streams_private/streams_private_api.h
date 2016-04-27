@@ -41,7 +41,7 @@ class StreamsPrivateAPI : public BrowserContextKeyedAPI,
   // should be set to whether the document is embedded within another document.
   void ExecuteMimeTypeHandler(const std::string& extension_id,
                               int tab_id,
-                              scoped_ptr<content::StreamInfo> stream,
+                              std::unique_ptr<content::StreamInfo> stream,
                               const std::string& view_id,
                               int64_t expected_content_size,
                               bool embedded,

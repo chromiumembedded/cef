@@ -7,7 +7,6 @@
 #define CEF_LIBCEF_BROWSER_OSR_SOFTWARE_OUTPUT_DEVICE_OSR_H_
 
 #include "base/callback.h"
-#include "base/memory/scoped_ptr.h"
 #include "cc/output/software_output_device.h"
 
 namespace ui {
@@ -45,8 +44,8 @@ class CefSoftwareOutputDeviceOSR : public cc::SoftwareOutputDevice {
   const OnPaintCallback callback_;
 
   bool active_;
-  scoped_ptr<SkCanvas> canvas_;
-  scoped_ptr<SkBitmap> bitmap_;
+  std::unique_ptr<SkCanvas> canvas_;
+  std::unique_ptr<SkBitmap> bitmap_;
   gfx::Rect pending_damage_rect_;
 
   DISALLOW_COPY_AND_ASSIGN(CefSoftwareOutputDeviceOSR);

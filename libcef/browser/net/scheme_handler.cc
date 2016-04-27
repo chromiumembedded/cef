@@ -49,7 +49,7 @@ void InstallInternalProtectedHandlers(
        it != protocol_handlers->end();
        ++it) {
     const std::string& scheme = it->first;
-    scoped_ptr<net::URLRequestJobFactory::ProtocolHandler> protocol_handler;
+    std::unique_ptr<net::URLRequestJobFactory::ProtocolHandler> protocol_handler;
 
     if (scheme == content::kChromeDevToolsScheme) {
       // Don't use the default "chrome-devtools" handler.

@@ -110,14 +110,16 @@ void CefBrowserImpl::Reload() {
   CEF_REQUIRE_RT_RETURN_VOID();
 
   if (render_view()->GetWebView() && render_view()->GetWebView()->mainFrame())
-    render_view()->GetWebView()->mainFrame()->reload(false);
+    render_view()->GetWebView()->mainFrame()->reload();
 }
 
 void CefBrowserImpl::ReloadIgnoreCache() {
   CEF_REQUIRE_RT_RETURN_VOID();
 
-  if (render_view()->GetWebView() && render_view()->GetWebView()->mainFrame())
-    render_view()->GetWebView()->mainFrame()->reload(true);
+  if (render_view()->GetWebView() && render_view()->GetWebView()->mainFrame()) {
+    render_view()->GetWebView()->mainFrame()->reload(
+        blink::WebFrameLoadType::ReloadBypassingCache);
+  }
 }
 
 void CefBrowserImpl::StopLoad() {

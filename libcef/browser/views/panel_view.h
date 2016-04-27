@@ -12,7 +12,6 @@
 #include "libcef/browser/views/view_view.h"
 
 #include "base/logging.h"
-#include "base/memory/scoped_ptr.h"
 
 // Helpers for template boiler-plate.
 #define CEF_PANEL_VIEW_T CEF_VIEW_VIEW_T
