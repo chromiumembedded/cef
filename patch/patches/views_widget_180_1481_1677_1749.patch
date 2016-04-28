@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 29e1eef0..2d3408d 100644
+index 30b0778..bf86bd1 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
-@@ -674,6 +674,13 @@ void RenderWidgetHostViewAura::SetKeyboardFocus() {
+@@ -678,6 +678,13 @@ void RenderWidgetHostViewAura::SetKeyboardFocus() {
      }
    }
  #endif
@@ -17,18 +17,18 @@ index 29e1eef0..2d3408d 100644
    if (host_ && set_focus_on_mouse_down_or_key_event_) {
      set_focus_on_mouse_down_or_key_event_ = false;
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index febe516..208bdad 100644
+index d7e3d00..7d54dc3 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
-@@ -47,6 +47,7 @@ RenderWidgetHostViewBase::RenderWidgetHostViewBase()
+@@ -40,6 +40,7 @@ RenderWidgetHostViewBase::RenderWidgetHostViewBase()
        current_device_scale_factor_(0),
        current_display_rotation_(gfx::Display::ROTATE_0),
        pinch_zoom_enabled_(content::IsPinchToZoomEnabled()),
 +      has_external_parent_(false),
        renderer_frame_number_(0),
-       text_input_state_(new TextInputState()),
        weak_factory_(this) {}
-@@ -300,6 +301,10 @@ void RenderWidgetHostViewBase::EndFrameSubscription() {
+ 
+@@ -250,6 +251,10 @@ void RenderWidgetHostViewBase::EndFrameSubscription() {
    NOTREACHED();
  }
  
@@ -40,7 +40,7 @@ index febe516..208bdad 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index c11775b..535caa2 100644
+index c6d15c1..9d9da7b 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -97,6 +97,7 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
@@ -51,7 +51,7 @@ index c11775b..535caa2 100644
  
    // This only needs to be overridden by RenderWidgetHostViewBase subclasses
    // that handle content embedded within other RenderWidgetHostViews.
-@@ -444,6 +445,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+@@ -422,6 +423,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
    // renderer.
    bool pinch_zoom_enabled_;
  

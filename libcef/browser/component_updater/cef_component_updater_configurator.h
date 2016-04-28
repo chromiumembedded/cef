@@ -16,12 +16,15 @@ namespace net {
 class URLRequestContextGetter;
 }
 
+class PrefService;
+
 namespace component_updater {
 
 scoped_refptr<update_client::Configurator>
 MakeCefComponentUpdaterConfigurator(
     const base::CommandLine* cmdline,
-    net::URLRequestContextGetter* context_getter);
+    net::URLRequestContextGetter* context_getter,
+    PrefService* pref_service);
 
 }  // namespace component_updater
 

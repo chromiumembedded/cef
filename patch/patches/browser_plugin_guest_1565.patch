@@ -1,5 +1,5 @@
 diff --git browser/browser_plugin/browser_plugin_guest.cc browser/browser_plugin/browser_plugin_guest.cc
-index ad4474f..d0318065 100644
+index fd0c173..ad6d821 100644
 --- browser/browser_plugin/browser_plugin_guest.cc
 +++ browser/browser_plugin/browser_plugin_guest.cc
 @@ -28,7 +28,7 @@

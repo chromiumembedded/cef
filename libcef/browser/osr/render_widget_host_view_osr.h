@@ -130,7 +130,8 @@ class CefRenderWidgetHostViewOSR
       content::RenderWidgetHostView* reference_host_view) override;
   void UpdateCursor(const content::WebCursor& cursor) override;
   void SetIsLoading(bool is_loading) override;
-  void UpdateInputMethodIfNecessary(bool text_input_state_changed) override;
+  void TextInputStateChanged(
+      const ViewHostMsg_TextInputState_Params& params) override;
   void ImeCancelComposition() override;
   void RenderProcessGone(base::TerminationStatus status,
                          int error_code) override;

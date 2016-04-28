@@ -25,6 +25,7 @@
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "components/proxy_config/pref_proxy_config_tracker_impl.h"
 #include "components/proxy_config/proxy_config_dictionary.h"
+#include "components/update_client/update_client.h"
 #include "content/public/browser/browser_thread.h"
 #include "extensions/browser/extension_prefs.h"
 #include "grit/cef_strings.h"
@@ -126,6 +127,7 @@ std::unique_ptr<PrefService> CreatePrefService(const base::FilePath& pref_path) 
   extensions::ExtensionPrefs::RegisterProfilePrefs(registry.get());
   HostContentSettingsMap::RegisterProfilePrefs(registry.get());
   renderer_prefs::RegisterProfilePrefs(registry.get());
+  update_client::RegisterPrefs(registry.get());
 
   // Print preferences.
   registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);
