@@ -132,7 +132,7 @@ def get_git_url(path):
     return result['out'].strip()
   return 'Unknown'
 
-def download_and_extract(src, target, contents_prefix):
+def download_and_extract(src, target):
   """ Extracts the contents of src, which may be a URL or local file, to the
       target directory. """
   temporary = False
@@ -155,19 +155,11 @@ def download_and_extract(src, target, contents_prefix):
   if not zipfile.is_zipfile(archive_path):
     raise Exception('Not a valid zip archive: ' + src)
 
-  def remove_prefix(zip, prefix):
-    offset = len(prefix)
-    for zipinfo in zip.infolist():
-      name = zipinfo.filename
-      if len(name) > offset and name[:offset] == prefix:
-        zipinfo.filename = name[offset:]
-        yield zipinfo
-
   # Attempt to extract the archive file.
   try:
     os.makedirs(target)
     zf = zipfile.ZipFile(archive_path, 'r')
-    zf.extractall(target, remove_prefix(zf, contents_prefix))
+    zf.extractall(target)
   except:
     shutil.rmtree(target, onerror=onerror)
     raise
@@ -582,8 +574,7 @@ if not os.path.exists(depot_tools_dir):
     msg('Extracting %s to %s.' % \
         (options.depottoolsarchive, depot_tools_dir))
     if not options.dryrun:
-      download_and_extract(options.depottoolsarchive, depot_tools_dir, \
-                           'depot_tools/')
+      download_and_extract(options.depottoolsarchive, depot_tools_dir)
   else:
     # On Linux and OS X check out depot_tools using Git.
     run('git clone '+depot_tools_url+' '+depot_tools_dir, download_dir)
