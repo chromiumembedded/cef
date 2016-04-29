@@ -12,6 +12,7 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/files/file_path.h"
+#include "base/memory/weak_ptr.h"
 #include "net/cookies/cookie_monster.h"
 
 // Implementation of the CefCookieManager interface.
@@ -125,6 +126,9 @@ class CefCookieManagerImpl : public CefCookieManager {
   base::FilePath storage_path_;
   std::vector<std::string> supported_schemes_;
   std::unique_ptr<net::CookieMonster> cookie_store_;
+
+  // Must be the last member.
+  base::WeakPtrFactory<CefCookieManagerImpl> weak_ptr_factory_;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_IOT(CefCookieManagerImpl);
 };
