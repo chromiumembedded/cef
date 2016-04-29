@@ -113,10 +113,18 @@ void SetCookieCallbackImpl(CefRefPtr<CefSetCookieCallback> callback,
       base::Bind(&CefSetCookieCallback::OnComplete, callback.get(), success));
 }
 
+net::CookieStore* GetExistingCookieStoreHelper(
+    base::WeakPtr<CefCookieManagerImpl> cookie_manager) {
+  if (cookie_manager.get())
+    return cookie_manager->GetExistingCookieStore();
+  return nullptr;
+}
+
 }  // namespace
 
 
-CefCookieManagerImpl::CefCookieManagerImpl() {
+CefCookieManagerImpl::CefCookieManagerImpl()
+    : weak_ptr_factory_(this) {
 }
 
 CefCookieManagerImpl::~CefCookieManagerImpl() {
@@ -160,8 +168,16 @@ void CefCookieManagerImpl::GetCookieStore(
 
   DCHECK(cookie_store_.get());
 
+  // Binding ref-counted |this| to CookieStoreGetter may result in
+  // heap-use-after-free if (a) the CookieStoreGetter contains the last
+  // CefCookieManagerImpl reference and (b) that reference is released during
+  // execution of a CookieMonster callback (which then results in the
+  // CookieManager being deleted). Use WeakPtr instead of |this| so that, in
+  // that case, the CookieStoreGetter will return nullptr instead of keeping
+  // the CefCookieManagerImpl alive (see issue #1882).
   const CookieStoreGetter& cookie_store_getter =
-      base::Bind(&CefCookieManagerImpl::GetExistingCookieStore, this);
+      base::Bind(GetExistingCookieStoreHelper,
+                 weak_ptr_factory_.GetWeakPtr());
 
   if (task_runner->BelongsToCurrentThread()) {
     // Execute the callback immediately.
