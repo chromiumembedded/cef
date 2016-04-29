@@ -87,29 +87,6 @@
 
 namespace {
 
-// This method will return YES for OS X versions 10.7.3 and later, and NO
-// otherwise.
-// Used to prevent a crash when building with the 10.7 SDK and accessing the
-// notification below. See: http://crbug.com/260595.
-BOOL SupportsBackingPropertiesChangedNotification() {
-  // windowDidChangeBackingProperties: method has been added to the
-  // NSWindowDelegate protocol in 10.7.3, at the same time as the
-  // NSWindowDidChangeBackingPropertiesNotification notification was added.
-  // If the protocol contains this method description, the notification should
-  // be supported as well.
-  Protocol* windowDelegateProtocol = NSProtocolFromString(@"NSWindowDelegate");
-  struct objc_method_description methodDescription =
-      protocol_getMethodDescription(
-          windowDelegateProtocol,
-          @selector(windowDidChangeBackingProperties:),
-          NO,
-          YES);
-
-  // If the protocol does not contain the method, the returned method
-  // description is {NULL, NULL}
-  return methodDescription.name != NULL || methodDescription.types != NULL;
-}
-
 NSString* const kCEFDragDummyPboardType = @"org.CEF.drag-dummy-type";
 NSString* const kNSURLTitlePboardType = @"public.url-name";
 
@@ -191,14 +168,10 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (void)dealloc {
-  static BOOL supportsBackingPropertiesNotification =
-      SupportsBackingPropertiesChangedNotification();
-  if (supportsBackingPropertiesNotification) {
-    [[NSNotificationCenter defaultCenter]
-        removeObserver:self
-                  name:NSWindowDidChangeBackingPropertiesNotification
-                object:nil];
-  }
+  [[NSNotificationCenter defaultCenter]
+      removeObserver:self
+                name:NSWindowDidChangeBackingPropertiesNotification
+              object:nil];
 
   [super dealloc];
 }
@@ -377,7 +350,6 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (void)shortCircuitScrollWheelEvent:(NSEvent*)event {
-  // Phase is only supported in OS-X 10.7 and newer.
   if ([event phase] != NSEventPhaseEnded &&
       [event phase] != NSEventPhaseCancelled)
     return;
@@ -391,7 +363,6 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (void)scrollWheel:(NSEvent*)event {
-  // Phase is only supported in OS-X 10.7 and newer.
   // Use an NSEvent monitor to listen for the wheel-end end. This ensures that
   // the event is received even when the mouse cursor is no longer over the
   // view when the scrolling ends. Also it avoids sending duplicate scroll
@@ -1483,17 +1454,11 @@ void BrowserWindowOsrMac::Create(ClientWindowHandle parent_handle,
   // Determine the default scale factor.
   [GLView(nsview_) resetDeviceScaleFactor];
 
-  // Backing property notifications crash on 10.6 when building with the 10.7
-  // SDK, see http://crbug.com/260595.
-  static BOOL supportsBackingPropertiesNotification =
-      SupportsBackingPropertiesChangedNotification();
-  if (supportsBackingPropertiesNotification) {
-    [[NSNotificationCenter defaultCenter]
-      addObserver:nsview_
-         selector:@selector(windowDidChangeBackingProperties:)
-             name:NSWindowDidChangeBackingPropertiesNotification
-           object:[nsview_ window]];
-  }
+  [[NSNotificationCenter defaultCenter]
+    addObserver:nsview_
+       selector:@selector(windowDidChangeBackingProperties:)
+           name:NSWindowDidChangeBackingPropertiesNotification
+         object:[nsview_ window]];
 }
 
 }  // namespace client

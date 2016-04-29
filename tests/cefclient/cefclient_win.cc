@@ -24,7 +24,7 @@
 // #define CEF_USE_SANDBOX 1
 
 #if defined(CEF_USE_SANDBOX)
-// The cef_sandbox.lib static library is currently built with VS2013. It may not
+// The cef_sandbox.lib static library is currently built with VS2015. It may not
 // link successfully with other VS versions.
 #pragma comment(lib, "cef_sandbox.lib")
 #endif
