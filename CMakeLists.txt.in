@@ -44,19 +44,21 @@
 #
 # - Linux requirements:
 #   Currently supported distributions include Debian Wheezy, Ubuntu Precise, and
-#   related. Newer versions will likely also work but may not have been tested.
+#   related. Ubuntu 14.04 64-bit is recommended. Newer versions will likely also
+#   work but may not have been tested.
 #   Required packages include:
 #     build-essential
 #     libgtk2.0-dev     (required by the cefclient target only)
 #     libgtkglext1-dev  (required by the cefclient target only)
 #
 # - Mac OS X requirements:
-#   Xcode 5 or newer building on Mac OS X 10.7 (Lion) or newer. The Xcode
-#   command-line tools must also be installed.
+#   Xcode 5 or newer building on Mac OS X 10.9 (Mavericks) or newer. Xcode 7.2
+#   and OS X 10.11 are recommended. The Xcode command-line tools must also be
+#   installed. Only 64-bit builds are supported on OS X.
 #
 # - Windows requirements:
-#   Visual Studio 2010 or newer building on Windows XP SP3 or newer. 64-bit
-#   version of Windows 7 or newer recommended.
+#   Visual Studio 2010 or newer building on Windows 7 or newer. Visual Studio
+#   2015 Update 2 and Windows 10 64-bit are recommended.
 #
 # BUILD EXAMPLES
 #
@@ -77,15 +79,6 @@
 #     > cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug ..
 #     > ninja cefclient cefsimple
 #
-# To perform a Mac OS X build using a 32-bit CEF binary distribution:
-#   Using the Xcode IDE:
-#     > cmake -G "Xcode" -DPROJECT_ARCH="i386" ..
-#     Open build\cef.xcodeproj in Xcode and select Product > Build.
-#
-#   Using Ninja:
-#     > cmake -G "Ninja" -DPROJECT_ARCH="i386" -DCMAKE_BUILD_TYPE=Debug ..
-#     > ninja cefclient cefsimple
-#
 # To perform a Mac OS X build using a 64-bit CEF binary distribution:
 #   Using the Xcode IDE:
 #     > cmake -G "Xcode" -DPROJECT_ARCH="x86_64" ..
@@ -96,24 +89,24 @@
 #     > ninja cefclient cefsimple
 #
 # To perform a Windows build using a 32-bit CEF binary distribution:
-#   Using the Visual Studio 2013 IDE:
-#     > cmake -G "Visual Studio 12" ..
+#   Using the Visual Studio 2015 IDE:
+#     > cmake -G "Visual Studio 14" ..
 #     Open build\cef.sln in Visual Studio and select Build > Build Solution.
 #
-#   Using Ninja with Visual Studio 2013 command-line tools:
+#   Using Ninja with Visual Studio 2015 command-line tools:
 #     (this path may be different depending on your Visual Studio installation)
-#     > "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\vcvars32.bat"
+#     > "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\vcvars32.bat"
 #     > cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug ..
 #     > ninja cefclient cefsimple
 #
 # To perform a Windows build using a 64-bit CEF binary distribution:
-#   Using the Visual Studio 2013 IDE:
-#     > cmake -G "Visual Studio 12 Win64" ..
+#   Using the Visual Studio 2015 IDE:
+#     > cmake -G "Visual Studio 14 Win64" ..
 #     Open build\cef.sln in Visual Studio and select Build > Build Solution.
 #
-#   Using Ninja with Visual Studio 2013 command-line tools:
+#   Using Ninja with Visual Studio 2015 command-line tools:
 #     (this path may be different depending on your Visual Studio installation)
-#     > "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\amd64\vcvars64.bat"
+#     > "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat"
 #     > cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug ..
 #     > ninja cefclient cefsimple
 
@@ -352,7 +345,7 @@ if(OS_MACOSX)
   endforeach()
 
   # Target SDK.
-  set(CEF_TARGET_SDK               "10.6")
+  set(CEF_TARGET_SDK               "10.7")
   set(CEF_COMPILER_FLAGS           "${CEF_COMPILER_FLAGS} -mmacosx-version-min=${CEF_TARGET_SDK}")
   set(CMAKE_OSX_DEPLOYMENT_TARGET  ${CEF_TARGET_SDK})
 
@@ -468,7 +461,7 @@ if(OS_WINDOWS)
   # Configure use of the sandbox.
   option(USE_SANDBOX "Enable or disable use of the sandbox." ON)
   if(USE_SANDBOX AND NOT MSVC_VERSION EQUAL 1800)
-    # The cef_sandbox.lib static library is currently built with VS2013. It will
+    # The cef_sandbox.lib static library is currently built with VS2015. It will
     # not link successfully with other VS versions.
     set(USE_SANDBOX OFF)
   endif()
