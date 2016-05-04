@@ -84,6 +84,19 @@ struct _cef_print_handler_t* CEF_CALLBACK browser_process_handler_get_print_hand
   return CefPrintHandlerCppToC::Wrap(_retval);
 }
 
+void CEF_CALLBACK browser_process_handler_on_schedule_message_pump_work(
+    struct _cef_browser_process_handler_t* self, int64 delay_ms) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserProcessHandlerCppToC::Get(self)->OnScheduleMessagePumpWork(
+      delay_ms);
+}
+
 }  // namespace
 
 
@@ -97,6 +110,8 @@ CefBrowserProcessHandlerCppToC::CefBrowserProcessHandlerCppToC() {
   GetStruct()->on_render_process_thread_created =
       browser_process_handler_on_render_process_thread_created;
   GetStruct()->get_print_handler = browser_process_handler_get_print_handler;
+  GetStruct()->on_schedule_message_pump_work =
+      browser_process_handler_on_schedule_message_pump_work;
 }
 
 template<> CefRefPtr<CefBrowserProcessHandler> CefCppToC<CefBrowserProcessHandlerCppToC,

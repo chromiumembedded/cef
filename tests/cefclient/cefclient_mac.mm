@@ -8,6 +8,7 @@
 #import "include/cef_application_mac.h"
 #include "cefclient/browser/client_app_browser.h"
 #include "cefclient/browser/main_context_impl.h"
+#include "cefclient/browser/main_message_loop_external_pump.h"
 #include "cefclient/browser/main_message_loop_std.h"
 #include "cefclient/browser/resource.h"
 #include "cefclient/browser/root_window.h"
@@ -216,7 +217,11 @@ int RunMain(int argc, char* argv[]) {
   context->PopulateSettings(&settings);
 
   // Create the main message loop object.
-  scoped_ptr<MainMessageLoop> message_loop(new MainMessageLoopStd);
+  scoped_ptr<MainMessageLoop> message_loop;
+  if (settings.external_message_pump)
+    message_loop = MainMessageLoopExternalPump::Create();
+  else
+    message_loop.reset(new MainMessageLoopStd);
 
   // Initialize CEF.
   context->Initialize(main_args, settings, app, NULL);

@@ -51,7 +51,7 @@ class MainMessageLoop {
 
  protected:
   // Only allow deletion via scoped_ptr.
-  friend struct base::DefaultDeleter<MainMessageLoop>;
+  friend DEFAULT_DELETER(MainMessageLoop);
 
   MainMessageLoop();
   virtual ~MainMessageLoop();

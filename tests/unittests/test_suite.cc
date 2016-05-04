@@ -48,6 +48,11 @@ void CefTestSuite::GetSettings(CefSettings& settings) {
       commandline_->HasSwitch(client::switches::kMultiThreadedMessageLoop);
 #endif
 
+  if (!settings.multi_threaded_message_loop) {
+    settings.external_message_pump =
+        commandline_->HasSwitch(client::switches::kExternalMessagePump);
+  }
+
   CefString(&settings.cache_path) =
       commandline_->GetSwitchValueASCII(client::switches::kCachePath);
 

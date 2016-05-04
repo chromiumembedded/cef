@@ -113,6 +113,11 @@ void MainContextImpl::PopulateSettings(CefSettings* settings) {
       command_line_->HasSwitch(switches::kMultiThreadedMessageLoop);
 #endif
 
+  if (!settings->multi_threaded_message_loop) {
+    settings->external_message_pump =
+        command_line_->HasSwitch(switches::kExternalMessagePump);
+  }
+
   CefString(&settings->cache_path) =
       command_line_->GetSwitchValue(switches::kCachePath);
 

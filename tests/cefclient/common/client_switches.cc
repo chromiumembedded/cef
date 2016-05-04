@@ -18,6 +18,7 @@ namespace switches {
 //   content/public/common/content_switches.cc
 
 const char kMultiThreadedMessageLoop[] = "multi-threaded-message-loop";
+const char kExternalMessagePump[] = "external-message-pump";
 const char kCachePath[] = "cache-path";
 const char kUrl[] = "url";
 const char kOffScreenRenderingEnabled[] = "off-screen-rendering-enabled";

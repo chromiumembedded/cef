@@ -9,6 +9,7 @@
 #include "include/cef_sandbox_win.h"
 #include "cefclient/browser/client_app_browser.h"
 #include "cefclient/browser/main_context_impl.h"
+#include "cefclient/browser/main_message_loop_external_pump.h"
 #include "cefclient/browser/main_message_loop_multithreaded_win.h"
 #include "cefclient/browser/main_message_loop_std.h"
 #include "cefclient/browser/root_window_manager.h"
@@ -82,6 +83,8 @@ int RunMain(HINSTANCE hInstance, int nCmdShow) {
   scoped_ptr<MainMessageLoop> message_loop;
   if (settings.multi_threaded_message_loop)
     message_loop.reset(new MainMessageLoopMultithreadedWin);
+  else if (settings.external_message_pump)
+    message_loop = MainMessageLoopExternalPump::Create();
   else
     message_loop.reset(new MainMessageLoopStd);
 

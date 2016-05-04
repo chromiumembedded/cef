@@ -144,11 +144,18 @@ CEF_EXPORT void cef_shutdown();
 
 ///
 // Perform a single iteration of CEF message loop processing. This function is
-// used to integrate the CEF message loop into an existing application message
-// loop. Care must be taken to balance performance against excessive CPU usage.
-// This function should only be called on the main application thread and only
-// if cef_initialize() is called with a CefSettings.multi_threaded_message_loop
-// value of false (0). This function will not block.
+// provided for cases where the CEF message loop must be integrated into an
+// existing application message loop. Use of this function is not recommended
+// for most users; use either the cef_run_message_loop() function or
+// CefSettings.multi_threaded_message_loop if possible. When using this function
+// care must be taken to balance performance against excessive CPU usage. It is
+// recommended to enable the CefSettings.external_message_pump option when using
+// this function so that
+// cef_browser_process_handler_t::on_schedule_message_pump_work() callbacks can
+// facilitate the scheduling process. This function should only be called on the
+// main application thread and only if cef_initialize() is called with a
+// CefSettings.multi_threaded_message_loop value of false (0). This function
+// will not block.
 ///
 CEF_EXPORT void cef_do_message_loop_work();
 

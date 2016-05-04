@@ -12,6 +12,7 @@ namespace client {
 namespace switches {
 
 extern const char kMultiThreadedMessageLoop[];
+extern const char kExternalMessagePump[];
 extern const char kCachePath[];
 extern const char kUrl[];
 extern const char kOffScreenRenderingEnabled[];

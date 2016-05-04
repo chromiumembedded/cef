@@ -79,6 +79,18 @@ CefRefPtr<CefPrintHandler> CefBrowserProcessHandlerCToCpp::GetPrintHandler() {
   return CefPrintHandlerCToCpp::Wrap(_retval);
 }
 
+void CefBrowserProcessHandlerCToCpp::OnScheduleMessagePumpWork(int64 delay_ms) {
+  cef_browser_process_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_schedule_message_pump_work))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->on_schedule_message_pump_work(_struct,
+      delay_ms);
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 

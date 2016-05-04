@@ -37,6 +37,7 @@ class CefBrowserProcessHandlerCToCpp
   void OnRenderProcessThreadCreated(
       CefRefPtr<CefListValue> extra_info) override;
   CefRefPtr<CefPrintHandler> GetPrintHandler() override;
+  void OnScheduleMessagePumpWork(int64 delay_ms) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

@@ -6,6 +6,7 @@
 
 #include "include/base/cef_logging.h"
 #include "include/cef_cookie.h"
+#include "cefclient/browser/main_message_loop_external_pump.h"
 #include "cefclient/common/client_switches.h"
 
 namespace client {
@@ -80,6 +81,14 @@ void ClientAppBrowser::OnRenderProcessThreadCreated(
   DelegateSet::iterator it = delegates_.begin();
   for (; it != delegates_.end(); ++it)
     (*it)->OnRenderProcessThreadCreated(this, extra_info);
+}
+
+void ClientAppBrowser::OnScheduleMessagePumpWork(int64 delay) {
+  // Only used when `--external-message-pump` is passed via the command-line.
+  MainMessageLoopExternalPump* message_pump =
+      MainMessageLoopExternalPump::Get();
+  if (message_pump)
+    message_pump->OnScheduleMessagePumpWork(delay);
 }
 
 }  // namespace client

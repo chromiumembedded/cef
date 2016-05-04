@@ -365,6 +365,13 @@
       'sources': [
         'tests/cefclient/browser/client_app_browser.cc',
         'tests/cefclient/browser/client_app_browser.h',
+        'tests/cefclient/browser/main_message_loop.cc',
+        'tests/cefclient/browser/main_message_loop.h',
+        'tests/cefclient/browser/main_message_loop_external_pump.cc',
+        'tests/cefclient/browser/main_message_loop_external_pump.h',
+        'tests/cefclient/browser/main_message_loop_std.cc',
+        'tests/cefclient/browser/main_message_loop_std.h',
+        'tests/cefclient/browser/resource_util.h',
         'tests/cefclient/browser/resource_util.cc',
         'tests/cefclient/browser/resource_util.h',
         'tests/cefclient/common/client_app.cc',
@@ -468,7 +475,10 @@
             'libcef',
           ],
           'sources': [
+            'tests/cefclient/browser/main_message_loop_external_pump_win.cc',
             'tests/cefclient/browser/resource_util_win.cc',
+            'tests/cefclient/browser/util_win.cc',
+            'tests/cefclient/browser/util_win.h',
             'tests/cefclient/resources/win/cefclient.rc',
           ],
           'msvs_settings': {
@@ -541,6 +551,7 @@
             ],
           },
           'sources': [
+            'tests/cefclient/browser/main_message_loop_external_pump_mac.mm',
             'tests/cefclient/browser/resource_util_mac.mm',
             'tests/cefclient/browser/resource_util_posix.cc',
             'tests/unittests/os_rendering_unittest_mac.h',
@@ -553,6 +564,7 @@
             'libcef',
           ],
           'sources': [
+            'tests/cefclient/browser/main_message_loop_external_pump_linux.cc',
             'tests/cefclient/browser/resource_util_linux.cc',
             'tests/cefclient/browser/resource_util_posix.cc',
           ],
@@ -1932,8 +1944,6 @@
             'tests',
           ],
           'sources': [
-            'tests/cefclient/browser/client_app_browser.cc',
-            'tests/cefclient/browser/client_app_browser.h',
             'tests/cefclient/browser/resource_util.cc',
             'tests/cefclient/browser/resource_util.h',
             'tests/cefclient/browser/resource_util_mac.mm',

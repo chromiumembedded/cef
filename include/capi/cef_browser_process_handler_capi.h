@@ -94,6 +94,22 @@ typedef struct _cef_browser_process_handler_t {
   ///
   struct _cef_print_handler_t* (CEF_CALLBACK *get_print_handler)(
       struct _cef_browser_process_handler_t* self);
+
+  ///
+  // Called from any thread when work has been scheduled for the browser process
+  // main (UI) thread. This callback is used in combination with CefSettings.
+  // external_message_pump and cef_do_message_loop_work() in cases where the CEF
+  // message loop must be integrated into an existing application message loop
+  // (see additional comments and warnings on CefDoMessageLoopWork). This
+  // callback should schedule a cef_do_message_loop_work() call to happen on the
+  // main (UI) thread. |delay_ms| is the requested delay in milliseconds. If
+  // |delay_ms| is <= 0 then the call should happen reasonably soon. If
+  // |delay_ms| is > 0 then the call should be scheduled to happen after the
+  // specified delay and any currently pending scheduled call should be
+  // cancelled.
+  ///
+  void (CEF_CALLBACK *on_schedule_message_pump_work)(
+      struct _cef_browser_process_handler_t* self, int64 delay_ms);
 } cef_browser_process_handler_t;
 
 

@@ -19,6 +19,8 @@
 #include "include/wrapper/cef_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/cefclient/browser/client_app_browser.h"
+#include "tests/cefclient/browser/main_message_loop_external_pump.h"
+#include "tests/cefclient/browser/main_message_loop_std.h"
 #include "tests/cefclient/common/client_app_other.h"
 #include "tests/cefclient/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
@@ -29,6 +31,14 @@
 #endif
 
 namespace {
+
+void QuitMessageLoop() {
+  client::MainMessageLoop* message_loop = client::MainMessageLoop::Get();
+  if (message_loop)
+    message_loop->Quit();
+  else
+    CefQuitMessageLoop();
+}
 
 // Thread used to run the test suite.
 class CefTestThread : public base::Thread {
@@ -47,7 +57,7 @@ class CefTestThread : public base::Thread {
       base::PlatformThread::Sleep(base::TimeDelta::FromMilliseconds(100));
 
     // Quit the CEF message loop.
-    CefPostTask(TID_UI, base::Bind(&CefQuitMessageLoop));
+    CefPostTask(TID_UI, base::Bind(&QuitMessageLoop));
   }
 
   int retval() { return retval_; }
@@ -158,6 +168,15 @@ int main(int argc, char* argv[]) {
   XSetIOErrorHandler(XIOErrorHandlerImpl);
 #endif
 
+  // Create the MessageLoop.
+  std::unique_ptr<client::MainMessageLoop> message_loop;
+  if (!settings.multi_threaded_message_loop) {
+    if (settings.external_message_pump)
+      message_loop = client::MainMessageLoopExternalPump::Create();
+    else
+      message_loop.reset(new client::MainMessageLoopStd);
+  }
+
   // Initialize CEF.
   CefInitialize(main_args, settings, app, windows_sandbox_info);
 
@@ -181,7 +200,7 @@ int main(int argc, char* argv[]) {
     CefPostTask(TID_UI, base::Bind(&RunTests, thread.get()));
 
     // Run the CEF message loop.
-    CefRunMessageLoop();
+    message_loop->Run();
 
     // The test suite has completed.
     retval = thread->retval();
@@ -192,6 +211,9 @@ int main(int argc, char* argv[]) {
 
   // Shut down CEF.
   CefShutdown();
+
+  // Destroy the MessageLoop.
+  message_loop.reset(nullptr);
 
 #if defined(OS_MACOSX)
   // Platform-specific cleanup.

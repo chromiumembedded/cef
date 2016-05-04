@@ -39,6 +39,9 @@
 // Chromium uses movable types.
 #define MOVE_SCOPED_PTR(var) std::move(var)
 
+// Chromium uses std types.
+#define DEFAULT_DELETER(type) std::default_delete<type>
+
 #else  // !USING_CHROMIUM_INCLUDES
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be
@@ -49,6 +52,9 @@
 
 // CEF does not use movable types.
 #define MOVE_SCOPED_PTR(var) var.Pass()
+
+// CEF uses base types.
+#define DEFAULT_DELETER(type) struct base::DefaultDeleter<type>
 
 #if !defined(arraysize)
 
