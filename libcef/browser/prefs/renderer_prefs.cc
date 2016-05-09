@@ -126,6 +126,8 @@ void SetChromePrefs(CefBrowserContext* profile,
 
   web.password_echo_enabled = browser_defaults::kPasswordEchoEnabled;
 
+  web.unified_textchecker_enabled = true;
+
   web.uses_universal_detector =
       prefs->GetBoolean(prefs::kWebKitUsesUniversalDetector);
   web.text_areas_are_resizable =
