@@ -2286,17 +2286,20 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
       case content::MEDIA_ENUMERATE_DEVICES:
         // Pick the desired device or fall back to the first available of the
         // given type.
-        CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-            request.requested_audio_device_id,
-            microphone_requested,
-            false,
-            &devices);
-
-        CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-            request.requested_video_device_id,
-            false,
-            webcam_requested,
-            &devices);
+        if (microphone_requested) {
+          CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
+              request.requested_audio_device_id,
+              true,
+              false,
+              &devices);
+        }
+        if (webcam_requested) {
+          CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
+              request.requested_video_device_id,
+              false,
+              true,
+              &devices);
+        }
         break;
     }
   }
