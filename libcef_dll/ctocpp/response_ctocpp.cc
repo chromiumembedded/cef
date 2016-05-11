@@ -43,6 +43,32 @@ bool CefResponseCToCpp::IsReadOnly() {
   return _retval?true:false;
 }
 
+cef_errorcode_t CefResponseCToCpp::GetError() {
+  cef_response_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_error))
+    return ERR_NONE;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_errorcode_t _retval = _struct->get_error(_struct);
+
+  // Return type: simple
+  return _retval;
+}
+
+void CefResponseCToCpp::SetError(cef_errorcode_t error) {
+  cef_response_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_error))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->set_error(_struct,
+      error);
+}
+
 int CefResponseCToCpp::GetStatus() {
   cef_response_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_status))

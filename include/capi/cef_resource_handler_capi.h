@@ -78,7 +78,8 @@ typedef struct _cef_resource_handler_t {
   // (0) or the specified number of bytes have been read. Use the |response|
   // object to set the mime type, http status code and other optional header
   // values. To redirect the request to a new URL set |redirectUrl| to the new
-  // URL.
+  // URL. If an error occured while setting up the request you can call
+  // set_error() on |response| to indicate the error condition.
   ///
   void (CEF_CALLBACK *get_response_headers)(
       struct _cef_resource_handler_t* self, struct _cef_response_t* response,

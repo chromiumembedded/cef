@@ -366,6 +366,17 @@ void CefResourceRequestJob::SendHeaders() {
   // Get header information from the handler.
   handler_->GetResponseHeaders(response_, remaining_bytes_, redirectUrl);
   receive_headers_end_ = base::TimeTicks::Now();
+
+  if (response_->GetError() != ERR_NONE) {
+    const URLRequestStatus& status =
+        URLRequestStatus::FromError(response_->GetError());
+    if (status.status() == URLRequestStatus::CANCELED ||
+        status.status() == URLRequestStatus::FAILED) {
+      NotifyStartError(status);
+      return;
+    }
+  }
+
   if (!redirectUrl.empty()) {
     std::string redirectUrlStr = redirectUrl;
     redirect_url_ = GURL(redirectUrlStr);

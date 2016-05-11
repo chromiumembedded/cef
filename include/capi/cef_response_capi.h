@@ -61,6 +61,18 @@ typedef struct _cef_response_t {
   int (CEF_CALLBACK *is_read_only)(struct _cef_response_t* self);
 
   ///
+  // Get the response error code. Returns ERR_NONE if there was no error.
+  ///
+  cef_errorcode_t (CEF_CALLBACK *get_error)(struct _cef_response_t* self);
+
+  ///
+  // Set the response error code. This can be used by custom scheme handlers to
+  // return errors during initial request processing.
+  ///
+  void (CEF_CALLBACK *set_error)(struct _cef_response_t* self,
+      cef_errorcode_t error);
+
+  ///
   // Get the response status code.
   ///
   int (CEF_CALLBACK *get_status)(struct _cef_response_t* self);
