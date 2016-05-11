@@ -26,6 +26,8 @@ class TestResults {
     url.clear();
     html.clear();
     status_code = 0;
+    response_error_code = ERR_NONE;
+    expected_error_code = ERR_NONE;
     redirect_url.clear();
     sub_url.clear();
     sub_html.clear();
@@ -47,6 +49,11 @@ class TestResults {
   std::string url;
   std::string html;
   int status_code;
+
+  // Error code set on the response.
+  cef_errorcode_t response_error_code;
+  // Error code expected in OnLoadError.
+  cef_errorcode_t expected_error_code;
 
   // Used for testing redirects
   std::string redirect_url;
@@ -165,6 +172,8 @@ class TestSchemeHandler : public TestHandler {
                    const CefString& errorText,
                    const CefString& failedUrl) override {
     test_results_->got_error.yes();
+    // Check that the error code matches the expectation.
+    EXPECT_EQ(errorCode, test_results_->expected_error_code);
     DestroyTest();
   }
 
@@ -239,6 +248,10 @@ class ClientSchemeHandler : public CefResourceHandler {
         callback->Continue();
       }
       return true;
+    } else if (test_results_->response_error_code != ERR_NONE) {
+      // Propagate the error code.
+      callback->Continue();
+      return true;
     }
 
     // Response was canceled.
@@ -268,6 +281,8 @@ class ClientSchemeHandler : public CefResourceHandler {
       }
     } else if (!test_results_->redirect_url.empty()) {
       redirectUrl = test_results_->redirect_url;
+    } else if (test_results_->response_error_code != ERR_NONE) {
+      response->SetError(test_results_->response_error_code);
     } else {
       response->SetStatus(test_results_->status_code);
 
@@ -527,6 +542,7 @@ TEST(SchemeHandlerTest, Registration) {
   g_TestResults.got_request.reset();
   g_TestResults.got_read.reset();
   g_TestResults.got_output.reset();
+  g_TestResults.expected_error_code = ERR_UNKNOWN_URL_SCHEME;
   handler->ExecuteTest();
 
   EXPECT_TRUE(g_TestResults.got_error);
@@ -540,10 +556,12 @@ TEST(SchemeHandlerTest, Registration) {
   WaitForIOThread();
 
   g_TestResults.got_error.reset();
+  g_TestResults.expected_error_code = ERR_NONE;
   handler->ExecuteTest();
 
   ReleaseAndWaitForDestructor(handler);
 
+  EXPECT_FALSE(g_TestResults.got_error);
   EXPECT_TRUE(g_TestResults.got_request);
   EXPECT_TRUE(g_TestResults.got_read);
   EXPECT_TRUE(g_TestResults.got_output);
@@ -629,6 +647,25 @@ TEST(SchemeHandlerTest, CustomStandardErrorResponse) {
   ClearTestSchemes();
 }
 
+// Test that a custom standard scheme can return a CEF error code in the response.
+TEST(SchemeHandlerTest, CustomStandardErrorCodeResponse) {
+  RegisterTestScheme("customstd", "test");
+  g_TestResults.url = "customstd://test/run.html";
+  g_TestResults.response_error_code = ERR_FILE_TOO_BIG;
+  g_TestResults.expected_error_code = ERR_FILE_TOO_BIG;
+
+  CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+
+  EXPECT_TRUE(g_TestResults.got_request);
+  EXPECT_FALSE(g_TestResults.got_read);
+  EXPECT_FALSE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_error);
+
+  ClearTestSchemes();
+}
+
 // Test that a custom nonstandard scheme can return an error code.
 TEST(SchemeHandlerTest, CustomNonStandardErrorResponse) {
   RegisterTestScheme("customnonstd", std::string());
@@ -653,6 +690,7 @@ TEST(SchemeHandlerTest, CustomNonStandardErrorResponse) {
 TEST(SchemeHandlerTest, CustomStandardNameNotHandled) {
   RegisterTestScheme("customstd", "test");
   g_TestResults.url = "customstd2://test/run.html";
+  g_TestResults.expected_error_code = ERR_UNKNOWN_URL_SCHEME;
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -661,6 +699,7 @@ TEST(SchemeHandlerTest, CustomStandardNameNotHandled) {
   EXPECT_FALSE(g_TestResults.got_request);
   EXPECT_FALSE(g_TestResults.got_read);
   EXPECT_FALSE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_error);
 
   ClearTestSchemes();
 }
@@ -670,6 +709,7 @@ TEST(SchemeHandlerTest, CustomStandardNameNotHandled) {
 TEST(SchemeHandlerTest, CustomNonStandardNameNotHandled) {
   RegisterTestScheme("customnonstd", std::string());
   g_TestResults.url = "customnonstd2:some%20value";
+  g_TestResults.expected_error_code = ERR_UNKNOWN_URL_SCHEME;
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -678,6 +718,7 @@ TEST(SchemeHandlerTest, CustomNonStandardNameNotHandled) {
   EXPECT_FALSE(g_TestResults.got_request);
   EXPECT_FALSE(g_TestResults.got_read);
   EXPECT_FALSE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_error);
 
   ClearTestSchemes();
 }
@@ -687,6 +728,7 @@ TEST(SchemeHandlerTest, CustomNonStandardNameNotHandled) {
 TEST(SchemeHandlerTest, CustomStandardDomainNotHandled) {
   RegisterTestScheme("customstd", "test");
   g_TestResults.url = "customstd://noexist/run.html";
+  g_TestResults.expected_error_code = ERR_FAILED;
 
   CefRefPtr<TestSchemeHandler> handler = new TestSchemeHandler(&g_TestResults);
   handler->ExecuteTest();
@@ -695,6 +737,7 @@ TEST(SchemeHandlerTest, CustomStandardDomainNotHandled) {
   EXPECT_FALSE(g_TestResults.got_request);
   EXPECT_FALSE(g_TestResults.got_read);
   EXPECT_FALSE(g_TestResults.got_output);
+  EXPECT_TRUE(g_TestResults.got_error);
 
   ClearTestSchemes();
 }

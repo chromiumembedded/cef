@@ -26,6 +26,8 @@ class CefResponseImpl : public CefResponse {
 
   // CefResponse methods.
   bool IsReadOnly() override;
+  cef_errorcode_t GetError() override;
+  void SetError(cef_errorcode_t error) override;
   int GetStatus() override;
   void SetStatus(int status) override;
   CefString GetStatusText() override;
@@ -45,6 +47,7 @@ class CefResponseImpl : public CefResponse {
   void SetReadOnly(bool read_only);
 
  protected:
+  cef_errorcode_t error_code_;
   int status_code_;
   CefString status_text_;
   CefString mime_type_;

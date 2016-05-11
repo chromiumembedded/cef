@@ -45,6 +45,33 @@ int CEF_CALLBACK response_is_read_only(struct _cef_response_t* self) {
   return _retval;
 }
 
+cef_errorcode_t CEF_CALLBACK response_get_error(struct _cef_response_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return ERR_NONE;
+
+  // Execute
+  cef_errorcode_t _retval = CefResponseCppToC::Get(self)->GetError();
+
+  // Return type: simple
+  return _retval;
+}
+
+void CEF_CALLBACK response_set_error(struct _cef_response_t* self,
+    cef_errorcode_t error) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefResponseCppToC::Get(self)->SetError(
+      error);
+}
+
 int CEF_CALLBACK response_get_status(struct _cef_response_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -209,6 +236,8 @@ void CEF_CALLBACK response_set_header_map(struct _cef_response_t* self,
 
 CefResponseCppToC::CefResponseCppToC() {
   GetStruct()->is_read_only = response_is_read_only;
+  GetStruct()->get_error = response_get_error;
+  GetStruct()->set_error = response_set_error;
   GetStruct()->get_status = response_get_status;
   GetStruct()->set_status = response_set_status;
   GetStruct()->get_status_text = response_get_status_text;

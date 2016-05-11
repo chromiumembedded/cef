@@ -35,13 +35,25 @@ CefRefPtr<CefResponse> CefResponse::Create() {
 // CefResponseImpl ------------------------------------------------------------
 
 CefResponseImpl::CefResponseImpl()
-  : status_code_(0),
+  : error_code_(ERR_NONE),
+    status_code_(0),
     read_only_(false) {
 }
 
 bool CefResponseImpl::IsReadOnly() {
   base::AutoLock lock_scope(lock_);
   return read_only_;
+}
+
+cef_errorcode_t CefResponseImpl::GetError() {
+  base::AutoLock lock_scope(lock_);
+  return error_code_;
+}
+
+void CefResponseImpl::SetError(cef_errorcode_t error) {
+  base::AutoLock lock_scope(lock_);
+  CHECK_READONLY_RETURN_VOID();
+  error_code_ = error;
 }
 
 int CefResponseImpl::GetStatus() {
