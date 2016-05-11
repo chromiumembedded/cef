@@ -1,0 +1,20 @@
+diff --git webcursor_aurawin.cc webcursor_aurawin.cc
+index b8b4c57..69fe05e 100644
+--- webcursor_aurawin.cc
++++ webcursor_aurawin.cc
+@@ -37,6 +37,7 @@ ui::PlatformCursor WebCursor::GetPlatformCursor() {
+ 
+ void WebCursor::InitPlatformData() {
+   custom_cursor_ = NULL;
++  device_scale_factor_ = 1.0f;
+ }
+ 
+ bool WebCursor::SerializePlatformData(base::Pickle* pickle) const {
+@@ -59,6 +60,7 @@ void WebCursor::CleanupPlatformData() {
+ }
+ 
+ void WebCursor::CopyPlatformData(const WebCursor& other) {
++  device_scale_factor_ = other.device_scale_factor_;
+ }
+ 
+ }  // namespace content
