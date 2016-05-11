@@ -60,7 +60,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
 
   // Called from CefBrowserMessageFilter::OnCreateWindow. See comments on
   // PendingPopup for more information.
-  void OnCreateWindow(content::RenderProcessHost* host,
+  void OnCreateWindow(int render_process_id,
                       const ViewHostMsg_CreateWindow_Params& params);
 
   // Called from CefContentBrowserClient::CanCreateWindow. See comments on
@@ -103,7 +103,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // already exist for traditional popup browsers depending on timing. See
   // comments on PendingPopup for more information.
   void OnGetNewBrowserInfo(
-      content::RenderProcessHost* host,
+      int render_process_id,
       int render_view_routing_id,
       int render_frame_routing_id,
       IPC::Message* reply_msg);
@@ -203,14 +203,14 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
 
   // Send the response for a pending OnGetNewBrowserInfo request.
   static void SendNewBrowserInfoResponse(
-      content::RenderProcessHost* host,
+      int render_process_id,
       CefBrowserInfo* browser_info,
       bool is_guest_view,
       IPC::Message* reply_msg);
 
   // Pending request for OnGetNewBrowserInfo.
   struct PendingNewBrowserInfo {
-    content::RenderProcessHost* host;
+    int render_process_id;
     int render_view_routing_id;
     int render_frame_routing_id;
     IPC::Message* reply_msg;

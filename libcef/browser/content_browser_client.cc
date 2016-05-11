@@ -425,7 +425,7 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
       base::CommandLine::ForCurrentProcess();
   const int id = host->GetID();
 
-  host->GetChannel()->AddFilter(new CefBrowserMessageFilter(host));
+  host->GetChannel()->AddFilter(new CefBrowserMessageFilter(id));
   host->AddFilter(new printing::PrintingMessageFilter(id));
 
   if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
