@@ -24,7 +24,7 @@ struct ViewHostMsg_CreateWindow_Params;
 // This class sends and receives control messages on the browser process.
 class CefBrowserMessageFilter : public IPC::MessageFilter {
  public:
-  explicit CefBrowserMessageFilter(content::RenderProcessHost* host);
+  explicit CefBrowserMessageFilter(int render_process_id);
   ~CefBrowserMessageFilter() override;
 
   // IPC::ChannelProxy::MessageFilter implementation.
@@ -46,7 +46,7 @@ class CefBrowserMessageFilter : public IPC::MessageFilter {
                       IPC::Message* reply_msg);
   void OnFrameFocused(int32_t render_frame_routing_id);
 
-  content::RenderProcessHost* host_;
+  int render_process_id_;
   IPC::Sender* sender_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserMessageFilter);
