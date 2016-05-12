@@ -354,9 +354,13 @@ if mode == 'standard':
   cefsimple_dir = os.path.join(output_dir, 'cefsimple')
   make_dir(cefsimple_dir, options.quiet)
 
+  # create the cmake directory
+  cmake_dir = os.path.join(output_dir, 'cmake')
+  make_dir(cmake_dir, options.quiet)
+
   # create the libcef_dll_wrapper directory
-  wrapper_dir = os.path.join(output_dir, 'libcef_dll')
-  make_dir(wrapper_dir, options.quiet)
+  libcef_dll_dir = os.path.join(output_dir, 'libcef_dll')
+  make_dir(libcef_dll_dir, options.quiet)
 
   # transfer common include files
   transfer_gypi_files(cef_dir, cef_paths2['includes_common'], \
@@ -386,11 +390,11 @@ if mode == 'standard':
 
   # transfer common libcef_dll_wrapper files
   transfer_gypi_files(cef_dir, cef_paths2['libcef_dll_wrapper_sources_base'], \
-                      'libcef_dll/', wrapper_dir, options.quiet)
+                      'libcef_dll/', libcef_dll_dir, options.quiet)
   transfer_gypi_files(cef_dir, cef_paths2['libcef_dll_wrapper_sources_common'], \
-                      'libcef_dll/', wrapper_dir, options.quiet)
+                      'libcef_dll/', libcef_dll_dir, options.quiet)
   transfer_gypi_files(cef_dir, cef_paths['autogen_client_side'], \
-                      'libcef_dll/', wrapper_dir, options.quiet)
+                      'libcef_dll/', libcef_dll_dir, options.quiet)
 
   # transfer gyp files
   copy_file(os.path.join(script_dir, 'distrib/cefclient.gyp'), output_dir, options.quiet)
@@ -411,17 +415,23 @@ if mode == 'standard':
   process_cmake_template(os.path.join(cef_dir, 'CMakeLists.txt.in'), \
                          os.path.join(output_dir, 'CMakeLists.txt'), \
                          variables, options.quiet)
-  process_cmake_template(os.path.join(cef_dir, 'macros.cmake.in'), \
-                         os.path.join(output_dir, 'macros.cmake'), \
+  process_cmake_template(os.path.join(cef_dir, 'cmake', 'cef_macros.cmake.in'), \
+                         os.path.join(cmake_dir, 'cef_macros.cmake'), \
+                         variables, options.quiet)
+  process_cmake_template(os.path.join(cef_dir, 'cmake', 'cef_variables.cmake.in'), \
+                         os.path.join(cmake_dir, 'cef_variables.cmake'), \
+                         variables, options.quiet)
+  process_cmake_template(os.path.join(cef_dir, 'cmake', 'FindCEF.cmake.in'), \
+                         os.path.join(cmake_dir, 'FindCEF.cmake'), \
                          variables, options.quiet)
   process_cmake_template(os.path.join(cef_dir, 'libcef_dll', 'CMakeLists.txt.in'), \
-                         os.path.join(output_dir, 'libcef_dll', 'CMakeLists.txt'), \
+                         os.path.join(libcef_dll_dir, 'CMakeLists.txt'), \
                          variables, options.quiet)
   process_cmake_template(os.path.join(cef_dir, 'tests', 'cefclient', 'CMakeLists.txt.in'), \
-                         os.path.join(output_dir, 'cefclient', 'CMakeLists.txt'), \
+                         os.path.join(cefclient_dir, 'CMakeLists.txt'), \
                          variables, options.quiet)
   process_cmake_template(os.path.join(cef_dir, 'tests', 'cefsimple', 'CMakeLists.txt.in'), \
-                         os.path.join(output_dir, 'cefsimple', 'CMakeLists.txt'), \
+                         os.path.join(cefsimple_dir, 'CMakeLists.txt'), \
                          variables, options.quiet)
 
 if platform == 'windows':

@@ -35,6 +35,7 @@ endmacro()
     'autogen_client_side',
   ],
 }}
+SET_LIBRARY_TARGET_PROPERTIES(libcef_dll_wrapper)
 
 # Remove the default "lib" prefix from the resulting library.
 set_target_properties(libcef_dll_wrapper PROPERTIES PREFIX "")
