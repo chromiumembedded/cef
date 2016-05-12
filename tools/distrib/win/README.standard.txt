@@ -9,6 +9,8 @@ cefsimple   Contains the cefsimple sample application configured to build
             using the files in this distribution. This application demonstrates
             the minimal functionality required to create a browser window.
 
+cmake       Contains CMake configuration files shared by all targets.
+
 Debug       Contains libcef.dll, libcef.lib and other components required to
             build and run the debug version of CEF-based applications. By
             default these files should be placed in the same directory as the
