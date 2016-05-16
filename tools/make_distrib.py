@@ -98,9 +98,9 @@ def create_readme():
                    'section of this document for licensing terms and conditions.'
   elif mode == 'minimal':
     distrib_type = 'Minimal'
-    distrib_desc = 'This distribution contains only the components required to distribute an\n' \
-                   'application using CEF on the ' + platform_str + ' platform. Please see the LICENSING\n' \
-                   'section of this document for licensing terms and conditions.'
+    distrib_desc = 'This distribution contains the minimial components necessary to build and\n' \
+                   'distribute an application using CEF on the ' + platform_str + ' platform. Please see\n' \
+                   'the LICENSING section of this document for licensing terms and conditions.'
   elif mode == 'client':
     distrib_type = 'Client'
     distrib_desc = 'This distribution contains a release build of the cefclient sample application\n' \
@@ -137,7 +137,7 @@ def normalize_headers(file, new_path = ''):
                 "// Include path modified for CEF Binary Distribution.\n#include \""+new_path+"\\1\"", data)
   write_file(file, data)
 
-def transfer_files(cef_dir, script_dir, transfer_cfg, output_dir, quiet):
+def eval_transfer_file(cef_dir, script_dir, transfer_cfg, output_dir, quiet):
   """ Transfer files based on the specified configuration. """
   if not path_exists(transfer_cfg):
     return
@@ -167,6 +167,14 @@ def transfer_files(cef_dir, script_dir, transfer_cfg, output_dir, quiet):
         if cfg.has_key('new_header_path'):
           new_path = cfg['new_header_path']
         normalize_headers(dst, new_path)
+
+def transfer_files(cef_dir, script_dir, transfer_cfg_dir, mode, output_dir, quiet):
+  # Non-mode-specific transfers.
+  transfer_cfg = os.path.join(transfer_cfg_dir, 'transfer.cfg')
+  eval_transfer_file(cef_dir, script_dir, transfer_cfg, output_dir, quiet)
+  # Mode-specific transfers.
+  transfer_cfg = os.path.join(transfer_cfg_dir, 'transfer_%s.cfg' % mode)
+  eval_transfer_file(cef_dir, script_dir, transfer_cfg, output_dir, quiet)
 
 def combine_libs(build_dir, libs, dest_lib):
   """ Combine multiple static libraries into a single static library. """
@@ -341,18 +349,10 @@ cef_paths = cef_paths['variables']
 cef_paths2 = eval_file(os.path.join(cef_dir, 'cef_paths2.gypi'))
 cef_paths2 = cef_paths2['variables']
 
-if mode == 'standard':
+if mode == 'standard' or mode == 'minimal':
   # create the include directory
   include_dir = os.path.join(output_dir, 'include')
   make_dir(include_dir, options.quiet)
-
-  # create the cefclient directory
-  cefclient_dir = os.path.join(output_dir, 'cefclient')
-  make_dir(cefclient_dir, options.quiet)
-  
-  # create the cefsimple directory
-  cefsimple_dir = os.path.join(output_dir, 'cefsimple')
-  make_dir(cefsimple_dir, options.quiet)
 
   # create the cmake directory
   cmake_dir = os.path.join(output_dir, 'cmake')
@@ -374,20 +374,6 @@ if mode == 'standard':
   transfer_gypi_files(cef_dir, cef_paths['autogen_capi_includes'], \
                       'include/', include_dir, options.quiet)
 
-  # transfer common cefclient files
-  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_browser'], \
-                      'tests/cefclient/', cefclient_dir, options.quiet)
-  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_common'], \
-                      'tests/cefclient/', cefclient_dir, options.quiet)
-  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_renderer'], \
-                      'tests/cefclient/', cefclient_dir, options.quiet)
-  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_resources'], \
-                      'tests/cefclient/', cefclient_dir, options.quiet)
-
-  # transfer common cefsimple files
-  transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_common'], \
-                      'tests/cefsimple/', cefsimple_dir, options.quiet)
-
   # transfer common libcef_dll_wrapper files
   transfer_gypi_files(cef_dir, cef_paths2['libcef_dll_wrapper_sources_base'], \
                       'libcef_dll/', libcef_dll_dir, options.quiet)
@@ -396,19 +382,9 @@ if mode == 'standard':
   transfer_gypi_files(cef_dir, cef_paths['autogen_client_side'], \
                       'libcef_dll/', libcef_dll_dir, options.quiet)
 
-  # transfer gyp files
-  copy_file(os.path.join(script_dir, 'distrib/cefclient.gyp'), output_dir, options.quiet)
-  paths_gypi = os.path.join(cef_dir, 'cef_paths2.gypi')
-  data = read_file(paths_gypi)
-  data = data.replace('tests/cefclient/', 'cefclient/')
-  data = data.replace('tests/cefsimple/', 'cefsimple/')
-  write_file(os.path.join(output_dir, 'cef_paths2.gypi'), data)
-  copy_file(os.path.join(cef_dir, 'cef_paths.gypi'), \
-            os.path.join(output_dir, 'cef_paths.gypi'), options.quiet)
-
   # transfer additional files
-  transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/transfer.cfg'), \
-                 output_dir, options.quiet)
+  transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib'), \
+                 mode, output_dir, options.quiet)
 
   # process cmake templates
   variables = dict(cef_paths.items() + cef_paths2.items())
@@ -427,12 +403,48 @@ if mode == 'standard':
   process_cmake_template(os.path.join(cef_dir, 'libcef_dll', 'CMakeLists.txt.in'), \
                          os.path.join(libcef_dll_dir, 'CMakeLists.txt'), \
                          variables, options.quiet)
+
+if mode == 'standard':
+  # create the cefclient directory
+  cefclient_dir = os.path.join(output_dir, 'cefclient')
+  make_dir(cefclient_dir, options.quiet)
+
+  # create the cefsimple directory
+  cefsimple_dir = os.path.join(output_dir, 'cefsimple')
+  make_dir(cefsimple_dir, options.quiet)
+
+  # transfer common cefclient files
+  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_browser'], \
+                      'tests/cefclient/', cefclient_dir, options.quiet)
+  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_common'], \
+                      'tests/cefclient/', cefclient_dir, options.quiet)
+  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_renderer'], \
+                      'tests/cefclient/', cefclient_dir, options.quiet)
+  transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_resources'], \
+                      'tests/cefclient/', cefclient_dir, options.quiet)
+
+  # transfer common cefsimple files
+  transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_common'], \
+                      'tests/cefsimple/', cefsimple_dir, options.quiet)
+
+  # process cmake templates
   process_cmake_template(os.path.join(cef_dir, 'tests', 'cefclient', 'CMakeLists.txt.in'), \
                          os.path.join(cefclient_dir, 'CMakeLists.txt'), \
                          variables, options.quiet)
   process_cmake_template(os.path.join(cef_dir, 'tests', 'cefsimple', 'CMakeLists.txt.in'), \
                          os.path.join(cefsimple_dir, 'CMakeLists.txt'), \
                          variables, options.quiet)
+
+  # transfer gyp files
+  copy_file(os.path.join(script_dir, 'distrib/cefclient.gyp'), output_dir, options.quiet)
+  paths_gypi = os.path.join(cef_dir, 'cef_paths2.gypi')
+  data = read_file(paths_gypi)
+  data = data.replace('tests/cefclient/', 'cefclient/')
+  data = data.replace('tests/cefsimple/', 'cefsimple/')
+  write_file(os.path.join(output_dir, 'cef_paths2.gypi'), data)
+  copy_file(os.path.join(cef_dir, 'cef_paths.gypi'), \
+            os.path.join(output_dir, 'cef_paths.gypi'), options.quiet)
+
 
 if platform == 'windows':
   binaries = [
@@ -526,11 +538,16 @@ if platform == 'windows':
     copy_file(os.path.join(build_dir, 'icudtl.dat'), dst_dir, options.quiet)
     copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), options.quiet)
 
-  if mode == 'standard':
+  if mode == 'standard' or mode == 'minimal':
     # transfer include files
     transfer_gypi_files(cef_dir, cef_paths2['includes_win'], \
                         'include/', include_dir, options.quiet)
 
+    # transfer additional files, if any
+    transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib', 'win'), \
+                   mode, output_dir, options.quiet)
+
+  if mode == 'standard':
     # transfer cefclient files
     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_win'], \
                         'tests/cefclient/', cefclient_dir, options.quiet)
@@ -538,10 +555,6 @@ if platform == 'windows':
     # transfer cefsimple files
     transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_win'], \
                         'tests/cefsimple/', cefsimple_dir, options.quiet)
-
-    # transfer additional files, if any
-    transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/win/transfer.cfg'), \
-                   output_dir, options.quiet)
 
   if not options.nodocs:
     # generate doc files
@@ -593,11 +606,16 @@ elif platform == 'macosx':
       dst_path = os.path.join(symbol_output_dir, '%s.dSYM' % framework_name)
       run('dsymutil "%s" -o "%s"' % (src_path, dst_path), cef_dir)
 
-  if mode == 'standard':
+  if mode == 'standard' or mode == 'minimal':
     # transfer include files
     transfer_gypi_files(cef_dir, cef_paths2['includes_mac'], \
                         'include/', include_dir, options.quiet)
 
+    # transfer additional files, if any
+    transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib', 'mac'), \
+                   mode, output_dir, options.quiet)
+
+  if mode == 'standard':
     # transfer cefclient files
     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_mac'], \
                         'tests/cefclient/', cefclient_dir, options.quiet)
@@ -622,10 +640,6 @@ elif platform == 'macosx':
     # transfer cefsimple/mac files
     copy_dir(os.path.join(cef_dir, 'tests/cefsimple/mac/'), os.path.join(output_dir, 'cefsimple/mac/'), \
              options.quiet)
-
-    # transfer additional files, if any
-    transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/mac/transfer.cfg'), \
-                  output_dir, options.quiet)
 
 elif platform == 'linux':
   out_dir = os.path.join(src_dir, 'out')
@@ -686,11 +700,16 @@ elif platform == 'linux':
     copy_file(os.path.join(build_dir, 'icudtl.dat'), dst_dir, options.quiet)
     copy_dir(os.path.join(build_dir, 'locales'), os.path.join(dst_dir, 'locales'), options.quiet)
 
-  if mode == 'standard':
+  if mode == 'standard' or mode == 'minimal':
     # transfer include files
     transfer_gypi_files(cef_dir, cef_paths2['includes_linux'], \
                         'include/', include_dir, options.quiet)
 
+    # transfer additional files, if any
+    transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib', 'linux'), \
+                   mode, output_dir, options.quiet)
+
+  if mode == 'standard':
     # transfer cefclient files
     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_linux'], \
                         'tests/cefclient/', cefclient_dir, options.quiet)
@@ -701,20 +720,16 @@ elif platform == 'linux':
     transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_linux'], \
                         'tests/cefsimple/', cefsimple_dir, options.quiet)
 
-    # transfer additional files, if any
-    transfer_files(cef_dir, script_dir, os.path.join(script_dir, 'distrib/linux/transfer.cfg'), \
-                  output_dir, options.quiet)
-
 if not options.noarchive:
   # create an archive for each output directory
-  archive_extenstion = '.zip'
+  archive_extension = '.zip'
   if os.getenv('CEF_COMMAND_7ZIP', '') != '':
-    archive_extenstion = '.7z'
+    archive_extension = '.7z'
   for dir in archive_dirs:
-    zip_file = os.path.split(dir)[1] + archive_extenstion
+    zip_file = os.path.split(dir)[1] + archive_extension
     if not options.quiet:
       sys.stdout.write('Creating '+zip_file+"...\n")
-    if archive_extenstion == '.zip':
+    if archive_extension == '.zip':
       create_archive(dir, os.path.join(dir, os.pardir, zip_file))
     else:
       create_7z_archive(dir, os.path.join(dir, os.pardir, zip_file))
