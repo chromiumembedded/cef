@@ -9,35 +9,39 @@
 set RC=
 setlocal
 
-:: In case it's already provided via the environment.
+:: Require that platform is passed as the first argument.
+set ARGSOK=F
+if "%1" == "win32" set ARGSOK=T
+if "%1" == "win64" set ARGSOK=T
+if "%ARGSOK%" == "F" (
+  echo ERROR: Please specify a target platform: win32 or win64
+  set ERRORLEVEL=1
+  goto end
+)
+
+:: In case vcvars is already provided via the environment.
 set vcvars="%CEF_VCVARS%"
 if exist %vcvars% goto found_vcvars
 
-:: Hardcoded list of MSVS paths.
-:: Alternatively we could 'reg query' this key:
-:: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\10.0\Setup\VS;ProductDir
-set vcvars="%PROGRAMFILES(X86)%\Microsoft Visual Studio 12.0\VC\bin\vcvars32.bat"
+if "%1" == "win64" goto check_win64
+
+:: Hardcoded list of MSVS paths for VS2015 32-bit builds.
+set vcvars="%PROGRAMFILES(X86)%\Microsoft Visual Studio 14.0\VC\bin\vcvars32.bat"
 if exist %vcvars% goto found_vcvars
-set vcvars="%PROGRAMFILES(X86)%\Microsoft Visual Studio 11.0\VC\bin\vcvars32.bat"
-if exist %vcvars% goto found_vcvars
-set vcvars="%PROGRAMFILES(X86)%\Microsoft Visual Studio 10.0\VC\bin\vcvars32.bat"
-if exist %vcvars% goto found_vcvars
-set vcvars="%PROGRAMFILES%\Microsoft Visual Studio 12.0\VC\bin\vcvars32.bat"
-if exist %vcvars% goto found_vcvars
-set vcvars="%PROGRAMFILES%\Microsoft Visual Studio 11.0\VC\bin\vcvars32.bat"
-if exist %vcvars% goto found_vcvars
-set vcvars="%PROGRAMFILES%\Microsoft Visual Studio 10.0\VC\bin\vcvars32.bat"
-if exist %vcvars% goto found_vcvars
-:: VS 2008 vcvars isn't standalone, it needs this env var.
-set VS90COMNTOOLS=%PROGRAMFILES(X86)%\Microsoft Visual Studio 9.0\Common7\Tools\
-set vcvars="%PROGRAMFILES(X86)%\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat"
-if exist %vcvars% goto found_vcvars
-set VS90COMNTOOLS=%PROGRAMFILES%\Microsoft Visual Studio 9.0\Common7\Tools\
-set vcvars="%PROGRAMFILES%\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat"
+set vcvars="%PROGRAMFILES%\Microsoft Visual Studio 14.0\VC\bin\vcvars32.bat"
 if exist %vcvars% goto found_vcvars
 
-set RC=1
-echo Failed to find vcvars
+:check_win64
+:: Hardcoded list of MSVS paths for VS2015 64-bit builds.
+set vcvars="%PROGRAMFILES(X86)%\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat"
+if exist %vcvars% goto found_vcvars
+set vcvars="%PROGRAMFILES%\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat"
+if exist %vcvars% goto found_vcvars
+goto notfound_vcvars
+
+:notfound_vcvars
+echo ERROR: Failed to find vcvars
+set ERRORLEVEL=1
 goto end
 
 :found_vcvars
@@ -47,7 +51,12 @@ call %vcvars%
 
 echo PATH:
 echo %PATH%
-%*
+
+:: Remove the first argument and execute the command.
+for /f "tokens=1,* delims= " %%a in ("%*") do set ALL_BUT_FIRST=%%b
+echo command:
+echo %ALL_BUT_FIRST%
+%ALL_BUT_FIRST%
 
 :end
 endlocal & set RC=%ERRORLEVEL%

@@ -178,7 +178,7 @@ def transfer_files(cef_dir, script_dir, transfer_cfg_dir, mode, output_dir, quie
 
 def combine_libs(build_dir, libs, dest_lib):
   """ Combine multiple static libraries into a single static library. """
-  cmdline = 'msvs_env.bat python combine_libs.py -o "%s"' % dest_lib
+  cmdline = 'msvs_env.bat win%s python combine_libs.py -o "%s"' % (platform_arch, dest_lib)
   for lib in libs:
     lib_path = os.path.join(build_dir, lib)
     if not path_exists(lib_path):
