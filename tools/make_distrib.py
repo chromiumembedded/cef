@@ -14,8 +14,9 @@ import git_util as git
 import sys
 import zipfile
 
-def create_archive(input_dir, zip_file):
+def create_archive(input_dir):
   """ Creates a zip archive of the specified input directory. """
+  zip_file = input_dir + '.zip'
   zf = zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED, True)
   def addDir(dir):
     for f in os.listdir(dir):
@@ -28,10 +29,30 @@ def create_archive(input_dir, zip_file):
   addDir(input_dir)
   zf.close()
 
-def create_7z_archive(input_dir, zip_file):
+def create_7z_archive(input_dir, format):
   """ Creates a 7z archive of the specified input directory. """
+  # CEF_COMMAND_7ZIP might be "c:\Program Files (x86)\7Zip\7z.exe" or /usr/bin/7za
+  # or simply 7z if the user knows that it's in the PATH var. Supported formats
+  # depend on the 7za version -- check the 7-zip documentation for details.
   command = os.environ['CEF_COMMAND_7ZIP']
-  run('"' + command + '" a -y ' + zip_file + ' ' + input_dir, os.path.split(zip_file)[0])
+  working_dir = os.path.abspath(os.path.join(input_dir, os.pardir))
+
+  tar_file = None
+  if format in ('xz', 'gzip', 'bzip2'):
+    # These formats only support one file per archive. Create a tar file first.
+    tar_file = input_dir + '.tar'
+    run('"%s" a -ttar -y %s %s' % (command, tar_file, input_dir), working_dir)
+    zip_file = tar_file + '.' + format
+    zip_input = tar_file
+  else:
+    zip_file = input_dir + '.' + format
+    zip_input = input_dir
+
+  # Create the compressed archive.
+  run('"%s" a -t%s -y %s %s' % (command, format, zip_file, zip_input), working_dir)
+
+  if not tar_file is None:
+    remove_file(tar_file)
 
 def create_output_dir(name, parent_dir):
   """ Creates an output directory and adds the path to the archive list. """
@@ -722,14 +743,14 @@ elif platform == 'linux':
 
 if not options.noarchive:
   # create an archive for each output directory
-  archive_extension = '.zip'
+  archive_format = 'zip'
   if os.getenv('CEF_COMMAND_7ZIP', '') != '':
-    archive_extension = '.7z'
+    archive_format = os.getenv('CEF_COMMAND_7ZIP_FORMAT', '7z')
+
   for dir in archive_dirs:
-    zip_file = os.path.split(dir)[1] + archive_extension
     if not options.quiet:
-      sys.stdout.write('Creating '+zip_file+"...\n")
-    if archive_extension == '.zip':
-      create_archive(dir, os.path.join(dir, os.pardir, zip_file))
+      sys.stdout.write("Creating archive for %s...\n" % os.path.split(dir)[1])
+    if archive_format == 'zip':
+      create_archive(dir)
     else:
-      create_7z_archive(dir, os.path.join(dir, os.pardir, zip_file))
+      create_7z_archive(dir, archive_format)
