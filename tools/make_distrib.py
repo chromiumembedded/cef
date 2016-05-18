@@ -12,9 +12,10 @@ import shlex
 import subprocess
 import git_util as git
 import sys
+import tarfile
 import zipfile
 
-def create_archive(input_dir):
+def create_zip_archive(input_dir):
   """ Creates a zip archive of the specified input directory. """
   zip_file = input_dir + '.zip'
   zf = zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED, True)
@@ -28,6 +29,14 @@ def create_archive(input_dir):
                  os.path.join(input_dir, os.pardir)))
   addDir(input_dir)
   zf.close()
+
+def create_tar_archive(input_dir, format):
+  """ Creates a tar archive of the specified input directory. """
+  # Supported formats include "gz" and "bz2".
+  tar_file = input_dir + '.tar.' + format
+  tf = tarfile.open(tar_file, "w:" + format)
+  tf.add(input_dir, arcname=os.path.basename(input_dir))
+  tf.close()
 
 def create_7z_archive(input_dir, format):
   """ Creates a 7z archive of the specified input directory. """
@@ -743,14 +752,21 @@ elif platform == 'linux':
 
 if not options.noarchive:
   # create an archive for each output directory
-  archive_format = 'zip'
+  archive_format = os.getenv('CEF_ARCHIVE_FORMAT', 'zip')
+  if archive_format not in ('zip', 'tar.gz', 'tar.bz2'):
+    raise Exception('Unsupported archive format: %s' % archive_format)
+
   if os.getenv('CEF_COMMAND_7ZIP', '') != '':
     archive_format = os.getenv('CEF_COMMAND_7ZIP_FORMAT', '7z')
 
   for dir in archive_dirs:
     if not options.quiet:
-      sys.stdout.write("Creating archive for %s...\n" % os.path.split(dir)[1])
+      sys.stdout.write("Creating %s archive for %s...\n" % (archive_format, os.path.basename(dir)))
     if archive_format == 'zip':
-      create_archive(dir)
+      create_zip_archive(dir)
+    elif archive_format == 'tar.gz':
+      create_tar_archive(dir, 'gz')
+    elif archive_format == 'tar.bz2':
+      create_tar_archive(dir, 'bz2')
     else:
       create_7z_archive(dir, archive_format)
