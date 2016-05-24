@@ -20,9 +20,6 @@ class CefContentUtilityClient : public content::ContentUtilityClient {
   void RegisterMojoServices(content::ServiceRegistry* registry) override;
 
  private:
-  // IPC message handlers.
-  void OnStartupPing();
-
   typedef ScopedVector<UtilityMessageHandler> Handlers;
   Handlers handlers_;
 

@@ -50,6 +50,7 @@
 #include "include/base/internal/cef_lock_impl.h"
 
 namespace base {
+namespace cef_internal {
 
 // A convenient wrapper for an OS specific critical section.  The only real
 // intelligence in this class is in debug mode for the support for the
@@ -113,7 +114,7 @@ class Lock {
 #endif  // NDEBUG
 
   // Platform specific underlying lock implementation.
-  cef_internal::LockImpl lock_;
+  LockImpl lock_;
 
   DISALLOW_COPY_AND_ASSIGN(Lock);
 };
@@ -159,6 +160,15 @@ class AutoUnlock {
   Lock& lock_;
   DISALLOW_COPY_AND_ASSIGN(AutoUnlock);
 };
+
+}  // namespace cef_internal
+
+// Implement classes in the cef_internal namespace and then expose them to the
+// base namespace. This avoids conflicts with the base.lib implementation when
+// linking sandbox support on Windows.
+using cef_internal::Lock;
+using cef_internal::AutoLock;
+using cef_internal::AutoUnlock;
 
 }  // namespace base
 

@@ -18,7 +18,7 @@
 #endif
 
 #if defined(OS_WIN)
-#include "ui/gfx/win/dpi.h"
+#include "ui/display/screen.h"
 #include "ui/views/win/hwnd_util.h"
 #endif
 
@@ -61,11 +61,14 @@ class NativeFrameViewEx : public views::NativeFrameView {
     // views::GetWindowBoundsForClientBounds() expects the input Rect to be in
     // pixel coordinates. NativeFrameView does not implement this correctly so
     // we need to provide our own implementation. See http://crbug.com/602692.
-    gfx::Rect pixel_bounds = gfx::win::DIPToScreenRect(client_bounds);
+    gfx::Rect pixel_bounds =
+        display::Screen::GetScreen()->DIPToScreenRectInWindow(
+            view_util::GetNativeWindow(widget_), client_bounds);
     pixel_bounds = views::GetWindowBoundsForClientBounds(
         static_cast<View*>(const_cast<NativeFrameViewEx*>(this)),
         pixel_bounds);
-    return gfx::win::ScreenToDIPRect(pixel_bounds);
+    return display::Screen::GetScreen()->ScreenToDIPRectInWindow(
+        view_util::GetNativeWindow(widget_), pixel_bounds);
 #else
     // Use the default implementation.
     return views::NativeFrameView::GetWindowBoundsForClientBounds(
@@ -427,13 +430,13 @@ void CefWindowView::ViewHierarchyChanged(
   ParentClass::ViewHierarchyChanged(details);
 }
 
-gfx::Display CefWindowView::GetDisplay() const {
+display::Display CefWindowView::GetDisplay() const {
   const views::Widget* widget = GetWidget();
   if (widget) {
     return view_util::GetDisplayMatchingBounds(
         widget->GetWindowBoundsInScreen(), false);
   }
-  return gfx::Display();
+  return display::Display();
 }
 
 void CefWindowView::SetTitle(const base::string16& title) {

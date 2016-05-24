@@ -92,7 +92,8 @@ std::string GetSwitchArgument(const std::vector<std::string>& vec,
 class CefConfigurator : public Configurator {
  public:
   CefConfigurator(const base::CommandLine* cmdline,
-                  net::URLRequestContextGetter* url_request_getter);
+                  net::URLRequestContextGetter* url_request_getter,
+                  PrefService* pref_service);
 
   int InitialDelay() const override;
   int NextCheckDelay() const override;
@@ -116,6 +117,7 @@ class CefConfigurator : public Configurator {
   bool UseCupSigning() const override;
   scoped_refptr<base::SequencedTaskRunner> GetSequencedTaskRunner()
       const override;
+  PrefService* GetPrefService() const override;
 
  private:
   friend class base::RefCountedThreadSafe<CefConfigurator>;
@@ -123,6 +125,7 @@ class CefConfigurator : public Configurator {
   ~CefConfigurator() override {}
 
   net::URLRequestContextGetter* url_request_getter_;
+  PrefService* pref_service_;
   std::string extra_info_;
   GURL url_source_override_;
   bool fast_update_;
@@ -133,8 +136,10 @@ class CefConfigurator : public Configurator {
 
 CefConfigurator::CefConfigurator(
     const base::CommandLine* cmdline,
-    net::URLRequestContextGetter* url_request_getter)
+    net::URLRequestContextGetter* url_request_getter,
+    PrefService* pref_service)
     : url_request_getter_(url_request_getter),
+      pref_service_(pref_service),
       fast_update_(false),
       pings_enabled_(false),
       deltas_enabled_(false),
@@ -282,13 +287,18 @@ CefConfigurator::GetSequencedTaskRunner() const {
           base::SequencedWorkerPool::SKIP_ON_SHUTDOWN);
 }
 
+PrefService* CefConfigurator::GetPrefService() const {
+  return pref_service_;
+}
+
 }  // namespace
 
 scoped_refptr<update_client::Configurator>
 MakeCefComponentUpdaterConfigurator(
     const base::CommandLine* cmdline,
-    net::URLRequestContextGetter* context_getter) {
-  return new CefConfigurator(cmdline, context_getter);
+    net::URLRequestContextGetter* context_getter,
+    PrefService* pref_service) {
+  return new CefConfigurator(cmdline, context_getter, pref_service);
 }
 
 }  // namespace component_updater

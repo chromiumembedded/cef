@@ -24,7 +24,7 @@
 #endif
 
 #if defined(OS_WIN)
-#include "ui/gfx/win/dpi.h"
+#include "ui/display/win/screen_win.h"
 #endif
 
 namespace {
@@ -379,7 +379,7 @@ void CefWindowImpl::CancelMenu() {
 CefRefPtr<CefDisplay> CefWindowImpl::GetDisplay() {
   CEF_REQUIRE_VALID_RETURN(nullptr);
   if (widget_ && root_view()) {
-    const gfx::Display& display = root_view()->GetDisplay();
+    const display::Display& display = root_view()->GetDisplay();
     if (display.is_valid())
       return new CefDisplayImpl(display);
   }
@@ -444,7 +444,7 @@ void CefWindowImpl::SendMouseMove(int screen_x, int screen_y) {
   gfx::Point point(screen_x, screen_y);
 #if defined(OS_WIN)
   // Windows expects pixel coordinates.
-  point = gfx::win::DIPToScreenPoint(point);
+  point = display::win::ScreenWin::DIPToScreenPoint(point);
 #endif
 
   ui_controls::SendMouseMove(point.x(), point.y());

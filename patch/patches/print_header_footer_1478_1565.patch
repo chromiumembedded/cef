@@ -1,8 +1,8 @@
 diff --git printing/common/print_messages.cc printing/common/print_messages.cc
-index e1a107a..1601811 100644
+index 6798e35..215777f 100644
 --- printing/common/print_messages.cc
 +++ printing/common/print_messages.cc
-@@ -97,7 +97,6 @@ void PrintMsg_PrintPages_Params::Reset() {
+@@ -103,7 +103,6 @@ void PrintMsg_PrintPages_Params::Reset() {
    pages = std::vector<int>();
  }
  
@@ -10,13 +10,13 @@ index e1a107a..1601811 100644
  PrintHostMsg_RequestPrintPreview_Params::
      PrintHostMsg_RequestPrintPreview_Params()
      : is_modifiable(false),
-@@ -119,4 +118,3 @@ PrintHostMsg_SetOptionsFromDocument_Params::
+@@ -125,4 +124,3 @@ PrintHostMsg_SetOptionsFromDocument_Params::
  PrintHostMsg_SetOptionsFromDocument_Params::
      ~PrintHostMsg_SetOptionsFromDocument_Params() {
  }
 -#endif  // defined(ENABLE_PRINT_PREVIEW)
 diff --git printing/common/print_messages.h printing/common/print_messages.h
-index 5cccd00..3a847b7 100644
+index 705211b..a524333 100644
 --- printing/common/print_messages.h
 +++ printing/common/print_messages.h
 @@ -71,7 +71,6 @@ struct PrintMsg_PrintPages_Params {
@@ -136,7 +136,7 @@ index 5cccd00..3a847b7 100644
                      PrintHostMsg_SetOptionsFromDocument_Params /* params */)
 -#endif  // defined(ENABLE_PRINT_PREVIEW)
 diff --git printing/renderer/print_web_view_helper.cc printing/renderer/print_web_view_helper.cc
-index 9ee4cd9..719060c 100644
+index cfb1c77..33dad1a 100644
 --- printing/renderer/print_web_view_helper.cc
 +++ printing/renderer/print_web_view_helper.cc
 @@ -83,6 +83,9 @@ const float kPrintingMinimumShrinkFactor = 1.333f;
@@ -395,7 +395,7 @@ index 9ee4cd9..719060c 100644
  PrintWebViewHelper::PrintPreviewContext::PrintPreviewContext()
      : total_page_count_(0),
 diff --git printing/renderer/print_web_view_helper.h printing/renderer/print_web_view_helper.h
-index 39ef858..3c4f89e 100644
+index 7232b22..d2833f8 100644
 --- printing/renderer/print_web_view_helper.h
 +++ printing/renderer/print_web_view_helper.h
 @@ -137,9 +137,7 @@ class PrintWebViewHelper
@@ -492,7 +492,7 @@ index 39ef858..3c4f89e 100644
    bool is_loading_;
    bool is_scripted_preview_delayed_;
 diff --git printing/renderer/print_web_view_helper_mac.mm printing/renderer/print_web_view_helper_mac.mm
-index 6552666..8899b6d 100644
+index 1d23d5b..e99373b 100644
 --- printing/renderer/print_web_view_helper_mac.mm
 +++ printing/renderer/print_web_view_helper_mac.mm
 @@ -68,7 +68,6 @@ void PrintWebViewHelper::PrintPageInternal(

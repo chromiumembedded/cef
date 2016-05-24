@@ -318,7 +318,7 @@ struct CefResourceManager::ProviderEntry {
       deletion_pending_(false) {
   }
 
-  scoped_ptr<Provider> provider_;
+  SCOPED_PTR(Provider) provider_;
   int order_;
   std::string identifier_;
 
@@ -378,7 +378,7 @@ void CefResourceManager::Request::Stop() {
                  base::Passed(&state_)));
 }
 
-CefResourceManager::Request::Request(scoped_ptr<RequestState> state)
+CefResourceManager::Request::Request(SCOPED_PTR(RequestState) state)
     : state_(MOVE_SCOPED_PTR(state)),
       params_(state_->params_) {
   CEF_REQUIRE_IO_THREAD();
@@ -396,13 +396,13 @@ CefResourceManager::Request::Request(scoped_ptr<RequestState> state)
 // handle the request. Note that |state_| may already be NULL if OnRequest
 // executes a callback before returning, in which case execution will continue
 // asynchronously in any case.
-scoped_ptr<CefResourceManager::RequestState>
+SCOPED_PTR(CefResourceManager::RequestState)
     CefResourceManager::Request::SendRequest() {
   CEF_REQUIRE_IO_THREAD();
   Provider* provider = (*state_->current_entry_pos_)->provider_.get();
   if (!provider->OnRequest(this))
     return MOVE_SCOPED_PTR(state_);
-  return scoped_ptr<RequestState>();
+  return SCOPED_PTR(RequestState)();
 }
 
 bool CefResourceManager::Request::HasState() {
@@ -412,7 +412,7 @@ bool CefResourceManager::Request::HasState() {
 
 // static
 void CefResourceManager::Request::ContinueOnIOThread(
-    scoped_ptr<RequestState> state,
+    SCOPED_PTR(RequestState) state,
     CefRefPtr<CefResourceHandler> handler) {
   CEF_REQUIRE_IO_THREAD();
   // The manager may already have been deleted.
@@ -423,7 +423,7 @@ void CefResourceManager::Request::ContinueOnIOThread(
 
 // static
 void CefResourceManager::Request::StopOnIOThread(
-    scoped_ptr<RequestState> state) {
+    SCOPED_PTR(RequestState) state) {
   CEF_REQUIRE_IO_THREAD();
   // The manager may already have been deleted.
   base::WeakPtr<CefResourceManager> manager = state->manager_;
@@ -493,7 +493,7 @@ void CefResourceManager::AddProvider(Provider* provider,
     return;
   }
 
-  scoped_ptr<ProviderEntry> new_entry(
+  SCOPED_PTR(ProviderEntry) new_entry(
       new ProviderEntry(provider, order, identifier));
 
   if (providers_.empty()) {
@@ -587,7 +587,7 @@ cef_return_value_t CefResourceManager::OnBeforeResourceLoad(
     return RV_CONTINUE;
   }
 
-  scoped_ptr<RequestState> state(new RequestState);
+  SCOPED_PTR(RequestState) state(new RequestState);
 
   if (!weak_ptr_factory_.get()) {
     // WeakPtrFactory instances need to be created and destroyed on the same
@@ -637,7 +637,7 @@ CefRefPtr<CefResourceHandler> CefResourceManager::GetResourceHandler(
 
 // Send the request to providers in order until one potentially handles it or we
 // run out of providers. Returns true if the request is potentially handled.
-bool CefResourceManager::SendRequest(scoped_ptr<RequestState> state) {
+bool CefResourceManager::SendRequest(SCOPED_PTR(RequestState) state) {
   bool potentially_handled = false;
 
   do {
@@ -661,7 +661,7 @@ bool CefResourceManager::SendRequest(scoped_ptr<RequestState> state) {
 }
 
 void CefResourceManager::ContinueRequest(
-    scoped_ptr<RequestState> state,
+    SCOPED_PTR(RequestState) state,
     CefRefPtr<CefResourceHandler> handler) {
   CEF_REQUIRE_IO_THREAD();
 
@@ -679,7 +679,7 @@ void CefResourceManager::ContinueRequest(
   }
 }
 
-void CefResourceManager::StopRequest(scoped_ptr<RequestState> state) {
+void CefResourceManager::StopRequest(SCOPED_PTR(RequestState) state) {
   CEF_REQUIRE_IO_THREAD();
 
   // Detach from the current provider.

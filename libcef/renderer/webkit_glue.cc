@@ -17,7 +17,6 @@
 
 #include "base/compiler_specific.h"
 
-#include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/web/WebDocument.h"

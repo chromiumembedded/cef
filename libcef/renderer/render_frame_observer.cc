@@ -5,7 +5,6 @@
 
 #include "base/compiler_specific.h"
 
-#include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "platform/ScriptForbiddenScope.h"
 MSVC_POP_WARNING();

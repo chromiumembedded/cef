@@ -3,23 +3,23 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_RENDERER_RENDER_PROCESS_OBSERVER_H_
-#define CEF_LIBCEF_RENDERER_RENDER_PROCESS_OBSERVER_H_
+#ifndef CEF_LIBCEF_RENDERER_RENDER_THREAD_OBSERVER_H_
+#define CEF_LIBCEF_RENDERER_RENDER_THREAD_OBSERVER_H_
 
 #include "base/compiler_specific.h"
-#include "content/public/renderer/render_process_observer.h"
+#include "content/public/renderer/render_thread_observer.h"
 
 struct Cef_CrossOriginWhiteListEntry_Params;
 
 // This class sends and receives control messages on the renderer process.
-class CefRenderProcessObserver : public content::RenderProcessObserver {
+class CefRenderThreadObserver : public content::RenderThreadObserver {
  public:
-  CefRenderProcessObserver();
-  ~CefRenderProcessObserver() override;
+  CefRenderThreadObserver();
+  ~CefRenderThreadObserver() override;
 
   static bool is_incognito_process() { return is_incognito_process_; }
 
-  // RenderProcessObserver implementation.
+  // RenderThreadObserver implementation.
   bool OnControlMessageReceived(const IPC::Message& message) override;
   void OnRenderProcessShutdown() override;
 
@@ -33,7 +33,7 @@ class CefRenderProcessObserver : public content::RenderProcessObserver {
 
   static bool is_incognito_process_;
 
-  DISALLOW_COPY_AND_ASSIGN(CefRenderProcessObserver);
+  DISALLOW_COPY_AND_ASSIGN(CefRenderThreadObserver);
 };
 
-#endif  // CEF_LIBCEF_RENDERER_RENDER_PROCESS_OBSERVER_H_
+#endif  // CEF_LIBCEF_RENDERER_RENDER_THREAD_OBSERVER_H_

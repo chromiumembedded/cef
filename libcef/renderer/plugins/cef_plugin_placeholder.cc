@@ -59,7 +59,8 @@ CefPluginPlaceholder::CefPluginPlaceholder(
       status_(CefViewHostMsg_GetPluginInfo_Status::kAllowed),
       title_(title),
       has_host_(false),
-      context_menu_request_id_(0) {
+      context_menu_request_id_(0),
+      ignore_updates_(false) {
   RenderThread::Get()->AddObserver(this);
 }
 
@@ -283,6 +284,31 @@ blink::WebPlugin* CefPluginPlaceholder::CreatePlugin() {
   }
   return render_frame()->CreatePlugin(GetFrame(), GetPluginInfo(),
                                       GetPluginParams(), std::move(throttler));
+}
+
+void CefPluginPlaceholder::OnLoadedRectUpdate(
+    const gfx::Rect& unobscured_rect,
+    content::RenderFrame::PeripheralContentStatus status) {
+  // If the placeholder is in the blocked state, do nothing.
+  if (ignore_updates_)
+    return;
+
+  // This should only be called once.
+  set_delayed(false);
+
+  // block tiny cross-origin - simply by not continuing the load chain.
+  if (status ==
+      content::RenderFrame::CONTENT_STATUS_ESSENTIAL_CROSS_ORIGIN_TINY) {
+    ignore_updates_ = true;
+    return;
+  }
+
+  // For essential content, powersaver can be turned off.
+  if (status != content::RenderFrame::CONTENT_STATUS_PERIPHERAL)
+    set_power_saver_enabled(false);
+
+  AllowLoading();
+  LoadPlugin();
 }
 
 gin::ObjectTemplateBuilder CefPluginPlaceholder::GetObjectTemplateBuilder(

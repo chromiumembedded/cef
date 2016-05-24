@@ -1,8 +1,8 @@
 diff --git message_loop.cc message_loop.cc
-index 01e7512..e3fcc0d 100644
+index 3fef91b..58ddbf3 100644
 --- message_loop.cc
 +++ message_loop.cc
-@@ -140,12 +140,6 @@ MessageLoop::~MessageLoop() {
+@@ -142,12 +142,6 @@ MessageLoop::~MessageLoop() {
    // may be current.
    DCHECK((pump_ && current() == this) || (!pump_ && current() != this));
  

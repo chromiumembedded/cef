@@ -6,7 +6,6 @@
 #define CEF_LIBCEF_BROWSER_MEDIA_CAPTURE_DEVICES_DISPATCHER_H_
 
 #include "base/callback.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/memory/singleton.h"
 #include "base/observer_list.h"
 #include "content/public/browser/media_observer.h"
@@ -53,6 +52,11 @@ class CefMediaCaptureDevicesDispatcher : public content::MediaObserver {
       content::MediaRequestState state) override;
    void OnCreatingAudioStream(int render_process_id,
                               int render_view_id) override;
+   void OnSetCapturingLinkSecured(int render_process_id,
+                                  int render_frame_id,
+                                  int page_request_id,
+                                  content::MediaStreamType stream_type,
+                                  bool is_secure) override;
 
  private:
   friend struct base::DefaultSingletonTraits<CefMediaCaptureDevicesDispatcher>;

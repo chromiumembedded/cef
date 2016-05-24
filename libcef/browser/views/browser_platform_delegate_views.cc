@@ -267,8 +267,9 @@ std::unique_ptr<CefJavaScriptDialogRunner>
   return native_delegate_->CreateJavaScriptDialogRunner();
 }
 
-std::unique_ptr<CefMenuRunner> CefBrowserPlatformDelegateViews::CreateMenuRunner() {
-  return make_scoped_ptr(new CefMenuRunnerViews(browser_view_.get()));
+std::unique_ptr<CefMenuRunner>
+    CefBrowserPlatformDelegateViews::CreateMenuRunner() {
+  return base::WrapUnique(new CefMenuRunnerViews(browser_view_.get()));
 }
 
 bool CefBrowserPlatformDelegateViews::IsWindowless() const {

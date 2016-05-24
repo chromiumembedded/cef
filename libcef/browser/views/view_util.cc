@@ -12,13 +12,14 @@
 #include "ui/aura/window_tree_host.h"
 #include "ui/gfx/geometry/point.h"
 #include "ui/gfx/geometry/point_conversions.h"
-#include "ui/gfx/screen.h"
+#include "ui/display/display.h"
+#include "ui/display/screen.h"
 #include "ui/views/widget/widget.h"
 #include "ui/views/widget/widget_delegate.h"
 #include "ui/views/window/non_client_view.h"
 
 #if defined(OS_WIN)
-#include "ui/gfx/win/dpi.h"
+#include "ui/display/win/screen_win.h"
 #endif
 
 namespace view_util {
@@ -180,24 +181,26 @@ CefRefPtr<CefWindow> GetWindowFor(views::Widget* widget) {
   return window;
 }
 
-gfx::Display GetDisplayNearestPoint(const gfx::Point& point,
-                                    bool input_pixel_coords) {
+display::Display GetDisplayNearestPoint(const gfx::Point& point,
+                                        bool input_pixel_coords) {
   gfx::Point find_point = point;
 #if defined(OS_WIN)
   if (input_pixel_coords)
-    find_point = gfx::win::ScreenToDIPPoint(point);
+    find_point = display::win::ScreenWin::ScreenToDIPPoint(point);
 #endif
-  return gfx::Screen::GetScreen()->GetDisplayNearestPoint(find_point);
+  return display::Screen::GetScreen()->GetDisplayNearestPoint(find_point);
 }
 
-gfx::Display GetDisplayMatchingBounds(const gfx::Rect& bounds,
-                                      bool input_pixel_coords) {
+display::Display GetDisplayMatchingBounds(const gfx::Rect& bounds,
+                                          bool input_pixel_coords) {
   gfx::Rect find_bounds = bounds;
 #if defined(OS_WIN)
-  if (input_pixel_coords)
-    find_bounds = gfx::win::ScreenToDIPRect(find_bounds);
+  if (input_pixel_coords) {
+    find_bounds = display::win::ScreenWin::ScreenToDIPRect(nullptr,
+                                                           find_bounds);
+  }
 #endif
-  return gfx::Screen::GetScreen()->GetDisplayMatching(bounds);
+  return display::Screen::GetScreen()->GetDisplayMatching(bounds);
 }
 
 void ConvertPointFromPixels(gfx::Point* point,
@@ -221,7 +224,7 @@ bool ConvertPointToScreen(views::View* view,
   views::View::ConvertPointToScreen(view, point);
 
   if (output_pixel_coords) {
-    const gfx::Display& display = GetDisplayNearestPoint(*point, false);
+    const display::Display& display = GetDisplayNearestPoint(*point, false);
     ConvertPointToPixels(point, display.device_scale_factor());
   }
 
@@ -235,7 +238,7 @@ bool ConvertPointFromScreen(views::View* view,
     return false;
 
   if (input_pixel_coords) {
-    const gfx::Display& display = GetDisplayNearestPoint(*point, true);
+    const display::Display& display = GetDisplayNearestPoint(*point, true);
     ConvertPointFromPixels(point, display.device_scale_factor());
   }
 

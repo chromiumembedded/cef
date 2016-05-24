@@ -1,8 +1,8 @@
 diff --git public/common/common_param_traits_macros.h public/common/common_param_traits_macros.h
-index ae29c73..2b9c996 100644
+index 3a1b8fb..927061c 100644
 --- public/common/common_param_traits_macros.h
 +++ public/common/common_param_traits_macros.h
-@@ -196,6 +196,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
+@@ -207,6 +207,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
    IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
    IPC_STRUCT_TRAITS_MEMBER(smart_insert_delete_enabled)
@@ -11,10 +11,10 @@ index ae29c73..2b9c996 100644
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
 diff --git public/common/web_preferences.cc public/common/web_preferences.cc
-index c1cdd19..33af607 100644
+index a0bc6f1..96d1478 100644
 --- public/common/web_preferences.cc
 +++ public/common/web_preferences.cc
-@@ -156,6 +156,7 @@ WebPreferences::WebPreferences()
+@@ -163,6 +163,7 @@ WebPreferences::WebPreferences()
        pinch_overlay_scrollbar_thickness(0),
        use_solid_color_scrollbars(false),
        navigate_on_drag_drop(true),
@@ -23,10 +23,10 @@ index c1cdd19..33af607 100644
        inert_visual_viewport(false),
        record_whole_document(false),
 diff --git public/common/web_preferences.h public/common/web_preferences.h
-index 7b72351..7513ce2 100644
+index 54b8ed4..160991f 100644
 --- public/common/web_preferences.h
 +++ public/common/web_preferences.h
-@@ -173,6 +173,7 @@ struct CONTENT_EXPORT WebPreferences {
+@@ -176,6 +176,7 @@ struct CONTENT_EXPORT WebPreferences {
    int pinch_overlay_scrollbar_thickness;
    bool use_solid_color_scrollbars;
    bool navigate_on_drag_drop;
@@ -35,10 +35,10 @@ index 7b72351..7513ce2 100644
    bool inert_visual_viewport;
    bool record_whole_document;
 diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
-index ae2d8ec..f90fba7 100644
+index 71c52a3..cef247f 100644
 --- renderer/render_view_impl.cc
 +++ renderer/render_view_impl.cc
-@@ -1483,6 +1483,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
+@@ -1475,6 +1475,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
      blink::WebView* web_view,
      CompositorDependencies* compositor_deps) {
    ApplyWebPreferences(prefs, web_view);

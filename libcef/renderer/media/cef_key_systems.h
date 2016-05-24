@@ -5,10 +5,16 @@
 #ifndef CEF_LIBCEF_RENDERER_MEDIA_CEF_KEY_SYSTEMS_H_
 #define CEF_LIBCEF_RENDERER_MEDIA_CEF_KEY_SYSTEMS_H_
 
+#include <memory>
 #include <vector>
 
-#include "media/base/key_system_info.h"
+namespace media {
+class KeySystemProperties;
+}
 
-void AddCefKeySystems(std::vector<media::KeySystemInfo>* key_systems_info);
+// Register the key systems supported by populating |key_systems_properties|.
+void AddCefKeySystems(
+    std::vector<std::unique_ptr<media::KeySystemProperties>>*
+        key_systems_properties);
 
 #endif  // CEF_LIBCEF_RENDERER_MEDIA_CEF_KEY_SYSTEMS_H_

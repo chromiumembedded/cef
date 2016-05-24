@@ -96,7 +96,6 @@ class CefRenderWidgetHostViewOSR
   void SetBounds(const gfx::Rect& rect) override;
   gfx::Vector2dF GetLastScrollOffset() const override;
   gfx::NativeView GetNativeView() const override;
-  gfx::NativeViewId GetNativeViewId() const override;
   gfx::NativeViewAccessible GetNativeViewAccessible() override;
   ui::TextInputClient* GetTextInputClient() override;
   void Focus() override;
@@ -111,6 +110,7 @@ class CefRenderWidgetHostViewOSR
   void UnlockMouse() override;
 
 #if defined(OS_MACOSX)
+  ui::AcceleratedWidgetMac* GetAcceleratedWidgetMac() const override;
   void SetActive(bool active) override;
   void ShowDefinitionForSelection() override;
   bool SupportsSpeech() const override;
@@ -130,7 +130,7 @@ class CefRenderWidgetHostViewOSR
       content::RenderWidgetHostView* reference_host_view) override;
   void UpdateCursor(const content::WebCursor& cursor) override;
   void SetIsLoading(bool is_loading) override;
-  void UpdateInputMethodIfNecessary(bool text_input_state_changed) override;
+  void TextInputStateChanged(const content::TextInputState& params) override;
   void ImeCancelComposition() override;
   void RenderProcessGone(base::TerminationStatus status,
                          int error_code) override;
@@ -203,6 +203,7 @@ class CefRenderWidgetHostViewOSR
   // DelegatedFrameHostClient implementation.
   ui::Layer* DelegatedFrameHostGetLayer() const override;
   bool DelegatedFrameHostIsVisible() const override;
+  SkColor DelegatedFrameHostGetGutterColor(SkColor color) const override;
   gfx::Size DelegatedFrameHostDesiredSizeInDIP() const override;
  bool DelegatedFrameCanCreateResizeLock() const override;
   std::unique_ptr<content::ResizeLock> DelegatedFrameHostCreateResizeLock(
@@ -218,6 +219,7 @@ class CefRenderWidgetHostViewOSR
   void DelegatedFrameHostUpdateVSyncParameters(
       const base::TimeTicks& timebase,
       const base::TimeDelta& interval) override;
+  void SetBeginFrameSource(cc::BeginFrameSource* source) override;
 
   bool InstallTransparency();
 

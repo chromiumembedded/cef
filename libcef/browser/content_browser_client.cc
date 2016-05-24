@@ -823,12 +823,7 @@ const wchar_t* CefContentBrowserClient::GetResourceDllName() {
 
 bool CefContentBrowserClient::PreSpawnRenderer(
     sandbox::TargetPolicy* policy) {
-  // Flash requires this permission to play video files.
-  sandbox::ResultCode result = policy->AddRule(
-      sandbox::TargetPolicy::SUBSYS_HANDLES,
-      sandbox::TargetPolicy::HANDLES_DUP_ANY,
-      L"File");
-  return result == sandbox::SBOX_ALL_OK;
+  return true;
 }
 #endif  // defined(OS_WIN)
 

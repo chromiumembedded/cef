@@ -10,7 +10,6 @@
 
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted_memory.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
 
 // May only be accessed on the browser process UI thread.

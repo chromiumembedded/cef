@@ -10,6 +10,7 @@
 #include "libcef/browser/net/devtools_scheme_handler.h"
 #include "libcef/common/net/scheme_registration.h"
 
+#include "base/memory/ptr_util.h"
 #include "base/threading/sequenced_worker_pool.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/url_constants.h"
@@ -60,7 +61,7 @@ void InstallInternalProtectedHandlers(
       protocol_handler.reset(
           scheme::WrapChromeProtocolHandler(
               request_manager,
-              make_scoped_ptr(it->second.release())).release());
+              base::WrapUnique(it->second.release())).release());
     } else {
       protocol_handler.reset(it->second.release());
     }
@@ -70,7 +71,7 @@ void InstallInternalProtectedHandlers(
     DCHECK(IsInternalProtectedScheme(scheme));
 
     bool set_protocol = job_factory->SetProtocolHandler(
-        scheme, make_scoped_ptr(protocol_handler.release()));
+        scheme, base::WrapUnique(protocol_handler.release()));
     DCHECK(set_protocol);
   }
 }

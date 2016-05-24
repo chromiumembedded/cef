@@ -620,7 +620,8 @@ CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::IsEnabled() {
 
 CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::SetFocusable(bool focusable) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  root_view()->SetFocusable(focusable);
+  root_view()->SetFocusBehavior(focusable ? views::View::FocusBehavior::ALWAYS :
+                                            views::View::FocusBehavior::NEVER);
 }
 
 CEF_VIEW_IMPL_T bool CEF_VIEW_IMPL_D::IsFocusable() {

@@ -127,6 +127,11 @@ class CefBrowserContext
 
   // BrowserContext methods.
   content::ResourceContext* GetResourceContext() override;
+  net::URLRequestContextGetter* GetRequestContext() override;
+  net::URLRequestContextGetter* CreateMediaRequestContext() override;
+  net::URLRequestContextGetter* CreateMediaRequestContextForStoragePartition(
+      const base::FilePath& partition_path,
+      bool in_memory) override;
 
   // Profile methods.
   ChromeZoomLevelPrefs* GetZoomLevelPrefs() override;

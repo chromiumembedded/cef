@@ -20,10 +20,11 @@
 #include "cc/base/switches.h"
 #include "cc/output/copy_output_request.h"
 #include "cc/scheduler/delay_based_time_source.h"
+#include "components/display_compositor/gl_helper.h"
 #include "content/browser/bad_message.h"
-#include "content/browser/compositor/gl_helper.h"
 #include "content/browser/compositor/image_transport_factory.h"
 #include "content/browser/renderer_host/dip_util.h"
+#include "content/browser/renderer_host/render_widget_host_delegate.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/browser/renderer_host/resize_lock.h"
 #include "content/common/view_messages.h"
@@ -251,7 +252,7 @@ class CefCopyFrameGenerator {
 
     content::ImageTransportFactory* factory =
         content::ImageTransportFactory::GetInstance();
-    content::GLHelper* gl_helper = factory->GetGLHelper();
+    display_compositor::GLHelper* gl_helper = factory->GetGLHelper();
     if (!gl_helper)
       return;
 
@@ -283,7 +284,7 @@ class CefCopyFrameGenerator {
             damage_rect,
             base::Passed(&bitmap_),
             base::Passed(&bitmap_pixels_lock)),
-        content::GLHelper::SCALER_QUALITY_FAST);
+        display_compositor::GLHelper::SCALER_QUALITY_FAST);
   }
 
   static void CopyFromCompositingSurfaceFinishedProxy(
@@ -296,7 +297,7 @@ class CefCopyFrameGenerator {
     // This method may be called after the view has been deleted.
     gpu::SyncToken sync_token;
     if (result) {
-      content::GLHelper* gl_helper =
+      display_compositor::GLHelper* gl_helper =
           content::ImageTransportFactory::GetInstance()->GetGLHelper();
       if (gl_helper)
         gl_helper->GenerateSyncToken(&sync_token);
@@ -552,10 +553,6 @@ gfx::NativeView CefRenderWidgetHostViewOSR::GetNativeView() const {
   return gfx::NativeView();
 }
 
-gfx::NativeViewId CefRenderWidgetHostViewOSR::GetNativeViewId() const {
-  return gfx::NativeViewId();
-}
-
 gfx::NativeViewAccessible
     CefRenderWidgetHostViewOSR::GetNativeViewAccessible() {
   return gfx::NativeViewAccessible();
@@ -788,8 +785,8 @@ void CefRenderWidgetHostViewOSR::SetIsLoading(bool is_loading) {
 }
 
 #if !defined(OS_MACOSX)
-void CefRenderWidgetHostViewOSR::UpdateInputMethodIfNecessary(
-    bool text_input_state_changed) {
+void CefRenderWidgetHostViewOSR::TextInputStateChanged(
+    const content::TextInputState& params) {
 }
 
 void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
@@ -1017,6 +1014,19 @@ bool CefRenderWidgetHostViewOSR::DelegatedFrameHostIsVisible() const {
   return !render_widget_host_->is_hidden();
 }
 
+SkColor CefRenderWidgetHostViewOSR::DelegatedFrameHostGetGutterColor(
+    SkColor color) const {
+  // When making an element on the page fullscreen the element's background
+  // may not match the page's, so use black as the gutter color to avoid
+  // flashes of brighter colors during the transition.
+  if (render_widget_host_->delegate() &&
+      render_widget_host_->delegate()->IsFullscreenForCurrentTab(
+          render_widget_host_)) {
+    return SK_ColorBLACK;
+  }
+  return color;
+}
+
 gfx::Size
 CefRenderWidgetHostViewOSR::DelegatedFrameHostDesiredSizeInDIP() const {
   return root_layer_->bounds().size();
@@ -1066,6 +1076,13 @@ void CefRenderWidgetHostViewOSR::DelegatedFrameHostUpdateVSyncParameters(
     const base::TimeTicks& timebase,
     const base::TimeDelta& interval) {
   render_widget_host_->UpdateVSyncParameters(timebase, interval);
+}
+
+void CefRenderWidgetHostViewOSR::SetBeginFrameSource(
+    cc::BeginFrameSource* source) {
+  // TODO(cef): Maybe we can use this method in combination with
+  // OnSetNeedsBeginFrames() instead of using CefBeginFrameTimer.
+  // See https://codereview.chromium.org/1841083007.
 }
 
 bool CefRenderWidgetHostViewOSR::InstallTransparency() {

@@ -11,7 +11,7 @@
 
 #include "libcef/browser/views/panel_view.h"
 
-#include "ui/gfx/display.h"
+#include "ui/display/display.h"
 #include "ui/views/widget/widget_delegate.h"
 
 class SkRegion;
@@ -71,7 +71,7 @@ class CefWindowView :
       const views::View::ViewHierarchyChangedDetails& details) override;
 
   // Returns the Display containing this Window.
-  gfx::Display GetDisplay() const;
+  display::Display GetDisplay() const;
 
   // Set/get the window title.
   void SetTitle(const base::string16& title);

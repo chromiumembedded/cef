@@ -18,6 +18,7 @@
 #include "base/format_macros.h"
 #include "base/logging.h"
 #include "base/threading/thread_restrictions.h"
+#include "content/browser/storage_partition_impl.h"
 #include "net/cookies/cookie_util.h"
 #include "net/cookies/parsed_cookie.h"
 #include "net/extras/sqlite/sqlite_persistent_cookie_store.h"
@@ -608,8 +609,9 @@ void CefCookieManagerImpl::DeleteCookiesInternal(
         base::Bind(DeleteCookiesCallbackImpl, callback));
   } else if (cookie_name.empty()) {
     // Delete all matching host cookies.
-    cookie_store->DeleteAllCreatedBetweenForHostAsync(
-        base::Time(), base::Time::Max(), url,
+    cookie_store->DeleteAllCreatedBetweenWithPredicateAsync(
+        base::Time(), base::Time::Max(),
+        content::StoragePartitionImpl::CreatePredicateForHostCookies(url),
         base::Bind(DeleteCookiesCallbackImpl, callback));
   } else {
     // Delete all matching host and domain cookies.

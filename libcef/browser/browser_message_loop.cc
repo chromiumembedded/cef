@@ -6,6 +6,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/common/content_client.h"
 
+#include "base/memory/ptr_util.h"
 #include "base/run_loop.h"
 
 #if defined(OS_MACOSX)
@@ -87,12 +88,12 @@ CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() {
   return nullptr;
 }
 
-scoped_ptr<base::MessagePump> CreatePump() {
+std::unique_ptr<base::MessagePump> CreatePump() {
   const CefSettings& settings = CefContext::Get()->settings();
   if (settings.external_message_pump) {
     CefRefPtr<CefBrowserProcessHandler> handler = GetBrowserProcessHandler();
     if (handler)
-      return make_scoped_ptr(new MessagePumpExternal(0.01f, handler));
+      return base::WrapUnique(new MessagePumpExternal(0.01f, handler));
   }
 
   return base::MessageLoop::CreateMessagePumpForType(

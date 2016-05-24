@@ -190,7 +190,7 @@ class TemplateParser {
 using ResourcesMap = base::hash_map<std::string, int>;
 
 // TODO(rkc): Once we have a separate source for apps, remove '*/apps/' aliases.
-const char* kPathAliases[][2] = {
+const char* const kPathAliases[][2] = {
     {"../../../third_party/polymer/v1_0/components-chromium/", "polymer/v1_0/"},
     {"../../../third_party/web-animations-js/sources/",
      "polymer/v1_0/web-animations-js/"},
@@ -211,7 +211,7 @@ const ResourcesMap* CreateResourcesMap() {
     const std::string resource_name = kWebuiResources[i].name;
     const int resource_id = kWebuiResources[i].value;
     AddResource(resource_name, resource_id, result);
-    for (const char* (&alias)[2]: kPathAliases) {
+    for (const char* const (&alias)[2] : kPathAliases) {
       if (base::StartsWith(resource_name, alias[0],
                            base::CompareCase::SENSITIVE)) {
         AddResource(alias[1] + resource_name.substr(strlen(alias[0])),

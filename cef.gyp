@@ -149,6 +149,7 @@
               # Modify the Info.plist as needed.
               'postbuild_name': 'Tweak Info.plist',
               'action': ['../build/mac/tweak_info_plist.py',
+                         '--plist=${TARGET_BUILD_DIR}/${INFOPLIST_PATH}',
                          '--scm=1'],
             },
           ],
@@ -317,6 +318,7 @@
               # Modify the Info.plist as needed.
               'postbuild_name': 'Tweak Info.plist',
               'action': ['../build/mac/tweak_info_plist.py',
+                         '--plist=${TARGET_BUILD_DIR}/${INFOPLIST_PATH}',
                          '--scm=1'],
             },
           ],
@@ -542,6 +544,7 @@
               # Modify the Info.plist as needed.
               'postbuild_name': 'Tweak Info.plist',
               'action': ['../build/mac/tweak_info_plist.py',
+                         '--plist=${TARGET_BUILD_DIR}/${INFOPLIST_PATH}',
                          '--scm=1'],
             },
           ],
@@ -1014,6 +1017,7 @@
         '<(DEPTH)/skia/skia.gyp:skia',
         '<(DEPTH)/storage/storage_browser.gyp:storage',
         '<(DEPTH)/sync/sync.gyp:sync',
+        '<(DEPTH)/third_party/cld_2/cld_2.gyp:cld2_platform_impl',
         '<(DEPTH)/third_party/hunspell/hunspell.gyp:hunspell',
         '<(DEPTH)/third_party/libxml/libxml.gyp:libxml',
         '<(DEPTH)/third_party/WebKit/public/blink.gyp:blink',
@@ -1024,7 +1028,7 @@
         '<(DEPTH)/ui/gl/gl.gyp:gl',
         '<(DEPTH)/ui/base/ime/ui_base_ime.gyp:ui_base_ime',
         '<(DEPTH)/ui/base/ui_base.gyp:ui_base',
-        '<(DEPTH)/v8/tools/gyp/v8.gyp:v8',
+        '<(DEPTH)/v8/src/v8.gyp:v8',
         # Necessary to generate the grit include files.
         'cef_pak',
         # Necessary to generate API bindings for extensions.
@@ -1328,8 +1332,8 @@
         'libcef/renderer/render_frame_observer.h',
         'libcef/renderer/render_message_filter.cc',
         'libcef/renderer/render_message_filter.h',
-        'libcef/renderer/render_process_observer.cc',
-        'libcef/renderer/render_process_observer.h',
+        'libcef/renderer/render_thread_observer.cc',
+        'libcef/renderer/render_thread_observer.h',
         'libcef/renderer/render_urlrequest_impl.cc',
         'libcef/renderer/render_urlrequest_impl.h',
         'libcef/renderer/thread_util.h',
@@ -1582,11 +1586,6 @@
             '<(DEPTH)/components/components.gyp:breakpad_host',
           ],
         }],
-        ['cld_version==2', {
-          'dependencies': [
-            '<(DEPTH)/third_party/cld_2/cld_2.gyp:cld2_platform_impl',
-          ],
-        }],
         ['use_aura==1', {
           'dependencies': [
             '<(DEPTH)/ui/views/controls/webview/webview.gyp:webview',
@@ -1763,6 +1762,7 @@
               # but this seems like a really good place to store them.
               'postbuild_name': 'Tweak Info.plist',
               'action': ['../build/mac/tweak_info_plist.py',
+                         '--plist=${TARGET_BUILD_DIR}/${INFOPLIST_PATH}',
                          '--breakpad=1',
                          '--keystone=0',
                          '--scm=1',
@@ -1846,6 +1846,7 @@
               # never placed into the helper.
               'postbuild_name': 'Tweak Info.plist',
               'action': ['../build/mac/tweak_info_plist.py',
+                         '--plist=${TARGET_BUILD_DIR}/${INFOPLIST_PATH}',
                          '--breakpad=0',
                          '--keystone=0',
                          '--scm=0'],
@@ -1917,6 +1918,7 @@
               # never placed into the helper.
               'postbuild_name': 'Tweak Info.plist',
               'action': ['../build/mac/tweak_info_plist.py',
+                         '--plist=${TARGET_BUILD_DIR}/${INFOPLIST_PATH}',
                          '--breakpad=0',
                          '--keystone=0',
                          '--scm=0'],
@@ -2024,6 +2026,7 @@
               # never placed into the helper.
               'postbuild_name': 'Tweak Info.plist',
               'action': ['../build/mac/tweak_info_plist.py',
+                         '--plist=${TARGET_BUILD_DIR}/${INFOPLIST_PATH}',
                          '--breakpad=0',
                          '--keystone=0',
                          '--scm=0'],

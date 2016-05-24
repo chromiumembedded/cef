@@ -30,6 +30,13 @@ CefTextInputClientOSRMac* GetInputClientFromContext(
 
 }  // namespace
 
+ui::AcceleratedWidgetMac* CefRenderWidgetHostViewOSR::GetAcceleratedWidgetMac()
+    const {
+  if (browser_compositor_)
+    return browser_compositor_->accelerated_widget_mac();
+  return nullptr;
+}
+
 void CefRenderWidgetHostViewOSR::SetActive(bool active) {
 }
 
@@ -50,8 +57,8 @@ bool CefRenderWidgetHostViewOSR::IsSpeaking() const {
 void CefRenderWidgetHostViewOSR::StopSpeaking() {
 }
 
-void CefRenderWidgetHostViewOSR::UpdateInputMethodIfNecessary(
-    bool text_input_state_changed) {
+void CefRenderWidgetHostViewOSR::TextInputStateChanged(
+    const content::TextInputState& params) {
   [NSApp updateWindows];
 }
 

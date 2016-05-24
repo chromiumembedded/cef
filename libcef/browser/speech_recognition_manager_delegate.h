@@ -7,7 +7,6 @@
 
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
-#include "base/memory/scoped_ptr.h"
 #include "content/public/browser/speech_recognition_event_listener.h"
 #include "content/public/browser/speech_recognition_manager_delegate.h"
 
@@ -39,8 +38,6 @@ class CefSpeechRecognitionManagerDelegate
                            float noise_volume) override;
 
   // SpeechRecognitionManagerDelegate methods.
-  void GetDiagnosticInformation(bool* can_report_metrics,
-                                std::string* hardware_info) override;
   void CheckRecognitionIsAllowed(
       int session_id,
       base::Callback<void(bool ask_user, bool is_allowed)> callback) override;

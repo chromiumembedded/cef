@@ -118,10 +118,6 @@ const unsigned int kNativeKeyTestCodes[] = {
 };
 #endif
 
-// width for the icon that appear on the screen when pressing
-// middle mouse button
-const int kMiddleButtonIconWidth = 16;
-
 // test type
 enum OSRTestType {
   // IsWindowRenderingDisabled should be true
@@ -142,8 +138,6 @@ enum OSRTestType {
   OSR_TEST_SCREEN_POINT,
   // left click in text box should query repainting edit box area
   OSR_TEST_CLICK_LEFT,
-  // clicking middle mouse button, will draw the scroll icon
-  OSR_TEST_CLICK_MIDDLE,
   // Resize should trigger a full repaint with the new given size
   OSR_TEST_RESIZE,
   // Invalidate should trigger repaint synchronously
@@ -255,10 +249,6 @@ class OSRTestHandler : public RoutingTestHandler,
         break;
       case OSR_TEST_CLICK_LEFT:
         EXPECT_STREQ(messageStr.c_str(), "osrclick0");
-        DestroySucceededTestSoon();
-        break;
-      case OSR_TEST_CLICK_MIDDLE:
-        EXPECT_STREQ(messageStr.c_str(), "osrclick1");
         DestroySucceededTestSoon();
         break;
       case OSR_TEST_MOUSE_MOVE:
@@ -505,29 +495,6 @@ class OSRTestHandler : public RoutingTestHandler,
               mouse_event, MBT_LEFT, false, 1);
           browser->GetHost()->SendMouseClickEvent(
               mouse_event, MBT_LEFT, true, 1);
-        }
-        break;
-      case OSR_TEST_CLICK_MIDDLE:
-        if (StartTest()) {
-          CefMouseEvent mouse_event;
-          const CefRect& expected_rect = GetExpectedRect(0);
-          mouse_event.x = MiddleX(expected_rect);
-          mouse_event.y = MiddleY(expected_rect);
-          mouse_event.modifiers = 0;
-          browser->GetHost()->SendMouseClickEvent(
-              mouse_event, MBT_MIDDLE, false, 1);
-          browser->GetHost()->SendMouseClickEvent(
-              mouse_event, MBT_MIDDLE, true, 1);
-        } else {
-          EXPECT_EQ(dirtyRects.size(), 1U);
-          const CefRect& expected_rect = GetExpectedRect(0);
-          CefRect button_icon_rect(
-              MiddleX(expected_rect) - kMiddleButtonIconWidth / 2,
-              MiddleY(expected_rect) - kMiddleButtonIconWidth / 2,
-              kMiddleButtonIconWidth, kMiddleButtonIconWidth);
-          button_icon_rect = GetScaledRect(button_icon_rect);
-          EXPECT_EQ(dirtyRects[0], button_icon_rect);
-          DestroySucceededTestSoon();
         }
         break;
       case OSR_TEST_RESIZE:
@@ -1078,11 +1045,6 @@ OSR_TEST(MouseRightClick, OSR_TEST_CLICK_RIGHT, 1.0f);
 OSR_TEST(MouseRightClick2x, OSR_TEST_CLICK_RIGHT, 2.0f);
 OSR_TEST(MouseLeftClick, OSR_TEST_CLICK_LEFT, 1.0f);
 OSR_TEST(MouseLeftClick2x, OSR_TEST_CLICK_LEFT, 2.0f);
-#if !defined(OS_WIN)
-// The middle mouse click scroll icon is not currently shown on Windows.
-OSR_TEST(MouseMiddleClick, OSR_TEST_CLICK_MIDDLE, 1.0f);
-OSR_TEST(MouseMiddleClick2x, OSR_TEST_CLICK_MIDDLE, 2.0f);
-#endif
 OSR_TEST(ScreenPoint, OSR_TEST_SCREEN_POINT, 1.0f);
 OSR_TEST(ScreenPoint2x, OSR_TEST_SCREEN_POINT, 2.0f);
 OSR_TEST(Resize, OSR_TEST_RESIZE, 1.0f);

@@ -12,7 +12,6 @@
 #include "base/command_line.h"
 #include "base/compiler_specific.h"
 
-#include "config.h"
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "core/frame/Frame.h"
 #include "core/frame/LocalFrame.h"

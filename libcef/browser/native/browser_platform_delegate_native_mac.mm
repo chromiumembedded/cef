@@ -15,6 +15,7 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/mac/scoped_nsautorelease_pool.h"
+#include "base/memory/ptr_util.h"
 #include "base/threading/thread_restrictions.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/render_widget_host_view.h"
@@ -465,17 +466,17 @@ CefEventHandle CefBrowserPlatformDelegateNativeMac::GetEventHandle(
 
 std::unique_ptr<CefFileDialogRunner>
     CefBrowserPlatformDelegateNativeMac::CreateFileDialogRunner() {
-  return make_scoped_ptr(new CefFileDialogRunnerMac);
+  return base::WrapUnique(new CefFileDialogRunnerMac);
 }
 
 std::unique_ptr<CefJavaScriptDialogRunner>
     CefBrowserPlatformDelegateNativeMac::CreateJavaScriptDialogRunner() {
-  return make_scoped_ptr(new CefJavaScriptDialogRunnerMac);
+  return base::WrapUnique(new CefJavaScriptDialogRunnerMac);
 }
 
 std::unique_ptr<CefMenuRunner>
     CefBrowserPlatformDelegateNativeMac::CreateMenuRunner() {
-  return make_scoped_ptr(new CefMenuRunnerMac);
+  return base::WrapUnique(new CefMenuRunnerMac);
 }
 
 void CefBrowserPlatformDelegateNativeMac::TranslateMouseEvent(

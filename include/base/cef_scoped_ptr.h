@@ -120,8 +120,7 @@
 // client application. When using Chromium code directly always include
 // the Chromium header first to avoid type conflicts.
 #elif defined(USING_CHROMIUM_INCLUDES)
-// When building CEF include the Chromium header directly.
-#include "base/memory/scoped_ptr.h"
+// Do nothing when building CEF.
 #else  // !USING_CHROMIUM_INCLUDES
 // The following is substantially similar to the Chromium implementation.
 // If the Chromium implementation diverges the below implementation should be

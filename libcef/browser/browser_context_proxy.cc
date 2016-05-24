@@ -101,29 +101,6 @@ content::DownloadManagerDelegate*
   return download_manager_delegate_.get();
 }
 
-net::URLRequestContextGetter* CefBrowserContextProxy::GetRequestContext() {
-  CEF_REQUIRE_UIT();
-  return GetDefaultStoragePartition(this)->GetURLRequestContext();
-}
-
-net::URLRequestContextGetter*
-    CefBrowserContextProxy::GetMediaRequestContext() {
-  return GetRequestContext();
-}
-
-net::URLRequestContextGetter*
-    CefBrowserContextProxy::GetMediaRequestContextForRenderProcess(
-        int renderer_child_id)  {
-  return GetRequestContext();
-}
-
-net::URLRequestContextGetter*
-    CefBrowserContextProxy::GetMediaRequestContextForStoragePartition(
-        const base::FilePath& partition_path,
-        bool in_memory) {
-  return GetRequestContext();
-}
-
 content::BrowserPluginGuestManager* CefBrowserContextProxy::GetGuestManager() {
   return parent_->GetGuestManager();
 }

@@ -115,15 +115,15 @@ void CefCookieStoreProxy::DeleteAllCreatedBetweenAsync(
   }
 }
 
-void CefCookieStoreProxy::DeleteAllCreatedBetweenForHostAsync(
-    const base::Time delete_begin,
-    const base::Time delete_end,
-    const GURL& url,
+void CefCookieStoreProxy::DeleteAllCreatedBetweenWithPredicateAsync(
+    const base::Time& delete_begin,
+    const base::Time& delete_end,
+    const CookiePredicate& predicate,
     const DeleteCallback& callback) {
   net::CookieStore* cookie_store = GetCookieStore();
   if (cookie_store) {
-    cookie_store->DeleteAllCreatedBetweenForHostAsync(delete_begin, delete_end,
-                                                      url, callback);
+    cookie_store->DeleteAllCreatedBetweenWithPredicateAsync(
+        delete_begin, delete_end, predicate, callback);
   }
 }
 

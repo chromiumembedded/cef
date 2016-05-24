@@ -482,7 +482,7 @@ void CefRequestImpl::Get(net::URLRequest* request, bool changed_only) const {
 
   if (ShouldSet(kChangedPostData, changed_only)) {
     if (postdata_.get()) {
-      request->set_upload(make_scoped_ptr(
+      request->set_upload(base::WrapUnique(
           static_cast<CefPostDataImpl*>(postdata_.get())->Get()));
     } else if (request->get_upload()) {
       request->set_upload(std::unique_ptr<net::UploadDataStream>());
@@ -1025,7 +1025,7 @@ net::UploadDataStream* CefPostDataImpl::Get() const {
   UploadElementReaders element_readers;
   ElementVector::const_iterator it = elements_.begin();
   for (; it != elements_.end(); ++it) {
-    element_readers.push_back(make_scoped_ptr(
+    element_readers.push_back(base::WrapUnique(
         static_cast<CefPostDataElementImpl*>(it->get())->Get()));
   }
 
@@ -1282,12 +1282,12 @@ net::UploadElementReader* CefPostDataElementImpl::Get() const {
     net::UploadElement* element = new net::UploadElement();
     element->SetToBytes(static_cast<char*>(data_.bytes.bytes),
                         data_.bytes.size);
-    return new BytesElementReader(make_scoped_ptr(element));
+    return new BytesElementReader(base::WrapUnique(element));
   } else if (type_ == PDE_TYPE_FILE) {
     net::UploadElement* element = new net::UploadElement();
     base::FilePath path = base::FilePath(CefString(&data_.filename));
     element->SetToFilePath(path);
-    return new FileElementReader(make_scoped_ptr(element));
+    return new FileElementReader(base::WrapUnique(element));
   } else {
     NOTREACHED();
     return NULL;

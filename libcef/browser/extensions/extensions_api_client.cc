@@ -12,6 +12,7 @@
 #include "libcef/browser/extensions/pdf_web_contents_helper_client.h"
 #include "libcef/browser/printing/print_view_manager.h"
 
+#include "base/memory/ptr_util.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "components/pdf/browser/pdf_web_contents_helper.h"
 #include "extensions/browser/guest_view/extensions_guest_view_manager_delegate.h"
@@ -39,7 +40,7 @@ CefExtensionsAPIClient::CreateGuestViewManagerDelegate(
   // to provide the *Impl object instead of |context| which may be a *Proxy
   // object. If we don't do this then the Delegate may attempt to access a
   // *Proxy object that has already been deleted.
-  return make_scoped_ptr(
+  return base::WrapUnique(
       new extensions::ExtensionsGuestViewManagerDelegate(
           CefBrowserContextImpl::GetForContext(context).get()));
 }
@@ -47,7 +48,7 @@ CefExtensionsAPIClient::CreateGuestViewManagerDelegate(
 std::unique_ptr<MimeHandlerViewGuestDelegate>
 CefExtensionsAPIClient::CreateMimeHandlerViewGuestDelegate(
     MimeHandlerViewGuest* guest) const {
-  return make_scoped_ptr(new CefMimeHandlerViewGuestDelegate(guest));
+  return base::WrapUnique(new CefMimeHandlerViewGuestDelegate(guest));
 }
 
 void CefExtensionsAPIClient::AttachWebContentsHelpers(

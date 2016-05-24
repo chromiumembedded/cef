@@ -556,7 +556,7 @@ void CefBrowserHostImpl::CloseBrowser(bool force_close) {
     if (contents && contents->NeedToFireBeforeUnload()) {
       // Will result in a call to BeforeUnloadFired() and, if the close isn't
       // canceled, CloseContents().
-      contents->DispatchBeforeUnload(false);
+      contents->DispatchBeforeUnload();
     } else {
       CloseContents(contents);
     }

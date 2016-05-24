@@ -1,18 +1,19 @@
 diff --git web_contents_impl.cc web_contents_impl.cc
-index 61d8bf3..0cee4d7 100644
+index 5621f82..3124d00 100644
 --- web_contents_impl.cc
 +++ web_contents_impl.cc
-@@ -1412,32 +1412,40 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1510,39 +1510,47 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+   // frame - let's do the same thing here.
    std::string unique_name = params.main_frame_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
- 
--  WebContentsViewDelegate* delegate =
--      GetContentClient()->browser()->GetWebContentsViewDelegate(this);
++  
 +  if (params.view && params.delegate_view) {
 +    view_.reset(params.view);
 +    render_view_host_delegate_view_ = params.delegate_view;
 +  }
-+
+ 
+-  WebContentsViewDelegate* delegate =
+-      GetContentClient()->browser()->GetWebContentsViewDelegate(this);
 +  if (!view_) {
 +    WebContentsViewDelegate* delegate =
 +        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
@@ -38,31 +39,41 @@ index 61d8bf3..0cee4d7 100644
  #endif
  
 -  if (!view_) {
--    view_.reset(CreateWebContentsView(this, delegate,
--                                      &render_view_host_delegate_view_));
--  }
 +    if (!view_) {
-+      view_.reset(CreateWebContentsView(this, delegate,
-+                                        &render_view_host_delegate_view_));
++      if (browser_plugin_guest_ &&
++          BrowserPluginGuestMode::UseCrossProcessFramesForGuests()) {
++        view_.reset(new WebContentsViewChildFrame(
++            this, delegate, &render_view_host_delegate_view_));
++      } else {
++        view_.reset(CreateWebContentsView(this, delegate,
++                                          &render_view_host_delegate_view_));
++      }
 +    }
++
+     if (browser_plugin_guest_ &&
+-        BrowserPluginGuestMode::UseCrossProcessFramesForGuests()) {
+-      view_.reset(new WebContentsViewChildFrame(
+-          this, delegate, &render_view_host_delegate_view_));
+-    } else {
+-      view_.reset(CreateWebContentsView(this, delegate,
+-                                        &render_view_host_delegate_view_));
++        !BrowserPluginGuestMode::UseCrossProcessFramesForGuests()) {
++      view_.reset(new WebContentsViewGuest(this, browser_plugin_guest_.get(),
++                                           std::move(view_),
++                                           &render_view_host_delegate_view_));
+     }
+   }
  
 -  if (browser_plugin_guest_ &&
 -      !BrowserPluginGuestMode::UseCrossProcessFramesForGuests()) {
 -    view_.reset(new WebContentsViewGuest(this, browser_plugin_guest_.get(),
 -                                         std::move(view_),
 -                                         &render_view_host_delegate_view_));
-+    if (browser_plugin_guest_ &&
-+        !BrowserPluginGuestMode::UseCrossProcessFramesForGuests()) {
-+      view_.reset(new WebContentsViewGuest(this, browser_plugin_guest_.get(),
-+                                           std::move(view_),
-+                                           &render_view_host_delegate_view_));
-+    }
-   }
-+
+-  }
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -1867,11 +1875,14 @@ void WebContentsImpl::CreateNewWindow(
+@@ -1974,11 +1982,14 @@ void WebContentsImpl::CreateNewWindow(
        static_cast<SessionStorageNamespaceImpl*>(session_storage_namespace);
    CHECK(session_storage_namespace_impl->IsFromContext(dom_storage_context));
  
@@ -78,7 +89,7 @@ index 61d8bf3..0cee4d7 100644
      if (route_id != MSG_ROUTING_NONE &&
          !RenderViewHost::FromID(render_process_id, route_id)) {
        // If the embedder didn't create a WebContents for this route, we need to
-@@ -1895,6 +1906,8 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2002,6 +2013,8 @@ void WebContentsImpl::CreateNewWindow(
    create_params.opener_render_process_id = render_process_id;
    create_params.opener_render_frame_id = params.opener_render_frame_id;
    create_params.opener_suppressed = params.opener_suppressed;

@@ -369,7 +369,7 @@ CefEventHandle CefBrowserPlatformDelegateNativeLinux::GetEventHandle(
 
 std::unique_ptr<CefMenuRunner>
     CefBrowserPlatformDelegateNativeLinux::CreateMenuRunner() {
-  return make_scoped_ptr(new CefMenuRunnerLinux);
+  return base::WrapUnique(new CefMenuRunnerLinux);
 }
 
 void CefBrowserPlatformDelegateNativeLinux::TranslateMouseEvent(

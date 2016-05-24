@@ -11,13 +11,13 @@
 #include "chrome/renderer/plugins/power_saver_info.h"
 #include "components/plugins/renderer/loadable_plugin_placeholder.h"
 #include "content/public/renderer/context_menu_client.h"
-#include "content/public/renderer/render_process_observer.h"
+#include "content/public/renderer/render_thread_observer.h"
 
 enum class CefViewHostMsg_GetPluginInfo_Status;
 
 class CefPluginPlaceholder final
     : public plugins::LoadablePluginPlaceholder,
-      public content::RenderProcessObserver,
+      public content::RenderThreadObserver,
       public content::ContextMenuClient,
       public gin::Wrappable<CefPluginPlaceholder> {
  public:
@@ -50,8 +50,11 @@ class CefPluginPlaceholder final
                        const base::string16& title);
   ~CefPluginPlaceholder() override;
 
-  // content::LoadablePluginPlaceholder method
+  // content::LoadablePluginPlaceholder overrides:
   blink::WebPlugin* CreatePlugin() override;
+  void OnLoadedRectUpdate(
+      const gfx::Rect& unobscured_rect,
+      content::RenderFrame::PeripheralContentStatus status) override;
 
   // gin::Wrappable (via PluginPlaceholder) method
   gin::ObjectTemplateBuilder GetObjectTemplateBuilder(
@@ -64,7 +67,7 @@ class CefPluginPlaceholder final
   v8::Local<v8::Value> GetV8Handle(v8::Isolate* isolate) override;
   void ShowContextMenu(const blink::WebMouseEvent&) override;
 
-  // content::RenderProcessObserver methods:
+  // content::RenderThreadObserver methods:
   void PluginListChanged() override;
 
   // content::ContextMenuClient methods:
@@ -82,6 +85,8 @@ class CefPluginPlaceholder final
   bool has_host_;
   int context_menu_request_id_;  // Nonzero when request pending.
   base::string16 plugin_name_;
+
+  bool ignore_updates_;
 
   DISALLOW_COPY_AND_ASSIGN(CefPluginPlaceholder);
 };

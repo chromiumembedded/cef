@@ -72,12 +72,6 @@ variations::VariationsService*
   return NULL;
 }
 
-web_resource::PromoResourceService*
-ChromeBrowserProcessStub::promo_resource_service() {
-  NOTIMPLEMENTED();
-  return NULL;
-}
-
 BrowserProcessPlatformPart* ChromeBrowserProcessStub::platform_part() {
   NOTIMPLEMENTED();
   return NULL;
@@ -90,6 +84,12 @@ extensions::EventRouterForwarder*
 }
 
 NotificationUIManager* ChromeBrowserProcessStub::notification_ui_manager() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
+NotificationPlatformBridge*
+  ChromeBrowserProcessStub::notification_platform_bridge() {
   NOTIMPLEMENTED();
   return NULL;
 }

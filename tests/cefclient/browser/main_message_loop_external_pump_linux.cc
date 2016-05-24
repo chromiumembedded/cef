@@ -98,7 +98,7 @@ class MainMessageLoopExternalPumpLinux : public MainMessageLoopExternalPump {
   int wakeup_pipe_write_;
 
   // Use a scoped_ptr to avoid needing the definition of GPollFD in the header.
-  scoped_ptr<GPollFD> wakeup_gpollfd_;
+  SCOPED_PTR(GPollFD) wakeup_gpollfd_;
 };
 
 // Return a timeout suitable for the glib loop, -1 to block forever,
@@ -295,9 +295,9 @@ bool MainMessageLoopExternalPumpLinux::IsTimerPending() {
 } // namespace
 
 // static
-scoped_ptr<MainMessageLoopExternalPump>
+SCOPED_PTR(MainMessageLoopExternalPump)
 MainMessageLoopExternalPump::Create() {
-  return make_scoped_ptr<MainMessageLoopExternalPump>(
+  return SCOPED_PTR(MainMessageLoopExternalPump)(
       new MainMessageLoopExternalPumpLinux());
 }
 

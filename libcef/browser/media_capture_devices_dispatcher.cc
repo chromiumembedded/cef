@@ -115,6 +115,14 @@ void CefMediaCaptureDevicesDispatcher::OnCreatingAudioStream(
     int render_view_id) {
 }
 
+void CefMediaCaptureDevicesDispatcher::OnSetCapturingLinkSecured(
+    int render_process_id,
+    int render_frame_id,
+    int page_request_id,
+    content::MediaStreamType stream_type,
+    bool is_secure) {
+}
+
 const MediaStreamDevices&
 CefMediaCaptureDevicesDispatcher::GetAudioCaptureDevices() {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));

@@ -14,7 +14,7 @@ index 69190cf..05d2250 100644
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
  
 diff --git web_contents.h web_contents.h
-index 7c46c73..1315ac11 100644
+index 6aa00e6..41223fa 100644
 --- web_contents.h
 +++ web_contents.h
 @@ -55,8 +55,10 @@ class PageState;
@@ -28,7 +28,7 @@ index 7c46c73..1315ac11 100644
  struct CustomContextMenuContext;
  struct DropData;
  struct Manifest;
-@@ -147,6 +149,10 @@ class WebContents : public PageNavigator,
+@@ -149,6 +151,10 @@ class WebContents : public PageNavigator,
      // RenderFrame, have already been created on the renderer side, and
      // WebContents construction should take this into account.
      bool renderer_initiated_creation;
@@ -40,7 +40,7 @@ index 7c46c73..1315ac11 100644
  
    // Creates a new WebContents.
 diff --git web_contents_delegate.cc web_contents_delegate.cc
-index fede931..09e6323 100644
+index df97348..8e2168e 100644
 --- web_contents_delegate.cc
 +++ web_contents_delegate.cc
 @@ -144,7 +144,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
@@ -55,7 +55,7 @@ index fede931..09e6323 100644
  }
  
 diff --git web_contents_delegate.h web_contents_delegate.h
-index 074333a..3a8c277 100644
+index 74b56e1..b4dcb2a 100644
 --- web_contents_delegate.h
 +++ web_contents_delegate.h
 @@ -42,9 +42,11 @@ class JavaScriptDialogManager;
@@ -70,7 +70,7 @@ index 074333a..3a8c277 100644
  struct ColorSuggestion;
  struct ContextMenuParams;
  struct DropData;
-@@ -311,7 +313,9 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -307,7 +309,9 @@ class CONTENT_EXPORT WebContentsDelegate {
        const std::string& frame_name,
        const GURL& target_url,
        const std::string& partition_id,

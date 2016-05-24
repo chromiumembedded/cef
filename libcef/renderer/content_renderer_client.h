@@ -34,11 +34,11 @@ class VisitedLinkSlave;
 }
 
 namespace web_cache {
-class WebCacheRenderProcessObserver;
+class WebCacheImpl;
 }
 
 class CefGuestView;
-class CefRenderProcessObserver;
+class CefRenderThreadObserver;
 struct Cef_CrossOriginWhiteListEntry_Params;
 struct CefViewHostMsg_GetPluginInfo_Output;
 class ChromePDFPrintClient;
@@ -126,7 +126,9 @@ class CefContentRendererClient : public content::ContentRendererClient,
       content::RenderFrame* render_frame,
       const std::string& mime_type,
       const GURL& original_url) override;
-  void AddKeySystems(std::vector<media::KeySystemInfo>* key_systems) override;
+  void AddSupportedKeySystems(
+      std::vector<std::unique_ptr<::media::KeySystemProperties>>* key_systems)
+      override;
   void RunScriptsAtDocumentStart(content::RenderFrame* render_frame) override;
   void RunScriptsAtDocumentEnd(content::RenderFrame* render_frame) override;
 
@@ -150,8 +152,8 @@ class CefContentRendererClient : public content::ContentRendererClient,
   void RunSingleProcessCleanupOnUIThread();
 
   scoped_refptr<base::SequencedTaskRunner> render_task_runner_;
-  std::unique_ptr<CefRenderProcessObserver> observer_;
-  std::unique_ptr<web_cache::WebCacheRenderProcessObserver> web_cache_observer_;
+  std::unique_ptr<CefRenderThreadObserver> observer_;
+  std::unique_ptr<web_cache::WebCacheImpl> web_cache_impl_;
   std::unique_ptr<SpellCheck> spellcheck_;
   std::unique_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
 

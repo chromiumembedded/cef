@@ -12,6 +12,7 @@
 #include "include/base/cef_logging.h"
 
 namespace base {
+namespace cef_internal {
 
 Lock::Lock() : lock_() {
 }
@@ -39,6 +40,7 @@ void Lock::CheckUnheldAndMark() {
   owning_thread_ref_ = PlatformThread::CurrentRef();
 }
 
+}  // namespace cef_internal
 }  // namespace base
 
 #endif  // NDEBUG

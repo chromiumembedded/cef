@@ -6,12 +6,12 @@
 
 #include "libcef/browser/views/view_util.h"
 
-#include "ui/gfx/screen.h"
+#include "ui/display/screen.h"
 
 // static
 CefRefPtr<CefDisplay> CefDisplay::GetPrimaryDisplay() {
   CEF_REQUIRE_UIT_RETURN(nullptr);
-  return new CefDisplayImpl(gfx::Screen::GetScreen()->GetPrimaryDisplay());
+  return new CefDisplayImpl(display::Screen::GetScreen()->GetPrimaryDisplay());
 }
 
 // static
@@ -36,7 +36,7 @@ CefRefPtr<CefDisplay> CefDisplay::GetDisplayMatchingBounds(
 // static
 size_t CefDisplay::GetDisplayCount() {
   CEF_REQUIRE_UIT_RETURN(0U);
-  return static_cast<size_t>(gfx::Screen::GetScreen()->GetNumDisplays());
+  return static_cast<size_t>(display::Screen::GetScreen()->GetNumDisplays());
 }
 
 // static
@@ -45,13 +45,13 @@ void CefDisplay::GetAllDisplays(std::vector<CefRefPtr<CefDisplay> >& displays) {
 
   displays.clear();
 
-  typedef std::vector<gfx::Display> DisplayVector;
-  DisplayVector vec = gfx::Screen::GetScreen()->GetAllDisplays();
+  typedef std::vector<display::Display> DisplayVector;
+  DisplayVector vec = display::Screen::GetScreen()->GetAllDisplays();
   for (size_t i = 0; i < vec.size(); ++i)
     displays.push_back(new CefDisplayImpl(vec[i]));
 }
 
-CefDisplayImpl::CefDisplayImpl(const gfx::Display& display)
+CefDisplayImpl::CefDisplayImpl(const display::Display& display)
     : display_(display) {
   CEF_REQUIRE_UIT();
 }

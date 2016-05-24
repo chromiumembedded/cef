@@ -6,6 +6,7 @@
 
 #include <utility>
 
+#include "base/memory/ptr_util.h"
 #include "build/build_config.h"
 
 #if defined(OS_WIN)
@@ -30,11 +31,11 @@ namespace {
 std::unique_ptr<CefBrowserPlatformDelegateNative> CreateNativeDelegate(
     const CefWindowInfo& window_info) {
 #if defined(OS_WIN)
-  return make_scoped_ptr(new CefBrowserPlatformDelegateNativeWin(window_info));
+  return base::WrapUnique(new CefBrowserPlatformDelegateNativeWin(window_info));
 #elif defined(OS_MACOSX)
-  return make_scoped_ptr(new CefBrowserPlatformDelegateNativeMac(window_info));
+  return base::WrapUnique(new CefBrowserPlatformDelegateNativeMac(window_info));
 #elif defined(OS_LINUX)
-  return make_scoped_ptr(
+  return base::WrapUnique(
       new CefBrowserPlatformDelegateNativeLinux(window_info));
 #endif
 }
@@ -42,14 +43,14 @@ std::unique_ptr<CefBrowserPlatformDelegateNative> CreateNativeDelegate(
 std::unique_ptr<CefBrowserPlatformDelegateOsr> CreateOSRDelegate(
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate) {
 #if defined(OS_WIN)
-  return make_scoped_ptr(
-        new CefBrowserPlatformDelegateOsrWin(std::move(native_delegate)));
+  return base::WrapUnique(
+      new CefBrowserPlatformDelegateOsrWin(std::move(native_delegate)));
 #elif defined(OS_MACOSX)
-  return make_scoped_ptr(
-        new CefBrowserPlatformDelegateOsrMac(std::move(native_delegate)));
+  return base::WrapUnique(
+      new CefBrowserPlatformDelegateOsrMac(std::move(native_delegate)));
 #elif defined(OS_LINUX)
-  return make_scoped_ptr(
-        new CefBrowserPlatformDelegateOsrLinux(std::move(native_delegate)));
+  return base::WrapUnique(
+      new CefBrowserPlatformDelegateOsrLinux(std::move(native_delegate)));
 #endif
 }
 
@@ -73,7 +74,7 @@ std::unique_ptr<CefBrowserPlatformDelegate> CefBrowserPlatformDelegate::Create(
     // CefWindowInfo is not used in this case.
     std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate =
         CreateNativeDelegate(CefWindowInfo());
-    return make_scoped_ptr(new CefBrowserPlatformDelegateViews(
+    return base::WrapUnique(new CefBrowserPlatformDelegateViews(
         std::move(native_delegate),
         static_cast<CefBrowserViewImpl*>(create_params.browser_view.get())));
   }

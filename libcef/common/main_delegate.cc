@@ -35,6 +35,7 @@
 #include "extensions/common/constants.h"
 #include "pdf/pdf.h"
 #include "ui/base/layout.h"
+#include "ui/base/material_design/material_design_controller.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
 #include "ui/base/ui_base_switches.h"
@@ -708,6 +709,9 @@ void CefMainDelegate::InitializeResourceBundle() {
 
   std::string locale = command_line->GetSwitchValueASCII(switches::kLang);
   DCHECK(!locale.empty());
+
+  // Avoid DCHECK() in ResourceBundle::LoadChromeResources().
+  ui::MaterialDesignController::Initialize();
 
   const std::string loaded_locale =
       ui::ResourceBundle::InitSharedInstanceWithLocale(

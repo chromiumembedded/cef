@@ -154,7 +154,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
 
     storage_->set_network_delegate(base::WrapUnique(new CefNetworkDelegate));
 
-    storage_->set_channel_id_service(make_scoped_ptr(
+    storage_->set_channel_id_service(base::WrapUnique(
         new net::ChannelIDService(
             new net::DefaultChannelIDStore(NULL),
             base::WorkerPool::GetTaskRunner(true))));
@@ -168,7 +168,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     storage_->set_host_resolver(net::HostResolver::CreateDefaultResolver(NULL));
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
     storage_->set_transport_security_state(
-        make_scoped_ptr(new net::TransportSecurityState));
+        base::WrapUnique(new net::TransportSecurityState));
 
     std::unique_ptr<net::ProxyService> system_proxy_service =
         ProxyServiceFactory::CreateProxyService(
@@ -232,8 +232,8 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
         settings_.ignore_certificate_errors ? true : false;
 
     storage_->set_http_network_session(
-        make_scoped_ptr(new net::HttpNetworkSession(network_session_params)));
-    storage_->set_http_transaction_factory(make_scoped_ptr(
+        base::WrapUnique(new net::HttpNetworkSession(network_session_params)));
+    storage_->set_http_transaction_factory(base::WrapUnique(
         new net::HttpCache(storage_->http_network_session(),
                            std::move(main_backend),
                            true /* set_up_quic_server_info */)));
@@ -267,7 +267,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
          i != request_interceptors_.rend();
          ++i) {
       top_job_factory.reset(new net::URLRequestInterceptingJobFactory(
-          std::move(top_job_factory), make_scoped_ptr(*i)));
+          std::move(top_job_factory), base::WrapUnique(*i)));
     }
     request_interceptors_.weak_clear();
 

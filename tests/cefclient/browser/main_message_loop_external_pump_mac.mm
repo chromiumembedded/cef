@@ -162,9 +162,9 @@ void MainMessageLoopExternalPumpMac::KillTimer() {
 }
 
 // static
-scoped_ptr<MainMessageLoopExternalPump>
+SCOPED_PTR(MainMessageLoopExternalPump)
 MainMessageLoopExternalPump::Create() {
-  return make_scoped_ptr<MainMessageLoopExternalPump>(
+  return SCOPED_PTR(MainMessageLoopExternalPump)(
       new MainMessageLoopExternalPumpMac());
 }
 

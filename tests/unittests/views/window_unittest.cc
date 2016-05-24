@@ -22,6 +22,17 @@ const int kStateDelayMS = 200;
 
 const int kWSize = TestWindowDelegate::kWSize;
 
+// Test that |expected| and |actual| are within |allowed_deviance| of each
+// other.
+void ExpectCloseRects(const CefRect& expected,
+                      const CefRect& actual,
+                      int allowed_deviance) {
+  EXPECT_LE(abs(expected.x - actual.x), allowed_deviance);
+  EXPECT_LE(abs(expected.y - actual.y), allowed_deviance);
+  EXPECT_LE(abs(expected.width - actual.width), allowed_deviance);
+  EXPECT_LE(abs(expected.height - actual.height), allowed_deviance);
+}
+
 void WindowCreateImpl(base::WaitableEvent* event) {
   TestWindowDelegate::RunTest(event, TestWindowDelegate::WindowTest(), false);
 }
@@ -87,10 +98,10 @@ void CreateBoxLayout(CefRefPtr<CefWindow> parent) {
   parent->Layout();
 
   // The children should each take up 50% of the client area.
-  EXPECT_EQ(CefRect(0, 0, kWSize, kWSize / 2),
-            panel_child1->GetBounds());
-  EXPECT_EQ(CefRect(0, kWSize / 2, kWSize, kWSize / 2),
-            panel_child2->GetBounds());
+  ExpectCloseRects(CefRect(0, 0, kWSize, kWSize / 2),
+                   panel_child1->GetBounds(), 1);
+  ExpectCloseRects(CefRect(0, kWSize / 2, kWSize, kWSize / 2),
+                   panel_child2->GetBounds(), 1);
 }
 
 void RunWindowLayoutAndCoords(CefRefPtr<CefWindow> window) {

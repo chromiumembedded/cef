@@ -5,7 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_PREFS_BROWSER_PREFS_H_
 #define CEF_LIBCEF_BROWSER_PREFS_BROWSER_PREFS_H_
 
-#include "base/memory/scoped_ptr.h"
+#include <memory>
 
 class PrefService;
 

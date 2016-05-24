@@ -32,7 +32,7 @@
 #include "libcef/renderer/plugins/plugin_preroller.h"
 #include "libcef/renderer/render_frame_observer.h"
 #include "libcef/renderer/render_message_filter.h"
-#include "libcef/renderer/render_process_observer.h"
+#include "libcef/renderer/render_thread_observer.h"
 #include "libcef/renderer/thread_util.h"
 #include "libcef/renderer/v8_impl.h"
 #include "libcef/renderer/webkit_glue.h"
@@ -60,7 +60,7 @@
 #include "components/nacl/common/nacl_constants.h"
 #include "components/printing/renderer/print_web_view_helper.h"
 #include "components/visitedlink/renderer/visitedlink_slave.h"
-#include "components/web_cache/renderer/web_cache_render_process_observer.h"
+#include "components/web_cache/renderer/web_cache_impl.h"
 #include "content/common/frame_messages.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_process_host.h"
@@ -389,8 +389,8 @@ void CefContentRendererClient::RenderThreadStarted() {
       base::CommandLine::ForCurrentProcess();
 
   render_task_runner_ = base::ThreadTaskRunnerHandle::Get();
-  observer_.reset(new CefRenderProcessObserver());
-  web_cache_observer_.reset(new web_cache::WebCacheRenderProcessObserver());
+  observer_.reset(new CefRenderThreadObserver());
+  web_cache_impl_.reset(new web_cache::WebCacheImpl());
 
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(observer_.get());
@@ -420,7 +420,7 @@ void CefContentRendererClient::RenderThreadStarted() {
   cross_origin_whitelist_entries_ = params.cross_origin_whitelist_entries;
 
 #if defined(OS_MACOSX)
-  if (base::mac::IsOSLionOrLater()) {
+  {
     base::ScopedCFTypeRef<CFStringRef> key(
         base::SysUTF8ToCFStringRef("NSScrollViewRubberbanding"));
     base::ScopedCFTypeRef<CFStringRef> value;
@@ -629,8 +629,8 @@ CefContentRendererClient::CreateBrowserPluginDelegate(
        render_frame, mime_type, original_url);
 }
 
-void CefContentRendererClient::AddKeySystems(
-    std::vector<media::KeySystemInfo>* key_systems) {
+void CefContentRendererClient::AddSupportedKeySystems(
+    std::vector<std::unique_ptr<::media::KeySystemProperties>>* key_systems) {
   AddCefKeySystems(key_systems);
 }
 

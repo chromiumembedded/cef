@@ -23,7 +23,7 @@ class MainMessageLoopExternalPump : public MainMessageLoopStd {
  public:
   // Creates the singleton instance of this object. Must be called on the main
   // application thread.
-  static scoped_ptr<MainMessageLoopExternalPump> Create();
+  static SCOPED_PTR(MainMessageLoopExternalPump) Create();
 
   // Returns the singleton instance of this object. Safe to call from any
   // thread.

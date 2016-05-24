@@ -6,7 +6,7 @@
 
 #include "libcef/common/cef_messages.h"
 #include "libcef/renderer/extensions/extensions_dispatcher_delegate.h"
-#include "libcef/renderer/render_process_observer.h"
+#include "libcef/renderer/render_thread_observer.h"
 
 #include "base/command_line.h"
 #include "chrome/common/extensions/extension_process_policy.h"
@@ -117,7 +117,7 @@ CefExtensionsRendererClient::~CefExtensionsRendererClient() {
 }
 
 bool CefExtensionsRendererClient::IsIncognitoProcess() const {
-  return CefRenderProcessObserver::is_incognito_process();
+  return CefRenderThreadObserver::is_incognito_process();
 }
 
 int CefExtensionsRendererClient::GetLowestIsolatedWorldId() const {

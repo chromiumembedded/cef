@@ -339,7 +339,7 @@ std::unique_ptr<content::ZoomLevelDelegate>
   if (cache_path_.empty())
     return std::unique_ptr<content::ZoomLevelDelegate>();
 
-  return make_scoped_ptr(new ChromeZoomLevelPrefs(
+  return base::WrapUnique(new ChromeZoomLevelPrefs(
       GetPrefs(), cache_path_, partition_path,
       ui_zoom::ZoomEventManager::GetForBrowserContext(this)->GetWeakPtr()));
 }
@@ -355,29 +355,6 @@ content::DownloadManagerDelegate*
   content::DownloadManager* manager = BrowserContext::GetDownloadManager(this);
   download_manager_delegate_.reset(new CefDownloadManagerDelegate(manager));
   return download_manager_delegate_.get();
-}
-
-net::URLRequestContextGetter* CefBrowserContextImpl::GetRequestContext() {
-  CEF_REQUIRE_UIT();
-  return GetDefaultStoragePartition(this)->GetURLRequestContext();
-}
-
-net::URLRequestContextGetter*
-    CefBrowserContextImpl::GetMediaRequestContext() {
-  return GetRequestContext();
-}
-
-net::URLRequestContextGetter*
-    CefBrowserContextImpl::GetMediaRequestContextForRenderProcess(
-        int renderer_child_id)  {
-  return GetRequestContext();
-}
-
-net::URLRequestContextGetter*
-    CefBrowserContextImpl::GetMediaRequestContextForStoragePartition(
-        const base::FilePath& partition_path,
-        bool in_memory) {
-  return GetRequestContext();
 }
 
 content::BrowserPluginGuestManager* CefBrowserContextImpl::GetGuestManager() {

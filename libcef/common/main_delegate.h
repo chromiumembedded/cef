@@ -12,7 +12,6 @@
 #include "include/cef_app.h"
 
 #include "base/compiler_specific.h"
-#include "base/memory/scoped_ptr.h"
 #include "content/public/app/content_main_delegate.h"
 
 namespace base {

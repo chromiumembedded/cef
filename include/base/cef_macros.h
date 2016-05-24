@@ -40,6 +40,7 @@
 #define MOVE_SCOPED_PTR(var) std::move(var)
 
 // Chromium uses std types.
+#define SCOPED_PTR(type) std::unique_ptr<type>
 #define DEFAULT_DELETER(type) std::default_delete<type>
 
 #else  // !USING_CHROMIUM_INCLUDES
@@ -54,6 +55,7 @@
 #define MOVE_SCOPED_PTR(var) var.Pass()
 
 // CEF uses base types.
+#define SCOPED_PTR(type) scoped_ptr<type>
 #define DEFAULT_DELETER(type) struct base::DefaultDeleter<type>
 
 #if !defined(arraysize)

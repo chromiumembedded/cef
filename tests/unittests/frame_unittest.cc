@@ -3,7 +3,6 @@
 // can be found in the LICENSE file.
 
 #include "include/base/cef_bind.h"
-#include "include/base/cef_scoped_ptr.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "tests/cefclient/browser/client_app_browser.h"

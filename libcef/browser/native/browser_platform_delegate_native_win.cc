@@ -22,7 +22,8 @@
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "ui/aura/window.h"
 #include "ui/base/win/shell.h"
-#include "ui/gfx/screen.h"
+#include "ui/display/display.h"
+#include "ui/display/screen.h"
 #include "ui/gfx/win/hwnd_util.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_win.h"
 #include "ui/views/widget/widget.h"
@@ -166,7 +167,7 @@ bool CefBrowserPlatformDelegateNativeWin::CreateHostWindow() {
 
   // Adjust for potential display scaling.
   gfx::Point point = gfx::Point(cr.right, cr.bottom);
-  float scale = gfx::Screen::GetScreen()->
+  float scale = display::Screen::GetScreen()->
       GetDisplayNearestPoint(point).device_scale_factor();
   point = gfx::ToFlooredPoint(
       gfx::ScalePoint(gfx::PointF(point), 1.0f / scale));
@@ -296,7 +297,7 @@ gfx::Point CefBrowserPlatformDelegateNativeWin::GetScreenPoint(
                                               bounds_in_screen.y() + view.y());
 
   // Adjust for potential display scaling.
-  float scale = gfx::Screen::GetScreen()->
+  float scale = display::Screen::GetScreen()->
       GetDisplayNearestPoint(screen_point).device_scale_factor();
   return gfx::ToFlooredPoint(
       gfx::ScalePoint(gfx::PointF(screen_point), scale));
@@ -499,17 +500,17 @@ CefEventHandle CefBrowserPlatformDelegateNativeWin::GetEventHandle(
 
 std::unique_ptr<CefFileDialogRunner>
     CefBrowserPlatformDelegateNativeWin::CreateFileDialogRunner() {
-  return make_scoped_ptr(new CefFileDialogRunnerWin);
+  return base::WrapUnique(new CefFileDialogRunnerWin);
 }
 
 std::unique_ptr<CefJavaScriptDialogRunner>
     CefBrowserPlatformDelegateNativeWin::CreateJavaScriptDialogRunner() {
-  return make_scoped_ptr(new CefJavaScriptDialogRunnerWin);
+  return base::WrapUnique(new CefJavaScriptDialogRunnerWin);
 }
 
 std::unique_ptr<CefMenuRunner>
     CefBrowserPlatformDelegateNativeWin::CreateMenuRunner() {
-  return make_scoped_ptr(new CefMenuRunnerWin);
+  return base::WrapUnique(new CefMenuRunnerWin);
 }
 
 void CefBrowserPlatformDelegateNativeWin::TranslateMouseEvent(

@@ -39,7 +39,7 @@
 
 #if defined(USE_AURA)
 #include "ui/aura/env.h"
-#include "ui/gfx/screen.h"
+#include "ui/display/screen.h"
 #include "ui/views/test/desktop_test_views_delegate.h"
 #include "ui/views/widget/desktop_aura/desktop_screen.h"
 
@@ -120,7 +120,7 @@ int CefBrowserMainParts::PreCreateThreads() {
   content::GpuDataManager::GetInstance();
 
 #if defined(USE_AURA)
-  gfx::Screen::SetScreenInstance(views::CreateDesktopScreen());
+  display::Screen::SetScreenInstance(views::CreateDesktopScreen());
 #endif
 
   return 0;
@@ -187,8 +187,6 @@ void CefBrowserMainParts::PostMainMessageLoopRun() {
 
 void CefBrowserMainParts::PostDestroyThreads() {
 #if defined(USE_AURA)
-  aura::Env::DeleteInstance();
-
   // Delete the DesktopTestViewsDelegate.
   delete views::ViewsDelegate::GetInstance();
 #endif

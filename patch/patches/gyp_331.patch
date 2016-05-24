@@ -1,5 +1,5 @@
 diff --git gyp/generator/ninja.py gyp/generator/ninja.py
-index edac48d..3bcc3b9 100644
+index 9cfc706..932dc86 100644
 --- gyp/generator/ninja.py
 +++ gyp/generator/ninja.py
 @@ -760,7 +760,16 @@ class NinjaWriter(object):

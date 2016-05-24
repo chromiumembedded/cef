@@ -13,6 +13,7 @@
 #include "libcef/common/extensions/extensions_util.h"
 
 #include "base/command_line.h"
+#include "base/memory/ptr_util.h"
 #include "base/values.h"
 #include "chrome/browser/accessibility/animation_policy_prefs.h"
 #include "chrome/browser/character_encoding.h"
@@ -280,7 +281,7 @@ void SetString(CommandLinePrefStore* prefs,
                const std::string& value) {
   prefs->SetValue(
       key,
-      make_scoped_ptr(new base::StringValue(value)),
+      base::WrapUnique(new base::StringValue(value)),
       WriteablePrefStore::DEFAULT_PREF_WRITE_FLAGS);
 }
 
@@ -288,7 +289,7 @@ void SetBool(CommandLinePrefStore* prefs,
              const std::string& key,
              bool value) {
   prefs->SetValue(key,
-      make_scoped_ptr(new base::FundamentalValue(value)),
+      base::WrapUnique(new base::FundamentalValue(value)),
       WriteablePrefStore::DEFAULT_PREF_WRITE_FLAGS);
 }
 

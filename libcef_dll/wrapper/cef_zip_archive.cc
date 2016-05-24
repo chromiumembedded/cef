@@ -57,7 +57,7 @@ class CefZipFile : public CefZipArchive::File {
 
  private:
   size_t data_size_;
-  scoped_ptr<unsigned char[]> data_;
+  SCOPED_PTR(unsigned char[]) data_;
 
   IMPLEMENT_REFCOUNTING(CefZipFile);
   DISALLOW_COPY_AND_ASSIGN(CefZipFile);

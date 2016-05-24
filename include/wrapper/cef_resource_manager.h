@@ -159,18 +159,18 @@ class CefResourceManager :
 
     // The below methods are called on the browser process IO thread.
 
-    explicit Request(scoped_ptr<RequestState> state);
+    explicit Request(SCOPED_PTR(RequestState) state);
 
-    scoped_ptr<RequestState> SendRequest();
+    SCOPED_PTR(RequestState) SendRequest();
     bool HasState();
 
-    static void ContinueOnIOThread(scoped_ptr<RequestState> state,
+    static void ContinueOnIOThread(SCOPED_PTR(RequestState) state,
                                    CefRefPtr<CefResourceHandler> handler);
-    static void StopOnIOThread(scoped_ptr<RequestState> state);
+    static void StopOnIOThread(SCOPED_PTR(RequestState) state);
 
     // Will be non-NULL while the request is pending. Only accessed on the
     // browser process IO thread.
-    scoped_ptr<RequestState> state_;
+    SCOPED_PTR(RequestState) state_;
 
     // Params that stay with this request object. Safe to access on any thread.
     RequestParams params_;
@@ -343,10 +343,10 @@ class CefResourceManager :
 
   // Methods that manage request state between requests. Called on the browser
   // process IO thread.
-  bool SendRequest(scoped_ptr<RequestState> state);
-  void ContinueRequest(scoped_ptr<RequestState> state,
+  bool SendRequest(SCOPED_PTR(RequestState) state);
+  void ContinueRequest(SCOPED_PTR(RequestState) state,
                        CefRefPtr<CefResourceHandler> handler);
-  void StopRequest(scoped_ptr<RequestState> state);
+  void StopRequest(SCOPED_PTR(RequestState) state);
   bool IncrementProvider(RequestState* state);
   void DetachRequestFromProvider(RequestState* state);
   void GetNextValidProvider(ProviderEntryList::iterator& iterator);
@@ -365,7 +365,7 @@ class CefResourceManager :
   MimeTypeResolver mime_type_resolver_;
 
   // Must be the last member. Created and accessed on the IO thread.
-  scoped_ptr<base::WeakPtrFactory<CefResourceManager> > weak_ptr_factory_;
+  SCOPED_PTR(base::WeakPtrFactory<CefResourceManager>) weak_ptr_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(CefResourceManager);
 };

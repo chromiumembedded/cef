@@ -102,6 +102,22 @@ content::ResourceContext* CefBrowserContext::GetResourceContext() {
   return resource_context_.get();
 }
 
+net::URLRequestContextGetter* CefBrowserContext::GetRequestContext() {
+  CEF_REQUIRE_UIT();
+  return GetDefaultStoragePartition(this)->GetURLRequestContext();
+}
+
+net::URLRequestContextGetter* CefBrowserContext::CreateMediaRequestContext() {
+  return GetRequestContext();
+}
+
+net::URLRequestContextGetter*
+    CefBrowserContext::CreateMediaRequestContextForStoragePartition(
+    const base::FilePath& partition_path,
+    bool in_memory) {
+  return nullptr;
+}
+
 ChromeZoomLevelPrefs* CefBrowserContext::GetZoomLevelPrefs() {
   return static_cast<ChromeZoomLevelPrefs*>(
       GetStoragePartition(this, NULL)->GetZoomLevelDelegate());

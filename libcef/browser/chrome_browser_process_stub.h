@@ -40,11 +40,11 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   PrefService* local_state() override;
   net::URLRequestContextGetter* system_request_context() override;
   variations::VariationsService* variations_service() override;
-  web_resource::PromoResourceService* promo_resource_service() override;
   BrowserProcessPlatformPart* platform_part() override;
   extensions::EventRouterForwarder*
       extension_event_router_forwarder() override;
   NotificationUIManager* notification_ui_manager() override;
+  NotificationPlatformBridge* notification_platform_bridge() override;
   message_center::MessageCenter* message_center() override;
   policy::BrowserPolicyConnector* browser_policy_connector() override;
   policy::PolicyService* policy_service() override;

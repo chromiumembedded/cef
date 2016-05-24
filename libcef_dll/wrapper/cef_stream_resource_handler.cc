@@ -69,7 +69,7 @@ class CefStreamResourceHandler::Buffer {
   }
 
  private:
-  scoped_ptr<char[]> buffer_;
+  SCOPED_PTR(char[]) buffer_;
   int size_;
   int bytes_requested_;
   int bytes_written_;

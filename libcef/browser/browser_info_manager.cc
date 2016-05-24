@@ -488,7 +488,7 @@ std::unique_ptr<CefBrowserInfoManager::PendingPopup>
         popup->opener_view_id == opener_view_id &&
         popup->target_url == target_url) {
       pending_popup_list_.weak_erase(it);
-      return make_scoped_ptr(popup);
+      return base::WrapUnique(popup);
     }
   }
 

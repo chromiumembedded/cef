@@ -1,8 +1,8 @@
 diff --git browser/guest_view/extension_options/extension_options_guest.cc browser/guest_view/extension_options/extension_options_guest.cc
-index 57eb9c2..275632a 100644
+index eb8eb4d..836ce55 100644
 --- browser/guest_view/extension_options/extension_options_guest.cc
 +++ browser/guest_view/extension_options/extension_options_guest.cc
-@@ -202,7 +202,9 @@ bool ExtensionOptionsGuest::ShouldCreateWebContents(
+@@ -203,7 +203,9 @@ bool ExtensionOptionsGuest::ShouldCreateWebContents(
      const std::string& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
@@ -14,7 +14,7 @@ index 57eb9c2..275632a 100644
    // view is used for displaying embedded extension options, we want any
    // external links to be opened in a new tab, not in a new guest view.
 diff --git browser/guest_view/extension_options/extension_options_guest.h browser/guest_view/extension_options/extension_options_guest.h
-index b81fe41..41e3e2a 100644
+index e0309f7..f6a3878 100644
 --- browser/guest_view/extension_options/extension_options_guest.h
 +++ browser/guest_view/extension_options/extension_options_guest.h
 @@ -56,7 +56,9 @@ class ExtensionOptionsGuest

@@ -363,11 +363,13 @@ component_updater::ComponentUpdateService*
 CefContext::component_updater() {
   if (!component_updater_.get()) {
     CEF_REQUIRE_UIT_RETURN(NULL);
+    scoped_refptr<CefBrowserContextImpl> browser_context =
+        CefContentBrowserClient::Get()->browser_context();
     scoped_refptr<update_client::Configurator> configurator =
         component_updater::MakeCefComponentUpdaterConfigurator(
             base::CommandLine::ForCurrentProcess(),
-            CefContentBrowserClient::Get()->browser_context()->
-                request_context().get());
+            browser_context->request_context().get(),
+            browser_context->GetPrefs());
     // Creating the component updater does not do anything, components
     // need to be registered and Start() needs to be called.
     component_updater_.reset(component_updater::ComponentUpdateServiceFactory(

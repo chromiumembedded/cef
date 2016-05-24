@@ -198,12 +198,6 @@ void CefSpeechRecognitionManagerDelegate::OnAudioLevelsChange(
 void CefSpeechRecognitionManagerDelegate::OnRecognitionEnd(int session_id) {
 }
 
-void CefSpeechRecognitionManagerDelegate::GetDiagnosticInformation(
-    bool* can_report_metrics,
-    std::string* hardware_info) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
-}
-
 void CefSpeechRecognitionManagerDelegate::CheckRecognitionIsAllowed(
     int session_id,
     base::Callback<void(bool ask_user, bool is_allowed)> callback) {

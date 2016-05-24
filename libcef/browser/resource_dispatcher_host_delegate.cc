@@ -33,13 +33,14 @@
 
 namespace {
 
-void SendExecuteMimeTypeHandlerEvent(std::unique_ptr<content::StreamInfo> stream,
-                                     int64_t expected_content_size,
-                                     int render_process_id,
-                                     int render_frame_id,
-                                     const std::string& extension_id,
-                                     const std::string& view_id,
-                                     bool embedded) {
+void SendExecuteMimeTypeHandlerEvent(
+    std::unique_ptr<content::StreamInfo> stream,
+    int64_t expected_content_size,
+    int render_process_id,
+    int render_frame_id,
+    const std::string& extension_id,
+    const std::string& view_id,
+    bool embedded) {
   CEF_REQUIRE_UIT();
 
   CefRefPtr<CefBrowserHostImpl> browser =

@@ -11,8 +11,11 @@
 
 #include "ui/views/view.h"
 
-namespace gfx {
+namespace display {
 class Display;
+}
+
+namespace gfx {
 class Point;
 }
 
@@ -70,14 +73,14 @@ CefRefPtr<CefWindow> GetWindowFor(views::Widget* widget);
 
 // Returns the Display nearest |point|. Set |input_pixel_coords| to true if
 // |point| is in pixel coordinates instead of density independent pixels (DIP).
-gfx::Display GetDisplayNearestPoint(const gfx::Point& point,
-                                    bool input_pixel_coords);
+display::Display GetDisplayNearestPoint(const gfx::Point& point,
+                                        bool input_pixel_coords);
 
 // Returns the Display that most closely intersects |bounds|.  Set
 // |input_pixel_coords| to true if |bounds| is in pixel coordinates instead of
 // density independent pixels (DIP).
-gfx::Display GetDisplayMatchingBounds(const gfx::Rect& bounds,
-                                      bool input_pixel_coords);
+display::Display GetDisplayMatchingBounds(const gfx::Rect& bounds,
+                                          bool input_pixel_coords);
 
 // Convert |point| from pixel coordinates to density independent pixels (DIP)
 // using |device_scale_factor|.

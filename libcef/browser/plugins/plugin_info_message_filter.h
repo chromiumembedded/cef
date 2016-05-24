@@ -51,12 +51,13 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
         const content::WebPluginInfo& plugin,
         const PluginMetadata* plugin_metadata,
         CefViewHostMsg_GetPluginInfo_Status* status) const;
-    bool FindEnabledPlugin(const GetPluginInfo_Params& params,
-                           CefRequestContextHandler* handler,
-                           CefViewHostMsg_GetPluginInfo_Status* status,
-                           content::WebPluginInfo* plugin,
-                           std::string* actual_mime_type,
-                           std::unique_ptr<PluginMetadata>* plugin_metadata) const;
+    bool FindEnabledPlugin(
+        const GetPluginInfo_Params& params,
+        CefRequestContextHandler* handler,
+        CefViewHostMsg_GetPluginInfo_Status* status,
+        content::WebPluginInfo* plugin,
+        std::string* actual_mime_type,
+        std::unique_ptr<PluginMetadata>* plugin_metadata) const;
     void GetPluginContentSetting(const content::WebPluginInfo& plugin,
                                  const GURL& policy_url,
                                  const GURL& plugin_url,
@@ -64,8 +65,6 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
                                  ContentSetting* setting,
                                  bool* is_default,
                                  bool* is_managed) const;
-    void MaybeGrantAccess(CefViewHostMsg_GetPluginInfo_Status status,
-                          const base::FilePath& path) const;
     bool IsPluginEnabled(const content::WebPluginInfo& plugin) const;
 
    private:

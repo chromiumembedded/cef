@@ -355,8 +355,9 @@ bool CefDOMNodeImpl::SetElementAttribute(const CefString& attrName,
   }
 
   WebElement element = node_.to<blink::WebElement>();
-  return element.setAttribute(base::string16(attrName),
-                              base::string16(value));
+  element.setAttribute(base::string16(attrName),
+                       base::string16(value));
+  return true;
 }
 
 CefString CefDOMNodeImpl::GetElementInnerText() {
