@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 30b0778..bf86bd1 100644
+index 8b16632..fb22089 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -678,6 +678,13 @@ void RenderWidgetHostViewAura::SetKeyboardFocus() {
@@ -473,7 +473,7 @@ index ca561b6..7940b5a 100644
      }
      case Widget::InitParams::TYPE_CONTROL:
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 74d5cd6..19d208e 100644
+index 7555abd..78ebc93 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
 @@ -838,6 +838,8 @@ void HWNDMessageHandler::SizeConstraintsChanged() {
@@ -485,7 +485,7 @@ index 74d5cd6..19d208e 100644
    SetWindowLong(hwnd(), GWL_STYLE, style);
  }
  
-@@ -2433,8 +2435,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -2435,8 +2437,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
      active_mouse_tracking_flags_ = 0;
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      // Reroute the mouse wheel to the window under the pointer if applicable.

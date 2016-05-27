@@ -24,6 +24,7 @@
 #include "content/browser/compositor/gl_helper.h"
 #include "content/browser/compositor/image_transport_factory.h"
 #include "content/browser/renderer_host/dip_util.h"
+#include "content/browser/renderer_host/render_widget_host_delegate.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/browser/renderer_host/resize_lock.h"
 #include "content/common/view_messages.h"
@@ -1015,6 +1016,19 @@ ui::Layer* CefRenderWidgetHostViewOSR::DelegatedFrameHostGetLayer() const {
 
 bool CefRenderWidgetHostViewOSR::DelegatedFrameHostIsVisible() const {
   return !render_widget_host_->is_hidden();
+}
+
+SkColor CefRenderWidgetHostViewOSR::DelegatedFrameHostGetGutterColor(
+    SkColor color) const {
+  // When making an element on the page fullscreen the element's background
+  // may not match the page's, so use black as the gutter color to avoid
+  // flashes of brighter colors during the transition.
+  if (render_widget_host_->delegate() &&
+      render_widget_host_->delegate()->IsFullscreenForCurrentTab(
+          render_widget_host_)) {
+    return SK_ColorBLACK;
+  }
+  return color;
 }
 
 gfx::Size

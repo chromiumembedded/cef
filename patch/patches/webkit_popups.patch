@@ -12,7 +12,7 @@ index 8884238..7b139ba 100644
  
      DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index e906bb7..40965ed 100644
+index 22c0a1e..4996084 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
 @@ -416,6 +416,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client)
@@ -23,7 +23,7 @@ index e906bb7..40965ed 100644
      , m_doingDragAndDrop(false)
      , m_ignoreInputEvents(false)
      , m_compositorDeviceScaleFactorOverride(0)
-@@ -4120,9 +4121,14 @@ void WebViewImpl::pageScaleFactorChanged()
+@@ -4119,9 +4120,14 @@ void WebViewImpl::pageScaleFactorChanged()
      m_client->pageScaleFactorChanged();
  }
  
