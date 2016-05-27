@@ -1,0 +1,178 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us">
+<head>
+  <title>CEF Automated Builds</title>
+  <meta name="author" content="The Chromium Embedded Framework Authors" />
+  <meta name="copyright" content="$year$ The Chromium Embedded Framework Authors. All rights reserved." />
+  <style type="text/css">
+    body {font-family: Verdana,Arial; font-size: 10pt}
+    table.top {border-spacing: 0; border: 0px; padding: 0px}
+    table.top td.logo {padding-right: 10px}
+    table.top td.header {font-size: 14pt; white-space: nowrap; padding-right: 10px}
+    table.top td.header .links {font-size: 10pt}
+    table.top td.branding {font-size: 8pt; white-space: nowrap; text-align: center}
+    table.top td.filters {font-size: 10pt}
+    table.list {border-spacing: 0; border: 0px; margin-left: 20px; font-size: 10pt}
+    table.list tr.topheader td {border-bottom: 1px solid black; padding: 5px; padding-top: 4px; font-size: 9pt}
+    table.list tr.toprow:nth-child(even) {color: #000; background: #FFF}
+    table.list tr.toprow:nth-child(odd) {color: #000; background: #DDD}
+    table.version {border-spacing: 0; border: 0px; padding: 4px 4px; font-size: 10pt}
+    table.version td.header {font-weight: bold; font-size: 9pt}
+    table.version td.links {font-size: 8pt}
+    table.files {border-spacing: 0; border: 0px; font-size: 10pt}
+    table.files td {padding-top: 5px; padding-left: 20px; font-size: 10pt; white-space: nowrap}
+    table.files td.first {padding-left: 0px;}
+    .text_header {font-size: 12pt; font-weight: bold}
+    .bullet {font-size: 8pt; vertical-align: top}
+    .footer {font-size: 8pt; text-align: center}
+    .tooltip {position: relative; display: inline-block; border-bottom: 1px dotted black}
+    .tooltip .tooltiptext {visibility: hidden; width: 500px; background-color: black; color: #FFF; text-align: left; border-radius: 6px; padding: 5px; position: absolute; z-index: 1; top: -5px; left: 105%}
+    .tooltip:hover .tooltiptext {visibility: visible;}
+    .tooltiptext {white-space: normal}
+  </style>
+  <script>
+    var version_filter = ''
+
+    // Show more rows and change related UI.
+    function show(platform, showmore) {
+      var more = document.getElementById(platform).getElementsByClassName('showmore')[0]
+      var less = document.getElementById(platform).getElementsByClassName('showless')[0]
+      var notes = document.getElementById(platform).getElementsByClassName('shownotes')[0]
+
+      var rows = document.getElementById(platform).getElementsByClassName('toprow')
+
+      // Number of rows we would like to display.
+      var desired_ct = showmore ? rows.length : 1
+      // Number of rows allowed by the version filter.
+      var allowed_ct = 0
+      // Number of rows actually displayed.
+      var displayed_ct = 0
+
+      for (var i = 0; i < rows.length; ++i) {
+        var version = rows[i].getAttribute('data-version')
+        var allow = (version_filter == '' || version.indexOf(version_filter) == 0)
+        var display = (allow && displayed_ct < desired_ct)
+        rows[i].style.display = (display ? '' : 'none')
+        rows[i].style.background = (displayed_ct % 2 == 0 ? '#FFF' : '#DDD')
+        allowed_ct += allow
+        displayed_ct += display
+      }
+
+      if (allowed_ct <= 1) {
+        // One or less rows. No need for controls.
+        more.style.display = 'none'
+        less.style.display = 'none'
+      } else if (showmore) {
+        more.style.display = 'none'
+        less.style.display = ''
+      } else {
+        less.style.display = 'none'
+        more.style.display = ''
+      }
+
+      var notes_str = ''
+      if (allowed_ct != rows.length) {
+        var hidden_ct = rows.length - allowed_ct
+        notes_str += '(' + hidden_ct + ' build' + (hidden_ct == 1 ? '' : 's') + ' hidden, <a href="#" onclick="resetVersionFilter(); return false;">reset filter</a> to restore)'
+      }
+      notes.innerHTML = notes_str
+      notes.style.display = (notes_str == '' ? 'none' : '')
+    }
+
+    // Shrink all lists on page load.
+    function shrinkAll() {
+      var platforms = document.getElementsByClassName('list')
+      for (var i = 0; i < platforms.length; ++i)
+        show(platforms[i].id, false)
+    }
+
+    // Only show rows that start with the version string.
+    function applyVersionFilter() {
+      version_filter = document.getElementById('version_filter').value
+      shrinkAll()
+    }
+    function resetVersionFilter() {
+      version_filter = ''
+      document.getElementById('version_filter').value = ''
+      shrinkAll()
+    }
+
+    function onLoad() {
+      document.getElementById('version_filter_div').style.display = ''
+      shrinkAll()
+    }
+  </script>
+</head>
+<body onload="onLoad()">
+  <table class="top">
+    <tr>
+      <td class="logo"><img width="66" height="50" alt="CEF Logo" src="data:image/png;base64,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"></td>
+      <td class="header" width="100%">
+        Chromium Embedded Framework (CEF) Automated Builds
+        <br/><span class="links">[
+          <a href="https://bitbucket.org/chromiumembedded/cef/">Project Page</a> |
+          <a href="http://www.magpcss.org/ceforum">Support Forum</a>
+        ]</span></td>
+      <td class="branding" rowspan="2" valign="top">
+        $branding$
+      </td>
+    </tr>
+    <tr>
+      <td class="filters" colspan="2">
+        <br/>
+        Builds:
+<section:platform_link>
+        <span class="bullet">&#9654;</span> <a href="#$platform$_builds">$platform_name$</a>
+</section:platform_link>
+        <br/><br/>
+        <div id="version_filter_div" style="display:none">
+          <div class="tooltip">Version Filter<span class="tooltiptext">Optionally filter builds by version number. The filter supports partial matching. For example, enter "3.2704" to only show builds for the 2704 branch.</span></div>:
+          <input type="text" size="20" id="version_filter"/><input type="button" value="Apply" onclick="applyVersionFilter();"/>
+        </div>
+      </td>
+    </tr>
+  </table>
+  <br/><br/>
+<section:platform>
+  <a name="$platform$_builds"></a>
+  <span class="text_header">$platform_name$ Builds</span>
+  <table id="$platform$" class="list" width="825">
+    <tr class="topheader">
+      <td>
+        <span class="showmore" style="display:none"><a href="#" onclick="show('$platform$', true); return false;">Show more builds</a></span>
+        <span class="showless" style="display:none"><a href="#" onclick="show('$platform$', false); return false;">Show less builds</a></span>
+        <span class="shownotes" style="display:none"></span>
+      </td>
+    </tr>
+<section:version>
+    <tr class="toprow" data-version="$cef_version$">
+      <td width="100%">
+        <table class="version" width="100%">
+          <tr>
+            <td class="header">$last_modified$ - CEF $cef_version$ / Chromium $chromium_version$</td>
+            <td class="links" align="right"><a href="$cef_source_url$">CEF source</a> | <a href="$chromium_source_url$">Chromium source</a></td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <table class="files" width="100%">
+<section:file>
+                <tr>
+                  <td class="first"><span class="bullet">&#9654;</span> <div class="tooltip">$type_name$<span class="tooltiptext">$tooltip_text$</span></div></td>
+                  <td width="100%"><a href="$file_url$">$name$</a></td>
+                  <td align="right">$size$</td>
+                  <td><a href="$sha1_url$">sha1</a></td>
+                </tr>
+</section:file>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+</section:version>
+  </table>
+  <br/>
+</section:platform>
+  <p class="footer">Copyright &copy; $year$ The Chromium Embedded Framework Authors. All rights reserved.</p>
+</body>
+</html>
