@@ -22,6 +22,7 @@ if "%ARGSOK%" == "F" (
 :: In case vcvars is already provided via the environment.
 set vcvars="%CEF_VCVARS%"
 if exist %vcvars% goto found_vcvars
+if %vcvars% == "none" goto found_vcvars
 
 if "%1" == "win64" goto check_win64
 
@@ -47,7 +48,7 @@ goto end
 :found_vcvars
 echo vcvars:
 echo %vcvars%
-call %vcvars%
+if not %vcvars% == "none" call %vcvars%
 
 echo PATH:
 echo %PATH%
