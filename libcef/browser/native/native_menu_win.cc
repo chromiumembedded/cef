@@ -258,16 +258,15 @@ class NativeMenuWin::MenuHostWindow {
       gfx::Image icon;
       if (data->native_menu_win->model_->GetIconAt(data->model_index, &icon)) {
         // We currently don't support items with both icons and checkboxes.
-        const gfx::ImageSkia* skia_icon = icon.ToImageSkia();
+        const gfx::ImageSkia skia_icon = icon.AsImageSkia();
         DCHECK(type != ui::MenuModel::TYPE_CHECK);
-        gfx::Canvas canvas(
-            skia_icon->GetRepresentation(1.0f),
-            false);
+        gfx::Canvas canvas(skia_icon.size(), 1.0f, false);
+        canvas.DrawImageInt(skia_icon, 0, 0);
         skia::DrawToNativeContext(
             canvas.sk_canvas(), dc,
             draw_item_struct->rcItem.left + kItemLeftMargin,
             draw_item_struct->rcItem.top + (draw_item_struct->rcItem.bottom -
-                draw_item_struct->rcItem.top - skia_icon->height()) / 2, NULL);
+                draw_item_struct->rcItem.top - skia_icon.height()) / 2, NULL);
       } else if (type == ui::MenuModel::TYPE_CHECK &&
                  data->native_menu_win->model_->IsItemCheckedAt(
                      data->model_index)) {
