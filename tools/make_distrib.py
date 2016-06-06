@@ -486,8 +486,6 @@ if platform == 'windows':
     'snapshot_blob.bin',
     'widevinecdmadapter.dll',
   ]
-  if not options.x64build:
-    binaries.append('wow_helper.exe')
 
   out_dir = os.path.join(src_dir, 'out')
   libcef_dll_file = 'libcef.dll.lib'

@@ -62,8 +62,3 @@ run but any related functionality may become broken or disabled.
   * libGLESv2.dll
   Without these files HTML5 accelerated content like 2D canvas, 3D CSS and WebGL
   will not function.
-
-* Windows Vista 64-bit sandbox support (32-bit distributions only)
-  * wow_helper.exe
-  Without this file the 32-bit build of CEF will not run on 64-bit Vista
-  machines with the sandbox enabled.

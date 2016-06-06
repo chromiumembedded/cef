@@ -383,12 +383,6 @@ if(OS_WINDOWS)
     natives_blob.bin
     snapshot_blob.bin
     )
-  if(PROJECT_ARCH STREQUAL "x86")
-    # Only used on 32-bit platforms.
-    list(APPEND CEF_BINARY_FILES
-      wow_helper.exe
-      )
-  endif()
 
   # List of CEF resource files.
   set(CEF_RESOURCE_FILES
