@@ -133,7 +133,11 @@ def create_readme():
                    'the LICENSING section of this document for licensing terms and conditions.'
   elif mode == 'client':
     distrib_type = 'Client'
-    distrib_desc = 'This distribution contains a release build of the cefclient sample application\n' \
+    if platform == 'linux':
+      client_app = 'cefsimple'
+    else:
+      client_app = 'cefclient'
+    distrib_desc = 'This distribution contains a release build of the ' + client_app + ' sample application\n' \
                    'for the ' + platform_str + ' platform. Please see the LICENSING section of this document for\n' \
                    'licensing terms and conditions.'
 
@@ -263,7 +267,7 @@ parser.add_option('--minimal',
                   help='include only release build binary files')
 parser.add_option('--client',
                   action='store_true', dest='client', default=False,
-                  help='include only the cefclient application')
+                  help='include only the sample application')
 parser.add_option('-q', '--quiet',
                   action='store_true', dest='quiet', default=False,
                   help='do not output detailed status information')
@@ -702,7 +706,7 @@ elif platform == 'linux':
       lib_dst_dir = os.path.join(dst_dir, lib_dir_name)
       make_dir(lib_dst_dir, options.quiet)
       copy_file(libcef_path, lib_dst_dir, options.quiet)
-      copy_file(os.path.join(build_dir, 'cefclient'), dst_dir, options.quiet)
+      copy_file(os.path.join(build_dir, 'cefsimple'), dst_dir, options.quiet)
     else:
       copy_file(libcef_path, dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'chrome_sandbox'), os.path.join(dst_dir, 'chrome-sandbox'), options.quiet)
@@ -716,7 +720,6 @@ elif platform == 'linux':
     build_dir = valid_build_dir
     if mode == 'client':
       dst_dir = os.path.join(output_dir, 'Release')
-      copy_dir(os.path.join(build_dir, 'files'), os.path.join(dst_dir, 'files'), options.quiet)
     else:
       dst_dir = os.path.join(output_dir, 'Resources')
     make_dir(dst_dir, options.quiet)
