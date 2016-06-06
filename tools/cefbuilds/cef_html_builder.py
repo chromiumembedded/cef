@@ -150,7 +150,7 @@ class cef_html_builder:
 
   @staticmethod
   def _get_cef_source_url(cef_version):
-    branch = cef_version.split('.')[2]
+    branch = cef_version.split('.')[1]
     return 'https://bitbucket.org/chromiumembedded/cef/get/%s.tar.bz2' % branch
 
   @staticmethod
@@ -169,10 +169,14 @@ class cef_html_builder:
 
   @staticmethod
   def _get_tooltip_text(platform, cef_version, file):
+    if platform == 'linux32' or platform == 'linux64':
+      sample_app = 'cefsimple'
+    else:
+      sample_app = 'cefclient'
     return {
       'standard': 'Standard binary distribution. Includes header files, libcef_dll_wrapper source code, binary files, CMake configuration files and source code for the cefclient and cefsimple sample applications. See the included README.txt file for usage and build requirements.',
       'minimal': 'Minimal binary distribution. Includes header files, libcef_dll_wrapper source code, Release build binary files and CMake configuration files. Does not include Debug build binary files or sample application source code. See the included README.txt file for usage and build requirements.',
-      'client': 'Release build of the cefclient sample application. See the included README.txt file for usage requirements.',
+      'client': 'Release build of the ' + sample_app + ' sample application. See the included README.txt file for usage requirements.',
       'debug_symbols': 'Debug build symbols. Must be extracted and placed next to the CEF Debug binary file with the same name and version.',
       'release_symbols': 'Release build symbols. Must be extracted and placed next to the CEF Release binary file with the same name and version.'
     }[file['type']]
