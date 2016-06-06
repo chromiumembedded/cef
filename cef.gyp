@@ -2090,6 +2090,14 @@
               },
             },
           }],
+          [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+            'link_settings': {
+              'ldflags': [
+                # Only export necessary symbols from libcef.so.
+                '-Wl,--version-script=<!(cd <(DEPTH) && pwd -P)/cef/libcef_dll/libcef.lst',
+              ],
+            },
+          }],
         ],
       }],
     }],  # OS!="mac"

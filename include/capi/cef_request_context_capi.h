@@ -279,7 +279,7 @@ CEF_EXPORT cef_request_context_t* cef_request_context_create_context(
 // Creates a new context object that shares storage with |other| and uses an
 // optional |handler|.
 ///
-CEF_EXPORT cef_request_context_t* create_context_shared(
+CEF_EXPORT cef_request_context_t* cef_create_context_shared(
     cef_request_context_t* other,
     struct _cef_request_context_handler_t* handler);
 
