@@ -104,7 +104,7 @@ class CefRequestContext : public virtual CefBase {
   // Creates a new context object that shares storage with |other| and uses an
   // optional |handler|.
   ///
-  /*--cef(capi_name=create_context_shared,optional_param=handler)--*/
+  /*--cef(capi_name=cef_create_context_shared,optional_param=handler)--*/
   static CefRefPtr<CefRequestContext> CreateContext(
       CefRefPtr<CefRequestContext> other,
       CefRefPtr<CefRequestContextHandler> handler);
