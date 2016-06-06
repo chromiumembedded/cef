@@ -1,7 +1,7 @@
 CONTENTS
 --------
 
-Release     Contains a release build of the cefclient sample application.
+Release     Contains a release build of the sample application.
 
 
 USAGE
