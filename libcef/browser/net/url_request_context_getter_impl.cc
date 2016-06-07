@@ -120,6 +120,10 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
 
   std::swap(protocol_handlers_, *protocol_handlers);
 
+  force_google_safesearch_.Init(prefs::kForceGoogleSafeSearch, pref_service);
+  force_google_safesearch_.MoveToThread(
+      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO));
+
 #if defined(OS_POSIX) && !defined(OS_ANDROID)
   gsapi_library_name_ = pref_service->GetString(prefs::kGSSAPILibraryName);
 #endif
@@ -132,6 +136,11 @@ CefURLRequestContextGetterImpl::~CefURLRequestContextGetterImpl() {
   // canceled before the associated URLRequestContext is destroyed in this
   // object's destructor.
   storage_->set_proxy_service(NULL);
+}
+
+void CefURLRequestContextGetterImpl::ShutdownOnUIThread() {
+  CEF_REQUIRE_UIT();
+  force_google_safesearch_.Destroy();
 }
 
 net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
@@ -152,7 +161,10 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     SetCookieStoragePath(cache_path,
                          settings_.persist_session_cookies ? true : false);
 
-    storage_->set_network_delegate(base::WrapUnique(new CefNetworkDelegate));
+    std::unique_ptr<CefNetworkDelegate> network_delegate(
+        new CefNetworkDelegate());
+    network_delegate->set_force_google_safesearch(&force_google_safesearch_);
+    storage_->set_network_delegate(std::move(network_delegate));
 
     storage_->set_channel_id_service(base::WrapUnique(
         new net::ChannelIDService(

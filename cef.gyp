@@ -968,6 +968,7 @@
         '<(DEPTH)/components/components.gyp:data_use_measurement_core',
         '<(DEPTH)/components/components.gyp:devtools_discovery',
         '<(DEPTH)/components/components.gyp:devtools_http_handler',
+        '<(DEPTH)/components/components.gyp:google_core_browser',
         '<(DEPTH)/components/components.gyp:keyed_service_content',
         '<(DEPTH)/components/components.gyp:keyed_service_core',
         '<(DEPTH)/components/components.gyp:navigation_interception',
@@ -1505,6 +1506,9 @@
         # Include sources for permissions support.
         '<(DEPTH)/chrome/browser/permissions/permission_request_id.h',
         '<(DEPTH)/chrome/browser/permissions/permission_request_id.cc',
+        # Include sources for SafeSearch support.
+        '<(DEPTH)/chrome/browser/net/safe_search_util.cc',
+        '<(DEPTH)/chrome/browser/net/safe_search_util.h',
       ],
       'conditions': [
         ['OS=="win"', {

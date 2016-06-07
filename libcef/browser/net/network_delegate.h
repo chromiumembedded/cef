@@ -9,6 +9,9 @@
 #include "base/macros.h"
 #include "net/base/network_delegate_impl.h"
 
+template<class T> class PrefMember;
+typedef PrefMember<bool> BooleanPrefMember;
+
 // Used for intercepting resource requests, redirects and responses. The single
 // instance of this class is managed by CefURLRequestContextGetter.
 class CefNetworkDelegate : public net::NetworkDelegateImpl {
@@ -20,6 +23,11 @@ class CefNetworkDelegate : public net::NetworkDelegateImpl {
   // RenderFrameMessageFilter::OnSetCookie.
   static bool AreExperimentalCookieFeaturesEnabled();
   static bool AreStrictSecureCookiesEnabled();
+
+  void set_force_google_safesearch(
+      BooleanPrefMember* force_google_safesearch) {
+    force_google_safesearch_ = force_google_safesearch;
+  }
 
  private:
   // net::NetworkDelegate methods.
@@ -38,6 +46,9 @@ class CefNetworkDelegate : public net::NetworkDelegateImpl {
   bool OnAreStrictSecureCookiesEnabled() const override;
   net::Filter* SetupFilter(net::URLRequest* request,
                            net::Filter* filter_list) override;
+
+  // Weak, owned by our owner (CefURLRequestContextGetterImpl).
+  BooleanPrefMember* force_google_safesearch_;
 
   DISALLOW_COPY_AND_ASSIGN(CefNetworkDelegate);
 };

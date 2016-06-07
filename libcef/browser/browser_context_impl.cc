@@ -209,12 +209,14 @@ CefBrowserContextImpl::~CefBrowserContextImpl() {
 
   pref_proxy_config_tracker_->DetachFromPrefService();
 
-  if (host_content_settings_map_.get())
+  if (url_request_getter_)
+    url_request_getter_->ShutdownOnUIThread();
+  if (host_content_settings_map_)
     host_content_settings_map_->ShutdownOnUIThread();
 
   // Delete the download manager delegate here because otherwise we'll crash
   // when it's accessed from the content::BrowserContext destructor.
-  if (download_manager_delegate_.get())
+  if (download_manager_delegate_)
     download_manager_delegate_.reset(NULL);
 
   g_manager.Get().RemoveImpl(this, cache_path_);
