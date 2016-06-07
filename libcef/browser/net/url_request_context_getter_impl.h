@@ -17,6 +17,7 @@
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
+#include "components/prefs/pref_member.h"
 #include "content/public/browser/browser_context.h"
 #include "net/url_request/url_request_job_factory.h"
 
@@ -51,6 +52,9 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
       std::unique_ptr<net::ProxyConfigService> proxy_config_service,
       content::URLRequestInterceptorScopedVector request_interceptors);
   ~CefURLRequestContextGetterImpl() override;
+
+  // Called when the BrowserContextImpl is destroyed.
+  void ShutdownOnUIThread();
 
   // net::URLRequestContextGetter implementation.
   net::URLRequestContext* GetURLRequestContext() override;
@@ -101,6 +105,9 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
   std::vector<std::string> cookie_supported_schemes_;
 
   std::vector<CefRefPtr<CefRequestContextHandler> > handler_list_;
+
+  // Member variables which are pointed to by the various context objects.
+  mutable BooleanPrefMember force_google_safesearch_;
 
   DISALLOW_COPY_AND_ASSIGN(CefURLRequestContextGetterImpl);
 };

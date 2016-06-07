@@ -18,6 +18,9 @@
 #include "base/command_line.h"
 #include "base/metrics/field_trial.h"
 #include "base/strings/string_util.h"
+#include "chrome/browser/net/safe_search_util.h"
+#include "components/prefs/pref_member.h"
+#include "components/prefs/pref_service.h"
 #include "content/public/common/content_switches.h"
 #include "net/base/net_errors.h"
 #include "net/filter/filter.h"
@@ -38,10 +41,12 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
       CefRefPtr<CefRequestImpl> cef_request,
       GURL* new_url,
       net::URLRequest* url_request,
+      bool force_google_safesearch,
       const CallbackType& callback)
       : cef_request_(cef_request),
         new_url_(new_url),
         url_request_(url_request),
+        force_google_safesearch_(force_google_safesearch),
         callback_(callback) {
     DCHECK(new_url);
     DCHECK(url_request_);
@@ -54,11 +59,13 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
     if (!callback_.is_null()) {
       // The callback is still pending. Cancel it now.
       if (CEF_CURRENTLY_ON_IOT()) {
-        RunNow(cef_request_, new_url_, url_request_, callback_, false);
+        RunNow(cef_request_, new_url_, url_request_, callback_,
+               force_google_safesearch_, false);
       } else {
         CEF_POST_TASK(CEF_IOT,
             base::Bind(&CefBeforeResourceLoadCallbackImpl::RunNow,
-                       cef_request_, new_url_, url_request_, callback_, false));
+                       cef_request_, new_url_, url_request_, callback_,
+                       force_google_safesearch_, false));
       }
     }
   }
@@ -77,7 +84,8 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
   void ContinueNow(bool allow) {
     CEF_REQUIRE_IOT();
     if (!callback_.is_null()) {
-      RunNow(cef_request_, new_url_, url_request_, callback_, allow);
+      RunNow(cef_request_, new_url_, url_request_, callback_,
+             force_google_safesearch_, allow);
       Disconnect();
     }
   }
@@ -115,6 +123,7 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
                      GURL* new_url,
                      net::URLRequest* request,
                      const CallbackType& callback,
+                     bool force_google_safesearch,
                      bool allow) {
     CEF_REQUIRE_IOT();
 
@@ -139,8 +148,12 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
     request->RemoveUserData(UserDataKey());
 
     // Only execute the callback if the request has not been canceled.
-    if (request->status().status() != net::URLRequestStatus::CANCELED)
+    if (request->status().status() != net::URLRequestStatus::CANCELED) {
+      if (force_google_safesearch && allow && new_url->is_empty())
+        safe_search_util::ForceGoogleSafeSearch(request, new_url);
+
       callback.Run(allow ? net::OK : net::ERR_ABORTED);
+    }
   }
 
   static inline void* UserDataKey() {
@@ -151,6 +164,7 @@ class CefBeforeResourceLoadCallbackImpl : public CefRequestCallback {
   const GURL old_url_;
   GURL* new_url_;
   net::URLRequest* url_request_;
+  bool force_google_safesearch_;
   CallbackType callback_;
 
   // The user data key.
@@ -224,7 +238,8 @@ class CefAuthCallbackImpl : public CefAuthCallback {
 
 }  // namespace
 
-CefNetworkDelegate::CefNetworkDelegate() {
+CefNetworkDelegate::CefNetworkDelegate()
+  : force_google_safesearch_(nullptr) {
 }
 
 CefNetworkDelegate::~CefNetworkDelegate() {
@@ -255,6 +270,9 @@ int CefNetworkDelegate::OnBeforeURLRequest(
     net::URLRequest* request,
     const net::CompletionCallback& callback,
     GURL* new_url) {
+  const bool force_google_safesearch =
+      (force_google_safesearch_ && force_google_safesearch_->GetValue());
+
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForRequest(request);
   if (browser.get()) {
@@ -279,6 +297,7 @@ int CefNetworkDelegate::OnBeforeURLRequest(
 
         CefRefPtr<CefBeforeResourceLoadCallbackImpl> callbackImpl(
             new CefBeforeResourceLoadCallbackImpl(requestPtr, new_url, request,
+                                                  force_google_safesearch,
                                                   callback));
 
         // Give the client an opportunity to evaluate the request.
@@ -297,6 +316,9 @@ int CefNetworkDelegate::OnBeforeURLRequest(
       }
     }
   }
+
+  if (force_google_safesearch && new_url->is_empty())
+    safe_search_util::ForceGoogleSafeSearch(request, new_url);
 
   // Continue the request immediately.
   return net::OK;
