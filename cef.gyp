@@ -2094,7 +2094,7 @@
               },
             },
           }],
-          [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+          [ '(OS=="linux" or OS=="freebsd" or OS=="openbsd") and asan==0', {
             'link_settings': {
               'ldflags': [
                 # Only export necessary symbols from libcef.so.
