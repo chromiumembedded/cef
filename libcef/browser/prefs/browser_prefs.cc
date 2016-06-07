@@ -161,6 +161,8 @@ std::unique_ptr<PrefService> CreatePrefService(const base::FilePath& pref_path) 
   registry->RegisterBooleanPref(prefs::kPluginsAlwaysAuthorize, false);
 
   // Network preferences.
+  // Based on ProfileImpl::RegisterProfilePrefs.
+  registry->RegisterBooleanPref(prefs::kForceGoogleSafeSearch, false);
   // Based on IOThread::RegisterPrefs.
 #if defined(OS_POSIX) && !defined(OS_ANDROID)
   registry->RegisterStringPref(prefs::kGSSAPILibraryName, std::string());
