@@ -463,13 +463,6 @@ if (options.noreleasebuild and \
   parser.print_help(sys.stderr)
   sys.exit()
 
-if (options.clientdistrib or options.clientdistribonly) and \
-   options.buildtarget.find('cefclient') == -1:
-  print "A client distribution cannot be generated if --build-target "+\
-        "excludes cefclient."
-  parser.print_help(sys.stderr)
-  sys.exit()
-
 # Operating system.
 if options.dryrun and options.dryrunplatform is not None:
   platform = options.dryrunplatform
@@ -491,6 +484,17 @@ if platform == 'windows':
   script_ext = '.bat'
 else:
   script_ext = '.sh'
+
+if options.clientdistrib or options.clientdistribonly:
+  if platform == 'linux':
+    client_app = 'cefsimple'
+  else:
+    client_app = 'cefclient'
+  if options.buildtarget.find(client_app) == -1:
+    print 'A client distribution cannot be generated if --build-target '+\
+          'excludes %s.' % client_app
+    parser.print_help(sys.stderr)
+    sys.exit()
 
 if options.x64build and platform != 'windows' and platform != 'macosx':
   print 'The x64 build option is only used on Windows and Mac OS X.'
