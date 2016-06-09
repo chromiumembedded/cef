@@ -468,7 +468,8 @@ void RootWindowMac::CreateRootWindow(const CefBrowserSettings& settings) {
                 styleMask:(NSTitledWindowMask |
                            NSClosableWindowMask |
                            NSMiniaturizableWindowMask |
-                           NSResizableWindowMask )
+                           NSResizableWindowMask |
+                           NSUnifiedTitleAndToolbarWindowMask )
                 backing:NSBackingStoreBuffered
                 defer:NO];
   [window_ setTitle:@"cefclient"];
@@ -493,6 +494,13 @@ void RootWindowMac::CreateRootWindow(const CefBrowserSettings& settings) {
 
   NSView* contentView = [window_ contentView];
   NSRect contentBounds = [contentView bounds];
+
+  if (!with_osr_) {
+    // Make the content view for the window have a layer. This will make all
+    // sub-views have layers. This is necessary to ensure correct layer
+    // ordering of all child views and their layers.
+    [contentView setWantsLayer:YES];
+  }
 
   if (with_controls_) {
     // Create the buttons.
