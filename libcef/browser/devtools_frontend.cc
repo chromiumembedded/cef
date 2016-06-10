@@ -123,38 +123,28 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
       CefBrowserHostImpl::Create(create_params);
 
   content::WebContents* inspected_contents = inspected_browser->web_contents();
-  if (!inspect_element_at.IsEmpty()) {
-    scoped_refptr<content::DevToolsAgentHost> agent_host =
-        content::DevToolsAgentHost::GetOrCreateFor(inspected_contents);
-    agent_host->InspectElement(inspect_element_at.x, inspect_element_at.y);
-  }
 
   // CefDevToolsFrontend will delete itself when the frontend WebContents is
   // destroyed.
   CefDevToolsFrontend* devtools_frontend = new CefDevToolsFrontend(
       static_cast<CefBrowserHostImpl*>(frontend_browser.get()),
-      inspected_contents);
+      inspected_contents, inspect_element_at);
 
   // Need to load the URL after creating the DevTools objects.
   CefDevToolsDelegate* delegate =
       CefContentBrowserClient::Get()->devtools_delegate();
   frontend_browser->GetMainFrame()->LoadURL(delegate->GetChromeDevToolsURL());
 
-  devtools_frontend->Activate();
-  devtools_frontend->Focus();
-
   return devtools_frontend;
 }
 
-void CefDevToolsFrontend::Activate() {
-  frontend_browser_->ActivateContents(web_contents());
-}
-
 void CefDevToolsFrontend::Focus() {
-  web_contents()->Focus();
+  frontend_browser_->SetFocus(true);
 }
 
 void CefDevToolsFrontend::InspectElementAt(int x, int y) {
+  if (inspect_element_at_.x != x || inspect_element_at_.y != y)
+    inspect_element_at_.Set(x, y);
   if (agent_host_)
     agent_host_->InspectElement(x, y);
 }
@@ -174,10 +164,12 @@ void CefDevToolsFrontend::DisconnectFromTarget() {
 
 CefDevToolsFrontend::CefDevToolsFrontend(
     CefRefPtr<CefBrowserHostImpl> frontend_browser,
-    content::WebContents* inspected_contents)
+    content::WebContents* inspected_contents,
+    const CefPoint& inspect_element_at)
     : WebContentsObserver(frontend_browser->web_contents()),
       frontend_browser_(frontend_browser),
       inspected_contents_(inspected_contents),
+      inspect_element_at_(inspect_element_at),
       weak_factory_(this) {
 }
 
@@ -206,6 +198,9 @@ void CefDevToolsFrontend::DocumentAvailableInMainFrame() {
   if (agent_host != agent_host_) {
     agent_host_ = agent_host;
     agent_host_->AttachClient(this);
+
+    if (!inspect_element_at_.IsEmpty())
+      InspectElementAt(inspect_element_at_.x, inspect_element_at_.y);
   }
 }
 
