@@ -180,6 +180,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                     const CefBrowserSettings& settings,
                     const CefPoint& inspect_element_at) override;
   void CloseDevTools() override;
+  bool HasDevTools() override;
   void GetNavigationEntries(
       CefRefPtr<CefNavigationEntryVisitor> visitor,
       bool current_only) override;

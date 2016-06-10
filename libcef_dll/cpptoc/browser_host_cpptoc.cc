@@ -425,19 +425,7 @@ void CEF_CALLBACK browser_host_show_dev_tools(struct _cef_browser_host_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: windowInfo; type: struct_byref_const
-  DCHECK(windowInfo);
-  if (!windowInfo)
-    return;
-  // Verify param: client; type: refptr_diff
-  DCHECK(client);
-  if (!client)
-    return;
-  // Verify param: settings; type: struct_byref_const
-  DCHECK(settings);
-  if (!settings)
-    return;
-  // Unverified params: inspect_element_at
+  // Unverified params: windowInfo, client, settings, inspect_element_at
 
   // Translate param: windowInfo; type: struct_byref_const
   CefWindowInfo windowInfoObj;
@@ -469,6 +457,20 @@ void CEF_CALLBACK browser_host_close_dev_tools(
 
   // Execute
   CefBrowserHostCppToC::Get(self)->CloseDevTools();
+}
+
+int CEF_CALLBACK browser_host_has_dev_tools(struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefBrowserHostCppToC::Get(self)->HasDevTools();
+
+  // Return type: bool
+  return _retval;
 }
 
 void CEF_CALLBACK browser_host_get_navigation_entries(
@@ -962,6 +964,7 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->stop_finding = browser_host_stop_finding;
   GetStruct()->show_dev_tools = browser_host_show_dev_tools;
   GetStruct()->close_dev_tools = browser_host_close_dev_tools;
+  GetStruct()->has_dev_tools = browser_host_has_dev_tools;
   GetStruct()->get_navigation_entries = browser_host_get_navigation_entries;
   GetStruct()->set_mouse_cursor_change_disabled =
       browser_host_set_mouse_cursor_change_disabled;
