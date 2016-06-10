@@ -805,6 +805,10 @@ void CefBrowserHostImpl::ShowDevTools(
       return;
 
     if (devtools_frontend_) {
+      if (!inspect_element_at.IsEmpty()) {
+        devtools_frontend_->InspectElementAt(inspect_element_at.x,
+                                             inspect_element_at.y);
+      }
       devtools_frontend_->Focus();
       return;
     }
