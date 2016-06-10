@@ -490,23 +490,33 @@ class CefBrowserHost : public virtual CefBase {
   virtual void StopFinding(bool clearSelection) =0;
 
   ///
-  // Open developer tools in its own window. If |inspect_element_at| is non-
-  // empty the element at the specified (x,y) location will be inspected. The
-  // |windowInfo| parameter will be ignored if this browser is wrapped in a
-  // CefBrowserView.
+  // Open developer tools (DevTools) in its own browser. The DevTools browser
+  // will remain associated with this browser. If the DevTools browser is
+  // already open then it will be focused, in which case the |windowInfo|,
+  // |client| and |settings| parameters will be ignored. If |inspect_element_at|
+  // is non-empty then the element at the specified (x,y) location will be
+  // inspected. The |windowInfo| parameter will be ignored if this browser is
+  // wrapped in a CefBrowserView.
   ///
-  /*--cef(optional_param=inspect_element_at)--*/
+  /*--cef(optional_param=windowInfo,optional_param=client,
+          optional_param=settings,optional_param=inspect_element_at)--*/
   virtual void ShowDevTools(const CefWindowInfo& windowInfo,
                             CefRefPtr<CefClient> client,
                             const CefBrowserSettings& settings,
                             const CefPoint& inspect_element_at) =0;
 
   ///
-  // Explicitly close the developer tools window if one exists for this browser
-  // instance.
+  // Explicitly close the associated DevTools browser, if any.
   ///
   /*--cef()--*/
   virtual void CloseDevTools() =0;
+
+  ///
+  // Returns true if this browser currently has an associated DevTools browser.
+  // Must be called on the browser process UI thread.
+  ///
+  /*--cef()--*/
+  virtual bool HasDevTools() =0;
 
   ///
   // Retrieve a snapshot of current navigation entries as values sent to the

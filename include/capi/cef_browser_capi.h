@@ -448,10 +448,13 @@ typedef struct _cef_browser_host_t {
       int clearSelection);
 
   ///
-  // Open developer tools in its own window. If |inspect_element_at| is non-
-  // NULL the element at the specified (x,y) location will be inspected. The
-  // |windowInfo| parameter will be ignored if this browser is wrapped in a
-  // cef_browser_view_t.
+  // Open developer tools (DevTools) in its own browser. The DevTools browser
+  // will remain associated with this browser. If the DevTools browser is
+  // already open then it will be focused, in which case the |windowInfo|,
+  // |client| and |settings| parameters will be ignored. If |inspect_element_at|
+  // is non-NULL then the element at the specified (x,y) location will be
+  // inspected. The |windowInfo| parameter will be ignored if this browser is
+  // wrapped in a cef_browser_view_t.
   ///
   void (CEF_CALLBACK *show_dev_tools)(struct _cef_browser_host_t* self,
       const struct _cef_window_info_t* windowInfo,
@@ -460,10 +463,15 @@ typedef struct _cef_browser_host_t {
       const cef_point_t* inspect_element_at);
 
   ///
-  // Explicitly close the developer tools window if one exists for this browser
-  // instance.
+  // Explicitly close the associated DevTools browser, if any.
   ///
   void (CEF_CALLBACK *close_dev_tools)(struct _cef_browser_host_t* self);
+
+  ///
+  // Returns true (1) if this browser currently has an associated DevTools
+  // browser. Must be called on the browser process UI thread.
+  ///
+  int (CEF_CALLBACK *has_dev_tools)(struct _cef_browser_host_t* self);
 
   ///
   // Retrieve a snapshot of current navigation entries as values sent to the
