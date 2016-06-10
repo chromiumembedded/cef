@@ -63,6 +63,7 @@ class CefBrowserHostCToCpp
       CefRefPtr<CefClient> client, const CefBrowserSettings& settings,
       const CefPoint& inspect_element_at) OVERRIDE;
   void CloseDevTools() OVERRIDE;
+  bool HasDevTools() OVERRIDE;
   void GetNavigationEntries(CefRefPtr<CefNavigationEntryVisitor> visitor,
       bool current_only) OVERRIDE;
   void SetMouseCursorChangeDisabled(bool disabled) OVERRIDE;

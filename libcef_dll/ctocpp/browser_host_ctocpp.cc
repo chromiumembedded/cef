@@ -375,11 +375,7 @@ void CefBrowserHostCToCpp::ShowDevTools(const CefWindowInfo& windowInfo,
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: client; type: refptr_diff
-  DCHECK(client.get());
-  if (!client.get())
-    return;
-  // Unverified params: inspect_element_at
+  // Unverified params: windowInfo, client, settings, inspect_element_at
 
   // Execute
   _struct->show_dev_tools(_struct,
@@ -398,6 +394,20 @@ void CefBrowserHostCToCpp::CloseDevTools() {
 
   // Execute
   _struct->close_dev_tools(_struct);
+}
+
+bool CefBrowserHostCToCpp::HasDevTools() {
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, has_dev_tools))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->has_dev_tools(_struct);
+
+  // Return type: bool
+  return _retval?true:false;
 }
 
 void CefBrowserHostCToCpp::GetNavigationEntries(

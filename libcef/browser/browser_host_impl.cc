@@ -836,6 +836,15 @@ void CefBrowserHostImpl::CloseDevTools() {
   }
 }
 
+bool CefBrowserHostImpl::HasDevTools() {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    NOTREACHED() << "called on invalid thread";
+    return false;
+  }
+
+  return (devtools_frontend_ != nullptr);
+}
+
 void CefBrowserHostImpl::GetNavigationEntries(
     CefRefPtr<CefNavigationEntryVisitor> visitor,
     bool current_only) {
