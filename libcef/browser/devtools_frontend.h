@@ -36,7 +36,6 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
       const CefBrowserSettings& settings,
       const CefPoint& inspect_element_at);
 
-  void Activate();
   void Focus();
   void InspectElementAt(int x, int y);
   void Close();
@@ -54,7 +53,8 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
 
  private:
   CefDevToolsFrontend(CefRefPtr<CefBrowserHostImpl> frontend_browser,
-                      content::WebContents* inspected_contents);
+                      content::WebContents* inspected_contents,
+                      const CefPoint& inspect_element_at);
   ~CefDevToolsFrontend() override;
 
   // content::DevToolsAgentHostClient implementation.
@@ -79,6 +79,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
 
   CefRefPtr<CefBrowserHostImpl> frontend_browser_;
   content::WebContents* inspected_contents_;
+  CefPoint inspect_element_at_;
   scoped_refptr<content::DevToolsAgentHost> agent_host_;
   std::unique_ptr<content::DevToolsFrontendHost> frontend_host_;
   using PendingRequestsMap = std::map<const net::URLFetcher*, int>;
