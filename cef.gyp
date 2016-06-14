@@ -2094,12 +2094,17 @@
               },
             },
           }],
-          [ '(OS=="linux" or OS=="freebsd" or OS=="openbsd") and asan==0', {
+          [ '(OS=="linux" or OS=="freebsd" or OS=="openbsd") and asan==0 and use_allocator=="none"', {
             'link_settings': {
-              'ldflags': [
-                # Only export necessary symbols from libcef.so.
-                '-Wl,--version-script=<!(cd <(DEPTH) && pwd -P)/cef/libcef_dll/libcef.lst',
-              ],
+              'configurations': {
+                'Release': {
+                  'ldflags': [
+                    # Only export necessary symbols from libcef.so.
+                    # Don't do this in Debug builds because it causes the resulting application to crash.
+                    '-Wl,--version-script=<!(cd <(DEPTH) && pwd -P)/cef/libcef_dll/libcef.lst',
+                  ],
+                },
+              },
             },
           }],
         ],
