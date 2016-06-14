@@ -81,11 +81,15 @@ endmacro()
 
 # Determine the target output directory based on platform and generator.
 macro(SET_CEF_TARGET_OUT_DIR)
-  if(${CMAKE_GENERATOR} STREQUAL "Ninja")
-    # Ninja does not create a subdirectory named after the configuration.
-    set(CEF_TARGET_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-  elseif(OS_LINUX)
+  if(${CMAKE_GENERATOR} STREQUAL "Ninja" OR
+     ${CMAKE_GENERATOR} STREQUAL "Unix Makefiles")
+    # By default Ninja and Make builds don't create a subdirectory named after
+    # the configuration.
     set(CEF_TARGET_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
+
+    # Output binaries (executables, libraries) to the correct directory.
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CEF_TARGET_OUT_DIR})
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CEF_TARGET_OUT_DIR})
   else()
     set(CEF_TARGET_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
   endif()
@@ -256,13 +260,13 @@ endif(OS_MACOSX)
 if(OS_WINDOWS)
 
 # Add custom manifest files to an executable target.
-macro(ADD_WINDOWS_MANIFEST manifest_path target)
+macro(ADD_WINDOWS_MANIFEST manifest_path target extension)
   add_custom_command(
     TARGET ${target}
     POST_BUILD
     COMMAND "mt.exe" -nologo
-            -manifest \"${manifest_path}/${target}.exe.manifest\" \"${manifest_path}/compatibility.manifest\"
-            -outputresource:"${CEF_TARGET_OUT_DIR}/${target}.exe"\;\#1
+            -manifest \"${manifest_path}/${target}.${extension}.manifest\" \"${manifest_path}/compatibility.manifest\"
+            -outputresource:"${CEF_TARGET_OUT_DIR}/${target}.${extension}"\;\#1
     COMMENT "Adding manifest..."
     )
 endmacro()
