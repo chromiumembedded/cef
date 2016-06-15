@@ -235,8 +235,8 @@ namespace {
 void RunOpenFileDialog(
     const CefFileDialogRunner::FileChooserParams& params,
     NSView* view,
-    int* filter_index,
-    std::vector<base::FilePath>* files) {
+    int filter_index,
+    CefFileDialogRunner::RunFileChooserCallback callback) {
   NSOpenPanel* openPanel = [NSOpenPanel openPanel];
 
   base::string16 title;
@@ -277,8 +277,8 @@ void RunOpenFileDialog(
     // Add the file filter control.
     filter_delegate =
         [[CefFilterDelegate alloc] initWithPanel:openPanel
-                                      andAcceptFilters:params.accept_types
-                                        andFilterIndex:*filter_index];
+                                andAcceptFilters:params.accept_types
+                                  andFilterIndex:filter_index];
   }
 
   // Further panel configuration.
@@ -294,28 +294,27 @@ void RunOpenFileDialog(
   // Show panel.
   [openPanel beginSheetModalForWindow:[view window]
                     completionHandler:^(NSInteger returnCode) {
-    [NSApp stopModalWithCode:returnCode];
-  }];
-  NSInteger result = [NSApp runModalForWindow:[view window]];
-  if (result == NSFileHandlingPanelOKButton) {
-    NSArray *urls = [openPanel URLs];
-    int i, count = [urls count];
-    for (i=0; i<count; i++) {
-      NSURL* url = [urls objectAtIndex:i];
-      if ([url isFileURL])
-        files->push_back(base::FilePath(base::SysNSStringToUTF8([url path])));
+    int filter_index_to_use =
+        (filter_delegate != nil) ? [filter_delegate filter] : filter_index;
+    if (returnCode == NSFileHandlingPanelOKButton) {
+      std::vector<base::FilePath> files;
+      files.reserve(openPanel.URLs.count);
+      for (NSURL* url in openPanel.URLs) {
+        if (url.isFileURL)
+          files.push_back(base::FilePath(url.path.UTF8String));
+      }
+      callback.Run(filter_index_to_use, files);
+    } else {
+      callback.Run(filter_index_to_use, std::vector<base::FilePath>());
     }
-  }
-
-  if (filter_delegate != nil)
-    *filter_index = [filter_delegate filter];
+  }];
 }
 
-bool RunSaveFileDialog(
+void RunSaveFileDialog(
     const CefFileDialogRunner::FileChooserParams& params,
     NSView* view,
-    int* filter_index,
-    base::FilePath* file) {
+    int filter_index,
+    CefFileDialogRunner::RunFileChooserCallback callback) {
   NSSavePanel* savePanel = [NSSavePanel savePanel];
 
   base::string16 title;
@@ -349,32 +348,27 @@ bool RunSaveFileDialog(
     // Add the file filter control.
     filter_delegate =
         [[CefFilterDelegate alloc] initWithPanel:savePanel
-                                      andAcceptFilters:params.accept_types
-                                        andFilterIndex:*filter_index];
+                                andAcceptFilters:params.accept_types
+                                  andFilterIndex:filter_index];
   }
 
   [savePanel setAllowsOtherFileTypes:YES];
   [savePanel setShowsHiddenFiles:!params.hidereadonly];
 
-  bool success = false;
-
   // Show panel.
-  [savePanel beginSheetModalForWindow:[view window]
+  [savePanel beginSheetModalForWindow:view.window
                     completionHandler:^(NSInteger resultCode) {
-    [NSApp stopModalWithCode:resultCode];
+    int filter_index_to_use =
+        (filter_delegate != nil) ? [filter_delegate filter] : filter_index;
+    if (resultCode == NSFileHandlingPanelOKButton) {
+      NSURL* url = savePanel.URL;
+      const char* path = url.path.UTF8String;
+      std::vector<base::FilePath> files(1, base::FilePath(path));
+      callback.Run(filter_index_to_use, files);
+    } else {
+      callback.Run(filter_index_to_use, std::vector<base::FilePath>());
+    }
   }];
-  NSInteger result = [NSApp runModalForWindow:[view window]];
-  if (result == NSFileHandlingPanelOKButton) {
-    NSURL* url = [savePanel URL];
-    NSString* path = [url path];
-    *file = base::FilePath([path UTF8String]);
-    success = true;
-  }
-
-  if (filter_delegate != nil)
-    *filter_index = [filter_delegate filter];
-
-  return success;
 }
 
 }  // namespace
@@ -385,22 +379,16 @@ CefFileDialogRunnerMac::CefFileDialogRunnerMac() {
 void CefFileDialogRunnerMac::Run(CefBrowserHostImpl* browser,
                                  const FileChooserParams& params,
                                  RunFileChooserCallback callback) {
-  std::vector<base::FilePath> files;
   int filter_index = params.selected_accept_filter;
   NSView* owner = browser->GetWindowHandle();
 
   if (params.mode == content::FileChooserParams::Open ||
       params.mode == content::FileChooserParams::OpenMultiple ||
       params.mode == content::FileChooserParams::UploadFolder) {
-    RunOpenFileDialog(params, owner, &filter_index, &files);
+    RunOpenFileDialog(params, owner, filter_index, callback);
   } else if (params.mode == content::FileChooserParams::Save) {
-    base::FilePath file;
-    if (RunSaveFileDialog(params, owner, &filter_index, &file)) {
-      files.push_back(file);
-    }
+    RunSaveFileDialog(params, owner, filter_index, callback);
   }  else {
     NOTIMPLEMENTED();
   }
-
-  callback.Run(filter_index, files);
 }
