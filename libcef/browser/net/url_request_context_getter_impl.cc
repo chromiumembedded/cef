@@ -27,6 +27,7 @@
 #include "build/build_config.h"
 #include "chrome/browser/net/proxy_service_factory.h"
 #include "chrome/common/pref_names.h"
+#include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_client.h"
@@ -120,9 +121,18 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
 
   std::swap(protocol_handlers_, *protocol_handlers);
 
+  auto io_thread_proxy =
+      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO);
+
+  quick_check_enabled_.Init(prefs::kQuickCheckEnabled, pref_service);
+  quick_check_enabled_.MoveToThread(io_thread_proxy);
+
+  pac_https_url_stripping_enabled_.Init(prefs::kPacHttpsUrlStrippingEnabled,
+                                        pref_service);
+  pac_https_url_stripping_enabled_.MoveToThread(io_thread_proxy);
+
   force_google_safesearch_.Init(prefs::kForceGoogleSafeSearch, pref_service);
-  force_google_safesearch_.MoveToThread(
-      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO));
+  force_google_safesearch_.MoveToThread(io_thread_proxy);
 
 #if defined(OS_POSIX) && !defined(OS_ANDROID)
   gsapi_library_name_ = pref_service->GetString(prefs::kGSSAPILibraryName);
@@ -138,8 +148,24 @@ CefURLRequestContextGetterImpl::~CefURLRequestContextGetterImpl() {
   storage_->set_proxy_service(NULL);
 }
 
+// static
+void CefURLRequestContextGetterImpl::RegisterPrefs(
+    PrefRegistrySimple* registry) {
+  // Based on IOThread::RegisterPrefs.
+#if defined(OS_POSIX) && !defined(OS_ANDROID)
+  registry->RegisterStringPref(prefs::kGSSAPILibraryName, std::string());
+#endif
+  registry->RegisterBooleanPref(prefs::kQuickCheckEnabled, true);
+  registry->RegisterBooleanPref(prefs::kPacHttpsUrlStrippingEnabled, true);
+
+  // Based on ProfileImpl::RegisterProfilePrefs.
+  registry->RegisterBooleanPref(prefs::kForceGoogleSafeSearch, false);
+}
+
 void CefURLRequestContextGetterImpl::ShutdownOnUIThread() {
   CEF_REQUIRE_UIT();
+  quick_check_enabled_.Destroy();
+  pac_https_url_stripping_enabled_.Destroy();
   force_google_safesearch_.Destroy();
 }
 
@@ -189,7 +215,8 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
             url_request_context_->network_delegate(),
             std::move(proxy_config_service_),
             *command_line,
-            true);
+            quick_check_enabled_.GetValue(),
+            pac_https_url_stripping_enabled_.GetValue());
     storage_->set_proxy_service(std::move(system_proxy_service));
 
     storage_->set_ssl_config_service(new net::SSLConfigServiceDefaults);
