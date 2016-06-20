@@ -695,7 +695,8 @@ void CefBrowserHostImpl::StartDownload(const CefString& url) {
     return;
 
   std::unique_ptr<content::DownloadUrlParameters> params(
-      content::DownloadUrlParameters::FromWebContents(web_contents(), gurl));
+      content::DownloadUrlParameters::CreateForWebContentsMainFrame(
+          web_contents(), gurl));
   manager->DownloadUrl(std::move(params));
 }
 
@@ -2243,10 +2244,10 @@ content::JavaScriptDialogManager*
 }
 
 void CefBrowserHostImpl::RunFileChooser(
-    content::WebContents* web_contents,
+    content::RenderFrameHost* render_frame_host,
     const content::FileChooserParams& params) {
   EnsureFileDialogManager();
-  file_dialog_manager_->RunFileChooser(web_contents, params);
+  file_dialog_manager_->RunFileChooser(render_frame_host, params);
 }
 
 bool CefBrowserHostImpl::HandleContextMenu(

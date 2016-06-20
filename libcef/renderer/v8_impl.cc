@@ -15,7 +15,6 @@
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "core/frame/Frame.h"
 #include "core/frame/LocalFrame.h"
-#include "core/workers/WorkerGlobalScope.h"
 #include "bindings/core/v8/ScriptController.h"
 #include "bindings/core/v8/V8Binding.h"
 MSVC_POP_WARNING();

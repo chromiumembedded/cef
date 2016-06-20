@@ -500,7 +500,9 @@ void TestChangeDirectory(CefRefPtr<CefCookieManager> manager,
 
 // Test creation of a domain cookie.
 TEST(CookieTest, DomainCookieGlobal) {
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
       CefCookieManager::GetGlobalManager(new TestCompletionCallback(&event));
@@ -512,7 +514,9 @@ TEST(CookieTest, DomainCookieGlobal) {
 
 // Test creation of a domain cookie.
 TEST(CookieTest, DomainCookieInMemory) {
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
       CefCookieManager::CreateManager(CefString(), false,
@@ -530,7 +534,9 @@ TEST(CookieTest, DomainCookieOnDisk) {
   // Create a new temporary directory.
   EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
 
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
       CefCookieManager::CreateManager(temp_dir.path().value(), false,
@@ -548,7 +554,9 @@ TEST(CookieTest, DomainCookieOnDisk) {
 
 // Test creation of a host cookie.
 TEST(CookieTest, HostCookieGlobal) {
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
       CefCookieManager::GetGlobalManager(new TestCompletionCallback(&event));
@@ -560,7 +568,9 @@ TEST(CookieTest, HostCookieGlobal) {
 
 // Test creation of a host cookie.
 TEST(CookieTest, HostCookieInMemory) {
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
       CefCookieManager::CreateManager(CefString(), false,
@@ -578,7 +588,9 @@ TEST(CookieTest, HostCookieOnDisk) {
   // Create a new temporary directory.
   EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
 
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
       CefCookieManager::CreateManager(temp_dir.path().value(), false,
@@ -596,7 +608,9 @@ TEST(CookieTest, HostCookieOnDisk) {
 
 // Test creation of multiple cookies.
 TEST(CookieTest, MultipleCookiesGlobal) {
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
       CefCookieManager::GetGlobalManager(new TestCompletionCallback(&event));
@@ -608,7 +622,9 @@ TEST(CookieTest, MultipleCookiesGlobal) {
 
 // Test creation of multiple cookies.
 TEST(CookieTest, MultipleCookiesInMemory) {
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
       CefCookieManager::CreateManager(CefString(), false,
@@ -626,7 +642,9 @@ TEST(CookieTest, MultipleCookiesOnDisk) {
   // Create a new temporary directory.
   EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
 
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
       CefCookieManager::CreateManager(temp_dir.path().value(), false,
@@ -643,7 +661,9 @@ TEST(CookieTest, MultipleCookiesOnDisk) {
 }
 
 TEST(CookieTest, AllCookiesGlobal) {
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
       CefCookieManager::GetGlobalManager(new TestCompletionCallback(&event));
@@ -654,7 +674,9 @@ TEST(CookieTest, AllCookiesGlobal) {
 }
 
 TEST(CookieTest, AllCookiesInMemory) {
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
       CefCookieManager::CreateManager(CefString(), false,
@@ -671,7 +693,9 @@ TEST(CookieTest, AllCookiesOnDisk) {
   // Create a new temporary directory.
   EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
 
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
       CefCookieManager::CreateManager(temp_dir.path().value(), false,
@@ -688,7 +712,9 @@ TEST(CookieTest, AllCookiesOnDisk) {
 }
 
 TEST(CookieTest, ChangeDirectoryGlobal) {
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
       CefCookieManager::GetGlobalManager(new TestCompletionCallback(&event));
@@ -702,7 +728,9 @@ TEST(CookieTest, ChangeDirectoryGlobal) {
 }
 
 TEST(CookieTest, ChangeDirectoryCreated) {
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
       CefCookieManager::CreateManager(CefString(), false,
@@ -715,7 +743,9 @@ TEST(CookieTest, ChangeDirectoryCreated) {
 
 TEST(CookieTest, SessionCookieNoPersist) {
   base::ScopedTempDir temp_dir;
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
   CefCookie cookie;
 
   // Create a new temporary directory.
@@ -749,7 +779,9 @@ TEST(CookieTest, SessionCookieNoPersist) {
 
 TEST(CookieTest, SessionCookieWillPersist) {
   base::ScopedTempDir temp_dir;
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
   CefCookie cookie;
 
   // Create a new temporary directory.
@@ -894,7 +926,9 @@ class CookieTestJSHandler : public TestHandler {
                     const std::string& name,
                     const std::string& value,
                     TrackCallback& callback) {
-    base::WaitableEvent event(false, false);
+    base::WaitableEvent event(
+        base::WaitableEvent::ResetPolicy::AUTOMATIC,
+        base::WaitableEvent::InitialState::NOT_SIGNALED);
     CookieVector cookies;
 
     // Get the cookie.
@@ -1170,7 +1204,9 @@ class CookieTestSchemeHandler : public TestHandler {
                     const std::string& name,
                     const std::string& value,
                     TrackCallback& callback) {
-    base::WaitableEvent event(false, false);
+    base::WaitableEvent event(
+        base::WaitableEvent::ResetPolicy::AUTOMATIC,
+        base::WaitableEvent::InitialState::NOT_SIGNALED);
     CookieVector cookies;
 
     // Get the cookie.

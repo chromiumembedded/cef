@@ -409,9 +409,11 @@ class CefBeginFrameTimer : public cc::DelayBasedTimeSourceClient {
   CefBeginFrameTimer(int frame_rate_threshold_ms,
                      const base::Closure& callback)
       : callback_(callback) {
-    time_source_ = cc::DelayBasedTimeSource::Create(
-        base::TimeDelta::FromMilliseconds(frame_rate_threshold_ms), 
-        content::BrowserThread::GetMessageLoopProxyForThread(CEF_UIT).get());
+    time_source_.reset(new cc::DelayBasedTimeSource(
+        content::BrowserThread::GetMessageLoopProxyForThread(CEF_UIT).get()));
+    time_source_->SetTimebaseAndInterval(
+        base::TimeTicks(),
+        base::TimeDelta::FromMilliseconds(frame_rate_threshold_ms));
     time_source_->SetClient(this);
   }
 
@@ -1006,6 +1008,11 @@ CefRenderWidgetHostViewOSR::CreateSoftwareOutputDevice(
   return base::WrapUnique(software_output_device_);
 }
 
+int CefRenderWidgetHostViewOSR::DelegatedFrameHostGetGpuMemoryBufferClientId()
+    const {
+  return render_widget_host_->GetProcess()->GetID();
+}
+
 ui::Layer* CefRenderWidgetHostViewOSR::DelegatedFrameHostGetLayer() const {
   return root_layer_.get();
 }
@@ -1020,8 +1027,7 @@ SkColor CefRenderWidgetHostViewOSR::DelegatedFrameHostGetGutterColor(
   // may not match the page's, so use black as the gutter color to avoid
   // flashes of brighter colors during the transition.
   if (render_widget_host_->delegate() &&
-      render_widget_host_->delegate()->IsFullscreenForCurrentTab(
-          render_widget_host_)) {
+      render_widget_host_->delegate()->IsFullscreenForCurrentTab()) {
     return SK_ColorBLACK;
   }
   return color;

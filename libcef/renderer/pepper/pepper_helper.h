@@ -17,6 +17,7 @@ class CefPepperHelper : public content::RenderFrameObserver {
 
   // RenderFrameObserver.
   void DidCreatePepperPlugin(content::RendererPpapiHost* host) override;
+  void OnDestruct() override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CefPepperHelper);

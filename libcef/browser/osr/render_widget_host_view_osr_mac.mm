@@ -17,6 +17,7 @@
 #include "base/compiler_specific.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/common/view_messages.h"
+#include "ui/accelerated_widget_mac/accelerated_widget_mac.h"
 #include "ui/events/latency_info.h"
 
 namespace {
@@ -29,6 +30,35 @@ CefTextInputClientOSRMac* GetInputClientFromContext(
 }
 
 }  // namespace
+
+
+class AcceleratedWidgetMacNSViewHelper : public ui::AcceleratedWidgetMacNSView {
+ public:
+  explicit AcceleratedWidgetMacNSViewHelper(CefRenderWidgetHostViewOSR* view)
+    : view_(view) {
+  }
+  virtual ~AcceleratedWidgetMacNSViewHelper() {}
+
+  NSView* AcceleratedWidgetGetNSView() const override {
+    return [view_->window_ contentView];
+  }
+
+  void AcceleratedWidgetGetVSyncParameters(
+      base::TimeTicks* timebase, base::TimeDelta* interval) const override {
+    *timebase = base::TimeTicks();
+    *interval = base::TimeDelta();
+  }
+
+  void AcceleratedWidgetSwapCompleted() override {
+  }
+
+ private:
+  // Guaranteed to outlive this object.
+  CefRenderWidgetHostViewOSR* view_;
+
+  DISALLOW_COPY_AND_ASSIGN(AcceleratedWidgetMacNSViewHelper);
+};
+
 
 ui::AcceleratedWidgetMac* CefRenderWidgetHostViewOSR::GetAcceleratedWidgetMac()
     const {
@@ -107,19 +137,6 @@ void CefRenderWidgetHostViewOSR::SelectionBoundsChanged(
   if (params.anchor_rect == params.focus_rect)
     caret_rect_ = params.anchor_rect;
   first_selection_rect_ = params.anchor_rect;
-}
-
-NSView* CefRenderWidgetHostViewOSR::AcceleratedWidgetGetNSView() const {
-  return [window_ contentView];
-}
-
-void CefRenderWidgetHostViewOSR::AcceleratedWidgetGetVSyncParameters(
-    base::TimeTicks* timebase, base::TimeDelta* interval) const {
-  *timebase = base::TimeTicks();
-  *interval = base::TimeDelta();
-}
-
-void CefRenderWidgetHostViewOSR::AcceleratedWidgetSwapCompleted() {
 }
 
 CefTextInputContext CefRenderWidgetHostViewOSR::GetNSTextInputContext() {
@@ -305,10 +322,12 @@ void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
   [content_view setWantsLayer:YES];
 
   browser_compositor_ = content::BrowserCompositorMac::Create();
+  accelerated_widget_helper_ = new AcceleratedWidgetMacNSViewHelper(this);
 
   compositor_.reset(browser_compositor_->compositor());
   compositor_->SetRootLayer(root_layer_.get());
-  browser_compositor_->accelerated_widget_mac()->SetNSView(this);
+  browser_compositor_->accelerated_widget_mac()->SetNSView(
+      accelerated_widget_helper_);
   browser_compositor_->compositor()->SetVisible(true);
 
   // CEF needs the browser compositor to remain responsive whereas normal
@@ -335,4 +354,7 @@ void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {
   browser_compositor_->compositor()->SetScaleAndSize(1.0, gfx::Size(0, 0));
   browser_compositor_->compositor()->SetRootLayer(NULL);
   content::BrowserCompositorMac::Recycle(std::move(browser_compositor_));
+
+  delete accelerated_widget_helper_;
+  accelerated_widget_helper_ = nullptr;
 }

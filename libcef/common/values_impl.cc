@@ -454,7 +454,8 @@ CefBinaryValueImpl::CefBinaryValueImpl(char* data,
                                        size_t data_size,
                                        bool copy)
   : CefValueBase<CefBinaryValue, base::BinaryValue>(
-        copy ? base::BinaryValue::CreateWithCopiedBuffer(data, data_size) :
+        copy ? base::BinaryValue::CreateWithCopiedBuffer(data,
+                                                         data_size).release() :
                new base::BinaryValue(std::unique_ptr<char[]>(data), data_size),
         NULL, kOwnerWillDelete, true, NULL) {
 }

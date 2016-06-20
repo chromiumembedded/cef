@@ -287,15 +287,6 @@ void CefResourceRequestJob::GetLoadTimingInfo(
   load_timing_info->receive_headers_end = receive_headers_end_;
 }
 
-bool CefResourceRequestJob::GetResponseCookies(
-    std::vector<std::string>* cookies) {
-  CEF_REQUIRE_IOT();
-
-  cookies->clear();
-  FetchResponseCookies(cookies);
-  return true;
-}
-
 bool CefResourceRequestJob::IsRedirectResponse(GURL* location,
                                                int* http_status_code) {
   CEF_REQUIRE_IOT();

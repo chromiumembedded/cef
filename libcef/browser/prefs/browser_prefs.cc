@@ -5,6 +5,7 @@
 #include "libcef/browser/prefs/browser_prefs.h"
 
 #include "libcef/browser/media_capture_devices_dispatcher.h"
+#include "libcef/browser/net/url_request_context_getter_impl.h"
 #include "libcef/browser/prefs/renderer_prefs.h"
 #include "libcef/common/cef_switches.h"
 
@@ -126,6 +127,7 @@ std::unique_ptr<PrefService> CreatePrefService(const base::FilePath& pref_path) 
   PrefProxyConfigTrackerImpl::RegisterPrefs(registry.get());
   extensions::ExtensionPrefs::RegisterProfilePrefs(registry.get());
   HostContentSettingsMap::RegisterProfilePrefs(registry.get());
+  CefURLRequestContextGetterImpl::RegisterPrefs(registry.get());
   renderer_prefs::RegisterProfilePrefs(registry.get());
   update_client::RegisterPrefs(registry.get());
 
@@ -159,14 +161,6 @@ std::unique_ptr<PrefService> CreatePrefService(const base::FilePath& pref_path) 
   // Based on chrome::RegisterBrowserUserPrefs.
   registry->RegisterBooleanPref(prefs::kPluginsAllowOutdated, false);
   registry->RegisterBooleanPref(prefs::kPluginsAlwaysAuthorize, false);
-
-  // Network preferences.
-  // Based on ProfileImpl::RegisterProfilePrefs.
-  registry->RegisterBooleanPref(prefs::kForceGoogleSafeSearch, false);
-  // Based on IOThread::RegisterPrefs.
-#if defined(OS_POSIX) && !defined(OS_ANDROID)
-  registry->RegisterStringPref(prefs::kGSSAPILibraryName, std::string());
-#endif
 
   if (command_line->HasSwitch(switches::kEnablePreferenceTesting)) {
     // Preferences used with unit tests.

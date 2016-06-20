@@ -39,7 +39,6 @@ class CefResourceRequestJob : public net::URLRequestJob {
   void GetResponseInfo(net::HttpResponseInfo* info) override;
   void GetLoadTimingInfo(
       net::LoadTimingInfo* load_timing_info) const override;
-  bool GetResponseCookies(std::vector<std::string>* cookies) override;
   bool IsRedirectResponse(GURL* location, int* http_status_code)
       override;
   bool GetMimeType(std::string* mime_type) const override;

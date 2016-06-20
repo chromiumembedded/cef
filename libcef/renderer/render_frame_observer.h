@@ -21,6 +21,7 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
                               int world_id) override;
   void WillReleaseScriptContext(v8::Handle<v8::Context> context,
                                 int world_id) override;
+  void OnDestruct() override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CefRenderFrameObserver);

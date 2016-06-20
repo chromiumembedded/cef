@@ -151,7 +151,8 @@ void PrintViewManagerBase::OnDidPrintPage(
     }
   }
 
-  std::unique_ptr<PdfMetafileSkia> metafile(new PdfMetafileSkia);
+  std::unique_ptr<PdfMetafileSkia> metafile(
+      new PdfMetafileSkia(PDF_SKIA_DOCUMENT_TYPE));
   if (metafile_must_be_valid) {
     if (!metafile->InitFromData(shared_buf->memory(), params.data_size)) {
       NOTREACHED() << "Invalid metafile header";
@@ -214,16 +215,8 @@ void PrintViewManagerBase::Observe(
     int type,
     const content::NotificationSource& source,
     const content::NotificationDetails& details) {
-  switch (type) {
-    case chrome::NOTIFICATION_PRINT_JOB_EVENT: {
-      OnNotifyPrintJobEvent(*content::Details<JobEventDetails>(details).ptr());
-      break;
-    }
-    default: {
-      NOTREACHED();
-      break;
-    }
-  }
+  DCHECK_EQ(chrome::NOTIFICATION_PRINT_JOB_EVENT, type);
+  OnNotifyPrintJobEvent(*content::Details<JobEventDetails>(details).ptr());
 }
 
 void PrintViewManagerBase::OnNotifyPrintJobEvent(

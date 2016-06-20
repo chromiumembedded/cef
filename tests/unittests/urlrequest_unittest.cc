@@ -1040,7 +1040,9 @@ class RequestTestHandler : public TestHandler,
     // register any scheme handlers.
     test_runner_->SetupTest(test_mode_);
 
-    base::WaitableEvent event(false, false);
+    base::WaitableEvent event(
+        base::WaitableEvent::ResetPolicy::AUTOMATIC,
+        base::WaitableEvent::InitialState::NOT_SIGNALED);
     SetTestCookie(test_runner_->GetRequestContext(), &event);
 
     if (test_in_browser_) {
@@ -1094,7 +1096,9 @@ class RequestTestHandler : public TestHandler,
   }
 
   void DestroyTest(const RequestRunSettings& settings) override {
-    base::WaitableEvent event(false, false);
+    base::WaitableEvent event(
+        base::WaitableEvent::ResetPolicy::AUTOMATIC,
+        base::WaitableEvent::InitialState::NOT_SIGNALED);
 
     bool has_save_cookie = false;
     GetTestCookie(test_runner_->GetRequestContext(), &event, &has_save_cookie);
@@ -1244,7 +1248,8 @@ namespace {
 class InvalidURLTestClient : public CefURLRequestClient {
  public:
   InvalidURLTestClient()
-      : event_(false, false) {
+      : event_(base::WaitableEvent::ResetPolicy::AUTOMATIC,
+               base::WaitableEvent::InitialState::NOT_SIGNALED) {
   }
 
   void RunTest() {

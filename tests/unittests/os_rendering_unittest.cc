@@ -73,7 +73,7 @@ const CefRect kExpectedRectLI[] = {
 const CefRect kEditBoxRect(412, 245, 60, 22);
 const CefRect kNavigateButtonRect(360, 271, 140, 22);
 const CefRect kSelectRect(467, 22, 75, 20);
-const CefRect kExpandedSelectRect(463, 42, 81, 342);
+const CefRect kExpandedSelectRect(463, 47, 81, 342);
 const CefRect kDropDivRect(8, 332, 52, 52);
 const CefRect kDragDivRect(71, 342, 30, 30);
 const int kDefaultVerticalScrollbarWidth = 17;
@@ -82,14 +82,14 @@ const int kVerticalScrollbarWidth = GetSystemMetrics(SM_CXVSCROLL);
 const CefRect kEditBoxRect(442, 251, 46, 16);
 const CefRect kNavigateButtonRect(375, 275, 130, 20);
 const CefRect kSelectRect(461, 21, 87, 26);
-const CefRect kExpandedSelectRect(463, 42, 78, 286);
+const CefRect kExpandedSelectRect(463, 42, 75, 286);
 const CefRect kDropDivRect(9, 330, 52, 52);
 const CefRect kDragDivRect(60, 330, 52, 52);
 #elif defined(OS_LINUX)
 const CefRect kEditBoxRect(434, 246, 60, 20);
 const CefRect kNavigateButtonRect(380, 271, 140, 22);
 const CefRect kSelectRect(467, 22, 75, 20);
-const CefRect kExpandedSelectRect(463, 42, 81, 342);
+const CefRect kExpandedSelectRect(463, 47, 81, 342);
 const CefRect kDropDivRect(8, 332, 52, 52);
 const CefRect kDragDivRect(71, 342, 30, 30);
 const int kDefaultVerticalScrollbarWidth = 14;

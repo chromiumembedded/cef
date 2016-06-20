@@ -17,7 +17,7 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
 #if defined(OS_WIN)
   // Returns a textual description of the product type and version to include
   // in the crash report.
-  void GetProductNameAndVersion(const base::FilePath& exe_path,
+  void GetProductNameAndVersion(const base::string16& exe_path,
                                 base::string16* product_name,
                                 base::string16* version,
                                 base::string16* special_build,
@@ -35,7 +35,11 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
 
   // The location where minidump files should be written. Returns true if
   // |crash_dir| was set.
+#if defined(OS_WIN)
+  bool GetCrashDumpLocation(base::string16* crash_dir) override;
+#else
   bool GetCrashDumpLocation(base::FilePath* crash_dir) override;
+#endif
 
   bool EnableBreakpadForProcess(const std::string& process_type) override;
 

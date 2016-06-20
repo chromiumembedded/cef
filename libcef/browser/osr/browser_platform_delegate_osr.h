@@ -83,6 +83,9 @@ class CefBrowserPlatformDelegateOsr :
 
   std::unique_ptr<CefBrowserPlatformDelegateNative> native_delegate_;
   CefWebContentsViewOSR* view_osr_;  // Not owned by this class.
+
+  // Pending drag/drop data.
+  CefRefPtr<CefDragData> drag_data_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_OSR_BROWSER_PLATFORM_DELEGATE_OSR_H_

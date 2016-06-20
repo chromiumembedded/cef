@@ -210,7 +210,9 @@ private:
 }  // namespace
 
 TEST(GeolocationTest, GetGeolocation) {
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
   CefGetGeolocation(new TestGetGeolocationCallback(&event));
   event.Wait();
 }

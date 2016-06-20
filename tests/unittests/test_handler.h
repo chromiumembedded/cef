@@ -301,7 +301,9 @@ class TestHandler : public CefClient,
 // all Handler references have been released on test completion.
 template<typename T>
 void ReleaseAndWaitForDestructor(CefRefPtr<T>& handler, int delay_ms = 2000) {
-  base::WaitableEvent event(true, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
   handler->SetDestroyEvent(&event);
   T* _handler_ptr = handler.get();
   handler = NULL;

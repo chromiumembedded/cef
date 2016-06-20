@@ -25,7 +25,6 @@
 
 #if defined(OS_MACOSX)
 #include "content/browser/renderer_host/browser_compositor_view_mac.h"
-#include "ui/accelerated_widget_mac/accelerated_widget_mac.h"
 #endif
 
 #if defined(OS_WIN)
@@ -76,11 +75,12 @@ class CefWindowX11;
 // RenderWidgetHostView class hierarchy described in render_widget_host_view.h.
 ///////////////////////////////////////////////////////////////////////////////
 
+#if defined(OS_MACOSX)
+class AcceleratedWidgetMacNSViewHelper;
+#endif
+
 class CefRenderWidgetHostViewOSR
     : public content::RenderWidgetHostViewBase,
-#if defined(OS_MACOSX)
-      public ui::AcceleratedWidgetMacNSView,
-#endif
       public ui::CompositorDelegate,
       public content::DelegatedFrameHostClient {
  public:
@@ -183,14 +183,6 @@ class CefRenderWidgetHostViewOSR
       const std::vector<gfx::Rect>& character_bounds) override;
 #endif
 
-#if defined(OS_MACOSX)
-  // AcceleratedWidgetMacNSView implementation.
-  NSView* AcceleratedWidgetGetNSView() const override;
-  void AcceleratedWidgetGetVSyncParameters(
-      base::TimeTicks* timebase, base::TimeDelta* interval) const override;
-  void AcceleratedWidgetSwapCompleted() override;
-#endif  // defined(OS_MACOSX)
-
   bool OnMessageReceived(const IPC::Message& msg) override;
 
   // Message handlers.
@@ -201,6 +193,7 @@ class CefRenderWidgetHostViewOSR
       ui::Compositor* compositor) override;
 
   // DelegatedFrameHostClient implementation.
+  virtual int DelegatedFrameHostGetGpuMemoryBufferClientId() const override;
   ui::Layer* DelegatedFrameHostGetLayer() const override;
   bool DelegatedFrameHostIsVisible() const override;
   SkColor DelegatedFrameHostGetGutterColor(SkColor color) const override;
@@ -295,6 +288,8 @@ class CefRenderWidgetHostViewOSR
   void OnScrollOffsetChanged();
 
 #if defined(OS_MACOSX)
+  friend class AcceleratedWidgetMacNSViewHelper;
+
   // Returns composition character boundary rectangle. The |range| is
   // composition based range. Also stores |actual_range| which is corresponding
   // to actually used range for returned rectangle.
@@ -339,6 +334,7 @@ class CefRenderWidgetHostViewOSR
   NSWindow* window_;
   CALayer* background_layer_;
   std::unique_ptr<content::BrowserCompositorMac> browser_compositor_;
+  AcceleratedWidgetMacNSViewHelper* accelerated_widget_helper_;
 #elif defined(USE_X11)
   CefWindowX11* window_;
   std::unique_ptr<ui::XScopedCursor> invisible_cursor_;

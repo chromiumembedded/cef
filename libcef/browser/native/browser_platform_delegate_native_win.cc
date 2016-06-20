@@ -17,6 +17,7 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/files/file_util.h"
+#include "base/memory/ref_counted_memory.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/win/registry.h"
 #include "content/public/browser/native_web_keyboard_event.h"

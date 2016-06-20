@@ -74,7 +74,8 @@ class TracingTestHandler : public CefEndTracingCallback,
                            public CefCompletionCallback {
  public:
   TracingTestHandler(TracingTestType type, const char* trace_type)
-      : completion_event_(true, false),
+      : completion_event_(base::WaitableEvent::ResetPolicy::AUTOMATIC,
+                          base::WaitableEvent::InitialState::NOT_SIGNALED),
         trace_type_(trace_type),
         type_(type) {
   }

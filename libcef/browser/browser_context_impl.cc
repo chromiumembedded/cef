@@ -29,9 +29,9 @@
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/guest_view/browser/guest_view_manager.h"
 #include "components/prefs/pref_service.h"
-#include "components/ui/zoom/zoom_event_manager.h"
 #include "components/visitedlink/browser/visitedlink_event_listener.h"
 #include "components/visitedlink/browser/visitedlink_master.h"
+#include "components/zoom/zoom_event_manager.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/storage_partition.h"
@@ -343,7 +343,7 @@ std::unique_ptr<content::ZoomLevelDelegate>
 
   return base::WrapUnique(new ChromeZoomLevelPrefs(
       GetPrefs(), cache_path_, partition_path,
-      ui_zoom::ZoomEventManager::GetForBrowserContext(this)->GetWeakPtr()));
+      zoom::ZoomEventManager::GetForBrowserContext(this)->GetWeakPtr()));
 }
 
 bool CefBrowserContextImpl::IsOffTheRecord() const {

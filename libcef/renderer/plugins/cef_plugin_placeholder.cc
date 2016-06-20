@@ -58,7 +58,6 @@ CefPluginPlaceholder::CefPluginPlaceholder(
                                          html_data),
       status_(CefViewHostMsg_GetPluginInfo_Status::kAllowed),
       title_(title),
-      has_host_(false),
       context_menu_request_id_(0),
       ignore_updates_(false) {
   RenderThread::Get()->AddObserver(this);

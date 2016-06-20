@@ -122,17 +122,19 @@ void CefExtensionSystem::Init() {
   // 5. A MimeHandlerViewGuest and CefMimeHandlerViewGuestDelegate is created in
   //    the browser process.
   // 6. MimeHandlerViewGuest navigates to the PDF extension URL.
-  // 7. PDF extension resources are provided from bundle via
+  // 7. Access to PDF extension resources is checked by
+  //    CefExtensionsBrowserClient::AllowCrossRendererResourceLoad.
+  // 8. PDF extension resources are provided from bundle via
   //    CefExtensionsBrowserClient::MaybeCreateResourceBundleRequestJob and
   //    CefComponentExtensionResourceManager.
-  // 8. The PDF extension communicates via the chrome.mimeHandlerPrivate Mojo
+  // 9. The PDF extension communicates via the chrome.mimeHandlerPrivate Mojo
   //    API which is implemented as described in
   //    libcef/common/extensions/api/README.txt.
-  // 9. The PDF extension requests a plugin to handle
+  // 10.The PDF extension requests a plugin to handle
   //    kPDFPluginOutOfProcessMimeType which loads the PDF PPAPI plugin.
-  // 10.Routing of print-related commands are handled by ChromePDFPrintClient
+  // 11.Routing of print-related commands are handled by ChromePDFPrintClient
   //    and CefPrintWebViewHelperDelegate in the renderer process.
-  // 11.The PDF extension is granted access to chrome://resources via
+  // 12.The PDF extension is granted access to chrome://resources via
   //    CefExtensionWebContentsObserver::RenderViewCreated in the browser
   //    process.
   if (PdfExtensionEnabled()) {

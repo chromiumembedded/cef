@@ -91,3 +91,7 @@ void CefPluginPreroller::OnThrottlerDestroyed() {
   throttler_ = nullptr;
   delete this;
 }
+
+void CefPluginPreroller::OnDestruct() {
+  delete this;
+}

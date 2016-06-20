@@ -1,20 +1,20 @@
 diff --git web_contents.cc web_contents.cc
-index 69190cf..05d2250 100644
+index fa0afb5..d677b31 100644
 --- web_contents.cc
 +++ web_contents.cc
-@@ -28,7 +28,9 @@ WebContents::CreateParams::CreateParams(BrowserContext* context,
-       initially_hidden(false),
+@@ -29,7 +29,9 @@ WebContents::CreateParams::CreateParams(BrowserContext* context,
        guest_delegate(nullptr),
        context(nullptr),
--      renderer_initiated_creation(false) {}
-+      renderer_initiated_creation(false),
+       renderer_initiated_creation(false),
+-      initialize_renderer(false) {
++      initialize_renderer(false),
 +      view(nullptr),
-+      delegate_view(nullptr) {}
++      delegate_view(nullptr) {
+ }
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
- 
 diff --git web_contents.h web_contents.h
-index 6aa00e6..41223fa 100644
+index 90b647e..9fcedc0 100644
 --- web_contents.h
 +++ web_contents.h
 @@ -55,8 +55,10 @@ class PageState;
@@ -28,10 +28,10 @@ index 6aa00e6..41223fa 100644
  struct CustomContextMenuContext;
  struct DropData;
  struct Manifest;
-@@ -149,6 +151,10 @@ class WebContents : public PageNavigator,
-     // RenderFrame, have already been created on the renderer side, and
-     // WebContents construction should take this into account.
-     bool renderer_initiated_creation;
+@@ -157,6 +159,10 @@ class WebContents : public PageNavigator,
+     // Note that the pre-created renderer process may not be used if the first
+     // navigation requires a dedicated or privileged process, such as a WebUI.
+     bool initialize_renderer;
 +
 +    // Optionally specify the view and delegate view.
 +    content::WebContentsView* view;
@@ -55,7 +55,7 @@ index df97348..8e2168e 100644
  }
  
 diff --git web_contents_delegate.h web_contents_delegate.h
-index 74b56e1..b4dcb2a 100644
+index 2816c4d..387821f 100644
 --- web_contents_delegate.h
 +++ web_contents_delegate.h
 @@ -42,9 +42,11 @@ class JavaScriptDialogManager;

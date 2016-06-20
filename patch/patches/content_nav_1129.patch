@@ -19,10 +19,10 @@ index 4ad49c8..f1fa7ab 100644
    return false;
  }
 diff --git public/renderer/content_renderer_client.h public/renderer/content_renderer_client.h
-index d96adc9..348ae16 100644
+index 579335b..2248549 100644
 --- public/renderer/content_renderer_client.h
 +++ public/renderer/content_renderer_client.h
-@@ -200,7 +200,6 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -201,7 +201,6 @@ class CONTENT_EXPORT ContentRendererClient {
    // Returns true if a popup window should be allowed.
    virtual bool AllowPopup();
  
@@ -30,7 +30,7 @@ index d96adc9..348ae16 100644
    // TODO(sgurun) This callback is deprecated and will be removed as soon
    // as android webview completes implementation of a resource throttle based
    // shouldoverrideurl implementation. See crbug.com/325351
-@@ -216,6 +215,7 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -217,6 +216,7 @@ class CONTENT_EXPORT ContentRendererClient {
                                  blink::WebNavigationPolicy default_policy,
                                  bool is_redirect);
  
@@ -39,10 +39,10 @@ index d96adc9..348ae16 100644
    // built in media player for the given |url|. Defaults to false.
    virtual bool ShouldUseMediaPlayerForURL(const GURL& url);
 diff --git renderer/render_frame_impl.cc renderer/render_frame_impl.cc
-index 4ff6aaa..4309775 100644
+index 5f3ab60..b6f503f 100644
 --- renderer/render_frame_impl.cc
 +++ renderer/render_frame_impl.cc
-@@ -4771,7 +4771,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -4867,7 +4867,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
        (pending_navigation_params_ &&
         !pending_navigation_params_->request_params.redirects.empty());
  
@@ -50,7 +50,7 @@ index 4ff6aaa..4309775 100644
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
    if (GetContentClient()->renderer()->HandleNavigation(
-@@ -4780,7 +4779,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -4876,7 +4875,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
            is_redirect)) {
      return blink::WebNavigationPolicyIgnore;
    }

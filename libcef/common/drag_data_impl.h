@@ -43,8 +43,8 @@ class CefDragDataImpl : public CefDragData {
   void AddFile(const CefString& path, const CefString& display_name) override;
 
   // This method is not safe. Use Lock/Unlock to get mutually exclusive access.
-  const content::DropData& drop_data() {
-    return data_;
+  content::DropData* drop_data() {
+    return &data_;
   }
 
   void SetReadOnly(bool read_only);

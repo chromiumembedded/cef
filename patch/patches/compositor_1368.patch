@@ -1,8 +1,8 @@
 diff --git content/browser/compositor/gpu_process_transport_factory.cc content/browser/compositor/gpu_process_transport_factory.cc
-index ea713fd..e4119f6 100644
+index 6fdb92e..5405306 100644
 --- content/browser/compositor/gpu_process_transport_factory.cc
 +++ content/browser/compositor/gpu_process_transport_factory.cc
-@@ -188,6 +188,13 @@ GpuProcessTransportFactory::~GpuProcessTransportFactory() {
+@@ -184,6 +184,13 @@ GpuProcessTransportFactory::~GpuProcessTransportFactory() {
  std::unique_ptr<cc::SoftwareOutputDevice>
  GpuProcessTransportFactory::CreateSoftwareOutputDevice(
      ui::Compositor* compositor) {
@@ -14,7 +14,7 @@ index ea713fd..e4119f6 100644
 +  }
 +
  #if defined(MOJO_RUNNER_CLIENT)
-   if (IsRunningInMojoShell()) {
+   if (shell::ShellIsRemote()) {
      return std::unique_ptr<cc::SoftwareOutputDevice>(
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
 index a6245da..edfdeb5c 100644

@@ -27,6 +27,7 @@
 #include "extensions/browser/extension_host_delegate.h"
 #include "extensions/browser/mojo/service_registration.h"
 #include "extensions/browser/url_request_util.h"
+#include "extensions/common/constants.h"
 
 using content::BrowserContext;
 using content::BrowserThread;
@@ -114,6 +115,13 @@ bool CefExtensionsBrowserClient::AllowCrossRendererResourceLoad(
     bool is_incognito,
     const Extension* extension,
     InfoMap* extension_info_map) {
+  // TODO(cef): This bypasses additional checks added to
+  // AllowCrossRendererResourceLoad() in https://crrev.com/5cf9d45c. Figure out
+  // why permission is not being granted based on "web_accessible_resources"
+  // specified in the PDF extension manifest.json file.
+  if (extension->id() == extension_misc::kPdfExtensionId)
+    return true;
+
   bool allowed = false;
   if (url_request_util::AllowCrossRendererResourceLoad(
           request, is_incognito, extension, extension_info_map, &allowed)) {

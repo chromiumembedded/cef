@@ -402,7 +402,9 @@ class TestRequestContextHandler : public CefRequestContextHandler {
 
 // Verify default preference values on the global context.
 TEST(PreferenceTest, GlobalDefaults) {
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefRequestContext> context = CefRequestContext::GetGlobalContext();
   EXPECT_TRUE(context.get());
@@ -413,7 +415,9 @@ TEST(PreferenceTest, GlobalDefaults) {
 
 // Verify setting/getting preference values on the global context.
 TEST(PreferenceTest, GlobalSetGet) {
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefRequestContext> context = CefRequestContext::GetGlobalContext();
   EXPECT_TRUE(context.get());
@@ -428,7 +432,9 @@ TEST(PreferenceTest, GlobalSetGet) {
 
 // Verify setting/getting preference values on shared global contexts.
 TEST(PreferenceTest, GlobalSetGetShared) {
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefRequestContext> context = CefRequestContext::GetGlobalContext();
   EXPECT_TRUE(context.get());
@@ -470,7 +476,9 @@ TEST(PreferenceTest, GlobalSetGetShared) {
 
 // Verify default preference values on a custom context.
 TEST(PreferenceTest, CustomDefaults) {
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRequestContextSettings settings;
   CefRefPtr<CefRequestContext> context =
@@ -483,7 +491,9 @@ TEST(PreferenceTest, CustomDefaults) {
 
 // Verify setting/getting preference values on a custom context.
 TEST(PreferenceTest, CustomSetGet) {
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);;
 
   CefRequestContextSettings settings;
   CefRefPtr<CefRequestContext> context =
@@ -500,7 +510,9 @@ TEST(PreferenceTest, CustomSetGet) {
 
 // Verify setting/getting preference values on shared custom contexts.
 TEST(PreferenceTest, CustomSetGetShared) {
-  base::WaitableEvent event(false, false);
+  base::WaitableEvent event(
+      base::WaitableEvent::ResetPolicy::AUTOMATIC,
+      base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRequestContextSettings settings;
   CefRefPtr<CefRequestContext> context =

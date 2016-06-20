@@ -100,7 +100,8 @@ class TestBrowserViewDelegate : public CefBrowserViewDelegate {
 TestHandler::CompletionState::CompletionState(int total)
     : total_(total),
       count_(0),
-      event_(true, false) {
+      event_(base::WaitableEvent::ResetPolicy::AUTOMATIC,
+             base::WaitableEvent::InitialState::NOT_SIGNALED) {
 }
 
 void TestHandler::CompletionState::TestComplete() {

@@ -28,6 +28,7 @@
 #include "chrome/browser/component_updater/widevine_cdm_component_installer.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "components/component_updater/component_updater_service.h"
+#include "components/network_session_configurator/switches.h"
 #include "components/update_client/configurator.h"
 #include "content/public/app/content_main.h"
 #include "content/public/app/content_main_runner.h"
@@ -326,7 +327,9 @@ void CefContext::Shutdown() {
   if (settings_.multi_threaded_message_loop) {
     // Events that will be used to signal when shutdown is complete. Start in
     // non-signaled mode so that the event will block.
-    base::WaitableEvent uithread_shutdown_event(false, false);
+    base::WaitableEvent uithread_shutdown_event(
+        base::WaitableEvent::ResetPolicy::AUTOMATIC,
+        base::WaitableEvent::InitialState::NOT_SIGNALED);
 
     // Finish shutdown on the UI thread.
     CEF_POST_TASK(CEF_UIT,

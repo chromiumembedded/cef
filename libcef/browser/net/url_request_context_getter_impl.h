@@ -21,6 +21,7 @@
 #include "content/public/browser/browser_context.h"
 #include "net/url_request/url_request_job_factory.h"
 
+class PrefRegistrySimple;
 class PrefService;
 
 namespace base {
@@ -52,6 +53,9 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
       std::unique_ptr<net::ProxyConfigService> proxy_config_service,
       content::URLRequestInterceptorScopedVector request_interceptors);
   ~CefURLRequestContextGetterImpl() override;
+
+  // Register preferences. Called from browser_prefs::CreatePrefService().
+  static void RegisterPrefs(PrefRegistrySimple* registry);
 
   // Called when the BrowserContextImpl is destroyed.
   void ShutdownOnUIThread();
@@ -105,6 +109,9 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
   std::vector<std::string> cookie_supported_schemes_;
 
   std::vector<CefRefPtr<CefRequestContextHandler> > handler_list_;
+
+  BooleanPrefMember quick_check_enabled_;
+  BooleanPrefMember pac_https_url_stripping_enabled_;
 
   // Member variables which are pointed to by the various context objects.
   mutable BooleanPrefMember force_google_safesearch_;

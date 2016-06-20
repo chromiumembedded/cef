@@ -82,7 +82,6 @@ class CefPluginPlaceholder final
 
   base::string16 title_;
 
-  bool has_host_;
   int context_menu_request_id_;  // Nonzero when request pending.
   base::string16 plugin_name_;
 

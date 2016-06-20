@@ -23,3 +23,7 @@ void CefPepperHelper::DidCreatePepperPlugin(content::RendererPpapiHost* host) {
   host->GetPpapiHost()->AddHostFactoryFilter(
       base::WrapUnique(new CefRendererPepperHostFactory(host)));
 }
+
+void CefPepperHelper::OnDestruct() {
+  delete this;
+}

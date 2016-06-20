@@ -99,6 +99,10 @@ void CefRenderFrameObserver::WillReleaseScriptContext(
   CefV8ReleaseContext(context);
 }
 
+void CefRenderFrameObserver::OnDestruct() {
+  delete this;
+}
+
 
 // Enable deprecation warnings for MSVC. See http://crbug.com/585142.
 #if defined(OS_WIN)

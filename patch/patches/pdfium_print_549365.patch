@@ -1,8 +1,8 @@
 diff --git fpdfsdk/fpdfview.cpp fpdfsdk/fpdfview.cpp
-index 020ff8d..e4c5d9a 100644
+index 43ca318..ca42502 100644
 --- fpdfsdk/fpdfview.cpp
 +++ fpdfsdk/fpdfview.cpp
-@@ -19,6 +19,7 @@
+@@ -20,6 +20,7 @@
  #include "fpdfsdk/include/fsdk_mgr.h"
  #include "fpdfsdk/include/fsdk_rendercontext.h"
  #include "fpdfsdk/javascript/ijs_runtime.h"
@@ -10,7 +10,7 @@ index 020ff8d..e4c5d9a 100644
  #include "public/fpdf_ext.h"
  #include "public/fpdf_progressive.h"
  #include "third_party/base/numerics/safe_conversions_impl.h"
-@@ -267,6 +268,7 @@ DLLEXPORT void STDCALL FPDF_DestroyLibrary() {
+@@ -291,6 +292,7 @@ DLLEXPORT void STDCALL FPDF_DestroyLibrary() {
  #endif  // PDF_ENABLE_XFA
    CPDF_ModuleMgr::Destroy();
    CFX_GEModule::Destroy();

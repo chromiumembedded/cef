@@ -37,7 +37,9 @@ void RunOnThread(CefThreadId thread_id,
 
 #define NAMED_THREAD_TEST(thread_id, test_case_name, test_name)  \
     TEST(test_case_name, test_name) { \
-      base::WaitableEvent event(false, false); \
+      base::WaitableEvent event( \
+          base::WaitableEvent::ResetPolicy::AUTOMATIC, \
+          base::WaitableEvent::InitialState::NOT_SIGNALED); \
       RunOnThread(thread_id, base::Bind(test_name##Impl), &event); \
       event.Wait(); \
     }
@@ -55,7 +57,9 @@ void RunOnThreadAsync(
 
 #define NAMED_THREAD_TEST_ASYNC(thread_id, test_case_name, test_name)  \
     TEST(test_case_name, test_name) { \
-      base::WaitableEvent event(false, false); \
+      base::WaitableEvent event( \
+          base::WaitableEvent::ResetPolicy::AUTOMATIC, \
+          base::WaitableEvent::InitialState::NOT_SIGNALED); \
       RunOnThreadAsync(thread_id, base::Bind(test_name##Impl), &event); \
       event.Wait(); \
     }

@@ -120,6 +120,12 @@ class CefPrerendererClient : public content::RenderViewObserver,
  private:
   ~CefPrerendererClient() override {}
 
+  // RenderViewObserver methods:
+  void OnDestruct() override {
+    delete this;
+  }
+
+  // WebPrerendererClient methods:
   void willAddPrerender(blink::WebPrerender* prerender) override {}
 };
 

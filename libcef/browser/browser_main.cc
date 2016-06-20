@@ -69,7 +69,6 @@ void CefBrowserMainParts::PreMainMessageLoopStart() {
   if (!base::MessageLoop::current()) {
     // Create the browser message loop.
     message_loop_.reset(new CefBrowserMessageLoop());
-    message_loop_->set_thread_name("CrBrowserMain");
   }
 }
 

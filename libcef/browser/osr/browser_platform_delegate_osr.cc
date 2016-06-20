@@ -217,16 +217,19 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragEnter(
   if (!rvh)
     return;
 
+  drag_data_ = drag_data;
+
   CefDragDataImpl* data_impl = static_cast<CefDragDataImpl*>(drag_data.get());
   base::AutoLock lock_scope(data_impl->lock());
-  const content::DropData& drop_data = data_impl->drop_data();
+  content::DropData* drop_data = data_impl->drop_data();
   const gfx::Point client_pt(event.x, event.y);
   const gfx::Point& screen_pt = GetScreenPoint(client_pt);
   blink::WebDragOperationsMask ops =
       static_cast<blink::WebDragOperationsMask>(allowed_ops);
   int modifiers = TranslateModifiers(event.modifiers);
 
-  rvh->DragTargetDragEnter(drop_data, client_pt, screen_pt, ops, modifiers);
+  rvh->FilterDropData(drop_data);
+  rvh->DragTargetDragEnter(*drop_data, client_pt, screen_pt, ops, modifiers);
 }
 
 void CefBrowserPlatformDelegateOsr::DragTargetDragOver(
@@ -258,11 +261,19 @@ void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
   if (!rvh)
     return;
 
-  const gfx::Point client_pt(event.x, event.y);
-  const gfx::Point& screen_pt = GetScreenPoint(client_pt);
-  int modifiers = TranslateModifiers(event.modifiers);
+  {
+    CefDragDataImpl* data_impl =
+        static_cast<CefDragDataImpl*>(drag_data_.get());
+    base::AutoLock lock_scope(data_impl->lock());
+    content::DropData* drop_data = data_impl->drop_data();
+    const gfx::Point client_pt(event.x, event.y);
+    const gfx::Point& screen_pt = GetScreenPoint(client_pt);
+    int modifiers = TranslateModifiers(event.modifiers);
 
-  rvh->DragTargetDrop(client_pt, screen_pt, modifiers);
+    rvh->DragTargetDrop(*drop_data, client_pt, screen_pt, modifiers);
+  }
+
+  drag_data_ = nullptr;
 }
 
 void CefBrowserPlatformDelegateOsr::DragSourceEndedAt(

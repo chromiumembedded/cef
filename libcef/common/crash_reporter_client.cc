@@ -3,6 +3,9 @@
 // found in the LICENSE file.
 
 #include "libcef/common/crash_reporter_client.h"
+
+#include <utility>
+
 #include "libcef/common/cef_switches.h"
 #include "include/cef_version.h"
 
@@ -19,7 +22,7 @@ CefCrashReporterClient::~CefCrashReporterClient() {}
 
 #if defined(OS_WIN)
 void CefCrashReporterClient::GetProductNameAndVersion(
-    const base::FilePath& exe_path,
+    const base::string16& exe_path,
     base::string16* product_name,
     base::string16* version,
     base::string16* special_build,
@@ -44,18 +47,24 @@ base::FilePath CefCrashReporterClient::GetReporterLogFilename() {
 }
 #endif
 
-bool CefCrashReporterClient::GetCrashDumpLocation(base::FilePath* crash_dir) {
-#if !defined(OS_WIN)
-  const base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
-  if (!command_line->HasSwitch(switches::kCrashDumpsDir))
-    return false;
-  *crash_dir = command_line->GetSwitchValuePath(switches::kCrashDumpsDir);
-  return true;
+#if defined(OS_WIN)
+bool CefCrashReporterClient::GetCrashDumpLocation(base::string16* crash_dir) {
 #else
-  NOTREACHED();
-  return false;
+bool CefCrashReporterClient::GetCrashDumpLocation(base::FilePath* crash_dir) {
 #endif
+  if (!base::CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kCrashDumpsDir))
+    return false;
+
+  base::FilePath crash_directory =
+      base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
+          switches::kCrashDumpsDir);
+#if defined(OS_WIN)
+  *crash_dir = crash_directory.value();
+#else
+  *crash_dir = std::move(crash_directory);
+#endif
+  return true;
 }
 
 bool CefCrashReporterClient::EnableBreakpadForProcess(

@@ -200,7 +200,7 @@ display::Display GetDisplayMatchingBounds(const gfx::Rect& bounds,
                                                            find_bounds);
   }
 #endif
-  return display::Screen::GetScreen()->GetDisplayMatching(bounds);
+  return display::Screen::GetScreen()->GetDisplayMatching(find_bounds);
 }
 
 void ConvertPointFromPixels(gfx::Point* point,
