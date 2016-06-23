@@ -17,10 +17,10 @@
 #include "base/win/registry.h"
 #include "base/win/scoped_comptr.h"
 #include "grit/cef_strings.h"
-#include "grit/ui_strings.h"
 #include "net/base/mime_util.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/win/shell.h"
+#include "ui/strings/grit/ui_strings.h"
 
 namespace {
 

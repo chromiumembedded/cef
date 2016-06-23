@@ -1,0 +1,189 @@
+diff --git .gn .gn
+index 3bd6bc4..0abf820 100644
+--- .gn
++++ .gn
+@@ -247,6 +247,8 @@ exec_script_whitelist = [
+   "//build/toolchain/win/BUILD.gn",
+   "//build/util/branding.gni",
+   "//build/util/version.gni",
++  "//cef/BUILD.gn",
++  "//cef/libcef/common/extensions/api/schemas.gni",
+   "//chrome/android/BUILD.gn",
+   "//chrome/browser/BUILD.gn",
+   "//chrome/browser/chromeos/BUILD.gn",
+diff --git BUILD.gn BUILD.gn
+index 0a7fe56..467f536 100644
+--- BUILD.gn
++++ BUILD.gn
+@@ -206,6 +206,7 @@ group("both_gn_and_gyp") {
+     # and whether there should be other targets that are iOS-only and missing.
+     deps += [
+       "//cc:cc_unittests",
++      "//cef",
+       "//chrome/test:telemetry_perf_unittests",
+       "//chrome/test:unit_tests",
+       "//components:components_browsertests",
+diff --git build/config/features.gni build/config/features.gni
+index 9d33d91..d460e86 100644
+--- build/config/features.gni
++++ build/config/features.gni
+@@ -148,7 +148,7 @@ enable_web_speech = !is_android && !is_ios
+ 
+ enable_task_manager = !is_ios && !is_android
+ 
+-enable_themes = !is_android && !is_ios
++enable_themes = !is_android && !is_ios && !is_linux
+ 
+ # Whether we are using the rlz library or not.  Platforms like Android send
+ # rlz codes for searches but do not use the library.
+
+diff --git build/config/mac/base_rules.gni build/config/mac/base_rules.gni
+index 76610cc..7d17aba 100644
+--- build/config/mac/base_rules.gni
++++ build/config/mac/base_rules.gni
+@@ -366,13 +366,13 @@ template("compile_xibs") {
+     script = "//build/config/mac/compile_xib.py"
+     sources = invoker.sources
+     outputs = [
+-      "$target_gen_dir/{{source_name_part}}.nib",
++      "$target_gen_dir/$target_name/{{source_name_part}}.nib",
+     ]
+     args = [
+              "--input",
+              "{{source}}",
+              "--output",
+-             rebase_path("$target_gen_dir/{{source_name_part}}.nib"),
++             rebase_path("$target_gen_dir/$target_name/{{source_name_part}}.nib"),
+            ] + ibtool_flags
+   }
+ }
+diff --git build/config/win/visual_studio_version.gni build/config/win/visual_studio_version.gni
+index 05b369f..8be3a47 100644
+--- build/config/win/visual_studio_version.gni
++++ build/config/win/visual_studio_version.gni
+@@ -12,9 +12,8 @@ declare_args() {
+   # Use "2013" for Visual Studio 2013, or "2013e" for the Express version.
+   visual_studio_version = ""
+ 
+-  # Directory of the Windows driver kit. If visual_studio_path is empty, this
+-  # will be auto-filled.
+-  wdk_path = ""
++  # Path to Visual Studio runtime libraries.
++  visual_studio_runtime_dirs = ""
+ 
+   # Full path to the Windows SDK, not including a backslash at the end.
+   # This value is the default location, override if you have a different
+@@ -33,12 +32,11 @@ if (visual_studio_path == "") {
+   visual_studio_path = toolchain_data.vs_path
+   windows_sdk_path = toolchain_data.sdk_path
+   visual_studio_version = toolchain_data.vs_version
+-  wdk_path = toolchain_data.wdk_dir
+   visual_studio_runtime_dirs = toolchain_data.runtime_dirs
+ } else {
+   assert(visual_studio_version != "",
+          "You must set the visual_studio_version if you set the path")
+-  assert(wdk_path != "",
+-         "You must set the wdk_path if you set the visual studio path")
+-  visual_studio_runtime_dirs = []
++  assert(visual_studio_runtime_dirs != "",
++         "You must set the visual_studio_runtime_dirs if you set the visual " +
++         "studio path")
+ }
+diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
+index d58cb85..fd608ba 100644
+--- build/toolchain/win/setup_toolchain.py
++++ build/toolchain/win/setup_toolchain.py
+@@ -124,11 +124,14 @@ def _LoadToolchainEnv(cpu, sdk_dir):
+     script_path = os.path.normpath(os.path.join(
+                                        os.environ['GYP_MSVS_OVERRIDE_PATH'],
+                                        'VC/vcvarsall.bat'))
+-    if not os.path.exists(script_path):
+-      raise Exception('%s is missing - make sure VC++ tools are installed.' %
+-                      script_path)
+-    args = [script_path, 'amd64_x86' if cpu == 'x86' else 'amd64']
+-    variables = _LoadEnvFromBat(args)
++    if os.path.exists(script_path):
++      args = [script_path, 'amd64_x86' if cpu == 'x86' else 'amd64']
++      variables = _LoadEnvFromBat(args)
++    else:
++      variables = []
++      for k in sorted(os.environ.keys()):
++        variables.append('%s=%s' % (str(k), str(os.environ[k])))
++      variables = '\n'.join(variables)
+   return _ExtractImportantEnvironment(variables)
+ 
+ 
+diff --git chrome/BUILD.gn chrome/BUILD.gn
+index fa6cd4c..eaab973 100644
+--- chrome/BUILD.gn
++++ chrome/BUILD.gn
+@@ -647,7 +647,7 @@ if (is_win) {
+     ]
+ 
+     foreach(locale, locales_as_mac_outputs) {
+-      sources += [ "$root_gen_dir/repack/locales/$locale.pak" ]
++      sources += [ "$root_gen_dir/chrome/repack/locales/$locale.pak" ]
+     }
+ 
+     outputs = [
+diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
+index 9601dd4..9a7734a 100644
+--- chrome/chrome_repack_locales.gni
++++ chrome/chrome_repack_locales.gni
+@@ -161,9 +161,9 @@ template("chrome_repack_locales") {
+ 
+       # Compute the output name. Mac uses a different location.
+       if (is_mac || is_ios) {
+-        output = "${root_gen_dir}/repack/locales/${output_locale}.pak"
++        output = "${root_gen_dir}/chrome/repack/locales/${output_locale}.pak"
+       } else {
+-        output = "${root_out_dir}/locales/${output_locale}.pak"
++        output = "${root_out_dir}/chrome/locales/${output_locale}.pak"
+       }
+     }
+ 
+diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
+index a3dcae8..ea60e17 100644
+--- chrome/installer/mini_installer/BUILD.gn
++++ chrome/installer/mini_installer/BUILD.gn
+@@ -76,7 +76,7 @@ action("archive") {
+   inputs = [
+     "$root_out_dir/chrome.exe",
+     "$root_out_dir/chrome.dll",
+-    "$root_out_dir/locales/en-US.pak",
++    "$root_out_dir/chrome/locales/en-US.pak",
+     "$root_out_dir/setup.exe",
+     release_file,
+   ]
+diff --git chrome/test/BUILD.gn chrome/test/BUILD.gn
+index e0f20cf..ba7aa8f 100644
+--- chrome/test/BUILD.gn
++++ chrome/test/BUILD.gn
+@@ -1428,7 +1428,6 @@ if (!is_android) {
+     if (!enable_print_preview) {
+       sources -= [
+         "../browser/extensions/api/cloud_print_private/cloud_print_private_apitest.cc",
+-        "../browser/printing/cloud_print/test/cloud_print_policy_browsertest.cc",
+         "../browser/printing/cloud_print/test/cloud_print_proxy_process_browsertest.cc",
+         "../browser/printing/print_preview_dialog_controller_browsertest.cc",
+         "../browser/printing/print_preview_pdf_generated_browsertest.cc",
+diff --git tools/grit/repack.gni tools/grit/repack.gni
+index 42087f9..7dd1520 100644
+--- tools/grit/repack.gni
++++ tools/grit/repack.gni
+@@ -18,6 +18,7 @@ declare_args() {
+ #       File name (single string) of the output file.
+ #
+ #   deps  [optional]
++#   public_deps  [optional]
+ #   visibility  [optional]
+ #       Normal meaning.
+ template("repack") {
+@@ -25,6 +26,7 @@ template("repack") {
+     forward_variables_from(invoker,
+                            [
+                              "deps",
++                             "public_deps",
+                              "testonly",
+                              "visibility",
+                            ])

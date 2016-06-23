@@ -261,7 +261,7 @@ parser.add_option('--ninja-build',
                   help='build was created using ninja')
 parser.add_option('--x64-build',
                   action='store_true', dest='x64build', default=False,
-                  help='build was created for 64-bit systems')
+                  help='create a 64-bit binary distribution')
 parser.add_option('--minimal',
                   action='store_true', dest='minimal', default=False,
                   help='include only release build binary files')
@@ -282,13 +282,16 @@ elif sys.platform == 'darwin':
 elif sys.platform.startswith('linux'):
   platform = 'linux'
 
+# Whether to use GN or GYP. GYP is currently the default.
+use_gn = bool(int(os.environ.get('CEF_USE_GN', '0')))
+
 # the outputdir option is required
 if options.outputdir is None:
   parser.print_help(sys.stderr)
   sys.exit()
 
 if options.minimal and options.client:
-  print 'Invalid combination of options'
+  print 'Cannot specify both --minimal and --client'
   parser.print_help(sys.stderr)
   sys.exit()
 
@@ -337,7 +340,9 @@ platform_arch = '32'
 if options.x64build:
   platform_arch = '64'
 
-if platform == 'linux':
+if platform == 'linux' and not use_gn:
+  # GYP places x86 and x64 builds in the same directory. Check file attributes
+  # to differentiate between them.
   platform_arch = ''
   lib_dir_name = 'lib'
   release_libcef_path = os.path.join(src_dir, 'out', 'Release', lib_dir_name, 'libcef.so');
@@ -480,6 +485,27 @@ if mode == 'standard':
             os.path.join(output_dir, 'cef_paths.gypi'), options.quiet)
 
 
+# Determine the build directory suffix.
+build_dir_suffix = ''
+if use_gn:
+  # CEF uses a consistent directory naming scheme for GN via
+  # GetAllPlatformConfigs in gn_args.py.
+  if options.x64build:
+    build_dir_suffix = '_GN_x64'
+  else:
+    build_dir_suffix = '_GN_x86'
+else:
+  # GYP outputs both x86 and x64 builds to the same directory on Linux and
+  # Mac OS X. On Windows it suffixes the directory name for x64 builds.
+  if platform == 'windows' and options.x64build:
+    build_dir_suffix = '_x64'
+
+# Determine the build directory paths.
+out_dir = os.path.join(src_dir, 'out')
+build_dir_debug = os.path.join(out_dir, 'Debug' + build_dir_suffix)
+build_dir_release = os.path.join(out_dir, 'Release' + build_dir_suffix)
+
+
 if platform == 'windows':
   binaries = [
     'd3dcompiler_47.dll',
@@ -491,7 +517,6 @@ if platform == 'windows':
     'widevinecdmadapter.dll',
   ]
 
-  out_dir = os.path.join(src_dir, 'out')
   libcef_dll_file = 'libcef.dll.lib'
   sandbox_libs = [
     'obj\\base\\base.lib',
@@ -503,13 +528,9 @@ if platform == 'windows':
 
   valid_build_dir = None
 
-  build_dir_suffix = ''
-  if options.x64build:
-    build_dir_suffix = '_x64'
-
   if mode == 'standard':
     # transfer Debug files
-    build_dir = os.path.join(out_dir, 'Debug' + build_dir_suffix);
+    build_dir = build_dir_debug
     if not options.allowpartial or path_exists(os.path.join(build_dir, 'libcef.dll')):
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Debug')
@@ -530,7 +551,7 @@ if platform == 'windows':
       sys.stderr.write("No Debug build files.\n")
 
   # transfer Release files
-  build_dir = os.path.join(out_dir, 'Release' + build_dir_suffix);
+  build_dir = build_dir_release
   if not options.allowpartial or path_exists(os.path.join(build_dir, 'libcef.dll')):
     valid_build_dir = build_dir
     dst_dir = os.path.join(output_dir, 'Release')
@@ -600,14 +621,12 @@ if platform == 'windows':
       copy_dir(src_dir, docs_output_dir, options.quiet)
 
 elif platform == 'macosx':
-  out_dir = os.path.join(src_dir, 'out')
-
   valid_build_dir = None
   framework_name = 'Chromium Embedded Framework'
 
   if mode == 'standard':
     # transfer Debug files
-    build_dir = os.path.join(out_dir, 'Debug')
+    build_dir = build_dir_debug
     if not options.allowpartial or path_exists(os.path.join(build_dir, 'cefclient.app')):
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Debug')
@@ -616,7 +635,7 @@ elif platform == 'macosx':
                os.path.join(dst_dir, '%s.framework' % framework_name), options.quiet)
 
   # transfer Release files
-  build_dir = os.path.join(out_dir, 'Release')
+  build_dir = build_dir_release
   if not options.allowpartial or path_exists(os.path.join(build_dir, 'cefclient.app')):
     valid_build_dir = build_dir
     dst_dir = os.path.join(output_dir, 'Release')
@@ -674,14 +693,13 @@ elif platform == 'macosx':
              options.quiet)
 
 elif platform == 'linux':
-  out_dir = os.path.join(src_dir, 'out')
   lib_dir_name = 'lib'
 
   valid_build_dir = None
 
   if mode == 'standard':
     # transfer Debug files
-    build_dir = os.path.join(out_dir, 'Debug');
+    build_dir = build_dir_debug
     libcef_path = os.path.join(build_dir, lib_dir_name, 'libcef.so')
     if not options.allowpartial or path_exists(libcef_path):
       valid_build_dir = build_dir
@@ -695,7 +713,7 @@ elif platform == 'linux':
       sys.stderr.write("No Debug build files.\n")
 
   # transfer Release files
-  build_dir = os.path.join(out_dir, 'Release');
+  build_dir = build_dir_release
   libcef_path = os.path.join(build_dir, lib_dir_name, 'libcef.so')
   if not options.allowpartial or path_exists(libcef_path):
     valid_build_dir = build_dir

@@ -18,9 +18,9 @@
 #include "base/threading/thread_restrictions.h"
 #include "content/public/common/file_chooser_params.h"
 #include "grit/cef_strings.h"
-#include "grit/ui_strings.h"
 #include "net/base/mime_util.h"
 #include "ui/base/l10n/l10n_util.h"
+#include "ui/strings/grit/ui_strings.h"
 
 namespace {
 
