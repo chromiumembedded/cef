@@ -473,7 +473,7 @@ index b843416..8b81a51 100644
      }
      case Widget::InitParams::TYPE_CONTROL:
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 921b838..954d426 100644
+index 3d77ea4..aaefc0a 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
 @@ -852,6 +852,8 @@ void HWNDMessageHandler::SizeConstraintsChanged() {
