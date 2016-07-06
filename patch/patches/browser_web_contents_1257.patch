@@ -1,8 +1,8 @@
 diff --git web_contents_impl.cc web_contents_impl.cc
-index 7754791..8aebfcd 100644
+index db8263e..07f1989 100644
 --- web_contents_impl.cc
 +++ web_contents_impl.cc
-@@ -1498,6 +1498,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1502,6 +1502,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name = params.main_frame_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -15,7 +15,7 @@ index 7754791..8aebfcd 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -1530,6 +1536,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1534,6 +1540,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
                                           std::move(view_),
                                           &render_view_host_delegate_view_));
    }
@@ -23,7 +23,7 @@ index 7754791..8aebfcd 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -1973,11 +1980,14 @@ void WebContentsImpl::CreateNewWindow(
+@@ -1977,11 +1984,14 @@ void WebContentsImpl::CreateNewWindow(
        static_cast<SessionStorageNamespaceImpl*>(session_storage_namespace);
    CHECK(session_storage_namespace_impl->IsFromContext(dom_storage_context));
  
@@ -39,7 +39,7 @@ index 7754791..8aebfcd 100644
      if (route_id != MSG_ROUTING_NONE &&
          !RenderViewHost::FromID(render_process_id, route_id)) {
        // If the embedder didn't create a WebContents for this route, we need to
-@@ -2001,6 +2011,8 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2005,6 +2015,8 @@ void WebContentsImpl::CreateNewWindow(
    create_params.opener_render_process_id = render_process_id;
    create_params.opener_render_frame_id = params.opener_render_frame_id;
    create_params.opener_suppressed = params.opener_suppressed;

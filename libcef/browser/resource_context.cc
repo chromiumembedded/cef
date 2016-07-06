@@ -54,7 +54,8 @@ net::URLRequestContext* CefResourceContext::GetRequestContext() {
   return getter_->GetURLRequestContext();
 }
 
-std::unique_ptr<net::ClientCertStore> CefResourceContext::CreateClientCertStore() {
+std::unique_ptr<net::ClientCertStore>
+    CefResourceContext::CreateClientCertStore() {
 #if defined(USE_NSS_CERTS)
   return std::unique_ptr<net::ClientCertStore>(new net::ClientCertStoreNSS(
       net::ClientCertStoreNSS::PasswordDelegateFactory()));

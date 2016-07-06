@@ -162,7 +162,7 @@ bool CefTextfieldImpl::IsCommandEnabled(int command_id) {
 void CefTextfieldImpl::ExecuteCommand(int command_id) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   if (root_view()->IsCommandIdEnabled(command_id))
-    root_view()->ExecuteCommand(command_id);
+    root_view()->ExecuteCommand(command_id, ui::EF_NONE);
 }
 
 void CefTextfieldImpl::ClearEditHistory() {

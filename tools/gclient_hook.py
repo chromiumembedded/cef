@@ -44,6 +44,8 @@ print "\nGenerating CEF project files..."
 use_gn = bool(int(os.environ.get('CEF_USE_GN', '0')))
 gn_args = {}
 
+custom_toolchain = False
+
 if platform == 'windows':
   # Force use of the locally installed version of Visual Studio.
   if not 'DEPOT_TOOLS_WIN_TOOLCHAIN' in os.environ:
@@ -61,7 +63,6 @@ if platform == 'windows':
   #   set INCLUDE=<VS include paths>
   #   set PATH=<VS executable paths>
   #   set LIB=<VS library paths>
-  custom_toolchain = False
   if bool(int(os.environ.get('WIN_CUSTOM_TOOLCHAIN', '0'))):
     required_vars = [
       'GYP_MSVS_VERSION',

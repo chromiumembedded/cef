@@ -66,7 +66,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       content::WebContents* web_contents,
       net::SSLCertRequestInfo* cert_request_info,
       std::unique_ptr<content::ClientCertificateDelegate> delegate) override;
-  content::AccessTokenStore* CreateAccessTokenStore() override;
+  content::GeolocationDelegate* CreateGeolocationDelegate() override;
   bool CanCreateWindow(const GURL& opener_url,
                        const GURL& opener_top_level_frame_url,
                        const GURL& source_origin,

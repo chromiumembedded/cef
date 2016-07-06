@@ -208,3 +208,10 @@ void CefResourceDispatcherHostDelegate::OnRequestRedirected(
     response->head.headers->AddHeader("Access-Control-Allow-Credentials: true");
   }
 }
+
+std::unique_ptr<net::ClientCertStore>
+    CefResourceDispatcherHostDelegate::CreateClientCertStore(
+        content::ResourceContext* resource_context) {
+  return static_cast<CefResourceContext*>(resource_context)->
+      CreateClientCertStore();
+}

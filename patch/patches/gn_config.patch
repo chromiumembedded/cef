@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 3bd6bc4..0abf820 100644
+index 29bfe8c..a1e2af6 100644
 --- .gn
 +++ .gn
-@@ -247,6 +247,8 @@ exec_script_whitelist = [
+@@ -249,6 +249,8 @@ exec_script_whitelist = [
    "//build/toolchain/win/BUILD.gn",
    "//build/util/branding.gni",
    "//build/util/version.gni",
@@ -12,10 +12,10 @@ index 3bd6bc4..0abf820 100644
    "//chrome/browser/BUILD.gn",
    "//chrome/browser/chromeos/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 0a7fe56..467f536 100644
+index 23e67d9..c3d4ec6 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -206,6 +206,7 @@ group("both_gn_and_gyp") {
+@@ -259,6 +259,7 @@ group("both_gn_and_gyp") {
      # and whether there should be other targets that are iOS-only and missing.
      deps += [
        "//cc:cc_unittests",
@@ -36,9 +36,8 @@ index 9d33d91..d460e86 100644
  
  # Whether we are using the rlz library or not.  Platforms like Android send
  # rlz codes for searches but do not use the library.
-
 diff --git build/config/mac/base_rules.gni build/config/mac/base_rules.gni
-index 76610cc..7d17aba 100644
+index 109710d..d2c442e 100644
 --- build/config/mac/base_rules.gni
 +++ build/config/mac/base_rules.gni
 @@ -366,13 +366,13 @@ template("compile_xibs") {
@@ -58,7 +57,7 @@ index 76610cc..7d17aba 100644
    }
  }
 diff --git build/config/win/visual_studio_version.gni build/config/win/visual_studio_version.gni
-index 05b369f..8be3a47 100644
+index 5bfa9a7..5e6e05d 100644
 --- build/config/win/visual_studio_version.gni
 +++ build/config/win/visual_studio_version.gni
 @@ -12,9 +12,8 @@ declare_args() {
@@ -73,7 +72,7 @@ index 05b369f..8be3a47 100644
  
    # Full path to the Windows SDK, not including a backslash at the end.
    # This value is the default location, override if you have a different
-@@ -33,12 +32,11 @@ if (visual_studio_path == "") {
+@@ -28,12 +27,11 @@ if (visual_studio_path == "") {
    visual_studio_path = toolchain_data.vs_path
    windows_sdk_path = toolchain_data.sdk_path
    visual_studio_version = toolchain_data.vs_version
@@ -114,10 +113,10 @@ index d58cb85..fd608ba 100644
  
  
 diff --git chrome/BUILD.gn chrome/BUILD.gn
-index fa6cd4c..eaab973 100644
+index 1c26c3f..556dd64 100644
 --- chrome/BUILD.gn
 +++ chrome/BUILD.gn
-@@ -647,7 +647,7 @@ if (is_win) {
+@@ -651,7 +651,7 @@ if (is_win) {
      ]
  
      foreach(locale, locales_as_mac_outputs) {
@@ -143,30 +142,18 @@ index 9601dd4..9a7734a 100644
      }
  
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index a3dcae8..ea60e17 100644
+index 699f56f..e2659fc 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
-@@ -76,7 +76,7 @@ action("archive") {
-   inputs = [
-     "$root_out_dir/chrome.exe",
-     "$root_out_dir/chrome.dll",
--    "$root_out_dir/locales/en-US.pak",
-+    "$root_out_dir/chrome/locales/en-US.pak",
-     "$root_out_dir/setup.exe",
-     release_file,
-   ]
-diff --git chrome/test/BUILD.gn chrome/test/BUILD.gn
-index e0f20cf..ba7aa8f 100644
---- chrome/test/BUILD.gn
-+++ chrome/test/BUILD.gn
-@@ -1428,7 +1428,6 @@ if (!is_android) {
-     if (!enable_print_preview) {
-       sources -= [
-         "../browser/extensions/api/cloud_print_private/cloud_print_private_apitest.cc",
--        "../browser/printing/cloud_print/test/cloud_print_policy_browsertest.cc",
-         "../browser/printing/cloud_print/test/cloud_print_proxy_process_browsertest.cc",
-         "../browser/printing/print_preview_dialog_controller_browsertest.cc",
-         "../browser/printing/print_preview_pdf_generated_browsertest.cc",
+@@ -125,7 +125,7 @@ template("generate_mini_installer") {
+     inputs = [
+       "$chrome_dll_file",
+       "$root_out_dir/chrome.exe",
+-      "$root_out_dir/locales/en-US.pak",
++      "$root_out_dir/chrome/locales/en-US.pak",
+       "$root_out_dir/setup.exe",
+       release_file,
+     ]
 diff --git tools/grit/repack.gni tools/grit/repack.gni
 index 42087f9..7dd1520 100644
 --- tools/grit/repack.gni

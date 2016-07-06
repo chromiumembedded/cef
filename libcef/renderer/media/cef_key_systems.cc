@@ -17,8 +17,6 @@
 #include "media/base/eme_constants.h"
 #include "media/base/key_system_properties.h"
 
-#include "media/media_features.h"
-
 #include "widevine_cdm_version.h" // In SHARED_INTERMEDIATE_DIR.
 
 // The following must be after widevine_cdm_version.h.
@@ -118,10 +116,8 @@ static void AddPepperBasedWidevine(
 #if defined(USE_PROPRIETARY_CODECS)
     if (codecs[i] == kCdmSupportedCodecAvc1)
       supported_codecs |= media::EME_CODEC_MP4_AVC1;
-#if BUILDFLAG(ENABLE_MP4_VP9_DEMUXING)
     if (codecs[i] == kCdmSupportedCodecVp9)
       supported_codecs |= media::EME_CODEC_MP4_VP9;
-#endif
 #endif  // defined(USE_PROPRIETARY_CODECS)
   }
 

@@ -1,5 +1,5 @@
 diff --git message_loop.cc message_loop.cc
-index 2d6e2a5..7509494 100644
+index 9d37691..c8ff77e 100644
 --- message_loop.cc
 +++ message_loop.cc
 @@ -143,12 +143,6 @@ MessageLoop::~MessageLoop() {
@@ -26,7 +26,7 @@ index 2d6e2a5..7509494 100644
        message_histogram_(NULL),
        run_loop_(NULL),
 diff --git message_loop.h message_loop.h
-index 11d8712..bddc532 100644
+index 1230f41..1eadc1e 100644
 --- message_loop.h
 +++ message_loop.h
 @@ -373,6 +373,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate {
@@ -46,7 +46,7 @@ index 11d8712..bddc532 100644
    // Can only be called from the thread that owns the MessageLoop.
    bool is_running() const;
  
-@@ -511,6 +521,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate {
+@@ -520,6 +530,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate {
    // insider a (accidentally induced?) nested message pump.
    bool nestable_tasks_allowed_;
  
@@ -60,7 +60,7 @@ index 11d8712..bddc532 100644
    // if type_ is TYPE_CUSTOM and pump_ is null.
    MessagePumpFactoryCallback pump_factory_;
 diff --git message_pump_win.cc message_pump_win.cc
-index 499d2d8..9002e15 100644
+index de20bdc..29c4504 100644
 --- message_pump_win.cc
 +++ message_pump_win.cc
 @@ -474,20 +474,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {

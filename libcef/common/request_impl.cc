@@ -438,6 +438,14 @@ void CefRequestImpl::Set(net::URLRequest* request) {
       case net::URLRequest::NEVER_CLEAR_REFERRER:
         referrer_policy_ = REFERRER_POLICY_ALWAYS;
         break;
+      case net::URLRequest::ORIGIN:
+        referrer_policy_ = REFERRER_POLICY_ORIGIN;
+        break;
+      case net::URLRequest::NO_REFERRER:
+        referrer_policy_ = REFERRER_POLICY_NEVER;
+        break;
+      case net::URLRequest::MAX_REFERRER_POLICY:
+        break;
     }
   }
 

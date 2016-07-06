@@ -45,10 +45,10 @@ index 78b8c34..387bea5 100644
    friend class GZipUnitTest;
    friend class SdchFilterChainingTest;
 diff --git url_request/url_request_job.cc url_request/url_request_job.cc
-index b9c8646..f1ed586 100644
+index dc42edf..fb3ecf1 100644
 --- url_request/url_request_job.cc
 +++ url_request/url_request_job.cc
-@@ -444,6 +444,9 @@ void URLRequestJob::NotifyHeadersComplete() {
+@@ -503,6 +503,9 @@ void URLRequestJob::NotifyHeadersComplete() {
    if (request_->status().is_success())
      filter_ = SetupFilter();
  

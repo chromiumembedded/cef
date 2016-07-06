@@ -25,6 +25,10 @@
 #include "ui/base/win/shell.h"
 #include "ui/display/display.h"
 #include "ui/display/screen.h"
+#include "ui/events/keycodes/dom/dom_key.h"
+#include "ui/events/keycodes/dom/keycode_converter.h"
+#include "ui/events/keycodes/keyboard_code_conversion_win.h"
+#include "ui/events/keycodes/platform_key_map_win.h"
 #include "ui/gfx/win/hwnd_util.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_win.h"
 #include "ui/views/widget/widget.h"
@@ -380,6 +384,21 @@ void CefBrowserPlatformDelegateNativeWin::TranslateKeyEvent(
     break;
   default:
     NOTREACHED();
+  }
+
+  // Populate DOM values that will be passed to JavaScript handlers via
+  // KeyboardEvent.
+  result.domCode =
+      static_cast<int>(ui::KeycodeConverter::NativeKeycodeToDomCode(
+            key_event.native_key_code));
+  if (result.type == blink::WebInputEvent::Char) {
+    result.domKey = ui::DomKey::FromCharacter(key_event.windows_key_code);
+  } else {
+    // TODO(cef): CefKeyEvent does not currently pass extended key status (see
+    // WM_KEYDOWN docs) which would be necessary to pass EF_IS_EXTENDED_KEY as
+    // the |flags| parameter to DomKeyFromKeyboardCode().
+    result.domKey = ui::PlatformKeyMap::DomKeyFromKeyboardCode(
+        ui::KeyboardCodeForWindowsKeyCode(key_event.windows_key_code), 0);
   }
 
   if (result.type == blink::WebInputEvent::Char ||

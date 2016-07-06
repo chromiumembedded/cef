@@ -72,6 +72,8 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   safe_browsing::SafeBrowsingService* safe_browsing_service() override;
   safe_browsing::ClientSideDetectionService*
       safe_browsing_detection_service() override;
+  subresource_filter::RulesetService*
+      subresource_filter_ruleset_service() override;
 
 #if (defined(OS_WIN) || defined(OS_LINUX)) && !defined(OS_CHROMEOS)
   void StartAutoupdateTimer() override;

@@ -1367,7 +1367,24 @@ if (is_mac) {
       ":libcef_static",
     ]
 
-    ldflags = [ "-Wl,-install_name,@executable_path/../Frameworks/$output_name.framework/$output_name" ]
+    # Both the main app executable and helper executables need to link the
+    # framework. Because they are at different directory depths, using
+    # @executable_path as the install_name would require using install_name_tool
+    # on one of the executables. However install_name_tool only operates
+    # in-place, which is problematic to express in GN. Instead, use rpath-based
+    # loading.
+    ldflags = [ "-Wl,-install_name,@rpath/Frameworks/$output_name.framework/$output_name" ]
+
+    if (is_component_build) {
+      # Set up the rpath for the framework so that it can find dylibs in the
+      # root output directory. The framework is at
+      # $app_name.app/Contents/Frameworks/$output_name.framework/$output_name
+      # so use loader_path to go back to the root output directory.
+      ldflags += [
+        "-rpath",
+        "@loader_path/../../../..",
+      ]
+    }
 
     info_plist_target = ":cef_framework_plist"
   }
@@ -1560,54 +1577,12 @@ if (is_mac) {
 
       ldflags = [
         # The helper is in $app_name.app/Contents/Frameworks/$app_name Helper.app/Contents/MacOS/
-        # so set rpath up to the base.
+        # so set rpath up to Contents/ so that the loader can find Frameworks/.
         "-rpath",
-        "@loader_path/../../../../../..",
+        "@executable_path/../../../..",
       ]
 
       info_plist_target = ":${app_name}_helper_plist"
-    }
-
-    # The install_name_tool can only operate in-place, rather than producing a
-    # unique output. Use the xcrun wrapper script to write a fake stamp output
-    # file. After :cef_helper_app has been built and bundled, this
-    # will run, modifying the executable in the bundle and writing out the
-    # --stamp specified. This will change the mtime on the executable, but
-    # because the stamp will also be updated, the
-    # :cef_framework_bundle_data will re-copy the output. This only
-    # works because nothing else depends on the output of
-    # :cef_helper_app.
-    # TODO(rsesek): After GYP is gone, re-write cef_main to be like
-    # chrome_main and use dlopen() instead of a linked framework.
-    action("${app_name}_fix_helper_link_framework") {
-      testonly = app_testonly
-      script = "//build/config/mac/xcrun.py"
-
-      inputs = [
-        "$root_out_dir/$app_helper_name.app/Contents/MacOS/$app_helper_name",
-      ]
-
-      stamp_file = "$target_out_dir/xcrun_$target_name.stamp"
-      outputs = [
-        stamp_file,
-      ]
-
-      # TODO(rsesek): Figure out something like GYP's postbuilds to allow
-      # install_name_tool to operate in-place <https://crbug.com/607292>.
-      args = [
-               "--stamp",
-               rebase_path(stamp_file, root_build_dir),
-
-               # xcrun arguments:
-               "install_name_tool",
-               "-change",
-               "@executable_path/../Frameworks/$cef_framework_name.framework/$cef_framework_name",
-               "@executable_path/../../../$cef_framework_name.framework/$cef_framework_name",
-             ] + rebase_path(inputs, root_build_dir)
-
-      public_deps = [
-        ":${app_name}_helper_app",
-      ]
     }
 
     bundle_data("${app_name}_framework_bundle_data") {
@@ -1619,7 +1594,7 @@ if (is_mac) {
 
       public_deps = [
         ":cef_framework+link",
-        ":${app_name}_fix_helper_link_framework",
+        ":${app_name}_helper_app",
       ]
 
       outputs = [
@@ -1653,6 +1628,13 @@ if (is_mac) {
       if (defined(invoker.libs)) {
         libs = invoker.libs
       }
+
+      ldflags = [
+        # The main app is at $app_name.app/Contents/MacOS/$app_name
+        # so set rpath up to Contents/ so that the loader can find Frameworks/.
+        "-rpath",
+        "@executable_path/../",
+      ]
 
       info_plist_target = ":${app_name}_plist"
     }

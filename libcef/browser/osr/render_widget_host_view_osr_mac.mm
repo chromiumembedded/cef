@@ -63,7 +63,7 @@ class AcceleratedWidgetMacNSViewHelper : public ui::AcceleratedWidgetMacNSView {
 ui::AcceleratedWidgetMac* CefRenderWidgetHostViewOSR::GetAcceleratedWidgetMac()
     const {
   if (browser_compositor_)
-    return browser_compositor_->accelerated_widget_mac();
+    return browser_compositor_->GetAcceleratedWidgetMac();
   return nullptr;
 }
 
@@ -307,6 +307,19 @@ void CefRenderWidgetHostViewOSR::DestroyNSTextInputOSR() {
   text_input_context_osr_mac_ = NULL;
 }
 
+ui::Compositor* CefRenderWidgetHostViewOSR::GetCompositor() const {
+  return browser_compositor_->GetCompositor();
+}
+
+content::DelegatedFrameHost* CefRenderWidgetHostViewOSR::GetDelegatedFrameHost()
+    const {
+  return browser_compositor_->GetDelegatedFrameHost();
+}
+
+ui::Layer* CefRenderWidgetHostViewOSR::GetRootLayer() const {
+  return browser_compositor_->GetRootLayer();
+}
+
 void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
   // Create a borderless non-visible 1x1 window.
   window_ = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1, 1)
@@ -321,39 +334,23 @@ void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
   [content_view setLayer:background_layer_];
   [content_view setWantsLayer:YES];
 
-  browser_compositor_ = content::BrowserCompositorMac::Create();
   accelerated_widget_helper_ = new AcceleratedWidgetMacNSViewHelper(this);
-
-  compositor_.reset(browser_compositor_->compositor());
-  compositor_->SetRootLayer(root_layer_.get());
-  browser_compositor_->accelerated_widget_mac()->SetNSView(
-      accelerated_widget_helper_);
-  browser_compositor_->compositor()->SetVisible(true);
-
-  // CEF needs the browser compositor to remain responsive whereas normal
-  // rendering on OS X does not. This effectively reverts the changes from
-  // https://crbug.com/463988#c6
-  compositor_->SetLocksWillTimeOut(true);
-  browser_compositor_->Unsuspend();
+  browser_compositor_.reset(new content::BrowserCompositorMac(
+      accelerated_widget_helper_, this, render_widget_host_->is_hidden(),
+      true));
 }
 
 void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {
   DCHECK(window_);
 
-  // Compositor is owned by and will be freed by BrowserCompositorMac.
-  ui::Compositor* compositor = compositor_.release();
-  ALLOW_UNUSED_LOCAL(compositor);
+  browser_compositor_->Destroy();
 
   [window_ close];
   window_ = nil;
   [background_layer_ release];
   background_layer_ = nil;
 
-  browser_compositor_->accelerated_widget_mac()->ResetNSView();
-  browser_compositor_->compositor()->SetVisible(false);
-  browser_compositor_->compositor()->SetScaleAndSize(1.0, gfx::Size(0, 0));
-  browser_compositor_->compositor()->SetRootLayer(NULL);
-  content::BrowserCompositorMac::Recycle(std::move(browser_compositor_));
+  browser_compositor_.reset();
 
   delete accelerated_widget_helper_;
   accelerated_widget_helper_ = nullptr;

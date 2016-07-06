@@ -1,5 +1,5 @@
 diff --git browser/guest_view/extension_options/extension_options_guest.cc browser/guest_view/extension_options/extension_options_guest.cc
-index 85bd364..60e936c 100644
+index 3849b7e..a974f34 100644
 --- browser/guest_view/extension_options/extension_options_guest.cc
 +++ browser/guest_view/extension_options/extension_options_guest.cc
 @@ -203,7 +203,9 @@ bool ExtensionOptionsGuest::ShouldCreateWebContents(

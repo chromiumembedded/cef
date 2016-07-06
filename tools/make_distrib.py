@@ -514,7 +514,9 @@ if platform == 'windows':
     'libGLESv2.dll',
     'natives_blob.bin',
     'snapshot_blob.bin',
-    'widevinecdmadapter.dll',
+    # Should match the output path from src/media/cdm_paths.gypi.
+    'WidevineCdm\\_platform_specific\\win_%s\\widevinecdmadapter.dll' % \
+      ('x64' if options.x64build else 'x86'),
   ]
 
   libcef_dll_file = 'libcef.dll.lib'
@@ -537,7 +539,7 @@ if platform == 'windows':
       make_dir(dst_dir, options.quiet)
       copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
       for binary in binaries:
-        copy_file(os.path.join(build_dir, binary), os.path.join(dst_dir, binary), options.quiet)
+        copy_file(os.path.join(build_dir, binary), os.path.join(dst_dir, os.path.basename(binary)), options.quiet)
       copy_file(os.path.join(build_dir, libcef_dll_file), os.path.join(dst_dir, 'libcef.lib'), \
                 options.quiet)
       combine_libs(build_dir, sandbox_libs, os.path.join(dst_dir, 'cef_sandbox.lib'));

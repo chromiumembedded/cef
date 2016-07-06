@@ -1,0 +1,29 @@
+diff --git content/browser/renderer_host/browser_compositor_view_mac.h content/browser/renderer_host/browser_compositor_view_mac.h
+index 552a56b..2a817d8 100644
+--- content/browser/renderer_host/browser_compositor_view_mac.h
++++ content/browser/renderer_host/browser_compositor_view_mac.h
+@@ -52,6 +52,7 @@ class BrowserCompositorMac {
+ 
+   // This may return nullptr, if this has detached itself from its
+   // ui::Compositor.
++  ui::Compositor* GetCompositor();
+   ui::AcceleratedWidgetMac* GetAcceleratedWidgetMac();
+ 
+   void SwapCompositorFrame(uint32_t output_surface_id,
+diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/browser/renderer_host/browser_compositor_view_mac.mm
+index e9faa0a..931a92f 100644
+--- content/browser/renderer_host/browser_compositor_view_mac.mm
++++ content/browser/renderer_host/browser_compositor_view_mac.mm
+@@ -186,6 +186,12 @@ void BrowserCompositorMac::Destroy() {
+     g_spare_recyclable_compositor.Get().reset();
+ }
+ 
++ui::Compositor* BrowserCompositorMac::GetCompositor() {
++  if (recyclable_compositor_)
++    return recyclable_compositor_->compositor();
++  return nullptr;
++}
++
+ ui::AcceleratedWidgetMac* BrowserCompositorMac::GetAcceleratedWidgetMac() {
+   if (recyclable_compositor_)
+     return recyclable_compositor_->accelerated_widget_mac();

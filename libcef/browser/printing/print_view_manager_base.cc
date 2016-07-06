@@ -11,6 +11,7 @@
 #include "base/auto_reset.h"
 #include "base/bind.h"
 #include "base/location.h"
+#include "base/run_loop.h"
 #include "base/single_thread_task_runner.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread_task_runner_handle.h"
@@ -428,7 +429,7 @@ bool PrintViewManagerBase::RunInnerMessageLoop() {
   {
     base::MessageLoop::ScopedNestableTaskAllower allow(
         base::MessageLoop::current());
-    base::MessageLoop::current()->Run();
+    base::RunLoop().Run();
   }
 
   bool success = true;

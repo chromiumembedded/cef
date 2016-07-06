@@ -21,6 +21,11 @@
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/common/renderer_preferences.h"
+#include "ui/events/keycodes/dom/dom_key.h"
+#include "ui/events/keycodes/dom/keycode_converter.h"
+#include "ui/events/keycodes/keyboard_code_conversion_x.h"
+#include "ui/events/keycodes/keyboard_code_conversion_xkb.h"
+#include "ui/events/keycodes/keysym_to_unicode.h"
 #include "ui/gfx/font_render_params.h"
 #include "ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h"
 #include "ui/views/widget/widget.h"
@@ -267,6 +272,17 @@ void CefBrowserPlatformDelegateNativeLinux::TranslateKeyEvent(
   default:
     NOTREACHED();
   }
+
+  // Populate DOM values that will be passed to JavaScript handlers via
+  // KeyboardEvent.
+  result.domCode =
+      static_cast<int>(ui::KeycodeConverter::NativeKeycodeToDomCode(
+            key_event.native_key_code));
+  int keysym = ui::XKeysymForWindowsKeyCode(
+      static_cast<ui::KeyboardCode>(key_event.windows_key_code),
+      !!(key_event.modifiers & EVENTFLAG_SHIFT_DOWN));
+  base::char16 ch = ui::GetUnicodeCharacterFromXKeySym(keysym);
+  result.domKey = static_cast<int>(ui::XKeySymToDomKey(keysym, ch));
 
   result.text[0] = key_event.character;
   result.unmodifiedText[0] = key_event.unmodified_character;

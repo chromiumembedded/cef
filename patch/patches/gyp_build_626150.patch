@@ -1,0 +1,17 @@
+diff --git components/webmessaging.gypi components/webmessaging.gypi
+index 1ea14fb..8020b74 100644
+--- components/webmessaging.gypi
++++ components/webmessaging.gypi
+@@ -48,12 +48,6 @@
+       'target_name': 'webmessaging_mojo_bindings_for_blink',
+       'type': 'static_library',
+       'sources': [ '<@(mojom_files)' ],
+-      'dependencies': [
+-        '../url/url.gyp:url_mojom_for_blink',
+-      ],
+-      'export_dependent_settings': [
+-        '../url/url.gyp:url_mojom_for_blink',
+-      ],
+       'variables': {
+         'for_blink': 'true',
+         'mojom_typemaps': [

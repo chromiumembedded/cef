@@ -10,8 +10,8 @@
 #include "build/build_config.h"
 #include "chrome/common/chrome_utility_messages.h"
 #include "chrome/utility/utility_message_handler.h"
-#include "content/public/common/service_registry.h"
 #include "net/proxy/mojo_proxy_resolver_factory_impl.h"
+#include "services/shell/public/cpp/interface_registry.h"
 
 #if defined(OS_WIN)
 #include "libcef/utility/printing_handler.h"
@@ -51,8 +51,8 @@ bool CefContentUtilityClient::OnMessageReceived(
   return handled;
 }
 
-void CefContentUtilityClient::RegisterMojoServices(
-    content::ServiceRegistry* registry) {
-  registry->AddService<net::interfaces::ProxyResolverFactory>(
+void CefContentUtilityClient::ExposeInterfacesToBrowser(
+    shell::InterfaceRegistry* registry) {
+  registry->AddInterface<net::interfaces::ProxyResolverFactory>(
       base::Bind(CreateProxyResolverFactory));
 }

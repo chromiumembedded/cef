@@ -10,6 +10,7 @@
 
 #include "content/public/browser/resource_context.h"
 #include "extensions/browser/info_map.h"
+#include "net/ssl/client_cert_store.h"
 
 class CefURLRequestContextGetter;
 
@@ -31,7 +32,8 @@ class CefResourceContext : public content::ResourceContext {
   // ResourceContext implementation.
   net::HostResolver* GetHostResolver() override;
   net::URLRequestContext* GetRequestContext() override;
-  std::unique_ptr<net::ClientCertStore> CreateClientCertStore() override;
+
+  std::unique_ptr<net::ClientCertStore> CreateClientCertStore();
 
   void set_url_request_context_getter(
       scoped_refptr<CefURLRequestContextGetter> getter);

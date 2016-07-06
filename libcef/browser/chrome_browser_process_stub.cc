@@ -208,6 +208,12 @@ safe_browsing::ClientSideDetectionService*
   return NULL;
 }
 
+subresource_filter::RulesetService*
+    ChromeBrowserProcessStub::subresource_filter_ruleset_service() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
 #if (defined(OS_WIN) || defined(OS_LINUX)) && !defined(OS_CHROMEOS)
 void ChromeBrowserProcessStub::StartAutoupdateTimer() {
 }

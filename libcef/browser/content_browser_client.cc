@@ -51,6 +51,7 @@
 #include "content/public/browser/browser_url_handler.h"
 #include "content/public/browser/child_process_security_policy.h"
 #include "content/public/browser/client_certificate_delegate.h"
+#include "content/public/browser/geolocation_delegate.h"
 #include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/page_navigator.h"
 #include "content/public/browser/quota_permission_context.h"
@@ -115,6 +116,23 @@ class CefAccessTokenStore : public content::AccessTokenStore {
 
   DISALLOW_COPY_AND_ASSIGN(CefAccessTokenStore);
 };
+
+// A provider of services for geolocation.
+class CefGeolocationDelegate : public content::GeolocationDelegate {
+ public:
+  explicit CefGeolocationDelegate(net::URLRequestContextGetter* system_context)
+      : system_context_(system_context) {}
+
+  content::AccessTokenStore* CreateAccessTokenStore() override {
+    return new CefAccessTokenStore(system_context_);
+  }
+
+ private:
+  net::URLRequestContextGetter* system_context_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefGeolocationDelegate);
+};
+
 
 class CefQuotaCallbackImpl : public CefRequestCallback {
  public:
@@ -674,8 +692,9 @@ void CefContentBrowserClient::SelectClientCertificate(
   }
 }
 
-content::AccessTokenStore* CefContentBrowserClient::CreateAccessTokenStore() {
-  return new CefAccessTokenStore(
+content::GeolocationDelegate*
+    CefContentBrowserClient::CreateGeolocationDelegate() {
+  return new CefGeolocationDelegate(
       browser_main_parts_->browser_context()->request_context().get());
 }
 

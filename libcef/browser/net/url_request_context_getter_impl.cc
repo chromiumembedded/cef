@@ -34,6 +34,8 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
 #include "net/cert/cert_verifier.h"
+#include "net/cert/ct_policy_enforcer.h"
+#include "net/cert/multi_log_ct_verifier.h"
 #include "net/cookies/cookie_monster.h"
 #include "net/extras/sqlite/sqlite_persistent_cookie_store.h"
 #include "net/dns/host_resolver.h"
@@ -207,6 +209,10 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
     storage_->set_transport_security_state(
         base::WrapUnique(new net::TransportSecurityState));
+    storage_->set_cert_transparency_verifier(
+        base::WrapUnique(new net::MultiLogCTVerifier));
+    storage_->set_ct_policy_enforcer(
+        base::WrapUnique(new net::CTPolicyEnforcer));
 
     std::unique_ptr<net::ProxyService> system_proxy_service =
         ProxyServiceFactory::CreateProxyService(
@@ -257,6 +263,10 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
         url_request_context_->cert_verifier();
     network_session_params.transport_security_state =
         url_request_context_->transport_security_state();
+    network_session_params.cert_transparency_verifier =
+        url_request_context_->cert_transparency_verifier();
+    network_session_params.ct_policy_enforcer =
+        url_request_context_->ct_policy_enforcer();
     network_session_params.channel_id_service =
         url_request_context_->channel_id_service();
     network_session_params.proxy_service =

@@ -14,7 +14,7 @@ index fa0afb5..d677b31 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git web_contents.h web_contents.h
-index 90b647e..9fcedc0 100644
+index 9ccb6fe..d8561f9 100644
 --- web_contents.h
 +++ web_contents.h
 @@ -55,8 +55,10 @@ class PageState;

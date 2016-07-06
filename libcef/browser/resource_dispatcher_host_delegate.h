@@ -42,6 +42,8 @@ class CefResourceDispatcherHostDelegate
       net::URLRequest* request,
       content::ResourceContext* resource_context,
       content::ResourceResponse* response) override;
+  std::unique_ptr<net::ClientCertStore> CreateClientCertStore(
+      content::ResourceContext* resource_context) override;
 
  private:
   struct StreamTargetInfo {

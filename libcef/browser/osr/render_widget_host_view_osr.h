@@ -120,9 +120,8 @@ class CefRenderWidgetHostViewOSR
 #endif  // defined(OS_MACOSX)
 
   // RenderWidgetHostViewBase implementation.
-  void OnSwapCompositorFrame(
-      uint32_t output_surface_id,
-      std::unique_ptr<cc::CompositorFrame> frame) override;
+  void OnSwapCompositorFrame(uint32_t output_surface_id,
+                             cc::CompositorFrame frame) override;
   void ClearCompositorFrame() override;
   void InitAsPopup(content::RenderWidgetHostView* parent_host_view,
                    const gfx::Rect& pos) override;
@@ -163,7 +162,6 @@ class CefRenderWidgetHostViewOSR
   void EndFrameSubscription() override;
   bool HasAcceleratedSurface(const gfx::Size& desired_size) override;
   void GetScreenInfo(blink::WebScreenInfo* results) override;
-  bool GetScreenColorProfile(std::vector<char>* color_profile) override;
   gfx::Rect GetBoundsInRootWindow() override;
   content::BrowserAccessibilityManager*
       CreateBrowserAccessibilityManager(
@@ -266,11 +264,14 @@ class CefRenderWidgetHostViewOSR
     child_host_view_ = popup_view;
   }
 
-  ui::Compositor* compositor() const { return compositor_.get(); }
+  ui::Compositor* GetCompositor() const;
   content::RenderWidgetHostImpl* render_widget_host() const
       { return render_widget_host_; }
 
  private:
+  content::DelegatedFrameHost* GetDelegatedFrameHost() const;
+  ui::Layer* GetRootLayer() const;
+
   void SetFrameRate();
   void SetDeviceScaleFactor();
   void ResizeRootLayer();
@@ -323,10 +324,12 @@ class CefRenderWidgetHostViewOSR
   float scale_factor_;
   int frame_rate_threshold_ms_;
 
-  std::unique_ptr<content::DelegatedFrameHost> delegated_frame_host_;
+#if !defined(OS_MACOSX)
   std::unique_ptr<ui::Compositor> compositor_;
   gfx::AcceleratedWidget compositor_widget_;
+  std::unique_ptr<content::DelegatedFrameHost> delegated_frame_host_;
   std::unique_ptr<ui::Layer> root_layer_;
+#endif
 
 #if defined(OS_WIN)
   std::unique_ptr<gfx::WindowImpl> window_;

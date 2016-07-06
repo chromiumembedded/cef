@@ -104,7 +104,7 @@ class CefResizeLock : public content::ResizeLock {
  protected:
   void LockCompositor() override {
     ResizeLock::LockCompositor();
-    compositor_lock_ = host_->compositor()->GetCompositorLock();
+    compositor_lock_ = host_->GetCompositor()->GetCompositorLock();
   }
 
   void CancelLock() {
@@ -451,8 +451,10 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     : transparent_(transparent),
       scale_factor_(kDefaultScaleFactor),
       frame_rate_threshold_ms_(0),
-      delegated_frame_host_(new content::DelegatedFrameHost(this)),
+#if !defined(OS_MACOSX)
       compositor_widget_(gfx::kNullAcceleratedWidget),
+      delegated_frame_host_(new content::DelegatedFrameHost(this)),
+#endif
       software_output_device_(NULL),
       hold_resize_(false),
       pending_resize_(false),
@@ -477,38 +479,48 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
         content::RenderViewHost::From(render_widget_host_));
   }
 
+#if !defined(OS_MACOSX)
   root_layer_.reset(new ui::Layer(ui::LAYER_SOLID_COLOR));
+#endif
 
   PlatformCreateCompositorWidget();
+
 #if !defined(OS_MACOSX)
   // On OS X the ui::Compositor is created/owned by the platform view.
   compositor_.reset(
       new ui::Compositor(content::GetContextFactory(),
                          base::ThreadTaskRunnerHandle::Get()));
   compositor_->SetAcceleratedWidget(compositor_widget_);
-#endif
   compositor_->SetDelegate(this);
   compositor_->SetRootLayer(root_layer_.get());
+#endif
 
   if (browser_impl_.get())
     ResizeRootLayer();
 }
 
 CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
+#if defined(OS_MACOSX)
+  if (is_showing_)
+    browser_compositor_->SetRenderWidgetHostIsHidden(true);
+#else
   // Marking the DelegatedFrameHost as removed from the window hierarchy is
   // necessary to remove all connections to its old ui::Compositor.
   if (is_showing_)
     delegated_frame_host_->WasHidden();
   delegated_frame_host_->ResetCompositor();
+#endif
 
   PlatformDestroyCompositorWidget();
 
   if (copy_frame_generator_.get())
     copy_frame_generator_.reset(NULL);
 
+#if !defined(OS_MACOSX)
   delegated_frame_host_.reset(NULL);
   compositor_.reset(NULL);
   root_layer_.reset(NULL);
+#endif
 
   DCHECK(parent_host_view_ == NULL);
   DCHECK(popup_host_view_ == NULL);
@@ -572,7 +584,7 @@ bool CefRenderWidgetHostViewOSR::HasFocus() const {
 }
 
 bool CefRenderWidgetHostViewOSR::IsSurfaceAvailableForCopy() const {
-  return delegated_frame_host_->CanCopyToBitmap();
+  return GetDelegatedFrameHost()->CanCopyToBitmap();
 }
 
 void CefRenderWidgetHostViewOSR::Show() {
@@ -580,10 +592,16 @@ void CefRenderWidgetHostViewOSR::Show() {
     return;
 
   is_showing_ = true;
-  if (render_widget_host_)
-    render_widget_host_->WasShown(ui::LatencyInfo());
+
+#if defined(OS_MACOSX)
+  browser_compositor_->SetRenderWidgetHostIsHidden(false);
+#else
   delegated_frame_host_->SetCompositor(compositor_.get());
   delegated_frame_host_->WasShown(ui::LatencyInfo());
+#endif
+
+  if (render_widget_host_)
+    render_widget_host_->WasShown(ui::LatencyInfo());
 }
 
 void CefRenderWidgetHostViewOSR::Hide() {
@@ -595,8 +613,14 @@ void CefRenderWidgetHostViewOSR::Hide() {
 
   if (render_widget_host_)
     render_widget_host_->WasHidden();
-  delegated_frame_host_->WasHidden();
-  delegated_frame_host_->ResetCompositor();
+
+#if defined(OS_MACOSX)
+  browser_compositor_->SetRenderWidgetHostIsHidden(true);
+#else
+  GetDelegatedFrameHost()->WasHidden();
+  GetDelegatedFrameHost()->ResetCompositor();
+#endif
+
   is_showing_ = false;
 }
 
@@ -639,11 +663,11 @@ void CefRenderWidgetHostViewOSR::UnlockMouse() {
 
 void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
     uint32_t output_surface_id,
-    std::unique_ptr<cc::CompositorFrame> frame) {
+    cc::CompositorFrame frame) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::OnSwapCompositorFrame");
 
-  if (frame->metadata.root_scroll_offset != last_scroll_offset_) {
-    last_scroll_offset_ = frame->metadata.root_scroll_offset;
+  if (frame.metadata.root_scroll_offset != last_scroll_offset_) {
+    last_scroll_offset_ = frame.metadata.root_scroll_offset;
 
     if (!is_scroll_offset_changed_pending_) {
       // Send the notification asnychronously.
@@ -653,7 +677,7 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
     }
   }
 
-  if (frame->delegated_frame_data) {
+  if (frame.delegated_frame_data) {
     if (software_output_device_) {
       if (!begin_frame_timer_.get()) {
         // If BeginFrame scheduling is enabled SoftwareOutputDevice activity
@@ -664,8 +688,13 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
 
       // The compositor will draw directly to the SoftwareOutputDevice which
       // then calls OnPaint.
+#if defined(OS_MACOSX)
+      browser_compositor_->SwapCompositorFrame(output_surface_id,
+                                               std::move(frame));
+#else
       delegated_frame_host_->SwapDelegatedFrame(output_surface_id,
                                                 std::move(frame));
+#endif
     } else {
       if (!copy_frame_generator_.get()) {
         copy_frame_generator_.reset(
@@ -675,14 +704,19 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
       // Determine the damage rectangle for the current frame. This is the same
       // calculation that SwapDelegatedFrame uses.
       cc::RenderPass* root_pass =
-          frame->delegated_frame_data->render_pass_list.back().get();
+          frame.delegated_frame_data->render_pass_list.back().get();
       gfx::Size frame_size = root_pass->output_rect.size();
       gfx::Rect damage_rect =
           gfx::ToEnclosingRect(gfx::RectF(root_pass->damage_rect));
       damage_rect.Intersect(gfx::Rect(frame_size));
 
+#if defined(OS_MACOSX)
+      browser_compositor_->SwapCompositorFrame(output_surface_id,
+                                               std::move(frame));
+#else
       delegated_frame_host_->SwapDelegatedFrame(output_surface_id,
                                                 std::move(frame));
+#endif
 
       // Request a copy of the last compositor frame which will eventually call
       // OnPaint asynchronously.
@@ -694,7 +728,7 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
 }
 
 void CefRenderWidgetHostViewOSR::ClearCompositorFrame() {
-  delegated_frame_host_->ClearDelegatedFrame();
+  GetDelegatedFrameHost()->ClearDelegatedFrame();
 }
 
 void CefRenderWidgetHostViewOSR::InitAsPopup(
@@ -835,7 +869,7 @@ void CefRenderWidgetHostViewOSR::SetTooltipText(
 }
 
 gfx::Size CefRenderWidgetHostViewOSR::GetRequestedRendererSize() const {
-  return delegated_frame_host_->GetRequestedRendererSize();
+  return GetDelegatedFrameHost()->GetRequestedRendererSize();
 }
 
 gfx::Size CefRenderWidgetHostViewOSR::GetPhysicalBackingSize() const {
@@ -853,7 +887,7 @@ void CefRenderWidgetHostViewOSR::CopyFromCompositingSurface(
     const gfx::Size& dst_size,
     const content::ReadbackRequestCallback& callback,
     const SkColorType color_type) {
-  delegated_frame_host_->CopyFromCompositingSurface(
+  GetDelegatedFrameHost()->CopyFromCompositingSurface(
       src_subrect, dst_size, callback, color_type);
 }
 
@@ -861,21 +895,21 @@ void CefRenderWidgetHostViewOSR::CopyFromCompositingSurfaceToVideoFrame(
     const gfx::Rect& src_subrect,
     const scoped_refptr<media::VideoFrame>& target,
     const base::Callback<void(const gfx::Rect&, bool)>& callback) {
-  delegated_frame_host_->CopyFromCompositingSurfaceToVideoFrame(
+  GetDelegatedFrameHost()->CopyFromCompositingSurfaceToVideoFrame(
       src_subrect, target, callback);
 }
 
 bool CefRenderWidgetHostViewOSR::CanCopyToVideoFrame() const {
-  return delegated_frame_host_->CanCopyToVideoFrame();
+  return GetDelegatedFrameHost()->CanCopyToVideoFrame();
 }
 
 void CefRenderWidgetHostViewOSR::BeginFrameSubscription(
     std::unique_ptr<content::RenderWidgetHostViewFrameSubscriber> subscriber) {
-  delegated_frame_host_->BeginFrameSubscription(std::move(subscriber));
+  GetDelegatedFrameHost()->BeginFrameSubscription(std::move(subscriber));
 }
 
 void CefRenderWidgetHostViewOSR::EndFrameSubscription() {
-  delegated_frame_host_->EndFrameSubscription();
+  GetDelegatedFrameHost()->EndFrameSubscription();
 }
 
 bool CefRenderWidgetHostViewOSR::HasAcceleratedSurface(
@@ -919,13 +953,6 @@ void CefRenderWidgetHostViewOSR::GetScreenInfo(blink::WebScreenInfo* results) {
   }
 
   *results = webScreenInfoFrom(screen_info);
-}
-
-bool CefRenderWidgetHostViewOSR::GetScreenColorProfile(
-    std::vector<char>* color_profile) {
-  DCHECK(color_profile->empty());
-  // TODO(cef): Maybe expose this method to the client?
-  return false;
 }
 
 gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
@@ -998,7 +1025,7 @@ void CefRenderWidgetHostViewOSR::OnSetNeedsBeginFrames(bool enabled) {
 std::unique_ptr<cc::SoftwareOutputDevice>
 CefRenderWidgetHostViewOSR::CreateSoftwareOutputDevice(
     ui::Compositor* compositor) {
-  DCHECK_EQ(compositor_.get(), compositor);
+  DCHECK_EQ(GetCompositor(), compositor);
   DCHECK(!copy_frame_generator_);
   DCHECK(!software_output_device_);
   software_output_device_ = new CefSoftwareOutputDeviceOSR(
@@ -1014,7 +1041,7 @@ int CefRenderWidgetHostViewOSR::DelegatedFrameHostGetGpuMemoryBufferClientId()
 }
 
 ui::Layer* CefRenderWidgetHostViewOSR::DelegatedFrameHostGetLayer() const {
-  return root_layer_.get();
+  return GetRootLayer();
 }
 
 bool CefRenderWidgetHostViewOSR::DelegatedFrameHostIsVisible() const {
@@ -1035,7 +1062,7 @@ SkColor CefRenderWidgetHostViewOSR::DelegatedFrameHostGetGutterColor(
 
 gfx::Size
 CefRenderWidgetHostViewOSR::DelegatedFrameHostDesiredSizeInDIP() const {
-  return root_layer_->bounds().size();
+  return GetRootLayer()->bounds().size();
 }
 
 bool CefRenderWidgetHostViewOSR::DelegatedFrameCanCreateResizeLock() const {
@@ -1045,7 +1072,7 @@ bool CefRenderWidgetHostViewOSR::DelegatedFrameCanCreateResizeLock() const {
 std::unique_ptr<content::ResizeLock>
 CefRenderWidgetHostViewOSR::DelegatedFrameHostCreateResizeLock(
     bool defer_compositor_lock) {
-  const gfx::Size& desired_size = root_layer_->bounds().size();
+  const gfx::Size& desired_size = GetRootLayer()->bounds().size();
   return std::unique_ptr<content::ResizeLock>(new CefResizeLock(
       this,
       desired_size,
@@ -1094,7 +1121,11 @@ void CefRenderWidgetHostViewOSR::SetBeginFrameSource(
 bool CefRenderWidgetHostViewOSR::InstallTransparency() {
   if (transparent_) {
     SetBackgroundColor(SkColor());
+#if defined(OS_MACOSX)
+    browser_compositor_->SetHasTransparentBackground(true);
+#else
     compositor_->SetHostHasTransparentBackground(true);
+#endif
     return true;
   }
   return false;
@@ -1110,7 +1141,7 @@ void CefRenderWidgetHostViewOSR::WasResized() {
   ResizeRootLayer();
   if (render_widget_host_)
     render_widget_host_->WasResized();
-  delegated_frame_host_->WasResized();
+  GetDelegatedFrameHost()->WasResized();
 }
 
 void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
@@ -1306,6 +1337,21 @@ void CefRenderWidgetHostViewOSR::RemoveGuestHostView(
   guest_host_views_.erase(guest_host);
 }
 
+#if !defined(OS_MACOSX)
+ui::Compositor* CefRenderWidgetHostViewOSR::GetCompositor() const {
+  return compositor_.get();
+}
+
+content::DelegatedFrameHost* CefRenderWidgetHostViewOSR::GetDelegatedFrameHost()
+    const {
+  return delegated_frame_host_.get();
+}
+
+ui::Layer* CefRenderWidgetHostViewOSR::GetRootLayer() const {
+  return root_layer_.get();
+}
+#endif  // !defined(OS_MACOSX)
+
 void CefRenderWidgetHostViewOSR::SetFrameRate() {
   CefRefPtr<CefBrowserHostImpl> browser;
   if (parent_host_view_) {
@@ -1325,7 +1371,7 @@ void CefRenderWidgetHostViewOSR::SetFrameRate() {
   frame_rate_threshold_ms_ = 1000 / frame_rate;
 
   // Configure the VSync interval for the browser process.
-  compositor_->vsync_manager()->SetAuthoritativeVSyncInterval(
+  GetCompositor()->vsync_manager()->SetAuthoritativeVSyncInterval(
       base::TimeDelta::FromMilliseconds(frame_rate_threshold_ms_));
 
   if (copy_frame_generator_.get()) {
@@ -1375,14 +1421,14 @@ void CefRenderWidgetHostViewOSR::ResizeRootLayer() {
   else
     size = popup_position_.size();
 
-  if (!scaleFactorDidChange && size == root_layer_->bounds().size())
+  if (!scaleFactorDidChange && size == GetRootLayer()->bounds().size())
     return;
 
   const gfx::Size& size_in_pixels =
       gfx::ConvertSizeToPixel(scale_factor_, size);
 
-  root_layer_->SetBounds(gfx::Rect(size));
-  compositor_->SetScaleAndSize(scale_factor_, size_in_pixels);
+  GetRootLayer()->SetBounds(gfx::Rect(size));
+  GetCompositor()->SetScaleAndSize(scale_factor_, size_in_pixels);
 }
 
 bool CefRenderWidgetHostViewOSR::IsFramePending() {
