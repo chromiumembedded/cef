@@ -276,9 +276,6 @@ class CefRenderWidgetHostViewOSR
   void SetDeviceScaleFactor();
   void ResizeRootLayer();
 
-  // Returns a best guess whether a frame is currently pending.
-  bool IsFramePending();
-
   // Called by CefBeginFrameTimer to send a BeginFrame request.
   void OnBeginFrameTimerTick();
   void SendBeginFrame(base::TimeTicks frame_time,

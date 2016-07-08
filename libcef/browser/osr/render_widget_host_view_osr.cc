@@ -1174,13 +1174,7 @@ void CefRenderWidgetHostViewOSR::Invalidate(
   const gfx::Rect& bounds_in_pixels = gfx::Rect(GetPhysicalBackingSize());
 
   if (software_output_device_) {
-    if (IsFramePending()) {
-      // Include the invalidated region in the next frame generated.
-      software_output_device_->Invalidate(bounds_in_pixels);
-    } else {
-      // Call OnPaint immediately.
-      software_output_device_->OnPaint(bounds_in_pixels);
-    }
+    software_output_device_->OnPaint(bounds_in_pixels);
   } else if (copy_frame_generator_.get()) {
     copy_frame_generator_->GenerateCopyFrame(true, bounds_in_pixels);
   }
@@ -1429,18 +1423,6 @@ void CefRenderWidgetHostViewOSR::ResizeRootLayer() {
 
   GetRootLayer()->SetBounds(gfx::Rect(size));
   GetCompositor()->SetScaleAndSize(scale_factor_, size_in_pixels);
-}
-
-bool CefRenderWidgetHostViewOSR::IsFramePending() {
-  if (!IsShowing())
-    return false;
-
-  if (begin_frame_timer_.get())
-    return begin_frame_timer_->IsActive();
-  else if (copy_frame_generator_.get())
-    return copy_frame_generator_->frame_pending();
-
-  return false;
 }
 
 void CefRenderWidgetHostViewOSR::OnBeginFrameTimerTick() {
