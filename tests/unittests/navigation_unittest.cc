@@ -713,7 +713,12 @@ class RedirectSchemeHandler : public CefResourceHandler {
 
 class RedirectSchemeHandlerFactory : public CefSchemeHandlerFactory {
  public:
-  RedirectSchemeHandlerFactory() {}
+  RedirectSchemeHandlerFactory() {
+    g_got_nav1_request = false;
+    g_got_nav3_request = false;
+    g_got_nav4_request = false;
+    g_got_invalid_request = false;
+  }
 
   CefRefPtr<CefResourceHandler> Create(
       CefRefPtr<CefBrowser> browser,
@@ -829,6 +834,41 @@ class RedirectTestHandler : public TestHandler {
   IMPLEMENT_REFCOUNTING(RedirectTestHandler);
 };
 
+// Like above but destroy the WebContents while the redirect is in-progress.
+class RedirectDestroyTestHandler : public TestHandler {
+ public:
+  RedirectDestroyTestHandler() {}
+
+  void RunTest() override {
+    // Create the browser.
+    CreateBrowser(kRNav1);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
+    CefRefPtr<CefFrame> frame,
+    CefRefPtr<CefRequest> request,
+    CefString& new_url) override {
+    const std::string& old_url = request->GetURL();
+    if (old_url == kRNav1 && new_url == kRNav2) {
+      // Called due to the nav1 redirect response.
+      got_nav1_redirect_.yes();
+
+      new_url = "about:blank";
+
+      // Destroy the test (and the underlying WebContents) while the redirect
+      // is still pending.
+      DestroyTest();
+    }
+  }
+
+  TrackCallback got_nav1_redirect_;
+
+  IMPLEMENT_REFCOUNTING(RedirectDestroyTestHandler);
+};
+
 }  // namespace
 
 // Verify frame names and identifiers.
@@ -864,6 +904,28 @@ TEST(NavigationTest, Redirect) {
   ReleaseAndWaitForDestructor(handler);
 }
 
+// Verify that destroying the WebContents while the redirect is in-progress does
+// not result in a crash.
+TEST(NavigationTest, RedirectDestroy) {
+  CefRegisterSchemeHandlerFactory("http", "tests",
+      new RedirectSchemeHandlerFactory());
+  WaitForIOThread();
+
+  CefRefPtr<RedirectDestroyTestHandler> handler =
+      new RedirectDestroyTestHandler();
+  handler->ExecuteTest();
+
+  CefClearSchemeHandlerFactories();
+  WaitForIOThread();
+
+  ASSERT_TRUE(handler->got_nav1_redirect_);
+  ASSERT_TRUE(g_got_nav1_request);
+  ASSERT_FALSE(g_got_nav3_request);
+  ASSERT_FALSE(g_got_nav4_request);
+  ASSERT_FALSE(g_got_invalid_request);
+
+  ReleaseAndWaitForDestructor(handler);
+}
 
 namespace {
 

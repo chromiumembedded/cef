@@ -97,10 +97,12 @@ bool CefResourceDispatcherHostDelegate::HandleExternalProtocol(
   }
 
   content::WebContents* web_contents = web_contents_getter.Run();
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForContents(web_contents);
-  if (browser.get())
-    browser->HandleExternalProtocol(url);
+  if (web_contents) {
+    CefRefPtr<CefBrowserHostImpl> browser =
+        CefBrowserHostImpl::GetBrowserForContents(web_contents);
+    if (browser.get())
+      browser->HandleExternalProtocol(url);
+  }
   return false;
 }
 
