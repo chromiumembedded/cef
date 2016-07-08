@@ -87,10 +87,12 @@ bool CefResourceDispatcherHostDelegate::HandleExternalProtocol(
     bool has_user_gesture) {
   if (CEF_CURRENTLY_ON_UIT()) {
     content::WebContents* web_contents = web_contents_getter.Run();
-    CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserForContents(web_contents);
-    if (browser.get())
-      browser->HandleExternalProtocol(url);
+    if (web_contents) {
+      CefRefPtr<CefBrowserHostImpl> browser =
+          CefBrowserHostImpl::GetBrowserForContents(web_contents);
+      if (browser.get())
+        browser->HandleExternalProtocol(url);
+    }
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(base::IgnoreResult(&CefResourceDispatcherHostDelegate::
