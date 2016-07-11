@@ -60,10 +60,12 @@ void BrowserWindowStdMac::ShowPopup(ClientWindowHandle parent_handle,
 
 void BrowserWindowStdMac::Show() {
   REQUIRE_MAIN_THREAD();
+  // Nothing to do here. Chromium internally handles window show/hide.
 }
 
 void BrowserWindowStdMac::Hide() {
   REQUIRE_MAIN_THREAD();
+  // Nothing to do here. Chromium internally handles window show/hide.
 }
 
 void BrowserWindowStdMac::SetBounds(int x, int y, size_t width, size_t height) {
@@ -73,9 +75,7 @@ void BrowserWindowStdMac::SetBounds(int x, int y, size_t width, size_t height) {
 
 void BrowserWindowStdMac::SetFocus(bool focus) {
   REQUIRE_MAIN_THREAD();
-
-  if (browser_)
-    browser_->GetHost()->SetFocus(focus);
+  // Nothing to do here. Chromium internally handles window focus assignment.
 }
 
 ClientWindowHandle BrowserWindowStdMac::GetWindowHandle() const {
