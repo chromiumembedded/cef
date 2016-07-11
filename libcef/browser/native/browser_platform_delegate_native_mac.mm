@@ -92,18 +92,6 @@
   [super dealloc];
 }
 
-// Called when we are activated (when we gain focus).
-- (void)windowDidBecomeKey:(NSNotification*)notification {
-  if (browser_)
-    browser_->SetFocus(true);
-}
-
-// Called when we are deactivated (when we lose focus).
-- (void)windowDidResignKey:(NSNotification*)notification {
-  if (browser_)
-    browser_->SetFocus(false);
-}
-
 - (BOOL)windowShouldClose:(id)window {
   if (browser_ && !browser_->TryCloseBrowser()) {
     // Cancel the close.
