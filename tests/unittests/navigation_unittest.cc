@@ -145,13 +145,16 @@ class HistoryNavRendererTest : public ClientAppRenderer::Delegate,
   }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
-                   CefRefPtr<CefFrame> frame) override {
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
     const NavListItem& item = kHNavList[nav_];
 
     got_load_start_.yes();
 
     const std::string& url = frame->GetURL();
     EXPECT_STREQ(item.target, url.c_str());
+
+    EXPECT_EQ(TT_EXPLICIT, transition_type);
 
     EXPECT_EQ(item.can_go_back, browser->CanGoBack());
     EXPECT_EQ(item.can_go_forward, browser->CanGoForward());
@@ -487,13 +490,19 @@ class HistoryNavTestHandler : public TestHandler {
   }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
-                   CefRefPtr<CefFrame> frame) override {
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
     if(browser->IsPopup() || !frame->IsMain())
       return;
 
     const NavListItem& item = kHNavList[nav_];
 
     got_load_start_[nav_].yes();
+
+    if (item.action == NA_LOAD)
+      EXPECT_EQ(TT_EXPLICIT, transition_type);
+    else if (item.action == NA_BACK || item.action == NA_FORWARD)
+      EXPECT_EQ(TT_EXPLICIT | TT_FORWARD_BACK_FLAG, transition_type);
 
     std::string url1 = browser->GetMainFrame()->GetURL();
     std::string url2 = frame->GetURL();
@@ -793,9 +802,12 @@ class RedirectTestHandler : public TestHandler {
   }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
-                   CefRefPtr<CefFrame> frame) override {
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
     // Should only be called for the final loaded URL.
     std::string url = frame->GetURL();
+
+    EXPECT_EQ(TT_EXPLICIT, transition_type);
 
     if (url == kRNav4) {
       got_nav4_load_start_.yes();
@@ -1198,7 +1210,8 @@ class OrderNavRendererTest : public ClientAppRenderer::Delegate,
   }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
-                   CefRefPtr<CefFrame> frame) override {
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
     EXPECT_TRUE(got_render_thread_created_);
     EXPECT_TRUE(got_webkit_initialized_);
 
@@ -1409,10 +1422,13 @@ class OrderNavTestHandler : public TestHandler {
   }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
-                   CefRefPtr<CefFrame> frame) override {
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
     if (browser->IsPopup()) {
+      EXPECT_EQ(TT_LINK, transition_type);
       state_popup_.OnLoadStart(browser, frame);
     } else {
+      EXPECT_EQ(TT_EXPLICIT, transition_type);
       state_main_.OnLoadStart(browser, frame);
     }
   }
@@ -1852,9 +1868,15 @@ class LoadNavTestHandler : public TestHandler {
   }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
-                   CefRefPtr<CefFrame> frame) override {
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
     EXPECT_GT(browser_id_current_, 0);
     EXPECT_EQ(browser_id_current_, browser->GetIdentifier());
+
+    if (mode_ == LOAD || frame->GetURL() == kLoadNav1)
+      EXPECT_EQ(TT_EXPLICIT, transition_type);
+    else
+      EXPECT_EQ(TT_LINK, transition_type);
 
     got_load_start_.yes();
   }
@@ -2133,7 +2155,8 @@ class PopupNavTestHandler : public TestHandler {
   }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
-                   CefRefPtr<CefFrame> frame) override {
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
     const std::string& url = frame->GetURL();
     if (url == kPopupNavPageUrl) {
       EXPECT_FALSE(got_load_start_);
@@ -2560,7 +2583,8 @@ class BrowseNavTestHandler : public TestHandler {
   }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
-                   CefRefPtr<CefFrame> frame) override {
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
     const std::string& url = frame->GetURL();
     EXPECT_STREQ(kBrowseNavPageUrl, url.c_str());
     EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());

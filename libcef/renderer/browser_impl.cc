@@ -689,7 +689,7 @@ void CefBrowserImpl::OnLoadStart(blink::WebLocalFrame* frame) {
       CefRefPtr<CefLoadHandler> load_handler = handler->GetLoadHandler();
       if (load_handler.get()) {
         CefRefPtr<CefFrameImpl> cef_frame = GetWebFrameImpl(frame);
-        load_handler->OnLoadStart(this, cef_frame.get());
+        load_handler->OnLoadStart(this, cef_frame.get(), TT_EXPLICIT);
       }
     }
   }

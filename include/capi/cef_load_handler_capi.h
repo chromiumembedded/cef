@@ -72,14 +72,17 @@ typedef struct _cef_load_handler_t {
   ///
   // Called when the browser begins loading a frame. The |frame| value will
   // never be NULL -- call the is_main() function to check if this frame is the
-  // main frame. Multiple frames may be loading at the same time. Sub-frames may
-  // start or continue loading after the main frame load has ended. This
-  // function will always be called for all frames irrespective of whether the
-  // request completes successfully. For notification of overall browser load
-  // status use OnLoadingStateChange instead.
+  // main frame. |transition_type| provides information about the source of the
+  // navigation and an accurate value is only available in the browser process.
+  // Multiple frames may be loading at the same time. Sub-frames may start or
+  // continue loading after the main frame load has ended. This function will
+  // always be called for all frames irrespective of whether the request
+  // completes successfully. For notification of overall browser load status use
+  // OnLoadingStateChange instead.
   ///
   void (CEF_CALLBACK *on_load_start)(struct _cef_load_handler_t* self,
-      struct _cef_browser_t* browser, struct _cef_frame_t* frame);
+      struct _cef_browser_t* browser, struct _cef_frame_t* frame,
+      cef_transition_type_t transition_type);
 
   ///
   // Called when the browser is done loading a frame. The |frame| value will
