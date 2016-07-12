@@ -39,7 +39,7 @@ void CefLoadHandlerCToCpp::OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
 }
 
 void CefLoadHandlerCToCpp::OnLoadStart(CefRefPtr<CefBrowser> browser,
-    CefRefPtr<CefFrame> frame) {
+    CefRefPtr<CefFrame> frame, TransitionType transition_type) {
   cef_load_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_load_start))
     return;
@@ -58,7 +58,8 @@ void CefLoadHandlerCToCpp::OnLoadStart(CefRefPtr<CefBrowser> browser,
   // Execute
   _struct->on_load_start(_struct,
       CefBrowserCppToC::Wrap(browser),
-      CefFrameCppToC::Wrap(frame));
+      CefFrameCppToC::Wrap(frame),
+      transition_type);
 }
 
 void CefLoadHandlerCToCpp::OnLoadEnd(CefRefPtr<CefBrowser> browser,
