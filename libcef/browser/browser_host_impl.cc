@@ -2955,7 +2955,8 @@ void CefBrowserHostImpl::OnLoadStart(CefRefPtr<CefFrame> frame,
     CefRefPtr<CefLoadHandler> handler = client_->GetLoadHandler();
     if (handler.get()) {
       // Notify the handler that loading has started.
-      handler->OnLoadStart(this, frame);
+      handler->OnLoadStart(this, frame,
+                           static_cast<cef_transition_type_t>(transition_type));
     }
   }
 }

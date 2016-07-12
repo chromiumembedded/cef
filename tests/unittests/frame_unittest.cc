@@ -355,7 +355,8 @@ class FrameNavRendererTest : public ClientAppRenderer::Delegate,
   }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
-                   CefRefPtr<CefFrame> frame) override {
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
     CreateExpectationsIfNecessary();
     EXPECT_TRUE(expectations_->OnLoadStart(browser, frame)) << "nav = " << nav_;
   }
@@ -522,7 +523,8 @@ class FrameNavTestHandler : public TestHandler {
   }
 
   void OnLoadStart(CefRefPtr<CefBrowser> browser,
-                   CefRefPtr<CefFrame> frame) override {
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
     EXPECT_TRUE(expectations_->OnLoadStart(browser, frame)) << "nav = " << nav_;
   }
 
