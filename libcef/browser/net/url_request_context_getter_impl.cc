@@ -247,11 +247,14 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     storage_->set_http_server_properties(base::WrapUnique(
         new net::HttpServerPropertiesImpl));
 
+    base::FilePath http_cache_path;
+    if (!cache_path.empty())
+      http_cache_path = cache_path.Append(FILE_PATH_LITERAL("Cache"));
     std::unique_ptr<net::HttpCache::DefaultBackend> main_backend(
         new net::HttpCache::DefaultBackend(
             cache_path.empty() ? net::MEMORY_CACHE : net::DISK_CACHE,
             net::CACHE_BACKEND_DEFAULT,
-            cache_path,
+            http_cache_path,
             0,
             BrowserThread::GetMessageLoopProxyForThread(
                 BrowserThread::CACHE)));
