@@ -20,13 +20,13 @@ using content::BrowserThread;
 
 namespace extensions {
 
-EventRouterForwarder::EventRouterForwarder() {
+CefEventRouterForwarder::CefEventRouterForwarder() {
 }
 
-EventRouterForwarder::~EventRouterForwarder() {
+CefEventRouterForwarder::~CefEventRouterForwarder() {
 }
 
-void EventRouterForwarder::BroadcastEventToRenderers(
+void CefEventRouterForwarder::BroadcastEventToRenderers(
     events::HistogramValue histogram_value,
     const std::string& event_name,
     std::unique_ptr<base::ListValue> event_args,
@@ -35,7 +35,7 @@ void EventRouterForwarder::BroadcastEventToRenderers(
               0, true, event_url);
 }
 
-void EventRouterForwarder::DispatchEventToRenderers(
+void CefEventRouterForwarder::DispatchEventToRenderers(
     events::HistogramValue histogram_value,
     const std::string& event_name,
     std::unique_ptr<base::ListValue> event_args,
@@ -48,7 +48,7 @@ void EventRouterForwarder::DispatchEventToRenderers(
               profile, use_profile_to_restrict_events, event_url);
 }
 
-void EventRouterForwarder::BroadcastEventToExtension(
+void CefEventRouterForwarder::BroadcastEventToExtension(
     const std::string& extension_id,
     events::HistogramValue histogram_value,
     const std::string& event_name,
@@ -58,7 +58,7 @@ void EventRouterForwarder::BroadcastEventToExtension(
               0, true, event_url);
 }
 
-void EventRouterForwarder::DispatchEventToExtension(
+void CefEventRouterForwarder::DispatchEventToExtension(
     const std::string& extension_id,
     events::HistogramValue histogram_value,
     const std::string& event_name,
@@ -72,7 +72,7 @@ void EventRouterForwarder::DispatchEventToExtension(
               profile, use_profile_to_restrict_events, event_url);
 }
 
-void EventRouterForwarder::HandleEvent(
+void CefEventRouterForwarder::HandleEvent(
     const std::string& extension_id,
     events::HistogramValue histogram_value,
     const std::string& event_name,
@@ -83,7 +83,7 @@ void EventRouterForwarder::HandleEvent(
   if (!BrowserThread::CurrentlyOn(BrowserThread::UI)) {
     BrowserThread::PostTask(
         BrowserThread::UI, FROM_HERE,
-        base::Bind(&EventRouterForwarder::HandleEvent, this, extension_id,
+        base::Bind(&CefEventRouterForwarder::HandleEvent, this, extension_id,
                    histogram_value, event_name, base::Passed(&event_args),
                    profile_ptr, use_profile_to_restrict_events, event_url));
     return;
@@ -113,7 +113,7 @@ void EventRouterForwarder::HandleEvent(
   }
 }
 
-void EventRouterForwarder::CallEventRouter(
+void CefEventRouterForwarder::CallEventRouter(
     content::BrowserContext* profile,
     const std::string& extension_id,
     events::HistogramValue histogram_value,

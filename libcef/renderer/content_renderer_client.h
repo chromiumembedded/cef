@@ -135,9 +135,6 @@ class CefContentRendererClient : public content::ContentRendererClient,
   // MessageLoop::DestructionObserver implementation.
   void WillDestroyCurrentMessageLoop() override;
 
-  static bool IsExtensionOrSharedModuleWhitelisted(
-      const GURL& url, const std::set<std::string>& whitelist);
-
   static blink::WebPlugin* CreatePlugin(
       content::RenderFrame* render_frame,
       blink::WebLocalFrame* frame,

@@ -1,7 +1,37 @@
-diff --git printing/common/print_messages.cc printing/common/print_messages.cc
+diff --git chrome/browser/ui/cocoa/applescript/tab_applescript.mm chrome/browser/ui/cocoa/applescript/tab_applescript.mm
+index b43b88b..7779496 100644
+--- chrome/browser/ui/cocoa/applescript/tab_applescript.mm
++++ chrome/browser/ui/cocoa/applescript/tab_applescript.mm
+@@ -9,7 +9,9 @@
+ #include "base/logging.h"
+ #import "base/mac/scoped_nsobject.h"
+ #include "base/strings/sys_string_conversions.h"
++#if defined(ENABLE_PRINT_PREVIEW)
+ #include "chrome/browser/printing/print_view_manager.h"
++#endif
+ #include "chrome/browser/sessions/session_tab_helper.h"
+ #include "chrome/browser/ui/cocoa/applescript/apple_event_util.h"
+ #include "chrome/browser/ui/cocoa/applescript/error_applescript.h"
+@@ -227,11 +229,15 @@ - (void)handlesStopScriptCommand:(NSScriptCommand*)command {
+ 
+ - (void)handlesPrintScriptCommand:(NSScriptCommand*)command {
+   AppleScript::LogAppleScriptUMA(AppleScript::AppleScriptCommand::TAB_PRINT);
++#if defined(ENABLE_PRINT_PREVIEW)
+   bool initiated =
+       printing::PrintViewManager::FromWebContents(webContents_)->PrintNow();
+   if (!initiated) {
+     AppleScript::SetError(AppleScript::errInitiatePrinting);
+   }
++#else
++  NOTIMPLEMENTED();
++#endif
+ }
+ 
+ - (void)handlesSaveScriptCommand:(NSScriptCommand*)command {
+diff --git components/printing/common/print_messages.cc components/printing/common/print_messages.cc
 index 6798e35..215777f 100644
---- printing/common/print_messages.cc
-+++ printing/common/print_messages.cc
+--- components/printing/common/print_messages.cc
++++ components/printing/common/print_messages.cc
 @@ -103,7 +103,6 @@ void PrintMsg_PrintPages_Params::Reset() {
    pages = std::vector<int>();
  }
@@ -15,10 +45,10 @@ index 6798e35..215777f 100644
      ~PrintHostMsg_SetOptionsFromDocument_Params() {
  }
 -#endif  // defined(ENABLE_PRINT_PREVIEW)
-diff --git printing/common/print_messages.h printing/common/print_messages.h
+diff --git components/printing/common/print_messages.h components/printing/common/print_messages.h
 index 705211b..a524333 100644
---- printing/common/print_messages.h
-+++ printing/common/print_messages.h
+--- components/printing/common/print_messages.h
++++ components/printing/common/print_messages.h
 @@ -71,7 +71,6 @@ struct PrintMsg_PrintPages_Params {
    std::vector<int> pages;
  };
@@ -135,10 +165,10 @@ index 705211b..a524333 100644
  IPC_MESSAGE_ROUTED1(PrintHostMsg_SetOptionsFromDocument,
                      PrintHostMsg_SetOptionsFromDocument_Params /* params */)
 -#endif  // defined(ENABLE_PRINT_PREVIEW)
-diff --git printing/renderer/print_web_view_helper.cc printing/renderer/print_web_view_helper.cc
+diff --git components/printing/renderer/print_web_view_helper.cc components/printing/renderer/print_web_view_helper.cc
 index b25340c..47d419e 100644
---- printing/renderer/print_web_view_helper.cc
-+++ printing/renderer/print_web_view_helper.cc
+--- components/printing/renderer/print_web_view_helper.cc
++++ components/printing/renderer/print_web_view_helper.cc
 @@ -83,6 +83,9 @@ const float kPrintingMinimumShrinkFactor = 1.333f;
  
  #if defined(ENABLE_PRINT_PREVIEW)
@@ -394,10 +424,10 @@ index b25340c..47d419e 100644
  
  PrintWebViewHelper::PrintPreviewContext::PrintPreviewContext()
      : total_page_count_(0),
-diff --git printing/renderer/print_web_view_helper.h printing/renderer/print_web_view_helper.h
+diff --git components/printing/renderer/print_web_view_helper.h components/printing/renderer/print_web_view_helper.h
 index fe33d5e..3f1b7b5 100644
---- printing/renderer/print_web_view_helper.h
-+++ printing/renderer/print_web_view_helper.h
+--- components/printing/renderer/print_web_view_helper.h
++++ components/printing/renderer/print_web_view_helper.h
 @@ -137,9 +137,7 @@ class PrintWebViewHelper
      OK,
      FAIL_PRINT_INIT,
@@ -491,10 +521,10 @@ index fe33d5e..3f1b7b5 100644
    PrintPreviewContext print_preview_context_;
    bool is_loading_;
    bool is_scripted_preview_delayed_;
-diff --git printing/renderer/print_web_view_helper_mac.mm printing/renderer/print_web_view_helper_mac.mm
+diff --git components/printing/renderer/print_web_view_helper_mac.mm components/printing/renderer/print_web_view_helper_mac.mm
 index d227c5e..f362093 100644
---- printing/renderer/print_web_view_helper_mac.mm
-+++ printing/renderer/print_web_view_helper_mac.mm
+--- components/printing/renderer/print_web_view_helper_mac.mm
++++ components/printing/renderer/print_web_view_helper_mac.mm
 @@ -68,7 +68,6 @@ void PrintWebViewHelper::PrintPageInternal(
    Send(new PrintHostMsg_DidPrintPage(routing_id(), page_params));
  }
@@ -526,10 +556,10 @@ index d227c5e..f362093 100644
      RenderPageContent(frame, page_number, canvas_area, content_area,
                        scale_factor, static_cast<blink::WebCanvas*>(canvas));
    }
-diff --git resources/printing_resources.grdp resources/printing_resources.grdp
+diff --git components/resources/printing_resources.grdp components/resources/printing_resources.grdp
 index 7213746..32b8b1e 100644
---- resources/printing_resources.grdp
-+++ resources/printing_resources.grdp
+--- components/resources/printing_resources.grdp
++++ components/resources/printing_resources.grdp
 @@ -1,6 +1,4 @@
  <?xml version="1.0" encoding="utf-8"?>
  <grit-part>

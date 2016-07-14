@@ -40,7 +40,8 @@ using content::BrowserThread;
 
 namespace printing {
 
-PrintViewManagerBase::PrintViewManagerBase(content::WebContents* web_contents)
+CefPrintViewManagerBase::CefPrintViewManagerBase(
+    content::WebContents* web_contents)
     : PrintManager(web_contents),
       printing_succeeded_(false),
       inside_inner_message_loop_(false),
@@ -55,33 +56,34 @@ PrintViewManagerBase::PrintViewManagerBase(content::WebContents* web_contents)
   printing_enabled_.Init(
       prefs::kPrintingEnabled,
       pref_service,
-      base::Bind(&PrintViewManagerBase::UpdateScriptedPrintingBlocked,
+      base::Bind(&CefPrintViewManagerBase::UpdateScriptedPrintingBlocked,
                  base::Unretained(this)));
 }
 
-PrintViewManagerBase::~PrintViewManagerBase() {
+CefPrintViewManagerBase::~CefPrintViewManagerBase() {
   ReleasePrinterQuery();
   DisconnectFromCurrentPrintJob();
 }
 
 #if defined(ENABLE_BASIC_PRINTING)
-bool PrintViewManagerBase::PrintNow() {
+bool CefPrintViewManagerBase::PrintNow() {
   return PrintNowInternal(new PrintMsg_PrintPages(routing_id()));
 }
 #endif
 
-void PrintViewManagerBase::UpdateScriptedPrintingBlocked() {
+void CefPrintViewManagerBase::UpdateScriptedPrintingBlocked() {
   Send(new PrintMsg_SetScriptedPrintingBlocked(
        routing_id(),
        !printing_enabled_.GetValue()));
 }
 
-void PrintViewManagerBase::NavigationStopped() {
+void CefPrintViewManagerBase::NavigationStopped() {
   // Cancel the current job, wait for the worker to finish.
   TerminatePrintJob(true);
 }
 
-void PrintViewManagerBase::RenderProcessGone(base::TerminationStatus status) {
+void CefPrintViewManagerBase::RenderProcessGone(
+    base::TerminationStatus status) {
   PrintManager::RenderProcessGone(status);
   ReleasePrinterQuery();
 
@@ -97,20 +99,20 @@ void PrintViewManagerBase::RenderProcessGone(base::TerminationStatus status) {
   }
 }
 
-base::string16 PrintViewManagerBase::RenderSourceName() {
+base::string16 CefPrintViewManagerBase::RenderSourceName() {
   base::string16 name(web_contents()->GetTitle());
   if (name.empty())
     name = l10n_util::GetStringUTF16(IDS_DEFAULT_PRINT_DOCUMENT_TITLE);
   return name;
 }
 
-void PrintViewManagerBase::OnDidGetPrintedPagesCount(int cookie,
+void CefPrintViewManagerBase::OnDidGetPrintedPagesCount(int cookie,
                                                      int number_pages) {
   PrintManager::OnDidGetPrintedPagesCount(cookie, number_pages);
   OpportunisticallyCreatePrintJob(cookie);
 }
 
-void PrintViewManagerBase::OnDidPrintPage(
+void CefPrintViewManagerBase::OnDidPrintPage(
   const PrintHostMsg_DidPrintPage_Params& params) {
   if (!OpportunisticallyCreatePrintJob(params.document_cookie))
     return;
@@ -183,7 +185,7 @@ void PrintViewManagerBase::OnDidPrintPage(
 #endif
 }
 
-void PrintViewManagerBase::OnPrintingFailed(int cookie) {
+void CefPrintViewManagerBase::OnPrintingFailed(int cookie) {
   PrintManager::OnPrintingFailed(cookie);
 
   ReleasePrinterQuery();
@@ -194,16 +196,16 @@ void PrintViewManagerBase::OnPrintingFailed(int cookie) {
       content::NotificationService::NoDetails());
 }
 
-void PrintViewManagerBase::OnShowInvalidPrinterSettingsError() {
+void CefPrintViewManagerBase::OnShowInvalidPrinterSettingsError() {
 }
 
-void PrintViewManagerBase::DidStartLoading() {
+void CefPrintViewManagerBase::DidStartLoading() {
   UpdateScriptedPrintingBlocked();
 }
 
-bool PrintViewManagerBase::OnMessageReceived(const IPC::Message& message) {
+bool CefPrintViewManagerBase::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(PrintViewManagerBase, message)
+  IPC_BEGIN_MESSAGE_MAP(CefPrintViewManagerBase, message)
     IPC_MESSAGE_HANDLER(PrintHostMsg_DidPrintPage, OnDidPrintPage)
     IPC_MESSAGE_HANDLER(PrintHostMsg_ShowInvalidPrinterSettingsError,
                         OnShowInvalidPrinterSettingsError);
@@ -212,7 +214,7 @@ bool PrintViewManagerBase::OnMessageReceived(const IPC::Message& message) {
   return handled || PrintManager::OnMessageReceived(message);
 }
 
-void PrintViewManagerBase::Observe(
+void CefPrintViewManagerBase::Observe(
     int type,
     const content::NotificationSource& source,
     const content::NotificationDetails& details) {
@@ -220,7 +222,7 @@ void PrintViewManagerBase::Observe(
   OnNotifyPrintJobEvent(*content::Details<JobEventDetails>(details).ptr());
 }
 
-void PrintViewManagerBase::OnNotifyPrintJobEvent(
+void CefPrintViewManagerBase::OnNotifyPrintJobEvent(
     const JobEventDetails& event_details) {
   switch (event_details.type()) {
     case JobEventDetails::FAILED: {
@@ -269,7 +271,7 @@ void PrintViewManagerBase::OnNotifyPrintJobEvent(
   }
 }
 
-bool PrintViewManagerBase::RenderAllMissingPagesNow() {
+bool CefPrintViewManagerBase::RenderAllMissingPagesNow() {
   if (!print_job_.get() || !print_job_->is_job_pending())
     return false;
 
@@ -305,7 +307,7 @@ bool PrintViewManagerBase::RenderAllMissingPagesNow() {
   return true;
 }
 
-void PrintViewManagerBase::ShouldQuitFromInnerMessageLoop() {
+void CefPrintViewManagerBase::ShouldQuitFromInnerMessageLoop() {
   // Look at the reason.
   DCHECK(print_job_->document());
   if (print_job_->document() &&
@@ -318,7 +320,7 @@ void PrintViewManagerBase::ShouldQuitFromInnerMessageLoop() {
   }
 }
 
-bool PrintViewManagerBase::CreateNewPrintJob(PrintJobWorkerOwner* job) {
+bool CefPrintViewManagerBase::CreateNewPrintJob(PrintJobWorkerOwner* job) {
   DCHECK(!inside_inner_message_loop_);
 
   // Disconnect the current print_job_.
@@ -345,7 +347,7 @@ bool PrintViewManagerBase::CreateNewPrintJob(PrintJobWorkerOwner* job) {
   return true;
 }
 
-void PrintViewManagerBase::DisconnectFromCurrentPrintJob() {
+void CefPrintViewManagerBase::DisconnectFromCurrentPrintJob() {
   // Make sure all the necessary rendered page are done. Don't bother with the
   // return value.
   bool result = RenderAllMissingPagesNow();
@@ -366,13 +368,13 @@ void PrintViewManagerBase::DisconnectFromCurrentPrintJob() {
 #endif
 }
 
-void PrintViewManagerBase::PrintingDone(bool success) {
+void CefPrintViewManagerBase::PrintingDone(bool success) {
   if (!print_job_.get())
     return;
   Send(new PrintMsg_PrintingDone(routing_id(), success));
 }
 
-void PrintViewManagerBase::TerminatePrintJob(bool cancel) {
+void CefPrintViewManagerBase::TerminatePrintJob(bool cancel) {
   if (!print_job_.get())
     return;
 
@@ -392,7 +394,7 @@ void PrintViewManagerBase::TerminatePrintJob(bool cancel) {
   ReleasePrintJob();
 }
 
-void PrintViewManagerBase::ReleasePrintJob() {
+void CefPrintViewManagerBase::ReleasePrintJob() {
   if (!print_job_.get())
     return;
 
@@ -405,7 +407,7 @@ void PrintViewManagerBase::ReleasePrintJob() {
   print_job_ = NULL;
 }
 
-bool PrintViewManagerBase::RunInnerMessageLoop() {
+bool CefPrintViewManagerBase::RunInnerMessageLoop() {
   // This value may actually be too low:
   //
   // - If we're looping because of printer settings initialization, the premise
@@ -442,7 +444,7 @@ bool PrintViewManagerBase::RunInnerMessageLoop() {
   return success;
 }
 
-bool PrintViewManagerBase::OpportunisticallyCreatePrintJob(int cookie) {
+bool CefPrintViewManagerBase::OpportunisticallyCreatePrintJob(int cookie) {
   if (print_job_.get())
     return true;
 
@@ -471,7 +473,7 @@ bool PrintViewManagerBase::OpportunisticallyCreatePrintJob(int cookie) {
   return true;
 }
 
-bool PrintViewManagerBase::PrintNowInternal(IPC::Message* message) {
+bool CefPrintViewManagerBase::PrintNowInternal(IPC::Message* message) {
   // Don't print / print preview interstitials or crashed tabs.
   if (web_contents()->ShowingInterstitialPage() ||
       web_contents()->IsCrashed()) {
@@ -481,7 +483,7 @@ bool PrintViewManagerBase::PrintNowInternal(IPC::Message* message) {
   return Send(message);
 }
 
-void PrintViewManagerBase::ReleasePrinterQuery() {
+void CefPrintViewManagerBase::ReleasePrinterQuery() {
   if (!cookie_)
     return;
 

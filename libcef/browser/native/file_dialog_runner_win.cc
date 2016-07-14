@@ -16,7 +16,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/win/registry.h"
 #include "base/win/scoped_comptr.h"
-#include "grit/cef_strings.h"
+#include "cef/grit/cef_strings.h"
 #include "net/base/mime_util.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/win/shell.h"

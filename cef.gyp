@@ -694,6 +694,7 @@
       'target_name': 'cef_locales',
       'type': 'none',
       'dependencies': [
+        '<(DEPTH)/chrome/chrome_resources.gyp:chrome_strings',
         '<(DEPTH)/chrome/chrome_resources.gyp:platform_locale_settings',
         '<(DEPTH)/components/components_strings.gyp:components_strings',
         '<(DEPTH)/content/app/strings/content_strings.gyp:content_strings',
@@ -745,38 +746,15 @@
       ],
     },
     {
-      # Create the pack file for component extension resources.
-      'target_name': 'component_extension_resources',
-      'type': 'none',
-      'actions': [
-        {
-          'action_name': 'component_extension_resources',
-          'variables': {
-            'grit_grd_file': '../chrome/browser/resources/component_extension_resources.grd',
-          },
-          'includes': [ '../build/grit_action.gypi' ],
-        },
-      ],
-      'includes': [ '../build/grit_target.gypi' ],
-      'copies': [
-        {
-          'destination': '<(PRODUCT_DIR)',
-          'files': [
-            '<(grit_out_dir)/component_extension_resources.pak'
-          ],
-        },
-      ],
-    },
-    {
       # Combine all extensions-related non-localized pack file resources into a
       # single CEF pack file. Scaled resources are still in cef_pak.
       'target_name': 'cef_extensions_pak',
       'type': 'none',
       'dependencies': [
+        '<(DEPTH)/chrome/chrome_resources.gyp:chrome_extra_resources',
         '<(DEPTH)/extensions/extensions_resources.gyp:extensions_resources',
         '<(DEPTH)/extensions/extensions_strings.gyp:extensions_strings',
         '<(DEPTH)/ui/resources/ui_resources.gyp:ui_resources',
-        'component_extension_resources',
       ],
       'variables': {
         'make_pack_header_path': 'tools/make_pack_header.py',
@@ -786,10 +764,10 @@
           'action_name': 'repack_cef_extensions_pack',
           'variables': {
             'pak_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/chrome/component_extension_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/extensions/extensions_renderer_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/extensions/extensions_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/resources/webui_resources.pak',
-              '<(grit_out_dir)/component_extension_resources.pak',
             ],
             'pak_output': '<(PRODUCT_DIR)/cef_extensions.pak',
           },
@@ -802,6 +780,7 @@
       'target_name': 'cef_pak',
       'type': 'none',
       'dependencies': [
+        '<(DEPTH)/chrome/chrome_resources.gyp:chrome_resources',
         '<(DEPTH)/components/components_resources.gyp:components_resources',
         '<(DEPTH)/components/components_strings.gyp:components_strings',
         '<(DEPTH)/content/app/resources/content_resources.gyp:content_resources',
@@ -823,6 +802,8 @@
           'variables': {
             'pak_inputs': [
               '<(SHARED_INTERMEDIATE_DIR)/blink/public/resources/blink_resources.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/chrome/browser_resources.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/chrome/common_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/components/components_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
@@ -837,6 +818,7 @@
           'variables': {
             'pak_inputs': [
               '<(SHARED_INTERMEDIATE_DIR)/blink/public/resources/blink_image_resources_100_percent.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/chrome/renderer_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/components/components_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/app/resources/content_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/extensions/extensions_browser_resources_100_percent.pak',
@@ -852,6 +834,7 @@
           'variables': {
             'pak_inputs': [
               '<(SHARED_INTERMEDIATE_DIR)/blink/public/resources/blink_image_resources_200_percent.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/chrome/renderer_resources_200_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/components/components_resources_200_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/app/resources/content_resources_200_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/extensions/extensions_browser_resources_200_percent.pak',
@@ -868,6 +851,9 @@
             'header_inputs': [
               '<(SHARED_INTERMEDIATE_DIR)/blink/grit/devtools_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/blink/public/resources/grit/blink_resources.h',
+              '<(SHARED_INTERMEDIATE_DIR)/chrome/grit/browser_resources.h',
+              '<(SHARED_INTERMEDIATE_DIR)/chrome/grit/common_resources.h',
+              '<(SHARED_INTERMEDIATE_DIR)/chrome/grit/component_extension_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/content/grit/content_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/extensions/grit/extensions_browser_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/extensions/grit/extensions_renderer_resources.h',
@@ -877,7 +863,6 @@
               '<(SHARED_INTERMEDIATE_DIR)/ui/resources/grit/webui_resources.h',
               '<(SHARED_INTERMEDIATE_DIR)/ui/views/resources/grit/views_resources.h',
               '<(grit_out_dir)/grit/cef_resources.h',
-              '<(grit_out_dir)/grit/component_extension_resources.h',
             ],
           },
           'inputs': [
@@ -894,6 +879,8 @@
           'action_name': 'make_pack_strings_header',
           'variables': {
             'header_inputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/chrome/grit/generated_resources.h',
+              '<(SHARED_INTERMEDIATE_DIR)/chrome/grit/locale_settings.h',
               '<(SHARED_INTERMEDIATE_DIR)/chrome/grit/platform_locale_settings.h',
               '<(SHARED_INTERMEDIATE_DIR)/components/strings/grit/components_strings.h',
               '<(SHARED_INTERMEDIATE_DIR)/content/app/strings/grit/content_strings.h',
@@ -935,14 +922,6 @@
         '.',
         '<(DEPTH)/third_party/WebKit/public/platform',
         '<(DEPTH)/third_party/WebKit/public/web',
-        # CEF grit resource includes
-        '<(DEPTH)/cef/libcef/resources/grit_stub',
-        '<(DEPTH)/cef/libcef/resources/grit_stub/chrome',
-        '<(grit_out_dir)',
-        '<(SHARED_INTERMEDIATE_DIR)/chrome',
-        '<(SHARED_INTERMEDIATE_DIR)/components',
-        '<(SHARED_INTERMEDIATE_DIR)/ui/resources',
-        '<(SHARED_INTERMEDIATE_DIR)/ui/strings',
       ],
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',
@@ -950,15 +929,10 @@
         '<(DEPTH)/base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
         '<(DEPTH)/cc/blink/cc_blink.gyp:cc_blink',
         '<(DEPTH)/cc/cc.gyp:cc',
-        # Generate chrome/common/safe_browsing/csd.pb.h required by
-        # zip_analyzer_results.h via chrome_utility_messages.h
-        '<(DEPTH)/chrome/chrome.gyp:safe_browsing_proto',
-        # Generate chrome/common/features.h required by Chrome code that uses
-        # the BUILDFLAG() macro.
-        '<(DEPTH)/chrome/chrome_features.gyp:chrome_common_features',
-        # Generate chrome/common/chrome_version.h required by
-        # chrome/common/chrome_contants.cc
-        '<(DEPTH)/chrome/common_constants.gyp:version_header',
+        '<(DEPTH)/chrome/chrome.gyp:browser',
+        '<(DEPTH)/chrome/chrome.gyp:child',
+        '<(DEPTH)/chrome/chrome.gyp:common',
+        '<(DEPTH)/chrome/chrome.gyp:renderer',
         '<(DEPTH)/components/components.gyp:cdm_renderer',
         '<(DEPTH)/components/components.gyp:component_updater',
         '<(DEPTH)/components/components.gyp:content_settings_core_browser',
@@ -1189,7 +1163,6 @@
         'libcef/browser/pepper/pepper_flash_browser_host.h',
         'libcef/browser/pepper/pepper_isolated_file_system_message_filter.cc',
         'libcef/browser/pepper/pepper_isolated_file_system_message_filter.h',
-        'libcef/browser/pepper/device_id_fetcher.cc',
         'libcef/browser/permissions/permission_context.cc',
         'libcef/browser/permissions/permission_context.h',
         'libcef/browser/permissions/permission_manager.cc',
@@ -1213,7 +1186,6 @@
         'libcef/browser/printing/print_view_manager_base.cc',
         'libcef/browser/printing/print_view_manager_base.h',
         'libcef/browser/process_util_impl.cc',
-        'libcef/browser/proxy_stubs.cc',
         'libcef/browser/resource_context.cc',
         'libcef/browser/resource_context.h',
         'libcef/browser/resource_dispatcher_host_delegate.cc',
@@ -1323,7 +1295,6 @@
         'libcef/renderer/media/cef_key_systems.h',
         'libcef/renderer/pepper/pepper_helper.cc',
         'libcef/renderer/pepper/pepper_helper.h',
-        'libcef/renderer/pepper/pepper_uma_host.cc',
         'libcef/renderer/pepper/renderer_pepper_host_factory.cc',
         'libcef/renderer/pepper/renderer_pepper_host_factory.h',
         'libcef/renderer/plugins/cef_plugin_placeholder.cc',
@@ -1345,171 +1316,15 @@
         'libcef/renderer/webkit_glue.h',
         'libcef/utility/content_utility_client.cc',
         'libcef/utility/content_utility_client.h',
-        '<(DEPTH)/chrome/common/chrome_switches.cc',
-        '<(DEPTH)/chrome/common/chrome_switches.h',
-        # Include sources for proxy support.
-        '<(DEPTH)/chrome/browser/net/proxy_service_factory.cc',
-        '<(DEPTH)/chrome/browser/net/proxy_service_factory.h',
-        '<(DEPTH)/chrome/browser/net/utility_process_mojo_proxy_resolver_factory.cc',
-        '<(DEPTH)/chrome/browser/net/utility_process_mojo_proxy_resolver_factory.h',
-        '<(DEPTH)/components/data_reduction_proxy/core/common/data_reduction_proxy_switches.cc',
-        '<(DEPTH)/components/data_reduction_proxy/core/common/data_reduction_proxy_switches.h',
-        '<(DEPTH)/components/data_reduction_proxy/core/common/data_reduction_proxy_pref_names.cc',
-        '<(DEPTH)/components/data_reduction_proxy/core/common/data_reduction_proxy_pref_names.h',
-        # Include sources for the loadtimes V8 extension.
-        '<(DEPTH)/chrome/renderer/loadtimes_extension_bindings.h',
-        '<(DEPTH)/chrome/renderer/loadtimes_extension_bindings.cc',
-        # Include sources for printing.
-        '<(DEPTH)/chrome/browser/printing/print_job.cc',
-        '<(DEPTH)/chrome/browser/printing/print_job.h',
-        '<(DEPTH)/chrome/browser/printing/print_job_manager.cc',
-        '<(DEPTH)/chrome/browser/printing/print_job_manager.h',
-        '<(DEPTH)/chrome/browser/printing/print_job_worker.cc',
-        '<(DEPTH)/chrome/browser/printing/print_job_worker.h',
-        '<(DEPTH)/chrome/browser/printing/print_job_worker_owner.cc',
-        '<(DEPTH)/chrome/browser/printing/print_job_worker_owner.h',
-        '<(DEPTH)/chrome/browser/printing/printer_query.cc',
-        '<(DEPTH)/chrome/browser/printing/printer_query.h',
-        '<(DEPTH)/chrome/common/extensions/extension_constants.cc',
-        '<(DEPTH)/chrome/common/extensions/extension_constants.h',
-        # Include header for stub creation (BrowserProcess) so print_job_worker can
-        # determine the current locale.
-        '<(DEPTH)/chrome/browser/browser_process.cc',
-        '<(DEPTH)/chrome/browser/browser_process.h',
-        # Include sources for spell checking support.
-        '<(DEPTH)/chrome/browser/spellchecker/feedback.cc',
-        '<(DEPTH)/chrome/browser/spellchecker/feedback.h',
-        '<(DEPTH)/chrome/browser/spellchecker/feedback_sender.cc',
-        '<(DEPTH)/chrome/browser/spellchecker/feedback_sender.h',
-        '<(DEPTH)/chrome/browser/spellchecker/misspelling.cc',
-        '<(DEPTH)/chrome/browser/spellchecker/misspelling.h',
-        '<(DEPTH)/chrome/browser/spellchecker/spellcheck_action.cc',
-        '<(DEPTH)/chrome/browser/spellchecker/spellcheck_action.h',
-        '<(DEPTH)/chrome/browser/spellchecker/spellcheck_custom_dictionary.cc',
-        '<(DEPTH)/chrome/browser/spellchecker/spellcheck_custom_dictionary.h',
-        '<(DEPTH)/chrome/browser/spellchecker/spellcheck_factory.cc',
-        '<(DEPTH)/chrome/browser/spellchecker/spellcheck_factory.h',
-        '<(DEPTH)/chrome/browser/spellchecker/spellcheck_host_metrics.cc',
-        '<(DEPTH)/chrome/browser/spellchecker/spellcheck_host_metrics.h',
-        '<(DEPTH)/chrome/browser/spellchecker/spellcheck_hunspell_dictionary.cc',
-        '<(DEPTH)/chrome/browser/spellchecker/spellcheck_hunspell_dictionary.h',
-        '<(DEPTH)/chrome/browser/spellchecker/spellcheck_message_filter.cc',
-        '<(DEPTH)/chrome/browser/spellchecker/spellcheck_message_filter.h',
-        '<(DEPTH)/chrome/browser/spellchecker/spellcheck_service.cc',
-        '<(DEPTH)/chrome/browser/spellchecker/spellcheck_service.h',
-        '<(DEPTH)/chrome/browser/spellchecker/spelling_service_client.cc',
-        '<(DEPTH)/chrome/browser/spellchecker/spelling_service_client.h',
-        '<(DEPTH)/chrome/browser/spellchecker/word_trimmer.cc',
-        '<(DEPTH)/chrome/browser/spellchecker/word_trimmer.h',
-        '<(DEPTH)/chrome/common/chrome_constants.cc',
-        '<(DEPTH)/chrome/common/chrome_constants.h',
-        '<(DEPTH)/chrome/common/spellcheck_common.cc',
-        '<(DEPTH)/chrome/common/spellcheck_common.h',
-        '<(DEPTH)/chrome/common/spellcheck_marker.h',
-        '<(DEPTH)/chrome/common/spellcheck_messages.h',
-        '<(DEPTH)/chrome/common/spellcheck_result.h',
-        '<(DEPTH)/chrome/renderer/spellchecker/custom_dictionary_engine.cc',
-        '<(DEPTH)/chrome/renderer/spellchecker/custom_dictionary_engine.h',
-        '<(DEPTH)/chrome/renderer/spellchecker/hunspell_engine.cc',
-        '<(DEPTH)/chrome/renderer/spellchecker/hunspell_engine.h',
-        '<(DEPTH)/chrome/renderer/spellchecker/spellcheck.cc',
-        '<(DEPTH)/chrome/renderer/spellchecker/spellcheck.h',
-        '<(DEPTH)/chrome/renderer/spellchecker/spellcheck_language.cc',
-        '<(DEPTH)/chrome/renderer/spellchecker/spellcheck_language.h',
-        '<(DEPTH)/chrome/renderer/spellchecker/spellcheck_provider.cc',
-        '<(DEPTH)/chrome/renderer/spellchecker/spellcheck_provider.h',
-        '<(DEPTH)/chrome/renderer/spellchecker/spellcheck_worditerator.cc',
-        '<(DEPTH)/chrome/renderer/spellchecker/spellcheck_worditerator.h',
-        '<(DEPTH)/chrome/renderer/spellchecker/spelling_engine.h',
-        # Include sources for pepper flash support.
-        '<(DEPTH)/chrome/common/pepper_flash.cc',
-        '<(DEPTH)/chrome/common/pepper_flash.h',
-        '<(DEPTH)/chrome/common/ppapi_utils.cc',
-        '<(DEPTH)/chrome/common/ppapi_utils.h',
-        '<(DEPTH)/chrome/browser/renderer_host/pepper/pepper_flash_clipboard_message_filter.cc',
-        '<(DEPTH)/chrome/browser/renderer_host/pepper/pepper_flash_clipboard_message_filter.h',
-        '<(DEPTH)/chrome/browser/renderer_host/pepper/pepper_flash_drm_host.cc',
-        '<(DEPTH)/chrome/browser/renderer_host/pepper/pepper_flash_drm_host.h',
-        '<(DEPTH)/chrome/renderer/pepper/pepper_flash_drm_renderer_host.cc',
-        '<(DEPTH)/chrome/renderer/pepper/pepper_flash_drm_renderer_host.h',
-        '<(DEPTH)/chrome/renderer/pepper/pepper_flash_font_file_host.cc',
-        '<(DEPTH)/chrome/renderer/pepper/pepper_flash_font_file_host.h',
-        '<(DEPTH)/chrome/renderer/pepper/pepper_flash_fullscreen_host.cc',
-        '<(DEPTH)/chrome/renderer/pepper/pepper_flash_fullscreen_host.h',
-        '<(DEPTH)/chrome/renderer/pepper/pepper_flash_menu_host.cc',
-        '<(DEPTH)/chrome/renderer/pepper/pepper_flash_menu_host.h',
-        '<(DEPTH)/chrome/renderer/pepper/pepper_flash_renderer_host.cc',
-        '<(DEPTH)/chrome/renderer/pepper/pepper_flash_renderer_host.h',
-        # Include sources required by chrome_utility_messages.h.
-        '<(DEPTH)/chrome/common/safe_browsing/zip_analyzer_results.h',
-        '<(DEPTH)/chrome/common/safe_browsing/zip_analyzer_results.cc',
-        # Include sources for pepper PDF support.
-        '<(DEPTH)/chrome/child/pdf_child_init.cc',
-        '<(DEPTH)/chrome/child/pdf_child_init.h',
+
+        # Part of chrome/chrome.gyp:renderer. Not included by that target
+        # because CEF builds with enable_print_preview=0.
         '<(DEPTH)/chrome/renderer/pepper/chrome_pdf_print_client.cc',
         '<(DEPTH)/chrome/renderer/pepper/chrome_pdf_print_client.h',
-        # Include sources for extensions support.
-        '<(DEPTH)/chrome/common/extensions/chrome_manifest_url_handlers.cc',
-        '<(DEPTH)/chrome/common/extensions/chrome_manifest_url_handlers.h',
-        '<(DEPTH)/chrome/common/extensions/extension_process_policy.cc',
-        '<(DEPTH)/chrome/common/extensions/extension_process_policy.h',
-        '<(DEPTH)/chrome/common/pepper_permission_util.cc',
-        '<(DEPTH)/chrome/common/pepper_permission_util.h',
-        '<(DEPTH)/chrome/common/url_constants.cc',
-        '<(DEPTH)/chrome/common/url_constants.h',
-        '<(DEPTH)/chrome/renderer/extensions/resource_request_policy.cc',
-        '<(DEPTH)/chrome/renderer/extensions/resource_request_policy.h',
-        '<(DEPTH)/extensions/shell/browser/shell_display_info_provider.cc',
-        '<(DEPTH)/extensions/shell/browser/shell_display_info_provider.h',
-        '<(DEPTH)/extensions/shell/browser/shell_web_contents_modal_dialog_manager.cc',
-        '<(grit_out_dir)/grit/component_extension_resources_map.cc',
-        # Include sources for component-updater support.
-        '<(DEPTH)/chrome/browser/component_updater/widevine_cdm_component_installer.cc',
-        '<(DEPTH)/chrome/browser/component_updater/widevine_cdm_component_installer.h',
-        # Include sources for widevine support.
-        '<(DEPTH)/chrome/common/widevine_cdm_constants.cc',
-        '<(DEPTH)/chrome/common/widevine_cdm_constants.h',
-        # Include sources for plugin placeholder support.
-        '<(DEPTH)/chrome/browser/plugins/plugin_finder.cc',
-        '<(DEPTH)/chrome/browser/plugins/plugin_finder.h',
-        '<(DEPTH)/chrome/browser/plugins/plugin_metadata.cc',
-        '<(DEPTH)/chrome/browser/plugins/plugin_metadata.h',
-        '<(DEPTH)/chrome/renderer/plugins/power_saver_info.cc',
-        '<(DEPTH)/chrome/renderer/plugins/power_saver_info.h',
-        '<(DEPTH)/components/nacl/common/nacl_constants.cc',
-        '<(DEPTH)/components/nacl/common/nacl_constants.h',
-        # Include sources for preferences support.
-        '<(DEPTH)/chrome/browser/accessibility/animation_policy_prefs.cc',
-        '<(DEPTH)/chrome/browser/accessibility/animation_policy_prefs.h',
-        '<(DEPTH)/chrome/browser/character_encoding.cc',
-        '<(DEPTH)/chrome/browser/character_encoding.h',
-        '<(DEPTH)/chrome/browser/defaults.cc',
-        '<(DEPTH)/chrome/browser/defaults.h',
-        '<(DEPTH)/chrome/browser/extensions/extension_webkit_preferences.cc',
-        '<(DEPTH)/chrome/browser/extensions/extension_webkit_preferences.h',
-        '<(DEPTH)/chrome/browser/font_family_cache.cc',
-        '<(DEPTH)/chrome/browser/font_family_cache.h',
-        '<(DEPTH)/chrome/browser/prefs/command_line_pref_store.cc',
-        '<(DEPTH)/chrome/browser/prefs/command_line_pref_store.h',
-        '<(DEPTH)/chrome/browser/renderer_preferences_util.cc',
-        '<(DEPTH)/chrome/browser/renderer_preferences_util.h',
-        '<(DEPTH)/chrome/browser/ui/prefs/prefs_tab_helper.cc',
-        '<(DEPTH)/chrome/browser/ui/prefs/prefs_tab_helper.h',
-        '<(DEPTH)/chrome/browser/ui/zoom/chrome_zoom_level_prefs.cc',
-        '<(DEPTH)/chrome/browser/ui/zoom/chrome_zoom_level_prefs.h',
-        '<(DEPTH)/chrome/common/pref_font_webkit_names.h',
-        '<(DEPTH)/chrome/common/pref_names.cc',
-        '<(DEPTH)/chrome/common/pref_names.h',
-        '<(DEPTH)/chrome/common/pref_names_util.cc',
-        '<(DEPTH)/chrome/common/pref_names_util.h',
-        '<(DEPTH)/components/prefs/testing_pref_store.cc',
-        '<(DEPTH)/components/prefs/testing_pref_store.h',
-        # Include sources for permissions support.
-        '<(DEPTH)/chrome/browser/permissions/permission_request_id.h',
-        '<(DEPTH)/chrome/browser/permissions/permission_request_id.cc',
-        # Include sources for SafeSearch support.
-        '<(DEPTH)/chrome/browser/net/safe_search_util.cc',
-        '<(DEPTH)/chrome/browser/net/safe_search_util.h',
+
+        # Part of components/components.gyp:prefs_test_support which is testing only.
+        "<(DEPTH)/components/prefs/testing_pref_store.cc",
+        "<(DEPTH)/components/prefs/testing_pref_store.h",
       ],
       'conditions': [
         ['OS=="win"', {
@@ -1532,12 +1347,8 @@
             'libcef/browser/osr/browser_platform_delegate_osr_win.cc',
             'libcef/browser/osr/browser_platform_delegate_osr_win.h',
             'libcef/browser/osr/render_widget_host_view_osr_win.cc',
-            # Include sources for printing using PDF.
             'libcef/utility/printing_handler.cc',
             'libcef/utility/printing_handler.h',
-            '<(DEPTH)/chrome/browser/printing/pdf_to_emf_converter.cc',
-            '<(DEPTH)/chrome/browser/printing/pdf_to_emf_converter.h',
-            '<(DEPTH)/chrome/common/chrome_utility_printing_messages.h',
           ],
         }],
         [ 'OS=="mac"', {
@@ -1558,16 +1369,6 @@
             'libcef/browser/osr/text_input_client_osr_mac.h',
             'libcef/common/util_mac.h',
             'libcef/common/util_mac.mm',
-            # Include sources for spell checking support.
-            '<(DEPTH)/chrome/browser/spellchecker/spellcheck_message_filter_platform.h',
-            '<(DEPTH)/chrome/browser/spellchecker/spellcheck_message_filter_platform_mac.cc',
-            '<(DEPTH)/chrome/browser/spellchecker/spellcheck_platform.h',
-            '<(DEPTH)/chrome/browser/spellchecker/spellcheck_platform_mac.mm',
-            '<(DEPTH)/chrome/renderer/spellchecker/platform_spelling_engine.cc',
-            '<(DEPTH)/chrome/renderer/spellchecker/platform_spelling_engine.h',
-            # Include sources for pepper flash support.
-            '<(DEPTH)/chrome/browser/renderer_host/pepper/monitor_finder_mac.h',
-            '<(DEPTH)/chrome/browser/renderer_host/pepper/monitor_finder_mac.mm',
           ],
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
@@ -1654,11 +1455,15 @@
             'libcef/browser/views/window_impl.h',
             'libcef/browser/views/window_view.cc',
             'libcef/browser/views/window_view.h',
+
+            # Part of ui/views/views.gyp:views_test_support which is testing only.
             '<(DEPTH)/ui/views/test/desktop_test_views_delegate.h',
             '<(DEPTH)/ui/views/test/desktop_test_views_delegate_aura.cc',
             '<(DEPTH)/ui/views/test/test_views_delegate.h',
             '<(DEPTH)/ui/views/test/test_views_delegate_aura.cc',
+
             # Support for UI input events.
+            # Part of ui/base/ui_base.gyp:ui_base_test_support which is testing only.
             '<(DEPTH)/ui/base/test/ui_controls.h',
             '<(DEPTH)/ui/base/test/ui_controls_aura.cc',
             '<(DEPTH)/ui/aura/test/ui_controls_factory_aura.h',
@@ -1672,7 +1477,9 @@
         ['use_aura==1 and OS=="win"', {
           'sources': [
             # Support for UI input events.
+            # Part of ui/aura/aura.gyp:aura_test_support which is testing only.
             '<(DEPTH)/ui/aura/test/ui_controls_factory_aurawin.cc',
+            # Part of ui/base/ui_base.gyp:ui_base_test_support which is testing only.
             '<(DEPTH)/ui/base/test/ui_controls_internal_win.cc',
             '<(DEPTH)/ui/base/test/ui_controls_internal_win.h',
           ],
@@ -1680,13 +1487,16 @@
         ['use_aura==1 and (OS=="linux" or OS=="freebsd" or OS=="openbsd")', {
           'sources': [
             # Support for UI input events.
+            # Part of ui/aura/aura.gyp:aura_test_support which is testing only.
             '<(DEPTH)/ui/aura/test/aura_test_utils.cc',
             '<(DEPTH)/ui/aura/test/aura_test_utils.h',
             '<(DEPTH)/ui/aura/test/ui_controls_factory_aurax11.cc',
             '<(DEPTH)/ui/aura/test/x11_event_sender.cc',
             '<(DEPTH)/ui/aura/test/x11_event_sender.h',
+            # Part of ui/events/events.gyp:events_test_support which is testing only.
             '<(DEPTH)/ui/events/test/platform_event_waiter.cc',
             '<(DEPTH)/ui/events/test/platform_event_waiter.h',
+            # Part of ui/views/views.gyp:views_test_support which is testing only.
             '<(DEPTH)/ui/views/test/ui_controls_factory_desktop_aurax11.cc',
             '<(DEPTH)/ui/views/test/ui_controls_factory_desktop_aurax11.h',
           ],

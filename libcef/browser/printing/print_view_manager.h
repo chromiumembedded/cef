@@ -20,10 +20,11 @@ class RenderProcessHost;
 namespace printing {
 
 // Manages the print commands for a WebContents.
-class PrintViewManager : public PrintViewManagerBase,
-                         public content::WebContentsUserData<PrintViewManager> {
+class CefPrintViewManager :
+    public CefPrintViewManagerBase,
+    public content::WebContentsUserData<CefPrintViewManager> {
  public:
-  ~PrintViewManager() override;
+  ~CefPrintViewManager() override;
 
 #if defined(ENABLE_BASIC_PRINTING)
   // Same as PrintNow(), but for the case where a user prints with the system
@@ -49,8 +50,8 @@ class PrintViewManager : public PrintViewManagerBase,
                   const PdfPrintCallback& callback);
 
  private:
-  explicit PrintViewManager(content::WebContents* web_contents);
-  friend class content::WebContentsUserData<PrintViewManager>;
+  explicit CefPrintViewManager(content::WebContents* web_contents);
+  friend class content::WebContentsUserData<CefPrintViewManager>;
 
   // IPC Message handlers.
   void OnDidShowPrintDialog();
@@ -66,7 +67,7 @@ class PrintViewManager : public PrintViewManagerBase,
   std::unique_ptr<base::DictionaryValue> pdf_print_settings_;
   PdfPrintCallback pdf_print_callback_;
 
-  DISALLOW_COPY_AND_ASSIGN(PrintViewManager);
+  DISALLOW_COPY_AND_ASSIGN(CefPrintViewManager);
 };
 
 }  // namespace printing

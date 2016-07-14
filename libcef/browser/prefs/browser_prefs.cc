@@ -14,8 +14,10 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/values.h"
 #include "chrome/browser/prefs/command_line_pref_store.h"
+#include "chrome/browser/themes/theme_service.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
+#include "chrome/grit/locale_settings.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/prefs/json_pref_store.h"
 #include "components/prefs/pref_filter.h"
@@ -29,7 +31,6 @@
 #include "components/update_client/update_client.h"
 #include "content/public/browser/browser_thread.h"
 #include "extensions/browser/extension_prefs.h"
-#include "grit/cef_strings.h"
 #include "ui/base/l10n/l10n_util.h"
 
 namespace browser_prefs {
@@ -161,6 +162,21 @@ std::unique_ptr<PrefService> CreatePrefService(const base::FilePath& pref_path) 
   // Based on chrome::RegisterBrowserUserPrefs.
   registry->RegisterBooleanPref(prefs::kPluginsAllowOutdated, false);
   registry->RegisterBooleanPref(prefs::kPluginsAlwaysAuthorize, false);
+
+  // Theme preferences.
+  // Based on ThemeServiceFactory::RegisterProfilePrefs.
+  // TODO(cef/chrome): Remove this once CEF supports ThemeService.
+#if defined(USE_X11)
+  registry->RegisterBooleanPref(prefs::kUsesSystemTheme, false);
+#endif
+  registry->RegisterFilePathPref(prefs::kCurrentThemePackFilename,
+                                 base::FilePath());
+  registry->RegisterStringPref(prefs::kCurrentThemeID,
+                               ThemeService::kDefaultThemeID);
+  registry->RegisterDictionaryPref(prefs::kCurrentThemeImages);
+  registry->RegisterDictionaryPref(prefs::kCurrentThemeColors);
+  registry->RegisterDictionaryPref(prefs::kCurrentThemeTints);
+  registry->RegisterDictionaryPref(prefs::kCurrentThemeDisplayProperties);
 
   if (command_line->HasSwitch(switches::kEnablePreferenceTesting)) {
     // Preferences used with unit tests.

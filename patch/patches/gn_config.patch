@@ -23,19 +23,6 @@ index 23e67d9..c3d4ec6 100644
        "//chrome/test:telemetry_perf_unittests",
        "//chrome/test:unit_tests",
        "//components:components_browsertests",
-diff --git build/config/features.gni build/config/features.gni
-index 9d33d91..d460e86 100644
---- build/config/features.gni
-+++ build/config/features.gni
-@@ -148,7 +148,7 @@ enable_web_speech = !is_android && !is_ios
- 
- enable_task_manager = !is_ios && !is_android
- 
--enable_themes = !is_android && !is_ios
-+enable_themes = !is_android && !is_ios && !is_linux
- 
- # Whether we are using the rlz library or not.  Platforms like Android send
- # rlz codes for searches but do not use the library.
 diff --git build/config/mac/base_rules.gni build/config/mac/base_rules.gni
 index 109710d..d2c442e 100644
 --- build/config/mac/base_rules.gni

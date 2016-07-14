@@ -29,8 +29,10 @@
 using media::KeySystemProperties;
 using media::SupportedCodecs;
 
+namespace {
+
 #if defined(ENABLE_PEPPER_CDMS)
-static bool IsPepperCdmAvailable(
+bool IsPepperCdmAvailable(
     const std::string& pepper_type,
     std::vector<base::string16>* additional_param_names,
     std::vector<base::string16>* additional_param_values) {
@@ -74,7 +76,7 @@ void GetSupportedCodecsForPepperCdm(
   }
 }
 
-static void AddPepperBasedWidevine(
+void AddPepperBasedWidevine(
     std::vector<std::unique_ptr<KeySystemProperties>>* concrete_key_systems) {
 #if defined(WIDEVINE_CDM_MIN_GLIBC_VERSION)
   Version glibc_version(gnu_get_libc_version());
@@ -134,6 +136,8 @@ static void AddPepperBasedWidevine(
 }
 #endif  // defined(WIDEVINE_CDM_AVAILABLE)
 #endif  // defined(ENABLE_PEPPER_CDMS)
+
+}  // namespace
 
 void AddCefKeySystems(
     std::vector<std::unique_ptr<KeySystemProperties>>* key_systems_properties) {

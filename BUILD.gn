@@ -98,6 +98,7 @@
 # https://chromium.googlesource.com/chromium/src/+/master/tools/gn/docs/language.md
 #
 
+import("//build/config/allocator.gni")
 import("//build/config/features.gni")
 import("//build/config/locales.gni")
 import("//build/config/sanitizers/sanitizers.gni")
@@ -137,14 +138,6 @@ assert(!enable_plugin_installation)
 if (is_clang) {
   # Don't use the chrome style plugin.
   assert(!clang_use_chrome_plugins)
-}
-
-if (is_linux) {
-  # Disable theme support on Linux so we don't need to implement
-  # ThemeService[Factory] classes.
-  assert(!enable_themes)
-} else {
-  assert(enable_themes)
 }
 
 
@@ -351,7 +344,6 @@ static_library("libcef_static") {
     "libcef/browser/pepper/pepper_flash_browser_host.h",
     "libcef/browser/pepper/pepper_isolated_file_system_message_filter.cc",
     "libcef/browser/pepper/pepper_isolated_file_system_message_filter.h",
-    "libcef/browser/pepper/device_id_fetcher.cc",
     "libcef/browser/permissions/permission_context.cc",
     "libcef/browser/permissions/permission_context.h",
     "libcef/browser/permissions/permission_manager.cc",
@@ -375,7 +367,6 @@ static_library("libcef_static") {
     "libcef/browser/printing/print_view_manager_base.cc",
     "libcef/browser/printing/print_view_manager_base.h",
     "libcef/browser/process_util_impl.cc",
-    "libcef/browser/proxy_stubs.cc",
     "libcef/browser/resource_context.cc",
     "libcef/browser/resource_context.h",
     "libcef/browser/resource_dispatcher_host_delegate.cc",
@@ -485,7 +476,6 @@ static_library("libcef_static") {
     "libcef/renderer/media/cef_key_systems.h",
     "libcef/renderer/pepper/pepper_helper.cc",
     "libcef/renderer/pepper/pepper_helper.h",
-    "libcef/renderer/pepper/pepper_uma_host.cc",
     "libcef/renderer/pepper/renderer_pepper_host_factory.cc",
     "libcef/renderer/pepper/renderer_pepper_host_factory.h",
     "libcef/renderer/plugins/cef_plugin_placeholder.cc",
@@ -508,186 +498,14 @@ static_library("libcef_static") {
     "libcef/utility/content_utility_client.cc",
     "libcef/utility/content_utility_client.h",
 
-    # Include sources for chrome command-line switches.
-    "//chrome/common/chrome_switches.cc",
-    "//chrome/common/chrome_switches.h",
-
-    # Include sources for proxy support.
-    "//chrome/browser/net/proxy_service_factory.cc",
-    "//chrome/browser/net/proxy_service_factory.h",
-    "//chrome/browser/net/utility_process_mojo_proxy_resolver_factory.cc",
-    "//chrome/browser/net/utility_process_mojo_proxy_resolver_factory.h",
-    "//components/data_reduction_proxy/core/common/data_reduction_proxy_switches.cc",
-    "//components/data_reduction_proxy/core/common/data_reduction_proxy_switches.h",
-    "//components/data_reduction_proxy/core/common/data_reduction_proxy_pref_names.cc",
-    "//components/data_reduction_proxy/core/common/data_reduction_proxy_pref_names.h",
-
-    # Include sources for the loadtimes V8 extension.
-    "//chrome/renderer/loadtimes_extension_bindings.h",
-    "//chrome/renderer/loadtimes_extension_bindings.cc",
-
-    # Include sources for printing.
-    "//chrome/browser/printing/print_job.cc",
-    "//chrome/browser/printing/print_job.h",
-    "//chrome/browser/printing/print_job_manager.cc",
-    "//chrome/browser/printing/print_job_manager.h",
-    "//chrome/browser/printing/print_job_worker.cc",
-    "//chrome/browser/printing/print_job_worker.h",
-    "//chrome/browser/printing/print_job_worker_owner.cc",
-    "//chrome/browser/printing/print_job_worker_owner.h",
-    "//chrome/browser/printing/printer_query.cc",
-    "//chrome/browser/printing/printer_query.h",
-    "//chrome/common/extensions/extension_constants.cc",
-    "//chrome/common/extensions/extension_constants.h",
-
-    # Include header for stub creation (BrowserProcess) so print_job_worker can
-    # determine the current locale.
-    "//chrome/browser/browser_process.cc",
-    "//chrome/browser/browser_process.h",
-
-    # Include sources for spell checking support.
-    "//chrome/browser/spellchecker/feedback.cc",
-    "//chrome/browser/spellchecker/feedback.h",
-    "//chrome/browser/spellchecker/feedback_sender.cc",
-    "//chrome/browser/spellchecker/feedback_sender.h",
-    "//chrome/browser/spellchecker/misspelling.cc",
-    "//chrome/browser/spellchecker/misspelling.h",
-    "//chrome/browser/spellchecker/spellcheck_action.cc",
-    "//chrome/browser/spellchecker/spellcheck_action.h",
-    "//chrome/browser/spellchecker/spellcheck_custom_dictionary.cc",
-    "//chrome/browser/spellchecker/spellcheck_custom_dictionary.h",
-    "//chrome/browser/spellchecker/spellcheck_factory.cc",
-    "//chrome/browser/spellchecker/spellcheck_factory.h",
-    "//chrome/browser/spellchecker/spellcheck_host_metrics.cc",
-    "//chrome/browser/spellchecker/spellcheck_host_metrics.h",
-    "//chrome/browser/spellchecker/spellcheck_hunspell_dictionary.cc",
-    "//chrome/browser/spellchecker/spellcheck_hunspell_dictionary.h",
-    "//chrome/browser/spellchecker/spellcheck_message_filter.cc",
-    "//chrome/browser/spellchecker/spellcheck_message_filter.h",
-    "//chrome/browser/spellchecker/spellcheck_service.cc",
-    "//chrome/browser/spellchecker/spellcheck_service.h",
-    "//chrome/browser/spellchecker/spelling_service_client.cc",
-    "//chrome/browser/spellchecker/spelling_service_client.h",
-    "//chrome/browser/spellchecker/word_trimmer.cc",
-    "//chrome/browser/spellchecker/word_trimmer.h",
-    "//chrome/common/chrome_constants.cc",
-    "//chrome/common/chrome_constants.h",
-    "//chrome/common/spellcheck_common.cc",
-    "//chrome/common/spellcheck_common.h",
-    "//chrome/common/spellcheck_marker.h",
-    "//chrome/common/spellcheck_messages.h",
-    "//chrome/common/spellcheck_result.h",
-    "//chrome/renderer/spellchecker/custom_dictionary_engine.cc",
-    "//chrome/renderer/spellchecker/custom_dictionary_engine.h",
-    "//chrome/renderer/spellchecker/hunspell_engine.cc",
-    "//chrome/renderer/spellchecker/hunspell_engine.h",
-    "//chrome/renderer/spellchecker/spellcheck.cc",
-    "//chrome/renderer/spellchecker/spellcheck.h",
-    "//chrome/renderer/spellchecker/spellcheck_language.cc",
-    "//chrome/renderer/spellchecker/spellcheck_language.h",
-    "//chrome/renderer/spellchecker/spellcheck_provider.cc",
-    "//chrome/renderer/spellchecker/spellcheck_provider.h",
-    "//chrome/renderer/spellchecker/spellcheck_worditerator.cc",
-    "//chrome/renderer/spellchecker/spellcheck_worditerator.h",
-    "//chrome/renderer/spellchecker/spelling_engine.h",
-
-    # Include sources for pepper flash support.
-    "//chrome/common/pepper_flash.cc",
-    "//chrome/common/pepper_flash.h",
-    "//chrome/common/ppapi_utils.cc",
-    "//chrome/common/ppapi_utils.h",
-    "//chrome/browser/renderer_host/pepper/pepper_flash_clipboard_message_filter.cc",
-    "//chrome/browser/renderer_host/pepper/pepper_flash_clipboard_message_filter.h",
-    "//chrome/browser/renderer_host/pepper/pepper_flash_drm_host.cc",
-    "//chrome/browser/renderer_host/pepper/pepper_flash_drm_host.h",
-    "//chrome/renderer/pepper/pepper_flash_drm_renderer_host.cc",
-    "//chrome/renderer/pepper/pepper_flash_drm_renderer_host.h",
-    "//chrome/renderer/pepper/pepper_flash_font_file_host.cc",
-    "//chrome/renderer/pepper/pepper_flash_font_file_host.h",
-    "//chrome/renderer/pepper/pepper_flash_fullscreen_host.cc",
-    "//chrome/renderer/pepper/pepper_flash_fullscreen_host.h",
-    "//chrome/renderer/pepper/pepper_flash_menu_host.cc",
-    "//chrome/renderer/pepper/pepper_flash_menu_host.h",
-    "//chrome/renderer/pepper/pepper_flash_renderer_host.cc",
-    "//chrome/renderer/pepper/pepper_flash_renderer_host.h",
-
-    # Include sources required by chrome_utility_messages.h.
-    "//chrome/common/safe_browsing/zip_analyzer_results.h",
-    "//chrome/common/safe_browsing/zip_analyzer_results.cc",
-
-    # Include sources for pepper PDF support.
-    "//chrome/child/pdf_child_init.cc",
-    "//chrome/child/pdf_child_init.h",
+    # Part of //chrome/renderer. Not included by that target because CEF builds
+    # with enable_print_preview=0.
     "//chrome/renderer/pepper/chrome_pdf_print_client.cc",
     "//chrome/renderer/pepper/chrome_pdf_print_client.h",
 
-    # Include sources for extensions support.
-    "//chrome/common/extensions/chrome_manifest_url_handlers.cc",
-    "//chrome/common/extensions/chrome_manifest_url_handlers.h",
-    "//chrome/common/extensions/extension_process_policy.cc",
-    "//chrome/common/extensions/extension_process_policy.h",
-    "//chrome/common/pepper_permission_util.cc",
-    "//chrome/common/pepper_permission_util.h",
-    "//chrome/common/url_constants.cc",
-    "//chrome/common/url_constants.h",
-    "//chrome/renderer/extensions/resource_request_policy.cc",
-    "//chrome/renderer/extensions/resource_request_policy.h",
-    "//extensions/shell/browser/shell_display_info_provider.cc",
-    "//extensions/shell/browser/shell_display_info_provider.h",
-    "//extensions/shell/browser/shell_web_contents_modal_dialog_manager.cc",
-
-    # Include sources for component-updater support.
-    "//chrome/browser/component_updater/widevine_cdm_component_installer.cc",
-    "//chrome/browser/component_updater/widevine_cdm_component_installer.h",
-
-    # Include sources for widevine support.
-    "//chrome/common/widevine_cdm_constants.cc",
-    "//chrome/common/widevine_cdm_constants.h",
-
-    # Include sources for plugin placeholder support.
-    "//chrome/browser/plugins/plugin_finder.cc",
-    "//chrome/browser/plugins/plugin_finder.h",
-    "//chrome/browser/plugins/plugin_metadata.cc",
-    "//chrome/browser/plugins/plugin_metadata.h",
-    "//chrome/renderer/plugins/power_saver_info.cc",
-    "//chrome/renderer/plugins/power_saver_info.h",
-    "//components/nacl/common/nacl_constants.cc",
-    "//components/nacl/common/nacl_constants.h",
-
-    # Include sources for preferences support.
-    "//chrome/browser/accessibility/animation_policy_prefs.cc",
-    "//chrome/browser/accessibility/animation_policy_prefs.h",
-    "//chrome/browser/character_encoding.cc",
-    "//chrome/browser/character_encoding.h",
-    "//chrome/browser/defaults.cc",
-    "//chrome/browser/defaults.h",
-    "//chrome/browser/extensions/extension_webkit_preferences.cc",
-    "//chrome/browser/extensions/extension_webkit_preferences.h",
-    "//chrome/browser/font_family_cache.cc",
-    "//chrome/browser/font_family_cache.h",
-    "//chrome/browser/prefs/command_line_pref_store.cc",
-    "//chrome/browser/prefs/command_line_pref_store.h",
-    "//chrome/browser/renderer_preferences_util.cc",
-    "//chrome/browser/renderer_preferences_util.h",
-    "//chrome/browser/ui/prefs/prefs_tab_helper.cc",
-    "//chrome/browser/ui/prefs/prefs_tab_helper.h",
-    "//chrome/browser/ui/zoom/chrome_zoom_level_prefs.cc",
-    "//chrome/browser/ui/zoom/chrome_zoom_level_prefs.h",
-    "//chrome/common/pref_font_webkit_names.h",
-    "//chrome/common/pref_names.cc",
-    "//chrome/common/pref_names.h",
-    "//chrome/common/pref_names_util.cc",
-    "//chrome/common/pref_names_util.h",
+    # Part of //components/prefs:test_support which is testingonly.
     "//components/prefs/testing_pref_store.cc",
     "//components/prefs/testing_pref_store.h",
-
-    # Include sources for permissions support.
-    "//chrome/browser/permissions/permission_request_id.h",
-    "//chrome/browser/permissions/permission_request_id.cc",
-
-    # Include sources for SafeSearch support.
-    "//chrome/browser/net/safe_search_util.cc",
-    "//chrome/browser/net/safe_search_util.h",
   ]
 
   configs += [
@@ -710,15 +528,6 @@ static_library("libcef_static") {
     # we include Blink headers.
     "//third_party/WebKit/public/platform",
     "//third_party/WebKit/public/web",
-
-    # CEF references resources from the specified chrome targets in
-    # cef_strings.grd and/or cef_resources.grd. Include grit stub headers with
-    # the expected name that redirect to cef_resources.h/cef_strings.h.
-    # //chrome/app:generated_resources        -> generated_resources.h
-    # //chrome/app/resources:locale_settings  -> locale_settings.h
-    # //chrome/browser:resources              -> browser_resources.h
-    "libcef/resources/grit_stub",
-    "libcef/resources/grit_stub/chrome",
   ]
 
   deps = [
@@ -730,10 +539,6 @@ static_library("libcef_static") {
     ":pak_extensions",
     ":repack_locales_pack",
 
-    # Grit deps that generate .cc files must be listed both here and in the
-    # repack() target.
-    "//chrome/browser/resources:component_extension_resources",
-
     # Generate API bindings for extensions.
     "libcef/common/extensions/api",
     "libcef/common/extensions/api:api_registration",
@@ -743,6 +548,10 @@ static_library("libcef_static") {
     "//base:base_static",
     "//base/third_party/dynamic_annotations",
     "//cc",
+    "//chrome/browser",
+    "//chrome/child",
+    "//chrome/common",
+    "//chrome/renderer",
     "//components/cdm/renderer",
     "//components/component_updater",
     "//components/content_settings/core/browser",
@@ -818,18 +627,6 @@ static_library("libcef_static") {
     "//ui/gl",
     "//url",
     "//v8",
-
-    # Generate chrome/common/safe_browsing/csd.pb.h required by
-    # zip_analyzer_results.h via chrome_utility_messages.h
-    "//chrome/common/safe_browsing:proto",
-
-    # Generate chrome/common/features.h required by Chrome code that uses
-    # the BUILDFLAG() macro.
-    "//chrome/common:features",
-
-    # Generate chrome/common/chrome_version.h required by
-    # chrome/common/chrome_contants.cc
-    "//chrome/common:version_header",
   ]
 
   if (!is_mac) {
@@ -856,12 +653,8 @@ static_library("libcef_static") {
       "libcef/browser/osr/browser_platform_delegate_osr_win.cc",
       "libcef/browser/osr/browser_platform_delegate_osr_win.h",
       "libcef/browser/osr/render_widget_host_view_osr_win.cc",
-      # Include sources for printing using PDF.
       "libcef/utility/printing_handler.cc",
       "libcef/utility/printing_handler.h",
-      "//chrome/browser/printing/pdf_to_emf_converter.cc",
-      "//chrome/browser/printing/pdf_to_emf_converter.h",
-      "//chrome/common/chrome_utility_printing_messages.h",
     ]
   }
 
@@ -903,16 +696,6 @@ static_library("libcef_static") {
       "libcef/browser/osr/text_input_client_osr_mac.h",
       "libcef/common/util_mac.h",
       "libcef/common/util_mac.mm",
-      # Include sources for spell checking support.
-      "//chrome/browser/spellchecker/spellcheck_message_filter_platform.h",
-      "//chrome/browser/spellchecker/spellcheck_message_filter_platform_mac.cc",
-      "//chrome/browser/spellchecker/spellcheck_platform.h",
-      "//chrome/browser/spellchecker/spellcheck_platform_mac.mm",
-      "//chrome/renderer/spellchecker/platform_spelling_engine.cc",
-      "//chrome/renderer/spellchecker/platform_spelling_engine.h",
-      # Include sources for pepper flash support.
-      "//chrome/browser/renderer_host/pepper/monitor_finder_mac.h",
-      "//chrome/browser/renderer_host/pepper/monitor_finder_mac.mm",
     ]
   }
 
@@ -986,11 +769,15 @@ static_library("libcef_static") {
       "libcef/browser/views/window_impl.h",
       "libcef/browser/views/window_view.cc",
       "libcef/browser/views/window_view.h",
+
+      # Part of //ui/views:test_support which is testingonly.
       "//ui/views/test/desktop_test_views_delegate.h",
       "//ui/views/test/desktop_test_views_delegate_aura.cc",
       "//ui/views/test/test_views_delegate.h",
       "//ui/views/test/test_views_delegate_aura.cc",
+
       # Support for UI input events.
+      # Part of //ui/base:test_support which is testingonly.
       "//ui/base/test/ui_controls.h",
       "//ui/base/test/ui_controls_aura.cc",
       "//ui/aura/test/ui_controls_factory_aura.h",
@@ -1013,7 +800,9 @@ static_library("libcef_static") {
     if (is_win) {
       sources += [
         # Support for UI input events.
+        # Part of //ui/aura:test_support which is testingonly.
         "//ui/aura/test/ui_controls_factory_aurawin.cc",
+        # Part of //ui/base:test_support which is testingonly.
         "//ui/base/test/ui_controls_internal_win.cc",
         "//ui/base/test/ui_controls_internal_win.h",
       ]
@@ -1022,13 +811,16 @@ static_library("libcef_static") {
     if (is_linux) {
       sources += [
         # Support for UI input events.
+        # Part of //ui/aura:test_support which is testingonly.
         "//ui/aura/test/aura_test_utils.cc",
         "//ui/aura/test/aura_test_utils.h",
         "//ui/aura/test/ui_controls_factory_aurax11.cc",
         "//ui/aura/test/x11_event_sender.cc",
         "//ui/aura/test/x11_event_sender.h",
+        # Part of //ui/events:test_support which is testingonly.
         "//ui/events/test/platform_event_waiter.cc",
         "//ui/events/test/platform_event_waiter.h",
+        # Part of //ui/views:test_support which is testingonly.
         "//ui/views/test/ui_controls_factory_desktop_aurax11.cc",
         "//ui/views/test/ui_controls_factory_desktop_aurax11.h",
       ]
@@ -1136,6 +928,7 @@ template("cef_pak_scaled") {
     # Each input pak file should also have a deps line for completeness.
     sources = [
       "$root_gen_dir/blink/public/resources/blink_image_resources_${percent}_percent.pak",
+      "$root_gen_dir/chrome/renderer_resources_${percent}_percent.pak",
       "$root_gen_dir/components/components_resources_${percent}_percent.pak",
       "$root_gen_dir/content/app/resources/content_resources_${percent}_percent.pak",
       "$root_gen_dir/extensions/extensions_browser_resources_${percent}_percent.pak",
@@ -1147,6 +940,7 @@ template("cef_pak_scaled") {
     # listed both here and in the libcef_static target.
     public_deps = [
       "//third_party/WebKit/public:image_resources",
+      "//chrome/renderer:resources",
       "//components/resources:components_scaled_resources",
       "//content/app/resources",
       "//extensions:extensions_browser_resources",
@@ -1254,6 +1048,8 @@ repack("pak") {
   # Each input pak file should also have a deps line for completeness.
   sources = [
     "$root_gen_dir/blink/public/resources/blink_resources.pak",
+    "$root_gen_dir/chrome/browser_resources.pak",
+    "$root_gen_dir/chrome/common_resources.pak",
     "$root_gen_dir/components/components_resources.pak",
     "$root_gen_dir/cef/cef_resources.pak",
     "$root_gen_dir/content/content_resources.pak",
@@ -1265,6 +1061,8 @@ repack("pak") {
   # listed both here and in the libcef_static target.
   public_deps = [
     "//third_party/WebKit/public:resources_grit",
+    "//chrome/browser:resources",
+    "//chrome/common:resources",
     "//components/resources:components_resources",
     ":cef_resources",
     "//content:resources",
@@ -1419,7 +1217,7 @@ if (is_mac) {
       ]
     }
 
-    if (is_linux && !is_debug && !is_asan && use_allocator=="none") {
+    if (is_linux && !is_debug && !using_sanitizer && use_allocator=="none") {
       # Only export necessary symbols from libcef.so.
       # Don't do this in Debug builds because it causes the resulting application to crash.
       ldflags = [ "-Wl,--version-script=" +

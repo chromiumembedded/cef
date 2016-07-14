@@ -37,7 +37,7 @@ namespace extensions {
 CefExtensionsBrowserClient::CefExtensionsBrowserClient()
     : api_client_(new CefExtensionsAPIClient),
       resource_manager_(new CefComponentExtensionResourceManager),
-      event_router_forwarder_(new EventRouterForwarder) {
+      event_router_forwarder_(new CefEventRouterForwarder) {
 }
 
 CefExtensionsBrowserClient::~CefExtensionsBrowserClient() {
@@ -181,7 +181,7 @@ void CefExtensionsBrowserClient::RegisterExtensionFunctions(
   api::GeneratedFunctionRegistry::RegisterAll(registry);
 
   // CEF-only APIs.
-  api::ChromeGeneratedFunctionRegistry::RegisterAll(registry);
+  api::cef::CefGeneratedFunctionRegistry::RegisterAll(registry);
 }
 
 void CefExtensionsBrowserClient::RegisterMojoServices(

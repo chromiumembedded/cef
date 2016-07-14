@@ -11,6 +11,6 @@ sources = gypi_values.schema_files
 
 uncompiled_sources = gypi_values.non_compiled_schema_files
 
-root_namespace = "extensions::api::%(namespace)s"
-schema_include_rules = "//cef/libcef/browser/extensions/api:extensions::api::%(namespace)s"
+root_namespace = "extensions::api::cef::%(namespace)s"
+schema_include_rules = "//cef/libcef/browser/extensions/api:extensions::api::cef::%(namespace)s"
 schema_dependencies = [ "//extensions/common/api" ]

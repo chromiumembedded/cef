@@ -7,7 +7,7 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "chrome/common/chrome_paths.h"
-#include "grit/component_extension_resources_map.h"
+#include "chrome/grit/component_extension_resources_map.h"
 
 namespace extensions {
 

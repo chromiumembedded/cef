@@ -15,6 +15,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/values.h"
 #include "chrome/grit/generated_resources.h"
+#include "chrome/grit/renderer_resources.h"
 #include "chrome/renderer/custom_menu_commands.h"
 #include "components/content_settings/content/common/content_settings_messages.h"
 #include "components/strings/grit/components_strings.h"

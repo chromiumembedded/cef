@@ -45,24 +45,25 @@ void CreateResponseHeadersDictionary(const net::HttpResponseHeaders* headers,
 
 }  // namespace
 
-namespace streams_private = api::streams_private;
+namespace streams_private = api::cef::streams_private;
 
 // static
-StreamsPrivateAPI* StreamsPrivateAPI::Get(content::BrowserContext* context) {
+CefStreamsPrivateAPI* CefStreamsPrivateAPI::Get(
+    content::BrowserContext* context) {
   return GetFactoryInstance()->Get(context);
 }
 
-StreamsPrivateAPI::StreamsPrivateAPI(content::BrowserContext* context)
+CefStreamsPrivateAPI::CefStreamsPrivateAPI(content::BrowserContext* context)
     : browser_context_(context),
       extension_registry_observer_(this),
       weak_ptr_factory_(this) {
   extension_registry_observer_.Add(ExtensionRegistry::Get(browser_context_));
 }
 
-StreamsPrivateAPI::~StreamsPrivateAPI() {
+CefStreamsPrivateAPI::~CefStreamsPrivateAPI() {
 }
 
-void StreamsPrivateAPI::ExecuteMimeTypeHandler(
+void CefStreamsPrivateAPI::ExecuteMimeTypeHandler(
     const std::string& extension_id,
     int tab_id,
     std::unique_ptr<content::StreamInfo> stream,
@@ -123,7 +124,7 @@ void StreamsPrivateAPI::ExecuteMimeTypeHandler(
   streams_[extension_id][url] = make_linked_ptr(stream->handle.release());
 }
 
-void StreamsPrivateAPI::AbortStream(const std::string& extension_id,
+void CefStreamsPrivateAPI::AbortStream(const std::string& extension_id,
                                     const GURL& stream_url,
                                     const base::Closure& callback) {
   StreamMap::iterator extension_it = streams_.find(extension_id);
@@ -143,36 +144,36 @@ void StreamsPrivateAPI::AbortStream(const std::string& extension_id,
   url_map->erase(url_it);
 }
 
-void StreamsPrivateAPI::OnExtensionUnloaded(
+void CefStreamsPrivateAPI::OnExtensionUnloaded(
     content::BrowserContext* browser_context,
     const Extension* extension,
     UnloadedExtensionInfo::Reason reason) {
   streams_.erase(extension->id());
 }
 
-StreamsPrivateAbortFunction::StreamsPrivateAbortFunction() {
+CefStreamsPrivateAbortFunction::CefStreamsPrivateAbortFunction() {
 }
 
-ExtensionFunction::ResponseAction StreamsPrivateAbortFunction::Run() {
+ExtensionFunction::ResponseAction CefStreamsPrivateAbortFunction::Run() {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
   EXTENSION_FUNCTION_VALIDATE(args_->GetString(0, &stream_url_));
-  StreamsPrivateAPI::Get(browser_context())->AbortStream(
+  CefStreamsPrivateAPI::Get(browser_context())->AbortStream(
       extension_id(), GURL(stream_url_), base::Bind(
-          &StreamsPrivateAbortFunction::OnClose, this));
+          &CefStreamsPrivateAbortFunction::OnClose, this));
   return RespondLater();
 }
 
-void StreamsPrivateAbortFunction::OnClose() {
+void CefStreamsPrivateAbortFunction::OnClose() {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
   Respond(NoArguments());
 }
 
-static base::LazyInstance<BrowserContextKeyedAPIFactory<StreamsPrivateAPI> >
+static base::LazyInstance<BrowserContextKeyedAPIFactory<CefStreamsPrivateAPI> >
     g_factory = LAZY_INSTANCE_INITIALIZER;
 
 // static
-BrowserContextKeyedAPIFactory<StreamsPrivateAPI>*
-StreamsPrivateAPI::GetFactoryInstance() {
+BrowserContextKeyedAPIFactory<CefStreamsPrivateAPI>*
+CefStreamsPrivateAPI::GetFactoryInstance() {
   return g_factory.Pointer();
 }
 

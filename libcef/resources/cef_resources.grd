@@ -15,25 +15,6 @@
 
       <!-- Features specific to CEF. -->
       <include name="IDR_CEF_EXTENSION_API_FEATURES" file="..\common\extensions\api\_api_features.json" type="BINDATA" />
-
-      <!-- Manifest files for built-in extensions. -->
-      <include name="IDR_PDF_MANIFEST" file="..\..\..\chrome\browser\resources\pdf\manifest.json" type="BINDATA" />
-
-      <!-- Plugin placeholders. -->
-      <include name="IDR_BLOCKED_PLUGIN_HTML" file="..\..\..\chrome\renderer\resources\plugins\blocked_plugin.html" flattenhtml="true" type="BINDATA" />
-      <include name="IDR_PLUGIN_POSTER_HTML" file="..\..\..\chrome\renderer\resources\plugins\plugin_poster.html" flattenhtml="true" type="BINDATA" />
-
-      <!-- Plugin finder. -->
-      <if expr="is_win">
-        <include name="IDR_PLUGIN_DB_JSON" file="..\..\..\chrome\browser\resources\plugin_metadata\plugins_win.json" type="BINDATA" />
-      </if>
-      <if expr="is_macosx">
-        <include name="IDR_PLUGIN_DB_JSON" file="..\..\..\chrome\browser\resources\plugin_metadata\plugins_mac.json" type="BINDATA" />
-      </if>
-      <if expr="desktop_linux or (is_android and enable_plugins)">
-        <include name="IDR_PLUGIN_DB_JSON" file="..\..\..\chrome\browser\resources\plugin_metadata\plugins_linux.json" type="BINDATA" />
-      </if>
-      
     </includes>
   </release>
 </grit>

@@ -55,6 +55,16 @@ def calc_inputs(locale):
   inputs = []
 
   #e.g.
+  # '<(SHARED_INTERMEDIATE_DIR)/chrome/generated_resources_da.pak'
+  inputs.append(os.path.join(SHARE_INT_DIR, 'chrome',
+                'generated_resources_%s.pak' % locale))
+
+  #e.g.
+  # '<(SHARED_INTERMEDIATE_DIR)/chrome/locale_settings_da.pak'
+  inputs.append(os.path.join(SHARE_INT_DIR, 'chrome',
+                'locale_settings_%s.pak' % locale))
+
+  #e.g.
   # '<(SHARED_INTERMEDIATE_DIR)/chrome/platform_locale_settings_da.pak'
   inputs.append(os.path.join(SHARE_INT_DIR, 'chrome',
                 'platform_locale_settings_%s.pak' % locale))

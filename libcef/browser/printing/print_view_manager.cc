@@ -24,7 +24,7 @@
 
 using content::BrowserThread;
 
-DEFINE_WEB_CONTENTS_USER_DATA_KEY(printing::PrintViewManager);
+DEFINE_WEB_CONTENTS_USER_DATA_KEY(printing::CefPrintViewManager);
 
 namespace printing {
 
@@ -136,7 +136,7 @@ GetDataFromHandle(base::SharedMemoryHandle handle, uint32_t data_size) {
 // Write the PDF file to disk.
 void SavePdfFile(scoped_refptr<base::RefCountedBytes> data,
                  const base::FilePath& path,
-                 const PrintViewManager::PdfPrintCallback& callback) {
+                 const CefPrintViewManager::PdfPrintCallback& callback) {
   DCHECK_CURRENTLY_ON(BrowserThread::FILE);
   DCHECK_GT(data->size(), 0U);
 
@@ -156,23 +156,23 @@ void SavePdfFile(scoped_refptr<base::RefCountedBytes> data,
 
 }  // namespace
 
-PrintViewManager::PrintViewManager(content::WebContents* web_contents)
-    : PrintViewManagerBase(web_contents) {
+CefPrintViewManager::CefPrintViewManager(content::WebContents* web_contents)
+    : CefPrintViewManagerBase(web_contents) {
 }
 
-PrintViewManager::~PrintViewManager() {
+CefPrintViewManager::~CefPrintViewManager() {
   TerminatePdfPrintJob();
 }
 
 #if defined(ENABLE_BASIC_PRINTING)
-bool PrintViewManager::PrintForSystemDialogNow() {
+bool CefPrintViewManager::PrintForSystemDialogNow() {
   return PrintNowInternal(new PrintMsg_PrintForSystemDialog(routing_id()));
 }
 #endif  // ENABLE_BASIC_PRINTING
 
-bool PrintViewManager::OnMessageReceived(const IPC::Message& message) {
+bool CefPrintViewManager::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(PrintViewManager, message)
+  IPC_BEGIN_MESSAGE_MAP(CefPrintViewManager, message)
     IPC_MESSAGE_HANDLER(PrintHostMsg_DidShowPrintDialog, OnDidShowPrintDialog)
     IPC_MESSAGE_HANDLER(PrintHostMsg_RequestPrintPreview,
                         OnRequestPrintPreview)
@@ -181,20 +181,20 @@ bool PrintViewManager::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
-  return handled ? true : PrintViewManagerBase::OnMessageReceived(message);
+  return handled ? true : CefPrintViewManagerBase::OnMessageReceived(message);
 }
 
-void PrintViewManager::NavigationStopped() {
-  PrintViewManagerBase::NavigationStopped();
+void CefPrintViewManager::NavigationStopped() {
+  CefPrintViewManagerBase::NavigationStopped();
   TerminatePdfPrintJob();
 }
 
-void PrintViewManager::RenderProcessGone(base::TerminationStatus status) {
-  PrintViewManagerBase::RenderProcessGone(status);
+void CefPrintViewManager::RenderProcessGone(base::TerminationStatus status) {
+  CefPrintViewManagerBase::RenderProcessGone(status);
   TerminatePdfPrintJob();
 }
 
-void PrintViewManager::PrintToPDF(const base::FilePath& path,
+void CefPrintViewManager::PrintToPDF(const base::FilePath& path,
                                   const CefPdfPrintSettings& settings,
                                   const PdfPrintCallback& callback) {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
@@ -213,10 +213,10 @@ void PrintViewManager::PrintToPDF(const base::FilePath& path,
                                          !!settings.selection_only));
 }
 
-void PrintViewManager::OnDidShowPrintDialog() {
+void CefPrintViewManager::OnDidShowPrintDialog() {
 }
 
-void PrintViewManager::OnRequestPrintPreview(
+void CefPrintViewManager::OnRequestPrintPreview(
     const PrintHostMsg_RequestPrintPreview_Params&) {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   if (!web_contents() || !pdf_print_settings_)
@@ -225,7 +225,7 @@ void PrintViewManager::OnRequestPrintPreview(
   Send(new PrintMsg_PrintPreview(routing_id(), *pdf_print_settings_));
 }
 
-void PrintViewManager::OnMetafileReadyForPrinting(
+void CefPrintViewManager::OnMetafileReadyForPrinting(
     const PrintHostMsg_DidPreviewDocument_Params& params) {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   StopWorker(params.document_cookie);
@@ -252,7 +252,7 @@ void PrintViewManager::OnMetafileReadyForPrinting(
                  pdf_print_callback));
 }
 
-void PrintViewManager::TerminatePdfPrintJob() {
+void CefPrintViewManager::TerminatePdfPrintJob() {
   DCHECK_CURRENTLY_ON(BrowserThread::UI);
   if (!pdf_print_settings_.get())
     return;

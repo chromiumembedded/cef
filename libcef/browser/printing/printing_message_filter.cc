@@ -26,23 +26,23 @@ using content::BrowserThread;
 
 namespace printing {
 
-PrintingMessageFilter::PrintingMessageFilter(int render_process_id)
+CefPrintingMessageFilter::CefPrintingMessageFilter(int render_process_id)
     : content::BrowserMessageFilter(PrintMsgStart),
       render_process_id_(render_process_id),
       queue_(g_browser_process->print_job_manager()->queue()) {
   DCHECK(queue_.get());
 }
 
-PrintingMessageFilter::~PrintingMessageFilter() {
+CefPrintingMessageFilter::~CefPrintingMessageFilter() {
 }
 
-void PrintingMessageFilter::OverrideThreadForMessage(
+void CefPrintingMessageFilter::OverrideThreadForMessage(
     const IPC::Message& message, BrowserThread::ID* thread) {
 }
 
-bool PrintingMessageFilter::OnMessageReceived(const IPC::Message& message) {
+bool CefPrintingMessageFilter::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(PrintingMessageFilter, message)
+  IPC_BEGIN_MESSAGE_MAP(CefPrintingMessageFilter, message)
     IPC_MESSAGE_HANDLER(PrintHostMsg_IsPrintingEnabled, OnIsPrintingEnabled)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(PrintHostMsg_GetDefaultPrintSettings,
                                     OnGetDefaultPrintSettings)
@@ -55,12 +55,13 @@ bool PrintingMessageFilter::OnMessageReceived(const IPC::Message& message) {
   return handled;
 }
 
-void PrintingMessageFilter::OnIsPrintingEnabled(bool* is_enabled) {
+void CefPrintingMessageFilter::OnIsPrintingEnabled(bool* is_enabled) {
   DCHECK_CURRENTLY_ON(BrowserThread::IO);
   *is_enabled = true;
 }
 
-void PrintingMessageFilter::OnGetDefaultPrintSettings(IPC::Message* reply_msg) {
+void CefPrintingMessageFilter::OnGetDefaultPrintSettings(
+    IPC::Message* reply_msg) {
   DCHECK_CURRENTLY_ON(BrowserThread::IO);
 #if defined(OS_LINUX)
   // Send notification to the client.
@@ -83,13 +84,13 @@ void PrintingMessageFilter::OnGetDefaultPrintSettings(IPC::Message* reply_msg) {
       false,
       DEFAULT_MARGINS,
       false,
-      base::Bind(&PrintingMessageFilter::OnGetDefaultPrintSettingsReply,
+      base::Bind(&CefPrintingMessageFilter::OnGetDefaultPrintSettingsReply,
                  this,
                  printer_query,
                  reply_msg));
 }
 
-void PrintingMessageFilter::OnGetDefaultPrintSettingsReply(
+void CefPrintingMessageFilter::OnGetDefaultPrintSettingsReply(
     scoped_refptr<PrinterQuery> printer_query,
     IPC::Message* reply_msg) {
   PrintMsg_Print_Params params;
@@ -113,7 +114,7 @@ void PrintingMessageFilter::OnGetDefaultPrintSettingsReply(
   }
 }
 
-void PrintingMessageFilter::OnScriptedPrint(
+void CefPrintingMessageFilter::OnScriptedPrint(
     const PrintHostMsg_ScriptedPrint_Params& params,
     IPC::Message* reply_msg) {
   scoped_refptr<PrinterQuery> printer_query =
@@ -128,13 +129,13 @@ void PrintingMessageFilter::OnScriptedPrint(
       params.has_selection,
       params.margin_type,
       params.is_scripted,
-      base::Bind(&PrintingMessageFilter::OnScriptedPrintReply,
+      base::Bind(&CefPrintingMessageFilter::OnScriptedPrintReply,
                  this,
                  printer_query,
                  reply_msg));
 }
 
-void PrintingMessageFilter::OnScriptedPrintReply(
+void CefPrintingMessageFilter::OnScriptedPrintReply(
     scoped_refptr<PrinterQuery> printer_query,
     IPC::Message* reply_msg) {
   PrintMsg_PrintPages_Params params;
@@ -160,7 +161,7 @@ void PrintingMessageFilter::OnScriptedPrintReply(
     if (base::StringToInt(device_name, &file_descriptor)) {
       BrowserThread::PostTask(
           BrowserThread::UI, FROM_HERE,
-          base::Bind(&PrintingMessageFilter::UpdateFileDescriptor, this,
+          base::Bind(&CefPrintingMessageFilter::UpdateFileDescriptor, this,
                      routing_id, file_descriptor));
     }
 #endif
@@ -170,7 +171,7 @@ void PrintingMessageFilter::OnScriptedPrintReply(
   }
 }
 
-void PrintingMessageFilter::OnUpdatePrintSettings(
+void CefPrintingMessageFilter::OnUpdatePrintSettings(
     int document_cookie, const base::DictionaryValue& job_settings,
     IPC::Message* reply_msg) {
   std::unique_ptr<base::DictionaryValue> new_settings(job_settings.DeepCopy());
@@ -191,11 +192,11 @@ void PrintingMessageFilter::OnUpdatePrintSettings(
   }
   printer_query->SetSettings(
       std::move(new_settings),
-      base::Bind(&PrintingMessageFilter::OnUpdatePrintSettingsReply, this,
+      base::Bind(&CefPrintingMessageFilter::OnUpdatePrintSettingsReply, this,
                  printer_query, reply_msg));
 }
 
-void PrintingMessageFilter::OnUpdatePrintSettingsReply(
+void CefPrintingMessageFilter::OnUpdatePrintSettingsReply(
     scoped_refptr<PrinterQuery> printer_query,
     IPC::Message* reply_msg) {
   PrintMsg_PrintPages_Params params;
@@ -223,9 +224,9 @@ void PrintingMessageFilter::OnUpdatePrintSettingsReply(
   }
 }
 
-void PrintingMessageFilter::OnCheckForCancel(int32_t preview_ui_id,
-                                             int preview_request_id,
-                                             bool* cancel) {
+void CefPrintingMessageFilter::OnCheckForCancel(int32_t preview_ui_id,
+                                                int preview_request_id,
+                                                bool* cancel) {
   *cancel = false;
 }
 

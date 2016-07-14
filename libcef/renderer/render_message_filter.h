@@ -24,10 +24,13 @@ class CefRenderMessageFilter : public IPC::MessageFilter {
   void OnFilterRemoved() override;
   bool OnMessageReceived(const IPC::Message& message) override;
 
+  bool Send(IPC::Message* message);
+
  private:
   // Message handlers called on the IO thread.
   void OnDevToolsAgentAttach(const std::string& host_id, int session_id);
   void OnDevToolsAgentDetach(int32_t routing_id);
+  void OnIsCrashReportingEnabled(bool* enabled);
 
   void OnDevToolsAgentAttach_RT();
   void OnDevToolsAgentDetach_RT(int32_t routing_id);

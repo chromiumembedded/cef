@@ -15,9 +15,8 @@
     
     'chromium_code': 1,
     'cc_dir': 'cef/libcef/common/extensions/api',
-    # Match the Chrome namespace and bundle name to minimize code changes.
-    'root_namespace': 'extensions::api::%(namespace)s',
-    'bundle_name': 'Chrome',
+    'root_namespace': 'extensions::api::cef::%(namespace)s',
+    'bundle_name': 'Cef',
     'impl_dir_': 'cef/libcef/browser/extensions/api',
   },
 }

@@ -93,7 +93,7 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
   // Resource manager used to supply resources from pak files.
   std::unique_ptr<ComponentExtensionResourceManager> resource_manager_;
 
-  scoped_refptr<EventRouterForwarder> event_router_forwarder_;
+  scoped_refptr<CefEventRouterForwarder> event_router_forwarder_;
 
   DISALLOW_COPY_AND_ASSIGN(CefExtensionsBrowserClient);
 };

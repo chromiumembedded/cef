@@ -1,0 +1,41 @@
+diff --git chrome/browser/chrome_browser_main_mac.mm chrome/browser/chrome_browser_main_mac.mm
+index 11d7ff4..1013b2ce 100644
+--- chrome/browser/chrome_browser_main_mac.mm
++++ chrome/browser/chrome_browser_main_mac.mm
+@@ -186,7 +186,7 @@ void EnsureMetadataNeverIndexFile(const base::FilePath& user_data_dir) {
+   ChromeBrowserMainPartsPosix::PostProfileInit();
+ 
+   g_browser_process->metrics_service()->RecordBreakpadRegistration(
+-      crash_reporter::GetUploadsEnabled());
++      false);
+ 
+   // TODO(calamity): Make this gated on first_run::IsChromeFirstRun() in M45.
+   content::BrowserThread::PostAfterStartupTask(
+diff --git chrome/browser/crash_upload_list/crash_upload_list_crashpad.cc chrome/browser/crash_upload_list/crash_upload_list_crashpad.cc
+index af1bbec..6b92a7c 100644
+--- chrome/browser/crash_upload_list/crash_upload_list_crashpad.cc
++++ chrome/browser/crash_upload_list/crash_upload_list_crashpad.cc
+@@ -73,8 +73,6 @@ void CrashUploadListCrashpad::LoadUploadList(
+   // database lives in the .exe, so we need to grab a pointer to a helper in the
+   // exe to get our reports list.
+   GetReportsThunk(&reports);
+-#else
+-  crash_reporter::GetReports(&reports);
+ #endif
+ 
+   for (const crash_reporter::Report& report : reports) {
+diff --git chrome/browser/google/google_update_settings_posix.cc chrome/browser/google/google_update_settings_posix.cc
+index 059672e..cdecb1a 100644
+--- chrome/browser/google/google_update_settings_posix.cc
++++ chrome/browser/google/google_update_settings_posix.cc
+@@ -63,10 +63,6 @@ bool GoogleUpdateSettings::GetCollectStatsConsent() {
+ 
+ // static
+ bool GoogleUpdateSettings::SetCollectStatsConsent(bool consented) {
+-#if defined(OS_MACOSX)
+-  crash_reporter::SetUploadsEnabled(consented);
+-#endif
+-
+   base::FilePath consent_dir;
+   PathService::Get(chrome::DIR_USER_DATA, &consent_dir);
+   if (!base::DirectoryExists(consent_dir))

@@ -54,7 +54,7 @@ CefExtensionsAPIClient::CreateMimeHandlerViewGuestDelegate(
 void CefExtensionsAPIClient::AttachWebContentsHelpers(
     content::WebContents* web_contents) const {
   PrefsTabHelper::CreateForWebContents(web_contents);
-  printing::PrintViewManager::CreateForWebContents(web_contents);
+  printing::CefPrintViewManager::CreateForWebContents(web_contents);
   pdf::PDFWebContentsHelper::CreateForWebContentsWithClient(
       web_contents,
       std::unique_ptr<pdf::PDFWebContentsHelperClient>(

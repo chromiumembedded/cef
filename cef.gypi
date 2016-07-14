@@ -24,11 +24,6 @@
         # Strip symbols and create dSYM files for the Release target.
         'mac_strip_release': 1,
       }],
-      ['os_posix==1 and OS!="mac" and OS!="android"', {
-        # Disable theme support on Linux so we don't need to implement
-        # ThemeService[Factory] classes.
-        'enable_themes': 0,
-      }]
     ]
   }
 }

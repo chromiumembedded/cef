@@ -8,6 +8,7 @@
 
 #include "base/base64.h"
 #include "chrome/grit/generated_resources.h"
+#include "chrome/grit/renderer_resources.h"
 #include "chrome/renderer/plugins/power_saver_info.h"
 #include "third_party/WebKit/public/platform/WebRect.h"
 #include "third_party/WebKit/public/web/WebElement.h"

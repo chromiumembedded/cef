@@ -15,7 +15,7 @@ namespace cef {
 void EnsureBrowserContextKeyedServiceFactoriesBuilt() {
   PrefsTabHelper::GetServiceInstance();
   RendererStartupHelperFactory::GetInstance();
-  StreamsPrivateAPI::GetFactoryInstance();
+  CefStreamsPrivateAPI::GetFactoryInstance();
 }
 
 }  // namespace cef

@@ -29,10 +29,11 @@ namespace extensions {
 // - this class can be used in contexts that are not governed by a profile, e.g.
 //   by system URLRequestContexts. In these cases the |restrict_to_profile|
 //   parameter remains NULL and events are broadcasted to all profiles.
-class EventRouterForwarder
-    : public base::RefCountedThreadSafe<EventRouterForwarder> {
+// TODO(cef/chrome): Unfork this class once CEF supports ProfileManager.
+class CefEventRouterForwarder
+    : public base::RefCountedThreadSafe<CefEventRouterForwarder> {
  public:
-  EventRouterForwarder();
+  CefEventRouterForwarder();
 
   // Calls
   //   DispatchEventToRenderers(event_name, event_args, profile, event_url)
@@ -79,7 +80,7 @@ class EventRouterForwarder
 
  protected:
   // Protected for testing.
-  virtual ~EventRouterForwarder();
+  virtual ~CefEventRouterForwarder();
 
   // Helper function for {Broadcast,Dispatch}EventTo{Extension,Renderers}.
   // Virtual for testing.
@@ -104,9 +105,9 @@ class EventRouterForwarder
                                const GURL& event_url);
 
  private:
-  friend class base::RefCountedThreadSafe<EventRouterForwarder>;
+  friend class base::RefCountedThreadSafe<CefEventRouterForwarder>;
 
-  DISALLOW_COPY_AND_ASSIGN(EventRouterForwarder);
+  DISALLOW_COPY_AND_ASSIGN(CefEventRouterForwarder);
 };
 
 }  // namespace extensions

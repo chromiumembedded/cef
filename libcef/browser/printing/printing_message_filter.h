@@ -37,9 +37,9 @@ class PrinterQuery;
 
 // This class filters out incoming printing related IPC messages for the
 // renderer process on the IPC thread.
-class PrintingMessageFilter : public content::BrowserMessageFilter {
+class CefPrintingMessageFilter : public content::BrowserMessageFilter {
  public:
-  explicit PrintingMessageFilter(int render_process_id);
+  explicit CefPrintingMessageFilter(int render_process_id);
 
   // content::BrowserMessageFilter methods.
   void OverrideThreadForMessage(const IPC::Message& message,
@@ -47,7 +47,7 @@ class PrintingMessageFilter : public content::BrowserMessageFilter {
   bool OnMessageReceived(const IPC::Message& message) override;
 
  private:
-  ~PrintingMessageFilter() override;
+  ~CefPrintingMessageFilter() override;
 
   // GetPrintSettingsForRenderView must be called via PostTask and
   // base::Bind.  Collapse the settings-specific params into a
@@ -88,7 +88,7 @@ class PrintingMessageFilter : public content::BrowserMessageFilter {
 
   scoped_refptr<PrintQueriesQueue> queue_;
 
-  DISALLOW_COPY_AND_ASSIGN(PrintingMessageFilter);
+  DISALLOW_COPY_AND_ASSIGN(CefPrintingMessageFilter);
 };
 
 }  // namespace printing

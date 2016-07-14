@@ -9,7 +9,7 @@ json_schema_api("api") {
   schemas = true
   bundle = true
   configs = [ "//build/config:precompiled_headers" ]
-  bundle_name = "Chrome"
+  bundle_name = "Cef"
 
   deps = schema_dependencies
 }
@@ -18,7 +18,7 @@ json_schema_api("api_registration") {
   impl_dir = "//cef/libcef/browser/extensions/api"
   bundle_registration = true
   configs = [ "//build/config:precompiled_headers" ]
-  bundle_name = "Chrome"
+  bundle_name = "Cef"
 
   deps = [
     ":api",

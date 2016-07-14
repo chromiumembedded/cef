@@ -21,7 +21,7 @@ class CefMenuRunnerWin : public CefMenuRunner {
                       const content::ContextMenuParams& params) override;
 
  private:
-  std::unique_ptr<views::NativeMenuWin> menu_;
+  std::unique_ptr<views::CefNativeMenuWin> menu_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NATIVE_MENU_RUNNER_WIN_H_

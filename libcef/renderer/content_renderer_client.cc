@@ -50,6 +50,7 @@
 #include "chrome/common/pepper_permission_util.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/grit/generated_resources.h"
+#include "chrome/grit/renderer_resources.h"
 #include "chrome/renderer/content_settings_observer.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
 #include "chrome/renderer/pepper/chrome_pdf_print_client.h"
@@ -655,16 +656,6 @@ void CefContentRendererClient::RunScriptsAtDocumentEnd(
 void CefContentRendererClient::WillDestroyCurrentMessageLoop() {
   base::AutoLock lock_scope(single_process_cleanup_lock_);
   single_process_cleanup_complete_ = true;
-}
-
-// static
-bool CefContentRendererClient::IsExtensionOrSharedModuleWhitelisted(
-    const GURL& url, const std::set<std::string>& whitelist) {
-  DCHECK(extensions::ExtensionsEnabled());
-  const extensions::ExtensionSet* extension_set =
-      extensions::RendererExtensionRegistry::Get()->GetMainThreadExtensionSet();
-  return chrome::IsExtensionOrSharedModuleWhitelisted(url, extension_set,
-      whitelist);
 }
 
 // static

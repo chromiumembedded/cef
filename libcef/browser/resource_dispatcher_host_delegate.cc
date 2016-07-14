@@ -55,8 +55,8 @@ void SendExecuteMimeTypeHandlerEvent(
 
   content::BrowserContext* browser_context = web_contents->GetBrowserContext();
 
-  extensions::StreamsPrivateAPI* streams_private =
-      extensions::StreamsPrivateAPI::Get(browser_context);
+  extensions::CefStreamsPrivateAPI* streams_private =
+      extensions::CefStreamsPrivateAPI::Get(browser_context);
   if (!streams_private)
     return;
 

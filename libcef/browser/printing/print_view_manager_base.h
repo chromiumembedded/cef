@@ -30,11 +30,11 @@ class PrintJobWorkerOwner;
 class PrintQueriesQueue;
 
 // Base class for managing the print commands for a WebContents.
-class PrintViewManagerBase : public content::NotificationObserver,
-                             public PrintedPagesSource,
-                             public PrintManager {
+class CefPrintViewManagerBase : public content::NotificationObserver,
+                                public PrintedPagesSource,
+                                public PrintManager {
  public:
-  ~PrintViewManagerBase() override;
+  ~CefPrintViewManagerBase() override;
 
 #if defined(ENABLE_BASIC_PRINTING)
   // Prints the current document immediately. Since the rendering is
@@ -50,7 +50,7 @@ class PrintViewManagerBase : public content::NotificationObserver,
   base::string16 RenderSourceName() override;
 
  protected:
-  explicit PrintViewManagerBase(content::WebContents* web_contents);
+  explicit CefPrintViewManagerBase(content::WebContents* web_contents);
 
   // Helper method for Print*Now().
   bool PrintNowInternal(IPC::Message* message);
@@ -153,7 +153,7 @@ class PrintViewManagerBase : public content::NotificationObserver,
 
   scoped_refptr<printing::PrintQueriesQueue> queue_;
 
-  DISALLOW_COPY_AND_ASSIGN(PrintViewManagerBase);
+  DISALLOW_COPY_AND_ASSIGN(CefPrintViewManagerBase);
 };
 
 }  // namespace printing

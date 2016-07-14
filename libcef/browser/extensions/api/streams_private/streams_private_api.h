@@ -24,14 +24,14 @@ struct StreamInfo;
 namespace extensions {
 class ExtensionRegistry;
 
-class StreamsPrivateAPI : public BrowserContextKeyedAPI,
-                          public ExtensionRegistryObserver {
+class CefStreamsPrivateAPI : public BrowserContextKeyedAPI,
+                             public ExtensionRegistryObserver {
  public:
-  // Convenience method to get the StreamsPrivateAPI for a BrowserContext.
-  static StreamsPrivateAPI* Get(content::BrowserContext* context);
+  // Convenience method to get the CefStreamsPrivateAPI for a BrowserContext.
+  static CefStreamsPrivateAPI* Get(content::BrowserContext* context);
 
-  explicit StreamsPrivateAPI(content::BrowserContext* context);
-  ~StreamsPrivateAPI() override;
+  explicit CefStreamsPrivateAPI(content::BrowserContext* context);
+  ~CefStreamsPrivateAPI() override;
 
   // Send the onExecuteMimeTypeHandler event to |extension_id|.
   // |tab_id| is used to determine the tabId where the document is being
@@ -53,10 +53,11 @@ class StreamsPrivateAPI : public BrowserContextKeyedAPI,
                    const base::Closure& callback);
 
   // BrowserContextKeyedAPI implementation.
-  static BrowserContextKeyedAPIFactory<StreamsPrivateAPI>* GetFactoryInstance();
+  static BrowserContextKeyedAPIFactory<CefStreamsPrivateAPI>*
+      GetFactoryInstance();
 
  private:
-  friend class BrowserContextKeyedAPIFactory<StreamsPrivateAPI>;
+  friend class BrowserContextKeyedAPIFactory<CefStreamsPrivateAPI>;
   typedef std::map<std::string,
                    std::map<GURL,
                             linked_ptr<content::StreamHandle> > > StreamMap;
@@ -68,7 +69,7 @@ class StreamsPrivateAPI : public BrowserContextKeyedAPI,
 
   // BrowserContextKeyedAPI implementation.
   static const char* service_name() {
-    return "StreamsPrivateAPI";
+    return "CefStreamsPrivateAPI";
   }
   static const bool kServiceIsNULLWhileTesting = true;
   static const bool kServiceRedirectedInIncognito = true;
@@ -80,17 +81,17 @@ class StreamsPrivateAPI : public BrowserContextKeyedAPI,
   ScopedObserver<ExtensionRegistry, ExtensionRegistryObserver>
       extension_registry_observer_;
 
-  base::WeakPtrFactory<StreamsPrivateAPI> weak_ptr_factory_;
+  base::WeakPtrFactory<CefStreamsPrivateAPI> weak_ptr_factory_;
 
 };
 
-class StreamsPrivateAbortFunction : public UIThreadExtensionFunction {
+class CefStreamsPrivateAbortFunction : public UIThreadExtensionFunction {
  public:
-  StreamsPrivateAbortFunction();
+  CefStreamsPrivateAbortFunction();
   DECLARE_EXTENSION_FUNCTION("streamsPrivate.abort", STREAMSPRIVATE_ABORT)
 
  protected:
-  ~StreamsPrivateAbortFunction() override {}
+  ~CefStreamsPrivateAbortFunction() override {}
 
   // ExtensionFunction:
   ExtensionFunction::ResponseAction Run() override;
@@ -100,6 +101,10 @@ class StreamsPrivateAbortFunction : public UIThreadExtensionFunction {
 
   std::string stream_url_;
 };
+
+// For compatibility with generated_api_registration.cc.
+typedef CefStreamsPrivateAPI StreamsPrivateAPI;
+typedef CefStreamsPrivateAbortFunction StreamsPrivateAbortFunction;
 
 }  // namespace extensions
 

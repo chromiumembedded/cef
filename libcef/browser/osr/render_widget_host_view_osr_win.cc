@@ -10,8 +10,8 @@
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/content_browser_client.h"
 
-#include "grit/ui_unscaled_resources.h"
 #include "third_party/WebKit/public/platform/WebCursorInfo.h"
+#include "ui/resources/grit/ui_unscaled_resources.h"
 
 namespace {
 

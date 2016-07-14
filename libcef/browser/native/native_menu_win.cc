@@ -47,7 +47,7 @@ static const int kItemLeftMargin = 4;
 // The width for displaying the sub-menu arrow.
 static const int kArrowWidth = 10;
 
-struct NativeMenuWin::ItemData {
+struct CefNativeMenuWin::ItemData {
   // The Windows API requires that whoever creates the menus must own the
   // strings used for labels, and keep them around for the lifetime of the
   // created menu. So be it.
@@ -57,26 +57,26 @@ struct NativeMenuWin::ItemData {
   std::unique_ptr<Menu2> submenu;
 
   // We need a pointer back to the containing menu in various circumstances.
-  NativeMenuWin* native_menu_win;
+  CefNativeMenuWin* native_menu_win;
 
   // The index of the item within the menu's model.
   int model_index;
 };
 
-// Returns the NativeMenuWin for a particular HMENU.
-static NativeMenuWin* GetNativeMenuWinFromHMENU(HMENU hmenu) {
+// Returns the CefNativeMenuWin for a particular HMENU.
+static CefNativeMenuWin* GetCefNativeMenuWinFromHMENU(HMENU hmenu) {
   MENUINFO mi = {0};
   mi.cbSize = sizeof(mi);
   mi.fMask = MIM_MENUDATA | MIM_STYLE;
   GetMenuInfo(hmenu, &mi);
-  return reinterpret_cast<NativeMenuWin*>(mi.dwMenuData);
+  return reinterpret_cast<CefNativeMenuWin*>(mi.dwMenuData);
 }
 
 // A window that receives messages from Windows relevant to the native menu
-// structure we have constructed in NativeMenuWin.
-class NativeMenuWin::MenuHostWindow {
+// structure we have constructed in CefNativeMenuWin.
+class CefNativeMenuWin::MenuHostWindow {
  public:
-  explicit MenuHostWindow(NativeMenuWin* parent) : parent_(parent) {
+  explicit MenuHostWindow(CefNativeMenuWin* parent) : parent_(parent) {
     RegisterClass();
     hwnd_ = CreateWindowEx(l10n_util::GetExtendedStyles(), kWindowClassName,
                            L"", 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, NULL, NULL);
@@ -138,15 +138,15 @@ class NativeMenuWin::MenuHostWindow {
     return w_param;
   }
 
-  NativeMenuWin::ItemData* GetItemData(ULONG_PTR item_data) {
-    return reinterpret_cast<NativeMenuWin::ItemData*>(item_data);
+  CefNativeMenuWin::ItemData* GetItemData(ULONG_PTR item_data) {
+    return reinterpret_cast<CefNativeMenuWin::ItemData*>(item_data);
   }
 
   // Called when the user selects a specific item.
   void OnMenuCommand(int position, HMENU menu) {
-    NativeMenuWin* menu_win = GetNativeMenuWinFromHMENU(menu);
+    CefNativeMenuWin* menu_win = GetCefNativeMenuWinFromHMENU(menu);
     ui::MenuModel* model = menu_win->model_;
-    NativeMenuWin* root_menu = menu_win;
+    CefNativeMenuWin* root_menu = menu_win;
     while (root_menu->parent_)
       root_menu = root_menu->parent_;
 
@@ -164,12 +164,13 @@ class NativeMenuWin::MenuHostWindow {
 
     int position = GetMenuItemIndexFromWPARAM(menu, w_param);
     if (position >= 0)
-      GetNativeMenuWinFromHMENU(menu)->model_->HighlightChangedTo(position);
+      GetCefNativeMenuWinFromHMENU(menu)->model_->HighlightChangedTo(position);
   }
 
   // Called by Windows to measure the size of an owner-drawn menu item.
   void OnMeasureItem(WPARAM w_param, MEASUREITEMSTRUCT* measure_item_struct) {
-    NativeMenuWin::ItemData* data = GetItemData(measure_item_struct->itemData);
+    CefNativeMenuWin::ItemData* data =
+        GetItemData(measure_item_struct->itemData);
     if (data) {
       gfx::FontList font_list;
       measure_item_struct->itemWidth =
@@ -208,7 +209,8 @@ class NativeMenuWin::MenuHostWindow {
     }
 
     if (draw_item_struct->itemData) {
-      NativeMenuWin::ItemData* data = GetItemData(draw_item_struct->itemData);
+      CefNativeMenuWin::ItemData* data =
+          GetItemData(draw_item_struct->itemData);
       // Draw the background.
       HBRUSH hbr = CreateSolidBrush(GetBkColor(dc));
       FillRect(dc, &draw_item_struct->rcItem, hbr);
@@ -355,12 +357,12 @@ class NativeMenuWin::MenuHostWindow {
   }
 
   HWND hwnd_;
-  NativeMenuWin* parent_;
+  CefNativeMenuWin* parent_;
 
   DISALLOW_COPY_AND_ASSIGN(MenuHostWindow);
 };
 
-struct NativeMenuWin::HighlightedMenuItemInfo {
+struct CefNativeMenuWin::HighlightedMenuItemInfo {
   HighlightedMenuItemInfo()
       : has_parent(false),
         has_submenu(false),
@@ -372,18 +374,18 @@ struct NativeMenuWin::HighlightedMenuItemInfo {
   bool has_submenu;
 
   // The menu and position. These are only set for non-disabled menu items.
-  NativeMenuWin* menu;
+  CefNativeMenuWin* menu;
   int position;
 };
 
 // static
-const wchar_t* NativeMenuWin::MenuHostWindow::kWindowClassName =
+const wchar_t* CefNativeMenuWin::MenuHostWindow::kWindowClassName =
     L"ViewsMenuHostWindow";
 
 ////////////////////////////////////////////////////////////////////////////////
-// NativeMenuWin, public:
+// CefNativeMenuWin, public:
 
-NativeMenuWin::NativeMenuWin(ui::MenuModel* model, HWND system_menu_for)
+CefNativeMenuWin::CefNativeMenuWin(ui::MenuModel* model, HWND system_menu_for)
     : model_(model),
       menu_(NULL),
       owner_draw_(l10n_util::NeedOverrideDefaultUIFont(NULL, NULL) &&
@@ -398,7 +400,7 @@ NativeMenuWin::NativeMenuWin(ui::MenuModel* model, HWND system_menu_for)
       menu_to_select_factory_(this) {
 }
 
-NativeMenuWin::~NativeMenuWin() {
+CefNativeMenuWin::~CefNativeMenuWin() {
   if (destroyed_flag_)
     *destroyed_flag_ = true;
   STLDeleteContainerPointers(items_.begin(), items_.end());
@@ -406,9 +408,9 @@ NativeMenuWin::~NativeMenuWin() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// NativeMenuWin, MenuWrapper implementation:
+// CefNativeMenuWin, MenuWrapper implementation:
 
-void NativeMenuWin::RunMenuAt(const gfx::Point& point, int alignment) {
+void CefNativeMenuWin::RunMenuAt(const gfx::Point& point, int alignment) {
   CreateHostWindow();
   UpdateStates();
   UINT flags = TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RECURSE;
@@ -450,7 +452,7 @@ void NativeMenuWin::RunMenuAt(const gfx::Point& point, int alignment) {
     menu_to_select_factory_.InvalidateWeakPtrs();
     base::MessageLoop::current()->PostTask(
         FROM_HERE,
-        base::Bind(&NativeMenuWin::DelayedSelect,
+        base::Bind(&CefNativeMenuWin::DelayedSelect,
                    menu_to_select_factory_.GetWeakPtr()));
     menu_action_ = MENU_ACTION_SELECTED;
   }
@@ -459,11 +461,11 @@ void NativeMenuWin::RunMenuAt(const gfx::Point& point, int alignment) {
   model_->MenuClosed();
 }
 
-void NativeMenuWin::CancelMenu() {
+void CefNativeMenuWin::CancelMenu() {
   EndMenu();
 }
 
-void NativeMenuWin::Rebuild(MenuInsertionDelegateWin* delegate) {
+void CefNativeMenuWin::Rebuild(MenuInsertionDelegateWin* delegate) {
   ResetNativeMenu();
   items_.clear();
 
@@ -479,7 +481,7 @@ void NativeMenuWin::Rebuild(MenuInsertionDelegateWin* delegate) {
   }
 }
 
-void NativeMenuWin::UpdateStates() {
+void CefNativeMenuWin::UpdateStates() {
   // A depth-first walk of the menu items, updating states.
   int model_index = 0;
   std::vector<ItemData*>::const_iterator it;
@@ -498,39 +500,39 @@ void NativeMenuWin::UpdateStates() {
   }
 }
 
-HMENU NativeMenuWin::GetNativeMenu() const {
+HMENU CefNativeMenuWin::GetNativeMenu() const {
   return menu_;
 }
 
-NativeMenuWin::MenuAction NativeMenuWin::GetMenuAction() const {
+CefNativeMenuWin::MenuAction CefNativeMenuWin::GetMenuAction() const {
   return menu_action_;
 }
 
-void NativeMenuWin::AddMenuListener(MenuListener* listener) {
+void CefNativeMenuWin::AddMenuListener(MenuListener* listener) {
   listeners_.AddObserver(listener);
 }
 
-void NativeMenuWin::RemoveMenuListener(MenuListener* listener) {
+void CefNativeMenuWin::RemoveMenuListener(MenuListener* listener) {
   listeners_.RemoveObserver(listener);
 }
 
-void NativeMenuWin::SetMinimumWidth(int width) {
+void CefNativeMenuWin::SetMinimumWidth(int width) {
   NOTIMPLEMENTED();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// NativeMenuWin, private:
+// CefNativeMenuWin, private:
 
 // static
-NativeMenuWin* NativeMenuWin::open_native_menu_win_ = NULL;
+CefNativeMenuWin* CefNativeMenuWin::open_native_menu_win_ = NULL;
 
-void NativeMenuWin::DelayedSelect() {
+void CefNativeMenuWin::DelayedSelect() {
   if (menu_to_select_)
     menu_to_select_->model_->ActivatedAt(position_to_select_);
 }
 
 // static
-bool NativeMenuWin::GetHighlightedMenuItemInfo(
+bool CefNativeMenuWin::GetHighlightedMenuItemInfo(
     HMENU menu,
     HighlightedMenuItemInfo* info) {
   for (int i = 0; i < ::GetMenuItemCount(menu); i++) {
@@ -543,7 +545,7 @@ bool NativeMenuWin::GetHighlightedMenuItemInfo(
         else
           info->has_submenu = true;
       } else if (!(state & MF_SEPARATOR) && !(state & MF_DISABLED)) {
-        info->menu = GetNativeMenuWinFromHMENU(menu);
+        info->menu = GetCefNativeMenuWinFromHMENU(menu);
         info->position = i;
       }
       return true;
@@ -553,11 +555,11 @@ bool NativeMenuWin::GetHighlightedMenuItemInfo(
 }
 
 // static
-LRESULT CALLBACK NativeMenuWin::MenuMessageHook(
+LRESULT CALLBACK CefNativeMenuWin::MenuMessageHook(
     int n_code, WPARAM w_param, LPARAM l_param) {
   LRESULT result = CallNextHookEx(NULL, n_code, w_param, l_param);
 
-  NativeMenuWin* this_ptr = open_native_menu_win_;
+  CefNativeMenuWin* this_ptr = open_native_menu_win_;
   if (!this_ptr)
     return result;
 
@@ -602,7 +604,7 @@ LRESULT CALLBACK NativeMenuWin::MenuMessageHook(
   return result;
 }
 
-bool NativeMenuWin::IsSeparatorItemAt(int menu_index) const {
+bool CefNativeMenuWin::IsSeparatorItemAt(int menu_index) const {
   MENUITEMINFO mii = {0};
   mii.cbSize = sizeof(mii);
   mii.fMask = MIIM_FTYPE;
@@ -610,7 +612,7 @@ bool NativeMenuWin::IsSeparatorItemAt(int menu_index) const {
   return !!(mii.fType & MF_SEPARATOR);
 }
 
-void NativeMenuWin::AddMenuItemAt(int menu_index, int model_index) {
+void CefNativeMenuWin::AddMenuItemAt(int menu_index, int model_index) {
   MENUITEMINFO mii = {0};
   mii.cbSize = sizeof(mii);
   mii.fMask = MIIM_FTYPE | MIIM_ID | MIIM_DATA;
@@ -626,7 +628,7 @@ void NativeMenuWin::AddMenuItemAt(int menu_index, int model_index) {
     item_data->submenu.reset(new Menu2(model_->GetSubmenuModelAt(model_index)));
     mii.fMask |= MIIM_SUBMENU;
     mii.hSubMenu = item_data->submenu->GetNativeMenu();
-    GetNativeMenuWinFromHMENU(mii.hSubMenu)->parent_ = this;
+    GetCefNativeMenuWinFromHMENU(mii.hSubMenu)->parent_ = this;
   } else {
     if (type == ui::MenuModel::TYPE_RADIO)
       mii.fType |= MFT_RADIOCHECK;
@@ -641,7 +643,7 @@ void NativeMenuWin::AddMenuItemAt(int menu_index, int model_index) {
   InsertMenuItem(menu_, menu_index, TRUE, &mii);
 }
 
-void NativeMenuWin::AddSeparatorItemAt(int menu_index, int model_index) {
+void CefNativeMenuWin::AddSeparatorItemAt(int menu_index, int model_index) {
   MENUITEMINFO mii = {0};
   mii.cbSize = sizeof(mii);
   mii.fMask = MIIM_FTYPE;
@@ -652,8 +654,8 @@ void NativeMenuWin::AddSeparatorItemAt(int menu_index, int model_index) {
   InsertMenuItem(menu_, menu_index, TRUE, &mii);
 }
 
-void NativeMenuWin::SetMenuItemState(int menu_index, bool enabled, bool checked,
-                                     bool is_default) {
+void CefNativeMenuWin::SetMenuItemState(
+    int menu_index, bool enabled, bool checked, bool is_default) {
   if (IsSeparatorItemAt(menu_index))
     return;
 
@@ -670,7 +672,7 @@ void NativeMenuWin::SetMenuItemState(int menu_index, bool enabled, bool checked,
   SetMenuItemInfo(menu_, menu_index, MF_BYPOSITION, &mii);
 }
 
-void NativeMenuWin::SetMenuItemLabel(int menu_index,
+void CefNativeMenuWin::SetMenuItemLabel(int menu_index,
                                      int model_index,
                                      const base::string16& label) {
   if (IsSeparatorItemAt(menu_index))
@@ -682,7 +684,7 @@ void NativeMenuWin::SetMenuItemLabel(int menu_index,
   SetMenuItemInfo(menu_, menu_index, MF_BYPOSITION, &mii);
 }
 
-void NativeMenuWin::UpdateMenuItemInfoForString(MENUITEMINFO* mii,
+void CefNativeMenuWin::UpdateMenuItemInfoForString(MENUITEMINFO* mii,
                                                 int model_index,
                                                 const base::string16& label) {
   base::string16 formatted = label;
@@ -709,7 +711,7 @@ void NativeMenuWin::UpdateMenuItemInfoForString(MENUITEMINFO* mii,
       const_cast<wchar_t*>(items_[model_index]->label.c_str());
 }
 
-UINT NativeMenuWin::GetAlignmentFlags(int alignment) const {
+UINT CefNativeMenuWin::GetAlignmentFlags(int alignment) const {
   UINT alignment_flags = TPM_TOPALIGN;
   if (alignment == Menu2::ALIGN_TOPLEFT)
     alignment_flags |= TPM_LEFTALIGN;
@@ -718,7 +720,7 @@ UINT NativeMenuWin::GetAlignmentFlags(int alignment) const {
   return alignment_flags;
 }
 
-void NativeMenuWin::ResetNativeMenu() {
+void CefNativeMenuWin::ResetNativeMenu() {
   if (IsWindow(system_menu_for_)) {
     if (menu_)
       GetSystemMenu(system_menu_for_, TRUE);
@@ -739,9 +741,9 @@ void NativeMenuWin::ResetNativeMenu() {
   }
 }
 
-void NativeMenuWin::CreateHostWindow() {
+void CefNativeMenuWin::CreateHostWindow() {
   // This only gets called from RunMenuAt, and as such there is only ever one
-  // host window per menu hierarchy, no matter how many NativeMenuWin objects
+  // host window per menu hierarchy, no matter how many CefNativeMenuWin objects
   // exist wrapping submenus.
   if (!host_window_.get())
     host_window_.reset(new MenuHostWindow(this));
@@ -752,7 +754,7 @@ void NativeMenuWin::CreateHostWindow() {
 
 // static
 MenuWrapper* MenuWrapper::CreateWrapper(ui::MenuModel* model) {
-  return new NativeMenuWin(model, NULL);
+  return new CefNativeMenuWin(model, NULL);
 }
 
 }  // namespace views

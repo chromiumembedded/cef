@@ -29,6 +29,8 @@ template("_repack_one_locale") {
     # Each input pak file should also have a deps line for completeness.
     sources = [
       "${root_gen_dir}/cef/cef_strings_${locale}.pak",
+      "${root_gen_dir}/chrome/generated_resources_${locale}.pak",
+      "${root_gen_dir}/chrome/locale_settings_${locale}.pak",
       "${root_gen_dir}/chrome/platform_locale_settings_${locale}.pak",
       "${root_gen_dir}/components/strings/components_locale_settings_${locale}.pak",
       "${root_gen_dir}/components/strings/components_strings_${locale}.pak",
@@ -43,6 +45,8 @@ template("_repack_one_locale") {
     # listed both here and in the libcef_static target.
     public_deps = [
       ":cef_strings",
+      "//chrome/app:generated_resources",
+      "//chrome/app/resources:locale_settings",
       "//chrome/app/resources:platform_locale_settings",
       "//components/strings:components_locale_settings",
       "//components/strings:components_strings",

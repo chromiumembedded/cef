@@ -1,0 +1,14 @@
+diff --git chrome/common/chrome_content_client.cc chrome/common/chrome_content_client.cc
+index 57355af2..01cde06 100644
+--- chrome/common/chrome_content_client.cc
++++ chrome/common/chrome_content_client.cc
+@@ -76,7 +76,7 @@
+ #endif
+ 
+ #if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS) && \
+-    !defined(WIDEVINE_CDM_IS_COMPONENT)
++    !defined(WIDEVINE_CDM_IS_COMPONENT) && defined(WIDEVINE_CDM_VERSION_STRING)
+ #define WIDEVINE_CDM_AVAILABLE_NOT_COMPONENT
+ #include "chrome/common/widevine_cdm_constants.h"
+ #endif
+

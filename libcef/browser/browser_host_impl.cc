@@ -733,7 +733,7 @@ void CefBrowserHostImpl::Print() {
     content::WebContents* actionable_contents = GetActionableWebContents();
     if (!actionable_contents)
       return;
-    printing::PrintViewManager::FromWebContents(
+    printing::CefPrintViewManager::FromWebContents(
         actionable_contents)->PrintNow();
   } else {
     CEF_POST_TASK(CEF_UIT,
@@ -749,12 +749,12 @@ void CefBrowserHostImpl::PrintToPDF(const CefString& path,
     if (!actionable_contents)
       return;
 
-    printing::PrintViewManager::PdfPrintCallback pdf_callback;
+    printing::CefPrintViewManager::PdfPrintCallback pdf_callback;
     if (callback.get()) {
       pdf_callback = base::Bind(&CefPdfPrintCallback::OnPdfPrintFinished,
                                 callback.get(), path);
     }
-    printing::PrintViewManager::FromWebContents(actionable_contents)->
+    printing::CefPrintViewManager::FromWebContents(actionable_contents)->
         PrintToPDF(base::FilePath(path), settings, pdf_callback);
   } else {
     CEF_POST_TASK(CEF_UIT,
@@ -2798,7 +2798,7 @@ CefBrowserHostImpl::CefBrowserHostImpl(
                            CefFrameHostImpl::kInvalidFrameId);
 
   PrefsTabHelper::CreateForWebContents(web_contents_.get());
-  printing::PrintViewManager::CreateForWebContents(web_contents_.get());
+  printing::CefPrintViewManager::CreateForWebContents(web_contents_.get());
 
   // Make sure RenderViewCreated is called at least one time.
   RenderViewCreated(web_contents->GetRenderViewHost());
