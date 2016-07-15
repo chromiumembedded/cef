@@ -119,7 +119,7 @@ bool CefExtensionsBrowserClient::AllowCrossRendererResourceLoad(
   // AllowCrossRendererResourceLoad() in https://crrev.com/5cf9d45c. Figure out
   // why permission is not being granted based on "web_accessible_resources"
   // specified in the PDF extension manifest.json file.
-  if (extension->id() == extension_misc::kPdfExtensionId)
+  if (extension && extension->id() == extension_misc::kPdfExtensionId)
     return true;
 
   bool allowed = false;
