@@ -45,7 +45,6 @@ Profile* ChromeProfileStub::GetOriginalProfile() {
 }
 
 bool ChromeProfileStub::IsSupervised() const  {
-  NOTIMPLEMENTED();
   return false;
 }
 

@@ -15,6 +15,8 @@
 #include "libcef/browser/extensions/url_request_util.h"
 
 #include "cef/libcef/browser/extensions/api/generated_api_registration.h"
+#include "chrome/browser/browser_process.h"
+#include "chrome/browser/extensions/event_router_forwarder.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_frame_host.h"
@@ -36,8 +38,7 @@ namespace extensions {
 
 CefExtensionsBrowserClient::CefExtensionsBrowserClient()
     : api_client_(new CefExtensionsAPIClient),
-      resource_manager_(new CefComponentExtensionResourceManager),
-      event_router_forwarder_(new CefEventRouterForwarder) {
+      resource_manager_(new CefComponentExtensionResourceManager) {
 }
 
 CefExtensionsBrowserClient::~CefExtensionsBrowserClient() {
@@ -207,8 +208,9 @@ void CefExtensionsBrowserClient::BroadcastEventToRenderers(
     events::HistogramValue histogram_value,
     const std::string& event_name,
     std::unique_ptr<base::ListValue> args) {
-  event_router_forwarder_->BroadcastEventToRenderers(
-      histogram_value, event_name, std::move(args), GURL());
+  g_browser_process->extension_event_router_forwarder()->
+      BroadcastEventToRenderers(histogram_value, event_name, std::move(args),
+                                GURL());
 }
 
 net::NetLog* CefExtensionsBrowserClient::GetNetLog() {

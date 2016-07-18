@@ -6,8 +6,6 @@
 #ifndef CEF_LIBCEF_BROWSER_EXTENSIONS_EXTENSIONS_BROWSER_CLIENT_H_
 #define CEF_LIBCEF_BROWSER_EXTENSIONS_EXTENSIONS_BROWSER_CLIENT_H_
 
-#include "libcef/browser/extensions/event_router_forwarder.h"
-
 #include "base/compiler_specific.h"
 #include "extensions/browser/extensions_browser_client.h"
 
@@ -92,8 +90,6 @@ class CefExtensionsBrowserClient : public ExtensionsBrowserClient {
 
   // Resource manager used to supply resources from pak files.
   std::unique_ptr<ComponentExtensionResourceManager> resource_manager_;
-
-  scoped_refptr<CefEventRouterForwarder> event_router_forwarder_;
 
   DISALLOW_COPY_AND_ASSIGN(CefExtensionsBrowserClient);
 };

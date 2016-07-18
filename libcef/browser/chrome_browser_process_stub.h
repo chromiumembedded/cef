@@ -3,16 +3,24 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// This file provides a stub implementation of Chrome's BrowserProcess object
+// for use as an interop layer between CEF and files that live in chrome/.
+
 #ifndef CEF_LIBCEF_BROWSER_CHROME_BROWSER_PROCESS_STUB_H_
 #define CEF_LIBCEF_BROWSER_CHROME_BROWSER_PROCESS_STUB_H_
 
+#include <memory>
 #include <string>
 
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/extensions/event_router_forwarder.h"
 #include "base/compiler_specific.h"
 
-// This file provides a stub implementation of Chrome's BrowserProcess object
-// for use as an interop layer between CEF and files that live in chrome/.
+namespace component_updater {
+class ComponentUpdateService;
+}
+
+class ChromeProfileManagerStub;
 
 class BackgroundModeManager {
  public:
@@ -26,6 +34,9 @@ class ChromeBrowserProcessStub : public BrowserProcess {
  public:
   ChromeBrowserProcessStub();
   ~ChromeBrowserProcessStub() override;
+
+  void Initialize();
+  void Shutdown();
 
   // BrowserProcess implementation.
   void ResourceDispatcherHostCreated() override;
@@ -100,7 +111,14 @@ class ChromeBrowserProcessStub : public BrowserProcess {
   memory::TabManager* GetTabManager() override;
 
  private:
+  bool initialized_;
+  bool shutdown_;
+
   std::string locale_;
+  std::unique_ptr<printing::PrintJobManager> print_job_manager_;
+  std::unique_ptr<ChromeProfileManagerStub> profile_manager_;
+  scoped_refptr<extensions::EventRouterForwarder> event_router_forwarder_;
+  std::unique_ptr<component_updater::ComponentUpdateService> component_updater_;
 
   DISALLOW_COPY_AND_ASSIGN(ChromeBrowserProcessStub);
 };

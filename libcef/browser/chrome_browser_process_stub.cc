@@ -4,16 +4,90 @@
 // found in the LICENSE file.
 
 #include "libcef/browser/chrome_browser_process_stub.h"
-#include "libcef/browser/context.h"
 
+#include "libcef/browser/chrome_profile_manager_stub.h"
+#include "libcef/browser/component_updater/cef_component_updater_configurator.h"
+#include "libcef/browser/content_browser_client.h"
+#include "libcef/browser/thread_util.h"
+#include "libcef/common/cef_switches.h"
+
+#include "base/command_line.h"
+#include "base/threading/thread_restrictions.h"
+#include "chrome/browser/component_updater/widevine_cdm_component_installer.h"
+#include "chrome/browser/printing/print_job_manager.h"
+#include "components/component_updater/component_updater_service.h"
+#include "components/update_client/configurator.h"
 #include "ui/message_center/message_center.h"
 
+namespace {
+
+void RegisterComponentsForUpdate(
+    component_updater::ComponentUpdateService* cus) {
+  base::ThreadRestrictions::ScopedAllowIO scoped_allow_io;
+
+  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+      switches::kEnableWidevineCdm)) {
+    RegisterWidevineCdmComponent(cus);
+  }
+}
+
+}  // namespace
+
 ChromeBrowserProcessStub::ChromeBrowserProcessStub()
-  : locale_("en-US") {
+  : initialized_(false),
+    shutdown_(false),
+    locale_("en-US") {
 }
 
 ChromeBrowserProcessStub::~ChromeBrowserProcessStub() {
+  DCHECK(!initialized_ || shutdown_);
   g_browser_process = NULL;
+}
+
+void ChromeBrowserProcessStub::Initialize() {
+  CEF_REQUIRE_UIT();
+  DCHECK(!initialized_);
+  DCHECK(!shutdown_);
+
+  // Must be created after the NotificationService.
+  print_job_manager_.reset(new printing::PrintJobManager());
+  profile_manager_.reset(new ChromeProfileManagerStub());
+  event_router_forwarder_ = new extensions::EventRouterForwarder();
+
+  // Creating the component updater does not do anything initially. Components
+  // need to be registered and Start() needs to be called.
+  scoped_refptr<CefBrowserContextImpl> browser_context =
+      CefContentBrowserClient::Get()->browser_context();
+  scoped_refptr<update_client::Configurator> configurator =
+      component_updater::MakeCefComponentUpdaterConfigurator(
+          base::CommandLine::ForCurrentProcess(),
+          browser_context->request_context().get(),
+          browser_context->GetPrefs());
+  component_updater_.reset(component_updater::ComponentUpdateServiceFactory(
+                                configurator).release());
+  RegisterComponentsForUpdate(component_updater_.get());
+
+  initialized_ = true;
+}
+
+void ChromeBrowserProcessStub::Shutdown() {
+  CEF_REQUIRE_UIT();
+  DCHECK(initialized_);
+  DCHECK(!shutdown_);
+
+  // Wait for the pending print jobs to finish. Don't do this later, since
+  // this might cause a nested message loop to run, and we don't want pending
+  // tasks to run once teardown has started.
+  print_job_manager_->Shutdown();
+  print_job_manager_.reset(NULL);
+
+  profile_manager_.reset();
+  event_router_forwarder_ = nullptr;
+
+  if (component_updater_.get())
+    component_updater_.reset(NULL);
+
+  shutdown_ = true;
 }
 
 void ChromeBrowserProcessStub::ResourceDispatcherHostCreated() {
@@ -51,8 +125,7 @@ WatchDogThread* ChromeBrowserProcessStub::watchdog_thread() {
 }
 
 ProfileManager* ChromeBrowserProcessStub::profile_manager() {
-  NOTIMPLEMENTED();
-  return NULL;
+  return profile_manager_.get();
 }
 
 PrefService* ChromeBrowserProcessStub::local_state() {
@@ -79,8 +152,7 @@ BrowserProcessPlatformPart* ChromeBrowserProcessStub::platform_part() {
 
 extensions::EventRouterForwarder*
     ChromeBrowserProcessStub::extension_event_router_forwarder() {
-  NOTIMPLEMENTED();
-  return NULL;
+  return event_router_forwarder_.get();
 }
 
 NotificationUIManager* ChromeBrowserProcessStub::notification_ui_manager() {
@@ -141,7 +213,7 @@ bool ChromeBrowserProcessStub::IsShuttingDown() {
 }
 
 printing::PrintJobManager* ChromeBrowserProcessStub::print_job_manager() {
-  return CefContext::Get()->print_job_manager();
+  return print_job_manager_.get();
 }
 
 printing::PrintPreviewDialogController*
@@ -226,7 +298,7 @@ net_log::ChromeNetLog* ChromeBrowserProcessStub::net_log() {
 
 component_updater::ComponentUpdateService*
     ChromeBrowserProcessStub::component_updater() {
-  return CefContext::Get()->component_updater();
+  return component_updater_.get();
 }
 
 CRLSetFetcher* ChromeBrowserProcessStub::crl_set_fetcher() {
