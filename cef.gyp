@@ -18,6 +18,7 @@
   },
   'includes': [
     # Bring in the source file lists.
+    'cef_paths.gypi',
     'cef_paths2.gypi',
   ],
   'targets': [
@@ -37,10 +38,12 @@
       ],
       'sources': [
         '<@(includes_common)',
+        '<@(autogen_cpp_includes)',
         '<@(includes_wrapper)',
       ],
       'mac_bundle_resources': [
         '<@(cefclient_bundle_resources_mac)',
+        '<@(cefclient_sources_resources)',
       ],
       'mac_bundle_resources!': [
         # TODO(mark): Come up with a fancier way to do this (mac_info_plist?)
@@ -97,6 +100,10 @@
           'sources': [
             '<@(includes_win)',
             '<@(cefclient_sources_win)',
+            '<@(cefclient_sources_browser)',
+            '<@(cefclient_sources_common)',
+            '<@(cefclient_sources_renderer)',
+            '<@(cefclient_sources_resources)',
           ],
         }],
         [ 'OS=="mac"', {
@@ -162,6 +169,8 @@
           'sources': [
             '<@(includes_mac)',
             '<@(cefclient_sources_mac)',
+            '<@(cefclient_sources_browser)',
+            '<@(cefclient_sources_common)',
           ],
         }],
         [ '(OS=="linux" or OS=="freebsd" or OS=="openbsd") and use_sysroot==0', {
@@ -181,12 +190,15 @@
           'sources': [
             '<@(includes_linux)',
             '<@(cefclient_sources_linux)',
+            '<@(cefclient_sources_browser)',
+            '<@(cefclient_sources_common)',
+            '<@(cefclient_sources_renderer)',
           ],
           'copies': [
             {
               'destination': '<(PRODUCT_DIR)/files',
               'files': [
-                '<@(cefclient_bundle_resources_linux)',
+                '<@(cefclient_sources_resources)',
               ],
             },
           ],
@@ -209,6 +221,7 @@
       ],
       'sources': [
         '<@(includes_common)',
+        '<@(autogen_cpp_includes)',
         '<@(includes_wrapper)',
         '<@(cefsimple_sources_common)',
       ],
@@ -620,10 +633,13 @@
       ],
       'sources': [
         '<@(includes_common)',
+        '<@(autogen_cpp_includes)',
         '<@(includes_capi)',
+        '<@(autogen_capi_includes)',
         '<@(includes_wrapper)',
         '<@(libcef_dll_wrapper_sources_base)',
         '<@(libcef_dll_wrapper_sources_common)',
+        '<@(autogen_client_side)',
       ],
       'conditions': [
         [ 'OS=="mac"', {
@@ -660,9 +676,12 @@
       ],
       'sources': [
         '<@(includes_common)',
+        '<@(autogen_cpp_includes)',
         '<@(includes_capi)',
+        '<@(autogen_capi_includes)',
         '<@(includes_wrapper)',
         '<@(libcef_dll_wrapper_sources_common)',
+        '<@(autogen_client_side)',
       ],
       'conditions': [
         [ 'OS=="mac"', {
@@ -1017,6 +1036,7 @@
       ],
       'sources': [
         '<@(includes_common)',
+        '<@(autogen_cpp_includes)',
         'libcef/browser/browser_context.cc',
         'libcef/browser/browser_context.h',
         'libcef/browser/browser_context_impl.cc',
@@ -1571,8 +1591,11 @@
           ],
           'sources': [
             '<@(includes_common)',
+            '<@(autogen_cpp_includes)',
             '<@(includes_capi)',
+            '<@(autogen_capi_includes)',
             '<@(libcef_sources_common)',
+            '<@(autogen_library_side)',
           ],
           'postbuilds': [
             {
@@ -1627,6 +1650,8 @@
           },
           'sources': [
             '<@(cefclient_sources_mac_helper)',
+            '<@(cefclient_sources_common)',
+            '<@(cefclient_sources_renderer)',
           ],
           # TODO(mark): Come up with a fancier way to do this.  It should only
           # be necessary to list helper-Info.plist once, not the three times it
@@ -1877,8 +1902,11 @@
         ],
         'sources': [
           '<@(includes_common)',
+          '<@(autogen_cpp_includes)',
           '<@(includes_capi)',
+          '<@(autogen_capi_includes)',
           '<@(libcef_sources_common)',
+          '<@(autogen_library_side)',
         ],
         'conditions': [
           ['OS=="win"', {
