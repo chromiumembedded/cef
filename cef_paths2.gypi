@@ -40,8 +40,6 @@
       'include/base/internal/cef_raw_scoped_refptr_mismatch_checker.h',
       'include/base/internal/cef_thread_checker_impl.h',
       'include/cef_base.h',
-      'include/cef_pack_resources.h',
-      'include/cef_pack_strings.h',
       'include/cef_version.h',
       'include/internal/cef_export.h',
       'include/internal/cef_logging_internal.h',

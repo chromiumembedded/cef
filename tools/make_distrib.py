@@ -388,6 +388,26 @@ cef_paths = cef_paths['variables']
 cef_paths2 = eval_file(os.path.join(cef_dir, 'cef_paths2.gypi'))
 cef_paths2 = cef_paths2['variables']
 
+# Determine the build directory suffix.
+build_dir_suffix = ''
+if use_gn:
+  # CEF uses a consistent directory naming scheme for GN via
+  # GetAllPlatformConfigs in gn_args.py.
+  if options.x64build:
+    build_dir_suffix = '_GN_x64'
+  else:
+    build_dir_suffix = '_GN_x86'
+else:
+  # GYP outputs both x86 and x64 builds to the same directory on Linux and
+  # Mac OS X. On Windows it suffixes the directory name for x64 builds.
+  if platform == 'windows' and options.x64build:
+    build_dir_suffix = '_x64'
+
+# Determine the build directory paths.
+out_dir = os.path.join(src_dir, 'out')
+build_dir_debug = os.path.join(out_dir, 'Debug' + build_dir_suffix)
+build_dir_release = os.path.join(out_dir, 'Release' + build_dir_suffix)
+
 if mode == 'standard' or mode == 'minimal':
   # create the include directory
   include_dir = os.path.join(output_dir, 'include')
@@ -412,6 +432,20 @@ if mode == 'standard' or mode == 'minimal':
                       'include/', include_dir, options.quiet)
   transfer_gypi_files(cef_dir, cef_paths['autogen_capi_includes'], \
                       'include/', include_dir, options.quiet)
+
+  # Transfer generated include files.
+  generated_includes = [
+    'cef_pack_resources.h',
+    'cef_pack_strings.h',
+  ]
+  for include in generated_includes:
+    # Debug and Release build should be the same so grab whichever exists.
+    src_path = os.path.join(build_dir_release, 'includes', 'include', include)
+    if not os.path.exists(src_path):
+      src_path = os.path.join(build_dir_debug, 'includes', 'include', include)
+      if not os.path.exists(src_path):
+        raise Exception('Missing generated header file: %s' % include)
+    copy_file(src_path, os.path.join(include_dir, include), options.quiet)
 
   # transfer common libcef_dll_wrapper files
   transfer_gypi_files(cef_dir, cef_paths2['libcef_dll_wrapper_sources_base'], \
@@ -484,28 +518,6 @@ if mode == 'standard':
   copy_file(os.path.join(cef_dir, 'cef_paths.gypi'), \
             os.path.join(output_dir, 'cef_paths.gypi'), options.quiet)
 
-
-# Determine the build directory suffix.
-build_dir_suffix = ''
-if use_gn:
-  # CEF uses a consistent directory naming scheme for GN via
-  # GetAllPlatformConfigs in gn_args.py.
-  if options.x64build:
-    build_dir_suffix = '_GN_x64'
-  else:
-    build_dir_suffix = '_GN_x86'
-else:
-  # GYP outputs both x86 and x64 builds to the same directory on Linux and
-  # Mac OS X. On Windows it suffixes the directory name for x64 builds.
-  if platform == 'windows' and options.x64build:
-    build_dir_suffix = '_x64'
-
-# Determine the build directory paths.
-out_dir = os.path.join(src_dir, 'out')
-build_dir_debug = os.path.join(out_dir, 'Debug' + build_dir_suffix)
-build_dir_release = os.path.join(out_dir, 'Release' + build_dir_suffix)
-
-
 if platform == 'windows':
   binaries = [
     'd3dcompiler_47.dll',
@@ -525,8 +537,11 @@ if platform == 'windows':
     'obj\\base\\base_static.lib',
     'obj\\cef\\cef_sandbox.lib',
     'obj\\base\\third_party\\dynamic_annotations\\dynamic_annotations.lib',
-    'obj\\sandbox\\sandbox.lib',
   ]
+  if use_gn:
+    sandbox_libs.append('obj\\sandbox\\win\\sandbox.lib')
+  else:
+    sandbox_libs.append('obj\\sandbox\\sandbox.lib')
 
   valid_build_dir = None
 
