@@ -517,7 +517,14 @@ branch_is_2357_or_newer = (cef_branch == 'trunk' or int(cef_branch) >= 2357)
 # True if the requested branch is 2743 or older.
 branch_is_2743_or_older = (cef_branch != 'trunk' and int(cef_branch) <= 2743)
 
-# Whether to use GN or GYP. GYP is currently the default.
+# True if the requested branch is newer than 2785.
+branch_is_newer_than_2785 = (cef_branch == 'trunk' or int(cef_branch) > 2785)
+
+# Enable GN by default for branches newer than 2785.
+if branch_is_newer_than_2785 and not 'CEF_USE_GN' in os.environ.keys():
+  os.environ['CEF_USE_GN'] = '1'
+
+# Whether to use GN or GYP. GYP is currently the default for older branches.
 use_gn = bool(int(os.environ.get('CEF_USE_GN', '0')))
 if use_gn:
   if branch_is_2743_or_older:

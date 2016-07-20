@@ -40,8 +40,8 @@ RunAction(cef_dir, patcher)
 
 print "\nGenerating CEF project files..."
 
-# Whether to use GN or GYP. GYP is currently the default.
-use_gn = bool(int(os.environ.get('CEF_USE_GN', '0')))
+# Whether to use GN or GYP. GN is currently the default.
+use_gn = bool(int(os.environ.get('CEF_USE_GN', '1')))
 gn_args = {}
 
 custom_toolchain = False
