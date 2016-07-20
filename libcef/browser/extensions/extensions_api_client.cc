@@ -13,8 +13,10 @@
 #include "libcef/browser/printing/print_view_manager.h"
 
 #include "base/memory/ptr_util.h"
+#include "chrome/browser/sessions/session_tab_helper.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "components/pdf/browser/pdf_web_contents_helper.h"
+#include "components/zoom/zoom_controller.h"
 #include "extensions/browser/guest_view/extensions_guest_view_manager_delegate.h"
 
 namespace extensions {
@@ -55,11 +57,18 @@ void CefExtensionsAPIClient::AttachWebContentsHelpers(
     content::WebContents* web_contents) const {
   PrefsTabHelper::CreateForWebContents(web_contents);
   printing::CefPrintViewManager::CreateForWebContents(web_contents);
+
+  CefExtensionWebContentsObserver::CreateForWebContents(web_contents);
+
+  // Used by the PDF extension.
   pdf::PDFWebContentsHelper::CreateForWebContentsWithClient(
       web_contents,
       std::unique_ptr<pdf::PDFWebContentsHelperClient>(
           new CefPDFWebContentsHelperClient()));
-  CefExtensionWebContentsObserver::CreateForWebContents(web_contents);
+
+  // Used by the tabs extension API.
+  SessionTabHelper::CreateForWebContents(web_contents);
+  zoom::ZoomController::CreateForWebContents(web_contents);
 }
 
 }  // namespace extensions

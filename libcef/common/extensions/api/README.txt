@@ -1,15 +1,17 @@
-This directory provides Mojo API definitions for CEF.
-
-To add a new Mojo API:
+This directory provides API definitions for CEF. Some extensions are implemented
+using Mojo and others use an older JSON-based format.
 
   <api> is the name of the API definition (e.g. 'streams_private').
   <class> is the name of the class implementation (e.g. 'StreamsPrivateAPI').
 
-1. Add libcef/common/extensions/api/<api>.idl file which defines the API.
-2. Add <api>.idl to the 'schema_files' list in 
+To add a new extension API implemented only in CEF ***:
+
+1. Add libcef/common/extensions/api/<api>.idl or .json file which defines the
+   API.
+2. Add <api>.idl or .json to the 'schema_files' list in
    libcef/common/extensions/api/schemas.gypi. Serialization code will be
    generated based on this list in step 5.
-3. Add an entry to libcef/common/extensions/api/_api_features.json if
+3. Add an entry in the libcef/common/extensions/api/_*_features.json files if
    necessary [1].
 4. Add libcef/browser/extensions/api/<api>/<api>_api.[h|cc] class implementation
    files and associated entries to the 'libcef_static' target in cef.gyp.
@@ -23,11 +25,26 @@ To add a new Mojo API:
    CefExtensionSystemFactory::CefExtensionSystemFactory in
    libcef/browser/extensions/extension_system_factory.cc if necessary [2].
 
+*** Note that CEF does not currently expose its own Mojo APIs. Related code is
+commented out in:
+  BUILD.gn
+  cef.gyp
+  CefExtensionsBrowserClient::RegisterExtensionFunctions
+  CefExtensionsClient::IsAPISchemaGenerated
+  CefExtensionsClient::GetAPISchema
+
+To add a new extension API implemented in Chrome:
+
+1. Register the API in libcef/browser/extensions/chrome_api_registration.cc
+2. Perform steps 3, 6 and 7 above.
+
 See https://www.chromium.org/developers/design-documents/mojo for more
 information.
 
 [1] A feature can optionally express requirements for where it can be accessed.
-    See the _api_features.json file for additional details.
+    See the _api_features.json and _permission_features.json files for
+    additional details. For Chrome extensions this should match the definitions
+    in the chrome/common/extensions/api/_*_features.json files.
 
 [2] Some Mojo APIs use singleton Factory objects that create a one-to-one
     relationship between a service and a BrowserContext. This is used primarily

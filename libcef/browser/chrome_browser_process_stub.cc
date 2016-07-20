@@ -83,9 +83,7 @@ void ChromeBrowserProcessStub::Shutdown() {
 
   profile_manager_.reset();
   event_router_forwarder_ = nullptr;
-
-  if (component_updater_.get())
-    component_updater_.reset(NULL);
+  component_updater_.reset();
 
   shutdown_ = true;
 }

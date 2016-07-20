@@ -13,8 +13,9 @@
       <include name="IDR_CEF_LICENSE_TXT" file="..\..\LICENSE.txt" type="BINDATA" />
       <include name="IDR_CEF_VERSION_HTML" file="about_version.html" type="BINDATA" />
 
-      <!-- Features specific to CEF. -->
+      <!-- Extension features supported by CEF. -->
       <include name="IDR_CEF_EXTENSION_API_FEATURES" file="..\common\extensions\api\_api_features.json" type="BINDATA" />
+      <include name="IDR_CEF_EXTENSION_PERMISSION_FEATURES" file="..\common\extensions\api\_permission_features.json" type="BINDATA" />
     </includes>
   </release>
 </grit>

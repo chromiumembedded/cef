@@ -10,7 +10,6 @@
 #include <utility>
 
 #include "libcef/browser/browser_host_impl.h"
-#include "libcef/browser/extensions/api/streams_private/streams_private_api.h"
 #include "libcef/browser/origin_whitelist_impl.h"
 #include "libcef/browser/resource_context.h"
 #include "libcef/browser/thread_util.h"
@@ -19,6 +18,7 @@
 #include "base/guid.h"
 #include "base/memory/scoped_vector.h"
 #include "build/build_config.h"
+#include "chrome/browser/extensions/api/streams_private/streams_private_api.h"
 #include "content/public/browser/plugin_service.h"
 #include "content/public/browser/plugin_service_filter.h"
 #include "content/public/browser/resource_request_info.h"
@@ -55,19 +55,14 @@ void SendExecuteMimeTypeHandlerEvent(
 
   content::BrowserContext* browser_context = web_contents->GetBrowserContext();
 
-  extensions::CefStreamsPrivateAPI* streams_private =
-      extensions::CefStreamsPrivateAPI::Get(browser_context);
+  extensions::StreamsPrivateAPI* streams_private =
+      extensions::StreamsPrivateAPI::Get(browser_context);
   if (!streams_private)
     return;
 
-  // A |tab_id| value of -1 disables zoom management in the PDF extension.
-  // Otherwise we need to implement chrome.tabs zoom handling. See
-  // chrome/browser/resources/pdf/browser_api.js.
-  int tab_id = -1;
-
   streams_private->ExecuteMimeTypeHandler(
-      extension_id, tab_id, std::move(stream), view_id, expected_content_size,
-      embedded, render_process_id, render_frame_id);
+      extension_id, web_contents, std::move(stream), view_id,
+      expected_content_size, embedded, render_process_id, render_frame_id);
 }
 
 }  // namespace

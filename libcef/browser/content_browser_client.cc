@@ -64,6 +64,7 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/storage_quota_params.h"
 #include "content/public/common/web_preferences.h"
+#include "extensions/browser/extensions_browser_client.h"
 #include "extensions/browser/extension_message_filter.h"
 #include "extensions/browser/extension_registry.h"
 #include "extensions/browser/guest_view/extensions_guest_view_message_filter.h"
@@ -516,6 +517,62 @@ bool CefContentBrowserClient::IsHandledURL(const GURL& url) {
   return CefContentClient::Get()->HasCustomScheme(scheme);
 }
 
+void CefContentBrowserClient::SiteInstanceGotProcess(
+    content::SiteInstance* site_instance) {
+  if (!extensions::ExtensionsEnabled())
+    return;
+
+  // If this isn't an extension renderer there's nothing to do.
+  const extensions::Extension* extension = GetExtension(site_instance);
+  if (!extension)
+    return;
+
+  CefBrowserContext* browser_context =
+      static_cast<CefBrowserContext*>(site_instance->GetBrowserContext());
+
+  extensions::ProcessMap::Get(browser_context)
+      ->Insert(extension->id(),
+               site_instance->GetProcess()->GetID(),
+               site_instance->GetId());
+
+  CEF_POST_TASK(CEF_IOT,
+      base::Bind(&extensions::InfoMap::RegisterExtensionProcess,
+                 browser_context->extension_system()->info_map(),
+                 extension->id(),
+                 site_instance->GetProcess()->GetID(),
+                 site_instance->GetId()));
+}
+
+void CefContentBrowserClient::SiteInstanceDeleting(
+    content::SiteInstance* site_instance) {
+  if (!extensions::ExtensionsEnabled())
+    return;
+
+  // May be NULL during shutdown.
+  if (!extensions::ExtensionsBrowserClient::Get())
+    return;
+
+  // If this isn't an extension renderer there's nothing to do.
+  const extensions::Extension* extension = GetExtension(site_instance);
+  if (!extension)
+    return;
+
+  CefBrowserContext* browser_context =
+      static_cast<CefBrowserContext*>(site_instance->GetBrowserContext());
+
+  extensions::ProcessMap::Get(browser_context)
+      ->Remove(extension->id(),
+               site_instance->GetProcess()->GetID(),
+               site_instance->GetId());
+
+  CEF_POST_TASK(CEF_IOT,
+      base::Bind(&extensions::InfoMap::UnregisterExtensionProcess,
+                 browser_context->extension_system()->info_map(),
+                 extension->id(),
+                 site_instance->GetProcess()->GetID(),
+                 site_instance->GetId()));
+}
+
 void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     base::CommandLine* command_line, int child_process_id) {
   const base::CommandLine* browser_cmd =
@@ -863,4 +920,12 @@ CefContentBrowserClient::browser_context() const {
 
 CefDevToolsDelegate* CefContentBrowserClient::devtools_delegate() const {
   return browser_main_parts_->devtools_delegate();
+}
+
+const extensions::Extension* CefContentBrowserClient::GetExtension(
+    content::SiteInstance* site_instance) {
+  extensions::ExtensionRegistry* registry =
+      extensions::ExtensionRegistry::Get(site_instance->GetBrowserContext());
+  return registry->enabled_extensions().GetExtensionOrAppByURL(
+      site_instance->GetSiteURL());
 }

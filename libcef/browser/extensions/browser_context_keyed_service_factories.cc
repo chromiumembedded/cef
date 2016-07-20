@@ -4,8 +4,7 @@
 
 #include "libcef/browser/extensions/browser_context_keyed_service_factories.h"
 
-#include "libcef/browser/extensions/api/streams_private/streams_private_api.h"
-
+#include "chrome/browser/extensions/api/streams_private/streams_private_api.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "extensions/browser/renderer_startup_helper.h"
 
@@ -15,7 +14,7 @@ namespace cef {
 void EnsureBrowserContextKeyedServiceFactoriesBuilt() {
   PrefsTabHelper::GetServiceInstance();
   RendererStartupHelperFactory::GetInstance();
-  CefStreamsPrivateAPI::GetFactoryInstance();
+  StreamsPrivateAPI::GetFactoryInstance();
 }
 
 }  // namespace cef

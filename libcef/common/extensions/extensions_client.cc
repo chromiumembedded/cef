@@ -8,11 +8,13 @@
 #include <utility>
 
 #include "libcef/common/cef_switches.h"
+#include "libcef/common/extensions/chrome_generated_schemas.h"
 
-#include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "cef/grit/cef_resources.h"
-#include "cef/libcef/common/extensions/api/generated_schemas.h"
+//#include "cef/libcef/common/extensions/api/generated_schemas.h"
+#include "chrome/common/extensions/chrome_manifest_handlers.h"
+#include "chrome/grit/common_resources.h"
 #include "extensions/common/api/generated_schemas.h"
 #include "extensions/common/common_manifest_handlers.h"
 #include "extensions/common/extension_urls.h"
@@ -39,44 +41,9 @@ SimpleFeature* CreateFeature() {
   return new FeatureClass;
 }
 
-// TODO(jamescook): Refactor ChromePermissionsMessageProvider so we can share
-// code. For now, this implementation does nothing.
-class CefPermissionMessageProvider : public PermissionMessageProvider {
- public:
-  CefPermissionMessageProvider() {}
-  ~CefPermissionMessageProvider() override {}
-
-  // PermissionMessageProvider implementation.
-  PermissionMessages GetPermissionMessages(
-      const PermissionIDSet& permissions) const override {
-    return PermissionMessages();
-  }
-
-  bool IsPrivilegeIncrease(const PermissionSet& old_permissions,
-                           const PermissionSet& new_permissions,
-                           Manifest::Type extension_type) const override {
-    // Ensure we implement this before shipping.
-    CHECK(false);
-    return false;
-  }
-
-  PermissionIDSet GetAllPermissionIDs(
-      const PermissionSet& permissions,
-      Manifest::Type extension_type) const override {
-    return PermissionIDSet();
-  }
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CefPermissionMessageProvider);
-};
-
-base::LazyInstance<CefPermissionMessageProvider>
-    g_permission_message_provider = LAZY_INSTANCE_INITIALIZER;
-
 }  // namespace
 
-CefExtensionsClient::CefExtensionsClient()
-    : extensions_api_permissions_(ExtensionsAPIPermissions()) {
+CefExtensionsClient::CefExtensionsClient() {
 }
 
 CefExtensionsClient::~CefExtensionsClient() {
@@ -84,16 +51,18 @@ CefExtensionsClient::~CefExtensionsClient() {
 
 void CefExtensionsClient::Initialize() {
   RegisterCommonManifestHandlers();
+  RegisterChromeManifestHandlers();
   ManifestHandler::FinalizeRegistration();
   // TODO(jamescook): Do we need to whitelist any extensions?
 
+  // Set up permissions.
+  PermissionsInfo::GetInstance()->AddProvider(chrome_api_permissions_);
   PermissionsInfo::GetInstance()->AddProvider(extensions_api_permissions_);
 }
 
 const PermissionMessageProvider&
 CefExtensionsClient::GetPermissionMessageProvider() const {
-  NOTIMPLEMENTED();
-  return g_permission_message_provider.Get();
+  return permission_message_provider_;
 }
 
 const std::string CefExtensionsClient::GetProductName() {
@@ -132,12 +101,19 @@ CefExtensionsClient::CreateFeatureProviderSource(
     source->LoadJSON(IDR_EXTENSION_API_FEATURES);
 
     // Extension API features specific to CEF. See
-    // libcef/common/extensions/api/README.txt for additional details. 
+    // libcef/common/extensions/api/README.txt for additional details.
     source->LoadJSON(IDR_CEF_EXTENSION_API_FEATURES);
   } else if (name == "manifest") {
     source->LoadJSON(IDR_EXTENSION_MANIFEST_FEATURES);
+
+    // Use the same manifest features as Chrome.
+    source->LoadJSON(IDR_CHROME_EXTENSION_MANIFEST_FEATURES);
   } else if (name == "permission") {
     source->LoadJSON(IDR_EXTENSION_PERMISSION_FEATURES);
+
+    // Extension permission features specific to CEF. See
+    // libcef/common/extensions/api/README.txt for additional details.
+    source->LoadJSON(IDR_CEF_EXTENSION_PERMISSION_FEATURES);
   } else if (name == "behavior") {
     source->LoadJSON(IDR_EXTENSION_BEHAVIOR_FEATURES);
   } else {
@@ -178,15 +154,34 @@ bool CefExtensionsClient::IsScriptableURL(const GURL& url,
 
 bool CefExtensionsClient::IsAPISchemaGenerated(
     const std::string& name) const {
-  return api::GeneratedSchemas::IsGenerated(name) ||
-         api::cef::CefGeneratedSchemas::IsGenerated(name);
+  // Schema for CEF-only APIs.
+  // TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See
+  // libcef/common/extensions/api/README.txt for details.
+  //if (api::cef::CefGeneratedSchemas::IsGenerated(name))
+  //  return true;
+
+  // Chrome APIs whitelisted by CEF.
+  if (api::cef::ChromeGeneratedSchemas::IsGenerated(name))
+    return true;
+
+  // Core extensions APIs.
+  if (api::GeneratedSchemas::IsGenerated(name))
+    return true;
+
+  return false;
 }
 
 base::StringPiece CefExtensionsClient::GetAPISchema(
     const std::string& name) const {
   // Schema for CEF-only APIs.
-  if (api::cef::CefGeneratedSchemas::IsGenerated(name))
-    return api::cef::CefGeneratedSchemas::Get(name);
+  // TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See
+  // libcef/common/extensions/api/README.txt for details.
+  //if (api::cef::CefGeneratedSchemas::IsGenerated(name))
+  //  return api::cef::CefGeneratedSchemas::Get(name);
+
+  // Chrome APIs whitelisted by CEF.
+  if (api::cef::ChromeGeneratedSchemas::IsGenerated(name))
+    return api::cef::ChromeGeneratedSchemas::Get(name);
 
   // Core extensions APIs.
   return api::GeneratedSchemas::Get(name);

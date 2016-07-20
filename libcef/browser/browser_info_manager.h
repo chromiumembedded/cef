@@ -128,6 +128,10 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
                                                        int render_routing_id,
                                                        bool* is_guest_view);
 
+  // Retrieves all existing CefBrowserInfo objects.
+  typedef std::list<scoped_refptr<CefBrowserInfo> > BrowserInfoList;
+  void GetBrowserInfoList(BrowserInfoList& list);
+
  private:
   // RenderProcessHostObserver methods:
   void RenderProcessHostDestroyed(content::RenderProcessHost* host) override;
@@ -220,7 +224,6 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
 
   // Access to the below members must be protected by |browser_info_lock_|.
 
-  typedef std::list<scoped_refptr<CefBrowserInfo> > BrowserInfoList;
   BrowserInfoList browser_info_list_;
   int next_browser_id_;
 

@@ -1,0 +1,37 @@
+// Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+// This file defines permissions for extension APIs implemented by CEF.
+// See extensions/common/features/* to understand this file, in particular
+// feature.h, simple_feature.h, and base_feature_provider.h.
+
+// If APIs are defined in chrome then entries must also be added in
+// libcef/browser/extensions/chrome_api_registration.cc.
+
+{
+  // From chrome/common/extensions/api/_permission_features.json.
+  // Required by the PDF extension which is hosted in a guest view.
+  "resourcesPrivate": {
+    "channel": "stable",
+    "extension_types": [
+      "extension", "legacy_packaged_app", "platform_app"
+    ],
+    "location": "component"
+  },
+  "tabs": [
+    {
+      "channel": "stable",
+      "extension_types": ["extension", "legacy_packaged_app"]
+    },
+    {
+      "channel": "stable",
+      "extension_types": ["platform_app"],
+      "whitelist": [
+        "AE27D69DBE571F4B1694F05C89B710C646792231", // Published ADT.
+        // TODO(grv): clean up once Apps developer tool is published.
+        "5107DE9024C329EEA9C9A72D94C16723790C6422"  // Apps Developer Tool.
+      ]
+    }
+  ]
+}

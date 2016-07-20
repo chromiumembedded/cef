@@ -8,13 +8,14 @@
 #include <utility>
 
 #include "libcef/browser/browser_context_impl.h"
+#include "libcef/browser/extensions/chrome_api_registration.h"
 #include "libcef/browser/extensions/component_extension_resource_manager.h"
 #include "libcef/browser/extensions/extension_system_factory.h"
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
 #include "libcef/browser/extensions/extensions_api_client.h"
 #include "libcef/browser/extensions/url_request_util.h"
 
-#include "cef/libcef/browser/extensions/api/generated_api_registration.h"
+//#include "cef/libcef/browser/extensions/api/generated_api_registration.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/event_router_forwarder.h"
 #include "content/public/browser/browser_context.h"
@@ -182,7 +183,12 @@ void CefExtensionsBrowserClient::RegisterExtensionFunctions(
   api::GeneratedFunctionRegistry::RegisterAll(registry);
 
   // CEF-only APIs.
-  api::cef::CefGeneratedFunctionRegistry::RegisterAll(registry);
+  // TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See
+  // libcef/common/extensions/api/README.txt for details.
+  //api::cef::CefGeneratedFunctionRegistry::RegisterAll(registry);
+
+  // Chrome APIs whitelisted by CEF.
+  api::cef::ChromeFunctionRegistry::RegisterAll(registry);
 }
 
 void CefExtensionsBrowserClient::RegisterMojoServices(

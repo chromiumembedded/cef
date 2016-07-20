@@ -435,6 +435,11 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::GetBrowserInfoForFrame(
                         is_guest_view);
 }
 
+void CefBrowserInfoManager::GetBrowserInfoList(BrowserInfoList& list) {
+  base::AutoLock lock_scope(browser_info_lock_);
+  list = browser_info_list_;
+}
+
 void CefBrowserInfoManager::RenderProcessHostDestroyed(
     content::RenderProcessHost* host) {
   base::AutoLock lock_scope(browser_info_lock_);

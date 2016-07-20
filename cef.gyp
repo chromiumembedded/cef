@@ -1007,9 +1007,11 @@
         '<(DEPTH)/v8/src/v8.gyp:v8',
         # Necessary to generate the grit include files.
         'cef_pak',
-        # Necessary to generate API bindings for extensions.
-        'libcef/browser/extensions/api/api_registration.gyp:cef_api_registration',
-        'libcef/common/extensions/api/api.gyp:cef_api',
+        # Generate API bindings for extensions.
+        # TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See
+        # libcef/common/extensions/api/README.txt for details.
+        #'libcef/browser/extensions/api/api_registration.gyp:cef_api_registration',
+        #'libcef/common/extensions/api/api.gyp:cef_api',
       ],
       'sources': [
         '<@(includes_common)',
@@ -1062,12 +1064,14 @@
         'libcef/browser/download_item_impl.h',
         'libcef/browser/download_manager_delegate.cc',
         'libcef/browser/download_manager_delegate.h',
-        'libcef/browser/extensions/api/streams_private/streams_private_api.cc',
-        'libcef/browser/extensions/api/streams_private/streams_private_api.h',
+        'libcef/browser/extensions/api/tabs/tabs_api.cc',
+        'libcef/browser/extensions/api/tabs/tabs_api.h',
         'libcef/browser/extensions/browser_context_keyed_service_factories.cc',
         'libcef/browser/extensions/browser_context_keyed_service_factories.h',
         'libcef/browser/extensions/browser_extensions_util.cc',
         'libcef/browser/extensions/browser_extensions_util.h',
+        'libcef/browser/extensions/chrome_api_registration.cc',
+        'libcef/browser/extensions/chrome_api_registration.h',
         'libcef/browser/extensions/component_extension_resource_manager.cc',
         'libcef/browser/extensions/component_extension_resource_manager.h',
         'libcef/browser/extensions/extensions_api_client.cc',
@@ -1228,6 +1232,8 @@
         'libcef/common/crash_reporter_client.h',
         'libcef/common/drag_data_impl.cc',
         'libcef/common/drag_data_impl.h',
+        'libcef/common/extensions/chrome_generated_schemas.cc',
+        'libcef/common/extensions/chrome_generated_schemas.h',
         'libcef/common/extensions/extensions_client.cc',
         'libcef/common/extensions/extensions_client.h',
         'libcef/common/extensions/extensions_util.cc',

@@ -39,9 +39,11 @@
 #include "base/bind.h"
 #include "base/bind_helpers.h"
 #include "base/command_line.h"
+#include "chrome/browser/sessions/session_tab_helper.h"
 #include "chrome/browser/spellchecker/spellcheck_factory.h"
 #include "chrome/browser/spellchecker/spellcheck_service.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
+#include "components/zoom/zoom_controller.h"
 #include "content/browser/renderer_host/render_view_host_impl.h"
 #include "content/browser/gpu/compositor_util.h"
 #include "content/common/view_messages.h"
@@ -2799,6 +2801,12 @@ CefBrowserHostImpl::CefBrowserHostImpl(
 
   PrefsTabHelper::CreateForWebContents(web_contents_.get());
   printing::CefPrintViewManager::CreateForWebContents(web_contents_.get());
+
+  if (extensions::ExtensionsEnabled()) {
+    // Used by the tabs extension API.
+    SessionTabHelper::CreateForWebContents(web_contents_.get());
+    zoom::ZoomController::CreateForWebContents(web_contents_.get());
+  }
 
   // Make sure RenderViewCreated is called at least one time.
   RenderViewCreated(web_contents->GetRenderViewHost());

@@ -44,6 +44,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   bool ShouldUseProcessPerSite(content::BrowserContext* browser_context,
                                const GURL& effective_url) override;
   bool IsHandledURL(const GURL& url) override;
+  void SiteInstanceGotProcess(content::SiteInstance* site_instance) override;
+  void SiteInstanceDeleting(content::SiteInstance* site_instance) override;
   void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
                                               int child_process_id) override;
   content::QuotaPermissionContext*
@@ -113,6 +115,10 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   CefDevToolsDelegate* devtools_delegate() const;
 
  private:
+  // Returns the extension or app associated with |site_instance| or NULL.
+  const extensions::Extension* GetExtension(
+      content::SiteInstance* site_instance);
+
   CefBrowserMainParts* browser_main_parts_;
 
   std::unique_ptr<content::PluginServiceFilter> plugin_service_filter_;

@@ -8,11 +8,11 @@
   ],
   'variables': {
     'schema_files': [
-      'streams_private.idl',
+      # TODO(cef): Add CEF-specific Mojo APIs here.
     ],
     'non_compiled_schema_files': [
     ],
-    
+
     'chromium_code': 1,
     'cc_dir': 'cef/libcef/common/extensions/api',
     'root_namespace': 'extensions::api::cef::%(namespace)s',
