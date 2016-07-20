@@ -560,7 +560,7 @@ if platform == 'windows':
     make_dir(dst_dir, options.quiet)
     copy_files(os.path.join(script_dir, 'distrib/win/*.dll'), dst_dir, options.quiet)
     for binary in binaries:
-      copy_file(os.path.join(build_dir, binary), os.path.join(dst_dir, binary), options.quiet)
+      copy_file(os.path.join(build_dir, binary), os.path.join(dst_dir, os.path.basename(binary)), options.quiet)
 
     if mode != 'client':
       copy_file(os.path.join(build_dir, libcef_dll_file), os.path.join(dst_dir, 'libcef.lib'), \
