@@ -469,6 +469,8 @@
         '.',
         # Necessary to allow unittest files to access cefclient files.
         'tests',
+        # For generated include headers.
+        '<(PRODUCT_DIR)/includes',
       ],
       'conditions': [
         [ 'OS=="win"', {
@@ -870,7 +872,7 @@
             '<@(header_inputs)',
           ],
           'outputs': [
-            'include/cef_pack_resources.h',
+            '<(PRODUCT_DIR)/includes/include/cef_pack_resources.h',
           ],
           'action': ['python', '<(make_pack_header_path)', '<@(_outputs)',
                      '<@(header_inputs)'],
@@ -894,7 +896,7 @@
             '<@(header_inputs)',
           ],
           'outputs': [
-            'include/cef_pack_strings.h',
+            '<(PRODUCT_DIR)/includes/include/cef_pack_strings.h',
           ],
           'action': ['python', '<(make_pack_header_path)', '<@(_outputs)',
                      '<@(header_inputs)'],
@@ -1616,7 +1618,7 @@
             '.',
             # cefclient includes are relative to the tests directory to make
             # creation of binary releases easier.
-            'tests'
+            'tests',
           ],
           'link_settings': {
             'libraries': [
@@ -1765,6 +1767,8 @@
             '.',
             # Necessary to allow unittest files to access cefclient files.
             'tests',
+            # For generated include headers.
+            '<(PRODUCT_DIR)/includes',
           ],
           'sources': [
             'tests/cefclient/browser/resource_util.cc',
