@@ -287,8 +287,6 @@ void CefBrowserPlatformDelegateNativeLinux::TranslateKeyEvent(
   result.text[0] = key_event.character;
   result.unmodifiedText[0] = key_event.unmodified_character;
 
-  result.setKeyIdentifierFromWindowsKeyCode();
-
   result.modifiers |= TranslateModifiers(key_event.modifiers);
 }
 

@@ -23,6 +23,8 @@ class CefTextfieldView :
   // |cef_delegate| may be nullptr.
   explicit CefTextfieldView(CefTextfieldDelegate* cef_delegate);
 
+  void Initialize() override;
+
   // Returns the CefTextfield associated with this view. See comments on
   // CefViewView::GetCefView.
   CefRefPtr<CefTextfield> GetCefTextfield() const {

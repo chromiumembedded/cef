@@ -124,7 +124,7 @@ class CefGeolocationDelegate : public content::GeolocationDelegate {
   explicit CefGeolocationDelegate(net::URLRequestContextGetter* system_context)
       : system_context_(system_context) {}
 
-  content::AccessTokenStore* CreateAccessTokenStore() override {
+  scoped_refptr<content::AccessTokenStore> CreateAccessTokenStore() override {
     return new CefAccessTokenStore(system_context_);
   }
 

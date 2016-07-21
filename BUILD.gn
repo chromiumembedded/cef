@@ -103,13 +103,15 @@ import("//build/config/features.gni")
 import("//build/config/locales.gni")
 import("//build/config/sanitizers/sanitizers.gni")
 import("//build/config/ui.gni")
-import("//build/config/win/console_app.gni")
-import("//build/config/win/manifest.gni")
 import("//cef/cef_repack_locales.gni")
 import("//media/media_options.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
+import("//third_party/widevine/cdm/widevine.gni")
 import("//tools/grit/repack.gni")
 import("//tools/grit/grit_rule.gni")
+if (is_clang) {
+  import("//build/config/clang/clang.gni")
+}
 if (is_linux) {
   import("//build/config/linux/pkg_config.gni")
 }
@@ -118,6 +120,10 @@ if (is_mac) {
   import("//build_overrides/v8.gni")
   import("//build/mac/tweak_info_plist.gni")
   import("//media/cdm/ppapi/cdm_paths.gni")
+}
+if (is_win) {
+  import("//build/config/win/console_app.gni")
+  import("//build/config/win/manifest.gni")
 }
 
 
@@ -1114,6 +1120,7 @@ make_pack_header("resources") {
   inputs = [
     "$root_gen_dir/blink/grit/devtools_resources.h",
     "$root_gen_dir/blink/public/resources/grit/blink_resources.h",
+    "$root_gen_dir/cef/grit/cef_resources.h",
     "$root_gen_dir/chrome/grit/browser_resources.h",
     "$root_gen_dir/chrome/grit/common_resources.h",
     "$root_gen_dir/chrome/grit/component_extension_resources.h",
@@ -1125,7 +1132,6 @@ make_pack_header("resources") {
     "$root_gen_dir/ui/resources/grit/ui_resources.h",
     "$root_gen_dir/ui/resources/grit/webui_resources.h",
     "$root_gen_dir/ui/views/resources/grit/views_resources.h",
-    "$root_gen_dir/cef/grit/cef_resources.h",
   ]
 }
 
@@ -1133,6 +1139,7 @@ make_pack_header("resources") {
 make_pack_header("strings") {
   header = "$root_out_dir/includes/include/cef_pack_strings.h"
   inputs = [
+    "$root_gen_dir/cef/grit/cef_strings.h",
     "$root_gen_dir/chrome/grit/generated_resources.h",
     "$root_gen_dir/chrome/grit/locale_settings.h",
     "$root_gen_dir/chrome/grit/platform_locale_settings.h",
@@ -1140,7 +1147,6 @@ make_pack_header("strings") {
     "$root_gen_dir/content/app/strings/grit/content_strings.h",
     "$root_gen_dir/extensions/strings/grit/extensions_strings.h",
     "$root_gen_dir/ui/strings/grit/ui_strings.h",
-    "$root_gen_dir/cef/grit/cef_strings.h",
   ]
 }
 

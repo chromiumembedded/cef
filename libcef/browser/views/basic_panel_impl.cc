@@ -28,3 +28,7 @@ CefBasicPanelImpl::CefBasicPanelImpl(CefRefPtr<CefPanelDelegate> delegate)
 views::View* CefBasicPanelImpl::CreateRootView() {
   return new CefBasicPanelView(delegate());
 }
+
+void CefBasicPanelImpl::InitializeRootView() {
+  static_cast<CefBasicPanelView*>(root_view())->Initialize();
+}

@@ -37,6 +37,7 @@ class CefBasicLabelButtonImpl :
 
   // CefViewImpl methods:
   views::LabelButton* CreateRootView() override;
+  void InitializeRootView() override;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefBasicLabelButtonImpl);
   DISALLOW_COPY_AND_ASSIGN(CefBasicLabelButtonImpl);

@@ -163,3 +163,7 @@ void CefBrowserViewImpl::SetDefaults(const CefBrowserSettings& settings) {
 CefBrowserViewView* CefBrowserViewImpl::CreateRootView() {
   return new CefBrowserViewView(delegate(), this);
 }
+
+void CefBrowserViewImpl::InitializeRootView() {
+  static_cast<CefBrowserViewView*>(root_view())->Initialize();
+}

@@ -12,6 +12,7 @@
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebElement.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebNode.h"
 #include "third_party/WebKit/public/web/WebRange.h"
 
@@ -92,17 +93,21 @@ CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetFocusedNode() {
 }
 
 bool CefDOMDocumentImpl::HasSelection() {
-  if (!VerifyContext())
+  if (!VerifyContext() || !frame_->isWebLocalFrame())
     return false;
 
-  return frame_->hasSelection();
+  return frame_->toWebLocalFrame()->hasSelection();
 }
 
 int CefDOMDocumentImpl::GetSelectionStartOffset() {
-  if (!VerifyContext() || !frame_->hasSelection())
+  if (!VerifyContext() || !frame_->isWebLocalFrame())
     return 0;
 
-  const WebRange& range = frame_->selectionRange();
+  blink::WebLocalFrame* local_frame = frame_->toWebLocalFrame();
+  if (!!local_frame->hasSelection())
+    return 0;
+
+  const WebRange& range = local_frame->selectionRange();
   if (range.isNull())
     return 0;
 
@@ -110,10 +115,14 @@ int CefDOMDocumentImpl::GetSelectionStartOffset() {
 }
 
 int CefDOMDocumentImpl::GetSelectionEndOffset() {
-  if (!VerifyContext() || !frame_->hasSelection())
+  if (!VerifyContext() || !frame_->isWebLocalFrame())
     return 0;
 
-  const WebRange& range = frame_->selectionRange();
+  blink::WebLocalFrame* local_frame = frame_->toWebLocalFrame();
+  if (!!local_frame->hasSelection())
+    return 0;
+
+  const WebRange& range = local_frame->selectionRange();
   if (range.isNull())
     return 0;
 
@@ -122,10 +131,14 @@ int CefDOMDocumentImpl::GetSelectionEndOffset() {
 
 CefString CefDOMDocumentImpl::GetSelectionAsMarkup() {
   CefString str;
-  if (!VerifyContext() || !frame_->hasSelection())
+  if (!VerifyContext() || !frame_->isWebLocalFrame())
     return str;
 
-  const WebString& markup = frame_->selectionAsMarkup();
+  blink::WebLocalFrame* local_frame = frame_->toWebLocalFrame();
+  if (!!local_frame->hasSelection())
+    return str;
+
+  const WebString& markup = local_frame->selectionAsMarkup();
   if (!markup.isNull())
     str = markup;
 
@@ -134,10 +147,14 @@ CefString CefDOMDocumentImpl::GetSelectionAsMarkup() {
 
 CefString CefDOMDocumentImpl::GetSelectionAsText() {
   CefString str;
-  if (!VerifyContext() || !frame_->hasSelection())
+  if (!VerifyContext() || !frame_->isWebLocalFrame())
     return str;
 
-  const WebString& text = frame_->selectionAsText();
+  blink::WebLocalFrame* local_frame = frame_->toWebLocalFrame();
+  if (!!local_frame->hasSelection())
+    return str;
+
+  const WebString& text = local_frame->selectionAsText();
   if (!text.isNull())
     str = text;
 

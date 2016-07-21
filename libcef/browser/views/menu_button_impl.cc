@@ -58,3 +58,7 @@ CefMenuButtonImpl::CefMenuButtonImpl(CefRefPtr<CefMenuButtonDelegate> delegate)
 views::MenuButton* CefMenuButtonImpl::CreateRootView() {
   return new CefMenuButtonView(delegate());
 }
+
+void CefMenuButtonImpl::InitializeRootView() {
+  static_cast<CefMenuButtonView*>(root_view())->Initialize();
+}

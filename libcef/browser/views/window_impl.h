@@ -114,6 +114,7 @@ class CefWindowImpl :
 
   // CefViewImpl methods:
   CefWindowView* CreateRootView() override;
+  void InitializeRootView() override;
 
   // Initialize the Widget.
   void CreateWidget();

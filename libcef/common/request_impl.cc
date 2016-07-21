@@ -65,7 +65,7 @@ class BytesElementReader : public net::UploadBytesElementReader {
 };
 
 base::TaskRunner* GetFileTaskRunner() {
-  return content::BrowserThread::GetMessageLoopProxyForThread(
+  return content::BrowserThread::GetTaskRunnerForThread(
       content::BrowserThread::FILE).get();
 }
 
@@ -559,7 +559,6 @@ void CefRequestImpl::Set(const blink::WebURLRequest& request) {
 
 void CefRequestImpl::Get(blink::WebURLRequest& request,
                          int64& upload_data_size) const {
-  request.initialize();
   base::AutoLock lock_scope(lock_);
 
   request.setURL(GURL(url_.ToString()));
@@ -614,8 +613,6 @@ void CefRequestImpl::Get(blink::WebURLRequest& request,
 // static
 void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
                          blink::WebURLRequest& request) {
-  request.initialize();
-
   request.setURL(params.url);
   if (!params.method.empty())
     request.setHTTPMethod(base::ASCIIToUTF16(params.method));

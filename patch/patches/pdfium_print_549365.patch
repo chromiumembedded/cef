@@ -1,12 +1,27 @@
+diff --git BUILD.gn BUILD.gn
+index c9a5fdd..81fc17a 100644
+--- BUILD.gn
++++ BUILD.gn
+@@ -145,6 +145,10 @@ static_library("pdfium") {
+   } else {
+     libs += [ "freetype" ]
+   }
++
++  include_dirs = [
++    "//v8/include",
++  ]
+ }
+ 
+ source_set("test_support") {
 diff --git fpdfsdk/fpdfview.cpp fpdfsdk/fpdfview.cpp
-index 646fb46..42e8bdf 100644
+index 34e7d23..d65ea13 100644
 --- fpdfsdk/fpdfview.cpp
 +++ fpdfsdk/fpdfview.cpp
 @@ -20,6 +20,7 @@
  #include "fpdfsdk/include/fsdk_mgr.h"
  #include "fpdfsdk/include/fsdk_rendercontext.h"
  #include "fpdfsdk/javascript/ijs_runtime.h"
-+#include "fpdfsdk/jsapi/include/fxjs_v8.h"
++#include "fxjs/include/fxjs_v8.h"
  #include "public/fpdf_ext.h"
  #include "public/fpdf_progressive.h"
  #include "third_party/base/numerics/safe_conversions_impl.h"

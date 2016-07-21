@@ -88,7 +88,7 @@ scoped_refptr<base::SequencedTaskRunner>
   if (id >= 0 && CefContentClient::Get() &&
       CefContentClient::Get()->browser() &&
       BrowserThread::IsMessageLoopValid(static_cast<BrowserThread::ID>(id))) {
-    // Don't use BrowserThread::GetMessageLoopProxyForThread because it returns
+    // Don't use BrowserThread::GetTaskRunnerForThread because it returns
     // a new MessageLoopProxy object for each call and makes pointer equality
     // testing impossible.
     base::MessageLoop* message_loop =

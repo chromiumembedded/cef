@@ -58,7 +58,9 @@ class CefFrameImpl : public CefFrame {
 
   blink::WebFrame* web_frame() const { return frame_; }
 
- protected:
+ private:
+  void ExecuteCommand(const std::string& command);
+
   CefBrowserImpl* browser_;
   blink::WebFrame* frame_;
   int64 frame_id_;

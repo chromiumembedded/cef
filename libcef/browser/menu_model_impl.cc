@@ -664,7 +664,7 @@ void CefMenuModelImpl::MenuClosed() {
   // Due to how menus work on the different platforms, ActivatedAt will be
   // called after this.  It's more convenient for the delegate to be called
   // afterwards, though, so post a task.
-  base::MessageLoop::current()->PostTask(
+  base::MessageLoop::current()->task_runner()->PostTask(
       FROM_HERE,
       base::Bind(&CefMenuModelImpl::OnMenuClosed, this));
 }

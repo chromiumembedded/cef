@@ -266,6 +266,8 @@ def GetAllPlatformConfigs(build_args):
 
   # Don't create debug directories for asan builds.
   is_asan = GetArgValue(args, 'is_asan')
+  if is_asan:
+    msg('Only generating Release configuration due to is_asan=true')
 
   # Always create x64 configs.
   if not is_asan:

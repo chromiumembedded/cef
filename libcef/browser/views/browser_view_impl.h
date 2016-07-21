@@ -73,6 +73,7 @@ class CefBrowserViewImpl :
 
   // CefViewImpl methods:
   CefBrowserViewView* CreateRootView() override;
+  void InitializeRootView() override;
 
   std::unique_ptr<CefBrowserHostImpl::CreateParams> pending_browser_create_params_;
 

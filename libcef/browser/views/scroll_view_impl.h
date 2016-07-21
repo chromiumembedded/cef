@@ -45,6 +45,7 @@ class CefScrollViewImpl :
 
   // CefViewImpl methods:
   CefScrollViewView* CreateRootView() override;
+  void InitializeRootView() override;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefScrollViewImpl);
   DISALLOW_COPY_AND_ASSIGN(CefScrollViewImpl);

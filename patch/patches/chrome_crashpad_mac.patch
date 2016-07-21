@@ -1,8 +1,8 @@
 diff --git chrome/browser/chrome_browser_main_mac.mm chrome/browser/chrome_browser_main_mac.mm
-index 11d7ff4..1013b2ce 100644
+index 0e9c5ae..28fc90a 100644
 --- chrome/browser/chrome_browser_main_mac.mm
 +++ chrome/browser/chrome_browser_main_mac.mm
-@@ -186,7 +186,7 @@ void EnsureMetadataNeverIndexFile(const base::FilePath& user_data_dir) {
+@@ -182,7 +182,7 @@ void ChromeBrowserMainPartsMac::PostProfileInit() {
    ChromeBrowserMainPartsPosix::PostProfileInit();
  
    g_browser_process->metrics_service()->RecordBreakpadRegistration(
@@ -12,10 +12,10 @@ index 11d7ff4..1013b2ce 100644
    // TODO(calamity): Make this gated on first_run::IsChromeFirstRun() in M45.
    content::BrowserThread::PostAfterStartupTask(
 diff --git chrome/browser/crash_upload_list/crash_upload_list_crashpad.cc chrome/browser/crash_upload_list/crash_upload_list_crashpad.cc
-index af1bbec..6b92a7c 100644
+index d62973e..fc2dfa4 100644
 --- chrome/browser/crash_upload_list/crash_upload_list_crashpad.cc
 +++ chrome/browser/crash_upload_list/crash_upload_list_crashpad.cc
-@@ -73,8 +73,6 @@ void CrashUploadListCrashpad::LoadUploadList(
+@@ -75,8 +75,6 @@ void CrashUploadListCrashpad::LoadUploadList(
    // database lives in the .exe, so we need to grab a pointer to a helper in the
    // exe to get our reports list.
    GetReportsThunk(&reports);

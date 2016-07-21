@@ -28,6 +28,7 @@
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebFrameContentDumper.h"
 #include "third_party/WebKit/public/web/WebKit.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebView.h"
 #include "third_party/WebKit/public/web/WebScriptSource.h"
 
@@ -50,45 +51,31 @@ bool CefFrameImpl::IsValid() {
 }
 
 void CefFrameImpl::Undo() {
-  CEF_REQUIRE_RT_RETURN_VOID();
-  if (frame_)
-    frame_->executeCommand(WebString::fromUTF8("Undo"));
+  ExecuteCommand("Undo");
 }
 
 void CefFrameImpl::Redo() {
-  CEF_REQUIRE_RT_RETURN_VOID();
-  if (frame_)
-    frame_->executeCommand(WebString::fromUTF8("Redo"));
+  ExecuteCommand("Redo");
 }
 
 void CefFrameImpl::Cut() {
-  CEF_REQUIRE_RT_RETURN_VOID();
-  if (frame_)
-    frame_->executeCommand(WebString::fromUTF8("Cut"));
+  ExecuteCommand("Cut");
 }
 
 void CefFrameImpl::Copy() {
-  CEF_REQUIRE_RT_RETURN_VOID();
-  if (frame_)
-    frame_->executeCommand(WebString::fromUTF8("Copy"));
+  ExecuteCommand("Copy");
 }
 
 void CefFrameImpl::Paste() {
-  CEF_REQUIRE_RT_RETURN_VOID();
-  if (frame_)
-    frame_->executeCommand(WebString::fromUTF8("Paste"));
+  ExecuteCommand("Paste");
 }
 
 void CefFrameImpl::Delete() {
-  CEF_REQUIRE_RT_RETURN_VOID();
-  if (frame_)
-    frame_->executeCommand(WebString::fromUTF8("Delete"));
+  ExecuteCommand("Delete");
 }
 
 void CefFrameImpl::SelectAll() {
-  CEF_REQUIRE_RT_RETURN_VOID();
-  if (frame_)
-    frame_->executeCommand(WebString::fromUTF8("SelectAll"));
+  ExecuteCommand("SelectAll");
 }
 
 void CefFrameImpl::ViewSource() {
@@ -279,6 +266,12 @@ void CefFrameImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
 void CefFrameImpl::Detach() {
   browser_ = NULL;
   frame_ = NULL;
+}
+
+void CefFrameImpl::ExecuteCommand(const std::string& command) {
+  CEF_REQUIRE_RT_RETURN_VOID();
+  if (frame_ && frame_->isWebLocalFrame())
+    frame_->toWebLocalFrame()->executeCommand(WebString::fromUTF8(command));
 }
 
 

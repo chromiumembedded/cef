@@ -327,7 +327,7 @@ void CefPrintDialogLinux::OnPrintCancel() {
 
 void CefPrintDialogLinux::OnJobCompleted() {
   base::FileUtilProxy::DeleteFile(
-      content::BrowserThread::GetMessageLoopProxyForThread(
+      content::BrowserThread::GetTaskRunnerForThread(
           BrowserThread::FILE).get(),
       path_to_pdf_,
       false,

@@ -9,6 +9,10 @@
 CefTextfieldView::CefTextfieldView(CefTextfieldDelegate* cef_delegate)
     : ParentClass(cef_delegate) {
   set_controller(this);
+}
+
+void CefTextfieldView::Initialize() {
+  ParentClass::Initialize();
 
   // Use our defaults instead of the Views framework defaults.
   SetFontList(gfx::FontList(view_util::kDefaultFontList));

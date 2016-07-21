@@ -27,6 +27,11 @@ CEF_LABEL_BUTTON_VIEW_T class CefLabelButtonView : public CEF_BUTTON_VIEW_D {
   // |cef_delegate| may be nullptr.
   explicit CefLabelButtonView(CefViewDelegateClass* cef_delegate)
       : ParentClass(cef_delegate) {
+  }
+
+  void Initialize() override {
+    ParentClass::Initialize();
+
     // Use our defaults instead of the Views framework defaults.
     ParentClass::SetFontList(gfx::FontList(view_util::kDefaultFontList));
   }

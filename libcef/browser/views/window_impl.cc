@@ -484,6 +484,10 @@ CefWindowView* CefWindowImpl::CreateRootView() {
   return new CefWindowView(delegate(), this);
 }
 
+void CefWindowImpl::InitializeRootView() {
+  static_cast<CefWindowView*>(root_view())->Initialize();
+}
+
 void CefWindowImpl::CreateWidget() {
   DCHECK(!widget_);
 

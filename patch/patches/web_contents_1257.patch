@@ -44,7 +44,7 @@ index d646060..697bf1b 100644
      // window.opener property, terminate prerendering.
      prerender_contents_->Destroy(FINAL_STATUS_CREATE_NEW_WINDOW);
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index b10b2df..a47dd18 100644
+index 3951954..ca52685 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
 @@ -1618,7 +1618,9 @@ bool Browser::ShouldCreateWebContents(
@@ -74,10 +74,10 @@ index 693e84d..be1f1dd 100644
                            int opener_render_frame_id,
                            const std::string& frame_name,
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index db8263e..07f1989 100644
+index 62dfcec..acdc44d 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1502,6 +1502,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1521,6 +1521,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name = params.main_frame_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -90,7 +90,7 @@ index db8263e..07f1989 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -1534,6 +1540,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1553,6 +1559,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
                                           std::move(view_),
                                           &render_view_host_delegate_view_));
    }
@@ -98,7 +98,7 @@ index db8263e..07f1989 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -1977,11 +1984,14 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2010,11 +2017,14 @@ void WebContentsImpl::CreateNewWindow(
        static_cast<SessionStorageNamespaceImpl*>(session_storage_namespace);
    CHECK(session_storage_namespace_impl->IsFromContext(dom_storage_context));
  
@@ -114,7 +114,7 @@ index db8263e..07f1989 100644
      if (route_id != MSG_ROUTING_NONE &&
          !RenderViewHost::FromID(render_process_id, route_id)) {
        // If the embedder didn't create a WebContents for this route, we need to
-@@ -2005,6 +2015,8 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2038,6 +2048,8 @@ void WebContentsImpl::CreateNewWindow(
    create_params.opener_render_process_id = render_process_id;
    create_params.opener_render_frame_id = params.opener_render_frame_id;
    create_params.opener_suppressed = params.opener_suppressed;
@@ -139,7 +139,7 @@ index fa0afb5..d677b31 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 9ccb6fe..d8561f9 100644
+index 65de3da..6807203 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -55,8 +55,10 @@ class PageState;

@@ -147,7 +147,7 @@ void CefDevToolsFrontend::InspectElementAt(int x, int y) {
   if (inspect_element_at_.x != x || inspect_element_at_.y != y)
     inspect_element_at_.Set(x, y);
   if (agent_host_)
-    agent_host_->InspectElement(x, y);
+    agent_host_->InspectElement(this, x, y);
 }
 
 void CefDevToolsFrontend::Close() {

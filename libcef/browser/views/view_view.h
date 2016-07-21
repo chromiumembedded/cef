@@ -31,9 +31,19 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
  public:
   typedef ViewsViewClass ParentClass;
 
-  // |cef_delegate| may be nullptr.
+  // Should be created from CreateRootView() in a CefViewImpl-derived class.
+  // Do not call complex views::View-derived methods from a CefViewView-derived
+  // constructor as they may attempt to call back into CefViewImpl before
+  // registration has been performed. |cef_delegate| may be nullptr.
   explicit CefViewView(CefViewDelegateClass* cef_delegate)
       : cef_delegate_(cef_delegate) {
+  }
+
+  // Should be called from InitializeRootView() in the CefViewImpl-derived
+  // class that created this object. This method will be called after
+  // CefViewImpl registration has completed so it is safe to call complex
+  // views::View-derived methods here.
+  virtual void Initialize() {
     // Use our defaults instead of the Views framework defaults.
     ParentClass::set_background(views::Background::CreateSolidBackground(
         view_util::kDefaultBackgroundColor));

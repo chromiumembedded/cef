@@ -70,7 +70,7 @@ class CefTestThread : public base::Thread {
 // Called on the UI thread.
 void RunTests(CefTestThread* thread) {
   // Run the test suite on the test thread.
-  thread->message_loop()->PostTask(FROM_HERE,
+  thread->message_loop()->task_runner()->PostTask(FROM_HERE,
       base::Bind(&CefTestThread::RunTests, base::Unretained(thread)));
 }
 

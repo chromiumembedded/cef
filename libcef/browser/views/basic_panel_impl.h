@@ -33,6 +33,7 @@ class CefBasicPanelImpl :
 
   // CefViewImpl methods:
   views::View* CreateRootView() override;
+  void InitializeRootView() override;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefBasicPanelImpl);
   DISALLOW_COPY_AND_ASSIGN(CefBasicPanelImpl);

@@ -212,3 +212,7 @@ CefTextfieldImpl::CefTextfieldImpl(CefRefPtr<CefTextfieldDelegate> delegate)
 CefTextfieldView* CefTextfieldImpl::CreateRootView() {
   return new CefTextfieldView(delegate());
 }
+
+void CefTextfieldImpl::InitializeRootView() {
+  static_cast<CefTextfieldView*>(root_view())->Initialize();
+}

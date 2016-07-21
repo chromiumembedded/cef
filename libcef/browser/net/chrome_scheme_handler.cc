@@ -350,10 +350,7 @@ class Delegate : public InternalHandlerDelegate {
             CHROME_VERSION_BUILD,
             CHROME_VERSION_PATCH));
     parser.Add("OS", GetOSType());
-    parser.Add("WEBKIT",
-        base::StringPrintf("%d.%d",
-            content::GetWebKitMajorVersion(),
-            content::GetWebKitMinorVersion()));
+    parser.Add("WEBKIT", content::GetWebKitVersion());
     parser.Add("JAVASCRIPT", v8::V8::GetVersion());
     parser.Add("FLASH", std::string());  // Value populated asynchronously.
     parser.Add("USERAGENT", CefContentClient::Get()->GetUserAgent());

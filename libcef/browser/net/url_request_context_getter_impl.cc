@@ -124,7 +124,7 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
   std::swap(protocol_handlers_, *protocol_handlers);
 
   auto io_thread_proxy =
-      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO);
+      BrowserThread::GetTaskRunnerForThread(BrowserThread::IO);
 
   quick_check_enabled_.Init(prefs::kQuickCheckEnabled, pref_service);
   quick_check_enabled_.MoveToThread(io_thread_proxy);
@@ -256,7 +256,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
             net::CACHE_BACKEND_DEFAULT,
             http_cache_path,
             0,
-            BrowserThread::GetMessageLoopProxyForThread(
+            BrowserThread::GetTaskRunnerForThread(
                 BrowserThread::CACHE)));
 
     net::HttpNetworkSession::Params network_session_params;
@@ -340,7 +340,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
 
 scoped_refptr<base::SingleThreadTaskRunner>
     CefURLRequestContextGetterImpl::GetNetworkTaskRunner() const {
-  return BrowserThread::GetMessageLoopProxyForThread(CEF_IOT);
+  return BrowserThread::GetTaskRunnerForThread(CEF_IOT);
 }
 
 net::HostResolver* CefURLRequestContextGetterImpl::GetHostResolver() const {
@@ -370,8 +370,8 @@ void CefURLRequestContextGetterImpl::SetCookieStoragePath(
       persistent_store =
           new net::SQLitePersistentCookieStore(
               cookie_path,
-              BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
-              BrowserThread::GetMessageLoopProxyForThread(BrowserThread::DB),
+              BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
+              BrowserThread::GetTaskRunnerForThread(BrowserThread::DB),
               persist_session_cookies,
               NULL);
     } else {

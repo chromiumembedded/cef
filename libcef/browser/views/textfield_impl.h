@@ -75,6 +75,7 @@ class CefTextfieldImpl :
 
   // CefViewImpl methods:
   CefTextfieldView* CreateRootView() override;
+  void InitializeRootView() override;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefTextfieldImpl);
   DISALLOW_COPY_AND_ASSIGN(CefTextfieldImpl);

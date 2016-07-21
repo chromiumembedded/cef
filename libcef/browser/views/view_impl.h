@@ -427,10 +427,15 @@ CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter,
     DCHECK(root_view_.get());
     root_view_ref_ = root_view_.get();
     view_util::Register(this);
+    InitializeRootView();
   }
 
   // Create the root views::View object.
   virtual ViewsViewClass* CreateRootView() = 0;
+
+  // Perform required initialization of the root_view() object created by
+  // CreateRootView(). Called after this object has been registered.
+  virtual void InitializeRootView() = 0;
 
  private:
   CefRefPtr<CefViewDelegateClass> delegate_;

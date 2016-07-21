@@ -140,7 +140,7 @@ void CefCookieManagerImpl::Initialize(
   if (request_context.get()) {
     request_context_ = request_context;
     request_context_->GetRequestContextImpl(
-        BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
+        BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
         base::Bind(&CefCookieManagerImpl::InitWithContext, this, callback));
   } else {
     SetStoragePath(path, persist_session_cookies, callback);
@@ -226,7 +226,7 @@ void CefCookieManagerImpl::SetSupportedSchemes(
 bool CefCookieManagerImpl::VisitAllCookies(
     CefRefPtr<CefCookieVisitor> visitor) {
   GetCookieStore(
-      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
+      BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
       base::Bind(&CefCookieManagerImpl::VisitAllCookiesInternal, this,
                  visitor));
   return true;
@@ -237,7 +237,7 @@ bool CefCookieManagerImpl::VisitUrlCookies(
     bool includeHttpOnly,
     CefRefPtr<CefCookieVisitor> visitor) {
   GetCookieStore(
-      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
+      BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
       base::Bind(&CefCookieManagerImpl::VisitUrlCookiesInternal, this, url,
                  includeHttpOnly, visitor));
   return true;
@@ -252,7 +252,7 @@ bool CefCookieManagerImpl::SetCookie(
     return false;
 
   GetCookieStore(
-      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
+      BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
       base::Bind(&CefCookieManagerImpl::SetCookieInternal, this, gurl, cookie,
                  callback));
   return true;
@@ -268,7 +268,7 @@ bool CefCookieManagerImpl::DeleteCookies(
     return false;
 
   GetCookieStore(
-      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
+      BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
       base::Bind(&CefCookieManagerImpl::DeleteCookiesInternal, this, gurl,
                  cookie_name, callback));
   return true;
@@ -314,8 +314,8 @@ bool CefCookieManagerImpl::SetStoragePath(
       persistent_store =
           new net::SQLitePersistentCookieStore(
               cookie_path,
-              BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
-              BrowserThread::GetMessageLoopProxyForThread(BrowserThread::DB),
+              BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
+              BrowserThread::GetTaskRunnerForThread(BrowserThread::DB),
               persist_session_cookies,
               NULL);
     } else {
@@ -341,7 +341,7 @@ bool CefCookieManagerImpl::SetStoragePath(
 bool CefCookieManagerImpl::FlushStore(
     CefRefPtr<CefCompletionCallback> callback) {
   GetCookieStore(
-      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
+      BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
       base::Bind(&CefCookieManagerImpl::FlushStoreInternal, this, callback));
   return true;
 }
@@ -427,7 +427,7 @@ void CefCookieManagerImpl::RunMethodWithContext(
   } else if (request_context_.get()) {
     // Try again after the request context is initialized.
     request_context_->GetRequestContextImpl(
-        BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
+        BrowserThread::GetTaskRunnerForThread(BrowserThread::IO),
         method);
   } else {
     NOTREACHED();

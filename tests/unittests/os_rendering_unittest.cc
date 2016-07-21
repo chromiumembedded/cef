@@ -656,10 +656,7 @@ class OSRTestHandler : public RoutingTestHandler,
 #if defined(OS_MACOSX)
           EXPECT_EQ(0xff5d99d6, *(reinterpret_cast<const uint32*>(buffer)));
 #elif defined(OS_LINUX) || defined(OS_WIN)
-          if (scale_factor_ == 1.0f)
-            EXPECT_EQ(0xff6497ea, *(reinterpret_cast<const uint32*>(buffer)));
-          else if (scale_factor_ == 2.0f)
-            EXPECT_EQ(0xff4d90fe, *(reinterpret_cast<const uint32*>(buffer)));
+          EXPECT_EQ(0xff6497ea, *(reinterpret_cast<const uint32*>(buffer)));
 #else
 #error "Unsupported platform"
 #endif

@@ -406,8 +406,6 @@ void CefBrowserPlatformDelegateNativeWin::TranslateKeyEvent(
     result.text[0] = result.windowsKeyCode;
     result.unmodifiedText[0] = result.windowsKeyCode;
   }
-  if (result.type != blink::WebInputEvent::Char)
-    result.setKeyIdentifierFromWindowsKeyCode();
 
   result.modifiers |= TranslateModifiers(key_event.modifiers);
 }

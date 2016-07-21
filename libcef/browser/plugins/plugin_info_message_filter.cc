@@ -146,12 +146,12 @@ CefPluginInfoMessageFilter::Context::Context(
   allow_outdated_plugins_.Init(prefs::kPluginsAllowOutdated,
                                profile->GetPrefs());
   allow_outdated_plugins_.MoveToThread(
-      content::BrowserThread::GetMessageLoopProxyForThread(
+      content::BrowserThread::GetTaskRunnerForThread(
           content::BrowserThread::IO));
   always_authorize_plugins_.Init(prefs::kPluginsAlwaysAuthorize,
                                  profile->GetPrefs());
   always_authorize_plugins_.MoveToThread(
-      content::BrowserThread::GetMessageLoopProxyForThread(
+      content::BrowserThread::GetTaskRunnerForThread(
           content::BrowserThread::IO));
 }
 
@@ -475,13 +475,9 @@ void CefPluginInfoMessageFilter::Context::GetPluginContentSetting(
 
     // If there is a plugin-specific setting, we use it, unless the general
     // setting was set by policy, in which case it takes precedence.
-    // TODO(tommycli): Remove once we deprecate the plugin ASK policy.
-    bool legacy_ask_user = content_settings::ValueToContentSetting(
-                               general_setting.get()) == CONTENT_SETTING_ASK;
-    bool use_policy =
-        general_info.source == content_settings::SETTING_SOURCE_POLICY &&
-        !legacy_ask_user;
-    uses_plugin_specific_setting = specific_setting && !use_policy;
+    uses_plugin_specific_setting =
+        specific_setting &&
+        general_info.source != content_settings::SETTING_SOURCE_POLICY;
     if (uses_plugin_specific_setting) {
       value = std::move(specific_setting);
       info = specific_info;

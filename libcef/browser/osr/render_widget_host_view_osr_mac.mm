@@ -32,12 +32,62 @@ CefTextInputClientOSRMac* GetInputClientFromContext(
 }  // namespace
 
 
-class AcceleratedWidgetMacNSViewHelper : public ui::AcceleratedWidgetMacNSView {
+class MacHelper :
+  public content::BrowserCompositorMacClient,
+  public ui::AcceleratedWidgetMacNSView {
  public:
-  explicit AcceleratedWidgetMacNSViewHelper(CefRenderWidgetHostViewOSR* view)
+  explicit MacHelper(CefRenderWidgetHostViewOSR* view)
     : view_(view) {
   }
-  virtual ~AcceleratedWidgetMacNSViewHelper() {}
+  virtual ~MacHelper() {}
+
+  // BrowserCompositorMacClient methods:
+
+  NSView* BrowserCompositorMacGetNSView() const override {
+    // Intentionally return nil so that
+    // BrowserCompositorMac::DelegatedFrameHostDesiredSizeInDIP uses the layer
+    // size instead of the NSView size.
+    return nil;
+  }
+
+  SkColor BrowserCompositorMacGetGutterColor(SkColor color) const override {
+    // When making an element on the page fullscreen the element's background
+    // may not match the page's, so use black as the gutter color to avoid
+    // flashes of brighter colors during the transition.
+    if (view_->render_widget_host()->delegate() &&
+        view_->render_widget_host()->delegate()->IsFullscreenForCurrentTab()) {
+      return SK_ColorBLACK;
+    }
+    return color;
+  }
+
+  void BrowserCompositorMacSendReclaimCompositorResources(
+      int output_surface_id,
+      bool is_swap_ack,
+      const cc::ReturnedResourceArray& resources) override {
+    view_->render_widget_host()->Send(new ViewMsg_ReclaimCompositorResources(
+        view_->render_widget_host()->GetRoutingID(), output_surface_id,
+        is_swap_ack, resources));
+  }
+
+  void BrowserCompositorMacOnLostCompositorResources() override {
+    view_->render_widget_host()->ScheduleComposite();
+  }
+
+  void BrowserCompositorMacUpdateVSyncParameters(
+      const base::TimeTicks& timebase,
+      const base::TimeDelta& interval) override {
+    view_->render_widget_host()->UpdateVSyncParameters(timebase, interval);
+  }
+
+  void BrowserCompositorMacSendBeginFrame(
+      const cc::BeginFrameArgs& args) override {
+    view_->render_widget_host()->Send(
+      new ViewMsg_BeginFrame(view_->render_widget_host()->GetRoutingID(),
+                             args));
+  }
+
+  // AcceleratedWidgetMacNSView methods:
 
   NSView* AcceleratedWidgetGetNSView() const override {
     return [view_->window_ contentView];
@@ -56,7 +106,7 @@ class AcceleratedWidgetMacNSViewHelper : public ui::AcceleratedWidgetMacNSView {
   // Guaranteed to outlive this object.
   CefRenderWidgetHostViewOSR* view_;
 
-  DISALLOW_COPY_AND_ASSIGN(AcceleratedWidgetMacNSViewHelper);
+  DISALLOW_COPY_AND_ASSIGN(MacHelper);
 };
 
 
@@ -311,13 +361,13 @@ ui::Compositor* CefRenderWidgetHostViewOSR::GetCompositor() const {
   return browser_compositor_->GetCompositor();
 }
 
+ui::Layer* CefRenderWidgetHostViewOSR::GetRootLayer() const {
+  return browser_compositor_->GetRootLayer();
+}
+
 content::DelegatedFrameHost* CefRenderWidgetHostViewOSR::GetDelegatedFrameHost()
     const {
   return browser_compositor_->GetDelegatedFrameHost();
-}
-
-ui::Layer* CefRenderWidgetHostViewOSR::GetRootLayer() const {
-  return browser_compositor_->GetRootLayer();
 }
 
 void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
@@ -334,16 +384,13 @@ void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
   [content_view setLayer:background_layer_];
   [content_view setWantsLayer:YES];
 
-  accelerated_widget_helper_ = new AcceleratedWidgetMacNSViewHelper(this);
+  mac_helper_ = new MacHelper(this);
   browser_compositor_.reset(new content::BrowserCompositorMac(
-      accelerated_widget_helper_, this, render_widget_host_->is_hidden(),
-      true));
+      mac_helper_, mac_helper_, render_widget_host_->is_hidden(), true));
 }
 
 void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {
   DCHECK(window_);
-
-  browser_compositor_->Destroy();
 
   [window_ close];
   window_ = nil;
@@ -352,6 +399,6 @@ void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {
 
   browser_compositor_.reset();
 
-  delete accelerated_widget_helper_;
-  accelerated_widget_helper_ = nullptr;
+  delete mac_helper_;
+  mac_helper_ = nullptr;
 }

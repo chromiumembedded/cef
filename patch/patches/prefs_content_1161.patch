@@ -35,10 +35,10 @@ index 3fb1a79..b97ab57 100644
    bool inert_visual_viewport;
    bool record_whole_document;
 diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
-index be61076..6397124 100644
+index bc6a4ee..015a22f 100644
 --- renderer/render_view_impl.cc
 +++ renderer/render_view_impl.cc
-@@ -1466,6 +1466,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
+@@ -1465,6 +1465,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
      blink::WebView* web_view,
      CompositorDependencies* compositor_deps) {
    ApplyWebPreferences(prefs, web_view);

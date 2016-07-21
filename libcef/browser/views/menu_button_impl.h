@@ -47,6 +47,7 @@ class CefMenuButtonImpl :
 
   // CefViewImpl methods:
   views::MenuButton* CreateRootView() override;
+  void InitializeRootView() override;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefMenuButtonImpl);
   DISALLOW_COPY_AND_ASSIGN(CefMenuButtonImpl);

@@ -606,7 +606,9 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
         } else if (base::LowerCaseEqualsASCII(command, "gettext")) {
           response = webkit_glue::DumpDocumentText(web_frame);
           success = true;
-        } else if (web_frame->executeCommand(base::UTF8ToUTF16(command))) {
+        } else if (web_frame->isWebLocalFrame() &&
+                   web_frame->toWebLocalFrame()->executeCommand(
+                      base::UTF8ToUTF16(command))) {
           success = true;
         }
       }

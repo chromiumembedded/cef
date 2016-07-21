@@ -396,7 +396,7 @@ void CefURLFetcherDelegate::OnURLFetchComplete(
     const net::URLFetcher* source) {
   // Complete asynchronously so as not to delete the URLFetcher while it's still
   // in the call stack.
-  base::MessageLoop::current()->PostTask(FROM_HERE,
+  base::MessageLoop::current()->task_runner()->PostTask(FROM_HERE,
       base::Bind(&CefBrowserURLRequest::Context::OnComplete, context_));
 }
 

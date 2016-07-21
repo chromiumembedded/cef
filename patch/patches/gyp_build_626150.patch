@@ -1,8 +1,8 @@
 diff --git components/webmessaging.gypi components/webmessaging.gypi
-index 1ea14fb..8020b74 100644
+index 318f0db..cbe0bac 100644
 --- components/webmessaging.gypi
 +++ components/webmessaging.gypi
-@@ -48,12 +48,6 @@
+@@ -49,12 +49,6 @@
        'target_name': 'webmessaging_mojo_bindings_for_blink',
        'type': 'static_library',
        'sources': [ '<@(mojom_files)' ],

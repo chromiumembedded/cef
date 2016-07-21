@@ -37,3 +37,7 @@ CefBasicLabelButtonImpl::CefBasicLabelButtonImpl(CefRefPtr<CefButtonDelegate> de
 views::LabelButton* CefBasicLabelButtonImpl::CreateRootView() {
   return new CefBasicLabelButtonView(delegate());
 }
+
+void CefBasicLabelButtonImpl::InitializeRootView() {
+  static_cast<CefBasicLabelButtonView*>(root_view())->Initialize();
+}

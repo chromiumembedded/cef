@@ -942,11 +942,12 @@ typedef enum {
 } cef_cert_status_t;
 
 ///
-// The manner in which a link click should be opened.
+// The manner in which a link click should be opened. These constants match
+// their equivalents in Chromium's window_open_disposition.h and should not be
+// renumbered.
 ///
 typedef enum {
   WOD_UNKNOWN,
-  WOD_SUPPRESS_OPEN,
   WOD_CURRENT_TAB,
   WOD_SINGLETON_TAB,
   WOD_NEW_FOREGROUND_TAB,

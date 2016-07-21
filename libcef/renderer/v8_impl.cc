@@ -13,6 +13,7 @@
 #include "base/compiler_specific.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
+#include "core/dom/Document.h"
 #include "core/frame/Frame.h"
 #include "core/frame/LocalFrame.h"
 #include "bindings/core/v8/ScriptController.h"
@@ -42,7 +43,6 @@ MSVC_POP_WARNING();
 #include "third_party/WebKit/public/web/WebKit.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
-#include "third_party/WebKit/public/web/WebScriptController.h"
 #include "url/gurl.h"
 
 namespace {
@@ -661,20 +661,15 @@ v8::MaybeLocal<v8::Value> CallV8Function(v8::Local<v8::Context> context,
                                          v8::Isolate* isolate) {
   v8::MaybeLocal<v8::Value> func_rv;
 
-  // Execute the function call using the ScriptController so that inspector
+  // Execute the function call using the V8ScriptRunner so that inspector
   // instrumentation works.
-  if (CEF_CURRENTLY_ON_RT()) {
-    blink::LocalFrame* frame =
-        toLocalFrame(blink::toFrameIfNotDetached(context));
-    DCHECK(frame);
-    if (frame &&
-        frame->script().canExecuteScripts(blink::AboutToExecuteScript)) {
-      func_rv = frame->script().callFunction(function, receiver, argc, args);
-    }
-  } else {
-    func_rv = blink::ScriptController::callFunction(
-        blink::toExecutionContext(context),
-        function, receiver, argc, args, isolate);
+  blink::LocalFrame* frame =
+      toLocalFrame(blink::toFrameIfNotDetached(context));
+  DCHECK(frame);
+  if (frame &&
+      frame->script().canExecuteScripts(blink::AboutToExecuteScript)) {
+    func_rv = blink::V8ScriptRunner::callFunction(
+        function, frame->document(), receiver, argc, args, isolate);
   }
 
   return func_rv;
@@ -779,10 +774,8 @@ void MessageListenerCallbackImpl(v8::Handle<v8::Message> message,
   CefRefPtr<CefV8Exception> exception = new CefV8ExceptionImpl(
       static_cast<CefV8ContextImpl*>(context.get())->GetV8Context(), message);
 
-  if (CEF_CURRENTLY_ON_RT()) {
-    handler->OnUncaughtException(context->GetBrowser(), context->GetFrame(),
-        context, exception, stackTrace);
-  }
+  handler->OnUncaughtException(context->GetBrowser(), context->GetFrame(),
+      context, exception, stackTrace);
 }
 
 }  // namespace
@@ -961,10 +954,6 @@ CefRefPtr<CefBrowser> CefV8ContextImpl::GetBrowser() {
   CefRefPtr<CefBrowser> browser;
   CEF_V8_REQUIRE_VALID_HANDLE_RETURN(browser);
 
-  // Return NULL for WebWorkers.
-  if (!CEF_CURRENTLY_ON_RT())
-    return browser;
-
   blink::WebFrame* webframe = GetWebFrame();
   if (webframe)
     browser = CefBrowserImpl::GetBrowserForMainFrame(webframe->top());
@@ -975,10 +964,6 @@ CefRefPtr<CefBrowser> CefV8ContextImpl::GetBrowser() {
 CefRefPtr<CefFrame> CefV8ContextImpl::GetFrame() {
   CefRefPtr<CefFrame> frame;
   CEF_V8_REQUIRE_VALID_HANDLE_RETURN(frame);
-
-  // Return NULL for WebWorkers.
-  if (!CEF_CURRENTLY_ON_RT())
-    return frame;
 
   blink::WebFrame* webframe = GetWebFrame();
   if (webframe) {

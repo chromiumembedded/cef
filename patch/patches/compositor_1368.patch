@@ -1,8 +1,8 @@
 diff --git content/browser/compositor/gpu_process_transport_factory.cc content/browser/compositor/gpu_process_transport_factory.cc
-index 841fea0..8939665 100644
+index 821f642..ae61f08 100644
 --- content/browser/compositor/gpu_process_transport_factory.cc
 +++ content/browser/compositor/gpu_process_transport_factory.cc
-@@ -189,6 +189,13 @@ GpuProcessTransportFactory::~GpuProcessTransportFactory() {
+@@ -206,6 +206,13 @@ GpuProcessTransportFactory::~GpuProcessTransportFactory() {
  std::unique_ptr<cc::SoftwareOutputDevice>
  GpuProcessTransportFactory::CreateSoftwareOutputDevice(
      ui::Compositor* compositor) {

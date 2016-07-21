@@ -132,6 +132,9 @@ CefDevToolsManagerDelegate::~CefDevToolsManagerDelegate() {
 
 base::DictionaryValue* CefDevToolsManagerDelegate::HandleCommand(
     content::DevToolsAgentHost* agent_host,
-    base::DictionaryValue* command) {
-  return NULL;
+    base::DictionaryValue* command_dict) {
+  std::unique_ptr<base::DictionaryValue> result =
+      devtools_discovery::DevToolsDiscoveryManager::GetInstance()
+          ->HandleNewTargetCommand(command_dict);
+  return result.release();  // Caller takes ownership.
 }

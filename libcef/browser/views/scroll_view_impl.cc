@@ -86,3 +86,7 @@ CefScrollViewImpl::CefScrollViewImpl(CefRefPtr<CefViewDelegate> delegate)
 CefScrollViewView* CefScrollViewImpl::CreateRootView() {
   return new CefScrollViewView(delegate());
 }
+
+void CefScrollViewImpl::InitializeRootView() {
+  static_cast<CefScrollViewView*>(root_view())->Initialize();
+}

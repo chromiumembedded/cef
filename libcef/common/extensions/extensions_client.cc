@@ -19,8 +19,8 @@
 #include "extensions/common/common_manifest_handlers.h"
 #include "extensions/common/extension_urls.h"
 #include "extensions/common/features/api_feature.h"
-#include "extensions/common/features/base_feature_provider.h"
 #include "extensions/common/features/behavior_feature.h"
+#include "extensions/common/features/json_feature_provider.h"
 #include "extensions/common/features/json_feature_provider_source.h"
 #include "extensions/common/features/manifest_feature.h"
 #include "extensions/common/features/permission_feature.h"
@@ -75,16 +75,16 @@ std::unique_ptr<FeatureProvider> CefExtensionsClient::CreateFeatureProvider(
   std::unique_ptr<JSONFeatureProviderSource> source(
       CreateFeatureProviderSource(name));
   if (name == "api") {
-    provider.reset(new BaseFeatureProvider(source->dictionary(),
+    provider.reset(new JSONFeatureProvider(source->dictionary(),
                                            CreateFeature<APIFeature>));
   } else if (name == "manifest") {
-    provider.reset(new BaseFeatureProvider(source->dictionary(),
+    provider.reset(new JSONFeatureProvider(source->dictionary(),
                                            CreateFeature<ManifestFeature>));
   } else if (name == "permission") {
-    provider.reset(new BaseFeatureProvider(source->dictionary(),
+    provider.reset(new JSONFeatureProvider(source->dictionary(),
                                            CreateFeature<PermissionFeature>));
   } else if (name == "behavior") {
-    provider.reset(new BaseFeatureProvider(source->dictionary(),
+    provider.reset(new JSONFeatureProvider(source->dictionary(),
                                            CreateFeature<BehaviorFeature>));
   } else {
     NOTREACHED();
