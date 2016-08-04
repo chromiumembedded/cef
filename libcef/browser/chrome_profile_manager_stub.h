@@ -16,6 +16,7 @@ class ChromeProfileManagerStub : public ProfileManager {
   ChromeProfileManagerStub();
   ~ChromeProfileManagerStub() override;
 
+  Profile* GetProfile(const base::FilePath& profile_dir) override;
   bool IsValidProfile(const void* profile) override;
 
  private:

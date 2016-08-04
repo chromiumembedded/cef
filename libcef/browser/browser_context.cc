@@ -85,6 +85,9 @@ void CefBrowserContext::CreateProtocolHandlers(
 void CefBrowserContext::Shutdown() {
   CEF_REQUIRE_UIT();
 
+  // Send notifications to clean up objects associated with this Profile.
+  MaybeSendDestroyedNotification();
+
   if (resource_context_.get()) {
     // Destruction of the ResourceContext will trigger destruction of all
     // associated URLRequests.

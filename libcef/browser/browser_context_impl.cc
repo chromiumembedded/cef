@@ -245,10 +245,8 @@ void CefBrowserContextImpl::Initialize() {
   }
 
   // Initialize preferences.
-  base::FilePath pref_path;
-  if (!cache_path_.empty() && settings_.persist_user_preferences)
-    pref_path = cache_path_.AppendASCII(browser_prefs::kUserPrefsFileName);
-  pref_service_ = browser_prefs::CreatePrefService(pref_path);
+  pref_service_ = browser_prefs::CreatePrefService(
+      this, cache_path_, !!settings_.persist_user_preferences);
 
   // Initialize visited links management.
   base::FilePath visited_link_path;

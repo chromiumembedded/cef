@@ -1,7 +1,80 @@
+diff --git chrome/browser/profiles/incognito_helpers.cc chrome/browser/profiles/incognito_helpers.cc
+index 6155e96..2125a436 100644
+--- chrome/browser/profiles/incognito_helpers.cc
++++ chrome/browser/profiles/incognito_helpers.cc
+@@ -8,13 +8,35 @@
+ 
+ namespace chrome {
+ 
++namespace {
++BrowserContextIncognitoHelper* g_helper = nullptr;
++}  // namespace
++
++void SetBrowserContextIncognitoHelper(BrowserContextIncognitoHelper* helper) {
++  g_helper = helper;
++}
++
+ content::BrowserContext* GetBrowserContextRedirectedInIncognito(
+     content::BrowserContext* context) {
++  if (g_helper) {
++    content::BrowserContext* new_context =
++        g_helper->GetBrowserContextRedirectedInIncognito(context);
++    if (new_context)
++      return new_context;
++  }
++
+   return static_cast<Profile*>(context)->GetOriginalProfile();
+ }
+ 
+ content::BrowserContext* GetBrowserContextOwnInstanceInIncognito(
+     content::BrowserContext* context) {
++  if (g_helper) {
++    content::BrowserContext* new_context =
++        g_helper->GetBrowserContextOwnInstanceInIncognito(context);
++    if (new_context)
++      return new_context;
++  }
++
+   return context;
+ }
+ 
+diff --git chrome/browser/profiles/incognito_helpers.h chrome/browser/profiles/incognito_helpers.h
+index 4b43013..169ca47 100644
+--- chrome/browser/profiles/incognito_helpers.h
++++ chrome/browser/profiles/incognito_helpers.h
+@@ -11,6 +11,19 @@ class BrowserContext;
+ 
+ namespace chrome {
+ 
++class BrowserContextIncognitoHelper {
++ public:
++  virtual content::BrowserContext* GetBrowserContextRedirectedInIncognito(
++      content::BrowserContext* context) = 0;
++  virtual content::BrowserContext* GetBrowserContextOwnInstanceInIncognito(
++      content::BrowserContext* context) = 0;
++ protected:
++  virtual ~BrowserContextIncognitoHelper() {}
++};
++
++// Allow CEF to hook the below methods.
++void SetBrowserContextIncognitoHelper(BrowserContextIncognitoHelper* helper);
++
+ // Returns the original browser context even for Incognito contexts.
+ content::BrowserContext* GetBrowserContextRedirectedInIncognito(
+     content::BrowserContext* context);
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index e3e742c..aabe932 100644
+index e3e742c..fe8e855 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
+@@ -89,7 +89,7 @@ class ProfileManager : public base::NonThreadSafe,
+   // acceptable. Returns null if creation of the new profile fails.
+   // TODO(bauerb): Migrate calls from other code to GetProfileByPath(), then
+   // make this method private.
+-  Profile* GetProfile(const base::FilePath& profile_dir);
++  virtual Profile* GetProfile(const base::FilePath& profile_dir);
+ 
+   // Returns total number of profiles available on this machine.
+   size_t GetNumberOfProfiles();
 @@ -117,7 +117,7 @@ class ProfileManager : public base::NonThreadSafe,
  
    // Returns true if the profile pointer is known to point to an existing

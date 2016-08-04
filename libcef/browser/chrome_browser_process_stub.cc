@@ -5,6 +5,7 @@
 
 #include "libcef/browser/chrome_browser_process_stub.h"
 
+#include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/chrome_profile_manager_stub.h"
 #include "libcef/browser/component_updater/cef_component_updater_configurator.h"
 #include "libcef/browser/content_browser_client.h"
@@ -37,11 +38,13 @@ ChromeBrowserProcessStub::ChromeBrowserProcessStub()
   : initialized_(false),
     shutdown_(false),
     locale_("en-US") {
+  chrome::SetBrowserContextIncognitoHelper(this);
 }
 
 ChromeBrowserProcessStub::~ChromeBrowserProcessStub() {
   DCHECK(!initialized_ || shutdown_);
   g_browser_process = NULL;
+  chrome::SetBrowserContextIncognitoHelper(nullptr);
 }
 
 void ChromeBrowserProcessStub::Initialize() {
@@ -354,4 +357,16 @@ ChromeBrowserProcessStub::CachedDefaultWebClientState() {
 memory::TabManager* ChromeBrowserProcessStub::GetTabManager() {
   NOTIMPLEMENTED();
   return NULL;
+}
+
+content::BrowserContext*
+ChromeBrowserProcessStub::GetBrowserContextRedirectedInIncognito(
+    content::BrowserContext* context) {
+  return CefBrowserContextImpl::GetForContext(context).get();
+}
+
+content::BrowserContext*
+ChromeBrowserProcessStub::GetBrowserContextOwnInstanceInIncognito(
+    content::BrowserContext* context) {
+  return GetBrowserContextRedirectedInIncognito(context);
 }

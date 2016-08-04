@@ -14,10 +14,14 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/values.h"
 #include "chrome/browser/prefs/command_line_pref_store.h"
+#include "chrome/browser/supervised_user/supervised_user_pref_store.h"
+#include "chrome/browser/supervised_user/supervised_user_settings_service.h"
+#include "chrome/browser/supervised_user/supervised_user_settings_service_factory.h"
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/grit/locale_settings.h"
+#include "components/content_settings/core/browser/cookie_settings.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/prefs/json_pref_store.h"
 #include "components/prefs/pref_filter.h"
@@ -86,7 +90,10 @@ void RegisterLocalizedValue(PrefRegistrySimple* registry,
 
 const char kUserPrefsFileName[] = "UserPrefs.json";
 
-std::unique_ptr<PrefService> CreatePrefService(const base::FilePath& pref_path) {
+std::unique_ptr<PrefService> CreatePrefService(
+    Profile* profile,
+    const base::FilePath& cache_path,
+    bool persist_user_preferences) {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
 
@@ -100,23 +107,52 @@ std::unique_ptr<PrefService> CreatePrefService(const base::FilePath& pref_path) 
   renderer_prefs::SetCommandLinePrefDefaults(command_line_pref_store.get());
   factory.set_command_line_prefs(command_line_pref_store);
 
+  // True if preferences will be stored on disk.
+  const bool store_on_disk = !cache_path.empty() && persist_user_preferences;
+
+  scoped_refptr<base::SequencedTaskRunner> sequenced_task_runner;
+  if (store_on_disk) {
+    // Get sequenced task runner for making sure that file operations of
+    // this profile (defined by |cache_path|) are executed in expected order
+    // (what was previously assured by the FILE thread).
+    sequenced_task_runner = JsonPrefStore::GetTaskRunnerForFile(
+        cache_path, content::BrowserThread::GetBlockingPool());
+  }
+
   // Used to store user preferences.
   scoped_refptr<PersistentPrefStore> user_pref_store;
-  if (!pref_path.empty()) {
-    // Store preferences on disk.
-    scoped_refptr<base::SequencedTaskRunner> task_runner =
-        JsonPrefStore::GetTaskRunnerForFile(
-            pref_path,
-            content::BrowserThread::GetBlockingPool());
+  if (store_on_disk) {
+    const base::FilePath& pref_path =
+        cache_path.AppendASCII(browser_prefs::kUserPrefsFileName);
     scoped_refptr<JsonPrefStore> json_pref_store =
-        new JsonPrefStore(pref_path, task_runner, std::unique_ptr<PrefFilter>());
+        new JsonPrefStore(pref_path, sequenced_task_runner,
+                          std::unique_ptr<PrefFilter>());
     factory.set_user_prefs(json_pref_store.get());
   } else {
-    // Store preferences in memory.
     scoped_refptr<TestingPrefStore> testing_pref_store = new TestingPrefStore();
     testing_pref_store->SetInitializationCompleted();
     factory.set_user_prefs(testing_pref_store.get());
   }
+
+#if defined(ENABLE_SUPERVISED_USERS)
+  // Used to store supervised user preferences.
+  SupervisedUserSettingsService* supervised_user_settings =
+      SupervisedUserSettingsServiceFactory::GetForProfile(profile);
+
+  if (store_on_disk) {
+    supervised_user_settings->Init(
+        cache_path, sequenced_task_runner.get(), false);
+  } else {
+    scoped_refptr<TestingPrefStore> testing_pref_store = new TestingPrefStore();
+    testing_pref_store->SetInitializationCompleted();
+    supervised_user_settings->Init(testing_pref_store);
+  }
+
+  scoped_refptr<PrefStore> supervised_user_prefs = make_scoped_refptr(
+      new SupervisedUserPrefStore(supervised_user_settings));
+  DCHECK(supervised_user_prefs->IsInitializationComplete());
+  factory.set_supervised_user_prefs(supervised_user_prefs);
+#endif  // ENABLE_SUPERVISED_USERS
 
   // Registry that will be populated with all known preferences. Preferences
   // are registered with default values that may be changed via a *PrefStore.
@@ -131,6 +167,7 @@ std::unique_ptr<PrefService> CreatePrefService(const base::FilePath& pref_path) 
   CefURLRequestContextGetterImpl::RegisterPrefs(registry.get());
   renderer_prefs::RegisterProfilePrefs(registry.get());
   update_client::RegisterPrefs(registry.get());
+  content_settings::CookieSettings::RegisterProfilePrefs(registry.get());
 
   // Print preferences.
   registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);

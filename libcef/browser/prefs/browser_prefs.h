@@ -7,11 +7,12 @@
 
 #include <memory>
 
-class PrefService;
-
 namespace base {
 class FilePath;
 }
+
+class PrefService;
+class Profile;
 
 namespace browser_prefs {
 
@@ -19,7 +20,10 @@ namespace browser_prefs {
 extern const char kUserPrefsFileName[];
 
 // Create the PrefService used to manage pref registration and storage.
-std::unique_ptr<PrefService> CreatePrefService(const base::FilePath& pref_path);
+std::unique_ptr<PrefService> CreatePrefService(
+    Profile* profile,
+    const base::FilePath& cache_path,
+    bool persist_user_preferences);
 
 }  // namespace browser_prefs
 

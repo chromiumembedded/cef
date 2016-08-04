@@ -14,6 +14,14 @@ ChromeProfileManagerStub::ChromeProfileManagerStub()
 ChromeProfileManagerStub::~ChromeProfileManagerStub() {
 }
 
+Profile* ChromeProfileManagerStub::GetProfile(
+    const base::FilePath& profile_dir) {
+  scoped_refptr<CefBrowserContextImpl> browser_context =
+      CefBrowserContextImpl::GetForCachePath(profile_dir);
+  DCHECK(browser_context);
+  return browser_context.get();
+}
+
 bool ChromeProfileManagerStub::IsValidProfile(const void* profile) {
   if (!profile)
     return false;

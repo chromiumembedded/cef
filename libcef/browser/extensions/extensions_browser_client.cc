@@ -13,10 +13,10 @@
 #include "libcef/browser/extensions/extension_system_factory.h"
 #include "libcef/browser/extensions/extension_web_contents_observer.h"
 #include "libcef/browser/extensions/extensions_api_client.h"
-#include "libcef/browser/extensions/url_request_util.h"
 
 //#include "cef/libcef/browser/extensions/api/generated_api_registration.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/extensions/chrome_url_request_util.h"
 #include "chrome/browser/extensions/event_router_forwarder.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
@@ -104,7 +104,7 @@ CefExtensionsBrowserClient::MaybeCreateResourceBundleRequestJob(
     const base::FilePath& directory_path,
     const std::string& content_security_policy,
     bool send_cors_header) {
-  return url_request_util::MaybeCreateURLRequestResourceBundleJob(
+  return chrome_url_request_util::MaybeCreateURLRequestResourceBundleJob(
       request,
       network_delegate,
       directory_path,
