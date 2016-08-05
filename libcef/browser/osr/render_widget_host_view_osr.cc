@@ -1085,6 +1085,10 @@ void CefRenderWidgetHostViewOSR::SetBeginFrameSource(
   // See https://codereview.chromium.org/1841083007.
 }
 
+bool CefRenderWidgetHostViewOSR::IsAutoResizeEnabled() const {
+  return render_widget_host_->auto_resize_enabled();
+}
+
 bool CefRenderWidgetHostViewOSR::InstallTransparency() {
   if (transparent_) {
     SetBackgroundColor(SkColor());

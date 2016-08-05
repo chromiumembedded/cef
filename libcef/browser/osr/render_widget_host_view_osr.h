@@ -220,6 +220,7 @@ class CefRenderWidgetHostViewOSR
       const base::TimeTicks& timebase,
       const base::TimeDelta& interval) override;
   void SetBeginFrameSource(cc::BeginFrameSource* source) override;
+  bool IsAutoResizeEnabled() const override;
 
   bool InstallTransparency();
 

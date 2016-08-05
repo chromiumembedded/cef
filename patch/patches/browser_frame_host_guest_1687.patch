@@ -1,5 +1,5 @@
 diff --git render_widget_host_view_guest.cc render_widget_host_view_guest.cc
-index d5434c9..2dd1660 100644
+index 839f8ff..b65a1b4 100644
 --- render_widget_host_view_guest.cc
 +++ render_widget_host_view_guest.cc
 @@ -243,6 +243,9 @@ void RenderWidgetHostViewGuest::Destroy() {
