@@ -11,6 +11,7 @@
 
 #include "base/lazy_instance.h"
 #include "base/logging.h"
+#include "cef/grit/cef_resources.h"
 #include "cef/libcef/common/extensions/api/generated_schemas.h"
 #include "extensions/common/api/generated_schemas.h"
 #include "extensions/common/common_manifest_handlers.h"
@@ -27,8 +28,7 @@
 #include "extensions/common/permissions/permissions_info.h"
 #include "extensions/common/permissions/permissions_provider.h"
 #include "extensions/common/url_pattern_set.h"
-#include "grit/cef_resources.h"
-#include "grit/extensions_resources.h"
+#include "extensions/grit/extensions_resources.h"
 
 namespace extensions {
 

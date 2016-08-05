@@ -76,13 +76,16 @@ class CefWindowX11;
 ///////////////////////////////////////////////////////////////////////////////
 
 #if defined(OS_MACOSX)
-class AcceleratedWidgetMacNSViewHelper;
+class MacHelper;
 #endif
 
 class CefRenderWidgetHostViewOSR
     : public content::RenderWidgetHostViewBase,
-      public ui::CompositorDelegate,
-      public content::DelegatedFrameHostClient {
+      public ui::CompositorDelegate
+#if !defined(OS_MACOSX)
+      , public content::DelegatedFrameHostClient
+#endif
+{
  public:
   CefRenderWidgetHostViewOSR(const bool transparent,
                              content::RenderWidgetHost* widget,
@@ -190,8 +193,8 @@ class CefRenderWidgetHostViewOSR
   std::unique_ptr<cc::SoftwareOutputDevice> CreateSoftwareOutputDevice(
       ui::Compositor* compositor) override;
 
+#if !defined(OS_MACOSX)
   // DelegatedFrameHostClient implementation.
-  virtual int DelegatedFrameHostGetGpuMemoryBufferClientId() const override;
   ui::Layer* DelegatedFrameHostGetLayer() const override;
   bool DelegatedFrameHostIsVisible() const override;
   SkColor DelegatedFrameHostGetGutterColor(SkColor color) const override;
@@ -211,6 +214,8 @@ class CefRenderWidgetHostViewOSR
       const base::TimeTicks& timebase,
       const base::TimeDelta& interval) override;
   void SetBeginFrameSource(cc::BeginFrameSource* source) override;
+  bool IsAutoResizeEnabled() const override;
+#endif  // !defined(OS_MACOSX)
 
   bool InstallTransparency();
 
@@ -267,10 +272,10 @@ class CefRenderWidgetHostViewOSR
   ui::Compositor* GetCompositor() const;
   content::RenderWidgetHostImpl* render_widget_host() const
       { return render_widget_host_; }
+  ui::Layer* GetRootLayer() const;
 
  private:
   content::DelegatedFrameHost* GetDelegatedFrameHost() const;
-  ui::Layer* GetRootLayer() const;
 
   void SetFrameRate();
   void SetDeviceScaleFactor();
@@ -286,7 +291,7 @@ class CefRenderWidgetHostViewOSR
   void OnScrollOffsetChanged();
 
 #if defined(OS_MACOSX)
-  friend class AcceleratedWidgetMacNSViewHelper;
+  friend class MacHelper;
 
   // Returns composition character boundary rectangle. The |range| is
   // composition based range. Also stores |actual_range| which is corresponding
@@ -334,7 +339,7 @@ class CefRenderWidgetHostViewOSR
   NSWindow* window_;
   CALayer* background_layer_;
   std::unique_ptr<content::BrowserCompositorMac> browser_compositor_;
-  AcceleratedWidgetMacNSViewHelper* accelerated_widget_helper_;
+  MacHelper* mac_helper_;
 #elif defined(USE_X11)
   CefWindowX11* window_;
   std::unique_ptr<ui::XScopedCursor> invisible_cursor_;

@@ -1,2 +1,2 @@
-#include <grit/cef_resources.h>
-#include <grit/cef_strings.h>
+#include "cef/grit/cef_resources.h"
+#include "cef/grit/cef_strings.h"

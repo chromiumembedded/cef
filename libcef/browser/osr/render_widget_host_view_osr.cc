@@ -45,12 +45,6 @@ const float kDefaultScaleFactor = 1.0;
 // The maximum number of retry counts if frame capture fails.
 const int kFrameRetryLimit = 2;
 
-// When accelerated compositing is enabled and a widget resize is pending,
-// we delay further resizes of the UI. The following constant is the maximum
-// length of time that we should delay further UI resizes while waiting for a
-// resized frame from a renderer.
-const int kResizeLockTimeoutMs = 67;
-
 static blink::WebScreenInfo webScreenInfoFrom(const CefScreenInfo& src) {
   blink::WebScreenInfo webScreenInfo;
   webScreenInfo.deviceScaleFactor = src.device_scale_factor;
@@ -66,6 +60,14 @@ static blink::WebScreenInfo webScreenInfoFrom(const CefScreenInfo& src) {
 
   return webScreenInfo;
 }
+
+#if !defined(OS_MACOSX)
+
+// When accelerated compositing is enabled and a widget resize is pending,
+// we delay further resizes of the UI. The following constant is the maximum
+// length of time that we should delay further UI resizes while waiting for a
+// resized frame from a renderer.
+const int kResizeLockTimeoutMs = 67;
 
 // Used to prevent further resizes while a resize is pending.
 class CefResizeLock : public content::ResizeLock {
@@ -123,6 +125,8 @@ class CefResizeLock : public content::ResizeLock {
 
   DISALLOW_COPY_AND_ASSIGN(CefResizeLock);
 };
+
+#endif  // !defined(OS_MACOSX)
 
 }  // namespace
 
@@ -202,8 +206,7 @@ class CefCopyFrameGenerator {
             damage_rect));
 
     request->set_area(gfx::Rect(view_->GetPhysicalBackingSize()));
-    view_->DelegatedFrameHostGetLayer()->RequestCopyOfOutput(
-        std::move(request));
+    view_->GetRootLayer()->RequestCopyOfOutput(std::move(request));
   }
 
   void CopyFromCompositingSurfaceHasResult(
@@ -1035,10 +1038,7 @@ CefRenderWidgetHostViewOSR::CreateSoftwareOutputDevice(
   return base::WrapUnique(software_output_device_);
 }
 
-int CefRenderWidgetHostViewOSR::DelegatedFrameHostGetGpuMemoryBufferClientId()
-    const {
-  return render_widget_host_->GetProcess()->GetID();
-}
+#if !defined(OS_MACOSX)
 
 ui::Layer* CefRenderWidgetHostViewOSR::DelegatedFrameHostGetLayer() const {
   return GetRootLayer();
@@ -1117,6 +1117,12 @@ void CefRenderWidgetHostViewOSR::SetBeginFrameSource(
   // OnSetNeedsBeginFrames() instead of using CefBeginFrameTimer.
   // See https://codereview.chromium.org/1841083007.
 }
+
+bool CefRenderWidgetHostViewOSR::IsAutoResizeEnabled() const {
+  return render_widget_host_->auto_resize_enabled();
+}
+
+#endif  // !defined(OS_MACOSX)
 
 bool CefRenderWidgetHostViewOSR::InstallTransparency() {
   if (transparent_) {
@@ -1332,8 +1338,13 @@ void CefRenderWidgetHostViewOSR::RemoveGuestHostView(
 }
 
 #if !defined(OS_MACOSX)
+
 ui::Compositor* CefRenderWidgetHostViewOSR::GetCompositor() const {
   return compositor_.get();
+}
+
+ui::Layer* CefRenderWidgetHostViewOSR::GetRootLayer() const {
+  return root_layer_.get();
 }
 
 content::DelegatedFrameHost* CefRenderWidgetHostViewOSR::GetDelegatedFrameHost()
@@ -1341,9 +1352,6 @@ content::DelegatedFrameHost* CefRenderWidgetHostViewOSR::GetDelegatedFrameHost()
   return delegated_frame_host_.get();
 }
 
-ui::Layer* CefRenderWidgetHostViewOSR::GetRootLayer() const {
-  return root_layer_.get();
-}
 #endif  // !defined(OS_MACOSX)
 
 void CefRenderWidgetHostViewOSR::SetFrameRate() {

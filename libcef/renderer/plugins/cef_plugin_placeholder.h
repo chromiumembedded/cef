@@ -52,9 +52,7 @@ class CefPluginPlaceholder final
 
   // content::LoadablePluginPlaceholder overrides:
   blink::WebPlugin* CreatePlugin() override;
-  void OnLoadedRectUpdate(
-      const gfx::Rect& unobscured_rect,
-      content::RenderFrame::PeripheralContentStatus status) override;
+  void OnBlockedTinyContent() override;
 
   // gin::Wrappable (via PluginPlaceholder) method
   gin::ObjectTemplateBuilder GetObjectTemplateBuilder(
@@ -85,7 +83,7 @@ class CefPluginPlaceholder final
   int context_menu_request_id_;  // Nonzero when request pending.
   base::string16 plugin_name_;
 
-  bool ignore_updates_;
+  bool did_send_blocked_content_notification_;
 
   DISALLOW_COPY_AND_ASSIGN(CefPluginPlaceholder);
 };

@@ -89,7 +89,6 @@ index 5bfa9a7..5e6e05d 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
 index d58cb85..c7384b9 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py

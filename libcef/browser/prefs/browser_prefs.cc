@@ -13,6 +13,7 @@
 #include "base/files/file_path.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/values.h"
+#include "cef/grit/cef_strings.h"
 #include "chrome/browser/prefs/command_line_pref_store.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
@@ -29,7 +30,6 @@
 #include "components/update_client/update_client.h"
 #include "content/public/browser/browser_thread.h"
 #include "extensions/browser/extension_prefs.h"
-#include "grit/cef_strings.h"
 #include "ui/base/l10n/l10n_util.h"
 
 namespace browser_prefs {

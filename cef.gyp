@@ -961,9 +961,6 @@
         '<(DEPTH)/cef/libcef/resources/grit_stub/chrome',
         '<(grit_out_dir)',
         '<(SHARED_INTERMEDIATE_DIR)/chrome',
-        '<(SHARED_INTERMEDIATE_DIR)/components',
-        '<(SHARED_INTERMEDIATE_DIR)/ui/resources',
-        '<(SHARED_INTERMEDIATE_DIR)/ui/strings',
       ],
       'dependencies': [
         '<(DEPTH)/base/base.gyp:base',

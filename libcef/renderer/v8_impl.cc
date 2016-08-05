@@ -2363,13 +2363,9 @@ CefV8StackFrameImpl::CefV8StackFrameImpl(
       is_constructor_(false) {
   if (handle.IsEmpty())
     return;
-  GetCefString(v8::Local<v8::String>::Cast(handle->GetScriptName()),
-      script_name_);
-  GetCefString(
-      v8::Local<v8::String>::Cast(handle->GetScriptNameOrSourceURL()),
-      script_name_or_source_url_);
-  GetCefString(v8::Local<v8::String>::Cast(handle->GetFunctionName()),
-      function_name_);
+  GetCefString(handle->GetScriptName(), script_name_);
+  GetCefString(handle->GetScriptNameOrSourceURL(), script_name_or_source_url_);
+  GetCefString(handle->GetFunctionName(), function_name_);
   line_number_ = handle->GetLineNumber();
   column_ = handle->GetColumn();
   is_eval_ = handle->IsEval();

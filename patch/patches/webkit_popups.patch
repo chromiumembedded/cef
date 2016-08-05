@@ -1,8 +1,8 @@
 diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
-index 6b3b603..0530199 100644
+index 4afc8d8..07eef06 100644
 --- Source/web/ChromeClientImpl.cpp
 +++ Source/web/ChromeClientImpl.cpp
-@@ -883,7 +883,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
+@@ -886,7 +886,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
  PopupMenu* ChromeClientImpl::openPopupMenu(LocalFrame& frame, HTMLSelectElement& select)
  {
      notifyPopupOpeningObservers();

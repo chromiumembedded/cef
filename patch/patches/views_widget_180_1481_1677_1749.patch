@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index d9b97ff..9ac9883 100644
+index 6f5c6c3..2360cf2 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -769,6 +769,13 @@ void RenderWidgetHostViewAura::SetKeyboardFocus() {
