@@ -1,3 +1,26 @@
+diff --git gyp/MSVSVersion.py gyp/MSVSVersion.py
+index edaf6ee..c213df8 100644
+--- gyp/MSVSVersion.py
++++ gyp/MSVSVersion.py
+@@ -92,7 +92,8 @@ class VisualStudioVersion(object):
+           # VS2013 and later, non-Express have a x64-x86 cross that we want
+           # to prefer.
+           return [os.path.normpath(
+-             os.path.join(self.path, 'VC/vcvarsall.bat')), 'amd64_x86']
++             os.path.join(self.path, 'VC/vcvarsall.bat')), 'amd64_x86', \
++                          '10.0.10586.0']
+         # Otherwise, the standard x86 compiler.
+         return [os.path.normpath(
+           os.path.join(self.path, 'Common7/Tools/vsvars32.bat'))]
+@@ -106,7 +107,7 @@ class VisualStudioVersion(object):
+             os.environ.get('PROCESSOR_ARCHITEW6432') == 'AMD64'):
+           arg = 'amd64'
+         return [os.path.normpath(
+-            os.path.join(self.path, 'VC/vcvarsall.bat')), arg]
++            os.path.join(self.path, 'VC/vcvarsall.bat')), arg, '10.0.10586.0']
+ 
+   def SetupScript(self, target_arch):
+     script_data = self._SetupScriptInternal(target_arch)
 diff --git gyp/generator/ninja.py gyp/generator/ninja.py
 index 9cfc706..932dc86 100644
 --- gyp/generator/ninja.py
