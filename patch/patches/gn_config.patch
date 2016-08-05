@@ -56,10 +56,11 @@ index 5bfa9a7..5e6e05d 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index d58cb85..fd608ba 100644
+diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
+index d58cb85..c7384b9 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
-@@ -124,11 +124,14 @@ def _LoadToolchainEnv(cpu, sdk_dir):
+@@ -124,11 +124,15 @@ def _LoadToolchainEnv(cpu, sdk_dir):
      script_path = os.path.normpath(os.path.join(
                                         os.environ['GYP_MSVS_OVERRIDE_PATH'],
                                         'VC/vcvarsall.bat'))
@@ -69,7 +70,8 @@ index d58cb85..fd608ba 100644
 -    args = [script_path, 'amd64_x86' if cpu == 'x86' else 'amd64']
 -    variables = _LoadEnvFromBat(args)
 +    if os.path.exists(script_path):
-+      args = [script_path, 'amd64_x86' if cpu == 'x86' else 'amd64']
++      args = [script_path, 'amd64_x86' if cpu == 'x86' else 'amd64', \
++              '10.0.10586.0']
 +      variables = _LoadEnvFromBat(args)
 +    else:
 +      variables = []
