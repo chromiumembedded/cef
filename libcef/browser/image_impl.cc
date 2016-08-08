@@ -329,7 +329,12 @@ gfx::ImageSkia CefImageImpl::GetForced1xScaleRepresentation(
 
 bool CefImageImpl::AddBitmap(float scale_factor,
                              const SkBitmap& bitmap) {
-  DCHECK(bitmap.readyToDraw());
+#if DCHECK_IS_ON()
+  {
+    SkAutoLockPixels bitmap_lock(bitmap);
+    DCHECK(bitmap.readyToDraw());
+  }
+#endif
   DCHECK(bitmap.colorType() == kBGRA_8888_SkColorType ||
          bitmap.colorType() == kRGBA_8888_SkColorType);
 
