@@ -500,12 +500,14 @@ void CefBrowserImpl::FocusedNodeChanged(const blink::WebNode& node) {
   }
 }
 
+// Based on ExtensionHelper::DraggableRegionsChanged.
 void CefBrowserImpl::DraggableRegionsChanged(blink::WebFrame* frame) {
   blink::WebVector<blink::WebDraggableRegion> webregions =
       frame->document().draggableRegions();
   std::vector<Cef_DraggableRegion_Params> regions;
   for (size_t i = 0; i < webregions.size(); ++i) {
     Cef_DraggableRegion_Params region;
+    render_view()->ConvertViewportToWindowViaWidget(&webregions[i].bounds);
     region.bounds = webregions[i].bounds;
     region.draggable = webregions[i].draggable;
     regions.push_back(region);
