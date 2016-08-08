@@ -49,6 +49,14 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
       command_line->AppendSwitch("enable-begin-frame-scheduling");
     }
 
+    if (command_line->HasSwitch(switches::kUseViews) &&
+        !command_line->HasSwitch("top-chrome-md")) {
+      // Use non-material mode on all platforms by default. Among other things
+      // this causes menu buttons to show hover state. See usage of
+      // MaterialDesignController::IsModeMaterial() in Chromium code.
+      command_line->AppendSwitchWithValue("top-chrome-md", "non-material");
+    }
+
     DelegateSet::iterator it = delegates_.begin();
     for (; it != delegates_.end(); ++it)
       (*it)->OnBeforeCommandLineProcessing(this, command_line);
