@@ -282,9 +282,6 @@ elif sys.platform == 'darwin':
 elif sys.platform.startswith('linux'):
   platform = 'linux'
 
-# Whether to use GN or GYP. GN is currently the default.
-use_gn = bool(int(os.environ.get('CEF_USE_GN', '1')))
-
 # the outputdir option is required
 if options.outputdir is None:
   parser.print_help(sys.stderr)
@@ -340,21 +337,6 @@ platform_arch = '32'
 if options.x64build:
   platform_arch = '64'
 
-if platform == 'linux' and not use_gn:
-  # GYP places x86 and x64 builds in the same directory. Check file attributes
-  # to differentiate between them.
-  platform_arch = ''
-  lib_dir_name = 'lib'
-  release_libcef_path = os.path.join(src_dir, 'out', 'Release', lib_dir_name, 'libcef.so');
-  debug_libcef_path = os.path.join(src_dir, 'out', 'Debug', lib_dir_name, 'libcef.so');
-  file_desc = ''
-  output = subprocess.check_output('file ' + release_libcef_path + ' ' + debug_libcef_path + '; exit 0',
-                                  env=os.environ, stderr=subprocess.STDOUT, shell=True)
-  if output.find('32-bit') != -1:
-    platform_arch = '32'
-  if output.find('64-bit') != -1:
-    platform_arch = '64'
-
 # output directory
 output_dir_base = 'cef_binary_' + cef_ver
 
@@ -388,20 +370,12 @@ cef_paths = cef_paths['variables']
 cef_paths2 = eval_file(os.path.join(cef_dir, 'cef_paths2.gypi'))
 cef_paths2 = cef_paths2['variables']
 
-# Determine the build directory suffix.
-build_dir_suffix = ''
-if use_gn:
-  # CEF uses a consistent directory naming scheme for GN via
-  # GetAllPlatformConfigs in gn_args.py.
-  if options.x64build:
-    build_dir_suffix = '_GN_x64'
-  else:
-    build_dir_suffix = '_GN_x86'
+# Determine the build directory suffix. CEF uses a consistent directory naming
+# scheme for GN via GetAllPlatformConfigs in gn_args.py.
+if options.x64build:
+  build_dir_suffix = '_GN_x64'
 else:
-  # GYP outputs both x86 and x64 builds to the same directory on Linux and
-  # Mac OS X. On Windows it suffixes the directory name for x64 builds.
-  if platform == 'windows' and options.x64build:
-    build_dir_suffix = '_x64'
+  build_dir_suffix = '_GN_x86'
 
 # Determine the build directory paths.
 out_dir = os.path.join(src_dir, 'out')
@@ -509,7 +483,6 @@ if mode == 'standard':
                          variables, options.quiet)
 
   # transfer gyp files
-  copy_file(os.path.join(script_dir, 'distrib/cefclient.gyp'), output_dir, options.quiet)
   paths_gypi = os.path.join(cef_dir, 'cef_paths2.gypi')
   data = read_file(paths_gypi)
   data = data.replace('tests/cefclient/', 'cefclient/')
@@ -526,7 +499,7 @@ if platform == 'windows':
     'libGLESv2.dll',
     'natives_blob.bin',
     'snapshot_blob.bin',
-    # Should match the output path from src/media/cdm_paths.gypi.
+    # Should match the output path from media/cdm/ppapi/cdm_paths.gni.
     'WidevineCdm\\_platform_specific\\win_%s\\widevinecdmadapter.dll' % \
       ('x64' if options.x64build else 'x86'),
   ]
@@ -535,13 +508,10 @@ if platform == 'windows':
   sandbox_libs = [
     'obj\\base\\base.lib',
     'obj\\base\\base_static.lib',
-    'obj\\cef\\cef_sandbox.lib',
     'obj\\base\\third_party\\dynamic_annotations\\dynamic_annotations.lib',
+    'obj\\cef\\cef_sandbox.lib',
+    'obj\\sandbox\\win\\sandbox.lib',
   ]
-  if use_gn:
-    sandbox_libs.append('obj\\sandbox\\win\\sandbox.lib')
-  else:
-    sandbox_libs.append('obj\\sandbox\\sandbox.lib')
 
   valid_build_dir = None
 

@@ -10,12 +10,7 @@
 #
 # GN Setup:
 #
-# 1. Enable use of GN instead of GYP by setting the `CEF_USE_GN` environment
-#    variable to a value of `1`. For example, on Windows:
-#
-#    > set CEF_USE_GN=1
-#
-# 2. Optionally configure GN by setting the `GN_DEFINES` and/or `GN_ARGUMENTS`
+#    Optionally configure GN by setting the `GN_DEFINES` and/or `GN_ARGUMENTS`
 #    environment variables.
 #
 #    Example A: Use /DEBUG:FASTLINK on Windows:

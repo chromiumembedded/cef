@@ -889,7 +889,17 @@ if not options.nobuild and (chromium_checkout_changed or \
   # Building should also force a distribution.
   options.forcedistrib = True
 
-  if not use_gn:
+  if use_gn:
+    # Make sure the GN configuration exists.
+    if not options.dryrun and \
+      not os.path.exists(os.path.join(cef_src_dir, 'BUILD.gn')):
+      raise Exception('GN configuration does not exist; set CEF_USE_GN=0')
+  else:
+    # Make sure the GYP configuration exists.
+    if not options.dryrun and \
+      not os.path.exists(os.path.join(cef_src_dir, 'cef.gyp')):
+      raise Exception('GYP configuration does not exist; set CEF_USE_GN=1')
+
     # Set GYP environment variables.
     os.environ['GYP_GENERATORS'] = 'ninja'
     if gyp_needs_target_arch_x64:
