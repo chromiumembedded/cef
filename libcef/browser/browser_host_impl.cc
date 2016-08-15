@@ -598,7 +598,7 @@ void CefBrowserHostImpl::SetFocus(bool focus) {
 
   if (focus)
     OnSetFocus(FOCUS_SOURCE_SYSTEM);
-  else
+  else if (platform_delegate_)
     platform_delegate_->SendFocusEvent(false);
 }
 
@@ -942,7 +942,7 @@ void CefBrowserHostImpl::WasResized() {
     return;
   }
 
-  if (!web_contents())
+if (!web_contents() || !platform_delegate_)
     return;
 
   platform_delegate_->WasResized();
@@ -960,7 +960,7 @@ void CefBrowserHostImpl::WasHidden(bool hidden) {
     return;
   }
 
-  if (!web_contents())
+  if (!web_contents() || !platform_delegate_)
     return;
 
   platform_delegate_->WasHidden(hidden);
@@ -978,7 +978,7 @@ void CefBrowserHostImpl::NotifyScreenInfoChanged() {
     return;
   }
 
-  if (!web_contents())
+  if (!web_contents() || !platform_delegate_)
     return;
 
   platform_delegate_->NotifyScreenInfoChanged();
@@ -996,7 +996,7 @@ void CefBrowserHostImpl::Invalidate(PaintElementType type) {
     return;
   }
 
-  if (!web_contents())
+  if (!web_contents() || !platform_delegate_)
     return;
 
   platform_delegate_->Invalidate(type);
@@ -1009,7 +1009,7 @@ void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
     return;
   }
 
-  if (!web_contents())
+  if (!web_contents() || !platform_delegate_)
     return;
 
   content::NativeWebKeyboardEvent web_event;
@@ -1026,7 +1026,7 @@ void CefBrowserHostImpl::SendMouseClickEvent(const CefMouseEvent& event,
     return;
   }
 
-  if (!web_contents())
+  if (!web_contents() || !platform_delegate_)
     return;
 
   blink::WebMouseEvent web_event;
@@ -1044,7 +1044,7 @@ void CefBrowserHostImpl::SendMouseMoveEvent(const CefMouseEvent& event,
     return;
   }
 
-  if (!web_contents())
+  if (!web_contents() || !platform_delegate_)
     return;
 
   blink::WebMouseEvent web_event;
@@ -1061,7 +1061,7 @@ void CefBrowserHostImpl::SendMouseWheelEvent(const CefMouseEvent& event,
     return;
   }
 
-  if (!web_contents())
+  if (!web_contents() || !platform_delegate_)
     return;
 
   blink::WebMouseWheelEvent web_event;
@@ -1080,7 +1080,7 @@ void CefBrowserHostImpl::SendCaptureLostEvent() {
     return;
   }
 
-  if (!web_contents())
+  if (!web_contents() || !platform_delegate_)
     return;
 
   platform_delegate_->SendCaptureLostEvent();
@@ -1094,7 +1094,7 @@ void CefBrowserHostImpl::NotifyMoveOrResizeStarted() {
     return;
   }
 
-  if (!web_contents())
+  if (!web_contents() || !platform_delegate_)
     return;
 
   platform_delegate_->NotifyMoveOrResizeStarted();
@@ -1120,7 +1120,9 @@ void CefBrowserHostImpl::SetWindowlessFrameRate(int frame_rate) {
   }
 
   settings_.windowless_frame_rate = frame_rate;
-  platform_delegate_->SetWindowlessFrameRate(frame_rate);
+
+  if (platform_delegate_)
+    platform_delegate_->SetWindowlessFrameRate(frame_rate);
 }
 
 // CefBrowser methods.
@@ -1423,12 +1425,14 @@ void CefBrowserHostImpl::DestroyBrowser() {
 #if defined(USE_AURA)
 views::Widget* CefBrowserHostImpl::GetWindowWidget() const {
   CEF_REQUIRE_UIT();
+  if (!platform_delegate_)
+    return nullptr;
   return platform_delegate_->GetWindowWidget();
 }
 
 CefRefPtr<CefBrowserView> CefBrowserHostImpl::GetBrowserView() const {
   CEF_REQUIRE_UIT();
-  if (IsViewsHosted())
+  if (IsViewsHosted() && platform_delegate_)
     return platform_delegate_->GetBrowserView();
   return nullptr;
 }
@@ -1667,7 +1671,8 @@ void CefBrowserHostImpl::ViewText(const std::string& text) {
     return;
   }
 
-  platform_delegate_->ViewText(text);
+  if (platform_delegate_)
+    platform_delegate_->ViewText(text);
 }
 
 void CefBrowserHostImpl::HandleExternalProtocol(const GURL& url) {
@@ -1680,7 +1685,7 @@ void CefBrowserHostImpl::HandleExternalProtocol(const GURL& url) {
         handler->OnProtocolExecution(this, url.spec(), allow_os_execution);
     }
 
-    if (allow_os_execution)
+    if (allow_os_execution && platform_delegate_)
       platform_delegate_->HandleExternalProtocol(url);
   } else {
     CEF_POST_TASK(CEF_UIT,
@@ -1710,7 +1715,8 @@ void CefBrowserHostImpl::OnSetFocus(cef_focus_source_t source) {
       }
     }
 
-    platform_delegate_->SendFocusEvent(true);
+    if (platform_delegate_)
+      platform_delegate_->SendFocusEvent(true);
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::OnSetFocus, this, source));
@@ -1782,7 +1788,7 @@ CefTextInputContext CefBrowserHostImpl::GetNSTextInputContext() {
     return nullptr;
   }
 
-  if (!web_contents())
+  if (!web_contents() || !platform_delegate_)
     return nullptr;
 
   return platform_delegate_->GetNSTextInputContext();
@@ -1804,7 +1810,7 @@ void CefBrowserHostImpl::HandleKeyEventBeforeTextInputClient(
     return;
   }
 
-  if (!web_contents())
+  if (!web_contents() || !platform_delegate_)
     return;
 
   platform_delegate_->HandleKeyEventBeforeTextInputClient(keyEvent);
@@ -1824,7 +1830,7 @@ void CefBrowserHostImpl::HandleKeyEventAfterTextInputClient(
     return;
   }
 
-  if (!web_contents())
+  if (!web_contents() || !platform_delegate_)
     return;
 
   return platform_delegate_->HandleKeyEventAfterTextInputClient(keyEvent);
@@ -1851,7 +1857,7 @@ void CefBrowserHostImpl::DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
     return;
   }
 
-  if (!web_contents())
+  if (!web_contents() || !platform_delegate_)
     return;
 
   platform_delegate_->DragTargetDragEnter(drag_data, event, allowed_ops);
@@ -1871,7 +1877,7 @@ void CefBrowserHostImpl::DragTargetDragOver(const CefMouseEvent& event,
     return;
   }
 
-  if (!web_contents())
+  if (!web_contents() || !platform_delegate_)
     return;
 
   platform_delegate_->DragTargetDragOver(event, allowed_ops);
@@ -1889,7 +1895,7 @@ void CefBrowserHostImpl::DragTargetDragLeave() {
     return;
   }
 
-  if (!web_contents())
+  if (!web_contents() || !platform_delegate_)
     return;
 
   platform_delegate_->DragTargetDragLeave();
@@ -1907,7 +1913,7 @@ void CefBrowserHostImpl::DragTargetDrop(const CefMouseEvent& event) {
     return;
   }
 
-  if (!web_contents())
+  if (!web_contents() || !platform_delegate_)
     return;
 
   platform_delegate_->DragTargetDrop(event);
@@ -1925,6 +1931,9 @@ void CefBrowserHostImpl::DragSourceSystemDragEnded() {
     return;
   }
 
+  if (!web_contents() || !platform_delegate_)
+    return;
+
   platform_delegate_->DragSourceSystemDragEnded();
 }
 
@@ -1941,7 +1950,7 @@ void CefBrowserHostImpl::DragSourceEndedAt(
     return;
   }
 
-  if (!web_contents())
+  if (!web_contents() || !platform_delegate_)
     return;
 
   platform_delegate_->DragSourceEndedAt(x, y, op);
@@ -2111,6 +2120,9 @@ bool CefBrowserHostImpl::PreHandleKeyboardEvent(
     content::WebContents* source,
     const content::NativeWebKeyboardEvent& event,
     bool* is_keyboard_shortcut) {
+  if (!platform_delegate_)
+    return false;
+
   if (client_.get()) {
     CefRefPtr<CefKeyboardHandler> handler = client_->GetKeyboardHandler();
     if (handler.get()) {
@@ -2134,6 +2146,9 @@ void CefBrowserHostImpl::HandleKeyboardEvent(
     const content::NativeWebKeyboardEvent& event) {
   // Check to see if event should be ignored.
   if (event.skip_in_browser)
+    return;
+
+  if (!platform_delegate_)
     return;
 
   if (client_.get()) {
@@ -2237,7 +2252,7 @@ void CefBrowserHostImpl::DidNavigateMainFramePostCommit(
 content::JavaScriptDialogManager*
     CefBrowserHostImpl::GetJavaScriptDialogManager(
         content::WebContents* source) {
-  if (!javascript_dialog_manager_.get()) {
+  if (!javascript_dialog_manager_.get() && platform_delegate_) {
     javascript_dialog_manager_.reset(
         new CefJavaScriptDialogManager(this,
               platform_delegate_->CreateJavaScriptDialogRunner()));
@@ -2256,7 +2271,7 @@ bool CefBrowserHostImpl::HandleContextMenu(
     content::WebContents* web_contents,
     const content::ContextMenuParams& params) {
   CEF_REQUIRE_UIT();
-  if (!menu_manager_.get()) {
+  if (!menu_manager_.get() && platform_delegate_) {
     menu_manager_.reset(
         new CefMenuManager(this,
             platform_delegate_->CreateMenuRunner()));
@@ -2268,7 +2283,8 @@ void CefBrowserHostImpl::UpdatePreferredSize(content::WebContents* source,
                                              const gfx::Size& pref_size) {
 #if defined(OS_WIN) || (defined(OS_POSIX) && !defined(OS_MACOSX))
   CEF_REQUIRE_UIT();
-  platform_delegate_->SizeTo(pref_size.width(), pref_size.height());
+  if (platform_delegate_)
+    platform_delegate_->SizeTo(pref_size.width(), pref_size.height());
 #endif
 }
 
@@ -2940,7 +2956,7 @@ void CefBrowserHostImpl::SetFocusedFrame(int64 frame_id) {
 
 gfx::Point CefBrowserHostImpl::GetScreenPoint(const gfx::Point& view) const {
   CEF_REQUIRE_UIT();
-  if (platform_delegate_.get())
+  if (platform_delegate_)
     return platform_delegate_->GetScreenPoint(view);
   return gfx::Point();
 }
@@ -3026,7 +3042,7 @@ void CefBrowserHostImpl::OnDevToolsWebContentsDestroyed() {
 
 void CefBrowserHostImpl::EnsureFileDialogManager() {
   CEF_REQUIRE_UIT();
-  if (!file_dialog_manager_.get()) {
+  if (!file_dialog_manager_.get() && platform_delegate_) {
     file_dialog_manager_.reset(
         new CefFileDialogManager(this,
             platform_delegate_->CreateFileDialogRunner()));
