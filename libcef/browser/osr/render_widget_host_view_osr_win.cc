@@ -149,6 +149,12 @@ void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
   compositor_widget_ = window_->hwnd();
 }
 
+void CefRenderWidgetHostViewOSR::PlatformResizeCompositorWidget(const gfx::Size& size) {
+  DCHECK(window_);
+  SetWindowPos(window_->hwnd(), NULL, 0, 0, size.width(), size.height(),
+               SWP_NOMOVE | SWP_NOZORDER | SWP_NOREDRAW);
+}
+
 void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {
   window_.reset(NULL);
   compositor_widget_ = gfx::kNullAcceleratedWidget;
