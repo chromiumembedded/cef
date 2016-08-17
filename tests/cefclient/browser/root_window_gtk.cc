@@ -150,6 +150,12 @@ void RootWindowGtk::Show(ShowMode mode) {
     MinimizeWindow(GTK_WINDOW(window_));
   else if (mode == ShowMaximized)
     MaximizeWindow(GTK_WINDOW(window_));
+
+  // Flush the display to make sure the underlying X11 window gets created
+  // immediately.
+  GdkWindow* gdk_window = gtk_widget_get_window(window_);
+  GdkDisplay* display = gdk_window_get_display(gdk_window);
+  gdk_display_flush(display);
 }
 
 void RootWindowGtk::Hide() {
