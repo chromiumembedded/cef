@@ -318,6 +318,9 @@ void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
   browser_compositor_->Unsuspend();
 }
 
+void CefRenderWidgetHostViewOSR::PlatformResizeCompositorWidget(const gfx::Size&) {
+}
+
 void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {
   DCHECK(window_);
 
