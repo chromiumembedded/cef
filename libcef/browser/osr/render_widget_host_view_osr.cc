@@ -1424,6 +1424,7 @@ void CefRenderWidgetHostViewOSR::ResizeRootLayer() {
 
   GetRootLayer()->SetBounds(gfx::Rect(size));
   GetCompositor()->SetScaleAndSize(scale_factor_, size_in_pixels);
+  PlatformResizeCompositorWidget(size_in_pixels);
 }
 
 void CefRenderWidgetHostViewOSR::OnBeginFrameTimerTick() {

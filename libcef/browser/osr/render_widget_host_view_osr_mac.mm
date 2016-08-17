@@ -389,6 +389,9 @@ void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
       mac_helper_, mac_helper_, render_widget_host_->is_hidden(), true));
 }
 
+void CefRenderWidgetHostViewOSR::PlatformResizeCompositorWidget(const gfx::Size&) {
+}
+
 void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {
   DCHECK(window_);
 

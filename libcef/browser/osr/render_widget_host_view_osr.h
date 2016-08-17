@@ -313,6 +313,7 @@ class CefRenderWidgetHostViewOSR
 #endif  // defined(OS_MACOSX)
 
   void PlatformCreateCompositorWidget();
+  void PlatformResizeCompositorWidget(const gfx::Size& size);
   void PlatformDestroyCompositorWidget();
 
 #if defined(USE_AURA)
