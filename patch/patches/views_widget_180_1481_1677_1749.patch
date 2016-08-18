@@ -146,7 +146,7 @@ index de96b63..ed0ba73 100644
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(const ui::MouseEvent& event) {
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-index e71604d..937bf91 100644
+index e71604d..937bf913 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 @@ -137,6 +137,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin

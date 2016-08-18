@@ -62,7 +62,7 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
                        bool replaced) override;
   void DispatchProtocolMessage(content::DevToolsAgentHost* agent_host,
                                const std::string& message) override;
-  base::DictionaryValue* preferences() { return &preferences_; }
+  void SetPreferences(const std::string& json);
 
   // WebContentsObserver overrides
   void RenderViewCreated(content::RenderViewHost* render_view_host) override;
