@@ -233,7 +233,7 @@ class PluginTestHandler : public RoutingTestHandler,
   void WaitForNavigatorPlugins(CefRefPtr<CefFrame> frame) const {
     // Test if the `navigator.plugins` list includes the PDF extension.
     const std::string& code =
-        " if (navigator.plugins['Chromium PDF Viewer'].filename == "
+        " if (navigator.plugins['Chrome PDF Viewer'].filename == "
         "       'mhjfbmdgcfjbbpaeojofohoefgiehjai') {"
         "  window.testQuery({request:'pdf_plugin_found'});"
         "} else {"
