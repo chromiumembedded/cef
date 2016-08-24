@@ -643,6 +643,7 @@ class ResourceResponseTest : public TestHandler {
   void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
                           CefRefPtr<CefFrame> frame,
                           CefRefPtr<CefRequest> request,
+                          CefRefPtr<CefResponse> response,
                           CefString& new_url) override {
     EXPECT_IO_THREAD();
     EXPECT_EQ(browser_id_, browser->GetIdentifier());

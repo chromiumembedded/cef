@@ -162,7 +162,7 @@ CefRefPtr<CefResourceHandler> CefRequestHandlerCToCpp::GetResourceHandler(
 
 void CefRequestHandlerCToCpp::OnResourceRedirect(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
-    CefString& new_url) {
+    CefRefPtr<CefResponse> response, CefString& new_url) {
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_resource_redirect))
     return;
@@ -181,12 +181,17 @@ void CefRequestHandlerCToCpp::OnResourceRedirect(CefRefPtr<CefBrowser> browser,
   DCHECK(request.get());
   if (!request.get())
     return;
+  // Verify param: response; type: refptr_diff
+  DCHECK(response.get());
+  if (!response.get())
+    return;
 
   // Execute
   _struct->on_resource_redirect(_struct,
       CefBrowserCppToC::Wrap(browser),
       CefFrameCppToC::Wrap(frame),
       CefRequestCppToC::Wrap(request),
+      CefResponseCppToC::Wrap(response),
       new_url.GetWritableStruct());
 }
 

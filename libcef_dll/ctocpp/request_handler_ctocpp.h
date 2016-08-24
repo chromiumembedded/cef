@@ -44,7 +44,7 @@ class CefRequestHandlerCToCpp
       CefRefPtr<CefRequest> request) override;
   void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
-      CefString& new_url) override;
+      CefRefPtr<CefResponse> response, CefString& new_url) override;
   bool OnResourceResponse(CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request,
       CefRefPtr<CefResponse> response) override;

@@ -159,13 +159,16 @@ class CefRequestHandler : public virtual CefBase {
   ///
   // Called on the IO thread when a resource load is redirected. The |request|
   // parameter will contain the old URL and other request-related information.
-  // The |new_url| parameter will contain the new URL and can be changed if
-  // desired. The |request| object cannot be modified in this callback.
+  // The |response| parameter will contain the response that resulted in the
+  // redirect. The |new_url| parameter will contain the new URL and can be
+  // changed if desired. The |request| object cannot be modified in this
+  // callback.
   ///
   /*--cef()--*/
   virtual void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
                                   CefRefPtr<CefFrame> frame,
                                   CefRefPtr<CefRequest> request,
+                                  CefRefPtr<CefResponse> response,
                                   CefString& new_url) {}
 
   ///

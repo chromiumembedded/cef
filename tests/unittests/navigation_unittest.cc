@@ -780,6 +780,7 @@ class RedirectTestHandler : public TestHandler {
   void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
                           CefRefPtr<CefFrame> frame,
                           CefRefPtr<CefRequest> request,
+                          CefRefPtr<CefResponse> response,
                           CefString& new_url) override {
     // Should be called for each redirected URL.
 
@@ -788,14 +789,29 @@ class RedirectTestHandler : public TestHandler {
       // Called due to the nav1 redirect response.
       got_nav1_redirect_.yes();
 
+      EXPECT_EQ(302, response->GetStatus());
+      EXPECT_STREQ("Found", response->GetStatusText().ToString().c_str());
+      EXPECT_STREQ("text/html", response->GetMimeType().ToString().c_str());
+      EXPECT_STREQ(kRNav2, response->GetHeader("Location").ToString().c_str());
+
       // Change the redirect to the 3rd URL.
       new_url = kRNav3;
     } else if (old_url == kRNav1 && new_url == kRNav3) {
       // Called due to the redirect change above.
       got_nav2_redirect_.yes();
+
+      EXPECT_EQ(307, response->GetStatus());
+      EXPECT_STREQ("Internal Redirect",
+                   response->GetStatusText().ToString().c_str());
+      EXPECT_TRUE(response->GetMimeType().empty());
+      EXPECT_STREQ(kRNav3, response->GetHeader("Location").ToString().c_str());
     } else if (old_url == kRNav3 && new_url == kRNav4) {
       // Called due to the nav3 redirect response.
       got_nav3_redirect_.yes();
+
+      EXPECT_EQ(200, response->GetStatus());
+      EXPECT_TRUE(response->GetStatusText().empty());
+      EXPECT_STREQ("text/html", response->GetMimeType().ToString().c_str());
     } else {
       got_invalid_redirect_.yes();
     }
@@ -862,6 +878,7 @@ class RedirectDestroyTestHandler : public TestHandler {
   void OnResourceRedirect(CefRefPtr<CefBrowser> browser,
     CefRefPtr<CefFrame> frame,
     CefRefPtr<CefRequest> request,
+    CefRefPtr<CefResponse> response,
     CefString& new_url) override {
     const std::string& old_url = request->GetURL();
     if (old_url == kRNav1 && new_url == kRNav2) {

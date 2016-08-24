@@ -73,10 +73,14 @@ net::URLRequestJob* CefRequestInterceptor::MaybeInterceptRedirect(
         static_cast<CefRequestImpl*>(cefRequest.get())->Set(request);
         static_cast<CefRequestImpl*>(cefRequest.get())->SetReadOnly(true);
 
+        CefRefPtr<CefResponse> cefResponse = new CefResponseImpl();
+        static_cast<CefResponseImpl*>(cefResponse.get())->Set(request);
+        static_cast<CefResponseImpl*>(cefResponse.get())->SetReadOnly(true);
+
         // Give the client an opportunity to redirect the request.
         CefString newUrlStr = location.spec();
         handler->OnResourceRedirect(browser.get(), frame, cefRequest,
-                                    newUrlStr);
+                                    cefResponse, newUrlStr);
         if (newUrlStr != location.spec()) {
           const GURL new_url = GURL(newUrlStr.ToString());
           if (!new_url.is_empty() && new_url.is_valid()) {
