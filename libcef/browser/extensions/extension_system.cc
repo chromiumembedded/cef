@@ -80,6 +80,7 @@ base::DictionaryValue* ParseManifest(
 
 CefExtensionSystem::CefExtensionSystem(BrowserContext* browser_context)
     : browser_context_(browser_context),
+      initialized_(false),
       registry_(ExtensionRegistry::Get(browser_context)),
       weak_ptr_factory_(this) {
 }
@@ -88,6 +89,8 @@ CefExtensionSystem::~CefExtensionSystem() {
 }
 
 void CefExtensionSystem::Init() {
+  DCHECK(!initialized_);
+
   // There's complexity here related to the ordering of message delivery. For
   // an extension to load correctly both the ExtensionMsg_Loaded and
   // ExtensionMsg_ActivateExtension messages must be sent. These messages are
@@ -141,6 +144,8 @@ void CefExtensionSystem::Init() {
     AddExtension(pdf_extension_util::GetManifest(),
                  base::FilePath(FILE_PATH_LITERAL("pdf")));
   }
+
+  initialized_ = true;
 }
 
 // Implementation based on ComponentLoader::Add.
@@ -173,6 +178,7 @@ void CefExtensionSystem::Shutdown() {
 }
 
 void CefExtensionSystem::InitForRegularProfile(bool extensions_enabled) {
+  DCHECK(!initialized_);
   service_worker_manager_.reset(new ServiceWorkerManager(browser_context_));
   runtime_data_.reset(new RuntimeData(registry_));
   quota_service_.reset(new QuotaService);

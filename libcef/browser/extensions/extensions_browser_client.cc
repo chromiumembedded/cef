@@ -18,6 +18,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/extensions/chrome_url_request_util.h"
 #include "chrome/browser/extensions/event_router_forwarder.h"
+#include "chrome/browser/profiles/incognito_helpers.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_frame_host.h"
@@ -61,7 +62,10 @@ bool CefExtensionsBrowserClient::IsValidContext(BrowserContext* context) {
 
 bool CefExtensionsBrowserClient::IsSameContext(BrowserContext* first,
                                                BrowserContext* second) {
-  return first == second;
+  // Returns true if |first| and |second| share the same underlying
+  // CefBrowserContextImpl.
+  return CefBrowserContextImpl::GetForContext(first).get() ==
+         CefBrowserContextImpl::GetForContext(second).get();
 }
 
 bool CefExtensionsBrowserClient::HasOffTheRecordContext(
@@ -77,7 +81,7 @@ BrowserContext* CefExtensionsBrowserClient::GetOffTheRecordContext(
 
 BrowserContext* CefExtensionsBrowserClient::GetOriginalContext(
     BrowserContext* context) {
-  return context;
+  return chrome::GetBrowserContextRedirectedInIncognito(context);
 }
 
 bool CefExtensionsBrowserClient::IsGuestSession(

@@ -78,6 +78,8 @@ class CefExtensionSystem : public ExtensionSystem {
   void InstallUpdate(const std::string& extension_id,
                      const base::FilePath& temp_dir) override;
 
+  bool initialized() const { return initialized_; }
+
  private:
   // Information about a registered component extension.
   struct ComponentExtensionInfo {
@@ -119,6 +121,8 @@ class CefExtensionSystem : public ExtensionSystem {
       scoped_refptr<const extensions::Extension> extension);
 
   content::BrowserContext* browser_context_;  // Not owned.
+
+  bool initialized_;
 
   // Data to be accessed on the IO thread. Must outlive process_manager_.
   scoped_refptr<InfoMap> info_map_;

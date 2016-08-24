@@ -65,14 +65,6 @@ class CefBrowserContextImpl : public CefBrowserContext,
   content::SSLHostStateDelegate* GetSSLHostStateDelegate() override;
   content::PermissionManager* GetPermissionManager() override;
   content::BackgroundSyncController* GetBackgroundSyncController() override;
-
-  // Profile methods.
-  PrefService* GetPrefs() override;
-  const PrefService* GetPrefs() const override;
-
-  // CefBrowserContext methods.
-  const CefRequestContextSettings& GetSettings() const override;
-  CefRefPtr<CefRequestContextHandler> GetHandler() const override;
   net::URLRequestContextGetter* CreateRequestContext(
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors)
@@ -83,6 +75,17 @@ class CefBrowserContextImpl : public CefBrowserContext,
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors)
       override;
+  content::StoragePartition* GetStoragePartitionProxy(
+      content::BrowserContext* browser_context,
+      content::StoragePartition* partition_impl) override;
+
+  // Profile methods.
+  PrefService* GetPrefs() override;
+  const PrefService* GetPrefs() const override;
+
+  // CefBrowserContext methods.
+  const CefRequestContextSettings& GetSettings() const override;
+  CefRefPtr<CefRequestContextHandler> GetHandler() const override;
   HostContentSettingsMap* GetHostContentSettingsMap() override;
   void AddVisitedURLs(const std::vector<GURL>& urls) override;
 

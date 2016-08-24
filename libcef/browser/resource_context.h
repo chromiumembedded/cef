@@ -35,8 +35,7 @@ class CefResourceContext : public content::ResourceContext {
 
   std::unique_ptr<net::ClientCertStore> CreateClientCertStore();
 
-  void set_url_request_context_getter(
-      scoped_refptr<CefURLRequestContextGetter> getter);
+  void set_url_request_context_getter(CefURLRequestContextGetter* getter);
 
   // State transferred from the BrowserContext for use on the IO thread.
   bool IsOffTheRecord() const { return is_off_the_record_; }

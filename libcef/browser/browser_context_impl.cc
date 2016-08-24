@@ -10,6 +10,7 @@
 #include "libcef/browser/browser_context_proxy.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/download_manager_delegate.h"
+#include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/permissions/permission_manager.h"
 #include "libcef/browser/prefs/browser_prefs.h"
 #include "libcef/browser/ssl_host_state_delegate.h"
@@ -35,6 +36,8 @@
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/storage_partition.h"
+#include "extensions/browser/extension_protocols.h"
+#include "extensions/common/constants.h"
 #include "net/proxy/proxy_config_service.h"
 
 using content::BrowserThread;
@@ -201,6 +204,9 @@ CefBrowserContextImpl::CefBrowserContextImpl(
 }
 
 CefBrowserContextImpl::~CefBrowserContextImpl() {
+  // Unregister the context first to avoid re-entrancy during shutdown.
+  g_manager.Get().RemoveImpl(this, cache_path_);
+
   Shutdown();
 
   // The FontFamilyCache references the ProxyService so delete it before the
@@ -218,8 +224,6 @@ CefBrowserContextImpl::~CefBrowserContextImpl() {
   // when it's accessed from the content::BrowserContext destructor.
   if (download_manager_delegate_)
     download_manager_delegate_.reset(NULL);
-
-  g_manager.Get().RemoveImpl(this, cache_path_);
 }
 
 void CefBrowserContextImpl::Initialize() {
@@ -390,22 +394,6 @@ content::BackgroundSyncController*
   return nullptr;
 }
 
-PrefService* CefBrowserContextImpl::GetPrefs() {
-  return pref_service_.get();
-}
-
-const PrefService* CefBrowserContextImpl::GetPrefs() const {
-  return pref_service_.get();
-}
-
-const CefRequestContextSettings& CefBrowserContextImpl::GetSettings() const {
-  return settings_;
-}
-
-CefRefPtr<CefRequestContextHandler> CefBrowserContextImpl::GetHandler() const {
-  return NULL;
-}
-
 net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
@@ -417,7 +405,17 @@ net::URLRequestContextGetter* CefBrowserContextImpl::CreateRequestContext(
       ProxyServiceFactory::CreateProxyConfigService(
           pref_proxy_config_tracker_.get()));
 
-  CreateProtocolHandlers(protocol_handlers);
+  if (extensions::ExtensionsEnabled()) {
+    // Handle only chrome-extension:// requests. CEF does not support
+    // chrome-extension-resource:// requests (it does not store shared extension
+    // data in its installation directory).
+    extensions::InfoMap* extension_info_map =
+        extension_system()->info_map();
+    (*protocol_handlers)[extensions::kExtensionScheme] =
+        linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
+            extensions::CreateExtensionProtocolHandler(
+                IsOffTheRecord(), extension_info_map).release());
+  }
 
   url_request_getter_ = new CefURLRequestContextGetterImpl(
       settings_,
@@ -437,6 +435,30 @@ net::URLRequestContextGetter*
         bool in_memory,
         content::ProtocolHandlerMap* protocol_handlers,
         content::URLRequestInterceptorScopedVector request_interceptors) {
+  return nullptr;
+}
+
+content::StoragePartition* CefBrowserContextImpl::GetStoragePartitionProxy(
+    content::BrowserContext* browser_context,
+    content::StoragePartition* partition_impl) {
+  CefBrowserContextProxy* proxy =
+      static_cast<CefBrowserContextProxy*>(browser_context);
+  return proxy->GetOrCreateStoragePartitionProxy(partition_impl);
+}
+
+PrefService* CefBrowserContextImpl::GetPrefs() {
+  return pref_service_.get();
+}
+
+const PrefService* CefBrowserContextImpl::GetPrefs() const {
+  return pref_service_.get();
+}
+
+const CefRequestContextSettings& CefBrowserContextImpl::GetSettings() const {
+  return settings_;
+}
+
+CefRefPtr<CefRequestContextHandler> CefBrowserContextImpl::GetHandler() const {
   return NULL;
 }
 

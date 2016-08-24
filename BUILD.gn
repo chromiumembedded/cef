@@ -379,6 +379,8 @@ static_library("libcef_static") {
     "libcef/browser/ssl_host_state_delegate.h",
     "libcef/browser/ssl_info_impl.cc",
     "libcef/browser/ssl_info_impl.h",
+    "libcef/browser/storage_partition_proxy.cc",
+    "libcef/browser/storage_partition_proxy.h",
     "libcef/browser/stream_impl.cc",
     "libcef/browser/stream_impl.h",
     "libcef/browser/trace_impl.cc",

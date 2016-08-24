@@ -13,7 +13,7 @@
 #include "base/memory/ref_counted.h"
 
 class CefDownloadManagerDelegate;
-class CefURLRequestContextGetterProxy;
+class CefStoragePartitionProxy;
 
 // BrowserContext implementation for a particular CefRequestContext. Life span
 // is controlled by CefRequestContextImpl. Only accessed on the UI thread. See
@@ -40,14 +40,6 @@ class CefBrowserContextProxy : public CefBrowserContext {
   content::SSLHostStateDelegate* GetSSLHostStateDelegate() override;
   content::PermissionManager* GetPermissionManager() override;
   content::BackgroundSyncController* GetBackgroundSyncController() override;
-
-  // Profile methods.
-  PrefService* GetPrefs() override;
-  const PrefService* GetPrefs() const override;
-
-  // CefBrowserContext methods.
-  const CefRequestContextSettings& GetSettings() const override;
-  CefRefPtr<CefRequestContextHandler> GetHandler() const override;
   net::URLRequestContextGetter* CreateRequestContext(
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors)
@@ -58,8 +50,19 @@ class CefBrowserContextProxy : public CefBrowserContext {
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors)
       override;
+
+  // Profile methods.
+  PrefService* GetPrefs() override;
+  const PrefService* GetPrefs() const override;
+
+  // CefBrowserContext methods.
+  const CefRequestContextSettings& GetSettings() const override;
+  CefRefPtr<CefRequestContextHandler> GetHandler() const override;
   HostContentSettingsMap* GetHostContentSettingsMap() override;
   void AddVisitedURLs(const std::vector<GURL>& urls) override;
+
+  content::StoragePartition* GetOrCreateStoragePartitionProxy(
+    content::StoragePartition* partition_impl);
 
   scoped_refptr<CefBrowserContextImpl> parent() const {
     return parent_;
@@ -78,7 +81,7 @@ class CefBrowserContextProxy : public CefBrowserContext {
   scoped_refptr<CefBrowserContextImpl> parent_;
 
   std::unique_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
-  scoped_refptr<CefURLRequestContextGetterProxy> url_request_getter_;
+  std::unique_ptr<CefStoragePartitionProxy> storage_partition_proxy_;
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserContextProxy);
 };

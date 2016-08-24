@@ -14,8 +14,6 @@
 #include "components/user_prefs/user_prefs.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/storage_partition.h"
-#include "extensions/browser/extension_protocols.h"
-#include "extensions/common/constants.h"
 
 #ifndef NDEBUG
 base::AtomicRefCount CefBrowserContext::DebugObjCt = 0;
@@ -41,12 +39,17 @@ void CefBrowserContext::Initialize() {
   content::BrowserContext::Initialize(this, GetPath());
 
   const bool extensions_enabled = extensions::ExtensionsEnabled();
+  bool extensions_initialized = false;
   if (extensions_enabled) {
     // Create the custom ExtensionSystem first because other KeyedServices
     // depend on it.
+    // The same CefExtensionSystem instance is shared by CefBrowserContextImpl
+    // and CefBrowserContextProxy objects.
     extension_system_ = static_cast<extensions::CefExtensionSystem*>(
         extensions::ExtensionSystem::Get(this));
-    extension_system_->InitForRegularProfile(true);
+    extensions_initialized = extension_system_->initialized();
+    if (!extensions_initialized)
+      extension_system_->InitForRegularProfile(true);
   }
 
   resource_context_.reset(new CefResourceContext(
@@ -63,23 +66,8 @@ void CefBrowserContext::Initialize() {
   DCHECK(pref_service);
   user_prefs::UserPrefs::Set(this, pref_service);
 
-  if (extensions_enabled)
+  if (extensions_enabled && !extensions_initialized)
     extension_system_->Init();
-}
-
-void CefBrowserContext::CreateProtocolHandlers(
-    content::ProtocolHandlerMap* protocol_handlers) {
-  if (extensions::ExtensionsEnabled()) {
-    // Handle only chrome-extension:// requests. CEF does not support
-    // chrome-extension-resource:// requests (it does not store shared extension
-    // data in its installation directory).
-    extensions::InfoMap* extension_info_map =
-        extension_system()->info_map();
-    (*protocol_handlers)[extensions::kExtensionScheme] =
-        linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-            extensions::CreateExtensionProtocolHandler(
-                IsOffTheRecord(), extension_info_map).release());
-  }
 }
 
 void CefBrowserContext::Shutdown() {

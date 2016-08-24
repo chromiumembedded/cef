@@ -6,6 +6,7 @@
 
 #include "libcef/browser/extensions/extension_system.h"
 
+#include "chrome/browser/profiles/incognito_helpers.h"
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "extensions/browser/extension_prefs_factory.h"
 #include "extensions/browser/extension_registry_factory.h"
@@ -45,7 +46,7 @@ KeyedService* CefExtensionSystemFactory::BuildServiceInstanceFor(
 BrowserContext* CefExtensionSystemFactory::GetBrowserContextToUse(
     BrowserContext* context) const {
   // Use a separate instance for incognito.
-  return context;
+  return chrome::GetBrowserContextOwnInstanceInIncognito(context);
 }
 
 bool CefExtensionSystemFactory::ServiceIsCreatedWithBrowserContext() const {

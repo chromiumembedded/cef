@@ -74,7 +74,7 @@ std::unique_ptr<net::ClientCertStore>
 }
 
 void CefResourceContext::set_url_request_context_getter(
-    scoped_refptr<CefURLRequestContextGetter> getter) {
+    CefURLRequestContextGetter* getter) {
   DCHECK(!getter_.get());
   getter_ = getter;
 }

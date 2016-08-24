@@ -33,12 +33,22 @@
 //
 // BCI = CefBrowserContextImpl
 //   Entry point from WC when using an isolated RCI. Owns the RC and creates the
-//   URCGI. Life span controlled by RCI and (for the global context)
+//   SPI indirectly. Life span controlled by RCI and (for the global context)
 //   CefBrowserMainParts.
 //
 // BCP = CefBrowserContextProxy
 //   Entry point from WC when using a custom RCI. Owns the RC and creates the
-//   URCGP. Life span controlled by RCI.
+//   URCGP and SPP. Life span controlled by RCI.
+//
+// SPI = content::StoragePartitionImpl
+//   Owns storage-related objects like Quota, IndexedDB, Cache, etc. Created by
+//   StoragePartitionImplMap::Get(). Provides access to the URCGI. Life span is
+//   controlled indirectly by BCI.
+//
+// SPP = CefStoragePartitionProxy
+//   Forwards requests for storage-related objects to SPI. Created by
+//   GetStoragePartitionFromConfig() calling BCI::GetStoragePartitionProxy().
+//   Provides access to the URCGP. Life span is controlled by BCP.
 //
 // RC = CefResourceContext
 //   Acts as a bridge for resource loading. URLRequest life span is tied to this
@@ -46,11 +56,14 @@
 //   controlled by BCI/BCP.
 //
 // URCGI = CefURLRequestContextGetterImpl
-//   Creates and owns the URCI. Life span is controlled by RC and (for the
-//   global context) CefBrowserMainParts.
+//   Creates and owns the URCI. Created by StoragePartitionImplMap::Get()
+//   calling BCI::CreateRequestContext(). Life span is controlled by RC and (for
+//   the global context) CefBrowserMainParts, and SPI.
 //
 // URCGP = CefURLRequestContextGetterProxy
-//   Creates and owns the URCP. Life span is controlled by RC.
+//   Creates and owns the URCP. Created by GetStoragePartitionFromConfig()
+//   calling BCI::GetStoragePartitionProxy(). Life span is controlled by RC and
+//   SPP.
 //
 // URCI = CefURLRequestContextImpl
 //   Owns various network-related objects including the isolated cookie manager.
@@ -73,15 +86,15 @@
 //   own = ownership (scoped_ptr)
 //   ptr = raw pointer
 //
-//                    CefBrowserMainParts      isolated cookie manager, etc...
-//                       |           |            ^
-//                      ref         ref        ref/own
-//                       v           v            |
-//                /---> BCI -ref-> URCGI --own-> URCI <-ptr-- CSP
-//               /       ^           ^                        ^
-//             ptr      ref         ref                      /
-//             /         |           |                      /
-// BHI -own-> WC -ptr-> BCP -ref-> URCGP -own-> URCP --ref-/
+//                     CefBrowserMainParts----\   isolated cookie manager, etc.
+//                       |                     \             ^
+//                      ref                    ref        ref/own
+//                       v                      v            |
+//                /---> BCI -own-> SPI -ref-> URCGI --own-> URCI <-ptr-- CSP
+//               /       ^          ^           ^                        ^
+//             ptr      ref        ptr         ref                      /
+//             /         |          |           |                      /
+// BHI -own-> WC -ptr-> BCP -own-> SPP -ref-> URCGP -own-> URCP --ref-/
 //
 // BHI -ref-> RCI -ref-> BCI/BCP -own-> RC -ref-> URCGI/URCGP
 //
@@ -165,8 +178,6 @@ class CefBrowserContext
 
  protected:
   ~CefBrowserContext() override;
-
-  void CreateProtocolHandlers(content::ProtocolHandlerMap* protocol_handlers);
 
   // Must be called before the child object destructor has completed.
   void Shutdown();
