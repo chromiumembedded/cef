@@ -749,8 +749,6 @@ elif platform == 'linux':
     # transfer cefclient files
     transfer_gypi_files(cef_dir, cef_paths2['cefclient_sources_linux'], \
                         'tests/cefclient/', cefclient_dir, options.quiet)
-    transfer_gypi_files(cef_dir, cef_paths2['cefclient_bundle_resources_linux'], \
-                        'tests/cefclient/', cefclient_dir, options.quiet)
 
     # transfer cefsimple files
     transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_linux'], \
