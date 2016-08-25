@@ -257,7 +257,7 @@ def ValidateArgs(args):
       # be derived from there and the specified INCLUDE/LIB/PATH values, if any,
       # will be ignored by Chromium. If this file does not exist then the 
       # INCLUDE/LIB/PATH values are also required by Chromium.
-      assert bool(int(os.environ.get('DEPOT_TOOLS_WIN_TOOLCHAIN', 0))), \
+      assert os.environ.get('DEPOT_TOOLS_WIN_TOOLCHAIN', '') == '0', \
         "visual_studio_path requires DEPOT_TOOLS_WIN_TOOLCHAIN=0 env variable"
       msvs_path = os.environ.get('GYP_MSVS_OVERRIDE_PATH', '')
       assert msvs_path == visual_studio_path and os.path.exists(msvs_path), \
