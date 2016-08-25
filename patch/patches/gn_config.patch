@@ -81,6 +81,29 @@ index d58cb85..c7384b9 100644
    return _ExtractImportantEnvironment(variables)
  
  
+diff --git build/vs_toolchain.py build/vs_toolchain.py
+index 2b640fa..8b235a0 100755
+--- build/vs_toolchain.py
++++ build/vs_toolchain.py
+@@ -74,11 +74,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
+     runtime_path = os.path.pathsep.join(vs_runtime_dll_dirs)
+     os.environ['PATH'] = runtime_path + os.path.pathsep + os.environ['PATH']
+   elif sys.platform == 'win32' and not depot_tools_win_toolchain:
++    has_override_path = True
+     if not 'GYP_MSVS_OVERRIDE_PATH' in os.environ:
++      has_override_path = False
+       os.environ['GYP_MSVS_OVERRIDE_PATH'] = DetectVisualStudioPath()
+     if not 'GYP_MSVS_VERSION' in os.environ:
+       os.environ['GYP_MSVS_VERSION'] = GetVisualStudioVersion()
+ 
++    if has_override_path:
++      # Don't attempt to copy DLLs when using a custom toolchain.
++      # The DLLs should already be discoverable via the PATH env variable.
++      return None
++
+     # When using an installed toolchain these files aren't needed in the output
+     # directory in order to run binaries locally, but they are needed in order
+     # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/BUILD.gn chrome/BUILD.gn
 index 70a1759..7822a80 100644
 --- chrome/BUILD.gn
