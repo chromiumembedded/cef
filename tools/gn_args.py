@@ -240,7 +240,7 @@ def ValidateArgs(args):
       assert visual_studio_version != '', 'visual_studio_path requires visual_studio_version'
       assert visual_studio_runtime_dirs != '', 'visual_studio_path requires visual_studio_runtime_dirs'
       assert windows_sdk_path != '', 'visual_studio_path requires windows_sdk_path'
-      assert bool(int(os.environ.get('DEPOT_TOOLS_WIN_TOOLCHAIN', 0))), \
+      assert os.environ.get('DEPOT_TOOLS_WIN_TOOLCHAIN', '') == '0', \
         "visual_studio_path requires DEPOT_TOOLS_WIN_TOOLCHAIN=0 env variable"
       assert os.environ.get('CEF_VCVARS', '') == 'none', \
         "visual_studio_path requires CEF_VCVARS=none env variable"
