@@ -680,14 +680,12 @@ elif platform == 'macosx':
              options.quiet)
 
 elif platform == 'linux':
-  lib_dir_name = 'lib'
-
   valid_build_dir = None
 
   if mode == 'standard':
     # transfer Debug files
     build_dir = build_dir_debug
-    libcef_path = os.path.join(build_dir, lib_dir_name, 'libcef.so')
+    libcef_path = os.path.join(build_dir, 'libcef.so')
     if not options.allowpartial or path_exists(libcef_path):
       valid_build_dir = build_dir
       dst_dir = os.path.join(output_dir, 'Debug')
@@ -701,19 +699,15 @@ elif platform == 'linux':
 
   # transfer Release files
   build_dir = build_dir_release
-  libcef_path = os.path.join(build_dir, lib_dir_name, 'libcef.so')
+  libcef_path = os.path.join(build_dir, 'libcef.so')
   if not options.allowpartial or path_exists(libcef_path):
     valid_build_dir = build_dir
     dst_dir = os.path.join(output_dir, 'Release')
     make_dir(dst_dir, options.quiet)
 
     if mode == 'client':
-      lib_dst_dir = os.path.join(dst_dir, lib_dir_name)
-      make_dir(lib_dst_dir, options.quiet)
-      copy_file(libcef_path, lib_dst_dir, options.quiet)
       copy_file(os.path.join(build_dir, 'cefsimple'), dst_dir, options.quiet)
-    else:
-      copy_file(libcef_path, dst_dir, options.quiet)
+    copy_file(libcef_path, dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'chrome_sandbox'), os.path.join(dst_dir, 'chrome-sandbox'), options.quiet)
     copy_file(os.path.join(build_dir, 'natives_blob.bin'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'snapshot_blob.bin'), dst_dir, options.quiet)
