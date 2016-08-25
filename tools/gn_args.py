@@ -89,6 +89,7 @@ def GetChromiumDefaultArgs():
     defaults['is_win_fastlink'] = False
     defaults['visual_studio_path'] = ''
     defaults['visual_studio_version'] = ''
+    defaults['visual_studio_runtime_dirs'] = ''
     defaults['windows_sdk_path'] = ''
 
   return defaults
@@ -175,6 +176,7 @@ def ValidateArgs(args):
     is_win_fastlink = GetArgValue(args, 'is_win_fastlink')
     visual_studio_path = GetArgValue(args, 'visual_studio_path')
     visual_studio_version = GetArgValue(args, 'visual_studio_version')
+    visual_studio_runtime_dirs = GetArgValue(args, 'visual_studio_runtime_dirs')
     windows_sdk_path = GetArgValue(args, 'windows_sdk_path')
 
   # Target CPU architecture.
