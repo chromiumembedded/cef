@@ -244,7 +244,7 @@ def ValidateArgs(args):
         "visual_studio_path requires DEPOT_TOOLS_WIN_TOOLCHAIN=0 env variable"
       assert os.environ.get('CEF_VCVARS', '') == 'none', \
         "visual_studio_path requires CEF_VCVARS=none env variable"
-      assert 'GYP_MSVS_OVERRIDE_PATH' is os.environ \
+      assert 'GYP_MSVS_OVERRIDE_PATH' in os.environ \
         and 'PATH' in os.environ \
         and 'LIB' in os.environ \
         and 'INCLUDE' in os.environ, \
