@@ -261,9 +261,9 @@ def ValidateArgs(args):
         and 'PATH' in os.environ, \
         "visual_studio_path requires INCLUDE, LIB and PATH env variables"
 
-      # If "%VS_ROOT%\VC\vcvarsall.bat" exists then environment variables will
-      # be derived from there and the specified INCLUDE/LIB/PATH values, if any,
-      # will be ignored by Chromium. If this file does not exist then the
+      # If "%GYP_MSVS_OVERRIDE_PATH%\VC\vcvarsall.bat" exists then environment
+      # variables will be derived from there and the specified INCLUDE/LIB/PATH
+      # values will be ignored by Chromium. If this file does not exist then the
       # INCLUDE/LIB/PATH values are also required by Chromium.
       vcvars_path = os.path.join(msvs_path, 'VC', 'vcvarsall.bat')
       if (os.path.exists(vcvars_path)):

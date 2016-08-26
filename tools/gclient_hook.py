@@ -62,8 +62,6 @@ if platform == 'windows':
   # o Used by tools/msvs_env.bat to configure the MSVS tools environment.
   #   Should be set to "none" because VC variables for CEF will be set via
   #   INCLUDE/LIB/PATH.
-  #   TODO(cef): Make INCLUDE/LIB/PATH values optional when
-  #   "%VS_ROOT%\VC\vcvarsall.bat" exists (use those values instead).
   #
   #   set CEF_VCVARS=none
   #
@@ -76,9 +74,9 @@ if platform == 'windows':
   #   writing environment.* files that specify INCLUDE/LIB/PATH values. If
   #   "%GYP_MSVS_OVERRIDE_PATH%\VC\vcvarsall.bat" exists then environment
   #   variables will be derived from there and the specified INCLUDE/LIB/PATH
-  #   values, if any, will be ignored by Chromium. If this file does not exist
-  #   then the INCLUDE/LIB/PATH values are also required by Chromium.
-  #   TODO(cef): Rename to VS_PATH and VS_VERSION after Chromium cleans up GYP
+  #   values will be ignored by Chromium. If this file does not exist then the
+  #   INCLUDE/LIB/PATH values are also required by Chromium.
+  #   TODO(cef): Rename to VS_ROOT and VS_VERSION after Chromium cleans up GYP
   #   dependencies.
   #
   #   set GYP_MSVS_OVERRIDE_PATH=<VS root directory>
@@ -90,6 +88,9 @@ if platform == 'windows':
   #   set SDK_ROOT=<Platform SDK root directory>
   #
   # o Used by various scripts as described above.
+  #   TODO(cef): Make these values optional when
+  #   "%GYP_MSVS_OVERRIDE_PATH%\VC\vcvarsall.bat" exists (use values from that
+  #   script instead).
   #
   #   set INCLUDE=<VS include paths>
   #   set LIB=<VS library paths>
