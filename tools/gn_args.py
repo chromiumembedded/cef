@@ -211,15 +211,12 @@ def ValidateArgs(args):
         msg('is_official_build=false + is_debug=true recommends is_win_fastlink=true')
 
     # Windows custom toolchain requirements.
-    # See tools/depot_tools/win_toolchain/package_from_installed.py for an
-    # example packaging script along with required directory contents and
-    # INCLUDE/LIB/PATH values.
     #
     # Required GN arguments:
     #   visual_studio_path="<path to VS root>"
     #     The directory that contains Visual Studio. For example, a subset of
     #     "C:\Program Files (x86)\Microsoft Visual Studio 14.0".
-    #   visual_studio_version="<vs version>"
+    #   visual_studio_version="<VS version>"
     #     The VS version. For example, "2015".
     #   visual_studio_runtime_dirs="<path to VS CRT>"
     #     The directory that contains the VS CRT. For example, the contents of
@@ -232,37 +229,42 @@ def ValidateArgs(args):
     # Required environment variables:
     #   DEPOT_TOOLS_WIN_TOOLCHAIN=0
     #   GYP_MSVS_OVERRIDE_PATH=<path to VS root, must match visual_studio_path>
+    #   GYP_MSVS_VERSION=<VS version, must match visual_studio_version>
     #   CEF_VCVARS=none
     #   INCLUDE=<VS include paths>
     #   LIB=<VS library paths>
     #   PATH=<VS executable paths>
+    #
+    # See comments in gclient_hook.py for environment variable usage.
     #
     if visual_studio_path != '':
       assert visual_studio_version != '', 'visual_studio_path requires visual_studio_version'
       assert visual_studio_runtime_dirs != '', 'visual_studio_path requires visual_studio_runtime_dirs'
       assert windows_sdk_path != '', 'visual_studio_path requires windows_sdk_path'
 
-      # VC variables for CEF will be set via INCLUDE/LIB/PATH.
-      # TODO(cef): Make INCLUDE/LIB/PATH values optional when
-      # "%VS_ROOT%\VC\vcvarsall.bat" exists (use those values instead).
+      assert os.environ.get('DEPOT_TOOLS_WIN_TOOLCHAIN', '') == '0', \
+        "visual_studio_path requires DEPOT_TOOLS_WIN_TOOLCHAIN=0 env variable"
+
+      msvs_path = os.environ.get('GYP_MSVS_OVERRIDE_PATH', '')
+      assert msvs_path == visual_studio_path and os.path.exists(msvs_path), \
+        "visual_studio_path requires matching GYP_MSVS_OVERRIDE_PATH env variable"
+
+      msvs_version = os.environ.get('GYP_MSVS_VERSION', '')
+      assert msvs_version == visual_studio_version, \
+        "visual_studio_version requires matching GYP_MSVS_VERSION env variable"
+
       assert os.environ.get('CEF_VCVARS', '') == 'none', \
         "visual_studio_path requires CEF_VCVARS=none env variable"
+
       assert 'INCLUDE' in os.environ \
         and 'LIB' in os.environ \
         and 'PATH' in os.environ, \
         "visual_studio_path requires INCLUDE, LIB and PATH env variables"
 
-      # Checked in build/toolchain/win/setup_toolchain.py _LoadToolchainEnv.
       # If "%VS_ROOT%\VC\vcvarsall.bat" exists then environment variables will
       # be derived from there and the specified INCLUDE/LIB/PATH values, if any,
-      # will be ignored by Chromium. If this file does not exist then the 
+      # will be ignored by Chromium. If this file does not exist then the
       # INCLUDE/LIB/PATH values are also required by Chromium.
-      assert os.environ.get('DEPOT_TOOLS_WIN_TOOLCHAIN', '') == '0', \
-        "visual_studio_path requires DEPOT_TOOLS_WIN_TOOLCHAIN=0 env variable"
-      msvs_path = os.environ.get('GYP_MSVS_OVERRIDE_PATH', '')
-      assert msvs_path == visual_studio_path and os.path.exists(msvs_path), \
-        "visual_studio_path requires matching GYP_MSVS_OVERRIDE_PATH env variable"
-
       vcvars_path = os.path.join(msvs_path, 'VC', 'vcvarsall.bat')
       if (os.path.exists(vcvars_path)):
         msg('INCLUDE/LIB/PATH values will be derived from %s' % vcvars_path)

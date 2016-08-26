@@ -52,20 +52,56 @@ if platform == 'windows':
   # but not installed (e.g. via a custom toolchain) set the following
   # environment variables:
   #
+  # o Enable use of a custom toolchain on Windows.
+  #
   #   set WIN_CUSTOM_TOOLCHAIN=1
-  #   set VS_VERSION=<VS version>
+  #
+  # o Used by tools/msvs_env.bat to configure the MSVS tools environment.
+  #   Should be set to "none" because VC variables for CEF will be set via
+  #   INCLUDE/LIB/PATH.
+  #   TODO(cef): Make INCLUDE/LIB/PATH values optional when
+  #   "%VS_ROOT%\VC\vcvarsall.bat" exists (use those values instead).
+  #
+  #   set CEF_VCVARS=none
+  #
+  # o Used by the following scripts:
+  #   (a) build/vs_toolchain.py SetEnvironmentAndGetRuntimeDllDirs when
+  #   determining whether to copy VS runtime binaries to the output directory.
+  #   If GYP_MSVS_OVERRIDE_PATH exists then binaries will not be copied and
+  #   should instead be discoverable via the PATH env variable.
+  #   (b) build/toolchain/win/setup_toolchain.py _LoadToolchainEnv when
+  #   writing environment.* files that specify INCLUDE/LIB/PATH values. If
+  #   "%GYP_MSVS_OVERRIDE_PATH%\VC\vcvarsall.bat" exists then environment
+  #   variables will be derived from there and the specified INCLUDE/LIB/PATH
+  #   values, if any, will be ignored by Chromium. If this file does not exist
+  #   then the INCLUDE/LIB/PATH values are also required by Chromium.
+  #   TODO(cef): Rename to VS_PATH and VS_VERSION after Chromium cleans up GYP
+  #   dependencies.
+  #
+  #   set GYP_MSVS_OVERRIDE_PATH=<VS root directory>
+  #   set GYP_MSVS_VERSION=<VS version>
+  #
+  # o Used to configure GN arguments in this script.
+  #
   #   set VS_CRT_ROOT=<VS CRT root directory>
-  #   set VS_ROOT=<VS root directory>
   #   set SDK_ROOT=<Platform SDK root directory>
+  #
+  # o Used by various scripts as described above.
+  #
   #   set INCLUDE=<VS include paths>
   #   set LIB=<VS library paths>
   #   set PATH=<VS executable paths>
   #
+  # See tools/depot_tools/win_toolchain/package_from_installed.py for an example
+  # packaging script along with required directory contents and INCLUDE/LIB/PATH
+  # values.
+  #
   if bool(int(os.environ.get('WIN_CUSTOM_TOOLCHAIN', '0'))):
     required_vars = [
-      'VS_VERSION',
+      'CEF_VCVARS',
+      'GYP_MSVS_OVERRIDE_PATH',
+      'GYP_MSVS_VERSION',
       'VS_CRT_ROOT',
-      'VS_ROOT',
       'SDK_ROOT',
       'INCLUDE',
       'LIB',
@@ -75,21 +111,9 @@ if platform == 'windows':
       if not var in os.environ.keys():
         raise Exception('%s environment variable must be set' % var)
 
-    # VC variables for CEF will be set via INCLUDE/LIB/PATH.
-    # TODO(cef): Make INCLUDE/PATH/LIB values optional when
-    # "%VS_ROOT%\VC\vcvarsall.bat" exists (use those values instead).
-    os.environ['CEF_VCVARS'] = 'none'
-
-    # Checked in build/toolchain/win/setup_toolchain.py _LoadToolchainEnv.
-    # If "%VS_ROOT%\VC\vcvarsall.bat" exists then environment variables will
-    # be derived from there and the specified INCLUDE/LIB/PATH values, if any,
-    # will be ignored by Chromium. If this file does not exist then the
-    # INCLUDE/LIB/PATH values are also required by Chromium.
-    os.environ['GYP_MSVS_OVERRIDE_PATH'] = os.environ['VS_ROOT']
-
     # Windows custom toolchain requirements. See comments in gn_args.py.
-    gn_args['visual_studio_path'] = os.environ['VS_ROOT']
-    gn_args['visual_studio_version'] = os.environ['VS_VERSION']
+    gn_args['visual_studio_path'] = os.environ['GYP_MSVS_OVERRIDE_PATH']
+    gn_args['visual_studio_version'] = os.environ['GYP_MSVS_VERSION']
     gn_args['visual_studio_runtime_dirs'] = os.environ['VS_CRT_ROOT']
     gn_args['windows_sdk_path'] = os.environ['SDK_ROOT']
 
