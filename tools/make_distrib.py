@@ -669,8 +669,12 @@ elif platform == 'macosx':
 
       # create the real dSYM file from the "fake" dSYM file
       sys.stdout.write("Creating the real dSYM file...\n")
-      src_path = os.path.join(build_dir, \
-          '%s.framework.dSYM/Contents/Resources/DWARF/%s' % (framework_name, framework_name))
+      if use_gn:
+        src_path = os.path.join(build_dir, \
+            '%s.dSYM/Contents/Resources/DWARF/%s' % (framework_name, framework_name))
+      else:
+        src_path = os.path.join(build_dir, \
+            '%s.framework.dSYM/Contents/Resources/DWARF/%s' % (framework_name, framework_name))
       dst_path = os.path.join(symbol_output_dir, '%s.dSYM' % framework_name)
       run('dsymutil "%s" -o "%s"' % (src_path, dst_path), cef_dir)
 
