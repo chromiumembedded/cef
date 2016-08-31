@@ -11,6 +11,11 @@
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
 
+// Comment in this define if you have configured API keys that enable Google
+// Maps Geolocation API support.
+// See https://www.chromium.org/developers/how-tos/api-keys for details.
+// #define HAS_GEOLOCATION_API_KEYS 1
+
 namespace {
 
 // Geolocation access is now restricted to "secure" origins.
@@ -146,7 +151,11 @@ TEST(GeolocationTest, HandlerAllow) {
   CefRefPtr<GeolocationTestHandler> handler =
       new GeolocationTestHandler(TEST_ALLOW, false);
   handler->ExecuteTest();
+#if defined(HAS_GEOLOCATION_API_KEYS)
   EXPECT_TRUE(handler->got_allow_);
+#else
+  EXPECT_FALSE(handler->got_allow_);
+#endif
   ReleaseAndWaitForDestructor(handler);
 }
 
@@ -154,7 +163,11 @@ TEST(GeolocationTest, HandlerAllowAsync) {
   CefRefPtr<GeolocationTestHandler> handler =
       new GeolocationTestHandler(TEST_ALLOW, true);
   handler->ExecuteTest();
+#if defined(HAS_GEOLOCATION_API_KEYS)
   EXPECT_TRUE(handler->got_allow_);
+#else
+  EXPECT_FALSE(handler->got_allow_);
+#endif
   ReleaseAndWaitForDestructor(handler);
 }
 
@@ -193,11 +206,15 @@ class TestGetGeolocationCallback : public CefGetGeolocationCallback {
 
   void OnLocationUpdate(const CefGeoposition& position) override {
     EXPECT_TRUE(CefCurrentlyOn(TID_UI));
-    EXPECT_EQ(position.error_code, GEOPOSITON_ERROR_NONE);
-    EXPECT_NE(position.latitude, 0.0);
-    EXPECT_NE(position.longitude, 0.0);
-    EXPECT_NE(position.accuracy, 0.0);
-    EXPECT_NE(position.timestamp.year, 0);
+#if defined(HAS_GEOLOCATION_API_KEYS)
+    EXPECT_EQ(GEOPOSITON_ERROR_NONE, position.error_code);
+#else
+    EXPECT_EQ(GEOPOSITON_ERROR_POSITION_UNAVAILABLE, position.error_code);
+#endif
+    EXPECT_NE(0.0, position.latitude);
+    EXPECT_NE(0.0, position.longitude);
+    EXPECT_NE(0.0, position.accuracy);
+    EXPECT_NE(0, position.timestamp.year);
     event_->Signal();
   }
 

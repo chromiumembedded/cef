@@ -403,7 +403,7 @@ CefNativeMenuWin::CefNativeMenuWin(ui::MenuModel* model, HWND system_menu_for)
 CefNativeMenuWin::~CefNativeMenuWin() {
   if (destroyed_flag_)
     *destroyed_flag_ = true;
-  STLDeleteContainerPointers(items_.begin(), items_.end());
+  base::STLDeleteContainerPointers(items_.begin(), items_.end());
   DestroyMenu(menu_);
 }
 

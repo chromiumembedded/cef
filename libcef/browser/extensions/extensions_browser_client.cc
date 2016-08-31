@@ -206,7 +206,7 @@ CefExtensionsBrowserClient::CreateRuntimeAPIDelegate(
     content::BrowserContext* context) const {
   // TODO(extensions): Implement to support Apps.
   NOTREACHED();
-  return std::unique_ptr<RuntimeAPIDelegate>();
+  return nullptr;
 }
 
 const ComponentExtensionResourceManager*

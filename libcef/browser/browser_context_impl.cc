@@ -199,7 +199,8 @@ class CefVisitedLinkListener : public visitedlink::VisitedLinkMaster::Listener {
 
 CefBrowserContextImpl::CefBrowserContextImpl(
     const CefRequestContextSettings& settings)
-    : settings_(settings) {
+    : CefBrowserContext(false),
+      settings_(settings) {
   g_manager.Get().AddImpl(this);
 }
 
@@ -278,6 +279,14 @@ void CefBrowserContextImpl::Initialize() {
   // CefURLRequestContextImpl.
   GetRequestContext();
   DCHECK(url_request_getter_.get());
+
+  // Create the StoragePartitionImplMap and StoragePartitionImpl for this
+  // object. This must be done before the first WebContents is created using a
+  // CefBrowserContextProxy of this object, otherwise the StoragePartitionProxy
+  // will not be created (in that case
+  // CefBrowserContextProxy::CreateRequestContext will be called, which is
+  // incorrect).
+  GetDefaultStoragePartition(this);
 }
 
 void CefBrowserContextImpl::AddProxy(const CefBrowserContextProxy* proxy) {

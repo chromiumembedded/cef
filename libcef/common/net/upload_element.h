@@ -17,7 +17,7 @@
 namespace net {
 
 // A class representing an element contained by UploadData.
-class NET_EXPORT UploadElement {
+class UploadElement {
  public:
   enum Type {
     TYPE_BYTES,

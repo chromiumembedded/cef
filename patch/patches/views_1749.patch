@@ -1,8 +1,8 @@
 diff --git controls/button/menu_button.cc controls/button/menu_button.cc
-index b891849..a41dc85 100644
+index 4b562c5..17e2d3b 100644
 --- controls/button/menu_button.cc
 +++ controls/button/menu_button.cc
-@@ -198,7 +198,7 @@ void MenuButton::OnPaint(gfx::Canvas* canvas) {
+@@ -197,7 +197,7 @@ void MenuButton::OnPaint(gfx::Canvas* canvas) {
  gfx::Size MenuButton::GetPreferredSize() const {
    gfx::Size prefsize = LabelButton::GetPreferredSize();
    if (show_menu_marker_) {
@@ -11,7 +11,7 @@ index b891849..a41dc85 100644
                           kMenuMarkerPaddingRight,
                       0);
    }
-@@ -327,7 +327,7 @@ gfx::Rect MenuButton::GetChildAreaBounds() {
+@@ -324,7 +324,7 @@ gfx::Rect MenuButton::GetChildAreaBounds() {
    gfx::Size s = size();
  
    if (show_menu_marker_) {
@@ -20,7 +20,7 @@ index b891849..a41dc85 100644
                  kMenuMarkerPaddingRight);
    }
  
-@@ -415,4 +415,10 @@ int MenuButton::GetMaximumScreenXCoordinate() {
+@@ -412,4 +412,10 @@ int MenuButton::GetMaximumScreenXCoordinate() {
    return monitor_bounds.right() - 1;
  }
  
@@ -56,7 +56,7 @@ index 696a941..ce5abcd 100644
    // The time is used for simulating menu behavior for the menu button; that
    // is, if the menu is shown and the button is pressed, we need to close the
 diff --git view.h view.h
-index 6b45c63..7e52409 100644
+index 55cc02b..c402f55 100644
 --- view.h
 +++ view.h
 @@ -18,6 +18,7 @@

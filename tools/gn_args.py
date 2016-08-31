@@ -70,6 +70,7 @@ def MergeDicts(*dict_args):
 def GetChromiumDefaultArgs():
   """
   Return default GN args. These must match the Chromium defaults.
+  Only args that may be retrieved via GetArgValue() need to be specified here.
   """
   # Search for these values in declare_args() sections of *.gni files to find
   # the defaults.
@@ -132,7 +133,7 @@ def GetGNEnvArgs():
 
 def GetRequiredArgs():
   """
-  Return required GN args.
+  Return required GN args. Also enforced by assert() in //cef/BUILD.gn.
   """
   result = {
     # Set ENABLE_PRINTING=1 ENABLE_BASIC_PRINTING=1.
@@ -144,6 +145,10 @@ def GetRequiredArgs():
 
     # Disable support for plugin installation.
     'enable_plugin_installation': False,
+
+    # CEF does not currently support component builds. See
+    # https://bitbucket.org/chromiumembedded/cef/issues/1617
+    'is_component_build': False,
   }
 
   if platform == 'linux' or platform == 'macosx':

@@ -15,7 +15,6 @@ ContentSettingsType PermissionTypeToContentSetting(PermissionType permission) {
     case PermissionType::MIDI_SYSEX:
       return CONTENT_SETTINGS_TYPE_MIDI_SYSEX;
     case PermissionType::PUSH_MESSAGING:
-      return CONTENT_SETTINGS_TYPE_PUSH_MESSAGING;
     case PermissionType::NOTIFICATIONS:
       return CONTENT_SETTINGS_TYPE_NOTIFICATIONS;
     case PermissionType::GEOLOCATION:

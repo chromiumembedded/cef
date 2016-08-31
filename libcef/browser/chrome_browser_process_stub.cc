@@ -188,12 +188,12 @@ IconManager* ChromeBrowserProcessStub::icon_manager() {
   return NULL;
 }
 
-GLStringManager* ChromeBrowserProcessStub::gl_string_manager() {
+GpuModeManager* ChromeBrowserProcessStub::gpu_mode_manager() {
   NOTIMPLEMENTED();
   return NULL;
 }
 
-GpuModeManager* ChromeBrowserProcessStub::gpu_mode_manager() {
+GpuProfileCache* ChromeBrowserProcessStub::gpu_profile_cache() {
   NOTIMPLEMENTED();
   return NULL;
 }

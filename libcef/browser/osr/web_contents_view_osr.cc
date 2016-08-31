@@ -49,6 +49,13 @@ gfx::NativeWindow CefWebContentsViewOSR::GetTopLevelNativeWindow() const {
   return gfx::NativeWindow();
 }
 
+void CefWebContentsViewOSR::GetScreenInfo(blink::WebScreenInfo* results) const {
+  if (view_)
+    view_->GetScreenInfo(results);
+  else
+    WebContentsView::GetDefaultScreenInfo(results);
+}
+
 void CefWebContentsViewOSR::GetContainerBounds(gfx::Rect* out) const {
   if (guest_) {
     // Based on WebContentsViewGuest::GetContainerBounds.

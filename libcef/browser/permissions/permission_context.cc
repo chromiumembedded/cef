@@ -12,10 +12,10 @@
 #include "libcef/browser/thread_util.h"
 
 #include "components/content_settings/core/browser/host_content_settings_map.h"
-#include "content/public/browser/geolocation_provider.h"
 #include "content/public/browser/permission_type.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/origin_util.h"
+#include "device/geolocation/geolocation_provider.h"
 
 namespace {
 
@@ -35,7 +35,7 @@ class CefGeolocationCallbackImpl : public CefGeolocationCallback {
     if (CEF_CURRENTLY_ON_UIT()) {
       if (!callback_.is_null()) {
         if (allow) {
-          content::GeolocationProvider::GetInstance()->
+          device::GeolocationProvider::GetInstance()->
               UserDidOptIntoLocationServices();
         }
 

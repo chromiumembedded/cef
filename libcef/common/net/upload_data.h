@@ -28,7 +28,7 @@ namespace net {
 // Until there is a more abstract class for this, this one derives from
 // SupportsUserData to allow users to stash random data by
 // key and ensure its destruction when UploadData is finally deleted.
-class NET_EXPORT UploadData
+class UploadData
     : public base::RefCounted<UploadData>,
       public base::SupportsUserData {
  public:

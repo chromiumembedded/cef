@@ -320,6 +320,21 @@ void CefDevToolsFrontend::DispatchProtocolMessage(
   }
 }
 
+void CefDevToolsFrontend::SetPreferences(const std::string& json) {
+  preferences_.Clear();
+  if (json.empty())
+    return;
+  base::DictionaryValue* dict = nullptr;
+  std::unique_ptr<base::Value> parsed = base::JSONReader::Read(json);
+  if (!parsed || !parsed->GetAsDictionary(&dict))
+    return;
+  for (base::DictionaryValue::Iterator it(*dict); !it.IsAtEnd(); it.Advance()) {
+    if (!it.value().IsType(base::Value::TYPE_STRING))
+      continue;
+    preferences_.SetWithoutPathExpansion(it.key(), it.value().CreateDeepCopy());
+  }
+}
+
 void CefDevToolsFrontend::OnURLFetchComplete(const net::URLFetcher* source) {
   // TODO(pfeldman): this is a copy of chrome's devtools_ui_bindings.cc.
   // We should handle some of the commands including this one in content.

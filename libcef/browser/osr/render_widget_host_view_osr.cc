@@ -924,40 +924,6 @@ bool CefRenderWidgetHostViewOSR::HasAcceleratedSurface(
   return false;
 }
 
-void CefRenderWidgetHostViewOSR::GetScreenInfo(blink::WebScreenInfo* results) {
-  if (!browser_impl_.get())
-    return;
-
-  CefScreenInfo screen_info(
-      kDefaultScaleFactor, 0, 0, false, CefRect(), CefRect());
-
-  CefRefPtr<CefRenderHandler> handler =
-      browser_impl_->client()->GetRenderHandler();
-  if (handler.get() &&
-      (!handler->GetScreenInfo(browser_impl_.get(), screen_info) ||
-      screen_info.rect.width == 0 ||
-      screen_info.rect.height == 0 ||
-      screen_info.available_rect.width == 0 ||
-      screen_info.available_rect.height == 0)) {
-    // If a screen rectangle was not provided, try using the view rectangle
-    // instead. Otherwise, popup views may be drawn incorrectly, or not at all.
-    CefRect screenRect;
-    if (!handler->GetViewRect(browser_impl_.get(), screenRect)) {
-      NOTREACHED();
-      screenRect = CefRect();
-    }
-
-    if (screen_info.rect.width == 0 && screen_info.rect.height == 0)
-      screen_info.rect = screenRect;
-
-    if (screen_info.available_rect.width == 0 &&
-        screen_info.available_rect.height == 0)
-      screen_info.available_rect = screenRect;
-  }
-
-  *results = webScreenInfoFrom(screen_info);
-}
-
 gfx::Rect CefRenderWidgetHostViewOSR::GetBoundsInRootWindow() {
   if (!browser_impl_.get())
     return gfx::Rect();
@@ -999,20 +965,7 @@ void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
 }
 #endif
 
-bool CefRenderWidgetHostViewOSR::OnMessageReceived(const IPC::Message& msg) {
-  bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(CefRenderWidgetHostViewOSR, msg)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_SetNeedsBeginFrames,
-                        OnSetNeedsBeginFrames)
-    IPC_MESSAGE_UNHANDLED(handled = false)
-  IPC_END_MESSAGE_MAP()
-
-  if (!handled)
-    return content::RenderWidgetHostViewBase::OnMessageReceived(msg);
-  return handled;
-}
-
-void CefRenderWidgetHostViewOSR::OnSetNeedsBeginFrames(bool enabled) {
+void CefRenderWidgetHostViewOSR::SetNeedsBeginFrames(bool enabled) {
   SetFrameRate();
 
   // Start/stop the timer that sends BeginFrame requests.
@@ -1141,6 +1094,40 @@ void CefRenderWidgetHostViewOSR::WasResized() {
   if (render_widget_host_)
     render_widget_host_->WasResized();
   GetDelegatedFrameHost()->WasResized();
+}
+
+void CefRenderWidgetHostViewOSR::GetScreenInfo(blink::WebScreenInfo* results) {
+  if (!browser_impl_.get())
+    return;
+
+  CefScreenInfo screen_info(
+      kDefaultScaleFactor, 0, 0, false, CefRect(), CefRect());
+
+  CefRefPtr<CefRenderHandler> handler =
+      browser_impl_->client()->GetRenderHandler();
+  if (handler.get() &&
+      (!handler->GetScreenInfo(browser_impl_.get(), screen_info) ||
+      screen_info.rect.width == 0 ||
+      screen_info.rect.height == 0 ||
+      screen_info.available_rect.width == 0 ||
+      screen_info.available_rect.height == 0)) {
+    // If a screen rectangle was not provided, try using the view rectangle
+    // instead. Otherwise, popup views may be drawn incorrectly, or not at all.
+    CefRect screenRect;
+    if (!handler->GetViewRect(browser_impl_.get(), screenRect)) {
+      NOTREACHED();
+      screenRect = CefRect();
+    }
+
+    if (screen_info.rect.width == 0 && screen_info.rect.height == 0)
+      screen_info.rect = screenRect;
+
+    if (screen_info.available_rect.width == 0 &&
+        screen_info.available_rect.height == 0)
+      screen_info.available_rect = screenRect;
+  }
+
+  *results = webScreenInfoFrom(screen_info);
 }
 
 void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
@@ -1375,7 +1362,7 @@ void CefRenderWidgetHostViewOSR::SetFrameRate() {
   }
 
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-  if (command_line->HasSwitch(cc::switches::kEnableBeginFrameScheduling)) {
+  if (!command_line->HasSwitch(cc::switches::kDisableBeginFrameScheduling)) {
     if (begin_frame_timer_.get()) {
       begin_frame_timer_->SetFrameRateThresholdMs(frame_rate_threshold_ms_);
     } else {
@@ -1388,6 +1375,8 @@ void CefRenderWidgetHostViewOSR::SetFrameRate() {
 }
 
 void CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
+  float new_scale_factor = kDefaultScaleFactor;
+
   if (browser_impl_.get())  {
     CefScreenInfo screen_info(
         kDefaultScaleFactor, 0, 0, false, CefRect(), CefRect());
@@ -1395,12 +1384,23 @@ void CefRenderWidgetHostViewOSR::SetDeviceScaleFactor() {
         browser_impl_->client()->GetRenderHandler();
     if (handler.get() && handler->GetScreenInfo(browser_impl_.get(),
                                                 screen_info)) {
-      scale_factor_ = screen_info.device_scale_factor;
-      return;
+      new_scale_factor = screen_info.device_scale_factor;
     }
   }
 
-  scale_factor_ = kDefaultScaleFactor;
+  scale_factor_ = new_scale_factor;
+
+  if (render_widget_host_ && render_widget_host_->delegate())
+     render_widget_host_->delegate()->UpdateDeviceScaleFactor(new_scale_factor);
+
+  // Notify the guest hosts if any.
+  for (auto guest_host_view : guest_host_views_) {
+    if (guest_host_view->render_widget_host() &&
+        guest_host_view->render_widget_host()->delegate()) {
+      guest_host_view->render_widget_host()->delegate()->
+          UpdateDeviceScaleFactor(new_scale_factor);
+    }
+  }
 }
 
 void CefRenderWidgetHostViewOSR::ResizeRootLayer() {

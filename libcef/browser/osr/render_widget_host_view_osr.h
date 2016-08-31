@@ -164,7 +164,6 @@ class CefRenderWidgetHostViewOSR
       override;
   void EndFrameSubscription() override;
   bool HasAcceleratedSurface(const gfx::Size& desired_size) override;
-  void GetScreenInfo(blink::WebScreenInfo* results) override;
   gfx::Rect GetBoundsInRootWindow() override;
   content::BrowserAccessibilityManager*
       CreateBrowserAccessibilityManager(
@@ -184,10 +183,7 @@ class CefRenderWidgetHostViewOSR
       const std::vector<gfx::Rect>& character_bounds) override;
 #endif
 
-  bool OnMessageReceived(const IPC::Message& msg) override;
-
-  // Message handlers.
-  void OnSetNeedsBeginFrames(bool enabled);
+  void SetNeedsBeginFrames(bool enabled) override;
 
   // ui::CompositorDelegate implementation.
   std::unique_ptr<cc::SoftwareOutputDevice> CreateSoftwareOutputDevice(
@@ -218,6 +214,7 @@ class CefRenderWidgetHostViewOSR
   bool InstallTransparency();
 
   void WasResized();
+  void GetScreenInfo(blink::WebScreenInfo* results);
   void OnScreenInfoChanged();
   void Invalidate(CefBrowserHost::PaintElementType type);
   void SendKeyEvent(const content::NativeWebKeyboardEvent& event);

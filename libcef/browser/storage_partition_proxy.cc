@@ -81,7 +81,7 @@ CefStoragePartitionProxy::GetBackgroundSyncContext() {
   return parent_->GetBackgroundSyncContext();
 }
 
-webmessaging::BroadcastChannelProvider*
+content::BroadcastChannelProvider*
 CefStoragePartitionProxy::GetBroadcastChannelProvider() {
   return parent_->GetBroadcastChannelProvider();
 }

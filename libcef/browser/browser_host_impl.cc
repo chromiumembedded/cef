@@ -64,7 +64,7 @@
 #include "third_party/WebKit/public/web/WebFindOptions.h"
 
 #if defined(OS_MACOSX)
-#include "chrome/browser/spellchecker/spellcheck_platform.h"
+#include "components/spellcheck/browser/spellcheck_platform.h"
 #endif
 
 namespace {
@@ -286,6 +286,11 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
   scoped_refptr<CefBrowserContext> browser_context =
       request_context_impl->GetBrowserContext();
   DCHECK(browser_context);
+
+  // A StoragePartitionImplMap must already exist for the BrowserContext. See
+  // additional comments in CefBrowserContextImpl::Initialize().
+  DCHECK(browser_context->GetUserData(
+      content::BrowserContext::GetStoragePartitionMapUserDataKey()));
 
   if (!create_params.request_context) {
     // Using the global request context.

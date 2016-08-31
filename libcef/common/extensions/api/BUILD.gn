@@ -3,25 +3,75 @@
 # governed by a BSD-style license that can be found in the LICENSE file.
 
 import("//build/json_schema_api.gni")
+import("//tools/json_schema_compiler/json_features.gni")
 import("schemas.gni")
 
-json_schema_api("api") {
-  schemas = true
-  bundle = true
-  configs = [ "//build/config:precompiled_headers" ]
-  bundle_name = "Cef"
+# TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See README.txt for
+# details.
+#json_schema_api("api") {
+#  sources = schema_sources
+#  schemas = true
+#  bundle = true
+#  configs = [ "//build/config:precompiled_headers" ]
+#  bundle_name = "Cef"
+#
+#  deps = schema_dependencies
+#}
+#
+#json_schema_api("api_registration") {
+#  sources = schema_sources
+#  impl_dir = "//cef/libcef/browser/extensions/api"
+#  bundle_registration = true
+#  configs = [ "//build/config:precompiled_headers" ]
+#  bundle_name = "Cef"
+#
+#  deps = [
+#    ":api",
+#  ]
+#  deps += schema_dependencies
+#}
 
-  deps = schema_dependencies
+json_features("cef_api_features") {
+  feature_class = "APIFeature"
+  provider_class = "CefAPIFeatureProvider"
+  sources = [
+    "//extensions/common/api/_api_features.json",
+    "_api_features.json",
+  ]
 }
 
-json_schema_api("api_registration") {
-  impl_dir = "//cef/libcef/browser/extensions/api"
-  bundle_registration = true
-  configs = [ "//build/config:precompiled_headers" ]
-  bundle_name = "Cef"
-
-  deps = [
-    ":api",
+json_features("cef_permission_features") {
+  feature_class = "PermissionFeature"
+  provider_class = "CefPermissionFeatureProvider"
+  sources = [
+    "//extensions/common/api/_permission_features.json",
+    "_permission_features.json",
   ]
-  deps += schema_dependencies
+}
+
+json_features("cef_manifest_features") {
+  feature_class = "ManifestFeature"
+  provider_class = "CefManifestFeatureProvider"
+  sources = [
+    # Use the same manifest features as Chrome.
+    "//chrome/common/extensions/api/_manifest_features.json",
+    "//extensions/common/api/_manifest_features.json",
+  ]
+}
+
+json_features("cef_behavior_features") {
+  feature_class = "BehaviorFeature"
+  provider_class = "CefBehaviorFeatureProvider"
+  sources = [
+    "//extensions/common/api/_behavior_features.json",
+  ]
+}
+
+group("extensions_features") {
+  public_deps = [
+    ":cef_api_features",
+    ":cef_behavior_features",
+    ":cef_manifest_features",
+    ":cef_permission_features",
+  ]
 }

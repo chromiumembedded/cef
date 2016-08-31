@@ -1,8 +1,8 @@
 diff --git os_exchange_data_provider_aurax11.cc os_exchange_data_provider_aurax11.cc
-index 6048670..b37f4bf 100644
+index 9b93593..fe0f44a 100644
 --- os_exchange_data_provider_aurax11.cc
 +++ os_exchange_data_provider_aurax11.cc
-@@ -158,7 +158,8 @@ void OSExchangeDataProviderAuraX11::SetURL(const GURL& url,
+@@ -162,7 +162,8 @@ void OSExchangeDataProviderAuraX11::SetURL(const GURL& url,
                         mem);
  
      // Set a string fallback as well.

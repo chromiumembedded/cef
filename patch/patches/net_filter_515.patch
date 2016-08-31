@@ -25,7 +25,7 @@ index 2deb9c58..0896a36 100644
    // This is the interface for subclasses of NetworkDelegate to implement. These
    // member functions will be called by the respective public notification
 diff --git filter/filter.h filter/filter.h
-index 78b8c34..387bea5 100644
+index 1940399..bf8722c 100644
 --- filter/filter.h
 +++ filter/filter.h
 @@ -59,6 +59,7 @@
@@ -36,7 +36,7 @@ index 78b8c34..387bea5 100644
  class GURL;
  
  namespace net {
-@@ -240,6 +241,7 @@ class NET_EXPORT_PRIVATE Filter {
+@@ -240,6 +241,7 @@ class NET_EXPORT Filter {
    FilterType type() const { return type_id_; }
  
   protected:
@@ -45,10 +45,10 @@ index 78b8c34..387bea5 100644
    friend class GZipUnitTest;
    friend class SdchFilterChainingTest;
 diff --git url_request/url_request_job.cc url_request/url_request_job.cc
-index b80c0b3..90d4331 100644
+index 259a2d8..c1d02cc 100644
 --- url_request/url_request_job.cc
 +++ url_request/url_request_job.cc
-@@ -499,6 +499,9 @@ void URLRequestJob::NotifyHeadersComplete() {
+@@ -498,6 +498,9 @@ void URLRequestJob::NotifyHeadersComplete() {
    if (request_->status().is_success())
      filter_ = SetupFilter();
  

@@ -1,5 +1,5 @@
 diff --git url_request.h url_request.h
-index 005ae29..28e201e0 100644
+index 73e02d9..5a20709 100644
 --- url_request.h
 +++ url_request.h
 @@ -648,10 +648,10 @@ class NET_EXPORT URLRequest : NON_EXPORTED_BASE(public base::NonThreadSafe),
@@ -11,6 +11,6 @@ index 005ae29..28e201e0 100644
    void set_is_pending(bool value) { is_pending_ = value; }
  
 + protected:
-   // Allow the URLRequestJob class to set our status too
-   void set_status(const URLRequestStatus& value) { status_ = value; }
+   // Allow the URLRequestJob class to set our status too.
+   void set_status(URLRequestStatus status);
  

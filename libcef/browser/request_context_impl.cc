@@ -72,6 +72,7 @@ struct ResolveHostHelper {
 
   CefRefPtr<CefResolveCallback> callback_;
   net::AddressList address_list_;
+  std::unique_ptr<net::HostResolver::Request> request_;
 };
 
 }  // namespace
@@ -691,7 +692,7 @@ void CefRequestContextImpl::ResolveHostInternal(
         &helper->address_list_,
         base::Bind(&ResolveHostHelper::OnResolveCompleted,
                    base::Unretained(helper)),
-        NULL, net::BoundNetLog());
+        &helper->request_, net::BoundNetLog());
     if (retval == net::ERR_IO_PENDING) {
       // The result will be delivered asynchronously via the callback.
       return;

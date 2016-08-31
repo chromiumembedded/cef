@@ -4,6 +4,7 @@
 
 #include "libcef/browser/prefs/browser_prefs.h"
 
+#include "libcef/browser/component_updater/cef_component_updater_configurator.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/net/url_request_context_getter_impl.h"
 #include "libcef/browser/prefs/renderer_prefs.h"
@@ -32,6 +33,7 @@
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "components/proxy_config/pref_proxy_config_tracker_impl.h"
 #include "components/proxy_config/proxy_config_dictionary.h"
+#include "components/spellcheck/browser/pref_names.h"
 #include "components/update_client/update_client.h"
 #include "content/public/browser/browser_thread.h"
 #include "extensions/browser/extension_prefs.h"
@@ -168,27 +170,30 @@ std::unique_ptr<PrefService> CreatePrefService(
   renderer_prefs::RegisterProfilePrefs(registry.get());
   update_client::RegisterPrefs(registry.get());
   content_settings::CookieSettings::RegisterProfilePrefs(registry.get());
+  component_updater::RegisterPrefsForCefComponentUpdaterConfigurator(
+      registry.get());
 
   // Print preferences.
   registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);
 
   // Spell checking preferences.
   // Based on SpellcheckServiceFactory::RegisterProfilePrefs.
-  registry->RegisterListPref(prefs::kSpellCheckDictionaries,
+  registry->RegisterListPref(spellcheck::prefs::kSpellCheckDictionaries,
                              new base::ListValue);
   std::string spellcheck_lang =
       command_line->GetSwitchValueASCII(switches::kOverrideSpellCheckLang);
   if (!spellcheck_lang.empty()) {
-    registry->RegisterStringPref(prefs::kSpellCheckDictionary, spellcheck_lang);
+    registry->RegisterStringPref(spellcheck::prefs::kSpellCheckDictionary,
+                                 spellcheck_lang);
   } else {
     RegisterLocalizedValue(registry.get(),
-                           prefs::kSpellCheckDictionary,
+                           spellcheck::prefs::kSpellCheckDictionary,
                            base::Value::TYPE_STRING,
                            IDS_SPELLCHECK_DICTIONARY);
   }
-  registry->RegisterBooleanPref(prefs::kSpellCheckUseSpellingService,
+  registry->RegisterBooleanPref(
+      spellcheck::prefs::kSpellCheckUseSpellingService,
       command_line->HasSwitch(switches::kEnableSpellingService));
-  registry->RegisterBooleanPref(prefs::kEnableContinuousSpellcheck, true);
 
   // Pepper flash preferences.
   // Based on DeviceIDFetcher::RegisterProfilePrefs.

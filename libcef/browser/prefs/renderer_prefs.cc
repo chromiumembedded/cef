@@ -127,8 +127,6 @@ void SetChromePrefs(CefBrowserContext* profile,
 
   web.password_echo_enabled = browser_defaults::kPasswordEchoEnabled;
 
-  web.unified_textchecker_enabled = true;
-
   web.uses_universal_detector =
       prefs->GetBoolean(prefs::kWebKitUsesUniversalDetector);
   web.text_areas_are_resizable =
@@ -352,6 +350,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
   registry->RegisterBooleanPref(prefs::kWebRTCNonProxiedUdpEnabled, true);
   registry->RegisterStringPref(prefs::kWebRTCIPHandlingPolicy,
                                content::kWebRTCIPHandlingDefault);
+  registry->RegisterStringPref(prefs::kWebRTCUDPPortRange, std::string());
 #endif
 
 #if !defined(OS_MACOSX)

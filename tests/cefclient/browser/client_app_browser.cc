@@ -38,15 +38,6 @@ void ClientAppBrowser::OnBeforeCommandLineProcessing(
         command_line->AppendSwitch("disable-gpu");
         command_line->AppendSwitch("disable-gpu-compositing");
       }
-
-      // Synchronize the frame rate between all processes. This results in
-      // decreased CPU usage by avoiding the generation of extra frames that
-      // would otherwise be discarded. The frame rate can be set at browser
-      // creation time via CefBrowserSettings.windowless_frame_rate or changed
-      // dynamically using CefBrowserHost::SetWindowlessFrameRate. In cefclient
-      // it can be set via the command-line using `--off-screen-frame-rate=XX`.
-      // See https://bitbucket.org/chromiumembedded/cef/issues/1368 for details.
-      command_line->AppendSwitch("enable-begin-frame-scheduling");
     }
 
     if (command_line->HasSwitch(switches::kUseViews) &&

@@ -13,6 +13,10 @@
 #include "base/logging.h"
 #include "cef/grit/cef_resources.h"
 //#include "cef/libcef/common/extensions/api/generated_schemas.h"
+#include "cef/libcef/common/extensions/api/cef_api_features.h"
+#include "cef/libcef/common/extensions/api/cef_behavior_features.h"
+#include "cef/libcef/common/extensions/api/cef_manifest_features.h"
+#include "cef/libcef/common/extensions/api/cef_permission_features.h"
 #include "chrome/common/extensions/chrome_manifest_handlers.h"
 #include "chrome/grit/common_resources.h"
 #include "extensions/common/api/generated_schemas.h"
@@ -20,7 +24,6 @@
 #include "extensions/common/extension_urls.h"
 #include "extensions/common/features/api_feature.h"
 #include "extensions/common/features/behavior_feature.h"
-#include "extensions/common/features/json_feature_provider.h"
 #include "extensions/common/features/json_feature_provider_source.h"
 #include "extensions/common/features/manifest_feature.h"
 #include "extensions/common/features/permission_feature.h"
@@ -72,20 +75,14 @@ const std::string CefExtensionsClient::GetProductName() {
 std::unique_ptr<FeatureProvider> CefExtensionsClient::CreateFeatureProvider(
     const std::string& name) const {
   std::unique_ptr<FeatureProvider> provider;
-  std::unique_ptr<JSONFeatureProviderSource> source(
-      CreateFeatureProviderSource(name));
   if (name == "api") {
-    provider.reset(new JSONFeatureProvider(source->dictionary(),
-                                           CreateFeature<APIFeature>));
+    provider.reset(new CefAPIFeatureProvider());
   } else if (name == "manifest") {
-    provider.reset(new JSONFeatureProvider(source->dictionary(),
-                                           CreateFeature<ManifestFeature>));
+    provider.reset(new CefManifestFeatureProvider());
   } else if (name == "permission") {
-    provider.reset(new JSONFeatureProvider(source->dictionary(),
-                                           CreateFeature<PermissionFeature>));
+    provider.reset(new CefPermissionFeatureProvider());
   } else if (name == "behavior") {
-    provider.reset(new JSONFeatureProvider(source->dictionary(),
-                                           CreateFeature<BehaviorFeature>));
+    provider.reset(new CefBehaviorFeatureProvider());
   } else {
     NOTREACHED();
   }
@@ -93,33 +90,15 @@ std::unique_ptr<FeatureProvider> CefExtensionsClient::CreateFeatureProvider(
 }
 
 std::unique_ptr<JSONFeatureProviderSource>
-CefExtensionsClient::CreateFeatureProviderSource(
-    const std::string& name) const {
+CefExtensionsClient::CreateAPIFeatureSource() const {
   std::unique_ptr<JSONFeatureProviderSource> source(
-      new JSONFeatureProviderSource(name));
-  if (name == "api") {
-    source->LoadJSON(IDR_EXTENSION_API_FEATURES);
+      new JSONFeatureProviderSource("api"));
+  source->LoadJSON(IDR_EXTENSION_API_FEATURES);
 
-    // Extension API features specific to CEF. See
-    // libcef/common/extensions/api/README.txt for additional details.
-    source->LoadJSON(IDR_CEF_EXTENSION_API_FEATURES);
-  } else if (name == "manifest") {
-    source->LoadJSON(IDR_EXTENSION_MANIFEST_FEATURES);
+  // Extension API features specific to CEF. See
+  // libcef/common/extensions/api/README.txt for additional details.
+  source->LoadJSON(IDR_CEF_EXTENSION_API_FEATURES);
 
-    // Use the same manifest features as Chrome.
-    source->LoadJSON(IDR_CHROME_EXTENSION_MANIFEST_FEATURES);
-  } else if (name == "permission") {
-    source->LoadJSON(IDR_EXTENSION_PERMISSION_FEATURES);
-
-    // Extension permission features specific to CEF. See
-    // libcef/common/extensions/api/README.txt for additional details.
-    source->LoadJSON(IDR_CEF_EXTENSION_PERMISSION_FEATURES);
-  } else if (name == "behavior") {
-    source->LoadJSON(IDR_EXTENSION_BEHAVIOR_FEATURES);
-  } else {
-    NOTREACHED();
-    source.reset();
-  }
   return source;
 }
 
@@ -185,10 +164,6 @@ base::StringPiece CefExtensionsClient::GetAPISchema(
 
   // Core extensions APIs.
   return api::GeneratedSchemas::Get(name);
-}
-
-void CefExtensionsClient::RegisterAPISchemaResources(
-    ExtensionAPI* api) const {
 }
 
 bool CefExtensionsClient::ShouldSuppressFatalErrors() const {

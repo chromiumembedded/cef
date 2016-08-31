@@ -1,5 +1,5 @@
 diff --git message_loop.cc message_loop.cc
-index 93b9d0a..d150345 100644
+index 8a2f213..6dbaa8a 100644
 --- message_loop.cc
 +++ message_loop.cc
 @@ -143,12 +143,6 @@ MessageLoop::~MessageLoop() {
@@ -26,10 +26,10 @@ index 93b9d0a..d150345 100644
        message_histogram_(NULL),
        run_loop_(NULL),
 diff --git message_loop.h message_loop.h
-index d8eae01..d80aba4 100644
+index 1957b99..93b3a9d 100644
 --- message_loop.h
 +++ message_loop.h
-@@ -383,6 +383,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate {
+@@ -395,6 +395,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate {
    void AddTaskObserver(TaskObserver* task_observer);
    void RemoveTaskObserver(TaskObserver* task_observer);
  
@@ -46,7 +46,7 @@ index d8eae01..d80aba4 100644
    // Can only be called from the thread that owns the MessageLoop.
    bool is_running() const;
  
-@@ -530,6 +540,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate {
+@@ -542,6 +552,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate {
    // insider a (accidentally induced?) nested message pump.
    bool nestable_tasks_allowed_;
  

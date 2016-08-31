@@ -101,9 +101,11 @@ import("//build/config/ui.gni")
 import("//cef/cef_repack_locales.gni")
 import("//media/media_options.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
+import("//third_party/icu/config.gni")
 import("//third_party/widevine/cdm/widevine.gni")
 import("//tools/grit/repack.gni")
 import("//tools/grit/grit_rule.gni")
+import("//v8/gni/v8.gni")
 if (is_clang) {
   import("//build/config/clang/clang.gni")
 }
@@ -124,6 +126,7 @@ if (is_win) {
 
 #
 # Verify required global arguments configured via `gn args`.
+# Set by GetRequiredArgs() in //cef/tools/gn_args.py.
 #
 
 # Set ENABLE_PRINTING=1 ENABLE_BASIC_PRINTING=1.
@@ -140,6 +143,10 @@ if (is_clang) {
   # Don't use the chrome style plugin.
   assert(!clang_use_chrome_plugins)
 }
+
+# CEF does not currently support component builds. See
+# https://bitbucket.org/chromiumembedded/cef/issues/1617
+assert(!is_component_build)
 
 
 #
@@ -541,6 +548,7 @@ static_library("libcef_static") {
     # libcef/common/extensions/api/README.txt for details.
     #"libcef/common/extensions/api",
     #"libcef/common/extensions/api:api_registration",
+    "libcef/common/extensions/api:extensions_features",
 
     # Normal build dependencies. Should be sorted alphabetically.
     "//base",
@@ -564,7 +572,6 @@ static_library("libcef_static") {
     "//components/keyed_service/content:content",
     "//components/keyed_service/core:core",
     "//components/navigation_interception",
-    "//components/network_session_configurator:switches",
     "//components/pdf/browser",
     "//components/pdf/renderer",
     "//components/plugins/renderer",
@@ -590,6 +597,7 @@ static_library("libcef_static") {
     "//content/public/utility",
     "//crypto",
     "//device/core",
+    "//device/geolocation:device_geolocation",
     "//device/hid",
     "//extensions/browser",
     "//extensions/common/api",
@@ -606,8 +614,7 @@ static_library("libcef_static") {
     "//pdf",
     "//skia",
     "//storage/browser",
-    "//sync",
-    "//third_party/cld_2",
+    "//third_party/cld",
     "//third_party/hunspell",
     "//third_party/leveldatabase",
     "//third_party/libxml",
@@ -1152,7 +1159,7 @@ if (is_mac) {
   tweak_info_plist("cef_framework_plist") {
     info_plist = "libcef/resources/framework-Info.plist"
     args = [
-      "--breakpad=1",
+      "--breakpad=0",
       "--keystone=0",
       "--scm=1",
       "--version",
@@ -1184,7 +1191,6 @@ if (is_mac) {
       "$root_out_dir/cef_200_percent.pak",
       "$root_out_dir/cef_extensions.pak",
       "$root_out_dir/devtools_resources.pak",
-      "$root_out_dir/icudtl.dat",
       # TODO(cef): Restore this line once Widevine build errors are resolved.
       # "$root_out_dir/$widevine_cdm_path/widevinecdmadapter.plugin",
     ]
@@ -1195,10 +1201,14 @@ if (is_mac) {
       ":pak_200_percent",
       ":pak_devtools",
       ":pak_extensions",
-      "//third_party/icu:icudata",
       # TODO(cef): Restore this line once Widevine build errors are resolved.
       # "//third_party/widevine/cdm:widevinecdmadapter",
     ]
+
+    if (icu_use_data_file) {
+      sources += [ "$root_out_dir/icudtl.dat" ]
+      public_deps += [ "//third_party/icu:icudata", ]
+    }
 
     if (v8_use_external_startup_data) {
       sources += [

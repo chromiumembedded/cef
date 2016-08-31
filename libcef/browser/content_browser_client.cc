@@ -46,12 +46,10 @@
 #include "content/browser/frame_host/navigation_handle_impl.h"
 #include "content/browser/frame_host/render_frame_host_impl.h"
 #include "content/browser/plugin_service_impl.h"
-#include "content/public/browser/access_token_store.h"
 #include "content/public/browser/browser_ppapi_host.h"
 #include "content/public/browser/browser_url_handler.h"
 #include "content/public/browser/child_process_security_policy.h"
 #include "content/public/browser/client_certificate_delegate.h"
-#include "content/public/browser/geolocation_delegate.h"
 #include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/page_navigator.h"
 #include "content/public/browser/quota_permission_context.h"
@@ -78,7 +76,7 @@
 #include "url/gurl.h"
 
 #if defined(OS_MACOSX)
-#include "chrome/browser/spellchecker/spellcheck_message_filter_platform.h"
+#include "components/spellcheck/browser/spellcheck_message_filter_platform.h"
 #endif
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
@@ -93,47 +91,6 @@
 #endif
 
 namespace {
-
-// In-memory store for access tokens used by geolocation.
-class CefAccessTokenStore : public content::AccessTokenStore {
- public:
-  // |system_context| is used by NetworkLocationProvider to communicate with a
-  // remote geolocation service.
-  explicit CefAccessTokenStore(net::URLRequestContextGetter* system_context)
-      : system_context_(system_context) {}
-
-  void LoadAccessTokens(const LoadAccessTokensCallback& callback) override {
-    callback.Run(access_token_map_, system_context_);
-  }
-
-  void SaveAccessToken(
-      const GURL& server_url, const base::string16& access_token) override {
-    access_token_map_[server_url] = access_token;
-  }
-
- private:
-  net::URLRequestContextGetter* system_context_;
-  AccessTokenMap access_token_map_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefAccessTokenStore);
-};
-
-// A provider of services for geolocation.
-class CefGeolocationDelegate : public content::GeolocationDelegate {
- public:
-  explicit CefGeolocationDelegate(net::URLRequestContextGetter* system_context)
-      : system_context_(system_context) {}
-
-  scoped_refptr<content::AccessTokenStore> CreateAccessTokenStore() override {
-    return new CefAccessTokenStore(system_context_);
-  }
-
- private:
-  net::URLRequestContextGetter* system_context_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefGeolocationDelegate);
-};
-
 
 class CefQuotaCallbackImpl : public CefRequestCallback {
  public:
@@ -192,7 +149,7 @@ class CefQuotaCallbackImpl : public CefRequestCallback {
 
 class CefAllowCertificateErrorCallbackImpl : public CefRequestCallback {
  public:
-  typedef base::Callback<void(bool)>  // NOLINT(readability/function)
+  typedef base::Callback<void(content::CertificateRequestResultType)>
       CallbackType;
 
   explicit CefAllowCertificateErrorCallbackImpl(const CallbackType& callback)
@@ -236,7 +193,8 @@ class CefAllowCertificateErrorCallbackImpl : public CefRequestCallback {
  private:
   static void RunNow(const CallbackType& callback, bool allow) {
     CEF_REQUIRE_UIT();
-    callback.Run(allow);
+    callback.Run(allow ? content::CERTIFICATE_REQUEST_RESULT_TYPE_CONTINUE :
+                         content::CERTIFICATE_REQUEST_RESULT_TYPE_DENY);
   }
 
   CallbackType callback_;
@@ -701,15 +659,15 @@ void CefContentBrowserClient::AllowCertificateError(
     bool overridable,
     bool strict_enforcement,
     bool expired_previous_decision,
-    const base::Callback<void(bool)>& callback,
-    content::CertificateRequestResultType* result) {
+    const base::Callback<
+        void(content::CertificateRequestResultType)>& callback) {
   CEF_REQUIRE_UIT();
 
   if (resource_type != content::ResourceType::RESOURCE_TYPE_MAIN_FRAME) {
     // A sub-resource has a certificate error. The user doesn't really
     // have a context for making the right decision, so block the request
     // hard.
-    *result = content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL;
+    callback.Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL);
     return;
   }
 
@@ -735,8 +693,8 @@ void CefContentBrowserClient::AllowCertificateError(
   if (!proceed)
     callbackImpl->Disconnect();
 
-  *result = proceed ? content::CERTIFICATE_REQUEST_RESULT_TYPE_CONTINUE :
-                      content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL;
+  callback.Run(proceed ? content::CERTIFICATE_REQUEST_RESULT_TYPE_CONTINUE :
+                         content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL);
 }
 
 void CefContentBrowserClient::SelectClientCertificate(
@@ -749,12 +707,6 @@ void CefContentBrowserClient::SelectClientCertificate(
   }
 }
 
-content::GeolocationDelegate*
-    CefContentBrowserClient::CreateGeolocationDelegate() {
-  return new CefGeolocationDelegate(
-      browser_main_parts_->browser_context()->request_context().get());
-}
-
 bool CefContentBrowserClient::CanCreateWindow(
     const GURL& opener_url,
     const GURL& opener_top_level_frame_url,
@@ -762,6 +714,7 @@ bool CefContentBrowserClient::CanCreateWindow(
     WindowContainerType container_type,
     const GURL& target_url,
     const content::Referrer& referrer,
+    const std::string& frame_name,
     WindowOpenDisposition disposition,
     const blink::WebWindowFeatures& features,
     bool user_gesture,
@@ -792,7 +745,8 @@ void CefContentBrowserClient::OverrideWebkitPrefs(
     content::WebPreferences* prefs) {
   renderer_prefs::PopulateWebPreferences(rvh, *prefs);
 
-  if (rvh->GetWidget()->GetView()) {
+  if (rvh->GetWidget()->GetView() &&
+      rvh->GetWidget()->GetView()->GetNativeView()) {
     rvh->GetWidget()->GetView()->SetBackgroundColor(
         prefs->base_background_color);
   }

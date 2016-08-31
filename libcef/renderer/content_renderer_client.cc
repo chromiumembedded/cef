@@ -55,11 +55,11 @@
 #include "chrome/renderer/loadtimes_extension_bindings.h"
 #include "chrome/renderer/pepper/chrome_pdf_print_client.h"
 #include "chrome/renderer/plugins/power_saver_info.h"
-#include "chrome/renderer/spellchecker/spellcheck.h"
-#include "chrome/renderer/spellchecker/spellcheck_provider.h"
 #include "components/content_settings/core/common/content_settings_types.h"
 #include "components/nacl/common/nacl_constants.h"
 #include "components/printing/renderer/print_web_view_helper.h"
+#include "components/spellcheck/renderer/spellcheck.h"
+#include "components/spellcheck/renderer/spellcheck_provider.h"
 #include "components/visitedlink/renderer/visitedlink_slave.h"
 #include "components/web_cache/renderer/web_cache_impl.h"
 #include "content/common/frame_messages.h"
@@ -128,6 +128,7 @@ class CefPrerendererClient : public content::RenderViewObserver,
 
   // WebPrerendererClient methods:
   void willAddPrerender(blink::WebPrerender* prerender) override {}
+  bool isPrefetchOnly() override { return false; }
 };
 
 void AppendParams(const std::vector<base::string16>& additional_names,
@@ -192,8 +193,8 @@ CefContentRendererClient::CefContentRendererClient()
 
 CefContentRendererClient::~CefContentRendererClient() {
   if (!guest_views_.empty()) {
-    STLDeleteContainerPairSecondPointers(guest_views_.begin(),
-                                         guest_views_.end());
+    base::STLDeleteContainerPairSecondPointers(guest_views_.begin(),
+                                               guest_views_.end());
   }
 }
 
@@ -741,7 +742,8 @@ blink::WebPlugin* CefContentRendererClient::CreatePlugin(
 
         std::unique_ptr<content::PluginInstanceThrottler> throttler;
         if (power_saver_info.power_saver_enabled) {
-          throttler = content::PluginInstanceThrottler::Create();
+          throttler = content::PluginInstanceThrottler::Create(
+              content::RenderFrame::DONT_RECORD_DECISION);
           // PluginPreroller manages its own lifetime.
           new CefPluginPreroller(
               render_frame, frame, params, info, identifier, group_name,

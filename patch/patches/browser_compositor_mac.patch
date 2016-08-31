@@ -15,11 +15,11 @@ index 75651c4..e422ae7 100644
  
    void SwapCompositorFrame(uint32_t output_surface_id,
 diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/browser/renderer_host/browser_compositor_view_mac.mm
-index 58d2a2f..69e3bbb 100644
+index 3619d4d..89adf27 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.mm
 +++ content/browser/renderer_host/browser_compositor_view_mac.mm
-@@ -183,6 +183,12 @@ void OnCompositingShuttingDown(ui::Compositor* compositor) override {}
-     g_spare_recyclable_compositor.Get().reset();
+@@ -198,6 +198,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {
+     g_spare_recyclable_compositors.Get().clear();
  }
  
 +ui::Compositor* BrowserCompositorMac::GetCompositor() {
@@ -31,7 +31,7 @@ index 58d2a2f..69e3bbb 100644
  ui::AcceleratedWidgetMac* BrowserCompositorMac::GetAcceleratedWidgetMac() {
    if (recyclable_compositor_)
      return recyclable_compositor_->accelerated_widget_mac();
-@@ -400,8 +406,13 @@ void OnCompositingShuttingDown(ui::Compositor* compositor) override {}
+@@ -414,8 +420,13 @@ SkColor BrowserCompositorMac::DelegatedFrameHostGetGutterColor(
  }
  
  gfx::Size BrowserCompositorMac::DelegatedFrameHostDesiredSizeInDIP() const {

@@ -133,7 +133,7 @@ class CefBrowserContext
       public base::RefCountedThreadSafe<
           CefBrowserContext, content::BrowserThread::DeleteOnUIThread> {
  public:
-  CefBrowserContext();
+  explicit CefBrowserContext(bool is_proxy);
 
   // Must be called immediately after this object is created.
   virtual void Initialize();
@@ -187,6 +187,9 @@ class CefBrowserContext
   friend struct content::BrowserThread::DeleteOnThread<
       content::BrowserThread::UI>;
   friend class base::DeleteHelper<CefBrowserContext>;
+
+  // True if this CefBrowserContext is a CefBrowserContextProxy.
+  const bool is_proxy_;
 
   std::unique_ptr<CefResourceContext> resource_context_;
 

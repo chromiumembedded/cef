@@ -12,14 +12,6 @@
 #include "base/command_line.h"
 #include "base/compiler_specific.h"
 
-MSVC_PUSH_WARNING_LEVEL(0);
-#include "core/dom/Document.h"
-#include "core/frame/Frame.h"
-#include "core/frame/LocalFrame.h"
-#include "bindings/core/v8/ScriptController.h"
-#include "bindings/core/v8/V8Binding.h"
-MSVC_POP_WARNING();
-
 // Enable deprecation warnings for MSVC. See http://crbug.com/585142.
 #if defined(OS_WIN)
 #pragma warning(push)
@@ -653,29 +645,6 @@ void AccessorNameSetterCallbackImpl(
   }
 }
 
-v8::MaybeLocal<v8::Value> CallV8Function(v8::Local<v8::Context> context,
-                                         v8::Local<v8::Function> function,
-                                         v8::Local<v8::Object> receiver,
-                                         int argc,
-                                         v8::Local<v8::Value> args[],
-                                         v8::Isolate* isolate) {
-  v8::MaybeLocal<v8::Value> func_rv;
-
-  // Execute the function call using the V8ScriptRunner so that inspector
-  // instrumentation works.
-  blink::LocalFrame* frame =
-      toLocalFrame(blink::toFrameIfNotDetached(context));
-  DCHECK(frame);
-  if (frame &&
-      frame->script().canExecuteScripts(blink::AboutToExecuteScript)) {
-    func_rv = blink::V8ScriptRunner::callFunction(
-        function, frame->document(), receiver, argc, args, isolate);
-  }
-
-  return func_rv;
-}
-
-
 // V8 extension registration.
 
 class ExtensionWrapper : public v8::Extension {
@@ -978,7 +947,7 @@ CefRefPtr<CefFrame> CefV8ContextImpl::GetFrame() {
 CefRefPtr<CefV8Value> CefV8ContextImpl::GetGlobal() {
   CEF_V8_REQUIRE_VALID_HANDLE_RETURN(NULL);
 
-  if (blink::ScriptForbiddenScope::isScriptForbidden())
+  if (webkit_glue::IsScriptForbidden())
     return nullptr;
 
   v8::Isolate* isolate = handle_->isolate();
@@ -991,7 +960,7 @@ CefRefPtr<CefV8Value> CefV8ContextImpl::GetGlobal() {
 bool CefV8ContextImpl::Enter() {
   CEF_V8_REQUIRE_VALID_HANDLE_RETURN(false);
 
-  if (blink::ScriptForbiddenScope::isScriptForbidden())
+  if (webkit_glue::IsScriptForbidden())
     return false;
 
   v8::Isolate* isolate = handle_->isolate();
@@ -1012,7 +981,7 @@ bool CefV8ContextImpl::Enter() {
 bool CefV8ContextImpl::Exit() {
   CEF_V8_REQUIRE_VALID_HANDLE_RETURN(false);
 
-  if (blink::ScriptForbiddenScope::isScriptForbidden())
+  if (webkit_glue::IsScriptForbidden())
     return false;
 
   if (enter_count_ <= 0) {
@@ -1049,7 +1018,7 @@ bool CefV8ContextImpl::Eval(const CefString& code,
                             CefRefPtr<CefV8Exception>& exception) {
   CEF_V8_REQUIRE_VALID_HANDLE_RETURN(false);
 
-  if (blink::ScriptForbiddenScope::isScriptForbidden())
+  if (webkit_glue::IsScriptForbidden())
     return false;
 
   if (code.empty()) {
@@ -1078,7 +1047,8 @@ bool CefV8ContextImpl::Eval(const CefString& code,
   exception = NULL;
 
   v8::MaybeLocal<v8::Value> func_rv =
-      CallV8Function(context, func, obj, 1, &code_val, handle_->isolate());
+      webkit_glue::CallV8Function(context, func, obj, 1, &code_val,
+                                  handle_->isolate());
 
   if (try_catch.HasCaught()) {
     exception = new CefV8ExceptionImpl(context, try_catch.Message());
@@ -1096,7 +1066,7 @@ v8::Local<v8::Context> CefV8ContextImpl::GetV8Context() {
 blink::WebFrame* CefV8ContextImpl::GetWebFrame() {
   CEF_REQUIRE_RT();
 
-  if (blink::ScriptForbiddenScope::isScriptForbidden())
+  if (webkit_glue::IsScriptForbidden())
     return nullptr;
 
   v8::HandleScope handle_scope(handle_->isolate());
@@ -2256,8 +2226,8 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::ExecuteFunctionWithContext(
     try_catch.SetVerbose(true);
 
     v8::MaybeLocal<v8::Value> func_rv =
-        CallV8Function(context_local, func, recv, argc, argv,
-                       handle_->isolate());
+        webkit_glue::CallV8Function(context_local, func, recv, argc, argv,
+                                    handle_->isolate());
 
     if (!HasCaught(context_local, try_catch) && !func_rv.IsEmpty()) {
       retval = new CefV8ValueImpl(isolate, context_local,

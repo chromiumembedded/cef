@@ -6,7 +6,10 @@
 #include "include/cef_version.h"
 
 #include "base/version.h"
+#include "chrome/common/pref_names.h"
 #include "components/component_updater/configurator_impl.h"
+#include "components/prefs/pref_registry_simple.h"
+#include "components/prefs/pref_service.h"
 #include "components/update_client/component_patcher_operation.h"
 #include "content/public/browser/browser_thread.h"
 
@@ -37,9 +40,10 @@ class CefConfigurator : public update_client::Configurator {
   net::URLRequestContextGetter* RequestContext() const override;
   scoped_refptr<update_client::OutOfProcessPatcher>
       CreateOutOfProcessPatcher() const override;
-  bool DeltasEnabled() const override;
-  bool UseBackgroundDownloader() const override;
-  bool UseCupSigning() const override;
+  bool EnabledDeltas() const override;
+  bool EnabledComponentUpdates() const override;
+  bool EnabledBackgroundDownloader() const override;
+  bool EnabledCupSigning() const override;
   scoped_refptr<base::SequencedTaskRunner> GetSequencedTaskRunner()
       const override;
   PrefService* GetPrefService() const override;
@@ -59,6 +63,7 @@ CefConfigurator::CefConfigurator(
     PrefService* pref_service)
     : configurator_impl_(cmdline, url_request_getter, false),
       pref_service_(pref_service) {
+  DCHECK(pref_service_);
 }
 
 int CefConfigurator::InitialDelay() const {
@@ -126,16 +131,20 @@ CefConfigurator::CreateOutOfProcessPatcher() const {
   return nullptr;
 }
 
-bool CefConfigurator::DeltasEnabled() const {
-  return configurator_impl_.DeltasEnabled();
+bool CefConfigurator::EnabledDeltas() const {
+  return configurator_impl_.EnabledDeltas();
 }
 
-bool CefConfigurator::UseBackgroundDownloader() const {
-  return configurator_impl_.UseBackgroundDownloader();
+bool CefConfigurator::EnabledComponentUpdates() const {
+  return pref_service_->GetBoolean(prefs::kComponentUpdatesEnabled);
 }
 
-bool CefConfigurator::UseCupSigning() const {
-  return configurator_impl_.UseCupSigning();
+bool CefConfigurator::EnabledBackgroundDownloader() const {
+  return configurator_impl_.EnabledBackgroundDownloader();
+}
+
+bool CefConfigurator::EnabledCupSigning() const {
+  return configurator_impl_.EnabledCupSigning();
 }
 
 // Returns a task runner to run blocking tasks. The task runner continues to run
@@ -155,6 +164,12 @@ PrefService* CefConfigurator::GetPrefService() const {
 }
 
 }  // namespace
+
+void RegisterPrefsForCefComponentUpdaterConfigurator(
+    PrefRegistrySimple* registry) {
+  // The component updates are enabled by default, if the preference is not set.
+  registry->RegisterBooleanPref(prefs::kComponentUpdatesEnabled, true);
+}
 
 scoped_refptr<update_client::Configurator>
 MakeCefComponentUpdaterConfigurator(

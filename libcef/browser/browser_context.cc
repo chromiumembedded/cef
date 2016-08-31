@@ -19,8 +19,9 @@
 base::AtomicRefCount CefBrowserContext::DebugObjCt = 0;
 #endif
 
-CefBrowserContext::CefBrowserContext()
-    : extension_system_(NULL) {
+CefBrowserContext::CefBrowserContext(bool is_proxy)
+    : is_proxy_(is_proxy),
+      extension_system_(NULL) {
 #ifndef NDEBUG
   base::AtomicRefCountInc(&DebugObjCt);
 #endif
@@ -39,7 +40,6 @@ void CefBrowserContext::Initialize() {
   content::BrowserContext::Initialize(this, GetPath());
 
   const bool extensions_enabled = extensions::ExtensionsEnabled();
-  bool extensions_initialized = false;
   if (extensions_enabled) {
     // Create the custom ExtensionSystem first because other KeyedServices
     // depend on it.
@@ -47,9 +47,11 @@ void CefBrowserContext::Initialize() {
     // and CefBrowserContextProxy objects.
     extension_system_ = static_cast<extensions::CefExtensionSystem*>(
         extensions::ExtensionSystem::Get(this));
-    extensions_initialized = extension_system_->initialized();
-    if (!extensions_initialized)
+    if (is_proxy_) {
+      DCHECK(extension_system_->initialized());
+    } else {
       extension_system_->InitForRegularProfile(true);
+    }
   }
 
   resource_context_.reset(new CefResourceContext(
@@ -66,7 +68,7 @@ void CefBrowserContext::Initialize() {
   DCHECK(pref_service);
   user_prefs::UserPrefs::Set(this, pref_service);
 
-  if (extensions_enabled && !extensions_initialized)
+  if (extensions_enabled && !is_proxy_)
     extension_system_->Init();
 }
 
@@ -76,17 +78,26 @@ void CefBrowserContext::Shutdown() {
   // Send notifications to clean up objects associated with this Profile.
   MaybeSendDestroyedNotification();
 
+  // Remove any BrowserContextKeyedServiceFactory associations. This must be
+  // called before the ProxyService owned by CefBrowserContextImpl is destroyed.
+  BrowserContextDependencyManager::GetInstance()->DestroyBrowserContextServices(
+      this);
+
+  if (!is_proxy_) {
+    // Shuts down the storage partitions associated with this browser context.
+    // This must be called before the browser context is actually destroyed
+    // and before a clean-up task for its corresponding IO thread residents
+    // (e.g. ResourceContext) is posted, so that the classes that hung on
+    // StoragePartition can have time to do necessary cleanups on IO thread.
+    ShutdownStoragePartitions();
+  }
+
   if (resource_context_.get()) {
     // Destruction of the ResourceContext will trigger destruction of all
     // associated URLRequests.
     content::BrowserThread::DeleteSoon(
         content::BrowserThread::IO, FROM_HERE, resource_context_.release());
   }
-
-  // Remove any BrowserContextKeyedServiceFactory associations. This must be
-  // called before the ProxyService owned by CefBrowserContextImpl is destroyed.
-  BrowserContextDependencyManager::GetInstance()->DestroyBrowserContextServices(
-      this);
 }
 
 content::ResourceContext* CefBrowserContext::GetResourceContext() {

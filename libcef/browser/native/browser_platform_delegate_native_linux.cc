@@ -301,17 +301,17 @@ void CefBrowserPlatformDelegateNativeLinux::TranslateClickEvent(
   case MBT_LEFT:
     result.type = mouseUp ? blink::WebInputEvent::MouseUp :
                             blink::WebInputEvent::MouseDown;
-    result.button = blink::WebMouseEvent::ButtonLeft;
+    result.button = blink::WebMouseEvent::Button::Left;
     break;
   case MBT_MIDDLE:
     result.type = mouseUp ? blink::WebInputEvent::MouseUp :
                             blink::WebInputEvent::MouseDown;
-    result.button = blink::WebMouseEvent::ButtonMiddle;
+    result.button = blink::WebMouseEvent::Button::Middle;
     break;
   case MBT_RIGHT:
     result.type = mouseUp ? blink::WebInputEvent::MouseUp :
                             blink::WebInputEvent::MouseDown;
-    result.button = blink::WebMouseEvent::ButtonRight;
+    result.button = blink::WebMouseEvent::Button::Right;
     break;
   default:
     NOTREACHED();
@@ -329,16 +329,16 @@ void CefBrowserPlatformDelegateNativeLinux::TranslateMoveEvent(
   if (!mouseLeave) {
     result.type = blink::WebInputEvent::MouseMove;
     if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
-      result.button = blink::WebMouseEvent::ButtonLeft;
+      result.button = blink::WebMouseEvent::Button::Left;
     else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
-      result.button = blink::WebMouseEvent::ButtonMiddle;
+      result.button = blink::WebMouseEvent::Button::Middle;
     else if (mouse_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
-      result.button = blink::WebMouseEvent::ButtonRight;
+      result.button = blink::WebMouseEvent::Button::Right;
     else
-      result.button = blink::WebMouseEvent::ButtonNone;
+      result.button = blink::WebMouseEvent::Button::NoButton;
   } else {
     result.type = blink::WebInputEvent::MouseLeave;
-    result.button = blink::WebMouseEvent::ButtonNone;
+    result.button = blink::WebMouseEvent::Button::NoButton;
   }
 
   result.clickCount = 0;
@@ -366,13 +366,13 @@ void CefBrowserPlatformDelegateNativeLinux::TranslateWheelEvent(
   result.momentumPhase = blink::WebMouseWheelEvent::PhaseNone;
 
   if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
-    result.button = blink::WebMouseEvent::ButtonLeft;
+    result.button = blink::WebMouseEvent::Button::Left;
   else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
-    result.button = blink::WebMouseEvent::ButtonMiddle;
+    result.button = blink::WebMouseEvent::Button::Middle;
   else if (mouse_event.modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
-    result.button = blink::WebMouseEvent::ButtonRight;
+    result.button = blink::WebMouseEvent::Button::Right;
   else
-    result.button = blink::WebMouseEvent::ButtonNone;
+    result.button = blink::WebMouseEvent::Button::NoButton;
 }
 
 CefEventHandle CefBrowserPlatformDelegateNativeLinux::GetEventHandle(

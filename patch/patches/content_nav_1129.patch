@@ -1,8 +1,8 @@
 diff --git public/renderer/content_renderer_client.cc public/renderer/content_renderer_client.cc
-index 4ad49c8..f1fa7ab 100644
+index b7bafaf..09d1d07 100644
 --- public/renderer/content_renderer_client.cc
 +++ public/renderer/content_renderer_client.cc
-@@ -98,7 +98,6 @@ bool ContentRendererClient::AllowPopup() {
+@@ -99,7 +99,6 @@ bool ContentRendererClient::AllowPopup() {
    return false;
  }
  
@@ -10,7 +10,7 @@ index 4ad49c8..f1fa7ab 100644
  bool ContentRendererClient::HandleNavigation(
      RenderFrame* render_frame,
      bool is_content_initiated,
-@@ -111,6 +110,7 @@ bool ContentRendererClient::HandleNavigation(
+@@ -112,6 +111,7 @@ bool ContentRendererClient::HandleNavigation(
    return false;
  }
  
@@ -19,7 +19,7 @@ index 4ad49c8..f1fa7ab 100644
    return false;
  }
 diff --git public/renderer/content_renderer_client.h public/renderer/content_renderer_client.h
-index 9ad5aef..957ef88 100644
+index b7b042f..69a62f2 100644
 --- public/renderer/content_renderer_client.h
 +++ public/renderer/content_renderer_client.h
 @@ -204,7 +204,6 @@ class CONTENT_EXPORT ContentRendererClient {
@@ -39,10 +39,10 @@ index 9ad5aef..957ef88 100644
    // built in media player for the given |url|. Defaults to false.
    virtual bool ShouldUseMediaPlayerForURL(const GURL& url);
 diff --git renderer/render_frame_impl.cc renderer/render_frame_impl.cc
-index aa0b905..90c705b 100644
+index 95165ff..608409e 100644
 --- renderer/render_frame_impl.cc
 +++ renderer/render_frame_impl.cc
-@@ -4928,7 +4928,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -4917,7 +4917,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
        (pending_navigation_params_ &&
         !pending_navigation_params_->request_params.redirects.empty());
  
@@ -50,7 +50,7 @@ index aa0b905..90c705b 100644
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
    if (GetContentClient()->renderer()->HandleNavigation(
-@@ -4937,7 +4936,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -4926,7 +4925,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
            is_redirect)) {
      return blink::WebNavigationPolicyIgnore;
    }

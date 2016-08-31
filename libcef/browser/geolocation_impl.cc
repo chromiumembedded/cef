@@ -7,8 +7,8 @@
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/time_util.h"
 #include "base/logging.h"
-#include "content/public/browser/geolocation_provider.h"
-#include "content/public/common/geoposition.h"
+#include "device/geolocation/geolocation_provider.h"
+#include "device/geolocation/geoposition.h"
 
 namespace {
 
@@ -19,8 +19,8 @@ class CefLocationRequest :
       : callback_(callback) {
     CEF_REQUIRE_UIT();
     geo_callback_ = base::Bind(&CefLocationRequest::OnLocationUpdate, this);
-    content::GeolocationProvider* provider =
-        content::GeolocationProvider::GetInstance();
+    device::GeolocationProvider* provider =
+        device::GeolocationProvider::GetInstance();
     subscription_ = provider->AddLocationUpdateCallback(geo_callback_, true);
     provider->UserDidOptIntoLocationServices();
   }
@@ -30,7 +30,7 @@ class CefLocationRequest :
 
   ~CefLocationRequest() {}
 
-  void OnLocationUpdate(const content::Geoposition& position) {
+  void OnLocationUpdate(const device::Geoposition& position) {
     CEF_REQUIRE_UIT();
     if (callback_.get()) {
       CefGeoposition cef_position;
@@ -42,7 +42,7 @@ class CefLocationRequest :
     geo_callback_.Reset();
   }
 
-  void SetPosition(const content::Geoposition& source, CefGeoposition& target) {
+  void SetPosition(const device::Geoposition& source, CefGeoposition& target) {
     target.latitude = source.latitude;
     target.longitude = source.longitude;
     target.altitude = source.altitude;
@@ -53,16 +53,16 @@ class CefLocationRequest :
     cef_time_from_basetime(source.timestamp, target.timestamp);
 
     switch (source.error_code) {
-      case content::Geoposition::ERROR_CODE_NONE:
+      case device::Geoposition::ERROR_CODE_NONE:
         target.error_code = GEOPOSITON_ERROR_NONE;
         break;
-      case content::Geoposition::ERROR_CODE_PERMISSION_DENIED:
+      case device::Geoposition::ERROR_CODE_PERMISSION_DENIED:
         target.error_code = GEOPOSITON_ERROR_PERMISSION_DENIED;
         break;
-      case content::Geoposition::ERROR_CODE_POSITION_UNAVAILABLE:
+      case device::Geoposition::ERROR_CODE_POSITION_UNAVAILABLE:
         target.error_code = GEOPOSITON_ERROR_POSITION_UNAVAILABLE;
         break;
-      case content::Geoposition::ERROR_CODE_TIMEOUT:
+      case device::Geoposition::ERROR_CODE_TIMEOUT:
         target.error_code = GEOPOSITON_ERROR_TIMEOUT;
         break;
     }
@@ -71,8 +71,8 @@ class CefLocationRequest :
   }
 
   CefRefPtr<CefGetGeolocationCallback> callback_;
-  content::GeolocationProvider::LocationUpdateCallback geo_callback_;
-  std::unique_ptr<content::GeolocationProvider::Subscription> subscription_;
+  device::GeolocationProvider::LocationUpdateCallback geo_callback_;
+  std::unique_ptr<device::GeolocationProvider::Subscription> subscription_;
 
   DISALLOW_COPY_AND_ASSIGN(CefLocationRequest);
 };
@@ -91,7 +91,7 @@ bool CefGetGeolocation(CefRefPtr<CefGetGeolocationCallback> callback) {
   }
 
   if (CEF_CURRENTLY_ON_UIT()) {
-    if (content::GeolocationProvider::GetInstance()) {
+    if (device::GeolocationProvider::GetInstance()) {
       // Will be released after the callback executes.
       new CefLocationRequest(callback);
       return true;

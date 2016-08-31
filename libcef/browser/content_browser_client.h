@@ -62,19 +62,19 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
       bool overridable,
       bool strict_enforcement,
       bool expired_previous_decision,
-      const base::Callback<void(bool)>& callback,
-      content::CertificateRequestResultType* result) override;
+      const base::Callback<
+          void(content::CertificateRequestResultType)>& callback) override;
   void SelectClientCertificate(
       content::WebContents* web_contents,
       net::SSLCertRequestInfo* cert_request_info,
       std::unique_ptr<content::ClientCertificateDelegate> delegate) override;
-  content::GeolocationDelegate* CreateGeolocationDelegate() override;
   bool CanCreateWindow(const GURL& opener_url,
                        const GURL& opener_top_level_frame_url,
                        const GURL& source_origin,
                        WindowContainerType container_type,
                        const GURL& target_url,
                        const content::Referrer& referrer,
+                       const std::string& frame_name,
                        WindowOpenDisposition disposition,
                        const blink::WebWindowFeatures& features,
                        bool user_gesture,

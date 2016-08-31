@@ -25,7 +25,7 @@ index d62973e..fc2dfa4 100644
  
    for (const crash_reporter::Report& report : reports) {
 diff --git chrome/browser/google/google_update_settings_posix.cc chrome/browser/google/google_update_settings_posix.cc
-index 059672e..cdecb1a 100644
+index d053b1e..cdecb1a 100644
 --- chrome/browser/google/google_update_settings_posix.cc
 +++ chrome/browser/google/google_update_settings_posix.cc
 @@ -63,10 +63,6 @@ bool GoogleUpdateSettings::GetCollectStatsConsent() {
@@ -33,7 +33,7 @@ index 059672e..cdecb1a 100644
  // static
  bool GoogleUpdateSettings::SetCollectStatsConsent(bool consented) {
 -#if defined(OS_MACOSX)
--  crash_reporter::SetUploadsEnabled(consented);
+-  crash_reporter::SetUploadConsent(consented);
 -#endif
 -
    base::FilePath consent_dir;

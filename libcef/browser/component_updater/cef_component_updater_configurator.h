@@ -16,9 +16,17 @@ namespace net {
 class URLRequestContextGetter;
 }
 
+class PrefRegistrySimple;
 class PrefService;
 
 namespace component_updater {
+
+// Registers preferences associated with the component updater configurator
+// for CEF. The preferences must be registered with the local pref store
+// before they can be queried by the configurator instance.
+// This function is called before MakeCefComponentUpdaterConfigurator.
+void RegisterPrefsForCefComponentUpdaterConfigurator(
+    PrefRegistrySimple* registry);
 
 scoped_refptr<update_client::Configurator>
 MakeCefComponentUpdaterConfigurator(

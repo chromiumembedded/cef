@@ -55,7 +55,8 @@ bool ShouldProxyUserData(const void* key) {
 CefBrowserContextProxy::CefBrowserContextProxy(
     CefRefPtr<CefRequestContextHandler> handler,
     scoped_refptr<CefBrowserContextImpl> parent)
-    : handler_(handler),
+    : CefBrowserContext(true),
+      handler_(handler),
       parent_(parent) {
   DCHECK(handler_.get());
   DCHECK(parent_.get());

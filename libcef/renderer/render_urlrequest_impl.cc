@@ -40,7 +40,8 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
   void willFollowRedirect(
       WebURLLoader* loader,
       WebURLRequest& newRequest,
-      const WebURLResponse& redirectResponse) override;
+      const WebURLResponse& redirectResponse,
+      int64_t encodedDataLength) override;
   void didSendData(
       WebURLLoader* loader,
       unsigned long long bytesSent,
@@ -54,7 +55,8 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
   void didReceiveData(WebURLLoader* loader,
                       const char* data,
                       int dataLength,
-                      int encodedDataLength) override;
+                      int encodedDataLength,
+                      int encodedBodyLength) override;
   void didReceiveCachedMetadata(WebURLLoader* loader,
                                 const char* data,
                                 int dataLength) override;
@@ -253,7 +255,8 @@ CefWebURLLoaderClient::~CefWebURLLoaderClient() {
 void CefWebURLLoaderClient::willFollowRedirect(
     WebURLLoader* loader,
     WebURLRequest& newRequest,
-    const WebURLResponse& redirectResponse) {
+    const WebURLResponse& redirectResponse,
+    int64_t encodedDataLength) {
 }
 
 void CefWebURLLoaderClient::didSendData(
@@ -278,7 +281,8 @@ void CefWebURLLoaderClient::didDownloadData(WebURLLoader* loader,
 void CefWebURLLoaderClient::didReceiveData(WebURLLoader* loader,
                                            const char* data,
                                            int dataLength,
-                                           int encodedDataLength) {
+                                           int encodedDataLength,
+                                           int encodedBodyLength) {
   context_->OnDownloadProgress(dataLength);
 
   if (!(request_flags_ & UR_FLAG_NO_DOWNLOAD_DATA))

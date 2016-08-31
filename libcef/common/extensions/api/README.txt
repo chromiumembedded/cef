@@ -8,13 +8,13 @@ To add a new extension API implemented only in CEF ***:
 
 1. Add libcef/common/extensions/api/<api>.idl or .json file which defines the
    API.
-2. Add <api>.idl or .json to the 'schema_files' list in
-   libcef/common/extensions/api/schemas.gypi. Serialization code will be
+2. Add <api>.idl or .json to the 'schema_sources' list in
+   libcef/common/extensions/api/schemas.gni. Serialization code will be
    generated based on this list in step 5.
 3. Add an entry in the libcef/common/extensions/api/_*_features.json files if
    necessary [1].
 4. Add libcef/browser/extensions/api/<api>/<api>_api.[h|cc] class implementation
-   files and associated entries to the 'libcef_static' target in cef.gyp.
+   files and associated entries to the 'libcef_static' target in BUILD.gn.
 5. Run the cef_create_projects script and build to generate the
    cef/libcef/common/extensions/api/<api>.h file and other serialization code
    required by the extensions system.
@@ -27,8 +27,8 @@ To add a new extension API implemented only in CEF ***:
 
 *** Note that CEF does not currently expose its own Mojo APIs. Related code is
 commented out in:
-  BUILD.gn
-  cef.gyp
+  cef/BUILD.gn
+  cef/libcef/common/extensions/api/BUILD.gn
   CefExtensionsBrowserClient::RegisterExtensionFunctions
   CefExtensionsClient::IsAPISchemaGenerated
   CefExtensionsClient::GetAPISchema

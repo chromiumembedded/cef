@@ -79,15 +79,10 @@ void CefPrintingMessageFilter::OnGetDefaultPrintSettings(
   // Loads default settings. This is asynchronous, only the IPC message sender
   // will hang until the settings are retrieved.
   printer_query->GetSettings(
-      PrinterQuery::GetSettingsAskParam::DEFAULTS,
-      0,
-      false,
-      DEFAULT_MARGINS,
-      false,
+      PrinterQuery::GetSettingsAskParam::DEFAULTS, 0, false, DEFAULT_MARGINS,
+      false, false,
       base::Bind(&CefPrintingMessageFilter::OnGetDefaultPrintSettingsReply,
-                 this,
-                 printer_query,
-                 reply_msg));
+                 this, printer_query, reply_msg));
 }
 
 void CefPrintingMessageFilter::OnGetDefaultPrintSettingsReply(
@@ -124,15 +119,11 @@ void CefPrintingMessageFilter::OnScriptedPrint(
         queue_->CreatePrinterQuery(render_process_id_, reply_msg->routing_id());
   }
   printer_query->GetSettings(
-      PrinterQuery::GetSettingsAskParam::ASK_USER,
-      params.expected_pages_count,
-      params.has_selection,
-      params.margin_type,
-      params.is_scripted,
-      base::Bind(&CefPrintingMessageFilter::OnScriptedPrintReply,
-                 this,
-                 printer_query,
-                 reply_msg));
+      PrinterQuery::GetSettingsAskParam::ASK_USER, params.expected_pages_count,
+      params.has_selection, params.margin_type, params.is_scripted,
+      params.is_modifiable,
+      base::Bind(&CefPrintingMessageFilter::OnScriptedPrintReply, this,
+                 printer_query, reply_msg));
 }
 
 void CefPrintingMessageFilter::OnScriptedPrintReply(

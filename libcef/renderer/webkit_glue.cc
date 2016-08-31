@@ -24,9 +24,13 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/WebKit/public/web/WebNode.h"
 #include "third_party/WebKit/public/web/WebViewClient.h"
 
+#include "third_party/WebKit/Source/bindings/core/v8/ScriptController.h"
+#include "third_party/WebKit/Source/bindings/core/v8/V8Binding.h"
+#include "third_party/WebKit/Source/core/dom/Document.h"
 #include "third_party/WebKit/Source/core/dom/Element.h"
 #include "third_party/WebKit/Source/core/dom/Node.h"
 #include "third_party/WebKit/Source/core/editing/serializers/Serialization.h"
+#include "third_party/WebKit/Source/core/frame/LocalFrame.h"
 #include "third_party/WebKit/Source/web/WebLocalFrameImpl.h"
 #include "third_party/WebKit/Source/web/WebViewImpl.h"
 MSVC_POP_WARNING();
@@ -83,23 +87,23 @@ std::string DumpDocumentText(blink::WebFrame* frame) {
 cef_dom_node_type_t GetNodeType(const blink::WebNode& node) {
   const blink::Node* web_node = node.constUnwrap<blink::Node>();
   switch (web_node->getNodeType()) {
-    case blink::Node::ELEMENT_NODE:
+    case blink::Node::kElementNode:
       return DOM_NODE_TYPE_ELEMENT;
-    case blink::Node::ATTRIBUTE_NODE:
+    case blink::Node::kAttributeNode:
       return DOM_NODE_TYPE_ATTRIBUTE;
-    case blink::Node::TEXT_NODE:
+    case blink::Node::kTextNode:
       return DOM_NODE_TYPE_TEXT;
-    case blink::Node::CDATA_SECTION_NODE:
+    case blink::Node::kCdataSectionNode:
       return DOM_NODE_TYPE_CDATA_SECTION;
-    case blink::Node::PROCESSING_INSTRUCTION_NODE:
+    case blink::Node::kProcessingInstructionNode:
       return DOM_NODE_TYPE_PROCESSING_INSTRUCTIONS;
-    case blink::Node::COMMENT_NODE:
+    case blink::Node::kCommentNode:
       return DOM_NODE_TYPE_COMMENT;
-    case blink::Node::DOCUMENT_NODE:
+    case blink::Node::kDocumentNode:
       return DOM_NODE_TYPE_DOCUMENT;
-    case blink::Node::DOCUMENT_TYPE_NODE:
+    case blink::Node::kDocumentTypeNode:
       return DOM_NODE_TYPE_DOCUMENT_TYPE;
-    case blink::Node::DOCUMENT_FRAGMENT_NODE:
+    case blink::Node::kDocumentFragmentNode:
       return DOM_NODE_TYPE_DOCUMENT_FRAGMENT;
   }
   return DOM_NODE_TYPE_UNSUPPORTED;
@@ -156,6 +160,32 @@ blink::WebFrame* FindFrameByUniqueName(const blink::WebString& unique_name,
     return blink::WebLocalFrameImpl::fromFrame(toLocalFrame(found_frame));
 
   return NULL;
+}
+
+v8::MaybeLocal<v8::Value> CallV8Function(v8::Local<v8::Context> context,
+                                         v8::Local<v8::Function> function,
+                                         v8::Local<v8::Object> receiver,
+                                         int argc,
+                                         v8::Local<v8::Value> args[],
+                                         v8::Isolate* isolate) {
+  v8::MaybeLocal<v8::Value> func_rv;
+
+  // Execute the function call using the V8ScriptRunner so that inspector
+  // instrumentation works.
+  blink::LocalFrame* frame =
+      toLocalFrame(blink::toFrameIfNotDetached(context));
+  DCHECK(frame);
+  if (frame &&
+      frame->script().canExecuteScripts(blink::AboutToExecuteScript)) {
+    func_rv = blink::V8ScriptRunner::callFunction(
+        function, frame->document(), receiver, argc, args, isolate);
+  }
+
+  return func_rv;
+}
+
+bool IsScriptForbidden() {
+  return blink::ScriptForbiddenScope::isScriptForbidden();
 }
 
 }  // webkit_glue

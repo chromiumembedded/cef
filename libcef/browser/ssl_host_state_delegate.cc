@@ -54,13 +54,17 @@ CefSSLHostStateDelegate::CefSSLHostStateDelegate() {
 CefSSLHostStateDelegate::~CefSSLHostStateDelegate() {
 }
 
-void CefSSLHostStateDelegate::HostRanInsecureContent(const std::string& host,
-                                                     int pid) {
+void CefSSLHostStateDelegate::HostRanInsecureContent(
+    const std::string& host,
+    int child_id,
+    InsecureContentType content_type) {
   // Intentional no-op.
 }
 
-bool CefSSLHostStateDelegate::DidHostRunInsecureContent(const std::string& host,
-                                                        int pid) const {
+bool CefSSLHostStateDelegate::DidHostRunInsecureContent(
+    const std::string& host,
+    int child_id,
+    InsecureContentType content_type) const {
   // Intentional no-op.
   return false;
 }

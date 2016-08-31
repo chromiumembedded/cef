@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 658f215..223e0f1 100644
+index 1e0e3bd..9e70917 100644
 --- .gn
 +++ .gn
-@@ -252,6 +252,8 @@ exec_script_whitelist = [
+@@ -231,6 +231,8 @@ exec_script_whitelist = [
    "//build/toolchain/win/BUILD.gn",
    "//build/util/branding.gni",
    "//build/util/version.gni",
@@ -12,10 +12,10 @@ index 658f215..223e0f1 100644
    "//chrome/browser/BUILD.gn",
    "//chrome/browser/chromeos/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index 2bbc1eb..715fa70 100644
+index acc203c..49113a4 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -260,6 +260,7 @@ group("both_gn_and_gyp") {
+@@ -265,6 +265,7 @@ group("both_gn_and_gyp") {
      # and whether there should be other targets that are iOS-only and missing.
      deps += [
        "//cc:cc_unittests",
@@ -56,11 +56,10 @@ index 5bfa9a7..5e6e05d 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index d58cb85..c7384b9 100644
+index 0d0975d..cfb5d3f 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
-@@ -124,11 +124,15 @@ def _LoadToolchainEnv(cpu, sdk_dir):
+@@ -127,11 +127,15 @@ def _LoadToolchainEnv(cpu, sdk_dir):
      script_path = os.path.normpath(os.path.join(
                                         os.environ['GYP_MSVS_OVERRIDE_PATH'],
                                         'VC/vcvarsall.bat'))
@@ -82,7 +81,7 @@ index d58cb85..c7384b9 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 2b640fa..8b235a0 100755
+index 829e718..89361a0 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -74,11 +74,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -105,10 +104,10 @@ index 2b640fa..8b235a0 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/BUILD.gn chrome/BUILD.gn
-index 70a1759..7822a80 100644
+index aa67e96..e2af2f3 100644
 --- chrome/BUILD.gn
 +++ chrome/BUILD.gn
-@@ -686,7 +686,7 @@ if (is_win) {
+@@ -709,7 +709,7 @@ if (is_win) {
      ]
  
      foreach(locale, locales_as_mac_outputs) {
@@ -118,10 +117,10 @@ index 70a1759..7822a80 100644
  
      outputs = [
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index 54559c7..8ef1e66 100644
+index b9a1d95..54d7677 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
-@@ -192,9 +192,9 @@ template("chrome_repack_locales") {
+@@ -189,9 +189,9 @@ template("chrome_repack_locales") {
        if (defined(invoker.output_dir)) {
          output = "${invoker.output_dir}/${output_locale}.pak"
        } else if (is_mac || is_ios) {
@@ -134,7 +133,7 @@ index 54559c7..8ef1e66 100644
  
        if (defined(invoker.additional_source_patterns)) {
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 842a0b5..8814ec1 100644
+index 1e269aa..b562c3e 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -125,7 +125,7 @@ template("generate_mini_installer") {

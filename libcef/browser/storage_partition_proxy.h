@@ -37,8 +37,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   content::PlatformNotificationContext* GetPlatformNotificationContext()
       override;
   content::BackgroundSyncContext* GetBackgroundSyncContext() override;
-  webmessaging::BroadcastChannelProvider*
-      GetBroadcastChannelProvider() override;
+  content::BroadcastChannelProvider* GetBroadcastChannelProvider() override;
   void ClearDataForOrigin(uint32_t remove_mask,
                           uint32_t quota_storage_remove_mask,
                           const GURL& storage_origin,

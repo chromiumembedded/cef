@@ -1,8 +1,8 @@
 diff --git chrome/browser/extensions/api/tab_capture/offscreen_tab.cc chrome/browser/extensions/api/tab_capture/offscreen_tab.cc
-index ddc31cf..81b7d1c 100644
+index d7e2677..71436d2 100644
 --- chrome/browser/extensions/api/tab_capture/offscreen_tab.cc
 +++ chrome/browser/extensions/api/tab_capture/offscreen_tab.cc
-@@ -203,7 +203,9 @@ bool OffscreenTab::ShouldCreateWebContents(
+@@ -204,7 +204,9 @@ bool OffscreenTab::ShouldCreateWebContents(
      const std::string& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
@@ -29,10 +29,10 @@ index 712c117..4dc59be 100644
    void EnterFullscreenModeForTab(content::WebContents* contents,
                                   const GURL& origin) final;
 diff --git chrome/browser/prerender/prerender_contents.cc chrome/browser/prerender/prerender_contents.cc
-index d646060..697bf1b 100644
+index ff3f72d..6647f76 100644
 --- chrome/browser/prerender/prerender_contents.cc
 +++ chrome/browser/prerender/prerender_contents.cc
-@@ -129,7 +129,9 @@ class PrerenderContents::WebContentsDelegateImpl
+@@ -131,7 +131,9 @@ class PrerenderContents::WebContentsDelegateImpl
        const std::string& frame_name,
        const GURL& target_url,
        const std::string& partition_id,
@@ -44,10 +44,10 @@ index d646060..697bf1b 100644
      // window.opener property, terminate prerendering.
      prerender_contents_->Destroy(FINAL_STATUS_CREATE_NEW_WINDOW);
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index 3951954..ca52685 100644
+index 93b36dc..b25c512 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
-@@ -1618,7 +1618,9 @@ bool Browser::ShouldCreateWebContents(
+@@ -1616,7 +1616,9 @@ bool Browser::ShouldCreateWebContents(
      const std::string& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
@@ -74,10 +74,10 @@ index 693e84d..be1f1dd 100644
                            int opener_render_frame_id,
                            const std::string& frame_name,
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 62dfcec..acdc44d 100644
+index 51f3bba..dead593 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1521,6 +1521,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1543,6 +1543,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name = params.main_frame_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -90,7 +90,7 @@ index 62dfcec..acdc44d 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -1553,6 +1559,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1575,6 +1581,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
                                           std::move(view_),
                                           &render_view_host_delegate_view_));
    }
@@ -98,7 +98,7 @@ index 62dfcec..acdc44d 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -2010,11 +2017,14 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2028,11 +2035,14 @@ void WebContentsImpl::CreateNewWindow(
        static_cast<SessionStorageNamespaceImpl*>(session_storage_namespace);
    CHECK(session_storage_namespace_impl->IsFromContext(dom_storage_context));
  
@@ -114,7 +114,7 @@ index 62dfcec..acdc44d 100644
      if (route_id != MSG_ROUTING_NONE &&
          !RenderViewHost::FromID(render_process_id, route_id)) {
        // If the embedder didn't create a WebContents for this route, we need to
-@@ -2038,6 +2048,8 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2056,6 +2066,8 @@ void WebContentsImpl::CreateNewWindow(
    create_params.opener_render_process_id = render_process_id;
    create_params.opener_render_frame_id = params.opener_render_frame_id;
    create_params.opener_suppressed = params.opener_suppressed;
@@ -139,7 +139,7 @@ index fa0afb5..d677b31 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 65de3da..6807203 100644
+index efa8ae5..8ea0055 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -55,8 +55,10 @@ class PageState;
@@ -207,7 +207,7 @@ index 2816c4d..387821f 100644
    // Notifies the delegate about the creation of a new WebContents. This
    // typically happens when popups are created.
 diff --git extensions/browser/guest_view/extension_options/extension_options_guest.cc extensions/browser/guest_view/extension_options/extension_options_guest.cc
-index 3849b7e..a974f34 100644
+index 6c9ff47..75b91bf 100644
 --- extensions/browser/guest_view/extension_options/extension_options_guest.cc
 +++ extensions/browser/guest_view/extension_options/extension_options_guest.cc
 @@ -203,7 +203,9 @@ bool ExtensionOptionsGuest::ShouldCreateWebContents(

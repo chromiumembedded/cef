@@ -135,6 +135,6 @@ base::DictionaryValue* CefDevToolsManagerDelegate::HandleCommand(
     base::DictionaryValue* command_dict) {
   std::unique_ptr<base::DictionaryValue> result =
       devtools_discovery::DevToolsDiscoveryManager::GetInstance()
-          ->HandleNewTargetCommand(command_dict);
+          ->HandleCreateTargetCommand(command_dict);
   return result.release();  // Caller takes ownership.
 }
