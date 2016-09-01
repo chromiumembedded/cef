@@ -305,6 +305,24 @@ endif()
 #
 
 if(OS_WINDOWS)
+  # Configure use of the sandbox.
+  option(USE_SANDBOX "Enable or disable use of the sandbox." ON)
+  if(USE_SANDBOX AND NOT MSVC_VERSION EQUAL 1900)
+    # The cef_sandbox.lib static library is currently built with VS2015. It will
+    # not link successfully with other VS versions.
+    set(USE_SANDBOX OFF)
+  endif()
+
+  # Configure use of official build compiler settings.
+  # When using an official build the "Debug" build is actually a Release build
+  # with DCHECKs enabled. In order to link the sandbox the Debug build must
+  # be configured with some Release-related compiler settings.
+  option(USE_OFFICIAL_BUILD_SANDBOX "Enable or disable use of an official build sandbox." ON)
+  if(NOT USE_SANDBOX)
+    # Don't need official build settings when the sandbox is off.
+    set(USE_OFFICIAL_BUILD_SANDBOX OFF)
+  endif()
+
   # Consumers who run into LNK4099 warnings can pass /Z7 instead (see issue #385).
   set(CEF_DEBUG_INFO_FLAG "/Zi" CACHE STRING "Optional flag specifying specific /Z flag to use")
 
@@ -326,11 +344,22 @@ if(OS_WINDOWS)
     /wd4996       # Ignore "function or variable may be unsafe" warning
     ${CEF_DEBUG_INFO_FLAG}
     )
-  list(APPEND CEF_COMPILER_FLAGS_DEBUG
-    /MTd          # Multithreaded debug runtime
-    /RTC1         # Disable optimizations
-    /Od           # Enable basic run-time checks
-    )
+  if(USE_OFFICIAL_BUILD_SANDBOX)
+    # CMake adds /RTC1, /D"_DEBUG" and a few other values by default for Debug
+    # builds. We can't link the sandbox with those values so clear the CMake
+    # defaults here.
+    set(CMAKE_CXX_FLAGS_DEBUG "")
+
+    list(APPEND CEF_COMPILER_FLAGS_DEBUG
+      /MT           # Multithreaded release runtime
+      )
+  else()
+    list(APPEND CEF_COMPILER_FLAGS_DEBUG
+      /MTd          # Multithreaded debug runtime
+      /RTC1         # Disable optimizations
+      /Od           # Enable basic run-time checks
+      )
+  endif()
   list(APPEND CEF_COMPILER_FLAGS_RELEASE
     /MT           # Multithreaded release runtime
     /O2           # Optimize for maximum speed
@@ -351,6 +380,12 @@ if(OS_WINDOWS)
     WIN32_LEAN_AND_MEAN               # Exclude less common API declarations
     _HAS_EXCEPTIONS=0                 # Disable exceptions
     )
+  if(USE_OFFICIAL_BUILD_SANDBOX)
+    list(APPEND CEF_COMPILER_DEFINES_DEBUG
+      NDEBUG _NDEBUG                    # Not a debug build
+      DCHECK_ALWAYS_ON=1                # DCHECKs are enabled
+      )
+  endif()
   list(APPEND CEF_COMPILER_DEFINES_RELEASE
     NDEBUG _NDEBUG                    # Not a debug build
     )
@@ -394,14 +429,6 @@ if(OS_WINDOWS)
     icudtl.dat
     locales
     )
-
-  # Configure use of the sandbox.
-  option(USE_SANDBOX "Enable or disable use of the sandbox." ON)
-  if(USE_SANDBOX AND NOT MSVC_VERSION EQUAL 1900)
-    # The cef_sandbox.lib static library is currently built with VS2015. It will
-    # not link successfully with other VS versions.
-    set(USE_SANDBOX OFF)
-  endif()
 
   if(USE_SANDBOX)
     list(APPEND CEF_COMPILER_DEFINES
