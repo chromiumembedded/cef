@@ -28,8 +28,13 @@ class InternalHandlerDelegate {
     CefRefPtr<CefStreamReader> stream;
     int stream_size;
 
-    // Option 2: Specify a resource id to load static content.
+    // Option 2: Specify a resource id to load static content. May include an
+    // optional encoding type.
     int resource_id;
+    enum Encoding {
+      ENCODING_NONE,
+      ENCODING_BROTLI,
+    } encoding;
 
     // Option 3: Redirect to the specified URL.
     GURL redirect_url;
