@@ -281,6 +281,7 @@ class Delegate : public InternalHandlerDelegate {
     } else {
       action->mime_type = "text/html";
       action->resource_id = IDR_ABOUT_UI_CREDITS_HTML;
+      action->encoding = Action::ENCODING_BROTLI;
     }
     return true;
   }

@@ -1037,6 +1037,7 @@
         '<(DEPTH)/skia/skia.gyp:skia',
         '<(DEPTH)/storage/storage_browser.gyp:storage',
         '<(DEPTH)/sync/sync.gyp:sync',
+        '<(DEPTH)/third_party/brotli/brotli.gyp:brotli',
         '<(DEPTH)/third_party/cld_2/cld_2.gyp:cld_2',
         '<(DEPTH)/third_party/hunspell/hunspell.gyp:hunspell',
         '<(DEPTH)/third_party/libxml/libxml.gyp:libxml',
