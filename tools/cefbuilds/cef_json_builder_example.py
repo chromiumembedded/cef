@@ -49,12 +49,9 @@ def create_fake_files(platform, version):
   files.append(make_fake_file_info(platform, version, 'minimal'))
   files.append(make_fake_file_info(platform, version, 'client'))
 
-  # Windows platforms create debug symbols.
-  if platform.find('windows') == 0:
-    files.append(make_fake_file_info(platform, version, 'debug_symbols'))
-
-  # Windows and OS X platforms create release symbols.
+  # Windows and OS X platforms create debug and release symbols.
   if platform.find('windows') == 0 or platform.find('macosx') == 0:
+    files.append(make_fake_file_info(platform, version, 'debug_symbols'))
     files.append(make_fake_file_info(platform, version, 'release_symbols'))
 
   return files

@@ -621,6 +621,16 @@ elif platform == 'macosx':
       copy_dir(os.path.join(build_dir, 'cefclient.app/Contents/Frameworks/%s.framework' % framework_name), \
                os.path.join(dst_dir, '%s.framework' % framework_name), options.quiet)
 
+      if not options.nosymbols
+        # create the symbol output directory
+        symbol_output_dir = create_output_dir(output_dir_name + '_debug_symbols', options.outputdir)
+
+        # The real dSYM already exists, just copy it to the output directory.
+        # dSYMs are only generated when is_official_build=true or enable_dsyms=true.
+        # See //build/config/mac/symbols.gni.
+        copy_dir(os.path.join(build_dir, '%s.dSYM' % framework_name),
+                 os.path.join(symbol_output_dir, '%s.dSYM' % framework_name), options.quiet)
+
   # transfer Release files
   build_dir = build_dir_release
   if not options.allowpartial or path_exists(os.path.join(build_dir, 'cefclient.app')):
@@ -637,12 +647,11 @@ elif platform == 'macosx':
       # create the symbol output directory
       symbol_output_dir = create_output_dir(output_dir_name + '_release_symbols', options.outputdir)
 
-      # create the real dSYM file from the "fake" dSYM file
-      sys.stdout.write("Creating the real dSYM file...\n")
-      src_path = os.path.join(build_dir, \
-          '%s.dSYM/Contents/Resources/DWARF/%s' % (framework_name, framework_name))
-      dst_path = os.path.join(symbol_output_dir, '%s.dSYM' % framework_name)
-      run('dsymutil "%s" -o "%s"' % (src_path, dst_path), cef_dir)
+      # The real dSYM already exists, just copy it to the output directory.
+      # dSYMs are only generated when is_official_build=true or enable_dsyms=true.
+      # See //build/config/mac/symbols.gni.
+      copy_dir(os.path.join(build_dir, '%s.dSYM' % framework_name),
+               os.path.join(symbol_output_dir, '%s.dSYM' % framework_name), options.quiet)
 
   if mode == 'standard' or mode == 'minimal':
     # transfer include files
