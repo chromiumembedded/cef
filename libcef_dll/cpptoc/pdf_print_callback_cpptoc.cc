@@ -51,7 +51,7 @@ template<> CefRefPtr<CefPdfPrintCallback> CefCppToC<CefPdfPrintCallbackCppToC,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefPdfPrintCallbackCppToC,
     CefPdfPrintCallback, cef_pdf_print_callback_t>::DebugObjCt = 0;
 #endif

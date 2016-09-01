@@ -171,7 +171,7 @@ class CefBrowserContext
     return extension_system_;
   }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   // Simple tracking of allocated objects.
   static base::AtomicRefCount DebugObjCt;  // NOLINT(runtime/int)
 #endif

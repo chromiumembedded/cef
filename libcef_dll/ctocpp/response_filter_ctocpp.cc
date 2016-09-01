@@ -70,7 +70,7 @@ template<> cef_response_filter_t* CefCToCpp<CefResponseFilterCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefResponseFilterCToCpp,
     CefResponseFilter, cef_response_filter_t>::DebugObjCt = 0;
 #endif

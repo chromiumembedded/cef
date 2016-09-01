@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <string>
 
+#include "include/base/cef_logging.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "cefclient/renderer/performance_test_setup.h"
 
@@ -14,7 +15,7 @@ namespace client {
 namespace performance_test {
 
 // Use more interations for a Release build.
-#ifdef NDEBUG
+#if DCHECK_IS_ON()
 const int kDefaultIterations = 100000;
 #else
 const int kDefaultIterations = 10000;

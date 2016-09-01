@@ -419,11 +419,11 @@ def make_ctocpp_function_impl_new(clsname, name, func):
 
         if len(names) > 0:
             names = sorted(names)
-            result += '\n#ifndef NDEBUG'\
+            result += '\n#if DCHECK_IS_ON()'\
                       '\n  // Check that all wrapper objects have been destroyed'
             for name in names:
                 result += '\n  DCHECK(base::AtomicRefCountIsZero(&'+name+'::DebugObjCt));';
-            result += '\n#endif  // !NDEBUG'
+            result += '\n#endif  // DCHECK_IS_ON()'
 
     if len(result) != result_len:
         result += '\n'
@@ -554,7 +554,7 @@ def make_ctocpp_class_impl(header, clsname, impl):
              '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
              '  return NULL;\n'+ \
              '}\n\n'+ \
-             '#ifndef NDEBUG\n'+ \
+             '#if DCHECK_IS_ON()\n'+ \
              'template<> base::AtomicRefCount '+parent_sig+'::DebugObjCt = 0;\n'+ \
              '#endif\n\n'+ \
              'template<> CefWrapperType '+parent_sig+'::kWrapperType = '+get_wrapper_type_enum(clsname)+';'

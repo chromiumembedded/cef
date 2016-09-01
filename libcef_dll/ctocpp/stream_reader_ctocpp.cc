@@ -164,7 +164,7 @@ template<> cef_stream_reader_t* CefCToCpp<CefStreamReaderCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefStreamReaderCToCpp,
     CefStreamReader, cef_stream_reader_t>::DebugObjCt = 0;
 #endif

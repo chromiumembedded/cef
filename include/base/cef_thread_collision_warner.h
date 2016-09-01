@@ -50,6 +50,7 @@
 #include "include/base/cef_atomicops.h"
 #include "include/base/cef_basictypes.h"
 #include "include/base/cef_build.h"
+#include "include/base/cef_logging.h"
 #include "include/base/cef_macros.h"
 
 // A helper class alongside macros to be used to verify assumptions about thread
@@ -139,7 +140,7 @@
 // };
 
 
-#if !defined(NDEBUG)
+#if DCHECK_IS_ON()
 
 // Defines a class member that acts like a mutex. It is used only as a
 // verification tool.

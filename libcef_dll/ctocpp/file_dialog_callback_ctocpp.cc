@@ -70,7 +70,7 @@ template<> cef_file_dialog_callback_t* CefCToCpp<CefFileDialogCallbackCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefFileDialogCallbackCToCpp,
     CefFileDialogCallback, cef_file_dialog_callback_t>::DebugObjCt = 0;
 #endif

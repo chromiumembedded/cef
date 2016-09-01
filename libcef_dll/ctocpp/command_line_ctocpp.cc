@@ -423,7 +423,7 @@ template<> cef_command_line_t* CefCToCpp<CefCommandLineCToCpp, CefCommandLine,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefCommandLineCToCpp, CefCommandLine,
     cef_command_line_t>::DebugObjCt = 0;
 #endif

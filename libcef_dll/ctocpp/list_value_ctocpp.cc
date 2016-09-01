@@ -590,7 +590,7 @@ template<> cef_list_value_t* CefCToCpp<CefListValueCToCpp, CefListValue,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefListValueCToCpp, CefListValue,
     cef_list_value_t>::DebugObjCt = 0;
 #endif

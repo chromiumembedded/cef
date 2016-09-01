@@ -206,7 +206,7 @@ template<> cef_textfield_delegate_t* CefCToCpp<CefTextfieldDelegateCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefTextfieldDelegateCToCpp,
     CefTextfieldDelegate, cef_textfield_delegate_t>::DebugObjCt = 0;
 #endif

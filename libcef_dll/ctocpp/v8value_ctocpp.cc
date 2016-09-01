@@ -922,7 +922,7 @@ template<> cef_v8value_t* CefCToCpp<CefV8ValueCToCpp, CefV8Value,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefV8ValueCToCpp, CefV8Value,
     cef_v8value_t>::DebugObjCt = 0;
 #endif

@@ -229,7 +229,7 @@ template<> CefRefPtr<CefMenuButtonDelegate> CefCppToC<CefMenuButtonDelegateCppTo
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefMenuButtonDelegateCppToC,
     CefMenuButtonDelegate, cef_menu_button_delegate_t>::DebugObjCt = 0;
 #endif

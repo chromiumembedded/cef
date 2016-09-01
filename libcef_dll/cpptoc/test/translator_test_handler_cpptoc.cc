@@ -53,7 +53,7 @@ template<> CefRefPtr<CefTranslatorTestHandler> CefCppToC<CefTranslatorTestHandle
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefTranslatorTestHandlerCppToC,
     CefTranslatorTestHandler, cef_translator_test_handler_t>::DebugObjCt = 0;
 #endif

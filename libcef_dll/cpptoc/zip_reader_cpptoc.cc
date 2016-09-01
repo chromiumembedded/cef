@@ -252,7 +252,7 @@ template<> CefRefPtr<CefZipReader> CefCppToC<CefZipReaderCppToC, CefZipReader,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefZipReaderCppToC, CefZipReader,
     cef_zip_reader_t>::DebugObjCt = 0;
 #endif

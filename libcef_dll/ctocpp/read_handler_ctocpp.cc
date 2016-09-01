@@ -108,7 +108,7 @@ template<> cef_read_handler_t* CefCToCpp<CefReadHandlerCToCpp, CefReadHandler,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefReadHandlerCToCpp, CefReadHandler,
     cef_read_handler_t>::DebugObjCt = 0;
 #endif

@@ -85,7 +85,7 @@ CefStreamResourceHandler::CefStreamResourceHandler(
       status_text_("OK"),
       mime_type_(mime_type),
       stream_(stream)
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
       , buffer_owned_by_file_thread_(false)
 #endif
 {
@@ -105,7 +105,7 @@ CefStreamResourceHandler::CefStreamResourceHandler(
       mime_type_(mime_type),
       header_map_(header_map),
       stream_(stream)
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
       , buffer_owned_by_file_thread_(false)
 #endif
 {
@@ -144,7 +144,7 @@ bool CefStreamResourceHandler::ReadResponse(void* data_out,
   DCHECK_GT(bytes_to_read, 0);
 
   if (read_on_file_thread_) {
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
     DCHECK(!buffer_owned_by_file_thread_);
 #endif
     if (buffer_ && (buffer_->CanRead() || buffer_->IsEmpty())) {
@@ -160,7 +160,7 @@ bool CefStreamResourceHandler::ReadResponse(void* data_out,
     } else {
       // Perform another read on the file thread.
       bytes_read = 0;
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
       buffer_owned_by_file_thread_ = true;
 #endif
       CefPostTask(TID_FILE,
@@ -191,7 +191,7 @@ void CefStreamResourceHandler::ReadOnFileThread(
     int bytes_to_read,
     CefRefPtr<CefCallback> callback) {
   CEF_REQUIRE_FILE_THREAD();
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   DCHECK(buffer_owned_by_file_thread_);
 #endif
 
@@ -200,7 +200,7 @@ void CefStreamResourceHandler::ReadOnFileThread(
   buffer_->Reset(bytes_to_read);
   buffer_->ReadFrom(stream_);
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   buffer_owned_by_file_thread_ = false;
 #endif
   callback->Continue();

@@ -46,7 +46,7 @@ template<> CefRefPtr<CefSetCookieCallback> CefCppToC<CefSetCookieCallbackCppToC,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefSetCookieCallbackCppToC,
     CefSetCookieCallback, cef_set_cookie_callback_t>::DebugObjCt = 0;
 #endif

@@ -135,7 +135,7 @@ template<> cef_jsdialog_handler_t* CefCToCpp<CefJSDialogHandlerCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefJSDialogHandlerCToCpp,
     CefJSDialogHandler, cef_jsdialog_handler_t>::DebugObjCt = 0;
 #endif

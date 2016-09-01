@@ -87,7 +87,7 @@ template<> cef_focus_handler_t* CefCToCpp<CefFocusHandlerCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefFocusHandlerCToCpp,
     CefFocusHandler, cef_focus_handler_t>::DebugObjCt = 0;
 #endif

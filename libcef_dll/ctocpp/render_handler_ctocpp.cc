@@ -296,7 +296,7 @@ template<> cef_render_handler_t* CefCToCpp<CefRenderHandlerCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefRenderHandlerCToCpp,
     CefRenderHandler, cef_render_handler_t>::DebugObjCt = 0;
 #endif

@@ -118,7 +118,7 @@ template<> CefRefPtr<CefWriteHandler> CefCppToC<CefWriteHandlerCppToC,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefWriteHandlerCppToC,
     CefWriteHandler, cef_write_handler_t>::DebugObjCt = 0;
 #endif

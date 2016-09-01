@@ -42,7 +42,7 @@ template<> cef_string_visitor_t* CefCToCpp<CefStringVisitorCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefStringVisitorCToCpp,
     CefStringVisitor, cef_string_visitor_t>::DebugObjCt = 0;
 #endif

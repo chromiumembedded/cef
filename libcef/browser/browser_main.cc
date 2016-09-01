@@ -229,7 +229,7 @@ void CefBrowserMainParts::PostMainMessageLoopRun() {
 
   global_browser_context_ = NULL;
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   // No CefBrowserContext instances should exist at this point.
   DCHECK_EQ(0, CefBrowserContext::DebugObjCt);
 #endif
@@ -241,7 +241,7 @@ void CefBrowserMainParts::PostDestroyThreads() {
   delete views::ViewsDelegate::GetInstance();
 #endif
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   // No CefURLRequestContext instances should exist at this point.
   DCHECK_EQ(0, CefURLRequestContext::DebugObjCt);
 #endif

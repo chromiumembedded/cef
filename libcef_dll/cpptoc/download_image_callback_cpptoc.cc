@@ -56,7 +56,7 @@ template<> CefRefPtr<CefDownloadImageCallback> CefCppToC<CefDownloadImageCallbac
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefDownloadImageCallbackCppToC,
     CefDownloadImageCallback, cef_download_image_callback_t>::DebugObjCt = 0;
 #endif

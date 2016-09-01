@@ -10,6 +10,7 @@
 
 #include <glib.h>
 
+#include "include/base/cef_logging.h"
 #include "include/cef_app.h"
 
 // From base/posix/eintr_wrapper.h.
@@ -19,7 +20,7 @@
 // that should be masked) to go unnoticed, there is a limit after which the
 // caller will nonetheless see an EINTR in Debug builds.
 #if !defined(HANDLE_EINTR)
-#if defined(NDEBUG)
+#if !DCHECK_IS_ON()
 
 #define HANDLE_EINTR(x) ({ \
   decltype(x) eintr_wrapper_result; \
@@ -41,7 +42,7 @@
   eintr_wrapper_result; \
 })
 
-#endif  // defined(NDEBUG)
+#endif  // !DCHECK_IS_ON()
 #endif  // !defined(HANDLE_EINTR)
 
 namespace client {

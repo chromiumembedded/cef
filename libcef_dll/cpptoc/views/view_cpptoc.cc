@@ -860,7 +860,7 @@ template<> CefRefPtr<CefView> CefCppToC<CefViewCppToC, CefView,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefViewCppToC, CefView,
     cef_view_t>::DebugObjCt = 0;
 #endif

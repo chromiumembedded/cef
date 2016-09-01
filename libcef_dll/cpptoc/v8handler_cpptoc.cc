@@ -102,7 +102,7 @@ template<> CefRefPtr<CefV8Handler> CefCppToC<CefV8HandlerCppToC, CefV8Handler,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefV8HandlerCppToC, CefV8Handler,
     cef_v8handler_t>::DebugObjCt = 0;
 #endif

@@ -534,7 +534,7 @@ template<> cef_xml_reader_t* CefCToCpp<CefXmlReaderCToCpp, CefXmlReader,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefXmlReaderCToCpp, CefXmlReader,
     cef_xml_reader_t>::DebugObjCt = 0;
 #endif

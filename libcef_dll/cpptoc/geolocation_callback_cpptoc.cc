@@ -46,7 +46,7 @@ template<> CefRefPtr<CefGeolocationCallback> CefCppToC<CefGeolocationCallbackCpp
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefGeolocationCallbackCppToC,
     CefGeolocationCallback, cef_geolocation_callback_t>::DebugObjCt = 0;
 #endif

@@ -88,7 +88,7 @@ template<> cef_keyboard_handler_t* CefCToCpp<CefKeyboardHandlerCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefKeyboardHandlerCToCpp,
     CefKeyboardHandler, cef_keyboard_handler_t>::DebugObjCt = 0;
 #endif

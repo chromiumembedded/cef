@@ -450,7 +450,7 @@ template<> CefRefPtr<CefPrintSettings> CefCppToC<CefPrintSettingsCppToC,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefPrintSettingsCppToC,
     CefPrintSettings, cef_print_settings_t>::DebugObjCt = 0;
 #endif

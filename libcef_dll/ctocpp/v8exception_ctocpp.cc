@@ -146,7 +146,7 @@ template<> cef_v8exception_t* CefCToCpp<CefV8ExceptionCToCpp, CefV8Exception,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefV8ExceptionCToCpp, CefV8Exception,
     cef_v8exception_t>::DebugObjCt = 0;
 #endif

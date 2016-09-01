@@ -268,7 +268,7 @@ template<> cef_client_t* CefCToCpp<CefClientCToCpp, CefClient,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefClientCToCpp, CefClient,
     cef_client_t>::DebugObjCt = 0;
 #endif

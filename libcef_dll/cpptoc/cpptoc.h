@@ -89,7 +89,7 @@ class CefCppToC : public CefBase {
   }
   bool HasOneRef() const { return UnderlyingHasOneRef(); }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   // Simple tracking of allocated objects.
   static base::AtomicRefCount DebugObjCt;  // NOLINT(runtime/int)
 #endif
@@ -106,13 +106,13 @@ class CefCppToC : public CefBase {
     base->release = struct_release;
     base->has_one_ref = struct_has_one_ref;
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
     base::AtomicRefCountInc(&DebugObjCt);
 #endif
   }
 
   virtual ~CefCppToC() {
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
     base::AtomicRefCountDec(&DebugObjCt);
 #endif
   }

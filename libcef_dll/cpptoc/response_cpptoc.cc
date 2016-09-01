@@ -255,7 +255,7 @@ template<> CefRefPtr<CefResponse> CefCppToC<CefResponseCppToC, CefResponse,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefResponseCppToC, CefResponse,
     cef_response_t>::DebugObjCt = 0;
 #endif

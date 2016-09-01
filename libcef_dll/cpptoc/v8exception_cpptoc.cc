@@ -156,7 +156,7 @@ template<> CefRefPtr<CefV8Exception> CefCppToC<CefV8ExceptionCppToC,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefV8ExceptionCppToC, CefV8Exception,
     cef_v8exception_t>::DebugObjCt = 0;
 #endif

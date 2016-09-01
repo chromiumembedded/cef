@@ -5,6 +5,7 @@
 #include "cefclient/browser/main_message_loop_multithreaded_win.h"
 
 #include "include/base/cef_bind.h"
+#include "include/base/cef_logging.h"
 #include "include/cef_app.h"
 #include "cefclient/browser/resource.h"
 #include "cefclient/browser/util_win.h"
@@ -99,7 +100,7 @@ void MainMessageLoopMultithreadedWin::SetCurrentModelessDialog(
     HWND hWndDialog) {
   DCHECK(RunsTasksOnCurrentThread());
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   if (hWndDialog) {
     // A new dialog reference should not be set while one is currently set.
     DCHECK(!dialog_hwnd_);

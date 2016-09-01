@@ -115,7 +115,7 @@ template<> cef_app_t* CefCToCpp<CefAppCToCpp, CefApp, cef_app_t>::UnwrapDerived(
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefAppCToCpp, CefApp,
     cef_app_t>::DebugObjCt = 0;
 #endif
