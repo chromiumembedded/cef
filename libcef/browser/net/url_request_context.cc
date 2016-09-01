@@ -4,18 +4,18 @@
 
 #include "libcef/browser/net/url_request_context.h"
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 base::AtomicRefCount CefURLRequestContext::DebugObjCt = 0;
 #endif
 
 CefURLRequestContext::CefURLRequestContext() {
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   base::AtomicRefCountInc(&DebugObjCt);
 #endif
 }
 
 CefURLRequestContext::~CefURLRequestContext() {
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   base::AtomicRefCountDec(&DebugObjCt);
 #endif
 }

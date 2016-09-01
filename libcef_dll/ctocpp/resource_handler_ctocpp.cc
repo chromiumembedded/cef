@@ -147,7 +147,7 @@ template<> cef_resource_handler_t* CefCToCpp<CefResourceHandlerCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefResourceHandlerCToCpp,
     CefResourceHandler, cef_resource_handler_t>::DebugObjCt = 0;
 #endif

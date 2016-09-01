@@ -236,7 +236,7 @@ template<> cef_zip_reader_t* CefCToCpp<CefZipReaderCToCpp, CefZipReader,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefZipReaderCToCpp, CefZipReader,
     cef_zip_reader_t>::DebugObjCt = 0;
 #endif

@@ -39,7 +39,7 @@ template<> cef_print_job_callback_t* CefCToCpp<CefPrintJobCallbackCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefPrintJobCallbackCToCpp,
     CefPrintJobCallback, cef_print_job_callback_t>::DebugObjCt = 0;
 #endif

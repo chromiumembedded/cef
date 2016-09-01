@@ -59,7 +59,7 @@ template<> CefRefPtr<CefRequestCallback> CefCppToC<CefRequestCallbackCppToC,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefRequestCallbackCppToC,
     CefRequestCallback, cef_request_callback_t>::DebugObjCt = 0;
 #endif

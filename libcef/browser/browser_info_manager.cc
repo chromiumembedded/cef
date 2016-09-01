@@ -347,7 +347,7 @@ void CefBrowserInfoManager::OnGetNewBrowserInfo(
     return;
   }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   // Verify that no request for the same route is currently queued.
   {
     PendingNewBrowserInfoList::const_iterator it =
@@ -408,7 +408,7 @@ void CefBrowserInfoManager::DestroyAllBrowsers() {
     }
   }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   {
     // Verify that all browser windows have been destroyed.
     base::AutoLock lock_scope(browser_info_lock_);

@@ -1044,7 +1044,7 @@ template<> CefRefPtr<CefMenuModel> CefCppToC<CefMenuModelCppToC, CefMenuModel,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefMenuModelCppToC, CefMenuModel,
     cef_menu_model_t>::DebugObjCt = 0;
 #endif

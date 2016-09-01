@@ -48,7 +48,7 @@ namespace base {
 namespace cef_internal {
 
 LockImpl::LockImpl() {
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   // In debug, setup attributes for lock error checking.
   pthread_mutexattr_t mta;
   int rv = pthread_mutexattr_init(&mta);

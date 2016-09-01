@@ -68,7 +68,7 @@ template<> cef_menu_model_delegate_t* CefCToCpp<CefMenuModelDelegateCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefMenuModelDelegateCToCpp,
     CefMenuModelDelegate, cef_menu_model_delegate_t>::DebugObjCt = 0;
 #endif

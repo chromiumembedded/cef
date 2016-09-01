@@ -14,6 +14,7 @@
 #error Platform is not supported.
 #endif
 
+#include "include/base/cef_logging.h"
 #include "include/wrapper/cef_helpers.h"
 
 #ifndef GL_BGR
@@ -27,7 +28,7 @@
 #endif
 
 // DCHECK on gl errors.
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 #define VERIFY_NO_ERROR { \
     int _gl_error = glGetError(); \
     DCHECK(_gl_error == GL_NO_ERROR) << \

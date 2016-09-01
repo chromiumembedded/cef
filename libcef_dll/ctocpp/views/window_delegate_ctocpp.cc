@@ -300,7 +300,7 @@ template<> cef_window_delegate_t* CefCToCpp<CefWindowDelegateCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefWindowDelegateCToCpp,
     CefWindowDelegate, cef_window_delegate_t>::DebugObjCt = 0;
 #endif

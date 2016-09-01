@@ -46,7 +46,7 @@ template<> cef_end_tracing_callback_t* CefCToCpp<CefEndTracingCallbackCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefEndTracingCallbackCToCpp,
     CefEndTracingCallback, cef_end_tracing_callback_t>::DebugObjCt = 0;
 #endif

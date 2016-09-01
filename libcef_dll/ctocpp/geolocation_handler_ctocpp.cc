@@ -82,7 +82,7 @@ template<> cef_geolocation_handler_t* CefCToCpp<CefGeolocationHandlerCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefGeolocationHandlerCToCpp,
     CefGeolocationHandler, cef_geolocation_handler_t>::DebugObjCt = 0;
 #endif

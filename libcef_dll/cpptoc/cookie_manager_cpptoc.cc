@@ -241,7 +241,7 @@ template<> CefRefPtr<CefCookieManager> CefCppToC<CefCookieManagerCppToC,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefCookieManagerCppToC,
     CefCookieManager, cef_cookie_manager_t>::DebugObjCt = 0;
 #endif

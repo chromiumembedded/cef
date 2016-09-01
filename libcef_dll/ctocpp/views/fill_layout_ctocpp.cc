@@ -70,7 +70,7 @@ template<> cef_fill_layout_t* CefCToCpp<CefFillLayoutCToCpp, CefFillLayout,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefFillLayoutCToCpp, CefFillLayout,
     cef_fill_layout_t>::DebugObjCt = 0;
 #endif

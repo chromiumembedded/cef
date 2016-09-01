@@ -1033,7 +1033,7 @@ template<> cef_translator_test_t* CefCToCpp<CefTranslatorTestCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefTranslatorTestCToCpp,
     CefTranslatorTest, cef_translator_test_t>::DebugObjCt = 0;
 #endif

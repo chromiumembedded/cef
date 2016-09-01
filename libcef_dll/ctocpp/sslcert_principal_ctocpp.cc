@@ -213,7 +213,7 @@ template<> cef_sslcert_principal_t* CefCToCpp<CefSSLCertPrincipalCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefSSLCertPrincipalCToCpp,
     CefSSLCertPrincipal, cef_sslcert_principal_t>::DebugObjCt = 0;
 #endif

@@ -120,7 +120,7 @@ template<> cef_process_message_t* CefCToCpp<CefProcessMessageCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefProcessMessageCToCpp,
     CefProcessMessage, cef_process_message_t>::DebugObjCt = 0;
 #endif

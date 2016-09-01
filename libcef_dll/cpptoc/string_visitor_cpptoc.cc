@@ -47,7 +47,7 @@ template<> CefRefPtr<CefStringVisitor> CefCppToC<CefStringVisitorCppToC,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefStringVisitorCppToC,
     CefStringVisitor, cef_string_visitor_t>::DebugObjCt = 0;
 #endif

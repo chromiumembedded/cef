@@ -67,7 +67,7 @@ template<> CefRefPtr<CefAuthCallback> CefCppToC<CefAuthCallbackCppToC,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefAuthCallbackCppToC,
     CefAuthCallback, cef_auth_callback_t>::DebugObjCt = 0;
 #endif

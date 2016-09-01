@@ -1422,7 +1422,7 @@ template<> CefRefPtr<CefTextfield> CefCppToC<CefTextfieldCppToC, CefTextfield,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefTextfieldCppToC, CefTextfield,
     cef_textfield_t>::DebugObjCt = 0;
 #endif

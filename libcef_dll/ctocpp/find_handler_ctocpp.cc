@@ -53,7 +53,7 @@ template<> cef_find_handler_t* CefCToCpp<CefFindHandlerCToCpp, CefFindHandler,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefFindHandlerCToCpp, CefFindHandler,
     cef_find_handler_t>::DebugObjCt = 0;
 #endif

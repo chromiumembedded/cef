@@ -746,7 +746,7 @@ template<> cef_browser_view_t* CefCToCpp<CefBrowserViewCToCpp, CefBrowserView,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefBrowserViewCToCpp, CefBrowserView,
     cef_browser_view_t>::DebugObjCt = 0;
 #endif

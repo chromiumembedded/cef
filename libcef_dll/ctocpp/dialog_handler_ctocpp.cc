@@ -80,7 +80,7 @@ template<> cef_dialog_handler_t* CefCToCpp<CefDialogHandlerCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefDialogHandlerCToCpp,
     CefDialogHandler, cef_dialog_handler_t>::DebugObjCt = 0;
 #endif

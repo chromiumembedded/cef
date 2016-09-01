@@ -1012,7 +1012,7 @@ template<> CefRefPtr<CefBrowserHost> CefCppToC<CefBrowserHostCppToC,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefBrowserHostCppToC, CefBrowserHost,
     cef_browser_host_t>::DebugObjCt = 0;
 #endif

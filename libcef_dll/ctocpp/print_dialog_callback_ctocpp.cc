@@ -58,7 +58,7 @@ template<> cef_print_dialog_callback_t* CefCToCpp<CefPrintDialogCallbackCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefPrintDialogCallbackCToCpp,
     CefPrintDialogCallback, cef_print_dialog_callback_t>::DebugObjCt = 0;
 #endif

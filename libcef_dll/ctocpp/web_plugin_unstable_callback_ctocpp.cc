@@ -48,7 +48,7 @@ template<> cef_web_plugin_unstable_callback_t* CefCToCpp<CefWebPluginUnstableCal
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefWebPluginUnstableCallbackCToCpp,
     CefWebPluginUnstableCallback,
     cef_web_plugin_unstable_callback_t>::DebugObjCt = 0;

@@ -270,7 +270,7 @@ template<> CefRefPtr<CefDOMDocument> CefCppToC<CefDOMDocumentCppToC,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefDOMDocumentCppToC, CefDOMDocument,
     cef_domdocument_t>::DebugObjCt = 0;
 #endif

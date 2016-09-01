@@ -203,7 +203,7 @@ CEF_GLOBAL void CefShutdown() {
   // Execute
   cef_shutdown();
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   // Check that all wrapper objects have been destroyed
   DCHECK(base::AtomicRefCountIsZero(&CefAuthCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
@@ -325,7 +325,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefWriteHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefXmlReaderCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefZipReaderCToCpp::DebugObjCt));
-#endif  // !NDEBUG
+#endif  // DCHECK_IS_ON()
 }
 
 CEF_GLOBAL void CefDoMessageLoopWork() {

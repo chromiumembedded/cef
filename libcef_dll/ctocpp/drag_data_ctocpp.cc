@@ -384,7 +384,7 @@ template<> cef_drag_data_t* CefCToCpp<CefDragDataCToCpp, CefDragData,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefDragDataCToCpp, CefDragData,
     cef_drag_data_t>::DebugObjCt = 0;
 #endif

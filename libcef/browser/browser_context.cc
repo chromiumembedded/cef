@@ -17,13 +17,13 @@
 #include "extensions/browser/extension_protocols.h"
 #include "extensions/common/constants.h"
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 base::AtomicRefCount CefBrowserContext::DebugObjCt = 0;
 #endif
 
 CefBrowserContext::CefBrowserContext()
     : extension_system_(NULL) {
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   base::AtomicRefCountInc(&DebugObjCt);
 #endif
 }
@@ -32,7 +32,7 @@ CefBrowserContext::~CefBrowserContext() {
   // Should be cleared in Shutdown().
   DCHECK(!resource_context_.get());
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   base::AtomicRefCountDec(&DebugObjCt);
 #endif
 }

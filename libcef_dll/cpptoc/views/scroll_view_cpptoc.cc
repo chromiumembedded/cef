@@ -1026,7 +1026,7 @@ template<> CefRefPtr<CefScrollView> CefCppToC<CefScrollViewCppToC,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefScrollViewCppToC, CefScrollView,
     cef_scroll_view_t>::DebugObjCt = 0;
 #endif

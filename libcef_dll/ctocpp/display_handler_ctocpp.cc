@@ -196,7 +196,7 @@ template<> cef_display_handler_t* CefCToCpp<CefDisplayHandlerCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefDisplayHandlerCToCpp,
     CefDisplayHandler, cef_display_handler_t>::DebugObjCt = 0;
 #endif

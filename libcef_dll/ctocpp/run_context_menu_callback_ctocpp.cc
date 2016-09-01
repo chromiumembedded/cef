@@ -53,7 +53,7 @@ template<> cef_run_context_menu_callback_t* CefCToCpp<CefRunContextMenuCallbackC
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefRunContextMenuCallbackCToCpp,
     CefRunContextMenuCallback, cef_run_context_menu_callback_t>::DebugObjCt =
     0;

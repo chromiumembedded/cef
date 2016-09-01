@@ -469,7 +469,7 @@ template<> CefRefPtr<CefDOMNode> CefCppToC<CefDOMNodeCppToC, CefDOMNode,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefDOMNodeCppToC, CefDOMNode,
     cef_domnode_t>::DebugObjCt = 0;
 #endif

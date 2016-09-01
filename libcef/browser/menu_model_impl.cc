@@ -762,13 +762,13 @@ void CefMenuModelImpl::InsertItemAt(const Item& item, int index) {
 }
 
 void CefMenuModelImpl::ValidateItem(const Item& item) {
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   if (item.type_ == MENUITEMTYPE_SEPARATOR) {
     DCHECK_EQ(item.command_id_, kSeparatorId);
   } else {
     DCHECK_GE(item.command_id_, 0);
   }
-#endif  // NDEBUG
+#endif
 }
 
 void CefMenuModelImpl::OnMenuClosed() {

@@ -174,7 +174,7 @@ template<> cef_post_data_t* CefCToCpp<CefPostDataCToCpp, CefPostData,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefPostDataCToCpp, CefPostData,
     cef_post_data_t>::DebugObjCt = 0;
 #endif

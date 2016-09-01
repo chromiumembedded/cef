@@ -147,7 +147,7 @@ template<> cef_print_handler_t* CefCToCpp<CefPrintHandlerCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefPrintHandlerCToCpp,
     CefPrintHandler, cef_print_handler_t>::DebugObjCt = 0;
 #endif

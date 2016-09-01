@@ -62,7 +62,7 @@ template<> cef_scheme_handler_factory_t* CefCToCpp<CefSchemeHandlerFactoryCToCpp
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefSchemeHandlerFactoryCToCpp,
     CefSchemeHandlerFactory, cef_scheme_handler_factory_t>::DebugObjCt = 0;
 #endif

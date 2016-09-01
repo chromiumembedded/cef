@@ -148,7 +148,7 @@ template<> cef_urlrequest_client_t* CefCToCpp<CefURLRequestClientCToCpp,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefURLRequestClientCToCpp,
     CefURLRequestClient, cef_urlrequest_client_t>::DebugObjCt = 0;
 #endif

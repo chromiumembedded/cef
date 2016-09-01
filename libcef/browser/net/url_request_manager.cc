@@ -274,7 +274,7 @@ net::URLRequestJob* CefURLRequestManager::GetRequestJob(
     job = GetBuiltinSchemeRequestJob(request, network_delegate, scheme);
   }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   if (job)
     DLOG(INFO) << "CefURLRequestManager hit for " << request->url().spec();
 #endif

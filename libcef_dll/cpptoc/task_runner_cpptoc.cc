@@ -156,7 +156,7 @@ template<> CefRefPtr<CefTaskRunner> CefCppToC<CefTaskRunnerCppToC,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefTaskRunnerCppToC, CefTaskRunner,
     cef_task_runner_t>::DebugObjCt = 0;
 #endif

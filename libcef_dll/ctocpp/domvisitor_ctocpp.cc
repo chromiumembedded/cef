@@ -45,7 +45,7 @@ template<> cef_domvisitor_t* CefCToCpp<CefDOMVisitorCToCpp, CefDOMVisitor,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCToCpp<CefDOMVisitorCToCpp, CefDOMVisitor,
     cef_domvisitor_t>::DebugObjCt = 0;
 #endif

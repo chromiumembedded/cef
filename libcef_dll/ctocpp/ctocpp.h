@@ -45,20 +45,20 @@ class CefCToCpp : public BaseName {
   bool Release() const;
   bool HasOneRef() const { return UnderlyingHasOneRef(); }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   // Simple tracking of allocated objects.
   static base::AtomicRefCount DebugObjCt;  // NOLINT(runtime/int)
 #endif
 
  protected:
   CefCToCpp() {
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
     base::AtomicRefCountInc(&DebugObjCt);
 #endif
   }
 
   virtual ~CefCToCpp() {
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
     base::AtomicRefCountDec(&DebugObjCt);
 #endif
   }

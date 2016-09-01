@@ -966,7 +966,7 @@ template<> CefRefPtr<CefButton> CefCppToC<CefButtonCppToC, CefButton,
   return NULL;
 }
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
 template<> base::AtomicRefCount CefCppToC<CefButtonCppToC, CefButton,
     cef_button_t>::DebugObjCt = 0;
 #endif

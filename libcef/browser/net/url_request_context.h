@@ -6,6 +6,7 @@
 #define CEF_LIBCEF_BROWSER_NET_URL_REQUEST_CONTEXT_H_
 #pragma once
 
+#include "base/logging.h"
 #include "net/url_request/url_request_context.h"
 
 // Owns URLRequest instances and provides access to network-related
@@ -18,7 +19,7 @@ class CefURLRequestContext : public net::URLRequestContext {
   CefURLRequestContext();
   ~CefURLRequestContext() override;
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
   // Simple tracking of allocated objects.
   static base::AtomicRefCount DebugObjCt;  // NOLINT(runtime/int)
 #endif
