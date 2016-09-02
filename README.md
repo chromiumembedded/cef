@@ -10,7 +10,7 @@ The Chromium Embedded Framework (CEF) is a simple framework for embedding Chromi
 * Support Forum - http://www.magpcss.org/ceforum/
 * CEF1 C++ API Docs - http://magpcss.org/ceforum/apidocs/
 * CEF3 C++ API Docs - http://magpcss.org/ceforum/apidocs3/
-* Downloads - http://www.magpcss.net/cef_downloads/ and http://cefbuilds.com
+* Downloads - http://opensource.spotify.com/cefbuilds/index.html
 * Donations - http://www.magpcss.org/ceforum/donate.php
 
 # Introduction
@@ -32,7 +32,7 @@ Users new to CEF development should start by reading the [Tutorial](https://bitb
 
 # Binary Distributions
 
-Binary distributions, which include all files necessary to build a CEF-based application, are available on the [Downloads](http://www.magpcss.net/cef_downloads/) page and http://cefbuilds.com. Binary distributions are stand-alone and do not require the download of CEF or Chromium source code. Symbol files for debugging binary distributions of libcef can also be downloaded from the above links.
+Binary distributions, which include all files necessary to build a CEF-based application, are available on the [Downloads](http://opensource.spotify.com/cefbuilds/index.html) page. Binary distributions are stand-alone and do not require the download of CEF or Chromium source code. Symbol files for debugging binary distributions of libcef can also be downloaded from the above links.
 
 # Source Distributions
 
