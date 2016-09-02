@@ -24,6 +24,8 @@
 #include "include/capi/cef_process_util_capi.h"
 #include "include/cef_scheme.h"
 #include "include/capi/cef_scheme_capi.h"
+#include "include/cef_ssl_info.h"
+#include "include/capi/cef_ssl_info_capi.h"
 #include "include/cef_task.h"
 #include "include/capi/cef_task_capi.h"
 #include "include/cef_trace.h"
@@ -121,8 +123,8 @@
 #include "libcef_dll/ctocpp/process_message_ctocpp.h"
 #include "libcef_dll/ctocpp/request_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/run_context_menu_callback_ctocpp.h"
-#include "libcef_dll/ctocpp/sslcert_principal_ctocpp.h"
 #include "libcef_dll/ctocpp/sslinfo_ctocpp.h"
+#include "libcef_dll/ctocpp/sslstatus_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_registrar_ctocpp.h"
 #include "libcef_dll/ctocpp/views/scroll_view_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
@@ -139,6 +141,8 @@
 #include "libcef_dll/ctocpp/views/view_ctocpp.h"
 #include "libcef_dll/ctocpp/web_plugin_info_ctocpp.h"
 #include "libcef_dll/ctocpp/views/window_ctocpp.h"
+#include "libcef_dll/ctocpp/x509cert_principal_ctocpp.h"
+#include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
 #include "libcef_dll/ctocpp/xml_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/zip_reader_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
@@ -289,8 +293,8 @@ CEF_GLOBAL void CefShutdown() {
       &CefRunContextMenuCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefRunFileDialogCallbackCppToC::DebugObjCt));
-  DCHECK(base::AtomicRefCountIsZero(&CefSSLCertPrincipalCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefSSLInfoCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefSSLStatusCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefSchemeHandlerFactoryCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefSchemeRegistrarCToCpp::DebugObjCt));
@@ -323,6 +327,8 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefWindowCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefWindowDelegateCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefWriteHandlerCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefX509CertPrincipalCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefX509CertificateCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefXmlReaderCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefZipReaderCToCpp::DebugObjCt));
 #endif  // DCHECK_IS_ON()
@@ -725,6 +731,28 @@ CEF_GLOBAL bool CefClearSchemeHandlerFactories() {
 
   // Execute
   int _retval = cef_clear_scheme_handler_factories();
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefIsCertStatusError(cef_cert_status_t status) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = cef_is_cert_status_error(
+      status);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+CEF_GLOBAL bool CefIsCertStatusMinorError(cef_cert_status_t status) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = cef_is_cert_status_minor_error(
+      status);
 
   // Return type: bool
   return _retval?true:false;

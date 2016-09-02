@@ -31,18 +31,7 @@ class CefSSLInfoCToCpp
 
   // CefSSLInfo methods.
   cef_cert_status_t GetCertStatus() OVERRIDE;
-  bool IsCertStatusError() OVERRIDE;
-  bool IsCertStatusMinorError() OVERRIDE;
-  CefRefPtr<CefSSLCertPrincipal> GetSubject() OVERRIDE;
-  CefRefPtr<CefSSLCertPrincipal> GetIssuer() OVERRIDE;
-  CefRefPtr<CefBinaryValue> GetSerialNumber() OVERRIDE;
-  CefTime GetValidStart() OVERRIDE;
-  CefTime GetValidExpiry() OVERRIDE;
-  CefRefPtr<CefBinaryValue> GetDEREncoded() OVERRIDE;
-  CefRefPtr<CefBinaryValue> GetPEMEncoded() OVERRIDE;
-  size_t GetIssuerChainSize() OVERRIDE;
-  void GetDEREncodedIssuerChain(IssuerChainBinaryList& chain) OVERRIDE;
-  void GetPEMEncodedIssuerChain(IssuerChainBinaryList& chain) OVERRIDE;
+  CefRefPtr<CefX509Certificate> GetX509Certificate() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED

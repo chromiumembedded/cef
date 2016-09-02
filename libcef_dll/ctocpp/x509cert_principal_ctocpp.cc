@@ -10,14 +10,14 @@
 // for more information.
 //
 
-#include "libcef_dll/ctocpp/sslcert_principal_ctocpp.h"
+#include "libcef_dll/ctocpp/x509cert_principal_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-CefString CefSSLCertPrincipalCToCpp::GetDisplayName() {
-  cef_sslcert_principal_t* _struct = GetStruct();
+CefString CefX509CertPrincipalCToCpp::GetDisplayName() {
+  cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_display_name))
     return CefString();
 
@@ -32,8 +32,8 @@ CefString CefSSLCertPrincipalCToCpp::GetDisplayName() {
   return _retvalStr;
 }
 
-CefString CefSSLCertPrincipalCToCpp::GetCommonName() {
-  cef_sslcert_principal_t* _struct = GetStruct();
+CefString CefX509CertPrincipalCToCpp::GetCommonName() {
+  cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_common_name))
     return CefString();
 
@@ -48,8 +48,8 @@ CefString CefSSLCertPrincipalCToCpp::GetCommonName() {
   return _retvalStr;
 }
 
-CefString CefSSLCertPrincipalCToCpp::GetLocalityName() {
-  cef_sslcert_principal_t* _struct = GetStruct();
+CefString CefX509CertPrincipalCToCpp::GetLocalityName() {
+  cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_locality_name))
     return CefString();
 
@@ -64,8 +64,8 @@ CefString CefSSLCertPrincipalCToCpp::GetLocalityName() {
   return _retvalStr;
 }
 
-CefString CefSSLCertPrincipalCToCpp::GetStateOrProvinceName() {
-  cef_sslcert_principal_t* _struct = GetStruct();
+CefString CefX509CertPrincipalCToCpp::GetStateOrProvinceName() {
+  cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_state_or_province_name))
     return CefString();
 
@@ -80,8 +80,8 @@ CefString CefSSLCertPrincipalCToCpp::GetStateOrProvinceName() {
   return _retvalStr;
 }
 
-CefString CefSSLCertPrincipalCToCpp::GetCountryName() {
-  cef_sslcert_principal_t* _struct = GetStruct();
+CefString CefX509CertPrincipalCToCpp::GetCountryName() {
+  cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_country_name))
     return CefString();
 
@@ -96,9 +96,9 @@ CefString CefSSLCertPrincipalCToCpp::GetCountryName() {
   return _retvalStr;
 }
 
-void CefSSLCertPrincipalCToCpp::GetStreetAddresses(
+void CefX509CertPrincipalCToCpp::GetStreetAddresses(
     std::vector<CefString>& addresses) {
-  cef_sslcert_principal_t* _struct = GetStruct();
+  cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_street_addresses))
     return;
 
@@ -122,9 +122,9 @@ void CefSSLCertPrincipalCToCpp::GetStreetAddresses(
   }
 }
 
-void CefSSLCertPrincipalCToCpp::GetOrganizationNames(
+void CefX509CertPrincipalCToCpp::GetOrganizationNames(
     std::vector<CefString>& names) {
-  cef_sslcert_principal_t* _struct = GetStruct();
+  cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_organization_names))
     return;
 
@@ -148,9 +148,9 @@ void CefSSLCertPrincipalCToCpp::GetOrganizationNames(
   }
 }
 
-void CefSSLCertPrincipalCToCpp::GetOrganizationUnitNames(
+void CefX509CertPrincipalCToCpp::GetOrganizationUnitNames(
     std::vector<CefString>& names) {
-  cef_sslcert_principal_t* _struct = GetStruct();
+  cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_organization_unit_names))
     return;
 
@@ -174,9 +174,9 @@ void CefSSLCertPrincipalCToCpp::GetOrganizationUnitNames(
   }
 }
 
-void CefSSLCertPrincipalCToCpp::GetDomainComponents(
+void CefX509CertPrincipalCToCpp::GetDomainComponents(
     std::vector<CefString>& components) {
-  cef_sslcert_principal_t* _struct = GetStruct();
+  cef_x509cert_principal_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_domain_components))
     return;
 
@@ -203,21 +203,21 @@ void CefSSLCertPrincipalCToCpp::GetDomainComponents(
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefSSLCertPrincipalCToCpp::CefSSLCertPrincipalCToCpp() {
+CefX509CertPrincipalCToCpp::CefX509CertPrincipalCToCpp() {
 }
 
-template<> cef_sslcert_principal_t* CefCToCpp<CefSSLCertPrincipalCToCpp,
-    CefSSLCertPrincipal, cef_sslcert_principal_t>::UnwrapDerived(
-    CefWrapperType type, CefSSLCertPrincipal* c) {
+template<> cef_x509cert_principal_t* CefCToCpp<CefX509CertPrincipalCToCpp,
+    CefX509CertPrincipal, cef_x509cert_principal_t>::UnwrapDerived(
+    CefWrapperType type, CefX509CertPrincipal* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefSSLCertPrincipalCToCpp,
-    CefSSLCertPrincipal, cef_sslcert_principal_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefX509CertPrincipalCToCpp,
+    CefX509CertPrincipal, cef_x509cert_principal_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefSSLCertPrincipalCToCpp,
-    CefSSLCertPrincipal, cef_sslcert_principal_t>::kWrapperType =
-    WT_SSLCERT_PRINCIPAL;
+template<> CefWrapperType CefCToCpp<CefX509CertPrincipalCToCpp,
+    CefX509CertPrincipal, cef_x509cert_principal_t>::kWrapperType =
+    WT_X509CERT_PRINCIPAL;

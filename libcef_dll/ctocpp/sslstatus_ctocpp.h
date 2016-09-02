@@ -10,40 +10,34 @@
 // for more information.
 //
 
-#ifndef CEF_LIBCEF_DLL_CTOCPP_NAVIGATION_ENTRY_CTOCPP_H_
-#define CEF_LIBCEF_DLL_CTOCPP_NAVIGATION_ENTRY_CTOCPP_H_
+#ifndef CEF_LIBCEF_DLL_CTOCPP_SSLSTATUS_CTOCPP_H_
+#define CEF_LIBCEF_DLL_CTOCPP_SSLSTATUS_CTOCPP_H_
 #pragma once
 
 #ifndef USING_CEF_SHARED
 #pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
 #else  // USING_CEF_SHARED
 
-#include "include/cef_navigation_entry.h"
-#include "include/capi/cef_navigation_entry_capi.h"
 #include "include/cef_ssl_status.h"
 #include "include/capi/cef_ssl_status_capi.h"
+#include "include/cef_x509_certificate.h"
+#include "include/capi/cef_x509_certificate_capi.h"
 #include "libcef_dll/ctocpp/ctocpp.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefNavigationEntryCToCpp
-    : public CefCToCpp<CefNavigationEntryCToCpp, CefNavigationEntry,
-        cef_navigation_entry_t> {
+class CefSSLStatusCToCpp
+    : public CefCToCpp<CefSSLStatusCToCpp, CefSSLStatus, cef_sslstatus_t> {
  public:
-  CefNavigationEntryCToCpp();
+  CefSSLStatusCToCpp();
 
-  // CefNavigationEntry methods.
-  bool IsValid() OVERRIDE;
-  CefString GetURL() OVERRIDE;
-  CefString GetDisplayURL() OVERRIDE;
-  CefString GetOriginalURL() OVERRIDE;
-  CefString GetTitle() OVERRIDE;
-  TransitionType GetTransitionType() OVERRIDE;
-  bool HasPostData() OVERRIDE;
-  CefTime GetCompletionTime() OVERRIDE;
-  int GetHttpStatusCode() OVERRIDE;
-  CefRefPtr<CefSSLStatus> GetSSLStatus() OVERRIDE;
+  // CefSSLStatus methods.
+  bool IsSecureConnection() OVERRIDE;
+  cef_cert_status_t GetCertStatus() OVERRIDE;
+  cef_ssl_version_t GetSSLVersion() OVERRIDE;
+  cef_ssl_content_status_t GetContentStatus() OVERRIDE;
+  CefRefPtr<CefX509Certificate> GetX509Certificate() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
-#endif  // CEF_LIBCEF_DLL_CTOCPP_NAVIGATION_ENTRY_CTOCPP_H_
+#endif  // CEF_LIBCEF_DLL_CTOCPP_SSLSTATUS_CTOCPP_H_

@@ -14,6 +14,8 @@
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
 #include "include/cef_parser.h"
+#include "include/cef_ssl_status.h"
+#include "include/cef_x509_certificate.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "cefclient/browser/main_context.h"
 #include "cefclient/browser/resource_util.h"
@@ -36,6 +38,7 @@ enum client_menu_ids {
   CLIENT_ID_SHOW_DEVTOOLS   = MENU_ID_USER_FIRST,
   CLIENT_ID_CLOSE_DEVTOOLS,
   CLIENT_ID_INSPECT_ELEMENT,
+  CLIENT_ID_SHOW_SSL_INFO,
   CLIENT_ID_TESTMENU_SUBMENU,
   CLIENT_ID_TESTMENU_CHECKITEM,
   CLIENT_ID_TESTMENU_RADIOITEM1,
@@ -82,8 +85,10 @@ std::string GetBinaryString(CefRefPtr<CefBinaryValue> value) {
   return CefBase64Encode(src.data(), src.size());
 }
 
+#define FLAG(flag) if (status & flag) result += std::string(#flag) + "<br/>"
+#define VALUE(val,def) if (val == def) return std::string(#def)
+
 std::string GetCertStatusString(cef_cert_status_t status) {
-  #define FLAG(flag) if (status & flag) result += std::string(#flag) + "<br/>"
   std::string result;
 
   FLAG(CERT_STATUS_COMMON_NAME_INVALID);
@@ -109,6 +114,29 @@ std::string GetCertStatusString(cef_cert_status_t status) {
   return result;
 }
 
+std::string GetSSLVersionString(cef_ssl_version_t version) {
+  VALUE(version, SSL_CONNECTION_VERSION_UNKNOWN);
+  VALUE(version, SSL_CONNECTION_VERSION_SSL2);
+  VALUE(version, SSL_CONNECTION_VERSION_SSL3);
+  VALUE(version, SSL_CONNECTION_VERSION_TLS1);
+  VALUE(version, SSL_CONNECTION_VERSION_TLS1_1);
+  VALUE(version, SSL_CONNECTION_VERSION_TLS1_2);
+  VALUE(version, SSL_CONNECTION_VERSION_QUIC);
+  return std::string();
+}
+
+std::string GetContentStatusString(cef_ssl_content_status_t status) {
+  std::string result;
+
+  VALUE(status, SSL_CONTENT_NORMAL_CONTENT);
+  FLAG(SSL_CONTENT_DISPLAYED_INSECURE_CONTENT);
+  FLAG(SSL_CONTENT_RAN_INSECURE_CONTENT);
+
+  if (result.empty())
+    return "&nbsp;";
+  return result;
+}
+
 // Load a data: URI containing the error message.
 void LoadErrorPage(CefRefPtr<CefFrame> frame,
                    const std::string& failed_url,
@@ -127,6 +155,58 @@ void LoadErrorPage(CefRefPtr<CefFrame> frame,
 
   ss << "</body></html>";
   frame->LoadURL(test_runner::GetDataURI(ss.str(), "text/html"));
+}
+
+// Return HTML string with information about a certificate.
+std::string GetCertificateInformation(CefRefPtr<CefX509Certificate> cert,
+    cef_cert_status_t certstatus) {
+  CefRefPtr<CefX509CertPrincipal> subject = cert->GetSubject();
+  CefRefPtr<CefX509CertPrincipal> issuer = cert->GetIssuer();
+
+  // Build a table showing certificate information. Various types of invalid
+  // certificates can be tested using https://badssl.com/.
+  std::stringstream ss;
+  ss << "<h3>X.509 Certificate Information:</h3>"
+        "<table border=1><tr><th>Field</th><th>Value</th></tr>";
+
+  if (certstatus != CERT_STATUS_NONE) {
+    ss << "<tr><td>Status</td><td>" <<
+              GetCertStatusString(certstatus) << "</td></tr>";
+  }
+
+  ss << "<tr><td>Subject</td><td>" <<
+            (subject.get() ? subject->GetDisplayName().ToString() : "&nbsp;") <<
+            "</td></tr>"
+        "<tr><td>Issuer</td><td>" <<
+            (issuer.get() ? issuer->GetDisplayName().ToString() : "&nbsp;") <<
+            "</td></tr>"
+        "<tr><td>Serial #*</td><td>" <<
+            GetBinaryString(cert->GetSerialNumber()) << "</td></tr>" <<
+        "<tr><td>Valid Start</td><td>" <<
+            GetTimeString(cert->GetValidStart()) << "</td></tr>"
+        "<tr><td>Valid Expiry</td><td>" <<
+            GetTimeString(cert->GetValidExpiry()) << "</td></tr>";
+
+  CefX509Certificate::IssuerChainBinaryList der_chain_list;
+  CefX509Certificate::IssuerChainBinaryList pem_chain_list;
+  cert->GetDEREncodedIssuerChain(der_chain_list);
+  cert->GetPEMEncodedIssuerChain(pem_chain_list);
+  DCHECK_EQ(der_chain_list.size(), pem_chain_list.size());
+
+  der_chain_list.insert(der_chain_list.begin(), cert->GetDEREncoded());
+  pem_chain_list.insert(pem_chain_list.begin(), cert->GetPEMEncoded());
+
+  for (size_t i = 0U; i < der_chain_list.size(); ++i) {
+    ss << "<tr><td>DER Encoded*</td>"
+          "<td style=\"max-width:800px;overflow:scroll;\">" <<
+              GetBinaryString(der_chain_list[i]) << "</td></tr>"
+          "<tr><td>PEM Encoded*</td>"
+          "<td style=\"max-width:800px;overflow:scroll;\">" <<
+              GetBinaryString(pem_chain_list[i]) << "</td></tr>";
+  }
+
+  ss << "</table> * Displayed value is base64 encoded.";
+  return ss.str();
 }
 
 }  // namespace
@@ -237,6 +317,11 @@ void ClientHandler::OnBeforeContextMenu(
     model->AddSeparator();
     model->AddItem(CLIENT_ID_INSPECT_ELEMENT, "Inspect Element");
 
+    if (HasSSLInformation(browser)) {
+      model->AddSeparator();
+      model->AddItem(CLIENT_ID_SHOW_SSL_INFO, "Show SSL information");
+    }
+
     // Test context menu features.
     BuildTestMenu(model);
   }
@@ -259,6 +344,9 @@ bool ClientHandler::OnContextMenuCommand(
       return true;
     case CLIENT_ID_INSPECT_ELEMENT:
       ShowDevTools(browser, CefPoint(params->GetXCoord(), params->GetYCoord()));
+      return true;
+    case CLIENT_ID_SHOW_SSL_INFO:
+      ShowSSLInformation(browser);
       return true;
     default:  // Allow default handling, if any.
       return ExecuteTestMenu(command_id);
@@ -602,51 +690,12 @@ bool ClientHandler::OnCertificateError(
     CefRefPtr<CefRequestCallback> callback) {
   CEF_REQUIRE_UI_THREAD();
 
-  CefRefPtr<CefSSLCertPrincipal> subject = ssl_info->GetSubject();
-  CefRefPtr<CefSSLCertPrincipal> issuer = ssl_info->GetIssuer();
-
-  // Build a table showing certificate information. Various types of invalid
-  // certificates can be tested using https://badssl.com/.
-  std::stringstream ss;
-  ss << "X.509 Certificate Information:"
-        "<table border=1><tr><th>Field</th><th>Value</th></tr>" <<
-        "<tr><td>Subject</td><td>" <<
-            (subject.get() ? subject->GetDisplayName().ToString() : "&nbsp;") <<
-            "</td></tr>"
-        "<tr><td>Issuer</td><td>" <<
-            (issuer.get() ? issuer->GetDisplayName().ToString() : "&nbsp;") <<
-            "</td></tr>"
-        "<tr><td>Serial #*</td><td>" <<
-            GetBinaryString(ssl_info->GetSerialNumber()) << "</td></tr>"
-        "<tr><td>Status</td><td>" <<
-            GetCertStatusString(ssl_info->GetCertStatus()) << "</td></tr>"
-        "<tr><td>Valid Start</td><td>" <<
-            GetTimeString(ssl_info->GetValidStart()) << "</td></tr>"
-        "<tr><td>Valid Expiry</td><td>" <<
-            GetTimeString(ssl_info->GetValidExpiry()) << "</td></tr>";
-
-  CefSSLInfo::IssuerChainBinaryList der_chain_list;
-  CefSSLInfo::IssuerChainBinaryList pem_chain_list;
-  ssl_info->GetDEREncodedIssuerChain(der_chain_list);
-  ssl_info->GetPEMEncodedIssuerChain(pem_chain_list);
-  DCHECK_EQ(der_chain_list.size(), pem_chain_list.size());
-
-  der_chain_list.insert(der_chain_list.begin(), ssl_info->GetDEREncoded());
-  pem_chain_list.insert(pem_chain_list.begin(), ssl_info->GetPEMEncoded());
-
-  for (size_t i = 0U; i < der_chain_list.size(); ++i) {
-    ss << "<tr><td>DER Encoded*</td>"
-          "<td style=\"max-width:800px;overflow:scroll;\">" <<
-              GetBinaryString(der_chain_list[i]) << "</td></tr>"
-          "<tr><td>PEM Encoded*</td>"
-          "<td style=\"max-width:800px;overflow:scroll;\">" <<
-              GetBinaryString(pem_chain_list[i]) << "</td></tr>";
+  CefRefPtr<CefX509Certificate> cert = ssl_info->GetX509Certificate();
+  if (cert.get()) {
+    // Load the error page.
+    LoadErrorPage(browser->GetMainFrame(), request_url, cert_error,
+                  GetCertificateInformation(cert, ssl_info->GetCertStatus()));
   }
-
-  ss << "</table> * Displayed value is base64 encoded.";
-
-  // Load the error page.
-  LoadErrorPage(browser->GetMainFrame(), request_url, cert_error, ss.str());
 
   return false;  // Cancel the request.
 }
@@ -724,6 +773,56 @@ void ClientHandler::CloseDevTools(CefRefPtr<CefBrowser> browser) {
   browser->GetHost()->CloseDevTools();
 }
 
+bool ClientHandler::HasSSLInformation(CefRefPtr<CefBrowser> browser) {
+  CefRefPtr<CefNavigationEntry> nav =
+      browser->GetHost()->GetVisibleNavigationEntry();
+
+  return (nav && nav->GetSSLStatus() &&
+          nav->GetSSLStatus()->IsSecureConnection());
+}
+
+void ClientHandler::ShowSSLInformation(CefRefPtr<CefBrowser> browser) {
+  std::stringstream ss;
+  CefRefPtr<CefNavigationEntry> nav =
+      browser->GetHost()->GetVisibleNavigationEntry();
+  if (!nav)
+    return;
+
+  CefRefPtr<CefSSLStatus> ssl = nav->GetSSLStatus();
+  if (!ssl)
+    return;
+
+  ss << "<html><head><title>SSL Information</title></head>"
+        "<body bgcolor=\"white\">"
+        "<h3>SSL Connection</h3>" <<
+        "<table border=1><tr><th>Field</th><th>Value</th></tr>";
+
+  CefURLParts urlparts;
+  if (CefParseURL(nav->GetURL(), urlparts)) {
+    CefString port(&urlparts.port);
+    ss << "<tr><td>Server</td><td>" << CefString(&urlparts.host).ToString();
+    if (!port.empty())
+      ss << ":" << port.ToString();
+    ss << "</td></tr>";
+  }
+
+  ss << "<tr><td>SSL Version</td><td>" <<
+            GetSSLVersionString(ssl->GetSSLVersion()) << "</td></tr>";
+  ss << "<tr><td>Content Status</td><td>" <<
+            GetContentStatusString(ssl->GetContentStatus()) << "</td></tr>";
+
+  ss << "</table>";
+
+  CefRefPtr<CefX509Certificate> cert = ssl->GetX509Certificate();
+  if (cert.get())
+    ss << GetCertificateInformation(cert, ssl->GetCertStatus());
+
+  ss << "</body></html>";
+
+  MainContext::Get()->GetRootWindowManager()->CreateRootWindow(
+      false, is_osr(), CefRect(),
+      test_runner::GetDataURI(ss.str(), "text/html"));
+}
 
 bool ClientHandler::CreatePopupWindow(
     CefRefPtr<CefBrowser> browser,

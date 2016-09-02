@@ -13,6 +13,7 @@
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_host_cpptoc.h"
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
+#include "libcef_dll/cpptoc/navigation_entry_cpptoc.h"
 #include "libcef_dll/cpptoc/request_context_cpptoc.h"
 #include "libcef_dll/ctocpp/client_ctocpp.h"
 #include "libcef_dll/ctocpp/download_image_callback_ctocpp.h"
@@ -938,6 +939,22 @@ void CEF_CALLBACK browser_host_drag_source_system_drag_ended(
   CefBrowserHostCppToC::Get(self)->DragSourceSystemDragEnded();
 }
 
+struct _cef_navigation_entry_t* CEF_CALLBACK browser_host_get_visible_navigation_entry(
+    struct _cef_browser_host_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefNavigationEntry> _retval = CefBrowserHostCppToC::Get(
+      self)->GetVisibleNavigationEntry();
+
+  // Return type: refptr_same
+  return CefNavigationEntryCppToC::Wrap(_retval);
+}
+
 }  // namespace
 
 
@@ -1003,6 +1020,8 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
   GetStruct()->drag_source_ended_at = browser_host_drag_source_ended_at;
   GetStruct()->drag_source_system_drag_ended =
       browser_host_drag_source_system_drag_ended;
+  GetStruct()->get_visible_navigation_entry =
+      browser_host_get_visible_navigation_entry;
 }
 
 template<> CefRefPtr<CefBrowserHost> CefCppToC<CefBrowserHostCppToC,
