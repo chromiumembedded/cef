@@ -185,26 +185,20 @@ endif(OS_LINUX)
 
 if(OS_MACOSX)
 
-# Fix the framework link in the helper executable.
-macro(FIX_MACOSX_HELPER_FRAMEWORK_LINK target app_path)
-  add_custom_command(TARGET ${target}
-    POST_BUILD
-    COMMAND install_name_tool -change "@executable_path/Chromium Embedded Framework"
-            "@executable_path/../../../../Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework"
-            "${app_path}/Contents/MacOS/${target}"
-    VERBATIM
-    )
+# Fix the framework rpath in the helper executable.
+macro(FIX_MACOSX_HELPER_FRAMEWORK_RPATH target)
+  # The helper is in $app_name.app/Contents/Frameworks/$app_name Helper.app/Contents/MacOS/
+  # so set rpath up to Contents/ so that the loader can find Frameworks/.
+  set_target_properties(${target} PROPERTIES INSTALL_RPATH "@executable_path/../../../..")
+  set_target_properties(${target} PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
 endmacro()
 
-# Fix the framework link in the main executable.
-macro(FIX_MACOSX_MAIN_FRAMEWORK_LINK target app_path)
-  add_custom_command(TARGET ${target}
-    POST_BUILD
-    COMMAND install_name_tool -change "@executable_path/Chromium Embedded Framework"
-            "@executable_path/../Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework"
-            "${app_path}/Contents/MacOS/${target}"
-    VERBATIM
-    )
+# Fix the framework rpath in the main executable.
+macro(FIX_MACOSX_MAIN_FRAMEWORK_RPATH target)
+  # The main app is at $app_name.app/Contents/MacOS/$app_name
+  # so set rpath up to Contents/ so that the loader can find Frameworks/.
+  set_target_properties(${target} PROPERTIES INSTALL_RPATH "@executable_path/..")
+  set_target_properties(${target} PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
 endmacro()
 
 # Manually process and copy over resource files.
