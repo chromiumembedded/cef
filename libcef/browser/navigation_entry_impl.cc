@@ -4,6 +4,7 @@
 
 #include "libcef/browser/navigation_entry_impl.h"
 
+#include "libcef/browser/ssl_status_impl.h"
 #include "libcef/common/time_util.h"
 
 #include "content/public/browser/navigation_entry.h"
@@ -62,3 +63,9 @@ int CefNavigationEntryImpl::GetHttpStatusCode() {
   CEF_VALUE_VERIFY_RETURN(false, 0);
   return const_value().GetHttpStatusCode();
 }
+
+CefRefPtr<CefSSLStatus> CefNavigationEntryImpl::GetSSLStatus() {
+  CEF_VALUE_VERIFY_RETURN(false, nullptr);
+  return new CefSSLStatusImpl(const_value().GetSSL());
+}
+

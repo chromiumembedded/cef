@@ -218,6 +218,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void DragTargetDrop(const CefMouseEvent& event) override;
   void DragSourceSystemDragEnded() override;
   void DragSourceEndedAt(int x, int y, DragOperationsMask op) override;
+  CefRefPtr<CefNavigationEntry> GetVisibleNavigationEntry() override;
 
   // CefBrowser methods.
   CefRefPtr<CefBrowserHost> GetHost() override;

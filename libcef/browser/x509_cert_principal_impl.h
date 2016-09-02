@@ -1,21 +1,21 @@
-// Copyright (c) 2015 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2016 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_BROWSER_SSL_CERT_PRINCIPAL_IMPL_H_
-#define CEF_LIBCEF_BROWSER_SSL_CERT_PRINCIPAL_IMPL_H_
+#ifndef CEF_LIBCEF_BROWSER_X509_CERT_PRINCIPAL_IMPL_H_
+#define CEF_LIBCEF_BROWSER_X509_CERT_PRINCIPAL_IMPL_H_
 #pragma once
 
-#include "include/cef_ssl_info.h"
+#include "include/cef_x509_certificate.h"
 
 #include "net/cert/x509_cert_types.h"
 
-// CefSSLCertPrincipal implementation
-class CefSSLCertPrincipalImpl : public CefSSLCertPrincipal {
+// CefX509CertPrincipal implementation
+class CefX509CertPrincipalImpl : public CefX509CertPrincipal {
  public:
-  explicit CefSSLCertPrincipalImpl(const net::CertPrincipal& value);
+  explicit CefX509CertPrincipalImpl(const net::CertPrincipal& value);
 
-  // CefSSLCertPrincipal methods.
+  // CefX509CertPrincipal methods.
   CefString GetDisplayName() override;
   CefString GetCommonName() override;
   CefString GetLocalityName() override;
@@ -29,8 +29,8 @@ class CefSSLCertPrincipalImpl : public CefSSLCertPrincipal {
  private:
   net::CertPrincipal value_;
 
-  IMPLEMENT_REFCOUNTING(CefSSLCertPrincipalImpl);
-  DISALLOW_COPY_AND_ASSIGN(CefSSLCertPrincipalImpl);
+  IMPLEMENT_REFCOUNTING(CefX509CertPrincipalImpl);
+  DISALLOW_COPY_AND_ASSIGN(CefX509CertPrincipalImpl);
 };
 
-#endif  // CEF_LIBCEF_BROWSER_SSL_CERT_PRINCIPAL_IMPL_H_
+#endif  // CEF_LIBCEF_BROWSER_X509_CERT_PRINCIPAL_IMPL_H_

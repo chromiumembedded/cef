@@ -44,6 +44,7 @@
 extern "C" {
 #endif
 
+struct _cef_sslstatus_t;
 
 ///
 // Structure used to represent an entry in navigation history.
@@ -115,6 +116,12 @@ typedef struct _cef_navigation_entry_t {
   // navigation has not yet completed.
   ///
   int (CEF_CALLBACK *get_http_status_code)(
+      struct _cef_navigation_entry_t* self);
+
+  ///
+  // Returns the SSL information for this navigation entry.
+  ///
+  struct _cef_sslstatus_t* (CEF_CALLBACK *get_sslstatus)(
       struct _cef_navigation_entry_t* self);
 } cef_navigation_entry_t;
 

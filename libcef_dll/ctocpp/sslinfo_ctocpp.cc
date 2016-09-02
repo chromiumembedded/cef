@@ -10,10 +10,8 @@
 // for more information.
 //
 
-#include <algorithm>
-#include "libcef_dll/ctocpp/binary_value_ctocpp.h"
-#include "libcef_dll/ctocpp/sslcert_principal_ctocpp.h"
 #include "libcef_dll/ctocpp/sslinfo_ctocpp.h"
+#include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
@@ -32,222 +30,18 @@ cef_cert_status_t CefSSLInfoCToCpp::GetCertStatus() {
   return _retval;
 }
 
-bool CefSSLInfoCToCpp::IsCertStatusError() {
+CefRefPtr<CefX509Certificate> CefSSLInfoCToCpp::GetX509Certificate() {
   cef_sslinfo_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_cert_status_error))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  int _retval = _struct->is_cert_status_error(_struct);
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-bool CefSSLInfoCToCpp::IsCertStatusMinorError() {
-  cef_sslinfo_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, is_cert_status_minor_error))
-    return false;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  int _retval = _struct->is_cert_status_minor_error(_struct);
-
-  // Return type: bool
-  return _retval?true:false;
-}
-
-CefRefPtr<CefSSLCertPrincipal> CefSSLInfoCToCpp::GetSubject() {
-  cef_sslinfo_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_subject))
+  if (CEF_MEMBER_MISSING(_struct, get_x509certificate))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_sslcert_principal_t* _retval = _struct->get_subject(_struct);
+  cef_x509certificate_t* _retval = _struct->get_x509certificate(_struct);
 
   // Return type: refptr_same
-  return CefSSLCertPrincipalCToCpp::Wrap(_retval);
-}
-
-CefRefPtr<CefSSLCertPrincipal> CefSSLInfoCToCpp::GetIssuer() {
-  cef_sslinfo_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_issuer))
-    return NULL;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_sslcert_principal_t* _retval = _struct->get_issuer(_struct);
-
-  // Return type: refptr_same
-  return CefSSLCertPrincipalCToCpp::Wrap(_retval);
-}
-
-CefRefPtr<CefBinaryValue> CefSSLInfoCToCpp::GetSerialNumber() {
-  cef_sslinfo_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_serial_number))
-    return NULL;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_binary_value_t* _retval = _struct->get_serial_number(_struct);
-
-  // Return type: refptr_same
-  return CefBinaryValueCToCpp::Wrap(_retval);
-}
-
-CefTime CefSSLInfoCToCpp::GetValidStart() {
-  cef_sslinfo_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_valid_start))
-    return CefTime();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_time_t _retval = _struct->get_valid_start(_struct);
-
-  // Return type: simple
-  return _retval;
-}
-
-CefTime CefSSLInfoCToCpp::GetValidExpiry() {
-  cef_sslinfo_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_valid_expiry))
-    return CefTime();
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_time_t _retval = _struct->get_valid_expiry(_struct);
-
-  // Return type: simple
-  return _retval;
-}
-
-CefRefPtr<CefBinaryValue> CefSSLInfoCToCpp::GetDEREncoded() {
-  cef_sslinfo_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_derencoded))
-    return NULL;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_binary_value_t* _retval = _struct->get_derencoded(_struct);
-
-  // Return type: refptr_same
-  return CefBinaryValueCToCpp::Wrap(_retval);
-}
-
-CefRefPtr<CefBinaryValue> CefSSLInfoCToCpp::GetPEMEncoded() {
-  cef_sslinfo_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_pemencoded))
-    return NULL;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_binary_value_t* _retval = _struct->get_pemencoded(_struct);
-
-  // Return type: refptr_same
-  return CefBinaryValueCToCpp::Wrap(_retval);
-}
-
-size_t CefSSLInfoCToCpp::GetIssuerChainSize() {
-  cef_sslinfo_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_issuer_chain_size))
-    return 0;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  size_t _retval = _struct->get_issuer_chain_size(_struct);
-
-  // Return type: simple
-  return _retval;
-}
-
-void CefSSLInfoCToCpp::GetDEREncodedIssuerChain(IssuerChainBinaryList& chain) {
-  cef_sslinfo_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_derencoded_issuer_chain))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Translate param: chain; type: refptr_vec_same_byref
-  size_t chainSize = chain.size();
-  size_t chainCount = std::max(GetIssuerChainSize(), chainSize);
-  cef_binary_value_t** chainList = NULL;
-  if (chainCount > 0) {
-    chainList = new cef_binary_value_t*[chainCount];
-    DCHECK(chainList);
-    if (chainList) {
-       memset(chainList, 0, sizeof(cef_binary_value_t*)*chainCount);
-    }
-    if (chainList && chainSize > 0) {
-      for (size_t i = 0; i < chainSize; ++i) {
-        chainList[i] = CefBinaryValueCToCpp::Unwrap(chain[i]);
-      }
-    }
-  }
-
-  // Execute
-  _struct->get_derencoded_issuer_chain(_struct,
-      &chainCount,
-      chainList);
-
-  // Restore param:chain; type: refptr_vec_same_byref
-  chain.clear();
-  if (chainCount > 0 && chainList) {
-    for (size_t i = 0; i < chainCount; ++i) {
-      chain.push_back(CefBinaryValueCToCpp::Wrap(chainList[i]));
-    }
-    delete [] chainList;
-  }
-}
-
-void CefSSLInfoCToCpp::GetPEMEncodedIssuerChain(IssuerChainBinaryList& chain) {
-  cef_sslinfo_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_pemencoded_issuer_chain))
-    return;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Translate param: chain; type: refptr_vec_same_byref
-  size_t chainSize = chain.size();
-  size_t chainCount = std::max(GetIssuerChainSize(), chainSize);
-  cef_binary_value_t** chainList = NULL;
-  if (chainCount > 0) {
-    chainList = new cef_binary_value_t*[chainCount];
-    DCHECK(chainList);
-    if (chainList) {
-       memset(chainList, 0, sizeof(cef_binary_value_t*)*chainCount);
-    }
-    if (chainList && chainSize > 0) {
-      for (size_t i = 0; i < chainSize; ++i) {
-        chainList[i] = CefBinaryValueCToCpp::Unwrap(chain[i]);
-      }
-    }
-  }
-
-  // Execute
-  _struct->get_pemencoded_issuer_chain(_struct,
-      &chainCount,
-      chainList);
-
-  // Restore param:chain; type: refptr_vec_same_byref
-  chain.clear();
-  if (chainCount > 0 && chainList) {
-    for (size_t i = 0; i < chainCount; ++i) {
-      chain.push_back(CefBinaryValueCToCpp::Wrap(chainList[i]));
-    }
-    delete [] chainList;
-  }
+  return CefX509CertificateCToCpp::Wrap(_retval);
 }
 
 

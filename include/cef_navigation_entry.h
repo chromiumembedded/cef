@@ -40,6 +40,8 @@
 
 #include "include/cef_base.h"
 
+class CefSSLStatus;
+
 ///
 // Class used to represent an entry in navigation history.
 ///
@@ -108,6 +110,12 @@ class CefNavigationEntry : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual int GetHttpStatusCode() =0;
+
+  ///
+  // Returns the SSL information for this navigation entry.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefSSLStatus> GetSSLStatus() =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_NAVIGATION_ENTRY_H_

@@ -893,6 +893,22 @@ void CefBrowserHostImpl::GetNavigationEntries(
   }
 }
 
+CefRefPtr<CefNavigationEntry> CefBrowserHostImpl::GetVisibleNavigationEntry() {
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    NOTREACHED() << "called on invalid thread";
+    return nullptr;
+  }
+
+  content::NavigationEntry* entry = nullptr;
+  if (web_contents())
+      entry = web_contents()->GetController().GetVisibleEntry();
+
+  if (!entry)
+    return nullptr;
+
+  return new CefNavigationEntryImpl(entry);
+}
+
 void CefBrowserHostImpl::SetMouseCursorChangeDisabled(bool disabled) {
   base::AutoLock lock_scope(state_lock_);
   mouse_cursor_change_disabled_ = disabled;

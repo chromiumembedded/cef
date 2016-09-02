@@ -753,6 +753,13 @@ class CefBrowserHost : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual void DragSourceSystemDragEnded() =0;
+
+  ///
+  // Returns the current visible navigation entry for this browser. This method
+  // can only be called on the UI thread.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefNavigationEntry> GetVisibleNavigationEntry() =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_

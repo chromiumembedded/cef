@@ -2636,6 +2636,27 @@ typedef enum {
   CEF_MENU_ANCHOR_BOTTOMCENTER,
 } cef_menu_anchor_position_t;
 
+// Supported SSL version values. See net/ssl/ssl_connection_status_flags.h
+// for more information.
+typedef enum {
+  SSL_CONNECTION_VERSION_UNKNOWN = 0,  // Unknown SSL version.
+  SSL_CONNECTION_VERSION_SSL2 = 1,
+  SSL_CONNECTION_VERSION_SSL3 = 2,
+  SSL_CONNECTION_VERSION_TLS1 = 3,
+  SSL_CONNECTION_VERSION_TLS1_1 = 4,
+  SSL_CONNECTION_VERSION_TLS1_2 = 5,
+  // Reserve 6 for TLS 1.3.
+  SSL_CONNECTION_VERSION_QUIC = 7,
+} cef_ssl_version_t;
+
+// Supported SSL content status flags. See content/public/common/ssl_status.h
+// for more information.
+typedef enum {
+  SSL_CONTENT_NORMAL_CONTENT = 0,
+  SSL_CONTENT_DISPLAYED_INSECURE_CONTENT = 1 << 0,
+  SSL_CONTENT_RAN_INSECURE_CONTENT = 1 << 1,
+} cef_ssl_content_status_t;
+
 #ifdef __cplusplus
 }
 #endif

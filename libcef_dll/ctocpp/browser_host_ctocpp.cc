@@ -18,6 +18,7 @@
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/browser_host_ctocpp.h"
 #include "libcef_dll/ctocpp/drag_data_ctocpp.h"
+#include "libcef_dll/ctocpp/navigation_entry_ctocpp.h"
 #include "libcef_dll/ctocpp/request_context_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -787,6 +788,22 @@ void CefBrowserHostCToCpp::DragSourceSystemDragEnded() {
 
   // Execute
   _struct->drag_source_system_drag_ended(_struct);
+}
+
+CefRefPtr<CefNavigationEntry> CefBrowserHostCToCpp::GetVisibleNavigationEntry(
+    ) {
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_visible_navigation_entry))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_navigation_entry_t* _retval = _struct->get_visible_navigation_entry(
+      _struct);
+
+  // Return type: refptr_same
+  return CefNavigationEntryCToCpp::Wrap(_retval);
 }
 
 

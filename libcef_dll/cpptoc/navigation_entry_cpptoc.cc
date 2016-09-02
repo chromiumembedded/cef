@@ -11,6 +11,7 @@
 //
 
 #include "libcef_dll/cpptoc/navigation_entry_cpptoc.h"
+#include "libcef_dll/cpptoc/sslstatus_cpptoc.h"
 
 
 namespace {
@@ -153,6 +154,22 @@ int CEF_CALLBACK navigation_entry_get_http_status_code(
   return _retval;
 }
 
+struct _cef_sslstatus_t* CEF_CALLBACK navigation_entry_get_sslstatus(
+    struct _cef_navigation_entry_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefSSLStatus> _retval = CefNavigationEntryCppToC::Get(
+      self)->GetSSLStatus();
+
+  // Return type: refptr_same
+  return CefSSLStatusCppToC::Wrap(_retval);
+}
+
 }  // namespace
 
 
@@ -168,6 +185,7 @@ CefNavigationEntryCppToC::CefNavigationEntryCppToC() {
   GetStruct()->has_post_data = navigation_entry_has_post_data;
   GetStruct()->get_completion_time = navigation_entry_get_completion_time;
   GetStruct()->get_http_status_code = navigation_entry_get_http_status_code;
+  GetStruct()->get_sslstatus = navigation_entry_get_sslstatus;
 }
 
 template<> CefRefPtr<CefNavigationEntry> CefCppToC<CefNavigationEntryCppToC,

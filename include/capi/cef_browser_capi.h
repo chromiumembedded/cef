@@ -700,6 +700,13 @@ typedef struct _cef_browser_host_t {
   ///
   void (CEF_CALLBACK *drag_source_system_drag_ended)(
       struct _cef_browser_host_t* self);
+
+  ///
+  // Returns the current visible navigation entry for this browser. This
+  // function can only be called on the UI thread.
+  ///
+  struct _cef_navigation_entry_t* (CEF_CALLBACK *get_visible_navigation_entry)(
+      struct _cef_browser_host_t* self);
 } cef_browser_host_t;
 
 

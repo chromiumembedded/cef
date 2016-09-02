@@ -266,6 +266,12 @@ class ClientHandler : public CefClient,
   // Close the existing DevTools popup window, if any.
   void CloseDevTools(CefRefPtr<CefBrowser> browser);
 
+  // Test if the current site has SSL information available.
+  bool HasSSLInformation(CefRefPtr<CefBrowser> browser);
+
+  // Show SSL information for the current site.
+  void ShowSSLInformation(CefRefPtr<CefBrowser> browser);
+
   // Returns the Delegate.
   Delegate* delegate() const { return delegate_; }
 

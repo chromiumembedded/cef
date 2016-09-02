@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2016 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -34,21 +34,27 @@
 // tools directory for more information.
 //
 
-#ifndef CEF_INCLUDE_CEF_SSL_INFO_H_
-#define CEF_INCLUDE_CEF_SSL_INFO_H_
+#ifndef CEF_INCLUDE_CEF_SSL_STATUS_H_
+#define CEF_INCLUDE_CEF_SSL_STATUS_H_
 #pragma once
 
 #include "include/cef_base.h"
 #include "include/cef_values.h"
 
-#include "include/cef_x509_certificate.h"
+class CefX509Certificate;
 
 ///
-// Class representing SSL information.
+// Class representing the SSL information for a navigation entry.
 ///
 /*--cef(source=library)--*/
-class CefSSLInfo : public virtual CefBase {
+class CefSSLStatus : public virtual CefBase {
  public:
+  ///
+  // Returns true if the status is related to a secure SSL/TLS connection.
+  ///
+  /*--cef()--*/
+  virtual bool IsSecureConnection() =0;
+
   ///
   // Returns a bitmask containing any and all problems verifying the server
   // certificate.
@@ -57,24 +63,22 @@ class CefSSLInfo : public virtual CefBase {
   virtual cef_cert_status_t GetCertStatus() =0;
 
   ///
+  // Returns the SSL version used for the SSL connection.
+  ///
+  /*--cef(default_retval=SSL_CONNECTION_VERSION_UNKNOWN)--*/
+  virtual cef_ssl_version_t GetSSLVersion() =0;
+
+  ///
+  // Returns a bitmask containing the page security content status.
+  ///
+  /*--cef(default_retval=SSL_CONTENT_NORMAL_CONTENT)--*/
+  virtual cef_ssl_content_status_t GetContentStatus() =0;
+
+  ///
   // Returns the X.509 certificate.
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefX509Certificate> GetX509Certificate() =0;
 };
 
-
-///
-// Returns true if the certificate status has any error, major or minor.
-///
-/*--cef()--*/
-bool CefIsCertStatusError(cef_cert_status_t status);
-
-///
-// Returns true if the certificate status represents only minor errors
-// (e.g. failure to verify certificate revocation).
-///
-/*--cef()--*/
-bool CefIsCertStatusMinorError(cef_cert_status_t status);
-
-#endif  // CEF_INCLUDE_CEF_SSL_INFO_H_
+#endif  // CEF_INCLUDE_CEF_SSL_STATUS_H_

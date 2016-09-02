@@ -29,6 +29,7 @@ class CefNavigationEntryImpl
   bool HasPostData() override;
   CefTime GetCompletionTime() override;
   int GetHttpStatusCode() override;
+  CefRefPtr<CefSSLStatus> GetSSLStatus() override;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CefNavigationEntryImpl);

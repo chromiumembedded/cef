@@ -17,30 +17,11 @@ class CefSSLInfoImpl : public CefSSLInfo {
 
   // CefSSLInfo methods.
   cef_cert_status_t GetCertStatus() override;
-  bool IsCertStatusError() override;
-  bool IsCertStatusMinorError() override;
-  CefRefPtr<CefSSLCertPrincipal> GetSubject() override;
-  CefRefPtr<CefSSLCertPrincipal> GetIssuer() override;
-  CefRefPtr<CefBinaryValue> GetSerialNumber() override;
-  CefTime GetValidStart() override;
-  CefTime GetValidExpiry() override;
-  CefRefPtr<CefBinaryValue> GetDEREncoded() override;
-  CefRefPtr<CefBinaryValue> GetPEMEncoded() override;
-  size_t GetIssuerChainSize() override;
-  void GetDEREncodedIssuerChain(IssuerChainBinaryList& chain) override;
-  void GetPEMEncodedIssuerChain(IssuerChainBinaryList& chain) override;
+  CefRefPtr<CefX509Certificate> GetX509Certificate() override;
 
  private:
   cef_cert_status_t cert_status_;
-  CefRefPtr<CefSSLCertPrincipal> subject_;
-  CefRefPtr<CefSSLCertPrincipal> issuer_;
-  CefRefPtr<CefBinaryValue> serial_number_;
-  CefTime valid_start_;
-  CefTime valid_expiry_;
-  CefRefPtr<CefBinaryValue> der_encoded_;
-  CefRefPtr<CefBinaryValue> pem_encoded_;
-  IssuerChainBinaryList der_encoded_issuer_chain_;
-  IssuerChainBinaryList pem_encoded_issuer_chain_;
+  CefRefPtr<CefX509Certificate> cert_;
 
   IMPLEMENT_REFCOUNTING(CefSSLInfoImpl);
   DISALLOW_COPY_AND_ASSIGN(CefSSLInfoImpl);
