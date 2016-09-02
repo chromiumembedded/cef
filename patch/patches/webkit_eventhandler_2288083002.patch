@@ -1,0 +1,15 @@
+diff --git third_party/WebKit/Source/core/input/EventHandler.cpp third_party/WebKit/Source/core/input/EventHandler.cpp
+index 9c49350..aa5e6a9 100644
+--- third_party/WebKit/Source/core/input/EventHandler.cpp
++++ third_party/WebKit/Source/core/input/EventHandler.cpp
+@@ -2039,6 +2039,10 @@ WebInputEventResult EventHandler::sendContextMenuEvent(const PlatformMouseEvent&
+     LayoutPoint positionInContents = v->rootFrameToContents(event.position());
+     HitTestRequest request(HitTestRequest::Active);
+     MouseEventWithHitTestResults mev = m_frame->document()->prepareMouseEvent(request, positionInContents, event);
++    // Since |Document::prepareMouseEvent()| modifies layout tree for setting
++    // hover element, we need to update layout tree for requirement of
++    // |SelectionController::sendContextMenuEvent()|.
++    m_frame->document()->updateStyleAndLayoutIgnorePendingStylesheets();
+ 
+     selectionController().sendContextMenuEvent(mev, positionInContents);
+ 
