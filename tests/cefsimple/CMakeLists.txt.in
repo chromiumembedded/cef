@@ -99,8 +99,8 @@ if(OS_MACOSX)
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/mac/helper-Info.plist
     )
 
-  # Fix the framework link in the helper executable.
-  FIX_MACOSX_HELPER_FRAMEWORK_LINK(${CEF_HELPER_TARGET} ${CEF_HELPER_APP})
+  # Fix the framework rpath in the helper executable.
+  FIX_MACOSX_HELPER_FRAMEWORK_RPATH(${CEF_HELPER_TARGET})
 
   # Main executable target.
   add_executable(${CEF_TARGET} MACOSX_BUNDLE ${CEFSIMPLE_RESOURCES_SRCS} ${CEFSIMPLE_SRCS})
@@ -127,8 +127,8 @@ if(OS_MACOSX)
     VERBATIM
     )
 
-  # Fix the framework link in the main executable.
-  FIX_MACOSX_MAIN_FRAMEWORK_LINK(${CEF_TARGET} ${CEF_APP})
+  # Fix the framework rpath in the main executable.
+  FIX_MACOSX_MAIN_FRAMEWORK_RPATH(${CEF_TARGET})
 
   if(NOT ${CMAKE_GENERATOR} STREQUAL "Xcode")
     # Manually process and copy over resource files.
