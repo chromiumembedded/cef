@@ -621,7 +621,7 @@ elif platform == 'macosx':
       copy_dir(os.path.join(build_dir, 'cefclient.app/Contents/Frameworks/%s.framework' % framework_name), \
                os.path.join(dst_dir, '%s.framework' % framework_name), options.quiet)
 
-      if not options.nosymbols
+      if not options.nosymbols:
         # create the symbol output directory
         symbol_output_dir = create_output_dir(output_dir_name + '_debug_symbols', options.outputdir)
 
