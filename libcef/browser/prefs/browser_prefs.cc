@@ -28,12 +28,13 @@
 #include "components/prefs/pref_filter.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
-#include "components/prefs/pref_service_factory.h"
 #include "components/prefs/testing_pref_store.h"
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "components/proxy_config/pref_proxy_config_tracker_impl.h"
 #include "components/proxy_config/proxy_config_dictionary.h"
 #include "components/spellcheck/browser/pref_names.h"
+#include "components/syncable_prefs/pref_service_syncable.h"
+#include "components/syncable_prefs/pref_service_syncable_factory.h"
 #include "components/update_client/update_client.h"
 #include "content/public/browser/browser_thread.h"
 #include "extensions/browser/extension_prefs.h"
@@ -99,7 +100,9 @@ std::unique_ptr<PrefService> CreatePrefService(
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
 
-  PrefServiceFactory factory;
+  // Use of PrefServiceSyncable is required by Chrome code such as
+  // HostContentSettingsMapFactory that calls PrefServiceSyncableFromProfile.
+  syncable_prefs::PrefServiceSyncableFactory factory;
 
   // Used to store command-line preferences, most of which will be evaluated in
   // the CommandLinePrefStore constructor. Preferences set in this manner cannot
@@ -231,7 +234,7 @@ std::unique_ptr<PrefService> CreatePrefService(
   }
 
   // Build the PrefService that manages the PrefRegistry and PrefStores.
-  return factory.Create(registry.get());
+  return factory.CreateSyncable(registry.get());
 }
 
 }  // namespace browser_prefs
