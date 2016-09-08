@@ -359,7 +359,7 @@ void CefFileDialogManager::OnRunFileChooserUploadFolderDelegateCallback(
   } else {
     lister_.reset(new net::DirectoryLister(
         file_paths[0],
-        net::DirectoryLister::NO_SORT,
+        net::DirectoryLister::NO_SORT_RECURSIVE,
         new UploadFolderHelper(
             base::Bind(&CefFileDialogManager::OnRunFileChooserDelegateCallback,
                        weak_ptr_factory_.GetWeakPtr(), mode))));
