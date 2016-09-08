@@ -370,7 +370,8 @@ if(OS_WINDOWS)
     /DEBUG        # Generate debug information
     )
   list(APPEND CEF_EXE_LINKER_FLAGS
-    /MANIFEST:NO  # No default manifest (see ADD_WINDOWS_MANIFEST macro usage)
+    /MANIFEST:NO        # No default manifest (see ADD_WINDOWS_MANIFEST macro usage)
+    /LARGEADDRESSAWARE  # Allow 32-bit processes to access 3GB of RAM
     )
   list(APPEND CEF_COMPILER_DEFINES
     WIN32 _WIN32 _WINDOWS             # Windows platform
