@@ -78,7 +78,7 @@ class TestDOMVisitor : public CefDOMVisitor {
     EXPECT_EQ(h1Node->GetName(), "H1");
     EXPECT_EQ(h1Node->GetElementTagName(), "H1");
 
-    EXPECT_FALSE(h1Node->GetNextSibling().get());
+    EXPECT_TRUE(h1Node->GetNextSibling().get());
     EXPECT_FALSE(h1Node->GetPreviousSibling().get());
     EXPECT_TRUE(h1Node->HasChildren());
     EXPECT_FALSE(h1Node->HasElementAttributes());
@@ -130,6 +130,17 @@ class TestDOMVisitor : public CefDOMVisitor {
 
     EXPECT_FALSE(textNode->GetNextSibling().get());
     EXPECT_FALSE(textNode->HasChildren());
+
+    CefRefPtr<CefDOMNode> divNode = h1Node->GetNextSibling();
+    EXPECT_TRUE(divNode.get());
+    EXPECT_TRUE(divNode->IsElement());
+    EXPECT_FALSE(divNode->IsText());
+    CefRect divRect = divNode->GetElementBounds();
+    EXPECT_EQ(divRect.width, 50);
+    EXPECT_EQ(divRect.height, 25);
+    EXPECT_EQ(divRect.x, 150);
+    EXPECT_EQ(divRect.y, 100);
+    EXPECT_FALSE(divNode->GetNextSibling().get());
   }
 
   // Test document structure by iterating through the DOM tree.
@@ -264,6 +275,7 @@ class TestDOMHandler : public TestHandler {
         "<body>"
         "<h1>Hello From<br class=\"some_class\"/ id=\"some_id\"/>"
         "Main Frame</h1>"
+        "<div id=\"sized_element\" style=\"width: 50px; height: 25px; position: fixed; top: 100px; left: 150px;\"/>"
         "</body>"
         "</html>";
 

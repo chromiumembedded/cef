@@ -56,6 +56,7 @@ class CefDOMNodeCToCpp
   bool SetElementAttribute(const CefString& attrName,
       const CefString& value) OVERRIDE;
   CefString GetElementInnerText() OVERRIDE;
+  CefRect GetElementBounds() OVERRIDE;
 };
 
 #endif  // USING_CEF_SHARED
