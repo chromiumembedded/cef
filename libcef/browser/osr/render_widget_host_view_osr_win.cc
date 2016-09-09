@@ -152,7 +152,7 @@ void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
 void CefRenderWidgetHostViewOSR::PlatformResizeCompositorWidget(const gfx::Size& size) {
   DCHECK(window_);
   SetWindowPos(window_->hwnd(), NULL, 0, 0, size.width(), size.height(),
-               SWP_NOMOVE | SWP_NOZORDER | SWP_NOREDRAW);
+               SWP_NOMOVE | SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE);
 }
 
 void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {
