@@ -378,6 +378,23 @@ CefString CefDOMNodeImpl::GetElementInnerText() {
   return str;
 }
 
+CefRect CefDOMNodeImpl::GetElementBounds() {
+  CefRect rect;
+  if (!VerifyContext())
+    return rect;
+
+  if (!node_.isElementNode()) {
+    NOTREACHED();
+    return rect;
+  }
+
+  WebElement element = node_.to<blink::WebElement>();
+  blink::WebRect rc = element.boundsInViewport();
+  rect.Set(rc.x, rc.y, rc.width, rc.height);
+
+  return rect;
+}
+
 void CefDOMNodeImpl::Detach() {
   document_ = NULL;
   node_.assign(WebNode());

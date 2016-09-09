@@ -429,6 +429,21 @@ cef_string_userfree_t CEF_CALLBACK domnode_get_element_inner_text(
   return _retval.DetachToUserFree();
 }
 
+cef_rect_t CEF_CALLBACK domnode_get_element_bounds(
+    struct _cef_domnode_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return CefRect();
+
+  // Execute
+  cef_rect_t _retval = CefDOMNodeCppToC::Get(self)->GetElementBounds();
+
+  // Return type: simple
+  return _retval;
+}
+
 }  // namespace
 
 
@@ -461,6 +476,7 @@ CefDOMNodeCppToC::CefDOMNodeCppToC() {
   GetStruct()->get_element_attributes = domnode_get_element_attributes;
   GetStruct()->set_element_attribute = domnode_set_element_attribute;
   GetStruct()->get_element_inner_text = domnode_get_element_inner_text;
+  GetStruct()->get_element_bounds = domnode_get_element_bounds;
 }
 
 template<> CefRefPtr<CefDOMNode> CefCppToC<CefDOMNodeCppToC, CefDOMNode,

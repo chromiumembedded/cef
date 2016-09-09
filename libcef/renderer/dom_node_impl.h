@@ -44,6 +44,7 @@ class CefDOMNodeImpl : public CefDOMNode {
   bool SetElementAttribute(const CefString& attrName,
                            const CefString& value) override;
   CefString GetElementInnerText() override;
+  CefRect GetElementBounds() override;
 
   // Will be called from CefDOMDocumentImpl::Detach().
   void Detach();
