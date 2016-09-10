@@ -190,11 +190,16 @@ def ValidateArgs(args):
   # - Linux supports only "x64" unless using a sysroot environment.
   if platform == 'macosx':
     assert target_cpu == 'x64', 'target_cpu must be "x64"'
-  else:
+  elif platform == 'windows':
     assert target_cpu in ('x86', 'x64'), 'target_cpu must be "x86" or "x64"'
+  elif platform == 'linux':
+    assert target_cpu in ('x86', 'x64', 'arm'), 'target_cpu must be "x86", "x64" or "arm"'
 
-  if platform == 'linux' and target_cpu == 'x86':
-    assert use_sysroot, 'target_cpu="x86" requires use_sysroot=true'
+  if platform == 'linux':
+    if target_cpu == 'x86':
+      assert use_sysroot, 'target_cpu="x86" requires use_sysroot=true'
+    elif target_cpu == 'arm':
+      assert use_sysroot, 'target_cpu="arm" requires use_sysroot=true'
 
   # ASAN requires Release builds.
   if is_asan:
@@ -274,7 +279,7 @@ def ValidateArgs(args):
       if (os.path.exists(vcvars_path)):
         msg('INCLUDE/LIB/PATH values will be derived from %s' % vcvars_path)
 
-def GetConfigArgs(args, is_debug, is_x64):
+def GetConfigArgs(args, is_debug, cpu):
   """
   Return merged GN args for the configuration and validate.
   """
@@ -291,8 +296,15 @@ def GetConfigArgs(args, is_debug, is_x64):
 
   result = MergeDicts(args, add_args, {
     'is_debug': is_debug,
-    'target_cpu': 'x64' if is_x64 else 'x86',
+    'target_cpu': cpu,
   })
+
+  if platform == 'linux' and cpu != 'arm':
+    # Remove any arm-related values from non-arm configs.
+    for key in result.keys():
+      if key.startswith('arm_'):
+        del result[key]
+
   ValidateArgs(result)
   return result
 
@@ -306,6 +318,8 @@ def GetAllPlatformConfigs(build_args):
   args = GetMergedArgs(build_args)
 
   create_debug = True
+  if platform == 'linux':
+    use_sysroot = GetArgValue(args, 'use_sysroot')
 
   # Don't create debug directories for asan builds.
   if GetArgValue(args, 'is_asan'):
@@ -314,15 +328,20 @@ def GetAllPlatformConfigs(build_args):
 
   # Always create x64 configs.
   if create_debug:
-    result['Debug_GN_x64'] = GetConfigArgs(args, True, True)
-  result['Release_GN_x64'] = GetConfigArgs(args, False, True)
+    result['Debug_GN_x64'] = GetConfigArgs(args, True, 'x64')
+  result['Release_GN_x64'] = GetConfigArgs(args, False, 'x64')
 
   # Create x86 configs on Windows and on Linux when using the sysroot.
-  if platform == 'windows' or \
-    (platform == 'linux' and GetArgValue(args, 'use_sysroot') == True):
+  if platform == 'windows' or (platform == 'linux' and use_sysroot):
     if create_debug:
-      result['Debug_GN_x86'] = GetConfigArgs(args, True, False)
-    result['Release_GN_x86'] = GetConfigArgs(args, False, False)
+      result['Debug_GN_x86'] = GetConfigArgs(args, True, 'x86')
+    result['Release_GN_x86'] = GetConfigArgs(args, False, 'x86')
+
+  # Create arm configs on Linux when using the sysroot.
+  if platform == 'linux' and use_sysroot:
+    if create_debug:
+      result['Debug_GN_arm'] = GetConfigArgs(args, True, 'arm')
+    result['Release_GN_arm'] = GetConfigArgs(args, False, 'arm')
 
   return result
 

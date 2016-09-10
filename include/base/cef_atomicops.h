@@ -183,6 +183,8 @@ Atomic64 Release_Load(volatile const Atomic64* ptr);
 #include "include/base/internal/cef_atomicops_mac.h"
 #elif defined(COMPILER_GCC) && defined(ARCH_CPU_X86_FAMILY)
 #include "include/base/internal/cef_atomicops_x86_gcc.h"
+#elif defined(COMPILER_GCC) && defined(__ARM_ARCH)
+#include "include/base/internal/cef_atomicops_arm_gcc.h"
 #else
 #error "Atomic operations are not supported on your platform"
 #endif

@@ -262,6 +262,9 @@ parser.add_option('--ninja-build',
 parser.add_option('--x64-build',
                   action='store_true', dest='x64build', default=False,
                   help='create a 64-bit binary distribution')
+parser.add_option('--arm-build',
+                  action='store_true', dest='armbuild', default=False,
+                  help='create an ARM binary distribution')
 parser.add_option('--minimal',
                   action='store_true', dest='minimal', default=False,
                   help='include only release build binary files')
@@ -290,6 +293,15 @@ if options.outputdir is None:
 if options.minimal and options.client:
   print 'Cannot specify both --minimal and --client'
   parser.print_help(sys.stderr)
+  sys.exit()
+
+if options.x64build and options.armbuild:
+  print 'Cannot specify both --x64-build and --arm-build'
+  parser.print_help(sys.stderr)
+  sys.exit()
+
+if options.armbuild and platform != 'linux':
+  print '--arm-build is only supported on Linux.'
   sys.exit()
 
 if not options.ninjabuild:
@@ -333,9 +345,12 @@ chromium_ver = args['MAJOR']+'.'+args['MINOR']+'.'+args['BUILD']+'.'+args['PATCH
 # list of output directories to be archived
 archive_dirs = []
 
-platform_arch = '32'
 if options.x64build:
   platform_arch = '64'
+elif options.armbuild:
+  platform_arch = 'arm'
+else:
+  platform_arch = '32'
 
 # output directory
 output_dir_base = 'cef_binary_' + cef_ver
@@ -374,6 +389,8 @@ cef_paths2 = cef_paths2['variables']
 # scheme for GN via GetAllPlatformConfigs in gn_args.py.
 if options.x64build:
   build_dir_suffix = '_GN_x64'
+elif options.armbuild:
+  build_dir_suffix = '_GN_arm'
 else:
   build_dir_suffix = '_GN_x86'
 

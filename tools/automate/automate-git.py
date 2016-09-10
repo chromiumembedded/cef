@@ -403,6 +403,9 @@ parser.add_option('--build-log-file',
 parser.add_option('--x64-build',
                   action='store_true', dest='x64build', default=False,
                   help='Create a 64-bit build.')
+parser.add_option('--arm-build',
+                  action='store_true', dest='armbuild', default=False,
+                  help='Create an ARM build.')
 
 # Distribution-related options.
 parser.add_option('--force-distrib',
@@ -462,6 +465,11 @@ if (options.noreleasebuild and \
      (options.minimaldistrib or options.minimaldistribonly or \
       options.clientdistrib or options.clientdistribonly)) or \
    (options.minimaldistribonly and options.clientdistribonly):
+  print 'Invalid combination of options.'
+  parser.print_help(sys.stderr)
+  sys.exit()
+
+if options.x64build and options.armbuild:
   print 'Invalid combination of options.'
   parser.print_help(sys.stderr)
   sys.exit()
@@ -528,9 +536,22 @@ if branch_is_newer_than_2785 and not 'CEF_USE_GN' in os.environ.keys():
 use_gn = bool(int(os.environ.get('CEF_USE_GN', '0')))
 if use_gn:
   if branch_is_2743_or_older:
-    print 'GN is not supported with branch 2743 and older.'
+    print 'GN is not supported with branch 2743 and older (set CEF_USE_GN=0).'
     sys.exit()
+
+  if options.armbuild:
+    if platform != 'linux':
+      print 'The ARM build option is only supported on Linux.'
+      sys.exit()
+
+    if not branch_is_newer_than_2785:
+      print 'The ARM build option is not supported with branch 2785 and older.'
+      sys.exit()
 else:
+  if options.armbuild:
+    print 'The ARM build option is not supported by GYP.'
+    sys.exit()
+
   if options.x64build and platform != 'windows' and platform != 'macosx':
     print 'The x64 build option is only used on Windows and Mac OS X.'
     sys.exit()
@@ -936,6 +957,8 @@ if not options.nobuild and (chromium_checkout_changed or \
     # GetAllPlatformConfigs in tools/gn_args.py.
     if options.x64build:
       build_dir_suffix = '_GN_x64'
+    elif options.armbuild:
+      build_dir_suffix = '_GN_arm'
     else:
       build_dir_suffix = '_GN_x86'
   else:
@@ -1008,6 +1031,8 @@ if not options.nodistrib and (chromium_checkout_changed or \
     path = path + ' --ninja-build'
     if options.x64build:
       path = path + ' --x64-build'
+    elif options.armbuild:
+      path = path + ' --arm-build'
 
     if type == 'minimal':
       path = path + ' --minimal'
