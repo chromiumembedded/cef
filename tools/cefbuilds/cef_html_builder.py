@@ -119,6 +119,7 @@ class cef_html_builder:
     return {
       'linux32': 'Linux 32-bit',
       'linux64': 'Linux 64-bit',
+      'linuxarm': 'Linux ARM',
       'macosx64': 'Mac OS X 64-bit',
       'windows32': 'Windows 32-bit',
       'windows64': 'Windows 64-bit'
@@ -169,7 +170,7 @@ class cef_html_builder:
 
   @staticmethod
   def _get_tooltip_text(platform, cef_version, file):
-    if platform == 'linux32' or platform == 'linux64':
+    if platform.startswith('linux'):
       sample_app = 'cefsimple'
     else:
       sample_app = 'cefclient'
