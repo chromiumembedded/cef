@@ -1,8 +1,8 @@
 diff --git chrome/common/chrome_content_client.cc chrome/common/chrome_content_client.cc
-index 4325cec..7cb8a86 100644
+index 483c3c8..86cd70c 100644
 --- chrome/common/chrome_content_client.cc
 +++ chrome/common/chrome_content_client.cc
-@@ -76,7 +76,7 @@
+@@ -77,7 +77,7 @@
  #endif
  
  #if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS) && \

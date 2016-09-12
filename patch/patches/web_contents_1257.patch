@@ -74,7 +74,7 @@ index 693e84d..be1f1dd 100644
                            int opener_render_frame_id,
                            const std::string& frame_name,
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 51f3bba..dead593 100644
+index 05801d4..04c86da 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -1543,6 +1543,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
