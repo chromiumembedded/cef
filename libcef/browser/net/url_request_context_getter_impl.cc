@@ -34,6 +34,8 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
 #include "net/cert/cert_verifier.h"
+#include "net/cert/ct_known_logs.h"
+#include "net/cert/ct_log_verifier.h"
 #include "net/cert/ct_policy_enforcer.h"
 #include "net/cert/multi_log_ct_verifier.h"
 #include "net/cookies/cookie_monster.h"
@@ -209,8 +211,14 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
     storage_->set_transport_security_state(
         base::WrapUnique(new net::TransportSecurityState));
-    storage_->set_cert_transparency_verifier(
-        base::WrapUnique(new net::MultiLogCTVerifier));
+
+    std::vector<scoped_refptr<const net::CTLogVerifier>> ct_logs(
+        net::ct::CreateLogVerifiersForKnownLogs());
+    std::unique_ptr<net::MultiLogCTVerifier> ct_verifier(
+        new net::MultiLogCTVerifier());
+    ct_verifier->AddLogs(ct_logs);
+    storage_->set_cert_transparency_verifier(std::move(ct_verifier));
+
     storage_->set_ct_policy_enforcer(
         base::WrapUnique(new net::CTPolicyEnforcer));
 
