@@ -70,18 +70,6 @@
     browser_ = browser;
 
     [window_ setDelegate:self];
-
-    // Register for application hide/unhide notifications.
-    [[NSNotificationCenter defaultCenter]
-         addObserver:self
-            selector:@selector(applicationDidHide:)
-                name:NSApplicationDidHideNotification
-              object:nil];
-    [[NSNotificationCenter defaultCenter]
-         addObserver:self
-            selector:@selector(applicationDidUnhide:)
-                name:NSApplicationDidUnhideNotification
-              object:nil];
   }
   return self;
 }
