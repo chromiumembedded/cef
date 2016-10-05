@@ -10,12 +10,12 @@
 #include "libcef/browser/browser_main.h"
 #include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/chrome_browser_process_stub.h"
-#include "libcef/browser/component_updater/cef_component_updater_configurator.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/trace_subscriber.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/main_delegate.h"
+#include "libcef/common/widevine_loader.h"
 #include "libcef/renderer/content_renderer_client.h"
 
 #include "base/base_switches.h"
@@ -24,12 +24,8 @@
 #include "base/debug/debugger.h"
 #include "base/files/file_util.h"
 #include "base/synchronization/waitable_event.h"
-#include "base/threading/thread_restrictions.h"
-#include "chrome/browser/component_updater/widevine_cdm_component_installer.h"
 #include "chrome/browser/printing/print_job_manager.h"
-#include "components/component_updater/component_updater_service.h"
 #include "components/network_session_configurator/switches.h"
-#include "components/update_client/configurator.h"
 #include "content/public/app/content_main.h"
 #include "content/public/app/content_main_runner.h"
 #include "content/public/browser/notification_service.h"
@@ -362,25 +358,6 @@ CefTraceSubscriber* CefContext::GetTraceSubscriber() {
   return trace_subscriber_.get();
 }
 
-component_updater::ComponentUpdateService*
-CefContext::component_updater() {
-  if (!component_updater_.get()) {
-    CEF_REQUIRE_UIT_RETURN(NULL);
-    scoped_refptr<CefBrowserContextImpl> browser_context =
-        CefContentBrowserClient::Get()->browser_context();
-    scoped_refptr<update_client::Configurator> configurator =
-        component_updater::MakeCefComponentUpdaterConfigurator(
-            base::CommandLine::ForCurrentProcess(),
-            browser_context->request_context().get(),
-            browser_context->GetPrefs());
-    // Creating the component updater does not do anything, components
-    // need to be registered and Start() needs to be called.
-    component_updater_.reset(component_updater::ComponentUpdateServiceFactory(
-                                 configurator).release());
-  }
-  return component_updater_.get();
-}
-
 void CefContext::PopulateRequestContextSettings(
     CefRequestContextSettings* settings) {
   CefRefPtr<CefCommandLine> command_line =
@@ -399,30 +376,15 @@ void CefContext::PopulateRequestContextSettings(
       CefString(&settings_.accept_language_list);
 }
 
-void RegisterComponentsForUpdate() {
-  component_updater::ComponentUpdateService* cus =
-      CefContext::Get()->component_updater();
-
-  // Registration can be before or after cus->Start() so it is ok to post
-  // a task to the UI thread to do registration once you done the necessary
-  // file IO to know you existing component version.
-#if !defined(OS_CHROMEOS) && !defined(OS_ANDROID)
-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
-      switches::kEnableWidevineCdm)) {
-    RegisterWidevineCdmComponent(cus);
-  }
-#endif  // !defined(OS_CHROMEOS) && !defined(OS_ANDROID)
-}
-
 void CefContext::OnContextInitialized() {
   CEF_REQUIRE_UIT();
 
   // Must be created after the NotificationService.
   print_job_manager_.reset(new printing::PrintJobManager());
 
-  bool io_was_allowed = base::ThreadRestrictions::SetIOAllowed(true);
-  RegisterComponentsForUpdate();
-  base::ThreadRestrictions::SetIOAllowed(io_was_allowed);
+#if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
+  CefWidevineLoader::GetInstance()->OnContextInitialized();
+#endif
 
   // Notify the handler.
   CefRefPtr<CefApp> app = CefContentClient::Get()->application();
@@ -448,9 +410,6 @@ void CefContext::FinishShutdownOnUIThread(
 
   if (trace_subscriber_.get())
     trace_subscriber_.reset(NULL);
-
-  if (component_updater_.get())
-    component_updater_.reset(NULL);
 
   if (uithread_shutdown_event)
     uithread_shutdown_event->Signal();

@@ -5,6 +5,7 @@
 #include "cefclient/browser/main_context_impl.h"
 
 #include "include/cef_parser.h"
+#include "include/cef_web_plugin.h"
 #include "cefclient/common/client_switches.h"
 
 namespace client {
@@ -79,6 +80,16 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
     main_url_ = "http://tests/draggable";
   }
 #endif  // defined(OS_WIN) || defined(OS_LINUX)
+
+  const std::string& cdm_path =
+    command_line_->GetSwitchValue(switches::kWidevineCdmPath);
+  if (!cdm_path.empty()) {
+    // Register the Widevine CDM at the specified path. See comments in
+    // cef_web_plugin.h for details. It's safe to call this method before
+    // CefInitialize(), and calling it before CefInitialize() is required on
+    // Linux.
+    CefRegisterWidevineCdm(cdm_path, NULL);
+  }
 }
 
 MainContextImpl::~MainContextImpl() {

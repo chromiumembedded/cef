@@ -27,7 +27,6 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
-#include "components/component_updater/component_updater_paths.h"
 #include "components/content_settings/core/common/content_settings_pattern.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/browser/render_process_host.h"
@@ -40,8 +39,6 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
 #include "ui/base/ui_base_switches.h"
-
-#include "widevine_cdm_version.h"  // In SHARED_INTERMEDIATE_DIR.
 
 #include "ipc/ipc_message.h"  // For IPC_MESSAGE_LOG_ENABLED.
 
@@ -559,26 +556,6 @@ void CefMainDelegate::PreSandboxStartup() {
         user_data_path.AppendASCII("Dictionaries"),
         false,  // May not be an absolute path.
         true);  // Create if necessary.
-
-    const base::FilePath& resources_path = GetResourcesFilePath();
-
-#if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
-    const base::FilePath& widevine_plugin_path =
-        resources_path.AppendASCII(kWidevineCdmAdapterFileName);
-    if (base::PathExists(widevine_plugin_path)) {
-      PathService::Override(chrome::FILE_WIDEVINE_CDM_ADAPTER,
-                            widevine_plugin_path);
-    }
-#endif  // defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
-
-    // Paths to find pre-installed components.
-    PathService::Override(chrome::DIR_COMPONENTS, resources_path);
-    PathService::Override(chrome::DIR_INTERNAL_PLUGINS, resources_path);
-
-    // Register paths to be used by the component updater.
-    component_updater::RegisterPathProvider(chrome::DIR_COMPONENTS,
-                                            chrome::DIR_INTERNAL_PLUGINS,
-                                            chrome::DIR_USER_DATA);
   }
 
   if (command_line->HasSwitch(switches::kDisablePackLoading))

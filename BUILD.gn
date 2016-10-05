@@ -230,8 +230,6 @@ static_library("libcef_static") {
     "libcef/browser/chrome_browser_process_stub.h",
     "libcef/browser/chrome_profile_stub.cc",
     "libcef/browser/chrome_profile_stub.h",
-    "libcef/browser/component_updater/cef_component_updater_configurator.cc",
-    "libcef/browser/component_updater/cef_component_updater_configurator.h",
     "libcef/browser/content_browser_client.cc",
     "libcef/browser/content_browser_client.h",
     "libcef/browser/context.cc",
@@ -465,6 +463,8 @@ static_library("libcef_static") {
     "libcef/common/value_base.h",
     "libcef/common/values_impl.cc",
     "libcef/common/values_impl.h",
+    "libcef/common/widevine_loader.cc",
+    "libcef/common/widevine_loader.h",
     "libcef/renderer/browser_impl.cc",
     "libcef/renderer/browser_impl.h",
     "libcef/renderer/content_renderer_client.cc",
@@ -636,10 +636,6 @@ static_library("libcef_static") {
     "//extensions/shell/browser/shell_display_info_provider.h",
     "//extensions/shell/browser/shell_web_contents_modal_dialog_manager.cc",
 
-    # Include sources for component-updater support.
-    "//chrome/browser/component_updater/widevine_cdm_component_installer.cc",
-    "//chrome/browser/component_updater/widevine_cdm_component_installer.h",
-
     # Include sources for widevine support.
     "//chrome/common/widevine_cdm_constants.cc",
     "//chrome/common/widevine_cdm_constants.h",
@@ -740,7 +736,6 @@ static_library("libcef_static") {
     "//base/third_party/dynamic_annotations",
     "//cc",
     "//components/cdm/renderer",
-    "//components/component_updater",
     "//components/content_settings/core/browser",
     "//components/content_settings/core/common",
     "//components/crash/content/app:app_breakpad_mac_win_to_be_deleted",

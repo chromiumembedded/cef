@@ -144,5 +144,71 @@ class CefWebPluginUnstableCallback : public virtual CefBase {
 void CefIsWebPluginUnstable(const CefString& path,
                             CefRefPtr<CefWebPluginUnstableCallback> callback);
 
+///
+// Implement this interface to receive notification when CDM registration is
+// complete. The methods of this class will be called on the browser process
+// UI thread.
+///
+/*--cef(source=client)--*/
+class CefRegisterCdmCallback : public virtual CefBase {
+ public:
+  ///
+  // Method that will be called when CDM registration is complete. |result|
+  // will be CEF_CDM_REGISTRATION_ERROR_NONE if registration completed
+  // successfully. Otherwise, |result| and |error_message| will contain
+  // additional information about why registration failed.
+  ///
+  /*--cef(optional_param=error_message)--*/
+  virtual void OnCdmRegistrationComplete(cef_cdm_registration_error_t result,
+                                         const CefString& error_message) =0;
+};
+
+///
+// Register the Widevine CDM plugin.
+//
+// The client application is responsible for downloading an appropriate
+// platform-specific CDM binary distribution from Google, extracting the
+// contents, and building the required directory structure on the local machine.
+// The CefBrowserHost::StartDownload method and CefZipArchive class can be used
+// to implement this functionality in CEF. Contact Google via
+// https://www.widevine.com/contact.html for details on CDM download.
+//
+// |path| is a directory that must contain the following files:
+//   1. manifest.json file from the CDM binary distribution (see below).
+//   2. widevinecdm file from the CDM binary distribution (e.g.
+//      widevinecdm.dll on on Windows, libwidevinecdm.dylib on OS X,
+//      libwidevinecdm.so on Linux).
+//   3. widevidecdmadapter file from the CEF binary distribution (e.g.
+//      widevinecdmadapter.dll on Windows, widevinecdmadapter.plugin on OS X,
+//      libwidevinecdmadapter.so on Linux).
+//
+// If any of these files are missing or if the manifest file has incorrect
+// contents the registration will fail and |callback| will receive a |result|
+// value of CEF_CDM_REGISTRATION_ERROR_INCORRECT_CONTENTS.
+//
+// The manifest.json file must contain the following keys:
+//   A. "os": Supported OS (e.g. "mac", "win" or "linux").
+//   B. "arch": Supported architecture (e.g. "ia32" or "x64").
+//   C. "x-cdm-module-versions": Module API version (e.g. "4").
+//   D. "x-cdm-interface-versions": Interface API version (e.g. "8").
+//   E. "x-cdm-host-versions": Host API version (e.g. "8").
+//   F. "version": CDM version (e.g. "1.4.8.903").
+//   G. "x-cdm-codecs": List of supported codecs (e.g. "vp8,vp9.0,avc1").
+//
+// A through E are used to verify compatibility with the current Chromium
+// version. If the CDM is not compatible the registration will fail and
+// |callback| will receive a |result| value of
+// CEF_CDM_REGISTRATION_ERROR_INCOMPATIBLE.
+//
+// |callback| will be executed asynchronously once registration is complete.
+//
+// On Linux this function must be called before CefInitialize() and the
+// registration cannot be changed during runtime. If registration is not
+// supported at the time that CefRegisterWidevineCdm() is called then |callback|
+// will receive a |result| value of CEF_CDM_REGISTRATION_ERROR_NOT_SUPPORTED.
+///
+/*--cef(optional_param=callback)--*/
+void CefRegisterWidevineCdm(const CefString& path,
+                            CefRefPtr<CefRegisterCdmCallback> callback);
 
 #endif  // CEF_INCLUDE_CEF_WEB_PLUGIN_H_

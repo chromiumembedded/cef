@@ -978,7 +978,6 @@
         # chrome/common/chrome_contants.cc
         '<(DEPTH)/chrome/common_constants.gyp:version_header',
         '<(DEPTH)/components/components.gyp:cdm_renderer',
-        '<(DEPTH)/components/components.gyp:component_updater',
         '<(DEPTH)/components/components.gyp:content_settings_core_browser',
         '<(DEPTH)/components/components.gyp:content_settings_core_common',
         '<(DEPTH)/components/components.gyp:crash_component_breakpad_to_be_deleted',
@@ -1088,8 +1087,6 @@
         'libcef/browser/chrome_browser_process_stub.h',
         'libcef/browser/chrome_profile_stub.cc',
         'libcef/browser/chrome_profile_stub.h',
-        'libcef/browser/component_updater/cef_component_updater_configurator.cc',
-        'libcef/browser/component_updater/cef_component_updater_configurator.h',
         'libcef/browser/content_browser_client.cc',
         'libcef/browser/content_browser_client.h',
         'libcef/browser/context.cc',
@@ -1323,6 +1320,8 @@
         'libcef/common/value_base.h',
         'libcef/common/values_impl.cc',
         'libcef/common/values_impl.h',
+        'libcef/common/widevine_loader.cc',
+        'libcef/common/widevine_loader.h',
         'libcef/renderer/browser_impl.cc',
         'libcef/renderer/browser_impl.h',
         'libcef/renderer/content_renderer_client.cc',
@@ -1483,9 +1482,6 @@
         '<(DEPTH)/extensions/shell/browser/shell_display_info_provider.h',
         '<(DEPTH)/extensions/shell/browser/shell_web_contents_modal_dialog_manager.cc',
         '<(grit_out_dir)/grit/component_extension_resources_map.cc',
-        # Include sources for component-updater support.
-        '<(DEPTH)/chrome/browser/component_updater/widevine_cdm_component_installer.cc',
-        '<(DEPTH)/chrome/browser/component_updater/widevine_cdm_component_installer.h',
         # Include sources for widevine support.
         '<(DEPTH)/chrome/common/widevine_cdm_constants.cc',
         '<(DEPTH)/chrome/common/widevine_cdm_constants.h',

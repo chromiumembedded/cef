@@ -15,6 +15,7 @@
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "cefclient/browser/binding_test.h"
 #include "cefclient/browser/dialog_test.h"
+#include "cefclient/browser/drm_test.h"
 #include "cefclient/browser/main_context.h"
 #include "cefclient/browser/preferences_test.h"
 #include "cefclient/browser/resource.h"
@@ -714,6 +715,9 @@ void CreateMessageHandlers(MessageHandlerSet& handlers) {
 
   // Create the dialog test handlers.
   dialog_test::CreateMessageHandlers(handlers);
+
+  // Create the drm test handlers.
+  drm_test::CreateMessageHandlers(handlers);
 
   // Create the preferences test handlers.
   preferences_test::CreateMessageHandlers(handlers);

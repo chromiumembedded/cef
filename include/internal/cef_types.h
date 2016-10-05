@@ -2635,6 +2635,31 @@ typedef enum {
   CEF_MENU_ANCHOR_BOTTOMCENTER,
 } cef_menu_anchor_position_t;
 
+///
+// Error codes for CDM registration. See cef_web_plugin.h for details.
+///
+typedef enum {
+  ///
+  // No error. Registration completed successfully.
+  ///
+  CEF_CDM_REGISTRATION_ERROR_NONE,
+
+  ///
+  // Required files or manifest contents are missing.
+  ///
+  CEF_CDM_REGISTRATION_ERROR_INCORRECT_CONTENTS,
+
+  ///
+  // The CDM is incompatible with the current Chromium version.
+  ///
+  CEF_CDM_REGISTRATION_ERROR_INCOMPATIBLE,
+
+  ///
+  // CDM registration is not supported at this time.
+  ///
+  CEF_CDM_REGISTRATION_ERROR_NOT_SUPPORTED,
+} cef_cdm_registration_error_t;
+
 #ifdef __cplusplus
 }
 #endif

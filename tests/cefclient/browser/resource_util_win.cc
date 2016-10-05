@@ -40,6 +40,7 @@ int GetResourceId(const char* resource_name) {
     {"binding.html", IDS_BINDING_HTML},
     {"dialogs.html", IDS_DIALOGS_HTML},
     {"draggable.html", IDS_DRAGGABLE_HTML},
+    {"drm.html", IDS_DRM_HTML},
     {"logo.png", IDS_LOGO_PNG},
     {"localstorage.html", IDS_LOCALSTORAGE_HTML},
     {"menu_icon.1x.png", IDS_MENU_ICON_1X_PNG},
