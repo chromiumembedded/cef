@@ -30,6 +30,9 @@ void PluginsCallbackImpl(
   }
 }
 
+#if !(defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)) || \
+    defined(OS_LINUX)
+
 void DeliverWidevineCdmError(const std::string& error_message,
                              CefRefPtr<CefRegisterCdmCallback> callback) {
   LOG(ERROR) << error_message;
@@ -40,6 +43,8 @@ void DeliverWidevineCdmError(const std::string& error_message,
                    error_message));
   }
 }
+
+#endif
 
 }  // namespace
 
