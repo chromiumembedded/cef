@@ -103,3 +103,8 @@ run but any related functionality may become broken or disabled.
   * Chromium Embedded Framework.framework/Resources/crash_report_sender
   * Chromium Embedded Framework.framework/Resources/Info.plist
     Without these files breakpad support (crash reporting) will not function.
+
+* Widevine CDM support.
+  * widevinecdmadapter.plugin
+    Without this file playback of Widevine projected content will not function.
+    See the CefRegisterWidevineCdm() function in cef_web_plugin.h for usage.

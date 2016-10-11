@@ -650,6 +650,7 @@ elif platform == 'macosx':
       make_dir(dst_dir, options.quiet)
       copy_dir(os.path.join(build_dir, 'cefclient.app/Contents/Frameworks/%s.framework' % framework_name), \
                os.path.join(dst_dir, '%s.framework' % framework_name), options.quiet)
+      copy_file(os.path.join(script_dir, 'distrib/mac/widevinecdmadapter.plugin'), dst_dir, options.quiet)
 
       if not options.nosymbols and use_gn:
         # create the symbol output directory
@@ -670,6 +671,7 @@ elif platform == 'macosx':
     if mode != 'client':
       copy_dir(os.path.join(build_dir, 'cefclient.app/Contents/Frameworks/%s.framework' % framework_name), \
                os.path.join(dst_dir, '%s.framework' % framework_name), options.quiet)
+      copy_file(os.path.join(script_dir, 'distrib/mac/widevinecdmadapter.plugin'), dst_dir, options.quiet)
     else:
       copy_dir(os.path.join(build_dir, 'cefclient.app'), os.path.join(dst_dir, 'cefclient.app'), options.quiet)
 
