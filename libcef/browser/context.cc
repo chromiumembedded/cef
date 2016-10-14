@@ -13,6 +13,7 @@
 #include "libcef/browser/trace_subscriber.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/main_delegate.h"
+#include "libcef/common/widevine_loader.h"
 #include "libcef/renderer/content_renderer_client.h"
 
 #include "base/base_switches.h"
@@ -375,6 +376,10 @@ void CefContext::OnContextInitialized() {
   CEF_REQUIRE_UIT();
 
   static_cast<ChromeBrowserProcessStub*>(g_browser_process)->Initialize();
+
+#if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
+  CefWidevineLoader::GetInstance()->OnContextInitialized();
+#endif
 
   // Notify the handler.
   CefRefPtr<CefApp> app = CefContentClient::Get()->application();

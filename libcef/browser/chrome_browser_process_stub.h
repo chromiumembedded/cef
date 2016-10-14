@@ -17,10 +17,6 @@
 #include "chrome/browser/profiles/incognito_helpers.h"
 #include "base/compiler_specific.h"
 
-namespace component_updater {
-class ComponentUpdateService;
-}
-
 class ChromeProfileManagerStub;
 
 class BackgroundModeManager {
@@ -126,7 +122,6 @@ class ChromeBrowserProcessStub : public BrowserProcess,
   std::unique_ptr<printing::PrintJobManager> print_job_manager_;
   std::unique_ptr<ChromeProfileManagerStub> profile_manager_;
   scoped_refptr<extensions::EventRouterForwarder> event_router_forwarder_;
-  std::unique_ptr<component_updater::ComponentUpdateService> component_updater_;
 
   DISALLOW_COPY_AND_ASSIGN(ChromeBrowserProcessStub);
 };

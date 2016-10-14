@@ -7,8 +7,6 @@
 #include <algorithm>
 #include <string>
 
-#include "include/wrapper/cef_stream_resource_handler.h"
-
 namespace client {
 namespace binding_test {
 

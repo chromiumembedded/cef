@@ -7,32 +7,12 @@
 
 #include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/chrome_profile_manager_stub.h"
-#include "libcef/browser/component_updater/cef_component_updater_configurator.h"
-#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
 
 #include "base/command_line.h"
-#include "base/threading/thread_restrictions.h"
-#include "chrome/browser/component_updater/widevine_cdm_component_installer.h"
 #include "chrome/browser/printing/print_job_manager.h"
-#include "components/component_updater/component_updater_service.h"
-#include "components/update_client/configurator.h"
 #include "ui/message_center/message_center.h"
-
-namespace {
-
-void RegisterComponentsForUpdate(
-    component_updater::ComponentUpdateService* cus) {
-  base::ThreadRestrictions::ScopedAllowIO scoped_allow_io;
-
-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
-      switches::kEnableWidevineCdm)) {
-    RegisterWidevineCdmComponent(cus);
-  }
-}
-
-}  // namespace
 
 ChromeBrowserProcessStub::ChromeBrowserProcessStub()
   : initialized_(false),
@@ -57,19 +37,6 @@ void ChromeBrowserProcessStub::Initialize() {
   profile_manager_.reset(new ChromeProfileManagerStub());
   event_router_forwarder_ = new extensions::EventRouterForwarder();
 
-  // Creating the component updater does not do anything initially. Components
-  // need to be registered and Start() needs to be called.
-  scoped_refptr<CefBrowserContextImpl> browser_context =
-      CefContentBrowserClient::Get()->browser_context();
-  scoped_refptr<update_client::Configurator> configurator =
-      component_updater::MakeCefComponentUpdaterConfigurator(
-          base::CommandLine::ForCurrentProcess(),
-          browser_context->request_context().get(),
-          browser_context->GetPrefs());
-  component_updater_.reset(component_updater::ComponentUpdateServiceFactory(
-                                configurator).release());
-  RegisterComponentsForUpdate(component_updater_.get());
-
   initialized_ = true;
 }
 
@@ -86,7 +53,6 @@ void ChromeBrowserProcessStub::Shutdown() {
 
   profile_manager_.reset();
   event_router_forwarder_ = nullptr;
-  component_updater_.reset();
 
   shutdown_ = true;
 }
@@ -299,7 +265,8 @@ net_log::ChromeNetLog* ChromeBrowserProcessStub::net_log() {
 
 component_updater::ComponentUpdateService*
     ChromeBrowserProcessStub::component_updater() {
-  return component_updater_.get();
+  NOTIMPLEMENTED();
+  return NULL;
 }
 
 CRLSetFetcher* ChromeBrowserProcessStub::crl_set_fetcher() {
