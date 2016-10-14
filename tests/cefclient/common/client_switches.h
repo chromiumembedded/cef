@@ -28,6 +28,7 @@ extern const char kFilterURL[];
 extern const char kUseViews[];
 extern const char kHideFrame[];
 extern const char kHideControls[];
+extern const char kWidevineCdmPath[];
 
 }  // namespace switches
 }  // namespace client

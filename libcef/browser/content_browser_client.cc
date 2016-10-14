@@ -75,6 +75,10 @@
 #include "ui/base/ui_base_switches.h"
 #include "url/gurl.h"
 
+#if defined(OS_LINUX)
+#include "libcef/common/widevine_loader.h"
+#endif
+
 #if defined(OS_MACOSX)
 #include "components/spellcheck/browser/spellcheck_message_filter_platform.h"
 #endif
@@ -574,8 +578,6 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
       switches::kPpapiFlashPath,
       switches::kPpapiFlashVersion,
       switches::kUncaughtExceptionStackSize,
-      switches::kWidevineCdmPath,
-      switches::kWidevineCdmVersion,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));
@@ -597,16 +599,24 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
 
 #if defined(OS_LINUX)
   if (process_type == switches::kZygoteProcess) {
-    // Propagate the following switches to the zygone command line (along with
+    // Propagate the following switches to the zygote command line (along with
     // any associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
       switches::kPpapiFlashPath,
       switches::kPpapiFlashVersion,
-      switches::kWidevineCdmPath,
-      switches::kWidevineCdmVersion,
     };
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));
+
+#if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
+    if (!browser_cmd->HasSwitch(switches::kNoSandbox)) {
+      // Pass the Widevine CDM path to the Zygote process. See comments in
+      // CefWidevineLoader::AddPepperPlugins.
+      const base::FilePath& cdm_path = CefWidevineLoader::GetInstance()->path();
+      if (!cdm_path.empty())
+        command_line->AppendSwitchPath(switches::kWidevineCdmPath, cdm_path);
+    }
+#endif
 
     if (browser_cmd->HasSwitch(switches::kBrowserSubprocessPath)) {
       // Force use of the sub-process executable path for the zygote process.

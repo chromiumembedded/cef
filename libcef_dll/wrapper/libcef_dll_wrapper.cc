@@ -65,6 +65,7 @@
 #include "libcef_dll/cpptoc/pdf_print_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/print_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/read_handler_cpptoc.h"
+#include "libcef_dll/cpptoc/register_cdm_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/render_process_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/request_handler_cpptoc.h"
@@ -279,6 +280,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefPrintSettingsCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefProcessMessageCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefReadHandlerCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefRegisterCdmCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefRenderHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefRenderProcessHandlerCppToC::DebugObjCt));
@@ -933,5 +935,21 @@ CEF_GLOBAL void CefIsWebPluginUnstable(const CefString& path,
   cef_is_web_plugin_unstable(
       path.GetStruct(),
       CefWebPluginUnstableCallbackCppToC::Wrap(callback));
+}
+
+CEF_GLOBAL void CefRegisterWidevineCdm(const CefString& path,
+    CefRefPtr<CefRegisterCdmCallback> callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: path; type: string_byref_const
+  DCHECK(!path.empty());
+  if (path.empty())
+    return;
+  // Unverified params: callback
+
+  // Execute
+  cef_register_widevine_cdm(
+      path.GetStruct(),
+      CefRegisterCdmCallbackCppToC::Wrap(callback));
 }
 

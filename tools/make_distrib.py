@@ -637,6 +637,7 @@ elif platform == 'macosx':
       make_dir(dst_dir, options.quiet)
       copy_dir(os.path.join(build_dir, 'cefclient.app/Contents/Frameworks/%s.framework' % framework_name), \
                os.path.join(dst_dir, '%s.framework' % framework_name), options.quiet)
+      copy_file(os.path.join(script_dir, 'distrib/mac/widevinecdmadapter.plugin'), dst_dir, options.quiet)
 
       if not options.nosymbols:
         # create the symbol output directory
@@ -657,6 +658,7 @@ elif platform == 'macosx':
     if mode != 'client':
       copy_dir(os.path.join(build_dir, 'cefclient.app/Contents/Frameworks/%s.framework' % framework_name), \
                os.path.join(dst_dir, '%s.framework' % framework_name), options.quiet)
+      copy_file(os.path.join(script_dir, 'distrib/mac/widevinecdmadapter.plugin'), dst_dir, options.quiet)
     else:
       copy_dir(os.path.join(build_dir, 'cefclient.app'), os.path.join(dst_dir, 'cefclient.app'), options.quiet)
 
@@ -718,6 +720,7 @@ elif platform == 'linux':
       make_dir(dst_dir, options.quiet)
       copy_file(os.path.join(build_dir, 'chrome_sandbox'), os.path.join(dst_dir, 'chrome-sandbox'), options.quiet)
       copy_file(libcef_path, dst_dir, options.quiet)
+      copy_file(os.path.join(build_dir, 'libwidevinecdmadapter.so'), dst_dir, options.quiet)
       copy_file(os.path.join(build_dir, 'natives_blob.bin'), dst_dir, options.quiet)
       copy_file(os.path.join(build_dir, 'snapshot_blob.bin'), dst_dir, options.quiet)
     else:
@@ -735,6 +738,7 @@ elif platform == 'linux':
       copy_file(os.path.join(build_dir, 'cefsimple'), dst_dir, options.quiet)
     copy_file(libcef_path, dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'chrome_sandbox'), os.path.join(dst_dir, 'chrome-sandbox'), options.quiet)
+    copy_file(os.path.join(build_dir, 'libwidevinecdmadapter.so'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'natives_blob.bin'), dst_dir, options.quiet)
     copy_file(os.path.join(build_dir, 'snapshot_blob.bin'), dst_dir, options.quiet)
   else:

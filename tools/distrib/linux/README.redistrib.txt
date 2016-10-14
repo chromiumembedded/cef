@@ -56,3 +56,8 @@ run but any related functionality may become broken or disabled.
   * devtools_resources.pak
     This file contains non-localized resources required for Chrome Developer
     Tools. Without this file Chrome Developer Tools will not function.
+
+* Widevine CDM support.
+  * libwidevinecdmadapter.so
+    Without this file playback of Widevine projected content will not function.
+    See the CefRegisterWidevineCdm() function in cef_web_plugin.h for usage.

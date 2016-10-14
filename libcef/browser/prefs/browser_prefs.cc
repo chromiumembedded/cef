@@ -4,7 +4,6 @@
 
 #include "libcef/browser/prefs/browser_prefs.h"
 
-#include "libcef/browser/component_updater/cef_component_updater_configurator.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
 #include "libcef/browser/net/url_request_context_getter_impl.h"
 #include "libcef/browser/prefs/renderer_prefs.h"
@@ -173,8 +172,6 @@ std::unique_ptr<PrefService> CreatePrefService(
   renderer_prefs::RegisterProfilePrefs(registry.get());
   update_client::RegisterPrefs(registry.get());
   content_settings::CookieSettings::RegisterProfilePrefs(registry.get());
-  component_updater::RegisterPrefsForCefComponentUpdaterConfigurator(
-      registry.get());
 
   // Print preferences.
   registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);
