@@ -1,0 +1,28 @@
+diff --git components/plugins/renderer/webview_plugin.cc components/plugins/renderer/webview_plugin.cc
+index 60d955b..ab11e7b 100644
+--- components/plugins/renderer/webview_plugin.cc
++++ components/plugins/renderer/webview_plugin.cc
+@@ -95,6 +95,23 @@ WebViewPlugin::~WebViewPlugin() {
+ }
+ 
+ void WebViewPlugin::ReplayReceivedData(WebPlugin* plugin) {
++  const WebURLResponse& response = web_frame_->dataSource()->response();
++  if (!response.isNull()) {
++    plugin->didReceiveResponse(response);
++    size_t total_bytes = 0;
++    for (std::list<std::string>::iterator it = data_.begin(); it != data_.end();
++         ++it) {
++      plugin->didReceiveData(
++          it->c_str(), base::checked_cast<int, size_t>(it->length()));
++      total_bytes += it->length();
++    }
++    UMA_HISTOGRAM_MEMORY_KB(
++        "PluginDocument.Memory",
++        (base::checked_cast<int, size_t>(total_bytes / 1024)));
++    UMA_HISTOGRAM_COUNTS(
++        "PluginDocument.NumChunks",
++        (base::checked_cast<int, size_t>(data_.size())));
++  }
+   // We need to transfer the |focused_| to new plugin after it loaded.
+   if (focused_) {
+     plugin->updateFocus(true, blink::WebFocusTypeNone);

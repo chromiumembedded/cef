@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index c681785..fc49f2d 100644
+index b3abe7c..2e44c7d 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -747,6 +747,13 @@ void RenderWidgetHostViewAura::SetKeyboardFocus() {
@@ -365,7 +365,7 @@ index aa3c234..021bd01 100644
            x_active_window_ = None;
          }
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index ca92c5b..f628c39 100644
+index 4b3db3f..103bba3 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -126,9 +126,11 @@ Widget::InitParams::InitParams(Type type)

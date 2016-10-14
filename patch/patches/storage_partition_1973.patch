@@ -275,7 +275,7 @@ index 7fb91a6..503e6ba 100644
    // The observers watching our lifetime.
    base::ObserverList<RenderProcessHostObserver> observers_;
 diff --git content/browser/site_instance_impl.cc content/browser/site_instance_impl.cc
-index 8978640..a1e4cdd 100644
+index a55d786..9e0de6a 100644
 --- content/browser/site_instance_impl.cc
 +++ content/browser/site_instance_impl.cc
 @@ -116,9 +116,8 @@ RenderProcessHost* SiteInstanceImpl::GetProcess() {

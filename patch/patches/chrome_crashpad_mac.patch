@@ -12,10 +12,10 @@ index 0e9c5ae..28fc90a 100644
    // TODO(calamity): Make this gated on first_run::IsChromeFirstRun() in M45.
    content::BrowserThread::PostAfterStartupTask(
 diff --git chrome/browser/crash_upload_list/crash_upload_list_crashpad.cc chrome/browser/crash_upload_list/crash_upload_list_crashpad.cc
-index d62973e..fc2dfa4 100644
+index 2879079..dc6bb5b 100644
 --- chrome/browser/crash_upload_list/crash_upload_list_crashpad.cc
 +++ chrome/browser/crash_upload_list/crash_upload_list_crashpad.cc
-@@ -75,8 +75,6 @@ void CrashUploadListCrashpad::LoadUploadList(
+@@ -94,8 +94,6 @@ void CrashUploadListCrashpad::LoadUploadList(
    // database lives in the .exe, so we need to grab a pointer to a helper in the
    // exe to get our reports list.
    GetReportsThunk(&reports);
@@ -24,6 +24,14 @@ index d62973e..fc2dfa4 100644
  #endif
  
    for (const crash_reporter::Report& report : reports) {
+@@ -112,7 +110,5 @@ void CrashUploadListCrashpad::RequestSingleCrashUpload(
+   // On Windows, crash reporting is handled by chrome_elf.dll, that's why we
+   // can't call crash_reporter::RequestSingleCrashUpload directly.
+   RequestSingleCrashUploadThunk(local_id);
+-#else
+-  crash_reporter::RequestSingleCrashUpload(local_id);
+ #endif
+ }
 diff --git chrome/browser/google/google_update_settings_posix.cc chrome/browser/google/google_update_settings_posix.cc
 index d053b1e..cdecb1a 100644
 --- chrome/browser/google/google_update_settings_posix.cc

@@ -29,7 +29,7 @@ index 712c117..4dc59be 100644
    void EnterFullscreenModeForTab(content::WebContents* contents,
                                   const GURL& origin) final;
 diff --git chrome/browser/prerender/prerender_contents.cc chrome/browser/prerender/prerender_contents.cc
-index ff3f72d..6647f76 100644
+index cfdce0c..f419c81 100644
 --- chrome/browser/prerender/prerender_contents.cc
 +++ chrome/browser/prerender/prerender_contents.cc
 @@ -131,7 +131,9 @@ class PrerenderContents::WebContentsDelegateImpl
@@ -44,10 +44,10 @@ index ff3f72d..6647f76 100644
      // window.opener property, terminate prerendering.
      prerender_contents_->Destroy(FINAL_STATUS_CREATE_NEW_WINDOW);
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index 93b36dc..b25c512 100644
+index 66a501d..ed28c27 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
-@@ -1616,7 +1616,9 @@ bool Browser::ShouldCreateWebContents(
+@@ -1620,7 +1620,9 @@ bool Browser::ShouldCreateWebContents(
      const std::string& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
@@ -59,10 +59,10 @@ index 93b36dc..b25c512 100644
      // If a BackgroundContents is created, suppress the normal WebContents.
      return !MaybeCreateBackgroundContents(
 diff --git chrome/browser/ui/browser.h chrome/browser/ui/browser.h
-index 693e84d..be1f1dd 100644
+index 5ee2e20..9cc79e7 100644
 --- chrome/browser/ui/browser.h
 +++ chrome/browser/ui/browser.h
-@@ -617,7 +617,9 @@ class Browser : public TabStripModelObserver,
+@@ -619,7 +619,9 @@ class Browser : public TabStripModelObserver,
        const std::string& frame_name,
        const GURL& target_url,
        const std::string& partition_id,
@@ -74,7 +74,7 @@ index 693e84d..be1f1dd 100644
                            int opener_render_frame_id,
                            const std::string& frame_name,
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 05801d4..04c86da 100644
+index b0451e4..203f228 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -1543,6 +1543,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
@@ -165,10 +165,10 @@ index efa8ae5..8ea0055 100644
  
    // Creates a new WebContents.
 diff --git content/public/browser/web_contents_delegate.cc content/public/browser/web_contents_delegate.cc
-index df97348..8e2168e 100644
+index f6238e6..84917b0 100644
 --- content/public/browser/web_contents_delegate.cc
 +++ content/public/browser/web_contents_delegate.cc
-@@ -144,7 +144,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
+@@ -145,7 +145,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
      const std::string& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
@@ -180,7 +180,7 @@ index df97348..8e2168e 100644
  }
  
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 2816c4d..387821f 100644
+index e0d4d5f..ca1a7e86 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -42,9 +42,11 @@ class JavaScriptDialogManager;
@@ -237,7 +237,7 @@ index e0309f7..f6a3878 100644
    // content::WebContentsObserver implementation.
    void DidNavigateMainFrame(const content::LoadCommittedDetails& details,
 diff --git ui/keyboard/content/keyboard_ui_content.cc ui/keyboard/content/keyboard_ui_content.cc
-index cd6a2ab..ef2c820 100644
+index a466b63..a14e6da 100644
 --- ui/keyboard/content/keyboard_ui_content.cc
 +++ ui/keyboard/content/keyboard_ui_content.cc
 @@ -64,7 +64,9 @@ class KeyboardContentsDelegate : public content::WebContentsDelegate,

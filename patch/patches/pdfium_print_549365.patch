@@ -14,7 +14,7 @@ index ca2338f..a5e62a2 100644
  
  static_library("test_support") {
 diff --git fpdfsdk/fpdfview.cpp fpdfsdk/fpdfview.cpp
-index dee71ac..e2563bc 100644
+index 1c0af1d..5898992 100644
 --- fpdfsdk/fpdfview.cpp
 +++ fpdfsdk/fpdfview.cpp
 @@ -28,6 +28,7 @@

@@ -1,5 +1,5 @@
 diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
-index f274fb4..2aa6a17 100644
+index 42f11c4..4d1259b 100644
 --- Source/web/ChromeClientImpl.cpp
 +++ Source/web/ChromeClientImpl.cpp
 @@ -873,7 +873,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
@@ -12,7 +12,7 @@ index f274fb4..2aa6a17 100644
  
      DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index cae232a..2ed1596 100644
+index 7b11f05..a443227 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
 @@ -417,6 +417,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client, WebPageVisibilityState visibilit
@@ -23,7 +23,7 @@ index cae232a..2ed1596 100644
      , m_doingDragAndDrop(false)
      , m_ignoreInputEvents(false)
      , m_compositorDeviceScaleFactorOverride(0)
-@@ -4092,9 +4093,14 @@ void WebViewImpl::pageScaleFactorChanged()
+@@ -4096,9 +4097,14 @@ void WebViewImpl::pageScaleFactorChanged()
      m_client->pageScaleFactorChanged();
  }
  
@@ -40,7 +40,7 @@ index cae232a..2ed1596 100644
  
  void WebViewImpl::startDragging(LocalFrame* frame,
 diff --git Source/web/WebViewImpl.h Source/web/WebViewImpl.h
-index 26e93e7..86240c7 100644
+index 990005c..828eb58 100644
 --- Source/web/WebViewImpl.h
 +++ Source/web/WebViewImpl.h
 @@ -388,7 +388,8 @@ public:
@@ -63,7 +63,7 @@ index 26e93e7..86240c7 100644
  
      bool m_ignoreInputEvents;
 diff --git public/web/WebView.h public/web/WebView.h
-index bba44bc..345f5c2 100644
+index c363fb3..6a55713 100644
 --- public/web/WebView.h
 +++ public/web/WebView.h
 @@ -438,6 +438,7 @@ public:
