@@ -6,6 +6,11 @@ import os
 import shlex
 import sys
 
+# The CEF directory is the parent directory of _this_ script.
+cef_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+# The src directory is the parent directory of the CEF directory.
+src_dir = os.path.abspath(os.path.join(cef_dir, os.pardir))
+
 # Determine the platform.
 if sys.platform == 'win32':
   platform = 'windows'
@@ -308,6 +313,24 @@ def GetConfigArgs(args, is_debug, cpu):
   ValidateArgs(result)
   return result
 
+def LinuxSysrootExists(cpu):
+  """
+  Returns true if the sysroot for the specified |cpu| architecture exists.
+  """
+  # Directory that contains sysroots.
+  sysroot_root = os.path.join(src_dir, 'build', 'linux')
+  # CPU-specific sysroot directory names.
+  if cpu == 'x86':
+    sysroot_name = 'debian_wheezy_i386-sysroot'
+  elif cpu == 'x64':
+    sysroot_name = 'debian_wheezy_amd64-sysroot'
+  elif cpu == 'arm':
+    sysroot_name = 'debian_wheezy_arm-sysroot'
+  else:
+    raise Exception('Unrecognized sysroot CPU: %s' % cpu)
+
+  return os.path.isdir(os.path.join(sysroot_root, sysroot_name))
+
 def GetAllPlatformConfigs(build_args):
   """
   Return a map of directory name to GN args for the current platform.
@@ -318,30 +341,36 @@ def GetAllPlatformConfigs(build_args):
   args = GetMergedArgs(build_args)
 
   create_debug = True
-  if platform == 'linux':
-    use_sysroot = GetArgValue(args, 'use_sysroot')
 
   # Don't create debug directories for asan builds.
   if GetArgValue(args, 'is_asan'):
     create_debug = False
     msg('Not generating Debug configuration due to is_asan=true')
 
-  # Always create x64 configs.
-  if create_debug:
-    result['Debug_GN_x64'] = GetConfigArgs(args, True, 'x64')
-  result['Release_GN_x64'] = GetConfigArgs(args, False, 'x64')
+  supported_cpus = []
 
-  # Create x86 configs on Windows and on Linux when using the sysroot.
-  if platform == 'windows' or (platform == 'linux' and use_sysroot):
-    if create_debug:
-      result['Debug_GN_x86'] = GetConfigArgs(args, True, 'x86')
-    result['Release_GN_x86'] = GetConfigArgs(args, False, 'x86')
+  if platform == 'linux':
+    use_sysroot = GetArgValue(args, 'use_sysroot')
+    if use_sysroot:
+      # Only generate configurations for sysroots that have been installed.
+      for cpu in ('x86', 'x64', 'arm'):
+        if LinuxSysrootExists(cpu):
+          supported_cpus.append(cpu)
+        else:
+          msg('Not generating %s configuration due to missing sysroot directory' % cpu)
+    else:
+      supported_cpus = ['x64']
+  elif platform == 'windows':
+    supported_cpus = ['x86', 'x64']
+  elif platform == 'macosx':
+    supported_cpus = ['x64']
+  else:
+    raise Exception('Unsupported platform')
 
-  # Create arm configs on Linux when using the sysroot.
-  if platform == 'linux' and use_sysroot:
+  for cpu in supported_cpus:
     if create_debug:
-      result['Debug_GN_arm'] = GetConfigArgs(args, True, 'arm')
-    result['Release_GN_arm'] = GetConfigArgs(args, False, 'arm')
+      result['Debug_GN_' + cpu] = GetConfigArgs(args, True, cpu)
+    result['Release_GN_' + cpu] = GetConfigArgs(args, False, cpu)
 
   return result
 
