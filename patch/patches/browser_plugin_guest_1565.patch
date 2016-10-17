@@ -1,5 +1,5 @@
 diff --git browser/browser_plugin/browser_plugin_guest.cc browser/browser_plugin/browser_plugin_guest.cc
-index d0a39e2..8fa0e1e 100644
+index 6d06122..bc964c7 100644
 --- browser/browser_plugin/browser_plugin_guest.cc
 +++ browser/browser_plugin/browser_plugin_guest.cc
 @@ -28,7 +28,7 @@
@@ -11,7 +11,7 @@ index d0a39e2..8fa0e1e 100644
  #include "content/common/browser_plugin/browser_plugin_constants.h"
  #include "content/common/browser_plugin/browser_plugin_messages.h"
  #include "content/common/content_constants_internal.h"
-@@ -289,20 +289,19 @@ void BrowserPluginGuest::InitInternal(
+@@ -292,20 +292,19 @@ void BrowserPluginGuest::InitInternal(
    guest_window_rect_ = params.view_rect;
  
    if (owner_web_contents_ != owner_web_contents) {
@@ -36,7 +36,7 @@ index d0a39e2..8fa0e1e 100644
    }
  
    RendererPreferences* renderer_prefs =
-@@ -755,11 +754,10 @@ void BrowserPluginGuest::OnWillAttachComplete(
+@@ -758,11 +757,10 @@ void BrowserPluginGuest::OnWillAttachComplete(
          ->GetWidget()
          ->Init();
      GetWebContents()->GetMainFrame()->Init();

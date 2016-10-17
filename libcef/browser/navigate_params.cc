@@ -10,7 +10,7 @@ CefNavigateParams::CefNavigateParams(
     ui::PageTransition a_transition)
     : url(a_url),
       frame_id(-1),
-      disposition(CURRENT_TAB),
+      disposition(WindowOpenDisposition::CURRENT_TAB),
       transition(a_transition),
       is_renderer_initiated(false),
       user_gesture(true) {

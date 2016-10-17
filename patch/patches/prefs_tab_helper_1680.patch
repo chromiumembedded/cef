@@ -1,5 +1,5 @@
 diff --git prefs_tab_helper.cc prefs_tab_helper.cc
-index d22384c..cb9d457 100644
+index 448bb72..aa98dda 100644
 --- prefs_tab_helper.cc
 +++ prefs_tab_helper.cc
 @@ -11,8 +11,8 @@
@@ -12,7 +12,7 @@ index d22384c..cb9d457 100644
  #include "base/strings/string_number_conversions.h"
  #include "base/strings/string_util.h"
  #include "base/strings/stringprintf.h"
-@@ -424,12 +424,10 @@ class PrefWatcherFactory : public BrowserContextKeyedServiceFactory {
+@@ -422,12 +422,10 @@ class PrefWatcherFactory : public BrowserContextKeyedServiceFactory {
          GetInstance()->GetServiceForBrowserContext(profile, true));
    }
  
@@ -27,7 +27,7 @@ index d22384c..cb9d457 100644
  
    PrefWatcherFactory() : BrowserContextKeyedServiceFactory(
        "PrefWatcher",
-@@ -450,6 +448,18 @@ class PrefWatcherFactory : public BrowserContextKeyedServiceFactory {
+@@ -448,6 +446,18 @@ class PrefWatcherFactory : public BrowserContextKeyedServiceFactory {
    }
  };
  

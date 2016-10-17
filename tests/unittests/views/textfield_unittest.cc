@@ -130,9 +130,7 @@ void TextfieldStyleImpl() {
   textfield->SetSelectionBackgroundColor(color);
   EXPECT_EQ(color, textfield->GetSelectionBackgroundColor());
 
-  EXPECT_NE(color, textfield->GetPlaceholderTextColor());
   textfield->SetPlaceholderTextColor(color);
-  EXPECT_EQ(color, textfield->GetPlaceholderTextColor());
 
   // Test fonts.
   textfield->SetFontList("Arial, 14px");

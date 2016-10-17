@@ -1,9 +1,9 @@
 diff --git renderer_preferences_util.cc renderer_preferences_util.cc
-index d47d2d0..e6a5d9d 100644
+index ad5e301..c64325b 100644
 --- renderer_preferences_util.cc
 +++ renderer_preferences_util.cc
-@@ -26,7 +26,8 @@
- #include "ui/views/controls/textfield/textfield.h"
+@@ -30,7 +30,8 @@
+ #include "ui/base/cocoa/defaults_utils.h"
  #endif
  
 -#if defined(USE_AURA) && defined(OS_LINUX) && !defined(OS_CHROMEOS)
@@ -12,8 +12,8 @@ index d47d2d0..e6a5d9d 100644
  #include "chrome/browser/themes/theme_service.h"
  #include "chrome/browser/themes/theme_service_factory.h"
  #include "ui/views/linux_ui/linux_ui.h"
-@@ -120,7 +121,8 @@ void UpdateFromSystemSettings(content::RendererPreferences* prefs,
-   prefs->caret_blink_interval = views::Textfield::GetCaretBlinkMs() / 1000.0;
+@@ -130,7 +131,8 @@ void UpdateFromSystemSettings(content::RendererPreferences* prefs,
+     prefs->caret_blink_interval = interval.InSecondsF();
  #endif
  
 -#if defined(USE_AURA) && defined(OS_LINUX) && !defined(OS_CHROMEOS)

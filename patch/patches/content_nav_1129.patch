@@ -1,8 +1,8 @@
 diff --git public/renderer/content_renderer_client.cc public/renderer/content_renderer_client.cc
-index b7bafaf..09d1d07 100644
+index bb040a6..c801841 100644
 --- public/renderer/content_renderer_client.cc
 +++ public/renderer/content_renderer_client.cc
-@@ -99,7 +99,6 @@ bool ContentRendererClient::AllowPopup() {
+@@ -100,7 +100,6 @@ bool ContentRendererClient::AllowPopup() {
    return false;
  }
  
@@ -10,7 +10,7 @@ index b7bafaf..09d1d07 100644
  bool ContentRendererClient::HandleNavigation(
      RenderFrame* render_frame,
      bool is_content_initiated,
-@@ -112,6 +111,7 @@ bool ContentRendererClient::HandleNavigation(
+@@ -113,6 +112,7 @@ bool ContentRendererClient::HandleNavigation(
    return false;
  }
  
@@ -19,10 +19,10 @@ index b7bafaf..09d1d07 100644
    return false;
  }
 diff --git public/renderer/content_renderer_client.h public/renderer/content_renderer_client.h
-index b7b042f..69a62f2 100644
+index 752ae2d..de04432 100644
 --- public/renderer/content_renderer_client.h
 +++ public/renderer/content_renderer_client.h
-@@ -204,7 +204,6 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -208,7 +208,6 @@ class CONTENT_EXPORT ContentRendererClient {
    // Returns true if a popup window should be allowed.
    virtual bool AllowPopup();
  
@@ -30,7 +30,7 @@ index b7b042f..69a62f2 100644
    // TODO(sgurun) This callback is deprecated and will be removed as soon
    // as android webview completes implementation of a resource throttle based
    // shouldoverrideurl implementation. See crbug.com/325351
-@@ -220,6 +219,7 @@ class CONTENT_EXPORT ContentRendererClient {
+@@ -224,6 +223,7 @@ class CONTENT_EXPORT ContentRendererClient {
                                  blink::WebNavigationPolicy default_policy,
                                  bool is_redirect);
  
@@ -39,10 +39,10 @@ index b7b042f..69a62f2 100644
    // built in media player for the given |url|. Defaults to false.
    virtual bool ShouldUseMediaPlayerForURL(const GURL& url);
 diff --git renderer/render_frame_impl.cc renderer/render_frame_impl.cc
-index 95165ff..608409e 100644
+index e74b334..2fe1e1a 100644
 --- renderer/render_frame_impl.cc
 +++ renderer/render_frame_impl.cc
-@@ -4917,7 +4917,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -4972,7 +4972,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
        (pending_navigation_params_ &&
         !pending_navigation_params_->request_params.redirects.empty());
  
@@ -50,7 +50,7 @@ index 95165ff..608409e 100644
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
    if (GetContentClient()->renderer()->HandleNavigation(
-@@ -4926,7 +4925,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -4981,7 +4980,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
            is_redirect)) {
      return blink::WebNavigationPolicyIgnore;
    }

@@ -20,8 +20,6 @@
 
 #include "include/cef_ssl_status.h"
 #include "include/capi/cef_ssl_status_capi.h"
-#include "include/cef_x509_certificate.h"
-#include "include/capi/cef_x509_certificate_capi.h"
 #include "libcef_dll/ctocpp/ctocpp.h"
 
 // Wrap a C structure with a C++ class.

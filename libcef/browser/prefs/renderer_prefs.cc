@@ -120,15 +120,11 @@ void SetChromePrefs(CefBrowserContext* profile,
   if (prefs->GetBoolean(prefs::kDisable3DAPIs))
     web.experimental_webgl_enabled = false;
 
-  web.allow_displaying_insecure_content =
-      prefs->GetBoolean(prefs::kWebKitAllowDisplayingInsecureContent);
   web.allow_running_insecure_content =
       prefs->GetBoolean(prefs::kWebKitAllowRunningInsecureContent);
 
   web.password_echo_enabled = browser_defaults::kPasswordEchoEnabled;
 
-  web.uses_universal_detector =
-      prefs->GetBoolean(prefs::kWebKitUsesUniversalDetector);
   web.text_areas_are_resizable =
       prefs->GetBoolean(prefs::kWebKitTextAreasAreResizable);
   web.hyperlink_auditing_enabled =
@@ -147,9 +143,8 @@ void SetChromePrefs(CefBrowserContext* profile,
   }
 
   // Make sure we will set the default_encoding with canonical encoding name.
-  web.default_encoding =
-      CharacterEncoding::GetCanonicalEncodingNameByAliasName(
-          web.default_encoding);
+  web.default_encoding = GetCanonicalEncodingNameByAliasName(
+      web.default_encoding);
   if (web.default_encoding.empty()) {
     prefs->ClearPref(prefs::kDefaultCharset);
     web.default_encoding = prefs->GetString(prefs::kDefaultCharset);

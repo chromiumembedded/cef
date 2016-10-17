@@ -142,8 +142,8 @@ class CefSimpleMenuModel : public ui::MenuModel {
     impl_->MenuWillShow();
   }
 
-  void MenuClosed() override {
-    impl_->MenuClosed();
+  void MenuWillClose() override {
+    impl_->MenuWillClose();
   }
 
   void SetMenuModelDelegate(
@@ -657,7 +657,7 @@ void CefMenuModelImpl::MenuWillShow() {
   FOR_EACH_OBSERVER(Observer, observers_, MenuWillShow(this));
 }
 
-void CefMenuModelImpl::MenuClosed() {
+void CefMenuModelImpl::MenuWillClose() {
   if (!VerifyContext())
     return;
 

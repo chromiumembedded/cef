@@ -40,12 +40,12 @@
 
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_values_capi.h"
+#include "include/capi/cef_x509_certificate_capi.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct _cef_x509certificate_t;
 
 ///
 // Structure representing the SSL information for a navigation entry.

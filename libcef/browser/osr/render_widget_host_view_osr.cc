@@ -33,7 +33,6 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host_view_frame_subscriber.h"
 #include "content/public/common/content_switches.h"
-#include "third_party/WebKit/public/platform/WebScreenInfo.h"
 #include "ui/gfx/geometry/dip_util.h"
 #include "ui/gfx/geometry/size_conversions.h"
 #include "ui/gfx/image/image_skia_operations.h"
@@ -45,20 +44,20 @@ const float kDefaultScaleFactor = 1.0;
 // The maximum number of retry counts if frame capture fails.
 const int kFrameRetryLimit = 2;
 
-static blink::WebScreenInfo webScreenInfoFrom(const CefScreenInfo& src) {
-  blink::WebScreenInfo webScreenInfo;
-  webScreenInfo.deviceScaleFactor = src.device_scale_factor;
-  webScreenInfo.depth = src.depth;
-  webScreenInfo.depthPerComponent = src.depth_per_component;
-  webScreenInfo.isMonochrome = src.is_monochrome ? true : false;
-  webScreenInfo.rect = blink::WebRect(src.rect.x, src.rect.y,
-                                      src.rect.width, src.rect.height);
-  webScreenInfo.availableRect = blink::WebRect(src.available_rect.x,
-                                               src.available_rect.y,
-                                               src.available_rect.width,
-                                               src.available_rect.height);
+static content::ScreenInfo ScreenInfoFrom(const CefScreenInfo& src) {
+  content::ScreenInfo screenInfo;
+  screenInfo.device_scale_factor = src.device_scale_factor;
+  screenInfo.depth = src.depth;
+  screenInfo.depth_per_component = src.depth_per_component;
+  screenInfo.is_monochrome = src.is_monochrome ? true : false;
+  screenInfo.rect = gfx::Rect(src.rect.x, src.rect.y,
+                              src.rect.width, src.rect.height);
+  screenInfo.available_rect = gfx::Rect(src.available_rect.x,
+                                        src.available_rect.y,
+                                        src.available_rect.width,
+                                        src.available_rect.height);
 
-  return webScreenInfo;
+  return screenInfo;
 }
 
 #if !defined(OS_MACOSX)
@@ -1051,12 +1050,6 @@ void CefRenderWidgetHostViewOSR::DelegatedFrameHostOnLostCompositorResources() {
   render_widget_host_->ScheduleComposite();
 }
 
-void CefRenderWidgetHostViewOSR::DelegatedFrameHostUpdateVSyncParameters(
-    const base::TimeTicks& timebase,
-    const base::TimeDelta& interval) {
-  render_widget_host_->UpdateVSyncParameters(timebase, interval);
-}
-
 void CefRenderWidgetHostViewOSR::SetBeginFrameSource(
     cc::BeginFrameSource* source) {
   // TODO(cef): Maybe we can use this method in combination with
@@ -1096,7 +1089,7 @@ void CefRenderWidgetHostViewOSR::WasResized() {
   GetDelegatedFrameHost()->WasResized();
 }
 
-void CefRenderWidgetHostViewOSR::GetScreenInfo(blink::WebScreenInfo* results) {
+void CefRenderWidgetHostViewOSR::GetScreenInfo(content::ScreenInfo* results) {
   if (!browser_impl_.get())
     return;
 
@@ -1127,7 +1120,7 @@ void CefRenderWidgetHostViewOSR::GetScreenInfo(blink::WebScreenInfo* results) {
       screen_info.available_rect = screenRect;
   }
 
-  *results = webScreenInfoFrom(screen_info);
+  *results = ScreenInfoFrom(screen_info);
 }
 
 void CefRenderWidgetHostViewOSR::OnScreenInfoChanged() {
@@ -1361,16 +1354,13 @@ void CefRenderWidgetHostViewOSR::SetFrameRate() {
         frame_rate_threshold_ms_);
   }
 
-  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-  if (!command_line->HasSwitch(cc::switches::kDisableBeginFrameScheduling)) {
-    if (begin_frame_timer_.get()) {
-      begin_frame_timer_->SetFrameRateThresholdMs(frame_rate_threshold_ms_);
-    } else {
-      begin_frame_timer_.reset(new CefBeginFrameTimer(
-          frame_rate_threshold_ms_,
-          base::Bind(&CefRenderWidgetHostViewOSR::OnBeginFrameTimerTick,
-                     weak_ptr_factory_.GetWeakPtr())));
-    }
+  if (begin_frame_timer_.get()) {
+    begin_frame_timer_->SetFrameRateThresholdMs(frame_rate_threshold_ms_);
+  } else {
+    begin_frame_timer_.reset(new CefBeginFrameTimer(
+        frame_rate_threshold_ms_,
+        base::Bind(&CefRenderWidgetHostViewOSR::OnBeginFrameTimerTick,
+                    weak_ptr_factory_.GetWeakPtr())));
   }
 }
 

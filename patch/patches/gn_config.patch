@@ -1,21 +1,20 @@
 diff --git .gn .gn
-index 1e0e3bd..9e70917 100644
+index 2034420..1675275 100644
 --- .gn
 +++ .gn
-@@ -231,6 +231,8 @@ exec_script_whitelist = [
+@@ -238,6 +238,7 @@ exec_script_whitelist = [
    "//build/toolchain/win/BUILD.gn",
    "//build/util/branding.gni",
    "//build/util/version.gni",
 +  "//cef/BUILD.gn",
-+  "//cef/libcef/common/extensions/api/schemas.gni",
-   "//chrome/android/BUILD.gn",
-   "//chrome/browser/BUILD.gn",
-   "//chrome/browser/chromeos/BUILD.gn",
+   "//chromeos/BUILD.gn",
+ 
+   # TODO(dgn): Layer violation but breaks the build otherwise, see
 diff --git BUILD.gn BUILD.gn
-index acc203c..49113a4 100644
+index 6aad399..9c42f8e 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -265,6 +265,7 @@ group("both_gn_and_gyp") {
+@@ -270,6 +270,7 @@ group("both_gn_and_gyp") {
      # and whether there should be other targets that are iOS-only and missing.
      deps += [
        "//cc:cc_unittests",
@@ -56,10 +55,10 @@ index 5bfa9a7..5e6e05d 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index 0d0975d..cfb5d3f 100644
+index fbc201e..299156d 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
-@@ -127,11 +127,15 @@ def _LoadToolchainEnv(cpu, sdk_dir):
+@@ -126,11 +126,15 @@ def _LoadToolchainEnv(cpu, sdk_dir):
      script_path = os.path.normpath(os.path.join(
                                         os.environ['GYP_MSVS_OVERRIDE_PATH'],
                                         'VC/vcvarsall.bat'))
@@ -81,7 +80,7 @@ index 0d0975d..cfb5d3f 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 829e718..89361a0 100755
+index 9c55984..d44d116 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -74,11 +74,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -104,7 +103,7 @@ index 829e718..89361a0 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/BUILD.gn chrome/BUILD.gn
-index aa67e96..e2af2f3 100644
+index 87d4743..dc21a56 100644
 --- chrome/BUILD.gn
 +++ chrome/BUILD.gn
 @@ -709,7 +709,7 @@ if (is_win) {
@@ -117,10 +116,10 @@ index aa67e96..e2af2f3 100644
  
      outputs = [
 diff --git chrome/chrome_repack_locales.gni chrome/chrome_repack_locales.gni
-index b9a1d95..54d7677 100644
+index f4a3caf..8ae7639 100644
 --- chrome/chrome_repack_locales.gni
 +++ chrome/chrome_repack_locales.gni
-@@ -189,9 +189,9 @@ template("chrome_repack_locales") {
+@@ -188,9 +188,9 @@ template("chrome_repack_locales") {
        if (defined(invoker.output_dir)) {
          output = "${invoker.output_dir}/${output_locale}.pak"
        } else if (is_mac || is_ios) {

@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index c681785..fc49f2d 100644
+index 72004fe..ff7ba8c7 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -747,6 +747,13 @@ void RenderWidgetHostViewAura::SetKeyboardFocus() {
@@ -17,7 +17,7 @@ index c681785..fc49f2d 100644
    if (host_ && set_focus_on_mouse_down_or_key_event_) {
      set_focus_on_mouse_down_or_key_event_ = false;
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
-index b41c4f1..f52b243 100644
+index a8e8627..2ec202f 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
 +++ content/browser/renderer_host/render_widget_host_view_base.cc
 @@ -44,6 +44,7 @@ RenderWidgetHostViewBase::RenderWidgetHostViewBase()
@@ -40,7 +40,7 @@ index b41c4f1..f52b243 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index c69e9b8..d1d4f3f 100644
+index b68718d..5b209ca 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
 @@ -107,6 +107,7 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
@@ -91,7 +91,7 @@ index f772f64..7d13f9f 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index d02a06c0..e5982e0 100644
+index 964fe4a..b878661 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -86,6 +86,7 @@ DesktopWindowTreeHostWin::DesktopWindowTreeHostWin(
@@ -169,10 +169,10 @@ index 884df90..518a69c 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
-index 5327938..e8345de 100644
+index 38a416b..6343597 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
-@@ -174,6 +174,7 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
+@@ -194,6 +194,7 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
        use_native_frame_(false),
        should_maximize_after_map_(false),
        use_argb_visual_(false),
@@ -180,17 +180,17 @@ index 5327938..e8345de 100644
        drag_drop_client_(NULL),
        native_widget_delegate_(native_widget_delegate),
        desktop_native_widget_aura_(desktop_native_widget_aura),
-@@ -182,7 +183,8 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
-       custom_window_shape_(false),
-       urgency_hint_set_(false),
-       activatable_(true),
--      close_widget_factory_(this) {
+@@ -206,7 +207,8 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
+       has_pointer_(false),
+       has_window_focus_(false),
+       has_pointer_focus_(false),
+-      close_widget_factory_(this) {}
 +      close_widget_factory_(this),
-+      xwindow_destroyed_(false) {
- }
++      xwindow_destroyed_(false) {}
  
  DesktopWindowTreeHostX11::~DesktopWindowTreeHostX11() {
-@@ -392,7 +394,8 @@ void DesktopWindowTreeHostX11::CloseNow() {
+   window()->ClearProperty(kHostForRootWindow);
+@@ -542,7 +544,8 @@ void DesktopWindowTreeHostX11::CloseNow() {
    // Actually free our native resources.
    if (ui::PlatformEventSource::GetInstance())
      ui::PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
@@ -200,7 +200,7 @@ index 5327938..e8345de 100644
    xwindow_ = None;
  
    desktop_native_widget_aura_->OnHostClosed();
-@@ -541,6 +544,8 @@ void DesktopWindowTreeHostX11::GetWindowPlacement(
+@@ -683,6 +686,8 @@ void DesktopWindowTreeHostX11::GetWindowPlacement(
  }
  
  gfx::Rect DesktopWindowTreeHostX11::GetWindowBoundsInScreen() const {
@@ -209,7 +209,7 @@ index 5327938..e8345de 100644
    return ToDIPRect(bounds_in_pixels_);
  }
  
-@@ -1005,6 +1010,8 @@ void DesktopWindowTreeHostX11::HideImpl() {
+@@ -1205,6 +1210,8 @@ void DesktopWindowTreeHostX11::HideImpl() {
  }
  
  gfx::Rect DesktopWindowTreeHostX11::GetBounds() const {
@@ -218,7 +218,7 @@ index 5327938..e8345de 100644
    return bounds_in_pixels_;
  }
  
-@@ -1064,6 +1071,8 @@ void DesktopWindowTreeHostX11::SetBounds(
+@@ -1264,6 +1271,8 @@ void DesktopWindowTreeHostX11::SetBounds(
  }
  
  gfx::Point DesktopWindowTreeHostX11::GetLocationOnNativeScreen() const {
@@ -227,7 +227,7 @@ index 5327938..e8345de 100644
    return bounds_in_pixels_.origin();
  }
  
-@@ -1175,9 +1184,15 @@ void DesktopWindowTreeHostX11::InitX11Window(
+@@ -1382,9 +1391,15 @@ void DesktopWindowTreeHostX11::InitX11Window(
          None;
    }
  
@@ -244,7 +244,7 @@ index 5327938..e8345de 100644
                             bounds_in_pixels_.y(), bounds_in_pixels_.width(),
                             bounds_in_pixels_.height(),
                             0,  // border width
-@@ -1809,6 +1824,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
+@@ -2013,6 +2028,10 @@ uint32_t DesktopWindowTreeHostX11::DispatchEvent(
        }
        break;
      }
@@ -252,14 +252,14 @@ index 5327938..e8345de 100644
 +      xwindow_destroyed_ = true;
 +      CloseNow();
 +      break;
+     case FocusIn:
      case FocusOut:
-       if (xev->xfocus.mode != NotifyGrab) {
-         ReleaseCapture();
+       OnFocusEvent(xev->type == FocusIn, event->xfocus.mode,
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h
-index b9ba521..7478c1a 100644
+index 07e35ca..7746296 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_x11.h
-@@ -86,6 +86,12 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
+@@ -83,6 +83,12 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
    // internal list of open windows.
    static void CleanUpWindowList(void (*func)(aura::Window* window));
  
@@ -272,7 +272,7 @@ index b9ba521..7478c1a 100644
   protected:
    // Overridden from DesktopWindowTreeHost:
    void Init(aura::Window* content_window,
-@@ -271,6 +277,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
+@@ -290,6 +296,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
    // The bounds of |xwindow_|.
    gfx::Rect bounds_in_pixels_;
  
@@ -282,7 +282,7 @@ index b9ba521..7478c1a 100644
    // Whenever the bounds are set, we keep the previous set of bounds around so
    // we can have a better chance of getting the real
    // |restored_bounds_in_pixels_|. Window managers tend to send a Configure
-@@ -310,6 +319,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
+@@ -329,6 +338,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
    // Whether we used an ARGB visual for our window.
    bool use_argb_visual_;
  
@@ -293,7 +293,7 @@ index b9ba521..7478c1a 100644
    DesktopDragDropClientAuraX11* drag_drop_client_;
  
    std::unique_ptr<ui::EventHandler> x11_non_client_event_filter_;
-@@ -362,6 +375,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
+@@ -414,6 +427,9 @@ class VIEWS_EXPORT DesktopWindowTreeHostX11
  
    base::WeakPtrFactory<DesktopWindowTreeHostX11> close_widget_factory_;
  
@@ -303,69 +303,8 @@ index b9ba521..7478c1a 100644
    DISALLOW_COPY_AND_ASSIGN(DesktopWindowTreeHostX11);
  };
  
-diff --git ui/views/widget/desktop_aura/x11_desktop_handler.cc ui/views/widget/desktop_aura/x11_desktop_handler.cc
-index aa3c234..021bd01 100644
---- ui/views/widget/desktop_aura/x11_desktop_handler.cc
-+++ ui/views/widget/desktop_aura/x11_desktop_handler.cc
-@@ -33,6 +33,30 @@ views::X11DesktopHandler* g_handler = NULL;
- 
- namespace views {
- 
-+namespace {
-+
-+bool IsParentOfWindow(XDisplay* xdisplay,
-+                      ::Window potential_parent,
-+                      ::Window window) {
-+  ::Window parent_win, root_win;
-+  Window* child_windows;
-+  unsigned int num_child_windows;
-+  while (window) {
-+    if (!XQueryTree(xdisplay, window, &root_win, &parent_win,
-+                    &child_windows, &num_child_windows)) {
-+      break;
-+    }
-+    if(child_windows)
-+      XFree(child_windows);
-+    if (parent_win == potential_parent)
-+      return true;
-+    window = parent_win;
-+  }
-+  return false;
-+}
-+
-+}  // namespace
-+
- // static
- X11DesktopHandler* X11DesktopHandler::get() {
-   if (!g_handler)
-@@ -88,7 +112,11 @@ void X11DesktopHandler::ActivateWindow(::Window window) {
-     // in an active X window.
-   }
- 
--  if (wm_supports_active_window_) {
-+  DesktopWindowTreeHostX11* host =
-+      DesktopWindowTreeHostX11::GetHostForXID(window);
-+  const bool has_external_parent = host && host->has_external_parent();
-+
-+  if (wm_supports_active_window_ && !has_external_parent) {
-     DCHECK_EQ(gfx::GetXDisplay(), xdisplay_);
- 
-     // If the window is not already active, send a hint to activate it
-@@ -213,8 +241,10 @@ uint32_t X11DesktopHandler::DispatchEvent(const ui::PlatformEvent& event) {
-         ::Window window;
-         if (ui::GetXIDProperty(x_root_window_, "_NET_ACTIVE_WINDOW", &window) &&
-             window) {
--          x_active_window_ = window;
--          OnActiveWindowChanged(window, ACTIVE);
-+          if (!IsParentOfWindow(xdisplay_, window, current_window_)) {
-+            x_active_window_ = window;
-+            OnActiveWindowChanged(window, ACTIVE);
-+          }
-         } else {
-           x_active_window_ = None;
-         }
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index ca92c5b..f628c39 100644
+index 4b3db3f..103bba3 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
 @@ -126,9 +126,11 @@ Widget::InitParams::InitParams(Type type)

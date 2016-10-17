@@ -1,12 +1,13 @@
 diff --git url_request.h url_request.h
-index 73e02d9..5a20709 100644
+index 7a810a7..08d6331 100644
 --- url_request.h
 +++ url_request.h
-@@ -648,10 +648,10 @@ class NET_EXPORT URLRequest : NON_EXPORTED_BASE(public base::NonThreadSafe),
-   // or after the response headers are received.
-   void GetConnectionAttempts(ConnectionAttempts* out) const;
- 
+@@ -651,10 +651,11 @@ class NET_EXPORT URLRequest : NON_EXPORTED_BASE(public base::NonThreadSafe),
+   // Returns the error status of the request.
+   // Do not use! Going to be protected!
+   const URLRequestStatus& status() const { return status_; }
 - protected:
++
    // Allow the URLRequestJob class to control the is_pending() flag.
    void set_is_pending(bool value) { is_pending_ = value; }
  

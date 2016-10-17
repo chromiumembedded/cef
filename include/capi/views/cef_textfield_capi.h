@@ -252,12 +252,6 @@ typedef struct _cef_textfield_t {
       cef_color_t color);
 
   ///
-  // Returns the placeholder text color.
-  ///
-  cef_color_t (CEF_CALLBACK *get_placeholder_text_color)(
-      struct _cef_textfield_t* self);
-
-  ///
   // Set the accessible name that will be exposed to assistive technology (AT).
   ///
   void (CEF_CALLBACK *set_accessible_name)(struct _cef_textfield_t* self,

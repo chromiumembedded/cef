@@ -9,7 +9,7 @@ To add a new extension API implemented only in CEF ***:
 1. Add libcef/common/extensions/api/<api>.idl or .json file which defines the
    API.
 2. Add <api>.idl or .json to the 'schema_sources' list in
-   libcef/common/extensions/api/schemas.gni. Serialization code will be
+   libcef/common/extensions/api/BUILD.gn. Serialization code will be
    generated based on this list in step 5.
 3. Add an entry in the libcef/common/extensions/api/_*_features.json files if
    necessary [1].

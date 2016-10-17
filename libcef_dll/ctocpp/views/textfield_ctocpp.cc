@@ -459,20 +459,6 @@ void CefTextfieldCToCpp::SetPlaceholderTextColor(cef_color_t color) {
       color);
 }
 
-cef_color_t CefTextfieldCToCpp::GetPlaceholderTextColor() {
-  cef_textfield_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_placeholder_text_color))
-    return 0;
-
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  // Execute
-  cef_color_t _retval = _struct->get_placeholder_text_color(_struct);
-
-  // Return type: simple
-  return _retval;
-}
-
 void CefTextfieldCToCpp::SetAccessibleName(const CefString& name) {
   cef_textfield_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_accessible_name))

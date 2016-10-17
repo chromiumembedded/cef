@@ -1,8 +1,8 @@
 diff --git controls/button/menu_button.cc controls/button/menu_button.cc
-index 4b562c5..17e2d3b 100644
+index 38fc310..fdd8a13 100644
 --- controls/button/menu_button.cc
 +++ controls/button/menu_button.cc
-@@ -197,7 +197,7 @@ void MenuButton::OnPaint(gfx::Canvas* canvas) {
+@@ -195,7 +195,7 @@ void MenuButton::OnPaint(gfx::Canvas* canvas) {
  gfx::Size MenuButton::GetPreferredSize() const {
    gfx::Size prefsize = LabelButton::GetPreferredSize();
    if (show_menu_marker_) {
@@ -11,7 +11,7 @@ index 4b562c5..17e2d3b 100644
                           kMenuMarkerPaddingRight,
                       0);
    }
-@@ -324,7 +324,7 @@ gfx::Rect MenuButton::GetChildAreaBounds() {
+@@ -322,7 +322,7 @@ gfx::Rect MenuButton::GetChildAreaBounds() {
    gfx::Size s = size();
  
    if (show_menu_marker_) {
@@ -20,7 +20,7 @@ index 4b562c5..17e2d3b 100644
                  kMenuMarkerPaddingRight);
    }
  
-@@ -412,4 +412,10 @@ int MenuButton::GetMaximumScreenXCoordinate() {
+@@ -411,4 +411,10 @@ int MenuButton::GetMaximumScreenXCoordinate() {
    return monitor_bounds.right() - 1;
  }
  

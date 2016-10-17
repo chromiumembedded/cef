@@ -33,6 +33,7 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
 
   // Returns false if the plugin is not found or disabled. May call
   // CefRequestContextHandler::OnBeforePluginLoad if possible/necessary.
+  // See related discussion in issue #2015.
   bool IsPluginAvailable(CefRequestContextHandler* handler,
                          const GURL& url,
                          const GURL& policy_url,

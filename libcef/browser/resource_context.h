@@ -8,6 +8,7 @@
 
 #include "include/cef_request_context_handler.h"
 
+#include "base/files/file_path.h"
 #include "content/public/browser/resource_context.h"
 #include "extensions/browser/info_map.h"
 #include "net/ssl/client_cert_store.h"
@@ -37,6 +38,22 @@ class CefResourceContext : public content::ResourceContext {
 
   void set_url_request_context_getter(CefURLRequestContextGetter* getter);
 
+  // Remember the plugin load decision for plugin status requests that arrive
+  // via CefPluginServiceFilter::IsPluginAvailable.
+  // TODO(cef): Per-frame decisions are not currently supported because
+  // Chromium does not pipe the frame id through to RenderFrameMessageFilter::
+  // GetPluginsCallback. Fix this once https://crbug.com/626728#c15 is resolved.
+  void AddPluginLoadDecision(int render_process_id,
+                             const base::FilePath& plugin_path,
+                             bool allow_load);
+  bool HasPluginLoadDecision(int render_process_id,
+                             const base::FilePath& plugin_path,
+                             bool* allow_load) const;
+
+  // Clear the plugin load decisions associated with |render_process_id|, or all
+  // plugin load decisions if |render_process_id| is -1.
+  void ClearPluginLoadDecision(int render_process_id);
+
   // State transferred from the BrowserContext for use on the IO thread.
   bool IsOffTheRecord() const { return is_off_the_record_; }
   const extensions::InfoMap* GetExtensionInfoMap() const {
@@ -47,9 +64,15 @@ class CefResourceContext : public content::ResourceContext {
  private:
   scoped_refptr<CefURLRequestContextGetter> getter_;
 
+  // Only accessed on the IO thread.
   bool is_off_the_record_;
   scoped_refptr<extensions::InfoMap> extension_info_map_;
   CefRefPtr<CefRequestContextHandler> handler_;
+
+  // Map (render_process_id, plugin_path) to plugin load decision.
+  typedef std::map<std::pair<int, base::FilePath>, bool>
+      PluginLoadDecisionMap;
+  PluginLoadDecisionMap plugin_load_decision_map_;
 
   DISALLOW_COPY_AND_ASSIGN(CefResourceContext);
 };

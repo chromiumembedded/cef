@@ -12,7 +12,7 @@
 
 #include "base/bind.h"
 #include "base/lazy_instance.h"
-#include "base/metrics/histogram.h"
+#include "base/memory/ref_counted_memory.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/printing/print_preview_dialog_controller.h"
@@ -181,7 +181,7 @@ bool CefPrintViewManager::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
-  return handled ? true : CefPrintViewManagerBase::OnMessageReceived(message);
+  return handled || CefPrintViewManagerBase::OnMessageReceived(message);
 }
 
 void CefPrintViewManager::NavigationStopped() {

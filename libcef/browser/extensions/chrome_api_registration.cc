@@ -31,6 +31,7 @@ bool ChromeFunctionRegistry::IsSupported(const std::string& name) {
     "streamsPrivate",
     EXTENSION_FUNCTION_NAME(StreamsPrivateAbortFunction),
     "tabs",
+    EXTENSION_FUNCTION_NAME(cefimpl::TabsGetFunction),
     EXTENSION_FUNCTION_NAME(cefimpl::TabsSetZoomFunction),
     EXTENSION_FUNCTION_NAME(cefimpl::TabsGetZoomFunction),
     EXTENSION_FUNCTION_NAME(cefimpl::TabsSetZoomSettingsFunction),
@@ -48,6 +49,7 @@ bool ChromeFunctionRegistry::IsSupported(const std::string& name) {
 void ChromeFunctionRegistry::RegisterAll(ExtensionFunctionRegistry* registry) {
   registry->RegisterFunction<ResourcesPrivateGetStringsFunction>();
   registry->RegisterFunction<StreamsPrivateAbortFunction>();
+  registry->RegisterFunction<cefimpl::TabsGetFunction>();
   registry->RegisterFunction<cefimpl::TabsSetZoomFunction>();
   registry->RegisterFunction<cefimpl::TabsGetZoomFunction>();
   registry->RegisterFunction<cefimpl::TabsSetZoomSettingsFunction>();

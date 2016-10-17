@@ -95,14 +95,24 @@ bool CefMimeHandlerViewGuestDelegate::OnGuestDetached(
 
   CefRefPtr<CefBrowserHostImpl> owner_browser = GetOwnerBrowser(guest_);
 
+  const int render_process_id = main_frame_host->GetProcess()->GetID();
+  const int render_frame_id = main_frame_host->GetRoutingID();
+  const bool is_main_frame = (main_frame_host->GetParent() == nullptr);
+
   // Disassociate guest state information with the owner browser.
   scoped_refptr<CefBrowserInfo> info = owner_browser->browser_info();
   info->guest_render_id_manager()->remove_render_view_id(
       view_host->GetProcess()->GetID(),
       view_host->GetRoutingID());
   info->guest_render_id_manager()->remove_render_frame_id(
-      main_frame_host->GetProcess()->GetID(),
-      main_frame_host->GetRoutingID());
+      render_process_id, render_frame_id);
+
+  scoped_refptr<CefBrowserContext> context =
+      static_cast<CefBrowserContext*>(web_contents->GetBrowserContext());
+  if (context) {
+    context->OnRenderFrameDeleted(render_process_id, render_frame_id,
+                                  is_main_frame, true);
+  }
 
   // Do nothing when the browser is windowless.
   return owner_browser->IsWindowless();

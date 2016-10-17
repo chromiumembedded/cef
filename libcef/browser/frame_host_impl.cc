@@ -240,8 +240,12 @@ void CefFrameHostImpl::SendJavaScript(
     int startLine) {
   if (jsCode.empty())
     return;
-  if (startLine < 0)
-    startLine = 0;
+  if (startLine <= 0) {
+    // A value of 0 is v8::Message::kNoLineNumberInfo in V8. There is code in
+    // V8 that will assert on that value (e.g. V8StackTraceImpl::Frame::Frame
+    // if a JS exception is thrown) so make sure |startLine| > 0.
+    startLine = 1;
+  }
 
   CefRefPtr<CefBrowserHostImpl> browser;
   int64 frame_id;

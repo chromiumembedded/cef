@@ -61,7 +61,6 @@ class CefTextfieldCToCpp
   void SetPlaceholderText(const CefString& text) OVERRIDE;
   CefString GetPlaceholderText() OVERRIDE;
   void SetPlaceholderTextColor(cef_color_t color) OVERRIDE;
-  cef_color_t GetPlaceholderTextColor() OVERRIDE;
   void SetAccessibleName(const CefString& name) OVERRIDE;
 
   // CefView methods.

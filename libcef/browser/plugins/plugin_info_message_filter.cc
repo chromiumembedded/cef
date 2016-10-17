@@ -19,9 +19,9 @@
 #include "base/threading/thread_task_runner_handle.h"
 #include "build/build_config.h"
 #include "chrome/browser/plugins/plugin_finder.h"
+#include "chrome/browser/plugins/plugins_field_trial.h"
 #include "chrome/common/pref_names.h"
 #include "components/content_settings/core/browser/content_settings_utils.h"
-#include "components/content_settings/core/browser/plugins_field_trial.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/plugin_service.h"
@@ -310,7 +310,7 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
 
   // TODO(tommycli): Remove once we deprecate the plugin ASK policy.
   bool legacy_ask_user = plugin_setting == CONTENT_SETTING_ASK;
-  plugin_setting = content_settings::PluginsFieldTrial::EffectiveContentSetting(
+  plugin_setting = PluginsFieldTrial::EffectiveContentSetting(
       CONTENT_SETTINGS_TYPE_PLUGINS, plugin_setting);
 
   DCHECK(plugin_setting != CONTENT_SETTING_DEFAULT);

@@ -74,10 +74,10 @@ index 6ca86e7..cf081e4 100644
    CHECK(GetUserData(kMojoWasInitialized))
        << "Attempting to destroy a BrowserContext that never called "
 diff --git content/browser/devtools/protocol/service_worker_handler.cc content/browser/devtools/protocol/service_worker_handler.cc
-index 127b0c0..9dce5af 100644
+index a5de8d5..8cd64b3 100644
 --- content/browser/devtools/protocol/service_worker_handler.cc
 +++ content/browser/devtools/protocol/service_worker_handler.cc
-@@ -523,10 +523,9 @@ Response ServiceWorkerHandler::DispatchSyncEvent(
+@@ -503,10 +503,9 @@ Response ServiceWorkerHandler::DispatchSyncEvent(
    if (!base::StringToInt64(registration_id, &id))
      return CreateInvalidVersionIdErrorResponse();
  
@@ -91,10 +91,10 @@ index 127b0c0..9dce5af 100644
  
    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index 7d69ab0..91d968a 100644
+index 1bab21a4..81156a8 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
-@@ -653,7 +653,7 @@ void RenderProcessHostImpl::EarlyZygoteLaunch() {
+@@ -664,7 +664,7 @@ void RenderProcessHostImpl::EarlyZygoteLaunch() {
  
  RenderProcessHostImpl::RenderProcessHostImpl(
      BrowserContext* browser_context,
@@ -103,7 +103,7 @@ index 7d69ab0..91d968a 100644
      bool is_for_guests_only)
      : fast_shutdown_started_(false),
        deleting_soon_(false),
-@@ -978,6 +978,22 @@ std::unique_ptr<IPC::ChannelProxy> RenderProcessHostImpl::CreateChannelProxy(
+@@ -998,6 +998,22 @@ std::unique_ptr<IPC::ChannelProxy> RenderProcessHostImpl::CreateChannelProxy(
  
  void RenderProcessHostImpl::CreateMessageFilters() {
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
@@ -126,7 +126,7 @@ index 7d69ab0..91d968a 100644
    AddFilter(new ResourceSchedulerFilter(GetID()));
    MediaInternals* media_internals = MediaInternals::GetInstance();
    // Add BrowserPluginMessageFilter to ensure it gets the first stab at messages
-@@ -992,8 +1008,8 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1012,8 +1028,8 @@ void RenderProcessHostImpl::CreateMessageFilters() {
        new RenderMessageFilter(
            GetID(), GetBrowserContext(), request_context.get(),
            widget_helper_.get(), media_internals,
@@ -137,7 +137,7 @@ index 7d69ab0..91d968a 100644
    AddFilter(render_message_filter.get());
  
    render_frame_message_filter_ = new RenderFrameMessageFilter(
-@@ -1024,9 +1040,9 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1044,9 +1060,9 @@ void RenderProcessHostImpl::CreateMessageFilters() {
  
    resource_message_filter_ = new ResourceMessageFilter(
        GetID(), PROCESS_TYPE_RENDERER,
@@ -149,7 +149,7 @@ index 7d69ab0..91d968a 100644
        storage_partition_impl_->GetHostZoomLevelContext(),
        get_contexts_callback);
  
-@@ -1051,14 +1067,12 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1071,14 +1087,12 @@ void RenderProcessHostImpl::CreateMessageFilters() {
    AddFilter(
        new MidiHost(GetID(), BrowserMainLoop::GetInstance()->midi_manager()));
    AddFilter(new VideoCaptureHost(media_stream_manager));
@@ -167,7 +167,7 @@ index 7d69ab0..91d968a 100644
        blob_storage_context.get()));
  
  #if defined(ENABLE_WEBRTC)
-@@ -1110,14 +1124,13 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1130,14 +1144,13 @@ void RenderProcessHostImpl::CreateMessageFilters() {
  
    scoped_refptr<CacheStorageDispatcherHost> cache_storage_filter =
        new CacheStorageDispatcherHost();
@@ -184,7 +184,7 @@ index 7d69ab0..91d968a 100644
    AddFilter(service_worker_filter.get());
  
    AddFilter(new SharedWorkerMessageFilter(
-@@ -1125,12 +1138,12 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1145,12 +1158,12 @@ void RenderProcessHostImpl::CreateMessageFilters() {
        WorkerStoragePartition(
            storage_partition_impl_->GetURLRequestContext(),
            storage_partition_impl_->GetMediaURLRequestContext(),
@@ -200,7 +200,7 @@ index 7d69ab0..91d968a 100644
        message_port_message_filter_.get()));
  
  #if defined(ENABLE_WEBRTC)
-@@ -1145,11 +1158,8 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1165,11 +1178,8 @@ void RenderProcessHostImpl::CreateMessageFilters() {
        GetID(), storage_partition_impl_->GetQuotaManager(),
        GetContentClient()->browser()->CreateQuotaPermissionContext()));
  
@@ -213,7 +213,7 @@ index 7d69ab0..91d968a 100644
        resource_context, service_worker_context, browser_context);
    AddFilter(notification_message_filter_.get());
  
-@@ -1158,7 +1168,7 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1178,7 +1188,7 @@ void RenderProcessHostImpl::CreateMessageFilters() {
    AddFilter(new HistogramMessageFilter());
    AddFilter(new MemoryMessageFilter(this));
    AddFilter(new PushMessagingMessageFilter(
@@ -222,7 +222,7 @@ index 7d69ab0..91d968a 100644
  #if defined(OS_ANDROID)
    AddFilter(new ScreenOrientationMessageFilterAndroid());
  #endif
-@@ -1167,6 +1177,11 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1187,6 +1197,11 @@ void RenderProcessHostImpl::CreateMessageFilters() {
  void RenderProcessHostImpl::RegisterMojoInterfaces() {
    std::unique_ptr<shell::InterfaceRegistry> registry(
        new shell::InterfaceRegistry);
@@ -234,7 +234,7 @@ index 7d69ab0..91d968a 100644
  #if defined(OS_ANDROID)
    interface_registry_android_ =
        InterfaceRegistryAndroid::Create(registry.get());
-@@ -1194,8 +1209,7 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
+@@ -1220,8 +1235,7 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
    AddUIThreadInterface(
        registry.get(),
        base::Bind(&PlatformNotificationContextImpl::CreateService,
@@ -245,10 +245,10 @@ index 7d69ab0..91d968a 100644
    AddUIThreadInterface(
        registry.get(),
 diff --git content/browser/renderer_host/render_process_host_impl.h content/browser/renderer_host/render_process_host_impl.h
-index 7fb91a6..503e6ba 100644
+index f9e74e7..a49359f 100644
 --- content/browser/renderer_host/render_process_host_impl.h
 +++ content/browser/renderer_host/render_process_host_impl.h
-@@ -75,7 +75,6 @@ class RenderWidgetHostImpl;
+@@ -78,7 +78,6 @@ class RenderWidgetHostImpl;
  class RenderWidgetHostViewFrameSubscriber;
  class ResourceMessageFilter;
  class StoragePartition;
@@ -256,8 +256,8 @@ index 7fb91a6..503e6ba 100644
  
  namespace mojom {
  class StoragePartitionService;
-@@ -109,7 +108,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
-       public ui::GpuSwitchingObserver {
+@@ -114,7 +113,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
+       public NON_EXPORTED_BASE(mojom::AssociatedInterfaceProvider) {
   public:
    RenderProcessHostImpl(BrowserContext* browser_context,
 -                        StoragePartitionImpl* storage_partition_impl,
@@ -265,7 +265,7 @@ index 7fb91a6..503e6ba 100644
                          bool is_for_guests_only);
    ~RenderProcessHostImpl() override;
  
-@@ -468,7 +467,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
+@@ -498,7 +497,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
    BrowserContext* browser_context_;
  
    // Owned by |browser_context_|.
@@ -275,7 +275,7 @@ index 7fb91a6..503e6ba 100644
    // The observers watching our lifetime.
    base::ObserverList<RenderProcessHostObserver> observers_;
 diff --git content/browser/site_instance_impl.cc content/browser/site_instance_impl.cc
-index 8978640..a1e4cdd 100644
+index a55d786..9e0de6a 100644
 --- content/browser/site_instance_impl.cc
 +++ content/browser/site_instance_impl.cc
 @@ -116,9 +116,8 @@ RenderProcessHost* SiteInstanceImpl::GetProcess() {
@@ -424,3 +424,30 @@ index 909b370..8c6f09d 100644
   protected:
    virtual ~StoragePartition() {}
  };
+diff --git extensions/browser/guest_view/web_view/web_ui/BUILD.gn extensions/browser/guest_view/web_view/web_ui/BUILD.gn
+index 9b26c41..e9f4a0c 100644
+--- extensions/browser/guest_view/web_view/web_ui/BUILD.gn
++++ extensions/browser/guest_view/web_view/web_ui/BUILD.gn
+@@ -3,6 +3,10 @@
+ # found in the LICENSE file.
+ 
+ source_set("web_ui") {
++  deps = [
++    "//content/public/common",
++  ]
++
+   sources = [
+     "web_ui_url_fetcher.cc",
+     "web_ui_url_fetcher.h",
+diff --git extensions/common/api/BUILD.gn extensions/common/api/BUILD.gn
+index 0276c57..ca1d6f6 100644
+--- extensions/common/api/BUILD.gn
++++ extensions/common/api/BUILD.gn
+@@ -98,6 +98,7 @@ group("api") {
+   public_deps = [
+     ":generated_api",
+     ":mojom",
++    "//content/public/common",
+   ]
+ }
+ 

@@ -26,6 +26,8 @@ namespace tabs = api::tabs;
 
 namespace {
 
+const char kNotImplementedError[] = "Not implemented";
+
 // Any out parameter (|browser|, |contents|, & |tab_index|) may be NULL and will
 // not be set within the function.
 // Based on ExtensionTabUtil::GetTabById().
@@ -123,6 +125,10 @@ void ZoomModeToZoomSettings(zoom::ZoomController::ZoomMode zoom_mode,
 }
 
 }  // namespace
+
+ExtensionFunction::ResponseAction TabsGetFunction::Run() {
+  return RespondNow(Error(kNotImplementedError));
+}
 
 content::WebContents* ZoomAPIFunction::GetWebContents(int tab_id) {
   content::WebContents* web_contents = NULL;

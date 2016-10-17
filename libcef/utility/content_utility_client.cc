@@ -10,6 +10,7 @@
 #include "build/build_config.h"
 #include "chrome/common/chrome_utility_messages.h"
 #include "chrome/utility/utility_message_handler.h"
+#include "mojo/public/cpp/bindings/strong_binding.h"
 #include "net/proxy/mojo_proxy_resolver_factory_impl.h"
 #include "services/shell/public/cpp/interface_registry.h"
 
@@ -20,12 +21,9 @@
 namespace {
 
 void CreateProxyResolverFactory(
-    mojo::InterfaceRequest<net::interfaces::ProxyResolverFactory> request) {
-  // MojoProxyResolverFactoryImpl is strongly bound to the Mojo message pipe it
-  // is connected to. When that message pipe is closed, either explicitly on the
-  // other end (in the browser process), or by a connection error, this object
-  // will be destroyed.
-  new net::MojoProxyResolverFactoryImpl(std::move(request));
+    net::interfaces::ProxyResolverFactoryRequest request) {
+  mojo::MakeStrongBinding(base::MakeUnique<net::MojoProxyResolverFactoryImpl>(),
+                          std::move(request));
 }
 
 }  // namespace

@@ -117,11 +117,15 @@ class PluginTestHandler : public RoutingTestHandler,
                             CefRefPtr<CefWebPluginInfo> plugin_info,
                             PluginPolicy* plugin_policy) override {
       const std::string& mime_type_str = mime_type;
+      EXPECT_STREQ("application/pdf", mime_type_str.c_str());
 
       if (top_origin_url.empty()) {
-        handler_->got_on_before_plugin_empty_origin_.yes();
+        if (!handler_->got_on_before_plugin_empty_origin_)
+          handler_->got_on_before_plugin_empty_origin_.yes();
+        else
+          NOTREACHED();
 
-        if (mime_type_str == "application/pdf" && handler_->HasNoList()) {
+        if (handler_->HasNoList()) {
           // Remove the PDF plugin from the `navigator.plugins` list.
           *plugin_policy = PLUGIN_POLICY_DISABLE;
           return true;
@@ -131,16 +135,12 @@ class PluginTestHandler : public RoutingTestHandler,
         }
       }
 
-      if (mime_type_str == "application/pdf") {
-        if (!handler_->got_on_before_plugin_load_pdf1_)
-          handler_->got_on_before_plugin_load_pdf1_.yes();
-        else if (!handler_->got_on_before_plugin_load_pdf2_)
-          handler_->got_on_before_plugin_load_pdf2_.yes();
-        else
-          NOTREACHED();
-      } else {
+      if (!handler_->got_on_before_plugin_load_pdf1_)
+        handler_->got_on_before_plugin_load_pdf1_.yes();
+      else if (!handler_->got_on_before_plugin_load_pdf2_)
+        handler_->got_on_before_plugin_load_pdf2_.yes();
+      else
         NOTREACHED();
-      }
 
       if (handler_->HasAllow()) {
         *plugin_policy = PLUGIN_POLICY_ALLOW;
@@ -521,6 +521,8 @@ class PluginTestHandler : public RoutingTestHandler,
 
     if (HasRequestContextHandler())
       EXPECT_TRUE(got_on_before_plugin_empty_origin_);
+    else
+      EXPECT_FALSE(got_on_before_plugin_empty_origin_);
 
     if (HasNoList()) {
       EXPECT_FALSE(got_pdf_plugin_found_);

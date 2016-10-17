@@ -204,9 +204,6 @@ class CefRenderWidgetHostViewOSR
       bool is_swap_ack,
       const cc::ReturnedResourceArray& resources) override;
   void DelegatedFrameHostOnLostCompositorResources() override;
-  void DelegatedFrameHostUpdateVSyncParameters(
-      const base::TimeTicks& timebase,
-      const base::TimeDelta& interval) override;
   void SetBeginFrameSource(cc::BeginFrameSource* source) override;
   bool IsAutoResizeEnabled() const override;
 #endif  // !defined(OS_MACOSX)
@@ -214,7 +211,7 @@ class CefRenderWidgetHostViewOSR
   bool InstallTransparency();
 
   void WasResized();
-  void GetScreenInfo(blink::WebScreenInfo* results);
+  void GetScreenInfo(content::ScreenInfo* results);
   void OnScreenInfoChanged();
   void Invalidate(CefBrowserHost::PaintElementType type);
   void SendKeyEvent(const content::NativeWebKeyboardEvent& event);

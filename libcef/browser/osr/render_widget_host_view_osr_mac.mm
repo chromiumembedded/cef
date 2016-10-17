@@ -74,12 +74,6 @@ class MacHelper :
     view_->render_widget_host()->ScheduleComposite();
   }
 
-  void BrowserCompositorMacUpdateVSyncParameters(
-      const base::TimeTicks& timebase,
-      const base::TimeDelta& interval) override {
-    view_->render_widget_host()->UpdateVSyncParameters(timebase, interval);
-  }
-
   void BrowserCompositorMacSendBeginFrame(
       const cc::BeginFrameArgs& args) override {
     view_->render_widget_host()->Send(

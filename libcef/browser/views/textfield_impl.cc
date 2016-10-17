@@ -185,11 +185,6 @@ void CefTextfieldImpl::SetPlaceholderTextColor(cef_color_t color) {
   root_view()->set_placeholder_text_color(color);
 }
 
-cef_color_t CefTextfieldImpl::GetPlaceholderTextColor() {
-  CEF_REQUIRE_VALID_RETURN(0U);
-  return root_view()->placeholder_text_color();
-}
-
 void CefTextfieldImpl::SetBackgroundColor(cef_color_t color) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   root_view()->SetBackgroundColor(color);

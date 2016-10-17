@@ -15,8 +15,8 @@
 #include "libcef/browser/browser_util.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
-#include "libcef/browser/devtools_delegate.h"
 #include "libcef/browser/devtools_frontend.h"
+#include "libcef/browser/devtools_manager_delegate.h"
 #include "libcef/browser/extensions/browser_extensions_util.h"
 #include "libcef/browser/image_impl.h"
 #include "libcef/browser/media_capture_devices_dispatcher.h"
@@ -2390,6 +2390,16 @@ void CefBrowserHostImpl::RenderFrameDeleted(
   const int render_routing_id = render_frame_host->GetRoutingID();
   browser_info_->render_id_manager()->remove_render_frame_id(
       render_process_id, render_routing_id);
+
+  if (web_contents()) {
+    const bool is_main_frame = (render_frame_host->GetParent() == nullptr);
+    scoped_refptr<CefBrowserContext> context =
+        static_cast<CefBrowserContext*>(web_contents()->GetBrowserContext());
+    if (context) {
+      context->OnRenderFrameDeleted(render_process_id, render_routing_id,
+                                    is_main_frame, false);
+    }
+  }
 }
 
 void CefBrowserHostImpl::RenderViewCreated(

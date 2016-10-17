@@ -124,3 +124,33 @@ ChromeZoomLevelPrefs* CefBrowserContext::GetZoomLevelPrefs() {
   return static_cast<ChromeZoomLevelPrefs*>(
       GetStoragePartition(this, NULL)->GetZoomLevelDelegate());
 }
+
+void CefBrowserContext::OnRenderFrameDeleted(int render_process_id,
+                                             int render_frame_id,
+                                             bool is_main_frame,
+                                             bool is_guest_view) {
+  CEF_POST_TASK(CEF_IOT,
+      base::Bind(&CefBrowserContext::RenderFrameDeletedOnIOThread, this,
+                 render_process_id, render_frame_id, is_main_frame,
+                 is_guest_view));
+}
+
+void CefBrowserContext::OnPurgePluginListCache() {
+  CEF_POST_TASK(CEF_IOT,
+      base::Bind(&CefBrowserContext::PurgePluginListCacheOnIOThread, this));
+}
+
+void CefBrowserContext::RenderFrameDeletedOnIOThread(int render_process_id,
+                                                     int render_frame_id,
+                                                     bool is_main_frame,
+                                                     bool is_guest_view) {
+  if (resource_context_ && is_main_frame) {
+    DCHECK_GE(render_process_id, 0);
+    resource_context_->ClearPluginLoadDecision(render_process_id);
+  }
+}
+
+void CefBrowserContext::PurgePluginListCacheOnIOThread() {
+  if (resource_context_)
+    resource_context_->ClearPluginLoadDecision(-1);
+}

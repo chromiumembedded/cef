@@ -263,12 +263,6 @@ class CefTextfield : public CefView {
   virtual void SetPlaceholderTextColor(cef_color_t color) =0;
 
   ///
-  // Returns the placeholder text color.
-  ///
-  /*--cef()--*/
-  virtual cef_color_t GetPlaceholderTextColor() =0;
-
-  ///
   // Set the accessible name that will be exposed to assistive technology (AT).
   ///
   /*--cef()--*/

@@ -170,7 +170,7 @@ bool GetSystemPepperFlash(content::PepperPluginInfo* plugin) {
   if (!manifest_value->GetAsDictionary(&manifest))
     return false;
 
-  Version version;
+  base::Version version;
   if (!chrome::CheckPepperFlashManifest(*manifest, &version))
     return false;
 

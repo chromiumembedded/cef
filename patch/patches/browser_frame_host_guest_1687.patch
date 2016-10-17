@@ -1,8 +1,8 @@
 diff --git render_widget_host_view_guest.cc render_widget_host_view_guest.cc
-index 64e1be3..834a4dc 100644
+index cdb2d17..fb53fa6 100644
 --- render_widget_host_view_guest.cc
 +++ render_widget_host_view_guest.cc
-@@ -243,6 +243,9 @@ void RenderWidgetHostViewGuest::Destroy() {
+@@ -242,6 +242,9 @@ void RenderWidgetHostViewGuest::Destroy() {
  }
  
  gfx::Size RenderWidgetHostViewGuest::GetPhysicalBackingSize() const {

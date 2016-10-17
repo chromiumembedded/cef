@@ -53,7 +53,6 @@
 #if defined(OS_WIN)
 #include <Objbase.h>  // NOLINT(build/include_order)
 #include "base/win/registry.h"
-#include "components/crash/content/app/breakpad_win.h"
 #endif
 
 #if defined(OS_MACOSX)
@@ -61,7 +60,8 @@
 #include "base/mac/os_crash_dumps.h"
 #include "base/mac/bundle_locations.h"
 #include "base/mac/foundation_util.h"
-#include "components/crash/content/app/breakpad_mac.h"
+#include "components/crash/content/app/crashpad.h"
+#include "components/crash/core/common/crash_keys.h"
 #include "content/public/common/content_paths.h"
 #endif
 
@@ -76,8 +76,10 @@
 
 namespace {
 
+#if defined(OS_POSIX)
 base::LazyInstance<CefCrashReporterClient>::Leaky g_crash_reporter_client =
     LAZY_INSTANCE_INITIALIZER;
+#endif
 
 #if defined(OS_MACOSX)
 
@@ -522,25 +524,19 @@ void CefMainDelegate::PreSandboxStartup() {
   const std::string& process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
 
+#if defined(OS_POSIX)
   if (command_line->HasSwitch(switches::kEnableCrashReporter)) {
     crash_reporter::SetCrashReporterClient(g_crash_reporter_client.Pointer());
 #if defined(OS_MACOSX)
-    base::mac::DisableOSCrashDumps();
-    breakpad::InitCrashReporter(process_type);
-    breakpad::InitCrashProcessInfo(process_type);
-#elif defined(OS_POSIX) && !defined(OS_MACOSX)
+    InitMacCrashReporter(*command_line, process_type);
+#else
     if (process_type != switches::kZygoteProcess)
       breakpad::InitCrashReporter(process_type);
-#elif defined(OS_WIN)
-    UINT new_flags =
-        SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX;
-    UINT existing_flags = SetErrorMode(new_flags);
-    SetErrorMode(existing_flags | new_flags);
-    breakpad::InitCrashReporter(process_type);
 #endif
   }
+#endif  // defined(OS_POSIX)
 
-  if (!command_line->HasSwitch(switches::kProcessType)) {
+  if (process_type.empty()) {
     // Only override these paths when executing the main process.
 #if defined(OS_MACOSX)
     OverrideChildProcessPath();
@@ -761,3 +757,51 @@ void CefMainDelegate::InitializeResourceBundle() {
     content_client_.set_allow_pack_file_load(false);
   }
 }
+
+#if defined(OS_MACOSX)
+// Based on ChromeMainDelegate::InitMacCrashReporter.
+void CefMainDelegate::InitMacCrashReporter(
+    const base::CommandLine& command_line,
+    const std::string& process_type) {
+  // TODO(mark): Right now, InitializeCrashpad() needs to be called after
+  // CommandLine::Init() and chrome::RegisterPathProvider().  Ideally, Crashpad
+  // initialization could occur sooner, preferably even before the framework
+  // dylib is even loaded, to catch potential early crashes.
+
+  const bool browser_process = process_type.empty();
+  const bool install_from_dmg_relauncher_process =
+      process_type == switches::kRelauncherProcess &&
+      command_line.HasSwitch(switches::kRelauncherProcessDMGDevice);
+
+  const bool initial_client =
+      browser_process || install_from_dmg_relauncher_process;
+
+  crash_reporter::InitializeCrashpad(initial_client, process_type);
+
+  if (!browser_process) {
+    std::string metrics_client_id =
+        command_line.GetSwitchValueASCII(switches::kMetricsClientID);
+    crash_keys::SetMetricsClientIdFromGUID(metrics_client_id);
+  }
+
+  // Mac Chrome is packaged with a main app bundle and a helper app bundle.
+  // The main app bundle should only be used for the browser process, so it
+  // should never see a --type switch (switches::kProcessType).  Likewise,
+  // the helper should always have a --type switch.
+  //
+  // This check is done this late so there is already a call to
+  // base::mac::IsBackgroundOnlyProcess(), so there is no change in
+  // startup/initialization order.
+
+  // The helper's Info.plist marks it as a background only app.
+  if (base::mac::IsBackgroundOnlyProcess()) {
+    CHECK(command_line.HasSwitch(switches::kProcessType) &&
+          !process_type.empty())
+        << "Helper application requires --type.";
+  } else {
+    CHECK(!command_line.HasSwitch(switches::kProcessType) &&
+          process_type.empty())
+        << "Main application forbids --type, saw " << process_type;
+  }
+}
+#endif  // defined(OS_MACOSX)

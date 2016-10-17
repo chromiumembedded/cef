@@ -1,8 +1,8 @@
 diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
-index f274fb4..2aa6a17 100644
+index f081d46..eaedd72 100644
 --- Source/web/ChromeClientImpl.cpp
 +++ Source/web/ChromeClientImpl.cpp
-@@ -873,7 +873,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
+@@ -869,7 +869,7 @@ bool ChromeClientImpl::hasOpenedPopup() const
  PopupMenu* ChromeClientImpl::openPopupMenu(LocalFrame& frame, HTMLSelectElement& select)
  {
      notifyPopupOpeningObservers();
@@ -12,10 +12,10 @@ index f274fb4..2aa6a17 100644
  
      DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index cae232a..2ed1596 100644
+index 5b4dacf..aec9256 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
-@@ -417,6 +417,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client, WebPageVisibilityState visibilit
+@@ -416,6 +416,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client, WebPageVisibilityState visibilit
      , m_enableFakePageScaleAnimationForTesting(false)
      , m_fakePageScaleAnimationPageScaleFactor(0)
      , m_fakePageScaleAnimationUseAnchor(false)
@@ -23,7 +23,7 @@ index cae232a..2ed1596 100644
      , m_doingDragAndDrop(false)
      , m_ignoreInputEvents(false)
      , m_compositorDeviceScaleFactorOverride(0)
-@@ -4092,9 +4093,14 @@ void WebViewImpl::pageScaleFactorChanged()
+@@ -4095,9 +4096,14 @@ void WebViewImpl::pageScaleFactorChanged()
      m_client->pageScaleFactorChanged();
  }
  
@@ -40,10 +40,10 @@ index cae232a..2ed1596 100644
  
  void WebViewImpl::startDragging(LocalFrame* frame,
 diff --git Source/web/WebViewImpl.h Source/web/WebViewImpl.h
-index 26e93e7..86240c7 100644
+index a69995d..de1bec7 100644
 --- Source/web/WebViewImpl.h
 +++ Source/web/WebViewImpl.h
-@@ -388,7 +388,8 @@ public:
+@@ -384,7 +384,8 @@ public:
  
      // Returns true if popup menus should be rendered by the browser, false if
      // they should be rendered by WebKit (which is the default).
@@ -53,7 +53,7 @@ index 26e93e7..86240c7 100644
  
      bool shouldAutoResize() const
      {
-@@ -683,6 +684,8 @@ private:
+@@ -679,6 +680,8 @@ private:
      float m_fakePageScaleAnimationPageScaleFactor;
      bool m_fakePageScaleAnimationUseAnchor;
  
@@ -63,7 +63,7 @@ index 26e93e7..86240c7 100644
  
      bool m_ignoreInputEvents;
 diff --git public/web/WebView.h public/web/WebView.h
-index bba44bc..345f5c2 100644
+index 89a9582..2ba00bd 100644
 --- public/web/WebView.h
 +++ public/web/WebView.h
 @@ -438,6 +438,7 @@ public:

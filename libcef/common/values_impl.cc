@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <vector>
 
+#include "base/memory/ptr_util.h"
+
 // CefValueImpl implementation.
 
 // static
@@ -1373,7 +1375,7 @@ bool CefListValueImpl::RemoveInternal(int index) {
 void CefListValueImpl::SetInternal(int index, base::Value* value) {
   DCHECK(value);
   if (RemoveInternal(index))
-    mutable_value()->Insert(index, value);
+    mutable_value()->Insert(index, base::WrapUnique(value));
   else
     mutable_value()->Set(index, value);
 }

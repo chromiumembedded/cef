@@ -49,7 +49,7 @@ gfx::NativeWindow CefWebContentsViewOSR::GetTopLevelNativeWindow() const {
   return gfx::NativeWindow();
 }
 
-void CefWebContentsViewOSR::GetScreenInfo(blink::WebScreenInfo* results) const {
+void CefWebContentsViewOSR::GetScreenInfo(content::ScreenInfo* results) const {
   if (view_)
     view_->GetScreenInfo(results);
   else

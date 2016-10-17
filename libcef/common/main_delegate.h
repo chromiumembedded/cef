@@ -15,6 +15,7 @@
 #include "content/public/app/content_main_delegate.h"
 
 namespace base {
+class CommandLine;
 class Thread;
 }
 
@@ -54,6 +55,11 @@ class CefMainDelegate : public content::ContentMainDelegate {
 
  private:
   void InitializeResourceBundle();
+
+#if defined(OS_MACOSX)
+  void InitMacCrashReporter(const base::CommandLine& command_line,
+                            const std::string& process_type);
+#endif  // defined(OS_MACOSX)
 
   std::unique_ptr<content::BrowserMainRunner> browser_runner_;
   std::unique_ptr<base::Thread> ui_thread_;

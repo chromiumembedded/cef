@@ -52,7 +52,8 @@ class CefSSLHostStateDelegate : public content::SSLHostStateDelegate {
   void AllowCert(const std::string& host,
                  const net::X509Certificate& cert,
                  net::CertStatus error) override;
-  void Clear() override;
+  void Clear(
+      const base::Callback<bool(const std::string&)>& host_filter) override;
   content::SSLHostStateDelegate::CertJudgment QueryPolicy(
       const std::string& host,
       const net::X509Certificate& cert,

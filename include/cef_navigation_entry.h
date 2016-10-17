@@ -39,8 +39,7 @@
 #pragma once
 
 #include "include/cef_base.h"
-
-class CefSSLStatus;
+#include "include/cef_ssl_status.h"
 
 ///
 // Class used to represent an entry in navigation history.

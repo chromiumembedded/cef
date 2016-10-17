@@ -4,10 +4,20 @@
 
 import("//build/json_schema_api.gni")
 import("//tools/json_schema_compiler/json_features.gni")
-import("schemas.gni")
 
 # TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See README.txt for
 # details.
+#schema_sources = [
+#  # TODO(cef): Add CEF-specific Mojo APIs here.
+#]
+#
+#uncompiled_sources = [
+#]
+#
+#root_namespace = "extensions::api::cef::%(namespace)s"
+#schema_include_rules = "//cef/libcef/browser/extensions/api:extensions::api::cef::%(namespace)s"
+#schema_dependencies = [ "//extensions/common/api" ]
+#
 #json_schema_api("api") {
 #  sources = schema_sources
 #  schemas = true

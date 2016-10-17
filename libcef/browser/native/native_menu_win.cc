@@ -456,9 +456,9 @@ void CefNativeMenuWin::RunMenuAt(const gfx::Point& point, int alignment) {
                    menu_to_select_factory_.GetWeakPtr()));
     menu_action_ = MENU_ACTION_SELECTED;
   }
-  // Send MenuClosed after we schedule the select, otherwise MenuClosed is
-  // processed after the select (MenuClosed posts a delayed task too).
-  model_->MenuClosed();
+  // Send MenuWillClose after we schedule the select, otherwise MenuWillClose is
+  // processed after the select (MenuWillClose posts a delayed task too).
+  model_->MenuWillClose();
 }
 
 void CefNativeMenuWin::CancelMenu() {

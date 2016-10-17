@@ -164,6 +164,18 @@ class CefBrowserContext
   // visited links.
   virtual void AddVisitedURLs(const std::vector<GURL>& urls) = 0;
 
+  // Called from CefBrowserHostImpl::RenderFrameDeleted or
+  // CefMimeHandlerViewGuestDelegate::OnGuestDetached when a render frame is
+  // deleted.
+  void OnRenderFrameDeleted(int render_process_id,
+                            int render_frame_id,
+                            bool is_main_frame,
+                            bool is_guest_view);
+
+  // Called from CefRequestContextImpl::PurgePluginListCacheInternal when the
+  // plugin list cache should be purged.
+  void OnPurgePluginListCache();
+
   CefResourceContext* resource_context() const {
     return resource_context_.get();
   }
@@ -187,6 +199,12 @@ class CefBrowserContext
   friend struct content::BrowserThread::DeleteOnThread<
       content::BrowserThread::UI>;
   friend class base::DeleteHelper<CefBrowserContext>;
+
+  void RenderFrameDeletedOnIOThread(int render_process_id,
+                                    int render_frame_id,
+                                    bool is_main_frame,
+                                    bool is_guest_view);
+  void PurgePluginListCacheOnIOThread();
 
   // True if this CefBrowserContext is a CefBrowserContextProxy.
   const bool is_proxy_;

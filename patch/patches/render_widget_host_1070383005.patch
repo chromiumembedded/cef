@@ -1,8 +1,8 @@
 diff --git render_widget_host_view_mac.mm render_widget_host_view_mac.mm
-index ecfcc9c..6bb0eda 100644
+index 2461641..7dfad416 100644
 --- render_widget_host_view_mac.mm
 +++ render_widget_host_view_mac.mm
-@@ -467,9 +467,6 @@ RenderWidgetHostViewMac::RenderWidgetHostViewMac(RenderWidgetHost* widget,
+@@ -460,9 +460,6 @@ RenderWidgetHostViewMac::RenderWidgetHostViewMac(RenderWidgetHost* widget,
    // Paint this view host with |background_color_| when there is no content
    // ready to draw.
    background_layer_.reset([[CALayer alloc] init]);

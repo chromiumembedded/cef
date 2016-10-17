@@ -510,6 +510,7 @@ if mode == 'standard':
 
 if platform == 'windows':
   binaries = [
+    'chrome_elf.dll',
     'd3dcompiler_47.dll',
     'libcef.dll',
     'libEGL.dll',

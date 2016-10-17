@@ -125,7 +125,7 @@ class CefMenuModelImpl : public CefMenuModel {
   // Callbacks from the ui::MenuModel implementation.
   void ActivatedAt(int index, cef_event_flags_t event_flags);
   void MenuWillShow();
-  void MenuClosed();
+  void MenuWillClose();
   base::string16 GetFormattedLabelAt(int index);
 
   // Verify that only a single reference exists to all CefMenuModelImpl objects.

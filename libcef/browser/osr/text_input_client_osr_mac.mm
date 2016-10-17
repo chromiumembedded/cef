@@ -100,8 +100,8 @@ extern "C" {
   } else {
     gfx::Range replacement_range(replacementRange);
 
-    renderWidgetHostView_->render_widget_host()->ImeConfirmComposition(
-        base::SysNSStringToUTF16(im_text), replacement_range, false);
+    renderWidgetHostView_->render_widget_host()->ImeCommitText(
+        base::SysNSStringToUTF16(im_text), replacement_range, 0);
   }
 
   // Inserting text will delete all marked text automatically.
@@ -184,11 +184,10 @@ extern "C" {
   markedText_.clear();
   underlines_.clear();
 
-  // If we are handling a key down event, then ConfirmComposition() will be
+  // If we are handling a key down event, then FinishComposingText() will be
   // called in keyEvent: method.
   if (!handlingKeyDown_) {
-    renderWidgetHostView_->render_widget_host()->ImeConfirmComposition(
-        base::string16(), gfx::Range::InvalidRange(), false);
+    renderWidgetHostView_->render_widget_host()->ImeFinishComposingText(false);
   } else {
     unmarkTextCalled_ = YES;
   }
@@ -328,7 +327,7 @@ extern "C" {
 
   // Then send keypress and/or composition related events.
   // If there was a marked text or the text to be inserted is longer than 1
-  // character, then we send the text by calling ConfirmComposition().
+  // character, then we send the text by calling FinishComposingText().
   // Otherwise, if the text to be inserted only contains 1 character, then we
   // can just send a keypress event which is fabricated by changing the type of
   // the keydown event, so that we can retain all necessary informations, such
@@ -351,9 +350,9 @@ extern "C" {
 
   BOOL textInserted = NO;
   if (textToBeInserted_.length() >
-    ((hasMarkedText_ || oldHasMarkedText_) ? 0u : 1u)) {
-    renderWidgetHostView_->render_widget_host()->ImeConfirmComposition(
-       textToBeInserted_, gfx::Range::InvalidRange(), false);
+          ((hasMarkedText_ || oldHasMarkedText_) ? 0u : 1u)) {
+    renderWidgetHostView_->render_widget_host()->ImeCommitText(
+        textToBeInserted_, gfx::Range::InvalidRange(), 0);
     textToBeInserted_ = YES;
   }
 
@@ -369,8 +368,8 @@ extern "C" {
         selectedRange_.location, NSMaxRange(selectedRange_));
   } else if (oldHasMarkedText_ && !hasMarkedText_ && !textInserted) {
     if (unmarkTextCalled_) {
-      renderWidgetHostView_->render_widget_host()->ImeConfirmComposition(
-          base::string16(), gfx::Range::InvalidRange(), false);
+      renderWidgetHostView_->render_widget_host()->ImeFinishComposingText(
+          false);
     } else {
       renderWidgetHostView_->render_widget_host()->ImeCancelComposition();
     }

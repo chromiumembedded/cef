@@ -5,6 +5,7 @@
 #include "libcef/browser/resource_context.h"
 
 #include "libcef/browser/net/url_request_context_getter.h"
+#include "libcef/browser/thread_util.h"
 
 #include "base/logging.h"
 #include "content/public/browser/browser_thread.h"
@@ -77,4 +78,51 @@ void CefResourceContext::set_url_request_context_getter(
     CefURLRequestContextGetter* getter) {
   DCHECK(!getter_.get());
   getter_ = getter;
+}
+
+void CefResourceContext::AddPluginLoadDecision(
+    int render_process_id,
+    const base::FilePath& plugin_path,
+    bool allow_load) {
+  CEF_REQUIRE_IOT();
+  DCHECK_GE(render_process_id, 0);
+  DCHECK(!plugin_path.empty());
+
+  plugin_load_decision_map_.insert(
+      std::make_pair(std::make_pair(render_process_id, plugin_path),
+                     allow_load));
+}
+
+bool CefResourceContext::HasPluginLoadDecision(
+    int render_process_id,
+    const base::FilePath& plugin_path,
+    bool* allow_load) const {
+  CEF_REQUIRE_IOT();
+  DCHECK_GE(render_process_id, 0);
+  DCHECK(!plugin_path.empty());
+
+  PluginLoadDecisionMap::const_iterator it =
+      plugin_load_decision_map_.find(
+          std::make_pair(render_process_id, plugin_path));
+  if (it == plugin_load_decision_map_.end())
+    return false;
+
+  *allow_load = it->second;
+  return true;
+}
+
+void CefResourceContext::ClearPluginLoadDecision(int render_process_id) {
+  CEF_REQUIRE_IOT();
+
+  if (render_process_id == -1) {
+    plugin_load_decision_map_.clear();
+  } else {
+    PluginLoadDecisionMap::iterator it = plugin_load_decision_map_.begin();
+    while (it != plugin_load_decision_map_.end()) {
+      if (it->first.first == render_process_id)
+        it = plugin_load_decision_map_.erase(it);
+      else
+        ++it;
+    }
+  }
 }

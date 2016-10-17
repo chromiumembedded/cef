@@ -18,6 +18,14 @@ class WebContents;
 namespace extensions {
 namespace cef {
 
+class TabsGetFunction : public UIThreadExtensionFunction {
+  ~TabsGetFunction() override {}
+
+  ResponseAction Run() override;
+
+  DECLARE_EXTENSION_FUNCTION("tabs.get", TABS_GET)
+};
+
 class ZoomAPIFunction : public AsyncExtensionFunction {
  protected:
   ~ZoomAPIFunction() override {}

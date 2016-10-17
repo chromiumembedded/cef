@@ -244,7 +244,7 @@ bool CefDOMNodeImpl::HasChildren() {
   if (!VerifyContext())
     return false;
 
-  return node_.hasChildNodes();
+  return !node_.firstChild().isNull();
 }
 
 CefRefPtr<CefDOMNode> CefDOMNodeImpl::GetFirstChild() {

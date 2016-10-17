@@ -8,7 +8,7 @@
 
 #include "include/cef_ssl_status.h"
 
-#include "content/public/common/ssl_status.h"
+#include "content/public/browser/ssl_status.h"
 
 // CefSSLStatus implementation
 class CefSSLStatusImpl : public CefSSLStatus {
@@ -26,7 +26,10 @@ class CefSSLStatusImpl : public CefSSLStatus {
   cef_cert_status_t cert_status_;
   cef_ssl_version_t ssl_version_;
   cef_ssl_content_status_t content_status_;
-  int cert_id_;
+
+  // Don't create a CefX509Certificate object until requested.
+  scoped_refptr<net::X509Certificate> certificate_;
+  CefRefPtr<CefX509Certificate> cef_certificate_;
 
   IMPLEMENT_REFCOUNTING(CefSSLStatusImpl);
   DISALLOW_COPY_AND_ASSIGN(CefSSLStatusImpl);

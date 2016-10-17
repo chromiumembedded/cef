@@ -12,6 +12,8 @@
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/content_client.h"
 
+#include "extensions/common/constants.h"
+
 CefPluginServiceFilter::CefPluginServiceFilter() {
 }
 
@@ -22,12 +24,25 @@ bool CefPluginServiceFilter::IsPluginAvailable(
     const GURL& url,
     const GURL& policy_url,
     content::WebPluginInfo* plugin) {
-  CefRefPtr<CefRequestContextHandler> handler =
-      reinterpret_cast<const CefResourceContext*>(context)->GetHandler();
+  CefResourceContext* resource_context = const_cast<CefResourceContext*>(
+      reinterpret_cast<const CefResourceContext*>(context));
 
+  bool allow_load = true;
+  if (resource_context->HasPluginLoadDecision(render_process_id, plugin->path,
+                                              &allow_load)) {
+    return allow_load;
+  }
+
+  CefRefPtr<CefRequestContextHandler> handler = resource_context->GetHandler();
   CefViewHostMsg_GetPluginInfo_Status status =
       CefViewHostMsg_GetPluginInfo_Status::kAllowed;
-  return IsPluginAvailable(handler.get(), url, policy_url, plugin, &status);
+  allow_load = IsPluginAvailable(handler.get(), url, policy_url, plugin,
+                                 &status);
+
+  resource_context->AddPluginLoadDecision(render_process_id, plugin->path,
+                                          allow_load);
+
+  return allow_load;
 }
 
 bool CefPluginServiceFilter::CanLoadPlugin(int render_process_id,
@@ -49,6 +64,15 @@ bool CefPluginServiceFilter::IsPluginAvailable(
 
   if (plugin->path == CefString(CefContentClient::kPDFPluginPath)) {
     // Always allow the internal PDF plugin to load.
+    *status = CefViewHostMsg_GetPluginInfo_Status::kAllowed;
+    return true;
+  }
+
+  if (!policy_url.is_empty() &&
+      policy_url.scheme() == extensions::kExtensionScheme) {
+    // Always allow extension origins to load plugins.
+    // TODO(extensions): Revisit this decision once CEF supports more than just
+    // the PDF extension.
     *status = CefViewHostMsg_GetPluginInfo_Status::kAllowed;
     return true;
   }

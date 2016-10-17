@@ -495,22 +495,6 @@ void CEF_CALLBACK textfield_set_placeholder_text_color(
       color);
 }
 
-cef_color_t CEF_CALLBACK textfield_get_placeholder_text_color(
-    struct _cef_textfield_t* self) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return 0;
-
-  // Execute
-  cef_color_t _retval = CefTextfieldCppToC::Get(self)->GetPlaceholderTextColor(
-      );
-
-  // Return type: simple
-  return _retval;
-}
-
 void CEF_CALLBACK textfield_set_accessible_name(struct _cef_textfield_t* self,
     const cef_string_t* name) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -1362,8 +1346,6 @@ CefTextfieldCppToC::CefTextfieldCppToC() {
   GetStruct()->get_placeholder_text = textfield_get_placeholder_text;
   GetStruct()->set_placeholder_text_color =
       textfield_set_placeholder_text_color;
-  GetStruct()->get_placeholder_text_color =
-      textfield_get_placeholder_text_color;
   GetStruct()->set_accessible_name = textfield_set_accessible_name;
   GetStruct()->base.as_browser_view = textfield_as_browser_view;
   GetStruct()->base.as_button = textfield_as_button;

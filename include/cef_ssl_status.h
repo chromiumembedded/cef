@@ -40,8 +40,7 @@
 
 #include "include/cef_base.h"
 #include "include/cef_values.h"
-
-class CefX509Certificate;
+#include "include/cef_x509_certificate.h"
 
 ///
 // Class representing the SSL information for a navigation entry.

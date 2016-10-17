@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/browser_compositor_view_mac.h content/browser/renderer_host/browser_compositor_view_mac.h
-index 75651c4..e422ae7 100644
+index 8d92b06..618d23e 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.h
 +++ content/browser/renderer_host/browser_compositor_view_mac.h
-@@ -59,9 +59,11 @@ class BrowserCompositorMac : public cc::BeginFrameObserver,
+@@ -56,9 +56,11 @@ class BrowserCompositorMac : public cc::BeginFrameObserver,
  
    // These will not return nullptr until Destroy is called.
    DelegatedFrameHost* GetDelegatedFrameHost();
@@ -15,7 +15,7 @@ index 75651c4..e422ae7 100644
  
    void SwapCompositorFrame(uint32_t output_surface_id,
 diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/browser/renderer_host/browser_compositor_view_mac.mm
-index 3619d4d..89adf27 100644
+index 219effe..5122a99 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.mm
 +++ content/browser/renderer_host/browser_compositor_view_mac.mm
 @@ -198,6 +198,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {

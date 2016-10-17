@@ -39,12 +39,12 @@
 #pragma once
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_ssl_status_capi.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct _cef_sslstatus_t;
 
 ///
 // Structure used to represent an entry in navigation history.

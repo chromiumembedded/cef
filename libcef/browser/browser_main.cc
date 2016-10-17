@@ -13,7 +13,7 @@
 #include "libcef/browser/browser_message_loop.h"
 #include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
-#include "libcef/browser/devtools_delegate.h"
+#include "libcef/browser/devtools_manager_delegate.h"
 #include "libcef/browser/extensions/browser_context_keyed_service_factories.h"
 #include "libcef/browser/extensions/extensions_browser_client.h"
 #include "libcef/browser/extensions/extension_system_factory.h"
@@ -194,19 +194,7 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
   global_browser_context_ = new CefBrowserContextImpl(settings);
   global_browser_context_->Initialize();
 
-  const base::CommandLine* command_line =
-      base::CommandLine::ForCurrentProcess();
-  if (command_line->HasSwitch(switches::kRemoteDebuggingPort)) {
-    std::string port_str =
-        command_line->GetSwitchValueASCII(switches::kRemoteDebuggingPort);
-    int port;
-    if (base::StringToInt(port_str, &port) && port > 0 && port < 65535) {
-      devtools_delegate_ =
-          new CefDevToolsDelegate(static_cast<uint16_t>(port));
-    } else {
-      LOG(WARNING) << "Invalid http debugger port number " << port;
-    }
-  }
+  CefDevToolsManagerDelegate::StartHttpHandler(global_browser_context_.get());
 
   // Triggers initialization of the singleton instance on UI thread.
   PluginFinder::GetInstance()->Init();
@@ -217,17 +205,15 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
 }
 
 void CefBrowserMainParts::PostMainMessageLoopRun() {
+  // NOTE: Destroy objects in reverse order of creation.
+  CefDevToolsManagerDelegate::StopHttpHandler();
+
+  global_browser_context_ = NULL;
+
   if (extensions::ExtensionsEnabled()) {
     extensions::ExtensionsBrowserClient::Set(NULL);
     extensions_browser_client_.reset();
   }
-
-  if (devtools_delegate_) {
-    devtools_delegate_->Stop();
-    devtools_delegate_ = NULL;
-  }
-
-  global_browser_context_ = NULL;
 
 #if DCHECK_IS_ON()
   // No CefBrowserContext instances should exist at this point.

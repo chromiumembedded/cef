@@ -630,6 +630,7 @@ void CefRequestContextImpl::PurgePluginListCacheInternal(
     bool reload_pages,
     scoped_refptr<CefBrowserContext> browser_context) {
   CEF_REQUIRE_UIT();
+  browser_context->OnPurgePluginListCache();
   content::PluginService::GetInstance()->PurgePluginListCache(
       browser_context.get(), false);
 }
@@ -642,7 +643,7 @@ void CefRequestContextImpl::ClearCertificateExceptionsInternal(
   content::SSLHostStateDelegate* ssl_delegate =
       browser_context->GetSSLHostStateDelegate();
   if (ssl_delegate)
-    ssl_delegate->Clear();
+    ssl_delegate->Clear(base::Callback<bool(const std::string&)>());
 
   if (callback) {
     CEF_POST_TASK(CEF_UIT,

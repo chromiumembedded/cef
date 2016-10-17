@@ -1,29 +1,30 @@
-// Copyright 2013 the Chromium Embedded Framework Authors. Portions Copyright
-// 2012 The Chromium Authors. All rights reserved. Use of this source code is
-// governed by a BSD-style license that can be found in the LICENSE file.
+// Copyright 2013 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #include "libcef/browser/devtools_frontend.h"
 
-#include "libcef/browser/content_browser_client.h"
-#include "libcef/browser/devtools_delegate.h"
-#include "libcef/browser/request_context_impl.h"
-#include "libcef/browser/thread_util.h"
+#include <stddef.h>
 
-#include "base/command_line.h"
+#include "libcef/browser/devtools_manager_delegate.h"
+#include "libcef/browser/net/devtools_scheme_handler.h"
+
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
 #include "base/json/string_escape.h"
-#include "base/memory/ptr_util.h"
+#include "base/macros.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/values.h"
+#include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/content_client.h"
+#include "content/public/common/url_constants.h"
 #include "ipc/ipc_channel.h"
 #include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
@@ -38,7 +39,7 @@ namespace {
 
 class ResponseWriter : public net::URLFetcherResponseWriter {
  public:
-  ResponseWriter(base::WeakPtr<CefDevToolsFrontend> devtools_,
+  ResponseWriter(base::WeakPtr<CefDevToolsFrontend> shell_devtools_,
                  int stream_id);
   ~ResponseWriter() override;
 
@@ -50,16 +51,16 @@ class ResponseWriter : public net::URLFetcherResponseWriter {
   int Finish(const net::CompletionCallback& callback) override;
 
  private:
-  base::WeakPtr<CefDevToolsFrontend> devtools_;
+  base::WeakPtr<CefDevToolsFrontend> shell_devtools_;
   int stream_id_;
 
   DISALLOW_COPY_AND_ASSIGN(ResponseWriter);
 };
 
 ResponseWriter::ResponseWriter(
-    base::WeakPtr<CefDevToolsFrontend> devtools,
+    base::WeakPtr<CefDevToolsFrontend> shell_devtools,
     int stream_id)
-    : devtools_(devtools),
+    : shell_devtools_(shell_devtools),
       stream_id_(stream_id) {
 }
 
@@ -83,7 +84,7 @@ int ResponseWriter::Write(net::IOBuffer* buffer,
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
       base::Bind(&CefDevToolsFrontend::CallClientFunction,
-                 devtools_, "DevToolsAPI.streamWrite",
+                 shell_devtools_, "DevToolsAPI.streamWrite",
                  base::Owned(id), base::Owned(chunkValue), nullptr));
   return num_bytes;
 }
@@ -92,11 +93,16 @@ int ResponseWriter::Finish(const net::CompletionCallback& callback) {
   return net::OK;
 }
 
+static std::string GetFrontendURL() {
+  return base::StringPrintf("%s://%s/inspector.html",
+      content::kChromeDevToolsScheme, scheme::kChromeDevToolsHost);
+}
+
+}  // namespace
+
 // This constant should be in sync with
 // the constant at devtools_ui_bindings.cc.
 const size_t kMaxMessageChunkSize = IPC::Channel::kMaximumMessageSize / 4;
-
-}  // namespace
 
 // static
 CefDevToolsFrontend* CefDevToolsFrontend::Show(
@@ -132,11 +138,13 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
       inspected_contents, inspect_element_at);
 
   // Need to load the URL after creating the DevTools objects.
-  CefDevToolsDelegate* delegate =
-      CefContentBrowserClient::Get()->devtools_delegate();
-  frontend_browser->GetMainFrame()->LoadURL(delegate->GetChromeDevToolsURL());
+  frontend_browser->GetMainFrame()->LoadURL(GetFrontendURL());
 
   return devtools_frontend;
+}
+
+void CefDevToolsFrontend::Activate() {
+  frontend_browser_->ActivateContents(web_contents());
 }
 
 void CefDevToolsFrontend::Focus() {
@@ -151,7 +159,8 @@ void CefDevToolsFrontend::InspectElementAt(int x, int y) {
 }
 
 void CefDevToolsFrontend::Close() {
-  CEF_POST_TASK(CEF_UIT,
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
       base::Bind(&CefBrowserHostImpl::CloseBrowser, frontend_browser_.get(),
                  true));
 }
@@ -167,7 +176,7 @@ CefDevToolsFrontend::CefDevToolsFrontend(
     CefRefPtr<CefBrowserHostImpl> frontend_browser,
     content::WebContents* inspected_contents,
     const CefPoint& inspect_element_at)
-    : WebContentsObserver(frontend_browser->web_contents()),
+    : content::WebContentsObserver(frontend_browser->web_contents()),
       frontend_browser_(frontend_browser),
       inspected_contents_(inspected_contents),
       inspect_element_at_(inspect_element_at),
@@ -186,7 +195,6 @@ void CefDevToolsFrontend::RenderViewCreated(
         web_contents()->GetMainFrame(),
         base::Bind(&CefDevToolsFrontend::HandleMessageFromDevToolsFrontend,
                    base::Unretained(this))));
-
   }
 }
 
@@ -199,9 +207,10 @@ void CefDevToolsFrontend::DocumentAvailableInMainFrame() {
   if (agent_host != agent_host_) {
     agent_host_ = agent_host;
     agent_host_->AttachClient(this);
-
-    if (!inspect_element_at_.IsEmpty())
-      InspectElementAt(inspect_element_at_.x, inspect_element_at_.y);
+    if (inspect_element_at_.IsEmpty()) {
+      agent_host_->InspectElement(
+          this, inspect_element_at_.x, inspect_element_at_.y);
+    }
   }
 }
 
@@ -209,6 +218,21 @@ void CefDevToolsFrontend::WebContentsDestroyed() {
   if (agent_host_)
     agent_host_->DetachClient(this);
   delete this;
+}
+
+void CefDevToolsFrontend::SetPreferences(const std::string& json) {
+  preferences_.Clear();
+  if (json.empty())
+    return;
+  base::DictionaryValue* dict = nullptr;
+  std::unique_ptr<base::Value> parsed = base::JSONReader::Read(json);
+  if (!parsed || !parsed->GetAsDictionary(&dict))
+    return;
+  for (base::DictionaryValue::Iterator it(*dict); !it.IsAtEnd(); it.Advance()) {
+    if (!it.value().IsType(base::Value::TYPE_STRING))
+      continue;
+    preferences_.SetWithoutPathExpansion(it.key(), it.value().CreateDeepCopy());
+  }
 }
 
 void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
@@ -265,8 +289,9 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
             web_contents()->GetBrowserContext())->
                 GetURLRequestContext());
     fetcher->SetExtraRequestHeaders(headers);
-    fetcher->SaveResponseWithWriter(base::WrapUnique(
-        new ResponseWriter(weak_factory_.GetWeakPtr(), stream_id)));
+    fetcher->SaveResponseWithWriter(
+        std::unique_ptr<net::URLFetcherResponseWriter>(
+            new ResponseWriter(weak_factory_.GetWeakPtr(), stream_id)));
     fetcher->Start();
     return;
   } else if (method == "getPreferences") {
@@ -297,8 +322,8 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
 }
 
 void CefDevToolsFrontend::DispatchProtocolMessage(
-    content::DevToolsAgentHost* agent_host,
-    const std::string& message) {
+    content::DevToolsAgentHost* agent_host, const std::string& message) {
+
   if (message.length() < kMaxMessageChunkSize) {
     std::string param;
     base::EscapeJSONString(message, true, &param);
@@ -317,21 +342,6 @@ void CefDevToolsFrontend::DispatchProtocolMessage(
                        std::to_string(pos ? 0 : total_size) + ");";
     base::string16 javascript = base::UTF8ToUTF16(code);
     web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(javascript);
-  }
-}
-
-void CefDevToolsFrontend::SetPreferences(const std::string& json) {
-  preferences_.Clear();
-  if (json.empty())
-    return;
-  base::DictionaryValue* dict = nullptr;
-  std::unique_ptr<base::Value> parsed = base::JSONReader::Read(json);
-  if (!parsed || !parsed->GetAsDictionary(&dict))
-    return;
-  for (base::DictionaryValue::Iterator it(*dict); !it.IsAtEnd(); it.Advance()) {
-    if (!it.value().IsType(base::Value::TYPE_STRING))
-      continue;
-    preferences_.SetWithoutPathExpansion(it.key(), it.value().CreateDeepCopy());
   }
 }
 
@@ -384,15 +394,14 @@ void CefDevToolsFrontend::CallClientFunction(
 }
 
 void CefDevToolsFrontend::SendMessageAck(int request_id,
-                                           const base::Value* arg) {
+                                         const base::Value* arg) {
   base::FundamentalValue id_value(request_id);
   CallClientFunction("DevToolsAPI.embedderMessageAck",
                      &id_value, arg, nullptr);
 }
 
 void CefDevToolsFrontend::AgentHostClosed(
-    content::DevToolsAgentHost* agent_host,
-    bool replaced) {
+    content::DevToolsAgentHost* agent_host, bool replaced) {
   DCHECK(agent_host == agent_host_.get());
   Close();
 }
