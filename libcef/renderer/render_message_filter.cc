@@ -21,17 +21,18 @@
 using content::BrowserThread;
 
 CefRenderMessageFilter::CefRenderMessageFilter()
-    : sender_(NULL) {
+    : channel_(NULL) {
 }
 
 CefRenderMessageFilter::~CefRenderMessageFilter() {
 }
 
-void CefRenderMessageFilter::OnFilterAdded(IPC::Sender* sender) {
-  sender_ = sender;
+void CefRenderMessageFilter::OnFilterAdded(IPC::Channel* channel) {
+  channel_ = channel;
 }
 
 void CefRenderMessageFilter::OnFilterRemoved() {
+  channel_ = nullptr;
 }
 
 bool CefRenderMessageFilter::OnMessageReceived(const IPC::Message& message) {
@@ -74,8 +75,8 @@ bool CefRenderMessageFilter::Send(IPC::Message* message) {
     return true;
   }
 
-  if (sender_)
-    return sender_->Send(message);
+  if (channel_)
+    return channel_->Send(message);
 
   delete message;
   return false;

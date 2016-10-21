@@ -17,7 +17,6 @@
 #include "chrome/grit/generated_resources.h"
 #include "chrome/grit/renderer_resources.h"
 #include "chrome/renderer/custom_menu_commands.h"
-#include "components/content_settings/content/common/content_settings_messages.h"
 #include "components/strings/grit/components_strings.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/context_menu_params.h"
@@ -171,6 +170,12 @@ void CefPluginPlaceholder::OpenAboutPluginsCallback() {
   NOTREACHED();
 }
 
+void CefPluginPlaceholder::ShowPermissionBubbleCallback() {
+  // CEF does not use IDR_PREFER_HTML_PLUGIN_HTML which would originate this
+  // callback.
+  NOTREACHED();
+}
+
 void CefPluginPlaceholder::PluginListChanged() {
   if (!GetFrame() || !plugin())
     return;
@@ -180,14 +185,9 @@ void CefPluginPlaceholder::PluginListChanged() {
 
   CefViewHostMsg_GetPluginInfo_Output output;
   std::string mime_type(GetPluginParams().mimeType.utf8());
-  blink::WebString top_origin =
-      GetFrame()->top()->getSecurityOrigin().toString();
-  render_frame()->Send(
-      new CefViewHostMsg_GetPluginInfo(routing_id(),
-                                          GURL(GetPluginParams().url),
-                                          blink::WebStringToGURL(top_origin),
-                                          mime_type,
-                                          &output));
+  render_frame()->Send(new CefViewHostMsg_GetPluginInfo(
+      routing_id(), GURL(GetPluginParams().url),
+      GetFrame()->top()->getSecurityOrigin(), mime_type, &output));
   if (output.status == status_)
     return;
   blink::WebPlugin* new_plugin = CefContentRendererClient::CreatePlugin(
@@ -305,7 +305,9 @@ gin::ObjectTemplateBuilder CefPluginPlaceholder::GetObjectTemplateBuilder(
               "didFinishLoading",
               &CefPluginPlaceholder::DidFinishLoadingCallback)
           .SetMethod("openAboutPlugins",
-                     &CefPluginPlaceholder::OpenAboutPluginsCallback);
+                     &CefPluginPlaceholder::OpenAboutPluginsCallback)
+          .SetMethod("showPermissionBubble",
+                     &CefPluginPlaceholder::ShowPermissionBubbleCallback);
 
   if (base::CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kEnablePluginPlaceholderTesting)) {

@@ -248,6 +248,11 @@ CefExtensionsBrowserClient::GetExtensionWebContentsObserver(
   return CefExtensionWebContentsObserver::FromWebContents(web_contents);
 }
 
+KioskDelegate* CefExtensionsBrowserClient::GetKioskDelegate() {
+  NOTREACHED();
+  return NULL;
+}
+
 void CefExtensionsBrowserClient::SetAPIClientForTest(
     ExtensionsAPIClient* api_client) {
   api_client_.reset(api_client);

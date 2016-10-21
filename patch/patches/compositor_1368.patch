@@ -1,8 +1,8 @@
 diff --git content/browser/compositor/gpu_process_transport_factory.cc content/browser/compositor/gpu_process_transport_factory.cc
-index 128cb43..fb72012 100644
+index 73ee42f..b30dc83 100644
 --- content/browser/compositor/gpu_process_transport_factory.cc
 +++ content/browser/compositor/gpu_process_transport_factory.cc
-@@ -198,6 +198,13 @@ GpuProcessTransportFactory::~GpuProcessTransportFactory() {
+@@ -196,6 +196,13 @@ GpuProcessTransportFactory::~GpuProcessTransportFactory() {
  std::unique_ptr<cc::SoftwareOutputDevice>
  GpuProcessTransportFactory::CreateSoftwareOutputDevice(
      ui::Compositor* compositor) {
@@ -17,7 +17,7 @@ index 128cb43..fb72012 100644
    if (shell::ShellIsRemote()) {
      NOTREACHED();
 diff --git ui/compositor/compositor.h ui/compositor/compositor.h
-index 1ab836b..1f7a82a 100644
+index 6a6b423..4a0d9e4 100644
 --- ui/compositor/compositor.h
 +++ ui/compositor/compositor.h
 @@ -18,6 +18,7 @@
@@ -28,7 +28,7 @@ index 1ab836b..1f7a82a 100644
  #include "cc/surfaces/surface_sequence.h"
  #include "cc/trees/layer_tree_host_client.h"
  #include "cc/trees/layer_tree_host_single_thread_client.h"
-@@ -194,6 +195,17 @@ class COMPOSITOR_EXPORT CompositorLock
+@@ -195,6 +196,17 @@ class COMPOSITOR_EXPORT CompositorLock
    DISALLOW_COPY_AND_ASSIGN(CompositorLock);
  };
  
@@ -46,7 +46,7 @@ index 1ab836b..1f7a82a 100644
  // Compositor object to take care of GPU painting.
  // A Browser compositor object is responsible for generating the final
  // displayable form of pixels comprising a single widget's contents. It draws an
-@@ -217,6 +229,9 @@ class COMPOSITOR_EXPORT Compositor
+@@ -218,6 +230,9 @@ class COMPOSITOR_EXPORT Compositor
    // Schedules a redraw of the layer tree associated with this compositor.
    void ScheduleDraw();
  

@@ -518,7 +518,7 @@ cef_errorcode_t CefRequestContextImpl::ResolveHostCached(
         net::HostPortPair::FromURL(GURL(origin.ToString())));
     net::AddressList address_list;
     retval = host_resolver->ResolveFromCache(request_info, &address_list,
-                                             net::BoundNetLog());
+                                             net::NetLogWithSource());
     if (retval == net::OK) {
       net::AddressList::const_iterator iter = address_list.begin();
       for (; iter != address_list.end(); ++iter)
@@ -693,7 +693,7 @@ void CefRequestContextImpl::ResolveHostInternal(
         &helper->address_list_,
         base::Bind(&ResolveHostHelper::OnResolveCompleted,
                    base::Unretained(helper)),
-        &helper->request_, net::BoundNetLog());
+        &helper->request_, net::NetLogWithSource());
     if (retval == net::ERR_IO_PENDING) {
       // The result will be delivered asynchronously via the callback.
       return;

@@ -455,7 +455,6 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       frame_rate_threshold_ms_(0),
 #if !defined(OS_MACOSX)
       compositor_widget_(gfx::kNullAcceleratedWidget),
-      delegated_frame_host_(new content::DelegatedFrameHost(this)),
 #endif
       software_output_device_(NULL),
       hold_resize_(false),
@@ -482,6 +481,11 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
   }
 
 #if !defined(OS_MACOSX)
+  content::ImageTransportFactory* factory =
+      content::ImageTransportFactory::GetInstance();
+  delegated_frame_host_ = base::MakeUnique<content::DelegatedFrameHost>(
+      factory->GetContextFactory()->AllocateFrameSinkId(), this);
+
   root_layer_.reset(new ui::Layer(ui::LAYER_SOLID_COLOR));
 #endif
 

@@ -34,6 +34,7 @@
 #include "extensions/common/extension.h"
 #include "extensions/common/manifest_handlers/webview_info.h"
 #include "url/gurl.h"
+#include "url/origin.h"
 
 #include "widevine_cdm_version.h"  // In SHARED_INTERMEDIATE_DIR.
 
@@ -95,7 +96,7 @@ static void SendPluginAvailabilityUMA(const std::string& mime_type,
 
 void ReportMetrics(const std::string& mime_type,
                    const GURL& url,
-                   const GURL& origin_url) {
+                   const url::Origin& main_frame_origin) {
 }
 
 #if defined(ENABLE_EXTENSIONS)
@@ -196,20 +197,20 @@ CefPluginInfoMessageFilter::~CefPluginInfoMessageFilter() {}
 struct CefPluginInfoMessageFilter::GetPluginInfo_Params {
   int render_frame_id;
   GURL url;
-  GURL top_origin_url;
+  url::Origin main_frame_origin;
   std::string mime_type;
 };
 
 void CefPluginInfoMessageFilter::OnGetPluginInfo(
     int render_frame_id,
     const GURL& url,
-    const GURL& top_origin_url,
+    const url::Origin& main_frame_origin,
     const std::string& mime_type,
     IPC::Message* reply_msg) {
   GetPluginInfo_Params params = {
     render_frame_id,
     url,
-    top_origin_url,
+    main_frame_origin,
     mime_type
   };
   PluginService::GetInstance()->GetPlugins(
@@ -244,7 +245,7 @@ void CefPluginInfoMessageFilter::PluginsLoaded(
       CefViewHostMsg_GetPluginInfo_Status::kNotFound) {
     main_thread_task_runner_->PostTask(
         FROM_HERE, base::Bind(&ReportMetrics, output.actual_mime_type,
-                              params.url, params.top_origin_url));
+                              params.url, params.main_frame_origin));
   }
 }
 
@@ -304,7 +305,7 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
   bool is_managed = false;
   // Check plugin content settings. The primary URL is the top origin URL and
   // the secondary URL is the plugin URL.
-  GetPluginContentSetting(plugin, params.top_origin_url, params.url,
+  GetPluginContentSetting(plugin, params.main_frame_origin.GetURL(), params.url,
                           plugin_metadata->identifier(), &plugin_setting,
                           &uses_default_content_setting, &is_managed);
 
@@ -413,7 +414,7 @@ bool CefPluginInfoMessageFilter::Context::FindEnabledPlugin(
     DecidePluginStatus(params, *plugin, (*plugin_metadata).get(), status);
     if (filter->IsPluginAvailable(handler,
                                   params.url,
-                                  params.top_origin_url,
+                                  params.main_frame_origin,
                                   plugin,
                                   status)) {
       break;

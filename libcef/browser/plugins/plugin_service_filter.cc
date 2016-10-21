@@ -22,7 +22,7 @@ bool CefPluginServiceFilter::IsPluginAvailable(
     int render_frame_id,
     const void* context,
     const GURL& url,
-    const GURL& policy_url,
+    const url::Origin& main_frame_origin,
     content::WebPluginInfo* plugin) {
   CefResourceContext* resource_context = const_cast<CefResourceContext*>(
       reinterpret_cast<const CefResourceContext*>(context));
@@ -36,7 +36,7 @@ bool CefPluginServiceFilter::IsPluginAvailable(
   CefRefPtr<CefRequestContextHandler> handler = resource_context->GetHandler();
   CefViewHostMsg_GetPluginInfo_Status status =
       CefViewHostMsg_GetPluginInfo_Status::kAllowed;
-  allow_load = IsPluginAvailable(handler.get(), url, policy_url, plugin,
+  allow_load = IsPluginAvailable(handler.get(), url, main_frame_origin, plugin,
                                  &status);
 
   resource_context->AddPluginLoadDecision(render_process_id, plugin->path,
@@ -53,7 +53,7 @@ bool CefPluginServiceFilter::CanLoadPlugin(int render_process_id,
 bool CefPluginServiceFilter::IsPluginAvailable(
     CefRequestContextHandler* handler,
     const GURL& url,
-    const GURL& policy_url,
+    const url::Origin& main_frame_origin,
     content::WebPluginInfo* plugin,
     CefViewHostMsg_GetPluginInfo_Status* status) {
   if (*status == CefViewHostMsg_GetPluginInfo_Status::kNotFound ||
@@ -68,6 +68,7 @@ bool CefPluginServiceFilter::IsPluginAvailable(
     return true;
   }
 
+  const GURL& policy_url = main_frame_origin.GetURL();
   if (!policy_url.is_empty() &&
       policy_url.scheme() == extensions::kExtensionScheme) {
     // Always allow extension origins to load plugins.

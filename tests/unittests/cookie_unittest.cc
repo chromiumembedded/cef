@@ -457,7 +457,7 @@ void TestChangeDirectory(CefRefPtr<CefCookieManager> manager,
   DeleteAllCookies(manager, event);
 
   // Set the new temporary directory as the storage location.
-  EXPECT_TRUE(manager->SetStoragePath(temp_dir.path().value(), false, NULL));
+  EXPECT_TRUE(manager->SetStoragePath(temp_dir.GetPath().value(), false, NULL));
 
   // Wait for the storage location change to complete on the IO thread.
   WaitForIOThread();
@@ -481,7 +481,7 @@ void TestChangeDirectory(CefRefPtr<CefCookieManager> manager,
   VerifyNoCookies(manager, event, true);
 
   // Set the new temporary directory as the storage location.
-  EXPECT_TRUE(manager->SetStoragePath(temp_dir.path().value(), false, NULL));
+  EXPECT_TRUE(manager->SetStoragePath(temp_dir.GetPath().value(), false, NULL));
 
   // Wait for the storage location change to complete on the IO thread.
   WaitForIOThread();
@@ -539,7 +539,7 @@ TEST(CookieTest, DomainCookieOnDisk) {
       base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
-      CefCookieManager::CreateManager(temp_dir.path().value(), false,
+      CefCookieManager::CreateManager(temp_dir.GetPath().value(), false,
                                       new TestCompletionCallback(&event));
   event.Wait();
   EXPECT_TRUE(manager.get());
@@ -593,7 +593,7 @@ TEST(CookieTest, HostCookieOnDisk) {
       base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
-      CefCookieManager::CreateManager(temp_dir.path().value(), false,
+      CefCookieManager::CreateManager(temp_dir.GetPath().value(), false,
                                       new TestCompletionCallback(&event));
   event.Wait();
   EXPECT_TRUE(manager.get());
@@ -647,7 +647,7 @@ TEST(CookieTest, MultipleCookiesOnDisk) {
       base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
-      CefCookieManager::CreateManager(temp_dir.path().value(), false,
+      CefCookieManager::CreateManager(temp_dir.GetPath().value(), false,
                                       new TestCompletionCallback(&event));
   event.Wait();
   EXPECT_TRUE(manager.get());
@@ -698,7 +698,7 @@ TEST(CookieTest, AllCookiesOnDisk) {
       base::WaitableEvent::InitialState::NOT_SIGNALED);
 
   CefRefPtr<CefCookieManager> manager =
-      CefCookieManager::CreateManager(temp_dir.path().value(), false,
+      CefCookieManager::CreateManager(temp_dir.GetPath().value(), false,
                                       new TestCompletionCallback(&event));
   event.Wait();
   EXPECT_TRUE(manager.get());
@@ -752,7 +752,7 @@ TEST(CookieTest, SessionCookieNoPersist) {
   EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
 
   CefRefPtr<CefCookieManager> manager =
-      CefCookieManager::CreateManager(temp_dir.path().value(), false,
+      CefCookieManager::CreateManager(temp_dir.GetPath().value(), false,
                                       new TestCompletionCallback(&event));
   event.Wait();
   EXPECT_TRUE(manager.get());
@@ -768,7 +768,7 @@ TEST(CookieTest, SessionCookieNoPersist) {
   event.Wait();
  
   // Create a new manager to read the same cookie store.
-  manager = CefCookieManager::CreateManager(temp_dir.path().value(), false,
+  manager = CefCookieManager::CreateManager(temp_dir.GetPath().value(), false,
                                             new TestCompletionCallback(&event));
   event.Wait();
   EXPECT_TRUE(manager.get());
@@ -788,7 +788,7 @@ TEST(CookieTest, SessionCookieWillPersist) {
   EXPECT_TRUE(temp_dir.CreateUniqueTempDir());
 
   CefRefPtr<CefCookieManager> manager =
-      CefCookieManager::CreateManager(temp_dir.path().value(), true,
+      CefCookieManager::CreateManager(temp_dir.GetPath().value(), true,
                                       new TestCompletionCallback(&event));
   event.Wait();
   EXPECT_TRUE(manager.get());
@@ -804,7 +804,7 @@ TEST(CookieTest, SessionCookieWillPersist) {
   event.Wait();
   
   // Create a new manager to read the same cookie store.
-  manager = CefCookieManager::CreateManager(temp_dir.path().value(), true,
+  manager = CefCookieManager::CreateManager(temp_dir.GetPath().value(), true,
                                             new TestCompletionCallback(&event));
   event.Wait();
   EXPECT_TRUE(manager.get());

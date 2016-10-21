@@ -138,20 +138,13 @@ base::LazyInstance<ImplManager> g_manager = LAZY_INSTANCE_INITIALIZER;
 // CefBrowserContext sharing the same VisitedLinkMaster.
 class CefVisitedLinkListener : public visitedlink::VisitedLinkMaster::Listener {
  public:
-  CefVisitedLinkListener()
-      : master_(nullptr) {
-  }
-
-  void set_master(visitedlink::VisitedLinkMaster* master) {
-    DCHECK(!master_);
-    master_ = master;
+  CefVisitedLinkListener() {
   }
 
   void CreateListenerForContext(const CefBrowserContext* context) {
     CEF_REQUIRE_UIT();
-    std::unique_ptr<visitedlink::VisitedLinkEventListener> listener(
-        new visitedlink::VisitedLinkEventListener(
-            master_, const_cast<CefBrowserContext*>(context)));
+    auto listener = base::MakeUnique<visitedlink::VisitedLinkEventListener>(
+        const_cast<CefBrowserContext*>(context));
     listener_map_.insert(std::make_pair(context, std::move(listener)));
   }
 
@@ -164,11 +157,11 @@ class CefVisitedLinkListener : public visitedlink::VisitedLinkMaster::Listener {
 
   // visitedlink::VisitedLinkMaster::Listener methods.
 
-  void NewTable(base::SharedMemory* shared_memory) override {
+  void NewTable(mojo::SharedBufferHandle table) override {
     CEF_REQUIRE_UIT();
     ListenerMap::iterator it = listener_map_.begin();
     for (; it != listener_map_.end(); ++it)
-      it->second->NewTable(shared_memory);
+      it->second->NewTable(table);
   }
 
   void Add(visitedlink::VisitedLinkCommon::Fingerprint fingerprint) override {
@@ -186,12 +179,10 @@ class CefVisitedLinkListener : public visitedlink::VisitedLinkMaster::Listener {
   }
 
  private:
-  visitedlink::VisitedLinkMaster* master_;
-
   // Map of CefBrowserContext to the associated VisitedLinkEventListener.
   typedef std::map<const CefBrowserContext*,
                    std::unique_ptr<visitedlink::VisitedLinkEventListener> >
-                      ListenerMap;
+      ListenerMap;
   ListenerMap listener_map_;
 
   DISALLOW_COPY_AND_ASSIGN(CefVisitedLinkListener);
@@ -262,7 +253,6 @@ void CefBrowserContextImpl::Initialize() {
       new visitedlink::VisitedLinkMaster(visitedlink_listener_, this,
                                          !visited_link_path.empty(), false,
                                          visited_link_path, 0));
-  visitedlink_listener_->set_master(visitedlink_master_.get());
   visitedlink_listener_->CreateListenerForContext(this);
   visitedlink_master_->Init();
 

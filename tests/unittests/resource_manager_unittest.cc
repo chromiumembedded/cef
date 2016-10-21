@@ -693,7 +693,7 @@ TEST(ResourceManagerTest, DirectoryProvider) {
   EXPECT_TRUE(scoped_dir.CreateUniqueTempDir());
 
   // Write the files to disk.
-  const base::FilePath& temp_dir = scoped_dir.path();
+  const base::FilePath& temp_dir = scoped_dir.GetPath();
   WriteFile(temp_dir.AppendASCII(kFile1), CreateContents(success1_message));
   WriteFile(temp_dir.AppendASCII(kFile2), CreateContents(success2_message));
 
@@ -750,7 +750,7 @@ TEST(ResourceManagerTest, ArchiveProvider) {
   base::ScopedTempDir scoped_dir;
   EXPECT_TRUE(scoped_dir.CreateUniqueTempDir());
 
-  const base::FilePath& temp_dir = scoped_dir.path();
+  const base::FilePath& temp_dir = scoped_dir.GetPath();
 
   // Write the files to disk.
   const base::FilePath& file_dir = temp_dir.AppendASCII("files");

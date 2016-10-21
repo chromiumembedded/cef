@@ -326,6 +326,11 @@ memory::TabManager* ChromeBrowserProcessStub::GetTabManager() {
   return NULL;
 }
 
+PhysicalWebDataSource* ChromeBrowserProcessStub::GetPhysicalWebDataSource() {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
 content::BrowserContext*
 ChromeBrowserProcessStub::GetBrowserContextRedirectedInIncognito(
     content::BrowserContext* context) {

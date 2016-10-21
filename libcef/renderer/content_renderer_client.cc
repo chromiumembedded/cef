@@ -192,10 +192,6 @@ CefContentRendererClient::CefContentRendererClient()
 }
 
 CefContentRendererClient::~CefContentRendererClient() {
-  if (!guest_views_.empty()) {
-    base::STLDeleteContainerPairSecondPointers(guest_views_.begin(),
-                                               guest_views_.end());
-  }
 }
 
 // static
@@ -254,8 +250,7 @@ bool CefContentRendererClient::HasGuestViewForView(
 void CefContentRendererClient::OnGuestViewDestroyed(CefGuestView* guest_view) {
   GuestViewMap::iterator it = guest_views_.begin();
   for (; it != guest_views_.end(); ++it) {
-    if (it->second == guest_view) {
-      delete it->second;
+    if (it->second.get() == guest_view) {
       guest_views_.erase(it);
       return;
     }
@@ -409,9 +404,6 @@ void CefContentRendererClient::RenderThreadStarted() {
     thread->AddObserver(spellcheck_.get());
   }
 
-  visited_link_slave_.reset(new visitedlink::VisitedLinkSlave());
-  thread->AddObserver(visited_link_slave_.get());
-
   if (content::RenderProcessHost::run_renderer_in_process()) {
     // When running in single-process mode register as a destruction observer
     // on the render thread's MessageLoop.
@@ -514,9 +506,8 @@ bool CefContentRendererClient::OverrideCreatePlugin(
 
   GURL url(params.url);
   CefViewHostMsg_GetPluginInfo_Output output;
-  blink::WebString top_origin = frame->top()->getSecurityOrigin().toString();
   render_frame->Send(new CefViewHostMsg_GetPluginInfo(
-      render_frame->GetRoutingID(), url, blink::WebStringToGURL(top_origin),
+      render_frame->GetRoutingID(), url, frame->top()->getSecurityOrigin(),
       orig_mime_type, &output));
 
   *plugin = CreatePlugin(render_frame, frame, params, output);
@@ -620,11 +611,12 @@ bool CefContentRendererClient::WillSendRequest(
 
 unsigned long long CefContentRendererClient::VisitedLinkHash(
     const char* canonical_url, size_t length) {
-  return visited_link_slave_->ComputeURLFingerprint(canonical_url, length);
+  return observer_->visited_link_slave()->ComputeURLFingerprint(canonical_url,
+                                                                length);
 }
 
 bool CefContentRendererClient::IsLinkVisited(unsigned long long link_hash) {
-  return visited_link_slave_->IsVisited(link_hash);
+  return observer_->visited_link_slave()->IsVisited(link_hash);
 }
 
 content::BrowserPluginDelegate*
@@ -846,7 +838,8 @@ void CefContentRendererClient::BrowserCreated(
   if (params.is_guest_view) {
     // Don't create a CefBrowser for guest views.
     guest_views_.insert(
-        std::make_pair(render_view, new CefGuestView(render_view)));
+        std::make_pair(render_view,
+                       base::MakeUnique<CefGuestView>(render_view)));
     return;
   }
 

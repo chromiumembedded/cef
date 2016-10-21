@@ -1,0 +1,239 @@
+diff --git chrome/app/generated_resources.grd chrome/app/generated_resources.grd
+index dbd83a1..acf844e 100644
+--- chrome/app/generated_resources.grd
++++ chrome/app/generated_resources.grd
+@@ -7082,7 +7082,7 @@ Keep your key file in a safe place. You will need it to create new versions of y
+         </message>
+       </if>
+       <message name="IDS_PLUGIN_BLOCKED_BY_POLICY" desc="The placeholder text for a plugin blocked by enterprise policy.">
+-        <ph name="PLUGIN_NAME">$1<ex>Flash</ex></ph> is blocked by enterprise policy
++        <ph name="PLUGIN_NAME">$1<ex>Flash</ex></ph> is not allowed
+       </message>
+       <if expr="chromeos">
+         <message name="IDS_NACL_PLUGIN_BLOCKED" desc="The placeholder text for a blocked plugin.">
+diff --git components/plugins/renderer/loadable_plugin_placeholder.cc components/plugins/renderer/loadable_plugin_placeholder.cc
+index 9bc0478..d0263d3 100644
+--- components/plugins/renderer/loadable_plugin_placeholder.cc
++++ components/plugins/renderer/loadable_plugin_placeholder.cc
+@@ -127,11 +127,10 @@ void LoadablePluginPlaceholder::ReplacePlugin(blink::WebPlugin* new_plugin) {
+   // this point.
+   new_plugin = container->plugin();
+ 
++  plugin()->RestoreTitleText();
+   container->invalidate();
+   container->reportGeometry();
+-  if (plugin()->focused())
+-    new_plugin->updateFocus(true, blink::WebFocusTypeNone);
+-  container->element().setAttribute("title", plugin()->old_title());
++  plugin()->ReplayReceivedData(new_plugin);
+   plugin()->destroy();
+ }
+ 
+diff --git components/plugins/renderer/webview_plugin.cc components/plugins/renderer/webview_plugin.cc
+index af1d919..0429d59 100644
+--- components/plugins/renderer/webview_plugin.cc
++++ components/plugins/renderer/webview_plugin.cc
+@@ -17,7 +17,9 @@
+ #include "content/public/renderer/render_view.h"
+ #include "gin/converter.h"
+ #include "skia/ext/platform_canvas.h"
++#include "third_party/WebKit/public/platform/WebSize.h"
+ #include "third_party/WebKit/public/platform/WebURL.h"
++#include "third_party/WebKit/public/platform/WebURLRequest.h"
+ #include "third_party/WebKit/public/platform/WebURLResponse.h"
+ #include "third_party/WebKit/public/web/WebDocument.h"
+ #include "third_party/WebKit/public/web/WebElement.h"
+@@ -40,8 +42,10 @@ using blink::WebPlugin;
+ using blink::WebPluginContainer;
+ using blink::WebPoint;
+ using blink::WebRect;
++using blink::WebSize;
+ using blink::WebString;
+ using blink::WebURLError;
++using blink::WebURLRequest;
+ using blink::WebURLResponse;
+ using blink::WebVector;
+ using blink::WebView;
+@@ -54,16 +58,16 @@ WebViewPlugin::WebViewPlugin(content::RenderView* render_view,
+       delegate_(delegate),
+       container_(nullptr),
+       web_view_(WebView::create(this, blink::WebPageVisibilityStateVisible)),
++      finished_loading_(false),
+       focused_(false),
+       is_painting_(false),
+       is_resizing_(false),
+-      web_frame_client_(this),
+       weak_factory_(this) {
+   // ApplyWebPreferences before making a WebLocalFrame so that the frame sees a
+   // consistent view of our preferences.
+   content::RenderView::ApplyWebPreferences(preferences, web_view_);
+-  WebLocalFrame* web_frame = WebLocalFrame::create(
+-      blink::WebTreeScopeType::Document, &web_frame_client_);
++  WebLocalFrame* web_frame =
++      WebLocalFrame::create(blink::WebTreeScopeType::Document, this);
+   web_view_->setMainFrame(web_frame);
+   // TODO(dcheng): The main frame widget currently has a special case.
+   // Eliminate this once WebView is no longer a WebWidget.
+@@ -87,6 +91,42 @@ WebViewPlugin::~WebViewPlugin() {
+   web_view_->close();
+ }
+ 
++void WebViewPlugin::ReplayReceivedData(WebPlugin* plugin) {
++  const WebURLResponse& response =
++      web_view_->mainFrame()->dataSource()->response();
++  if (!response.isNull()) {
++    plugin->didReceiveResponse(response);
++    size_t total_bytes = 0;
++    for (std::list<std::string>::iterator it = data_.begin(); it != data_.end();
++         ++it) {
++      plugin->didReceiveData(
++          it->c_str(), base::checked_cast<int, size_t>(it->length()));
++      total_bytes += it->length();
++    }
++    UMA_HISTOGRAM_MEMORY_KB(
++        "PluginDocument.Memory",
++        (base::checked_cast<int, size_t>(total_bytes / 1024)));
++    UMA_HISTOGRAM_COUNTS(
++        "PluginDocument.NumChunks",
++        (base::checked_cast<int, size_t>(data_.size())));
++  }
++  // We need to transfer the |focused_| to new plugin after it loaded.
++  if (focused_) {
++    plugin->updateFocus(true, blink::WebFocusTypeNone);
++  }
++  if (finished_loading_) {
++    plugin->didFinishLoading();
++  }
++  if (error_) {
++    plugin->didFailLoading(*error_);
++  }
++}
++
++void WebViewPlugin::RestoreTitleText() {
++  if (container_)
++    container_->element().setAttribute("title", old_title_);
++}
++
+ WebPluginContainer* WebViewPlugin::container() const { return container_; }
+ 
+ bool WebViewPlugin::initialize(WebPluginContainer* container) {
+@@ -215,20 +255,18 @@ blink::WebInputEventResult WebViewPlugin::handleInputEvent(
+   return handled;
+ }
+ 
+-void WebViewPlugin::didReceiveResponse(const WebURLResponse& response) {
+-  NOTREACHED();
+-}
+-
+ void WebViewPlugin::didReceiveData(const char* data, int data_length) {
+-  NOTREACHED();
++  data_.push_back(std::string(data, data_length));
+ }
+ 
+ void WebViewPlugin::didFinishLoading() {
+-  NOTREACHED();
++  DCHECK(!finished_loading_);
++  finished_loading_ = true;
+ }
+ 
+ void WebViewPlugin::didFailLoading(const WebURLError& error) {
+-  NOTREACHED();
++  DCHECK(!error_.get());
++  error_.reset(new WebURLError(error));
+ }
+ 
+ bool WebViewPlugin::acceptsLoadDrops() { return false; }
+@@ -277,9 +315,8 @@ void WebViewPlugin::scheduleAnimation() {
+   }
+ }
+ 
+-void WebViewPlugin::PluginWebFrameClient::didClearWindowObject(
+-    WebLocalFrame* frame) {
+-  if (!plugin_->delegate_)
++void WebViewPlugin::didClearWindowObject(WebLocalFrame* frame) {
++  if (!delegate_)
+     return;
+ 
+   v8::Isolate* isolate = blink::mainThreadIsolate();
+@@ -291,7 +328,7 @@ void WebViewPlugin::PluginWebFrameClient::didClearWindowObject(
+   v8::Local<v8::Object> global = context->Global();
+ 
+   global->Set(gin::StringToV8(isolate, "plugin"),
+-              plugin_->delegate_->GetV8Handle(isolate));
++              delegate_->GetV8Handle(isolate));
+ }
+ 
+ void WebViewPlugin::OnDestruct() {}
+diff --git components/plugins/renderer/webview_plugin.h components/plugins/renderer/webview_plugin.h
+index 086fa6d..6f69dec 100644
+--- components/plugins/renderer/webview_plugin.h
++++ components/plugins/renderer/webview_plugin.h
+@@ -42,6 +42,7 @@ class Size;
+ 
+ class WebViewPlugin : public blink::WebPlugin,
+                       public blink::WebViewClient,
++                      public blink::WebFrameClient,
+                       public content::RenderViewObserver {
+  public:
+   class Delegate {
+@@ -74,8 +75,12 @@ class WebViewPlugin : public blink::WebPlugin,
+ 
+   blink::WebView* web_view() { return web_view_; }
+ 
+-  bool focused() const { return focused_; }
+-  const blink::WebString& old_title() const { return old_title_; }
++  // When loading a plugin document (i.e. a full page plugin not embedded in
++  // another page), we save all data that has been received, and replay it with
++  // this method on the actual plugin.
++  void ReplayReceivedData(blink::WebPlugin* plugin);
++
++  void RestoreTitleText();
+ 
+   // WebPlugin methods:
+   blink::WebPluginContainer* container() const override;
+@@ -103,7 +108,7 @@ class WebViewPlugin : public blink::WebPlugin,
+       const blink::WebInputEvent& event,
+       blink::WebCursorInfo& cursor_info) override;
+ 
+-  void didReceiveResponse(const blink::WebURLResponse& response) override;
++  void didReceiveResponse(const blink::WebURLResponse& response) override {}
+   void didReceiveData(const char* data, int data_length) override;
+   void didFinishLoading() override;
+   void didFailLoading(const blink::WebURLError& error) override;
+@@ -129,6 +134,9 @@ class WebViewPlugin : public blink::WebPlugin,
+   void didChangeCursor(const blink::WebCursorInfo& cursor) override;
+   void scheduleAnimation() override;
+ 
++  // WebFrameClient methods:
++  void didClearWindowObject(blink::WebLocalFrame* frame) override;
++
+  private:
+   friend class base::DeleteHelper<WebViewPlugin>;
+   WebViewPlugin(content::RenderView* render_view,
+@@ -156,23 +164,14 @@ class WebViewPlugin : public blink::WebPlugin,
+ 
+   gfx::Rect rect_;
+ 
++  std::list<std::string> data_;
++  std::unique_ptr<blink::WebURLError> error_;
+   blink::WebString old_title_;
++  bool finished_loading_;
+   bool focused_;
+   bool is_painting_;
+   bool is_resizing_;
+ 
+-  // A helper needed to create a WebLocalFrame.
+-  class PluginWebFrameClient : public blink::WebFrameClient {
+-   public:
+-    PluginWebFrameClient(WebViewPlugin* plugin) : plugin_(plugin) {}
+-    ~PluginWebFrameClient() override {}
+-    void didClearWindowObject(blink::WebLocalFrame* frame) override;
+-
+-   private:
+-    WebViewPlugin* plugin_;
+-  };
+-  PluginWebFrameClient web_frame_client_;
+-
+   // Should be invalidated when destroy() is called.
+   base::WeakPtrFactory<WebViewPlugin> weak_factory_;
+ };

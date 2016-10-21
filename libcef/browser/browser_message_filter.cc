@@ -17,25 +17,18 @@
 #include "base/compiler_specific.h"
 #include "base/bind.h"
 #include "content/common/frame_messages.h"
-#include "content/common/view_messages.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/child_process_host.h"
 
 CefBrowserMessageFilter::CefBrowserMessageFilter(int render_process_id)
-    : render_process_id_(render_process_id),
-      sender_(NULL) {
+    : render_process_id_(render_process_id) {
 }
 
 CefBrowserMessageFilter::~CefBrowserMessageFilter() {
 }
 
-void CefBrowserMessageFilter::OnFilterAdded(IPC::Sender* sender) {
-  sender_ = sender;
-}
-
 void CefBrowserMessageFilter::OnFilterRemoved() {
   render_process_id_ = content::ChildProcessHost::kInvalidUniqueID;
-  sender_ = NULL;
 }
 
 bool CefBrowserMessageFilter::OnMessageReceived(const IPC::Message& message) {
@@ -46,17 +39,12 @@ bool CefBrowserMessageFilter::OnMessageReceived(const IPC::Message& message) {
   }
 
   bool handled = true;
-  if (message.type() == ViewHostMsg_CreateWindow::ID) {
-    // Observe but don't handle this message.
-    handled = false;
-  }
 
   IPC_BEGIN_MESSAGE_MAP(CefBrowserMessageFilter, message)
     IPC_MESSAGE_HANDLER(CefProcessHostMsg_GetNewRenderThreadInfo,
                         OnGetNewRenderThreadInfo)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(CefProcessHostMsg_GetNewBrowserInfo,
                                     OnGetNewBrowserInfo)
-    IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_CreateWindow, OnCreateWindow)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -110,18 +98,6 @@ void CefBrowserMessageFilter::OnGetNewBrowserInfo(
   } else {
     delete reply_msg;
   }
-}
-
-void CefBrowserMessageFilter::OnCreateWindow(
-    const ViewHostMsg_CreateWindow_Params& params,
-    IPC::Message* reply_msg) {
-  if (render_process_id_ != content::ChildProcessHost::kInvalidUniqueID) {
-    CefBrowserInfoManager::GetInstance()->OnCreateWindow(render_process_id_,
-                                                         params);
-  }
-
-  // Reply message is not used.
-  delete reply_msg;
 }
 
 void CefBrowserMessageFilter::OnFrameFocused(int32_t render_frame_routing_id) {

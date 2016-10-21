@@ -123,5 +123,6 @@ void CefBrowserMessageLoop::DoMessageLoopIteration() {
 }
 
 void CefBrowserMessageLoop::RunMessageLoop() {
-  Run();
+  base::RunLoop run_loop;
+  run_loop.Run();
 }

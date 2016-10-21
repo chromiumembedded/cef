@@ -738,7 +738,7 @@ bool CefContentBrowserClient::CanCreateWindow(
   *no_javascript_access = false;
 
   return CefBrowserInfoManager::GetInstance()->CanCreateWindow(
-      target_url, referrer, disposition, features, user_gesture,
+      target_url, referrer, frame_name, disposition, features, user_gesture,
       opener_suppressed, render_process_id, opener_render_view_id,
       opener_render_frame_id, no_javascript_access);
 }

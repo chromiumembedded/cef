@@ -8,15 +8,23 @@
 #include "libcef/common/net/net_resource_provider.h"
 #include "libcef/renderer/content_renderer_client.h"
 
+#include "components/visitedlink/renderer/visitedlink_slave.h"
+#include "content/public/renderer/render_thread.h"
 #include "net/base/net_module.h"
+#include "services/shell/public/cpp/interface_registry.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 
 bool CefRenderThreadObserver::is_incognito_process_ = false;
 
-CefRenderThreadObserver::CefRenderThreadObserver() {
+CefRenderThreadObserver::CefRenderThreadObserver()
+  : visited_link_slave_(new visitedlink::VisitedLinkSlave) {
   net::NetModule::SetResourceProvider(NetResourceProvider);
+
+  content::RenderThread* thread = content::RenderThread::Get();
+  thread->GetInterfaceRegistry()->AddInterface(
+      visited_link_slave_->GetBindCallback());
 }
 
 CefRenderThreadObserver::~CefRenderThreadObserver() {
@@ -39,6 +47,7 @@ bool CefRenderThreadObserver::OnControlMessageReceived(
 
 void CefRenderThreadObserver::OnRenderProcessShutdown() {
   CefContentRendererClient::Get()->OnRenderProcessShutdown();
+  visited_link_slave_.reset();
 }
 
 void CefRenderThreadObserver::OnSetIsIncognitoProcess(

@@ -34,6 +34,10 @@ namespace extensions {
 class ExtensionRegistry;
 }
 
+namespace url {
+class Origin;
+}
+
 // This class filters out incoming IPC messages requesting plugin information.
 class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
  public:
@@ -95,7 +99,7 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
 
   void OnGetPluginInfo(int render_frame_id,
                        const GURL& url,
-                       const GURL& top_origin_url,
+                       const url::Origin& main_frame_origin,
                        const std::string& mime_type,
                        IPC::Message* reply_msg);
 

@@ -234,7 +234,7 @@ IPC_STRUCT_END()
 IPC_SYNC_MESSAGE_CONTROL4_1(CefViewHostMsg_GetPluginInfo,
                             int /* render_frame_id */,
                             GURL /* url */,
-                            GURL /* top origin url */,
+                            url::Origin /* top origin url */,
                             std::string /* mime_type */,
                             CefViewHostMsg_GetPluginInfo_Output /* output */)
 

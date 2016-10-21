@@ -21,6 +21,7 @@
 #include "chrome/browser/extensions/api/streams_private/streams_private_api.h"
 #include "content/public/browser/plugin_service.h"
 #include "content/public/browser/plugin_service_filter.h"
+#include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/resource_request_info.h"
 #include "content/public/browser/stream_info.h"
 #include "content/public/common/resource_response.h"
@@ -36,21 +37,26 @@ namespace {
 void SendExecuteMimeTypeHandlerEvent(
     std::unique_ptr<content::StreamInfo> stream,
     int64_t expected_content_size,
-    int render_process_id,
-    int render_frame_id,
     const std::string& extension_id,
     const std::string& view_id,
-    bool embedded) {
+    bool embedded,
+    int frame_tree_node_id,
+    int render_process_id,
+    int render_frame_id) {
   CEF_REQUIRE_UIT();
 
-  CefRefPtr<CefBrowserHostImpl> browser =
-      CefBrowserHostImpl::GetBrowserForFrame(render_process_id,
-                                             render_frame_id);
-  if (!browser.get())
-    return;
+  content::WebContents* web_contents = nullptr;
+  if (frame_tree_node_id != -1) {
+    web_contents =
+        content::WebContents::FromFrameTreeNodeId(frame_tree_node_id);
+  } else {
+    web_contents = content::WebContents::FromRenderFrameHost(
+        content::RenderFrameHost::FromID(render_process_id, render_frame_id));
+  }
 
-  content::WebContents* web_contents = browser->web_contents();
-  if (!web_contents)
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserForContents(web_contents);
+  if (!browser.get())
     return;
 
   content::BrowserContext* browser_context = web_contents->GetBrowserContext();
@@ -61,8 +67,8 @@ void SendExecuteMimeTypeHandlerEvent(
     return;
 
   streams_private->ExecuteMimeTypeHandler(
-      extension_id, web_contents, std::move(stream), view_id,
-      expected_content_size, embedded, render_process_id, render_frame_id);
+      extension_id, std::move(stream), view_id, expected_content_size, embedded,
+      frame_tree_node_id, render_process_id, render_frame_id);
 }
 
 }  // namespace
@@ -181,9 +187,9 @@ void CefResourceDispatcherHostDelegate::OnStreamCreated(
   bool embedded = info->GetResourceType() != content::RESOURCE_TYPE_MAIN_FRAME;
   CEF_POST_TASK(CEF_UIT,
       base::Bind(&SendExecuteMimeTypeHandlerEvent, base::Passed(&stream),
-                 request->GetExpectedContentSize(), info->GetChildID(),
-                 info->GetRenderFrameID(), ix->second.extension_id,
-                 ix->second.view_id, embedded));
+                 request->GetExpectedContentSize(), ix->second.extension_id,
+                 ix->second.view_id, embedded, info->GetFrameTreeNodeId(),
+                 info->GetChildID(), info->GetRenderFrameID()));
   stream_target_info_.erase(request);
 }
 

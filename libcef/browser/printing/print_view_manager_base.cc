@@ -144,7 +144,8 @@ void CefPrintViewManagerBase::OnDidPrintPage(
       web_contents()->Stop();
       return;
     }
-    shared_buf.reset(new base::SharedMemory(params.metafile_data_handle, true));
+    shared_buf =
+        base::MakeUnique<base::SharedMemory>(params.metafile_data_handle, true);
     if (!shared_buf->Map(params.data_size)) {
       NOTREACHED() << "couldn't map";
       web_contents()->Stop();
@@ -174,6 +175,7 @@ void CefPrintViewManagerBase::OnDidPrintPage(
   if (metafile_must_be_valid) {
     bool print_text_with_gdi =
         document->settings().print_text_with_gdi() &&
+        !document->settings().printer_is_xps() &&
         !base::CommandLine::ForCurrentProcess()->HasSwitch(
             switches::kDisableGDITextPrinting);
     scoped_refptr<base::RefCountedBytes> bytes = new base::RefCountedBytes(

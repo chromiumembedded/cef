@@ -34,7 +34,6 @@ class Message;
 }
 
 class CefBrowserPlatformDelegate;
-struct ViewHostMsg_CreateWindow_Params;
 
 // Singleton object for managing BrowserInfo instances.
 class CefBrowserInfoManager : public content::RenderProcessHostObserver {
@@ -58,16 +57,12 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
       content::WebContents* new_contents,
       bool is_windowless);
 
-  // Called from CefBrowserMessageFilter::OnCreateWindow. See comments on
-  // PendingPopup for more information.
-  void OnCreateWindow(int render_process_id,
-                      const ViewHostMsg_CreateWindow_Params& params);
-
   // Called from CefContentBrowserClient::CanCreateWindow. See comments on
   // PendingPopup for more information.
   bool CanCreateWindow(
       const GURL& target_url,
       const content::Referrer& referrer,
+      const std::string& frame_name,
       WindowOpenDisposition disposition,
       const blink::WebWindowFeatures& features,
       bool user_gesture,
@@ -137,9 +132,6 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   void RenderProcessHostDestroyed(content::RenderProcessHost* host) override;
 
   // Store state information about pending popups. Call order is:
-  // - CefBrowserMessageFilter::OnCreateWindow (IOT)
-  //   Intercepts the ViewHostMsg_CreateWindow message to gather information
-  //   about the opener (parent browser) and target URL/frame.
   // - CefContentBrowserClient::CanCreateWindow (IOT)
   //   Provides an opportunity to cancel the popup (calls OnBeforePopup) and
   //   creates the new platform delegate for the popup. If the popup owner is
@@ -157,7 +149,6 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
     // be multiple pending popups with the same identifiers and this allows us
     // to differentiate between them at different processing steps.
     enum Step {
-      ON_CREATE_WINDOW,
       CAN_CREATE_WINDOW,
       SHOULD_CREATE_WEB_CONTENTS
     } step;

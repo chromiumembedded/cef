@@ -176,7 +176,7 @@ TEST(RequestContextTest, CreateContextSharedOnDisk) {
   EXPECT_TRUE(tempdir.CreateUniqueTempDir());
 
   CefRequestContextSettings settings;
-  CefString(&settings.cache_path) = tempdir.path().value();
+  CefString(&settings.cache_path) = tempdir.GetPath().value();
 
   CefRefPtr<CefRequestContext> context1 =
       CefRequestContext::CreateContext(settings, NULL);

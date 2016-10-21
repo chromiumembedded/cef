@@ -25,7 +25,7 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
                          int render_frame_id,
                          const void* context,
                          const GURL& url,
-                         const GURL& policy_url,
+                         const url::Origin& main_frame_origin,
                          content::WebPluginInfo* plugin) override;
 
   bool CanLoadPlugin(int render_process_id,
@@ -36,7 +36,7 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
   // See related discussion in issue #2015.
   bool IsPluginAvailable(CefRequestContextHandler* handler,
                          const GURL& url,
-                         const GURL& policy_url,
+                         const url::Origin& main_frame_origin,
                          content::WebPluginInfo* plugin,
                          CefViewHostMsg_GetPluginInfo_Status* status);
 

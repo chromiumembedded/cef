@@ -41,7 +41,9 @@ class CefURLFetcherDelegate : public net::URLFetcherDelegate {
   // net::URLFetcherDelegate methods.
   void OnURLFetchComplete(const net::URLFetcher* source) override;
   void OnURLFetchDownloadProgress(const net::URLFetcher* source,
-                                  int64 current, int64 total) override;
+                                  int64 current,
+                                  int64 total,
+                                  int64_t current_network_bytes) override;
   void OnURLFetchUploadProgress(const net::URLFetcher* source,
                                 int64 current, int64 total) override;
 
@@ -402,7 +404,9 @@ void CefURLFetcherDelegate::OnURLFetchComplete(
 
 void CefURLFetcherDelegate::OnURLFetchDownloadProgress(
     const net::URLFetcher* source,
-    int64 current, int64 total) {
+    int64 current,
+    int64 total,
+    int64_t current_network_bytes) {
   context_->OnDownloadProgress(current, total);
 }
 

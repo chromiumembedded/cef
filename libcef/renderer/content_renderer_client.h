@@ -9,6 +9,7 @@
 
 #include <list>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -27,10 +28,6 @@ class ExtensionsClient;
 class ExtensionsGuestViewContainerDispatcher;
 class ExtensionsRendererClient;
 class ResourceRequestPolicy;
-}
-
-namespace visitedlink {
-class VisitedLinkSlave;
 }
 
 namespace web_cache {
@@ -152,14 +149,14 @@ class CefContentRendererClient : public content::ContentRendererClient,
   std::unique_ptr<CefRenderThreadObserver> observer_;
   std::unique_ptr<web_cache::WebCacheImpl> web_cache_impl_;
   std::unique_ptr<SpellCheck> spellcheck_;
-  std::unique_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
 
   // Map of RenderView pointers to CefBrowserImpl references.
   typedef std::map<content::RenderView*, CefRefPtr<CefBrowserImpl> > BrowserMap;
   BrowserMap browsers_;
 
   // Map of RenderView poiners to CefGuestView implementations.
-  typedef std::map<content::RenderView*, CefGuestView* > GuestViewMap;
+  typedef std::map<content::RenderView*, std::unique_ptr<CefGuestView> >
+      GuestViewMap;
   GuestViewMap guest_views_;
 
   // Cross-origin white list entries that need to be registered with WebKit.

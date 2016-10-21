@@ -1,8 +1,8 @@
 diff --git base/network_delegate.h base/network_delegate.h
-index 36bdde9..f1ee1ae 100644
+index 6fc19f9..583c8a9 100644
 --- base/network_delegate.h
 +++ base/network_delegate.h
-@@ -36,6 +36,7 @@ namespace net {
+@@ -37,6 +37,7 @@ namespace net {
  // of net/base here, because we have a net_base library. Forward declarations
  // are ok.
  class CookieOptions;
@@ -10,7 +10,7 @@ index 36bdde9..f1ee1ae 100644
  class HttpRequestHeaders;
  class HttpResponseHeaders;
  class ProxyInfo;
-@@ -115,6 +116,13 @@ class NET_EXPORT NetworkDelegate : public base::NonThreadSafe {
+@@ -116,6 +117,13 @@ class NET_EXPORT NetworkDelegate : public base::NonThreadSafe {
        const GURL& target_url,
        const GURL& referrer_url) const;
  
@@ -25,7 +25,7 @@ index 36bdde9..f1ee1ae 100644
    // This is the interface for subclasses of NetworkDelegate to implement. These
    // member functions will be called by the respective public notification
 diff --git filter/filter.h filter/filter.h
-index 1940399..bf8722c 100644
+index 91875a2..b6c665f 100644
 --- filter/filter.h
 +++ filter/filter.h
 @@ -59,6 +59,7 @@
@@ -45,10 +45,10 @@ index 1940399..bf8722c 100644
    friend class GZipUnitTest;
    friend class SdchFilterChainingTest;
 diff --git url_request/url_request_job.cc url_request/url_request_job.cc
-index eadeb4b..2341297 100644
+index f9df570..72b48ec 100644
 --- url_request/url_request_job.cc
 +++ url_request/url_request_job.cc
-@@ -495,6 +495,9 @@ void URLRequestJob::NotifyHeadersComplete() {
+@@ -489,6 +489,9 @@ void URLRequestJob::NotifyHeadersComplete() {
    if (request_->status().is_success())
      filter_ = SetupFilter();
  

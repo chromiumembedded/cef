@@ -21,7 +21,7 @@ void CefPepperHelper::DidCreatePepperPlugin(content::RendererPpapiHost* host) {
   // TODO(brettw) figure out how to hook up the host factory. It needs some
   // kind of filter-like system to allow dynamic additions.
   host->GetPpapiHost()->AddHostFactoryFilter(
-      base::WrapUnique(new CefRendererPepperHostFactory(host)));
+      base::MakeUnique<CefRendererPepperHostFactory>(host));
 }
 
 void CefPepperHelper::OnDestruct() {

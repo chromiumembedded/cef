@@ -75,6 +75,8 @@ class CefPluginPlaceholder final
   // Javascript callbacks:
   // Open chrome://plugins in a new tab.
   void OpenAboutPluginsCallback();
+  // Show the Plugins permission bubble.
+  void ShowPermissionBubbleCallback();
 
   CefViewHostMsg_GetPluginInfo_Status status_;
 

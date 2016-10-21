@@ -137,27 +137,10 @@ scoped_refptr<CefBrowserInfo> CefBrowserInfoManager::CreatePopupBrowserInfo(
   return browser_info;
 }
 
-void CefBrowserInfoManager::OnCreateWindow(
-    int render_process_id,
-    const ViewHostMsg_CreateWindow_Params& params) {
-  DCHECK_NE(render_process_id, content::ChildProcessHost::kInvalidUniqueID);
-  DCHECK_GT(params.opener_id, 0);
-  DCHECK_GT(params.opener_render_frame_id, 0);
-
-  std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup(
-      new CefBrowserInfoManager::PendingPopup);
-  pending_popup->step = CefBrowserInfoManager::PendingPopup::ON_CREATE_WINDOW;
-  pending_popup->opener_process_id = render_process_id;
-  pending_popup->opener_view_id = params.opener_id;
-  pending_popup->opener_frame_id = params.opener_render_frame_id;
-  pending_popup->target_url = params.target_url;
-  pending_popup->target_frame_name = params.frame_name;
-  PushPendingPopup(std::move(pending_popup));
-}
-
 bool CefBrowserInfoManager::CanCreateWindow(
     const GURL& target_url,
     const content::Referrer& referrer,
+    const std::string& frame_name,
     WindowOpenDisposition disposition,
     const blink::WebWindowFeatures& features,
     bool user_gesture,
@@ -166,18 +149,13 @@ bool CefBrowserInfoManager::CanCreateWindow(
     int opener_render_view_id,
     int opener_render_frame_id,
     bool* no_javascript_access) {
-  std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
-      PopPendingPopup(CefBrowserInfoManager::PendingPopup::ON_CREATE_WINDOW,
-                      render_process_id, opener_render_view_id, target_url);
-  DCHECK(pending_popup.get());
-  DCHECK(!pending_popup->platform_delegate.get());
+  DCHECK_NE(render_process_id, content::ChildProcessHost::kInvalidUniqueID);
+  DCHECK_GT(opener_render_view_id, 0);
+  DCHECK_GT(opener_render_frame_id, 0);
 
   bool is_guest_view = false;
-  CefRefPtr<CefBrowserHostImpl> browser =
-      extensions::GetOwnerBrowserForView(
-          pending_popup->opener_process_id,
-          pending_popup->opener_view_id,
-          &is_guest_view);
+  CefRefPtr<CefBrowserHostImpl> browser = extensions::GetOwnerBrowserForView(
+      render_process_id, opener_render_view_id, &is_guest_view);
   DCHECK(browser.get());
   if (!browser.get()) {
     // Cancel the popup.
@@ -209,6 +187,14 @@ bool CefBrowserInfoManager::CanCreateWindow(
 #if defined(OS_WIN)
   window_info->SetAsPopup(NULL, CefString());
 #endif
+
+  auto pending_popup = base::MakeUnique<CefBrowserInfoManager::PendingPopup>();
+  pending_popup->step = CefBrowserInfoManager::PendingPopup::CAN_CREATE_WINDOW;
+  pending_popup->opener_process_id = render_process_id;
+  pending_popup->opener_view_id = opener_render_view_id;
+  pending_popup->opener_frame_id = opener_render_frame_id;
+  pending_popup->target_url = target_url;
+  pending_popup->target_frame_name = frame_name;
 
   // Start with the current browser's settings.
   pending_popup->client = client;
@@ -261,9 +247,6 @@ bool CefBrowserInfoManager::CanCreateWindow(
     pending_popup->platform_delegate =
         CefBrowserPlatformDelegate::Create(create_params);
     CHECK(pending_popup->platform_delegate.get());
-
-    pending_popup->step =
-        CefBrowserInfoManager::PendingPopup::CAN_CREATE_WINDOW;
 
     // Filtering needs to be done on the UI thread.
     CEF_POST_TASK(CEF_UIT,

@@ -1,3 +1,15 @@
+diff --git components/browsing_data/content/BUILD.gn components/browsing_data/content/BUILD.gn
+index 6229e1b..176f897 100644
+--- components/browsing_data/content/BUILD.gn
++++ components/browsing_data/content/BUILD.gn
+@@ -15,6 +15,7 @@ static_library("content") {
+   deps = [
+     "//base",
+     "//content/public/browser",
++    "//content/public/common",
+     "//net",
+   ]
+ }
 diff --git content/browser/appcache/appcache_internals_ui.cc content/browser/appcache/appcache_internals_ui.cc
 index 41f74ae..daca31a7 100644
 --- content/browser/appcache/appcache_internals_ui.cc
@@ -42,10 +54,10 @@ index bd02cb1..074e77f 100644
        BrowserContext* browser_context);
  
 diff --git content/browser/browser_context.cc content/browser/browser_context.cc
-index 6ca86e7..cf081e4 100644
+index 5b7ba41..82d8fb1 100644
 --- content/browser/browser_context.cc
 +++ content/browser/browser_context.cc
-@@ -113,7 +113,14 @@ StoragePartition* GetStoragePartitionFromConfig(
+@@ -115,7 +115,14 @@ StoragePartition* GetStoragePartitionFromConfig(
    if (browser_context->IsOffTheRecord())
      in_memory = true;
  
@@ -61,8 +73,8 @@ index 6ca86e7..cf081e4 100644
  }
  
  void SaveSessionStateOnIOThread(
-@@ -486,6 +493,11 @@ MojoShellConnection* BrowserContext::GetMojoShellConnectionFor(
-   return connection_holder ? connection_holder->shell_connection() : nullptr;
+@@ -506,6 +513,11 @@ ServiceManagerConnection* BrowserContext::GetServiceManagerConnectionFor(
+                            : nullptr;
  }
  
 +// static
@@ -74,10 +86,10 @@ index 6ca86e7..cf081e4 100644
    CHECK(GetUserData(kMojoWasInitialized))
        << "Attempting to destroy a BrowserContext that never called "
 diff --git content/browser/devtools/protocol/service_worker_handler.cc content/browser/devtools/protocol/service_worker_handler.cc
-index a5de8d5..8cd64b3 100644
+index c34d15a1..429c0e8 100644
 --- content/browser/devtools/protocol/service_worker_handler.cc
 +++ content/browser/devtools/protocol/service_worker_handler.cc
-@@ -503,10 +503,9 @@ Response ServiceWorkerHandler::DispatchSyncEvent(
+@@ -384,10 +384,9 @@ Response ServiceWorkerHandler::DispatchSyncEvent(
    if (!base::StringToInt64(registration_id, &id))
      return CreateInvalidVersionIdErrorResponse();
  
@@ -91,10 +103,10 @@ index a5de8d5..8cd64b3 100644
  
    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index 1bab21a4..81156a8 100644
+index f952adc..f0ed622 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
-@@ -664,7 +664,7 @@ void RenderProcessHostImpl::EarlyZygoteLaunch() {
+@@ -675,7 +675,7 @@ void RenderProcessHostImpl::EarlyZygoteLaunch() {
  
  RenderProcessHostImpl::RenderProcessHostImpl(
      BrowserContext* browser_context,
@@ -103,7 +115,7 @@ index 1bab21a4..81156a8 100644
      bool is_for_guests_only)
      : fast_shutdown_started_(false),
        deleting_soon_(false),
-@@ -998,6 +998,22 @@ std::unique_ptr<IPC::ChannelProxy> RenderProcessHostImpl::CreateChannelProxy(
+@@ -1024,6 +1024,22 @@ std::unique_ptr<IPC::ChannelProxy> RenderProcessHostImpl::CreateChannelProxy() {
  
  void RenderProcessHostImpl::CreateMessageFilters() {
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
@@ -126,7 +138,7 @@ index 1bab21a4..81156a8 100644
    AddFilter(new ResourceSchedulerFilter(GetID()));
    MediaInternals* media_internals = MediaInternals::GetInstance();
    // Add BrowserPluginMessageFilter to ensure it gets the first stab at messages
-@@ -1012,8 +1028,8 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1038,8 +1054,8 @@ void RenderProcessHostImpl::CreateMessageFilters() {
        new RenderMessageFilter(
            GetID(), GetBrowserContext(), request_context.get(),
            widget_helper_.get(), media_internals,
@@ -137,7 +149,7 @@ index 1bab21a4..81156a8 100644
    AddFilter(render_message_filter.get());
  
    render_frame_message_filter_ = new RenderFrameMessageFilter(
-@@ -1044,9 +1060,9 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1070,9 +1086,9 @@ void RenderProcessHostImpl::CreateMessageFilters() {
  
    resource_message_filter_ = new ResourceMessageFilter(
        GetID(), PROCESS_TYPE_RENDERER,
@@ -149,7 +161,7 @@ index 1bab21a4..81156a8 100644
        storage_partition_impl_->GetHostZoomLevelContext(),
        get_contexts_callback);
  
-@@ -1071,14 +1087,12 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1097,14 +1113,12 @@ void RenderProcessHostImpl::CreateMessageFilters() {
    AddFilter(
        new MidiHost(GetID(), BrowserMainLoop::GetInstance()->midi_manager()));
    AddFilter(new VideoCaptureHost(media_stream_manager));
@@ -167,7 +179,7 @@ index 1bab21a4..81156a8 100644
        blob_storage_context.get()));
  
  #if defined(ENABLE_WEBRTC)
-@@ -1130,14 +1144,13 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1150,14 +1164,13 @@ void RenderProcessHostImpl::CreateMessageFilters() {
  
    scoped_refptr<CacheStorageDispatcherHost> cache_storage_filter =
        new CacheStorageDispatcherHost();
@@ -184,7 +196,7 @@ index 1bab21a4..81156a8 100644
    AddFilter(service_worker_filter.get());
  
    AddFilter(new SharedWorkerMessageFilter(
-@@ -1145,12 +1158,12 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1165,12 +1178,12 @@ void RenderProcessHostImpl::CreateMessageFilters() {
        WorkerStoragePartition(
            storage_partition_impl_->GetURLRequestContext(),
            storage_partition_impl_->GetMediaURLRequestContext(),
@@ -200,7 +212,7 @@ index 1bab21a4..81156a8 100644
        message_port_message_filter_.get()));
  
  #if defined(ENABLE_WEBRTC)
-@@ -1165,11 +1178,8 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1185,11 +1198,8 @@ void RenderProcessHostImpl::CreateMessageFilters() {
        GetID(), storage_partition_impl_->GetQuotaManager(),
        GetContentClient()->browser()->CreateQuotaPermissionContext()));
  
@@ -213,7 +225,7 @@ index 1bab21a4..81156a8 100644
        resource_context, service_worker_context, browser_context);
    AddFilter(notification_message_filter_.get());
  
-@@ -1178,7 +1188,7 @@ void RenderProcessHostImpl::CreateMessageFilters() {
+@@ -1198,7 +1208,7 @@ void RenderProcessHostImpl::CreateMessageFilters() {
    AddFilter(new HistogramMessageFilter());
    AddFilter(new MemoryMessageFilter(this));
    AddFilter(new PushMessagingMessageFilter(
@@ -222,19 +234,19 @@ index 1bab21a4..81156a8 100644
  #if defined(OS_ANDROID)
    AddFilter(new ScreenOrientationMessageFilterAndroid());
  #endif
-@@ -1187,6 +1197,11 @@ void RenderProcessHostImpl::CreateMessageFilters() {
- void RenderProcessHostImpl::RegisterMojoInterfaces() {
+@@ -1208,6 +1218,11 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
    std::unique_ptr<shell::InterfaceRegistry> registry(
        new shell::InterfaceRegistry);
+ 
 +  // Cast to the derived type from StoragePartitionImpl.
 +  auto platform_notification_context =
 +      static_cast<PlatformNotificationContextImpl*>(
 +          storage_partition_impl_->GetPlatformNotificationContext());
 +
- #if defined(OS_ANDROID)
-   interface_registry_android_ =
-       InterfaceRegistryAndroid::Create(registry.get());
-@@ -1220,8 +1235,7 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
+   channel_->AddAssociatedInterface(
+       base::Bind(&RenderProcessHostImpl::OnRouteProviderRequest,
+                  base::Unretained(this)));
+@@ -1239,8 +1254,7 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
    AddUIThreadInterface(
        registry.get(),
        base::Bind(&PlatformNotificationContextImpl::CreateService,
@@ -245,10 +257,10 @@ index 1bab21a4..81156a8 100644
    AddUIThreadInterface(
        registry.get(),
 diff --git content/browser/renderer_host/render_process_host_impl.h content/browser/renderer_host/render_process_host_impl.h
-index f9e74e7..a49359f 100644
+index f07c487e..aae8a3e 100644
 --- content/browser/renderer_host/render_process_host_impl.h
 +++ content/browser/renderer_host/render_process_host_impl.h
-@@ -78,7 +78,6 @@ class RenderWidgetHostImpl;
+@@ -73,7 +73,6 @@ class RenderWidgetHostImpl;
  class RenderWidgetHostViewFrameSubscriber;
  class ResourceMessageFilter;
  class StoragePartition;
@@ -256,7 +268,7 @@ index f9e74e7..a49359f 100644
  
  namespace mojom {
  class StoragePartitionService;
-@@ -114,7 +113,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
+@@ -109,7 +108,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
        public NON_EXPORTED_BASE(mojom::AssociatedInterfaceProvider) {
   public:
    RenderProcessHostImpl(BrowserContext* browser_context,
@@ -265,7 +277,7 @@ index f9e74e7..a49359f 100644
                          bool is_for_guests_only);
    ~RenderProcessHostImpl() override;
  
-@@ -498,7 +497,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
+@@ -484,7 +483,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
    BrowserContext* browser_context_;
  
    // Owned by |browser_context_|.
@@ -355,11 +367,11 @@ index 075ae3e..57fb5fd 100644
  
    void InitializeOnIOThread();
 diff --git content/public/browser/browser_context.h content/public/browser/browser_context.h
-index 15be1d2..70a2816 100644
+index aaa5e23..2309a2a 100644
 --- content/public/browser/browser_context.h
 +++ content/public/browser/browser_context.h
 @@ -170,6 +170,8 @@ class CONTENT_EXPORT BrowserContext : public base::SupportsUserData {
-   static MojoShellConnection* GetMojoShellConnectionFor(
+   static ServiceManagerConnection* GetServiceManagerConnectionFor(
        BrowserContext* browser_context);
  
 +  static const void* GetStoragePartitionMapUserDataKey();
@@ -440,10 +452,10 @@ index 9b26c41..e9f4a0c 100644
      "web_ui_url_fetcher.cc",
      "web_ui_url_fetcher.h",
 diff --git extensions/common/api/BUILD.gn extensions/common/api/BUILD.gn
-index 0276c57..ca1d6f6 100644
+index 010da6d..a13ba7a 100644
 --- extensions/common/api/BUILD.gn
 +++ extensions/common/api/BUILD.gn
-@@ -98,6 +98,7 @@ group("api") {
+@@ -99,6 +99,7 @@ group("api") {
    public_deps = [
      ":generated_api",
      ":mojom",

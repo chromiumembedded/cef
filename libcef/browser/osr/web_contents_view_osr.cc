@@ -139,7 +139,7 @@ content::RenderWidgetHostViewBase* CefWebContentsViewOSR::CreateViewForWidget(
                                        embedder_host_view);
     embedder_host_view->AddGuestHostView(platform_widget);
 
-    return new content::RenderWidgetHostViewGuest(
+    return content::RenderWidgetHostViewGuest::Create(
         render_widget_host,
         guest_,
         platform_widget->GetWeakPtr());

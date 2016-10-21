@@ -20,7 +20,7 @@ class CefRenderMessageFilter : public IPC::MessageFilter {
   ~CefRenderMessageFilter() override;
 
   // IPC::ChannelProxy::MessageFilter implementation.
-  void OnFilterAdded(IPC::Sender* sender) override;
+  void OnFilterAdded(IPC::Channel* channel) override;
   void OnFilterRemoved() override;
   bool OnMessageReceived(const IPC::Message& message) override;
 
@@ -35,7 +35,7 @@ class CefRenderMessageFilter : public IPC::MessageFilter {
   void OnDevToolsAgentAttach_RT();
   void OnDevToolsAgentDetach_RT(int32_t routing_id);
 
-  IPC::Sender* sender_;
+  IPC::Channel* channel_;
 
   DISALLOW_COPY_AND_ASSIGN(CefRenderMessageFilter);
 };

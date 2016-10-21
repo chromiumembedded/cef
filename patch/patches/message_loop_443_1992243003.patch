@@ -1,8 +1,8 @@
 diff --git message_loop.cc message_loop.cc
-index 8a2f213..6dbaa8a 100644
+index 74287b1..7309e88 100644
 --- message_loop.cc
 +++ message_loop.cc
-@@ -143,12 +143,6 @@ MessageLoop::~MessageLoop() {
+@@ -96,12 +96,6 @@ MessageLoop::~MessageLoop() {
    // may be current.
    DCHECK((pump_ && current() == this) || (!pump_ && current() != this));
  
@@ -15,7 +15,7 @@ index 8a2f213..6dbaa8a 100644
  #if defined(OS_WIN)
    if (in_high_res_mode_)
      Time::ActivateHighResolutionTimer(false);
-@@ -392,6 +386,9 @@ MessageLoop::MessageLoop(Type type, MessagePumpFactoryCallback pump_factory)
+@@ -313,6 +307,9 @@ MessageLoop::MessageLoop(Type type, MessagePumpFactoryCallback pump_factory)
        in_high_res_mode_(false),
  #endif
        nestable_tasks_allowed_(true),
@@ -23,13 +23,13 @@ index 8a2f213..6dbaa8a 100644
 +      os_modal_loop_(false),
 +#endif  // OS_WIN
        pump_factory_(pump_factory),
-       message_histogram_(NULL),
        run_loop_(NULL),
+       incoming_task_queue_(new internal::IncomingTaskQueue(this)),
 diff --git message_loop.h message_loop.h
-index 1957b99..93b3a9d 100644
+index 5b1728e..79c4c58 100644
 --- message_loop.h
 +++ message_loop.h
-@@ -395,6 +395,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate {
+@@ -299,6 +299,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate {
    void AddTaskObserver(TaskObserver* task_observer);
    void RemoveTaskObserver(TaskObserver* task_observer);
  
@@ -46,7 +46,7 @@ index 1957b99..93b3a9d 100644
    // Can only be called from the thread that owns the MessageLoop.
    bool is_running() const;
  
-@@ -542,6 +552,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate {
+@@ -437,6 +447,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate {
    // insider a (accidentally induced?) nested message pump.
    bool nestable_tasks_allowed_;
  
@@ -60,10 +60,10 @@ index 1957b99..93b3a9d 100644
    // if type_ is TYPE_CUSTOM and pump_ is null.
    MessagePumpFactoryCallback pump_factory_;
 diff --git message_pump_win.cc message_pump_win.cc
-index de20bdc..29c4504 100644
+index b9b2c84..9abef7e 100644
 --- message_pump_win.cc
 +++ message_pump_win.cc
-@@ -474,20 +474,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
+@@ -478,20 +478,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
  }
  
  bool MessagePumpForUI::ProcessPumpReplacementMessage() {

@@ -11,6 +11,7 @@
 #include "base/message_loop/message_loop.h"
 #include "base/stl_util.h"
 #include "base/strings/string_util.h"
+#include "base/threading/thread_task_runner_handle.h"
 #include "base/win/wrapped_window_proc.h"
 #include "ui/base/accelerators/accelerator.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -450,7 +451,7 @@ void CefNativeMenuWin::RunMenuAt(const gfx::Point& point, int alignment) {
     // state. Instead post a task, then notify. This mirrors what WM_MENUCOMMAND
     // does.
     menu_to_select_factory_.InvalidateWeakPtrs();
-    base::MessageLoop::current()->PostTask(
+    base::ThreadTaskRunnerHandle::Get()->PostTask(
         FROM_HERE,
         base::Bind(&CefNativeMenuWin::DelayedSelect,
                    menu_to_select_factory_.GetWeakPtr()));

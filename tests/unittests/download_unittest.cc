@@ -158,7 +158,7 @@ class DownloadTestHandler : public TestHandler {
 
     // Create a new temporary directory.
     EXPECT_TRUE(temp_dir_.CreateUniqueTempDir());
-    test_path_ = temp_dir_.path().AppendASCII(kTestFileName);
+    test_path_ = temp_dir_.GetPath().AppendASCII(kTestFileName);
 
     if (test_mode_ == NAVIGATED) {
       // Add the resource that we'll navigate to.

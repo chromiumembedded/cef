@@ -37,11 +37,10 @@ class CefWebURLLoaderClient : public blink::WebURLLoaderClient {
   ~CefWebURLLoaderClient() override;
 
   // blink::WebURLLoaderClient methods.
-  void willFollowRedirect(
+  bool willFollowRedirect(
       WebURLLoader* loader,
       WebURLRequest& newRequest,
-      const WebURLResponse& redirectResponse,
-      int64_t encodedDataLength) override;
+      const WebURLResponse& redirectResponse) override;
   void didSendData(
       WebURLLoader* loader,
       unsigned long long bytesSent,
@@ -252,11 +251,11 @@ CefWebURLLoaderClient::CefWebURLLoaderClient(
 CefWebURLLoaderClient::~CefWebURLLoaderClient() {
 }
 
-void CefWebURLLoaderClient::willFollowRedirect(
+bool CefWebURLLoaderClient::willFollowRedirect(
     WebURLLoader* loader,
     WebURLRequest& newRequest,
-    const WebURLResponse& redirectResponse,
-    int64_t encodedDataLength) {
+    const WebURLResponse& redirectResponse) {
+  return true;
 }
 
 void CefWebURLLoaderClient::didSendData(

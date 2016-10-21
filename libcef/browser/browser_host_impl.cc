@@ -2231,6 +2231,7 @@ bool CefBrowserHostImpl::ShouldCreateWebContents(
 
 void CefBrowserHostImpl::WebContentsCreated(
     content::WebContents* source_contents,
+    int opener_render_process_id,
     int opener_render_frame_id,
     const std::string& frame_name,
     const GURL& target_url,

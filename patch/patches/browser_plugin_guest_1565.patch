@@ -1,5 +1,5 @@
 diff --git browser/browser_plugin/browser_plugin_guest.cc browser/browser_plugin/browser_plugin_guest.cc
-index 6d06122..bc964c7 100644
+index 2dc039f..66e45e2 100644
 --- browser/browser_plugin/browser_plugin_guest.cc
 +++ browser/browser_plugin/browser_plugin_guest.cc
 @@ -28,7 +28,7 @@
@@ -11,13 +11,13 @@ index 6d06122..bc964c7 100644
  #include "content/common/browser_plugin/browser_plugin_constants.h"
  #include "content/common/browser_plugin/browser_plugin_messages.h"
  #include "content/common/content_constants_internal.h"
-@@ -292,20 +292,19 @@ void BrowserPluginGuest::InitInternal(
+@@ -293,20 +293,19 @@ void BrowserPluginGuest::InitInternal(
    guest_window_rect_ = params.view_rect;
  
    if (owner_web_contents_ != owner_web_contents) {
 -    WebContentsViewGuest* new_view = nullptr;
 +    WebContentsView* new_view = nullptr;
-     if (!BrowserPluginGuestMode::UseCrossProcessFramesForGuests()) {
+     if (!GuestMode::IsCrossProcessFrameGuest(GetWebContents())) {
 -      new_view =
 -          static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
 +      new_view = GetWebContents()->GetView();
@@ -52,7 +52,7 @@ index 6d06122..bc964c7 100644
    }
  
 diff --git public/browser/browser_plugin_guest_delegate.cc public/browser/browser_plugin_guest_delegate.cc
-index bfa19e4..d788495 100644
+index 732df23..25dbc62 100644
 --- public/browser/browser_plugin_guest_delegate.cc
 +++ public/browser/browser_plugin_guest_delegate.cc
 @@ -4,6 +4,8 @@
@@ -64,8 +64,8 @@ index bfa19e4..d788495 100644
  namespace content {
  
  bool BrowserPluginGuestDelegate::CanRunInDetachedState() const {
-@@ -32,4 +34,23 @@ bool BrowserPluginGuestDelegate::HandleStopFindingForEmbedder(
-   return false;
+@@ -36,4 +38,23 @@ bool BrowserPluginGuestDelegate::CanUseCrossProcessFrames() {
+   return true;
  }
  
 +void BrowserPluginGuestDelegate::OnGuestAttached(
@@ -89,7 +89,7 @@ index bfa19e4..d788495 100644
 +
  }  // namespace content
 diff --git public/browser/browser_plugin_guest_delegate.h public/browser/browser_plugin_guest_delegate.h
-index 4dd1a4c..b299190 100644
+index 0f805651..fe0385d 100644
 --- public/browser/browser_plugin_guest_delegate.h
 +++ public/browser/browser_plugin_guest_delegate.h
 @@ -21,6 +21,8 @@ class Size;

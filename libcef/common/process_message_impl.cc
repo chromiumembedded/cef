@@ -10,17 +10,11 @@
 
 namespace {
 
-void CopyList(const base::ListValue& source,
-              base::ListValue& target) {
-  base::ListValue::const_iterator it = source.begin();
-  for (; it != source.end(); ++it)
-    target.Append((*it)->DeepCopy());
-}
-
 void CopyValue(const Cef_Request_Params& source,
                Cef_Request_Params& target) {
   target.name = source.name;
-  CopyList(source.arguments, target.arguments);
+  auto copy = source.arguments.CreateDeepCopy();
+  target.arguments.Swap(copy.get());
 }
 
 }  // namespace

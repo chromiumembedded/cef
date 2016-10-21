@@ -716,7 +716,7 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
     EXPECT_TRUE(post_file_tmpdir_.CreateUniqueTempDir());
     const base::FilePath& path =
-        post_file_tmpdir_.path().Append(FILE_PATH_LITERAL("example.txt"));
+        post_file_tmpdir_.GetPath().Append(FILE_PATH_LITERAL("example.txt"));
     const char content[] = "HELLO FRIEND!";
     int write_ct = base::WriteFile(path, content, sizeof(content) - 1);
     EXPECT_EQ(static_cast<int>(sizeof(content) - 1), write_ct);
@@ -1009,7 +1009,7 @@ class RequestTestHandler : public TestHandler,
 
       if (context_mode_ == CONTEXT_ONDISK) {
         EXPECT_TRUE(context_tmpdir_.CreateUniqueTempDir());
-        CefString(&settings.cache_path) = context_tmpdir_.path().value();
+        CefString(&settings.cache_path) = context_tmpdir_.GetPath().value();
       }
 
       // Create a new temporary request context.

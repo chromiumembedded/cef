@@ -63,7 +63,7 @@ index 4b43013..169ca47 100644
  content::BrowserContext* GetBrowserContextRedirectedInIncognito(
      content::BrowserContext* context);
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index e3e742c..fe8e855 100644
+index ba156c5..b7f41d3 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
 @@ -89,7 +89,7 @@ class ProfileManager : public base::NonThreadSafe,

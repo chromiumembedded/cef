@@ -7,6 +7,7 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/files/file_util.h"
+#include "base/threading/thread_task_runner_handle.h"
 #include "base/trace_event/trace_event.h"
 #include "content/public/browser/tracing_controller.h"
 
@@ -106,7 +107,7 @@ bool CefTraceSubscriber::EndTracing(
     // Create a new temporary file path on the FILE thread, then continue.
     CEF_POST_TASK(CEF_FILET,
         base::Bind(CreateTemporaryFileOnFileThread,
-            base::MessageLoop::current()->task_runner(),
+            base::ThreadTaskRunnerHandle::Get(),
             base::Bind(&CefTraceSubscriber::ContinueEndTracing,
                        weak_factory_.GetWeakPtr(), callback)));
     return true;
