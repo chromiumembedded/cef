@@ -12,7 +12,7 @@ index f1a79c4..021a083 100644
  
    DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index 966246f..a528578 100644
+index 6c8ca56..3f0d9a8 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
 @@ -405,6 +405,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
@@ -23,7 +23,7 @@ index 966246f..a528578 100644
        m_doingDragAndDrop(false),
        m_ignoreInputEvents(false),
        m_compositorDeviceScaleFactorOverride(0),
-@@ -4249,8 +4250,13 @@ void WebViewImpl::mainFrameScrollOffsetChanged() {
+@@ -4246,8 +4247,13 @@ void WebViewImpl::mainFrameScrollOffsetChanged() {
    m_devToolsEmulator->mainFrameScrollOrScaleChanged();
  }
  
@@ -39,10 +39,10 @@ index 966246f..a528578 100644
  
  void WebViewImpl::startDragging(LocalFrame* frame,
 diff --git Source/web/WebViewImpl.h Source/web/WebViewImpl.h
-index 8e74ed5..6a37808 100644
+index 238b096..c4feb3b 100644
 --- Source/web/WebViewImpl.h
 +++ Source/web/WebViewImpl.h
-@@ -380,7 +380,8 @@ class WEB_EXPORT WebViewImpl final
+@@ -379,7 +379,8 @@ class WEB_EXPORT WebViewImpl final
  
    // Returns true if popup menus should be rendered by the browser, false if
    // they should be rendered by WebKit (which is the default).
@@ -52,7 +52,7 @@ index 8e74ed5..6a37808 100644
  
    bool shouldAutoResize() const { return m_shouldAutoResize; }
  
-@@ -685,6 +686,8 @@ class WEB_EXPORT WebViewImpl final
+@@ -684,6 +685,8 @@ class WEB_EXPORT WebViewImpl final
    float m_fakePageScaleAnimationPageScaleFactor;
    bool m_fakePageScaleAnimationUseAnchor;
  
@@ -62,10 +62,10 @@ index 8e74ed5..6a37808 100644
  
    bool m_ignoreInputEvents;
 diff --git public/web/WebView.h public/web/WebView.h
-index fde211e..fea968a 100644
+index d877ff0..edfc975 100644
 --- public/web/WebView.h
 +++ public/web/WebView.h
-@@ -443,6 +443,7 @@ class WebView : protected WebWidget {
+@@ -440,6 +440,7 @@ class WebView : protected WebWidget {
  
    // Sets whether select popup menus should be rendered by the browser.
    BLINK_EXPORT static void setUseExternalPopupMenus(bool);

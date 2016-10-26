@@ -74,10 +74,10 @@ index 5410f5a..a6aaef1 100644
                            int opener_render_process_id,
                            int opener_render_frame_id,
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index d7a0cbb..7883136 100644
+index 00421e7..18a9066 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1577,6 +1577,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1570,6 +1570,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -90,7 +90,7 @@ index d7a0cbb..7883136 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -1607,6 +1613,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1600,6 +1606,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
                                           std::move(view_),
                                           &render_view_host_delegate_view_));
    }
@@ -98,7 +98,7 @@ index d7a0cbb..7883136 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -2060,11 +2067,14 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2053,11 +2060,14 @@ void WebContentsImpl::CreateNewWindow(
        static_cast<SessionStorageNamespaceImpl*>(session_storage_namespace);
    CHECK(session_storage_namespace_impl->IsFromContext(dom_storage_context));
  
@@ -114,7 +114,7 @@ index d7a0cbb..7883136 100644
      if (route_id != MSG_ROUTING_NONE &&
          !RenderViewHost::FromID(render_process_id, route_id)) {
        // If the embedder didn't create a WebContents for this route, we need to
-@@ -2088,6 +2098,8 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2081,6 +2091,8 @@ void WebContentsImpl::CreateNewWindow(
    create_params.opener_render_process_id = render_process_id;
    create_params.opener_render_frame_id = params.opener_render_frame_id;
    create_params.opener_suppressed = params.opener_suppressed;
@@ -139,7 +139,7 @@ index fa0afb5..d677b31 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 8c66b2a..ed523c7 100644
+index 1eb4d7c..1564230 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -59,8 +59,10 @@ class PageState;
