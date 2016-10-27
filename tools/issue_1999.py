@@ -56,7 +56,7 @@ def process_line(line):
 
 
 def process_file(path):
-  print "Issue #1999: " + path
+  print "Applying issue #1999 fix to " + path
 
   with open(path) as f:
     content = f.read().splitlines()
@@ -71,4 +71,4 @@ def process_file(path):
     f.write("\n")
 
 def apply(confpath):
-  process_file(os.path.join(confpath, "obj/cef/libcef.ninja"))
+  process_file(os.path.join(confpath, "obj", "cef", "libcef.ninja"))
