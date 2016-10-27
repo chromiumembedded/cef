@@ -70,8 +70,7 @@ class CefRequestHandlerCToCpp
       CefRefPtr<CefSSLInfo> ssl_info,
       CefRefPtr<CefRequestCallback> callback) override;
   bool OnSelectClientCertificate(CefRefPtr<CefBrowser> browser, bool isProxy,
-      const CefString& host, int port,
-      const CefX509CertificateList& certificates,
+      const CefString& host, int port, const X509CertificateList& certificates,
       CefRefPtr<CefSelectClientCertificateCallback> callback) override;
   void OnPluginCrashed(CefRefPtr<CefBrowser> browser,
       const CefString& plugin_path) override;
