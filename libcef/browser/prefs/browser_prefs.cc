@@ -194,6 +194,9 @@ std::unique_ptr<PrefService> CreatePrefService(
   registry->RegisterBooleanPref(
       spellcheck::prefs::kSpellCheckUseSpellingService,
       command_line->HasSwitch(switches::kEnableSpellingService));
+  registry->RegisterBooleanPref(
+      spellcheck::prefs::kEnableSpellcheck,
+      !command_line->HasSwitch(switches::kDisableSpellChecking));
 
   // Pepper flash preferences.
   // Based on DeviceIDFetcher::RegisterProfilePrefs.
