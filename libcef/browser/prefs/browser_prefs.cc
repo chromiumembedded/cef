@@ -200,6 +200,10 @@ std::unique_ptr<PrefService> CreatePrefService(
   registry->RegisterBooleanPref(prefs::kEnableDRM, false);
   registry->RegisterStringPref(prefs::kDRMSalt, "");
 
+  // Authentication preferences.
+  registry->RegisterStringPref(prefs::kAuthServerWhitelist, "");
+  registry->RegisterStringPref(prefs::kAuthNegotiateDelegateWhitelist, "");
+
   // Plugin preferences.
   // Based on chrome::RegisterBrowserUserPrefs.
   registry->RegisterBooleanPref(prefs::kPluginsAllowOutdated, false);

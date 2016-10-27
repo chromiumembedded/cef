@@ -141,6 +141,18 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
 #if defined(OS_POSIX) && !defined(OS_ANDROID)
   gsapi_library_name_ = pref_service->GetString(prefs::kGSSAPILibraryName);
 #endif
+
+  auth_server_whitelist_.Init(
+      prefs::kAuthServerWhitelist, pref_service,
+      base::Bind(&CefURLRequestContextGetterImpl::UpdateServerWhitelist,
+      base::Unretained(this)));
+  auth_server_whitelist_.MoveToThread(io_thread_proxy);
+
+  auth_negotiate_delegate_whitelist_.Init(
+      prefs::kAuthNegotiateDelegateWhitelist, pref_service,
+      base::Bind(&CefURLRequestContextGetterImpl::UpdateDelegateWhitelist,
+      base::Unretained(this)));
+  auth_negotiate_delegate_whitelist_.MoveToThread(io_thread_proxy);
 }
 
 CefURLRequestContextGetterImpl::~CefURLRequestContextGetterImpl() {
@@ -258,6 +270,10 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     base::FilePath http_cache_path;
     if (!cache_path.empty())
       http_cache_path = cache_path.Append(FILE_PATH_LITERAL("Cache"));
+
+    UpdateServerWhitelist();
+    UpdateDelegateWhitelist();
+
     std::unique_ptr<net::HttpCache::DefaultBackend> main_backend(
         new net::HttpCache::DefaultBackend(
             cache_path.empty() ? net::MEMORY_CACHE : net::DISK_CACHE,
@@ -440,4 +456,14 @@ void CefURLRequestContextGetterImpl::CreateProxyConfigService() {
   proxy_config_service_ =
       net::ProxyService::CreateSystemProxyConfigService(
           io_task_runner_, file_task_runner_);
+}
+
+void CefURLRequestContextGetterImpl::UpdateServerWhitelist() {
+  http_auth_preferences_->set_server_whitelist(
+      auth_server_whitelist_.GetValue());
+}
+
+void CefURLRequestContextGetterImpl::UpdateDelegateWhitelist() {
+  http_auth_preferences_->set_delegate_whitelist(
+      auth_negotiate_delegate_whitelist_.GetValue());
 }
