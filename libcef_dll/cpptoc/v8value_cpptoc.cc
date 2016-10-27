@@ -16,6 +16,7 @@
 #include "libcef_dll/ctocpp/base_ctocpp.h"
 #include "libcef_dll/ctocpp/v8accessor_ctocpp.h"
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
+#include "libcef_dll/ctocpp/v8interceptor_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
 
@@ -117,15 +118,16 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const cef_string_t* value) {
   return CefV8ValueCppToC::Wrap(_retval);
 }
 
-CEF_EXPORT cef_v8value_t* cef_v8value_create_object(
-    cef_v8accessor_t* accessor) {
+CEF_EXPORT cef_v8value_t* cef_v8value_create_object(cef_v8accessor_t* accessor,
+    cef_v8interceptor_t* interceptor) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Unverified params: accessor
+  // Unverified params: accessor, interceptor
 
   // Execute
   CefRefPtr<CefV8Value> _retval = CefV8Value::CreateObject(
-      CefV8AccessorCToCpp::Wrap(accessor));
+      CefV8AccessorCToCpp::Wrap(accessor),
+      CefV8InterceptorCToCpp::Wrap(interceptor));
 
   // Return type: refptr_same
   return CefV8ValueCppToC::Wrap(_retval);

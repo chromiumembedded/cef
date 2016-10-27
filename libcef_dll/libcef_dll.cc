@@ -140,6 +140,7 @@
 #include "libcef_dll/ctocpp/urlrequest_client_ctocpp.h"
 #include "libcef_dll/ctocpp/v8accessor_ctocpp.h"
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
+#include "libcef_dll/ctocpp/v8interceptor_ctocpp.h"
 #include "libcef_dll/ctocpp/views/view_delegate_ctocpp.h"
 #include "libcef_dll/ctocpp/web_plugin_info_visitor_ctocpp.h"
 #include "libcef_dll/ctocpp/web_plugin_unstable_callback_ctocpp.h"
@@ -323,6 +324,7 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefV8ContextCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefV8ExceptionCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefV8HandlerCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefV8InterceptorCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefV8StackFrameCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefV8StackTraceCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefV8ValueCppToC::DebugObjCt));
