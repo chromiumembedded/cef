@@ -31,6 +31,10 @@ const char kV8BindingTestUrl[] = "http://tests/V8Test.BindingTest";
 const char kV8ContextParentTestUrl[] = "http://tests/V8Test.ContextParentTest";
 const char kV8ContextChildTestUrl[] = "http://tests/V8Test.ContextChildTest";
 const char kV8NavTestUrl[] = "http://tests/V8Test.NavTest";
+const char kV8ContextEvalCspBypassUnsafeEval[] =
+    "http://tests/V8Test.ContextEvalCspBypassUnsafeEval";
+const char kV8ContextEvalCspBypassSandbox[] =
+    "http://tests/V8Test.ContextEvalCspBypassSandbox";
 const char kV8OnUncaughtExceptionTestUrl[] =
     "http://tests/V8Test.OnUncaughtException";
 const char kV8TestMsg[] = "V8Test.Test";
@@ -71,6 +75,8 @@ enum V8TestMode {
   V8TEST_FUNCTION_HANDLER_EMPTY_STRING,
   V8TEST_CONTEXT_EVAL,
   V8TEST_CONTEXT_EVAL_EXCEPTION,
+  V8TEST_CONTEXT_EVAL_CSP_BYPASS_UNSAFE_EVAL,
+  V8TEST_CONTEXT_EVAL_CSP_BYPASS_SANDBOX,
   V8TEST_CONTEXT_ENTERED,
   V8TEST_CONTEXT_INVALID,
   V8TEST_BINDING,
@@ -212,6 +218,12 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
         break;
       case V8TEST_CONTEXT_EVAL_EXCEPTION:
         RunContextEvalExceptionTest();
+        break;
+      case V8TEST_CONTEXT_EVAL_CSP_BYPASS_UNSAFE_EVAL:
+        RunContextEvalCspBypassUnsafeEval();
+        break;
+      case V8TEST_CONTEXT_EVAL_CSP_BYPASS_SANDBOX:
+        RunContextEvalCspBypassSandbox();
         break;
       case V8TEST_CONTEXT_ENTERED:
         RunContextEnteredTest();
@@ -890,7 +902,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    EXPECT_TRUE(context->Eval(test.str(), retval, exception));
+    EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
     if (exception.get())
       ADD_FAILURE() << exception->GetMessage().c_str();
 
@@ -929,7 +941,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    EXPECT_TRUE(context->Eval(test.str(), retval, exception));
+    EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
     if (exception.get())
       ADD_FAILURE() << exception->GetMessage().c_str();
 
@@ -971,7 +983,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    EXPECT_TRUE(context->Eval(test.str(), retval, exception));
+    EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
     if (exception.get())
       ADD_FAILURE() << exception->GetMessage().c_str();
 
@@ -1013,7 +1025,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    EXPECT_TRUE(context->Eval(test.str(), retval, exception));
+    EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
     if (exception.get())
       ADD_FAILURE() << exception->GetMessage().c_str();
 
@@ -1053,7 +1065,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    EXPECT_TRUE(context->Eval(test.str(), retval, exception));
+    EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
     if (exception.get())
       ADD_FAILURE() << exception->GetMessage().c_str();
 
@@ -1093,7 +1105,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    EXPECT_TRUE(context->Eval(test.str(), retval, exception));
+    EXPECT_TRUE(context->Eval(test.str(), CefString(), 0, retval, exception));
     if (exception.get())
       ADD_FAILURE() << exception->GetMessage().c_str();
 
@@ -1514,7 +1526,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    EXPECT_TRUE(context->Eval("1+2", retval, exception));
+    EXPECT_TRUE(context->Eval("1+2", CefString(), 0, retval, exception));
     EXPECT_TRUE(retval.get());
     EXPECT_TRUE(retval->IsInt());
     EXPECT_EQ(3, retval->GetIntValue());
@@ -1529,9 +1541,58 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
 
-    EXPECT_FALSE(context->Eval("1+foo", retval, exception));
+    EXPECT_FALSE(context->Eval("\n\n\n1+foo", CefString(), 0, retval, exception));
     EXPECT_FALSE(retval.get());
     EXPECT_TRUE(exception.get());
+    EXPECT_EQ(4, exception->GetLineNumber());
+
+    DestroyTest();
+  }
+
+  void RunContextEvalCspBypassUnsafeEval() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    bool success = context->Eval(
+        "(document.getElementById('result').innerHTML)",
+        CefString(), 0, retval, exception);
+    if (exception.get()) {
+      ADD_FAILURE() << exception->GetMessage().c_str();
+      EXPECT_FALSE(success);
+    }
+
+    EXPECT_TRUE(success);
+    EXPECT_TRUE(retval.get());
+    if (retval.get()) {
+      EXPECT_TRUE(retval->IsString());
+      EXPECT_EQ(CefString("CSP_BYPASSED"), retval->GetStringValue());
+    }
+
+    DestroyTest();
+  }
+
+  void RunContextEvalCspBypassSandbox() {
+    CefRefPtr<CefV8Context> context = GetContext();
+
+    CefRefPtr<CefV8Value> retval;
+    CefRefPtr<CefV8Exception> exception;
+
+    bool success = context->Eval(
+        "(document.getElementById('result').innerHTML)",
+        CefString(), 0, retval, exception);
+    if (exception.get()) {
+      ADD_FAILURE() << exception->GetMessage().c_str();
+      EXPECT_FALSE(success);
+    }
+
+    EXPECT_TRUE(success);
+    EXPECT_TRUE(retval.get());
+    if (retval.get()) {
+      EXPECT_TRUE(retval->IsString());
+      EXPECT_EQ(CefString("CSP_BYPASSED"), retval->GetStringValue());
+    }
 
     DestroyTest();
   }
@@ -1545,7 +1606,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     // Test value defined in OnContextCreated
     EXPECT_TRUE(context->Eval(
         "document.getElementById('f').contentWindow.v8_context_entered_test()",
-        retval, exception));
+        CefString(), 0, retval, exception));
     if (exception.get())
       ADD_FAILURE() << exception->GetMessage().c_str();
 
@@ -1624,7 +1685,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_TRUE(context->Eval(
         "function jsfunc() { return window.myfunc(); }\n"
         "jsfunc();",
-        retval, exception));
+        CefString(), 0, retval, exception));
     EXPECT_TRUE(retval.get());
     EXPECT_TRUE(retval->IsInt());
     EXPECT_EQ(3, retval->GetIntValue());
@@ -1642,7 +1703,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_EQ(1, frame->GetLineNumber());
     EXPECT_EQ(35, frame->GetColumn());
     EXPECT_TRUE(frame.get());
-    EXPECT_TRUE(frame->IsEval());
+    EXPECT_FALSE(frame->IsEval());
     EXPECT_FALSE(frame->IsConstructor());
 
     frame = handler->stack_trace_->GetFrame(1);
@@ -1652,7 +1713,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     EXPECT_EQ(2, frame->GetLineNumber());
     EXPECT_EQ(1, frame->GetColumn());
     EXPECT_TRUE(frame.get());
-    EXPECT_TRUE(frame->IsEval());
+    EXPECT_FALSE(frame->IsEval());
     EXPECT_FALSE(frame->IsConstructor());
 
     // Exit the V8 context.
@@ -1711,6 +1772,10 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     }
     if (test_mode_ > V8TEST_NONE)
       RunStartupTest();
+    if (test_mode_ == V8TEST_CONTEXT_EVAL_CSP_BYPASS_UNSAFE_EVAL ||
+        test_mode_ == V8TEST_CONTEXT_EVAL_CSP_BYPASS_SANDBOX) {
+      browser_ = browser;
+    }
   }
 
   CefRefPtr<CefLoadHandler> GetLoadHandler(
@@ -1930,7 +1995,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
     CefRefPtr<CefV8Value> retval;
     CefRefPtr<CefV8Exception> exception;
     EXPECT_TRUE(browser->GetMainFrame()->GetV8Context()->Eval(
-        "window.close()", retval, exception));
+        "window.close()", CefString(), 0, retval, exception));
   }
 
  protected:
@@ -1990,7 +2055,27 @@ class V8TestHandler : public TestHandler {
 
   void RunTest() override {
     // Nested script tag forces creation of the V8 context.
-    if (test_mode_ == V8TEST_CONTEXT_ENTERED) {
+    if (test_mode_ == V8TEST_CONTEXT_EVAL_CSP_BYPASS_UNSAFE_EVAL ||
+        test_mode_ == V8TEST_CONTEXT_EVAL_CSP_BYPASS_SANDBOX) {
+      std::string url;
+      ResourceContent::HeaderMap headers;
+      if (test_mode_ == V8TEST_CONTEXT_EVAL_CSP_BYPASS_UNSAFE_EVAL) {
+        url = kV8ContextEvalCspBypassUnsafeEval;
+        headers.insert(std::pair<std::string, std::string>(
+            "Content-Security-Policy", "script-src 'self'"));
+      } else if (test_mode_ == V8TEST_CONTEXT_EVAL_CSP_BYPASS_SANDBOX) {
+        url = kV8ContextEvalCspBypassSandbox;
+        headers.insert(std::pair<std::string, std::string>(
+            "Content-Security-Policy", "sandbox"));
+      } else {
+        NOTREACHED();
+      }
+      AddResource(url, "<html><body>"
+        + url +
+        "<p id='result' style='display:none'>CSP_BYPASSED</p>"
+        "</body></html>", "text/html", headers);
+      CreateBrowser(test_url_);
+    } else if (test_mode_ == V8TEST_CONTEXT_ENTERED) {
       AddResource(kV8ContextParentTestUrl, "<html><body>"
           "<script>var i = 0;</script><iframe src=\"" +
           std::string(kV8ContextChildTestUrl) + "\" id=\"f\"></iframe></body>"
@@ -2161,6 +2246,12 @@ V8_TEST(FunctionHandlerWithContext, V8TEST_FUNCTION_HANDLER_WITH_CONTEXT);
 V8_TEST(FunctionHandlerEmptyString, V8TEST_FUNCTION_HANDLER_EMPTY_STRING);
 V8_TEST(ContextEval, V8TEST_CONTEXT_EVAL);
 V8_TEST(ContextEvalException, V8TEST_CONTEXT_EVAL_EXCEPTION);
+V8_TEST_EX(ContextEvalCspBypassUnsafeEval,
+    V8TEST_CONTEXT_EVAL_CSP_BYPASS_UNSAFE_EVAL,
+    kV8ContextEvalCspBypassUnsafeEval);
+V8_TEST_EX(ContextEvalCspBypassSandbox,
+    V8TEST_CONTEXT_EVAL_CSP_BYPASS_SANDBOX,
+    kV8ContextEvalCspBypassSandbox);
 V8_TEST_EX(ContextEntered, V8TEST_CONTEXT_ENTERED, NULL);
 V8_TEST(ContextInvalid, V8TEST_CONTEXT_INVALID);
 V8_TEST_EX(Binding, V8TEST_BINDING, kV8BindingTestUrl);

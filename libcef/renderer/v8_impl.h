@@ -182,6 +182,8 @@ class CefV8ContextImpl : public CefV8Context {
   bool Exit() override;
   bool IsSame(CefRefPtr<CefV8Context> that) override;
   bool Eval(const CefString& code,
+            const CefString& script_url,
+            int start_line,
             CefRefPtr<CefV8Value>& retval,
             CefRefPtr<CefV8Exception>& exception) override;
 

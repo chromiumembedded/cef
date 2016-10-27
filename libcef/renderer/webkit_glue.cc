@@ -25,12 +25,14 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/WebKit/public/web/WebViewClient.h"
 
 #include "third_party/WebKit/Source/bindings/core/v8/ScriptController.h"
+#include "third_party/WebKit/Source/bindings/core/v8/ScriptSourceCode.h"
 #include "third_party/WebKit/Source/bindings/core/v8/V8Binding.h"
 #include "third_party/WebKit/Source/core/dom/Document.h"
 #include "third_party/WebKit/Source/core/dom/Element.h"
 #include "third_party/WebKit/Source/core/dom/Node.h"
 #include "third_party/WebKit/Source/core/editing/serializers/Serialization.h"
 #include "third_party/WebKit/Source/core/frame/LocalFrame.h"
+#include "third_party/WebKit/Source/core/frame/Settings.h"
 #include "third_party/WebKit/Source/web/WebLocalFrameImpl.h"
 #include "third_party/WebKit/Source/web/WebViewImpl.h"
 MSVC_POP_WARNING();
@@ -182,6 +184,51 @@ v8::MaybeLocal<v8::Value> CallV8Function(v8::Local<v8::Context> context,
   }
 
   return func_rv;
+}
+
+v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
+    const blink::WebString& source,
+    const blink::WebString& source_url,
+    int start_line,
+    v8::Local<v8::Context> context,
+    v8::Isolate* isolate,
+    v8::TryCatch& tryCatch,
+    blink::AccessControlStatus accessControlStatus) {
+  // Based on ScriptController::executeScriptAndReturnValue
+  DCHECK(isolate);
+
+  if (start_line < 1)
+    start_line = 1;
+
+  const blink::KURL kurl = source_url.isEmpty() ?
+      blink::KURL() : blink::KURL(blink::ParsedURLString, source_url);
+
+  const blink::ScriptSourceCode ssc = blink::ScriptSourceCode(source, kurl,
+      WTF::TextPosition(WTF::OrdinalNumber::fromOneBasedInt(start_line),
+      WTF::OrdinalNumber::fromZeroBasedInt(0)));
+
+  v8::MaybeLocal<v8::Value> result;
+
+  blink::LocalFrame* frame =
+      toLocalFrame(blink::toFrameIfNotDetached(context));
+  DCHECK(frame);
+
+  if (frame) {
+    blink::V8CacheOptions v8CacheOptions(blink::V8CacheOptionsDefault);
+    if (frame && frame->settings())
+      v8CacheOptions = frame->settings()->v8CacheOptions();
+
+    v8::Local<v8::Script> script;
+    if (!blink::v8Call(blink::V8ScriptRunner::compileScript(ssc, isolate,
+            accessControlStatus, v8CacheOptions), script, tryCatch)) {
+      return result;
+    }
+
+    result = blink::V8ScriptRunner::runCompiledScript(isolate, script,
+        blink::toExecutionContext(context));
+  }
+
+  return result;
 }
 
 bool IsScriptForbidden() {

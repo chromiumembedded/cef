@@ -260,6 +260,20 @@ void TestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   browser_count_--;
 }
 
+namespace {
+
+CefResponse::HeaderMap ToCefHeaderMap(
+    const ResourceContent::HeaderMap& headerMap) {
+  CefResponse::HeaderMap result;
+  ResourceContent::HeaderMap::const_iterator it = headerMap.begin();
+  for (; it != headerMap.end(); ++it) {
+    result.insert(std::pair<CefString, CefString>(it->first, it->second));
+  }
+  return result;
+}
+
+} // namespace
+
 CefRefPtr<CefResourceHandler> TestHandler::GetResourceHandler(
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefFrame> frame,
@@ -280,9 +294,10 @@ CefRefPtr<CefResourceHandler> TestHandler::GetResourceHandler(
       // Return the previously mapped resource
       CefRefPtr<CefStreamReader> stream =
           CefStreamReader::CreateForData(
-              static_cast<void*>(const_cast<char*>(it->second.first.c_str())),
-              it->second.first.length());
-      return new CefStreamResourceHandler(it->second.second, stream);
+              static_cast<void*>(const_cast<char*>(it->second.content().c_str())),
+              it->second.content().length());
+      return new CefStreamResourceHandler(200, "OK", it->second.mimeType(),
+          ToCefHeaderMap(it->second.headerMap()), stream);
     }
   }
 
@@ -401,10 +416,25 @@ void TestHandler::CloseBrowser(CefRefPtr<CefBrowser> browser,
 
 void TestHandler::AddResource(const std::string& url,
                               const std::string& content,
-                              const std::string& mimeType) {
+                              const std::string& mime_type) {
+  ResourceContent::HeaderMap headerMap = ResourceContent::HeaderMap();
+  ResourceContent rc = ResourceContent(content, mime_type, headerMap);
+  AddResourceEx(url, rc);
+}
+
+void TestHandler::AddResource(const std::string& url,
+                              const std::string& content,
+                              const std::string& mime_type,
+                              const ResourceContent::HeaderMap& header_map) {
+  ResourceContent rc = ResourceContent(content, mime_type, header_map);
+  AddResourceEx(url, rc);
+}
+
+void TestHandler::AddResourceEx(const std::string& url,
+                                const ResourceContent& content) {
   if (!CefCurrentlyOn(TID_IO)) {
     CefPostTask(TID_IO,
-        base::Bind(&TestHandler::AddResource, this, url, content, mimeType));
+        base::Bind(&TestHandler::AddResourceEx, this, url, content));
     return;
   }
 
@@ -414,8 +444,7 @@ void TestHandler::AddResource(const std::string& url,
   if (idx > 0)
      urlStr = urlStr.substr(0, idx);
 
-  resource_map_.insert(
-      std::make_pair(urlStr, std::make_pair(content, mimeType)));
+  resource_map_.insert(std::make_pair(urlStr, content));
 }
 
 void TestHandler::ClearResources() {
