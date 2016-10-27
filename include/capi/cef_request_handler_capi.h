@@ -47,6 +47,7 @@
 #include "include/capi/cef_response_capi.h"
 #include "include/capi/cef_response_filter_capi.h"
 #include "include/capi/cef_ssl_info_capi.h"
+#include "include/capi/cef_x509_certificate_capi.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,6 +74,25 @@ typedef struct _cef_request_callback_t {
   ///
   void (CEF_CALLBACK *cancel)(struct _cef_request_callback_t* self);
 } cef_request_callback_t;
+
+
+///
+// Callback structure used to select a client certificate for authentication.
+///
+typedef struct _cef_select_client_certificate_callback_t {
+  ///
+  // Base structure.
+  ///
+  cef_base_t base;
+
+  ///
+  // Chooses the specified certificate for client certificate authentication.
+  // NULL value means that no client certificate should be used.
+  ///
+  void (CEF_CALLBACK *select)(
+      struct _cef_select_client_certificate_callback_t* self,
+      struct _cef_x509certificate_t* cert);
+} cef_select_client_certificate_callback_t;
 
 
 ///
@@ -240,6 +260,26 @@ typedef struct _cef_request_handler_t {
       struct _cef_browser_t* browser, cef_errorcode_t cert_error,
       const cef_string_t* request_url, struct _cef_sslinfo_t* ssl_info,
       struct _cef_request_callback_t* callback);
+
+  ///
+  // Called on the UI thread when a client certificate is being requested for
+  // authentication. Return false (0) to use the default behavior and
+  // automatically select the first certificate available. Return true (1) and
+  // call cef_select_client_certificate_callback_t::Select either in this
+  // function or at a later time to select a certificate. Do not call Select or
+  // call it with NULL to continue without using any certificate. |isProxy|
+  // indicates whether the host is an HTTPS proxy or the origin server. |host|
+  // and |port| contains the hostname and port of the SSL server. |certificates|
+  // is the list of certificates to choose from; this list has already been
+  // pruned by Chromium so that it only contains certificates from issuers that
+  // the server trusts.
+  ///
+  int (CEF_CALLBACK *on_select_client_certificate)(
+      struct _cef_request_handler_t* self, struct _cef_browser_t* browser,
+      int isProxy, const cef_string_t* host, int port,
+      size_t certificatesCount,
+      struct _cef_x509certificate_t* const* certificates,
+      struct _cef_select_client_certificate_callback_t* callback);
 
   ///
   // Called on the browser process UI thread when a plugin has crashed.

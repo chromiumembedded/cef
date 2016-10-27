@@ -8,97 +8,115 @@
 
 namespace {
 
-void EncodeCertificate(
-    const net::X509Certificate::OSCertHandle& os_handle,
-    CefRefPtr<CefBinaryValue>& der_encoded,
-    CefRefPtr<CefBinaryValue>& pem_encoded) {
+CefRefPtr<CefBinaryValue> EncodeCertificate(
+    const net::X509Certificate::OSCertHandle& os_handle, bool der) {
+  CefRefPtr<CefBinaryValue> bin_encoded;
   std::string encoded;
-  if (net::X509Certificate::GetDEREncoded(os_handle, &encoded)) {
-    der_encoded = CefBinaryValue::Create(encoded.c_str(),
-                                         encoded.size());
+
+  if (( der && net::X509Certificate::GetDEREncoded(os_handle, &encoded)) ||
+      (!der && net::X509Certificate::GetPEMEncoded(os_handle, &encoded))) {
+    bin_encoded = CefBinaryValue::Create(encoded.c_str(), encoded.size());
   }
-  encoded.clear();
-  if (net::X509Certificate::GetPEMEncoded(os_handle, &encoded)) {
-    pem_encoded = CefBinaryValue::Create(encoded.c_str(),
-                                         encoded.size());
-  }
+
+  return bin_encoded;
 }
 
 }  // namespace
 
 CefX509CertificateImpl::CefX509CertificateImpl(
-    const net::X509Certificate& value) {
-  subject_ = new CefX509CertPrincipalImpl(value.subject());
-  issuer_ = new CefX509CertPrincipalImpl(value.issuer());
-
-  const std::string& serial_number = value.serial_number();
-  serial_number_ = CefBinaryValue::Create(serial_number.c_str(),
-                                          serial_number.size());
-
-  const base::Time& valid_start = value.valid_start();
-  if (!valid_start.is_null())
-    cef_time_from_basetime(valid_start, valid_start_);
-
-  const base::Time& valid_expiry = value.valid_expiry();
-  if (!valid_expiry.is_null())
-    cef_time_from_basetime(valid_expiry, valid_expiry_);
-
-  net::X509Certificate::OSCertHandle os_handle = value.os_cert_handle();
-  if (os_handle)
-    EncodeCertificate(os_handle, der_encoded_, pem_encoded_);
-
-  const net::X509Certificate::OSCertHandles& issuer_chain =
-    value.GetIntermediateCertificates();
-  for (net::X509Certificate::OSCertHandles::const_iterator it =
-       issuer_chain.begin(); it != issuer_chain.end(); it++) {
-    CefRefPtr<CefBinaryValue> der_encoded, pem_encoded;
-    EncodeCertificate(*it, der_encoded, pem_encoded);
-
-    // Add each to the chain, even if one conversion unexpectedly failed.
-    // GetIssuerChainSize depends on these being the same length.
-    der_encoded_issuer_chain_.push_back(der_encoded);
-    pem_encoded_issuer_chain_.push_back(pem_encoded);
-  }
+    scoped_refptr<net::X509Certificate> cert)
+  :cert_(cert) {
 }
 
 CefRefPtr<CefX509CertPrincipal> CefX509CertificateImpl::GetSubject() {
-  return subject_;
+  if (cert_)
+    return new CefX509CertPrincipalImpl(cert_->subject());
+  return nullptr;
 }
 
 CefRefPtr<CefX509CertPrincipal> CefX509CertificateImpl::GetIssuer() {
-  return issuer_;
+  if (cert_)
+    return new CefX509CertPrincipalImpl(cert_->issuer());
+  return nullptr;
 }
 
 CefRefPtr<CefBinaryValue> CefX509CertificateImpl::GetSerialNumber() {
-  return serial_number_;
+  if (cert_) {
+    const std::string& serial = cert_->serial_number();
+    return CefBinaryValue::Create(serial.c_str(), serial.size());
+  }
+  return nullptr;
 }
 
 CefTime CefX509CertificateImpl::GetValidStart() {
-  return valid_start_;
+  CefTime validity;
+  if (cert_) {
+    const base::Time& valid_time = cert_->valid_start();
+    if (!valid_time.is_null())
+      cef_time_from_basetime(valid_time, validity);
+  }
+  return validity;
 }
 
 CefTime CefX509CertificateImpl::GetValidExpiry() {
-  return valid_expiry_;
+  CefTime validity;
+  if (cert_) {
+    const base::Time& valid_time = cert_->valid_expiry();
+    if (!valid_time.is_null())
+      cef_time_from_basetime(valid_time, validity);
+  }
+  return validity;
 }
 
 CefRefPtr<CefBinaryValue> CefX509CertificateImpl::GetDEREncoded() {
-  return der_encoded_;
+  if (cert_) {
+    net::X509Certificate::OSCertHandle os_handle = cert_->os_cert_handle();
+    if (os_handle)
+      return EncodeCertificate(os_handle, true);
+  }
+  return nullptr;
 }
 
 CefRefPtr<CefBinaryValue> CefX509CertificateImpl::GetPEMEncoded() {
-  return pem_encoded_;
+  if (cert_) {
+    net::X509Certificate::OSCertHandle os_handle = cert_->os_cert_handle();
+    if (os_handle)
+      return EncodeCertificate(os_handle, false);
+  }
+  return nullptr;
 }
 
 size_t CefX509CertificateImpl::GetIssuerChainSize() {
-  return der_encoded_issuer_chain_.size();
+  if (cert_)
+    return cert_->GetIntermediateCertificates().size();
+  return 0;
+}
+
+void CefX509CertificateImpl::GetEncodedIssuerChain(
+    CefX509Certificate::IssuerChainBinaryList& chain, bool der) {
+  chain.clear();
+  if (cert_) {
+    const net::X509Certificate::OSCertHandles& handles =
+        cert_->GetIntermediateCertificates();
+    for (net::X509Certificate::OSCertHandles::const_iterator it =
+        handles.begin(); it != handles.end(); it++) {
+      // Add each to the chain, even if one conversion unexpectedly failed.
+      // GetIssuerChainSize depends on these being the same length.
+      chain.push_back(EncodeCertificate(*it, der));
+    }
+  }
 }
 
 void CefX509CertificateImpl::GetDEREncodedIssuerChain(
     CefX509Certificate::IssuerChainBinaryList& chain) {
+  if (der_encoded_issuer_chain_.empty())
+    GetEncodedIssuerChain(der_encoded_issuer_chain_, true);
   chain = der_encoded_issuer_chain_;
 }
 
 void CefX509CertificateImpl::GetPEMEncodedIssuerChain(
     CefX509Certificate::IssuerChainBinaryList& chain) {
+  if (pem_encoded_issuer_chain_.empty())
+    GetEncodedIssuerChain(pem_encoded_issuer_chain_, false);
   chain = pem_encoded_issuer_chain_;
 }

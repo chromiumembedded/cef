@@ -17,6 +17,8 @@
 #include "libcef_dll/cpptoc/request_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/response_cpptoc.h"
 #include "libcef_dll/cpptoc/sslinfo_cpptoc.h"
+#include "libcef_dll/cpptoc/select_client_certificate_callback_cpptoc.h"
+#include "libcef_dll/cpptoc/x509certificate_cpptoc.h"
 #include "libcef_dll/ctocpp/request_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/resource_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/response_filter_ctocpp.h"
@@ -446,6 +448,60 @@ bool CefRequestHandlerCToCpp::OnCertificateError(CefRefPtr<CefBrowser> browser,
       request_url.GetStruct(),
       CefSSLInfoCppToC::Wrap(ssl_info),
       CefRequestCallbackCppToC::Wrap(callback));
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+bool CefRequestHandlerCToCpp::OnSelectClientCertificate(
+    CefRefPtr<CefBrowser> browser, bool isProxy, const CefString& host,
+    int port, const CefX509CertificateList& certificates,
+    CefRefPtr<CefSelectClientCertificateCallback> callback) {
+  cef_request_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_select_client_certificate))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser.get());
+  if (!browser.get())
+    return false;
+  // Verify param: host; type: string_byref_const
+  DCHECK(!host.empty());
+  if (host.empty())
+    return false;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback.get());
+  if (!callback.get())
+    return false;
+
+  // Translate param: certificates; type: refptr_vec_diff_byref_const
+  const size_t certificatesCount = certificates.size();
+  cef_x509certificate_t** certificatesList = NULL;
+  if (certificatesCount > 0) {
+    certificatesList = new cef_x509certificate_t*[certificatesCount];
+    DCHECK(certificatesList);
+    if (certificatesList) {
+      for (size_t i = 0; i < certificatesCount; ++i) {
+        certificatesList[i] = CefX509CertificateCppToC::Wrap(certificates[i]);
+      }
+    }
+  }
+
+  // Execute
+  int _retval = _struct->on_select_client_certificate(_struct,
+      CefBrowserCppToC::Wrap(browser),
+      isProxy,
+      host.GetStruct(),
+      port,
+      certificatesCount,
+      certificatesList,
+      CefSelectClientCertificateCallbackCppToC::Wrap(callback));
+
+  // Restore param:certificates; type: refptr_vec_diff_byref_const
+  if (certificatesList)
+    delete [] certificatesList;
 
   // Return type: bool
   return _retval?true:false;

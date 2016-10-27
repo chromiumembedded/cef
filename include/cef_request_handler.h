@@ -47,7 +47,7 @@
 #include "include/cef_response_filter.h"
 #include "include/cef_request.h"
 #include "include/cef_ssl_info.h"
-
+#include "include/cef_x509_certificate.h"
 
 ///
 // Callback interface used for asynchronous continuation of url requests.
@@ -67,6 +67,21 @@ class CefRequestCallback : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual void Cancel() =0;
+};
+
+
+///
+// Callback interface used to select a client certificate for authentication.
+///
+/*--cef(source=library)--*/
+class CefSelectClientCertificateCallback : public virtual CefBase {
+ public:
+  ///
+  // Chooses the specified certificate for client certificate authentication.
+  // NULL value means that no client certificate should be used.
+  ///
+  /*--cef(optional_param=cert)--*/
+  virtual void Select(CefRefPtr<CefX509Certificate> cert) =0;
 };
 
 
@@ -279,6 +294,29 @@ class CefRequestHandler : public virtual CefBase {
       const CefString& request_url,
       CefRefPtr<CefSSLInfo> ssl_info,
       CefRefPtr<CefRequestCallback> callback) {
+    return false;
+  }
+
+  ///
+  // Called on the UI thread when a client certificate is being requested for
+  // authentication. Return false to use the default behavior and automatically
+  // select the first certificate available. Return true and call
+  // CefSelectClientCertificateCallback::Select either in this method or at a
+  // later time to select a certificate. Do not call Select or call it with NULL
+  // to continue without using any certificate. |isProxy| indicates whether the
+  // host is an HTTPS proxy or the origin server. |host| and |port| contains the
+  // hostname and port of the SSL server. |certificates| is the list of
+  // certificates to choose from; this list has already been pruned by Chromium
+  // so that it only contains certificates from issuers that the server trusts.
+  ///
+  /*--cef()--*/
+  virtual bool OnSelectClientCertificate(
+      CefRefPtr<CefBrowser> browser,
+      bool isProxy,
+      const CefString& host,
+      int port,
+      const CefX509CertificateList& certificates,
+      CefRefPtr<CefSelectClientCertificateCallback> callback) {
     return false;
   }
 

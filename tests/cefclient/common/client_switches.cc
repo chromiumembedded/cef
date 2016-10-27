@@ -35,6 +35,7 @@ const char kUseViews[] = "use-views";
 const char kHideFrame[] = "hide-frame";
 const char kHideControls[] = "hide-controls";
 const char kWidevineCdmPath[] = "widevine-cdm-path";
+const char kSslClientCertificate[] = "ssl-client-certificate";
 
 }  // namespace switches
 }  // namespace client

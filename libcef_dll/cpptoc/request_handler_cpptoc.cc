@@ -20,6 +20,8 @@
 #include "libcef_dll/ctocpp/request_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/response_ctocpp.h"
 #include "libcef_dll/ctocpp/sslinfo_ctocpp.h"
+#include "libcef_dll/ctocpp/select_client_certificate_callback_ctocpp.h"
+#include "libcef_dll/ctocpp/x509certificate_ctocpp.h"
 
 
 namespace {
@@ -466,6 +468,56 @@ int CEF_CALLBACK request_handler_on_certificate_error(
   return _retval;
 }
 
+int CEF_CALLBACK request_handler_on_select_client_certificate(
+    struct _cef_request_handler_t* self, cef_browser_t* browser, int isProxy,
+    const cef_string_t* host, int port, size_t certificatesCount,
+    struct _cef_x509certificate_t* const* certificates,
+    cef_select_client_certificate_callback_t* callback) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return 0;
+  // Verify param: host; type: string_byref_const
+  DCHECK(host);
+  if (!host)
+    return 0;
+  // Verify param: certificates; type: refptr_vec_diff_byref_const
+  DCHECK(certificatesCount == 0 || certificates);
+  if (certificatesCount > 0 && !certificates)
+    return 0;
+  // Verify param: callback; type: refptr_diff
+  DCHECK(callback);
+  if (!callback)
+    return 0;
+
+  // Translate param: certificates; type: refptr_vec_diff_byref_const
+  std::vector<CefRefPtr<CefX509Certificate> > certificatesList;
+  if (certificatesCount > 0) {
+    for (size_t i = 0; i < certificatesCount; ++i) {
+      CefRefPtr<CefX509Certificate> certificatesVal =
+          CefX509CertificateCToCpp::Wrap(certificates[i]);
+      certificatesList.push_back(certificatesVal);
+    }
+  }
+
+  // Execute
+  bool _retval = CefRequestHandlerCppToC::Get(self)->OnSelectClientCertificate(
+      CefBrowserCToCpp::Wrap(browser),
+      isProxy?true:false,
+      CefString(host),
+      port,
+      certificatesList,
+      CefSelectClientCertificateCallbackCToCpp::Wrap(callback));
+
+  // Return type: bool
+  return _retval;
+}
+
 void CEF_CALLBACK request_handler_on_plugin_crashed(
     struct _cef_request_handler_t* self, cef_browser_t* browser,
     const cef_string_t* plugin_path) {
@@ -546,6 +598,8 @@ CefRequestHandlerCppToC::CefRequestHandlerCppToC() {
   GetStruct()->on_quota_request = request_handler_on_quota_request;
   GetStruct()->on_protocol_execution = request_handler_on_protocol_execution;
   GetStruct()->on_certificate_error = request_handler_on_certificate_error;
+  GetStruct()->on_select_client_certificate =
+      request_handler_on_select_client_certificate;
   GetStruct()->on_plugin_crashed = request_handler_on_plugin_crashed;
   GetStruct()->on_render_view_ready = request_handler_on_render_view_ready;
   GetStruct()->on_render_process_terminated =

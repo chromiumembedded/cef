@@ -34,6 +34,6 @@ cef_ssl_content_status_t CefSSLStatusImpl::GetContentStatus() {
 
 CefRefPtr<CefX509Certificate> CefSSLStatusImpl::GetX509Certificate() {
   if (certificate_ && !cef_certificate_)
-    cef_certificate_ = new CefX509CertificateImpl(*certificate_);
+    cef_certificate_ = new CefX509CertificateImpl(certificate_);
   return cef_certificate_;
 }

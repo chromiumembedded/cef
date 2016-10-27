@@ -29,6 +29,7 @@ extern const char kUseViews[];
 extern const char kHideFrame[];
 extern const char kHideControls[];
 extern const char kWidevineCdmPath[];
+extern const char kSslClientCertificate[];
 
 }  // namespace switches
 }  // namespace client
