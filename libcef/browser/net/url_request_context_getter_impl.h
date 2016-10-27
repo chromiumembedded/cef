@@ -86,6 +86,8 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
 
  private:
   void CreateProxyConfigService();
+  void UpdateServerWhitelist();
+  void UpdateDelegateWhitelist();
 
   const CefRequestContextSettings settings_;
 
@@ -115,6 +117,9 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
 
   // Member variables which are pointed to by the various context objects.
   mutable BooleanPrefMember force_google_safesearch_;
+
+  StringPrefMember auth_server_whitelist_;
+  StringPrefMember auth_negotiate_delegate_whitelist_;
 
   DISALLOW_COPY_AND_ASSIGN(CefURLRequestContextGetterImpl);
 };
