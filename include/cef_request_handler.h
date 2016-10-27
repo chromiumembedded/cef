@@ -38,6 +38,8 @@
 #define CEF_INCLUDE_CEF_REQUEST_HANDLER_H_
 #pragma once
 
+#include <vector>
+
 #include "include/cef_auth_callback.h"
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
@@ -96,6 +98,7 @@ class CefRequestHandler : public virtual CefBase {
   typedef cef_termination_status_t TerminationStatus;
   typedef cef_urlrequest_status_t URLRequestStatus;
   typedef cef_window_open_disposition_t WindowOpenDisposition;
+  typedef std::vector<CefRefPtr<CefX509Certificate> > X509CertificateList;
 
   ///
   // Called on the UI thread before browser navigation. Return true to cancel
@@ -315,7 +318,7 @@ class CefRequestHandler : public virtual CefBase {
       bool isProxy,
       const CefString& host,
       int port,
-      const CefX509CertificateList& certificates,
+      const X509CertificateList& certificates,
       CefRefPtr<CefSelectClientCertificateCallback> callback) {
     return false;
   }

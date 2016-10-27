@@ -455,7 +455,7 @@ bool CefRequestHandlerCToCpp::OnCertificateError(CefRefPtr<CefBrowser> browser,
 
 bool CefRequestHandlerCToCpp::OnSelectClientCertificate(
     CefRefPtr<CefBrowser> browser, bool isProxy, const CefString& host,
-    int port, const CefX509CertificateList& certificates,
+    int port, const X509CertificateList& certificates,
     CefRefPtr<CefSelectClientCertificateCallback> callback) {
   cef_request_handler_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_select_client_certificate))
