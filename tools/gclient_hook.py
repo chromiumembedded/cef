@@ -7,6 +7,7 @@ from gclient_util import *
 from gn_args import GetAllPlatformConfigs, GetConfigFileContents
 from file_util import make_dir, write_file
 import os, sys
+import issue_1999
 
 # The CEF directory is the parent directory of _this_ script.
 cef_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
@@ -132,3 +133,5 @@ for dir, config in configs.items():
   if 'GN_ARGUMENTS' in os.environ.keys():
     cmd.extend(os.environ['GN_ARGUMENTS'].split(' '))
   RunAction(src_dir, cmd)
+  if platform == 'windows':
+    issue_1999.apply(out_path)
