@@ -183,6 +183,8 @@ void CefURLRequestContextGetterImpl::ShutdownOnUIThread() {
   quick_check_enabled_.Destroy();
   pac_https_url_stripping_enabled_.Destroy();
   force_google_safesearch_.Destroy();
+  auth_server_whitelist_.Destroy();
+  auth_negotiate_delegate_whitelist_.Destroy();
 }
 
 net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
