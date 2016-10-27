@@ -34,6 +34,7 @@
 namespace content {
 class RenderWidgetHost;
 class RenderWidgetHostImpl;
+class RenderWidgetHostViewGuest;
 class BackingStore;
 }
 
@@ -249,6 +250,11 @@ class CefRenderWidgetHostViewOSR
   void AddGuestHostView(CefRenderWidgetHostViewOSR* guest_host);
   void RemoveGuestHostView(CefRenderWidgetHostViewOSR* guest_host);
 
+  // Register a callback that will be executed when |guest_host_view| receives
+  // OnSwapCompositorFrame. The callback triggers repaint of the embedder view.
+  void RegisterGuestViewFrameSwappedCallback(
+      content::RenderWidgetHostViewGuest* guest_host_view);
+
   CefRefPtr<CefBrowserHostImpl> browser_impl() const { return browser_impl_; }
   void set_browser_impl(CefRefPtr<CefBrowserHostImpl> browser) {
     browser_impl_ = browser;
@@ -281,6 +287,11 @@ class CefRenderWidgetHostViewOSR
   void CancelWidget();
 
   void OnScrollOffsetChanged();
+
+  void OnGuestViewFrameSwapped(
+      content::RenderWidgetHostViewGuest* guest_host_view);
+
+  void InvalidateInternal(const gfx::Rect& bounds_in_pixels);
 
 #if defined(OS_MACOSX)
   friend class MacHelper;

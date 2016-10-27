@@ -23,6 +23,7 @@
 #include "components/display_compositor/gl_helper.h"
 #include "content/browser/bad_message.h"
 #include "content/browser/compositor/image_transport_factory.h"
+#include "content/browser/frame_host/render_widget_host_view_guest.h"
 #include "content/browser/renderer_host/dip_util.h"
 #include "content/browser/renderer_host/render_widget_host_delegate.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
@@ -472,6 +473,7 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 #endif
       weak_ptr_factory_(this) {
   DCHECK(render_widget_host_);
+  DCHECK(!render_widget_host_->GetView());
   render_widget_host_->SetView(this);
 
   // CefBrowserHostImpl might not be created at this time for popups.
@@ -1154,13 +1156,7 @@ void CefRenderWidgetHostViewOSR::Invalidate(
     return;
   }
 
-  const gfx::Rect& bounds_in_pixels = gfx::Rect(GetPhysicalBackingSize());
-
-  if (software_output_device_) {
-    software_output_device_->OnPaint(bounds_in_pixels);
-  } else if (copy_frame_generator_.get()) {
-    copy_frame_generator_->GenerateCopyFrame(true, bounds_in_pixels);
-  }
+  InvalidateInternal(gfx::Rect(GetPhysicalBackingSize()));
 }
 
 void CefRenderWidgetHostViewOSR::SendKeyEvent(
@@ -1312,6 +1308,14 @@ void CefRenderWidgetHostViewOSR::AddGuestHostView(
 void CefRenderWidgetHostViewOSR::RemoveGuestHostView(
     CefRenderWidgetHostViewOSR* guest_host) {
   guest_host_views_.erase(guest_host);
+}
+
+void CefRenderWidgetHostViewOSR::RegisterGuestViewFrameSwappedCallback(
+    content::RenderWidgetHostViewGuest* guest_host_view) {
+  guest_host_view->RegisterFrameSwappedCallback(base::MakeUnique<base::Closure>(
+      base::Bind(&CefRenderWidgetHostViewOSR::OnGuestViewFrameSwapped,
+                 weak_ptr_factory_.GetWeakPtr(),
+                 base::Unretained(guest_host_view))));
 }
 
 #if !defined(OS_MACOSX)
@@ -1494,4 +1498,21 @@ void CefRenderWidgetHostViewOSR::OnScrollOffsetChanged() {
     }
   }
   is_scroll_offset_changed_pending_ = false;
+}
+
+void CefRenderWidgetHostViewOSR::OnGuestViewFrameSwapped(
+    content::RenderWidgetHostViewGuest* guest_host_view) {
+  InvalidateInternal(
+      gfx::ConvertRectToPixel(scale_factor_, guest_host_view->GetViewBounds()));
+
+  RegisterGuestViewFrameSwappedCallback(guest_host_view);
+}
+
+void CefRenderWidgetHostViewOSR::InvalidateInternal(
+    const gfx::Rect& bounds_in_pixels) {
+  if (software_output_device_) {
+    software_output_device_->OnPaint(bounds_in_pixels);
+  } else if (copy_frame_generator_.get()) {
+    copy_frame_generator_->GenerateCopyFrame(true, bounds_in_pixels);
+  }
 }
