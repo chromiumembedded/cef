@@ -69,6 +69,10 @@ class CefRequestHandlerCToCpp
       cef_errorcode_t cert_error, const CefString& request_url,
       CefRefPtr<CefSSLInfo> ssl_info,
       CefRefPtr<CefRequestCallback> callback) override;
+  bool OnSelectClientCertificate(CefRefPtr<CefBrowser> browser, bool isProxy,
+      const CefString& host, int port,
+      const CefX509CertificateList& certificates,
+      CefRefPtr<CefSelectClientCertificateCallback> callback) override;
   void OnPluginCrashed(CefRefPtr<CefBrowser> browser,
       const CefString& plugin_path) override;
   void OnRenderViewReady(CefRefPtr<CefBrowser> browser) override;

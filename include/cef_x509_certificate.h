@@ -185,4 +185,6 @@ class CefX509Certificate : public virtual CefBase {
   virtual void GetPEMEncodedIssuerChain(IssuerChainBinaryList& chain) =0;
 };
 
+typedef std::vector<CefRefPtr<CefX509Certificate> > CefX509CertificateList;
+
 #endif  // CEF_INCLUDE_CEF_X509_CERTIFICATE_H_

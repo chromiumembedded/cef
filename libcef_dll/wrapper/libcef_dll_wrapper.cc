@@ -129,6 +129,7 @@
 #include "libcef_dll/ctocpp/sslstatus_ctocpp.h"
 #include "libcef_dll/ctocpp/scheme_registrar_ctocpp.h"
 #include "libcef_dll/ctocpp/views/scroll_view_ctocpp.h"
+#include "libcef_dll/ctocpp/select_client_certificate_callback_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_reader_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
 #include "libcef_dll/ctocpp/task_runner_ctocpp.h"
@@ -302,6 +303,8 @@ CEF_GLOBAL void CefShutdown() {
       &CefSchemeHandlerFactoryCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefSchemeRegistrarCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefScrollViewCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefSelectClientCertificateCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefSetCookieCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefStreamReaderCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefStreamWriterCToCpp::DebugObjCt));

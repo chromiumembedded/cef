@@ -700,6 +700,42 @@ bool ClientHandler::OnCertificateError(
   return false;  // Cancel the request.
 }
 
+bool ClientHandler::OnSelectClientCertificate(
+    CefRefPtr<CefBrowser> browser,
+    bool isProxy,
+    const CefString& host,
+    int port,
+    const CefX509CertificateList& certificates,
+    CefRefPtr<CefSelectClientCertificateCallback> callback) {
+  CEF_REQUIRE_UI_THREAD();
+
+  CefRefPtr<CefCommandLine> command_line =
+      CefCommandLine::GetGlobalCommandLine();
+  if (!command_line->HasSwitch(switches::kSslClientCertificate)) {
+    return false;
+  }
+
+  const std::string& cert_name =
+      command_line->GetSwitchValue(switches::kSslClientCertificate);
+
+  if (cert_name.empty()) {
+    callback->Select(NULL);
+    return true;
+  }
+
+  std::vector<CefRefPtr<CefX509Certificate> >::const_iterator it =
+      certificates.begin();
+  for (; it != certificates.end(); ++it) {
+    CefString subject((*it)->GetSubject()->GetDisplayName());
+    if (subject == cert_name) {
+      callback->Select(*it);
+      return true;
+    }
+  }
+
+  return true;
+}
+
 void ClientHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
                                               TerminationStatus status) {
   CEF_REQUIRE_UI_THREAD();

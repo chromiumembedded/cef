@@ -11,7 +11,7 @@ CefSSLInfoImpl::CefSSLInfoImpl(const net::SSLInfo& value)
     : cert_status_(CERT_STATUS_NONE) {
   cert_status_ = static_cast<cef_cert_status_t>(value.cert_status);
   if (value.cert.get()) {
-    cert_ = new CefX509CertificateImpl(*value.cert);
+    cert_ = new CefX509CertificateImpl(value.cert);
   }
 }
 

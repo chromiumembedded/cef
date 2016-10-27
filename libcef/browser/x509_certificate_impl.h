@@ -13,7 +13,7 @@
 // CefX509Certificate implementation
 class CefX509CertificateImpl : public CefX509Certificate {
  public:
-  explicit CefX509CertificateImpl(const net::X509Certificate& value);
+  explicit CefX509CertificateImpl(scoped_refptr<net::X509Certificate> cert);
 
   // CefX509Certificate methods.
   CefRefPtr<CefX509CertPrincipal> GetSubject() override;
@@ -27,16 +27,14 @@ class CefX509CertificateImpl : public CefX509Certificate {
   void GetDEREncodedIssuerChain(IssuerChainBinaryList& chain) override;
   void GetPEMEncodedIssuerChain(IssuerChainBinaryList& chain) override;
 
+  scoped_refptr<net::X509Certificate> GetInternalCertObject() { return cert_; }
+
  private:
-  CefRefPtr<CefX509CertPrincipal> subject_;
-  CefRefPtr<CefX509CertPrincipal> issuer_;
-  CefRefPtr<CefBinaryValue> serial_number_;
-  CefTime valid_start_;
-  CefTime valid_expiry_;
-  CefRefPtr<CefBinaryValue> der_encoded_;
-  CefRefPtr<CefBinaryValue> pem_encoded_;
-  IssuerChainBinaryList der_encoded_issuer_chain_;
+  void GetEncodedIssuerChain(IssuerChainBinaryList& chain, bool der);
+
+  scoped_refptr<net::X509Certificate> cert_;
   IssuerChainBinaryList pem_encoded_issuer_chain_;
+  IssuerChainBinaryList der_encoded_issuer_chain_;
 
   IMPLEMENT_REFCOUNTING(CefX509CertificateImpl);
   DISALLOW_COPY_AND_ASSIGN(CefX509CertificateImpl);

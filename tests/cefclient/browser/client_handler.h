@@ -252,6 +252,13 @@ class ClientHandler : public CefClient,
       const CefString& request_url,
       CefRefPtr<CefSSLInfo> ssl_info,
       CefRefPtr<CefRequestCallback> callback) OVERRIDE;
+  bool OnSelectClientCertificate(
+      CefRefPtr<CefBrowser> browser,
+      bool isProxy,
+      const CefString& host,
+      int port,
+      const CefX509CertificateList& certificates,
+      CefRefPtr<CefSelectClientCertificateCallback> callback) OVERRIDE;
   void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
                                  TerminationStatus status) OVERRIDE;
 
