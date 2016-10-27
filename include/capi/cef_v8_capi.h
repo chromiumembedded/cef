@@ -214,6 +214,70 @@ typedef struct _cef_v8accessor_t {
 
 
 ///
+// Structure that should be implemented to handle V8 interceptor calls. The
+// functions of this structure will be called on the thread associated with the
+// V8 interceptor. Interceptor's named property handlers (with first argument of
+// type CefString) are called when object is indexed by string. Indexed property
+// handlers (with first argument of type int) are called when object is indexed
+// by integer.
+///
+typedef struct _cef_v8interceptor_t {
+  ///
+  // Base structure.
+  ///
+  cef_base_t base;
+
+  ///
+  // Handle retrieval of the interceptor value identified by |name|. |object| is
+  // the receiver ('this' object) of the interceptor. If retrieval succeeds, set
+  // |retval| to the return value. If the requested value does not exist, don't
+  // set either |retval| or |exception|. If retrieval fails, set |exception| to
+  // the exception that will be thrown. If the property has an associated
+  // accessor, it will be called only if you don't set |retval|. Return true (1)
+  // if interceptor retrieval was handled, false (0) otherwise.
+  ///
+  int (CEF_CALLBACK *get_byname)(struct _cef_v8interceptor_t* self,
+      const cef_string_t* name, struct _cef_v8value_t* object,
+      struct _cef_v8value_t** retval, cef_string_t* exception);
+
+  ///
+  // Handle retrieval of the interceptor value identified by |index|. |object|
+  // is the receiver ('this' object) of the interceptor. If retrieval succeeds,
+  // set |retval| to the return value. If the requested value does not exist,
+  // don't set either |retval| or |exception|. If retrieval fails, set
+  // |exception| to the exception that will be thrown. Return true (1) if
+  // interceptor retrieval was handled, false (0) otherwise.
+  ///
+  int (CEF_CALLBACK *get_byindex)(struct _cef_v8interceptor_t* self, int index,
+      struct _cef_v8value_t* object, struct _cef_v8value_t** retval,
+      cef_string_t* exception);
+
+  ///
+  // Handle assignment of the interceptor value identified by |name|. |object|
+  // is the receiver ('this' object) of the interceptor. |value| is the new
+  // value being assigned to the interceptor. If assignment fails, set
+  // |exception| to the exception that will be thrown. This setter will always
+  // be called, even when the property has an associated accessor. Return true
+  // (1) if interceptor assignment was handled, false (0) otherwise.
+  ///
+  int (CEF_CALLBACK *set_byname)(struct _cef_v8interceptor_t* self,
+      const cef_string_t* name, struct _cef_v8value_t* object,
+      struct _cef_v8value_t* value, cef_string_t* exception);
+
+  ///
+  // Handle assignment of the interceptor value identified by |index|. |object|
+  // is the receiver ('this' object) of the interceptor. |value| is the new
+  // value being assigned to the interceptor. If assignment fails, set
+  // |exception| to the exception that will be thrown. Return true (1) if
+  // interceptor assignment was handled, false (0) otherwise.
+  ///
+  int (CEF_CALLBACK *set_byindex)(struct _cef_v8interceptor_t* self, int index,
+      struct _cef_v8value_t* object, struct _cef_v8value_t* value,
+      cef_string_t* exception);
+} cef_v8interceptor_t;
+
+
+///
 // Structure representing a V8 exception. The functions of this structure may be
 // called on any render process thread.
 ///
@@ -654,13 +718,14 @@ CEF_EXPORT cef_v8value_t* cef_v8value_create_date(const cef_time_t* date);
 CEF_EXPORT cef_v8value_t* cef_v8value_create_string(const cef_string_t* value);
 
 ///
-// Create a new cef_v8value_t object of type object with optional accessor. This
-// function should only be called from within the scope of a
-// cef_render_process_handler_t, cef_v8handler_t or cef_v8accessor_t callback,
-// or in combination with calling enter() and exit() on a stored cef_v8context_t
-// reference.
+// Create a new cef_v8value_t object of type object with optional accessor
+// and/or interceptor. This function should only be called from within the scope
+// of a cef_render_process_handler_t, cef_v8handler_t or cef_v8accessor_t
+// callback, or in combination with calling enter() and exit() on a stored
+// cef_v8context_t reference.
 ///
-CEF_EXPORT cef_v8value_t* cef_v8value_create_object(cef_v8accessor_t* accessor);
+CEF_EXPORT cef_v8value_t* cef_v8value_create_object(cef_v8accessor_t* accessor,
+    cef_v8interceptor_t* interceptor);
 
 ///
 // Create a new cef_v8value_t object of type array with the specified |length|.

@@ -13,6 +13,7 @@
 #include "libcef_dll/cpptoc/base_cpptoc.h"
 #include "libcef_dll/cpptoc/v8accessor_cpptoc.h"
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
+#include "libcef_dll/cpptoc/v8interceptor_cpptoc.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
 #include "libcef_dll/ctocpp/v8exception_ctocpp.h"
 #include "libcef_dll/ctocpp/v8value_ctocpp.h"
@@ -110,14 +111,16 @@ CefRefPtr<CefV8Value> CefV8Value::CreateString(const CefString& value) {
 }
 
 CefRefPtr<CefV8Value> CefV8Value::CreateObject(
-    CefRefPtr<CefV8Accessor> accessor) {
+    CefRefPtr<CefV8Accessor> accessor,
+    CefRefPtr<CefV8Interceptor> interceptor) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Unverified params: accessor
+  // Unverified params: accessor, interceptor
 
   // Execute
   cef_v8value_t* _retval = cef_v8value_create_object(
-      CefV8AccessorCppToC::Wrap(accessor));
+      CefV8AccessorCppToC::Wrap(accessor),
+      CefV8InterceptorCppToC::Wrap(interceptor));
 
   // Return type: refptr_same
   return CefV8ValueCToCpp::Wrap(_retval);

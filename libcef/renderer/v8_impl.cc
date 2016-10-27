@@ -337,6 +337,14 @@ class V8TrackObject : public CefTrackNode {
     return accessor_;
   }
 
+  inline void SetInterceptor(CefRefPtr<CefV8Interceptor> interceptor) {
+    interceptor_ = interceptor;
+  }
+
+  inline CefRefPtr<CefV8Interceptor> GetInterceptor() {
+    return interceptor_;
+  }
+
   inline void SetHandler(CefRefPtr<CefV8Handler> handler) {
     handler_ = handler;
   }
@@ -373,6 +381,7 @@ class V8TrackObject : public CefTrackNode {
  private:
   v8::Isolate* isolate_;
   CefRefPtr<CefV8Accessor> accessor_;
+  CefRefPtr<CefV8Interceptor> interceptor_;
   CefRefPtr<CefV8Handler> handler_;
   CefRefPtr<CefBase> user_data_;
   int external_memory_;
@@ -642,6 +651,77 @@ void AccessorNameSetterCallbackImpl(
           v8::Exception::Error(GetV8String(isolate, exception)));
       return;
     }
+  }
+}
+
+// Two helper functions for V8 Interceptor callbacks.
+CefString PropertyToIndex(v8::Local<v8::String> str) {
+  CefString name;
+  GetCefString(str, name);
+  return name;
+}
+
+int PropertyToIndex(uint32_t index) {
+  return static_cast<int>(index);
+}
+
+// V8 Interceptor callbacks.
+// T == v8::Local<v8::String> for named property handlers and
+// T == uint32_t for indexed property handlers
+template<typename T>
+void InterceptorGetterCallbackImpl(
+    T property,
+    const v8::PropertyCallbackInfo<v8::Value>& info) {
+  v8::Isolate* isolate = info.GetIsolate();
+  v8::Local<v8::Context> context = isolate->GetCurrentContext();
+
+  v8::Handle<v8::Object> obj = info.This();
+  CefRefPtr<CefV8Interceptor> interceptorPtr;
+
+  V8TrackObject* tracker = V8TrackObject::Unwrap(context, obj);
+  if (tracker)
+    interceptorPtr = tracker->GetInterceptor();
+  if (!interceptorPtr.get())
+    return;
+
+  CefRefPtr<CefV8Value> object = new CefV8ValueImpl(isolate, context, obj);
+  CefRefPtr<CefV8Value> retval;
+  CefString exception;
+  interceptorPtr->Get(PropertyToIndex(property), object, retval, exception);
+  if (!exception.empty()) {
+    info.GetReturnValue().Set(isolate->ThrowException(
+        v8::Exception::Error(GetV8String(isolate, exception))));
+  } else {
+    CefV8ValueImpl* retval_impl = static_cast<CefV8ValueImpl*>(retval.get());
+    if (retval_impl && retval_impl->IsValid()) {
+      info.GetReturnValue().Set(retval_impl->GetV8Value(true));
+    }
+  }
+}
+
+template<typename T>
+void InterceptorSetterCallbackImpl(
+    T property,
+    v8::Local<v8::Value> value,
+    const v8::PropertyCallbackInfo<v8::Value>& info) {
+  v8::Isolate* isolate = info.GetIsolate();
+  v8::Local<v8::Context> context = isolate->GetCurrentContext();
+  v8::Handle<v8::Object> obj = info.This();
+  CefRefPtr<CefV8Interceptor> interceptorPtr;
+
+  V8TrackObject* tracker = V8TrackObject::Unwrap(context, obj);
+  if (tracker)
+    interceptorPtr = tracker->GetInterceptor();
+
+  if (!interceptorPtr.get())
+    return;
+  CefRefPtr<CefV8Value> object = new CefV8ValueImpl(isolate, context, obj);
+  CefRefPtr<CefV8Value> cefValue = new CefV8ValueImpl(isolate, context, value);
+  CefString exception;
+  interceptorPtr->Set(PropertyToIndex(property), object, cefValue, exception);
+  if (!exception.empty()) {
+    isolate->ThrowException(
+        v8::Exception::Error(GetV8String(isolate, exception)));
   }
 }
 
@@ -1260,7 +1340,8 @@ CefRefPtr<CefV8Value> CefV8Value::CreateString(const CefString& value) {
 
 // static
 CefRefPtr<CefV8Value> CefV8Value::CreateObject(
-    CefRefPtr<CefV8Accessor> accessor) {
+    CefRefPtr<CefV8Accessor> accessor,
+    CefRefPtr<CefV8Interceptor> interceptor) {
   CEF_V8_REQUIRE_ISOLATE_RETURN(NULL);
 
   v8::Isolate* isolate = GetIsolateManager()->isolate();
@@ -1272,13 +1353,28 @@ CefRefPtr<CefV8Value> CefV8Value::CreateObject(
     return NULL;
   }
 
-  // Create the new V8 object.
-  v8::Local<v8::Object> obj = v8::Object::New(isolate);
+  // Create the new V8 object. If an interceptor is passed, create object from
+  // template and set property handlers.
+  v8::Local<v8::Object> obj;
+  if (interceptor.get()) {
+    v8::Local<v8::ObjectTemplate> tmpl = v8::ObjectTemplate::New(isolate);
+    tmpl->SetNamedPropertyHandler(
+      InterceptorGetterCallbackImpl<v8::Local<v8::String>>,
+      InterceptorSetterCallbackImpl<v8::Local<v8::String>>);
+
+    tmpl->SetIndexedPropertyHandler(InterceptorGetterCallbackImpl<uint32_t>,
+                                    InterceptorSetterCallbackImpl<uint32_t>);
+    obj = tmpl->NewInstance();
+  } else {
+    obj = v8::Object::New(isolate);
+  }
 
   // Create a tracker object that will cause the user data and/or accessor
-  // reference to be released when the V8 object is destroyed.
+  // and/or interceptor reference to be released when the V8 object is
+  // destroyed.
   V8TrackObject* tracker = new V8TrackObject(isolate);
   tracker->SetAccessor(accessor);
+  tracker->SetInterceptor(interceptor);
 
   // Attach the tracker object.
   tracker->AttachTo(context, obj);
