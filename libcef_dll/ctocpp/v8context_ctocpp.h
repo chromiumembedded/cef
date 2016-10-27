@@ -38,7 +38,8 @@ class CefV8ContextCToCpp
   bool Enter() OVERRIDE;
   bool Exit() OVERRIDE;
   bool IsSame(CefRefPtr<CefV8Context> that) OVERRIDE;
-  bool Eval(const CefString& code, CefRefPtr<CefV8Value>& retval,
+  bool Eval(const CefString& code, const CefString& script_url, int start_line,
+      CefRefPtr<CefV8Value>& retval,
       CefRefPtr<CefV8Exception>& exception) OVERRIDE;
 };
 

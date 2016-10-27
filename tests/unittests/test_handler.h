@@ -32,6 +32,28 @@ class TrackCallback {
   bool gotit_;
 };
 
+class ResourceContent {
+ public:
+   typedef std::multimap<std::string, std::string> HeaderMap;
+
+   ResourceContent(const std::string& content,
+                   const std::string& mime_type,
+                   const HeaderMap& header_map)
+    : content_(content),
+      mime_type_(mime_type),
+      header_map_(header_map)
+  {}
+
+  const std::string& content() const { return content_; }
+  const std::string& mimeType() const { return mime_type_; }
+  const HeaderMap& headerMap() const { return header_map_; }
+
+ private:
+  std::string content_;
+  std::string mime_type_;
+  HeaderMap header_map_;
+};
+
 
 // Base implementation of CefClient for unit tests. Add new interfaces as needed
 // by test cases.
@@ -235,7 +257,15 @@ class TestHandler : public CefClient,
 
   void AddResource(const std::string& url,
                    const std::string& content,
-                   const std::string& mimeType);
+                   const std::string& mime_type);
+
+  void AddResource(const std::string& url,
+                   const std::string& content,
+                   const std::string& mime_type,
+                   const ResourceContent::HeaderMap& header_map);
+
+  void AddResourceEx(const std::string& url, const ResourceContent& content);
+
   void ClearResources();
 
   void SetSignalCompletionWhenAllBrowsersClose(bool val) {
@@ -274,8 +304,7 @@ class TestHandler : public CefClient,
 
   // Map of resources that can be automatically loaded. Only accessed on the
   // IO thread.
-  typedef std::map<std::string, std::pair<std::string, std::string> >
-      ResourceMap;
+  typedef std::map<std::string, ResourceContent > ResourceMap;
   ResourceMap resource_map_;
 
   // If true test completion will be signaled when all browsers have closed.

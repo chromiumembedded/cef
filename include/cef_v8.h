@@ -206,13 +206,17 @@ class CefV8Context : public virtual CefBase {
   virtual bool IsSame(CefRefPtr<CefV8Context> that) =0;
 
   ///
-  // Evaluates the specified JavaScript code using this context's global object.
-  // On success |retval| will be set to the return value, if any, and the
-  // function will return true. On failure |exception| will be set to the
+  // Execute a string of JavaScript code in this V8 context. The |script_url|
+  // parameter is the URL where the script in question can be found, if any.
+  // The |start_line| parameter is the base line number to use for error
+  // reporting. On success |retval| will be set to the return value, if any, and
+  // the function will return true. On failure |exception| will be set to the
   // exception, if any, and the function will return false.
   ///
-  /*--cef()--*/
+  /*--cef(optional_param=script_url)--*/
   virtual bool Eval(const CefString& code,
+                    const CefString& script_url,
+                    int start_line,
                     CefRefPtr<CefV8Value>& retval,
                     CefRefPtr<CefV8Exception>& exception) =0;
 };

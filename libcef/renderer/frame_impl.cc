@@ -162,8 +162,8 @@ void CefFrameImpl::ExecuteJavaScript(const CefString& jsCode,
 
   if (jsCode.empty())
     return;
-  if (startLine < 0)
-    startLine = 0;
+  if (startLine < 1)
+    startLine = 1;
 
   if (frame_) {
     GURL gurl = GURL(scriptUrl.ToString());

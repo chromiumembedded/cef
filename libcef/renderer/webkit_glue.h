@@ -11,6 +11,7 @@
 #include <string>
 
 #include "include/internal/cef_types.h"
+#include "third_party/WebKit/Source/core/fetch/AccessControlStatus.h"
 #include "v8/include/v8.h"
 
 namespace blink {
@@ -51,6 +52,15 @@ v8::MaybeLocal<v8::Value> CallV8Function(v8::Local<v8::Context> context,
                                          int argc,
                                          v8::Local<v8::Value> args[],
                                          v8::Isolate* isolate);
+
+v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
+    const blink::WebString& source,
+    const blink::WebString& source_url,
+    int start_line,
+    v8::Local<v8::Context> context,
+    v8::Isolate* isolate,
+    v8::TryCatch& tryCatch,
+    blink::AccessControlStatus accessControlStatus);
 
 bool IsScriptForbidden();
 
