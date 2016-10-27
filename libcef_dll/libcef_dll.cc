@@ -75,6 +75,7 @@
 #include "libcef_dll/cpptoc/sslstatus_cpptoc.h"
 #include "libcef_dll/cpptoc/scheme_registrar_cpptoc.h"
 #include "libcef_dll/cpptoc/views/scroll_view_cpptoc.h"
+#include "libcef_dll/cpptoc/select_client_certificate_callback_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_reader_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_writer_cpptoc.h"
 #include "libcef_dll/cpptoc/task_runner_cpptoc.h"
@@ -310,6 +311,8 @@ CEF_EXPORT void cef_shutdown() {
       &CefSchemeHandlerFactoryCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefSchemeRegistrarCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefScrollViewCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefSelectClientCertificateCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefSetCookieCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefStreamReaderCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefStreamWriterCppToC::DebugObjCt));

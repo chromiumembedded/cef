@@ -27,6 +27,7 @@
 #include "libcef/browser/speech_recognition_manager_delegate.h"
 #include "libcef/browser/ssl_info_impl.h"
 #include "libcef/browser/thread_util.h"
+#include "libcef/browser/x509_certificate_impl.h"
 #include "libcef/common/cef_messages.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
@@ -205,6 +206,58 @@ class CefAllowCertificateErrorCallbackImpl : public CefRequestCallback {
 
   IMPLEMENT_REFCOUNTING(CefAllowCertificateErrorCallbackImpl);
   DISALLOW_COPY_AND_ASSIGN(CefAllowCertificateErrorCallbackImpl);
+};
+
+class CefSelectClientCertificateCallbackImpl :
+    public CefSelectClientCertificateCallback {
+ public:
+  explicit CefSelectClientCertificateCallbackImpl(
+      std::unique_ptr<content::ClientCertificateDelegate> delegate)
+      : delegate_(std::move(delegate)) {
+  }
+
+  ~CefSelectClientCertificateCallbackImpl() {
+    // If Select has not been called, call it with NULL to continue without any
+    // client certificate.
+    if (delegate_)
+      DoSelect(NULL);
+  }
+
+  void Select(CefRefPtr<CefX509Certificate> cert) override {
+    if (delegate_)
+      DoSelect(cert);
+  }
+
+ private:
+  void DoSelect(CefRefPtr<CefX509Certificate> cert) {
+    if (CEF_CURRENTLY_ON_UIT()) {
+      RunNow(std::move(delegate_), cert);
+    } else {
+      CEF_POST_TASK(CEF_UIT,
+          base::Bind(&CefSelectClientCertificateCallbackImpl::RunNow,
+                     base::Passed(std::move(delegate_)), cert));
+    }
+  }
+
+  static void RunNow(
+      std::unique_ptr<content::ClientCertificateDelegate> delegate,
+      CefRefPtr<CefX509Certificate> cert) {
+    CEF_REQUIRE_UIT();
+
+    scoped_refptr<net::X509Certificate> x509cert = NULL;
+    if (cert) {
+      CefX509CertificateImpl* certImpl =
+          static_cast<CefX509CertificateImpl*>(cert.get());
+      x509cert = certImpl->GetInternalCertObject();
+    }
+
+    delegate->ContinueWithCertificate(x509cert.get());
+  }
+
+  std::unique_ptr<content::ClientCertificateDelegate> delegate_;
+
+  IMPLEMENT_REFCOUNTING(CefSelectClientCertificateCallbackImpl);
+  DISALLOW_COPY_AND_ASSIGN(CefSelectClientCertificateCallbackImpl);
 };
 
 class CefQuotaPermissionContext : public content::QuotaPermissionContext {
@@ -711,9 +764,40 @@ void CefContentBrowserClient::SelectClientCertificate(
     content::WebContents* web_contents,
     net::SSLCertRequestInfo* cert_request_info,
     std::unique_ptr<content::ClientCertificateDelegate> delegate) {
-  if (!cert_request_info->client_certs.empty()) {
-    // Use the first certificate.
-    delegate->ContinueWithCertificate(cert_request_info->client_certs[0].get());
+  CEF_REQUIRE_UIT();
+
+  CefRefPtr<CefRequestHandler> handler;
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserForContents(web_contents);
+  if (browser.get()) {
+    CefRefPtr<CefClient> client = browser->GetClient();
+    if (client.get())
+      handler = client->GetRequestHandler();
+  }
+
+  if (!handler.get()) {
+    delegate->ContinueWithCertificate(NULL);
+    return;
+  }
+
+  CefX509CertificateList certs;
+  for (std::vector<scoped_refptr<net::X509Certificate> >::iterator iter =
+           cert_request_info->client_certs.begin();
+         iter != cert_request_info->client_certs.end(); iter++) {
+    certs.push_back(new CefX509CertificateImpl(*iter));
+  }
+
+  CefRefPtr<CefSelectClientCertificateCallbackImpl> callbackImpl(
+      new CefSelectClientCertificateCallbackImpl(std::move(delegate)));
+
+  bool proceed = handler->OnSelectClientCertificate(
+      browser.get(), cert_request_info->is_proxy,
+      cert_request_info->host_and_port.host(),
+      cert_request_info->host_and_port.port(),
+      certs, callbackImpl.get());
+
+  if (!proceed && !certs.empty()) {
+    callbackImpl->Select(certs[0]);
   }
 }
 

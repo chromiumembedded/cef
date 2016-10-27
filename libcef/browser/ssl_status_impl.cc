@@ -39,7 +39,7 @@ CefRefPtr<CefX509Certificate> CefSSLStatusImpl::GetX509Certificate() {
     scoped_refptr<net::X509Certificate> cert;
     content::CertStore::GetInstance()->RetrieveCert(cert_id_, &cert);    
     if (cert.get())
-      return new CefX509CertificateImpl(*cert);
+      return new CefX509CertificateImpl(cert);
   }
   return nullptr;
 }
