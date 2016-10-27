@@ -291,7 +291,7 @@ PERF_TEST_FUNC(V8ContextEval) {
   CefRefPtr<CefV8Exception> exception;
 
   PERF_ITERATIONS_START()
-  context->Eval(jsCode, retval, exception);
+  context->Eval(jsCode, CefString(), 0, retval, exception);
   PERF_ITERATIONS_END()
 }
 

@@ -1014,8 +1014,13 @@ bool CefV8ContextImpl::IsSame(CefRefPtr<CefV8Context> that) {
 }
 
 bool CefV8ContextImpl::Eval(const CefString& code,
+                            const CefString& script_url,
+                            int start_line,
                             CefRefPtr<CefV8Value>& retval,
                             CefRefPtr<CefV8Exception>& exception) {
+  retval = NULL;
+  exception = NULL;
+
   CEF_V8_REQUIRE_VALID_HANDLE_RETURN(false);
 
   if (webkit_glue::IsScriptForbidden())
@@ -1030,33 +1035,28 @@ bool CefV8ContextImpl::Eval(const CefString& code,
   v8::HandleScope handle_scope(isolate);
   v8::Local<v8::Context> context = GetV8Context();
   v8::Context::Scope context_scope(context);
-  v8::Local<v8::Object> obj = context->Global();
 
-  // Retrieve the eval function.
-  v8::Local<v8::Value> val = obj->Get(v8::String::NewFromUtf8(isolate, "eval"));
-  if (val.IsEmpty() || !val->IsFunction())
-    return false;
-
-  v8::Local<v8::Function> func = v8::Local<v8::Function>::Cast(val);
-  v8::Local<v8::Value> code_val = GetV8String(isolate, code);
+  const blink::WebString& source = code.ToString16();
+  const blink::WebString& source_url = script_url.ToString16();
 
   v8::TryCatch try_catch(isolate);
   try_catch.SetVerbose(true);
 
-  retval = NULL;
-  exception = NULL;
-
   v8::MaybeLocal<v8::Value> func_rv =
-      webkit_glue::CallV8Function(context, func, obj, 1, &code_val,
-                                  handle_->isolate());
+      webkit_glue::ExecuteV8ScriptAndReturnValue(source, source_url, start_line,
+          context, isolate, try_catch,
+          blink::AccessControlStatus::NotSharableCrossOrigin);
 
   if (try_catch.HasCaught()) {
     exception = new CefV8ExceptionImpl(context, try_catch.Message());
     return false;
   } else if (!func_rv.IsEmpty()) {
     retval = new CefV8ValueImpl(isolate, context, func_rv.ToLocalChecked());
+    return true;
   }
-  return true;
+
+  NOTREACHED();
+  return false;
 }
 
 v8::Local<v8::Context> CefV8ContextImpl::GetV8Context() {
