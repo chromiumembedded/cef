@@ -705,7 +705,7 @@ bool ClientHandler::OnSelectClientCertificate(
     bool isProxy,
     const CefString& host,
     int port,
-    const CefX509CertificateList& certificates,
+    const X509CertificateList& certificates,
     CefRefPtr<CefSelectClientCertificateCallback> callback) {
   CEF_REQUIRE_UI_THREAD();
 

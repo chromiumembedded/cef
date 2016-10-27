@@ -780,7 +780,7 @@ void CefContentBrowserClient::SelectClientCertificate(
     return;
   }
 
-  CefX509CertificateList certs;
+  CefRequestHandler::X509CertificateList certs;
   for (std::vector<scoped_refptr<net::X509Certificate> >::iterator iter =
            cert_request_info->client_certs.begin();
          iter != cert_request_info->client_certs.end(); iter++) {

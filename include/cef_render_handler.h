@@ -38,10 +38,11 @@
 #define CEF_INCLUDE_CEF_RENDER_HANDLER_H_
 #pragma once
 
+#include <vector>
+
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
 #include "include/cef_drag_data.h"
-#include <vector>
 
 ///
 // Implement this interface to handle events when window rendering is disabled.
