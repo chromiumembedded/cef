@@ -9,6 +9,12 @@
     CEF Changes
     -----------
 
+    2016/10/27
+        - Create folders for new files created by a patch if needed
+        - Adding support for patches created with git diff on non svn platforms
+          (git diff on OSX creates source/target as /dev/null
+          for new/deleted files)
+
     2015/04/22
         - Write to stdout instead of using warning() for messages
 
@@ -257,7 +263,7 @@ class PatchInfo(object):
               filenames = False
               header = True
             else:
-              self.target.append(match.group(1))
+              self.target.append(match.group(1).strip())
               nextfileno += 1
               # switch to hunkhead state
               filenames = False
@@ -318,8 +324,12 @@ class PatchInfo(object):
 
     total = len(self.source)
     for fileno, filename in enumerate(self.source):
+      # git diff on OSX creates source/target as /dev/null for new/deleted files
+      if filename != '/dev/null':
+        f2patch = filename
+      else:
+        f2patch = self.target[fileno]
 
-      f2patch = filename
       if not root_directory is None:
           f2patch = root_directory + f2patch
       if not exists(f2patch):
@@ -327,6 +337,10 @@ class PatchInfo(object):
         if len(self.hunks[fileno]) == 1 and self.hunks[fileno][0].startsrc == 0:
           hunklines = [x[1:].rstrip("\r\n") for x in self.hunks[fileno][0].text if x[0] in " +"]
           if len(hunklines) > 0:
+            f2patchfolder = os.path.dirname(os.path.abspath(f2patch))
+            if not os.path.exists(f2patchfolder):
+              msg("creating folder %s" % (f2patchfolder))
+              os.makedirs(f2patchfolder)
             msg("creating file %s" % (f2patch))
             f = open(f2patch, "wb")
             for line in hunklines:
