@@ -145,7 +145,7 @@ std::unique_ptr<PrefService> CreatePrefService(
 
   if (store_on_disk) {
     supervised_user_settings->Init(
-        cache_path, sequenced_task_runner.get(), false);
+        cache_path, sequenced_task_runner.get(), true);
   } else {
     scoped_refptr<TestingPrefStore> testing_pref_store = new TestingPrefStore();
     testing_pref_store->SetInitializationCompleted();
