@@ -60,7 +60,6 @@ extern "C" {
 // thread-safe and must only be accessed on the browser process UI thread.
 ///
 CEF_EXPORT XDisplay* cef_get_xdisplay();
-#define cef_text_input_context_t void*
 
 ///
 // Structure representing CefExecuteProcess arguments.

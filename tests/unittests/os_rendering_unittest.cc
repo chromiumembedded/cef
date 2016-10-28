@@ -173,6 +173,14 @@ enum OSRTestType {
   OSR_TEST_DRAG_DROP_UPDATE_CURSOR,
   // dropping element inside drop region will move the element
   OSR_TEST_DRAG_DROP_DROP,
+  // IMESetComposition will update the composition range
+  OSR_TEST_IME_SET_COMPOSITION,
+  // IMECommitText inserts the specified text
+  OSR_TEST_IME_COMMIT_TEXT,
+  // IMEFinishComposition will commit the text present composition text
+  OSR_TEST_IME_FINISH_COMPOSITION,
+  // IMECancelComposition will update the composition range
+  OSR_TEST_IME_CANCEL_COMPOSITION,
 
   // Define the range for popup tests.
   OSR_TEST_POPUP_FIRST = OSR_TEST_POPUP_PAINT,
@@ -224,6 +232,27 @@ class OSRTestHandler : public RoutingTestHandler,
                      frame->GetURL().ToString().c_str());
         DestroySucceededTestSoon();
         } break;
+      case OSR_TEST_IME_COMMIT_TEXT: {
+        const std::string& expected_url =
+            std::string(kTestUrl) + "?k=osrimecommit";
+        EXPECT_STREQ(expected_url.c_str(),
+                     frame->GetURL().ToString().c_str());
+        DestroySucceededTestSoon();
+      } break;
+      case OSR_TEST_IME_FINISH_COMPOSITION: {
+        const std::string& expected_url =
+            std::string(kTestUrl) + "?k=" + kKeyTestWord;
+        EXPECT_STREQ(expected_url.c_str(),
+                     frame->GetURL().ToString().c_str());
+        DestroySucceededTestSoon();
+      } break;
+      case OSR_TEST_IME_CANCEL_COMPOSITION: {
+        const std::string& expected_url =
+            std::string(kTestUrl) + "?k=";
+        EXPECT_STREQ(expected_url.c_str(),
+                     frame->GetURL().ToString().c_str());
+        DestroySucceededTestSoon();
+      } break;
       default:
         // Intentionally left blank
         break;
@@ -717,6 +746,169 @@ class OSRTestHandler : public RoutingTestHandler,
           }
         }
         break;
+      case OSR_TEST_IME_COMMIT_TEXT:
+        {
+          // trigger the IME Set Composition event
+          if (StartTest()) {
+            // click inside edit box so that text could be entered
+            CefMouseEvent mouse_event;
+            mouse_event.x = MiddleX(kEditBoxRect);
+            mouse_event.y = MiddleY(kEditBoxRect);
+            mouse_event.modifiers = 0;
+            browser->GetHost()->SendMouseClickEvent(
+                                      mouse_event, MBT_LEFT, false, 1);
+            browser->GetHost()->SendMouseClickEvent(
+                                      mouse_event, MBT_LEFT, true, 1);
+
+            size_t word_length = strlen(kKeyTestWord);
+            // Add some input keys to edit box
+            for (size_t i = 0; i < word_length; ++i) {
+#if defined(OS_WIN)
+              SendKeyEvent(browser, kKeyTestWord[i]);
+#elif defined(OS_MACOSX)
+              SendKeyEvent(browser, kKeyTestCodes[i]);
+#elif defined(OS_LINUX)
+              SendKeyEvent(browser, kNativeKeyTestCodes[i], kKeyTestCodes[i]);
+#else
+#error "Unsupported platform"
+#endif
+            }
+            // This text should be honored instead of 'ka' added via key events
+            CefString markedText("osrimecommit");
+
+            CefRange range(0, markedText.length());
+            browser->GetHost()->ImeCommitText(markedText, range, 0);
+
+            // click button to navigate
+            mouse_event.x = MiddleX(kNavigateButtonRect);
+            mouse_event.y = MiddleY(kNavigateButtonRect);
+            browser->GetHost()->SendMouseClickEvent(
+                                mouse_event, MBT_LEFT, false, 1);
+            browser->GetHost()->SendMouseClickEvent(
+                                mouse_event, MBT_LEFT, true, 1);
+          }
+        }
+        break;
+      case OSR_TEST_IME_FINISH_COMPOSITION:
+        {
+          // trigger the IME Set Composition event
+          if (StartTest()) {
+            // click inside edit box so that text could be entered
+            CefMouseEvent mouse_event;
+            mouse_event.x = MiddleX(kEditBoxRect);
+            mouse_event.y = MiddleY(kEditBoxRect);
+            mouse_event.modifiers = 0;
+            browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_LEFT,
+                                                    false, 1);
+            browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_LEFT,
+                                                    true, 1);
+
+            size_t word_length = strlen(kKeyTestWord);
+            // Add some input keys to edit box
+            for (size_t i = 0; i < word_length; ++i) {
+#if defined(OS_WIN)
+              SendKeyEvent(browser, kKeyTestWord[i]);
+#elif defined(OS_MACOSX)
+              SendKeyEvent(browser, kKeyTestCodes[i]);
+#elif defined(OS_LINUX)
+              SendKeyEvent(browser, kNativeKeyTestCodes[i], kKeyTestCodes[i]);
+#else
+#error "Unsupported platform"
+#endif
+            }
+
+            // Finish Composition should set the existing composition
+            browser->GetHost()->ImeFinishComposingText(true);
+
+            // click button to navigate
+            mouse_event.x = MiddleX(kNavigateButtonRect);
+            mouse_event.y = MiddleY(kNavigateButtonRect);
+            browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_LEFT,
+                                                    false, 1);
+            browser->GetHost()->SendMouseClickEvent(mouse_event, MBT_LEFT,
+                                                    true, 1);
+          }
+        }
+        break;
+      case OSR_TEST_IME_CANCEL_COMPOSITION:
+        {
+          // trigger the IME Set Composition event
+          if (StartTest()) {
+            // click inside edit box so that text could be entered
+            CefMouseEvent mouse_event;
+            mouse_event.x = MiddleX(kEditBoxRect);
+            mouse_event.y = MiddleY(kEditBoxRect);
+            mouse_event.modifiers = 0;
+            browser->GetHost()->SendMouseClickEvent(
+                                    mouse_event, MBT_LEFT, false, 1);
+            browser->GetHost()->SendMouseClickEvent(
+                                    mouse_event, MBT_LEFT, true, 1);
+            // Add some input keys to edit box
+            CefString markedText("か");
+            std::vector<CefCompositionUnderline> underlines;
+
+            // Use a thin black underline by default.
+            cef_range_t range = {0, markedText.length()};
+            cef_composition_underline_t line = {
+              range, 0xFF000000, 0, false
+            };
+            underlines.push_back(line);
+
+            CefRange replacement_range(0, markedText.length());
+            CefRange selection_range(0,markedText.length());
+
+            // Composition should be updated
+            browser->GetHost()->ImeSetComposition(markedText, underlines,
+                                          replacement_range,selection_range);
+
+            // CancelComposition should clean up the edit text
+            browser->GetHost()->ImeCancelComposition();
+
+            // click button to navigate and verify
+            mouse_event.x = MiddleX(kNavigateButtonRect);
+            mouse_event.y = MiddleY(kNavigateButtonRect);
+            browser->GetHost()->SendMouseClickEvent(
+                                    mouse_event, MBT_LEFT, false, 1);
+            browser->GetHost()->SendMouseClickEvent(
+                                    mouse_event, MBT_LEFT, true, 1);
+          }
+        }
+        break;
+      case OSR_TEST_IME_SET_COMPOSITION:
+        {
+          // trigger the IME Set Composition event
+          if (StartTest()) {
+            // click inside edit box so that text could be entered
+            CefMouseEvent mouse_event;
+            mouse_event.x = MiddleX(kEditBoxRect);
+            mouse_event.y = MiddleY(kEditBoxRect);
+            mouse_event.modifiers = 0;
+            browser->GetHost()->SendMouseClickEvent(
+                                 mouse_event, MBT_LEFT, false, 1);
+            browser->GetHost()->SendMouseClickEvent(
+                                 mouse_event, MBT_LEFT, true, 1);
+
+            // Now set some intermediate text composition
+            CefString markedText("か");
+            std::vector<CefCompositionUnderline> underlines;
+
+            // Use a thin black underline by default.
+            cef_range_t range = {0, markedText.length()};
+            cef_composition_underline_t line = {
+              range, 0xFF000000, 0, false
+            };
+            underlines.push_back(line);
+
+            CefRange replacement_range(0, markedText.length());
+            CefRange selection_range(0,markedText.length());
+
+            // This should update composition range and
+            // trigger the compositionRangeChanged callback
+            browser->GetHost()->ImeSetComposition(markedText, underlines,
+                                          replacement_range,selection_range);
+          }
+        }
+        break;
       default:
         break;
     }
@@ -746,6 +938,17 @@ class OSRTestHandler : public RoutingTestHandler,
     if (test_type_ == OSR_TEST_CURSOR && started()) {
       EXPECT_EQ(CT_HAND, type);
       EXPECT_EQ(NULL, custom_cursor_info.buffer);
+      DestroySucceededTestSoon();
+    }
+  }
+
+  void OnImeCompositionRangeChanged(CefRefPtr<CefBrowser> browser,
+                      const CefRange& range,
+                      const CefRenderHandler::RectList& bounds) override {
+    if (test_type_ == OSR_TEST_IME_SET_COMPOSITION && started()) {
+      EXPECT_EQ(range.from, 0);
+      EXPECT_EQ(range.to, 1);
+      EXPECT_EQ(1U, bounds.size());
       DestroySucceededTestSoon();
     }
   }
@@ -1078,3 +1281,11 @@ OSR_TEST(DragDropUpdateCursor, OSR_TEST_DRAG_DROP_UPDATE_CURSOR, 1.0f);
 OSR_TEST(DragDropUpdateCursor2x, OSR_TEST_DRAG_DROP_UPDATE_CURSOR, 2.0f);
 OSR_TEST(DragDropDropElement, OSR_TEST_DRAG_DROP_DROP, 1.0f);
 OSR_TEST(DragDropDropElement2x, OSR_TEST_DRAG_DROP_DROP, 2.0f);
+OSR_TEST(IMESetComposition, OSR_TEST_IME_SET_COMPOSITION, 1.0f);
+OSR_TEST(IMESetComposition2x, OSR_TEST_IME_SET_COMPOSITION, 2.0f);
+OSR_TEST(IMECommitText, OSR_TEST_IME_COMMIT_TEXT, 1.0f);
+OSR_TEST(IMECommitText2x, OSR_TEST_IME_COMMIT_TEXT, 2.0f);
+OSR_TEST(IMEFinishComposition, OSR_TEST_IME_FINISH_COMPOSITION, 1.0f);
+OSR_TEST(IMEFinishComposition2x, OSR_TEST_IME_FINISH_COMPOSITION, 2.0f);
+OSR_TEST(IMECancelComposition, OSR_TEST_IME_CANCEL_COMPOSITION, 1.0f);
+OSR_TEST(IMECancelComposition2x, OSR_TEST_IME_CANCEL_COMPOSITION, 2.0f);

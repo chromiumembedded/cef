@@ -222,13 +222,18 @@ class CefBrowserPlatformDelegate {
   // Set the windowless frame rate. Only used with windowless rendering.
   virtual void SetWindowlessFrameRate(int frame_rate);
 
-#if defined(OS_MACOSX)
-  // IME-related callbacks. See documentation in CefRenderHandler. Only used
-  // with windowless rendering on OS X.
-  virtual CefTextInputContext GetNSTextInputContext();
-  virtual void HandleKeyEventBeforeTextInputClient(CefEventHandle keyEvent);
-  virtual void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent);
-#endif
+  // IME-related callbacks. See documentation in CefBrowser and
+  // CefRenderHandler. Only used with windowless rendering.
+  virtual void ImeSetComposition(
+      const CefString& text,
+      const std::vector<CefCompositionUnderline>& underlines,
+      const CefRange& replacement_range,
+      const CefRange& selection_range);
+  virtual void ImeCommitText(const CefString& text,
+                             const CefRange& replacement_range,
+                             int relative_cursor_pos);
+  virtual void ImeFinishComposingText(bool keep_selection);
+  virtual void ImeCancelComposition();
 
   // Drag/drop-related callbacks. See documentation in CefRenderHandler. Only
   // used with windowless rendering.

@@ -28,6 +28,7 @@
 #include "content/browser/renderer_host/render_widget_host_delegate.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/browser/renderer_host/resize_lock.h"
+#include "content/common/input_messages.h"
 #include "content/common/view_messages.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/context_factory.h"
@@ -468,9 +469,6 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       is_showing_(!render_widget_host_->is_hidden()),
       is_destroyed_(false),
       is_scroll_offset_changed_pending_(false),
-#if defined(OS_MACOSX)
-      text_input_context_osr_mac_(NULL),
-#endif
       weak_ptr_factory_(this) {
   DCHECK(render_widget_host_);
   DCHECK(!render_widget_host_->GetView());
@@ -578,10 +576,6 @@ gfx::NativeView CefRenderWidgetHostViewOSR::GetNativeView() const {
 gfx::NativeViewAccessible
     CefRenderWidgetHostViewOSR::GetNativeViewAccessible() {
   return gfx::NativeViewAccessible();
-}
-
-ui::TextInputClient* CefRenderWidgetHostViewOSR::GetTextInputClient() {
-  return NULL;
 }
 
 void CefRenderWidgetHostViewOSR::Focus() {
@@ -828,15 +822,6 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
 void CefRenderWidgetHostViewOSR::SetIsLoading(bool is_loading) {
 }
 
-#if !defined(OS_MACOSX)
-void CefRenderWidgetHostViewOSR::TextInputStateChanged(
-    const content::TextInputState& params) {
-}
-
-void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
-}
-#endif  // !defined(OS_MACOSX)
-
 void CefRenderWidgetHostViewOSR::RenderProcessGone(
     base::TerminationStatus status,
     int error_code) {
@@ -883,12 +868,6 @@ gfx::Size CefRenderWidgetHostViewOSR::GetRequestedRendererSize() const {
 gfx::Size CefRenderWidgetHostViewOSR::GetPhysicalBackingSize() const {
   return gfx::ConvertSizeToPixel(scale_factor_, GetRequestedRendererSize());
 }
-
-#if !defined(OS_MACOSX)
-void CefRenderWidgetHostViewOSR::SelectionBoundsChanged(
-    const ViewHostMsg_SelectionBounds_Params& params) {
-}
-#endif
 
 void CefRenderWidgetHostViewOSR::CopyFromCompositingSurface(
     const gfx::Rect& src_subrect,
@@ -963,12 +942,71 @@ void CefRenderWidgetHostViewOSR::ShowDisambiguationPopup(
 }
 #endif
 
-#if !defined(OS_MACOSX) && defined(USE_AURA)
-void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
-    const gfx::Range& range,
-    const std::vector<gfx::Rect>& character_bounds) {
+void CefRenderWidgetHostViewOSR::ImeSetComposition(
+    const CefString& text,
+    const std::vector<CefCompositionUnderline>& underlines,
+    const CefRange& replacement_range,
+    const CefRange& selection_range) {
+  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::ImeSetComposition");
+  if (!render_widget_host_)
+    return;
+
+  std::vector<blink::WebCompositionUnderline> web_underlines;
+  web_underlines.reserve(underlines.size());
+  for (const CefCompositionUnderline& line : underlines) {
+    web_underlines.push_back(
+        blink::WebCompositionUnderline(line.range.from,
+                                       line.range.to,
+                                       line.color,
+                                       line.thick ? true : false,
+                                       line.background_color));
+  }
+  gfx::Range range(replacement_range.from, replacement_range.to);
+
+  // Start Monitoring for composition updates before we set.
+  RequestImeCompositionUpdate(true);
+
+  render_widget_host_->ImeSetComposition(text, web_underlines, range,
+                                         selection_range.from,
+                                         selection_range.to);
 }
-#endif
+
+void CefRenderWidgetHostViewOSR::ImeCommitText(
+    const CefString& text,
+    const CefRange& replacement_range,
+    int relative_cursor_pos) {
+  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::ImeCommitText");
+  if (!render_widget_host_)
+    return;
+
+  gfx::Range range(replacement_range.from, replacement_range.to);
+  render_widget_host_->ImeCommitText(text, range, relative_cursor_pos);
+
+  // Stop Monitoring for composition updates after we are done.
+  RequestImeCompositionUpdate(false);
+}
+
+void CefRenderWidgetHostViewOSR::ImeFinishComposingText(bool keep_selection) {
+  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::ImeFinishComposingText");
+  if (!render_widget_host_)
+    return;
+
+  render_widget_host_->ImeFinishComposingText(keep_selection);
+
+  // Stop Monitoring for composition updates after we are done.
+  RequestImeCompositionUpdate(false);
+}
+
+void CefRenderWidgetHostViewOSR::ImeCancelComposition() {
+  TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::ImeCancelComposition");
+  if (!render_widget_host_)
+    return;
+
+  render_widget_host_->ImeCancelComposition();
+
+  // Stop Monitoring for composition updates after we are done.
+  RequestImeCompositionUpdate(false);
+}
 
 void CefRenderWidgetHostViewOSR::SetNeedsBeginFrames(bool enabled) {
   SetFrameRate();
@@ -1514,5 +1552,36 @@ void CefRenderWidgetHostViewOSR::InvalidateInternal(
     software_output_device_->OnPaint(bounds_in_pixels);
   } else if (copy_frame_generator_.get()) {
     copy_frame_generator_->GenerateCopyFrame(true, bounds_in_pixels);
+  }
+}
+
+void CefRenderWidgetHostViewOSR::RequestImeCompositionUpdate(
+    bool start_monitoring) {
+  if (!render_widget_host_)
+    return;
+  render_widget_host_->Send(
+      new InputMsg_RequestCompositionUpdate(render_widget_host_->GetRoutingID(),
+                                            false, start_monitoring));
+}
+
+void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
+    const gfx::Range& range,
+    const std::vector<gfx::Rect>& character_bounds) {
+  if (browser_impl_.get()) {
+    CefRange cef_range(range.start(), range.end());
+    CefRenderHandler::RectList rcList;
+
+    for (size_t i = 0; i < character_bounds.size(); ++i) {
+      rcList.push_back(CefRect(character_bounds[i].x(), character_bounds[i].y(),
+                               character_bounds[i].width(),
+                               character_bounds[i].height()));
+    }
+
+    CefRefPtr<CefRenderHandler> handler =
+        browser_impl_->GetClient()->GetRenderHandler();
+    if (handler.get()) {
+      handler->OnImeCompositionRangeChanged(browser_impl_->GetBrowser(),
+                                            cef_range, rcList);
+    }
   }
 }

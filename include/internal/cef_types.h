@@ -2682,6 +2682,33 @@ typedef enum {
   CEF_CDM_REGISTRATION_ERROR_NOT_SUPPORTED,
 } cef_cdm_registration_error_t;
 
+///
+// Structure representing IME composition underline information. This is a thin
+// wrapper around Blink's WebCompositionUnderline class and should be kept in
+// sync with that.
+///
+typedef struct _cef_composition_underline_t {
+  ///
+  // Underline character range.
+  ///
+  cef_range_t range;
+
+  ///
+  // Text color.
+  ///
+  cef_color_t color;
+
+  ///
+  // Background color.
+  ///
+  cef_color_t background_color;
+
+  ///
+  // Set to true (1) for thick underline.
+  ///
+  int thick;
+} cef_composition_underline_t;
+
 #ifdef __cplusplus
 }
 #endif

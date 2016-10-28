@@ -209,6 +209,40 @@ void CefBrowserPlatformDelegateOsr::SetWindowlessFrameRate(int frame_rate) {
     view->UpdateFrameRate();
 }
 
+void CefBrowserPlatformDelegateOsr::ImeSetComposition(
+    const CefString& text,
+    const std::vector<CefCompositionUnderline>& underlines,
+    const CefRange& replacement_range,
+    const CefRange& selection_range) {
+  CefRenderWidgetHostViewOSR* view = GetOSRHostView();
+  if (view) {
+    view->ImeSetComposition(text, underlines,
+                            replacement_range, selection_range);
+  }
+}
+
+void CefBrowserPlatformDelegateOsr::ImeCommitText(
+    const CefString& text,
+    const CefRange& replacement_range,
+    int relative_cursor_pos) {
+  CefRenderWidgetHostViewOSR* view = GetOSRHostView();
+  if (view)
+    view->ImeCommitText(text, replacement_range, relative_cursor_pos);
+}
+
+void CefBrowserPlatformDelegateOsr::ImeFinishComposingText(
+    bool keep_selection) {
+  CefRenderWidgetHostViewOSR* view = GetOSRHostView();
+  if (view)
+    view->ImeFinishComposingText(keep_selection);
+}
+
+void CefBrowserPlatformDelegateOsr::ImeCancelComposition() {
+  CefRenderWidgetHostViewOSR* view = GetOSRHostView();
+  if (view)
+    view->ImeCancelComposition();
+}
+
 void CefBrowserPlatformDelegateOsr::DragTargetDragEnter(
     CefRefPtr<CefDragData> drag_data,
     const CefMouseEvent& event,

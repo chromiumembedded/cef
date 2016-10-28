@@ -14,6 +14,18 @@
 #include "cefclient/browser/bytes_write_handler.h"
 #include "cefclient/browser/geometry_util.h"
 #include "cefclient/browser/main_message_loop.h"
+#include "cefclient/browser/text_input_client_osr_mac.h"
+
+namespace {
+
+CefTextInputClientOSRMac* GetInputClientFromContext(
+    const NSTextInputContext* context) {
+  if (!context)
+    return NULL;
+  return reinterpret_cast<CefTextInputClientOSRMac*>([context client]);
+}
+
+}  // namespace
 
 @interface BrowserOpenGLView
     : NSOpenGLView <NSDraggingSource, NSDraggingDestination> {
@@ -29,12 +41,15 @@
 
   float device_scale_factor_;
 
-  // Drag and drop
+  // Drag and drop.
   CefRefPtr<CefDragData> current_drag_data_;
   NSDragOperation current_drag_op_;
   NSDragOperation current_allowed_ops_;
   NSPasteboard* pasteboard_;
   CFStringRef fileUTI_;
+
+  // For intreacting with IME.
+  NSTextInputContext* text_input_context_osr_mac_;
 
   // Event monitor for scroll wheel end event.
   id endWheelMonitor_;
@@ -81,7 +96,8 @@
 - (NSPoint)convertPointToBackingInternal:(NSPoint)aPoint;
 - (NSRect)convertRectFromBackingInternal:(NSRect)aRect;
 - (NSRect)convertRectToBackingInternal:(NSRect)aRect;
-
+- (void)ChangeCompositionRange:(CefRange)range
+        character_bounds:(const CefRenderHandler::RectList&) character_bounds;
 @end
 
 
@@ -315,18 +331,25 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 
 - (void)keyDown:(NSEvent*)event {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (!browser.get())
+  if (!browser.get() || !text_input_context_osr_mac_)
     return;
 
   if ([event type] != NSFlagsChanged) {
-    browser->GetHost()->HandleKeyEventBeforeTextInputClient(event);
+    CefTextInputClientOSRMac* client = GetInputClientFromContext(
+        text_input_context_osr_mac_);
 
-    // The return value of this method seems to always be set to YES,
-    // thus we ignore it and ask the host view whether IME is active
-    // or not.
-    [[self inputContext] handleEvent:event];
+    if (client) {
+      [client HandleKeyEventBeforeTextInputClient:event];
 
-    browser->GetHost()->HandleKeyEventAfterTextInputClient(event);
+      // The return value of this method seems to always be set to YES, thus we
+      // ignore it and ask the host view whether IME is active or not.
+      [text_input_context_osr_mac_ handleEvent:event];
+
+      CefKeyEvent keyEvent;
+      [self getKeyEvent:keyEvent forEvent:event];
+
+      [client HandleKeyEventAfterTextInputClient:keyEvent];
+    }
   }
 }
 
@@ -502,10 +525,15 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 }
 
 - (NSTextInputContext*)inputContext {
-  CefRefPtr<CefBrowser> browser = [self getBrowser];
-  if (browser.get())
-    return browser->GetHost()->GetNSTextInputContext();
-  return NULL;
+  if (!text_input_context_osr_mac_) {
+    CefTextInputClientOSRMac* text_input_client =
+        [[CefTextInputClientOSRMac alloc] initWithBrowser:[self getBrowser]];
+
+    text_input_context_osr_mac_ = [[NSTextInputContext alloc] initWithClient:
+                                   text_input_client];
+  }
+
+  return text_input_context_osr_mac_;
 }
 
 - (void)getMouseEvent:(CefMouseEvent&)mouseEvent forEvent:(NSEvent*)event {
@@ -1098,6 +1126,13 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   return [self convertRectToBacking:aRect];
 }
 
+- (void)ChangeCompositionRange:(CefRange)range
+    character_bounds:(const CefRenderHandler::RectList&) bounds {
+  CefTextInputClientOSRMac* client =
+      GetInputClientFromContext(text_input_context_osr_mac_);
+  if (client)
+    [client ChangeCompositionRange: range character_bounds:bounds];
+}
 @end
 
 
@@ -1435,6 +1470,18 @@ void BrowserWindowOsrMac::UpdateDragCursor(
 
   if (nsview_)
     [GLView(nsview_) setCurrentDragOp:operation];
+}
+
+void BrowserWindowOsrMac::OnImeCompositionRangeChanged(
+    CefRefPtr<CefBrowser> browser,
+    const CefRange& selection_range,
+    const CefRenderHandler::RectList& bounds) {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (nsview_) {
+    [GLView(nsview_) ChangeCompositionRange:selection_range
+                           character_bounds:bounds];
+  }
 }
 
 void BrowserWindowOsrMac::Create(ClientWindowHandle parent_handle,

@@ -134,22 +134,27 @@ void CefBrowserPlatformDelegate::SetWindowlessFrameRate(int frame_rate) {
   NOTREACHED();
 }
 
-#if defined(OS_MACOSX)
-CefTextInputContext CefBrowserPlatformDelegate::GetNSTextInputContext() {
-  NOTREACHED();
-  return nullptr;
-}
-
-void CefBrowserPlatformDelegate::HandleKeyEventBeforeTextInputClient(
-    CefEventHandle keyEvent) {
+void CefBrowserPlatformDelegate::ImeSetComposition(const CefString& text,
+    const std::vector<CefCompositionUnderline>& underlines,
+    const CefRange& replacement_range,
+    const CefRange& selection_range) {
   NOTREACHED();
 }
 
-void CefBrowserPlatformDelegate::HandleKeyEventAfterTextInputClient(
-    CefEventHandle keyEvent) {
+void CefBrowserPlatformDelegate::ImeCommitText(
+    const CefString& text,
+    const CefRange& replacement_range,
+    int relative_cursor_pos) {
   NOTREACHED();
 }
-#endif
+
+void CefBrowserPlatformDelegate::ImeFinishComposingText(bool keep_selection) {
+  NOTREACHED();
+}
+
+void CefBrowserPlatformDelegate::ImeCancelComposition() {
+  NOTREACHED();
+}
 
 void CefBrowserPlatformDelegate::DragTargetDragEnter(
     CefRefPtr<CefDragData> drag_data,

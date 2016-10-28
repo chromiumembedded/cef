@@ -56,6 +56,15 @@ class CefBrowserPlatformDelegateOsr :
   void NotifyScreenInfoChanged() override;
   void Invalidate(cef_paint_element_type_t type) override;
   void SetWindowlessFrameRate(int frame_rate) override;
+  void ImeSetComposition(
+      const CefString& text,
+      const std::vector<CefCompositionUnderline>& underlines,
+      const CefRange& replacement_range,
+      const CefRange& selection_range) override;
+  void ImeCommitText(const CefString& text, const CefRange& replacement_range,
+                     int relative_cursor_pos) override;
+  void ImeFinishComposingText(bool keep_selection) override;
+  void ImeCancelComposition() override;
   void DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
                            const CefMouseEvent& event,
                            cef_drag_operations_mask_t allowed_ops) override;

@@ -1797,65 +1797,87 @@ void CefBrowserHostImpl::FindReply(
   }
 }
 
-CefTextInputContext CefBrowserHostImpl::GetNSTextInputContext() {
-#if defined(OS_MACOSX)
+void CefBrowserHostImpl::ImeSetComposition(
+    const CefString& text,
+    const std::vector<CefCompositionUnderline>& underlines,
+    const CefRange& replacement_range,
+    const CefRange& selection_range) {
   if (!IsWindowless()) {
     NOTREACHED() << "Window rendering is not disabled";
-    return nullptr;
+    return;
   }
 
   if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "Called on invalid thread";
-    return nullptr;
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::ImeSetComposition, this, text,
+                   underlines, replacement_range, selection_range));
+    return;
   }
 
   if (!web_contents() || !platform_delegate_)
-    return nullptr;
+    return;
 
-  return platform_delegate_->GetNSTextInputContext();
-#else
-  return nullptr;
-#endif
+  platform_delegate_->ImeSetComposition(text, underlines, replacement_range,
+                                        selection_range);
 }
 
-void CefBrowserHostImpl::HandleKeyEventBeforeTextInputClient(
-    CefEventHandle keyEvent) {
-#if defined(OS_MACOSX)
+void CefBrowserHostImpl::ImeCommitText(const CefString& text,
+                                       const CefRange& replacement_range,
+                                       int relative_cursor_pos) {
   if (!IsWindowless()) {
     NOTREACHED() << "Window rendering is not disabled";
     return;
   }
 
   if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "Called on invalid thread";
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::ImeCommitText, this, text,
+                   replacement_range, relative_cursor_pos));
     return;
   }
 
   if (!web_contents() || !platform_delegate_)
     return;
 
-  platform_delegate_->HandleKeyEventBeforeTextInputClient(keyEvent);
-#endif
+  platform_delegate_->ImeCommitText(text, replacement_range,
+                                    relative_cursor_pos);
 }
 
-void CefBrowserHostImpl::HandleKeyEventAfterTextInputClient(
-    CefEventHandle keyEvent) {
-#if defined(OS_MACOSX)
+void CefBrowserHostImpl::ImeFinishComposingText(bool keep_selection) {
   if (!IsWindowless()) {
     NOTREACHED() << "Window rendering is not disabled";
     return;
   }
 
   if (!CEF_CURRENTLY_ON_UIT()) {
-    NOTREACHED() << "Called on invalid thread";
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::ImeFinishComposingText, this,
+                   keep_selection));
     return;
   }
 
   if (!web_contents() || !platform_delegate_)
     return;
 
-  return platform_delegate_->HandleKeyEventAfterTextInputClient(keyEvent);
-#endif
+  platform_delegate_->ImeFinishComposingText(keep_selection);
+}
+
+void CefBrowserHostImpl::ImeCancelComposition() {
+  if (!IsWindowless()) {
+    NOTREACHED() << "Window rendering is not disabled";
+    return;
+  }
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+        base::Bind(&CefBrowserHostImpl::ImeCancelComposition, this));
+    return;
+  }
+
+  if (!web_contents() || !platform_delegate_)
+    return;
+
+  platform_delegate_->ImeCancelComposition();
 }
 
 void CefBrowserHostImpl::DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,

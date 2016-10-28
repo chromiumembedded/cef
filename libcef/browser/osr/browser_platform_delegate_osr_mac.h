@@ -15,9 +15,6 @@ class CefBrowserPlatformDelegateOsrMac : public CefBrowserPlatformDelegateOsr {
     
   // CefBrowserPlatformDelegate methods:
   CefWindowHandle GetHostWindowHandle() const override;
-  CefTextInputContext GetNSTextInputContext() override;
-  void HandleKeyEventBeforeTextInputClient(CefEventHandle keyEvent) override;
-  void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent) override;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_NATIVE_BROWSER_PLATFORM_DELEGATE_OSR_MAC_H_

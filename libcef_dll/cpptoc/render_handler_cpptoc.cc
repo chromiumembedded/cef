@@ -350,6 +350,46 @@ void CEF_CALLBACK render_handler_on_scroll_offset_changed(
       y);
 }
 
+void CEF_CALLBACK render_handler_on_ime_composition_range_changed(
+    struct _cef_render_handler_t* self, cef_browser_t* browser,
+    const cef_range_t* selected_range, size_t character_boundsCount,
+    cef_rect_t const* character_bounds) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: browser; type: refptr_diff
+  DCHECK(browser);
+  if (!browser)
+    return;
+  // Verify param: selected_range; type: simple_byref_const
+  DCHECK(selected_range);
+  if (!selected_range)
+    return;
+  // Verify param: character_bounds; type: simple_vec_byref_const
+  DCHECK(character_boundsCount == 0 || character_bounds);
+  if (character_boundsCount > 0 && !character_bounds)
+    return;
+
+  // Translate param: selected_range; type: simple_byref_const
+  CefRange selected_rangeVal = selected_range?*selected_range:CefRange();
+  // Translate param: character_bounds; type: simple_vec_byref_const
+  std::vector<CefRect > character_boundsList;
+  if (character_boundsCount > 0) {
+    for (size_t i = 0; i < character_boundsCount; ++i) {
+      CefRect character_boundsVal = character_bounds[i];
+      character_boundsList.push_back(character_boundsVal);
+    }
+  }
+
+  // Execute
+  CefRenderHandlerCppToC::Get(self)->OnImeCompositionRangeChanged(
+      CefBrowserCToCpp::Wrap(browser),
+      selected_rangeVal,
+      character_boundsList);
+}
+
 }  // namespace
 
 
@@ -368,6 +408,8 @@ CefRenderHandlerCppToC::CefRenderHandlerCppToC() {
   GetStruct()->update_drag_cursor = render_handler_update_drag_cursor;
   GetStruct()->on_scroll_offset_changed =
       render_handler_on_scroll_offset_changed;
+  GetStruct()->on_ime_composition_range_changed =
+      render_handler_on_ime_composition_range_changed;
 }
 
 template<> CefRefPtr<CefRenderHandler> CefCppToC<CefRenderHandlerCppToC,

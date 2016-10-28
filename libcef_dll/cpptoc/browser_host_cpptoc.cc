@@ -781,46 +781,96 @@ void CEF_CALLBACK browser_host_set_windowless_frame_rate(
       frame_rate);
 }
 
-cef_text_input_context_t CEF_CALLBACK browser_host_get_nstext_input_context(
+void CEF_CALLBACK browser_host_ime_set_composition(
+    struct _cef_browser_host_t* self, const cef_string_t* text,
+    size_t underlinesCount, cef_composition_underline_t const* underlines,
+    const cef_range_t* replacement_range,
+    const cef_range_t* selection_range) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: replacement_range; type: simple_byref_const
+  DCHECK(replacement_range);
+  if (!replacement_range)
+    return;
+  // Verify param: selection_range; type: simple_byref_const
+  DCHECK(selection_range);
+  if (!selection_range)
+    return;
+  // Unverified params: text, underlines
+
+  // Translate param: underlines; type: simple_vec_byref_const
+  std::vector<CefCompositionUnderline > underlinesList;
+  if (underlinesCount > 0) {
+    for (size_t i = 0; i < underlinesCount; ++i) {
+      CefCompositionUnderline underlinesVal = underlines[i];
+      underlinesList.push_back(underlinesVal);
+    }
+  }
+  // Translate param: replacement_range; type: simple_byref_const
+  CefRange replacement_rangeVal = replacement_range?*replacement_range:CefRange(
+      );
+  // Translate param: selection_range; type: simple_byref_const
+  CefRange selection_rangeVal = selection_range?*selection_range:CefRange();
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->ImeSetComposition(
+      CefString(text),
+      underlinesList,
+      replacement_rangeVal,
+      selection_rangeVal);
+}
+
+void CEF_CALLBACK browser_host_ime_commit_text(struct _cef_browser_host_t* self,
+    const cef_string_t* text, const cef_range_t* replacement_range,
+    int relative_cursor_pos) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: replacement_range; type: simple_byref_const
+  DCHECK(replacement_range);
+  if (!replacement_range)
+    return;
+  // Unverified params: text
+
+  // Translate param: replacement_range; type: simple_byref_const
+  CefRange replacement_rangeVal = replacement_range?*replacement_range:CefRange(
+      );
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->ImeCommitText(
+      CefString(text),
+      replacement_rangeVal,
+      relative_cursor_pos);
+}
+
+void CEF_CALLBACK browser_host_ime_finish_composing_text(
+    struct _cef_browser_host_t* self, int keep_selection) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->ImeFinishComposingText(
+      keep_selection?true:false);
+}
+
+void CEF_CALLBACK browser_host_ime_cancel_composition(
     struct _cef_browser_host_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
   if (!self)
-    return NULL;
-
-  // Execute
-  cef_text_input_context_t _retval = CefBrowserHostCppToC::Get(
-      self)->GetNSTextInputContext();
-
-  // Return type: simple
-  return _retval;
-}
-
-void CEF_CALLBACK browser_host_handle_key_event_before_text_input_client(
-    struct _cef_browser_host_t* self, cef_event_handle_t keyEvent) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
     return;
 
   // Execute
-  CefBrowserHostCppToC::Get(self)->HandleKeyEventBeforeTextInputClient(
-      keyEvent);
-}
-
-void CEF_CALLBACK browser_host_handle_key_event_after_text_input_client(
-    struct _cef_browser_host_t* self, cef_event_handle_t keyEvent) {
-  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
-
-  DCHECK(self);
-  if (!self)
-    return;
-
-  // Execute
-  CefBrowserHostCppToC::Get(self)->HandleKeyEventAfterTextInputClient(
-      keyEvent);
+  CefBrowserHostCppToC::Get(self)->ImeCancelComposition();
 }
 
 void CEF_CALLBACK browser_host_drag_target_drag_enter(
@@ -1008,11 +1058,11 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
       browser_host_get_windowless_frame_rate;
   GetStruct()->set_windowless_frame_rate =
       browser_host_set_windowless_frame_rate;
-  GetStruct()->get_nstext_input_context = browser_host_get_nstext_input_context;
-  GetStruct()->handle_key_event_before_text_input_client =
-      browser_host_handle_key_event_before_text_input_client;
-  GetStruct()->handle_key_event_after_text_input_client =
-      browser_host_handle_key_event_after_text_input_client;
+  GetStruct()->ime_set_composition = browser_host_ime_set_composition;
+  GetStruct()->ime_commit_text = browser_host_ime_commit_text;
+  GetStruct()->ime_finish_composing_text =
+      browser_host_ime_finish_composing_text;
+  GetStruct()->ime_cancel_composition = browser_host_ime_cancel_composition;
   GetStruct()->drag_target_drag_enter = browser_host_drag_target_drag_enter;
   GetStruct()->drag_target_drag_over = browser_host_drag_target_drag_over;
   GetStruct()->drag_target_drag_leave = browser_host_drag_target_drag_leave;

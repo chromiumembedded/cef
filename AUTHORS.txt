@@ -30,3 +30,4 @@ YuTeh Shen <shenyute@gmail.com>
 Andrei Kurushin <ajax16384@gmail.com>
 Gonzo Berman <gberman@factset.com>
 Jakub Trzebiatowski <kuba.trzebiatowski@gmail.com>
+Nishant Kaushik <nishantk@adobe.com>
