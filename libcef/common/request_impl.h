@@ -12,6 +12,7 @@
 
 #include "base/synchronization/lock.h"
 #include "third_party/WebKit/public/platform/WebHTTPBody.h"
+#include "url/gurl.h"
 
 namespace navigation_interception {
 class NavigationParams;
@@ -121,9 +122,9 @@ class CefRequestImpl : public CefRequest {
 
   void Reset();
 
-  CefString url_;
-  CefString method_;
-  CefString referrer_url_;
+  GURL url_;
+  std::string method_;
+  GURL referrer_url_;
   ReferrerPolicy referrer_policy_;
   CefRefPtr<CefPostData> postdata_;
   HeaderMap headermap_;
@@ -133,7 +134,7 @@ class CefRequestImpl : public CefRequest {
 
   // The below members are used by CefURLRequest.
   int flags_;
-  CefString first_party_for_cookies_;
+  GURL first_party_for_cookies_;
 
   // True if this object is read-only.
   bool read_only_;

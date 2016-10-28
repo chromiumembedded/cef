@@ -126,14 +126,14 @@ net::URLRequest::ReferrerPolicy GetURLRequestReferrerPolicy(
   return net_referrer_policy;
 }
 
-std::string GetURLRequestReferrer(const CefString& referrer_url) {
+std::string GetURLRequestReferrer(const GURL& referrer_url) {
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-  if (!GURL(referrer_url.ToString()).is_valid() ||
+  if (!referrer_url.is_valid() ||
       command_line->HasSwitch(switches::kNoReferrers)) {
     return std::string();
   }
 
-  return referrer_url;
+  return referrer_url.spec();
 }
 
 blink::WebString FilePathStringToWebString(
@@ -167,12 +167,12 @@ void GetHeaderMap(const net::HttpRequestHeaders& headers,
 // |referrer|.
 void GetHeaderMap(const blink::WebURLRequest& request,
                   CefRequest::HeaderMap& map,
-                  CefString& referrer) {
+                  GURL& referrer) {
   map.clear();
 
   class HeaderVisitor : public blink::WebHTTPHeaderVisitor {
    public:
-    HeaderVisitor(CefRequest::HeaderMap* map, CefString* referrer)
+    HeaderVisitor(CefRequest::HeaderMap* map, GURL* referrer)
       : map_(map),
         referrer_(referrer) {
     }
@@ -182,14 +182,14 @@ void GetHeaderMap(const blink::WebURLRequest& request,
       const base::string16& nameStr = name;
       const base::string16& valueStr = value;
       if (base::LowerCaseEqualsASCII(nameStr, kReferrerLowerCase))
-        *referrer_ = valueStr;
+        *referrer_ = GURL(valueStr);
       else
         map_->insert(std::make_pair(nameStr, valueStr));
     }
 
    private:
     CefRequest::HeaderMap* map_;
-    CefString* referrer_;
+    GURL* referrer_;
   };
 
   HeaderVisitor visitor(&map, &referrer);
@@ -268,14 +268,15 @@ bool CefRequestImpl::IsReadOnly() {
 
 CefString CefRequestImpl::GetURL() {
   base::AutoLock lock_scope(lock_);
-  return url_;
+  return url_.spec();
 }
 
 void CefRequestImpl::SetURL(const CefString& url) {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
-  if (url_ != url) {
-    url_ = url;
+  const GURL& new_url = GURL(url.ToString());
+  if (url_ != new_url) {
+    url_ = new_url;
     Changed(kChangedUrl);
   }
 }
@@ -288,8 +289,9 @@ CefString CefRequestImpl::GetMethod() {
 void CefRequestImpl::SetMethod(const CefString& method) {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
-  if (method_ != method) {
-    method_ = method;
+  const std::string& new_method = method;
+  if (method_ != new_method) {
+    method_ = new_method;
     Changed(kChangedMethod);
   }
 }
@@ -301,9 +303,9 @@ void CefRequestImpl::SetReferrer(const CefString& referrer_url,
 
   // Call GetAsReferrer here for consistency since the same logic will later be
   // applied by URLRequest::SetReferrer().
-  const GURL& gurl = GURL(referrer_url.ToString()).GetAsReferrer();
-  if (referrer_url_ != gurl.spec() || referrer_policy_ != policy) {
-    referrer_url_ = gurl.spec();
+  const GURL& new_referrer_url = GURL(referrer_url.ToString()).GetAsReferrer();
+  if (referrer_url_ != new_referrer_url || referrer_policy_ != policy) {
+    referrer_url_ = new_referrer_url;
     referrer_policy_ = policy;
     Changed(kChangedReferrer);
   }
@@ -311,7 +313,7 @@ void CefRequestImpl::SetReferrer(const CefString& referrer_url,
 
 CefString CefRequestImpl::GetReferrerURL() {
   base::AutoLock lock_scope(lock_);
-  return referrer_url_;
+  return referrer_url_.spec();
 }
 
 CefRequestImpl::ReferrerPolicy CefRequestImpl::GetReferrerPolicy() {
@@ -349,12 +351,14 @@ void CefRequestImpl::Set(const CefString& url,
                          const HeaderMap& headerMap) {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
-  if (url_ != url) {
-    url_ = url;
+  const GURL& new_url = GURL(url.ToString());
+  if (url_ != new_url) {
+    url_ = new_url;
     Changed(kChangedUrl);
   }
-  if (method_ != method) {
-    method_ = method;
+  const std::string& new_method = method;
+  if (method_ != new_method) {
+    method_ = new_method;
     Changed(kChangedMethod);
   }
   postdata_ = postData;
@@ -378,14 +382,15 @@ void CefRequestImpl::SetFlags(int flags) {
 
 CefString CefRequestImpl::GetFirstPartyForCookies() {
   base::AutoLock lock_scope(lock_);
-  return first_party_for_cookies_;
+  return first_party_for_cookies_.spec();
 }
 
 void CefRequestImpl::SetFirstPartyForCookies(const CefString& url) {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
-  if (first_party_for_cookies_ != url) {
-    first_party_for_cookies_ = url;
+  const GURL& new_url = GURL(url.ToString());
+  if (first_party_for_cookies_ != new_url) {
+    first_party_for_cookies_ = new_url;
     Changed(kChangedFirstPartyForCookies);
   }
 }
@@ -411,7 +416,7 @@ void CefRequestImpl::Set(net::URLRequest* request) {
 
   Reset();
 
-  url_ = request->url().spec();
+  url_ = request->url();
   method_ = request->method();
   identifier_ = request->identifier();
 
@@ -422,7 +427,7 @@ void CefRequestImpl::Set(net::URLRequest* request) {
   // Our consumer should have made sure that this is a safe referrer. See for
   // instance WebCore::FrameLoader::HideReferrer.
   if (referrer.is_valid()) {
-    referrer_url_ = referrer.spec();
+    referrer_url_ = referrer;
     switch (request->referrer_policy()) {
       case net::URLRequest::
           CLEAR_REFERRER_ON_TRANSITION_FROM_SECURE_TO_INSECURE:
@@ -459,7 +464,7 @@ void CefRequestImpl::Set(net::URLRequest* request) {
     static_cast<CefPostDataImpl*>(postdata_.get())->Set(*data);
   }
 
-  first_party_for_cookies_ = request->first_party_for_cookies().spec();
+  first_party_for_cookies_ = request->first_party_for_cookies();
 
   const content::ResourceRequestInfo* info =
       content::ResourceRequestInfo::ForRequest(request);
@@ -497,10 +502,9 @@ void CefRequestImpl::Get(net::URLRequest* request, bool changed_only) const {
     }
   }
 
-  if (!first_party_for_cookies_.empty() &&
+  if (!first_party_for_cookies_.is_empty() &&
       ShouldSet(kChangedFirstPartyForCookies, changed_only)) {
-    request->set_first_party_for_cookies(
-        GURL(std::string(first_party_for_cookies_)));
+    request->set_first_party_for_cookies(first_party_for_cookies_);
   }
 }
 
@@ -512,12 +516,12 @@ void CefRequestImpl::Set(
 
   Reset();
 
-  url_ = params.url().spec();
+  url_ = params.url();
   method_ = params.is_post() ? "POST" : "GET";
 
   const content::Referrer& sanitized_referrer =
       content::Referrer::SanitizeForRequest(params.url(), params.referrer());
-  referrer_url_ = sanitized_referrer.url.spec();
+  referrer_url_ = sanitized_referrer.url;
   referrer_policy_ =
       static_cast<cef_referrer_policy_t>(sanitized_referrer.policy);
 
@@ -534,8 +538,8 @@ void CefRequestImpl::Set(const blink::WebURLRequest& request) {
 
   Reset();
 
-  url_ = request.url().string();
-  method_ = request.httpMethod();
+  url_ = request.url();
+  method_ = request.httpMethod().utf8();
 
   ::GetHeaderMap(request, headermap_, referrer_url_);
   referrer_policy_ =
@@ -547,7 +551,7 @@ void CefRequestImpl::Set(const blink::WebURLRequest& request) {
     static_cast<CefPostDataImpl*>(postdata_.get())->Set(body);
   }
 
-  first_party_for_cookies_ = request.firstPartyForCookies().string();
+  first_party_for_cookies_ = request.firstPartyForCookies();
 
   if (request.getCachePolicy() == blink::WebCachePolicy::BypassingCache)
     flags_ |= UR_FLAG_SKIP_CACHE;
@@ -561,15 +565,15 @@ void CefRequestImpl::Get(blink::WebURLRequest& request,
                          int64& upload_data_size) const {
   base::AutoLock lock_scope(lock_);
 
-  request.setURL(GURL(url_.ToString()));
-  request.setHTTPMethod(blink::WebString::fromUTF8(method_.ToString()));
+  request.setURL(url_);
+  request.setHTTPMethod(blink::WebString::fromUTF8(method_));
 
-  if (!referrer_url_.empty()) {
+  if (!referrer_url_.is_empty()) {
     const blink::WebString& referrer =
         blink::WebSecurityPolicy::generateReferrerHeader(
             static_cast<blink::WebReferrerPolicy>(referrer_policy_),
-            GURL(url_.ToString()),
-            blink::WebString::fromUTF8(referrer_url_));
+            url_,
+            blink::WebString::fromUTF8(referrer_url_.spec()));
     if (!referrer.isEmpty()) {
       request.setHTTPReferrer(
           referrer,
@@ -597,8 +601,8 @@ void CefRequestImpl::Get(blink::WebURLRequest& request,
 
   ::SetHeaderMap(headermap_, request);
 
-  if (!first_party_for_cookies_.empty())
-    request.setFirstPartyForCookies(GURL(first_party_for_cookies_.ToString()));
+  if (!first_party_for_cookies_.is_empty())
+    request.setFirstPartyForCookies(first_party_for_cookies_);
 
   request.setCachePolicy((flags_ & UR_FLAG_SKIP_CACHE) ?
       blink::WebCachePolicy::BypassingCache :
@@ -693,11 +697,11 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
 void CefRequestImpl::Get(CefNavigateParams& params) const {
   base::AutoLock lock_scope(lock_);
 
-  params.url = GURL(url_.ToString());
+  params.url = url_;
   params.method = method_;
 
   // Referrer policy will be applied later in the request pipeline.
-  params.referrer.url = GURL(referrer_url_.ToString());
+  params.referrer.url = referrer_url_;
   params.referrer.policy =
       static_cast<blink::WebReferrerPolicy>(referrer_policy_);
 
@@ -710,7 +714,7 @@ void CefRequestImpl::Get(CefNavigateParams& params) const {
     impl->Get(*params.upload_data.get());
   }
 
-  params.first_party_for_cookies = GURL(first_party_for_cookies_.ToString());
+  params.first_party_for_cookies = first_party_for_cookies_;
   params.load_flags = flags_;
 }
 
@@ -718,7 +722,7 @@ void CefRequestImpl::Get(net::URLFetcher& fetcher,
                          int64& upload_data_size) const {
   base::AutoLock lock_scope(lock_);
 
-  if (!referrer_url_.empty()) {
+  if (!referrer_url_.is_empty()) {
     fetcher.SetReferrer(GetURLRequestReferrer(referrer_url_));
     fetcher.SetReferrerPolicy(GetURLRequestReferrerPolicy(referrer_policy_));
   }
@@ -781,8 +785,8 @@ void CefRequestImpl::Get(net::URLFetcher& fetcher,
     }
   }
 
-  if (!first_party_for_cookies_.empty())
-    fetcher.SetInitiatorURL(GURL(first_party_for_cookies_.ToString()));
+  if (!first_party_for_cookies_.is_empty())
+    fetcher.SetInitiatorURL(first_party_for_cookies_);
 
   if (flags_ & UR_FLAG_NO_RETRY_ON_5XX)
     fetcher.SetAutomaticallyRetryOn5xx(false);
@@ -873,9 +877,9 @@ void CefRequestImpl::Reset() {
   lock_.AssertAcquired();
   DCHECK(!read_only_);
 
-  url_.clear();
+  url_ = GURL();
   method_ = "GET";
-  referrer_url_.clear();
+  referrer_url_ = GURL();
   referrer_policy_ = REFERRER_POLICY_DEFAULT;
   postdata_ = NULL;
   headermap_.clear();
@@ -883,7 +887,7 @@ void CefRequestImpl::Reset() {
   transition_type_ = TT_EXPLICIT;
   identifier_ = 0U;
   flags_ = UR_FLAG_NONE;
-  first_party_for_cookies_.clear();
+  first_party_for_cookies_ = GURL();
 
   changes_ = kChangedNone;
 }
