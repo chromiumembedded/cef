@@ -710,8 +710,6 @@ static_library("libcef_static") {
       "libcef/browser/osr/browser_platform_delegate_osr_mac.h",
       "libcef/browser/osr/browser_platform_delegate_osr_mac.mm",
       "libcef/browser/osr/render_widget_host_view_osr_mac.mm",
-      "libcef/browser/osr/text_input_client_osr_mac.mm",
-      "libcef/browser/osr/text_input_client_osr_mac.h",
       "libcef/common/util_mac.h",
       "libcef/common/util_mac.mm",
     ]
@@ -1794,6 +1792,7 @@ if (is_mac) {
         "rpcrt4.lib",
         "opengl32.lib",
         "glu32.lib",
+        "imm32.lib",
       ]
     }
 

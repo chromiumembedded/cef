@@ -18,23 +18,3 @@ CefWindowHandle CefBrowserPlatformDelegateOsrMac::GetHostWindowHandle() const {
   return native_delegate_->window_info().parent_view;
 }
 
-CefTextInputContext CefBrowserPlatformDelegateOsrMac::GetNSTextInputContext() {
-  CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view)
-    return view->GetNSTextInputContext();
-  return nullptr;
-}
-
-void CefBrowserPlatformDelegateOsrMac::HandleKeyEventBeforeTextInputClient(
-    CefEventHandle keyEvent) {
-  CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view)
-    view->HandleKeyEventBeforeTextInputClient(keyEvent);
-}
-
-void CefBrowserPlatformDelegateOsrMac::HandleKeyEventAfterTextInputClient(
-    CefEventHandle keyEvent) {
-  CefRenderWidgetHostViewOSR* view = GetOSRHostView();
-  if (view)
-    view->HandleKeyEventAfterTextInputClient(keyEvent);
-}

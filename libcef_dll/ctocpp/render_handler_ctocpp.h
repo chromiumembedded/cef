@@ -51,6 +51,9 @@ class CefRenderHandlerCToCpp
       DragOperation operation) override;
   void OnScrollOffsetChanged(CefRefPtr<CefBrowser> browser, double x,
       double y) override;
+  void OnImeCompositionRangeChanged(CefRefPtr<CefBrowser> browser,
+      const CefRange& selected_range,
+      const RectList& character_bounds) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

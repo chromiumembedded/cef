@@ -11,6 +11,7 @@
 #include "cefclient/browser/main_message_loop.h"
 #include "cefclient/browser/resource.h"
 #include "cefclient/browser/util_win.h"
+#include "cefclient/browser/osr_ime_handler_win.h"
 
 namespace client {
 
@@ -55,7 +56,6 @@ OsrWindowWin::OsrWindowWin(Delegate* delegate,
       hwnd_(NULL),
       hdc_(NULL),
       hrc_(NULL),
-      client_rect_(),
       device_scale_factor_(client::GetDeviceScaleFactor()),
       painting_popup_(false),
       render_task_pending_(false),
@@ -255,6 +255,8 @@ void OsrWindowWin::Create(HWND parent_hwnd, const RECT& rect) {
   DCHECK_EQ(register_res, S_OK);
 #endif
 
+  ime_handler_.reset(new OsrImeHandlerWin(hwnd_));
+
   // Notify the window owner.
   NotifyNativeWindowCreated(hwnd_);
 }
@@ -273,6 +275,7 @@ void OsrWindowWin::Destroy() {
 
   // Destroy the native window.
   ::DestroyWindow(hwnd_);
+  ime_handler_.reset();
   hwnd_ = NULL;
 }
 
@@ -390,6 +393,74 @@ void OsrWindowWin::RegisterOsrClass(HINSTANCE hInstance,
   RegisterClassEx(&wcex);
 }
 
+void OsrWindowWin::OnIMESetContext(UINT message, WPARAM wParam, LPARAM lParam) {
+  // We handle the IME Composition Window ourselves (but let the IME Candidates
+  // Window be handled by IME through DefWindowProc()), so clear the
+  // ISC_SHOWUICOMPOSITIONWINDOW flag:
+  lParam &= ~ISC_SHOWUICOMPOSITIONWINDOW;
+  ::DefWindowProc(hwnd_, message, wParam, lParam);
+
+  // Create Caret Window if required
+  if (ime_handler_) {
+    ime_handler_->CreateImeWindow();
+    ime_handler_->MoveImeWindow();
+  }
+}
+
+void OsrWindowWin::OnIMEStartComposition() {
+  if (ime_handler_) {
+    ime_handler_->CreateImeWindow();
+    ime_handler_->MoveImeWindow();
+    ime_handler_->ResetComposition();
+  }
+}
+
+void OsrWindowWin::OnIMEComposition(UINT message, WPARAM wParam,
+                                    LPARAM lParam) {
+  if (browser_ && ime_handler_) {
+    CefString cTextStr;
+    if (ime_handler_->GetResult(lParam, cTextStr)) {
+      // Send the text to the browser. The |replacement_range| and
+      // |relative_cursor_pos| params are not used on Windows, so provide
+      // default invalid values.
+      browser_->GetHost()->ImeCommitText(cTextStr,
+                                         CefRange(UINT32_MAX, UINT32_MAX), 0);
+      ime_handler_->ResetComposition();
+      // Continue reading the composition string - Japanese IMEs send both
+      // GCS_RESULTSTR and GCS_COMPSTR.
+    }
+
+    std::vector<CefCompositionUnderline> underlines;
+    int composition_start = 0;
+
+    if (ime_handler_->GetComposition(lParam, cTextStr, underlines,
+                                     composition_start)) {
+      // Send the composition string to the browser. The |replacement_range|
+      // param is not used on Windows, so provide a default invalid value.
+      browser_->GetHost()->ImeSetComposition(cTextStr, underlines,
+          CefRange(UINT32_MAX, UINT32_MAX),
+          CefRange(composition_start,
+          static_cast<int>(composition_start + cTextStr.length())));
+
+      // Update the Candidate Window position. The cursor is at the end so
+      // subtract 1. This is safe because IMM32 does not support non-zero-width
+      // in a composition. Also,  negative values are safely ignored in
+      // MoveImeWindow
+      ime_handler_->UpdateCaretPosition(composition_start - 1);
+    } else {
+      OnIMECancelCompositionEvent();
+    }
+  }
+}
+
+void OsrWindowWin::OnIMECancelCompositionEvent() {
+  if (browser_ && ime_handler_) {
+    browser_->GetHost()->ImeCancelComposition();
+    ime_handler_->ResetComposition();
+    ime_handler_->DestroyImeWindow();
+  }
+}
+
 // static
 LRESULT CALLBACK OsrWindowWin::OsrWndProc(HWND hWnd, UINT message,
                                           WPARAM wParam, LPARAM lParam) {
@@ -399,7 +470,22 @@ LRESULT CALLBACK OsrWindowWin::OsrWndProc(HWND hWnd, UINT message,
   if (!self)
     return DefWindowProc(hWnd, message, wParam, lParam);
 
+  // We want to handle IME events before the OS does any default handling.
   switch (message) {
+    case WM_IME_SETCONTEXT:
+      self->OnIMESetContext(message, wParam, lParam);
+      return 0;
+    case WM_IME_STARTCOMPOSITION:
+      self->OnIMEStartComposition();
+      return 0;
+    case WM_IME_COMPOSITION:
+      self->OnIMEComposition(message, wParam, lParam);
+      return 0;
+    case WM_IME_ENDCOMPOSITION:
+      self->OnIMECancelCompositionEvent();
+      // Let WTL call::DefWindowProc() and release its resources.
+      break;
+
     case WM_LBUTTONDOWN:
     case WM_RBUTTONDOWN:
     case WM_MBUTTONDOWN:
@@ -907,6 +993,24 @@ void OsrWindowWin::UpdateDragCursor(
 #if defined(CEF_USE_ATL)
   current_drag_op_ = operation;
 #endif
+}
+
+void OsrWindowWin::OnImeCompositionRangeChanged(
+    CefRefPtr<CefBrowser> browser,
+    const CefRange& selection_range,
+    const CefRenderHandler::RectList& character_bounds) {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (ime_handler_) {
+    // Convert from view coordinates to device coordinates.
+    CefRenderHandler::RectList device_bounds;
+    CefRenderHandler::RectList::const_iterator it = character_bounds.begin();
+    for (; it != character_bounds.end(); ++it) {
+      device_bounds.push_back(LogicalToDevice(*it, device_scale_factor_));
+    }
+
+    ime_handler_->ChangeCompositionRange(selection_range, device_bounds);
+  }
 }
 
 #if defined(CEF_USE_ATL)

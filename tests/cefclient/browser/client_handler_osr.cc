@@ -135,4 +135,15 @@ void ClientHandlerOsr::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
   osr_delegate_->UpdateDragCursor(browser, operation);
 }
 
+void ClientHandlerOsr::OnImeCompositionRangeChanged(
+    CefRefPtr<CefBrowser> browser,
+    const CefRange& selection_range,
+    const CefRenderHandler::RectList& character_bounds) {
+  CEF_REQUIRE_UI_THREAD();
+  if (!osr_delegate_)
+    return;
+  osr_delegate_->OnImeCompositionRangeChanged(browser, selection_range,
+                                              character_bounds);
+}
+
 }  // namespace client

@@ -86,9 +86,14 @@ class CefBrowserHostCToCpp
   void NotifyMoveOrResizeStarted() OVERRIDE;
   int GetWindowlessFrameRate() OVERRIDE;
   void SetWindowlessFrameRate(int frame_rate) OVERRIDE;
-  CefTextInputContext GetNSTextInputContext() OVERRIDE;
-  void HandleKeyEventBeforeTextInputClient(CefEventHandle keyEvent) OVERRIDE;
-  void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent) OVERRIDE;
+  void ImeSetComposition(const CefString& text,
+      const std::vector<CefCompositionUnderline>& underlines,
+      const CefRange& replacement_range,
+      const CefRange& selection_range) OVERRIDE;
+  void ImeCommitText(const CefString& text, const CefRange& replacement_range,
+      int relative_cursor_pos) OVERRIDE;
+  void ImeFinishComposingText(bool keep_selection) OVERRIDE;
+  void ImeCancelComposition() OVERRIDE;
   void DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
       const CefMouseEvent& event, DragOperationsMask allowed_ops) OVERRIDE;
   void DragTargetDragOver(const CefMouseEvent& event,

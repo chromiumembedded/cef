@@ -161,6 +161,16 @@ typedef struct _cef_render_handler_t {
   void (CEF_CALLBACK *on_scroll_offset_changed)(
       struct _cef_render_handler_t* self, struct _cef_browser_t* browser,
       double x, double y);
+
+  ///
+  // Called when the IME composition range has changed. |selected_range| is the
+  // range of characters that have been selected. |character_bounds| is the
+  // bounds of each character in view coordinates.
+  ///
+  void (CEF_CALLBACK *on_ime_composition_range_changed)(
+      struct _cef_render_handler_t* self, struct _cef_browser_t* browser,
+      const cef_range_t* selected_range, size_t character_boundsCount,
+      cef_rect_t const* character_bounds);
 } cef_render_handler_t;
 
 

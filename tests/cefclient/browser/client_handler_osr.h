@@ -56,6 +56,10 @@ class ClientHandlerOsr : public ClientHandler,
     virtual void UpdateDragCursor(
         CefRefPtr<CefBrowser> browser,
         CefRenderHandler::DragOperation operation) = 0;
+    virtual void OnImeCompositionRangeChanged(
+        CefRefPtr<CefBrowser> browser,
+        const CefRange& selection_range,
+        const CefRenderHandler::RectList& character_bounds) = 0;
 
    protected:
     virtual ~OsrDelegate() {}
@@ -109,6 +113,10 @@ class ClientHandlerOsr : public ClientHandler,
                      int x, int y) OVERRIDE;
   void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
                         CefRenderHandler::DragOperation operation) OVERRIDE;
+  void OnImeCompositionRangeChanged(
+      CefRefPtr<CefBrowser> browser,
+      const CefRange& selection_range,
+      const CefRenderHandler::RectList& character_bounds) OVERRIDE;
 
  private:
   // Only accessed on the UI thread.

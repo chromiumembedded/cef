@@ -1204,6 +1204,13 @@ void BrowserWindowOsrGtk::UpdateDragCursor(
   CEF_REQUIRE_UI_THREAD();
 }
 
+void BrowserWindowOsrGtk::OnImeCompositionRangeChanged(
+    CefRefPtr<CefBrowser> browser,
+    const CefRange& selection_range,
+    const CefRenderHandler::RectList& character_bounds) {
+  CEF_REQUIRE_UI_THREAD();
+}
+
 void BrowserWindowOsrGtk::Create(ClientWindowHandle parent_handle) {
   REQUIRE_MAIN_THREAD();
   DCHECK(!glarea_);

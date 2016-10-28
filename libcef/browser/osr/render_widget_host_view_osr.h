@@ -101,7 +101,6 @@ class CefRenderWidgetHostViewOSR
   gfx::Vector2dF GetLastScrollOffset() const override;
   gfx::NativeView GetNativeView() const override;
   gfx::NativeViewAccessible GetNativeViewAccessible() override;
-  ui::TextInputClient* GetTextInputClient() override;
   void Focus() override;
   bool HasFocus() const override;
   bool IsSurfaceAvailableForCopy() const override;
@@ -133,23 +132,13 @@ class CefRenderWidgetHostViewOSR
       content::RenderWidgetHostView* reference_host_view) override;
   void UpdateCursor(const content::WebCursor& cursor) override;
   void SetIsLoading(bool is_loading) override;
-  void TextInputStateChanged(const content::TextInputState& params) override;
-  void ImeCancelComposition() override;
   void RenderProcessGone(base::TerminationStatus status,
                          int error_code) override;
   void Destroy() override;
   void SetTooltipText(const base::string16& tooltip_text) override;
 
-#if defined(OS_MACOSX)
-  void SelectionChanged(const base::string16& text,
-                        size_t offset,
-                        const gfx::Range& range) override;
-#endif
-
   gfx::Size GetRequestedRendererSize() const override;
   gfx::Size GetPhysicalBackingSize() const override;
-  void SelectionBoundsChanged(
-      const ViewHostMsg_SelectionBounds_Params& params) override;
   void CopyFromCompositingSurface(
       const gfx::Rect& src_subrect,
       const gfx::Size& dst_size,
@@ -177,12 +166,9 @@ class CefRenderWidgetHostViewOSR
   void ShowDisambiguationPopup(const gfx::Rect& rect_pixels,
                                const SkBitmap& zoomed_bitmap) override;
 #endif
-
-#if defined(OS_MACOSX) || defined(USE_AURA)
   void ImeCompositionRangeChanged(
       const gfx::Range& range,
       const std::vector<gfx::Rect>& character_bounds) override;
-#endif
 
   void SetNeedsBeginFrames(bool enabled) override;
 
@@ -233,19 +219,16 @@ class CefRenderWidgetHostViewOSR
     return popup_type_ != blink::WebPopupTypeNone;
   }
 
-#if defined(OS_MACOSX)
-  NSTextInputContext* GetNSTextInputContext();
-  void HandleKeyEventBeforeTextInputClient(CefEventHandle keyEvent);
-  void HandleKeyEventAfterTextInputClient(CefEventHandle keyEvent);
-
-  bool GetCachedFirstRectForCharacterRange(gfx::Range range, gfx::Rect* rect,
-                                           gfx::Range* actual_range) const;
-
-  const std::string& selected_text() const { return selected_text_; }
-  const gfx::Range& composition_range() const { return composition_range_; }
-  const base::string16& selection_text() const { return selection_text_; }
-  size_t selection_text_offset() const { return selection_text_offset_; }
-#endif  // defined(OS_MACOSX)
+  void ImeSetComposition(
+      const CefString& text,
+      const std::vector<CefCompositionUnderline>& underlines,
+      const CefRange& replacement_range,
+      const CefRange& selection_range);
+  void ImeCommitText(const CefString& text,
+                     const CefRange& replacement_range,
+                     int relative_cursor_pos);
+  void ImeFinishComposingText(bool keep_selection);
+  void ImeCancelComposition();
 
   void AddGuestHostView(CefRenderWidgetHostViewOSR* guest_host);
   void RemoveGuestHostView(CefRenderWidgetHostViewOSR* guest_host);
@@ -293,30 +276,11 @@ class CefRenderWidgetHostViewOSR
 
   void InvalidateInternal(const gfx::Rect& bounds_in_pixels);
 
+  void RequestImeCompositionUpdate(bool start_monitoring);
+
 #if defined(OS_MACOSX)
   friend class MacHelper;
-
-  // Returns composition character boundary rectangle. The |range| is
-  // composition based range. Also stores |actual_range| which is corresponding
-  // to actually used range for returned rectangle.
-  gfx::Rect GetFirstRectForCompositionRange(const gfx::Range& range,
-                                            gfx::Range* actual_range) const;
-
-  // Converts from given whole character range to composition oriented range. If
-  // the conversion failed, return gfx::Range::InvalidRange.
-  gfx::Range ConvertCharacterRangeToCompositionRange(
-      const gfx::Range& request_range) const;
-
-  // Returns true if there is line break in |range| and stores line breaking
-  // point to |line_breaking_point|. The |line_break_point| is valid only if
-  // this function returns true.
-  static bool GetLineBreakIndex(const std::vector<gfx::Rect>& bounds,
-                                const gfx::Range& range,
-                                size_t* line_break_point);
-
-  void DestroyNSTextInputOSR();
-#endif  // defined(OS_MACOSX)
-
+#endif
   void PlatformCreateCompositorWidget();
   void PlatformResizeCompositorWidget(const gfx::Size& size);
   void PlatformDestroyCompositorWidget();
@@ -383,23 +347,6 @@ class CefRenderWidgetHostViewOSR
   // The last scroll offset of the view.
   gfx::Vector2dF last_scroll_offset_;
   bool is_scroll_offset_changed_pending_;
-
-#if defined(OS_MACOSX)
-  NSTextInputContext* text_input_context_osr_mac_;
-
-  // Selected text on the renderer.
-  std::string selected_text_;
-
-  // The current composition character range and its bounds.
-  gfx::Range composition_range_;
-  std::vector<gfx::Rect> composition_bounds_;
-
-  // The current caret bounds.
-  gfx::Rect caret_rect_;
-
-  // The current first selection bounds.
-  gfx::Rect first_selection_rect_;
-#endif
 
   base::WeakPtrFactory<CefRenderWidgetHostViewOSR> weak_ptr_factory_;
 

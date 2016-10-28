@@ -9,6 +9,7 @@
 #include "cefclient/browser/browser_window.h"
 #include "cefclient/browser/client_handler_osr.h"
 #include "cefclient/browser/osr_renderer.h"
+#include "cefclient/browser/text_input_client_osr_mac.h"
 
 namespace client {
 
@@ -77,6 +78,10 @@ class BrowserWindowOsrMac : public BrowserWindow,
                      int x, int y) OVERRIDE;
   void UpdateDragCursor(CefRefPtr<CefBrowser> browser,
                         CefRenderHandler::DragOperation operation) OVERRIDE;
+  void OnImeCompositionRangeChanged(
+      CefRefPtr<CefBrowser> browser,
+      const CefRange& selection_range,
+      const CefRenderHandler::RectList& character_bounds) OVERRIDE;
 
  private:
   // Create the NSView.
