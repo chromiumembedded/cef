@@ -36,6 +36,9 @@ class CefMenuModelDelegateCToCpp
   void ExecuteCommand(CefRefPtr<CefMenuModel> menu_model, int command_id,
       cef_event_flags_t event_flags) override;
   void MenuWillShow(CefRefPtr<CefMenuModel> menu_model) override;
+  void MenuClosed(CefRefPtr<CefMenuModel> menu_model) override;
+  bool FormatLabel(CefRefPtr<CefMenuModel> menu_model,
+      CefString& label) override;
 };
 
 #endif  // BUILDING_CEF_SHARED

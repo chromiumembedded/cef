@@ -55,6 +55,52 @@ void CEF_CALLBACK menu_model_delegate_menu_will_show(
       CefMenuModelCToCpp::Wrap(menu_model));
 }
 
+void CEF_CALLBACK menu_model_delegate_menu_closed(
+    struct _cef_menu_model_delegate_t* self, cef_menu_model_t* menu_model) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: menu_model; type: refptr_diff
+  DCHECK(menu_model);
+  if (!menu_model)
+    return;
+
+  // Execute
+  CefMenuModelDelegateCppToC::Get(self)->MenuClosed(
+      CefMenuModelCToCpp::Wrap(menu_model));
+}
+
+int CEF_CALLBACK menu_model_delegate_format_label(
+    struct _cef_menu_model_delegate_t* self, cef_menu_model_t* menu_model,
+    cef_string_t* label) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: menu_model; type: refptr_diff
+  DCHECK(menu_model);
+  if (!menu_model)
+    return 0;
+  // Verify param: label; type: string_byref
+  DCHECK(label);
+  if (!label)
+    return 0;
+
+  // Translate param: label; type: string_byref
+  CefString labelStr(label);
+
+  // Execute
+  bool _retval = CefMenuModelDelegateCppToC::Get(self)->FormatLabel(
+      CefMenuModelCToCpp::Wrap(menu_model),
+      labelStr);
+
+  // Return type: bool
+  return _retval;
+}
+
 }  // namespace
 
 
@@ -63,6 +109,8 @@ void CEF_CALLBACK menu_model_delegate_menu_will_show(
 CefMenuModelDelegateCppToC::CefMenuModelDelegateCppToC() {
   GetStruct()->execute_command = menu_model_delegate_execute_command;
   GetStruct()->menu_will_show = menu_model_delegate_menu_will_show;
+  GetStruct()->menu_closed = menu_model_delegate_menu_closed;
+  GetStruct()->format_label = menu_model_delegate_format_label;
 }
 
 template<> CefRefPtr<CefMenuModelDelegate> CefCppToC<CefMenuModelDelegateCppToC,
