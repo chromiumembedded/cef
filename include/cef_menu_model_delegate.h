@@ -63,20 +63,20 @@ class CefMenuModelDelegate : public virtual CefBase {
   // The menu is about to show.
   ///
   /*--cef()--*/
-  virtual void MenuWillShow(CefRefPtr<CefMenuModel> menu_model) {};
+  virtual void MenuWillShow(CefRefPtr<CefMenuModel> menu_model) {}
 
   ///
   // The menu has closed.
   ///
   /*--cef()--*/
-  virtual void MenuClosed(CefRefPtr<CefMenuModel> menu_model) {};
+  virtual void MenuClosed(CefRefPtr<CefMenuModel> menu_model) {}
 
   ///
   // Optionally modify a menu item label. Return true if |label| was modified.
   ///
   /*--cef()--*/
   virtual bool FormatLabel(CefRefPtr<CefMenuModel> menu_model,
-                           CefString& label) { return false; };
+                           CefString& label) { return false; }
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_MENU_MODEL_DELEGATE_H_

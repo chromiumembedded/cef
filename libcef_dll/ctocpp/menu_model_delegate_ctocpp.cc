@@ -55,6 +55,46 @@ void CefMenuModelDelegateCToCpp::MenuWillShow(
       CefMenuModelCppToC::Wrap(menu_model));
 }
 
+void CefMenuModelDelegateCToCpp::MenuClosed(
+    CefRefPtr<CefMenuModel> menu_model) {
+  cef_menu_model_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, menu_closed))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: menu_model; type: refptr_diff
+  DCHECK(menu_model.get());
+  if (!menu_model.get())
+    return;
+
+  // Execute
+  _struct->menu_closed(_struct,
+      CefMenuModelCppToC::Wrap(menu_model));
+}
+
+bool CefMenuModelDelegateCToCpp::FormatLabel(CefRefPtr<CefMenuModel> menu_model,
+    CefString& label) {
+  cef_menu_model_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, format_label))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: menu_model; type: refptr_diff
+  DCHECK(menu_model.get());
+  if (!menu_model.get())
+    return false;
+
+  // Execute
+  int _retval = _struct->format_label(_struct,
+      CefMenuModelCppToC::Wrap(menu_model),
+      label.GetWritableStruct());
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 

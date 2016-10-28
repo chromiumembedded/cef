@@ -584,7 +584,7 @@ class obj_header:
                        '\nclass'+_cre_space+_cre_cfname+_cre_space+
                        ':'+_cre_space+'public'+_cre_virtual+
                        _cre_space+_cre_cfname+_cre_space+
-                       '{(.*?)};', re.MULTILINE | re.DOTALL)
+                       '{(.*?)\n};', re.MULTILINE | re.DOTALL)
         list = p.findall(data)
         if len(list) > 0:
             added = True
