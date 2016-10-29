@@ -424,38 +424,32 @@ typedef struct _cef_v8value_t {
       struct _cef_v8value_t* that);
 
   ///
-  // Return a bool value.  The underlying data will be converted to if
-  // necessary.
+  // Return a bool value.
   ///
   int (CEF_CALLBACK *get_bool_value)(struct _cef_v8value_t* self);
 
   ///
-  // Return an int value.  The underlying data will be converted to if
-  // necessary.
+  // Return an int value.
   ///
   int32 (CEF_CALLBACK *get_int_value)(struct _cef_v8value_t* self);
 
   ///
-  // Return an unisgned int value.  The underlying data will be converted to if
-  // necessary.
+  // Return an unsigned int value.
   ///
   uint32 (CEF_CALLBACK *get_uint_value)(struct _cef_v8value_t* self);
 
   ///
-  // Return a double value.  The underlying data will be converted to if
-  // necessary.
+  // Return a double value.
   ///
   double (CEF_CALLBACK *get_double_value)(struct _cef_v8value_t* self);
 
   ///
-  // Return a Date value.  The underlying data will be converted to if
-  // necessary.
+  // Return a Date value.
   ///
   cef_time_t (CEF_CALLBACK *get_date_value)(struct _cef_v8value_t* self);
 
   ///
-  // Return a string value.  The underlying data will be converted to if
-  // necessary.
+  // Return a string value.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_string_value)(
