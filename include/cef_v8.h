@@ -589,43 +589,37 @@ class CefV8Value : public virtual CefBase {
   virtual bool IsSame(CefRefPtr<CefV8Value> that) =0;
 
   ///
-  // Return a bool value.  The underlying data will be converted to if
-  // necessary.
+  // Return a bool value.
   ///
   /*--cef()--*/
   virtual bool GetBoolValue() =0;
 
   ///
-  // Return an int value.  The underlying data will be converted to if
-  // necessary.
+  // Return an int value.
   ///
   /*--cef()--*/
   virtual int32 GetIntValue() =0;
 
   ///
-  // Return an unisgned int value.  The underlying data will be converted to if
-  // necessary.
+  // Return an unsigned int value.
   ///
   /*--cef()--*/
   virtual uint32 GetUIntValue() =0;
 
   ///
-  // Return a double value.  The underlying data will be converted to if
-  // necessary.
+  // Return a double value.
   ///
   /*--cef()--*/
   virtual double GetDoubleValue() =0;
 
   ///
-  // Return a Date value.  The underlying data will be converted to if
-  // necessary.
+  // Return a Date value.
   ///
   /*--cef()--*/
   virtual CefTime GetDateValue() =0;
 
   ///
-  // Return a string value.  The underlying data will be converted to if
-  // necessary.
+  // Return a string value.
   ///
   /*--cef()--*/
   virtual CefString GetStringValue() =0;
