@@ -2,6 +2,64 @@
 # 2012 Google Inc. All rights reserved. Use of this source code is governed by
 # a BSD-style license that can be found in the LICENSE file.
 
+# This script determines the contents of the per-configuration `args.gn` files
+# that are used to build CEF/Chromium with GN. See comments in CEF's top-level
+# BUILD.gn file for general GN usage instructions.
+#
+# This script performs the following tasks:
+#
+# - Defines CEF's default and required arg values in cases where they differ
+#   from Chromium's.
+# - Accepts user-defined arg values via the GN_DEFINES environment variable.
+# - Verifies that user-defined arg values do not conflict with CEF's
+#   requirements.
+# - Generates multiple configurations by combining user-defined arg values with
+#   CEF's default and required values.
+#
+# Before adding a new arg value in this script determine the following:
+#
+# - Chromium's default value. Default values are defined in the declare_args()
+#   sections of *.gni files.
+# - Chromium's value requirements. Check for assert()s related to the value in
+#   Chromium code.
+# - Whether a particular value is optional or required for CEF.
+# - Under what conditions a particular value is required for CEF (platform,
+#   build type, CPU architecture, etc).
+#
+# If CEF can use Chromium's default value and has no additional validation
+# requirements then do nothing.
+#
+# If CEF can use Chromium's default value but would like to enforce additional
+# validation requirements then go to 3B.
+#
+# If CEF cannot or should not use Chromium's default value then choose one of
+# the following:
+#
+# 1. If CEF requires a different value either globally or based on the platform:
+#  - Add an assert() for the value in CEF's top-level BUILD.gn file.
+#  - Add the required value in GetRequiredArgs().
+#  - Result: CEF's required value will be used. The user cannot override the
+#    value via GN_DEFINES.
+#
+# 2. If CEF requires a different value based on the build type or CPU
+#    architecture:
+#  - Add an assert() for the value in CEF's top-level BUILD.gn file.
+#  - Add the required value in GetConfigArgs().
+#  - Result: CEF's required value will be used. The user cannot override the
+#    value via GN_DEFINES.
+#
+# 3. If CEF recommends (but does not require) a different value either globally
+#    or based on the platform:
+#    A. Set the default value:
+#     - Add the recommended value in GetRecommendedDefaultArgs().
+#     - Result: CEF's recommended value will be used by default. The user can
+#       override the value via GN_DEFINES.
+#
+#    B. If CEF has additional validation requirements:
+#     - Add the default Chromium value in GetChromiumDefaultArgs().
+#     - Perform validation in ValidateArgs().
+#     - Result: An AssertionError will be thrown if validation fails.
+
 import os
 import shlex
 import sys
@@ -71,6 +129,19 @@ def MergeDicts(*dict_args):
   for dictionary in dict_args:
     result.update(dictionary)
   return result
+
+def GetValueString(val):
+  """
+  Return the string representation of |val| expected by GN.
+  """
+  if isinstance(val, basestring):
+    return '"%s"' % val
+  elif isinstance(val, bool):
+    if val:
+      return 'true'
+    else:
+      return 'false'
+  return val
 
 def GetChromiumDefaultArgs():
   """
@@ -160,13 +231,27 @@ def GetRequiredArgs():
     # Don't use the chrome style plugin.
     result['clang_use_chrome_plugins'] = False
 
+  if platform == 'macosx':
+    # Always generate dSYM files. The make_distrib script will fail if
+    # enable_dsyms=true is not explicitly set when is_official_build=false.
+    result['enable_dsyms'] = True
+
   return result
 
 def GetMergedArgs(build_args):
   """
   Return merged GN args.
   """
-  return MergeDicts(GetRecommendedDefaultArgs(), GetGNEnvArgs(), build_args, GetRequiredArgs())
+  dict = MergeDicts(GetRecommendedDefaultArgs(), GetGNEnvArgs(), build_args)
+
+  # Verify that the user is not trying to override required args.
+  required = GetRequiredArgs()
+  for key in required.keys():
+    if key in dict:
+      assert dict[key] == required[key], \
+          "%s=%s is required" % (key, GetValueString(required[key]))
+
+  return MergeDicts(dict, required)
 
 def ValidateArgs(args):
   """
@@ -380,17 +465,8 @@ def GetConfigFileContents(args):
   """
   pairs = []
   for k in sorted(args.keys()):
-    val = args[k]
-    if isinstance(val, basestring):
-      val = '"%s"' % val
-    elif isinstance(val, bool):
-      if val:
-        val = 'true'
-      else:
-        val = 'false'
-    pairs.append("%s=%s" % (k, val))
+    pairs.append("%s=%s" % (k, GetValueString(args[k])))
   return "\n".join(pairs)
-
 
 # Program entry point.
 if __name__ == '__main__':
