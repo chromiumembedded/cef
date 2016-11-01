@@ -11,10 +11,10 @@ index 585f0d8..9f60467 100644
  
    # TODO(dgn): Layer violation but breaks the build otherwise, see
 diff --git BUILD.gn BUILD.gn
-index 93699f0..3346d3e 100644
+index a7bcf41..f676b26 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -280,6 +280,7 @@ group("both_gn_and_gyp") {
+@@ -279,6 +279,7 @@ group("both_gn_and_gyp") {
      # and whether there should be other targets that are iOS-only and missing.
      deps += [
        "//cc:cc_unittests",
@@ -116,7 +116,7 @@ index 3e93269..9821a4b 100644
      if (is_mac) {
        output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 6994618..4ed3f85 100644
+index 3f379fe..3fd205f 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
 @@ -125,7 +125,7 @@ template("generate_mini_installer") {

@@ -39,10 +39,10 @@ index 14d8550..92e5b21 100644
    // built in media player for the given |url|. Defaults to false.
    virtual bool ShouldUseMediaPlayerForURL(const GURL& url);
 diff --git renderer/render_frame_impl.cc renderer/render_frame_impl.cc
-index 8880b8d..cab954b 100644
+index a6b0993..7a926da 100644
 --- renderer/render_frame_impl.cc
 +++ renderer/render_frame_impl.cc
-@@ -5008,7 +5008,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -5009,7 +5009,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
        (pending_navigation_params_ &&
         !pending_navigation_params_->request_params.redirects.empty());
  
@@ -50,7 +50,7 @@ index 8880b8d..cab954b 100644
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
    if (GetContentClient()->renderer()->HandleNavigation(
-@@ -5017,7 +5016,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -5018,7 +5017,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
            is_redirect)) {
      return blink::WebNavigationPolicyIgnore;
    }
