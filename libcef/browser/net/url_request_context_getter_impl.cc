@@ -49,8 +49,6 @@
 #include "net/http/http_util.h"
 #include "net/http/transport_security_state.h"
 #include "net/proxy/proxy_service.h"
-#include "net/ssl/channel_id_service.h"
-#include "net/ssl/default_channel_id_store.h"
 #include "net/ssl/ssl_config_service_defaults.h"
 #include "url/url_constants.h"
 #include "net/url_request/http_user_agent_settings.h"
@@ -210,11 +208,6 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     network_delegate->set_force_google_safesearch(&force_google_safesearch_);
     storage_->set_network_delegate(std::move(network_delegate));
 
-    storage_->set_channel_id_service(base::WrapUnique(
-        new net::ChannelIDService(
-            new net::DefaultChannelIDStore(NULL),
-            base::WorkerPool::GetTaskRunner(true))));
-
     const std::string& accept_language =
         settings_.accept_language_list.length > 0 ?
             CefString(&settings_.accept_language_list): "en-US,en";
@@ -296,8 +289,6 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
         url_request_context_->cert_transparency_verifier();
     network_session_params.ct_policy_enforcer =
         url_request_context_->ct_policy_enforcer();
-    network_session_params.channel_id_service =
-        url_request_context_->channel_id_service();
     network_session_params.proxy_service =
         url_request_context_->proxy_service();
     network_session_params.ssl_config_service =
