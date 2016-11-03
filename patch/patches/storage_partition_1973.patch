@@ -103,7 +103,7 @@ index c34d15a1..429c0e8 100644
  
    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index f952adc..f0ed622 100644
+index f952adc..e9998f3 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
 @@ -675,7 +675,7 @@ void RenderProcessHostImpl::EarlyZygoteLaunch() {
@@ -256,6 +256,14 @@ index f952adc..f0ed622 100644
                   GetID()));
    AddUIThreadInterface(
        registry.get(),
+@@ -1395,6 +1409,7 @@ void RenderProcessHostImpl::ForceReleaseWorkerRefCounts() {
+   DCHECK_CURRENTLY_ON(BrowserThread::UI);
+   DCHECK(!is_worker_ref_count_disabled_);
+   is_worker_ref_count_disabled_ = true;
++  browser_context_ = nullptr;
+   if (!worker_ref_count())
+     return;
+   service_worker_ref_count_ = 0;
 diff --git content/browser/renderer_host/render_process_host_impl.h content/browser/renderer_host/render_process_host_impl.h
 index f07c487e..aae8a3e 100644
 --- content/browser/renderer_host/render_process_host_impl.h
