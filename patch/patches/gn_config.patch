@@ -145,7 +145,6 @@ index 1e269aa..b562c3e 100644
        "$root_out_dir/setup.exe",
        release_file,
      ]
-
 diff --git content/renderer/mus/BUILD.gn content/renderer/mus/BUILD.gn
 index efadacc..47fa5ff 100644
 --- content/renderer/mus/BUILD.gn

@@ -1,5 +1,5 @@
 diff --git components/plugins/renderer/webview_plugin.cc components/plugins/renderer/webview_plugin.cc
-index 60d955b..ab11e7b 100644
+index 60d955b..81a26f4 100644
 --- components/plugins/renderer/webview_plugin.cc
 +++ components/plugins/renderer/webview_plugin.cc
 @@ -95,6 +95,23 @@ WebViewPlugin::~WebViewPlugin() {

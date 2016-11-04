@@ -39,7 +39,7 @@ index b7b042f..69a62f2 100644
    // built in media player for the given |url|. Defaults to false.
    virtual bool ShouldUseMediaPlayerForURL(const GURL& url);
 diff --git renderer/render_frame_impl.cc renderer/render_frame_impl.cc
-index d1f9dcf..667abb6 100644
+index eba0afa..c84b20b 100644
 --- renderer/render_frame_impl.cc
 +++ renderer/render_frame_impl.cc
 @@ -4947,7 +4947,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
