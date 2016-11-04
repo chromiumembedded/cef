@@ -51,14 +51,14 @@ CEF_EXPORT cef_string_list_t cef_string_list_alloc();
 ///
 // Return the number of elements in the string list.
 ///
-CEF_EXPORT int cef_string_list_size(cef_string_list_t list);
+CEF_EXPORT size_t cef_string_list_size(cef_string_list_t list);
 
 ///
 // Retrieve the value at the specified zero-based string list index. Returns
 // true (1) if the value was successfully retrieved.
 ///
 CEF_EXPORT int cef_string_list_value(cef_string_list_t list,
-                                     int index, cef_string_t* value);
+                                     size_t index, cef_string_t* value);
 
 ///
 // Append a new value at the end of the string list.

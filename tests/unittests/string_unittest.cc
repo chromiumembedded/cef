@@ -170,32 +170,32 @@ TEST(StringTest, List) {
   CefString str;
   int ret;
 
-  EXPECT_EQ(cef_string_list_size(listPtr), 3);
+  EXPECT_EQ(cef_string_list_size(listPtr), 3U);
 
-  ret = cef_string_list_value(listPtr, 0, str.GetWritableStruct());
+  ret = cef_string_list_value(listPtr, 0U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "String 1");
-  ret = cef_string_list_value(listPtr, 1, str.GetWritableStruct());
+  ret = cef_string_list_value(listPtr, 1U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "String 2");
-  ret = cef_string_list_value(listPtr, 2, str.GetWritableStruct());
+  ret = cef_string_list_value(listPtr, 2U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "String 3");
 
   cef_string_list_t listPtr2 = cef_string_list_copy(listPtr);
   cef_string_list_clear(listPtr);
-  EXPECT_EQ(cef_string_list_size(listPtr), 0);
+  EXPECT_EQ(cef_string_list_size(listPtr), 0U);
   cef_string_list_free(listPtr);
 
-  EXPECT_EQ(cef_string_list_size(listPtr2), 3);
+  EXPECT_EQ(cef_string_list_size(listPtr2), 3U);
 
-  ret = cef_string_list_value(listPtr2, 0, str.GetWritableStruct());
+  ret = cef_string_list_value(listPtr2, 0U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "String 1");
-  ret = cef_string_list_value(listPtr2, 1, str.GetWritableStruct());
+  ret = cef_string_list_value(listPtr2, 1U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "String 2");
-  ret = cef_string_list_value(listPtr2, 2, str.GetWritableStruct());
+  ret = cef_string_list_value(listPtr2, 2U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "String 3");
 
@@ -237,26 +237,26 @@ TEST(StringTest, Map) {
   CefString str;
   int ret;
 
-  EXPECT_EQ(cef_string_map_size(mapPtr), 3);
+  EXPECT_EQ(cef_string_map_size(mapPtr), 3U);
 
-  ret = cef_string_map_key(mapPtr, 0, str.GetWritableStruct());
+  ret = cef_string_map_key(mapPtr, 0U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "Key 1");
-  ret = cef_string_map_value(mapPtr, 0, str.GetWritableStruct());
+  ret = cef_string_map_value(mapPtr, 0U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "String 1");
 
-  ret = cef_string_map_key(mapPtr, 1, str.GetWritableStruct());
+  ret = cef_string_map_key(mapPtr, 1U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "Key 2");
-  ret = cef_string_map_value(mapPtr, 1, str.GetWritableStruct());
+  ret = cef_string_map_value(mapPtr, 1U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "String 2");
 
-  ret = cef_string_map_key(mapPtr, 2, str.GetWritableStruct());
+  ret = cef_string_map_key(mapPtr, 2U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "Key 3");
-  ret = cef_string_map_value(mapPtr, 2, str.GetWritableStruct());
+  ret = cef_string_map_value(mapPtr, 2U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "String 3");
 
@@ -267,7 +267,7 @@ TEST(StringTest, Map) {
   EXPECT_EQ(str, "String 2");
 
   cef_string_map_clear(mapPtr);
-  EXPECT_EQ(cef_string_map_size(mapPtr), 0);
+  EXPECT_EQ(cef_string_map_size(mapPtr), 0U);
 
   cef_string_map_free(mapPtr);
 }
@@ -295,9 +295,9 @@ TEST(StringTest, Multimap) {
   // Either of "String 2" or "String 2.1" is fine since
   // std::multimap provides no guarantee wrt the order of
   // values with the same key.
-  EXPECT_EQ(same_key_it->second.ToString().find("String 2"), (size_t)0);
-  EXPECT_EQ((++same_key_it)->second.ToString().find("String 2"), (size_t)0);
-  EXPECT_EQ(map.count("Key 2"), (size_t)2);
+  EXPECT_EQ(same_key_it->second.ToString().find("String 2"), 0U);
+  EXPECT_EQ((++same_key_it)->second.ToString().find("String 2"), 0U);
+  EXPECT_EQ(map.count("Key 2"), 2U);
 
   EXPECT_EQ(map.find("Key 1")->second, "String 1");
   EXPECT_EQ(map.find("Key 3")->second, "String 3");
@@ -313,53 +313,53 @@ TEST(StringTest, Multimap) {
   CefString str;
   int ret;
 
-  EXPECT_EQ(cef_string_multimap_size(mapPtr), 4);
+  EXPECT_EQ(cef_string_multimap_size(mapPtr), 4U);
 
-  ret = cef_string_multimap_key(mapPtr, 0, str.GetWritableStruct());
+  ret = cef_string_multimap_key(mapPtr, 0U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "Key 1");
-  ret = cef_string_multimap_value(mapPtr, 0, str.GetWritableStruct());
+  ret = cef_string_multimap_value(mapPtr, 0U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "String 1");
 
-  ret = cef_string_multimap_key(mapPtr, 1, str.GetWritableStruct());
+  ret = cef_string_multimap_key(mapPtr, 1U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "Key 2");
-  ret = cef_string_multimap_value(mapPtr, 1, str.GetWritableStruct());
+  ret = cef_string_multimap_value(mapPtr, 1U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
-  EXPECT_EQ(str.ToString().find("String 2"), (size_t)0);
+  EXPECT_EQ(str.ToString().find("String 2"), 0U);
 
-  ret = cef_string_multimap_key(mapPtr, 2, str.GetWritableStruct());
+  ret = cef_string_multimap_key(mapPtr, 2U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "Key 2");
-  ret = cef_string_multimap_value(mapPtr, 2, str.GetWritableStruct());
+  ret = cef_string_multimap_value(mapPtr, 2U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
-  EXPECT_EQ(str.ToString().find("String 2"), (size_t)0);
+  EXPECT_EQ(str.ToString().find("String 2"), 0U);
 
-  ret = cef_string_multimap_key(mapPtr, 3, str.GetWritableStruct());
+  ret = cef_string_multimap_key(mapPtr, 3U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "Key 3");
-  ret = cef_string_multimap_value(mapPtr, 3, str.GetWritableStruct());
+  ret = cef_string_multimap_value(mapPtr, 3U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
   EXPECT_EQ(str, "String 3");
 
   CefString key;
   key.FromASCII("Key 2");
-  ret = cef_string_multimap_find_count(mapPtr, key.GetStruct());
-  EXPECT_EQ(ret, 2);
+  size_t size = cef_string_multimap_find_count(mapPtr, key.GetStruct());
+  EXPECT_EQ(size, 2U);
 
   ret = cef_string_multimap_enumerate(mapPtr,
-                    key.GetStruct(), 0, str.GetWritableStruct());
+                    key.GetStruct(), 0U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
-  EXPECT_EQ(str.ToString().find("String 2"), (size_t)0);
+  EXPECT_EQ(str.ToString().find("String 2"), 0U);
 
   ret = cef_string_multimap_enumerate(mapPtr,
-                    key.GetStruct(), 1, str.GetWritableStruct());
+                    key.GetStruct(), 1U, str.GetWritableStruct());
   EXPECT_TRUE(ret);
-  EXPECT_EQ(str.ToString().find("String 2"), (size_t)0);
+  EXPECT_EQ(str.ToString().find("String 2"), 0U);
 
   cef_string_multimap_clear(mapPtr);
-  EXPECT_EQ(cef_string_multimap_size(mapPtr), 0);
+  EXPECT_EQ(cef_string_multimap_size(mapPtr), 0U);
 
   cef_string_multimap_free(mapPtr);
 }

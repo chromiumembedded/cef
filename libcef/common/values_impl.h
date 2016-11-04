@@ -318,26 +318,26 @@ class CefListValueImpl
   bool SetSize(size_t size) override;
   size_t GetSize() override;
   bool Clear() override;
-  bool Remove(int index) override;
-  CefValueType GetType(int index) override;
-  CefRefPtr<CefValue> GetValue(int index) override;
-  bool GetBool(int index) override;
-  int GetInt(int index) override;
-  double GetDouble(int index) override;
-  CefString GetString(int index) override;
-  CefRefPtr<CefBinaryValue> GetBinary(int index) override;
-  CefRefPtr<CefDictionaryValue> GetDictionary(int index) override;
-  CefRefPtr<CefListValue> GetList(int index) override;
-  bool SetValue(int index, CefRefPtr<CefValue> value) override;
-  bool SetNull(int index) override;
-  bool SetBool(int index, bool value) override;
-  bool SetInt(int index, int value) override;
-  bool SetDouble(int index, double value) override;
-  bool SetString(int index, const CefString& value) override;
-  bool SetBinary(int index, CefRefPtr<CefBinaryValue> value) override;
-  bool SetDictionary(int index,
+  bool Remove(size_t index) override;
+  CefValueType GetType(size_t index) override;
+  CefRefPtr<CefValue> GetValue(size_t index) override;
+  bool GetBool(size_t index) override;
+  int GetInt(size_t index) override;
+  double GetDouble(size_t index) override;
+  CefString GetString(size_t index) override;
+  CefRefPtr<CefBinaryValue> GetBinary(size_t index) override;
+  CefRefPtr<CefDictionaryValue> GetDictionary(size_t index) override;
+  CefRefPtr<CefListValue> GetList(size_t index) override;
+  bool SetValue(size_t index, CefRefPtr<CefValue> value) override;
+  bool SetNull(size_t index) override;
+  bool SetBool(size_t index, bool value) override;
+  bool SetInt(size_t index, int value) override;
+  bool SetDouble(size_t index, double value) override;
+  bool SetString(size_t index, const CefString& value) override;
+  bool SetBinary(size_t index, CefRefPtr<CefBinaryValue> value) override;
+  bool SetDictionary(size_t index,
                      CefRefPtr<CefDictionaryValue> value) override;
-  bool SetList(int index, CefRefPtr<CefListValue> value) override;
+  bool SetList(size_t index, CefRefPtr<CefListValue> value) override;
 
  private:
   // See the CefValueBase constructor for usage.
@@ -347,8 +347,8 @@ class CefListValueImpl
                    bool read_only,
                    CefValueController* controller);
 
-  bool RemoveInternal(int index);
-  void SetInternal(int index, base::Value* value);
+  bool RemoveInternal(size_t index);
+  void SetInternal(size_t index, base::Value* value);
 
   DISALLOW_COPY_AND_ASSIGN(CefListValueImpl);
 };

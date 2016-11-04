@@ -581,13 +581,13 @@ typedef struct _cef_list_value_t {
   ///
   // Removes the value at the specified index.
   ///
-  int (CEF_CALLBACK *remove)(struct _cef_list_value_t* self, int index);
+  int (CEF_CALLBACK *remove)(struct _cef_list_value_t* self, size_t index);
 
   ///
   // Returns the value type at the specified index.
   ///
   cef_value_type_t (CEF_CALLBACK *get_type)(struct _cef_list_value_t* self,
-      int index);
+      size_t index);
 
   ///
   // Returns the value at the specified index. For simple types the returned
@@ -597,36 +597,37 @@ typedef struct _cef_list_value_t {
   // will modify this object.
   ///
   struct _cef_value_t* (CEF_CALLBACK *get_value)(struct _cef_list_value_t* self,
-      int index);
+      size_t index);
 
   ///
   // Returns the value at the specified index as type bool.
   ///
-  int (CEF_CALLBACK *get_bool)(struct _cef_list_value_t* self, int index);
+  int (CEF_CALLBACK *get_bool)(struct _cef_list_value_t* self, size_t index);
 
   ///
   // Returns the value at the specified index as type int.
   ///
-  int (CEF_CALLBACK *get_int)(struct _cef_list_value_t* self, int index);
+  int (CEF_CALLBACK *get_int)(struct _cef_list_value_t* self, size_t index);
 
   ///
   // Returns the value at the specified index as type double.
   ///
-  double (CEF_CALLBACK *get_double)(struct _cef_list_value_t* self, int index);
+  double (CEF_CALLBACK *get_double)(struct _cef_list_value_t* self,
+      size_t index);
 
   ///
   // Returns the value at the specified index as type string.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_string)(
-      struct _cef_list_value_t* self, int index);
+      struct _cef_list_value_t* self, size_t index);
 
   ///
   // Returns the value at the specified index as type binary. The returned value
   // will reference existing data.
   ///
   struct _cef_binary_value_t* (CEF_CALLBACK *get_binary)(
-      struct _cef_list_value_t* self, int index);
+      struct _cef_list_value_t* self, size_t index);
 
   ///
   // Returns the value at the specified index as type dictionary. The returned
@@ -634,7 +635,7 @@ typedef struct _cef_list_value_t {
   // modify this object.
   ///
   struct _cef_dictionary_value_t* (CEF_CALLBACK *get_dictionary)(
-      struct _cef_list_value_t* self, int index);
+      struct _cef_list_value_t* self, size_t index);
 
   ///
   // Returns the value at the specified index as type list. The returned value
@@ -642,7 +643,7 @@ typedef struct _cef_list_value_t {
   // this object.
   ///
   struct _cef_list_value_t* (CEF_CALLBACK *get_list)(
-      struct _cef_list_value_t* self, int index);
+      struct _cef_list_value_t* self, size_t index);
 
   ///
   // Sets the value at the specified index. Returns true (1) if the value was
@@ -652,41 +653,41 @@ typedef struct _cef_list_value_t {
   // then the underlying data will be referenced and modifications to |value|
   // will modify this object.
   ///
-  int (CEF_CALLBACK *set_value)(struct _cef_list_value_t* self, int index,
+  int (CEF_CALLBACK *set_value)(struct _cef_list_value_t* self, size_t index,
       struct _cef_value_t* value);
 
   ///
   // Sets the value at the specified index as type null. Returns true (1) if the
   // value was set successfully.
   ///
-  int (CEF_CALLBACK *set_null)(struct _cef_list_value_t* self, int index);
+  int (CEF_CALLBACK *set_null)(struct _cef_list_value_t* self, size_t index);
 
   ///
   // Sets the value at the specified index as type bool. Returns true (1) if the
   // value was set successfully.
   ///
-  int (CEF_CALLBACK *set_bool)(struct _cef_list_value_t* self, int index,
+  int (CEF_CALLBACK *set_bool)(struct _cef_list_value_t* self, size_t index,
       int value);
 
   ///
   // Sets the value at the specified index as type int. Returns true (1) if the
   // value was set successfully.
   ///
-  int (CEF_CALLBACK *set_int)(struct _cef_list_value_t* self, int index,
+  int (CEF_CALLBACK *set_int)(struct _cef_list_value_t* self, size_t index,
       int value);
 
   ///
   // Sets the value at the specified index as type double. Returns true (1) if
   // the value was set successfully.
   ///
-  int (CEF_CALLBACK *set_double)(struct _cef_list_value_t* self, int index,
+  int (CEF_CALLBACK *set_double)(struct _cef_list_value_t* self, size_t index,
       double value);
 
   ///
   // Sets the value at the specified index as type string. Returns true (1) if
   // the value was set successfully.
   ///
-  int (CEF_CALLBACK *set_string)(struct _cef_list_value_t* self, int index,
+  int (CEF_CALLBACK *set_string)(struct _cef_list_value_t* self, size_t index,
       const cef_string_t* value);
 
   ///
@@ -696,7 +697,7 @@ typedef struct _cef_list_value_t {
   // change. Otherwise, ownership will be transferred to this object and the
   // |value| reference will be invalidated.
   ///
-  int (CEF_CALLBACK *set_binary)(struct _cef_list_value_t* self, int index,
+  int (CEF_CALLBACK *set_binary)(struct _cef_list_value_t* self, size_t index,
       struct _cef_binary_value_t* value);
 
   ///
@@ -706,8 +707,8 @@ typedef struct _cef_list_value_t {
   // Otherwise, ownership will be transferred to this object and the |value|
   // reference will be invalidated.
   ///
-  int (CEF_CALLBACK *set_dictionary)(struct _cef_list_value_t* self, int index,
-      struct _cef_dictionary_value_t* value);
+  int (CEF_CALLBACK *set_dictionary)(struct _cef_list_value_t* self,
+      size_t index, struct _cef_dictionary_value_t* value);
 
   ///
   // Sets the value at the specified index as type list. Returns true (1) if the
@@ -716,7 +717,7 @@ typedef struct _cef_list_value_t {
   // Otherwise, ownership will be transferred to this object and the |value|
   // reference will be invalidated.
   ///
-  int (CEF_CALLBACK *set_list)(struct _cef_list_value_t* self, int index,
+  int (CEF_CALLBACK *set_list)(struct _cef_list_value_t* self, size_t index,
       struct _cef_list_value_t* value);
 } cef_list_value_t;
 

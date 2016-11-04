@@ -25,7 +25,7 @@ CefRefPtr<CefProcessMessage> CreateTestMessage() {
   CefRefPtr<CefListValue> args = msg->GetArgumentList();
   EXPECT_TRUE(args.get());
 
-  int index = 0;
+  size_t index = 0;
   args->SetNull(index++);
   args->SetInt(index++, 5);
   args->SetDouble(index++, 10.543);
@@ -33,7 +33,7 @@ CefRefPtr<CefProcessMessage> CreateTestMessage() {
   args->SetString(index++, "test string");
   args->SetList(index++, args->Copy());
 
-  EXPECT_EQ((size_t)index, args->GetSize());
+  EXPECT_EQ(index, args->GetSize());
 
   return msg;
 }
