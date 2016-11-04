@@ -615,6 +615,145 @@ TEST(NavigationTest, History) {
 
 namespace {
 
+const char kDynIfrNav1[] = "http://tests-dynframe/nav1.html";
+const char kDynIfrNav2[] = "http://tests-dynframe/nav2.html";
+
+bool g_history_dynamic_iframes_nav_test = false;
+
+// Browser side.
+class HistoryDynamicIFramesNavTestHandler : public TestHandler {
+ public:
+  HistoryDynamicIFramesNavTestHandler()
+    : nav_(-1) {}
+
+  void RunTest() override {
+    // Add the resources that we will navigate to/from.
+    AddResource(kDynIfrNav1,
+      "<html>"
+      " <head>"
+      "  <title>Nav1</title>"
+      "  <script language='javascript'>"
+      "    function onload() {"
+      "      fr = Math.floor(Math.random() * 10);"
+      "      if(fr == 0) "
+      "        fr = 1;"
+      "      console.log('fr=' + fr);"
+      "      for(i = 1; i <= fr; i++) {"
+      "        try {"
+      "          var n = 'DYN_' + Math.floor(Math.random() * 10000);"
+      "  "
+      "          d = document.createElement('div');"
+      "          d.id = 'sf' + i; "
+      "          d.innerText = n; "
+      "          document.body.appendChild(d); "
+      " "
+      "          f = document.createElement('iframe'); "
+      "          f.id = 'f_' + i; "
+      "          f.name = n; "
+      "          f.src = 'nav2.html'; "
+      "          document.body.appendChild(f); "
+      "        } catch(e) { "
+      "          console.log('frame[' + i + ']: ' + e); "
+      "        } "
+      "      } "
+      "    } "
+      "  </script> "
+      " </head> "
+      " <body onload='onload();'> "
+      "  Nav1 "
+      " </body> "
+      "</html>",
+      "text/html");
+    AddResource(kDynIfrNav2,
+        "<html><head><title>Nav2</title></head><body>Nav2</body></html>",
+        "text/html");
+
+    // Create the browser.
+    CreateBrowser(CefString());
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  void RunNav(CefRefPtr<CefBrowser> browser) {
+    EXPECT_LE(nav_, 3);
+    EXPECT_FALSE(got_load_start_[nav_]);
+    EXPECT_FALSE(got_load_end_[nav_]);
+
+    if (nav_ == 0) {
+      browser->GetMainFrame()->LoadURL(kDynIfrNav1);
+    } else if (nav_ == 1) {
+      browser->GetMainFrame()->LoadURL(kDynIfrNav2);
+    } else if (nav_ == 2) {
+      browser->GoBack();
+    } else if (nav_ == 3) {
+      browser->Reload();
+    }
+  }
+
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
+    TestHandler::OnAfterCreated(browser);
+
+    nav_ = 0;
+    RunNav(browser);
+  }
+
+  void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
+    if(!frame->IsMain())
+      return;
+    got_load_start_[nav_].yes();
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    if (!frame->IsMain())
+      return;
+    CefString url = browser->GetMainFrame()->GetURL();
+    got_load_end_[nav_].yes();
+
+    if(nav_ == 3) {
+      CefString url = browser->GetMainFrame()->GetURL();
+      EXPECT_STREQ(url.ToString().c_str(), kDynIfrNav1);
+      DestroyTest();
+      return;
+    }
+
+    nav_++;
+    RunNav(browser);
+  }
+
+  int nav_;
+  TrackCallback got_load_start_[4];
+  TrackCallback got_load_end_[4];
+
+  IMPLEMENT_REFCOUNTING(HistoryDynamicIFramesNavTestHandler);
+};
+
+}  // namespace
+
+// Verify history navigation of pages containing dynamically created iframes.
+// See issue #2022 for background.
+TEST(NavigationTest, HistoryDynamicIFrames) {
+  g_history_dynamic_iframes_nav_test = true;
+  CefRefPtr<HistoryDynamicIFramesNavTestHandler> handler =
+      new HistoryDynamicIFramesNavTestHandler();
+  handler->ExecuteTest();
+  g_history_dynamic_iframes_nav_test = false;
+
+  for (int i = 0; i < 4; ++i) {
+    EXPECT_TRUE(handler->got_load_start_[i]);
+    EXPECT_TRUE(handler->got_load_end_[i]);
+  }
+
+  ReleaseAndWaitForDestructor(handler);
+}
+
+
+namespace {
+
 const char kRNav1[] = "http://tests/nav1.html";
 const char kRNav2[] = "http://tests/nav2.html";
 const char kRNav3[] = "http://tests/nav3.html";
