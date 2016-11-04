@@ -12,7 +12,7 @@ CEF_EXPORT cef_string_map_t cef_string_map_alloc() {
   return new StringMap;
 }
 
-CEF_EXPORT int cef_string_map_size(cef_string_map_t map) {
+CEF_EXPORT size_t cef_string_map_size(cef_string_map_t map) {
   DCHECK(map);
   StringMap* impl = reinterpret_cast<StringMap*>(map);
   return impl->size();
@@ -32,36 +32,34 @@ CEF_EXPORT int cef_string_map_find(cef_string_map_t map,
   return cef_string_set(val.c_str(), val.length(), value, true);
 }
 
-CEF_EXPORT int cef_string_map_key(cef_string_map_t map, int index,
+CEF_EXPORT int cef_string_map_key(cef_string_map_t map, size_t index,
                                   cef_string_t* key) {
   DCHECK(map);
   DCHECK(key);
   StringMap* impl = reinterpret_cast<StringMap*>(map);
-  DCHECK_GE(index, 0);
-  DCHECK_LT(index, static_cast<int>(impl->size()));
-  if (index < 0 || index >= static_cast<int>(impl->size()))
+  DCHECK_LT(index, impl->size());
+  if (index >= impl->size())
     return 0;
 
   StringMap::const_iterator it = impl->begin();
-  for (int ct = 0; it != impl->end(); ++it, ct++) {
+  for (size_t ct = 0; it != impl->end(); ++it, ct++) {
     if (ct == index)
       return cef_string_set(it->first.c_str(), it->first.length(), key, true);
   }
   return 0;
 }
 
-CEF_EXPORT int cef_string_map_value(cef_string_map_t map, int index,
+CEF_EXPORT int cef_string_map_value(cef_string_map_t map, size_t index,
                                     cef_string_t* value) {
   DCHECK(map);
   DCHECK(value);
   StringMap* impl = reinterpret_cast<StringMap*>(map);
-  DCHECK_GE(index, 0);
-  DCHECK_LT(index, static_cast<int>(impl->size()));
-  if (index < 0 || index >= static_cast<int>(impl->size()))
+  DCHECK_LT(index, impl->size());
+  if (index >= impl->size())
     return 0;
 
   StringMap::const_iterator it = impl->begin();
-  for (int ct = 0; it != impl->end(); ++it, ct++) {
+  for (size_t ct = 0; it != impl->end(); ++it, ct++) {
     if (ct == index) {
       return cef_string_set(it->second.c_str(), it->second.length(), value,
           true);

@@ -12,20 +12,19 @@ CEF_EXPORT cef_string_list_t cef_string_list_alloc() {
   return new StringList;
 }
 
-CEF_EXPORT int cef_string_list_size(cef_string_list_t list) {
+CEF_EXPORT size_t cef_string_list_size(cef_string_list_t list) {
   DCHECK(list);
   StringList* impl = reinterpret_cast<StringList*>(list);
   return impl->size();
 }
 
-CEF_EXPORT int cef_string_list_value(cef_string_list_t list, int index,
+CEF_EXPORT int cef_string_list_value(cef_string_list_t list, size_t index,
                                      cef_string_t* value) {
   DCHECK(list);
   DCHECK(value);
   StringList* impl = reinterpret_cast<StringList*>(list);
-  DCHECK_GE(index, 0);
-  DCHECK_LT(index, static_cast<int>(impl->size()));
-  if (index < 0 || index >= static_cast<int>(impl->size()))
+  DCHECK_LT(index, impl->size());
+  if (index >= impl->size())
     return false;
   const CefString& str = (*impl)[index];
   return cef_string_copy(str.c_str(), str.length(), value);

@@ -310,7 +310,7 @@ class DictionaryTask : public CefTask {
 // LIST TEST HELPERS
 
 // Test list null value.
-void TestListNull(CefRefPtr<CefListValue> value, int index) {
+void TestListNull(CefRefPtr<CefListValue> value, size_t index) {
   CefValueType type = value->GetType(index);
   EXPECT_TRUE(type == VTYPE_INVALID || type == VTYPE_NULL);
 
@@ -319,7 +319,7 @@ void TestListNull(CefRefPtr<CefListValue> value, int index) {
 }
 
 // Test list bool value.
-void TestListBool(CefRefPtr<CefListValue> value, int index) {
+void TestListBool(CefRefPtr<CefListValue> value, size_t index) {
   CefValueType type = value->GetType(index);
   EXPECT_TRUE(type == VTYPE_INVALID || type == VTYPE_NULL);
 
@@ -329,7 +329,7 @@ void TestListBool(CefRefPtr<CefListValue> value, int index) {
 }
 
 // Test list int value.
-void TestListInt(CefRefPtr<CefListValue> value, int index) {
+void TestListInt(CefRefPtr<CefListValue> value, size_t index) {
   CefValueType type = value->GetType(index);
   EXPECT_TRUE(type == VTYPE_INVALID || type == VTYPE_NULL);
 
@@ -339,7 +339,7 @@ void TestListInt(CefRefPtr<CefListValue> value, int index) {
 }
 
 // Test list double value.
-void TestListDouble(CefRefPtr<CefListValue> value, int index) {
+void TestListDouble(CefRefPtr<CefListValue> value, size_t index) {
   CefValueType type = value->GetType(index);
   EXPECT_TRUE(type == VTYPE_INVALID || type == VTYPE_NULL);
 
@@ -349,7 +349,7 @@ void TestListDouble(CefRefPtr<CefListValue> value, int index) {
 }
 
 // Test list string value.
-void TestListString(CefRefPtr<CefListValue> value, int index) {
+void TestListString(CefRefPtr<CefListValue> value, size_t index) {
   CefValueType type = value->GetType(index);
   EXPECT_TRUE(type == VTYPE_INVALID || type == VTYPE_NULL);
 
@@ -359,7 +359,7 @@ void TestListString(CefRefPtr<CefListValue> value, int index) {
 }
 
 // Test list binary value.
-void TestListBinary(CefRefPtr<CefListValue> value, int index,
+void TestListBinary(CefRefPtr<CefListValue> value, size_t index,
                     char* binary_data, size_t binary_data_size,
                     CefRefPtr<CefBinaryValue>& binary_value) {
   binary_value = CefBinaryValue::Create(binary_data, binary_data_size);
@@ -381,7 +381,7 @@ void TestListBinary(CefRefPtr<CefListValue> value, int index,
 }
 
 // Test list dictionary value.
-void TestListDictionary(CefRefPtr<CefListValue> value, int index,
+void TestListDictionary(CefRefPtr<CefListValue> value, size_t index,
                         CefRefPtr<CefDictionaryValue>& dictionary_value) {
   dictionary_value = CefDictionaryValue::Create();
   EXPECT_TRUE(dictionary_value.get());
@@ -407,7 +407,7 @@ void TestListDictionary(CefRefPtr<CefListValue> value, int index,
 }
 
 // Test list list value.
-void TestListList(CefRefPtr<CefListValue> value, int index,
+void TestListList(CefRefPtr<CefListValue> value, size_t index,
                   CefRefPtr<CefListValue>& list_value) {
   list_value = CefListValue::Create();
   EXPECT_TRUE(list_value.get());
@@ -466,6 +466,12 @@ void TestList(CefRefPtr<CefListValue> value,
 
   // Test the size.
   EXPECT_EQ(8U, value->GetSize());
+
+  // Test various operations with invalid index.
+  EXPECT_FALSE(list_value->Remove(9U));
+  EXPECT_TRUE(list_value->GetType(10U) == VTYPE_INVALID);
+  EXPECT_FALSE(list_value->GetValue(11U).get() != nullptr &&
+               list_value->GetValue(11U)->IsValid());
 
   // Test copy.
   CefRefPtr<CefListValue> copy = value->Copy();

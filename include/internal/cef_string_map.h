@@ -51,7 +51,7 @@ CEF_EXPORT cef_string_map_t cef_string_map_alloc();
 ///
 // Return the number of elements in the string map.
 ///
-CEF_EXPORT int cef_string_map_size(cef_string_map_t map);
+CEF_EXPORT size_t cef_string_map_size(cef_string_map_t map);
 
 ///
 // Return the value assigned to the specified key.
@@ -63,13 +63,13 @@ CEF_EXPORT int cef_string_map_find(cef_string_map_t map,
 ///
 // Return the key at the specified zero-based string map index.
 ///
-CEF_EXPORT int cef_string_map_key(cef_string_map_t map, int index,
+CEF_EXPORT int cef_string_map_key(cef_string_map_t map, size_t index,
                                   cef_string_t* key);
 
 ///
 // Return the value at the specified zero-based string map index.
 ///
-CEF_EXPORT int cef_string_map_value(cef_string_map_t map, int index,
+CEF_EXPORT int cef_string_map_value(cef_string_map_t map, size_t index,
                                     cef_string_t* value);
 
 ///

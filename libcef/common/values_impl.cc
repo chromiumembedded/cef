@@ -1130,12 +1130,12 @@ bool CefListValueImpl::Clear() {
   return true;
 }
 
-bool CefListValueImpl::Remove(int index) {
+bool CefListValueImpl::Remove(size_t index) {
   CEF_VALUE_VERIFY_RETURN(true, false);
   return RemoveInternal(index);
 }
 
-CefValueType CefListValueImpl::GetType(int index) {
+CefValueType CefListValueImpl::GetType(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, VTYPE_INVALID);
 
   const base::Value* out_value = NULL;
@@ -1163,7 +1163,7 @@ CefValueType CefListValueImpl::GetType(int index) {
   return VTYPE_INVALID;
 }
 
-CefRefPtr<CefValue> CefListValueImpl::GetValue(int index) {
+CefRefPtr<CefValue> CefListValueImpl::GetValue(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, NULL);
 
   const base::Value* out_value = NULL;
@@ -1178,7 +1178,7 @@ CefRefPtr<CefValue> CefListValueImpl::GetValue(int index) {
   return NULL;
 }
 
-bool CefListValueImpl::GetBool(int index) {
+bool CefListValueImpl::GetBool(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, false);
 
   const base::Value* out_value = NULL;
@@ -1190,7 +1190,7 @@ bool CefListValueImpl::GetBool(int index) {
   return ret_value;
 }
 
-int CefListValueImpl::GetInt(int index) {
+int CefListValueImpl::GetInt(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, 0);
 
   const base::Value* out_value = NULL;
@@ -1202,7 +1202,7 @@ int CefListValueImpl::GetInt(int index) {
   return ret_value;
 }
 
-double CefListValueImpl::GetDouble(int index) {
+double CefListValueImpl::GetDouble(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, 0);
 
   const base::Value* out_value = NULL;
@@ -1214,7 +1214,7 @@ double CefListValueImpl::GetDouble(int index) {
   return ret_value;
 }
 
-CefString CefListValueImpl::GetString(int index) {
+CefString CefListValueImpl::GetString(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, CefString());
 
   const base::Value* out_value = NULL;
@@ -1226,7 +1226,7 @@ CefString CefListValueImpl::GetString(int index) {
   return ret_value;
 }
 
-CefRefPtr<CefBinaryValue> CefListValueImpl::GetBinary(int index) {
+CefRefPtr<CefBinaryValue> CefListValueImpl::GetBinary(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, NULL);
 
   const base::Value* out_value = NULL;
@@ -1242,7 +1242,7 @@ CefRefPtr<CefBinaryValue> CefListValueImpl::GetBinary(int index) {
   return NULL;
 }
 
-CefRefPtr<CefDictionaryValue> CefListValueImpl::GetDictionary(int index) {
+CefRefPtr<CefDictionaryValue> CefListValueImpl::GetDictionary(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, NULL);
 
   const base::Value* out_value = NULL;
@@ -1262,7 +1262,7 @@ CefRefPtr<CefDictionaryValue> CefListValueImpl::GetDictionary(int index) {
   return NULL;
 }
 
-CefRefPtr<CefListValue> CefListValueImpl::GetList(int index) {
+CefRefPtr<CefListValue> CefListValueImpl::GetList(size_t index) {
   CEF_VALUE_VERIFY_RETURN(false, NULL);
 
   const base::Value* out_value = NULL;
@@ -1281,7 +1281,7 @@ CefRefPtr<CefListValue> CefListValueImpl::GetList(int index) {
   return NULL;
 }
 
-bool CefListValueImpl::SetValue(int index, CefRefPtr<CefValue> value) {
+bool CefListValueImpl::SetValue(size_t index, CefRefPtr<CefValue> value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
 
   CefValueImpl* impl = static_cast<CefValueImpl*>(value.get());
@@ -1293,37 +1293,37 @@ bool CefListValueImpl::SetValue(int index, CefRefPtr<CefValue> value) {
   return true;
 }
 
-bool CefListValueImpl::SetNull(int index) {
+bool CefListValueImpl::SetNull(size_t index) {
   CEF_VALUE_VERIFY_RETURN(true, false);
   SetInternal(index, base::Value::CreateNullValue().release());
   return true;
 }
 
-bool CefListValueImpl::SetBool(int index, bool value) {
+bool CefListValueImpl::SetBool(size_t index, bool value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
   SetInternal(index, new base::FundamentalValue(value));
   return true;
 }
 
-bool CefListValueImpl::SetInt(int index, int value) {
+bool CefListValueImpl::SetInt(size_t index, int value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
   SetInternal(index, new base::FundamentalValue(value));
   return true;
 }
 
-bool CefListValueImpl::SetDouble(int index, double value) {
+bool CefListValueImpl::SetDouble(size_t index, double value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
   SetInternal(index, new base::FundamentalValue(value));
   return true;
 }
 
-bool CefListValueImpl::SetString(int index, const CefString& value) {
+bool CefListValueImpl::SetString(size_t index, const CefString& value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
   SetInternal(index, new base::StringValue(value.ToString()));
   return true;
 }
 
-bool CefListValueImpl::SetBinary(int index, CefRefPtr<CefBinaryValue> value) {
+bool CefListValueImpl::SetBinary(size_t index, CefRefPtr<CefBinaryValue> value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
 
   CefBinaryValueImpl* impl = static_cast<CefBinaryValueImpl*>(value.get());
@@ -1333,7 +1333,7 @@ bool CefListValueImpl::SetBinary(int index, CefRefPtr<CefBinaryValue> value) {
   return true;
 }
 
-bool CefListValueImpl::SetDictionary(int index,
+bool CefListValueImpl::SetDictionary(size_t index,
                                      CefRefPtr<CefDictionaryValue> value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
 
@@ -1345,7 +1345,7 @@ bool CefListValueImpl::SetDictionary(int index,
   return true;
 }
 
-bool CefListValueImpl::SetList(int index, CefRefPtr<CefListValue> value) {
+bool CefListValueImpl::SetList(size_t index, CefRefPtr<CefListValue> value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
 
   CefListValueImpl* impl = static_cast<CefListValueImpl*>(value.get());
@@ -1355,7 +1355,7 @@ bool CefListValueImpl::SetList(int index, CefRefPtr<CefListValue> value) {
   return true;
 }
 
-bool CefListValueImpl::RemoveInternal(int index) {
+bool CefListValueImpl::RemoveInternal(size_t index) {
   std::unique_ptr<base::Value> out_value;
   if (!mutable_value()->Remove(index, &out_value))
     return false;
@@ -1372,7 +1372,7 @@ bool CefListValueImpl::RemoveInternal(int index) {
   return true;
 }
 
-void CefListValueImpl::SetInternal(int index, base::Value* value) {
+void CefListValueImpl::SetInternal(size_t index, base::Value* value) {
   DCHECK(value);
   if (RemoveInternal(index))
     mutable_value()->Insert(index, base::WrapUnique(value));

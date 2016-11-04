@@ -309,7 +309,7 @@ TEST(ParserTest, ParseJSONNull) {
   CefRefPtr<CefDictionaryValue> dict = value->GetDictionary();
   CefDictionaryValue::KeyList key_list;
   EXPECT_TRUE(dict->GetKeys(key_list));
-  EXPECT_EQ((size_t)1, key_list.size());
+  EXPECT_EQ(1U, key_list.size());
   EXPECT_EQ("key1", key_list[0].ToString());
   EXPECT_EQ(VTYPE_NULL, dict->GetType("key1"));
 
@@ -342,7 +342,7 @@ TEST(ParserTest, ParseJSONDictionary) {
   CefRefPtr<CefDictionaryValue> dict = value->GetDictionary();
   CefDictionaryValue::KeyList key_list;
   EXPECT_TRUE(dict->GetKeys(key_list));
-  EXPECT_EQ((size_t)3, key_list.size());
+  EXPECT_EQ(3U, key_list.size());
   EXPECT_EQ("key1", key_list[0].ToString());
   EXPECT_EQ("key2", key_list[1].ToString());
   EXPECT_EQ("key3", key_list[2].ToString());
@@ -354,7 +354,7 @@ TEST(ParserTest, ParseJSONDictionary) {
   CefRefPtr<CefListValue> key3 = dict->GetList("key3");
   EXPECT_TRUE(NULL != key3);
   EXPECT_TRUE(key3->IsValid());
-  EXPECT_EQ((size_t)3, key3->GetSize());
+  EXPECT_EQ(3U, key3->GetSize());
   EXPECT_EQ(1, key3->GetInt(0));
   EXPECT_EQ(2, key3->GetInt(1));
   EXPECT_EQ(3, key3->GetInt(2));
@@ -375,7 +375,7 @@ TEST(ParserTest, ParseJSONList) {
   CefRefPtr<CefListValue> list = value->GetList();
   EXPECT_TRUE(NULL != list);
   EXPECT_TRUE(list->IsValid());
-  EXPECT_EQ((size_t)3, list->GetSize());
+  EXPECT_EQ(3U, list->GetSize());
 
   EXPECT_EQ(VTYPE_STRING, list->GetType(0));
   EXPECT_EQ(list->GetString(0), "value1");
@@ -385,9 +385,9 @@ TEST(ParserTest, ParseJSONList) {
   CefRefPtr<CefDictionaryValue> dict = list->GetDictionary(2);
   CefDictionaryValue::KeyList key_list2;
   EXPECT_TRUE(dict->GetKeys(key_list2));
-  EXPECT_EQ((size_t)1, key_list2.size());
+  EXPECT_EQ(1U, key_list2.size());
   CefRefPtr<CefListValue> list2 = dict->GetList("key3");
-  EXPECT_EQ((size_t)3, list2->GetSize());
+  EXPECT_EQ(3U, list2->GetSize());
   EXPECT_EQ(1, list2->GetInt(0));
   EXPECT_EQ(2, list2->GetInt(1));
   EXPECT_EQ(3, list2->GetInt(2));
