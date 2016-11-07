@@ -20,7 +20,7 @@ class ListValue;
 }
 
 namespace content {
-class BrowserContext;
+class BrowserURLHandler;
 }
 
 class CefURLRequestManager;
@@ -32,9 +32,11 @@ extern const char kChromeURL[];
 // Register the chrome scheme handler.
 void RegisterChromeHandler(CefURLRequestManager* request_manager);
 
-// Used to redirect about: URLs to chrome: URLs.
-bool WillHandleBrowserAboutURL(GURL* url,
-                               content::BrowserContext* browser_context);
+// Register the WebUI controller factory.
+void RegisterWebUIControllerFactory();
+
+// Register the WebUI handler.
+void BrowserURLHandlerCreated(content::BrowserURLHandler* handler);
 
 // Used to fire any asynchronous content updates.
 void DidFinishChromeLoad(CefRefPtr<CefFrame> frame,

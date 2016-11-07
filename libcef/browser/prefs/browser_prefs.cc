@@ -13,6 +13,7 @@
 #include "base/files/file_path.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/values.h"
+#include "chrome/browser/net/prediction_options.h"
 #include "chrome/browser/prefs/command_line_pref_store.h"
 #include "chrome/browser/supervised_user/supervised_user_pref_store.h"
 #include "chrome/browser/supervised_user/supervised_user_settings_service.h"
@@ -172,6 +173,7 @@ std::unique_ptr<PrefService> CreatePrefService(
   renderer_prefs::RegisterProfilePrefs(registry.get());
   update_client::RegisterPrefs(registry.get());
   content_settings::CookieSettings::RegisterProfilePrefs(registry.get());
+  chrome_browser_net::RegisterPredictionOptionsProfilePrefs(registry.get());
 
   // Print preferences.
   registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);
@@ -226,6 +228,10 @@ std::unique_ptr<PrefService> CreatePrefService(
   registry->RegisterDictionaryPref(prefs::kCurrentThemeColors);
   registry->RegisterDictionaryPref(prefs::kCurrentThemeTints);
   registry->RegisterDictionaryPref(prefs::kCurrentThemeDisplayProperties);
+
+  // Browser UI preferences.
+  // Based on chrome/browser/ui/browser_ui_prefs.cc RegisterBrowserPrefs.
+  registry->RegisterBooleanPref(prefs::kAllowFileSelectionDialogs, true);
 
   if (command_line->HasSwitch(switches::kEnablePreferenceTesting)) {
     // Preferences used with unit tests.

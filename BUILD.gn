@@ -946,6 +946,7 @@ template("cef_pak_scaled") {
 
   repack("pak_${target_name}") {
     # Each input pak file should also have a deps line for completeness.
+    # Add associated .h files in the make_pack_header("resources") target.
     sources = [
       "$root_gen_dir/blink/public/resources/blink_image_resources_${percent}_percent.pak",
       "$root_gen_dir/chrome/renderer_resources_${percent}_percent.pak",
@@ -993,6 +994,8 @@ cef_pak_scaled("200_percent") {
 
 # Generate devtools_resources.pak.
 repack("pak_devtools") {
+  # Each input pak file should also have a deps line for completeness.
+  # Add associated .h files in the make_pack_header("resources") target.
   sources = [
     "$root_gen_dir/blink/devtools_resources.pak",
   ]
@@ -1010,6 +1013,7 @@ repack("pak_devtools") {
 # Generate cef_extensions.pak.
 repack("pak_extensions") {
   # Each input pak file should also have a deps line for completeness.
+  # Add associated .h files in the make_pack_header("resources") target.
   sources = [
     "$root_gen_dir/chrome/component_extension_resources.pak",
     "$root_gen_dir/extensions/extensions_renderer_resources.pak",
@@ -1069,12 +1073,15 @@ grit("cef_resources") {
 # Generate cef.pak.
 repack("pak") {
   # Each input pak file should also have a deps line for completeness.
+  # Add associated .h files in the make_pack_header("resources") target.
   sources = [
     "$root_gen_dir/blink/public/resources/blink_resources.pak",
     "$root_gen_dir/chrome/browser_resources.pak",
+    "$root_gen_dir/chrome/net_internals_resources.pak",
     "$root_gen_dir/chrome/common_resources.pak",
     "$root_gen_dir/components/components_resources.pak",
     "$root_gen_dir/cef/cef_resources.pak",
+    "$root_gen_dir/content/browser/tracing/tracing_resources.pak",
     "$root_gen_dir/content/content_resources.pak",
     "$root_gen_dir/net/net_resources.pak",
   ]
@@ -1085,9 +1092,11 @@ repack("pak") {
   public_deps = [
     "//third_party/WebKit/public:resources_grit",
     "//chrome/browser:resources",
+    "//chrome/browser/resources:net_internals_resources",
     "//chrome/common:resources",
     "//components/resources:components_resources",
     ":cef_resources",
+    "//content/browser/tracing:resources",
     "//content:resources",
     "//net:net_resources",
   ]
@@ -1127,11 +1136,16 @@ make_pack_header("resources") {
   header = "$root_out_dir/includes/include/cef_pack_resources.h"
   inputs = [
     "$root_gen_dir/blink/grit/devtools_resources.h",
+    "$root_gen_dir/blink/public/resources/grit/blink_image_resources.h",
     "$root_gen_dir/blink/public/resources/grit/blink_resources.h",
     "$root_gen_dir/cef/grit/cef_resources.h",
     "$root_gen_dir/chrome/grit/browser_resources.h",
     "$root_gen_dir/chrome/grit/common_resources.h",
     "$root_gen_dir/chrome/grit/component_extension_resources.h",
+    "$root_gen_dir/chrome/grit/net_internals_resources.h",
+    "$root_gen_dir/chrome/grit/renderer_resources.h",
+    "$root_gen_dir/components/grit/components_resources.h",
+    "$root_gen_dir/content/browser/tracing/grit/tracing_resources.h",
     "$root_gen_dir/content/grit/content_resources.h",
     "$root_gen_dir/extensions/grit/extensions_browser_resources.h",
     "$root_gen_dir/extensions/grit/extensions_renderer_resources.h",
@@ -1148,6 +1162,7 @@ make_pack_header("strings") {
   header = "$root_out_dir/includes/include/cef_pack_strings.h"
   inputs = [
     "$root_gen_dir/cef/grit/cef_strings.h",
+    "$root_gen_dir/chrome/grit/chromium_strings.h",
     "$root_gen_dir/chrome/grit/generated_resources.h",
     "$root_gen_dir/chrome/grit/locale_settings.h",
     "$root_gen_dir/chrome/grit/platform_locale_settings.h",
@@ -1396,6 +1411,7 @@ cef_unittests_sources = [
   "tests/unittests/v8_unittest.cc",
   "tests/unittests/values_unittest.cc",
   "tests/unittests/version_unittest.cc",
+  "tests/unittests/webui_unittest.cc",
   "tests/unittests/xml_reader_unittest.cc",
   "tests/unittests/zip_reader_unittest.cc",
 ]

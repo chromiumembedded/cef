@@ -286,6 +286,16 @@ base::StringPiece CefContentClient::GetDataResource(
   return value;
 }
 
+base::RefCountedMemory* CefContentClient::GetDataResourceBytes(
+    int resource_id) const {
+  base::RefCountedMemory* value =
+      ResourceBundle::GetSharedInstance().LoadDataResourceBytes(resource_id);
+  if (!value)
+    LOG(ERROR) << "No data resource bytes available for id " << resource_id;
+
+  return value;
+}
+
 gfx::Image& CefContentClient::GetNativeImageNamed(int resource_id) const {
   gfx::Image& value =
       ResourceBundle::GetSharedInstance().GetNativeImageNamed(resource_id);

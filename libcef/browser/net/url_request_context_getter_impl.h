@@ -91,6 +91,8 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
 
   const CefRequestContextSettings settings_;
 
+  net::NetLog* net_log_;  // Guaranteed to outlive this object.
+
   scoped_refptr<base::SingleThreadTaskRunner> io_task_runner_;
   scoped_refptr<base::SingleThreadTaskRunner> file_task_runner_;
 

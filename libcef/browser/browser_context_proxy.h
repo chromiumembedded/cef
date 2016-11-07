@@ -23,6 +23,9 @@ class CefBrowserContextProxy : public CefBrowserContext {
   CefBrowserContextProxy(CefRefPtr<CefRequestContextHandler> handler,
                          scoped_refptr<CefBrowserContextImpl> parent);
 
+  // Must be called immediately after this object is created.
+  void Initialize() override;
+
   // SupportsUserData methods.
   Data* GetUserData(const void* key) const override;
   void SetUserData(const void* key, Data* data) override;

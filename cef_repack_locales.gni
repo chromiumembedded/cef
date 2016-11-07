@@ -27,8 +27,10 @@ template("_repack_one_locale") {
     visibility = invoker.visibility
 
     # Each input pak file should also have a deps line for completeness.
+    # Add associated .h files in the make_pack_header("strings") target.
     sources = [
       "${root_gen_dir}/cef/cef_strings_${locale}.pak",
+      "${root_gen_dir}/chrome/chromium_strings_${locale}.pak",
       "${root_gen_dir}/chrome/generated_resources_${locale}.pak",
       "${root_gen_dir}/chrome/locale_settings_${locale}.pak",
       "${root_gen_dir}/chrome/platform_locale_settings_${locale}.pak",
@@ -45,6 +47,7 @@ template("_repack_one_locale") {
     # listed both here and in the libcef_static target.
     public_deps = [
       ":cef_strings",
+      "//chrome/app:chromium_strings",
       "//chrome/app:generated_resources",
       "//chrome/app/resources:locale_settings",
       "//chrome/app/resources:platform_locale_settings",

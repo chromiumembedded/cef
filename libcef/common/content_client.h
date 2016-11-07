@@ -42,6 +42,8 @@ class CefContentClient : public content::ContentClient,
   base::StringPiece GetDataResource(
       int resource_id,
       ui::ScaleFactor scale_factor) const override;
+   base::RefCountedMemory* GetDataResourceBytes(
+      int resource_id) const override;
   gfx::Image& GetNativeImageNamed(int resource_id) const override;
 
   struct SchemeInfo {

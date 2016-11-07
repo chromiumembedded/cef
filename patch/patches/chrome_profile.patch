@@ -63,7 +63,7 @@ index 4b43013..169ca47 100644
  content::BrowserContext* GetBrowserContextRedirectedInIncognito(
      content::BrowserContext* context);
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index ba156c5..b7f41d3 100644
+index ba156c5..0ed578b 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
 @@ -89,7 +89,7 @@ class ProfileManager : public base::NonThreadSafe,
@@ -84,3 +84,12 @@ index ba156c5..b7f41d3 100644
  
    // Returns the directory where the first created profile is stored,
    // relative to the user data directory currently in use.
+@@ -126,7 +126,7 @@ class ProfileManager : public base::NonThreadSafe,
+   // Get the Profile last used (the Profile to which owns the most recently
+   // focused window) with this Chrome build. If no signed profile has been
+   // stored in Local State, hand back the Default profile.
+-  Profile* GetLastUsedProfile(const base::FilePath& user_data_dir);
++  virtual Profile* GetLastUsedProfile(const base::FilePath& user_data_dir);
+ 
+   // Get the path of the last used profile, or if that's undefined, the default
+   // profile.

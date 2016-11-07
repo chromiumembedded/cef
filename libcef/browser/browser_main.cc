@@ -17,6 +17,7 @@
 #include "libcef/browser/extensions/browser_context_keyed_service_factories.h"
 #include "libcef/browser/extensions/extensions_browser_client.h"
 #include "libcef/browser/extensions/extension_system_factory.h"
+#include "libcef/browser/net/chrome_scheme_handler.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_client.h"
 #include "libcef/common/extensions/extensions_util.h"
@@ -27,10 +28,8 @@
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
 #include "chrome/browser/plugins/plugin_finder.h"
-#include "content/browser/webui/content_web_ui_controller_factory.h"
 #include "content/public/browser/child_process_security_policy.h"
 #include "content/public/browser/gpu_data_manager.h"
-#include "content/public/browser/web_ui_controller_factory.h"
 #include "content/public/common/content_switches.h"
 #include "device/geolocation/access_token_store.h"
 #include "device/geolocation/geolocation_delegate.h"
@@ -141,11 +140,6 @@ void CefBrowserMainParts::ToolkitInitialized() {
 }
 
 void CefBrowserMainParts::PostMainMessageLoopStart() {
-  // Don't use the default WebUI controller factory because is conflicts with
-  // CEF's internal handling of "chrome://tracing".
-  content::WebUIControllerFactory::UnregisterFactoryForTesting(
-      content::ContentWebUIControllerFactory::GetInstance());
-
 #if defined(OS_LINUX)
   printing::PrintingContextLinux::SetCreatePrintDialogFunction(
       &CefPrintDialogLinux::CreatePrintDialog);
@@ -202,6 +196,8 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
   device::GeolocationProvider::SetGeolocationDelegate(
       new CefGeolocationDelegate(
           global_browser_context_->request_context().get()));
+
+  scheme::RegisterWebUIControllerFactory();
 }
 
 void CefBrowserMainParts::PostMainMessageLoopRun() {

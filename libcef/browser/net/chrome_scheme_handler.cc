@@ -5,6 +5,7 @@
 
 #include "libcef/browser/net/chrome_scheme_handler.h"
 
+#include <algorithm>
 #include <map>
 #include <string>
 #include <utility>
@@ -19,6 +20,7 @@
 
 #include "base/command_line.h"
 #include "base/files/file_util.h"
+#include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/memory/ptr_util.h"
 #include "base/path_service.h"
@@ -27,16 +29,15 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/values.h"
 #include "cef/grit/cef_resources.h"
-#include "components/grit/components_resources.h"
-#include "content/browser/net/view_http_cache_job_factory.h"
-#include "content/browser/net/view_blob_internals_job_factory.h"
+#include "chrome/browser/browser_about_handler.h"
+#include "chrome/browser/ui/webui/chrome_web_ui_controller_factory.h"
+#include "chrome/common/url_constants.h"
+#include "content/browser/webui/content_web_ui_controller_factory.h"
+#include "content/public/browser/browser_url_handler.h"
 #include "content/public/common/url_constants.h"
 #include "content/public/common/user_agent.h"
 #include "ipc/ipc_channel.h"
 #include "net/url_request/url_request.h"
-#include "ui/base/webui/web_ui_util.h"
-#include "ui/resources/grit/webui_resources.h"
-#include "ui/resources/grit/webui_resources_map.h"
 #include "v8/include/v8.h"
 
 namespace scheme {
@@ -45,37 +46,281 @@ const char kChromeURL[] = "chrome://";
 
 namespace {
 
-const char kChromeCreditsDomain[] = "credits";
-const char kChromeLicenseDomain[] = "license";
-const char kChromeResourcesDomain[] = "resources";
-const char kChromeVersionDomain[] = "version";
+const char kChromeUILicenseHost[] = "license";
+const char kChromeUIWebUIHostsHost[] = "webui-hosts";
 
-enum ChromeDomain {
-  CHROME_UNKNOWN = 0,
-  CHROME_CREDITS,
-  CHROME_LICENSE,
-  CHROME_RESOURCES,
-  CHROME_VERSION,
+// Chrome hosts implemented by WebUI.
+// Some WebUI handlers have Chrome dependencies that may fail in CEF without
+// additional changes. Do not add new hosts to this list without also manually
+// testing all related functionality in CEF.
+const char* kAllowedWebUIHosts[] = {
+  content::kChromeUIAppCacheInternalsHost,
+  content::kChromeUIAccessibilityHost,
+  content::kChromeUIBlobInternalsHost,
+  chrome::kChromeUICreditsHost,
+  content::kChromeUIGpuHost,
+  content::kChromeUIHistogramHost,
+  content::kChromeUIIndexedDBInternalsHost,
+  content::kChromeUIMediaInternalsHost,
+  chrome::kChromeUINetExportHost,
+  chrome::kChromeUINetInternalsHost,
+  content::kChromeUINetworkErrorHost,
+  content::kChromeUINetworkErrorsListingHost,
+  content::kChromeUINetworkViewCacheHost,
+  content::kChromeUIResourcesHost,
+  content::kChromeUIServiceWorkerInternalsHost,
+  chrome::kChromeUISystemInfoHost,
+  content::kChromeUITracingHost,
+  content::kChromeUIWebRTCInternalsHost,
 };
 
-ChromeDomain GetChromeDomain(const std::string& domain_name) {
-  static struct {
-    const char* name;
-    ChromeDomain domain;
-  } domains[] = {
-    { kChromeCreditsDomain, CHROME_CREDITS },
-    { kChromeLicenseDomain, CHROME_LICENSE },
-    { kChromeResourcesDomain, CHROME_RESOURCES },
-    { kChromeVersionDomain, CHROME_VERSION },
-  };
+enum ChromeHostId {
+  CHROME_UNKNOWN = 0,
+  CHROME_LICENSE,
+  CHROME_VERSION,
+  CHROME_WEBUI_HOSTS,
+};
 
-  for (size_t i = 0; i < sizeof(domains) / sizeof(domains[0]); ++i) {
-    if (base::EqualsCaseInsensitiveASCII(domains[i].name, domain_name.c_str()))
-      return domains[i].domain;
+// Chrome hosts implemented by CEF.
+const struct {
+  const char* host;
+  ChromeHostId host_id;
+} kAllowedCefHosts[] = {
+  { kChromeUILicenseHost, CHROME_LICENSE },
+  { chrome::kChromeUIVersionHost, CHROME_VERSION },
+  { kChromeUIWebUIHostsHost, CHROME_WEBUI_HOSTS },
+};
+
+ChromeHostId GetChromeHostId(const std::string& host) {
+  for (size_t i = 0;
+       i < sizeof(kAllowedCefHosts) / sizeof(kAllowedCefHosts[0]); ++i) {
+    if (base::EqualsCaseInsensitiveASCII(kAllowedCefHosts[i].host,
+                                         host.c_str())) {
+      return kAllowedCefHosts[i].host_id;
+    }
   }
 
   return CHROME_UNKNOWN;
 }
+
+void GetAllowedHosts(std::vector<std::string>* hosts) {
+  for (size_t i = 0;
+       i < sizeof(kAllowedCefHosts) / sizeof(kAllowedCefHosts[0]); ++i) {
+    hosts->push_back(kAllowedCefHosts[i].host);
+  }
+
+  for (size_t i = 0;
+       i < sizeof(kAllowedWebUIHosts) / sizeof(kAllowedWebUIHosts[0]); ++i) {
+    hosts->push_back(kAllowedWebUIHosts[i]);
+  }
+}
+
+// Intercepts all WebUI calls and either blocks them or forwards them to the
+// Content or Chrome WebUI factory as appropriate.
+class CefWebUIControllerFactory : public content::WebUIControllerFactory {
+ public:
+  // Returns true if WebUI is allowed to handle the specified |url|.
+  static bool AllowWebUIForURL(const GURL& url) {
+    if (!url.SchemeIs(content::kChromeUIScheme))
+      return false;
+
+    for (size_t i = 0;
+         i < sizeof(kAllowedWebUIHosts) / sizeof(kAllowedWebUIHosts[0]); ++i) {
+      if (base::EqualsCaseInsensitiveASCII(kAllowedWebUIHosts[i],
+                                           url.host().c_str())) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  content::WebUIController* CreateWebUIControllerForURL(
+      content::WebUI* web_ui,
+      const GURL& url) const override {
+    content::WebUIController* controller = nullptr;
+    if (!AllowWebUIForURL(url))
+      return controller;
+
+    controller = content::ContentWebUIControllerFactory::GetInstance()->
+        CreateWebUIControllerForURL(web_ui, url);
+    if (controller != nullptr)
+      return controller;
+
+    controller = ChromeWebUIControllerFactory::GetInstance()->
+        CreateWebUIControllerForURL(web_ui, url);
+    if (controller != nullptr)
+      return controller;
+
+    return nullptr;
+  }
+
+  content::WebUI::TypeID GetWebUIType(content::BrowserContext* browser_context,
+                                      const GURL& url) const override {
+    content::WebUI::TypeID type = content::WebUI::kNoWebUI;
+    if (!AllowWebUIForURL(url))
+      return type;
+
+    type = content::ContentWebUIControllerFactory::GetInstance()->GetWebUIType(
+        browser_context, url);
+    if (type != content::WebUI::kNoWebUI)
+      return type;
+
+    type = ChromeWebUIControllerFactory::GetInstance()->GetWebUIType(
+        browser_context, url);
+    if (type != content::WebUI::kNoWebUI)
+      return type;
+
+    return content::WebUI::kNoWebUI;
+  }
+
+  bool UseWebUIForURL(content::BrowserContext* browser_context,
+                      const GURL& url) const override {
+    if (!AllowWebUIForURL(url))
+      return false;
+
+    if (content::ContentWebUIControllerFactory::GetInstance()->UseWebUIForURL(
+            browser_context, url) ||
+        ChromeWebUIControllerFactory::GetInstance()->UseWebUIForURL(
+            browser_context, url)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  bool UseWebUIBindingsForURL(content::BrowserContext* browser_context,
+                              const GURL& url) const override {
+    if (!AllowWebUIForURL(url))
+      return false;
+
+    if (content::ContentWebUIControllerFactory::GetInstance()->
+            UseWebUIBindingsForURL(browser_context, url) ||
+        ChromeWebUIControllerFactory::GetInstance()->UseWebUIBindingsForURL(
+            browser_context, url)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  static void BrowserURLHandlerCreated(content::BrowserURLHandler* handler) {
+    // about: handler. Must come before chrome: handler, since it will
+    // rewrite about: urls to chrome: URLs and then expect chrome: to
+    // actually handle them.  Also relies on a preliminary fixup phase.
+    handler->SetFixupHandler(&FixupBrowserAboutURL);
+    handler->AddHandlerPair(&WillHandleBrowserAboutURL,
+                            content::BrowserURLHandler::null_handler());
+
+    // chrome: & friends.
+    handler->AddHandlerPair(&HandleWebUI, &HandleWebUIReverse);
+  }
+
+  static CefWebUIControllerFactory* GetInstance();
+
+ protected:
+  CefWebUIControllerFactory() {}
+  ~CefWebUIControllerFactory() override {}
+
+ private:
+  friend struct base::DefaultLazyInstanceTraits<CefWebUIControllerFactory>;
+
+  // From chrome/browser/chrome_content_browser_client.cc
+
+  // Returns a copy of the given url with its host set to given host and path
+  // set to given path. Other parts of the url will be the same.
+  static GURL ReplaceURLHostAndPath(const GURL& url,
+                                    const std::string& host,
+                                    const std::string& path) {
+    url::Replacements<char> replacements;
+    replacements.SetHost(host.c_str(), url::Component(0, host.length()));
+    replacements.SetPath(path.c_str(), url::Component(0, path.length()));
+    return url.ReplaceComponents(replacements);
+  }
+
+  // Maps "foo://bar/baz/" to "foo://chrome/bar/baz/".
+  static GURL AddUberHost(const GURL& url) {
+    const std::string uber_host = chrome::kChromeUIUberHost;
+    std::string new_path;
+    url.host_piece().AppendToString(&new_path);
+    url.path_piece().AppendToString(&new_path);
+
+    return ReplaceURLHostAndPath(url, uber_host, new_path);
+  }
+
+  // If url->host() is "chrome" and url->path() has characters other than the
+  // first slash, changes the url from "foo://chrome/bar/" to "foo://bar/" and
+  // returns true. Otherwise returns false.
+  static bool RemoveUberHost(GURL* url) {
+    if (url->host() != chrome::kChromeUIUberHost)
+      return false;
+
+    if (url->path().empty() || url->path() == "/")
+      return false;
+
+    const std::string old_path = url->path();
+
+    const std::string::size_type separator = old_path.find('/', 1);
+    std::string new_host;
+    std::string new_path;
+    if (separator == std::string::npos) {
+      new_host = old_path.substr(1);
+    } else {
+      new_host = old_path.substr(1, separator - 1);
+      new_path = old_path.substr(separator);
+    }
+
+    // Do not allow URLs with paths empty before the first slash since we can't
+    // have an empty host. (e.g "foo://chrome//")
+    if (new_host.empty())
+      return false;
+
+    *url = ReplaceURLHostAndPath(*url, new_host, new_path);
+
+    DCHECK(url->is_valid());
+
+    return true;
+  }
+
+  // Handles rewriting Web UI URLs.
+  static bool HandleWebUI(GURL* url, content::BrowserContext* browser_context) {
+    // Do not handle special URLs such as "about:foo"
+    if (!url->host().empty()) {
+      const GURL chrome_url = AddUberHost(*url);
+
+      // Handle valid "chrome://chrome/foo" URLs so the reverse handler will
+      // be called.
+      if (GetInstance()->UseWebUIForURL(browser_context, chrome_url))
+        return true;
+    }
+
+    if (!GetInstance()->UseWebUIForURL(browser_context, *url))
+      return false;
+
+    return true;
+  }
+
+  // Reverse URL handler for Web UI. Maps "chrome://chrome/foo/" to
+  // "chrome://foo/".
+  static bool HandleWebUIReverse(GURL* url,
+                                 content::BrowserContext* browser_context) {
+    if (!url->is_valid() || !url->SchemeIs(content::kChromeUIScheme))
+      return false;
+
+    return RemoveUberHost(url);
+  }
+
+  DISALLOW_COPY_AND_ASSIGN(CefWebUIControllerFactory);
+};
+
+base::LazyInstance<CefWebUIControllerFactory>::Leaky
+    g_web_ui_controller_factory = LAZY_INSTANCE_INITIALIZER;
+
+// static
+CefWebUIControllerFactory* CefWebUIControllerFactory::GetInstance() {
+  return &g_web_ui_controller_factory.Get();
+}
+
 
 std::string GetOSType() {
 #if defined(OS_WIN)
@@ -186,49 +431,6 @@ class TemplateParser {
   std::string ident_end_;
 };
 
-// From content/browser/webui/shared_resources_data_source.cc.
-using ResourcesMap = base::hash_map<std::string, int>;
-
-// TODO(rkc): Once we have a separate source for apps, remove '*/apps/' aliases.
-const char* const kPathAliases[][2] = {
-    {"../../../third_party/polymer/v1_0/components-chromium/", "polymer/v1_0/"},
-    {"../../../third_party/web-animations-js/sources/",
-     "polymer/v1_0/web-animations-js/"},
-    {"../../views/resources/default_100_percent/common/", "images/apps/"},
-    {"../../views/resources/default_200_percent/common/", "images/2x/apps/"},
-    {"../../webui/resources/cr_elements/", "cr_elements/"}};
-
-void AddResource(const std::string& path,
-                 int resource_id,
-                 ResourcesMap* resources_map) {
-  if (!resources_map->insert(std::make_pair(path, resource_id)).second)
-    NOTREACHED() << "Redefinition of '" << path << "'";
-}
-
-const ResourcesMap* CreateResourcesMap() {
-  ResourcesMap* result = new ResourcesMap();
-  for (size_t i = 0; i < kWebuiResourcesSize; ++i) {
-    const std::string resource_name = kWebuiResources[i].name;
-    const int resource_id = kWebuiResources[i].value;
-    AddResource(resource_name, resource_id, result);
-    for (const char* const (&alias)[2] : kPathAliases) {
-      if (base::StartsWith(resource_name, alias[0],
-                           base::CompareCase::SENSITIVE)) {
-        AddResource(alias[1] + resource_name.substr(strlen(alias[0])),
-                    resource_id, result);
-      }
-    }
-  }
-
-  return result;
-}
-
-const ResourcesMap& GetResourcesMap() {
-  // This pointer will be intentionally leaked on shutdown.
-  static const ResourcesMap* resources_map = CreateResourcesMap();
-  return *resources_map;
-}
-
 class Delegate : public InternalHandlerDelegate {
  public:
   Delegate() {}
@@ -243,47 +445,31 @@ class Delegate : public InternalHandlerDelegate {
 
     bool handled = false;
 
-    ChromeDomain domain = GetChromeDomain(url.host());
-    switch (domain) {
-      case CHROME_CREDITS:
-        handled = OnCredits(path, action);
-        break;
+    ChromeHostId host_id = GetChromeHostId(url.host());
+    switch (host_id) {
       case CHROME_LICENSE:
         handled = OnLicense(action);
         break;
-      case CHROME_RESOURCES:
-        handled = OnResources(path, action);
-        break;
       case CHROME_VERSION:
         handled = OnVersion(browser, action);
+        break;
+      case CHROME_WEBUI_HOSTS:
+        handled = OnWebUIHosts(action);
         break;
       default:
         break;
     }
 
-    if (!handled && domain != CHROME_VERSION) {
+    if (!handled && host_id != CHROME_VERSION) {
       LOG(INFO) << "Reguest for unknown chrome resource: " <<
           url.spec().c_str();
 
-      if (domain != CHROME_RESOURCES) {
-        action->redirect_url =
-            GURL(std::string(kChromeURL) + kChromeVersionDomain);
-        return true;
-      }
+      action->redirect_url =
+          GURL(std::string(kChromeURL) + chrome::kChromeUIVersionHost);
+      return true;
     }
 
     return handled;
-  }
-
-  bool OnCredits(const std::string& path, Action* action) {
-    if (path == "credits.js") {
-      action->resource_id = IDR_ABOUT_UI_CREDITS_JS;
-    } else {
-      action->mime_type = "text/html";
-      action->resource_id = IDR_ABOUT_UI_CREDITS_HTML;
-      action->encoding = Action::ENCODING_BROTLI;
-    }
-    return true;
   }
 
   bool OnLicense(Action* action) {
@@ -301,33 +487,6 @@ class Delegate : public InternalHandlerDelegate {
     action->stream =  CefStreamReader::CreateForData(
         const_cast<char*>(html.c_str()), html.length());
     action->stream_size = html.length();
-
-    return true;
-  }
-
-  bool OnResources(const std::string& path, Action* action) {
-    // Implementation based on SharedResourcesDataSource::StartDataRequest.
-    const ResourcesMap& resources_map = GetResourcesMap();
-    auto it = resources_map.find(path);
-    int resource_id = (it != resources_map.end()) ? it->second : -1;
-
-    if (resource_id == -1) {
-      NOTREACHED() << "Failed to find resource id for " << path;
-      return false;
-    }
-
-    if (resource_id == IDR_WEBUI_CSS_TEXT_DEFAULTS ||
-        resource_id == IDR_WEBUI_CSS_TEXT_DEFAULTS_MD) {
-      const std::string& css = resource_id == IDR_WEBUI_CSS_TEXT_DEFAULTS ?
-          webui::GetWebUiCssTextDefaults() : webui::GetWebUiCssTextDefaultsMd();
-      DCHECK(!css.empty());
-      action->mime_type = "text/css";
-      action->stream =  CefStreamReader::CreateForData(
-          const_cast<char*>(css.c_str()), css.length());
-      action->stream_size = css.length();
-    } else {
-      action->resource_id = resource_id;
-    }
 
     return true;
   }
@@ -367,6 +526,29 @@ class Delegate : public InternalHandlerDelegate {
     action->stream =  CefStreamReader::CreateForData(
         const_cast<char*>(tmpl.c_str()), tmpl.length());
     action->stream_size = tmpl.length();
+
+    return true;
+  }
+
+  bool OnWebUIHosts(Action* action) {
+    std::string html = "<html>\n<head><title>WebUI Hosts</title></head>\n"
+                       "<body bgcolor=\"white\"><h3>WebUI Hosts</h3>\n<ul>\n";
+
+    std::vector<std::string> hosts;
+    GetAllowedHosts(&hosts);
+    std::sort(hosts.begin(), hosts.end());
+
+    for (size_t i = 0U; i < hosts.size(); ++i) {
+      html += "<li><a href=\"chrome://" + hosts[i] + "\">chrome://" +
+              hosts[i] + "</a></li>\n";
+    }
+
+    html += "</ul></body>\n</html>";
+
+    action->mime_type = "text/html";
+    action->stream =  CefStreamReader::CreateForData(
+        const_cast<char*>(html.c_str()), html.length());
+    action->stream_size = html.length();
 
     return true;
   }
@@ -422,14 +604,8 @@ class ChromeProtocolHandlerWrapper :
   net::URLRequestJob* MaybeCreateJob(
       net::URLRequest* request,
       net::NetworkDelegate* network_delegate) const override {
-    // Keep synchronized with the checks in
-    // ChromeProtocolHandler::MaybeCreateJob.
-    if (content::ViewHttpCacheJobFactory::IsSupportedURL(request->url()) ||
-        (request->url().SchemeIs(content::kChromeUIScheme) &&
-         request->url().host() == content::kChromeUIAppCacheInternalsHost) ||
-        content::ViewBlobInternalsJobFactory::IsSupportedURL(request->url()) ||
-        (request->url().SchemeIs(content::kChromeUIScheme) &&
-         request->url().host() == content::kChromeUIHistogramHost)) {
+    // Only allow WebUI to handle chrome:// URLs whitelisted by CEF.
+    if (CefWebUIControllerFactory::AllowWebUIForURL(request->url())) {
       return chrome_protocol_handler_->MaybeCreateJob(request,
                                                       network_delegate);
     }
@@ -453,22 +629,23 @@ void RegisterChromeHandler(CefURLRequestManager* request_manager) {
       CreateInternalHandlerFactory(base::WrapUnique(new Delegate())));
 }
 
-bool WillHandleBrowserAboutURL(GURL* url,
-                               content::BrowserContext* browser_context) {
-  std::string text = url->possibly_invalid_spec();
-  if (text.find("about:") == 0 && text != "about:blank" && text.length() > 6) {
-    // Redirect about: URLs to chrome://
-    *url = GURL(kChromeURL + text.substr(6));
-  }
+void RegisterWebUIControllerFactory() {
+  // Channel all WebUI handling through CefWebUIControllerFactory.
+  content::WebUIControllerFactory::UnregisterFactoryForTesting(
+      content::ContentWebUIControllerFactory::GetInstance());
 
-  // Allow the redirection to proceed.
-  return false;
+  content::WebUIControllerFactory::RegisterFactory(
+      CefWebUIControllerFactory::GetInstance());
+}
+
+void BrowserURLHandlerCreated(content::BrowserURLHandler* handler) {
+  CefWebUIControllerFactory::BrowserURLHandlerCreated(handler);
 }
 
 void DidFinishChromeLoad(CefRefPtr<CefFrame> frame,
                          const GURL& validated_url) {
-  ChromeDomain domain = GetChromeDomain(validated_url.host());
-  switch (domain) {
+  ChromeHostId host_id = GetChromeHostId(validated_url.host());
+  switch (host_id) {
     case CHROME_VERSION:
       DidFinishChromeVersionLoad(frame);
     default:

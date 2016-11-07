@@ -25,8 +25,10 @@
 #include "base/threading/thread_restrictions.h"
 #include "base/threading/worker_pool.h"
 #include "build/build_config.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/net/proxy_service_factory.h"
 #include "chrome/common/pref_names.h"
+#include "components/net_log/chrome_net_log.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
 #include "content/public/browser/browser_thread.h"
@@ -114,12 +116,14 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
     std::unique_ptr<net::ProxyConfigService> proxy_config_service,
     content::URLRequestInterceptorScopedVector request_interceptors)
     : settings_(settings),
+      net_log_(g_browser_process->net_log()),
       io_task_runner_(std::move(io_task_runner)),
       file_task_runner_(std::move(file_task_runner)),
       proxy_config_service_(std::move(proxy_config_service)),
       request_interceptors_(std::move(request_interceptors)) {
   // Must first be created on the UI thread.
   CEF_REQUIRE_UIT();
+  DCHECK(net_log_);
 
   std::swap(protocol_handlers_, *protocol_handlers);
 
@@ -197,6 +201,8 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
       cache_path = base::FilePath(CefString(&settings_.cache_path));
 
     url_request_context_.reset(new CefURLRequestContextImpl());
+    url_request_context_->set_net_log(net_log_);
+
     storage_.reset(
         new net::URLRequestContextStorage(url_request_context_.get()));
 
@@ -214,7 +220,8 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     storage_->set_http_user_agent_settings(base::WrapUnique(
         new CefHttpUserAgentSettings(accept_language)));
 
-    storage_->set_host_resolver(net::HostResolver::CreateDefaultResolver(NULL));
+    storage_->set_host_resolver(
+        net::HostResolver::CreateDefaultResolver(net_log_));
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
     storage_->set_transport_security_state(
         base::WrapUnique(new net::TransportSecurityState));
@@ -231,7 +238,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
 
     std::unique_ptr<net::ProxyService> system_proxy_service =
         ProxyServiceFactory::CreateProxyService(
-            NULL,
+            net_log_,
             url_request_context_.get(),
             url_request_context_->network_delegate(),
             std::move(proxy_config_service_),
@@ -299,6 +306,7 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
         url_request_context_->http_server_properties();
     network_session_params.ignore_certificate_errors =
         settings_.ignore_certificate_errors ? true : false;
+    network_session_params.net_log = net_log_;
 
     storage_->set_http_network_session(
         base::WrapUnique(new net::HttpNetworkSession(network_session_params)));
