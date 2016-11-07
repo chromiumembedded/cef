@@ -17,6 +17,7 @@
 #include "content/browser/blob_storage/chrome_blob_storage_context.h"
 #include "content/browser/resource_context_impl.h"
 #include "content/browser/streams/stream_context.h"
+#include "content/browser/webui/url_data_manager.h"
 #include "content/public/browser/storage_partition.h"
 
 namespace {
@@ -47,6 +48,10 @@ bool ShouldProxyUserData(const void* key) {
   if (key == kFontFamilyCacheKey)
     return true;
 
+  // If this value is not proxied WebUI will fail to load.
+  if (key == content::URLDataManager::GetUserDataKey())
+    return true;
+
   return false;
 }
 
@@ -67,6 +72,14 @@ CefBrowserContextProxy::~CefBrowserContextProxy() {
   Shutdown();
 
   parent_->RemoveProxy(this);
+}
+
+void CefBrowserContextProxy::Initialize() {
+  CefBrowserContext::Initialize();
+
+  // This object's CefResourceContext needs to proxy some UserData requests to
+  // the parent object's CefResourceContext.
+  resource_context()->set_parent(parent_->resource_context());
 }
 
 base::SupportsUserData::Data*

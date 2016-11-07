@@ -8,6 +8,7 @@
 #include "libcef/browser/thread_util.h"
 
 #include "base/logging.h"
+#include "content/browser/resource_context_impl.h"
 #include "content/public/browser/browser_thread.h"
 
 #if defined(USE_NSS_CERTS)
@@ -22,11 +23,24 @@
 #include "net/ssl/client_cert_store_mac.h"
 #endif
 
+namespace {
+
+bool ShouldProxyUserData(const void* key) {
+  // If this value is not proxied WebUI will fail to load.
+  if (key == content::GetURLDataManagerBackendUserDataKey())
+    return true;
+
+  return false;
+}
+
+}  // namespace
+
 CefResourceContext::CefResourceContext(
     bool is_off_the_record,
     extensions::InfoMap* extension_info_map,
     CefRefPtr<CefRequestContextHandler> handler)
-    : is_off_the_record_(is_off_the_record),
+    : parent_(nullptr),
+      is_off_the_record_(is_off_the_record),
       extension_info_map_(extension_info_map),
       handler_(handler) {
 }
@@ -43,6 +57,27 @@ CefResourceContext::~CefResourceContext() {
     content::BrowserThread::ReleaseSoon(
           content::BrowserThread::IO, FROM_HERE, raw_getter);
   }
+}
+
+base::SupportsUserData::Data* CefResourceContext::GetUserData(const void* key)
+    const {
+  if (parent_ && ShouldProxyUserData(key))
+    return parent_->GetUserData(key);
+  return content::ResourceContext::GetUserData(key);
+}
+
+void CefResourceContext::SetUserData(const void* key, Data* data) {
+  if (parent_ && ShouldProxyUserData(key))
+    parent_->SetUserData(key, data);
+  else
+    content::ResourceContext::SetUserData(key, data);
+}
+
+void CefResourceContext::RemoveUserData(const void* key) {
+  if (parent_ && ShouldProxyUserData(key))
+    parent_->RemoveUserData(key);
+  else
+    content::ResourceContext::RemoveUserData(key);
 }
 
 net::HostResolver* CefResourceContext::GetHostResolver() {
@@ -78,6 +113,12 @@ void CefResourceContext::set_url_request_context_getter(
     CefURLRequestContextGetter* getter) {
   DCHECK(!getter_.get());
   getter_ = getter;
+}
+
+void CefResourceContext::set_parent(CefResourceContext* parent) {
+  DCHECK(!parent_);
+  DCHECK(parent);
+  parent_ = parent;
 }
 
 void CefResourceContext::AddPluginLoadDecision(

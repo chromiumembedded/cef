@@ -48,7 +48,6 @@
 #include "content/browser/frame_host/render_frame_host_impl.h"
 #include "content/browser/plugin_service_impl.h"
 #include "content/public/browser/browser_ppapi_host.h"
-#include "content/public/browser/browser_url_handler.h"
 #include "content/public/browser/child_process_security_policy.h"
 #include "content/public/browser/client_certificate_delegate.h"
 #include "content/public/browser/navigation_handle.h"
@@ -848,9 +847,7 @@ void CefContentBrowserClient::OverrideWebkitPrefs(
 
 void CefContentBrowserClient::BrowserURLHandlerCreated(
     content::BrowserURLHandler* handler) {
-  // Used to redirect about: URLs to chrome: URLs.
-  handler->AddHandlerPair(&scheme::WillHandleBrowserAboutURL,
-                          content::BrowserURLHandler::null_handler());
+  scheme::BrowserURLHandlerCreated(handler);
 }
 
 std::string CefContentBrowserClient::GetDefaultDownloadName() {

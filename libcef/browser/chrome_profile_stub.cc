@@ -5,38 +5,38 @@
 
 #include "libcef/browser/chrome_profile_stub.h"
 
-ChromeProfileStub::ChromeProfileStub(){
+ChromeProfileStub::ChromeProfileStub() {
 }
 
 ChromeProfileStub::~ChromeProfileStub() {
 }
 
 scoped_refptr<base::SequencedTaskRunner> ChromeProfileStub::GetIOTaskRunner() {
-  NOTIMPLEMENTED();
+  NOTREACHED();
   return scoped_refptr<base::SequencedTaskRunner>();
 }
 
 std::string ChromeProfileStub::GetProfileUserName() const {
-  NOTIMPLEMENTED();
+  NOTREACHED();
   return std::string();
 }
 
 Profile::ProfileType ChromeProfileStub::GetProfileType() const {
-  NOTIMPLEMENTED();
+  NOTREACHED();
   return REGULAR_PROFILE;
 }
 
 Profile* ChromeProfileStub::GetOffTheRecordProfile() {
-  NOTIMPLEMENTED();
+  NOTREACHED();
   return NULL;
 }
 
 void ChromeProfileStub::DestroyOffTheRecordProfile() {
-  NOTIMPLEMENTED();
+  NOTREACHED();
 }
 
 bool ChromeProfileStub::HasOffTheRecordProfile() {
-  NOTIMPLEMENTED();
+  NOTREACHED();
   return false;
 }
 
@@ -44,100 +44,100 @@ Profile* ChromeProfileStub::GetOriginalProfile() {
   return this;
 }
 
-bool ChromeProfileStub::IsSupervised() const  {
+bool ChromeProfileStub::IsSupervised() const {
   return false;
 }
 
-bool ChromeProfileStub::IsChild() const  {
-  NOTIMPLEMENTED();
+bool ChromeProfileStub::IsChild() const {
   return false;
 }
 
-bool ChromeProfileStub::IsLegacySupervised() const  {
-  NOTIMPLEMENTED();
+bool ChromeProfileStub::IsLegacySupervised() const {
+  NOTREACHED();
   return false;
 }
 
 ExtensionSpecialStoragePolicy*
-    ChromeProfileStub::GetExtensionSpecialStoragePolicy()  {
-  NOTIMPLEMENTED();
+    ChromeProfileStub::GetExtensionSpecialStoragePolicy() {
+  NOTREACHED();
   return NULL;
 }
 
-PrefService* ChromeProfileStub::GetOffTheRecordPrefs()  {
-  NOTIMPLEMENTED();
+PrefService* ChromeProfileStub::GetOffTheRecordPrefs() {
+  NOTREACHED();
   return NULL;
 }
 
 net::URLRequestContextGetter*
-    ChromeProfileStub::GetRequestContextForExtensions()  {
-  NOTIMPLEMENTED();
+    ChromeProfileStub::GetRequestContextForExtensions() {
+  // TODO(cef): Consider creating a separate context for extensions to match
+  // Chrome behavior.
+  return GetRequestContext();
+}
+
+net::SSLConfigService* ChromeProfileStub::GetSSLConfigService() {
+  NOTREACHED();
   return NULL;
 }
 
-net::SSLConfigService* ChromeProfileStub::GetSSLConfigService()  {
-  NOTIMPLEMENTED();
-  return NULL;
-}
-
-bool ChromeProfileStub::IsSameProfile(Profile* profile)  {
-  NOTIMPLEMENTED();
+bool ChromeProfileStub::IsSameProfile(Profile* profile) {
+  NOTREACHED();
   return false;
 }
 
-base::Time ChromeProfileStub::GetStartTime() const  {
-  NOTIMPLEMENTED();
+base::Time ChromeProfileStub::GetStartTime() const {
+  NOTREACHED();
   return base::Time();
 }
 
-base::FilePath ChromeProfileStub::last_selected_directory()  {
-  NOTIMPLEMENTED();
+base::FilePath ChromeProfileStub::last_selected_directory() {
+  NOTREACHED();
   return base::FilePath();
 }
 
 void ChromeProfileStub::set_last_selected_directory(
-    const base::FilePath& path)  {
-  NOTIMPLEMENTED();
+    const base::FilePath& path) {
+  NOTREACHED();
 }
 
-PrefProxyConfigTracker* ChromeProfileStub::GetProxyConfigTracker()  {
-  NOTIMPLEMENTED();
+PrefProxyConfigTracker* ChromeProfileStub::GetProxyConfigTracker() {
+  NOTREACHED();
   return NULL;
 }
 
-chrome_browser_net::Predictor* ChromeProfileStub::GetNetworkPredictor()  {
-  NOTIMPLEMENTED();
+chrome_browser_net::Predictor* ChromeProfileStub::GetNetworkPredictor() {
+  NOTREACHED();
   return NULL;
 }
 
 DevToolsNetworkControllerHandle*
-    ChromeProfileStub::GetDevToolsNetworkControllerHandle()  {
-  NOTIMPLEMENTED();
+    ChromeProfileStub::GetDevToolsNetworkControllerHandle() {
+  NOTREACHED();
   return NULL;
 }
 
 void ChromeProfileStub::ClearNetworkingHistorySince(
     base::Time time,
-    const base::Closure& completion)  {
-  NOTIMPLEMENTED();
+    const base::Closure& completion) {
+  NOTREACHED();
 }
 
-GURL ChromeProfileStub::GetHomePage()  {
-  NOTIMPLEMENTED();
+GURL ChromeProfileStub::GetHomePage() {
+  NOTREACHED();
   return GURL();
 }
 
 bool ChromeProfileStub::WasCreatedByVersionOrLater(
-    const std::string& version)  {
-  NOTIMPLEMENTED();
+    const std::string& version) {
+  NOTREACHED();
   return false;
 }
 
 void ChromeProfileStub::SetExitType(ExitType exit_type) {
-  NOTIMPLEMENTED();
+  NOTREACHED();
 }
 
 Profile::ExitType ChromeProfileStub::GetLastSessionExitType() {
-  NOTIMPLEMENTED();
+  NOTREACHED();
   return EXIT_NORMAL;
 }

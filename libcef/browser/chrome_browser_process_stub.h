@@ -33,7 +33,8 @@ class ChromeBrowserProcessStub : public BrowserProcess,
   ChromeBrowserProcessStub();
   ~ChromeBrowserProcessStub() override;
 
-  void Initialize();
+  void Initialize(const base::CommandLine& command_line);
+  void OnContextInitialized();
   void Shutdown();
 
   // BrowserProcess implementation.
@@ -117,12 +118,14 @@ class ChromeBrowserProcessStub : public BrowserProcess,
 
  private:
   bool initialized_;
+  bool context_initialized_;
   bool shutdown_;
 
   std::string locale_;
   std::unique_ptr<printing::PrintJobManager> print_job_manager_;
   std::unique_ptr<ChromeProfileManagerStub> profile_manager_;
   scoped_refptr<extensions::EventRouterForwarder> event_router_forwarder_;
+  std::unique_ptr<net_log::ChromeNetLog> net_log_;
 
   DISALLOW_COPY_AND_ASSIGN(ChromeBrowserProcessStub);
 };

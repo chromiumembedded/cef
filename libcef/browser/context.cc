@@ -307,6 +307,9 @@ bool CefContext::Initialize(const CefMainArgs& args,
   if (exit_code >= 0)
     return false;
 
+  static_cast<ChromeBrowserProcessStub*>(g_browser_process)->Initialize(
+      *base::CommandLine::ForCurrentProcess());
+
   // Run the process. Results in a call to CefMainDelegate::RunProcess() which
   // will create the browser runner and message loop without blocking.
   exit_code = main_runner_->Run();
@@ -389,7 +392,8 @@ void CefContext::PopulateRequestContextSettings(
 void CefContext::OnContextInitialized() {
   CEF_REQUIRE_UIT();
 
-  static_cast<ChromeBrowserProcessStub*>(g_browser_process)->Initialize();
+  static_cast<ChromeBrowserProcessStub*>(g_browser_process)->
+      OnContextInitialized();
 
 #if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
   CefWidevineLoader::GetInstance()->OnContextInitialized();
