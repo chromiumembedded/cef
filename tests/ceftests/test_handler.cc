@@ -5,6 +5,7 @@
 #include "tests/ceftests/test_handler.h"
 
 #include "include/base/cef_bind.h"
+#include "include/base/cef_logging.h"
 #include "include/cef_command_line.h"
 #include "include/cef_stream.h"
 #include "include/wrapper/cef_closure_task.h"
@@ -281,6 +282,11 @@ CefRefPtr<CefResourceHandler> TestHandler::GetResourceHandler(
   }
 
   return NULL;
+}
+
+void TestHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
+                                            TerminationStatus status) {
+  LOG(WARNING) << "OnRenderProcessTerminated: status = " << status << ".";
 }
 
 CefRefPtr<CefBrowser> TestHandler::GetBrowser() {
