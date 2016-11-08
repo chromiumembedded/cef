@@ -182,6 +182,9 @@ class TestHandler : public CefClient,
       CefRefPtr<CefFrame> frame,
       CefRefPtr<CefRequest> request) override;
 
+  void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser,
+                                 TerminationStatus status) override;
+
   // These methods should only be used if at most one non-popup browser exists.
   CefRefPtr<CefBrowser> GetBrowser();
   int GetBrowserId();
