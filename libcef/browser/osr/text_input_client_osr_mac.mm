@@ -82,6 +82,12 @@ extern "C" {
   return validAttributesForMarkedText_.get();
 }
 
+- (NSRange)selectedRange {
+  if (selectedRange_.location == NSNotFound || selectedRange_.length == 0)
+    return NSMakeRange(NSNotFound, 0);
+  return selectedRange_;
+}
+
 - (NSRange)markedRange {
   return hasMarkedText_ ?
       renderWidgetHostView_->composition_range().ToNSRange() :
@@ -197,7 +203,14 @@ extern "C" {
 - (NSAttributedString *)attributedSubstringForProposedRange:(NSRange)range
     actualRange:(NSRangePointer)actualRange {
   if (actualRange)
-    *actualRange = range;
+    *actualRange = NSMakeRange(NSNotFound, 0);
+
+  // The caller of this method is allowed to pass nonsensical ranges. These
+  // can't even be converted into gfx::Ranges.
+  if (range.location == NSNotFound || range.length == 0)
+    return nil;
+  if (range.length >= std::numeric_limits<NSUInteger>::max() - range.location)
+    return nil;
 
   const gfx::Range requested_range(range);
   if (requested_range.is_reversed())
@@ -215,15 +228,16 @@ extern "C" {
     expected_range = gfx::Range(offset, offset + expected_text->size());
   }
 
-  if (!expected_range.Contains(requested_range))
+  gfx::Range actual_range = expected_range.Intersect(requested_range);
+  if (!actual_range.IsValid())
     return nil;
 
   // Gets the raw bytes to avoid unnecessary string copies for generating
   // NSString.
   const base::char16* bytes =
-      &(*expected_text)[requested_range.start() - expected_range.start()];
+      &(*expected_text)[actual_range.start() - expected_range.start()];
   // Avoid integer overflow.
-  base::CheckedNumeric<size_t> requested_len = requested_range.length();
+  base::CheckedNumeric<size_t> requested_len = actual_range.length();
   requested_len *= sizeof(base::char16);
   NSUInteger bytes_len = base::strict_cast<NSUInteger, size_t>(
       requested_len.ValueOrDefault(0));
@@ -231,6 +245,9 @@ extern "C" {
       [[NSString alloc] initWithBytes:bytes
                                length:bytes_len
                              encoding:NSUTF16LittleEndianStringEncoding]);
+  if (actualRange)
+    *actualRange = actual_range.ToNSRange();
+
   return [[[NSAttributedString alloc] initWithString:ns_string] autorelease];
 }
 
