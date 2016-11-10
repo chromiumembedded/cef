@@ -81,6 +81,12 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
   return validAttributesForMarkedText_;
 }
 
+- (NSRange)selectedRange {
+  if (selectedRange_.location == NSNotFound || selectedRange_.length == 0)
+    return NSMakeRange(NSNotFound, 0);
+  return selectedRange_;
+}
+
 - (NSRange)markedRange {
   return hasMarkedText_ ? markedRange_ : NSMakeRange(NSNotFound, 0);
 }
