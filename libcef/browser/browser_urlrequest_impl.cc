@@ -82,7 +82,7 @@ class NET_EXPORT CefURLFetcherResponseWriter :
     return num_bytes;
   }
 
-  int Finish(const net::CompletionCallback& callback) override {
+  int Finish(int net_error, const net::CompletionCallback& callback) override {
     if (url_request_.get())
       url_request_ = NULL;
     return net::OK;
