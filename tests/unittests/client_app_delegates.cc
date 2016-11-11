@@ -81,6 +81,11 @@ void CreateRenderDelegates(ClientAppRenderer::DelegateSet& delegates) {
       ClientAppRenderer::DelegateSet& delegates);
   CreateRoutingTestHandlerDelegate(delegates);
 
+  // Bring in the thread tests.
+  extern void CreateThreadRendererTests(
+      ClientAppRenderer::DelegateSet& delegates);
+  CreateThreadRendererTests(delegates);
+
   // Bring in the URLRequest tests.
   extern void CreateURLRequestRendererTests(
       ClientAppRenderer::DelegateSet& delegates);

@@ -80,6 +80,7 @@
 #include "libcef_dll/cpptoc/stream_writer_cpptoc.h"
 #include "libcef_dll/cpptoc/task_runner_cpptoc.h"
 #include "libcef_dll/cpptoc/views/textfield_cpptoc.h"
+#include "libcef_dll/cpptoc/thread_cpptoc.h"
 #include "libcef_dll/cpptoc/urlrequest_cpptoc.h"
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
 #include "libcef_dll/cpptoc/v8exception_cpptoc.h"
@@ -321,6 +322,7 @@ CEF_EXPORT void cef_shutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefTaskRunnerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefTextfieldCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefTextfieldDelegateCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefThreadCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefURLRequestClientCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefURLRequestCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefV8AccessorCToCpp::DebugObjCt));

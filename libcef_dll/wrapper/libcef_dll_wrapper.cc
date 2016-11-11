@@ -134,6 +134,7 @@
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
 #include "libcef_dll/ctocpp/task_runner_ctocpp.h"
 #include "libcef_dll/ctocpp/views/textfield_ctocpp.h"
+#include "libcef_dll/ctocpp/thread_ctocpp.h"
 #include "libcef_dll/ctocpp/urlrequest_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
 #include "libcef_dll/ctocpp/v8exception_ctocpp.h"
@@ -313,6 +314,7 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefTaskRunnerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefTextfieldCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefTextfieldDelegateCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefThreadCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefURLRequestCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefURLRequestClientCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefV8AccessorCppToC::DebugObjCt));

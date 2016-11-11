@@ -90,23 +90,38 @@ def make_capi_header(header, filename):
     classes = header.get_classes(filename)
 
     # identify all includes and forward declarations
-    all_includes = set([])
+    translated_includes = set([])
+    internal_includes = set([])
     all_declares = set([])
     for cls in classes:
         includes = cls.get_includes()
         for include in includes:
-            all_includes.add(include)
+            if include.startswith('base/'):
+                # base/ headers are C++. They should not be included by
+                # translated CEF API headers.
+                raise Exception('Disallowed include of %s.h from %s' % (include, filename))
+            elif include.startswith('internal/'):
+                # internal/ headers may be C or C++. Include them as-is.
+                internal_includes.add(include)
+            else:
+                translated_includes.add(include)
         declares = cls.get_forward_declares()
         for declare in declares:
             all_declares.add(header.get_class(declare).get_capi_name())
 
-    # output includes
-    if len(all_includes) > 0:
-        sorted_includes = sorted(all_includes)
+    # output translated includes
+    if len(translated_includes) > 0:
+        sorted_includes = sorted(translated_includes)
         for include in sorted_includes:
             result += '#include "include/capi/' + include + '_capi.h"\n'
     else:
         result += '#include "include/capi/cef_base_capi.h"\n'
+
+    # output internal includes
+    if len(internal_includes) > 0:
+        sorted_includes = sorted(internal_includes)
+        for include in sorted_includes:
+            result += '#include "include/' + include + '.h"\n'
 
     result += \
 """
