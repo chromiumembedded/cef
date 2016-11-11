@@ -11,11 +11,10 @@
 #undef Bool
 #endif
 
-#include "base/threading/thread.h"
-
 #include "include/base/cef_bind.h"
 #include "include/cef_app.h"
 #include "include/cef_task.h"
+#include "include/cef_thread.h"
 #include "include/wrapper/cef_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/cefclient/browser/client_app_browser.h"
@@ -32,6 +31,12 @@
 
 namespace {
 
+// Used to track state when running tests on a separate thread.
+struct TestState {
+  CefTestSuite* test_suite_;
+  int retval_;
+};
+
 void QuitMessageLoop() {
   client::MainMessageLoop* message_loop = client::MainMessageLoop::Get();
   if (message_loop)
@@ -40,38 +45,28 @@ void QuitMessageLoop() {
     CefQuitMessageLoop();
 }
 
-// Thread used to run the test suite.
-class CefTestThread : public base::Thread {
- public:
-  explicit CefTestThread(CefTestSuite* test_suite)
-    : base::Thread("test_thread"),
-      test_suite_(test_suite) {
-  }
+// Called on the test thread.
+void RunTestsOnTestThread(TestState* test_state) {
+  CHECK(test_state);
 
-  void RunTests() {
-    // Run the test suite.
-    retval_ = test_suite_->Run();
+  // Run the test suite.
+  test_state->retval_ = test_state->test_suite_->Run();
 
-    // Wait for all browsers to exit.
-    while (TestHandler::HasBrowser())
-      base::PlatformThread::Sleep(base::TimeDelta::FromMilliseconds(100));
+  // Wait for all browsers to exit.
+  while (TestHandler::HasBrowser())
+    base::PlatformThread::Sleep(base::TimeDelta::FromMilliseconds(100));
 
-    // Quit the CEF message loop.
-    CefPostTask(TID_UI, base::Bind(&QuitMessageLoop));
-  }
-
-  int retval() { return retval_; }
-
- protected:
-  CefTestSuite* test_suite_;
-  int retval_;
-};
+  // Quit the CEF message loop.
+  CefPostTask(TID_UI, base::Bind(&QuitMessageLoop));
+}
 
 // Called on the UI thread.
-void RunTests(CefTestThread* thread) {
+void ContinueOnUIThread(TestState* test_state,
+                        CefRefPtr<CefTaskRunner> test_task_runner) {
   // Run the test suite on the test thread.
-  thread->message_loop()->task_runner()->PostTask(FROM_HERE,
-      base::Bind(&CefTestThread::RunTests, base::Unretained(thread)));
+  test_task_runner->PostTask(
+      CefCreateClosureTask(base::Bind(&RunTestsOnTestThread,
+                                      base::Unretained(test_state))));
 }
 
 #if defined(OS_LINUX)
@@ -189,24 +184,29 @@ int main(int argc, char* argv[]) {
     // Run the test suite on the main thread.
     retval = test_suite.Run();
   } else {
-    // Create the test thread.
-    std::unique_ptr<CefTestThread> thread;
-    thread.reset(new CefTestThread(&test_suite));
-    if (!thread->Start())
+    TestState test_state = {0};
+    test_state.test_suite_ = &test_suite;
+
+    // Create and start the test thread.
+    CefRefPtr<CefThread> thread = CefThread::CreateThread("test_thread");
+    if (!thread)
       return 1;
 
     // Start the tests from the UI thread so that any pending UI tasks get a
     // chance to execute first.
-    CefPostTask(TID_UI, base::Bind(&RunTests, thread.get()));
+    CefPostTask(TID_UI,
+        base::Bind(&ContinueOnUIThread, base::Unretained(&test_state),
+                   thread->GetTaskRunner()));
 
     // Run the CEF message loop.
     message_loop->Run();
 
     // The test suite has completed.
-    retval = thread->retval();
+    retval = test_state.retval_;
 
     // Terminate the test thread.
-    thread.reset();
+    thread->Stop();
+    thread = nullptr;
   }
 
   // Shut down CEF.

@@ -46,8 +46,10 @@ extern "C" {
 
 #if defined(OS_WIN)
 typedef DWORD cef_platform_thread_id_t;
+#define kInvalidPlatformThreadId 0U
 #elif defined(OS_POSIX)
 typedef pid_t cef_platform_thread_id_t;
+#define kInvalidPlatformThreadId 0
 #endif
 
 ///
@@ -57,8 +59,10 @@ CEF_EXPORT cef_platform_thread_id_t cef_get_current_platform_thread_id();
 
 #if defined(OS_WIN)
 typedef DWORD cef_platform_thread_handle_t;
+#define kInvalidPlatformThreadHandle 0U
 #elif defined(OS_POSIX)
 typedef pthread_t cef_platform_thread_handle_t;
+#define kInvalidPlatformThreadHandle 0
 #endif
 
 ///

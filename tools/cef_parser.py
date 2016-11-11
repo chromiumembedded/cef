@@ -694,7 +694,7 @@ class obj_header:
         return obj_analysis([self], value, named)
 
     def get_defined_structs(self):
-        """ Return a list of names already defined structure names. """
+        """ Return a list of already defined structure names. """
         return ['cef_print_info_t', 'cef_window_info_t', 'cef_base_t']
 
     def get_capi_translations(self):
