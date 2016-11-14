@@ -7,7 +7,6 @@
 
 #include "base/files/file_util.h"
 #include "base/files/scoped_temp_dir.h"
-#include "base/strings/stringprintf.h"
 #include "base/synchronization/waitable_event.h"
 
 #include "include/base/cef_bind.h"
@@ -289,9 +288,9 @@ class RequestSchemeHandler : public CefResourceHandler {
     settings_.response->GetHeaderMap(headerMap);
 
     if (settings_.expect_save_cookie) {
-      std::string cookie = base::StringPrintf("%s=%s", kRequestSaveCookieName,
-                                              "save-cookie-value");
-      headerMap.insert(std::make_pair("Set-Cookie", cookie));
+      std::stringstream ss;
+      ss << kRequestSaveCookieName << "=" << "save-cookie-value";
+      headerMap.insert(std::make_pair("Set-Cookie", ss.str()));
     }
 
     response->SetHeaderMap(headerMap);
@@ -868,7 +867,9 @@ class RequestTestRunner : public base::RefCountedThreadSafe<RequestTestRunner> {
 
   // Return an appropriate scheme URL for the specified |path|.
   std::string MakeSchemeURL(const std::string& path) {
-    return base::StringPrintf("%s/%s", kRequestOrigin, path.c_str());
+    std::stringstream ss;
+    ss << kRequestOrigin << "/" << path;
+    return ss.str();
   }
 
   // Add a scheme handler for the current test. Called during test setup.

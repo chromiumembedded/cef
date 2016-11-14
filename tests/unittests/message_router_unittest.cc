@@ -4,9 +4,8 @@
 
 #include <cstdlib>
 #include <set>
+#include <sstream>
 #include <vector>
-
-#include "base/strings/stringprintf.h"
 
 #include "include/base/cef_bind.h"
 #include "include/base/cef_weak_ptr.h"
@@ -94,11 +93,10 @@ class MRRenderDelegate : public ClientAppRenderer::Delegate {
         }
 
         if (expected_count != actual_count) {
-          const std::string& exceptionStr =
-              base::StringPrintf("%s failed; expected %d, got %d",
-                                 message_name.c_str(), expected_count,
-                                 actual_count);
-          exception = exceptionStr;
+          std::stringstream ss;
+          ss << message_name << " failed; expected " << expected_count <<
+                ", got " << actual_count;
+          exception = ss.str();
         }
       }
 
@@ -439,8 +437,9 @@ class SingleQueryTestHandler : public SingleLoadTestHandler {
   std::string GetMainHTML() override {
     std::string html;
 
-    const std::string& errorCodeStr =
-        base::StringPrintf("%d", kSingleQueryErrorCode);
+    std::stringstream ss;
+    ss << kSingleQueryErrorCode;
+    const std::string& errorCodeStr = ss.str();
 
     html = "<html><body><script>\n"
            // No requests should exist.
@@ -668,10 +667,12 @@ class SinglePersistentQueryTestHandler : public SingleLoadTestHandler {
   std::string GetMainHTML() override {
     std::string html;
 
-    const std::string& responseCountStr =
-        base::StringPrintf("%d", kSinglePersistentQueryResponseCount);
-    const std::string& errorCodeStr =
-        base::StringPrintf("%d", kSingleQueryErrorCode);
+    std::stringstream ss;
+    ss << kSinglePersistentQueryResponseCount;
+    const std::string& responseCountStr = ss.str();
+    ss.str("");
+    ss << kSingleQueryErrorCode;
+    const std::string& errorCodeStr = ss.str();
 
     html = "<html><body><script>\n"
            // No requests should exist.
@@ -1674,7 +1675,9 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
   std::string GetIDString(const std::string& prefix, int index) const {
     EXPECT_TRUE(!prefix.empty());
-    return base::StringPrintf("%s%d", prefix.c_str(), GetIDFromIndex(index));
+    std::stringstream ss;
+    ss << prefix << GetIDFromIndex(index);
+    return ss.str();
   }
 
   bool SplitIDString(const std::string& str,
@@ -1691,7 +1694,9 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
   }
 
   std::string GetIntString(int val) const {
-    return base::StringPrintf("%d", val);
+    std::stringstream ss;
+    ss << val;
+    return ss.str();
   }
 
   int GetIDFromIndex(int index) const { return id_offset_ + index; }
@@ -2010,8 +2015,9 @@ class MultiQueryMultiHandlerTestHandler :
                  bool persistent,
                  CefRefPtr<Callback> callback) override {
       // Each handler only handles a single request.
-      const std::string& handled_request =
-        base::StringPrintf("%s:%d", kMultiQueryRequest, index_);
+      std::stringstream ss;
+      ss << kMultiQueryRequest << ":" << index_;
+      const std::string& handled_request = ss.str();
       if (request != handled_request)
         return false;
 
