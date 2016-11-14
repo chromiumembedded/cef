@@ -1341,6 +1341,8 @@ if (is_mac) {
 cef_unittests_sources = [
   "tests/cefclient/browser/client_app_browser.cc",
   "tests/cefclient/browser/client_app_browser.h",
+  "tests/cefclient/browser/geometry_util.cc",
+  "tests/cefclient/browser/geometry_util.h",
   "tests/cefclient/browser/main_message_loop.cc",
   "tests/cefclient/browser/main_message_loop.h",
   "tests/cefclient/browser/main_message_loop_external_pump.cc",

@@ -4,14 +4,13 @@
 
 #include "ui/events/keycodes/keyboard_codes.h"
 #include "ui/events/keycodes/keyboard_code_conversion.h"
-#include "ui/gfx/geometry/dip_util.h"
-#include "ui/gfx/geometry/rect.h"
 
 #include "include/base/cef_bind.h"
 #include "include/base/cef_logging.h"
 #include "include/cef_v8.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
+#include "tests/cefclient/browser/geometry_util.h"
 #include "tests/cefclient/browser/resource_util.h"
 #include "tests/unittests/routing_test_handler.h"
 
@@ -1063,17 +1062,11 @@ class OSRTestHandler : public RoutingTestHandler,
   }
 
   CefRect GetScaledRect(const CefRect& rect) const {
-    const gfx::Rect& gfx_rect = gfx::ConvertRectToPixel(
-        scale_factor_,
-        gfx::Rect(rect.x, rect.y, rect.width, rect.height));
-    return CefRect(gfx_rect.x(), gfx_rect.y(),
-                   gfx_rect.width(), gfx_rect.height());
+    return client::LogicalToDevice(rect, scale_factor_);
   }
 
   int GetScaledInt(int value) const {
-    const gfx::Point& gfx_point = gfx::ConvertPointToPixel(
-        scale_factor_, gfx::Point(value, 0));
-    return gfx_point.x();
+    return client::LogicalToDevice(value, scale_factor_);
   }
 
   CefRect GetExpectedRect(int index) {
