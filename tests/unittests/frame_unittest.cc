@@ -9,7 +9,6 @@
 #include "tests/cefclient/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
 
-#include "base/memory/ptr_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using client::ClientAppBrowser;
@@ -866,7 +865,7 @@ class FrameNavExpectationsFactoryBrowserTestSingleNavHarness :
   std::unique_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
     EXPECT_FALSE(got_create_);
     got_create_.yes();
-    return base::WrapUnique(
+    return std::unique_ptr<FrameNavExpectationsBrowser>(
         new FrameNavExpectationsBrowserTestSingleNavHarness(nav));
   }
 
@@ -887,7 +886,7 @@ class FrameNavExpectationsFactoryRendererTestSingleNavHarness :
 
  protected:
   std::unique_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
-    return base::WrapUnique(
+    return std::unique_ptr<FrameNavExpectationsRenderer>(
         new FrameNavExpectationsRendererTestSingleNavHarness(nav));
   }
 };
@@ -1129,7 +1128,7 @@ class FrameNavExpectationsFactoryBrowserTestSingleNav :
 
  protected:
   std::unique_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
-    return base::WrapUnique(
+    return std::unique_ptr<FrameNavExpectationsBrowser>(
         new FrameNavExpectationsBrowserTestSingleNav(nav));
   }
 };
@@ -1145,7 +1144,7 @@ class FrameNavExpectationsFactoryRendererTestSingleNav :
 
  protected:
   std::unique_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
-    return base::WrapUnique(
+    return std::unique_ptr<FrameNavExpectationsRenderer>(
         new FrameNavExpectationsRendererTestSingleNav(nav));
   }
 };
@@ -1465,7 +1464,7 @@ class FrameNavExpectationsFactoryBrowserTestMultiNavHarness :
  protected:
   std::unique_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
     create_count_++;
-    return base::WrapUnique(
+    return std::unique_ptr<FrameNavExpectationsBrowser>(
         new FrameNavExpectationsBrowserTestMultiNavHarness(nav));
   }
 
@@ -1486,7 +1485,7 @@ class FrameNavExpectationsFactoryRendererTestMultiNavHarness :
 
  protected:
   std::unique_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
-    return base::WrapUnique(
+    return std::unique_ptr<FrameNavExpectationsRenderer>(
         new FrameNavExpectationsRendererTestMultiNavHarness(nav));
   }
 };
@@ -1724,7 +1723,7 @@ class FrameNavExpectationsFactoryBrowserTestMultiNav :
  protected:
   std::unique_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
     nav_count_++;
-    return base::WrapUnique(
+    return std::unique_ptr<FrameNavExpectationsBrowser>(
         new FrameNavExpectationsBrowserTestMultiNav(nav));
   }
 
@@ -1743,7 +1742,7 @@ class FrameNavExpectationsFactoryRendererTestMultiNav :
 
  protected:
   std::unique_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
-    return base::WrapUnique(
+    return std::unique_ptr<FrameNavExpectationsRenderer>(
         new FrameNavExpectationsRendererTestMultiNav(nav));
   }
 };
@@ -2178,7 +2177,7 @@ class FrameNavExpectationsFactoryBrowserTestNestedIframesSameOrigin :
  protected:
   std::unique_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
     create_count_++;
-    return base::WrapUnique(
+    return std::unique_ptr<FrameNavExpectationsBrowser>(
         new FrameNavExpectationsBrowserTestNestedIframes(nav, true));
   }
 
@@ -2197,7 +2196,7 @@ class FrameNavExpectationsFactoryRendererTestNestedIframesSameOrigin :
 
  protected:
   std::unique_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
-    return base::WrapUnique(
+    return std::unique_ptr<FrameNavExpectationsRenderer>(
         new FrameNavExpectationsRendererTestNestedIframes(nav,  true));
   }
 };
@@ -2233,7 +2232,7 @@ class FrameNavExpectationsFactoryBrowserTestNestedIframesDiffOrigin :
  protected:
   std::unique_ptr<FrameNavExpectationsBrowser> Create(int nav) override {
     create_count_++;
-    return base::WrapUnique(
+    return std::unique_ptr<FrameNavExpectationsBrowser>(
         new FrameNavExpectationsBrowserTestNestedIframes(nav, false));
   }
 
@@ -2252,7 +2251,7 @@ class FrameNavExpectationsFactoryRendererTestNestedIframesDiffOrigin :
 
  protected:
   std::unique_ptr<FrameNavExpectationsRenderer> Create(int nav) override {
-    return base::WrapUnique(
+    return std::unique_ptr<FrameNavExpectationsRenderer>(
         new FrameNavExpectationsRendererTestNestedIframes(nav, false));
   }
 };
