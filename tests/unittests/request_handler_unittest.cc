@@ -3,9 +3,8 @@
 // can be found in the LICENSE file.
 
 #include <algorithm>
+#include <sstream>
 #include <string>
-
-#include "base/strings/stringprintf.h"
 
 #include "include/base/cef_bind.h"
 #include "include/cef_cookie.h"
@@ -99,10 +98,13 @@ class NetNotifyTestHandler : public TestHandler {
         same_origin_(same_origin) {}
 
   void SetupTest() override {
-    url1_ = base::StringPrintf("%snav1.html?t=%d",
-        kNetNotifyOrigin1, test_type_);
-    url2_ = base::StringPrintf("%snav2.html?t=%d",
-        same_origin_ ? kNetNotifyOrigin1 : kNetNotifyOrigin2, test_type_);
+    std::stringstream ss;
+    ss << kNetNotifyOrigin1 << "nav1.html?t=" << test_type_;
+    url1_ = ss.str();
+    ss.str("");
+    ss << (same_origin_ ? kNetNotifyOrigin1 : kNetNotifyOrigin2) <<
+          "nav2.html?t=" << test_type_;
+    url2_ = ss.str();
 
     cookie_manager_ = CefCookieManager::CreateManager(CefString(), true, NULL);
 
