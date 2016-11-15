@@ -4,16 +4,15 @@
 
 #include <vector>
 
-#include "base/files/file_util.h"
-#include "base/files/scoped_temp_dir.h"
-
 #include "include/base/cef_bind.h"
+#include "include/cef_file_util.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_resource_manager.h"
+#include "include/wrapper/cef_scoped_temp_dir.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "tests/unittests/file_util.h"
 #include "tests/unittests/routing_test_handler.h"
-#include "third_party/zlib/google/zip.h"
 
 namespace {
 
@@ -29,9 +28,10 @@ std::string CreateContents(const std::string& message) {
           "</script></html></body>";
 }
 
-void WriteFile(const base::FilePath& path, const std::string& contents) {
+void WriteFile(const std::string& path, const std::string& contents) {
   int contents_size = static_cast<int>(contents.size());
-  int write_ct = base::WriteFile(path, contents.data(), contents_size);
+  int write_ct =
+      file_util::WriteFile(path, contents.data(), contents_size);
   EXPECT_EQ(contents_size, write_ct);
 }
 
@@ -689,22 +689,23 @@ TEST(ResourceManagerTest, DirectoryProvider) {
   state.urls_.push_back(kUrlBase + std::string("/sub/") + kFile3);
   state.urls_.push_back(kUrlBase + std::string("/") + kFile4);
 
-  base::ScopedTempDir scoped_dir;
+  CefScopedTempDir scoped_dir;
   EXPECT_TRUE(scoped_dir.CreateUniqueTempDir());
 
   // Write the files to disk.
-  const base::FilePath& temp_dir = scoped_dir.GetPath();
-  WriteFile(temp_dir.AppendASCII(kFile1), CreateContents(success1_message));
-  WriteFile(temp_dir.AppendASCII(kFile2), CreateContents(success2_message));
+  const std::string& temp_dir = scoped_dir.GetPath();
+  WriteFile(file_util::JoinPath(temp_dir, kFile1),
+      CreateContents(success1_message));
+  WriteFile(file_util::JoinPath(temp_dir, kFile2),
+      CreateContents(success2_message));
 
   // Also include a subdirectory.
-  const base::FilePath& sub_dir = temp_dir.AppendASCII("sub");
-  EXPECT_TRUE(base::CreateDirectory(sub_dir));
-  WriteFile(sub_dir.AppendASCII(kFile3), CreateContents(success3_message));
+  const std::string& sub_dir = file_util::JoinPath(temp_dir, "sub");
+  EXPECT_TRUE(CefCreateDirectory(sub_dir));
+  WriteFile(file_util::JoinPath(sub_dir, kFile3),
+      CreateContents(success3_message));
 
-  state.manager_->AddDirectoryProvider(kUrlBase,
-                                       CefString(temp_dir.value()),
-                                       0, std::string());
+  state.manager_->AddDirectoryProvider(kUrlBase, temp_dir, 0, std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =
       new ResourceManagerTestHandler(&state);
@@ -747,30 +748,32 @@ TEST(ResourceManagerTest, ArchiveProvider) {
   state.urls_.push_back(kUrlBase + std::string("/") + kFile4);
 
   // Only the first 2 URLs will be handled.
-  base::ScopedTempDir scoped_dir;
+  CefScopedTempDir scoped_dir;
   EXPECT_TRUE(scoped_dir.CreateUniqueTempDir());
 
-  const base::FilePath& temp_dir = scoped_dir.GetPath();
+  const std::string& temp_dir = scoped_dir.GetPath();
 
   // Write the files to disk.
-  const base::FilePath& file_dir = temp_dir.AppendASCII("files");
-  EXPECT_TRUE(base::CreateDirectory(file_dir));
-  WriteFile(file_dir.AppendASCII(kFile1), CreateContents(success1_message));
-  WriteFile(file_dir.AppendASCII(kFile2), CreateContents(success2_message));
+  const std::string& file_dir = file_util::JoinPath(temp_dir, "files");
+  EXPECT_TRUE(CefCreateDirectory(file_dir));
+  WriteFile(file_util::JoinPath(file_dir, kFile1),
+      CreateContents(success1_message));
+  WriteFile(file_util::JoinPath(file_dir, kFile2),
+      CreateContents(success2_message));
 
   // Also include a subdirectory.
-  const base::FilePath& sub_dir = file_dir.AppendASCII("sub");
-  EXPECT_TRUE(base::CreateDirectory(sub_dir));
-  WriteFile(sub_dir.AppendASCII(kFile3), CreateContents(success3_message));
+  const std::string& sub_dir = file_util::JoinPath(file_dir, "sub");
+  EXPECT_TRUE(CefCreateDirectory(sub_dir));
+  WriteFile(file_util::JoinPath(sub_dir, kFile3),
+      CreateContents(success3_message));
 
-  const base::FilePath& archive_path = temp_dir.AppendASCII("archive.zip");
+  const std::string& archive_path =
+      file_util::JoinPath(temp_dir, "archive.zip");
 
   // Create the archive file.
-  EXPECT_TRUE(zip::Zip(file_dir, archive_path, false));
+  EXPECT_TRUE(CefZipDirectory(file_dir, archive_path, false));
 
-  state.manager_->AddArchiveProvider(kUrlBase,
-                                     CefString(archive_path.value()),
-                                     std::string(),
+  state.manager_->AddArchiveProvider(kUrlBase, archive_path, std::string(),
                                      0, std::string());
 
   CefRefPtr<ResourceManagerTestHandler> handler =

@@ -2,14 +2,15 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "base/files/file_util.h"
 #include "base/synchronization/waitable_event.h"
 
 #include "include/base/cef_bind.h"
+#include "include/cef_file_util.h"
 #include "include/cef_task.h"
 #include "include/cef_trace.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "tests/unittests/file_util.h"
 #include "tests/unittests/test_handler.h"
 
 // Use the CEF version of the TRACE_* macros instead of the Chromium version.
@@ -80,11 +81,11 @@ class TracingTestHandler : public CefEndTracingCallback,
         type_(type) {
   }
 
-  void ReadTracingFile(const base::FilePath& file_path) {
+  void ReadTracingFile(const std::string& file_path) {
     EXPECT_FILE_THREAD();
 
-    base::ReadFileToString(file_path, &trace_data_);
-    base::DeleteFile(file_path, false);
+    EXPECT_TRUE(file_util::ReadFileToString(file_path, &trace_data_));
+    EXPECT_TRUE(CefDeleteFile(file_path, false));
 
     completion_event_.Signal();
   }
@@ -93,13 +94,8 @@ class TracingTestHandler : public CefEndTracingCallback,
   void OnEndTracingComplete(const CefString& tracing_file) override {
     EXPECT_UI_THREAD();
 
-#if defined(OS_WIN)
-    base::FilePath file_path(tracing_file.ToWString());
-#else
-    base::FilePath file_path(tracing_file.ToString());
-#endif
     CefPostTask(TID_FILE,
-        base::Bind(&TracingTestHandler::ReadTracingFile, this, file_path));
+        base::Bind(&TracingTestHandler::ReadTracingFile, this, tracing_file));
   }
 
   void RunTracing() {
