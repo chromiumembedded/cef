@@ -16,12 +16,15 @@ void SignalEvent(base::WaitableEvent* event);
 
 // Post a task to the specified thread and wait for the task to execute as
 // indication that all previously pending tasks on that thread have completed.
-void WaitForThread(CefThreadId thread_id);
-void WaitForThread(CefRefPtr<CefTaskRunner> task_runner);
+void WaitForThread(CefThreadId thread_id, int64 delay_ms = 0);
+void WaitForThread(CefRefPtr<CefTaskRunner> task_runner, int64 delay_ms = 0);
 
 #define WaitForIOThread() WaitForThread(TID_IO)
 #define WaitForUIThread() WaitForThread(TID_UI)
 #define WaitForDBThread() WaitForThread(TID_DB)
+#define WaitForIOThreadWithDelay(delay_ms) WaitForThread(TID_IO, delay_ms)
+#define WaitForUIThreadWithDelay(delay_ms) WaitForThread(TID_UI, delay_ms)
+#define WaitForDBThreadWithDelay(delay_ms) WaitForThread(TID_DB, delay_ms)
 
 // Assert that execution is occuring on the named thread.
 #define EXPECT_UI_THREAD()       EXPECT_TRUE(CefCurrentlyOn(TID_UI));

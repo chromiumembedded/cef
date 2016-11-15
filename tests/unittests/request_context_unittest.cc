@@ -3,10 +3,10 @@
 // can be found in the LICENSE file.
 
 #include "include/base/cef_bind.h"
-#include "base/files/scoped_temp_dir.h"
 #include "include/cef_request_context.h"
 #include "include/cef_request_context_handler.h"
 #include "include/wrapper/cef_closure_task.h"
+#include "include/wrapper/cef_scoped_temp_dir.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/test_handler.h"
 
@@ -172,11 +172,11 @@ TEST(RequestContextTest, CreateContextSharedGlobal) {
 }
 
 TEST(RequestContextTest, CreateContextSharedOnDisk) {
-  base::ScopedTempDir tempdir;
+  CefScopedTempDir tempdir;
   EXPECT_TRUE(tempdir.CreateUniqueTempDir());
 
   CefRequestContextSettings settings;
-  CefString(&settings.cache_path) = tempdir.GetPath().value();
+  CefString(&settings.cache_path) = tempdir.GetPath();
 
   CefRefPtr<CefRequestContext> context1 =
       CefRequestContext::CreateContext(settings, NULL);

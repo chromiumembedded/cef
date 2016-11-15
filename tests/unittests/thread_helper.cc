@@ -10,19 +10,20 @@ void SignalEvent(base::WaitableEvent* event) {
   event->Signal();
 }
 
-void WaitForThread(CefThreadId thread_id) {
+void WaitForThread(CefThreadId thread_id, int64 delay_ms) {
   base::WaitableEvent event(
       base::WaitableEvent::ResetPolicy::AUTOMATIC,
       base::WaitableEvent::InitialState::NOT_SIGNALED);
-  CefPostTask(thread_id, base::Bind(SignalEvent, &event));
+  CefPostDelayedTask(thread_id, base::Bind(SignalEvent, &event), delay_ms);
   event.Wait();
 }
 
-void WaitForThread(CefRefPtr<CefTaskRunner> task_runner) {
+void WaitForThread(CefRefPtr<CefTaskRunner> task_runner, int64 delay_ms) {
   base::WaitableEvent event(
       base::WaitableEvent::ResetPolicy::AUTOMATIC,
       base::WaitableEvent::InitialState::NOT_SIGNALED);
-  task_runner->PostTask(CefCreateClosureTask(base::Bind(SignalEvent, &event)));
+  task_runner->PostDelayedTask(
+      CefCreateClosureTask(base::Bind(SignalEvent, &event)), delay_ms);
   event.Wait();
 }
 

@@ -2,12 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "base/files/file_util.h"
-#include "base/files/scoped_temp_dir.h"
-
 #include "include/cef_scheme.h"
 #include "include/wrapper/cef_closure_task.h"
+#include "include/wrapper/cef_scoped_temp_dir.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "tests/unittests/file_util.h"
 #include "tests/unittests/test_handler.h"
 
 namespace {
@@ -158,7 +157,7 @@ class DownloadTestHandler : public TestHandler {
 
     // Create a new temporary directory.
     EXPECT_TRUE(temp_dir_.CreateUniqueTempDir());
-    test_path_ = temp_dir_.GetPath().AppendASCII(kTestFileName);
+    test_path_ = file_util::JoinPath(temp_dir_.GetPath(), kTestFileName);
 
     if (test_mode_ == NAVIGATED) {
       // Add the resource that we'll navigate to.
@@ -254,7 +253,7 @@ class DownloadTestHandler : public TestHandler {
         download_item->GetContentDisposition().ToString().c_str());
     EXPECT_STREQ(kTestMimeType, download_item->GetMimeType().ToString().c_str());
 
-    callback->Continue(test_path_.value(), false);
+    callback->Continue(test_path_, false);
 
     if (test_mode_ == NAVIGATED)
       browser->GetMainFrame()->LoadURL(kTestNavUrl);
@@ -291,8 +290,7 @@ class DownloadTestHandler : public TestHandler {
     std::string full_path = download_item->GetFullPath();
     if (!full_path.empty()) {
       got_full_path_.yes();
-      EXPECT_STREQ(CefString(test_path_.value()).ToString().c_str(),
-          full_path.c_str());
+      EXPECT_STREQ(test_path_.c_str(), full_path.c_str());
     }
 
     if (download_item->IsComplete()) {
@@ -315,7 +313,30 @@ class DownloadTestHandler : public TestHandler {
       ContinuePendingIfReady();
   }
 
+  void VerifyResultsOnFileThread() {
+    EXPECT_TRUE(CefCurrentlyOn(TID_FILE));
+
+    if (test_mode_ != PENDING) {
+      // Verify the file contents.
+      std::string contents;
+      EXPECT_TRUE(file_util::ReadFileToString(test_path_, &contents));
+      EXPECT_STREQ(kTestContent, contents.c_str());
+    }
+
+    EXPECT_TRUE(temp_dir_.Delete());
+    EXPECT_TRUE(temp_dir_.IsEmpty());
+
+    CefPostTask(TID_UI, base::Bind(&DownloadTestHandler::DestroyTest, this));
+  }
+
   void DestroyTest() override {
+    if (!temp_dir_.IsEmpty()) {
+      // Clean up temp_dir_ on the FILE thread before destroying the test.
+      CefPostTask(TID_FILE,
+          base::Bind(&DownloadTestHandler::VerifyResultsOnFileThread, this));
+      return;
+    }
+
     CefRegisterSchemeHandlerFactory("http", kTestDomain, NULL);
 
     EXPECT_TRUE(got_download_request_);
@@ -333,14 +354,7 @@ class DownloadTestHandler : public TestHandler {
     } else {
       EXPECT_TRUE(got_download_complete_);
       EXPECT_TRUE(got_full_path_);
-
-      // Verify the file contents.
-      std::string contents;
-      EXPECT_TRUE(base::ReadFileToString(test_path_, &contents));
-      EXPECT_STREQ(kTestContent, contents.c_str());
     }
-
-    EXPECT_TRUE(temp_dir_.Delete());
 
     TestHandler::DestroyTest();
   }
@@ -351,8 +365,8 @@ class DownloadTestHandler : public TestHandler {
   // Used with NAVIGATED test mode.
   CefRefPtr<CefCallback> delay_callback_;
 
-  base::ScopedTempDir temp_dir_;
-  base::FilePath test_path_;
+  CefScopedTempDir temp_dir_;
+  std::string test_path_;
   uint32 download_id_;
 
   TrackCallback got_download_request_;
