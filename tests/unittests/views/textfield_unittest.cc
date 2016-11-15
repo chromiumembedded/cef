@@ -2,6 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "include/base/cef_bind.h"
 #include "include/cef_pack_strings.h"
 #include "include/views/cef_textfield.h"
 #include "include/views/cef_textfield_delegate.h"
@@ -9,9 +10,21 @@
 #include "tests/unittests/thread_helper.h"
 #include "tests/unittests/views/test_window_delegate.h"
 
-#include "base/bind.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "ui/events/keycodes/keyboard_codes.h"
+
+// See ui/events/keycodes/keyboard_codes.h
+#define VKEY_UNKNOWN  0
+#if defined(OS_WIN)
+#define VKEY_A        'A'
+#define VKEY_SPACE    VK_SPACE
+#define VKEY_RETURN   VK_RETURN
+#elif defined(OS_POSIX)
+#define VKEY_A        0x41
+#define VKEY_SPACE    0x20
+#define VKEY_RETURN   0x0D
+#else
+#error "Unsupported platform"
+#endif
 
 #define TEXTFIELD_TEST(name) UI_THREAD_TEST(ViewsTextfieldTest, name)
 #define TEXTFIELD_TEST_ASYNC(name) \
@@ -163,16 +176,16 @@ const int kTextfieldID = 1;
 const char kTestInputMessage[] = "Test Message";
 
 void TranslateKey(int c, int* keycode, uint32* modifiers) {
-  *keycode = ui::VKEY_UNKNOWN;
+  *keycode = VKEY_UNKNOWN;
   *modifiers = 0;
 
   if (c >= 'a' && c <= 'z') {
-    *keycode = ui::VKEY_A + (c - 'a');
+    *keycode = VKEY_A + (c - 'a');
   } else if (c >= 'A' && c <= 'Z') {
-    *keycode = ui::VKEY_A + (c - 'A');
+    *keycode = VKEY_A + (c - 'A');
     *modifiers = EVENTFLAG_SHIFT_DOWN;
   } else if (c == ' ') {
-    *keycode = ui::VKEY_SPACE;
+    *keycode = VKEY_SPACE;
   }
 }
 
@@ -187,7 +200,7 @@ class TestTextfieldDelegate : public CefTextfieldDelegate {
     EXPECT_EQ(textfield->GetID(), kTextfieldID);
 
     if (event.type == KEYEVENT_RAWKEYDOWN &&
-        event.windows_key_code == ui::VKEY_RETURN) {
+        event.windows_key_code == VKEY_RETURN) {
       // Got the whole string. Finish the test asynchronously.
       CefPostTask(TID_UI,
           base::Bind(&TestTextfieldDelegate::FinishTest, this, textfield));
@@ -262,7 +275,7 @@ void RunTextfieldKeyEvent(CefRefPtr<CefWindow> window) {
   }
 
   // Send return to end the text input.
-  window->SendKeyPress(ui::VKEY_RETURN, 0);
+  window->SendKeyPress(VKEY_RETURN, 0);
 }
 
 void TextfieldKeyEventImpl(CefRefPtr<CefWaitableEvent> event) {
