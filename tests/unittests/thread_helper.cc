@@ -6,30 +6,28 @@
 
 #include "include/wrapper/cef_closure_task.h"
 
-void SignalEvent(base::WaitableEvent* event) {
+void SignalEvent(CefRefPtr<CefWaitableEvent> event) {
   event->Signal();
 }
 
 void WaitForThread(CefThreadId thread_id, int64 delay_ms) {
-  base::WaitableEvent event(
-      base::WaitableEvent::ResetPolicy::AUTOMATIC,
-      base::WaitableEvent::InitialState::NOT_SIGNALED);
-  CefPostDelayedTask(thread_id, base::Bind(SignalEvent, &event), delay_ms);
-  event.Wait();
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
+  CefPostDelayedTask(thread_id, base::Bind(SignalEvent, event), delay_ms);
+  event->Wait();
 }
 
 void WaitForThread(CefRefPtr<CefTaskRunner> task_runner, int64 delay_ms) {
-  base::WaitableEvent event(
-      base::WaitableEvent::ResetPolicy::AUTOMATIC,
-      base::WaitableEvent::InitialState::NOT_SIGNALED);
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
   task_runner->PostDelayedTask(
-      CefCreateClosureTask(base::Bind(SignalEvent, &event)), delay_ms);
-  event.Wait();
+      CefCreateClosureTask(base::Bind(SignalEvent, event)), delay_ms);
+  event->Wait();
 }
 
 void RunOnThread(CefThreadId thread_id,
                  const base::Callback<void(void)>& test_impl,
-                 base::WaitableEvent* event) {
+                 CefRefPtr<CefWaitableEvent> event) {
   if (!CefCurrentlyOn(thread_id)) {
     CefPostTask(thread_id,
         base::Bind(RunOnThread, thread_id, test_impl, event));
@@ -42,8 +40,8 @@ void RunOnThread(CefThreadId thread_id,
 
 void RunOnThreadAsync(
     CefThreadId thread_id,
-    const base::Callback<void(base::WaitableEvent*)>& test_impl,
-    base::WaitableEvent* event) {
+    const base::Callback<void(CefRefPtr<CefWaitableEvent>)>& test_impl,
+    CefRefPtr<CefWaitableEvent> event) {
   if (!CefCurrentlyOn(thread_id)) {
     CefPostTask(thread_id,
         base::Bind(RunOnThreadAsync, thread_id, test_impl, event));

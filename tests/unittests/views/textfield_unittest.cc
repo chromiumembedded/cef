@@ -265,7 +265,7 @@ void RunTextfieldKeyEvent(CefRefPtr<CefWindow> window) {
   window->SendKeyPress(ui::VKEY_RETURN, 0);
 }
 
-void TextfieldKeyEventImpl(base::WaitableEvent* event) {
+void TextfieldKeyEventImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event,
       base::Bind(RunTextfieldKeyEvent), false, false);
 }

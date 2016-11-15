@@ -2,9 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "base/synchronization/waitable_event.h"
-
 #include "include/base/cef_bind.h"
+#include "include/cef_waitable_event.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/cefclient/browser/client_app_browser.h"
 #include "tests/unittests/test_handler.h"
@@ -243,7 +242,7 @@ void ValidateRoot(CefRefPtr<CefDictionaryValue> root,
 // Validate getting default values.
 void ValidateDefaults(CefRefPtr<CefRequestContext> context,
                       bool reset,
-                      base::WaitableEvent* event) {
+                      CefRefPtr<CefWaitableEvent> event) {
   if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI, base::Bind(ValidateDefaults, context, reset, event));
     return;
@@ -317,7 +316,7 @@ void PopulateRootSet(CefRefPtr<CefDictionaryValue> val) {
 
 // Validate getting and setting values.
 void ValidateSetGet(CefRefPtr<CefRequestContext> context,
-                    base::WaitableEvent* event) {
+                    CefRefPtr<CefWaitableEvent> event) {
   if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI, base::Bind(ValidateSetGet, context, event));
     return;
@@ -354,7 +353,7 @@ void ValidateSetGet(CefRefPtr<CefRequestContext> context,
 
 // Validate getting values.
 void ValidateGet(CefRefPtr<CefRequestContext> context,
-                 base::WaitableEvent* event) {
+                 CefRefPtr<CefWaitableEvent> event) {
   if (!CefCurrentlyOn(TID_UI)) {
     CefPostTask(TID_UI, base::Bind(ValidateGet, context, event));
     return;
@@ -402,39 +401,36 @@ class TestRequestContextHandler : public CefRequestContextHandler {
 
 // Verify default preference values on the global context.
 TEST(PreferenceTest, GlobalDefaults) {
-  base::WaitableEvent event(
-      base::WaitableEvent::ResetPolicy::AUTOMATIC,
-      base::WaitableEvent::InitialState::NOT_SIGNALED);
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
 
   CefRefPtr<CefRequestContext> context = CefRequestContext::GetGlobalContext();
   EXPECT_TRUE(context.get());
 
-  ValidateDefaults(context, false, &event);
-  event.Wait();
+  ValidateDefaults(context, false, event);
+  event->Wait();
 }
 
 // Verify setting/getting preference values on the global context.
 TEST(PreferenceTest, GlobalSetGet) {
-  base::WaitableEvent event(
-      base::WaitableEvent::ResetPolicy::AUTOMATIC,
-      base::WaitableEvent::InitialState::NOT_SIGNALED);
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
 
   CefRefPtr<CefRequestContext> context = CefRequestContext::GetGlobalContext();
   EXPECT_TRUE(context.get());
 
-  ValidateSetGet(context, &event);
-  event.Wait();
+  ValidateSetGet(context, event);
+  event->Wait();
 
   // Reset to the default values.
-  ValidateDefaults(context, true, &event);
-  event.Wait();
+  ValidateDefaults(context, true, event);
+  event->Wait();
 }
 
 // Verify setting/getting preference values on shared global contexts.
 TEST(PreferenceTest, GlobalSetGetShared) {
-  base::WaitableEvent event(
-      base::WaitableEvent::ResetPolicy::AUTOMATIC,
-      base::WaitableEvent::InitialState::NOT_SIGNALED);
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
 
   CefRefPtr<CefRequestContext> context = CefRequestContext::GetGlobalContext();
   EXPECT_TRUE(context.get());
@@ -456,63 +452,60 @@ TEST(PreferenceTest, GlobalSetGetShared) {
   EXPECT_TRUE(context.get());
 
   // Set/get the values on the first context.
-  ValidateSetGet(context, &event);
-  event.Wait();
+  ValidateSetGet(context, event);
+  event->Wait();
 
   // Get the values from the 2nd and 3rd contexts. They should be the same.
-  ValidateGet(context2, &event);
-  event.Wait();
-  ValidateGet(context3, &event);
-  event.Wait();
+  ValidateGet(context2, event);
+  event->Wait();
+  ValidateGet(context3, event);
+  event->Wait();
 
   // Get the values from the 4th context. They should be at the default.
-  ValidateDefaults(context4, false, &event);
-  event.Wait();
+  ValidateDefaults(context4, false, event);
+  event->Wait();
 
   // Reset to the default values.
-  ValidateDefaults(context, true, &event);
-  event.Wait();
+  ValidateDefaults(context, true, event);
+  event->Wait();
 }
 
 // Verify default preference values on a custom context.
 TEST(PreferenceTest, CustomDefaults) {
-  base::WaitableEvent event(
-      base::WaitableEvent::ResetPolicy::AUTOMATIC,
-      base::WaitableEvent::InitialState::NOT_SIGNALED);
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
 
   CefRequestContextSettings settings;
   CefRefPtr<CefRequestContext> context =
       CefRequestContext::CreateContext(settings, NULL);
   EXPECT_TRUE(context.get());
 
-  ValidateDefaults(context, false, &event);
-  event.Wait();
+  ValidateDefaults(context, false, event);
+  event->Wait();
 }
 
 // Verify setting/getting preference values on a custom context.
 TEST(PreferenceTest, CustomSetGet) {
-  base::WaitableEvent event(
-      base::WaitableEvent::ResetPolicy::AUTOMATIC,
-      base::WaitableEvent::InitialState::NOT_SIGNALED);;
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
 
   CefRequestContextSettings settings;
   CefRefPtr<CefRequestContext> context =
       CefRequestContext::CreateContext(settings, NULL);
   EXPECT_TRUE(context.get());
 
-  ValidateSetGet(context, &event);
-  event.Wait();
+  ValidateSetGet(context, event);
+  event->Wait();
 
   // Reset to the default values.
-  ValidateDefaults(context, true, &event);
-  event.Wait();
+  ValidateDefaults(context, true, event);
+  event->Wait();
 }
 
 // Verify setting/getting preference values on shared custom contexts.
 TEST(PreferenceTest, CustomSetGetShared) {
-  base::WaitableEvent event(
-      base::WaitableEvent::ResetPolicy::AUTOMATIC,
-      base::WaitableEvent::InitialState::NOT_SIGNALED);
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
 
   CefRequestContextSettings settings;
   CefRefPtr<CefRequestContext> context =
@@ -535,22 +528,22 @@ TEST(PreferenceTest, CustomSetGetShared) {
   EXPECT_TRUE(context.get());
 
   // Set/get the values on the first context.
-  ValidateSetGet(context, &event);
-  event.Wait();
+  ValidateSetGet(context, event);
+  event->Wait();
 
   // Get the values from the 2nd and 3d contexts. They should be the same.
-  ValidateGet(context2, &event);
-  event.Wait();
-  ValidateGet(context3, &event);
-  event.Wait();
+  ValidateGet(context2, event);
+  event->Wait();
+  ValidateGet(context3, event);
+  event->Wait();
 
   // Get the values from the 4th context. They should be at the default.
-  ValidateDefaults(context4, false, &event);
-  event.Wait();
+  ValidateDefaults(context4, false, event);
+  event->Wait();
 
   // Reset to the default values.
-  ValidateDefaults(context, true, &event);
-  event.Wait();
+  ValidateDefaults(context, true, event);
+  event->Wait();
 }
 
 

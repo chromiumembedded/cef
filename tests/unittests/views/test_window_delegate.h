@@ -2,12 +2,12 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "include/cef_waitable_event.h"
 #include "include/views/cef_window.h"
 #include "include/views/cef_window_delegate.h"
 
 #include "base/callback.h"
 #include "base/memory/weak_ptr.h"
-#include "base/synchronization/waitable_event.h"
 
 class TestWindowDelegate : public CefWindowDelegate {
  public:
@@ -23,7 +23,7 @@ class TestWindowDelegate : public CefWindowDelegate {
   // without a frame. If |close_window| is true the Window will be closed
   // immediately after |window_test| returns. Otherwise, the caller is
   // responsible for closing the Window passed to |window_test|.
-  static void RunTest(base::WaitableEvent* event,
+  static void RunTest(CefRefPtr<CefWaitableEvent> event,
                       const WindowTest& window_test,
                       bool frameless = false,
                       bool close_window = true,
@@ -36,7 +36,7 @@ class TestWindowDelegate : public CefWindowDelegate {
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override;
 
  private:
-  TestWindowDelegate(base::WaitableEvent* event,
+  TestWindowDelegate(CefRefPtr<CefWaitableEvent> event,
                      const WindowTest& window_test,
                      bool frameless,
                      bool close_window,
@@ -46,7 +46,7 @@ class TestWindowDelegate : public CefWindowDelegate {
   void OnCloseWindow();
   void OnTimeoutWindow();
 
-  base::WaitableEvent* event_;
+  CefRefPtr<CefWaitableEvent> event_;
   WindowTest window_test_;
   bool frameless_;
   bool close_window_;

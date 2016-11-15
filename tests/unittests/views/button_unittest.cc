@@ -246,7 +246,7 @@ void RunLabelButtonClick(bool with_frame,
                      kClickDelayMS);
 }
 
-void LabelButtonClick(base::WaitableEvent* event,
+void LabelButtonClick(CefRefPtr<CefWaitableEvent> event,
                       bool with_button_frame,
                       bool with_button_text,
                       bool with_button_image,
@@ -258,82 +258,82 @@ void LabelButtonClick(base::WaitableEvent* event,
 }
 
 void LabelButtonClickFramedWithTextWithImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   LabelButtonClick(event, true, true, true, true);
 }
 
 void LabelButtonClickFramedWithTextNoImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   LabelButtonClick(event, true, true, false, true);
 }
 
 void LabelButtonClickFramedWithTextWithImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   LabelButtonClick(event, true, true, true, false);
 }
 
 void LabelButtonClickFramedWithTextNoImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   LabelButtonClick(event, true, true, false, false);
 }
 
 void LabelButtonClickFramedNoTextWithImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   LabelButtonClick(event, true, false, true, true);
 }
 
 void LabelButtonClickFramedNoTextNoImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   LabelButtonClick(event, true, false, false, true);
 }
 
 void LabelButtonClickFramedNoTextWithImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   LabelButtonClick(event, true, false, true, false);
 }
 
 void LabelButtonClickFramedNoTextNoImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   LabelButtonClick(event, true, false, false, false);
 }
 
 void LabelButtonClickFramelessWithTextWithImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   LabelButtonClick(event, false, true, true, true);
 }
 
 void LabelButtonClickFramelessWithTextNoImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   LabelButtonClick(event, false, true, false, true);
 }
 
 void LabelButtonClickFramelessWithTextWithImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   LabelButtonClick(event, false, true, true, false);
 }
 
 void LabelButtonClickFramelessWithTextNoImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   LabelButtonClick(event, false, true, false, false);
 }
 
 void LabelButtonClickFramelessNoTextWithImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   LabelButtonClick(event, false, false, true, true);
 }
 
 void LabelButtonClickFramelessNoTextNoImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   LabelButtonClick(event, false, false, false, true);
 }
 
 void LabelButtonClickFramelessNoTextWithImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   LabelButtonClick(event, false, false, true, false);
 }
 
 void LabelButtonClickFramelessNoTextNoImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   LabelButtonClick(event, false, false, false, false);
 }
 
@@ -460,7 +460,7 @@ void RunMenuButtonClick(bool with_frame,
                      kClickDelayMS);
 }
 
-void MenuButtonClick(base::WaitableEvent* event,
+void MenuButtonClick(CefRefPtr<CefWaitableEvent> event,
                      bool with_button_frame,
                      bool with_button_text,
                      bool with_button_menu_marker,
@@ -473,162 +473,162 @@ void MenuButtonClick(base::WaitableEvent* event,
 }
 
 void MenuButtonClickFramedWithTextWithMarkerWithImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, true, true, true, true, true);
 }
 
 void MenuButtonClickFramedWithTextNoMarkerWithImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, true, true, false, true, true);
 }
 
 void MenuButtonClickFramedWithTextWithMarkerNoImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, true, true, true, false, true);
 }
 
 void MenuButtonClickFramedWithTextNoMarkerNoImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, true, true, false, false, true);
 }
 
 void MenuButtonClickFramedWithTextWithMarkerWithImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, true, true, true, true, false);
 }
 
 void MenuButtonClickFramedWithTextNoMarkerWithImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, true, true, false, true, false);
 }
 
 void MenuButtonClickFramedWithTextWithMarkerNoImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, true, true, true, false, false);
 }
 
 void MenuButtonClickFramedWithTextNoMarkerNoImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, true, true, false, false, false);
 }
 
 void MenuButtonClickFramedNoTextWithMarkerWithImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, true, false, true, true, true);
 }
 
 void MenuButtonClickFramedNoTextNoMarkerWithImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, true, false, false, true, true);
 }
 
 void MenuButtonClickFramedNoTextWithMarkerNoImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, true, false, true, false, true);
 }
 
 void MenuButtonClickFramedNoTextNoMarkerNoImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, true, false, false, false, true);
 }
 
 void MenuButtonClickFramedNoTextWithMarkerWithImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, true, false, true, true, false);
 }
 
 void MenuButtonClickFramedNoTextNoMarkerWithImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, true, false, false, true, false);
 }
 
 void MenuButtonClickFramedNoTextWithMarkerNoImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, true, false, true, false, false);
 }
 
 void MenuButtonClickFramedNoTextNoMarkerNoImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, true, false, false, false, false);
 }
 
 void MenuButtonClickFramelessWithTextWithMarkerWithImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, false, true, true, true, true);
 }
 
 void MenuButtonClickFramelessWithTextNoMarkerWithImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, false, true, false, true, true);
 }
 
 void MenuButtonClickFramelessWithTextWithMarkerNoImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, false, true, true, false, true);
 }
 
 void MenuButtonClickFramelessWithTextNoMarkerNoImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, false, true, false, false, true);
 }
 
 void MenuButtonClickFramelessWithTextWithMarkerWithImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, false, true, true, true, false);
 }
 
 void MenuButtonClickFramelessWithTextNoMarkerWithImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, false, true, false, true, false);
 }
 
 void MenuButtonClickFramelessWithTextWithMarkerNoImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, false, true, true, false, false);
 }
 
 void MenuButtonClickFramelessWithTextNoMarkerNoImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, false, true, false, false, false);
 }
 
 void MenuButtonClickFramelessNoTextWithMarkerWithImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, false, false, true, true, true);
 }
 
 void MenuButtonClickFramelessNoTextNoMarkerWithImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, false, false, false, true, true);
 }
 
 void MenuButtonClickFramelessNoTextWithMarkerNoImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, false, false, true, false, true);
 }
 
 void MenuButtonClickFramelessNoTextNoMarkerNoImageFramedWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, false, false, false, false, true);
 }
 
 void MenuButtonClickFramelessNoTextWithMarkerWithImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, false, false, true, true, false);
 }
 
 void MenuButtonClickFramelessNoTextNoMarkerWithImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, false, false, false, true, false);
 }
 
 void MenuButtonClickFramelessNoTextWithMarkerNoImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, false, false, true, false, false);
 }
 
 void MenuButtonClickFramelessNoTextNoMarkerNoImageFramelessWindowImpl(
-    base::WaitableEvent* event) {
+    CefRefPtr<CefWaitableEvent> event) {
   MenuButtonClick(event, false, false, false, false, false);
 }
 

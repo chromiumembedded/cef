@@ -16,9 +16,9 @@
 #include "include/cef_client.h"
 #include "include/cef_frame.h"
 #include "include/cef_task.h"
+#include "include/cef_waitable_event.h"
 #include "tests/unittests/thread_helper.h"
 
-#include "base/synchronization/waitable_event.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 class TrackCallback {
@@ -90,7 +90,7 @@ class TestHandler : public CefClient,
     int count_;
 
     // Handle used to notify when the test is complete
-    base::WaitableEvent event_;
+    CefRefPtr<CefWaitableEvent> event_;
   };
 
   // Represents a collection of related tests that need to be run
@@ -221,7 +221,9 @@ class TestHandler : public CefClient,
 
   // Event that will be signaled from the TestHandler destructor.
   // Used by ReleaseAndWaitForDestructor.
-  void SetDestroyEvent(base::WaitableEvent* event) { destroy_event_ = event; }
+  void SetDestroyEvent(CefRefPtr<CefWaitableEvent> event) {
+    destroy_event_ = event;
+  }
 
   // If a test will not call DestroyTest() indicate so using this method.
   void SetDestroyTestExpected(bool expected) {
@@ -310,7 +312,7 @@ class TestHandler : public CefClient,
   // If true test completion will be signaled when all browsers have closed.
   bool signal_completion_when_all_browsers_close_;
 
-  base::WaitableEvent* destroy_event_;
+  CefRefPtr<CefWaitableEvent> destroy_event_;
 
   // Tracks whether DestroyTest() is expected or has been called.
   bool destroy_test_expected_;
@@ -330,14 +332,12 @@ class TestHandler : public CefClient,
 // all Handler references have been released on test completion.
 template<typename T>
 void ReleaseAndWaitForDestructor(CefRefPtr<T>& handler, int delay_ms = 2000) {
-  base::WaitableEvent event(
-      base::WaitableEvent::ResetPolicy::AUTOMATIC,
-      base::WaitableEvent::InitialState::NOT_SIGNALED);
-  handler->SetDestroyEvent(&event);
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
+  handler->SetDestroyEvent(event);
   T* _handler_ptr = handler.get();
   handler = NULL;
-  bool handler_destructed =
-      event.TimedWait(base::TimeDelta::FromMilliseconds(delay_ms));
+  bool handler_destructed = event->TimedWait(delay_ms);
   EXPECT_TRUE(handler_destructed);
   if (!handler_destructed) {
    // |event| is a stack variable so clear the reference before returning.

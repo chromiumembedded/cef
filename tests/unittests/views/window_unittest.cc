@@ -33,11 +33,11 @@ void ExpectCloseRects(const CefRect& expected,
   EXPECT_LE(abs(expected.height - actual.height), allowed_deviance);
 }
 
-void WindowCreateImpl(base::WaitableEvent* event) {
+void WindowCreateImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, TestWindowDelegate::WindowTest(), false);
 }
 
-void WindowCreateFramelessImpl(base::WaitableEvent* event) {
+void WindowCreateFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, TestWindowDelegate::WindowTest(), true);
 }
 
@@ -52,11 +52,11 @@ void RunWindowShowHide(CefRefPtr<CefWindow> window) {
   EXPECT_FALSE(window->IsDrawn());
 }
 
-void WindowShowHideImpl(base::WaitableEvent* event) {
+void WindowShowHideImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, base::Bind(RunWindowShowHide), false);
 }
 
-void WindowShowHideFramelessImpl(base::WaitableEvent* event) {
+void WindowShowHideFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, base::Bind(RunWindowShowHide), true);
 }
 
@@ -180,11 +180,11 @@ void RunWindowLayoutAndCoords(CefRefPtr<CefWindow> window) {
             point);
 }
 
-void WindowLayoutAndCoordsImpl(base::WaitableEvent* event) {
+void WindowLayoutAndCoordsImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, base::Bind(RunWindowLayoutAndCoords), false);
 }
 
-void WindowLayoutAndCoordsFramelessImpl(base::WaitableEvent* event) {
+void WindowLayoutAndCoordsFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, base::Bind(RunWindowLayoutAndCoords), true);
 }
 
@@ -223,12 +223,12 @@ void RunWindowMaximize(CefRefPtr<CefWindow> window) {
   CefPostDelayedTask(TID_UI, base::Bind(VerifyMaximize, window), kStateDelayMS);
 }
 
-void WindowMaximizeImpl(base::WaitableEvent* event) {
+void WindowMaximizeImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, base::Bind(RunWindowMaximize), false,
                               false);
 }
 
-void WindowMaximizeFramelessImpl(base::WaitableEvent* event) {
+void WindowMaximizeFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, base::Bind(RunWindowMaximize), true,
                               false);
 }
@@ -260,12 +260,12 @@ void RunWindowMinimize(CefRefPtr<CefWindow> window) {
   CefPostDelayedTask(TID_UI, base::Bind(VerifyMinimize, window), kStateDelayMS);
 }
 
-void WindowMinimizeImpl(base::WaitableEvent* event) {
+void WindowMinimizeImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, base::Bind(RunWindowMinimize), false,
                               false);
 }
 
-void WindowMinimizeFramelessImpl(base::WaitableEvent* event) {
+void WindowMinimizeFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, base::Bind(RunWindowMinimize), true,
                               false);
 }
@@ -307,12 +307,12 @@ void RunWindowFullscreen(CefRefPtr<CefWindow> window) {
                      kStateDelayMS);
 }
 
-void WindowFullscreenImpl(base::WaitableEvent* event) {
+void WindowFullscreenImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, base::Bind(RunWindowFullscreen), false,
                               false);
 }
 
-void WindowFullscreenFramelessImpl(base::WaitableEvent* event) {
+void WindowFullscreenFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, base::Bind(RunWindowFullscreen), true,
                               false);
 }
@@ -333,11 +333,11 @@ void RunWindowIcon(CefRefPtr<CefWindow> window) {
   window->Show();
 }
 
-void WindowIconImpl(base::WaitableEvent* event) {
+void WindowIconImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, base::Bind(RunWindowIcon), false);
 }
 
-void WindowIconFramelessImpl(base::WaitableEvent* event) {
+void WindowIconFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
   TestWindowDelegate::RunTest(event, base::Bind(RunWindowIcon), true);
 }
 
