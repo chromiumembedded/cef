@@ -2,9 +2,6 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "ui/events/keycodes/keyboard_codes.h"
-#include "ui/events/keycodes/keyboard_code_conversion.h"
-
 #include "include/base/cef_bind.h"
 #include "include/base/cef_logging.h"
 #include "include/cef_v8.h"
@@ -15,6 +12,7 @@
 #include "tests/unittests/routing_test_handler.h"
 
 #if defined(OS_MACOSX)
+#include <Carbon/Carbon.h>  // For character codes.
 #include "tests/unittests/os_rendering_unittest_mac.h"
 #elif defined(OS_LINUX)
 #include <X11/keysym.h>
@@ -100,21 +98,53 @@ const int kVerticalScrollbarWidth = 14;
 // word to be written into edit box
 const char kKeyTestWord[] = "done";
 
-#if defined(OS_MACOSX) || defined(OS_LINUX)
-const ui::KeyboardCode kKeyTestCodes[] = {
-  ui::VKEY_D,
-  ui::VKEY_O,
-  ui::VKEY_N,
-  ui::VKEY_E
-};
-#endif
 #if defined(OS_LINUX)
+
+// From ui/events/keycodes/keyboard_codes_posix.h
+#define VKEY_D        0x44
+#define VKEY_O        0x4F
+#define VKEY_N        0x4E
+#define VKEY_E        0x45
+#define VKEY_ESCAPE   0x1B
+
 const unsigned int kNativeKeyTestCodes[] = {
   XK_d,
   XK_o,
   XK_n,
   XK_e
 };
+
+const unsigned int kNativeKeyEscape = XK_Escape;
+
+#elif defined(OS_MACOSX)
+
+// See kKeyCodesMap in ui/events/keycodes/keyboard_code_conversion_mac.mm
+#define VKEY_D        'd'
+#define VKEY_O        'o'
+#define VKEY_N        'n'
+#define VKEY_E        'e'
+#define VKEY_ESCAPE   kEscapeCharCode
+
+const unsigned int kNativeKeyTestCodes[] = {
+  kVK_ANSI_D,
+  kVK_ANSI_O,
+  kVK_ANSI_N,
+  kVK_ANSI_E
+};
+
+const unsigned int kNativeKeyEscape = kVK_Escape;
+
+#endif
+
+#if defined(OS_MACOSX) || defined(OS_LINUX)
+
+const unsigned int kKeyTestCodes[] = {
+  VKEY_D,
+  VKEY_O,
+  VKEY_N,
+  VKEY_E
+};
+
 #endif
 
 // test type
@@ -568,9 +598,7 @@ class OSRTestHandler : public RoutingTestHandler,
           for (size_t i = 0; i < word_length; ++i) {
 #if defined(OS_WIN)
             SendKeyEvent(browser, kKeyTestWord[i]);
-#elif defined(OS_MACOSX)
-            SendKeyEvent(browser, kKeyTestCodes[i]);
-#elif defined(OS_LINUX)
+#elif defined(OS_MACOSX) || defined(OS_LINUX)
             SendKeyEvent(browser, kNativeKeyTestCodes[i], kKeyTestCodes[i]);
 #else
 #error "Unsupported platform"
@@ -654,10 +682,8 @@ class OSRTestHandler : public RoutingTestHandler,
         } else if (type == PET_POPUP) {
 #if defined(OS_WIN)
           SendKeyEvent(browser, VK_ESCAPE);
-#elif defined(OS_MACOSX)
-          SendKeyEvent(browser, ui::VKEY_ESCAPE);
-#elif defined(OS_LINUX)
-          SendKeyEvent(browser, XK_Escape, ui::VKEY_ESCAPE);
+#elif defined(OS_MACOSX) || defined(OS_LINUX)
+          SendKeyEvent(browser, kNativeKeyEscape, VKEY_ESCAPE);
 #else
 #error "Unsupported platform"
 #endif
@@ -764,9 +790,7 @@ class OSRTestHandler : public RoutingTestHandler,
             for (size_t i = 0; i < word_length; ++i) {
 #if defined(OS_WIN)
               SendKeyEvent(browser, kKeyTestWord[i]);
-#elif defined(OS_MACOSX)
-              SendKeyEvent(browser, kKeyTestCodes[i]);
-#elif defined(OS_LINUX)
+#elif defined(OS_MACOSX) || defined(OS_LINUX)
               SendKeyEvent(browser, kNativeKeyTestCodes[i], kKeyTestCodes[i]);
 #else
 #error "Unsupported platform"
@@ -807,9 +831,7 @@ class OSRTestHandler : public RoutingTestHandler,
             for (size_t i = 0; i < word_length; ++i) {
 #if defined(OS_WIN)
               SendKeyEvent(browser, kKeyTestWord[i]);
-#elif defined(OS_MACOSX)
-              SendKeyEvent(browser, kKeyTestCodes[i]);
-#elif defined(OS_LINUX)
+#elif defined(OS_MACOSX) || defined(OS_LINUX)
               SendKeyEvent(browser, kNativeKeyTestCodes[i], kKeyTestCodes[i]);
 #else
 #error "Unsupported platform"
@@ -1138,7 +1160,7 @@ class OSRTestHandler : public RoutingTestHandler,
   }
 
   void SendKeyEvent(CefRefPtr<CefBrowser> browser,
-#if defined(OS_LINUX)
+#if defined(OS_LINUX) || defined(OS_MACOSX)
                     unsigned int native_key_code,
 #endif
                     int key_code) {
@@ -1153,8 +1175,12 @@ class OSRTestHandler : public RoutingTestHandler,
                                             1;  // key repeat count
     event.windows_key_code = VkCode;
 #elif defined(OS_MACOSX)
-    osr_unittests::GetKeyEvent(
-        event, static_cast<ui::KeyboardCode>(key_code), 0);
+    event.native_key_code = native_key_code;
+    // Note that this is only correct for lower-case characters. If |key_code|
+    // was an upper-case character then |event.character| would be the upper-
+    // case character and |event.unmodified_character| would be the lower-case
+    // character (e.g. the character without the shift modifier applied).
+    event.character = event.unmodified_character = key_code;
 #elif defined(OS_LINUX)
     event.native_key_code = native_key_code;
     event.windows_key_code = key_code;
