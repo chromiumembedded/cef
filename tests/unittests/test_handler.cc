@@ -99,9 +99,8 @@ class TestBrowserViewDelegate : public CefBrowserViewDelegate {
 
 TestHandler::CompletionState::CompletionState(int total)
     : total_(total),
-      count_(0),
-      event_(base::WaitableEvent::ResetPolicy::AUTOMATIC,
-             base::WaitableEvent::InitialState::NOT_SIGNALED) {
+      count_(0) {
+  event_ = CefWaitableEvent::CreateWaitableEvent(true, false);
 }
 
 void TestHandler::CompletionState::TestComplete() {
@@ -110,16 +109,16 @@ void TestHandler::CompletionState::TestComplete() {
 
     // Signal that the test is now complete. Do not access any object members
     // after this call because |this| might be deleted.
-    event_.Signal();
+    event_->Signal();
   }
 }
 
 void TestHandler::CompletionState::WaitForTests() {
   // Wait for the test to complete
-  event_.Wait();
+  event_->Wait();
 
   // Reset the event so the same test can be executed again.
-  event_.Reset();
+  event_->Reset();
 }
 
 

@@ -132,17 +132,17 @@ void RunScrollViewLayout(bool with_delegate,
                     scroll_view_bounds.height - sb_height), visible_rect);
 }
 
-void ScrollViewLayout(base::WaitableEvent* event,
+void ScrollViewLayout(CefRefPtr<CefWaitableEvent> event,
                       bool with_delegate) {
   TestWindowDelegate::RunTest(event,
       base::Bind(RunScrollViewLayout, with_delegate), false);
 }
 
-void ScrollViewLayoutWithDelegateImpl(base::WaitableEvent* event) {
+void ScrollViewLayoutWithDelegateImpl(CefRefPtr<CefWaitableEvent> event) {
   ScrollViewLayout(event, true);
 }
 
-void ScrollViewLayoutNoDelegateImpl(base::WaitableEvent* event) {
+void ScrollViewLayoutNoDelegateImpl(CefRefPtr<CefWaitableEvent> event) {
   ScrollViewLayout(event, false);
 }
 

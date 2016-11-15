@@ -5,12 +5,11 @@
 #include <map>
 #include <sstream>
 
-#include "base/synchronization/waitable_event.h"
-
 #include "include/base/cef_bind.h"
 #include "include/cef_scheme.h"
 #include "include/cef_task.h"
 #include "include/cef_urlrequest.h"
+#include "include/cef_waitable_event.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_scoped_temp_dir.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -149,7 +148,7 @@ void SetTestCookie(CefRefPtr<CefRequestContext> request_context) {
 
   class Callback : public CefSetCookieCallback {
    public:
-    explicit Callback(base::WaitableEvent* event)
+    explicit Callback(CefRefPtr<CefWaitableEvent> event)
       : event_(event) {
       EXPECT_TRUE(event_);
     }
@@ -161,14 +160,13 @@ void SetTestCookie(CefRefPtr<CefRequestContext> request_context) {
     }
 
    private:
-    base::WaitableEvent* event_;
+    CefRefPtr<CefWaitableEvent> event_;
 
     IMPLEMENT_REFCOUNTING(Callback);
   };
 
-  base::WaitableEvent event(
-      base::WaitableEvent::ResetPolicy::MANUAL,
-      base::WaitableEvent::InitialState::NOT_SIGNALED);
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(false, false);
 
   CefCookie cookie;
   CefString(&cookie.name) = kRequestSendCookieName;
@@ -177,11 +175,11 @@ void SetTestCookie(CefRefPtr<CefRequestContext> request_context) {
   CefString(&cookie.path) = "/";
   cookie.has_expires = false;
   EXPECT_TRUE(request_context->GetDefaultCookieManager(NULL)->SetCookie(
-      kRequestOrigin, cookie, new Callback(&event)));
+      kRequestOrigin, cookie, new Callback(event)));
 
   // Wait for the Callback.
-  event.TimedWait(base::TimeDelta::FromSeconds(2));
-  EXPECT_TRUE(event.IsSignaled());
+  event->TimedWait(2000);
+  EXPECT_TRUE(event->IsSignaled());
 }
 
 // Tests if the save cookie has been set. If set, it will be deleted at the same
@@ -192,7 +190,7 @@ void GetTestCookie(CefRefPtr<CefRequestContext> request_context,
 
   class Visitor : public CefCookieVisitor {
    public:
-    Visitor(base::WaitableEvent* event, bool* cookie_exists)
+    Visitor(CefRefPtr<CefWaitableEvent> event, bool* cookie_exists)
       : event_(event),
         cookie_exists_(cookie_exists) {
       EXPECT_TRUE(event_);
@@ -213,24 +211,23 @@ void GetTestCookie(CefRefPtr<CefRequestContext> request_context,
     }
 
    private:
-    base::WaitableEvent* event_;
+    CefRefPtr<CefWaitableEvent> event_;
     bool* cookie_exists_;
 
     IMPLEMENT_REFCOUNTING(Visitor);
   };
 
-  base::WaitableEvent event(
-      base::WaitableEvent::ResetPolicy::MANUAL,
-      base::WaitableEvent::InitialState::NOT_SIGNALED);
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(false, false);
 
   CefRefPtr<CefCookieManager> cookie_manager =
       request_context->GetDefaultCookieManager(NULL);
   cookie_manager->VisitUrlCookies(
-      kRequestOrigin, true, new Visitor(&event, cookie_exists));
+      kRequestOrigin, true, new Visitor(event, cookie_exists));
 
   // Wait for the Visitor.
-  event.TimedWait(base::TimeDelta::FromSeconds(2));
-  EXPECT_TRUE(event.IsSignaled());
+  event->TimedWait(2000);
+  EXPECT_TRUE(event->IsSignaled());
 }
 
 
@@ -1487,16 +1484,15 @@ namespace {
 
 class InvalidURLTestClient : public CefURLRequestClient {
  public:
-  InvalidURLTestClient()
-      : event_(base::WaitableEvent::ResetPolicy::AUTOMATIC,
-               base::WaitableEvent::InitialState::NOT_SIGNALED) {
+  InvalidURLTestClient() {
+    event_ = CefWaitableEvent::CreateWaitableEvent(true, false);
   }
 
   void RunTest() {
     CefPostTask(TID_UI, base::Bind(&InvalidURLTestClient::RunOnUIThread, this));
 
     // Wait for the test to complete.
-    event_.Wait();
+    event_->Wait();
   }
 
   void OnRequestComplete(CefRefPtr<CefURLRequest> client) override {
@@ -1549,10 +1545,10 @@ class InvalidURLTestClient : public CefURLRequestClient {
   void CompleteOnUIThread() {
     EXPECT_UI_THREAD();
     // Signal that the test is complete.
-    event_.Signal();
+    event_->Signal();
   }
 
-  base::WaitableEvent event_;
+  CefRefPtr<CefWaitableEvent> event_;
 
   IMPLEMENT_REFCOUNTING(InvalidURLTestClient);
 };

@@ -2,10 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "base/synchronization/waitable_event.h"
-
 #include "include/base/cef_bind.h"
 #include "include/cef_geolocation.h"
+#include "include/cef_waitable_event.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/test_handler.h"
@@ -200,7 +199,7 @@ namespace {
 
 class TestGetGeolocationCallback : public CefGetGeolocationCallback {
  public:
-  explicit TestGetGeolocationCallback(base::WaitableEvent* event)
+  explicit TestGetGeolocationCallback(CefRefPtr<CefWaitableEvent> event)
       : event_(event) {
   }
 
@@ -219,7 +218,7 @@ class TestGetGeolocationCallback : public CefGetGeolocationCallback {
   }
 
 private:
-  base::WaitableEvent* event_;
+  CefRefPtr<CefWaitableEvent> event_;
 
   IMPLEMENT_REFCOUNTING(TestGetGeolocationCallback);
 };
@@ -227,9 +226,8 @@ private:
 }  // namespace
 
 TEST(GeolocationTest, GetGeolocation) {
-  base::WaitableEvent event(
-      base::WaitableEvent::ResetPolicy::AUTOMATIC,
-      base::WaitableEvent::InitialState::NOT_SIGNALED);
-  CefGetGeolocation(new TestGetGeolocationCallback(&event));
-  event.Wait();
+  CefRefPtr<CefWaitableEvent> event =
+      CefWaitableEvent::CreateWaitableEvent(true, false);
+  CefGetGeolocation(new TestGetGeolocationCallback(event));
+  event->Wait();
 }

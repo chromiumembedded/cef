@@ -2,12 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "base/synchronization/waitable_event.h"
-
 #include "include/base/cef_bind.h"
 #include "include/cef_file_util.h"
 #include "include/cef_task.h"
 #include "include/cef_trace.h"
+#include "include/cef_waitable_event.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "tests/unittests/file_util.h"
@@ -75,10 +74,9 @@ class TracingTestHandler : public CefEndTracingCallback,
                            public CefCompletionCallback {
  public:
   TracingTestHandler(TracingTestType type, const char* trace_type)
-      : completion_event_(base::WaitableEvent::ResetPolicy::AUTOMATIC,
-                          base::WaitableEvent::InitialState::NOT_SIGNALED),
-        trace_type_(trace_type),
+      : trace_type_(trace_type),
         type_(type) {
+    completion_event_ = CefWaitableEvent::CreateWaitableEvent(true, false);
   }
 
   void ReadTracingFile(const std::string& file_path) {
@@ -87,7 +85,7 @@ class TracingTestHandler : public CefEndTracingCallback,
     EXPECT_TRUE(file_util::ReadFileToString(file_path, &trace_data_));
     EXPECT_TRUE(CefDeleteFile(file_path, false));
 
-    completion_event_.Signal();
+    completion_event_->Signal();
   }
 
   // CefEndTracingCallback method:
@@ -328,7 +326,7 @@ class TracingTestHandler : public CefEndTracingCallback,
     CefPostTask(TID_UI, base::Bind(&TracingTestHandler::RunTracing, this));
 
     // Wait for the test to complete.
-    completion_event_.Wait();
+    completion_event_->Wait();
 
     // Verify the results.
     EXPECT_TRUE(!trace_data_.empty());
@@ -340,7 +338,7 @@ class TracingTestHandler : public CefEndTracingCallback,
   ~TracingTestHandler() override {}
 
   // Handle used to notify when the test is complete.
-  base::WaitableEvent completion_event_;
+  CefRefPtr<CefWaitableEvent> completion_event_;
 
   const char* trace_type_;
   TracingTestType type_;

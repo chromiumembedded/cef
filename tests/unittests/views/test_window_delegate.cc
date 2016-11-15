@@ -23,7 +23,7 @@ const int kTestTimeout = 5000;
 const int TestWindowDelegate::kWSize = 400;
 
 // static
-void TestWindowDelegate::RunTest(base::WaitableEvent* event,
+void TestWindowDelegate::RunTest(CefRefPtr<CefWaitableEvent> event,
                                  const WindowTest& window_test,
                                  bool frameless,
                                  bool close_window,
@@ -113,7 +113,7 @@ CefSize TestWindowDelegate::GetPreferredSize(CefRefPtr<CefView> view) {
   return CefSize(window_size_, window_size_);
 }
 
-TestWindowDelegate::TestWindowDelegate(base::WaitableEvent* event,
+TestWindowDelegate::TestWindowDelegate(CefRefPtr<CefWaitableEvent> event,
                                        const WindowTest& window_test,
                                        bool frameless,
                                        bool close_window,

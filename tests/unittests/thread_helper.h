@@ -8,11 +8,10 @@
 
 #include "include/base/cef_bind.h"
 #include "include/cef_task.h"
-
-#include "base/synchronization/waitable_event.h"
+#include "include/cef_waitable_event.h"
 
 // Helper for signaling |event|.
-void SignalEvent(base::WaitableEvent* event);
+void SignalEvent(CefRefPtr<CefWaitableEvent> event);
 
 // Post a task to the specified thread and wait for the task to execute as
 // indication that all previously pending tasks on that thread have completed.
@@ -36,15 +35,14 @@ void WaitForThread(CefRefPtr<CefTaskRunner> task_runner, int64 delay_ms = 0);
 // once execution is complete.
 void RunOnThread(CefThreadId thread_id,
                  const base::Callback<void(void)>& test_impl,
-                 base::WaitableEvent* event);
+                 CefRefPtr<CefWaitableEvent> event);
 
 #define NAMED_THREAD_TEST(thread_id, test_case_name, test_name)  \
     TEST(test_case_name, test_name) { \
-      base::WaitableEvent event( \
-          base::WaitableEvent::ResetPolicy::AUTOMATIC, \
-          base::WaitableEvent::InitialState::NOT_SIGNALED); \
-      RunOnThread(thread_id, base::Bind(test_name##Impl), &event); \
-      event.Wait(); \
+      CefRefPtr<CefWaitableEvent> event = \
+          CefWaitableEvent::CreateWaitableEvent(true, false); \
+      RunOnThread(thread_id, base::Bind(test_name##Impl), event); \
+      event->Wait(); \
     }
 
 // Execute "test_case_name.test_name" test on the named thread. The test
@@ -55,20 +53,19 @@ void RunOnThread(CefThreadId thread_id,
 // Like RunOnThread() but |test_impl| is responsible for signaling |event|.
 void RunOnThreadAsync(
     CefThreadId thread_id,
-    const base::Callback<void(base::WaitableEvent*)>& test_impl,
-    base::WaitableEvent* event);
+    const base::Callback<void(CefRefPtr<CefWaitableEvent>)>& test_impl,
+    CefRefPtr<CefWaitableEvent>);
 
 #define NAMED_THREAD_TEST_ASYNC(thread_id, test_case_name, test_name)  \
     TEST(test_case_name, test_name) { \
-      base::WaitableEvent event( \
-          base::WaitableEvent::ResetPolicy::AUTOMATIC, \
-          base::WaitableEvent::InitialState::NOT_SIGNALED); \
-      RunOnThreadAsync(thread_id, base::Bind(test_name##Impl), &event); \
-      event.Wait(); \
+      CefRefPtr<CefWaitableEvent> event = \
+          CefWaitableEvent::CreateWaitableEvent(true, false); \
+      RunOnThreadAsync(thread_id, base::Bind(test_name##Impl), event); \
+      event->Wait(); \
     }
 
 // Execute "test_case_name.test_name" test on the named thread. The test
-// implementation is "void test_nameImpl(base::WaitableEvent* event)".
+// implementation is "void test_nameImpl(CefRefPtr<CefWaitableEvent> event)".
 #define UI_THREAD_TEST_ASYNC(test_case_name, test_name)  \
     NAMED_THREAD_TEST_ASYNC(TID_UI, test_case_name, test_name)
 
