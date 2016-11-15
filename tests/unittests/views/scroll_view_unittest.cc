@@ -2,6 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "include/base/cef_bind.h"
 #include "include/cef_pack_strings.h"
 #include "include/views/cef_panel.h"
 #include "include/views/cef_panel_delegate.h"
@@ -10,7 +11,6 @@
 #include "tests/unittests/thread_helper.h"
 #include "tests/unittests/views/test_window_delegate.h"
 
-#include "base/bind.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 #define SCROLL_VIEW_TEST_ASYNC(name) \

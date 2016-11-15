@@ -2,12 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
+#include "include/base/cef_callback.h"
+#include "include/base/cef_weak_ptr.h"
 #include "include/cef_waitable_event.h"
 #include "include/views/cef_window.h"
 #include "include/views/cef_window_delegate.h"
-
-#include "base/callback.h"
-#include "base/memory/weak_ptr.h"
 
 class TestWindowDelegate : public CefWindowDelegate {
  public:
