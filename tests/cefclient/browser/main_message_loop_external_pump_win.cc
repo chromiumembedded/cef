@@ -140,9 +140,9 @@ LRESULT CALLBACK MainMessageLoopExternalPumpWin::WndProc(
 } // namespace
 
 // static
-SCOPED_PTR(MainMessageLoopExternalPump)
+scoped_ptr<MainMessageLoopExternalPump>
 MainMessageLoopExternalPump::Create() {
-  return SCOPED_PTR(MainMessageLoopExternalPump)(
+  return scoped_ptr<MainMessageLoopExternalPump>(
       new MainMessageLoopExternalPumpWin());
 }
 

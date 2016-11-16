@@ -1,39 +1,46 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
-// reserved. Use of this source code is governed by a BSD-style license that
-// can be found in the LICENSE file.
+// Copyright 2016 The Chromium Embedded Framework Authors. Postions copyright
+// 2012 The Chromium Authors. All rights reserved. Use of this source code is
+// governed by a BSD-style license that can be found in the LICENSE file.
 
 #ifndef CEF_TESTS_UNITTESTS_TEST_SUITE_H_
 #define CEF_TESTS_UNITTESTS_TEST_SUITE_H_
 #pragma once
 
 #include <string>
-#include "include/internal/cef_types_wrappers.h"
-#include "base/test/test_suite.h"
 
-namespace base {
-class CommandLine;
-}
+#include "include/cef_command_line.h"
+#include "include/wrapper/cef_helpers.h"
 
-class CefTestSuite : public base::TestSuite {
+// A single instance of this object will be created by main() in
+// run_all_unittests.cc.
+class CefTestSuite {
  public:
   CefTestSuite(int argc, char** argv);
+  ~CefTestSuite();
 
-  // Initialize the current process CommandLine singleton. On Windows, ignores
-  // its arguments (we instead parse GetCommandLineW() directly) because we
-  // don't trust the CRT's parsing of the command line, but it still must be
-  // called to set up the command line.
-  static void InitCommandLine(int argc, const char* const* argv);
+  static CefTestSuite* GetInstance();
 
-  static void GetSettings(CefSettings& settings);
-  static bool GetCachePath(std::string& path);
+  void InitMainProcess();
+  int Run();
 
- protected:
-#if defined(OS_MACOSX)
-  virtual void Initialize();
-#endif
+  void GetSettings(CefSettings& settings) const;
+  bool GetCachePath(std::string& path) const;
 
-  // The singleton CommandLine representing the current process's command line.
-  static base::CommandLine* commandline_;
+  CefRefPtr<CefCommandLine> command_line() const { return command_line_; }
+
+  // The return value from Run().
+  int retval() const { return retval_; }
+
+ private:
+  void PreInitialize();
+  void Initialize();
+  void Shutdown();
+
+  int argc_;
+  CefScopedArgArray argv_;
+  CefRefPtr<CefCommandLine> command_line_;
+
+  int retval_;
 };
 
 #define CEF_SETTINGS_ACCEPT_LANGUAGE "en-GB"
