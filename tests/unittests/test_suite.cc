@@ -1,67 +1,145 @@
-// Copyright (c) 2011 The Chromium Embedded Framework Authors. All rights
-// reserved. Use of this source code is governed by a BSD-style license that
-// can be found in the LICENSE file.
+// Copyright 2016 The Chromium Embedded Framework Authors. Postions copyright
+// 2012 The Chromium Authors. All rights reserved. Use of this source code is
+// governed by a BSD-style license that can be found in the LICENSE file.
 
 #include "tests/unittests/test_suite.h"
 
-#include "base/command_line.h"
-#include "base/logging.h"
-#include "base/test/test_suite.h"
-
-#if defined(OS_MACOSX)
-#include "base/debug/stack_trace.h"
-#include "base/files/file_path.h"
-#include "base/i18n/icu_util.h"
-#include "base/path_service.h"
-#include "base/test/test_timeouts.h"
-#endif
-
 #include "tests/cefclient/common/client_switches.h"
 
-base::CommandLine* CefTestSuite::commandline_ = NULL;
+#include "testing/gtest/include/gtest/gtest.h"
 
-CefTestSuite::CefTestSuite(int argc, char** argv)
-  : TestSuite(argc, argv) {
-}
+namespace {
 
-// static
-void CefTestSuite::InitCommandLine(int argc, const char* const* argv) {
-  if (commandline_) {
-    // If this is intentional, Reset() must be called first. If we are using
-    // the shared build mode, we have to share a single object across multiple
-    // shared libraries.
+CefTestSuite* g_test_suite = nullptr;
+
+#if defined(OS_WIN)
+
+// From base/process/launch_win.cc.
+void RouteStdioToConsole(bool create_console_if_not_found) {
+  // Don't change anything if stdout or stderr already point to a
+  // valid stream.
+  //
+  // If we are running under Buildbot or under Cygwin's default
+  // terminal (mintty), stderr and stderr will be pipe handles.  In
+  // that case, we don't want to open CONOUT$, because its output
+  // likely does not go anywhere.
+  //
+  // We don't use GetStdHandle() to check stdout/stderr here because
+  // it can return dangling IDs of handles that were never inherited
+  // by this process.  These IDs could have been reused by the time
+  // this function is called.  The CRT checks the validity of
+  // stdout/stderr on startup (before the handle IDs can be reused).
+  // _fileno(stdout) will return -2 (_NO_CONSOLE_FILENO) if stdout was
+  // invalid.
+  if (_fileno(stdout) >= 0 || _fileno(stderr) >= 0) {
     return;
   }
 
-  commandline_ = new base::CommandLine(base::CommandLine::NO_PROGRAM);
+  if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
+    unsigned int result = GetLastError();
+    // Was probably already attached.
+    if (result == ERROR_ACCESS_DENIED)
+      return;
+    // Don't bother creating a new console for each child process if the
+    // parent process is invalid (eg: crashed).
+    if (result == ERROR_GEN_FAILURE)
+      return;
+    if (create_console_if_not_found) {
+      // Make a new console if attaching to parent fails with any other error.
+      // It should be ERROR_INVALID_HANDLE at this point, which means the
+      // browser was likely not started from a console.
+      AllocConsole();
+    } else {
+      return;
+    }
+  }
+
+  // Arbitrary byte count to use when buffering output lines.  More
+  // means potential waste, less means more risk of interleaved
+  // log-lines in output.
+  enum { kOutputBufferSize = 64 * 1024 };
+
+  if (freopen("CONOUT$", "w", stdout)) {
+    setvbuf(stdout, nullptr, _IOLBF, kOutputBufferSize);
+    // Overwrite FD 1 for the benefit of any code that uses this FD
+    // directly.  This is safe because the CRT allocates FDs 0, 1 and
+    // 2 at startup even if they don't have valid underlying Windows
+    // handles.  This means we won't be overwriting an FD created by
+    // _open() after startup.
+    _dup2(_fileno(stdout), 1);
+  }
+  if (freopen("CONOUT$", "w", stderr)) {
+    setvbuf(stderr, nullptr, _IOLBF, kOutputBufferSize);
+    _dup2(_fileno(stderr), 2);
+  }
+
+  // Fix all cout, wcout, cin, wcin, cerr, wcerr, clog and wclog.
+  std::ios::sync_with_stdio();
+}
+
+#endif  // defined(OS_WIN)
+
+}  // namespace
+
+CefTestSuite::CefTestSuite(int argc, char** argv)
+  : argc_(argc),
+    argv_(argc, argv),
+    retval_(0) {
+  g_test_suite = this;
+
+  // Keep a representation of the original command-line.
+  command_line_ = CefCommandLine::CreateCommandLine();
 #if defined(OS_WIN)
-  commandline_->ParseFromString(::GetCommandLineW());
-#elif defined(OS_POSIX)
-  commandline_->InitFromArgv(argc, argv);
+  command_line_->InitFromString(::GetCommandLineW());
+#else
+  command_line_->InitFromArgv(argc, argv);
 #endif
 }
 
+CefTestSuite::~CefTestSuite() {
+  g_test_suite = nullptr;
+}
+
 // static
-void CefTestSuite::GetSettings(CefSettings& settings) {
+CefTestSuite* CefTestSuite::GetInstance() {
+  return g_test_suite;
+}
+
+void CefTestSuite::InitMainProcess() {
+  PreInitialize();
+
+  // This will modify |argc_| and |argv_|.
+  testing::InitGoogleTest(&argc_, argv_.array());
+}
+
+// Don't add additional code to this method. Instead add it to Initialize().
+int CefTestSuite::Run() {
+  Initialize();
+  retval_ = RUN_ALL_TESTS();
+  Shutdown();
+  return retval_;
+}
+
+void CefTestSuite::GetSettings(CefSettings& settings) const {
 #if defined(OS_WIN)
   settings.multi_threaded_message_loop =
-      commandline_->HasSwitch(client::switches::kMultiThreadedMessageLoop);
+      command_line_->HasSwitch(client::switches::kMultiThreadedMessageLoop);
 #endif
 
   if (!settings.multi_threaded_message_loop) {
     settings.external_message_pump =
-        commandline_->HasSwitch(client::switches::kExternalMessagePump);
+        command_line_->HasSwitch(client::switches::kExternalMessagePump);
   }
 
   CefString(&settings.cache_path) =
-      commandline_->GetSwitchValueASCII(client::switches::kCachePath);
+      command_line_->GetSwitchValue(client::switches::kCachePath);
 
   // Always expose the V8 gc() function to give tests finer-grained control over
   // memory management.
   std::string javascript_flags = "--expose-gc";
   // Value of kJavascriptFlags switch.
   std::string other_javascript_flags =
-      commandline_->GetSwitchValueASCII("js-flags");
+      command_line_->GetSwitchValue("js-flags");
   if (!other_javascript_flags.empty())
     javascript_flags += " " + other_javascript_flags;
   CefString(&settings.javascript_flags) = javascript_flags;
@@ -77,55 +155,40 @@ void CefTestSuite::GetSettings(CefSettings& settings) {
 }
 
 // static
-bool CefTestSuite::GetCachePath(std::string& path) {
-  DCHECK(commandline_);
-
-  if (commandline_->HasSwitch(client::switches::kCachePath)) {
+bool CefTestSuite::GetCachePath(std::string& path) const {
+  if (command_line_->HasSwitch(client::switches::kCachePath)) {
     // Set the cache_path value.
-    path = commandline_->GetSwitchValueASCII(client::switches::kCachePath);
+    path = command_line_->GetSwitchValue(client::switches::kCachePath);
     return true;
   }
 
   return false;
 }
 
-#if defined(OS_MACOSX)
-void CefTestSuite::Initialize() {
-  // The below code is copied from base/test/test_suite.cc to avoid calling
-  // RegisterMockCrApp() on Mac.
+void CefTestSuite::PreInitialize() {
+#if defined(OS_WIN)
+  testing::GTEST_FLAG(catch_exceptions) = false;
 
-  base::FilePath exe;
-  PathService::Get(base::FILE_EXE, &exe);
-  
-  // Initialize logging.
-  logging::LoggingSettings log_settings;
-  log_settings.log_file =
-      exe.ReplaceExtension(FILE_PATH_LITERAL("log")).value().c_str();
-  log_settings.logging_dest = logging::LOG_TO_ALL;
-  log_settings.lock_log = logging::LOCK_LOG_FILE;
-  log_settings.delete_old = logging::DELETE_OLD_LOG_FILE;
-  logging::InitLogging(log_settings);
+  // Enable termination on heap corruption.
+  // Ignore the result code. Supported starting with XP SP3 and Vista.
+  HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, NULL, 0);
+#endif
 
-  // We want process and thread IDs because we may have multiple processes.
-  // Note: temporarily enabled timestamps in an effort to catch bug 6361.
-  logging::SetLogItems(true, true, true, true);
+#if defined(OS_LINUX) && defined(USE_AURA)
+  // When calling native char conversion functions (e.g wrctomb) we need to
+  // have the locale set. In the absence of such a call the "C" locale is the
+  // default. In the gtk code (below) gtk_init() implicitly sets a locale.
+  setlocale(LC_ALL, "");
+#endif  // defined(OS_LINUX) && defined(USE_AURA)
 
-  CHECK(base::debug::EnableInProcessStackDumping());
-
-  // In some cases, we do not want to see standard error dialogs.
-  if (!base::debug::BeingDebugged() &&
-      !base::CommandLine::ForCurrentProcess()->HasSwitch(
-          "show-error-dialogs")) {
-    SuppressErrorDialogs();
-    base::debug::SetSuppressDebugUI(true);
-    logging::SetLogAssertHandler(UnitTestAssertHandler);
-  }
-
-  base::i18n::InitializeICU();
-
-  CatchMaybeTests();
-  ResetCommandLine();
-
-  TestTimeouts::Initialize();
+  // Don't add additional code to this function. Instead add it to Initialize().
 }
-#endif  // defined(OS_MACOSX)
+
+ void CefTestSuite::Initialize() {
+#if defined(OS_WIN)
+  RouteStdioToConsole(true);
+#endif  // defined(OS_WIN)
+ }
+
+ void CefTestSuite::Shutdown() {
+ }

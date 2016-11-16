@@ -860,7 +860,7 @@ static_library("libcef_static") {
 #
 
 # Configuration that will be applied to all targets that depend on
-# libcef_dll_wrapper or libcef_dll_wrapper_unittests.
+# libcef_dll_wrapper.
 config("libcef_dll_wrapper_config") {
   include_dirs = [
     ".",
@@ -873,58 +873,19 @@ config("libcef_dll_wrapper_config") {
   defines = [ "USING_CEF_SHARED" ]
 }
 
-# Configuration that will be applied to all targets that depend on
-# libcef_dll_wrapper_unittests.
-config("libcef_dll_wrapper_unittests_config") {
-  defines = [ "USING_CHROMIUM_INCLUDES" ]
-}
+# libcef_dll_wrapper target.
+static_library("libcef_dll_wrapper") {
+  sources = gypi_paths2.includes_common +
+            gypi_paths.autogen_cpp_includes +
+            gypi_paths2.includes_capi +
+            gypi_paths.autogen_capi_includes +
+            gypi_paths2.includes_wrapper +
+            gypi_paths2.libcef_dll_wrapper_sources_base +
+            gypi_paths2.libcef_dll_wrapper_sources_common +
+            gypi_paths.autogen_client_side
 
-# Helper for creating normal and test versions of the libcef_dll_wrapper target.
-template("libcef_dll_wrapper") {
-  static_library("${target_name}") {
-    testonly = defined(invoker.testonly) && invoker.testonly
-
-    sources = gypi_paths2.includes_common +
-              gypi_paths.autogen_cpp_includes +
-              gypi_paths2.includes_capi +
-              gypi_paths.autogen_capi_includes +
-              gypi_paths2.includes_wrapper +
-              gypi_paths2.libcef_dll_wrapper_sources_common +
-              gypi_paths.autogen_client_side
-
-    if (!testonly) {
-      sources += gypi_paths2.libcef_dll_wrapper_sources_base
-    }
-
-    if (defined(invoker.configs)) {
-      configs += invoker.configs
-    }
-    if (defined(invoker.public_configs)) {
-      public_configs = invoker.public_configs
-    }
-  }
-}
-
-# libcef_dll_wrapper target for normal executables.
-libcef_dll_wrapper("libcef_dll_wrapper") {
-  configs = [ ":libcef_dll_wrapper_config" ]
+  configs += [ ":libcef_dll_wrapper_config" ]
   public_configs = [ ":libcef_dll_wrapper_config" ]
-}
-
-# libcef_dll_wrapper target for test executables. Uses Chromium base/ includes
-# instead of CEF base/ includes. A separate target is necessary to resolve
-# cef_unittests linker errors as the Chromium base/ implementation diverges
-# from the CEF implementation.
-libcef_dll_wrapper("libcef_dll_wrapper_unittests") {
-  testonly = true
-  configs = [
-    ":libcef_dll_wrapper_config",
-    ":libcef_dll_wrapper_unittests_config",
-  ]
-  public_configs = [
-    ":libcef_dll_wrapper_config",
-    ":libcef_dll_wrapper_unittests_config",
-  ]
 }
 
 
@@ -1443,14 +1404,7 @@ if (use_aura) {
 
 # cef_unittests shared deps.
 cef_unittests_deps = [
-  "//base",
-  "//base:i18n",
-  "//base/test:test_support",
-  "//build/config/sanitizers:deps",
   "//testing/gtest",
-  "//third_party/icu",
-  "//third_party/zlib:zip",
-  "//ui/base",
 ]
 
 if (is_mac) {
@@ -1730,7 +1684,7 @@ if (is_mac) {
       "tests/unittests/v8_unittest.cc",
     ]
     helper_deps = cef_unittests_deps + [
-      ":libcef_dll_wrapper_unittests",
+      ":libcef_dll_wrapper",
     ]
 
     info_plist = "tests/cefclient/resources/mac/Info.plist"
@@ -1746,7 +1700,7 @@ if (is_mac) {
       ":cefclient_resources_bundle_data",
       ":cefclient_resources_bundle_data_english",
       ":cefclient_xibs",
-      ":libcef_dll_wrapper_unittests",
+      ":libcef_dll_wrapper",
     ]
     libs = [
       "AppKit.framework",
@@ -1921,7 +1875,8 @@ if (is_mac) {
 
     deps = cef_unittests_deps + [
       ":libcef",
-      ":libcef_dll_wrapper_unittests",
+      ":libcef_dll_wrapper",
+      "//build/config/sanitizers:deps",
     ]
 
     if (is_win) {
@@ -1948,6 +1903,10 @@ if (is_mac) {
         "tests/cefclient/browser/main_message_loop_external_pump_linux.cc",
         "tests/cefclient/browser/resource_util_linux.cc",
         "tests/cefclient/browser/resource_util_posix.cc",
+      ]
+
+      libs = [
+        "X11",
       ]
 
       deps += [

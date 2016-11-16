@@ -11,6 +11,10 @@
 #undef Bool
 #endif
 
+#if defined(OS_POSIX)
+#include <unistd.h>
+#endif
+
 #include "include/base/cef_bind.h"
 #include "include/cef_app.h"
 #include "include/cef_task.h"
@@ -31,12 +35,6 @@
 
 namespace {
 
-// Used to track state when running tests on a separate thread.
-struct TestState {
-  CefTestSuite* test_suite_;
-  int retval_;
-};
-
 void QuitMessageLoop() {
   client::MainMessageLoop* message_loop = client::MainMessageLoop::Get();
   if (message_loop)
@@ -45,28 +43,34 @@ void QuitMessageLoop() {
     CefQuitMessageLoop();
 }
 
-// Called on the test thread.
-void RunTestsOnTestThread(TestState* test_state) {
-  CHECK(test_state);
+void sleep(int64 ms) {
+#if defined(OS_WIN)
+  Sleep(ms);
+#elif defined(OS_POSIX)
+  usleep(ms * 1000);
+#else
+#error Unsupported platform
+#endif
+}
 
+// Called on the test thread.
+void RunTestsOnTestThread() {
   // Run the test suite.
-  test_state->retval_ = test_state->test_suite_->Run();
+  CefTestSuite::GetInstance()->Run();
 
   // Wait for all browsers to exit.
   while (TestHandler::HasBrowser())
-    base::PlatformThread::Sleep(base::TimeDelta::FromMilliseconds(100));
+    sleep(100);
 
   // Quit the CEF message loop.
   CefPostTask(TID_UI, base::Bind(&QuitMessageLoop));
 }
 
 // Called on the UI thread.
-void ContinueOnUIThread(TestState* test_state,
-                        CefRefPtr<CefTaskRunner> test_task_runner) {
+void ContinueOnUIThread(CefRefPtr<CefTaskRunner> test_task_runner) {
   // Run the test suite on the test thread.
   test_task_runner->PostTask(
-      CefCreateClosureTask(base::Bind(&RunTestsOnTestThread,
-                                      base::Unretained(test_state))));
+      CefCreateClosureTask(base::Bind(&RunTestsOnTestThread)));
 }
 
 #if defined(OS_LINUX)
@@ -90,25 +94,11 @@ int XIOErrorHandlerImpl(Display *display) {
 
 
 int main(int argc, char* argv[]) {
-#if defined(OS_LINUX)
-  // Create a copy of |argv| on Linux because Chromium mangles the value
-  // internally (see issue #620).
-  CefScopedArgArray scoped_arg_array(argc, argv);
-  char** argv_copy = scoped_arg_array.array();
-#else
-  char** argv_copy = argv;
-#endif
-
-  // Parse command-line arguments.
-  CefRefPtr<CefCommandLine> command_line = CefCommandLine::CreateCommandLine();
-#if defined(OS_WIN)
-  command_line->InitFromString(::GetCommandLineW());
-#else
-  command_line->InitFromArgv(argc, argv);
-#endif
+  // Create the singleton test suite object.
+  CefTestSuite test_suite(argc, argv);
 
 #if defined(OS_WIN)
-  if (command_line->HasSwitch("enable-high-dpi-support")) {
+  if (test_suite.command_line()->HasSwitch("enable-high-dpi-support")) {
     // Enable High-DPI support on Windows 7 and newer.
     CefEnableHighDPISupport();
   }
@@ -129,7 +119,7 @@ int main(int argc, char* argv[]) {
   // Create a ClientApp of the correct type.
   CefRefPtr<CefApp> app;
   client::ClientApp::ProcessType process_type =
-      client::ClientApp::GetProcessType(command_line);
+      client::ClientApp::GetProcessType(test_suite.command_line());
   if (process_type == client::ClientApp::BrowserProcess) {
     app = new client::ClientAppBrowser();
   } else if (process_type == client::ClientApp::RendererProcess ||
@@ -144,11 +134,8 @@ int main(int argc, char* argv[]) {
   if (exit_code >= 0)
     return exit_code;
 
-  // Initialize the CommandLine object.
-  CefTestSuite::InitCommandLine(argc, argv_copy);
-
   CefSettings settings;
-  CefTestSuite::GetSettings(settings);
+  test_suite.GetSettings(settings);
 
 #if defined(OS_MACOSX)
   // Platform-specific initialization.
@@ -164,7 +151,7 @@ int main(int argc, char* argv[]) {
 #endif
 
   // Create the MessageLoop.
-  std::unique_ptr<client::MainMessageLoop> message_loop;
+  scoped_ptr<client::MainMessageLoop> message_loop;
   if (!settings.multi_threaded_message_loop) {
     if (settings.external_message_pump)
       message_loop = client::MainMessageLoopExternalPump::Create();
@@ -175,8 +162,8 @@ int main(int argc, char* argv[]) {
   // Initialize CEF.
   CefInitialize(main_args, settings, app, windows_sandbox_info);
 
-  // Create the test suite object. TestSuite will modify |argv_copy|.
-  CefTestSuite test_suite(argc, argv_copy);
+  // Initialize the testing framework.
+  test_suite.InitMainProcess();
 
   int retval;
 
@@ -184,9 +171,6 @@ int main(int argc, char* argv[]) {
     // Run the test suite on the main thread.
     retval = test_suite.Run();
   } else {
-    TestState test_state = {0};
-    test_state.test_suite_ = &test_suite;
-
     // Create and start the test thread.
     CefRefPtr<CefThread> thread = CefThread::CreateThread("test_thread");
     if (!thread)
@@ -195,14 +179,13 @@ int main(int argc, char* argv[]) {
     // Start the tests from the UI thread so that any pending UI tasks get a
     // chance to execute first.
     CefPostTask(TID_UI,
-        base::Bind(&ContinueOnUIThread, base::Unretained(&test_state),
-                   thread->GetTaskRunner()));
+        base::Bind(&ContinueOnUIThread, thread->GetTaskRunner()));
 
     // Run the CEF message loop.
     message_loop->Run();
 
     // The test suite has completed.
-    retval = test_state.retval_;
+    retval = test_suite.retval();
 
     // Terminate the test thread.
     thread->Stop();

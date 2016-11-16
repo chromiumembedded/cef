@@ -710,7 +710,7 @@ TEST(CookieTest, ChangeDirectoryGlobal) {
   EXPECT_TRUE(manager.get());
 
   std::string cache_path;
-  CefTestSuite::GetCachePath(cache_path);
+  CefTestSuite::GetInstance()->GetCachePath(cache_path);
 
   TestChangeDirectory(manager, event, cache_path);
 }

@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include <algorithm>
+#include <cmath>
 #include <sstream>
 #include <string>
 

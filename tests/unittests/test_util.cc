@@ -32,7 +32,8 @@ void TestMapNoDuplicates(const CefRequest::HeaderMap& map) {
     CefRequest::HeaderMap::const_iterator it2 = it1;
     for (++it2; it2 != map.end(); ++it2) {
       EXPECT_FALSE(it1->first == it2->first && it1->second == it2->second) <<
-          "Duplicate entry for " << it1->first << ": " << it1->second;
+          "Duplicate entry for " << it1->first.ToString() << ": " <<
+          it1->second.ToString();
     }
   }
 }
