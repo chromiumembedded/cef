@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_VIEWS_LAYOUT_CTOCPP_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include "include/views/cef_layout.h"
 #include "include/capi/views/cef_layout_capi.h"
@@ -39,5 +39,4 @@ class CefLayoutCToCpp
   bool IsValid() OVERRIDE;
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_VIEWS_LAYOUT_CTOCPP_H_

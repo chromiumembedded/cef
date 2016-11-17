@@ -3,7 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/test/cef_translator_test.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 // Test getting/setting primitive types.
 TEST(TranslatorTest, Primitive) {

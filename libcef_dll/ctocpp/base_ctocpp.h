@@ -10,9 +10,9 @@
 #include "include/capi/cef_base_capi.h"
 #include "libcef_dll/ctocpp/ctocpp.h"
 
-#ifndef BUILDING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else  // BUILDING_CEF_SHARED
+#if !defined(BUILDING_CEF_SHARED)
+#error This file can be included DLL-side only
+#endif
 
 // Wrap a C structure with a C++ class.
 class CefBaseCToCpp
@@ -21,5 +21,4 @@ class CefBaseCToCpp
   CefBaseCToCpp();
 };
 
-#endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BASE_CTOCPP_H_

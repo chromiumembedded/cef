@@ -3,7 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "tests/unittests/routing_test_handler.h"
-#include "tests/cefclient/renderer/client_app_renderer.h"
+#include "tests/shared/renderer/client_app_renderer.h"
 
 using client::ClientAppRenderer;
 

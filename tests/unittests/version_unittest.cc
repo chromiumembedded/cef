@@ -3,7 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/cef_version.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 TEST(VersionTest, VersionInfo) {
   EXPECT_EQ(CEF_VERSION_MAJOR, cef_version_info(0));

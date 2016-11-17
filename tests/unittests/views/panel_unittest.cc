@@ -10,7 +10,7 @@
 #include "include/views/cef_window.h"
 #include "tests/unittests/thread_helper.h"
 
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 #define PANEL_TEST(name) UI_THREAD_TEST(ViewsPanelTest, name)
 

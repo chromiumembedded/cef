@@ -10,7 +10,7 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/unittests/thread_helper.h"
 
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 namespace {
 

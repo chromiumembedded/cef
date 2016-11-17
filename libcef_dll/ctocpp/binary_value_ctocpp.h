@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_BINARY_VALUE_CTOCPP_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include "include/cef_values.h"
 #include "include/capi/cef_values_capi.h"
@@ -40,5 +40,4 @@ class CefBinaryValueCToCpp
   size_t GetData(void* buffer, size_t buffer_size, size_t data_offset) OVERRIDE;
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BINARY_VALUE_CTOCPP_H_

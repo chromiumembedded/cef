@@ -4,7 +4,7 @@
 
 #include <windows.h>
 
-#include "cefsimple/simple_app.h"
+#include "tests/cefsimple/simple_app.h"
 #include "include/cef_sandbox_win.h"
 
 

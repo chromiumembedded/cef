@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_BROWSER_PROCESS_HANDLER_CTOCPP_H_
 #pragma once
 
-#ifndef BUILDING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else  // BUILDING_CEF_SHARED
+#if !defined(BUILDING_CEF_SHARED)
+#error This file can be included DLL-side only
+#endif
 
 #include "include/cef_browser_process_handler.h"
 #include "include/capi/cef_browser_process_handler_capi.h"
@@ -40,5 +40,4 @@ class CefBrowserProcessHandlerCToCpp
   void OnScheduleMessagePumpWork(int64 delay_ms) override;
 };
 
-#endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BROWSER_PROCESS_HANDLER_CTOCPP_H_

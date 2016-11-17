@@ -2,9 +2,9 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefclient/renderer/client_app_renderer.h"
-#include "cefclient/renderer/client_renderer.h"
-#include "cefclient/renderer/performance_test.h"
+#include "tests/cefclient/renderer/client_renderer.h"
+#include "tests/cefclient/renderer/performance_test.h"
+#include "tests/shared/renderer/client_app_renderer.h"
 
 namespace client {
 

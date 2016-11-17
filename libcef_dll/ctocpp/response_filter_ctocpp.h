@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_RESPONSE_FILTER_CTOCPP_H_
 #pragma once
 
-#ifndef BUILDING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else  // BUILDING_CEF_SHARED
+#if !defined(BUILDING_CEF_SHARED)
+#error This file can be included DLL-side only
+#endif
 
 #include "include/cef_response_filter.h"
 #include "include/capi/cef_response_filter_capi.h"
@@ -37,5 +37,4 @@ class CefResponseFilterCToCpp
       size_t& data_out_written) override;
 };
 
-#endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_RESPONSE_FILTER_CTOCPP_H_

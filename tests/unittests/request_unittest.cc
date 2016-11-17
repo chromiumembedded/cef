@@ -7,8 +7,8 @@
 #include "include/base/cef_bind.h"
 #include "include/cef_request.h"
 #include "include/wrapper/cef_closure_task.h"
-#include "testing/gtest/include/gtest/gtest.h"
-#include "tests/cefclient/renderer/client_app_renderer.h"
+#include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
 

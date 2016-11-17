@@ -5,7 +5,7 @@
 #include "include/cef_scheme.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_scoped_temp_dir.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 #include "tests/unittests/file_util.h"
 #include "tests/unittests/test_handler.h"
 

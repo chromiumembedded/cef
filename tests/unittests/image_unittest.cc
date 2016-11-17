@@ -3,10 +3,9 @@
 // can be found in the LICENSE file.
 
 #include "include/cef_image.h"
+#include "tests/gtest/include/gtest/gtest.h"
 #include "tests/unittests/image_util.h"
 #include "tests/unittests/thread_helper.h"
-
-#include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
 

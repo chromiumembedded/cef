@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefclient/browser/window_test_runner_views.h"
+#include "tests/cefclient/browser/window_test_runner_views.h"
 
 #include "include/views/cef_browser_view.h"
 #include "include/views/cef_display.h"

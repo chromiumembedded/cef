@@ -11,9 +11,9 @@
 #include "include/base/cef_weak_ptr.h"
 #include "include/cef_v8.h"
 #include "include/wrapper/cef_closure_task.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/renderer/client_app_renderer.h"
 #include "tests/unittests/routing_test_handler.h"
-#include "tests/cefclient/renderer/client_app_renderer.h"
 
 using client::ClientAppRenderer;
 
@@ -2663,11 +2663,11 @@ class MultiQueryMultiLoadTestHandler :
     EXPECT_EQ(map, &manager_map_);
     if (manager_map_.HasAutoQueries()) {
       // Navigate all browsers somewhere else to terminate the auto queries.
-      BrowserMap map;
-      GetAllBrowsers(&map);
+      BrowserMap browser_map;
+      GetAllBrowsers(&browser_map);
 
-      BrowserMap::const_iterator it = map.begin();
-      for (; it != map.end(); ++it) {
+      BrowserMap::const_iterator it = browser_map.begin();
+      for (; it != browser_map.end(); ++it) {
         it->second->GetMainFrame()->LoadURL(cancel_url_);
       }
     }

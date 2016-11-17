@@ -21,11 +21,11 @@
 #include "include/cef_thread.h"
 #include "include/wrapper/cef_helpers.h"
 #include "include/wrapper/cef_closure_task.h"
-#include "tests/cefclient/browser/client_app_browser.h"
-#include "tests/cefclient/browser/main_message_loop_external_pump.h"
-#include "tests/cefclient/browser/main_message_loop_std.h"
-#include "tests/cefclient/common/client_app_other.h"
-#include "tests/cefclient/renderer/client_app_renderer.h"
+#include "tests/shared/browser/client_app_browser.h"
+#include "tests/shared/browser/main_message_loop_external_pump.h"
+#include "tests/shared/browser/main_message_loop_std.h"
+#include "tests/shared/common/client_app_other.h"
+#include "tests/shared/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_suite.h"
 
@@ -122,6 +122,7 @@ int main(int argc, char* argv[]) {
       client::ClientApp::GetProcessType(test_suite.command_line());
   if (process_type == client::ClientApp::BrowserProcess) {
     app = new client::ClientAppBrowser();
+#if !defined(OS_MACOSX)
   } else if (process_type == client::ClientApp::RendererProcess ||
              process_type == client::ClientApp::ZygoteProcess) {
     app = new client::ClientAppRenderer();
@@ -133,6 +134,12 @@ int main(int argc, char* argv[]) {
   int exit_code = CefExecuteProcess(main_args, app, windows_sandbox_info);
   if (exit_code >= 0)
     return exit_code;
+#else
+  } else {
+    // On OS X this executable is only used for the main process.
+    NOTREACHED();
+  }
+#endif
 
   CefSettings settings;
   test_suite.GetSettings(settings);

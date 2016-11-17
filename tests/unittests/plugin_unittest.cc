@@ -7,10 +7,10 @@
 #include "include/cef_resource_bundle.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
-#include "tests/cefclient/browser/client_app_browser.h"
-#include "tests/cefclient/browser/resource_util.h"
+#include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/browser/client_app_browser.h"
+#include "tests/shared/browser/resource_util.h"
 #include "tests/unittests/routing_test_handler.h"
-#include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
 
@@ -483,7 +483,7 @@ class PluginTestHandler : public RoutingTestHandler,
   }
 
   void OnContextMenuDismissed(CefRefPtr<CefBrowser> browser,
-                              CefRefPtr<CefFrame> frame) {
+                              CefRefPtr<CefFrame> frame) override {
     EXPECT_FALSE(got_context_menu_dismissed_);
     got_context_menu_dismissed_.yes();
 

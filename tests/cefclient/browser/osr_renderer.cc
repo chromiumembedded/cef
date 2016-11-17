@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license
 // that can be found in the LICENSE file.
 
-#include "cefclient/browser/osr_renderer.h"
+#include "tests/cefclient/browser/osr_renderer.h"
 
 #if defined(OS_WIN)
 #include <gl/gl.h>

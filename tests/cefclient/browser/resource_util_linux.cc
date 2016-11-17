@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cefclient/browser/resource_util.h"
+#include "tests/shared/browser/resource_util.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -26,10 +26,11 @@ bool GetResourceDir(std::string& dir) {
   if (!pos)
     return false;
 
-  // Add "files" to the path.
-  strcpy(pos+1, "files");  // NOLINT(runtime/printf)
+  // Add "cefclient_files" to the path.
+  strcpy(pos+1, "cefclient_files");  // NOLINT(runtime/printf)
   dir = std::string(buff);
   return true;
 }
 
 }  // namespace client
+

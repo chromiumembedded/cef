@@ -5,7 +5,7 @@
 #include "include/cef_stream.h"
 #include "include/cef_xml_reader.h"
 #include "include/wrapper/cef_xml_object.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 namespace {
 

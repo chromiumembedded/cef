@@ -8,11 +8,11 @@
 #include <msctf.h>
 
 #include "include/base/cef_build.h"
-#include "cefclient/browser/geometry_util.h"
-#include "cefclient/browser/main_message_loop.h"
-#include "cefclient/browser/resource.h"
-#include "cefclient/browser/util_win.h"
-#include "cefclient/browser/osr_ime_handler_win.h"
+#include "tests/cefclient/browser/resource.h"
+#include "tests/cefclient/browser/osr_ime_handler_win.h"
+#include "tests/shared/browser/geometry_util.h"
+#include "tests/shared/browser/main_message_loop.h"
+#include "tests/shared/browser/util_win.h"
 
 #define ColorUNDERLINE  0xFF000000    // Black SkColor value for underline,
                                       // same as Blink.

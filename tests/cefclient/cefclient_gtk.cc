@@ -18,14 +18,14 @@
 #include "include/cef_app.h"
 #include "include/cef_command_line.h"
 #include "include/wrapper/cef_helpers.h"
-#include "cefclient/browser/client_app_browser.h"
-#include "cefclient/browser/main_context_impl.h"
-#include "cefclient/browser/main_message_loop_external_pump.h"
-#include "cefclient/browser/main_message_loop_std.h"
-#include "cefclient/browser/test_runner.h"
-#include "cefclient/common/client_app_other.h"
-#include "cefclient/common/client_switches.h"
-#include "cefclient/renderer/client_app_renderer.h"
+#include "tests/cefclient/browser/main_context_impl.h"
+#include "tests/cefclient/browser/test_runner.h"
+#include "tests/shared/browser/client_app_browser.h"
+#include "tests/shared/browser/main_message_loop_external_pump.h"
+#include "tests/shared/browser/main_message_loop_std.h"
+#include "tests/shared/common/client_app_other.h"
+#include "tests/shared/common/client_switches.h"
+#include "tests/shared/renderer/client_app_renderer.h"
 
 namespace client {
 namespace {

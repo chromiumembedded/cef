@@ -5,7 +5,7 @@
 #include "include/base/cef_bind.h"
 #include "include/cef_task.h"
 #include "include/wrapper/cef_closure_task.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 #include "tests/unittests/test_handler.h"
 
 namespace {

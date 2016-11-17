@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefclient/browser/main_context.h"
+#include "tests/cefclient/browser/main_context.h"
 
 #include "include/base/cef_logging.h"
 

@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefclient/browser/browser_window_osr_mac.h"
+#include "tests/cefclient/browser/browser_window_osr_mac.h"
 
 #include <Cocoa/Cocoa.h>
 #import <objc/runtime.h>
@@ -11,10 +11,10 @@
 #include "include/base/cef_logging.h"
 #include "include/cef_parser.h"
 #include "include/wrapper/cef_closure_task.h"
-#include "cefclient/browser/bytes_write_handler.h"
-#include "cefclient/browser/geometry_util.h"
-#include "cefclient/browser/main_message_loop.h"
-#include "cefclient/browser/text_input_client_osr_mac.h"
+#include "tests/cefclient/browser/bytes_write_handler.h"
+#include "tests/cefclient/browser/text_input_client_osr_mac.h"
+#include "tests/shared/browser/geometry_util.h"
+#include "tests/shared/browser/main_message_loop.h"
 
 namespace {
 

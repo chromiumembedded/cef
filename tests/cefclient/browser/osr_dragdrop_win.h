@@ -18,7 +18,7 @@
 #include <objidl.h>
 #include <stdio.h>
 
-#include "cefclient/browser/osr_dragdrop_events.h"
+#include "tests/cefclient/browser/osr_dragdrop_events.h"
 
 namespace client {
 

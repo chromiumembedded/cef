@@ -1,14 +1,6 @@
 CONTENTS
 --------
 
-cefclient   Contains the cefclient sample application configured to build
-            using the files in this distribution. This application demonstrates
-            a wide range of CEF functionalities.
-
-cefsimple   Contains the cefsimple sample application configured to build
-            using the files in this distribution. This application demonstrates
-            the minimal functionality required to create a browser window.
-
 cmake       Contains CMake configuration files shared by all targets.
 
 Debug       Contains the "Chromium Embedded Framework.framework" and other
@@ -23,6 +15,23 @@ libcef_dll  Contains the source code for the libcef_dll_wrapper static library
 Release     Contains the "Chromium Embedded Framework.framework" and other
             components required to run the release version of CEF-based
             applications.
+
+tests/      Directory of tests that demonstrate CEF usage.
+
+  cefclient Contains the cefclient sample application configured to build
+            using the files in this distribution. This application demonstrates
+            a wide range of CEF functionalities.
+
+  cefsimple Contains the cefsimple sample application configured to build
+            using the files in this distribution. This application demonstrates
+            the minimal functionality required to create a browser window.
+
+  gtest     Contains the Google C++ Testing Framework used by the unittests
+            target.
+
+  shared    Contains source code shared by the cefclient and unittests targets.
+
+  unittests Contains unit tests that exercise the CEF APIs.
 
 
 USAGE

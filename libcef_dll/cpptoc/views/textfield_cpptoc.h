@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CPPTOC_VIEWS_TEXTFIELD_CPPTOC_H_
 #pragma once
 
-#ifndef BUILDING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else  // BUILDING_CEF_SHARED
+#if !defined(BUILDING_CEF_SHARED)
+#error This file can be included DLL-side only
+#endif
 
 #include "include/views/cef_textfield.h"
 #include "include/capi/views/cef_textfield_capi.h"
@@ -30,5 +30,4 @@ class CefTextfieldCppToC
   CefTextfieldCppToC();
 };
 
-#endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_VIEWS_TEXTFIELD_CPPTOC_H_

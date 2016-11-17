@@ -96,10 +96,12 @@ macro(SET_CEF_TARGET_OUT_DIR)
 endmacro()
 
 # Copy a list of files from one directory to another. Relative files paths are maintained.
+# The path component of the source |file_list| will be removed.
 macro(COPY_FILES target file_list source_dir target_dir)
   foreach(FILENAME ${file_list})
     set(source_file ${source_dir}/${FILENAME})
-    set(target_file ${target_dir}/${FILENAME})
+    get_filename_component(target_name ${FILENAME} NAME)
+    set(target_file ${target_dir}/${target_name})
     if(IS_DIRECTORY ${source_file})
       add_custom_command(
         TARGET ${target}
@@ -116,19 +118,6 @@ macro(COPY_FILES target file_list source_dir target_dir)
         )
     endif()
   endforeach()
-endmacro()
-
-# Rename a directory replacing the target if it already exists.
-macro(RENAME_DIRECTORY target source_dir target_dir)
-  add_custom_command(
-    TARGET ${target}
-    POST_BUILD
-    # Remove the target directory if it already exists.
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "${target_dir}"
-    # Rename the source directory to target directory.
-    COMMAND ${CMAKE_COMMAND} -E rename "${source_dir}" "${target_dir}"
-    VERBATIM
-    )
 endmacro()
 
 

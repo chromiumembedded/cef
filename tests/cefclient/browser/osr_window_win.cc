@@ -2,16 +2,16 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefclient/browser/osr_window_win.h"
+#include "tests/cefclient/browser/osr_window_win.h"
 
 #include <windowsx.h>
 
 #include "include/base/cef_build.h"
-#include "cefclient/browser/geometry_util.h"
-#include "cefclient/browser/main_message_loop.h"
-#include "cefclient/browser/resource.h"
-#include "cefclient/browser/util_win.h"
-#include "cefclient/browser/osr_ime_handler_win.h"
+#include "tests/shared/browser/geometry_util.h"
+#include "tests/shared/browser/main_message_loop.h"
+#include "tests/cefclient/browser/resource.h"
+#include "tests/cefclient/browser/osr_ime_handler_win.h"
+#include "tests/shared/browser/util_win.h"
 
 namespace client {
 

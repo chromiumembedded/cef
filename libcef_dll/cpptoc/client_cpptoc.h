@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CPPTOC_CLIENT_CPPTOC_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include "include/cef_client.h"
 #include "include/capi/cef_client_capi.h"
@@ -30,5 +30,4 @@ class CefClientCppToC
   CefClientCppToC();
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_CLIENT_CPPTOC_H_

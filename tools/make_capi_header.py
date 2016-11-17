@@ -87,6 +87,17 @@ def make_capi_header(header, filename):
 #pragma once
 
 """
+
+    # Protect against incorrect use of test headers.
+    if filename.startswith('test/'):
+      result += \
+"""#if !defined(BUILDING_CEF_SHARED) && !defined(WRAPPING_CEF_SHARED) && \\
+    !defined(UNIT_TEST)
+#error This file can be included for unit tests only
+#endif
+
+"""
+
     classes = header.get_classes(filename)
 
     # identify all includes and forward declarations

@@ -11,7 +11,7 @@
 
 #include "include/base/cef_lock.h"
 #include "include/base/cef_platform_thread.h"
-#include "cefclient/browser/main_message_loop.h"
+#include "tests/shared/browser/main_message_loop.h"
 
 namespace client {
 

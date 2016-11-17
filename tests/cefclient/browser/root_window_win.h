@@ -12,8 +12,8 @@
 #include <string>
 
 #include "include/base/cef_scoped_ptr.h"
-#include "cefclient/browser/browser_window.h"
-#include "cefclient/browser/root_window.h"
+#include "tests/cefclient/browser/browser_window.h"
+#include "tests/cefclient/browser/root_window.h"
 
 namespace client {
 

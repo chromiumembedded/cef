@@ -60,15 +60,15 @@ def make_ctocpp_header(header, clsname):
 
     if clientside:
         result += """
-#ifndef BUILDING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else  // BUILDING_CEF_SHARED
+#if !defined(BUILDING_CEF_SHARED)
+#error This file can be included DLL-side only
+#endif
 """
     else:
         result += """
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 """
 
     # build the function body
@@ -109,11 +109,6 @@ def make_ctocpp_header(header, clsname):
 
     result +=   func_body
     result +=   '};\n\n'
-
-    if clientside:
-        result += '#endif  // BUILDING_CEF_SHARED\n'
-    else:
-        result += '#endif  // USING_CEF_SHARED\n'
 
     result += '#endif  // CEF_LIBCEF_DLL_CTOCPP_'+defname+'_CTOCPP_H_'
 

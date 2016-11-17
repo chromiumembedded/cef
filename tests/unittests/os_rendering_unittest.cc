@@ -7,8 +7,9 @@
 #include "include/cef_v8.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
-#include "tests/cefclient/browser/geometry_util.h"
-#include "tests/cefclient/browser/resource_util.h"
+#include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/browser/geometry_util.h"
+#include "tests/shared/browser/resource_util.h"
 #include "tests/unittests/routing_test_handler.h"
 
 #if defined(OS_MACOSX)
@@ -869,14 +870,15 @@ class OSRTestHandler : public RoutingTestHandler,
             std::vector<CefCompositionUnderline> underlines;
 
             // Use a thin black underline by default.
-            cef_range_t range = {0, markedText.length()};
+            CefRange range(0, static_cast<int>(markedText.length()));
             cef_composition_underline_t line = {
               range, 0xFF000000, 0, false
             };
             underlines.push_back(line);
 
-            CefRange replacement_range(0, markedText.length());
-            CefRange selection_range(0,markedText.length());
+            CefRange replacement_range(0,
+                static_cast<int>(markedText.length()));
+            CefRange selection_range(0, static_cast<int>(markedText.length()));
 
             // Composition should be updated
             browser->GetHost()->ImeSetComposition(markedText, underlines,
@@ -914,14 +916,15 @@ class OSRTestHandler : public RoutingTestHandler,
             std::vector<CefCompositionUnderline> underlines;
 
             // Use a thin black underline by default.
-            cef_range_t range = {0, markedText.length()};
+            CefRange range(0, markedText.length());
             cef_composition_underline_t line = {
               range, 0xFF000000, 0, false
             };
             underlines.push_back(line);
 
-            CefRange replacement_range(0, markedText.length());
-            CefRange selection_range(0,markedText.length());
+            CefRange replacement_range(0,
+                static_cast<int>(markedText.length()));
+            CefRange selection_range(0, static_cast<int>(markedText.length()));
 
             // This should update composition range and
             // trigger the compositionRangeChanged callback

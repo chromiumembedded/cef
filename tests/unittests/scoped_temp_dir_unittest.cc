@@ -6,7 +6,7 @@
 
 #include "include/cef_file_util.h"
 #include "include/wrapper/cef_scoped_temp_dir.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 TEST(ScopedTempDir, FullPath) {
   CefString test_path;

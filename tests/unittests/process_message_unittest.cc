@@ -4,8 +4,8 @@
 
 #include "include/cef_process_message.h"
 #include "include/cef_task.h"
-#include "testing/gtest/include/gtest/gtest.h"
-#include "tests/cefclient/renderer/client_app_renderer.h"
+#include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
 

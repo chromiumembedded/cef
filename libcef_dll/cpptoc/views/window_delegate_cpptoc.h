@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CPPTOC_VIEWS_WINDOW_DELEGATE_CPPTOC_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include "include/views/cef_window_delegate.h"
 #include "include/capi/views/cef_window_delegate_capi.h"
@@ -33,5 +33,4 @@ class CefWindowDelegateCppToC
   CefWindowDelegateCppToC();
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_VIEWS_WINDOW_DELEGATE_CPPTOC_H_

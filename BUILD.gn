@@ -198,6 +198,7 @@ group("cef") {
 # Configuration that will be applied to all targets that depend on
 # libcef_static.
 config("libcef_static_config") {
+  # CEF targets use includes relative to the CEF root directory.
   include_dirs = [ "." ]
   defines = [
     "BUILDING_CEF_SHARED",
@@ -863,14 +864,12 @@ static_library("libcef_static") {
 # libcef_dll_wrapper.
 config("libcef_dll_wrapper_config") {
   include_dirs = [
+    # CEF sources use include paths relative to the CEF root directory.
     ".",
-    # Source files included in the binary distrib use include paths relative to
-    # the tests directory.
-    "tests",
-    # For generated include headers.
+    # CEF generates some header files that also need to be discoverable.
+    # They will be copied to the include/ directory in the binary distribution.
     "$root_out_dir/includes",
   ]
-  defines = [ "USING_CEF_SHARED" ]
 }
 
 # libcef_dll_wrapper target.
@@ -884,6 +883,8 @@ static_library("libcef_dll_wrapper") {
             gypi_paths2.libcef_dll_wrapper_sources_common +
             gypi_paths.autogen_client_side
 
+  defines = [ "WRAPPING_CEF_SHARED" ]
+
   configs += [ ":libcef_dll_wrapper_config" ]
   public_configs = [ ":libcef_dll_wrapper_config" ]
 }
@@ -896,6 +897,7 @@ static_library("libcef_dll_wrapper") {
 if (is_win) {
   static_library("cef_sandbox") {
     sources = [ "libcef_dll/sandbox/sandbox_win.cc" ]
+    # CEF sources use include paths relative to the CEF root directory.
     include_dirs = [ "." ]
     deps = [ "//sandbox" ]
   }
@@ -1301,112 +1303,6 @@ if (is_mac) {
 # Executable/app targets.
 #
 
-# cef_unittests shared sources.
-cef_unittests_sources = [
-  "tests/cefclient/browser/client_app_browser.cc",
-  "tests/cefclient/browser/client_app_browser.h",
-  "tests/cefclient/browser/geometry_util.cc",
-  "tests/cefclient/browser/geometry_util.h",
-  "tests/cefclient/browser/main_message_loop.cc",
-  "tests/cefclient/browser/main_message_loop.h",
-  "tests/cefclient/browser/main_message_loop_external_pump.cc",
-  "tests/cefclient/browser/main_message_loop_external_pump.h",
-  "tests/cefclient/browser/main_message_loop_std.cc",
-  "tests/cefclient/browser/main_message_loop_std.h",
-  "tests/cefclient/browser/resource_util.h",
-  "tests/cefclient/browser/resource_util.cc",
-  "tests/cefclient/browser/resource_util.h",
-  "tests/cefclient/common/client_app.cc",
-  "tests/cefclient/common/client_app.h",
-  "tests/cefclient/common/client_app_other.cc",
-  "tests/cefclient/common/client_app_other.h",
-  "tests/cefclient/common/client_switches.cc",
-  "tests/cefclient/common/client_switches.h",
-  "tests/cefclient/renderer/client_app_renderer.cc",
-  "tests/cefclient/renderer/client_app_renderer.h",
-  "tests/cefclient/resources/osr_test.html",
-  "tests/cefclient/resources/pdf.html",
-  "tests/cefclient/resources/pdf.pdf",
-  "tests/cefclient/resources/window_icon.1x.png",
-  "tests/cefclient/resources/window_icon.1x.png",
-  "tests/unittests/browser_info_map_unittest.cc",
-  "tests/unittests/command_line_unittest.cc",
-  "tests/unittests/cookie_unittest.cc",
-  "tests/unittests/dialog_unittest.cc",
-  "tests/unittests/display_unittest.cc",
-  "tests/unittests/dom_unittest.cc",
-  "tests/unittests/download_unittest.cc",
-  "tests/unittests/draggable_regions_unittest.cc",
-  "tests/unittests/file_util.cc",
-  "tests/unittests/file_util.h",
-  "tests/unittests/file_util_unittest.cc",
-  "tests/unittests/frame_unittest.cc",
-  "tests/unittests/geolocation_unittest.cc",
-  "tests/unittests/image_unittest.cc",
-  "tests/unittests/image_util.cc",
-  "tests/unittests/image_util.h",
-  "tests/unittests/jsdialog_unittest.cc",
-  "tests/unittests/life_span_unittest.cc",
-  "tests/unittests/message_router_unittest.cc",
-  "tests/unittests/navigation_unittest.cc",
-  "tests/unittests/os_rendering_unittest.cc",
-  "tests/unittests/parser_unittest.cc",
-  "tests/unittests/plugin_unittest.cc",
-  "tests/unittests/preference_unittest.cc",
-  "tests/unittests/print_unittest.cc",
-  "tests/unittests/process_message_unittest.cc",
-  "tests/unittests/request_context_unittest.cc",
-  "tests/unittests/request_handler_unittest.cc",
-  "tests/unittests/request_unittest.cc",
-  "tests/unittests/resource_manager_unittest.cc",
-  "tests/unittests/routing_test_handler.cc",
-  "tests/unittests/routing_test_handler.h",
-  "tests/unittests/run_all_unittests.cc",
-  "tests/unittests/scheme_handler_unittest.cc",
-  "tests/unittests/scoped_temp_dir_unittest.cc",
-  "tests/unittests/stream_unittest.cc",
-  "tests/unittests/stream_resource_handler_unittest.cc",
-  "tests/unittests/string_unittest.cc",
-  "tests/unittests/client_app_delegates.cc",
-  "tests/unittests/task_unittest.cc",
-  "tests/unittests/test_handler.cc",
-  "tests/unittests/test_handler.h",
-  "tests/unittests/test_suite.cc",
-  "tests/unittests/test_suite.h",
-  "tests/unittests/test_util.cc",
-  "tests/unittests/test_util.h",
-  "tests/unittests/thread_helper.cc",
-  "tests/unittests/thread_helper.h",
-  "tests/unittests/thread_unittest.cc",
-  "tests/unittests/tracing_unittest.cc",
-  "tests/unittests/translator_unittest.cc",
-  "tests/unittests/urlrequest_unittest.cc",
-  "tests/unittests/v8_unittest.cc",
-  "tests/unittests/values_unittest.cc",
-  "tests/unittests/version_unittest.cc",
-  "tests/unittests/waitable_event_unittest.cc",
-  "tests/unittests/webui_unittest.cc",
-  "tests/unittests/xml_reader_unittest.cc",
-  "tests/unittests/zip_reader_unittest.cc",
-]
-
-if (use_aura) {
-  cef_unittests_sources += [
-    "tests/unittests/views/button_unittest.cc",
-    "tests/unittests/views/panel_unittest.cc",
-    "tests/unittests/views/scroll_view_unittest.cc",
-    "tests/unittests/views/test_window_delegate.cc",
-    "tests/unittests/views/test_window_delegate.h",
-    "tests/unittests/views/textfield_unittest.cc",
-    "tests/unittests/views/window_unittest.cc",
-  ]
-}
-
-# cef_unittests shared deps.
-cef_unittests_deps = [
-  "//testing/gtest",
-]
-
 if (is_mac) {
   # Helper for generating the CEF app bundle.
   template("cef_app") {
@@ -1516,7 +1412,8 @@ if (is_mac) {
   #
 
   bundle_data("cefclient_resources_bundle_data") {
-    sources = gypi_paths2.cefclient_sources_resources + [
+    sources = gypi_paths2.shared_sources_resources +
+              gypi_paths2.cefclient_sources_resources + [
       "tests/cefclient/resources/mac/cefclient.icns",
     ]
 
@@ -1548,9 +1445,11 @@ if (is_mac) {
     helper_sources = gypi_paths2.includes_mac +
                      gypi_paths2.includes_common +
                      gypi_paths2.includes_wrapper +
+                     gypi_paths2.shared_sources_common +
+                     gypi_paths2.shared_sources_renderer +
+                     gypi_paths2.shared_sources_mac_helper +
                      gypi_paths2.cefclient_sources_common +
-                     gypi_paths2.cefclient_sources_renderer +
-                     gypi_paths2.cefclient_sources_mac_helper
+                     gypi_paths2.cefclient_sources_renderer
     helper_deps = [
       ":libcef_dll_wrapper",
     ]
@@ -1559,6 +1458,9 @@ if (is_mac) {
     sources = gypi_paths2.includes_mac +
               gypi_paths2.includes_common +
               gypi_paths2.includes_wrapper +
+              gypi_paths2.shared_sources_browser +
+              gypi_paths2.shared_sources_common +
+              gypi_paths2.shared_sources_mac +
               gypi_paths2.cefclient_sources_browser +
               gypi_paths2.cefclient_sources_common +
               gypi_paths2.cefclient_sources_mac
@@ -1636,71 +1538,62 @@ if (is_mac) {
   # cef_unittests app targets.
   #
 
+  bundle_data("cef_unittests_resources_bundle_data") {
+    sources = gypi_paths2.shared_sources_resources + [
+      "tests/unittests/resources/mac/unittests.icns",
+    ]
+
+    outputs = [
+      "{{bundle_resources_dir}}/{{source_file_part}}",
+    ]
+  }
+
+  bundle_data("cef_unittests_resources_bundle_data_english") {
+    sources = [
+      "tests/unittests/resources/mac/English.lproj/InfoPlist.strings",
+    ]
+
+    outputs = [
+      "{{bundle_resources_dir}}/English.lproj/{{source_file_part}}",
+    ]
+  }
+
+  mac_xib_bundle_data("cef_unittests_xibs") {
+    sources = [
+      "tests/unittests/resources/mac/English.lproj/MainMenu.xib",
+    ]
+
+    output_path = "{{bundle_resources_dir}}/English.lproj"
+  }
+
   cef_app("cef_unittests") {
     testonly = true
 
-    helper_info_plist = "tests/cefclient/resources/mac/helper-Info.plist"
-    helper_sources = [
-      "tests/cefclient/browser/resource_util.cc",
-      "tests/cefclient/browser/resource_util.h",
-      "tests/cefclient/browser/resource_util_mac.mm",
-      "tests/cefclient/browser/resource_util_posix.cc",
-      "tests/cefclient/common/client_app.cc",
-      "tests/cefclient/common/client_app.h",
-      "tests/cefclient/common/client_app_other.cc",
-      "tests/cefclient/common/client_app_other.h",
-      "tests/cefclient/common/client_switches.cc",
-      "tests/cefclient/common/client_switches.h",
-      "tests/cefclient/process_helper_mac.cc",
-      "tests/cefclient/renderer/client_app_renderer.cc",
-      "tests/cefclient/renderer/client_app_renderer.h",
-      "tests/unittests/client_app_delegates.cc",
-      "tests/unittests/cookie_unittest.cc",
-      "tests/unittests/dom_unittest.cc",
-      "tests/unittests/file_util.cc",
-      "tests/unittests/file_util.h",
-      "tests/unittests/frame_unittest.cc",
-      "tests/unittests/message_router_unittest.cc",
-      "tests/unittests/navigation_unittest.cc",
-      "tests/unittests/plugin_unittest.cc",
-      "tests/unittests/preference_unittest.cc",
-      "tests/unittests/process_message_unittest.cc",
-      "tests/unittests/request_handler_unittest.cc",
-      "tests/unittests/request_unittest.cc",
-      "tests/unittests/routing_test_handler.cc",
-      "tests/unittests/routing_test_handler.h",
-      "tests/unittests/scheme_handler_unittest.cc",
-      "tests/unittests/urlrequest_unittest.cc",
-      "tests/unittests/test_handler.cc",
-      "tests/unittests/test_handler.h",
-      "tests/unittests/test_suite.cc",
-      "tests/unittests/test_suite.h",
-      "tests/unittests/test_util.cc",
-      "tests/unittests/test_util.h",
-      "tests/unittests/thread_helper.cc",
-      "tests/unittests/thread_helper.h",
-      "tests/unittests/thread_unittest.cc",
-      "tests/unittests/tracing_unittest.cc",
-      "tests/unittests/v8_unittest.cc",
-    ]
-    helper_deps = cef_unittests_deps + [
+    helper_info_plist = "tests/unittests/resources/mac/helper-Info.plist"
+    helper_sources = gypi_paths2.shared_sources_common +
+                     gypi_paths2.shared_sources_renderer +
+                     gypi_paths2.shared_sources_mac_helper +
+                     gypi_paths2.unittests_sources_mac_helper
+    helper_deps = [
       ":libcef_dll_wrapper",
+      "//testing/gtest",
     ]
 
-    info_plist = "tests/cefclient/resources/mac/Info.plist"
-    sources = cef_unittests_sources + [
-      "tests/cefclient/browser/main_message_loop_external_pump_mac.mm",
-      "tests/cefclient/browser/resource_util_mac.mm",
-      "tests/cefclient/browser/resource_util_posix.cc",
-      "tests/unittests/os_rendering_unittest_mac.h",
-      "tests/unittests/os_rendering_unittest_mac.mm",
-      "tests/unittests/run_all_unittests_mac.mm",
-    ]
-    deps = cef_unittests_deps + [
-      ":cefclient_resources_bundle_data",
-      ":cefclient_resources_bundle_data_english",
-      ":cefclient_xibs",
+    info_plist = "tests/unittests/resources/mac/Info.plist"
+    sources = gypi_paths2.includes_mac +
+              gypi_paths2.includes_common +
+              gypi_paths2.includes_wrapper +
+              gypi_paths2.shared_sources_browser +
+              gypi_paths2.shared_sources_common +
+              gypi_paths2.shared_sources_mac +
+              gypi_paths2.unittests_sources_common +
+              gypi_paths2.unittests_sources_mac
+    deps = [
+      ":cef_unittests_resources_bundle_data",
+      ":cef_unittests_resources_bundle_data_english",
+      ":cef_unittests_xibs",
       ":libcef_dll_wrapper",
+      "//testing/gtest",
     ]
     libs = [
       "AppKit.framework",
@@ -1732,14 +1625,19 @@ if (is_mac) {
 
   if (is_linux) {
     copy("copy_cefclient_files") {
-      sources = gypi_paths2.cefclient_sources_resources
-      outputs = [ "${root_out_dir}/files/{{source_file_part}}" ]
+      sources = gypi_paths2.shared_sources_resources +
+                gypi_paths2.cefclient_sources_resources
+      outputs = [ "${root_out_dir}/cefclient_files/{{source_file_part}}" ]
     }
   }
 
   executable("cefclient") {
     sources = gypi_paths2.includes_common +
               gypi_paths2.includes_wrapper +
+              gypi_paths2.shared_sources_browser +
+              gypi_paths2.shared_sources_common +
+              gypi_paths2.shared_sources_renderer +
+              gypi_paths2.shared_sources_resources +
               gypi_paths2.cefclient_sources_browser +
               gypi_paths2.cefclient_sources_common +
               gypi_paths2.cefclient_sources_renderer +
@@ -1753,6 +1651,7 @@ if (is_mac) {
 
     if (is_win) {
       sources += gypi_paths2.includes_win +
+                 gypi_paths2.shared_sources_win +
                  gypi_paths2.cefclient_sources_win
 
       # Set /SUBSYSTEM:WINDOWS.
@@ -1784,6 +1683,7 @@ if (is_mac) {
 
     if (is_linux) {
       sources += gypi_paths2.includes_linux +
+                 gypi_paths2.shared_sources_linux +
                  gypi_paths2.cefclient_sources_linux
 
       deps += [
@@ -1867,26 +1767,36 @@ if (is_mac) {
   #
   # cef_unittests targets.
   #
+  
+  if (is_linux) {
+    copy("copy_cef_unittests_files") {
+      sources = gypi_paths2.shared_sources_resources
+      outputs = [ "${root_out_dir}/unittests_files/{{source_file_part}}" ]
+    }
+  }
 
   executable("cef_unittests") {
     testonly = true
 
-    sources = cef_unittests_sources
+    sources = gypi_paths2.includes_common +
+              gypi_paths2.includes_wrapper +
+              gypi_paths2.shared_sources_browser +
+              gypi_paths2.shared_sources_common +
+              gypi_paths2.shared_sources_renderer +
+              gypi_paths2.shared_sources_resources +
+              gypi_paths2.unittests_sources_common +
+              gypi_paths2.unittests_sources_views
 
-    deps = cef_unittests_deps + [
+    deps = [
       ":libcef",
       ":libcef_dll_wrapper",
       "//build/config/sanitizers:deps",
+      "//testing/gtest",
     ]
 
     if (is_win) {
-      sources += [
-        "tests/cefclient/browser/main_message_loop_external_pump_win.cc",
-        "tests/cefclient/browser/resource_util_win.cc",
-        "tests/cefclient/browser/util_win.cc",
-        "tests/cefclient/browser/util_win.h",
-        "tests/cefclient/resources/win/cefclient.rc",
-      ]
+      sources += gypi_paths2.shared_sources_win +
+                 gypi_paths2.unittests_sources_win
 
       defines = [
         "CEF_USE_SANDBOX",
@@ -1899,18 +1809,15 @@ if (is_mac) {
     }
 
     if (is_linux) {
-      sources += [
-        "tests/cefclient/browser/main_message_loop_external_pump_linux.cc",
-        "tests/cefclient/browser/resource_util_linux.cc",
-        "tests/cefclient/browser/resource_util_posix.cc",
-      ]
+      sources += gypi_paths2.shared_sources_linux +
+                 gypi_paths2.unittests_sources_linux
 
       libs = [
         "X11",
       ]
 
       deps += [
-        ":copy_cefclient_files",
+        ":copy_cef_unittests_files",
       ]
     }
 

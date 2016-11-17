@@ -10,7 +10,7 @@
 #include "include/wrapper/cef_resource_manager.h"
 #include "include/wrapper/cef_scoped_temp_dir.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 #include "tests/unittests/file_util.h"
 #include "tests/unittests/routing_test_handler.h"
 
@@ -975,7 +975,7 @@ TEST(ResourceManagerTest, ManyRequests) {
 
   // Requests should complete in order due to the delay.
   for (size_t i = 0; i < state.messages_.size(); ++i) {
-    std::stringstream ss;
+    ss.str("");
     ss << kBaseUrl << (i * 10);
     EXPECT_EQ(ss.str(), state.messages_[i]);
   }

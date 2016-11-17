@@ -4,8 +4,8 @@
 
 #include "tests/unittests/image_util.h"
 
-#include "tests/cefclient/browser/resource_util.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/browser/resource_util.h"
 
 namespace image_util {
 

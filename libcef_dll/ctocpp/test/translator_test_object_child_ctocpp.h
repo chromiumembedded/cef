@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_OBJECT_CHILD_CTOCPP_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include "include/test/cef_translator_test.h"
 #include "include/capi/test/cef_translator_test_capi.h"
@@ -39,5 +39,4 @@ class CefTranslatorTestObjectChildCToCpp
   void SetValue(int value) OVERRIDE;
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_OBJECT_CHILD_CTOCPP_H_

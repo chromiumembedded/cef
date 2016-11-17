@@ -4,9 +4,8 @@
 
 #include "tests/unittests/test_suite.h"
 
-#include "tests/cefclient/common/client_switches.h"
-
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/common/client_switches.h"
 
 namespace {
 

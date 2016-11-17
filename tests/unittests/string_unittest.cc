@@ -10,7 +10,7 @@
 #include "include/internal/cef_string_list.h"
 #include "include/internal/cef_string_map.h"
 #include "include/internal/cef_string_multimap.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 // Test UTF8 strings.
 TEST(StringTest, UTF8) {

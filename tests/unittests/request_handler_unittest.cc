@@ -8,12 +8,13 @@
 #include <string>
 
 #include "include/base/cef_bind.h"
+#include "include/base/cef_scoped_ptr.h"
 #include "include/cef_cookie.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
-#include "testing/gtest/include/gtest/gtest.h"
-#include "tests/cefclient/browser/client_app_browser.h"
-#include "tests/cefclient/renderer/client_app_renderer.h"
+#include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/browser/client_app_browser.h"
+#include "tests/shared/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
 
@@ -984,7 +985,7 @@ class ResourceResponseTest : public TestHandler {
   int browser_id_;
   uint64 main_request_id_;
   uint64 sub_request_id_;
-  std::unique_ptr<ResourceTest> resource_test_;
+  scoped_ptr<ResourceTest> resource_test_;
 
   IMPLEMENT_REFCOUNTING(ResourceResponseTest);
 };
@@ -1360,7 +1361,7 @@ const char kReplaceString[] = "This is the replaced string!";
 
 // Replace all instances of |kFindString| with |kReplaceString|.
 // This implementation is similar to the example in
-// tests/cefclient/response_filter_test.cc.
+// tests/shared/response_filter_test.cc.
 class ResponseFilterNeedMore : public ResponseFilterTestBase {
  public:
   ResponseFilterNeedMore()

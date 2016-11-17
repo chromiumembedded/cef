@@ -10,9 +10,9 @@
 #include "include/base/cef_ref_counted.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
-#include "cefclient/browser/client_handler_osr.h"
-#include "cefclient/browser/osr_dragdrop_win.h"
-#include "cefclient/browser/osr_renderer.h"
+#include "tests/cefclient/browser/client_handler_osr.h"
+#include "tests/cefclient/browser/osr_dragdrop_win.h"
+#include "tests/cefclient/browser/osr_renderer.h"
 
 namespace client {
 

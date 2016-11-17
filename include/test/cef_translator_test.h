@@ -35,15 +35,18 @@
 //
 // THIS FILE IS FOR TESTING PURPOSES ONLY.
 //
-// The APIs defined in this file are for testing purposes only. They will not be
-// exposed via the binary distribution. All classes in this file must include
-// the 'no_debugct_check' attribute to avoid problems when building the binary
-// distribution.
+// The APIs defined in this file are for testing purposes only. They should only
+// be included from unit test targets.
 //
 
 #ifndef CEF_INCLUDE_TEST_CEF_TEST_H_
 #define CEF_INCLUDE_TEST_CEF_TEST_H_
 #pragma once
+
+#if !defined(BUILDING_CEF_SHARED) && !defined(WRAPPING_CEF_SHARED) && \
+    !defined(UNIT_TEST)
+#error This file can be included for unit tests only
+#endif
 
 #include <map>
 #include <vector>

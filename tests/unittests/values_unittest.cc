@@ -4,7 +4,7 @@
 
 #include "include/cef_task.h"
 #include "include/cef_values.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
 
@@ -802,7 +802,7 @@ TEST(ValuesTest, ValueSimple) {
 
   EXPECT_TRUE(value->SetBool(true));
   EXPECT_EQ(VTYPE_BOOL, value->GetType());
-  EXPECT_EQ(true, value->GetBool());
+  EXPECT_TRUE(value->GetBool());
   EXPECT_TRUE(value->IsValid());
   EXPECT_FALSE(value->IsReadOnly());
   EXPECT_FALSE(value->IsOwned());
@@ -810,7 +810,7 @@ TEST(ValuesTest, ValueSimple) {
 
   EXPECT_TRUE(value->SetBool(false));
   EXPECT_EQ(VTYPE_BOOL, value->GetType());
-  EXPECT_EQ(false, value->GetBool());
+  EXPECT_FALSE(value->GetBool());
   EXPECT_TRUE(value->IsValid());
   EXPECT_FALSE(value->IsReadOnly());
   EXPECT_FALSE(value->IsOwned());

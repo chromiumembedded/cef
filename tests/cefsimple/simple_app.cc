@@ -2,11 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefsimple/simple_app.h"
+#include "tests/cefsimple/simple_app.h"
 
 #include <string>
 
-#include "cefsimple/simple_handler.h"
+#include "tests/cefsimple/simple_handler.h"
 #include "include/cef_browser.h"
 #include "include/cef_command_line.h"
 #include "include/views/cef_browser_view.h"

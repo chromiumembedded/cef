@@ -6,7 +6,7 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_BINDING_TEST_H_
 #pragma once
 
-#include "cefclient/browser/test_runner.h"
+#include "tests/cefclient/browser/test_runner.h"
 
 namespace client {
 namespace binding_test {
