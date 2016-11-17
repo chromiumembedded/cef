@@ -8,8 +8,8 @@
 
 #include "include/base/cef_scoped_ptr.h"
 #include "include/cef_browser.h"
-#include "cefclient/browser/client_handler.h"
-#include "cefclient/browser/client_types.h"
+#include "tests/cefclient/browser/client_handler.h"
+#include "tests/cefclient/browser/client_types.h"
 
 namespace client {
 

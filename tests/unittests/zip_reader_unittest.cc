@@ -5,7 +5,7 @@
 #include "include/cef_stream.h"
 #include "include/cef_zip_reader.h"
 #include "include/wrapper/cef_zip_archive.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 namespace {
 

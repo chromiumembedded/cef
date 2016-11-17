@@ -5,8 +5,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include "cefsimple/simple_app.h"
-#include "cefsimple/simple_handler.h"
+#include "tests/cefsimple/simple_app.h"
+#include "tests/cefsimple/simple_handler.h"
 #include "include/cef_application_mac.h"
 #include "include/wrapper/cef_helpers.h"
 

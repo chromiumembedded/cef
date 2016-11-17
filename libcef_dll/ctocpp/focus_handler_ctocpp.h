@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_FOCUS_HANDLER_CTOCPP_H_
 #pragma once
 
-#ifndef BUILDING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else  // BUILDING_CEF_SHARED
+#if !defined(BUILDING_CEF_SHARED)
+#error This file can be included DLL-side only
+#endif
 
 #include "include/cef_focus_handler.h"
 #include "include/capi/cef_focus_handler_capi.h"
@@ -36,5 +36,4 @@ class CefFocusHandlerCToCpp
   void OnGotFocus(CefRefPtr<CefBrowser> browser) override;
 };
 
-#endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_FOCUS_HANDLER_CTOCPP_H_

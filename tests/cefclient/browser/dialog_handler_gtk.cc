@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefclient/browser/dialog_handler_gtk.h"
+#include "tests/cefclient/browser/dialog_handler_gtk.h"
 
 #include <libgen.h>
 #include <sys/stat.h>
@@ -10,7 +10,7 @@
 #include "include/cef_browser.h"
 #include "include/cef_parser.h"
 #include "include/wrapper/cef_helpers.h"
-#include "cefclient/browser/root_window.h"
+#include "tests/cefclient/browser/root_window.h"
 
 namespace client {
 

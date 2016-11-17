@@ -1,0 +1,14 @@
+Name: Google C++ Testing Framework
+Short Name: gtest
+URL: https://github.com/google/googletest
+License: BSD (see LICENSE file)
+
+Description:
+Fuzed (single header/source file) version of GoogleTest. Generated from the
+Chromium source checkout with the following command:
+
+cd /path/to/chromium/src/testing/gtest/scripts
+./fuse_gtest_files.py <out_directory>
+
+Local Modifications:
+None.

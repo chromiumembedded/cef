@@ -8,9 +8,9 @@
 #include "include/cef_task.h"
 #include "include/cef_v8.h"
 #include "include/wrapper/cef_closure_task.h"
-#include "tests/cefclient/browser/client_app_browser.h"
-#include "tests/cefclient/renderer/client_app_renderer.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/browser/client_app_browser.h"
+#include "tests/shared/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
 
 using client::ClientAppBrowser;

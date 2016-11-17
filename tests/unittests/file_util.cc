@@ -5,6 +5,7 @@
 #include "tests/unittests/file_util.h"
 
 #include "include/base/cef_build.h"
+#include "include/base/cef_scoped_ptr.h"
 #include "include/cef_task.h"
 
 #include <algorithm>
@@ -43,7 +44,7 @@ bool ReadFileToString(const std::string& path, std::string* contents,
     return false;
 
   const size_t kBufferSize = 1 << 16;
-  std::unique_ptr<char[]> buf(new char[kBufferSize]);
+  scoped_ptr<char[]> buf(new char[kBufferSize]);
   size_t len;
   size_t size = 0;
   bool read_status = true;

@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_V8VALUE_CTOCPP_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include <vector>
 #include "include/cef_v8.h"
@@ -82,5 +82,4 @@ class CefV8ValueCToCpp
       const CefV8ValueList& arguments) OVERRIDE;
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_V8VALUE_CTOCPP_H_

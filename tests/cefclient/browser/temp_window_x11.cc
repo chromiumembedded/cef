@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefclient/browser/temp_window_x11.h"
+#include "tests/cefclient/browser/temp_window_x11.h"
 
 #include <X11/Xlib.h>
 

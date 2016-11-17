@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefclient/browser/osr_dragdrop_win.h"
+#include "tests/cefclient/browser/osr_dragdrop_win.h"
 
 #if defined(CEF_USE_ATL)
 
@@ -14,9 +14,9 @@
 #include <string>
 
 #include "include/wrapper/cef_helpers.h"
-#include "cefclient/browser/bytes_write_handler.h"
-#include "cefclient/browser/resource.h"
-#include "cefclient/browser/util_win.h"
+#include "tests/cefclient/browser/bytes_write_handler.h"
+#include "tests/cefclient/browser/resource.h"
+#include "tests/shared/browser/util_win.h"
 
 namespace client {
 

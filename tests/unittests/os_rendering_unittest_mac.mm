@@ -4,7 +4,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include "os_rendering_unittest_mac.h"
+#include "tests/unittests/os_rendering_unittest_mac.h"
 
 namespace osr_unittests {
 

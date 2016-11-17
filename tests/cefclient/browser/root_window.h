@@ -10,8 +10,8 @@
 
 #include "include/base/cef_ref_counted.h"
 #include "include/cef_browser.h"
-#include "cefclient/browser/client_types.h"
-#include "cefclient/browser/main_message_loop.h"
+#include "tests/cefclient/browser/client_types.h"
+#include "tests/shared/browser/main_message_loop.h"
 
 namespace client {
 

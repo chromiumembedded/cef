@@ -7,7 +7,7 @@
 #pragma once
 
 #include "include/cef_base.h"
-#include "cefclient/renderer/client_app_renderer.h"
+#include "tests/shared/renderer/client_app_renderer.h"
 
 namespace client {
 namespace renderer {

@@ -5,7 +5,7 @@
 #include <string>
 
 #include "include/wrapper/cef_scoped_temp_dir.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 #include "tests/unittests/file_util.h"
 
 TEST(FileUtil, JoinPath) {

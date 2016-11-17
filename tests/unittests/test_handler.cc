@@ -9,7 +9,7 @@
 #include "include/cef_stream.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_stream_resource_handler.h"
-#include "tests/cefclient/common/client_switches.h"
+#include "tests/shared/common/client_switches.h"
 
 #if defined(USE_AURA)
 #include "include/views/cef_browser_view.h"

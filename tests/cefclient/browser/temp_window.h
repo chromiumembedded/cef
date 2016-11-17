@@ -6,14 +6,14 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_TEMP_WINDOW_H_
 #pragma once
 
-#include "cefclient/browser/client_types.h"
+#include "tests/cefclient/browser/client_types.h"
 
 #if defined(OS_WIN)
-#include "cefclient/browser/temp_window_win.h"
+#include "tests/cefclient/browser/temp_window_win.h"
 #elif defined(OS_LINUX)
-#include "cefclient/browser/temp_window_x11.h"
+#include "tests/cefclient/browser/temp_window_x11.h"
 #elif defined(OS_MACOSX)
-#include "cefclient/browser/temp_window_mac.h"
+#include "tests/cefclient/browser/temp_window_mac.h"
 #endif
 
 namespace client {

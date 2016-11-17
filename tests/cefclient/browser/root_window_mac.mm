@@ -2,20 +2,20 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "cefclient/browser/root_window_mac.h"
+#include "tests/cefclient/browser/root_window_mac.h"
 
 #include <Cocoa/Cocoa.h>
 
 #include "include/base/cef_bind.h"
 #include "include/cef_app.h"
 #include "include/cef_application_mac.h"
-#include "cefclient/browser/browser_window_osr_mac.h"
-#include "cefclient/browser/browser_window_std_mac.h"
-#include "cefclient/browser/main_context.h"
-#include "cefclient/browser/main_message_loop.h"
-#include "cefclient/browser/temp_window.h"
-#include "cefclient/browser/window_test_runner_mac.h"
-#include "cefclient/common/client_switches.h"
+#include "tests/cefclient/browser/browser_window_osr_mac.h"
+#include "tests/cefclient/browser/browser_window_std_mac.h"
+#include "tests/cefclient/browser/main_context.h"
+#include "tests/cefclient/browser/temp_window.h"
+#include "tests/cefclient/browser/window_test_runner_mac.h"
+#include "tests/shared/browser/main_message_loop.h"
+#include "tests/shared/common/client_switches.h"
 
 // Receives notifications from controls and the browser window. Will delete
 // itself when done.

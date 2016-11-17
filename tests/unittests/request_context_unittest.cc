@@ -7,7 +7,7 @@
 #include "include/cef_request_context_handler.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_scoped_temp_dir.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 #include "tests/unittests/test_handler.h"
 
 TEST(RequestContextTest, GetGlobalContext) {

@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_RESPONSE_CTOCPP_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include "include/cef_response.h"
 #include "include/capi/cef_response_capi.h"
@@ -44,5 +44,4 @@ class CefResponseCToCpp
   void SetHeaderMap(const HeaderMap& headerMap) OVERRIDE;
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_RESPONSE_CTOCPP_H_

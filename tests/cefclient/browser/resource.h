@@ -16,7 +16,6 @@
 #define IDI_CEFCLIENT                   107
 #define IDI_SMALL                       108
 #define IDC_CEFCLIENT                   109
-#define IDS_OSR_WIDGET_CLASS            110
 #define IDR_MAINFRAME                   128
 #define IDC_NAV_BACK                    200
 #define IDC_NAV_FORWARD                 201

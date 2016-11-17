@@ -9,9 +9,9 @@
 #include "include/cef_callback.h"
 #include "include/cef_scheme.h"
 #include "include/wrapper/cef_closure_task.h"
-#include "testing/gtest/include/gtest/gtest.h"
-#include "tests/cefclient/browser/client_app_browser.h"
-#include "tests/cefclient/renderer/client_app_renderer.h"
+#include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/browser/client_app_browser.h"
+#include "tests/shared/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
 
@@ -715,7 +715,6 @@ class HistoryDynamicIFramesNavTestHandler : public TestHandler {
     got_load_end_[nav_].yes();
 
     if(nav_ == 3) {
-      CefString url = browser->GetMainFrame()->GetURL();
       EXPECT_STREQ(url.ToString().c_str(), kDynIfrNav1);
       DestroyTest();
       return;

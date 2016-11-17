@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CPPTOC_MENU_MODEL_DELEGATE_CPPTOC_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include "include/cef_menu_model_delegate.h"
 #include "include/capi/cef_menu_model_delegate_capi.h"
@@ -33,5 +33,4 @@ class CefMenuModelDelegateCppToC
   CefMenuModelDelegateCppToC();
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_MENU_MODEL_DELEGATE_CPPTOC_H_

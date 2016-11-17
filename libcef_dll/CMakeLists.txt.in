@@ -2,8 +2,6 @@
 # reserved. Use of this source code is governed by a BSD-style license that
 # can be found in the LICENSE file.
 
-add_definitions(-DUSING_CEF_SHARED)
-
 # Append platform specific sources to a list of sources.
 macro(LIBCEF_APPEND_PLATFORM_SOURCES name_of_list)
   if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin" AND ${name_of_list}_MACOSX)
@@ -17,9 +15,11 @@ macro(LIBCEF_APPEND_PLATFORM_SOURCES name_of_list)
   endif()
 endmacro()
 
+set(CEF_TARGET libcef_dll_wrapper)
+
 {{
   'prefix': 'libcef',
-  'library': 'libcef_dll_wrapper',
+  'library': '${CEF_TARGET}',
   'append_macro': 'LIBCEF_APPEND_PLATFORM_SOURCES',
   'includes': [
     'includes_common',
@@ -35,7 +35,10 @@ endmacro()
     'autogen_client_side',
   ],
 }}
-SET_LIBRARY_TARGET_PROPERTIES(libcef_dll_wrapper)
+SET_LIBRARY_TARGET_PROPERTIES(${CEF_TARGET})
+
+# Creating the CEF wrapper library. Do not define this for dependent targets.
+target_compile_definitions(${CEF_TARGET} PRIVATE -DWRAPPING_CEF_SHARED)
 
 # Remove the default "lib" prefix from the resulting library.
-set_target_properties(libcef_dll_wrapper PROPERTIES PREFIX "")
+set_target_properties(${CEF_TARGET} PROPERTIES PREFIX "")

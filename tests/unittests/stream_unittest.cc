@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #include "include/cef_stream.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 static void VerifyStreamReadBehavior(CefRefPtr<CefStreamReader> stream,
                                      const std::string& contents) {

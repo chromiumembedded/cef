@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CPPTOC_WEB_PLUGIN_UNSTABLE_CALLBACK_CPPTOC_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include "include/cef_web_plugin.h"
 #include "include/capi/cef_web_plugin_capi.h"
@@ -33,5 +33,4 @@ class CefWebPluginUnstableCallbackCppToC
   CefWebPluginUnstableCallbackCppToC();
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_WEB_PLUGIN_UNSTABLE_CALLBACK_CPPTOC_H_

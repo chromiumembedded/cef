@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_COOKIE_MANAGER_CTOCPP_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include <vector>
 #include "include/cef_cookie.h"
@@ -46,5 +46,4 @@ class CefCookieManagerCToCpp
   bool FlushStore(CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_COOKIE_MANAGER_CTOCPP_H_

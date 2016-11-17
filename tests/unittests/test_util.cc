@@ -3,7 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "tests/unittests/test_util.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 void TestMapEqual(const CefRequest::HeaderMap& map1,
                   const CefRequest::HeaderMap& map2,

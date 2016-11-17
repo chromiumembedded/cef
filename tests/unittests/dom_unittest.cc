@@ -3,8 +3,8 @@
 // can be found in the LICENSE file.
 
 #include "include/cef_dom.h"
-#include "testing/gtest/include/gtest/gtest.h"
-#include "tests/cefclient/renderer/client_app_renderer.h"
+#include "tests/gtest/include/gtest/gtest.h"
+#include "tests/shared/renderer/client_app_renderer.h"
 #include "tests/unittests/test_handler.h"
 
 using client::ClientAppRenderer;

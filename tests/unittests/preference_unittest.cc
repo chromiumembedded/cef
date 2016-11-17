@@ -5,10 +5,10 @@
 #include "include/base/cef_bind.h"
 #include "include/cef_waitable_event.h"
 #include "include/wrapper/cef_closure_task.h"
-#include "tests/cefclient/browser/client_app_browser.h"
+#include "tests/shared/browser/client_app_browser.h"
 #include "tests/unittests/test_handler.h"
 #include "tests/unittests/test_util.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 namespace {
 

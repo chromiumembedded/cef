@@ -3,7 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/cef_parser.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 // Create the URL using the spec.
 TEST(ParserTest, CreateURLSpec) {

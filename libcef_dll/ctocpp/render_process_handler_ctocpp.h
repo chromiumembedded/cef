@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_RENDER_PROCESS_HANDLER_CTOCPP_H_
 #pragma once
 
-#ifndef BUILDING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else  // BUILDING_CEF_SHARED
+#if !defined(BUILDING_CEF_SHARED)
+#error This file can be included DLL-side only
+#endif
 
 #include "include/cef_render_process_handler.h"
 #include "include/capi/cef_render_process_handler_capi.h"
@@ -54,5 +54,4 @@ class CefRenderProcessHandlerCToCpp
       CefRefPtr<CefProcessMessage> message) override;
 };
 
-#endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_RENDER_PROCESS_HANDLER_CTOCPP_H_

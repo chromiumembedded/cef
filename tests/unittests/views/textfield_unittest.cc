@@ -10,7 +10,7 @@
 #include "tests/unittests/thread_helper.h"
 #include "tests/unittests/views/test_window_delegate.h"
 
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 // See ui/events/keycodes/keyboard_codes.h
 #define VKEY_UNKNOWN  0

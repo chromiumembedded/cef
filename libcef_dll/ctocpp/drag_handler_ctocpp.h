@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_DRAG_HANDLER_CTOCPP_H_
 #pragma once
 
-#ifndef BUILDING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else  // BUILDING_CEF_SHARED
+#if !defined(BUILDING_CEF_SHARED)
+#error This file can be included DLL-side only
+#endif
 
 #include <vector>
 #include "include/cef_drag_handler.h"
@@ -38,5 +38,4 @@ class CefDragHandlerCToCpp
       const std::vector<CefDraggableRegion>& regions) override;
 };
 
-#endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DRAG_HANDLER_CTOCPP_H_

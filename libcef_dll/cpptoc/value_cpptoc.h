@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CPPTOC_VALUE_CPPTOC_H_
 #pragma once
 
-#ifndef BUILDING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed DLL-side only")
-#else  // BUILDING_CEF_SHARED
+#if !defined(BUILDING_CEF_SHARED)
+#error This file can be included DLL-side only
+#endif
 
 #include "include/cef_values.h"
 #include "include/capi/cef_values_capi.h"
@@ -30,5 +30,4 @@ class CefValueCppToC
   CefValueCppToC();
 };
 
-#endif  // BUILDING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CPPTOC_VALUE_CPPTOC_H_

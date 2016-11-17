@@ -6,7 +6,7 @@
 #include "include/cef_thread.h"
 #include "include/cef_waitable_event.h"
 #include "include/wrapper/cef_closure_task.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 // Test manual reset.
 TEST(WaitableEventTest, ManualReset) {

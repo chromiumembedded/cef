@@ -13,7 +13,7 @@
 #include "tests/unittests/thread_helper.h"
 #include "tests/unittests/views/test_window_delegate.h"
 
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 
 #define BUTTON_TEST(name) UI_THREAD_TEST(ViewsButtonTest, name)
 #define BUTTON_TEST_ASYNC(name) UI_THREAD_TEST_ASYNC(ViewsButtonTest, name)

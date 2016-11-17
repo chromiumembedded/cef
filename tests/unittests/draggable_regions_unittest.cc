@@ -3,7 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/wrapper/cef_closure_task.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include "tests/gtest/include/gtest/gtest.h"
 #include "tests/unittests/test_handler.h"
 
 namespace {
@@ -113,7 +113,7 @@ class DraggableRegionsTestHandler : public TestHandler {
   }
 
   void DestroyTest() override {
-    EXPECT_EQ(false, did_call_on_draggable_regions_changed_);
+    EXPECT_FALSE(did_call_on_draggable_regions_changed_);
 
     TestHandler::DestroyTest();
   }

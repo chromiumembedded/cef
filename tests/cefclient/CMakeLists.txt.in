@@ -11,6 +11,7 @@
   'prefix': 'cefclient_browser',
   'set': 'CEFCLIENT_BROWSER_SRCS',
   'includes': [
+    'shared_sources_browser',
     'cefclient_sources_browser',
   ],
 }}
@@ -20,6 +21,7 @@
   'prefix': 'cefclient_common',
   'set': 'CEFCLIENT_COMMON_SRCS',
   'includes': [
+    'shared_sources_common',
     'cefclient_sources_common',
   ],
 }}
@@ -29,6 +31,7 @@
   'prefix': 'cefclient_renderer',
   'set': 'CEFCLIENT_RENDERER_SRCS',
   'includes': [
+    'shared_sources_renderer',
     'cefclient_sources_renderer',
   ],
 }}
@@ -38,6 +41,7 @@
   'prefix': 'cefclient_linux',
   'set': 'CEFCLIENT_LINUX_SRCS',
   'includes': [
+    'shared_sources_linux',
     'cefclient_sources_linux',
   ],
 }}
@@ -47,6 +51,7 @@
   'prefix': 'cefclient_macosx',
   'set': 'CEFCLIENT_MACOSX_SRCS',
   'includes': [
+    'shared_sources_mac',
     'cefclient_sources_mac',
   ],
 }}
@@ -56,7 +61,7 @@
   'prefix': 'cefclient_helper',
   'set': 'CEFCLIENT_MACOSX_HELPER_SRCS',
   'includes': [
-    'cefclient_sources_mac_helper',
+    'shared_sources_mac_helper',
   ],
 }}
 
@@ -65,6 +70,7 @@
   'prefix': 'cefclient_windows',
   'set': 'CEFCLIENT_WINDOWS_SRCS',
   'includes': [
+    'shared_sources_win',
     'cefclient_sources_win',
   ],
 }}
@@ -74,6 +80,7 @@
   'prefix': 'cefclient_resources',
   'set': 'CEFCLIENT_RESOURCES_SRCS',
   'includes': [
+    'shared_sources_resources',
     'cefclient_bundle_resources_mac:MACOSX',
     'cefclient_sources_resources',
   ],
@@ -131,9 +138,7 @@ if(OS_LINUX)
   COPY_FILES("${CEF_TARGET}" "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CEF_TARGET_OUT_DIR}")
 
   # Copy cefclient resource files to the target output directory.
-  COPY_FILES("${CEF_TARGET}" "${CEFCLIENT_RESOURCES_SRCS}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_TARGET_OUT_DIR}")
-  # Rename the "res" directory to "files".
-  RENAME_DIRECTORY("${CEF_TARGET}" "${CEF_TARGET_OUT_DIR}/resources" "${CEF_TARGET_OUT_DIR}/files")
+  COPY_FILES("${CEF_TARGET}" "${CEFCLIENT_RESOURCES_SRCS}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_TARGET_OUT_DIR}/cefclient_files")
 
   # Set SUID permissions on the chrome-sandbox target.
   SET_LINUX_SUID_PERMISSIONS("${CEF_TARGET}" "${CEF_TARGET_OUT_DIR}/chrome-sandbox")
@@ -237,7 +242,7 @@ if(OS_WINDOWS)
   add_executable(${CEF_TARGET} WIN32 ${CEFCLIENT_SRCS})
   SET_EXECUTABLE_TARGET_PROPERTIES(${CEF_TARGET})
   add_dependencies(${CEF_TARGET} libcef_dll_wrapper)
-  target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS} glu32.lib opengl32.lib)
+  target_link_libraries(${CEF_TARGET} libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS} glu32.lib imm32.lib opengl32.lib)
 
   if(USE_SANDBOX)
     # Logical target used to link the cef_sandbox library.

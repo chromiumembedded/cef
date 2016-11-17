@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_PRINT_SETTINGS_CTOCPP_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include "include/cef_print_settings.h"
 #include "include/capi/cef_print_settings_capi.h"
@@ -58,5 +58,4 @@ class CefPrintSettingsCToCpp
   DuplexMode GetDuplexMode() OVERRIDE;
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_PRINT_SETTINGS_CTOCPP_H_

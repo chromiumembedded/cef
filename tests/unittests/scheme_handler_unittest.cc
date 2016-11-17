@@ -112,7 +112,7 @@ class TestSchemeHandler : public TestHandler {
 
   // Necessary to make the method public in order to destroy the test from
   // ClientSchemeHandler::ProcessRequest().
-  void DestroyTest() {
+  void DestroyTest() override {
     TestHandler::DestroyTest();
   }
 

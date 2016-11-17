@@ -10,8 +10,8 @@
 
 #include "include/base/cef_scoped_ptr.h"
 #include "include/cef_command_line.h"
-#include "cefclient/browser/root_window.h"
-#include "cefclient/browser/temp_window.h"
+#include "tests/cefclient/browser/root_window.h"
+#include "tests/cefclient/browser/temp_window.h"
 
 namespace client {
 
