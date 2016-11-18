@@ -385,6 +385,9 @@ void CefContext::PopulateRequestContextSettings(
   settings->ignore_certificate_errors =
       settings_.ignore_certificate_errors ||
       command_line->HasSwitch(switches::kIgnoreCertificateErrors);
+  settings->enable_net_security_expiration =
+      settings_.enable_net_security_expiration ||
+      command_line->HasSwitch(switches::kEnableNetSecurityExpiration);
   CefString(&settings->accept_language_list) =
       CefString(&settings_.accept_language_list);
 }
