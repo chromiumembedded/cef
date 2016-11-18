@@ -800,7 +800,7 @@ class OSRTestHandler : public RoutingTestHandler,
             // This text should be honored instead of 'ka' added via key events
             CefString markedText("osrimecommit");
 
-            CefRange range(0, markedText.length());
+            CefRange range(0, static_cast<int>(markedText.length()));
             browser->GetHost()->ImeCommitText(markedText, range, 0);
 
             // click button to navigate
@@ -916,7 +916,7 @@ class OSRTestHandler : public RoutingTestHandler,
             std::vector<CefCompositionUnderline> underlines;
 
             // Use a thin black underline by default.
-            CefRange range(0, markedText.length());
+            CefRange range(0, static_cast<int>(markedText.length()));
             cef_composition_underline_t line = {
               range, 0xFF000000, 0, false
             };
