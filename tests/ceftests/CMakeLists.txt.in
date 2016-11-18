@@ -153,7 +153,11 @@ if(OS_MACOSX)
   if(NOT ${CMAKE_GENERATOR} STREQUAL "Xcode")
     # Manually process and copy over resource files.
     # The Xcode generator handles this via the set_target_properties RESOURCE directive.
-    set(PREFIXES "mac/")  # Remove these prefixes from input file paths.
+    # Remove these prefixes from input file paths.
+    set(PREFIXES
+      "resources/mac/"
+      "../shared/resources/"
+      )
     COPY_MACOSX_RESOURCES("${UNITTESTS_RESOURCES_SRCS}" "${PREFIXES}" "${CEF_TARGET}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CEF_APP}")
   endif()
 endif()
