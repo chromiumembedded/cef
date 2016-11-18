@@ -122,4 +122,7 @@ const char kPluginPolicy_Block[]          = "block";
 // Expose preferences used only by unit tests.
 const char kEnablePreferenceTesting[]     = "enable-preference-testing";
 
+// Enable date-based expiration of built in network security information.
+const char kEnableNetSecurityExpiration[] = "enable-net-security-expiration";
+
 }  // namespace switches
