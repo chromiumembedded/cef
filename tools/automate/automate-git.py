@@ -385,7 +385,7 @@ parser.add_option('--build-target', dest='buildtarget', default='cefclient',
                   help='Target name(s) to build (defaults to "cefclient").')
 parser.add_option('--build-tests',
                   action='store_true', dest='buildtests', default=False,
-                  help='Also build the cef_unittests target.')
+                  help='Also build the ceftests target.')
 parser.add_option('--no-debug-build',
                   action='store_true', dest='nodebugbuild', default=False,
                   help="Don't perform the CEF debug build.")
@@ -947,7 +947,7 @@ if not options.nobuild and (chromium_checkout_changed or \
     command = 'ninja -v -C'
   target = ' ' + options.buildtarget
   if options.buildtests:
-    target = target + ' cef_unittests'
+    target = target + ' ceftests'
   if platform == 'linux':
     target = target + ' chrome_sandbox'
 

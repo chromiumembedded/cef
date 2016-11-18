@@ -26,12 +26,12 @@ tests/      Directory of tests that demonstrate CEF usage.
             using the files in this distribution. This application demonstrates
             the minimal functionality required to create a browser window.
 
-  gtest     Contains the Google C++ Testing Framework used by the unittests
+  ceftests  Contains unit tests that exercise the CEF APIs.
+
+  gtest     Contains the Google C++ Testing Framework used by the ceftests
             target.
 
-  shared    Contains source code shared by the cefclient and unittests targets.
-
-  unittests Contains unit tests that exercise the CEF APIs.
+  shared    Contains source code shared by the cefclient and ceftests targets.
 
 
 USAGE

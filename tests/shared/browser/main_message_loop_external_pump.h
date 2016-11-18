@@ -17,7 +17,7 @@ namespace client {
 // correctly). See comments in Chromium's platform-specific
 // base/message_loop/message_pump_* source files for additional guidance when
 // implementing CefBrowserProcessHandler::OnScheduleMessagePumpWork() in your
-// application. Run cefclient or cef_unittests with the
+// application. Run cefclient or ceftests with the
 // "--external-message-pump" command-line flag to test this mode.
 class MainMessageLoopExternalPump : public MainMessageLoopStd {
  public:

@@ -514,9 +514,9 @@ if mode == 'standard':
   cefsimple_dir = os.path.join(tests_dir, 'cefsimple')
   make_dir(cefsimple_dir, options.quiet)
 
-  # create the tests/unittests directory
-  unittests_dir = os.path.join(tests_dir, 'unittests')
-  make_dir(unittests_dir, options.quiet)
+  # create the tests/ceftests directory
+  ceftests_dir = os.path.join(tests_dir, 'ceftests')
+  make_dir(ceftests_dir, options.quiet)
 
   # transfer common shared files
   transfer_gypi_files(cef_dir, cef_paths2['shared_sources_browser'], \
@@ -542,9 +542,9 @@ if mode == 'standard':
   transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_common'], \
                       'tests/cefsimple/', cefsimple_dir, options.quiet)
 
-  # transfer common unittests files
-  transfer_gypi_files(cef_dir, cef_paths2['unittests_sources_common'], \
-                      'tests/unittests/', unittests_dir, options.quiet)
+  # transfer common ceftests files
+  transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_common'], \
+                      'tests/ceftests/', ceftests_dir, options.quiet)
 
   # create the fuzed gtest version
   create_fuzed_gtest(tests_dir)
@@ -559,8 +559,8 @@ if mode == 'standard':
   process_cmake_template(os.path.join(cef_dir, 'tests', 'gtest', 'CMakeLists.txt.in'), \
                          os.path.join(tests_dir, 'gtest', 'CMakeLists.txt'), \
                          variables, options.quiet)
-  process_cmake_template(os.path.join(cef_dir, 'tests', 'unittests', 'CMakeLists.txt.in'), \
-                         os.path.join(unittests_dir, 'CMakeLists.txt'), \
+  process_cmake_template(os.path.join(cef_dir, 'tests', 'ceftests', 'CMakeLists.txt.in'), \
+                         os.path.join(ceftests_dir, 'CMakeLists.txt'), \
                          variables, options.quiet)
 
   # transfer gypi files
@@ -679,11 +679,11 @@ if platform == 'windows':
     transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_win'], \
                         'tests/cefsimple/', cefsimple_dir, options.quiet)
 
-    # transfer unittests files
-    transfer_gypi_files(cef_dir, cef_paths2['unittests_sources_win'], \
-                        'tests/unittests/', unittests_dir, options.quiet)
-    transfer_gypi_files(cef_dir, cef_paths2['unittests_sources_views'], \
-                        'tests/unittests/', unittests_dir, options.quiet)
+    # transfer ceftests files
+    transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_win'], \
+                        'tests/ceftests/', ceftests_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_views'], \
+                        'tests/ceftests/', ceftests_dir, options.quiet)
 
   if not options.nodocs:
     # generate doc files
@@ -780,15 +780,15 @@ elif platform == 'macosx':
              os.path.join(cefsimple_dir, 'mac'), \
              options.quiet)
 
-    # transfer unittests files
-    transfer_gypi_files(cef_dir, cef_paths2['unittests_sources_mac'], \
-                        'tests/unittests/', unittests_dir, options.quiet)
-    transfer_gypi_files(cef_dir, cef_paths2['unittests_sources_mac_helper'], \
-                        'tests/unittests/', unittests_dir, options.quiet)
+    # transfer ceftests files
+    transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_mac'], \
+                        'tests/ceftests/', ceftests_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_mac_helper'], \
+                        'tests/ceftests/', ceftests_dir, options.quiet)
 
-    # transfer unittests/resources/mac files
-    copy_dir(os.path.join(cef_dir, 'tests/unittests/resources/mac'), \
-             os.path.join(unittests_dir, 'resources/mac'), \
+    # transfer ceftests/resources/mac files
+    copy_dir(os.path.join(cef_dir, 'tests/ceftests/resources/mac'), \
+             os.path.join(ceftests_dir, 'resources/mac'), \
              options.quiet)
 
 elif platform == 'linux':
@@ -866,11 +866,11 @@ elif platform == 'linux':
     transfer_gypi_files(cef_dir, cef_paths2['cefsimple_sources_linux'], \
                         'tests/cefsimple/', cefsimple_dir, options.quiet)
 
-    # transfer unittests files
-    transfer_gypi_files(cef_dir, cef_paths2['unittests_sources_linux'], \
-                        'tests/unittests/', unittests_dir, options.quiet)
-    transfer_gypi_files(cef_dir, cef_paths2['unittests_sources_views'], \
-                        'tests/unittests/', unittests_dir, options.quiet)
+    # transfer ceftests files
+    transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_linux'], \
+                        'tests/ceftests/', ceftests_dir, options.quiet)
+    transfer_gypi_files(cef_dir, cef_paths2['ceftests_sources_views'], \
+                        'tests/ceftests/', ceftests_dir, options.quiet)
 
 if not options.noarchive:
   # create an archive for each output directory

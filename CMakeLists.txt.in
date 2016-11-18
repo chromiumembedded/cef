@@ -202,7 +202,7 @@ add_subdirectory(${CEF_LIBCEF_DLL_WRAPPER_PATH} libcef_dll_wrapper)
 add_subdirectory(tests/cefclient)
 add_subdirectory(tests/cefsimple)
 add_subdirectory(tests/gtest)
-add_subdirectory(tests/unittests)
+add_subdirectory(tests/ceftests)
 
 # Display configuration settings.
 PRINT_CEF_CONFIG()
