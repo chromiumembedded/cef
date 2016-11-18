@@ -81,7 +81,7 @@
 # 2. Run Ninja from the command-line to build. If the build configuration has
 #    changed it will automatically re-run `gn gen` with the same arguments.
 #
-#    > ninja -C out/<build_dir> cefclient cefsimple cef_unittests
+#    > ninja -C out/<build_dir> cefclient cefsimple ceftests
 #
 # GN Manual Packaging:
 #
@@ -186,7 +186,7 @@ group("cef") {
   deps = [
     ":cefclient",
     ":cefsimple",
-    ":cef_unittests",
+    ":ceftests",
   ]
 }
 
@@ -1535,12 +1535,12 @@ if (is_mac) {
 
 
   #
-  # cef_unittests app targets.
+  # ceftests app targets.
   #
 
-  bundle_data("cef_unittests_resources_bundle_data") {
+  bundle_data("ceftests_resources_bundle_data") {
     sources = gypi_paths2.shared_sources_resources + [
-      "tests/unittests/resources/mac/unittests.icns",
+      "tests/ceftests/resources/mac/ceftests.icns",
     ]
 
     outputs = [
@@ -1548,9 +1548,9 @@ if (is_mac) {
     ]
   }
 
-  bundle_data("cef_unittests_resources_bundle_data_english") {
+  bundle_data("ceftests_resources_bundle_data_english") {
     sources = [
-      "tests/unittests/resources/mac/English.lproj/InfoPlist.strings",
+      "tests/ceftests/resources/mac/English.lproj/InfoPlist.strings",
     ]
 
     outputs = [
@@ -1558,40 +1558,40 @@ if (is_mac) {
     ]
   }
 
-  mac_xib_bundle_data("cef_unittests_xibs") {
+  mac_xib_bundle_data("ceftests_xibs") {
     sources = [
-      "tests/unittests/resources/mac/English.lproj/MainMenu.xib",
+      "tests/ceftests/resources/mac/English.lproj/MainMenu.xib",
     ]
 
     output_path = "{{bundle_resources_dir}}/English.lproj"
   }
 
-  cef_app("cef_unittests") {
+  cef_app("ceftests") {
     testonly = true
 
-    helper_info_plist = "tests/unittests/resources/mac/helper-Info.plist"
+    helper_info_plist = "tests/ceftests/resources/mac/helper-Info.plist"
     helper_sources = gypi_paths2.shared_sources_common +
                      gypi_paths2.shared_sources_renderer +
                      gypi_paths2.shared_sources_mac_helper +
-                     gypi_paths2.unittests_sources_mac_helper
+                     gypi_paths2.ceftests_sources_mac_helper
     helper_deps = [
       ":libcef_dll_wrapper",
       "//testing/gtest",
     ]
 
-    info_plist = "tests/unittests/resources/mac/Info.plist"
+    info_plist = "tests/ceftests/resources/mac/Info.plist"
     sources = gypi_paths2.includes_mac +
               gypi_paths2.includes_common +
               gypi_paths2.includes_wrapper +
               gypi_paths2.shared_sources_browser +
               gypi_paths2.shared_sources_common +
               gypi_paths2.shared_sources_mac +
-              gypi_paths2.unittests_sources_common +
-              gypi_paths2.unittests_sources_mac
+              gypi_paths2.ceftests_sources_common +
+              gypi_paths2.ceftests_sources_mac
     deps = [
-      ":cef_unittests_resources_bundle_data",
-      ":cef_unittests_resources_bundle_data_english",
-      ":cef_unittests_xibs",
+      ":ceftests_resources_bundle_data",
+      ":ceftests_resources_bundle_data_english",
+      ":ceftests_xibs",
       ":libcef_dll_wrapper",
       "//testing/gtest",
     ]
@@ -1765,17 +1765,17 @@ if (is_mac) {
 
 
   #
-  # cef_unittests targets.
+  # ceftests targets.
   #
   
   if (is_linux) {
-    copy("copy_cef_unittests_files") {
+    copy("copy_ceftests_files") {
       sources = gypi_paths2.shared_sources_resources
-      outputs = [ "${root_out_dir}/unittests_files/{{source_file_part}}" ]
+      outputs = [ "${root_out_dir}/ceftests_files/{{source_file_part}}" ]
     }
   }
 
-  executable("cef_unittests") {
+  executable("ceftests") {
     testonly = true
 
     sources = gypi_paths2.includes_common +
@@ -1784,8 +1784,8 @@ if (is_mac) {
               gypi_paths2.shared_sources_common +
               gypi_paths2.shared_sources_renderer +
               gypi_paths2.shared_sources_resources +
-              gypi_paths2.unittests_sources_common +
-              gypi_paths2.unittests_sources_views
+              gypi_paths2.ceftests_sources_common +
+              gypi_paths2.ceftests_sources_views
 
     deps = [
       ":libcef",
@@ -1796,7 +1796,7 @@ if (is_mac) {
 
     if (is_win) {
       sources += gypi_paths2.shared_sources_win +
-                 gypi_paths2.unittests_sources_win
+                 gypi_paths2.ceftests_sources_win
 
       defines = [
         "CEF_USE_SANDBOX",
@@ -1810,14 +1810,14 @@ if (is_mac) {
 
     if (is_linux) {
       sources += gypi_paths2.shared_sources_linux +
-                 gypi_paths2.unittests_sources_linux
+                 gypi_paths2.ceftests_sources_linux
 
       libs = [
         "X11",
       ]
 
       deps += [
-        ":copy_cef_unittests_files",
+        ":copy_ceftests_files",
       ]
     }
 
