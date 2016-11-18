@@ -1,0 +1,106 @@
+diff --git net/cert/ct_policy_enforcer.cc net/cert/ct_policy_enforcer.cc
+index 42f631e..b02edb0 100644
+--- net/cert/ct_policy_enforcer.cc
++++ net/cert/ct_policy_enforcer.cc
+@@ -36,15 +36,6 @@ namespace net {
+ 
+ namespace {
+ 
+-// Returns true if the current build is recent enough to ensure that
+-// built-in security information (e.g. CT Logs) is fresh enough.
+-// TODO(eranm): Move to base or net/base
+-bool IsBuildTimely() {
+-  const base::Time build_time = base::GetBuildTime();
+-  // We consider built-in information to be timely for 10 weeks.
+-  return (base::Time::Now() - build_time).InDays() < 70 /* 10 weeks */;
+-}
+-
+ // Returns a rounded-down months difference of |start| and |end|,
+ // together with an indication of whether the last month was
+ // a full month, because the range starts specified in the policy
+@@ -459,4 +450,13 @@ ct::EVPolicyCompliance CTPolicyEnforcer::DoesConformToCTEVPolicy(
+   return details.status;
+ }
+ 
++bool CTPolicyEnforcer::IsBuildTimely() const {
++  if (!enforce_net_security_expiration_)
++    return true;
++
++  const base::Time build_time = base::GetBuildTime();
++  // We consider built-in information to be timely for 10 weeks.
++  return (base::Time::Now() - build_time).InDays() < 70 /* 10 weeks */;
++}
++
+ }  // namespace net
+diff --git net/cert/ct_policy_enforcer.h net/cert/ct_policy_enforcer.h
+index c732cee..1c80e81 100644
+--- net/cert/ct_policy_enforcer.h
++++ net/cert/ct_policy_enforcer.h
+@@ -101,6 +101,17 @@ class NET_EXPORT CTPolicyEnforcer {
+       const ct::EVCertsWhitelist* ev_whitelist,
+       const SCTList& verified_scts,
+       const NetLogWithSource& net_log);
++
++  void set_enforce_net_security_expiration(bool enforce) {
++    enforce_net_security_expiration_ = enforce;
++  }
++
++ private:
++  // Returns true if the current build is recent enough to ensure that
++  // built-in security information (e.g. CT Logs) is fresh enough.
++  bool IsBuildTimely() const;
++
++  bool enforce_net_security_expiration_ = true;
+ };
+ 
+ }  // namespace net
+diff --git net/http/transport_security_state.cc net/http/transport_security_state.cc
+index a3f468d..8d1928f 100644
+--- net/http/transport_security_state.cc
++++ net/http/transport_security_state.cc
+@@ -1374,8 +1374,10 @@ void TransportSecurityState::SetShouldRequireCTForTesting(bool* required) {
+   g_ct_required_for_testing = *required ? 1 : -1;
+ }
+ 
+-// static
+-bool TransportSecurityState::IsBuildTimely() {
++bool TransportSecurityState::IsBuildTimely() const {
++  if (!enforce_net_security_expiration_)
++    return true;
++
+   const base::Time build_time = base::GetBuildTime();
+   // We consider built-in information to be timely for 10 weeks.
+   return (base::Time::Now() - build_time).InDays() < 70 /* 10 weeks */;
+diff --git net/http/transport_security_state.h net/http/transport_security_state.h
+index 3326ca2..a2de308 100644
+--- net/http/transport_security_state.h
++++ net/http/transport_security_state.h
+@@ -472,6 +472,10 @@ class NET_EXPORT TransportSecurityState
+   // nullptr to reset.
+   static void SetShouldRequireCTForTesting(bool* required);
+ 
++  void set_enforce_net_security_expiration(bool enforce) {
++    enforce_net_security_expiration_ = enforce;
++  }
++
+  private:
+   friend class TransportSecurityStateTest;
+   FRIEND_TEST_ALL_PREFIXES(HttpSecurityHeadersTest, UpdateDynamicPKPOnly);
+@@ -495,7 +499,7 @@ class NET_EXPORT TransportSecurityState
+   // IsBuildTimely returns true if the current build is new enough ensure that
+   // built in security information (i.e. HSTS preloading and pinning
+   // information) is timely.
+-  static bool IsBuildTimely();
++  bool IsBuildTimely() const;
+ 
+   // Helper method for actually checking pins.
+   PKPStatus CheckPublicKeyPinsImpl(
+@@ -586,6 +590,8 @@ class NET_EXPORT TransportSecurityState
+   // True if public key pinning bypass is enabled for local trust anchors.
+   bool enable_pkp_bypass_for_local_trust_anchors_;
+ 
++  bool enforce_net_security_expiration_ = true;
++
+   ExpectCTReporter* expect_ct_reporter_ = nullptr;
+ 
+   RequireCTDelegate* require_ct_delegate_ = nullptr;

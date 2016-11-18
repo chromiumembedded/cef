@@ -223,8 +223,12 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     storage_->set_host_resolver(
         net::HostResolver::CreateDefaultResolver(net_log_));
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
-    storage_->set_transport_security_state(
-        base::WrapUnique(new net::TransportSecurityState));
+
+    std::unique_ptr<net::TransportSecurityState> transport_security_state(
+        new net::TransportSecurityState);
+    transport_security_state->set_enforce_net_security_expiration(
+        settings_.enable_net_security_expiration ? true : false);
+    storage_->set_transport_security_state(std::move(transport_security_state));
 
     std::vector<scoped_refptr<const net::CTLogVerifier>> ct_logs(
         net::ct::CreateLogVerifiersForKnownLogs());
@@ -233,8 +237,11 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     ct_verifier->AddLogs(ct_logs);
     storage_->set_cert_transparency_verifier(std::move(ct_verifier));
 
-    storage_->set_ct_policy_enforcer(
-        base::WrapUnique(new net::CTPolicyEnforcer));
+    std::unique_ptr<net::CTPolicyEnforcer> ct_policy_enforcer(
+        new net::CTPolicyEnforcer);
+    ct_policy_enforcer->set_enforce_net_security_expiration(
+        settings_.enable_net_security_expiration ? true : false);
+    storage_->set_ct_policy_enforcer(std::move(ct_policy_enforcer));
 
     std::unique_ptr<net::ProxyService> system_proxy_service =
         ProxyServiceFactory::CreateProxyService(
