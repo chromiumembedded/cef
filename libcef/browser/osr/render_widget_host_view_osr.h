@@ -86,7 +86,7 @@ class MacHelper;
 class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
                                    public ui::CompositorDelegate
 #if !defined(OS_MACOSX)
-    ,
+                                   ,
                                    public content::DelegatedFrameHostClient,
                                    public content::CompositorResizeLockClient
 #endif
@@ -321,7 +321,7 @@ class CefRenderWidgetHostViewOSR : public content::RenderWidgetHostViewBase,
   // The background color of the web content.
   SkColor background_color_;
 
-  int frame_rate_threshold_ms_;
+  int frame_rate_threshold_us_;
 
 #if !defined(OS_MACOSX)
   std::unique_ptr<ui::Compositor> compositor_;
