@@ -1,8 +1,8 @@
 diff --git mime_handler_view_guest.cc mime_handler_view_guest.cc
-index dcf7527..46fe51e 100644
+index 049af16..c5130acd 100644
 --- mime_handler_view_guest.cc
 +++ mime_handler_view_guest.cc
-@@ -138,6 +138,8 @@ void MimeHandlerViewGuest::CreateWebContents(
+@@ -179,6 +179,8 @@ void MimeHandlerViewGuest::CreateWebContents(
    WebContents::CreateParams params(browser_context(),
                                     guest_site_instance.get());
    params.guest_delegate = this;
@@ -11,7 +11,7 @@ index dcf7527..46fe51e 100644
    callback.Run(WebContents::Create(params));
  }
  
-@@ -162,6 +164,30 @@ bool MimeHandlerViewGuest::ZoomPropagatesFromEmbedderToGuest() const {
+@@ -203,6 +205,30 @@ bool MimeHandlerViewGuest::ZoomPropagatesFromEmbedderToGuest() const {
    return false;
  }
  
@@ -43,10 +43,10 @@ index dcf7527..46fe51e 100644
      WebContents* source,
      const content::OpenURLParams& params) {
 diff --git mime_handler_view_guest.h mime_handler_view_guest.h
-index 87d249e..c6a8ad3 100644
+index d237318..b9cd2ab 100644
 --- mime_handler_view_guest.h
 +++ mime_handler_view_guest.h
-@@ -77,6 +77,15 @@ class MimeHandlerViewGuest :
+@@ -83,6 +83,15 @@ class MimeHandlerViewGuest :
    bool ShouldHandleFindRequestsForEmbedder() const final;
    bool ZoomPropagatesFromEmbedderToGuest() const final;
  

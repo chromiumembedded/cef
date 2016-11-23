@@ -8,6 +8,7 @@
 
 #include "base/bind.h"
 #include "base/logging.h"
+#include "base/memory/ptr_util.h"
 #include "base/message_loop/message_loop.h"
 #include "base/stl_util.h"
 #include "base/strings/string_util.h"
@@ -404,7 +405,6 @@ CefNativeMenuWin::CefNativeMenuWin(ui::MenuModel* model, HWND system_menu_for)
 CefNativeMenuWin::~CefNativeMenuWin() {
   if (destroyed_flag_)
     *destroyed_flag_ = true;
-  base::STLDeleteContainerPointers(items_.begin(), items_.end());
   DestroyMenu(menu_);
 }
 
@@ -485,7 +485,7 @@ void CefNativeMenuWin::Rebuild(MenuInsertionDelegateWin* delegate) {
 void CefNativeMenuWin::UpdateStates() {
   // A depth-first walk of the menu items, updating states.
   int model_index = 0;
-  std::vector<ItemData*>::const_iterator it;
+  ItemDataList::const_iterator it;
   for (it = items_.begin(); it != items_.end(); ++it, ++model_index) {
     int menu_index = model_index + first_item_index_;
     SetMenuItemState(menu_index, model_->IsEnabledAt(model_index),
@@ -567,7 +567,8 @@ LRESULT CALLBACK CefNativeMenuWin::MenuMessageHook(
   // The first time this hook is called, that means the menu has successfully
   // opened, so call the callback function on all of our listeners.
   if (!this_ptr->listeners_called_) {
-    FOR_EACH_OBSERVER(MenuListener, this_ptr->listeners_, OnMenuOpened());
+    for (auto& observer : this_ptr->listeners_)
+      observer.OnMenuOpened();
     this_ptr->listeners_called_ = true;
   }
 
@@ -622,7 +623,7 @@ void CefNativeMenuWin::AddMenuItemAt(int menu_index, int model_index) {
   else
     mii.fType = MFT_OWNERDRAW;
 
-  ItemData* item_data = new ItemData;
+  std::unique_ptr<ItemData> item_data = base::MakeUnique<ItemData>();
   item_data->label = base::string16();
   ui::MenuModel::ItemType type = model_->GetTypeAt(model_index);
   if (type == ui::MenuModel::TYPE_SUBMENU) {
@@ -637,8 +638,8 @@ void CefNativeMenuWin::AddMenuItemAt(int menu_index, int model_index) {
   }
   item_data->native_menu_win = this;
   item_data->model_index = model_index;
-  items_.insert(items_.begin() + model_index, item_data);
-  mii.dwItemData = reinterpret_cast<ULONG_PTR>(item_data);
+  mii.dwItemData = reinterpret_cast<ULONG_PTR>(item_data.get());
+  items_.insert(items_.begin() + model_index, std::move(item_data));
   UpdateMenuItemInfoForString(&mii, model_index,
                               model_->GetLabelAt(model_index));
   InsertMenuItem(menu_, menu_index, TRUE, &mii);
@@ -651,7 +652,7 @@ void CefNativeMenuWin::AddSeparatorItemAt(int menu_index, int model_index) {
   mii.fType = MFT_SEPARATOR;
   // Insert a dummy entry into our label list so we can index directly into it
   // using item indices if need be.
-  items_.insert(items_.begin() + model_index, new ItemData);
+  items_.insert(items_.begin() + model_index, base::MakeUnique<ItemData>());
   InsertMenuItem(menu_, menu_index, TRUE, &mii);
 }
 

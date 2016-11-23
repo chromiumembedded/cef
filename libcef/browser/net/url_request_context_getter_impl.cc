@@ -322,20 +322,16 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
                            std::move(main_backend),
                            true /* set_up_quic_server_info */)));
 
-#if !defined(DISABLE_FTP_SUPPORT)
-    ftp_transaction_factory_.reset(
-        new net::FtpNetworkLayer(network_session_params.host_resolver));
-#endif
-
     std::unique_ptr<net::URLRequestJobFactoryImpl> job_factory(
         new net::URLRequestJobFactoryImpl());
     url_request_manager_.reset(new CefURLRequestManager(job_factory.get()));
 
     // Install internal scheme handlers that cannot be overridden.
-    scheme::InstallInternalProtectedHandlers(job_factory.get(),
-                                             url_request_manager_.get(),
-                                             &protocol_handlers_,
-                                             ftp_transaction_factory_.get());
+    scheme::InstallInternalProtectedHandlers(
+        job_factory.get(),
+        url_request_manager_.get(),
+        &protocol_handlers_,
+        network_session_params.host_resolver);
     protocol_handlers_.clear();
 
     // Register internal scheme handlers that can be overridden.

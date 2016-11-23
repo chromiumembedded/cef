@@ -741,7 +741,8 @@ void CefBrowserHostImpl::Print() {
     if (!actionable_contents)
       return;
     printing::CefPrintViewManager::FromWebContents(
-        actionable_contents)->PrintNow();
+        actionable_contents)->PrintNow(
+            actionable_contents->GetRenderViewHost()->GetMainFrame());
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::Print, this));
@@ -762,7 +763,8 @@ void CefBrowserHostImpl::PrintToPDF(const CefString& path,
                                 callback.get(), path);
     }
     printing::CefPrintViewManager::FromWebContents(actionable_contents)->
-        PrintToPDF(base::FilePath(path), settings, pdf_callback);
+        PrintToPDF(actionable_contents->GetMainFrame(), base::FilePath(path),
+                   settings, pdf_callback);
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::PrintToPDF, this, path, settings,
@@ -1413,7 +1415,8 @@ void CefBrowserHostImpl::DestroyBrowser() {
     menu_manager_->Destroy();
 
   // Notify any observers that may have state associated with this browser.
-  FOR_EACH_OBSERVER(Observer, observers_, OnBrowserDestroyed(this));
+  for (auto& observer : observers_)
+    observer.OnBrowserDestroyed(this);
 
   // Disassociate the platform delegate from this browser.
   platform_delegate_->BrowserDestroyed(this);
@@ -2108,11 +2111,12 @@ void CefBrowserHostImpl::UpdateTargetURL(content::WebContents* source,
   }
 }
 
-bool CefBrowserHostImpl::AddMessageToConsole(content::WebContents* source,
-                                             int32_t level,
-                                             const base::string16& message,
-                                             int32_t line_no,
-                                             const base::string16& source_id) {
+bool CefBrowserHostImpl::DidAddMessageToConsole(
+    content::WebContents* source,
+    int32_t level,
+    const base::string16& message,
+    int32_t line_no,
+    const base::string16& source_id) {
   if (client_.get()) {
     CefRefPtr<CefDisplayHandler> handler = client_->GetDisplayHandler();
     if (handler.get())
@@ -2355,28 +2359,21 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
   bool webcam_requested =
       (request.video_type == content::MEDIA_DEVICE_VIDEO_CAPTURE);
   if (microphone_requested || webcam_requested) {
-    switch (request.request_type) {
-      case content::MEDIA_OPEN_DEVICE_PEPPER_ONLY:
-      case content::MEDIA_DEVICE_ACCESS:
-      case content::MEDIA_GENERATE_STREAM:
-      case content::MEDIA_ENUMERATE_DEVICES:
-        // Pick the desired device or fall back to the first available of the
-        // given type.
-        if (microphone_requested) {
-          CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-              request.requested_audio_device_id,
-              true,
-              false,
-              &devices);
-        }
-        if (webcam_requested) {
-          CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-              request.requested_video_device_id,
-              false,
-              true,
-              &devices);
-        }
-        break;
+    // Pick the desired device or fall back to the first available of the
+    // given type.
+    if (microphone_requested) {
+      CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
+          request.requested_audio_device_id,
+          true,
+          false,
+          &devices);
+    }
+    if (webcam_requested) {
+      CefMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
+          request.requested_video_device_id,
+          false,
+          true,
+          &devices);
     }
   }
 
@@ -3013,6 +3010,24 @@ gfx::Point CefBrowserHostImpl::GetScreenPoint(const gfx::Point& view) const {
   if (platform_delegate_)
     return platform_delegate_->GetScreenPoint(view);
   return gfx::Point();
+}
+
+void CefBrowserHostImpl::StartDragging(
+    const content::DropData& drop_data,
+    blink::WebDragOperationsMask allowed_ops,
+    const gfx::ImageSkia& image,
+    const gfx::Vector2d& image_offset,
+    const content::DragEventSourceInfo& event_info,
+    content::RenderWidgetHostImpl* source_rwh) {
+  if (platform_delegate_) {
+    platform_delegate_->StartDragging(drop_data, allowed_ops, image,
+                                      image_offset, event_info, source_rwh);
+  }
+}
+
+void CefBrowserHostImpl::UpdateDragCursor(blink::WebDragOperation operation) {
+  if (platform_delegate_)
+    platform_delegate_->UpdateDragCursor(operation);
 }
 
 void CefBrowserHostImpl::OnAddressChange(CefRefPtr<CefFrame> frame,

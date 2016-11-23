@@ -18,6 +18,7 @@ namespace blink {
 class WebFrame;
 class WebLocalFrame;
 struct WebPluginParams;
+class WebURL;
 }
 
 namespace content {
@@ -50,7 +51,7 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
                             const blink::WebPluginParams& params);
   bool WillSendRequest(blink::WebFrame* frame,
                        ui::PageTransition transition_type,
-                       const GURL& url,
+                       const blink::WebURL& url,
                        GURL* new_url);
   void RunScriptsAtDocumentStart(content::RenderFrame* render_frame);
   void RunScriptsAtDocumentEnd(content::RenderFrame* render_frame);

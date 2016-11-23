@@ -14,7 +14,7 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/values.h"
 #include "chrome/browser/net/prediction_options.h"
-#include "chrome/browser/prefs/command_line_pref_store.h"
+#include "chrome/browser/prefs/chrome_command_line_pref_store.h"
 #include "chrome/browser/supervised_user/supervised_user_pref_store.h"
 #include "chrome/browser/supervised_user/supervised_user_settings_service.h"
 #include "chrome/browser/supervised_user/supervised_user_settings_service_factory.h"
@@ -33,8 +33,8 @@
 #include "components/proxy_config/pref_proxy_config_tracker_impl.h"
 #include "components/proxy_config/proxy_config_dictionary.h"
 #include "components/spellcheck/browser/pref_names.h"
-#include "components/syncable_prefs/pref_service_syncable.h"
-#include "components/syncable_prefs/pref_service_syncable_factory.h"
+#include "components/sync_preferences/pref_service_syncable.h"
+#include "components/sync_preferences/pref_service_syncable_factory.h"
 #include "components/update_client/update_client.h"
 #include "content/public/browser/browser_thread.h"
 #include "extensions/browser/extension_prefs.h"
@@ -102,13 +102,13 @@ std::unique_ptr<PrefService> CreatePrefService(
 
   // Use of PrefServiceSyncable is required by Chrome code such as
   // HostContentSettingsMapFactory that calls PrefServiceSyncableFromProfile.
-  syncable_prefs::PrefServiceSyncableFactory factory;
+  sync_preferences::PrefServiceSyncableFactory factory;
 
   // Used to store command-line preferences, most of which will be evaluated in
   // the CommandLinePrefStore constructor. Preferences set in this manner cannot
   // be overridden by the user.
-  scoped_refptr<CommandLinePrefStore> command_line_pref_store(
-      new CommandLinePrefStore(command_line));
+  scoped_refptr<ChromeCommandLinePrefStore> command_line_pref_store(
+      new ChromeCommandLinePrefStore(command_line));
   renderer_prefs::SetCommandLinePrefDefaults(command_line_pref_store.get());
   factory.set_command_line_prefs(command_line_pref_store);
 

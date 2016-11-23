@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/webui/net_internals/net_internals_ui.cc chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-index 92fa2f1..cc3f54a 100644
+index 1e821dc..76bc9e7 100644
 --- chrome/browser/ui/webui/net_internals/net_internals_ui.cc
 +++ chrome/browser/ui/webui/net_internals/net_internals_ui.cc
 @@ -689,9 +689,17 @@ void NetInternalsMessageHandler::IOThreadImpl::OnRendererReady(

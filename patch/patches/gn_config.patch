@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index 585f0d8..9f60467 100644
+index e4b474a..38a41be 100644
 --- .gn
 +++ .gn
-@@ -237,6 +237,7 @@ exec_script_whitelist = [
+@@ -241,6 +241,7 @@ exec_script_whitelist = [
    "//build/toolchain/win/BUILD.gn",
    "//build/util/branding.gni",
    "//build/util/version.gni",
@@ -11,10 +11,10 @@ index 585f0d8..9f60467 100644
  
    # TODO(dgn): Layer violation but breaks the build otherwise, see
 diff --git BUILD.gn BUILD.gn
-index 93699f0..3346d3e 100644
+index 43c7b3d..df225a1 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -280,6 +280,7 @@ group("both_gn_and_gyp") {
+@@ -282,6 +282,7 @@ group("both_gn_and_gyp") {
      # and whether there should be other targets that are iOS-only and missing.
      deps += [
        "//cc:cc_unittests",
@@ -23,11 +23,11 @@ index 93699f0..3346d3e 100644
        "//chrome/test:unit_tests",
        "//components:components_browsertests",
 diff --git build/config/win/visual_studio_version.gni build/config/win/visual_studio_version.gni
-index 5bfa9a7..5e6e05d 100644
+index 982fbe8..e757be46 100644
 --- build/config/win/visual_studio_version.gni
 +++ build/config/win/visual_studio_version.gni
 @@ -12,9 +12,8 @@ declare_args() {
-   # Use "2013" for Visual Studio 2013, or "2013e" for the Express version.
+   # Currently always "2015".
    visual_studio_version = ""
  
 -  # Directory of the Windows driver kit. If visual_studio_path is empty, this
@@ -80,7 +80,7 @@ index fbc201e..299156d 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 9c55984..d44d116 100755
+index c768a8a..bb91777 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -74,11 +74,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -103,10 +103,10 @@ index 9c55984..d44d116 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 3e93269..9821a4b 100644
+index c3ac484..13ae760 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -233,7 +233,7 @@ template("chrome_paks") {
+@@ -235,7 +235,7 @@ template("chrome_paks") {
        additional_source_patterns = invoker.additional_locale_source_patterns
      }
      input_locales = locales
@@ -116,10 +116,10 @@ index 3e93269..9821a4b 100644
      if (is_mac) {
        output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 6994618..4ed3f85 100644
+index 0f37e54..7b81cde 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
-@@ -125,7 +125,7 @@ template("generate_mini_installer") {
+@@ -124,7 +124,7 @@ template("generate_mini_installer") {
      inputs = [
        "$chrome_dll_file",
        "$root_out_dir/chrome.exe",

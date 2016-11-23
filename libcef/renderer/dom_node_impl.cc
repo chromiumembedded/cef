@@ -78,7 +78,7 @@ bool CefDOMNodeImpl::IsEditable() {
 
   if (node_.isElementNode()) {
     const WebElement& element = node_.toConst<WebElement>();
-    if (element.isTextFormControlElement())
+    if (webkit_glue::IsTextControlElement(element))
       return true;
 
     // Also return true if it has an ARIA role of 'textbox'.

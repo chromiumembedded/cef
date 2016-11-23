@@ -106,6 +106,7 @@ class CefPrerenderingSupport : public blink::WebPrerenderingSupport {
   void add(const blink::WebPrerender& prerender) override {}
   void cancel(const blink::WebPrerender& prerender) override {}
   void abandon(const blink::WebPrerender& prerender) override {}
+  void prefetchFinished() override {}
 };
 
 // Stub implementation of blink::WebPrerendererClient.
@@ -186,9 +187,8 @@ CefContentRendererClient::CefContentRendererClient()
     extensions::ExtensionsRendererClient::Set(
         extensions_renderer_client_.get());
   }
-#if defined(ENABLE_PRINTING)
+
   printing::SetAgent(CefContentClient::Get()->GetUserAgent());
-#endif
 }
 
 CefContentRendererClient::~CefContentRendererClient() {
@@ -467,6 +467,9 @@ void CefContentRendererClient::RenderFrameCreated(
     content::RenderFrame* render_frame) {
   new CefRenderFrameObserver(render_frame);
   new CefPepperHelper(render_frame);
+  new printing::PrintWebViewHelper(
+      render_frame,
+      base::WrapUnique(new extensions::CefPrintWebViewHelperDelegate()));
 
   if (extensions::ExtensionsEnabled())
     extensions_renderer_client_->RenderFrameCreated(render_frame);
@@ -477,9 +480,6 @@ void CefContentRendererClient::RenderFrameCreated(
 void CefContentRendererClient::RenderViewCreated(
     content::RenderView* render_view) {
   new CefPrerendererClient(render_view);
-  new printing::PrintWebViewHelper(
-      render_view,
-      base::WrapUnique(new extensions::CefPrintWebViewHelperDelegate()));
 
   if (extensions::ExtensionsEnabled())
     extensions_renderer_client_->RenderViewCreated(render_view);
@@ -598,8 +598,7 @@ bool CefContentRendererClient::ShouldFork(blink::WebLocalFrame* frame,
 bool CefContentRendererClient::WillSendRequest(
     blink::WebFrame* frame,
     ui::PageTransition transition_type,
-    const GURL& url,
-    const GURL& first_party_for_cookies,
+    const blink::WebURL& url,
     GURL* new_url) {
   if (extensions::ExtensionsEnabled()) {
     return extensions_renderer_client_->WillSendRequest(frame, transition_type,

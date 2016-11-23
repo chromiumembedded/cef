@@ -1,8 +1,8 @@
 diff --git browser/browser_plugin/browser_plugin_guest.cc browser/browser_plugin/browser_plugin_guest.cc
-index 2dc039f..66e45e2 100644
+index d4d4f14..977e24e 100644
 --- browser/browser_plugin/browser_plugin_guest.cc
 +++ browser/browser_plugin/browser_plugin_guest.cc
-@@ -28,7 +28,7 @@
+@@ -29,7 +29,7 @@
  #include "content/browser/renderer_host/render_widget_host_impl.h"
  #include "content/browser/renderer_host/render_widget_host_view_base.h"
  #include "content/browser/web_contents/web_contents_impl.h"
@@ -11,7 +11,7 @@ index 2dc039f..66e45e2 100644
  #include "content/common/browser_plugin/browser_plugin_constants.h"
  #include "content/common/browser_plugin/browser_plugin_messages.h"
  #include "content/common/content_constants_internal.h"
-@@ -293,20 +293,19 @@ void BrowserPluginGuest::InitInternal(
+@@ -310,20 +310,19 @@ void BrowserPluginGuest::InitInternal(
    guest_window_rect_ = params.view_rect;
  
    if (owner_web_contents_ != owner_web_contents) {
@@ -36,7 +36,7 @@ index 2dc039f..66e45e2 100644
    }
  
    RendererPreferences* renderer_prefs =
-@@ -758,11 +757,10 @@ void BrowserPluginGuest::OnWillAttachComplete(
+@@ -796,11 +795,10 @@ void BrowserPluginGuest::OnWillAttachComplete(
          ->GetWidget()
          ->Init();
      GetWebContents()->GetMainFrame()->Init();
@@ -52,7 +52,7 @@ index 2dc039f..66e45e2 100644
    }
  
 diff --git public/browser/browser_plugin_guest_delegate.cc public/browser/browser_plugin_guest_delegate.cc
-index 732df23..25dbc62 100644
+index 8d691ef..eb13b5d 100644
 --- public/browser/browser_plugin_guest_delegate.cc
 +++ public/browser/browser_plugin_guest_delegate.cc
 @@ -4,6 +4,8 @@
@@ -64,8 +64,8 @@ index 732df23..25dbc62 100644
  namespace content {
  
  bool BrowserPluginGuestDelegate::CanRunInDetachedState() const {
-@@ -36,4 +38,23 @@ bool BrowserPluginGuestDelegate::CanUseCrossProcessFrames() {
-   return true;
+@@ -48,4 +50,23 @@ SiteInstance* BrowserPluginGuestDelegate::GetOwnerSiteInstance() {
+   return nullptr;
  }
  
 +void BrowserPluginGuestDelegate::OnGuestAttached(
@@ -89,19 +89,18 @@ index 732df23..25dbc62 100644
 +
  }  // namespace content
 diff --git public/browser/browser_plugin_guest_delegate.h public/browser/browser_plugin_guest_delegate.h
-index 0f805651..fe0385d 100644
+index a32205c..1d93d7b 100644
 --- public/browser/browser_plugin_guest_delegate.h
 +++ public/browser/browser_plugin_guest_delegate.h
-@@ -21,6 +21,8 @@ class Size;
- namespace content {
- 
+@@ -19,6 +19,7 @@ namespace content {
  class GuestHost;
-+class RenderWidgetHost;
+ class RenderWidgetHost;
+ class SiteInstance;
 +class WebContentsView;
  
  // Objects implement this interface to get notified about changes in the guest
  // WebContents and to provide necessary functionality.
-@@ -87,6 +89,17 @@ class CONTENT_EXPORT BrowserPluginGuestDelegate {
+@@ -85,6 +86,17 @@ class CONTENT_EXPORT BrowserPluginGuestDelegate {
    // content module.
    virtual void SetGuestHost(GuestHost* guest_host) {}
  
@@ -118,4 +117,4 @@ index 0f805651..fe0385d 100644
 +
    // Sets the position of the context menu for the guest contents. The value
    // reported from the guest renderer should be ignored. The reported value
-   // fromt he guest renderer is incorrect in situations where BrowserPlugin is
+   // from the guest renderer is incorrect in situations where BrowserPlugin is

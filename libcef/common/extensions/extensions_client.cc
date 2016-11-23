@@ -17,10 +17,12 @@
 #include "cef/libcef/common/extensions/api/cef_behavior_features.h"
 #include "cef/libcef/common/extensions/api/cef_manifest_features.h"
 #include "cef/libcef/common/extensions/api/cef_permission_features.h"
+#include "chrome/common/extensions/chrome_aliases.h"
 #include "chrome/common/extensions/chrome_manifest_handlers.h"
 #include "chrome/grit/common_resources.h"
 #include "extensions/common/api/generated_schemas.h"
 #include "extensions/common/common_manifest_handlers.h"
+#include "extensions/common/extensions_aliases.h"
 #include "extensions/common/extension_urls.h"
 #include "extensions/common/features/api_feature.h"
 #include "extensions/common/features/behavior_feature.h"
@@ -59,8 +61,10 @@ void CefExtensionsClient::Initialize() {
   // TODO(jamescook): Do we need to whitelist any extensions?
 
   // Set up permissions.
-  PermissionsInfo::GetInstance()->AddProvider(chrome_api_permissions_);
-  PermissionsInfo::GetInstance()->AddProvider(extensions_api_permissions_);
+  PermissionsInfo::GetInstance()->AddProvider(chrome_api_permissions_,
+                                              GetChromePermissionAliases());
+  PermissionsInfo::GetInstance()->AddProvider(extensions_api_permissions_,
+                                              GetExtensionsPermissionAliases());
 }
 
 const PermissionMessageProvider&
@@ -177,8 +181,10 @@ std::string CefExtensionsClient::GetWebstoreBaseURL() const {
   return extension_urls::kChromeWebstoreBaseURL;
 }
 
-std::string CefExtensionsClient::GetWebstoreUpdateURL() const {
-  return extension_urls::kChromeWebstoreUpdateURL;
+const GURL& CefExtensionsClient::GetWebstoreUpdateURL() const {
+  if (webstore_update_url_.is_empty())
+    webstore_update_url_ = GURL(extension_urls::GetWebstoreUpdateUrl());
+  return webstore_update_url_;
 }
 
 bool CefExtensionsClient::IsBlacklistUpdateURL(const GURL& url) const {

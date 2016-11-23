@@ -197,7 +197,8 @@ void CefWebContentsViewOSR::StartDragging(
     blink::WebDragOperationsMask allowed_ops,
     const gfx::ImageSkia& image,
     const gfx::Vector2d& image_offset,
-    const content::DragEventSourceInfo& event_info) {
+    const content::DragEventSourceInfo& event_info,
+    content::RenderWidgetHostImpl* source_rwh) {
   if (guest_) {
     // Based on WebContentsViewGuest::StartDragging.
     content::WebContentsImpl* embedder_web_contents =
@@ -213,36 +214,24 @@ void CefWebContentsViewOSR::StartDragging(
       content::RecordAction(
           base::UserMetricsAction("BrowserPlugin.Guest.StartDrag"));
       view->StartDragging(drop_data, allowed_ops, image, image_offset,
-                          event_info);
+                          event_info, source_rwh);
     } else {
-      embedder_web_contents->SystemDragEnded();
+      embedder_web_contents->SystemDragEnded(source_rwh);
     }
     return;
   }
 
   CefRefPtr<CefBrowserHostImpl> browser;
-  CefRefPtr<CefRenderHandler> handler;
-  bool handled = false;
   CefRenderWidgetHostViewOSR* view =
       static_cast<CefRenderWidgetHostViewOSR*>(view_);
   if (view)
     browser = view->browser_impl();
-  if (browser.get())
-    handler = browser->GetClient()->GetRenderHandler();
-  if (handler.get()) {
-    CefRefPtr<CefDragDataImpl> drag_data(new CefDragDataImpl(drop_data));
-    drag_data->SetReadOnly(true);
-    base::MessageLoop::ScopedNestableTaskAllower allow(
-        base::MessageLoop::current());
-    handled = handler->StartDragging(
-        browser.get(),
-        drag_data.get(),
-        static_cast<CefRenderHandler::DragOperationsMask>(allowed_ops),
-        event_info.event_location.x(),
-        event_info.event_location.y());
+  if (browser.get()) {
+    browser->StartDragging(drop_data, allowed_ops, image, image_offset,
+                           event_info, source_rwh);
+  } else if (web_contents_) {
+    web_contents_->SystemDragEnded(source_rwh);
   }
-  if (!handled && web_contents_)
-    web_contents_->SystemDragEnded();
 }
 
 void CefWebContentsViewOSR::UpdateDragCursor(
@@ -261,16 +250,10 @@ void CefWebContentsViewOSR::UpdateDragCursor(
   }
 
   CefRefPtr<CefBrowserHostImpl> browser;
-  CefRefPtr<CefRenderHandler> handler;
   CefRenderWidgetHostViewOSR* view =
       static_cast<CefRenderWidgetHostViewOSR*>(view_);
   if (view)
     browser = view->browser_impl();
   if (browser.get())
-    handler = browser->GetClient()->GetRenderHandler();
-  if (handler.get()) {
-    handler->UpdateDragCursor(
-        browser.get(),
-        static_cast<CefRenderHandler::DragOperation>(operation));
-  }
+    browser->UpdateDragCursor(operation);
 }

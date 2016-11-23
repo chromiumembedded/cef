@@ -18,6 +18,8 @@
 #include "components/content_settings/core/common/content_settings.h"
 #include "components/prefs/pref_member.h"
 #include "content/public/browser/browser_message_filter.h"
+#include "extensions/features/features.h"
+#include "ppapi/features/features.h"
 
 class CefBrowserContext;
 class CefRequestContextHandler;
@@ -74,7 +76,7 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
    private:
     int render_process_id_;
     content::ResourceContext* resource_context_;
-#if defined(ENABLE_EXTENSIONS)
+#if BUILDFLAG(ENABLE_EXTENSIONS)
     extensions::ExtensionRegistry* extension_registry_;
 #endif
     const HostContentSettingsMap* host_content_settings_map_;
@@ -109,7 +111,7 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
                      IPC::Message* reply_msg,
                      const std::vector<content::WebPluginInfo>& plugins);
 
-#if defined(ENABLE_PEPPER_CDMS)
+#if BUILDFLAG(ENABLE_PEPPER_CDMS)
   // Returns whether any internal plugin supporting |mime_type| is registered
   // and enabled. Does not determine whether the plugin can actually be
   // instantiated (e.g. whether it has all its dependencies).

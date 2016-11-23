@@ -4,7 +4,7 @@
 
 #include "libcef/common/widevine_loader.h"
 
-#if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
+#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_PEPPER_CDMS)
 
 #include "libcef/browser/context.h"
 #include "libcef/browser/thread_util.h"
@@ -403,4 +403,4 @@ CefWidevineLoader::CefWidevineLoader() {
 CefWidevineLoader::~CefWidevineLoader() {
 }
 
-#endif  // defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
+#endif  // defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_PEPPER_CDMS)

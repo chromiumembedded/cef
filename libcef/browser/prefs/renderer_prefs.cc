@@ -20,10 +20,10 @@
 #include "chrome/browser/defaults.h"
 #include "chrome/browser/extensions/extension_webkit_preferences.h"
 #include "chrome/browser/font_family_cache.h"
-#include "chrome/browser/prefs/command_line_pref_store.h"
 #include "chrome/browser/ui/prefs/prefs_tab_helper.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
+#include "components/prefs/command_line_pref_store.h"
 #include "components/prefs/pref_service.h"
 #include "components/prefs/pref_store.h"
 #include "components/pref_registry/pref_registry_syncable.h"
@@ -52,8 +52,6 @@ void SetDefaultPrefs(content::WebPreferences& web) {
       !command_line->HasSwitch(switches::kDisableJavascriptCloseWindows);
   web.javascript_can_access_clipboard =
       !command_line->HasSwitch(switches::kDisableJavascriptAccessClipboard);
-  web.caret_browsing_enabled =
-      command_line->HasSwitch(switches::kEnableCaretBrowsing);
   web.allow_universal_access_from_file_urls =
       command_line->HasSwitch(switches::kAllowUniversalAccessFromFileUrls);
     web.shrinks_standalone_images_to_fit =
@@ -247,7 +245,6 @@ void SetCefPrefs(const CefBrowserSettings& cef,
   SET_STATE(cef.javascript_access_clipboard,
       web.javascript_can_access_clipboard);
   SET_STATE(cef.javascript_dom_paste, web.dom_paste_enabled);
-  SET_STATE(cef.caret_browsing, web.caret_browsing_enabled);
   SET_STATE(cef.plugins, web.plugins_enabled);
   SET_STATE(cef.universal_access_from_file_urls,
       web.allow_universal_access_from_file_urls);

@@ -14,6 +14,7 @@
 #include "base/threading/sequenced_worker_pool.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/url_constants.h"
+#include "net/net_features.h"
 #include "net/url_request/data_protocol_handler.h"
 #include "net/url_request/file_protocol_handler.h"
 #include "net/url_request/ftp_protocol_handler.h"
@@ -26,7 +27,7 @@ void InstallInternalProtectedHandlers(
     net::URLRequestJobFactoryImpl* job_factory,
     CefURLRequestManager* request_manager,
     content::ProtocolHandlerMap* protocol_handlers,
-    net::FtpTransactionFactory* ftp_transaction_factory) {
+    net::HostResolver* host_resolver) {
   protocol_handlers->insert(
       std::make_pair(url::kDataScheme,
           linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
@@ -38,11 +39,11 @@ void InstallInternalProtectedHandlers(
                   content::BrowserThread::GetBlockingPool()->
                       GetTaskRunnerWithShutdownBehavior(
                           base::SequencedWorkerPool::SKIP_ON_SHUTDOWN)))));
-#if !defined(DISABLE_FTP_SUPPORT)
+#if !BUILDFLAG(DISABLE_FTP_SUPPORT)
   protocol_handlers->insert(
       std::make_pair(url::kFtpScheme,
           linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-              new net::FtpProtocolHandler(ftp_transaction_factory))));
+              net::FtpProtocolHandler::Create(host_resolver).release())));
 #endif
 
   for (content::ProtocolHandlerMap::iterator it =

@@ -7,6 +7,7 @@
 #include "libcef/common/content_client.h"
 
 #include "content/public/common/url_constants.h"
+#include "net/net_features.h"
 #include "extensions/common/constants.h"
 #include "url/url_constants.h"
 
@@ -65,7 +66,7 @@ bool IsInternalProtectedScheme(const std::string& scheme) {
     url::kDataScheme,
     url::kFileScheme,
     url::kFileSystemScheme,
-#if !defined(DISABLE_FTP_SUPPORT)
+#if !BUILDFLAG(DISABLE_FTP_SUPPORT)
     url::kFtpScheme,
 #endif
   };

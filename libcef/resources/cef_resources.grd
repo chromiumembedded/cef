@@ -15,6 +15,9 @@
 
       <!-- Extension features supported by CEF. -->
       <include name="IDR_CEF_EXTENSION_API_FEATURES" file="..\common\extensions\api\_api_features.json" type="BINDATA" />
+      <include name="IDR_CEF_BROWSER_MANIFEST_OVERLAY" file="..\common\extensions\api\browser_manifest_overlay.json" type="BINDATA" />
+      <include name="IDR_CEF_RENDERER_MANIFEST_OVERLAY" file="..\common\extensions\api\renderer_manifest_overlay.json" type="BINDATA" />
+      <include name="IDR_CEF_UTILITY_MANIFEST_OVERLAY" file="..\common\extensions\api\utility_manifest_overlay.json" type="BINDATA" />
     </includes>
   </release>
 </grit>

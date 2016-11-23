@@ -20,6 +20,7 @@
 #include "build/build_config.h"
 #include "chrome/browser/plugins/plugin_finder.h"
 #include "chrome/browser/plugins/plugins_field_trial.h"
+#include "chrome/common/features.h"
 #include "chrome/common/pref_names.h"
 #include "components/content_settings/core/browser/content_settings_utils.h"
 #include "content/public/browser/browser_context.h"
@@ -60,18 +61,18 @@ bool ShouldUseJavaScriptSettingForPlugin(const WebPluginInfo& plugin) {
     return true;
 #endif
 
-#if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
+#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_PEPPER_CDMS)
   // Treat CDM invocations like JavaScript.
   if (plugin.name == base::ASCIIToUTF16(kWidevineCdmDisplayName)) {
     DCHECK(plugin.type == WebPluginInfo::PLUGIN_TYPE_PEPPER_OUT_OF_PROCESS);
     return true;
   }
-#endif  // defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
+#endif  // defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_PEPPER_CDMS)
 
   return false;
 }
 
-#if defined(ENABLE_PEPPER_CDMS)
+#if BUILDFLAG(ENABLE_PEPPER_CDMS)
 
 enum PluginAvailabilityStatusForUMA {
   PLUGIN_NOT_REGISTERED,
@@ -92,14 +93,14 @@ static void SendPluginAvailabilityUMA(const std::string& mime_type,
 #endif  // defined(WIDEVINE_CDM_AVAILABLE)
 }
 
-#endif  // defined(ENABLE_PEPPER_CDMS)
+#endif  // BUILDFLAG(ENABLE_PEPPER_CDMS)
 
 void ReportMetrics(const std::string& mime_type,
                    const GURL& url,
                    const url::Origin& main_frame_origin) {
 }
 
-#if defined(ENABLE_EXTENSIONS)
+#if BUILDFLAG(ENABLE_EXTENSIONS)
 // Returns whether a request from a plugin to load |resource| from a renderer
 // with process id |process_id| is a request for an internal resource by an app
 // listed in |accessible_resources| in its manifest.
@@ -129,7 +130,7 @@ bool IsPluginLoadingAccessibleResourceInWebView(
   return renderer_state->GetOwnerInfo(process_id, nullptr, &owner_extension) &&
          owner_extension == extension_id;
 }
-#endif  // defined(ENABLE_EXTENSIONS)
+#endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
 }  // namespace
 
@@ -139,7 +140,7 @@ CefPluginInfoMessageFilter::Context::Context(
     : render_process_id_(render_process_id),
       resource_context_(profile->GetResourceContext()),
       host_content_settings_map_(profile->GetHostContentSettingsMap()) {
-#if defined(ENABLE_EXTENSIONS)
+#if BUILDFLAG(ENABLE_EXTENSIONS)
   if (extensions::ExtensionsEnabled())
     extension_registry_ = extensions::ExtensionRegistry::Get(profile);
 #endif
@@ -174,7 +175,7 @@ bool CefPluginInfoMessageFilter::OnMessageReceived(
   IPC_BEGIN_MESSAGE_MAP(CefPluginInfoMessageFilter, message)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(CefViewHostMsg_GetPluginInfo,
                                     OnGetPluginInfo)
-#if defined(ENABLE_PEPPER_CDMS)
+#if BUILDFLAG(ENABLE_PEPPER_CDMS)
     IPC_MESSAGE_HANDLER(
         CefViewHostMsg_IsInternalPluginAvailableForMimeType,
         OnIsInternalPluginAvailableForMimeType)
@@ -249,7 +250,7 @@ void CefPluginInfoMessageFilter::PluginsLoaded(
   }
 }
 
-#if defined(ENABLE_PEPPER_CDMS)
+#if BUILDFLAG(ENABLE_PEPPER_CDMS)
 
 void CefPluginInfoMessageFilter::OnIsInternalPluginAvailableForMimeType(
     const std::string& mime_type,
@@ -285,7 +286,7 @@ void CefPluginInfoMessageFilter::OnIsInternalPluginAvailableForMimeType(
       mime_type, is_plugin_disabled ? PLUGIN_DISABLED : PLUGIN_NOT_REGISTERED);
 }
 
-#endif // defined(ENABLE_PEPPER_CDMS)
+#endif // BUILDFLAG(ENABLE_PEPPER_CDMS)
 
 void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
     const GetPluginInfo_Params& params,
@@ -312,12 +313,13 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
   // TODO(tommycli): Remove once we deprecate the plugin ASK policy.
   bool legacy_ask_user = plugin_setting == CONTENT_SETTING_ASK;
   plugin_setting = PluginsFieldTrial::EffectiveContentSetting(
-      CONTENT_SETTINGS_TYPE_PLUGINS, plugin_setting);
+      host_content_settings_map_, CONTENT_SETTINGS_TYPE_PLUGINS,
+      plugin_setting);
 
   DCHECK(plugin_setting != CONTENT_SETTING_DEFAULT);
   DCHECK(plugin_setting != CONTENT_SETTING_ASK);
 
-#if defined(ENABLE_PLUGIN_INSTALLATION)
+#if BUILDFLAG(ENABLE_PLUGIN_INSTALLATION)
   // Check if the plugin is outdated.
   if (plugin_status == PluginMetadata::SECURITY_STATUS_OUT_OF_DATE &&
       !allow_outdated_plugins_.GetValue()) {
@@ -339,7 +341,7 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
     return;
   }
 
-#if defined(ENABLE_EXTENSIONS)
+#if BUILDFLAG(ENABLE_EXTENSIONS)
   // If an app has explicitly made internal resources available by listing them
   // in |accessible_resources| in the manifest, then allow them to be loaded by
   // plugins inside a guest-view.
@@ -350,7 +352,7 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
           extension_registry_, render_process_id_, params.url)) {
     plugin_setting = CONTENT_SETTING_ALLOW;
   }
-#endif  // defined(ENABLE_EXTENSIONS)
+#endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
   if (plugin_setting == CONTENT_SETTING_DETECT_IMPORTANT_CONTENT) {
     *status = CefViewHostMsg_GetPluginInfo_Status::kPlayImportantContent;
@@ -362,7 +364,7 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
                   : CefViewHostMsg_GetPluginInfo_Status::kBlocked;
   }
 
-#if defined(ENABLE_EXTENSIONS)
+#if BUILDFLAG(ENABLE_EXTENSIONS)
   // Allow an embedder of <webview> to block a plugin from being loaded inside
   // the guest. In order to do this, set the status to 'Unauthorized' here,
   // and update the status as appropriate depending on the response from the

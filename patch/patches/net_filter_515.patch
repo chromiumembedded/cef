@@ -1,60 +1,40 @@
-diff --git base/network_delegate.h base/network_delegate.h
-index 6fc19f9..583c8a9 100644
---- base/network_delegate.h
-+++ base/network_delegate.h
-@@ -37,6 +37,7 @@ namespace net {
- // of net/base here, because we have a net_base library. Forward declarations
- // are ok.
- class CookieOptions;
-+class Filter;
- class HttpRequestHeaders;
- class HttpResponseHeaders;
- class ProxyInfo;
-@@ -116,6 +117,13 @@ class NET_EXPORT NetworkDelegate : public base::NonThreadSafe {
+diff --git net/base/network_delegate.h net/base/network_delegate.h
+index 0fccae1..73e33ad 100644
+--- net/base/network_delegate.h
++++ net/base/network_delegate.h
+@@ -16,6 +16,7 @@
+ #include "net/base/completion_callback.h"
+ #include "net/base/net_export.h"
+ #include "net/cookies/canonical_cookie.h"
++#include "net/filter/source_stream.h"
+ #include "net/proxy/proxy_retry_info.h"
+ 
+ class GURL;
+@@ -116,6 +117,10 @@ class NET_EXPORT NetworkDelegate : public base::NonThreadSafe {
        const GURL& target_url,
        const GURL& referrer_url) const;
  
-+  // Optionally add a new filter to the filter list. Returns the first filter in
-+  // the list.
-+  virtual Filter* SetupFilter(URLRequest* request,
-+                              Filter* filter_list) {
-+    return filter_list;
-+  }
++  virtual std::unique_ptr<SourceStream> CreateSourceStream(
++      net::URLRequest* request,
++      std::unique_ptr<SourceStream> upstream) { return upstream; }
 +
   private:
    // This is the interface for subclasses of NetworkDelegate to implement. These
    // member functions will be called by the respective public notification
-diff --git filter/filter.h filter/filter.h
-index 91875a2..b6c665f 100644
---- filter/filter.h
-+++ filter/filter.h
-@@ -59,6 +59,7 @@
- #include "net/base/net_export.h"
- #include "net/base/sdch_manager.h"
+diff --git net/url_request/url_request_job.cc net/url_request/url_request_job.cc
+index b315664..55701edf 100644
+--- net/url_request/url_request_job.cc
++++ net/url_request/url_request_job.cc
+@@ -494,6 +494,12 @@ void URLRequestJob::NotifyHeadersComplete() {
+     DCHECK(!source_stream_);
+     source_stream_ = SetUpSourceStream();
  
-+class CefNetworkDelegate;
- class GURL;
- 
- namespace net {
-@@ -240,6 +241,7 @@ class NET_EXPORT Filter {
-   FilterType type() const { return type_id_; }
- 
-  protected:
-+  friend class ::CefNetworkDelegate;
-   friend class BrotliUnitTest;
-   friend class GZipUnitTest;
-   friend class SdchFilterChainingTest;
-diff --git url_request/url_request_job.cc url_request/url_request_job.cc
-index f9df570..72b48ec 100644
---- url_request/url_request_job.cc
-+++ url_request/url_request_job.cc
-@@ -489,6 +489,9 @@ void URLRequestJob::NotifyHeadersComplete() {
-   if (request_->status().is_success())
-     filter_ = SetupFilter();
- 
-+  if (network_delegate_)
-+    filter_.reset(network_delegate_->SetupFilter(request_, filter_.release()));
++    // Allow the delegate to add a downstream SourceStream for filtering.
++    if (network_delegate_ && source_stream_) {
++      source_stream_ = network_delegate_->CreateSourceStream(
++          request_, std::move(source_stream_));
++    }
 +
-   if (!filter_.get()) {
-     std::string content_length;
-     request_->GetResponseHeaderByName("content-length", &content_length);
+     if (!source_stream_) {
+       NotifyDone(URLRequestStatus(URLRequestStatus::FAILED,
+                                   ERR_CONTENT_DECODING_INIT_FAILED));

@@ -15,6 +15,7 @@
 #include "v8/include/v8.h"
 
 namespace blink {
+class WebElement;
 class WebFrame;
 class WebNode;
 class WebString;
@@ -45,6 +46,8 @@ int64_t GetIdentifier(blink::WebFrame* frame);
 // |relative_to_frame| in the frame hierarchy.
 blink::WebFrame* FindFrameByUniqueName(const blink::WebString& unique_name,
                                        blink::WebFrame* relative_to_frame);
+
+bool IsTextControlElement(const blink::WebElement& element);
 
 v8::MaybeLocal<v8::Value> CallV8Function(v8::Local<v8::Context> context,
                                          v8::Local<v8::Function> function,

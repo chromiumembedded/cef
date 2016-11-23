@@ -1,14 +1,22 @@
 diff --git render_widget_host_view_guest.cc render_widget_host_view_guest.cc
-index 7122187..19dec1a 100644
+index c628e20..3c4e008d 100644
 --- render_widget_host_view_guest.cc
 +++ render_widget_host_view_guest.cc
-@@ -253,6 +253,9 @@ void RenderWidgetHostViewGuest::Destroy() {
+@@ -253,13 +253,14 @@ void RenderWidgetHostViewGuest::Destroy() {
  }
  
  gfx::Size RenderWidgetHostViewGuest::GetPhysicalBackingSize() const {
 +  RenderWidgetHostViewBase* rwhv = GetOwnerRenderWidgetHostView();
 +  if (rwhv)
 +    return rwhv->GetPhysicalBackingSize();
-   return RenderWidgetHostViewBase::GetPhysicalBackingSize();
+   // We obtain the reference to native view from the owner RenderWidgetHostView.
+   // If the guest is embedded inside a cross-process frame, it is possible to
+   // reach here after the frame is detached in which case there will be no owner
+   // view.
+-  if (!GetOwnerRenderWidgetHostView())
+-    return gfx::Size();
+-  return RenderWidgetHostViewBase::GetPhysicalBackingSize();
++  return gfx::Size();
  }
  
+ base::string16 RenderWidgetHostViewGuest::GetSelectedText() {

@@ -10,12 +10,13 @@
 #include "base/macros.h"
 #include "content/public/browser/web_contents_user_data.h"
 
-struct PrintHostMsg_DidPreviewDocument_Params;
-struct PrintHostMsg_RequestPrintPreview_Params;
-
 namespace content {
+class RenderFrameHost;
 class RenderProcessHost;
 }
+
+struct PrintHostMsg_DidPreviewDocument_Params;
+struct PrintHostMsg_RequestPrintPreview_Params;
 
 namespace printing {
 
@@ -26,35 +27,28 @@ class CefPrintViewManager :
  public:
   ~CefPrintViewManager() override;
 
-#if defined(ENABLE_BASIC_PRINTING)
-  // Same as PrintNow(), but for the case where a user prints with the system
-  // dialog from print preview.
-  bool PrintForSystemDialogNow();
-#endif  // ENABLE_BASIC_PRINTING
-
-  // content::WebContentsObserver implementation.
-  bool OnMessageReceived(const IPC::Message& message) override;
-
-  // content::WebContentsObserver implementation.
-  // Cancels the print job.
-  void NavigationStopped() override;
-  // Terminates or cancels the print job if one was pending.
-  void RenderProcessGone(base::TerminationStatus status) override;
-
   // Callback executed on PDF printing completion.
   typedef base::Callback<void(bool /*ok*/)> PdfPrintCallback;
 
   // Print the current document to a PDF file. Execute |callback| on completion.
-  void PrintToPDF(const base::FilePath& path,
+  bool PrintToPDF(content::RenderFrameHost* rfh,
+                  const base::FilePath& path,
                   const CefPdfPrintSettings& settings,
                   const PdfPrintCallback& callback);
+
+  // content::WebContentsObserver implementation.
+  void RenderFrameDeleted(content::RenderFrameHost* render_frame_host) override;
+  void NavigationStopped() override;
+  void RenderProcessGone(base::TerminationStatus status) override;
+  bool OnMessageReceived(const IPC::Message& message,
+                         content::RenderFrameHost* render_frame_host) override;
 
  private:
   explicit CefPrintViewManager(content::WebContents* web_contents);
   friend class content::WebContentsUserData<CefPrintViewManager>;
 
   // IPC Message handlers.
-  void OnDidShowPrintDialog();
+  void OnDidShowPrintDialog(content::RenderFrameHost* rfh);
   void OnRequestPrintPreview(const PrintHostMsg_RequestPrintPreview_Params&);
   void OnMetafileReadyForPrinting(
       const PrintHostMsg_DidPreviewDocument_Params&);
@@ -63,9 +57,8 @@ class CefPrintViewManager :
 
   // Used for printing to PDF. Only accessed on the browser process UI thread.
   int next_pdf_request_id_ = -1;
-  base::FilePath pdf_output_path_;
-  std::unique_ptr<base::DictionaryValue> pdf_print_settings_;
-  PdfPrintCallback pdf_print_callback_;
+  struct PdfPrintState;
+  std::unique_ptr<PdfPrintState> pdf_print_state_;
 
   DISALLOW_COPY_AND_ASSIGN(CefPrintViewManager);
 };

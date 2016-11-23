@@ -1,8 +1,8 @@
 diff --git content/browser/frame_host/render_frame_message_filter.cc content/browser/frame_host/render_frame_message_filter.cc
-index fbe7feb..d05b2cf 100644
+index 573b5d9..e61cfa0 100644
 --- content/browser/frame_host/render_frame_message_filter.cc
 +++ content/browser/frame_host/render_frame_message_filter.cc
-@@ -490,7 +490,7 @@ void RenderFrameMessageFilter::GetPluginsCallback(
+@@ -491,7 +491,7 @@ void RenderFrameMessageFilter::GetPluginsCallback(
    PluginServiceFilter* filter = PluginServiceImpl::GetInstance()->GetFilter();
    std::vector<WebPluginInfo> plugins;
  

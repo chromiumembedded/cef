@@ -87,7 +87,9 @@
 // Create the application on the UI thread.
 - (void)createApplication:(id)object {
   [NSApplication sharedApplication];
-  [NSBundle loadNibNamed:@"MainMenu" owner:NSApp];
+  [[NSBundle mainBundle] loadNibNamed:@"MainMenu"
+                                owner:NSApp
+                      topLevelObjects:nil];
 
   // Set the delegate for application events.
   [[NSApplication sharedApplication] setDelegate:self];

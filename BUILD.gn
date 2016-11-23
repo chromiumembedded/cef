@@ -99,8 +99,12 @@ import("//build/config/locales.gni")
 import("//build/config/sanitizers/sanitizers.gni")
 import("//build/config/ui.gni")
 import("//cef/cef_repack_locales.gni")
+import("//chrome/common/features.gni")
+import("//extensions/features/features.gni")
 import("//media/media_options.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
+import("//ppapi/features/features.gni")
+import("//printing/features/features.gni")
 import("//third_party/icu/config.gni")
 import("//third_party/widevine/cdm/widevine.gni")
 import("//tools/grit/repack.gni")
@@ -318,10 +322,10 @@ static_library("libcef_static") {
     "libcef/browser/net/network_delegate.h",
     "libcef/browser/net/resource_request_job.cc",
     "libcef/browser/net/resource_request_job.h",
-    "libcef/browser/net/response_filter_wrapper.cc",
-    "libcef/browser/net/response_filter_wrapper.h",
     "libcef/browser/net/scheme_handler.cc",
     "libcef/browser/net/scheme_handler.h",
+    "libcef/browser/net/source_stream.cc",
+    "libcef/browser/net/source_stream.h",
     "libcef/browser/net/url_request_context.cc",
     "libcef/browser/net/url_request_context.h",
     "libcef/browser/net/url_request_context_getter.h",
@@ -608,12 +612,13 @@ static_library("libcef_static") {
     "//content/public/renderer",
     "//content/public/utility",
     "//crypto",
-    "//device/core",
+    "//device/base",
     "//device/geolocation",
     "//device/hid",
     "//extensions/browser",
+    "//extensions/browser/api:api_registration",
     "//extensions/common/api",
-    "//extensions/common/api:api_registration",
+    "//extensions/features",
     "//extensions/renderer",
     "//extensions/utility",
     "//gpu",
@@ -624,6 +629,8 @@ static_library("libcef_static") {
     "//net:net_browser_services",
     "//net:net_with_v8",
     "//pdf",
+    "//ppapi/features",
+    "//printing/features",
     "//skia",
     "//storage/browser",
     "//third_party/brotli",
@@ -632,7 +639,7 @@ static_library("libcef_static") {
     "//third_party/leveldatabase",
     "//third_party/libxml",
     "//third_party/WebKit/public:blink",
-    "//third_party/widevine/cdm:version_h",
+    "//third_party/widevine/cdm:headers",
     "//third_party/icu",
     "//third_party/zlib:minizip",
     "//ui/base",
@@ -672,8 +679,10 @@ static_library("libcef_static") {
       "libcef/browser/osr/browser_platform_delegate_osr_win.cc",
       "libcef/browser/osr/browser_platform_delegate_osr_win.h",
       "libcef/browser/osr/render_widget_host_view_osr_win.cc",
-      "libcef/utility/printing_handler.cc",
-      "libcef/utility/printing_handler.h",
+
+      # Part of //chrome/utility.
+      "//chrome/utility/printing_handler.cc",
+      "//chrome/utility/printing_handler.h",
     ]
 
     deps += [

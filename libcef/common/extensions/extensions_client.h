@@ -12,6 +12,7 @@
 #include "chrome/common/extensions/permissions/chrome_permission_message_provider.h"
 #include "extensions/common/extensions_client.h"
 #include "extensions/common/permissions/extensions_api_permissions.h"
+#include "url/gurl.h"
 
 namespace extensions {
 
@@ -44,7 +45,7 @@ class CefExtensionsClient : public ExtensionsClient {
   bool ShouldSuppressFatalErrors() const override;
   void RecordDidSuppressFatalError() override;
   std::string GetWebstoreBaseURL() const override;
-  std::string GetWebstoreUpdateURL() const override;
+  const GURL& GetWebstoreUpdateURL() const override;
   bool IsBlacklistUpdateURL(const GURL& url) const override;
 
  private:
@@ -53,6 +54,9 @@ class CefExtensionsClient : public ExtensionsClient {
   const ChromePermissionMessageProvider permission_message_provider_;
 
   ScriptingWhitelist scripting_whitelist_;
+
+  // Mutable to allow caching in a const method.
+  mutable GURL webstore_update_url_;
 
   DISALLOW_COPY_AND_ASSIGN(CefExtensionsClient);
 };

@@ -1,0 +1,14 @@
+{
+  "name": "content_browser",
+  "display_name": "CEF",
+  "interface_provider_specs": {
+    "navigation:frame": {
+      "provides": {
+        "renderer": [
+          "extensions::KeepAlive",
+          "extensions::mime_handler::MimeHandlerService"
+        ]
+      }
+    }
+  }
+}

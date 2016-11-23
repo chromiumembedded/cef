@@ -5,6 +5,7 @@
 #ifndef CEF_LIBCEF_BROWSER_NATIVE_NATIVE_MENU_WIN_H_
 #define CEF_LIBCEF_BROWSER_NATIVE_NATIVE_MENU_WIN_H_
 
+#include <memory>
 #include <vector>
 
 #include "libcef/browser/native/menu_wrapper.h"
@@ -119,7 +120,8 @@ class CefNativeMenuWin : public MenuWrapper {
   // An object that collects all of the data associated with an individual menu
   // item.
   struct ItemData;
-  std::vector<ItemData*> items_;
+  typedef std::vector<std::unique_ptr<ItemData>> ItemDataList;
+  ItemDataList items_;
 
   // The window that receives notifications from the menu.
   class MenuHostWindow;

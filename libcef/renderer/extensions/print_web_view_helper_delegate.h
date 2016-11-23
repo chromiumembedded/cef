@@ -14,8 +14,7 @@ class CefPrintWebViewHelperDelegate
  public:
   ~CefPrintWebViewHelperDelegate() override;
 
-  bool CancelPrerender(content::RenderView* render_view,
-                       int routing_id) override;
+  bool CancelPrerender(content::RenderFrame* render_frame) override;
   blink::WebElement GetPdfElement(blink::WebLocalFrame* frame) override;
   bool IsPrintPreviewEnabled() override;
   bool OverridePrint(blink::WebLocalFrame* frame) override;

@@ -1,0 +1,12 @@
+diff --git content/browser/renderer_host/input/render_widget_host_latency_tracker.cc content/browser/renderer_host/input/render_widget_host_latency_tracker.cc
+index a8d3ac2..908d0e5d 100644
+--- content/browser/renderer_host/input/render_widget_host_latency_tracker.cc
++++ content/browser/renderer_host/input/render_widget_host_latency_tracker.cc
+@@ -96,7 +96,6 @@ void UpdateLatencyCoordinates(const WebInputEvent& event,
+ #define CONFIRM_VALID_TIMING(start, end)     \
+   DCHECK(!start.first_event_time.is_null()); \
+   DCHECK(!end.last_event_time.is_null());    \
+-  DCHECK_GE(end.last_event_time, start.first_event_time);
+ 
+ // Touch/wheel to scroll latency that is mostly under 1 second.
+ #define UMA_HISTOGRAM_TOUCH_WHEEL_TO_SCROLL_LATENCY(name, start, end)         \

@@ -190,7 +190,6 @@ class CefRenderWidgetHostViewOSR
       int output_surface_id,
       bool is_swap_ack,
       const cc::ReturnedResourceArray& resources) override;
-  void DelegatedFrameHostOnLostCompositorResources() override;
   void SetBeginFrameSource(cc::BeginFrameSource* source) override;
   bool IsAutoResizeEnabled() const override;
 #endif  // !defined(OS_MACOSX)

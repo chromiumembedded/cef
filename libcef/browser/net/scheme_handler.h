@@ -12,7 +12,7 @@
 #include "url/gurl.h"
 
 namespace net {
-class FtpTransactionFactory;
+class HostResolver;
 class URLRequestJobFactoryImpl;
 }
 
@@ -26,7 +26,7 @@ void InstallInternalProtectedHandlers(
     net::URLRequestJobFactoryImpl* job_factory,
     CefURLRequestManager* request_manager,
     content::ProtocolHandlerMap* protocol_handlers,
-    net::FtpTransactionFactory* ftp_transaction_factory);
+    net::HostResolver* host_resolver);
 
 // Register the internal scheme handlers that can be overridden.
 void RegisterInternalHandlers(CefURLRequestManager* request_manager);

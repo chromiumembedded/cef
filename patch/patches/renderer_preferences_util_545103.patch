@@ -1,8 +1,8 @@
 diff --git renderer_preferences_util.cc renderer_preferences_util.cc
-index aa4f1c2..cdf2fd9 100644
+index c20a01d..ceeb3eb 100644
 --- renderer_preferences_util.cc
 +++ renderer_preferences_util.cc
-@@ -30,7 +30,8 @@
+@@ -31,7 +31,8 @@
  #include "ui/base/cocoa/defaults_utils.h"
  #endif
  
@@ -12,7 +12,7 @@ index aa4f1c2..cdf2fd9 100644
  #include "chrome/browser/themes/theme_service.h"
  #include "chrome/browser/themes/theme_service_factory.h"
  #include "ui/views/linux_ui/linux_ui.h"
-@@ -132,7 +133,8 @@ void UpdateFromSystemSettings(content::RendererPreferences* prefs,
+@@ -133,7 +134,8 @@ void UpdateFromSystemSettings(content::RendererPreferences* prefs,
      prefs->caret_blink_interval = interval.InSecondsF();
  #endif
  

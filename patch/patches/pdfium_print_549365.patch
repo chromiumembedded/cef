@@ -1,8 +1,8 @@
 diff --git BUILD.gn BUILD.gn
-index b6b33f1..d80ead9 100644
+index f91ea0e..b57c692 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -181,6 +181,10 @@ static_library("pdfium") {
+@@ -183,6 +183,10 @@ static_library("pdfium") {
    } else {
      libs += [ "freetype" ]
    }
@@ -14,10 +14,10 @@ index b6b33f1..d80ead9 100644
  
  static_library("test_support") {
 diff --git fpdfsdk/fpdfview.cpp fpdfsdk/fpdfview.cpp
-index 001ebb0..8b2b6cc 100644
+index 334c14c..fd918f3 100644
 --- fpdfsdk/fpdfview.cpp
 +++ fpdfsdk/fpdfview.cpp
-@@ -30,6 +30,7 @@
+@@ -31,6 +31,7 @@
  #include "fpdfsdk/fsdk_define.h"
  #include "fpdfsdk/fsdk_pauseadapter.h"
  #include "fpdfsdk/javascript/ijs_runtime.h"
@@ -25,8 +25,8 @@ index 001ebb0..8b2b6cc 100644
  #include "public/fpdf_ext.h"
  #include "public/fpdf_progressive.h"
  #include "third_party/base/numerics/safe_conversions_impl.h"
-@@ -299,6 +300,7 @@ DLLEXPORT void STDCALL FPDF_DestroyLibrary() {
- #endif  // PDF_ENABLE_XFA
+@@ -263,6 +264,7 @@ DLLEXPORT void STDCALL FPDF_DestroyLibrary() {
+ 
    CPDF_ModuleMgr::Destroy();
    CFX_GEModule::Destroy();
 +  FXJS_Release();

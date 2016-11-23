@@ -20,7 +20,7 @@
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
-#include "third_party/WebKit/public/web/WebInputEvent.h"
+#include "third_party/WebKit/public/platform/WebInputEvent.h"
 #import  "ui/base/cocoa/cocoa_base_utils.h"
 #import  "ui/base/cocoa/underlay_opengl_hosting_window.h"
 #include "ui/events/keycodes/keyboard_codes_posix.h"

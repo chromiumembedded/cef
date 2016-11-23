@@ -1,5 +1,5 @@
 diff --git controls/button/menu_button.cc controls/button/menu_button.cc
-index 38fc310..fdd8a13 100644
+index e98dda7..14825f6 100644
 --- controls/button/menu_button.cc
 +++ controls/button/menu_button.cc
 @@ -195,7 +195,7 @@ void MenuButton::OnPaint(gfx::Canvas* canvas) {
@@ -11,7 +11,7 @@ index 38fc310..fdd8a13 100644
                           kMenuMarkerPaddingRight,
                       0);
    }
-@@ -322,7 +322,7 @@ gfx::Rect MenuButton::GetChildAreaBounds() {
+@@ -323,7 +323,7 @@ gfx::Rect MenuButton::GetChildAreaBounds() {
    gfx::Size s = size();
  
    if (show_menu_marker_) {
@@ -20,7 +20,7 @@ index 38fc310..fdd8a13 100644
                  kMenuMarkerPaddingRight);
    }
  
-@@ -411,4 +411,10 @@ int MenuButton::GetMaximumScreenXCoordinate() {
+@@ -412,4 +412,10 @@ int MenuButton::GetMaximumScreenXCoordinate() {
    return monitor_bounds.right() - 1;
  }
  
@@ -32,7 +32,7 @@ index 38fc310..fdd8a13 100644
 +
  }  // namespace views
 diff --git controls/button/menu_button.h controls/button/menu_button.h
-index 696a941..ce5abcd 100644
+index c232cc1..cc207f9 100644
 --- controls/button/menu_button.h
 +++ controls/button/menu_button.h
 @@ -54,6 +54,9 @@ class VIEWS_EXPORT MenuButton : public LabelButton {
@@ -56,7 +56,7 @@ index 696a941..ce5abcd 100644
    // The time is used for simulating menu behavior for the menu button; that
    // is, if the menu is shown and the button is pressed, we need to close the
 diff --git view.h view.h
-index 28171db..747930c 100644
+index bb5ebdf..959645a 100644
 --- view.h
 +++ view.h
 @@ -18,6 +18,7 @@
@@ -67,7 +67,7 @@ index 28171db..747930c 100644
  #include "build/build_config.h"
  #include "ui/accessibility/ax_enums.h"
  #include "ui/base/accelerators/accelerator.h"
-@@ -113,7 +114,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -112,7 +113,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
                            public ui::LayerOwner,
                            public ui::AcceleratorTarget,
                            public ui::EventTarget,

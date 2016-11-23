@@ -12,10 +12,10 @@
 #include "chrome/utility/utility_message_handler.h"
 #include "mojo/public/cpp/bindings/strong_binding.h"
 #include "net/proxy/mojo_proxy_resolver_factory_impl.h"
-#include "services/shell/public/cpp/interface_registry.h"
+#include "services/service_manager/public/cpp/interface_registry.h"
 
 #if defined(OS_WIN)
-#include "libcef/utility/printing_handler.h"
+#include "chrome/utility/printing_handler.h"
 #endif
 
 namespace {
@@ -30,7 +30,7 @@ void CreateProxyResolverFactory(
 
 CefContentUtilityClient::CefContentUtilityClient() {
 #if defined(OS_WIN)
-  handlers_.push_back(new PrintingHandler());
+  handlers_.push_back(new printing::PrintingHandler());
 #endif
 }
 
@@ -50,7 +50,7 @@ bool CefContentUtilityClient::OnMessageReceived(
 }
 
 void CefContentUtilityClient::ExposeInterfacesToBrowser(
-    shell::InterfaceRegistry* registry) {
+    service_manager::InterfaceRegistry* registry) {
   registry->AddInterface<net::interfaces::ProxyResolverFactory>(
       base::Bind(CreateProxyResolverFactory));
 }

@@ -4,19 +4,25 @@
 
 #include "libcef/browser/printing/printing_message_filter.h"
 
+#include <memory>
 #include <string>
 #include <utility>
 
 #include "base/bind.h"
+#include "build/build_config.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/printing/printer_query.h"
+#include "chrome/browser/profiles/profile.h"
+#include "chrome/common/pref_names.h"
+#include "components/keyed_service/content/browser_context_keyed_service_shutdown_notifier_factory.h"
 #include "components/printing/browser/print_manager_utils.h"
 #include "components/printing/common/print_messages.h"
 #include "content/public/browser/browser_thread.h"
-#include "content/public/browser/render_view_host.h"
+#include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/child_process_host.h"
+#include "printing/features/features.h"
 
 #if defined(OS_LINUX)
 #include "libcef/browser/printing/print_dialog_linux.h"
@@ -26,24 +32,90 @@ using content::BrowserThread;
 
 namespace printing {
 
-CefPrintingMessageFilter::CefPrintingMessageFilter(int render_process_id)
+namespace {
+
+// There's a race condition between deletion of the CefPrintingMessageFilter
+// object on the UI thread and deletion of the PrefService (owned by Profile)
+// on the UI thread. If the PrefService will be deleted first then
+// PrefMember::Destroy() must be called from ShutdownOnUIThread() to avoid
+// heap-use-after-free on CefPrintingMessageFilter destruction (due to
+// ~PrefMember trying to access the already-deleted PrefService).
+// ShutdownNotifierFactory makes sure that ShutdownOnUIThread() is called in
+// this case.
+class ShutdownNotifierFactory
+    : public BrowserContextKeyedServiceShutdownNotifierFactory {
+ public:
+  static ShutdownNotifierFactory* GetInstance();
+
+ private:
+  friend struct base::DefaultLazyInstanceTraits<ShutdownNotifierFactory>;
+
+  ShutdownNotifierFactory()
+      : BrowserContextKeyedServiceShutdownNotifierFactory(
+            "CefPrintingMessageFilter") {
+  }
+  ~ShutdownNotifierFactory() override {}
+
+  DISALLOW_COPY_AND_ASSIGN(ShutdownNotifierFactory);
+};
+
+base::LazyInstance<ShutdownNotifierFactory>::Leaky
+    g_shutdown_notifier_factory = LAZY_INSTANCE_INITIALIZER;
+
+// static
+ShutdownNotifierFactory* ShutdownNotifierFactory::GetInstance() {
+  return g_shutdown_notifier_factory.Pointer();
+}
+
+}  // namespace
+
+CefPrintingMessageFilter::CefPrintingMessageFilter(int render_process_id,
+                                                   Profile* profile)
     : content::BrowserMessageFilter(PrintMsgStart),
       render_process_id_(render_process_id),
       queue_(g_browser_process->print_job_manager()->queue()) {
   DCHECK(queue_.get());
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+  shutdown_notifier_ =
+      ShutdownNotifierFactory::GetInstance()->Get(profile)->Subscribe(
+          base::Bind(&CefPrintingMessageFilter::ShutdownOnUIThread,
+                     base::Unretained(this)));
+
+  is_printing_enabled_.Init(prefs::kPrintingEnabled, profile->GetPrefs());
+  is_printing_enabled_.MoveToThread(
+      content::BrowserThread::GetTaskRunnerForThread(BrowserThread::IO));
+}
+
+void CefPrintingMessageFilter::EnsureShutdownNotifierFactoryBuilt() {
+  ShutdownNotifierFactory::GetInstance();
 }
 
 CefPrintingMessageFilter::~CefPrintingMessageFilter() {
+  DCHECK_CURRENTLY_ON(BrowserThread::UI);
+}
+
+void CefPrintingMessageFilter::ShutdownOnUIThread() {
+  is_printing_enabled_.Destroy();
+  shutdown_notifier_.reset();
 }
 
 void CefPrintingMessageFilter::OverrideThreadForMessage(
     const IPC::Message& message, BrowserThread::ID* thread) {
+#if defined(OS_ANDROID)
+  if (message.type() == PrintHostMsg_AllocateTempFileForPrinting::ID ||
+      message.type() == PrintHostMsg_TempFileForPrintingWritten::ID) {
+    *thread = BrowserThread::UI;
+  }
+#endif
+}
+
+void CefPrintingMessageFilter::OnDestruct() const {
+  BrowserThread::DeleteOnUIThread::Destruct(this);
 }
 
 bool CefPrintingMessageFilter::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(CefPrintingMessageFilter, message)
-    IPC_MESSAGE_HANDLER(PrintHostMsg_IsPrintingEnabled, OnIsPrintingEnabled)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(PrintHostMsg_GetDefaultPrintSettings,
                                     OnGetDefaultPrintSettings)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(PrintHostMsg_ScriptedPrint, OnScriptedPrint)
@@ -53,11 +125,6 @@ bool CefPrintingMessageFilter::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
-}
-
-void CefPrintingMessageFilter::OnIsPrintingEnabled(bool* is_enabled) {
-  DCHECK_CURRENTLY_ON(BrowserThread::IO);
-  *is_enabled = true;
 }
 
 void CefPrintingMessageFilter::OnGetDefaultPrintSettings(
@@ -70,6 +137,11 @@ void CefPrintingMessageFilter::OnGetDefaultPrintSettings(
 #endif
 
   scoped_refptr<PrinterQuery> printer_query;
+  if (!is_printing_enabled_.GetValue()) {
+    // Reply with NULL query.
+    OnGetDefaultPrintSettingsReply(printer_query, reply_msg);
+    return;
+  }
   printer_query = queue_->PopPrinterQuery(0);
   if (!printer_query.get()) {
     printer_query =
@@ -168,6 +240,11 @@ void CefPrintingMessageFilter::OnUpdatePrintSettings(
   std::unique_ptr<base::DictionaryValue> new_settings(job_settings.DeepCopy());
 
   scoped_refptr<PrinterQuery> printer_query;
+  if (!is_printing_enabled_.GetValue()) {
+    // Reply with NULL query.
+    OnUpdatePrintSettingsReply(printer_query, reply_msg);
+    return;
+  }
   printer_query = queue_->PopPrinterQuery(document_cookie);
   if (!printer_query.get()) {
     int host_id = render_process_id_;

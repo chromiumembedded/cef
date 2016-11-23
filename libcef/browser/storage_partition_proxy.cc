@@ -81,6 +81,10 @@ CefStoragePartitionProxy::GetBackgroundSyncContext() {
   return parent_->GetBackgroundSyncContext();
 }
 
+content::PaymentAppContext* CefStoragePartitionProxy::GetPaymentAppContext() {
+  return parent_->GetPaymentAppContext();
+}
+
 content::BroadcastChannelProvider*
 CefStoragePartitionProxy::GetBroadcastChannelProvider() {
   return parent_->GetBroadcastChannelProvider();

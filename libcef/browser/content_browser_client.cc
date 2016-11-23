@@ -39,7 +39,9 @@
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
+#include "base/json/json_reader.h"
 #include "base/path_service.h"
+#include "cef/grit/cef_resources.h"
 #include "chrome/browser/spellchecker/spellcheck_message_filter.h"
 #include "chrome/common/chrome_switches.h"
 #include "components/navigation_interception/intercept_navigation_throttle.h"
@@ -60,6 +62,7 @@
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/resource_dispatcher_host.h"
 #include "content/public/common/content_switches.h"
+#include "content/public/common/service_names.mojom.h"
 #include "content/public/common/storage_quota_params.h"
 #include "content/public/common/web_preferences.h"
 #include "extensions/browser/extensions_browser_client.h"
@@ -72,6 +75,7 @@
 #include "net/ssl/ssl_cert_request_info.h"
 #include "ppapi/host/ppapi_host.h"
 #include "third_party/WebKit/public/web/WebWindowFeatures.h"
+#include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_switches.h"
 #include "url/gurl.h"
 
@@ -457,9 +461,10 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
   const int id = host->GetID();
+  Profile* profile = Profile::FromBrowserContext(host->GetBrowserContext());
 
   host->GetChannel()->AddFilter(new CefBrowserMessageFilter(id));
-  host->AddFilter(new printing::CefPrintingMessageFilter(id));
+  host->AddFilter(new printing::CefPrintingMessageFilter(id, profile));
 
   if (!command_line->HasSwitch(switches::kDisableSpellChecking)) {
     host->AddFilter(new SpellCheckMessageFilter(id));
@@ -468,18 +473,16 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
 #endif
   }
 
-  content::BrowserContext* browser_context = host->GetBrowserContext();
-
   host->AddFilter(new CefPluginInfoMessageFilter(id,
-      static_cast<CefBrowserContext*>(browser_context)));
+      static_cast<CefBrowserContext*>(profile)));
 
   if (extensions::ExtensionsEnabled()) {
     host->AddFilter(
-        new extensions::ExtensionMessageFilter(id, browser_context));
+        new extensions::ExtensionMessageFilter(id, profile));
     host->AddFilter(
-        new extensions::IOThreadExtensionMessageFilter(id, browser_context));
+        new extensions::IOThreadExtensionMessageFilter(id, profile));
     host->AddFilter(
-        new extensions::ExtensionsGuestViewMessageFilter(id, browser_context));
+        new extensions::ExtensionsGuestViewMessageFilter(id, profile));
   }
 
   // If the renderer process crashes then the host may already have
@@ -489,7 +492,7 @@ void CefContentBrowserClient::RenderProcessWillLaunch(
   host->AddObserver(CefBrowserInfoManager::GetInstance());
 
   host->Send(new CefProcessMsg_SetIsIncognitoProcess(
-      browser_context->IsOffTheRecord()));
+      profile->IsOffTheRecord()));
 }
 
 bool CefContentBrowserClient::ShouldUseProcessPerSite(
@@ -587,6 +590,25 @@ void CefContentBrowserClient::SiteInstanceDeleting(
                  site_instance->GetId()));
 }
 
+std::unique_ptr<base::Value>
+CefContentBrowserClient::GetServiceManifestOverlay(
+    const std::string& name) {
+  int id = -1;
+  if (name == content::mojom::kBrowserServiceName)
+    id = IDR_CEF_BROWSER_MANIFEST_OVERLAY;
+  else if (name == content::mojom::kRendererServiceName)
+    id = IDR_CEF_RENDERER_MANIFEST_OVERLAY;
+  else if (name == content::mojom::kUtilityServiceName)
+    id = IDR_CEF_UTILITY_MANIFEST_OVERLAY;
+  if (id == -1)
+    return nullptr;
+
+  base::StringPiece manifest_contents =
+      ui::ResourceBundle::GetSharedInstance().GetRawDataResourceForScale(
+          id, ui::ScaleFactor::SCALE_FACTOR_NONE);
+  return base::JSONReader::Read(manifest_contents);
+}
+
 void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     base::CommandLine* command_line, int child_process_id) {
   const base::CommandLine* browser_cmd =
@@ -660,7 +682,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     command_line->CopySwitchesFrom(*browser_cmd, kSwitchNames,
                                    arraysize(kSwitchNames));
 
-#if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
+#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_PEPPER_CDMS)
     if (!browser_cmd->HasSwitch(switches::kNoSandbox)) {
       // Pass the Widevine CDM path to the Zygote process. See comments in
       // CefWidevineLoader::AddPepperPlugins.

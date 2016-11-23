@@ -32,8 +32,6 @@ void CefSoftwareOutputDeviceOSR::Resize(const gfx::Size& viewport_pixel_size,
                                         float scale_factor) {
   CEF_REQUIRE_UIT();
 
-  scale_factor_ = scale_factor;
-
   if (viewport_pixel_size_ == viewport_pixel_size)
     return;
 

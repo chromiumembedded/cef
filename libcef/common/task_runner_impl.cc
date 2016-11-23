@@ -88,14 +88,8 @@ scoped_refptr<base::SequencedTaskRunner>
   if (id >= 0 && CefContentClient::Get() &&
       CefContentClient::Get()->browser() &&
       BrowserThread::IsMessageLoopValid(static_cast<BrowserThread::ID>(id))) {
-    // Don't use BrowserThread::GetTaskRunnerForThread because it returns
-    // a new MessageLoopProxy object for each call and makes pointer equality
-    // testing impossible.
-    base::MessageLoop* message_loop =
-        BrowserThread::UnsafeGetMessageLoopForThread(
-            static_cast<BrowserThread::ID>(id));
-    if (message_loop)
-      return message_loop->task_runner();
+    return BrowserThread::GetTaskRunnerForThread(
+        static_cast<BrowserThread::ID>(id));
   }
 
   return NULL;
@@ -106,9 +100,19 @@ scoped_refptr<base::SequencedTaskRunner>
     CefTaskRunnerImpl::GetCurrentTaskRunner() {
   scoped_refptr<base::SequencedTaskRunner> task_runner;
 
-  // Check for a MessageLoopProxy. This covers all of the named browser and
-  // render process threads, plus a few extra.
-  task_runner = base::ThreadTaskRunnerHandle::Get();
+  // For named browser process threads return the same TaskRunner as
+  // GetTaskRunner(). Otherwise BelongsToThread() will return incorrect results.
+  BrowserThread::ID current_id;
+  if (BrowserThread::GetCurrentThreadIdentifier(&current_id) &&
+      BrowserThread::IsMessageLoopValid(current_id)) {
+    task_runner = BrowserThread::GetTaskRunnerForThread(current_id);
+  }
+
+  if (!task_runner.get()) {
+    // Check for a MessageLoopProxy. This covers all of the named browser and
+    // render process threads, plus a few extra.
+    task_runner = base::ThreadTaskRunnerHandle::Get();
+  }
 
   if (!task_runner.get()) {
     // Check for a WebWorker thread.

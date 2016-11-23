@@ -2,8 +2,8 @@
 # 2014 the Chromium Authors. All rights reserved. Use of this source code is
 # governed by a BSD-style license that can be found in the LICENSE file.
 
-import("//build/json_schema_api.gni")
 import("//tools/json_schema_compiler/json_features.gni")
+#import("//tools/json_schema_compiler/json_schema_api.gni")
 
 # TODO(cef): Enable if/when CEF exposes its own Mojo APIs. See README.txt for
 # details.

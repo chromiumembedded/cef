@@ -186,6 +186,11 @@ v8::MaybeLocal<v8::Value> CallV8Function(v8::Local<v8::Context> context,
   return func_rv;
 }
 
+bool IsTextControlElement(const blink::WebElement& element) {
+  const blink::Element* web_element = element.constUnwrap<blink::Element>();
+  return web_element->isTextControl();
+}
+
 v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
     const blink::WebString& source,
     const blink::WebString& source_url,

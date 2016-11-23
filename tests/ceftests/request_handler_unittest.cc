@@ -1335,11 +1335,11 @@ class ResponseFilterPassThru : public ResponseFilterTestBase {
     if (limit_read_)
       // Expected to read 2 full buffers of kResponseBufferSize at 1kb
       // increments (2 * 32) and one partial buffer.
-      EXPECT_EQ(filter_count_, 2U * 32U + 1U);
+      EXPECT_EQ(2U * 32U + 1U, filter_count_);
     else {
       // Expected to read 2 full buffers of kResponseBufferSize and one partial
       // buffer.
-      EXPECT_EQ(filter_count_, 3U);
+      EXPECT_EQ(3U, filter_count_);
     }
     EXPECT_STREQ(input_.c_str(), received_content.c_str());
 
@@ -1436,9 +1436,9 @@ class ResponseFilterNeedMore : public ResponseFilterTestBase {
       Write(&data_in_ptr[i], 1, WRITE_PARAMS);
     }
 
-    // If a match is currently in-progress we need more data. Otherwise, we're
-    // done.
-    return find_match_offset_ > 0 ?
+    // If a match is currently in-progress and input was provided then we need
+    // more data. Otherwise, we're done.
+    return find_match_offset_ > 0 && data_in_size > 0 ?
         RESPONSE_FILTER_NEED_MORE_DATA : RESPONSE_FILTER_DONE;
   }
 
@@ -1476,7 +1476,7 @@ class ResponseFilterNeedMore : public ResponseFilterTestBase {
 
     // Expected to read 2 full buffers of kResponseBufferSize and one partial
     // buffer, and then one additional call to drain the overflow.
-    EXPECT_EQ(filter_count_, 4U);
+    EXPECT_EQ(4U, filter_count_);
   }
 
  private:

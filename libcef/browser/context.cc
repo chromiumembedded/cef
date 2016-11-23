@@ -398,7 +398,7 @@ void CefContext::OnContextInitialized() {
   static_cast<ChromeBrowserProcessStub*>(g_browser_process)->
       OnContextInitialized();
 
-#if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
+#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_PEPPER_CDMS)
   CefWidevineLoader::GetInstance()->OnContextInitialized();
 #endif
 

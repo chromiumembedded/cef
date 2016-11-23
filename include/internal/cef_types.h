@@ -564,12 +564,6 @@ typedef struct _cef_browser_settings_t {
   cef_state_t javascript_dom_paste;
 
   ///
-  // Controls whether the caret position will be drawn. Also configurable using
-  // the "enable-caret-browsing" command-line switch.
-  ///
-  cef_state_t caret_browsing;
-
-  ///
   // Controls whether any plugins will be loaded. Also configurable using the
   // "disable-plugins" command-line switch.
   ///

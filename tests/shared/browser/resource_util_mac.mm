@@ -15,26 +15,14 @@ namespace client {
 
 namespace {
 
+// Implementation adapted from Chromium's base/mac/foundation_util.mm
+bool UncachedAmIBundled() {
+  return [[[NSBundle mainBundle] bundlePath] hasSuffix:@".app"];
+}
+
 bool AmIBundled() {
-  // Implementation adapted from Chromium's base/mac/foundation_util.mm
-  ProcessSerialNumber psn = {0, kCurrentProcess};
-
-  FSRef fsref;
-  OSStatus pbErr;
-  if ((pbErr = GetProcessBundleLocation(&psn, &fsref)) != noErr) {
-    NOTREACHED();
-    return false;
-  }
-
-  FSCatalogInfo info;
-  OSErr fsErr;
-  if ((fsErr = FSGetCatalogInfo(&fsref, kFSCatInfoNodeFlags, &info,
-                                NULL, NULL, NULL)) != noErr) {
-    NOTREACHED();
-    return false;
-  }
-
-  return (info.nodeFlags & kFSNodeIsDirectoryMask);
+  static bool am_i_bundled = UncachedAmIBundled();
+  return am_i_bundled;
 }
 
 }  // namespace

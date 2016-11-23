@@ -11,7 +11,7 @@
 #include "components/visitedlink/renderer/visitedlink_slave.h"
 #include "content/public/renderer/render_thread.h"
 #include "net/base/net_module.h"
-#include "services/shell/public/cpp/interface_registry.h"
+#include "services/service_manager/public/cpp/interface_registry.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"

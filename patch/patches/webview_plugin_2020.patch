@@ -1,8 +1,8 @@
 diff --git chrome/app/generated_resources.grd chrome/app/generated_resources.grd
-index dbd83a1..acf844e 100644
+index 351ceb7..304c765 100644
 --- chrome/app/generated_resources.grd
 +++ chrome/app/generated_resources.grd
-@@ -7082,7 +7082,7 @@ Keep your key file in a safe place. You will need it to create new versions of y
+@@ -7199,7 +7199,7 @@ Keep your key file in a safe place. You will need it to create new versions of y
          </message>
        </if>
        <message name="IDS_PLUGIN_BLOCKED_BY_POLICY" desc="The placeholder text for a plugin blocked by enterprise policy.">
@@ -12,7 +12,7 @@ index dbd83a1..acf844e 100644
        <if expr="chromeos">
          <message name="IDS_NACL_PLUGIN_BLOCKED" desc="The placeholder text for a blocked plugin.">
 diff --git components/plugins/renderer/loadable_plugin_placeholder.cc components/plugins/renderer/loadable_plugin_placeholder.cc
-index 9bc0478..d0263d3 100644
+index 1f38fdb..03e0f60 100644
 --- components/plugins/renderer/loadable_plugin_placeholder.cc
 +++ components/plugins/renderer/loadable_plugin_placeholder.cc
 @@ -127,11 +127,10 @@ void LoadablePluginPlaceholder::ReplacePlugin(blink::WebPlugin* new_plugin) {
@@ -30,13 +30,13 @@ index 9bc0478..d0263d3 100644
  }
  
 diff --git components/plugins/renderer/webview_plugin.cc components/plugins/renderer/webview_plugin.cc
-index af1d919..0429d59 100644
+index 8d45c42..2a2ec9a 100644
 --- components/plugins/renderer/webview_plugin.cc
 +++ components/plugins/renderer/webview_plugin.cc
-@@ -17,7 +17,9 @@
- #include "content/public/renderer/render_view.h"
+@@ -18,7 +18,9 @@
  #include "gin/converter.h"
  #include "skia/ext/platform_canvas.h"
+ #include "third_party/WebKit/public/platform/WebInputEvent.h"
 +#include "third_party/WebKit/public/platform/WebSize.h"
  #include "third_party/WebKit/public/platform/WebURL.h"
 +#include "third_party/WebKit/public/platform/WebURLRequest.h"
@@ -87,15 +87,15 @@ index af1d919..0429d59 100644
 +    for (std::list<std::string>::iterator it = data_.begin(); it != data_.end();
 +         ++it) {
 +      plugin->didReceiveData(
-+          it->c_str(), base::checked_cast<int, size_t>(it->length()));
++          it->c_str(), base::checked_cast<int>(it->length()));
 +      total_bytes += it->length();
 +    }
 +    UMA_HISTOGRAM_MEMORY_KB(
 +        "PluginDocument.Memory",
-+        (base::checked_cast<int, size_t>(total_bytes / 1024)));
++        (base::checked_cast<int>(total_bytes / 1024)));
 +    UMA_HISTOGRAM_COUNTS(
 +        "PluginDocument.NumChunks",
-+        (base::checked_cast<int, size_t>(data_.size())));
++        (base::checked_cast<int>(data_.size())));
 +  }
 +  // We need to transfer the |focused_| to new plugin after it loaded.
 +  if (focused_) {
@@ -143,7 +143,7 @@ index af1d919..0429d59 100644
  }
  
  bool WebViewPlugin::acceptsLoadDrops() { return false; }
-@@ -277,9 +315,8 @@ void WebViewPlugin::scheduleAnimation() {
+@@ -279,9 +317,8 @@ void WebViewPlugin::scheduleAnimation() {
    }
  }
  
@@ -155,7 +155,7 @@ index af1d919..0429d59 100644
      return;
  
    v8::Isolate* isolate = blink::mainThreadIsolate();
-@@ -291,7 +328,7 @@ void WebViewPlugin::PluginWebFrameClient::didClearWindowObject(
+@@ -293,7 +330,7 @@ void WebViewPlugin::PluginWebFrameClient::didClearWindowObject(
    v8::Local<v8::Object> global = context->Global();
  
    global->Set(gin::StringToV8(isolate, "plugin"),
@@ -165,7 +165,7 @@ index af1d919..0429d59 100644
  
  void WebViewPlugin::OnDestruct() {}
 diff --git components/plugins/renderer/webview_plugin.h components/plugins/renderer/webview_plugin.h
-index 086fa6d..6f69dec 100644
+index fdb1cf9..97e3995 100644
 --- components/plugins/renderer/webview_plugin.h
 +++ components/plugins/renderer/webview_plugin.h
 @@ -42,6 +42,7 @@ class Size;

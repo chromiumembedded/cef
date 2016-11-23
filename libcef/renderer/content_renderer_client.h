@@ -113,8 +113,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
                   bool* send_referrer) override;
   bool WillSendRequest(blink::WebFrame* frame,
                        ui::PageTransition transition_type,
-                       const GURL& url,
-                       const GURL& first_party_for_cookies,
+                       const blink::WebURL& url,
                        GURL* new_url) override;
   unsigned long long VisitedLinkHash(const char* canonical_url,
                                      size_t length) override;
@@ -176,6 +175,8 @@ class CefContentRendererClient : public content::ContentRendererClient,
   // Access must be protected by |single_process_cleanup_lock_|.
   bool single_process_cleanup_complete_;
   base::Lock single_process_cleanup_lock_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefContentRendererClient);
 };
 
 #endif  // CEF_LIBCEF_RENDERER_CONTENT_RENDERER_CLIENT_H_

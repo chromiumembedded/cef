@@ -37,6 +37,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   content::PlatformNotificationContext* GetPlatformNotificationContext()
       override;
   content::BackgroundSyncContext* GetBackgroundSyncContext() override;
+  content::PaymentAppContext* GetPaymentAppContext() override;
   content::BroadcastChannelProvider* GetBroadcastChannelProvider() override;
   void ClearDataForOrigin(uint32_t remove_mask,
                           uint32_t quota_storage_remove_mask,

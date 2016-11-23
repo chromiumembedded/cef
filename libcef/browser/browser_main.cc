@@ -18,6 +18,7 @@
 #include "libcef/browser/extensions/extensions_browser_client.h"
 #include "libcef/browser/extensions/extension_system_factory.h"
 #include "libcef/browser/net/chrome_scheme_handler.h"
+#include "libcef/browser/printing/printing_message_filter.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/extensions/extensions_client.h"
 #include "libcef/common/extensions/extensions_util.h"
@@ -180,6 +181,8 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
     extensions::cef::EnsureBrowserContextKeyedServiceFactoriesBuilt();
     extensions::CefExtensionSystemFactory::GetInstance();
   }
+
+  printing::CefPrintingMessageFilter::EnsureShutdownNotifierFactoryBuilt();
 
   CefRequestContextSettings settings;
   CefContext::Get()->PopulateRequestContextSettings(&settings);

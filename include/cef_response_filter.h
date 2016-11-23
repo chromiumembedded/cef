@@ -57,22 +57,34 @@ class CefResponseFilter : public virtual CefBase {
   virtual bool InitFilter() =0;
 
   ///
-  // Called to filter a chunk of data. |data_in| is the input buffer containing
-  // |data_in_size| bytes of pre-filter data (|data_in| will be NULL if
-  // |data_in_size| is zero). |data_out| is the output buffer that can accept up
-  // to |data_out_size| bytes of filtered output data. Set |data_in_read| to the
-  // number of bytes that were read from |data_in|. Set |data_out_written| to
-  // the number of bytes that were written into |data_out|. If some or all of
-  // the pre-filter data was read successfully but more data is needed in order
-  // to continue filtering (filtered output is pending) return
-  // RESPONSE_FILTER_NEED_MORE_DATA. If some or all of the pre-filter data was
-  // read successfully and all available filtered output has been written return
-  // RESPONSE_FILTER_DONE. If an error occurs during filtering return
-  // RESPONSE_FILTER_ERROR. This method will be called repeatedly until there is
-  // no more data to filter (resource response is complete), |data_in_read|
-  // matches |data_in_size| (all available pre-filter bytes have been read), and
-  // the method returns RESPONSE_FILTER_DONE or RESPONSE_FILTER_ERROR. Do not
-  // keep a reference to the buffers passed to this method.
+  // Called to filter a chunk of data. Expected usage is as follows:
+  //
+  //  A. Read input data from |data_in| and set |data_in_read| to the number of
+  //     bytes that were read up to a maximum of |data_in_size|. |data_in| will
+  //     be NULL if |data_in_size| is zero.
+  //  B. Write filtered output data to |data_out| and set |data_out_written| to
+  //     the number of bytes that were written up to a maximum of
+  //     |data_out_size|. If no output data was written then all data must be
+  //     read from |data_in| (user must set |data_in_read| = |data_in_size|).
+  //  C. Return RESPONSE_FILTER_DONE if all output data was written or
+  //     RESPONSE_FILTER_NEED_MORE_DATA if output data is still pending.
+  //
+  // This method will be called repeatedly until the input buffer has been
+  // fully read (user sets |data_in_read| = |data_in_size|) and there is no
+  // more input data to filter (the resource response is complete). This method
+  // may then be called an additional time with an empty input buffer if the
+  // user filled the output buffer (set |data_out_written| = |data_out_size|)
+  // and returned RESPONSE_FILTER_NEED_MORE_DATA to indicate that output data is
+  // still pending.
+  //
+  // Calls to this method will stop when one of the following conditions is met:
+  //
+  //  A. There is no more input data to filter (the resource response is
+  //     complete) and the user sets |data_out_written| = 0 or returns
+  //     RESPONSE_FILTER_DONE to indicate that all data has been written, or;
+  //  B. The user returns RESPONSE_FILTER_ERROR to indicate an error.
+  //
+  // Do not keep a reference to the buffers passed to this method.
   ///
   /*--cef(optional_param=data_in,default_retval=RESPONSE_FILTER_ERROR)--*/
   virtual FilterStatus Filter(void* data_in,

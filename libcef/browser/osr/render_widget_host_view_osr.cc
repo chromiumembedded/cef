@@ -1090,10 +1090,6 @@ CefRenderWidgetHostViewOSR::DelegatedFrameHostSendReclaimCompositorResources(
       resources));
 }
 
-void CefRenderWidgetHostViewOSR::DelegatedFrameHostOnLostCompositorResources() {
-  render_widget_host_->ScheduleComposite();
-}
-
 void CefRenderWidgetHostViewOSR::SetBeginFrameSource(
     cc::BeginFrameSource* source) {
   // TODO(cef): Maybe we can use this method in combination with

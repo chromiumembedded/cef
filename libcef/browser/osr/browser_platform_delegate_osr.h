@@ -11,6 +11,10 @@
 class CefRenderWidgetHostViewOSR;
 class CefWebContentsViewOSR;
 
+namespace content {
+class RenderWidgetHostImpl;
+}
+
 // Base implementation of windowless browser functionality.
 class CefBrowserPlatformDelegateOsr :
     public CefBrowserPlatformDelegate,
@@ -72,6 +76,14 @@ class CefBrowserPlatformDelegateOsr :
                           cef_drag_operations_mask_t allowed_ops) override;
   void DragTargetDragLeave() override;
   void DragTargetDrop(const CefMouseEvent& event) override;
+  void StartDragging(
+      const content::DropData& drop_data,
+      blink::WebDragOperationsMask allowed_ops,
+      const gfx::ImageSkia& image,
+      const gfx::Vector2d& image_offset,
+      const content::DragEventSourceInfo& event_info,
+      content::RenderWidgetHostImpl* source_rwh) override;
+  void UpdateDragCursor(blink::WebDragOperation operation) override;
   void DragSourceEndedAt(int x, int y,
                          cef_drag_operations_mask_t op) override;
   void DragSourceSystemDragEnded() override;
@@ -95,6 +107,20 @@ class CefBrowserPlatformDelegateOsr :
 
   // Pending drag/drop data.
   CefRefPtr<CefDragData> drag_data_;
+  cef_drag_operations_mask_t drag_allowed_ops_;
+
+  // We keep track of the RenderWidgetHost we're dragging over. If it changes
+  // during a drag, we need to re-send the DragEnter message.
+  base::WeakPtr<content::RenderWidgetHostImpl> current_rwh_for_drag_;
+
+  // We also keep track of the RenderViewHost we're dragging over to avoid
+  // sending the drag exited message after leaving the current
+  // view. |current_rvh_for_drag_| should not be dereferenced.
+  void* current_rvh_for_drag_;
+
+  // We keep track of the RenderWidgetHost from which the current drag started,
+  // in order to properly route the drag end message to it.
+  base::WeakPtr<content::RenderWidgetHostImpl> drag_start_rwh_;
 };
 
 #endif  // CEF_LIBCEF_BROWSER_OSR_BROWSER_PLATFORM_DELEGATE_OSR_H_

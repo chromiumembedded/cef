@@ -68,7 +68,7 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::GetBrowserForMainFrame(
 
 CefRefPtr<CefBrowserHost> CefBrowserImpl::GetHost() {
   NOTREACHED() << "GetHost cannot be called from the render process";
-  return NULL;
+  return nullptr;
 }
 
 bool CefBrowserImpl::CanGoBack() {
@@ -157,31 +157,31 @@ bool CefBrowserImpl::HasDocument() {
 }
 
 CefRefPtr<CefFrame> CefBrowserImpl::GetMainFrame() {
-  CEF_REQUIRE_RT_RETURN(NULL);
+  CEF_REQUIRE_RT_RETURN(nullptr);
 
   if (render_view()->GetWebView() && render_view()->GetWebView()->mainFrame())
     return GetWebFrameImpl(render_view()->GetWebView()->mainFrame()).get();
-  return NULL;
+  return nullptr;
 }
 
 CefRefPtr<CefFrame> CefBrowserImpl::GetFocusedFrame() {
-  CEF_REQUIRE_RT_RETURN(NULL);
+  CEF_REQUIRE_RT_RETURN(nullptr);
 
   if (render_view()->GetWebView() &&
       render_view()->GetWebView()->focusedFrame()) {
     return GetWebFrameImpl(render_view()->GetWebView()->focusedFrame()).get();
   }
-  return NULL;
+  return nullptr;
 }
 
 CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(int64 identifier) {
-  CEF_REQUIRE_RT_RETURN(NULL);
+  CEF_REQUIRE_RT_RETURN(nullptr);
 
   return GetWebFrameImpl(identifier).get();
 }
 
 CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const CefString& name) {
-  CEF_REQUIRE_RT_RETURN(NULL);
+  CEF_REQUIRE_RT_RETURN(nullptr);
 
   blink::WebView* web_view = render_view()->GetWebView();
   if (web_view) {
@@ -198,7 +198,7 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const CefString& name) {
       return GetWebFrameImpl(frame).get();
   }
 
-  return NULL;
+  return nullptr;
 }
 
 size_t CefBrowserImpl::GetFrameCount() {
@@ -207,13 +207,9 @@ size_t CefBrowserImpl::GetFrameCount() {
   int count = 0;
 
   if (render_view()->GetWebView()) {
-    WebFrame* main_frame = render_view()->GetWebView()->mainFrame();
-    if (main_frame) {
-      WebFrame* cur = main_frame;
-      do {
-        count++;
-        cur = cur->traverseNext(true);
-      } while (cur != main_frame);
+    for (WebFrame* frame = render_view()->GetWebView()->mainFrame(); frame;
+         frame = frame->traverseNext()) {
+      count++;
     }
   }
 
@@ -227,13 +223,9 @@ void CefBrowserImpl::GetFrameIdentifiers(std::vector<int64>& identifiers) {
     identifiers.clear();
 
   if (render_view()->GetWebView()) {
-    WebFrame* main_frame = render_view()->GetWebView()->mainFrame();
-    if (main_frame) {
-      WebFrame* cur = main_frame;
-      do {
-        identifiers.push_back(webkit_glue::GetIdentifier(cur));
-        cur = cur->traverseNext(true);
-      } while (cur != main_frame);
+    for (WebFrame* frame = render_view()->GetWebView()->mainFrame(); frame;
+         frame = frame->traverseNext()) {
+      identifiers.push_back(webkit_glue::GetIdentifier(frame));
     }
   }
 }
@@ -245,13 +237,9 @@ void CefBrowserImpl::GetFrameNames(std::vector<CefString>& names) {
     names.clear();
 
   if (render_view()->GetWebView()) {
-    WebFrame* main_frame = render_view()->GetWebView()->mainFrame();
-    if (main_frame) {
-      WebFrame* cur = main_frame;
-      do {
-        names.push_back(CefString(cur->uniqueName().utf8()));
-        cur = cur->traverseNext(true);
-      } while (cur != main_frame);
+    for (WebFrame* frame = render_view()->GetWebView()->mainFrame(); frame;
+         frame = frame->traverseNext()) {
+      names.push_back(CefString(frame->uniqueName().utf8()));
     }
   }
 }
@@ -347,7 +335,7 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(int64_t frame_id) {
   if (frame_id == webkit_glue::kInvalidFrameId) {
     if (render_view()->GetWebView() && render_view()->GetWebView()->mainFrame())
       return GetWebFrameImpl(render_view()->GetWebView()->mainFrame());
-    return NULL;
+    return nullptr;
   }
 
   // Check if we already know about the frame.
@@ -357,18 +345,14 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(int64_t frame_id) {
 
   if (render_view()->GetWebView()) {
     // Check if the frame exists but we don't know about it yet.
-    WebFrame* main_frame = render_view()->GetWebView()->mainFrame();
-    if (main_frame) {
-      WebFrame* cur = main_frame;
-      do {
-        if (webkit_glue::GetIdentifier(cur) == frame_id)
-          return GetWebFrameImpl(cur);
-        cur = cur->traverseNext(true);
-      } while (cur != main_frame);
+    for (WebFrame* frame = render_view()->GetWebView()->mainFrame(); frame;
+         frame = frame->traverseNext()) {
+      if (webkit_glue::GetIdentifier(frame) == frame_id)
+        return GetWebFrameImpl(frame);
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void CefBrowserImpl::AddFrameObject(int64_t frame_id,
@@ -409,7 +393,7 @@ void CefBrowserImpl::OnDestruct() {
       handler->OnBrowserDestroyed(this);
   }
 
-  response_manager_.reset(NULL);
+  response_manager_.reset();
 
   CefContentRendererClient::Get()->OnBrowserDestroyed(this);
 }
@@ -552,7 +536,7 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
                                       false, true));
         success = handler->OnProcessMessageReceived(this, PID_BROWSER,
                                                     message.get());
-        message->Detach(NULL);
+        message->Detach(nullptr);
       }
     }
   } else if (params.name == "execute-code") {

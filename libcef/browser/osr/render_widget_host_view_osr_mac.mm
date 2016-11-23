@@ -58,10 +58,6 @@ class MacHelper :
         is_swap_ack, resources));
   }
 
-  void BrowserCompositorMacOnLostCompositorResources() override {
-    view_->render_widget_host()->ScheduleComposite();
-  }
-
   void BrowserCompositorMacSendBeginFrame(
       const cc::BeginFrameArgs& args) override {
     view_->render_widget_host()->Send(

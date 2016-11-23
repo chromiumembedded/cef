@@ -32,6 +32,11 @@
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
 
+namespace content {
+struct DragEventSourceInfo;
+class RenderWidgetHostImpl;
+}
+
 namespace net {
 class URLRequest;
 }
@@ -323,6 +328,15 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // scaling will be applied to the result.
   gfx::Point GetScreenPoint(const gfx::Point& view) const;
 
+  void StartDragging(
+      const content::DropData& drop_data,
+      blink::WebDragOperationsMask allowed_ops,
+      const gfx::ImageSkia& image,
+      const gfx::Vector2d& image_offset,
+      const content::DragEventSourceInfo& event_info,
+      content::RenderWidgetHostImpl* source_rwh);
+  void UpdateDragCursor(blink::WebDragOperation operation);
+
   // Thread safe accessors.
   const CefBrowserSettings& settings() const { return settings_; }
   CefRefPtr<CefClient> client() const { return client_; }
@@ -365,11 +379,11 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void CloseContents(content::WebContents* source) override;
   void UpdateTargetURL(content::WebContents* source,
                        const GURL& url) override;
-  bool AddMessageToConsole(content::WebContents* source,
-                           int32_t level,
-                           const base::string16& message,
-                           int32_t line_no,
-                           const base::string16& source_id) override;
+  bool DidAddMessageToConsole(content::WebContents* source,
+                              int32_t level,
+                              const base::string16& message,
+                              int32_t line_no,
+                              const base::string16& source_id) override;
   void BeforeUnloadFired(content::WebContents* source,
                          bool proceed,
                          bool* proceed_to_fire_unload) override;

@@ -705,7 +705,6 @@ struct CefBrowserSettingsTraits {
     target->javascript_close_windows = src->javascript_close_windows;
     target->javascript_access_clipboard = src->javascript_access_clipboard;
     target->javascript_dom_paste = src->javascript_dom_paste;
-    target->caret_browsing = src->caret_browsing;
     target->plugins = src->plugins;
     target->universal_access_from_file_urls =
         src->universal_access_from_file_urls;

@@ -46,6 +46,8 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   bool IsHandledURL(const GURL& url) override;
   void SiteInstanceGotProcess(content::SiteInstance* site_instance) override;
   void SiteInstanceDeleting(content::SiteInstance* site_instance) override;
+  std::unique_ptr<base::Value> GetServiceManifestOverlay(
+      const std::string& name) override;
   void AppendExtraCommandLineSwitches(base::CommandLine* command_line,
                                               int child_process_id) override;
   content::QuotaPermissionContext*
@@ -104,7 +106,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
 #endif
 
 #if defined(OS_WIN)
-  const wchar_t* GetResourceDllName() override;
+  const wchar_t* GetResourceDllName();
   bool PreSpawnRenderer(sandbox::TargetPolicy* policy) override;
 #endif
 

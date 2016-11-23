@@ -29,10 +29,10 @@ index e639319..5f75a9a 100644
    void EnterFullscreenModeForTab(content::WebContents* contents,
                                   const GURL& origin) final;
 diff --git chrome/browser/prerender/prerender_contents.cc chrome/browser/prerender/prerender_contents.cc
-index 4ded1cb..ce3306b 100644
+index c3e60e0..93365f5c 100644
 --- chrome/browser/prerender/prerender_contents.cc
 +++ chrome/browser/prerender/prerender_contents.cc
-@@ -141,7 +141,9 @@ class PrerenderContents::WebContentsDelegateImpl
+@@ -139,7 +139,9 @@ class PrerenderContents::WebContentsDelegateImpl
        const std::string& frame_name,
        const GURL& target_url,
        const std::string& partition_id,
@@ -44,10 +44,10 @@ index 4ded1cb..ce3306b 100644
      // window.opener property, terminate prerendering.
      prerender_contents_->Destroy(FINAL_STATUS_CREATE_NEW_WINDOW);
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index 869fbec..7ca4f52 100644
+index bbb37ff..484eda3 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
-@@ -1588,7 +1588,9 @@ bool Browser::ShouldCreateWebContents(
+@@ -1589,7 +1589,9 @@ bool Browser::ShouldCreateWebContents(
      const std::string& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
@@ -59,7 +59,7 @@ index 869fbec..7ca4f52 100644
      // If a BackgroundContents is created, suppress the normal WebContents.
      return !MaybeCreateBackgroundContents(
 diff --git chrome/browser/ui/browser.h chrome/browser/ui/browser.h
-index 5410f5a..a6aaef1 100644
+index 6cdff54..0efcaa2 100644
 --- chrome/browser/ui/browser.h
 +++ chrome/browser/ui/browser.h
 @@ -619,7 +619,9 @@ class Browser : public TabStripModelObserver,
@@ -74,10 +74,10 @@ index 5410f5a..a6aaef1 100644
                            int opener_render_process_id,
                            int opener_render_frame_id,
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index d7a0cbb..7883136 100644
+index 8850f6a..1a3719e 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1577,6 +1577,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1572,6 +1572,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -90,7 +90,7 @@ index d7a0cbb..7883136 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -1607,6 +1613,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1602,6 +1608,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
                                           std::move(view_),
                                           &render_view_host_delegate_view_));
    }
@@ -98,7 +98,7 @@ index d7a0cbb..7883136 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -2060,11 +2067,14 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2063,11 +2070,14 @@ void WebContentsImpl::CreateNewWindow(
        static_cast<SessionStorageNamespaceImpl*>(session_storage_namespace);
    CHECK(session_storage_namespace_impl->IsFromContext(dom_storage_context));
  
@@ -114,7 +114,7 @@ index d7a0cbb..7883136 100644
      if (route_id != MSG_ROUTING_NONE &&
          !RenderViewHost::FromID(render_process_id, route_id)) {
        // If the embedder didn't create a WebContents for this route, we need to
-@@ -2088,6 +2098,8 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2096,6 +2106,8 @@ void WebContentsImpl::CreateNewWindow(
    create_params.opener_render_process_id = render_process_id;
    create_params.opener_render_frame_id = params.opener_render_frame_id;
    create_params.opener_suppressed = params.opener_suppressed;
@@ -139,21 +139,22 @@ index fa0afb5..d677b31 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 8c66b2a..ed523c7 100644
+index af944f7..cde1d7b 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
-@@ -59,8 +59,10 @@ class PageState;
+@@ -59,9 +59,11 @@ class PageState;
  class RenderFrameHost;
  class RenderProcessHost;
  class RenderViewHost;
 +class RenderViewHostDelegateView;
+ class RenderWidgetHost;
  class RenderWidgetHostView;
  class WebContentsDelegate;
 +class WebContentsView;
  struct CustomContextMenuContext;
  struct DropData;
  struct Manifest;
-@@ -161,6 +163,10 @@ class WebContents : public PageNavigator,
+@@ -162,6 +164,10 @@ class WebContents : public PageNavigator,
      // Note that the pre-created renderer process may not be used if the first
      // navigation requires a dedicated or privileged process, such as a WebUI.
      bool initialize_renderer;
@@ -165,10 +166,10 @@ index 8c66b2a..ed523c7 100644
  
    // Creates a new WebContents.
 diff --git content/public/browser/web_contents_delegate.cc content/public/browser/web_contents_delegate.cc
-index d107135..2d290e1 100644
+index b86ec61..2d1ddb2 100644
 --- content/public/browser/web_contents_delegate.cc
 +++ content/public/browser/web_contents_delegate.cc
-@@ -148,7 +148,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
+@@ -144,7 +144,9 @@ bool WebContentsDelegate::ShouldCreateWebContents(
      const std::string& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
@@ -180,13 +181,13 @@ index d107135..2d290e1 100644
  }
  
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 62ef1de..824b0e1 100644
+index 2beb83c..b02f4f1 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
-@@ -45,9 +45,11 @@ class JavaScriptDialogManager;
+@@ -42,9 +42,11 @@ class ColorChooser;
+ class JavaScriptDialogManager;
  class PageState;
  class RenderFrameHost;
- class RenderViewHost;
 +class RenderViewHostDelegateView;
  class SessionStorageNamespace;
  class WebContents;
@@ -195,7 +196,7 @@ index 62ef1de..824b0e1 100644
  struct ColorSuggestion;
  struct ContextMenuParams;
  struct DropData;
-@@ -314,7 +316,9 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -303,7 +305,9 @@ class CONTENT_EXPORT WebContentsDelegate {
        const std::string& frame_name,
        const GURL& target_url,
        const std::string& partition_id,

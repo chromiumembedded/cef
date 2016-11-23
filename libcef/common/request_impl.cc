@@ -786,7 +786,7 @@ void CefRequestImpl::Get(net::URLFetcher& fetcher,
   }
 
   if (!first_party_for_cookies_.is_empty())
-    fetcher.SetInitiatorURL(first_party_for_cookies_);
+    fetcher.SetInitiator(url::Origin(first_party_for_cookies_));
 
   if (flags_ & UR_FLAG_NO_RETRY_ON_5XX)
     fetcher.SetAutomaticallyRetryOn5xx(false);

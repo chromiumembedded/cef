@@ -10,7 +10,7 @@
 
 #include "widevine_cdm_version.h"  // In SHARED_INTERMEDIATE_DIR.
 
-#if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
+#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_PEPPER_CDMS)
 
 #include <vector>
 
@@ -59,6 +59,6 @@ class CefWidevineLoader {
   ~CefWidevineLoader();
 };
 
-#endif  // defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
+#endif  // defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_PEPPER_CDMS)
 
 #endif  // CEF_LIBCEF_COMMON_WIDEVINE_LOADER_H_

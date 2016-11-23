@@ -31,6 +31,9 @@ class CefNetworkDelegate : public net::NetworkDelegateImpl {
 
  private:
   // net::NetworkDelegate methods.
+  std::unique_ptr<net::SourceStream> CreateSourceStream(
+      net::URLRequest* request,
+      std::unique_ptr<net::SourceStream> upstream) override;
   int OnBeforeURLRequest(net::URLRequest* request,
                          const net::CompletionCallback& callback,
                          GURL* new_url) override;
@@ -44,8 +47,6 @@ class CefNetworkDelegate : public net::NetworkDelegateImpl {
                        const base::FilePath& path) const override;
   bool OnAreExperimentalCookieFeaturesEnabled() const override;
   bool OnAreStrictSecureCookiesEnabled() const override;
-  net::Filter* SetupFilter(net::URLRequest* request,
-                           net::Filter* filter_list) override;
 
   // Weak, owned by our owner (CefURLRequestContextGetterImpl).
   BooleanPrefMember* force_google_safesearch_;

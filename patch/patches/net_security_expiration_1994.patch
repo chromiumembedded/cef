@@ -55,10 +55,10 @@ index c732cee..1c80e81 100644
  
  }  // namespace net
 diff --git net/http/transport_security_state.cc net/http/transport_security_state.cc
-index a3f468d..8d1928f 100644
+index 9b42feb..f7860be 100644
 --- net/http/transport_security_state.cc
 +++ net/http/transport_security_state.cc
-@@ -1374,8 +1374,10 @@ void TransportSecurityState::SetShouldRequireCTForTesting(bool* required) {
+@@ -1362,8 +1362,10 @@ void TransportSecurityState::SetShouldRequireCTForTesting(bool* required) {
    g_ct_required_for_testing = *required ? 1 : -1;
  }
  
@@ -72,10 +72,10 @@ index a3f468d..8d1928f 100644
    // We consider built-in information to be timely for 10 weeks.
    return (base::Time::Now() - build_time).InDays() < 70 /* 10 weeks */;
 diff --git net/http/transport_security_state.h net/http/transport_security_state.h
-index 3326ca2..a2de308 100644
+index fc40b7d..c0b14a4 100644
 --- net/http/transport_security_state.h
 +++ net/http/transport_security_state.h
-@@ -472,6 +472,10 @@ class NET_EXPORT TransportSecurityState
+@@ -475,6 +475,10 @@ class NET_EXPORT TransportSecurityState
    // nullptr to reset.
    static void SetShouldRequireCTForTesting(bool* required);
  
@@ -86,7 +86,7 @@ index 3326ca2..a2de308 100644
   private:
    friend class TransportSecurityStateTest;
    FRIEND_TEST_ALL_PREFIXES(HttpSecurityHeadersTest, UpdateDynamicPKPOnly);
-@@ -495,7 +499,7 @@ class NET_EXPORT TransportSecurityState
+@@ -498,7 +502,7 @@ class NET_EXPORT TransportSecurityState
    // IsBuildTimely returns true if the current build is new enough ensure that
    // built in security information (i.e. HSTS preloading and pinning
    // information) is timely.
@@ -95,7 +95,7 @@ index 3326ca2..a2de308 100644
  
    // Helper method for actually checking pins.
    PKPStatus CheckPublicKeyPinsImpl(
-@@ -586,6 +590,8 @@ class NET_EXPORT TransportSecurityState
+@@ -589,6 +593,8 @@ class NET_EXPORT TransportSecurityState
    // True if public key pinning bypass is enabled for local trust anchors.
    bool enable_pkp_bypass_for_local_trust_anchors_;
  

@@ -105,7 +105,6 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
   std::unique_ptr<net::HttpAuthPreferences> http_auth_preferences_;
   std::unique_ptr<CefURLRequestContextImpl> url_request_context_;
   std::unique_ptr<CefURLRequestManager> url_request_manager_;
-  std::unique_ptr<net::FtpTransactionFactory> ftp_transaction_factory_;
   content::ProtocolHandlerMap protocol_handlers_;
   content::URLRequestInterceptorScopedVector request_interceptors_;
 

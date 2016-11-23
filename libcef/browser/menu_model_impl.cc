@@ -654,7 +654,8 @@ void CefMenuModelImpl::MenuWillShow() {
     delegate_->MenuWillShow(this);
   if (menu_model_delegate_)
     menu_model_delegate_->MenuWillShow(this);
-  FOR_EACH_OBSERVER(Observer, observers_, MenuWillShow(this));
+  for (auto& observer : observers_)
+    observer.MenuWillShow(this);
 }
 
 void CefMenuModelImpl::MenuWillClose() {
@@ -776,7 +777,8 @@ void CefMenuModelImpl::OnMenuClosed() {
     delegate_->MenuClosed(this);
   if (menu_model_delegate_)
     menu_model_delegate_->MenuClosed(this);
-  FOR_EACH_OBSERVER(Observer, observers_, MenuClosed(this));
+  for (auto& observer : observers_)
+    observer.MenuClosed(this);
 }
 
 bool CefMenuModelImpl::VerifyContext() {

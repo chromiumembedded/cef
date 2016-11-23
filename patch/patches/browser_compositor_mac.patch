@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/browser_compositor_view_mac.h content/browser/renderer_host/browser_compositor_view_mac.h
-index 4b8d5bc..6a1b374 100644
+index 865b29f..ef44e27 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.h
 +++ content/browser/renderer_host/browser_compositor_view_mac.h
-@@ -56,9 +56,11 @@ class BrowserCompositorMac : public cc::BeginFrameObserver,
+@@ -55,9 +55,11 @@ class BrowserCompositorMac : public cc::BeginFrameObserver,
  
    // These will not return nullptr until Destroy is called.
    DelegatedFrameHost* GetDelegatedFrameHost();
@@ -15,10 +15,10 @@ index 4b8d5bc..6a1b374 100644
  
    void SwapCompositorFrame(uint32_t compositor_frame_sink_id,
 diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/browser/renderer_host/browser_compositor_view_mac.mm
-index 3ec7423..14d5add 100644
+index 4ff716d..aaf17b2 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.mm
 +++ content/browser/renderer_host/browser_compositor_view_mac.mm
-@@ -200,6 +200,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {
+@@ -199,6 +199,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {
      g_spare_recyclable_compositors.Get().clear();
  }
  
@@ -31,7 +31,7 @@ index 3ec7423..14d5add 100644
  ui::AcceleratedWidgetMac* BrowserCompositorMac::GetAcceleratedWidgetMac() {
    if (recyclable_compositor_)
      return recyclable_compositor_->accelerated_widget_mac();
-@@ -417,8 +423,13 @@ SkColor BrowserCompositorMac::DelegatedFrameHostGetGutterColor(
+@@ -416,8 +422,13 @@ SkColor BrowserCompositorMac::DelegatedFrameHostGetGutterColor(
  }
  
  gfx::Size BrowserCompositorMac::DelegatedFrameHostDesiredSizeInDIP() const {

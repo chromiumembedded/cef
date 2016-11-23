@@ -143,7 +143,6 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   NSOpenGLPixelFormat * pixelFormat =
       [[NSOpenGLPixelFormat alloc]
        initWithAttributes:(NSOpenGLPixelFormatAttribute[]) {
-           NSOpenGLPFAWindow,
            NSOpenGLPFADoubleBuffer,
            NSOpenGLPFADepthSize,
            32,

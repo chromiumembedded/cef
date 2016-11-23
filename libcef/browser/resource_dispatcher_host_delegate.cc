@@ -81,29 +81,12 @@ CefResourceDispatcherHostDelegate::~CefResourceDispatcherHostDelegate() {
 
 bool CefResourceDispatcherHostDelegate::HandleExternalProtocol(
     const GURL& url,
-    int child_id,
-    const content::ResourceRequestInfo::WebContentsGetter& web_contents_getter,
-    bool is_main_frame,
-    ui::PageTransition page_transition,
-    bool has_user_gesture,
-    content::ResourceContext* resource_context) {
-  if (!CEF_CURRENTLY_ON_UIT()) {
-    CEF_POST_TASK(CEF_UIT,
-        base::Bind(base::IgnoreResult(&CefResourceDispatcherHostDelegate::
-                       HandleExternalProtocol),
-                   base::Unretained(this), url, child_id, web_contents_getter,
-                   is_main_frame, page_transition, has_user_gesture,
-                   resource_context));
-    return false;
-  }
-
-  content::WebContents* web_contents = web_contents_getter.Run();
-  if (web_contents) {
-    CefRefPtr<CefBrowserHostImpl> browser =
-        CefBrowserHostImpl::GetBrowserForContents(web_contents);
-    if (browser.get())
-      browser->HandleExternalProtocol(url);
-  }
+    content::ResourceRequestInfo* info) {
+  CEF_POST_TASK(CEF_UIT,
+      base::Bind(base::IgnoreResult(&CefResourceDispatcherHostDelegate::
+                      HandleExternalProtocolOnUIThread),
+                  base::Unretained(this), url,
+                  info->GetWebContentsGetterForRequest()));
   return false;
 }
 
@@ -217,4 +200,18 @@ std::unique_ptr<net::ClientCertStore>
         content::ResourceContext* resource_context) {
   return static_cast<CefResourceContext*>(resource_context)->
       CreateClientCertStore();
+}
+
+void CefResourceDispatcherHostDelegate::HandleExternalProtocolOnUIThread(
+    const GURL& url,
+    const content::ResourceRequestInfo::WebContentsGetter&
+        web_contents_getter) {
+  CEF_REQUIRE_UIT();
+  content::WebContents* web_contents = web_contents_getter.Run();
+  if (web_contents) {
+    CefRefPtr<CefBrowserHostImpl> browser =
+        CefBrowserHostImpl::GetBrowserForContents(web_contents);
+    if (browser.get())
+      browser->HandleExternalProtocol(url);
+  }
 }

@@ -206,7 +206,7 @@ void CefContentClient::AddPepperPlugins(
   AddPepperFlashFromCommandLine(plugins);
 
 #if defined(OS_LINUX)
-#if defined(WIDEVINE_CDM_AVAILABLE) && defined(ENABLE_PEPPER_CDMS)
+#if defined(WIDEVINE_CDM_AVAILABLE) && BUILDFLAG(ENABLE_PEPPER_CDMS)
   CefWidevineLoader::AddPepperPlugins(plugins);
 #endif
 #endif
