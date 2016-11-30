@@ -82,7 +82,7 @@ int WriteFile(const std::string& path, const char* data, int size) {
     size_t write = fwrite(data + written, 1, size - written, file);
     if (write == 0)
       break;
-    written += write;
+    written += static_cast<int>(write);
   } while (written < size);
 
   fclose(file);
