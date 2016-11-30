@@ -371,10 +371,10 @@ index 4c21064..2ff6833 100644
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 0c7ab33..a958c3a 100644
+index 0dd6715..b9d92df 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
-@@ -233,12 +233,17 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
+@@ -236,12 +236,17 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
      // rendered, and that the client area should be equivalent to the window
      // area. Only used on some platforms (Windows and Linux).
      bool remove_standard_frame;
@@ -392,7 +392,7 @@ index 0c7ab33..a958c3a 100644
      // Used only by mus and is necessitated by mus not being a NativeView.
      ui::Window* parent_mus = nullptr;
      // Specifies the initial bounds of the Widget. Default is empty, which means
-@@ -752,6 +757,10 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
+@@ -755,6 +760,10 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
    bool movement_disabled() const { return movement_disabled_; }
    void set_movement_disabled(bool disabled) { movement_disabled_ = disabled; }
  
@@ -403,7 +403,7 @@ index 0c7ab33..a958c3a 100644
    // Returns the work area bounds of the screen the Widget belongs to.
    gfx::Rect GetWorkAreaBoundsInScreen() const;
  
-@@ -970,6 +979,10 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
+@@ -973,6 +982,10 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
    // disabled.
    bool movement_disabled_;
  

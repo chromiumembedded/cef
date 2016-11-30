@@ -1,8 +1,8 @@
 diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
-index 1c0863b..a0f06f4 100644
+index 0f7c13c..9fac7a7 100644
 --- Source/web/ChromeClientImpl.cpp
 +++ Source/web/ChromeClientImpl.cpp
-@@ -893,7 +893,7 @@ bool ChromeClientImpl::hasOpenedPopup() const {
+@@ -892,7 +892,7 @@ bool ChromeClientImpl::hasOpenedPopup() const {
  PopupMenu* ChromeClientImpl::openPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    notifyPopupOpeningObservers();
@@ -12,18 +12,18 @@ index 1c0863b..a0f06f4 100644
  
    DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index 8e1ca8b..83589b6 100644
+index 1330049..66205a3 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
-@@ -379,6 +379,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
+@@ -359,6 +359,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
        m_enableFakePageScaleAnimationForTesting(false),
        m_fakePageScaleAnimationPageScaleFactor(0),
        m_fakePageScaleAnimationUseAnchor(false),
 +      m_shouldUseExternalPopupMenus(shouldUseExternalPopupMenus),
-       m_doingDragAndDrop(false),
        m_ignoreInputEvents(false),
        m_compositorDeviceScaleFactorOverride(0),
-@@ -3727,8 +3728,13 @@ void WebViewImpl::mainFrameScrollOffsetChanged() {
+       m_suppressNextKeypressEvent(false),
+@@ -3708,8 +3709,13 @@ void WebViewImpl::mainFrameScrollOffsetChanged() {
    m_devToolsEmulator->mainFrameScrollOrScaleChanged();
  }
  
@@ -39,7 +39,7 @@ index 8e1ca8b..83589b6 100644
  
  void WebViewImpl::setIgnoreInputEvents(bool newValue) {
 diff --git Source/web/WebViewImpl.h Source/web/WebViewImpl.h
-index d002c0d..74cbb22 100644
+index c579e10..a28c544 100644
 --- Source/web/WebViewImpl.h
 +++ Source/web/WebViewImpl.h
 @@ -375,7 +375,8 @@ class WEB_EXPORT WebViewImpl final
@@ -52,15 +52,15 @@ index d002c0d..74cbb22 100644
  
    bool shouldAutoResize() const { return m_shouldAutoResize; }
  
-@@ -654,6 +655,8 @@ class WEB_EXPORT WebViewImpl final
+@@ -651,6 +652,8 @@ class WEB_EXPORT WebViewImpl final
    float m_fakePageScaleAnimationPageScaleFactor;
    bool m_fakePageScaleAnimationUseAnchor;
  
 +  bool m_shouldUseExternalPopupMenus;
 +
-   // TODO(paulmeyer): Move this to WebWidget once all drag-and-drop functions
-   // are there.
-   bool m_doingDragAndDrop;
+   bool m_ignoreInputEvents;
+ 
+   float m_compositorDeviceScaleFactorOverride;
 diff --git public/web/WebView.h public/web/WebView.h
 index 3127234..e79f0d2 100644
 --- public/web/WebView.h
