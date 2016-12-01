@@ -244,9 +244,10 @@ def combine_libs(build_dir, libs, dest_lib):
   cmdline = 'msvs_env.bat win%s python combine_libs.py -o "%s"' % (platform_arch, dest_lib)
   for lib in libs:
     lib_path = os.path.join(build_dir, lib)
-    if not path_exists(lib_path):
-      raise Exception('Library not found: ' + lib_path)
-    cmdline = cmdline + ' "%s"' % lib_path
+    for path in get_files(lib_path):  # Expand wildcards in |lib_path|.
+      if not path_exists(path):
+        raise Exception('File not found: ' + path)
+      cmdline = cmdline + ' "%s"' % path
   run(cmdline, os.path.join(cef_dir, 'tools'))
 
 def run(command_line, working_dir):
@@ -585,6 +586,7 @@ if platform == 'windows':
 
   libcef_dll_file = 'libcef.dll.lib'
   sandbox_libs = [
+    'obj\\base\\allocator\\unified_allocator_shim\\*.obj',
     'obj\\base\\base.lib',
     'obj\\base\\base_static.lib',
     'obj\\base\\third_party\\dynamic_annotations\\dynamic_annotations.lib',
