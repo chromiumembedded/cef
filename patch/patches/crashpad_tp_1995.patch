@@ -1,0 +1,290 @@
+diff --git crashpad/client/prune_crash_reports.cc crashpad/client/prune_crash_reports.cc
+index 3aaaeee..d99fcb4 100644
+--- crashpad/client/prune_crash_reports.cc
++++ crashpad/client/prune_crash_reports.cc
+@@ -67,13 +67,19 @@ void PruneCrashReportDatabase(CrashReportDatabase* database,
+ }
+ 
+ // static
+-std::unique_ptr<PruneCondition> PruneCondition::GetDefault() {
++std::unique_ptr<PruneCondition> PruneCondition::GetDefault(
++    int max_size_in_mb,
++    int max_age_in_days) {
+   // DatabaseSizePruneCondition must be the LHS so that it is always evaluated,
+   // due to the short-circuting behavior of BinaryPruneCondition.
++  if (max_size_in_mb <= 0)
++    max_size_in_mb = 128;
++  if (max_age_in_days <= 0)
++    max_age_in_days = 365;
+   return base::WrapUnique(
+       new BinaryPruneCondition(BinaryPruneCondition::OR,
+-                               new DatabaseSizePruneCondition(1024 * 128),
+-                               new AgePruneCondition(365)));
++                               new DatabaseSizePruneCondition(max_size_in_mb),
++                               new AgePruneCondition(max_age_in_days)));
+ }
+ 
+ static const time_t kSecondsInDay = 60 * 60 * 24;
+diff --git crashpad/client/prune_crash_reports.h crashpad/client/prune_crash_reports.h
+index b66e9349..86d1f15 100644
+--- crashpad/client/prune_crash_reports.h
++++ crashpad/client/prune_crash_reports.h
+@@ -57,7 +57,8 @@ class PruneCondition {
+   //! of 128 MB.
+   //!
+   //! \return A PruneCondition for use with PruneCrashReportDatabase().
+-  static std::unique_ptr<PruneCondition> GetDefault();
++  static std::unique_ptr<PruneCondition> GetDefault(int max_size_in_mb,
++                                                    int max_age_in_days);
+ 
+   virtual ~PruneCondition() {}
+ 
+diff --git crashpad/client/settings.cc crashpad/client/settings.cc
+index d018e37f..47d8110 100644
+--- crashpad/client/settings.cc
++++ crashpad/client/settings.cc
+@@ -38,7 +38,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
+ 
+ struct Settings::Data {
+   static const uint32_t kSettingsMagic = 'CPds';
+-  static const uint32_t kSettingsVersion = 1;
++  static const uint32_t kSettingsVersion = 2;
+ 
+   enum Options : uint32_t {
+     kUploadsEnabled = 1 << 0,
+@@ -49,6 +49,9 @@ struct Settings::Data {
+            options(0),
+            padding_0(0),
+            last_upload_attempt_time(0),
++           next_upload_attempt_time(0),
++           backoff_step(0),
++           padding_1(0),
+            client_id() {}
+ 
+   uint32_t magic;
+@@ -56,6 +59,9 @@ struct Settings::Data {
+   uint32_t options;
+   uint32_t padding_0;
+   uint64_t last_upload_attempt_time;  // time_t
++  uint64_t next_upload_attempt_time;  // time_t
++  uint32_t backoff_step;
++  uint32_t padding_1;
+   UUID client_id;
+ };
+ 
+@@ -141,6 +147,56 @@ bool Settings::SetLastUploadAttemptTime(time_t time) {
+   return WriteSettings(handle.get(), settings);
+ }
+ 
++bool Settings::GetNextUploadAttemptTime(time_t* time) {
++  DCHECK(initialized_.is_valid());
++
++  Data settings;
++  if (!OpenAndReadSettings(&settings))
++    return false;
++
++  *time = InRangeCast<time_t>(settings.next_upload_attempt_time,
++                              std::numeric_limits<time_t>::max());
++  return true;
++}
++
++bool Settings::SetNextUploadAttemptTime(time_t time) {
++  DCHECK(initialized_.is_valid());
++
++  Data settings;
++  ScopedLockedFileHandle handle = OpenForWritingAndReadSettings(&settings);
++  if (!handle.is_valid())
++    return false;
++
++  settings.next_upload_attempt_time = InRangeCast<uint64_t>(time, 0);
++
++  return WriteSettings(handle.get(), settings);
++}
++
++bool Settings::GetBackoffStep(int* step) {
++  DCHECK(initialized_.is_valid());
++
++  Data settings;
++  if (!OpenAndReadSettings(&settings))
++    return false;
++
++  *step = InRangeCast<int>(settings.backoff_step,
++                           std::numeric_limits<int>::max());
++  return true;
++}
++
++bool Settings::SetBackoffStep(int step) {
++  DCHECK(initialized_.is_valid());
++
++  Data settings;
++  ScopedLockedFileHandle handle = OpenForWritingAndReadSettings(&settings);
++  if (!handle.is_valid())
++    return false;
++
++  settings.backoff_step = InRangeCast<uint32_t>(step, 0);
++
++  return WriteSettings(handle.get(), settings);
++}
++
+ // static
+ Settings::ScopedLockedFileHandle Settings::MakeScopedLockedFileHandle(
+     FileHandle file,
+diff --git crashpad/client/settings.h crashpad/client/settings.h
+index b64f74f..0c3c22e 100644
+--- crashpad/client/settings.h
++++ crashpad/client/settings.h
+@@ -102,6 +102,11 @@ class Settings {
+   //!     error logged.
+   bool SetLastUploadAttemptTime(time_t time);
+ 
++  bool GetNextUploadAttemptTime(time_t* time);
++  bool SetNextUploadAttemptTime(time_t time);
++  bool GetBackoffStep(int* step);
++  bool SetBackoffStep(int step);
++
+  private:
+   struct Data;
+ 
+diff --git crashpad/handler/crash_report_upload_thread.h crashpad/handler/crash_report_upload_thread.h
+index a9601d1..9517730 100644
+--- crashpad/handler/crash_report_upload_thread.h
++++ crashpad/handler/crash_report_upload_thread.h
+@@ -76,7 +76,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
+   //! This method may be called from any thread.
+   void ReportPending();
+ 
+- private:
++ protected:
+   //! \brief The result code from UploadReport().
+   enum class UploadResult {
+     //! \brief The crash report was uploaded successfully.
+@@ -99,7 +99,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
+ 
+   //! \brief Obtains all pending reports from the database, and calls
+   //!     ProcessPendingReport() to process each one.
+-  void ProcessPendingReports();
++  virtual void ProcessPendingReports();
+ 
+   //! \brief Processes a single pending report from the database.
+   //!
+@@ -113,7 +113,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
+   //! remain in the “pending” state. If the upload fails and no more retries are
+   //! desired, or report upload is disabled, it will be marked as “completed” in
+   //! the database without ever having been uploaded.
+-  void ProcessPendingReport(const CrashReportDatabase::Report& report);
++  virtual void ProcessPendingReport(const CrashReportDatabase::Report& report);
+ 
+   //! \brief Attempts to upload a crash report.
+   //!
+diff --git crashpad/handler/handler_main.cc crashpad/handler/handler_main.cc
+index 29c5ddc..7a6bad7 100644
+--- crashpad/handler/handler_main.cc
++++ crashpad/handler/handler_main.cc
+@@ -29,8 +29,10 @@
+ #include "base/logging.h"
+ #include "base/metrics/persistent_histogram_allocator.h"
+ #include "base/scoped_generic.h"
++#include "base/strings/string_number_conversions.h"
+ #include "base/strings/utf_string_conversions.h"
+ #include "build/build_config.h"
++#include "cef/libcef/features/features.h"
+ #include "client/crash_report_database.h"
+ #include "client/crashpad_client.h"
+ #include "client/prune_crash_reports.h"
+@@ -62,6 +64,10 @@
+ #include "util/win/initial_client_data.h"
+ #endif  // OS_MACOSX
+ 
++#if BUILDFLAG(ENABLE_CEF)
++#include "cef/libcef/common/cef_crash_report_upload_thread.h"
++#endif
++
+ namespace crashpad {
+ 
+ namespace {
+@@ -168,6 +174,9 @@ int HandlerMain(int argc, char* argv[]) {
+     kOptionPipeName,
+ #endif  // OS_MACOSX
+     kOptionURL,
++    kOptionMaxUploads,
++    kOptionMaxDatabaseSize,
++    kOptionMaxDatabaseAge,
+ 
+     // Standard options.
+     kOptionHelp = -2,
+@@ -188,11 +197,17 @@ int HandlerMain(int argc, char* argv[]) {
+     InitialClientData initial_client_data;
+ #endif  // OS_MACOSX
+     bool rate_limit;
++    int max_uploads;
++    int max_database_size;
++    int max_database_age;
+   } options = {};
+ #if defined(OS_MACOSX)
+   options.handshake_fd = -1;
+ #endif
+   options.rate_limit = true;
++  options.max_uploads = 0;
++  options.max_database_size = 0;
++  options.max_database_age = 0;
+ 
+   const option long_options[] = {
+     {"annotation", required_argument, nullptr, kOptionAnnotation},
+@@ -222,6 +237,9 @@ int HandlerMain(int argc, char* argv[]) {
+     {"url", required_argument, nullptr, kOptionURL},
+     {"help", no_argument, nullptr, kOptionHelp},
+     {"version", no_argument, nullptr, kOptionVersion},
++    {"max-uploads", required_argument, nullptr, kOptionMaxUploads},
++    {"max-db-size", required_argument, nullptr, kOptionMaxDatabaseSize},
++    {"max-db-age", required_argument, nullptr, kOptionMaxDatabaseAge},
+     {nullptr, 0, nullptr, 0},
+   };
+ 
+@@ -293,6 +311,27 @@ int HandlerMain(int argc, char* argv[]) {
+         options.url = optarg;
+         break;
+       }
++      case kOptionMaxUploads: {
++        if (base::StringToInt(optarg, &options.max_uploads)) {
++          if (options.max_uploads < 0)
++            options.max_uploads = 0;
++        }
++        break;
++      }
++      case kOptionMaxDatabaseSize: {
++        if (base::StringToInt(optarg, &options.max_database_size)) {
++          if (options.max_database_size < 0)
++            options.max_database_size = 0;
++        }
++        break;
++      }
++      case kOptionMaxDatabaseAge: {
++        if (base::StringToInt(optarg, &options.max_database_age)) {
++          if (options.max_database_age < 0)
++            options.max_database_age = 0;
++        }
++        break;
++      }
+       case kOptionHelp: {
+         Usage(me);
+         return EXIT_SUCCESS;
+@@ -425,12 +464,18 @@ int HandlerMain(int argc, char* argv[]) {
+   // TODO(scottmg): options.rate_limit should be removed when we have a
+   // configurable database setting to control upload limiting.
+   // See https://crashpad.chromium.org/bug/23.
++#if BUILDFLAG(ENABLE_CEF)
++  CefCrashReportUploadThread upload_thread(
++      database.get(), options.url, options.rate_limit, options.max_uploads);
++#else
+   CrashReportUploadThread upload_thread(
+       database.get(), options.url, options.rate_limit);
++#endif
+   upload_thread.Start();
+ 
+   PruneCrashReportThread prune_thread(database.get(),
+-                                      PruneCondition::GetDefault());
++      PruneCondition::GetDefault(options.max_database_size,
++                                 options.max_database_age));
+   prune_thread.Start();
+ 
+   CrashReportExceptionHandler exception_handler(
