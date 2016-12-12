@@ -12,6 +12,8 @@
 
 #include "include/cef_app.h"
 #include "include/capi/cef_app_capi.h"
+#include "include/cef_crash_util.h"
+#include "include/capi/cef_crash_util_capi.h"
 #include "include/cef_file_util.h"
 #include "include/capi/cef_file_util_capi.h"
 #include "include/cef_geolocation.h"
@@ -389,6 +391,35 @@ CEF_EXPORT void cef_enable_highdpi_support() {
 
   // Execute
   CefEnableHighDPISupport();
+}
+
+CEF_EXPORT int cef_crash_reporting_enabled() {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  bool _retval = CefCrashReportingEnabled();
+
+  // Return type: bool
+  return _retval;
+}
+
+CEF_EXPORT void cef_set_crash_key_value(const cef_string_t* key,
+    const cef_string_t* value) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: key; type: string_byref_const
+  DCHECK(key);
+  if (!key)
+    return;
+  // Verify param: value; type: string_byref_const
+  DCHECK(value);
+  if (!value)
+    return;
+
+  // Execute
+  CefSetCrashKeyValue(
+      CefString(key),
+      CefString(value));
 }
 
 CEF_EXPORT int cef_create_directory(const cef_string_t* full_path) {
