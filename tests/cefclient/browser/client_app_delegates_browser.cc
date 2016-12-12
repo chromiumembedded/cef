@@ -4,6 +4,8 @@
 
 #include "tests/shared/browser/client_app_browser.h"
 
+#include "tests/cefclient/browser/client_browser.h"
+
 #if defined(OS_LINUX)
 #include "tests/cefclient/browser/print_handler_gtk.h"
 #endif
@@ -12,6 +14,7 @@ namespace client {
 
 // static
 void ClientAppBrowser::CreateDelegates(DelegateSet& delegates) {
+  browser::CreateDelegates(delegates);
 }
 
 // static

@@ -89,6 +89,7 @@
 
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
 #include "base/debug/leak_annotations.h"
+#include "chrome/common/chrome_paths.h"
 #include "components/crash/content/app/breakpad_linux.h"
 #include "components/crash/content/browser/crash_handler_host_linux.h"
 #include "content/public/common/content_descriptors.h"
@@ -317,14 +318,15 @@ class CefQuotaPermissionContext : public content::QuotaPermissionContext {
 #if defined(OS_POSIX) && !defined(OS_MACOSX)
 breakpad::CrashHandlerHostLinux* CreateCrashHandlerHost(
     const std::string& process_type) {
-  base::FilePath dumps_path =
-      base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
-          switches::kCrashDumpsDir);
+  base::FilePath dumps_path;
+  PathService::Get(chrome::DIR_CRASH_DUMPS, &dumps_path);
   {
     ANNOTATE_SCOPED_MEMORY_LEAK;
+    // Uploads will only occur if a non-empty crash URL is specified in
+    // CefMainDelegate::InitCrashReporter.
     breakpad::CrashHandlerHostLinux* crash_handler =
         new breakpad::CrashHandlerHostLinux(
-            process_type, dumps_path, false);
+            process_type, dumps_path, true /* upload */);
     crash_handler->StartUploaderThread();
     return crash_handler;
   }
@@ -618,11 +620,7 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     // Propagate the following switches to all command lines (along with any
     // associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
-#if !defined(OS_WIN)
-      switches::kCrashDumpsDir,
-#endif
       switches::kDisablePackLoading,
-      switches::kEnableCrashReporter,
       switches::kLang,
       switches::kLocalesDirPath,
       switches::kLogFile,

@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 
+#include "include/cef_crash_util.h"
 #include "include/cef_dom.h"
 #include "include/wrapper/cef_helpers.h"
 #include "include/wrapper/cef_message_router.h"
@@ -25,30 +26,42 @@ class ClientRenderDelegate : public ClientAppRenderer::Delegate {
     : last_node_is_editable_(false) {
   }
 
-  virtual void OnWebKitInitialized(CefRefPtr<ClientAppRenderer> app) OVERRIDE {
+  void OnRenderThreadCreated(
+      CefRefPtr<ClientAppRenderer> app,
+      CefRefPtr<CefListValue> extra_info) OVERRIDE {
+    if (CefCrashReportingEnabled()) {
+      // Set some crash keys for testing purposes. Keys must be defined in the
+      // "crash_reporter.cfg" file. See cef_crash_util.h for details.
+      CefSetCrashKeyValue("testkey1", "value1_renderer");
+      CefSetCrashKeyValue("testkey2", "value2_renderer");
+      CefSetCrashKeyValue("testkey3", "value3_renderer");
+    }
+  }
+
+  void OnWebKitInitialized(CefRefPtr<ClientAppRenderer> app) OVERRIDE {
     // Create the renderer-side router for query handling.
     CefMessageRouterConfig config;
     message_router_ = CefMessageRouterRendererSide::Create(config);
   }
 
-  virtual void OnContextCreated(CefRefPtr<ClientAppRenderer> app,
-                                CefRefPtr<CefBrowser> browser,
-                                CefRefPtr<CefFrame> frame,
-                                CefRefPtr<CefV8Context> context) OVERRIDE {
+  void OnContextCreated(CefRefPtr<ClientAppRenderer> app,
+                        CefRefPtr<CefBrowser> browser,
+                        CefRefPtr<CefFrame> frame,
+                        CefRefPtr<CefV8Context> context) OVERRIDE {
     message_router_->OnContextCreated(browser,  frame, context);
   }
 
-  virtual void OnContextReleased(CefRefPtr<ClientAppRenderer> app,
-                                 CefRefPtr<CefBrowser> browser,
-                                 CefRefPtr<CefFrame> frame,
-                                 CefRefPtr<CefV8Context> context) OVERRIDE {
+  void OnContextReleased(CefRefPtr<ClientAppRenderer> app,
+                         CefRefPtr<CefBrowser> browser,
+                         CefRefPtr<CefFrame> frame,
+                         CefRefPtr<CefV8Context> context) OVERRIDE {
     message_router_->OnContextReleased(browser,  frame, context);
   }
 
-  virtual void OnFocusedNodeChanged(CefRefPtr<ClientAppRenderer> app,
-                                    CefRefPtr<CefBrowser> browser,
-                                    CefRefPtr<CefFrame> frame,
-                                    CefRefPtr<CefDOMNode> node) OVERRIDE {
+  void OnFocusedNodeChanged(CefRefPtr<ClientAppRenderer> app,
+                            CefRefPtr<CefBrowser> browser,
+                            CefRefPtr<CefFrame> frame,
+                            CefRefPtr<CefDOMNode> node) OVERRIDE {
     bool is_editable = (node.get() && node->IsEditable());
     if (is_editable != last_node_is_editable_) {
       // Notify the browser of the change in focused element type.
@@ -60,7 +73,7 @@ class ClientRenderDelegate : public ClientAppRenderer::Delegate {
     }
   }
 
-  virtual bool OnProcessMessageReceived(
+  bool OnProcessMessageReceived(
       CefRefPtr<ClientAppRenderer> app,
       CefRefPtr<CefBrowser> browser,
       CefProcessId source_process,
@@ -75,6 +88,7 @@ class ClientRenderDelegate : public ClientAppRenderer::Delegate {
   // Handles the renderer side of query routing.
   CefRefPtr<CefMessageRouterRendererSide> message_router_;
 
+  DISALLOW_COPY_AND_ASSIGN(ClientRenderDelegate);
   IMPLEMENT_REFCOUNTING(ClientRenderDelegate);
 };
 

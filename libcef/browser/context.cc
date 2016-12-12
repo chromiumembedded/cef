@@ -31,12 +31,16 @@
 #include "ui/base/ui_base_switches.h"
 
 #if defined(OS_WIN)
+#include "base/strings/utf_string_conversions.h"
 #include "chrome_elf/chrome_elf_main.h"
 #include "content/public/app/sandbox_helper_win.h"
-#include "components/crash/content/app/crash_switches.h"
 #include "components/crash/content/app/crashpad.h"
-#include "components/crash/content/app/run_as_crashpad_handler_win.h"
 #include "sandbox/win/src/sandbox_types.h"
+#endif
+
+#if defined(OS_MACOSX) || defined(OS_WIN)
+#include "components/crash/content/app/crash_switches.h"
+#include "third_party/crashpad/crashpad/handler/handler_main.h"
 #endif
 
 namespace {
@@ -73,7 +77,7 @@ void DisableFMA3() {
 
 // Signal chrome_elf to initialize crash reporting, rather than doing it in
 // DllMain. See https://crbug.com/656800 for details.
-void InitializeCrashReporting() {
+void InitCrashReporter() {
   static bool initialized = false;
   if (initialized)
     return;
@@ -81,6 +85,47 @@ void InitializeCrashReporting() {
   SignalInitializeCrashReporting();
 }
 #endif  // defined(OS_WIN)
+
+#if defined(OS_MACOSX) || defined(OS_WIN)
+
+// Based on components/crash/content/app/run_as_crashpad_handler_win.cc
+// Remove the "--type=crashpad-handler" command-line flag that will otherwise
+// confuse the crashpad handler.
+// Chrome uses an embedded crashpad handler on Windows only and imports this
+// function via the existing "run_as_crashpad_handler" target defined in
+// components/crash/content/app/BUILD.gn. CEF uses an embedded handler on both
+// Windows and macOS so we define the function here instead of using the
+// existing target (because we can't use that target on macOS).
+int RunAsCrashpadHandler(const base::CommandLine& command_line) {
+  base::CommandLine::StringVector argv = command_line.argv();
+  const base::CommandLine::StringType process_type =
+      FILE_PATH_LITERAL("--type=");
+  argv.erase(std::remove_if(argv.begin(), argv.end(),
+                 [&process_type](const base::CommandLine::StringType& str) {
+                   return base::StartsWith(str, process_type,
+                                           base::CompareCase::SENSITIVE) ||
+                          (!str.empty() && str[0] == L'/');
+                 }),
+             argv.end());
+
+  std::unique_ptr<char* []> argv_as_utf8(new char*[argv.size() + 1]);
+  std::vector<std::string> storage;
+  storage.reserve(argv.size());
+  for (size_t i = 0; i < argv.size(); ++i) {
+#if defined(OS_WIN)
+    storage.push_back(base::UTF16ToUTF8(argv[i]));
+#else
+    storage.push_back(argv[i]);
+#endif
+    argv_as_utf8[i] = &storage[i][0];
+  }
+  argv_as_utf8[argv.size()] = nullptr;
+  argv.clear();
+  return crashpad::HandlerMain(static_cast<int>(storage.size()),
+                               argv_as_utf8.get());
+}
+
+#endif  // defined(OS_MACOSX) || defined(OS_WIN)
 
 }  // namespace
 
@@ -91,7 +136,7 @@ int CefExecuteProcess(const CefMainArgs& args,
 #if defined(ARCH_CPU_X86_64)
   DisableFMA3();
 #endif
-  InitializeCrashReporting();
+  InitCrashReporter();
 #endif
 
   base::CommandLine command_line(base::CommandLine::NO_PROGRAM);
@@ -112,9 +157,9 @@ int CefExecuteProcess(const CefMainArgs& args,
   if (process_type.empty())
     return -1;
 
-#if defined(OS_WIN)
+#if defined(OS_MACOSX) || defined(OS_WIN)
   if (process_type == crash_reporter::switches::kCrashpadHandler)
-    return crash_reporter::RunAsCrashpadHandler(command_line);
+    return RunAsCrashpadHandler(command_line);
 #endif
 
   CefMainDelegate main_delegate(application);
@@ -150,7 +195,7 @@ bool CefInitialize(const CefMainArgs& args,
 #if defined(ARCH_CPU_X86_64)
   DisableFMA3();
 #endif
-  InitializeCrashReporting();
+  InitCrashReporter();
 #endif
 
   // Return true if the global context already exists.

@@ -37,7 +37,6 @@ extern const char kPersistUserPreferences[];
 extern const char kEnableMediaStream[];
 extern const char kEnableSpeechInput[];
 extern const char kEnableProfanityFilter[];
-extern const char kCrashDumpsDir[];
 extern const char kDisableSpellChecking[];
 extern const char kEnableSpellingService[];
 extern const char kOverrideSpellCheckLang[];

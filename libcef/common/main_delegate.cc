@@ -7,7 +7,7 @@
 #include "libcef/browser/context.h"
 #include "libcef/common/cef_switches.h"
 #include "libcef/common/command_line_impl.h"
-#include "libcef/common/crash_reporter_client.h"
+#include "libcef/common/crash_reporting.h"
 #include "libcef/common/extensions/extensions_util.h"
 #include "libcef/renderer/content_renderer_client.h"
 #include "libcef/utility/content_utility_client.h"
@@ -16,7 +16,6 @@
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
-#include "base/lazy_instance.h"
 #include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
@@ -57,16 +56,9 @@
 
 #if defined(OS_MACOSX)
 #include "libcef/common/util_mac.h"
-#include "base/mac/os_crash_dumps.h"
 #include "base/mac/bundle_locations.h"
 #include "base/mac/foundation_util.h"
-#include "components/crash/content/app/crashpad.h"
-#include "components/crash/core/common/crash_keys.h"
 #include "content/public/common/content_paths.h"
-#endif
-
-#if defined(OS_POSIX) && !defined(OS_MACOSX)
-#include "components/crash/content/app/breakpad_linux.h"
 #endif
 
 #if defined(OS_LINUX)
@@ -75,11 +67,6 @@
 #endif
 
 namespace {
-
-#if defined(OS_POSIX)
-base::LazyInstance<CefCrashReporterClient>::Leaky g_crash_reporter_client =
-    LAZY_INSTANCE_INITIALIZER;
-#endif
 
 #if defined(OS_MACOSX)
 
@@ -327,6 +314,12 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
   std::string process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
 
+#if defined(OS_POSIX)
+  // Read the crash configuration file. Platforms using Breakpad also add a
+  // command-line switch. On Windows this is done from chrome_elf.
+  crash_reporting::BasicStartupComplete(command_line);
+#endif
+
   if (process_type.empty()) {
     // In the browser process. Populate the global command-line object.
     const CefSettings& settings = CefContext::Get()->settings();
@@ -524,18 +517,6 @@ void CefMainDelegate::PreSandboxStartup() {
   const std::string& process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
 
-#if defined(OS_POSIX)
-  if (command_line->HasSwitch(switches::kEnableCrashReporter)) {
-    crash_reporter::SetCrashReporterClient(g_crash_reporter_client.Pointer());
-#if defined(OS_MACOSX)
-    InitMacCrashReporter(*command_line, process_type);
-#else
-    if (process_type != switches::kZygoteProcess)
-      breakpad::InitCrashReporter(process_type);
-#endif
-  }
-#endif  // defined(OS_POSIX)
-
   if (process_type.empty()) {
     // Only override these paths when executing the main process.
 #if defined(OS_MACOSX)
@@ -544,9 +525,13 @@ void CefMainDelegate::PreSandboxStartup() {
 
     OverridePepperFlashSystemPluginPath();
 
-    // Paths used to locate spell checking dictionary files.
     const base::FilePath& user_data_path = GetUserDataPath();
     PathService::Override(chrome::DIR_USER_DATA, user_data_path);
+
+    // Path used for crash dumps.
+    PathService::Override(chrome::DIR_CRASH_DUMPS, user_data_path);
+
+    // Path used for spell checking dictionary files.
     PathService::OverrideAndCreateIfNeeded(
         chrome::DIR_APP_DICTIONARIES,
         user_data_path.AppendASCII("Dictionaries"),
@@ -556,6 +541,10 @@ void CefMainDelegate::PreSandboxStartup() {
 
   if (command_line->HasSwitch(switches::kDisablePackLoading))
     content_client_.set_pack_loading_disabled(true);
+
+  // Initialize crash reporting state for this process/module.
+  // chrome::DIR_CRASH_DUMPS must be configured before calling this function.
+  crash_reporting::PreSandboxStartup(*command_line, process_type);
 
   InitializeResourceBundle();
   chrome::InitializePDF();
@@ -609,13 +598,12 @@ void CefMainDelegate::ProcessExiting(const std::string& process_type) {
 
 #if defined(OS_POSIX) && !defined(OS_ANDROID) && !defined(OS_MACOSX)
 void CefMainDelegate::ZygoteForked() {
-  const base::CommandLine* command_line =
+  base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
-  if (command_line->HasSwitch(switches::kEnableCrashReporter)) {
-    const std::string& process_type = command_line->GetSwitchValueASCII(
+  const std::string& process_type = command_line->GetSwitchValueASCII(
         switches::kProcessType);
-    breakpad::InitCrashReporter(process_type);
-  }
+  // Initialize crash reporting state for the newly forked process.
+  crash_reporting::ZygoteForked(command_line, process_type);
 }
 #endif
 
@@ -757,51 +745,3 @@ void CefMainDelegate::InitializeResourceBundle() {
     content_client_.set_allow_pack_file_load(false);
   }
 }
-
-#if defined(OS_MACOSX)
-// Based on ChromeMainDelegate::InitMacCrashReporter.
-void CefMainDelegate::InitMacCrashReporter(
-    const base::CommandLine& command_line,
-    const std::string& process_type) {
-  // TODO(mark): Right now, InitializeCrashpad() needs to be called after
-  // CommandLine::Init() and chrome::RegisterPathProvider().  Ideally, Crashpad
-  // initialization could occur sooner, preferably even before the framework
-  // dylib is even loaded, to catch potential early crashes.
-
-  const bool browser_process = process_type.empty();
-  const bool install_from_dmg_relauncher_process =
-      process_type == switches::kRelauncherProcess &&
-      command_line.HasSwitch(switches::kRelauncherProcessDMGDevice);
-
-  const bool initial_client =
-      browser_process || install_from_dmg_relauncher_process;
-
-  crash_reporter::InitializeCrashpad(initial_client, process_type);
-
-  if (!browser_process) {
-    std::string metrics_client_id =
-        command_line.GetSwitchValueASCII(switches::kMetricsClientID);
-    crash_keys::SetMetricsClientIdFromGUID(metrics_client_id);
-  }
-
-  // Mac Chrome is packaged with a main app bundle and a helper app bundle.
-  // The main app bundle should only be used for the browser process, so it
-  // should never see a --type switch (switches::kProcessType).  Likewise,
-  // the helper should always have a --type switch.
-  //
-  // This check is done this late so there is already a call to
-  // base::mac::IsBackgroundOnlyProcess(), so there is no change in
-  // startup/initialization order.
-
-  // The helper's Info.plist marks it as a background only app.
-  if (base::mac::IsBackgroundOnlyProcess()) {
-    CHECK(command_line.HasSwitch(switches::kProcessType) &&
-          !process_type.empty())
-        << "Helper application requires --type.";
-  } else {
-    CHECK(!command_line.HasSwitch(switches::kProcessType) &&
-          process_type.empty())
-        << "Main application forbids --type, saw " << process_type;
-  }
-}
-#endif  // defined(OS_MACOSX)

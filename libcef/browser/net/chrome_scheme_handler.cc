@@ -32,6 +32,7 @@
 #include "chrome/browser/browser_about_handler.h"
 #include "chrome/browser/ui/webui/chrome_web_ui_controller_factory.h"
 #include "chrome/common/url_constants.h"
+#include "content/browser/frame_host/debug_urls.h"
 #include "content/browser/webui/content_web_ui_controller_factory.h"
 #include "content/public/browser/browser_url_handler.h"
 #include "content/public/common/url_constants.h"
@@ -74,6 +75,13 @@ const char* kAllowedWebUIHosts[] = {
   content::kChromeUIWebRTCInternalsHost,
 };
 
+// Hosts that don't have useful output when linked directly. They'll be excluded
+// from the "chrome://webui-hosts" listing.
+const char* kUnlistedHosts[] = {
+  content::kChromeUINetworkErrorHost,
+  content::kChromeUIResourcesHost,
+};
+
 enum ChromeHostId {
   CHROME_UNKNOWN = 0,
   CHROME_LICENSE,
@@ -103,15 +111,84 @@ ChromeHostId GetChromeHostId(const std::string& host) {
   return CHROME_UNKNOWN;
 }
 
+// Returns CEF and WebUI hosts. Does not include chrome debug hosts (for
+// crashing, etc).
 void GetAllowedHosts(std::vector<std::string>* hosts) {
+  // Hosts implemented by CEF.
   for (size_t i = 0;
        i < sizeof(kAllowedCefHosts) / sizeof(kAllowedCefHosts[0]); ++i) {
     hosts->push_back(kAllowedCefHosts[i].host);
   }
 
+  // Explicitly whitelisted WebUI hosts.
   for (size_t i = 0;
        i < sizeof(kAllowedWebUIHosts) / sizeof(kAllowedWebUIHosts[0]); ++i) {
     hosts->push_back(kAllowedWebUIHosts[i]);
+  }
+}
+
+// Returns true if a host should not be listed on "chrome://webui-hosts".
+bool IsUnlistedHost(const std::string& host) {
+  for (size_t i = 0;
+       i < sizeof(kUnlistedHosts) / sizeof(kUnlistedHosts[0]); ++i) {
+    if (host == kUnlistedHosts[i])
+      return true;
+  }
+  return false;
+}
+
+// Returns true if a host is WebUI and should be allowed to load.
+bool IsAllowedWebUIHost(const std::string& host) {
+  // Explicitly whitelisted WebUI hosts.
+  for (size_t i = 0;
+        i < sizeof(kAllowedWebUIHosts) / sizeof(kAllowedWebUIHosts[0]); ++i) {
+    if (base::EqualsCaseInsensitiveASCII(kAllowedWebUIHosts[i],
+                                         host.c_str())) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// Additional debug URLs that are not included in chrome::kChromeDebugURLs.
+const char* kAllowedDebugURLs[] = {
+  content::kChromeUIBrowserCrashURL,
+};
+
+// Returns true for debug URLs that receive special handling (for crashes, etc).
+bool IsDebugURL(const GURL& url) {
+  // URLs handled by the renderer process in
+  // content/renderer/render_frame_impl.cc MaybeHandleDebugURL().
+  if (content::IsRendererDebugURL(url))
+    return true;
+
+  // Also include URLs handled by the browser process in
+  // content/browser/frame_host/debug_urls.cc HandleDebugURL().
+  for (int i = 0; i < chrome::kNumberOfChromeDebugURLs; ++i) {
+    GURL host(chrome::kChromeDebugURLs[i]);
+    if (url.GetOrigin() == host.GetOrigin())
+      return true;
+  }
+
+  for (size_t i = 0;
+       i < sizeof(kAllowedDebugURLs) / sizeof(kAllowedDebugURLs[0]); ++i) {
+    GURL host(kAllowedDebugURLs[i]);
+    if (url.GetOrigin() == host.GetOrigin())
+      return true;
+  }
+
+  return false;
+}
+
+void GetDebugURLs(std::vector<std::string>* urls) {
+  for (int i = 0; i < chrome::kNumberOfChromeDebugURLs; ++i) {
+    urls->push_back(chrome::kChromeDebugURLs[i]);
+  }
+
+  for (size_t i = 0;
+       i < sizeof(kAllowedDebugURLs) / sizeof(kAllowedDebugURLs[0]); ++i) {
+    urls->push_back(kAllowedDebugURLs[i]);
   }
 }
 
@@ -124,13 +201,8 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
     if (!url.SchemeIs(content::kChromeUIScheme))
       return false;
 
-    for (size_t i = 0;
-         i < sizeof(kAllowedWebUIHosts) / sizeof(kAllowedWebUIHosts[0]); ++i) {
-      if (base::EqualsCaseInsensitiveASCII(kAllowedWebUIHosts[i],
-                                           url.host().c_str())) {
-        return true;
-      }
-    }
+    if (IsAllowedWebUIHost(url.host()))
+      return true;
 
     return false;
   }
@@ -534,16 +606,32 @@ class Delegate : public InternalHandlerDelegate {
     std::string html = "<html>\n<head><title>WebUI Hosts</title></head>\n"
                        "<body bgcolor=\"white\"><h3>WebUI Hosts</h3>\n<ul>\n";
 
-    std::vector<std::string> hosts;
-    GetAllowedHosts(&hosts);
-    std::sort(hosts.begin(), hosts.end());
+    std::vector<std::string> list;
+    GetAllowedHosts(&list);
+    std::sort(list.begin(), list.end());
 
-    for (size_t i = 0U; i < hosts.size(); ++i) {
-      html += "<li><a href=\"chrome://" + hosts[i] + "\">chrome://" +
-              hosts[i] + "</a></li>\n";
+    for (size_t i = 0U; i < list.size(); ++i) {
+      if (IsUnlistedHost(list[i]))
+        continue;
+
+      html += "<li><a href=\"chrome://" + list[i] + "\">chrome://" +
+              list[i] + "</a></li>\n";
     }
 
-    html += "</ul></body>\n</html>";
+    list.clear();
+    GetDebugURLs(&list);
+    std::sort(list.begin(), list.end());
+
+    html += "</ul>\n<h3>For Debug</h3>\n"
+        "<p>The following pages are for debugging purposes only. Because they "
+        "crash or hang the renderer, they're not linked directly; you can type "
+        "them into the address bar if you need them.</p>\n<ul>\n";
+    for (size_t i = 0U; i < list.size(); ++i) {
+      html += "<li>" + std::string(list[i]) + "</li>\n";
+    }
+    html += "</ul>\n";
+
+    html += "</body>\n</html>";
 
     action->mime_type = "text/html";
     action->stream =  CefStreamReader::CreateForData(
@@ -604,6 +692,10 @@ class ChromeProtocolHandlerWrapper :
   net::URLRequestJob* MaybeCreateJob(
       net::URLRequest* request,
       net::NetworkDelegate* network_delegate) const override {
+    // Don't handle debug URLs.
+    if (IsDebugURL(request->url()))
+      return nullptr;
+
     // Only allow WebUI to handle chrome:// URLs whitelisted by CEF.
     if (CefWebUIControllerFactory::AllowWebUIForURL(request->url())) {
       return chrome_protocol_handler_->MaybeCreateJob(request,

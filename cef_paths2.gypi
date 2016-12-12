@@ -193,6 +193,8 @@
       'tests/cefclient/browser/bytes_write_handler.cc',
       'tests/cefclient/browser/bytes_write_handler.h',
       'tests/cefclient/browser/client_app_delegates_browser.cc',
+      'tests/cefclient/browser/client_browser.cc',
+      'tests/cefclient/browser/client_browser.h',
       'tests/cefclient/browser/client_handler.cc',
       'tests/cefclient/browser/client_handler.h',
       'tests/cefclient/browser/client_handler_osr.cc',
