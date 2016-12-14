@@ -112,7 +112,7 @@ index f772f64..7d13f9f 100644
    return host ? host->GetAcceleratedWidget() : NULL;
  }
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
-index 0dea5ca..415836b 100644
+index 0dea5ca..b167c8a 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.cc
 @@ -86,6 +86,7 @@ DesktopWindowTreeHostWin::DesktopWindowTreeHostWin(
@@ -137,18 +137,7 @@ index 0dea5ca..415836b 100644
  
    remove_standard_frame_ = params.remove_standard_frame;
    has_non_client_view_ = Widget::RequiresNonClientView(params.type);
-@@ -638,6 +643,10 @@ bool DesktopWindowTreeHostWin::CanActivate() const {
-   return native_widget_delegate_->CanActivate();
- }
- 
-+bool DesktopWindowTreeHostWin::RemoveCaption() const {
-+  return GetWidget()->remove_caption();
-+}
-+
- bool DesktopWindowTreeHostWin::WantsMouseEventsWhenInactive() const {
-   return wants_mouse_events_when_inactive_;
- }
-@@ -818,11 +827,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
+@@ -818,11 +823,15 @@ void DesktopWindowTreeHostWin::HandleFrameChanged() {
  }
  
  void DesktopWindowTreeHostWin::HandleNativeFocus(HWND last_focused_window) {
@@ -167,18 +156,10 @@ index 0dea5ca..415836b 100644
  
  bool DesktopWindowTreeHostWin::HandleMouseEvent(const ui::MouseEvent& event) {
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_win.h ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-index c1ee992..4e5fae7 100644
+index c1ee992..6591ddf 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_win.h
-@@ -135,6 +135,7 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
-   bool CanMaximize() const override;
-   bool CanMinimize() const override;
-   bool CanActivate() const override;
-+  bool RemoveCaption() const override;
-   bool WantsMouseEventsWhenInactive() const override;
-   bool WidgetSizeIsClientSize() const override;
-   bool IsModal() const override;
-@@ -249,6 +250,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
+@@ -249,6 +249,10 @@ class VIEWS_EXPORT DesktopWindowTreeHostWin
    // True if the window should have the frame removed.
    bool remove_standard_frame_;
  
@@ -323,14 +304,10 @@ index cc2339f..949ea23 100644
    base::WeakPtrFactory<DesktopWindowTreeHostX11> weak_factory_;
  
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 4c21064..2ff6833 100644
+index 4c21064..ec476af 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
-@@ -126,9 +126,11 @@ Widget::InitParams::InitParams(Type type)
-       mirror_origin_in_rtl(false),
-       shadow_type(SHADOW_TYPE_DEFAULT),
-       remove_standard_frame(false),
-+      remove_caption(false),
+@@ -129,6 +129,7 @@ Widget::InitParams::InitParams(Type type)
        use_system_default_icon(false),
        show_state(ui::SHOW_STATE_DEFAULT),
        parent(nullptr),
@@ -338,25 +315,16 @@ index 4c21064..2ff6833 100644
        native_widget(nullptr),
        desktop_window_tree_host(nullptr),
        layer_type(ui::LAYER_TEXTURED),
-@@ -165,6 +167,7 @@ Widget::Widget()
-       auto_release_capture_(true),
-       root_layers_dirty_(false),
-       movement_disabled_(false),
-+      remove_caption_(false),
-       observer_manager_(this) {
- }
- 
-@@ -296,7 +299,8 @@ void Widget::Init(const InitParams& in_params) {
+@@ -296,7 +297,7 @@ void Widget::Init(const InitParams& in_params) {
      params.name = params.delegate->GetContentsView()->GetClassName();
  
    params.child |= (params.type == InitParams::TYPE_CONTROL);
 -  is_top_level_ = !params.child;
 +  is_top_level_ = !params.child || params.parent_widget;
-+  remove_caption_ = params.remove_caption;
  
    if (params.opacity == views::Widget::InitParams::INFER_OPACITY &&
        params.type != views::Widget::InitParams::TYPE_WINDOW &&
-@@ -360,7 +364,12 @@ void Widget::Init(const InitParams& in_params) {
+@@ -360,7 +361,12 @@ void Widget::Init(const InitParams& in_params) {
      }
    } else if (params.delegate) {
      SetContentsView(params.delegate->GetContentsView());
@@ -371,20 +339,10 @@ index 4c21064..2ff6833 100644
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 0c7ab33..a958c3a 100644
+index 0c7ab33..946a67d 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
-@@ -233,12 +233,17 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
-     // rendered, and that the client area should be equivalent to the window
-     // area. Only used on some platforms (Windows and Linux).
-     bool remove_standard_frame;
-+    // Specifies that the system default caption and icon should not be
-+    // rendered but the window may still have a resizable border. Only used on
-+    // some platforms (Windows and Linux).
-+    bool remove_caption;
-     // Only used by ShellWindow on Windows. Specifies that the default icon of
-     // packaged app should be the system default icon.
-     bool use_system_default_icon;
+@@ -239,6 +239,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
      // Whether the widget should be maximized or minimized.
      ui::WindowShowState show_state;
      gfx::NativeView parent;
@@ -392,58 +350,11 @@ index 0c7ab33..a958c3a 100644
      // Used only by mus and is necessitated by mus not being a NativeView.
      ui::Window* parent_mus = nullptr;
      // Specifies the initial bounds of the Widget. Default is empty, which means
-@@ -752,6 +757,10 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
-   bool movement_disabled() const { return movement_disabled_; }
-   void set_movement_disabled(bool disabled) { movement_disabled_ = disabled; }
- 
-+  // True if the system default caption and icon should not be rendered but the
-+  // window may still have a resizable border.
-+  bool remove_caption() const { return remove_caption_; }
-+
-   // Returns the work area bounds of the screen the Widget belongs to.
-   gfx::Rect GetWorkAreaBoundsInScreen() const;
- 
-@@ -970,6 +979,10 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
-   // disabled.
-   bool movement_disabled_;
- 
-+  // True if the system default caption and icon should not be rendered but the
-+  // window may still have a resizable border.
-+  bool remove_caption_;
-+
-   ScopedObserver<ui::NativeTheme, ui::NativeThemeObserver> observer_manager_;
- 
-   DISALLOW_COPY_AND_ASSIGN(Widget);
-diff --git ui/views/widget/widget_hwnd_utils.cc ui/views/widget/widget_hwnd_utils.cc
-index b843416..8b81a51 100644
---- ui/views/widget/widget_hwnd_utils.cc
-+++ ui/views/widget/widget_hwnd_utils.cc
-@@ -114,6 +114,11 @@ void CalculateWindowStylesFromInitParams(
-       // See layered window comment above.
-       if (*ex_style & WS_EX_COMPOSITED)
-         *style &= ~(WS_THICKFRAME | WS_CAPTION);
-+
-+      if (params.remove_caption) {
-+        *style &= ~(WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX |
-+                    WS_THICKFRAME);
-+      }
-       break;
-     }
-     case Widget::InitParams::TYPE_CONTROL:
 diff --git ui/views/win/hwnd_message_handler.cc ui/views/win/hwnd_message_handler.cc
-index 6f80d3e..158a43a 100644
+index 6f80d3e..9a21157 100644
 --- ui/views/win/hwnd_message_handler.cc
 +++ ui/views/win/hwnd_message_handler.cc
-@@ -850,6 +850,8 @@ void HWNDMessageHandler::SizeConstraintsChanged() {
-   } else {
-     style &= ~WS_MINIMIZEBOX;
-   }
-+  if (delegate_->RemoveCaption())
-+    style &= ~(WS_CAPTION | WS_SYSMENU | WS_THICKFRAME);
-   SetWindowLong(hwnd(), GWL_STYLE, style);
- }
- 
-@@ -2508,8 +2510,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
+@@ -2508,8 +2508,12 @@ LRESULT HWNDMessageHandler::HandleMouseEventInternal(UINT message,
      active_mouse_tracking_flags_ = 0;
    } else if (event.type() == ui::ET_MOUSEWHEEL) {
      // Reroute the mouse wheel to the window under the pointer if applicable.
@@ -458,18 +369,3 @@ index 6f80d3e..158a43a 100644
    }
  
    // There are cases where the code handling the message destroys the window,
-diff --git ui/views/win/hwnd_message_handler_delegate.h ui/views/win/hwnd_message_handler_delegate.h
-index f5328c4..0ee7915 100644
---- ui/views/win/hwnd_message_handler_delegate.h
-+++ ui/views/win/hwnd_message_handler_delegate.h
-@@ -56,6 +56,10 @@ class VIEWS_EXPORT HWNDMessageHandlerDelegate {
-   virtual bool CanMinimize() const = 0;
-   virtual bool CanActivate() const = 0;
- 
-+  // Returns true if the system default caption and icon should not be rendered
-+  // but the window may still have a resizable border.
-+  virtual bool RemoveCaption() const = 0;
-+
-   // Returns true if the delegate wants mouse events when inactive and the
-   // window is clicked and should not become activated. A return value of false
-   // indicates the mouse events will be dropped.
