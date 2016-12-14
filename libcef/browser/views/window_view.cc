@@ -96,16 +96,11 @@ class NativeFrameViewEx : public views::NativeFrameView {
   DISALLOW_COPY_AND_ASSIGN(NativeFrameViewEx);
 };
 
-// The visible edge around the content area inside the frame border. Necessary
-// to resize when there are controls that handle mouse events at the edge of the
-// client area. Only used in restored mode.
-const int kNonClientBorderThickness = 1;
-
 // The area inside the frame border that can be clicked and dragged for resizing
 // the window. Only used in restored mode.
 const int kResizeBorderThickness = 4;
 
-// The distance from each window corner that triggers diaginal resizing. Only
+// The distance from each window corner that triggers diagonal resizing. Only
 // used in restored mode.
 const int kResizeAreaCornerSize = 16;
 
@@ -125,11 +120,7 @@ class CaptionlessFrameView : public views::NonClientFrameView {
 
   gfx::Rect GetWindowBoundsForClientBounds(
       const gfx::Rect& client_bounds) const override {
-    int border_thickness = NonClientBorderThickness();
-    return gfx::Rect(client_bounds.x() - border_thickness,
-                     client_bounds.y() - border_thickness,
-                     client_bounds.width() + (2 * border_thickness),
-                     client_bounds.height() + (2 * border_thickness));
+    return client_bounds;
   }
 
   int NonClientHitTest(const gfx::Point& point) override {
@@ -195,10 +186,7 @@ class CaptionlessFrameView : public views::NonClientFrameView {
   }
 
   void Layout() override {
-    int border_thickness = NonClientBorderThickness();
-    client_view_bounds_.SetRect(border_thickness, border_thickness,
-        std::max(0, width() - (2 * border_thickness)),
-        std::max(0, height() - (2 * border_thickness)));
+    client_view_bounds_.SetRect(0, 0, width(), height());
   }
 
   gfx::Size GetPreferredSize() const override {
@@ -221,11 +209,6 @@ class CaptionlessFrameView : public views::NonClientFrameView {
   }
 
  private:
-  int NonClientBorderThickness() const {
-    return (widget_->IsMaximized() || widget_->IsFullscreen() ?
-        0 : kNonClientBorderThickness);
-  }
-
   int ResizeBorderThickness() const {
     return (widget_->IsMaximized() || widget_->IsFullscreen() ?
         0 : kResizeBorderThickness);
@@ -264,12 +247,14 @@ void CefWindowView::CreateWidget() {
 
   if (cef_delegate())
     is_frameless_ = cef_delegate()->IsFrameless(GetCefWindow());
+
+#if defined(OS_WIN)
   if (is_frameless_) {
-    // Don't show the native window caption but keep a resizable border.
-    params.remove_caption = true;
-    // Remove the black opaque background that's displayed by default.
-    params.opacity = views::Widget::InitParams::TRANSLUCENT_WINDOW;
+    // Don't show the native window caption. Setting this value on Linux will
+    // result in window resize artifacts.
+    params.remove_standard_frame = true;
   }
+#endif
 
   widget->Init(params);
 
