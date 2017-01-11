@@ -318,10 +318,10 @@ index 68e6acd..d545c54 100644
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 1e62c09..7fa0520 100644
+index 06c8f12..023f75c 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
-@@ -240,6 +240,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
+@@ -243,6 +243,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
      // Whether the widget should be maximized or minimized.
      ui::WindowShowState show_state;
      gfx::NativeView parent;
