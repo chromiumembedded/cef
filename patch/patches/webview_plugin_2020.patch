@@ -1,16 +1,16 @@
 diff --git chrome/app/generated_resources.grd chrome/app/generated_resources.grd
-index 4206b74..5d6af4c 100644
+index 54b8ced..aca718b 100644
 --- chrome/app/generated_resources.grd
 +++ chrome/app/generated_resources.grd
-@@ -7199,7 +7199,7 @@ Keep your key file in a safe place. You will need it to create new versions of y
+@@ -7196,7 +7196,7 @@ Keep your key file in a safe place. You will need it to create new versions of y
          </message>
        </if>
        <message name="IDS_PLUGIN_BLOCKED_BY_POLICY" desc="The placeholder text for a plugin blocked by enterprise policy.">
 -        <ph name="PLUGIN_NAME">$1<ex>Flash</ex></ph> is blocked by enterprise policy
 +        <ph name="PLUGIN_NAME">$1<ex>Flash</ex></ph> is not allowed
        </message>
-       <if expr="chromeos">
-         <message name="IDS_NACL_PLUGIN_BLOCKED" desc="The placeholder text for a blocked plugin.">
+       <message name="IDS_PLUGIN_BLOCKED_NO_LOADING" desc="The placeholder text for a blocked plugin that cannot be manually loaded by the user.">
+         <ph name="PLUGIN_NAME">$1<ex>Flash</ex></ph> is blocked
 diff --git components/plugins/renderer/loadable_plugin_placeholder.cc components/plugins/renderer/loadable_plugin_placeholder.cc
 index 1f38fdb..03e0f60 100644
 --- components/plugins/renderer/loadable_plugin_placeholder.cc

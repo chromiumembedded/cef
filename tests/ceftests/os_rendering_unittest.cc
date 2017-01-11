@@ -439,7 +439,8 @@ class OSRTestHandler : public RoutingTestHandler,
       case OSR_TEST_POPUP_SIZE:
         EXPECT_EQ(kExpandedSelectRect.x, rect.x);
         EXPECT_EQ(kExpandedSelectRect.y, rect.y);
-        EXPECT_EQ(kExpandedSelectRect.width, rect.width);
+        if (ExpectComputedPopupWidth())
+          EXPECT_EQ(kExpandedSelectRect.width, rect.width);
         EXPECT_EQ(kExpandedSelectRect.height, rect.height);
         DestroySucceededTestSoon();
         break;
@@ -460,7 +461,8 @@ class OSRTestHandler : public RoutingTestHandler,
       EXPECT_EQ(GetScaledInt(kOsrHeight), height);
     } else if (type == PET_POPUP) {
       const CefRect& expanded_select_rect = GetScaledRect(kExpandedSelectRect);
-      EXPECT_EQ(expanded_select_rect.width, width);
+      if (ExpectComputedPopupWidth())
+        EXPECT_EQ(expanded_select_rect.width, width);
       EXPECT_EQ(expanded_select_rect.height, height);
     }
 
@@ -703,10 +705,12 @@ class OSRTestHandler : public RoutingTestHandler,
           EXPECT_EQ(dirtyRects.size(), 1U);
           const CefRect& expanded_select_rect =
               GetScaledRect(kExpandedSelectRect);
-          EXPECT_EQ(dirtyRects[0],
-              CefRect(0, 0,
-                      expanded_select_rect.width,
-                      expanded_select_rect.height));
+          EXPECT_EQ(0, dirtyRects[0].x);
+          EXPECT_EQ(0, dirtyRects[0].y);
+          if (ExpectComputedPopupWidth())
+            EXPECT_EQ(expanded_select_rect.width, dirtyRects[0].width);
+          EXPECT_EQ(expanded_select_rect.height, dirtyRects[0].height);
+
           // first pixel of border
 #if defined(OS_MACOSX)
           EXPECT_EQ(0xff5d99d6, *(reinterpret_cast<const uint32*>(buffer)));
@@ -719,7 +723,8 @@ class OSRTestHandler : public RoutingTestHandler,
 #else
 #error "Unsupported platform"
 #endif
-          EXPECT_EQ(expanded_select_rect.width, width);
+          if (ExpectComputedPopupWidth())
+            EXPECT_EQ(expanded_select_rect.width, width);
           EXPECT_EQ(expanded_select_rect.height, height);
           DestroySucceededTestSoon();
         }
@@ -743,11 +748,11 @@ class OSRTestHandler : public RoutingTestHandler,
               const CefRect& expanded_select_rect =
                   GetScaledRect(kExpandedSelectRect);
               EXPECT_EQ(dirtyRects.size(), 1U);
-              EXPECT_EQ(dirtyRects[0],
-                        CefRect(0,
-                                0,
-                                expanded_select_rect.width,
-                                expanded_select_rect.height));
+              EXPECT_EQ(0, dirtyRects[0].x);
+              EXPECT_EQ(0, dirtyRects[0].y);
+              if (ExpectComputedPopupWidth())
+                EXPECT_EQ(expanded_select_rect.width, dirtyRects[0].width);
+              EXPECT_EQ(expanded_select_rect.height, dirtyRects[0].height);
               DestroySucceededTestSoon();
             }
           }
@@ -1130,6 +1135,19 @@ class OSRTestHandler : public RoutingTestHandler,
 
   static inline int MiddleY(const CefRect& rect) {
     return rect.y + rect.height / 2;
+  }
+
+  bool ExpectComputedPopupWidth() const {
+#if defined(OS_WIN)
+    // On Windows the device scale factor is ignored in Blink when computing
+    // the default form control font size (see https://crbug.com/674663#c11).
+    // This results in better font size display but also means that we won't
+    // get the expected (scaled) width value for non-1.0 scale factor select
+    // popups.
+    return scale_factor_ == 1.0;
+#else
+    return true;
+#endif
   }
 
   void DestroySucceededTestSoon() {

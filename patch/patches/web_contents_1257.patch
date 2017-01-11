@@ -74,7 +74,7 @@ index 6cdff54..0efcaa2 100644
                            int opener_render_process_id,
                            int opener_render_frame_id,
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index a662439..2b22f27 100644
+index 5b98a03..ddd9675 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -1572,6 +1572,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {

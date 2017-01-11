@@ -1,8 +1,8 @@
 diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
-index 0f7c13c..9fac7a7 100644
+index 4cf0fe7..404afc2 100644
 --- Source/web/ChromeClientImpl.cpp
 +++ Source/web/ChromeClientImpl.cpp
-@@ -892,7 +892,7 @@ bool ChromeClientImpl::hasOpenedPopup() const {
+@@ -886,7 +886,7 @@ bool ChromeClientImpl::hasOpenedPopup() const {
  PopupMenu* ChromeClientImpl::openPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    notifyPopupOpeningObservers();
@@ -12,10 +12,10 @@ index 0f7c13c..9fac7a7 100644
  
    DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index 1330049..66205a3 100644
+index fd45686..6e8d82f 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
-@@ -359,6 +359,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
+@@ -358,6 +358,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
        m_enableFakePageScaleAnimationForTesting(false),
        m_fakePageScaleAnimationPageScaleFactor(0),
        m_fakePageScaleAnimationUseAnchor(false),
@@ -23,7 +23,7 @@ index 1330049..66205a3 100644
        m_ignoreInputEvents(false),
        m_compositorDeviceScaleFactorOverride(0),
        m_suppressNextKeypressEvent(false),
-@@ -3708,8 +3709,13 @@ void WebViewImpl::mainFrameScrollOffsetChanged() {
+@@ -3707,8 +3708,13 @@ void WebViewImpl::mainFrameScrollOffsetChanged() {
    m_devToolsEmulator->mainFrameScrollOrScaleChanged();
  }
  
