@@ -8,6 +8,8 @@
 #include <vector>
 #include <string>
 
+#include "include/cef_version.h"
+
 #include "base/macros.h"
 #include "build/build_config.h"
 #include "components/crash/content/app/crash_reporter_client.h"
@@ -45,9 +47,9 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
   bool GetCrashDumpLocation(base::string16* crash_dir) override;
   bool GetCrashMetricsLocation(base::string16* metrics_dir) override;
 #elif defined(OS_POSIX)
-#if !defined(OS_MACOSX)
   void GetProductNameAndVersion(const char** product_name,
                                 const char** version) override;
+#if !defined(OS_MACOSX)
   base::FilePath GetReporterLogFilename() override;
   bool EnableBreakpadForProcess(const std::string& process_type) override;
 #endif
@@ -98,6 +100,9 @@ private:
   int max_uploads_ = 5;
   int max_db_size_ = 20;
   int max_db_age_ = 5;
+
+  std::string product_name_ = "cef";
+  std::string product_version_ = CEF_VERSION;
 
 #if defined(OS_WIN)
   std::string app_name_ = "CEF";

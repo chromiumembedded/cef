@@ -55,6 +55,8 @@ extern "C" {
 //  # Comments start with a hash character and must be on their own line.
 //
 //  [Config]
+//  ProductName=<Value of the "prod" crash key; defaults to "cef">
+//  ProductVersion=<Value of the "ver" crash key; defaults to the CEF version>
 //  AppName=<Windows only; App-specific folder name component for storing crash
 //           information; default to "CEF">
 //  ExternalHandler=<Windows only; Name of the external handler exe to use
@@ -73,6 +75,11 @@ extern "C" {
 //  my_key2=<small|medium|large>
 //
 // Config section:
+//
+// If "ProductName" and/or "ProductVersion" are set then the specified values
+// will be included in the crash dump metadata. On macOS if these values are set
+// to NULL then they will be retrieved from the Info.plist file using the
+// "CFBundleName" and "CFBundleShortVersionString" keys respectively.
 //
 // If "AppName" is set on Windows then crash report information (metrics,
 // database and dumps) will be stored locally on disk under the

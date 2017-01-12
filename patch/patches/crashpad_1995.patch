@@ -340,10 +340,32 @@ index 3316fa0..df90dbd 100644
  
  const char kWebViewSingleProcessType[] = "webview";
 diff --git components/crash/content/app/crash_reporter_client.cc components/crash/content/app/crash_reporter_client.cc
-index 3dfbd99..cb99c1e 100644
+index 3dfbd99..80e5b66 100644
 --- components/crash/content/app/crash_reporter_client.cc
 +++ components/crash/content/app/crash_reporter_client.cc
-@@ -141,6 +141,26 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
+@@ -88,11 +88,12 @@ int CrashReporterClient::GetResultCodeRespawnFailed() {
+ }
+ #endif
+ 
+-#if defined(OS_POSIX) && !defined(OS_MACOSX) && !defined(OS_IOS)
++#if defined(OS_POSIX) && !defined(OS_IOS)
+ void CrashReporterClient::GetProductNameAndVersion(const char** product_name,
+                                                    const char** version) {
+ }
+ 
++#if !defined(OS_MACOSX)
+ base::FilePath CrashReporterClient::GetReporterLogFilename() {
+   return base::FilePath();
+ }
+@@ -101,6 +102,7 @@ bool CrashReporterClient::HandleCrashDump(const char* crashdump_filename) {
+   return false;
+ }
+ #endif
++#endif
+ 
+ #if defined(OS_WIN)
+ bool CrashReporterClient::GetCrashDumpLocation(base::string16* crash_dir) {
+@@ -141,6 +143,26 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
  }
  #endif
  
@@ -370,7 +392,7 @@ index 3dfbd99..cb99c1e 100644
  #if defined(OS_ANDROID)
  int CrashReporterClient::GetAndroidMinidumpDescriptor() {
    return 0;
-@@ -165,9 +185,4 @@ bool CrashReporterClient::ShouldEnableBreakpadMicrodumps() {
+@@ -165,9 +187,4 @@ bool CrashReporterClient::ShouldEnableBreakpadMicrodumps() {
  }
  #endif
  
@@ -381,7 +403,7 @@ index 3dfbd99..cb99c1e 100644
 -
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crash_reporter_client.h components/crash/content/app/crash_reporter_client.h
-index 25ae505..349ee49 100644
+index 25ae505..d923b39 100644
 --- components/crash/content/app/crash_reporter_client.h
 +++ components/crash/content/app/crash_reporter_client.h
 @@ -8,6 +8,7 @@
@@ -392,7 +414,30 @@ index 25ae505..349ee49 100644
  
  #include "base/strings/string16.h"
  #include "build/build_config.h"
-@@ -176,6 +177,17 @@ class CrashReporterClient {
+@@ -104,12 +105,13 @@ class CrashReporterClient {
+   virtual int GetResultCodeRespawnFailed();
+ #endif
+ 
+-#if defined(OS_POSIX) && !defined(OS_MACOSX) && !defined(OS_IOS)
++#if defined(OS_POSIX) && !defined(OS_IOS)
+   // Returns a textual description of the product type and version to include
+   // in the crash report. Neither out parameter should be set to NULL.
+   virtual void GetProductNameAndVersion(const char** product_name,
+                                         const char** version);
+ 
++#if !defined(OS_MACOSX)
+   virtual base::FilePath GetReporterLogFilename();
+ 
+   // Custom crash minidump handler after the minidump is generated.
+@@ -119,6 +121,7 @@ class CrashReporterClient {
+   // libc nor allocate memory normally.
+   virtual bool HandleCrashDump(const char* crashdump_filename);
+ #endif
++#endif
+ 
+   // The location where minidump files should be written. Returns true if
+   // |crash_dir| was set. Windows has to use base::string16 because this code
+@@ -176,6 +179,17 @@ class CrashReporterClient {
  
    // Returns true if breakpad should run in the given process type.
    virtual bool EnableBreakpadForProcess(const std::string& process_type);
@@ -411,7 +456,7 @@ index 25ae505..349ee49 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crashpad_mac.mm components/crash/content/app/crashpad_mac.mm
-index 7df66ea..f841aea 100644
+index 7df66ea..1e24110 100644
 --- components/crash/content/app/crashpad_mac.mm
 +++ components/crash/content/app/crashpad_mac.mm
 @@ -16,11 +16,14 @@
@@ -443,7 +488,7 @@ index 7df66ea..f841aea 100644
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -54,7 +58,7 @@
+@@ -54,16 +58,27 @@
        // crash server won't have symbols for any other build types.
        std::string url = "https://clients2.google.com/cr/report";
  #else
@@ -452,7 +497,50 @@ index 7df66ea..f841aea 100644
  #endif
  
        std::map<std::string, std::string> process_annotations;
-@@ -90,6 +94,12 @@
+ 
++      const char* product_name = "";
++      const char* product_version = "";
++      crash_reporter_client->GetProductNameAndVersion(&product_name,
++                                                      &product_version);
++ 
+       NSBundle* outer_bundle = base::mac::OuterBundle();
+-      NSString* product = base::mac::ObjCCast<NSString>([outer_bundle
+-          objectForInfoDictionaryKey:base::mac::CFToNSCast(kCFBundleNameKey)]);
+-      process_annotations["prod"] =
+-          base::SysNSStringToUTF8(product).append("_Mac");
++
++      if (strlen(product_name) == 0) {
++        NSString* product = base::mac::ObjCCast<NSString>([outer_bundle
++            objectForInfoDictionaryKey:base::mac::CFToNSCast(
++                kCFBundleNameKey)]);
++        process_annotations["prod"] =
++            base::SysNSStringToUTF8(product).append("_Mac");
++      } else {
++        process_annotations["prod"] = product_name;
++      }
+ 
+ #if defined(GOOGLE_CHROME_BUILD)
+       NSString* channel = base::mac::ObjCCast<NSString>(
+@@ -73,10 +88,14 @@
+       }
+ #endif
+ 
+-      NSString* version =
+-          base::mac::ObjCCast<NSString>([base::mac::FrameworkBundle()
+-              objectForInfoDictionaryKey:@"CFBundleShortVersionString"]);
+-      process_annotations["ver"] = base::SysNSStringToUTF8(version);
++      if (strlen(product_version) == 0) {
++        NSString* version =
++            base::mac::ObjCCast<NSString>([base::mac::FrameworkBundle()
++                objectForInfoDictionaryKey:@"CFBundleShortVersionString"]);
++        process_annotations["ver"] = base::SysNSStringToUTF8(version);
++      } else {
++        process_annotations["ver"] = product_version;
++      }
+ 
+       process_annotations["plat"] = std::string("OS X");
+ 
+@@ -90,6 +109,12 @@
              "--reset-own-crash-exception-port-to-system-default");
        }
  

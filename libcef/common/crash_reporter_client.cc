@@ -23,8 +23,6 @@
 
 #if defined(OS_MACOSX)
 #include "base/mac/foundation_util.h"
-#else
-#include "include/cef_version.h"
 #endif
 
 #if defined(OS_POSIX)
@@ -347,13 +345,17 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
     base::TrimString(name_str, base::kWhitespaceASCII, &name_str);
     std::string val_str = str.substr(div + 1);
     base::TrimString(val_str, base::kWhitespaceASCII, &val_str);
-    if (name_str.empty() || val_str.empty())
+    if (name_str.empty())
       continue;
 
     if (current_section == kConfigSection) {
       if (name_str == "ServerURL") {
         if (val_str.find("http://") == 0 || val_str.find("https://") == 0)
           server_url_ = val_str;
+      } else if (name_str == "ProductName") {
+        product_name_ = val_str;
+      } else if (name_str == "ProductVersion") {
+        product_version_ = val_str;
       } else if (name_str == "RateLimitEnabled") {
         rate_limit_ = (base::EqualsCaseInsensitiveASCII(val_str, "true") ||
                        val_str == "1");
@@ -375,9 +377,11 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
       }
 #if defined(OS_WIN)
       else if (name_str == "ExternalHandler") {
-        external_handler_ = sanitizePath(name_str);
+        if (!val_str.empty())
+          external_handler_ = sanitizePath(val_str);
       } else if (name_str == "AppName") {
-        app_name_ = sanitizePathComponent(val_str);
+        if (!val_str.empty())
+          app_name_ = sanitizePathComponent(val_str);
       }
 #endif
     } else if (current_section == kCrashKeysSection) {
@@ -466,8 +470,8 @@ void CefCrashReporterClient::GetProductNameAndVersion(
     base::string16* version,
     base::string16* special_build,
     base::string16* channel_name) {
-  *product_name = base::ASCIIToUTF16("cef");
-  *version = base::ASCIIToUTF16(CEF_VERSION);
+  *product_name = base::ASCIIToUTF16(product_name_);
+  *version = base::ASCIIToUTF16(product_version_);
   *special_build = base::string16();
   *channel_name = base::string16();
 }
@@ -490,14 +494,14 @@ bool CefCrashReporterClient::GetCrashMetricsLocation(
 
 #elif defined(OS_POSIX)
 
-#if !defined(OS_MACOSX)
-
 void CefCrashReporterClient::GetProductNameAndVersion(
     const char** product_name,
     const char** version) {
-  *product_name = "cef";
-  *version = CEF_VERSION;
+  *product_name = product_name_.c_str();
+  *version = product_version_.c_str();
 }
+
+#if !defined(OS_MACOSX)
 
 base::FilePath CefCrashReporterClient::GetReporterLogFilename() {
   return base::FilePath(FILE_PATH_LITERAL("uploads.log"));
