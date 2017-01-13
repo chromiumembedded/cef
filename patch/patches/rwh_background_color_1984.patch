@@ -1,0 +1,17 @@
+diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
+index 8a73ab8..11f2d54 100644
+--- content/browser/renderer_host/render_widget_host_view_aura.cc
++++ content/browser/renderer_host/render_widget_host_view_aura.cc
+@@ -761,8 +761,10 @@ void RenderWidgetHostViewAura::SetBackgroundColor(SkColor color) {
+   RenderWidgetHostViewBase::SetBackgroundColor(color);
+   bool opaque = GetBackgroundOpaque();
+   host_->SetBackgroundOpaque(opaque);
+-  window_->layer()->SetFillsBoundsOpaquely(opaque);
+-  window_->layer()->SetColor(color);
++  if (window_) {
++    window_->layer()->SetFillsBoundsOpaquely(opaque);
++    window_->layer()->SetColor(color);
++  }
+ }
+ 
+ bool RenderWidgetHostViewAura::IsMouseLocked() {
