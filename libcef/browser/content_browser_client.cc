@@ -836,8 +836,7 @@ void CefContentBrowserClient::OverrideWebkitPrefs(
     content::WebPreferences* prefs) {
   renderer_prefs::PopulateWebPreferences(rvh, *prefs);
 
-  if (rvh->GetWidget()->GetView() &&
-      rvh->GetWidget()->GetView()->GetNativeView()) {
+  if (rvh->GetWidget()->GetView()) {
     rvh->GetWidget()->GetView()->SetBackgroundColor(
         prefs->base_background_color);
   }

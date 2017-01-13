@@ -1,5 +1,5 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 3992bb0..45d82fc 100644
+index 3992bb0..1c27354 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
 @@ -769,6 +769,13 @@ void RenderWidgetHostViewAura::SetKeyboardFocus() {
@@ -16,6 +16,19 @@ index 3992bb0..45d82fc 100644
    // TODO(wjmaclean): can host_ ever be null?
    if (host_ && set_focus_on_mouse_down_or_key_event_) {
      set_focus_on_mouse_down_or_key_event_ = false;
+@@ -923,8 +930,10 @@ void RenderWidgetHostViewAura::SetBackgroundColor(SkColor color) {
+   RenderWidgetHostViewBase::SetBackgroundColor(color);
+   bool opaque = GetBackgroundOpaque();
+   host_->SetBackgroundOpaque(opaque);
+-  window_->layer()->SetFillsBoundsOpaquely(opaque);
+-  window_->layer()->SetColor(color);
++  if (window_) {
++    window_->layer()->SetFillsBoundsOpaquely(opaque);
++    window_->layer()->SetColor(color);
++  }
+ }
+ 
+ gfx::Size RenderWidgetHostViewAura::GetVisibleViewportSize() const {
 diff --git content/browser/renderer_host/render_widget_host_view_base.cc content/browser/renderer_host/render_widget_host_view_base.cc
 index 28b3698..337f35d 100644
 --- content/browser/renderer_host/render_widget_host_view_base.cc
