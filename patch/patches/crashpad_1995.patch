@@ -474,7 +474,7 @@ index 7df66ea..1e24110 100644
  #include "third_party/crashpad/crashpad/client/crash_report_database.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -40,9 +43,10 @@
+@@ -40,9 +43,10 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
  
    if (initial_client) {
      @autoreleasepool {
@@ -488,7 +488,7 @@ index 7df66ea..1e24110 100644
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -54,16 +58,27 @@
+@@ -54,16 +58,27 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
        // crash server won't have symbols for any other build types.
        std::string url = "https://clients2.google.com/cr/report";
  #else
@@ -521,7 +521,7 @@ index 7df66ea..1e24110 100644
  
  #if defined(GOOGLE_CHROME_BUILD)
        NSString* channel = base::mac::ObjCCast<NSString>(
-@@ -73,10 +88,14 @@
+@@ -73,10 +88,14 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
        }
  #endif
  
@@ -540,7 +540,7 @@ index 7df66ea..1e24110 100644
  
        process_annotations["plat"] = std::string("OS X");
  
-@@ -90,6 +109,12 @@
+@@ -90,6 +109,12 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
              "--reset-own-crash-exception-port-to-system-default");
        }
  
@@ -554,7 +554,7 @@ index 7df66ea..1e24110 100644
        bool result = crashpad_client.StartHandler(handler_path,
                                                   database_path,
 diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
-index a22af31..bc5086e 100644
+index a22af31..bde918e 100644
 --- components/crash/content/app/crashpad_win.cc
 +++ components/crash/content/app/crashpad_win.cc
 @@ -81,7 +81,7 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
@@ -566,7 +566,24 @@ index a22af31..bc5086e 100644
  #endif
  
      // Allow the crash server to be overridden for testing. If the variable
-@@ -115,9 +115,12 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -103,21 +103,25 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+               crashpad::TriState::kEnabled, kIndirectMemoryLimit);
+     }
+ 
+-    // If the handler is embedded in the binary (e.g. chrome, setup), we
+-    // reinvoke it with --type=crashpad-handler. Otherwise, we use the
+-    // standalone crashpad_handler.exe (for tests, etc.).
+     std::vector<std::string> arguments;
++
++    // Always add --type=crashpad-handler because the value is expected by
++    // CefExecuteProcess.
++    arguments.push_back(std::string("--type=") + switches::kCrashpadHandler);
++
+     if (embedded_handler) {
+-      arguments.push_back(std::string("--type=") + switches::kCrashpadHandler);
+       // The prefetch argument added here has to be documented in
+       // chrome_switches.cc, below the kPrefetchArgument* constants. A constant
+       // can't be used here because crashpad can't depend on Chrome.
        arguments.push_back("/prefetch:7");
      } else {
        base::FilePath exe_dir = exe_file.DirName();
