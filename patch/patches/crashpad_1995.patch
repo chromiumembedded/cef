@@ -553,7 +553,7 @@ index 3223ddd..c70a498 100644
        bool result = crashpad_client.StartHandler(handler_path,
                                                   database_path,
 diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
-index d9a4089..6a74e5b 100644
+index d9a4089..db3b56e 100644
 --- components/crash/content/app/crashpad_win.cc
 +++ components/crash/content/app/crashpad_win.cc
 @@ -82,7 +82,7 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
@@ -565,7 +565,24 @@ index d9a4089..6a74e5b 100644
  #endif
  
      // Allow the crash server to be overridden for testing. If the variable
-@@ -116,9 +116,12 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -104,21 +104,25 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+               crashpad::TriState::kEnabled, kIndirectMemoryLimit);
+     }
+ 
+-    // If the handler is embedded in the binary (e.g. chrome, setup), we
+-    // reinvoke it with --type=crashpad-handler. Otherwise, we use the
+-    // standalone crashpad_handler.exe (for tests, etc.).
+     std::vector<std::string> arguments;
++
++    // Always add --type=crashpad-handler because the value is expected by
++    // CefExecuteProcess.
++    arguments.push_back(std::string("--type=") + switches::kCrashpadHandler);
++
+     if (embedded_handler) {
+-      arguments.push_back(std::string("--type=") + switches::kCrashpadHandler);
+       // The prefetch argument added here has to be documented in
+       // chrome_switches.cc, below the kPrefetchArgument* constants. A constant
+       // can't be used here because crashpad can't depend on Chrome.
        arguments.push_back("/prefetch:7");
      } else {
        base::FilePath exe_dir = exe_file.DirName();

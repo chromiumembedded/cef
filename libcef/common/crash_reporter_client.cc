@@ -4,8 +4,6 @@
 
 #include "libcef/common/crash_reporter_client.h"
 
-#include <algorithm>
-#include <iterator>
 #include <utility>
 
 #if defined(OS_WIN)
@@ -176,9 +174,10 @@ std::string sanitizePathComponentPart(const std::string& s) {
 
   std::string result;
   result.reserve(s.length());
-  std::remove_copy_if(s.begin(), s.end(),
-                      std::back_inserter(result),
-                      std::not1(std::ptr_fun(isInvalidFileCharacter)));
+  for (size_t i = 0; i < s.length(); ++i) {
+    if (!isInvalidFileCharacter(s[i]))
+      result.push_back(s[i]);
+  }
   return result;
 }
 
