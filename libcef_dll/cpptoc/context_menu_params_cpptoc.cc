@@ -125,6 +125,21 @@ int CEF_CALLBACK context_menu_params_has_image_contents(
   return _retval;
 }
 
+cef_string_userfree_t CEF_CALLBACK context_menu_params_get_title_text(
+    struct _cef_context_menu_params_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefString _retval = CefContextMenuParamsCppToC::Get(self)->GetTitleText();
+
+  // Return type: string
+  return _retval.DetachToUserFree();
+}
+
 cef_string_userfree_t CEF_CALLBACK context_menu_params_get_page_url(
     struct _cef_context_menu_params_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -352,6 +367,7 @@ CefContextMenuParamsCppToC::CefContextMenuParamsCppToC() {
       context_menu_params_get_unfiltered_link_url;
   GetStruct()->get_source_url = context_menu_params_get_source_url;
   GetStruct()->has_image_contents = context_menu_params_has_image_contents;
+  GetStruct()->get_title_text = context_menu_params_get_title_text;
   GetStruct()->get_page_url = context_menu_params_get_page_url;
   GetStruct()->get_frame_url = context_menu_params_get_frame_url;
   GetStruct()->get_frame_charset = context_menu_params_get_frame_charset;
