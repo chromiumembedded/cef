@@ -64,6 +64,11 @@ bool CefContextMenuParamsImpl::HasImageContents() {
   return const_value().has_image_contents;
 }
 
+CefString CefContextMenuParamsImpl::GetTitleText() {
+  CEF_VALUE_VERIFY_RETURN(false, CefString());
+  return const_value().title_text;
+}
+
 CefString CefContextMenuParamsImpl::GetPageUrl() {
   CEF_VALUE_VERIFY_RETURN(false, CefString());
   return const_value().page_url.spec();
