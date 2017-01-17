@@ -203,7 +203,7 @@ class CefAllowCertificateErrorCallbackImpl : public CefRequestCallback {
   static void RunNow(const CallbackType& callback, bool allow) {
     CEF_REQUIRE_UIT();
     callback.Run(allow ? content::CERTIFICATE_REQUEST_RESULT_TYPE_CONTINUE :
-                         content::CERTIFICATE_REQUEST_RESULT_TYPE_DENY);
+                         content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL);
   }
 
   CallbackType callback_;
@@ -772,11 +772,10 @@ void CefContentBrowserClient::AllowCertificateError(
   bool proceed = handler->OnCertificateError(
       browser.get(), static_cast<cef_errorcode_t>(cert_error),
       request_url.spec(), cef_ssl_info, callbackImpl.get());
-  if (!proceed)
+  if (!proceed) {
     callbackImpl->Disconnect();
-
-  callback.Run(proceed ? content::CERTIFICATE_REQUEST_RESULT_TYPE_CONTINUE :
-                         content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL);
+    callback.Run(content::CERTIFICATE_REQUEST_RESULT_TYPE_CANCEL);
+  }
 }
 
 void CefContentBrowserClient::SelectClientCertificate(
