@@ -10,7 +10,7 @@
 
 namespace client {
 
-// Represents a singleton hidden window that acts at temporary parent for
+// Represents a singleton hidden window that acts as a temporary parent for
 // popup browsers.
 class TempWindowX11 {
  public:
