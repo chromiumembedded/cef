@@ -39,6 +39,7 @@ class CefContextMenuParamsCToCpp
   CefString GetUnfilteredLinkUrl() OVERRIDE;
   CefString GetSourceUrl() OVERRIDE;
   bool HasImageContents() OVERRIDE;
+  CefString GetTitleText() OVERRIDE;
   CefString GetPageUrl() OVERRIDE;
   CefString GetFrameUrl() OVERRIDE;
   CefString GetFrameCharset() OVERRIDE;

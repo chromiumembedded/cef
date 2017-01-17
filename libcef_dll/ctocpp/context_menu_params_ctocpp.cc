@@ -120,6 +120,22 @@ bool CefContextMenuParamsCToCpp::HasImageContents() {
   return _retval?true:false;
 }
 
+CefString CefContextMenuParamsCToCpp::GetTitleText() {
+  cef_context_menu_params_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_title_text))
+    return CefString();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_string_userfree_t _retval = _struct->get_title_text(_struct);
+
+  // Return type: string
+  CefString _retvalStr;
+  _retvalStr.AttachToUserFree(_retval);
+  return _retvalStr;
+}
+
 CefString CefContextMenuParamsCToCpp::GetPageUrl() {
   cef_context_menu_params_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_page_url))

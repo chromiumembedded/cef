@@ -25,6 +25,7 @@ class CefContextMenuParamsImpl
   CefString GetUnfilteredLinkUrl() override;
   CefString GetSourceUrl() override;
   bool HasImageContents() override;
+  CefString GetTitleText() override;
   CefString GetPageUrl() override;
   CefString GetFrameUrl() override;
   CefString GetFrameCharset() override;

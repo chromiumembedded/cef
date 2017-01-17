@@ -193,6 +193,14 @@ typedef struct _cef_context_menu_params_t {
       struct _cef_context_menu_params_t* self);
 
   ///
+  // Returns the title text or the alt text if the context menu was invoked on
+  // an image.
+  ///
+  // The resulting string must be freed by calling cef_string_userfree_free().
+  cef_string_userfree_t (CEF_CALLBACK *get_title_text)(
+      struct _cef_context_menu_params_t* self);
+
+  ///
   // Returns the URL of the top level page that the context menu was invoked on.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().

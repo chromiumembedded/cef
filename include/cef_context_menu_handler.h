@@ -196,6 +196,13 @@ class CefContextMenuParams : public virtual CefBase {
   virtual bool HasImageContents() =0;
 
   ///
+  // Returns the title text or the alt text if the context menu was invoked on
+  // an image.
+  ///
+  /*--cef()--*/
+  virtual CefString GetTitleText() = 0;
+
+  ///
   // Returns the URL of the top level page that the context menu was invoked on.
   ///
   /*--cef()--*/
