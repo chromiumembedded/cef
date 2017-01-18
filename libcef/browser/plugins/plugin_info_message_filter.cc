@@ -138,7 +138,8 @@ CefPluginInfoMessageFilter::Context::Context(
     int render_process_id,
     CefBrowserContext* profile)
     : render_process_id_(render_process_id),
-      resource_context_(profile->GetResourceContext()),
+      resource_context_(
+          static_cast<CefResourceContext*>(profile->GetResourceContext())),
       host_content_settings_map_(profile->GetHostContentSettingsMap()) {
 #if BUILDFLAG(ENABLE_EXTENSIONS)
   if (extensions::ExtensionsEnabled())
@@ -198,6 +199,7 @@ CefPluginInfoMessageFilter::~CefPluginInfoMessageFilter() {}
 struct CefPluginInfoMessageFilter::GetPluginInfo_Params {
   int render_frame_id;
   GURL url;
+  bool is_main_frame;
   url::Origin main_frame_origin;
   std::string mime_type;
 };
@@ -205,12 +207,14 @@ struct CefPluginInfoMessageFilter::GetPluginInfo_Params {
 void CefPluginInfoMessageFilter::OnGetPluginInfo(
     int render_frame_id,
     const GURL& url,
+    bool is_main_frame,
     const url::Origin& main_frame_origin,
     const std::string& mime_type,
     IPC::Message* reply_msg) {
   GetPluginInfo_Params params = {
     render_frame_id,
     url,
+    is_main_frame,
     main_frame_origin,
     mime_type
   };
@@ -225,12 +229,10 @@ void CefPluginInfoMessageFilter::PluginsLoaded(
     IPC::Message* reply_msg,
     const std::vector<WebPluginInfo>& plugins) {
   CefViewHostMsg_GetPluginInfo_Output output;
-  CefRefPtr<CefRequestContextHandler> handler =
-        browser_context_->GetHandler();
 
   // This also fills in |actual_mime_type|.
   std::unique_ptr<PluginMetadata> plugin_metadata;
-  context_.FindEnabledPlugin(params, handler.get(),
+  context_.FindEnabledPlugin(params,
                              &output.status, &output.plugin,
                              &output.actual_mime_type,
                              &plugin_metadata);
@@ -383,7 +385,6 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
 
 bool CefPluginInfoMessageFilter::Context::FindEnabledPlugin(
     const GetPluginInfo_Params& params,
-    CefRequestContextHandler* handler,
     CefViewHostMsg_GetPluginInfo_Status* status,
     WebPluginInfo* plugin,
     std::string* actual_mime_type,
@@ -414,8 +415,10 @@ bool CefPluginInfoMessageFilter::Context::FindEnabledPlugin(
     *plugin_metadata = PluginFinder::GetInstance()->GetPluginMetadata(*plugin);
 
     DecidePluginStatus(params, *plugin, (*plugin_metadata).get(), status);
-    if (filter->IsPluginAvailable(handler,
+    if (filter->IsPluginAvailable(render_process_id_,
+                                  resource_context_,
                                   params.url,
+                                  params.is_main_frame,
                                   params.main_frame_origin,
                                   plugin,
                                   status)) {

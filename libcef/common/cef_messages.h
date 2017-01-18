@@ -231,10 +231,11 @@ IPC_STRUCT_END()
 // In contrast to ViewHostMsg_GetPluginInfo in content/, this IPC call knows
 // about specific reasons why a plugin can't be used, for example because it's
 // disabled. Based on ChromeViewHostMsg_GetPluginInfo.
-IPC_SYNC_MESSAGE_CONTROL4_1(CefViewHostMsg_GetPluginInfo,
+IPC_SYNC_MESSAGE_CONTROL5_1(CefViewHostMsg_GetPluginInfo,
                             int /* render_frame_id */,
                             GURL /* url */,
-                            url::Origin /* top origin url */,
+                            bool /* is_main_frame */,
+                            url::Origin /* top_origin_url */,
                             std::string /* mime_type */,
                             CefViewHostMsg_GetPluginInfo_Output /* output */)
 

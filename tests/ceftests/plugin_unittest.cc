@@ -40,6 +40,7 @@ class PluginBrowserTest : public client::ClientAppBrowser::Delegate {
   IMPLEMENT_REFCOUNTING(PluginBrowserTest);
 };
 
+const char kPdfTestOrigin[] = "http://tests/";
 const char kPdfHtmlUrl[] = "http://tests/pdf.html";
 const char kPdfDirectUrl[] = "http://tests/pdf.pdf";
 
@@ -113,32 +114,51 @@ class PluginTestHandler : public RoutingTestHandler,
 
     bool OnBeforePluginLoad(const CefString& mime_type,
                             const CefString& plugin_url,
+                            bool is_main_frame,
                             const CefString& top_origin_url,
                             CefRefPtr<CefWebPluginInfo> plugin_info,
                             PluginPolicy* plugin_policy) override {
       const std::string& mime_type_str = mime_type;
       EXPECT_STREQ("application/pdf", mime_type_str.c_str());
+      EXPECT_STREQ("chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/",
+                   plugin_info->GetPath().ToString().c_str());
 
       if (top_origin_url.empty()) {
-        if (!handler_->got_on_before_plugin_empty_origin_)
+        if (!handler_->got_on_before_plugin_empty_origin_) {
+          // Checking for PDF support in the plugin frame (navigator.plugins
+          // listing, pdf load, etc).
+          EXPECT_EQ(handler_->HasDirectPluginLoad(), is_main_frame);
           handler_->got_on_before_plugin_empty_origin_.yes();
-        else
+        } else if (handler_->HasNoList()) {
+          // When listing is disabled there should be an additional check in the
+          // main frame for the navigator.plugins listing.
+          if (!handler_->got_on_before_plugin_empty_origin2_) {
+            EXPECT_EQ(true, is_main_frame);
+            handler_->got_on_before_plugin_empty_origin2_.yes();
+          } else {
+            NOTREACHED();
+          }
+        } else {
+          // When listing is enabled there should only be the one check in the
+          // plugin frame.
           NOTREACHED();
+        }
 
         if (handler_->HasNoList()) {
           // Remove the PDF plugin from the `navigator.plugins` list.
           *plugin_policy = PLUGIN_POLICY_DISABLE;
           return true;
-        } else {
-          // Ignore requests for building the plugin list.
-          return false;
         }
+
+        // Ignore requests for building the plugin list.
+        return false;
       }
 
-      if (!handler_->got_on_before_plugin_load_pdf1_)
-        handler_->got_on_before_plugin_load_pdf1_.yes();
-      else if (!handler_->got_on_before_plugin_load_pdf2_)
-        handler_->got_on_before_plugin_load_pdf2_.yes();
+      // Should only get requests for the test origin.
+      EXPECT_STREQ(kPdfTestOrigin, top_origin_url.ToString().c_str());
+
+      if (!handler_->got_on_before_plugin_load_pdf_)
+        handler_->got_on_before_plugin_load_pdf_.yes();
       else
         NOTREACHED();
 
@@ -152,6 +172,7 @@ class PluginTestHandler : public RoutingTestHandler,
         *plugin_policy = PLUGIN_POLICY_DISABLE;
         return true;
       }
+
       return false;
     }
 
@@ -169,6 +190,11 @@ class PluginTestHandler : public RoutingTestHandler,
                     const std::string& url)
       : mode_(mode),
         url_(url) {
+  }
+
+  // Loading the PDF directly in the main frame instead of a sub-frame.
+  bool HasDirectPluginLoad() const {
+    return url_ == kPdfDirectUrl;
   }
 
   // Has a specified RequestContext but not necessarily a custom handler.
@@ -525,11 +551,13 @@ class PluginTestHandler : public RoutingTestHandler,
       EXPECT_FALSE(got_on_before_plugin_empty_origin_);
 
     if (HasNoList()) {
+      EXPECT_TRUE(got_on_before_plugin_empty_origin2_);
       EXPECT_FALSE(got_pdf_plugin_found_);
       EXPECT_TRUE(got_pdf_plugin_missing_);
       EXPECT_FALSE(got_run_context_menu_);
       EXPECT_FALSE(got_context_menu_dismissed_);
     } else {
+      EXPECT_FALSE(got_on_before_plugin_empty_origin2_);
       EXPECT_TRUE(got_pdf_plugin_found_);
       EXPECT_FALSE(got_pdf_plugin_missing_);
       EXPECT_TRUE(got_run_context_menu_);
@@ -544,10 +572,8 @@ class PluginTestHandler : public RoutingTestHandler,
         EXPECT_TRUE(got_on_load_end_pdf1_);
         EXPECT_TRUE(got_on_load_end_pdf2_);
 
-        if (HasRequestContextHandler()) {
-          EXPECT_TRUE(got_on_before_plugin_load_pdf1_);
-          EXPECT_TRUE(got_on_before_plugin_load_pdf2_);
-        }
+        if (HasRequestContextHandler())
+          EXPECT_TRUE(got_on_before_plugin_load_pdf_);
       }
     } else if (url_ == kPdfDirectUrl) {
       // Load the PDF file directly.
@@ -555,17 +581,14 @@ class PluginTestHandler : public RoutingTestHandler,
       EXPECT_TRUE(got_on_load_end_pdf1_);
       EXPECT_FALSE(got_on_load_end_pdf2_);
 
-      if (HasRequestContextHandler()) {
-        EXPECT_TRUE(got_on_before_plugin_load_pdf1_);
-        EXPECT_FALSE(got_on_before_plugin_load_pdf2_);
-      }
+      if (HasRequestContextHandler())
+        EXPECT_TRUE(got_on_before_plugin_load_pdf_);
     } else {
       NOTREACHED();
     }
 
     if (!HasRequestContextHandler() || HasNoList()) {
-      EXPECT_FALSE(got_on_before_plugin_load_pdf1_);
-      EXPECT_FALSE(got_on_before_plugin_load_pdf2_);
+      EXPECT_FALSE(got_on_before_plugin_load_pdf_);
     }
 
     TestHandler::DestroyTest();
@@ -575,8 +598,8 @@ class PluginTestHandler : public RoutingTestHandler,
   const std::string url_;
 
   TrackCallback got_on_before_plugin_empty_origin_;
-  TrackCallback got_on_before_plugin_load_pdf1_;
-  TrackCallback got_on_before_plugin_load_pdf2_;
+  TrackCallback got_on_before_plugin_empty_origin2_;
+  TrackCallback got_on_before_plugin_load_pdf_;
   TrackCallback got_on_load_end_html_;
   TrackCallback got_on_load_end_pdf1_;
   TrackCallback got_on_load_end_pdf2_;

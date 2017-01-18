@@ -11,7 +11,7 @@
 
 #include "base/macros.h"
 
-class CefRequestContextHandler;
+class CefResourceContext;
 enum class CefViewHostMsg_GetPluginInfo_Status;
 
 class CefPluginServiceFilter : public content::PluginServiceFilter {
@@ -25,6 +25,7 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
                          int render_frame_id,
                          const void* context,
                          const GURL& url,
+                         bool is_main_frame,
                          const url::Origin& main_frame_origin,
                          content::WebPluginInfo* plugin) override;
 
@@ -34,8 +35,10 @@ class CefPluginServiceFilter : public content::PluginServiceFilter {
   // Returns false if the plugin is not found or disabled. May call
   // CefRequestContextHandler::OnBeforePluginLoad if possible/necessary.
   // See related discussion in issue #2015.
-  bool IsPluginAvailable(CefRequestContextHandler* handler,
+  bool IsPluginAvailable(int render_process_id,
+                         CefResourceContext* resource_context,
                          const GURL& url,
+                         bool is_main_frame,
                          const url::Origin& main_frame_origin,
                          content::WebPluginInfo* plugin,
                          CefViewHostMsg_GetPluginInfo_Status* status);

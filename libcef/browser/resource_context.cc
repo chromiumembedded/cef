@@ -124,31 +124,38 @@ void CefResourceContext::set_parent(CefResourceContext* parent) {
 void CefResourceContext::AddPluginLoadDecision(
     int render_process_id,
     const base::FilePath& plugin_path,
-    bool allow_load) {
+    bool is_main_frame,
+    const url::Origin& main_frame_origin,
+    CefViewHostMsg_GetPluginInfo_Status status) {
   CEF_REQUIRE_IOT();
   DCHECK_GE(render_process_id, 0);
   DCHECK(!plugin_path.empty());
 
   plugin_load_decision_map_.insert(
-      std::make_pair(std::make_pair(render_process_id, plugin_path),
-                     allow_load));
+      std::make_pair(
+          std::make_pair(std::make_pair(render_process_id, plugin_path),
+                         std::make_pair(is_main_frame, main_frame_origin)),
+          status));
 }
 
 bool CefResourceContext::HasPluginLoadDecision(
     int render_process_id,
     const base::FilePath& plugin_path,
-    bool* allow_load) const {
+    bool is_main_frame,
+    const url::Origin& main_frame_origin,
+    CefViewHostMsg_GetPluginInfo_Status* status) const {
   CEF_REQUIRE_IOT();
   DCHECK_GE(render_process_id, 0);
   DCHECK(!plugin_path.empty());
 
   PluginLoadDecisionMap::const_iterator it =
       plugin_load_decision_map_.find(
-          std::make_pair(render_process_id, plugin_path));
+          std::make_pair(std::make_pair(render_process_id, plugin_path),
+                         std::make_pair(is_main_frame, main_frame_origin)));
   if (it == plugin_load_decision_map_.end())
     return false;
 
-  *allow_load = it->second;
+  *status = it->second;
   return true;
 }
 
@@ -160,7 +167,7 @@ void CefResourceContext::ClearPluginLoadDecision(int render_process_id) {
   } else {
     PluginLoadDecisionMap::iterator it = plugin_load_decision_map_.begin();
     while (it != plugin_load_decision_map_.end()) {
-      if (it->first.first == render_process_id)
+      if (it->first.first.first == render_process_id)
         it = plugin_load_decision_map_.erase(it);
       else
         ++it;

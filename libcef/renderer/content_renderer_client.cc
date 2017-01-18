@@ -507,8 +507,8 @@ bool CefContentRendererClient::OverrideCreatePlugin(
   GURL url(params.url);
   CefViewHostMsg_GetPluginInfo_Output output;
   render_frame->Send(new CefViewHostMsg_GetPluginInfo(
-      render_frame->GetRoutingID(), url, frame->top()->getSecurityOrigin(),
-      orig_mime_type, &output));
+      render_frame->GetRoutingID(), url, render_frame->IsMainFrame(),
+      frame->top()->getSecurityOrigin(), orig_mime_type, &output));
 
   *plugin = CreatePlugin(render_frame, frame, params, output);
   return true;
