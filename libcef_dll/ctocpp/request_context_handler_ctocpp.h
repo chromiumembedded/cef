@@ -33,8 +33,8 @@ class CefRequestContextHandlerCToCpp
   // CefRequestContextHandler methods.
   CefRefPtr<CefCookieManager> GetCookieManager() override;
   bool OnBeforePluginLoad(const CefString& mime_type,
-      const CefString& plugin_url, const CefString& top_origin_url,
-      CefRefPtr<CefWebPluginInfo> plugin_info,
+      const CefString& plugin_url, bool is_main_frame,
+      const CefString& top_origin_url, CefRefPtr<CefWebPluginInfo> plugin_info,
       PluginPolicy* plugin_policy) override;
 };
 

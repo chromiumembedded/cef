@@ -38,27 +38,3 @@ index 9895206..1f4626d 100644
    // Indicates if the Android MediaPlayer should be used instead of Chrome's
    // built in media player for the given |url|. Defaults to false.
    virtual bool ShouldUseMediaPlayerForURL(const GURL& url);
-diff --git renderer/render_frame_impl.cc renderer/render_frame_impl.cc
-index 2d93238..95969c4 100644
---- renderer/render_frame_impl.cc
-+++ renderer/render_frame_impl.cc
-@@ -5259,9 +5259,8 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
-       (pending_navigation_params_ &&
-        !pending_navigation_params_->request_params.redirects.empty());
- 
--#ifdef OS_ANDROID
--  bool render_view_was_created_by_renderer =
--      render_view_->was_created_by_renderer_;
-+  // CEF doesn't use this value, so just pass false.
-+  bool render_view_was_created_by_renderer = false;
-   // The handlenavigation API is deprecated and will be removed once
-   // crbug.com/325351 is resolved.
-   if (GetContentClient()->renderer()->HandleNavigation(
-@@ -5270,7 +5269,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
-           is_redirect)) {
-     return blink::WebNavigationPolicyIgnore;
-   }
--#endif
- 
-   Referrer referrer(
-       RenderViewImpl::GetReferrerFromRequest(frame_, info.urlRequest));

@@ -1,0 +1,163 @@
+diff --git Source/core/dom/DOMImplementation.cpp Source/core/dom/DOMImplementation.cpp
+index 2b04a24..85653cf 100644
+--- Source/core/dom/DOMImplementation.cpp
++++ Source/core/dom/DOMImplementation.cpp
+@@ -240,9 +240,9 @@ Document* DOMImplementation::createDocument(const String& type,
+     // For that reason, the origin must be retrieved directly from init.url().
+     if (init.frame()->isMainFrame()) {
+       RefPtr<SecurityOrigin> origin = SecurityOrigin::create(init.url());
+-      pluginData = init.frame()->page()->pluginData(origin.get());
++      pluginData = init.frame()->page()->pluginData(true, origin.get());
+     } else {
+-      pluginData = init.frame()->page()->pluginData(
++      pluginData = init.frame()->page()->pluginData(false,
+           init.frame()->tree().top()->securityContext()->getSecurityOrigin());
+     }
+   }
+diff --git Source/core/frame/LocalFrame.cpp Source/core/frame/LocalFrame.cpp
+index 03edc5d..b9a91db 100644
+--- Source/core/frame/LocalFrame.cpp
++++ Source/core/frame/LocalFrame.cpp
+@@ -920,6 +920,7 @@ PluginData* LocalFrame::pluginData() const {
+   if (!loader().allowPlugins(NotAboutToInstantiatePlugin))
+     return nullptr;
+   return page()->pluginData(
++      isMainFrame(),
+       tree().top()->securityContext()->getSecurityOrigin());
+ }
+ 
+diff --git Source/core/page/Page.cpp Source/core/page/Page.cpp
+index 671df37..27c7d6b 100644
+--- Source/core/page/Page.cpp
++++ Source/core/page/Page.cpp
+@@ -239,16 +239,26 @@ void Page::refreshPlugins() {
+ 
+   for (const Page* page : allPages()) {
+     // Clear out the page's plugin data.
+-    if (page->m_pluginData)
+-      page->m_pluginData = nullptr;
++    if (page->m_pluginDataMainFrame)
++      page->m_pluginDataMainFrame = nullptr;
++    if (page->m_pluginDataSubFrame)
++      page->m_pluginDataSubFrame = nullptr;
+   }
+ }
+ 
+-PluginData* Page::pluginData(SecurityOrigin* mainFrameOrigin) const {
+-  if (!m_pluginData ||
+-      !mainFrameOrigin->isSameSchemeHostPort(m_pluginData->origin()))
+-    m_pluginData = PluginData::create(mainFrameOrigin);
+-  return m_pluginData.get();
++PluginData* Page::pluginData(bool isMainFrame,
++                             SecurityOrigin* mainFrameOrigin) const {
++  if (isMainFrame) {
++    if (!m_pluginDataMainFrame ||
++        !mainFrameOrigin->isSameSchemeHostPort(m_pluginDataMainFrame->origin()))
++      m_pluginDataMainFrame = PluginData::create(true, mainFrameOrigin);
++  } else {
++    if (!m_pluginDataSubFrame ||
++        !mainFrameOrigin->isSameSchemeHostPort(m_pluginDataSubFrame->origin()))
++      m_pluginDataSubFrame = PluginData::create(false, mainFrameOrigin);
++  }
++
++  return isMainFrame ? m_pluginDataMainFrame.get() : m_pluginDataSubFrame.get();
+ }
+ 
+ void Page::setValidationMessageClient(ValidationMessageClient* client) {
+diff --git Source/core/page/Page.h Source/core/page/Page.h
+index 133260a..0aef9f2 100644
+--- Source/core/page/Page.h
++++ Source/core/page/Page.h
+@@ -127,7 +127,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
+   ViewportDescription viewportDescription() const;
+ 
+   static void refreshPlugins();
+-  PluginData* pluginData(SecurityOrigin* mainFrameOrigin) const;
++  PluginData* pluginData(bool isMainFrame,
++                         SecurityOrigin* mainFrameOrigin) const;
+ 
+   EditorClient& editorClient() const { return *m_editorClient; }
+   SpellCheckerClient& spellCheckerClient() const {
+@@ -268,7 +269,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
+   // longer needed.
+   Member<Frame> m_mainFrame;
+ 
+-  mutable RefPtr<PluginData> m_pluginData;
++  mutable RefPtr<PluginData> m_pluginDataMainFrame;
++  mutable RefPtr<PluginData> m_pluginDataSubFrame;
+ 
+   EditorClient* const m_editorClient;
+   SpellCheckerClient* const m_spellCheckerClient;
+diff --git Source/platform/plugins/PluginData.cpp Source/platform/plugins/PluginData.cpp
+index a6da275..c879e64 100644
+--- Source/platform/plugins/PluginData.cpp
++++ Source/platform/plugins/PluginData.cpp
+@@ -30,11 +30,12 @@
+ 
+ namespace blink {
+ 
+-PluginData::PluginData(SecurityOrigin* mainFrameOrigin)
+-    : m_mainFrameOrigin(mainFrameOrigin) {
++PluginData::PluginData(bool isMainFrame, SecurityOrigin* mainFrameOrigin)
++    : m_isMainFrame(isMainFrame),
++      m_mainFrameOrigin(mainFrameOrigin) {
+   PluginListBuilder builder(&m_plugins);
+   Platform::current()->getPluginList(
+-      false, WebSecurityOrigin(m_mainFrameOrigin), &builder);
++      false, m_isMainFrame, WebSecurityOrigin(m_mainFrameOrigin), &builder);
+ 
+   for (unsigned i = 0; i < m_plugins.size(); ++i) {
+     const PluginInfo& plugin = m_plugins[i];
+@@ -73,7 +74,8 @@ String PluginData::pluginNameForMimeType(const String& mimeType) const {
+ void PluginData::refreshBrowserSidePluginCache() {
+   Vector<PluginInfo> plugins;
+   PluginListBuilder builder(&plugins);
+-  Platform::current()->getPluginList(true, WebSecurityOrigin::createUnique(),
++  Platform::current()->getPluginList(true, true,
++                                     WebSecurityOrigin::createUnique(),
+                                      &builder);
+ }
+ 
+diff --git Source/platform/plugins/PluginData.h Source/platform/plugins/PluginData.h
+index 0edfd70..a81c128 100644
+--- Source/platform/plugins/PluginData.h
++++ Source/platform/plugins/PluginData.h
+@@ -52,8 +52,9 @@ class PLATFORM_EXPORT PluginData : public RefCounted<PluginData> {
+   WTF_MAKE_NONCOPYABLE(PluginData);
+ 
+  public:
+-  static PassRefPtr<PluginData> create(SecurityOrigin* mainFrameOrigin) {
+-    return adoptRef(new PluginData(mainFrameOrigin));
++  static PassRefPtr<PluginData> create(bool isMainFrame,
++                                       SecurityOrigin* mainFrameOrigin) {
++    return adoptRef(new PluginData(isMainFrame, mainFrameOrigin));
+   }
+ 
+   const Vector<PluginInfo>& plugins() const { return m_plugins; }
+@@ -71,12 +72,13 @@ class PLATFORM_EXPORT PluginData : public RefCounted<PluginData> {
+   static void refreshBrowserSidePluginCache();
+ 
+  private:
+-  explicit PluginData(SecurityOrigin* mainFrameOrigin);
++  explicit PluginData(bool isMainFrame, SecurityOrigin* mainFrameOrigin);
+   const PluginInfo* pluginInfoForMimeType(const String& mimeType) const;
+ 
+   Vector<PluginInfo> m_plugins;
+   Vector<MimeClassInfo> m_mimes;
+   Vector<size_t> m_mimePluginIndices;
++  bool m_isMainFrame;
+   RefPtr<SecurityOrigin> m_mainFrameOrigin;
+ };
+ 
+diff --git public/platform/Platform.h public/platform/Platform.h
+index d623c5a..e28e617 100644
+--- public/platform/Platform.h
++++ public/platform/Platform.h
+@@ -357,6 +357,7 @@ class BLINK_PLATFORM_EXPORT Platform {
+   // satisfy this call. mainFrameOrigin is used by the browser process to
+   // filter plugins from the plugin list based on content settings.
+   virtual void getPluginList(bool refresh,
++                             bool isMainFrame,
+                              const WebSecurityOrigin& mainFrameOrigin,
+                              WebPluginListBuilder*) {}
+ 

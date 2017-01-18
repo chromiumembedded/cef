@@ -182,6 +182,7 @@ void CefPluginPlaceholder::PluginListChanged() {
   std::string mime_type(GetPluginParams().mimeType.utf8());
   render_frame()->Send(new CefViewHostMsg_GetPluginInfo(
       routing_id(), GURL(GetPluginParams().url),
+      GetFrame()->parent() == nullptr,
       GetFrame()->top()->getSecurityOrigin(), mime_type, &output));
   if (output.status == status_)
     return;

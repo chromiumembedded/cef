@@ -37,7 +37,8 @@ cef_cookie_manager_t* CEF_CALLBACK request_context_handler_get_cookie_manager(
 
 int CEF_CALLBACK request_context_handler_on_before_plugin_load(
     struct _cef_request_context_handler_t* self, const cef_string_t* mime_type,
-    const cef_string_t* plugin_url, const cef_string_t* top_origin_url,
+    const cef_string_t* plugin_url, int is_main_frame,
+    const cef_string_t* top_origin_url,
     struct _cef_web_plugin_info_t* plugin_info,
     cef_plugin_policy_t* plugin_policy) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -63,6 +64,7 @@ int CEF_CALLBACK request_context_handler_on_before_plugin_load(
   bool _retval = CefRequestContextHandlerCppToC::Get(self)->OnBeforePluginLoad(
       CefString(mime_type),
       CefString(plugin_url),
+      is_main_frame?true:false,
       CefString(top_origin_url),
       CefWebPluginInfoCToCpp::Wrap(plugin_info),
       plugin_policy);
