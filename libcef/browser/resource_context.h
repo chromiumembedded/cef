@@ -12,8 +12,10 @@
 #include "content/public/browser/resource_context.h"
 #include "extensions/browser/info_map.h"
 #include "net/ssl/client_cert_store.h"
+#include "url/origin.h"
 
 class CefURLRequestContextGetter;
+enum class CefViewHostMsg_GetPluginInfo_Status;
 
 // Acts as a bridge for resource loading. Life span is controlled by
 // CefBrowserContext. Created on the UI thread but accessed and destroyed on the
@@ -46,15 +48,16 @@ class CefResourceContext : public content::ResourceContext {
 
   // Remember the plugin load decision for plugin status requests that arrive
   // via CefPluginServiceFilter::IsPluginAvailable.
-  // TODO(cef): Per-frame decisions are not currently supported because
-  // Chromium does not pipe the frame id through to RenderFrameMessageFilter::
-  // GetPluginsCallback. Fix this once https://crbug.com/626728#c15 is resolved.
   void AddPluginLoadDecision(int render_process_id,
                              const base::FilePath& plugin_path,
-                             bool allow_load);
+                             bool is_main_frame,
+                             const url::Origin& main_frame_origin,
+                             CefViewHostMsg_GetPluginInfo_Status status);
   bool HasPluginLoadDecision(int render_process_id,
                              const base::FilePath& plugin_path,
-                             bool* allow_load) const;
+                             bool is_main_frame,
+                             const url::Origin& main_frame_origin,
+                             CefViewHostMsg_GetPluginInfo_Status* status) const;
 
   // Clear the plugin load decisions associated with |render_process_id|, or all
   // plugin load decisions if |render_process_id| is -1.
@@ -80,8 +83,11 @@ class CefResourceContext : public content::ResourceContext {
   scoped_refptr<extensions::InfoMap> extension_info_map_;
   CefRefPtr<CefRequestContextHandler> handler_;
 
-  // Map (render_process_id, plugin_path) to plugin load decision.
-  typedef std::map<std::pair<int, base::FilePath>, bool>
+  // Map (render_process_id, plugin_path, is_main_frame, main_frame_origin) to
+  // plugin load decision.
+  typedef std::map<std::pair<std::pair<int, base::FilePath>,
+                             std::pair<bool, url::Origin>>,
+                   CefViewHostMsg_GetPluginInfo_Status>
       PluginLoadDecisionMap;
   PluginLoadDecisionMap plugin_load_decision_map_;
 

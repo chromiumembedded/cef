@@ -20,13 +20,12 @@
 #include "content/public/browser/browser_message_filter.h"
 
 class CefBrowserContext;
-class CefRequestContextHandler;
+class CefResourceContext;
 struct CefViewHostMsg_GetPluginInfo_Output;
 enum class CefViewHostMsg_GetPluginInfo_Status;
 class GURL;
 
 namespace content {
-class ResourceContext;
 struct WebPluginInfo;
 }
 
@@ -57,7 +56,6 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
         CefViewHostMsg_GetPluginInfo_Status* status) const;
     bool FindEnabledPlugin(
         const GetPluginInfo_Params& params,
-        CefRequestContextHandler* handler,
         CefViewHostMsg_GetPluginInfo_Status* status,
         content::WebPluginInfo* plugin,
         std::string* actual_mime_type,
@@ -73,7 +71,7 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
 
    private:
     int render_process_id_;
-    content::ResourceContext* resource_context_;
+    CefResourceContext* resource_context_;
 #if defined(ENABLE_EXTENSIONS)
     extensions::ExtensionRegistry* extension_registry_;
 #endif
@@ -99,6 +97,7 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
 
   void OnGetPluginInfo(int render_frame_id,
                        const GURL& url,
+                       bool is_main_frame,
                        const url::Origin& main_frame_origin,
                        const std::string& mime_type,
                        IPC::Message* reply_msg);
