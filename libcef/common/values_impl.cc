@@ -24,20 +24,20 @@ CefRefPtr<CefValue> CefValueImpl::GetOrCreateRefOrCopy(
     CefValueController* controller) {
   DCHECK(value);
 
-  if (value->IsType(base::Value::TYPE_BINARY)) {
+  if (value->IsType(base::Value::Type::BINARY)) {
     base::BinaryValue* binary_value = static_cast<base::BinaryValue*>(value);
     return new CefValueImpl(CefBinaryValueImpl::GetOrCreateRef(
         binary_value, parent_value, controller));
   }
 
-  if (value->IsType(base::Value::TYPE_DICTIONARY)) {
+  if (value->IsType(base::Value::Type::DICTIONARY)) {
     base::DictionaryValue* dict_value =
         static_cast<base::DictionaryValue*>(value);
     return new CefValueImpl(CefDictionaryValueImpl::GetOrCreateRef(
         dict_value, parent_value, read_only, controller));
   }
 
-  if (value->IsType(base::Value::TYPE_LIST)) {
+  if (value->IsType(base::Value::Type::LIST)) {
     base::ListValue* list_value = static_cast<base::ListValue*>(value);
     return new CefValueImpl(CefListValueImpl::GetOrCreateRef(
         list_value, parent_value, read_only, controller));
@@ -221,15 +221,15 @@ CefValueType CefValueImpl::GetType() {
 
   if (value_) {
     switch (value_->GetType()) {
-      case base::Value::TYPE_NULL:
+      case base::Value::Type::NONE:
         return VTYPE_NULL;
-      case base::Value::TYPE_BOOLEAN:
+      case base::Value::Type::BOOLEAN:
         return VTYPE_BOOL;
-      case base::Value::TYPE_INTEGER:
+      case base::Value::Type::INTEGER:
         return VTYPE_INT;
-      case base::Value::TYPE_DOUBLE:
+      case base::Value::Type::DOUBLE:
         return VTYPE_DOUBLE;
-      case base::Value::TYPE_STRING:
+      case base::Value::Type::STRING:
         return VTYPE_STRING;
       default:
         NOTREACHED();
@@ -347,15 +347,15 @@ void CefValueImpl::SetValueInternal(base::Value* value) {
 
   if (value) {
     switch (value->GetType()) {
-      case base::Value::TYPE_BINARY:
+      case base::Value::Type::BINARY:
         binary_value_ = new CefBinaryValueImpl(
             static_cast<base::BinaryValue*>(value), true);
         return;
-      case base::Value::TYPE_DICTIONARY:
+      case base::Value::Type::DICTIONARY:
         dictionary_value_ = new CefDictionaryValueImpl(
             static_cast<base::DictionaryValue*>(value), true, false);
         return;
-      case base::Value::TYPE_LIST:
+      case base::Value::Type::LIST:
         list_value_ = new CefListValueImpl(
             static_cast<base::ListValue*>(value), true, false);
         return;
@@ -731,21 +731,21 @@ CefValueType CefDictionaryValueImpl::GetType(const CefString& key) {
   if (const_value().GetWithoutPathExpansion(base::StringPiece(key),
                                             &out_value)) {
     switch (out_value->GetType()) {
-      case base::Value::TYPE_NULL:
+      case base::Value::Type::NONE:
         return VTYPE_NULL;
-      case base::Value::TYPE_BOOLEAN:
+      case base::Value::Type::BOOLEAN:
         return VTYPE_BOOL;
-      case base::Value::TYPE_INTEGER:
+      case base::Value::Type::INTEGER:
         return VTYPE_INT;
-      case base::Value::TYPE_DOUBLE:
+      case base::Value::Type::DOUBLE:
         return VTYPE_DOUBLE;
-      case base::Value::TYPE_STRING:
+      case base::Value::Type::STRING:
         return VTYPE_STRING;
-      case base::Value::TYPE_BINARY:
+      case base::Value::Type::BINARY:
         return VTYPE_BINARY;
-      case base::Value::TYPE_DICTIONARY:
+      case base::Value::Type::DICTIONARY:
         return VTYPE_DICTIONARY;
-      case base::Value::TYPE_LIST:
+      case base::Value::Type::LIST:
         return VTYPE_LIST;
     }
   }
@@ -825,7 +825,7 @@ CefRefPtr<CefBinaryValue> CefDictionaryValueImpl::GetBinary(
 
   if (const_value().GetWithoutPathExpansion(base::StringPiece(key),
                                             &out_value) &&
-      out_value->IsType(base::Value::TYPE_BINARY)) {
+      out_value->IsType(base::Value::Type::BINARY)) {
     base::BinaryValue* binary_value =
         static_cast<base::BinaryValue*>(const_cast<base::Value*>(out_value));
     return CefBinaryValueImpl::GetOrCreateRef(binary_value,
@@ -843,7 +843,7 @@ CefRefPtr<CefDictionaryValue> CefDictionaryValueImpl::GetDictionary(
 
   if (const_value().GetWithoutPathExpansion(base::StringPiece(key),
                                             &out_value) &&
-      out_value->IsType(base::Value::TYPE_DICTIONARY)) {
+      out_value->IsType(base::Value::Type::DICTIONARY)) {
     base::DictionaryValue* dict_value =
         static_cast<base::DictionaryValue*>(
             const_cast<base::Value*>(out_value));
@@ -864,7 +864,7 @@ CefRefPtr<CefListValue> CefDictionaryValueImpl::GetList(const CefString& key) {
 
   if (const_value().GetWithoutPathExpansion(base::StringPiece(key),
                                             &out_value) &&
-      out_value->IsType(base::Value::TYPE_LIST)) {
+      out_value->IsType(base::Value::Type::LIST)) {
     base::ListValue* list_value =
         static_cast<base::ListValue*>(const_cast<base::Value*>(out_value));
     return CefListValueImpl::GetOrCreateRef(
@@ -966,8 +966,8 @@ bool CefDictionaryValueImpl::RemoveInternal(const CefString& key) {
   controller()->Remove(out_value.get(), true);
 
   // Only list and dictionary types may have dependencies.
-  if (out_value->IsType(base::Value::TYPE_LIST) ||
-      out_value->IsType(base::Value::TYPE_DICTIONARY)) {
+  if (out_value->IsType(base::Value::Type::LIST) ||
+      out_value->IsType(base::Value::Type::DICTIONARY)) {
     controller()->RemoveDependencies(out_value.get());
   }
 
@@ -1141,21 +1141,21 @@ CefValueType CefListValueImpl::GetType(size_t index) {
   const base::Value* out_value = NULL;
   if (const_value().Get(index, &out_value)) {
     switch (out_value->GetType()) {
-      case base::Value::TYPE_NULL:
+      case base::Value::Type::NONE:
         return VTYPE_NULL;
-      case base::Value::TYPE_BOOLEAN:
+      case base::Value::Type::BOOLEAN:
         return VTYPE_BOOL;
-      case base::Value::TYPE_INTEGER:
+      case base::Value::Type::INTEGER:
         return VTYPE_INT;
-      case base::Value::TYPE_DOUBLE:
+      case base::Value::Type::DOUBLE:
         return VTYPE_DOUBLE;
-      case base::Value::TYPE_STRING:
+      case base::Value::Type::STRING:
         return VTYPE_STRING;
-      case base::Value::TYPE_BINARY:
+      case base::Value::Type::BINARY:
         return VTYPE_BINARY;
-      case base::Value::TYPE_DICTIONARY:
+      case base::Value::Type::DICTIONARY:
         return VTYPE_DICTIONARY;
-      case base::Value::TYPE_LIST:
+      case base::Value::Type::LIST:
         return VTYPE_LIST;
     }
   }
@@ -1232,7 +1232,7 @@ CefRefPtr<CefBinaryValue> CefListValueImpl::GetBinary(size_t index) {
   const base::Value* out_value = NULL;
 
   if (const_value().Get(index, &out_value) &&
-      out_value->IsType(base::Value::TYPE_BINARY)) {
+      out_value->IsType(base::Value::Type::BINARY)) {
     base::BinaryValue* binary_value =
         static_cast<base::BinaryValue*>(const_cast<base::Value*>(out_value));
     return CefBinaryValueImpl::GetOrCreateRef(binary_value,
@@ -1248,7 +1248,7 @@ CefRefPtr<CefDictionaryValue> CefListValueImpl::GetDictionary(size_t index) {
   const base::Value* out_value = NULL;
 
   if (const_value().Get(index, &out_value) &&
-      out_value->IsType(base::Value::TYPE_DICTIONARY)) {
+      out_value->IsType(base::Value::Type::DICTIONARY)) {
     base::DictionaryValue* dict_value =
         static_cast<base::DictionaryValue*>(
             const_cast<base::Value*>(out_value));
@@ -1268,7 +1268,7 @@ CefRefPtr<CefListValue> CefListValueImpl::GetList(size_t index) {
   const base::Value* out_value = NULL;
 
   if (const_value().Get(index, &out_value) &&
-      out_value->IsType(base::Value::TYPE_LIST)) {
+      out_value->IsType(base::Value::Type::LIST)) {
     base::ListValue* list_value =
         static_cast<base::ListValue*>(const_cast<base::Value*>(out_value));
     return CefListValueImpl::GetOrCreateRef(
@@ -1364,8 +1364,8 @@ bool CefListValueImpl::RemoveInternal(size_t index) {
   controller()->Remove(out_value.get(), true);
 
   // Only list and dictionary types may have dependencies.
-  if (out_value->IsType(base::Value::TYPE_LIST) ||
-      out_value->IsType(base::Value::TYPE_DICTIONARY)) {
+  if (out_value->IsType(base::Value::Type::LIST) ||
+      out_value->IsType(base::Value::Type::DICTIONARY)) {
     controller()->RemoveDependencies(out_value.get());
   }
 

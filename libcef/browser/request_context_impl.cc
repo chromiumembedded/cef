@@ -28,21 +28,21 @@ base::StaticAtomicSequenceNumber g_next_id;
 
 const char* GetTypeString(base::Value::Type type) {
   switch (type) {
-    case base::Value::TYPE_NULL:
+    case base::Value::Type::NONE:
       return "NULL";
-    case base::Value::TYPE_BOOLEAN:
+    case base::Value::Type::BOOLEAN:
       return "BOOLEAN";
-    case base::Value::TYPE_INTEGER:
+    case base::Value::Type::INTEGER:
       return "INTEGER";
-    case base::Value::TYPE_DOUBLE:
+    case base::Value::Type::DOUBLE:
       return "DOUBLE";
-    case base::Value::TYPE_STRING:
+    case base::Value::Type::STRING:
       return "STRING";
-    case base::Value::TYPE_BINARY:
+    case base::Value::Type::BINARY:
       return "BINARY";
-    case base::Value::TYPE_DICTIONARY:
+    case base::Value::Type::DICTIONARY:
       return "DICTIONARY";
-    case base::Value::TYPE_LIST:
+    case base::Value::Type::LIST:
       return "LIST";
   }
 

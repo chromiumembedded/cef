@@ -216,31 +216,21 @@ void CefContentClient::AddPepperPlugins(
     plugins->push_back(plugin);
 }
 
-void CefContentClient::AddAdditionalSchemes(
-    std::vector<url::SchemeWithType>* standard_schemes,
-    std::vector<url::SchemeWithType>* referrer_schemes,
-    std::vector<std::string>* savable_schemes) {
+void CefContentClient::AddAdditionalSchemes(Schemes* schemes) {
   DCHECK(!scheme_info_list_locked_);
 
   if (application_.get()) {
     CefRefPtr<CefSchemeRegistrarImpl> schemeRegistrar(
         new CefSchemeRegistrarImpl());
     application_->OnRegisterCustomSchemes(schemeRegistrar.get());
-    schemeRegistrar->GetStandardSchemes(&standard_schemes_);
+    schemeRegistrar->GetSchemes(schemes);
 
     // No references to the registar should be kept.
     schemeRegistrar->Detach();
     DCHECK(schemeRegistrar->VerifyRefCount());
   }
 
-  scheme::AddInternalSchemes(&standard_schemes_, savable_schemes);
-
-  // The |standard_schemes_| values will be referenced until the current call
-  // stack unwinds. They will be passed to url::AddStandardScheme.
-  for (size_t i = 0; i < standard_schemes_.size(); ++i) {
-    standard_schemes->push_back(
-        {standard_schemes_[i].c_str(), url::SCHEME_WITHOUT_PORT});
-  }
+  scheme::AddInternalSchemes(schemes);
 
   scheme_info_list_locked_ = true;
 }

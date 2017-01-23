@@ -54,7 +54,7 @@ void RegisterLocalizedValue(PrefRegistrySimple* registry,
   const std::string resource_string = l10n_util::GetStringUTF8(message_id);
   DCHECK(!resource_string.empty());
   switch (type) {
-    case base::Value::TYPE_BOOLEAN: {
+    case base::Value::Type::BOOLEAN: {
       if ("true" == resource_string)
         registry->RegisterBooleanPref(path, true);
       else if ("false" == resource_string)
@@ -62,21 +62,21 @@ void RegisterLocalizedValue(PrefRegistrySimple* registry,
       return;
     }
 
-    case base::Value::TYPE_INTEGER: {
+    case base::Value::Type::INTEGER: {
       int val;
       base::StringToInt(resource_string, &val);
       registry->RegisterIntegerPref(path, val);
       return;
     }
 
-    case base::Value::TYPE_DOUBLE: {
+    case base::Value::Type::DOUBLE: {
       double val;
       base::StringToDouble(resource_string, &val);
       registry->RegisterDoublePref(path, val);
       return;
     }
 
-    case base::Value::TYPE_STRING: {
+    case base::Value::Type::STRING: {
       registry->RegisterStringPref(path, resource_string);
       return;
     }
@@ -190,7 +190,7 @@ std::unique_ptr<PrefService> CreatePrefService(
   } else {
     RegisterLocalizedValue(registry.get(),
                            spellcheck::prefs::kSpellCheckDictionary,
-                           base::Value::TYPE_STRING,
+                           base::Value::Type::STRING,
                            IDS_SPELLCHECK_DICTIONARY);
   }
   registry->RegisterBooleanPref(

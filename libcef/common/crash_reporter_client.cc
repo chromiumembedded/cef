@@ -52,7 +52,6 @@ typedef base::string16 PathString;
 const char kPathSep = '\\';
 #else
 typedef std::string PathString;
-const char kPathSep = '/';
 #endif
 
 PathString GetCrashConfigPath() {
@@ -93,14 +92,14 @@ PathString GetCrashConfigPath() {
 #endif  // defined(OS_POSIX)
 }
 
+#if defined(OS_WIN)
+
 // On Windows, FAT32 and NTFS both limit filenames to a maximum of 255
 // characters. On POSIX systems, the typical filename length limit is 255
 // character units. HFS+'s limit is actually 255 Unicode characters using
 // Apple's modification of Normalization Form D, but the differences aren't
 // really worth dealing with here.
 const unsigned maxFilenameLength = 255;
-
-#if defined(OS_WIN)
 
 const char kInvalidFileChars[] = "<>:\"/\\|?*";
 
@@ -138,35 +137,6 @@ std::string extractAbsolutePathStart(std::string& s) {
   }
   return start;
 }
-
-#elif defined(OS_POSIX)
-
-bool isInvalidFileCharacter(unsigned char c) {
-  // HFS+ disallows '/' and Linux systems also disallow null. For sanity's sake
-  // we'll also disallow control characters.
-  return c < ' ' || c == 0x7F || c == kPathSep;
-}
-
-bool isAbsolutePath(const std::string& s) {
-  // Check for local paths (beginning with "/") and network paths (beginning
-  // with "//").
-  return s.length() > 1 && s[0] == kPathSep;
-}
-
-std::string extractAbsolutePathStart(std::string& s) {
-  if (!isAbsolutePath(s))
-    return std::string();
-
-  // May have multiple '/' at the beginning of the path.
-  std::string start;
-  do {
-    s = s.substr(1);
-    start.push_back(kPathSep);
-  } while (s.length() > 0 && s[0] == kPathSep);
-  return start;
-}
-
-#endif  // defined(OS_POSIX)
 
 std::string sanitizePathComponentPart(const std::string& s) {
   if (s.empty())
@@ -239,12 +209,10 @@ std::string joinPath(const std::string& s1, const std::string& s2) {
   if (s2.empty())
     return s1;
 
-#if defined(OS_WIN)
   // Don't try to join absolute paths on Windows.
   // Skip this check on POSIX where it's more difficult to differentiate.
   if (isAbsolutePath(s2))
     return s2;
-#endif
 
   std::string result = s1;
   if (result[result.size() - 1] != kPathSep)
@@ -256,10 +224,11 @@ std::string joinPath(const std::string& s1, const std::string& s2) {
   return result;
 }
 
-#if defined(OS_WIN)
+
 // This will only be non-nullptr in the chrome_elf address space.
 CefCrashReporterClient* g_crash_reporter_client = nullptr;
-#endif
+
+#endif  // defined(OS_WIN)
 
 }  // namespace
 
@@ -285,6 +254,63 @@ bool __declspec(dllexport) __cdecl GetCrashKeyImpl(size_t index,
 }
 
 }  // extern "C"
+
+
+// The below functions were deleted from chrome/install_static/install_util.cc
+// in https://crbug.com/565446#c17.
+
+constexpr wchar_t kUserDataDirname[] = L"User Data";
+
+// Populates |result| with the default User Data directory for the current
+// user.This may be overidden by a command line option. Returns false if all
+// attempts at locating a User Data directory fail.
+bool GetDefaultUserDataDirectory(
+    std::wstring* result,
+    const std::wstring& install_sub_directory) {
+  // This environment variable should be set on Windows Vista and later
+  // (https://msdn.microsoft.com/library/windows/desktop/dd378457.aspx).
+  std::wstring user_data_dir =
+      install_static::GetEnvironmentString16(L"LOCALAPPDATA");
+
+  if (user_data_dir.empty()) {
+    // LOCALAPPDATA was not set; fallback to the temporary files path.
+    DWORD size = ::GetTempPath(0, nullptr);
+    if (!size)
+      return false;
+    user_data_dir.resize(size + 1);
+    size = ::GetTempPath(size + 1, &user_data_dir[0]);
+    if (!size || size >= user_data_dir.size())
+      return false;
+    user_data_dir.resize(size);
+  }
+
+  result->swap(user_data_dir);
+  if ((*result)[result->length() - 1] != L'\\')
+    result->push_back(L'\\');
+  result->append(install_sub_directory);
+  result->push_back(L'\\');
+  result->append(kUserDataDirname);
+  return true;
+}
+
+// Populates |crash_dir| with the default crash dump location regardless of
+// whether DIR_USER_DATA or DIR_CRASH_DUMPS has been overridden.
+bool GetDefaultCrashDumpLocation(
+    std::wstring* crash_dir,
+    const std::wstring& install_sub_directory) {
+  // In order to be able to start crash handling very early, we do not rely on
+  // chrome's PathService entries (for DIR_CRASH_DUMPS) being available on
+  // Windows. See https://crbug.com/564398.
+  if (!GetDefaultUserDataDirectory(crash_dir, install_sub_directory))
+    return false;
+
+  // We have to make sure the user data dir exists on first run. See
+  // http://crbug.com/591504.
+  if (!install_static::RecursiveDirectoryCreate(*crash_dir))
+    return false;
+  crash_dir->append(L"\\Crashpad");
+  return true;
+}
 
 #endif  // OS_WIN
 
@@ -379,8 +405,11 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
         if (!val_str.empty())
           external_handler_ = sanitizePath(val_str);
       } else if (name_str == "AppName") {
-        if (!val_str.empty())
-          app_name_ = sanitizePathComponent(val_str);
+        if (!val_str.empty()) {
+          val_str = sanitizePathComponent(val_str);
+          if (!val_str.empty())
+            app_name_ = val_str;
+        }
       }
 #endif
     } else if (current_section == kCrashKeysSection) {
@@ -436,8 +465,8 @@ void CefCrashReporterClient::InitializeCrashReportingForProcess() {
   if (!g_crash_reporter_client->ReadCrashConfigFile())
     return;
 
-  std::string process_type = install_static::GetSwitchValueFromCommandLine(
-      ::GetCommandLineA(), install_static::kProcessType);
+  std::wstring process_type = install_static::GetSwitchValueFromCommandLine(
+      ::GetCommandLineW(), install_static::kProcessType);
   if (process_type != install_static::kCrashpadHandler) {
     crash_reporter::SetCrashReporterClient(g_crash_reporter_client);
 
@@ -447,9 +476,10 @@ void CefCrashReporterClient::InitializeCrashReportingForProcess() {
         !g_crash_reporter_client->HasCrashExternalHandler();
     if (embedded_handler) {
       crash_reporter::InitializeCrashpadWithEmbeddedHandler(
-          process_type.empty(), process_type);
+          process_type.empty(), install_static::UTF16ToUTF8(process_type));
     } else {
-      crash_reporter::InitializeCrashpad(process_type.empty(), process_type);
+      crash_reporter::InitializeCrashpad(
+          process_type.empty(), install_static::UTF16ToUTF8(process_type));
     }
   }
 }
@@ -481,14 +511,12 @@ bool CefCrashReporterClient::GetCrashDumpLocation(base::string16* crash_dir) {
   if (GetAlternativeCrashDumpLocation(crash_dir))
     return true;
 
-  return install_static::GetDefaultCrashDumpLocation(
-      crash_dir, base::UTF8ToUTF16(app_name_));
+  return GetDefaultCrashDumpLocation(crash_dir, base::UTF8ToUTF16(app_name_));
 }
 
 bool CefCrashReporterClient::GetCrashMetricsLocation(
     base::string16* metrics_dir) {
-  return install_static::GetDefaultUserDataDirectory(
-      metrics_dir, base::UTF8ToUTF16(app_name_));
+  return GetDefaultUserDataDirectory(metrics_dir, base::UTF8ToUTF16(app_name_));
 }
 
 #elif defined(OS_POSIX)

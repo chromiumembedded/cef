@@ -62,6 +62,7 @@
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/resource_request_info.h"
 #include "third_party/WebKit/public/web/WebFindOptions.h"
+#include "ui/events/base_event_utils.h"
 
 #if defined(OS_MACOSX)
 #include "components/spellcheck/browser/spellcheck_platform.h"
@@ -1035,7 +1036,10 @@ void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
   if (!web_contents() || !platform_delegate_)
     return;
 
-  content::NativeWebKeyboardEvent web_event;
+  content::NativeWebKeyboardEvent web_event(
+      blink::WebInputEvent::Undefined,
+      blink::WebInputEvent::NoModifiers,
+      ui::EventTimeStampToSeconds(ui::EventTimeForNow()));
   platform_delegate_->TranslateKeyEvent(web_event, event);
   platform_delegate_->SendKeyEvent(web_event);
 }
@@ -1214,7 +1218,7 @@ void CefBrowserHostImpl::Reload() {
     }
 
     if (web_contents_.get())
-      web_contents_->GetController().Reload(true);
+      web_contents_->GetController().Reload(content::ReloadType::NORMAL, true);
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::Reload, this));
@@ -1230,8 +1234,10 @@ void CefBrowserHostImpl::ReloadIgnoreCache() {
       return;
     }
 
-    if (web_contents_.get())
-      web_contents_->GetController().ReloadBypassingCache(true);
+    if (web_contents_.get()) {
+      web_contents_->GetController().Reload(
+          content::ReloadType::BYPASSING_CACHE, true);
+    }
   } else {
     CEF_POST_TASK(CEF_UIT,
         base::Bind(&CefBrowserHostImpl::ReloadIgnoreCache, this));
@@ -2235,10 +2241,12 @@ bool CefBrowserHostImpl::CanDragEnter(
 
 bool CefBrowserHostImpl::ShouldCreateWebContents(
     content::WebContents* web_contents,
-    int route_id,
-    int main_frame_route_id,
+    content::SiteInstance* source_site_instance,
+    int32_t route_id,
+    int32_t main_frame_route_id,
     int32_t main_frame_widget_route_id,
     WindowContainerType window_container_type,
+    const GURL& opener_url,
     const std::string& frame_name,
     const GURL& target_url,
     const std::string& partition_id,

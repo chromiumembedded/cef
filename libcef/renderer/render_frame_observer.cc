@@ -35,7 +35,6 @@ CefRenderFrameObserver::~CefRenderFrameObserver() {
 
 void CefRenderFrameObserver::DidCreateScriptContext(
     v8::Handle<v8::Context> context,
-    int extension_group,
     int world_id) {
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
 

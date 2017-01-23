@@ -1,8 +1,8 @@
 diff --git content/browser/renderer_host/render_widget_host_view_aura.cc content/browser/renderer_host/render_widget_host_view_aura.cc
-index 8a73ab8..11f2d54 100644
+index 6cd8721..2f54816 100644
 --- content/browser/renderer_host/render_widget_host_view_aura.cc
 +++ content/browser/renderer_host/render_widget_host_view_aura.cc
-@@ -761,8 +761,10 @@ void RenderWidgetHostViewAura::SetBackgroundColor(SkColor color) {
+@@ -746,8 +746,10 @@ void RenderWidgetHostViewAura::SetBackgroundColor(SkColor color) {
    RenderWidgetHostViewBase::SetBackgroundColor(color);
    bool opaque = GetBackgroundOpaque();
    host_->SetBackgroundOpaque(opaque);

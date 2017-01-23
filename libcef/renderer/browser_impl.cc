@@ -109,8 +109,10 @@ bool CefBrowserImpl::IsLoading() {
 void CefBrowserImpl::Reload() {
   CEF_REQUIRE_RT_RETURN_VOID();
 
-  if (render_view()->GetWebView() && render_view()->GetWebView()->mainFrame())
-    render_view()->GetWebView()->mainFrame()->reload();
+  if (render_view()->GetWebView() && render_view()->GetWebView()->mainFrame()) {
+    render_view()->GetWebView()->mainFrame()->reload(
+        blink::WebFrameLoadType::Reload);
+  }
 }
 
 void CefBrowserImpl::ReloadIgnoreCache() {
@@ -417,7 +419,7 @@ void CefBrowserImpl::DidFinishLoad(blink::WebLocalFrame* frame) {
   blink::WebDataSource* ds = frame->dataSource();
   Send(new CefHostMsg_DidFinishLoad(routing_id(),
                                     webkit_glue::GetIdentifier(frame),
-                                    ds->request().url(),
+                                    ds->getRequest().url(),
                                     !frame->parent(),
                                     ds->response().httpStatusCode()));
   OnLoadEnd(frame);

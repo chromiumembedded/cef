@@ -17,7 +17,6 @@ class CefRenderFrameObserver : public content::RenderFrameObserver {
   ~CefRenderFrameObserver() override;
 
   void DidCreateScriptContext(v8::Handle<v8::Context> context,
-                              int extension_group,
                               int world_id) override;
   void WillReleaseScriptContext(v8::Handle<v8::Context> context,
                                 int world_id) override;

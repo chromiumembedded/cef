@@ -224,6 +224,18 @@ class CaptionlessFrameView : public views::NonClientFrameView {
   DISALLOW_COPY_AND_ASSIGN(CaptionlessFrameView);
 };
 
+bool IsWindowBorderHit(int code) {
+  // On Windows HTLEFT = 10 and HTBORDER = 18. Values are not ordered the same
+  // in base/hit_test.h for non-Windows platforms.
+#if defined(OS_WIN)
+  return code >= HTLEFT && code <= HTBORDER;
+#else
+  return code == HTLEFT || code == HTRIGHT || code == HTTOP ||
+         code == HTTOPLEFT || code == HTTOPRIGHT || code == HTBOTTOM ||
+         code == HTBOTTOMLEFT || code == HTBOTTOMRIGHT || code == HTBORDER;
+#endif
+}
+
 }  // namespace
 
 CefWindowView::CefWindowView(CefWindowDelegate* cef_delegate,
@@ -393,7 +405,7 @@ bool CefWindowView::ShouldDescendIntoChildForEventHandling(
     views::NonClientFrameView* ncfv = GetNonClientFrameView();
     if (ncfv) {
       int result = ncfv->NonClientHitTest(location);
-      if (result >= HTLEFT && result <= HTBORDER)
+      if (IsWindowBorderHit(result))
         return false;
     }
   }

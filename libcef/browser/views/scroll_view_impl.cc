@@ -50,7 +50,7 @@ bool CefScrollViewImpl::HasHorizontalScrollbar() {
 
 int CefScrollViewImpl::GetHorizontalScrollbarHeight() {
   CEF_REQUIRE_VALID_RETURN(0);
-  return root_view()->GetScrollBarHeight();
+  return root_view()->GetScrollBarLayoutHeight();
 }
 
 bool CefScrollViewImpl::HasVerticalScrollbar() {
@@ -61,7 +61,7 @@ bool CefScrollViewImpl::HasVerticalScrollbar() {
 
 int CefScrollViewImpl::GetVerticalScrollbarWidth() {
   CEF_REQUIRE_VALID_RETURN(0);
-  return root_view()->GetScrollBarWidth();
+  return root_view()->GetScrollBarLayoutWidth();
 }
 
 void CefScrollViewImpl::GetDebugInfo(base::DictionaryValue* info,

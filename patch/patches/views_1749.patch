@@ -1,8 +1,8 @@
 diff --git controls/button/menu_button.cc controls/button/menu_button.cc
-index e98dda7..14825f6 100644
+index c4e986b..02fb9f3 100644
 --- controls/button/menu_button.cc
 +++ controls/button/menu_button.cc
-@@ -195,7 +195,7 @@ void MenuButton::OnPaint(gfx::Canvas* canvas) {
+@@ -193,7 +193,7 @@ void MenuButton::OnPaint(gfx::Canvas* canvas) {
  gfx::Size MenuButton::GetPreferredSize() const {
    gfx::Size prefsize = LabelButton::GetPreferredSize();
    if (show_menu_marker_) {
@@ -56,7 +56,7 @@ index c232cc1..cc207f9 100644
    // The time is used for simulating menu behavior for the menu button; that
    // is, if the menu is shown and the button is pressed, we need to close the
 diff --git view.h view.h
-index bb5ebdf..959645a 100644
+index 147785c..5d413a1 100644
 --- view.h
 +++ view.h
 @@ -18,6 +18,7 @@
@@ -67,7 +67,7 @@ index bb5ebdf..959645a 100644
  #include "build/build_config.h"
  #include "ui/accessibility/ax_enums.h"
  #include "ui/base/accelerators/accelerator.h"
-@@ -112,7 +113,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -114,7 +115,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
                            public ui::LayerOwner,
                            public ui::AcceleratorTarget,
                            public ui::EventTarget,

@@ -33,10 +33,7 @@ class CefContentClient : public content::ContentClient,
   // content::ContentClient methods.
   void AddPepperPlugins(
       std::vector<content::PepperPluginInfo>* plugins) override;
-  void AddAdditionalSchemes(
-      std::vector<url::SchemeWithType>* standard_schemes,
-      std::vector<url::SchemeWithType>* referrer_schemes,
-      std::vector<std::string>* savable_schemes) override;
+  void AddAdditionalSchemes(Schemes* schemes) override;
   std::string GetUserAgent() const override;
   base::string16 GetLocalizedString(int message_id) const override;
   base::StringPiece GetDataResource(
@@ -46,31 +43,46 @@ class CefContentClient : public content::ContentClient,
       int resource_id) const override;
   gfx::Image& GetNativeImageNamed(int resource_id) const override;
 
+  // Values are registered with all processes (url/url_util.h) and with Blink
+  // (SchemeRegistry) unless otherwise indicated.
   struct SchemeInfo {
+    // Lower-case ASCII scheme name.
     std::string scheme_name;
 
-    // Registers a non-HTTP URL scheme which can be sent CORS requests.
+    // A scheme that is subject to URL canonicalization and parsing rules as
+    // defined in the Common Internet Scheme Syntax RFC 1738 Section 3.1
+    // available at http://www.ietf.org/rfc/rfc1738.txt.
+    // This value is not registered with Blink.
     bool is_standard;
 
-    // Registers a URL scheme that can be saved to disk.
-    bool is_savable;
-
-    // Registers a URL scheme to be treated as a local scheme (i.e., with the
-    // same security rules as those applied to "file" URLs). This means that
-    // normal pages cannot link to or access URLs of this scheme.
+    // A scheme that will be treated the same as "file". For example, normal
+    // pages cannot link to or access URLs of this scheme.
     bool is_local;
 
-    // Registers a URL scheme to be treated as display-isolated. This means
-    // that pages cannot display these URLs unless they are from the same
-    // scheme. For example, pages in other origin cannot create iframes or
+    // A scheme that can only be displayed from other content hosted with the
+    // same scheme. For example, pages in other origins cannot create iframes or
     // hyperlinks to URLs with the scheme. For schemes that must be accessible
-    // from other schemes set this value to false and use CORS
-    // "Access-Control-Allow-Origin" headers to further restrict access.
+    // from other schemes set this value to false, set |is_cors_enabled| to
+    // true, and use CORS "Access-Control-Allow-Origin" headers to further
+    // restrict access.
+    // This value is registered with Blink only.
     bool is_display_isolated;
+    
+    // A scheme that will be treated the same as "https". For example, loading
+    // this scheme from other secure schemes will not trigger mixed content
+    // warnings.
+    bool is_secure;
+
+    // A scheme that can be sent CORS requests. This value should be true in
+    // most cases where |is_standard| is true.
+    bool is_cors_enabled;
   };
   typedef std::list<SchemeInfo> SchemeInfoList;
 
-  // Custom scheme registration.
+  // Custom scheme information will be registered first with all processes
+  // (url/url_util.h) via CefContentClient::AddAdditionalSchemes which calls
+  // AddCustomScheme, and second with Blink (SchemeRegistry) via
+  // CefContentRendererClient::WebKitInitialized which calls GetCustomSchemes.
   void AddCustomScheme(const SchemeInfo& scheme_info);
   const SchemeInfoList* GetCustomSchemes();
   bool HasCustomScheme(const std::string& scheme_name);
@@ -112,8 +124,6 @@ class CefContentClient : public content::ContentClient,
   // Custom schemes handled by the client.
   SchemeInfoList scheme_info_list_;
   bool scheme_info_list_locked_;
-
-  std::vector<std::string> standard_schemes_;
 };
 
 #endif  // CEF_LIBCEF_COMMON_CONTENT_CLIENT_H_

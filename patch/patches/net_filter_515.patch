@@ -22,10 +22,10 @@ index 0fccae1..73e33ad 100644
    // This is the interface for subclasses of NetworkDelegate to implement. These
    // member functions will be called by the respective public notification
 diff --git net/url_request/url_request_job.cc net/url_request/url_request_job.cc
-index b315664..55701edf 100644
+index cdf60f8..d6dd4bf 100644
 --- net/url_request/url_request_job.cc
 +++ net/url_request/url_request_job.cc
-@@ -494,6 +494,12 @@ void URLRequestJob::NotifyHeadersComplete() {
+@@ -497,6 +497,12 @@ void URLRequestJob::NotifyHeadersComplete() {
      DCHECK(!source_stream_);
      source_stream_ = SetUpSourceStream();
  
@@ -36,5 +36,5 @@ index b315664..55701edf 100644
 +    }
 +
      if (!source_stream_) {
-       NotifyDone(URLRequestStatus(URLRequestStatus::FAILED,
-                                   ERR_CONTENT_DECODING_INIT_FAILED));
+       OnDone(URLRequestStatus(URLRequestStatus::FAILED,
+                               ERR_CONTENT_DECODING_INIT_FAILED),

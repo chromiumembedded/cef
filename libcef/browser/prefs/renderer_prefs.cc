@@ -13,10 +13,10 @@
 #include "libcef/common/extensions/extensions_util.h"
 
 #include "base/command_line.h"
+#include "base/i18n/character_encoding.h"
 #include "base/memory/ptr_util.h"
 #include "base/values.h"
 #include "chrome/browser/accessibility/animation_policy_prefs.h"
-#include "chrome/browser/character_encoding.h"
 #include "chrome/browser/defaults.h"
 #include "chrome/browser/extensions/extension_webkit_preferences.h"
 #include "chrome/browser/font_family_cache.h"
@@ -36,6 +36,7 @@
 #include "extensions/browser/extension_registry.h"
 #include "extensions/browser/view_type_utils.h"
 #include "extensions/common/constants.h"
+#include "media/media_features.h"
 
 namespace renderer_prefs {
 
@@ -141,7 +142,7 @@ void SetChromePrefs(CefBrowserContext* profile,
   }
 
   // Make sure we will set the default_encoding with canonical encoding name.
-  web.default_encoding = GetCanonicalEncodingNameByAliasName(
+  web.default_encoding = base::GetCanonicalEncodingNameByAliasName(
       web.default_encoding);
   if (web.default_encoding.empty()) {
     prefs->ClearPref(prefs::kDefaultCharset);
@@ -336,7 +337,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
       false,
       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
 
-#if defined(ENABLE_WEBRTC)
+#if BUILDFLAG(ENABLE_WEBRTC)
   // TODO(guoweis): Remove next 2 options at M50.
   registry->RegisterBooleanPref(prefs::kWebRTCMultipleRoutesEnabled, true);
   registry->RegisterBooleanPref(prefs::kWebRTCNonProxiedUdpEnabled, true);

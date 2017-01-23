@@ -19,7 +19,8 @@ namespace {
 
 int CEF_CALLBACK scheme_registrar_add_custom_scheme(
     struct _cef_scheme_registrar_t* self, const cef_string_t* scheme_name,
-    int is_standard, int is_local, int is_display_isolated) {
+    int is_standard, int is_local, int is_display_isolated, int is_secure,
+    int is_cors_enabled) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -35,7 +36,9 @@ int CEF_CALLBACK scheme_registrar_add_custom_scheme(
       CefString(scheme_name),
       is_standard?true:false,
       is_local?true:false,
-      is_display_isolated?true:false);
+      is_display_isolated?true:false,
+      is_secure?true:false,
+      is_cors_enabled?true:false);
 
   // Return type: bool
   return _retval;

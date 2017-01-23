@@ -543,7 +543,7 @@ void CefRequestImpl::Set(const blink::WebURLRequest& request) {
 
   ::GetHeaderMap(request, headermap_, referrer_url_);
   referrer_policy_ =
-      static_cast<cef_referrer_policy_t>(request.referrerPolicy());
+      static_cast<cef_referrer_policy_t>(request.getReferrerPolicy());
 
   const blink::WebHTTPBody& body = request.httpBody();
   if (!body.isNull()) {
@@ -565,6 +565,7 @@ void CefRequestImpl::Get(blink::WebURLRequest& request,
                          int64& upload_data_size) const {
   base::AutoLock lock_scope(lock_);
 
+  request.setRequestContext(blink::WebURLRequest::RequestContextInternal);
   request.setURL(url_);
   request.setHTTPMethod(blink::WebString::fromUTF8(method_));
 

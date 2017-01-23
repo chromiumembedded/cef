@@ -201,9 +201,10 @@ int CefPermissionManager::RequestPermissions(
       content::WebContents::FromRenderFrameHost(render_frame_host);
   GURL embedding_origin = web_contents->GetLastCommittedURL().GetOrigin();
 
-  PendingRequest* pending_request = new PendingRequest(
-      render_frame_host, permissions, callback);
-  int request_id = pending_requests_.Add(pending_request);
+  std::unique_ptr<PendingRequest> pending_request =
+      base::MakeUnique<PendingRequest>(
+          render_frame_host, permissions, callback);
+  int request_id = pending_requests_.Add(std::move(pending_request));
 
   const PermissionRequestID request(render_frame_host, request_id);
 
@@ -316,7 +317,7 @@ int CefPermissionManager::SubscribePermissionStatusChange(
   if (subscriptions_.IsEmpty())
     profile_->GetHostContentSettingsMap()->AddObserver(this);
 
-  Subscription* subscription = new Subscription();
+  std::unique_ptr<Subscription> subscription = base::MakeUnique<Subscription>();
   subscription->permission = permission;
   subscription->requesting_origin = requesting_origin;
   subscription->embedding_origin = embedding_origin;
@@ -327,7 +328,7 @@ int CefPermissionManager::SubscribePermissionStatusChange(
                           subscription->requesting_origin,
                           subscription->embedding_origin));
 
-  return subscriptions_.Add(subscription);
+  return subscriptions_.Add(std::move(subscription));
 }
 
 void CefPermissionManager::UnsubscribePermissionStatusChange(

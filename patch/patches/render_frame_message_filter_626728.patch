@@ -1,5 +1,5 @@
 diff --git content/browser/frame_host/render_frame_message_filter.cc content/browser/frame_host/render_frame_message_filter.cc
-index 573b5d9..e61cfa0 100644
+index 93a1da4..476d7cc 100644
 --- content/browser/frame_host/render_frame_message_filter.cc
 +++ content/browser/frame_host/render_frame_message_filter.cc
 @@ -491,7 +491,7 @@ void RenderFrameMessageFilter::GetPluginsCallback(

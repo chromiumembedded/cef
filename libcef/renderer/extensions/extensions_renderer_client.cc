@@ -168,7 +168,7 @@ bool CefExtensionsRendererClient::OverrideCreatePlugin(
 }
 
 bool CefExtensionsRendererClient::WillSendRequest(
-    blink::WebFrame* frame,
+    blink::WebLocalFrame* frame,
     ui::PageTransition transition_type,
     const blink::WebURL& url,
     GURL* new_url) {
@@ -178,13 +178,6 @@ bool CefExtensionsRendererClient::WillSendRequest(
       !resource_request_policy_->CanRequestResource(GURL(url), frame,
                                                     transition_type)) {
     *new_url = GURL(chrome::kExtensionInvalidRequestURL);
-    return true;
-  }
-
-  if (url.protocolIs(extensions::kExtensionResourceScheme) &&
-      !resource_request_policy_->CanRequestExtensionResourceScheme(url,
-                                                                   frame)) {
-    *new_url = GURL(chrome::kExtensionResourceInvalidRequestURL);
     return true;
   }
 

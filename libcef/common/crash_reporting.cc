@@ -124,6 +124,10 @@ bool IsBoringCEFSwitch(const std::string& flag) {
 
 }  // namespace
 
+bool Enabled() {
+  return g_crash_reporting_enabled;
+}
+
 #if defined(OS_POSIX)
 // Be aware that logging is not initialized at the time this method is called.
 void BasicStartupComplete(base::CommandLine* command_line) {
@@ -182,7 +186,7 @@ void ZygoteForked(base::CommandLine* command_line,
 }  // namespace crash_reporting
 
 bool CefCrashReportingEnabled() {
-  return crash_reporting::g_crash_reporting_enabled;
+  return crash_reporting::Enabled();
 }
 
 void CefSetCrashKeyValue(const CefString& key, const CefString& value) {

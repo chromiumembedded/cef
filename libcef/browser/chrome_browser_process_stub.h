@@ -16,6 +16,7 @@
 #include "chrome/browser/extensions/event_router_forwarder.h"
 #include "chrome/browser/profiles/incognito_helpers.h"
 #include "base/compiler_specific.h"
+#include "media/media_features.h"
 
 class ChromeProfileManagerStub;
 
@@ -43,7 +44,7 @@ class ChromeBrowserProcessStub : public BrowserProcess,
   metrics_services_manager::MetricsServicesManager*
       GetMetricsServicesManager() override;
   metrics::MetricsService* metrics_service() override;
-  rappor::RapporService* rappor_service() override;
+  rappor::RapporServiceImpl* rappor_service() override;
   IOThread* io_thread() override;
   WatchDogThread* watchdog_thread() override;
   ProfileManager* profile_manager() override;
@@ -100,7 +101,7 @@ class ChromeBrowserProcessStub : public BrowserProcess,
   MediaFileSystemRegistry*
       media_file_system_registry() override;
   bool created_local_state() const override;
-#if defined(ENABLE_WEBRTC)
+#if BUILDFLAG(ENABLE_WEBRTC)
   WebRtcLogUploader* webrtc_log_uploader() override;
 #endif
   network_time::NetworkTimeTracker* network_time_tracker() override;
@@ -108,7 +109,7 @@ class ChromeBrowserProcessStub : public BrowserProcess,
   shell_integration::DefaultWebClientState
       CachedDefaultWebClientState() override;
   memory::TabManager* GetTabManager() override;
-  PhysicalWebDataSource* GetPhysicalWebDataSource() override;
+  physical_web::PhysicalWebDataSource* GetPhysicalWebDataSource() override;
 
   // BrowserContextIncognitoHelper implementation.
   content::BrowserContext* GetBrowserContextRedirectedInIncognito(

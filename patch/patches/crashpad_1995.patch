@@ -31,7 +31,7 @@ index 6cd8b9f..dfbbdc6 100644
      cflags = [ "/wd4201" ]
    }
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 800f704..e4b4063 100644
+index c099a26..6fae782 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -4,6 +4,8 @@
@@ -43,7 +43,7 @@ index 800f704..e4b4063 100644
  #include "base/base_switches.h"
  #include "base/command_line.h"
  #include "base/format_macros.h"
-@@ -94,7 +96,7 @@ const char kViewCount[] = "view-count";
+@@ -101,7 +103,7 @@ const char kViewCount[] = "view-count";
  
  const char kZeroEncodeDetails[] = "zero-encode-details";
  
@@ -52,7 +52,7 @@ index 800f704..e4b4063 100644
    // The following keys may be chunked by the underlying crash logging system,
    // but ultimately constitute a single key-value pair.
    //
-@@ -250,10 +252,16 @@ size_t RegisterChromeCrashKeys() {
+@@ -259,10 +261,16 @@ size_t RegisterChromeCrashKeys() {
  
    // This dynamic set of keys is used for sets of key value pairs when gathering
    // a collection of data, like command line switches or extension IDs.
@@ -71,7 +71,7 @@ index 800f704..e4b4063 100644
  
    // Register the extension IDs.
    {
-@@ -287,7 +295,7 @@ size_t RegisterChromeCrashKeys() {
+@@ -296,7 +304,7 @@ size_t RegisterChromeCrashKeys() {
    return base::debug::InitCrashKeys(&keys.at(0), keys.size(), kChunkMaxLength);
  }
  
@@ -80,7 +80,7 @@ index 800f704..e4b4063 100644
    static const char* const kIgnoreSwitches[] = {
      switches::kEnableLogging,
      switches::kFlagSwitchesBegin,
-@@ -343,7 +351,7 @@ static bool IsBoringSwitch(const std::string& flag) {
+@@ -352,7 +360,7 @@ static bool IsBoringSwitch(const std::string& flag) {
  }
  
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
@@ -90,7 +90,7 @@ index 800f704..e4b4063 100644
  
  void SetActiveExtensions(const std::set<std::string>& extensions) {
 diff --git chrome/common/crash_keys.h chrome/common/crash_keys.h
-index 6f66031..1abcdf8 100644
+index 2b6106c..cfe4548 100644
 --- chrome/common/crash_keys.h
 +++ chrome/common/crash_keys.h
 @@ -23,10 +23,18 @@ class CommandLine;
@@ -112,75 +112,8 @@ index 6f66031..1abcdf8 100644
  // Sets the kNumSwitches key and the set of keys named using kSwitchFormat based
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
-diff --git chrome/install_static/install_util.cc chrome/install_static/install_util.cc
-index edec76d..1db1c9c 100644
---- chrome/install_static/install_util.cc
-+++ chrome/install_static/install_util.cc
-@@ -473,7 +473,9 @@ bool IsNonBrowserProcess() {
-   return g_process_type == ProcessType::NON_BROWSER_PROCESS;
- }
- 
--bool GetDefaultUserDataDirectory(std::wstring* result) {
-+bool GetDefaultUserDataDirectory(
-+    std::wstring* result,
-+    const std::wstring& install_sub_directory) {
-   // This environment variable should be set on Windows Vista and later
-   // (https://msdn.microsoft.com/library/windows/desktop/dd378457.aspx).
-   std::wstring user_data_dir = GetEnvironmentString16(L"LOCALAPPDATA");
-@@ -493,17 +495,23 @@ bool GetDefaultUserDataDirectory(std::wstring* result) {
-   result->swap(user_data_dir);
-   if ((*result)[result->length() - 1] != L'\\')
-     result->push_back(L'\\');
--  AppendChromeInstallSubDirectory(result, true /* include_suffix */);
-+  if (!install_sub_directory.empty()) {
-+    result->append(install_sub_directory);
-+  } else {
-+    AppendChromeInstallSubDirectory(result, true /* include_suffix */);
-+  }
-   result->push_back(L'\\');
-   result->append(kUserDataDirname);
-   return true;
- }
- 
--bool GetDefaultCrashDumpLocation(std::wstring* crash_dir) {
-+bool GetDefaultCrashDumpLocation(
-+    std::wstring* crash_dir,
-+    const std::wstring& install_sub_directory) {
-   // In order to be able to start crash handling very early, we do not rely on
-   // chrome's PathService entries (for DIR_CRASH_DUMPS) being available on
-   // Windows. See https://crbug.com/564398.
--  if (!GetDefaultUserDataDirectory(crash_dir))
-+  if (!GetDefaultUserDataDirectory(crash_dir, install_sub_directory))
-     return false;
- 
-   // We have to make sure the user data dir exists on first run. See
-diff --git chrome/install_static/install_util.h chrome/install_static/install_util.h
-index 4ded522..81eba43 100644
---- chrome/install_static/install_util.h
-+++ chrome/install_static/install_util.h
-@@ -86,14 +86,18 @@ bool IsNonBrowserProcess();
- // TODO(ananta)
- // http://crbug.com/604923
- // Unify this with the Browser Distribution code.
--bool GetDefaultUserDataDirectory(std::wstring* result);
-+bool GetDefaultUserDataDirectory(
-+    std::wstring* result,
-+    const std::wstring& install_sub_directory = std::wstring());
- 
- // Populates |crash_dir| with the default crash dump location regardless of
- // whether DIR_USER_DATA or DIR_CRASH_DUMPS has been overridden.
- // TODO(ananta)
- // http://crbug.com/604923
- // Unify this with the Browser Distribution code.
--bool GetDefaultCrashDumpLocation(std::wstring* crash_dir);
-+bool GetDefaultCrashDumpLocation(
-+    std::wstring* crash_dir,
-+    const std::wstring& install_sub_directory = std::wstring());
- 
- // Returns the contents of the specified |variable_name| from the environment
- // block of the calling process. Returns an empty string if the variable does
 diff --git chrome_elf/BUILD.gn chrome_elf/BUILD.gn
-index 0629b6f..9c150b5 100644
+index c2861e0..7d6de6b 100644
 --- chrome_elf/BUILD.gn
 +++ chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -191,7 +124,7 @@ index 0629b6f..9c150b5 100644
  import("//chrome/process_version_rc_template.gni")
  import("//testing/test.gni")
  
-@@ -138,16 +139,40 @@ static_library("blacklist") {
+@@ -139,16 +140,40 @@ static_library("blacklist") {
  
  static_library("crash") {
    sources = [
@@ -270,7 +203,7 @@ index c658fa9..8c4a145 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index 9ebc33f..c013b36 100644
+index 6e5058e..3dd2b56 100644
 --- components/crash/content/app/breakpad_linux.cc
 +++ components/crash/content/app/breakpad_linux.cc
 @@ -29,6 +29,7 @@
@@ -289,7 +222,7 @@ index 9ebc33f..c013b36 100644
  #endif
  
  bool g_is_crash_reporter_enabled = false;
-@@ -654,7 +656,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
+@@ -686,7 +688,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
    info.process_type_length = 7;
    info.distro = base::g_linux_distro;
    info.distro_length = my_strlen(base::g_linux_distro);
@@ -298,7 +231,7 @@ index 9ebc33f..c013b36 100644
    info.process_start_time = g_process_start_time;
    info.oom_size = base::g_oom_size;
    info.pid = g_pid;
-@@ -1275,7 +1277,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
+@@ -1299,7 +1301,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
      header_content_encoding,
      header_content_type,
      post_file,
@@ -307,7 +240,7 @@ index 9ebc33f..c013b36 100644
      "--timeout=10",  // Set a timeout so we don't hang forever.
      "--tries=1",     // Don't retry if the upload fails.
      "-O",  // output reply to fd 3
-@@ -1880,6 +1882,17 @@ void InitCrashReporter(const std::string& process_type) {
+@@ -1906,6 +1908,17 @@ void InitCrashReporter(const std::string& process_type) {
    PostEnableBreakpadInitialization();
  }
  
@@ -326,7 +259,7 @@ index 9ebc33f..c013b36 100644
  void InitNonBrowserCrashReporterForAndroid(const std::string& process_type) {
    const base::CommandLine* command_line =
 diff --git components/crash/content/app/breakpad_linux.h components/crash/content/app/breakpad_linux.h
-index 3316fa0..df90dbd 100644
+index bbeb208..74440a0 100644
 --- components/crash/content/app/breakpad_linux.h
 +++ components/crash/content/app/breakpad_linux.h
 @@ -16,6 +16,9 @@ namespace breakpad {
@@ -554,7 +487,7 @@ index 7df66ea..1e24110 100644
        bool result = crashpad_client.StartHandler(handler_path,
                                                   database_path,
 diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
-index a22af31..bde918e 100644
+index 1e9c06c..8ed020d 100644
 --- components/crash/content/app/crashpad_win.cc
 +++ components/crash/content/app/crashpad_win.cc
 @@ -81,7 +81,7 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
@@ -594,14 +527,14 @@ index a22af31..bde918e 100644
  
 +    crash_reporter_client->GetCrashOptionalArguments(&arguments);
 +
-     g_crashpad_client.Get().StartHandler(
-         exe_file, database_path, metrics_path, url, process_annotations,
-         arguments, false, false);
+     if (!g_crashpad_client.Get().StartHandler(
+             exe_file, database_path, metrics_path, url, process_annotations,
+             arguments, false, true)) {
 diff --git content/browser/frame_host/debug_urls.cc content/browser/frame_host/debug_urls.cc
-index 2e61cc1..6b8b943 100644
+index c404067..4938dfd6 100644
 --- content/browser/frame_host/debug_urls.cc
 +++ content/browser/frame_host/debug_urls.cc
-@@ -189,7 +189,9 @@ bool HandleDebugURL(const GURL& url, ui::PageTransition transition) {
+@@ -190,7 +190,9 @@ bool HandleDebugURL(const GURL& url, ui::PageTransition transition) {
            cc::switches::kEnableGpuBenchmarking) &&
        (PageTransitionCoreTypeIs(transition, ui::PAGE_TRANSITION_TYPED));
  

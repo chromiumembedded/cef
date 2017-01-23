@@ -20,7 +20,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "chrome/common/widevine_cdm_constants.h"
 #include "content/browser/plugin_service_impl.h"
-#include "content/public/browser/cdm_service.h"
+#include "content/public/browser/cdm_registry.h"
 #include "content/public/common/cdm_info.h"
 #include "content/public/common/content_switches.h"
 #include "media/cdm/supported_cdm_versions.h"
@@ -96,7 +96,7 @@ std::unique_ptr<base::DictionaryValue> ParseManifestFile(
   JSONStringValueDeserializer deserializer(manifest_contents);
   std::unique_ptr<base::Value> manifest(deserializer.Deserialize(NULL, NULL));
 
-  if (!manifest.get() || !manifest->IsType(base::Value::TYPE_DICTIONARY))
+  if (!manifest.get() || !manifest->IsType(base::Value::Type::DICTIONARY))
     return nullptr;
 
   // Transfer ownership to the caller.
@@ -281,11 +281,11 @@ void RegisterWidevineCdmOnUIThread(
   content::PluginService::GetInstance()->RefreshPlugins();
   content::PluginService::GetInstance()->PurgePluginListCache(NULL, false);
 
-  // Also register Widevine with the CdmService.
+  // Also register Widevine with the CdmRegistry.
   const std::vector<std::string> codecs = base::SplitString(
       cdm_codecs, std::string(1, kCdmSupportedCodecsValueDelimiter),
       base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
-  content::CdmService::GetInstance()->RegisterCdm(content::CdmInfo(
+  content::CdmRegistry::GetInstance()->RegisterCdm(content::CdmInfo(
       kWidevineCdmType, base::Version(cdm_version), cdm_path, codecs));
 
   DeliverWidevineCdmCallback(CEF_CDM_REGISTRATION_ERROR_NONE, std::string(),

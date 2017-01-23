@@ -33,6 +33,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "third_party/WebKit/Source/core/editing/serializers/Serialization.h"
 #include "third_party/WebKit/Source/core/frame/LocalFrame.h"
 #include "third_party/WebKit/Source/core/frame/Settings.h"
+#include "third_party/WebKit/Source/platform/weborigin/SchemeRegistry.h"
 #include "third_party/WebKit/Source/web/WebLocalFrameImpl.h"
 #include "third_party/WebKit/Source/web/WebViewImpl.h"
 MSVC_POP_WARNING();
@@ -221,7 +222,7 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
   if (frame) {
     blink::V8CacheOptions v8CacheOptions(blink::V8CacheOptionsDefault);
     if (frame && frame->settings())
-      v8CacheOptions = frame->settings()->v8CacheOptions();
+      v8CacheOptions = frame->settings()->getV8CacheOptions();
 
     v8::Local<v8::Script> script;
     if (!blink::v8Call(blink::V8ScriptRunner::compileScript(ssc, isolate,
@@ -238,6 +239,18 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
 
 bool IsScriptForbidden() {
   return blink::ScriptForbiddenScope::isScriptForbidden();
+}
+
+void registerURLSchemeAsLocal(const blink::WebString& scheme) {
+  blink::SchemeRegistry::registerURLSchemeAsLocal(scheme);
+}
+
+void registerURLSchemeAsSecure(const blink::WebString& scheme) {
+  blink::SchemeRegistry::registerURLSchemeAsSecure(scheme);
+}
+
+void registerURLSchemeAsCORSEnabled(const blink::WebString& scheme) {
+  blink::SchemeRegistry::registerURLSchemeAsCORSEnabled(scheme);
 }
 
 }  // webkit_glue

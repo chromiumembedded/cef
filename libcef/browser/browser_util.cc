@@ -10,7 +10,7 @@ namespace browser_util {
 
 bool GetCefKeyEvent(const content::NativeWebKeyboardEvent& event,
                     CefKeyEvent& cef_event) {
-  switch (event.type) {
+  switch (event.type()) {
     case blink::WebKeyboardEvent::RawKeyDown:
       cef_event.type = KEYEVENT_RAWKEYDOWN;
       break;
@@ -28,15 +28,15 @@ bool GetCefKeyEvent(const content::NativeWebKeyboardEvent& event,
   }
 
   cef_event.modifiers = 0;
-  if (event.modifiers & blink::WebKeyboardEvent::ShiftKey)
+  if (event.modifiers() & blink::WebKeyboardEvent::ShiftKey)
     cef_event.modifiers |= EVENTFLAG_SHIFT_DOWN;
-  if (event.modifiers & blink::WebKeyboardEvent::ControlKey)
+  if (event.modifiers() & blink::WebKeyboardEvent::ControlKey)
     cef_event.modifiers |= EVENTFLAG_CONTROL_DOWN;
-  if (event.modifiers & blink::WebKeyboardEvent::AltKey)
+  if (event.modifiers() & blink::WebKeyboardEvent::AltKey)
     cef_event.modifiers |= EVENTFLAG_ALT_DOWN;
-  if (event.modifiers & blink::WebKeyboardEvent::MetaKey)
+  if (event.modifiers() & blink::WebKeyboardEvent::MetaKey)
     cef_event.modifiers |= EVENTFLAG_COMMAND_DOWN;
-  if (event.modifiers & blink::WebKeyboardEvent::IsKeyPad)
+  if (event.modifiers() & blink::WebKeyboardEvent::IsKeyPad)
     cef_event.modifiers |= EVENTFLAG_IS_KEY_PAD;
 
   cef_event.windows_key_code = event.windowsKeyCode;

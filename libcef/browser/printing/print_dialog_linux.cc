@@ -16,7 +16,6 @@
 
 #include "base/bind.h"
 #include "base/files/file_util.h"
-#include "base/files/file_util_proxy.h"
 #include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
@@ -160,9 +159,9 @@ void CefPrintDialogLinux::OnPrintStart(int render_process_id,
     return;
 
   CefRefPtr<CefBrowserHostImpl> browser =
-      extensions::GetOwnerBrowserForView(render_process_id,
-                                         render_routing_id,
-                                         NULL);
+      extensions::GetOwnerBrowserForFrame(render_process_id,
+                                          render_routing_id,
+                                          NULL);
   if (browser.get())
     handler->OnPrintStart(browser.get());
 }
@@ -326,12 +325,9 @@ void CefPrintDialogLinux::OnPrintCancel() {
 }
 
 void CefPrintDialogLinux::OnJobCompleted() {
-  base::FileUtilProxy::DeleteFile(
-      content::BrowserThread::GetTaskRunnerForThread(
-          BrowserThread::FILE).get(),
-      path_to_pdf_,
-      false,
-      base::FileUtilProxy::StatusCallback());
+  content::BrowserThread::PostTask(
+      content::BrowserThread::FILE, FROM_HERE,
+      base::Bind(base::IgnoreResult(&base::DeleteFile), path_to_pdf_, false));
 
   // Printing finished. Matches AddRef() in PrintDocument();
   Release();

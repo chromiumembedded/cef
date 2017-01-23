@@ -99,7 +99,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
       blink::WebPlugin** plugin) override;
   bool HandleNavigation(content::RenderFrame* render_frame,
                         bool is_content_initiated,
-                        int opener_id,
+                        bool render_view_was_created_by_renderer,
                         blink::WebFrame* frame,
                         const blink::WebURLRequest& request,
                         blink::WebNavigationType type,
@@ -111,7 +111,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
                   bool is_initial_navigation,
                   bool is_server_redirect,
                   bool* send_referrer) override;
-  bool WillSendRequest(blink::WebFrame* frame,
+  bool WillSendRequest(blink::WebLocalFrame* frame,
                        ui::PageTransition transition_type,
                        const blink::WebURL& url,
                        GURL* new_url) override;

@@ -115,6 +115,55 @@ int ToCursorID(WebCursorInfo::Type type) {
   return 0;
 }
 
+// The following XCursorCache code was deleted from ui/base/x/x11_util.cc in
+// https://crbug.com/665574#c2
+
+// A process wide singleton that manages the usage of X cursors.
+class XCursorCache {
+ public:
+  XCursorCache() {}
+  ~XCursorCache() {
+    Clear();
+  }
+
+  ::Cursor GetCursor(int cursor_shape) {
+    // Lookup cursor by attempting to insert a null value, which avoids
+    // a second pass through the map after a cache miss.
+    std::pair<std::map<int, ::Cursor>::iterator, bool> it = cache_.insert(
+        std::make_pair(cursor_shape, 0));
+    if (it.second) {
+      XDisplay* display = gfx::GetXDisplay();
+      it.first->second = XCreateFontCursor(display, cursor_shape);
+    }
+    return it.first->second;
+  }
+
+  void Clear() {
+    XDisplay* display = gfx::GetXDisplay();
+    for (std::map<int, ::Cursor>::iterator it =
+        cache_.begin(); it != cache_.end(); ++it) {
+      XFreeCursor(display, it->second);
+    }
+    cache_.clear();
+  }
+
+ private:
+  // Maps X11 font cursor shapes to Cursor IDs.
+  std::map<int, ::Cursor> cache_;
+
+  DISALLOW_COPY_AND_ASSIGN(XCursorCache);
+};
+
+XCursorCache* cursor_cache = nullptr;
+
+// Returns an X11 Cursor, sharable across the process.
+// |cursor_shape| is an X font cursor shape, see XCreateFontCursor().
+::Cursor GetXCursor(int cursor_shape) {
+  if (!cursor_cache)
+    cursor_cache = new XCursorCache;
+  return cursor_cache->GetCursor(cursor_shape);
+}
+
 }  // namespace
 
 void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
@@ -142,6 +191,6 @@ ui::PlatformCursor CefRenderWidgetHostViewOSR::GetPlatformCursor(
     }
     return invisible_cursor_->get();
   } else {
-    return ui::GetXCursor(ToCursorID(type));
+    return GetXCursor(ToCursorID(type));
   }
 }

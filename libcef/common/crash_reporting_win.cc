@@ -6,6 +6,8 @@
 
 #include "libcef/common/crash_reporting_win.h"
 
+#include "libcef/common/crash_reporting.h"
+
 #include "base/debug/crash_logging.h"
 #include "base/strings/utf_string_conversions.h"
 #include "chrome/common/chrome_constants.h"
@@ -115,6 +117,19 @@ bool InitializeCrashReportingForModule() {
   }
 
   return false;
+}
+
+void BlockUntilHandlerStarted() {
+  if (!crash_reporting::Enabled())
+    return;
+
+  HMODULE chrome_elf = GetModuleHandle(chrome::kChromeElfDllName);
+  if (chrome_elf) {
+    auto block_until_handler_started = reinterpret_cast<void (*)()>(
+          GetProcAddress(chrome_elf, "BlockUntilHandlerStartedImpl"));
+    if (block_until_handler_started)
+      block_until_handler_started();
+  }
 }
 
 }  // namespace crash_reporting_win

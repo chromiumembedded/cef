@@ -247,14 +247,12 @@ void CefPrintingMessageFilter::OnUpdatePrintSettings(
   }
   printer_query = queue_->PopPrinterQuery(document_cookie);
   if (!printer_query.get()) {
-    int host_id = render_process_id_;
-    int routing_id = reply_msg->routing_id();
-    if (!new_settings->GetInteger(printing::kPreviewInitiatorHostId,
-                                  &host_id) ||
-        !new_settings->GetInteger(printing::kPreviewInitiatorRoutingId,
-                                  &routing_id)) {
+    int host_id;
+    int routing_id;
+    if (!new_settings->GetInteger(kPreviewInitiatorHostId, &host_id) ||
+        !new_settings->GetInteger(kPreviewInitiatorRoutingId, &routing_id)) {
       host_id = content::ChildProcessHost::kInvalidUniqueID;
-      routing_id = content::ChildProcessHost::kInvalidUniqueID;
+      routing_id = MSG_ROUTING_NONE;
     }
     printer_query = queue_->CreatePrinterQuery(host_id, routing_id);
   }
@@ -276,11 +274,11 @@ void CefPrintingMessageFilter::OnUpdatePrintSettingsReply(
     params.params.document_cookie = printer_query->cookie();
     params.pages = PageRange::GetPages(printer_query->settings().ranges());
   }
-  PrintHostMsg_UpdatePrintSettings::WriteReplyParams(
-      reply_msg,
-      params,
-      printer_query.get() &&
-          (printer_query->last_status() == printing::PrintingContext::CANCEL));
+
+  bool canceled = printer_query.get() &&
+                  (printer_query->last_status() == PrintingContext::CANCEL);
+  PrintHostMsg_UpdatePrintSettings::WriteReplyParams(reply_msg, params,
+                                                     canceled);
   Send(reply_msg);
   // If user hasn't cancelled.
   if (printer_query.get()) {

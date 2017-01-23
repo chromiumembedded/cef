@@ -21,6 +21,8 @@
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
 #include "third_party/WebKit/public/platform/WebInputEvent.h"
+#include "third_party/WebKit/public/platform/WebMouseEvent.h"
+#include "third_party/WebKit/public/platform/WebMouseWheelEvent.h"
 #import  "ui/base/cocoa/cocoa_base_utils.h"
 #import  "ui/base/cocoa/underlay_opengl_hosting_window.h"
 #include "ui/events/keycodes/keyboard_codes_posix.h"
@@ -345,7 +347,7 @@ void CefBrowserPlatformDelegateNativeMac::TranslateKeyEvent(
 
   result = content::NativeWebKeyboardEvent(synthetic_event);
   if (key_event.type == KEYEVENT_CHAR)
-    result.type = blink::WebInputEvent::Char;
+    result.setType(blink::WebInputEvent::Char);
 
   result.isSystemKey = key_event.is_system_key;
 }
@@ -359,18 +361,18 @@ void CefBrowserPlatformDelegateNativeMac::TranslateClickEvent(
 
   switch (type) {
   case MBT_LEFT:
-    result.type = mouseUp ? blink::WebInputEvent::MouseUp :
-                            blink::WebInputEvent::MouseDown;
+    result.setType(mouseUp ? blink::WebInputEvent::MouseUp :
+                             blink::WebInputEvent::MouseDown);
     result.button = blink::WebMouseEvent::Button::Left;
     break;
   case MBT_MIDDLE:
-    result.type = mouseUp ? blink::WebInputEvent::MouseUp :
-                            blink::WebInputEvent::MouseDown;
+    result.setType(mouseUp ? blink::WebInputEvent::MouseUp :
+                             blink::WebInputEvent::MouseDown);
     result.button = blink::WebMouseEvent::Button::Middle;
     break;
   case MBT_RIGHT:
-    result.type = mouseUp ? blink::WebInputEvent::MouseUp :
-                            blink::WebInputEvent::MouseDown;
+    result.setType(mouseUp ? blink::WebInputEvent::MouseUp :
+                             blink::WebInputEvent::MouseDown);
     result.button = blink::WebMouseEvent::Button::Right;
     break;
   default:
@@ -387,7 +389,7 @@ void CefBrowserPlatformDelegateNativeMac::TranslateMoveEvent(
   TranslateMouseEvent(result, mouse_event);
 
   if (!mouseLeave) {
-    result.type = blink::WebInputEvent::MouseMove;
+    result.setType(blink::WebInputEvent::MouseMove);
     if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
       result.button = blink::WebMouseEvent::Button::Left;
     else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
@@ -397,7 +399,7 @@ void CefBrowserPlatformDelegateNativeMac::TranslateMoveEvent(
     else
       result.button = blink::WebMouseEvent::Button::NoButton;
   } else {
-    result.type = blink::WebInputEvent::MouseLeave;
+    result.setType(blink::WebInputEvent::MouseLeave);
     result.button = blink::WebMouseEvent::Button::NoButton;
   }
 
@@ -411,7 +413,7 @@ void CefBrowserPlatformDelegateNativeMac::TranslateWheelEvent(
   result = blink::WebMouseWheelEvent();
   TranslateMouseEvent(result, mouse_event);
 
-  result.type = blink::WebInputEvent::MouseWheel;
+  result.setType(blink::WebInputEvent::MouseWheel);
 
   static const double scrollbarPixelsPerCocoaTick = 40.0;
   result.deltaX = deltaX;
@@ -469,9 +471,10 @@ void CefBrowserPlatformDelegateNativeMac::TranslateMouseEvent(
   result.globalY = screen_pt.y();
 
   // modifiers
-  result.modifiers |= TranslateModifiers(mouse_event.modifiers);
+  result.setModifiers(
+    result.modifiers() | TranslateModifiers(mouse_event.modifiers));
 
   // timestamp - Mac OSX specific
-  result.timeStampSeconds = currentEventTimestamp();
+  result.setTimeStampSeconds(currentEventTimestamp());
 }
 

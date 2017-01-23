@@ -14,7 +14,6 @@
 
 namespace blink {
 class WebLocalFrame;
-class WebPlugin;
 }
 
 class SkBitmap;

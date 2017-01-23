@@ -59,27 +59,27 @@ content::WebContents* GetOwnerForGuestContents(content::WebContents* guest) {
   return NULL;
 }
 
-CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForView(int render_process_id,
-                                                     int render_routing_id,
-                                                     bool* is_guest_view) {
+CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForFrame(int render_process_id,
+                                                      int render_routing_id,
+                                                      bool* is_guest_view) {
   if (CEF_CURRENTLY_ON_UIT()) {
     // Use the non-thread-safe but potentially faster approach.
-    content::RenderViewHost* host =
-        content::RenderViewHost::FromID(render_process_id, render_routing_id);
+    content::RenderFrameHost* host =
+        content::RenderFrameHost::FromID(render_process_id, render_routing_id);
     if (host)
       return GetOwnerBrowserForHost(host, is_guest_view);
     return NULL;
   } else {
     // Use the thread-safe approach.
     scoped_refptr<CefBrowserInfo> info =
-        CefBrowserInfoManager::GetInstance()->GetBrowserInfoForView(
+        CefBrowserInfoManager::GetInstance()->GetBrowserInfoForFrame(
             render_process_id, render_routing_id, is_guest_view);
     if (info.get()) {
       CefRefPtr<CefBrowserHostImpl> browser = info->browser();
       if (!browser.get()) {
         LOG(WARNING) << "Found browser id " << info->browser_id() <<
                         " but no browser object matching view process id " <<
-                        render_process_id << " and routing id " <<
+                        render_process_id << " and frame routing id " <<
                         render_routing_id;
       }
       return browser;
@@ -100,6 +100,27 @@ CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForHost(
     // Retrieve the owner browser, if any.
     content::WebContents* owner = GetOwnerForGuestContents(
         content::WebContents::FromRenderViewHost(host));
+    if (owner) {
+      browser = CefBrowserHostImpl::GetBrowserForContents(owner);
+      if (browser.get() && is_guest_view)
+        *is_guest_view = true;
+    }
+  }
+  return browser;
+}
+
+CefRefPtr<CefBrowserHostImpl> GetOwnerBrowserForHost(
+    content::RenderFrameHost* host,
+    bool* is_guest_view) {
+  if (is_guest_view)
+    *is_guest_view = false;
+
+  CefRefPtr<CefBrowserHostImpl> browser =
+      CefBrowserHostImpl::GetBrowserForHost(host);
+  if (!browser.get() && ExtensionsEnabled()) {
+    // Retrieve the owner browser, if any.
+    content::WebContents* owner = GetOwnerForGuestContents(
+        content::WebContents::FromRenderFrameHost(host));
     if (owner) {
       browser = CefBrowserHostImpl::GetBrowserForContents(owner);
       if (browser.get() && is_guest_view)

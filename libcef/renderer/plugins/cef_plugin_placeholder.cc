@@ -25,6 +25,7 @@
 #include "gin/object_template_builder.h"
 #include "third_party/WebKit/public/platform/URLConversion.h"
 #include "third_party/WebKit/public/platform/WebInputEvent.h"
+#include "third_party/WebKit/public/platform/WebMouseEvent.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebScriptSource.h"
@@ -164,12 +165,6 @@ bool CefPluginPlaceholder::OnMessageReceived(const IPC::Message& message) {
   return false;
 }
 
-void CefPluginPlaceholder::OpenAboutPluginsCallback() {
-  // CEF does not use IDR_DISABLED_PLUGIN_HTML which would originate this
-  // callback for the chrome://plugins link.
-  NOTREACHED();
-}
-
 void CefPluginPlaceholder::ShowPermissionBubbleCallback() {
   // CEF does not use IDR_PREFER_HTML_PLUGIN_HTML which would originate this
   // callback.
@@ -304,8 +299,6 @@ gin::ObjectTemplateBuilder CefPluginPlaceholder::GetObjectTemplateBuilder(
           .SetMethod<void (CefPluginPlaceholder::*)()>(
               "didFinishLoading",
               &CefPluginPlaceholder::DidFinishLoadingCallback)
-          .SetMethod("openAboutPlugins",
-                     &CefPluginPlaceholder::OpenAboutPluginsCallback)
           .SetMethod("showPermissionBubble",
                      &CefPluginPlaceholder::ShowPermissionBubbleCallback);
 

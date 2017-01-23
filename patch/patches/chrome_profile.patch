@@ -63,10 +63,10 @@ index 4b43013..169ca47 100644
  content::BrowserContext* GetBrowserContextRedirectedInIncognito(
      content::BrowserContext* context);
 diff --git chrome/browser/profiles/profile_manager.h chrome/browser/profiles/profile_manager.h
-index f715370..fb38098 100644
+index 6554312..701cb0f 100644
 --- chrome/browser/profiles/profile_manager.h
 +++ chrome/browser/profiles/profile_manager.h
-@@ -90,7 +90,7 @@ class ProfileManager : public base::NonThreadSafe,
+@@ -89,7 +89,7 @@ class ProfileManager : public base::NonThreadSafe,
    // acceptable. Returns null if creation of the new profile fails.
    // TODO(bauerb): Migrate calls from other code to GetProfileByPath(), then
    // make this method private.
@@ -75,7 +75,7 @@ index f715370..fb38098 100644
  
    // Returns total number of profiles available on this machine.
    size_t GetNumberOfProfiles();
-@@ -118,7 +118,7 @@ class ProfileManager : public base::NonThreadSafe,
+@@ -117,7 +117,7 @@ class ProfileManager : public base::NonThreadSafe,
  
    // Returns true if the profile pointer is known to point to an existing
    // profile.
@@ -84,7 +84,7 @@ index f715370..fb38098 100644
  
    // Returns the directory where the first created profile is stored,
    // relative to the user data directory currently in use.
-@@ -127,7 +127,7 @@ class ProfileManager : public base::NonThreadSafe,
+@@ -126,7 +126,7 @@ class ProfileManager : public base::NonThreadSafe,
    // Get the Profile last used (the Profile to which owns the most recently
    // focused window) with this Chrome build. If no signed profile has been
    // stored in Local State, hand back the Default profile.

@@ -98,7 +98,7 @@ metrics::MetricsService* ChromeBrowserProcessStub::metrics_service() {
   return NULL;
 }
 
-rappor::RapporService* ChromeBrowserProcessStub::rappor_service() {
+rappor::RapporServiceImpl* ChromeBrowserProcessStub::rappor_service() {
   NOTREACHED();
   return NULL;
 }
@@ -322,7 +322,7 @@ bool ChromeBrowserProcessStub::created_local_state() const {
   return false;
 }
 
-#if defined(ENABLE_WEBRTC)
+#if BUILDFLAG(ENABLE_WEBRTC)
 WebRtcLogUploader* ChromeBrowserProcessStub::webrtc_log_uploader() {
   NOTREACHED();
   return NULL;
@@ -351,7 +351,8 @@ memory::TabManager* ChromeBrowserProcessStub::GetTabManager() {
   return NULL;
 }
 
-PhysicalWebDataSource* ChromeBrowserProcessStub::GetPhysicalWebDataSource() {
+physical_web::PhysicalWebDataSource*
+ChromeBrowserProcessStub::GetPhysicalWebDataSource() {
   NOTREACHED();
   return NULL;
 }

@@ -12,6 +12,7 @@
 #include "include/cef_scheme.h"
 
 #include "base/threading/platform_thread.h"
+#include "content/public/common/content_client.h"
 
 class CefSchemeRegistrarImpl : public CefSchemeRegistrar {
  public:
@@ -21,9 +22,11 @@ class CefSchemeRegistrarImpl : public CefSchemeRegistrar {
   bool AddCustomScheme(const CefString& scheme_name,
                        bool is_standard,
                        bool is_local,
-                       bool is_display_isolated) override;
+                       bool is_display_isolated,
+                       bool is_secure,
+                       bool is_cors_enabled) override;
 
-  void GetStandardSchemes(std::vector<std::string>* standard_schemes);
+  void GetSchemes(content::ContentClient::Schemes* schemes);
 
   // Verify that only a single reference exists to all CefSchemeRegistrarImpl
   // objects.
@@ -37,7 +40,8 @@ class CefSchemeRegistrarImpl : public CefSchemeRegistrar {
 
   base::PlatformThreadId supported_thread_id_;
 
-  std::vector<std::string> standard_schemes_;
+  content::ContentClient::Schemes schemes_;
+  std::set<std::string> registered_schemes_;
 
   IMPLEMENT_REFCOUNTING(CefSchemeRegistrarImpl);
   DISALLOW_COPY_AND_ASSIGN(CefSchemeRegistrarImpl);

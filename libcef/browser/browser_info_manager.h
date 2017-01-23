@@ -67,8 +67,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
       const blink::WebWindowFeatures& features,
       bool user_gesture,
       bool opener_suppressed,
-      int render_process_id,
-      int opener_render_view_id,
+      int opener_render_process_id,
       int opener_render_frame_id,
       bool* no_javascript_access);
 
@@ -113,7 +112,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // Retrieves the CefBrowserInfo matching the specified IDs or an empty
   // pointer if no match is found. It is allowed to add new callers of this
   // method but consider using CefBrowserHostImpl::GetBrowserFor[View|Frame]()
-  // or extensions::GetOwnerBrowserForView() instead.
+  // or extensions::GetOwnerBrowserForFrame() instead.
   // |is_guest_view| will be set to true if the IDs match a guest view
   // associated with the returned browser info instead of the browser itself.
   scoped_refptr<CefBrowserInfo> GetBrowserInfoForView(int render_process_id,
@@ -157,8 +156,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
     // |target_url| will be empty if a popup is created via window.open() and
     // never navigated. For example: javascript:window.open();
     int opener_process_id;
-    int opener_view_id;
-    int64 opener_frame_id;
+    int opener_frame_id;
     GURL target_url;
     std::string target_frame_name;
 
@@ -176,7 +174,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // URIs, rewrites the URL to "about:blank". We need to apply the same filter
   // otherwise ShouldCreateWebContents will fail to retrieve the PopupInfo.
   static void FilterPendingPopupURL(
-    int render_process_id,
+    int opener_process_id,
     std::unique_ptr<PendingPopup> pending_popup);
 
   // Manage pending popups.
@@ -184,7 +182,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   std::unique_ptr<PendingPopup> PopPendingPopup(
       PendingPopup::Step step,
       int opener_process_id,
-      int opener_view_id,
+      int opener_frame_id,
       const GURL& target_url);
 
   // Retrieves the BrowserInfo matching the specified IDs. If both sets are

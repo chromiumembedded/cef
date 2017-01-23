@@ -67,6 +67,10 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
 
 bool IsScriptForbidden();
 
+void registerURLSchemeAsLocal(const blink::WebString& scheme);
+void registerURLSchemeAsSecure(const blink::WebString& scheme);
+void registerURLSchemeAsCORSEnabled(const blink::WebString& scheme);
+
 }  // webkit_glue
 
 #endif  // CEF_LIBCEF_RENDERER_WEBKIT_GLUE_H_

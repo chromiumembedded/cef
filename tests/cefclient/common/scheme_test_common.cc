@@ -11,7 +11,7 @@ namespace scheme_test {
 
 void RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar,
                            std::vector<CefString>& cookiable_schemes) {
-  registrar->AddCustomScheme("client", true, false, false);
+  registrar->AddCustomScheme("client", true, false, false, false, true);
 }
 
 }  // namespace scheme_test

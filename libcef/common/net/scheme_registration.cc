@@ -13,24 +13,36 @@
 
 namespace scheme {
 
-void AddInternalSchemes(std::vector<std::string>* standard_schemes,
-                        std::vector<std::string>* savable_schemes) {
+void AddInternalSchemes(content::ContentClient::Schemes* schemes) {
   // chrome: and chrome-devtools: schemes are registered in
   // RenderThreadImpl::RegisterSchemes().
   // Access restrictions for chrome-extension: and chrome-extension-resource:
   // schemes will be applied in CefContentRendererClient::WillSendRequest().
-  static CefContentClient::SchemeInfo schemes[] = {
-    { extensions::kExtensionScheme,         true,  true,  false, false },
-    { extensions::kExtensionResourceScheme, true,  true,  false, false },
+  static CefContentClient::SchemeInfo internal_schemes[] = {
+    {
+      extensions::kExtensionScheme,
+      true,   /* is_standard */
+      false,  /* is_local */
+      false,  /* is_display_isolated */
+      true,   /* is_secure */
+      true    /* is_cors_enabled */
+    },
   };
 
+  // The |is_display_isolated| value is excluded here because it's registered
+  // with Blink only.
   CefContentClient* client = CefContentClient::Get();
-  for (size_t i = 0; i < sizeof(schemes) / sizeof(schemes[0]); ++i) {
-    if (schemes[i].is_standard)
-      standard_schemes->push_back(schemes[i].scheme_name);
-    if (schemes[i].is_savable)
-      savable_schemes->push_back(schemes[i].scheme_name);
-    client->AddCustomScheme(schemes[i]);
+  for (size_t i = 0; i < sizeof(internal_schemes) / sizeof(internal_schemes[0]);
+       ++i) {
+    if (internal_schemes[i].is_standard)
+      schemes->standard_schemes.push_back(internal_schemes[i].scheme_name);
+    if (internal_schemes[i].is_local)
+      schemes->local_schemes.push_back(internal_schemes[i].scheme_name);
+    if (internal_schemes[i].is_secure)
+      schemes->secure_schemes.push_back(internal_schemes[i].scheme_name);
+    if (internal_schemes[i].is_cors_enabled)
+      schemes->cors_enabled_schemes.push_back(internal_schemes[i].scheme_name);
+    client->AddCustomScheme(internal_schemes[i]);
   }
 }
 
@@ -40,10 +52,12 @@ bool IsInternalHandledScheme(const std::string& scheme) {
     content::kChromeDevToolsScheme,
     content::kChromeUIScheme,
     extensions::kExtensionScheme,
-    extensions::kExtensionResourceScheme,
     url::kDataScheme,
     url::kFileScheme,
     url::kFileSystemScheme,
+#if !BUILDFLAG(DISABLE_FTP_SUPPORT)
+    url::kFtpScheme,
+#endif
   };
 
   for (size_t i = 0; i < sizeof(schemes) / sizeof(schemes[0]); ++i) {
@@ -62,7 +76,6 @@ bool IsInternalProtectedScheme(const std::string& scheme) {
     url::kBlobScheme,
     content::kChromeUIScheme,
     extensions::kExtensionScheme,
-    extensions::kExtensionResourceScheme,
     url::kDataScheme,
     url::kFileScheme,
     url::kFileSystemScheme,

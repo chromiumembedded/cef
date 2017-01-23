@@ -1,20 +1,20 @@
 diff --git .gn .gn
-index e4b474a..38a41be 100644
+index f3ea8df..09d0a1e 100644
 --- .gn
 +++ .gn
-@@ -241,6 +241,7 @@ exec_script_whitelist = [
-   "//build/toolchain/win/BUILD.gn",
-   "//build/util/branding.gni",
-   "//build/util/version.gni",
-+  "//cef/BUILD.gn",
-   "//chromeos/BUILD.gn",
+@@ -225,6 +225,7 @@ exec_script_whitelist =
+       # in the Chromium repo outside of //build.
+       "//android_webview/BUILD.gn",
+       "//build_overrides/build.gni",
++      "//cef/BUILD.gn",
+       "//chromeos/BUILD.gn",
  
-   # TODO(dgn): Layer violation but breaks the build otherwise, see
+       # TODO(dgn): Layer violation but breaks the build otherwise, see
 diff --git BUILD.gn BUILD.gn
-index 43c7b3d..df225a1 100644
+index 0cd9629..97c284c 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -282,6 +282,7 @@ group("both_gn_and_gyp") {
+@@ -286,6 +286,7 @@ group("both_gn_and_gyp") {
      # and whether there should be other targets that are iOS-only and missing.
      deps += [
        "//cc:cc_unittests",
@@ -55,7 +55,7 @@ index 982fbe8..e757be46 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index fbc201e..299156d 100644
+index fbc201e..98ad106 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
 @@ -126,11 +126,15 @@ def _LoadToolchainEnv(cpu, sdk_dir):
@@ -69,7 +69,7 @@ index fbc201e..299156d 100644
 -    variables = _LoadEnvFromBat(args)
 +    if os.path.exists(script_path):
 +      args = [script_path, 'amd64_x86' if cpu == 'x86' else 'amd64', \
-+              '10.0.10586.0']
++              '10.0.14393.0']
 +      variables = _LoadEnvFromBat(args)
 +    else:
 +      variables = []
@@ -80,7 +80,7 @@ index fbc201e..299156d 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index c768a8a..bb91777 100755
+index 3edf1ff..66e150a 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -74,11 +74,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -103,10 +103,10 @@ index c768a8a..bb91777 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index c3ac484..13ae760 100644
+index 27c483c..24502e9 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -235,7 +235,7 @@ template("chrome_paks") {
+@@ -245,7 +245,7 @@ template("chrome_paks") {
        additional_source_patterns = invoker.additional_locale_source_patterns
      }
      input_locales = locales
@@ -116,10 +116,10 @@ index c3ac484..13ae760 100644
      if (is_mac) {
        output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 0f37e54..7b81cde 100644
+index 84be262..687ffac 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
-@@ -124,7 +124,7 @@ template("generate_mini_installer") {
+@@ -125,7 +125,7 @@ template("generate_mini_installer") {
      inputs = [
        "$chrome_dll_file",
        "$root_out_dir/chrome.exe",

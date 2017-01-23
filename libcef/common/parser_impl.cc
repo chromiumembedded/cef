@@ -123,7 +123,7 @@ CefRefPtr<CefBinaryValue> CefBase64Decode(const CefString& data) {
 }
 
 CefString CefURIEncode(const CefString& text, bool use_plus) {
-  return net::EscapeQueryParamValue(text, use_plus);
+  return net::EscapeQueryParamValue(text.ToString(), use_plus);
 }
 
 CefString CefURIDecode(const CefString& text,

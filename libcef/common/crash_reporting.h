@@ -12,6 +12,9 @@ class CommandLine;
 
 namespace crash_reporting {
 
+// Returns true if crash reporting is enabled.
+bool Enabled();
+
 // Functions are called from similarly named methods in CefMainDelegate.
 
 #if defined(OS_POSIX)

@@ -44,7 +44,7 @@ class CefExtensionsClient : public ExtensionsClient {
   base::StringPiece GetAPISchema(const std::string& name) const override;
   bool ShouldSuppressFatalErrors() const override;
   void RecordDidSuppressFatalError() override;
-  std::string GetWebstoreBaseURL() const override;
+  const GURL& GetWebstoreBaseURL() const override;
   const GURL& GetWebstoreUpdateURL() const override;
   bool IsBlacklistUpdateURL(const GURL& url) const override;
 
@@ -56,7 +56,8 @@ class CefExtensionsClient : public ExtensionsClient {
   ScriptingWhitelist scripting_whitelist_;
 
   // Mutable to allow caching in a const method.
-  mutable GURL webstore_update_url_;
+  const GURL webstore_base_url_;
+  const GURL webstore_update_url_;
 
   DISALLOW_COPY_AND_ASSIGN(CefExtensionsClient);
 };

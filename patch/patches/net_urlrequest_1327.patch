@@ -1,8 +1,8 @@
 diff --git url_request.h url_request.h
-index 9ef191c..2100168 100644
+index e1406f3..ed9aa91 100644
 --- url_request.h
 +++ url_request.h
-@@ -655,10 +655,11 @@ class NET_EXPORT URLRequest : NON_EXPORTED_BASE(public base::NonThreadSafe),
+@@ -651,10 +651,11 @@ class NET_EXPORT URLRequest : NON_EXPORTED_BASE(public base::NonThreadSafe),
    // Returns the error status of the request.
    // Do not use! Going to be protected!
    const URLRequestStatus& status() const { return status_; }

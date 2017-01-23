@@ -483,8 +483,10 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 #if !defined(OS_MACOSX)
   content::ImageTransportFactory* factory =
       content::ImageTransportFactory::GetInstance();
+  ui::ContextFactoryPrivate* context_factory_private =
+      factory->GetContextFactoryPrivate();
   delegated_frame_host_ = base::MakeUnique<content::DelegatedFrameHost>(
-      factory->GetContextFactory()->AllocateFrameSinkId(), this);
+      context_factory_private->AllocateFrameSinkId(), this);
 
   root_layer_.reset(new ui::Layer(ui::LAYER_SOLID_COLOR));
 #endif
@@ -494,7 +496,8 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 #if !defined(OS_MACOSX)
   // On OS X the ui::Compositor is created/owned by the platform view.
   compositor_.reset(
-      new ui::Compositor(content::GetContextFactory(),
+      new ui::Compositor(context_factory_private->AllocateFrameSinkId(),
+                         content::GetContextFactory(), context_factory_private,
                          base::ThreadTaskRunnerHandle::Get()));
   compositor_->SetAcceleratedWidget(compositor_widget_);
   compositor_->SetDelegate(this);
@@ -679,7 +682,7 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
     }
   }
 
-  if (frame.delegated_frame_data) {
+  if (!frame.render_pass_list.empty()) {
     if (software_output_device_) {
       if (!begin_frame_timer_.get()) {
         // If BeginFrame scheduling is enabled SoftwareOutputDevice activity
@@ -705,8 +708,7 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
 
       // Determine the damage rectangle for the current frame. This is the same
       // calculation that SwapDelegatedFrame uses.
-      cc::RenderPass* root_pass =
-          frame.delegated_frame_data->render_pass_list.back().get();
+      cc::RenderPass* root_pass = frame.render_pass_list.back().get();
       gfx::Size frame_size = root_pass->output_rect.size();
       gfx::Rect damage_rect =
           gfx::ToEnclosingRect(gfx::RectF(root_pass->damage_rect));
@@ -980,7 +982,9 @@ void CefRenderWidgetHostViewOSR::ImeCommitText(
     return;
 
   gfx::Range range(replacement_range.from, replacement_range.to);
-  render_widget_host_->ImeCommitText(text, range, relative_cursor_pos);
+  render_widget_host_->ImeCommitText(
+      text, std::vector<blink::WebCompositionUnderline>(), range,
+      relative_cursor_pos);
 
   // Stop Monitoring for composition updates after we are done.
   RequestImeCompositionUpdate(false);
@@ -1205,7 +1209,7 @@ void CefRenderWidgetHostViewOSR::SendMouseEvent(
     const blink::WebMouseEvent& event) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::SendMouseEvent");
   if (!IsPopupWidget()) {
-    if (browser_impl_.get() && event.type == blink::WebMouseEvent::MouseDown)
+    if (browser_impl_.get() && event.type() == blink::WebMouseEvent::MouseDown)
       browser_impl_->CancelContextMenu();
 
     if (popup_host_view_ &&
@@ -1480,10 +1484,17 @@ void CefRenderWidgetHostViewOSR::SendBeginFrame(base::TimeTicks frame_time,
 
   base::TimeTicks deadline = display_time - estimated_browser_composite_time;
 
+  const cc::BeginFrameArgs& begin_frame_args =
+      cc::BeginFrameArgs::Create(BEGINFRAME_FROM_HERE,
+                                 begin_frame_source_.source_id(),
+                                 begin_frame_number_, frame_time, deadline,
+                                 vsync_period, cc::BeginFrameArgs::NORMAL);
+  DCHECK(begin_frame_args.IsValid());
+  begin_frame_number_++;
+
   render_widget_host_->Send(new ViewMsg_BeginFrame(
       render_widget_host_->GetRoutingID(),
-      cc::BeginFrameArgs::Create(BEGINFRAME_FROM_HERE, frame_time, deadline,
-                                 vsync_period, cc::BeginFrameArgs::NORMAL)));
+      begin_frame_args));
 }
 
 void CefRenderWidgetHostViewOSR::CancelWidget() {

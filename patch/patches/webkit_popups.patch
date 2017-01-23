@@ -1,8 +1,8 @@
 diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
-index 1c0863b..a0f06f4 100644
+index 11d980e..a87fb7e 100644
 --- Source/web/ChromeClientImpl.cpp
 +++ Source/web/ChromeClientImpl.cpp
-@@ -893,7 +893,7 @@ bool ChromeClientImpl::hasOpenedPopup() const {
+@@ -895,7 +895,7 @@ bool ChromeClientImpl::hasOpenedPopup() const {
  PopupMenu* ChromeClientImpl::openPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    notifyPopupOpeningObservers();
@@ -12,18 +12,18 @@ index 1c0863b..a0f06f4 100644
  
    DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index 8e1ca8b..83589b6 100644
+index 6a7688b..7ca2fab 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
-@@ -379,6 +379,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
+@@ -358,6 +358,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
        m_enableFakePageScaleAnimationForTesting(false),
        m_fakePageScaleAnimationPageScaleFactor(0),
        m_fakePageScaleAnimationUseAnchor(false),
 +      m_shouldUseExternalPopupMenus(shouldUseExternalPopupMenus),
-       m_doingDragAndDrop(false),
-       m_ignoreInputEvents(false),
        m_compositorDeviceScaleFactorOverride(0),
-@@ -3727,8 +3728,13 @@ void WebViewImpl::mainFrameScrollOffsetChanged() {
+       m_suppressNextKeypressEvent(false),
+       m_imeAcceptEvents(true),
+@@ -3704,8 +3705,13 @@ void WebViewImpl::mainFrameScrollOffsetChanged() {
    m_devToolsEmulator->mainFrameScrollOrScaleChanged();
  }
  
@@ -37,12 +37,12 @@ index 8e1ca8b..83589b6 100644
 +  return m_shouldUseExternalPopupMenus;
  }
  
- void WebViewImpl::setIgnoreInputEvents(bool newValue) {
+ void WebViewImpl::setBackgroundColorOverride(WebColor color) {
 diff --git Source/web/WebViewImpl.h Source/web/WebViewImpl.h
-index d002c0d..74cbb22 100644
+index e4ad02f..8bfaa1c 100644
 --- Source/web/WebViewImpl.h
 +++ Source/web/WebViewImpl.h
-@@ -375,7 +375,8 @@ class WEB_EXPORT WebViewImpl final
+@@ -371,7 +371,8 @@ class WEB_EXPORT WebViewImpl final
  
    // Returns true if popup menus should be rendered by the browser, false if
    // they should be rendered by WebKit (which is the default).
@@ -52,20 +52,20 @@ index d002c0d..74cbb22 100644
  
    bool shouldAutoResize() const { return m_shouldAutoResize; }
  
-@@ -654,6 +655,8 @@ class WEB_EXPORT WebViewImpl final
+@@ -651,6 +652,8 @@ class WEB_EXPORT WebViewImpl final
    float m_fakePageScaleAnimationPageScaleFactor;
    bool m_fakePageScaleAnimationUseAnchor;
  
 +  bool m_shouldUseExternalPopupMenus;
 +
-   // TODO(paulmeyer): Move this to WebWidget once all drag-and-drop functions
-   // are there.
-   bool m_doingDragAndDrop;
+   float m_compositorDeviceScaleFactorOverride;
+   TransformationMatrix m_deviceEmulationTransform;
+ 
 diff --git public/web/WebView.h public/web/WebView.h
-index 3127234..e79f0d2 100644
+index 061f017..9fd430e 100644
 --- public/web/WebView.h
 +++ public/web/WebView.h
-@@ -408,6 +408,7 @@ class WebView : protected WebWidget {
+@@ -404,6 +404,7 @@ class WebView : protected WebWidget {
  
    // Sets whether select popup menus should be rendered by the browser.
    BLINK_EXPORT static void setUseExternalPopupMenus(bool);

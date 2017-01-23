@@ -253,21 +253,19 @@ void CefBrowserPlatformDelegateNativeLinux::HandleExternalProtocol(
 void CefBrowserPlatformDelegateNativeLinux::TranslateKeyEvent(
     content::NativeWebKeyboardEvent& result,
     const CefKeyEvent& key_event) const {
-  result.timeStampSeconds = GetSystemUptime();
-
   result.windowsKeyCode = key_event.windows_key_code;
   result.nativeKeyCode = key_event.native_key_code;
   result.isSystemKey = key_event.is_system_key ? 1 : 0;
   switch (key_event.type) {
   case KEYEVENT_RAWKEYDOWN:
   case KEYEVENT_KEYDOWN:
-    result.type = blink::WebInputEvent::RawKeyDown;
+    result.setType(blink::WebInputEvent::RawKeyDown);
     break;
   case KEYEVENT_KEYUP:
-    result.type = blink::WebInputEvent::KeyUp;
+    result.setType(blink::WebInputEvent::KeyUp);
     break;
   case KEYEVENT_CHAR:
-    result.type = blink::WebInputEvent::Char;
+    result.setType(blink::WebInputEvent::Char);
     break;
   default:
     NOTREACHED();
@@ -287,7 +285,8 @@ void CefBrowserPlatformDelegateNativeLinux::TranslateKeyEvent(
   result.text[0] = key_event.character;
   result.unmodifiedText[0] = key_event.unmodified_character;
 
-  result.modifiers |= TranslateModifiers(key_event.modifiers);
+  result.setModifiers(
+      result.modifiers() | TranslateModifiers(key_event.modifiers));
 }
 
 void CefBrowserPlatformDelegateNativeLinux::TranslateClickEvent(
@@ -299,18 +298,18 @@ void CefBrowserPlatformDelegateNativeLinux::TranslateClickEvent(
 
   switch (type) {
   case MBT_LEFT:
-    result.type = mouseUp ? blink::WebInputEvent::MouseUp :
-                            blink::WebInputEvent::MouseDown;
+    result.setType(mouseUp ? blink::WebInputEvent::MouseUp :
+                             blink::WebInputEvent::MouseDown);
     result.button = blink::WebMouseEvent::Button::Left;
     break;
   case MBT_MIDDLE:
-    result.type = mouseUp ? blink::WebInputEvent::MouseUp :
-                            blink::WebInputEvent::MouseDown;
+    result.setType(mouseUp ? blink::WebInputEvent::MouseUp :
+                             blink::WebInputEvent::MouseDown);
     result.button = blink::WebMouseEvent::Button::Middle;
     break;
   case MBT_RIGHT:
-    result.type = mouseUp ? blink::WebInputEvent::MouseUp :
-                            blink::WebInputEvent::MouseDown;
+    result.setType(mouseUp ? blink::WebInputEvent::MouseUp :
+                             blink::WebInputEvent::MouseDown);
     result.button = blink::WebMouseEvent::Button::Right;
     break;
   default:
@@ -327,7 +326,7 @@ void CefBrowserPlatformDelegateNativeLinux::TranslateMoveEvent(
   TranslateMouseEvent(result, mouse_event);
 
   if (!mouseLeave) {
-    result.type = blink::WebInputEvent::MouseMove;
+    result.setType(blink::WebInputEvent::MouseMove);
     if (mouse_event.modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
       result.button = blink::WebMouseEvent::Button::Left;
     else if (mouse_event.modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
@@ -337,7 +336,7 @@ void CefBrowserPlatformDelegateNativeLinux::TranslateMoveEvent(
     else
       result.button = blink::WebMouseEvent::Button::NoButton;
   } else {
-    result.type = blink::WebInputEvent::MouseLeave;
+    result.setType(blink::WebInputEvent::MouseLeave);
     result.button = blink::WebMouseEvent::Button::NoButton;
   }
 
@@ -351,7 +350,7 @@ void CefBrowserPlatformDelegateNativeLinux::TranslateWheelEvent(
   result = blink::WebMouseWheelEvent();
   TranslateMouseEvent(result, mouse_event);
 
-  result.type = blink::WebInputEvent::MouseWheel;
+  result.setType(blink::WebInputEvent::MouseWheel);
 
   static const double scrollbarPixelsPerGtkTick = 40.0;
   result.deltaX = deltaX;
@@ -401,9 +400,10 @@ void CefBrowserPlatformDelegateNativeLinux::TranslateMouseEvent(
   result.globalY = screen_pt.y();
 
   // modifiers
-  result.modifiers |= TranslateModifiers(mouse_event.modifiers);
+  result.setModifiers(
+      result.modifiers() | TranslateModifiers(mouse_event.modifiers));
 
   // timestamp
-  result.timeStampSeconds = GetSystemUptime();
+  result.setTimeStampSeconds(GetSystemUptime());
 }
 

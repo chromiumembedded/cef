@@ -14,6 +14,7 @@
 #include "base/strings/string_util.h"
 #include "base/threading/thread_task_runner_handle.h"
 #include "base/win/wrapped_window_proc.h"
+#include "skia/ext/skia_utils_win.h"
 #include "ui/base/accelerators/accelerator.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/l10n/l10n_util_win.h"
@@ -27,7 +28,6 @@
 #include "ui/gfx/text_utils.h"
 #include "ui/gfx/win/hwnd_util.h"
 #include "ui/native_theme/native_theme.h"
-#include "ui/native_theme/native_theme_win.h"
 #include "ui/views/controls/menu/menu_config.h"
 #include "ui/views/controls/menu/menu_insertion_delegate_win.h"
 #include "ui/views/controls/menu/menu_listener.h"
@@ -48,6 +48,30 @@ static const int kItemBottomMargin = 4;
 static const int kItemLeftMargin = 4;
 // The width for displaying the sub-menu arrow.
 static const int kArrowWidth = 10;
+
+namespace {
+
+// Draws the top layer of the canvas into the specified HDC. Only works
+// with a SkCanvas with a BitmapPlatformDevice. Will create a temporary
+// HDC to back the canvas if one doesn't already exist, tearing it down
+// before returning. If |src_rect| is null, copies the entire canvas.
+// Deleted from skia/ext/platform_canvas.h in https://crbug.com/675977#c13
+void DrawToNativeContext(SkCanvas* canvas, HDC destination_hdc, int x, int y,
+                         const RECT* src_rect) {
+  RECT temp_rect;
+  if (!src_rect) {
+    temp_rect.left = 0;
+    temp_rect.right = canvas->imageInfo().width();
+    temp_rect.top = 0;
+    temp_rect.bottom = canvas->imageInfo().height();
+    src_rect = &temp_rect;
+  }
+  skia::CopyHDC(skia::GetNativeDrawingContext(canvas), destination_hdc, x, y,
+                canvas->imageInfo().isOpaque(), *src_rect,
+                canvas->getTotalMatrix());
+}
+
+}  // namespace
 
 struct CefNativeMenuWin::ItemData {
   // The Windows API requires that whoever creates the menus must own the
@@ -266,7 +290,7 @@ class CefNativeMenuWin::MenuHostWindow {
         DCHECK(type != ui::MenuModel::TYPE_CHECK);
         gfx::Canvas canvas(skia_icon.size(), 1.0f, false);
         canvas.DrawImageInt(skia_icon, 0, 0);
-        skia::DrawToNativeContext(
+        DrawToNativeContext(
             canvas.sk_canvas(), dc,
             draw_item_struct->rcItem.left + kItemLeftMargin,
             draw_item_struct->rcItem.top + (draw_item_struct->rcItem.bottom -
@@ -291,7 +315,8 @@ class CefNativeMenuWin::MenuHostWindow {
         gfx::Rect bounds(0, 0, config.check_width, config.check_height);
 
         // Draw the background and the check.
-        ui::NativeThemeWin* native_theme = ui::NativeThemeWin::instance();
+        ui::NativeTheme* native_theme =
+            ui::NativeTheme::GetInstanceForNativeUi();
         native_theme->Paint(
             canvas.sk_canvas(), NativeTheme::kMenuCheckBackground,
             state, bounds, extra);
@@ -299,7 +324,7 @@ class CefNativeMenuWin::MenuHostWindow {
             canvas.sk_canvas(), NativeTheme::kMenuCheck, state, bounds, extra);
 
         // Draw checkbox to menu.
-        skia::DrawToNativeContext(canvas.sk_canvas(), dc,
+        DrawToNativeContext(canvas.sk_canvas(), dc,
             draw_item_struct->rcItem.left + kItemLeftMargin,
             draw_item_struct->rcItem.top + (draw_item_struct->rcItem.bottom -
                 draw_item_struct->rcItem.top - config.check_height) / 2, NULL);

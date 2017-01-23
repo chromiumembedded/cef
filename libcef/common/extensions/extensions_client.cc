@@ -24,11 +24,7 @@
 #include "extensions/common/common_manifest_handlers.h"
 #include "extensions/common/extensions_aliases.h"
 #include "extensions/common/extension_urls.h"
-#include "extensions/common/features/api_feature.h"
-#include "extensions/common/features/behavior_feature.h"
 #include "extensions/common/features/json_feature_provider_source.h"
-#include "extensions/common/features/manifest_feature.h"
-#include "extensions/common/features/permission_feature.h"
 #include "extensions/common/features/simple_feature.h"
 #include "extensions/common/manifest_handler.h"
 #include "extensions/common/permissions/permission_message_provider.h"
@@ -48,7 +44,9 @@ SimpleFeature* CreateFeature() {
 
 }  // namespace
 
-CefExtensionsClient::CefExtensionsClient() {
+CefExtensionsClient::CefExtensionsClient()
+  : webstore_base_url_(extension_urls::kChromeWebstoreBaseURL),
+    webstore_update_url_(extension_urls::kChromeWebstoreUpdateURL) {
 }
 
 CefExtensionsClient::~CefExtensionsClient() {
@@ -177,13 +175,11 @@ bool CefExtensionsClient::ShouldSuppressFatalErrors() const {
 void CefExtensionsClient::RecordDidSuppressFatalError() {
 }
 
-std::string CefExtensionsClient::GetWebstoreBaseURL() const {
-  return extension_urls::kChromeWebstoreBaseURL;
+const GURL& CefExtensionsClient::GetWebstoreBaseURL() const {
+  return webstore_base_url_;
 }
 
 const GURL& CefExtensionsClient::GetWebstoreUpdateURL() const {
-  if (webstore_update_url_.is_empty())
-    webstore_update_url_ = GURL(extension_urls::GetWebstoreUpdateUrl());
   return webstore_update_url_;
 }
 

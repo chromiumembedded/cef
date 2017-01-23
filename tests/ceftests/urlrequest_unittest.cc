@@ -1424,7 +1424,7 @@ void CreateURLRequestRendererTests(ClientAppRenderer::DelegateSet& delegates) {
 void RegisterURLRequestCustomSchemes(
       CefRefPtr<CefSchemeRegistrar> registrar,
       std::vector<CefString>& cookiable_schemes) {
-  registrar->AddCustomScheme(kRequestScheme, true, false, false);
+  registrar->AddCustomScheme(kRequestScheme, true, false, false, false, true);
   cookiable_schemes.push_back(kRequestScheme);
 }
 

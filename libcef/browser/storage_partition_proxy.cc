@@ -81,7 +81,8 @@ CefStoragePartitionProxy::GetBackgroundSyncContext() {
   return parent_->GetBackgroundSyncContext();
 }
 
-content::PaymentAppContext* CefStoragePartitionProxy::GetPaymentAppContext() {
+content::PaymentAppContextImpl*
+CefStoragePartitionProxy::GetPaymentAppContext() {
   return parent_->GetPaymentAppContext();
 }
 

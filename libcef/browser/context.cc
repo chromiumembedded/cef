@@ -60,8 +60,7 @@ class CefForceShutdown {
   }
 } g_force_shutdown;
 
-#if defined(OS_WIN)
-#if defined(ARCH_CPU_X86_64)
+#if defined(OS_WIN) && defined(ARCH_CPU_X86_64)
 // VS2013 only checks the existence of FMA3 instructions, not the enabled-ness
 // of them at the OS level (this is fixed in VS2015). We force off usage of
 // FMA3 instructions in the CRT to avoid using that path and hitting illegal
@@ -73,18 +72,7 @@ void DisableFMA3() {
   disabled = true;
   _set_FMA3_enable(0);
 }
-#endif  // defined(ARCH_CPU_X86_64)
-
-// Signal chrome_elf to initialize crash reporting, rather than doing it in
-// DllMain. See https://crbug.com/656800 for details.
-void InitCrashReporter() {
-  static bool initialized = false;
-  if (initialized)
-    return;
-  initialized = true;
-  SignalInitializeCrashReporting();
-}
-#endif  // defined(OS_WIN)
+#endif
 
 #if defined(OS_MACOSX) || defined(OS_WIN)
 
@@ -132,11 +120,8 @@ int RunAsCrashpadHandler(const base::CommandLine& command_line) {
 int CefExecuteProcess(const CefMainArgs& args,
                       CefRefPtr<CefApp> application,
                       void* windows_sandbox_info) {
-#if defined(OS_WIN)
-#if defined(ARCH_CPU_X86_64)
+#if defined(OS_WIN) && defined(ARCH_CPU_X86_64)
   DisableFMA3();
-#endif
-  InitCrashReporter();
 #endif
 
   base::CommandLine command_line(base::CommandLine::NO_PROGRAM);
@@ -191,11 +176,8 @@ bool CefInitialize(const CefMainArgs& args,
                    const CefSettings& settings,
                    CefRefPtr<CefApp> application,
                    void* windows_sandbox_info) {
-#if defined(OS_WIN)
-#if defined(ARCH_CPU_X86_64)
+#if defined(OS_WIN) && defined(ARCH_CPU_X86_64)
   DisableFMA3();
-#endif
-  InitCrashReporter();
 #endif
 
   // Return true if the global context already exists.

@@ -15,6 +15,7 @@
 
 #include "base/memory/weak_ptr.h"
 #include "build/build_config.h"
+#include "cc/scheduler/begin_frame_source.h"
 #include "content/browser/renderer_host/delegated_frame_host.h"
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
 #include "ui/compositor/compositor.h"
@@ -315,6 +316,10 @@ class CefRenderWidgetHostViewOSR
   // Used to control the VSync rate in subprocesses when BeginFrame scheduling
   // is enabled.
   std::unique_ptr<CefBeginFrameTimer> begin_frame_timer_;
+
+  // Provides |source_id| for BeginFrameArgs that we create.
+  cc::StubBeginFrameSource begin_frame_source_;
+  uint64_t begin_frame_number_ = cc::BeginFrameArgs::kStartingFrameNumber;
 
   // Used for direct rendering from the compositor when GPU compositing is
   // disabled. This object is owned by the compositor.

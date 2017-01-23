@@ -273,21 +273,21 @@ void CefContentRendererClient::WebKitInitialized() {
   const CefContentClient::SchemeInfoList* schemes =
       CefContentClient::Get()->GetCustomSchemes();
   if (!schemes->empty()) {
-    // Register the custom schemes.
+    // Register the custom schemes. The |is_standard| value is excluded here
+    // because it's not explicitly registered with Blink.
     CefContentClient::SchemeInfoList::const_iterator it = schemes->begin();
     for (; it != schemes->end(); ++it) {
       const CefContentClient::SchemeInfo& info = *it;
       const blink::WebString& scheme =
           blink::WebString::fromUTF8(info.scheme_name);
-      if (info.is_standard) {
-        // Standard schemes must also be registered as CORS enabled to support
-        // CORS-restricted requests (for example, XMLHttpRequest redirects).
-        blink::WebSecurityPolicy::registerURLSchemeAsCORSEnabled(scheme);
-      }
       if (info.is_local)
-        blink::WebSecurityPolicy::registerURLSchemeAsLocal(scheme);
+        webkit_glue::registerURLSchemeAsLocal(scheme);
       if (info.is_display_isolated)
         blink::WebSecurityPolicy::registerURLSchemeAsDisplayIsolated(scheme);
+      if (info.is_secure)
+        webkit_glue::registerURLSchemeAsSecure(scheme);
+      if (info.is_cors_enabled)
+        webkit_glue::registerURLSchemeAsCORSEnabled(scheme);
     }
   }
 
@@ -517,7 +517,7 @@ bool CefContentRendererClient::OverrideCreatePlugin(
 bool CefContentRendererClient::HandleNavigation(
     content::RenderFrame* render_frame,
     bool is_content_initiated,
-    int opener_id,
+    bool render_view_was_created_by_renderer,
     blink::WebFrame* frame,
     const blink::WebURLRequest& request,
     blink::WebNavigationType type,
@@ -596,7 +596,7 @@ bool CefContentRendererClient::ShouldFork(blink::WebLocalFrame* frame,
 }
 
 bool CefContentRendererClient::WillSendRequest(
-    blink::WebFrame* frame,
+    blink::WebLocalFrame* frame,
     ui::PageTransition transition_type,
     const blink::WebURL& url,
     GURL* new_url) {

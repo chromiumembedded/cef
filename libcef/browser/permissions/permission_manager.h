@@ -68,10 +68,10 @@ class CefPermissionManager : public KeyedService,
 
  private:
   class PendingRequest;
-  using PendingRequestsMap = IDMap<PendingRequest, IDMapOwnPointer>;
+  using PendingRequestsMap = IDMap<std::unique_ptr<PendingRequest>>;
 
   struct Subscription;
-  using SubscriptionsMap = IDMap<Subscription, IDMapOwnPointer>;
+  using SubscriptionsMap = IDMap<std::unique_ptr<Subscription>>;
 
   // Called when a permission was decided for a given PendingRequest. The
   // PendingRequest is identified by its |request_id| and the permission is

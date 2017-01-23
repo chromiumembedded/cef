@@ -4,6 +4,8 @@
 
 #include "libcef/common/time_util.h"
 
+#include "base/macros.h"
+
 void cef_time_to_basetime(const cef_time_t& cef_time, base::Time& time) {
   base::Time::Exploded exploded;
   exploded.year = cef_time.year;
@@ -14,7 +16,7 @@ void cef_time_to_basetime(const cef_time_t& cef_time, base::Time& time) {
   exploded.minute = cef_time.minute;
   exploded.second = cef_time.second;
   exploded.millisecond = cef_time.millisecond;
-  time = base::Time::FromUTCExploded(exploded);
+  ignore_result(base::Time::FromUTCExploded(exploded, &time));
 }
 
 void cef_time_from_basetime(const base::Time& time, cef_time_t& cef_time) {

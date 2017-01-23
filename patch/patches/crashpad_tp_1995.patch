@@ -26,7 +26,7 @@ index 3aaaeee..d99fcb4 100644
  
  static const time_t kSecondsInDay = 60 * 60 * 24;
 diff --git crashpad/client/prune_crash_reports.h crashpad/client/prune_crash_reports.h
-index b66e9349..86d1f15 100644
+index 6dac5f3..34f5ee1 100644
 --- crashpad/client/prune_crash_reports.h
 +++ crashpad/client/prune_crash_reports.h
 @@ -57,7 +57,8 @@ class PruneCondition {
@@ -40,7 +40,7 @@ index b66e9349..86d1f15 100644
    virtual ~PruneCondition() {}
  
 diff --git crashpad/client/settings.cc crashpad/client/settings.cc
-index d018e37f..47d8110 100644
+index 7757ecb..d458337 100644
 --- crashpad/client/settings.cc
 +++ crashpad/client/settings.cc
 @@ -38,7 +38,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
@@ -65,8 +65,8 @@ index d018e37f..47d8110 100644
 @@ -56,6 +59,9 @@ struct Settings::Data {
    uint32_t options;
    uint32_t padding_0;
-   uint64_t last_upload_attempt_time;  // time_t
-+  uint64_t next_upload_attempt_time;  // time_t
+   int64_t last_upload_attempt_time;  // time_t
++  int64_t next_upload_attempt_time;  // time_t
 +  uint32_t backoff_step;
 +  uint32_t padding_1;
    UUID client_id;
@@ -96,7 +96,7 @@ index d018e37f..47d8110 100644
 +  if (!handle.is_valid())
 +    return false;
 +
-+  settings.next_upload_attempt_time = InRangeCast<uint64_t>(time, 0);
++  settings.next_upload_attempt_time = InRangeCast<int64_t>(time, 0);
 +
 +  return WriteSettings(handle.get(), settings);
 +}
@@ -177,7 +177,7 @@ index a9601d1..9517730 100644
    //! \brief Attempts to upload a crash report.
    //!
 diff --git crashpad/handler/handler_main.cc crashpad/handler/handler_main.cc
-index 29c5ddc..7a6bad7 100644
+index 3ada8c3..ffaae42 100644
 --- crashpad/handler/handler_main.cc
 +++ crashpad/handler/handler_main.cc
 @@ -29,8 +29,10 @@
@@ -202,7 +202,7 @@ index 29c5ddc..7a6bad7 100644
  namespace crashpad {
  
  namespace {
-@@ -168,6 +174,9 @@ int HandlerMain(int argc, char* argv[]) {
+@@ -175,6 +181,9 @@ int HandlerMain(int argc, char* argv[]) {
      kOptionPipeName,
  #endif  // OS_MACOSX
      kOptionURL,
@@ -212,7 +212,7 @@ index 29c5ddc..7a6bad7 100644
  
      // Standard options.
      kOptionHelp = -2,
-@@ -188,11 +197,17 @@ int HandlerMain(int argc, char* argv[]) {
+@@ -195,11 +204,17 @@ int HandlerMain(int argc, char* argv[]) {
      InitialClientData initial_client_data;
  #endif  // OS_MACOSX
      bool rate_limit;
@@ -230,7 +230,7 @@ index 29c5ddc..7a6bad7 100644
  
    const option long_options[] = {
      {"annotation", required_argument, nullptr, kOptionAnnotation},
-@@ -222,6 +237,9 @@ int HandlerMain(int argc, char* argv[]) {
+@@ -229,6 +244,9 @@ int HandlerMain(int argc, char* argv[]) {
      {"url", required_argument, nullptr, kOptionURL},
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
@@ -240,7 +240,7 @@ index 29c5ddc..7a6bad7 100644
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -293,6 +311,27 @@ int HandlerMain(int argc, char* argv[]) {
+@@ -300,6 +318,27 @@ int HandlerMain(int argc, char* argv[]) {
          options.url = optarg;
          break;
        }
@@ -268,7 +268,7 @@ index 29c5ddc..7a6bad7 100644
        case kOptionHelp: {
          Usage(me);
          return EXIT_SUCCESS;
-@@ -425,12 +464,18 @@ int HandlerMain(int argc, char* argv[]) {
+@@ -432,12 +471,18 @@ int HandlerMain(int argc, char* argv[]) {
    // TODO(scottmg): options.rate_limit should be removed when we have a
    // configurable database setting to control upload limiting.
    // See https://crashpad.chromium.org/bug/23.
