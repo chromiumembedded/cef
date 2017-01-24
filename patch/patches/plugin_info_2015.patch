@@ -314,12 +314,12 @@ index a6b0993..635b35e 100644
  
    Referrer referrer(
        RenderViewImpl::GetReferrerFromRequest(frame_, info.urlRequest));
-diff --git a/content/renderer/renderer_blink_platform_impl.cc b/content/renderer/renderer_blink_platform_impl.cc
+diff --git content/renderer/renderer_blink_platform_impl.cc content/renderer/renderer_blink_platform_impl.cc
 old mode 100644
 new mode 100755
 index bdfdf82..13d9e5e
---- a/content/renderer/renderer_blink_platform_impl.cc
-+++ b/content/renderer/renderer_blink_platform_impl.cc
+--- content/renderer/renderer_blink_platform_impl.cc
++++ content/renderer/renderer_blink_platform_impl.cc
 @@ -804,6 +804,7 @@ blink::WebMIDIAccessor* RendererBlinkPlatformImpl::createMIDIAccessor(
  
  void RendererBlinkPlatformImpl::getPluginList(
@@ -338,12 +338,12 @@ index bdfdf82..13d9e5e
    for (const WebPluginInfo& plugin : plugins) {
      builder->addPlugin(
          plugin.name, plugin.desc,
-diff --git a/content/renderer/renderer_blink_platform_impl.h b/content/renderer/renderer_blink_platform_impl.h
+diff --git content/renderer/renderer_blink_platform_impl.h content/renderer/renderer_blink_platform_impl.h
 old mode 100644
 new mode 100755
 index f3f64bc..92cf4b0
---- a/content/renderer/renderer_blink_platform_impl.h
-+++ b/content/renderer/renderer_blink_platform_impl.h
+--- content/renderer/renderer_blink_platform_impl.h
++++ content/renderer/renderer_blink_platform_impl.h
 @@ -129,6 +129,7 @@ class CONTENT_EXPORT RendererBlinkPlatformImpl : public BlinkPlatformImpl {
        const blink::WebURL& url,
        const blink::WebURL& top_origin) override;
