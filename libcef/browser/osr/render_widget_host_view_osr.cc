@@ -472,7 +472,6 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
       weak_ptr_factory_(this) {
   DCHECK(render_widget_host_);
   DCHECK(!render_widget_host_->GetView());
-  render_widget_host_->SetView(this);
 
   // CefBrowserHostImpl might not be created at this time for popups.
   if (content::RenderViewHost::From(render_widget_host_)) {
@@ -506,6 +505,9 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 
   if (browser_impl_.get())
     ResizeRootLayer();
+
+  // Do this last because it may result in a call to SetNeedsBeginFrames.
+  render_widget_host_->SetView(this);
 }
 
 CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
