@@ -1,0 +1,15 @@
+diff --git DEPS DEPS
+index 1cf592e..d72bb58 100644
+--- DEPS
++++ DEPS
+@@ -1140,8 +1140,8 @@ recursedeps = [
+   'src/buildtools',
+   'src/third_party/android_tools',
+   [
+-    'DEPS.chromium',
+-    'src/third_party/angle'
++    'src/third_party/angle',
++    'DEPS.chromium'
+   ]
+ ]
+ 
