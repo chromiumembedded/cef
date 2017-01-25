@@ -269,7 +269,7 @@ index c658fa9..8c4a145 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index 9ebc33f..c013b36 100644
+index 9ebc33f..d6512c9 100644
 --- components/crash/content/app/breakpad_linux.cc
 +++ components/crash/content/app/breakpad_linux.cc
 @@ -29,6 +29,7 @@
@@ -306,7 +306,29 @@ index 9ebc33f..c013b36 100644
      "--timeout=10",  // Set a timeout so we don't hang forever.
      "--tries=1",     // Don't retry if the upload fails.
      "-O",  // output reply to fd 3
-@@ -1880,6 +1882,17 @@ void InitCrashReporter(const std::string& process_type) {
+@@ -1588,10 +1590,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
+     GetCrashReporterClient()->GetProductNameAndVersion(&product_name, &version);
+ 
+     writer.AddBoundary();
+-    writer.AddPairString("prod", product_name);
++    writer.AddPairString("product", product_name);
+     writer.AddBoundary();
+-    writer.AddPairString("ver", version);
++    writer.AddPairString("version", version);
+     writer.AddBoundary();
++
++#if defined(ARCH_CPU_32_BITS)
++    const char* platform = "linux32";
++#elif defined(ARCH_CPU_64_BITS)
++    const char* platform = "linux64";
++#endif
++    writer.AddPairString("platform", platform);
++    writer.AddBoundary();
++
+     if (info.pid > 0) {
+       char pid_value_buf[kUint64StringSize];
+       uint64_t pid_value_len = my_uint64_len(info.pid);
+@@ -1880,6 +1891,17 @@ void InitCrashReporter(const std::string& process_type) {
    PostEnableBreakpadInitialization();
  }
  
@@ -455,7 +477,7 @@ index 25ae505..d923b39 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crashpad_mac.mm components/crash/content/app/crashpad_mac.mm
-index 3223ddd..c70a498 100644
+index 3223ddd..144dec6 100644
 --- components/crash/content/app/crashpad_mac.mm
 +++ components/crash/content/app/crashpad_mac.mm
 @@ -16,11 +16,14 @@
@@ -512,15 +534,15 @@ index 3223ddd..c70a498 100644
 +        NSString* product = base::mac::ObjCCast<NSString>([outer_bundle
 +            objectForInfoDictionaryKey:base::mac::CFToNSCast(
 +                kCFBundleNameKey)]);
-+        process_annotations["prod"] =
++        process_annotations["product"] =
 +            base::SysNSStringToUTF8(product).append("_Mac");
 +      } else {
-+        process_annotations["prod"] = product_name;
++        process_annotations["product"] = product_name;
 +      }
  
  #if defined(GOOGLE_CHROME_BUILD)
        NSString* channel = base::mac::ObjCCast<NSString>(
-@@ -73,10 +88,14 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -73,12 +88,16 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
        }
  #endif
  
@@ -532,13 +554,16 @@ index 3223ddd..c70a498 100644
 +        NSString* version =
 +            base::mac::ObjCCast<NSString>([base::mac::FrameworkBundle()
 +                objectForInfoDictionaryKey:@"CFBundleShortVersionString"]);
-+        process_annotations["ver"] = base::SysNSStringToUTF8(version);
++        process_annotations["version"] = base::SysNSStringToUTF8(version);
 +      } else {
-+        process_annotations["ver"] = product_version;
++        process_annotations["version"] = product_version;
 +      }
  
-       process_annotations["plat"] = std::string("OS X");
+-      process_annotations["plat"] = std::string("OS X");
++      process_annotations["platform"] = std::string("macos");
  
+       std::vector<std::string> arguments;
+       if (!browser_process) {
 @@ -90,6 +109,12 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
              "--reset-own-crash-exception-port-to-system-default");
        }
@@ -553,9 +578,29 @@ index 3223ddd..c70a498 100644
        bool result = crashpad_client.StartHandler(handler_path,
                                                   database_path,
 diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
-index d9a4089..db3b56e 100644
+index d9a4089..edde5f1 100644
 --- components/crash/content/app/crashpad_win.cc
 +++ components/crash/content/app/crashpad_win.cc
+@@ -41,15 +41,15 @@ void GetPlatformCrashpadAnnotations(
+   base::string16 product_name, version, special_build, channel_name;
+   crash_reporter_client->GetProductNameAndVersion(
+       exe_file, &product_name, &version, &special_build, &channel_name);
+-  (*annotations)["prod"] = base::UTF16ToUTF8(product_name);
+-  (*annotations)["ver"] = base::UTF16ToUTF8(version);
++  (*annotations)["product"] = base::UTF16ToUTF8(product_name);
++  (*annotations)["version"] = base::UTF16ToUTF8(version);
+   (*annotations)["channel"] = base::UTF16ToUTF8(channel_name);
+   if (!special_build.empty())
+     (*annotations)["special"] = base::UTF16ToUTF8(special_build);
+ #if defined(ARCH_CPU_X86)
+-  (*annotations)["plat"] = std::string("Win32");
++  (*annotations)["platform"] = std::string("win32");
+ #elif defined(ARCH_CPU_X86_64)
+-  (*annotations)["plat"] = std::string("Win64");
++  (*annotations)["platform"] = std::string("win64");
+ #endif
+ }
+ 
 @@ -82,7 +82,7 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
  #if defined(GOOGLE_CHROME_BUILD)
      std::string url = "https://clients2.google.com/cr/report";
