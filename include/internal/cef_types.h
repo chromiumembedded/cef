@@ -166,11 +166,22 @@ typedef struct _cef_settings_t {
 
   ///
   // The path to a separate executable that will be launched for sub-processes.
-  // By default the browser process executable is used. See the comments on
-  // CefExecuteProcess() for details. Also configurable using the
-  // "browser-subprocess-path" command-line switch.
+  // If this value is empty on Windows or Linux then the main process executable
+  // will be used. If this value is empty on macOS then a helper executable must
+  // exist at "Contents/Frameworks/<app> Helper.app/Contents/MacOS/<app> Helper"
+  // in the top-level app bundle. See the comments on CefExecuteProcess() for
+  // details. Also configurable using the "browser-subprocess-path" command-line
+  // switch.
   ///
   cef_string_t browser_subprocess_path;
+
+  ///
+  // The path to the CEF framework directory on macOS. If this value is empty
+  // then the framework must exist at "Contents/Frameworks/Chromium Embedded
+  // Framework.framework" in the top-level app bundle. Also configurable using
+  // the "framework-dir-path" command-line switch.
+  ///
+  cef_string_t framework_dir_path;
 
   ///
   // Set to true (1) to have the browser process message loop run in a separate

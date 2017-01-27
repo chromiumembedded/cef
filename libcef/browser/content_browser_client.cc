@@ -620,6 +620,9 @@ void CefContentBrowserClient::AppendExtraCommandLineSwitches(
     // associated values) if present in the browser command line.
     static const char* const kSwitchNames[] = {
       switches::kDisablePackLoading,
+#if defined(OS_MACOSX)
+      switches::kFrameworkDirPath,
+#endif
       switches::kLang,
       switches::kLocalesDirPath,
       switches::kLogFile,
