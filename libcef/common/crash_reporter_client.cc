@@ -20,7 +20,7 @@
 #include "chrome/common/crash_keys.h"
 
 #if defined(OS_MACOSX)
-#include "base/mac/foundation_util.h"
+#include "libcef/common/util_mac.h"
 #endif
 
 #if defined(OS_POSIX)
@@ -72,21 +72,19 @@ PathString GetCrashConfigPath() {
   config_path += L"crash_reporter.cfg";
   return config_path;
 #elif defined(OS_POSIX)
-  // Start with the path to the running executable.
   base::FilePath config_path;
-  if (!PathService::Get(base::DIR_EXE, &config_path))
-    return PathString();
 
 #if defined(OS_MACOSX)
-  // Get the main app bundle path.
-  config_path = base::mac::GetAppBundlePath(config_path);
-  if (config_path.empty())
-    return PathString();
-
-  // Go into the Contents/Resources directory.
-  config_path = config_path.Append(FILE_PATH_LITERAL("Contents"))
-                           .Append(FILE_PATH_LITERAL("Resources"));
+  // Start with the path to the main app Resources directory. May be empty if
+  // not running in an app bundle.
+  config_path = util_mac::GetMainResourcesDirectory();
 #endif
+
+  if (config_path.empty()) {
+    // Start with the path to the running executable.
+    if (!PathService::Get(base::DIR_EXE, &config_path))
+      return PathString();
+  }
 
   return config_path.Append(FILE_PATH_LITERAL("crash_reporter.cfg")).value();
 #endif  // defined(OS_POSIX)

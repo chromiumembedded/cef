@@ -70,57 +70,38 @@ namespace {
 
 #if defined(OS_MACOSX)
 
-base::FilePath GetFrameworksPath() {
-  // Start out with the path to the running executable.
-  base::FilePath execPath;
-  PathService::Get(base::FILE_EXE, &execPath);
-
-  // Get the main bundle path.
-  base::FilePath bundlePath = base::mac::GetAppBundlePath(execPath);
-
-  // Go into the Contents/Frameworks directory.
-  return bundlePath.Append(FILE_PATH_LITERAL("Contents"))
-                   .Append(FILE_PATH_LITERAL("Frameworks"));
-}
-
-// The framework bundle path is used for loading resources, libraries, etc.
-base::FilePath GetFrameworkBundlePath() {
-  return GetFrameworksPath().Append(
-      FILE_PATH_LITERAL("Chromium Embedded Framework.framework"));
-}
-
 base::FilePath GetResourcesFilePath() {
-  return GetFrameworkBundlePath().Append(FILE_PATH_LITERAL("Resources"));
-}
-
-// Retrieve the name of the running executable.
-std::string GetExecutableName() {
-  base::FilePath path;
-  PathService::Get(base::FILE_EXE, &path);
-  return path.BaseName().value();
+  return util_mac::GetFrameworkResourcesDirectory();
 }
 
 // Use a "~/Library/Logs/<app name>_debug.log" file where <app name> is the name
 // of the running executable.
 base::FilePath GetDefaultLogFile() {
+  std::string exe_name = util_mac::GetMainProcessPath().BaseName().value();
   return base::mac::GetUserLibraryPath()
       .Append(FILE_PATH_LITERAL("Logs"))
-      .Append(FILE_PATH_LITERAL(GetExecutableName() + "_debug.log"));
+      .Append(FILE_PATH_LITERAL(exe_name + "_debug.log"));
 }
 
 void OverrideFrameworkBundlePath() {
-  base::mac::SetOverrideFrameworkBundlePath(GetFrameworkBundlePath());
+  base::FilePath framework_path = util_mac::GetFrameworkDirectory();
+  DCHECK(!framework_path.empty());
+
+  base::mac::SetOverrideFrameworkBundlePath(framework_path);
 }
 
 void OverrideChildProcessPath() {
-  const std::string& exe_name = GetExecutableName();
-  base::FilePath helper_path = GetFrameworksPath()
-      .Append(FILE_PATH_LITERAL(exe_name + " Helper.app"))
-      .Append(FILE_PATH_LITERAL("Contents"))
-      .Append(FILE_PATH_LITERAL("MacOS"))
-      .Append(FILE_PATH_LITERAL(exe_name + " Helper"));
+  // ChildProcessHost::GetChildPath() requires either kBrowserSubprocessPath or
+  // CHILD_PROCESS_EXE but not both.
+  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kBrowserSubprocessPath)) {
+    return;
+  }
 
-  PathService::Override(content::CHILD_PROCESS_EXE, helper_path);
+  base::FilePath child_process_path = util_mac::GetChildProcessPath();
+  DCHECK(!child_process_path.empty());
+
+  PathService::Override(content::CHILD_PROCESS_EXE, child_process_path);
 }
 
 #else  // !defined(OS_MACOSX)
@@ -306,10 +287,6 @@ CefMainDelegate::~CefMainDelegate() {
 }
 
 bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
-#if defined(OS_MACOSX)
-  OverrideFrameworkBundlePath();
-#endif
-
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   std::string process_type =
       command_line->GetSwitchValueASCII(switches::kProcessType);
@@ -353,6 +330,15 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
 #endif
       }
     }
+
+#if defined(OS_MACOSX)
+    if (settings.framework_dir_path.length > 0) {
+      base::FilePath file_path =
+          base::FilePath(CefString(&settings.framework_dir_path));
+      if (!file_path.empty())
+        command_line->AppendSwitchPath(switches::kFrameworkDirPath, file_path);
+    }
+#endif
 
     if (no_sandbox)
       command_line->AppendSwitch(switches::kNoSandbox);
@@ -507,6 +493,10 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       extensions::kExtensionScheme);
 
   content::SetContentClient(&content_client_);
+
+#if defined(OS_MACOSX)
+  OverrideFrameworkBundlePath();
+#endif
 
   return false;
 }
