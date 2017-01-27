@@ -8,6 +8,8 @@
 #define CEF_LIBCEF_COMMON_CEF_SWITCHES_H_
 #pragma once
 
+#include "build/build_config.h"
+
 namespace switches {
 
 extern const char kLogFile[];
@@ -50,6 +52,10 @@ extern const char kPluginPolicy_Detect[];
 extern const char kPluginPolicy_Block[];
 extern const char kEnablePreferenceTesting[];
 extern const char kEnableNetSecurityExpiration[];
+
+#if defined(OS_MACOSX)
+extern const char kFrameworkDirPath[];
+#endif
 
 }  // namespace switches
 
