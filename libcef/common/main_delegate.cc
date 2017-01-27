@@ -91,16 +91,16 @@ void OverrideFrameworkBundlePath() {
 }
 
 void OverrideChildProcessPath() {
-  // ChildProcessHost::GetChildPath() requires either kBrowserSubprocessPath or
-  // CHILD_PROCESS_EXE but not both.
-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kBrowserSubprocessPath)) {
-    return;
+  base::FilePath child_process_path =
+      base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
+          switches::kBrowserSubprocessPath);
+
+  if (child_process_path.empty()) {
+    child_process_path = util_mac::GetChildProcessPath();
+    DCHECK(!child_process_path.empty());
   }
 
-  base::FilePath child_process_path = util_mac::GetChildProcessPath();
-  DCHECK(!child_process_path.empty());
-
+  // Used by ChildProcessHost::GetChildPath and PlatformCrashpadInitialization.
   PathService::Override(content::CHILD_PROCESS_EXE, child_process_path);
 }
 
