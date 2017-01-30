@@ -180,7 +180,7 @@ index 4ded522..81eba43 100644
  // Returns the contents of the specified |variable_name| from the environment
  // block of the calling process. Returns an empty string if the variable does
 diff --git chrome_elf/BUILD.gn chrome_elf/BUILD.gn
-index 0629b6f..9c150b5 100644
+index c2861e0..7d6de6b 100644
 --- chrome_elf/BUILD.gn
 +++ chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -191,7 +191,7 @@ index 0629b6f..9c150b5 100644
  import("//chrome/process_version_rc_template.gni")
  import("//testing/test.gni")
  
-@@ -138,16 +139,40 @@ static_library("blacklist") {
+@@ -139,16 +140,40 @@ static_library("blacklist") {
  
  static_library("crash") {
    sources = [

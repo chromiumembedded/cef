@@ -210,10 +210,10 @@ index 71bbed2..0f72497 100644
                       const std::string& mime_type,
                       bool allow_wildcard,
 diff --git content/common/frame_messages.h content/common/frame_messages.h
-index 3177bf6..9b4abe4 100644
+index 47c2f40..8f971b5 100644
 --- content/common/frame_messages.h
 +++ content/common/frame_messages.h
-@@ -1160,8 +1160,9 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
+@@ -1172,8 +1172,9 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
  
  // Used to get the list of plugins. |main_frame_origin| is used to handle
  // exceptions for plugin content settings.
@@ -224,7 +224,7 @@ index 3177bf6..9b4abe4 100644
                              url::Origin /* main_frame_origin */,
                              std::vector<content::WebPluginInfo> /* plugins */)
  
-@@ -1169,9 +1170,10 @@ IPC_SYNC_MESSAGE_CONTROL2_1(FrameHostMsg_GetPlugins,
+@@ -1181,9 +1182,10 @@ IPC_SYNC_MESSAGE_CONTROL2_1(FrameHostMsg_GetPlugins,
  // type. If there is no matching plugin, |found| is false.
  // |actual_mime_type| is the actual mime type supported by the
  // found plugin.
@@ -285,10 +285,10 @@ index 3b610b1..7c439e0 100644
                                   WebPluginInfo* plugin) = 0;
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index c0d7575..c723958 100644
+index 26efa20..c5050a7 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -2729,7 +2729,8 @@ blink::WebPlugin* RenderFrameImpl::createPlugin(
+@@ -2730,7 +2730,8 @@ blink::WebPlugin* RenderFrameImpl::createPlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -298,7 +298,7 @@ index c0d7575..c723958 100644
        params.mimeType.utf8(), &found, &info, &mime_type));
    if (!found)
      return NULL;
-@@ -5120,7 +5121,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -5133,7 +5134,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
        (pending_navigation_params_ &&
         !pending_navigation_params_->request_params.redirects.empty());
  
@@ -306,7 +306,7 @@ index c0d7575..c723958 100644
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
    if (GetContentClient()->renderer()->HandleNavigation(
-@@ -5129,7 +5129,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -5142,7 +5142,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
            is_redirect)) {
      return blink::WebNavigationPolicyIgnore;
    }

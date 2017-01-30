@@ -1,5 +1,5 @@
 diff --git render_view_host_impl.h render_view_host_impl.h
-index e8890aa..910a25b 100644
+index 34bfe7e..f0e05a1 100644
 --- render_view_host_impl.h
 +++ render_view_host_impl.h
 @@ -167,6 +167,7 @@ class CONTENT_EXPORT RenderViewHostImpl : public RenderViewHost,

@@ -640,7 +640,6 @@ static_library("libcef_static") {
     "//printing/features",
     "//skia",
     "//storage/browser",
-    "//third_party/brotli",
     "//third_party/cld",
     "//third_party/hunspell",
     "//third_party/leveldatabase",

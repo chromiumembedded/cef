@@ -38,4 +38,3 @@ index f2a854f..913e30c 100644
    // Indicates if the Android MediaPlayer should be used instead of Chrome's
    // built in media player for the given |url|. Defaults to false.
    virtual bool ShouldUseMediaPlayerForURL(const GURL& url);
-\

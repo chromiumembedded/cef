@@ -44,10 +44,10 @@ index c3e60e0..93365f5c 100644
      // window.opener property, terminate prerendering.
      prerender_contents_->Destroy(FINAL_STATUS_CREATE_NEW_WINDOW);
 diff --git chrome/browser/ui/browser.cc chrome/browser/ui/browser.cc
-index bbb37ff..484eda3 100644
+index 60737ae..4491066 100644
 --- chrome/browser/ui/browser.cc
 +++ chrome/browser/ui/browser.cc
-@@ -1589,7 +1589,9 @@ bool Browser::ShouldCreateWebContents(
+@@ -1594,7 +1594,9 @@ bool Browser::ShouldCreateWebContents(
      const std::string& frame_name,
      const GURL& target_url,
      const std::string& partition_id,
@@ -74,10 +74,10 @@ index 6cdff54..0efcaa2 100644
                            int opener_render_process_id,
                            int opener_render_frame_id,
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 5b98a03..ddd9675 100644
+index 5740537..4e65b99 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1572,6 +1572,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1578,6 +1578,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -90,7 +90,7 @@ index 5b98a03..ddd9675 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -1602,6 +1608,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1608,6 +1614,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
                                           std::move(view_),
                                           &render_view_host_delegate_view_));
    }
@@ -98,7 +98,7 @@ index 5b98a03..ddd9675 100644
    CHECK(render_view_host_delegate_view_);
    CHECK(view_.get());
  
-@@ -2063,11 +2070,14 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2069,11 +2076,14 @@ void WebContentsImpl::CreateNewWindow(
        static_cast<SessionStorageNamespaceImpl*>(session_storage_namespace);
    CHECK(session_storage_namespace_impl->IsFromContext(dom_storage_context));
  
@@ -114,7 +114,7 @@ index 5b98a03..ddd9675 100644
      if (route_id != MSG_ROUTING_NONE &&
          !RenderViewHost::FromID(render_process_id, route_id)) {
        // If the embedder didn't create a WebContents for this route, we need to
-@@ -2096,6 +2106,8 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2102,6 +2112,8 @@ void WebContentsImpl::CreateNewWindow(
    create_params.opener_render_process_id = render_process_id;
    create_params.opener_render_frame_id = params.opener_render_frame_id;
    create_params.opener_suppressed = params.opener_suppressed;

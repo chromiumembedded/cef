@@ -1,5 +1,5 @@
 diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
-index 4cf0fe7..404afc2 100644
+index 869c173..fc45c59 100644
 --- Source/web/ChromeClientImpl.cpp
 +++ Source/web/ChromeClientImpl.cpp
 @@ -886,7 +886,7 @@ bool ChromeClientImpl::hasOpenedPopup() const {
@@ -12,7 +12,7 @@ index 4cf0fe7..404afc2 100644
  
    DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index fd45686..6e8d82f 100644
+index bd6fee8..39159b6 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
 @@ -358,6 +358,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
@@ -23,7 +23,7 @@ index fd45686..6e8d82f 100644
        m_ignoreInputEvents(false),
        m_compositorDeviceScaleFactorOverride(0),
        m_suppressNextKeypressEvent(false),
-@@ -3707,8 +3708,13 @@ void WebViewImpl::mainFrameScrollOffsetChanged() {
+@@ -3717,8 +3718,13 @@ void WebViewImpl::mainFrameScrollOffsetChanged() {
    m_devToolsEmulator->mainFrameScrollOrScaleChanged();
  }
  
@@ -39,7 +39,7 @@ index fd45686..6e8d82f 100644
  
  void WebViewImpl::setIgnoreInputEvents(bool newValue) {
 diff --git Source/web/WebViewImpl.h Source/web/WebViewImpl.h
-index c579e10..a28c544 100644
+index 8e47790..2fe0b22 100644
 --- Source/web/WebViewImpl.h
 +++ Source/web/WebViewImpl.h
 @@ -375,7 +375,8 @@ class WEB_EXPORT WebViewImpl final
@@ -52,7 +52,7 @@ index c579e10..a28c544 100644
  
    bool shouldAutoResize() const { return m_shouldAutoResize; }
  
-@@ -651,6 +652,8 @@ class WEB_EXPORT WebViewImpl final
+@@ -650,6 +651,8 @@ class WEB_EXPORT WebViewImpl final
    float m_fakePageScaleAnimationPageScaleFactor;
    bool m_fakePageScaleAnimationUseAnchor;
  

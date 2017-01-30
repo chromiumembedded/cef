@@ -14,7 +14,6 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread_restrictions.h"
 #include "net/base/mime_util.h"
-#include "third_party/brotli/dec/decode.h"
 #include "ui/base/resource/resource_bundle.h"
 
 namespace scheme {
@@ -47,24 +46,6 @@ std::string GetMimeType(const std::string& filename) {
 
   NOTREACHED() << "No known mime type for file: " << filename.c_str();
   return "text/plain";
-}
-
-bool DecodeBrotli(const base::StringPiece& encoded,
-                  std::string& decoded) {
-  size_t decoded_size;
-
-  const uint8_t* encoded_response_buffer =
-      reinterpret_cast<const uint8_t*>(encoded.data());
-  if (!BrotliDecompressedSize(encoded.size(), encoded_response_buffer,
-                              &decoded_size)) {
-    return false;
-  }
-
-  decoded.resize(decoded_size);
-  return BrotliDecompressBuffer(encoded.size(), encoded_response_buffer,
-                               &decoded_size,
-                               reinterpret_cast<uint8_t*>(&decoded[0])) ==
-        BROTLI_RESULT_SUCCESS;
 }
 
 class RedirectHandler : public CefResourceHandler {
@@ -172,16 +153,6 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
         base::StringPiece piece = CefContentClient::Get()->GetDataResource(
             action.resource_id, ui::SCALE_FACTOR_NONE);
         if (!piece.empty()) {
-          std::string decoded;
-          if (action.encoding ==
-                  InternalHandlerDelegate::Action::ENCODING_BROTLI &&
-              !DecodeBrotli(piece, decoded)) {
-            decoded = "Unable to decode content!";
-          }
-
-          if (!decoded.empty())
-            piece = base::StringPiece(decoded);
-
           action.stream =
               CefStreamReader::CreateForData(const_cast<char*>(piece.data()),
                                              piece.size());
@@ -212,8 +183,7 @@ class InternalHandlerFactory : public CefSchemeHandlerFactory {
 
 InternalHandlerDelegate::Action::Action()
     : stream_size(-1),
-      resource_id(-1),
-      encoding(ENCODING_NONE) {
+      resource_id(-1) {
 }
 
 CefRefPtr<CefSchemeHandlerFactory> CreateInternalHandlerFactory(
