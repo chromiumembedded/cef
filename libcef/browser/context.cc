@@ -96,8 +96,11 @@ int RunAsCrashpadHandler(const base::CommandLine& command_line) {
                  }),
              argv.end());
 
-  // HandlerMain expects the first argument to be the program name.
+#if defined(OS_MACOSX)
+  // HandlerMain on macOS uses the system version of getopt_long which expects
+  // the first argument to be the program name.
   argv.insert(argv.begin(), command_line.GetProgram().value());
+#endif
 
   std::unique_ptr<char* []> argv_as_utf8(new char*[argv.size() + 1]);
   std::vector<std::string> storage;
