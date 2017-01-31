@@ -16,6 +16,7 @@
 #include "chrome/browser/plugins/plugin_metadata.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/content_settings/core/common/content_settings.h"
+#include "components/keyed_service/core/keyed_service_shutdown_notifier.h"
 #include "components/prefs/pref_member.h"
 #include "content/public/browser/browser_message_filter.h"
 #include "extensions/features/features.h"
@@ -50,6 +51,7 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
     Context(int render_process_id, CefBrowserContext* profile);
 
     ~Context();
+    void ShutdownOnUIThread();
 
     void DecidePluginStatus(
         const GetPluginInfo_Params& params,
@@ -95,6 +97,7 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
       content::BrowserThread::UI>;
   friend class base::DeleteHelper<CefPluginInfoMessageFilter>;
 
+  void ShutdownOnUIThread();
   ~CefPluginInfoMessageFilter() override;
 
   void OnGetPluginInfo(int render_frame_id,
@@ -125,12 +128,9 @@ class CefPluginInfoMessageFilter : public content::BrowserMessageFilter {
       std::vector<base::string16>* additional_param_values);
 #endif
 
-  scoped_refptr<CefBrowserContext> browser_context_;
-
-  // Members will be destroyed in reverse order of declaration. Due to Context
-  // depending on the PrefService owned by CefBrowserContext the Context object
-  // must be destroyed before the CefBrowserContext object.
   Context context_;
+  std::unique_ptr<KeyedServiceShutdownNotifier::Subscription>
+      shutdown_notifier_;
 
   scoped_refptr<base::SingleThreadTaskRunner> main_thread_task_runner_;
   base::WeakPtrFactory<CefPluginInfoMessageFilter> weak_ptr_factory_;
