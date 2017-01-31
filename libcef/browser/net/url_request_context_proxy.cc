@@ -24,6 +24,8 @@ CefURLRequestContextProxy::CefURLRequestContextProxy(
   set_host_resolver(parent->host_resolver());
   set_cert_verifier(parent->cert_verifier());
   set_transport_security_state(parent->transport_security_state());
+  set_cert_transparency_verifier(parent->cert_transparency_verifier());
+  set_ct_policy_enforcer(parent->ct_policy_enforcer());
   set_channel_id_service(parent->channel_id_service());
   set_proxy_service(parent->proxy_service());
   set_ssl_config_service(parent->ssl_config_service());
