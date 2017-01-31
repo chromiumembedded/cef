@@ -23,6 +23,7 @@
 #include "chrome/common/features.h"
 #include "chrome/common/pref_names.h"
 #include "components/content_settings/core/browser/content_settings_utils.h"
+#include "components/keyed_service/content/browser_context_keyed_service_shutdown_notifier_factory.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/plugin_service.h"
@@ -47,6 +48,39 @@ using content::PluginService;
 using content::WebPluginInfo;
 
 namespace {
+
+// There's a race condition between deletion of the CefPluginInfoMessageFilter
+// object on the UI thread and deletion of the PrefService (owned by Profile)
+// on the UI thread. If the PrefService will be deleted first then
+// PrefMember::Destroy() must be called from ShutdownOnUIThread() to avoid
+// heap-use-after-free on CefPluginInfoMessageFilter destruction (due to
+// ~PrefMember trying to access the already-deleted PrefService).
+// ShutdownNotifierFactory makes sure that ShutdownOnUIThread() is called in
+// this case.
+class ShutdownNotifierFactory
+    : public BrowserContextKeyedServiceShutdownNotifierFactory {
+ public:
+  static ShutdownNotifierFactory* GetInstance();
+
+ private:
+  friend struct base::DefaultLazyInstanceTraits<ShutdownNotifierFactory>;
+
+  ShutdownNotifierFactory()
+      : BrowserContextKeyedServiceShutdownNotifierFactory(
+            "CefPluginInfoMessageFilter") {
+  }
+  ~ShutdownNotifierFactory() override {}
+
+  DISALLOW_COPY_AND_ASSIGN(ShutdownNotifierFactory);
+};
+
+base::LazyInstance<ShutdownNotifierFactory>::Leaky
+    g_shutdown_notifier_factory = LAZY_INSTANCE_INITIALIZER;
+
+// static
+ShutdownNotifierFactory* ShutdownNotifierFactory::GetInstance() {
+  return g_shutdown_notifier_factory.Pointer();
+}
 
 // For certain sandboxed Pepper plugins, use the JavaScript Content Settings.
 bool ShouldUseJavaScriptSettingForPlugin(const WebPluginInfo& plugin) {
@@ -161,14 +195,29 @@ CefPluginInfoMessageFilter::Context::Context(
 CefPluginInfoMessageFilter::Context::~Context() {
 }
 
+void CefPluginInfoMessageFilter::Context::ShutdownOnUIThread() {
+  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+  always_authorize_plugins_.Destroy();
+  allow_outdated_plugins_.Destroy();
+}
+
 CefPluginInfoMessageFilter::CefPluginInfoMessageFilter(
     int render_process_id,
     CefBrowserContext* profile)
     : BrowserMessageFilter(ExtensionMsgStart),
-      browser_context_(profile),
       context_(render_process_id, profile),
       main_thread_task_runner_(base::ThreadTaskRunnerHandle::Get()),
       weak_ptr_factory_(this) {
+  shutdown_notifier_ =
+      ShutdownNotifierFactory::GetInstance()->Get(profile)->Subscribe(
+           base::Bind(&CefPluginInfoMessageFilter::ShutdownOnUIThread,
+                      base::Unretained(this)));
+}
+
+void CefPluginInfoMessageFilter::ShutdownOnUIThread() {
+  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+  context_.ShutdownOnUIThread();
+  shutdown_notifier_.reset();
 }
 
 bool CefPluginInfoMessageFilter::OnMessageReceived(
