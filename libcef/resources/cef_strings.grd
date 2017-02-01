@@ -111,62 +111,9 @@ need to be translated for each locale.-->
       <ph> element).  You can also use the 'grit add' tool to help you identify
       nontranslateable parts and create placeholders for them. -->
 
-      <message name="IDS_MENU_BACK" desc="The text label of the Back menu item">
-        &amp;Back
-      </message>
-      <message name="IDS_MENU_FORWARD" desc="The text label of the Forward menu item">
-        &amp;Forward
-      </message>
-      <message name="IDS_MENU_RELOAD" desc="The text label of the Reload menu item">
-        Re&amp;load
-      </message>
-      <message name="IDS_MENU_RELOAD_NOCACHE" desc="The text label of the Reload no cache menu item">
-        Reload no cache
-      </message>
-      <message name="IDS_MENU_STOPLOAD" desc="The text label of the Stop menu item">
-        &amp;Stop
-      </message>
-      <message name="IDS_MENU_UNDO" desc="The text label of the Undo menu item">
-        &amp;Undo
-      </message>
-      <message name="IDS_MENU_REDO" desc="The text label of the Redo menu item">
-        &amp;Redo
-      </message>
-      <message name="IDS_MENU_CUT" desc="The text label of the Cut menu item">
-        Cu&amp;t
-      </message>
-      <message name="IDS_MENU_COPY" desc="The text label of the Copy menu item">
-        &amp;Copy
-      </message>
-      <message name="IDS_MENU_PASTE" desc="The text label of the Paste menu item" meaning="'Paste' menu command in sentence case">
-        &amp;Paste
-      </message>
-      <message name="IDS_MENU_DELETE" desc="The text label of the Delete menu item (which deletes selected text without copying to clipboard)">
-        &amp;Delete
-      </message>
-      <message name="IDS_MENU_SELECT_ALL" desc="The text label of the Select All menu item">
-        Select &amp;all
-      </message>
-      <message name="IDS_MENU_FIND" desc="The text label of the Find... menu item">
-        &amp;Find...
-      </message>
-      <message name="IDS_MENU_PRINT" desc="The text label of the Print... menu item. Opens a dialog box to select print settings">
-        &amp;Print...
-      </message>
-      <message name="IDS_MENU_VIEW_SOURCE" desc="The text label for the View Source... menu item.">
-        View s&amp;ource
-      </message>
-      <message name="IDS_APP_AUDIO_FILES" desc="The text label for the Audio Files filter in file open/save dialogs.">
-        Audio Files
-      </message>
-      <message name="IDS_APP_IMAGE_FILES" desc="The text label for the Image Files filter in file open/save dialogs.">
-        Image Files
-      </message>
-      <message name="IDS_APP_TEXT_FILES" desc="The text label for the Text Files filter in file open/save dialogs.">
+      <!-- Other values come from chrome/app/generated_resources.grd -->
+      <message name="IDS_TEXT_FILES" desc="The description of the text file extensions in the select file dialog.">
         Text Files
-      </message>
-      <message name="IDS_APP_VIDEO_FILES" desc="The text label for the Video Files filter in file open/save dialogs.">
-        Video Files
       </message>
     </messages>
   </release>

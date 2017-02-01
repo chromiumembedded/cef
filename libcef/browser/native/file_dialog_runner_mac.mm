@@ -17,6 +17,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread_restrictions.h"
 #include "cef/grit/cef_strings.h"
+#include "chrome/grit/generated_resources.h"
 #include "content/public/common/file_chooser_params.h"
 #include "net/base/mime_util.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -30,10 +31,10 @@ base::string16 GetDescriptionFromMimeType(const std::string& mime_type) {
     const char* mime_type;
     int string_id;
   } kWildCardMimeTypes[] = {
-    { "audio", IDS_APP_AUDIO_FILES },
-    { "image", IDS_APP_IMAGE_FILES },
-    { "text", IDS_APP_TEXT_FILES },
-    { "video", IDS_APP_VIDEO_FILES },
+    { "audio", IDS_AUDIO_FILES },
+    { "image", IDS_IMAGE_FILES },
+    { "text", IDS_TEXT_FILES },
+    { "video", IDS_VIDEO_FILES },
   };
 
   for (size_t i = 0; i < arraysize(kWildCardMimeTypes); ++i) {
