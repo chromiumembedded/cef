@@ -1,0 +1,153 @@
+diff --git third_party/WebKit/Source/core/paint/ObjectPaintInvalidator.cpp third_party/WebKit/Source/core/paint/ObjectPaintInvalidator.cpp
+index 8d74cdc8..c7fb4bb 100644
+--- third_party/WebKit/Source/core/paint/ObjectPaintInvalidator.cpp
++++ third_party/WebKit/Source/core/paint/ObjectPaintInvalidator.cpp
+@@ -57,22 +57,23 @@ void ObjectPaintInvalidator::objectWillBeDestroyed(const LayoutObject& object) {
+     locationInBackingMap().remove(&object);
+ }
+ 
+-// TODO(trchen): Use std::function<void, LayoutObject&> when available.
+-template <typename LayoutObjectTraversalFunctor>
+-void traverseNonCompositingDescendantsInPaintOrder(
++using LayoutObjectTraversalFunctor = std::function<void(const LayoutObject&)>;
++
++static void traverseNonCompositingDescendantsInPaintOrder(
+     const LayoutObject&,
+     const LayoutObjectTraversalFunctor&);
+ 
+-template <typename LayoutObjectTraversalFunctor>
+-void traverseNonCompositingDescendantsBelongingToAncestorPaintInvalidationContainer(
++static void
++traverseNonCompositingDescendantsBelongingToAncestorPaintInvalidationContainer(
+     const LayoutObject& object,
+     const LayoutObjectTraversalFunctor& functor) {
+-  // |object| is a paint invalidation container but is not a stacking context,
+-  // so the paint invalidation container of stacked descendants don't belong to
+-  // |object| but belong to an ancestor. This function traverses all such
+-  // descendants.
++  // |object| is a paint invalidation container, but is not a stacking context
++  // or is a non-block, so the paint invalidation container of stacked
++  // descendants may not belong to |object| but belong to an ancestor. This
++  // function traverses all such descendants. See Case 1a and Case 2 below for
++  // details.
+   DCHECK(object.isPaintInvalidationContainer() &&
+-         !object.styleRef().isStackingContext());
++         (!object.styleRef().isStackingContext() || !object.isLayoutBlock()));
+ 
+   LayoutObject* descendant = object.nextInPreOrder(&object);
+   while (descendant) {
+@@ -82,28 +83,45 @@ void traverseNonCompositingDescendantsBelongingToAncestorPaintInvalidationContai
+       // invalidation container in the same situation as |object|, or its paint
+       // invalidation container is in such situation. Keep searching until a
+       // stacked layer is found.
+-      descendant = descendant->nextInPreOrder(&object);
++      if (!object.isLayoutBlock() && descendant->isFloating()) {
++        // Case 1a (rare): However, if the descendant is a floating object below
++        // a composited non-block object, the subtree may belong to an ancestor
++        // in paint order, thus recur into the subtree. Note that for
++        // performance, we don't check whether the floating object's container
++        // is above or under |object|, so we may traverse more than expected.
++        // Example:
++        // <span id="object" class="position: relative; will-change: transform">
++        //   <div id="descendant" class="float: left"></div>"
++        // </span>
++        traverseNonCompositingDescendantsInPaintOrder(*descendant, functor);
++        descendant = descendant->nextInPreOrderAfterChildren(&object);
++      } else {
++        descendant = descendant->nextInPreOrder(&object);
++      }
+     } else if (!descendant->isPaintInvalidationContainer()) {
+       // Case 2: The descendant is stacked and is not composited.
+       // The invalidation container of its subtree is our ancestor,
+       // thus recur into the subtree.
+       traverseNonCompositingDescendantsInPaintOrder(*descendant, functor);
+       descendant = descendant->nextInPreOrderAfterChildren(&object);
+-    } else if (descendant->styleRef().isStackingContext()) {
++    } else if (descendant->styleRef().isStackingContext() &&
++               descendant->isLayoutBlock()) {
+       // Case 3: The descendant is an invalidation container and is a stacking
+       // context.  No objects in the subtree can have invalidation container
+       // outside of it, thus skip the whole subtree.
++      // This excludes non-block because there might be floating objects under
++      // the descendant belonging to some ancestor in paint order (Case 1a).
+       descendant = descendant->nextInPreOrderAfterChildren(&object);
+     } else {
+       // Case 4: The descendant is an invalidation container but not a stacking
+-      // context.  This is the same situation as |object|, thus keep searching.
++      // context, or the descendant is a non-block stacking context.
++      // This is the same situation as |object|, thus keep searching.
+       descendant = descendant->nextInPreOrder(&object);
+     }
+   }
+ }
+ 
+-template <typename LayoutObjectTraversalFunctor>
+-void traverseNonCompositingDescendantsInPaintOrder(
++static void traverseNonCompositingDescendantsInPaintOrder(
+     const LayoutObject& object,
+     const LayoutObjectTraversalFunctor& functor) {
+   functor(object);
+@@ -112,14 +130,18 @@ void traverseNonCompositingDescendantsInPaintOrder(
+     if (!descendant->isPaintInvalidationContainer()) {
+       functor(*descendant);
+       descendant = descendant->nextInPreOrder(&object);
+-    } else if (descendant->styleRef().isStackingContext()) {
++    } else if (descendant->styleRef().isStackingContext() &&
++               descendant->isLayoutBlock()) {
+       // The descendant is an invalidation container and is a stacking context.
+       // No objects in the subtree can have invalidation container outside of
+       // it, thus skip the whole subtree.
++      // This excludes non-blocks because there might be floating objects under
++      // the descendant belonging to some ancestor in paint order (Case 1a).
+       descendant = descendant->nextInPreOrderAfterChildren(&object);
+     } else {
+-      // If a paint invalidation container is not a stacking context,
+-      // some of its descendants may belong to the parent container.
++      // If a paint invalidation container is not a stacking context, or the
++      // descendant is a non-block stacking context, some of its descendants may
++      // belong to the parent container.
+       traverseNonCompositingDescendantsBelongingToAncestorPaintInvalidationContainer(
+           *descendant, functor);
+       descendant = descendant->nextInPreOrderAfterChildren(&object);
+@@ -127,6 +149,17 @@ void traverseNonCompositingDescendantsInPaintOrder(
+   }
+ }
+ 
++static void setPaintingLayerNeedsRepaintDuringTraverse(
++    const LayoutObject& object) {
++  if (object.hasLayer() &&
++      toLayoutBoxModelObject(object).hasSelfPaintingLayer()) {
++    toLayoutBoxModelObject(object).layer()->setNeedsRepaint();
++  } else if (object.isFloating() && object.parent() &&
++             !object.parent()->isLayoutBlock()) {
++    object.paintingLayer()->setNeedsRepaint();
++  }
++}
++
+ void ObjectPaintInvalidator::
+     invalidateDisplayItemClientsIncludingNonCompositingDescendants(
+         PaintInvalidationReason reason) {
+@@ -137,9 +170,7 @@ void ObjectPaintInvalidator::
+   slowSetPaintingLayerNeedsRepaint();
+   traverseNonCompositingDescendantsInPaintOrder(
+       m_object, [reason](const LayoutObject& object) {
+-        if (object.hasLayer() &&
+-            toLayoutBoxModelObject(object).hasSelfPaintingLayer())
+-          toLayoutBoxModelObject(object).layer()->setNeedsRepaint();
++        setPaintingLayerNeedsRepaintDuringTraverse(object);
+         object.invalidateDisplayItemClients(reason);
+       });
+ }
+@@ -177,10 +208,10 @@ void ObjectPaintInvalidator::
+   // share the same paintInvalidationContainer.
+   const LayoutBoxModelObject& paintInvalidationContainer =
+       m_object.containerForPaintInvalidation();
++  slowSetPaintingLayerNeedsRepaint();
+   traverseNonCompositingDescendantsInPaintOrder(
+       m_object, [&paintInvalidationContainer](const LayoutObject& object) {
+-        if (object.hasLayer())
+-          toLayoutBoxModelObject(object).layer()->setNeedsRepaint();
++        setPaintingLayerNeedsRepaintDuringTraverse(object);
+         ObjectPaintInvalidator(object).invalidatePaintOfPreviousVisualRect(
+             paintInvalidationContainer, PaintInvalidationSubtree);
+       });
