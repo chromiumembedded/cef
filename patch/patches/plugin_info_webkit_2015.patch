@@ -27,7 +27,7 @@ index 03edc5d..b9a91db 100644
  }
  
 diff --git Source/core/page/Page.cpp Source/core/page/Page.cpp
-index 671df37..27c7d6b 100644
+index a48697d..cc84a70 100644
 --- Source/core/page/Page.cpp
 +++ Source/core/page/Page.cpp
 @@ -239,16 +239,26 @@ void Page::refreshPlugins() {
@@ -65,7 +65,7 @@ index 671df37..27c7d6b 100644
  
  void Page::setValidationMessageClient(ValidationMessageClient* client) {
 diff --git Source/core/page/Page.h Source/core/page/Page.h
-index 133260a..0aef9f2 100644
+index c23e07a..56afc93 100644
 --- Source/core/page/Page.h
 +++ Source/core/page/Page.h
 @@ -127,7 +127,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,

@@ -24,7 +24,7 @@ index 7ec0135..9f68626 100644
  using content::NavigationController;
  using content::NavigationEntry;
  using content::OpenURLParams;
-@@ -231,11 +235,15 @@ void ResumeAppleEventAndSendReply(NSAppleEventManagerSuspensionID suspension_id,
+@@ -231,11 +235,15 @@ - (void)handlesStopScriptCommand:(NSScriptCommand*)command {
  
  - (void)handlesPrintScriptCommand:(NSScriptCommand*)command {
    AppleScript::LogAppleScriptUMA(AppleScript::AppleScriptCommand::TAB_PRINT);
@@ -537,7 +537,7 @@ diff --git components/printing/renderer/print_web_view_helper_mac.mm components/
 index ff49472..b107439 100644
 --- components/printing/renderer/print_web_view_helper_mac.mm
 +++ components/printing/renderer/print_web_view_helper_mac.mm
-@@ -69,7 +69,6 @@ void PrintWebViewHelper::PrintPageInternal(
+@@ -69,7 +69,6 @@
    Send(new PrintHostMsg_DidPrintPage(routing_id(), page_params));
  }
  
@@ -545,7 +545,7 @@ index ff49472..b107439 100644
  bool PrintWebViewHelper::RenderPreviewPage(
      int page_number,
      const PrintMsg_Print_Params& print_params) {
-@@ -106,7 +105,6 @@ bool PrintWebViewHelper::RenderPreviewPage(
+@@ -106,7 +105,6 @@
    }
    return PreviewPageRendered(page_number, draft_metafile.get());
  }
@@ -553,7 +553,7 @@ index ff49472..b107439 100644
  
  void PrintWebViewHelper::RenderPage(const PrintMsg_Print_Params& params,
                                      int page_number,
-@@ -142,14 +140,12 @@ void PrintWebViewHelper::RenderPage(const PrintMsg_Print_Params& params,
+@@ -142,14 +140,12 @@
  
      MetafileSkiaWrapper::SetMetafileOnCanvas(*canvas, metafile);
      skia::SetIsPreviewMetafile(*canvas, is_preview);

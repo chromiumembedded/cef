@@ -18,7 +18,7 @@ diff --git content/browser/renderer_host/browser_compositor_view_mac.mm content/
 index bd36336..9123781 100644
 --- content/browser/renderer_host/browser_compositor_view_mac.mm
 +++ content/browser/renderer_host/browser_compositor_view_mac.mm
-@@ -201,6 +201,12 @@ BrowserCompositorMac::~BrowserCompositorMac() {
+@@ -201,6 +201,12 @@ void OnCompositingShuttingDown(ui::Compositor* compositor) override {}
      g_spare_recyclable_compositors.Get().clear();
  }
  
@@ -31,7 +31,7 @@ index bd36336..9123781 100644
  ui::AcceleratedWidgetMac* BrowserCompositorMac::GetAcceleratedWidgetMac() {
    if (recyclable_compositor_)
      return recyclable_compositor_->accelerated_widget_mac();
-@@ -417,8 +423,13 @@ SkColor BrowserCompositorMac::DelegatedFrameHostGetGutterColor(
+@@ -417,8 +423,13 @@ void OnCompositingShuttingDown(ui::Compositor* compositor) override {}
  }
  
  gfx::Size BrowserCompositorMac::DelegatedFrameHostDesiredSizeInDIP() const {

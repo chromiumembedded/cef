@@ -1,8 +1,8 @@
 diff --git chrome/browser/download/download_target_determiner.cc chrome/browser/download/download_target_determiner.cc
-index 8949f08..45a0640 100644
+index 5c071c7..6d3c129 100644
 --- chrome/browser/download/download_target_determiner.cc
 +++ chrome/browser/download/download_target_determiner.cc
-@@ -478,8 +478,8 @@ void IsHandledBySafePlugin(content::ResourceContext* resource_context,
+@@ -483,8 +483,8 @@ void IsHandledBySafePlugin(content::ResourceContext* resource_context,
    content::PluginService* plugin_service =
        content::PluginService::GetInstance();
    bool plugin_found = plugin_service->GetPluginInfo(
@@ -210,10 +210,10 @@ index 3e92d37..ecd8493 100644
                       const std::string& mime_type,
                       bool allow_wildcard,
 diff --git content/common/frame_messages.h content/common/frame_messages.h
-index 9092344..efcdb7f 100644
+index 0e7dbe0..c783952 100644
 --- content/common/frame_messages.h
 +++ content/common/frame_messages.h
-@@ -1187,8 +1187,9 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
+@@ -1191,8 +1191,9 @@ IPC_MESSAGE_ROUTED1(FrameHostMsg_PepperStopsPlayback,
  
  // Used to get the list of plugins. |main_frame_origin| is used to handle
  // exceptions for plugin content settings.
@@ -224,7 +224,7 @@ index 9092344..efcdb7f 100644
                              url::Origin /* main_frame_origin */,
                              std::vector<content::WebPluginInfo> /* plugins */)
  
-@@ -1196,9 +1197,10 @@ IPC_SYNC_MESSAGE_CONTROL2_1(FrameHostMsg_GetPlugins,
+@@ -1200,9 +1201,10 @@ IPC_SYNC_MESSAGE_CONTROL2_1(FrameHostMsg_GetPlugins,
  // type. If there is no matching plugin, |found| is false.
  // |actual_mime_type| is the actual mime type supported by the
  // found plugin.
@@ -285,10 +285,10 @@ index 3b610b1..7c439e0 100644
                                   WebPluginInfo* plugin) = 0;
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index 2d93238..d511e99 100644
+index c9c9602..9a4de98 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -2749,7 +2749,8 @@ blink::WebPlugin* RenderFrameImpl::createPlugin(
+@@ -2753,7 +2753,8 @@ blink::WebPlugin* RenderFrameImpl::createPlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -298,7 +298,7 @@ index 2d93238..d511e99 100644
        params.mimeType.utf8(), &found, &info, &mime_type));
    if (!found)
      return NULL;
-@@ -5259,9 +5260,8 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -5263,9 +5264,8 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
        (pending_navigation_params_ &&
         !pending_navigation_params_->request_params.redirects.empty());
  
@@ -310,7 +310,7 @@ index 2d93238..d511e99 100644
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
    if (GetContentClient()->renderer()->HandleNavigation(
-@@ -5270,7 +5270,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -5274,7 +5274,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
            is_redirect)) {
      return blink::WebNavigationPolicyIgnore;
    }

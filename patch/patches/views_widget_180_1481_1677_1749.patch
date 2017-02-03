@@ -50,7 +50,7 @@ index 08aad92..c18da2d 100644
    void FlushInput();
  
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index 2307c54..7944580 100644
+index bd96819..ff1d25b 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -28,6 +28,10 @@
@@ -64,7 +64,7 @@ index 2307c54..7944580 100644
  #if defined(OS_WIN)
  #include "content/browser/frame_host/render_frame_host_impl.h"
  #include "content/public/common/context_menu_params.h"
-@@ -805,6 +809,14 @@ void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
+@@ -809,6 +813,14 @@ void RenderWidgetHostViewEventHandler::SetKeyboardFocus() {
      }
    }
  #endif

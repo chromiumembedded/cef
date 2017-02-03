@@ -12,7 +12,7 @@ index 11d980e..a87fb7e 100644
  
    DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index 6a7688b..7ca2fab 100644
+index 24a1fbf..b51ca5f 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
 @@ -358,6 +358,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
@@ -39,7 +39,7 @@ index 6a7688b..7ca2fab 100644
  
  void WebViewImpl::setBackgroundColorOverride(WebColor color) {
 diff --git Source/web/WebViewImpl.h Source/web/WebViewImpl.h
-index e4ad02f..8bfaa1c 100644
+index 340464e..3be47f3 100644
 --- Source/web/WebViewImpl.h
 +++ Source/web/WebViewImpl.h
 @@ -371,7 +371,8 @@ class WEB_EXPORT WebViewImpl final

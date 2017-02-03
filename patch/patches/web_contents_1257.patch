@@ -29,7 +29,7 @@ index 992160d..b5dcc72 100644
    void EnterFullscreenModeForTab(content::WebContents* contents,
                                   const GURL& origin) final;
 diff --git chrome/browser/prerender/prerender_contents.cc chrome/browser/prerender/prerender_contents.cc
-index aea147d..cac0c15 100644
+index cbff038..1526c1a 100644
 --- chrome/browser/prerender/prerender_contents.cc
 +++ chrome/browser/prerender/prerender_contents.cc
 @@ -142,7 +142,9 @@ class PrerenderContents::WebContentsDelegateImpl

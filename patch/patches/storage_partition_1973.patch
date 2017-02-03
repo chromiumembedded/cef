@@ -103,7 +103,7 @@ index 242d33e..4dfb463 100644
  
    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index 5e75c17..28fdb04 100644
+index fb985cd..41d281d 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
 @@ -653,7 +653,7 @@ void RenderProcessHostImpl::EarlyZygoteLaunch() {
@@ -249,10 +249,10 @@ index 5e75c17..28fdb04 100644
 +      static_cast<PlatformNotificationContextImpl*>(
 +          storage_partition_impl_->GetPlatformNotificationContext());
 +
-   channel_->AddAssociatedInterface(
-       base::Bind(&RenderProcessHostImpl::OnRouteProviderRequest,
-                  base::Unretained(this)));
-@@ -1234,8 +1252,7 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
+   channel_->AddAssociatedInterfaceForIOThread(
+       base::Bind(&IndexedDBDispatcherHost::AddBinding, indexed_db_factory_));
+ 
+@@ -1230,8 +1248,7 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
    AddUIThreadInterface(
        registry.get(),
        base::Bind(&PlatformNotificationContextImpl::CreateService,
@@ -262,7 +262,7 @@ index 5e75c17..28fdb04 100644
                   GetID()));
    AddUIThreadInterface(
        registry.get(),
-@@ -1428,6 +1445,7 @@ void RenderProcessHostImpl::ForceReleaseWorkerRefCounts() {
+@@ -1424,6 +1441,7 @@ void RenderProcessHostImpl::ForceReleaseWorkerRefCounts() {
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
    DCHECK(!is_worker_ref_count_disabled_);
    is_worker_ref_count_disabled_ = true;
@@ -271,7 +271,7 @@ index 5e75c17..28fdb04 100644
      return;
    service_worker_ref_count_ = 0;
 diff --git content/browser/renderer_host/render_process_host_impl.h content/browser/renderer_host/render_process_host_impl.h
-index 75895e1..ccc5e00 100644
+index dc269f2..ded7607 100644
 --- content/browser/renderer_host/render_process_host_impl.h
 +++ content/browser/renderer_host/render_process_host_impl.h
 @@ -71,7 +71,6 @@ class RenderWidgetHelper;
@@ -291,7 +291,7 @@ index 75895e1..ccc5e00 100644
                          bool is_for_guests_only);
    ~RenderProcessHostImpl() override;
  
-@@ -508,7 +507,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
+@@ -509,7 +508,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
    BrowserContext* browser_context_;
  
    // Owned by |browser_context_|.
