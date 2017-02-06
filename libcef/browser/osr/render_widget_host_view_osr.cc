@@ -696,8 +696,11 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
       // The compositor will draw directly to the SoftwareOutputDevice which
       // then calls OnPaint.
 #if defined(OS_MACOSX)
-      browser_compositor_->SwapCompositorFrame(output_surface_id,
-                                               std::move(frame));
+      // We would normally call BrowserCompositorMac::SwapCompositorFrame,
+      // however it contains compositor resize logic that we don't want.
+      // Consequently we instead call the SwapDelegatedFrame method directly.
+      browser_compositor_->GetDelegatedFrameHost()->SwapDelegatedFrame(
+          output_surface_id, std::move(frame));
 #else
       delegated_frame_host_->SwapDelegatedFrame(output_surface_id,
                                                 std::move(frame));
@@ -717,8 +720,11 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
       damage_rect.Intersect(gfx::Rect(frame_size));
 
 #if defined(OS_MACOSX)
-      browser_compositor_->SwapCompositorFrame(output_surface_id,
-                                               std::move(frame));
+      // We would normally call BrowserCompositorMac::SwapCompositorFrame,
+      // however it contains compositor resize logic that we don't want.
+      // Consequently we instead call the SwapDelegatedFrame method directly.
+      browser_compositor_->GetDelegatedFrameHost()->SwapDelegatedFrame(
+          output_surface_id, std::move(frame));
 #else
       delegated_frame_host_->SwapDelegatedFrame(output_surface_id,
                                                 std::move(frame));
