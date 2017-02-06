@@ -85,6 +85,10 @@ class CefCrashReporterClient : public crash_reporter::CrashReporterClient {
   bool HasCrashExternalHandler() const;
 #endif
 
+#if defined(OS_MACOSX)
+  bool EnableBrowserCrashForwarding() override;
+#endif
+
 private:
   bool has_crash_config_file_ = false;
 
@@ -107,6 +111,10 @@ private:
 #if defined(OS_WIN)
   std::string app_name_ = "CEF";
   std::string external_handler_;
+#endif
+
+#if defined(OS_MACOSX)
+  bool enable_browser_crash_forwarding_ = false;
 #endif
 
   DISALLOW_COPY_AND_ASSIGN(CefCrashReporterClient);

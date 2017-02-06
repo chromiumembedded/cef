@@ -295,7 +295,7 @@ index bbeb208..74440a0 100644
  
  const char kWebViewSingleProcessType[] = "webview";
 diff --git components/crash/content/app/crash_reporter_client.cc components/crash/content/app/crash_reporter_client.cc
-index 3dfbd99..80e5b66 100644
+index 3dfbd99..cb9344b 100644
 --- components/crash/content/app/crash_reporter_client.cc
 +++ components/crash/content/app/crash_reporter_client.cc
 @@ -88,11 +88,12 @@ int CrashReporterClient::GetResultCodeRespawnFailed() {
@@ -320,7 +320,7 @@ index 3dfbd99..80e5b66 100644
  
  #if defined(OS_WIN)
  bool CrashReporterClient::GetCrashDumpLocation(base::string16* crash_dir) {
-@@ -141,6 +143,26 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
+@@ -141,6 +143,32 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
  }
  #endif
  
@@ -344,10 +344,16 @@ index 3dfbd99..80e5b66 100644
 +}
 +#endif
 +
++#if defined(OS_MACOSX)
++bool CrashReporterClient::EnableBrowserCrashForwarding() {
++  return true;
++}
++#endif
++
  #if defined(OS_ANDROID)
  int CrashReporterClient::GetAndroidMinidumpDescriptor() {
    return 0;
-@@ -165,9 +187,4 @@ bool CrashReporterClient::ShouldEnableBreakpadMicrodumps() {
+@@ -165,9 +193,4 @@ bool CrashReporterClient::ShouldEnableBreakpadMicrodumps() {
  }
  #endif
  
@@ -358,7 +364,7 @@ index 3dfbd99..80e5b66 100644
 -
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crash_reporter_client.h components/crash/content/app/crash_reporter_client.h
-index 25ae505..d923b39 100644
+index 25ae505..f563761 100644
 --- components/crash/content/app/crash_reporter_client.h
 +++ components/crash/content/app/crash_reporter_client.h
 @@ -8,6 +8,7 @@
@@ -392,7 +398,7 @@ index 25ae505..d923b39 100644
  
    // The location where minidump files should be written. Returns true if
    // |crash_dir| was set. Windows has to use base::string16 because this code
-@@ -176,6 +179,17 @@ class CrashReporterClient {
+@@ -176,6 +179,23 @@ class CrashReporterClient {
  
    // Returns true if breakpad should run in the given process type.
    virtual bool EnableBreakpadForProcess(const std::string& process_type);
@@ -407,9 +413,29 @@ index 25ae505..d923b39 100644
 +  // Returns the absolute path to the external crash handler exe.
 +  virtual base::string16 GetCrashExternalHandler(const base::string16& exe_dir);
 +#endif
++
++#if defined(OS_MACOSX)
++  // Returns true if forwarding of crashes to the system crash reporter is
++  // enabled for the browser process.
++  virtual bool EnableBrowserCrashForwarding();
++#endif
  };
  
  }  // namespace crash_reporter
+diff --git components/crash/content/app/crashpad.cc components/crash/content/app/crashpad.cc
+index a0eabba..94039c4 100644
+--- components/crash/content/app/crashpad.cc
++++ components/crash/content/app/crashpad.cc
+@@ -142,7 +142,8 @@ void InitializeCrashpadImpl(bool initial_client,
+   // fallback. Forwarding is turned off for debug-mode builds even for the
+   // browser process, because the system's crash reporter can take a very long
+   // time to chew on symbols.
+-  if (!browser_process || is_debug_build) {
++  if (!browser_process || is_debug_build ||
++      !crash_reporter_client->EnableBrowserCrashForwarding()) {
+     crashpad_info->set_system_crash_reporter_forwarding(
+         crashpad::TriState::kDisabled);
+   }
 diff --git components/crash/content/app/crashpad_mac.mm components/crash/content/app/crashpad_mac.mm
 index 7df66ea..4ee709a 100644
 --- components/crash/content/app/crashpad_mac.mm
@@ -429,7 +455,7 @@ index 7df66ea..4ee709a 100644
  #include "third_party/crashpad/crashpad/client/crash_report_database.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -40,9 +43,10 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -40,9 +43,10 @@
  
    if (initial_client) {
      @autoreleasepool {
@@ -443,7 +469,7 @@ index 7df66ea..4ee709a 100644
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -54,16 +58,27 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -54,16 +58,27 @@
        // crash server won't have symbols for any other build types.
        std::string url = "https://clients2.google.com/cr/report";
  #else
@@ -476,7 +502,7 @@ index 7df66ea..4ee709a 100644
  
  #if defined(GOOGLE_CHROME_BUILD)
        NSString* channel = base::mac::ObjCCast<NSString>(
-@@ -73,12 +88,16 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -73,12 +88,16 @@
        }
  #endif
  
@@ -498,7 +524,7 @@ index 7df66ea..4ee709a 100644
  
        std::vector<std::string> arguments;
        if (!browser_process) {
-@@ -90,6 +109,12 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -90,6 +109,12 @@
              "--reset-own-crash-exception-port-to-system-default");
        }
  
