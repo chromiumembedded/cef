@@ -380,6 +380,12 @@ bool CefCrashReporterClient::ReadCrashConfigFile() {
         if (!val_str.empty())
           app_name_ = sanitizePathComponent(val_str);
       }
+#elif defined(OS_MACOSX)
+      else if (name_str == "BrowserCrashForwardingEnabled") {
+        enable_browser_crash_forwarding_ =
+            (base::EqualsCaseInsensitiveASCII(val_str, "true") ||
+             val_str == "1");
+      }
 #endif
     } else if (current_section == kCrashKeysSection) {
       size_t max_size = 0;
@@ -629,3 +635,9 @@ bool CefCrashReporterClient::HasCrashExternalHandler() const {
 }
 
 #endif  // defined(OS_WIN)
+
+#if defined(OS_MACOSX)
+bool CefCrashReporterClient::EnableBrowserCrashForwarding() {
+  return enable_browser_crash_forwarding_;
+}
+#endif
