@@ -11,7 +11,11 @@ if __name__ != "__main__":
     sys.stderr.write('This file cannot be loaded as a module!')
     sys.exit()
 
-if git.is_checkout('.'):
-  sys.stdout.write(git.get_commit_number())
+if len(sys.argv) < 2:
+  raise Exception('Path expected on command-line')
+
+path = sys.argv[1]
+if git.is_checkout(path):
+  sys.stdout.write(git.get_commit_number(path))
 else:
-  raise Exception('Not a valid checkout')
+  raise Exception('Not a valid checkout: ' + path)
