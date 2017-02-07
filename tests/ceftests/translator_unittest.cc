@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 #include "include/test/cef_translator_test.h"
+#include "tests/ceftests/test_handler.h"
 #include "tests/gtest/include/gtest/gtest.h"
 
 // Test getting/setting primitive types.
@@ -168,22 +169,23 @@ TEST(TranslatorTest, StructList) {
   EXPECT_TRUE(obj->HasOneRef());
 }
 
-// Test getting/setting library-side object types.
-TEST(TranslatorTest, Object) {
+// Test getting/setting library-side RefPtr types.
+TEST(TranslatorTest, RefPtrLibrary) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
   
   const int kTestVal = 12;
-  CefRefPtr<CefTranslatorTestObject> test_obj =
-      CefTranslatorTestObject::Create(kTestVal);
+  CefRefPtr<CefTranslatorTestRefPtrLibrary> test_obj =
+      CefTranslatorTestRefPtrLibrary::Create(kTestVal);
   EXPECT_EQ(kTestVal, test_obj->GetValue());
-  int retval = obj->SetObject(test_obj);
+  int retval = obj->SetRefPtrLibrary(test_obj);
   EXPECT_EQ(kTestVal, retval);
   EXPECT_EQ(kTestVal, test_obj->GetValue());
   
   const int kTestVal2 = 30;
-  CefRefPtr<CefTranslatorTestObject> test_obj2 = obj->GetObject(kTestVal2);
+  CefRefPtr<CefTranslatorTestRefPtrLibrary> test_obj2 =
+      obj->GetRefPtrLibrary(kTestVal2);
   EXPECT_EQ(kTestVal2, test_obj2->GetValue());
-  int retval2 = obj->SetObject(test_obj2);
+  int retval2 = obj->SetRefPtrLibrary(test_obj2);
   EXPECT_EQ(kTestVal2, retval2);
   EXPECT_EQ(kTestVal2, test_obj2->GetValue());
 
@@ -193,39 +195,41 @@ TEST(TranslatorTest, Object) {
   EXPECT_TRUE(test_obj2->HasOneRef());
 }
 
-// Test getting/setting inherited library-side object types.
-TEST(TranslatorTest, ObjectInherit) {
+// Test getting/setting inherited library-side RefPtr types.
+TEST(TranslatorTest, RefPtrLibraryInherit) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
   
   const int kTestVal = 12;
   const int kTestVal2 = 40;
-  CefRefPtr<CefTranslatorTestObjectChild> test_obj =
-      CefTranslatorTestObjectChild::Create(kTestVal, kTestVal2);
+  CefRefPtr<CefTranslatorTestRefPtrLibraryChild> test_obj =
+      CefTranslatorTestRefPtrLibraryChild::Create(kTestVal, kTestVal2);
   EXPECT_EQ(kTestVal, test_obj->GetValue());
   EXPECT_EQ(kTestVal2, test_obj->GetOtherValue());
-  int retval = obj->SetObject(test_obj);
+  int retval = obj->SetRefPtrLibrary(test_obj);
   EXPECT_EQ(kTestVal, retval);
   EXPECT_EQ(kTestVal, test_obj->GetValue());
   EXPECT_EQ(kTestVal2, test_obj->GetOtherValue());
 
-  EXPECT_EQ(kTestVal, obj->SetChildObject(test_obj));
-  EXPECT_EQ(kTestVal, obj->SetChildObjectAndReturnParent(test_obj)->GetValue());
+  EXPECT_EQ(kTestVal, obj->SetChildRefPtrLibrary(test_obj));
+  EXPECT_EQ(kTestVal,
+            obj->SetChildRefPtrLibraryAndReturnParent(test_obj)->GetValue());
   
   const int kTestVal3 = 100;
-  CefRefPtr<CefTranslatorTestObjectChildChild> test_obj2 =
-      CefTranslatorTestObjectChildChild::Create(kTestVal, kTestVal2, kTestVal3);
+  CefRefPtr<CefTranslatorTestRefPtrLibraryChildChild> test_obj2 =
+      CefTranslatorTestRefPtrLibraryChildChild::Create(kTestVal, kTestVal2,
+                                                       kTestVal3);
   EXPECT_EQ(kTestVal, test_obj2->GetValue());
   EXPECT_EQ(kTestVal2, test_obj2->GetOtherValue());
   EXPECT_EQ(kTestVal3, test_obj2->GetOtherOtherValue());
-  int retval2 = obj->SetObject(test_obj2);
+  int retval2 = obj->SetRefPtrLibrary(test_obj2);
   EXPECT_EQ(kTestVal, retval2);
   EXPECT_EQ(kTestVal, test_obj2->GetValue());
   EXPECT_EQ(kTestVal2, test_obj2->GetOtherValue());
   EXPECT_EQ(kTestVal3, test_obj2->GetOtherOtherValue());
 
-  EXPECT_EQ(kTestVal, obj->SetChildObject(test_obj2));
+  EXPECT_EQ(kTestVal, obj->SetChildRefPtrLibrary(test_obj2));
   EXPECT_EQ(kTestVal,
-            obj->SetChildObjectAndReturnParent(test_obj2)->GetValue());
+            obj->SetChildRefPtrLibraryAndReturnParent(test_obj2)->GetValue());
 
   // Only one reference to the object should exist.
   EXPECT_TRUE(obj->HasOneRef());
@@ -233,25 +237,25 @@ TEST(TranslatorTest, ObjectInherit) {
   EXPECT_TRUE(test_obj2->HasOneRef());
 }
 
-// Test getting/setting library-side object list types.
-TEST(TranslatorTest, ObjectList) {
+// Test getting/setting library-side RefPtr list types.
+TEST(TranslatorTest, RefPtrLibraryList) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
   
   const int kVal1 = 34;
   const int kVal2 = 10;
 
-  CefRefPtr<CefTranslatorTestObject> val1 =
-      CefTranslatorTestObject::Create(kVal1);
-  CefRefPtr<CefTranslatorTestObject> val2 =
-      CefTranslatorTestObjectChild::Create(kVal2, 0);
+  CefRefPtr<CefTranslatorTestRefPtrLibrary> val1 =
+      CefTranslatorTestRefPtrLibrary::Create(kVal1);
+  CefRefPtr<CefTranslatorTestRefPtrLibrary> val2 =
+      CefTranslatorTestRefPtrLibraryChild::Create(kVal2, 0);
 
-  std::vector<CefRefPtr<CefTranslatorTestObject> > list;
+  std::vector<CefRefPtr<CefTranslatorTestRefPtrLibrary> > list;
   list.push_back(val1);
   list.push_back(val2);
-  EXPECT_TRUE(obj->SetObjectList(list, kVal1, kVal2));
+  EXPECT_TRUE(obj->SetRefPtrLibraryList(list, kVal1, kVal2));
 
   list.clear();
-  EXPECT_TRUE(obj->GetObjectListByRef(list, kVal1, kVal2));
+  EXPECT_TRUE(obj->GetRefPtrLibraryListByRef(list, kVal1, kVal2));
   EXPECT_EQ(2U, list.size());
   EXPECT_EQ(kVal1, list[0]->GetValue());
   EXPECT_EQ(kVal2, list[1]->GetValue());
@@ -266,9 +270,9 @@ TEST(TranslatorTest, ObjectList) {
 
 namespace {
 
-class TranslatorTestHandler : public CefTranslatorTestHandler {
+class TranslatorTestRefPtrClient : public CefTranslatorTestRefPtrClient {
  public:
-  explicit TranslatorTestHandler(const int val)
+  explicit TranslatorTestRefPtrClient(const int val)
     : val_(val) {
   }
 
@@ -279,13 +283,14 @@ class TranslatorTestHandler : public CefTranslatorTestHandler {
  private:
   const int val_;
 
-  IMPLEMENT_REFCOUNTING(TranslatorTestHandler);
-  DISALLOW_COPY_AND_ASSIGN(TranslatorTestHandler);
+  IMPLEMENT_REFCOUNTING(TranslatorTestRefPtrClient);
+  DISALLOW_COPY_AND_ASSIGN(TranslatorTestRefPtrClient);
 };
 
-class TranslatorTestHandlerChild : public CefTranslatorTestHandlerChild {
+class TranslatorTestRefPtrClientChild :
+    public CefTranslatorTestRefPtrClientChild {
  public:
-  TranslatorTestHandlerChild(const int val,
+  TranslatorTestRefPtrClientChild(const int val,
                              const int other_val)
     : val_(val),
       other_val_(other_val) {
@@ -303,24 +308,24 @@ class TranslatorTestHandlerChild : public CefTranslatorTestHandlerChild {
   const int val_;
   const int other_val_;
 
-  IMPLEMENT_REFCOUNTING(TranslatorTestHandlerChild);
-  DISALLOW_COPY_AND_ASSIGN(TranslatorTestHandlerChild);
+  IMPLEMENT_REFCOUNTING(TranslatorTestRefPtrClientChild);
+  DISALLOW_COPY_AND_ASSIGN(TranslatorTestRefPtrClientChild);
 };
 
 }  // namespace
 
-// Test getting/setting client-side handler types.
-TEST(TranslatorTest, Handler) {
+// Test getting/setting client-side RefPtr types.
+TEST(TranslatorTest, RefPtrClient) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
   
   const int kTestVal = 12;
 
-  CefRefPtr<TranslatorTestHandler> test_obj =
-      new TranslatorTestHandler(kTestVal);
+  CefRefPtr<TranslatorTestRefPtrClient> test_obj =
+      new TranslatorTestRefPtrClient(kTestVal);
   EXPECT_EQ(kTestVal, test_obj->GetValue());
-  EXPECT_EQ(kTestVal, obj->SetHandler(test_obj.get()));
-  CefRefPtr<CefTranslatorTestHandler> handler =
-      obj->SetHandlerAndReturn(test_obj.get());
+  EXPECT_EQ(kTestVal, obj->SetRefPtrClient(test_obj.get()));
+  CefRefPtr<CefTranslatorTestRefPtrClient> handler =
+      obj->SetRefPtrClientAndReturn(test_obj.get());
   EXPECT_EQ(test_obj.get(), handler.get());
   EXPECT_EQ(kTestVal, handler->GetValue());
   handler = NULL;
@@ -330,25 +335,25 @@ TEST(TranslatorTest, Handler) {
   EXPECT_TRUE(test_obj->HasOneRef());
 }
 
-// Test getting/setting inherited client-side handler types.
-TEST(TranslatorTest, HandlerInherit) {
+// Test getting/setting inherited client-side RefPtr types.
+TEST(TranslatorTest, RefPtrClientInherit) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
   
   const int kTestVal = 12;
   const int kTestVal2 = 86;
 
-  CefRefPtr<TranslatorTestHandlerChild> test_obj =
-      new TranslatorTestHandlerChild(kTestVal, kTestVal2);
+  CefRefPtr<TranslatorTestRefPtrClientChild> test_obj =
+      new TranslatorTestRefPtrClientChild(kTestVal, kTestVal2);
   EXPECT_EQ(kTestVal, test_obj->GetValue());
   EXPECT_EQ(kTestVal2, test_obj->GetOtherValue());
-  int retval = obj->SetHandler(test_obj);
+  int retval = obj->SetRefPtrClient(test_obj);
   EXPECT_EQ(kTestVal, retval);
   EXPECT_EQ(kTestVal, test_obj->GetValue());
   EXPECT_EQ(kTestVal2, test_obj->GetOtherValue());
 
-  EXPECT_EQ(kTestVal, obj->SetChildHandler(test_obj));
-  CefRefPtr<CefTranslatorTestHandler> handler =
-      obj->SetChildHandlerAndReturnParent(test_obj);
+  EXPECT_EQ(kTestVal, obj->SetChildRefPtrClient(test_obj));
+  CefRefPtr<CefTranslatorTestRefPtrClient> handler =
+      obj->SetChildRefPtrClientAndReturnParent(test_obj);
   EXPECT_EQ(kTestVal, handler->GetValue());
   EXPECT_EQ(test_obj.get(), handler.get());
   handler = NULL;
@@ -358,24 +363,25 @@ TEST(TranslatorTest, HandlerInherit) {
   EXPECT_TRUE(test_obj->HasOneRef());
 }
 
-// Test getting/setting client-side object list types.
-TEST(TranslatorTest, HandlerList) {
+// Test getting/setting client-side RefPtr list types.
+TEST(TranslatorTest, RefPtrClientList) {
   CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
   
   const int kVal1 = 34;
   const int kVal2 = 10;
 
-  CefRefPtr<CefTranslatorTestHandler> val1 = new TranslatorTestHandler(kVal1);
-  CefRefPtr<CefTranslatorTestHandler> val2 =
-      new TranslatorTestHandlerChild(kVal2, 0);
+  CefRefPtr<CefTranslatorTestRefPtrClient> val1 =
+      new TranslatorTestRefPtrClient(kVal1);
+  CefRefPtr<CefTranslatorTestRefPtrClient> val2 =
+      new TranslatorTestRefPtrClientChild(kVal2, 0);
 
-  std::vector<CefRefPtr<CefTranslatorTestHandler> > list;
+  std::vector<CefRefPtr<CefTranslatorTestRefPtrClient> > list;
   list.push_back(val1);
   list.push_back(val2);
-  EXPECT_TRUE(obj->SetHandlerList(list, kVal1, kVal2));
+  EXPECT_TRUE(obj->SetRefPtrClientList(list, kVal1, kVal2));
 
   list.clear();
-  EXPECT_TRUE(obj->GetHandlerListByRef(list, val1, val2));
+  EXPECT_TRUE(obj->GetRefPtrClientListByRef(list, val1, val2));
   EXPECT_EQ(2U, list.size());
   EXPECT_EQ(kVal1, list[0]->GetValue());
   EXPECT_EQ(val1.get(), list[0].get());
@@ -388,4 +394,375 @@ TEST(TranslatorTest, HandlerList) {
   EXPECT_TRUE(obj->HasOneRef());
   EXPECT_TRUE(val1->HasOneRef());
   EXPECT_TRUE(val2->HasOneRef());
+}
+
+
+// Test getting/setting library-side OwnPtr types.
+TEST(TranslatorTest, OwnPtrLibrary) {
+  CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
+  
+  const int kTestVal = 12;
+  CefOwnPtr<CefTranslatorTestScopedLibrary> test_obj =
+      CefTranslatorTestScopedLibrary::Create(kTestVal);
+  EXPECT_TRUE(test_obj.get());
+  EXPECT_EQ(kTestVal, test_obj->GetValue());
+  int retval = obj->SetOwnPtrLibrary(test_obj.Pass());
+  EXPECT_EQ(kTestVal, retval);
+  EXPECT_FALSE(test_obj.get());
+  
+  const int kTestVal2 = 30;
+  CefOwnPtr<CefTranslatorTestScopedLibrary> test_obj2 =
+      obj->GetOwnPtrLibrary(kTestVal2);
+  EXPECT_TRUE(test_obj2.get());
+  EXPECT_EQ(kTestVal2, test_obj2->GetValue());
+  int retval2 = obj->SetOwnPtrLibrary(test_obj2.Pass());
+  EXPECT_EQ(kTestVal2, retval2);
+  EXPECT_FALSE(test_obj2.get());
+
+  // Only one reference to the object should exist.
+  EXPECT_TRUE(obj->HasOneRef());
+}
+
+// Test getting/setting inherited library-side OwnPtr types.
+TEST(TranslatorTest, OwnPtrLibraryInherit) {
+  CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
+  
+  const int kTestVal = 12;
+  const int kTestVal2 = 40;
+  CefOwnPtr<CefTranslatorTestScopedLibraryChild> test_obj =
+      CefTranslatorTestScopedLibraryChild::Create(kTestVal, kTestVal2);
+  EXPECT_TRUE(test_obj.get());
+  EXPECT_EQ(kTestVal, test_obj->GetValue());
+  EXPECT_EQ(kTestVal2, test_obj->GetOtherValue());
+  int retval = obj->SetOwnPtrLibrary(
+      test_obj.PassAs<CefTranslatorTestScopedLibrary>());
+  EXPECT_EQ(kTestVal, retval);
+  EXPECT_FALSE(test_obj.get());
+
+  test_obj = CefTranslatorTestScopedLibraryChild::Create(kTestVal, kTestVal2);
+  EXPECT_TRUE(test_obj.get());
+  EXPECT_EQ(kTestVal, obj->SetChildOwnPtrLibrary(test_obj.Pass()));
+  EXPECT_FALSE(test_obj.get());
+
+  test_obj = CefTranslatorTestScopedLibraryChild::Create(kTestVal, kTestVal2);
+  EXPECT_TRUE(test_obj.get());
+  CefOwnPtr<CefTranslatorTestScopedLibrary> test_obj_parent =
+      obj->SetChildOwnPtrLibraryAndReturnParent(test_obj.Pass());
+  EXPECT_FALSE(test_obj.get());
+  EXPECT_TRUE(test_obj_parent.get());
+  EXPECT_EQ(kTestVal, test_obj_parent->GetValue());
+  test_obj_parent.reset(NULL);
+
+  const int kTestVal3 = 100;
+  CefOwnPtr<CefTranslatorTestScopedLibraryChildChild> test_obj2 =
+      CefTranslatorTestScopedLibraryChildChild::Create(kTestVal, kTestVal2,
+                                                       kTestVal3);
+  EXPECT_EQ(kTestVal, test_obj2->GetValue());
+  EXPECT_EQ(kTestVal2, test_obj2->GetOtherValue());
+  EXPECT_EQ(kTestVal3, test_obj2->GetOtherOtherValue());
+  int retval2 = obj->SetOwnPtrLibrary(
+      test_obj2.PassAs<CefTranslatorTestScopedLibrary>());
+  EXPECT_EQ(kTestVal, retval2);
+  EXPECT_FALSE(test_obj2.get());
+
+  test_obj2 = CefTranslatorTestScopedLibraryChildChild::Create(
+      kTestVal, kTestVal2, kTestVal3);
+  EXPECT_EQ(kTestVal, obj->SetChildOwnPtrLibrary(
+      test_obj2.PassAs<CefTranslatorTestScopedLibraryChild>()));
+  EXPECT_FALSE(test_obj2.get());
+
+  test_obj2 = CefTranslatorTestScopedLibraryChildChild::Create(
+      kTestVal, kTestVal2, kTestVal3);
+  test_obj_parent = obj->SetChildOwnPtrLibraryAndReturnParent(
+      test_obj2.PassAs<CefTranslatorTestScopedLibraryChild>());
+  EXPECT_FALSE(test_obj2.get());
+  EXPECT_TRUE(test_obj_parent.get());
+  EXPECT_EQ(kTestVal, test_obj_parent->GetValue());
+  test_obj_parent.reset(NULL);
+
+  // Only one reference to the object should exist.
+  EXPECT_TRUE(obj->HasOneRef());
+}
+
+namespace {
+
+class TranslatorTestScopedClient : public CefTranslatorTestScopedClient {
+ public:
+  TranslatorTestScopedClient(const int val,
+                             TrackCallback* got_delete)
+    : val_(val),
+      got_delete_(got_delete) {
+  }
+  ~TranslatorTestScopedClient() override {
+    got_delete_->yes();
+  }
+
+  virtual int GetValue() override {
+    return val_;
+  }
+
+ private:
+  const int val_;
+  TrackCallback* got_delete_;
+
+  DISALLOW_COPY_AND_ASSIGN(TranslatorTestScopedClient);
+};
+
+class TranslatorTestScopedClientChild :
+    public CefTranslatorTestScopedClientChild {
+ public:
+  TranslatorTestScopedClientChild(const int val,
+                                  const int other_val,
+                                  TrackCallback* got_delete)
+    : val_(val),
+      other_val_(other_val),
+      got_delete_(got_delete) {
+  }
+  ~TranslatorTestScopedClientChild() override {
+    got_delete_->yes();
+  }
+
+  virtual int GetValue() override {
+    return val_;
+  }
+
+  virtual int GetOtherValue() override {
+    return other_val_;
+  }
+
+ private:
+  const int val_;
+  const int other_val_;
+  TrackCallback* got_delete_;
+
+  DISALLOW_COPY_AND_ASSIGN(TranslatorTestScopedClientChild);
+};
+
+}  // namespace
+
+// Test getting/setting client-side OwnPtr types.
+TEST(TranslatorTest, OwnPtrClient) {
+  CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
+  
+  const int kTestVal = 12;
+  TrackCallback got_delete;
+
+  CefOwnPtr<CefTranslatorTestScopedClient> test_obj(
+      new TranslatorTestScopedClient(kTestVal, &got_delete));
+  EXPECT_EQ(kTestVal, test_obj->GetValue());
+  EXPECT_EQ(kTestVal, obj->SetOwnPtrClient(test_obj.Pass()));
+  EXPECT_FALSE(test_obj.get());
+  EXPECT_TRUE(got_delete);
+
+  got_delete.reset();
+  test_obj.reset(new TranslatorTestScopedClient(kTestVal, &got_delete));
+  CefOwnPtr<CefTranslatorTestScopedClient> handler =
+      obj->SetOwnPtrClientAndReturn(test_obj.Pass());
+  EXPECT_FALSE(test_obj.get());
+  EXPECT_TRUE(handler.get());
+  EXPECT_FALSE(got_delete);
+  EXPECT_EQ(kTestVal, handler->GetValue());
+  handler.reset(NULL);
+  EXPECT_TRUE(got_delete);
+
+  // Only one reference to the object should exist.
+  EXPECT_TRUE(obj->HasOneRef());
+}
+
+// Test getting/setting inherited client-side OwnPtr types.
+TEST(TranslatorTest, OwnPtrClientInherit) {
+  CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
+  
+  const int kTestVal = 12;
+  const int kTestVal2 = 86;
+  TrackCallback got_delete;
+
+  CefOwnPtr<CefTranslatorTestScopedClientChild> test_obj(
+      new TranslatorTestScopedClientChild(kTestVal, kTestVal2, &got_delete));
+  EXPECT_EQ(kTestVal, test_obj->GetValue());
+  EXPECT_EQ(kTestVal2, test_obj->GetOtherValue());
+  EXPECT_EQ(kTestVal, obj->SetOwnPtrClient(
+      test_obj.PassAs<CefTranslatorTestScopedClient>()));
+  EXPECT_FALSE(test_obj.get());
+  EXPECT_TRUE(got_delete);
+
+  got_delete.reset();
+  test_obj.reset(
+      new TranslatorTestScopedClientChild(kTestVal, kTestVal2, &got_delete));
+  EXPECT_EQ(kTestVal, obj->SetChildOwnPtrClient(test_obj.Pass()));
+  EXPECT_FALSE(test_obj.get());
+  EXPECT_TRUE(got_delete);
+
+  got_delete.reset();
+  test_obj.reset(
+      new TranslatorTestScopedClientChild(kTestVal, kTestVal2, &got_delete));
+  CefOwnPtr<CefTranslatorTestScopedClient> handler(
+      obj->SetChildOwnPtrClientAndReturnParent(test_obj.Pass()));
+  EXPECT_EQ(kTestVal, handler->GetValue());
+  EXPECT_FALSE(test_obj.get());
+  EXPECT_FALSE(got_delete);
+  handler.reset(NULL);
+  EXPECT_TRUE(got_delete);
+
+  // Only one reference to the object should exist.
+  EXPECT_TRUE(obj->HasOneRef());
+}
+
+// Test getting/setting library-side RawPtr types.
+TEST(TranslatorTest, RawPtrLibrary) {
+  CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
+  
+  const int kTestVal = 12;
+  CefOwnPtr<CefTranslatorTestScopedLibrary> test_obj(
+      CefTranslatorTestScopedLibrary::Create(kTestVal));
+  EXPECT_EQ(kTestVal, test_obj->GetValue());
+  int retval = obj->SetRawPtrLibrary(test_obj.get());
+  EXPECT_EQ(kTestVal, retval);
+  EXPECT_EQ(kTestVal, test_obj->GetValue());
+
+  const int kTestVal2 = 30;
+  CefOwnPtr<CefTranslatorTestScopedLibrary> test_obj2(
+      obj->GetOwnPtrLibrary(kTestVal2));
+  EXPECT_EQ(kTestVal2, test_obj2->GetValue());
+  int retval2 = obj->SetRawPtrLibrary(test_obj2.get());
+  EXPECT_EQ(kTestVal2, retval2);
+  EXPECT_EQ(kTestVal2, test_obj2->GetValue());
+
+  // Only one reference to the object should exist.
+  EXPECT_TRUE(obj->HasOneRef());
+}
+
+// Test getting/setting inherited library-side RawPtr types.
+TEST(TranslatorTest, RawPtrLibraryInherit) {
+  CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
+  
+  const int kTestVal = 12;
+  const int kTestVal2 = 40;
+  CefOwnPtr<CefTranslatorTestScopedLibraryChild> test_obj(
+      CefTranslatorTestScopedLibraryChild::Create(kTestVal, kTestVal2));
+  EXPECT_EQ(kTestVal, test_obj->GetValue());
+  EXPECT_EQ(kTestVal2, test_obj->GetOtherValue());
+  int retval = obj->SetRawPtrLibrary(test_obj.get());
+  EXPECT_EQ(kTestVal, retval);
+  EXPECT_EQ(kTestVal, test_obj->GetValue());
+  EXPECT_EQ(kTestVal2, test_obj->GetOtherValue());
+
+  EXPECT_EQ(kTestVal, obj->SetChildRawPtrLibrary(test_obj.get()));
+  
+  const int kTestVal3 = 100;
+  CefOwnPtr<CefTranslatorTestScopedLibraryChildChild> test_obj2(
+      CefTranslatorTestScopedLibraryChildChild::Create(kTestVal, kTestVal2,
+                                                       kTestVal3));
+  EXPECT_EQ(kTestVal, test_obj2->GetValue());
+  EXPECT_EQ(kTestVal2, test_obj2->GetOtherValue());
+  EXPECT_EQ(kTestVal3, test_obj2->GetOtherOtherValue());
+  int retval2 = obj->SetRawPtrLibrary(test_obj2.get());
+  EXPECT_EQ(kTestVal, retval2);
+  EXPECT_EQ(kTestVal, test_obj2->GetValue());
+  EXPECT_EQ(kTestVal2, test_obj2->GetOtherValue());
+  EXPECT_EQ(kTestVal3, test_obj2->GetOtherOtherValue());
+
+  EXPECT_EQ(kTestVal, obj->SetChildRawPtrLibrary(test_obj2.get()));
+
+  // Only one reference to the object should exist.
+  EXPECT_TRUE(obj->HasOneRef());
+}
+
+// Test getting/setting library-side RawPtr list types.
+TEST(TranslatorTest, RawPtrLibraryList) {
+  CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
+  
+  const int kVal1 = 34;
+  const int kVal2 = 10;
+
+  CefOwnPtr<CefTranslatorTestScopedLibrary> val1(
+      CefTranslatorTestScopedLibrary::Create(kVal1));
+  CefOwnPtr<CefTranslatorTestScopedLibraryChild> val2(
+      CefTranslatorTestScopedLibraryChild::Create(kVal2, 0));
+
+  std::vector<CefRawPtr<CefTranslatorTestScopedLibrary> > list;
+  list.push_back(val1.get());
+  list.push_back(val2.get());
+  EXPECT_TRUE(obj->SetRawPtrLibraryList(list, kVal1, kVal2));
+  list.clear();
+
+  // Only one reference to the object should exist.
+  EXPECT_TRUE(obj->HasOneRef());
+}
+
+// Test getting/setting client-side RawPtr types.
+TEST(TranslatorTest, RawPtrClient) {
+  CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
+  
+  const int kTestVal = 12;
+  TrackCallback got_delete;
+
+  CefOwnPtr<TranslatorTestScopedClient> test_obj(
+      new TranslatorTestScopedClient(kTestVal, &got_delete));
+  EXPECT_EQ(kTestVal, test_obj->GetValue());
+  EXPECT_EQ(kTestVal, obj->SetRawPtrClient(test_obj.get()));
+  EXPECT_FALSE(got_delete);
+  test_obj.reset(NULL);
+  EXPECT_TRUE(got_delete);
+
+  // Only one reference to the object should exist.
+  EXPECT_TRUE(obj->HasOneRef());
+}
+
+// Test getting/setting inherited client-side RawPtr types.
+TEST(TranslatorTest, RawPtrClientInherit) {
+  CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
+  
+  const int kTestVal = 12;
+  const int kTestVal2 = 86;
+  TrackCallback got_delete;
+
+  CefOwnPtr<TranslatorTestScopedClientChild> test_obj(
+      new TranslatorTestScopedClientChild(kTestVal, kTestVal2, &got_delete));
+  EXPECT_EQ(kTestVal, test_obj->GetValue());
+  EXPECT_EQ(kTestVal2, test_obj->GetOtherValue());
+  int retval = obj->SetRawPtrClient(test_obj.get());
+  EXPECT_EQ(kTestVal, retval);
+  EXPECT_EQ(kTestVal, test_obj->GetValue());
+  EXPECT_EQ(kTestVal2, test_obj->GetOtherValue());
+  EXPECT_FALSE(got_delete);
+
+  EXPECT_EQ(kTestVal, obj->SetChildRawPtrClient(test_obj.get()));
+  EXPECT_FALSE(got_delete);
+  test_obj.reset(NULL);
+  EXPECT_TRUE(got_delete);
+
+  // Only one reference to the object should exist.
+  EXPECT_TRUE(obj->HasOneRef());
+}
+
+// Test getting/setting client-side RawPtr list types.
+TEST(TranslatorTest, RawPtrClientList) {
+  CefRefPtr<CefTranslatorTest> obj = CefTranslatorTest::Create();
+  
+  const int kVal1 = 34;
+  const int kVal2 = 10;
+  TrackCallback got_delete1, got_delete2;
+
+  CefOwnPtr<CefTranslatorTestScopedClient> val1(
+      new TranslatorTestScopedClient(kVal1, &got_delete1));
+  CefOwnPtr<CefTranslatorTestScopedClient> val2(
+      new TranslatorTestScopedClientChild(kVal2, 0, &got_delete2));
+
+  std::vector<CefRawPtr<CefTranslatorTestScopedClient> > list;
+  list.push_back(val1.get());
+  list.push_back(val2.get());
+  EXPECT_TRUE(obj->SetRawPtrClientList(list, kVal1, kVal2));
+  list.clear();
+
+  EXPECT_FALSE(got_delete1);
+  val1.reset(NULL);
+  EXPECT_TRUE(got_delete1);
+
+  EXPECT_FALSE(got_delete2);
+  val2.reset(NULL);
+  EXPECT_TRUE(got_delete2);
+
+  // Only one reference to the object should exist.
+  EXPECT_TRUE(obj->HasOneRef());
 }

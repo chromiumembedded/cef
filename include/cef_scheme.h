@@ -82,7 +82,7 @@ bool CefClearSchemeHandlerFactories();
 // Class that manages custom scheme registrations.
 ///
 /*--cef(source=library)--*/
-class CefSchemeRegistrar : public virtual CefBase {
+class CefSchemeRegistrar : public CefBaseScoped {
  public:
   ///
   // Register a custom scheme. This method should not be called for the built-in

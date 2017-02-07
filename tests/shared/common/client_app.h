@@ -34,12 +34,12 @@ class ClientApp : public CefApp {
  private:
   // Registers custom schemes. Implemented by cefclient in
   // client_app_delegates_common.cc
-  static void RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar,
+  static void RegisterCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar,
                                     std::vector<CefString>& cookiable_schemes);
 
   // CefApp methods.
   void OnRegisterCustomSchemes(
-      CefRefPtr<CefSchemeRegistrar> registrar) OVERRIDE;
+      CefRawPtr<CefSchemeRegistrar> registrar) OVERRIDE;
 
   DISALLOW_COPY_AND_ASSIGN(ClientApp);
 };

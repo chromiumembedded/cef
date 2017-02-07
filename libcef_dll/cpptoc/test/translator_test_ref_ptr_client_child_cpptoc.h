@@ -10,12 +10,12 @@
 // for more information.
 //
 
-#ifndef CEF_LIBCEF_DLL_CPPTOC_TEST_TRANSLATOR_TEST_OBJECT_CHILD_CPPTOC_H_
-#define CEF_LIBCEF_DLL_CPPTOC_TEST_TRANSLATOR_TEST_OBJECT_CHILD_CPPTOC_H_
+#ifndef CEF_LIBCEF_DLL_CPPTOC_TEST_TRANSLATOR_TEST_REF_PTR_CLIENT_CHILD_CPPTOC_H_
+#define CEF_LIBCEF_DLL_CPPTOC_TEST_TRANSLATOR_TEST_REF_PTR_CLIENT_CHILD_CPPTOC_H_
 #pragma once
 
-#if !defined(BUILDING_CEF_SHARED)
-#error This file can be included DLL-side only
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
 #endif
 
 #include "include/test/cef_translator_test.h"
@@ -23,12 +23,13 @@
 #include "libcef_dll/cpptoc/cpptoc.h"
 
 // Wrap a C++ class with a C structure.
-// This class may be instantiated and accessed DLL-side only.
-class CefTranslatorTestObjectChildCppToC
-    : public CefCppToC<CefTranslatorTestObjectChildCppToC,
-        CefTranslatorTestObjectChild, cef_translator_test_object_child_t> {
+// This class may be instantiated and accessed wrapper-side only.
+class CefTranslatorTestRefPtrClientChildCppToC
+    : public CefCppToC<CefTranslatorTestRefPtrClientChildCppToC,
+        CefTranslatorTestRefPtrClientChild,
+        cef_translator_test_ref_ptr_client_child_t> {
  public:
-  CefTranslatorTestObjectChildCppToC();
+  CefTranslatorTestRefPtrClientChildCppToC();
 };
 
-#endif  // CEF_LIBCEF_DLL_CPPTOC_TEST_TRANSLATOR_TEST_OBJECT_CHILD_CPPTOC_H_
+#endif  // CEF_LIBCEF_DLL_CPPTOC_TEST_TRANSLATOR_TEST_REF_PTR_CLIENT_CHILD_CPPTOC_H_

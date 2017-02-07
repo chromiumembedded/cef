@@ -9,7 +9,7 @@
 namespace client {
 namespace scheme_test {
 
-void RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar,
+void RegisterCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar,
                            std::vector<CefString>& cookiable_schemes) {
   registrar->AddCustomScheme("client", true, false, false, false, true);
 }

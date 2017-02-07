@@ -10,8 +10,8 @@
 // for more information.
 //
 
-#ifndef CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_OBJECT_CTOCPP_H_
-#define CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_OBJECT_CTOCPP_H_
+#ifndef CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_SCOPED_LIBRARY_CHILD_CTOCPP_H_
+#define CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_SCOPED_LIBRARY_CHILD_CTOCPP_H_
 #pragma once
 
 #if !defined(WRAPPING_CEF_SHARED)
@@ -20,19 +20,24 @@
 
 #include "include/test/cef_translator_test.h"
 #include "include/capi/test/cef_translator_test_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_scoped.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
-class CefTranslatorTestObjectCToCpp
-    : public CefCToCpp<CefTranslatorTestObjectCToCpp, CefTranslatorTestObject,
-        cef_translator_test_object_t> {
+class CefTranslatorTestScopedLibraryChildCToCpp
+    : public CefCToCppScoped<CefTranslatorTestScopedLibraryChildCToCpp,
+        CefTranslatorTestScopedLibraryChild,
+        cef_translator_test_scoped_library_child_t> {
  public:
-  CefTranslatorTestObjectCToCpp();
+  CefTranslatorTestScopedLibraryChildCToCpp();
 
-  // CefTranslatorTestObject methods.
+  // CefTranslatorTestScopedLibraryChild methods.
+  int GetOtherValue() OVERRIDE;
+  void SetOtherValue(int value) OVERRIDE;
+
+  // CefTranslatorTestScopedLibrary methods.
   int GetValue() OVERRIDE;
   void SetValue(int value) OVERRIDE;
 };
 
-#endif  // CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_OBJECT_CTOCPP_H_
+#endif  // CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_SCOPED_LIBRARY_CHILD_CTOCPP_H_

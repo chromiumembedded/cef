@@ -48,8 +48,7 @@
 #endif
 
 ///
-// Interface defining the reference count implementation methods. All framework
-// classes must extend the CefBase class.
+// All ref-counted framework classes must extend this class.
 ///
 class CefBase {
  public:
@@ -72,6 +71,14 @@ class CefBase {
 
  protected:
   virtual ~CefBase() {}
+};
+
+///
+// All scoped framework classes must extend this class.
+///
+class CefBaseScoped {
+ public:
+  virtual ~CefBaseScoped() {}
 };
 
 ///

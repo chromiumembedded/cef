@@ -17,7 +17,7 @@ namespace scheme_test {
 // See browser/scheme_test.h for creation/registration of the custom scheme
 // handler which only occurs in the browser process. Called from
 // client_app_delegates_common.cc.
-void RegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> registrar,
+void RegisterCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar,
                            std::vector<CefString>& cookiable_schemes);
 
 }  // namespace scheme_test

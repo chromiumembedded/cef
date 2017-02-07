@@ -10,13 +10,13 @@
 // for more information.
 //
 
-#include "libcef_dll/ctocpp/test/translator_test_handler_child_ctocpp.h"
+#include "libcef_dll/ctocpp/test/translator_test_ref_ptr_client_child_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
-int CefTranslatorTestHandlerChildCToCpp::GetOtherValue() {
-  cef_translator_test_handler_child_t* _struct = GetStruct();
+int CefTranslatorTestRefPtrClientChildCToCpp::GetOtherValue() {
+  cef_translator_test_ref_ptr_client_child_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_other_value))
     return 0;
 
@@ -29,9 +29,9 @@ int CefTranslatorTestHandlerChildCToCpp::GetOtherValue() {
   return _retval;
 }
 
-int CefTranslatorTestHandlerChildCToCpp::GetValue() {
-  cef_translator_test_handler_t* _struct =
-      reinterpret_cast<cef_translator_test_handler_t*>(GetStruct());
+int CefTranslatorTestRefPtrClientChildCToCpp::GetValue() {
+  cef_translator_test_ref_ptr_client_t* _struct =
+      reinterpret_cast<cef_translator_test_ref_ptr_client_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, get_value))
     return 0;
 
@@ -47,24 +47,25 @@ int CefTranslatorTestHandlerChildCToCpp::GetValue() {
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefTranslatorTestHandlerChildCToCpp::CefTranslatorTestHandlerChildCToCpp() {
+CefTranslatorTestRefPtrClientChildCToCpp::CefTranslatorTestRefPtrClientChildCToCpp(
+    ) {
 }
 
-template<> cef_translator_test_handler_child_t* CefCToCpp<CefTranslatorTestHandlerChildCToCpp,
-    CefTranslatorTestHandlerChild,
-    cef_translator_test_handler_child_t>::UnwrapDerived(CefWrapperType type,
-    CefTranslatorTestHandlerChild* c) {
+template<> cef_translator_test_ref_ptr_client_child_t* CefCToCpp<CefTranslatorTestRefPtrClientChildCToCpp,
+    CefTranslatorTestRefPtrClientChild,
+    cef_translator_test_ref_ptr_client_child_t>::UnwrapDerived(
+    CefWrapperType type, CefTranslatorTestRefPtrClientChild* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefTranslatorTestHandlerChildCToCpp,
-    CefTranslatorTestHandlerChild,
-    cef_translator_test_handler_child_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCpp<CefTranslatorTestRefPtrClientChildCToCpp,
+    CefTranslatorTestRefPtrClientChild,
+    cef_translator_test_ref_ptr_client_child_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefTranslatorTestHandlerChildCToCpp,
-    CefTranslatorTestHandlerChild,
-    cef_translator_test_handler_child_t>::kWrapperType =
-    WT_TRANSLATOR_TEST_HANDLER_CHILD;
+template<> CefWrapperType CefCToCpp<CefTranslatorTestRefPtrClientChildCToCpp,
+    CefTranslatorTestRefPtrClientChild,
+    cef_translator_test_ref_ptr_client_child_t>::kWrapperType =
+    WT_TRANSLATOR_TEST_REF_PTR_CLIENT_CHILD;

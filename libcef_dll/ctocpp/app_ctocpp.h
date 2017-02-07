@@ -33,7 +33,7 @@ class CefAppCToCpp
   void OnBeforeCommandLineProcessing(const CefString& process_type,
       CefRefPtr<CefCommandLine> command_line) override;
   void OnRegisterCustomSchemes(
-      CefRefPtr<CefSchemeRegistrar> registrar) override;
+      CefRawPtr<CefSchemeRegistrar> registrar) override;
   CefRefPtr<CefResourceBundleHandler> GetResourceBundleHandler() override;
   CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() override;
   CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() override;

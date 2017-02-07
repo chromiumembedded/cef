@@ -49,14 +49,18 @@ void CEF_CALLBACK app_on_register_custom_schemes(struct _cef_app_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: registrar; type: refptr_diff
+  // Verify param: registrar; type: rawptr_diff
   DCHECK(registrar);
   if (!registrar)
     return;
 
+  // Translate param: registrar; type: rawptr_diff
+  CefOwnPtr<CefSchemeRegistrar> registrarPtr(CefSchemeRegistrarCToCpp::Wrap(
+      registrar));
+
   // Execute
   CefAppCppToC::Get(self)->OnRegisterCustomSchemes(
-      CefSchemeRegistrarCToCpp::Wrap(registrar));
+      registrarPtr.get());
 }
 
 struct _cef_resource_bundle_handler_t* CEF_CALLBACK app_get_resource_bundle_handler(

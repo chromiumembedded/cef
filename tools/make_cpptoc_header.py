@@ -51,10 +51,17 @@ def make_cpptoc_header(header, clsname):
               result += '#include "include/'+dcls.get_file_name()+'"\n' \
                         '#include "include/capi/'+dcls.get_capi_file_name()+'"\n'
 
-    result += """#include "libcef_dll/cpptoc/cpptoc.h"
+    base_class_name = header.get_base_class_name(clsname)
+    base_scoped = True if base_class_name == 'CefBaseScoped' else False
+    if base_scoped:
+      template_file = 'cpptoc_scoped.h'
+      template_class = 'CefCppToCScoped'
+    else:
+      template_file = 'cpptoc.h'
+      template_class = 'CefCppToC'
 
-// Wrap a C++ class with a C structure.
-"""
+    result += '#include "libcef_dll/cpptoc/' + template_file + '"'
+    result += '\n\n// Wrap a C++ class with a C structure.\n'
 
     if dllside:
         result += '// This class may be instantiated and accessed DLL-side only.\n'
@@ -62,7 +69,7 @@ def make_cpptoc_header(header, clsname):
         result += '// This class may be instantiated and accessed wrapper-side only.\n'
 
     result +=  'class '+clsname+'CppToC\n'+ \
-               '    : public CefCppToC<'+clsname+'CppToC, '+clsname+', '+capiname+'> {\n'+ \
+               '    : public ' + template_class + '<'+clsname+'CppToC, '+clsname+', '+capiname+'> {\n'+ \
                ' public:\n'+ \
                '  '+clsname+'CppToC();\n'+ \
                '};\n\n'

@@ -41,21 +41,25 @@ void CefAppCToCpp::OnBeforeCommandLineProcessing(const CefString& process_type,
 }
 
 void CefAppCToCpp::OnRegisterCustomSchemes(
-    CefRefPtr<CefSchemeRegistrar> registrar) {
+    CefRawPtr<CefSchemeRegistrar> registrar) {
   cef_app_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, on_register_custom_schemes))
     return;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
-  // Verify param: registrar; type: refptr_diff
-  DCHECK(registrar.get());
-  if (!registrar.get())
+  // Verify param: registrar; type: rawptr_diff
+  DCHECK(registrar);
+  if (!registrar)
     return;
+
+  // Translate param: registrar; type: rawptr_diff
+  CefOwnPtr<CefSchemeRegistrarCppToC> registrarPtr(
+      CefSchemeRegistrarCppToC::WrapRaw(registrar));
 
   // Execute
   _struct->on_register_custom_schemes(_struct,
-      CefSchemeRegistrarCppToC::Wrap(registrar));
+      registrarPtr->GetStruct());
 }
 
 CefRefPtr<CefResourceBundleHandler> CefAppCToCpp::GetResourceBundleHandler() {
