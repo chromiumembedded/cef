@@ -20,12 +20,12 @@
 
 #include "include/cef_scheme.h"
 #include "include/capi/cef_scheme_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_scoped.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefSchemeRegistrarCppToC
-    : public CefCppToC<CefSchemeRegistrarCppToC, CefSchemeRegistrar,
+    : public CefCppToCScoped<CefSchemeRegistrarCppToC, CefSchemeRegistrar,
         cef_scheme_registrar_t> {
  public:
   CefSchemeRegistrarCppToC();

@@ -220,14 +220,9 @@ void CefContentClient::AddAdditionalSchemes(Schemes* schemes) {
   DCHECK(!scheme_info_list_locked_);
 
   if (application_.get()) {
-    CefRefPtr<CefSchemeRegistrarImpl> schemeRegistrar(
-        new CefSchemeRegistrarImpl());
-    application_->OnRegisterCustomSchemes(schemeRegistrar.get());
-    schemeRegistrar->GetSchemes(schemes);
-
-    // No references to the registar should be kept.
-    schemeRegistrar->Detach();
-    DCHECK(schemeRegistrar->VerifyRefCount());
+    CefSchemeRegistrarImpl schemeRegistrar;
+    application_->OnRegisterCustomSchemes(&schemeRegistrar);
+    schemeRegistrar.GetSchemes(schemes);
   }
 
   scheme::AddInternalSchemes(schemes);

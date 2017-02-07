@@ -58,7 +58,7 @@ typedef struct _cef_scheme_registrar_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_scoped_t base;
 
   ///
   // Register a custom scheme. This function should not be called for the built-

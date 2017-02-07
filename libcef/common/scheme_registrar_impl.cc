@@ -24,8 +24,7 @@ void AppendArray(const std::vector<std::string>& source,
 
 }
 
-CefSchemeRegistrarImpl::CefSchemeRegistrarImpl()
-    : supported_thread_id_(base::PlatformThread::CurrentId()) {
+CefSchemeRegistrarImpl::CefSchemeRegistrarImpl() {
 }
 
 bool CefSchemeRegistrarImpl::AddCustomScheme(
@@ -35,9 +34,6 @@ bool CefSchemeRegistrarImpl::AddCustomScheme(
     bool is_display_isolated,
     bool is_secure,
     bool is_cors_enabled) {
-  if (!VerifyContext())
-    return false;
-
   const std::string& scheme = base::ToLowerASCII(scheme_name.ToString());
   if (scheme::IsInternalHandledScheme(scheme) ||
       registered_schemes_.find(scheme) != registered_schemes_.end()) {
@@ -68,30 +64,8 @@ bool CefSchemeRegistrarImpl::AddCustomScheme(
 
 void CefSchemeRegistrarImpl::GetSchemes(
     content::ContentClient::Schemes* schemes) {
-  if (!VerifyContext())
-    return;
-
   AppendArray(schemes_.standard_schemes, &schemes->standard_schemes);
   AppendArray(schemes_.local_schemes, &schemes->local_schemes);
   AppendArray(schemes_.secure_schemes, &schemes->secure_schemes);
   AppendArray(schemes_.cors_enabled_schemes, &schemes->cors_enabled_schemes);
-}
-
-bool CefSchemeRegistrarImpl::VerifyRefCount() {
-  return HasOneRef();
-}
-
-void CefSchemeRegistrarImpl::Detach() {
-  if (VerifyContext())
-    supported_thread_id_ = base::kInvalidThreadId;
-}
-
-bool CefSchemeRegistrarImpl::VerifyContext() {
-  if (base::PlatformThread::CurrentId() != supported_thread_id_) {
-    // This object should only be accessed from the thread that created it.
-    NOTREACHED();
-    return false;
-  }
-
-  return true;
 }

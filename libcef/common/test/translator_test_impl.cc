@@ -4,9 +4,10 @@
 
 #include "include/test/cef_translator_test.h"
 
-class CefTranslatorTestObjectImpl : public CefTranslatorTestObject {
+class CefTranslatorTestRefPtrLibraryImpl :
+    public CefTranslatorTestRefPtrLibrary {
  public:
-  explicit CefTranslatorTestObjectImpl(int value)
+  explicit CefTranslatorTestRefPtrLibraryImpl(int value)
     : value_(value) {
   }
 
@@ -22,18 +23,20 @@ class CefTranslatorTestObjectImpl : public CefTranslatorTestObject {
   int value_;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(CefTranslatorTestObjectImpl);
-  IMPLEMENT_REFCOUNTING(CefTranslatorTestObjectImpl);
+  DISALLOW_COPY_AND_ASSIGN(CefTranslatorTestRefPtrLibraryImpl);
+  IMPLEMENT_REFCOUNTING(CefTranslatorTestRefPtrLibraryImpl);
 };
 
 // static
-CefRefPtr<CefTranslatorTestObject> CefTranslatorTestObject::Create(int value) {
-  return new CefTranslatorTestObjectImpl(value);
+CefRefPtr<CefTranslatorTestRefPtrLibrary>
+CefTranslatorTestRefPtrLibrary::Create(int value) {
+  return new CefTranslatorTestRefPtrLibraryImpl(value);
 }
 
-class CefTranslatorTestObjectChildImpl : public CefTranslatorTestObjectChild {
+class CefTranslatorTestRefPtrLibraryChildImpl :
+    public CefTranslatorTestRefPtrLibraryChild {
  public:
-  CefTranslatorTestObjectChildImpl(int value, int other_value)
+  CefTranslatorTestRefPtrLibraryChildImpl(int value, int other_value)
     : value_(value),
       other_value_(other_value) {
   }
@@ -59,21 +62,22 @@ class CefTranslatorTestObjectChildImpl : public CefTranslatorTestObjectChild {
   int other_value_;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(CefTranslatorTestObjectChildImpl);
-  IMPLEMENT_REFCOUNTING(CefTranslatorTestObjectChildImpl);
+  DISALLOW_COPY_AND_ASSIGN(CefTranslatorTestRefPtrLibraryChildImpl);
+  IMPLEMENT_REFCOUNTING(CefTranslatorTestRefPtrLibraryChildImpl);
 };
 
 // static
-CefRefPtr<CefTranslatorTestObjectChild> CefTranslatorTestObjectChild::Create(
+CefRefPtr<CefTranslatorTestRefPtrLibraryChild>
+CefTranslatorTestRefPtrLibraryChild::Create(
     int value,
     int other_value) {
-  return new CefTranslatorTestObjectChildImpl(value, other_value);
+  return new CefTranslatorTestRefPtrLibraryChildImpl(value, other_value);
 }
 
-class CefTranslatorTestObjectChildChildImpl :
-    public CefTranslatorTestObjectChildChild {
+class CefTranslatorTestRefPtrLibraryChildChildImpl :
+    public CefTranslatorTestRefPtrLibraryChildChild {
  public:
-  CefTranslatorTestObjectChildChildImpl(int value,
+  CefTranslatorTestRefPtrLibraryChildChildImpl(int value,
                                         int other_value,
                                         int other_other_value)
     : value_(value),
@@ -111,19 +115,146 @@ class CefTranslatorTestObjectChildChildImpl :
   int other_other_value_;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(CefTranslatorTestObjectChildChildImpl);
-  IMPLEMENT_REFCOUNTING(CefTranslatorTestObjectChildChildImpl);
+  DISALLOW_COPY_AND_ASSIGN(CefTranslatorTestRefPtrLibraryChildChildImpl);
+  IMPLEMENT_REFCOUNTING(CefTranslatorTestRefPtrLibraryChildChildImpl);
 };
 
 // static
-CefRefPtr<CefTranslatorTestObjectChildChild>
-CefTranslatorTestObjectChildChild::Create(
+CefRefPtr<CefTranslatorTestRefPtrLibraryChildChild>
+CefTranslatorTestRefPtrLibraryChildChild::Create(
     int value,
     int other_value,
     int other_other_value) {
-  return new CefTranslatorTestObjectChildChildImpl(value, other_value,
-                                                   other_other_value);
+  return new CefTranslatorTestRefPtrLibraryChildChildImpl(value, other_value,
+                                                          other_other_value);
 }
+
+
+class CefTranslatorTestScopedLibraryImpl :
+    public CefTranslatorTestScopedLibrary {
+ public:
+  explicit CefTranslatorTestScopedLibraryImpl(int value)
+    : value_(value) {
+  }
+
+  int GetValue() override {
+    return value_;
+  }
+
+  void SetValue(int value) override {
+    value_ = value;
+  }
+
+ protected:
+  int value_;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(CefTranslatorTestScopedLibraryImpl);
+};
+
+// static
+CefOwnPtr<CefTranslatorTestScopedLibrary>
+CefTranslatorTestScopedLibrary::Create(int value) {
+  return CefOwnPtr<CefTranslatorTestScopedLibrary>(
+      new CefTranslatorTestScopedLibraryImpl(value));
+}
+
+class CefTranslatorTestScopedLibraryChildImpl :
+    public CefTranslatorTestScopedLibraryChild {
+ public:
+  CefTranslatorTestScopedLibraryChildImpl(int value, int other_value)
+    : value_(value),
+      other_value_(other_value) {
+  }
+
+  int GetValue() override {
+    return value_;
+  }
+
+  void SetValue(int value) override {
+    value_ = value;
+  }
+
+  int GetOtherValue() override {
+    return other_value_;
+  }
+
+  void SetOtherValue(int value) override {
+    other_value_ = value;
+  }
+
+ protected:
+  int value_;
+  int other_value_;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(CefTranslatorTestScopedLibraryChildImpl);
+};
+
+// static
+CefOwnPtr<CefTranslatorTestScopedLibraryChild>
+CefTranslatorTestScopedLibraryChild::Create(
+    int value,
+    int other_value) {
+  return CefOwnPtr<CefTranslatorTestScopedLibraryChild>(
+      new CefTranslatorTestScopedLibraryChildImpl(value, other_value));
+}
+
+class CefTranslatorTestScopedLibraryChildChildImpl :
+    public CefTranslatorTestScopedLibraryChildChild {
+ public:
+  CefTranslatorTestScopedLibraryChildChildImpl(int value,
+                                               int other_value,
+                                               int other_other_value)
+    : value_(value),
+      other_value_(other_value),
+      other_other_value_(other_other_value) {
+  }
+
+  int GetValue() override {
+    return value_;
+  }
+
+  void SetValue(int value) override {
+    value_ = value;
+  }
+
+  int GetOtherValue() override {
+    return other_value_;
+  }
+
+  void SetOtherValue(int value) override {
+    other_value_ = value;
+  }
+
+  int GetOtherOtherValue() override {
+    return other_other_value_;
+  }
+
+  void SetOtherOtherValue(int value) override {
+    other_other_value_ = value;
+  }
+
+ protected:
+  int value_;
+  int other_value_;
+  int other_other_value_;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(CefTranslatorTestScopedLibraryChildChildImpl);
+};
+
+// static
+CefOwnPtr<CefTranslatorTestScopedLibraryChildChild>
+CefTranslatorTestScopedLibraryChildChild::Create(
+    int value,
+    int other_value,
+    int other_other_value) {
+  return CefOwnPtr<CefTranslatorTestScopedLibraryChildChild>(
+      new CefTranslatorTestScopedLibraryChildChildImpl(value, other_value,
+                                                       other_other_value));
+}
+
 
 class CefTranslatorTestImpl : public CefTranslatorTest {
  public:
@@ -338,91 +469,95 @@ class CefTranslatorTestImpl : public CefTranslatorTest {
   }
 
 
-  // LIBRARY-SIDE OBJECT VALUES
+  // LIBRARY-SIDE REFPTR VALUES
 
-  CefRefPtr<CefTranslatorTestObject> GetObject(int val) override {
-    return new CefTranslatorTestObjectChildImpl(val, 0);
+  CefRefPtr<CefTranslatorTestRefPtrLibrary> GetRefPtrLibrary(int val) override {
+    return new CefTranslatorTestRefPtrLibraryChildImpl(val, 0);
   }
 
-  int SetObject(CefRefPtr<CefTranslatorTestObject> val) override {
+  int SetRefPtrLibrary(CefRefPtr<CefTranslatorTestRefPtrLibrary> val) override {
     return val->GetValue();
   }
 
-  CefRefPtr<CefTranslatorTestObject> SetObjectAndReturn(
-      CefRefPtr<CefTranslatorTestObject> val) override {
+  CefRefPtr<CefTranslatorTestRefPtrLibrary> SetRefPtrLibraryAndReturn(
+      CefRefPtr<CefTranslatorTestRefPtrLibrary> val) override {
     return val;
   }
 
-  int SetChildObject(CefRefPtr<CefTranslatorTestObjectChild> val) override {
+  int SetChildRefPtrLibrary(
+      CefRefPtr<CefTranslatorTestRefPtrLibraryChild> val) override {
     return val->GetValue();
   }
 
-  CefRefPtr<CefTranslatorTestObject> SetChildObjectAndReturnParent(
-      CefRefPtr<CefTranslatorTestObjectChild> val) override {
+  CefRefPtr<CefTranslatorTestRefPtrLibrary>
+  SetChildRefPtrLibraryAndReturnParent(
+      CefRefPtr<CefTranslatorTestRefPtrLibraryChild> val) override {
     return val;
   }
 
 
-  // LIBRARY-SIDE OBJECT LIST VALUES
+  // LIBRARY-SIDE REFPTR LIST VALUES
 
-  bool SetObjectList(
-      const std::vector<CefRefPtr<CefTranslatorTestObject> >& val,
+  bool SetRefPtrLibraryList(
+      const std::vector<CefRefPtr<CefTranslatorTestRefPtrLibrary> >& val,
       int val1, int val2) override {
     if (val.size() != 2U)
       return false;
     return val[0]->GetValue() == val1 && val[1]->GetValue() == val2;
   }
 
-  bool GetObjectListByRef(ObjectList& val, int val1, int val2) override {
-    if (val.size() != GetObjectListSize())
+  bool GetRefPtrLibraryListByRef(RefPtrLibraryList& val, int val1,
+                                 int val2) override {
+    if (val.size() != GetRefPtrLibraryListSize())
       return false;
     val.clear();
-    val.push_back(new CefTranslatorTestObjectChildImpl(val1, 0));
-    val.push_back(new CefTranslatorTestObjectImpl(val2));
+    val.push_back(new CefTranslatorTestRefPtrLibraryChildImpl(val1, 0));
+    val.push_back(new CefTranslatorTestRefPtrLibraryImpl(val2));
     return true;
   }
 
-  size_t GetObjectListSize() override {
+  size_t GetRefPtrLibraryListSize() override {
     return 2U;
   }
 
 
-  // CLIENT-SIDE OBJECT VALUES
+  // CLIENT-SIDE REFPTR VALUES
 
-  int SetHandler(CefRefPtr<CefTranslatorTestHandler> val) override {
+  int SetRefPtrClient(CefRefPtr<CefTranslatorTestRefPtrClient> val) override {
     return val->GetValue();
   }
 
-  CefRefPtr<CefTranslatorTestHandler> SetHandlerAndReturn(
-      CefRefPtr<CefTranslatorTestHandler> val) override {
+  CefRefPtr<CefTranslatorTestRefPtrClient> SetRefPtrClientAndReturn(
+      CefRefPtr<CefTranslatorTestRefPtrClient> val) override {
     return val;
   }
 
-  int SetChildHandler(CefRefPtr<CefTranslatorTestHandlerChild> val) override {
+  int SetChildRefPtrClient(
+      CefRefPtr<CefTranslatorTestRefPtrClientChild> val) override {
     return val->GetValue();
   }
 
-  CefRefPtr<CefTranslatorTestHandler> SetChildHandlerAndReturnParent(
-      CefRefPtr<CefTranslatorTestHandlerChild> val) override {
+  CefRefPtr<CefTranslatorTestRefPtrClient> SetChildRefPtrClientAndReturnParent(
+      CefRefPtr<CefTranslatorTestRefPtrClientChild> val) override {
     return val;
   }
 
 
-  // CLIENT-SIDE OBJECT LIST VALUES
+  // CLIENT-SIDE REFPTR LIST VALUES
 
-  bool SetHandlerList(
-      const std::vector<CefRefPtr<CefTranslatorTestHandler> >& val,
+  bool SetRefPtrClientList(
+      const std::vector<CefRefPtr<CefTranslatorTestRefPtrClient> >& val,
       int val1, int val2) override {
     if (val.size() != 2U)
       return false;
     return val[0]->GetValue() == val1 && val[1]->GetValue() == val2;
   }
 
-  bool GetHandlerListByRef(
-      HandlerList& val,
-      CefRefPtr<CefTranslatorTestHandler> val1,
-      CefRefPtr<CefTranslatorTestHandler> val2) override {
-    if (val.size() != GetHandlerListSize())
+  bool GetRefPtrClientListByRef(
+      RefPtrClientList& val,
+      CefRefPtr<CefTranslatorTestRefPtrClient> val1,
+      CefRefPtr<CefTranslatorTestRefPtrClient> val2) override {
+    if (val.size() != GetRefPtrClientListSize())
       return false;
     val.clear();
     val.push_back(val1);
@@ -430,8 +565,104 @@ class CefTranslatorTestImpl : public CefTranslatorTest {
     return true;
   }
 
-  size_t GetHandlerListSize() override {
+  size_t GetRefPtrClientListSize() override {
     return 2U;
+  }
+
+
+  // LIBRARY-SIDE OWNPTR VALUES
+
+  CefOwnPtr<CefTranslatorTestScopedLibrary> GetOwnPtrLibrary(int val) override {
+    return CefOwnPtr<CefTranslatorTestScopedLibrary>(
+        new CefTranslatorTestScopedLibraryChildImpl(val, 0));
+  }
+
+  int SetOwnPtrLibrary(CefOwnPtr<CefTranslatorTestScopedLibrary> val) override {
+    return val->GetValue();
+  }
+
+  CefOwnPtr<CefTranslatorTestScopedLibrary> SetOwnPtrLibraryAndReturn(
+      CefOwnPtr<CefTranslatorTestScopedLibrary> val) override {
+    return val;
+  }
+
+  int SetChildOwnPtrLibrary(
+      CefOwnPtr<CefTranslatorTestScopedLibraryChild> val) override {
+    return val->GetValue();
+  }
+
+  CefOwnPtr<CefTranslatorTestScopedLibrary>
+  SetChildOwnPtrLibraryAndReturnParent(
+      CefOwnPtr<CefTranslatorTestScopedLibraryChild> val) override {
+    return CefOwnPtr<CefTranslatorTestScopedLibrary>(val.release());
+  }
+
+
+  // CLIENT-SIDE OWNPTR VALUES
+
+  int SetOwnPtrClient(CefOwnPtr<CefTranslatorTestScopedClient> val) override {
+    return val->GetValue();
+  }
+
+  CefOwnPtr<CefTranslatorTestScopedClient> SetOwnPtrClientAndReturn(
+      CefOwnPtr<CefTranslatorTestScopedClient> val) override {
+    return val;
+  }
+
+  int SetChildOwnPtrClient(
+      CefOwnPtr<CefTranslatorTestScopedClientChild> val) override {
+    return val->GetValue();
+  }
+
+  CefOwnPtr<CefTranslatorTestScopedClient> SetChildOwnPtrClientAndReturnParent(
+      CefOwnPtr<CefTranslatorTestScopedClientChild> val) override {
+    return CefOwnPtr<CefTranslatorTestScopedClient>(val.release());
+  }
+
+
+  // LIBRARY-SIDE RAWPTR VALUES
+
+  int SetRawPtrLibrary(CefRawPtr<CefTranslatorTestScopedLibrary> val) override {
+    return val->GetValue();
+  }
+
+  int SetChildRawPtrLibrary(
+      CefRawPtr<CefTranslatorTestScopedLibraryChild> val) override {
+    return val->GetValue();
+  }
+
+
+  // LIBRARY-SIDE RAWPTR LIST VALUES
+
+  bool SetRawPtrLibraryList(
+      const std::vector<CefRawPtr<CefTranslatorTestScopedLibrary> >& val,
+      int val1, int val2) override {
+    if (val.size() != 2U)
+      return false;
+    return val[0]->GetValue() == val1 && val[1]->GetValue() == val2;
+  }
+
+
+  // CLIENT-SIDE RAWPTR VALUES
+
+  int SetRawPtrClient(CefRawPtr<CefTranslatorTestScopedClient> val) override {
+    return val->GetValue();
+  }
+
+  int SetChildRawPtrClient(
+      CefRawPtr<CefTranslatorTestScopedClientChild> val) override {
+    return val->GetValue();
+  }
+
+
+  // CLIENT-SIDE RAWPTR LIST VALUES
+
+  bool SetRawPtrClientList(
+      const std::vector<CefRawPtr<CefTranslatorTestScopedClient> >& val,
+      int val1, int val2) override {
+    if (val.size() != 2U)
+      return false;
+    return val[0]->GetValue() == val1 && val[1]->GetValue() == val2;
   }
 
  private:

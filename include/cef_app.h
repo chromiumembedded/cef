@@ -170,7 +170,7 @@ class CefApp : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual void OnRegisterCustomSchemes(
-      CefRefPtr<CefSchemeRegistrar> registrar) {
+      CefRawPtr<CefSchemeRegistrar> registrar) {
   }
 
   ///

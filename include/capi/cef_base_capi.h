@@ -45,8 +45,7 @@ extern "C" {
 #endif
 
 ///
-// Structure defining the reference count implementation functions. All
-// framework structures must include the cef_base_t structure first.
+// All ref-counted framework structures must include this structure first.
 ///
 typedef struct _cef_base_t {
   ///
@@ -72,6 +71,23 @@ typedef struct _cef_base_t {
   ///
   int (CEF_CALLBACK *has_one_ref)(struct _cef_base_t* self);
 } cef_base_t;
+
+
+///
+// All scoped framework structures must include this structure first.
+///
+typedef struct _cef_base_scoped_t {
+  ///
+  // Size of the data structure.
+  ///
+  size_t size;
+
+  ///
+  // Called to delete this object. May be NULL if the object is not owned.
+  ///
+  void (CEF_CALLBACK *del)(struct _cef_base_scoped_t* self);
+
+} cef_base_scoped_t;
 
 
 // Check that the structure |s|, which is defined with a cef_base_t member named

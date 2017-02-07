@@ -42,7 +42,7 @@ ClientApp::ProcessType ClientApp::GetProcessType(
 }
 
 void ClientApp::OnRegisterCustomSchemes(
-    CefRefPtr<CefSchemeRegistrar> registrar) {
+    CefRawPtr<CefSchemeRegistrar> registrar) {
   RegisterCustomSchemes(registrar, cookieable_schemes_);
 }
 

@@ -23,7 +23,7 @@ def make_function_body(header, cls):
     cur_cls = cls
     while True:
         parent_name = cur_cls.get_parent_name()
-        if parent_name == 'CefBase':
+        if is_base_class(parent_name):
             break
         else:
             parent_cls = header.get_class(parent_name)
@@ -92,10 +92,17 @@ def make_ctocpp_header(header, clsname):
               result += '#include "include/'+dcls.get_file_name()+'"\n' \
                         '#include "include/capi/'+dcls.get_capi_file_name()+'"\n'
 
-    result += """#include "libcef_dll/ctocpp/ctocpp.h"
+    base_class_name = header.get_base_class_name(clsname)
+    base_scoped = True if base_class_name == 'CefBaseScoped' else False
+    if base_scoped:
+      template_file = 'ctocpp_scoped.h'
+      template_class = 'CefCToCppScoped'
+    else:
+      template_file = 'ctocpp.h'
+      template_class = 'CefCToCpp'
 
-// Wrap a C structure with a C++ class.
-"""
+    result += '#include "libcef_dll/ctocpp/' + template_file + '"'
+    result += '\n\n// Wrap a C structure with a C++ class.\n'
 
     if clientside:
         result += '// This class may be instantiated and accessed DLL-side only.\n'
@@ -103,7 +110,7 @@ def make_ctocpp_header(header, clsname):
         result += '// This class may be instantiated and accessed wrapper-side only.\n'
 
     result +=   'class '+clsname+'CToCpp\n'+ \
-                '    : public CefCToCpp<'+clsname+'CToCpp, '+clsname+', '+capiname+'> {\n'+ \
+                '    : public ' + template_class + '<'+clsname+'CToCpp, '+clsname+', '+capiname+'> {\n'+ \
                 ' public:\n'+ \
                 '  '+clsname+'CToCpp();\n\n'
 

@@ -117,10 +117,16 @@ def make_ctocpp_function_impl_new(clsname, name, func):
                       '\n  DCHECK('+arg_name+');'\
                       '\n  if (!'+arg_name+')'\
                       '\n    return'+retval_default+';'
-        elif arg_type == 'refptr_same' or arg_type == 'refptr_diff':
+        elif arg_type == 'refptr_same' or arg_type == 'refptr_diff' or \
+             arg_type == 'ownptr_same' or arg_type == 'ownptr_diff':
             result += comment+\
                       '\n  DCHECK('+arg_name+'.get());'\
                       '\n  if (!'+arg_name+'.get())'\
+                      '\n    return'+retval_default+';'
+        elif arg_type == 'rawptr_same' or arg_type == 'rawptr_diff':
+            result += comment+\
+                      '\n  DCHECK('+arg_name+');'\
+                      '\n  if (!'+arg_name+')'\
                       '\n    return'+retval_default+';'
         elif arg_type == 'string_byref_const':
             result += comment+\
@@ -181,23 +187,37 @@ def make_ctocpp_function_impl_new(clsname, name, func):
         elif arg_type == 'string_byref':
             params.append(arg_name+'.GetWritableStruct()')
         elif arg_type == 'refptr_same':
-            refptr_class = arg.get_type().get_refptr_type()
-            params.append(refptr_class+'CToCpp::Unwrap('+arg_name+')')
+            ptr_class = arg.get_type().get_ptr_type()
+            params.append(ptr_class+'CToCpp::Unwrap('+arg_name+')')
+        elif arg_type == 'ownptr_same':
+            ptr_class = arg.get_type().get_ptr_type()
+            params.append(ptr_class+'CToCpp::UnwrapOwn(OWN_PASS('+arg_name+'))')
+        elif arg_type == 'rawptr_same':
+            ptr_class = arg.get_type().get_ptr_type()
+            params.append(ptr_class+'CToCpp::UnwrapRaw('+arg_name+')')
         elif arg_type == 'refptr_diff':
-            refptr_class = arg.get_type().get_refptr_type()
-            params.append(refptr_class+'CppToC::Wrap('+arg_name+')')
-        elif arg_type == 'refptr_same_byref' or arg_type == 'refptr_diff_byref':
-            refptr_class = arg.get_type().get_refptr_type()
-            refptr_struct = arg.get_type().get_result_refptr_type_root()
-            if arg_type == 'refptr_same_byref':
-                assign = refptr_class+'CToCpp::Unwrap('+arg_name+')'
-            else:
-                assign = refptr_class+'CppToC::Wrap('+arg_name+')'
+            ptr_class = arg.get_type().get_ptr_type()
+            params.append(ptr_class+'CppToC::Wrap('+arg_name+')')
+        elif arg_type == 'ownptr_diff':
+            ptr_class = arg.get_type().get_ptr_type()
+            params.append(ptr_class+'CppToC::WrapOwn(OWN_PASS('+arg_name+'))')
+        elif arg_type == 'rawptr_diff':
+            ptr_class = arg.get_type().get_ptr_type()
             result += comment+\
-                      '\n  '+refptr_struct+'* '+arg_name+'Struct = NULL;'\
+                      '\n  CefOwnPtr<'+ptr_class+'CppToC> '+arg_name+'Ptr('+ptr_class+'CppToC::WrapRaw('+arg_name+'));'
+            params.append(arg_name+'Ptr->GetStruct()')
+        elif arg_type == 'refptr_same_byref' or arg_type == 'refptr_diff_byref':
+            ptr_class = arg.get_type().get_ptr_type()
+            ptr_struct = arg.get_type().get_result_ptr_type_root()
+            if arg_type == 'refptr_same_byref':
+                assign = ptr_class+'CToCpp::Unwrap('+arg_name+')'
+            else:
+                assign = ptr_class+'CppToC::Wrap('+arg_name+')'
+            result += comment+\
+                      '\n  '+ptr_struct+'* '+arg_name+'Struct = NULL;'\
                       '\n  if ('+arg_name+'.get())'\
                       '\n    '+arg_name+'Struct = '+assign+';'\
-                      '\n  '+refptr_struct+'* '+arg_name+'Orig = '+arg_name+'Struct;'
+                      '\n  '+ptr_struct+'* '+arg_name+'Orig = '+arg_name+'Struct;'
             params.append('&'+arg_name+'Struct')
         elif arg_type == 'string_vec_byref' or arg_type == 'string_vec_byref_const':
             result += comment+\
@@ -225,11 +245,11 @@ def make_ctocpp_function_impl_new(clsname, name, func):
             count_func = arg.get_attrib_count_func()
             vec_type = arg.get_type().get_result_vector_type_root()
             if arg_type == 'refptr_vec_same_byref':
-                refptr_class = arg.get_type().get_refptr_type()
-                assign = refptr_class+'CToCpp::Unwrap('+arg_name+'[i])'
+                ptr_class = arg.get_type().get_ptr_type()
+                assign = ptr_class+'CToCpp::Unwrap('+arg_name+'[i])'
             elif arg_type == 'refptr_vec_diff_byref':
-                refptr_class = arg.get_type().get_refptr_type()
-                assign = refptr_class+'CppToC::Wrap('+arg_name+'[i])'
+                ptr_class = arg.get_type().get_ptr_type()
+                assign = ptr_class+'CppToC::Wrap('+arg_name+'[i])'
             else:
                 assign = arg_name+'[i]'
             result += comment+\
@@ -251,17 +271,22 @@ def make_ctocpp_function_impl_new(clsname, name, func):
             params.append('&'+arg_name+'Count')
             params.append(arg_name+'List')
         elif arg_type == 'simple_vec_byref_const' or arg_type == 'bool_vec_byref_const' or \
-             arg_type == 'refptr_vec_same_byref_const' or arg_type == 'refptr_vec_diff_byref_const':
+             arg_type == 'refptr_vec_same_byref_const' or arg_type == 'refptr_vec_diff_byref_const' or \
+             arg_type == 'rawptr_vec_same_byref_const' or arg_type == 'rawptr_vec_diff_byref_const':
             count_func = arg.get_attrib_count_func()
             vec_type = arg.get_type().get_result_vector_type_root()
-            if arg_type == 'refptr_vec_same_byref_const':
-                refptr_class = arg.get_type().get_refptr_type()
-                assign = refptr_class+'CToCpp::Unwrap('+arg_name+'[i])'
-            elif arg_type == 'refptr_vec_diff_byref_const':
-                refptr_class = arg.get_type().get_refptr_type()
-                assign = refptr_class+'CppToC::Wrap('+arg_name+'[i])'
-            else:
+            if arg_type == 'simple_vec_byref_const' or arg_type == 'bool_vec_byref_const':
                 assign = arg_name+'[i]'
+            else:
+                ptr_class = arg.get_type().get_ptr_type()
+                if arg_type == 'refptr_vec_same_byref_const':
+                    assign = ptr_class+'CToCpp::Unwrap('+arg_name+'[i])'
+                elif arg_type == 'refptr_vec_diff_byref_const':
+                    assign = ptr_class+'CppToC::Wrap('+arg_name+'[i])'
+                elif arg_type == 'rawptr_vec_same_byref_const':
+                    assign = ptr_class+'CToCpp::UnwrapRaw('+arg_name+'[i])'
+                elif arg_type == 'rawptr_vec_diff_byref_const':
+                    assign = ptr_class+'CppToC::WrapRaw('+arg_name+'[i]).release()->GetStruct()'
             result += comment+\
                       '\n  const size_t '+arg_name+'Count = '+arg_name+'.size();'\
                       '\n  '+vec_type+'* '+arg_name+'List = NULL;'\
@@ -276,6 +301,8 @@ def make_ctocpp_function_impl_new(clsname, name, func):
                       '\n  }'
             params.append(arg_name+'Count')
             params.append(arg_name+'List')
+        else:
+            raise Exception('Unsupported argument type %s for parameter %s in %s' % (arg_type, arg_name, name))
 
     if len(result) != result_len:
         result += '\n'
@@ -290,9 +317,12 @@ def make_ctocpp_function_impl_new(clsname, name, func):
             result += retval.get_type().get_result_simple_type_root()
         elif retval_type == 'string':
             result += 'cef_string_userfree_t'
-        elif retval_type == 'refptr_same' or retval_type == 'refptr_diff':
-            refptr_struct = retval.get_type().get_result_refptr_type_root()
-            result += refptr_struct+'*'
+        elif retval_type == 'refptr_same' or retval_type == 'refptr_diff' or \
+             retval_type == 'ownptr_same' or retval_type == 'ownptr_diff':
+            ptr_struct = retval.get_type().get_result_ptr_type_root()
+            result += ptr_struct+'*'
+        else:
+            raise Exception('Unsupported return type %s in %s' % (retval_type, name))
 
         result += ' _retval = '
 
@@ -324,12 +354,12 @@ def make_ctocpp_function_impl_new(clsname, name, func):
                       '\n  if ('+arg_name+')'\
                       '\n    *'+arg_name+' = '+arg_name+'Int?true:false;'
         elif arg_type == 'refptr_same_byref' or arg_type == 'refptr_diff_byref':
-            refptr_class = arg.get_type().get_refptr_type()
-            refptr_struct = arg.get_type().get_result_refptr_type_root()
+            ptr_class = arg.get_type().get_ptr_type()
+            ptr_struct = arg.get_type().get_result_ptr_type_root()
             if arg_type == 'refptr_same_byref':
-                assign = refptr_class+'CToCpp::Wrap('+arg_name+'Struct)'
+                assign = ptr_class+'CToCpp::Wrap('+arg_name+'Struct)'
             else:
-                assign = refptr_class+'CppToC::Unwrap('+arg_name+'Struct)'
+                assign = ptr_class+'CppToC::Unwrap('+arg_name+'Struct)'
             result += comment+\
                       '\n  if ('+arg_name+'Struct) {'\
                       '\n    if ('+arg_name+'Struct != '+arg_name+'Orig) {'\
@@ -376,11 +406,11 @@ def make_ctocpp_function_impl_new(clsname, name, func):
             count_func = arg.get_attrib_count_func()
             vec_type = arg.get_type().get_result_vector_type_root()
             if arg_type == 'refptr_vec_same_byref':
-                refptr_class = arg.get_type().get_refptr_type()
-                assign = refptr_class+'CToCpp::Wrap('+arg_name+'List[i])'
+                ptr_class = arg.get_type().get_ptr_type()
+                assign = ptr_class+'CToCpp::Wrap('+arg_name+'List[i])'
             elif arg_type == 'refptr_vec_diff_byref':
-                refptr_class = arg.get_type().get_refptr_type()
-                assign = refptr_class+'CppToC::Unwrap('+arg_name+'List[i])'
+                ptr_class = arg.get_type().get_ptr_type()
+                assign = ptr_class+'CppToC::Unwrap('+arg_name+'List[i])'
             elif arg_type == 'bool_vec_byref':
                 assign = arg_name+'List[i]?true:false'
             else:
@@ -394,9 +424,16 @@ def make_ctocpp_function_impl_new(clsname, name, func):
                       '\n    delete [] '+arg_name+'List;'\
                       '\n  }'
         elif arg_type == 'simple_vec_byref_const' or arg_type == 'bool_vec_byref_const' or \
-             arg_type == 'refptr_vec_same_byref_const' or arg_type == 'refptr_vec_diff_byref_const':
-            result += comment+\
-                      '\n  if ('+arg_name+'List)'\
+             arg_type == 'refptr_vec_same_byref_const' or arg_type == 'refptr_vec_diff_byref_const' or \
+             arg_type == 'rawptr_vec_same_byref_const' or arg_type == 'rawptr_vec_diff_byref_const':
+            result += comment
+            if arg_type == 'rawptr_vec_diff_byref_const':
+                result += '\n  if ('+arg_name+'Count > 0) {'\
+                          '\n    for (size_t i = 0; i < '+arg_name+'Count; ++i) {'\
+                          '\n      delete '+ptr_class+'CppToC::GetWrapper('+arg_name+'List[i]);'\
+                          '\n    }'\
+                          '\n  }'
+            result += '\n  if ('+arg_name+'List)'\
                       '\n    delete [] '+arg_name+'List;'
 
     if len(result) != result_len:
@@ -441,12 +478,17 @@ def make_ctocpp_function_impl_new(clsname, name, func):
             result += '\n  CefString _retvalStr;'\
                       '\n  _retvalStr.AttachToUserFree(_retval);'\
                       '\n  return _retvalStr;'
-        elif retval_type == 'refptr_same':
-            refptr_class = retval.get_type().get_refptr_type()
-            result += '\n  return '+refptr_class+'CToCpp::Wrap(_retval);'
+        elif retval_type == 'refptr_same' or retval_type == 'ownptr_same':
+            ptr_class = retval.get_type().get_ptr_type()
+            result += '\n  return '+ptr_class+'CToCpp::Wrap(_retval);'
         elif retval_type == 'refptr_diff':
-            refptr_class = retval.get_type().get_refptr_type()
-            result += '\n  return '+refptr_class+'CppToC::Unwrap(_retval);'
+            ptr_class = retval.get_type().get_ptr_type()
+            result += '\n  return '+ptr_class+'CppToC::Unwrap(_retval);'
+        elif retval_type == 'ownptr_diff':
+            ptr_class = retval.get_type().get_ptr_type()
+            result += '\n  return '+ptr_class+'CppToC::UnwrapOwn(_retval);'
+        else:
+            raise Exception('Unsupported return type %s in %s' % (retval_type, name))
 
     if len(result) != result_len:
         result += '\n'
@@ -475,7 +517,7 @@ def make_ctocpp_virtual_function_impl(header, cls, existing):
     cur_cls = cls
     while True:
         parent_name = cur_cls.get_parent_name()
-        if parent_name == 'CefBase':
+        if is_base_class(parent_name):
             break
         else:
             parent_cls = header.get_class(parent_name)
@@ -486,7 +528,7 @@ def make_ctocpp_virtual_function_impl(header, cls, existing):
     
     return impl
 
-def make_ctocpp_unwrap_derived(header, cls):
+def make_ctocpp_unwrap_derived(header, cls, base_scoped):
     # identify all classes that derive from cls
     derived_classes = []
     clsname = cls.get_name()
@@ -499,12 +541,24 @@ def make_ctocpp_unwrap_derived(header, cls):
 
     derived_classes = sorted(derived_classes)
     
-    impl = ''
-    for clsname in derived_classes:
-      impl += '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
-              '    return reinterpret_cast<'+get_capi_name(cls.get_name(), True)+'*>('+\
-              clsname+'CToCpp::Unwrap(reinterpret_cast<'+clsname+'*>(c)));\n'+\
-              '  }\n'
+    if base_scoped:
+        impl = ['', '']
+        for clsname in derived_classes:
+            impl[0] += '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
+                       '    return reinterpret_cast<'+get_capi_name(cls.get_name(), True)+'*>('+\
+                       clsname+'CToCpp::UnwrapOwn(CefOwnPtr<'+clsname+'>(reinterpret_cast<'+clsname+'*>(c.release()))));\n'+\
+                       '  }\n'
+            impl[1] += '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
+                       '    return reinterpret_cast<'+get_capi_name(cls.get_name(), True)+'*>('+\
+                       clsname+'CToCpp::UnwrapRaw(CefRawPtr<'+clsname+'>(reinterpret_cast<'+clsname+'*>(c))));\n'+\
+                       '  }\n'
+    else:
+        impl = ''
+        for clsname in derived_classes:
+            impl += '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
+                    '    return reinterpret_cast<'+get_capi_name(cls.get_name(), True)+'*>('+\
+                    clsname+'CToCpp::Unwrap(reinterpret_cast<'+clsname+'*>(c)));\n'+\
+                    '  }\n'
     return impl
 
 def make_ctocpp_class_impl(header, clsname, impl):
@@ -516,6 +570,13 @@ def make_ctocpp_class_impl(header, clsname, impl):
 
     # retrieve the existing virtual function implementations
     existing = get_function_impls(impl, clsname+'CToCpp::')
+
+    base_class_name = header.get_base_class_name(clsname)
+    base_scoped = True if base_class_name == 'CefBaseScoped' else False
+    if base_scoped:
+        template_class = 'CefCToCppScoped'
+    else:
+        template_class = 'CefCToCpp'
 
     # generate virtual functions
     virtualimpl = make_ctocpp_virtual_function_impl(header, cls, existing)
@@ -533,28 +594,42 @@ def make_ctocpp_class_impl(header, clsname, impl):
     resultingimpl = staticimpl + virtualimpl
     
     # any derived classes can be unwrapped
-    unwrapderived = make_ctocpp_unwrap_derived(header, cls)
+    unwrapderived = make_ctocpp_unwrap_derived(header, cls, base_scoped)
 
     # determine what includes are required by identifying what translation
     # classes are being used
-    includes = format_translation_includes(header, resultingimpl + unwrapderived)
+    includes = format_translation_includes(header, resultingimpl + (unwrapderived[0] if base_scoped else unwrapderived))
 
     # build the final output
     result = get_copyright()
 
     result += includes+'\n'+resultingimpl+'\n'
 
-    parent_sig = 'CefCToCpp<'+clsname+'CToCpp, '+clsname+', '+capiname+'>'
+    parent_sig = template_class+'<'+clsname+'CToCpp, '+clsname+', '+capiname+'>'
 
     const =  '// CONSTRUCTOR - Do not edit by hand.\n\n'+ \
              clsname+'CToCpp::'+clsname+'CToCpp() {\n'+ \
-             '}\n\n'+ \
-             'template<> '+capiname+'* '+parent_sig+'::UnwrapDerived(CefWrapperType type, '+clsname+'* c) {\n'+ \
-             unwrapderived + \
-             '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
-             '  return NULL;\n'+ \
-             '}\n\n'+ \
-             '#if DCHECK_IS_ON()\n'+ \
+             '}\n\n'
+
+    if base_scoped:
+        const += 'template<> '+capiname+'* '+parent_sig+'::UnwrapDerivedOwn(CefWrapperType type, CefOwnPtr<'+clsname+'> c) {\n'+ \
+                 unwrapderived[0] + \
+                 '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
+                 '  return NULL;\n'+ \
+                 '}\n\n' + \
+                 'template<> '+capiname+'* '+parent_sig+'::UnwrapDerivedRaw(CefWrapperType type, CefRawPtr<'+clsname+'> c) {\n'+ \
+                 unwrapderived[1] + \
+                 '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
+                 '  return NULL;\n'+ \
+                 '}\n\n'
+    else:
+        const += 'template<> '+capiname+'* '+parent_sig+'::UnwrapDerived(CefWrapperType type, '+clsname+'* c) {\n'+ \
+                 unwrapderived + \
+                 '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
+                 '  return NULL;\n'+ \
+                 '}\n\n'
+
+    const += '#if DCHECK_IS_ON()\n'+ \
              'template<> base::AtomicRefCount '+parent_sig+'::DebugObjCt = 0;\n'+ \
              '#endif\n\n'+ \
              'template<> CefWrapperType '+parent_sig+'::kWrapperType = '+get_wrapper_type_enum(clsname)+';'

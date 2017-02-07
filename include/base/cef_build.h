@@ -189,4 +189,13 @@
 #endif
 #endif  // OVERRIDE
 
+// Check for C++11 template alias support which was added in VS2013 and GCC4.7.
+// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2258.pdf
+#if __cplusplus > 199711L || \
+    (defined(_MSC_VER) && _MSC_VER >= 1800) || \
+    (defined(__GNUC__) && \
+      (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ >= 40700))
+#define HAS_CPP11_TEMPLATE_ALIAS_SUPPORT
+#endif
+
 #endif  // CEF_INCLUDE_BASE_CEF_BUILD_H_

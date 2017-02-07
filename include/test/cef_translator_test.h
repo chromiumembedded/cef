@@ -53,10 +53,14 @@
 
 #include "include/cef_base.h"
 
-class CefTranslatorTestHandler;
-class CefTranslatorTestHandlerChild;
-class CefTranslatorTestObject;
-class CefTranslatorTestObjectChild;
+class CefTranslatorTestRefPtrClient;
+class CefTranslatorTestRefPtrClientChild;
+class CefTranslatorTestRefPtrLibrary;
+class CefTranslatorTestRefPtrLibraryChild;
+class CefTranslatorTestScopedClient;
+class CefTranslatorTestScopedClientChild;
+class CefTranslatorTestScopedLibrary;
+class CefTranslatorTestScopedLibraryChild;
 
 // Test values.
 #define TEST_INT_VAL      5
@@ -309,146 +313,311 @@ class CefTranslatorTest : public CefBase {
   virtual size_t GetPointListSize() = 0;
 
 
-  // LIBRARY-SIDE OBJECT VALUES
+  // LIBRARY-SIDE REFPTR VALUES
 
   ///
   // Return an new library-side object.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefTranslatorTestObject> GetObject(int val) =0;
+  virtual CefRefPtr<CefTranslatorTestRefPtrLibrary> GetRefPtrLibrary(
+      int val) =0;
 
   ///
-  // Set an object. Returns the value from CefTranslatorTestObject::GetValue().
+  // Set an object. Returns the value from
+  // CefTranslatorTestRefPtrLibrary::GetValue().
   // This tests input and execution of a library-side object type.
   ///
   /*--cef()--*/
-  virtual int SetObject(CefRefPtr<CefTranslatorTestObject> val) =0;
+  virtual int SetRefPtrLibrary(
+      CefRefPtr<CefTranslatorTestRefPtrLibrary> val) =0;
 
   ///
   // Set an object. Returns the object passed in. This tests input and output
   // of a library-side object type.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefTranslatorTestObject> SetObjectAndReturn(
-      CefRefPtr<CefTranslatorTestObject> val) =0;
+  virtual CefRefPtr<CefTranslatorTestRefPtrLibrary> SetRefPtrLibraryAndReturn(
+      CefRefPtr<CefTranslatorTestRefPtrLibrary> val) =0;
 
   ///
   // Set a child object. Returns the value from
-  // CefTranslatorTestObject::GetValue(). This tests input of a library-side
-  // child object type and execution as the parent type.
+  // CefTranslatorTestRefPtrLibrary::GetValue(). This tests input of a library-
+  // side child object type and execution as the parent type.
   ///
   /*--cef()--*/
-  virtual int SetChildObject(CefRefPtr<CefTranslatorTestObjectChild> val) =0;
+  virtual int SetChildRefPtrLibrary(
+      CefRefPtr<CefTranslatorTestRefPtrLibraryChild> val) =0;
 
   ///
   // Set a child object. Returns the object as the parent type. This tests input
   // of a library-side child object type and return as the parent type.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefTranslatorTestObject> SetChildObjectAndReturnParent(
-      CefRefPtr<CefTranslatorTestObjectChild> val) =0;
+  virtual CefRefPtr<CefTranslatorTestRefPtrLibrary>
+  SetChildRefPtrLibraryAndReturnParent(
+      CefRefPtr<CefTranslatorTestRefPtrLibraryChild> val) =0;
 
 
-  // LIBRARY-SIDE OBJECT LIST VALUES
+  // LIBRARY-SIDE REFPTR LIST VALUES
 
   // Test both with and without a typedef.
-  typedef std::vector<CefRefPtr<CefTranslatorTestObject> > ObjectList;
+  typedef std::vector<CefRefPtr<CefTranslatorTestRefPtrLibrary> >
+      RefPtrLibraryList;
 
   ///
   // Set an object list vlaue.
   ///
   /*--cef()--*/
-  virtual bool SetObjectList(
-      const std::vector<CefRefPtr<CefTranslatorTestObject> >& val,
+  virtual bool SetRefPtrLibraryList(
+      const std::vector<CefRefPtr<CefTranslatorTestRefPtrLibrary> >& val,
       int val1, int val2) =0;
 
   ///
   // Return an object list value by out-param.
   ///
-  /*--cef(count_func=val:GetObjectListSize)--*/
-  virtual bool GetObjectListByRef(ObjectList& val, int val1, int val2) =0;
+  /*--cef(count_func=val:GetRefPtrLibraryListSize)--*/
+  virtual bool GetRefPtrLibraryListByRef(RefPtrLibraryList& val, int val1,
+                                         int val2) =0;
 
   ///
   // Return the number of object that will be output above.
   ///
   /*--cef()--*/
-  virtual size_t GetObjectListSize() = 0;
+  virtual size_t GetRefPtrLibraryListSize() = 0;
 
 
-  // CLIENT-SIDE OBJECT VALUES
+  // CLIENT-SIDE REFPTR VALUES
 
   ///
-  // Set an object. Returns the value from CefTranslatorTestHandler::GetValue().
+  // Set an object. Returns the value from
+  // CefTranslatorTestRefPtrClient::GetValue().
   // This tests input and execution of a client-side object type.
   ///
   /*--cef()--*/
-  virtual int SetHandler(CefRefPtr<CefTranslatorTestHandler> val) =0;
+  virtual int SetRefPtrClient(CefRefPtr<CefTranslatorTestRefPtrClient> val) =0;
 
   ///
   // Set an object. Returns the handler passed in. This tests input and output
   // of a client-side object type.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefTranslatorTestHandler> SetHandlerAndReturn(
-      CefRefPtr<CefTranslatorTestHandler> val) =0;
+  virtual CefRefPtr<CefTranslatorTestRefPtrClient> SetRefPtrClientAndReturn(
+      CefRefPtr<CefTranslatorTestRefPtrClient> val) =0;
 
   ///
   // Set a child object. Returns the value from
-  // CefTranslatorTestHandler::GetValue(). This tests input of a client-side
-  // child object type and execution as the parent type.
+  // CefTranslatorTestRefPtrClient::GetValue(). This tests input of a client-
+  // side child object type and execution as the parent type.
   ///
   /*--cef()--*/
-  virtual int SetChildHandler(CefRefPtr<CefTranslatorTestHandlerChild> val) =0;
+  virtual int SetChildRefPtrClient(
+      CefRefPtr<CefTranslatorTestRefPtrClientChild> val) =0;
 
   ///
   // Set a child object. Returns the object as the parent type. This tests
   // input of a client-side child object type and return as the parent type.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefTranslatorTestHandler> SetChildHandlerAndReturnParent(
-      CefRefPtr<CefTranslatorTestHandlerChild> val) =0;
+  virtual CefRefPtr<CefTranslatorTestRefPtrClient>
+  SetChildRefPtrClientAndReturnParent(
+      CefRefPtr<CefTranslatorTestRefPtrClientChild> val) =0;
 
 
-  // CLIENT-SIDE OBJECT LIST VALUES
+  // CLIENT-SIDE REFPTR LIST VALUES
 
   // Test both with and without a typedef.
-  typedef std::vector<CefRefPtr<CefTranslatorTestHandler> > HandlerList;
+  typedef std::vector<CefRefPtr<CefTranslatorTestRefPtrClient> >
+      RefPtrClientList;
 
   ///
   // Set an object list vlaue.
   ///
   /*--cef()--*/
-  virtual bool SetHandlerList(
-      const std::vector<CefRefPtr<CefTranslatorTestHandler> >& val,
+  virtual bool SetRefPtrClientList(
+      const std::vector<CefRefPtr<CefTranslatorTestRefPtrClient> >& val,
       int val1, int val2) =0;
 
   ///
   // Return an object list value by out-param.
   ///
-  /*--cef(count_func=val:GetObjectListSize)--*/
-  virtual bool GetHandlerListByRef(
-      HandlerList& val,
-      CefRefPtr<CefTranslatorTestHandler> val1,
-      CefRefPtr<CefTranslatorTestHandler> val2) =0;
+  /*--cef(count_func=val:GetRefPtrLibraryListSize)--*/
+  virtual bool GetRefPtrClientListByRef(
+      RefPtrClientList& val,
+      CefRefPtr<CefTranslatorTestRefPtrClient> val1,
+      CefRefPtr<CefTranslatorTestRefPtrClient> val2) =0;
 
   ///
   // Return the number of object that will be output above.
   ///
   /*--cef()--*/
-  virtual size_t GetHandlerListSize() = 0;
+  virtual size_t GetRefPtrClientListSize() = 0;
+
+
+  // LIBRARY-SIDE OWNPTR VALUES
+
+  ///
+  // Return an new library-side object.
+  ///
+  /*--cef()--*/
+  virtual CefOwnPtr<CefTranslatorTestScopedLibrary> GetOwnPtrLibrary(
+      int val) =0;
+
+  ///
+  // Set an object. Returns the value from
+  // CefTranslatorTestScopedLibrary::GetValue().
+  // This tests input and execution of a library-side object type.
+  ///
+  /*--cef()--*/
+  virtual int SetOwnPtrLibrary(
+      CefOwnPtr<CefTranslatorTestScopedLibrary> val) =0;
+
+  ///
+  // Set an object. Returns the object passed in. This tests input and output
+  // of a library-side object type.
+  ///
+  /*--cef()--*/
+  virtual CefOwnPtr<CefTranslatorTestScopedLibrary> SetOwnPtrLibraryAndReturn(
+      CefOwnPtr<CefTranslatorTestScopedLibrary> val) =0;
+
+  ///
+  // Set a child object. Returns the value from
+  // CefTranslatorTestScopedLibrary::GetValue(). This tests input of a library-
+  // side child object type and execution as the parent type.
+  ///
+  /*--cef()--*/
+  virtual int SetChildOwnPtrLibrary(
+      CefOwnPtr<CefTranslatorTestScopedLibraryChild> val) =0;
+
+  ///
+  // Set a child object. Returns the object as the parent type. This tests input
+  // of a library-side child object type and return as the parent type.
+  ///
+  /*--cef()--*/
+  virtual CefOwnPtr<CefTranslatorTestScopedLibrary>
+  SetChildOwnPtrLibraryAndReturnParent(
+      CefOwnPtr<CefTranslatorTestScopedLibraryChild> val) =0;
+
+
+  // CLIENT-SIDE OWNPTR VALUES
+
+  ///
+  // Set an object. Returns the value from
+  // CefTranslatorTestScopedClient::GetValue().
+  // This tests input and execution of a client-side object type.
+  ///
+  /*--cef()--*/
+  virtual int SetOwnPtrClient(CefOwnPtr<CefTranslatorTestScopedClient> val) =0;
+
+  ///
+  // Set an object. Returns the handler passed in. This tests input and output
+  // of a client-side object type.
+  ///
+  /*--cef()--*/
+  virtual CefOwnPtr<CefTranslatorTestScopedClient> SetOwnPtrClientAndReturn(
+      CefOwnPtr<CefTranslatorTestScopedClient> val) =0;
+
+  ///
+  // Set a child object. Returns the value from
+  // CefTranslatorTestScopedClient::GetValue(). This tests input of a client-
+  // side child object type and execution as the parent type.
+  ///
+  /*--cef()--*/
+  virtual int SetChildOwnPtrClient(
+      CefOwnPtr<CefTranslatorTestScopedClientChild> val) =0;
+
+  ///
+  // Set a child object. Returns the object as the parent type. This tests
+  // input of a client-side child object type and return as the parent type.
+  ///
+  /*--cef()--*/
+  virtual CefOwnPtr<CefTranslatorTestScopedClient>
+  SetChildOwnPtrClientAndReturnParent(
+      CefOwnPtr<CefTranslatorTestScopedClientChild> val) =0;
+
+
+  // LIBRARY-SIDE RAWPTR VALUES
+
+  ///
+  // Set an object. Returns the value from
+  // CefTranslatorTestScopedLibrary::GetValue().
+  // This tests input and execution of a library-side object type.
+  ///
+  /*--cef()--*/
+  virtual int SetRawPtrLibrary(
+      CefRawPtr<CefTranslatorTestScopedLibrary> val) =0;
+
+  ///
+  // Set a child object. Returns the value from
+  // CefTranslatorTestScopedLibrary::GetValue(). This tests input of a library-
+  // side child object type and execution as the parent type.
+  ///
+  /*--cef()--*/
+  virtual int SetChildRawPtrLibrary(
+      CefRawPtr<CefTranslatorTestScopedLibraryChild> val) =0;
+
+
+  // LIBRARY-SIDE RAWPTR LIST VALUES
+
+  // Test both with and without a typedef.
+  typedef std::vector<CefRawPtr<CefTranslatorTestScopedLibrary> >
+      RawPtrLibraryList;
+
+  ///
+  // Set an object list vlaue.
+  ///
+  /*--cef()--*/
+  virtual bool SetRawPtrLibraryList(
+      const std::vector<CefRawPtr<CefTranslatorTestScopedLibrary> >& val,
+      int val1, int val2) =0;
+
+
+  // CLIENT-SIDE RAWPTR VALUES
+
+  ///
+  // Set an object. Returns the value from
+  // CefTranslatorTestScopedClient::GetValue().
+  // This tests input and execution of a client-side object type.
+  ///
+  /*--cef()--*/
+  virtual int SetRawPtrClient(CefRawPtr<CefTranslatorTestScopedClient> val) =0;
+
+  ///
+  // Set a child object. Returns the value from
+  // CefTranslatorTestScopedClient::GetValue(). This tests input of a client-
+  // side child object type and execution as the parent type.
+  ///
+  /*--cef()--*/
+  virtual int SetChildRawPtrClient(
+      CefRawPtr<CefTranslatorTestScopedClientChild> val) =0;
+
+
+  // CLIENT-SIDE RAWPTR LIST VALUES
+
+  // Test both with and without a typedef.
+  typedef std::vector<CefRawPtr<CefTranslatorTestScopedClient> >
+      RawPtrClientList;
+
+  ///
+  // Set an object list vlaue.
+  ///
+  /*--cef()--*/
+  virtual bool SetRawPtrClientList(
+      const std::vector<CefRawPtr<CefTranslatorTestScopedClient> >& val,
+      int val1, int val2) =0;
 };
 
+
 ///
-// Library-side test object.
+// Library-side test object for RefPtr.
 ///
 /*--cef(source=library,no_debugct_check)--*/
-class CefTranslatorTestObject : public CefBase {
+class CefTranslatorTestRefPtrLibrary : public CefBase {
  public:
   ///
   // Create the test object.
   ///
   /*--cef()--*/
-  static CefRefPtr<CefTranslatorTestObject> Create(int value);
+  static CefRefPtr<CefTranslatorTestRefPtrLibrary> Create(int value);
 
   ///
   // Return a value.
@@ -464,17 +633,19 @@ class CefTranslatorTestObject : public CefBase {
 };
 
 ///
-// Library-side child test object.
+// Library-side child test object for RefPtr.
 ///
 /*--cef(source=library,no_debugct_check)--*/
-class CefTranslatorTestObjectChild : public CefTranslatorTestObject {
+class CefTranslatorTestRefPtrLibraryChild :
+    public CefTranslatorTestRefPtrLibrary {
  public:
   ///
   // Create the test object.
   ///
   /*--cef()--*/
-  static CefRefPtr<CefTranslatorTestObjectChild> Create(int value,
-                                                        int other_value);
+  static CefRefPtr<CefTranslatorTestRefPtrLibraryChild> Create(
+      int value,
+      int other_value);
 
   ///
   // Return a value.
@@ -490,16 +661,17 @@ class CefTranslatorTestObjectChild : public CefTranslatorTestObject {
 };
 
 ///
-// Another library-side child test object.
+// Another library-side child test object for RefPtr.
 ///
 /*--cef(source=library,no_debugct_check)--*/
-class CefTranslatorTestObjectChildChild : public CefTranslatorTestObjectChild {
+class CefTranslatorTestRefPtrLibraryChildChild :
+    public CefTranslatorTestRefPtrLibraryChild {
  public:
   ///
   // Create the test object.
   ///
   /*--cef()--*/
-  static CefRefPtr<CefTranslatorTestObjectChildChild> Create(
+  static CefRefPtr<CefTranslatorTestRefPtrLibraryChildChild> Create(
       int value,
       int other_value,
       int other_other_value);
@@ -518,10 +690,10 @@ class CefTranslatorTestObjectChildChild : public CefTranslatorTestObjectChild {
 };
 
 ///
-// Client-side test object.
+// Client-side test object for RefPtr.
 ///
 /*--cef(source=client,no_debugct_check)--*/
-class CefTranslatorTestHandler : public virtual CefBase {
+class CefTranslatorTestRefPtrClient : public virtual CefBase {
  public:
   ///
   // Return a value.
@@ -531,10 +703,121 @@ class CefTranslatorTestHandler : public virtual CefBase {
 };
 
 ///
-// Client-side child test object.
+// Client-side child test object for RefPtr.
 ///
 /*--cef(source=client,no_debugct_check)--*/
-class CefTranslatorTestHandlerChild : public CefTranslatorTestHandler {
+class CefTranslatorTestRefPtrClientChild :
+    public CefTranslatorTestRefPtrClient {
+ public:
+  ///
+  // Return a value.
+  ///
+  /*--cef()--*/
+  virtual int GetOtherValue() =0;
+};
+
+
+///
+// Library-side test object for OwnPtr/RawPtr.
+///
+/*--cef(source=library,no_debugct_check)--*/
+class CefTranslatorTestScopedLibrary : public CefBaseScoped {
+ public:
+  ///
+  // Create the test object.
+  ///
+  /*--cef()--*/
+  static CefOwnPtr<CefTranslatorTestScopedLibrary> Create(int value);
+
+  ///
+  // Return a value.
+  ///
+  /*--cef()--*/
+  virtual int GetValue() =0;
+
+  ///
+  // Set a value.
+  ///
+  /*--cef()--*/
+  virtual void SetValue(int value) =0;
+};
+
+///
+// Library-side child test object for OwnPtr/RawPtr.
+///
+/*--cef(source=library,no_debugct_check)--*/
+class CefTranslatorTestScopedLibraryChild :
+    public CefTranslatorTestScopedLibrary {
+ public:
+  ///
+  // Create the test object.
+  ///
+  /*--cef()--*/
+  static CefOwnPtr<CefTranslatorTestScopedLibraryChild> Create(
+      int value,
+      int other_value);
+
+  ///
+  // Return a value.
+  ///
+  /*--cef()--*/
+  virtual int GetOtherValue() =0;
+
+  ///
+  // Set a value.
+  ///
+  /*--cef()--*/
+  virtual void SetOtherValue(int value) =0;
+};
+
+///
+// Another library-side child test object for OwnPtr/RawPtr.
+///
+/*--cef(source=library,no_debugct_check)--*/
+class CefTranslatorTestScopedLibraryChildChild :
+    public CefTranslatorTestScopedLibraryChild {
+ public:
+  ///
+  // Create the test object.
+  ///
+  /*--cef()--*/
+  static CefOwnPtr<CefTranslatorTestScopedLibraryChildChild> Create(
+      int value,
+      int other_value,
+      int other_other_value);
+
+  ///
+  // Return a value.
+  ///
+  /*--cef()--*/
+  virtual int GetOtherOtherValue() =0;
+
+  ///
+  // Set a value.
+  ///
+  /*--cef()--*/
+  virtual void SetOtherOtherValue(int value) =0;
+};
+
+///
+// Client-side test object for OwnPtr/RawPtr.
+///
+/*--cef(source=client,no_debugct_check)--*/
+class CefTranslatorTestScopedClient : public virtual CefBaseScoped {
+ public:
+  ///
+  // Return a value.
+  ///
+  /*--cef()--*/
+  virtual int GetValue() =0;
+};
+
+///
+// Client-side child test object for OwnPtr/RawPtr.
+///
+/*--cef(source=client,no_debugct_check)--*/
+class CefTranslatorTestScopedClientChild :
+    public CefTranslatorTestScopedClient {
  public:
   ///
   // Return a value.

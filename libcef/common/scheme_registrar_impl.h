@@ -11,7 +11,6 @@
 
 #include "include/cef_scheme.h"
 
-#include "base/threading/platform_thread.h"
 #include "content/public/common/content_client.h"
 
 class CefSchemeRegistrarImpl : public CefSchemeRegistrar {
@@ -28,22 +27,13 @@ class CefSchemeRegistrarImpl : public CefSchemeRegistrar {
 
   void GetSchemes(content::ContentClient::Schemes* schemes);
 
-  // Verify that only a single reference exists to all CefSchemeRegistrarImpl
-  // objects.
-  bool VerifyRefCount();
-
-  void Detach();
-
  private:
   // Verify that the object is being accessed from the correct thread.
   bool VerifyContext();
 
-  base::PlatformThreadId supported_thread_id_;
-
   content::ContentClient::Schemes schemes_;
   std::set<std::string> registered_schemes_;
 
-  IMPLEMENT_REFCOUNTING(CefSchemeRegistrarImpl);
   DISALLOW_COPY_AND_ASSIGN(CefSchemeRegistrarImpl);
 };
 

@@ -48,18 +48,25 @@ bool CefSchemeRegistrarCToCpp::AddCustomScheme(const CefString& scheme_name,
 CefSchemeRegistrarCToCpp::CefSchemeRegistrarCToCpp() {
 }
 
-template<> cef_scheme_registrar_t* CefCToCpp<CefSchemeRegistrarCToCpp,
-    CefSchemeRegistrar, cef_scheme_registrar_t>::UnwrapDerived(
-    CefWrapperType type, CefSchemeRegistrar* c) {
+template<> cef_scheme_registrar_t* CefCToCppScoped<CefSchemeRegistrarCToCpp,
+    CefSchemeRegistrar, cef_scheme_registrar_t>::UnwrapDerivedOwn(
+    CefWrapperType type, CefOwnPtr<CefSchemeRegistrar> c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
+template<> cef_scheme_registrar_t* CefCToCppScoped<CefSchemeRegistrarCToCpp,
+    CefSchemeRegistrar, cef_scheme_registrar_t>::UnwrapDerivedRaw(
+    CefWrapperType type, CefRawPtr<CefSchemeRegistrar> c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefSchemeRegistrarCToCpp,
+template<> base::AtomicRefCount CefCToCppScoped<CefSchemeRegistrarCToCpp,
     CefSchemeRegistrar, cef_scheme_registrar_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefSchemeRegistrarCToCpp,
+template<> CefWrapperType CefCToCppScoped<CefSchemeRegistrarCToCpp,
     CefSchemeRegistrar, cef_scheme_registrar_t>::kWrapperType =
     WT_SCHEME_REGISTRAR;

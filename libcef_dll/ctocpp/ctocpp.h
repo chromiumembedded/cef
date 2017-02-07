@@ -26,16 +26,6 @@ class CefCToCpp : public BaseName {
   // return back to the other side.
   static StructName* Unwrap(CefRefPtr<BaseName> c);
 
-  // If returning the structure across the DLL boundary you should call
-  // UnderlyingAddRef() on this wrapping CefCToCpp object.  On the other side of
-  // the DLL boundary, call Release() on the CefCppToC object.
-  StructName* GetStruct() const {
-    WrapperStruct* wrapperStruct = GetWrapperStruct(this);
-    // Verify that the wrapper offset was calculated correctly.
-    DCHECK_EQ(kWrapperType, wrapperStruct->type_);
-    return wrapperStruct->struct_;
-  }
-
   // CefBase methods increment/decrement reference counts on both this object
   // and the underlying wrapped structure.
   void AddRef() const {
@@ -61,6 +51,14 @@ class CefCToCpp : public BaseName {
 #if DCHECK_IS_ON()
     base::AtomicRefCountDec(&DebugObjCt);
 #endif
+  }
+
+  // If returning the structure across the DLL boundary use Unwrap() instead.
+  StructName* GetStruct() const {
+    WrapperStruct* wrapperStruct = GetWrapperStruct(this);
+    // Verify that the wrapper offset was calculated correctly.
+    DCHECK_EQ(kWrapperType, wrapperStruct->type_);
+    return wrapperStruct->struct_;
   }
 
  private:

@@ -94,6 +94,10 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names):
            arg_type == 'string_byref_const' or arg_type == 'string_byref' or \
            arg_type == 'refptr_same' or arg_type == 'refptr_same_byref' or \
            arg_type == 'refptr_diff' or arg_type == 'refptr_diff_byref' or \
+           arg_type == 'ownptr_same' or arg_type == 'ownptr_same_byref' or \
+           arg_type == 'ownptr_diff' or arg_type == 'ownptr_diff_byref' or \
+           arg_type == 'rawptr_same' or arg_type == 'rawptr_same_byref' or \
+           arg_type == 'rawptr_diff' or arg_type == 'rawptr_diff_byref' or \
            arg_type == 'string_vec_byref' or arg_type == 'string_vec_byref_const' or \
            arg_type == 'string_map_single_byref' or arg_type == 'string_map_single_byref_const' or \
            arg_type == 'string_map_multi_byref' or arg_type == 'string_map_multi_byref_const':
@@ -102,13 +106,17 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names):
                       '\n  if (!'+arg_name+')'\
                       '\n    return'+retval_default+';'
         elif arg_type == 'simple_vec_byref' or arg_type == 'bool_vec_byref' or \
-            arg_type == 'refptr_vec_same_byref' or arg_type == 'refptr_vec_diff_byref':
+            arg_type == 'refptr_vec_same_byref' or arg_type == 'refptr_vec_diff_byref' or \
+            arg_type == 'ownptr_vec_same_byref' or arg_type == 'ownptr_vec_diff_byref' or \
+            arg_type == 'rawptr_vec_same_byref' or arg_type == 'rawptr_vec_diff_byref':
             result += comment+\
                       '\n  DCHECK('+arg_name+'Count && (*'+arg_name+'Count == 0 || '+arg_name+'));'\
                       '\n  if (!'+arg_name+'Count || (*'+arg_name+'Count > 0 && !'+arg_name+'))'\
                       '\n    return'+retval_default+';'
         elif arg_type == 'simple_vec_byref_const' or arg_type == 'bool_vec_byref_const' or \
-            arg_type == 'refptr_vec_same_byref_const' or arg_type == 'refptr_vec_diff_byref_const':
+            arg_type == 'refptr_vec_same_byref_const' or arg_type == 'refptr_vec_diff_byref_const' or \
+            arg_type == 'ownptr_vec_same_byref_const' or arg_type == 'ownptr_vec_diff_byref_const' or \
+            arg_type == 'rawptr_vec_same_byref_const' or arg_type == 'rawptr_vec_diff_byref_const':
             result += comment+\
                       '\n  DCHECK('+arg_name+'Count == 0 || '+arg_name+');'\
                       '\n  if ('+arg_name+'Count > 0 && !'+arg_name+')'\
@@ -184,22 +192,36 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names):
                       '\n  CefString '+arg_name+'Str('+arg_name+');'
             params.append(arg_name+'Str')
         elif arg_type == 'refptr_same' or arg_type == 'refptr_diff':
-            refptr_class = arg.get_type().get_refptr_type()
+            ptr_class = arg.get_type().get_ptr_type()
             if arg_type == 'refptr_same':
-                params.append(refptr_class+'CppToC::Unwrap('+arg_name+')')
+                params.append(ptr_class+'CppToC::Unwrap('+arg_name+')')
             else:
-                params.append(refptr_class+'CToCpp::Wrap('+arg_name+')')
-        elif arg_type == 'refptr_same_byref' or arg_type == 'refptr_diff_byref':
-            refptr_class = arg.get_type().get_refptr_type()
-            if arg_type == 'refptr_same_byref':
-                assign = refptr_class+'CppToC::Unwrap(*'+arg_name+')'
+                params.append(ptr_class+'CToCpp::Wrap('+arg_name+')')
+        elif arg_type == 'ownptr_same' or arg_type == 'rawptr_same':
+            ptr_class = arg.get_type().get_ptr_type()
+            if arg_type == 'ownptr_same':
+                params.append(ptr_class+'CppToC::UnwrapOwn('+arg_name+')')
             else:
-                assign = refptr_class+'CToCpp::Wrap(*'+arg_name+')'
+                params.append(ptr_class+'CppToC::UnwrapRaw('+arg_name+')')
+        elif arg_type == 'ownptr_diff' or arg_type == 'rawptr_diff':
+            ptr_class = arg.get_type().get_ptr_type()
             result += comment+\
-                      '\n  CefRefPtr<'+refptr_class+'> '+arg_name+'Ptr;'\
+                      '\n  CefOwnPtr<'+ptr_class+'> '+arg_name+'Ptr('+ptr_class+'CToCpp::Wrap('+arg_name+'));'
+            if arg_type == 'ownptr_diff':
+                params.append('OWN_PASS('+arg_name+'Ptr)')
+            else:
+                params.append(arg_name+'Ptr.get()')
+        elif arg_type == 'refptr_same_byref' or arg_type == 'refptr_diff_byref':
+            ptr_class = arg.get_type().get_ptr_type()
+            if arg_type == 'refptr_same_byref':
+                assign = ptr_class+'CppToC::Unwrap(*'+arg_name+')'
+            else:
+                assign = ptr_class+'CToCpp::Wrap(*'+arg_name+')'
+            result += comment+\
+                      '\n  CefRefPtr<'+ptr_class+'> '+arg_name+'Ptr;'\
                       '\n  if ('+arg_name+' && *'+arg_name+')'\
                       '\n    '+arg_name+'Ptr = '+assign+';'\
-                      '\n  '+refptr_class+'* '+arg_name+'Orig = '+arg_name+'Ptr.get();'
+                      '\n  '+ptr_class+'* '+arg_name+'Orig = '+arg_name+'Ptr.get();'
             params.append(arg_name+'Ptr')
         elif arg_type == 'string_vec_byref' or arg_type == 'string_vec_byref_const':
             result += comment+\
@@ -224,11 +246,11 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names):
             elif arg_type == 'bool_vec_byref':
                 assign = arg_name+'[i]?true:false'
             elif arg_type == 'refptr_vec_same_byref':
-                refptr_class = arg.get_type().get_refptr_type()
-                assign = refptr_class+'CppToC::Unwrap('+arg_name+'[i])'
+                ptr_class = arg.get_type().get_ptr_type()
+                assign = ptr_class+'CppToC::Unwrap('+arg_name+'[i])'
             elif arg_type == 'refptr_vec_diff_byref':
-                refptr_class = arg.get_type().get_refptr_type()
-                assign = refptr_class+'CToCpp::Wrap('+arg_name+'[i])'
+                ptr_class = arg.get_type().get_ptr_type()
+                assign = ptr_class+'CToCpp::Wrap('+arg_name+'[i])'
             result += comment+\
                       '\n  std::vector<'+vec_type+' > '+arg_name+'List;'\
                       '\n  if ('+arg_name+'Count && *'+arg_name+'Count > 0 && '+arg_name+') {'\
@@ -238,18 +260,23 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names):
                       '\n  }'
             params.append(arg_name+'List')
         elif arg_type == 'simple_vec_byref_const' or arg_type == 'bool_vec_byref_const' or \
-            arg_type == 'refptr_vec_same_byref_const' or arg_type == 'refptr_vec_diff_byref_const':
+            arg_type == 'refptr_vec_same_byref_const' or arg_type == 'refptr_vec_diff_byref_const' or \
+            arg_type == 'rawptr_vec_same_byref_const' or arg_type == 'rawptr_vec_diff_byref_const':
             vec_type = arg.get_type().get_vector_type()
             if arg_type == 'simple_vec_byref_const':
                 assign = arg_name+'[i]'
             elif arg_type == 'bool_vec_byref_const':
                 assign = arg_name+'[i]?true:false'
-            elif arg_type == 'refptr_vec_same_byref_const':
-                refptr_class = arg.get_type().get_refptr_type()
-                assign = refptr_class+'CppToC::Unwrap('+arg_name+'[i])'
-            elif arg_type == 'refptr_vec_diff_byref_const':
-                refptr_class = arg.get_type().get_refptr_type()
-                assign = refptr_class+'CToCpp::Wrap('+arg_name+'[i])'
+            else:
+                ptr_class = arg.get_type().get_ptr_type()
+                if arg_type == 'refptr_vec_same_byref_const':
+                    assign = ptr_class+'CppToC::Unwrap('+arg_name+'[i])'
+                elif arg_type == 'refptr_vec_diff_byref_const':
+                    assign = ptr_class+'CToCpp::Wrap('+arg_name+'[i])'
+                elif arg_type == 'rawptr_vec_same_byref_const':
+                    assign = ptr_class+'CppToC::UnwrapRaw('+arg_name+'[i])'
+                elif arg_type == 'rawptr_vec_diff_byref_const':
+                    assign = ptr_class+'CToCpp::Wrap('+arg_name+'[i]).release()'
             result += comment+\
                       '\n  std::vector<'+vec_type+' > '+arg_name+'List;'\
                       '\n  if ('+arg_name+'Count > 0) {'\
@@ -259,6 +286,8 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names):
                       '\n    }'\
                       '\n  }'
             params.append(arg_name+'List')
+        else:
+            raise Exception('Unsupported argument type %s for parameter %s in %s' % (arg_type, arg_name, name))
 
     if len(result) != result_len:
         result += '\n'
@@ -315,11 +344,11 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names):
                       '\n  if ('+arg_name+')'\
                       '\n    '+arg_name+'Obj.DetachTo(*'+arg_name+');'
         elif arg_type == 'refptr_same_byref' or arg_type == 'refptr_diff_byref':
-            refptr_class = arg.get_type().get_refptr_type()
+            ptr_class = arg.get_type().get_ptr_type()
             if arg_type == 'refptr_same_byref':
-                assign = refptr_class+'CppToC::Wrap('+arg_name+'Ptr)'
+                assign = ptr_class+'CppToC::Wrap('+arg_name+'Ptr)'
             else:
-                assign = refptr_class+'CToCpp::Unwrap('+arg_name+'Ptr)'
+                assign = ptr_class+'CToCpp::Unwrap('+arg_name+'Ptr)'
             result += comment+\
                       '\n  if ('+arg_name+') {'\
                       '\n    if ('+arg_name+'Ptr.get()) {'\
@@ -347,11 +376,11 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names):
             if arg_type == 'simple_vec_byref' or arg_type == 'bool_vec_byref':
                 assign = arg_name+'List[i]'
             elif arg_type == 'refptr_vec_same_byref':
-                refptr_class = arg.get_type().get_refptr_type()
-                assign = refptr_class+'CppToC::Wrap('+arg_name+'List[i])'
+                ptr_class = arg.get_type().get_ptr_type()
+                assign = ptr_class+'CppToC::Wrap('+arg_name+'List[i])'
             elif arg_type == 'refptr_vec_diff_byref':
-                refptr_class = arg.get_type().get_refptr_type()
-                assign = refptr_class+'CToCpp::Unwrap('+arg_name+'List[i])'
+                ptr_class = arg.get_type().get_ptr_type()
+                assign = ptr_class+'CToCpp::Unwrap('+arg_name+'List[i])'
             result += comment+\
                       '\n  if ('+arg_name+'Count && '+arg_name+') {'\
                       '\n    *'+arg_name+'Count = std::min('+arg_name+'List.size(), *'+arg_name+'Count);'\
@@ -359,6 +388,13 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names):
                       '\n      for (size_t i = 0; i < *'+arg_name+'Count; ++i) {'\
                       '\n        '+arg_name+'[i] = '+assign+';'\
                       '\n      }'\
+                      '\n    }'\
+                      '\n  }'
+        elif arg_type == 'rawptr_vec_diff_byref_const':
+            result += comment+\
+                      '\n  if ('+arg_name+'Count > 0) {'\
+                      '\n    for (size_t i = 0; i < '+arg_name+'Count; ++i) {'\
+                      '\n      delete '+arg_name+'List[i];'\
                       '\n    }'\
                       '\n  }'
 
@@ -401,11 +437,19 @@ def make_cpptoc_function_impl_new(cls, name, func, defined_names):
         elif retval_type == 'string':
             result += '\n  return _retval.DetachToUserFree();'
         elif retval_type == 'refptr_same':
-            refptr_class = retval.get_type().get_refptr_type()
-            result += '\n  return '+refptr_class+'CppToC::Wrap(_retval);'
+            ptr_class = retval.get_type().get_ptr_type()
+            result += '\n  return '+ptr_class+'CppToC::Wrap(_retval);'
         elif retval_type == 'refptr_diff':
-            refptr_class = retval.get_type().get_refptr_type()
-            result += '\n  return '+refptr_class+'CToCpp::Unwrap(_retval);'
+            ptr_class = retval.get_type().get_ptr_type()
+            result += '\n  return '+ptr_class+'CToCpp::Unwrap(_retval);'
+        elif retval_type == 'ownptr_same':
+            ptr_class = retval.get_type().get_ptr_type()
+            result += '\n  return '+ptr_class+'CppToC::WrapOwn(OWN_PASS(_retval));'
+        elif retval_type == 'ownptr_diff':
+            ptr_class = retval.get_type().get_ptr_type()
+            result += '\n  return '+ptr_class+'CToCpp::UnwrapOwn(OWN_PASS(_retval));'
+        else:
+            raise Exception('Unsupported return type %s in %s' % (retval_type, name))
 
     if len(result) != result_len:
         result += '\n'
@@ -437,7 +481,7 @@ def make_cpptoc_virtual_function_impl(header, cls, existing, prefixname, defined
     cur_cls = cls
     while True:
         parent_name = cur_cls.get_parent_name()
-        if parent_name == 'CefBase':
+        if is_base_class(parent_name):
             break
         else:
             parent_cls = header.get_class(parent_name, defined_names)
@@ -463,7 +507,7 @@ def make_cpptoc_virtual_function_assignment(header, cls, prefixname, defined_nam
     while True:
         parent_name = cur_cls.get_parent_name()
         offset += 'base.'
-        if parent_name == 'CefBase':
+        if is_base_class(parent_name):
             break
         else:
             parent_cls = header.get_class(parent_name, defined_names)
@@ -474,25 +518,37 @@ def make_cpptoc_virtual_function_assignment(header, cls, prefixname, defined_nam
 
     return impl
 
-def make_cpptoc_unwrap_derived(header, cls):
+def make_cpptoc_unwrap_derived(header, cls, base_scoped):
     # identify all classes that derive from cls
     derived_classes = []
-    clsname = cls.get_name()
+    cur_clsname = cls.get_name()
     allclasses = header.get_classes()
     for cur_cls in allclasses:
-        if cur_cls.get_name() == clsname:
+        if cur_cls.get_name() == cur_clsname:
             continue
-        if cur_cls.has_parent(clsname):
+        if cur_cls.has_parent(cur_clsname):
             derived_classes.append(cur_cls.get_name())
 
     derived_classes = sorted(derived_classes)
 
-    impl = ''
-    for clsname in derived_classes:
-      impl += '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
-              '    return '+clsname+'CppToC::Unwrap(reinterpret_cast<'+\
-              get_capi_name(clsname, True)+'*>(s));\n'+\
-              '  }\n'
+    if base_scoped:
+        impl = ['', '']
+        for clsname in derived_classes:
+            impl[0] += '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
+                       '    return OWN_RETURN_AS('+clsname+'CppToC::UnwrapOwn(reinterpret_cast<'+\
+                       get_capi_name(clsname, True)+'*>(s)), '+cur_clsname+');\n'+\
+                       '  }\n'
+            impl[1] += '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
+                       '    return '+clsname+'CppToC::UnwrapRaw(reinterpret_cast<'+\
+                       get_capi_name(clsname, True)+'*>(s));\n'+\
+                       '  }\n'
+    else:
+        impl = ''
+        for clsname in derived_classes:
+            impl += '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
+                    '    return '+clsname+'CppToC::Unwrap(reinterpret_cast<'+\
+                    get_capi_name(clsname, True)+'*>(s));\n'+\
+                    '  }\n'
     return impl
 
 def make_cpptoc_class_impl(header, clsname, impl):
@@ -509,6 +565,13 @@ def make_cpptoc_class_impl(header, clsname, impl):
 
     # retrieve the existing virtual function implementations
     existing = get_function_impls(impl, 'CEF_CALLBACK')
+
+    base_class_name = header.get_base_class_name(clsname)
+    base_scoped = True if base_class_name == 'CefBaseScoped' else False
+    if base_scoped:
+        template_class = 'CefCppToCScoped'
+    else:
+        template_class = 'CefCppToC'
 
     # generate virtual functions
     virtualimpl = make_cpptoc_virtual_function_impl(header, cls, existing, prefixname, defined_names)
@@ -529,31 +592,43 @@ def make_cpptoc_class_impl(header, clsname, impl):
     resultingimpl = staticimpl + virtualimpl
 
     # any derived classes can be unwrapped
-    unwrapderived = make_cpptoc_unwrap_derived(header, cls)
+    unwrapderived = make_cpptoc_unwrap_derived(header, cls, base_scoped)
 
     # determine what includes are required by identifying what translation
     # classes are being used
-    includes = format_translation_includes(header, resultingimpl + unwrapderived)
+    includes = format_translation_includes(header, resultingimpl + (unwrapderived[0] if base_scoped else unwrapderived))
 
     # build the final output
     result = get_copyright()
 
     result += includes+'\n'+resultingimpl+'\n'
 
-    parent_sig = 'CefCppToC<'+clsname+'CppToC, '+clsname+', '+capiname+'>'
+    parent_sig = template_class+'<'+clsname+'CppToC, '+clsname+', '+capiname+'>'
 
     const =  '// CONSTRUCTOR - Do not edit by hand.\n\n'+ \
              clsname+'CppToC::'+clsname+'CppToC() {\n'
-
     const += make_cpptoc_virtual_function_assignment(header, cls, prefixname, defined_names)
+    const += '}\n\n'
 
-    const += '}\n\n'+ \
-             'template<> CefRefPtr<'+clsname+'> '+parent_sig+'::UnwrapDerived(CefWrapperType type, '+capiname+'* s) {\n' + \
-             unwrapderived + \
-             '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
-             '  return NULL;\n'+ \
-             '}\n\n'+ \
-             '#if DCHECK_IS_ON()\n'+ \
+    if base_scoped:
+        const += 'template<> CefOwnPtr<'+clsname+'> '+parent_sig+'::UnwrapDerivedOwn(CefWrapperType type, '+capiname+'* s) {\n' + \
+                 unwrapderived[0] + \
+                 '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
+                 '  return CefOwnPtr<'+clsname+'>();\n'+ \
+                 '}\n\n' + \
+                 'template<> CefRawPtr<'+clsname+'> '+parent_sig+'::UnwrapDerivedRaw(CefWrapperType type, '+capiname+'* s) {\n' + \
+                 unwrapderived[1] + \
+                 '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
+                 '  return NULL;\n'+ \
+                 '}\n\n'
+    else:
+        const += 'template<> CefRefPtr<'+clsname+'> '+parent_sig+'::UnwrapDerived(CefWrapperType type, '+capiname+'* s) {\n' + \
+                 unwrapderived + \
+                 '  NOTREACHED() << "Unexpected class type: " << type;\n'+ \
+                 '  return NULL;\n'+ \
+                 '}\n\n'
+
+    const += '#if DCHECK_IS_ON()\n'+ \
              'template<> base::AtomicRefCount '+parent_sig+'::DebugObjCt = 0;\n'+ \
              '#endif\n\n'+ \
              'template<> CefWrapperType '+parent_sig+'::kWrapperType = '+get_wrapper_type_enum(clsname)+';'

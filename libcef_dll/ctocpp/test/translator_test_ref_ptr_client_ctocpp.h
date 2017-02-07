@@ -10,8 +10,8 @@
 // for more information.
 //
 
-#ifndef CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_HANDLER_CHILD_CTOCPP_H_
-#define CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_HANDLER_CHILD_CTOCPP_H_
+#ifndef CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_REF_PTR_CLIENT_CTOCPP_H_
+#define CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_REF_PTR_CLIENT_CTOCPP_H_
 #pragma once
 
 #if !defined(BUILDING_CEF_SHARED)
@@ -24,17 +24,14 @@
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
-class CefTranslatorTestHandlerChildCToCpp
-    : public CefCToCpp<CefTranslatorTestHandlerChildCToCpp,
-        CefTranslatorTestHandlerChild, cef_translator_test_handler_child_t> {
+class CefTranslatorTestRefPtrClientCToCpp
+    : public CefCToCpp<CefTranslatorTestRefPtrClientCToCpp,
+        CefTranslatorTestRefPtrClient, cef_translator_test_ref_ptr_client_t> {
  public:
-  CefTranslatorTestHandlerChildCToCpp();
+  CefTranslatorTestRefPtrClientCToCpp();
 
-  // CefTranslatorTestHandlerChild methods.
-  int GetOtherValue() override;
-
-  // CefTranslatorTestHandler methods.
+  // CefTranslatorTestRefPtrClient methods.
   int GetValue() override;
 };
 
-#endif  // CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_HANDLER_CHILD_CTOCPP_H_
+#endif  // CEF_LIBCEF_DLL_CTOCPP_TEST_TRANSLATOR_TEST_REF_PTR_CLIENT_CTOCPP_H_
