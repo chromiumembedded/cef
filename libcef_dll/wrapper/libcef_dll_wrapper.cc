@@ -403,10 +403,7 @@ CEF_GLOBAL void CefSetCrashKeyValue(const CefString& key,
   DCHECK(!key.empty());
   if (key.empty())
     return;
-  // Verify param: value; type: string_byref_const
-  DCHECK(!value.empty());
-  if (value.empty())
-    return;
+  // Unverified params: value
 
   // Execute
   cef_set_crash_key_value(
