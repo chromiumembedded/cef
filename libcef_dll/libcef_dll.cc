@@ -411,10 +411,7 @@ CEF_EXPORT void cef_set_crash_key_value(const cef_string_t* key,
   DCHECK(key);
   if (!key)
     return;
-  // Verify param: value; type: string_byref_const
-  DCHECK(value);
-  if (!value)
-    return;
+  // Unverified params: value
 
   // Execute
   CefSetCrashKeyValue(
