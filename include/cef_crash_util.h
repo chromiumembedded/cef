@@ -138,7 +138,7 @@ bool CefCrashReportingEnabled();
 ///
 // Sets or clears a specific key-value pair from the crash metadata.
 ///
-/*--cef()--*/
+/*--cef(optional_param=value)--*/
 void CefSetCrashKeyValue(const CefString& key, const CefString& value);
 
 #endif  // CEF_INCLUDE_CEF_CRASH_UTIL_H_
