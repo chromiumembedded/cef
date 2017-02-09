@@ -83,6 +83,10 @@
 #include "libcef_dll/cpptoc/string_visitor_cpptoc.h"
 #include "libcef_dll/cpptoc/task_cpptoc.h"
 #include "libcef_dll/cpptoc/views/textfield_delegate_cpptoc.h"
+#include "libcef_dll/cpptoc/test/translator_test_ref_ptr_client_cpptoc.h"
+#include "libcef_dll/cpptoc/test/translator_test_ref_ptr_client_child_cpptoc.h"
+#include "libcef_dll/cpptoc/test/translator_test_scoped_client_cpptoc.h"
+#include "libcef_dll/cpptoc/test/translator_test_scoped_client_child_cpptoc.h"
 #include "libcef_dll/cpptoc/urlrequest_client_cpptoc.h"
 #include "libcef_dll/cpptoc/v8accessor_cpptoc.h"
 #include "libcef_dll/cpptoc/v8handler_cpptoc.h"
@@ -139,6 +143,13 @@
 #include "libcef_dll/ctocpp/task_runner_ctocpp.h"
 #include "libcef_dll/ctocpp/views/textfield_ctocpp.h"
 #include "libcef_dll/ctocpp/thread_ctocpp.h"
+#include "libcef_dll/ctocpp/test/translator_test_ctocpp.h"
+#include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_ctocpp.h"
+#include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_child_ctocpp.h"
+#include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_child_child_ctocpp.h"
+#include "libcef_dll/ctocpp/test/translator_test_scoped_library_ctocpp.h"
+#include "libcef_dll/ctocpp/test/translator_test_scoped_library_child_ctocpp.h"
+#include "libcef_dll/ctocpp/test/translator_test_scoped_library_child_child_ctocpp.h"
 #include "libcef_dll/ctocpp/urlrequest_ctocpp.h"
 #include "libcef_dll/ctocpp/v8context_ctocpp.h"
 #include "libcef_dll/ctocpp/v8exception_ctocpp.h"
@@ -320,6 +331,27 @@ CEF_GLOBAL void CefShutdown() {
   DCHECK(base::AtomicRefCountIsZero(&CefTextfieldCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefTextfieldDelegateCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefThreadCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(&CefTranslatorTestCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefTranslatorTestRefPtrClientChildCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefTranslatorTestRefPtrClientCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefTranslatorTestRefPtrLibraryCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefTranslatorTestRefPtrLibraryChildCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefTranslatorTestRefPtrLibraryChildChildCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefTranslatorTestScopedClientChildCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefTranslatorTestScopedClientCppToC::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefTranslatorTestScopedLibraryCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefTranslatorTestScopedLibraryChildCToCpp::DebugObjCt));
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefTranslatorTestScopedLibraryChildChildCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefURLRequestCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefURLRequestClientCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefV8AccessorCppToC::DebugObjCt));

@@ -83,7 +83,7 @@ class CefTranslatorTestScopedLibraryChild;
 ///
 // Class for testing all of the possible data transfer types.
 ///
-/*--cef(source=library,no_debugct_check)--*/
+/*--cef(source=library)--*/
 class CefTranslatorTest : public CefBaseRefCounted {
  public:
   ///
@@ -610,7 +610,7 @@ class CefTranslatorTest : public CefBaseRefCounted {
 ///
 // Library-side test object for RefPtr.
 ///
-/*--cef(source=library,no_debugct_check)--*/
+/*--cef(source=library)--*/
 class CefTranslatorTestRefPtrLibrary : public CefBaseRefCounted {
  public:
   ///
@@ -635,7 +635,7 @@ class CefTranslatorTestRefPtrLibrary : public CefBaseRefCounted {
 ///
 // Library-side child test object for RefPtr.
 ///
-/*--cef(source=library,no_debugct_check)--*/
+/*--cef(source=library)--*/
 class CefTranslatorTestRefPtrLibraryChild :
     public CefTranslatorTestRefPtrLibrary {
  public:
@@ -663,7 +663,7 @@ class CefTranslatorTestRefPtrLibraryChild :
 ///
 // Another library-side child test object for RefPtr.
 ///
-/*--cef(source=library,no_debugct_check)--*/
+/*--cef(source=library)--*/
 class CefTranslatorTestRefPtrLibraryChildChild :
     public CefTranslatorTestRefPtrLibraryChild {
  public:
@@ -692,7 +692,7 @@ class CefTranslatorTestRefPtrLibraryChildChild :
 ///
 // Client-side test object for RefPtr.
 ///
-/*--cef(source=client,no_debugct_check)--*/
+/*--cef(source=client)--*/
 class CefTranslatorTestRefPtrClient : public virtual CefBaseRefCounted {
  public:
   ///
@@ -705,7 +705,7 @@ class CefTranslatorTestRefPtrClient : public virtual CefBaseRefCounted {
 ///
 // Client-side child test object for RefPtr.
 ///
-/*--cef(source=client,no_debugct_check)--*/
+/*--cef(source=client)--*/
 class CefTranslatorTestRefPtrClientChild :
     public CefTranslatorTestRefPtrClient {
  public:
@@ -720,7 +720,7 @@ class CefTranslatorTestRefPtrClientChild :
 ///
 // Library-side test object for OwnPtr/RawPtr.
 ///
-/*--cef(source=library,no_debugct_check)--*/
+/*--cef(source=library)--*/
 class CefTranslatorTestScopedLibrary : public CefBaseScoped {
  public:
   ///
@@ -745,7 +745,7 @@ class CefTranslatorTestScopedLibrary : public CefBaseScoped {
 ///
 // Library-side child test object for OwnPtr/RawPtr.
 ///
-/*--cef(source=library,no_debugct_check)--*/
+/*--cef(source=library)--*/
 class CefTranslatorTestScopedLibraryChild :
     public CefTranslatorTestScopedLibrary {
  public:
@@ -773,7 +773,7 @@ class CefTranslatorTestScopedLibraryChild :
 ///
 // Another library-side child test object for OwnPtr/RawPtr.
 ///
-/*--cef(source=library,no_debugct_check)--*/
+/*--cef(source=library)--*/
 class CefTranslatorTestScopedLibraryChildChild :
     public CefTranslatorTestScopedLibraryChild {
  public:
@@ -802,7 +802,7 @@ class CefTranslatorTestScopedLibraryChildChild :
 ///
 // Client-side test object for OwnPtr/RawPtr.
 ///
-/*--cef(source=client,no_debugct_check)--*/
+/*--cef(source=client)--*/
 class CefTranslatorTestScopedClient : public virtual CefBaseScoped {
  public:
   ///
@@ -815,7 +815,7 @@ class CefTranslatorTestScopedClient : public virtual CefBaseScoped {
 ///
 // Client-side child test object for OwnPtr/RawPtr.
 ///
-/*--cef(source=client,no_debugct_check)--*/
+/*--cef(source=client)--*/
 class CefTranslatorTestScopedClientChild :
     public CefTranslatorTestScopedClient {
  public:
