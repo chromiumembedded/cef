@@ -422,7 +422,7 @@ CefCommandLineCppToC::CefCommandLineCppToC() {
   GetStruct()->prepend_wrapper = command_line_prepend_wrapper;
 }
 
-template<> CefRefPtr<CefCommandLine> CefCppToC<CefCommandLineCppToC,
+template<> CefRefPtr<CefCommandLine> CefCppToCRefCounted<CefCommandLineCppToC,
     CefCommandLine, cef_command_line_t>::UnwrapDerived(CefWrapperType type,
     cef_command_line_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -430,9 +430,9 @@ template<> CefRefPtr<CefCommandLine> CefCppToC<CefCommandLineCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefCommandLineCppToC, CefCommandLine,
-    cef_command_line_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefCommandLineCppToC,
+    CefCommandLine, cef_command_line_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefCommandLineCppToC, CefCommandLine,
-    cef_command_line_t>::kWrapperType = WT_COMMAND_LINE;
+template<> CefWrapperType CefCppToCRefCounted<CefCommandLineCppToC,
+    CefCommandLine, cef_command_line_t>::kWrapperType = WT_COMMAND_LINE;

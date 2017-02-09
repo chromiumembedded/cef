@@ -58,7 +58,7 @@ typedef struct _cef_image_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns true (1) if this Image is NULL.

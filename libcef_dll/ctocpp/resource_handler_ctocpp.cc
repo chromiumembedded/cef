@@ -140,7 +140,7 @@ void CefResourceHandlerCToCpp::Cancel() {
 CefResourceHandlerCToCpp::CefResourceHandlerCToCpp() {
 }
 
-template<> cef_resource_handler_t* CefCToCpp<CefResourceHandlerCToCpp,
+template<> cef_resource_handler_t* CefCToCppRefCounted<CefResourceHandlerCToCpp,
     CefResourceHandler, cef_resource_handler_t>::UnwrapDerived(
     CefWrapperType type, CefResourceHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -148,10 +148,10 @@ template<> cef_resource_handler_t* CefCToCpp<CefResourceHandlerCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefResourceHandlerCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefResourceHandlerCToCpp,
     CefResourceHandler, cef_resource_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefResourceHandlerCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefResourceHandlerCToCpp,
     CefResourceHandler, cef_resource_handler_t>::kWrapperType =
     WT_RESOURCE_HANDLER;

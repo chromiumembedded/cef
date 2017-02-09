@@ -124,7 +124,7 @@ bool CefRegisterExtension(const CefString& extension_name,
 // the CefV8Context::GetTaskRunner() method.
 ///
 /*--cef(source=library)--*/
-class CefV8Context : public virtual CefBase {
+class CefV8Context : public virtual CefBaseRefCounted {
  public:
   ///
   // Returns the current (top) context object in the V8 context stack.
@@ -229,7 +229,7 @@ typedef std::vector<CefRefPtr<CefV8Value> > CefV8ValueList;
 // of this class will be called on the thread associated with the V8 function.
 ///
 /*--cef(source=client)--*/
-class CefV8Handler : public virtual CefBase {
+class CefV8Handler : public virtual CefBaseRefCounted {
  public:
   ///
   // Handle execution of the function identified by |name|. |object| is the
@@ -252,7 +252,7 @@ class CefV8Handler : public virtual CefBase {
 // of this class will be called on the thread associated with the V8 accessor.
 ///
 /*--cef(source=client)--*/
-class CefV8Accessor : public virtual CefBase {
+class CefV8Accessor : public virtual CefBaseRefCounted {
  public:
   ///
   // Handle retrieval the accessor value identified by |name|. |object| is the
@@ -290,7 +290,7 @@ class CefV8Accessor : public virtual CefBase {
 // by integer.
 ///
 /*--cef(source=client)--*/
-class CefV8Interceptor : public virtual CefBase {
+class CefV8Interceptor : public virtual CefBaseRefCounted {
 public:
   ///
   // Handle retrieval of the interceptor value identified by |name|. |object| is
@@ -354,7 +354,7 @@ public:
 // any render process thread.
 ///
 /*--cef(source=library)--*/
-class CefV8Exception : public virtual CefBase {
+class CefV8Exception : public virtual CefBaseRefCounted {
  public:
   ///
   // Returns the exception message.
@@ -419,7 +419,7 @@ class CefV8Exception : public virtual CefBase {
 // the CefV8Context::GetTaskRunner() method.
 ///
 /*--cef(source=library)--*/
-class CefV8Value : public virtual CefBase {
+class CefV8Value : public virtual CefBaseRefCounted {
  public:
   typedef cef_v8_accesscontrol_t AccessControl;
   typedef cef_v8_propertyattribute_t PropertyAttribute;
@@ -759,13 +759,13 @@ class CefV8Value : public virtual CefBase {
   // on user created objects.
   ///
   /*--cef(optional_param=user_data)--*/
-  virtual bool SetUserData(CefRefPtr<CefBase> user_data) =0;
+  virtual bool SetUserData(CefRefPtr<CefBaseRefCounted> user_data) =0;
 
   ///
   // Returns the user data, if any, assigned to this object.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefBase> GetUserData() =0;
+  virtual CefRefPtr<CefBaseRefCounted> GetUserData() =0;
 
   ///
   // Returns the amount of externally allocated memory registered for the
@@ -850,7 +850,7 @@ class CefV8Value : public virtual CefBase {
 // retrieved via the CefV8Context::GetTaskRunner() method.
 ///
 /*--cef(source=library)--*/
-class CefV8StackTrace : public virtual CefBase {
+class CefV8StackTrace : public virtual CefBaseRefCounted {
  public:
   ///
   // Returns the stack trace for the currently active context. |frame_limit| is
@@ -888,7 +888,7 @@ class CefV8StackTrace : public virtual CefBase {
 // retrieved via the CefV8Context::GetTaskRunner() method.
 ///
 /*--cef(source=library)--*/
-class CefV8StackFrame : public virtual CefBase {
+class CefV8StackFrame : public virtual CefBaseRefCounted {
  public:
   ///
   // Returns true if the underlying handle is valid and it can be accessed on

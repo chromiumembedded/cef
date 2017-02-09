@@ -114,17 +114,17 @@ CefBoxLayoutCppToC::CefBoxLayoutCppToC() {
   GetStruct()->base.is_valid = box_layout_is_valid;
 }
 
-template<> CefRefPtr<CefBoxLayout> CefCppToC<CefBoxLayoutCppToC, CefBoxLayout,
-    cef_box_layout_t>::UnwrapDerived(CefWrapperType type,
+template<> CefRefPtr<CefBoxLayout> CefCppToCRefCounted<CefBoxLayoutCppToC,
+    CefBoxLayout, cef_box_layout_t>::UnwrapDerived(CefWrapperType type,
     cef_box_layout_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefBoxLayoutCppToC, CefBoxLayout,
-    cef_box_layout_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefBoxLayoutCppToC,
+    CefBoxLayout, cef_box_layout_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefBoxLayoutCppToC, CefBoxLayout,
+template<> CefWrapperType CefCppToCRefCounted<CefBoxLayoutCppToC, CefBoxLayout,
     cef_box_layout_t>::kWrapperType = WT_BOX_LAYOUT;

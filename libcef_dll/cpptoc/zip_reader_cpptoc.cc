@@ -245,17 +245,17 @@ CefZipReaderCppToC::CefZipReaderCppToC() {
   GetStruct()->eof = zip_reader_eof;
 }
 
-template<> CefRefPtr<CefZipReader> CefCppToC<CefZipReaderCppToC, CefZipReader,
-    cef_zip_reader_t>::UnwrapDerived(CefWrapperType type,
+template<> CefRefPtr<CefZipReader> CefCppToCRefCounted<CefZipReaderCppToC,
+    CefZipReader, cef_zip_reader_t>::UnwrapDerived(CefWrapperType type,
     cef_zip_reader_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefZipReaderCppToC, CefZipReader,
-    cef_zip_reader_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefZipReaderCppToC,
+    CefZipReader, cef_zip_reader_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefZipReaderCppToC, CefZipReader,
+template<> CefWrapperType CefCppToCRefCounted<CefZipReaderCppToC, CefZipReader,
     cef_zip_reader_t>::kWrapperType = WT_ZIP_READER;

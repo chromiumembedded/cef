@@ -58,7 +58,7 @@ typedef struct _cef_resource_handler_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Begin processing the request. To handle the request return true (1) and

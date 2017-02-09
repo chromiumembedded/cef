@@ -307,16 +307,16 @@ CefClientCppToC::CefClientCppToC() {
   GetStruct()->on_process_message_received = client_on_process_message_received;
 }
 
-template<> CefRefPtr<CefClient> CefCppToC<CefClientCppToC, CefClient,
+template<> CefRefPtr<CefClient> CefCppToCRefCounted<CefClientCppToC, CefClient,
     cef_client_t>::UnwrapDerived(CefWrapperType type, cef_client_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefClientCppToC, CefClient,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefClientCppToC, CefClient,
     cef_client_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefClientCppToC, CefClient,
+template<> CefWrapperType CefCppToCRefCounted<CefClientCppToC, CefClient,
     cef_client_t>::kWrapperType = WT_CLIENT;

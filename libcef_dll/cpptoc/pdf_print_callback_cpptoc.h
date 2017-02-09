@@ -22,12 +22,12 @@
 #include "include/capi/cef_browser_capi.h"
 #include "include/cef_client.h"
 #include "include/capi/cef_client_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefPdfPrintCallbackCppToC
-    : public CefCppToC<CefPdfPrintCallbackCppToC, CefPdfPrintCallback,
+    : public CefCppToCRefCounted<CefPdfPrintCallbackCppToC, CefPdfPrintCallback,
         cef_pdf_print_callback_t> {
  public:
   CefPdfPrintCallbackCppToC();

@@ -22,13 +22,13 @@
 #include "include/capi/views/cef_menu_button_delegate_capi.h"
 #include "include/views/cef_menu_button.h"
 #include "include/capi/views/cef_menu_button_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefMenuButtonDelegateCToCpp
-    : public CefCToCpp<CefMenuButtonDelegateCToCpp, CefMenuButtonDelegate,
-        cef_menu_button_delegate_t> {
+    : public CefCToCppRefCounted<CefMenuButtonDelegateCToCpp,
+        CefMenuButtonDelegate, cef_menu_button_delegate_t> {
  public:
   CefMenuButtonDelegateCToCpp();
 

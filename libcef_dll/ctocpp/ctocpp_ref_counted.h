@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_DLL_CTOCPP_CTOCPP_H_
-#define CEF_LIBCEF_DLL_CTOCPP_CTOCPP_H_
+#ifndef CEF_LIBCEF_DLL_CTOCPP_CTOCPP_REF_COUNTED_H_
+#define CEF_LIBCEF_DLL_CTOCPP_CTOCPP_REF_COUNTED_H_
 #pragma once
 
 #include "include/base/cef_logging.h"
@@ -16,7 +16,7 @@
 // exists on the other side of the DLL boundary but will have methods called on
 // this side of the DLL boundary.
 template <class ClassName, class BaseName, class StructName>
-class CefCToCpp : public BaseName {
+class CefCToCppRefCounted : public BaseName {
  public:
   // Create a new wrapper instance for a structure reference received from the
   // other side.
@@ -26,8 +26,8 @@ class CefCToCpp : public BaseName {
   // return back to the other side.
   static StructName* Unwrap(CefRefPtr<BaseName> c);
 
-  // CefBase methods increment/decrement reference counts on both this object
-  // and the underlying wrapped structure.
+  // CefBaseRefCounted methods increment/decrement reference counts on both this
+  // object and the underlying wrapped structure.
   void AddRef() const {
     UnderlyingAddRef();
     ref_count_.AddRef();
@@ -41,13 +41,13 @@ class CefCToCpp : public BaseName {
 #endif
 
  protected:
-  CefCToCpp() {
+  CefCToCppRefCounted() {
 #if DCHECK_IS_ON()
     base::AtomicRefCountInc(&DebugObjCt);
 #endif
   }
 
-  virtual ~CefCToCpp() {
+  virtual ~CefCToCppRefCounted() {
 #if DCHECK_IS_ON()
     base::AtomicRefCountDec(&DebugObjCt);
 #endif
@@ -73,20 +73,23 @@ class CefCToCpp : public BaseName {
 
   // Increment/decrement reference counts on only the underlying class.
   void UnderlyingAddRef() const {
-    cef_base_t* base = reinterpret_cast<cef_base_t*>(GetStruct());
+    cef_base_ref_counted_t* base =
+        reinterpret_cast<cef_base_ref_counted_t*>(GetStruct());
     if (base->add_ref)
       base->add_ref(base);
   }
 
   bool UnderlyingRelease() const {
-    cef_base_t* base = reinterpret_cast<cef_base_t*>(GetStruct());
+    cef_base_ref_counted_t* base =
+        reinterpret_cast<cef_base_ref_counted_t*>(GetStruct());
     if (!base->release)
       return false;
     return base->release(base) ? true : false;
   }
 
   bool UnderlyingHasOneRef() const {
-    cef_base_t* base = reinterpret_cast<cef_base_t*>(GetStruct());
+    cef_base_ref_counted_t* base =
+        reinterpret_cast<cef_base_ref_counted_t*>(GetStruct());
     if (!base->has_one_ref)
       return false;
     return base->has_one_ref(base) ? true : false;
@@ -96,11 +99,11 @@ class CefCToCpp : public BaseName {
 
   static CefWrapperType kWrapperType;
 
-  DISALLOW_COPY_AND_ASSIGN(CefCToCpp);
+  DISALLOW_COPY_AND_ASSIGN(CefCToCppRefCounted);
 };
 
 template <class ClassName, class BaseName, class StructName>
-struct CefCToCpp<ClassName,BaseName,StructName>::WrapperStruct {
+struct CefCToCppRefCounted<ClassName,BaseName,StructName>::WrapperStruct {
   CefWrapperType type_;
   StructName* struct_;
   ClassName wrapper_;
@@ -108,11 +111,11 @@ struct CefCToCpp<ClassName,BaseName,StructName>::WrapperStruct {
 
 template <class ClassName, class BaseName, class StructName>
 CefRefPtr<BaseName>
-    CefCToCpp<ClassName, BaseName, StructName>::Wrap(StructName* s) {
+    CefCToCppRefCounted<ClassName, BaseName, StructName>::Wrap(StructName* s) {
   if (!s)
     return NULL;
 
-  // Wrap their structure with the CefCToCpp object.
+  // Wrap their structure with the CefCToCppRefCounted object.
   WrapperStruct* wrapperStruct = new WrapperStruct;
   wrapperStruct->type_ = kWrapperType;
   wrapperStruct->struct_ = s;
@@ -127,8 +130,8 @@ CefRefPtr<BaseName>
 }
 
 template <class ClassName, class BaseName, class StructName>
-StructName*
-    CefCToCpp<ClassName, BaseName, StructName>::Unwrap(CefRefPtr<BaseName> c) {
+StructName* CefCToCppRefCounted<ClassName, BaseName, StructName>::Unwrap(
+    CefRefPtr<BaseName> c) {
   if (!c.get())
     return NULL;
 
@@ -147,7 +150,7 @@ StructName*
 }
 
 template <class ClassName, class BaseName, class StructName>
-bool CefCToCpp<ClassName, BaseName, StructName>::Release() const {
+bool CefCToCppRefCounted<ClassName, BaseName, StructName>::Release() const {
   UnderlyingRelease();
   if (ref_count_.Release()) {
     WrapperStruct* wrapperStruct = GetWrapperStruct(this);
@@ -160,8 +163,8 @@ bool CefCToCpp<ClassName, BaseName, StructName>::Release() const {
 }
 
 template <class ClassName, class BaseName, class StructName>
-typename CefCToCpp<ClassName, BaseName, StructName>::WrapperStruct*
-    CefCToCpp<ClassName, BaseName, StructName>::GetWrapperStruct(
+typename CefCToCppRefCounted<ClassName, BaseName, StructName>::WrapperStruct*
+    CefCToCppRefCounted<ClassName, BaseName, StructName>::GetWrapperStruct(
         const BaseName* obj) {
   // Offset using the WrapperStruct size instead of individual member sizes to
   // avoid problems due to platform/compiler differences in structure padding.
@@ -170,4 +173,4 @@ typename CefCToCpp<ClassName, BaseName, StructName>::WrapperStruct*
       (sizeof(WrapperStruct) - sizeof(ClassName)));
 }
 
-#endif  // CEF_LIBCEF_DLL_CTOCPP_CTOCPP_H_
+#endif  // CEF_LIBCEF_DLL_CTOCPP_CTOCPP_REF_COUNTED_H_

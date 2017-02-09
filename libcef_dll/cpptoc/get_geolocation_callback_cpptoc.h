@@ -20,12 +20,12 @@
 
 #include "include/cef_geolocation.h"
 #include "include/capi/cef_geolocation_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefGetGeolocationCallbackCppToC
-    : public CefCppToC<CefGetGeolocationCallbackCppToC,
+    : public CefCppToCRefCounted<CefGetGeolocationCallbackCppToC,
         CefGetGeolocationCallback, cef_get_geolocation_callback_t> {
  public:
   CefGetGeolocationCallbackCppToC();

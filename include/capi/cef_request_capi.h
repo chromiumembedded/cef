@@ -55,7 +55,7 @@ typedef struct _cef_request_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns true (1) if this object is read-only.
@@ -205,7 +205,7 @@ typedef struct _cef_post_data_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns true (1) if this object is read-only.
@@ -265,7 +265,7 @@ typedef struct _cef_post_data_element_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns true (1) if this object is read-only.

@@ -22,12 +22,12 @@
 #include "include/capi/views/cef_view_delegate_capi.h"
 #include "include/views/cef_view.h"
 #include "include/capi/views/cef_view_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefViewDelegateCToCpp
-    : public CefCToCpp<CefViewDelegateCToCpp, CefViewDelegate,
+    : public CefCToCppRefCounted<CefViewDelegateCToCpp, CefViewDelegate,
         cef_view_delegate_t> {
  public:
   CefViewDelegateCToCpp();

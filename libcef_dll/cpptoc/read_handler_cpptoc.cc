@@ -111,7 +111,7 @@ CefReadHandlerCppToC::CefReadHandlerCppToC() {
   GetStruct()->may_block = read_handler_may_block;
 }
 
-template<> CefRefPtr<CefReadHandler> CefCppToC<CefReadHandlerCppToC,
+template<> CefRefPtr<CefReadHandler> CefCppToCRefCounted<CefReadHandlerCppToC,
     CefReadHandler, cef_read_handler_t>::UnwrapDerived(CefWrapperType type,
     cef_read_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -119,9 +119,9 @@ template<> CefRefPtr<CefReadHandler> CefCppToC<CefReadHandlerCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefReadHandlerCppToC, CefReadHandler,
-    cef_read_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefReadHandlerCppToC,
+    CefReadHandler, cef_read_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefReadHandlerCppToC, CefReadHandler,
-    cef_read_handler_t>::kWrapperType = WT_READ_HANDLER;
+template<> CefWrapperType CefCppToCRefCounted<CefReadHandlerCppToC,
+    CefReadHandler, cef_read_handler_t>::kWrapperType = WT_READ_HANDLER;

@@ -49,7 +49,7 @@ class CefFillLayout;
 // process UI thread unless otherwise indicated.
 ///
 /*--cef(source=library)--*/
-class CefLayout : public CefBase {
+class CefLayout : public CefBaseRefCounted {
  public:
   ///
   // Returns this Layout as a BoxLayout or NULL if this is not a BoxLayout.

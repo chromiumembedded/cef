@@ -237,7 +237,7 @@ CefX509CertificateCppToC::CefX509CertificateCppToC() {
       x509certificate_get_pemencoded_issuer_chain;
 }
 
-template<> CefRefPtr<CefX509Certificate> CefCppToC<CefX509CertificateCppToC,
+template<> CefRefPtr<CefX509Certificate> CefCppToCRefCounted<CefX509CertificateCppToC,
     CefX509Certificate, cef_x509certificate_t>::UnwrapDerived(
     CefWrapperType type, cef_x509certificate_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -245,10 +245,10 @@ template<> CefRefPtr<CefX509Certificate> CefCppToC<CefX509CertificateCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefX509CertificateCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefX509CertificateCppToC,
     CefX509Certificate, cef_x509certificate_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefX509CertificateCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefX509CertificateCppToC,
     CefX509Certificate, cef_x509certificate_t>::kWrapperType =
     WT_X509CERTIFICATE;

@@ -45,7 +45,7 @@
 // class will be called on the browser process UI thread.
 ///
 /*--cef(source=client)--*/
-class CefGetGeolocationCallback : public virtual CefBase {
+class CefGetGeolocationCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Called with the 'best available' location information or, if the location

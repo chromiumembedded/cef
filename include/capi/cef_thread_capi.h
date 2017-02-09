@@ -61,7 +61,7 @@ typedef struct _cef_thread_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns the cef_task_tRunner that will execute code on this thread's

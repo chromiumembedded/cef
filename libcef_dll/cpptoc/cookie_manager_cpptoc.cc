@@ -234,7 +234,7 @@ CefCookieManagerCppToC::CefCookieManagerCppToC() {
   GetStruct()->flush_store = cookie_manager_flush_store;
 }
 
-template<> CefRefPtr<CefCookieManager> CefCppToC<CefCookieManagerCppToC,
+template<> CefRefPtr<CefCookieManager> CefCppToCRefCounted<CefCookieManagerCppToC,
     CefCookieManager, cef_cookie_manager_t>::UnwrapDerived(CefWrapperType type,
     cef_cookie_manager_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -242,9 +242,9 @@ template<> CefRefPtr<CefCookieManager> CefCppToC<CefCookieManagerCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefCookieManagerCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefCookieManagerCppToC,
     CefCookieManager, cef_cookie_manager_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefCookieManagerCppToC, CefCookieManager,
-    cef_cookie_manager_t>::kWrapperType = WT_COOKIE_MANAGER;
+template<> CefWrapperType CefCppToCRefCounted<CefCookieManagerCppToC,
+    CefCookieManager, cef_cookie_manager_t>::kWrapperType = WT_COOKIE_MANAGER;

@@ -46,7 +46,7 @@
 // the object.
 ///
 /*--cef(source=library)--*/
-class CefZipReader : public virtual CefBase {
+class CefZipReader : public virtual CefBaseRefCounted {
  public:
   ///
   // Create a new CefZipReader object. The returned object's methods can only

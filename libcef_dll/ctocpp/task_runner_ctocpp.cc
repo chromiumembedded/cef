@@ -137,16 +137,17 @@ bool CefTaskRunnerCToCpp::PostDelayedTask(CefRefPtr<CefTask> task,
 CefTaskRunnerCToCpp::CefTaskRunnerCToCpp() {
 }
 
-template<> cef_task_runner_t* CefCToCpp<CefTaskRunnerCToCpp, CefTaskRunner,
-    cef_task_runner_t>::UnwrapDerived(CefWrapperType type, CefTaskRunner* c) {
+template<> cef_task_runner_t* CefCToCppRefCounted<CefTaskRunnerCToCpp,
+    CefTaskRunner, cef_task_runner_t>::UnwrapDerived(CefWrapperType type,
+    CefTaskRunner* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefTaskRunnerCToCpp, CefTaskRunner,
-    cef_task_runner_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCppRefCounted<CefTaskRunnerCToCpp,
+    CefTaskRunner, cef_task_runner_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefTaskRunnerCToCpp, CefTaskRunner,
-    cef_task_runner_t>::kWrapperType = WT_TASK_RUNNER;
+template<> CefWrapperType CefCToCppRefCounted<CefTaskRunnerCToCpp,
+    CefTaskRunner, cef_task_runner_t>::kWrapperType = WT_TASK_RUNNER;

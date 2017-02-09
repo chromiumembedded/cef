@@ -97,7 +97,7 @@ void CefBrowserProcessHandlerCToCpp::OnScheduleMessagePumpWork(int64 delay_ms) {
 CefBrowserProcessHandlerCToCpp::CefBrowserProcessHandlerCToCpp() {
 }
 
-template<> cef_browser_process_handler_t* CefCToCpp<CefBrowserProcessHandlerCToCpp,
+template<> cef_browser_process_handler_t* CefCToCppRefCounted<CefBrowserProcessHandlerCToCpp,
     CefBrowserProcessHandler, cef_browser_process_handler_t>::UnwrapDerived(
     CefWrapperType type, CefBrowserProcessHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -105,10 +105,10 @@ template<> cef_browser_process_handler_t* CefCToCpp<CefBrowserProcessHandlerCToC
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefBrowserProcessHandlerCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefBrowserProcessHandlerCToCpp,
     CefBrowserProcessHandler, cef_browser_process_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefBrowserProcessHandlerCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefBrowserProcessHandlerCToCpp,
     CefBrowserProcessHandler, cef_browser_process_handler_t>::kWrapperType =
     WT_BROWSER_PROCESS_HANDLER;

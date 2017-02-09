@@ -50,7 +50,7 @@
 // be called on the browser process UI thread.
 ///
 /*--cef(source=library)--*/
-class CefImage : public virtual CefBase {
+class CefImage : public virtual CefBaseRefCounted {
  public:
   ///
   // Create a new CefImage. It will initially be empty. Use the Add*() methods

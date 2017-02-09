@@ -1019,7 +1019,7 @@ CefScrollViewCppToC::CefScrollViewCppToC() {
       scroll_view_convert_point_from_view;
 }
 
-template<> CefRefPtr<CefScrollView> CefCppToC<CefScrollViewCppToC,
+template<> CefRefPtr<CefScrollView> CefCppToCRefCounted<CefScrollViewCppToC,
     CefScrollView, cef_scroll_view_t>::UnwrapDerived(CefWrapperType type,
     cef_scroll_view_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -1027,9 +1027,9 @@ template<> CefRefPtr<CefScrollView> CefCppToC<CefScrollViewCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefScrollViewCppToC, CefScrollView,
-    cef_scroll_view_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefScrollViewCppToC,
+    CefScrollView, cef_scroll_view_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefScrollViewCppToC, CefScrollView,
-    cef_scroll_view_t>::kWrapperType = WT_SCROLL_VIEW;
+template<> CefWrapperType CefCppToCRefCounted<CefScrollViewCppToC,
+    CefScrollView, cef_scroll_view_t>::kWrapperType = WT_SCROLL_VIEW;

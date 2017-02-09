@@ -53,7 +53,7 @@ typedef struct _cef_web_plugin_info_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns the plugin name (i.e. Flash).
@@ -93,7 +93,7 @@ typedef struct _cef_web_plugin_info_visitor_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Method that will be called once for each plugin. |count| is the 0-based
@@ -114,7 +114,7 @@ typedef struct _cef_web_plugin_unstable_callback_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Method that will be called for the requested plugin. |unstable| will be
@@ -136,7 +136,7 @@ typedef struct _cef_register_cdm_callback_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Method that will be called when CDM registration is complete. |result| will

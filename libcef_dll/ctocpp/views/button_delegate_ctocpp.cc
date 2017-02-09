@@ -177,7 +177,7 @@ void CefButtonDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
 CefButtonDelegateCToCpp::CefButtonDelegateCToCpp() {
 }
 
-template<> cef_button_delegate_t* CefCToCpp<CefButtonDelegateCToCpp,
+template<> cef_button_delegate_t* CefCToCppRefCounted<CefButtonDelegateCToCpp,
     CefButtonDelegate, cef_button_delegate_t>::UnwrapDerived(
     CefWrapperType type, CefButtonDelegate* c) {
   if (type == WT_MENU_BUTTON_DELEGATE) {
@@ -190,9 +190,10 @@ template<> cef_button_delegate_t* CefCToCpp<CefButtonDelegateCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefButtonDelegateCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefButtonDelegateCToCpp,
     CefButtonDelegate, cef_button_delegate_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefButtonDelegateCToCpp, CefButtonDelegate,
-    cef_button_delegate_t>::kWrapperType = WT_BUTTON_DELEGATE;
+template<> CefWrapperType CefCToCppRefCounted<CefButtonDelegateCToCpp,
+    CefButtonDelegate, cef_button_delegate_t>::kWrapperType =
+    WT_BUTTON_DELEGATE;

@@ -52,7 +52,7 @@ class CefSchemeHandlerFactory;
 // Callback interface for CefRequestContext::ResolveHost.
 ///
 /*--cef(source=client)--*/
-class CefResolveCallback : public virtual CefBase {
+class CefResolveCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Called after the ResolveHost request has completed. |result| will be the
@@ -83,7 +83,7 @@ class CefResolveCallback : public virtual CefBase {
 // all other request context objects will be ignored.
 ///
 /*--cef(source=library,no_debugct_check)--*/
-class CefRequestContext : public virtual CefBase {
+class CefRequestContext : public virtual CefBaseRefCounted {
  public:
   ///
   // Returns the global context object.

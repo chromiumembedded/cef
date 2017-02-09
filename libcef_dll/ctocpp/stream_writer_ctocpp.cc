@@ -139,7 +139,7 @@ bool CefStreamWriterCToCpp::MayBlock() {
 CefStreamWriterCToCpp::CefStreamWriterCToCpp() {
 }
 
-template<> cef_stream_writer_t* CefCToCpp<CefStreamWriterCToCpp,
+template<> cef_stream_writer_t* CefCToCppRefCounted<CefStreamWriterCToCpp,
     CefStreamWriter, cef_stream_writer_t>::UnwrapDerived(CefWrapperType type,
     CefStreamWriter* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -147,9 +147,9 @@ template<> cef_stream_writer_t* CefCToCpp<CefStreamWriterCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefStreamWriterCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefStreamWriterCToCpp,
     CefStreamWriter, cef_stream_writer_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefStreamWriterCToCpp, CefStreamWriter,
-    cef_stream_writer_t>::kWrapperType = WT_STREAM_WRITER;
+template<> CefWrapperType CefCToCppRefCounted<CefStreamWriterCToCpp,
+    CefStreamWriter, cef_stream_writer_t>::kWrapperType = WT_STREAM_WRITER;

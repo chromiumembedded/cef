@@ -45,7 +45,7 @@
 // Class used to represent an entry in navigation history.
 ///
 /*--cef(source=library)--*/
-class CefNavigationEntry : public virtual CefBase {
+class CefNavigationEntry : public virtual CefBaseRefCounted {
  public:
   typedef cef_transition_type_t TransitionType;
 

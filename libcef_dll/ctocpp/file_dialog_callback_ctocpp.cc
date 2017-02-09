@@ -63,7 +63,7 @@ void CefFileDialogCallbackCToCpp::Cancel() {
 CefFileDialogCallbackCToCpp::CefFileDialogCallbackCToCpp() {
 }
 
-template<> cef_file_dialog_callback_t* CefCToCpp<CefFileDialogCallbackCToCpp,
+template<> cef_file_dialog_callback_t* CefCToCppRefCounted<CefFileDialogCallbackCToCpp,
     CefFileDialogCallback, cef_file_dialog_callback_t>::UnwrapDerived(
     CefWrapperType type, CefFileDialogCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -71,10 +71,10 @@ template<> cef_file_dialog_callback_t* CefCToCpp<CefFileDialogCallbackCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefFileDialogCallbackCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefFileDialogCallbackCToCpp,
     CefFileDialogCallback, cef_file_dialog_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefFileDialogCallbackCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefFileDialogCallbackCToCpp,
     CefFileDialogCallback, cef_file_dialog_callback_t>::kWrapperType =
     WT_FILE_DIALOG_CALLBACK;

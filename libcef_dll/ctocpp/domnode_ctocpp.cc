@@ -449,16 +449,16 @@ CefRect CefDOMNodeCToCpp::GetElementBounds() {
 CefDOMNodeCToCpp::CefDOMNodeCToCpp() {
 }
 
-template<> cef_domnode_t* CefCToCpp<CefDOMNodeCToCpp, CefDOMNode,
+template<> cef_domnode_t* CefCToCppRefCounted<CefDOMNodeCToCpp, CefDOMNode,
     cef_domnode_t>::UnwrapDerived(CefWrapperType type, CefDOMNode* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefDOMNodeCToCpp, CefDOMNode,
-    cef_domnode_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCppRefCounted<CefDOMNodeCToCpp,
+    CefDOMNode, cef_domnode_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefDOMNodeCToCpp, CefDOMNode,
+template<> CefWrapperType CefCToCppRefCounted<CefDOMNodeCToCpp, CefDOMNode,
     cef_domnode_t>::kWrapperType = WT_DOMNODE;

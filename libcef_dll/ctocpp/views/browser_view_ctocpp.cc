@@ -739,17 +739,17 @@ bool CefBrowserViewCToCpp::ConvertPointFromView(CefRefPtr<CefView> view,
 CefBrowserViewCToCpp::CefBrowserViewCToCpp() {
 }
 
-template<> cef_browser_view_t* CefCToCpp<CefBrowserViewCToCpp, CefBrowserView,
-    cef_browser_view_t>::UnwrapDerived(CefWrapperType type,
+template<> cef_browser_view_t* CefCToCppRefCounted<CefBrowserViewCToCpp,
+    CefBrowserView, cef_browser_view_t>::UnwrapDerived(CefWrapperType type,
     CefBrowserView* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefBrowserViewCToCpp, CefBrowserView,
-    cef_browser_view_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCppRefCounted<CefBrowserViewCToCpp,
+    CefBrowserView, cef_browser_view_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefBrowserViewCToCpp, CefBrowserView,
-    cef_browser_view_t>::kWrapperType = WT_BROWSER_VIEW;
+template<> CefWrapperType CefCToCppRefCounted<CefBrowserViewCToCpp,
+    CefBrowserView, cef_browser_view_t>::kWrapperType = WT_BROWSER_VIEW;

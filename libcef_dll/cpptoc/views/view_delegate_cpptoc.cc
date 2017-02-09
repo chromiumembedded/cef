@@ -167,7 +167,7 @@ CefViewDelegateCppToC::CefViewDelegateCppToC() {
   GetStruct()->on_child_view_changed = view_delegate_on_child_view_changed;
 }
 
-template<> CefRefPtr<CefViewDelegate> CefCppToC<CefViewDelegateCppToC,
+template<> CefRefPtr<CefViewDelegate> CefCppToCRefCounted<CefViewDelegateCppToC,
     CefViewDelegate, cef_view_delegate_t>::UnwrapDerived(CefWrapperType type,
     cef_view_delegate_t* s) {
   if (type == WT_BROWSER_VIEW_DELEGATE) {
@@ -199,9 +199,9 @@ template<> CefRefPtr<CefViewDelegate> CefCppToC<CefViewDelegateCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefViewDelegateCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefViewDelegateCppToC,
     CefViewDelegate, cef_view_delegate_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefViewDelegateCppToC, CefViewDelegate,
-    cef_view_delegate_t>::kWrapperType = WT_VIEW_DELEGATE;
+template<> CefWrapperType CefCppToCRefCounted<CefViewDelegateCppToC,
+    CefViewDelegate, cef_view_delegate_t>::kWrapperType = WT_VIEW_DELEGATE;

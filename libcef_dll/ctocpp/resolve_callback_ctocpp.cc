@@ -48,7 +48,7 @@ void CefResolveCallbackCToCpp::OnResolveCompleted(cef_errorcode_t result,
 CefResolveCallbackCToCpp::CefResolveCallbackCToCpp() {
 }
 
-template<> cef_resolve_callback_t* CefCToCpp<CefResolveCallbackCToCpp,
+template<> cef_resolve_callback_t* CefCToCppRefCounted<CefResolveCallbackCToCpp,
     CefResolveCallback, cef_resolve_callback_t>::UnwrapDerived(
     CefWrapperType type, CefResolveCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -56,10 +56,10 @@ template<> cef_resolve_callback_t* CefCToCpp<CefResolveCallbackCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefResolveCallbackCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefResolveCallbackCToCpp,
     CefResolveCallback, cef_resolve_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefResolveCallbackCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefResolveCallbackCToCpp,
     CefResolveCallback, cef_resolve_callback_t>::kWrapperType =
     WT_RESOLVE_CALLBACK;

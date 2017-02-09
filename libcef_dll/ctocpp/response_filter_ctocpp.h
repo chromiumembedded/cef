@@ -20,12 +20,12 @@
 
 #include "include/cef_response_filter.h"
 #include "include/capi/cef_response_filter_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefResponseFilterCToCpp
-    : public CefCToCpp<CefResponseFilterCToCpp, CefResponseFilter,
+    : public CefCToCppRefCounted<CefResponseFilterCToCpp, CefResponseFilter,
         cef_response_filter_t> {
  public:
   CefResponseFilterCToCpp();

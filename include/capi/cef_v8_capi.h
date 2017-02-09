@@ -63,7 +63,7 @@ typedef struct _cef_v8context_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns the task runner associated with this context. V8 handles can only
@@ -161,7 +161,7 @@ typedef struct _cef_v8handler_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Handle execution of the function identified by |name|. |object| is the
@@ -187,7 +187,7 @@ typedef struct _cef_v8accessor_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Handle retrieval the accessor value identified by |name|. |object| is the
@@ -225,7 +225,7 @@ typedef struct _cef_v8interceptor_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Handle retrieval of the interceptor value identified by |name|. |object| is
@@ -285,7 +285,7 @@ typedef struct _cef_v8exception_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns the exception message.
@@ -352,7 +352,7 @@ typedef struct _cef_v8value_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns true (1) if the underlying handle is valid and it can be accessed
@@ -585,12 +585,12 @@ typedef struct _cef_v8value_t {
   // called on user created objects.
   ///
   int (CEF_CALLBACK *set_user_data)(struct _cef_v8value_t* self,
-      struct _cef_base_t* user_data);
+      struct _cef_base_ref_counted_t* user_data);
 
   ///
   // Returns the user data, if any, assigned to this object.
   ///
-  struct _cef_base_t* (CEF_CALLBACK *get_user_data)(
+  struct _cef_base_ref_counted_t* (CEF_CALLBACK *get_user_data)(
       struct _cef_v8value_t* self);
 
   ///
@@ -752,7 +752,7 @@ typedef struct _cef_v8stack_trace_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns true (1) if the underlying handle is valid and it can be accessed
@@ -792,7 +792,7 @@ typedef struct _cef_v8stack_frame_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns true (1) if the underlying handle is valid and it can be accessed

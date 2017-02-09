@@ -21,12 +21,13 @@
 #include <vector>
 #include "include/cef_drag_data.h"
 #include "include/capi/cef_drag_data_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefDragDataCToCpp
-    : public CefCToCpp<CefDragDataCToCpp, CefDragData, cef_drag_data_t> {
+    : public CefCToCppRefCounted<CefDragDataCToCpp, CefDragData,
+        cef_drag_data_t> {
  public:
   CefDragDataCToCpp();
 

@@ -22,12 +22,12 @@
 #include "include/capi/cef_life_span_handler_capi.h"
 #include "include/cef_client.h"
 #include "include/capi/cef_client_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefLifeSpanHandlerCToCpp
-    : public CefCToCpp<CefLifeSpanHandlerCToCpp, CefLifeSpanHandler,
+    : public CefCToCppRefCounted<CefLifeSpanHandlerCToCpp, CefLifeSpanHandler,
         cef_life_span_handler_t> {
  public:
   CefLifeSpanHandlerCToCpp();

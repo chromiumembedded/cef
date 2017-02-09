@@ -78,7 +78,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
                            public content::NotificationObserver {
  public:
   // Used for handling the response to command messages.
-  class CommandResponseHandler : public virtual CefBase {
+  class CommandResponseHandler : public virtual CefBaseRefCounted {
    public:
      virtual void OnResponse(const std::string& response) =0;
   };

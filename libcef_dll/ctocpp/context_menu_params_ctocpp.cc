@@ -353,7 +353,7 @@ bool CefContextMenuParamsCToCpp::IsPepperMenu() {
 CefContextMenuParamsCToCpp::CefContextMenuParamsCToCpp() {
 }
 
-template<> cef_context_menu_params_t* CefCToCpp<CefContextMenuParamsCToCpp,
+template<> cef_context_menu_params_t* CefCToCppRefCounted<CefContextMenuParamsCToCpp,
     CefContextMenuParams, cef_context_menu_params_t>::UnwrapDerived(
     CefWrapperType type, CefContextMenuParams* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -361,10 +361,10 @@ template<> cef_context_menu_params_t* CefCToCpp<CefContextMenuParamsCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefContextMenuParamsCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefContextMenuParamsCToCpp,
     CefContextMenuParams, cef_context_menu_params_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefContextMenuParamsCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefContextMenuParamsCToCpp,
     CefContextMenuParams, cef_context_menu_params_t>::kWrapperType =
     WT_CONTEXT_MENU_PARAMS;

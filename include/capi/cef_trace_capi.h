@@ -55,7 +55,7 @@ typedef struct _cef_end_tracing_callback_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Called after all processes have sent their trace data. |tracing_file| is

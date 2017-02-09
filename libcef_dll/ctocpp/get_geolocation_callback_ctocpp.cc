@@ -34,7 +34,7 @@ void CefGetGeolocationCallbackCToCpp::OnLocationUpdate(
 CefGetGeolocationCallbackCToCpp::CefGetGeolocationCallbackCToCpp() {
 }
 
-template<> cef_get_geolocation_callback_t* CefCToCpp<CefGetGeolocationCallbackCToCpp,
+template<> cef_get_geolocation_callback_t* CefCToCppRefCounted<CefGetGeolocationCallbackCToCpp,
     CefGetGeolocationCallback, cef_get_geolocation_callback_t>::UnwrapDerived(
     CefWrapperType type, CefGetGeolocationCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -42,11 +42,11 @@ template<> cef_get_geolocation_callback_t* CefCToCpp<CefGetGeolocationCallbackCT
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefGetGeolocationCallbackCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefGetGeolocationCallbackCToCpp,
     CefGetGeolocationCallback, cef_get_geolocation_callback_t>::DebugObjCt =
     0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefGetGeolocationCallbackCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefGetGeolocationCallbackCToCpp,
     CefGetGeolocationCallback, cef_get_geolocation_callback_t>::kWrapperType =
     WT_GET_GEOLOCATION_CALLBACK;

@@ -20,12 +20,12 @@
 
 #include "include/cef_client.h"
 #include "include/capi/cef_client_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefClientCppToC
-    : public CefCppToC<CefClientCppToC, CefClient, cef_client_t> {
+    : public CefCppToCRefCounted<CefClientCppToC, CefClient, cef_client_t> {
  public:
   CefClientCppToC();
 };

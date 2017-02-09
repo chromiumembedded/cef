@@ -397,16 +397,16 @@ CefFrameCppToC::CefFrameCppToC() {
   GetStruct()->visit_dom = frame_visit_dom;
 }
 
-template<> CefRefPtr<CefFrame> CefCppToC<CefFrameCppToC, CefFrame,
+template<> CefRefPtr<CefFrame> CefCppToCRefCounted<CefFrameCppToC, CefFrame,
     cef_frame_t>::UnwrapDerived(CefWrapperType type, cef_frame_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefFrameCppToC, CefFrame,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefFrameCppToC, CefFrame,
     cef_frame_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefFrameCppToC, CefFrame,
+template<> CefWrapperType CefCppToCRefCounted<CefFrameCppToC, CefFrame,
     cef_frame_t>::kWrapperType = WT_FRAME;

@@ -54,7 +54,7 @@ class CefV8Context;
 // methods of this class may only be called on the main thread.
 ///
 /*--cef(source=library)--*/
-class CefFrame : public virtual CefBase {
+class CefFrame : public virtual CefBaseRefCounted {
  public:
   ///
   // True if this object is currently attached to a valid frame.

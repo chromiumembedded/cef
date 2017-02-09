@@ -383,16 +383,16 @@ bool CefValueCToCpp::SetList(CefRefPtr<CefListValue> value) {
 CefValueCToCpp::CefValueCToCpp() {
 }
 
-template<> cef_value_t* CefCToCpp<CefValueCToCpp, CefValue,
+template<> cef_value_t* CefCToCppRefCounted<CefValueCToCpp, CefValue,
     cef_value_t>::UnwrapDerived(CefWrapperType type, CefValue* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefValueCToCpp, CefValue,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefValueCToCpp, CefValue,
     cef_value_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefValueCToCpp, CefValue,
+template<> CefWrapperType CefCToCppRefCounted<CefValueCToCpp, CefValue,
     cef_value_t>::kWrapperType = WT_VALUE;

@@ -61,7 +61,7 @@ typedef struct _cef_frame_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // True if this object is currently attached to a valid frame.

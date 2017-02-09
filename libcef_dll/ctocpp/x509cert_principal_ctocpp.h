@@ -21,13 +21,13 @@
 #include <vector>
 #include "include/cef_x509_certificate.h"
 #include "include/capi/cef_x509_certificate_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefX509CertPrincipalCToCpp
-    : public CefCToCpp<CefX509CertPrincipalCToCpp, CefX509CertPrincipal,
-        cef_x509cert_principal_t> {
+    : public CefCToCppRefCounted<CefX509CertPrincipalCToCpp,
+        CefX509CertPrincipal, cef_x509cert_principal_t> {
  public:
   CefX509CertPrincipalCToCpp();
 

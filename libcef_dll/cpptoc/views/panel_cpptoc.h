@@ -28,12 +28,12 @@
 #include "include/capi/views/cef_layout_capi.h"
 #include "include/views/cef_window.h"
 #include "include/capi/views/cef_window_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefPanelCppToC
-    : public CefCppToC<CefPanelCppToC, CefPanel, cef_panel_t> {
+    : public CefCppToCRefCounted<CefPanelCppToC, CefPanel, cef_panel_t> {
  public:
   CefPanelCppToC();
 };

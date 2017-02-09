@@ -99,16 +99,17 @@ bool CefV8AccessorCToCpp::Set(const CefString& name,
 CefV8AccessorCToCpp::CefV8AccessorCToCpp() {
 }
 
-template<> cef_v8accessor_t* CefCToCpp<CefV8AccessorCToCpp, CefV8Accessor,
-    cef_v8accessor_t>::UnwrapDerived(CefWrapperType type, CefV8Accessor* c) {
+template<> cef_v8accessor_t* CefCToCppRefCounted<CefV8AccessorCToCpp,
+    CefV8Accessor, cef_v8accessor_t>::UnwrapDerived(CefWrapperType type,
+    CefV8Accessor* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefV8AccessorCToCpp, CefV8Accessor,
-    cef_v8accessor_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCppRefCounted<CefV8AccessorCToCpp,
+    CefV8Accessor, cef_v8accessor_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefV8AccessorCToCpp, CefV8Accessor,
-    cef_v8accessor_t>::kWrapperType = WT_V8ACCESSOR;
+template<> CefWrapperType CefCToCppRefCounted<CefV8AccessorCToCpp,
+    CefV8Accessor, cef_v8accessor_t>::kWrapperType = WT_V8ACCESSOR;

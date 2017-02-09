@@ -56,7 +56,7 @@ typedef struct _cef_focus_handler_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Called when the browser component is about to loose focus. For instance, if

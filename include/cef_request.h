@@ -50,7 +50,7 @@ class CefPostDataElement;
 // called on any thread.
 ///
 /*--cef(source=library,no_debugct_check)--*/
-class CefRequest : public virtual CefBase {
+class CefRequest : public virtual CefBaseRefCounted {
  public:
   typedef std::multimap<CefString, CefString> HeaderMap;
   typedef cef_referrer_policy_t ReferrerPolicy;
@@ -207,7 +207,7 @@ class CefRequest : public virtual CefBase {
 // class may be called on any thread.
 ///
 /*--cef(source=library,no_debugct_check)--*/
-class CefPostData : public virtual CefBase {
+class CefPostData : public virtual CefBaseRefCounted {
  public:
   typedef std::vector<CefRefPtr<CefPostDataElement> > ElementVector;
 
@@ -270,7 +270,7 @@ class CefPostData : public virtual CefBase {
 // methods of this class may be called on any thread.
 ///
 /*--cef(source=library,no_debugct_check)--*/
-class CefPostDataElement : public virtual CefBase {
+class CefPostDataElement : public virtual CefBaseRefCounted {
  public:
   ///
   // Post data elements may represent either bytes or files.

@@ -21,12 +21,12 @@
 #include <vector>
 #include "include/cef_command_line.h"
 #include "include/capi/cef_command_line_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefCommandLineCToCpp
-    : public CefCToCpp<CefCommandLineCToCpp, CefCommandLine,
+    : public CefCToCppRefCounted<CefCommandLineCToCpp, CefCommandLine,
         cef_command_line_t> {
  public:
   CefCommandLineCToCpp();

@@ -57,7 +57,7 @@ typedef struct _cef_browser_process_handler_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Called on the browser process UI thread immediately after the CEF context

@@ -378,16 +378,16 @@ void CefDragDataCToCpp::AddFile(const CefString& path,
 CefDragDataCToCpp::CefDragDataCToCpp() {
 }
 
-template<> cef_drag_data_t* CefCToCpp<CefDragDataCToCpp, CefDragData,
+template<> cef_drag_data_t* CefCToCppRefCounted<CefDragDataCToCpp, CefDragData,
     cef_drag_data_t>::UnwrapDerived(CefWrapperType type, CefDragData* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefDragDataCToCpp, CefDragData,
-    cef_drag_data_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCppRefCounted<CefDragDataCToCpp,
+    CefDragData, cef_drag_data_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefDragDataCToCpp, CefDragData,
+template<> CefWrapperType CefCToCppRefCounted<CefDragDataCToCpp, CefDragData,
     cef_drag_data_t>::kWrapperType = WT_DRAG_DATA;

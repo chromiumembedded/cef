@@ -107,16 +107,17 @@ CefSSLStatusCppToC::CefSSLStatusCppToC() {
   GetStruct()->get_x509certificate = sslstatus_get_x509certificate;
 }
 
-template<> CefRefPtr<CefSSLStatus> CefCppToC<CefSSLStatusCppToC, CefSSLStatus,
-    cef_sslstatus_t>::UnwrapDerived(CefWrapperType type, cef_sslstatus_t* s) {
+template<> CefRefPtr<CefSSLStatus> CefCppToCRefCounted<CefSSLStatusCppToC,
+    CefSSLStatus, cef_sslstatus_t>::UnwrapDerived(CefWrapperType type,
+    cef_sslstatus_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefSSLStatusCppToC, CefSSLStatus,
-    cef_sslstatus_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefSSLStatusCppToC,
+    CefSSLStatus, cef_sslstatus_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefSSLStatusCppToC, CefSSLStatus,
+template<> CefWrapperType CefCppToCRefCounted<CefSSLStatusCppToC, CefSSLStatus,
     cef_sslstatus_t>::kWrapperType = WT_SSLSTATUS;

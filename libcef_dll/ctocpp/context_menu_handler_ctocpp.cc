@@ -161,7 +161,7 @@ void CefContextMenuHandlerCToCpp::OnContextMenuDismissed(
 CefContextMenuHandlerCToCpp::CefContextMenuHandlerCToCpp() {
 }
 
-template<> cef_context_menu_handler_t* CefCToCpp<CefContextMenuHandlerCToCpp,
+template<> cef_context_menu_handler_t* CefCToCppRefCounted<CefContextMenuHandlerCToCpp,
     CefContextMenuHandler, cef_context_menu_handler_t>::UnwrapDerived(
     CefWrapperType type, CefContextMenuHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -169,10 +169,10 @@ template<> cef_context_menu_handler_t* CefCToCpp<CefContextMenuHandlerCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefContextMenuHandlerCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefContextMenuHandlerCToCpp,
     CefContextMenuHandler, cef_context_menu_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefContextMenuHandlerCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefContextMenuHandlerCToCpp,
     CefContextMenuHandler, cef_context_menu_handler_t>::kWrapperType =
     WT_CONTEXT_MENU_HANDLER;

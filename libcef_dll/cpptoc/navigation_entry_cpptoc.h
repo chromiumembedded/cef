@@ -20,12 +20,12 @@
 
 #include "include/cef_navigation_entry.h"
 #include "include/capi/cef_navigation_entry_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefNavigationEntryCppToC
-    : public CefCppToC<CefNavigationEntryCppToC, CefNavigationEntry,
+    : public CefCppToCRefCounted<CefNavigationEntryCppToC, CefNavigationEntry,
         cef_navigation_entry_t> {
  public:
   CefNavigationEntryCppToC();

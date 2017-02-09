@@ -56,7 +56,7 @@ typedef struct _cef_run_context_menu_callback_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Complete context menu display by selecting the specified |command_id| and
@@ -80,7 +80,7 @@ typedef struct _cef_context_menu_handler_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Called before a context menu is displayed. |params| provides information
@@ -140,7 +140,7 @@ typedef struct _cef_context_menu_params_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns the X coordinate of the mouse where the context menu was invoked.

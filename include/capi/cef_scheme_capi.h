@@ -131,7 +131,7 @@ typedef struct _cef_scheme_handler_factory_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Return a new resource handler instance to handle the request or an NULL

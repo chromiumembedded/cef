@@ -130,7 +130,7 @@ CefLoadHandlerCppToC::CefLoadHandlerCppToC() {
   GetStruct()->on_load_error = load_handler_on_load_error;
 }
 
-template<> CefRefPtr<CefLoadHandler> CefCppToC<CefLoadHandlerCppToC,
+template<> CefRefPtr<CefLoadHandler> CefCppToCRefCounted<CefLoadHandlerCppToC,
     CefLoadHandler, cef_load_handler_t>::UnwrapDerived(CefWrapperType type,
     cef_load_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -138,9 +138,9 @@ template<> CefRefPtr<CefLoadHandler> CefCppToC<CefLoadHandlerCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefLoadHandlerCppToC, CefLoadHandler,
-    cef_load_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefLoadHandlerCppToC,
+    CefLoadHandler, cef_load_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefLoadHandlerCppToC, CefLoadHandler,
-    cef_load_handler_t>::kWrapperType = WT_LOAD_HANDLER;
+template<> CefWrapperType CefCppToCRefCounted<CefLoadHandlerCppToC,
+    CefLoadHandler, cef_load_handler_t>::kWrapperType = WT_LOAD_HANDLER;

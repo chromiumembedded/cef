@@ -88,17 +88,17 @@ void CefDragHandlerCToCpp::OnDraggableRegionsChanged(
 CefDragHandlerCToCpp::CefDragHandlerCToCpp() {
 }
 
-template<> cef_drag_handler_t* CefCToCpp<CefDragHandlerCToCpp, CefDragHandler,
-    cef_drag_handler_t>::UnwrapDerived(CefWrapperType type,
+template<> cef_drag_handler_t* CefCToCppRefCounted<CefDragHandlerCToCpp,
+    CefDragHandler, cef_drag_handler_t>::UnwrapDerived(CefWrapperType type,
     CefDragHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefDragHandlerCToCpp, CefDragHandler,
-    cef_drag_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCppRefCounted<CefDragHandlerCToCpp,
+    CefDragHandler, cef_drag_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefDragHandlerCToCpp, CefDragHandler,
-    cef_drag_handler_t>::kWrapperType = WT_DRAG_HANDLER;
+template<> CefWrapperType CefCToCppRefCounted<CefDragHandlerCToCpp,
+    CefDragHandler, cef_drag_handler_t>::kWrapperType = WT_DRAG_HANDLER;

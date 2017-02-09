@@ -84,7 +84,7 @@ CefGeolocationHandlerCppToC::CefGeolocationHandlerCppToC() {
       geolocation_handler_on_cancel_geolocation_permission;
 }
 
-template<> CefRefPtr<CefGeolocationHandler> CefCppToC<CefGeolocationHandlerCppToC,
+template<> CefRefPtr<CefGeolocationHandler> CefCppToCRefCounted<CefGeolocationHandlerCppToC,
     CefGeolocationHandler, cef_geolocation_handler_t>::UnwrapDerived(
     CefWrapperType type, cef_geolocation_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -92,10 +92,10 @@ template<> CefRefPtr<CefGeolocationHandler> CefCppToC<CefGeolocationHandlerCppTo
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefGeolocationHandlerCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefGeolocationHandlerCppToC,
     CefGeolocationHandler, cef_geolocation_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefGeolocationHandlerCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefGeolocationHandlerCppToC,
     CefGeolocationHandler, cef_geolocation_handler_t>::kWrapperType =
     WT_GEOLOCATION_HANDLER;

@@ -50,7 +50,7 @@ CefWebPluginInfoVisitorCppToC::CefWebPluginInfoVisitorCppToC() {
   GetStruct()->visit = web_plugin_info_visitor_visit;
 }
 
-template<> CefRefPtr<CefWebPluginInfoVisitor> CefCppToC<CefWebPluginInfoVisitorCppToC,
+template<> CefRefPtr<CefWebPluginInfoVisitor> CefCppToCRefCounted<CefWebPluginInfoVisitorCppToC,
     CefWebPluginInfoVisitor, cef_web_plugin_info_visitor_t>::UnwrapDerived(
     CefWrapperType type, cef_web_plugin_info_visitor_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -58,10 +58,10 @@ template<> CefRefPtr<CefWebPluginInfoVisitor> CefCppToC<CefWebPluginInfoVisitorC
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefWebPluginInfoVisitorCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefWebPluginInfoVisitorCppToC,
     CefWebPluginInfoVisitor, cef_web_plugin_info_visitor_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefWebPluginInfoVisitorCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefWebPluginInfoVisitorCppToC,
     CefWebPluginInfoVisitor, cef_web_plugin_info_visitor_t>::kWrapperType =
     WT_WEB_PLUGIN_INFO_VISITOR;

@@ -99,7 +99,7 @@ bool CefWaitableEventCToCpp::TimedWait(int64 max_ms) {
 CefWaitableEventCToCpp::CefWaitableEventCToCpp() {
 }
 
-template<> cef_waitable_event_t* CefCToCpp<CefWaitableEventCToCpp,
+template<> cef_waitable_event_t* CefCToCppRefCounted<CefWaitableEventCToCpp,
     CefWaitableEvent, cef_waitable_event_t>::UnwrapDerived(CefWrapperType type,
     CefWaitableEvent* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -107,9 +107,9 @@ template<> cef_waitable_event_t* CefCToCpp<CefWaitableEventCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefWaitableEventCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefWaitableEventCToCpp,
     CefWaitableEvent, cef_waitable_event_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefWaitableEventCToCpp, CefWaitableEvent,
-    cef_waitable_event_t>::kWrapperType = WT_WAITABLE_EVENT;
+template<> CefWrapperType CefCToCppRefCounted<CefWaitableEventCToCpp,
+    CefWaitableEvent, cef_waitable_event_t>::kWrapperType = WT_WAITABLE_EVENT;

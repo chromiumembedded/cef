@@ -20,12 +20,12 @@
 
 #include "include/cef_download_handler.h"
 #include "include/capi/cef_download_handler_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefBeforeDownloadCallbackCppToC
-    : public CefCppToC<CefBeforeDownloadCallbackCppToC,
+    : public CefCppToCRefCounted<CefBeforeDownloadCallbackCppToC,
         CefBeforeDownloadCallback, cef_before_download_callback_t> {
  public:
   CefBeforeDownloadCallbackCppToC();

@@ -22,13 +22,13 @@
 #include "include/capi/cef_web_plugin_capi.h"
 #include "include/cef_browser.h"
 #include "include/capi/cef_browser_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefWebPluginInfoVisitorCppToC
-    : public CefCppToC<CefWebPluginInfoVisitorCppToC, CefWebPluginInfoVisitor,
-        cef_web_plugin_info_visitor_t> {
+    : public CefCppToCRefCounted<CefWebPluginInfoVisitorCppToC,
+        CefWebPluginInfoVisitor, cef_web_plugin_info_visitor_t> {
  public:
   CefWebPluginInfoVisitorCppToC();
 };

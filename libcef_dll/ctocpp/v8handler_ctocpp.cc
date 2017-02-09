@@ -83,16 +83,17 @@ bool CefV8HandlerCToCpp::Execute(const CefString& name,
 CefV8HandlerCToCpp::CefV8HandlerCToCpp() {
 }
 
-template<> cef_v8handler_t* CefCToCpp<CefV8HandlerCToCpp, CefV8Handler,
-    cef_v8handler_t>::UnwrapDerived(CefWrapperType type, CefV8Handler* c) {
+template<> cef_v8handler_t* CefCToCppRefCounted<CefV8HandlerCToCpp,
+    CefV8Handler, cef_v8handler_t>::UnwrapDerived(CefWrapperType type,
+    CefV8Handler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefV8HandlerCToCpp, CefV8Handler,
-    cef_v8handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCppRefCounted<CefV8HandlerCToCpp,
+    CefV8Handler, cef_v8handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefV8HandlerCToCpp, CefV8Handler,
+template<> CefWrapperType CefCToCppRefCounted<CefV8HandlerCToCpp, CefV8Handler,
     cef_v8handler_t>::kWrapperType = WT_V8HANDLER;

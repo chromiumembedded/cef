@@ -61,7 +61,7 @@ typedef struct _cef_urlrequest_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns the request object used to create this URL request. The returned
@@ -133,7 +133,7 @@ typedef struct _cef_urlrequest_client_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Notifies the client that the request has completed. Use the

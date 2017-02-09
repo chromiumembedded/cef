@@ -383,16 +383,17 @@ CefBrowserCppToC::CefBrowserCppToC() {
   GetStruct()->send_process_message = browser_send_process_message;
 }
 
-template<> CefRefPtr<CefBrowser> CefCppToC<CefBrowserCppToC, CefBrowser,
-    cef_browser_t>::UnwrapDerived(CefWrapperType type, cef_browser_t* s) {
+template<> CefRefPtr<CefBrowser> CefCppToCRefCounted<CefBrowserCppToC,
+    CefBrowser, cef_browser_t>::UnwrapDerived(CefWrapperType type,
+    cef_browser_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefBrowserCppToC, CefBrowser,
-    cef_browser_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefBrowserCppToC,
+    CefBrowser, cef_browser_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefBrowserCppToC, CefBrowser,
+template<> CefWrapperType CefCppToCRefCounted<CefBrowserCppToC, CefBrowser,
     cef_browser_t>::kWrapperType = WT_BROWSER;

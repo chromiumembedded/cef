@@ -46,7 +46,7 @@
 // this class may be called on multiple threads.
 ///
 /*--cef(source=client)--*/
-class CefResourceBundleHandler : public virtual CefBase {
+class CefResourceBundleHandler : public virtual CefBaseRefCounted {
  public:
   typedef cef_scale_factor_t ScaleFactor;
 

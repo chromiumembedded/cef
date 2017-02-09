@@ -20,12 +20,12 @@
 
 #include "include/cef_string_visitor.h"
 #include "include/capi/cef_string_visitor_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefStringVisitorCToCpp
-    : public CefCToCpp<CefStringVisitorCToCpp, CefStringVisitor,
+    : public CefCToCppRefCounted<CefStringVisitorCToCpp, CefStringVisitor,
         cef_string_visitor_t> {
  public:
   CefStringVisitorCToCpp();

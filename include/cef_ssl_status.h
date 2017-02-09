@@ -46,7 +46,7 @@
 // Class representing the SSL information for a navigation entry.
 ///
 /*--cef(source=library)--*/
-class CefSSLStatus : public virtual CefBase {
+class CefSSLStatus : public virtual CefBaseRefCounted {
  public:
   ///
   // Returns true if the status is related to a secure SSL/TLS connection.

@@ -627,7 +627,7 @@ bool CefDictionaryValueCToCpp::SetList(const CefString& key,
 CefDictionaryValueCToCpp::CefDictionaryValueCToCpp() {
 }
 
-template<> cef_dictionary_value_t* CefCToCpp<CefDictionaryValueCToCpp,
+template<> cef_dictionary_value_t* CefCToCppRefCounted<CefDictionaryValueCToCpp,
     CefDictionaryValue, cef_dictionary_value_t>::UnwrapDerived(
     CefWrapperType type, CefDictionaryValue* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -635,10 +635,10 @@ template<> cef_dictionary_value_t* CefCToCpp<CefDictionaryValueCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefDictionaryValueCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefDictionaryValueCToCpp,
     CefDictionaryValue, cef_dictionary_value_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefDictionaryValueCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefDictionaryValueCToCpp,
     CefDictionaryValue, cef_dictionary_value_t>::kWrapperType =
     WT_DICTIONARY_VALUE;

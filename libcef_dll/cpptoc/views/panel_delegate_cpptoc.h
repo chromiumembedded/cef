@@ -20,12 +20,12 @@
 
 #include "include/views/cef_panel_delegate.h"
 #include "include/capi/views/cef_panel_delegate_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefPanelDelegateCppToC
-    : public CefCppToC<CefPanelDelegateCppToC, CefPanelDelegate,
+    : public CefCppToCRefCounted<CefPanelDelegateCppToC, CefPanelDelegate,
         cef_panel_delegate_t> {
  public:
   CefPanelDelegateCppToC();

@@ -39,7 +39,7 @@ CefDeleteCookiesCallbackCppToC::CefDeleteCookiesCallbackCppToC() {
   GetStruct()->on_complete = delete_cookies_callback_on_complete;
 }
 
-template<> CefRefPtr<CefDeleteCookiesCallback> CefCppToC<CefDeleteCookiesCallbackCppToC,
+template<> CefRefPtr<CefDeleteCookiesCallback> CefCppToCRefCounted<CefDeleteCookiesCallbackCppToC,
     CefDeleteCookiesCallback, cef_delete_cookies_callback_t>::UnwrapDerived(
     CefWrapperType type, cef_delete_cookies_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -47,10 +47,10 @@ template<> CefRefPtr<CefDeleteCookiesCallback> CefCppToC<CefDeleteCookiesCallbac
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefDeleteCookiesCallbackCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefDeleteCookiesCallbackCppToC,
     CefDeleteCookiesCallback, cef_delete_cookies_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefDeleteCookiesCallbackCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefDeleteCookiesCallbackCppToC,
     CefDeleteCookiesCallback, cef_delete_cookies_callback_t>::kWrapperType =
     WT_DELETE_COOKIES_CALLBACK;

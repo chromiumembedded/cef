@@ -56,7 +56,7 @@ typedef struct _cef_request_context_handler_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Called on the browser process IO thread to retrieve the cookie manager. If

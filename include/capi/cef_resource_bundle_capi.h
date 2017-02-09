@@ -56,7 +56,7 @@ typedef struct _cef_resource_bundle_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns the localized string for the specified |string_id| or an NULL

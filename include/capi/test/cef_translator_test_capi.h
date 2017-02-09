@@ -65,7 +65,7 @@ typedef struct _cef_translator_test_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
 
   // PRIMITIVE VALUES
@@ -527,7 +527,7 @@ typedef struct _cef_translator_test_ref_ptr_library_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Return a value.
@@ -618,7 +618,7 @@ typedef struct _cef_translator_test_ref_ptr_client_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Return a value.

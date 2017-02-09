@@ -46,7 +46,7 @@ void CefRunContextMenuCallbackCToCpp::Cancel() {
 CefRunContextMenuCallbackCToCpp::CefRunContextMenuCallbackCToCpp() {
 }
 
-template<> cef_run_context_menu_callback_t* CefCToCpp<CefRunContextMenuCallbackCToCpp,
+template<> cef_run_context_menu_callback_t* CefCToCppRefCounted<CefRunContextMenuCallbackCToCpp,
     CefRunContextMenuCallback, cef_run_context_menu_callback_t>::UnwrapDerived(
     CefWrapperType type, CefRunContextMenuCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -54,11 +54,11 @@ template<> cef_run_context_menu_callback_t* CefCToCpp<CefRunContextMenuCallbackC
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefRunContextMenuCallbackCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefRunContextMenuCallbackCToCpp,
     CefRunContextMenuCallback, cef_run_context_menu_callback_t>::DebugObjCt =
     0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefRunContextMenuCallbackCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefRunContextMenuCallbackCToCpp,
     CefRunContextMenuCallback, cef_run_context_menu_callback_t>::kWrapperType =
     WT_RUN_CONTEXT_MENU_CALLBACK;

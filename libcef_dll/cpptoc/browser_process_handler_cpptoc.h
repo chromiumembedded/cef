@@ -20,13 +20,13 @@
 
 #include "include/cef_browser_process_handler.h"
 #include "include/capi/cef_browser_process_handler_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefBrowserProcessHandlerCppToC
-    : public CefCppToC<CefBrowserProcessHandlerCppToC, CefBrowserProcessHandler,
-        cef_browser_process_handler_t> {
+    : public CefCppToCRefCounted<CefBrowserProcessHandlerCppToC,
+        CefBrowserProcessHandler, cef_browser_process_handler_t> {
  public:
   CefBrowserProcessHandlerCppToC();
 };

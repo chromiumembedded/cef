@@ -388,16 +388,16 @@ CefImageCppToC::CefImageCppToC() {
   GetStruct()->get_as_jpeg = image_get_as_jpeg;
 }
 
-template<> CefRefPtr<CefImage> CefCppToC<CefImageCppToC, CefImage,
+template<> CefRefPtr<CefImage> CefCppToCRefCounted<CefImageCppToC, CefImage,
     cef_image_t>::UnwrapDerived(CefWrapperType type, cef_image_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefImageCppToC, CefImage,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefImageCppToC, CefImage,
     cef_image_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefImageCppToC, CefImage,
+template<> CefWrapperType CefCppToCRefCounted<CefImageCppToC, CefImage,
     cef_image_t>::kWrapperType = WT_IMAGE;

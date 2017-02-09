@@ -22,12 +22,12 @@
 #include "include/capi/cef_request_context_capi.h"
 #include "include/cef_scheme.h"
 #include "include/capi/cef_scheme_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefRequestContextCppToC
-    : public CefCppToC<CefRequestContextCppToC, CefRequestContext,
+    : public CefCppToCRefCounted<CefRequestContextCppToC, CefRequestContext,
         cef_request_context_t> {
  public:
   CefRequestContextCppToC();

@@ -20,12 +20,12 @@
 
 #include "include/cef_image.h"
 #include "include/capi/cef_image_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefImageCppToC
-    : public CefCppToC<CefImageCppToC, CefImage, cef_image_t> {
+    : public CefCppToCRefCounted<CefImageCppToC, CefImage, cef_image_t> {
  public:
   CefImageCppToC();
 };

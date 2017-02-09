@@ -39,7 +39,7 @@ void CefEndTracingCallbackCToCpp::OnEndTracingComplete(
 CefEndTracingCallbackCToCpp::CefEndTracingCallbackCToCpp() {
 }
 
-template<> cef_end_tracing_callback_t* CefCToCpp<CefEndTracingCallbackCToCpp,
+template<> cef_end_tracing_callback_t* CefCToCppRefCounted<CefEndTracingCallbackCToCpp,
     CefEndTracingCallback, cef_end_tracing_callback_t>::UnwrapDerived(
     CefWrapperType type, CefEndTracingCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -47,10 +47,10 @@ template<> cef_end_tracing_callback_t* CefCToCpp<CefEndTracingCallbackCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefEndTracingCallbackCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefEndTracingCallbackCToCpp,
     CefEndTracingCallback, cef_end_tracing_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefEndTracingCallbackCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefEndTracingCallbackCToCpp,
     CefEndTracingCallback, cef_end_tracing_callback_t>::kWrapperType =
     WT_END_TRACING_CALLBACK;

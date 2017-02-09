@@ -43,7 +43,7 @@ CefRegisterCdmCallbackCppToC::CefRegisterCdmCallbackCppToC() {
       register_cdm_callback_on_cdm_registration_complete;
 }
 
-template<> CefRefPtr<CefRegisterCdmCallback> CefCppToC<CefRegisterCdmCallbackCppToC,
+template<> CefRefPtr<CefRegisterCdmCallback> CefCppToCRefCounted<CefRegisterCdmCallbackCppToC,
     CefRegisterCdmCallback, cef_register_cdm_callback_t>::UnwrapDerived(
     CefWrapperType type, cef_register_cdm_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -51,10 +51,10 @@ template<> CefRefPtr<CefRegisterCdmCallback> CefCppToC<CefRegisterCdmCallbackCpp
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefRegisterCdmCallbackCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefRegisterCdmCallbackCppToC,
     CefRegisterCdmCallback, cef_register_cdm_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefRegisterCdmCallbackCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefRegisterCdmCallbackCppToC,
     CefRegisterCdmCallback, cef_register_cdm_callback_t>::kWrapperType =
     WT_REGISTER_CDM_CALLBACK;

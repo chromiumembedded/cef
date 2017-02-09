@@ -40,7 +40,7 @@ CefStringVisitorCppToC::CefStringVisitorCppToC() {
   GetStruct()->visit = string_visitor_visit;
 }
 
-template<> CefRefPtr<CefStringVisitor> CefCppToC<CefStringVisitorCppToC,
+template<> CefRefPtr<CefStringVisitor> CefCppToCRefCounted<CefStringVisitorCppToC,
     CefStringVisitor, cef_string_visitor_t>::UnwrapDerived(CefWrapperType type,
     cef_string_visitor_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -48,9 +48,9 @@ template<> CefRefPtr<CefStringVisitor> CefCppToC<CefStringVisitorCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefStringVisitorCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefStringVisitorCppToC,
     CefStringVisitor, cef_string_visitor_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefStringVisitorCppToC, CefStringVisitor,
-    cef_string_visitor_t>::kWrapperType = WT_STRING_VISITOR;
+template<> CefWrapperType CefCppToCRefCounted<CefStringVisitorCppToC,
+    CefStringVisitor, cef_string_visitor_t>::kWrapperType = WT_STRING_VISITOR;

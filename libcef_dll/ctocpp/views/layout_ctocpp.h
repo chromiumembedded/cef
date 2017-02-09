@@ -24,12 +24,12 @@
 #include "include/capi/views/cef_box_layout_capi.h"
 #include "include/views/cef_fill_layout.h"
 #include "include/capi/views/cef_fill_layout_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefLayoutCToCpp
-    : public CefCToCpp<CefLayoutCToCpp, CefLayout, cef_layout_t> {
+    : public CefCToCppRefCounted<CefLayoutCToCpp, CefLayout, cef_layout_t> {
  public:
   CefLayoutCToCpp();
 

@@ -56,7 +56,7 @@ typedef struct _cef_resolve_callback_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Called after the ResolveHost request has completed. |result| will be the
@@ -89,7 +89,7 @@ typedef struct _cef_request_context_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns true (1) if this object is pointing to the same context as |that|

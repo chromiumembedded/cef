@@ -20,12 +20,12 @@
 
 #include "include/cef_waitable_event.h"
 #include "include/capi/cef_waitable_event_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefWaitableEventCppToC
-    : public CefCppToC<CefWaitableEventCppToC, CefWaitableEvent,
+    : public CefCppToCRefCounted<CefWaitableEventCppToC, CefWaitableEvent,
         cef_waitable_event_t> {
  public:
   CefWaitableEventCppToC();

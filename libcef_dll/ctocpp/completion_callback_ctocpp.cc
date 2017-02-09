@@ -32,7 +32,7 @@ void CefCompletionCallbackCToCpp::OnComplete() {
 CefCompletionCallbackCToCpp::CefCompletionCallbackCToCpp() {
 }
 
-template<> cef_completion_callback_t* CefCToCpp<CefCompletionCallbackCToCpp,
+template<> cef_completion_callback_t* CefCToCppRefCounted<CefCompletionCallbackCToCpp,
     CefCompletionCallback, cef_completion_callback_t>::UnwrapDerived(
     CefWrapperType type, CefCompletionCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -40,10 +40,10 @@ template<> cef_completion_callback_t* CefCToCpp<CefCompletionCallbackCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefCompletionCallbackCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefCompletionCallbackCToCpp,
     CefCompletionCallback, cef_completion_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefCompletionCallbackCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefCompletionCallbackCToCpp,
     CefCompletionCallback, cef_completion_callback_t>::kWrapperType =
     WT_COMPLETION_CALLBACK;

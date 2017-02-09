@@ -159,7 +159,7 @@ void CefPanelDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
 CefPanelDelegateCToCpp::CefPanelDelegateCToCpp() {
 }
 
-template<> cef_panel_delegate_t* CefCToCpp<CefPanelDelegateCToCpp,
+template<> cef_panel_delegate_t* CefCToCppRefCounted<CefPanelDelegateCToCpp,
     CefPanelDelegate, cef_panel_delegate_t>::UnwrapDerived(CefWrapperType type,
     CefPanelDelegate* c) {
   if (type == WT_WINDOW_DELEGATE) {
@@ -172,9 +172,9 @@ template<> cef_panel_delegate_t* CefCToCpp<CefPanelDelegateCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefPanelDelegateCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefPanelDelegateCToCpp,
     CefPanelDelegate, cef_panel_delegate_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefPanelDelegateCToCpp, CefPanelDelegate,
-    cef_panel_delegate_t>::kWrapperType = WT_PANEL_DELEGATE;
+template<> CefWrapperType CefCToCppRefCounted<CefPanelDelegateCToCpp,
+    CefPanelDelegate, cef_panel_delegate_t>::kWrapperType = WT_PANEL_DELEGATE;

@@ -47,7 +47,7 @@
 // Class representing SSL information.
 ///
 /*--cef(source=library)--*/
-class CefSSLInfo : public virtual CefBase {
+class CefSSLInfo : public virtual CefBaseRefCounted {
  public:
   ///
   // Returns a bitmask containing any and all problems verifying the server

@@ -264,8 +264,8 @@ class CefV8ValueImpl : public CefV8Value {
   bool SetValue(const CefString& key, AccessControl settings,
                 PropertyAttribute attribute) override;
   bool GetKeys(std::vector<CefString>& keys) override;
-  bool SetUserData(CefRefPtr<CefBase> user_data) override;
-  CefRefPtr<CefBase> GetUserData() override;
+  bool SetUserData(CefRefPtr<CefBaseRefCounted> user_data) override;
+  CefRefPtr<CefBaseRefCounted> GetUserData() override;
   int GetExternallyAllocatedMemory() override;
   int AdjustExternallyAllocatedMemory(int change_in_bytes) override;
   int GetArrayLength() override;

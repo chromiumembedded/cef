@@ -56,7 +56,7 @@ typedef struct _cef_menu_model_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Clears the menu. Returns true (1) on success.

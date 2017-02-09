@@ -36,7 +36,7 @@ int CefTranslatorTestRefPtrClientCToCpp::GetValue() {
 CefTranslatorTestRefPtrClientCToCpp::CefTranslatorTestRefPtrClientCToCpp() {
 }
 
-template<> cef_translator_test_ref_ptr_client_t* CefCToCpp<CefTranslatorTestRefPtrClientCToCpp,
+template<> cef_translator_test_ref_ptr_client_t* CefCToCppRefCounted<CefTranslatorTestRefPtrClientCToCpp,
     CefTranslatorTestRefPtrClient,
     cef_translator_test_ref_ptr_client_t>::UnwrapDerived(CefWrapperType type,
     CefTranslatorTestRefPtrClient* c) {
@@ -50,12 +50,12 @@ template<> cef_translator_test_ref_ptr_client_t* CefCToCpp<CefTranslatorTestRefP
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefTranslatorTestRefPtrClientCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefTranslatorTestRefPtrClientCToCpp,
     CefTranslatorTestRefPtrClient,
     cef_translator_test_ref_ptr_client_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefTranslatorTestRefPtrClientCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefTranslatorTestRefPtrClientCToCpp,
     CefTranslatorTestRefPtrClient,
     cef_translator_test_ref_ptr_client_t>::kWrapperType =
     WT_TRANSLATOR_TEST_REF_PTR_CLIENT;

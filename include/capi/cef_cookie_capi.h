@@ -57,7 +57,7 @@ typedef struct _cef_cookie_manager_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Set the schemes supported by this manager. The default schemes ("http",
@@ -172,7 +172,7 @@ typedef struct _cef_cookie_visitor_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Method that will be called once for each cookie. |count| is the 0-based
@@ -195,7 +195,7 @@ typedef struct _cef_set_cookie_callback_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Method that will be called upon completion. |success| will be true (1) if
@@ -214,7 +214,7 @@ typedef struct _cef_delete_cookies_callback_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Method that will be called upon completion. |num_deleted| will be the

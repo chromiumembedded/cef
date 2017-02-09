@@ -48,7 +48,7 @@
 // this class can only be accessed on the browser process the UI thread.
 ///
 /*--cef(source=library)--*/
-class CefMenuModel : public virtual CefBase {
+class CefMenuModel : public virtual CefBaseRefCounted {
  public:
   typedef cef_menu_item_type_t MenuItemType;
 

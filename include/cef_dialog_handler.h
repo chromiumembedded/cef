@@ -45,7 +45,7 @@
 // Callback interface for asynchronous continuation of file dialog requests.
 ///
 /*--cef(source=library)--*/
-class CefFileDialogCallback : public virtual CefBase {
+class CefFileDialogCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Continue the file selection. |selected_accept_filter| should be the 0-based
@@ -72,7 +72,7 @@ class CefFileDialogCallback : public virtual CefBase {
 // will be called on the browser process UI thread.
 ///
 /*--cef(source=client)--*/
-class CefDialogHandler : public virtual CefBase {
+class CefDialogHandler : public virtual CefBaseRefCounted {
  public:
   typedef cef_file_dialog_mode_t FileDialogMode;
 

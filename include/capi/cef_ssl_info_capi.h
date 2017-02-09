@@ -54,7 +54,7 @@ typedef struct _cef_sslinfo_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns a bitmask containing any and all problems verifying the server

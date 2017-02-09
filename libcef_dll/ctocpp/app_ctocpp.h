@@ -20,12 +20,12 @@
 
 #include "include/cef_app.h"
 #include "include/capi/cef_app_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefAppCToCpp
-    : public CefCToCpp<CefAppCToCpp, CefApp, cef_app_t> {
+    : public CefCToCppRefCounted<CefAppCToCpp, CefApp, cef_app_t> {
  public:
   CefAppCToCpp();
 

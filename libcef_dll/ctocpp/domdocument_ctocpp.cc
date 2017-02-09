@@ -241,17 +241,17 @@ CefString CefDOMDocumentCToCpp::GetCompleteURL(const CefString& partialURL) {
 CefDOMDocumentCToCpp::CefDOMDocumentCToCpp() {
 }
 
-template<> cef_domdocument_t* CefCToCpp<CefDOMDocumentCToCpp, CefDOMDocument,
-    cef_domdocument_t>::UnwrapDerived(CefWrapperType type,
+template<> cef_domdocument_t* CefCToCppRefCounted<CefDOMDocumentCToCpp,
+    CefDOMDocument, cef_domdocument_t>::UnwrapDerived(CefWrapperType type,
     CefDOMDocument* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefDOMDocumentCToCpp, CefDOMDocument,
-    cef_domdocument_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCppRefCounted<CefDOMDocumentCToCpp,
+    CefDOMDocument, cef_domdocument_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefDOMDocumentCToCpp, CefDOMDocument,
-    cef_domdocument_t>::kWrapperType = WT_DOMDOCUMENT;
+template<> CefWrapperType CefCToCppRefCounted<CefDOMDocumentCToCpp,
+    CefDOMDocument, cef_domdocument_t>::kWrapperType = WT_DOMDOCUMENT;

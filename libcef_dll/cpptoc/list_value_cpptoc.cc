@@ -540,17 +540,17 @@ CefListValueCppToC::CefListValueCppToC() {
   GetStruct()->set_list = list_value_set_list;
 }
 
-template<> CefRefPtr<CefListValue> CefCppToC<CefListValueCppToC, CefListValue,
-    cef_list_value_t>::UnwrapDerived(CefWrapperType type,
+template<> CefRefPtr<CefListValue> CefCppToCRefCounted<CefListValueCppToC,
+    CefListValue, cef_list_value_t>::UnwrapDerived(CefWrapperType type,
     cef_list_value_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefListValueCppToC, CefListValue,
-    cef_list_value_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefListValueCppToC,
+    CefListValue, cef_list_value_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefListValueCppToC, CefListValue,
+template<> CefWrapperType CefCppToCRefCounted<CefListValueCppToC, CefListValue,
     cef_list_value_t>::kWrapperType = WT_LIST_VALUE;

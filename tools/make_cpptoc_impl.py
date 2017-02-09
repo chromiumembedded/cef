@@ -571,7 +571,7 @@ def make_cpptoc_class_impl(header, clsname, impl):
     if base_scoped:
         template_class = 'CefCppToCScoped'
     else:
-        template_class = 'CefCppToC'
+        template_class = 'CefCppToCRefCounted'
 
     # generate virtual functions
     virtualimpl = make_cpptoc_virtual_function_impl(header, cls, existing, prefixname, defined_names)

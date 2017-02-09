@@ -88,7 +88,7 @@ void CefDownloadHandlerCToCpp::OnDownloadUpdated(CefRefPtr<CefBrowser> browser,
 CefDownloadHandlerCToCpp::CefDownloadHandlerCToCpp() {
 }
 
-template<> cef_download_handler_t* CefCToCpp<CefDownloadHandlerCToCpp,
+template<> cef_download_handler_t* CefCToCppRefCounted<CefDownloadHandlerCToCpp,
     CefDownloadHandler, cef_download_handler_t>::UnwrapDerived(
     CefWrapperType type, CefDownloadHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -96,10 +96,10 @@ template<> cef_download_handler_t* CefCToCpp<CefDownloadHandlerCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefDownloadHandlerCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefDownloadHandlerCToCpp,
     CefDownloadHandler, cef_download_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefDownloadHandlerCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefDownloadHandlerCToCpp,
     CefDownloadHandler, cef_download_handler_t>::kWrapperType =
     WT_DOWNLOAD_HANDLER;

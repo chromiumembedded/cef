@@ -23,13 +23,13 @@
 #include "include/capi/cef_browser_capi.h"
 #include "include/cef_client.h"
 #include "include/capi/cef_client_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefRunFileDialogCallbackCToCpp
-    : public CefCToCpp<CefRunFileDialogCallbackCToCpp, CefRunFileDialogCallback,
-        cef_run_file_dialog_callback_t> {
+    : public CefCToCppRefCounted<CefRunFileDialogCallbackCToCpp,
+        CefRunFileDialogCallback, cef_run_file_dialog_callback_t> {
  public:
   CefRunFileDialogCallbackCToCpp();
 

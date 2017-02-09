@@ -45,7 +45,7 @@
 // requests.
 ///
 /*--cef(source=library)--*/
-class CefAuthCallback : public virtual CefBase {
+class CefAuthCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Continue the authentication request.

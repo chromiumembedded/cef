@@ -124,17 +124,17 @@ void CefLoadHandlerCToCpp::OnLoadError(CefRefPtr<CefBrowser> browser,
 CefLoadHandlerCToCpp::CefLoadHandlerCToCpp() {
 }
 
-template<> cef_load_handler_t* CefCToCpp<CefLoadHandlerCToCpp, CefLoadHandler,
-    cef_load_handler_t>::UnwrapDerived(CefWrapperType type,
+template<> cef_load_handler_t* CefCToCppRefCounted<CefLoadHandlerCToCpp,
+    CefLoadHandler, cef_load_handler_t>::UnwrapDerived(CefWrapperType type,
     CefLoadHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefLoadHandlerCToCpp, CefLoadHandler,
-    cef_load_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCppRefCounted<CefLoadHandlerCToCpp,
+    CefLoadHandler, cef_load_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefLoadHandlerCToCpp, CefLoadHandler,
-    cef_load_handler_t>::kWrapperType = WT_LOAD_HANDLER;
+template<> CefWrapperType CefCToCppRefCounted<CefLoadHandlerCToCpp,
+    CefLoadHandler, cef_load_handler_t>::kWrapperType = WT_LOAD_HANDLER;

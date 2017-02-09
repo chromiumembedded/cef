@@ -59,16 +59,17 @@ CefSSLInfoCppToC::CefSSLInfoCppToC() {
   GetStruct()->get_x509certificate = sslinfo_get_x509certificate;
 }
 
-template<> CefRefPtr<CefSSLInfo> CefCppToC<CefSSLInfoCppToC, CefSSLInfo,
-    cef_sslinfo_t>::UnwrapDerived(CefWrapperType type, cef_sslinfo_t* s) {
+template<> CefRefPtr<CefSSLInfo> CefCppToCRefCounted<CefSSLInfoCppToC,
+    CefSSLInfo, cef_sslinfo_t>::UnwrapDerived(CefWrapperType type,
+    cef_sslinfo_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefSSLInfoCppToC, CefSSLInfo,
-    cef_sslinfo_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefSSLInfoCppToC,
+    CefSSLInfo, cef_sslinfo_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefSSLInfoCppToC, CefSSLInfo,
+template<> CefWrapperType CefCppToCRefCounted<CefSSLInfoCppToC, CefSSLInfo,
     cef_sslinfo_t>::kWrapperType = WT_SSLINFO;

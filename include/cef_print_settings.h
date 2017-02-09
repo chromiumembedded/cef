@@ -46,7 +46,7 @@
 // Class representing print settings.
 ///
 /*--cef(source=library)--*/
-class CefPrintSettings : public virtual CefBase {
+class CefPrintSettings : public virtual CefBaseRefCounted {
  public:
   typedef cef_color_model_t ColorModel;
   typedef cef_duplex_mode_t DuplexMode;

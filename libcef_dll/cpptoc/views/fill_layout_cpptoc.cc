@@ -76,7 +76,7 @@ CefFillLayoutCppToC::CefFillLayoutCppToC() {
   GetStruct()->base.is_valid = fill_layout_is_valid;
 }
 
-template<> CefRefPtr<CefFillLayout> CefCppToC<CefFillLayoutCppToC,
+template<> CefRefPtr<CefFillLayout> CefCppToCRefCounted<CefFillLayoutCppToC,
     CefFillLayout, cef_fill_layout_t>::UnwrapDerived(CefWrapperType type,
     cef_fill_layout_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -84,9 +84,9 @@ template<> CefRefPtr<CefFillLayout> CefCppToC<CefFillLayoutCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefFillLayoutCppToC, CefFillLayout,
-    cef_fill_layout_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefFillLayoutCppToC,
+    CefFillLayout, cef_fill_layout_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefFillLayoutCppToC, CefFillLayout,
-    cef_fill_layout_t>::kWrapperType = WT_FILL_LAYOUT;
+template<> CefWrapperType CefCppToCRefCounted<CefFillLayoutCppToC,
+    CefFillLayout, cef_fill_layout_t>::kWrapperType = WT_FILL_LAYOUT;

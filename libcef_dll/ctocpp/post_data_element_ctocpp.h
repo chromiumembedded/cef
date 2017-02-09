@@ -20,12 +20,12 @@
 
 #include "include/cef_request.h"
 #include "include/capi/cef_request_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefPostDataElementCToCpp
-    : public CefCToCpp<CefPostDataElementCToCpp, CefPostDataElement,
+    : public CefCToCppRefCounted<CefPostDataElementCToCpp, CefPostDataElement,
         cef_post_data_element_t> {
  public:
   CefPostDataElementCToCpp();

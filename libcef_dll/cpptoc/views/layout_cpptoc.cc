@@ -74,7 +74,7 @@ CefLayoutCppToC::CefLayoutCppToC() {
   GetStruct()->is_valid = layout_is_valid;
 }
 
-template<> CefRefPtr<CefLayout> CefCppToC<CefLayoutCppToC, CefLayout,
+template<> CefRefPtr<CefLayout> CefCppToCRefCounted<CefLayoutCppToC, CefLayout,
     cef_layout_t>::UnwrapDerived(CefWrapperType type, cef_layout_t* s) {
   if (type == WT_BOX_LAYOUT) {
     return CefBoxLayoutCppToC::Unwrap(reinterpret_cast<cef_box_layout_t*>(s));
@@ -87,9 +87,9 @@ template<> CefRefPtr<CefLayout> CefCppToC<CefLayoutCppToC, CefLayout,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefLayoutCppToC, CefLayout,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefLayoutCppToC, CefLayout,
     cef_layout_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefLayoutCppToC, CefLayout,
+template<> CefWrapperType CefCppToCRefCounted<CefLayoutCppToC, CefLayout,
     cef_layout_t>::kWrapperType = WT_LAYOUT;

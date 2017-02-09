@@ -260,16 +260,17 @@ CefV8ContextCppToC::CefV8ContextCppToC() {
   GetStruct()->eval = v8context_eval;
 }
 
-template<> CefRefPtr<CefV8Context> CefCppToC<CefV8ContextCppToC, CefV8Context,
-    cef_v8context_t>::UnwrapDerived(CefWrapperType type, cef_v8context_t* s) {
+template<> CefRefPtr<CefV8Context> CefCppToCRefCounted<CefV8ContextCppToC,
+    CefV8Context, cef_v8context_t>::UnwrapDerived(CefWrapperType type,
+    cef_v8context_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefV8ContextCppToC, CefV8Context,
-    cef_v8context_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefV8ContextCppToC,
+    CefV8Context, cef_v8context_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefV8ContextCppToC, CefV8Context,
+template<> CefWrapperType CefCppToCRefCounted<CefV8ContextCppToC, CefV8Context,
     cef_v8context_t>::kWrapperType = WT_V8CONTEXT;

@@ -113,7 +113,7 @@ CefRefPtr<CefListValue> CefProcessMessageCToCpp::GetArgumentList() {
 CefProcessMessageCToCpp::CefProcessMessageCToCpp() {
 }
 
-template<> cef_process_message_t* CefCToCpp<CefProcessMessageCToCpp,
+template<> cef_process_message_t* CefCToCppRefCounted<CefProcessMessageCToCpp,
     CefProcessMessage, cef_process_message_t>::UnwrapDerived(
     CefWrapperType type, CefProcessMessage* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -121,9 +121,10 @@ template<> cef_process_message_t* CefCToCpp<CefProcessMessageCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefProcessMessageCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefProcessMessageCToCpp,
     CefProcessMessage, cef_process_message_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefProcessMessageCToCpp, CefProcessMessage,
-    cef_process_message_t>::kWrapperType = WT_PROCESS_MESSAGE;
+template<> CefWrapperType CefCToCppRefCounted<CefProcessMessageCToCpp,
+    CefProcessMessage, cef_process_message_t>::kWrapperType =
+    WT_PROCESS_MESSAGE;

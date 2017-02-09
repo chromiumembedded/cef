@@ -380,16 +380,16 @@ uint64 CefRequestCToCpp::GetIdentifier() {
 CefRequestCToCpp::CefRequestCToCpp() {
 }
 
-template<> cef_request_t* CefCToCpp<CefRequestCToCpp, CefRequest,
+template<> cef_request_t* CefCToCppRefCounted<CefRequestCToCpp, CefRequest,
     cef_request_t>::UnwrapDerived(CefWrapperType type, CefRequest* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefRequestCToCpp, CefRequest,
-    cef_request_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCppRefCounted<CefRequestCToCpp,
+    CefRequest, cef_request_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefRequestCToCpp, CefRequest,
+template<> CefWrapperType CefCToCppRefCounted<CefRequestCToCpp, CefRequest,
     cef_request_t>::kWrapperType = WT_REQUEST;

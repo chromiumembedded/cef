@@ -48,7 +48,7 @@
 // on any thread unless otherwise indicated.
 ///
 /*--cef(source=library,no_debugct_check)--*/
-class CefResourceBundle : public virtual CefBase {
+class CefResourceBundle : public virtual CefBaseRefCounted {
  public:
   typedef cef_scale_factor_t ScaleFactor;
 

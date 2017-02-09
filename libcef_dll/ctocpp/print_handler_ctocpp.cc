@@ -140,7 +140,7 @@ CefSize CefPrintHandlerCToCpp::GetPdfPaperSize(int device_units_per_inch) {
 CefPrintHandlerCToCpp::CefPrintHandlerCToCpp() {
 }
 
-template<> cef_print_handler_t* CefCToCpp<CefPrintHandlerCToCpp,
+template<> cef_print_handler_t* CefCToCppRefCounted<CefPrintHandlerCToCpp,
     CefPrintHandler, cef_print_handler_t>::UnwrapDerived(CefWrapperType type,
     CefPrintHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -148,9 +148,9 @@ template<> cef_print_handler_t* CefCToCpp<CefPrintHandlerCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefPrintHandlerCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefPrintHandlerCToCpp,
     CefPrintHandler, cef_print_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefPrintHandlerCToCpp, CefPrintHandler,
-    cef_print_handler_t>::kWrapperType = WT_PRINT_HANDLER;
+template<> CefWrapperType CefCToCppRefCounted<CefPrintHandlerCToCpp,
+    CefPrintHandler, cef_print_handler_t>::kWrapperType = WT_PRINT_HANDLER;

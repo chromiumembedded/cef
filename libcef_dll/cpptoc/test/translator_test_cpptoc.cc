@@ -1501,7 +1501,7 @@ CefTranslatorTestCppToC::CefTranslatorTestCppToC() {
       translator_test_set_raw_ptr_client_list;
 }
 
-template<> CefRefPtr<CefTranslatorTest> CefCppToC<CefTranslatorTestCppToC,
+template<> CefRefPtr<CefTranslatorTest> CefCppToCRefCounted<CefTranslatorTestCppToC,
     CefTranslatorTest, cef_translator_test_t>::UnwrapDerived(
     CefWrapperType type, cef_translator_test_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -1509,9 +1509,10 @@ template<> CefRefPtr<CefTranslatorTest> CefCppToC<CefTranslatorTestCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefTranslatorTestCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefTranslatorTestCppToC,
     CefTranslatorTest, cef_translator_test_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefTranslatorTestCppToC, CefTranslatorTest,
-    cef_translator_test_t>::kWrapperType = WT_TRANSLATOR_TEST;
+template<> CefWrapperType CefCppToCRefCounted<CefTranslatorTestCppToC,
+    CefTranslatorTest, cef_translator_test_t>::kWrapperType =
+    WT_TRANSLATOR_TEST;

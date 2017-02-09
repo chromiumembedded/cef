@@ -20,12 +20,13 @@
 
 #include "include/cef_v8.h"
 #include "include/capi/cef_v8_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefV8HandlerCToCpp
-    : public CefCToCpp<CefV8HandlerCToCpp, CefV8Handler, cef_v8handler_t> {
+    : public CefCToCppRefCounted<CefV8HandlerCToCpp, CefV8Handler,
+        cef_v8handler_t> {
  public:
   CefV8HandlerCToCpp();
 

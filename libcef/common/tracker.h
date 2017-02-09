@@ -48,7 +48,7 @@ class CefTrackNode {
 // manager object is destroyed.  A manager object can be created as either a
 // member variable of another class or by using lazy initialization:
 // base::LazyInstance<CefTrackManager> g_singleton = LAZY_INSTANCE_INITIALIZER;
-class CefTrackManager : public CefBase {
+class CefTrackManager : public CefBaseRefCounted {
  public:
   CefTrackManager();
   ~CefTrackManager() override;

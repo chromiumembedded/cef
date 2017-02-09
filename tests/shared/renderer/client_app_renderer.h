@@ -19,7 +19,7 @@ class ClientAppRenderer : public ClientApp,
   // Interface for renderer delegates. All Delegates must be returned via
   // CreateDelegates. Do not perform work in the Delegate
   // constructor. See CefRenderProcessHandler for documentation.
-  class Delegate : public virtual CefBase {
+  class Delegate : public virtual CefBaseRefCounted {
    public:
     virtual void OnRenderThreadCreated(CefRefPtr<ClientAppRenderer> app,
                                        CefRefPtr<CefListValue> extra_info) {}

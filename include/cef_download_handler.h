@@ -47,7 +47,7 @@
 // Callback interface used to asynchronously continue a download.
 ///
 /*--cef(source=library)--*/
-class CefBeforeDownloadCallback : public virtual CefBase {
+class CefBeforeDownloadCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Call to continue the download. Set |download_path| to the full file path
@@ -64,7 +64,7 @@ class CefBeforeDownloadCallback : public virtual CefBase {
 // Callback interface used to asynchronously cancel a download.
 ///
 /*--cef(source=library)--*/
-class CefDownloadItemCallback : public virtual CefBase {
+class CefDownloadItemCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Call to cancel the download.
@@ -91,7 +91,7 @@ class CefDownloadItemCallback : public virtual CefBase {
 // on the browser process UI thread.
 ///
 /*--cef(source=client)--*/
-class CefDownloadHandler : public virtual CefBase {
+class CefDownloadHandler : public virtual CefBaseRefCounted {
  public:
   ///
   // Called before a download begins. |suggested_name| is the suggested name for

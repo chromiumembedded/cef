@@ -48,7 +48,7 @@
 // this class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefFocusHandler : public virtual CefBase {
+class CefFocusHandler : public virtual CefBaseRefCounted {
  public:
   typedef cef_focus_source_t FocusSource;
 

@@ -54,11 +54,11 @@ def make_cpptoc_header(header, clsname):
     base_class_name = header.get_base_class_name(clsname)
     base_scoped = True if base_class_name == 'CefBaseScoped' else False
     if base_scoped:
-      template_file = 'cpptoc_scoped.h'
-      template_class = 'CefCppToCScoped'
+        template_file = 'cpptoc_scoped.h'
+        template_class = 'CefCppToCScoped'
     else:
-      template_file = 'cpptoc.h'
-      template_class = 'CefCppToC'
+        template_file = 'cpptoc_ref_counted.h'
+        template_class = 'CefCppToCRefCounted'
 
     result += '#include "libcef_dll/cpptoc/' + template_file + '"'
     result += '\n\n// Wrap a C++ class with a C structure.\n'

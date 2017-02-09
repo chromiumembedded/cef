@@ -84,7 +84,7 @@ class CefTranslatorTestScopedLibraryChild;
 // Class for testing all of the possible data transfer types.
 ///
 /*--cef(source=library,no_debugct_check)--*/
-class CefTranslatorTest : public CefBase {
+class CefTranslatorTest : public CefBaseRefCounted {
  public:
   ///
   // Create the test object.
@@ -611,7 +611,7 @@ class CefTranslatorTest : public CefBase {
 // Library-side test object for RefPtr.
 ///
 /*--cef(source=library,no_debugct_check)--*/
-class CefTranslatorTestRefPtrLibrary : public CefBase {
+class CefTranslatorTestRefPtrLibrary : public CefBaseRefCounted {
  public:
   ///
   // Create the test object.
@@ -693,7 +693,7 @@ class CefTranslatorTestRefPtrLibraryChildChild :
 // Client-side test object for RefPtr.
 ///
 /*--cef(source=client,no_debugct_check)--*/
-class CefTranslatorTestRefPtrClient : public virtual CefBase {
+class CefTranslatorTestRefPtrClient : public virtual CefBaseRefCounted {
  public:
   ///
   // Return a value.

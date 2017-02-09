@@ -20,12 +20,13 @@
 
 #include "include/cef_task.h"
 #include "include/capi/cef_task_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefTaskRunnerCppToC
-    : public CefCppToC<CefTaskRunnerCppToC, CefTaskRunner, cef_task_runner_t> {
+    : public CefCppToCRefCounted<CefTaskRunnerCppToC, CefTaskRunner,
+        cef_task_runner_t> {
  public:
   CefTaskRunnerCppToC();
 };

@@ -20,13 +20,13 @@
 
 #include "include/cef_resource_bundle_handler.h"
 #include "include/capi/cef_resource_bundle_handler_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefResourceBundleHandlerCToCpp
-    : public CefCToCpp<CefResourceBundleHandlerCToCpp, CefResourceBundleHandler,
-        cef_resource_bundle_handler_t> {
+    : public CefCToCppRefCounted<CefResourceBundleHandlerCToCpp,
+        CefResourceBundleHandler, cef_resource_bundle_handler_t> {
  public:
   CefResourceBundleHandlerCToCpp();
 

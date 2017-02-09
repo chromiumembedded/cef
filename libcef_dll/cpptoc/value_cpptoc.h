@@ -20,12 +20,12 @@
 
 #include "include/cef_values.h"
 #include "include/capi/cef_values_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefValueCppToC
-    : public CefCppToC<CefValueCppToC, CefValue, cef_value_t> {
+    : public CefCppToCRefCounted<CefValueCppToC, CefValue, cef_value_t> {
  public:
   CefValueCppToC();
 };

@@ -20,12 +20,13 @@
 
 #include "include/cef_response.h"
 #include "include/capi/cef_response_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefResponseCToCpp
-    : public CefCToCpp<CefResponseCToCpp, CefResponse, cef_response_t> {
+    : public CefCToCppRefCounted<CefResponseCToCpp, CefResponse,
+        cef_response_t> {
  public:
   CefResponseCToCpp();
 

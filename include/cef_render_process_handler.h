@@ -53,7 +53,7 @@
 // otherwise indicated.
 ///
 /*--cef(source=client)--*/
-class CefRenderProcessHandler : public virtual CefBase {
+class CefRenderProcessHandler : public virtual CefBaseRefCounted {
  public:
   typedef cef_navigation_type_t NavigationType;
 

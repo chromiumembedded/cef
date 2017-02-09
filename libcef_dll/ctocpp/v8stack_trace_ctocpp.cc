@@ -79,7 +79,7 @@ CefRefPtr<CefV8StackFrame> CefV8StackTraceCToCpp::GetFrame(int index) {
 CefV8StackTraceCToCpp::CefV8StackTraceCToCpp() {
 }
 
-template<> cef_v8stack_trace_t* CefCToCpp<CefV8StackTraceCToCpp,
+template<> cef_v8stack_trace_t* CefCToCppRefCounted<CefV8StackTraceCToCpp,
     CefV8StackTrace, cef_v8stack_trace_t>::UnwrapDerived(CefWrapperType type,
     CefV8StackTrace* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -87,9 +87,9 @@ template<> cef_v8stack_trace_t* CefCToCpp<CefV8StackTraceCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefV8StackTraceCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefV8StackTraceCToCpp,
     CefV8StackTrace, cef_v8stack_trace_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefV8StackTraceCToCpp, CefV8StackTrace,
-    cef_v8stack_trace_t>::kWrapperType = WT_V8STACK_TRACE;
+template<> CefWrapperType CefCToCppRefCounted<CefV8StackTraceCToCpp,
+    CefV8StackTrace, cef_v8stack_trace_t>::kWrapperType = WT_V8STACK_TRACE;

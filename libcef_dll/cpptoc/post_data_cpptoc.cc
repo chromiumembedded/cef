@@ -176,16 +176,17 @@ CefPostDataCppToC::CefPostDataCppToC() {
   GetStruct()->remove_elements = post_data_remove_elements;
 }
 
-template<> CefRefPtr<CefPostData> CefCppToC<CefPostDataCppToC, CefPostData,
-    cef_post_data_t>::UnwrapDerived(CefWrapperType type, cef_post_data_t* s) {
+template<> CefRefPtr<CefPostData> CefCppToCRefCounted<CefPostDataCppToC,
+    CefPostData, cef_post_data_t>::UnwrapDerived(CefWrapperType type,
+    cef_post_data_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefPostDataCppToC, CefPostData,
-    cef_post_data_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefPostDataCppToC,
+    CefPostData, cef_post_data_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefPostDataCppToC, CefPostData,
+template<> CefWrapperType CefCppToCRefCounted<CefPostDataCppToC, CefPostData,
     cef_post_data_t>::kWrapperType = WT_POST_DATA;

@@ -152,7 +152,7 @@ CefV8StackFrameCppToC::CefV8StackFrameCppToC() {
   GetStruct()->is_constructor = v8stack_frame_is_constructor;
 }
 
-template<> CefRefPtr<CefV8StackFrame> CefCppToC<CefV8StackFrameCppToC,
+template<> CefRefPtr<CefV8StackFrame> CefCppToCRefCounted<CefV8StackFrameCppToC,
     CefV8StackFrame, cef_v8stack_frame_t>::UnwrapDerived(CefWrapperType type,
     cef_v8stack_frame_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -160,9 +160,9 @@ template<> CefRefPtr<CefV8StackFrame> CefCppToC<CefV8StackFrameCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefV8StackFrameCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefV8StackFrameCppToC,
     CefV8StackFrame, cef_v8stack_frame_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefV8StackFrameCppToC, CefV8StackFrame,
-    cef_v8stack_frame_t>::kWrapperType = WT_V8STACK_FRAME;
+template<> CefWrapperType CefCppToCRefCounted<CefV8StackFrameCppToC,
+    CefV8StackFrame, cef_v8stack_frame_t>::kWrapperType = WT_V8STACK_FRAME;

@@ -49,7 +49,7 @@
 // The methods of this class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefRenderHandler : public virtual CefBase {
+class CefRenderHandler : public virtual CefBaseRefCounted {
  public:
   typedef cef_cursor_type_t CursorType;
   typedef cef_drag_operations_mask_t DragOperation;

@@ -20,13 +20,13 @@
 
 #include "include/cef_context_menu_handler.h"
 #include "include/capi/cef_context_menu_handler_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefContextMenuHandlerCToCpp
-    : public CefCToCpp<CefContextMenuHandlerCToCpp, CefContextMenuHandler,
-        cef_context_menu_handler_t> {
+    : public CefCToCppRefCounted<CefContextMenuHandlerCToCpp,
+        CefContextMenuHandler, cef_context_menu_handler_t> {
  public:
   CefContextMenuHandlerCToCpp();
 

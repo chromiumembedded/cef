@@ -20,12 +20,12 @@
 
 #include "include/cef_keyboard_handler.h"
 #include "include/capi/cef_keyboard_handler_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefKeyboardHandlerCToCpp
-    : public CefCToCpp<CefKeyboardHandlerCToCpp, CefKeyboardHandler,
+    : public CefCToCppRefCounted<CefKeyboardHandlerCToCpp, CefKeyboardHandler,
         cef_keyboard_handler_t> {
  public:
   CefKeyboardHandlerCToCpp();

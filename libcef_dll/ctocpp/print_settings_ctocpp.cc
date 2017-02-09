@@ -388,7 +388,7 @@ CefPrintSettings::DuplexMode CefPrintSettingsCToCpp::GetDuplexMode() {
 CefPrintSettingsCToCpp::CefPrintSettingsCToCpp() {
 }
 
-template<> cef_print_settings_t* CefCToCpp<CefPrintSettingsCToCpp,
+template<> cef_print_settings_t* CefCToCppRefCounted<CefPrintSettingsCToCpp,
     CefPrintSettings, cef_print_settings_t>::UnwrapDerived(CefWrapperType type,
     CefPrintSettings* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -396,9 +396,9 @@ template<> cef_print_settings_t* CefCToCpp<CefPrintSettingsCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefPrintSettingsCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefPrintSettingsCToCpp,
     CefPrintSettings, cef_print_settings_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefPrintSettingsCToCpp, CefPrintSettings,
-    cef_print_settings_t>::kWrapperType = WT_PRINT_SETTINGS;
+template<> CefWrapperType CefCToCppRefCounted<CefPrintSettingsCToCpp,
+    CefPrintSettings, cef_print_settings_t>::kWrapperType = WT_PRINT_SETTINGS;

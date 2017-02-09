@@ -52,7 +52,7 @@ typedef struct _cef_callback_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Continue processing.
@@ -73,7 +73,7 @@ typedef struct _cef_completion_callback_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Method that will be called once the task is complete.

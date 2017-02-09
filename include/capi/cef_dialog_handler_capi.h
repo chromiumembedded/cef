@@ -53,7 +53,7 @@ typedef struct _cef_file_dialog_callback_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Continue the file selection. |selected_accept_filter| should be the 0-based
@@ -80,7 +80,7 @@ typedef struct _cef_dialog_handler_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Called to run a file chooser dialog. |mode| represents the type of dialog

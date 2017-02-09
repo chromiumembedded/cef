@@ -58,7 +58,7 @@ CefPrintDialogCallbackCppToC::CefPrintDialogCallbackCppToC() {
   GetStruct()->cancel = print_dialog_callback_cancel;
 }
 
-template<> CefRefPtr<CefPrintDialogCallback> CefCppToC<CefPrintDialogCallbackCppToC,
+template<> CefRefPtr<CefPrintDialogCallback> CefCppToCRefCounted<CefPrintDialogCallbackCppToC,
     CefPrintDialogCallback, cef_print_dialog_callback_t>::UnwrapDerived(
     CefWrapperType type, cef_print_dialog_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -66,10 +66,10 @@ template<> CefRefPtr<CefPrintDialogCallback> CefCppToC<CefPrintDialogCallbackCpp
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefPrintDialogCallbackCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefPrintDialogCallbackCppToC,
     CefPrintDialogCallback, cef_print_dialog_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefPrintDialogCallbackCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefPrintDialogCallbackCppToC,
     CefPrintDialogCallback, cef_print_dialog_callback_t>::kWrapperType =
     WT_PRINT_DIALOG_CALLBACK;

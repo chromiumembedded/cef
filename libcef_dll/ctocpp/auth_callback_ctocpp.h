@@ -20,12 +20,12 @@
 
 #include "include/cef_auth_callback.h"
 #include "include/capi/cef_auth_callback_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefAuthCallbackCToCpp
-    : public CefCToCpp<CefAuthCallbackCToCpp, CefAuthCallback,
+    : public CefCToCppRefCounted<CefAuthCallbackCToCpp, CefAuthCallback,
         cef_auth_callback_t> {
  public:
   CefAuthCallbackCToCpp();

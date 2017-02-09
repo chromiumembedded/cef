@@ -46,17 +46,17 @@ void CefFindHandlerCToCpp::OnFindResult(CefRefPtr<CefBrowser> browser,
 CefFindHandlerCToCpp::CefFindHandlerCToCpp() {
 }
 
-template<> cef_find_handler_t* CefCToCpp<CefFindHandlerCToCpp, CefFindHandler,
-    cef_find_handler_t>::UnwrapDerived(CefWrapperType type,
+template<> cef_find_handler_t* CefCToCppRefCounted<CefFindHandlerCToCpp,
+    CefFindHandler, cef_find_handler_t>::UnwrapDerived(CefWrapperType type,
     CefFindHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefFindHandlerCToCpp, CefFindHandler,
-    cef_find_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCppRefCounted<CefFindHandlerCToCpp,
+    CefFindHandler, cef_find_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefFindHandlerCToCpp, CefFindHandler,
-    cef_find_handler_t>::kWrapperType = WT_FIND_HANDLER;
+template<> CefWrapperType CefCToCppRefCounted<CefFindHandlerCToCpp,
+    CefFindHandler, cef_find_handler_t>::kWrapperType = WT_FIND_HANDLER;

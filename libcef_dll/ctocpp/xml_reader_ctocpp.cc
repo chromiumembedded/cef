@@ -528,16 +528,17 @@ bool CefXmlReaderCToCpp::MoveToCarryingElement() {
 CefXmlReaderCToCpp::CefXmlReaderCToCpp() {
 }
 
-template<> cef_xml_reader_t* CefCToCpp<CefXmlReaderCToCpp, CefXmlReader,
-    cef_xml_reader_t>::UnwrapDerived(CefWrapperType type, CefXmlReader* c) {
+template<> cef_xml_reader_t* CefCToCppRefCounted<CefXmlReaderCToCpp,
+    CefXmlReader, cef_xml_reader_t>::UnwrapDerived(CefWrapperType type,
+    CefXmlReader* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefXmlReaderCToCpp, CefXmlReader,
-    cef_xml_reader_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCppRefCounted<CefXmlReaderCToCpp,
+    CefXmlReader, cef_xml_reader_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefXmlReaderCToCpp, CefXmlReader,
+template<> CefWrapperType CefCToCppRefCounted<CefXmlReaderCToCpp, CefXmlReader,
     cef_xml_reader_t>::kWrapperType = WT_XML_READER;

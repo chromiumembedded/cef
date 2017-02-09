@@ -95,11 +95,11 @@ def make_ctocpp_header(header, clsname):
     base_class_name = header.get_base_class_name(clsname)
     base_scoped = True if base_class_name == 'CefBaseScoped' else False
     if base_scoped:
-      template_file = 'ctocpp_scoped.h'
-      template_class = 'CefCToCppScoped'
+        template_file = 'ctocpp_scoped.h'
+        template_class = 'CefCToCppScoped'
     else:
-      template_file = 'ctocpp.h'
-      template_class = 'CefCToCpp'
+        template_file = 'ctocpp_ref_counted.h'
+        template_class = 'CefCToCppRefCounted'
 
     result += '#include "libcef_dll/ctocpp/' + template_file + '"'
     result += '\n\n// Wrap a C structure with a C++ class.\n'

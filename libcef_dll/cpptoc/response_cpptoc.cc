@@ -249,16 +249,17 @@ CefResponseCppToC::CefResponseCppToC() {
   GetStruct()->set_header_map = response_set_header_map;
 }
 
-template<> CefRefPtr<CefResponse> CefCppToC<CefResponseCppToC, CefResponse,
-    cef_response_t>::UnwrapDerived(CefWrapperType type, cef_response_t* s) {
+template<> CefRefPtr<CefResponse> CefCppToCRefCounted<CefResponseCppToC,
+    CefResponse, cef_response_t>::UnwrapDerived(CefWrapperType type,
+    cef_response_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefResponseCppToC, CefResponse,
-    cef_response_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefResponseCppToC,
+    CefResponse, cef_response_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefResponseCppToC, CefResponse,
+template<> CefWrapperType CefCppToCRefCounted<CefResponseCppToC, CefResponse,
     cef_response_t>::kWrapperType = WT_RESPONSE;

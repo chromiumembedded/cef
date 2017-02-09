@@ -152,7 +152,7 @@ CefURLRequestCppToC::CefURLRequestCppToC() {
   GetStruct()->cancel = urlrequest_cancel;
 }
 
-template<> CefRefPtr<CefURLRequest> CefCppToC<CefURLRequestCppToC,
+template<> CefRefPtr<CefURLRequest> CefCppToCRefCounted<CefURLRequestCppToC,
     CefURLRequest, cef_urlrequest_t>::UnwrapDerived(CefWrapperType type,
     cef_urlrequest_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -160,9 +160,9 @@ template<> CefRefPtr<CefURLRequest> CefCppToC<CefURLRequestCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefURLRequestCppToC, CefURLRequest,
-    cef_urlrequest_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefURLRequestCppToC,
+    CefURLRequest, cef_urlrequest_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefURLRequestCppToC, CefURLRequest,
-    cef_urlrequest_t>::kWrapperType = WT_URLREQUEST;
+template<> CefWrapperType CefCppToCRefCounted<CefURLRequestCppToC,
+    CefURLRequest, cef_urlrequest_t>::kWrapperType = WT_URLREQUEST;

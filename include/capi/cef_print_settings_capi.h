@@ -52,7 +52,7 @@ typedef struct _cef_print_settings_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns true (1) if this object is valid. Do not call any other functions

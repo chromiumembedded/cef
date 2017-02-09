@@ -21,12 +21,12 @@
 #include <vector>
 #include "include/cef_v8.h"
 #include "include/capi/cef_v8_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefV8ValueCToCpp
-    : public CefCToCpp<CefV8ValueCToCpp, CefV8Value, cef_v8value_t> {
+    : public CefCToCppRefCounted<CefV8ValueCToCpp, CefV8Value, cef_v8value_t> {
  public:
   CefV8ValueCToCpp();
 
@@ -68,8 +68,8 @@ class CefV8ValueCToCpp
   bool SetValue(const CefString& key, AccessControl settings,
       PropertyAttribute attribute) OVERRIDE;
   bool GetKeys(std::vector<CefString>& keys) OVERRIDE;
-  bool SetUserData(CefRefPtr<CefBase> user_data) OVERRIDE;
-  CefRefPtr<CefBase> GetUserData() OVERRIDE;
+  bool SetUserData(CefRefPtr<CefBaseRefCounted> user_data) OVERRIDE;
+  CefRefPtr<CefBaseRefCounted> GetUserData() OVERRIDE;
   int GetExternallyAllocatedMemory() OVERRIDE;
   int AdjustExternallyAllocatedMemory(int change_in_bytes) OVERRIDE;
   int GetArrayLength() OVERRIDE;

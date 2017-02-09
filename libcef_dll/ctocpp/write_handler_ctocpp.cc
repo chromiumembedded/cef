@@ -101,7 +101,7 @@ bool CefWriteHandlerCToCpp::MayBlock() {
 CefWriteHandlerCToCpp::CefWriteHandlerCToCpp() {
 }
 
-template<> cef_write_handler_t* CefCToCpp<CefWriteHandlerCToCpp,
+template<> cef_write_handler_t* CefCToCppRefCounted<CefWriteHandlerCToCpp,
     CefWriteHandler, cef_write_handler_t>::UnwrapDerived(CefWrapperType type,
     CefWriteHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -109,9 +109,9 @@ template<> cef_write_handler_t* CefCToCpp<CefWriteHandlerCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefWriteHandlerCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefWriteHandlerCToCpp,
     CefWriteHandler, cef_write_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefWriteHandlerCToCpp, CefWriteHandler,
-    cef_write_handler_t>::kWrapperType = WT_WRITE_HANDLER;
+template<> CefWrapperType CefCToCppRefCounted<CefWriteHandlerCToCpp,
+    CefWriteHandler, cef_write_handler_t>::kWrapperType = WT_WRITE_HANDLER;

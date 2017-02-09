@@ -20,12 +20,12 @@
 
 #include "include/cef_request_handler.h"
 #include "include/capi/cef_request_handler_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefRequestHandlerCToCpp
-    : public CefCToCpp<CefRequestHandlerCToCpp, CefRequestHandler,
+    : public CefCToCppRefCounted<CefRequestHandlerCToCpp, CefRequestHandler,
         cef_request_handler_t> {
  public:
   CefRequestHandlerCToCpp();

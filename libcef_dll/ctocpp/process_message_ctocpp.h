@@ -20,12 +20,12 @@
 
 #include "include/cef_process_message.h"
 #include "include/capi/cef_process_message_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefProcessMessageCToCpp
-    : public CefCToCpp<CefProcessMessageCToCpp, CefProcessMessage,
+    : public CefCToCppRefCounted<CefProcessMessageCToCpp, CefProcessMessage,
         cef_process_message_t> {
  public:
   CefProcessMessageCToCpp();

@@ -48,7 +48,7 @@ class CefMenuModel;
 // indicated.
 ///
 /*--cef(source=client)--*/
-class CefMenuModelDelegate : public virtual CefBase {
+class CefMenuModelDelegate : public virtual CefBaseRefCounted {
  public:
   ///
   // Perform the action associated with the specified |command_id| and

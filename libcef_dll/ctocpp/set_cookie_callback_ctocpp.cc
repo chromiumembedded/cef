@@ -33,7 +33,7 @@ void CefSetCookieCallbackCToCpp::OnComplete(bool success) {
 CefSetCookieCallbackCToCpp::CefSetCookieCallbackCToCpp() {
 }
 
-template<> cef_set_cookie_callback_t* CefCToCpp<CefSetCookieCallbackCToCpp,
+template<> cef_set_cookie_callback_t* CefCToCppRefCounted<CefSetCookieCallbackCToCpp,
     CefSetCookieCallback, cef_set_cookie_callback_t>::UnwrapDerived(
     CefWrapperType type, CefSetCookieCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -41,10 +41,10 @@ template<> cef_set_cookie_callback_t* CefCToCpp<CefSetCookieCallbackCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefSetCookieCallbackCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefSetCookieCallbackCToCpp,
     CefSetCookieCallback, cef_set_cookie_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefSetCookieCallbackCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefSetCookieCallbackCToCpp,
     CefSetCookieCallback, cef_set_cookie_callback_t>::kWrapperType =
     WT_SET_COOKIE_CALLBACK;

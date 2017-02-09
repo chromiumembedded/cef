@@ -158,7 +158,7 @@ void CefViewDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
 CefViewDelegateCToCpp::CefViewDelegateCToCpp() {
 }
 
-template<> cef_view_delegate_t* CefCToCpp<CefViewDelegateCToCpp,
+template<> cef_view_delegate_t* CefCToCppRefCounted<CefViewDelegateCToCpp,
     CefViewDelegate, cef_view_delegate_t>::UnwrapDerived(CefWrapperType type,
     CefViewDelegate* c) {
   if (type == WT_BROWSER_VIEW_DELEGATE) {
@@ -196,9 +196,9 @@ template<> cef_view_delegate_t* CefCToCpp<CefViewDelegateCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefViewDelegateCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefViewDelegateCToCpp,
     CefViewDelegate, cef_view_delegate_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefViewDelegateCToCpp, CefViewDelegate,
-    cef_view_delegate_t>::kWrapperType = WT_VIEW_DELEGATE;
+template<> CefWrapperType CefCToCppRefCounted<CefViewDelegateCToCpp,
+    CefViewDelegate, cef_view_delegate_t>::kWrapperType = WT_VIEW_DELEGATE;

@@ -53,7 +53,7 @@
 // see cef_task.h for details.
 ///
 /*--cef(source=library)--*/
-class CefThread : public CefBase {
+class CefThread : public CefBaseRefCounted {
  public:
   ///
   // Create and start a new thread. This method does not block waiting for the

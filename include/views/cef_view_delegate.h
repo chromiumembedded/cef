@@ -47,7 +47,7 @@ class CefView;
 // will be called on the browser process UI thread unless otherwise indicated.
 ///
 /*--cef(source=client)--*/
-class CefViewDelegate : public virtual CefBase {
+class CefViewDelegate : public virtual CefBaseRefCounted {
  public:
   ///
   // Return the preferred size for |view|. The Layout will use this information

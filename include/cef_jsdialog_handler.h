@@ -46,7 +46,7 @@
 // requests.
 ///
 /*--cef(source=library)--*/
-class CefJSDialogCallback : public virtual CefBase {
+class CefJSDialogCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Continue the JS dialog request. Set |success| to true if the OK button was
@@ -63,7 +63,7 @@ class CefJSDialogCallback : public virtual CefBase {
 // methods of this class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefJSDialogHandler : public virtual CefBase {
+class CefJSDialogHandler : public virtual CefBaseRefCounted {
  public:
   typedef cef_jsdialog_type_t JSDialogType;
 
