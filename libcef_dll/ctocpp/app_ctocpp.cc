@@ -113,16 +113,16 @@ CefRefPtr<CefRenderProcessHandler> CefAppCToCpp::GetRenderProcessHandler() {
 CefAppCToCpp::CefAppCToCpp() {
 }
 
-template<> cef_app_t* CefCToCpp<CefAppCToCpp, CefApp, cef_app_t>::UnwrapDerived(
-    CefWrapperType type, CefApp* c) {
+template<> cef_app_t* CefCToCppRefCounted<CefAppCToCpp, CefApp,
+    cef_app_t>::UnwrapDerived(CefWrapperType type, CefApp* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefAppCToCpp, CefApp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefAppCToCpp, CefApp,
     cef_app_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefAppCToCpp, CefApp,
+template<> CefWrapperType CefCToCppRefCounted<CefAppCToCpp, CefApp,
     cef_app_t>::kWrapperType = WT_APP;

@@ -293,7 +293,7 @@ bool CefRenderProcessHandlerCToCpp::OnProcessMessageReceived(
 CefRenderProcessHandlerCToCpp::CefRenderProcessHandlerCToCpp() {
 }
 
-template<> cef_render_process_handler_t* CefCToCpp<CefRenderProcessHandlerCToCpp,
+template<> cef_render_process_handler_t* CefCToCppRefCounted<CefRenderProcessHandlerCToCpp,
     CefRenderProcessHandler, cef_render_process_handler_t>::UnwrapDerived(
     CefWrapperType type, CefRenderProcessHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -301,10 +301,10 @@ template<> cef_render_process_handler_t* CefCToCpp<CefRenderProcessHandlerCToCpp
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefRenderProcessHandlerCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefRenderProcessHandlerCToCpp,
     CefRenderProcessHandler, cef_render_process_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefRenderProcessHandlerCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefRenderProcessHandlerCToCpp,
     CefRenderProcessHandler, cef_render_process_handler_t>::kWrapperType =
     WT_RENDER_PROCESS_HANDLER;

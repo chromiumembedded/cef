@@ -571,7 +571,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
   void RunObjectUserDataTest() {
     CefRefPtr<CefV8Context> context = GetContext();
 
-    class UserData : public CefBase {
+    class UserData : public CefBaseRefCounted {
      public:
       explicit UserData(int value) : value_(value) {}
       int value_;
@@ -586,7 +586,7 @@ class V8RendererTest : public ClientAppRenderer::Delegate,
 
     EXPECT_TRUE(value->SetUserData(new UserData(10)));
 
-    CefRefPtr<CefBase> user_data = value->GetUserData();
+    CefRefPtr<CefBaseRefCounted> user_data = value->GetUserData();
     EXPECT_TRUE(user_data.get());
     UserData* user_data_impl = static_cast<UserData*>(user_data.get());
     EXPECT_EQ(10, user_data_impl->value_);

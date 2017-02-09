@@ -20,12 +20,12 @@
 
 #include "include/test/cef_translator_test.h"
 #include "include/capi/test/cef_translator_test_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefTranslatorTestRefPtrClientChildCToCpp
-    : public CefCToCpp<CefTranslatorTestRefPtrClientChildCToCpp,
+    : public CefCToCppRefCounted<CefTranslatorTestRefPtrClientChildCToCpp,
         CefTranslatorTestRefPtrClientChild,
         cef_translator_test_ref_ptr_client_child_t> {
  public:

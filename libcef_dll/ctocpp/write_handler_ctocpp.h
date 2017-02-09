@@ -20,12 +20,12 @@
 
 #include "include/cef_stream.h"
 #include "include/capi/cef_stream_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefWriteHandlerCToCpp
-    : public CefCToCpp<CefWriteHandlerCToCpp, CefWriteHandler,
+    : public CefCToCppRefCounted<CefWriteHandlerCToCpp, CefWriteHandler,
         cef_write_handler_t> {
  public:
   CefWriteHandlerCToCpp();

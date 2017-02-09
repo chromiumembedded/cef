@@ -38,7 +38,7 @@ CefSelectClientCertificateCallbackCToCpp::CefSelectClientCertificateCallbackCToC
     ) {
 }
 
-template<> cef_select_client_certificate_callback_t* CefCToCpp<CefSelectClientCertificateCallbackCToCpp,
+template<> cef_select_client_certificate_callback_t* CefCToCppRefCounted<CefSelectClientCertificateCallbackCToCpp,
     CefSelectClientCertificateCallback,
     cef_select_client_certificate_callback_t>::UnwrapDerived(
     CefWrapperType type, CefSelectClientCertificateCallback* c) {
@@ -47,12 +47,12 @@ template<> cef_select_client_certificate_callback_t* CefCToCpp<CefSelectClientCe
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefSelectClientCertificateCallbackCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefSelectClientCertificateCallbackCToCpp,
     CefSelectClientCertificateCallback,
     cef_select_client_certificate_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefSelectClientCertificateCallbackCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefSelectClientCertificateCallbackCToCpp,
     CefSelectClientCertificateCallback,
     cef_select_client_certificate_callback_t>::kWrapperType =
     WT_SELECT_CLIENT_CERTIFICATE_CALLBACK;

@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef CEF_LIBCEF_DLL_CPPTOC_CPPTOC_H_
-#define CEF_LIBCEF_DLL_CPPTOC_CPPTOC_H_
+#ifndef CEF_LIBCEF_DLL_CPPTOC_CPPTOC_REF_COUNTED_H_
+#define CEF_LIBCEF_DLL_CPPTOC_CPPTOC_REF_COUNTED_H_
 #pragma once
 
 #include "include/base/cef_logging.h"
@@ -16,7 +16,7 @@
 // implementation exists on this side of the DLL boundary but will have methods
 // called from the other side of the DLL boundary.
 template <class ClassName, class BaseName, class StructName>
-class CefCppToC : public CefBase {
+class CefCppToCRefCounted : public CefBaseRefCounted {
  public:
   // Create a new wrapper instance and associated structure reference for
   // passing an object instance the other side.
@@ -24,7 +24,7 @@ class CefCppToC : public CefBase {
     if (!c.get())
       return NULL;
 
-    // Wrap our object with the CefCppToC class.
+    // Wrap our object with the CefCppToCRefCounted class.
     ClassName* wrapper = new ClassName();
     wrapper->wrapper_struct_.object_ = c.get();
     // Add a reference to our wrapper object that will be released once our
@@ -69,12 +69,12 @@ class CefCppToC : public CefBase {
   }
 
   // If returning the structure across the DLL boundary you should call
-  // AddRef() on this CefCppToC object.  On the other side of the DLL boundary,
-  // call UnderlyingRelease() on the wrapping CefCToCpp object.
+  // AddRef() on this CefCppToCRefCounted object. On the other side of the DLL
+  // boundary, call UnderlyingRelease() on the wrapping CefCToCpp object.
   StructName* GetStruct() { return &wrapper_struct_.struct_; }
 
-  // CefBase methods increment/decrement reference counts on both this object
-  // and the underlying wrapper class.
+  // CefBaseRefCounted methods increment/decrement reference counts on both this
+  // object and the underlying wrapper class.
   void AddRef() const {
     UnderlyingAddRef();
     ref_count_.AddRef();
@@ -95,12 +95,13 @@ class CefCppToC : public CefBase {
 #endif
 
  protected:
-  CefCppToC() {
+  CefCppToCRefCounted() {
     wrapper_struct_.type_ = kWrapperType;
     wrapper_struct_.wrapper_ = this;
     memset(GetStruct(), 0, sizeof(StructName));
 
-    cef_base_t* base = reinterpret_cast<cef_base_t*>(GetStruct());
+    cef_base_ref_counted_t* base =
+        reinterpret_cast<cef_base_ref_counted_t*>(GetStruct());
     base->size = sizeof(StructName);
     base->add_ref = struct_add_ref;
     base->release = struct_release;
@@ -111,7 +112,7 @@ class CefCppToC : public CefBase {
 #endif
   }
 
-  virtual ~CefCppToC() {
+  virtual ~CefCppToCRefCounted() {
 #if DCHECK_IS_ON()
     base::AtomicRefCountDec(&DebugObjCt);
 #endif
@@ -123,7 +124,7 @@ class CefCppToC : public CefBase {
   struct WrapperStruct {
     CefWrapperType type_;
     BaseName* object_;
-    CefCppToC<ClassName, BaseName, StructName>* wrapper_;
+    CefCppToCRefCounted<ClassName, BaseName, StructName>* wrapper_;
     StructName struct_;
   };
 
@@ -150,7 +151,7 @@ class CefCppToC : public CefBase {
     return wrapper_struct_.object_->HasOneRef();
   }
 
-  static void CEF_CALLBACK struct_add_ref(cef_base_t* base) {
+  static void CEF_CALLBACK struct_add_ref(cef_base_ref_counted_t* base) {
     DCHECK(base);
     if (!base)
       return;
@@ -163,7 +164,7 @@ class CefCppToC : public CefBase {
     wrapperStruct->wrapper_->AddRef();
   }
 
-  static int CEF_CALLBACK struct_release(cef_base_t* base) {
+  static int CEF_CALLBACK struct_release(cef_base_ref_counted_t* base) {
     DCHECK(base);
     if (!base)
       return 0;
@@ -176,7 +177,7 @@ class CefCppToC : public CefBase {
     return wrapperStruct->wrapper_->Release();
   }
 
-  static int CEF_CALLBACK struct_has_one_ref(cef_base_t* base) {
+  static int CEF_CALLBACK struct_has_one_ref(cef_base_ref_counted_t* base) {
     DCHECK(base);
     if (!base)
       return 0;
@@ -194,7 +195,7 @@ class CefCppToC : public CefBase {
 
   static CefWrapperType kWrapperType;
 
-  DISALLOW_COPY_AND_ASSIGN(CefCppToC);
+  DISALLOW_COPY_AND_ASSIGN(CefCppToCRefCounted);
 };
 
-#endif  // CEF_LIBCEF_DLL_CPPTOC_CPPTOC_H_
+#endif  // CEF_LIBCEF_DLL_CPPTOC_CPPTOC_REF_COUNTED_H_

@@ -48,7 +48,7 @@
 // will be called on the browser process main thread unless otherwise indicated.
 ///
 /*--cef(source=client)--*/
-class CefBrowserProcessHandler : public virtual CefBase {
+class CefBrowserProcessHandler : public virtual CefBaseRefCounted {
  public:
   ///
   // Called on the browser process UI thread immediately after the CEF context

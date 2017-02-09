@@ -222,7 +222,7 @@ CefMenuButtonDelegateCppToC::CefMenuButtonDelegateCppToC() {
       menu_button_delegate_on_child_view_changed;
 }
 
-template<> CefRefPtr<CefMenuButtonDelegate> CefCppToC<CefMenuButtonDelegateCppToC,
+template<> CefRefPtr<CefMenuButtonDelegate> CefCppToCRefCounted<CefMenuButtonDelegateCppToC,
     CefMenuButtonDelegate, cef_menu_button_delegate_t>::UnwrapDerived(
     CefWrapperType type, cef_menu_button_delegate_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -230,10 +230,10 @@ template<> CefRefPtr<CefMenuButtonDelegate> CefCppToC<CefMenuButtonDelegateCppTo
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefMenuButtonDelegateCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefMenuButtonDelegateCppToC,
     CefMenuButtonDelegate, cef_menu_button_delegate_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefMenuButtonDelegateCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefMenuButtonDelegateCppToC,
     CefMenuButtonDelegate, cef_menu_button_delegate_t>::kWrapperType =
     WT_MENU_BUTTON_DELEGATE;

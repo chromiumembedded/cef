@@ -975,16 +975,17 @@ bool CefMenuButtonCToCpp::ConvertPointFromView(CefRefPtr<CefView> view,
 CefMenuButtonCToCpp::CefMenuButtonCToCpp() {
 }
 
-template<> cef_menu_button_t* CefCToCpp<CefMenuButtonCToCpp, CefMenuButton,
-    cef_menu_button_t>::UnwrapDerived(CefWrapperType type, CefMenuButton* c) {
+template<> cef_menu_button_t* CefCToCppRefCounted<CefMenuButtonCToCpp,
+    CefMenuButton, cef_menu_button_t>::UnwrapDerived(CefWrapperType type,
+    CefMenuButton* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefMenuButtonCToCpp, CefMenuButton,
-    cef_menu_button_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCppRefCounted<CefMenuButtonCToCpp,
+    CefMenuButton, cef_menu_button_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefMenuButtonCToCpp, CefMenuButton,
-    cef_menu_button_t>::kWrapperType = WT_MENU_BUTTON;
+template<> CefWrapperType CefCToCppRefCounted<CefMenuButtonCToCpp,
+    CefMenuButton, cef_menu_button_t>::kWrapperType = WT_MENU_BUTTON;

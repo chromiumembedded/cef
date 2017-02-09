@@ -59,7 +59,7 @@ typedef struct _cef_app_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Provides an opportunity to view and/or modify command-line arguments before

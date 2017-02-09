@@ -27,4 +27,4 @@ template<> base::AtomicRefCount CefCppToCScoped<CefBaseScopedCppToC,
 #endif
 
 template<> CefWrapperType CefCppToCScoped<CefBaseScopedCppToC, CefBaseScoped,
-    cef_base_scoped_t>::kWrapperType = WT_BASE;
+    cef_base_scoped_t>::kWrapperType = WT_BASE_SCOPED;

@@ -56,7 +56,7 @@ typedef struct _cef_layout_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns this Layout as a BoxLayout or NULL if this is not a BoxLayout.

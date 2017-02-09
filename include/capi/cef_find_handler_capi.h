@@ -54,7 +54,7 @@ typedef struct _cef_find_handler_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Called to report find results returned by cef_browser_host_t::find().

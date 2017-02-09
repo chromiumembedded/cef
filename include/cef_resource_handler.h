@@ -50,7 +50,7 @@
 // this class will always be called on the IO thread.
 ///
 /*--cef(source=client)--*/
-class CefResourceHandler : public virtual CefBase {
+class CefResourceHandler : public virtual CefBaseRefCounted {
  public:
   ///
   // Begin processing the request. To handle the request return true and call

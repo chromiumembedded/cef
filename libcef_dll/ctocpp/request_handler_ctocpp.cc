@@ -572,7 +572,7 @@ void CefRequestHandlerCToCpp::OnRenderProcessTerminated(
 CefRequestHandlerCToCpp::CefRequestHandlerCToCpp() {
 }
 
-template<> cef_request_handler_t* CefCToCpp<CefRequestHandlerCToCpp,
+template<> cef_request_handler_t* CefCToCppRefCounted<CefRequestHandlerCToCpp,
     CefRequestHandler, cef_request_handler_t>::UnwrapDerived(
     CefWrapperType type, CefRequestHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -580,9 +580,10 @@ template<> cef_request_handler_t* CefCToCpp<CefRequestHandlerCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefRequestHandlerCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefRequestHandlerCToCpp,
     CefRequestHandler, cef_request_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefRequestHandlerCToCpp, CefRequestHandler,
-    cef_request_handler_t>::kWrapperType = WT_REQUEST_HANDLER;
+template<> CefWrapperType CefCToCppRefCounted<CefRequestHandlerCToCpp,
+    CefRequestHandler, cef_request_handler_t>::kWrapperType =
+    WT_REQUEST_HANDLER;

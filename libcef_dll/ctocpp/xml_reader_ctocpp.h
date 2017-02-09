@@ -20,12 +20,13 @@
 
 #include "include/cef_xml_reader.h"
 #include "include/capi/cef_xml_reader_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefXmlReaderCToCpp
-    : public CefCToCpp<CefXmlReaderCToCpp, CefXmlReader, cef_xml_reader_t> {
+    : public CefCToCppRefCounted<CefXmlReaderCToCpp, CefXmlReader,
+        cef_xml_reader_t> {
  public:
   CefXmlReaderCToCpp();
 

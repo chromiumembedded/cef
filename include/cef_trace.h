@@ -49,7 +49,7 @@
 // The methods of this class will be called on the browser process UI thread.
 ///
 /*--cef(source=client)--*/
-class CefEndTracingCallback : public virtual CefBase {
+class CefEndTracingCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Called after all processes have sent their trace data. |tracing_file| is

@@ -44,7 +44,7 @@ void CefDownloadImageCallbackCToCpp::OnDownloadImageFinished(
 CefDownloadImageCallbackCToCpp::CefDownloadImageCallbackCToCpp() {
 }
 
-template<> cef_download_image_callback_t* CefCToCpp<CefDownloadImageCallbackCToCpp,
+template<> cef_download_image_callback_t* CefCToCppRefCounted<CefDownloadImageCallbackCToCpp,
     CefDownloadImageCallback, cef_download_image_callback_t>::UnwrapDerived(
     CefWrapperType type, CefDownloadImageCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -52,10 +52,10 @@ template<> cef_download_image_callback_t* CefCToCpp<CefDownloadImageCallbackCToC
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefDownloadImageCallbackCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefDownloadImageCallbackCToCpp,
     CefDownloadImageCallback, cef_download_image_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefDownloadImageCallbackCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefDownloadImageCallbackCToCpp,
     CefDownloadImageCallback, cef_download_image_callback_t>::kWrapperType =
     WT_DOWNLOAD_IMAGE_CALLBACK;

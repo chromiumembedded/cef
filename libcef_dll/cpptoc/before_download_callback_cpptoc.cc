@@ -42,7 +42,7 @@ CefBeforeDownloadCallbackCppToC::CefBeforeDownloadCallbackCppToC() {
   GetStruct()->cont = before_download_callback_cont;
 }
 
-template<> CefRefPtr<CefBeforeDownloadCallback> CefCppToC<CefBeforeDownloadCallbackCppToC,
+template<> CefRefPtr<CefBeforeDownloadCallback> CefCppToCRefCounted<CefBeforeDownloadCallbackCppToC,
     CefBeforeDownloadCallback, cef_before_download_callback_t>::UnwrapDerived(
     CefWrapperType type, cef_before_download_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -50,11 +50,11 @@ template<> CefRefPtr<CefBeforeDownloadCallback> CefCppToC<CefBeforeDownloadCallb
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefBeforeDownloadCallbackCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefBeforeDownloadCallbackCppToC,
     CefBeforeDownloadCallback, cef_before_download_callback_t>::DebugObjCt =
     0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefBeforeDownloadCallbackCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefBeforeDownloadCallbackCppToC,
     CefBeforeDownloadCallback, cef_before_download_callback_t>::kWrapperType =
     WT_BEFORE_DOWNLOAD_CALLBACK;

@@ -682,7 +682,7 @@ bool CefViewCToCpp::ConvertPointFromView(CefRefPtr<CefView> view,
 CefViewCToCpp::CefViewCToCpp() {
 }
 
-template<> cef_view_t* CefCToCpp<CefViewCToCpp, CefView,
+template<> cef_view_t* CefCToCppRefCounted<CefViewCToCpp, CefView,
     cef_view_t>::UnwrapDerived(CefWrapperType type, CefView* c) {
   if (type == WT_BROWSER_VIEW) {
     return reinterpret_cast<cef_view_t*>(CefBrowserViewCToCpp::Unwrap(
@@ -721,9 +721,9 @@ template<> cef_view_t* CefCToCpp<CefViewCToCpp, CefView,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefViewCToCpp, CefView,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefViewCToCpp, CefView,
     cef_view_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefViewCToCpp, CefView,
+template<> CefWrapperType CefCToCppRefCounted<CefViewCToCpp, CefView,
     cef_view_t>::kWrapperType = WT_VIEW;

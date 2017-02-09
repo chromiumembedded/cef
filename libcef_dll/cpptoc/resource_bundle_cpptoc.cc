@@ -137,7 +137,7 @@ CefResourceBundleCppToC::CefResourceBundleCppToC() {
       resource_bundle_get_data_resource_for_scale;
 }
 
-template<> CefRefPtr<CefResourceBundle> CefCppToC<CefResourceBundleCppToC,
+template<> CefRefPtr<CefResourceBundle> CefCppToCRefCounted<CefResourceBundleCppToC,
     CefResourceBundle, cef_resource_bundle_t>::UnwrapDerived(
     CefWrapperType type, cef_resource_bundle_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -145,9 +145,10 @@ template<> CefRefPtr<CefResourceBundle> CefCppToC<CefResourceBundleCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefResourceBundleCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefResourceBundleCppToC,
     CefResourceBundle, cef_resource_bundle_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefResourceBundleCppToC, CefResourceBundle,
-    cef_resource_bundle_t>::kWrapperType = WT_RESOURCE_BUNDLE;
+template<> CefWrapperType CefCppToCRefCounted<CefResourceBundleCppToC,
+    CefResourceBundle, cef_resource_bundle_t>::kWrapperType =
+    WT_RESOURCE_BUNDLE;

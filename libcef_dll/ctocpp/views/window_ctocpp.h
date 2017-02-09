@@ -21,12 +21,12 @@
 #include <vector>
 #include "include/views/cef_window.h"
 #include "include/capi/views/cef_window_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefWindowCToCpp
-    : public CefCToCpp<CefWindowCToCpp, CefWindow, cef_window_t> {
+    : public CefCToCppRefCounted<CefWindowCToCpp, CefWindow, cef_window_t> {
  public:
   CefWindowCToCpp();
 

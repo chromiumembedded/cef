@@ -32,7 +32,7 @@ void CefPrintJobCallbackCToCpp::Continue() {
 CefPrintJobCallbackCToCpp::CefPrintJobCallbackCToCpp() {
 }
 
-template<> cef_print_job_callback_t* CefCToCpp<CefPrintJobCallbackCToCpp,
+template<> cef_print_job_callback_t* CefCToCppRefCounted<CefPrintJobCallbackCToCpp,
     CefPrintJobCallback, cef_print_job_callback_t>::UnwrapDerived(
     CefWrapperType type, CefPrintJobCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -40,10 +40,10 @@ template<> cef_print_job_callback_t* CefCToCpp<CefPrintJobCallbackCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefPrintJobCallbackCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefPrintJobCallbackCToCpp,
     CefPrintJobCallback, cef_print_job_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefPrintJobCallbackCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefPrintJobCallbackCToCpp,
     CefPrintJobCallback, cef_print_job_callback_t>::kWrapperType =
     WT_PRINT_JOB_CALLBACK;

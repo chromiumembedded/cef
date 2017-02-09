@@ -46,7 +46,7 @@ bool CefNavigationEntryVisitorCToCpp::Visit(CefRefPtr<CefNavigationEntry> entry,
 CefNavigationEntryVisitorCToCpp::CefNavigationEntryVisitorCToCpp() {
 }
 
-template<> cef_navigation_entry_visitor_t* CefCToCpp<CefNavigationEntryVisitorCToCpp,
+template<> cef_navigation_entry_visitor_t* CefCToCppRefCounted<CefNavigationEntryVisitorCToCpp,
     CefNavigationEntryVisitor, cef_navigation_entry_visitor_t>::UnwrapDerived(
     CefWrapperType type, CefNavigationEntryVisitor* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -54,11 +54,11 @@ template<> cef_navigation_entry_visitor_t* CefCToCpp<CefNavigationEntryVisitorCT
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefNavigationEntryVisitorCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefNavigationEntryVisitorCToCpp,
     CefNavigationEntryVisitor, cef_navigation_entry_visitor_t>::DebugObjCt =
     0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefNavigationEntryVisitorCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefNavigationEntryVisitorCToCpp,
     CefNavigationEntryVisitor, cef_navigation_entry_visitor_t>::kWrapperType =
     WT_NAVIGATION_ENTRY_VISITOR;

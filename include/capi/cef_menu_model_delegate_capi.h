@@ -55,7 +55,7 @@ typedef struct _cef_menu_model_delegate_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Perform the action associated with the specified |command_id| and optional

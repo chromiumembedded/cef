@@ -11,7 +11,8 @@ def make_wrapper_types_header(header):
               '#define CEF_LIBCEF_DLL_WRAPPER_TYPES_H_\n' + \
               '#pragma once\n\n' + \
               'enum CefWrapperType {\n' + \
-              '  WT_BASE = 1,\n'
+              '  WT_BASE_REF_COUNTED = 1,\n' + \
+              '  WT_BASE_SCOPED,\n'
 
     clsnames = sorted(header.get_class_names())
     for clsname in clsnames:

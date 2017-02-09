@@ -84,7 +84,7 @@ CefRequestContextHandlerCppToC::CefRequestContextHandlerCppToC() {
       request_context_handler_on_before_plugin_load;
 }
 
-template<> CefRefPtr<CefRequestContextHandler> CefCppToC<CefRequestContextHandlerCppToC,
+template<> CefRefPtr<CefRequestContextHandler> CefCppToCRefCounted<CefRequestContextHandlerCppToC,
     CefRequestContextHandler, cef_request_context_handler_t>::UnwrapDerived(
     CefWrapperType type, cef_request_context_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -92,10 +92,10 @@ template<> CefRefPtr<CefRequestContextHandler> CefCppToC<CefRequestContextHandle
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefRequestContextHandlerCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefRequestContextHandlerCppToC,
     CefRequestContextHandler, cef_request_context_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefRequestContextHandlerCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefRequestContextHandlerCppToC,
     CefRequestContextHandler, cef_request_context_handler_t>::kWrapperType =
     WT_REQUEST_CONTEXT_HANDLER;

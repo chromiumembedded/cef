@@ -46,7 +46,7 @@
 // Callback interface for asynchronous continuation of print dialog requests.
 ///
 /*--cef(source=library)--*/
-class CefPrintDialogCallback : public virtual CefBase {
+class CefPrintDialogCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Continue printing with the specified |settings|.
@@ -65,7 +65,7 @@ class CefPrintDialogCallback : public virtual CefBase {
 // Callback interface for asynchronous continuation of print job requests.
 ///
 /*--cef(source=library)--*/
-class CefPrintJobCallback : public virtual CefBase {
+class CefPrintJobCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Indicate completion of the print job.
@@ -80,7 +80,7 @@ class CefPrintJobCallback : public virtual CefBase {
 // class will be called on the browser process UI thread.
 ///
 /*--cef(source=client)--*/
-class CefPrintHandler : public virtual CefBase {
+class CefPrintHandler : public virtual CefBaseRefCounted {
  public:
   ///
   // Called when printing has started for the specified |browser|. This method

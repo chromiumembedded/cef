@@ -20,13 +20,13 @@
 
 #include "include/cef_dialog_handler.h"
 #include "include/capi/cef_dialog_handler_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefFileDialogCallbackCppToC
-    : public CefCppToC<CefFileDialogCallbackCppToC, CefFileDialogCallback,
-        cef_file_dialog_callback_t> {
+    : public CefCppToCRefCounted<CefFileDialogCallbackCppToC,
+        CefFileDialogCallback, cef_file_dialog_callback_t> {
  public:
   CefFileDialogCallbackCppToC();
 };

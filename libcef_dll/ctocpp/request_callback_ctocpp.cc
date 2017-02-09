@@ -44,7 +44,7 @@ void CefRequestCallbackCToCpp::Cancel() {
 CefRequestCallbackCToCpp::CefRequestCallbackCToCpp() {
 }
 
-template<> cef_request_callback_t* CefCToCpp<CefRequestCallbackCToCpp,
+template<> cef_request_callback_t* CefCToCppRefCounted<CefRequestCallbackCToCpp,
     CefRequestCallback, cef_request_callback_t>::UnwrapDerived(
     CefWrapperType type, CefRequestCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -52,10 +52,10 @@ template<> cef_request_callback_t* CefCToCpp<CefRequestCallbackCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefRequestCallbackCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefRequestCallbackCToCpp,
     CefRequestCallback, cef_request_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefRequestCallbackCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefRequestCallbackCToCpp,
     CefRequestCallback, cef_request_callback_t>::kWrapperType =
     WT_REQUEST_CALLBACK;

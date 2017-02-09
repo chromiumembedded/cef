@@ -71,7 +71,7 @@ CefDialogHandlerCppToC::CefDialogHandlerCppToC() {
   GetStruct()->on_file_dialog = dialog_handler_on_file_dialog;
 }
 
-template<> CefRefPtr<CefDialogHandler> CefCppToC<CefDialogHandlerCppToC,
+template<> CefRefPtr<CefDialogHandler> CefCppToCRefCounted<CefDialogHandlerCppToC,
     CefDialogHandler, cef_dialog_handler_t>::UnwrapDerived(CefWrapperType type,
     cef_dialog_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -79,9 +79,9 @@ template<> CefRefPtr<CefDialogHandler> CefCppToC<CefDialogHandlerCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefDialogHandlerCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefDialogHandlerCppToC,
     CefDialogHandler, cef_dialog_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefDialogHandlerCppToC, CefDialogHandler,
-    cef_dialog_handler_t>::kWrapperType = WT_DIALOG_HANDLER;
+template<> CefWrapperType CefCppToCRefCounted<CefDialogHandlerCppToC,
+    CefDialogHandler, cef_dialog_handler_t>::kWrapperType = WT_DIALOG_HANDLER;

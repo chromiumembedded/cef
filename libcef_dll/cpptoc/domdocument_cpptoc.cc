@@ -263,7 +263,7 @@ CefDOMDocumentCppToC::CefDOMDocumentCppToC() {
   GetStruct()->get_complete_url = domdocument_get_complete_url;
 }
 
-template<> CefRefPtr<CefDOMDocument> CefCppToC<CefDOMDocumentCppToC,
+template<> CefRefPtr<CefDOMDocument> CefCppToCRefCounted<CefDOMDocumentCppToC,
     CefDOMDocument, cef_domdocument_t>::UnwrapDerived(CefWrapperType type,
     cef_domdocument_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -271,9 +271,9 @@ template<> CefRefPtr<CefDOMDocument> CefCppToC<CefDOMDocumentCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefDOMDocumentCppToC, CefDOMDocument,
-    cef_domdocument_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefDOMDocumentCppToC,
+    CefDOMDocument, cef_domdocument_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefDOMDocumentCppToC, CefDOMDocument,
-    cef_domdocument_t>::kWrapperType = WT_DOMDOCUMENT;
+template<> CefWrapperType CefCppToCRefCounted<CefDOMDocumentCppToC,
+    CefDOMDocument, cef_domdocument_t>::kWrapperType = WT_DOMDOCUMENT;

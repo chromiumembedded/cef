@@ -55,7 +55,7 @@ typedef struct _cef_domvisitor_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Method executed for visiting the DOM. The document object passed to this
@@ -77,7 +77,7 @@ typedef struct _cef_domdocument_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns the document type.
@@ -177,7 +177,7 @@ typedef struct _cef_domnode_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns the type for this node.

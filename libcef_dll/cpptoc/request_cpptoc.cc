@@ -404,16 +404,17 @@ CefRequestCppToC::CefRequestCppToC() {
   GetStruct()->get_identifier = request_get_identifier;
 }
 
-template<> CefRefPtr<CefRequest> CefCppToC<CefRequestCppToC, CefRequest,
-    cef_request_t>::UnwrapDerived(CefWrapperType type, cef_request_t* s) {
+template<> CefRefPtr<CefRequest> CefCppToCRefCounted<CefRequestCppToC,
+    CefRequest, cef_request_t>::UnwrapDerived(CefWrapperType type,
+    cef_request_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefRequestCppToC, CefRequest,
-    cef_request_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefRequestCppToC,
+    CefRequest, cef_request_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefRequestCppToC, CefRequest,
+template<> CefWrapperType CefCppToCRefCounted<CefRequestCppToC, CefRequest,
     cef_request_t>::kWrapperType = WT_REQUEST;

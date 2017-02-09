@@ -20,12 +20,13 @@
 
 #include "include/views/cef_fill_layout.h"
 #include "include/capi/views/cef_fill_layout_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefFillLayoutCppToC
-    : public CefCppToC<CefFillLayoutCppToC, CefFillLayout, cef_fill_layout_t> {
+    : public CefCppToCRefCounted<CefFillLayoutCppToC, CefFillLayout,
+        cef_fill_layout_t> {
  public:
   CefFillLayoutCppToC();
 };

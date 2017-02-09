@@ -889,7 +889,7 @@ bool CefPanelCToCpp::ConvertPointFromView(CefRefPtr<CefView> view,
 CefPanelCToCpp::CefPanelCToCpp() {
 }
 
-template<> cef_panel_t* CefCToCpp<CefPanelCToCpp, CefPanel,
+template<> cef_panel_t* CefCToCppRefCounted<CefPanelCToCpp, CefPanel,
     cef_panel_t>::UnwrapDerived(CefWrapperType type, CefPanel* c) {
   if (type == WT_WINDOW) {
     return reinterpret_cast<cef_panel_t*>(CefWindowCToCpp::Unwrap(
@@ -900,9 +900,9 @@ template<> cef_panel_t* CefCToCpp<CefPanelCToCpp, CefPanel,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefPanelCToCpp, CefPanel,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefPanelCToCpp, CefPanel,
     cef_panel_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefPanelCToCpp, CefPanel,
+template<> CefWrapperType CefCToCppRefCounted<CefPanelCToCpp, CefPanel,
     cef_panel_t>::kWrapperType = WT_PANEL;

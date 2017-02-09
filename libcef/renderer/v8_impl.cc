@@ -353,11 +353,11 @@ class V8TrackObject : public CefTrackNode {
     return handler_;
   }
 
-  inline void SetUserData(CefRefPtr<CefBase> user_data) {
+  inline void SetUserData(CefRefPtr<CefBaseRefCounted> user_data) {
     user_data_ = user_data;
   }
 
-  inline CefRefPtr<CefBase> GetUserData() {
+  inline CefRefPtr<CefBaseRefCounted> GetUserData() {
     return user_data_;
   }
 
@@ -383,7 +383,7 @@ class V8TrackObject : public CefTrackNode {
   CefRefPtr<CefV8Accessor> accessor_;
   CefRefPtr<CefV8Interceptor> interceptor_;
   CefRefPtr<CefV8Handler> handler_;
-  CefRefPtr<CefBase> user_data_;
+  CefRefPtr<CefBaseRefCounted> user_data_;
   int external_memory_;
 };
 
@@ -2094,7 +2094,7 @@ bool CefV8ValueImpl::GetKeys(std::vector<CefString>& keys) {
   return true;
 }
 
-bool CefV8ValueImpl::SetUserData(CefRefPtr<CefBase> user_data) {
+bool CefV8ValueImpl::SetUserData(CefRefPtr<CefBaseRefCounted> user_data) {
   CEF_V8_REQUIRE_OBJECT_RETURN(false);
 
   v8::Isolate* isolate = handle_->isolate();
@@ -2118,7 +2118,7 @@ bool CefV8ValueImpl::SetUserData(CefRefPtr<CefBase> user_data) {
   return false;
 }
 
-CefRefPtr<CefBase> CefV8ValueImpl::GetUserData() {
+CefRefPtr<CefBaseRefCounted> CefV8ValueImpl::GetUserData() {
   CEF_V8_REQUIRE_OBJECT_RETURN(NULL);
 
   v8::Isolate* isolate = handle_->isolate();

@@ -58,7 +58,7 @@ CefFindHandlerCppToC::CefFindHandlerCppToC() {
   GetStruct()->on_find_result = find_handler_on_find_result;
 }
 
-template<> CefRefPtr<CefFindHandler> CefCppToC<CefFindHandlerCppToC,
+template<> CefRefPtr<CefFindHandler> CefCppToCRefCounted<CefFindHandlerCppToC,
     CefFindHandler, cef_find_handler_t>::UnwrapDerived(CefWrapperType type,
     cef_find_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -66,9 +66,9 @@ template<> CefRefPtr<CefFindHandler> CefCppToC<CefFindHandlerCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefFindHandlerCppToC, CefFindHandler,
-    cef_find_handler_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefFindHandlerCppToC,
+    CefFindHandler, cef_find_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefFindHandlerCppToC, CefFindHandler,
-    cef_find_handler_t>::kWrapperType = WT_FIND_HANDLER;
+template<> CefWrapperType CefCppToCRefCounted<CefFindHandlerCppToC,
+    CefFindHandler, cef_find_handler_t>::kWrapperType = WT_FIND_HANDLER;

@@ -60,7 +60,7 @@ typedef struct _cef_waitable_event_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Put the event in the un-signaled state.

@@ -293,7 +293,7 @@ void CefWindowDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
 CefWindowDelegateCToCpp::CefWindowDelegateCToCpp() {
 }
 
-template<> cef_window_delegate_t* CefCToCpp<CefWindowDelegateCToCpp,
+template<> cef_window_delegate_t* CefCToCppRefCounted<CefWindowDelegateCToCpp,
     CefWindowDelegate, cef_window_delegate_t>::UnwrapDerived(
     CefWrapperType type, CefWindowDelegate* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -301,9 +301,10 @@ template<> cef_window_delegate_t* CefCToCpp<CefWindowDelegateCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefWindowDelegateCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefWindowDelegateCToCpp,
     CefWindowDelegate, cef_window_delegate_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefWindowDelegateCToCpp, CefWindowDelegate,
-    cef_window_delegate_t>::kWrapperType = WT_WINDOW_DELEGATE;
+template<> CefWrapperType CefCToCppRefCounted<CefWindowDelegateCToCpp,
+    CefWindowDelegate, cef_window_delegate_t>::kWrapperType =
+    WT_WINDOW_DELEGATE;

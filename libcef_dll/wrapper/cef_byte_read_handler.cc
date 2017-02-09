@@ -9,7 +9,7 @@
 #include <cstdlib>
 
 CefByteReadHandler::CefByteReadHandler(const unsigned char* bytes, size_t size,
-                                       CefRefPtr<CefBase> source)
+                                       CefRefPtr<CefBaseRefCounted> source)
   : bytes_(bytes), size_(size), offset_(0), source_(source) {
 }
 

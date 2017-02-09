@@ -46,7 +46,7 @@
 // methods of this class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefKeyboardHandler : public virtual CefBase {
+class CefKeyboardHandler : public virtual CefBaseRefCounted {
  public:
   ///
   // Called before a keyboard event is sent to the renderer. |event| contains

@@ -167,7 +167,7 @@ CefStreamReaderCppToC::CefStreamReaderCppToC() {
   GetStruct()->may_block = stream_reader_may_block;
 }
 
-template<> CefRefPtr<CefStreamReader> CefCppToC<CefStreamReaderCppToC,
+template<> CefRefPtr<CefStreamReader> CefCppToCRefCounted<CefStreamReaderCppToC,
     CefStreamReader, cef_stream_reader_t>::UnwrapDerived(CefWrapperType type,
     cef_stream_reader_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -175,9 +175,9 @@ template<> CefRefPtr<CefStreamReader> CefCppToC<CefStreamReaderCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefStreamReaderCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefStreamReaderCppToC,
     CefStreamReader, cef_stream_reader_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefStreamReaderCppToC, CefStreamReader,
-    cef_stream_reader_t>::kWrapperType = WT_STREAM_READER;
+template<> CefWrapperType CefCppToCRefCounted<CefStreamReaderCppToC,
+    CefStreamReader, cef_stream_reader_t>::kWrapperType = WT_STREAM_READER;

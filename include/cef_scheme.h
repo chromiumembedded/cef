@@ -154,7 +154,7 @@ class CefSchemeRegistrar : public CefBaseScoped {
 // The methods of this class will always be called on the IO thread.
 ///
 /*--cef(source=client)--*/
-class CefSchemeHandlerFactory : public virtual CefBase {
+class CefSchemeHandlerFactory : public virtual CefBaseRefCounted {
  public:
   ///
   // Return a new resource handler instance to handle the request or an empty

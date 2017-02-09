@@ -174,7 +174,7 @@ bool CefV8InterceptorCToCpp::Set(int index, const CefRefPtr<CefV8Value> object,
 CefV8InterceptorCToCpp::CefV8InterceptorCToCpp() {
 }
 
-template<> cef_v8interceptor_t* CefCToCpp<CefV8InterceptorCToCpp,
+template<> cef_v8interceptor_t* CefCToCppRefCounted<CefV8InterceptorCToCpp,
     CefV8Interceptor, cef_v8interceptor_t>::UnwrapDerived(CefWrapperType type,
     CefV8Interceptor* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -182,9 +182,9 @@ template<> cef_v8interceptor_t* CefCToCpp<CefV8InterceptorCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefV8InterceptorCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefV8InterceptorCToCpp,
     CefV8Interceptor, cef_v8interceptor_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefV8InterceptorCToCpp, CefV8Interceptor,
-    cef_v8interceptor_t>::kWrapperType = WT_V8INTERCEPTOR;
+template<> CefWrapperType CefCToCppRefCounted<CefV8InterceptorCToCpp,
+    CefV8Interceptor, cef_v8interceptor_t>::kWrapperType = WT_V8INTERCEPTOR;

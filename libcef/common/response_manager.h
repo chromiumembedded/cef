@@ -16,13 +16,13 @@ struct Cef_Response_Params;
 class CefResponseManager : base::NonThreadSafe {
  public:
   // Used for handling response messages.
-  class Handler : public virtual CefBase {
+  class Handler : public virtual CefBaseRefCounted {
    public:
      virtual void OnResponse(const Cef_Response_Params& params) =0;
   };
 
   // Used for handling response ack messages.
-  class AckHandler : public virtual CefBase {
+  class AckHandler : public virtual CefBaseRefCounted {
    public:
      virtual void OnResponseAck() =0;
   };

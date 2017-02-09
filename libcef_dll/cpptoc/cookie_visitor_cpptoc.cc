@@ -65,7 +65,7 @@ CefCookieVisitorCppToC::CefCookieVisitorCppToC() {
   GetStruct()->visit = cookie_visitor_visit;
 }
 
-template<> CefRefPtr<CefCookieVisitor> CefCppToC<CefCookieVisitorCppToC,
+template<> CefRefPtr<CefCookieVisitor> CefCppToCRefCounted<CefCookieVisitorCppToC,
     CefCookieVisitor, cef_cookie_visitor_t>::UnwrapDerived(CefWrapperType type,
     cef_cookie_visitor_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -73,9 +73,9 @@ template<> CefRefPtr<CefCookieVisitor> CefCppToC<CefCookieVisitorCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefCookieVisitorCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefCookieVisitorCppToC,
     CefCookieVisitor, cef_cookie_visitor_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefCookieVisitorCppToC, CefCookieVisitor,
-    cef_cookie_visitor_t>::kWrapperType = WT_COOKIE_VISITOR;
+template<> CefWrapperType CefCppToCRefCounted<CefCookieVisitorCppToC,
+    CefCookieVisitor, cef_cookie_visitor_t>::kWrapperType = WT_COOKIE_VISITOR;

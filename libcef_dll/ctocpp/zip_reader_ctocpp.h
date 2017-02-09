@@ -20,12 +20,13 @@
 
 #include "include/cef_zip_reader.h"
 #include "include/capi/cef_zip_reader_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefZipReaderCToCpp
-    : public CefCToCpp<CefZipReaderCToCpp, CefZipReader, cef_zip_reader_t> {
+    : public CefCToCppRefCounted<CefZipReaderCToCpp, CefZipReader,
+        cef_zip_reader_t> {
  public:
   CefZipReaderCToCpp();
 

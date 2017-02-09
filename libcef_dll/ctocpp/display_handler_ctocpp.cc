@@ -189,7 +189,7 @@ bool CefDisplayHandlerCToCpp::OnConsoleMessage(CefRefPtr<CefBrowser> browser,
 CefDisplayHandlerCToCpp::CefDisplayHandlerCToCpp() {
 }
 
-template<> cef_display_handler_t* CefCToCpp<CefDisplayHandlerCToCpp,
+template<> cef_display_handler_t* CefCToCppRefCounted<CefDisplayHandlerCToCpp,
     CefDisplayHandler, cef_display_handler_t>::UnwrapDerived(
     CefWrapperType type, CefDisplayHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -197,9 +197,10 @@ template<> cef_display_handler_t* CefCToCpp<CefDisplayHandlerCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefDisplayHandlerCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefDisplayHandlerCToCpp,
     CefDisplayHandler, cef_display_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefDisplayHandlerCToCpp, CefDisplayHandler,
-    cef_display_handler_t>::kWrapperType = WT_DISPLAY_HANDLER;
+template<> CefWrapperType CefCToCppRefCounted<CefDisplayHandlerCToCpp,
+    CefDisplayHandler, cef_display_handler_t>::kWrapperType =
+    WT_DISPLAY_HANDLER;

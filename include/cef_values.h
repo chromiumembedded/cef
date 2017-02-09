@@ -53,7 +53,7 @@ typedef cef_value_type_t CefValueType;
 // process and thread.
 ///
 /*--cef(source=library)--*/
-class CefValue : public virtual CefBase {
+class CefValue : public virtual CefBaseRefCounted {
  public:
   ///
   // Creates a new object.
@@ -234,7 +234,7 @@ class CefValue : public virtual CefBase {
 // Class representing a binary value. Can be used on any process and thread.
 ///
 /*--cef(source=library)--*/
-class CefBinaryValue : public virtual CefBase {
+class CefBinaryValue : public virtual CefBaseRefCounted {
  public:
   ///
   // Creates a new object that is not owned by any other object. The specified
@@ -300,7 +300,7 @@ class CefBinaryValue : public virtual CefBase {
 // Class representing a dictionary value. Can be used on any process and thread.
 ///
 /*--cef(source=library)--*/
-class CefDictionaryValue : public virtual CefBase {
+class CefDictionaryValue : public virtual CefBaseRefCounted {
  public:
   typedef std::vector<CefString> KeyList;
 
@@ -533,7 +533,7 @@ class CefDictionaryValue : public virtual CefBase {
 // Class representing a list value. Can be used on any process and thread.
 ///
 /*--cef(source=library)--*/
-class CefListValue : public virtual CefBase {
+class CefListValue : public virtual CefBaseRefCounted {
  public:
   ///
   // Creates a new object that is not owned by any other object.

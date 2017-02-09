@@ -54,7 +54,7 @@ typedef struct _cef_resource_bundle_handler_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Called to retrieve a localized translation for the specified |string_id|.

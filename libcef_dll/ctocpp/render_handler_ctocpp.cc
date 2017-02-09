@@ -328,7 +328,7 @@ void CefRenderHandlerCToCpp::OnImeCompositionRangeChanged(
 CefRenderHandlerCToCpp::CefRenderHandlerCToCpp() {
 }
 
-template<> cef_render_handler_t* CefCToCpp<CefRenderHandlerCToCpp,
+template<> cef_render_handler_t* CefCToCppRefCounted<CefRenderHandlerCToCpp,
     CefRenderHandler, cef_render_handler_t>::UnwrapDerived(CefWrapperType type,
     CefRenderHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -336,9 +336,9 @@ template<> cef_render_handler_t* CefCToCpp<CefRenderHandlerCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefRenderHandlerCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefRenderHandlerCToCpp,
     CefRenderHandler, cef_render_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefRenderHandlerCToCpp, CefRenderHandler,
-    cef_render_handler_t>::kWrapperType = WT_RENDER_HANDLER;
+template<> CefWrapperType CefCToCppRefCounted<CefRenderHandlerCToCpp,
+    CefRenderHandler, cef_render_handler_t>::kWrapperType = WT_RENDER_HANDLER;

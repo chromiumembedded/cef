@@ -142,7 +142,7 @@ CefJSDialogHandlerCppToC::CefJSDialogHandlerCppToC() {
   GetStruct()->on_dialog_closed = jsdialog_handler_on_dialog_closed;
 }
 
-template<> CefRefPtr<CefJSDialogHandler> CefCppToC<CefJSDialogHandlerCppToC,
+template<> CefRefPtr<CefJSDialogHandler> CefCppToCRefCounted<CefJSDialogHandlerCppToC,
     CefJSDialogHandler, cef_jsdialog_handler_t>::UnwrapDerived(
     CefWrapperType type, cef_jsdialog_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -150,10 +150,10 @@ template<> CefRefPtr<CefJSDialogHandler> CefCppToC<CefJSDialogHandlerCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefJSDialogHandlerCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefJSDialogHandlerCppToC,
     CefJSDialogHandler, cef_jsdialog_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefJSDialogHandlerCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefJSDialogHandlerCppToC,
     CefJSDialogHandler, cef_jsdialog_handler_t>::kWrapperType =
     WT_JSDIALOG_HANDLER;

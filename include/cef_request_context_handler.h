@@ -48,7 +48,7 @@
 // been destroyed.
 ///
 /*--cef(source=client,no_debugct_check)--*/
-class CefRequestContextHandler : public virtual CefBase {
+class CefRequestContextHandler : public virtual CefBaseRefCounted {
  public:
   typedef cef_plugin_policy_t PluginPolicy;
 

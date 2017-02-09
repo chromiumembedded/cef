@@ -19,7 +19,7 @@ class ClientAppBrowser : public ClientApp,
   // Interface for browser delegates. All Delegates must be returned via
   // CreateDelegates. Do not perform work in the Delegate
   // constructor. See CefBrowserProcessHandler for documentation.
-  class Delegate : public virtual CefBase {
+  class Delegate : public virtual CefBaseRefCounted {
    public:
     virtual void OnBeforeCommandLineProcessing(
         CefRefPtr<ClientAppBrowser> app,

@@ -171,7 +171,7 @@ CefRefPtr<CefSSLStatus> CefNavigationEntryCToCpp::GetSSLStatus() {
 CefNavigationEntryCToCpp::CefNavigationEntryCToCpp() {
 }
 
-template<> cef_navigation_entry_t* CefCToCpp<CefNavigationEntryCToCpp,
+template<> cef_navigation_entry_t* CefCToCppRefCounted<CefNavigationEntryCToCpp,
     CefNavigationEntry, cef_navigation_entry_t>::UnwrapDerived(
     CefWrapperType type, CefNavigationEntry* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -179,10 +179,10 @@ template<> cef_navigation_entry_t* CefCToCpp<CefNavigationEntryCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefNavigationEntryCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefNavigationEntryCToCpp,
     CefNavigationEntry, cef_navigation_entry_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefNavigationEntryCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefNavigationEntryCToCpp,
     CefNavigationEntry, cef_navigation_entry_t>::kWrapperType =
     WT_NAVIGATION_ENTRY;

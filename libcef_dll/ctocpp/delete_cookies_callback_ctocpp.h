@@ -20,13 +20,13 @@
 
 #include "include/cef_cookie.h"
 #include "include/capi/cef_cookie_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefDeleteCookiesCallbackCToCpp
-    : public CefCToCpp<CefDeleteCookiesCallbackCToCpp, CefDeleteCookiesCallback,
-        cef_delete_cookies_callback_t> {
+    : public CefCToCppRefCounted<CefDeleteCookiesCallbackCToCpp,
+        CefDeleteCookiesCallback, cef_delete_cookies_callback_t> {
  public:
   CefDeleteCookiesCallbackCToCpp();
 

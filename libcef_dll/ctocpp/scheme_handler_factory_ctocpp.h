@@ -20,13 +20,13 @@
 
 #include "include/cef_scheme.h"
 #include "include/capi/cef_scheme_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefSchemeHandlerFactoryCToCpp
-    : public CefCToCpp<CefSchemeHandlerFactoryCToCpp, CefSchemeHandlerFactory,
-        cef_scheme_handler_factory_t> {
+    : public CefCToCppRefCounted<CefSchemeHandlerFactoryCToCpp,
+        CefSchemeHandlerFactory, cef_scheme_handler_factory_t> {
  public:
   CefSchemeHandlerFactoryCToCpp();
 

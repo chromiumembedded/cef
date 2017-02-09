@@ -48,7 +48,7 @@
 // render process main thread (TID_RENDERER).
 ///
 /*--cef(source=client)--*/
-class CefLoadHandler : public virtual CefBase {
+class CefLoadHandler : public virtual CefBaseRefCounted {
  public:
   typedef cef_errorcode_t ErrorCode;
   typedef cef_transition_type_t TransitionType;

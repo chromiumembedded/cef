@@ -54,7 +54,7 @@ typedef struct _cef_jsdialog_callback_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Continue the JS dialog request. Set |success| to true (1) if the OK button
@@ -73,7 +73,7 @@ typedef struct _cef_jsdialog_handler_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Called to run a JavaScript dialog. If |origin_url| is non-NULL it can be

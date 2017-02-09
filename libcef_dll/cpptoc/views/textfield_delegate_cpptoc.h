@@ -22,13 +22,13 @@
 #include "include/capi/views/cef_textfield_delegate_capi.h"
 #include "include/views/cef_textfield.h"
 #include "include/capi/views/cef_textfield_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefTextfieldDelegateCppToC
-    : public CefCppToC<CefTextfieldDelegateCppToC, CefTextfieldDelegate,
-        cef_textfield_delegate_t> {
+    : public CefCppToCRefCounted<CefTextfieldDelegateCppToC,
+        CefTextfieldDelegate, cef_textfield_delegate_t> {
  public:
   CefTextfieldDelegateCppToC();
 };

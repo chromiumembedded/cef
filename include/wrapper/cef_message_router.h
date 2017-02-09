@@ -223,7 +223,7 @@ class CefMessageRouterBrowserSide :
   // the callback methods. The methods of this class may be called on any
   // browser process thread.
   ///
-  class Callback : public CefBase {
+  class Callback : public CefBaseRefCounted {
    public:
     ///
     // Notify the associated JavaScript onSuccess callback that the query has

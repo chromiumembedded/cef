@@ -49,7 +49,7 @@ class CefClient;
 // indicated.
 ///
 /*--cef(source=client)--*/
-class CefLifeSpanHandler : public virtual CefBase {
+class CefLifeSpanHandler : public virtual CefBaseRefCounted {
  public:
   typedef cef_window_open_disposition_t WindowOpenDisposition;
 

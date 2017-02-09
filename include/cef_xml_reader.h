@@ -47,7 +47,7 @@
 // the object.
 ///
 /*--cef(source=library)--*/
-class CefXmlReader : public virtual CefBase {
+class CefXmlReader : public virtual CefBaseRefCounted {
  public:
   typedef cef_xml_encoding_type_t EncodingType;
   typedef cef_xml_node_type_t NodeType;

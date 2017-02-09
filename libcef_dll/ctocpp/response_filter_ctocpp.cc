@@ -63,7 +63,7 @@ CefResponseFilter::FilterStatus CefResponseFilterCToCpp::Filter(void* data_in,
 CefResponseFilterCToCpp::CefResponseFilterCToCpp() {
 }
 
-template<> cef_response_filter_t* CefCToCpp<CefResponseFilterCToCpp,
+template<> cef_response_filter_t* CefCToCppRefCounted<CefResponseFilterCToCpp,
     CefResponseFilter, cef_response_filter_t>::UnwrapDerived(
     CefWrapperType type, CefResponseFilter* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -71,9 +71,10 @@ template<> cef_response_filter_t* CefCToCpp<CefResponseFilterCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefResponseFilterCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefResponseFilterCToCpp,
     CefResponseFilter, cef_response_filter_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefResponseFilterCToCpp, CefResponseFilter,
-    cef_response_filter_t>::kWrapperType = WT_RESPONSE_FILTER;
+template<> CefWrapperType CefCToCppRefCounted<CefResponseFilterCToCpp,
+    CefResponseFilter, cef_response_filter_t>::kWrapperType =
+    WT_RESPONSE_FILTER;

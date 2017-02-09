@@ -172,7 +172,7 @@ CefBinaryValueCppToC::CefBinaryValueCppToC() {
   GetStruct()->get_data = binary_value_get_data;
 }
 
-template<> CefRefPtr<CefBinaryValue> CefCppToC<CefBinaryValueCppToC,
+template<> CefRefPtr<CefBinaryValue> CefCppToCRefCounted<CefBinaryValueCppToC,
     CefBinaryValue, cef_binary_value_t>::UnwrapDerived(CefWrapperType type,
     cef_binary_value_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -180,9 +180,9 @@ template<> CefRefPtr<CefBinaryValue> CefCppToC<CefBinaryValueCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefBinaryValueCppToC, CefBinaryValue,
-    cef_binary_value_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefBinaryValueCppToC,
+    CefBinaryValue, cef_binary_value_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefBinaryValueCppToC, CefBinaryValue,
-    cef_binary_value_t>::kWrapperType = WT_BINARY_VALUE;
+template<> CefWrapperType CefCppToCRefCounted<CefBinaryValueCppToC,
+    CefBinaryValue, cef_binary_value_t>::kWrapperType = WT_BINARY_VALUE;

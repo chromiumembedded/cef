@@ -21,13 +21,13 @@
 #include <vector>
 #include "include/cef_dialog_handler.h"
 #include "include/capi/cef_dialog_handler_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefFileDialogCallbackCToCpp
-    : public CefCToCpp<CefFileDialogCallbackCToCpp, CefFileDialogCallback,
-        cef_file_dialog_callback_t> {
+    : public CefCToCppRefCounted<CefFileDialogCallbackCToCpp,
+        CefFileDialogCallback, cef_file_dialog_callback_t> {
  public:
   CefFileDialogCallbackCToCpp();
 

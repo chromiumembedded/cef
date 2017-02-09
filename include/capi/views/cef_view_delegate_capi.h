@@ -55,7 +55,7 @@ typedef struct _cef_view_delegate_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Return the preferred size for |view|. The Layout will use this information

@@ -1396,7 +1396,7 @@ bool CefTranslatorTestCToCpp::SetRawPtrClientList(
 CefTranslatorTestCToCpp::CefTranslatorTestCToCpp() {
 }
 
-template<> cef_translator_test_t* CefCToCpp<CefTranslatorTestCToCpp,
+template<> cef_translator_test_t* CefCToCppRefCounted<CefTranslatorTestCToCpp,
     CefTranslatorTest, cef_translator_test_t>::UnwrapDerived(
     CefWrapperType type, CefTranslatorTest* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -1404,9 +1404,10 @@ template<> cef_translator_test_t* CefCToCpp<CefTranslatorTestCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefTranslatorTestCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefTranslatorTestCToCpp,
     CefTranslatorTest, cef_translator_test_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefTranslatorTestCToCpp, CefTranslatorTest,
-    cef_translator_test_t>::kWrapperType = WT_TRANSLATOR_TEST;
+template<> CefWrapperType CefCToCppRefCounted<CefTranslatorTestCToCpp,
+    CefTranslatorTest, cef_translator_test_t>::kWrapperType =
+    WT_TRANSLATOR_TEST;

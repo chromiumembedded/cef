@@ -150,7 +150,7 @@ CefTranslatorTestRefPtrLibraryChildChildCppToC::CefTranslatorTestRefPtrLibraryCh
       translator_test_ref_ptr_library_child_child_set_value;
 }
 
-template<> CefRefPtr<CefTranslatorTestRefPtrLibraryChildChild> CefCppToC<CefTranslatorTestRefPtrLibraryChildChildCppToC,
+template<> CefRefPtr<CefTranslatorTestRefPtrLibraryChildChild> CefCppToCRefCounted<CefTranslatorTestRefPtrLibraryChildChildCppToC,
     CefTranslatorTestRefPtrLibraryChildChild,
     cef_translator_test_ref_ptr_library_child_child_t>::UnwrapDerived(
     CefWrapperType type,
@@ -160,12 +160,12 @@ template<> CefRefPtr<CefTranslatorTestRefPtrLibraryChildChild> CefCppToC<CefTran
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefTranslatorTestRefPtrLibraryChildChildCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefTranslatorTestRefPtrLibraryChildChildCppToC,
     CefTranslatorTestRefPtrLibraryChildChild,
     cef_translator_test_ref_ptr_library_child_child_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefTranslatorTestRefPtrLibraryChildChildCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefTranslatorTestRefPtrLibraryChildChildCppToC,
     CefTranslatorTestRefPtrLibraryChildChild,
     cef_translator_test_ref_ptr_library_child_child_t>::kWrapperType =
     WT_TRANSLATOR_TEST_REF_PTR_LIBRARY_CHILD_CHILD;

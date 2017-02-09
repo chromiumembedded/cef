@@ -295,7 +295,7 @@ CefBrowserViewDelegateCppToC::CefBrowserViewDelegateCppToC() {
       browser_view_delegate_on_child_view_changed;
 }
 
-template<> CefRefPtr<CefBrowserViewDelegate> CefCppToC<CefBrowserViewDelegateCppToC,
+template<> CefRefPtr<CefBrowserViewDelegate> CefCppToCRefCounted<CefBrowserViewDelegateCppToC,
     CefBrowserViewDelegate, cef_browser_view_delegate_t>::UnwrapDerived(
     CefWrapperType type, cef_browser_view_delegate_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -303,10 +303,10 @@ template<> CefRefPtr<CefBrowserViewDelegate> CefCppToC<CefBrowserViewDelegateCpp
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefBrowserViewDelegateCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefBrowserViewDelegateCppToC,
     CefBrowserViewDelegate, cef_browser_view_delegate_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefBrowserViewDelegateCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefBrowserViewDelegateCppToC,
     CefBrowserViewDelegate, cef_browser_view_delegate_t>::kWrapperType =
     WT_BROWSER_VIEW_DELEGATE;

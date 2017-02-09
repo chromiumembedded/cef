@@ -67,7 +67,7 @@ typedef struct _cef_client_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Return the handler for context menus. If no handler is provided the default

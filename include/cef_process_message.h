@@ -47,7 +47,7 @@ typedef cef_process_id_t CefProcessId;
 // Class representing a message. Can be used on any process and thread.
 ///
 /*--cef(source=library)--*/
-class CefProcessMessage : public virtual CefBase {
+class CefProcessMessage : public virtual CefBaseRefCounted {
  public:
   ///
   // Create a new CefProcessMessage object with the specified name.

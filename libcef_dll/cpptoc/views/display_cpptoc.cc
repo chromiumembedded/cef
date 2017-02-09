@@ -249,16 +249,17 @@ CefDisplayCppToC::CefDisplayCppToC() {
   GetStruct()->get_rotation = display_get_rotation;
 }
 
-template<> CefRefPtr<CefDisplay> CefCppToC<CefDisplayCppToC, CefDisplay,
-    cef_display_t>::UnwrapDerived(CefWrapperType type, cef_display_t* s) {
+template<> CefRefPtr<CefDisplay> CefCppToCRefCounted<CefDisplayCppToC,
+    CefDisplay, cef_display_t>::UnwrapDerived(CefWrapperType type,
+    cef_display_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefDisplayCppToC, CefDisplay,
-    cef_display_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefDisplayCppToC,
+    CefDisplay, cef_display_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefDisplayCppToC, CefDisplay,
+template<> CefWrapperType CefCppToCRefCounted<CefDisplayCppToC, CefDisplay,
     cef_display_t>::kWrapperType = WT_DISPLAY;

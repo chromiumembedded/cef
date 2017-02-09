@@ -279,16 +279,16 @@ CefRefPtr<CefBinaryValue> CefImageCToCpp::GetAsJPEG(float scale_factor,
 CefImageCToCpp::CefImageCToCpp() {
 }
 
-template<> cef_image_t* CefCToCpp<CefImageCToCpp, CefImage,
+template<> cef_image_t* CefCToCppRefCounted<CefImageCToCpp, CefImage,
     cef_image_t>::UnwrapDerived(CefWrapperType type, CefImage* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefImageCToCpp, CefImage,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefImageCToCpp, CefImage,
     cef_image_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefImageCToCpp, CefImage,
+template<> CefWrapperType CefCToCppRefCounted<CefImageCToCpp, CefImage,
     cef_image_t>::kWrapperType = WT_IMAGE;

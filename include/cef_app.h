@@ -143,7 +143,7 @@ void CefEnableHighDPISupport();
 // called by the process and/or thread indicated.
 ///
 /*--cef(source=client,no_debugct_check)--*/
-class CefApp : public virtual CefBase {
+class CefApp : public virtual CefBaseRefCounted {
  public:
   ///
   // Provides an opportunity to view and/or modify command-line arguments before

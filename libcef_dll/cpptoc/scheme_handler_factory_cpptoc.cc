@@ -61,7 +61,7 @@ CefSchemeHandlerFactoryCppToC::CefSchemeHandlerFactoryCppToC() {
   GetStruct()->create = scheme_handler_factory_create;
 }
 
-template<> CefRefPtr<CefSchemeHandlerFactory> CefCppToC<CefSchemeHandlerFactoryCppToC,
+template<> CefRefPtr<CefSchemeHandlerFactory> CefCppToCRefCounted<CefSchemeHandlerFactoryCppToC,
     CefSchemeHandlerFactory, cef_scheme_handler_factory_t>::UnwrapDerived(
     CefWrapperType type, cef_scheme_handler_factory_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -69,10 +69,10 @@ template<> CefRefPtr<CefSchemeHandlerFactory> CefCppToC<CefSchemeHandlerFactoryC
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefSchemeHandlerFactoryCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefSchemeHandlerFactoryCppToC,
     CefSchemeHandlerFactory, cef_scheme_handler_factory_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefSchemeHandlerFactoryCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefSchemeHandlerFactoryCppToC,
     CefSchemeHandlerFactory, cef_scheme_handler_factory_t>::kWrapperType =
     WT_SCHEME_HANDLER_FACTORY;

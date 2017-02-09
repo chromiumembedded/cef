@@ -199,7 +199,7 @@ void CefTextfieldDelegateCToCpp::OnChildViewChanged(CefRefPtr<CefView> view,
 CefTextfieldDelegateCToCpp::CefTextfieldDelegateCToCpp() {
 }
 
-template<> cef_textfield_delegate_t* CefCToCpp<CefTextfieldDelegateCToCpp,
+template<> cef_textfield_delegate_t* CefCToCppRefCounted<CefTextfieldDelegateCToCpp,
     CefTextfieldDelegate, cef_textfield_delegate_t>::UnwrapDerived(
     CefWrapperType type, CefTextfieldDelegate* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -207,10 +207,10 @@ template<> cef_textfield_delegate_t* CefCToCpp<CefTextfieldDelegateCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefTextfieldDelegateCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefTextfieldDelegateCToCpp,
     CefTextfieldDelegate, cef_textfield_delegate_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefTextfieldDelegateCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefTextfieldDelegateCToCpp,
     CefTextfieldDelegate, cef_textfield_delegate_t>::kWrapperType =
     WT_TEXTFIELD_DELEGATE;

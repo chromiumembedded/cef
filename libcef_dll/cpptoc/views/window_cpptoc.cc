@@ -1616,16 +1616,16 @@ CefWindowCppToC::CefWindowCppToC() {
       window_convert_point_from_view;
 }
 
-template<> CefRefPtr<CefWindow> CefCppToC<CefWindowCppToC, CefWindow,
+template<> CefRefPtr<CefWindow> CefCppToCRefCounted<CefWindowCppToC, CefWindow,
     cef_window_t>::UnwrapDerived(CefWrapperType type, cef_window_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefWindowCppToC, CefWindow,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefWindowCppToC, CefWindow,
     cef_window_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefWindowCppToC, CefWindow,
+template<> CefWrapperType CefCppToCRefCounted<CefWindowCppToC, CefWindow,
     cef_window_t>::kWrapperType = WT_WINDOW;

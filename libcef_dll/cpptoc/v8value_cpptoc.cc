@@ -13,7 +13,7 @@
 #include "libcef_dll/cpptoc/v8context_cpptoc.h"
 #include "libcef_dll/cpptoc/v8exception_cpptoc.h"
 #include "libcef_dll/cpptoc/v8value_cpptoc.h"
-#include "libcef_dll/ctocpp/base_ctocpp.h"
+#include "libcef_dll/ctocpp/base_ref_counted_ctocpp.h"
 #include "libcef_dll/ctocpp/v8accessor_ctocpp.h"
 #include "libcef_dll/ctocpp/v8handler_ctocpp.h"
 #include "libcef_dll/ctocpp/v8interceptor_ctocpp.h"
@@ -741,7 +741,7 @@ int CEF_CALLBACK v8value_get_keys(struct _cef_v8value_t* self,
 }
 
 int CEF_CALLBACK v8value_set_user_data(struct _cef_v8value_t* self,
-    cef_base_t* user_data) {
+    cef_base_ref_counted_t* user_data) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -751,13 +751,14 @@ int CEF_CALLBACK v8value_set_user_data(struct _cef_v8value_t* self,
 
   // Execute
   bool _retval = CefV8ValueCppToC::Get(self)->SetUserData(
-      CefBaseCToCpp::Wrap(user_data));
+      CefBaseRefCountedCToCpp::Wrap(user_data));
 
   // Return type: bool
   return _retval;
 }
 
-cef_base_t* CEF_CALLBACK v8value_get_user_data(struct _cef_v8value_t* self) {
+cef_base_ref_counted_t* CEF_CALLBACK v8value_get_user_data(
+    struct _cef_v8value_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -765,10 +766,11 @@ cef_base_t* CEF_CALLBACK v8value_get_user_data(struct _cef_v8value_t* self) {
     return NULL;
 
   // Execute
-  CefRefPtr<CefBase> _retval = CefV8ValueCppToC::Get(self)->GetUserData();
+  CefRefPtr<CefBaseRefCounted> _retval = CefV8ValueCppToC::Get(
+      self)->GetUserData();
 
   // Return type: refptr_diff
-  return CefBaseCToCpp::Unwrap(_retval);
+  return CefBaseRefCountedCToCpp::Unwrap(_retval);
 }
 
 int CEF_CALLBACK v8value_get_externally_allocated_memory(
@@ -975,16 +977,17 @@ CefV8ValueCppToC::CefV8ValueCppToC() {
       v8value_execute_function_with_context;
 }
 
-template<> CefRefPtr<CefV8Value> CefCppToC<CefV8ValueCppToC, CefV8Value,
-    cef_v8value_t>::UnwrapDerived(CefWrapperType type, cef_v8value_t* s) {
+template<> CefRefPtr<CefV8Value> CefCppToCRefCounted<CefV8ValueCppToC,
+    CefV8Value, cef_v8value_t>::UnwrapDerived(CefWrapperType type,
+    cef_v8value_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefV8ValueCppToC, CefV8Value,
-    cef_v8value_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefV8ValueCppToC,
+    CefV8Value, cef_v8value_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefV8ValueCppToC, CefV8Value,
+template<> CefWrapperType CefCppToCRefCounted<CefV8ValueCppToC, CefV8Value,
     cef_v8value_t>::kWrapperType = WT_V8VALUE;

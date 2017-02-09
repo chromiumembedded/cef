@@ -51,7 +51,7 @@
 // indicated.
 ///
 /*--cef(source=library)--*/
-class CefDisplay : public CefBase {
+class CefDisplay : public CefBaseRefCounted {
  public:
   ///
   // Returns the primary Display.

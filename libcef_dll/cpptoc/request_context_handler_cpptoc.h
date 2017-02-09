@@ -20,13 +20,13 @@
 
 #include "include/cef_request_context_handler.h"
 #include "include/capi/cef_request_context_handler_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefRequestContextHandlerCppToC
-    : public CefCppToC<CefRequestContextHandlerCppToC, CefRequestContextHandler,
-        cef_request_context_handler_t> {
+    : public CefCppToCRefCounted<CefRequestContextHandlerCppToC,
+        CefRequestContextHandler, cef_request_context_handler_t> {
  public:
   CefRequestContextHandlerCppToC();
 };

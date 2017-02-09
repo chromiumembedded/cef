@@ -20,12 +20,12 @@
 
 #include "include/cef_x509_certificate.h"
 #include "include/capi/cef_x509_certificate_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefX509CertificateCToCpp
-    : public CefCToCpp<CefX509CertificateCToCpp, CefX509Certificate,
+    : public CefCToCppRefCounted<CefX509CertificateCToCpp, CefX509Certificate,
         cef_x509certificate_t> {
  public:
   CefX509CertificateCToCpp();

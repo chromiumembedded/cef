@@ -20,12 +20,12 @@
 
 #include "include/cef_dom.h"
 #include "include/capi/cef_dom_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefDOMDocumentCToCpp
-    : public CefCToCpp<CefDOMDocumentCToCpp, CefDOMDocument,
+    : public CefCToCppRefCounted<CefDOMDocumentCToCpp, CefDOMDocument,
         cef_domdocument_t> {
  public:
   CefDOMDocumentCToCpp();

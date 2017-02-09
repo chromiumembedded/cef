@@ -54,7 +54,7 @@ typedef struct _cef_geolocation_callback_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Call to allow or deny geolocation access.
@@ -73,7 +73,7 @@ typedef struct _cef_geolocation_handler_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Called when a page requests permission to access geolocation information.

@@ -53,7 +53,7 @@
 // used before CefInitialize() is called.
 ///
 /*--cef(source=library,no_debugct_check)--*/
-class CefCommandLine : public virtual CefBase {
+class CefCommandLine : public virtual CefBaseRefCounted {
  public:
   typedef std::vector<CefString> ArgumentList;
   typedef std::map<CefString, CefString> SwitchMap;

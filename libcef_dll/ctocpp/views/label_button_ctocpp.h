@@ -22,12 +22,12 @@
 #include "include/capi/views/cef_label_button_capi.h"
 #include "include/views/cef_menu_button.h"
 #include "include/capi/views/cef_menu_button_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefLabelButtonCToCpp
-    : public CefCToCpp<CefLabelButtonCToCpp, CefLabelButton,
+    : public CefCToCppRefCounted<CefLabelButtonCToCpp, CefLabelButton,
         cef_label_button_t> {
  public:
   CefLabelButtonCToCpp();

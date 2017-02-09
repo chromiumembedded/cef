@@ -50,7 +50,7 @@
 // avoid common memory leaks caused by forgetting to Release an object
 // reference.  Sample usage:
 // <pre>
-//   class MyFoo : public CefBase {
+//   class MyFoo : public CefBaseRefCounted {
 //    ...
 //   };
 //

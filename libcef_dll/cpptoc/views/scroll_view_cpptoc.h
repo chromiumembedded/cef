@@ -20,12 +20,13 @@
 
 #include "include/views/cef_scroll_view.h"
 #include "include/capi/views/cef_scroll_view_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefScrollViewCppToC
-    : public CefCppToC<CefScrollViewCppToC, CefScrollView, cef_scroll_view_t> {
+    : public CefCppToCRefCounted<CefScrollViewCppToC, CefScrollView,
+        cef_scroll_view_t> {
  public:
   CefScrollViewCppToC();
 };

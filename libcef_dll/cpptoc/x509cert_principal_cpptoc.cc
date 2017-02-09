@@ -214,7 +214,7 @@ CefX509CertPrincipalCppToC::CefX509CertPrincipalCppToC() {
   GetStruct()->get_domain_components = x509cert_principal_get_domain_components;
 }
 
-template<> CefRefPtr<CefX509CertPrincipal> CefCppToC<CefX509CertPrincipalCppToC,
+template<> CefRefPtr<CefX509CertPrincipal> CefCppToCRefCounted<CefX509CertPrincipalCppToC,
     CefX509CertPrincipal, cef_x509cert_principal_t>::UnwrapDerived(
     CefWrapperType type, cef_x509cert_principal_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -222,10 +222,10 @@ template<> CefRefPtr<CefX509CertPrincipal> CefCppToC<CefX509CertPrincipalCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefX509CertPrincipalCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefX509CertPrincipalCppToC,
     CefX509CertPrincipal, cef_x509cert_principal_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefX509CertPrincipalCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefX509CertPrincipalCppToC,
     CefX509CertPrincipal, cef_x509cert_principal_t>::kWrapperType =
     WT_X509CERT_PRINCIPAL;

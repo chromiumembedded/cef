@@ -49,7 +49,7 @@ class CefDOMNode;
 // be called on the render process main thread.
 ///
 /*--cef(source=client)--*/
-class CefDOMVisitor : public virtual CefBase {
+class CefDOMVisitor : public virtual CefBaseRefCounted {
  public:
   ///
   // Method executed for visiting the DOM. The document object passed to this
@@ -68,7 +68,7 @@ class CefDOMVisitor : public virtual CefBase {
 // be called on the render process main thread thread.
 ///
 /*--cef(source=library)--*/
-class CefDOMDocument : public virtual CefBase {
+class CefDOMDocument : public virtual CefBaseRefCounted {
  public:
   typedef cef_dom_document_type_t Type;
 
@@ -164,7 +164,7 @@ class CefDOMDocument : public virtual CefBase {
 // called on the render process main thread.
 ///
 /*--cef(source=library)--*/
-class CefDOMNode : public virtual CefBase {
+class CefDOMNode : public virtual CefBaseRefCounted {
  public:
   typedef std::map<CefString, CefString> AttributeMap;
   typedef cef_dom_node_type_t Type;

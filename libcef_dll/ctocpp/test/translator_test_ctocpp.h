@@ -22,12 +22,12 @@
 #include <vector>
 #include "include/test/cef_translator_test.h"
 #include "include/capi/test/cef_translator_test_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefTranslatorTestCToCpp
-    : public CefCToCpp<CefTranslatorTestCToCpp, CefTranslatorTest,
+    : public CefCToCppRefCounted<CefTranslatorTestCToCpp, CefTranslatorTest,
         cef_translator_test_t> {
  public:
   CefTranslatorTestCToCpp();

@@ -44,7 +44,7 @@ CefPdfPrintCallbackCppToC::CefPdfPrintCallbackCppToC() {
   GetStruct()->on_pdf_print_finished = pdf_print_callback_on_pdf_print_finished;
 }
 
-template<> CefRefPtr<CefPdfPrintCallback> CefCppToC<CefPdfPrintCallbackCppToC,
+template<> CefRefPtr<CefPdfPrintCallback> CefCppToCRefCounted<CefPdfPrintCallbackCppToC,
     CefPdfPrintCallback, cef_pdf_print_callback_t>::UnwrapDerived(
     CefWrapperType type, cef_pdf_print_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -52,10 +52,10 @@ template<> CefRefPtr<CefPdfPrintCallback> CefCppToC<CefPdfPrintCallbackCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefPdfPrintCallbackCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefPdfPrintCallbackCppToC,
     CefPdfPrintCallback, cef_pdf_print_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefPdfPrintCallbackCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefPdfPrintCallbackCppToC,
     CefPdfPrintCallback, cef_pdf_print_callback_t>::kWrapperType =
     WT_PDF_PRINT_CALLBACK;

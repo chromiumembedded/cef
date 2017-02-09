@@ -421,7 +421,7 @@ cef_errorcode_t CefRequestContextCToCpp::ResolveHostCached(
 CefRequestContextCToCpp::CefRequestContextCToCpp() {
 }
 
-template<> cef_request_context_t* CefCToCpp<CefRequestContextCToCpp,
+template<> cef_request_context_t* CefCToCppRefCounted<CefRequestContextCToCpp,
     CefRequestContext, cef_request_context_t>::UnwrapDerived(
     CefWrapperType type, CefRequestContext* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -429,9 +429,10 @@ template<> cef_request_context_t* CefCToCpp<CefRequestContextCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefRequestContextCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefRequestContextCToCpp,
     CefRequestContext, cef_request_context_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefRequestContextCToCpp, CefRequestContext,
-    cef_request_context_t>::kWrapperType = WT_REQUEST_CONTEXT;
+template<> CefWrapperType CefCToCppRefCounted<CefRequestContextCToCpp,
+    CefRequestContext, cef_request_context_t>::kWrapperType =
+    WT_REQUEST_CONTEXT;

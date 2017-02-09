@@ -53,7 +53,7 @@ typedef struct _cef_response_filter_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Initialize the response filter. Will only be called a single time. The

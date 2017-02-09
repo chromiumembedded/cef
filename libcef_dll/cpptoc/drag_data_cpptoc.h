@@ -20,12 +20,13 @@
 
 #include "include/cef_drag_data.h"
 #include "include/capi/cef_drag_data_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefDragDataCppToC
-    : public CefCppToC<CefDragDataCppToC, CefDragData, cef_drag_data_t> {
+    : public CefCppToCRefCounted<CefDragDataCppToC, CefDragData,
+        cef_drag_data_t> {
  public:
   CefDragDataCppToC();
 };

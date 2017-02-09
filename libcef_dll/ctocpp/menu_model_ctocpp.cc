@@ -907,16 +907,17 @@ bool CefMenuModelCToCpp::GetAcceleratorAt(int index, int& key_code,
 CefMenuModelCToCpp::CefMenuModelCToCpp() {
 }
 
-template<> cef_menu_model_t* CefCToCpp<CefMenuModelCToCpp, CefMenuModel,
-    cef_menu_model_t>::UnwrapDerived(CefWrapperType type, CefMenuModel* c) {
+template<> cef_menu_model_t* CefCToCppRefCounted<CefMenuModelCToCpp,
+    CefMenuModel, cef_menu_model_t>::UnwrapDerived(CefWrapperType type,
+    CefMenuModel* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefMenuModelCToCpp, CefMenuModel,
-    cef_menu_model_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCppRefCounted<CefMenuModelCToCpp,
+    CefMenuModel, cef_menu_model_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefMenuModelCToCpp, CefMenuModel,
+template<> CefWrapperType CefCToCppRefCounted<CefMenuModelCToCpp, CefMenuModel,
     cef_menu_model_t>::kWrapperType = WT_MENU_MODEL;

@@ -54,7 +54,7 @@ class CefWindow;
 // process UI thread unless otherwise indicated.
 ///
 /*--cef(source=library)--*/
-class CefView : public CefBase {
+class CefView : public CefBaseRefCounted {
  public:
   ///
   // Returns this View as a BrowserView or NULL if this is not a BrowserView.

@@ -386,7 +386,7 @@ CefContextMenuParamsCppToC::CefContextMenuParamsCppToC() {
   GetStruct()->is_pepper_menu = context_menu_params_is_pepper_menu;
 }
 
-template<> CefRefPtr<CefContextMenuParams> CefCppToC<CefContextMenuParamsCppToC,
+template<> CefRefPtr<CefContextMenuParams> CefCppToCRefCounted<CefContextMenuParamsCppToC,
     CefContextMenuParams, cef_context_menu_params_t>::UnwrapDerived(
     CefWrapperType type, cef_context_menu_params_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -394,10 +394,10 @@ template<> CefRefPtr<CefContextMenuParams> CefCppToC<CefContextMenuParamsCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefContextMenuParamsCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefContextMenuParamsCppToC,
     CefContextMenuParams, cef_context_menu_params_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefContextMenuParamsCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefContextMenuParamsCppToC,
     CefContextMenuParams, cef_context_menu_params_t>::kWrapperType =
     WT_CONTEXT_MENU_PARAMS;

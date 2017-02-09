@@ -101,7 +101,7 @@ bool CefMenuModelDelegateCToCpp::FormatLabel(CefRefPtr<CefMenuModel> menu_model,
 CefMenuModelDelegateCToCpp::CefMenuModelDelegateCToCpp() {
 }
 
-template<> cef_menu_model_delegate_t* CefCToCpp<CefMenuModelDelegateCToCpp,
+template<> cef_menu_model_delegate_t* CefCToCppRefCounted<CefMenuModelDelegateCToCpp,
     CefMenuModelDelegate, cef_menu_model_delegate_t>::UnwrapDerived(
     CefWrapperType type, CefMenuModelDelegate* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -109,10 +109,10 @@ template<> cef_menu_model_delegate_t* CefCToCpp<CefMenuModelDelegateCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefMenuModelDelegateCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefMenuModelDelegateCToCpp,
     CefMenuModelDelegate, cef_menu_model_delegate_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefMenuModelDelegateCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefMenuModelDelegateCToCpp,
     CefMenuModelDelegate, cef_menu_model_delegate_t>::kWrapperType =
     WT_MENU_MODEL_DELEGATE;

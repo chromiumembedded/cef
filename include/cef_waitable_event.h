@@ -52,7 +52,7 @@
 // process UI or IO threads.
 ///
 /*--cef(source=library)--*/
-class CefWaitableEvent : public CefBase {
+class CefWaitableEvent : public CefBaseRefCounted {
  public:
   ///
   // Create a new waitable event. If |automatic_reset| is true then the event

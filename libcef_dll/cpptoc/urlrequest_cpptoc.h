@@ -20,12 +20,13 @@
 
 #include "include/cef_urlrequest.h"
 #include "include/capi/cef_urlrequest_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefURLRequestCppToC
-    : public CefCppToC<CefURLRequestCppToC, CefURLRequest, cef_urlrequest_t> {
+    : public CefCppToCRefCounted<CefURLRequestCppToC, CefURLRequest,
+        cef_urlrequest_t> {
  public:
   CefURLRequestCppToC();
 };

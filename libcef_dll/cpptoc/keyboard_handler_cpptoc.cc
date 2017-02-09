@@ -105,7 +105,7 @@ CefKeyboardHandlerCppToC::CefKeyboardHandlerCppToC() {
   GetStruct()->on_key_event = keyboard_handler_on_key_event;
 }
 
-template<> CefRefPtr<CefKeyboardHandler> CefCppToC<CefKeyboardHandlerCppToC,
+template<> CefRefPtr<CefKeyboardHandler> CefCppToCRefCounted<CefKeyboardHandlerCppToC,
     CefKeyboardHandler, cef_keyboard_handler_t>::UnwrapDerived(
     CefWrapperType type, cef_keyboard_handler_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -113,10 +113,10 @@ template<> CefRefPtr<CefKeyboardHandler> CefCppToC<CefKeyboardHandlerCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefKeyboardHandlerCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefKeyboardHandlerCppToC,
     CefKeyboardHandler, cef_keyboard_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefKeyboardHandlerCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefKeyboardHandlerCppToC,
     CefKeyboardHandler, cef_keyboard_handler_t>::kWrapperType =
     WT_KEYBOARD_HANDLER;

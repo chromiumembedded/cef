@@ -56,7 +56,7 @@ typedef struct _cef_life_span_handler_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Called on the IO thread before a new popup browser is created. The

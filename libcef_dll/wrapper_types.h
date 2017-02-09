@@ -15,7 +15,8 @@
 #pragma once
 
 enum CefWrapperType {
-  WT_BASE = 1,
+  WT_BASE_REF_COUNTED = 1,
+  WT_BASE_SCOPED,
   WT_APP,
   WT_AUTH_CALLBACK,
   WT_BEFORE_DOWNLOAD_CALLBACK,

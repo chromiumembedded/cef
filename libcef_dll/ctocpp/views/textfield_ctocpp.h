@@ -20,12 +20,13 @@
 
 #include "include/views/cef_textfield.h"
 #include "include/capi/views/cef_textfield_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefTextfieldCToCpp
-    : public CefCToCpp<CefTextfieldCToCpp, CefTextfield, cef_textfield_t> {
+    : public CefCToCppRefCounted<CefTextfieldCToCpp, CefTextfield,
+        cef_textfield_t> {
  public:
   CefTextfieldCToCpp();
 

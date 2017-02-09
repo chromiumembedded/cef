@@ -188,7 +188,7 @@ CefNavigationEntryCppToC::CefNavigationEntryCppToC() {
   GetStruct()->get_sslstatus = navigation_entry_get_sslstatus;
 }
 
-template<> CefRefPtr<CefNavigationEntry> CefCppToC<CefNavigationEntryCppToC,
+template<> CefRefPtr<CefNavigationEntry> CefCppToCRefCounted<CefNavigationEntryCppToC,
     CefNavigationEntry, cef_navigation_entry_t>::UnwrapDerived(
     CefWrapperType type, cef_navigation_entry_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -196,10 +196,10 @@ template<> CefRefPtr<CefNavigationEntry> CefCppToC<CefNavigationEntryCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefNavigationEntryCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefNavigationEntryCppToC,
     CefNavigationEntry, cef_navigation_entry_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefNavigationEntryCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefNavigationEntryCppToC,
     CefNavigationEntry, cef_navigation_entry_t>::kWrapperType =
     WT_NAVIGATION_ENTRY;

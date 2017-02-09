@@ -1134,16 +1134,17 @@ bool CefTextfieldCToCpp::ConvertPointFromView(CefRefPtr<CefView> view,
 CefTextfieldCToCpp::CefTextfieldCToCpp() {
 }
 
-template<> cef_textfield_t* CefCToCpp<CefTextfieldCToCpp, CefTextfield,
-    cef_textfield_t>::UnwrapDerived(CefWrapperType type, CefTextfield* c) {
+template<> cef_textfield_t* CefCToCppRefCounted<CefTextfieldCToCpp,
+    CefTextfield, cef_textfield_t>::UnwrapDerived(CefWrapperType type,
+    CefTextfield* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefTextfieldCToCpp, CefTextfield,
-    cef_textfield_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCppRefCounted<CefTextfieldCToCpp,
+    CefTextfield, cef_textfield_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefTextfieldCToCpp, CefTextfield,
+template<> CefWrapperType CefCToCppRefCounted<CefTextfieldCToCpp, CefTextfield,
     cef_textfield_t>::kWrapperType = WT_TEXTFIELD;

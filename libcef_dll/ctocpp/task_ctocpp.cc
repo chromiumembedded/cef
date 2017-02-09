@@ -32,16 +32,16 @@ void CefTaskCToCpp::Execute() {
 CefTaskCToCpp::CefTaskCToCpp() {
 }
 
-template<> cef_task_t* CefCToCpp<CefTaskCToCpp, CefTask,
+template<> cef_task_t* CefCToCppRefCounted<CefTaskCToCpp, CefTask,
     cef_task_t>::UnwrapDerived(CefWrapperType type, CefTask* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefTaskCToCpp, CefTask,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefTaskCToCpp, CefTask,
     cef_task_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefTaskCToCpp, CefTask,
+template<> CefWrapperType CefCToCppRefCounted<CefTaskCToCpp, CefTask,
     cef_task_t>::kWrapperType = WT_TASK;

@@ -45,7 +45,7 @@
 // this class will be called on the browser process IO thread.
 ///
 /*--cef(source=client)--*/
-class CefResponseFilter : public virtual CefBase {
+class CefResponseFilter : public virtual CefBaseRefCounted {
  public:
   typedef cef_response_filter_status_t FilterStatus;
 

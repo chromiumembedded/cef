@@ -58,7 +58,7 @@ class CefClient;
 // this class may only be called on the main thread.
 ///
 /*--cef(source=library)--*/
-class CefBrowser : public virtual CefBase {
+class CefBrowser : public virtual CefBaseRefCounted {
  public:
   ///
   // Returns the browser host object. This method can only be called in the
@@ -197,7 +197,7 @@ class CefBrowser : public virtual CefBase {
 // class will be called on the browser process UI thread.
 ///
 /*--cef(source=client)--*/
-class CefRunFileDialogCallback : public virtual CefBase {
+class CefRunFileDialogCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Called asynchronously after the file dialog is dismissed.
@@ -218,7 +218,7 @@ class CefRunFileDialogCallback : public virtual CefBase {
 // this class will be called on the browser process UI thread.
 ///
 /*--cef(source=client)--*/
-class CefNavigationEntryVisitor : public virtual CefBase {
+class CefNavigationEntryVisitor : public virtual CefBaseRefCounted {
  public:
   ///
   // Method that will be executed. Do not keep a reference to |entry| outside of
@@ -240,7 +240,7 @@ class CefNavigationEntryVisitor : public virtual CefBase {
 // will be called on the browser process UI thread.
 ///
 /*--cef(source=client)--*/
-class CefPdfPrintCallback : public virtual CefBase {
+class CefPdfPrintCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Method that will be executed when the PDF printing has completed. |path|
@@ -257,7 +257,7 @@ class CefPdfPrintCallback : public virtual CefBase {
 // class will be called on the browser process UI thread.
 ///
 /*--cef(source=client)--*/
-class CefDownloadImageCallback : public virtual CefBase {
+class CefDownloadImageCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Method that will be executed when the image download has completed.
@@ -280,7 +280,7 @@ class CefDownloadImageCallback : public virtual CefBase {
 // comments.
 ///
 /*--cef(source=library)--*/
-class CefBrowserHost : public virtual CefBase {
+class CefBrowserHost : public virtual CefBaseRefCounted {
  public:
   typedef cef_drag_operations_mask_t DragOperationsMask;
   typedef cef_file_dialog_mode_t FileDialogMode;

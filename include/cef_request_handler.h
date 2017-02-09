@@ -55,7 +55,7 @@
 // Callback interface used for asynchronous continuation of url requests.
 ///
 /*--cef(source=library)--*/
-class CefRequestCallback : public virtual CefBase {
+class CefRequestCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Continue the url request. If |allow| is true the request will be continued.
@@ -76,7 +76,7 @@ class CefRequestCallback : public virtual CefBase {
 // Callback interface used to select a client certificate for authentication.
 ///
 /*--cef(source=library)--*/
-class CefSelectClientCertificateCallback : public virtual CefBase {
+class CefSelectClientCertificateCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Chooses the specified certificate for client certificate authentication.
@@ -92,7 +92,7 @@ class CefSelectClientCertificateCallback : public virtual CefBase {
 // methods of this class will be called on the thread indicated.
 ///
 /*--cef(source=client)--*/
-class CefRequestHandler : public virtual CefBase {
+class CefRequestHandler : public virtual CefBaseRefCounted {
  public:
   typedef cef_return_value_t ReturnValue;
   typedef cef_termination_status_t TerminationStatus;

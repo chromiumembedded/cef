@@ -39,16 +39,17 @@ void CefDOMVisitorCToCpp::Visit(CefRefPtr<CefDOMDocument> document) {
 CefDOMVisitorCToCpp::CefDOMVisitorCToCpp() {
 }
 
-template<> cef_domvisitor_t* CefCToCpp<CefDOMVisitorCToCpp, CefDOMVisitor,
-    cef_domvisitor_t>::UnwrapDerived(CefWrapperType type, CefDOMVisitor* c) {
+template<> cef_domvisitor_t* CefCToCppRefCounted<CefDOMVisitorCToCpp,
+    CefDOMVisitor, cef_domvisitor_t>::UnwrapDerived(CefWrapperType type,
+    CefDOMVisitor* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefDOMVisitorCToCpp, CefDOMVisitor,
-    cef_domvisitor_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCppRefCounted<CefDOMVisitorCToCpp,
+    CefDOMVisitor, cef_domvisitor_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefDOMVisitorCToCpp, CefDOMVisitor,
-    cef_domvisitor_t>::kWrapperType = WT_DOMVISITOR;
+template<> CefWrapperType CefCToCppRefCounted<CefDOMVisitorCToCpp,
+    CefDOMVisitor, cef_domvisitor_t>::kWrapperType = WT_DOMVISITOR;

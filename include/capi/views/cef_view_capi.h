@@ -61,7 +61,7 @@ typedef struct _cef_view_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns this View as a BrowserView or NULL if this is not a BrowserView.

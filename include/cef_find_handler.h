@@ -46,7 +46,7 @@
 // methods of this class will be called on the UI thread.
 ///
 /*--cef(source=client)--*/
-class CefFindHandler : public virtual CefBase {
+class CefFindHandler : public virtual CefBaseRefCounted {
  public:
   ///
   // Called to report find results returned by CefBrowserHost::Find().

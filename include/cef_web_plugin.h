@@ -45,7 +45,7 @@ class CefBrowser;
 // Information about a specific web plugin.
 ///
 /*--cef(source=library)--*/
-class CefWebPluginInfo : public virtual CefBase {
+class CefWebPluginInfo : public virtual CefBaseRefCounted {
  public:
   ///
   // Returns the plugin name (i.e. Flash).
@@ -77,7 +77,7 @@ class CefWebPluginInfo : public virtual CefBase {
 // this class will be called on the browser process UI thread.
 ///
 /*--cef(source=client)--*/
-class CefWebPluginInfoVisitor : public virtual CefBase {
+class CefWebPluginInfoVisitor : public virtual CefBaseRefCounted {
  public:
   ///
   // Method that will be called once for each plugin. |count| is the 0-based
@@ -124,7 +124,7 @@ void CefRegisterWebPluginCrash(const CefString& path);
 // of this class will be called on the browser process IO thread.
 ///
 /*--cef(source=client)--*/
-class CefWebPluginUnstableCallback : public virtual CefBase {
+class CefWebPluginUnstableCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Method that will be called for the requested plugin. |unstable| will be
@@ -150,7 +150,7 @@ void CefIsWebPluginUnstable(const CefString& path,
 // UI thread.
 ///
 /*--cef(source=client)--*/
-class CefRegisterCdmCallback : public virtual CefBase {
+class CefRegisterCdmCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Method that will be called when CDM registration is complete. |result|

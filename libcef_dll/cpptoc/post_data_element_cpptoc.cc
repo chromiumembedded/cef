@@ -175,7 +175,7 @@ CefPostDataElementCppToC::CefPostDataElementCppToC() {
   GetStruct()->get_bytes = post_data_element_get_bytes;
 }
 
-template<> CefRefPtr<CefPostDataElement> CefCppToC<CefPostDataElementCppToC,
+template<> CefRefPtr<CefPostDataElement> CefCppToCRefCounted<CefPostDataElementCppToC,
     CefPostDataElement, cef_post_data_element_t>::UnwrapDerived(
     CefWrapperType type, cef_post_data_element_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -183,10 +183,10 @@ template<> CefRefPtr<CefPostDataElement> CefCppToC<CefPostDataElementCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefPostDataElementCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefPostDataElementCppToC,
     CefPostDataElement, cef_post_data_element_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefPostDataElementCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefPostDataElementCppToC,
     CefPostDataElement, cef_post_data_element_t>::kWrapperType =
     WT_POST_DATA_ELEMENT;

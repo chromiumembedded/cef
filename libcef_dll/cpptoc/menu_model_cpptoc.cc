@@ -1037,17 +1037,17 @@ CefMenuModelCppToC::CefMenuModelCppToC() {
   GetStruct()->get_accelerator_at = menu_model_get_accelerator_at;
 }
 
-template<> CefRefPtr<CefMenuModel> CefCppToC<CefMenuModelCppToC, CefMenuModel,
-    cef_menu_model_t>::UnwrapDerived(CefWrapperType type,
+template<> CefRefPtr<CefMenuModel> CefCppToCRefCounted<CefMenuModelCppToC,
+    CefMenuModel, cef_menu_model_t>::UnwrapDerived(CefWrapperType type,
     cef_menu_model_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefMenuModelCppToC, CefMenuModel,
-    cef_menu_model_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefMenuModelCppToC,
+    CefMenuModel, cef_menu_model_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefMenuModelCppToC, CefMenuModel,
+template<> CefWrapperType CefCppToCRefCounted<CefMenuModelCppToC, CefMenuModel,
     cef_menu_model_t>::kWrapperType = WT_MENU_MODEL;

@@ -80,7 +80,7 @@ void CefFocusHandlerCToCpp::OnGotFocus(CefRefPtr<CefBrowser> browser) {
 CefFocusHandlerCToCpp::CefFocusHandlerCToCpp() {
 }
 
-template<> cef_focus_handler_t* CefCToCpp<CefFocusHandlerCToCpp,
+template<> cef_focus_handler_t* CefCToCppRefCounted<CefFocusHandlerCToCpp,
     CefFocusHandler, cef_focus_handler_t>::UnwrapDerived(CefWrapperType type,
     CefFocusHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -88,9 +88,9 @@ template<> cef_focus_handler_t* CefCToCpp<CefFocusHandlerCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefFocusHandlerCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefFocusHandlerCToCpp,
     CefFocusHandler, cef_focus_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefFocusHandlerCToCpp, CefFocusHandler,
-    cef_focus_handler_t>::kWrapperType = WT_FOCUS_HANDLER;
+template<> CefWrapperType CefCToCppRefCounted<CefFocusHandlerCToCpp,
+    CefFocusHandler, cef_focus_handler_t>::kWrapperType = WT_FOCUS_HANDLER;

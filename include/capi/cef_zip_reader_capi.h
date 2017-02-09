@@ -55,7 +55,7 @@ typedef struct _cef_zip_reader_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Moves the cursor to the first file in the archive. Returns true (1) if the

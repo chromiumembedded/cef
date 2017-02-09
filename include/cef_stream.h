@@ -44,7 +44,7 @@
 // methods of this class may be called on any thread.
 ///
 /*--cef(source=client)--*/
-class CefReadHandler : public virtual CefBase {
+class CefReadHandler : public virtual CefBaseRefCounted {
  public:
   ///
   // Read raw binary data.
@@ -87,7 +87,7 @@ class CefReadHandler : public virtual CefBase {
 // called on any thread.
 ///
 /*--cef(source=library)--*/
-class CefStreamReader : public virtual CefBase {
+class CefStreamReader : public virtual CefBaseRefCounted {
  public:
   ///
   // Create a new CefStreamReader object from a file.
@@ -147,7 +147,7 @@ class CefStreamReader : public virtual CefBase {
 // methods of this class may be called on any thread.
 ///
 /*--cef(source=client)--*/
-class CefWriteHandler : public virtual CefBase {
+class CefWriteHandler : public virtual CefBaseRefCounted {
  public:
   ///
   // Write raw binary data.
@@ -190,7 +190,7 @@ class CefWriteHandler : public virtual CefBase {
 // on any thread.
 ///
 /*--cef(source=library)--*/
-class CefStreamWriter : public virtual CefBase {
+class CefStreamWriter : public virtual CefBaseRefCounted {
  public:
   ///
   // Create a new CefStreamWriter object for a file.

@@ -98,7 +98,7 @@ def is_base_class(clsname):
     """ Returns true if |clsname| is a known base (root) class in the object
         hierarchy.
     """
-    return clsname == 'CefBase' or clsname == 'CefBaseScoped'
+    return clsname == 'CefBaseRefCounted' or clsname == 'CefBaseScoped'
 
 def get_capi_file_name(cppname):
     """ Convert a C++ header file name to a C API header file name. """
@@ -715,7 +715,7 @@ class obj_header:
 
     def get_defined_structs(self):
         """ Return a list of already defined structure names. """
-        return ['cef_print_info_t', 'cef_window_info_t', 'cef_base_t', 'cef_base_scoped_t']
+        return ['cef_print_info_t', 'cef_window_info_t', 'cef_base_ref_counted_t', 'cef_base_scoped_t']
 
     def get_capi_translations(self):
         """ Return a dictionary that maps C++ terminology to C API terminology.

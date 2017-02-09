@@ -1198,7 +1198,7 @@ CefLabelButtonCppToC::CefLabelButtonCppToC() {
       label_button_convert_point_from_view;
 }
 
-template<> CefRefPtr<CefLabelButton> CefCppToC<CefLabelButtonCppToC,
+template<> CefRefPtr<CefLabelButton> CefCppToCRefCounted<CefLabelButtonCppToC,
     CefLabelButton, cef_label_button_t>::UnwrapDerived(CefWrapperType type,
     cef_label_button_t* s) {
   if (type == WT_MENU_BUTTON) {
@@ -1209,9 +1209,9 @@ template<> CefRefPtr<CefLabelButton> CefCppToC<CefLabelButtonCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefLabelButtonCppToC, CefLabelButton,
-    cef_label_button_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCppToCRefCounted<CefLabelButtonCppToC,
+    CefLabelButton, cef_label_button_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefLabelButtonCppToC, CefLabelButton,
-    cef_label_button_t>::kWrapperType = WT_LABEL_BUTTON;
+template<> CefWrapperType CefCppToCRefCounted<CefLabelButtonCppToC,
+    CefLabelButton, cef_label_button_t>::kWrapperType = WT_LABEL_BUTTON;

@@ -21,12 +21,12 @@
 #include <vector>
 #include "include/cef_display_handler.h"
 #include "include/capi/cef_display_handler_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed DLL-side only.
 class CefDisplayHandlerCToCpp
-    : public CefCToCpp<CefDisplayHandlerCToCpp, CefDisplayHandler,
+    : public CefCToCppRefCounted<CefDisplayHandlerCToCpp, CefDisplayHandler,
         cef_display_handler_t> {
  public:
   CefDisplayHandlerCToCpp();

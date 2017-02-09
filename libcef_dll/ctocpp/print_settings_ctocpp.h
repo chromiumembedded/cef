@@ -20,12 +20,12 @@
 
 #include "include/cef_print_settings.h"
 #include "include/capi/cef_print_settings_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefPrintSettingsCToCpp
-    : public CefCToCpp<CefPrintSettingsCToCpp, CefPrintSettings,
+    : public CefCToCppRefCounted<CefPrintSettingsCToCpp, CefPrintSettings,
         cef_print_settings_t> {
  public:
   CefPrintSettingsCToCpp();

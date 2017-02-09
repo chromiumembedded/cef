@@ -109,16 +109,16 @@ CefThreadCppToC::CefThreadCppToC() {
   GetStruct()->is_running = thread_is_running;
 }
 
-template<> CefRefPtr<CefThread> CefCppToC<CefThreadCppToC, CefThread,
+template<> CefRefPtr<CefThread> CefCppToCRefCounted<CefThreadCppToC, CefThread,
     cef_thread_t>::UnwrapDerived(CefWrapperType type, cef_thread_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefThreadCppToC, CefThread,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefThreadCppToC, CefThread,
     cef_thread_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefThreadCppToC, CefThread,
+template<> CefWrapperType CefCppToCRefCounted<CefThreadCppToC, CefThread,
     cef_thread_t>::kWrapperType = WT_THREAD;

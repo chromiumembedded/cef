@@ -143,7 +143,7 @@ void CefLifeSpanHandlerCToCpp::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 CefLifeSpanHandlerCToCpp::CefLifeSpanHandlerCToCpp() {
 }
 
-template<> cef_life_span_handler_t* CefCToCpp<CefLifeSpanHandlerCToCpp,
+template<> cef_life_span_handler_t* CefCToCppRefCounted<CefLifeSpanHandlerCToCpp,
     CefLifeSpanHandler, cef_life_span_handler_t>::UnwrapDerived(
     CefWrapperType type, CefLifeSpanHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -151,10 +151,10 @@ template<> cef_life_span_handler_t* CefCToCpp<CefLifeSpanHandlerCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefLifeSpanHandlerCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefLifeSpanHandlerCToCpp,
     CefLifeSpanHandler, cef_life_span_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefLifeSpanHandlerCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefLifeSpanHandlerCToCpp,
     CefLifeSpanHandler, cef_life_span_handler_t>::kWrapperType =
     WT_LIFE_SPAN_HANDLER;

@@ -97,16 +97,16 @@ bool CefThreadCToCpp::IsRunning() {
 CefThreadCToCpp::CefThreadCToCpp() {
 }
 
-template<> cef_thread_t* CefCToCpp<CefThreadCToCpp, CefThread,
+template<> cef_thread_t* CefCToCppRefCounted<CefThreadCToCpp, CefThread,
     cef_thread_t>::UnwrapDerived(CefWrapperType type, CefThread* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefThreadCToCpp, CefThread,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefThreadCToCpp, CefThread,
     cef_thread_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefThreadCToCpp, CefThread,
+template<> CefWrapperType CefCToCppRefCounted<CefThreadCToCpp, CefThread,
     cef_thread_t>::kWrapperType = WT_THREAD;

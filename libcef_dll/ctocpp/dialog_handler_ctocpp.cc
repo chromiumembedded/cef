@@ -73,7 +73,7 @@ bool CefDialogHandlerCToCpp::OnFileDialog(CefRefPtr<CefBrowser> browser,
 CefDialogHandlerCToCpp::CefDialogHandlerCToCpp() {
 }
 
-template<> cef_dialog_handler_t* CefCToCpp<CefDialogHandlerCToCpp,
+template<> cef_dialog_handler_t* CefCToCppRefCounted<CefDialogHandlerCToCpp,
     CefDialogHandler, cef_dialog_handler_t>::UnwrapDerived(CefWrapperType type,
     CefDialogHandler* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -81,9 +81,9 @@ template<> cef_dialog_handler_t* CefCToCpp<CefDialogHandlerCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefDialogHandlerCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefDialogHandlerCToCpp,
     CefDialogHandler, cef_dialog_handler_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefDialogHandlerCToCpp, CefDialogHandler,
-    cef_dialog_handler_t>::kWrapperType = WT_DIALOG_HANDLER;
+template<> CefWrapperType CefCToCppRefCounted<CefDialogHandlerCToCpp,
+    CefDialogHandler, cef_dialog_handler_t>::kWrapperType = WT_DIALOG_HANDLER;

@@ -20,12 +20,12 @@
 
 #include "include/views/cef_browser_view.h"
 #include "include/capi/views/cef_browser_view_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefBrowserViewCppToC
-    : public CefCppToC<CefBrowserViewCppToC, CefBrowserView,
+    : public CefCppToCRefCounted<CefBrowserViewCppToC, CefBrowserView,
         cef_browser_view_t> {
  public:
   CefBrowserViewCppToC();

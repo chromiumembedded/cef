@@ -110,7 +110,7 @@ CefWaitableEventCppToC::CefWaitableEventCppToC() {
   GetStruct()->timed_wait = waitable_event_timed_wait;
 }
 
-template<> CefRefPtr<CefWaitableEvent> CefCppToC<CefWaitableEventCppToC,
+template<> CefRefPtr<CefWaitableEvent> CefCppToCRefCounted<CefWaitableEventCppToC,
     CefWaitableEvent, cef_waitable_event_t>::UnwrapDerived(CefWrapperType type,
     cef_waitable_event_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -118,9 +118,9 @@ template<> CefRefPtr<CefWaitableEvent> CefCppToC<CefWaitableEventCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefWaitableEventCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefWaitableEventCppToC,
     CefWaitableEvent, cef_waitable_event_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefWaitableEventCppToC, CefWaitableEvent,
-    cef_waitable_event_t>::kWrapperType = WT_WAITABLE_EVENT;
+template<> CefWrapperType CefCppToCRefCounted<CefWaitableEventCppToC,
+    CefWaitableEvent, cef_waitable_event_t>::kWrapperType = WT_WAITABLE_EVENT;

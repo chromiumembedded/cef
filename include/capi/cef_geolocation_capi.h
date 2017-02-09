@@ -53,7 +53,7 @@ typedef struct _cef_get_geolocation_callback_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Called with the 'best available' location information or, if the location

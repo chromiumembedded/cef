@@ -576,7 +576,7 @@ def make_ctocpp_class_impl(header, clsname, impl):
     if base_scoped:
         template_class = 'CefCToCppScoped'
     else:
-        template_class = 'CefCToCpp'
+        template_class = 'CefCToCppRefCounted'
 
     # generate virtual functions
     virtualimpl = make_ctocpp_virtual_function_impl(header, cls, existing)

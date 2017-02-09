@@ -20,12 +20,12 @@
 
 #include "include/cef_jsdialog_handler.h"
 #include "include/capi/cef_jsdialog_handler_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefJSDialogHandlerCppToC
-    : public CefCppToC<CefJSDialogHandlerCppToC, CefJSDialogHandler,
+    : public CefCppToCRefCounted<CefJSDialogHandlerCppToC, CefJSDialogHandler,
         cef_jsdialog_handler_t> {
  public:
   CefJSDialogHandlerCppToC();

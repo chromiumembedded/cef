@@ -57,7 +57,7 @@ typedef struct _cef_task_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Method that will be executed on the target thread.
@@ -79,7 +79,7 @@ typedef struct _cef_task_runner_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns true (1) if this object is pointing to the same task runner as

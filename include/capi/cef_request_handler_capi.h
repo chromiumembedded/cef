@@ -61,7 +61,7 @@ typedef struct _cef_request_callback_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Continue the url request. If |allow| is true (1) the request will be
@@ -83,7 +83,7 @@ typedef struct _cef_select_client_certificate_callback_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Chooses the specified certificate for client certificate authentication.
@@ -103,7 +103,7 @@ typedef struct _cef_request_handler_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Called on the UI thread before browser navigation. Return true (1) to

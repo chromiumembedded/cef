@@ -849,17 +849,17 @@ CefRefPtr<CefNavigationEntry> CefBrowserHostCToCpp::GetVisibleNavigationEntry(
 CefBrowserHostCToCpp::CefBrowserHostCToCpp() {
 }
 
-template<> cef_browser_host_t* CefCToCpp<CefBrowserHostCToCpp, CefBrowserHost,
-    cef_browser_host_t>::UnwrapDerived(CefWrapperType type,
+template<> cef_browser_host_t* CefCToCppRefCounted<CefBrowserHostCToCpp,
+    CefBrowserHost, cef_browser_host_t>::UnwrapDerived(CefWrapperType type,
     CefBrowserHost* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefBrowserHostCToCpp, CefBrowserHost,
-    cef_browser_host_t>::DebugObjCt = 0;
+template<> base::AtomicRefCount CefCToCppRefCounted<CefBrowserHostCToCpp,
+    CefBrowserHost, cef_browser_host_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefBrowserHostCToCpp, CefBrowserHost,
-    cef_browser_host_t>::kWrapperType = WT_BROWSER_HOST;
+template<> CefWrapperType CefCToCppRefCounted<CefBrowserHostCToCpp,
+    CefBrowserHost, cef_browser_host_t>::kWrapperType = WT_BROWSER_HOST;

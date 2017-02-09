@@ -41,7 +41,7 @@ CefJSDialogCallbackCppToC::CefJSDialogCallbackCppToC() {
   GetStruct()->cont = jsdialog_callback_cont;
 }
 
-template<> CefRefPtr<CefJSDialogCallback> CefCppToC<CefJSDialogCallbackCppToC,
+template<> CefRefPtr<CefJSDialogCallback> CefCppToCRefCounted<CefJSDialogCallbackCppToC,
     CefJSDialogCallback, cef_jsdialog_callback_t>::UnwrapDerived(
     CefWrapperType type, cef_jsdialog_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -49,10 +49,10 @@ template<> CefRefPtr<CefJSDialogCallback> CefCppToC<CefJSDialogCallbackCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefJSDialogCallbackCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefJSDialogCallbackCppToC,
     CefJSDialogCallback, cef_jsdialog_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefJSDialogCallbackCppToC,
+template<> CefWrapperType CefCppToCRefCounted<CefJSDialogCallbackCppToC,
     CefJSDialogCallback, cef_jsdialog_callback_t>::kWrapperType =
     WT_JSDIALOG_CALLBACK;

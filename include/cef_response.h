@@ -46,7 +46,7 @@
 // called on any thread.
 ///
 /*--cef(source=library,no_debugct_check)--*/
-class CefResponse : public virtual CefBase {
+class CefResponse : public virtual CefBaseRefCounted {
  public:
   typedef std::multimap<CefString, CefString> HeaderMap;
 

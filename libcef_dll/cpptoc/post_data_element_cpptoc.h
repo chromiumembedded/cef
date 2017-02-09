@@ -20,12 +20,12 @@
 
 #include "include/cef_request.h"
 #include "include/capi/cef_request_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed DLL-side only.
 class CefPostDataElementCppToC
-    : public CefCppToC<CefPostDataElementCppToC, CefPostDataElement,
+    : public CefCppToCRefCounted<CefPostDataElementCppToC, CefPostDataElement,
         cef_post_data_element_t> {
  public:
   CefPostDataElementCppToC();

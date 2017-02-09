@@ -55,7 +55,7 @@ typedef struct _cef_xml_reader_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Moves the cursor to the next node in the document. This function must be

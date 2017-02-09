@@ -55,7 +55,7 @@ typedef struct _cef_render_handler_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Called to retrieve the root window rectangle in screen coordinates. Return

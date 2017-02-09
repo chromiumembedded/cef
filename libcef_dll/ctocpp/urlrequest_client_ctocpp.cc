@@ -141,7 +141,7 @@ bool CefURLRequestClientCToCpp::GetAuthCredentials(bool isProxy,
 CefURLRequestClientCToCpp::CefURLRequestClientCToCpp() {
 }
 
-template<> cef_urlrequest_client_t* CefCToCpp<CefURLRequestClientCToCpp,
+template<> cef_urlrequest_client_t* CefCToCppRefCounted<CefURLRequestClientCToCpp,
     CefURLRequestClient, cef_urlrequest_client_t>::UnwrapDerived(
     CefWrapperType type, CefURLRequestClient* c) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -149,10 +149,10 @@ template<> cef_urlrequest_client_t* CefCToCpp<CefURLRequestClientCToCpp,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefURLRequestClientCToCpp,
+template<> base::AtomicRefCount CefCToCppRefCounted<CefURLRequestClientCToCpp,
     CefURLRequestClient, cef_urlrequest_client_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefURLRequestClientCToCpp,
+template<> CefWrapperType CefCToCppRefCounted<CefURLRequestClientCToCpp,
     CefURLRequestClient, cef_urlrequest_client_t>::kWrapperType =
     WT_URLREQUEST_CLIENT;

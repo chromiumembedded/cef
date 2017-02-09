@@ -60,7 +60,7 @@ CefAuthCallbackCppToC::CefAuthCallbackCppToC() {
   GetStruct()->cancel = auth_callback_cancel;
 }
 
-template<> CefRefPtr<CefAuthCallback> CefCppToC<CefAuthCallbackCppToC,
+template<> CefRefPtr<CefAuthCallback> CefCppToCRefCounted<CefAuthCallbackCppToC,
     CefAuthCallback, cef_auth_callback_t>::UnwrapDerived(CefWrapperType type,
     cef_auth_callback_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -68,9 +68,9 @@ template<> CefRefPtr<CefAuthCallback> CefCppToC<CefAuthCallbackCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefAuthCallbackCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefAuthCallbackCppToC,
     CefAuthCallback, cef_auth_callback_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefAuthCallbackCppToC, CefAuthCallback,
-    cef_auth_callback_t>::kWrapperType = WT_AUTH_CALLBACK;
+template<> CefWrapperType CefCppToCRefCounted<CefAuthCallbackCppToC,
+    CefAuthCallback, cef_auth_callback_t>::kWrapperType = WT_AUTH_CALLBACK;

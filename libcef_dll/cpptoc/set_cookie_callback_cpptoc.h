@@ -20,13 +20,13 @@
 
 #include "include/cef_cookie.h"
 #include "include/capi/cef_cookie_capi.h"
-#include "libcef_dll/cpptoc/cpptoc.h"
+#include "libcef_dll/cpptoc/cpptoc_ref_counted.h"
 
 // Wrap a C++ class with a C structure.
 // This class may be instantiated and accessed wrapper-side only.
 class CefSetCookieCallbackCppToC
-    : public CefCppToC<CefSetCookieCallbackCppToC, CefSetCookieCallback,
-        cef_set_cookie_callback_t> {
+    : public CefCppToCRefCounted<CefSetCookieCallbackCppToC,
+        CefSetCookieCallback, cef_set_cookie_callback_t> {
  public:
   CefSetCookieCallbackCppToC();
 };

@@ -293,7 +293,7 @@ CefDownloadItemCppToC::CefDownloadItemCppToC() {
   GetStruct()->get_mime_type = download_item_get_mime_type;
 }
 
-template<> CefRefPtr<CefDownloadItem> CefCppToC<CefDownloadItemCppToC,
+template<> CefRefPtr<CefDownloadItem> CefCppToCRefCounted<CefDownloadItemCppToC,
     CefDownloadItem, cef_download_item_t>::UnwrapDerived(CefWrapperType type,
     cef_download_item_t* s) {
   NOTREACHED() << "Unexpected class type: " << type;
@@ -301,9 +301,9 @@ template<> CefRefPtr<CefDownloadItem> CefCppToC<CefDownloadItemCppToC,
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefDownloadItemCppToC,
+template<> base::AtomicRefCount CefCppToCRefCounted<CefDownloadItemCppToC,
     CefDownloadItem, cef_download_item_t>::DebugObjCt = 0;
 #endif
 
-template<> CefWrapperType CefCppToC<CefDownloadItemCppToC, CefDownloadItem,
-    cef_download_item_t>::kWrapperType = WT_DOWNLOAD_ITEM;
+template<> CefWrapperType CefCppToCRefCounted<CefDownloadItemCppToC,
+    CefDownloadItem, cef_download_item_t>::kWrapperType = WT_DOWNLOAD_ITEM;

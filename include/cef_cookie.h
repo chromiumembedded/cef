@@ -51,7 +51,7 @@ class CefDeleteCookiesCallback;
 // any thread unless otherwise indicated.
 ///
 /*--cef(source=library,no_debugct_check)--*/
-class CefCookieManager : public virtual CefBase {
+class CefCookieManager : public virtual CefBaseRefCounted {
  public:
   ///
   // Returns the global cookie manager. By default data will be stored at
@@ -171,7 +171,7 @@ class CefCookieManager : public virtual CefBase {
 // will always be called on the IO thread.
 ///
 /*--cef(source=client)--*/
-class CefCookieVisitor : public virtual CefBase {
+class CefCookieVisitor : public virtual CefBaseRefCounted {
  public:
   ///
   // Method that will be called once for each cookie. |count| is the 0-based
@@ -191,7 +191,7 @@ class CefCookieVisitor : public virtual CefBase {
 // CefCookieManager::SetCookie().
 ///
 /*--cef(source=client)--*/
-class CefSetCookieCallback : public virtual CefBase {
+class CefSetCookieCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Method that will be called upon completion. |success| will be true if the
@@ -207,7 +207,7 @@ class CefSetCookieCallback : public virtual CefBase {
 // CefCookieManager::DeleteCookies().
 ///
 /*--cef(source=client)--*/
-class CefDeleteCookiesCallback : public virtual CefBase {
+class CefDeleteCookiesCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Method that will be called upon completion. |num_deleted| will be the

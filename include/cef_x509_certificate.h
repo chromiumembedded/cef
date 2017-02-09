@@ -47,7 +47,7 @@
 // Class representing the issuer or subject field of an X.509 certificate.
 ///
 /*--cef(source=library)--*/
-class CefX509CertPrincipal : public virtual CefBase {
+class CefX509CertPrincipal : public virtual CefBaseRefCounted {
  public:
   ///
   // Returns a name that can be used to represent the issuer. It tries in this
@@ -110,7 +110,7 @@ class CefX509CertPrincipal : public virtual CefBase {
 // Class representing a X.509 certificate.
 ///
 /*--cef(source=library)--*/
-class CefX509Certificate : public virtual CefBase {
+class CefX509Certificate : public virtual CefBaseRefCounted {
  public:
   typedef std::vector<CefRefPtr<CefBinaryValue> > IssuerChainBinaryList;
 
