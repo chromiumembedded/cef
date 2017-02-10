@@ -26,10 +26,18 @@ index 6408c68..735a253 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 88e7a04..0e6a740 100644
+index 88e7a04..483a3d4 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
-@@ -107,6 +107,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+@@ -67,6 +67,7 @@ class BrowserAccessibilityDelegate;
+ class BrowserAccessibilityManager;
+ class RenderWidgetHostImpl;
+ class RenderWidgetHostViewBaseObserver;
++class RenderWidgetHostViewGuest;
+ class SyntheticGesture;
+ class SyntheticGestureTarget;
+ class TextInputManager;
+@@ -107,6 +108,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
    void EndFrameSubscription() override;
    void FocusedNodeTouched(const gfx::Point& location_dips_screen,
                            bool editable) override;
@@ -38,7 +46,20 @@ index 88e7a04..0e6a740 100644
  
    // This only needs to be overridden by RenderWidgetHostViewBase subclasses
    // that handle content embedded within other RenderWidgetHostViews.
-@@ -488,6 +490,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+@@ -327,6 +330,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+   // helps to position the full screen widget on the correct monitor.
+   virtual void InitAsFullscreen(RenderWidgetHostView* reference_host_view) = 0;
+ 
++  // Perform all the initialization steps necessary for this object to represent
++  // the platform widget owned by |guest_view| and embedded in
++  // |parent_host_view|.
++  virtual void InitAsGuest(RenderWidgetHostView* parent_host_view,
++                           RenderWidgetHostViewGuest* guest_view) {}
++
+   // Sets the cursor to the one associated with the specified cursor_type
+   virtual void UpdateCursor(const WebCursor& cursor) = 0;
+ 
+@@ -488,6 +497,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
    // destroyed before the RWHV is destroyed.
    TextInputManager* text_input_manager_;
  
@@ -171,7 +192,7 @@ index c1ee992..6591ddf 100644
    // a reference.
    corewm::TooltipWin* tooltip_;
 diff --git ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
-index 8550a32..9cdd035 100644
+index 8550a32..8120781 100644
 --- ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 +++ ui/views/widget/desktop_aura/desktop_window_tree_host_x11.cc
 @@ -195,6 +195,7 @@ DesktopWindowTreeHostX11::DesktopWindowTreeHostX11(
@@ -190,7 +211,16 @@ index 8550a32..9cdd035 100644
        close_widget_factory_(this),
        weak_factory_(this) {}
  
-@@ -545,7 +547,8 @@ void DesktopWindowTreeHostX11::CloseNow() {
+@@ -243,6 +245,8 @@ std::vector<aura::Window*> DesktopWindowTreeHostX11::GetAllOpenWindows() {
+ }
+ 
+ gfx::Rect DesktopWindowTreeHostX11::GetX11RootWindowBounds() const {
++  if (!screen_bounds_.IsEmpty())
++    return screen_bounds_;
+   return bounds_in_pixels_;
+ }
+ 
+@@ -545,7 +549,8 @@ void DesktopWindowTreeHostX11::CloseNow() {
    // Actually free our native resources.
    if (ui::PlatformEventSource::GetInstance())
      ui::PlatformEventSource::GetInstance()->RemovePlatformEventDispatcher(this);
@@ -200,22 +230,13 @@ index 8550a32..9cdd035 100644
    xwindow_ = None;
  
    desktop_native_widget_aura_->OnHostClosed();
-@@ -686,6 +689,8 @@ void DesktopWindowTreeHostX11::GetWindowPlacement(
+@@ -686,6 +691,8 @@ void DesktopWindowTreeHostX11::GetWindowPlacement(
  }
  
  gfx::Rect DesktopWindowTreeHostX11::GetWindowBoundsInScreen() const {
 +  if (!screen_bounds_.IsEmpty())
 +    return screen_bounds_;
    return ToDIPRect(bounds_in_pixels_);
- }
- 
-@@ -1202,6 +1207,8 @@ void DesktopWindowTreeHostX11::HideImpl() {
- }
- 
- gfx::Rect DesktopWindowTreeHostX11::GetBounds() const {
-+  if (!screen_bounds_.IsEmpty())
-+    return screen_bounds_;
-   return bounds_in_pixels_;
  }
  
 @@ -1261,6 +1268,8 @@ void DesktopWindowTreeHostX11::SetBounds(

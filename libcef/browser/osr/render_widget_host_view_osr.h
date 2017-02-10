@@ -130,6 +130,8 @@ class CefRenderWidgetHostViewOSR
                    const gfx::Rect& pos) override;
   void InitAsFullscreen(
       content::RenderWidgetHostView* reference_host_view) override;
+  void InitAsGuest(content::RenderWidgetHostView* parent_host_view,
+                   content::RenderWidgetHostViewGuest* guest_view) override;
   void UpdateCursor(const content::WebCursor& cursor) override;
   void SetIsLoading(bool is_loading) override;
   void RenderProcessGone(base::TerminationStatus status,
@@ -229,14 +231,6 @@ class CefRenderWidgetHostViewOSR
   void ImeFinishComposingText(bool keep_selection);
   void ImeCancelComposition();
 
-  void AddGuestHostView(CefRenderWidgetHostViewOSR* guest_host);
-  void RemoveGuestHostView(CefRenderWidgetHostViewOSR* guest_host);
-
-  // Register a callback that will be executed when |guest_host_view| receives
-  // OnSwapCompositorFrame. The callback triggers repaint of the embedder view.
-  void RegisterGuestViewFrameSwappedCallback(
-      content::RenderWidgetHostViewGuest* guest_host_view);
-
   CefRefPtr<CefBrowserHostImpl> browser_impl() const { return browser_impl_; }
   void set_browser_impl(CefRefPtr<CefBrowserHostImpl> browser) {
     browser_impl_ = browser;
@@ -269,6 +263,14 @@ class CefRenderWidgetHostViewOSR
   void CancelWidget();
 
   void OnScrollOffsetChanged();
+
+  void AddGuestHostView(CefRenderWidgetHostViewOSR* guest_host);
+  void RemoveGuestHostView(CefRenderWidgetHostViewOSR* guest_host);
+
+  // Register a callback that will be executed when |guest_host_view| receives
+  // OnSwapCompositorFrame. The callback triggers repaint of the embedder view.
+  void RegisterGuestViewFrameSwappedCallback(
+      content::RenderWidgetHostViewGuest* guest_host_view);
 
   void OnGuestViewFrameSwapped(
       content::RenderWidgetHostViewGuest* guest_host_view);

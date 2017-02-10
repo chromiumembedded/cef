@@ -402,16 +402,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
       content::WebContents* source,
       const content::DropData& data,
       blink::WebDragOperationsMask operations_allowed) override;
-  bool ShouldCreateWebContents(
+  void GetCustomWebContentsView(
       content::WebContents* web_contents,
-      int route_id,
-      int main_frame_route_id,
-      int32_t main_frame_widget_route_id,
-      WindowContainerType window_container_type,
-      const std::string& frame_name,
       const GURL& target_url,
-      const std::string& partition_id,
-      content::SessionStorageNamespace* session_storage_namespace,
       content::WebContentsView** view,
       content::RenderViewHostDelegateView** delegate_view) override;
   void WebContentsCreated(content::WebContents* source_contents,
