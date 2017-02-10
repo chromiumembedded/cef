@@ -1,0 +1,129 @@
+diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
+index 35b6f47..932fe44 100644
+--- content/browser/web_contents/web_contents_impl.cc
++++ content/browser/web_contents/web_contents_impl.cc
+@@ -1560,6 +1560,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+   std::string unique_name;
+   frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
+ 
++  if (params.view && params.delegate_view) {
++    view_.reset(params.view);
++    render_view_host_delegate_view_ = params.delegate_view;
++  }
++
++  if (!view_) {
+   WebContentsViewDelegate* delegate =
+       GetContentClient()->browser()->GetWebContentsViewDelegate(this);
+ 
+@@ -1570,6 +1576,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+     view_.reset(CreateWebContentsView(this, delegate,
+                                       &render_view_host_delegate_view_));
+   }
++  }
+ 
+   if (browser_plugin_guest_ && !GuestMode::IsCrossProcessFrameGuest(this)) {
+     view_.reset(new WebContentsViewGuest(this, browser_plugin_guest_.get(),
+@@ -2075,6 +2082,12 @@ void WebContentsImpl::CreateNewWindow(
+   create_params.renderer_initiated_creation =
+       main_frame_route_id != MSG_ROUTING_NONE;
+ 
++  if (delegate_) {
++    delegate_->GetCustomWebContentsView(this, params.target_url,
++                                        &create_params.view,
++                                        &create_params.delegate_view);
++  }
++
+   WebContentsImpl* new_contents = NULL;
+   if (!is_guest) {
+     create_params.context = view_->GetNativeView();
+@@ -2104,7 +2117,7 @@ void WebContentsImpl::CreateNewWindow(
+       // TODO(brettw): It seems bogus that we have to call this function on the
+       // newly created object and give it one of its own member variables.
+       new_view->CreateViewForWidget(
+-          new_contents->GetRenderViewHost()->GetWidget(), false);
++          new_contents->GetRenderViewHost()->GetWidget(), nullptr);
+     }
+     // Save the created window associated with the route so we can show it
+     // later.
+@@ -4989,7 +5002,7 @@ NavigationEntry*
+ void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
+     RenderViewHost* render_view_host) {
+   RenderWidgetHostViewBase* rwh_view =
+-      view_->CreateViewForWidget(render_view_host->GetWidget(), false);
++      view_->CreateViewForWidget(render_view_host->GetWidget(), nullptr);
+ 
+   // Now that the RenderView has been created, we need to tell it its size.
+   if (rwh_view)
+diff --git content/public/browser/web_contents.cc content/public/browser/web_contents.cc
+index fa0afb5..d677b31 100644
+--- content/public/browser/web_contents.cc
++++ content/public/browser/web_contents.cc
+@@ -29,7 +29,9 @@ WebContents::CreateParams::CreateParams(BrowserContext* context,
+       guest_delegate(nullptr),
+       context(nullptr),
+       renderer_initiated_creation(false),
+-      initialize_renderer(false) {
++      initialize_renderer(false),
++      view(nullptr),
++      delegate_view(nullptr) {
+ }
+ 
+ WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
+diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
+index a5e2535..704c137 100644
+--- content/public/browser/web_contents.h
++++ content/public/browser/web_contents.h
+@@ -59,9 +59,11 @@ class PageState;
+ class RenderFrameHost;
+ class RenderProcessHost;
+ class RenderViewHost;
++class RenderViewHostDelegateView;
+ class RenderWidgetHost;
+ class RenderWidgetHostView;
+ class WebContentsDelegate;
++class WebContentsView;
+ struct CustomContextMenuContext;
+ struct DropData;
+ struct Manifest;
+@@ -162,6 +164,10 @@ class WebContents : public PageNavigator,
+     // Note that the pre-created renderer process may not be used if the first
+     // navigation requires a dedicated or privileged process, such as a WebUI.
+     bool initialize_renderer;
++
++    // Optionally specify the view and delegate view.
++    content::WebContentsView* view;
++    content::RenderViewHostDelegateView* delegate_view;
+   };
+ 
+   // Creates a new WebContents.
+diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
+index 6456878..339f9b8 100644
+--- content/public/browser/web_contents_delegate.h
++++ content/public/browser/web_contents_delegate.h
+@@ -42,11 +42,13 @@ class ColorChooser;
+ class JavaScriptDialogManager;
+ class PageState;
+ class RenderFrameHost;
++class RenderViewHostDelegateView;
+ class RenderWidgetHost;
+ class SessionStorageNamespace;
+ class SiteInstance;
+ class WebContents;
+ class WebContentsImpl;
++class WebContentsView;
+ struct ColorSuggestion;
+ struct ContextMenuParams;
+ struct DropData;
+@@ -325,6 +327,12 @@ class CONTENT_EXPORT WebContentsDelegate {
+       const std::string& partition_id,
+       SessionStorageNamespace* session_storage_namespace);
+ 
++  virtual void GetCustomWebContentsView(
++      WebContents* web_contents,
++      const GURL& target_url,
++      content::WebContentsView** view,
++      content::RenderViewHostDelegateView** delegate_view) {}
++
+   // Notifies the delegate about the creation of a new WebContents. This
+   // typically happens when popups are created.
+   virtual void WebContentsCreated(WebContents* source_contents,

@@ -473,8 +473,11 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
   DCHECK(render_widget_host_);
   DCHECK(!render_widget_host_->GetView());
 
-  // CefBrowserHostImpl might not be created at this time for popups.
-  if (content::RenderViewHost::From(render_widget_host_)) {
+  if (parent_host_view_) {
+    browser_impl_ = parent_host_view_->browser_impl();
+    DCHECK(browser_impl_);
+  } else if (content::RenderViewHost::From(render_widget_host_)) {
+    // CefBrowserHostImpl might not be created at this time for popups.
     browser_impl_ = CefBrowserHostImpl::GetBrowserForHost(
         content::RenderViewHost::From(render_widget_host_));
   }
@@ -542,8 +545,7 @@ CefRenderWidgetHostViewOSR::~CefRenderWidgetHostViewOSR() {
 // Called for full-screen widgets.
 void CefRenderWidgetHostViewOSR::InitAsChild(gfx::NativeView parent_view) {
   DCHECK(parent_host_view_);
-  browser_impl_ = parent_host_view_->browser_impl();
-  DCHECK(browser_impl_.get());
+  DCHECK(browser_impl_);
 
   if (parent_host_view_->child_host_view_) {
     // Cancel the previous popup widget.
@@ -747,8 +749,7 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
     content::RenderWidgetHostView* parent_host_view,
     const gfx::Rect& pos) {
   DCHECK_EQ(parent_host_view_, parent_host_view);
-  browser_impl_ = parent_host_view_->browser_impl();
-  DCHECK(browser_impl_.get());
+  DCHECK(browser_impl_);
 
   if (parent_host_view_->popup_host_view_) {
     // Cancel the previous popup widget.
@@ -775,6 +776,18 @@ void CefRenderWidgetHostViewOSR::InitAsPopup(
 void CefRenderWidgetHostViewOSR::InitAsFullscreen(
     content::RenderWidgetHostView* reference_host_view) {
   NOTREACHED() << "Fullscreen widgets are not supported in OSR";
+}
+
+// Called for the "platform view" created by WebContentsViewGuest and owned by
+// RenderWidgetHostViewGuest.
+void CefRenderWidgetHostViewOSR::InitAsGuest(
+    content::RenderWidgetHostView* parent_host_view,
+    content::RenderWidgetHostViewGuest* guest_view) {
+  DCHECK_EQ(parent_host_view_, parent_host_view);
+  DCHECK(browser_impl_);
+
+  parent_host_view_->AddGuestHostView(this);
+  parent_host_view_->RegisterGuestViewFrameSwappedCallback(guest_view);
 }
 
 void CefRenderWidgetHostViewOSR::UpdateCursor(
@@ -1346,24 +1359,6 @@ void CefRenderWidgetHostViewOSR::OnPaint(
   ReleaseResize();
 }
 
-void CefRenderWidgetHostViewOSR::AddGuestHostView(
-    CefRenderWidgetHostViewOSR* guest_host) {
-  guest_host_views_.insert(guest_host);
-}
-
-void CefRenderWidgetHostViewOSR::RemoveGuestHostView(
-    CefRenderWidgetHostViewOSR* guest_host) {
-  guest_host_views_.erase(guest_host);
-}
-
-void CefRenderWidgetHostViewOSR::RegisterGuestViewFrameSwappedCallback(
-    content::RenderWidgetHostViewGuest* guest_host_view) {
-  guest_host_view->RegisterFrameSwappedCallback(base::MakeUnique<base::Closure>(
-      base::Bind(&CefRenderWidgetHostViewOSR::OnGuestViewFrameSwapped,
-                 weak_ptr_factory_.GetWeakPtr(),
-                 base::Unretained(guest_host_view))));
-}
-
 #if !defined(OS_MACOSX)
 
 ui::Compositor* CefRenderWidgetHostViewOSR::GetCompositor() const {
@@ -1551,6 +1546,24 @@ void CefRenderWidgetHostViewOSR::OnScrollOffsetChanged() {
     }
   }
   is_scroll_offset_changed_pending_ = false;
+}
+
+void CefRenderWidgetHostViewOSR::AddGuestHostView(
+    CefRenderWidgetHostViewOSR* guest_host) {
+  guest_host_views_.insert(guest_host);
+}
+
+void CefRenderWidgetHostViewOSR::RemoveGuestHostView(
+    CefRenderWidgetHostViewOSR* guest_host) {
+  guest_host_views_.erase(guest_host);
+}
+
+void CefRenderWidgetHostViewOSR::RegisterGuestViewFrameSwappedCallback(
+    content::RenderWidgetHostViewGuest* guest_host_view) {
+  guest_host_view->RegisterFrameSwappedCallback(base::MakeUnique<base::Closure>(
+      base::Bind(&CefRenderWidgetHostViewOSR::OnGuestViewFrameSwapped,
+                 weak_ptr_factory_.GetWeakPtr(),
+                 base::Unretained(guest_host_view))));
 }
 
 void CefRenderWidgetHostViewOSR::OnGuestViewFrameSwapped(

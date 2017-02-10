@@ -15,6 +15,7 @@ class WebContents;
 class WebContentsViewDelegate;
 }
 
+class CefBrowserHostImpl;
 class CefRenderWidgetHostViewOSR;
 
 // An implementation of WebContentsView for off-screen rendering.
@@ -26,7 +27,6 @@ class CefWebContentsViewOSR : public content::WebContentsView,
 
   void set_web_contents(content::WebContents* web_contents);
   content::WebContents* web_contents() const { return web_contents_; }
-  void set_guest(content::BrowserPluginGuest* guest);
 
   // WebContentsView methods.
   gfx::NativeView GetNativeView() const override;
@@ -45,7 +45,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
                   gfx::NativeView context) override;
   content::RenderWidgetHostViewBase* CreateViewForWidget(
       content::RenderWidgetHost* render_widget_host,
-      bool is_guest_view_hack) override;
+      content::RenderWidgetHost* embedder_render_widget_host) override;
   content::RenderWidgetHostViewBase* CreateViewForPopupWidget(
       content::RenderWidgetHost* render_widget_host) override;
   void SetPageTitle(const base::string16& title) override;
@@ -71,13 +71,12 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   void UpdateDragCursor(blink::WebDragOperation operation) override;
 
  private:
+  CefRenderWidgetHostViewOSR* GetView() const;
+  CefBrowserHostImpl* GetBrowser() const;
+
   const bool transparent_;
 
   content::WebContents* web_contents_;
-  CefRenderWidgetHostViewOSR* view_;
-
-  content::BrowserPluginGuest* guest_;
-  gfx::Size size_;
 
   DISALLOW_COPY_AND_ASSIGN(CefWebContentsViewOSR);
 };
