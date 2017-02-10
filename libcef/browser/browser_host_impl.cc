@@ -2239,28 +2239,13 @@ bool CefBrowserHostImpl::CanDragEnter(
   return true;
 }
 
-bool CefBrowserHostImpl::ShouldCreateWebContents(
+void CefBrowserHostImpl::GetCustomWebContentsView(
     content::WebContents* web_contents,
-    content::SiteInstance* source_site_instance,
-    int32_t route_id,
-    int32_t main_frame_route_id,
-    int32_t main_frame_widget_route_id,
-    WindowContainerType window_container_type,
-    const GURL& opener_url,
-    const std::string& frame_name,
     const GURL& target_url,
-    const std::string& partition_id,
-    content::SessionStorageNamespace* session_storage_namespace,
     content::WebContentsView** view,
     content::RenderViewHostDelegateView** delegate_view) {
-  // In cases where the navigation will occur in a new render process the
-  // |route_id| value will be MSG_ROUTING_NONE here (because the existing
-  // renderer will not be able to communicate with the new renderer) and
-  // OpenURLFromTab will be called after WebContentsCreated.
-  CefBrowserInfoManager::GetInstance()->ShouldCreateWebContents(
+  CefBrowserInfoManager::GetInstance()->GetCustomWebContentsView(
       web_contents, target_url, view, delegate_view);
-
-  return true;
 }
 
 void CefBrowserHostImpl::WebContentsCreated(

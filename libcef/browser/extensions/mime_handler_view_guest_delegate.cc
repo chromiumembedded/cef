@@ -49,8 +49,7 @@ void CefMimeHandlerViewGuestDelegate::OverrideWebContentsCreateParams(
   }
 }
 
-bool CefMimeHandlerViewGuestDelegate::OnGuestAttached(
-    content::WebContentsView* guest_view,
+void CefMimeHandlerViewGuestDelegate::OnGuestAttached(
     content::WebContentsView* parent_view) {
   content::WebContents* web_contents = guest_->web_contents();
   DCHECK(web_contents);
@@ -68,24 +67,9 @@ bool CefMimeHandlerViewGuestDelegate::OnGuestAttached(
   info->guest_render_id_manager()->add_render_frame_id(
       main_frame_host->GetProcess()->GetID(),
       main_frame_host->GetRoutingID());
-
-  if (owner_browser->IsWindowless()) {
-    // Use the OSR view instead of the default WebContentsViewGuest.
-    content::WebContentsImpl* web_contents_impl =
-        static_cast<content::WebContentsImpl*>(web_contents);
-    CefWebContentsViewOSR* view_osr =
-        static_cast<CefWebContentsViewOSR*>(
-            web_contents_impl->GetView());
-    view_osr->set_web_contents(web_contents);
-    view_osr->set_guest(web_contents_impl->GetBrowserPluginGuest());
-    return true;
-  }
-
-  return false;
 }
 
-bool CefMimeHandlerViewGuestDelegate::OnGuestDetached(
-    content::WebContentsView* guest_view,
+void CefMimeHandlerViewGuestDelegate::OnGuestDetached(
     content::WebContentsView* parent_view) {
   content::WebContents* web_contents = guest_->web_contents();
   DCHECK(web_contents);
@@ -113,21 +97,6 @@ bool CefMimeHandlerViewGuestDelegate::OnGuestDetached(
     context->OnRenderFrameDeleted(render_process_id, render_frame_id,
                                   is_main_frame, true);
   }
-
-  // Do nothing when the browser is windowless.
-  return owner_browser->IsWindowless();
-}
-
-bool CefMimeHandlerViewGuestDelegate::CreateViewForWidget(
-    content::WebContentsView* guest_view,
-    content::RenderWidgetHost* render_widget_host) {
-  CefRefPtr<CefBrowserHostImpl> owner_browser = GetOwnerBrowser(guest_);
-  if (owner_browser->IsWindowless()) {
-    static_cast<CefWebContentsViewOSR*>(guest_view)->CreateViewForWidget(
-        render_widget_host, true);
-    return true;
-  }
-  return false;
 }
 
 bool CefMimeHandlerViewGuestDelegate::HandleContextMenu(

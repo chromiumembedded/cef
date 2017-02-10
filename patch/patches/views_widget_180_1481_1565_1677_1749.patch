@@ -26,10 +26,18 @@ index 11482ff..57e8b58 100644
    return renderer_frame_number_;
  }
 diff --git content/browser/renderer_host/render_widget_host_view_base.h content/browser/renderer_host/render_widget_host_view_base.h
-index 08aad92..c18da2d 100644
+index 08aad92..d6fa32c0 100644
 --- content/browser/renderer_host/render_widget_host_view_base.h
 +++ content/browser/renderer_host/render_widget_host_view_base.h
-@@ -107,6 +107,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+@@ -67,6 +67,7 @@ class BrowserAccessibilityDelegate;
+ class BrowserAccessibilityManager;
+ class RenderWidgetHostImpl;
+ class RenderWidgetHostViewBaseObserver;
++class RenderWidgetHostViewGuest;
+ class SyntheticGestureTarget;
+ class TextInputManager;
+ class WebCursor;
+@@ -107,6 +108,8 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
    void EndFrameSubscription() override;
    void FocusedNodeTouched(const gfx::Point& location_dips_screen,
                            bool editable) override;
@@ -38,7 +46,20 @@ index 08aad92..c18da2d 100644
  
    // This only needs to be overridden by RenderWidgetHostViewBase subclasses
    // that handle content embedded within other RenderWidgetHostViews.
-@@ -491,6 +493,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+@@ -330,6 +333,12 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
+   // helps to position the full screen widget on the correct monitor.
+   virtual void InitAsFullscreen(RenderWidgetHostView* reference_host_view) = 0;
+ 
++  // Perform all the initialization steps necessary for this object to represent
++  // the platform widget owned by |guest_view| and embedded in
++  // |parent_host_view|.
++  virtual void InitAsGuest(RenderWidgetHostView* parent_host_view,
++                           RenderWidgetHostViewGuest* guest_view) {}
++
+   // Sets the cursor to the one associated with the specified cursor_type
+   virtual void UpdateCursor(const WebCursor& cursor) = 0;
+ 
+@@ -491,6 +500,10 @@ class CONTENT_EXPORT RenderWidgetHostViewBase : public RenderWidgetHostView,
    // destroyed before the RWHV is destroyed.
    TextInputManager* text_input_manager_;
  

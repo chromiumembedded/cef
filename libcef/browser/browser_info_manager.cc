@@ -255,7 +255,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
   return allow;
 }
 
-void CefBrowserInfoManager::ShouldCreateWebContents(
+void CefBrowserInfoManager::GetCustomWebContentsView(
     content::WebContents* web_contents,
     const GURL& target_url,
     content::WebContentsView** view,
@@ -275,7 +275,7 @@ void CefBrowserInfoManager::ShouldCreateWebContents(
   }
 
   pending_popup->step =
-      CefBrowserInfoManager::PendingPopup::SHOULD_CREATE_WEB_CONTENTS;
+      CefBrowserInfoManager::PendingPopup::GET_CUSTOM_WEB_CONTENTS_VIEW;
   PushPendingPopup(std::move(pending_popup));
 }
 
@@ -293,7 +293,7 @@ void CefBrowserInfoManager::WebContentsCreated(
       source_contents->GetRenderViewHost()->GetMainFrame();
   std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
       PopPendingPopup(
-          CefBrowserInfoManager::PendingPopup::SHOULD_CREATE_WEB_CONTENTS,
+          CefBrowserInfoManager::PendingPopup::GET_CUSTOM_WEB_CONTENTS_VIEW,
           host->GetProcess()->GetID(), host->GetRoutingID(),
           target_url);
   DCHECK(pending_popup.get());

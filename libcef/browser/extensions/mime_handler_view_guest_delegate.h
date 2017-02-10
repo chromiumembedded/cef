@@ -22,13 +22,8 @@ class CefMimeHandlerViewGuestDelegate : public MimeHandlerViewGuestDelegate {
   // MimeHandlerViewGuestDelegate methods.
   void OverrideWebContentsCreateParams(
       content::WebContents::CreateParams* params) override;
-  bool OnGuestAttached(content::WebContentsView* guest_view,
-                       content::WebContentsView* parent_view) override;
-  bool OnGuestDetached(content::WebContentsView* guest_view,
-                       content::WebContentsView* parent_view) override;
-  bool CreateViewForWidget(
-      content::WebContentsView* guest_view,
-      content::RenderWidgetHost* render_widget_host) override;
+  void OnGuestAttached(content::WebContentsView* parent_view) override;
+  void OnGuestDetached(content::WebContentsView* parent_view) override;
   bool HandleContextMenu(content::WebContents* web_contents,
                          const content::ContextMenuParams& params) override;
 

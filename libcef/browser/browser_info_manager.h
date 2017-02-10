@@ -71,9 +71,9 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
       int opener_render_frame_id,
       bool* no_javascript_access);
 
-  // Called from CefBrowserHostImpl::ShouldCreateWebContents. See comments on
+  // Called from CefBrowserHostImpl::GetCustomWebContentsView. See comments on
   // PendingPopup for more information.
-  void ShouldCreateWebContents(
+  void GetCustomWebContentsView(
     content::WebContents* web_contents,
     const GURL& target_url,
     content::WebContentsView** view,
@@ -137,7 +137,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   //   an extension guest view then the popup is canceled and
   //   CefBrowserHostImpl::OpenURLFromTab is called.
   // And then the following calls may occur at the same time:
-  // - CefBrowserHostImpl::ShouldCreateWebContents (UIT)
+  // - CefBrowserHostImpl::GetCustomWebContentsView (UIT)
   //   Creates the OSR views for windowless popups.
   // - CefBrowserHostImpl::WebContentsCreated (UIT)
   //   Creates the CefBrowserHostImpl representation for the popup.
@@ -149,7 +149,7 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
     // to differentiate between them at different processing steps.
     enum Step {
       CAN_CREATE_WINDOW,
-      SHOULD_CREATE_WEB_CONTENTS
+      GET_CUSTOM_WEB_CONTENTS_VIEW,
     } step;
 
     // Initial state from ViewHostMsg_CreateWindow.
@@ -168,11 +168,11 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
     std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate;
   };
 
-  // Between the calls to CanCreateWindow and ShouldCreateWebContents
+  // Between the calls to CanCreateWindow and GetCustomWebContentsView
   // RenderViewHostImpl::CreateNewWindow() will call
   // RenderProcessHostImpl::FilterURL() which, in the case of "javascript:"
   // URIs, rewrites the URL to "about:blank". We need to apply the same filter
-  // otherwise ShouldCreateWebContents will fail to retrieve the PopupInfo.
+  // otherwise GetCustomWebContentsView will fail to retrieve the PopupInfo.
   static void FilterPendingPopupURL(
     int opener_process_id,
     std::unique_ptr<PendingPopup> pending_popup);
