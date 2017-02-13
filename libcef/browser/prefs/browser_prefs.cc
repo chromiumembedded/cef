@@ -38,6 +38,7 @@
 #include "components/update_client/update_client.h"
 #include "content/public/browser/browser_thread.h"
 #include "extensions/browser/extension_prefs.h"
+#include "extensions/features/features.h"
 #include "ui/base/l10n/l10n_util.h"
 
 namespace browser_prefs {
@@ -139,7 +140,7 @@ std::unique_ptr<PrefService> CreatePrefService(
     factory.set_user_prefs(testing_pref_store.get());
   }
 
-#if defined(ENABLE_SUPERVISED_USERS)
+#if BUILDFLAG(ENABLE_SUPERVISED_USERS)
   // Used to store supervised user preferences.
   SupervisedUserSettingsService* supervised_user_settings =
       SupervisedUserSettingsServiceFactory::GetForProfile(profile);
@@ -157,7 +158,7 @@ std::unique_ptr<PrefService> CreatePrefService(
       new SupervisedUserPrefStore(supervised_user_settings));
   DCHECK(supervised_user_prefs->IsInitializationComplete());
   factory.set_supervised_user_prefs(supervised_user_prefs);
-#endif  // ENABLE_SUPERVISED_USERS
+#endif  // BUILDFLAG(ENABLE_SUPERVISED_USERS)
 
   // Registry that will be populated with all known preferences. Preferences
   // are registered with default values that may be changed via a *PrefStore.
