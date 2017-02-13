@@ -22,7 +22,6 @@ std::string ChromeProfileStub::GetProfileUserName() const {
 }
 
 Profile::ProfileType ChromeProfileStub::GetProfileType() const {
-  NOTREACHED();
   return REGULAR_PROFILE;
 }
 
