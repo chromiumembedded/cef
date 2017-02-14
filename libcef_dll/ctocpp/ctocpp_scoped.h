@@ -147,9 +147,11 @@ StructName* CefCToCppScoped<ClassName, BaseName, StructName>::UnwrapOwn(
 
   StructName* orig_struct = wrapperStruct->struct_;
 
+#if DCHECK_IS_ON()
   // We should own the object currently.
   cef_base_scoped_t* base = reinterpret_cast<cef_base_scoped_t*>(orig_struct);
   DCHECK(base && base->del);
+#endif
 
   // Don't delete the original object when the wrapper is deleted.
   wrapperStruct->struct_ = NULL;
