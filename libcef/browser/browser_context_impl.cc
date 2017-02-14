@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "libcef/browser/browser_context_proxy.h"
+#include "libcef/browser/content_browser_client.h"
 #include "libcef/browser/context.h"
 #include "libcef/browser/download_manager_delegate.h"
 #include "libcef/browser/extensions/extension_system.h"
@@ -85,9 +86,19 @@ class ImplManager {
       const content::BrowserContext* context) {
     CEF_REQUIRE_UIT();
 
+    const CefBrowserContext* cef_context =
+        static_cast<const CefBrowserContext*>(context);
+    const CefBrowserContextImpl* cef_context_impl = nullptr;
+    if (cef_context->is_proxy()) {
+      cef_context_impl =
+          static_cast<const CefBrowserContextProxy*>(cef_context)->parent();
+    } else {
+      cef_context_impl = static_cast<const CefBrowserContextImpl*>(cef_context);
+    }
+
     Vector::iterator it = all_.begin();
     for (; it != all_.end(); ++it) {
-      if (*it == context || (*it)->HasProxy(context))
+      if (*it == cef_context_impl)
         return *it;
     }
     return NULL;
@@ -139,6 +150,7 @@ base::LazyInstance<ImplManager> g_manager = LAZY_INSTANCE_INITIALIZER;
 class CefVisitedLinkListener : public visitedlink::VisitedLinkMaster::Listener {
  public:
   CefVisitedLinkListener() {
+    DCHECK(listener_map_.empty());
   }
 
   void CreateListenerForContext(const CefBrowserContext* context) {
@@ -196,10 +208,17 @@ CefBrowserContextImpl::CefBrowserContextImpl(
 }
 
 CefBrowserContextImpl::~CefBrowserContextImpl() {
+  CEF_REQUIRE_UIT();
+
+  // No CefRequestContextImpl should be referencing this object any longer.
+  DCHECK_EQ(request_context_count_, 0);
+
   // Unregister the context first to avoid re-entrancy during shutdown.
   g_manager.Get().RemoveImpl(this, cache_path_);
 
   Shutdown();
+
+  visitedlink_listener_->RemoveListenerForContext(this);
 
   // The FontFamilyCache references the ProxyService so delete it before the
   // ProxyService is deleted.
@@ -281,48 +300,39 @@ void CefBrowserContextImpl::Initialize() {
 
 void CefBrowserContextImpl::AddProxy(const CefBrowserContextProxy* proxy) {
   CEF_REQUIRE_UIT();
-  DCHECK(!HasProxy(proxy));
-  proxy_list_.push_back(proxy);
-
   visitedlink_listener_->CreateListenerForContext(proxy);
 }
 
 void CefBrowserContextImpl::RemoveProxy(const CefBrowserContextProxy* proxy) {
   CEF_REQUIRE_UIT();
-
   visitedlink_listener_->RemoveListenerForContext(proxy);
-
-  bool found = false;
-  ProxyList::iterator it = proxy_list_.begin();
-  for (; it != proxy_list_.end(); ++it) {
-    if (*it == proxy) {
-      proxy_list_.erase(it);
-      found = true;
-      break;
-    }
-  }
-  DCHECK(found);
 }
 
-bool CefBrowserContextImpl::HasProxy(
-    const content::BrowserContext* context) const {
+void CefBrowserContextImpl::AddRequestContext() {
   CEF_REQUIRE_UIT();
-  ProxyList::const_iterator it = proxy_list_.begin();
-  for (; it != proxy_list_.end(); ++it) {
-    if (*it == context)
-      return true;
+  request_context_count_++;
+}
+
+void CefBrowserContextImpl::RemoveRequestContext() {
+  CEF_REQUIRE_UIT();
+  request_context_count_--;
+  DCHECK_GE(request_context_count_, 0);
+
+  // Delete non-global contexts when the reference count reaches zero.
+  if (request_context_count_ == 0 &&
+      this != CefContentBrowserClient::Get()->browser_context()) {
+    delete this;
   }
-  return false;
 }
 
 // static
-scoped_refptr<CefBrowserContextImpl> CefBrowserContextImpl::GetForCachePath(
+CefBrowserContextImpl* CefBrowserContextImpl::GetForCachePath(
     const base::FilePath& cache_path) {
   return g_manager.Get().GetImplForPath(cache_path);
 }
 
 // static
-CefRefPtr<CefBrowserContextImpl> CefBrowserContextImpl::GetForContext(
+CefBrowserContextImpl* CefBrowserContextImpl::GetForContext(
     content::BrowserContext* context) {
   return g_manager.Get().GetImplForContext(context);
 }

@@ -671,8 +671,6 @@ class MethodTestHandler : public TestHandler {
     }
 
     ~CompletionCallback() override {
-      EXPECT_UI_THREAD();
-
       // OnComplete should be executed.
       EXPECT_FALSE(test_handler_);
     }

@@ -25,9 +25,9 @@ class VisitedLinkMaster;
 }
 
 // Isolated BrowserContext implementation. Life span is controlled by
-// CefRequestContextImpl and (for the main context) CefBrowserMainParts. Only
-// accessed on the UI thread unless otherwise indicated. See browser_context.h
-// for an object relationship diagram.
+// CefBrowserMainParts for the global context and CefRequestContextImpl
+// for non-global contexts. Only accessed on the UI thread unless otherwise
+// indicated. See browser_context.h for an object relationship diagram.
 class CefBrowserContextImpl : public CefBrowserContext,
                               public visitedlink::VisitedLinkDelegate {
  public:
@@ -35,11 +35,11 @@ class CefBrowserContextImpl : public CefBrowserContext,
 
   // Returns the existing instance, if any, associated with the specified
   // |cache_path|.
-  static scoped_refptr<CefBrowserContextImpl> GetForCachePath(
+  static CefBrowserContextImpl* GetForCachePath(
       const base::FilePath& cache_path);
 
   // Returns the underlying CefBrowserContextImpl if any.
-  static CefRefPtr<CefBrowserContextImpl> GetForContext(
+  static CefBrowserContextImpl* GetForContext(
       content::BrowserContext* context);
 
   // Returns all existing CefBrowserContextImpl.
@@ -48,10 +48,14 @@ class CefBrowserContextImpl : public CefBrowserContext,
   // Must be called immediately after this object is created.
   void Initialize() override;
 
-  // Track associated proxy objects.
+  // Track associated CefBrowserContextProxy objects.
   void AddProxy(const CefBrowserContextProxy* proxy);
   void RemoveProxy(const CefBrowserContextProxy* proxy);
-  bool HasProxy(const content::BrowserContext* context) const;
+
+  // Track associated CefRequestContextImpl objects. If this object is a non-
+  // global context then it will delete itself when the count reaches zero.
+  void AddRequestContext();
+  void RemoveRequestContext();
 
   // BrowserContext methods.
   base::FilePath GetPath() const override;
@@ -98,10 +102,8 @@ class CefBrowserContextImpl : public CefBrowserContext,
   }
 
  private:
-  // Only allow deletion via scoped_refptr().
-  friend struct content::BrowserThread::DeleteOnThread<
-      content::BrowserThread::UI>;
-  friend class base::DeleteHelper<CefBrowserContextImpl>;
+  // Allow deletion via std::unique_ptr().
+  friend std::default_delete<CefBrowserContextImpl>;
 
   ~CefBrowserContextImpl() override;
 
@@ -109,9 +111,8 @@ class CefBrowserContextImpl : public CefBrowserContext,
   CefRequestContextSettings settings_;
   base::FilePath cache_path_;
 
-  // Not owned by this class.
-  typedef std::vector<const CefBrowserContextProxy*> ProxyList;
-  ProxyList proxy_list_;
+  // Number of CefRequestContextImpl objects referencing this object.
+  int request_context_count_ = 0;
 
   std::unique_ptr<PrefService> pref_service_;
   std::unique_ptr<PrefProxyConfigTracker> pref_proxy_config_tracker_;

@@ -6,7 +6,6 @@
 #define CEF_LIBCEF_BROWSER_BROWSER_MAIN_H_
 #pragma once
 
-#include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/net/url_request_context_getter_impl.h"
 
 #include "base/macros.h"
@@ -31,6 +30,7 @@ class ExtensionsBrowserClient;
 class ExtensionsClient;
 }
 
+class CefBrowserContextImpl;
 class CefDevToolsDelegate;
 
 class CefBrowserMainParts : public content::BrowserMainParts {
@@ -47,8 +47,8 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   void PostMainMessageLoopRun() override;
   void PostDestroyThreads() override;
 
-  scoped_refptr<CefBrowserContextImpl> browser_context() const {
-    return global_browser_context_;
+  CefBrowserContextImpl* browser_context() const {
+    return global_browser_context_.get();
   }
   CefDevToolsDelegate* devtools_delegate() const {
     return devtools_delegate_;
@@ -59,7 +59,7 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   void PlatformInitialize();
 #endif  // defined(OS_WIN)
 
-  scoped_refptr<CefBrowserContextImpl> global_browser_context_;
+  std::unique_ptr<CefBrowserContextImpl> global_browser_context_;
   CefDevToolsDelegate* devtools_delegate_;  // Deletes itself.
   std::unique_ptr<base::MessageLoop> message_loop_;
 

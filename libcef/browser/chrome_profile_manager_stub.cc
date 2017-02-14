@@ -21,7 +21,7 @@ namespace {
 // Return the main context for now since we don't currently have a good way to
 // determine that.
 CefBrowserContextImpl* GetActiveBrowserContext() {
-  return CefContentBrowserClient::Get()->browser_context().get();
+  return CefContentBrowserClient::Get()->browser_context();
 }
 
 }  // namespace
@@ -35,7 +35,7 @@ ChromeProfileManagerStub::~ChromeProfileManagerStub() {
 
 Profile* ChromeProfileManagerStub::GetProfile(
     const base::FilePath& profile_dir) {
-  scoped_refptr<CefBrowserContextImpl> browser_context =
+  CefBrowserContextImpl* browser_context =
       CefBrowserContextImpl::GetForCachePath(profile_dir);
   if (!browser_context) {
     // ProfileManager makes assumptions about profile directory paths that do
@@ -46,7 +46,7 @@ Profile* ChromeProfileManagerStub::GetProfile(
     // asking for.
     browser_context = GetActiveBrowserContext();
   }
-  return browser_context.get();
+  return browser_context;
 }
 
 bool ChromeProfileManagerStub::IsValidProfile(const void* profile) {
@@ -54,7 +54,7 @@ bool ChromeProfileManagerStub::IsValidProfile(const void* profile) {
     return false;
   return !!CefBrowserContextImpl::GetForContext(
       reinterpret_cast<content::BrowserContext*>(
-          const_cast<void*>(profile))).get();
+          const_cast<void*>(profile)));
 }
 
 Profile* ChromeProfileManagerStub::GetLastUsedProfile(

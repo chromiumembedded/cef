@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <utility>
 
+#include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/browser_info_manager.h"
 #include "libcef/browser/browser_host_impl.h"
@@ -42,6 +43,7 @@
 #include "base/json/json_reader.h"
 #include "base/path_service.h"
 #include "cef/grit/cef_resources.h"
+#include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/spellchecker/spellcheck_message_filter.h"
 #include "chrome/common/chrome_switches.h"
 #include "components/navigation_interception/intercept_navigation_throttle.h"
@@ -979,8 +981,7 @@ void CefContentBrowserClient::RegisterCustomScheme(const std::string& scheme) {
     policy->RegisterWebSafeScheme(scheme);
 }
 
-scoped_refptr<CefBrowserContextImpl>
-CefContentBrowserClient::browser_context() const {
+CefBrowserContextImpl* CefContentBrowserClient::browser_context() const {
   return browser_main_parts_->browser_context();
 }
 

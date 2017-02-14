@@ -360,7 +360,7 @@ ChromeBrowserProcessStub::GetPhysicalWebDataSource() {
 content::BrowserContext*
 ChromeBrowserProcessStub::GetBrowserContextRedirectedInIncognito(
     content::BrowserContext* context) {
-  return CefBrowserContextImpl::GetForContext(context).get();
+  return CefBrowserContextImpl::GetForContext(context);
 }
 
 content::BrowserContext*

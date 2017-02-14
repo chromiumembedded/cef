@@ -5,6 +5,7 @@
 
 #include "libcef/browser/extensions/mime_handler_view_guest_delegate.h"
 
+#include "libcef/browser/browser_context.h"
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/browser_info.h"
 #include "libcef/browser/content_browser_client.h"
@@ -91,7 +92,7 @@ void CefMimeHandlerViewGuestDelegate::OnGuestDetached(
   info->guest_render_id_manager()->remove_render_frame_id(
       render_process_id, render_frame_id);
 
-  scoped_refptr<CefBrowserContext> context =
+  CefBrowserContext* context =
       static_cast<CefBrowserContext*>(web_contents->GetBrowserContext());
   if (context) {
     context->OnRenderFrameDeleted(render_process_id, render_frame_id,

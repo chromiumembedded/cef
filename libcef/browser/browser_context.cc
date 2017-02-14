@@ -15,25 +15,14 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/storage_partition.h"
 
-#if DCHECK_IS_ON()
-base::AtomicRefCount CefBrowserContext::DebugObjCt = 0;
-#endif
-
 CefBrowserContext::CefBrowserContext(bool is_proxy)
     : is_proxy_(is_proxy),
       extension_system_(NULL) {
-#if DCHECK_IS_ON()
-  base::AtomicRefCountInc(&DebugObjCt);
-#endif
 }
 
 CefBrowserContext::~CefBrowserContext() {
   // Should be cleared in Shutdown().
   DCHECK(!resource_context_.get());
-
-#if DCHECK_IS_ON()
-  base::AtomicRefCountDec(&DebugObjCt);
-#endif
 }
 
 void CefBrowserContext::Initialize() {
@@ -129,28 +118,27 @@ void CefBrowserContext::OnRenderFrameDeleted(int render_process_id,
                                              int render_frame_id,
                                              bool is_main_frame,
                                              bool is_guest_view) {
-  CEF_POST_TASK(CEF_IOT,
-      base::Bind(&CefBrowserContext::RenderFrameDeletedOnIOThread, this,
-                 render_process_id, render_frame_id, is_main_frame,
-                 is_guest_view));
-}
-
-void CefBrowserContext::OnPurgePluginListCache() {
-  CEF_POST_TASK(CEF_IOT,
-      base::Bind(&CefBrowserContext::PurgePluginListCacheOnIOThread, this));
-}
-
-void CefBrowserContext::RenderFrameDeletedOnIOThread(int render_process_id,
-                                                     int render_frame_id,
-                                                     bool is_main_frame,
-                                                     bool is_guest_view) {
+  CEF_REQUIRE_UIT();
   if (resource_context_ && is_main_frame) {
     DCHECK_GE(render_process_id, 0);
-    resource_context_->ClearPluginLoadDecision(render_process_id);
+    // Using base::Unretained() is safe because both this callback and possible
+    // deletion of |resource_context_| will execute on the IO thread, and this
+    // callback will be executed first.
+    CEF_POST_TASK(CEF_IOT,
+        base::Bind(&CefResourceContext::ClearPluginLoadDecision,
+                   base::Unretained(resource_context_.get()),
+                   render_process_id));
   }
 }
 
-void CefBrowserContext::PurgePluginListCacheOnIOThread() {
-  if (resource_context_)
-    resource_context_->ClearPluginLoadDecision(-1);
+void CefBrowserContext::OnPurgePluginListCache() {
+  CEF_REQUIRE_UIT();
+  if (resource_context_) {
+    // Using base::Unretained() is safe because both this callback and possible
+    // deletion of |resource_context_| will execute on the IO thread, and this
+    // callback will be executed first.
+    CEF_POST_TASK(CEF_IOT,
+        base::Bind(&CefResourceContext::ClearPluginLoadDecision,
+                   base::Unretained(resource_context_.get()), -1));
+  }
 }

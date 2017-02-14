@@ -64,8 +64,8 @@ bool CefExtensionsBrowserClient::IsSameContext(BrowserContext* first,
                                                BrowserContext* second) {
   // Returns true if |first| and |second| share the same underlying
   // CefBrowserContextImpl.
-  return CefBrowserContextImpl::GetForContext(first).get() ==
-         CefBrowserContextImpl::GetForContext(second).get();
+  return CefBrowserContextImpl::GetForContext(first) ==
+         CefBrowserContextImpl::GetForContext(second);
 }
 
 bool CefExtensionsBrowserClient::HasOffTheRecordContext(
