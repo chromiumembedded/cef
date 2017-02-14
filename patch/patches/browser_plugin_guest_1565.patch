@@ -240,7 +240,7 @@ index 959a27f..19a48df 100644
 --- content/browser/web_contents/web_contents_view_mus.cc
 +++ content/browser/web_contents/web_contents_view_mus.cc
 @@ -128,7 +128,7 @@ void WebContentsViewMus::CreateView(const gfx::Size& initial_size,
-
+ 
  RenderWidgetHostViewBase* WebContentsViewMus::CreateViewForWidget(
      RenderWidgetHost* render_widget_host,
 -    bool is_guest_view_hack) {
