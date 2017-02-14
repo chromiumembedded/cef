@@ -1,15 +1,3 @@
-diff --git components/browsing_data/content/BUILD.gn components/browsing_data/content/BUILD.gn
-index aa613cf..ee771ae 100644
---- components/browsing_data/content/BUILD.gn
-+++ components/browsing_data/content/BUILD.gn
-@@ -17,6 +17,7 @@ static_library("content") {
-   deps = [
-     "//base",
-     "//content/public/browser",
-+    "//content/public/common",
-     "//net",
-   ]
- }
 diff --git content/browser/appcache/appcache_internals_ui.cc content/browser/appcache/appcache_internals_ui.cc
 index 89913ca..db08c06 100644
 --- content/browser/appcache/appcache_internals_ui.cc
@@ -317,20 +305,10 @@ index a4c8862..2312f35 100644
                                               is_for_guests_only);
        }
 diff --git content/browser/storage_partition_impl.h content/browser/storage_partition_impl.h
-index 2c20f2e..185048e 100644
+index 2c20f2e..67491fc 100644
 --- content/browser/storage_partition_impl.h
 +++ content/browser/storage_partition_impl.h
-@@ -26,9 +26,7 @@
- #include "content/browser/push_messaging/push_messaging_context.h"
- #include "content/browser/service_worker/service_worker_context_wrapper.h"
- #include "content/common/content_export.h"
--#include "content/common/storage_partition_service.mojom.h"
- #include "content/public/browser/storage_partition.h"
--#include "mojo/public/cpp/bindings/binding_set.h"
- #include "net/cookies/cookie_store.h"
- #include "storage/browser/quota/special_storage_policy.h"
- 
-@@ -74,10 +72,9 @@ class CONTENT_EXPORT  StoragePartitionImpl
+@@ -74,10 +74,9 @@ class CONTENT_EXPORT  StoragePartitionImpl
    HostZoomLevelContext* GetHostZoomLevelContext() override;
    ZoomLevelDelegate* GetZoomLevelDelegate() override;
    PlatformNotificationContextImpl* GetPlatformNotificationContext() override;
@@ -344,7 +322,7 @@ index 2c20f2e..185048e 100644
  
    // mojom::StoragePartitionService interface.
    void OpenLocalStorage(
-@@ -111,7 +108,8 @@ class CONTENT_EXPORT  StoragePartitionImpl
+@@ -111,7 +110,8 @@ class CONTENT_EXPORT  StoragePartitionImpl
    BrowserContext* browser_context() const;
  
    // Called by each renderer process once.
@@ -411,19 +389,18 @@ index f5cc21f..0a6cd2b 100644
  
  }  // namespace content
 diff --git content/public/browser/storage_partition.h content/public/browser/storage_partition.h
-index 909b370..73e8a80 100644
+index 909b370..0e37211 100644
 --- content/public/browser/storage_partition.h
 +++ content/public/browser/storage_partition.h
-@@ -13,6 +13,8 @@
+@@ -13,6 +13,7 @@
  #include "base/files/file_path.h"
  #include "base/time/time.h"
  #include "content/common/content_export.h"
-+#include "content/common/storage_partition_service.mojom.h"
 +#include "mojo/public/cpp/bindings/binding_set.h"
  #include "net/cookies/cookie_store.h"
  
  class GURL;
-@@ -41,12 +43,15 @@ class DatabaseTracker;
+@@ -41,16 +42,23 @@ class DatabaseTracker;
  namespace content {
  
  class AppCacheService;
@@ -439,7 +416,15 @@ index 909b370..73e8a80 100644
  class PlatformNotificationContext;
  class ServiceWorkerContext;
  class ZoomLevelDelegate;
-@@ -74,6 +79,9 @@ class CONTENT_EXPORT StoragePartition {
+ 
++namespace mojom {
++class StoragePartitionService;
++}
++
+ // Defines what persistent state a child process can access.
+ //
+ // The StoragePartition defines the view each child process has of the
+@@ -74,6 +82,9 @@ class CONTENT_EXPORT StoragePartition {
    virtual HostZoomLevelContext* GetHostZoomLevelContext() = 0;
    virtual ZoomLevelDelegate* GetZoomLevelDelegate() = 0;
    virtual PlatformNotificationContext* GetPlatformNotificationContext() = 0;
@@ -449,7 +434,7 @@ index 909b370..73e8a80 100644
  
    enum : uint32_t {
      REMOVE_DATA_MASK_APPCACHE = 1 << 0,
-@@ -166,6 +174,10 @@ class CONTENT_EXPORT StoragePartition {
+@@ -166,6 +177,10 @@ class CONTENT_EXPORT StoragePartition {
    // unwritten data has been written out to the filesystem.
    virtual void Flush() = 0;
  
@@ -460,50 +445,3 @@ index 909b370..73e8a80 100644
   protected:
    virtual ~StoragePartition() {}
  };
-diff --git extensions/browser/api/socket/socket_api.cc extensions/browser/api/socket/socket_api.cc
-index cbc8019..d04955c 100644
---- extensions/browser/api/socket/socket_api.cc
-+++ extensions/browser/api/socket/socket_api.cc
-@@ -816,11 +816,11 @@ void SocketGetNetworkListFunction::SendResponseOnUIThread(
- 
-   std::vector<api::socket::NetworkInterface> create_arg;
-   create_arg.reserve(interface_list.size());
--  for (const net::NetworkInterface& interface : interface_list) {
-+  for (const net::NetworkInterface& i : interface_list) {
-     api::socket::NetworkInterface info;
--    info.name = interface.name;
--    info.address = interface.address.ToString();
--    info.prefix_length = interface.prefix_length;
-+    info.name = i.name;
-+    info.address = i.address.ToString();
-+    info.prefix_length = i.prefix_length;
-     create_arg.push_back(std::move(info));
-   }
- 
-diff --git extensions/browser/guest_view/web_view/web_ui/BUILD.gn extensions/browser/guest_view/web_view/web_ui/BUILD.gn
-index 9b26c41..e9f4a0c 100644
---- extensions/browser/guest_view/web_view/web_ui/BUILD.gn
-+++ extensions/browser/guest_view/web_view/web_ui/BUILD.gn
-@@ -3,6 +3,10 @@
- # found in the LICENSE file.
- 
- source_set("web_ui") {
-+  deps = [
-+    "//content/public/common",
-+  ]
-+
-   sources = [
-     "web_ui_url_fetcher.cc",
-     "web_ui_url_fetcher.h",
-diff --git extensions/common/api/BUILD.gn extensions/common/api/BUILD.gn
-index a04e789..bf15551 100644
---- extensions/common/api/BUILD.gn
-+++ extensions/common/api/BUILD.gn
-@@ -35,6 +35,7 @@ group("api") {
-   public_deps = [
-     ":generated_api",
-     ":mojom",
-+    "//content/public/common",
-     "//extensions/features",
-   ]
- }
