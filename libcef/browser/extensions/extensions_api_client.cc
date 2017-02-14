@@ -44,7 +44,7 @@ CefExtensionsAPIClient::CreateGuestViewManagerDelegate(
   // *Proxy object that has already been deleted.
   return base::WrapUnique(
       new extensions::ExtensionsGuestViewManagerDelegate(
-          CefBrowserContextImpl::GetForContext(context).get()));
+          CefBrowserContextImpl::GetForContext(context)));
 }
 
 std::unique_ptr<MimeHandlerViewGuestDelegate>

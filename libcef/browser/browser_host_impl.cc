@@ -281,10 +281,10 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
 
   // Get or create the request context and browser context.
   CefRefPtr<CefRequestContextImpl> request_context_impl =
-      CefRequestContextImpl::GetForRequestContext(
+      CefRequestContextImpl::GetOrCreateForRequestContext(
           create_params.request_context);
   DCHECK(request_context_impl);
-  scoped_refptr<CefBrowserContext> browser_context =
+  CefBrowserContext* browser_context =
       request_context_impl->GetBrowserContext();
   DCHECK(browser_context);
 
@@ -298,8 +298,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::Create(
     create_params.request_context = request_context_impl.get();
   }
 
-  content::WebContents::CreateParams wc_create_params(
-      browser_context.get());
+  content::WebContents::CreateParams wc_create_params(browser_context);
 
   if (platform_delegate->IsWindowless()) {
     // Create the OSR view for the WebContents.
@@ -692,13 +691,13 @@ void CefBrowserHostImpl::StartDownload(const CefString& url) {
   if (!web_contents())
     return;
 
-  scoped_refptr<CefBrowserContext> context =
+  CefBrowserContext* context =
       static_cast<CefBrowserContext*>(web_contents()->GetBrowserContext());
-  if (!context.get())
+  if (!context)
     return;
 
   content::DownloadManager* manager =
-      content::BrowserContext::GetDownloadManager(context.get());
+      content::BrowserContext::GetDownloadManager(context);
   if (!manager)
     return;
 
@@ -2272,11 +2271,11 @@ void CefBrowserHostImpl::WebContentsCreated(
   CefRefPtr<CefBrowserHostImpl> opener = GetBrowserForContents(source_contents);
   DCHECK(opener.get());
 
-  scoped_refptr<CefBrowserContext> browser_context =
+  CefBrowserContext* browser_context =
       static_cast<CefBrowserContext*>(new_contents->GetBrowserContext());
-  DCHECK(browser_context.get());
+  DCHECK(browser_context);
   CefRefPtr<CefRequestContext> request_context =
-      CefRequestContextImpl::GetForBrowserContext(browser_context).get();
+      CefRequestContextImpl::CreateForBrowserContext(browser_context).get();
   DCHECK(request_context.get());
 
   CefRefPtr<CefBrowserHostImpl> browser = CefBrowserHostImpl::CreateInternal(
@@ -2406,7 +2405,7 @@ void CefBrowserHostImpl::RenderFrameDeleted(
 
   if (web_contents()) {
     const bool is_main_frame = (render_frame_host->GetParent() == nullptr);
-    scoped_refptr<CefBrowserContext> context =
+    CefBrowserContext* context =
         static_cast<CefBrowserContext*>(web_contents()->GetBrowserContext());
     if (context) {
       context->OnRenderFrameDeleted(render_process_id, render_routing_id,
@@ -2578,9 +2577,9 @@ void CefBrowserHostImpl::DidNavigateAnyFrame(
   if (!web_contents())
     return;
 
-  scoped_refptr<CefBrowserContext> context =
+  CefBrowserContext* context =
       static_cast<CefBrowserContext*>(web_contents()->GetBrowserContext());
-  if (!context.get())
+  if (!context)
     return;
 
   context->AddVisitedURLs(params.redirects);

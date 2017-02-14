@@ -190,11 +190,11 @@ class CefBrowserURLRequest::Context
 
     // Get or create the request context and browser context.
     CefRefPtr<CefRequestContextImpl> request_context_impl =
-        CefRequestContextImpl::GetForRequestContext(request_context_);
+        CefRequestContextImpl::GetOrCreateForRequestContext(request_context_);
     DCHECK(request_context_impl.get());
-    scoped_refptr<CefBrowserContext> browser_context =
+    CefBrowserContext* browser_context =
         request_context_impl->GetBrowserContext();
-    DCHECK(browser_context.get());
+    DCHECK(browser_context);
 
     if (!request_context_.get())
       request_context_ = request_context_impl.get();

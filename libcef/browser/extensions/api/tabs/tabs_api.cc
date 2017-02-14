@@ -57,10 +57,10 @@ bool GetTabById(int tab_id,
     if (!request_context)
       continue;
     CefRefPtr<CefRequestContextImpl> request_context_impl =
-        CefRequestContextImpl::GetForRequestContext(request_context);
+        CefRequestContextImpl::GetOrCreateForRequestContext(request_context);
     if (!request_context_impl)
       continue;
-    scoped_refptr<CefBrowserContext> browser_context =
+    CefBrowserContext* browser_context =
         request_context_impl->GetBrowserContext();
     if (!browser_context)
       continue;

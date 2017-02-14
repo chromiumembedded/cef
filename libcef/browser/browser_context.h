@@ -33,12 +33,12 @@
 //
 // BCI = CefBrowserContextImpl
 //   Entry point from WC when using an isolated RCI. Owns the RC and creates the
-//   SPI indirectly. Life span controlled by RCI and (for the global context)
-//   CefBrowserMainParts.
+//   SPI indirectly. Owned by CefBrowserMainParts for the global context or RCI
+//   for non-global contexts.
 //
 // BCP = CefBrowserContextProxy
 //   Entry point from WC when using a custom RCI. Owns the RC and creates the
-//   URCGP and SPP. Life span controlled by RCI.
+//   URCGP and SPP. Owned by RCI.
 //
 // SPI = content::StoragePartitionImpl
 //   Owns storage-related objects like Quota, IndexedDB, Cache, etc. Created by
@@ -83,29 +83,29 @@
 //
 // Relationship diagram:
 //   ref = reference (CefRefPtr/scoped_refptr)
-//   own = ownership (scoped_ptr)
+//   own = ownership (std::unique_ptr)
 //   ptr = raw pointer
 //
 //                     CefBrowserMainParts----\   isolated cookie manager, etc.
 //                       |                     \             ^
-//                      ref                    ref        ref/own
+//                      own                    ref        ref/own
 //                       v                      v            |
 //                /---> BCI -own-> SPI -ref-> URCGI --own-> URCI <-ptr-- CSP
 //               /       ^          ^           ^                        ^
-//             ptr      ref        ptr         ref                      /
+//             ptr      ptr        ptr         ref                      /
 //             /         |          |           |                      /
 // BHI -own-> WC -ptr-> BCP -own-> SPP -ref-> URCGP -own-> URCP --ref-/
 //
-// BHI -ref-> RCI -ref-> BCI/BCP -own-> RC -ref-> URCGI/URCGP
+// BHI -ref-> RCI -own-> BCI/BCP -own-> RC -ref-> URCGI/URCGP
 //
 //
 // How shutdown works:
 // 1. CefBrowserHostImpl is destroyed on any thread due to browser close,
 //    ref release, etc.
-// 2. CefRequestContextImpl is destroyed on any thread due to
-//    CefBrowserHostImpl destruction, ref release, etc.
+// 2. CefRequestContextImpl is destroyed (possibly asynchronously) on the UI
+//    thread due to CefBrowserHostImpl destruction, ref release, etc.
 // 3. CefBrowserContext* is destroyed on the UI thread due to
-//    CefRequestContextImpl destruction (*Impl, *Proxy) or ref release in
+//    CefRequestContextImpl destruction (*Impl, *Proxy) or deletion in
 //    CefBrowserMainParts::PostMainMessageLoopRun() (*Impl).
 // 4. CefResourceContext is destroyed asynchronously on the IO thread due to
 //    CefBrowserContext* destruction. This cancels/destroys any pending
@@ -128,10 +128,7 @@ class CefExtensionSystem;
 // Main entry point for configuring behavior on a per-browser basis. An instance
 // of this class is passed to WebContents::Create in CefBrowserHostImpl::
 // CreateInternal. Only accessed on the UI thread unless otherwise indicated.
-class CefBrowserContext
-    : public ChromeProfileStub,
-      public base::RefCountedThreadSafe<
-          CefBrowserContext, content::BrowserThread::DeleteOnUIThread> {
+class CefBrowserContext : public ChromeProfileStub {
  public:
   explicit CefBrowserContext(bool is_proxy);
 
@@ -183,10 +180,9 @@ class CefBrowserContext
     return extension_system_;
   }
 
-#if DCHECK_IS_ON()
-  // Simple tracking of allocated objects.
-  static base::AtomicRefCount DebugObjCt;  // NOLINT(runtime/int)
-#endif
+  bool is_proxy() const {
+    return is_proxy_;
+  }
 
  protected:
   ~CefBrowserContext() override;
@@ -195,17 +191,6 @@ class CefBrowserContext
   void Shutdown();
 
  private:
-  // Only allow deletion via scoped_refptr().
-  friend struct content::BrowserThread::DeleteOnThread<
-      content::BrowserThread::UI>;
-  friend class base::DeleteHelper<CefBrowserContext>;
-
-  void RenderFrameDeletedOnIOThread(int render_process_id,
-                                    int render_frame_id,
-                                    bool is_main_frame,
-                                    bool is_guest_view);
-  void PurgePluginListCacheOnIOThread();
-
   // True if this CefBrowserContext is a CefBrowserContextProxy.
   const bool is_proxy_;
 

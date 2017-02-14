@@ -10,7 +10,6 @@
 #include <utility>
 
 #include "include/cef_request_context_handler.h"
-#include "libcef/browser/browser_context_impl.h"
 #include "libcef/browser/net/url_request_context_getter_impl.h"
 
 #include "base/macros.h"
@@ -20,12 +19,17 @@
 #include "third_party/skia/include/core/SkColor.h"
 
 class CefBrowserMainParts;
+class CefBrowserContextImpl;
 class CefDevToolsDelegate;
 class CefResourceDispatcherHostDelegate;
 
 namespace content {
 class PluginServiceFilter;
 class SiteInstance;
+}
+
+namespace extensions {
+class Extension;
 }
 
 class CefContentBrowserClient : public content::ContentBrowserClient {
@@ -113,7 +117,7 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
   // Perform browser process registration for the custom scheme.
   void RegisterCustomScheme(const std::string& scheme);
 
-  scoped_refptr<CefBrowserContextImpl> browser_context() const;
+  CefBrowserContextImpl* browser_context() const;
   CefDevToolsDelegate* devtools_delegate() const;
 
  private:

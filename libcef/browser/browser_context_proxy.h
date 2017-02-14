@@ -21,7 +21,7 @@ class CefStoragePartitionProxy;
 class CefBrowserContextProxy : public CefBrowserContext {
  public:
   CefBrowserContextProxy(CefRefPtr<CefRequestContextHandler> handler,
-                         scoped_refptr<CefBrowserContextImpl> parent);
+                         CefBrowserContextImpl* parent);
 
   // Must be called immediately after this object is created.
   void Initialize() override;
@@ -67,21 +67,19 @@ class CefBrowserContextProxy : public CefBrowserContext {
   content::StoragePartition* GetOrCreateStoragePartitionProxy(
     content::StoragePartition* partition_impl);
 
-  scoped_refptr<CefBrowserContextImpl> parent() const {
+  CefBrowserContextImpl* parent() const {
     return parent_;
   }
 
  private:
-  // Only allow deletion via scoped_refptr().
-  friend struct content::BrowserThread::DeleteOnThread<
-      content::BrowserThread::UI>;
-  friend class base::DeleteHelper<CefBrowserContextProxy>;
+  // Allow deletion via std::unique_ptr() only.
+  friend std::default_delete<CefBrowserContextProxy>;
 
   ~CefBrowserContextProxy() override;
 
   // Members initialized during construction are safe to access from any thread.
   CefRefPtr<CefRequestContextHandler> handler_;
-  scoped_refptr<CefBrowserContextImpl> parent_;
+  CefBrowserContextImpl* parent_;  // Guaranteed to outlive this object.
 
   std::unique_ptr<CefDownloadManagerDelegate> download_manager_delegate_;
   std::unique_ptr<CefStoragePartitionProxy> storage_partition_proxy_;

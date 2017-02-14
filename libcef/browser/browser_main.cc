@@ -193,7 +193,7 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
   CefContext::Get()->PopulateRequestContextSettings(&settings);
 
   // Create the global BrowserContext.
-  global_browser_context_ = new CefBrowserContextImpl(settings);
+  global_browser_context_.reset(new CefBrowserContextImpl(settings));
   global_browser_context_->Initialize();
 
   CefDevToolsManagerDelegate::StartHttpHandler(global_browser_context_.get());
@@ -212,7 +212,7 @@ void CefBrowserMainParts::PostMainMessageLoopRun() {
   // NOTE: Destroy objects in reverse order of creation.
   CefDevToolsManagerDelegate::StopHttpHandler();
 
-  global_browser_context_ = NULL;
+  global_browser_context_.reset(nullptr);
 
   if (extensions::ExtensionsEnabled()) {
     extensions::ExtensionsBrowserClient::Set(NULL);
