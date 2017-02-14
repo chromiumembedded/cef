@@ -91,7 +91,7 @@ index 242d33e..4dfb463 100644
  
    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
 diff --git content/browser/renderer_host/render_process_host_impl.cc content/browser/renderer_host/render_process_host_impl.cc
-index 5e75c17..28fdb04 100644
+index 5e75c17..25d62a8 100644
 --- content/browser/renderer_host/render_process_host_impl.cc
 +++ content/browser/renderer_host/render_process_host_impl.cc
 @@ -653,7 +653,7 @@ void RenderProcessHostImpl::EarlyZygoteLaunch() {
@@ -113,6 +113,15 @@ index 5e75c17..28fdb04 100644
            ChromeBlobStorageContext::GetFor(browser_context_))),
        channel_connected_(false),
        sent_render_process_ready_(false),
+@@ -914,7 +915,7 @@ bool RenderProcessHostImpl::Init() {
+ }
+ 
+ void RenderProcessHostImpl::EnableSendQueue() {
+-  if (!channel_)
++  if (!channel_ && browser_context_)
+     InitializeChannelProxy();
+ }
+ 
 @@ -1010,6 +1011,22 @@ void RenderProcessHostImpl::ResetChannelProxy() {
  
  void RenderProcessHostImpl::CreateMessageFilters() {
