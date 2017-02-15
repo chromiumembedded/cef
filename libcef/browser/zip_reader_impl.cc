@@ -265,8 +265,9 @@ bool CefZipReaderImpl::GetFileInfo() {
   time.tm_hour = file_info.tmu_date.tm_hour;
   time.tm_mday = file_info.tmu_date.tm_mday;
   time.tm_mon = file_info.tmu_date.tm_mon;
-  time.tm_year = file_info.tmu_date.tm_year;
+  time.tm_year = file_info.tmu_date.tm_year - 1900;  // Years since 1900.
   filemodified_ = mktime(&time);
+  DCHECK_NE(filemodified_, (size_t)-1);
 
   return true;
 }
