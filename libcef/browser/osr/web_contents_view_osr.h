@@ -25,7 +25,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   explicit CefWebContentsViewOSR(bool transparent);
   ~CefWebContentsViewOSR() override;
 
-  void set_web_contents(content::WebContents* web_contents);
+  void WebContentsCreated(content::WebContents* web_contents);
   content::WebContents* web_contents() const { return web_contents_; }
 
   // WebContentsView methods.
