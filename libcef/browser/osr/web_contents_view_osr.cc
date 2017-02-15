@@ -24,10 +24,13 @@ CefWebContentsViewOSR::CefWebContentsViewOSR(bool transparent)
 CefWebContentsViewOSR::~CefWebContentsViewOSR() {
 }
 
-void CefWebContentsViewOSR::set_web_contents(
+void CefWebContentsViewOSR::WebContentsCreated(
     content::WebContents* web_contents) {
   DCHECK(!web_contents_);
   web_contents_ = web_contents;
+
+  // Call this again for popup browsers now that the view should exist.
+  RenderViewCreated(web_contents_->GetRenderViewHost());
 }
 
 gfx::NativeView CefWebContentsViewOSR::GetNativeView() const {
@@ -114,6 +117,8 @@ void CefWebContentsViewOSR::SetPageTitle(const base::string16& title) {
 }
 
 void CefWebContentsViewOSR::RenderViewCreated(content::RenderViewHost* host) {
+  // |view| will be nullptr the first time this method is called for popup
+  // browsers.
   CefRenderWidgetHostViewOSR* view = GetView();
   if (view)
     view->InstallTransparency();
