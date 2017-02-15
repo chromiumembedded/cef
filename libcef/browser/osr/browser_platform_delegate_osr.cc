@@ -40,7 +40,7 @@ void CefBrowserPlatformDelegateOsr::WebContentsCreated(
   DCHECK(!view_osr_->web_contents());
 
   // Associate the WebContents with the OSR view.
-  view_osr_->set_web_contents(web_contents);
+  view_osr_->WebContentsCreated(web_contents);
 }
 
 void CefBrowserPlatformDelegateOsr::BrowserCreated(
