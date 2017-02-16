@@ -289,6 +289,30 @@ class CefWindow : public CefPanel {
   virtual void SendMouseEvents(cef_mouse_button_type_t button,
                                bool mouse_down,
                                bool mouse_up) =0;
+  ///
+  // Set the keyboard accelerator for the specified |command_id|. |key_code| can
+  // be any virtual key or character value. CefWindowDelegate::OnAccelerator
+  // will be called if the keyboard combination is triggered while this window
+  // has focus.
+  ///
+  /*--cef()--*/
+  virtual void SetAccelerator(int command_id,
+                              int key_code,
+                              bool shift_pressed,
+                              bool ctrl_pressed,
+                              bool alt_pressed) =0;
+
+  ///
+  // Remove the keyboard accelerator for the specified |command_id|.
+  ///
+  /*--cef()--*/
+  virtual void RemoveAccelerator(int command_id) =0;
+
+  ///
+  // Remove all keyboard accelerators.
+  ///
+  /*--cef()--*/
+  virtual void RemoveAllAccelerators() =0;
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_WINDOW_H_

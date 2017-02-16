@@ -68,6 +68,10 @@ class CefWindowCToCpp
   void SendMouseMove(int screen_x, int screen_y) OVERRIDE;
   void SendMouseEvents(cef_mouse_button_type_t button, bool mouse_down,
       bool mouse_up) OVERRIDE;
+  void SetAccelerator(int command_id, int key_code, bool shift_pressed,
+      bool ctrl_pressed, bool alt_pressed) OVERRIDE;
+  void RemoveAccelerator(int command_id) OVERRIDE;
+  void RemoveAllAccelerators() OVERRIDE;
 
   // CefPanel methods.
   CefRefPtr<CefWindow> AsWindow() OVERRIDE;

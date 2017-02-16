@@ -95,6 +95,24 @@ class CefWindowDelegate : public CefPanelDelegate {
   ///
   /*--cef()--*/
   virtual bool CanClose(CefRefPtr<CefWindow> window) { return true; }
+
+  ///
+  // Called when a keyboard accelerator registered with
+  // CefWindow::SetAccelerator is triggered. Return true if the accelerator was
+  // handled or false otherwise.
+  ///
+  /*--cef()--*/
+  virtual bool OnAccelerator(CefRefPtr<CefWindow> window,
+                             int command_id) { return false; }
+
+  ///
+  // Called after all other controls in the window have had a chance to
+  // handle the event. |event| contains information about the keyboard event.
+  // Return true if the keyboard event was handled or false otherwise.
+  ///
+  /*--cef()--*/
+  virtual bool OnKeyEvent(CefRefPtr<CefWindow> window,
+                          const CefKeyEvent& event) { return false; }
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_WINDOW_DELEGATE_H_

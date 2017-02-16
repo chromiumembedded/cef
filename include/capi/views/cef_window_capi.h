@@ -269,6 +269,27 @@ typedef struct _cef_window_t {
   ///
   void (CEF_CALLBACK *send_mouse_events)(struct _cef_window_t* self,
       cef_mouse_button_type_t button, int mouse_down, int mouse_up);
+
+  ///
+  // Set the keyboard accelerator for the specified |command_id|. |key_code| can
+  // be any virtual key or character value. cef_window_delegate_t::OnAccelerator
+  // will be called if the keyboard combination is triggered while this window
+  // has focus.
+  ///
+  void (CEF_CALLBACK *set_accelerator)(struct _cef_window_t* self,
+      int command_id, int key_code, int shift_pressed, int ctrl_pressed,
+      int alt_pressed);
+
+  ///
+  // Remove the keyboard accelerator for the specified |command_id|.
+  ///
+  void (CEF_CALLBACK *remove_accelerator)(struct _cef_window_t* self,
+      int command_id);
+
+  ///
+  // Remove all keyboard accelerators.
+  ///
+  void (CEF_CALLBACK *remove_all_accelerators)(struct _cef_window_t* self);
 } cef_window_t;
 
 

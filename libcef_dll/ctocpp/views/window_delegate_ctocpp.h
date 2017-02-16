@@ -40,6 +40,9 @@ class CefWindowDelegateCToCpp
   bool CanMaximize(CefRefPtr<CefWindow> window) override;
   bool CanMinimize(CefRefPtr<CefWindow> window) override;
   bool CanClose(CefRefPtr<CefWindow> window) override;
+  bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) override;
+  bool OnKeyEvent(CefRefPtr<CefWindow> window,
+      const CefKeyEvent& event) override;
 
   // CefPanelDelegate methods.
 

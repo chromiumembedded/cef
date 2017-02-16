@@ -83,6 +83,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
                        bool canGoBack,
                        bool canGoForward);
   void SetDraggableRegions(const std::vector<CefDraggableRegion>& regions);
+  void TakeFocus(bool next);
 
   // CefBrowserViewDelegate methods:
   bool OnPopupBrowserViewCreated(
@@ -111,6 +112,9 @@ class ViewsWindow : public CefBrowserViewDelegate,
   void OnWindowDestroyed(CefRefPtr<CefWindow> window) OVERRIDE;
   bool IsFrameless(CefRefPtr<CefWindow> window) OVERRIDE;
   bool CanClose(CefRefPtr<CefWindow> window) OVERRIDE;
+  bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) OVERRIDE;
+  bool OnKeyEvent(CefRefPtr<CefWindow> window,
+                  const CefKeyEvent& event) OVERRIDE;
 
   // CefViewDelegate methods:
   CefSize GetMinimumSize(CefRefPtr<CefView> view) override;
@@ -130,6 +134,9 @@ class ViewsWindow : public CefBrowserViewDelegate,
 
   // Add controls to the Window.
   void AddControls();
+
+  // Add keyboard accelerators to the Window.
+  void AddAccelerators();
 
   // Enable or disable a view by |id|.
   void EnableView(int id, bool enable);

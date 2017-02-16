@@ -29,6 +29,9 @@ class CefWindowView :
     // Returns true to signal that the Widget can be closed.
     virtual bool CanWidgetClose() = 0;
 
+    // Called when the underlying platform window is closing.
+    virtual void OnWindowClosing() = 0;
+
     // Called when the WindowView is about to be deleted.
     virtual void OnWindowViewDeleted() = 0;
 
@@ -58,6 +61,7 @@ class CefWindowView :
   base::string16 GetWindowTitle() const override;
   gfx::ImageSkia GetWindowIcon() override;
   gfx::ImageSkia GetWindowAppIcon() override;
+  void WindowClosing() override;
   views::View* GetContentsView() override;
   views::ClientView* CreateClientView(views::Widget* widget) override;
   views::NonClientFrameView* CreateNonClientFrameView(

@@ -74,6 +74,18 @@ class CefBrowserView : public CefView {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefBrowser> GetBrowser() =0;
+
+  ///
+  // Sets whether accelerators registered with CefWindow::SetAccelerator are
+  // triggered before or after the event is sent to the CefBrowser. If
+  // |prefer_accelerators| is true then the matching accelerator will be
+  // triggered immediately and the event will not be sent to the CefBrowser. If
+  // |prefer_accelerators| is false then the matching accelerator will only be
+  // triggered if the event is not handled by web content or by
+  // CefKeyboardHandler. The default value is false.
+  ///
+  /*--cef()--*/
+  virtual void SetPreferAccelerators(bool prefer_accelerators) =0;
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_BROWSER_VIEW_H_

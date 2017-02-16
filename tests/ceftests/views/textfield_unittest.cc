@@ -278,8 +278,10 @@ void RunTextfieldKeyEvent(CefRefPtr<CefWindow> window) {
 }
 
 void TextfieldKeyEventImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::RunTest(event,
-      base::Bind(RunTextfieldKeyEvent), false, false);
+  TestWindowDelegate::Config config;
+  config.on_window_created = base::Bind(RunTextfieldKeyEvent);
+  config.close_window = false;
+  TestWindowDelegate::RunTest(event, config);
 }
 
 }  // namespace

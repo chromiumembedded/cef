@@ -23,13 +23,9 @@ const int TestWindowDelegate::kWSize = 400;
 
 // static
 void TestWindowDelegate::RunTest(CefRefPtr<CefWaitableEvent> event,
-                                 const WindowTest& window_test,
-                                 bool frameless,
-                                 bool close_window,
-                                 int window_size) {
+                                 const Config& config) {
   CefWindow::CreateTopLevelWindow(
-      new TestWindowDelegate(event, window_test, frameless, close_window,
-                             window_size));
+      new TestWindowDelegate(event, config));
 }
 
 void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
@@ -60,22 +56,22 @@ void TestWindowDelegate::OnWindowCreated(CefRefPtr<CefWindow> window) {
   // Size will come from GetPreferredSize() on initial Window creation.
   EXPECT_TRUE(got_get_preferred_size_);
   CefRect client_bounds = window->GetClientAreaBoundsInScreen();
-  if (frameless_) {
-    EXPECT_EQ(window_size_, client_bounds.width);
-    EXPECT_EQ(window_size_, client_bounds.height);
+  if (config_.frameless) {
+    EXPECT_EQ(config_.window_size, client_bounds.width);
+    EXPECT_EQ(config_.window_size, client_bounds.height);
   } else {
     // Client area bounds calculation might have off-by-one errors on Windows
     // due to non-client frame size being calculated internally in pixels and
     // then converted to DIPs. See http://crbug.com/602692.
-    EXPECT_TRUE(abs(client_bounds.width - window_size_) <= 1);
-    EXPECT_TRUE(abs(client_bounds.height - window_size_) <= 1);
+    EXPECT_TRUE(abs(client_bounds.width - config_.window_size) <= 1);
+    EXPECT_TRUE(abs(client_bounds.height - config_.window_size) <= 1);
   }
 
-  // Run the requested test.
-  if (!window_test_.is_null())
-    window_test_.Run(window);
+  // Run the callback.
+  if (!config_.on_window_created.is_null())
+    config_.on_window_created.Run(window);
 
-  if (close_window_) {
+  if (config_.close_window) {
     // Close the window asynchronously.
     CefPostTask(TID_UI,
         base::Bind(&TestWindowDelegate::OnCloseWindow, this));
@@ -97,6 +93,10 @@ void TestWindowDelegate::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
   EXPECT_FALSE(window->IsVisible());
   EXPECT_FALSE(window->IsDrawn());
 
+  // Run the callback.
+  if (!config_.on_window_destroyed.is_null())
+    config_.on_window_destroyed.Run(window);
+
   window_ = nullptr;
 
   // Don't execute the timeout callback.
@@ -104,24 +104,32 @@ void TestWindowDelegate::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
 }
 
 bool TestWindowDelegate::IsFrameless(CefRefPtr<CefWindow> window) {
-  return frameless_;
+  return config_.frameless;
 }
 
 CefSize TestWindowDelegate::GetPreferredSize(CefRefPtr<CefView> view) {
   got_get_preferred_size_ = true;
-  return CefSize(window_size_, window_size_);
+  return CefSize(config_.window_size, config_.window_size);
+}
+
+bool TestWindowDelegate::OnAccelerator(CefRefPtr<CefWindow> window,
+                                       int command_id) {
+  if (!config_.on_accelerator.is_null())
+    return config_.on_accelerator.Run(window_, command_id);
+  return false;
+}
+
+bool TestWindowDelegate::OnKeyEvent(CefRefPtr<CefWindow> window,
+                                    const CefKeyEvent& event) {
+  if (!config_.on_key_event.is_null())
+    return config_.on_key_event.Run(window_, event);
+  return false;
 }
 
 TestWindowDelegate::TestWindowDelegate(CefRefPtr<CefWaitableEvent> event,
-                                       const WindowTest& window_test,
-                                       bool frameless,
-                                       bool close_window,
-                                       int window_size)
+                                       const Config& config)
     : event_(event),
-      window_test_(window_test),
-      frameless_(frameless),
-      close_window_(close_window),
-      window_size_(window_size),
+      config_(config),
       weak_ptr_factory_(this) {
 }
 

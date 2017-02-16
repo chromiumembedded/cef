@@ -5,8 +5,13 @@
 #include "libcef/browser/views/browser_view_impl.h"
 
 #include "libcef/browser/browser_host_impl.h"
+#include "libcef/browser/browser_util.h"
 #include "libcef/browser/context.h"
+#include "libcef/browser/views/window_impl.h"
 #include "libcef/browser/thread_util.h"
+
+#include "content/public/browser/native_web_keyboard_event.h"
+#include "ui/content_accelerators/accelerator_util.h"
 
 // static
 CefRefPtr<CefBrowserView> CefBrowserView::CreateBrowserView(
@@ -75,9 +80,43 @@ void CefBrowserViewImpl::BrowserDestroyed(CefBrowserHostImpl* browser) {
     root_view()->SetWebContents(nullptr);
 }
 
+void CefBrowserViewImpl::HandleKeyboardEvent(
+    const content::NativeWebKeyboardEvent& event) {
+  if (!root_view())
+    return;
+
+  views::FocusManager* focus_manager = root_view()->GetFocusManager();
+  if (!focus_manager)
+    return;
+
+  if (HandleAccelerator(event, focus_manager))
+    return;
+
+  // Give the CefWindowDelegate a chance to handle the event.
+  CefRefPtr<CefWindow> window =
+      view_util::GetWindowFor(root_view()->GetWidget());
+  CefWindowImpl* window_impl = static_cast<CefWindowImpl*>(window.get());
+  if (window_impl) {
+    CefKeyEvent cef_event;
+    if (browser_util::GetCefKeyEvent(event, cef_event) &&
+        window_impl->OnKeyEvent(cef_event)) {
+      return;
+    }
+  }
+
+  // Proceed with default native handling.
+  unhandled_keyboard_event_handler_.HandleKeyboardEvent(event, focus_manager);
+}
+
 CefRefPtr<CefBrowser> CefBrowserViewImpl::GetBrowser() {
   CEF_REQUIRE_VALID_RETURN(nullptr);
   return browser_;
+}
+
+void CefBrowserViewImpl::SetPreferAccelerators(bool prefer_accelerators) {
+  CEF_REQUIRE_VALID_RETURN_VOID();
+  if (root_view())
+    root_view()->set_allow_accelerators(prefer_accelerators);
 }
 
 void CefBrowserViewImpl::SetBackgroundColor(cef_color_t color) {
@@ -166,4 +205,40 @@ CefBrowserViewView* CefBrowserViewImpl::CreateRootView() {
 
 void CefBrowserViewImpl::InitializeRootView() {
   static_cast<CefBrowserViewView*>(root_view())->Initialize();
+}
+
+bool CefBrowserViewImpl::HandleAccelerator(
+    const content::NativeWebKeyboardEvent& event,
+    views::FocusManager* focus_manager) {
+  // Previous calls to TranslateMessage can generate Char events as well as
+  // RawKeyDown events, even if the latter triggered an accelerator.  In these
+  // cases, we discard the Char events.
+  if (event.type() == blink::WebInputEvent::Char && ignore_next_char_event_) {
+    ignore_next_char_event_ = false;
+    return true;
+  }
+
+  // It's necessary to reset this flag, because a RawKeyDown event may not
+  // always generate a Char event.
+  ignore_next_char_event_ = false;
+
+  if (event.type() == blink::WebInputEvent::RawKeyDown) {
+    ui::Accelerator accelerator =
+        ui::GetAcceleratorFromNativeWebKeyboardEvent(event);
+
+    // This is tricky: we want to set ignore_next_char_event_ if
+    // ProcessAccelerator returns true. But ProcessAccelerator might delete
+    // |this| if the accelerator is a "close tab" one. So we speculatively
+    // set the flag and fix it if no event was handled.
+    ignore_next_char_event_ = true;
+
+    if (focus_manager->ProcessAccelerator(accelerator))
+      return true;
+
+    // ProcessAccelerator didn't handle the accelerator, so we know both
+    // that |this| is still valid, and that we didn't want to set the flag.
+    ignore_next_char_event_ = false;
+  }
+
+  return false;
 }

@@ -32,6 +32,7 @@ class CefBrowserViewCToCpp
 
   // CefBrowserView methods.
   CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
+  void SetPreferAccelerators(bool prefer_accelerators) OVERRIDE;
 
   // CefView methods.
   CefRefPtr<CefBrowserView> AsBrowserView() OVERRIDE;

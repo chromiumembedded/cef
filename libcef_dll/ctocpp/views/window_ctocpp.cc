@@ -505,6 +505,46 @@ void CefWindowCToCpp::SendMouseEvents(cef_mouse_button_type_t button,
       mouse_up);
 }
 
+void CefWindowCToCpp::SetAccelerator(int command_id, int key_code,
+    bool shift_pressed, bool ctrl_pressed, bool alt_pressed) {
+  cef_window_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_accelerator))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->set_accelerator(_struct,
+      command_id,
+      key_code,
+      shift_pressed,
+      ctrl_pressed,
+      alt_pressed);
+}
+
+void CefWindowCToCpp::RemoveAccelerator(int command_id) {
+  cef_window_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, remove_accelerator))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->remove_accelerator(_struct,
+      command_id);
+}
+
+void CefWindowCToCpp::RemoveAllAccelerators() {
+  cef_window_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, remove_all_accelerators))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->remove_all_accelerators(_struct);
+}
+
 CefRefPtr<CefWindow> CefWindowCToCpp::AsWindow() {
   cef_panel_t* _struct = reinterpret_cast<cef_panel_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_window))

@@ -133,8 +133,9 @@ void RunScrollViewLayout(bool with_delegate,
 
 void ScrollViewLayout(CefRefPtr<CefWaitableEvent> event,
                       bool with_delegate) {
-  TestWindowDelegate::RunTest(event,
-      base::Bind(RunScrollViewLayout, with_delegate), false);
+  TestWindowDelegate::Config config;
+  config.on_window_created = base::Bind(RunScrollViewLayout, with_delegate);
+  TestWindowDelegate::RunTest(event, config);
 }
 
 void ScrollViewLayoutWithDelegateImpl(CefRefPtr<CefWaitableEvent> event) {

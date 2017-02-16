@@ -4,6 +4,7 @@
 
 #include "libcef/browser/views/window_impl.h"
 
+#include "libcef/browser/browser_util.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/browser/views/display_impl.h"
 #include "libcef/browser/views/fill_layout_impl.h"
@@ -17,6 +18,7 @@
 
 #if defined(USE_AURA)
 #include "ui/aura/test/ui_controls_factory_aura.h"
+#include "ui/aura/window.h"
 #include "ui/base/test/ui_controls_aura.h"
 #if defined(OS_LINUX)
 #include "ui/views/test/ui_controls_factory_desktop_aurax11.h"
@@ -47,6 +49,58 @@ void InitializeUITesting() {
     initialized = true;
   }
 }
+
+#if defined(USE_AURA)
+
+// This class forwards KeyEvents to the CefWindowImpl associated with a widget.
+// This allows KeyEvents to be processed after all other targets.
+// Events originating from CefBrowserView will instead be delivered via
+// CefBrowserViewImpl::HandleKeyboardEvent.
+class CefUnhandledKeyEventHandler : public ui::EventHandler {
+ public:
+  CefUnhandledKeyEventHandler(CefWindowImpl* window_impl,
+                              views::Widget* widget)
+    : window_impl_(window_impl),
+      widget_(widget),
+      window_(widget->GetNativeWindow()) {
+    DCHECK(window_);
+    window_->AddPostTargetHandler(this);
+  }
+
+  ~CefUnhandledKeyEventHandler() override {
+    window_->RemovePostTargetHandler(this);
+  }
+
+  // Implementation of ui::EventHandler:
+  void OnKeyEvent(ui::KeyEvent* event) override {
+    // Give the FocusManager a chance to handle accelerators first.
+    // Widget::OnKeyEvent would normally call this after all EventHandlers have
+    // had a shot but we don't want to wait.
+    if (widget_->GetFocusManager() &&
+        !widget_->GetFocusManager()->OnKeyEvent(*event)) {
+      event->StopPropagation();
+      return;
+    }
+
+    CefKeyEvent cef_event;
+    if (browser_util::GetCefKeyEvent(*event, cef_event) &&
+        window_impl_->OnKeyEvent(cef_event)) {
+      event->StopPropagation();
+    }
+  }
+
+ private:
+  // Members are guaranteed to outlive this object.
+  CefWindowImpl* window_impl_;
+  views::Widget* widget_;
+
+  // |window_| is the event target that is associated with this class.
+  aura::Window* window_;
+
+  DISALLOW_COPY_AND_ASSIGN(CefUnhandledKeyEventHandler);
+};
+
+#endif  // defined(USE_AURA)
 
 }  // namespace
 
@@ -315,6 +369,12 @@ bool CefWindowImpl::CanWidgetClose() {
   return true;
 }
 
+void CefWindowImpl::OnWindowClosing() {
+#if defined(USE_AURA)
+  unhandled_key_event_handler_.reset();
+#endif
+}
+
 void CefWindowImpl::OnWindowViewDeleted() {
   CancelMenu();
 
@@ -335,6 +395,27 @@ void CefWindowImpl::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
   menu_model_->RemoveObserver(this);
   menu_model_ = nullptr;
   menu_runner_.reset(nullptr);
+}
+
+// Will only be called if CanHandleAccelerators() returns true.
+bool CefWindowImpl::AcceleratorPressed(const ui::Accelerator& accelerator) {
+  for (const auto& entry : accelerator_map_) {
+    if (entry.second == accelerator)
+      return delegate()->OnAccelerator(this, entry.first);
+  }
+  return false;
+}
+
+bool CefWindowImpl::CanHandleAccelerators() const {
+  if (delegate() && widget_)
+    return widget_->IsActive();
+  return false;
+}
+
+bool CefWindowImpl::OnKeyEvent(const CefKeyEvent& event) {
+  if (delegate())
+    return delegate()->OnKeyEvent(this, event);
+  return false;
 }
 
 void CefWindowImpl::ShowMenu(views::MenuButton* menu_button,
@@ -474,6 +555,67 @@ void CefWindowImpl::SendMouseEvents(cef_mouse_button_type_t button,
   ui_controls::SendMouseEvents(type, state);
 }
 
+void CefWindowImpl::SetAccelerator(int command_id,
+                                   int key_code,
+                                   bool shift_pressed,
+                                   bool ctrl_pressed,
+                                   bool alt_pressed) {
+  CEF_REQUIRE_VALID_RETURN_VOID();
+  if (!widget_)
+    return;
+
+  AcceleratorMap::const_iterator it = accelerator_map_.find(command_id);
+  if (it != accelerator_map_.end())
+    RemoveAccelerator(command_id);
+
+  int modifiers = 0;
+  if (shift_pressed)
+    modifiers |= ui::EF_SHIFT_DOWN;
+  if (ctrl_pressed)
+    modifiers |= ui::EF_CONTROL_DOWN;
+  if (alt_pressed)
+    modifiers |= ui::EF_ALT_DOWN;
+  ui::Accelerator accelerator(static_cast<ui::KeyboardCode>(key_code),
+                              modifiers);
+
+  accelerator_map_.insert(std::make_pair(command_id, accelerator));
+
+  views::FocusManager* focus_manager = widget_->GetFocusManager();
+  DCHECK(focus_manager);
+  focus_manager->RegisterAccelerator(
+      accelerator, ui::AcceleratorManager::kNormalPriority, this);
+}
+
+void CefWindowImpl::RemoveAccelerator(int command_id) {
+  CEF_REQUIRE_VALID_RETURN_VOID();
+  if (!widget_)
+    return;
+
+  AcceleratorMap::iterator it = accelerator_map_.find(command_id);
+  if (it == accelerator_map_.end())
+    return;
+
+  ui::Accelerator accelerator = it->second;
+
+  accelerator_map_.erase(it);
+
+  views::FocusManager* focus_manager = widget_->GetFocusManager();
+  DCHECK(focus_manager);
+  focus_manager->UnregisterAccelerator(accelerator, this);
+}
+
+void CefWindowImpl::RemoveAllAccelerators() {
+  CEF_REQUIRE_VALID_RETURN_VOID();
+  if (!widget_)
+    return;
+
+  accelerator_map_.clear();
+
+  views::FocusManager* focus_manager = widget_->GetFocusManager();
+  DCHECK(focus_manager);
+  focus_manager->UnregisterAccelerators(this);
+}
+
 CefWindowImpl::CefWindowImpl(CefRefPtr<CefWindowDelegate> delegate)
     : ParentClass(delegate),
       widget_(nullptr),
@@ -494,6 +636,11 @@ void CefWindowImpl::CreateWidget() {
   root_view()->CreateWidget();
   widget_ = root_view()->GetWidget();
   DCHECK(widget_);
+
+#if defined(USE_AURA)
+  unhandled_key_event_handler_ =
+      base::MakeUnique<CefUnhandledKeyEventHandler>(this, widget_);
+#endif
 
   // The Widget and root View are owned by the native window. Therefore don't
   // keep an owned reference.

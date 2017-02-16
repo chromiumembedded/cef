@@ -14,6 +14,10 @@
 
 #define WINDOW_TEST_ASYNC(name) UI_THREAD_TEST_ASYNC(ViewsWindowTest, name)
 
+#if !defined(OS_WIN)
+#define VK_MENU   0x12  // ALT key.
+#endif
+
 namespace {
 
 // Window state change delay in MS.
@@ -33,11 +37,14 @@ void ExpectCloseRects(const CefRect& expected,
 }
 
 void WindowCreateImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::RunTest(event, TestWindowDelegate::WindowTest(), false);
+  TestWindowDelegate::Config config;
+  TestWindowDelegate::RunTest(event, config);
 }
 
 void WindowCreateFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::RunTest(event, TestWindowDelegate::WindowTest(), true);
+  TestWindowDelegate::Config config;
+  config.frameless = true;
+  TestWindowDelegate::RunTest(event, config);
 }
 
 void RunWindowShowHide(CefRefPtr<CefWindow> window) {
@@ -52,11 +59,16 @@ void RunWindowShowHide(CefRefPtr<CefWindow> window) {
 }
 
 void WindowShowHideImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::RunTest(event, base::Bind(RunWindowShowHide), false);
+  TestWindowDelegate::Config config;
+  config.on_window_created = base::Bind(RunWindowShowHide);
+  TestWindowDelegate::RunTest(event, config);
 }
 
 void WindowShowHideFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::RunTest(event, base::Bind(RunWindowShowHide), true);
+  TestWindowDelegate::Config config;
+  config.on_window_created = base::Bind(RunWindowShowHide);
+  config.frameless = true;
+  TestWindowDelegate::RunTest(event, config);
 }
 
 const int kWPanel1ID = 1;
@@ -180,11 +192,16 @@ void RunWindowLayoutAndCoords(CefRefPtr<CefWindow> window) {
 }
 
 void WindowLayoutAndCoordsImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::RunTest(event, base::Bind(RunWindowLayoutAndCoords), false);
+  TestWindowDelegate::Config config;
+  config.on_window_created = base::Bind(RunWindowLayoutAndCoords);
+  TestWindowDelegate::RunTest(event, config);
 }
 
 void WindowLayoutAndCoordsFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::RunTest(event, base::Bind(RunWindowLayoutAndCoords), true);
+  TestWindowDelegate::Config config;
+  config.on_window_created = base::Bind(RunWindowLayoutAndCoords);
+  config.frameless = true;
+  TestWindowDelegate::RunTest(event, config);
 }
 
 void VerifyRestore(CefRefPtr<CefWindow> window) {
@@ -223,13 +240,18 @@ void RunWindowMaximize(CefRefPtr<CefWindow> window) {
 }
 
 void WindowMaximizeImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::RunTest(event, base::Bind(RunWindowMaximize), false,
-                              false);
+  TestWindowDelegate::Config config;
+  config.on_window_created = base::Bind(RunWindowMaximize);
+  config.close_window = false;
+  TestWindowDelegate::RunTest(event, config);
 }
 
 void WindowMaximizeFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::RunTest(event, base::Bind(RunWindowMaximize), true,
-                              false);
+  TestWindowDelegate::Config config;
+  config.on_window_created = base::Bind(RunWindowMaximize);
+  config.frameless = true;
+  config.close_window = false;
+  TestWindowDelegate::RunTest(event, config);
 }
 
 void VerifyMinimize(CefRefPtr<CefWindow> window) {
@@ -260,13 +282,18 @@ void RunWindowMinimize(CefRefPtr<CefWindow> window) {
 }
 
 void WindowMinimizeImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::RunTest(event, base::Bind(RunWindowMinimize), false,
-                              false);
+  TestWindowDelegate::Config config;
+  config.on_window_created = base::Bind(RunWindowMinimize);
+  config.close_window = false;
+  TestWindowDelegate::RunTest(event, config);
 }
 
 void WindowMinimizeFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::RunTest(event, base::Bind(RunWindowMinimize), true,
-                              false);
+  TestWindowDelegate::Config config;
+  config.on_window_created = base::Bind(RunWindowMinimize);
+  config.frameless = true;
+  config.close_window = false;
+  TestWindowDelegate::RunTest(event, config);
 }
 
 void VerifyFullscreenExit(CefRefPtr<CefWindow> window) {
@@ -307,13 +334,18 @@ void RunWindowFullscreen(CefRefPtr<CefWindow> window) {
 }
 
 void WindowFullscreenImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::RunTest(event, base::Bind(RunWindowFullscreen), false,
-                              false);
+  TestWindowDelegate::Config config;
+  config.on_window_created = base::Bind(RunWindowFullscreen);
+  config.close_window = false;
+  TestWindowDelegate::RunTest(event, config);
 }
 
 void WindowFullscreenFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::RunTest(event, base::Bind(RunWindowFullscreen), true,
-                              false);
+  TestWindowDelegate::Config config;
+  config.on_window_created = base::Bind(RunWindowFullscreen);
+  config.frameless = true;
+  config.close_window = false;
+  TestWindowDelegate::RunTest(event, config);
 }
 
 void RunWindowIcon(CefRefPtr<CefWindow> window) {
@@ -333,11 +365,113 @@ void RunWindowIcon(CefRefPtr<CefWindow> window) {
 }
 
 void WindowIconImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::RunTest(event, base::Bind(RunWindowIcon), false);
+  TestWindowDelegate::Config config;
+  config.on_window_created = base::Bind(RunWindowIcon);
+  TestWindowDelegate::RunTest(event, config);
 }
 
 void WindowIconFramelessImpl(CefRefPtr<CefWaitableEvent> event) {
-  TestWindowDelegate::RunTest(event, base::Bind(RunWindowIcon), true);
+  TestWindowDelegate::Config config;
+  config.on_window_created = base::Bind(RunWindowIcon);
+  config.frameless = true;
+  TestWindowDelegate::RunTest(event, config);
+}
+
+const int kChar = 'A';
+const int kCloseWindowId = 2;
+bool got_accelerator;
+int got_key_event_alt_count;
+bool got_key_event_char;
+
+void TriggerAccelerator(CefRefPtr<CefWindow> window) {
+  window->SendKeyPress(kChar, EVENTFLAG_ALT_DOWN);
+}
+
+bool OnKeyEvent(CefRefPtr<CefWindow> window, const CefKeyEvent& event) {
+  if (event.type != KEYEVENT_RAWKEYDOWN)
+    return false;
+
+  if (event.windows_key_code == VK_MENU) {
+    // First we get the ALT key press in all cases.
+    EXPECT_FALSE(got_key_event_char);
+    if (got_key_event_alt_count == 0)
+      EXPECT_FALSE(got_accelerator);
+    else
+      EXPECT_TRUE(got_accelerator);
+
+    EXPECT_EQ(event.modifiers, EVENTFLAG_ALT_DOWN);
+    got_key_event_alt_count++;
+  } else if (event.windows_key_code == kChar) {
+    // Then we get the char key press with the ALT modifier if the accelerator
+    // isn't registered.
+    EXPECT_TRUE(got_accelerator);
+    EXPECT_EQ(got_key_event_alt_count, 2);
+    EXPECT_FALSE(got_key_event_char);
+
+    EXPECT_EQ(event.modifiers, EVENTFLAG_ALT_DOWN);
+    got_key_event_char = true;
+
+    // Call this method just to make sure it doesn't crash.
+    window->RemoveAllAccelerators();
+
+    // End the test by closing the Window.
+    window->Close();
+
+    return true;
+  }
+
+  return false;
+}
+
+bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) {
+  EXPECT_FALSE(got_accelerator);
+  EXPECT_EQ(got_key_event_alt_count, 1);
+  EXPECT_FALSE(got_key_event_char);
+
+  EXPECT_EQ(kCloseWindowId, command_id);
+  got_accelerator = true;
+
+  // Remove the accelerator.
+  window->RemoveAccelerator(kCloseWindowId);
+
+  // Now send the event without the accelerator registered. Should result in a
+  // call to OnKeyEvent.
+  TriggerAccelerator(window);
+
+  return true;
+}
+
+void RunWindowAccelerator(CefRefPtr<CefWindow> window) {
+  window->SetAccelerator(kCloseWindowId, kChar, false, false, true);
+  window->Show();
+
+  CefPostDelayedTask(TID_UI, base::Bind(TriggerAccelerator, window),
+                     kStateDelayMS);
+}
+
+void VerifyWindowAccelerator(CefRefPtr<CefWindow> window) {
+  EXPECT_TRUE(got_accelerator);
+  EXPECT_EQ(got_key_event_alt_count, 2);
+  EXPECT_TRUE(got_key_event_char);
+}
+
+// Expected order of events:
+// 1. OnKeyEvent for ALT key press.
+// 2. OnAccelerator for ALT+Char key press (with accelerator registered).
+// 3. OnKeyEvent for ALT key press.
+// 4. OnKeyEvent for ALT+Char key press (without accelerator registered).
+void WindowAcceleratorImpl(CefRefPtr<CefWaitableEvent> event) {
+  got_accelerator = false;
+  got_key_event_alt_count = 0;
+  got_key_event_char = false;
+
+  TestWindowDelegate::Config config;
+  config.on_window_created = base::Bind(RunWindowAccelerator);
+  config.on_window_destroyed = base::Bind(VerifyWindowAccelerator);
+  config.on_accelerator = base::Bind(OnAccelerator);
+  config.on_key_event = base::Bind(OnKeyEvent);
+  config.close_window = false;
+  TestWindowDelegate::RunTest(event, config);
 }
 
 }  // namespace
@@ -359,3 +493,4 @@ WINDOW_TEST_ASYNC(WindowFullscreen);
 WINDOW_TEST_ASYNC(WindowFullscreenFrameless);
 WINDOW_TEST_ASYNC(WindowIcon);
 WINDOW_TEST_ASYNC(WindowIconFrameless);
+WINDOW_TEST_ASYNC(WindowAccelerator);

@@ -462,6 +462,12 @@ void ClientHandler::OnDraggableRegionsChanged(
   NotifyDraggableRegions(regions);
 }
 
+void ClientHandler::OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) {
+  CEF_REQUIRE_UI_THREAD();
+
+  NotifyTakeFocus(next);
+}
+
 bool ClientHandler::OnRequestGeolocationPermission(
       CefRefPtr<CefBrowser> browser,
       const CefString& requesting_url,
@@ -988,6 +994,18 @@ void ClientHandler::NotifyDraggableRegions(
 
   if (delegate_)
     delegate_->OnSetDraggableRegions(regions);
+}
+
+void ClientHandler::NotifyTakeFocus(bool next) {
+  if (!CURRENTLY_ON_MAIN_THREAD()) {
+    // Execute this method on the main thread.
+    MAIN_POST_CLOSURE(
+        base::Bind(&ClientHandler::NotifyTakeFocus, this, next));
+    return;
+  }
+
+  if (delegate_)
+    delegate_->OnTakeFocus(next);
 }
 
 void ClientHandler::BuildTestMenu(CefRefPtr<CefMenuModel> model) {

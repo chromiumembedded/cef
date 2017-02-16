@@ -73,6 +73,7 @@ class RootWindowViews : public RootWindow,
                          bool canGoForward) OVERRIDE;
   void OnSetDraggableRegions(
       const std::vector<CefDraggableRegion>& regions) OVERRIDE;
+  void OnTakeFocus(bool next) OVERRIDE;
 
  private:
   void CreateClientHandler(const std::string& url);

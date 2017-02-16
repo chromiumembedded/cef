@@ -151,6 +151,50 @@ bool CefWindowDelegateCToCpp::CanClose(CefRefPtr<CefWindow> window) {
   return _retval?true:false;
 }
 
+bool CefWindowDelegateCToCpp::OnAccelerator(CefRefPtr<CefWindow> window,
+    int command_id) {
+  cef_window_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_accelerator))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: window; type: refptr_diff
+  DCHECK(window.get());
+  if (!window.get())
+    return false;
+
+  // Execute
+  int _retval = _struct->on_accelerator(_struct,
+      CefWindowCppToC::Wrap(window),
+      command_id);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+bool CefWindowDelegateCToCpp::OnKeyEvent(CefRefPtr<CefWindow> window,
+    const CefKeyEvent& event) {
+  cef_window_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_key_event))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: window; type: refptr_diff
+  DCHECK(window.get());
+  if (!window.get())
+    return false;
+
+  // Execute
+  int _retval = _struct->on_key_event(_struct,
+      CefWindowCppToC::Wrap(window),
+      &event);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 CefSize CefWindowDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
       GetStruct());
