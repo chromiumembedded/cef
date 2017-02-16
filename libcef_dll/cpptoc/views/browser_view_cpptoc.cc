@@ -92,6 +92,19 @@ cef_browser_t* CEF_CALLBACK browser_view_get_browser(
   return CefBrowserCppToC::Wrap(_retval);
 }
 
+void CEF_CALLBACK browser_view_set_prefer_accelerators(
+    struct _cef_browser_view_t* self, int prefer_accelerators) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserViewCppToC::Get(self)->SetPreferAccelerators(
+      prefer_accelerators?true:false);
+}
+
 cef_browser_view_t* CEF_CALLBACK browser_view_as_browser_view(
     struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -905,6 +918,7 @@ int CEF_CALLBACK browser_view_convert_point_from_view(struct _cef_view_t* self,
 
 CefBrowserViewCppToC::CefBrowserViewCppToC() {
   GetStruct()->get_browser = browser_view_get_browser;
+  GetStruct()->set_prefer_accelerators = browser_view_set_prefer_accelerators;
   GetStruct()->base.as_browser_view = browser_view_as_browser_view;
   GetStruct()->base.as_button = browser_view_as_button;
   GetStruct()->base.as_panel = browser_view_as_panel;

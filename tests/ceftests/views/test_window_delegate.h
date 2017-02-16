@@ -14,7 +14,21 @@ class TestWindowDelegate : public CefWindowDelegate {
   static const int kWSize;
 
   // Test execution callback.
-  typedef base::Callback<void(CefRefPtr<CefWindow>)> WindowTest;
+  typedef base::Callback<void(CefRefPtr<CefWindow>)> OnWindowCreatedCallback;
+  typedef base::Callback<void(CefRefPtr<CefWindow>)> OnWindowDestroyedCallback;
+  typedef base::Callback<bool(CefRefPtr<CefWindow>,int)> OnAcceleratorCallback;
+  typedef base::Callback<bool(CefRefPtr<CefWindow>,const CefKeyEvent&)>
+      OnKeyEventCallback;
+
+  struct Config {
+    OnWindowCreatedCallback on_window_created;
+    OnWindowDestroyedCallback on_window_destroyed;
+    OnAcceleratorCallback on_accelerator;
+    OnKeyEventCallback on_key_event;
+    bool frameless = false;
+    bool close_window = true;
+    int window_size = kWSize;
+  };
 
   // Creates a Window with a new TestWindowDelegate instance and executes
   // |window_test| after the Window is created. |event| will be signaled once
@@ -23,33 +37,27 @@ class TestWindowDelegate : public CefWindowDelegate {
   // immediately after |window_test| returns. Otherwise, the caller is
   // responsible for closing the Window passed to |window_test|.
   static void RunTest(CefRefPtr<CefWaitableEvent> event,
-                      const WindowTest& window_test,
-                      bool frameless = false,
-                      bool close_window = true,
-                      int window_size = kWSize);
+                      const Config& config);
 
   // CefWindowDelegate methods:
   void OnWindowCreated(CefRefPtr<CefWindow> window) override;
   void OnWindowDestroyed(CefRefPtr<CefWindow> window) override;
   bool IsFrameless(CefRefPtr<CefWindow> window) override;
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override;
+  bool OnAccelerator(CefRefPtr<CefWindow> window, int command_id) override;
+  bool OnKeyEvent(CefRefPtr<CefWindow> window,
+                  const CefKeyEvent& event) override;
 
  private:
   TestWindowDelegate(CefRefPtr<CefWaitableEvent> event,
-                     const WindowTest& window_test,
-                     bool frameless,
-                     bool close_window,
-                     int window_size);
+                     const Config& config);
   ~TestWindowDelegate() override;
 
   void OnCloseWindow();
   void OnTimeoutWindow();
 
   CefRefPtr<CefWaitableEvent> event_;
-  WindowTest window_test_;
-  bool frameless_;
-  bool close_window_;
-  int window_size_;
+  Config config_;
 
   CefRefPtr<CefWindow> window_;
 

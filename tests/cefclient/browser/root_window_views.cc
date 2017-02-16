@@ -329,6 +329,18 @@ void RootWindowViews::OnSetDraggableRegions(
     window_->SetDraggableRegions(regions);
 }
 
+void RootWindowViews::OnTakeFocus(bool next) {
+  if (!CefCurrentlyOn(TID_UI)) {
+    // Execute this method on the UI thread.
+    CefPostTask(TID_UI,
+        base::Bind(&RootWindowViews::OnTakeFocus, this, next));
+    return;
+  }
+
+  if (window_)
+    window_->TakeFocus(next);
+}
+
 void RootWindowViews::CreateClientHandler(const std::string& url) {
   DCHECK(!client_handler_);
 

@@ -250,10 +250,13 @@ void LabelButtonClick(CefRefPtr<CefWaitableEvent> event,
                       bool with_button_text,
                       bool with_button_image,
                       bool with_window_frame) {
-  TestWindowDelegate::RunTest(event,
+  TestWindowDelegate::Config config;
+  config.on_window_created =
       base::Bind(RunLabelButtonClick, with_button_frame, with_button_text,
-                 with_button_image),
-      !with_window_frame, false);
+                 with_button_image);
+  config.frameless = !with_window_frame;
+  config.close_window = false;
+  TestWindowDelegate::RunTest(event, config);
 }
 
 void LabelButtonClickFramedWithTextWithImageFramedWindowImpl(
@@ -465,10 +468,13 @@ void MenuButtonClick(CefRefPtr<CefWaitableEvent> event,
                      bool with_button_menu_marker,
                      bool with_button_image,
                      bool with_window_frame) {
-  TestWindowDelegate::RunTest(event,
+  TestWindowDelegate::Config config;
+  config.on_window_created =
       base::Bind(RunMenuButtonClick, with_button_frame, with_button_text,
-                 with_button_menu_marker, with_button_image),
-      !with_window_frame, false);
+                 with_button_menu_marker, with_button_image);
+  config.frameless = !with_window_frame;
+  config.close_window = false;
+  TestWindowDelegate::RunTest(event, config);
 }
 
 void MenuButtonClickFramedWithTextWithMarkerWithImageFramedWindowImpl(

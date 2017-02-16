@@ -14,6 +14,8 @@
 #include "libcef/browser/views/view_impl.h"
 #include "libcef/browser/views/browser_view_view.h"
 
+#include "ui/views/controls/webview/unhandled_keyboard_event_handler.h"
+
 class CefBrowserViewImpl :
     public CefViewImpl<CefBrowserViewView, CefBrowserView,
                        CefBrowserViewDelegate>,
@@ -41,8 +43,13 @@ class CefBrowserViewImpl :
   void BrowserCreated(CefBrowserHostImpl* browser);
   void BrowserDestroyed(CefBrowserHostImpl* browser);
 
+  // Called to handle accelerators when the event is unhandled by the web
+  // content and the browser client.
+  void HandleKeyboardEvent(const content::NativeWebKeyboardEvent& event);
+
   // CefBrowserView methods:
   CefRefPtr<CefBrowser> GetBrowser() override;
+  void SetPreferAccelerators(bool prefer_accelerators) override;
 
   // CefView methods:
   CefRefPtr<CefBrowserView> AsBrowserView() override { return this; }
@@ -75,9 +82,19 @@ class CefBrowserViewImpl :
   CefBrowserViewView* CreateRootView() override;
   void InitializeRootView() override;
 
-  std::unique_ptr<CefBrowserHostImpl::CreateParams> pending_browser_create_params_;
+  // Logic extracted from UnhandledKeyboardEventHandler::HandleKeyboardEvent for
+  // the handling of accelerators. Returns true if the event was handled by the
+  // accelerator.
+  bool HandleAccelerator(const content::NativeWebKeyboardEvent& event,
+                         views::FocusManager* focus_manager);
+
+  std::unique_ptr<CefBrowserHostImpl::CreateParams>
+      pending_browser_create_params_;
 
   CefRefPtr<CefBrowserHostImpl> browser_;
+
+  views::UnhandledKeyboardEventHandler unhandled_keyboard_event_handler_;
+  bool ignore_next_char_event_ = false;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefBrowserViewImpl);
   DISALLOW_COPY_AND_ASSIGN(CefBrowserViewImpl);

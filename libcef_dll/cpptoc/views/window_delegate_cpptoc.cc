@@ -153,6 +153,59 @@ int CEF_CALLBACK window_delegate_can_close(struct _cef_window_delegate_t* self,
   return _retval;
 }
 
+int CEF_CALLBACK window_delegate_on_accelerator(
+    struct _cef_window_delegate_t* self, cef_window_t* window,
+    int command_id) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: window; type: refptr_diff
+  DCHECK(window);
+  if (!window)
+    return 0;
+
+  // Execute
+  bool _retval = CefWindowDelegateCppToC::Get(self)->OnAccelerator(
+      CefWindowCToCpp::Wrap(window),
+      command_id);
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK window_delegate_on_key_event(
+    struct _cef_window_delegate_t* self, cef_window_t* window,
+    const struct _cef_key_event_t* event) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: window; type: refptr_diff
+  DCHECK(window);
+  if (!window)
+    return 0;
+  // Verify param: event; type: struct_byref_const
+  DCHECK(event);
+  if (!event)
+    return 0;
+
+  // Translate param: event; type: struct_byref_const
+  CefKeyEvent eventObj;
+  if (event)
+    eventObj.Set(*event, false);
+
+  // Execute
+  bool _retval = CefWindowDelegateCppToC::Get(self)->OnKeyEvent(
+      CefWindowCToCpp::Wrap(window),
+      eventObj);
+
+  // Return type: bool
+  return _retval;
+}
+
 cef_size_t CEF_CALLBACK window_delegate_get_preferred_size(
     struct _cef_view_delegate_t* self, cef_view_t* view) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -301,6 +354,8 @@ CefWindowDelegateCppToC::CefWindowDelegateCppToC() {
   GetStruct()->can_maximize = window_delegate_can_maximize;
   GetStruct()->can_minimize = window_delegate_can_minimize;
   GetStruct()->can_close = window_delegate_can_close;
+  GetStruct()->on_accelerator = window_delegate_on_accelerator;
+  GetStruct()->on_key_event = window_delegate_on_key_event;
   GetStruct()->base.base.get_preferred_size =
       window_delegate_get_preferred_size;
   GetStruct()->base.base.get_minimum_size = window_delegate_get_minimum_size;

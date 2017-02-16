@@ -81,6 +81,18 @@ CefRefPtr<CefBrowser> CefBrowserViewCToCpp::GetBrowser() {
   return CefBrowserCToCpp::Wrap(_retval);
 }
 
+void CefBrowserViewCToCpp::SetPreferAccelerators(bool prefer_accelerators) {
+  cef_browser_view_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_prefer_accelerators))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->set_prefer_accelerators(_struct,
+      prefer_accelerators);
+}
+
 CefRefPtr<CefBrowserView> CefBrowserViewCToCpp::AsBrowserView() {
   cef_view_t* _struct = reinterpret_cast<cef_view_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, as_browser_view))

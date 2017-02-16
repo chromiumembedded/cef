@@ -368,6 +368,10 @@ gfx::ImageSkia CefWindowView::GetWindowAppIcon() {
       GetForced1xScaleRepresentation(GetDisplay().device_scale_factor());
 }
 
+void CefWindowView::WindowClosing() {
+  window_delegate_->OnWindowClosing();
+}
+
 views::View* CefWindowView::GetContentsView() {
   // |this| will be the "Contents View" hosted by the Widget via ClientView and
   // RootView.

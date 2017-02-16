@@ -18,6 +18,7 @@
 
 #if !defined(OS_WIN)
 #define VK_RETURN 0x0D
+#define VK_MENU   0x12  // ALT key.
 #endif
 
 namespace client {
@@ -204,6 +205,21 @@ void ViewsWindow::SetDraggableRegions(
   window_->SetDraggableRegions(window_regions);
 }
 
+void ViewsWindow::TakeFocus(bool next) {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (!window_ || !with_controls_)
+    return;
+
+  if (next) {
+    // Focus is moving forwards (tab). Give focus to the URL textfield.
+    window_->GetViewForID(ID_URL_TEXTFIELD)->RequestFocus();
+  } else {
+    // Focus is moving backwards (tab+shift). Give focus to the menu button.
+    window_->GetViewForID(ID_MENU_BUTTON)->RequestFocus();
+  }
+}
+
 bool ViewsWindow::OnPopupBrowserViewCreated(
     CefRefPtr<CefBrowserView> browser_view,
     CefRefPtr<CefBrowserView> popup_browser_view,
@@ -345,6 +361,9 @@ void ViewsWindow::OnWindowCreated(CefRefPtr<CefWindow> window) {
   if (with_controls_) {
     // Add the BrowserView and other controls to the Window.
     AddControls();
+
+    // Add keyboard accelerators to the Window.
+    AddAccelerators();
   } else {
     // Add the BrowserView as the only child of the Window.
     window_->AddChildView(browser_view_);
@@ -386,6 +405,33 @@ bool ViewsWindow::IsFrameless(CefRefPtr<CefWindow> window) {
   return frameless_;
 }
 
+bool ViewsWindow::OnAccelerator(CefRefPtr<CefWindow> window, int command_id) {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (command_id == ID_QUIT) {
+    delegate_->OnExit();
+    return true;
+  }
+
+  return false;
+}
+
+bool ViewsWindow::OnKeyEvent(CefRefPtr<CefWindow> window,
+                             const CefKeyEvent& event) {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (!window_ || !with_controls_)
+    return false;
+
+  if (event.type == KEYEVENT_RAWKEYDOWN && event.windows_key_code == VK_MENU) {
+    // ALT key is pressed. Give focus to the menu button.
+    window_->GetViewForID(ID_MENU_BUTTON)->RequestFocus();
+    return true;
+  }
+
+  return false;
+}
+
 CefSize ViewsWindow::GetMinimumSize(CefRefPtr<CefView> view) {
   CEF_REQUIRE_UI_THREAD();
 
@@ -420,7 +466,7 @@ void ViewsWindow::CreateMenuModel() {
   menu_model_ = CefMenuModel::CreateMenuModel(this);
 
   // Create the test menu.
-  CefRefPtr<CefMenuModel> test_menu = menu_model_->AddSubMenu(0, "Tests");
+  CefRefPtr<CefMenuModel> test_menu = menu_model_->AddSubMenu(0, "&Tests");
   test_menu->AddItem(ID_TESTS_GETSOURCE,      "Get Source");
   test_menu->AddItem(ID_TESTS_GETTEXT,        "Get Text");
   test_menu->AddItem(ID_TESTS_WINDOW_NEW,     "New Window");
@@ -436,7 +482,10 @@ void ViewsWindow::CreateMenuModel() {
   test_menu->AddItem(ID_TESTS_PRINT_TO_PDF,   "Print to PDF");
   test_menu->AddItem(ID_TESTS_OTHER_TESTS,    "Other Tests");
 
-  menu_model_->AddItem(ID_QUIT, "Exit");
+  menu_model_->AddItem(ID_QUIT, "E&xit");
+
+  // Show the accelerator shortcut text in the menu.
+  menu_model_->SetAcceleratorAt(1, 'X', false, false, true);
 }
 
 CefRefPtr<CefLabelButton> ViewsWindow::CreateBrowseButton(
@@ -473,6 +522,8 @@ void ViewsWindow::AddControls() {
   menu_button->SetImage(CEF_BUTTON_STATE_NORMAL, LoadImageIcon("menu_icon"));
   // Override the default minimum size.
   menu_button->SetMinimumSize(CefSize(0, 0));
+  // Menu button must be focusable for keyboard access to work.
+  menu_button->SetFocusable(true);
 
   // Create the top panel.
   CefRefPtr<CefPanel> top_panel = CefPanel::CreatePanel(NULL);
@@ -522,6 +573,15 @@ void ViewsWindow::AddControls() {
   const int min_height = top_panel->GetBounds().height + 100;
 
   minimum_window_size_ = CefSize(min_width, min_height);
+}
+
+void ViewsWindow::AddAccelerators() {
+  // Trigger accelerators without first forwarding to web content.
+  browser_view_->SetPreferAccelerators(true);
+
+  // Specify the accelerators to handle. OnAccelerator will be called when the
+  // accelerator is triggered.
+  window_->SetAccelerator(ID_QUIT, 'X', false, false, true);
 }
 
 void ViewsWindow::EnableView(int id, bool enable) {

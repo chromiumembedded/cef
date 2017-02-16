@@ -518,6 +518,48 @@ void CEF_CALLBACK window_send_mouse_events(struct _cef_window_t* self,
       mouse_up?true:false);
 }
 
+void CEF_CALLBACK window_set_accelerator(struct _cef_window_t* self,
+    int command_id, int key_code, int shift_pressed, int ctrl_pressed,
+    int alt_pressed) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefWindowCppToC::Get(self)->SetAccelerator(
+      command_id,
+      key_code,
+      shift_pressed?true:false,
+      ctrl_pressed?true:false,
+      alt_pressed?true:false);
+}
+
+void CEF_CALLBACK window_remove_accelerator(struct _cef_window_t* self,
+    int command_id) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefWindowCppToC::Get(self)->RemoveAccelerator(
+      command_id);
+}
+
+void CEF_CALLBACK window_remove_all_accelerators(struct _cef_window_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefWindowCppToC::Get(self)->RemoveAllAccelerators();
+}
+
 struct _cef_window_t* CEF_CALLBACK window_as_window(struct _cef_panel_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -1550,6 +1592,9 @@ CefWindowCppToC::CefWindowCppToC() {
   GetStruct()->send_key_press = window_send_key_press;
   GetStruct()->send_mouse_move = window_send_mouse_move;
   GetStruct()->send_mouse_events = window_send_mouse_events;
+  GetStruct()->set_accelerator = window_set_accelerator;
+  GetStruct()->remove_accelerator = window_remove_accelerator;
+  GetStruct()->remove_all_accelerators = window_remove_all_accelerators;
   GetStruct()->base.as_window = window_as_window;
   GetStruct()->base.set_to_fill_layout = window_set_to_fill_layout;
   GetStruct()->base.set_to_box_layout = window_set_to_box_layout;

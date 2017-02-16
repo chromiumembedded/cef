@@ -35,6 +35,7 @@ CEF_BUTTON_IMPL_T class CefButtonImpl : public CEF_VIEW_IMPL_D {
 
   // CefView methods:
   CefRefPtr<CefButton> AsButton() override { return this; }
+  void SetFocusable(bool focusable) override;
 
  protected:
   // Create a new implementation object.
@@ -66,6 +67,13 @@ CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetAccessibleName(
     const CefString& name) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   ParentClass::root_view()->SetAccessibleName(name);
+}
+
+CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetFocusable(
+    bool focusable) {
+  CEF_REQUIRE_VALID_RETURN_VOID();
+  ParentClass::root_view()->set_request_focus_on_press(focusable);
+  ParentClass::SetFocusable(focusable);
 }
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_BUTTON_IMPL_H_

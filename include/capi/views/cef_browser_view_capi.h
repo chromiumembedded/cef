@@ -63,6 +63,18 @@ typedef struct _cef_browser_view_t {
   ///
   struct _cef_browser_t* (CEF_CALLBACK *get_browser)(
       struct _cef_browser_view_t* self);
+
+  ///
+  // Sets whether accelerators registered with cef_window_t::SetAccelerator are
+  // triggered before or after the event is sent to the cef_browser_t. If
+  // |prefer_accelerators| is true (1) then the matching accelerator will be
+  // triggered immediately and the event will not be sent to the cef_browser_t.
+  // If |prefer_accelerators| is false (0) then the matching accelerator will
+  // only be triggered if the event is not handled by web content or by
+  // cef_keyboard_handler_t. The default value is false (0).
+  ///
+  void (CEF_CALLBACK *set_prefer_accelerators)(struct _cef_browser_view_t* self,
+      int prefer_accelerators);
 } cef_browser_view_t;
 
 
