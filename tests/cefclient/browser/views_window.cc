@@ -303,10 +303,12 @@ void ViewsWindow::OnMenuButtonPressed(CefRefPtr<CefMenuButton> menu_button,
   DCHECK(with_controls_);
 
   CefRefPtr<CefMenuModel> menu_model;
+  cef_menu_anchor_position_t position = CEF_MENU_ANCHOR_TOPLEFT;
 
   switch (menu_button->GetID()) {
     case ID_MENU_BUTTON:
       menu_model = button_menu_model_;
+      position = CEF_MENU_ANCHOR_TOPRIGHT;
       break;
     case ID_TOP_FILE_MENU_BUTTON:
       menu_model = file_menu_model_;
@@ -316,8 +318,14 @@ void ViewsWindow::OnMenuButtonPressed(CefRefPtr<CefMenuButton> menu_button,
       break;
   }
 
+  CefPoint point = screen_point;
+  if (position == CEF_MENU_ANCHOR_TOPLEFT) {
+    // Adjust menu position left by button width.
+    point.x -= menu_button->GetBounds().width - 4;
+  }
+
   if (menu_model)
-     menu_button->ShowMenu(menu_model, screen_point, CEF_MENU_ANCHOR_TOPRIGHT);
+     menu_button->ShowMenu(menu_model, point, position);
 }
 
 void ViewsWindow::ExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
