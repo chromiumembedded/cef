@@ -149,6 +149,18 @@ typedef struct _cef_view_t {
   void (CEF_CALLBACK *set_id)(struct _cef_view_t* self, int id);
 
   ///
+  // Returns the group id of this View, or -1 if not set.
+  ///
+  int (CEF_CALLBACK *get_group_id)(struct _cef_view_t* self);
+
+  ///
+  // A group id is used to tag Views which are part of the same logical group.
+  // Focus can be moved between views with the same group using the arrow keys.
+  // The group id is immutable once it's set.
+  ///
+  void (CEF_CALLBACK *set_group_id)(struct _cef_view_t* self, int group_id);
+
+  ///
   // Returns the View that contains this View, if any.
   ///
   struct _cef_view_t* (CEF_CALLBACK *get_parent_view)(struct _cef_view_t* self);

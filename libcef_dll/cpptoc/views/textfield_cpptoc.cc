@@ -732,6 +732,34 @@ void CEF_CALLBACK textfield_set_id(struct _cef_view_t* self, int id) {
       id);
 }
 
+int CEF_CALLBACK textfield_get_group_id(struct _cef_view_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  int _retval = CefTextfieldCppToC::Get(reinterpret_cast<cef_textfield_t*>(
+      self))->GetGroupID();
+
+  // Return type: simple
+  return _retval;
+}
+
+void CEF_CALLBACK textfield_set_group_id(struct _cef_view_t* self,
+    int group_id) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefTextfieldCppToC::Get(reinterpret_cast<cef_textfield_t*>(self))->SetGroupID(
+      group_id);
+}
+
 struct _cef_view_t* CEF_CALLBACK textfield_get_parent_view(
     struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -1361,6 +1389,8 @@ CefTextfieldCppToC::CefTextfieldCppToC() {
   GetStruct()->base.get_window = textfield_get_window;
   GetStruct()->base.get_id = textfield_get_id;
   GetStruct()->base.set_id = textfield_set_id;
+  GetStruct()->base.get_group_id = textfield_get_group_id;
+  GetStruct()->base.set_group_id = textfield_set_group_id;
   GetStruct()->base.get_parent_view = textfield_get_parent_view;
   GetStruct()->base.get_view_for_id = textfield_get_view_for_id;
   GetStruct()->base.set_bounds = textfield_set_bounds;

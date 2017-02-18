@@ -117,7 +117,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
                   const CefKeyEvent& event) OVERRIDE;
 
   // CefViewDelegate methods:
-  CefSize GetMinimumSize(CefRefPtr<CefView> view) override;
+  CefSize GetMinimumSize(CefRefPtr<CefView> view) OVERRIDE;
+  void OnFocus(CefRefPtr<CefView> view) OVERRIDE;
 
  private:
   // |delegate| is guaranteed to outlive this object.
@@ -129,6 +130,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
 
   // Create controls.
   void CreateMenuModel();
+  CefRefPtr<CefMenuButton> CreateTopMenuButton(const std::string& label,
+                                               int id);
   CefRefPtr<CefLabelButton> CreateBrowseButton(const std::string& label,
                                                int id);
 
@@ -137,6 +140,9 @@ class ViewsWindow : public CefBrowserViewDelegate,
 
   // Add keyboard accelerators to the Window.
   void AddAccelerators();
+
+  // Control whether the top menu butons are focusable.
+  void SetMenuFocusable(bool focusable);
 
   // Enable or disable a view by |id|.
   void EnableView(int id, bool enable);
@@ -148,9 +154,13 @@ class ViewsWindow : public CefBrowserViewDelegate,
   CefRefPtr<CefBrowserView> browser_view_;
   bool frameless_;
   bool with_controls_;
+  bool with_top_menu_;
   CefRefPtr<CefWindow> window_;
 
-  CefRefPtr<CefMenuModel> menu_model_;
+  CefRefPtr<CefMenuModel> button_menu_model_;
+  CefRefPtr<CefMenuModel> file_menu_model_;
+  CefRefPtr<CefMenuModel> test_menu_model_;
+  bool menu_has_focus_;
 
   CefSize minimum_window_size_;
 

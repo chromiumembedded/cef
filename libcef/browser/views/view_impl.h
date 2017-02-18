@@ -377,6 +377,8 @@ CEF_VIEW_IMPL_T class CefViewImpl : public CefViewAdapter,
   CefRefPtr<CefWindow> GetWindow() override;
   int GetID() override;
   void SetID(int id) override;
+  int GetGroupID() override;
+  void SetGroupID(int group_id) override;
   CefRefPtr<CefView> GetParentView() override;
   CefRefPtr<CefView> GetViewForID(int id) override;
   void SetBounds(const CefRect& bounds) override;
@@ -505,6 +507,19 @@ CEF_VIEW_IMPL_T int CEF_VIEW_IMPL_D::GetID() {
 CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::SetID(int id) {
   CEF_REQUIRE_VALID_RETURN_VOID();
   root_view()->set_id(id);
+}
+
+
+CEF_VIEW_IMPL_T int CEF_VIEW_IMPL_D::GetGroupID() {
+  CEF_REQUIRE_VALID_RETURN(0);
+  return root_view()->GetGroup();
+}
+
+CEF_VIEW_IMPL_T void CEF_VIEW_IMPL_D::SetGroupID(int group_id) {
+  CEF_REQUIRE_VALID_RETURN_VOID();
+  if (root_view()->GetGroup() != -1)
+    return;
+  root_view()->SetGroup(group_id);
 }
 
 CEF_VIEW_IMPL_T CefRefPtr<CefView> CEF_VIEW_IMPL_D::GetParentView() {

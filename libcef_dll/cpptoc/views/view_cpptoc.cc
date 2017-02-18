@@ -231,6 +231,32 @@ void CEF_CALLBACK view_set_id(struct _cef_view_t* self, int id) {
       id);
 }
 
+int CEF_CALLBACK view_get_group_id(struct _cef_view_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  int _retval = CefViewCppToC::Get(self)->GetGroupID();
+
+  // Return type: simple
+  return _retval;
+}
+
+void CEF_CALLBACK view_set_group_id(struct _cef_view_t* self, int group_id) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefViewCppToC::Get(self)->SetGroupID(
+      group_id);
+}
+
 struct _cef_view_t* CEF_CALLBACK view_get_parent_view(
     struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -794,6 +820,8 @@ CefViewCppToC::CefViewCppToC() {
   GetStruct()->get_window = view_get_window;
   GetStruct()->get_id = view_get_id;
   GetStruct()->set_id = view_set_id;
+  GetStruct()->get_group_id = view_get_group_id;
+  GetStruct()->set_group_id = view_set_group_id;
   GetStruct()->get_parent_view = view_get_parent_view;
   GetStruct()->get_view_for_id = view_get_view_for_id;
   GetStruct()->set_bounds = view_set_bounds;

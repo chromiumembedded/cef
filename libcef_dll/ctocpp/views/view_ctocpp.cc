@@ -229,6 +229,32 @@ void CefViewCToCpp::SetID(int id) {
       id);
 }
 
+int CefViewCToCpp::GetGroupID() {
+  cef_view_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_group_id))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->get_group_id(_struct);
+
+  // Return type: simple
+  return _retval;
+}
+
+void CefViewCToCpp::SetGroupID(int group_id) {
+  cef_view_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_group_id))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->set_group_id(_struct,
+      group_id);
+}
+
 CefRefPtr<CefView> CefViewCToCpp::GetParentView() {
   cef_view_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_parent_view))
