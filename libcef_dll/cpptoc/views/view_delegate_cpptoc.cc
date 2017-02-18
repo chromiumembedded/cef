@@ -153,6 +153,40 @@ void CEF_CALLBACK view_delegate_on_child_view_changed(
       CefViewCToCpp::Wrap(child));
 }
 
+void CEF_CALLBACK view_delegate_on_focus(struct _cef_view_delegate_t* self,
+    cef_view_t* view) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: view; type: refptr_diff
+  DCHECK(view);
+  if (!view)
+    return;
+
+  // Execute
+  CefViewDelegateCppToC::Get(self)->OnFocus(
+      CefViewCToCpp::Wrap(view));
+}
+
+void CEF_CALLBACK view_delegate_on_blur(struct _cef_view_delegate_t* self,
+    cef_view_t* view) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: view; type: refptr_diff
+  DCHECK(view);
+  if (!view)
+    return;
+
+  // Execute
+  CefViewDelegateCppToC::Get(self)->OnBlur(
+      CefViewCToCpp::Wrap(view));
+}
+
 }  // namespace
 
 
@@ -165,6 +199,8 @@ CefViewDelegateCppToC::CefViewDelegateCppToC() {
   GetStruct()->get_height_for_width = view_delegate_get_height_for_width;
   GetStruct()->on_parent_view_changed = view_delegate_on_parent_view_changed;
   GetStruct()->on_child_view_changed = view_delegate_on_child_view_changed;
+  GetStruct()->on_focus = view_delegate_on_focus;
+  GetStruct()->on_blur = view_delegate_on_blur;
 }
 
 template<> CefRefPtr<CefViewDelegate> CefCppToCRefCounted<CefViewDelegateCppToC,

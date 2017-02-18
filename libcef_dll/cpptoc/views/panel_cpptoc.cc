@@ -462,6 +462,33 @@ void CEF_CALLBACK panel_set_id(struct _cef_view_t* self, int id) {
       id);
 }
 
+int CEF_CALLBACK panel_get_group_id(struct _cef_view_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  int _retval = CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(
+      self))->GetGroupID();
+
+  // Return type: simple
+  return _retval;
+}
+
+void CEF_CALLBACK panel_set_group_id(struct _cef_view_t* self, int group_id) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefPanelCppToC::Get(reinterpret_cast<cef_panel_t*>(self))->SetGroupID(
+      group_id);
+}
+
 struct _cef_view_t* CEF_CALLBACK panel_get_parent_view(
     struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -1060,6 +1087,8 @@ CefPanelCppToC::CefPanelCppToC() {
   GetStruct()->base.get_window = panel_get_window;
   GetStruct()->base.get_id = panel_get_id;
   GetStruct()->base.set_id = panel_set_id;
+  GetStruct()->base.get_group_id = panel_get_group_id;
+  GetStruct()->base.set_group_id = panel_set_group_id;
   GetStruct()->base.get_parent_view = panel_get_parent_view;
   GetStruct()->base.get_view_for_id = panel_get_view_for_id;
   GetStruct()->base.set_bounds = panel_set_bounds;

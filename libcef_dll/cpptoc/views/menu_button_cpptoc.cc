@@ -569,6 +569,35 @@ void CEF_CALLBACK menu_button_set_id(struct _cef_view_t* self, int id) {
       id);
 }
 
+int CEF_CALLBACK menu_button_get_group_id(struct _cef_view_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  int _retval = CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(
+      self))->GetGroupID();
+
+  // Return type: simple
+  return _retval;
+}
+
+void CEF_CALLBACK menu_button_set_group_id(struct _cef_view_t* self,
+    int group_id) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(
+      self))->SetGroupID(
+      group_id);
+}
+
 struct _cef_view_t* CEF_CALLBACK menu_button_get_parent_view(
     struct _cef_view_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -1189,6 +1218,8 @@ CefMenuButtonCppToC::CefMenuButtonCppToC() {
   GetStruct()->base.base.base.get_window = menu_button_get_window;
   GetStruct()->base.base.base.get_id = menu_button_get_id;
   GetStruct()->base.base.base.set_id = menu_button_set_id;
+  GetStruct()->base.base.base.get_group_id = menu_button_get_group_id;
+  GetStruct()->base.base.base.set_group_id = menu_button_set_group_id;
   GetStruct()->base.base.base.get_parent_view = menu_button_get_parent_view;
   GetStruct()->base.base.base.get_view_for_id = menu_button_get_view_for_id;
   GetStruct()->base.base.base.set_bounds = menu_button_set_bounds;

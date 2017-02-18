@@ -108,6 +108,18 @@ class CefViewDelegate : public virtual CefBaseRefCounted {
   virtual void OnChildViewChanged(CefRefPtr<CefView> view,
                                   bool added,
                                   CefRefPtr<CefView> child) {}
+
+  ///
+  // Called when |view| gains focus.
+  ///
+  /*--cef()--*/
+  virtual void OnFocus(CefRefPtr<CefView> view) {}
+
+  ///
+  // Called when |view| loses focus.
+  ///
+  /*--cef()--*/
+  virtual void OnBlur(CefRefPtr<CefView> view) {}
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_WINDOW_DELEGATE_H_

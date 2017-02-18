@@ -146,6 +146,20 @@ class CefView : public CefBaseRefCounted {
   virtual void SetID(int id) =0;
 
   ///
+  // Returns the group id of this View, or -1 if not set.
+  ///
+  /*--cef()--*/
+  virtual int GetGroupID() =0;
+
+  ///
+  // A group id is used to tag Views which are part of the same logical group.
+  // Focus can be moved between views with the same group using the arrow keys.
+  // The group id is immutable once it's set.
+  ///
+  /*--cef()--*/
+  virtual void SetGroupID(int group_id) =0;
+
+  ///
   // Returns the View that contains this View, if any.
   ///
   /*--cef()--*/

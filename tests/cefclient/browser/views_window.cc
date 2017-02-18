@@ -34,6 +34,8 @@ enum ControlIds {
   ID_RELOAD_BUTTON,
   ID_URL_TEXTFIELD,
   ID_MENU_BUTTON,
+  ID_TOP_FILE_MENU_BUTTON,
+  ID_TOP_TEST_MENU_BUTTON,
 };
 
 typedef std::vector<CefRefPtr<CefLabelButton> > LabelButtons;
@@ -58,6 +60,30 @@ void MakeButtonsSameSize(const LabelButtons& buttons) {
     // Re-layout the button and all parent Views.
     buttons[i]->InvalidateLayout();
   }
+}
+
+void AddTestMenuItems(CefRefPtr<CefMenuModel> test_menu) {
+  test_menu->AddItem(ID_TESTS_GETSOURCE,      "Get Source");
+  test_menu->AddItem(ID_TESTS_GETTEXT,        "Get Text");
+  test_menu->AddItem(ID_TESTS_WINDOW_NEW,     "New Window");
+  test_menu->AddItem(ID_TESTS_WINDOW_POPUP,   "Popup Window");
+  test_menu->AddItem(ID_TESTS_REQUEST,        "Request");
+  test_menu->AddItem(ID_TESTS_PLUGIN_INFO,    "Plugin Info");
+  test_menu->AddItem(ID_TESTS_ZOOM_IN,        "Zoom In");
+  test_menu->AddItem(ID_TESTS_ZOOM_OUT,       "Zoom Out");
+  test_menu->AddItem(ID_TESTS_ZOOM_RESET,     "Zoom Reset");
+  test_menu->AddItem(ID_TESTS_TRACING_BEGIN,  "Begin Tracing");
+  test_menu->AddItem(ID_TESTS_TRACING_END,    "End Tracing");
+  test_menu->AddItem(ID_TESTS_PRINT,          "Print");
+  test_menu->AddItem(ID_TESTS_PRINT_TO_PDF,   "Print to PDF");
+  test_menu->AddItem(ID_TESTS_OTHER_TESTS,    "Other Tests");
+}
+
+void AddFileMenuItems(CefRefPtr<CefMenuModel> file_menu, int offset) {
+  file_menu->AddItem(ID_QUIT, "E&xit");
+
+  // Show the accelerator shortcut text in the menu.
+  file_menu->SetAcceleratorAt(offset, 'X', false, false, true);
 }
 
 }  // namespace
@@ -211,13 +237,8 @@ void ViewsWindow::TakeFocus(bool next) {
   if (!window_ || !with_controls_)
     return;
 
-  if (next) {
-    // Focus is moving forwards (tab). Give focus to the URL textfield.
-    window_->GetViewForID(ID_URL_TEXTFIELD)->RequestFocus();
-  } else {
-    // Focus is moving backwards (tab+shift). Give focus to the menu button.
-    window_->GetViewForID(ID_MENU_BUTTON)->RequestFocus();
-  }
+  // Give focus to the URL textfield.
+  window_->GetViewForID(ID_URL_TEXTFIELD)->RequestFocus();
 }
 
 bool ViewsWindow::OnPopupBrowserViewCreated(
@@ -280,9 +301,23 @@ void ViewsWindow::OnMenuButtonPressed(CefRefPtr<CefMenuButton> menu_button,
                                       const CefPoint& screen_point) {
   CEF_REQUIRE_UI_THREAD();
   DCHECK(with_controls_);
-  DCHECK_EQ(ID_MENU_BUTTON, menu_button->GetID());
 
-  menu_button->ShowMenu(menu_model_, screen_point, CEF_MENU_ANCHOR_TOPRIGHT);
+  CefRefPtr<CefMenuModel> menu_model;
+
+  switch (menu_button->GetID()) {
+    case ID_MENU_BUTTON:
+      menu_model = button_menu_model_;
+      break;
+    case ID_TOP_FILE_MENU_BUTTON:
+      menu_model = file_menu_model_;
+      break;
+    case ID_TOP_TEST_MENU_BUTTON:
+      menu_model = test_menu_model_;
+      break;
+  }
+
+  if (menu_model)
+     menu_button->ShowMenu(menu_model, screen_point, CEF_MENU_ANCHOR_TOPRIGHT);
 }
 
 void ViewsWindow::ExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
@@ -386,7 +421,9 @@ void ViewsWindow::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
   delegate_->OnViewsWindowDestroyed(this);
 
   browser_view_ = NULL;
-  menu_model_ = NULL;
+  button_menu_model_ = NULL;
+  file_menu_model_ = NULL;
+  test_menu_model_ = NULL;
   window_ = NULL;
 }
 
@@ -424,8 +461,8 @@ bool ViewsWindow::OnKeyEvent(CefRefPtr<CefWindow> window,
     return false;
 
   if (event.type == KEYEVENT_RAWKEYDOWN && event.windows_key_code == VK_MENU) {
-    // ALT key is pressed. Give focus to the menu button.
-    window_->GetViewForID(ID_MENU_BUTTON)->RequestFocus();
+    // ALT key is pressed. Make the menu buttons focusable.
+    SetMenuFocusable(true);
     return true;
   }
 
@@ -441,10 +478,28 @@ CefSize ViewsWindow::GetMinimumSize(CefRefPtr<CefView> view) {
   return CefSize();
 }
 
+void ViewsWindow::OnFocus(CefRefPtr<CefView> view) {
+  CEF_REQUIRE_UI_THREAD();
+
+  // When focus leaves the menu buttons make them unfocusable.
+  if (menu_has_focus_) {
+    const int view_id = view->GetID();
+    if (with_top_menu_) {
+      if (view_id != ID_TOP_FILE_MENU_BUTTON &&
+          view_id != ID_TOP_TEST_MENU_BUTTON) {
+        SetMenuFocusable(false);
+      }
+    } else if (view_id != ID_MENU_BUTTON) {
+      SetMenuFocusable(false);
+    }
+  }
+}
+
 ViewsWindow::ViewsWindow(Delegate* delegate,
                          CefRefPtr<CefBrowserView> browser_view)
     : delegate_(delegate),
-      with_controls_(false) {
+      with_controls_(false),
+      menu_has_focus_(false) {
   DCHECK(delegate_);
   if (browser_view)
     SetBrowserView(browser_view);
@@ -452,6 +507,7 @@ ViewsWindow::ViewsWindow(Delegate* delegate,
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
   frameless_ = command_line->HasSwitch(switches::kHideFrame);
+  with_top_menu_ = command_line->HasSwitch(switches::kShowTopMenu);
 }
 
 void ViewsWindow::SetBrowserView(CefRefPtr<CefBrowserView> browser_view) {
@@ -463,29 +519,31 @@ void ViewsWindow::SetBrowserView(CefRefPtr<CefBrowserView> browser_view) {
 }
 
 void ViewsWindow::CreateMenuModel() {
-  menu_model_ = CefMenuModel::CreateMenuModel(this);
+  // Create the menu button model.
+  button_menu_model_ = CefMenuModel::CreateMenuModel(this);
+  CefRefPtr<CefMenuModel> test_menu =
+      button_menu_model_->AddSubMenu(0, "&Tests");
+  AddTestMenuItems(test_menu);
+  AddFileMenuItems(button_menu_model_, 1);
 
-  // Create the test menu.
-  CefRefPtr<CefMenuModel> test_menu = menu_model_->AddSubMenu(0, "&Tests");
-  test_menu->AddItem(ID_TESTS_GETSOURCE,      "Get Source");
-  test_menu->AddItem(ID_TESTS_GETTEXT,        "Get Text");
-  test_menu->AddItem(ID_TESTS_WINDOW_NEW,     "New Window");
-  test_menu->AddItem(ID_TESTS_WINDOW_POPUP,   "Popup Window");
-  test_menu->AddItem(ID_TESTS_REQUEST,        "Request");
-  test_menu->AddItem(ID_TESTS_PLUGIN_INFO,    "Plugin Info");
-  test_menu->AddItem(ID_TESTS_ZOOM_IN,        "Zoom In");
-  test_menu->AddItem(ID_TESTS_ZOOM_OUT,       "Zoom Out");
-  test_menu->AddItem(ID_TESTS_ZOOM_RESET,     "Zoom Reset");
-  test_menu->AddItem(ID_TESTS_TRACING_BEGIN,  "Begin Tracing");
-  test_menu->AddItem(ID_TESTS_TRACING_END,    "End Tracing");
-  test_menu->AddItem(ID_TESTS_PRINT,          "Print");
-  test_menu->AddItem(ID_TESTS_PRINT_TO_PDF,   "Print to PDF");
-  test_menu->AddItem(ID_TESTS_OTHER_TESTS,    "Other Tests");
+  if (with_top_menu_) {
+    // Create the top menu model.
+    file_menu_model_ = CefMenuModel::CreateMenuModel(this);
+    AddFileMenuItems(file_menu_model_, 0);
+    test_menu_model_ = CefMenuModel::CreateMenuModel(this);
+    AddTestMenuItems(test_menu_model_);
+  }
+}
 
-  menu_model_->AddItem(ID_QUIT, "E&xit");
-
-  // Show the accelerator shortcut text in the menu.
-  menu_model_->SetAcceleratorAt(1, 'X', false, false, true);
+CefRefPtr<CefMenuButton> ViewsWindow::CreateTopMenuButton(
+    const std::string& label, int id) {
+  CefRefPtr<CefMenuButton> button =
+      CefMenuButton::CreateMenuButton(this, label, false, false);
+  button->SetID(id);
+  // Assign a group ID to allow focus traversal between top menu buttons using
+  // the arrow keys.
+  button->SetGroupID(1);
+  return button;
 }
 
 CefRefPtr<CefLabelButton> ViewsWindow::CreateBrowseButton(
@@ -502,6 +560,27 @@ CefRefPtr<CefLabelButton> ViewsWindow::CreateBrowseButton(
 void ViewsWindow::AddControls() {
   // Create the MenuModel that will be displayed via the menu button.
   CreateMenuModel();
+
+  CefRefPtr<CefPanel> top_menu_panel;
+  if (with_top_menu_) {
+    // Create the top menu buttons.
+    CefRefPtr<CefMenuButton> top_file_menu_button =
+        CreateTopMenuButton("File", ID_TOP_FILE_MENU_BUTTON);
+    CefRefPtr<CefMenuButton> top_test_menu_button =
+        CreateTopMenuButton("Test", ID_TOP_TEST_MENU_BUTTON);
+
+    // Create the top menu panel.
+    top_menu_panel = CefPanel::CreatePanel(NULL);
+
+    // Use a horizontal box layout for |top_panel|.
+    CefBoxLayoutSettings top_panel_layout_settings;
+    top_panel_layout_settings.horizontal = true;
+    CefRefPtr<CefBoxLayout> top_panel_layout =
+        top_menu_panel->SetToBoxLayout(top_panel_layout_settings);
+
+    top_menu_panel->AddChildView(top_file_menu_button);
+    top_menu_panel->AddChildView(top_test_menu_button);
+  }
 
   // Create the browse buttons.
   LabelButtons browse_buttons;
@@ -522,8 +601,6 @@ void ViewsWindow::AddControls() {
   menu_button->SetImage(CEF_BUTTON_STATE_NORMAL, LoadImageIcon("menu_icon"));
   // Override the default minimum size.
   menu_button->SetMinimumSize(CefSize(0, 0));
-  // Menu button must be focusable for keyboard access to work.
-  menu_button->SetFocusable(true);
 
   // Create the top panel.
   CefRefPtr<CefPanel> top_panel = CefPanel::CreatePanel(NULL);
@@ -551,6 +628,8 @@ void ViewsWindow::AddControls() {
       window_->SetToBoxLayout(window_layout_settings);
 
   // Add the top panel and browser view to |window|.
+  if (top_menu_panel)
+    window_->AddChildView(top_menu_panel);
   window_->AddChildView(top_panel);
   window_->AddChildView(browser_view_);
 
@@ -570,7 +649,9 @@ void ViewsWindow::AddControls() {
   const int min_width = browse_buttons[0]->GetBounds().width * 4 +
                         menu_button->GetBounds().width + 100;
   // Minimum window height is the hight of the top toolbar plus some extra.
-  const int min_height = top_panel->GetBounds().height + 100;
+  int min_height = top_panel->GetBounds().height + 100;
+  if (top_menu_panel)
+    min_height += top_menu_panel->GetBounds().height;
 
   minimum_window_size_ = CefSize(min_width, min_height);
 }
@@ -582,6 +663,30 @@ void ViewsWindow::AddAccelerators() {
   // Specify the accelerators to handle. OnAccelerator will be called when the
   // accelerator is triggered.
   window_->SetAccelerator(ID_QUIT, 'X', false, false, true);
+}
+
+void ViewsWindow::SetMenuFocusable(bool focusable) {
+  if (!window_ || !with_controls_)
+    return;
+
+  if (with_top_menu_) {
+    window_->GetViewForID(ID_TOP_FILE_MENU_BUTTON)->SetFocusable(focusable);
+    window_->GetViewForID(ID_TOP_TEST_MENU_BUTTON)->SetFocusable(focusable);
+
+    if (focusable) {
+      // Give focus to top file menu button.
+      window_->GetViewForID(ID_TOP_FILE_MENU_BUTTON)->RequestFocus();
+    }
+  } else {
+    window_->GetViewForID(ID_MENU_BUTTON)->SetFocusable(focusable);
+
+    if (focusable) {
+      // Give focus to menu button.
+      window_->GetViewForID(ID_MENU_BUTTON)->RequestFocus();
+    }
+  }
+
+  menu_has_focus_ = focusable;
 }
 
 void ViewsWindow::EnableView(int id, bool enable) {

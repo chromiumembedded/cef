@@ -72,6 +72,8 @@ CEF_VIEW_VIEW_T class CefViewView : public ViewsViewClass {
   void Layout() override;
   void ViewHierarchyChanged(
       const views::View::ViewHierarchyChangedDetails& details) override;
+  void OnFocus() override;
+  void OnBlur() override;
 
   // Return true if this View is expected to have a minimum size (for example,
   // a button where the minimum size is based on the label).
@@ -160,6 +162,18 @@ CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::ViewHierarchyChanged(
   NotifyChildViewChanged(details);
   NotifyParentViewChanged(details);
   ParentClass::ViewHierarchyChanged(details);
+}
+
+CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::OnFocus() {
+  if (cef_delegate())
+    cef_delegate()->OnFocus(GetCefView());
+  ParentClass::OnFocus();
+}
+
+CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::OnBlur() {
+  if (cef_delegate())
+    cef_delegate()->OnBlur(GetCefView());
+  ParentClass::OnBlur();
 }
 
 CEF_VIEW_VIEW_T void CEF_VIEW_VIEW_D::NotifyChildViewChanged(

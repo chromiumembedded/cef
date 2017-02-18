@@ -56,6 +56,8 @@ class CefBrowserViewDelegateCToCpp
       CefRefPtr<CefView> parent) override;
   void OnChildViewChanged(CefRefPtr<CefView> view, bool added,
       CefRefPtr<CefView> child) override;
+  void OnFocus(CefRefPtr<CefView> view) override;
+  void OnBlur(CefRefPtr<CefView> view) override;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_VIEWS_BROWSER_VIEW_DELEGATE_CTOCPP_H_

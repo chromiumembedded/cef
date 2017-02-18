@@ -105,6 +105,18 @@ typedef struct _cef_view_delegate_t {
   ///
   void (CEF_CALLBACK *on_child_view_changed)(struct _cef_view_delegate_t* self,
       struct _cef_view_t* view, int added, struct _cef_view_t* child);
+
+  ///
+  // Called when |view| gains focus.
+  ///
+  void (CEF_CALLBACK *on_focus)(struct _cef_view_delegate_t* self,
+      struct _cef_view_t* view);
+
+  ///
+  // Called when |view| loses focus.
+  ///
+  void (CEF_CALLBACK *on_blur)(struct _cef_view_delegate_t* self,
+      struct _cef_view_t* view);
 } cef_view_delegate_t;
 
 
