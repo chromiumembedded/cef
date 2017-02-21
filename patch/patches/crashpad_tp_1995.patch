@@ -288,3 +288,16 @@ index 3ada8c3..ffaae42 100644
    prune_thread.Start();
  
    CrashReportExceptionHandler exception_handler(
+diff --git crashpad/util/net/http_transport_win.cc crashpad/util/net/http_transport_win.cc
+index 58ecc47..8c1c16d 100644
+--- crashpad/util/net/http_transport_win.cc
++++ crashpad/util/net/http_transport_win.cc
+@@ -143,7 +143,7 @@ bool HTTPTransportWin::ExecuteSynchronously(std::string* response_body) {
+   ScopedHINTERNET request(WinHttpOpenRequest(
+       connect.get(),
+       base::UTF8ToUTF16(method()).c_str(),
+-      url_path.c_str(),
++      (url_path + extra_info).c_str(),
+       nullptr,
+       WINHTTP_NO_REFERER,
+       WINHTTP_DEFAULT_ACCEPT_TYPES,
