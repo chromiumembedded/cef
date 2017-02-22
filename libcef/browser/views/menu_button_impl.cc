@@ -50,6 +50,11 @@ void CefMenuButtonImpl::ShowMenu(CefRefPtr<CefMenuModel> menu_model,
   }
 }
 
+void CefMenuButtonImpl::TriggerMenu() {
+  CEF_REQUIRE_VALID_RETURN_VOID();
+  root_view()->Activate(nullptr);
+}
+
 CefMenuButtonImpl::CefMenuButtonImpl(CefRefPtr<CefMenuButtonDelegate> delegate)
     : ParentClass(delegate) {
   DCHECK(delegate);

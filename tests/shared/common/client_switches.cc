@@ -34,7 +34,7 @@ const char kFilterURL[] = "filter-url";
 const char kUseViews[] = "use-views";
 const char kHideFrame[] = "hide-frame";
 const char kHideControls[] = "hide-controls";
-const char kShowTopMenu[] = "show-top-menu";
+const char kHideTopMenu[] = "hide-top-menu";
 const char kWidevineCdmPath[] = "widevine-cdm-path";
 const char kSslClientCertificate[] = "ssl-client-certificate";
 

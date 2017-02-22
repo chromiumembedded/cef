@@ -81,6 +81,17 @@ void CEF_CALLBACK menu_button_show_menu(struct _cef_menu_button_t* self,
       anchor_position);
 }
 
+void CEF_CALLBACK menu_button_trigger_menu(struct _cef_menu_button_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefMenuButtonCppToC::Get(self)->TriggerMenu();
+}
+
 cef_menu_button_t* CEF_CALLBACK menu_button_as_menu_button(
     struct _cef_label_button_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -1186,6 +1197,7 @@ int CEF_CALLBACK menu_button_convert_point_from_view(struct _cef_view_t* self,
 
 CefMenuButtonCppToC::CefMenuButtonCppToC() {
   GetStruct()->show_menu = menu_button_show_menu;
+  GetStruct()->trigger_menu = menu_button_trigger_menu;
   GetStruct()->base.as_menu_button = menu_button_as_menu_button;
   GetStruct()->base.set_text = menu_button_set_text;
   GetStruct()->base.get_text = menu_button_get_text;

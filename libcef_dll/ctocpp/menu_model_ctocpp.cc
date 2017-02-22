@@ -36,6 +36,20 @@ CefRefPtr<CefMenuModel> CefMenuModel::CreateMenuModel(
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
+bool CefMenuModelCToCpp::IsSubMenu() {
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_sub_menu))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->is_sub_menu(_struct);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 bool CefMenuModelCToCpp::Clear() {
   cef_menu_model_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, clear))

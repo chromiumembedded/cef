@@ -37,6 +37,23 @@ void CEF_CALLBACK button_delegate_on_button_pressed(
       CefButtonCToCpp::Wrap(button));
 }
 
+void CEF_CALLBACK button_delegate_on_button_state_changed(
+    struct _cef_button_delegate_t* self, cef_button_t* button) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: button; type: refptr_diff
+  DCHECK(button);
+  if (!button)
+    return;
+
+  // Execute
+  CefButtonDelegateCppToC::Get(self)->OnButtonStateChanged(
+      CefButtonCToCpp::Wrap(button));
+}
+
 cef_size_t CEF_CALLBACK button_delegate_get_preferred_size(
     struct _cef_view_delegate_t* self, cef_view_t* view) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -215,6 +232,8 @@ void CEF_CALLBACK button_delegate_on_blur(struct _cef_view_delegate_t* self,
 
 CefButtonDelegateCppToC::CefButtonDelegateCppToC() {
   GetStruct()->on_button_pressed = button_delegate_on_button_pressed;
+  GetStruct()->on_button_state_changed =
+      button_delegate_on_button_state_changed;
   GetStruct()->base.get_preferred_size = button_delegate_get_preferred_size;
   GetStruct()->base.get_minimum_size = button_delegate_get_minimum_size;
   GetStruct()->base.get_maximum_size = button_delegate_get_maximum_size;

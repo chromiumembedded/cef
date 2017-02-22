@@ -35,6 +35,24 @@ void CefButtonDelegateCToCpp::OnButtonPressed(CefRefPtr<CefButton> button) {
       CefButtonCppToC::Wrap(button));
 }
 
+void CefButtonDelegateCToCpp::OnButtonStateChanged(
+    CefRefPtr<CefButton> button) {
+  cef_button_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, on_button_state_changed))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: button; type: refptr_diff
+  DCHECK(button.get());
+  if (!button.get())
+    return;
+
+  // Execute
+  _struct->on_button_state_changed(_struct,
+      CefButtonCppToC::Wrap(button));
+}
+
 CefSize CefButtonDelegateCToCpp::GetPreferredSize(CefRefPtr<CefView> view) {
   cef_view_delegate_t* _struct = reinterpret_cast<cef_view_delegate_t*>(
       GetStruct());

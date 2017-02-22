@@ -31,6 +31,7 @@ class CefMenuModelCToCpp
   CefMenuModelCToCpp();
 
   // CefMenuModel methods.
+  bool IsSubMenu() OVERRIDE;
   bool Clear() OVERRIDE;
   int GetCount() OVERRIDE;
   bool AddSeparator() OVERRIDE;

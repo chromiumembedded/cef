@@ -62,6 +62,12 @@ typedef struct _cef_button_delegate_t {
   ///
   void (CEF_CALLBACK *on_button_pressed)(struct _cef_button_delegate_t* self,
       struct _cef_button_t* button);
+
+  ///
+  // Called when the state of |button| changes.
+  ///
+  void (CEF_CALLBACK *on_button_state_changed)(
+      struct _cef_button_delegate_t* self, struct _cef_button_t* button);
 } cef_button_delegate_t;
 
 

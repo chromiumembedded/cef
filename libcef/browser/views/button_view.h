@@ -40,9 +40,18 @@ CEF_BUTTON_VIEW_T class CefButtonView : public CEF_VIEW_VIEW_D {
     return button;
   }
 
+  // views::CustomButton methods:
+  void StateChanged() override;
+
   // views::ButtonListener methods:
   void ButtonPressed(views::Button* sender, const ui::Event& event) override;
 };
+
+CEF_BUTTON_VIEW_T void CEF_BUTTON_VIEW_D::StateChanged() {
+  ParentClass::StateChanged();
+  if (ParentClass::cef_delegate())
+    ParentClass::cef_delegate()->OnButtonStateChanged(GetCefButton());
+}
 
 CEF_BUTTON_VIEW_T void CEF_BUTTON_VIEW_D::ButtonPressed(
     views::Button* sender, const ui::Event& event) {

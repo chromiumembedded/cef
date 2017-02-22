@@ -68,6 +68,12 @@ typedef struct _cef_menu_button_t {
   void (CEF_CALLBACK *show_menu)(struct _cef_menu_button_t* self,
       struct _cef_menu_model_t* menu_model, const cef_point_t* screen_point,
       cef_menu_anchor_position_t anchor_position);
+
+  ///
+  // Show the menu for this button. Results in a call to
+  // cef_menu_button_delegate_t::on_menu_button_pressed().
+  ///
+  void (CEF_CALLBACK *trigger_menu)(struct _cef_menu_button_t* self);
 } cef_menu_button_t;
 
 

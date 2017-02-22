@@ -34,8 +34,10 @@ enum ControlIds {
   ID_RELOAD_BUTTON,
   ID_URL_TEXTFIELD,
   ID_MENU_BUTTON,
-  ID_TOP_FILE_MENU_BUTTON,
-  ID_TOP_TEST_MENU_BUTTON,
+
+  // Reserved range of top menu button IDs.
+  ID_TOP_MENU_FIRST,
+  ID_TOP_MENU_LAST = ID_TOP_MENU_FIRST + 10,
 };
 
 typedef std::vector<CefRefPtr<CefLabelButton> > LabelButtons;
@@ -301,31 +303,10 @@ void ViewsWindow::OnMenuButtonPressed(CefRefPtr<CefMenuButton> menu_button,
                                       const CefPoint& screen_point) {
   CEF_REQUIRE_UI_THREAD();
   DCHECK(with_controls_);
+  DCHECK_EQ(ID_MENU_BUTTON, menu_button->GetID());
 
-  CefRefPtr<CefMenuModel> menu_model;
-  cef_menu_anchor_position_t position = CEF_MENU_ANCHOR_TOPLEFT;
-
-  switch (menu_button->GetID()) {
-    case ID_MENU_BUTTON:
-      menu_model = button_menu_model_;
-      position = CEF_MENU_ANCHOR_TOPRIGHT;
-      break;
-    case ID_TOP_FILE_MENU_BUTTON:
-      menu_model = file_menu_model_;
-      break;
-    case ID_TOP_TEST_MENU_BUTTON:
-      menu_model = test_menu_model_;
-      break;
-  }
-
-  CefPoint point = screen_point;
-  if (position == CEF_MENU_ANCHOR_TOPLEFT) {
-    // Adjust menu position left by button width.
-    point.x -= menu_button->GetBounds().width - 4;
-  }
-
-  if (menu_model)
-     menu_button->ShowMenu(menu_model, point, position);
+  menu_button->ShowMenu(button_menu_model_, screen_point,
+                        CEF_MENU_ANCHOR_TOPRIGHT);
 }
 
 void ViewsWindow::ExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
@@ -430,8 +411,10 @@ void ViewsWindow::OnWindowDestroyed(CefRefPtr<CefWindow> window) {
 
   browser_view_ = NULL;
   button_menu_model_ = NULL;
-  file_menu_model_ = NULL;
-  test_menu_model_ = NULL;
+  if (top_menu_bar_) {
+    top_menu_bar_->Reset();
+    top_menu_bar_ = NULL;
+  }
   window_ = NULL;
 }
 
@@ -492,15 +475,19 @@ void ViewsWindow::OnFocus(CefRefPtr<CefView> view) {
   // When focus leaves the menu buttons make them unfocusable.
   if (menu_has_focus_) {
     const int view_id = view->GetID();
-    if (with_top_menu_) {
-      if (view_id != ID_TOP_FILE_MENU_BUTTON &&
-          view_id != ID_TOP_TEST_MENU_BUTTON) {
+    if (top_menu_bar_) {
+      if (!top_menu_bar_->HasMenuId(view_id))
         SetMenuFocusable(false);
-      }
     } else if (view_id != ID_MENU_BUTTON) {
       SetMenuFocusable(false);
     }
   }
+}
+
+void ViewsWindow::MenuBarExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
+                                        int command_id,
+                                        cef_event_flags_t event_flags) {
+  ExecuteCommand(menu_model, command_id, event_flags);
 }
 
 ViewsWindow::ViewsWindow(Delegate* delegate,
@@ -515,7 +502,9 @@ ViewsWindow::ViewsWindow(Delegate* delegate,
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
   frameless_ = command_line->HasSwitch(switches::kHideFrame);
-  with_top_menu_ = command_line->HasSwitch(switches::kShowTopMenu);
+
+  if (!command_line->HasSwitch(switches::kHideTopMenu))
+    top_menu_bar_ = new ViewsMenuBar(this, ID_TOP_MENU_FIRST);
 }
 
 void ViewsWindow::SetBrowserView(CefRefPtr<CefBrowserView> browser_view) {
@@ -534,24 +523,11 @@ void ViewsWindow::CreateMenuModel() {
   AddTestMenuItems(test_menu);
   AddFileMenuItems(button_menu_model_, 1);
 
-  if (with_top_menu_) {
-    // Create the top menu model.
-    file_menu_model_ = CefMenuModel::CreateMenuModel(this);
-    AddFileMenuItems(file_menu_model_, 0);
-    test_menu_model_ = CefMenuModel::CreateMenuModel(this);
-    AddTestMenuItems(test_menu_model_);
+  if (top_menu_bar_) {
+    // Add the menus to the top menu bar.
+    AddFileMenuItems(top_menu_bar_->CreateMenuModel("File", NULL), 0);
+    AddTestMenuItems(top_menu_bar_->CreateMenuModel("Tests", NULL));
   }
-}
-
-CefRefPtr<CefMenuButton> ViewsWindow::CreateTopMenuButton(
-    const std::string& label, int id) {
-  CefRefPtr<CefMenuButton> button =
-      CefMenuButton::CreateMenuButton(this, label, false, false);
-  button->SetID(id);
-  // Assign a group ID to allow focus traversal between top menu buttons using
-  // the arrow keys.
-  button->SetGroupID(1);
-  return button;
 }
 
 CefRefPtr<CefLabelButton> ViewsWindow::CreateBrowseButton(
@@ -570,25 +546,8 @@ void ViewsWindow::AddControls() {
   CreateMenuModel();
 
   CefRefPtr<CefPanel> top_menu_panel;
-  if (with_top_menu_) {
-    // Create the top menu buttons.
-    CefRefPtr<CefMenuButton> top_file_menu_button =
-        CreateTopMenuButton("File", ID_TOP_FILE_MENU_BUTTON);
-    CefRefPtr<CefMenuButton> top_test_menu_button =
-        CreateTopMenuButton("Test", ID_TOP_TEST_MENU_BUTTON);
-
-    // Create the top menu panel.
-    top_menu_panel = CefPanel::CreatePanel(NULL);
-
-    // Use a horizontal box layout for |top_panel|.
-    CefBoxLayoutSettings top_panel_layout_settings;
-    top_panel_layout_settings.horizontal = true;
-    CefRefPtr<CefBoxLayout> top_panel_layout =
-        top_menu_panel->SetToBoxLayout(top_panel_layout_settings);
-
-    top_menu_panel->AddChildView(top_file_menu_button);
-    top_menu_panel->AddChildView(top_test_menu_button);
-  }
+  if (top_menu_bar_)
+    top_menu_panel = top_menu_bar_->GetMenuPanel();
 
   // Create the browse buttons.
   LabelButtons browse_buttons;
@@ -677,14 +636,8 @@ void ViewsWindow::SetMenuFocusable(bool focusable) {
   if (!window_ || !with_controls_)
     return;
 
-  if (with_top_menu_) {
-    window_->GetViewForID(ID_TOP_FILE_MENU_BUTTON)->SetFocusable(focusable);
-    window_->GetViewForID(ID_TOP_TEST_MENU_BUTTON)->SetFocusable(focusable);
-
-    if (focusable) {
-      // Give focus to top file menu button.
-      window_->GetViewForID(ID_TOP_FILE_MENU_BUTTON)->RequestFocus();
-    }
+  if (top_menu_bar_) {
+    top_menu_bar_->SetMenuFocusable(focusable);
   } else {
     window_->GetViewForID(ID_MENU_BUTTON)->SetFocusable(focusable);
 

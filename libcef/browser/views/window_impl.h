@@ -26,7 +26,6 @@ class MenuButton;
 class CefWindowImpl :
     public CefPanelImpl<CefWindowView, CefWindow, CefWindowDelegate>,
     public CefWindowView::Delegate,
-    public CefMenuModelImpl::Observer,
     public ui::AcceleratorTarget {
  public:
   typedef CefPanelImpl<CefWindowView, CefWindow, CefWindowDelegate> ParentClass;
@@ -105,9 +104,6 @@ class CefWindowImpl :
   void OnWindowClosing() override;
   void OnWindowViewDeleted() override;
 
-  // CefMenuModelImpl::Observer methods:
-  void MenuClosed(CefRefPtr<CefMenuModelImpl> source) override;
-
   // CefViewAdapter methods:
   std::string GetDebugType() override { return "Window"; }
   void GetDebugInfo(base::DictionaryValue* info,
@@ -125,6 +121,7 @@ class CefWindowImpl :
                 CefRefPtr<CefMenuModel> menu_model,
                 const CefPoint& screen_point,
                 cef_menu_anchor_position_t anchor_position);
+  void MenuClosed();
 
  private:
   // Create a new implementation object.

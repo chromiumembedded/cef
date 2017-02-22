@@ -34,6 +34,7 @@ class CefButtonDelegateCToCpp
 
   // CefButtonDelegate methods.
   void OnButtonPressed(CefRefPtr<CefButton> button) override;
+  void OnButtonStateChanged(CefRefPtr<CefButton> button) override;
 
   // CefViewDelegate methods.
   CefSize GetPreferredSize(CefRefPtr<CefView> view) override;

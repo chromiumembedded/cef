@@ -1,0 +1,147 @@
+diff --git ui/base/models/menu_model.h ui/base/models/menu_model.h
+index 0755f27..72db677 100644
+--- ui/base/models/menu_model.h
++++ ui/base/models/menu_model.h
+@@ -15,6 +15,7 @@
+ namespace gfx {
+ class FontList;
+ class Image;
++class Point;
+ }
+ 
+ namespace ui {
+@@ -115,6 +116,15 @@ class UI_BASE_EXPORT MenuModel {
+   // |event_flags| is a bit mask of ui::EventFlags.
+   virtual void ActivatedAt(int index, int event_flags);
+ 
++  // Called when the user moves the mouse outside the menu and over the owning
++  // window.
++  virtual void MouseOutsideMenu(const gfx::Point& screen_point) {}
++
++  // Called on unhandled open/close submenu keyboard commands. |is_rtl| will be
++  // true if the menu is displaying a right-to-left language.
++  virtual void UnhandledOpenSubmenu(bool is_rtl) {}
++  virtual void UnhandledCloseSubmenu(bool is_rtl) {}
++
+   // Called when the menu is about to be shown.
+   virtual void MenuWillShow() {}
+ 
+diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
+index 79ff77c..a0582c0 100644
+--- ui/views/controls/menu/menu_controller.cc
++++ ui/views/controls/menu/menu_controller.cc
+@@ -2254,8 +2254,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+ 
+ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+   MenuItemView* item = pending_state_.item;
+-  if (!item->HasSubmenu() || !item->enabled())
++  if (!item->HasSubmenu() || !item->enabled() || !item->GetParentMenuItem()) {
++    MenuItemView* submenu_item =
++        item->GetParentMenuItem() ? item->GetParentMenuItem() : item;
++    submenu_item->GetDelegate()->OnUnhandledOpenSubmenu(submenu_item,
++                                                        base::i18n::IsRTL());
+     return;
++  }
+   MenuItemView* to_select = NULL;
+   if (item->GetSubmenu()->GetMenuItemCount() > 0)
+     to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
+@@ -2270,8 +2275,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+ void MenuController::CloseSubmenu() {
+   MenuItemView* item = state_.item;
+   DCHECK(item);
+-  if (!item->GetParentMenuItem())
++  if (!item->GetParentMenuItem()) {
++    item->GetDelegate()->OnUnhandledCloseSubmenu(item, base::i18n::IsRTL());
+     return;
++  }
+   if (item->HasSubmenu() && item->GetSubmenu()->IsShowing())
+     SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
+   else if (item->GetParentMenuItem()->GetParentMenuItem())
+diff --git ui/views/controls/menu/menu_delegate.h ui/views/controls/menu/menu_delegate.h
+index 3b7cb7f..3ad68d0 100644
+--- ui/views/controls/menu/menu_delegate.h
++++ ui/views/controls/menu/menu_delegate.h
+@@ -229,6 +229,11 @@ class VIEWS_EXPORT MenuDelegate {
+                                        bool* has_mnemonics,
+                                        MenuButton** button);
+ 
++  // Called on unhandled open/close submenu keyboard commands. |is_rtl| will be
++  // true if the menu is displaying a right-to-left language.
++  virtual void OnUnhandledOpenSubmenu(MenuItemView* menu, bool is_rtl) {}
++  virtual void OnUnhandledCloseSubmenu(MenuItemView* menu, bool is_rtl) {}
++
+   // Returns the max width menus can grow to be.
+   virtual int GetMaxWidthForMenu(MenuItemView* menu);
+ 
+diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
+index bc04dcb..b2ec114 100644
+--- ui/views/controls/menu/menu_model_adapter.cc
++++ ui/views/controls/menu/menu_model_adapter.cc
+@@ -245,6 +245,49 @@ void MenuModelAdapter::SelectionChanged(MenuItemView* menu) {
+   NOTREACHED();
+ }
+ 
++MenuItemView* MenuModelAdapter::GetSiblingMenu(MenuItemView* menu,
++                                               const gfx::Point& screen_point,
++                                               MenuAnchorPosition* anchor,
++                                               bool* has_mnemonics,
++                                               MenuButton** button) {
++  // Look up the menu model for this menu.
++  const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
++      menu_map_.find(menu);
++  if (map_iterator != menu_map_.end()) {
++    map_iterator->second->MouseOutsideMenu(screen_point);
++    return nullptr;
++  }
++
++  NOTREACHED();
++  return nullptr;
++}
++
++void MenuModelAdapter::OnUnhandledOpenSubmenu(MenuItemView* menu,
++                                              bool is_rtl) {
++  // Look up the menu model for this menu.
++  const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
++      menu_map_.find(menu);
++  if (map_iterator != menu_map_.end()) {
++    map_iterator->second->UnhandledOpenSubmenu(is_rtl);
++    return;
++  }
++
++  NOTREACHED();
++}
++
++void MenuModelAdapter::OnUnhandledCloseSubmenu(MenuItemView* menu,
++                                               bool is_rtl) {
++  // Look up the menu model for this menu.
++  const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
++      menu_map_.find(menu);
++  if (map_iterator != menu_map_.end()) {
++    map_iterator->second->UnhandledCloseSubmenu(is_rtl);
++    return;
++  }
++
++  NOTREACHED();
++}
++
+ void MenuModelAdapter::WillShowMenu(MenuItemView* menu) {
+   // Look up the menu model for this menu.
+   const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
+diff --git ui/views/controls/menu/menu_model_adapter.h ui/views/controls/menu/menu_model_adapter.h
+index c9799da..c7ecca6 100644
+--- ui/views/controls/menu/menu_model_adapter.h
++++ ui/views/controls/menu/menu_model_adapter.h
+@@ -76,6 +76,13 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate {
+   bool IsCommandVisible(int id) const override;
+   bool IsItemChecked(int id) const override;
+   void SelectionChanged(MenuItemView* menu) override;
++  MenuItemView* GetSiblingMenu(MenuItemView* menu,
++                               const gfx::Point& screen_point,
++                               MenuAnchorPosition* anchor,
++                               bool* has_mnemonics,
++                               MenuButton** button) override;
++  void OnUnhandledOpenSubmenu(MenuItemView* menu, bool is_rtl) override;
++  void OnUnhandledCloseSubmenu(MenuItemView* menu, bool is_rtl) override;
+   void WillShowMenu(MenuItemView* menu) override;
+   void WillHideMenu(MenuItemView* menu) override;
+   void OnMenuClosed(MenuItemView* menu, MenuRunner::RunResult result) override;

@@ -60,6 +60,12 @@ class CefMenuModel : public virtual CefBaseRefCounted {
       CefRefPtr<CefMenuModelDelegate> delegate);
 
   ///
+  // Returns true if this menu is a submenu.
+  ///
+  /*--cef()--*/
+  virtual bool IsSubMenu() =0;
+
+  ///
   // Clears the menu. Returns true on success.
   ///
   /*--cef()--*/

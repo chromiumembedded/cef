@@ -99,7 +99,7 @@ CefMenuManager::CefMenuManager(CefBrowserHostImpl* browser,
     weak_ptr_factory_(this) {
   DCHECK(web_contents());
   DCHECK(runner_.get());
-  model_ = new CefMenuModelImpl(this, nullptr);
+  model_ = new CefMenuModelImpl(this, nullptr, false);
 }
 
 CefMenuManager::~CefMenuManager() {
@@ -289,7 +289,8 @@ void CefMenuManager::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
   web_contents()->NotifyContextMenuClosed(params_.custom_context);
 }
 
-bool CefMenuManager::FormatLabel(base::string16& label) {
+bool CefMenuManager::FormatLabel(CefRefPtr<CefMenuModelImpl> source,
+                                 base::string16& label) {
   return runner_->FormatLabel(label);
 }
 

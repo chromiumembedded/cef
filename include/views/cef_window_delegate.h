@@ -113,6 +113,7 @@ class CefWindowDelegate : public CefPanelDelegate {
   /*--cef()--*/
   virtual bool OnKeyEvent(CefRefPtr<CefWindow> window,
                           const CefKeyEvent& event) { return false; }
+
 };
 
 #endif  // CEF_INCLUDE_VIEWS_CEF_WINDOW_DELEGATE_H_

@@ -59,6 +59,11 @@ typedef struct _cef_menu_model_t {
   cef_base_ref_counted_t base;
 
   ///
+  // Returns true (1) if this menu is a submenu.
+  ///
+  int (CEF_CALLBACK *is_sub_menu)(struct _cef_menu_model_t* self);
+
+  ///
   // Clears the menu. Returns true (1) on success.
   ///
   int (CEF_CALLBACK *clear)(struct _cef_menu_model_t* self);
