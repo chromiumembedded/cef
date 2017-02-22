@@ -38,6 +38,20 @@ namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
+int CEF_CALLBACK menu_model_is_sub_menu(struct _cef_menu_model_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefMenuModelCppToC::Get(self)->IsSubMenu();
+
+  // Return type: bool
+  return _retval;
+}
+
 int CEF_CALLBACK menu_model_clear(struct _cef_menu_model_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -986,6 +1000,7 @@ int CEF_CALLBACK menu_model_get_accelerator_at(struct _cef_menu_model_t* self,
 // CONSTRUCTOR - Do not edit by hand.
 
 CefMenuModelCppToC::CefMenuModelCppToC() {
+  GetStruct()->is_sub_menu = menu_model_is_sub_menu;
   GetStruct()->clear = menu_model_clear;
   GetStruct()->get_count = menu_model_get_count;
   GetStruct()->add_separator = menu_model_add_separator;

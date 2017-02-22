@@ -390,13 +390,6 @@ void CefWindowImpl::OnWindowViewDeleted() {
   Detach();
 }
 
-void CefWindowImpl::MenuClosed(CefRefPtr<CefMenuModelImpl> source) {
-  DCHECK_EQ(menu_model_, source);
-  menu_model_->RemoveObserver(this);
-  menu_model_ = nullptr;
-  menu_runner_.reset(nullptr);
-}
-
 // Will only be called if CanHandleAccelerators() returns true.
 bool CefWindowImpl::AcceleratorPressed(const ui::Accelerator& accelerator) {
   for (const auto& entry : accelerator_map_) {
@@ -433,12 +426,16 @@ void CefWindowImpl::ShowMenu(views::MenuButton* menu_button,
     return;
 
   menu_model_ = menu_model_impl;
-  menu_model_->AddObserver(this);
+
+  // We'll send the MenuClosed notification manually for better accuracy.
+  menu_model_->set_auto_notify_menu_closed(false);
 
   menu_runner_.reset(
       new views::MenuRunner(menu_model_impl->model(),
-                            menu_button ? views::MenuRunner::HAS_MNEMONICS :
-                                          views::MenuRunner::CONTEXT_MENU));
+                            views::MenuRunner::ASYNC |
+                            (menu_button ? views::MenuRunner::HAS_MNEMONICS :
+                                           views::MenuRunner::CONTEXT_MENU),
+                            base::Bind(&CefWindowImpl::MenuClosed, this)));
 
   views::MenuRunner::RunResult result = menu_runner_->RunMenuAt(
       widget_,
@@ -447,6 +444,12 @@ void CefWindowImpl::ShowMenu(views::MenuButton* menu_button,
       static_cast<views::MenuAnchorPosition>(anchor_position),
       ui::MENU_SOURCE_NONE);
   ALLOW_UNUSED_LOCAL(result);
+}
+
+void CefWindowImpl::MenuClosed() {
+  menu_model_->NotifyMenuClosed();
+  menu_model_ = nullptr;
+  menu_runner_.reset(nullptr);
 }
 
 void CefWindowImpl::CancelMenu() {

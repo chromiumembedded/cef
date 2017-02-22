@@ -35,6 +35,12 @@ class CefMenuModelDelegateCToCpp
   // CefMenuModelDelegate methods.
   void ExecuteCommand(CefRefPtr<CefMenuModel> menu_model, int command_id,
       cef_event_flags_t event_flags) override;
+  void MouseOutsideMenu(CefRefPtr<CefMenuModel> menu_model,
+      const CefPoint& screen_point) override;
+  void UnhandledOpenSubmenu(CefRefPtr<CefMenuModel> menu_model,
+      bool is_rtl) override;
+  void UnhandledCloseSubmenu(CefRefPtr<CefMenuModel> menu_model,
+      bool is_rtl) override;
   void MenuWillShow(CefRefPtr<CefMenuModel> menu_model) override;
   void MenuClosed(CefRefPtr<CefMenuModel> menu_model) override;
   bool FormatLabel(CefRefPtr<CefMenuModel> menu_model,

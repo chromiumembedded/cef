@@ -73,6 +73,17 @@ void CefMenuButtonCToCpp::ShowMenu(CefRefPtr<CefMenuModel> menu_model,
       anchor_position);
 }
 
+void CefMenuButtonCToCpp::TriggerMenu() {
+  cef_menu_button_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, trigger_menu))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->trigger_menu(_struct);
+}
+
 CefRefPtr<CefMenuButton> CefMenuButtonCToCpp::AsMenuButton() {
   cef_label_button_t* _struct = reinterpret_cast<cef_label_button_t*>(GetStruct(
       ));

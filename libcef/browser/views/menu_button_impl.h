@@ -32,6 +32,7 @@ class CefMenuButtonImpl :
   void ShowMenu(CefRefPtr<CefMenuModel> menu_model,
                 const CefPoint& screen_point,
                 cef_menu_anchor_position_t anchor_position) override;
+  void TriggerMenu() override;
 
   // CefLabelButton methods:
   CefRefPtr<CefMenuButton> AsMenuButton() override { return this; }

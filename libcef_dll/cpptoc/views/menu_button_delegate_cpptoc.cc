@@ -64,6 +64,25 @@ void CEF_CALLBACK menu_button_delegate_on_button_pressed(
       CefButtonCToCpp::Wrap(button));
 }
 
+void CEF_CALLBACK menu_button_delegate_on_button_state_changed(
+    struct _cef_button_delegate_t* self, cef_button_t* button) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: button; type: refptr_diff
+  DCHECK(button);
+  if (!button)
+    return;
+
+  // Execute
+  CefMenuButtonDelegateCppToC::Get(
+      reinterpret_cast<cef_menu_button_delegate_t*>(
+      self))->OnButtonStateChanged(
+      CefButtonCToCpp::Wrap(button));
+}
+
 cef_size_t CEF_CALLBACK menu_button_delegate_get_preferred_size(
     struct _cef_view_delegate_t* self, cef_view_t* view) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -244,6 +263,8 @@ CefMenuButtonDelegateCppToC::CefMenuButtonDelegateCppToC() {
   GetStruct()->on_menu_button_pressed =
       menu_button_delegate_on_menu_button_pressed;
   GetStruct()->base.on_button_pressed = menu_button_delegate_on_button_pressed;
+  GetStruct()->base.on_button_state_changed =
+      menu_button_delegate_on_button_state_changed;
   GetStruct()->base.base.get_preferred_size =
       menu_button_delegate_get_preferred_size;
   GetStruct()->base.base.get_minimum_size =

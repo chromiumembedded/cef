@@ -12,7 +12,6 @@
 #include "include/cef_menu_model.h"
 #include "include/cef_menu_model_delegate.h"
 
-#include "base/observer_list.h"
 #include "base/threading/platform_thread.h"
 #include "ui/base/models/menu_model.h"
 
@@ -30,38 +29,41 @@ class CefMenuModelImpl : public CefMenuModel {
                                 int command_id,
                                 cef_event_flags_t event_flags) =0;
 
-    // Notifies the delegate that the menu is about to show.
+    // Called when the user moves the mouse outside the menu and over the owning
+    // window.
+    virtual void MouseOutsideMenu(CefRefPtr<CefMenuModelImpl> source,
+                                  const gfx::Point& screen_point) {}
+
+    // Called on unhandled open/close submenu keyboard commands. |is_rtl| will
+    // be true if the menu is displaying a right-to-left language.
+    virtual void UnhandledOpenSubmenu(CefRefPtr<CefMenuModelImpl> source,
+                                      bool is_rtl) {}
+    virtual void UnhandledCloseSubmenu(CefRefPtr<CefMenuModelImpl> source,
+                                       bool is_rtl) {}
+
+    // Called when the menu is about to show.
     virtual void MenuWillShow(CefRefPtr<CefMenuModelImpl> source) =0;
 
-    // Notifies the delegate that the menu has closed.
+    // Called when the menu has closed.
     virtual void MenuClosed(CefRefPtr<CefMenuModelImpl> source) =0;
 
     // Allows the delegate to modify a menu item label before it's displayed.
-    virtual bool FormatLabel(base::string16& label) =0;
+    virtual bool FormatLabel(CefRefPtr<CefMenuModelImpl> source,
+                             base::string16& label) =0;
 
    protected:
     virtual ~Delegate() {}
   };
 
-  class Observer {
-   public:
-    // Notifies the delegate that the menu is about to show.
-    virtual void MenuWillShow(CefRefPtr<CefMenuModelImpl> source) {};
-
-    // Notifies the delegate that the menu has closed.
-    virtual void MenuClosed(CefRefPtr<CefMenuModelImpl> source) {};
-
-   protected:
-    virtual ~Observer() {}
-  };
-
   // Either |delegate| or |menu_model_delegate| must be non-nullptr.
   // If |delegate| is non-nullptr it must outlive this class.
   CefMenuModelImpl(Delegate* delegate,
-                   CefRefPtr<CefMenuModelDelegate> menu_model_delegate);
+                   CefRefPtr<CefMenuModelDelegate> menu_model_delegate,
+                   bool is_submenu);
   ~CefMenuModelImpl() override;
 
   // CefMenuModel methods.
+  bool IsSubMenu() override;
   bool Clear() override;
   int GetCount() override;
   bool AddSeparator() override;
@@ -124,6 +126,9 @@ class CefMenuModelImpl : public CefMenuModel {
 
   // Callbacks from the ui::MenuModel implementation.
   void ActivatedAt(int index, cef_event_flags_t event_flags);
+  void MouseOutsideMenu(const gfx::Point& screen_point);
+  void UnhandledOpenSubmenu(bool is_rtl);
+  void UnhandledCloseSubmenu(bool is_rtl);
   void MenuWillShow();
   void MenuWillClose();
   base::string16 GetFormattedLabelAt(int index);
@@ -131,20 +136,19 @@ class CefMenuModelImpl : public CefMenuModel {
   // Verify that only a single reference exists to all CefMenuModelImpl objects.
   bool VerifyRefCount();
 
-  // Manage observer objects. The observer must either outlive this object or
-  // remove itself before destruction.
-  void AddObserver(Observer* observer);
-  void RemoveObserver(Observer* observer);
-  bool HasObserver(Observer* observer) const;
-
   // Helper for adding custom menu items originating from the renderer process.
   void AddMenuItem(const content::MenuItem& menu_item);
 
-  ui::MenuModel* model() { return model_.get(); }
+  ui::MenuModel* model() const { return model_.get(); }
 
   // Used when created via CefMenuManager.
-  Delegate* delegate() { return delegate_; }
+  Delegate* delegate() const { return delegate_; }
   void set_delegate(Delegate* delegate) { delegate_ = delegate; }
+
+  // Used for menus run via CefWindowImpl::ShowMenu to provide more accurate
+  // menu close notification.
+  void set_auto_notify_menu_closed(bool val) { auto_notify_menu_closed_ = val; }
+  void NotifyMenuClosed();
 
  private:
   struct Item;
@@ -156,7 +160,10 @@ class CefMenuModelImpl : public CefMenuModel {
   void InsertItemAt(const Item& item, int index);
   void ValidateItem(const Item& item);
 
-  // Notify the delegate that the menu is closed.
+  // Notify the delegate asynchronously.
+  void OnMouseOutsideMenu(const gfx::Point& screen_point);
+  void OnUnhandledOpenSubmenu(bool is_rtl);
+  void OnUnhandledCloseSubmenu(bool is_rtl);
   void OnMenuClosed();
 
   // Verify that the object is being accessed from the correct thread.
@@ -170,11 +177,12 @@ class CefMenuModelImpl : public CefMenuModel {
   // Used when created via CefMenuModel::CreateMenuModel().
   CefRefPtr<CefMenuModelDelegate> menu_model_delegate_;
 
+  const bool is_submenu_;
+
   ItemVector items_;
   std::unique_ptr<ui::MenuModel> model_;
 
-  // Observers that want to be notified of changes to this object.
-  base::ObserverList<Observer> observers_;
+  bool auto_notify_menu_closed_ = true;
 
   IMPLEMENT_REFCOUNTING(CefMenuModelImpl);
   DISALLOW_COPY_AND_ASSIGN(CefMenuModelImpl);

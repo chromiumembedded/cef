@@ -37,6 +37,63 @@ void CefMenuModelDelegateCToCpp::ExecuteCommand(
       event_flags);
 }
 
+void CefMenuModelDelegateCToCpp::MouseOutsideMenu(
+    CefRefPtr<CefMenuModel> menu_model, const CefPoint& screen_point) {
+  cef_menu_model_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, mouse_outside_menu))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: menu_model; type: refptr_diff
+  DCHECK(menu_model.get());
+  if (!menu_model.get())
+    return;
+
+  // Execute
+  _struct->mouse_outside_menu(_struct,
+      CefMenuModelCppToC::Wrap(menu_model),
+      &screen_point);
+}
+
+void CefMenuModelDelegateCToCpp::UnhandledOpenSubmenu(
+    CefRefPtr<CefMenuModel> menu_model, bool is_rtl) {
+  cef_menu_model_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, unhandled_open_submenu))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: menu_model; type: refptr_diff
+  DCHECK(menu_model.get());
+  if (!menu_model.get())
+    return;
+
+  // Execute
+  _struct->unhandled_open_submenu(_struct,
+      CefMenuModelCppToC::Wrap(menu_model),
+      is_rtl);
+}
+
+void CefMenuModelDelegateCToCpp::UnhandledCloseSubmenu(
+    CefRefPtr<CefMenuModel> menu_model, bool is_rtl) {
+  cef_menu_model_delegate_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, unhandled_close_submenu))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: menu_model; type: refptr_diff
+  DCHECK(menu_model.get());
+  if (!menu_model.get())
+    return;
+
+  // Execute
+  _struct->unhandled_close_submenu(_struct,
+      CefMenuModelCppToC::Wrap(menu_model),
+      is_rtl);
+}
+
 void CefMenuModelDelegateCToCpp::MenuWillShow(
     CefRefPtr<CefMenuModel> menu_model) {
   cef_menu_model_delegate_t* _struct = GetStruct();

@@ -46,7 +46,8 @@ class CefMenuManager : public CefMenuModelImpl::Delegate,
                       cef_event_flags_t event_flags) override;
   void MenuWillShow(CefRefPtr<CefMenuModelImpl> source) override;
   void MenuClosed(CefRefPtr<CefMenuModelImpl> source) override;
-  bool FormatLabel(base::string16& label) override;
+  bool FormatLabel(CefRefPtr<CefMenuModelImpl> source,
+                   base::string16& label) override;
 
   void ExecuteCommandCallback(int command_id,
                               cef_event_flags_t event_flags);

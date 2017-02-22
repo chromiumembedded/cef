@@ -14,6 +14,7 @@
 #include "base/message_loop/message_loop.h"
 #include "content/public/common/menu_item.h"
 #include "ui/base/accelerators/accelerator.h"
+#include "ui/gfx/geometry/point.h"
 
 namespace {
 
@@ -138,6 +139,18 @@ class CefSimpleMenuModel : public ui::MenuModel {
     return NULL;
   }
 
+  void MouseOutsideMenu(const gfx::Point& screen_point) override {
+    impl_->MouseOutsideMenu(screen_point);
+  }
+
+  void UnhandledOpenSubmenu(bool is_rtl) override {
+    impl_->UnhandledOpenSubmenu(is_rtl);
+  }
+
+  void UnhandledCloseSubmenu(bool is_rtl) override {
+    impl_->UnhandledCloseSubmenu(is_rtl);
+  }
+
   void MenuWillShow() override {
     impl_->MenuWillShow();
   }
@@ -173,7 +186,7 @@ CefRefPtr<CefMenuModel> CefMenuModel::CreateMenuModel(
     return nullptr;
 
   CefRefPtr<CefMenuModelImpl> menu_model =
-      new CefMenuModelImpl(nullptr, delegate);
+      new CefMenuModelImpl(nullptr, delegate, false);
   return menu_model;
 }
 
@@ -219,15 +232,23 @@ struct CefMenuModelImpl::Item {
 
 CefMenuModelImpl::CefMenuModelImpl(
     Delegate* delegate,
-    CefRefPtr<CefMenuModelDelegate> menu_model_delegate)
+    CefRefPtr<CefMenuModelDelegate> menu_model_delegate,
+    bool is_submenu)
     : supported_thread_id_(base::PlatformThread::CurrentId()),
       delegate_(delegate),
-      menu_model_delegate_(menu_model_delegate) {
+      menu_model_delegate_(menu_model_delegate),
+      is_submenu_(is_submenu) {
   DCHECK(delegate_ || menu_model_delegate_);
   model_.reset(new CefSimpleMenuModel(this));
 }
 
 CefMenuModelImpl::~CefMenuModelImpl() {
+}
+
+bool CefMenuModelImpl::IsSubMenu() {
+  if (!VerifyContext())
+    return false;
+  return is_submenu_;
 }
 
 bool CefMenuModelImpl::Clear() {
@@ -284,7 +305,7 @@ CefRefPtr<CefMenuModel> CefMenuModelImpl::AddSubMenu(int command_id,
     return NULL;
 
   Item item(MENUITEMTYPE_SUBMENU, command_id, label, -1);
-  item.submenu_ = new CefMenuModelImpl(delegate_, menu_model_delegate_);
+  item.submenu_ = new CefMenuModelImpl(delegate_, menu_model_delegate_, true);
   AppendItem(item);
   return item.submenu_.get();
 }
@@ -331,7 +352,7 @@ CefRefPtr<CefMenuModel> CefMenuModelImpl::InsertSubMenuAt(
     return NULL;
 
   Item item(MENUITEMTYPE_SUBMENU, command_id, label, -1);
-  item.submenu_ = new CefMenuModelImpl(delegate_, menu_model_delegate_);
+  item.submenu_ = new CefMenuModelImpl(delegate_, menu_model_delegate_, true);
   InsertItemAt(item, index);
   return item.submenu_.get();
 }
@@ -646,6 +667,39 @@ void CefMenuModelImpl::ActivatedAt(int index, cef_event_flags_t event_flags) {
     menu_model_delegate_->ExecuteCommand(this, command_id, event_flags);
 }
 
+void CefMenuModelImpl::MouseOutsideMenu(const gfx::Point& screen_point) {
+  if (!VerifyContext())
+    return;
+
+  // Allow the callstack to unwind before notifying the delegate since it may
+  // result in the menu being destroyed.
+  base::MessageLoop::current()->task_runner()->PostTask(
+      FROM_HERE,
+      base::Bind(&CefMenuModelImpl::OnMouseOutsideMenu, this, screen_point));
+}
+
+void CefMenuModelImpl::UnhandledOpenSubmenu(bool is_rtl) {
+  if (!VerifyContext())
+    return;
+
+  // Allow the callstack to unwind before notifying the delegate since it may
+  // result in the menu being destroyed.
+  base::MessageLoop::current()->task_runner()->PostTask(
+      FROM_HERE,
+      base::Bind(&CefMenuModelImpl::OnUnhandledOpenSubmenu, this, is_rtl));
+}
+
+void CefMenuModelImpl::UnhandledCloseSubmenu(bool is_rtl) {
+  if (!VerifyContext())
+    return;
+
+  // Allow the callstack to unwind before notifying the delegate since it may
+  // result in the menu being destroyed.
+  base::MessageLoop::current()->task_runner()->PostTask(
+      FROM_HERE,
+      base::Bind(&CefMenuModelImpl::OnUnhandledCloseSubmenu, this, is_rtl));
+}
+
 void CefMenuModelImpl::MenuWillShow() {
   if (!VerifyContext())
     return;
@@ -654,12 +708,13 @@ void CefMenuModelImpl::MenuWillShow() {
     delegate_->MenuWillShow(this);
   if (menu_model_delegate_)
     menu_model_delegate_->MenuWillShow(this);
-  for (auto& observer : observers_)
-    observer.MenuWillShow(this);
 }
 
 void CefMenuModelImpl::MenuWillClose() {
   if (!VerifyContext())
+    return;
+
+  if (!auto_notify_menu_closed_)
     return;
 
   // Due to how menus work on the different platforms, ActivatedAt will be
@@ -673,7 +728,7 @@ void CefMenuModelImpl::MenuWillClose() {
 base::string16 CefMenuModelImpl::GetFormattedLabelAt(int index) {
   base::string16 label = GetLabelAt(index).ToString16();
   if (delegate_)
-    delegate_->FormatLabel(label);
+    delegate_->FormatLabel(this, label);
   if (menu_model_delegate_) {
     CefString new_label = label;
     if (menu_model_delegate_->FormatLabel(this, new_label))
@@ -697,18 +752,6 @@ bool CefMenuModelImpl::VerifyRefCount() {
   }
 
   return true;
-}
-
-void CefMenuModelImpl::AddObserver(Observer* observer) {
-  observers_.AddObserver(observer);
-}
-
-void CefMenuModelImpl::RemoveObserver(Observer* observer) {
-  observers_.RemoveObserver(observer);
-}
-
-bool CefMenuModelImpl::HasObserver(Observer* observer) const {
-  return observers_.HasObserver(observer);
 }
 
 void CefMenuModelImpl::AddMenuItem(const content::MenuItem& menu_item) {
@@ -746,6 +789,11 @@ void CefMenuModelImpl::AddMenuItem(const content::MenuItem& menu_item) {
   }
 }
 
+void CefMenuModelImpl::NotifyMenuClosed() {
+  DCHECK(!auto_notify_menu_closed_);
+  OnMenuClosed();
+}
+
 void CefMenuModelImpl::AppendItem(const Item& item) {
   ValidateItem(item);
   items_.push_back(item);
@@ -772,13 +820,34 @@ void CefMenuModelImpl::ValidateItem(const Item& item) {
 #endif
 }
 
+void CefMenuModelImpl::OnMouseOutsideMenu(const gfx::Point& screen_point) {
+  if (delegate_)
+    delegate_->MouseOutsideMenu(this, screen_point);
+  if (menu_model_delegate_) {
+    menu_model_delegate_->MouseOutsideMenu(this,
+        CefPoint(screen_point.x(), screen_point.y()));
+  }
+}
+
+void CefMenuModelImpl::OnUnhandledOpenSubmenu(bool is_rtl) {
+  if (delegate_)
+    delegate_->UnhandledOpenSubmenu(this, is_rtl);
+  if (menu_model_delegate_)
+    menu_model_delegate_->UnhandledOpenSubmenu(this, is_rtl);
+}
+
+void CefMenuModelImpl::OnUnhandledCloseSubmenu(bool is_rtl) {
+  if (delegate_)
+    delegate_->UnhandledCloseSubmenu(this, is_rtl);
+  if (menu_model_delegate_)
+    menu_model_delegate_->UnhandledCloseSubmenu(this, is_rtl);
+}
+
 void CefMenuModelImpl::OnMenuClosed() {
   if (delegate_)
     delegate_->MenuClosed(this);
   if (menu_model_delegate_)
     menu_model_delegate_->MenuClosed(this);
-  for (auto& observer : observers_)
-    observer.MenuClosed(this);
 }
 
 bool CefMenuModelImpl::VerifyContext() {

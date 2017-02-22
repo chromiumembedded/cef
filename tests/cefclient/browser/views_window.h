@@ -19,6 +19,7 @@
 #include "include/views/cef_textfield_delegate.h"
 #include "include/views/cef_window.h"
 #include "include/views/cef_window_delegate.h"
+#include "tests/cefclient/browser/views_menu_bar.h"
 
 namespace client {
 
@@ -29,7 +30,8 @@ class ViewsWindow : public CefBrowserViewDelegate,
                     public CefMenuButtonDelegate,
                     public CefMenuModelDelegate,
                     public CefTextfieldDelegate,
-                    public CefWindowDelegate {
+                    public CefWindowDelegate,
+                    public ViewsMenuBar::Delegate {
  public:
   // Delegate methods will be called on the browser process UI thread.
   class Delegate {
@@ -120,6 +122,11 @@ class ViewsWindow : public CefBrowserViewDelegate,
   CefSize GetMinimumSize(CefRefPtr<CefView> view) OVERRIDE;
   void OnFocus(CefRefPtr<CefView> view) OVERRIDE;
 
+  // ViewsMenuBar::Delegate methods:
+  void MenuBarExecuteCommand(CefRefPtr<CefMenuModel> menu_model,
+                             int command_id,
+                             cef_event_flags_t event_flags) OVERRIDE;
+
  private:
   // |delegate| is guaranteed to outlive this object.
   // |browser_view| may be NULL, in which case SetBrowserView() will be called.
@@ -130,8 +137,6 @@ class ViewsWindow : public CefBrowserViewDelegate,
 
   // Create controls.
   void CreateMenuModel();
-  CefRefPtr<CefMenuButton> CreateTopMenuButton(const std::string& label,
-                                               int id);
   CefRefPtr<CefLabelButton> CreateBrowseButton(const std::string& label,
                                                int id);
 
@@ -154,12 +159,10 @@ class ViewsWindow : public CefBrowserViewDelegate,
   CefRefPtr<CefBrowserView> browser_view_;
   bool frameless_;
   bool with_controls_;
-  bool with_top_menu_;
   CefRefPtr<CefWindow> window_;
 
   CefRefPtr<CefMenuModel> button_menu_model_;
-  CefRefPtr<CefMenuModel> file_menu_model_;
-  CefRefPtr<CefMenuModel> test_menu_model_;
+  CefRefPtr<ViewsMenuBar> top_menu_bar_;
   bool menu_has_focus_;
 
   CefSize minimum_window_size_;

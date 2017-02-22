@@ -34,6 +34,7 @@ class CefMenuButtonCToCpp
   void ShowMenu(CefRefPtr<CefMenuModel> menu_model,
       const CefPoint& screen_point,
       cef_menu_anchor_position_t anchor_position) OVERRIDE;
+  void TriggerMenu() OVERRIDE;
 
   // CefLabelButton methods.
   CefRefPtr<CefMenuButton> AsMenuButton() OVERRIDE;

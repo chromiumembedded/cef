@@ -38,6 +38,70 @@ void CEF_CALLBACK menu_model_delegate_execute_command(
       event_flags);
 }
 
+void CEF_CALLBACK menu_model_delegate_mouse_outside_menu(
+    struct _cef_menu_model_delegate_t* self, cef_menu_model_t* menu_model,
+    const cef_point_t* screen_point) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: menu_model; type: refptr_diff
+  DCHECK(menu_model);
+  if (!menu_model)
+    return;
+  // Verify param: screen_point; type: simple_byref_const
+  DCHECK(screen_point);
+  if (!screen_point)
+    return;
+
+  // Translate param: screen_point; type: simple_byref_const
+  CefPoint screen_pointVal = screen_point?*screen_point:CefPoint();
+
+  // Execute
+  CefMenuModelDelegateCppToC::Get(self)->MouseOutsideMenu(
+      CefMenuModelCToCpp::Wrap(menu_model),
+      screen_pointVal);
+}
+
+void CEF_CALLBACK menu_model_delegate_unhandled_open_submenu(
+    struct _cef_menu_model_delegate_t* self, cef_menu_model_t* menu_model,
+    int is_rtl) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: menu_model; type: refptr_diff
+  DCHECK(menu_model);
+  if (!menu_model)
+    return;
+
+  // Execute
+  CefMenuModelDelegateCppToC::Get(self)->UnhandledOpenSubmenu(
+      CefMenuModelCToCpp::Wrap(menu_model),
+      is_rtl?true:false);
+}
+
+void CEF_CALLBACK menu_model_delegate_unhandled_close_submenu(
+    struct _cef_menu_model_delegate_t* self, cef_menu_model_t* menu_model,
+    int is_rtl) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+  // Verify param: menu_model; type: refptr_diff
+  DCHECK(menu_model);
+  if (!menu_model)
+    return;
+
+  // Execute
+  CefMenuModelDelegateCppToC::Get(self)->UnhandledCloseSubmenu(
+      CefMenuModelCToCpp::Wrap(menu_model),
+      is_rtl?true:false);
+}
+
 void CEF_CALLBACK menu_model_delegate_menu_will_show(
     struct _cef_menu_model_delegate_t* self, cef_menu_model_t* menu_model) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -108,6 +172,11 @@ int CEF_CALLBACK menu_model_delegate_format_label(
 
 CefMenuModelDelegateCppToC::CefMenuModelDelegateCppToC() {
   GetStruct()->execute_command = menu_model_delegate_execute_command;
+  GetStruct()->mouse_outside_menu = menu_model_delegate_mouse_outside_menu;
+  GetStruct()->unhandled_open_submenu =
+      menu_model_delegate_unhandled_open_submenu;
+  GetStruct()->unhandled_close_submenu =
+      menu_model_delegate_unhandled_close_submenu;
   GetStruct()->menu_will_show = menu_model_delegate_menu_will_show;
   GetStruct()->menu_closed = menu_model_delegate_menu_closed;
   GetStruct()->format_label = menu_model_delegate_format_label;
