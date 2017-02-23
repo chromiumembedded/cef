@@ -36,9 +36,14 @@ class CefMenuButtonView :
   // |cef_delegate| must not be nullptr.
   explicit CefMenuButtonView(CefMenuButtonDelegate* cef_delegate);
 
+  void Initialize() override;
+
   // Returns the CefMenuButton associated with this view. See comments on
   // CefViewView::GetCefView.
   CefRefPtr<CefMenuButton> GetCefMenuButton() const;
+
+  // Set the flags that control display of accelerator characters.
+  void SetDrawStringsFlags(int flags);
 
   // views::MenuButtonListener methods:
   void OnMenuButtonClicked(views::MenuButton* source,

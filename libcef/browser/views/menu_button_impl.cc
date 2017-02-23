@@ -7,6 +7,8 @@
 #include "libcef/browser/views/menu_button_view.h"
 #include "libcef/browser/views/window_impl.h"
 
+#include "ui/gfx/canvas.h"
+
 // static
 CefRefPtr<CefMenuButton> CefMenuButton::CreateMenuButton(
     CefRefPtr<CefMenuButtonDelegate> delegate,
@@ -53,6 +55,13 @@ void CefMenuButtonImpl::ShowMenu(CefRefPtr<CefMenuModel> menu_model,
 void CefMenuButtonImpl::TriggerMenu() {
   CEF_REQUIRE_VALID_RETURN_VOID();
   root_view()->Activate(nullptr);
+}
+
+void CefMenuButtonImpl::SetFocusable(bool focusable) {
+  CEF_REQUIRE_VALID_RETURN_VOID();
+  static_cast<CefMenuButtonView*>(root_view())->SetDrawStringsFlags(
+      focusable ? gfx::Canvas::SHOW_PREFIX : gfx::Canvas::HIDE_PREFIX);
+  ParentClass::SetFocusable(focusable);
 }
 
 CefMenuButtonImpl::CefMenuButtonImpl(CefRefPtr<CefMenuButtonDelegate> delegate)

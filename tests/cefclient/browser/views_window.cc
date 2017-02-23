@@ -457,6 +457,9 @@ bool ViewsWindow::OnKeyEvent(CefRefPtr<CefWindow> window,
     return true;
   }
 
+  if (menu_has_focus_ && top_menu_bar_)
+    return top_menu_bar_->OnKeyEvent(event);
+
   return false;
 }
 
@@ -525,8 +528,8 @@ void ViewsWindow::CreateMenuModel() {
 
   if (top_menu_bar_) {
     // Add the menus to the top menu bar.
-    AddFileMenuItems(top_menu_bar_->CreateMenuModel("File", NULL), 0);
-    AddTestMenuItems(top_menu_bar_->CreateMenuModel("Tests", NULL));
+    AddFileMenuItems(top_menu_bar_->CreateMenuModel("&File", NULL), 0);
+    AddTestMenuItems(top_menu_bar_->CreateMenuModel("&Tests", NULL));
   }
 }
 

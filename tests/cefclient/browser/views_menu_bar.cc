@@ -13,6 +13,32 @@ namespace {
 
 const int kMenuBarGroupId = 100;
 
+// Convert |c| to lowercase using the current ICU locale.
+// TODO(jshin): What about Turkish locale? See http://crbug.com/81719.
+// If the mnemonic is capital I and the UI language is Turkish, lowercasing it
+// results in 'small dotless i', which is different from a 'dotted i'. Similar
+// issues may exist for az and lt locales.
+base::char16 ToLower(base::char16 c) {
+  CefStringUTF16 str16;
+  cef_string_utf16_to_lower(&c, 1, str16.GetWritableStruct());
+  return str16.length() > 0 ? str16.c_str()[0] : 0;
+}
+
+// Extract the mnemonic character from |title|. For example, if |title| is
+// "&Test" then the mnemonic character is 'T'.
+base::char16 GetMnemonic(const base::string16& title) {
+  size_t index = 0;
+  do {
+    index = title.find('&', index);
+    if (index != base::string16::npos) {
+      if (index + 1 != title.size() && title[index + 1] != '&')
+        return ToLower(title[index + 1]);
+      index++;
+    }
+  } while (index != base::string16::npos);
+  return 0;
+}
+
 }  // namespace
 
 ViewsMenuBar::ViewsMenuBar(Delegate* delegate,
@@ -34,7 +60,7 @@ CefRefPtr<CefPanel> ViewsMenuBar::GetMenuPanel() {
   return panel_;
 }
 
-CefRefPtr<CefMenuModel> ViewsMenuBar::CreateMenuModel(const std::string& label,
+CefRefPtr<CefMenuModel> ViewsMenuBar::CreateMenuModel(const CefString& label,
                                                       int* menu_id) {
   EnsureMenuPanel();
 
@@ -58,7 +84,12 @@ CefRefPtr<CefMenuModel> ViewsMenuBar::CreateMenuModel(const std::string& label,
 
   // Add the new MenuButton to the Planel.
   panel_->AddChildView(button);
-  
+
+  // Extract the mnemonic that triggers the menu, if any.
+  base::char16 mnemonic = GetMnemonic(label);
+  if (mnemonic != 0)
+    mnemonics_.insert(std::make_pair(mnemonic, new_menu_id));
+ 
   return model;
 }
 
@@ -81,9 +112,35 @@ void ViewsMenuBar::SetMenuFocusable(bool focusable) {
   }
 }
 
+bool ViewsMenuBar::OnKeyEvent(const CefKeyEvent& event) {
+  if (!panel_)
+    return false;
+
+  if (event.type != KEYEVENT_RAWKEYDOWN)
+    return false;
+
+  // Do not check mnemonics if the Alt or Ctrl modifiers are pressed. For
+  // example Ctrl+<T> is an accelerator, but <T> only is a mnemonic.
+  if (event.modifiers & (EVENTFLAG_ALT_DOWN | EVENTFLAG_CONTROL_DOWN))
+    return false;
+
+  MnemonicMap::const_iterator it = mnemonics_.find(ToLower(event.character));
+  if (it == mnemonics_.end())
+    return false;
+
+  // Set status indicating that we navigated using the keyboard.
+  last_nav_with_keyboard_ = true;
+
+  // Show the selected menu.
+  TriggerMenuButton(panel_->GetViewForID(it->second));
+
+  return true;
+}
+
 void ViewsMenuBar::Reset() {
   panel_ = NULL;
   models_.clear();
+  mnemonics_.clear();
   id_next_ = id_start_;
 }
 

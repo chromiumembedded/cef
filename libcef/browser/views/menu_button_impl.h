@@ -40,6 +40,9 @@ class CefMenuButtonImpl :
   // CefViewAdapter methods:
   std::string GetDebugType() override { return "MenuButton"; }
 
+  // CefView methods:
+  void SetFocusable(bool focusable) override;
+
  private:
   // Create a new implementation object.
   // Always call Initialize() after creation.

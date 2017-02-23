@@ -4,6 +4,7 @@
 
 #include "include/internal/cef_string_types.h"
 #include <algorithm>
+#include "base/i18n/case_conversion.h"
 #include "base/logging.h"
 #include "base/strings/string16.h"
 #include "base/strings/string_util.h"
@@ -274,4 +275,16 @@ CEF_EXPORT void cef_string_userfree_utf16_free(
     cef_string_userfree_utf16_t str) {
   cef_string_utf16_clear(str);
   delete str;
+}
+
+CEF_EXPORT int cef_string_utf16_to_lower(const char16* src, size_t src_len,
+                                         cef_string_utf16_t* output) {
+  const base::string16& str = base::i18n::ToLower(base::string16(src, src_len));
+  return cef_string_utf16_set(str.c_str(), str.length(), output, true);
+}
+
+CEF_EXPORT int cef_string_utf16_to_upper(const char16* src, size_t src_len,
+                                         cef_string_utf16_t* output) {
+  const base::string16& str = base::i18n::ToUpper(base::string16(src, src_len));
+  return cef_string_utf16_set(str.c_str(), str.length(), output, true);
 }
