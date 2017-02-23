@@ -6,6 +6,7 @@
 #define CEF_TESTS_CEFCLIENT_BROWSER_VIEWS_MENU_BAR_H_
 #pragma once
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -50,7 +51,7 @@ class ViewsMenuBar : public CefMenuButtonDelegate,
 
   // Create a new menu with the specified |label|. If |menu_id| is non-NULL it
   // will be populated with the new menu ID.
-  CefRefPtr<CefMenuModel> CreateMenuModel(const std::string& label,
+  CefRefPtr<CefMenuModel> CreateMenuModel(const CefString& label,
                                           int* menu_id);
 
   // Returns the menu with the specified |menu_id|, or NULL if no such menu
@@ -62,6 +63,10 @@ class ViewsMenuBar : public CefMenuButtonDelegate,
   // key is pressed. Focus is removed from the menu bar by ViewsWindow::OnFocus
   // when a control not in the menu bar gains focus.
   void SetMenuFocusable(bool focusable);
+
+  // Key events forwarded from ViewsWindow::OnKeyEvent when the menu bar has
+  // focus.
+  bool OnKeyEvent(const CefKeyEvent& event);
 
   // Reset menu bar state.
   void Reset();
@@ -106,6 +111,10 @@ class ViewsMenuBar : public CefMenuButtonDelegate,
   CefRefPtr<CefPanel> panel_;
   std::vector<CefRefPtr<CefMenuModel> > models_;
   bool last_nav_with_keyboard_;
+
+  // Map of mnemonic to MenuButton ID.
+  typedef std::map<base::char16, int> MnemonicMap;
+  MnemonicMap mnemonics_;
 
   IMPLEMENT_REFCOUNTING(ViewsMenuBar);
   DISALLOW_COPY_AND_ASSIGN(ViewsMenuBar);

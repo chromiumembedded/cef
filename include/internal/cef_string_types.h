@@ -185,6 +185,17 @@ CEF_EXPORT void cef_string_userfree_utf8_free(cef_string_userfree_utf8_t str);
 CEF_EXPORT void cef_string_userfree_utf16_free(cef_string_userfree_utf16_t str);
 
 
+///
+// These functions convert utf16 string case using the current ICU locale. This
+// may change the length of the string in some cases.
+///
+
+CEF_EXPORT int cef_string_utf16_to_lower(const char16* src, size_t src_len,
+                                         cef_string_utf16_t* output);
+CEF_EXPORT int cef_string_utf16_to_upper(const char16* src, size_t src_len,
+                                         cef_string_utf16_t* output);
+
+
 #ifdef __cplusplus
 }
 #endif

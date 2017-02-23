@@ -26,6 +26,103 @@ index 0755f27..72db677 100644
    // Called when the menu is about to be shown.
    virtual void MenuWillShow() {}
  
+diff --git ui/views/controls/label.cc ui/views/controls/label.cc
+index 9b04c09..5d99c81 100644
+--- ui/views/controls/label.cc
++++ ui/views/controls/label.cc
+@@ -28,6 +28,7 @@
+ #include "ui/gfx/color_utils.h"
+ #include "ui/gfx/geometry/insets.h"
+ #include "ui/gfx/text_elider.h"
++#include "ui/gfx/text_utils.h"
+ #include "ui/native_theme/native_theme.h"
+ #include "ui/strings/grit/ui_strings.h"
+ #include "ui/views/controls/menu/menu_runner.h"
+@@ -36,6 +37,25 @@
+ #include "ui/views/selection_controller.h"
+ 
+ namespace views {
++
++namespace {
++
++// Strips accelerator character prefixes in |text| if needed, based on |flags|.
++// Returns a range in |text| to underline or Range::InvalidRange() if
++// underlining is not needed.
++gfx::Range StripAcceleratorChars(int flags, base::string16* text) {
++  if (flags & (gfx::Canvas::SHOW_PREFIX | gfx::Canvas::HIDE_PREFIX)) {
++    int char_pos = -1;
++    int char_span = 0;
++    *text = gfx::RemoveAcceleratorChar(*text, '&', &char_pos, &char_span);
++    if ((flags & gfx::Canvas::SHOW_PREFIX) && char_pos != -1)
++      return gfx::Range(char_pos, char_pos + char_span);
++  }
++  return gfx::Range::InvalidRange();
++}
++
++}  // namespace
++
+ // static
+ const char Label::kViewClassName[] = "Label";
+ const int Label::kFocusBorderPadding = 1;
+@@ -210,6 +230,14 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
+   ResetLayout();
+ }
+ 
++void Label::SetDrawStringsFlags(int flags) {
++  if (draw_strings_flags_ == flags)
++    return;
++  is_first_paint_text_ = true;
++  draw_strings_flags_ = flags;
++  ResetLayout();
++}
++
+ void Label::SetTooltipText(const base::string16& tooltip_text) {
+   DCHECK(handles_tooltips_);
+   tooltip_text_ = tooltip_text;
+@@ -440,7 +468,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText(
+   render_text->SetFontList(font_list());
+   render_text->set_shadows(shadows());
+   render_text->SetCursorEnabled(false);
+-  render_text->SetText(text);
++
++  if (draw_strings_flags_ != 0) {
++    base::string16 text_str = text;
++    gfx::Range range = StripAcceleratorChars(draw_strings_flags_, &text_str);
++    render_text->SetText(text_str);
++    if (range.IsValid()) {
++      render_text->SetDisplayRect(bounds());
++      render_text->ApplyStyle(gfx::UNDERLINE, true, range);
++    }
++  } else {
++    render_text->SetText(text);
++  }
++
+   return render_text;
+ }
+ 
+diff --git ui/views/controls/label.h ui/views/controls/label.h
+index 6293cff..d0a5a8f 100644
+--- ui/views/controls/label.h
++++ ui/views/controls/label.h
+@@ -117,6 +117,10 @@ class VIEWS_EXPORT Label : public View,
+   void SetElideBehavior(gfx::ElideBehavior elide_behavior);
+   gfx::ElideBehavior elide_behavior() const { return elide_behavior_; }
+ 
++  // Get or set the flags that control display of accelerator characters.
++  void SetDrawStringsFlags(int flags);
++  int draw_strings_flags() const { return draw_strings_flags_; }
++
+   // Sets the tooltip text.  Default behavior for a label (single-line) is to
+   // show the full text if it is wider than its bounds.  Calling this overrides
+   // the default behavior and lets you set a custom tooltip.  To revert to
+@@ -333,6 +337,7 @@ class VIEWS_EXPORT Label : public View,
+   bool collapse_when_hidden_;
+   int fixed_width_;
+   int max_width_;
++  int draw_strings_flags_ = 0;
+ 
+   // TODO(ckocagil): Remove is_first_paint_text_ before crbug.com/441028 is
+   // closed.
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
 index 79ff77c..a0582c0 100644
 --- ui/views/controls/menu/menu_controller.cc
