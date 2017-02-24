@@ -12,6 +12,7 @@
 #include "libcef/browser/views/view_impl.h"
 
 #include "base/logging.h"
+#include "ui/gfx/color_utils.h"
 #include "ui/views/controls/button/custom_button.h"
 
 // Helpers for template boiler-plate.
@@ -30,6 +31,7 @@ CEF_BUTTON_IMPL_T class CefButtonImpl : public CEF_VIEW_IMPL_D {
   CefRefPtr<CefLabelButton> AsLabelButton() override { return nullptr; }
   void SetState(cef_button_state_t state) override;
   cef_button_state_t GetState() override;
+  void SetInkDropEnabled(bool enabled) override;
   void SetTooltipText(const CefString& tooltip_text) override;
   void SetAccessibleName(const CefString& name) override;
 
@@ -55,6 +57,18 @@ CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetState(cef_button_state_t state) {
 CEF_BUTTON_IMPL_T cef_button_state_t CEF_BUTTON_IMPL_D::GetState() {
   CEF_REQUIRE_VALID_RETURN(CEF_BUTTON_STATE_NORMAL);
   return static_cast<cef_button_state_t>(ParentClass::root_view()->state());
+}
+
+CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetInkDropEnabled(bool enabled) {
+  CEF_REQUIRE_VALID_RETURN_VOID();
+  ParentClass::root_view()->SetInkDropMode(
+      enabled ? views::InkDropHostView::InkDropMode::ON :
+                views::InkDropHostView::InkDropMode::OFF);
+  if (enabled) {
+    ParentClass::root_view()->set_ink_drop_base_color(
+        color_utils::BlendTowardOppositeLuma(
+            ParentClass::root_view()->background()->get_color(), 0x61));
+  }
 }
 
 CEF_BUTTON_IMPL_T void CEF_BUTTON_IMPL_D::SetTooltipText(

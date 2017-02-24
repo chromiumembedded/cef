@@ -569,6 +569,7 @@ void ViewsWindow::AddControls() {
       CefMenuButton::CreateMenuButton(this, CefString(), false, false);
   menu_button->SetID(ID_MENU_BUTTON);
   menu_button->SetImage(CEF_BUTTON_STATE_NORMAL, LoadImageIcon("menu_icon"));
+  menu_button->SetInkDropEnabled(true);
   // Override the default minimum size.
   menu_button->SetMinimumSize(CefSize(0, 0));
 

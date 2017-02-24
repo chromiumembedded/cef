@@ -54,6 +54,7 @@ class CefMenuButtonCToCpp
   CefRefPtr<CefLabelButton> AsLabelButton() OVERRIDE;
   void SetState(cef_button_state_t state) OVERRIDE;
   cef_button_state_t GetState() OVERRIDE;
+  void SetInkDropEnabled(bool enabled) OVERRIDE;
   void SetTooltipText(const CefString& tooltip_text) OVERRIDE;
   void SetAccessibleName(const CefString& name) OVERRIDE;
 

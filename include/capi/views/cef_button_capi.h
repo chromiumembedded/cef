@@ -75,6 +75,12 @@ typedef struct _cef_button_t {
   cef_button_state_t (CEF_CALLBACK *get_state)(struct _cef_button_t* self);
 
   ///
+  // Sets the Button will use an ink drop effect for displaying state changes.
+  ///
+  void (CEF_CALLBACK *set_ink_drop_enabled)(struct _cef_button_t* self,
+      int enabled);
+
+  ///
   // Sets the tooltip text that will be displayed when the user hovers the mouse
   // cursor over the Button.
   ///

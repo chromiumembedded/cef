@@ -323,6 +323,20 @@ cef_button_state_t CEF_CALLBACK menu_button_get_state(
   return _retval;
 }
 
+void CEF_CALLBACK menu_button_set_ink_drop_enabled(struct _cef_button_t* self,
+    int enabled) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefMenuButtonCppToC::Get(reinterpret_cast<cef_menu_button_t*>(
+      self))->SetInkDropEnabled(
+      enabled?true:false);
+}
+
 void CEF_CALLBACK menu_button_set_tooltip_text(struct _cef_button_t* self,
     const cef_string_t* tooltip_text) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -1214,6 +1228,8 @@ CefMenuButtonCppToC::CefMenuButtonCppToC() {
   GetStruct()->base.base.as_label_button = menu_button_as_label_button;
   GetStruct()->base.base.set_state = menu_button_set_state;
   GetStruct()->base.base.get_state = menu_button_get_state;
+  GetStruct()->base.base.set_ink_drop_enabled =
+      menu_button_set_ink_drop_enabled;
   GetStruct()->base.base.set_tooltip_text = menu_button_set_tooltip_text;
   GetStruct()->base.base.set_accessible_name = menu_button_set_accessible_name;
   GetStruct()->base.base.base.as_browser_view = menu_button_as_browser_view;

@@ -69,6 +69,12 @@ class CefButton : public CefView {
   virtual cef_button_state_t GetState() =0;
 
   ///
+  // Sets the Button will use an ink drop effect for displaying state changes.
+  ///
+  /*--cef()--*/
+  virtual void SetInkDropEnabled(bool enabled) =0;
+
+  ///
   // Sets the tooltip text that will be displayed when the user hovers the mouse
   // cursor over the Button.
   ///

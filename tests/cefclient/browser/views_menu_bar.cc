@@ -77,6 +77,7 @@ CefRefPtr<CefMenuModel> ViewsMenuBar::CreateMenuModel(const CefString& label,
   CefRefPtr<CefMenuButton> button =
       CefMenuButton::CreateMenuButton(this, label, false, false);
   button->SetID(new_menu_id);
+  button->SetInkDropEnabled(true);
 
   // Assign a group ID to allow focus traversal between MenuButtons using the
   // arrow keys when the menu is not displayed.
