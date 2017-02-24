@@ -47,7 +47,8 @@ The base CEF framework includes support for the C and C++ programming languages.
 * .Net/Mono (CEF3) - https://bitbucket.org/xilium/xilium.cefglue
 * .Net (CEF3) - https://bitbucket.org/chromiumfx/chromiumfx
 * Delphi (CEF1) - http://code.google.com/p/delphichromiumembedded/
-* Delphi (CEF3) - http://code.google.com/p/dcef3/
+* Delphi (CEF3) - https://github.com/hgourvest/dcef3
+* Delphi (CEF3) - https://github.com/salvadordf/CEF4Delphi
 * Go - https://github.com/CzarekTomczak/cef2go
 * Java - https://bitbucket.org/chromiumembedded/java-cef
 * Java - http://code.google.com/p/javacef/
