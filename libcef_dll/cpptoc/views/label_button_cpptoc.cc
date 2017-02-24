@@ -274,6 +274,20 @@ cef_button_state_t CEF_CALLBACK label_button_get_state(
   return _retval;
 }
 
+void CEF_CALLBACK label_button_set_ink_drop_enabled(struct _cef_button_t* self,
+    int enabled) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefLabelButtonCppToC::Get(reinterpret_cast<cef_label_button_t*>(
+      self))->SetInkDropEnabled(
+      enabled?true:false);
+}
+
 void CEF_CALLBACK label_button_set_tooltip_text(struct _cef_button_t* self,
     const cef_string_t* tooltip_text) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -1165,6 +1179,7 @@ CefLabelButtonCppToC::CefLabelButtonCppToC() {
   GetStruct()->base.as_label_button = label_button_as_label_button;
   GetStruct()->base.set_state = label_button_set_state;
   GetStruct()->base.get_state = label_button_get_state;
+  GetStruct()->base.set_ink_drop_enabled = label_button_set_ink_drop_enabled;
   GetStruct()->base.set_tooltip_text = label_button_set_tooltip_text;
   GetStruct()->base.set_accessible_name = label_button_set_accessible_name;
   GetStruct()->base.base.as_browser_view = label_button_as_browser_view;

@@ -249,6 +249,18 @@ cef_button_state_t CefLabelButtonCToCpp::GetState() {
   return _retval;
 }
 
+void CefLabelButtonCToCpp::SetInkDropEnabled(bool enabled) {
+  cef_button_t* _struct = reinterpret_cast<cef_button_t*>(GetStruct());
+  if (CEF_MEMBER_MISSING(_struct, set_ink_drop_enabled))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->set_ink_drop_enabled(_struct,
+      enabled);
+}
+
 void CefLabelButtonCToCpp::SetTooltipText(const CefString& tooltip_text) {
   cef_button_t* _struct = reinterpret_cast<cef_button_t*>(GetStruct());
   if (CEF_MEMBER_MISSING(_struct, set_tooltip_text))

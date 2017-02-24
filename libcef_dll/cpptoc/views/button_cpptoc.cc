@@ -69,6 +69,19 @@ cef_button_state_t CEF_CALLBACK button_get_state(struct _cef_button_t* self) {
   return _retval;
 }
 
+void CEF_CALLBACK button_set_ink_drop_enabled(struct _cef_button_t* self,
+    int enabled) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefButtonCppToC::Get(self)->SetInkDropEnabled(
+      enabled?true:false);
+}
+
 void CEF_CALLBACK button_set_tooltip_text(struct _cef_button_t* self,
     const cef_string_t* tooltip_text) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -927,6 +940,7 @@ CefButtonCppToC::CefButtonCppToC() {
   GetStruct()->as_label_button = button_as_label_button;
   GetStruct()->set_state = button_set_state;
   GetStruct()->get_state = button_get_state;
+  GetStruct()->set_ink_drop_enabled = button_set_ink_drop_enabled;
   GetStruct()->set_tooltip_text = button_set_tooltip_text;
   GetStruct()->set_accessible_name = button_set_accessible_name;
   GetStruct()->base.as_browser_view = button_as_browser_view;
