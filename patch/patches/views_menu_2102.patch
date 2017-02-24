@@ -26,8 +26,83 @@ index 0755f27..72db677 100644
    // Called when the menu is about to be shown.
    virtual void MenuWillShow() {}
  
+diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
+index 78bc651..50a0231 100644
+--- ui/gfx/render_text.cc
++++ ui/gfx/render_text.cc
+@@ -592,6 +592,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
+   }
+ }
+ 
++void RenderText::SetDrawStringsFlags(int flags) {
++  if (draw_strings_flags_ == flags)
++    return;
++  draw_strings_flags_ = flags;
++  cached_bounds_and_offset_valid_ = false;
++  OnTextAttributeChanged();
++}
++
+ void RenderText::SetDisplayRect(const Rect& r) {
+   if (r != display_rect_) {
+     display_rect_ = r;
+@@ -1462,6 +1470,19 @@ void RenderText::OnTextAttributeChanged() {
+   if (!multiline_ && replace_newline_chars_with_symbols_)
+     base::ReplaceChars(layout_text_, kNewline, kNewlineSymbol, &layout_text_);
+ 
++  if (draw_strings_flags_ != 0) {
++    // Compute layout size with the mnemonic character underlined since it might
++    // be larger than with the underline hidden.
++    int char_pos = -1;
++    int char_span = 0;
++    layout_text_ =
++        gfx::RemoveAcceleratorChar(layout_text_, '&', &char_pos, &char_span);
++    if (char_pos != -1) {
++      gfx::Range range(char_pos, char_pos + char_span);
++      styles_[gfx::UNDERLINE].ApplyValue(true, range);
++    }
++  }
++
+   OnLayoutTextAttributeChanged(true);
+ }
+ 
+diff --git ui/gfx/render_text.h ui/gfx/render_text.h
+index 44ec077..5be1247 100644
+--- ui/gfx/render_text.h
++++ ui/gfx/render_text.h
+@@ -319,6 +319,10 @@ class GFX_EXPORT RenderText {
+   void SetElideBehavior(ElideBehavior elide_behavior);
+   ElideBehavior elide_behavior() const { return elide_behavior_; }
+ 
++  // Get or set the flags that control display of accelerator characters.
++  void SetDrawStringsFlags(int flags);
++  int draw_strings_flags() const { return draw_strings_flags_; }
++
+   const Rect& display_rect() const { return display_rect_; }
+   void SetDisplayRect(const Rect& r);
+ 
+@@ -871,6 +875,8 @@ class GFX_EXPORT RenderText {
+   // OnLayoutTextAttributeChanged and OnDisplayTextAttributeChanged calls.
+   std::vector<internal::Line> lines_;
+ 
++  int draw_strings_flags_ = 0;
++
+   DISALLOW_COPY_AND_ASSIGN(RenderText);
+ };
+ 
+diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
+index 21891fc..97f148c 100644
+--- ui/views/controls/button/label_button.cc
++++ ui/views/controls/button/label_button.cc
+@@ -239,6 +239,7 @@ gfx::Size LabelButton::GetPreferredSize() const {
+   // Use a temporary label copy for sizing to avoid calculation side-effects.
+   Label label(GetText(), label_->font_list());
+   label.SetShadows(label_->shadows());
++  label.SetDrawStringsFlags(label_->draw_strings_flags());
+ 
+   if (style_ == STYLE_BUTTON && PlatformStyle::kDefaultLabelButtonHasBoldFont) {
+     // Some text appears wider when rendered normally than when rendered bold.
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 9b04c09..5d99c81 100644
+index 9b04c09..58066c14 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -28,6 +28,7 @@
@@ -64,7 +139,7 @@ index 9b04c09..5d99c81 100644
  // static
  const char Label::kViewClassName[] = "Label";
  const int Label::kFocusBorderPadding = 1;
-@@ -210,6 +230,14 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
+@@ -210,6 +230,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
    ResetLayout();
  }
  
@@ -73,13 +148,14 @@ index 9b04c09..5d99c81 100644
 +    return;
 +  is_first_paint_text_ = true;
 +  draw_strings_flags_ = flags;
++  render_text_->SetDrawStringsFlags(draw_strings_flags_);
 +  ResetLayout();
 +}
 +
  void Label::SetTooltipText(const base::string16& tooltip_text) {
    DCHECK(handles_tooltips_);
    tooltip_text_ = tooltip_text;
-@@ -440,7 +468,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText(
+@@ -440,7 +469,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText(
    render_text->SetFontList(font_list());
    render_text->set_shadows(shadows());
    render_text->SetCursorEnabled(false);
