@@ -86,6 +86,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
                        bool canGoForward);
   void SetDraggableRegions(const std::vector<CefDraggableRegion>& regions);
   void TakeFocus(bool next);
+  void OnBeforeContextMenu(CefRefPtr<CefMenuModel> model);
 
   // CefBrowserViewDelegate methods:
   bool OnPopupBrowserViewCreated(
@@ -164,6 +165,7 @@ class ViewsWindow : public CefBrowserViewDelegate,
   CefRefPtr<CefMenuModel> button_menu_model_;
   CefRefPtr<ViewsMenuBar> top_menu_bar_;
   bool menu_has_focus_;
+  int last_focused_view_;
 
   CefSize minimum_window_size_;
 

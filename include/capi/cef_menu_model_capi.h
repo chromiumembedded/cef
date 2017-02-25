@@ -384,6 +384,73 @@ typedef struct _cef_menu_model_t {
   int (CEF_CALLBACK *get_accelerator_at)(struct _cef_menu_model_t* self,
       int index, int* key_code, int* shift_pressed, int* ctrl_pressed,
       int* alt_pressed);
+
+  ///
+  // Set the explicit color for |command_id| and |color_type| to |color|.
+  // Specify a |color| value of 0 to remove the explicit color. If no explicit
+  // color or default color is set for |color_type| then the system color will
+  // be used. Returns true (1) on success.
+  ///
+  int (CEF_CALLBACK *set_color)(struct _cef_menu_model_t* self, int command_id,
+      cef_menu_color_type_t color_type, cef_color_t color);
+
+  ///
+  // Set the explicit color for |command_id| and |index| to |color|. Specify a
+  // |color| value of 0 to remove the explicit color. Specify an |index| value
+  // of -1 to set the default color for items that do not have an explicit color
+  // set. If no explicit color or default color is set for |color_type| then the
+  // system color will be used. Returns true (1) on success.
+  ///
+  int (CEF_CALLBACK *set_color_at)(struct _cef_menu_model_t* self, int index,
+      cef_menu_color_type_t color_type, cef_color_t color);
+
+  ///
+  // Returns in |color| the color that was explicitly set for |command_id| and
+  // |color_type|. If a color was not set then 0 will be returned in |color|.
+  // Returns true (1) on success.
+  ///
+  int (CEF_CALLBACK *get_color)(struct _cef_menu_model_t* self, int command_id,
+      cef_menu_color_type_t color_type, cef_color_t* color);
+
+  ///
+  // Returns in |color| the color that was explicitly set for |command_id| and
+  // |color_type|. Specify an |index| value of -1 to return the default color in
+  // |color|. If a color was not set then 0 will be returned in |color|. Returns
+  // true (1) on success.
+  ///
+  int (CEF_CALLBACK *get_color_at)(struct _cef_menu_model_t* self, int index,
+      cef_menu_color_type_t color_type, cef_color_t* color);
+
+  ///
+  // Sets the font list for the specified |command_id|. If |font_list| is NULL
+  // the system font will be used. Returns true (1) on success. The format is
+  // "<FONT_FAMILY_LIST>,[STYLES] <SIZE>", where: - FONT_FAMILY_LIST is a comma-
+  // separated list of font family names, - STYLES is an optional space-
+  // separated list of style names (case-sensitive
+  //   "Bold" and "Italic" are supported), and
+  // - SIZE is an integer font size in pixels with the suffix "px".
+  //
+  // Here are examples of valid font description strings: - "Arial, Helvetica,
+  // Bold Italic 14px" - "Arial, 14px"
+  ///
+  int (CEF_CALLBACK *set_font_list)(struct _cef_menu_model_t* self,
+      int command_id, const cef_string_t* font_list);
+
+  ///
+  // Sets the font list for the specified |index|. Specify an |index| value of
+  // -1 to set the default font. If |font_list| is NULL the system font will be
+  // used. Returns true (1) on success. The format is
+  // "<FONT_FAMILY_LIST>,[STYLES] <SIZE>", where: - FONT_FAMILY_LIST is a comma-
+  // separated list of font family names, - STYLES is an optional space-
+  // separated list of style names (case-sensitive
+  //   "Bold" and "Italic" are supported), and
+  // - SIZE is an integer font size in pixels with the suffix "px".
+  //
+  // Here are examples of valid font description strings: - "Arial, Helvetica,
+  // Bold Italic 14px" - "Arial, 14px"
+  ///
+  int (CEF_CALLBACK *set_font_list_at)(struct _cef_menu_model_t* self,
+      int index, const cef_string_t* font_list);
 } cef_menu_model_t;
 
 

@@ -1,5 +1,5 @@
 diff --git ui/base/models/menu_model.h ui/base/models/menu_model.h
-index 0755f27..72db677 100644
+index 0755f27..76ad6d6 100644
 --- ui/base/models/menu_model.h
 +++ ui/base/models/menu_model.h
 @@ -15,6 +15,7 @@
@@ -10,7 +10,7 @@ index 0755f27..72db677 100644
  }
  
  namespace ui {
-@@ -115,6 +116,15 @@ class UI_BASE_EXPORT MenuModel {
+@@ -115,6 +116,30 @@ class UI_BASE_EXPORT MenuModel {
    // |event_flags| is a bit mask of ui::EventFlags.
    virtual void ActivatedAt(int index, int event_flags);
  
@@ -22,6 +22,21 @@ index 0755f27..72db677 100644
 +  // true if the menu is displaying a right-to-left language.
 +  virtual void UnhandledOpenSubmenu(bool is_rtl) {}
 +  virtual void UnhandledCloseSubmenu(bool is_rtl) {}
++
++  // Override the text/background color of a given menu item dependent on the
++  // |index| and its |is_hovered| state. Returns true if it chooses to override
++  // the color.
++  virtual bool GetTextColor(int index,
++                            bool is_hovered,
++                            SkColor* override_color) const { return false; }
++  virtual bool GetMinorTextColor(int index,
++                                 bool is_hovered,
++                                 SkColor* override_color) const
++                                 { return false; }
++  virtual bool GetBackgroundColor(int index,
++                                  bool is_hovered,
++                                  SkColor* override_color) const
++                                  { return false; }
 +
    // Called when the menu is about to be shown.
    virtual void MenuWillShow() {}
@@ -231,10 +246,25 @@ index 79ff77c..a0582c0 100644
      SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
    else if (item->GetParentMenuItem()->GetParentMenuItem())
 diff --git ui/views/controls/menu/menu_delegate.h ui/views/controls/menu/menu_delegate.h
-index 3b7cb7f..3ad68d0 100644
+index 3b7cb7f..7481553 100644
 --- ui/views/controls/menu/menu_delegate.h
 +++ ui/views/controls/menu/menu_delegate.h
-@@ -229,6 +229,11 @@ class VIEWS_EXPORT MenuDelegate {
+@@ -87,6 +87,14 @@ class VIEWS_EXPORT MenuDelegate {
+                                   bool is_hovered,
+                                   SkColor* override_color) const;
+ 
++  // Override the minor text color of a given menu item dependent on the
++  // |command_id| and its |is_hovered| state. Returns true if it chooses to
++  // override the color.
++  virtual bool GetMinorTextColor(int command_id,
++                                 bool is_hovered,
++                                 SkColor* override_color) const
++                                 { return false; }
++
+   // Override the background color of a given menu item dependent on the
+   // |command_id| and its |is_hovered| state. Returns true if it chooses to
+   // override the color.
+@@ -229,6 +237,11 @@ class VIEWS_EXPORT MenuDelegate {
                                         bool* has_mnemonics,
                                         MenuButton** button);
  
@@ -246,11 +276,44 @@ index 3b7cb7f..3ad68d0 100644
    // Returns the max width menus can grow to be.
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
+diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
+index b4129049..a23670a 100644
+--- ui/views/controls/menu/menu_item_view.cc
++++ ui/views/controls/menu/menu_item_view.cc
+@@ -871,6 +871,17 @@ void MenuItemView::PaintMinorText(gfx::Canvas* canvas,
+   if (minor_text.empty())
+     return;
+ 
++  SkColor text_color;
++
++  MenuDelegate *delegate = GetDelegate();
++  if (!delegate || !delegate->GetMinorTextColor(GetCommand(),
++                                                render_selection,
++                                                &text_color)) {
++    text_color = GetNativeTheme()->GetSystemColor(render_selection ?
++        ui::NativeTheme::kColorId_SelectedMenuItemForegroundColor :
++        ui::NativeTheme::kColorId_MenuItemSubtitleColor);
++  }
++
+   int available_height = height() - GetTopMargin() - GetBottomMargin();
+   int max_accel_width =
+       parent_menu_item_->GetSubmenu()->max_minor_text_width();
+@@ -889,9 +900,7 @@ void MenuItemView::PaintMinorText(gfx::Canvas* canvas,
+   canvas->DrawStringRectWithFlags(
+       minor_text,
+       GetFontList(),
+-      GetNativeTheme()->GetSystemColor(render_selection ?
+-          ui::NativeTheme::kColorId_SelectedMenuItemForegroundColor :
+-          ui::NativeTheme::kColorId_MenuItemSubtitleColor),
++      text_color,
+       accel_bounds,
+       flags);
+ }
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index bc04dcb..b2ec114 100644
+index bc04dcb..d786a0b 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
-@@ -245,6 +245,49 @@ void MenuModelAdapter::SelectionChanged(MenuItemView* menu) {
+@@ -245,6 +245,88 @@ void MenuModelAdapter::SelectionChanged(MenuItemView* menu) {
    NOTREACHED();
  }
  
@@ -297,14 +360,53 @@ index bc04dcb..b2ec114 100644
 +  NOTREACHED();
 +}
 +
++bool MenuModelAdapter::GetForegroundColor(int command_id,
++                                          bool is_hovered,
++                                          SkColor* override_color) const {
++  ui::MenuModel* model = menu_model_;
++  int index = 0;
++  if (ui::MenuModel::GetModelAndIndexForCommandId(command_id, &model, &index))
++    return model->GetTextColor(index, is_hovered, override_color);
++
++  NOTREACHED();
++  return false;
++}
++
++bool MenuModelAdapter::GetMinorTextColor(int command_id,
++                                         bool is_hovered,
++                                         SkColor* override_color) const {
++  ui::MenuModel* model = menu_model_;
++  int index = 0;
++  if (ui::MenuModel::GetModelAndIndexForCommandId(command_id, &model, &index))
++    return model->GetMinorTextColor(index, is_hovered, override_color);
++
++  NOTREACHED();
++  return false;
++}
++
++bool MenuModelAdapter::GetBackgroundColor(int command_id,
++                                          bool is_hovered,
++                                          SkColor* override_color) const {
++  if (command_id == -1)
++    return menu_model_->GetBackgroundColor(-1, is_hovered, override_color);
++
++  ui::MenuModel* model = menu_model_;
++  int index = 0;
++  if (ui::MenuModel::GetModelAndIndexForCommandId(command_id, &model, &index))
++    return model->GetBackgroundColor(index, is_hovered, override_color);
++
++  NOTREACHED();
++  return false;
++}
++
  void MenuModelAdapter::WillShowMenu(MenuItemView* menu) {
    // Look up the menu model for this menu.
    const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
 diff --git ui/views/controls/menu/menu_model_adapter.h ui/views/controls/menu/menu_model_adapter.h
-index c9799da..c7ecca6 100644
+index c9799da..827f786 100644
 --- ui/views/controls/menu/menu_model_adapter.h
 +++ ui/views/controls/menu/menu_model_adapter.h
-@@ -76,6 +76,13 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate {
+@@ -76,6 +76,22 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate {
    bool IsCommandVisible(int id) const override;
    bool IsItemChecked(int id) const override;
    void SelectionChanged(MenuItemView* menu) override;
@@ -315,6 +417,31 @@ index c9799da..c7ecca6 100644
 +                               MenuButton** button) override;
 +  void OnUnhandledOpenSubmenu(MenuItemView* menu, bool is_rtl) override;
 +  void OnUnhandledCloseSubmenu(MenuItemView* menu, bool is_rtl) override;
++  bool GetForegroundColor(int command_id,
++                          bool is_hovered,
++                          SkColor* override_color) const override;
++  bool GetMinorTextColor(int command_id,
++                         bool is_hovered,
++                         SkColor* override_color) const override;
++  bool GetBackgroundColor(int command_id,
++                          bool is_hovered,
++                          SkColor* override_color) const override;
    void WillShowMenu(MenuItemView* menu) override;
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu, MenuRunner::RunResult result) override;
+diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
+index 455d289..f5f7419 100644
+--- ui/views/controls/menu/menu_scroll_view_container.cc
++++ ui/views/controls/menu/menu_scroll_view_container.cc
+@@ -184,6 +184,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
+   scroll_view_ = new MenuScrollView(content_view);
+   AddChildView(scroll_view_);
+ 
++  SkColor override_color;
++  MenuDelegate* delegate = content_view_->GetMenuItem()->GetDelegate();
++  if (delegate && delegate->GetBackgroundColor(-1, false, &override_color))
++    set_background(views::Background::CreateSolidBackground(override_color));
++
+   arrow_ = BubbleBorderTypeFromAnchor(
+       content_view_->GetMenuItem()->GetMenuController()->GetAnchorPosition());
+ 

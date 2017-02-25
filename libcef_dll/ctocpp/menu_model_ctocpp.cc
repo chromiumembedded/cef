@@ -915,6 +915,115 @@ bool CefMenuModelCToCpp::GetAcceleratorAt(int index, int& key_code,
   return _retval?true:false;
 }
 
+bool CefMenuModelCToCpp::SetColor(int command_id,
+    cef_menu_color_type_t color_type, cef_color_t color) {
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_color))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->set_color(_struct,
+      command_id,
+      color_type,
+      color);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+bool CefMenuModelCToCpp::SetColorAt(int index, cef_menu_color_type_t color_type,
+    cef_color_t color) {
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_color_at))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->set_color_at(_struct,
+      index,
+      color_type,
+      color);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+bool CefMenuModelCToCpp::GetColor(int command_id,
+    cef_menu_color_type_t color_type, cef_color_t& color) {
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_color))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->get_color(_struct,
+      command_id,
+      color_type,
+      &color);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+bool CefMenuModelCToCpp::GetColorAt(int index, cef_menu_color_type_t color_type,
+    cef_color_t& color) {
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_color_at))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->get_color_at(_struct,
+      index,
+      color_type,
+      &color);
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+bool CefMenuModelCToCpp::SetFontList(int command_id,
+    const CefString& font_list) {
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_font_list))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: font_list
+
+  // Execute
+  int _retval = _struct->set_font_list(_struct,
+      command_id,
+      font_list.GetStruct());
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
+bool CefMenuModelCToCpp::SetFontListAt(int index, const CefString& font_list) {
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_font_list_at))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Unverified params: font_list
+
+  // Execute
+  int _retval = _struct->set_font_list_at(_struct,
+      index,
+      font_list.GetStruct());
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 

@@ -341,6 +341,12 @@ void RootWindowViews::OnTakeFocus(bool next) {
     window_->TakeFocus(next);
 }
 
+void RootWindowViews::OnBeforeContextMenu(CefRefPtr<CefMenuModel> model) {
+  CEF_REQUIRE_UI_THREAD();
+  if (window_)
+    window_->OnBeforeContextMenu(model);
+}
+
 void RootWindowViews::CreateClientHandler(const std::string& url) {
   DCHECK(!client_handler_);
 

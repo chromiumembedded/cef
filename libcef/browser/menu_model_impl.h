@@ -14,6 +14,7 @@
 
 #include "base/threading/platform_thread.h"
 #include "ui/base/models/menu_model.h"
+#include "ui/gfx/font_list.h"
 
 namespace content {
 struct MenuItem;
@@ -123,15 +124,37 @@ class CefMenuModelImpl : public CefMenuModel {
       bool& shift_pressed, bool& ctrl_pressed, bool& alt_pressed) override;
   bool GetAcceleratorAt(int index, int& key_code, bool& shift_pressed,
       bool& ctrl_pressed, bool& alt_pressed) override;
+  bool SetColor(int command_id,
+                cef_menu_color_type_t color_type,
+                cef_color_t color) override;
+  bool SetColorAt(int index,
+                  cef_menu_color_type_t color_type,
+                  cef_color_t color) override;
+  bool GetColor(int command_id,
+                cef_menu_color_type_t color_type,
+                cef_color_t& color) override;
+  bool GetColorAt(int index,
+                  cef_menu_color_type_t color_type,
+                  cef_color_t& color) override;
+  bool SetFontList(int command_id, const CefString& font_list) override;
+  bool SetFontListAt(int index, const CefString& font_list) override;
 
   // Callbacks from the ui::MenuModel implementation.
   void ActivatedAt(int index, cef_event_flags_t event_flags);
   void MouseOutsideMenu(const gfx::Point& screen_point);
   void UnhandledOpenSubmenu(bool is_rtl);
   void UnhandledCloseSubmenu(bool is_rtl);
+  bool GetTextColor(int index,
+                    bool is_accelerator,
+                    bool is_hovered,
+                    SkColor* override_color) const;
+  bool GetBackgroundColor(int index,
+                          bool is_hovered,
+                          SkColor* override_color) const;
   void MenuWillShow();
   void MenuWillClose();
   base::string16 GetFormattedLabelAt(int index);
+  const gfx::FontList* GetLabelFontListAt(int index) const;
 
   // Verify that only a single reference exists to all CefMenuModelImpl objects.
   bool VerifyRefCount();
@@ -181,6 +204,11 @@ class CefMenuModelImpl : public CefMenuModel {
 
   ItemVector items_;
   std::unique_ptr<ui::MenuModel> model_;
+
+  // Style information.
+  cef_color_t default_colors_[CEF_MENU_COLOR_COUNT] = {0};
+  gfx::FontList default_font_list_;
+  bool has_default_font_list_ = false;
 
   bool auto_notify_menu_closed_ = true;
 
