@@ -411,6 +411,85 @@ class CefMenuModel : public virtual CefBaseRefCounted {
                                 bool& shift_pressed,
                                 bool& ctrl_pressed,
                                 bool& alt_pressed) =0;
+
+  ///
+  // Set the explicit color for |command_id| and |color_type| to |color|.
+  // Specify a |color| value of 0 to remove the explicit color. If no explicit
+  // color or default color is set for |color_type| then the system color will
+  // be used. Returns true on success.
+  ///
+  /*--cef()--*/
+  virtual bool SetColor(int command_id,
+                        cef_menu_color_type_t color_type,
+                        cef_color_t color) =0;
+
+  ///
+  // Set the explicit color for |command_id| and |index| to |color|. Specify a
+  // |color| value of 0 to remove the explicit color. Specify an |index| value
+  // of -1 to set the default color for items that do not have an explicit
+  // color set. If no explicit color or default color is set for |color_type|
+  // then the system color will be used. Returns true on success.
+  ///
+  /*--cef()--*/
+  virtual bool SetColorAt(int index,
+                          cef_menu_color_type_t color_type,
+                          cef_color_t color) =0;
+
+  ///
+  // Returns in |color| the color that was explicitly set for |command_id| and
+  // |color_type|. If a color was not set then 0 will be returned in |color|.
+  // Returns true on success.
+  ///
+  /*--cef()--*/
+  virtual bool GetColor(int command_id,
+                        cef_menu_color_type_t color_type,
+                        cef_color_t& color) =0;
+
+  ///
+  // Returns in |color| the color that was explicitly set for |command_id| and
+  // |color_type|. Specify an |index| value of -1 to return the default color
+  // in |color|. If a color was not set then 0 will be returned in |color|.
+  // Returns true on success.
+  ///
+  /*--cef()--*/
+  virtual bool GetColorAt(int index,
+                          cef_menu_color_type_t color_type,
+                          cef_color_t& color) =0;
+
+  ///
+  // Sets the font list for the specified |command_id|. If |font_list| is empty
+  // the system font will be used. Returns true on success. The format is
+  // "<FONT_FAMILY_LIST>,[STYLES] <SIZE>", where:
+  // - FONT_FAMILY_LIST is a comma-separated list of font family names,
+  // - STYLES is an optional space-separated list of style names (case-sensitive
+  //   "Bold" and "Italic" are supported), and
+  // - SIZE is an integer font size in pixels with the suffix "px".
+  //
+  // Here are examples of valid font description strings:
+  // - "Arial, Helvetica, Bold Italic 14px"
+  // - "Arial, 14px"
+  ///
+  /*--cef(optional_param=font_list)--*/
+  virtual bool SetFontList(int command_id,
+                           const CefString& font_list) =0;
+
+  ///
+  // Sets the font list for the specified |index|. Specify an |index| value of
+  // -1 to set the default font. If |font_list| is empty the system font will
+  // be used. Returns true on success. The format is
+  // "<FONT_FAMILY_LIST>,[STYLES] <SIZE>", where:
+  // - FONT_FAMILY_LIST is a comma-separated list of font family names,
+  // - STYLES is an optional space-separated list of style names (case-sensitive
+  //   "Bold" and "Italic" are supported), and
+  // - SIZE is an integer font size in pixels with the suffix "px".
+  //
+  // Here are examples of valid font description strings:
+  // - "Arial, Helvetica, Bold Italic 14px"
+  // - "Arial, 14px"
+  ///
+  /*--cef(optional_param=font_list)--*/
+  virtual bool SetFontListAt(int index,
+                             const CefString& font_list) =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_MENU_MODEL_H_

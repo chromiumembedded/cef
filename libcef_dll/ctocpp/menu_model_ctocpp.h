@@ -90,6 +90,16 @@ class CefMenuModelCToCpp
       bool& ctrl_pressed, bool& alt_pressed) OVERRIDE;
   bool GetAcceleratorAt(int index, int& key_code, bool& shift_pressed,
       bool& ctrl_pressed, bool& alt_pressed) OVERRIDE;
+  bool SetColor(int command_id, cef_menu_color_type_t color_type,
+      cef_color_t color) OVERRIDE;
+  bool SetColorAt(int index, cef_menu_color_type_t color_type,
+      cef_color_t color) OVERRIDE;
+  bool GetColor(int command_id, cef_menu_color_type_t color_type,
+      cef_color_t& color) OVERRIDE;
+  bool GetColorAt(int index, cef_menu_color_type_t color_type,
+      cef_color_t& color) OVERRIDE;
+  bool SetFontList(int command_id, const CefString& font_list) OVERRIDE;
+  bool SetFontListAt(int index, const CefString& font_list) OVERRIDE;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_MENU_MODEL_CTOCPP_H_

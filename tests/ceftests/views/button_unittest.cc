@@ -393,6 +393,79 @@ class TestMenuButtonDelegate : public CefMenuButtonDelegate,
     CefRefPtr<CefMenuModel> model = CefMenuModel::CreateMenuModel(this);
     model->AddItem(kMenuItemID, kMenuItemLabel);
 
+    // Verify color accessors.
+    for (int i = 0; i < CEF_MENU_COLOR_COUNT; ++i) {
+      cef_menu_color_type_t color_type = static_cast<cef_menu_color_type_t>(i);
+      cef_color_t color_out;
+      cef_color_t color = CefColorSetARGB(255, 255, 255, i);
+
+      // No color set yet.
+      color_out = 1;
+      EXPECT_TRUE(model->GetColor(kMenuItemID, color_type, color_out));
+      EXPECT_EQ(0U, color_out);
+      color_out = 1;
+      EXPECT_TRUE(model->GetColorAt(0, color_type, color_out));
+      EXPECT_EQ(0U, color_out);
+      color_out = 1;
+      EXPECT_TRUE(model->GetColorAt(-1, color_type, color_out));
+      EXPECT_EQ(0U, color_out);
+
+      // Set the default color.
+      EXPECT_TRUE(model->SetColorAt(-1, color_type, color));
+      color_out = 1;
+      EXPECT_TRUE(model->GetColorAt(-1, color_type, color_out));
+      EXPECT_EQ(color, color_out);
+
+      // Clear the default color.
+      EXPECT_TRUE(model->SetColorAt(-1, color_type, 0));
+      color_out = 1;
+      EXPECT_TRUE(model->GetColorAt(-1, color_type, color_out));
+      EXPECT_EQ(0U, color_out);
+
+      // Set the index color.
+      EXPECT_TRUE(model->SetColorAt(0, color_type, color));
+      color_out = 1;
+      EXPECT_TRUE(model->GetColorAt(0, color_type, color_out));
+      EXPECT_EQ(color, color_out);
+
+      // Clear the index color.
+      EXPECT_TRUE(model->SetColorAt(0, color_type, 0));
+      color_out = 1;
+      EXPECT_TRUE(model->GetColorAt(0, color_type, color_out));
+      EXPECT_EQ(0U, color_out);
+
+      // Set the ID color.
+      EXPECT_TRUE(model->SetColor(kMenuItemID, color_type, color));
+      color_out = 1;
+      EXPECT_TRUE(model->GetColor(kMenuItemID, color_type, color_out));
+      EXPECT_EQ(color, color_out);
+
+      // Clear the ID color.
+      EXPECT_TRUE(model->SetColor(kMenuItemID, color_type, 0));
+      color_out = 1;
+      EXPECT_TRUE(model->GetColor(kMenuItemID, color_type, color_out));
+      EXPECT_EQ(0U, color_out);
+
+      // Index/ID doesn't exist.
+      EXPECT_FALSE(model->SetColorAt(4, color_type, color));
+      EXPECT_FALSE(model->SetColor(4, color_type, color));
+      color_out = 1;
+      EXPECT_FALSE(model->GetColorAt(4, color_type, color_out));
+      EXPECT_FALSE(model->GetColor(4, color_type, color_out));
+      EXPECT_EQ(1U, color_out);
+    }
+
+    // Verify font accessors.
+    const std::string& font = "Tahoma, 12px";
+    EXPECT_TRUE(model->SetFontListAt(0, font));
+    EXPECT_TRUE(model->SetFontListAt(0, CefString()));
+    EXPECT_TRUE(model->SetFontList(kMenuItemID, font));
+    EXPECT_TRUE(model->SetFontList(kMenuItemID, CefString()));
+
+    // Index/ID doesn't exist.
+    EXPECT_FALSE(model->SetFontListAt(4, font));
+    EXPECT_FALSE(model->SetFontList(4, font));
+
     // Wait a bit before trying to click the menu item.
     CefPostDelayedTask(TID_UI, base::Bind(ClickMenuItem, menu_button),
                        kClickDelayMS);

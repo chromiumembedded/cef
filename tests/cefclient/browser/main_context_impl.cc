@@ -33,7 +33,7 @@ cef_color_t ParseColor(const std::string& color) {
     return CefColorSetARGB(255, 255, 255, 255);
 
   // Use the default color.
-  return 0U;
+  return 0;
 }
 
 }  // namespace
@@ -44,7 +44,7 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
       terminate_when_all_windows_closed_(terminate_when_all_windows_closed),
       initialized_(false),
       shutdown_(false),
-      background_color_(CefColorSetARGB(255, 255, 255, 255)),
+      background_color_(0),
       use_views_(false) {
   DCHECK(command_line_.get());
 
@@ -53,12 +53,6 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
     main_url_ = command_line_->GetSwitchValue(switches::kUrl);
   if (main_url_.empty())
     main_url_ = kDefaultUrl;
-
-  if (command_line_->HasSwitch(switches::kBackgroundColor)) {
-    // Parse the background color value.
-    background_color_ =
-        ParseColor(command_line_->GetSwitchValue(switches::kBackgroundColor));
-  }
 
   // Whether windowless (off-screen) rendering will be used.
   use_windowless_rendering_ =
@@ -81,8 +75,19 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
   }
 #endif  // defined(OS_WIN) || defined(OS_LINUX)
 
+  if (command_line_->HasSwitch(switches::kBackgroundColor)) {
+    // Parse the background color value.
+    background_color_ =
+        ParseColor(command_line_->GetSwitchValue(switches::kBackgroundColor));
+  }
+
+  if (!use_views_ && background_color_ == 0) {
+    // Set an explicit background color when not using Views.
+    background_color_ = CefColorSetARGB(255, 255, 255, 255);
+  }
+
   const std::string& cdm_path =
-    command_line_->GetSwitchValue(switches::kWidevineCdmPath);
+      command_line_->GetSwitchValue(switches::kWidevineCdmPath);
   if (!cdm_path.empty()) {
     // Register the Widevine CDM at the specified path. See comments in
     // cef_web_plugin.h for details. It's safe to call this method before
@@ -135,7 +140,8 @@ void MainContextImpl::PopulateSettings(CefSettings* settings) {
   if (use_windowless_rendering_)
     settings->windowless_rendering_enabled = true;
 
-  settings->background_color = background_color_;
+  if (background_color_ != 0)
+    settings->background_color = background_color_;
 }
 
 void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {
@@ -150,7 +156,8 @@ void MainContextImpl::PopulateOsrSettings(OsrRenderer::Settings* settings) {
       command_line_->HasSwitch(switches::kTransparentPaintingEnabled);
   settings->show_update_rect =
       command_line_->HasSwitch(switches::kShowUpdateRect);
-  settings->background_color = background_color_;
+  if (background_color_ != 0)
+    settings->background_color = background_color_;
 }
 
 RootWindowManager* MainContextImpl::GetRootWindowManager() {

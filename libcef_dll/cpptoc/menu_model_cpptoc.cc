@@ -994,6 +994,136 @@ int CEF_CALLBACK menu_model_get_accelerator_at(struct _cef_menu_model_t* self,
   return _retval;
 }
 
+int CEF_CALLBACK menu_model_set_color(struct _cef_menu_model_t* self,
+    int command_id, cef_menu_color_type_t color_type, cef_color_t color) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefMenuModelCppToC::Get(self)->SetColor(
+      command_id,
+      color_type,
+      color);
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK menu_model_set_color_at(struct _cef_menu_model_t* self,
+    int index, cef_menu_color_type_t color_type, cef_color_t color) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefMenuModelCppToC::Get(self)->SetColorAt(
+      index,
+      color_type,
+      color);
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK menu_model_get_color(struct _cef_menu_model_t* self,
+    int command_id, cef_menu_color_type_t color_type, cef_color_t* color) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: color; type: simple_byref
+  DCHECK(color);
+  if (!color)
+    return 0;
+
+  // Translate param: color; type: simple_byref
+  cef_color_t colorVal = color?*color:0;
+
+  // Execute
+  bool _retval = CefMenuModelCppToC::Get(self)->GetColor(
+      command_id,
+      color_type,
+      colorVal);
+
+  // Restore param: color; type: simple_byref
+  if (color)
+    *color = colorVal;
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK menu_model_get_color_at(struct _cef_menu_model_t* self,
+    int index, cef_menu_color_type_t color_type, cef_color_t* color) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Verify param: color; type: simple_byref
+  DCHECK(color);
+  if (!color)
+    return 0;
+
+  // Translate param: color; type: simple_byref
+  cef_color_t colorVal = color?*color:0;
+
+  // Execute
+  bool _retval = CefMenuModelCppToC::Get(self)->GetColorAt(
+      index,
+      color_type,
+      colorVal);
+
+  // Restore param: color; type: simple_byref
+  if (color)
+    *color = colorVal;
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK menu_model_set_font_list(struct _cef_menu_model_t* self,
+    int command_id, const cef_string_t* font_list) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Unverified params: font_list
+
+  // Execute
+  bool _retval = CefMenuModelCppToC::Get(self)->SetFontList(
+      command_id,
+      CefString(font_list));
+
+  // Return type: bool
+  return _retval;
+}
+
+int CEF_CALLBACK menu_model_set_font_list_at(struct _cef_menu_model_t* self,
+    int index, const cef_string_t* font_list) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+  // Unverified params: font_list
+
+  // Execute
+  bool _retval = CefMenuModelCppToC::Get(self)->SetFontListAt(
+      index,
+      CefString(font_list));
+
+  // Return type: bool
+  return _retval;
+}
+
 }  // namespace
 
 
@@ -1050,6 +1180,12 @@ CefMenuModelCppToC::CefMenuModelCppToC() {
   GetStruct()->remove_accelerator_at = menu_model_remove_accelerator_at;
   GetStruct()->get_accelerator = menu_model_get_accelerator;
   GetStruct()->get_accelerator_at = menu_model_get_accelerator_at;
+  GetStruct()->set_color = menu_model_set_color;
+  GetStruct()->set_color_at = menu_model_set_color_at;
+  GetStruct()->get_color = menu_model_get_color;
+  GetStruct()->get_color_at = menu_model_get_color_at;
+  GetStruct()->set_font_list = menu_model_set_font_list;
+  GetStruct()->set_font_list_at = menu_model_set_font_list_at;
 }
 
 template<> CefRefPtr<CefMenuModel> CefCppToCRefCounted<CefMenuModelCppToC,

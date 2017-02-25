@@ -74,6 +74,7 @@ class RootWindowViews : public RootWindow,
   void OnSetDraggableRegions(
       const std::vector<CefDraggableRegion>& regions) OVERRIDE;
   void OnTakeFocus(bool next) OVERRIDE;
+  void OnBeforeContextMenu(CefRefPtr<CefMenuModel> model) OVERRIDE;
 
  private:
   void CreateClientHandler(const std::string& url);

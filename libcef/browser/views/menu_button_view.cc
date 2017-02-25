@@ -5,6 +5,7 @@
 #include "libcef/browser/views/menu_button_view.h"
 
 #include "ui/gfx/canvas.h"
+#include "ui/views/controls/menu/menu_config.h"
 
 CefMenuButtonView::CefMenuButtonView(
     CefMenuButtonDelegate* cef_delegate)
@@ -17,6 +18,9 @@ void CefMenuButtonView::Initialize() {
 
   SetDrawStringsFlags(IsFocusable() ? gfx::Canvas::SHOW_PREFIX :
                                       gfx::Canvas::HIDE_PREFIX);
+
+  // Use the same default font as MenuItemView.
+  SetFontList(views::MenuConfig::instance().font_list);
 }
 
 CefRefPtr<CefMenuButton> CefMenuButtonView::GetCefMenuButton() const {

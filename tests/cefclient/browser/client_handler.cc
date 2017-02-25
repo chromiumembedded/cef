@@ -325,6 +325,9 @@ void ClientHandler::OnBeforeContextMenu(
     // Test context menu features.
     BuildTestMenu(model);
   }
+
+  if (delegate_)
+    delegate_->OnBeforeContextMenu(model);
 }
 
 bool ClientHandler::OnContextMenuCommand(

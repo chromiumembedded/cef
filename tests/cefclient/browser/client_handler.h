@@ -38,7 +38,8 @@ class ClientHandler : public CefClient,
                       public CefRequestHandler {
  public:
   // Implement this interface to receive notification of ClientHandler
-  // events. The methods of this class will be called on the main thread.
+  // events. The methods of this class will be called on the main thread unless
+  // otherwise indicated.
   class Delegate {
    public:
     // Called when the browser is created.
@@ -73,6 +74,9 @@ class ClientHandler : public CefClient,
 
     // Set focus to the next/previous control.
     virtual void OnTakeFocus(bool next) {}
+
+    // Called on the UI thread before a context menu is displayed.
+    virtual void OnBeforeContextMenu(CefRefPtr<CefMenuModel> model) {}
 
    protected:
     virtual ~Delegate() {}

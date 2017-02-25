@@ -6,6 +6,7 @@
 
 #include "include/views/cef_box_layout.h"
 #include "include/views/cef_window.h"
+#include "tests/cefclient/browser/views_style.h"
 
 namespace client {
 
@@ -71,12 +72,14 @@ CefRefPtr<CefMenuModel> ViewsMenuBar::CreateMenuModel(const CefString& label,
 
   // Create the new MenuModel.
   CefRefPtr<CefMenuModel> model = CefMenuModel::CreateMenuModel(this);
+  views_style::ApplyTo(model);
   models_.push_back(model);
 
   // Create the new MenuButton.
   CefRefPtr<CefMenuButton> button =
       CefMenuButton::CreateMenuButton(this, label, false, false);
   button->SetID(new_menu_id);
+  views_style::ApplyTo(button.get());
   button->SetInkDropEnabled(true);
 
   // Assign a group ID to allow focus traversal between MenuButtons using the
@@ -236,6 +239,7 @@ void ViewsMenuBar::EnsureMenuPanel() {
     return;
 
   panel_ = CefPanel::CreatePanel(NULL);
+  views_style::ApplyTo(panel_);
 
   // Use a horizontal box layout.
   CefBoxLayoutSettings top_panel_layout_settings;

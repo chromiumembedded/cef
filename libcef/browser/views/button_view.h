@@ -57,6 +57,13 @@ CEF_BUTTON_VIEW_T void CEF_BUTTON_VIEW_D::ButtonPressed(
     views::Button* sender, const ui::Event& event) {
   if (ParentClass::cef_delegate())
     ParentClass::cef_delegate()->OnButtonPressed(GetCefButton());
+  if (ParentClass::ink_drop_mode() != views::CustomButton::InkDropMode::OFF &&
+      !ParentClass::IsFocusable()) {
+    // When ink drop is enabled for non-focusable buttons the ink drop state
+    // does not get reset properly on click, so we do it here explicitly.
+    ParentClass::AnimateInkDrop(views::InkDropState::HIDDEN,
+                                ui::LocatedEvent::FromIfValid(&event));
+  }
 }
 
 #endif  // CEF_LIBCEF_BROWSER_VIEWS_BUTTON_VIEW_H_

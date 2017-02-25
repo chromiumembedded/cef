@@ -2732,6 +2732,19 @@ typedef enum {
   CEF_MENU_ANCHOR_BOTTOMCENTER,
 } cef_menu_anchor_position_t;
 
+///
+// Supported color types for menu items.
+///
+typedef enum {
+  CEF_MENU_COLOR_TEXT,
+  CEF_MENU_COLOR_TEXT_HOVERED,
+  CEF_MENU_COLOR_TEXT_ACCELERATOR,
+  CEF_MENU_COLOR_TEXT_ACCELERATOR_HOVERED,
+  CEF_MENU_COLOR_BACKGROUND,
+  CEF_MENU_COLOR_BACKGROUND_HOVERED,
+  CEF_MENU_COLOR_COUNT,
+} cef_menu_color_type_t;
+
 // Supported SSL version values. See net/ssl/ssl_connection_status_flags.h
 // for more information.
 typedef enum {
