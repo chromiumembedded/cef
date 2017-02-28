@@ -986,7 +986,8 @@ struct CefCompositionUnderlineTraits {
   typedef cef_composition_underline_t struct_type;
 
   static inline void init(struct_type* s) {
-    s->range = {0, 0};
+    s->range.from = 0;
+    s->range.to = 0;
     s->color = 0;
     s->background_color = 0;
     s->thick = 0;
