@@ -234,6 +234,10 @@ std::unique_ptr<PrefService> CreatePrefService(
   // Based on chrome/browser/ui/browser_ui_prefs.cc RegisterBrowserPrefs.
   registry->RegisterBooleanPref(prefs::kAllowFileSelectionDialogs, true);
 
+  // DevTools preferences.
+  // Based on DevToolsWindow::RegisterProfilePrefs.
+  registry->RegisterDictionaryPref(prefs::kDevToolsPreferences);
+
   if (command_line->HasSwitch(switches::kEnablePreferenceTesting)) {
     // Preferences used with unit tests.
     registry->RegisterBooleanPref("test.bool", true);

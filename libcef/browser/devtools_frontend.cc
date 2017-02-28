@@ -6,6 +6,7 @@
 
 #include <stddef.h>
 
+#include "libcef/browser/browser_context.h"
 #include "libcef/browser/devtools_manager_delegate.h"
 #include "libcef/browser/net/devtools_scheme_handler.h"
 
@@ -17,6 +18,8 @@
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/values.h"
+#include "chrome/common/pref_names.h"
+#include "components/prefs/scoped_user_pref_update.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_frame_host.h"
@@ -222,17 +225,19 @@ void CefDevToolsFrontend::WebContentsDestroyed() {
 }
 
 void CefDevToolsFrontend::SetPreferences(const std::string& json) {
-  preferences_.Clear();
   if (json.empty())
     return;
   base::DictionaryValue* dict = nullptr;
   std::unique_ptr<base::Value> parsed = base::JSONReader::Read(json);
   if (!parsed || !parsed->GetAsDictionary(&dict))
     return;
+
+  DictionaryPrefUpdate update(GetPrefs(), prefs::kDevToolsPreferences);
   for (base::DictionaryValue::Iterator it(*dict); !it.IsAtEnd(); it.Advance()) {
     if (!it.value().IsType(base::Value::Type::STRING))
       continue;
-    preferences_.SetWithoutPathExpansion(it.key(), it.value().CreateDeepCopy());
+    update.Get()->SetWithoutPathExpansion(it.key(),
+                                          it.value().CreateDeepCopy());
   }
 }
 
@@ -296,7 +301,8 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
     fetcher->Start();
     return;
   } else if (method == "getPreferences") {
-    SendMessageAck(request_id, &preferences_);
+    SendMessageAck(request_id,
+                   GetPrefs()->GetDictionary(prefs::kDevToolsPreferences));
     return;
   } else if (method == "setPreference") {
     std::string name;
@@ -305,12 +311,14 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
         !params->GetString(1, &value)) {
       return;
     }
-    preferences_.SetStringWithoutPathExpansion(name, value);
+    DictionaryPrefUpdate update(GetPrefs(), prefs::kDevToolsPreferences);
+    update.Get()->SetStringWithoutPathExpansion(name, value);
   } else if (method == "removePreference") {
     std::string name;
     if (!params->GetString(0, &name))
       return;
-    preferences_.RemoveWithoutPathExpansion(name, nullptr);
+    DictionaryPrefUpdate update(GetPrefs(), prefs::kDevToolsPreferences);
+    update.Get()->RemoveWithoutPathExpansion(name, nullptr);
   } else if (method == "requestFileSystems") {
     web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
         base::ASCIIToUTF16("DevToolsAPI.fileSystemsLoaded([]);"));
@@ -406,4 +414,9 @@ void CefDevToolsFrontend::AgentHostClosed(
   DCHECK(agent_host == agent_host_.get());
   agent_host_ = nullptr;
   Close();
+}
+
+PrefService* CefDevToolsFrontend::GetPrefs() const {
+  return static_cast<CefBrowserContext*>(
+      frontend_browser_->web_contents()->GetBrowserContext())->GetPrefs();
 }

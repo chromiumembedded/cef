@@ -28,6 +28,8 @@ class RenderViewHost;
 class WebContents;
 }
 
+class PrefService;
+
 class CefDevToolsFrontend : public content::WebContentsObserver,
                             public content::DevToolsAgentHostClient,
                             public net::URLFetcherDelegate {
@@ -81,6 +83,8 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   void SendMessageAck(int request_id,
                       const base::Value* arg1);
 
+  PrefService* GetPrefs() const;
+
   CefRefPtr<CefBrowserHostImpl> frontend_browser_;
   content::WebContents* inspected_contents_;
   scoped_refptr<content::DevToolsAgentHost> agent_host_;
@@ -88,7 +92,6 @@ class CefDevToolsFrontend : public content::WebContentsObserver,
   std::unique_ptr<content::DevToolsFrontendHost> frontend_host_;
   using PendingRequestsMap = std::map<const net::URLFetcher*, int>;
   PendingRequestsMap pending_requests_;
-  base::DictionaryValue preferences_;
   base::WeakPtrFactory<CefDevToolsFrontend> weak_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(CefDevToolsFrontend);
