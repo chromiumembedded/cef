@@ -24,7 +24,7 @@ index 7ec0135..9f68626 100644
  using content::NavigationController;
  using content::NavigationEntry;
  using content::OpenURLParams;
-@@ -231,11 +235,15 @@ - (void)handlesStopScriptCommand:(NSScriptCommand*)command {
+@@ -231,11 +235,15 @@ void ResumeAppleEventAndSendReply(NSAppleEventManagerSuspensionID suspension_id,
  
  - (void)handlesPrintScriptCommand:(NSScriptCommand*)command {
    AppleScript::LogAppleScriptUMA(AppleScript::AppleScriptCommand::TAB_PRINT);
@@ -178,7 +178,7 @@ index 3679499..b2d2544 100644
                      PrintHostMsg_SetOptionsFromDocument_Params /* params */)
 -#endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW)
 diff --git components/printing/renderer/print_web_view_helper.cc components/printing/renderer/print_web_view_helper.cc
-index 3144c40..8679f72 100644
+index 2ac27ae..ecb31d7 100644
 --- components/printing/renderer/print_web_view_helper.cc
 +++ components/printing/renderer/print_web_view_helper.cc
 @@ -89,6 +89,9 @@ const float kPrintingMinimumShrinkFactor = 1.333f;
@@ -404,7 +404,7 @@ index 3144c40..8679f72 100644
  
  #if BUILDFLAG(ENABLE_BASIC_PRINTING)
  void PrintWebViewHelper::GetPrintSettingsFromUser(
-@@ -1884,7 +1863,6 @@ void PrintWebViewHelper::PrintPageInternal(
+@@ -1889,7 +1868,6 @@ void PrintWebViewHelper::PrintPageInternal(
  
    MetafileSkiaWrapper::SetMetafileOnCanvas(*canvas, metafile);
  
@@ -412,7 +412,7 @@ index 3144c40..8679f72 100644
    if (params.params.display_header_footer) {
      // TODO(thestig): Figure out why Linux needs this. It is almost certainly
      // |printingMinimumShrinkFactor| from Blink.
-@@ -1899,7 +1877,6 @@ void PrintWebViewHelper::PrintPageInternal(
+@@ -1904,7 +1882,6 @@ void PrintWebViewHelper::PrintPageInternal(
                           scale_factor / fudge_factor, page_layout_in_points,
                           params.params);
    }
@@ -420,7 +420,7 @@ index 3144c40..8679f72 100644
  
    float webkit_scale_factor =
        RenderPageContent(frame, params.page_number, canvas_area, content_area,
-@@ -1935,7 +1912,6 @@ bool PrintWebViewHelper::CopyMetafileDataToSharedMem(
+@@ -1940,7 +1917,6 @@ bool PrintWebViewHelper::CopyMetafileDataToSharedMem(
    return true;
  }
  
@@ -428,7 +428,7 @@ index 3144c40..8679f72 100644
  void PrintWebViewHelper::ShowScriptedPrintPreview() {
    if (is_scripted_preview_delayed_) {
      is_scripted_preview_delayed_ = false;
-@@ -2066,7 +2042,6 @@ bool PrintWebViewHelper::PreviewPageRendered(int page_number,
+@@ -2071,7 +2047,6 @@ bool PrintWebViewHelper::PreviewPageRendered(int page_number,
    Send(new PrintHostMsg_DidPreviewPage(routing_id(), preview_page_params));
    return true;
  }
@@ -537,7 +537,7 @@ diff --git components/printing/renderer/print_web_view_helper_mac.mm components/
 index ff49472..b107439 100644
 --- components/printing/renderer/print_web_view_helper_mac.mm
 +++ components/printing/renderer/print_web_view_helper_mac.mm
-@@ -69,7 +69,6 @@
+@@ -69,7 +69,6 @@ void PrintWebViewHelper::PrintPageInternal(
    Send(new PrintHostMsg_DidPrintPage(routing_id(), page_params));
  }
  
@@ -545,7 +545,7 @@ index ff49472..b107439 100644
  bool PrintWebViewHelper::RenderPreviewPage(
      int page_number,
      const PrintMsg_Print_Params& print_params) {
-@@ -106,7 +105,6 @@
+@@ -106,7 +105,6 @@ bool PrintWebViewHelper::RenderPreviewPage(
    }
    return PreviewPageRendered(page_number, draft_metafile.get());
  }
@@ -553,7 +553,7 @@ index ff49472..b107439 100644
  
  void PrintWebViewHelper::RenderPage(const PrintMsg_Print_Params& params,
                                      int page_number,
-@@ -142,14 +140,12 @@
+@@ -142,14 +140,12 @@ void PrintWebViewHelper::RenderPage(const PrintMsg_Print_Params& params,
  
      MetafileSkiaWrapper::SetMetafileOnCanvas(*canvas, metafile);
      skia::SetIsPreviewMetafile(*canvas, is_preview);

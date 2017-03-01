@@ -1,5 +1,5 @@
 diff --git content/browser/browser_plugin/browser_plugin_guest.cc content/browser/browser_plugin/browser_plugin_guest.cc
-index 97ea047..8a4e4d4 100644
+index 290514b..c638c29 100644
 --- content/browser/browser_plugin/browser_plugin_guest.cc
 +++ content/browser/browser_plugin/browser_plugin_guest.cc
 @@ -316,14 +316,20 @@ void BrowserPluginGuest::InitInternal(
@@ -25,7 +25,7 @@ index 97ea047..8a4e4d4 100644
    }
  
    RendererPreferences* renderer_prefs =
-@@ -791,7 +797,8 @@ void BrowserPluginGuest::OnWillAttachComplete(
+@@ -806,7 +812,8 @@ void BrowserPluginGuest::OnWillAttachComplete(
          static_cast<WebContentsViewGuest*>(GetWebContents()->GetView());
      if (!web_contents()->GetRenderViewHost()->GetWidget()->GetView()) {
        web_contents_view->CreateViewForWidget(
@@ -132,7 +132,7 @@ index 86ce68b..fd21e5a 100644
        RenderWidgetHost* render_widget_host) override;
    void SetPageTitle(const base::string16& title) override;
 diff --git content/browser/web_contents/web_contents_view_guest.cc content/browser/web_contents/web_contents_view_guest.cc
-index b2b86fa..00c9126 100644
+index a93bc37..18fed2e 100644
 --- content/browser/web_contents/web_contents_view_guest.cc
 +++ content/browser/web_contents/web_contents_view_guest.cc
 @@ -72,6 +72,8 @@ void WebContentsViewGuest::GetScreenInfo(ScreenInfo* screen_info) const {
@@ -153,7 +153,7 @@ index b2b86fa..00c9126 100644
    old_parent_view->GetNativeView()->RemoveChild(
        platform_view_->GetNativeView());
  #endif  // defined(USE_AURA)
-@@ -133,7 +137,8 @@ void WebContentsViewGuest::CreateView(const gfx::Size& initial_size,
+@@ -134,7 +138,8 @@ void WebContentsViewGuest::CreateView(const gfx::Size& initial_size,
  }
  
  RenderWidgetHostViewBase* WebContentsViewGuest::CreateViewForWidget(
@@ -163,7 +163,7 @@ index b2b86fa..00c9126 100644
    if (render_widget_host->GetView()) {
      // During testing, the view will already be set up in most cases to the
      // test view, so we don't want to clobber it with a real one. To verify that
-@@ -145,11 +150,19 @@ RenderWidgetHostViewBase* WebContentsViewGuest::CreateViewForWidget(
+@@ -146,11 +151,19 @@ RenderWidgetHostViewBase* WebContentsViewGuest::CreateViewForWidget(
          render_widget_host->GetView());
    }
  

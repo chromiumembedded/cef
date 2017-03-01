@@ -1,8 +1,8 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 35b6f47..932fe44 100644
+index ea0069b..acc6d10 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
-@@ -1560,6 +1560,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1563,6 +1563,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
    std::string unique_name;
    frame_tree_.root()->SetFrameName(params.main_frame_name, unique_name);
  
@@ -15,7 +15,7 @@ index 35b6f47..932fe44 100644
    WebContentsViewDelegate* delegate =
        GetContentClient()->browser()->GetWebContentsViewDelegate(this);
  
-@@ -1570,6 +1576,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
+@@ -1573,6 +1579,7 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
      view_.reset(CreateWebContentsView(this, delegate,
                                        &render_view_host_delegate_view_));
    }
@@ -23,7 +23,7 @@ index 35b6f47..932fe44 100644
  
    if (browser_plugin_guest_ && !GuestMode::IsCrossProcessFrameGuest(this)) {
      view_.reset(new WebContentsViewGuest(this, browser_plugin_guest_.get(),
-@@ -2075,6 +2082,12 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2078,6 +2085,12 @@ void WebContentsImpl::CreateNewWindow(
    create_params.renderer_initiated_creation =
        main_frame_route_id != MSG_ROUTING_NONE;
  
@@ -36,7 +36,7 @@ index 35b6f47..932fe44 100644
    WebContentsImpl* new_contents = NULL;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -2104,7 +2117,7 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2107,7 +2120,7 @@ void WebContentsImpl::CreateNewWindow(
        // TODO(brettw): It seems bogus that we have to call this function on the
        // newly created object and give it one of its own member variables.
        new_view->CreateViewForWidget(
@@ -45,7 +45,7 @@ index 35b6f47..932fe44 100644
      }
      // Save the created window associated with the route so we can show it
      // later.
-@@ -4989,7 +5002,7 @@ NavigationEntry*
+@@ -5003,7 +5016,7 @@ NavigationEntry*
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =
@@ -70,7 +70,7 @@ index fa0afb5..d677b31 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index a5e2535..704c137 100644
+index 041c883..34aff7a 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -59,9 +59,11 @@ class PageState;

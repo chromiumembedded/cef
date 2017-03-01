@@ -2,7 +2,7 @@ diff --git render_widget_host_view_mac.mm render_widget_host_view_mac.mm
 index c91614f..622c839 100644
 --- render_widget_host_view_mac.mm
 +++ render_widget_host_view_mac.mm
-@@ -462,9 +462,6 @@ float FlipYFromRectToScreen(float y, float rect_height) {
+@@ -462,9 +462,6 @@ RenderWidgetHostViewMac::RenderWidgetHostViewMac(RenderWidgetHost* widget,
    // Paint this view host with |background_color_| when there is no content
    // ready to draw.
    background_layer_.reset([[CALayer alloc] init]);

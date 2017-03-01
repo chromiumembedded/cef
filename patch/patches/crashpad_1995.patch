@@ -455,7 +455,7 @@ index 7df66ea..4ee709a 100644
  #include "third_party/crashpad/crashpad/client/crash_report_database.h"
  #include "third_party/crashpad/crashpad/client/crashpad_client.h"
  #include "third_party/crashpad/crashpad/client/crashpad_info.h"
-@@ -40,9 +43,10 @@
+@@ -40,9 +43,10 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
  
    if (initial_client) {
      @autoreleasepool {
@@ -469,7 +469,7 @@ index 7df66ea..4ee709a 100644
  
        // Is there a way to recover if this fails?
        CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
-@@ -54,16 +58,27 @@
+@@ -54,16 +58,27 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
        // crash server won't have symbols for any other build types.
        std::string url = "https://clients2.google.com/cr/report";
  #else
@@ -502,7 +502,7 @@ index 7df66ea..4ee709a 100644
  
  #if defined(GOOGLE_CHROME_BUILD)
        NSString* channel = base::mac::ObjCCast<NSString>(
-@@ -73,12 +88,16 @@
+@@ -73,12 +88,16 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
        }
  #endif
  
@@ -524,7 +524,7 @@ index 7df66ea..4ee709a 100644
  
        std::vector<std::string> arguments;
        if (!browser_process) {
-@@ -90,6 +109,12 @@
+@@ -90,6 +109,12 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
              "--reset-own-crash-exception-port-to-system-default");
        }
  

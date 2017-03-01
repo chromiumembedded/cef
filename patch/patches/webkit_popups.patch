@@ -12,7 +12,7 @@ index 11d980e..a87fb7e 100644
  
    DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index 24a1fbf..b51ca5f 100644
+index 2476a72..ee13747 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
 @@ -358,6 +358,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
@@ -23,7 +23,7 @@ index 24a1fbf..b51ca5f 100644
        m_compositorDeviceScaleFactorOverride(0),
        m_suppressNextKeypressEvent(false),
        m_imeAcceptEvents(true),
-@@ -3704,8 +3705,13 @@ void WebViewImpl::mainFrameScrollOffsetChanged() {
+@@ -3695,8 +3696,13 @@ void WebViewImpl::mainFrameScrollOffsetChanged() {
    m_devToolsEmulator->mainFrameScrollOrScaleChanged();
  }
  
