@@ -108,9 +108,12 @@ typedef struct _cef_scheme_registrar_t {
   // security rules as those applied to "https" URLs. For example, loading this
   // scheme from other secure schemes will not trigger mixed content warnings.
   //
-  // If |is_cors_enabled| is true (1) the scheme that can be sent CORS requests.
-  // This value should be true (1) in most cases where |is_standard| is true
-  // (1).
+  // If |is_cors_enabled| is true (1) the scheme can be sent CORS requests. This
+  // value should be true (1) in most cases where |is_standard| is true (1).
+  //
+  // If |is_csp_bypassing| is true (1) the scheme can bypass Content-Security-
+  // Policy (CSP) checks. This value should be false (0) in most cases where
+  // |is_standard| is true (1).
   //
   // This function may be called on any thread. It should only be called once
   // per unique |scheme_name| value. If |scheme_name| is already registered or
@@ -118,7 +121,8 @@ typedef struct _cef_scheme_registrar_t {
   ///
   int (CEF_CALLBACK *add_custom_scheme)(struct _cef_scheme_registrar_t* self,
       const cef_string_t* scheme_name, int is_standard, int is_local,
-      int is_display_isolated, int is_secure, int is_cors_enabled);
+      int is_display_isolated, int is_secure, int is_cors_enabled,
+      int is_csp_bypassing);
 } cef_scheme_registrar_t;
 
 

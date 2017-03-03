@@ -187,7 +187,7 @@ CefRefPtr<CefFrame> CefBrowserImpl::GetFrame(const CefString& name) {
 
   blink::WebView* web_view = render_view()->GetWebView();
   if (web_view) {
-    const blink::WebString& frame_name = name.ToString16();
+    const blink::WebString& frame_name = blink::WebString::fromUTF16(name);
     // Search by assigned frame name (Frame::name).
     WebFrame* frame = web_view->findFrameByName(frame_name,
                                                 web_view->mainFrame());
@@ -325,7 +325,7 @@ CefRefPtr<CefFrameImpl> CefBrowserImpl::GetWebFrameImpl(
   int64_t parent_id = frame->parent() == NULL ?
       webkit_glue::kInvalidFrameId :
       webkit_glue::GetIdentifier(frame->parent());
-  base::string16 name = frame->uniqueName();
+  base::string16 name = frame->uniqueName().utf16();
 
   // Notify the browser that the frame has been identified.
   Send(new CefHostMsg_FrameIdentified(routing_id(), frame_id, parent_id, name));
@@ -562,7 +562,7 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
 
         if (is_javascript) {
           web_frame->executeScript(
-              WebScriptSource(base::UTF8ToUTF16(code),
+              WebScriptSource(blink::WebString::fromUTF8(code),
                               GURL(script_url),
                               script_start_line));
           success = true;
@@ -596,7 +596,7 @@ void CefBrowserImpl::OnRequest(const Cef_Request_Params& params) {
           success = true;
         } else if (web_frame->isWebLocalFrame() &&
                    web_frame->toWebLocalFrame()->executeCommand(
-                      base::UTF8ToUTF16(command))) {
+                      blink::WebString::fromUTF8(command))) {
           success = true;
         }
       }

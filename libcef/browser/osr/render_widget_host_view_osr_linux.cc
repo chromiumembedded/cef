@@ -7,8 +7,8 @@
 
 #include <X11/cursorfont.h>
 #include <X11/Xlib.h>
+#undef Status  // Avoid conflicts with url_request_status.h
 
-#include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/native/window_x11.h"
 
 #include "third_party/WebKit/public/platform/WebCursorInfo.h"
@@ -166,13 +166,15 @@ XCursorCache* cursor_cache = nullptr;
 
 }  // namespace
 
-void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
+void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget(
+    bool is_guest_view_hack) {
   // Create a hidden 1x1 window. It will delete itself on close.
   window_ = new CefWindowX11(NULL, None, gfx::Rect(0, 0, 1, 1));
   compositor_widget_ = window_->xwindow();
 }
 
-void CefRenderWidgetHostViewOSR::PlatformResizeCompositorWidget(const gfx::Size&) {
+void CefRenderWidgetHostViewOSR::PlatformResizeCompositorWidget(
+    const gfx::Size&) {
 }
 
 void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {

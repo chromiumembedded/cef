@@ -121,7 +121,8 @@ CefString CefDOMNodeImpl::GetFormControlElementType() {
       const WebFormControlElement& formElement =
           node_.toConst<WebFormControlElement>();
 
-      const base::string16& form_control_type = formElement.formControlType();
+      const base::string16& form_control_type =
+          formElement.formControlType().utf16();
       str = form_control_type;
     }
   }
@@ -147,7 +148,7 @@ CefString CefDOMNodeImpl::GetName() {
 
   const WebString& name = webkit_glue::GetNodeName(node_);
   if (!name.isNull())
-    str = name;
+    str = name.utf16();
 
   return str;
 }
@@ -165,15 +166,16 @@ CefString CefDOMNodeImpl::GetValue() {
           node_.toConst<WebFormControlElement>();
 
       base::string16 value;
-      const base::string16& form_control_type = formElement.formControlType();
+      const base::string16& form_control_type =
+          formElement.formControlType().utf16();
       if (form_control_type == base::ASCIIToUTF16("text")) {
         const WebInputElement& input_element =
             formElement.toConst<WebInputElement>();
-        value = input_element.value();
+        value = input_element.value().utf16();
       } else if (form_control_type == base::ASCIIToUTF16("select-one")) {
         const WebSelectElement& select_element =
             formElement.toConst<WebSelectElement>();
-        value = select_element.value();
+        value = select_element.value().utf16();
       }
 
       base::TrimWhitespace(value, base::TRIM_LEADING, &value);
@@ -184,7 +186,7 @@ CefString CefDOMNodeImpl::GetValue() {
   if (str.empty()) {
     const WebString& value = node_.nodeValue();
     if (!value.isNull())
-      str = value;
+      str = value.utf16();
   }
 
   return str;
@@ -197,7 +199,7 @@ bool CefDOMNodeImpl::SetValue(const CefString& value) {
   if (node_.isElementNode())
     return false;
 
-  return webkit_glue::SetNodeValue(node_, base::string16(value));
+  return webkit_glue::SetNodeValue(node_, WebString::fromUTF16(value));
 }
 
 CefString CefDOMNodeImpl::GetAsMarkup() {
@@ -207,7 +209,7 @@ CefString CefDOMNodeImpl::GetAsMarkup() {
 
   const WebString& markup = webkit_glue::CreateNodeMarkup(node_);
   if (!markup.isNull())
-    str = markup;
+    str = markup.utf16();
 
   return str;
 }
@@ -274,7 +276,7 @@ CefString CefDOMNodeImpl::GetElementTagName() {
   const WebElement& element = node_.toConst<blink::WebElement>();
   const WebString& tagname = element.tagName();
   if (!tagname.isNull())
-    str = tagname;
+    str = tagname.utf16();
 
   return str;
 }
@@ -302,7 +304,7 @@ bool CefDOMNodeImpl::HasElementAttribute(const CefString& attrName) {
   }
 
   const WebElement& element = node_.toConst<blink::WebElement>();
-  return element.hasAttribute(base::string16(attrName));
+  return element.hasAttribute(WebString::fromUTF16(attrName));
 }
 
 CefString CefDOMNodeImpl::GetElementAttribute(const CefString& attrName) {
@@ -316,9 +318,9 @@ CefString CefDOMNodeImpl::GetElementAttribute(const CefString& attrName) {
   }
 
   const WebElement& element = node_.toConst<blink::WebElement>();
-  const WebString& attr = element.getAttribute(base::string16(attrName));
+  const WebString& attr = element.getAttribute(WebString::fromUTF16(attrName));
   if (!attr.isNull())
-    str = attr;
+    str = attr.utf16();
 
   return str;
 }
@@ -338,8 +340,8 @@ void CefDOMNodeImpl::GetElementAttributes(AttributeMap& attrMap) {
     return;
 
   for (unsigned int i = 0; i < len; ++i) {
-    base::string16 name = element.attributeLocalName(i);
-    base::string16 value = element.attributeValue(i);
+    base::string16 name = element.attributeLocalName(i).utf16();
+    base::string16 value = element.attributeValue(i).utf16();
     attrMap.insert(std::make_pair(name, value));
   }
 }
@@ -355,8 +357,8 @@ bool CefDOMNodeImpl::SetElementAttribute(const CefString& attrName,
   }
 
   WebElement element = node_.to<blink::WebElement>();
-  element.setAttribute(base::string16(attrName),
-                       base::string16(value));
+  element.setAttribute(WebString::fromUTF16(attrName),
+                       WebString::fromUTF16(value));
   return true;
 }
 
@@ -373,7 +375,7 @@ CefString CefDOMNodeImpl::GetElementInnerText() {
   WebElement element = node_.to<blink::WebElement>();
   const WebString& text = element.textContent();
   if (!text.isNull())
-    str = text;
+    str = text.utf16();
 
   return str;
 }

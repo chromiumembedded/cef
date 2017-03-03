@@ -15,10 +15,10 @@ index 2b04a24..85653cf 100644
      }
    }
 diff --git Source/core/frame/LocalFrame.cpp Source/core/frame/LocalFrame.cpp
-index 03edc5d..b9a91db 100644
+index 6fa75cf..20cba50 100644
 --- Source/core/frame/LocalFrame.cpp
 +++ Source/core/frame/LocalFrame.cpp
-@@ -920,6 +920,7 @@ PluginData* LocalFrame::pluginData() const {
+@@ -898,6 +898,7 @@ PluginData* LocalFrame::pluginData() const {
    if (!loader().allowPlugins(NotAboutToInstantiatePlugin))
      return nullptr;
    return page()->pluginData(
@@ -27,10 +27,10 @@ index 03edc5d..b9a91db 100644
  }
  
 diff --git Source/core/page/Page.cpp Source/core/page/Page.cpp
-index 671df37..27c7d6b 100644
+index cb46ff7..7c63196 100644
 --- Source/core/page/Page.cpp
 +++ Source/core/page/Page.cpp
-@@ -239,16 +239,26 @@ void Page::refreshPlugins() {
+@@ -226,16 +226,26 @@ void Page::refreshPlugins() {
  
    for (const Page* page : allPages()) {
      // Clear out the page's plugin data.
@@ -65,10 +65,10 @@ index 671df37..27c7d6b 100644
  
  void Page::setValidationMessageClient(ValidationMessageClient* client) {
 diff --git Source/core/page/Page.h Source/core/page/Page.h
-index 133260a..0aef9f2 100644
+index 9c429bd..667207e 100644
 --- Source/core/page/Page.h
 +++ Source/core/page/Page.h
-@@ -127,7 +127,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
+@@ -130,7 +130,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
    ViewportDescription viewportDescription() const;
  
    static void refreshPlugins();
@@ -78,7 +78,7 @@ index 133260a..0aef9f2 100644
  
    EditorClient& editorClient() const { return *m_editorClient; }
    SpellCheckerClient& spellCheckerClient() const {
-@@ -268,7 +269,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
+@@ -285,7 +286,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
    // longer needed.
    Member<Frame> m_mainFrame;
  
@@ -150,7 +150,7 @@ index 0edfd70..a81c128 100644
  };
  
 diff --git public/platform/Platform.h public/platform/Platform.h
-index d623c5a..e28e617 100644
+index 2cd7334..7541a5e 100644
 --- public/platform/Platform.h
 +++ public/platform/Platform.h
 @@ -357,6 +357,7 @@ class BLINK_PLATFORM_EXPORT Platform {

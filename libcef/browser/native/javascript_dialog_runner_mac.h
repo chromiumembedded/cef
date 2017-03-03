@@ -26,7 +26,7 @@ class CefJavaScriptDialogRunnerMac : public CefJavaScriptDialogRunner {
   // CefJavaScriptDialogRunner methods:
   void Run(
       CefBrowserHostImpl* browser,
-      content::JavaScriptMessageType message_type,
+      content::JavaScriptDialogType message_type,
       const base::string16& display_url,
       const base::string16& message_text,
       const base::string16& default_prompt_text,

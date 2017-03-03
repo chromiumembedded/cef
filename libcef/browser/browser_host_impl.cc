@@ -53,6 +53,7 @@
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
+#include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
@@ -61,6 +62,7 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host.h"
 #include "content/public/browser/resource_request_info.h"
+#include "net/base/net_errors.h"
 #include "third_party/WebKit/public/web/WebFindOptions.h"
 #include "ui/events/base_event_utils.h"
 
@@ -2499,36 +2501,50 @@ void CefBrowserHostImpl::RenderProcessGone(base::TerminationStatus status) {
   }
 }
 
-void CefBrowserHostImpl::DidCommitProvisionalLoadForFrame(
-    content::RenderFrameHost* render_frame_host,
-    const GURL& url,
-    ui::PageTransition transition_type) {
-  const bool is_main_frame = !render_frame_host->GetParent();
-  CefRefPtr<CefFrame> frame = GetOrCreateFrame(
-      render_frame_host->GetRoutingID(),
-      CefFrameHostImpl::kUnspecifiedFrameId,
-      is_main_frame,
-      base::string16(),
-      url);
-  OnLoadStart(frame, url, transition_type);
-  if (is_main_frame)
-    OnAddressChange(frame, url);
-}
+void CefBrowserHostImpl::DidFinishNavigation(
+    content::NavigationHandle* navigation_handle) {
+  CHECK(navigation_handle->GetRenderFrameHost());
 
-void CefBrowserHostImpl::DidFailProvisionalLoad(
-    content::RenderFrameHost* render_frame_host,
-    const GURL& validated_url,
-    int error_code,
-    const base::string16& error_description,
-    bool was_ignored_by_handler) {
-  const bool is_main_frame = !render_frame_host->GetParent();
-  CefRefPtr<CefFrame> frame = GetOrCreateFrame(
-      render_frame_host->GetRoutingID(),
-      CefFrameHostImpl::kUnspecifiedFrameId,
-      is_main_frame,
-      base::string16(),
-      GURL());
-  OnLoadError(frame, validated_url, error_code, error_description);
+  const net::Error error_code = navigation_handle->GetNetErrorCode();
+  if (error_code == net::OK) {
+    // The navigation has been committed.
+    const bool is_main_frame = navigation_handle->IsInMainFrame();
+    const GURL& url = navigation_handle->GetURL();
+
+    // This also updates the URL associated with the frame.
+    CefRefPtr<CefFrame> frame = GetOrCreateFrame(
+        navigation_handle->GetRenderFrameHost()->GetRoutingID(),
+        CefFrameHostImpl::kUnspecifiedFrameId,
+        is_main_frame, base::string16(), url);
+
+    // Don't call OnLoadStart for same page navigations (fragments,
+    // history state).
+    if (!navigation_handle->IsSamePage())
+      OnLoadStart(frame, navigation_handle->GetPageTransition());
+
+    if (is_main_frame)
+      OnAddressChange(frame, url);
+  } else {
+    // The navigation failed before commit. Originates from
+    // RenderFrameHostImpl::OnDidFailProvisionalLoadWithError.
+    CefRefPtr<CefFrame> frame = GetOrCreateFrame(
+        navigation_handle->GetRenderFrameHost()->GetRoutingID(),
+        CefFrameHostImpl::kUnspecifiedFrameId,
+        navigation_handle->IsInMainFrame(), base::string16(), GURL());
+
+    // OnLoadStart/OnLoadEnd will not be called.
+    OnLoadError(frame, navigation_handle->GetURL(), error_code);
+  }
+
+  if (!web_contents())
+    return;
+
+  CefBrowserContext* context =
+      static_cast<CefBrowserContext*>(web_contents()->GetBrowserContext());
+  if (!context)
+    return;
+
+  context->AddVisitedURLs(navigation_handle->GetRedirectChain());
 }
 
 void CefBrowserHostImpl::DocumentAvailableInMainFrame() {
@@ -2542,6 +2558,8 @@ void CefBrowserHostImpl::DidFailLoad(
     int error_code,
     const base::string16& error_description,
     bool was_ignored_by_handler) {
+  // The navigation failed after commit. OnLoadStart was called so we also call
+  // OnLoadEnd.
   const bool is_main_frame = !render_frame_host->GetParent();
   CefRefPtr<CefFrame> frame = GetOrCreateFrame(
       render_frame_host->GetRoutingID(),
@@ -2549,7 +2567,7 @@ void CefBrowserHostImpl::DidFailLoad(
       is_main_frame,
       base::string16(),
       validated_url);
-  OnLoadError(frame, validated_url, error_code, error_description);
+  OnLoadError(frame, validated_url, error_code);
   OnLoadEnd(frame, validated_url, error_code);
 }
 
@@ -2568,21 +2586,6 @@ void CefBrowserHostImpl::FrameDeleted(
     main_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
   if (focused_frame_id_ ==  frame_id)
     focused_frame_id_ = CefFrameHostImpl::kInvalidFrameId;
-}
-
-void CefBrowserHostImpl::DidNavigateAnyFrame(
-    content::RenderFrameHost* render_frame_host,
-    const content::LoadCommittedDetails& details,
-    const content::FrameNavigateParams& params) {
-  if (!web_contents())
-    return;
-
-  CefBrowserContext* context =
-      static_cast<CefBrowserContext*>(web_contents()->GetBrowserContext());
-  if (!context)
-    return;
-
-  context->AddVisitedURLs(params.redirects);
 }
 
 void CefBrowserHostImpl::TitleWasSet(content::NavigationEntry* entry,
@@ -3034,7 +3037,6 @@ void CefBrowserHostImpl::OnAddressChange(CefRefPtr<CefFrame> frame,
 }
 
 void CefBrowserHostImpl::OnLoadStart(CefRefPtr<CefFrame> frame,
-                                     const GURL& url,
                                      ui::PageTransition transition_type) {
   if (client_.get()) {
     CefRefPtr<CefLoadHandler> handler = client_->GetLoadHandler();
@@ -3048,8 +3050,7 @@ void CefBrowserHostImpl::OnLoadStart(CefRefPtr<CefFrame> frame,
 
 void CefBrowserHostImpl::OnLoadError(CefRefPtr<CefFrame> frame,
                                      const GURL& url,
-                                     int error_code,
-                                     const base::string16& error_description) {
+                                     int error_code) {
   if (client_.get()) {
     CefRefPtr<CefLoadHandler> handler = client_->GetLoadHandler();
     if (handler.get()) {
@@ -3057,7 +3058,7 @@ void CefBrowserHostImpl::OnLoadError(CefRefPtr<CefFrame> frame,
       // Notify the handler that loading has failed.
       handler->OnLoadError(this, frame,
           static_cast<cef_errorcode_t>(error_code),
-          CefString(error_description),
+          net::ErrorToShortString(error_code),
           url.spec());
       frame_destruction_pending_ = false;
     }

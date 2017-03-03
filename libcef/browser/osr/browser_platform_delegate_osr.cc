@@ -171,7 +171,8 @@ std::unique_ptr<CefJavaScriptDialogRunner>
   return native_delegate_->CreateJavaScriptDialogRunner();
 }
 
-std::unique_ptr<CefMenuRunner> CefBrowserPlatformDelegateOsr::CreateMenuRunner() {
+std::unique_ptr<CefMenuRunner>
+CefBrowserPlatformDelegateOsr::CreateMenuRunner() {
   return native_delegate_->CreateMenuRunner();
 }
 
@@ -302,6 +303,8 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragOver(
     return;
 
   const gfx::Point client_pt(event.x, event.y);
+  const gfx::Point& screen_pt = GetScreenPoint(client_pt);
+
   gfx::Point transformed_pt;
   content::RenderWidgetHostImpl* target_rwh =
       web_contents->GetInputEventRouter()->GetRenderWidgetHostAtPoint(
@@ -309,15 +312,32 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragOver(
           client_pt, &transformed_pt);
 
   if (target_rwh != current_rwh_for_drag_.get()) {
-    if (current_rwh_for_drag_)
-      current_rwh_for_drag_->DragTargetDragLeave();
+    if (current_rwh_for_drag_) {
+      gfx::Point transformed_leave_point = client_pt;
+      gfx::Point transformed_screen_point = screen_pt;
+      static_cast<content::RenderWidgetHostViewBase*>(
+          web_contents->GetRenderWidgetHostView())
+          ->TransformPointToCoordSpaceForView(
+              client_pt,
+              static_cast<content::RenderWidgetHostViewBase*>(
+                  current_rwh_for_drag_->GetView()),
+              &transformed_leave_point);
+      static_cast<content::RenderWidgetHostViewBase*>(
+          web_contents->GetRenderWidgetHostView())
+          ->TransformPointToCoordSpaceForView(
+              screen_pt,
+              static_cast<content::RenderWidgetHostViewBase*>(
+                  current_rwh_for_drag_->GetView()),
+              &transformed_screen_point);
+      current_rwh_for_drag_->DragTargetDragLeave(transformed_leave_point,
+                                                 transformed_screen_point);
+    }
     DragTargetDragEnter(drag_data_, event, drag_allowed_ops_);
   }
 
   if (!drag_data_)
     return;
 
-  const gfx::Point& screen_pt = GetScreenPoint(client_pt);
   blink::WebDragOperationsMask ops =
       static_cast<blink::WebDragOperationsMask>(allowed_ops);
   int modifiers = TranslateModifiers(event.modifiers);
@@ -332,7 +352,7 @@ void CefBrowserPlatformDelegateOsr::DragTargetDragLeave() {
   }
 
   if (current_rwh_for_drag_) {
-    current_rwh_for_drag_->DragTargetDragLeave();
+    current_rwh_for_drag_->DragTargetDragLeave(gfx::Point(), gfx::Point());
     current_rwh_for_drag_.reset();
   }
 
@@ -349,6 +369,8 @@ void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
     return;
 
   gfx::Point client_pt(event.x, event.y);
+  const gfx::Point& screen_pt = GetScreenPoint(client_pt);
+
   gfx::Point transformed_pt;
   content::RenderWidgetHostImpl* target_rwh =
       web_contents->GetInputEventRouter()->GetRenderWidgetHostAtPoint(
@@ -356,8 +378,26 @@ void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
           client_pt, &transformed_pt);
 
   if (target_rwh != current_rwh_for_drag_.get()) {
-    if (current_rwh_for_drag_)
-      current_rwh_for_drag_->DragTargetDragLeave();
+    if (current_rwh_for_drag_) {
+      gfx::Point transformed_leave_point = client_pt;
+      gfx::Point transformed_screen_point = screen_pt;
+      static_cast<content::RenderWidgetHostViewBase*>(
+          web_contents->GetRenderWidgetHostView())
+          ->TransformPointToCoordSpaceForView(
+              client_pt,
+              static_cast<content::RenderWidgetHostViewBase*>(
+                  current_rwh_for_drag_->GetView()),
+              &transformed_leave_point);
+      static_cast<content::RenderWidgetHostViewBase*>(
+          web_contents->GetRenderWidgetHostView())
+          ->TransformPointToCoordSpaceForView(
+              screen_pt,
+              static_cast<content::RenderWidgetHostViewBase*>(
+                  current_rwh_for_drag_->GetView()),
+              &transformed_screen_point);
+      current_rwh_for_drag_->DragTargetDragLeave(transformed_leave_point,
+                                                 transformed_screen_point);
+    }
     DragTargetDragEnter(drag_data_, event, drag_allowed_ops_);
   }
 
@@ -369,7 +409,6 @@ void CefBrowserPlatformDelegateOsr::DragTargetDrop(const CefMouseEvent& event) {
         static_cast<CefDragDataImpl*>(drag_data_.get());
     base::AutoLock lock_scope(data_impl->lock());
     content::DropData* drop_data = data_impl->drop_data();
-    const gfx::Point& screen_pt = GetScreenPoint(client_pt);
     int modifiers = TranslateModifiers(event.modifiers);
 
     target_rwh->DragTargetDrop(*drop_data, transformed_pt, screen_pt,
@@ -430,11 +469,36 @@ void CefBrowserPlatformDelegateOsr::DragSourceEndedAt(
   if (!web_contents)
     return;
 
-  const gfx::Point& screen_pt = GetScreenPoint(gfx::Point(x, y));
+  content::RenderWidgetHostImpl* source_rwh = drag_start_rwh_.get();
+  const gfx::Point client_loc(gfx::Point(x, y));
+  const gfx::Point& screen_loc = GetScreenPoint(client_loc);
   blink::WebDragOperation drag_op = static_cast<blink::WebDragOperation>(op);
 
-  web_contents->DragSourceEndedAt(x, y, screen_pt.x(), screen_pt.y(), drag_op,
-                                  drag_start_rwh_.get());
+  // |client_loc| and |screen_loc| are in the root coordinate space, for
+  // non-root RenderWidgetHosts they need to be transformed.
+  gfx::Point transformed_point = client_loc;
+  gfx::Point transformed_screen_point = screen_loc;
+  if (source_rwh && web_contents->GetRenderWidgetHostView()) {
+    static_cast<content::RenderWidgetHostViewBase*>(
+        web_contents->GetRenderWidgetHostView())
+        ->TransformPointToCoordSpaceForView(
+            client_loc,
+            static_cast<content::RenderWidgetHostViewBase*>(
+                source_rwh->GetView()),
+            &transformed_point);
+    static_cast<content::RenderWidgetHostViewBase*>(
+        web_contents->GetRenderWidgetHostView())
+        ->TransformPointToCoordSpaceForView(
+            screen_loc,
+            static_cast<content::RenderWidgetHostViewBase*>(
+                source_rwh->GetView()),
+            &transformed_screen_point);
+  }
+
+  web_contents->DragSourceEndedAt(transformed_point.x(), transformed_point.y(),
+                                  transformed_screen_point.x(),
+                                  transformed_screen_point.y(), drag_op,
+                                  source_rwh);
 }
 
 void CefBrowserPlatformDelegateOsr::DragSourceSystemDragEnded() {

@@ -49,7 +49,6 @@ void CefCookieStoreProxy::SetCookieWithDetailsAsync(
     bool secure,
     bool http_only,
     net::CookieSameSite same_site,
-    bool enforce_strict_secure,
     net::CookiePriority priority,
     const SetCookiesCallback& callback) {
   net::CookieStore* cookie_store = GetCookieStore();
@@ -57,8 +56,7 @@ void CefCookieStoreProxy::SetCookieWithDetailsAsync(
     cookie_store->SetCookieWithDetailsAsync(url, name, value, domain, path,
                                             creation_time, expiration_time,
                                             last_access_time, secure, http_only,
-                                            same_site, enforce_strict_secure,
-                                            priority, callback);
+                                            same_site, priority, callback);
   }
 }
 

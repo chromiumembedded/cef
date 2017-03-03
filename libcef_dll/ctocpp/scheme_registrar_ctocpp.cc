@@ -17,7 +17,7 @@
 
 bool CefSchemeRegistrarCToCpp::AddCustomScheme(const CefString& scheme_name,
     bool is_standard, bool is_local, bool is_display_isolated, bool is_secure,
-    bool is_cors_enabled) {
+    bool is_cors_enabled, bool is_csp_bypassing) {
   cef_scheme_registrar_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, add_custom_scheme))
     return false;
@@ -36,7 +36,8 @@ bool CefSchemeRegistrarCToCpp::AddCustomScheme(const CefString& scheme_name,
       is_local,
       is_display_isolated,
       is_secure,
-      is_cors_enabled);
+      is_cors_enabled,
+      is_csp_bypassing);
 
   // Return type: bool
   return _retval?true:false;

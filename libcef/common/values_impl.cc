@@ -297,17 +297,17 @@ bool CefValueImpl::SetNull() {
 }
 
 bool CefValueImpl::SetBool(bool value) {
-  SetValue(new base::FundamentalValue(value));
+  SetValue(new base::Value(value));
   return true;
 }
 
 bool CefValueImpl::SetInt(int value) {
-  SetValue(new base::FundamentalValue(value));
+  SetValue(new base::Value(value));
   return true;
 }
 
 bool CefValueImpl::SetDouble(double value) {
-  SetValue(new base::FundamentalValue(value));
+  SetValue(new base::Value(value));
   return true;
 }
 
@@ -425,7 +425,7 @@ CefRefPtr<CefBinaryValue> CefBinaryValue::Create(const void* data,
     return NULL;
 
   return new CefBinaryValueImpl(static_cast<char*>(const_cast<void*>(data)),
-      data_size, true);
+      data_size);
 }
 
 // static
@@ -453,12 +453,9 @@ CefBinaryValueImpl::CefBinaryValueImpl(base::BinaryValue* value,
 }
 
 CefBinaryValueImpl::CefBinaryValueImpl(char* data,
-                                       size_t data_size,
-                                       bool copy)
+                                       size_t data_size)
   : CefValueBase<CefBinaryValue, base::BinaryValue>(
-        copy ? base::BinaryValue::CreateWithCopiedBuffer(data,
-                                                         data_size).release() :
-               new base::BinaryValue(std::unique_ptr<char[]>(data), data_size),
+        new base::BinaryValue(std::vector<char>(data, data + data_size)),
         NULL, kOwnerWillDelete, true, NULL) {
 }
 
@@ -898,19 +895,19 @@ bool CefDictionaryValueImpl::SetNull(const CefString& key) {
 
 bool CefDictionaryValueImpl::SetBool(const CefString& key, bool value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
-  SetInternal(key, new base::FundamentalValue(value));
+  SetInternal(key, new base::Value(value));
   return true;
 }
 
 bool CefDictionaryValueImpl::SetInt(const CefString& key, int value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
-  SetInternal(key, new base::FundamentalValue(value));
+  SetInternal(key, new base::Value(value));
   return true;
 }
 
 bool CefDictionaryValueImpl::SetDouble(const CefString& key, double value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
-  SetInternal(key,  new base::FundamentalValue(value));
+  SetInternal(key,  new base::Value(value));
   return true;
 }
 
@@ -1301,19 +1298,19 @@ bool CefListValueImpl::SetNull(size_t index) {
 
 bool CefListValueImpl::SetBool(size_t index, bool value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
-  SetInternal(index, new base::FundamentalValue(value));
+  SetInternal(index, new base::Value(value));
   return true;
 }
 
 bool CefListValueImpl::SetInt(size_t index, int value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
-  SetInternal(index, new base::FundamentalValue(value));
+  SetInternal(index, new base::Value(value));
   return true;
 }
 
 bool CefListValueImpl::SetDouble(size_t index, double value) {
   CEF_VALUE_VERIFY_RETURN(true, false);
-  SetInternal(index, new base::FundamentalValue(value));
+  SetInternal(index, new base::Value(value));
   return true;
 }
 

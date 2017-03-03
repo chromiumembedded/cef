@@ -11,7 +11,7 @@
 #include <string>
 
 #include "include/internal/cef_types.h"
-#include "third_party/WebKit/Source/core/fetch/AccessControlStatus.h"
+#include "third_party/WebKit/Source/platform/loader/fetch/AccessControlStatus.h"
 #include "v8/include/v8.h"
 
 namespace blink {

@@ -179,7 +179,7 @@ v8::MaybeLocal<v8::Value> CallV8Function(v8::Local<v8::Context> context,
       toLocalFrame(blink::toFrameIfNotDetached(context));
   DCHECK(frame);
   if (frame &&
-      frame->script().canExecuteScripts(blink::AboutToExecuteScript)) {
+      frame->document()->canExecuteScripts(blink::AboutToExecuteScript)) {
     func_rv = blink::V8ScriptRunner::callFunction(
         function, frame->document(), receiver, argc, args, isolate);
   }

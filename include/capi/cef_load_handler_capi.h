@@ -70,15 +70,16 @@ typedef struct _cef_load_handler_t {
       int canGoForward);
 
   ///
-  // Called when the browser begins loading a frame. The |frame| value will
-  // never be NULL -- call the is_main() function to check if this frame is the
-  // main frame. |transition_type| provides information about the source of the
-  // navigation and an accurate value is only available in the browser process.
-  // Multiple frames may be loading at the same time. Sub-frames may start or
-  // continue loading after the main frame load has ended. This function will
-  // always be called for all frames irrespective of whether the request
-  // completes successfully. For notification of overall browser load status use
-  // OnLoadingStateChange instead.
+  // Called after a navigation has been committed and before the browser begins
+  // loading contents in the frame. The |frame| value will never be NULL -- call
+  // the is_main() function to check if this frame is the main frame.
+  // |transition_type| provides information about the source of the navigation
+  // and an accurate value is only available in the browser process. Multiple
+  // frames may be loading at the same time. Sub-frames may start or continue
+  // loading after the main frame load has ended. This function will not be
+  // called for same page navigations (fragments, history state, etc.) or for
+  // navigations that fail or are canceled before commit. For notification of
+  // overall browser load status use OnLoadingStateChange instead.
   ///
   void (CEF_CALLBACK *on_load_start)(struct _cef_load_handler_t* self,
       struct _cef_browser_t* browser, struct _cef_frame_t* frame,
@@ -89,19 +90,21 @@ typedef struct _cef_load_handler_t {
   // never be NULL -- call the is_main() function to check if this frame is the
   // main frame. Multiple frames may be loading at the same time. Sub-frames may
   // start or continue loading after the main frame load has ended. This
-  // function will always be called for all frames irrespective of whether the
-  // request completes successfully. For notification of overall browser load
-  // status use OnLoadingStateChange instead.
+  // function will not be called for same page navigations (fragments, history
+  // state, etc.) or for navigations that fail or are canceled before commit.
+  // For notification of overall browser load status use OnLoadingStateChange
+  // instead.
   ///
   void (CEF_CALLBACK *on_load_end)(struct _cef_load_handler_t* self,
       struct _cef_browser_t* browser, struct _cef_frame_t* frame,
       int httpStatusCode);
 
   ///
-  // Called when the resource load for a navigation fails or is canceled.
-  // |errorCode| is the error code number, |errorText| is the error text and
-  // |failedUrl| is the URL that failed to load. See net\base\net_error_list.h
-  // for complete descriptions of the error codes.
+  // Called when a navigation fails or is canceled. This function may be called
+  // by itself if before commit or in combination with OnLoadStart/OnLoadEnd if
+  // after commit. |errorCode| is the error code number, |errorText| is the
+  // error text and |failedUrl| is the URL that failed to load. See
+  // net\base\net_error_list.h for complete descriptions of the error codes.
   ///
   void (CEF_CALLBACK *on_load_error)(struct _cef_load_handler_t* self,
       struct _cef_browser_t* browser, struct _cef_frame_t* frame,

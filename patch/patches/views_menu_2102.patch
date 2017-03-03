@@ -1,5 +1,5 @@
 diff --git ui/base/models/menu_model.h ui/base/models/menu_model.h
-index 0755f27..76ad6d6 100644
+index 0755f27..0322b8c 100644
 --- ui/base/models/menu_model.h
 +++ ui/base/models/menu_model.h
 @@ -15,6 +15,7 @@
@@ -10,7 +10,7 @@ index 0755f27..76ad6d6 100644
  }
  
  namespace ui {
-@@ -115,6 +116,30 @@ class UI_BASE_EXPORT MenuModel {
+@@ -115,6 +116,27 @@ class UI_BASE_EXPORT MenuModel {
    // |event_flags| is a bit mask of ui::EventFlags.
    virtual void ActivatedAt(int index, int event_flags);
  
@@ -24,15 +24,12 @@ index 0755f27..76ad6d6 100644
 +  virtual void UnhandledCloseSubmenu(bool is_rtl) {}
 +
 +  // Override the text/background color of a given menu item dependent on the
-+  // |index| and its |is_hovered| state. Returns true if it chooses to override
-+  // the color.
++  // |index| and its |is_hovered| state. |is_minor| will be true for accelerator
++  // text. Returns true if it chooses to override the color.
 +  virtual bool GetTextColor(int index,
++                            bool is_minor,
 +                            bool is_hovered,
 +                            SkColor* override_color) const { return false; }
-+  virtual bool GetMinorTextColor(int index,
-+                                 bool is_hovered,
-+                                 SkColor* override_color) const
-+                                 { return false; }
 +  virtual bool GetBackgroundColor(int index,
 +                                  bool is_hovered,
 +                                  SkColor* override_color) const
@@ -42,10 +39,10 @@ index 0755f27..76ad6d6 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index 78bc651..50a0231 100644
+index e3a15e6..5fae563 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
-@@ -592,6 +592,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
+@@ -595,6 +595,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
    }
  }
  
@@ -60,7 +57,7 @@ index 78bc651..50a0231 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -1462,6 +1470,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -1472,6 +1480,19 @@ void RenderText::OnTextAttributeChanged() {
    if (!multiline_ && replace_newline_chars_with_symbols_)
      base::ReplaceChars(layout_text_, kNewline, kNewlineSymbol, &layout_text_);
  
@@ -81,10 +78,10 @@ index 78bc651..50a0231 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index 44ec077..5be1247 100644
+index bcb7314..4063073 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
-@@ -319,6 +319,10 @@ class GFX_EXPORT RenderText {
+@@ -313,6 +313,10 @@ class GFX_EXPORT RenderText {
    void SetElideBehavior(ElideBehavior elide_behavior);
    ElideBehavior elide_behavior() const { return elide_behavior_; }
  
@@ -95,7 +92,7 @@ index 44ec077..5be1247 100644
    const Rect& display_rect() const { return display_rect_; }
    void SetDisplayRect(const Rect& r);
  
-@@ -871,6 +875,8 @@ class GFX_EXPORT RenderText {
+@@ -861,6 +865,8 @@ class GFX_EXPORT RenderText {
    // OnLayoutTextAttributeChanged and OnDisplayTextAttributeChanged calls.
    std::vector<internal::Line> lines_;
  
@@ -105,7 +102,7 @@ index 44ec077..5be1247 100644
  };
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 21891fc..97f148c 100644
+index 4a7cfd9..750a6ca 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
 @@ -239,6 +239,7 @@ gfx::Size LabelButton::GetPreferredSize() const {
@@ -117,7 +114,7 @@ index 21891fc..97f148c 100644
    if (style_ == STYLE_BUTTON && PlatformStyle::kDefaultLabelButtonHasBoldFont) {
      // Some text appears wider when rendered normally than when rendered bold.
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 9b04c09..58066c14 100644
+index 2d16942..dc60700 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -28,6 +28,7 @@
@@ -127,8 +124,8 @@ index 9b04c09..58066c14 100644
 +#include "ui/gfx/text_utils.h"
  #include "ui/native_theme/native_theme.h"
  #include "ui/strings/grit/ui_strings.h"
- #include "ui/views/controls/menu/menu_runner.h"
-@@ -36,6 +37,25 @@
+ #include "ui/views/background.h"
+@@ -37,6 +38,25 @@
  #include "ui/views/selection_controller.h"
  
  namespace views {
@@ -154,7 +151,7 @@ index 9b04c09..58066c14 100644
  // static
  const char Label::kViewClassName[] = "Label";
  const int Label::kFocusBorderPadding = 1;
-@@ -210,6 +230,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
+@@ -211,6 +231,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
    ResetLayout();
  }
  
@@ -170,7 +167,7 @@ index 9b04c09..58066c14 100644
  void Label::SetTooltipText(const base::string16& tooltip_text) {
    DCHECK(handles_tooltips_);
    tooltip_text_ = tooltip_text;
-@@ -440,7 +469,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText(
+@@ -445,7 +474,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText(
    render_text->SetFontList(font_list());
    render_text->set_shadows(shadows());
    render_text->SetCursorEnabled(false);
@@ -192,10 +189,10 @@ index 9b04c09..58066c14 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 6293cff..d0a5a8f 100644
+index 516368e..22c597a 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
-@@ -117,6 +117,10 @@ class VIEWS_EXPORT Label : public View,
+@@ -120,6 +120,10 @@ class VIEWS_EXPORT Label : public View,
    void SetElideBehavior(gfx::ElideBehavior elide_behavior);
    gfx::ElideBehavior elide_behavior() const { return elide_behavior_; }
  
@@ -206,7 +203,7 @@ index 6293cff..d0a5a8f 100644
    // Sets the tooltip text.  Default behavior for a label (single-line) is to
    // show the full text if it is wider than its bounds.  Calling this overrides
    // the default behavior and lets you set a custom tooltip.  To revert to
-@@ -333,6 +337,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -340,6 +344,7 @@ class VIEWS_EXPORT Label : public View,
    bool collapse_when_hidden_;
    int fixed_width_;
    int max_width_;
@@ -215,10 +212,10 @@ index 6293cff..d0a5a8f 100644
    // TODO(ckocagil): Remove is_first_paint_text_ before crbug.com/441028 is
    // closed.
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 79ff77c..a0582c0 100644
+index 335945f..99ad0d9 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2254,8 +2254,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2270,8 +2270,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -233,7 +230,7 @@ index 79ff77c..a0582c0 100644
    MenuItemView* to_select = NULL;
    if (item->GetSubmenu()->GetMenuItemCount() > 0)
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2270,8 +2275,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2286,8 +2291,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);
@@ -246,25 +243,41 @@ index 79ff77c..a0582c0 100644
      SetSelection(item, SELECTION_UPDATE_IMMEDIATELY);
    else if (item->GetParentMenuItem()->GetParentMenuItem())
 diff --git ui/views/controls/menu/menu_delegate.h ui/views/controls/menu/menu_delegate.h
-index 3b7cb7f..7481553 100644
+index db99e54..7c67a04 100644
 --- ui/views/controls/menu/menu_delegate.h
 +++ ui/views/controls/menu/menu_delegate.h
-@@ -87,6 +87,14 @@ class VIEWS_EXPORT MenuDelegate {
-                                   bool is_hovered,
-                                   SkColor* override_color) const;
+@@ -10,6 +10,7 @@
  
-+  // Override the minor text color of a given menu item dependent on the
+ #include "base/logging.h"
+ #include "base/strings/string16.h"
++#include "third_party/skia/include/core/SkColor.h"
+ #include "ui/base/dragdrop/drag_drop_types.h"
+ #include "ui/base/dragdrop/os_exchange_data.h"
+ #include "ui/base/ui_base_types.h"
+@@ -75,6 +76,22 @@ class VIEWS_EXPORT MenuDelegate {
+   // Whether this item should be displayed with the normal text color, even if
+   // it's disabled.
+   virtual bool GetShouldUseNormalForegroundColor(int command_id) const;
++  
++  // Override the text color of a given menu item dependent on the |command_id|
++  // and its |is_hovered| state. |is_minor| will be true for accelerator text.
++  // Returns true if it chooses to override the color.
++  virtual bool GetTextColor(int command_id,
++                            bool is_minor,
++                            bool is_hovered,
++                            SkColor* override_color) const { return false; }
++
++  // Override the background color of a given menu item dependent on the
 +  // |command_id| and its |is_hovered| state. Returns true if it chooses to
 +  // override the color.
-+  virtual bool GetMinorTextColor(int command_id,
-+                                 bool is_hovered,
-+                                 SkColor* override_color) const
-+                                 { return false; }
-+
-   // Override the background color of a given menu item dependent on the
-   // |command_id| and its |is_hovered| state. Returns true if it chooses to
-   // override the color.
-@@ -229,6 +237,11 @@ class VIEWS_EXPORT MenuDelegate {
++  virtual bool GetBackgroundColor(int command_id,
++                                  bool is_hovered,
++                                  SkColor* override_color) const
++                                  { return false; }
+ 
+   // The tooltip shown for the menu item. This is invoked when the user
+   // hovers over the item, and no tooltip text has been set for that item.
+@@ -208,6 +225,11 @@ class VIEWS_EXPORT MenuDelegate {
                                         bool* has_mnemonics,
                                         MenuButton** button);
  
@@ -277,43 +290,42 @@ index 3b7cb7f..7481553 100644
    virtual int GetMaxWidthForMenu(MenuItemView* menu);
  
 diff --git ui/views/controls/menu/menu_item_view.cc ui/views/controls/menu/menu_item_view.cc
-index b4129049..a23670a 100644
+index 450cf5a..2a0cbcf 100644
 --- ui/views/controls/menu/menu_item_view.cc
 +++ ui/views/controls/menu/menu_item_view.cc
-@@ -871,6 +871,17 @@ void MenuItemView::PaintMinorText(gfx::Canvas* canvas,
-   if (minor_text.empty())
-     return;
+@@ -759,7 +759,12 @@ void MenuItemView::PaintButton(gfx::Canvas* canvas, PaintButtonMode mode) {
+   // only need the background when we want it to look different, as when we're
+   // selected.
+   ui::NativeTheme* native_theme = GetNativeTheme();
+-  if (render_selection) {
++  SkColor override_color;
++  if (delegate && delegate->GetBackgroundColor(GetCommand(),
++                                               render_selection,
++                                               &override_color)) {
++    canvas->DrawColor(override_color);
++  } else if (render_selection) {
+     gfx::Rect item_bounds(0, 0, width(), height());
+     AdjustBoundsForRTLUI(&item_bounds);
  
+@@ -871,6 +876,13 @@ void MenuItemView::PaintMinorText(gfx::Canvas* canvas, SkColor color) {
+ SkColor MenuItemView::GetTextColor(bool minor,
+                                    bool render_selection,
+                                    bool emphasized) const {
 +  SkColor text_color;
-+
-+  MenuDelegate *delegate = GetDelegate();
-+  if (!delegate || !delegate->GetMinorTextColor(GetCommand(),
-+                                                render_selection,
-+                                                &text_color)) {
-+    text_color = GetNativeTheme()->GetSystemColor(render_selection ?
-+        ui::NativeTheme::kColorId_SelectedMenuItemForegroundColor :
-+        ui::NativeTheme::kColorId_MenuItemSubtitleColor);
++  const MenuDelegate *delegate = GetDelegate();
++  if (delegate && delegate->GetTextColor(GetCommand(), minor, render_selection,
++                                         &text_color)) {
++    return text_color;
 +  }
 +
-   int available_height = height() - GetTopMargin() - GetBottomMargin();
-   int max_accel_width =
-       parent_menu_item_->GetSubmenu()->max_minor_text_width();
-@@ -889,9 +900,7 @@ void MenuItemView::PaintMinorText(gfx::Canvas* canvas,
-   canvas->DrawStringRectWithFlags(
-       minor_text,
-       GetFontList(),
--      GetNativeTheme()->GetSystemColor(render_selection ?
--          ui::NativeTheme::kColorId_SelectedMenuItemForegroundColor :
--          ui::NativeTheme::kColorId_MenuItemSubtitleColor),
-+      text_color,
-       accel_bounds,
-       flags);
- }
+   ui::NativeTheme::ColorId color_id =
+       minor ? ui::NativeTheme::kColorId_MenuItemSubtitleColor
+             : ui::NativeTheme::kColorId_EnabledMenuItemForegroundColor;
 diff --git ui/views/controls/menu/menu_model_adapter.cc ui/views/controls/menu/menu_model_adapter.cc
-index bc04dcb..d786a0b 100644
+index bc04dcb..1f821d9 100644
 --- ui/views/controls/menu/menu_model_adapter.cc
 +++ ui/views/controls/menu/menu_model_adapter.cc
-@@ -245,6 +245,88 @@ void MenuModelAdapter::SelectionChanged(MenuItemView* menu) {
+@@ -245,6 +245,77 @@ void MenuModelAdapter::SelectionChanged(MenuItemView* menu) {
    NOTREACHED();
  }
  
@@ -360,25 +372,14 @@ index bc04dcb..d786a0b 100644
 +  NOTREACHED();
 +}
 +
-+bool MenuModelAdapter::GetForegroundColor(int command_id,
-+                                          bool is_hovered,
-+                                          SkColor* override_color) const {
++bool MenuModelAdapter::GetTextColor(int command_id,
++                                    bool is_minor,
++                                    bool is_hovered,
++                                    SkColor* override_color) const {
 +  ui::MenuModel* model = menu_model_;
 +  int index = 0;
 +  if (ui::MenuModel::GetModelAndIndexForCommandId(command_id, &model, &index))
-+    return model->GetTextColor(index, is_hovered, override_color);
-+
-+  NOTREACHED();
-+  return false;
-+}
-+
-+bool MenuModelAdapter::GetMinorTextColor(int command_id,
-+                                         bool is_hovered,
-+                                         SkColor* override_color) const {
-+  ui::MenuModel* model = menu_model_;
-+  int index = 0;
-+  if (ui::MenuModel::GetModelAndIndexForCommandId(command_id, &model, &index))
-+    return model->GetMinorTextColor(index, is_hovered, override_color);
++    return model->GetTextColor(index, is_minor, is_hovered, override_color);
 +
 +  NOTREACHED();
 +  return false;
@@ -403,10 +404,10 @@ index bc04dcb..d786a0b 100644
    // Look up the menu model for this menu.
    const std::map<MenuItemView*, ui::MenuModel*>::const_iterator map_iterator =
 diff --git ui/views/controls/menu/menu_model_adapter.h ui/views/controls/menu/menu_model_adapter.h
-index c9799da..827f786 100644
+index c9799da..401e7a7 100644
 --- ui/views/controls/menu/menu_model_adapter.h
 +++ ui/views/controls/menu/menu_model_adapter.h
-@@ -76,6 +76,22 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate {
+@@ -76,6 +76,20 @@ class VIEWS_EXPORT MenuModelAdapter : public MenuDelegate {
    bool IsCommandVisible(int id) const override;
    bool IsItemChecked(int id) const override;
    void SelectionChanged(MenuItemView* menu) override;
@@ -417,12 +418,10 @@ index c9799da..827f786 100644
 +                               MenuButton** button) override;
 +  void OnUnhandledOpenSubmenu(MenuItemView* menu, bool is_rtl) override;
 +  void OnUnhandledCloseSubmenu(MenuItemView* menu, bool is_rtl) override;
-+  bool GetForegroundColor(int command_id,
-+                          bool is_hovered,
-+                          SkColor* override_color) const override;
-+  bool GetMinorTextColor(int command_id,
-+                         bool is_hovered,
-+                         SkColor* override_color) const override;
++  bool GetTextColor(int command_id,
++                    bool is_minor,
++                    bool is_hovered,
++                    SkColor* override_color) const override;
 +  bool GetBackgroundColor(int command_id,
 +                          bool is_hovered,
 +                          SkColor* override_color) const override;
@@ -430,7 +429,7 @@ index c9799da..827f786 100644
    void WillHideMenu(MenuItemView* menu) override;
    void OnMenuClosed(MenuItemView* menu, MenuRunner::RunResult result) override;
 diff --git ui/views/controls/menu/menu_scroll_view_container.cc ui/views/controls/menu/menu_scroll_view_container.cc
-index 455d289..f5f7419 100644
+index 124442a..c5cfe8b 100644
 --- ui/views/controls/menu/menu_scroll_view_container.cc
 +++ ui/views/controls/menu/menu_scroll_view_container.cc
 @@ -184,6 +184,11 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)

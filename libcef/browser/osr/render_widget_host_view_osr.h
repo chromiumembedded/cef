@@ -91,7 +91,8 @@ class CefRenderWidgetHostViewOSR
  public:
   CefRenderWidgetHostViewOSR(const bool transparent,
                              content::RenderWidgetHost* widget,
-                             CefRenderWidgetHostViewOSR* parent_host_view);
+                             CefRenderWidgetHostViewOSR* parent_host_view,
+                             bool is_guest_view_hack);
   ~CefRenderWidgetHostViewOSR() override;
 
   // RenderWidgetHostView implementation.
@@ -142,16 +143,15 @@ class CefRenderWidgetHostViewOSR
 
   gfx::Size GetRequestedRendererSize() const override;
   gfx::Size GetPhysicalBackingSize() const override;
-  void CopyFromCompositingSurface(
+  void CopyFromSurface(
       const gfx::Rect& src_subrect,
       const gfx::Size& dst_size,
       const content::ReadbackRequestCallback& callback,
       const SkColorType color_type) override;
-  void CopyFromCompositingSurfaceToVideoFrame(
+  void CopyFromSurfaceToVideoFrame(
       const gfx::Rect& src_subrect,
-      const scoped_refptr<media::VideoFrame>& target,
+      scoped_refptr<media::VideoFrame> target,
       const base::Callback<void(const gfx::Rect&, bool)>& callback) override;
-  bool CanCopyToVideoFrame() const override;
   void BeginFrameSubscription(
       std::unique_ptr<content::RenderWidgetHostViewFrameSubscriber> subscriber)
       override;
@@ -162,8 +162,6 @@ class CefRenderWidgetHostViewOSR
       CreateBrowserAccessibilityManager(
           content::BrowserAccessibilityDelegate* delegate,
           bool for_root_frame) override;
-  void LockCompositingSurface() override;
-  void UnlockCompositingSurface() override;
 
 #if defined(TOOLKIT_VIEWS) || defined(USE_AURA)
   void ShowDisambiguationPopup(const gfx::Rect& rect_pixels,
@@ -174,6 +172,15 @@ class CefRenderWidgetHostViewOSR
       const std::vector<gfx::Rect>& character_bounds) override;
 
   void SetNeedsBeginFrames(bool enabled) override;
+
+  bool TransformPointToLocalCoordSpace(
+      const gfx::Point& point,
+      const cc::SurfaceId& original_surface,
+      gfx::Point* transformed_point) override;
+  bool TransformPointToCoordSpaceForView(
+      const gfx::Point& point,
+      RenderWidgetHostViewBase* target_view,
+      gfx::Point* transformed_point) override;
 
   // ui::CompositorDelegate implementation.
   std::unique_ptr<cc::SoftwareOutputDevice> CreateSoftwareOutputDevice(
@@ -280,10 +287,12 @@ class CefRenderWidgetHostViewOSR
 
   void RequestImeCompositionUpdate(bool start_monitoring);
 
+  cc::FrameSinkId AllocateFrameSinkId(bool is_guest_view_hack);
+
 #if defined(OS_MACOSX)
   friend class MacHelper;
 #endif
-  void PlatformCreateCompositorWidget();
+  void PlatformCreateCompositorWidget(bool is_guest_view_hack);
   void PlatformResizeCompositorWidget(const gfx::Size& size);
   void PlatformDestroyCompositorWidget();
 

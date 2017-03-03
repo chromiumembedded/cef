@@ -73,6 +73,14 @@ void CefResourceContext::SetUserData(const void* key, Data* data) {
     content::ResourceContext::SetUserData(key, data);
 }
 
+void CefResourceContext::SetUserData(const void* key,
+                                     std::unique_ptr<Data> data) {
+  if (parent_ && ShouldProxyUserData(key))
+    parent_->SetUserData(key, std::move(data));
+  else
+    content::ResourceContext::SetUserData(key, std::move(data));
+}
+
 void CefResourceContext::RemoveUserData(const void* key) {
   if (parent_ && ShouldProxyUserData(key))
     parent_->RemoveUserData(key);

@@ -33,7 +33,7 @@ class CefSchemeRegistrarCToCpp
   // CefSchemeRegistrar methods.
   bool AddCustomScheme(const CefString& scheme_name, bool is_standard,
       bool is_local, bool is_display_isolated, bool is_secure,
-      bool is_cors_enabled) OVERRIDE;
+      bool is_cors_enabled, bool is_csp_bypassing) OVERRIDE;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_SCHEME_REGISTRAR_CTOCPP_H_

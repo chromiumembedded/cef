@@ -26,6 +26,7 @@
 #include "content/browser/frame_host/render_widget_host_view_guest.h"
 #include "content/browser/renderer_host/dip_util.h"
 #include "content/browser/renderer_host/render_widget_host_delegate.h"
+#include "content/browser/renderer_host/render_widget_host_view_frame_subscriber.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
 #include "content/browser/renderer_host/resize_lock.h"
 #include "content/common/input_messages.h"
@@ -33,8 +34,8 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/context_factory.h"
 #include "content/public/browser/render_view_host.h"
-#include "content/public/browser/render_widget_host_view_frame_subscriber.h"
 #include "content/public/common/content_switches.h"
+#include "media/base/video_frame.h"
 #include "ui/gfx/geometry/dip_util.h"
 #include "ui/gfx/geometry/size_conversions.h"
 #include "ui/gfx/image/image_skia_operations.h"
@@ -451,7 +452,8 @@ class CefBeginFrameTimer : public cc::DelayBasedTimeSourceClient {
 CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
     bool transparent,
     content::RenderWidgetHost* widget,
-    CefRenderWidgetHostViewOSR* parent_host_view)
+    CefRenderWidgetHostViewOSR* parent_host_view,
+    bool is_guest_view_hack)
     : transparent_(transparent),
       scale_factor_(kDefaultScaleFactor),
       frame_rate_threshold_ms_(0),
@@ -483,20 +485,20 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
   }
 
 #if !defined(OS_MACOSX)
-  content::ImageTransportFactory* factory =
-      content::ImageTransportFactory::GetInstance();
-  ui::ContextFactoryPrivate* context_factory_private =
-      factory->GetContextFactoryPrivate();
   delegated_frame_host_ = base::MakeUnique<content::DelegatedFrameHost>(
-      context_factory_private->AllocateFrameSinkId(), this);
+      AllocateFrameSinkId(is_guest_view_hack), this);
 
   root_layer_.reset(new ui::Layer(ui::LAYER_SOLID_COLOR));
 #endif
 
-  PlatformCreateCompositorWidget();
+  PlatformCreateCompositorWidget(is_guest_view_hack);
 
 #if !defined(OS_MACOSX)
-  // On OS X the ui::Compositor is created/owned by the platform view.
+  // On macOS the ui::Compositor is created/owned by the platform view.
+  content::ImageTransportFactory* factory =
+      content::ImageTransportFactory::GetInstance();
+  ui::ContextFactoryPrivate* context_factory_private =
+      factory->GetContextFactoryPrivate();
   compositor_.reset(
       new ui::Compositor(context_factory_private->AllocateFrameSinkId(),
                          content::GetContextFactory(), context_factory_private,
@@ -593,7 +595,7 @@ bool CefRenderWidgetHostViewOSR::HasFocus() const {
 }
 
 bool CefRenderWidgetHostViewOSR::IsSurfaceAvailableForCopy() const {
-  return GetDelegatedFrameHost()->CanCopyToBitmap();
+  return GetDelegatedFrameHost()->CanCopyFromCompositingSurface();
 }
 
 void CefRenderWidgetHostViewOSR::Show() {
@@ -697,17 +699,12 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
 
       // The compositor will draw directly to the SoftwareOutputDevice which
       // then calls OnPaint.
-#if defined(OS_MACOSX)
-      // We would normally call BrowserCompositorMac::SwapCompositorFrame,
-      // however it contains compositor resize logic that we don't want.
+      // We would normally call BrowserCompositorMac::SwapCompositorFrame on
+      // macOS, however it contains compositor resize logic that we don't want.
       // Consequently we instead call the SwapDelegatedFrame method directly.
-      browser_compositor_->GetDelegatedFrameHost()->SwapDelegatedFrame(
-          output_surface_id, std::move(frame));
-#else
-      delegated_frame_host_->SwapDelegatedFrame(output_surface_id,
-                                                std::move(frame));
-#endif
-    } else {
+      GetDelegatedFrameHost()->SwapDelegatedFrame(output_surface_id,
+                                                  std::move(frame));
+   } else {
       if (!copy_frame_generator_.get()) {
         copy_frame_generator_.reset(
             new CefCopyFrameGenerator(frame_rate_threshold_ms_, this));
@@ -721,16 +718,11 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
           gfx::ToEnclosingRect(gfx::RectF(root_pass->damage_rect));
       damage_rect.Intersect(gfx::Rect(frame_size));
 
-#if defined(OS_MACOSX)
-      // We would normally call BrowserCompositorMac::SwapCompositorFrame,
-      // however it contains compositor resize logic that we don't want.
+      // We would normally call BrowserCompositorMac::SwapCompositorFrame on
+      // macOS, however it contains compositor resize logic that we don't want.
       // Consequently we instead call the SwapDelegatedFrame method directly.
-      browser_compositor_->GetDelegatedFrameHost()->SwapDelegatedFrame(
-          output_surface_id, std::move(frame));
-#else
-      delegated_frame_host_->SwapDelegatedFrame(output_surface_id,
-                                                std::move(frame));
-#endif
+      GetDelegatedFrameHost()->SwapDelegatedFrame(output_surface_id,
+                                                  std::move(frame));
 
       // Request a copy of the last compositor frame which will eventually call
       // OnPaint asynchronously.
@@ -892,7 +884,7 @@ gfx::Size CefRenderWidgetHostViewOSR::GetPhysicalBackingSize() const {
   return gfx::ConvertSizeToPixel(scale_factor_, GetRequestedRendererSize());
 }
 
-void CefRenderWidgetHostViewOSR::CopyFromCompositingSurface(
+void CefRenderWidgetHostViewOSR::CopyFromSurface(
     const gfx::Rect& src_subrect,
     const gfx::Size& dst_size,
     const content::ReadbackRequestCallback& callback,
@@ -901,16 +893,12 @@ void CefRenderWidgetHostViewOSR::CopyFromCompositingSurface(
       src_subrect, dst_size, callback, color_type);
 }
 
-void CefRenderWidgetHostViewOSR::CopyFromCompositingSurfaceToVideoFrame(
+void CefRenderWidgetHostViewOSR::CopyFromSurfaceToVideoFrame(
     const gfx::Rect& src_subrect,
-    const scoped_refptr<media::VideoFrame>& target,
+    scoped_refptr<media::VideoFrame> target,
     const base::Callback<void(const gfx::Rect&, bool)>& callback) {
   GetDelegatedFrameHost()->CopyFromCompositingSurfaceToVideoFrame(
       src_subrect, target, callback);
-}
-
-bool CefRenderWidgetHostViewOSR::CanCopyToVideoFrame() const {
-  return GetDelegatedFrameHost()->CanCopyToVideoFrame();
 }
 
 void CefRenderWidgetHostViewOSR::BeginFrameSubscription(
@@ -948,14 +936,6 @@ content::BrowserAccessibilityManager*
         content::BrowserAccessibilityDelegate* delegate,
         bool for_root_frame) {
   return NULL;
-}
-
-void CefRenderWidgetHostViewOSR::LockCompositingSurface() {
-  NOTIMPLEMENTED();
-}
-
-void CefRenderWidgetHostViewOSR::UnlockCompositingSurface() {
-  NOTIMPLEMENTED();
 }
 
 #if defined(TOOLKIT_VIEWS) || defined(USE_AURA)
@@ -1044,6 +1024,40 @@ void CefRenderWidgetHostViewOSR::SetNeedsBeginFrames(bool enabled) {
     // region is pending it will call OnPaint immediately.
     software_output_device_->SetActive(enabled);
   }
+}
+
+bool CefRenderWidgetHostViewOSR::TransformPointToLocalCoordSpace(
+    const gfx::Point& point,
+    const cc::SurfaceId& original_surface,
+    gfx::Point* transformed_point) {
+  // Transformations use physical pixels rather than DIP, so conversion
+  // is necessary.
+  gfx::Point point_in_pixels =
+      gfx::ConvertPointToPixel(scale_factor_, point);
+  if (!GetDelegatedFrameHost()->TransformPointToLocalCoordSpace(
+          point_in_pixels, original_surface, transformed_point)) {
+    return false;
+  }
+
+  *transformed_point =
+      gfx::ConvertPointToDIP(scale_factor_, *transformed_point);
+  return true;
+}
+
+bool CefRenderWidgetHostViewOSR::TransformPointToCoordSpaceForView(
+    const gfx::Point& point,
+    RenderWidgetHostViewBase* target_view,
+    gfx::Point* transformed_point) {
+  if (target_view == this) {
+    *transformed_point = point;
+    return true;
+  }
+
+  // In TransformPointToLocalCoordSpace() there is a Point-to-Pixel conversion,
+  // but it is not necessary here because the final target view is responsible
+  // for converting before computing the final transform.
+  return GetDelegatedFrameHost()->TransformPointToCoordSpaceForView(
+      point, target_view, transformed_point);
 }
 
 std::unique_ptr<cc::SoftwareOutputDevice>
@@ -1613,3 +1627,20 @@ void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
     }
   }
 }
+
+cc::FrameSinkId CefRenderWidgetHostViewOSR::AllocateFrameSinkId(
+    bool is_guest_view_hack) {
+  // GuestViews have two RenderWidgetHostViews and so we need to make sure
+  // we don't have FrameSinkId collisions.
+  // The FrameSinkId generated here must be unique with FrameSinkId allocated
+  // in ContextFactoryPrivate.
+  content::ImageTransportFactory* factory =
+      content::ImageTransportFactory::GetInstance();
+  return is_guest_view_hack
+          ? factory->GetContextFactoryPrivate()->AllocateFrameSinkId()
+          : cc::FrameSinkId(base::checked_cast<uint32_t>(
+                                render_widget_host_->GetProcess()->GetID()),
+                            base::checked_cast<uint32_t>(
+                                render_widget_host_->GetRoutingID()));
+}
+

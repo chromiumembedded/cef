@@ -1,8 +1,8 @@
 diff --git .gn .gn
-index f3ea8df..09d0a1e 100644
+index b0565e5..4fd1771 100644
 --- .gn
 +++ .gn
-@@ -225,6 +225,7 @@ exec_script_whitelist =
+@@ -259,6 +259,7 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
        "//android_webview/BUILD.gn",
        "//build_overrides/build.gni",
@@ -11,10 +11,10 @@ index f3ea8df..09d0a1e 100644
  
        # TODO(dgn): Layer violation but breaks the build otherwise, see
 diff --git BUILD.gn BUILD.gn
-index 0cd9629..97c284c 100644
+index d783ebe..ae5e8d1 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -286,6 +286,7 @@ group("both_gn_and_gyp") {
+@@ -282,6 +282,7 @@ group("both_gn_and_gyp") {
      # and whether there should be other targets that are iOS-only and missing.
      deps += [
        "//cc:cc_unittests",
@@ -55,21 +55,25 @@ index 982fbe8..e757be46 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index fbc201e..98ad106 100644
+index 43a7e09..2af18e9 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
-@@ -126,11 +126,15 @@ def _LoadToolchainEnv(cpu, sdk_dir):
-     script_path = os.path.normpath(os.path.join(
+@@ -127,15 +127,17 @@ def _LoadToolchainEnv(cpu, sdk_dir):
                                         os.environ['GYP_MSVS_OVERRIDE_PATH'],
                                         'VC/vcvarsall.bat'))
--    if not os.path.exists(script_path):
--      raise Exception('%s is missing - make sure VC++ tools are installed.' %
--                      script_path)
+     if not os.path.exists(script_path):
+-      other_path = os.path.normpath(os.path.join(
++      script_path = os.path.normpath(os.path.join(
+                                         os.environ['GYP_MSVS_OVERRIDE_PATH'],
+                                         'VC/Auxiliary/Build/vcvarsall.bat'))
+-      if not os.path.exists(other_path):
+-        raise Exception('%s is missing - make sure VC++ tools are installed.' %
+-                        script_path)
+-      script_path = other_path
 -    args = [script_path, 'amd64_x86' if cpu == 'x86' else 'amd64']
 -    variables = _LoadEnvFromBat(args)
 +    if os.path.exists(script_path):
-+      args = [script_path, 'amd64_x86' if cpu == 'x86' else 'amd64', \
-+              '10.0.14393.0']
++      args = [script_path, 'amd64_x86' if cpu == 'x86' else 'amd64']
 +      variables = _LoadEnvFromBat(args)
 +    else:
 +      variables = []
@@ -80,7 +84,7 @@ index fbc201e..98ad106 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index 3edf1ff..66e150a 100755
+index c5db1b24..e4f5839 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
 @@ -74,11 +74,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
@@ -103,10 +107,10 @@ index 3edf1ff..66e150a 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 27c483c..24502e9 100644
+index 811afda..8d21b5f 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
-@@ -245,7 +245,7 @@ template("chrome_paks") {
+@@ -249,7 +249,7 @@ template("chrome_paks") {
        additional_source_patterns = invoker.additional_locale_source_patterns
      }
      input_locales = locales
@@ -116,10 +120,10 @@ index 27c483c..24502e9 100644
      if (is_mac) {
        output_locales = locales_as_mac_outputs
 diff --git chrome/installer/mini_installer/BUILD.gn chrome/installer/mini_installer/BUILD.gn
-index 84be262..687ffac 100644
+index 5d2fe25..dd08482 100644
 --- chrome/installer/mini_installer/BUILD.gn
 +++ chrome/installer/mini_installer/BUILD.gn
-@@ -125,7 +125,7 @@ template("generate_mini_installer") {
+@@ -128,7 +128,7 @@ template("generate_mini_installer") {
      inputs = [
        "$chrome_dll_file",
        "$root_out_dir/chrome.exe",

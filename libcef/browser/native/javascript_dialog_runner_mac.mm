@@ -89,7 +89,7 @@ CefJavaScriptDialogRunnerMac::~CefJavaScriptDialogRunnerMac() {
 
 void CefJavaScriptDialogRunnerMac::Run(
     CefBrowserHostImpl* browser,
-    content::JavaScriptMessageType message_type,
+    content::JavaScriptDialogType message_type,
     const base::string16& display_url,
     const base::string16& message_text,
     const base::string16& default_prompt_text,
@@ -98,9 +98,9 @@ void CefJavaScriptDialogRunnerMac::Run(
   callback_ = callback;
 
   bool text_field =
-      message_type == content::JAVASCRIPT_MESSAGE_TYPE_PROMPT;
+      message_type == content::JAVASCRIPT_DIALOG_TYPE_PROMPT;
   bool one_button =
-      message_type == content::JAVASCRIPT_MESSAGE_TYPE_ALERT;
+      message_type == content::JAVASCRIPT_DIALOG_TYPE_ALERT;
 
   helper_.reset(
       [[CefJavaScriptDialogHelper alloc] initHelperWithCallback:
@@ -119,13 +119,13 @@ void CefJavaScriptDialogRunnerMac::Run(
 
   base::string16 label;
   switch (message_type) {
-    case content::JAVASCRIPT_MESSAGE_TYPE_ALERT:
+    case content::JAVASCRIPT_DIALOG_TYPE_ALERT:
       label = base::ASCIIToUTF16("JavaScript Alert");
       break;
-    case content::JAVASCRIPT_MESSAGE_TYPE_PROMPT:
+    case content::JAVASCRIPT_DIALOG_TYPE_PROMPT:
       label = base::ASCIIToUTF16("JavaScript Prompt");
       break;
-    case content::JAVASCRIPT_MESSAGE_TYPE_CONFIRM:
+    case content::JAVASCRIPT_DIALOG_TYPE_CONFIRM:
       label = base::ASCIIToUTF16("JavaScript Confirm");
       break;
   }

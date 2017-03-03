@@ -7,7 +7,6 @@
 #include "libcef/browser/stream_impl.h"
 #include "libcef/common/drag_data_impl.h"
 #include "base/files/file_path.h"
-#include "net/base/filename_util.h"
 
 #define CHECK_READONLY_RETURN_VOID() \
   if (read_only_) { \
@@ -44,18 +43,21 @@ bool CefDragDataImpl::IsReadOnly() {
 
 bool CefDragDataImpl::IsLink() {
   base::AutoLock lock_scope(lock_);
-  return (data_.url.is_valid() && data_.file_description_filename.empty());
+  return (data_.url.is_valid() &&
+          data_.file_contents_content_disposition.empty());
 }
 
 bool CefDragDataImpl::IsFragment() {
   base::AutoLock lock_scope(lock_);
-  return (!data_.url.is_valid() && data_.file_description_filename.empty() &&
+  return (!data_.url.is_valid() &&
+          data_.file_contents_content_disposition.empty() &&
           data_.filenames.empty());
 }
 
 bool CefDragDataImpl::IsFile() {
   base::AutoLock lock_scope(lock_);
-  return (!data_.file_description_filename.empty() || !data_.filenames.empty());
+  return (!data_.file_contents_content_disposition.empty() ||
+          !data_.filenames.empty());
 }
 
 CefString CefDragDataImpl::GetLinkURL() {
@@ -90,20 +92,12 @@ CefString CefDragDataImpl::GetFragmentBaseURL() {
 
 CefString CefDragDataImpl::GetFileName() {
   base::AutoLock lock_scope(lock_);
-  if (data_.file_description_filename.empty())
+  if (data_.file_contents_content_disposition.empty())
     return CefString();
 
-  base::FilePath file_name(CefString(data_.file_description_filename));
-  // Images without ALT text will only have a file extension so we need to
-  // synthesize one from the provided extension and URL.
-  if (file_name.BaseName().RemoveExtension().empty()) {
-    base::FilePath::StringType extension = file_name.Extension();
-    // Retrieve the name from the URL.
-    CefString suggested_file_name =
-        net::GetSuggestedFilename(data_.url, "", "", "", "", "");
-    file_name = base::FilePath(suggested_file_name).ReplaceExtension(extension);
-  }
-  return file_name.value();
+  base::Optional<base::FilePath> filename =
+      data_.GetSafeFilenameForImageFileContents();
+  return filename ? CefString(filename->value()) : CefString();
 }
 
 size_t CefDragDataImpl::GetFileContents(CefRefPtr<CefStreamWriter> writer) {
@@ -173,7 +167,9 @@ void CefDragDataImpl::ResetFileContents() {
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
   data_.file_contents.erase();
-  data_.file_description_filename.erase();
+  data_.file_contents_source_url = GURL();
+  data_.file_contents_filename_extension.erase();
+  data_.file_contents_content_disposition.erase();
 }
 
 void CefDragDataImpl::AddFile(const CefString& path,

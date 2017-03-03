@@ -128,7 +128,8 @@ content::DelegatedFrameHost* CefRenderWidgetHostViewOSR::GetDelegatedFrameHost()
   return browser_compositor_->GetDelegatedFrameHost();
 }
 
-void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
+void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget(
+    bool is_guest_view_hack) {
   // Create a borderless non-visible 1x1 window.
   window_ = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1, 1)
                                         styleMask:NSBorderlessWindowMask
@@ -144,7 +145,8 @@ void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
 
   mac_helper_ = new MacHelper(this);
   browser_compositor_.reset(new content::BrowserCompositorMac(
-      mac_helper_, mac_helper_, render_widget_host_->is_hidden(), true));
+      mac_helper_, mac_helper_, render_widget_host_->is_hidden(), true,
+      AllocateFrameSinkId(is_guest_view_hack)));
 }
 
 void CefRenderWidgetHostViewOSR::PlatformResizeCompositorWidget(const gfx::Size&) {

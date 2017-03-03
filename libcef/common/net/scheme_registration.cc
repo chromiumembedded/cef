@@ -25,7 +25,8 @@ void AddInternalSchemes(content::ContentClient::Schemes* schemes) {
       false,  /* is_local */
       false,  /* is_display_isolated */
       true,   /* is_secure */
-      true    /* is_cors_enabled */
+      true,   /* is_cors_enabled */
+      true,   /* is_csp_bypassing */
     },
   };
 
@@ -42,6 +43,8 @@ void AddInternalSchemes(content::ContentClient::Schemes* schemes) {
       schemes->secure_schemes.push_back(internal_schemes[i].scheme_name);
     if (internal_schemes[i].is_cors_enabled)
       schemes->cors_enabled_schemes.push_back(internal_schemes[i].scheme_name);
+    if (internal_schemes[i].is_csp_bypassing)
+      schemes->csp_bypassing_schemes.push_back(internal_schemes[i].scheme_name);
     client->AddCustomScheme(internal_schemes[i]);
   }
 }

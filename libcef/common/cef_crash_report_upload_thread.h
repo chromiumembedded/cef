@@ -12,6 +12,7 @@ class CefCrashReportUploadThread : public crashpad::CrashReportUploadThread {
   CefCrashReportUploadThread(crashpad::CrashReportDatabase* database,
                              const std::string& url,
                              bool rate_limit,
+                             bool upload_gzip,
                              int max_uploads);
   ~CefCrashReportUploadThread();
 

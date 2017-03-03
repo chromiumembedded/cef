@@ -23,14 +23,12 @@ class CefSchemeRegistrarImpl : public CefSchemeRegistrar {
                        bool is_local,
                        bool is_display_isolated,
                        bool is_secure,
-                       bool is_cors_enabled) override;
+                       bool is_cors_enabled,
+                       bool is_csp_bypassing) override;
 
   void GetSchemes(content::ContentClient::Schemes* schemes);
 
  private:
-  // Verify that the object is being accessed from the correct thread.
-  bool VerifyContext();
-
   content::ContentClient::Schemes schemes_;
   std::set<std::string> registered_schemes_;
 

@@ -193,9 +193,9 @@ void CefResponseImpl::Set(const blink::WebURLResponse& response) {
   blink::WebString str;
   status_code_ = response.httpStatusCode();
   str = response.httpStatusText();
-  status_text_ = CefString(str);
+  status_text_ = str.utf16();
   str = response.mimeType();
-  mime_type_ = CefString(str);
+  mime_type_ = str.utf16();
 
   class HeaderVisitor : public blink::WebHTTPHeaderVisitor {
    public:
@@ -203,8 +203,7 @@ void CefResponseImpl::Set(const blink::WebURLResponse& response) {
 
     void visitHeader(const blink::WebString& name,
                      const blink::WebString& value) override {
-      map_->insert(std::make_pair(base::string16(name),
-                                  base::string16(value)));
+      map_->insert(std::make_pair(name.utf16(), value.utf16()));
     }
 
    private:

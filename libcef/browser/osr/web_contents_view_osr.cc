@@ -99,8 +99,10 @@ content::RenderWidgetHostViewBase* CefWebContentsViewOSR::CreateViewForWidget(
         embedder_render_widget_host->GetView());
   }
 
+  const bool is_guest_view_hack = !!embedder_render_widget_host;
   return new CefRenderWidgetHostViewOSR(transparent_, render_widget_host,
-                                        embedder_host_view);
+                                        embedder_host_view,
+                                        is_guest_view_hack);
 }
 
 // Called for popup and fullscreen widgets.
@@ -110,7 +112,8 @@ content::RenderWidgetHostViewBase*
   CefRenderWidgetHostViewOSR* view = GetView();
   CHECK(view);
 
-  return new CefRenderWidgetHostViewOSR(transparent_, render_widget_host, view);
+  return new CefRenderWidgetHostViewOSR(transparent_, render_widget_host, view,
+                                        false);
 }
 
 void CefWebContentsViewOSR::SetPageTitle(const base::string16& title) {

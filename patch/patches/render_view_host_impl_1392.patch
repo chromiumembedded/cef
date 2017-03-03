@@ -1,8 +1,8 @@
 diff --git render_view_host_impl.h render_view_host_impl.h
-index a2a0359..d5d2ff7 100644
+index fece1e0..9c54a78 100644
 --- render_view_host_impl.h
 +++ render_view_host_impl.h
-@@ -158,6 +158,7 @@ class CONTENT_EXPORT RenderViewHostImpl : public RenderViewHost,
+@@ -153,6 +153,7 @@ class CONTENT_EXPORT RenderViewHostImpl : public RenderViewHost,
    void set_is_swapped_out(bool is_swapped_out) {
      is_swapped_out_ = is_swapped_out;
    }

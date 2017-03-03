@@ -1,12 +1,12 @@
 diff --git ui/views/test/ui_controls_factory_desktop_aurax11.cc ui/views/test/ui_controls_factory_desktop_aurax11.cc
-index d7b41b1..6065c73 100644
+index 117a268..6065c73 100644
 --- ui/views/test/ui_controls_factory_desktop_aurax11.cc
 +++ ui/views/test/ui_controls_factory_desktop_aurax11.cc
 @@ -146,10 +146,6 @@ class UIControlsDesktopX11 : public UIControlsAura {
          aura::test::QueryLatestMousePositionRequestInHost(host);
      host->ConvertPixelsToDIP(&root_current_location);
  
--    auto screen = views::test::TestDesktopScreenX11::GetInstance();
+-    auto* screen = views::test::TestDesktopScreenX11::GetInstance();
 -    DCHECK_EQ(screen, display::Screen::GetScreen());
 -    screen->set_cursor_screen_point(gfx::Point(screen_x, screen_y));
 -

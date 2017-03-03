@@ -118,7 +118,6 @@ if (is_linux) {
 }
 if (is_mac) {
   import("//build/config/mac/rules.gni")
-  import("//build_overrides/v8.gni")
   import("//build/mac/tweak_info_plist.gni")
   import("//build/util/version.gni")
   import("//media/cdm/ppapi/cdm_paths.gni")
@@ -755,7 +754,7 @@ static_library("libcef_static") {
 
     deps += [
       "//build/linux:fontconfig",
-      "//third_party/freetype2",
+      "//build/linux:freetype2",
     ]
   }
 
@@ -1025,7 +1024,7 @@ repack("pak_devtools") {
   # Each input pak file should also have a deps line for completeness.
   # Add associated .h files in the make_pack_header("resources") target.
   sources = [
-    "$root_gen_dir/blink/devtools_resources.pak",
+    "$root_gen_dir/content/browser/devtools/devtools_resources.pak",
   ]
 
   # Use public_deps so that generated grit headers are discoverable from
@@ -1163,7 +1162,6 @@ template("make_pack_header") {
 make_pack_header("resources") {
   header = "$root_out_dir/includes/include/cef_pack_resources.h"
   inputs = [
-    "$root_gen_dir/blink/grit/devtools_resources.h",
     "$root_gen_dir/blink/public/resources/grit/blink_image_resources.h",
     "$root_gen_dir/blink/public/resources/grit/blink_resources.h",
     "$root_gen_dir/cef/grit/cef_resources.h",
@@ -1173,6 +1171,7 @@ make_pack_header("resources") {
     "$root_gen_dir/chrome/grit/net_internals_resources.h",
     "$root_gen_dir/chrome/grit/renderer_resources.h",
     "$root_gen_dir/components/grit/components_resources.h",
+    "$root_gen_dir/content/browser/devtools/grit/devtools_resources.h",
     "$root_gen_dir/content/browser/tracing/grit/tracing_resources.h",
     "$root_gen_dir/content/grit/content_resources.h",
     "$root_gen_dir/extensions/grit/extensions_browser_resources.h",

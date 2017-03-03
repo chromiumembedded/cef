@@ -81,7 +81,7 @@ int ResponseWriter::Write(net::IOBuffer* buffer,
   if (!base::IsStringUTF8(chunk))
     return num_bytes;
 
-  base::FundamentalValue* id = new base::FundamentalValue(stream_id_);
+  base::Value* id = new base::Value(stream_id_);
   base::StringValue* chunkValue = new base::StringValue(chunk);
 
   content::BrowserThread::PostTask(
@@ -322,6 +322,9 @@ void CefDevToolsFrontend::HandleMessageFromDevToolsFrontend(
   } else if (method == "requestFileSystems") {
     web_contents()->GetMainFrame()->ExecuteJavaScriptForTests(
         base::ASCIIToUTF16("DevToolsAPI.fileSystemsLoaded([]);"));
+  } else if (method == "reattach") {
+    agent_host_->DetachClient(this);
+    agent_host_->AttachClient(this);
   } else {
     return;
   }
@@ -404,7 +407,7 @@ void CefDevToolsFrontend::CallClientFunction(
 
 void CefDevToolsFrontend::SendMessageAck(int request_id,
                                          const base::Value* arg) {
-  base::FundamentalValue id_value(request_id);
+  base::Value id_value(request_id);
   CallClientFunction("DevToolsAPI.embedderMessageAck",
                      &id_value, arg, nullptr);
 }

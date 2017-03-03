@@ -132,8 +132,12 @@ class CefSchemeRegistrar : public CefBaseScoped {
   // rules as those applied to "https" URLs. For example, loading this scheme
   // from other secure schemes will not trigger mixed content warnings.
   //
-  // If |is_cors_enabled| is true the scheme that can be sent CORS requests.
-  // This value should be true in most cases where |is_standard| is true.
+  // If |is_cors_enabled| is true the scheme can be sent CORS requests. This
+  // value should be true in most cases where |is_standard| is true.
+  //
+  // If |is_csp_bypassing| is true the scheme can bypass Content-Security-Policy
+  // (CSP) checks. This value should be false in most cases where |is_standard|
+  // is true.
   //
   // This function may be called on any thread. It should only be called once
   // per unique |scheme_name| value. If |scheme_name| is already registered or
@@ -145,7 +149,8 @@ class CefSchemeRegistrar : public CefBaseScoped {
                                bool is_local,
                                bool is_display_isolated,
                                bool is_secure,
-                               bool is_cors_enabled) =0;
+                               bool is_cors_enabled,
+                               bool is_csp_bypassing) =0;
 };
 
 

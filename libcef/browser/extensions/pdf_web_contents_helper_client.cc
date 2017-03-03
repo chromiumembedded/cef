@@ -12,10 +12,6 @@ CefPDFWebContentsHelperClient::CefPDFWebContentsHelperClient() {
 CefPDFWebContentsHelperClient::~CefPDFWebContentsHelperClient() {
 }
 
-void CefPDFWebContentsHelperClient::UpdateLocationBar(
-    content::WebContents* contents) {
-}
-
 void CefPDFWebContentsHelperClient::UpdateContentRestrictions(
     content::WebContents* contents,
     int content_restrictions) {

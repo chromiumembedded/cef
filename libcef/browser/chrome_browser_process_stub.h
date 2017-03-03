@@ -47,6 +47,7 @@ class ChromeBrowserProcessStub : public BrowserProcess,
   rappor::RapporServiceImpl* rappor_service() override;
   IOThread* io_thread() override;
   WatchDogThread* watchdog_thread() override;
+  ukm::UkmService* ukm_service() override;
   ProfileManager* profile_manager() override;
   PrefService* local_state() override;
   net::URLRequestContextGetter* system_request_context() override;

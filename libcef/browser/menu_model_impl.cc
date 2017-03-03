@@ -160,15 +160,10 @@ class CefSimpleMenuModel : public ui::MenuModel {
   }
 
   bool GetTextColor(int index,
+                    bool is_minor,
                     bool is_hovered,
                     SkColor* override_color) const override {
-    return impl_->GetTextColor(index, false, is_hovered, override_color);
-  }
-
-  bool GetMinorTextColor(int index,
-                         bool is_hovered,
-                         SkColor* override_color) const override {
-    return impl_->GetTextColor(index, true, is_hovered, override_color);
+    return impl_->GetTextColor(index, is_minor, is_hovered, override_color);
   }
 
   bool GetBackgroundColor(int index,

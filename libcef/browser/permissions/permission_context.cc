@@ -159,12 +159,11 @@ void CefPermissionContext::DecidePermission(
   }
 
   ContentSetting content_setting =
-      profile_->GetHostContentSettingsMap()->
-          GetContentSettingAndMaybeUpdateLastUsage(
-              requesting_origin,
-              embedding_origin,
-              permission_util::PermissionTypeToContentSetting(permission),
-              std::string());
+      profile_->GetHostContentSettingsMap()->GetContentSetting(
+          requesting_origin,
+          embedding_origin,
+          permission_util::PermissionTypeToContentSetting(permission),
+          std::string());
 
   if (content_setting == CONTENT_SETTING_ALLOW ||
       content_setting == CONTENT_SETTING_BLOCK) {

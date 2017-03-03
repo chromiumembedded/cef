@@ -17,7 +17,7 @@ class CefJavaScriptDialogRunnerWin : public CefJavaScriptDialogRunner {
   // CefJavaScriptDialogRunner methods:
   void Run(
       CefBrowserHostImpl* browser,
-      content::JavaScriptMessageType message_type,
+      content::JavaScriptDialogType message_type,
       const base::string16& display_url,
       const base::string16& message_text,
       const base::string16& default_prompt_text,
@@ -28,7 +28,7 @@ class CefJavaScriptDialogRunnerWin : public CefJavaScriptDialogRunner {
   HWND dialog_win_;
   HWND parent_win_;
 
-  content::JavaScriptMessageType message_type_;
+  content::JavaScriptDialogType message_type_;
   base::string16 message_text_;
   base::string16 default_prompt_text_;
   DialogClosedCallback callback_;

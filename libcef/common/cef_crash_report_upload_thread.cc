@@ -50,8 +50,9 @@ CefCrashReportUploadThread::CefCrashReportUploadThread(
     CrashReportDatabase* database,
     const std::string& url,
     bool rate_limit,
+    bool upload_gzip,
     int max_uploads)
-    : CrashReportUploadThread(database, url, rate_limit),
+    : CrashReportUploadThread(database, url, rate_limit, upload_gzip),
       max_uploads_(max_uploads) {
 }
 

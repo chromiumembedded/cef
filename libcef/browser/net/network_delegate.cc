@@ -252,15 +252,6 @@ bool CefNetworkDelegate::AreExperimentalCookieFeaturesEnabled() {
   return enabled;
 }
 
-// static
-bool CefNetworkDelegate::AreStrictSecureCookiesEnabled() {
-  const std::string enforce_strict_secure_group =
-      base::FieldTrialList::FindFullName("StrictSecureCookies");
-  return AreExperimentalCookieFeaturesEnabled() ||
-         base::StartsWith(enforce_strict_secure_group, "Enabled",
-                          base::CompareCase::INSENSITIVE_ASCII);
-}
-
 std::unique_ptr<net::SourceStream> CefNetworkDelegate::CreateSourceStream(
     net::URLRequest* request,
     std::unique_ptr<net::SourceStream> upstream) {
@@ -467,8 +458,4 @@ bool CefNetworkDelegate::OnCanAccessFile(const net::URLRequest& request,
 
 bool CefNetworkDelegate::OnAreExperimentalCookieFeaturesEnabled() const {
   return AreExperimentalCookieFeaturesEnabled();
-}
-
-bool CefNetworkDelegate::OnAreStrictSecureCookiesEnabled() const {
-  return AreStrictSecureCookiesEnabled();
 }

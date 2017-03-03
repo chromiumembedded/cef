@@ -143,13 +143,15 @@ bool IsSystemCursorID(LPCWSTR cursor_id) {
 
 }  // namespace
 
-void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget() {
+void CefRenderWidgetHostViewOSR::PlatformCreateCompositorWidget(
+    bool is_guest_view_hack) {
   DCHECK(!window_);
   window_.reset(new CefCompositorHostWin());
   compositor_widget_ = window_->hwnd();
 }
 
-void CefRenderWidgetHostViewOSR::PlatformResizeCompositorWidget(const gfx::Size& size) {
+void CefRenderWidgetHostViewOSR::PlatformResizeCompositorWidget(
+    const gfx::Size& size) {
   DCHECK(window_);
   SetWindowPos(window_->hwnd(), NULL, 0, 0, size.width(), size.height(),
                SWP_NOMOVE | SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE);

@@ -173,7 +173,7 @@ class TestSchemeHandler : public TestHandler {
                    const CefString& failedUrl) override {
     test_results_->got_error.yes();
     // Check that the error code matches the expectation.
-    EXPECT_EQ(errorCode, test_results_->expected_error_code);
+    EXPECT_EQ(test_results_->expected_error_code, errorCode);
     DestroyTest();
   }
 
@@ -1670,7 +1670,9 @@ void RegisterSchemeHandlerCustomSchemes(
       CefRawPtr<CefSchemeRegistrar> registrar,
       std::vector<CefString>& cookiable_schemes) {
   // Add a custom standard scheme.
-  registrar->AddCustomScheme("customstd", true, false, false, false, true);
+  registrar->AddCustomScheme("customstd", true, false, false, false, true,
+                             false);
   // Ad a custom non-standard scheme.
-  registrar->AddCustomScheme("customnonstd", false, false, false, false, false);
+  registrar->AddCustomScheme("customnonstd", false, false, false, false, false,
+                             false);
 }

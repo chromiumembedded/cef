@@ -91,6 +91,11 @@ CefStoragePartitionProxy::GetBroadcastChannelProvider() {
   return parent_->GetBroadcastChannelProvider();
 }
 
+content::BluetoothAllowedDevicesMap*
+CefStoragePartitionProxy::GetBluetoothAllowedDevicesMap() {
+  return parent_->GetBluetoothAllowedDevicesMap();
+}
+
 void CefStoragePartitionProxy::ClearDataForOrigin(
     uint32_t remove_mask,
     uint32_t quota_storage_remove_mask,
@@ -127,6 +132,10 @@ void CefStoragePartitionProxy::ClearData(
 
 void CefStoragePartitionProxy::Flush() {
   parent_->Flush();
+}
+
+void CefStoragePartitionProxy::ClearBluetoothAllowedDevicesMapForTesting() {
+  parent_->ClearBluetoothAllowedDevicesMapForTesting();
 }
 
 void CefStoragePartitionProxy::Bind(

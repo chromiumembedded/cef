@@ -14,6 +14,7 @@
 #include "base/strings/string_util.h"
 #include "base/threading/thread_task_runner_handle.h"
 #include "base/win/wrapped_window_proc.h"
+#include "skia/ext/platform_canvas.h"
 #include "skia/ext/skia_utils_win.h"
 #include "ui/base/accelerators/accelerator.h"
 #include "ui/base/l10n/l10n_util.h"

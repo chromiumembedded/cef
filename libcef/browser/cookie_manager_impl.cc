@@ -587,7 +587,6 @@ void CefCookieManagerImpl::SetCookieInternal(
       cookie.secure ? true : false,
       cookie.httponly ? true : false,
       net::CookieSameSite::DEFAULT_MODE,
-      CefNetworkDelegate::AreStrictSecureCookiesEnabled(),
       net::COOKIE_PRIORITY_DEFAULT,
       base::Bind(SetCookieCallbackImpl, callback));
 }

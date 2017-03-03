@@ -1,16 +1,18 @@
 diff --git supports_user_data.h supports_user_data.h
-index a4c7c9f..54a151b 100644
+index 233ce38..02e690b 100644
 --- supports_user_data.h
 +++ supports_user_data.h
-@@ -37,9 +37,9 @@ class BASE_EXPORT SupportsUserData {
-   // Multiple user data values can be stored under different keys.
-   // This object will TAKE OWNERSHIP of the given data pointer, and will
+@@ -39,10 +39,10 @@ class BASE_EXPORT SupportsUserData {
    // delete the object if it is changed or the object is destroyed.
+   // TODO: remove the raw ptr version of SetUserData once everything uses
+   // the unique_ptr version, see crbug.com/690937.
 -  Data* GetUserData(const void* key) const;
 -  void SetUserData(const void* key, Data* data);
+-  void SetUserData(const void* key, std::unique_ptr<Data> data);
 -  void RemoveUserData(const void* key);
 +  virtual Data* GetUserData(const void* key) const;
 +  virtual void SetUserData(const void* key, Data* data);
++  virtual void SetUserData(const void* key, std::unique_ptr<Data> data);
 +  virtual void RemoveUserData(const void* key);
  
    // SupportsUserData is not thread-safe, and on debug build will assert it is

@@ -112,6 +112,11 @@ WatchDogThread* ChromeBrowserProcessStub::watchdog_thread() {
   return NULL;
 }
 
+ukm::UkmService* ChromeBrowserProcessStub::ukm_service() {
+  NOTREACHED();
+  return NULL;
+}
+
 ProfileManager* ChromeBrowserProcessStub::profile_manager() {
   DCHECK(context_initialized_);
   return profile_manager_.get();

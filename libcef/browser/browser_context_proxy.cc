@@ -98,6 +98,14 @@ void CefBrowserContextProxy::SetUserData(const void* key, Data* data) {
     BrowserContext::SetUserData(key, data);
 }
 
+void CefBrowserContextProxy::SetUserData(const void* key,
+                                         std::unique_ptr<Data> data) {
+  if (ShouldProxyUserData(key))
+    parent_->SetUserData(key, std::move(data));
+  else
+    BrowserContext::SetUserData(key, std::move(data));
+}
+
 void CefBrowserContextProxy::RemoveUserData(const void* key) {
   if (ShouldProxyUserData(key))
     parent_->RemoveUserData(key);

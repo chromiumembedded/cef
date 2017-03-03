@@ -76,6 +76,10 @@ class CefContentClient : public content::ContentClient,
     // A scheme that can be sent CORS requests. This value should be true in
     // most cases where |is_standard| is true.
     bool is_cors_enabled;
+
+    // A scheme that can bypass Content-Security-Policy (CSP) checks. This value
+    // should be false in most cases where |is_standard| is true.
+    bool is_csp_bypassing;
   };
   typedef std::list<SchemeInfo> SchemeInfoList;
 

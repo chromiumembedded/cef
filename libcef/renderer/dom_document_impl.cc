@@ -77,14 +77,14 @@ CefString CefDOMDocumentImpl::GetTitle() {
   const WebDocument& document = frame_->document();
   const WebString& title = document.title();
   if (!title.isNull())
-    str = title;
+    str = title.utf16();
 
   return str;
 }
 
 CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetElementById(const CefString& id) {
   const WebDocument& document = frame_->document();
-  return GetOrCreateNode(document.getElementById(base::string16(id)));
+  return GetOrCreateNode(document.getElementById(WebString::fromUTF16(id)));
 }
 
 CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetFocusedNode() {
@@ -140,7 +140,7 @@ CefString CefDOMDocumentImpl::GetSelectionAsMarkup() {
 
   const WebString& markup = local_frame->selectionAsMarkup();
   if (!markup.isNull())
-    str = markup;
+    str = markup.utf16();
 
   return str;
 }
@@ -156,7 +156,7 @@ CefString CefDOMDocumentImpl::GetSelectionAsText() {
 
   const WebString& text = local_frame->selectionAsText();
   if (!text.isNull())
-    str = text;
+    str = text.utf16();
 
   return str;
 }
@@ -182,7 +182,7 @@ CefString CefDOMDocumentImpl::GetCompleteURL(const CefString& partialURL) {
     return str;
 
   const WebDocument& document = frame_->document();
-  const WebURL& url = document.completeURL(base::string16(partialURL));
+  const WebURL& url = document.completeURL(WebString::fromUTF16(partialURL));
   if (!url.isNull()) {
     GURL gurl = url;
     str = gurl.spec();

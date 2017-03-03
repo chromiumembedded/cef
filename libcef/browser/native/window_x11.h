@@ -7,7 +7,10 @@
 #define CEF_LIBCEF_BROWSER_NATIVE_WINDOW_X11_H_
 #pragma once
 
-#include <X11/Xlib.h>
+// Avoid including <X11/Xlib.h>
+typedef unsigned long Window;
+struct _XDisplay;
+typedef struct _XDisplay Display;
 
 #include "libcef/browser/browser_host_impl.h"
 

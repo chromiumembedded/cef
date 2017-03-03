@@ -4,7 +4,7 @@
 
 // This file defines extension APIs implemented in CEF.
 // See extensions/common/features/* to understand this file, in particular
-// feature.h, simple_feature.h, and base_feature_provider.h.
+// feature.h, simple_feature.h, and feature_provider.h.
 
 // If APIs are defined in chrome then entries must also be added in
 // libcef/browser/extensions/chrome_api_registration.cc.

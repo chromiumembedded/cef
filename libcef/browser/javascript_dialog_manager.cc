@@ -90,7 +90,7 @@ void CefJavaScriptDialogManager::Destroy() {
 void CefJavaScriptDialogManager::RunJavaScriptDialog(
     content::WebContents* web_contents,
     const GURL& origin_url,
-    content::JavaScriptMessageType message_type,
+    content::JavaScriptDialogType message_type,
     const base::string16& message_text,
     const base::string16& default_prompt_text,
     const DialogClosedCallback& callback,
@@ -187,7 +187,7 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
   dialog_running_ = true;
 
   runner_->Run(browser_,
-               content::JAVASCRIPT_MESSAGE_TYPE_CONFIRM,
+               content::JAVASCRIPT_DIALOG_TYPE_CONFIRM,
                base::string16(),  // display_url
                message_text,
                base::string16(),  // default_prompt_text
@@ -197,7 +197,6 @@ void CefJavaScriptDialogManager::RunBeforeUnloadDialog(
 
 void CefJavaScriptDialogManager::CancelDialogs(
     content::WebContents* web_contents,
-    bool suppress_callbacks,
     bool reset_state) {
   CefRefPtr<CefClient> client = browser_->GetClient();
   if (client.get()) {

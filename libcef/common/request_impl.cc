@@ -16,7 +16,6 @@
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/strings/string_util.h"
-#include "base/strings/sys_string_conversions.h"
 #include "base/strings/utf_string_conversions.h"
 #include "components/navigation_interception/navigation_params.h"
 #include "content/public/browser/browser_thread.h"
@@ -139,9 +138,9 @@ std::string GetURLRequestReferrer(const GURL& referrer_url) {
 blink::WebString FilePathStringToWebString(
     const base::FilePath::StringType& str) {
 #if defined(OS_POSIX)
-  return base::WideToUTF16(base::SysNativeMBToWide(str));
+  return blink::WebString::fromUTF8(str);
 #elif defined(OS_WIN)
-  return base::WideToUTF16(str);
+  return blink::WebString::fromUTF16(str);
 #endif
 }
 
@@ -179,8 +178,8 @@ void GetHeaderMap(const blink::WebURLRequest& request,
 
     void visitHeader(const blink::WebString& name,
                      const blink::WebString& value) override {
-      const base::string16& nameStr = name;
-      const base::string16& valueStr = value;
+      const base::string16& nameStr = name.utf16();
+      const base::string16& valueStr = value.utf16();
       if (base::LowerCaseEqualsASCII(nameStr, kReferrerLowerCase))
         *referrer_ = GURL(valueStr);
       else
@@ -216,8 +215,8 @@ void SetHeaderMap(const CefRequest::HeaderMap& map,
                   blink::WebURLRequest& request) {
   CefRequest::HeaderMap::const_iterator it = map.begin();
   for (; it != map.end(); ++it) {
-    request.setHTTPHeaderField(base::string16(it->first),
-                               base::string16(it->second));
+    request.setHTTPHeaderField(blink::WebString::fromUTF16(it->first),
+                               blink::WebString::fromUTF16(it->second));
   }
 }
 
@@ -620,7 +619,7 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
                          blink::WebURLRequest& request) {
   request.setURL(params.url);
   if (!params.method.empty())
-    request.setHTTPMethod(base::ASCIIToUTF16(params.method));
+    request.setHTTPMethod(blink::WebString::fromASCII(params.method));
 
   if (params.referrer.is_valid()) {
     const blink::WebString& referrer =
@@ -645,18 +644,18 @@ void CefRequestImpl::Get(const CefMsg_LoadRequest_Params& params,
   }
 
   if (params.upload_data.get()) {
-    const base::string16& method = request.httpMethod();
+    const base::string16& method = request.httpMethod().utf16();
     if (method == base::ASCIIToUTF16("GET") ||
         method == base::ASCIIToUTF16("HEAD")) {
-      request.setHTTPMethod(base::ASCIIToUTF16("POST"));
+      request.setHTTPMethod(blink::WebString::fromASCII("POST"));
     }
 
     // The comparison performed by httpHeaderField() is case insensitive.
-    if (request.httpHeaderField(base::ASCIIToUTF16(
+    if (request.httpHeaderField(blink::WebString::fromASCII(
           net::HttpRequestHeaders::kContentType)).length()== 0) {
       request.setHTTPHeaderField(
-          base::ASCIIToUTF16(net::HttpRequestHeaders::kContentType),
-          base::ASCIIToUTF16(kApplicationFormURLEncoded));
+          blink::WebString::fromASCII(net::HttpRequestHeaders::kContentType),
+          blink::WebString::fromASCII(kApplicationFormURLEncoded));
     }
 
     blink::WebHTTPBody body;
@@ -1314,7 +1313,7 @@ void CefPostDataElementImpl::Set(const blink::WebHTTPBody::Element& element) {
     SetToBytes(element.data.size(),
         static_cast<const void*>(element.data.data()));
   } else if (element.type == blink::WebHTTPBody::Element::TypeFile) {
-    SetToFile(base::string16(element.filePath));
+    SetToFile(element.filePath.utf16());
   } else {
     NOTREACHED();
   }
@@ -1329,7 +1328,8 @@ void CefPostDataElementImpl::Get(blink::WebHTTPBody::Element& element) const {
         static_cast<char*>(data_.bytes.bytes), data_.bytes.size);
   } else if (type_ == PDE_TYPE_FILE) {
     element.type = blink::WebHTTPBody::Element::TypeFile;
-    element.filePath.assign(base::string16(CefString(&data_.filename)));
+    element.filePath.assign(
+        blink::WebString::fromUTF16(CefString(&data_.filename)));
   } else {
     NOTREACHED();
   }

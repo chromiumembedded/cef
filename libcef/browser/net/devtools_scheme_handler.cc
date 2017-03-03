@@ -11,7 +11,7 @@
 
 #include "base/memory/ptr_util.h"
 #include "base/strings/string_util.h"
-#include "blink/grit/devtools_resources_map.h"
+#include "content/browser/devtools/grit/devtools_resources_map.h"
 #include "content/public/common/url_constants.h"
 
 namespace scheme {

@@ -294,21 +294,6 @@ PermissionStatus CefPermissionManager::GetPermissionStatus(
                                    embedding_origin));
 }
 
-void CefPermissionManager::RegisterPermissionUsage(
-    PermissionType permission,
-    const GURL& requesting_origin,
-    const GURL& embedding_origin) {
-  // This is required because constant permissions don't have a
-  // ContentSettingsType.
-  if (IsConstantPermission(permission))
-    return;
-
-  profile_->GetHostContentSettingsMap()->UpdateLastUsage(
-      requesting_origin,
-      embedding_origin,
-      permission_util::PermissionTypeToContentSetting(permission));
-}
-
 int CefPermissionManager::SubscribePermissionStatusChange(
     PermissionType permission,
     const GURL& requesting_origin,

@@ -22,7 +22,6 @@ class CefNetworkDelegate : public net::NetworkDelegateImpl {
   // Match the logic from ChromeNetworkDelegate and
   // RenderFrameMessageFilter::OnSetCookie.
   static bool AreExperimentalCookieFeaturesEnabled();
-  static bool AreStrictSecureCookiesEnabled();
 
   void set_force_google_safesearch(
       BooleanPrefMember* force_google_safesearch) {
@@ -46,7 +45,6 @@ class CefNetworkDelegate : public net::NetworkDelegateImpl {
   bool OnCanAccessFile(const net::URLRequest& request,
                        const base::FilePath& path) const override;
   bool OnAreExperimentalCookieFeaturesEnabled() const override;
-  bool OnAreStrictSecureCookiesEnabled() const override;
 
   // Weak, owned by our owner (CefURLRequestContextGetterImpl).
   BooleanPrefMember* force_google_safesearch_;

@@ -143,11 +143,9 @@ class CefBinaryValueImpl
   CefBinaryValueImpl(base::BinaryValue* value,
                      bool will_delete);
 
-  // If |copy| is false this object will take ownership of the specified |data|
-  // buffer instead of copying it.
+  // The data will always be copied.
   CefBinaryValueImpl(char* data,
-                     size_t data_size,
-                     bool copy);
+                     size_t data_size);
 
   // Return a copy of the value.
   base::BinaryValue* CopyValue();

@@ -1947,7 +1947,6 @@ typedef struct _cef_popup_features_t {
 
   int fullscreen;
   int dialog;
-  cef_string_list_t additionalFeatures;
 } cef_popup_features_t;
 
 ///

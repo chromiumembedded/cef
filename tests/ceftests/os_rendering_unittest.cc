@@ -492,7 +492,7 @@ class OSRTestHandler : public RoutingTestHandler,
           EXPECT_EQ(dirtyRects.size(), 1U);
           EXPECT_TRUE(IsFullRepaint(dirtyRects[0], GetScaledInt(kOsrWidth),
                                                    GetScaledInt(kOsrHeight)));
-          EXPECT_EQ(*(reinterpret_cast<const uint32*>(buffer)), 0xffff8080);
+          EXPECT_EQ(0xffff7f7fU, *(reinterpret_cast<const uint32*>(buffer)));
           DestroySucceededTestSoon();
         }
         break;
@@ -502,7 +502,7 @@ class OSRTestHandler : public RoutingTestHandler,
           EXPECT_EQ(dirtyRects.size(), 1U);
           EXPECT_TRUE(IsFullRepaint(dirtyRects[0], GetScaledInt(kOsrWidth),
                                                    GetScaledInt(kOsrHeight)));
-          EXPECT_EQ(*(reinterpret_cast<const uint32*>(buffer)), 0x7f7f0000U);
+          EXPECT_EQ(0x80800000U, *(reinterpret_cast<const uint32*>(buffer)));
           DestroySucceededTestSoon();
         }
         break;

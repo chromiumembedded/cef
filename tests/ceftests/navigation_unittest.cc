@@ -2325,6 +2325,23 @@ class PopupNavTestHandler : public TestHandler {
     }
   }
 
+  void OnLoadError(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   ErrorCode errorCode,
+                   const CefString& errorText,
+                   const CefString& failedUrl) override {
+    if (failedUrl == kPopupNavPageUrl) {
+      EXPECT_FALSE(got_load_error_);
+      got_load_error_.yes();
+    } else if (failedUrl == kPopupNavPopupUrl) {
+      EXPECT_FALSE(got_popup_load_error_);
+      got_popup_load_error_.yes();
+    } else if (failedUrl == kPopupNavPopupUrl2) {
+      EXPECT_FALSE(got_popup_load_error2_);
+      got_popup_load_error2_.yes();
+    }
+  }
+
   void OnLoadEnd(CefRefPtr<CefBrowser> browser,
                  CefRefPtr<CefFrame> frame,
                  int httpStatusCode) override {
@@ -2370,22 +2387,29 @@ class PopupNavTestHandler : public TestHandler {
  private:
   void DestroyTest() override {
     EXPECT_TRUE(got_load_start_);
+    EXPECT_FALSE(got_load_error_);
     EXPECT_TRUE(got_load_end_);
     EXPECT_TRUE(got_on_before_popup_);
     if (mode_ == ALLOW) {
       EXPECT_TRUE(got_popup_load_start_);
+      EXPECT_FALSE(got_popup_load_error_);
       EXPECT_TRUE(got_popup_load_end_);
       EXPECT_FALSE(got_popup_load_start2_);
+      EXPECT_FALSE(got_popup_load_error2_);
       EXPECT_FALSE(got_popup_load_end2_);
     } else if (mode_ == DENY) {
       EXPECT_FALSE(got_popup_load_start_);
+      EXPECT_FALSE(got_popup_load_error_);
       EXPECT_FALSE(got_popup_load_end_);
       EXPECT_FALSE(got_popup_load_start2_);
+      EXPECT_FALSE(got_popup_load_error2_);
       EXPECT_FALSE(got_popup_load_end2_);
     } else if (mode_ == NAVIGATE_AFTER_CREATION) {
       EXPECT_FALSE(got_popup_load_start_);
+      EXPECT_TRUE(got_popup_load_error_);
       EXPECT_FALSE(got_popup_load_end_);
       EXPECT_TRUE(got_popup_load_start2_);
+      EXPECT_FALSE(got_popup_load_error2_);
       EXPECT_TRUE(got_popup_load_end2_);
     }
 
@@ -2396,10 +2420,13 @@ class PopupNavTestHandler : public TestHandler {
 
   TrackCallback got_on_before_popup_;
   TrackCallback got_load_start_;
+  TrackCallback got_load_error_;
   TrackCallback got_load_end_;
   TrackCallback got_popup_load_start_;
+  TrackCallback got_popup_load_error_;
   TrackCallback got_popup_load_end_;
   TrackCallback got_popup_load_start2_;
+  TrackCallback got_popup_load_error2_;
   TrackCallback got_popup_load_end2_;
 
   IMPLEMENT_REFCOUNTING(PopupNavTestHandler);
@@ -2861,6 +2888,671 @@ TEST(NavigationTest, BrowseAllow) {
 // Test denying navigation.
 TEST(NavigationTest, BrowseDeny) {
   CefRefPtr<BrowseNavTestHandler> handler = new BrowseNavTestHandler(false);
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+namespace {
+
+const char kSameNavPageUrl[] = "http://tests-samenav/nav.html";
+
+// Browser side.
+class SameNavTestHandler : public TestHandler {
+ public:
+  SameNavTestHandler()
+    : destroyed_(false),
+      step_(0) {}
+
+  void RunTest() override {
+    AddResource(kSameNavPageUrl, "<html>Test</html>", "text/html");
+
+    // Create the browser.
+    expected_url_ = kSameNavPageUrl;
+    CreateBrowser(kSameNavPageUrl);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                      CefRefPtr<CefFrame> frame,
+                      CefRefPtr<CefRequest> request,
+                      bool is_redirect) override {
+    const std::string& url = request->GetURL();
+    EXPECT_STREQ(expected_url_.c_str(), url.c_str());
+    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
+    EXPECT_TRUE(frame->IsMain());
+    
+    got_before_browse_.yes();
+    
+    return false;
+  }
+
+  void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
+    const std::string& url = frame->GetURL();
+    EXPECT_STREQ(expected_url_.c_str(), url.c_str());
+    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
+    EXPECT_TRUE(frame->IsMain());
+
+    got_load_start_.yes();
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    const std::string& url = frame->GetURL();
+    EXPECT_STREQ(expected_url_.c_str(), url.c_str());
+    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
+    EXPECT_TRUE(frame->IsMain());
+
+    got_load_end_.yes();
+    ContinueTestIfDone();
+  }
+
+  void OnLoadError(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   ErrorCode errorCode,
+                   const CefString& errorText,
+                   const CefString& failedUrl) override {
+    got_load_error_.yes();
+  }
+
+  void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                            bool isLoading,
+                            bool canGoBack,
+                            bool canGoForward) override {
+    const std::string& url = browser->GetMainFrame()->GetURL();
+    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
+
+    if (isLoading) {
+      // Verify the previous URL.
+      if (step_ == 0)
+        EXPECT_TRUE(url.empty());
+      else
+        EXPECT_STREQ(kSameNavPageUrl, url.c_str());
+
+      got_loading_state_changed_start_.yes();
+    } else {
+      EXPECT_STREQ(expected_url_.c_str(), url.c_str());
+
+      got_loading_state_changed_end_.yes();
+      ContinueTestIfDone();
+    }
+  }
+
+ private:
+  void ContinueTestIfDone() {
+    if (step_ == 0) {
+      // First navigation should trigger all callbacks except OnLoadError.
+      if (got_loading_state_changed_end_ && got_load_end_) {
+        EXPECT_TRUE(got_before_browse_);
+        EXPECT_TRUE(got_loading_state_changed_start_);
+        EXPECT_TRUE(got_load_start_);
+        EXPECT_FALSE(got_load_error_);
+
+        got_before_browse_.reset();
+        got_loading_state_changed_start_.reset();
+        got_loading_state_changed_end_.reset();
+        got_load_start_.reset();
+        got_load_end_.reset();
+
+        step_++;
+        expected_url_ = kSameNavPageUrl + std::string("#fragment");
+        GetBrowser()->GetMainFrame()->LoadURL(expected_url_);
+      }
+    } else if (step_ == 1) {
+      step_++;
+      DestroyTest();
+    } else {
+      EXPECT_TRUE(false);  // Not reached.
+    }
+  }
+
+  void DestroyTest() override {
+    if (destroyed_)
+      return;
+    destroyed_ = true;
+
+    EXPECT_EQ(2, step_);
+
+    // Second (fragment) navigation should only trigger OnLoadingStateChange.
+    EXPECT_FALSE(got_before_browse_);
+    EXPECT_TRUE(got_loading_state_changed_start_);
+    EXPECT_TRUE(got_loading_state_changed_end_);
+    EXPECT_FALSE(got_load_start_);
+    EXPECT_FALSE(got_load_end_);
+    EXPECT_FALSE(got_load_error_);
+
+    TestHandler::DestroyTest();
+  }
+
+  bool destroyed_;
+  int step_;
+  std::string expected_url_;
+
+  TrackCallback got_before_browse_;
+  TrackCallback got_load_start_;
+  TrackCallback got_load_end_;
+  TrackCallback got_load_error_;
+  TrackCallback got_loading_state_changed_start_;
+  TrackCallback got_loading_state_changed_end_;
+
+  IMPLEMENT_REFCOUNTING(SameNavTestHandler);
+};
+
+}  // namespace
+
+// Test that same page navigation does not call OnLoadStart/OnLoadEnd.
+TEST(NavigationTest, SamePage) {
+  CefRefPtr<SameNavTestHandler> handler = new SameNavTestHandler();
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+namespace {
+
+const char kCancelPageUrl[] = "http://tests-cancelnav/nav.html";
+
+// A scheme handler that never starts sending data.
+class UnstartedSchemeHandler : public CefResourceHandler {
+ public:
+  UnstartedSchemeHandler() {}
+
+  bool ProcessRequest(CefRefPtr<CefRequest> request,
+                      CefRefPtr<CefCallback> callback) override {
+    callback->Continue();
+    return true;
+  }
+
+  void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                          int64& response_length,
+                          CefString& redirectUrl) override {
+    response->SetStatus(200);
+    response->SetMimeType("text/html");
+    response_length = 100;
+  }
+
+  void Cancel() override {
+    callback_ = nullptr;
+  }
+
+  bool ReadResponse(void* data_out,
+                    int bytes_to_read,
+                    int& bytes_read,
+                    CefRefPtr<CefCallback> callback) override {
+    callback_ = callback;
+
+    // Pretend that we'll provide the data later.
+    bytes_read = 0;
+    return true;
+  }
+
+ protected:
+  CefRefPtr<CefCallback> callback_;
+
+  IMPLEMENT_REFCOUNTING(UnstartedSchemeHandler);
+};
+
+// Browser side.
+class CancelBeforeNavTestHandler : public TestHandler {
+ public:
+  CancelBeforeNavTestHandler()
+    : destroyed_(false) {}
+
+  void RunTest() override {
+    // Create the browser.
+    CreateBrowser(kCancelPageUrl);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                      CefRefPtr<CefFrame> frame,
+                      CefRefPtr<CefRequest> request,
+                      bool is_redirect) override {
+    EXPECT_TRUE(got_loading_state_changed_start_);
+    EXPECT_FALSE(got_before_browse_);
+    EXPECT_FALSE(got_get_resource_handler_);
+    EXPECT_FALSE(got_load_start_);
+    EXPECT_FALSE(got_cancel_load_);
+    EXPECT_FALSE(got_load_error_);
+    EXPECT_FALSE(got_load_end_);
+    EXPECT_FALSE(got_loading_state_changed_end_);
+
+    const std::string& url = request->GetURL();
+    EXPECT_STREQ(kCancelPageUrl, url.c_str());
+    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
+    EXPECT_TRUE(frame->IsMain());
+
+    got_before_browse_.yes();
+
+    return false;
+  }
+
+  CefRefPtr<CefResourceHandler> GetResourceHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request) override {
+    EXPECT_TRUE(got_loading_state_changed_start_);
+    EXPECT_TRUE(got_before_browse_);
+    EXPECT_FALSE(got_get_resource_handler_);
+    EXPECT_FALSE(got_load_start_);
+    EXPECT_FALSE(got_cancel_load_);
+    EXPECT_FALSE(got_load_error_);
+    EXPECT_FALSE(got_load_end_);
+    EXPECT_FALSE(got_loading_state_changed_end_);
+
+    const std::string& url = request->GetURL();
+    EXPECT_STREQ(kCancelPageUrl, url.c_str());
+    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
+    EXPECT_TRUE(frame->IsMain());
+
+    got_get_resource_handler_.yes();
+
+    CefPostDelayedTask(TID_UI,
+        base::Bind(&CancelBeforeNavTestHandler::CancelLoad, this), 100);
+
+    return new UnstartedSchemeHandler();
+  }
+
+  void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
+    EXPECT_TRUE(false);  // Not reached.
+    got_load_start_.yes();
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    EXPECT_TRUE(false);  // Not reached.
+    got_load_end_.yes();
+  }
+
+  void OnLoadError(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   ErrorCode errorCode,
+                   const CefString& errorText,
+                   const CefString& failedUrl) override {
+    EXPECT_TRUE(got_loading_state_changed_start_);
+    EXPECT_TRUE(got_before_browse_);
+    EXPECT_TRUE(got_get_resource_handler_);
+    EXPECT_FALSE(got_load_start_);
+    EXPECT_TRUE(got_cancel_load_);
+    EXPECT_FALSE(got_load_error_);
+    EXPECT_FALSE(got_load_end_);
+    EXPECT_FALSE(got_loading_state_changed_end_);
+
+    const std::string& url = failedUrl;
+    EXPECT_STREQ(kCancelPageUrl, url.c_str());
+    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
+    EXPECT_TRUE(frame->IsMain());
+
+    got_load_error_.yes();
+  }
+
+  void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                            bool isLoading,
+                            bool canGoBack,
+                            bool canGoForward) override {
+    const std::string& url = browser->GetMainFrame()->GetURL();
+    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
+    EXPECT_TRUE(url.empty());
+
+    if (isLoading) {
+      EXPECT_FALSE(got_loading_state_changed_start_);
+      EXPECT_FALSE(got_before_browse_);
+      EXPECT_FALSE(got_get_resource_handler_);
+      EXPECT_FALSE(got_load_start_);
+      EXPECT_FALSE(got_cancel_load_);
+      EXPECT_FALSE(got_load_error_);
+      EXPECT_FALSE(got_load_end_);
+      EXPECT_FALSE(got_loading_state_changed_end_);
+
+      got_loading_state_changed_start_.yes();
+    } else {
+      EXPECT_TRUE(got_loading_state_changed_start_);
+      EXPECT_TRUE(got_before_browse_);
+      EXPECT_TRUE(got_get_resource_handler_);
+      EXPECT_FALSE(got_load_start_);
+      EXPECT_TRUE(got_cancel_load_);
+      EXPECT_TRUE(got_load_error_);
+      EXPECT_FALSE(got_load_end_);
+      EXPECT_FALSE(got_loading_state_changed_end_);
+
+      got_loading_state_changed_end_.yes();
+
+      DestroyTest();
+    }
+  }
+
+ private:
+  void CancelLoad() {
+    got_cancel_load_.yes();
+    GetBrowser()->StopLoad();
+  }
+
+  void DestroyTest() override {
+    if (destroyed_)
+      return;
+    destroyed_ = true;
+
+    EXPECT_TRUE(got_loading_state_changed_start_);
+    EXPECT_TRUE(got_before_browse_);
+    EXPECT_TRUE(got_get_resource_handler_);
+    EXPECT_FALSE(got_load_start_);
+    EXPECT_TRUE(got_cancel_load_);
+    EXPECT_TRUE(got_load_error_);
+    EXPECT_FALSE(got_load_end_);
+    EXPECT_TRUE(got_loading_state_changed_end_);
+
+    TestHandler::DestroyTest();
+  }
+
+  bool destroyed_;
+
+  TrackCallback got_loading_state_changed_start_;
+  TrackCallback got_before_browse_;
+  TrackCallback got_get_resource_handler_;
+  TrackCallback got_load_start_;
+  TrackCallback got_cancel_load_;
+  TrackCallback got_load_error_;
+  TrackCallback got_load_end_;
+  TrackCallback got_loading_state_changed_end_;
+
+  IMPLEMENT_REFCOUNTING(CancelBeforeNavTestHandler);
+};
+
+}  // namespace
+
+// Test that navigation canceled before commit does not call
+// OnLoadStart/OnLoadEnd.
+TEST(NavigationTest, CancelBeforeCommit) {
+  CefRefPtr<CancelBeforeNavTestHandler> handler =
+      new CancelBeforeNavTestHandler();
+  handler->ExecuteTest();
+  ReleaseAndWaitForDestructor(handler);
+}
+
+
+namespace {
+
+// A scheme handler that stalls after writing some data.
+class StalledSchemeHandler : public CefResourceHandler {
+ public:
+  StalledSchemeHandler() : offset_(0), write_size_(0) {}
+
+  bool ProcessRequest(CefRefPtr<CefRequest> request,
+                      CefRefPtr<CefCallback> callback) override {
+    callback->Continue();
+    return true;
+  }
+
+  void GetResponseHeaders(CefRefPtr<CefResponse> response,
+                          int64& response_length,
+                          CefString& redirectUrl) override {
+    response->SetStatus(200);
+    response->SetMimeType("text/html");
+    content_ = "<html><body>Test</body></html>";
+    // Write this number of bytes and then stall.
+    write_size_ = content_.size() / 2U;
+    response_length = content_.size();
+  }
+
+  void Cancel() override {
+    callback_ = nullptr;
+  }
+
+  bool ReadResponse(void* data_out,
+                    int bytes_to_read,
+                    int& bytes_read,
+                    CefRefPtr<CefCallback> callback) override {
+    size_t size = content_.size();
+    if (offset_ >= write_size_) {
+      // Now stall.
+      bytes_read = 0;
+      callback_ = callback;
+      return true;
+    }
+
+    if (offset_ < size) {
+      // Write up to |write_size_| bytes.
+      int transfer_size =
+          std::min(bytes_to_read, std::min(static_cast<int>(write_size_),
+                                           static_cast<int>(size - offset_)));
+      memcpy(data_out, content_.c_str() + offset_, transfer_size);
+      offset_ += transfer_size;
+
+      bytes_read = transfer_size;
+      return true;
+    }
+
+    return false;
+  }
+
+ protected:
+  std::string content_;
+  size_t offset_;
+  size_t write_size_;
+  CefRefPtr<CefCallback> callback_;
+
+  IMPLEMENT_REFCOUNTING(StalledSchemeHandler);
+};
+
+// Browser side.
+class CancelAfterNavTestHandler : public TestHandler {
+ public:
+  CancelAfterNavTestHandler()
+    : destroyed_(false) {}
+
+  void RunTest() override {
+    // Create the browser.
+    CreateBrowser(kCancelPageUrl);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
+                      CefRefPtr<CefFrame> frame,
+                      CefRefPtr<CefRequest> request,
+                      bool is_redirect) override {
+    EXPECT_TRUE(got_loading_state_changed_start_);
+    EXPECT_FALSE(got_before_browse_);
+    EXPECT_FALSE(got_get_resource_handler_);
+    EXPECT_FALSE(got_load_start_);
+    EXPECT_FALSE(got_cancel_load_);
+    EXPECT_FALSE(got_load_error_);
+    EXPECT_FALSE(got_load_end_);
+    EXPECT_FALSE(got_loading_state_changed_end_);
+
+    const std::string& url = request->GetURL();
+    EXPECT_STREQ(kCancelPageUrl, url.c_str());
+    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
+    EXPECT_TRUE(frame->IsMain());
+
+    got_before_browse_.yes();
+
+    return false;
+  }
+
+  CefRefPtr<CefResourceHandler> GetResourceHandler(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefRefPtr<CefRequest> request) override {
+    EXPECT_TRUE(got_loading_state_changed_start_);
+    EXPECT_TRUE(got_before_browse_);
+    EXPECT_FALSE(got_get_resource_handler_);
+    EXPECT_FALSE(got_load_start_);
+    EXPECT_FALSE(got_cancel_load_);
+    EXPECT_FALSE(got_load_error_);
+    EXPECT_FALSE(got_load_end_);
+    EXPECT_FALSE(got_loading_state_changed_end_);
+
+    const std::string& url = request->GetURL();
+    EXPECT_STREQ(kCancelPageUrl, url.c_str());
+    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
+    EXPECT_TRUE(frame->IsMain());
+
+    got_get_resource_handler_.yes();
+
+    CefPostDelayedTask(TID_UI,
+        base::Bind(&CancelAfterNavTestHandler::CancelLoad, this), 100);
+
+    return new StalledSchemeHandler();
+  }
+
+  void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
+    EXPECT_TRUE(got_loading_state_changed_start_);
+    EXPECT_TRUE(got_before_browse_);
+    EXPECT_TRUE(got_get_resource_handler_);
+    EXPECT_FALSE(got_load_start_);
+    EXPECT_FALSE(got_cancel_load_);
+    EXPECT_FALSE(got_load_error_);
+    EXPECT_FALSE(got_load_end_);
+    EXPECT_FALSE(got_loading_state_changed_end_);
+
+    const std::string& url = frame->GetURL();
+    EXPECT_STREQ(kCancelPageUrl, url.c_str());
+    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
+    EXPECT_TRUE(frame->IsMain());
+
+    got_load_start_.yes();
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    EXPECT_TRUE(got_loading_state_changed_start_);
+    EXPECT_TRUE(got_before_browse_);
+    EXPECT_TRUE(got_get_resource_handler_);
+    EXPECT_TRUE(got_load_start_);
+    EXPECT_TRUE(got_cancel_load_);
+    EXPECT_TRUE(got_load_error_);
+    EXPECT_FALSE(got_load_end_);
+    EXPECT_FALSE(got_loading_state_changed_end_);
+
+    const std::string& url = frame->GetURL();
+    EXPECT_STREQ(kCancelPageUrl, url.c_str());
+    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
+    EXPECT_TRUE(frame->IsMain());
+
+    got_load_end_.yes();
+    DestroyTestIfDone();
+  }
+
+  void OnLoadError(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   ErrorCode errorCode,
+                   const CefString& errorText,
+                   const CefString& failedUrl) override {
+    EXPECT_TRUE(got_loading_state_changed_start_);
+    EXPECT_TRUE(got_before_browse_);
+    EXPECT_TRUE(got_get_resource_handler_);
+    EXPECT_TRUE(got_load_start_);
+    EXPECT_TRUE(got_cancel_load_);
+    EXPECT_FALSE(got_load_error_);
+    EXPECT_FALSE(got_load_end_);
+    EXPECT_FALSE(got_loading_state_changed_end_);
+
+    const std::string& url = failedUrl;
+    EXPECT_STREQ(kCancelPageUrl, url.c_str());
+    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
+    EXPECT_TRUE(frame->IsMain());
+
+    got_load_error_.yes();
+  }
+
+  void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+                            bool isLoading,
+                            bool canGoBack,
+                            bool canGoForward) override {
+    const std::string& url = browser->GetMainFrame()->GetURL();
+    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
+
+    if (isLoading) {
+      EXPECT_FALSE(got_loading_state_changed_start_);
+      EXPECT_FALSE(got_before_browse_);
+      EXPECT_FALSE(got_get_resource_handler_);
+      EXPECT_FALSE(got_load_start_);
+      EXPECT_FALSE(got_cancel_load_);
+      EXPECT_FALSE(got_load_error_);
+      EXPECT_FALSE(got_load_end_);
+      EXPECT_FALSE(got_loading_state_changed_end_);
+
+      EXPECT_TRUE(url.empty());
+
+      got_loading_state_changed_start_.yes();
+    } else {
+      EXPECT_TRUE(got_loading_state_changed_start_);
+      EXPECT_TRUE(got_before_browse_);
+      EXPECT_TRUE(got_get_resource_handler_);
+      EXPECT_TRUE(got_load_start_);
+      EXPECT_TRUE(got_cancel_load_);
+      EXPECT_TRUE(got_load_error_);
+      EXPECT_TRUE(got_load_end_);
+      EXPECT_FALSE(got_loading_state_changed_end_);
+
+      EXPECT_STREQ(kCancelPageUrl, url.c_str());
+
+      got_loading_state_changed_end_.yes();
+      DestroyTestIfDone();
+    }
+  }
+
+ private:
+  void CancelLoad() {
+    got_cancel_load_.yes();
+    GetBrowser()->StopLoad();
+  }
+
+  void DestroyTestIfDone() {
+    if (got_loading_state_changed_end_ && got_load_end_)
+        DestroyTest();
+  }
+
+  void DestroyTest() override {
+    if (destroyed_)
+      return;
+    destroyed_ = true;
+
+    EXPECT_TRUE(got_loading_state_changed_start_);
+    EXPECT_TRUE(got_before_browse_);
+    EXPECT_TRUE(got_get_resource_handler_);
+    EXPECT_TRUE(got_load_start_);
+    EXPECT_TRUE(got_cancel_load_);
+    EXPECT_TRUE(got_load_error_);
+    EXPECT_TRUE(got_load_end_);
+    EXPECT_TRUE(got_loading_state_changed_end_);
+
+    TestHandler::DestroyTest();
+  }
+
+  bool destroyed_;
+
+  TrackCallback got_loading_state_changed_start_;
+  TrackCallback got_before_browse_;
+  TrackCallback got_get_resource_handler_;
+  TrackCallback got_load_start_;
+  TrackCallback got_cancel_load_;
+  TrackCallback got_load_error_;
+  TrackCallback got_load_end_;
+  TrackCallback got_loading_state_changed_end_;
+
+  IMPLEMENT_REFCOUNTING(CancelAfterNavTestHandler);
+};
+
+}  // namespace
+
+// Test that navigation canceled after commit calls everything.
+TEST(NavigationTest, CancelAfterCommit) {
+  CefRefPtr<CancelAfterNavTestHandler> handler =
+      new CancelAfterNavTestHandler();
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }

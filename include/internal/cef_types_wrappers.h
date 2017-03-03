@@ -509,18 +509,10 @@ struct CefPopupFeaturesTraits {
     s->resizable = true;
   }
 
-  static inline void clear(struct_type* s) {
-    if (s->additionalFeatures)
-      cef_string_list_free(s->additionalFeatures);
-  }
+  static inline void clear(struct_type* s) {}
 
   static inline void set(const struct_type* src, struct_type* target,
       bool copy) {
-    if (target->additionalFeatures)
-      cef_string_list_free(target->additionalFeatures);
-    target->additionalFeatures = src->additionalFeatures ?
-        cef_string_list_copy(src->additionalFeatures) : NULL;
-
     target->x = src->x;
     target->xSet = src->xSet;
     target->y = src->y;

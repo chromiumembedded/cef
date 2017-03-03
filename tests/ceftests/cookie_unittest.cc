@@ -1339,5 +1339,5 @@ void RegisterCookieCustomSchemes(
       CefRawPtr<CefSchemeRegistrar> registrar,
       std::vector<CefString>& cookiable_schemes) {
   // Used by GetCookieManagerCustom test.
-  registrar->AddCustomScheme("ccustom", true, false, false, false, true);
+  registrar->AddCustomScheme("ccustom", true, false, false, false, true, false);
 }

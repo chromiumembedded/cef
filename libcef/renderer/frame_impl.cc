@@ -168,7 +168,8 @@ void CefFrameImpl::ExecuteJavaScript(const CefString& jsCode,
   if (frame_) {
     GURL gurl = GURL(scriptUrl.ToString());
     frame_->executeScript(
-        blink::WebScriptSource(jsCode.ToString16(), gurl, startLine));
+        blink::WebScriptSource(WebString::fromUTF16(jsCode.ToString16()), gurl,
+                               startLine));
   }
 }
 
@@ -193,7 +194,7 @@ CefString CefFrameImpl::GetName() {
   CEF_REQUIRE_RT_RETURN(name);
 
   if (frame_)
-    name = frame_->uniqueName();
+    name = frame_->uniqueName().utf16();
   return name;
 }
 

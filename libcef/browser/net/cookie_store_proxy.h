@@ -39,7 +39,6 @@ class CefCookieStoreProxy : public net::CookieStore {
       bool secure,
       bool http_only,
       net::CookieSameSite same_site,
-      bool enforce_strict_secure,
       net::CookiePriority priority,
       const SetCookiesCallback& callback) override;
   void GetCookiesWithOptionsAsync(

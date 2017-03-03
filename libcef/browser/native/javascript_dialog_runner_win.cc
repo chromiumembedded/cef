@@ -27,7 +27,7 @@ INT_PTR CALLBACK CefJavaScriptDialogRunnerWin::DialogProc(
           reinterpret_cast<CefJavaScriptDialogRunnerWin*>(lparam);
       owner->dialog_win_ = dialog;
       SetDlgItemText(dialog, IDC_DIALOGTEXT, owner->message_text_.c_str());
-      if (owner->message_type_ == content::JAVASCRIPT_MESSAGE_TYPE_PROMPT)
+      if (owner->message_type_ == content::JAVASCRIPT_DIALOG_TYPE_PROMPT)
         SetDlgItemText(dialog, IDC_PROMPTEDIT,
                        owner->default_prompt_text_.c_str());
       break;
@@ -57,7 +57,7 @@ INT_PTR CALLBACK CefJavaScriptDialogRunnerWin::DialogProc(
         case IDOK:
           finish = true;
           result = true;
-          if (owner->message_type_ == content::JAVASCRIPT_MESSAGE_TYPE_PROMPT) {
+          if (owner->message_type_ == content::JAVASCRIPT_DIALOG_TYPE_PROMPT) {
             size_t length =
                 GetWindowTextLength(GetDlgItem(dialog, IDC_PROMPTEDIT)) + 1;
             if (length > 1) {
@@ -95,7 +95,7 @@ CefJavaScriptDialogRunnerWin::~CefJavaScriptDialogRunnerWin() {
 
 void CefJavaScriptDialogRunnerWin::Run(
     CefBrowserHostImpl* browser,
-    content::JavaScriptMessageType message_type,
+    content::JavaScriptDialogType message_type,
     const base::string16& display_url,
     const base::string16& message_text,
     const base::string16& default_prompt_text,
@@ -111,11 +111,11 @@ void CefJavaScriptDialogRunnerWin::Run(
   hook_installed_ = true;
 
   int dialog_type;
-  if (message_type == content::JAVASCRIPT_MESSAGE_TYPE_ALERT)
+  if (message_type == content::JAVASCRIPT_DIALOG_TYPE_ALERT)
     dialog_type = IDD_ALERT;
-  else if (message_type == content::JAVASCRIPT_MESSAGE_TYPE_CONFIRM)
+  else if (message_type == content::JAVASCRIPT_DIALOG_TYPE_CONFIRM)
     dialog_type = IDD_CONFIRM;
-  else  // JAVASCRIPT_MESSAGE_TYPE_PROMPT
+  else  // JAVASCRIPT_DIALOG_TYPE_PROMPT
     dialog_type = IDD_PROMPT;
 
   base::FilePath file_path;

@@ -1,8 +1,8 @@
 diff --git resource_ids resource_ids
-index d454de7..42e591a 100644
+index 4e3fd2d..447c1f5 100644
 --- resource_ids
 +++ resource_ids
-@@ -355,5 +355,12 @@
+@@ -361,5 +361,12 @@
    # Thinking about appending to the end?
    # Please read the header and find the right section above instead.
  

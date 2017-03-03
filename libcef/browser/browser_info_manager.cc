@@ -23,35 +23,26 @@
 
 namespace {
 
-void TranslatePopupFeatures(const blink::WebWindowFeatures& webKitFeatures,
+void TranslatePopupFeatures(const blink::mojom::WindowFeatures& webKitFeatures,
                             CefPopupFeatures& features) {
   features.x = static_cast<int>(webKitFeatures.x);
-  features.xSet = webKitFeatures.xSet;
+  features.xSet = webKitFeatures.has_x;
   features.y = static_cast<int>(webKitFeatures.y);
-  features.ySet = webKitFeatures.ySet;
+  features.ySet = webKitFeatures.has_y;
   features.width = static_cast<int>(webKitFeatures.width);
-  features.widthSet = webKitFeatures.widthSet;
+  features.widthSet = webKitFeatures.has_width;
   features.height = static_cast<int>(webKitFeatures.height);
-  features.heightSet =  webKitFeatures.heightSet;
+  features.heightSet =  webKitFeatures.has_height;
 
-  features.menuBarVisible =  webKitFeatures.menuBarVisible;
-  features.statusBarVisible =  webKitFeatures.statusBarVisible;
-  features.toolBarVisible =  webKitFeatures.toolBarVisible;
-  features.locationBarVisible =  webKitFeatures.locationBarVisible;
-  features.scrollbarsVisible =  webKitFeatures.scrollbarsVisible;
+  features.menuBarVisible =  webKitFeatures.menu_bar_visible;
+  features.statusBarVisible =  webKitFeatures.status_bar_visible;
+  features.toolBarVisible =  webKitFeatures.tool_bar_visible;
+  features.locationBarVisible =  webKitFeatures.location_bar_visible;
+  features.scrollbarsVisible =  webKitFeatures.scrollbars_visible;
   features.resizable =  webKitFeatures.resizable;
 
   features.fullscreen =  webKitFeatures.fullscreen;
   features.dialog =  webKitFeatures.dialog;
-  features.additionalFeatures = NULL;
-  if (webKitFeatures.additionalFeatures.size() > 0)
-     features.additionalFeatures = cef_string_list_alloc();
-
-  CefString str;
-  for (unsigned int i = 0; i < webKitFeatures.additionalFeatures.size(); ++i) {
-    str = base::string16(webKitFeatures.additionalFeatures[i]);
-    cef_string_list_append(features.additionalFeatures, str.GetStruct());
-  }
 }
 
 CefBrowserInfoManager* g_info_manager = nullptr;
@@ -142,7 +133,7 @@ bool CefBrowserInfoManager::CanCreateWindow(
     const content::Referrer& referrer,
     const std::string& frame_name,
     WindowOpenDisposition disposition,
-    const blink::WebWindowFeatures& features,
+    const blink::mojom::WindowFeatures& features,
     bool user_gesture,
     bool opener_suppressed,
     int opener_render_process_id,

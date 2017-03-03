@@ -9,7 +9,7 @@
 
 #include "base/callback.h"
 #include "base/strings/string16.h"
-#include "content/public/common/javascript_message_type.h"
+#include "content/public/common/javascript_dialog_type.h"
 
 class CefBrowserHostImpl;
 
@@ -22,7 +22,7 @@ class CefJavaScriptDialogRunner {
   // Run the dialog. Execute |callback| on completion.
   virtual void Run(
       CefBrowserHostImpl* browser,
-      content::JavaScriptMessageType message_type,
+      content::JavaScriptDialogType message_type,
       const base::string16& display_url,
       const base::string16& message_text,
       const base::string16& default_prompt_text,

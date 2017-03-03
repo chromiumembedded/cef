@@ -39,6 +39,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   content::BackgroundSyncContext* GetBackgroundSyncContext() override;
   content::PaymentAppContextImpl* GetPaymentAppContext() override;
   content::BroadcastChannelProvider* GetBroadcastChannelProvider() override;
+  content::BluetoothAllowedDevicesMap* GetBluetoothAllowedDevicesMap() override;
   void ClearDataForOrigin(uint32_t remove_mask,
                           uint32_t quota_storage_remove_mask,
                           const GURL& storage_origin,
@@ -59,6 +60,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
                  const base::Time end,
                  const base::Closure& callback) override;
   void Flush() override;
+  void ClearBluetoothAllowedDevicesMapForTesting() override;
   void Bind(
       mojo::InterfaceRequest<content::mojom::StoragePartitionService> request)
       override;

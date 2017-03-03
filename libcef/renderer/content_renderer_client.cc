@@ -151,8 +151,9 @@ void AppendParams(const std::vector<base::string16>& additional_names,
   }
 
   for (size_t i = 0; i < additional_names.size(); ++i) {
-    names[existing_size + i] = additional_names[i];
-    values[existing_size + i] = additional_values[i];
+    names[existing_size + i] = blink::WebString::fromUTF16(additional_names[i]);
+    values[existing_size + i] =
+        blink::WebString::fromUTF16(additional_values[i]);
   }
 
   existing_names->swap(names);

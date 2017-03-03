@@ -280,7 +280,7 @@ void SetBool(CommandLinePrefStore* prefs,
              const std::string& key,
              bool value) {
   prefs->SetValue(key,
-      base::WrapUnique(new base::FundamentalValue(value)),
+      base::WrapUnique(new base::Value(value)),
       WriteablePrefStore::DEFAULT_PREF_WRITE_FLAGS);
 }
 

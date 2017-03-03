@@ -1,8 +1,8 @@
 diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
-index 11d980e..a87fb7e 100644
+index a5721cf..d89dcff 100644
 --- Source/web/ChromeClientImpl.cpp
 +++ Source/web/ChromeClientImpl.cpp
-@@ -895,7 +895,7 @@ bool ChromeClientImpl::hasOpenedPopup() const {
+@@ -898,7 +898,7 @@ bool ChromeClientImpl::hasOpenedPopup() const {
  PopupMenu* ChromeClientImpl::openPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
    notifyPopupOpeningObservers();
@@ -12,10 +12,10 @@ index 11d980e..a87fb7e 100644
  
    DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index 6a7688b..7ca2fab 100644
+index 8a38208..90784a8 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
-@@ -358,6 +358,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
+@@ -357,6 +357,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
        m_enableFakePageScaleAnimationForTesting(false),
        m_fakePageScaleAnimationPageScaleFactor(0),
        m_fakePageScaleAnimationUseAnchor(false),
@@ -39,10 +39,10 @@ index 6a7688b..7ca2fab 100644
  
  void WebViewImpl::setBackgroundColorOverride(WebColor color) {
 diff --git Source/web/WebViewImpl.h Source/web/WebViewImpl.h
-index e4ad02f..8bfaa1c 100644
+index f94b695..4828185 100644
 --- Source/web/WebViewImpl.h
 +++ Source/web/WebViewImpl.h
-@@ -371,7 +371,8 @@ class WEB_EXPORT WebViewImpl final
+@@ -369,7 +369,8 @@ class WEB_EXPORT WebViewImpl final
  
    // Returns true if popup menus should be rendered by the browser, false if
    // they should be rendered by WebKit (which is the default).
@@ -52,7 +52,7 @@ index e4ad02f..8bfaa1c 100644
  
    bool shouldAutoResize() const { return m_shouldAutoResize; }
  
-@@ -651,6 +652,8 @@ class WEB_EXPORT WebViewImpl final
+@@ -652,6 +653,8 @@ class WEB_EXPORT WebViewImpl final
    float m_fakePageScaleAnimationPageScaleFactor;
    bool m_fakePageScaleAnimationUseAnchor;
  
@@ -62,10 +62,10 @@ index e4ad02f..8bfaa1c 100644
    TransformationMatrix m_deviceEmulationTransform;
  
 diff --git public/web/WebView.h public/web/WebView.h
-index 061f017..9fd430e 100644
+index 92bdf07..1a813a9 100644
 --- public/web/WebView.h
 +++ public/web/WebView.h
-@@ -404,6 +404,7 @@ class WebView : protected WebWidget {
+@@ -402,6 +402,7 @@ class WebView : protected WebWidget {
  
    // Sets whether select popup menus should be rendered by the browser.
    BLINK_EXPORT static void setUseExternalPopupMenus(bool);
