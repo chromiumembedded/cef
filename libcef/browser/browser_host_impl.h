@@ -448,38 +448,21 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // content::WebContentsObserver methods.
   using content::WebContentsObserver::BeforeUnloadFired;
   using content::WebContentsObserver::WasHidden;
-  void RenderFrameCreated(
-      content::RenderFrameHost* render_frame_host) override;
-  void RenderFrameDeleted(
-      content::RenderFrameHost* render_frame_host) override;
-  void RenderViewCreated(
-      content::RenderViewHost* render_view_host) override;
-  void RenderViewDeleted(
-      content::RenderViewHost* render_view_host) override;
+  void RenderFrameCreated(content::RenderFrameHost* render_frame_host) override;
+  void RenderFrameDeleted(content::RenderFrameHost* render_frame_host) override;
+  void RenderViewCreated(content::RenderViewHost* render_view_host) override;
+  void RenderViewDeleted(content::RenderViewHost* render_view_host) override;
   void RenderViewReady() override;
   void RenderProcessGone(base::TerminationStatus status) override;
-  void DidCommitProvisionalLoadForFrame(
-      content::RenderFrameHost* render_frame_host,
-      const GURL& url,
-      ui::PageTransition transition_type) override;
-  void DidFailProvisionalLoad(
-      content::RenderFrameHost* render_frame_host,
-      const GURL& validated_url,
-      int error_code,
-      const base::string16& error_description,
-      bool was_ignored_by_handler) override;
+  void DidFinishNavigation(
+      content::NavigationHandle* navigation_handle) override;
   void DocumentAvailableInMainFrame() override;
   void DidFailLoad(content::RenderFrameHost* render_frame_host,
                    const GURL& validated_url,
                    int error_code,
                    const base::string16& error_description,
                    bool was_ignored_by_handler) override;
-  void FrameDeleted(
-      content::RenderFrameHost* render_frame_host) override;
-  void DidNavigateAnyFrame(
-      content::RenderFrameHost* render_frame_host,
-      const content::LoadCommittedDetails& details,
-      const content::FrameNavigateParams& params) override;
+  void FrameDeleted(content::RenderFrameHost* render_frame_host) override;
   void TitleWasSet(content::NavigationEntry* entry, bool explicit_set) override;
   void PluginCrashed(const base::FilePath& plugin_path,
                      base::ProcessId plugin_pid) override;
@@ -554,12 +537,10 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void OnAddressChange(CefRefPtr<CefFrame> frame,
                        const GURL& url);
   void OnLoadStart(CefRefPtr<CefFrame> frame,
-                   const GURL& url,
                    ui::PageTransition transition_type);
   void OnLoadError(CefRefPtr<CefFrame> frame,
                    const GURL& url,
-                   int error_code,
-                   const base::string16& error_description);
+                   int error_code);
   void OnLoadEnd(CefRefPtr<CefFrame> frame,
                  const GURL& url,
                  int http_status_code);

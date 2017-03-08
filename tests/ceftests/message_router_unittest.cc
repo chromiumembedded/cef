@@ -1058,6 +1058,8 @@ class MultiQueryManager : public CefMessageRouterBrowserSide::Handler {
 
   virtual ~MultiQueryManager() {}
 
+  std::string label() const { return label_; }
+
   void AddObserver(Observer* observer) {
     EXPECT_FALSE(running_);
     observer_set_.insert(observer);
@@ -2274,15 +2276,12 @@ class MultiQueryManagerMap :
   MultiQueryManager* CreateManager(const std::string& url, bool synchronous) {
     EXPECT_FALSE(finalized_);
 
-    // The sub-frame resource should not already exist.
-    URLManagerMap::const_iterator it = manager_map_.find(url);
-    EXPECT_EQ(it, manager_map_.end());
-
     MultiQueryManager* manager =
         new MultiQueryManager(url, synchronous,
             static_cast<int>(manager_map_.size()) * 1000);
     manager->AddObserver(this);
-    manager_map_.insert(std::make_pair(url, manager));
+    all_managers_.push_back(manager);
+    pending_managers_.push_back(manager);
 
     return manager;
   }
@@ -2298,11 +2297,10 @@ class MultiQueryManagerMap :
 
     std::string html = "<html><body>\n";
 
-    URLManagerMap::const_iterator it = manager_map_.begin();
-    for (; it != manager_map_.end(); ++it) {
-      const std::string& name = GetNameForURL(it->first);
-      html += "<iframe id=\"" + name + "\" src=\"" + it->first +
-              "\"></iframe>\n";
+    for (size_t i = 0; i < all_managers_.size(); ++i) {
+      const std::string& url = all_managers_[i]->label();
+      const std::string& name = GetNameForURL(url);
+      html += "<iframe id=\"" + name + "\" src=\"" + url + "\"></iframe>\n";
     }
 
     html += "</body></html>";
@@ -2347,7 +2345,7 @@ class MultiQueryManagerMap :
   }
 
   void OnManualQueriesCompleted(MultiQueryManager* manager) override {
-    const int size = static_cast<int>(manager_map_.size());
+    const int size = static_cast<int>(all_managers_.size());
     EXPECT_LT(manual_complete_count_, size);
     if (++manual_complete_count_ == size) {
       running_ = false;
@@ -2367,7 +2365,7 @@ class MultiQueryManagerMap :
   }
 
   void OnAllQueriesCompleted(MultiQueryManager* manager) override {
-    const int size = static_cast<int>(manager_map_.size());
+    const int size = static_cast<int>(all_managers_.size());
     EXPECT_LT(total_complete_count_, size);
     if (++total_complete_count_ == size) {
       running_ = false;
@@ -2389,9 +2387,8 @@ class MultiQueryManagerMap :
   bool AllComplete() const {
     EXPECT_TRUE(finalized_);
 
-    URLManagerMap::const_iterator it = manager_map_.begin();
-    for (; it != manager_map_.end(); ++it) {
-      if (!it->second->IsAllComplete())
+    for (size_t i = 0; i < all_managers_.size(); ++i) {
+      if (!all_managers_[i]->IsAllComplete())
         return false;
     }
     return true;
@@ -2399,53 +2396,82 @@ class MultiQueryManagerMap :
 
   void AssertAllComplete() const {
     EXPECT_TRUE(finalized_);
+    EXPECT_TRUE(pending_managers_.empty());
     EXPECT_FALSE(running_);
 
-    URLManagerMap::const_iterator it = manager_map_.begin();
-    for (; it != manager_map_.end(); ++it)
-      it->second->AssertAllComplete();
+    for (size_t i = 0; i < all_managers_.size(); ++i) {
+      all_managers_[i]->AssertAllComplete();
+    }
   }
 
   bool HasAutoQueries() const {
-    if (manager_map_.empty())
-      return false;
-
-    URLManagerMap::const_iterator it = manager_map_.begin();
-    for (; it != manager_map_.end(); ++it) {
-      if (it->second->HasAutoQueries())
+    for (size_t i = 0; i < all_managers_.size(); ++i) {
+      if (all_managers_[i]->HasAutoQueries())
         return true;
     }
 
     return false;
   }
 
+  void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame) {
+    if (pending_managers_.empty())
+      return;
+
+    const std::string& expected_url = frame->GetURL();
+    MultiQueryManager* next_manager = nullptr;
+
+    // Find the pending manager that matches the expected URL.
+    ManagerList::iterator it = pending_managers_.begin();
+    for (; it != pending_managers_.end(); ++it) {
+      if ((*it)->label() == expected_url) {
+        next_manager = *it;
+        pending_managers_.erase(it);
+        break;
+      }
+    }
+
+    EXPECT_TRUE(next_manager);
+
+    const int browser_id = browser->GetIdentifier();
+    // Always use the same ID for the main frame.
+    const int64 frame_id = frame->IsMain() ? -1 : frame->GetIdentifier();
+
+    const std::pair<int, int64>& id = std::make_pair(browser_id, frame_id);
+
+    // Remove the currently active manager, if any.
+    ManagerMap::iterator it2 = manager_map_.find(id);
+    if (it2 != manager_map_.end())
+      manager_map_.erase(it2);
+
+    // Add the next manager to the active map.
+    manager_map_.insert(std::make_pair(id, next_manager));
+  }
+
   MultiQueryManager* GetManager(CefRefPtr<CefBrowser> browser,
                                 CefRefPtr<CefFrame> frame) const {
-    const std::string& url = frame->GetURL();
-    URLManagerMap::const_iterator it = manager_map_.find(url);
-    EXPECT_NE(it, manager_map_.end());
+    const int browser_id = browser->GetIdentifier();
+    // Always use the same ID for the main frame.
+    const int64 frame_id = frame->IsMain() ? -1 : frame->GetIdentifier();
+
+    // Find the manager in the active map.
+    ManagerMap::const_iterator it =
+        manager_map_.find(std::make_pair(browser_id, frame_id));
+    EXPECT_NE(it, manager_map_.end()) <<
+        "browser_id = " << browser_id << ", frame_id = " << frame_id;
     return it->second;
   }
 
   void RemoveAllManagers() {
-    if (manager_map_.empty())
+    EXPECT_TRUE(pending_managers_.empty());
+    if (all_managers_.empty())
       return;
 
-    URLManagerMap::const_iterator it = manager_map_.begin();
-    for (; it != manager_map_.end(); ++it)
-      delete it->second;
-    manager_map_.clear();
-  }
-
-  std::string GetURLForManager(MultiQueryManager* manager) const {
-    if (!manager_map_.empty()) {
-      URLManagerMap::const_iterator it = manager_map_.begin();
-      for (; it != manager_map_.end(); ++it) {
-        if (it->second == manager)
-          return it->first;
-      }
+    for (size_t i = 0; i < all_managers_.size(); ++i) {
+      delete all_managers_[i];
     }
-    return std::string();
+    all_managers_.clear();
+    manager_map_.clear();
   }
 
   static std::string GetNameForURL(const std::string& url) {
@@ -2457,9 +2483,16 @@ class MultiQueryManagerMap :
   }
 
  private:
-  // Map of page URL to MultiQueryManager instance.
-  typedef std::map<std::string, MultiQueryManager*> URLManagerMap;
-  URLManagerMap manager_map_;
+  typedef std::vector<MultiQueryManager*> ManagerList;
+  // Map of (browser ID, frame ID) to manager.
+  typedef std::map<std::pair<int, int64>, MultiQueryManager*> ManagerMap;
+
+  // All managers that have been created.
+  ManagerList all_managers_;
+  // Managers that have not yet associated with a frame.
+  ManagerList pending_managers_;
+  // Managers that are currently active.
+  ManagerMap manager_map_;
 
   typedef std::set<Observer*> ObserverSet;
   ObserverSet observer_set_;
@@ -2499,6 +2532,14 @@ class MultiQueryMultiFrameTestHandler :
 
   std::string GetMainHTML() override {
     return manager_map_.GetMainHTML();
+  }
+
+  void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
+    AssertMainBrowser(browser);
+    if (!frame->IsMain())
+      manager_map_.OnLoadStart(browser, frame);
   }
 
   void OnNotify(CefRefPtr<CefBrowser> browser,
@@ -2635,6 +2676,12 @@ class MultiQueryMultiLoadTestHandler :
       : some_(some),
         synchronous_(synchronous) {
     manager_map_.AddObserver(this);
+  }
+
+  void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
+    manager_map_.OnLoadStart(browser, frame);
   }
 
   void OnNotify(CefRefPtr<CefBrowser> browser,
@@ -2797,7 +2844,7 @@ class MultiQueryMultiNavigateTestHandler : public MultiQueryMultiLoadTestHandler
   }
 
   void OnManualQueriesCompleted(MultiQueryManager* manager) override {
-    const std::string& url = manager_map_.GetURLForManager(manager);
+    const std::string& url = manager->label();
     if (url == url1_)  // 2. Load the 2nd url.
       GetBrowser()->GetMainFrame()->LoadURL(url2_);
     else if (url == url2_)  // 3. Load the 3rd url.
