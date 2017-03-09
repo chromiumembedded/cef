@@ -1,0 +1,21 @@
+diff --git a/DEPS b/DEPS
+index 849d1f7..c5297af 100644
+--- a/DEPS
++++ b/DEPS
+@@ -1166,12 +1166,12 @@ recursedeps = [
+   'src/buildtools',
+   'src/third_party/android_tools',
+   [
+-    'DEPS.chromium',
+-    'src/third_party/angle'
++    'src/third_party/angle',
++    'DEPS.chromium'
+   ],
+   [
+-    'DEPS',
+-    'src/third_party/swiftshader'
++    'src/third_party/swiftshader',
++    'DEPS'
+   ]
+ ]
+ 

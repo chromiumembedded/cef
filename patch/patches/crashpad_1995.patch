@@ -31,7 +31,7 @@ index d2ce8b9..e4fc7c6 100644
      cflags = [ "/wd4201" ]
    }
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 4750471..a341ac0 100644
+index a53beea..703f779 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -4,6 +4,8 @@
@@ -52,7 +52,7 @@ index 4750471..a341ac0 100644
    // The following keys may be chunked by the underlying crash logging system,
    // but ultimately constitute a single key-value pair.
    //
-@@ -252,10 +254,16 @@ size_t RegisterChromeCrashKeys() {
+@@ -251,10 +253,16 @@ size_t RegisterChromeCrashKeys() {
  
    // This dynamic set of keys is used for sets of key value pairs when gathering
    // a collection of data, like command line switches or extension IDs.
@@ -71,7 +71,7 @@ index 4750471..a341ac0 100644
  
    // Register the extension IDs.
    {
-@@ -289,7 +297,7 @@ size_t RegisterChromeCrashKeys() {
+@@ -288,7 +296,7 @@ size_t RegisterChromeCrashKeys() {
    return base::debug::InitCrashKeys(&keys.at(0), keys.size(), kChunkMaxLength);
  }
  
@@ -80,7 +80,7 @@ index 4750471..a341ac0 100644
    static const char* const kIgnoreSwitches[] = {
      switches::kEnableLogging,
      switches::kFlagSwitchesBegin,
-@@ -345,7 +353,7 @@ static bool IsBoringSwitch(const std::string& flag) {
+@@ -344,7 +352,7 @@ static bool IsBoringSwitch(const std::string& flag) {
  }
  
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
@@ -203,7 +203,7 @@ index c658fa9..8c4a145 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index 3c31d76..26a2602 100644
+index 722ce16..711f2f2 100644
 --- components/crash/content/app/breakpad_linux.cc
 +++ components/crash/content/app/breakpad_linux.cc
 @@ -29,6 +29,7 @@
@@ -222,7 +222,7 @@ index 3c31d76..26a2602 100644
  #endif
  
  bool g_is_crash_reporter_enabled = false;
-@@ -685,7 +687,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
+@@ -688,7 +690,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
    info.process_type_length = 7;
    info.distro = base::g_linux_distro;
    info.distro_length = my_strlen(base::g_linux_distro);
@@ -231,7 +231,7 @@ index 3c31d76..26a2602 100644
    info.process_start_time = g_process_start_time;
    info.oom_size = base::g_oom_size;
    info.pid = g_pid;
-@@ -1341,7 +1343,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
+@@ -1359,7 +1361,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
      header_content_encoding,
      header_content_type,
      post_file,
@@ -240,7 +240,7 @@ index 3c31d76..26a2602 100644
      "--timeout=10",  // Set a timeout so we don't hang forever.
      "--tries=1",     // Don't retry if the upload fails.
      "-O",  // Output reply to the file descriptor path.
-@@ -1680,10 +1682,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1698,10 +1700,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
      GetCrashReporterClient()->GetProductNameAndVersion(&product_name, &version);
  
      writer.AddBoundary();
@@ -262,7 +262,7 @@ index 3c31d76..26a2602 100644
      if (info.pid > 0) {
        char pid_value_buf[kUint64StringSize];
        uint64_t pid_value_len = my_uint64_len(info.pid);
-@@ -1977,6 +1988,17 @@ void InitCrashReporter(const std::string& process_type) {
+@@ -1999,6 +2010,17 @@ void InitCrashReporter(const std::string& process_type) {
    PostEnableBreakpadInitialization();
  }
  
@@ -281,7 +281,7 @@ index 3c31d76..26a2602 100644
  void InitNonBrowserCrashReporterForAndroid(const std::string& process_type) {
    SanitizationInfo sanitization_info;
 diff --git components/crash/content/app/breakpad_linux.h components/crash/content/app/breakpad_linux.h
-index 3ef4e8a..d0a4b12 100644
+index 0160f62..b732498 100644
 --- components/crash/content/app/breakpad_linux.h
 +++ components/crash/content/app/breakpad_linux.h
 @@ -16,6 +16,9 @@ namespace breakpad {
@@ -292,10 +292,10 @@ index 3ef4e8a..d0a4b12 100644
 +void SetCrashServerURL(const std::string& url);
 +
  #if defined(OS_ANDROID)
- struct SanitizationInfo {
-   bool should_sanitize_dumps = false;
+ extern void InitCrashKeysForTesting();
+ 
 diff --git components/crash/content/app/crash_reporter_client.cc components/crash/content/app/crash_reporter_client.cc
-index fd88348..cbb9533 100644
+index eac090b..c6ca2d3 100644
 --- components/crash/content/app/crash_reporter_client.cc
 +++ components/crash/content/app/crash_reporter_client.cc
 @@ -88,11 +88,12 @@ int CrashReporterClient::GetResultCodeRespawnFailed() {
@@ -320,7 +320,7 @@ index fd88348..cbb9533 100644
  
  #if defined(OS_WIN)
  bool CrashReporterClient::GetCrashDumpLocation(base::string16* crash_dir) {
-@@ -141,6 +143,32 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
+@@ -149,6 +151,32 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
  }
  #endif
  
@@ -353,7 +353,7 @@ index fd88348..cbb9533 100644
  #if defined(OS_ANDROID)
  int CrashReporterClient::GetAndroidMinidumpDescriptor() {
    return 0;
-@@ -165,9 +193,4 @@ bool CrashReporterClient::ShouldEnableBreakpadMicrodumps() {
+@@ -173,9 +201,4 @@ bool CrashReporterClient::ShouldEnableBreakpadMicrodumps() {
  }
  #endif
  
@@ -364,7 +364,7 @@ index fd88348..cbb9533 100644
 -
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crash_reporter_client.h components/crash/content/app/crash_reporter_client.h
-index 513727c..aef4590 100644
+index ccc3048..663e880 100644
 --- components/crash/content/app/crash_reporter_client.h
 +++ components/crash/content/app/crash_reporter_client.h
 @@ -8,6 +8,7 @@
@@ -398,7 +398,7 @@ index 513727c..aef4590 100644
  
    // The location where minidump files should be written. Returns true if
    // |crash_dir| was set. Windows has to use base::string16 because this code
-@@ -176,6 +179,23 @@ class CrashReporterClient {
+@@ -181,6 +184,23 @@ class CrashReporterClient {
  
    // Returns true if breakpad should run in the given process type.
    virtual bool EnableBreakpadForProcess(const std::string& process_type);
