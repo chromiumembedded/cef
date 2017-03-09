@@ -325,10 +325,10 @@ index f592e1e..6bf0f4d 100644
    base::WeakPtrFactory<DesktopWindowTreeHostX11> weak_factory_;
  
 diff --git ui/views/widget/widget.cc ui/views/widget/widget.cc
-index 8b06275..45b100d 100644
+index 61469a8..e50efd3 100644
 --- ui/views/widget/widget.cc
 +++ ui/views/widget/widget.cc
-@@ -129,6 +129,7 @@ Widget::InitParams::InitParams(Type type)
+@@ -130,6 +130,7 @@ Widget::InitParams::InitParams(Type type)
        use_system_default_icon(false),
        show_state(ui::SHOW_STATE_DEFAULT),
        parent(nullptr),
@@ -336,7 +336,7 @@ index 8b06275..45b100d 100644
        native_widget(nullptr),
        desktop_window_tree_host(nullptr),
        layer_type(ui::LAYER_TEXTURED),
-@@ -296,7 +297,7 @@ void Widget::Init(const InitParams& in_params) {
+@@ -298,7 +299,7 @@ void Widget::Init(const InitParams& in_params) {
      params.name = params.delegate->GetContentsView()->GetClassName();
  
    params.child |= (params.type == InitParams::TYPE_CONTROL);
@@ -345,7 +345,7 @@ index 8b06275..45b100d 100644
  
    if (params.opacity == views::Widget::InitParams::INFER_OPACITY &&
        params.type != views::Widget::InitParams::TYPE_WINDOW &&
-@@ -360,7 +361,12 @@ void Widget::Init(const InitParams& in_params) {
+@@ -362,7 +363,12 @@ void Widget::Init(const InitParams& in_params) {
      }
    } else if (params.delegate) {
      SetContentsView(params.delegate->GetContentsView());
@@ -360,7 +360,7 @@ index 8b06275..45b100d 100644
    // This must come after SetContentsView() or it might not be able to find
    // the correct NativeTheme (on Linux). See http://crbug.com/384492
 diff --git ui/views/widget/widget.h ui/views/widget/widget.h
-index 2c5ba16..87046a0 100644
+index 5931af7..6d3c87d 100644
 --- ui/views/widget/widget.h
 +++ ui/views/widget/widget.h
 @@ -250,6 +250,7 @@ class VIEWS_EXPORT Widget : public internal::NativeWidgetDelegate,
