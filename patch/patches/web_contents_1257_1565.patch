@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 8800f75..edbd8eb 100644
+index 8800f75..6b047eb 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -1571,6 +1571,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
@@ -23,12 +23,15 @@ index 8800f75..edbd8eb 100644
  
    if (browser_plugin_guest_ && !GuestMode::IsCrossProcessFrameGuest(this)) {
      view_.reset(new WebContentsViewGuest(this, browser_plugin_guest_.get(),
-@@ -2093,6 +2100,12 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2093,6 +2100,15 @@ void WebContentsImpl::CreateNewWindow(
    create_params.renderer_initiated_creation =
        main_frame_route_id != MSG_ROUTING_NONE;
  
 +  if (delegate_) {
-+    delegate_->GetCustomWebContentsView(this, params.target_url,
++    delegate_->GetCustomWebContentsView(this,
++                                        params.target_url,
++                                        render_process_id,
++                                        params.opener_render_frame_id,
 +                                        &create_params.view,
 +                                        &create_params.delegate_view);
 +  }
@@ -36,7 +39,7 @@ index 8800f75..edbd8eb 100644
    WebContentsImpl* new_contents = NULL;
    if (!is_guest) {
      create_params.context = view_->GetNativeView();
-@@ -2122,7 +2135,7 @@ void WebContentsImpl::CreateNewWindow(
+@@ -2122,7 +2138,7 @@ void WebContentsImpl::CreateNewWindow(
        // TODO(brettw): It seems bogus that we have to call this function on the
        // newly created object and give it one of its own member variables.
        new_view->CreateViewForWidget(
@@ -45,7 +48,7 @@ index 8800f75..edbd8eb 100644
      }
      // Save the created window associated with the route so we can show it
      // later.
-@@ -4985,7 +4998,7 @@ NavigationEntry*
+@@ -4985,7 +5001,7 @@ NavigationEntry*
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =
@@ -97,7 +100,7 @@ index 5a509ef..981a0a5 100644
  
    // Creates a new WebContents.
 diff --git content/public/browser/web_contents_delegate.h content/public/browser/web_contents_delegate.h
-index 6f966c7..71f2f2e 100644
+index 6f966c7..391b9a0 100644
 --- content/public/browser/web_contents_delegate.h
 +++ content/public/browser/web_contents_delegate.h
 @@ -42,11 +42,13 @@ class ColorChooser;
@@ -114,13 +117,15 @@ index 6f966c7..71f2f2e 100644
  struct ColorSuggestion;
  struct ContextMenuParams;
  struct DropData;
-@@ -329,6 +331,12 @@ class CONTENT_EXPORT WebContentsDelegate {
+@@ -329,6 +331,14 @@ class CONTENT_EXPORT WebContentsDelegate {
        const std::string& partition_id,
        SessionStorageNamespace* session_storage_namespace);
  
 +  virtual void GetCustomWebContentsView(
 +      WebContents* web_contents,
 +      const GURL& target_url,
++      int opener_render_process_id,
++      int opener_render_frame_id,
 +      content::WebContentsView** view,
 +      content::RenderViewHostDelegateView** delegate_view) {}
 +

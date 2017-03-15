@@ -247,15 +247,14 @@ bool CefBrowserInfoManager::CanCreateWindow(
 }
 
 void CefBrowserInfoManager::GetCustomWebContentsView(
-    content::WebContents* web_contents,
     const GURL& target_url,
+    int opener_render_process_id,
+    int opener_render_frame_id,
     content::WebContentsView** view,
     content::RenderViewHostDelegateView** delegate_view) {
-  content::RenderFrameHost* host =
-      web_contents->GetRenderViewHost()->GetMainFrame();
   std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
       PopPendingPopup(CefBrowserInfoManager::PendingPopup::CAN_CREATE_WINDOW,
-                      host->GetProcess()->GetID(), host->GetRoutingID(),
+                      opener_render_process_id, opener_render_frame_id,
                       target_url);
   DCHECK(pending_popup.get());
   DCHECK(pending_popup->platform_delegate.get());
@@ -271,22 +270,16 @@ void CefBrowserInfoManager::GetCustomWebContentsView(
 }
 
 void CefBrowserInfoManager::WebContentsCreated(
-    content::WebContents* source_contents,
     const GURL& target_url,
-    content::WebContents* new_contents,
+    int opener_render_process_id,
+    int opener_render_frame_id,
     CefBrowserSettings& settings,
     CefRefPtr<CefClient>& client,
     std::unique_ptr<CefBrowserPlatformDelegate>& platform_delegate) {
-  DCHECK(source_contents);
-  DCHECK(new_contents);
-
-  content::RenderFrameHost* host =
-      source_contents->GetRenderViewHost()->GetMainFrame();
   std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup =
       PopPendingPopup(
           CefBrowserInfoManager::PendingPopup::GET_CUSTOM_WEB_CONTENTS_VIEW,
-          host->GetProcess()->GetID(), host->GetRoutingID(),
-          target_url);
+          opener_render_process_id, opener_render_frame_id, target_url);
   DCHECK(pending_popup.get());
   DCHECK(pending_popup->platform_delegate.get());
 

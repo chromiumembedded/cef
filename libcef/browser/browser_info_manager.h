@@ -75,17 +75,18 @@ class CefBrowserInfoManager : public content::RenderProcessHostObserver {
   // Called from CefBrowserHostImpl::GetCustomWebContentsView. See comments on
   // PendingPopup for more information.
   void GetCustomWebContentsView(
-    content::WebContents* web_contents,
     const GURL& target_url,
+    int opener_render_process_id,
+    int opener_render_frame_id,
     content::WebContentsView** view,
     content::RenderViewHostDelegateView** delegate_view);
 
   // Called from CefBrowserHostImpl::WebContentsCreated. See comments on
   // PendingPopup for more information.
   void WebContentsCreated(
-      content::WebContents* source_contents,
       const GURL& target_url,
-      content::WebContents* new_contents,
+      int opener_render_process_id,
+      int opener_render_frame_id,
       CefBrowserSettings& settings,
       CefRefPtr<CefClient>& client,
       std::unique_ptr<CefBrowserPlatformDelegate>& platform_delegate);
