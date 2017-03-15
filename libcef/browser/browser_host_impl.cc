@@ -2243,10 +2243,13 @@ bool CefBrowserHostImpl::CanDragEnter(
 void CefBrowserHostImpl::GetCustomWebContentsView(
     content::WebContents* web_contents,
     const GURL& target_url,
+    int opener_render_process_id,
+    int opener_render_frame_id,
     content::WebContentsView** view,
     content::RenderViewHostDelegateView** delegate_view) {
   CefBrowserInfoManager::GetInstance()->GetCustomWebContentsView(
-      web_contents, target_url, view, delegate_view);
+      target_url, opener_render_process_id, opener_render_frame_id, view,
+      delegate_view);
 }
 
 void CefBrowserHostImpl::WebContentsCreated(
@@ -2261,8 +2264,8 @@ void CefBrowserHostImpl::WebContentsCreated(
   std::unique_ptr<CefBrowserPlatformDelegate> platform_delegate;
 
   CefBrowserInfoManager::GetInstance()->WebContentsCreated(
-      source_contents, target_url, new_contents, settings, client,
-      platform_delegate);
+      target_url, opener_render_process_id, opener_render_frame_id, settings,
+      client, platform_delegate);
 
   scoped_refptr<CefBrowserInfo> info =
       CefBrowserInfoManager::GetInstance()->CreatePopupBrowserInfo(
