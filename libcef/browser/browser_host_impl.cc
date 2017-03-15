@@ -2503,7 +2503,12 @@ void CefBrowserHostImpl::RenderProcessGone(base::TerminationStatus status) {
 
 void CefBrowserHostImpl::DidFinishNavigation(
     content::NavigationHandle* navigation_handle) {
-  CHECK(navigation_handle->GetRenderFrameHost());
+  // This method may be called with a nullptr RenderFrameHost (RFH) when a
+  // provisional load is started. It should be called again with a non-nullptr
+  // RFH once the provisional load is committed or if the provisional load
+  // fails.
+  if (!navigation_handle->GetRenderFrameHost())
+    return;
 
   const net::Error error_code = navigation_handle->GetNetErrorCode();
   if (error_code == net::OK) {
