@@ -211,7 +211,7 @@ void CefDevToolsFrontend::DocumentAvailableInMainFrame() {
   if (agent_host != agent_host_) {
     agent_host_ = agent_host;
     agent_host_->AttachClient(this);
-    if (inspect_element_at_.IsEmpty()) {
+    if (!inspect_element_at_.IsEmpty()) {
       agent_host_->InspectElement(
           this, inspect_element_at_.x, inspect_element_at_.y);
     }
