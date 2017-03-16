@@ -47,7 +47,8 @@ void FillInDictionaryFromPdfPrintSettings(
   print_settings.SetInteger(kSettingCopies, 1);
   print_settings.SetBoolean(kSettingCollate, false);
   print_settings.SetString(kSettingDeviceName, "");
-  print_settings.SetInteger(kSettingScaleFactor, 100);
+  print_settings.SetInteger(kSettingScaleFactor,
+      pdf_settings.scale_factor > 0 ? pdf_settings.scale_factor : 100);
   print_settings.SetBoolean(kSettingGenerateDraftData, false);
   print_settings.SetBoolean(kSettingPreviewModifiable, false);
 
