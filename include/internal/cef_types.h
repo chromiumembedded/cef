@@ -2397,6 +2397,13 @@ typedef struct _cef_pdf_print_settings_t {
   int page_height;
 
   ///
+  // The percentage to scale the PDF by before printing (e.g. 50 is 50%).
+  // If this value is less than or equal to zero the default value of 100
+  // will be used.
+  ///
+  int scale_factor;
+
+  ///
   // Margins in millimeters. Only used if |margin_type| is set to
   // PDF_PRINT_MARGIN_CUSTOM.
   ///

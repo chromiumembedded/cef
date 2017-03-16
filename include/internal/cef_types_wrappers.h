@@ -945,6 +945,8 @@ struct CefPdfPrintSettingsTraits {
     target->page_width = src->page_width;
     target->page_height = src->page_height;
 
+    target->scale_factor = src->scale_factor;
+
     target->margin_top = src->margin_top;
     target->margin_right = src->margin_right;
     target->margin_bottom = src->margin_bottom;
