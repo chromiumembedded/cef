@@ -81,7 +81,7 @@ index 78bc651..304aaa6 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index 44ec077..5be1247 100644
+index 3a4996f..ef0e4bf 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
 @@ -319,6 +319,10 @@ class GFX_EXPORT RenderText {

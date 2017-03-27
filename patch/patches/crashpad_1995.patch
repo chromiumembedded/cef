@@ -423,7 +423,7 @@ index 25ae505..f563761 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crashpad.cc components/crash/content/app/crashpad.cc
-index a0eabba..94039c4 100644
+index 76f6734..f6f8000 100644
 --- components/crash/content/app/crashpad.cc
 +++ components/crash/content/app/crashpad.cc
 @@ -142,7 +142,8 @@ void InitializeCrashpadImpl(bool initial_client,
@@ -538,7 +538,7 @@ index 7df66ea..4ee709a 100644
        bool result = crashpad_client.StartHandler(handler_path,
                                                   database_path,
 diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
-index 1e9c06c..92ad937 100644
+index bdbd94e..9ea6adf 100644
 --- components/crash/content/app/crashpad_win.cc
 +++ components/crash/content/app/crashpad_win.cc
 @@ -41,15 +41,15 @@ void GetPlatformCrashpadAnnotations(
@@ -598,9 +598,9 @@ index 1e9c06c..92ad937 100644
  
 +    crash_reporter_client->GetCrashOptionalArguments(&arguments);
 +
-     if (!g_crashpad_client.Get().StartHandler(
-             exe_file, database_path, metrics_path, url, process_annotations,
-             arguments, false, true)) {
+     g_crashpad_client.Get().StartHandler(
+         exe_file, database_path, metrics_path, url, process_annotations,
+         arguments, false, false);
 diff --git content/browser/frame_host/debug_urls.cc content/browser/frame_host/debug_urls.cc
 index c404067..4938dfd6 100644
 --- content/browser/frame_host/debug_urls.cc

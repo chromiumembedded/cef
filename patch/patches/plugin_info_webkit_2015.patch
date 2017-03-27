@@ -15,10 +15,10 @@ index 2b04a24..85653cf 100644
      }
    }
 diff --git Source/core/frame/LocalFrame.cpp Source/core/frame/LocalFrame.cpp
-index 03edc5d..b9a91db 100644
+index 228fdef..b442fb8 100644
 --- Source/core/frame/LocalFrame.cpp
 +++ Source/core/frame/LocalFrame.cpp
-@@ -920,6 +920,7 @@ PluginData* LocalFrame::pluginData() const {
+@@ -922,6 +922,7 @@ PluginData* LocalFrame::pluginData() const {
    if (!loader().allowPlugins(NotAboutToInstantiatePlugin))
      return nullptr;
    return page()->pluginData(
