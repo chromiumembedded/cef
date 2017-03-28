@@ -140,18 +140,58 @@ class CrashHTTPRequestHandler(BaseHTTPRequestHandler):
     self.send_header('Content-type', 'text/html')
     self.end_headers()
 
-  def _parse_post_data(self):
+  def _parse_post_data(self, data):
     """ Returns a cgi.FieldStorage object for this request or None if this is
         not a POST request. """
     if self.command != 'POST':
       return None
     return cgi.FieldStorage(
-      fp = self.rfile, 
+      fp = cStringIO.StringIO(data),
       headers = self.headers,
       environ = {
         'REQUEST_METHOD': 'POST',
         'CONTENT_TYPE': self.headers['Content-Type'],
     })
+
+  def _get_chunk_size(self):
+    # Read to the next "\r\n".
+    size_str = self.rfile.read(2)
+    while size_str[-2:] != b"\r\n":
+      size_str += self.rfile.read(1)
+    # Remove the trailing "\r\n".
+    size_str = size_str[:-2]
+    assert len(size_str) <= 4
+    return int(size_str, 16)
+
+  def _get_chunk_data(self, chunk_size):
+    data = self.rfile.read(chunk_size)
+    assert len(data) == chunk_size
+    # Skip the trailing "\r\n".
+    self.rfile.read(2)
+    return data
+
+  def _unchunk_request(self, compressed):
+    """ Read a chunked request body. Optionally decompress the result. """
+    if compressed:
+      d = zlib.decompressobj(16+zlib.MAX_WBITS)
+
+    # Chunked format is: <size>\r\n<bytes>\r\n<size>\r\n<bytes>\r\n0\r\n
+    unchunked = b""
+    while True:
+      chunk_size = self._get_chunk_size()
+      print 'Chunk size 0x%x' % chunk_size
+      if (chunk_size == 0):
+        break
+      chunk_data = self._get_chunk_data(chunk_size)
+      if compressed:
+        unchunked += d.decompress(chunk_data)
+      else:
+        unchunked += chunk_data
+
+    if compressed:
+      unchunked += d.flush()
+
+    return unchunked
 
   def _create_new_dump_id(self):
     """ Breakpad requires a 16 digit hexadecimal dump ID. """
@@ -179,13 +219,48 @@ class CrashHTTPRequestHandler(BaseHTTPRequestHandler):
     dmp_stream = None
     metadata = {}
 
-    # Breakpad on Linux sends gzipped request contents.
-    if 'Content-Encoding' in self.headers and self.headers['Content-Encoding'] == 'gzip':
-      print_msg('Decompressing gzipped request')
-      self.rfile = cStringIO.StringIO(zlib.decompress(self.rfile.read(), 16+zlib.MAX_WBITS))
+    # Request body may be chunked and/or gzip compressed. For example:
+    #
+    # 3029 branch on Windows:
+    #   User-Agent: Crashpad/0.8.0
+    #   Host: localhost:8080
+    #   Connection: Keep-Alive
+    #   Transfer-Encoding: chunked
+    #   Content-Type: multipart/form-data; boundary=---MultipartBoundary-vp5j9HdSRYK8DvX2DhtpqEbMNjSN1wnL---
+    #   Content-Encoding: gzip
+    #
+    # 2987 branch on Windows:
+    #   User-Agent: Crashpad/0.8.0
+    #   Host: localhost:8080
+    #   Connection: Keep-Alive
+    #   Content-Type: multipart/form-data; boundary=---MultipartBoundary-qFhorGA40vDJ1fgmc2mjorL0fRfKOqup---
+    #   Content-Length: 609894
+    #
+    # 2883 branch on Linux:
+    #   User-Agent: Wget/1.15 (linux-gnu)
+    #   Host: localhost:8080
+    #   Accept: */*
+    #   Connection: Keep-Alive
+    #   Content-Type: multipart/form-data; boundary=--------------------------83572861f14cc736
+    #   Content-Length: 32237
+    #   Content-Encoding: gzip
+    print self.headers
+
+    chunked = 'Transfer-Encoding' in self.headers and self.headers['Transfer-Encoding'] == 'chunked'
+    compressed = 'Content-Encoding' in self.headers and self.headers['Content-Encoding'] == 'gzip'
+    if chunked:
+      request_body = self._unchunk_request(compressed)
+    else:
+      content_length = int(self.headers['Content-Length']) if 'Content-Length' in self.headers else 0
+      if content_length > 0:
+        request_body = self.rfile.read(content_length)
+      else:
+        request_body = self.rfile.read()
+      if compressed:
+        request_body = zlib.decompress(request_body, 16+zlib.MAX_WBITS)
 
     # Parse the multi-part request.
-    form_data = self._parse_post_data()
+    form_data = self._parse_post_data(request_body)
     for key in form_data.keys():
       if key == minidump_key and form_data[minidump_key].file:
         dmp_stream = form_data[minidump_key].file
