@@ -285,10 +285,10 @@ index 3b610b1..7c439e0 100644
                                   WebPluginInfo* plugin) = 0;
  
 diff --git content/renderer/render_frame_impl.cc content/renderer/render_frame_impl.cc
-index a8cbf91..c03cdeb 100644
+index 1d6064c..052b804 100644
 --- content/renderer/render_frame_impl.cc
 +++ content/renderer/render_frame_impl.cc
-@@ -2752,7 +2752,8 @@ blink::WebPlugin* RenderFrameImpl::createPlugin(
+@@ -2757,7 +2757,8 @@ blink::WebPlugin* RenderFrameImpl::createPlugin(
    std::string mime_type;
    bool found = false;
    Send(new FrameHostMsg_GetPluginInfo(
@@ -298,7 +298,7 @@ index a8cbf91..c03cdeb 100644
        params.mimeType.utf8(), &found, &info, &mime_type));
    if (!found)
      return NULL;
-@@ -5256,9 +5257,8 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -5261,9 +5262,8 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
        (pending_navigation_params_ &&
         !pending_navigation_params_->request_params.redirects.empty());
  
@@ -310,7 +310,7 @@ index a8cbf91..c03cdeb 100644
    // The handlenavigation API is deprecated and will be removed once
    // crbug.com/325351 is resolved.
    if (GetContentClient()->renderer()->HandleNavigation(
-@@ -5267,7 +5267,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
+@@ -5272,7 +5272,6 @@ WebNavigationPolicy RenderFrameImpl::decidePolicyForNavigation(
            is_redirect)) {
      return blink::WebNavigationPolicyIgnore;
    }

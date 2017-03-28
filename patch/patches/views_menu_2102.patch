@@ -78,7 +78,7 @@ index e3a15e6..5fae563 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index bcb7314..4063073 100644
+index fc02e24..aa26d9a 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
 @@ -313,6 +313,10 @@ class GFX_EXPORT RenderText {
@@ -114,7 +114,7 @@ index 4a7cfd9..750a6ca 100644
    if (style_ == STYLE_BUTTON && PlatformStyle::kDefaultLabelButtonHasBoldFont) {
      // Some text appears wider when rendered normally than when rendered bold.
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 2d16942..dc60700 100644
+index 0532230..53d7e90 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
 @@ -28,6 +28,7 @@

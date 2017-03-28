@@ -1,5 +1,5 @@
 diff --git content/browser/web_contents/web_contents_impl.cc content/browser/web_contents/web_contents_impl.cc
-index 8800f75..6b047eb 100644
+index 0d42f07..b29997d 100644
 --- content/browser/web_contents/web_contents_impl.cc
 +++ content/browser/web_contents/web_contents_impl.cc
 @@ -1571,6 +1571,12 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params) {
@@ -48,7 +48,7 @@ index 8800f75..6b047eb 100644
      }
      // Save the created window associated with the route so we can show it
      // later.
-@@ -4985,7 +5001,7 @@ NavigationEntry*
+@@ -4973,7 +4989,7 @@ NavigationEntry*
  void WebContentsImpl::CreateRenderWidgetHostViewForRenderManager(
      RenderViewHost* render_view_host) {
    RenderWidgetHostViewBase* rwh_view =
@@ -73,7 +73,7 @@ index fa0afb5..d677b31 100644
  
  WebContents::CreateParams::CreateParams(const CreateParams& other) = default;
 diff --git content/public/browser/web_contents.h content/public/browser/web_contents.h
-index 5a509ef..981a0a5 100644
+index f968ca2..ee6f060 100644
 --- content/public/browser/web_contents.h
 +++ content/public/browser/web_contents.h
 @@ -60,9 +60,11 @@ class PageState;

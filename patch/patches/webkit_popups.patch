@@ -1,5 +1,5 @@
 diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
-index a5721cf..d89dcff 100644
+index 48385f8..a11804b 100644
 --- Source/web/ChromeClientImpl.cpp
 +++ Source/web/ChromeClientImpl.cpp
 @@ -898,7 +898,7 @@ bool ChromeClientImpl::hasOpenedPopup() const {
@@ -12,7 +12,7 @@ index a5721cf..d89dcff 100644
  
    DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index 8a38208..90784a8 100644
+index 365a716..c1519f8 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
 @@ -357,6 +357,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
@@ -23,7 +23,7 @@ index 8a38208..90784a8 100644
        m_compositorDeviceScaleFactorOverride(0),
        m_suppressNextKeypressEvent(false),
        m_imeAcceptEvents(true),
-@@ -3704,8 +3705,13 @@ void WebViewImpl::mainFrameScrollOffsetChanged() {
+@@ -3699,8 +3700,13 @@ void WebViewImpl::mainFrameScrollOffsetChanged() {
    m_devToolsEmulator->mainFrameScrollOrScaleChanged();
  }
  

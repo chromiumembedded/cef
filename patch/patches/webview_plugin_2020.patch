@@ -1,5 +1,5 @@
 diff --git chrome/app/generated_resources.grd chrome/app/generated_resources.grd
-index c10c883..a03df69 100644
+index b2bcd42..fad892d 100644
 --- chrome/app/generated_resources.grd
 +++ chrome/app/generated_resources.grd
 @@ -6771,7 +6771,7 @@ Keep your key file in a safe place. You will need it to create new versions of y

@@ -55,7 +55,7 @@ index 982fbe8..e757be46 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index 43a7e09..2af18e9 100644
+index ec60564..6e88441 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
 @@ -127,15 +127,17 @@ def _LoadToolchainEnv(cpu, sdk_dir):

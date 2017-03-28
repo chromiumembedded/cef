@@ -1,8 +1,8 @@
 diff --git content/browser/frame_host/navigation_handle_impl.cc content/browser/frame_host/navigation_handle_impl.cc
-index 2e525bb..646b81b 100644
+index 380b80a12..5992881 100644
 --- content/browser/frame_host/navigation_handle_impl.cc
 +++ content/browser/frame_host/navigation_handle_impl.cc
-@@ -256,12 +256,6 @@ net::Error NavigationHandleImpl::GetNetErrorCode() {
+@@ -257,12 +257,6 @@ net::Error NavigationHandleImpl::GetNetErrorCode() {
  }
  
  RenderFrameHostImpl* NavigationHandleImpl::GetRenderFrameHost() {
