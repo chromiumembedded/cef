@@ -1382,11 +1382,10 @@ gint BrowserWindowOsrGtk::KeyEvent(GtkWidget* widget,
   if (event->type == GDK_KEY_PRESS) {
     key_event.type = KEYEVENT_RAWKEYDOWN;
     host->SendKeyEvent(key_event);
-  } else {
-    // Need to send both KEYUP and CHAR events.
-    key_event.type = KEYEVENT_KEYUP;
-    host->SendKeyEvent(key_event);
     key_event.type = KEYEVENT_CHAR;
+    host->SendKeyEvent(key_event);
+  } else {
+    key_event.type = KEYEVENT_KEYUP;
     host->SendKeyEvent(key_event);
   }
 
