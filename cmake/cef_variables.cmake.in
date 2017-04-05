@@ -215,7 +215,7 @@ endif()
 
 if(OS_MACOSX)
   # Platform-specific compiler/linker flags.
-  # See also Xcode target properties in macros.cmake.
+  # See also Xcode target properties in cef_macros.cmake.
   set(CEF_LIBTYPE SHARED)
   list(APPEND CEF_COMPILER_FLAGS
     -fno-strict-aliasing            # Avoid assumptions regarding non-aliasing of objects of different types
@@ -258,6 +258,15 @@ if(OS_MACOSX)
   list(APPEND CEF_LINKER_FLAGS_RELEASE
     -Wl,-dead_strip                 # Strip dead code
     )
+
+  include(CheckCXXCompilerFlag)
+
+  CHECK_CXX_COMPILER_FLAG(-Wno-undefined-var-template COMPILER_SUPPORTS_NO_UNDEFINED_VAR_TEMPLATE)
+  if(COMPILER_SUPPORTS_NO_UNDEFINED_VAR_TEMPLATE)
+    list(APPEND CEF_CXX_COMPILER_FLAGS
+      -Wno-undefined-var-template   # Don't warn about potentially uninstantiated static members
+      )
+  endif()
 
   # Standard libraries.
   set(CEF_STANDARD_LIBS
