@@ -1616,7 +1616,7 @@ class ResponseFilterTestHandler : public TestHandler {
     DCHECK(!got_load_end_);
     got_load_end_.yes();
 
-    EXPECT_EQ(0, httpStatusCode);
+    EXPECT_TRUE(httpStatusCode == 0 || httpStatusCode == 200);
 
     GetOutputContent(frame);
   }
