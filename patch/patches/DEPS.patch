@@ -1,7 +1,7 @@
 diff --git a/DEPS b/DEPS
 index 849d1f7..c5297af 100644
---- a/DEPS
-+++ b/DEPS
+--- DEPS
++++ DEPS
 @@ -1166,12 +1166,12 @@ recursedeps = [
    'src/buildtools',
    'src/third_party/android_tools',
