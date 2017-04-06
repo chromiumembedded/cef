@@ -47,8 +47,7 @@ void FillInDictionaryFromPdfPrintSettings(
   print_settings.SetInteger(kSettingCopies, 1);
   print_settings.SetBoolean(kSettingCollate, false);
   print_settings.SetString(kSettingDeviceName, "");
-  print_settings.SetInteger(kSettingScaleFactor,
-      pdf_settings.scale_factor > 0 ? pdf_settings.scale_factor : 100);
+  print_settings.SetBoolean(kSettingRasterizePdf, false);
   print_settings.SetBoolean(kSettingGenerateDraftData, false);
   print_settings.SetBoolean(kSettingPreviewModifiable, false);
 
@@ -60,6 +59,8 @@ void FillInDictionaryFromPdfPrintSettings(
                             !!pdf_settings.backgrounds_enabled);
   print_settings.SetBoolean(kSettingHeaderFooterEnabled,
                             !!pdf_settings.header_footer_enabled);
+  print_settings.SetInteger(kSettingScaleFactor,
+      pdf_settings.scale_factor > 0 ? pdf_settings.scale_factor : 100);
 
   if (pdf_settings.header_footer_enabled) {
     print_settings.SetString(kSettingHeaderFooterTitle,
