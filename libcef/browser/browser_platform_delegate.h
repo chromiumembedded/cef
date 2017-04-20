@@ -134,6 +134,13 @@ class CefBrowserPlatformDelegate {
       CefBrowserHostImpl* new_browser,
       bool is_devtools);
 
+  // Returns the background color for the browser. The alpha component will be
+  // either SK_AlphaTRANSPARENT or SK_AlphaOPAQUE (e.g. fully transparent or
+  // fully opaque). SK_AlphaOPAQUE will always be returned for windowed
+  // browsers. SK_ColorTRANSPARENT may be returned for windowless browsers to
+  // enable transparency.
+  virtual SkColor GetBackgroundColor() const = 0;
+
   // Notify the window that it was resized.
   virtual void WasResized() = 0;
 

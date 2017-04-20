@@ -63,7 +63,7 @@ class ShutdownNotifierFactory
   static ShutdownNotifierFactory* GetInstance();
 
  private:
-  friend struct base::DefaultLazyInstanceTraits<ShutdownNotifierFactory>;
+  friend struct base::LazyInstanceTraitsBase<ShutdownNotifierFactory>;
 
   ShutdownNotifierFactory()
       : BrowserContextKeyedServiceShutdownNotifierFactory(
@@ -369,19 +369,6 @@ void CefPluginInfoMessageFilter::Context::DecidePluginStatus(
 
   DCHECK(plugin_setting != CONTENT_SETTING_DEFAULT);
   DCHECK(plugin_setting != CONTENT_SETTING_ASK);
-
-#if BUILDFLAG(ENABLE_PLUGIN_INSTALLATION)
-  // Check if the plugin is outdated.
-  if (plugin_status == PluginMetadata::SECURITY_STATUS_OUT_OF_DATE &&
-      !allow_outdated_plugins_.GetValue()) {
-    if (allow_outdated_plugins_.IsManaged()) {
-      *status = CefViewHostMsg_GetPluginInfo_Status::kOutdatedDisallowed;
-    } else {
-      *status = CefViewHostMsg_GetPluginInfo_Status::kOutdatedBlocked;
-    }
-    return;
-  }
-#endif
 
   // Check if the plugin is crashing too much.
   if (PluginService::GetInstance()->IsPluginUnstable(plugin.path) &&

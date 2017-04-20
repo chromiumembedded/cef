@@ -1,0 +1,136 @@
+diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
+index 0debd91780b5..432d91ef9713 100644
+--- services/service_manager/embedder/main.cc
++++ services/service_manager/embedder/main.cc
+@@ -29,7 +29,6 @@
+ #endif
+ 
+ #if defined(OS_MACOSX)
+-#include "base/mac/scoped_nsautorelease_pool.h"
+ #include "services/service_manager/embedder/mac_init.h"
+ 
+ #if BUILDFLAG(USE_EXPERIMENTAL_ALLOCATOR_SHIM)
+@@ -98,7 +97,7 @@ MainParams::MainParams(MainDelegate* delegate) : delegate(delegate) {}
+ 
+ MainParams::~MainParams() {}
+ 
+-int Main(const MainParams& params) {
++int MainInitialize(MainParams& params) {
+   MainDelegate* delegate = params.delegate;
+   DCHECK(delegate);
+ 
+@@ -155,9 +154,9 @@ int Main(const MainParams& params) {
+   // loop, but we don't want to leave them hanging around until the app quits.
+   // Each "main" needs to flush this pool right before it goes into its main
+   // event loop to get rid of the cruft.
+-  std::unique_ptr<base::mac::ScopedNSAutoreleasePool> autorelease_pool =
++  params.autorelease_pool =
+       base::MakeUnique<base::mac::ScopedNSAutoreleasePool>();
+-  init_params.autorelease_pool = autorelease_pool.get();
++  init_params.autorelease_pool = params.autorelease_pool.get();
+   InitializeMac();
+ #endif
+ 
+@@ -173,10 +172,17 @@ int Main(const MainParams& params) {
+           base::debug::GlobalActivityTracker::PROCESS_LAUNCH_FAILED);
+       tracker->process_data().SetInt("exit-code", exit_code);
+     }
+-    return exit_code;
+   }
++  return exit_code;
++}
++
++int MainRun(MainParams& params) {
++  MainDelegate* delegate = params.delegate;
++  DCHECK(delegate);
+ 
+-  exit_code = delegate->Run();
++  base::debug::GlobalActivityTracker* tracker =
++      base::debug::GlobalActivityTracker::Get();
++  int exit_code = delegate->Run();
+   if (tracker) {
+     if (exit_code == 0) {
+       tracker->SetProcessPhaseIfEnabled(
+@@ -187,13 +193,26 @@ int Main(const MainParams& params) {
+       tracker->process_data().SetInt("exit-code", exit_code);
+     }
+   }
++  return exit_code;
++}
++
++void MainShutdown(MainParams& params) {
++  MainDelegate* delegate = params.delegate;
++  DCHECK(delegate);
+ 
+ #if defined(OS_MACOSX)
+-  autorelease_pool.reset();
++  params.autorelease_pool.reset();
+ #endif
+ 
+   delegate->ShutDown();
++}
+ 
++int Main(MainParams& params) {
++  int exit_code = MainInitialize(params);
++  if (exit_code >= 0)
++    return exit_code;
++  exit_code = MainRun(params);
++  MainShutdown(params);
+   return exit_code;
+ }
+ 
+diff --git services/service_manager/embedder/main.h services/service_manager/embedder/main.h
+index e86697a26d0f..771acd80a3e1 100644
+--- services/service_manager/embedder/main.h
++++ services/service_manager/embedder/main.h
+@@ -5,9 +5,15 @@
+ #ifndef SERVICES_SERVICE_MANAGER_EMBEDDER_MAIN_H_
+ #define SERVICES_SERVICE_MANAGER_EMBEDDER_MAIN_H_
+ 
++#include <memory>
++
+ #include "build/build_config.h"
+ #include "services/service_manager/embedder/service_manager_embedder_export.h"
+ 
++#if defined(OS_MACOSX)
++#include "base/mac/scoped_nsautorelease_pool.h"
++#endif  // defined(OS_MACOSX)
++
+ namespace service_manager {
+ 
+ class MainDelegate;
+@@ -22,11 +28,20 @@ struct SERVICE_MANAGER_EMBEDDER_EXPORT MainParams {
+   int argc = 0;
+   const char** argv = nullptr;
+ #endif
++
++#if defined(OS_MACOSX)
++  std::unique_ptr<base::mac::ScopedNSAutoreleasePool> autorelease_pool;
++#endif
+ };
+ 
++// Split Main() into separate stages.
++int SERVICE_MANAGER_EMBEDDER_EXPORT MainInitialize(MainParams& params);
++int SERVICE_MANAGER_EMBEDDER_EXPORT MainRun(MainParams& params);
++void SERVICE_MANAGER_EMBEDDER_EXPORT MainShutdown(MainParams& params);
++
+ // Main function which should be called as early as possible by any executable
+ // embedding the service manager.
+-int SERVICE_MANAGER_EMBEDDER_EXPORT Main(const MainParams& params);
++int SERVICE_MANAGER_EMBEDDER_EXPORT Main(MainParams& params);
+ 
+ }  // namespace service_manager
+ 
+diff --git services/service_manager/embedder/set_process_title.cc services/service_manager/embedder/set_process_title.cc
+index 80b9a0ab2ffc..5162354006b0 100644
+--- services/service_manager/embedder/set_process_title.cc
++++ services/service_manager/embedder/set_process_title.cc
+@@ -44,7 +44,7 @@ void SetProcessTitleFromCommandLine(const char** main_argv) {
+   bool have_argv0 = false;
+ 
+ #if defined(OS_LINUX)
+-  DCHECK_EQ(base::PlatformThread::CurrentId(), getpid());
++  //DCHECK_EQ(base::PlatformThread::CurrentId(), getpid());
+ 
+   if (main_argv)
+     setproctitle_init(main_argv);

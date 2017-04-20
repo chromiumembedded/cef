@@ -54,6 +54,7 @@ class CefBrowserContextProxy : public CefBrowserContext {
       content::ProtocolHandlerMap* protocol_handlers,
       content::URLRequestInterceptorScopedVector request_interceptors)
       override;
+  void RegisterInProcessServices(StaticServiceMap* services) override;
 
   // Profile methods.
   PrefService* GetPrefs() override;

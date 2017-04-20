@@ -40,12 +40,6 @@
 
 namespace client {
 
-OsrRenderer::Settings::Settings()
-    : transparent(false),
-      show_update_rect(false),
-      background_color(CefColorSetARGB(255, 255, 255, 255)) {
-}
-
 OsrRenderer::OsrRenderer(const Settings& settings)
     : settings_(settings),
       initialized_(false),
@@ -66,10 +60,14 @@ void OsrRenderer::Initialize() {
 
   glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST); VERIFY_NO_ERROR;
 
-  glClearColor(float(CefColorGetR(settings_.background_color)) / 255.0f,
-               float(CefColorGetG(settings_.background_color)) / 255.0f,
-               float(CefColorGetB(settings_.background_color)) / 255.0f,
-               1.0f); VERIFY_NO_ERROR;
+  if (IsTransparent()) {
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f); VERIFY_NO_ERROR;
+  } else {
+    glClearColor(float(CefColorGetR(settings_.background_color)) / 255.0f,
+                 float(CefColorGetG(settings_.background_color)) / 255.0f,
+                 float(CefColorGetB(settings_.background_color)) / 255.0f,
+                 1.0f); VERIFY_NO_ERROR;
+  }
 
   // Necessary for non-power-of-2 textures to render correctly.
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1); VERIFY_NO_ERROR;
@@ -140,7 +138,7 @@ void OsrRenderer::Render() {
     glRotatef(-spin_y_, 0.0f, 1.0f, 0.0f); VERIFY_NO_ERROR;
   }
 
-  if (settings_.transparent) {
+  if (IsTransparent()) {
     // Alpha blending style. Texture values have premultiplied alpha.
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); VERIFY_NO_ERROR;
 
@@ -160,7 +158,7 @@ void OsrRenderer::Render() {
   // Disable 2D textures.
   glDisable(GL_TEXTURE_2D); VERIFY_NO_ERROR;
 
-  if (settings_.transparent) {
+  if (IsTransparent()) {
     // Disable alpha blending.
     glDisable(GL_BLEND); VERIFY_NO_ERROR;
   }
@@ -252,7 +250,7 @@ void OsrRenderer::OnPaint(CefRefPtr<CefBrowser> browser,
   if (!initialized_)
     Initialize();
 
-  if (settings_.transparent) {
+  if (IsTransparent()) {
     // Enable alpha blending.
     glEnable(GL_BLEND); VERIFY_NO_ERROR;
   }
@@ -330,7 +328,7 @@ void OsrRenderer::OnPaint(CefRefPtr<CefBrowser> browser,
   // Disable 2D textures.
   glDisable(GL_TEXTURE_2D); VERIFY_NO_ERROR;
 
-  if (settings_.transparent) {
+  if (IsTransparent()) {
     // Disable alpha blending.
     glDisable(GL_BLEND); VERIFY_NO_ERROR;
   }

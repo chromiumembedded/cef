@@ -46,91 +46,91 @@ using blink::WebCursorInfo;
 
 LPCWSTR ToCursorID(WebCursorInfo::Type type) {
   switch (type) {
-    case WebCursorInfo::TypePointer:
+    case WebCursorInfo::kTypePointer:
       return IDC_ARROW;
-    case WebCursorInfo::TypeCross:
+    case WebCursorInfo::kTypeCross:
       return IDC_CROSS;
-    case WebCursorInfo::TypeHand:
+    case WebCursorInfo::kTypeHand:
       return IDC_HAND;
-    case WebCursorInfo::TypeIBeam:
+    case WebCursorInfo::kTypeIBeam:
       return IDC_IBEAM;
-    case WebCursorInfo::TypeWait:
+    case WebCursorInfo::kTypeWait:
       return IDC_WAIT;
-    case WebCursorInfo::TypeHelp:
+    case WebCursorInfo::kTypeHelp:
       return IDC_HELP;
-    case WebCursorInfo::TypeEastResize:
+    case WebCursorInfo::kTypeEastResize:
       return IDC_SIZEWE;
-    case WebCursorInfo::TypeNorthResize:
+    case WebCursorInfo::kTypeNorthResize:
       return IDC_SIZENS;
-    case WebCursorInfo::TypeNorthEastResize:
+    case WebCursorInfo::kTypeNorthEastResize:
       return IDC_SIZENESW;
-    case WebCursorInfo::TypeNorthWestResize:
+    case WebCursorInfo::kTypeNorthWestResize:
       return IDC_SIZENWSE;
-    case WebCursorInfo::TypeSouthResize:
+    case WebCursorInfo::kTypeSouthResize:
       return IDC_SIZENS;
-    case WebCursorInfo::TypeSouthEastResize:
+    case WebCursorInfo::kTypeSouthEastResize:
       return IDC_SIZENWSE;
-    case WebCursorInfo::TypeSouthWestResize:
+    case WebCursorInfo::kTypeSouthWestResize:
       return IDC_SIZENESW;
-    case WebCursorInfo::TypeWestResize:
+    case WebCursorInfo::kTypeWestResize:
       return IDC_SIZEWE;
-    case WebCursorInfo::TypeNorthSouthResize:
+    case WebCursorInfo::kTypeNorthSouthResize:
       return IDC_SIZENS;
-    case WebCursorInfo::TypeEastWestResize:
+    case WebCursorInfo::kTypeEastWestResize:
       return IDC_SIZEWE;
-    case WebCursorInfo::TypeNorthEastSouthWestResize:
+    case WebCursorInfo::kTypeNorthEastSouthWestResize:
       return IDC_SIZENESW;
-    case WebCursorInfo::TypeNorthWestSouthEastResize:
+    case WebCursorInfo::kTypeNorthWestSouthEastResize:
       return IDC_SIZENWSE;
-    case WebCursorInfo::TypeColumnResize:
+    case WebCursorInfo::kTypeColumnResize:
       return MAKEINTRESOURCE(IDC_COLRESIZE);
-    case WebCursorInfo::TypeRowResize:
+    case WebCursorInfo::kTypeRowResize:
       return MAKEINTRESOURCE(IDC_ROWRESIZE);
-    case WebCursorInfo::TypeMiddlePanning:
+    case WebCursorInfo::kTypeMiddlePanning:
       return MAKEINTRESOURCE(IDC_PAN_MIDDLE);
-    case WebCursorInfo::TypeEastPanning:
+    case WebCursorInfo::kTypeEastPanning:
       return MAKEINTRESOURCE(IDC_PAN_EAST);
-    case WebCursorInfo::TypeNorthPanning:
+    case WebCursorInfo::kTypeNorthPanning:
       return MAKEINTRESOURCE(IDC_PAN_NORTH);
-    case WebCursorInfo::TypeNorthEastPanning:
+    case WebCursorInfo::kTypeNorthEastPanning:
       return MAKEINTRESOURCE(IDC_PAN_NORTH_EAST);
-    case WebCursorInfo::TypeNorthWestPanning:
+    case WebCursorInfo::kTypeNorthWestPanning:
       return MAKEINTRESOURCE(IDC_PAN_NORTH_WEST);
-    case WebCursorInfo::TypeSouthPanning:
+    case WebCursorInfo::kTypeSouthPanning:
       return MAKEINTRESOURCE(IDC_PAN_SOUTH);
-    case WebCursorInfo::TypeSouthEastPanning:
+    case WebCursorInfo::kTypeSouthEastPanning:
       return MAKEINTRESOURCE(IDC_PAN_SOUTH_EAST);
-    case WebCursorInfo::TypeSouthWestPanning:
+    case WebCursorInfo::kTypeSouthWestPanning:
       return MAKEINTRESOURCE(IDC_PAN_SOUTH_WEST);
-    case WebCursorInfo::TypeWestPanning:
+    case WebCursorInfo::kTypeWestPanning:
       return MAKEINTRESOURCE(IDC_PAN_WEST);
-    case WebCursorInfo::TypeMove:
+    case WebCursorInfo::kTypeMove:
       return IDC_SIZEALL;
-    case WebCursorInfo::TypeVerticalText:
+    case WebCursorInfo::kTypeVerticalText:
       return MAKEINTRESOURCE(IDC_VERTICALTEXT);
-    case WebCursorInfo::TypeCell:
+    case WebCursorInfo::kTypeCell:
       return MAKEINTRESOURCE(IDC_CELL);
-    case WebCursorInfo::TypeContextMenu:
+    case WebCursorInfo::kTypeContextMenu:
       return IDC_ARROW;
-    case WebCursorInfo::TypeAlias:
+    case WebCursorInfo::kTypeAlias:
       return MAKEINTRESOURCE(IDC_ALIAS);
-    case WebCursorInfo::TypeProgress:
+    case WebCursorInfo::kTypeProgress:
       return IDC_APPSTARTING;
-    case WebCursorInfo::TypeNoDrop:
+    case WebCursorInfo::kTypeNoDrop:
       return IDC_NO;
-    case WebCursorInfo::TypeCopy:
+    case WebCursorInfo::kTypeCopy:
       return MAKEINTRESOURCE(IDC_COPYCUR);
-    case WebCursorInfo::TypeNone:
+    case WebCursorInfo::kTypeNone:
       return MAKEINTRESOURCE(IDC_CURSOR_NONE);
-    case WebCursorInfo::TypeNotAllowed:
+    case WebCursorInfo::kTypeNotAllowed:
       return IDC_NO;
-    case WebCursorInfo::TypeZoomIn:
+    case WebCursorInfo::kTypeZoomIn:
       return MAKEINTRESOURCE(IDC_ZOOMIN);
-    case WebCursorInfo::TypeZoomOut:
+    case WebCursorInfo::kTypeZoomOut:
       return MAKEINTRESOURCE(IDC_ZOOMOUT);
-    case WebCursorInfo::TypeGrab:
+    case WebCursorInfo::kTypeGrab:
       return MAKEINTRESOURCE(IDC_HAND_GRAB);
-    case WebCursorInfo::TypeGrabbing:
+    case WebCursorInfo::kTypeGrabbing:
       return MAKEINTRESOURCE(IDC_HAND_GRABBING);
   }
   NOTREACHED();

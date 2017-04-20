@@ -85,6 +85,8 @@ class ImplManager {
   CefBrowserContextImpl* GetImplForContext(
       const content::BrowserContext* context) {
     CEF_REQUIRE_UIT();
+    if (!context)
+      return NULL;
 
     const CefBrowserContext* cef_context =
         static_cast<const CefBrowserContext*>(context);
@@ -141,7 +143,14 @@ class ImplManager {
   DISALLOW_COPY_AND_ASSIGN(ImplManager);
 };
 
-base::LazyInstance<ImplManager> g_manager = LAZY_INSTANCE_INITIALIZER;
+#if DCHECK_IS_ON()
+// Because of DCHECK()s in the object destructor.
+base::LazyInstance<ImplManager>::DestructorAtExit g_manager =
+    LAZY_INSTANCE_INITIALIZER;
+#else
+base::LazyInstance<ImplManager>::Leaky g_manager =
+    LAZY_INSTANCE_INITIALIZER;
+#endif
 
 }  // namespace
 
@@ -259,9 +268,16 @@ void CefBrowserContextImpl::Initialize() {
         CefString(&CefContext::Get()->settings().accept_language_list);
   }
 
-  // Initialize preferences.
+  // Initialize a temporary PrefService object that may be referenced during
+  // BrowserContextServices initialization.
   pref_service_ = browser_prefs::CreatePrefService(
-      this, cache_path_, !!settings_.persist_user_preferences);
+      this, base::FilePath(), false, true);
+
+  CefBrowserContext::Initialize();
+
+  // Initialize the real PrefService object.
+  pref_service_ = browser_prefs::CreatePrefService(
+      this, cache_path_, !!settings_.persist_user_preferences, false);
 
   // Initialize visited links management.
   base::FilePath visited_link_path;
@@ -275,12 +291,12 @@ void CefBrowserContextImpl::Initialize() {
   visitedlink_listener_->CreateListenerForContext(this);
   visitedlink_master_->Init();
 
-  CefBrowserContext::Initialize();
-
   // Initialize proxy configuration tracker.
   pref_proxy_config_tracker_.reset(
       ProxyServiceFactory::CreatePrefProxyConfigTrackerOfLocalState(
           GetPrefs()));
+
+  CefBrowserContext::PostInitialize();
 
   // Create the CefURLRequestContextGetterImpl via an indirect call to
   // CreateRequestContext. Triggers a call to CefURLRequestContextGetterImpl::

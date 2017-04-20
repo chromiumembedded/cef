@@ -40,7 +40,7 @@ index 6dac5f3..34f5ee1 100644
    virtual ~PruneCondition() {}
  
 diff --git crashpad/client/settings.cc crashpad/client/settings.cc
-index 7757ecb..d458337 100644
+index 15d16f2..5e8eadf 100644
 --- crashpad/client/settings.cc
 +++ crashpad/client/settings.cc
 @@ -38,7 +38,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
@@ -177,21 +177,21 @@ index 14debac..c25c653 100644
    //! \brief Attempts to upload a crash report.
    //!
 diff --git crashpad/handler/handler_main.cc crashpad/handler/handler_main.cc
-index 5006cf6..26b3b6a 100644
+index 641bf0f..3a86eb3 100644
 --- crashpad/handler/handler_main.cc
 +++ crashpad/handler/handler_main.cc
-@@ -33,8 +33,10 @@
- #include "base/logging.h"
+@@ -35,8 +35,10 @@
  #include "base/metrics/persistent_histogram_allocator.h"
  #include "base/scoped_generic.h"
+ #include "base/strings/stringprintf.h"
 +#include "base/strings/string_number_conversions.h"
  #include "base/strings/utf_string_conversions.h"
  #include "build/build_config.h"
 +#include "cef/libcef/features/features.h"
  #include "client/crash_report_database.h"
  #include "client/crashpad_client.h"
- #include "client/prune_crash_reports.h"
-@@ -69,6 +71,10 @@
+ #include "client/crashpad_info.h"
+@@ -75,6 +77,10 @@
  #include "util/win/session_end_watcher.h"
  #endif  // OS_MACOSX
  
@@ -202,8 +202,18 @@ index 5006cf6..26b3b6a 100644
  namespace crashpad {
  
  namespace {
-@@ -403,6 +409,9 @@ int HandlerMain(int argc, char* argv[]) {
-     kOptionPipeName,
+@@ -144,6 +150,9 @@ struct Options {
+   bool monitor_self;
+   bool rate_limit;
+   bool upload_gzip;
++  int max_uploads;
++  int max_database_size;
++  int max_database_age;
+ };
+ 
+ // Splits |key_value| on '=' and inserts the resulting key and value into |map|.
+@@ -425,6 +434,9 @@ int HandlerMain(int argc,
+     kOptionResetOwnCrashExceptionPortToSystemDefault,
  #endif  // OS_MACOSX
      kOptionURL,
 +    kOptionMaxUploads,
@@ -212,26 +222,7 @@ index 5006cf6..26b3b6a 100644
  
      // Standard options.
      kOptionHelp = -2,
-@@ -424,12 +433,18 @@ int HandlerMain(int argc, char* argv[]) {
- #endif  // OS_MACOSX
-     bool rate_limit;
-     bool upload_gzip;
-+    int max_uploads;
-+    int max_database_size;
-+    int max_database_age;
-   } options = {};
- #if defined(OS_MACOSX)
-   options.handshake_fd = -1;
- #endif
-   options.rate_limit = true;
-   options.upload_gzip = true;
-+  options.max_uploads = 0;
-+  options.max_database_size = 0;
-+  options.max_database_age = 0;
- 
-   const option long_options[] = {
-     {"annotation", required_argument, nullptr, kOptionAnnotation},
-@@ -460,6 +475,9 @@ int HandlerMain(int argc, char* argv[]) {
+@@ -470,6 +482,9 @@ int HandlerMain(int argc,
      {"url", required_argument, nullptr, kOptionURL},
      {"help", no_argument, nullptr, kOptionHelp},
      {"version", no_argument, nullptr, kOptionVersion},
@@ -241,7 +232,7 @@ index 5006cf6..26b3b6a 100644
      {nullptr, 0, nullptr, 0},
    };
  
-@@ -535,6 +553,27 @@ int HandlerMain(int argc, char* argv[]) {
+@@ -564,6 +579,27 @@ int HandlerMain(int argc,
          options.url = optarg;
          break;
        }
@@ -269,7 +260,7 @@ index 5006cf6..26b3b6a 100644
        case kOptionHelp: {
          Usage(me);
          MetricsRecordExit(Metrics::LifetimeMilestone::kExitedEarly);
-@@ -672,12 +711,19 @@ int HandlerMain(int argc, char* argv[]) {
+@@ -721,12 +757,19 @@ int HandlerMain(int argc,
    // TODO(scottmg): options.rate_limit should be removed when we have a
    // configurable database setting to control upload limiting.
    // See https://crashpad.chromium.org/bug/23.
@@ -289,17 +280,4 @@ index 5006cf6..26b3b6a 100644
 +                                 options.max_database_age));
    prune_thread.Start();
  
-   CrashReportExceptionHandler exception_handler(
-diff --git crashpad/util/net/http_transport_win.cc crashpad/util/net/http_transport_win.cc
-index 294048a..e87e47e 100644
---- crashpad/util/net/http_transport_win.cc
-+++ crashpad/util/net/http_transport_win.cc
-@@ -146,7 +146,7 @@ bool HTTPTransportWin::ExecuteSynchronously(std::string* response_body) {
-   ScopedHINTERNET request(WinHttpOpenRequest(
-       connect.get(),
-       base::UTF8ToUTF16(method()).c_str(),
--      url_path.c_str(),
-+      (url_path + extra_info).c_str(),
-       nullptr,
-       WINHTTP_NO_REFERER,
-       WINHTTP_DEFAULT_ACCEPT_TYPES,
+   CrashReportExceptionHandler exception_handler(database.get(),

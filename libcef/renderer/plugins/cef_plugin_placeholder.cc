@@ -28,6 +28,7 @@
 #include "third_party/WebKit/public/platform/WebMouseEvent.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
+#include "third_party/WebKit/public/web/WebPluginContainer.h"
 #include "third_party/WebKit/public/web/WebScriptSource.h"
 #include "third_party/WebKit/public/web/WebView.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -87,7 +88,7 @@ CefPluginPlaceholder* CefPluginPlaceholder::CreateLoadableMissingPlugin(
 
   // Will destroy itself when its WebViewPlugin is going away.
   return new CefPluginPlaceholder(render_frame, frame, params, html_data,
-                                  params.mimeType.utf16());
+                                  params.mime_type.Utf16());
 }
 
 // static
@@ -106,8 +107,8 @@ CefPluginPlaceholder* CefPluginPlaceholder::CreateBlockedPlugin(
   values.SetString("name", name);
   values.SetString("hide", l10n_util::GetStringUTF8(IDS_PLUGIN_HIDE));
   values.SetString("pluginType",
-                   frame->view()->mainFrame()->isWebLocalFrame() &&
-                   frame->view()->mainFrame()->document().isPluginDocument()
+                   frame->View()->MainFrame()->IsWebLocalFrame() &&
+                   frame->View()->MainFrame()->GetDocument().IsPluginDocument()
                        ? "document"
                        : "embedded");
 
@@ -117,7 +118,7 @@ CefPluginPlaceholder* CefPluginPlaceholder::CreateBlockedPlugin(
 
     if (!power_saver_info.custom_poster_size.IsEmpty()) {
       float zoom_factor =
-          blink::WebView::zoomLevelToZoomFactor(frame->view()->zoomLevel());
+          blink::WebView::ZoomLevelToZoomFactor(frame->View()->ZoomLevel());
       int width =
           roundf(power_saver_info.custom_poster_size.width() / zoom_factor);
       int height =
@@ -174,16 +175,16 @@ void CefPluginPlaceholder::ShowPermissionBubbleCallback() {
 void CefPluginPlaceholder::PluginListChanged() {
   if (!GetFrame() || !plugin())
     return;
-  blink::WebDocument document = GetFrame()->top()->document();
-  if (document.isNull())
+  blink::WebDocument document = GetFrame()->Top()->GetDocument();
+  if (document.IsNull())
     return;
 
   CefViewHostMsg_GetPluginInfo_Output output;
-  std::string mime_type(GetPluginParams().mimeType.utf8());
+  std::string mime_type(GetPluginParams().mime_type.Utf8());
   render_frame()->Send(new CefViewHostMsg_GetPluginInfo(
       routing_id(), GURL(GetPluginParams().url),
-      GetFrame()->parent() == nullptr,
-      GetFrame()->top()->getSecurityOrigin(), mime_type, &output));
+      GetFrame()->Parent() == nullptr,
+      GetFrame()->Top()->GetSecurityOrigin(), mime_type, &output));
   if (output.status == status_)
     return;
   blink::WebPlugin* new_plugin = CefContentRendererClient::CreatePlugin(
@@ -252,14 +253,18 @@ void CefPluginPlaceholder::ShowContextMenu(
   content::MenuItem hide_item;
   hide_item.action = chrome::MENU_COMMAND_PLUGIN_HIDE;
   bool is_main_frame_plugin_document =
-      GetFrame()->view()->mainFrame()->isWebLocalFrame() &&
-      GetFrame()->view()->mainFrame()->document().isPluginDocument();
+      GetFrame()->View()->MainFrame()->IsWebLocalFrame() &&
+      GetFrame()->View()->MainFrame()->GetDocument().IsPluginDocument();
   hide_item.enabled = !is_main_frame_plugin_document;
   hide_item.label = l10n_util::GetStringUTF16(IDS_CONTENT_CONTEXT_PLUGIN_HIDE);
   params.custom_items.push_back(hide_item);
 
-  params.x = event.windowX;
-  params.y = event.windowY;
+  blink::WebPoint point(event.PositionInWidget().x, event.PositionInWidget().y);
+  if (plugin() && plugin()->Container())
+    point = plugin()->Container()->LocalToRootFramePoint(point);
+
+  params.x = point.x;
+  params.y = point.y;
 
   context_menu_request_id_ = render_frame()->ShowContextMenu(this, params);
   g_last_active_menu = this;

@@ -82,6 +82,8 @@ void CefBrowserContextProxy::Initialize() {
   // This object's CefResourceContext needs to proxy some UserData requests to
   // the parent object's CefResourceContext.
   resource_context()->set_parent(parent_->resource_context());
+
+  CefBrowserContext::PostInitialize();
 }
 
 base::SupportsUserData::Data*
@@ -180,6 +182,11 @@ net::URLRequestContextGetter*
         content::ProtocolHandlerMap* protocol_handlers,
         content::URLRequestInterceptorScopedVector request_interceptors) {
   return nullptr;
+}
+
+void CefBrowserContextProxy::RegisterInProcessServices(
+    StaticServiceMap* services) {
+  parent_->RegisterInProcessServices(services);
 }
 
 PrefService* CefBrowserContextProxy::GetPrefs() {

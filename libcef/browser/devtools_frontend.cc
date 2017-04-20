@@ -82,7 +82,7 @@ int ResponseWriter::Write(net::IOBuffer* buffer,
     return num_bytes;
 
   base::Value* id = new base::Value(stream_id_);
-  base::StringValue* chunkValue = new base::StringValue(chunk);
+  base::Value* chunkValue = new base::Value(chunk);
 
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,
@@ -116,9 +116,10 @@ CefDevToolsFrontend* CefDevToolsFrontend::Show(
     const CefBrowserSettings& settings,
     const CefPoint& inspect_element_at) {
   CefBrowserSettings new_settings = settings;
-  if (CefColorGetA(new_settings.background_color) == 0) {
-    // Use white as the default background color for DevTools instead of the
-    // CefSettings.background_color value.
+  if (!windowInfo.windowless_rendering_enabled &&
+      CefColorGetA(new_settings.background_color) != SK_AlphaOPAQUE) {
+    // Use white as the default background color for windowed DevTools instead
+    // of the CefSettings.background_color value.
     new_settings.background_color = SK_ColorWHITE;
   }
 

@@ -28,7 +28,6 @@ enum class CefViewHostMsg_GetPluginInfo_Status;
 class CefResourceContext : public content::ResourceContext {
  public:
   CefResourceContext(bool is_off_the_record,
-                     extensions::InfoMap* extension_info_map,
                      CefRefPtr<CefRequestContextHandler> handler);
   ~CefResourceContext() override;
 
@@ -44,6 +43,7 @@ class CefResourceContext : public content::ResourceContext {
 
   std::unique_ptr<net::ClientCertStore> CreateClientCertStore();
 
+  void set_extensions_info_map(extensions::InfoMap* extensions_info_map);
   void set_url_request_context_getter(CefURLRequestContextGetter* getter);
   void set_parent(CefResourceContext* parent);
 

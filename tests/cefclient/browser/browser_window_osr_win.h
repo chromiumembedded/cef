@@ -49,8 +49,6 @@ class BrowserWindowOsrWin : public BrowserWindow,
   // OsrWindowWin::Delegate methods.
   void OnOsrNativeWindowCreated(HWND hwnd) OVERRIDE;
 
-  const bool transparent_;
-
   // The below members are only accessed on the main thread.
   scoped_refptr<OsrWindowWin> osr_window_;
   HWND osr_hwnd_;

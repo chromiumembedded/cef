@@ -192,6 +192,14 @@ def GetRecommendedDefaultArgs():
   }
 
   if platform == 'linux':
+    # Use GTK3 instead of GTK2. Default is true. False is recommended because
+    # the cefclient sample application requires GTK2. This avoids the "GTK+ 2.x
+    # symbols detected. Using GTK+ 2.x and GTK+ 3 in the same process is not
+    # supported" error when running cefclient. Using a value of true is fine if
+    # your application requires GTK3 and you're not planning to build the
+    # cefclient target (see issue #2014).
+    result['use_gtk3'] = False
+
     # Use a sysroot environment. Default is true. False is recommended for local
     # builds.
     # Run the following commands to download the sysroot environment:
@@ -218,9 +226,6 @@ def GetRequiredArgs():
 
     # Enable support for Widevine CDM.
     'enable_widevine': True,
-
-    # Disable support for plugin installation.
-    'enable_plugin_installation': False,
 
     # CEF does not currently support component builds. See
     # https://bitbucket.org/chromiumembedded/cef/issues/1617

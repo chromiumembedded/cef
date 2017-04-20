@@ -50,6 +50,7 @@
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/download_url_parameters.h"
 #include "content/public/browser/host_zoom_map.h"
+#include "content/public/browser/keyboard_event_processing_result.h"
 #include "content/public/browser/native_web_keyboard_event.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
@@ -69,6 +70,8 @@
 #if defined(OS_MACOSX)
 #include "components/spellcheck/browser/spellcheck_platform.h"
 #endif
+
+using content::KeyboardEventProcessingResult;
 
 namespace {
 
@@ -782,8 +785,8 @@ void CefBrowserHostImpl::Find(int identifier, const CefString& searchText,
 
     blink::WebFindOptions options;
     options.forward = forward;
-    options.matchCase = matchCase;
-    options.findNext = findNext;
+    options.match_case = matchCase;
+    options.find_next = findNext;
     web_contents()->Find(identifier, searchText, options);
   } else {
     CEF_POST_TASK(CEF_UIT,
@@ -1038,8 +1041,8 @@ void CefBrowserHostImpl::SendKeyEvent(const CefKeyEvent& event) {
     return;
 
   content::NativeWebKeyboardEvent web_event(
-      blink::WebInputEvent::Undefined,
-      blink::WebInputEvent::NoModifiers,
+      blink::WebInputEvent::kUndefined,
+      blink::WebInputEvent::kNoModifiers,
       ui::EventTimeStampToSeconds(ui::EventTimeForNow()));
   platform_delegate_->TranslateKeyEvent(web_event, event);
   platform_delegate_->SendKeyEvent(web_event);
@@ -1724,6 +1727,12 @@ void CefBrowserHostImpl::HandleExternalProtocol(const GURL& url) {
   }
 }
 
+SkColor CefBrowserHostImpl::GetBackgroundColor() const {
+  // Don't use |platform_delegate_| because it's not thread-safe.
+  return CefContext::Get()->GetBackgroundColor(&settings_,
+      is_windowless_ ? STATE_ENABLED : STATE_DISABLED);
+}
+
 int CefBrowserHostImpl::browser_id() const {
   return browser_info_->browser_id();
 }
@@ -1785,8 +1794,8 @@ bool CefBrowserHostImpl::IsFullscreenForTabOrPending(
 
 blink::WebDisplayMode CefBrowserHostImpl::GetDisplayMode(
     const content::WebContents* web_contents) const {
-  return is_fullscreen_ ? blink::WebDisplayModeFullscreen :
-                          blink::WebDisplayModeBrowser;
+  return is_fullscreen_ ? blink::kWebDisplayModeFullscreen :
+                          blink::kWebDisplayModeBrowser;
 }
 
 void CefBrowserHostImpl::FindReply(
@@ -2170,29 +2179,29 @@ content::WebContents* CefBrowserHostImpl::GetActionableWebContents() {
   return web_contents();
 }
 
-bool CefBrowserHostImpl::PreHandleKeyboardEvent(
+KeyboardEventProcessingResult CefBrowserHostImpl::PreHandleKeyboardEvent(
     content::WebContents* source,
-    const content::NativeWebKeyboardEvent& event,
-    bool* is_keyboard_shortcut) {
-  if (!platform_delegate_)
-    return false;
-
-  if (client_.get()) {
+    const content::NativeWebKeyboardEvent& event) {
+  if (platform_delegate_ && client_.get()) {
     CefRefPtr<CefKeyboardHandler> handler = client_->GetKeyboardHandler();
     if (handler.get()) {
       CefKeyEvent cef_event;
-      if (!browser_util::GetCefKeyEvent(event, cef_event))
-        return false;
+      if (browser_util::GetCefKeyEvent(event, cef_event)) {
+        cef_event.focus_on_editable_field = focus_on_editable_field_;
 
-      cef_event.focus_on_editable_field = focus_on_editable_field_;
-
-      CefEventHandle event_handle = platform_delegate_->GetEventHandle(event);
-      return handler->OnPreKeyEvent(this, cef_event, event_handle,
-                                    is_keyboard_shortcut);
+        CefEventHandle event_handle = platform_delegate_->GetEventHandle(event);
+        bool is_keyboard_shortcut = false;
+        bool result = handler->OnPreKeyEvent(this, cef_event, event_handle,
+                                             &is_keyboard_shortcut);
+        if (result)
+          return KeyboardEventProcessingResult::HANDLED;
+        else if (is_keyboard_shortcut)
+          return KeyboardEventProcessingResult::NOT_HANDLED_IS_SHORTCUT;
+      }
     }
   }
 
-  return false;
+  return KeyboardEventProcessingResult::NOT_HANDLED;
 }
 
 void CefBrowserHostImpl::HandleKeyboardEvent(
@@ -2527,7 +2536,7 @@ void CefBrowserHostImpl::DidFinishNavigation(
 
     // Don't call OnLoadStart for same page navigations (fragments,
     // history state).
-    if (!navigation_handle->IsSamePage())
+    if (!navigation_handle->IsSameDocument())
       OnLoadStart(frame, navigation_handle->GetPageTransition());
 
     if (is_main_frame)

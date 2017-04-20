@@ -116,16 +116,18 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
     std::unique_ptr<net::ProxyConfigService> proxy_config_service,
     content::URLRequestInterceptorScopedVector request_interceptors)
     : settings_(settings),
-      net_log_(g_browser_process->net_log()),
-      io_task_runner_(std::move(io_task_runner)),
-      file_task_runner_(std::move(file_task_runner)),
-      proxy_config_service_(std::move(proxy_config_service)),
-      request_interceptors_(std::move(request_interceptors)) {
+      io_state_(base::MakeUnique<IOState>()) {
   // Must first be created on the UI thread.
   CEF_REQUIRE_UIT();
-  DCHECK(net_log_);
 
-  std::swap(protocol_handlers_, *protocol_handlers);
+  io_state_->net_log_ = g_browser_process->net_log(),
+  DCHECK(io_state_->net_log_);
+  io_state_->io_task_runner_ = std::move(io_task_runner);
+  io_state_->file_task_runner_ = std::move(file_task_runner);
+  io_state_->proxy_config_service_ = std::move(proxy_config_service);
+  io_state_->request_interceptors_ = std::move(request_interceptors);
+
+  std::swap(io_state_->protocol_handlers_, *protocol_handlers);
 
   auto io_thread_proxy =
       BrowserThread::GetTaskRunnerForThread(BrowserThread::IO);
@@ -141,7 +143,8 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
   force_google_safesearch_.MoveToThread(io_thread_proxy);
 
 #if defined(OS_POSIX) && !defined(OS_ANDROID)
-  gsapi_library_name_ = pref_service->GetString(prefs::kGSSAPILibraryName);
+  io_state_->gsapi_library_name_ =
+      pref_service->GetString(prefs::kGSSAPILibraryName);
 #endif
 
   auth_server_whitelist_.Init(
@@ -159,11 +162,8 @@ CefURLRequestContextGetterImpl::CefURLRequestContextGetterImpl(
 
 CefURLRequestContextGetterImpl::~CefURLRequestContextGetterImpl() {
   CEF_REQUIRE_IOT();
-
-  // Delete the ProxyService object here so that any pending requests will be
-  // canceled before the associated URLRequestContext is destroyed in this
-  // object's destructor.
-  storage_->set_proxy_service(NULL);
+  // This destructor may not be called during shutdown. Perform any required
+  // shutdown in ShutdownOnIOThread() instead.
 }
 
 // static
@@ -187,12 +187,32 @@ void CefURLRequestContextGetterImpl::ShutdownOnUIThread() {
   force_google_safesearch_.Destroy();
   auth_server_whitelist_.Destroy();
   auth_negotiate_delegate_whitelist_.Destroy();
+
+  CEF_POST_TASK(CEF_IOT,
+      base::Bind(&CefURLRequestContextGetterImpl::ShutdownOnIOThread, this));
+}
+
+void CefURLRequestContextGetterImpl::ShutdownOnIOThread() {
+  CEF_REQUIRE_IOT();
+
+  shutting_down_ = true;
+
+  // Delete the ProxyService object here so that any pending requests will be
+  // canceled before the URLRequestContext is destroyed.
+  io_state_->storage_->set_proxy_service(NULL);
+
+  io_state_.reset();
+
+  NotifyContextShuttingDown();
 }
 
 net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
   CEF_REQUIRE_IOT();
 
-  if (!url_request_context_.get()) {
+  if (shutting_down_)
+    return nullptr;
+
+  if (!io_state_->url_request_context_.get()) {
     const base::CommandLine* command_line =
         base::CommandLine::ForCurrentProcess();
 
@@ -200,11 +220,11 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     if (settings_.cache_path.length > 0)
       cache_path = base::FilePath(CefString(&settings_.cache_path));
 
-    url_request_context_.reset(new CefURLRequestContextImpl());
-    url_request_context_->set_net_log(net_log_);
+    io_state_->url_request_context_.reset(new CefURLRequestContextImpl());
+    io_state_->url_request_context_->set_net_log(io_state_->net_log_);
 
-    storage_.reset(
-        new net::URLRequestContextStorage(url_request_context_.get()));
+    io_state_->storage_.reset(new net::URLRequestContextStorage(
+        io_state_->url_request_context_.get()));
 
     SetCookieStoragePath(cache_path,
                          settings_.persist_session_cookies ? true : false);
@@ -212,49 +232,51 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     std::unique_ptr<CefNetworkDelegate> network_delegate(
         new CefNetworkDelegate());
     network_delegate->set_force_google_safesearch(&force_google_safesearch_);
-    storage_->set_network_delegate(std::move(network_delegate));
+    io_state_->storage_->set_network_delegate(std::move(network_delegate));
 
     const std::string& accept_language =
         settings_.accept_language_list.length > 0 ?
             CefString(&settings_.accept_language_list): "en-US,en";
-    storage_->set_http_user_agent_settings(base::WrapUnique(
+    io_state_->storage_->set_http_user_agent_settings(base::WrapUnique(
         new CefHttpUserAgentSettings(accept_language)));
 
-    storage_->set_host_resolver(
-        net::HostResolver::CreateDefaultResolver(net_log_));
-    storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
+    io_state_->storage_->set_host_resolver(
+        net::HostResolver::CreateDefaultResolver(io_state_->net_log_));
+    io_state_->storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
 
     std::unique_ptr<net::TransportSecurityState> transport_security_state(
         new net::TransportSecurityState);
     transport_security_state->set_enforce_net_security_expiration(
         settings_.enable_net_security_expiration ? true : false);
-    storage_->set_transport_security_state(std::move(transport_security_state));
+    io_state_->storage_->set_transport_security_state(
+        std::move(transport_security_state));
 
     std::vector<scoped_refptr<const net::CTLogVerifier>> ct_logs(
         net::ct::CreateLogVerifiersForKnownLogs());
     std::unique_ptr<net::MultiLogCTVerifier> ct_verifier(
         new net::MultiLogCTVerifier());
     ct_verifier->AddLogs(ct_logs);
-    storage_->set_cert_transparency_verifier(std::move(ct_verifier));
+    io_state_->storage_->set_cert_transparency_verifier(std::move(ct_verifier));
 
     std::unique_ptr<net::CTPolicyEnforcer> ct_policy_enforcer(
         new net::CTPolicyEnforcer);
     ct_policy_enforcer->set_enforce_net_security_expiration(
         settings_.enable_net_security_expiration ? true : false);
-    storage_->set_ct_policy_enforcer(std::move(ct_policy_enforcer));
+    io_state_->storage_->set_ct_policy_enforcer(std::move(ct_policy_enforcer));
 
     std::unique_ptr<net::ProxyService> system_proxy_service =
         ProxyServiceFactory::CreateProxyService(
-            net_log_,
-            url_request_context_.get(),
-            url_request_context_->network_delegate(),
-            std::move(proxy_config_service_),
+            io_state_->net_log_,
+            io_state_->url_request_context_.get(),
+            io_state_->url_request_context_->network_delegate(),
+            std::move(io_state_->proxy_config_service_),
             *command_line,
             quick_check_enabled_.GetValue(),
             pac_https_url_stripping_enabled_.GetValue());
-    storage_->set_proxy_service(std::move(system_proxy_service));
+    io_state_->storage_->set_proxy_service(std::move(system_proxy_service));
 
-    storage_->set_ssl_config_service(new net::SSLConfigServiceDefaults);
+    io_state_->storage_->set_ssl_config_service(
+        new net::SSLConfigServiceDefaults);
 
     std::vector<std::string> supported_schemes;
     supported_schemes.push_back("basic");
@@ -262,18 +284,18 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
     supported_schemes.push_back("ntlm");
     supported_schemes.push_back("negotiate");
 
-    http_auth_preferences_.reset(
+    io_state_->http_auth_preferences_.reset(
         new net::HttpAuthPreferences(supported_schemes
 #if defined(OS_POSIX) && !defined(OS_ANDROID)
-                                     , gsapi_library_name_
+                                     , io_state_->gsapi_library_name_
 #endif
         ));
 
-    storage_->set_http_auth_handler_factory(
+    io_state_->storage_->set_http_auth_handler_factory(
         net::HttpAuthHandlerRegistryFactory::Create(
-            http_auth_preferences_.get(),
-            url_request_context_->host_resolver()));
-    storage_->set_http_server_properties(base::WrapUnique(
+            io_state_->http_auth_preferences_.get(),
+            io_state_->url_request_context_->host_resolver()));
+    io_state_->storage_->set_http_server_properties(base::WrapUnique(
         new net::HttpServerPropertiesImpl));
 
     base::FilePath http_cache_path;
@@ -294,74 +316,77 @@ net::URLRequestContext* CefURLRequestContextGetterImpl::GetURLRequestContext() {
 
     net::HttpNetworkSession::Params network_session_params;
     network_session_params.host_resolver =
-        url_request_context_->host_resolver();
+        io_state_->url_request_context_->host_resolver();
     network_session_params.cert_verifier =
-        url_request_context_->cert_verifier();
+        io_state_->url_request_context_->cert_verifier();
     network_session_params.transport_security_state =
-        url_request_context_->transport_security_state();
+        io_state_->url_request_context_->transport_security_state();
     network_session_params.cert_transparency_verifier =
-        url_request_context_->cert_transparency_verifier();
+        io_state_->url_request_context_->cert_transparency_verifier();
     network_session_params.ct_policy_enforcer =
-        url_request_context_->ct_policy_enforcer();
+        io_state_->url_request_context_->ct_policy_enforcer();
     network_session_params.proxy_service =
-        url_request_context_->proxy_service();
+        io_state_->url_request_context_->proxy_service();
     network_session_params.ssl_config_service =
-        url_request_context_->ssl_config_service();
+        io_state_->url_request_context_->ssl_config_service();
     network_session_params.http_auth_handler_factory =
-        url_request_context_->http_auth_handler_factory();
+        io_state_->url_request_context_->http_auth_handler_factory();
     network_session_params.http_server_properties =
-        url_request_context_->http_server_properties();
+        io_state_->url_request_context_->http_server_properties();
     network_session_params.ignore_certificate_errors =
         settings_.ignore_certificate_errors ? true : false;
-    network_session_params.net_log = net_log_;
+    network_session_params.net_log = io_state_->net_log_;
 
-    storage_->set_http_network_session(
+    io_state_->storage_->set_http_network_session(
         base::WrapUnique(new net::HttpNetworkSession(network_session_params)));
-    storage_->set_http_transaction_factory(base::WrapUnique(
-        new net::HttpCache(storage_->http_network_session(),
+    io_state_->storage_->set_http_transaction_factory(base::WrapUnique(
+        new net::HttpCache(io_state_->storage_->http_network_session(),
                            std::move(main_backend),
                            true /* set_up_quic_server_info */)));
 
     std::unique_ptr<net::URLRequestJobFactoryImpl> job_factory(
         new net::URLRequestJobFactoryImpl());
-    url_request_manager_.reset(new CefURLRequestManager(job_factory.get()));
+    io_state_->url_request_manager_.reset(
+        new CefURLRequestManager(job_factory.get()));
 
     // Install internal scheme handlers that cannot be overridden.
     scheme::InstallInternalProtectedHandlers(
         job_factory.get(),
-        url_request_manager_.get(),
-        &protocol_handlers_,
+        io_state_->url_request_manager_.get(),
+        &io_state_->protocol_handlers_,
         network_session_params.host_resolver);
-    protocol_handlers_.clear();
+    io_state_->protocol_handlers_.clear();
 
     // Register internal scheme handlers that can be overridden.
-    scheme::RegisterInternalHandlers(url_request_manager_.get());
+    scheme::RegisterInternalHandlers(io_state_->url_request_manager_.get());
 
-    request_interceptors_.push_back(base::MakeUnique<CefRequestInterceptor>());
+    io_state_->request_interceptors_.push_back(
+        base::MakeUnique<CefRequestInterceptor>());
 
     // Set up interceptors in the reverse order.
     std::unique_ptr<net::URLRequestJobFactory> top_job_factory =
         std::move(job_factory);
-    for (auto i = request_interceptors_.rbegin();
-         i != request_interceptors_.rend(); ++i) {
+    for (auto i = io_state_->request_interceptors_.rbegin();
+         i != io_state_->request_interceptors_.rend(); ++i) {
       top_job_factory.reset(new net::URLRequestInterceptingJobFactory(
           std::move(top_job_factory), std::move(*i)));
     }
-    request_interceptors_.clear();
+    io_state_->request_interceptors_.clear();
 
-    storage_->set_job_factory(std::move(top_job_factory));
+    io_state_->storage_->set_job_factory(std::move(top_job_factory));
 
 #if defined(USE_NSS_CERTS)
     // Only do this for the first (global) request context.
     static bool request_context_for_nss_set = false;
     if (!request_context_for_nss_set) {
-      net::SetURLRequestContextForNSSHttpIO(url_request_context_.get());
+      net::SetURLRequestContextForNSSHttpIO(
+          io_state_->url_request_context_.get());
       request_context_for_nss_set = true;
     }
 #endif
   }
 
-  return url_request_context_.get();
+  return io_state_->url_request_context_.get();
 }
 
 scoped_refptr<base::SingleThreadTaskRunner>
@@ -370,7 +395,7 @@ scoped_refptr<base::SingleThreadTaskRunner>
 }
 
 net::HostResolver* CefURLRequestContextGetterImpl::GetHostResolver() const {
-  return url_request_context_->host_resolver();
+  return io_state_->url_request_context_->host_resolver();
 }
 
 void CefURLRequestContextGetterImpl::SetCookieStoragePath(
@@ -378,9 +403,9 @@ void CefURLRequestContextGetterImpl::SetCookieStoragePath(
     bool persist_session_cookies) {
   CEF_REQUIRE_IOT();
 
-  if (url_request_context_->cookie_store() &&
-      ((cookie_store_path_.empty() && path.empty()) ||
-       cookie_store_path_ == path)) {
+  if (io_state_->url_request_context_->cookie_store() &&
+      ((io_state_->cookie_store_path_.empty() && path.empty()) ||
+       io_state_->cookie_store_path_ == path)) {
     // The path has not changed so don't do anything.
     return;
   }
@@ -412,23 +437,23 @@ void CefURLRequestContextGetterImpl::SetCookieStoragePath(
       new net::CookieMonster(persistent_store.get(), NULL));
   if (persistent_store.get() && persist_session_cookies)
       cookie_monster->SetPersistSessionCookies(true);
-  cookie_store_path_ = path;
+  io_state_->cookie_store_path_ = path;
 
   // Restore the previously supported schemes.
-  CefCookieManagerImpl::SetCookieMonsterSchemes(cookie_monster.get(),
-                                                cookie_supported_schemes_);
+  CefCookieManagerImpl::SetCookieMonsterSchemes(
+      cookie_monster.get(), io_state_->cookie_supported_schemes_);
 
-  storage_->set_cookie_store(std::move(cookie_monster));
+  io_state_->storage_->set_cookie_store(std::move(cookie_monster));
 }
 
 void CefURLRequestContextGetterImpl::SetCookieSupportedSchemes(
     const std::vector<std::string>& schemes) {
   CEF_REQUIRE_IOT();
 
-  cookie_supported_schemes_ = schemes;
+  io_state_->cookie_supported_schemes_ = schemes;
   CefCookieManagerImpl::SetCookieMonsterSchemes(
       static_cast<net::CookieMonster*>(GetExistingCookieStore()),
-      cookie_supported_schemes_);
+      io_state_->cookie_supported_schemes_);
 }
 
 void CefURLRequestContextGetterImpl::AddHandler(
@@ -438,34 +463,36 @@ void CefURLRequestContextGetterImpl::AddHandler(
         base::Bind(&CefURLRequestContextGetterImpl::AddHandler, this, handler));
     return;
   }
-  handler_list_.push_back(handler);
+  io_state_->handler_list_.push_back(handler);
 }
 
 net::CookieStore*
     CefURLRequestContextGetterImpl::GetExistingCookieStore() const {
   CEF_REQUIRE_IOT();
-  if (url_request_context_ && url_request_context_->cookie_store())
-    return url_request_context_->cookie_store();
+  if (io_state_->url_request_context_ &&
+      io_state_->url_request_context_->cookie_store()) {
+    return io_state_->url_request_context_->cookie_store();
+  }
 
   LOG(ERROR) << "Cookie store does not exist";
   return nullptr;
 }
 
 void CefURLRequestContextGetterImpl::CreateProxyConfigService() {
-  if (proxy_config_service_.get())
+  if (io_state_->proxy_config_service_.get())
     return;
 
-  proxy_config_service_ =
+  io_state_->proxy_config_service_ =
       net::ProxyService::CreateSystemProxyConfigService(
-          io_task_runner_, file_task_runner_);
+          io_state_->io_task_runner_, io_state_->file_task_runner_);
 }
 
 void CefURLRequestContextGetterImpl::UpdateServerWhitelist() {
-  http_auth_preferences_->set_server_whitelist(
+  io_state_->http_auth_preferences_->set_server_whitelist(
       auth_server_whitelist_.GetValue());
 }
 
 void CefURLRequestContextGetterImpl::UpdateDelegateWhitelist() {
-  http_auth_preferences_->set_delegate_whitelist(
+  io_state_->http_auth_preferences_->set_delegate_whitelist(
       auth_negotiate_delegate_whitelist_.GetValue());
 }

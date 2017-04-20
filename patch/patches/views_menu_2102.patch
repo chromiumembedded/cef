@@ -39,10 +39,10 @@ index 0755f27..0322b8c 100644
    virtual void MenuWillShow() {}
  
 diff --git ui/gfx/render_text.cc ui/gfx/render_text.cc
-index e3a15e6..5fae563 100644
+index 97b6c8f..84b9387 100644
 --- ui/gfx/render_text.cc
 +++ ui/gfx/render_text.cc
-@@ -595,6 +595,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
+@@ -567,6 +567,14 @@ void RenderText::SetElideBehavior(ElideBehavior elide_behavior) {
    }
  }
  
@@ -57,7 +57,7 @@ index e3a15e6..5fae563 100644
  void RenderText::SetDisplayRect(const Rect& r) {
    if (r != display_rect_) {
      display_rect_ = r;
-@@ -1472,6 +1480,19 @@ void RenderText::OnTextAttributeChanged() {
+@@ -1466,6 +1474,19 @@ void RenderText::OnTextAttributeChanged() {
    if (!multiline_ && replace_newline_chars_with_symbols_)
      base::ReplaceChars(layout_text_, kNewline, kNewlineSymbol, &layout_text_);
  
@@ -78,10 +78,10 @@ index e3a15e6..5fae563 100644
  }
  
 diff --git ui/gfx/render_text.h ui/gfx/render_text.h
-index bcb7314..4063073 100644
+index 00fe00c..bc4fd59 100644
 --- ui/gfx/render_text.h
 +++ ui/gfx/render_text.h
-@@ -313,6 +313,10 @@ class GFX_EXPORT RenderText {
+@@ -312,6 +312,10 @@ class GFX_EXPORT RenderText {
    void SetElideBehavior(ElideBehavior elide_behavior);
    ElideBehavior elide_behavior() const { return elide_behavior_; }
  
@@ -92,7 +92,7 @@ index bcb7314..4063073 100644
    const Rect& display_rect() const { return display_rect_; }
    void SetDisplayRect(const Rect& r);
  
-@@ -861,6 +865,8 @@ class GFX_EXPORT RenderText {
+@@ -858,6 +862,8 @@ class GFX_EXPORT RenderText {
    // OnLayoutTextAttributeChanged and OnDisplayTextAttributeChanged calls.
    std::vector<internal::Line> lines_;
  
@@ -102,22 +102,22 @@ index bcb7314..4063073 100644
  };
  
 diff --git ui/views/controls/button/label_button.cc ui/views/controls/button/label_button.cc
-index 4a7cfd9..750a6ca 100644
+index d114946..30f4283 100644
 --- ui/views/controls/button/label_button.cc
 +++ ui/views/controls/button/label_button.cc
-@@ -239,6 +239,7 @@ gfx::Size LabelButton::GetPreferredSize() const {
-   // Use a temporary label copy for sizing to avoid calculation side-effects.
-   Label label(GetText(), label_->font_list());
+@@ -236,6 +236,7 @@ gfx::Size LabelButton::GetPreferredSize() const {
+   Label label(GetText(), {label_->font_list()});
+   label.SetLineHeight(label_->line_height());
    label.SetShadows(label_->shadows());
 +  label.SetDrawStringsFlags(label_->draw_strings_flags());
  
    if (style_ == STYLE_BUTTON && PlatformStyle::kDefaultLabelButtonHasBoldFont) {
      // Some text appears wider when rendered normally than when rendered bold.
 diff --git ui/views/controls/label.cc ui/views/controls/label.cc
-index 2d16942..dc60700 100644
+index 762227f..18a7293 100644
 --- ui/views/controls/label.cc
 +++ ui/views/controls/label.cc
-@@ -28,6 +28,7 @@
+@@ -27,6 +27,7 @@
  #include "ui/gfx/color_utils.h"
  #include "ui/gfx/geometry/insets.h"
  #include "ui/gfx/text_elider.h"
@@ -125,7 +125,7 @@ index 2d16942..dc60700 100644
  #include "ui/native_theme/native_theme.h"
  #include "ui/strings/grit/ui_strings.h"
  #include "ui/views/background.h"
-@@ -37,6 +38,25 @@
+@@ -36,6 +37,25 @@
  #include "ui/views/selection_controller.h"
  
  namespace views {
@@ -151,7 +151,7 @@ index 2d16942..dc60700 100644
  // static
  const char Label::kViewClassName[] = "Label";
  const int Label::kFocusBorderPadding = 1;
-@@ -211,6 +231,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
+@@ -215,6 +235,15 @@ void Label::SetElideBehavior(gfx::ElideBehavior elide_behavior) {
    ResetLayout();
  }
  
@@ -167,7 +167,7 @@ index 2d16942..dc60700 100644
  void Label::SetTooltipText(const base::string16& tooltip_text) {
    DCHECK(handles_tooltips_);
    tooltip_text_ = tooltip_text;
-@@ -445,7 +474,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText(
+@@ -449,7 +478,19 @@ std::unique_ptr<gfx::RenderText> Label::CreateRenderText(
    render_text->SetFontList(font_list());
    render_text->set_shadows(shadows());
    render_text->SetCursorEnabled(false);
@@ -189,10 +189,10 @@ index 2d16942..dc60700 100644
  }
  
 diff --git ui/views/controls/label.h ui/views/controls/label.h
-index 516368e..22c597a 100644
+index f9c49d0..b1fa1fa 100644
 --- ui/views/controls/label.h
 +++ ui/views/controls/label.h
-@@ -120,6 +120,10 @@ class VIEWS_EXPORT Label : public View,
+@@ -147,6 +147,10 @@ class VIEWS_EXPORT Label : public View,
    void SetElideBehavior(gfx::ElideBehavior elide_behavior);
    gfx::ElideBehavior elide_behavior() const { return elide_behavior_; }
  
@@ -203,7 +203,7 @@ index 516368e..22c597a 100644
    // Sets the tooltip text.  Default behavior for a label (single-line) is to
    // show the full text if it is wider than its bounds.  Calling this overrides
    // the default behavior and lets you set a custom tooltip.  To revert to
-@@ -340,6 +344,7 @@ class VIEWS_EXPORT Label : public View,
+@@ -367,6 +371,7 @@ class VIEWS_EXPORT Label : public View,
    bool collapse_when_hidden_;
    int fixed_width_;
    int max_width_;
@@ -212,10 +212,10 @@ index 516368e..22c597a 100644
    // TODO(ckocagil): Remove is_first_paint_text_ before crbug.com/441028 is
    // closed.
 diff --git ui/views/controls/menu/menu_controller.cc ui/views/controls/menu/menu_controller.cc
-index 335945f..99ad0d9 100644
+index 3f9436d..0bf813a1 100644
 --- ui/views/controls/menu/menu_controller.cc
 +++ ui/views/controls/menu/menu_controller.cc
-@@ -2270,8 +2270,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
+@@ -2261,8 +2261,13 @@ MenuItemView* MenuController::FindNextSelectableMenuItem(
  
  void MenuController::OpenSubmenuChangeSelectionIfCan() {
    MenuItemView* item = pending_state_.item;
@@ -230,7 +230,7 @@ index 335945f..99ad0d9 100644
    MenuItemView* to_select = NULL;
    if (item->GetSubmenu()->GetMenuItemCount() > 0)
      to_select = FindInitialSelectableMenuItem(item, INCREMENT_SELECTION_DOWN);
-@@ -2286,8 +2291,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
+@@ -2277,8 +2282,10 @@ void MenuController::OpenSubmenuChangeSelectionIfCan() {
  void MenuController::CloseSubmenu() {
    MenuItemView* item = state_.item;
    DCHECK(item);

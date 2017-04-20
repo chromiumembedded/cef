@@ -1,10 +1,10 @@
 diff --git BUILD.gn BUILD.gn
-index de7f21b..cb3dcb1 100644
+index 1d8f353..419c18d 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -208,6 +208,10 @@ static_library("pdfium") {
-   } else {
-     libs += [ "freetype" ]
+@@ -220,6 +220,10 @@ static_library("pdfium") {
+   if (pdf_is_complete_lib) {
+     complete_static_lib = true
    }
 +
 +  include_dirs = [
@@ -14,7 +14,7 @@ index de7f21b..cb3dcb1 100644
  
  static_library("test_support") {
 diff --git fpdfsdk/fpdfview.cpp fpdfsdk/fpdfview.cpp
-index 1e7a651..9523c7e 100644
+index 5010c17..ffc81fd 100644
 --- fpdfsdk/fpdfview.cpp
 +++ fpdfsdk/fpdfview.cpp
 @@ -31,6 +31,7 @@
@@ -24,8 +24,8 @@ index 1e7a651..9523c7e 100644
 +#include "fxjs/fxjs_v8.h"
  #include "public/fpdf_ext.h"
  #include "public/fpdf_progressive.h"
- #include "third_party/base/numerics/safe_conversions_impl.h"
-@@ -419,6 +420,7 @@ DLLEXPORT void STDCALL FPDF_DestroyLibrary() {
+ #include "third_party/base/allocator/partition_allocator/partition_alloc.h"
+@@ -421,6 +422,7 @@ DLLEXPORT void STDCALL FPDF_DestroyLibrary() {
  
    CPDF_ModuleMgr::Destroy();
    CFX_GEModule::Destroy();

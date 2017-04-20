@@ -91,7 +91,7 @@ bool ParamTraits<scoped_refptr<net::UploadData> >::Read(
     return false;
   if (!has_object)
     return true;
-  ScopedVector<net::UploadElement> elements;
+  net::UploadData::ElementsVector elements;
   if (!ReadParam(m, iter, &elements))
     return false;
   int64_t identifier;

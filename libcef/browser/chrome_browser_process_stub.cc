@@ -277,8 +277,8 @@ safe_browsing::ClientSideDetectionService*
   return NULL;
 }
 
-subresource_filter::RulesetService*
-    ChromeBrowserProcessStub::subresource_filter_ruleset_service() {
+subresource_filter::ContentRulesetService*
+   ChromeBrowserProcessStub::subresource_filter_ruleset_service() {
   NOTREACHED();
   return NULL;
 }

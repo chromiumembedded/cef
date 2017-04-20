@@ -140,9 +140,6 @@ assert(!enable_print_preview)
 # Enable support for Widevine CDM.
 assert(enable_widevine)
 
-# Disable support for plugin installation.
-assert(!enable_plugin_installation)
-
 if (is_clang) {
   # Don't use the chrome style plugin.
   assert(!clang_use_chrome_plugins)
@@ -595,6 +592,9 @@ static_library("libcef_static") {
     # we include Blink headers.
     "//third_party/WebKit/public/platform",
     "//third_party/WebKit/public/web",
+
+    # Crashpad code uses paths relative to this directory.
+    "//third_party/crashpad/crashpad",
   ]
 
   public_deps = [
@@ -753,8 +753,8 @@ static_library("libcef_static") {
     ]
 
     deps += [
+      "//build/config/freetype",
       "//build/linux:fontconfig",
-      "//build/linux:freetype2",
     ]
   }
 

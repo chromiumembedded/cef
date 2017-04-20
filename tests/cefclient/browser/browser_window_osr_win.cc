@@ -13,7 +13,6 @@ BrowserWindowOsrWin::BrowserWindowOsrWin(BrowserWindow::Delegate* delegate,
                                          const std::string& startup_url,
                                          const OsrRenderer::Settings& settings)
     : BrowserWindow(delegate),
-      transparent_(settings.transparent),
       osr_hwnd_(NULL),
       device_scale_factor_(client::GetDeviceScaleFactor()) {
   osr_window_ = new OsrWindowWin(this, settings);
@@ -38,7 +37,7 @@ void BrowserWindowOsrWin::GetPopupConfig(CefWindowHandle temp_handle,
                                          CefRefPtr<CefClient>& client,
                                          CefBrowserSettings& settings) {
   // Note: This method may be called on any thread.
-  windowInfo.SetAsWindowless(temp_handle, transparent_);
+  windowInfo.SetAsWindowless(temp_handle);
   client = client_handler_;
 }
 

@@ -17,8 +17,6 @@
 #include "base/strings/utf_string_conversions.h"
 #include "content/common/view_messages.h"
 #include "ui/accelerated_widget_mac/accelerated_widget_mac.h"
-#include "ui/events/latency_info.h"
-
 
 class MacHelper :
   public content::BrowserCompositorMacClient,
@@ -47,15 +45,6 @@ class MacHelper :
       return SK_ColorBLACK;
     }
     return color;
-  }
-
-  void BrowserCompositorMacSendReclaimCompositorResources(
-      int output_surface_id,
-      bool is_swap_ack,
-      const cc::ReturnedResourceArray& resources) override {
-    view_->render_widget_host()->Send(new ViewMsg_ReclaimCompositorResources(
-        view_->render_widget_host()->GetRoutingID(), output_surface_id,
-        is_swap_ack, resources));
   }
 
   void BrowserCompositorMacSendBeginFrame(

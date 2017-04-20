@@ -41,11 +41,7 @@ blink::WebString CreateNodeMarkup(const blink::WebNode& node);
 bool SetNodeValue(blink::WebNode& node, const blink::WebString& value);
 
 int64_t GetIdentifier(blink::WebFrame* frame);
-
-// Find the frame with the specified |unique_name| relative to
-// |relative_to_frame| in the frame hierarchy.
-blink::WebFrame* FindFrameByUniqueName(const blink::WebString& unique_name,
-                                       blink::WebFrame* relative_to_frame);
+std::string GetUniqueName(blink::WebFrame* frame);
 
 bool IsTextControlElement(const blink::WebElement& element);
 
@@ -67,9 +63,9 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
 
 bool IsScriptForbidden();
 
-void registerURLSchemeAsLocal(const blink::WebString& scheme);
-void registerURLSchemeAsSecure(const blink::WebString& scheme);
-void registerURLSchemeAsCORSEnabled(const blink::WebString& scheme);
+void RegisterURLSchemeAsLocal(const blink::WebString& scheme);
+void RegisterURLSchemeAsSecure(const blink::WebString& scheme);
+void RegisterURLSchemeAsCORSEnabled(const blink::WebString& scheme);
 
 }  // webkit_glue
 

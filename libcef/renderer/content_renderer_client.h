@@ -127,6 +127,7 @@ class CefContentRendererClient : public content::ContentRendererClient,
       override;
   void RunScriptsAtDocumentStart(content::RenderFrame* render_frame) override;
   void RunScriptsAtDocumentEnd(content::RenderFrame* render_frame) override;
+  void RunScriptsAtDocumentIdle(content::RenderFrame* render_frame) override;
 
   // MessageLoop::DestructionObserver implementation.
   void WillDestroyCurrentMessageLoop() override;

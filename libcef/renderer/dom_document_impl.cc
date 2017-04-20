@@ -29,8 +29,8 @@ CefDOMDocumentImpl::CefDOMDocumentImpl(CefBrowserImpl* browser,
                                        WebFrame* frame)
     : browser_(browser),
       frame_(frame) {
-  const WebDocument& document = frame_->document();
-  DCHECK(!document.isNull());
+  const WebDocument& document = frame_->GetDocument();
+  DCHECK(!document.IsNull());
 }
 
 CefDOMDocumentImpl::~CefDOMDocumentImpl() {
@@ -44,29 +44,29 @@ CefDOMDocumentImpl::Type CefDOMDocumentImpl::GetType() {
   if (!VerifyContext())
     return DOM_DOCUMENT_TYPE_UNKNOWN;
 
-  const WebDocument& document = frame_->document();
-  if (document.isHTMLDocument())
+  const WebDocument& document = frame_->GetDocument();
+  if (document.IsHTMLDocument())
     return DOM_DOCUMENT_TYPE_HTML;
-  if (document.isXHTMLDocument())
+  if (document.IsXHTMLDocument())
     return DOM_DOCUMENT_TYPE_XHTML;
-  if (document.isPluginDocument())
+  if (document.IsPluginDocument())
     return DOM_DOCUMENT_TYPE_PLUGIN;
   return DOM_DOCUMENT_TYPE_UNKNOWN;
 }
 
 CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetDocument() {
-  const WebDocument& document = frame_->document();
-  return GetOrCreateNode(document.document());
+  const WebDocument& document = frame_->GetDocument();
+  return GetOrCreateNode(document.GetDocument());
 }
 
 CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetBody() {
-  const WebDocument& document = frame_->document();
-  return GetOrCreateNode(document.body());
+  const WebDocument& document = frame_->GetDocument();
+  return GetOrCreateNode(document.Body());
 }
 
 CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetHead() {
-  WebDocument document = frame_->document();
-  return GetOrCreateNode(document.head());
+  WebDocument document = frame_->GetDocument();
+  return GetOrCreateNode(document.Head());
 }
 
 CefString CefDOMDocumentImpl::GetTitle() {
@@ -74,89 +74,89 @@ CefString CefDOMDocumentImpl::GetTitle() {
   if (!VerifyContext())
     return str;
 
-  const WebDocument& document = frame_->document();
-  const WebString& title = document.title();
-  if (!title.isNull())
-    str = title.utf16();
+  const WebDocument& document = frame_->GetDocument();
+  const WebString& title = document.Title();
+  if (!title.IsNull())
+    str = title.Utf16();
 
   return str;
 }
 
 CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetElementById(const CefString& id) {
-  const WebDocument& document = frame_->document();
-  return GetOrCreateNode(document.getElementById(WebString::fromUTF16(id)));
+  const WebDocument& document = frame_->GetDocument();
+  return GetOrCreateNode(document.GetElementById(WebString::FromUTF16(id)));
 }
 
 CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetFocusedNode() {
-  const WebDocument& document = frame_->document();
-  return GetOrCreateNode(document.focusedElement());
+  const WebDocument& document = frame_->GetDocument();
+  return GetOrCreateNode(document.FocusedElement());
 }
 
 bool CefDOMDocumentImpl::HasSelection() {
-  if (!VerifyContext() || !frame_->isWebLocalFrame())
+  if (!VerifyContext() || !frame_->IsWebLocalFrame())
     return false;
 
-  return frame_->toWebLocalFrame()->hasSelection();
+  return frame_->ToWebLocalFrame()->HasSelection();
 }
 
 int CefDOMDocumentImpl::GetSelectionStartOffset() {
-  if (!VerifyContext() || !frame_->isWebLocalFrame())
+  if (!VerifyContext() || !frame_->IsWebLocalFrame())
     return 0;
 
-  blink::WebLocalFrame* local_frame = frame_->toWebLocalFrame();
-  if (!!local_frame->hasSelection())
+  blink::WebLocalFrame* local_frame = frame_->ToWebLocalFrame();
+  if (!!local_frame->HasSelection())
     return 0;
 
-  const WebRange& range = local_frame->selectionRange();
-  if (range.isNull())
+  const WebRange& range = local_frame->SelectionRange();
+  if (range.IsNull())
     return 0;
 
-  return range.startOffset();
+  return range.StartOffset();
 }
 
 int CefDOMDocumentImpl::GetSelectionEndOffset() {
-  if (!VerifyContext() || !frame_->isWebLocalFrame())
+  if (!VerifyContext() || !frame_->IsWebLocalFrame())
     return 0;
 
-  blink::WebLocalFrame* local_frame = frame_->toWebLocalFrame();
-  if (!!local_frame->hasSelection())
+  blink::WebLocalFrame* local_frame = frame_->ToWebLocalFrame();
+  if (!!local_frame->HasSelection())
     return 0;
 
-  const WebRange& range = local_frame->selectionRange();
-  if (range.isNull())
+  const WebRange& range = local_frame->SelectionRange();
+  if (range.IsNull())
     return 0;
 
-  return range.endOffset();
+  return range.EndOffset();
 }
 
 CefString CefDOMDocumentImpl::GetSelectionAsMarkup() {
   CefString str;
-  if (!VerifyContext() || !frame_->isWebLocalFrame())
+  if (!VerifyContext() || !frame_->IsWebLocalFrame())
     return str;
 
-  blink::WebLocalFrame* local_frame = frame_->toWebLocalFrame();
-  if (!!local_frame->hasSelection())
+  blink::WebLocalFrame* local_frame = frame_->ToWebLocalFrame();
+  if (!!local_frame->HasSelection())
     return str;
 
-  const WebString& markup = local_frame->selectionAsMarkup();
-  if (!markup.isNull())
-    str = markup.utf16();
+  const WebString& markup = local_frame->SelectionAsMarkup();
+  if (!markup.IsNull())
+    str = markup.Utf16();
 
   return str;
 }
 
 CefString CefDOMDocumentImpl::GetSelectionAsText() {
   CefString str;
-  if (!VerifyContext() || !frame_->isWebLocalFrame())
+  if (!VerifyContext() || !frame_->IsWebLocalFrame())
     return str;
 
-  blink::WebLocalFrame* local_frame = frame_->toWebLocalFrame();
-  if (!!local_frame->hasSelection())
+  blink::WebLocalFrame* local_frame = frame_->ToWebLocalFrame();
+  if (!!local_frame->HasSelection())
     return str;
 
-  const WebString& text = local_frame->selectionAsText();
-  if (!text.isNull())
-    str = text.utf16();
+  const WebString& text = local_frame->SelectionAsText();
+  if (!text.IsNull())
+    str = text.Utf16();
 
   return str;
 }
@@ -166,9 +166,9 @@ CefString CefDOMDocumentImpl::GetBaseURL() {
   if (!VerifyContext())
     return str;
 
-  const WebDocument& document = frame_->document();
-  const WebURL& url = document.baseURL();
-  if (!url.isNull()) {
+  const WebDocument& document = frame_->GetDocument();
+  const WebURL& url = document.BaseURL();
+  if (!url.IsNull()) {
     GURL gurl = url;
     str = gurl.spec();
   }
@@ -181,9 +181,9 @@ CefString CefDOMDocumentImpl::GetCompleteURL(const CefString& partialURL) {
   if (!VerifyContext())
     return str;
 
-  const WebDocument& document = frame_->document();
-  const WebURL& url = document.completeURL(WebString::fromUTF16(partialURL));
-  if (!url.isNull()) {
+  const WebDocument& document = frame_->GetDocument();
+  const WebURL& url = document.CompleteURL(WebString::FromUTF16(partialURL));
+  if (!url.IsNull()) {
     GURL gurl = url;
     str = gurl.spec();
   }
@@ -197,7 +197,7 @@ CefRefPtr<CefDOMNode> CefDOMDocumentImpl::GetOrCreateNode(
     return NULL;
 
   // Nodes may potentially be null.
-  if (node.isNull())
+  if (node.IsNull())
     return NULL;
 
   if (!node_map_.empty()) {

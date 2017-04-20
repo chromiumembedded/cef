@@ -1,5 +1,5 @@
 diff --git build/secondary/third_party/crashpad/crashpad/handler/BUILD.gn build/secondary/third_party/crashpad/crashpad/handler/BUILD.gn
-index d2ce8b9..e4fc7c6 100644
+index c4ca09c..40b981e 100644
 --- build/secondary/third_party/crashpad/crashpad/handler/BUILD.gn
 +++ build/secondary/third_party/crashpad/crashpad/handler/BUILD.gn
 @@ -2,6 +2,8 @@
@@ -11,7 +11,7 @@ index d2ce8b9..e4fc7c6 100644
  static_library("handler_lib") {
    sources = [
      "crash_report_upload_thread.cc",
-@@ -26,8 +28,18 @@ static_library("handler_lib") {
+@@ -28,8 +30,18 @@ static_library("handler_lib") {
      "../snapshot",
      "../tools:tool_support",
      "//base",
@@ -31,7 +31,7 @@ index d2ce8b9..e4fc7c6 100644
      cflags = [ "/wd4201" ]
    }
 diff --git chrome/common/crash_keys.cc chrome/common/crash_keys.cc
-index 4750471..a341ac0 100644
+index 78b04f4..abf9c98 100644
 --- chrome/common/crash_keys.cc
 +++ chrome/common/crash_keys.cc
 @@ -4,6 +4,8 @@
@@ -43,7 +43,7 @@ index 4750471..a341ac0 100644
  #include "base/base_switches.h"
  #include "base/command_line.h"
  #include "base/format_macros.h"
-@@ -96,7 +98,7 @@ const char kViewCount[] = "view-count";
+@@ -88,7 +90,7 @@ const char kViewCount[] = "view-count";
  
  const char kZeroEncodeDetails[] = "zero-encode-details";
  
@@ -52,7 +52,7 @@ index 4750471..a341ac0 100644
    // The following keys may be chunked by the underlying crash logging system,
    // but ultimately constitute a single key-value pair.
    //
-@@ -252,10 +254,16 @@ size_t RegisterChromeCrashKeys() {
+@@ -254,10 +256,16 @@ size_t RegisterChromeCrashKeys() {
  
    // This dynamic set of keys is used for sets of key value pairs when gathering
    // a collection of data, like command line switches or extension IDs.
@@ -71,7 +71,7 @@ index 4750471..a341ac0 100644
  
    // Register the extension IDs.
    {
-@@ -289,7 +297,7 @@ size_t RegisterChromeCrashKeys() {
+@@ -291,7 +299,7 @@ size_t RegisterChromeCrashKeys() {
    return base::debug::InitCrashKeys(&keys.at(0), keys.size(), kChunkMaxLength);
  }
  
@@ -80,7 +80,7 @@ index 4750471..a341ac0 100644
    static const char* const kIgnoreSwitches[] = {
      switches::kEnableLogging,
      switches::kFlagSwitchesBegin,
-@@ -345,7 +353,7 @@ static bool IsBoringSwitch(const std::string& flag) {
+@@ -347,7 +355,7 @@ static bool IsBoringSwitch(const std::string& flag) {
  }
  
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line) {
@@ -90,7 +90,7 @@ index 4750471..a341ac0 100644
  
  void SetActiveExtensions(const std::set<std::string>& extensions) {
 diff --git chrome/common/crash_keys.h chrome/common/crash_keys.h
-index e7c9bc3..c97f667 100644
+index 7abe208..424a2a4 100644
 --- chrome/common/crash_keys.h
 +++ chrome/common/crash_keys.h
 @@ -22,10 +22,18 @@ class CommandLine;
@@ -113,7 +113,7 @@ index e7c9bc3..c97f667 100644
  // on the given |command_line|.
  void SetCrashKeysFromCommandLine(const base::CommandLine& command_line);
 diff --git chrome_elf/BUILD.gn chrome_elf/BUILD.gn
-index 53a29c8..9d0ee4c 100644
+index 40f611f..b5e7d64 100644
 --- chrome_elf/BUILD.gn
 +++ chrome_elf/BUILD.gn
 @@ -7,6 +7,7 @@
@@ -124,7 +124,7 @@ index 53a29c8..9d0ee4c 100644
  import("//chrome/process_version_rc_template.gni")
  import("//testing/test.gni")
  
-@@ -136,16 +137,40 @@ static_library("blacklist") {
+@@ -137,16 +138,40 @@ static_library("blacklist") {
  
  static_library("crash") {
    sources = [
@@ -147,7 +147,7 @@ index 53a29c8..9d0ee4c 100644
 +      "//chrome/common/chrome_switches.cc",
 +      "//components/flags_ui/flags_ui_switches.cc",
 +      "//content/public/common/content_switches.cc",
-+
++      "//gpu/config/gpu_crash_keys.cc",
 +    ]
 +    include_dirs = [
 +      "//cef",
@@ -203,7 +203,7 @@ index c658fa9..8c4a145 100644
    g_crash_helper_enabled = true;
    return true;
 diff --git components/crash/content/app/breakpad_linux.cc components/crash/content/app/breakpad_linux.cc
-index 3c31d76..26a2602 100644
+index 0d3de65..a1b8b09 100644
 --- components/crash/content/app/breakpad_linux.cc
 +++ components/crash/content/app/breakpad_linux.cc
 @@ -29,6 +29,7 @@
@@ -222,7 +222,7 @@ index 3c31d76..26a2602 100644
  #endif
  
  bool g_is_crash_reporter_enabled = false;
-@@ -685,7 +687,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
+@@ -688,7 +690,7 @@ bool CrashDone(const MinidumpDescriptor& minidump,
    info.process_type_length = 7;
    info.distro = base::g_linux_distro;
    info.distro_length = my_strlen(base::g_linux_distro);
@@ -231,7 +231,7 @@ index 3c31d76..26a2602 100644
    info.process_start_time = g_process_start_time;
    info.oom_size = base::g_oom_size;
    info.pid = g_pid;
-@@ -1341,7 +1343,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
+@@ -1357,7 +1359,7 @@ void ExecUploadProcessOrTerminate(const BreakpadInfo& info,
      header_content_encoding,
      header_content_type,
      post_file,
@@ -240,7 +240,7 @@ index 3c31d76..26a2602 100644
      "--timeout=10",  // Set a timeout so we don't hang forever.
      "--tries=1",     // Don't retry if the upload fails.
      "-O",  // Output reply to the file descriptor path.
-@@ -1680,10 +1682,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
+@@ -1696,10 +1698,19 @@ void HandleCrashDump(const BreakpadInfo& info) {
      GetCrashReporterClient()->GetProductNameAndVersion(&product_name, &version);
  
      writer.AddBoundary();
@@ -262,7 +262,7 @@ index 3c31d76..26a2602 100644
      if (info.pid > 0) {
        char pid_value_buf[kUint64StringSize];
        uint64_t pid_value_len = my_uint64_len(info.pid);
-@@ -1977,6 +1988,17 @@ void InitCrashReporter(const std::string& process_type) {
+@@ -2004,6 +2015,17 @@ void InitCrashReporter(const std::string& process_type) {
    PostEnableBreakpadInitialization();
  }
  
@@ -281,7 +281,7 @@ index 3c31d76..26a2602 100644
  void InitNonBrowserCrashReporterForAndroid(const std::string& process_type) {
    SanitizationInfo sanitization_info;
 diff --git components/crash/content/app/breakpad_linux.h components/crash/content/app/breakpad_linux.h
-index 3ef4e8a..d0a4b12 100644
+index 0160f62..b732498 100644
 --- components/crash/content/app/breakpad_linux.h
 +++ components/crash/content/app/breakpad_linux.h
 @@ -16,6 +16,9 @@ namespace breakpad {
@@ -292,10 +292,10 @@ index 3ef4e8a..d0a4b12 100644
 +void SetCrashServerURL(const std::string& url);
 +
  #if defined(OS_ANDROID)
- struct SanitizationInfo {
-   bool should_sanitize_dumps = false;
+ extern void InitCrashKeysForTesting();
+ 
 diff --git components/crash/content/app/crash_reporter_client.cc components/crash/content/app/crash_reporter_client.cc
-index fd88348..cbb9533 100644
+index 2e9ee28..de53f59 100644
 --- components/crash/content/app/crash_reporter_client.cc
 +++ components/crash/content/app/crash_reporter_client.cc
 @@ -88,11 +88,12 @@ int CrashReporterClient::GetResultCodeRespawnFailed() {
@@ -320,7 +320,7 @@ index fd88348..cbb9533 100644
  
  #if defined(OS_WIN)
  bool CrashReporterClient::GetCrashDumpLocation(base::string16* crash_dir) {
-@@ -141,6 +143,32 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
+@@ -149,6 +151,32 @@ bool CrashReporterClient::ReportingIsEnforcedByPolicy(bool* breakpad_enabled) {
  }
  #endif
  
@@ -353,7 +353,7 @@ index fd88348..cbb9533 100644
  #if defined(OS_ANDROID)
  int CrashReporterClient::GetAndroidMinidumpDescriptor() {
    return 0;
-@@ -165,9 +193,4 @@ bool CrashReporterClient::ShouldEnableBreakpadMicrodumps() {
+@@ -179,9 +207,4 @@ bool CrashReporterClient::ShouldMonitorCrashHandlerExpensively() {
  }
  #endif
  
@@ -364,7 +364,7 @@ index fd88348..cbb9533 100644
 -
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crash_reporter_client.h components/crash/content/app/crash_reporter_client.h
-index 513727c..aef4590 100644
+index 9f69c19..2abaee00 100644
 --- components/crash/content/app/crash_reporter_client.h
 +++ components/crash/content/app/crash_reporter_client.h
 @@ -8,6 +8,7 @@
@@ -398,7 +398,7 @@ index 513727c..aef4590 100644
  
    // The location where minidump files should be written. Returns true if
    // |crash_dir| was set. Windows has to use base::string16 because this code
-@@ -176,6 +179,23 @@ class CrashReporterClient {
+@@ -197,6 +200,23 @@ class CrashReporterClient {
  
    // Returns true if breakpad should run in the given process type.
    virtual bool EnableBreakpadForProcess(const std::string& process_type);
@@ -423,7 +423,7 @@ index 513727c..aef4590 100644
  
  }  // namespace crash_reporter
 diff --git components/crash/content/app/crashpad.cc components/crash/content/app/crashpad.cc
-index a0eabba..94039c4 100644
+index dcec346..6272df6 100644
 --- components/crash/content/app/crashpad.cc
 +++ components/crash/content/app/crashpad.cc
 @@ -142,7 +142,8 @@ void InitializeCrashpadImpl(bool initial_client,
@@ -437,7 +437,7 @@ index a0eabba..94039c4 100644
          crashpad::TriState::kDisabled);
    }
 diff --git components/crash/content/app/crashpad_mac.mm components/crash/content/app/crashpad_mac.mm
-index 7df66ea..4ee709a 100644
+index 3bae07e..12b0a16 100644
 --- components/crash/content/app/crashpad_mac.mm
 +++ components/crash/content/app/crashpad_mac.mm
 @@ -16,11 +16,14 @@
@@ -501,10 +501,10 @@ index 7df66ea..4ee709a 100644
 +      }
  
  #if defined(GOOGLE_CHROME_BUILD)
-       NSString* channel = base::mac::ObjCCast<NSString>(
-@@ -73,12 +88,16 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+       // Empty means stable.
+@@ -79,12 +94,16 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+         process_annotations["channel"] = "";
        }
- #endif
  
 -      NSString* version =
 -          base::mac::ObjCCast<NSString>([base::mac::FrameworkBundle()
@@ -523,25 +523,25 @@ index 7df66ea..4ee709a 100644
 +      process_annotations["platform"] = std::string("macos");
  
        std::vector<std::string> arguments;
-       if (!browser_process) {
-@@ -90,6 +109,12 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+ 
+@@ -105,6 +124,12 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+         arguments.push_back(
              "--reset-own-crash-exception-port-to-system-default");
        }
- 
++      
 +      // Since we're using the same subprocess helper exe we must specify the
 +      // process type.
 +      arguments.push_back(std::string("--type=") + switches::kCrashpadHandler);
 +
 +      crash_reporter_client->GetCrashOptionalArguments(&arguments);
-+
-       crashpad::CrashpadClient crashpad_client;
-       bool result = crashpad_client.StartHandler(handler_path,
-                                                  database_path,
+ 
+       bool result = GetCrashpadClient().StartHandler(
+           handler_path, database_path, metrics_path, url, process_annotations,
 diff --git components/crash/content/app/crashpad_win.cc components/crash/content/app/crashpad_win.cc
-index 3ad5f8d..77a0fe6 100644
+index 94a350f..61667a8 100644
 --- components/crash/content/app/crashpad_win.cc
 +++ components/crash/content/app/crashpad_win.cc
-@@ -41,15 +41,15 @@ void GetPlatformCrashpadAnnotations(
+@@ -33,8 +33,8 @@ void GetPlatformCrashpadAnnotations(
    base::string16 product_name, version, special_build, channel_name;
    crash_reporter_client->GetProductNameAndVersion(
        exe_file, &product_name, &version, &special_build, &channel_name);
@@ -549,19 +549,22 @@ index 3ad5f8d..77a0fe6 100644
 -  (*annotations)["ver"] = base::UTF16ToUTF8(version);
 +  (*annotations)["product"] = base::UTF16ToUTF8(product_name);
 +  (*annotations)["version"] = base::UTF16ToUTF8(version);
-   (*annotations)["channel"] = base::UTF16ToUTF8(channel_name);
+ #if defined(GOOGLE_CHROME_BUILD)
+   // Empty means stable.
+   const bool allow_empty_channel = true;
+@@ -46,9 +46,9 @@ void GetPlatformCrashpadAnnotations(
    if (!special_build.empty())
      (*annotations)["special"] = base::UTF16ToUTF8(special_build);
  #if defined(ARCH_CPU_X86)
 -  (*annotations)["plat"] = std::string("Win32");
-+  (*annotations)["platform"] = std::string("win32");
++  (*annotations)["platform"] = std::string("Win32");
  #elif defined(ARCH_CPU_X86_64)
 -  (*annotations)["plat"] = std::string("Win64");
-+  (*annotations)["platform"] = std::string("win64");
++  (*annotations)["platform"] = std::string("Win64");
  #endif
  }
  
-@@ -81,7 +81,7 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -80,7 +80,7 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
  #if defined(GOOGLE_CHROME_BUILD)
      std::string url = "https://clients2.google.com/cr/report";
  #else
@@ -570,25 +573,27 @@ index 3ad5f8d..77a0fe6 100644
  #endif
  
      // Allow the crash server to be overridden for testing. If the variable
-@@ -101,21 +101,25 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
+@@ -100,22 +100,26 @@ base::FilePath PlatformCrashpadInitialization(bool initial_client,
                crashpad::TriState::kEnabled, kIndirectMemoryLimit);
      }
  
 -    // If the handler is embedded in the binary (e.g. chrome, setup), we
 -    // reinvoke it with --type=crashpad-handler. Otherwise, we use the
 -    // standalone crashpad_handler.exe (for tests, etc.).
-     std::vector<std::string> arguments;
-+
+     std::vector<std::string> start_arguments;
++    
 +    // Always add --type=crashpad-handler because the value is expected by
 +    // CefExecuteProcess.
-+    arguments.push_back(std::string("--type=") + switches::kCrashpadHandler);
++    start_arguments.push_back(
++        std::string("--type=") + switches::kCrashpadHandler);
 +
      if (embedded_handler) {
--      arguments.push_back(std::string("--type=") + switches::kCrashpadHandler);
+-      start_arguments.push_back(std::string("--type=") +
+-                                switches::kCrashpadHandler);
        // The prefetch argument added here has to be documented in
        // chrome_switches.cc, below the kPrefetchArgument* constants. A constant
        // can't be used here because crashpad can't depend on Chrome.
-       arguments.push_back("/prefetch:7");
+       start_arguments.push_back("/prefetch:7");
      } else {
        base::FilePath exe_dir = exe_file.DirName();
 -      exe_file = exe_dir.Append(FILE_PATH_LITERAL("crashpad_handler.exe"));
@@ -596,13 +601,13 @@ index 3ad5f8d..77a0fe6 100644
 +          crash_reporter_client->GetCrashExternalHandler(exe_dir.value()));
      }
  
-+    crash_reporter_client->GetCrashOptionalArguments(&arguments);
++    crash_reporter_client->GetCrashOptionalArguments(&start_arguments);
 +
-     if (!g_crashpad_client.Get().StartHandler(
-             exe_file, database_path, metrics_path, url, process_annotations,
-             arguments, false, true)) {
+     std::vector<std::string> arguments(start_arguments);
+ 
+     if (crash_reporter_client->ShouldMonitorCrashHandlerExpensively()) {
 diff --git content/browser/frame_host/debug_urls.cc content/browser/frame_host/debug_urls.cc
-index c693078..e58465b 100644
+index bcf53d5..d4f070b 100644
 --- content/browser/frame_host/debug_urls.cc
 +++ content/browser/frame_host/debug_urls.cc
 @@ -139,7 +139,9 @@ bool HandleDebugURL(const GURL& url, ui::PageTransition transition) {

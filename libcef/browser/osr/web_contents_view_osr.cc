@@ -14,10 +14,9 @@
 #include "content/browser/frame_host/render_widget_host_view_guest.h"
 #include "content/browser/web_contents/web_contents_impl.h"
 #include "content/public/browser/render_widget_host.h"
-#include "content/public/browser/user_metrics.h"
 
-CefWebContentsViewOSR::CefWebContentsViewOSR(bool transparent)
-    : transparent_(transparent),
+CefWebContentsViewOSR::CefWebContentsViewOSR(SkColor background_color)
+    : background_color_(background_color),
       web_contents_(NULL) {
 }
 
@@ -100,9 +99,8 @@ content::RenderWidgetHostViewBase* CefWebContentsViewOSR::CreateViewForWidget(
   }
 
   const bool is_guest_view_hack = !!embedder_render_widget_host;
-  return new CefRenderWidgetHostViewOSR(transparent_, render_widget_host,
-                                        embedder_host_view,
-                                        is_guest_view_hack);
+  return new CefRenderWidgetHostViewOSR(background_color_, render_widget_host,
+                                        embedder_host_view, is_guest_view_hack);
 }
 
 // Called for popup and fullscreen widgets.
@@ -112,8 +110,8 @@ content::RenderWidgetHostViewBase*
   CefRenderWidgetHostViewOSR* view = GetView();
   CHECK(view);
 
-  return new CefRenderWidgetHostViewOSR(transparent_, render_widget_host, view,
-                                        false);
+  return new CefRenderWidgetHostViewOSR(background_color_, render_widget_host,
+                                        view, false);
 }
 
 void CefWebContentsViewOSR::SetPageTitle(const base::string16& title) {

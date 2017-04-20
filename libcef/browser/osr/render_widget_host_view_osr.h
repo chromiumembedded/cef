@@ -16,6 +16,7 @@
 #include "base/memory/weak_ptr.h"
 #include "build/build_config.h"
 #include "cc/scheduler/begin_frame_source.h"
+#include "content/browser/renderer_host/compositor_resize_lock.h"
 #include "content/browser/renderer_host/delegated_frame_host.h"
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
 #include "ui/compositor/compositor.h"
@@ -85,11 +86,12 @@ class CefRenderWidgetHostViewOSR
     : public content::RenderWidgetHostViewBase,
       public ui::CompositorDelegate
 #if !defined(OS_MACOSX)
-      , public content::DelegatedFrameHostClient
+      , public content::DelegatedFrameHostClient,
+      public content::CompositorResizeLockClient
 #endif
 {
  public:
-  CefRenderWidgetHostViewOSR(const bool transparent,
+  CefRenderWidgetHostViewOSR(SkColor background_color,
                              content::RenderWidgetHost* widget,
                              CefRenderWidgetHostViewOSR* parent_host_view,
                              bool is_guest_view_hack);
@@ -111,6 +113,7 @@ class CefRenderWidgetHostViewOSR
   bool IsShowing() override;
   gfx::Rect GetViewBounds() const override;
   void SetBackgroundColor(SkColor color) override;
+  SkColor background_color() const override;
   bool LockMouse() override;
   void UnlockMouse() override;
 
@@ -125,7 +128,10 @@ class CefRenderWidgetHostViewOSR
 #endif  // defined(OS_MACOSX)
 
   // RenderWidgetHostViewBase implementation.
-  void OnSwapCompositorFrame(uint32_t output_surface_id,
+  void DidCreateNewRendererCompositorFrameSink(
+      cc::mojom::MojoCompositorFrameSinkClient*
+          renderer_compositor_frame_sink) override;
+  void SubmitCompositorFrame(const cc::LocalSurfaceId& local_surface_id,
                              cc::CompositorFrame frame) override;
   void ClearCompositorFrame() override;
   void InitAsPopup(content::RenderWidgetHostView* parent_host_view,
@@ -192,16 +198,16 @@ class CefRenderWidgetHostViewOSR
   bool DelegatedFrameHostIsVisible() const override;
   SkColor DelegatedFrameHostGetGutterColor(SkColor color) const override;
   gfx::Size DelegatedFrameHostDesiredSizeInDIP() const override;
- bool DelegatedFrameCanCreateResizeLock() const override;
-  std::unique_ptr<content::ResizeLock> DelegatedFrameHostCreateResizeLock(
-      bool defer_compositor_lock) override;
-  void DelegatedFrameHostResizeLockWasReleased() override;
-  void DelegatedFrameHostSendReclaimCompositorResources(
-      int output_surface_id,
-      bool is_swap_ack,
-      const cc::ReturnedResourceArray& resources) override;
-  void SetBeginFrameSource(cc::BeginFrameSource* source) override;
+  bool DelegatedFrameCanCreateResizeLock() const override;
+  std::unique_ptr<content::CompositorResizeLock>
+      DelegatedFrameHostCreateResizeLock() override;
+  void OnBeginFrame(const cc::BeginFrameArgs& args) override;
   bool IsAutoResizeEnabled() const override;
+
+  // CompositorResizeLockClient implementation.
+  std::unique_ptr<ui::CompositorLock> GetCompositorLock(
+      ui::CompositorLockClient* client) override;
+  void CompositorResizeLockEnded() override;
 #endif  // !defined(OS_MACOSX)
 
   bool InstallTransparency();
@@ -225,7 +231,7 @@ class CefRenderWidgetHostViewOSR
                void* bitmap_pixels);
 
   bool IsPopupWidget() const {
-    return popup_type_ != blink::WebPopupTypeNone;
+    return popup_type_ != blink::kWebPopupTypeNone;
   }
 
   void ImeSetComposition(
@@ -289,6 +295,10 @@ class CefRenderWidgetHostViewOSR
 
   cc::FrameSinkId AllocateFrameSinkId(bool is_guest_view_hack);
 
+  // Applies background color without notifying the RenderWidget about
+  // opaqueness changes.
+  void UpdateBackgroundColorFromRenderer(SkColor color);
+
 #if defined(OS_MACOSX)
   friend class MacHelper;
 #endif
@@ -300,7 +310,8 @@ class CefRenderWidgetHostViewOSR
   ui::PlatformCursor GetPlatformCursor(blink::WebCursorInfo::Type type);
 #endif
 
-  const bool transparent_;
+  // The background color of the web content.
+  SkColor background_color_;
 
   float scale_factor_;
   int frame_rate_threshold_ms_;
@@ -362,6 +373,9 @@ class CefRenderWidgetHostViewOSR
   // The last scroll offset of the view.
   gfx::Vector2dF last_scroll_offset_;
   bool is_scroll_offset_changed_pending_;
+
+  cc::mojom::MojoCompositorFrameSinkClient* renderer_compositor_frame_sink_ =
+      nullptr;
 
   base::WeakPtrFactory<CefRenderWidgetHostViewOSR> weak_ptr_factory_;
 

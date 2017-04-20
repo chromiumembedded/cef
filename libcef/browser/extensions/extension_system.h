@@ -138,6 +138,10 @@ class CefExtensionSystem : public ExtensionSystem {
   // Sets of enabled/disabled/terminated/blacklisted extensions. Not owned.
   ExtensionRegistry* registry_;
 
+  // The associated RendererStartupHelper. Guaranteed to outlive the
+  // ExtensionSystem, and thus us.
+  extensions::RendererStartupHelper* renderer_helper_;
+
   // Must be the last member.
   base::WeakPtrFactory<CefExtensionSystem> weak_ptr_factory_;
 

@@ -44,10 +44,12 @@ class CefValueImpl : public CefValue {
 
   // Copy a simple value or transfer ownership of a complex value. If ownership
   // of the value is tranferred then this object's internal reference to the
-  // value will be updated and remain valid.
-  base::Value* CopyOrTransferValue(void* new_parent_value,
-                                   bool new_read_only,
-                                   CefValueController* new_controller);
+  // value will be updated and remain valid. base::Value now uses move semantics
+  // so we need to perform the copy and swap in two steps.
+  base::Value* CopyOrDetachValue(CefValueController* new_controller);
+  void SwapValue(base::Value* new_value,
+                 void* new_parent_value,
+                 CefValueController* new_controller);
 
   // Returns a reference to the underlying data. Access must be protected by
   // calling AcquireLock/ReleaseLock.
@@ -126,11 +128,11 @@ class CefValueImpl : public CefValue {
 
 // CefBinaryValue implementation
 class CefBinaryValueImpl
-    : public CefValueBase<CefBinaryValue, base::BinaryValue> {
+    : public CefValueBase<CefBinaryValue, base::Value> {
  public:
   // Get or create a reference value.
   static CefRefPtr<CefBinaryValue> GetOrCreateRef(
-      base::BinaryValue* value,
+      base::Value* value,
       void* parent_value,
       CefValueController* controller);
 
@@ -140,7 +142,7 @@ class CefBinaryValueImpl
   // longer valid. Use GetOrCreateRef instead of this constructor if |value| is
   // owned by some other object and you do not plan to explicitly call
   // Detach(NULL).
-  CefBinaryValueImpl(base::BinaryValue* value,
+  CefBinaryValueImpl(base::Value* value,
                      bool will_delete);
 
   // The data will always be copied.
@@ -148,18 +150,18 @@ class CefBinaryValueImpl
                      size_t data_size);
 
   // Return a copy of the value.
-  base::BinaryValue* CopyValue();
+  base::Value* CopyValue();
 
   // If this value is a reference then return a copy. Otherwise, detach and
   // transfer ownership of the value.
-  base::BinaryValue* CopyOrDetachValue(CefValueController* new_controller);
+  base::Value* CopyOrDetachValue(CefValueController* new_controller);
 
-  bool IsSameValue(const base::BinaryValue* that);
-  bool IsEqualValue(const base::BinaryValue* that);
+  bool IsSameValue(const base::Value* that);
+  bool IsEqualValue(const base::Value* that);
 
   // Returns the underlying value. Access must be protected by calling
   // lock/unlock on the controller.
-  base::BinaryValue* GetValueUnsafe();
+  base::Value* GetValueUnsafe();
 
   // CefBinaryValue methods.
   bool IsValid() override;
@@ -175,7 +177,7 @@ class CefBinaryValueImpl
  private:
   // See the CefValueBase constructor for usage. Binary values are always
   // read-only.
-  CefBinaryValueImpl(base::BinaryValue* value,
+  CefBinaryValueImpl(base::Value* value,
                      void* parent_value,
                      ValueMode value_mode,
                      CefValueController* controller);
@@ -265,7 +267,7 @@ class CefDictionaryValueImpl
                          CefValueController* controller);
 
   bool RemoveInternal(const CefString& key);
-  void SetInternal(const CefString& key, base::Value* value);
+  base::Value* SetInternal(const CefString& key, base::Value* value);
 
   DISALLOW_COPY_AND_ASSIGN(CefDictionaryValueImpl);
 };
@@ -346,7 +348,7 @@ class CefListValueImpl
                    CefValueController* controller);
 
   bool RemoveInternal(size_t index);
-  void SetInternal(size_t index, base::Value* value);
+  base::Value* SetInternal(size_t index, base::Value* value);
 
   DISALLOW_COPY_AND_ASSIGN(CefListValueImpl);
 };

@@ -207,28 +207,28 @@ int CefBrowserPlatformDelegate::TranslateModifiers(uint32 cef_modifiers) {
   int webkit_modifiers = 0;
   // Set modifiers based on key state.
   if (cef_modifiers & EVENTFLAG_SHIFT_DOWN)
-    webkit_modifiers |= blink::WebInputEvent::ShiftKey;
+    webkit_modifiers |= blink::WebInputEvent::kShiftKey;
   if (cef_modifiers & EVENTFLAG_CONTROL_DOWN)
-    webkit_modifiers |= blink::WebInputEvent::ControlKey;
+    webkit_modifiers |= blink::WebInputEvent::kControlKey;
   if (cef_modifiers & EVENTFLAG_ALT_DOWN)
-    webkit_modifiers |= blink::WebInputEvent::AltKey;
+    webkit_modifiers |= blink::WebInputEvent::kAltKey;
   if (cef_modifiers & EVENTFLAG_COMMAND_DOWN)
-    webkit_modifiers |= blink::WebInputEvent::MetaKey;
+    webkit_modifiers |= blink::WebInputEvent::kMetaKey;
   if (cef_modifiers & EVENTFLAG_LEFT_MOUSE_BUTTON)
-    webkit_modifiers |= blink::WebInputEvent::LeftButtonDown;
+    webkit_modifiers |= blink::WebInputEvent::kLeftButtonDown;
   if (cef_modifiers & EVENTFLAG_MIDDLE_MOUSE_BUTTON)
-    webkit_modifiers |= blink::WebInputEvent::MiddleButtonDown;
+    webkit_modifiers |= blink::WebInputEvent::kMiddleButtonDown;
   if (cef_modifiers & EVENTFLAG_RIGHT_MOUSE_BUTTON)
-    webkit_modifiers |= blink::WebInputEvent::RightButtonDown;
+    webkit_modifiers |= blink::WebInputEvent::kRightButtonDown;
   if (cef_modifiers & EVENTFLAG_CAPS_LOCK_ON)
-    webkit_modifiers |= blink::WebInputEvent::CapsLockOn;
+    webkit_modifiers |= blink::WebInputEvent::kCapsLockOn;
   if (cef_modifiers & EVENTFLAG_NUM_LOCK_ON)
-    webkit_modifiers |= blink::WebInputEvent::NumLockOn;
+    webkit_modifiers |= blink::WebInputEvent::kNumLockOn;
   if (cef_modifiers & EVENTFLAG_IS_LEFT)
-    webkit_modifiers |= blink::WebInputEvent::IsLeft;
+    webkit_modifiers |= blink::WebInputEvent::kIsLeft;
   if (cef_modifiers & EVENTFLAG_IS_RIGHT)
-    webkit_modifiers |= blink::WebInputEvent::IsRight;
+    webkit_modifiers |= blink::WebInputEvent::kIsRight;
   if (cef_modifiers & EVENTFLAG_IS_KEY_PAD)
-    webkit_modifiers |= blink::WebInputEvent::IsKeyPad;
+    webkit_modifiers |= blink::WebInputEvent::kIsKeyPad;
   return webkit_modifiers;
 }

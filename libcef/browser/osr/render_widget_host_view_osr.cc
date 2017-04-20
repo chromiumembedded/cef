@@ -28,7 +28,6 @@
 #include "content/browser/renderer_host/render_widget_host_delegate.h"
 #include "content/browser/renderer_host/render_widget_host_view_frame_subscriber.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
-#include "content/browser/renderer_host/resize_lock.h"
 #include "content/common/input_messages.h"
 #include "content/common/view_messages.h"
 #include "content/public/browser/browser_thread.h"
@@ -62,73 +61,6 @@ static content::ScreenInfo ScreenInfoFrom(const CefScreenInfo& src) {
 
   return screenInfo;
 }
-
-#if !defined(OS_MACOSX)
-
-// When accelerated compositing is enabled and a widget resize is pending,
-// we delay further resizes of the UI. The following constant is the maximum
-// length of time that we should delay further UI resizes while waiting for a
-// resized frame from a renderer.
-const int kResizeLockTimeoutMs = 67;
-
-// Used to prevent further resizes while a resize is pending.
-class CefResizeLock : public content::ResizeLock {
- public:
-  CefResizeLock(CefRenderWidgetHostViewOSR* host,
-                const gfx::Size new_size,
-                bool defer_compositor_lock,
-                double timeout)
-      : ResizeLock(new_size, defer_compositor_lock),
-        host_(host),
-        cancelled_(false),
-        weak_ptr_factory_(this) {
-    DCHECK(host_);
-    host_->HoldResize();
-
-    CEF_POST_DELAYED_TASK(
-        CEF_UIT,
-        base::Bind(&CefResizeLock::CancelLock,
-                   weak_ptr_factory_.GetWeakPtr()),
-        timeout);
-  }
-
-  ~CefResizeLock() override {
-    CancelLock();
-  }
-
-  bool GrabDeferredLock() override {
-    return ResizeLock::GrabDeferredLock();
-  }
-
-  void UnlockCompositor() override {
-    ResizeLock::UnlockCompositor();
-    compositor_lock_ = NULL;
-  }
-
- protected:
-  void LockCompositor() override {
-    ResizeLock::LockCompositor();
-    compositor_lock_ = host_->GetCompositor()->GetCompositorLock();
-  }
-
-  void CancelLock() {
-    if (cancelled_)
-      return;
-    cancelled_ = true;
-    UnlockCompositor();
-    host_->ReleaseResize();
-  }
-
- private:
-  CefRenderWidgetHostViewOSR* host_;
-  scoped_refptr<ui::CompositorLock> compositor_lock_;
-  bool cancelled_;
-  base::WeakPtrFactory<CefResizeLock> weak_ptr_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(CefResizeLock);
-};
-
-#endif  // !defined(OS_MACOSX)
 
 }  // namespace
 
@@ -450,11 +382,11 @@ class CefBeginFrameTimer : public cc::DelayBasedTimeSourceClient {
 
 
 CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
-    bool transparent,
+    SkColor background_color,
     content::RenderWidgetHost* widget,
     CefRenderWidgetHostViewOSR* parent_host_view,
     bool is_guest_view_hack)
-    : transparent_(transparent),
+    : background_color_(background_color),
       scale_factor_(kDefaultScaleFactor),
       frame_rate_threshold_ms_(0),
 #if !defined(OS_MACOSX)
@@ -492,6 +424,10 @@ CefRenderWidgetHostViewOSR::CefRenderWidgetHostViewOSR(
 #endif
 
   PlatformCreateCompositorWidget(is_guest_view_hack);
+
+  bool opaque = SkColorGetA(background_color_) == SK_AlphaOPAQUE;
+  GetRootLayer()->SetFillsBoundsOpaquely(opaque);
+  GetRootLayer()->SetColor(background_color_);
 
 #if !defined(OS_MACOSX)
   // On macOS the ui::Compositor is created/owned by the platform view.
@@ -655,14 +591,20 @@ gfx::Rect CefRenderWidgetHostViewOSR::GetViewBounds() const {
 }
 
 void CefRenderWidgetHostViewOSR::SetBackgroundColor(SkColor color) {
-  if (transparent_)
-    color = SkColorSetARGB(SK_AlphaTRANSPARENT, 0, 0, 0);
+  // The renderer will feed its color back to us with the first CompositorFrame.
+  // We short-cut here to show a sensible color before that happens.
+  UpdateBackgroundColorFromRenderer(color);
 
-  content::RenderWidgetHostViewBase::SetBackgroundColor(color);
+  DCHECK(SkColorGetA(color) == SK_AlphaOPAQUE ||
+         SkColorGetA(color) == SK_AlphaTRANSPARENT);
+  if (render_widget_host_) {
+    render_widget_host_->SetBackgroundOpaque(
+        SkColorGetA(color) == SK_AlphaOPAQUE);
+  }
+}
 
-  const bool opaque = !transparent_ && GetBackgroundOpaque();
-  if (render_widget_host_)
-    render_widget_host_->SetBackgroundOpaque(opaque);
+SkColor CefRenderWidgetHostViewOSR::background_color() const {
+  return background_color_;
 }
 
 bool CefRenderWidgetHostViewOSR::LockMouse() {
@@ -672,8 +614,18 @@ bool CefRenderWidgetHostViewOSR::LockMouse() {
 void CefRenderWidgetHostViewOSR::UnlockMouse() {
 }
 
-void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
-    uint32_t output_surface_id,
+void CefRenderWidgetHostViewOSR::DidCreateNewRendererCompositorFrameSink(
+    cc::mojom::MojoCompositorFrameSinkClient*
+        renderer_compositor_frame_sink) {
+  renderer_compositor_frame_sink_ = renderer_compositor_frame_sink;
+  if (GetDelegatedFrameHost()) {
+    GetDelegatedFrameHost()->DidCreateNewRendererCompositorFrameSink(
+        renderer_compositor_frame_sink_);
+  }
+}
+
+void CefRenderWidgetHostViewOSR::SubmitCompositorFrame(
+    const cc::LocalSurfaceId& local_surface_id,
     cc::CompositorFrame frame) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::OnSwapCompositorFrame");
 
@@ -699,11 +651,11 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
 
       // The compositor will draw directly to the SoftwareOutputDevice which
       // then calls OnPaint.
-      // We would normally call BrowserCompositorMac::SwapCompositorFrame on
+      // We would normally call BrowserCompositorMac::SubmitCompositorFrame on
       // macOS, however it contains compositor resize logic that we don't want.
       // Consequently we instead call the SwapDelegatedFrame method directly.
-      GetDelegatedFrameHost()->SwapDelegatedFrame(output_surface_id,
-                                                  std::move(frame));
+      GetDelegatedFrameHost()->SubmitCompositorFrame(local_surface_id,
+                                                     std::move(frame));
    } else {
       if (!copy_frame_generator_.get()) {
         copy_frame_generator_.reset(
@@ -718,11 +670,11 @@ void CefRenderWidgetHostViewOSR::OnSwapCompositorFrame(
           gfx::ToEnclosingRect(gfx::RectF(root_pass->damage_rect));
       damage_rect.Intersect(gfx::Rect(frame_size));
 
-      // We would normally call BrowserCompositorMac::SwapCompositorFrame on
+      // We would normally call BrowserCompositorMac::SubmitCompositorFrame on
       // macOS, however it contains compositor resize logic that we don't want.
       // Consequently we instead call the SwapDelegatedFrame method directly.
-      GetDelegatedFrameHost()->SwapDelegatedFrame(output_surface_id,
-                                                  std::move(frame));
+      GetDelegatedFrameHost()->SubmitCompositorFrame(local_surface_id,
+                                                     std::move(frame));
 
       // Request a copy of the last compositor frame which will eventually call
       // OnPaint asynchronously.
@@ -793,7 +745,7 @@ void CefRenderWidgetHostViewOSR::UpdateCursor(
   if (!handler.get())
     return;
 
-  content::WebCursor::CursorInfo cursor_info;
+  content::CursorInfo cursor_info;
   cursor.GetCursorInfo(&cursor_info);
 
   const cef_cursor_type_t cursor_type =
@@ -1067,7 +1019,7 @@ CefRenderWidgetHostViewOSR::CreateSoftwareOutputDevice(
   DCHECK(!copy_frame_generator_);
   DCHECK(!software_output_device_);
   software_output_device_ = new CefSoftwareOutputDeviceOSR(
-      compositor, transparent_,
+      compositor, background_color() == SK_ColorTRANSPARENT,
       base::Bind(&CefRenderWidgetHostViewOSR::OnPaint,
                  weak_ptr_factory_.GetWeakPtr()));
   return base::WrapUnique(software_output_device_);
@@ -1104,33 +1056,15 @@ bool CefRenderWidgetHostViewOSR::DelegatedFrameCanCreateResizeLock() const {
   return !render_widget_host_->auto_resize_enabled();
 }
 
-std::unique_ptr<content::ResizeLock>
-CefRenderWidgetHostViewOSR::DelegatedFrameHostCreateResizeLock(
-    bool defer_compositor_lock) {
+std::unique_ptr<content::CompositorResizeLock>
+CefRenderWidgetHostViewOSR::DelegatedFrameHostCreateResizeLock() {
+  HoldResize();
+
   const gfx::Size& desired_size = GetRootLayer()->bounds().size();
-  return std::unique_ptr<content::ResizeLock>(new CefResizeLock(
-      this,
-      desired_size,
-      defer_compositor_lock,
-      kResizeLockTimeoutMs));
+  return base::MakeUnique<content::CompositorResizeLock>(this, desired_size);
 }
 
-void CefRenderWidgetHostViewOSR::DelegatedFrameHostResizeLockWasReleased() {
-  return render_widget_host_->WasResized();
-}
-
-void
-CefRenderWidgetHostViewOSR::DelegatedFrameHostSendReclaimCompositorResources(
-    int output_surface_id,
-    bool is_swap_ack,
-    const cc::ReturnedResourceArray& resources) {
-  render_widget_host_->Send(new ViewMsg_ReclaimCompositorResources(
-      render_widget_host_->GetRoutingID(), output_surface_id, is_swap_ack,
-      resources));
-}
-
-void CefRenderWidgetHostViewOSR::SetBeginFrameSource(
-    cc::BeginFrameSource* source) {
+void CefRenderWidgetHostViewOSR::OnBeginFrame(const cc::BeginFrameArgs& args) {
   // TODO(cef): Maybe we can use this method in combination with
   // OnSetNeedsBeginFrames() instead of using CefBeginFrameTimer.
   // See https://codereview.chromium.org/1841083007.
@@ -1140,10 +1074,20 @@ bool CefRenderWidgetHostViewOSR::IsAutoResizeEnabled() const {
   return render_widget_host_->auto_resize_enabled();
 }
 
+std::unique_ptr<ui::CompositorLock>
+CefRenderWidgetHostViewOSR::GetCompositorLock(
+    ui::CompositorLockClient* client) {
+  return GetCompositor()->GetCompositorLock(client);
+}
+
+void CefRenderWidgetHostViewOSR::CompositorResizeLockEnded() {
+  ReleaseResize();
+}
+
 #endif  // !defined(OS_MACOSX)
 
 bool CefRenderWidgetHostViewOSR::InstallTransparency() {
-  if (transparent_) {
+  if (background_color() == SK_ColorTRANSPARENT) {
     SetBackgroundColor(SkColor());
 #if defined(OS_MACOSX)
     browser_compositor_->SetHasTransparentBackground(true);
@@ -1244,16 +1188,20 @@ void CefRenderWidgetHostViewOSR::SendMouseEvent(
     const blink::WebMouseEvent& event) {
   TRACE_EVENT0("libcef", "CefRenderWidgetHostViewOSR::SendMouseEvent");
   if (!IsPopupWidget()) {
-    if (browser_impl_.get() && event.type() == blink::WebMouseEvent::MouseDown)
+    if (browser_impl_.get() &&
+        event.GetType() == blink::WebMouseEvent::kMouseDown) {
       browser_impl_->CancelContextMenu();
+    }
 
     if (popup_host_view_ &&
-        popup_host_view_->popup_position_.Contains(event.x, event.y)) {
+        popup_host_view_->popup_position_.Contains(
+            event.PositionInWidget().x, event.PositionInWidget().y)) {
       blink::WebMouseEvent popup_event(event);
-      popup_event.x -= popup_host_view_->popup_position_.x();
-      popup_event.y -= popup_host_view_->popup_position_.y();
-      popup_event.windowX = popup_event.x;
-      popup_event.windowY = popup_event.y;
+      popup_event.SetPositionInWidget(
+          event.PositionInWidget().x - popup_host_view_->popup_position_.x(),
+          event.PositionInWidget().y - popup_host_view_->popup_position_.y());
+      popup_event.SetPositionInScreen(popup_event.PositionInWidget().x,
+                                      popup_event.PositionInWidget().y);
 
       popup_host_view_->SendMouseEvent(popup_event);
       return;
@@ -1272,12 +1220,15 @@ void CefRenderWidgetHostViewOSR::SendMouseWheelEvent(
       browser_impl_->CancelContextMenu();
 
     if (popup_host_view_) {
-      if (popup_host_view_->popup_position_.Contains(event.x, event.y)) {
+      if (popup_host_view_->popup_position_.Contains(
+            event.PositionInWidget().x, event.PositionInWidget().y)) {
         blink::WebMouseWheelEvent popup_event(event);
-        popup_event.x -= popup_host_view_->popup_position_.x();
-        popup_event.y -= popup_host_view_->popup_position_.y();
-        popup_event.windowX = popup_event.x;
-        popup_event.windowY = popup_event.y;
+        popup_event.SetPositionInWidget(
+            event.PositionInWidget().x - popup_host_view_->popup_position_.x(),
+            event.PositionInWidget().y - popup_host_view_->popup_position_.y());
+        popup_event.SetPositionInScreen(popup_event.PositionInWidget().x,
+                                        popup_event.PositionInWidget().y);
+
         popup_host_view_->SendMouseWheelEvent(popup_event);
         return;
       } else {
@@ -1601,9 +1552,7 @@ void CefRenderWidgetHostViewOSR::RequestImeCompositionUpdate(
     bool start_monitoring) {
   if (!render_widget_host_)
     return;
-  render_widget_host_->Send(
-      new InputMsg_RequestCompositionUpdate(render_widget_host_->GetRoutingID(),
-                                            false, start_monitoring));
+  render_widget_host_->RequestCompositionUpdates(false, start_monitoring);
 }
 
 void CefRenderWidgetHostViewOSR::ImeCompositionRangeChanged(
@@ -1644,3 +1593,13 @@ cc::FrameSinkId CefRenderWidgetHostViewOSR::AllocateFrameSinkId(
                                 render_widget_host_->GetRoutingID()));
 }
 
+void CefRenderWidgetHostViewOSR::UpdateBackgroundColorFromRenderer(
+    SkColor color) {
+  if (color == background_color())
+    return;
+  background_color_ = color;
+
+  bool opaque = SkColorGetA(color) == SK_AlphaOPAQUE;
+  GetRootLayer()->SetFillsBoundsOpaquely(opaque);
+  GetRootLayer()->SetColor(color);
+}

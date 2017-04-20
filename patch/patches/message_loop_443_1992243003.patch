@@ -26,7 +26,7 @@ index 3d55920..721aca1 100644
        run_loop_(nullptr),
        current_pending_task_(nullptr),
 diff --git message_loop.h message_loop.h
-index 8417ce4..ee253a9 100644
+index 2ef4537..9c657f8 100644
 --- message_loop.h
 +++ message_loop.h
 @@ -303,6 +303,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate {
@@ -46,7 +46,7 @@ index 8417ce4..ee253a9 100644
    // Can only be called from the thread that owns the MessageLoop.
    bool is_running() const;
  
-@@ -442,6 +452,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate {
+@@ -444,6 +454,12 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate {
    // insider a (accidentally induced?) nested message pump.
    bool nestable_tasks_allowed_;
  

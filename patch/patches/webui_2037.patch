@@ -1,8 +1,8 @@
 diff --git chrome/browser/ui/webui/net_internals/net_internals_ui.cc chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-index 268d526..607f7e3 100644
+index 3a72ef9..303258b 100644
 --- chrome/browser/ui/webui/net_internals/net_internals_ui.cc
 +++ chrome/browser/ui/webui/net_internals/net_internals_ui.cc
-@@ -530,8 +530,7 @@ void NetInternalsMessageHandler::OnGetSessionNetworkStats(
+@@ -531,8 +531,7 @@ void NetInternalsMessageHandler::OnGetSessionNetworkStats(
      const base::ListValue* list) {
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
    SendJavascriptCommand(
@@ -12,7 +12,7 @@ index 268d526..607f7e3 100644
  }
  
  void NetInternalsMessageHandler::OnGetExtensionInfo(
-@@ -627,9 +626,17 @@ void NetInternalsMessageHandler::IOThreadImpl::OnRendererReady(
+@@ -628,9 +627,17 @@ void NetInternalsMessageHandler::IOThreadImpl::OnRendererReady(
  
    PrePopulateEventList();
  

@@ -9,6 +9,7 @@
 #include "include/base/cef_build.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
+#include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/resource.h"
 #include "tests/cefclient/browser/osr_ime_handler_win.h"
 #include "tests/shared/browser/util_win.h"
@@ -97,7 +98,7 @@ void OsrWindowWin::CreateBrowser(HWND parent_hwnd,
   Create(parent_hwnd, rect);
 
   CefWindowInfo window_info;
-  window_info.SetAsWindowless(hwnd_, renderer_.IsTransparent());
+  window_info.SetAsWindowless(hwnd_);
 
   // Create the browser asynchronously.
   CefBrowserHost::CreateBrowser(window_info, handler, startup_url, settings,
@@ -227,7 +228,7 @@ void OsrWindowWin::Create(HWND parent_hwnd, const RECT& rect) {
 
   HINSTANCE hInst = ::GetModuleHandle(NULL);
 
-  const cef_color_t background_color = renderer_.GetBackgroundColor();
+  const cef_color_t background_color = MainContext::Get()->GetBackgroundColor();
   const HBRUSH background_brush = CreateSolidBrush(
       RGB(CefColorGetR(background_color),
           CefColorGetG(background_color),

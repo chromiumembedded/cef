@@ -23,92 +23,92 @@ using blink::WebCursorInfo;
 
 int ToCursorID(WebCursorInfo::Type type) {
   switch (type) {
-    case WebCursorInfo::TypePointer:
+    case WebCursorInfo::kTypePointer:
       return XC_left_ptr;
-    case WebCursorInfo::TypeCross:
+    case WebCursorInfo::kTypeCross:
       return XC_crosshair;
-    case WebCursorInfo::TypeHand:
+    case WebCursorInfo::kTypeHand:
       return XC_hand2;
-    case WebCursorInfo::TypeIBeam:
+    case WebCursorInfo::kTypeIBeam:
       return XC_xterm;
-    case WebCursorInfo::TypeWait:
+    case WebCursorInfo::kTypeWait:
       return XC_watch;
-    case WebCursorInfo::TypeHelp:
+    case WebCursorInfo::kTypeHelp:
       return XC_question_arrow;
-    case WebCursorInfo::TypeEastResize:
+    case WebCursorInfo::kTypeEastResize:
       return XC_right_side;
-    case WebCursorInfo::TypeNorthResize:
+    case WebCursorInfo::kTypeNorthResize:
       return XC_top_side;
-    case WebCursorInfo::TypeNorthEastResize:
+    case WebCursorInfo::kTypeNorthEastResize:
       return XC_top_right_corner;
-    case WebCursorInfo::TypeNorthWestResize:
+    case WebCursorInfo::kTypeNorthWestResize:
       return XC_top_left_corner;
-    case WebCursorInfo::TypeSouthResize:
+    case WebCursorInfo::kTypeSouthResize:
       return XC_bottom_side;
-    case WebCursorInfo::TypeSouthEastResize:
+    case WebCursorInfo::kTypeSouthEastResize:
       return XC_bottom_right_corner;
-    case WebCursorInfo::TypeSouthWestResize:
+    case WebCursorInfo::kTypeSouthWestResize:
       return XC_bottom_left_corner;
-    case WebCursorInfo::TypeWestResize:
+    case WebCursorInfo::kTypeWestResize:
       return XC_left_side;
-    case WebCursorInfo::TypeNorthSouthResize:
+    case WebCursorInfo::kTypeNorthSouthResize:
       return XC_sb_v_double_arrow;
-    case WebCursorInfo::TypeEastWestResize:
+    case WebCursorInfo::kTypeEastWestResize:
       return XC_sb_h_double_arrow;
-    case WebCursorInfo::TypeNorthEastSouthWestResize:
+    case WebCursorInfo::kTypeNorthEastSouthWestResize:
       return XC_left_ptr;
-    case WebCursorInfo::TypeNorthWestSouthEastResize:
+    case WebCursorInfo::kTypeNorthWestSouthEastResize:
       return XC_left_ptr;
-    case WebCursorInfo::TypeColumnResize:
+    case WebCursorInfo::kTypeColumnResize:
       return XC_sb_h_double_arrow;
-    case WebCursorInfo::TypeRowResize:
+    case WebCursorInfo::kTypeRowResize:
       return XC_sb_v_double_arrow;
-    case WebCursorInfo::TypeMiddlePanning:
+    case WebCursorInfo::kTypeMiddlePanning:
       return XC_fleur;
-    case WebCursorInfo::TypeEastPanning:
+    case WebCursorInfo::kTypeEastPanning:
       return XC_sb_right_arrow;
-    case WebCursorInfo::TypeNorthPanning:
+    case WebCursorInfo::kTypeNorthPanning:
       return XC_sb_up_arrow;
-    case WebCursorInfo::TypeNorthEastPanning:
+    case WebCursorInfo::kTypeNorthEastPanning:
       return XC_top_right_corner;
-    case WebCursorInfo::TypeNorthWestPanning:
+    case WebCursorInfo::kTypeNorthWestPanning:
       return XC_top_left_corner;
-    case WebCursorInfo::TypeSouthPanning:
+    case WebCursorInfo::kTypeSouthPanning:
       return XC_sb_down_arrow;
-    case WebCursorInfo::TypeSouthEastPanning:
+    case WebCursorInfo::kTypeSouthEastPanning:
       return XC_bottom_right_corner;
-    case WebCursorInfo::TypeSouthWestPanning:
+    case WebCursorInfo::kTypeSouthWestPanning:
       return XC_bottom_left_corner;
-    case WebCursorInfo::TypeWestPanning:
+    case WebCursorInfo::kTypeWestPanning:
       return XC_sb_left_arrow;
-    case WebCursorInfo::TypeMove:
+    case WebCursorInfo::kTypeMove:
       return XC_fleur;
-    case WebCursorInfo::TypeVerticalText:
+    case WebCursorInfo::kTypeVerticalText:
       return XC_left_ptr;
-    case WebCursorInfo::TypeCell:
+    case WebCursorInfo::kTypeCell:
       return XC_left_ptr;
-    case WebCursorInfo::TypeContextMenu:
+    case WebCursorInfo::kTypeContextMenu:
       return XC_left_ptr;
-    case WebCursorInfo::TypeAlias:
+    case WebCursorInfo::kTypeAlias:
       return XC_left_ptr;
-    case WebCursorInfo::TypeProgress:
+    case WebCursorInfo::kTypeProgress:
       return XC_left_ptr;
-    case WebCursorInfo::TypeNoDrop:
+    case WebCursorInfo::kTypeNoDrop:
       return XC_left_ptr;
-    case WebCursorInfo::TypeCopy:
+    case WebCursorInfo::kTypeCopy:
       return XC_left_ptr;
-    case WebCursorInfo::TypeNotAllowed:
+    case WebCursorInfo::kTypeNotAllowed:
       return XC_left_ptr;
-    case WebCursorInfo::TypeZoomIn:
+    case WebCursorInfo::kTypeZoomIn:
       return XC_left_ptr;
-    case WebCursorInfo::TypeZoomOut:
+    case WebCursorInfo::kTypeZoomOut:
       return XC_left_ptr;
-    case WebCursorInfo::TypeGrab:
+    case WebCursorInfo::kTypeGrab:
       return XC_left_ptr;
-    case WebCursorInfo::TypeGrabbing:
+    case WebCursorInfo::kTypeGrabbing:
       return XC_left_ptr;
-    case WebCursorInfo::TypeCustom:
-    case WebCursorInfo::TypeNone:
+    case WebCursorInfo::kTypeCustom:
+    case WebCursorInfo::kTypeNone:
       break;
   }
   NOTREACHED();
@@ -185,7 +185,7 @@ void CefRenderWidgetHostViewOSR::PlatformDestroyCompositorWidget() {
 
 ui::PlatformCursor CefRenderWidgetHostViewOSR::GetPlatformCursor(
     blink::WebCursorInfo::Type type) {
-  if (type == WebCursorInfo::TypeNone) {
+  if (type == WebCursorInfo::kTypeNone) {
     if (!invisible_cursor_) {
       invisible_cursor_.reset(
           new ui::XScopedCursor(ui::CreateInvisibleCursor(),

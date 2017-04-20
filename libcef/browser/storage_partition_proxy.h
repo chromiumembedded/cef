@@ -18,6 +18,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   CefStoragePartitionProxy(
       content::StoragePartition* parent,
       CefURLRequestContextGetterProxy* url_request_context);
+  ~CefStoragePartitionProxy() override;
 
   // StoragePartition methods:
   base::FilePath GetPath() override;
@@ -36,6 +37,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   content::ZoomLevelDelegate* GetZoomLevelDelegate() override;
   content::PlatformNotificationContext* GetPlatformNotificationContext()
       override;
+  content::BackgroundFetchContext* GetBackgroundFetchContext() override;
   content::BackgroundSyncContext* GetBackgroundSyncContext() override;
   content::PaymentAppContextImpl* GetPaymentAppContext() override;
   content::BroadcastChannelProvider* GetBroadcastChannelProvider() override;
@@ -59,6 +61,11 @@ class CefStoragePartitionProxy : public content::StoragePartition {
                  const base::Time begin,
                  const base::Time end,
                  const base::Closure& callback) override;
+  void ClearHttpAndMediaCaches(
+      const base::Time begin,
+      const base::Time end,
+      const base::Callback<bool(const GURL&)>& url_matcher,
+      const base::Closure& callback) override;
   void Flush() override;
   void ClearBluetoothAllowedDevicesMapForTesting() override;
   void Bind(

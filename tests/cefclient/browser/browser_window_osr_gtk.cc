@@ -942,7 +942,7 @@ void BrowserWindowOsrGtk::CreateBrowser(
   DCHECK(xwindow);
 
   CefWindowInfo window_info;
-  window_info.SetAsWindowless(xwindow, renderer_.IsTransparent());
+  window_info.SetAsWindowless(xwindow);
 
   // Create the browser asynchronously.
   CefBrowserHost::CreateBrowser(window_info, client_handler_,
@@ -955,7 +955,7 @@ void BrowserWindowOsrGtk::GetPopupConfig(CefWindowHandle temp_handle,
                                          CefRefPtr<CefClient>& client,
                                          CefBrowserSettings& settings) {
   // Note: This method may be called on any thread.
-  windowInfo.SetAsWindowless(temp_handle, renderer_.IsTransparent());
+  windowInfo.SetAsWindowless(temp_handle);
   client = client_handler_;
 }
 

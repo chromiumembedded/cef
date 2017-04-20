@@ -50,6 +50,8 @@ void FillInDictionaryFromPdfPrintSettings(
   print_settings.SetBoolean(kSettingRasterizePdf, false);
   print_settings.SetBoolean(kSettingGenerateDraftData, false);
   print_settings.SetBoolean(kSettingPreviewModifiable, false);
+  print_settings.SetInteger(kSettingDpiHorizontal, 0);
+  print_settings.SetInteger(kSettingDpiVertical, 0);
 
   // User defined settings.
   print_settings.SetBoolean(kSettingLandscape, !!pdf_settings.landscape);

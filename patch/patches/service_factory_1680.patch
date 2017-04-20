@@ -1,8 +1,8 @@
 diff --git chrome/browser/spellchecker/spellcheck_factory.cc chrome/browser/spellchecker/spellcheck_factory.cc
-index 3857256..3d1562c 100644
+index 9d94c21..990046f 100644
 --- chrome/browser/spellchecker/spellcheck_factory.cc
 +++ chrome/browser/spellchecker/spellcheck_factory.cc
-@@ -16,6 +16,13 @@
+@@ -17,6 +17,13 @@
  #include "content/public/browser/render_process_host.h"
  #include "ui/base/l10n/l10n_util.h"
  
@@ -16,7 +16,7 @@ index 3857256..3d1562c 100644
  // static
  SpellcheckService* SpellcheckServiceFactory::GetForContext(
      content::BrowserContext* context) {
-@@ -38,7 +45,7 @@ SpellcheckService* SpellcheckServiceFactory::GetForRenderProcessId(
+@@ -39,7 +46,7 @@ SpellcheckService* SpellcheckServiceFactory::GetForRenderProcessId(
  
  // static
  SpellcheckServiceFactory* SpellcheckServiceFactory::GetInstance() {
@@ -26,7 +26,7 @@ index 3857256..3d1562c 100644
  
  SpellcheckServiceFactory::SpellcheckServiceFactory()
 diff --git chrome/browser/spellchecker/spellcheck_factory.h chrome/browser/spellchecker/spellcheck_factory.h
-index e8eb9f7..48126000 100644
+index e8eb9f7..2e1b7cf 100644
 --- chrome/browser/spellchecker/spellcheck_factory.h
 +++ chrome/browser/spellchecker/spellcheck_factory.h
 @@ -7,7 +7,7 @@
@@ -43,7 +43,7 @@ index e8eb9f7..48126000 100644
  
   private:
 -  friend struct base::DefaultSingletonTraits<SpellcheckServiceFactory>;
-+  friend struct base::DefaultLazyInstanceTraits<SpellcheckServiceFactory>;
++  friend struct base::LazyInstanceTraitsBase<SpellcheckServiceFactory>;
  
    SpellcheckServiceFactory();
    ~SpellcheckServiceFactory() override;
@@ -75,7 +75,7 @@ index 173ac31..473e561 100644
  
  SupervisedUserSettingsServiceFactory::SupervisedUserSettingsServiceFactory()
 diff --git chrome/browser/supervised_user/supervised_user_settings_service_factory.h chrome/browser/supervised_user/supervised_user_settings_service_factory.h
-index 2907619..c7a36ea 100644
+index 2907619..f941fba 100644
 --- chrome/browser/supervised_user/supervised_user_settings_service_factory.h
 +++ chrome/browser/supervised_user/supervised_user_settings_service_factory.h
 @@ -5,7 +5,7 @@
@@ -92,12 +92,12 @@ index 2907619..c7a36ea 100644
  
   private:
 -  friend struct base::DefaultSingletonTraits<
-+  friend struct base::DefaultLazyInstanceTraits<
++  friend struct base::LazyInstanceTraitsBase<
        SupervisedUserSettingsServiceFactory>;
  
    SupervisedUserSettingsServiceFactory();
 diff --git chrome/browser/ui/prefs/prefs_tab_helper.cc chrome/browser/ui/prefs/prefs_tab_helper.cc
-index a46d449..0650084 100644
+index a46d449..8c9a6b8 100644
 --- chrome/browser/ui/prefs/prefs_tab_helper.cc
 +++ chrome/browser/ui/prefs/prefs_tab_helper.cc
 @@ -11,8 +11,8 @@
@@ -121,7 +121,7 @@ index a46d449..0650084 100644
  
   private:
 -  friend struct base::DefaultSingletonTraits<PrefWatcherFactory>;
-+  friend struct base::DefaultLazyInstanceTraits<PrefWatcherFactory>;
++  friend struct base::LazyInstanceTraitsBase<PrefWatcherFactory>;
  
    PrefWatcherFactory() : BrowserContextKeyedServiceFactory(
        "PrefWatcher",

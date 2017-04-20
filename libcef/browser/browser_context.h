@@ -187,6 +187,9 @@ class CefBrowserContext : public ChromeProfileStub {
  protected:
   ~CefBrowserContext() override;
 
+  // Must be called after all services have been initialized.
+  void PostInitialize();
+
   // Must be called before the child object destructor has completed.
   void Shutdown();
 

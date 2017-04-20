@@ -1092,19 +1092,22 @@ class OSRTestHandler : public RoutingTestHandler,
     CefWindowInfo windowInfo;
     CefBrowserSettings settings;
 
-    const bool transparent = (test_type_ ==  OSR_TEST_TRANSPARENCY);
+    if (test_type_ != OSR_TEST_TRANSPARENCY) {
+      // Explicitly set an opaque background color to disable transparency.
+      settings.background_color = CefColorSetARGB(255, 255, 255, 255);
+    }
 
 #if defined(OS_WIN)
-    windowInfo.SetAsWindowless(GetDesktopWindow(), transparent);
+    windowInfo.SetAsWindowless(GetDesktopWindow());
 #elif defined(OS_MACOSX)
     // An actual vies is needed only for the ContextMenu test. The menu runner
     // checks if the view is not nil before showing the context menu.
     if (test_type_ == OSR_TEST_CONTEXT_MENU)
-      windowInfo.SetAsWindowless(osr_unittests::GetFakeView(), transparent);
+      windowInfo.SetAsWindowless(osr_unittests::GetFakeView());
     else
-      windowInfo.SetAsWindowless(kNullWindowHandle, transparent);
+      windowInfo.SetAsWindowless(kNullWindowHandle);
 #elif defined(OS_LINUX)
-    windowInfo.SetAsWindowless(kNullWindowHandle, transparent);
+    windowInfo.SetAsWindowless(kNullWindowHandle);
 #else
 #error "Unsupported platform"
 #endif

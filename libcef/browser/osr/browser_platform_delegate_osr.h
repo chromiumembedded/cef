@@ -27,6 +27,7 @@ class CefBrowserPlatformDelegateOsr :
   void WebContentsCreated(content::WebContents* web_contents) override;
   void BrowserCreated(CefBrowserHostImpl* browser) override;
   void BrowserDestroyed(CefBrowserHostImpl* browser) override;
+  SkColor GetBackgroundColor() const override;
   void WasResized() override;
   void SendKeyEvent(const content::NativeWebKeyboardEvent& event) override;
   void SendMouseEvent(const blink::WebMouseEvent& event) override;

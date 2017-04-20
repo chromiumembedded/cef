@@ -8,6 +8,8 @@
 
 #include <stdint.h>
 
+#include <memory>
+
 #include "include/cef_request.h"
 
 #include "base/synchronization/lock.h"
@@ -166,7 +168,7 @@ class CefPostDataImpl : public CefPostData {
   void Set(const net::UploadData& data);
   void Set(const net::UploadDataStream& data_stream);
   void Get(net::UploadData& data) const;
-  net::UploadDataStream* Get() const;
+  std::unique_ptr<net::UploadDataStream> Get() const;
   void Set(const blink::WebHTTPBody& data);
   void Get(blink::WebHTTPBody& data) const;
 
@@ -217,7 +219,7 @@ class CefPostDataElementImpl : public CefPostDataElement {
   void Set(const net::UploadElement& element);
   void Set(const net::UploadElementReader& element_reader);
   void Get(net::UploadElement& element) const;
-  net::UploadElementReader* Get() const;
+  std::unique_ptr<net::UploadElementReader> Get() const;
   void Set(const blink::WebHTTPBody::Element& element);
   void Get(blink::WebHTTPBody::Element& element) const;
 

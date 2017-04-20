@@ -34,6 +34,7 @@
 #include "extensions/browser/notification_types.h"
 #include "extensions/browser/null_app_sorting.h"
 #include "extensions/browser/quota_service.h"
+#include "extensions/browser/renderer_startup_helper.h"
 #include "extensions/browser/runtime_data.h"
 #include "extensions/browser/service_worker_manager.h"
 #include "extensions/browser/value_store/value_store_factory.h"
@@ -82,6 +83,9 @@ CefExtensionSystem::CefExtensionSystem(BrowserContext* browser_context)
     : browser_context_(browser_context),
       initialized_(false),
       registry_(ExtensionRegistry::Get(browser_context)),
+      renderer_helper_(
+          extensions::RendererStartupHelperFactory::GetForBrowserContext(
+              browser_context)),
       weak_ptr_factory_(this) {
 }
 
@@ -391,24 +395,8 @@ void CefExtensionSystem::NotifyExtensionLoaded(const Extension* extension) {
                  weak_ptr_factory_.GetWeakPtr(),
                  make_scoped_refptr(extension)));
 
-  // Tell renderers about the new extension, unless it's a theme (renderers
-  // don't need to know about themes).
-  if (!extension->is_theme()) {
-    for (content::RenderProcessHost::iterator i(
-            content::RenderProcessHost::AllHostsIterator());
-         !i.IsAtEnd(); i.Advance()) {
-      content::RenderProcessHost* host = i.GetCurrentValue();
-      if (host->GetBrowserContext() == browser_context_) {
-        // We don't need to include tab permisisons here, since the extension
-        // was just loaded.
-        std::vector<ExtensionMsg_Loaded_Params> loaded_extensions(
-            1, ExtensionMsg_Loaded_Params(extension,
-                                          false /* no tab permissions */));
-        host->Send(
-            new ExtensionMsg_Loaded(loaded_extensions));
-      }
-    }
-  }
+  // Tell renderers about the loaded extension.
+  renderer_helper_->OnExtensionLoaded(*extension);
 
   // Tell subsystems that use the EXTENSION_LOADED notification about the new
   // extension.
@@ -485,13 +473,8 @@ void CefExtensionSystem::NotifyExtensionUnloaded(
       content::Source<content::BrowserContext>(browser_context_),
       content::Details<UnloadedExtensionInfo>(&details));
 
-  for (content::RenderProcessHost::iterator i(
-          content::RenderProcessHost::AllHostsIterator());
-       !i.IsAtEnd(); i.Advance()) {
-    content::RenderProcessHost* host = i.GetCurrentValue();
-    if (host->GetBrowserContext() == browser_context_)
-      host->Send(new ExtensionMsg_Unloaded(extension->id()));
-  }
+  // Tell renderers about the unloaded extension.
+  renderer_helper_->OnExtensionUnloaded(*extension);
 
   UnregisterExtensionWithRequestContexts(extension->id(), reason);
 }

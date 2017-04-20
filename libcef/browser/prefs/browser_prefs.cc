@@ -97,7 +97,8 @@ const char kUserPrefsFileName[] = "UserPrefs.json";
 std::unique_ptr<PrefService> CreatePrefService(
     Profile* profile,
     const base::FilePath& cache_path,
-    bool persist_user_preferences) {
+    bool persist_user_preferences,
+    bool is_pre_initialization) {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
 
@@ -114,7 +115,8 @@ std::unique_ptr<PrefService> CreatePrefService(
   factory.set_command_line_prefs(command_line_pref_store);
 
   // True if preferences will be stored on disk.
-  const bool store_on_disk = !cache_path.empty() && persist_user_preferences;
+  const bool store_on_disk = !cache_path.empty() && persist_user_preferences &&
+                             !is_pre_initialization;
 
   scoped_refptr<base::SequencedTaskRunner> sequenced_task_runner;
   if (store_on_disk) {
@@ -141,23 +143,27 @@ std::unique_ptr<PrefService> CreatePrefService(
   }
 
 #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
-  // Used to store supervised user preferences.
-  SupervisedUserSettingsService* supervised_user_settings =
-      SupervisedUserSettingsServiceFactory::GetForProfile(profile);
+  // Don't access factories during pre-initialization.
+  if (!is_pre_initialization) {
+    // Used to store supervised user preferences.
+    SupervisedUserSettingsService* supervised_user_settings =
+        SupervisedUserSettingsServiceFactory::GetForProfile(profile);
 
-  if (store_on_disk) {
-    supervised_user_settings->Init(
-        cache_path, sequenced_task_runner.get(), true);
-  } else {
-    scoped_refptr<TestingPrefStore> testing_pref_store = new TestingPrefStore();
-    testing_pref_store->SetInitializationCompleted();
-    supervised_user_settings->Init(testing_pref_store);
+    if (store_on_disk) {
+      supervised_user_settings->Init(
+          cache_path, sequenced_task_runner.get(), true);
+    } else {
+      scoped_refptr<TestingPrefStore> testing_pref_store =
+          new TestingPrefStore();
+      testing_pref_store->SetInitializationCompleted();
+      supervised_user_settings->Init(testing_pref_store);
+    }
+
+    scoped_refptr<PrefStore> supervised_user_prefs = make_scoped_refptr(
+        new SupervisedUserPrefStore(supervised_user_settings));
+    DCHECK(supervised_user_prefs->IsInitializationComplete());
+    factory.set_supervised_user_prefs(supervised_user_prefs);
   }
-
-  scoped_refptr<PrefStore> supervised_user_prefs = make_scoped_refptr(
-      new SupervisedUserPrefStore(supervised_user_settings));
-  DCHECK(supervised_user_prefs->IsInitializationComplete());
-  factory.set_supervised_user_prefs(supervised_user_prefs);
 #endif  // BUILDFLAG(ENABLE_SUPERVISED_USERS)
 
   // Registry that will be populated with all known preferences. Preferences
@@ -182,7 +188,7 @@ std::unique_ptr<PrefService> CreatePrefService(
   // Spell checking preferences.
   // Based on SpellcheckServiceFactory::RegisterProfilePrefs.
   registry->RegisterListPref(spellcheck::prefs::kSpellCheckDictionaries,
-                             new base::ListValue);
+                             base::MakeUnique<base::ListValue>());
   std::string spellcheck_lang =
       command_line->GetSwitchValueASCII(switches::kOverrideSpellCheckLang);
   if (!spellcheck_lang.empty()) {

@@ -45,6 +45,7 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
       initialized_(false),
       shutdown_(false),
       background_color_(0),
+      browser_background_color_(0),
       use_views_(false) {
   DCHECK(command_line_.get());
 
@@ -57,6 +58,11 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
   // Whether windowless (off-screen) rendering will be used.
   use_windowless_rendering_ =
       command_line_->HasSwitch(switches::kOffScreenRenderingEnabled);
+
+  // Whether transparent painting is used with windowless rendering.
+  const bool use_transparent_painting =
+      use_windowless_rendering_ &&
+      command_line_->HasSwitch(switches::kTransparentPaintingEnabled);
 
 #if defined(OS_WIN) || defined(OS_LINUX)
   // Whether the Views framework will be used.
@@ -81,9 +87,14 @@ MainContextImpl::MainContextImpl(CefRefPtr<CefCommandLine> command_line,
         ParseColor(command_line_->GetSwitchValue(switches::kBackgroundColor));
   }
 
-  if (!use_views_ && background_color_ == 0) {
-    // Set an explicit background color when not using Views.
+  if (background_color_ == 0 && !use_views_) {
+    // Set an explicit background color.
     background_color_ = CefColorSetARGB(255, 255, 255, 255);
+  }
+
+  // |browser_background_color_| should remain 0 to enable transparent painting.
+  if (!use_transparent_painting) {
+    browser_background_color_ = background_color_;
   }
 
   const std::string& cdm_path =
@@ -140,8 +151,8 @@ void MainContextImpl::PopulateSettings(CefSettings* settings) {
   if (use_windowless_rendering_)
     settings->windowless_rendering_enabled = true;
 
-  if (background_color_ != 0)
-    settings->background_color = background_color_;
+  if (browser_background_color_ != 0)
+    settings->background_color = browser_background_color_;
 }
 
 void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {
@@ -149,15 +160,17 @@ void MainContextImpl::PopulateBrowserSettings(CefBrowserSettings* settings) {
     settings->windowless_frame_rate = atoi(command_line_->
         GetSwitchValue(switches::kOffScreenFrameRate).ToString().c_str());
   }
+
+  if (browser_background_color_ != 0)
+    settings->background_color = browser_background_color_;
 }
 
 void MainContextImpl::PopulateOsrSettings(OsrRenderer::Settings* settings) {
-  settings->transparent =
-      command_line_->HasSwitch(switches::kTransparentPaintingEnabled);
   settings->show_update_rect =
       command_line_->HasSwitch(switches::kShowUpdateRect);
-  if (background_color_ != 0)
-    settings->background_color = background_color_;
+
+  if (browser_background_color_ != 0)
+    settings->background_color = browser_background_color_;
 }
 
 RootWindowManager* MainContextImpl::GetRootWindowManager() {

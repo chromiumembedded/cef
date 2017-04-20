@@ -19,11 +19,14 @@ namespace browser_prefs {
 // Name for the user prefs JSON file.
 extern const char kUserPrefsFileName[];
 
-// Create the PrefService used to manage pref registration and storage.
+// Create the PrefService used to manage pref registration and storage. If
+// |is_pre_initialization| is true a non-persistent PrefService will be created
+// for temporary usage during BrowserContextServices initialization.
 std::unique_ptr<PrefService> CreatePrefService(
     Profile* profile,
     const base::FilePath& cache_path,
-    bool persist_user_preferences);
+    bool persist_user_preferences,
+    bool is_pre_initialization);
 
 }  // namespace browser_prefs
 

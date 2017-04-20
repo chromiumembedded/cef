@@ -111,7 +111,7 @@ CEF_LABEL_BUTTON_IMPL_T void CEF_LABEL_BUTTON_IMPL_D::SetEnabledTextColors(
 CEF_LABEL_BUTTON_IMPL_T void CEF_LABEL_BUTTON_IMPL_D::SetFontList(
     const CefString& font_list) {
   CEF_REQUIRE_VALID_RETURN_VOID();
-  ParentClass::root_view()->SetFontListDeprecated(gfx::FontList(font_list));
+  ParentClass::root_view()->SetFontList(gfx::FontList(font_list));
 }
 
 CEF_LABEL_BUTTON_IMPL_T void CEF_LABEL_BUTTON_IMPL_D::SetHorizontalAlignment(

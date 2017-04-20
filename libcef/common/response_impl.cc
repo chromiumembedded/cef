@@ -185,25 +185,25 @@ void CefResponseImpl::SetResponseHeaders(
 }
 
 void CefResponseImpl::Set(const blink::WebURLResponse& response) {
-  DCHECK(!response.isNull());
+  DCHECK(!response.IsNull());
 
   base::AutoLock lock_scope(lock_);
   CHECK_READONLY_RETURN_VOID();
 
   blink::WebString str;
-  status_code_ = response.httpStatusCode();
-  str = response.httpStatusText();
-  status_text_ = str.utf16();
-  str = response.mimeType();
-  mime_type_ = str.utf16();
+  status_code_ = response.HttpStatusCode();
+  str = response.HttpStatusText();
+  status_text_ = str.Utf16();
+  str = response.MimeType();
+  mime_type_ = str.Utf16();
 
   class HeaderVisitor : public blink::WebHTTPHeaderVisitor {
    public:
     explicit HeaderVisitor(HeaderMap* map) : map_(map) {}
 
-    void visitHeader(const blink::WebString& name,
+    void VisitHeader(const blink::WebString& name,
                      const blink::WebString& value) override {
-      map_->insert(std::make_pair(name.utf16(), value.utf16()));
+      map_->insert(std::make_pair(name.Utf16(), value.Utf16()));
     }
 
    private:
@@ -211,7 +211,7 @@ void CefResponseImpl::Set(const blink::WebURLResponse& response) {
   };
 
   HeaderVisitor visitor(&header_map_);
-  response.visitHTTPHeaderFields(&visitor);
+  response.VisitHTTPHeaderFields(&visitor);
 }
 
 void CefResponseImpl::Set(const net::URLRequest* request) {

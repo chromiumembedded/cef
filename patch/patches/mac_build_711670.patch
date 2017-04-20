@@ -1,0 +1,57 @@
+diff --git chrome/browser/ui/views/BUILD.gn chrome/browser/ui/views/BUILD.gn
+index 47aa8b5bdbc9..d198a017a63c 100644
+--- chrome/browser/ui/views/BUILD.gn
++++ chrome/browser/ui/views/BUILD.gn
+@@ -27,6 +27,7 @@ component("views") {
+   deps = [
+     "//base",
+     "//chrome/app:command_ids",
++    "//content/public/browser",
+     "//printing/features",
+     "//skia",
+     "//ui/base",
+diff --git extensions/browser/api/BUILD.gn extensions/browser/api/BUILD.gn
+index dcf2bdb8fe74..96c9bf870c67 100644
+--- extensions/browser/api/BUILD.gn
++++ extensions/browser/api/BUILD.gn
+@@ -25,6 +25,8 @@ source_set("api") {
+   ]
+ 
+   public_deps = [
++    "//content/public/browser",
++    "//content/public/common",
+     "//extensions/browser/api/activity_log",
+     "//extensions/browser/api/alarms",
+     "//extensions/browser/api/app_current_window_internal",
+diff --git extensions/common/BUILD.gn extensions/common/BUILD.gn
+index 8af643d9d426..189cf47e7756 100644
+--- extensions/common/BUILD.gn
++++ extensions/common/BUILD.gn
+@@ -271,6 +271,7 @@ if (enable_extensions) {
+     public_deps = [
+       ":common_constants",
+       ":mojo",
++      "//content/public/common",
+       "//ipc",
+       "//skia",
+     ]
+@@ -284,7 +285,6 @@ if (enable_extensions) {
+       "//chrome:resources",
+       "//components/crx_file",
+       "//components/url_matcher",
+-      "//content/public/common",
+       "//crypto",
+       "//device/bluetooth",
+       "//device/usb",
+diff --git extensions/renderer/BUILD.gn extensions/renderer/BUILD.gn
+index fca1114a561b..b049678396ee 100644
+--- extensions/renderer/BUILD.gn
++++ extensions/renderer/BUILD.gn
+@@ -245,6 +245,7 @@ source_set("renderer") {
+     "//components/guest_view/renderer",
+     "//content:resources",
+     "//extensions:extensions_resources",
++    "//extensions/common",
+     "//extensions/common/api",
+     "//gin",
+     "//mojo/edk/js",

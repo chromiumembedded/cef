@@ -84,10 +84,10 @@ void CefFrameImpl::ViewSource() {
 
 void CefFrameImpl::GetSource(CefRefPtr<CefStringVisitor> visitor) {
   CEF_REQUIRE_RT_RETURN_VOID();
-  if (frame_ && frame_->isWebLocalFrame()) {
+  if (frame_ && frame_->IsWebLocalFrame()) {
     const CefString& content =
-        std::string(blink::WebFrameContentDumper::dumpAsMarkup(
-            frame_->toWebLocalFrame()).utf8());
+        std::string(blink::WebFrameContentDumper::DumpAsMarkup(
+            frame_->ToWebLocalFrame()).Utf8());
     visitor->Visit(content);
   }
 }
@@ -151,7 +151,7 @@ void CefFrameImpl::LoadString(const CefString& string,
 
   if (frame_) {
     GURL gurl = GURL(url.ToString());
-    frame_->loadHTMLString(string.ToString(), gurl);
+    frame_->LoadHTMLString(string.ToString(), gurl);
   }
 }
 
@@ -167,8 +167,8 @@ void CefFrameImpl::ExecuteJavaScript(const CefString& jsCode,
 
   if (frame_) {
     GURL gurl = GURL(scriptUrl.ToString());
-    frame_->executeScript(
-        blink::WebScriptSource(WebString::fromUTF16(jsCode.ToString16()), gurl,
+    frame_->ExecuteScript(
+        blink::WebScriptSource(WebString::FromUTF16(jsCode.ToString16()), gurl,
                                startLine));
   }
 }
@@ -177,15 +177,15 @@ bool CefFrameImpl::IsMain() {
   CEF_REQUIRE_RT_RETURN(false);
 
   if (frame_)
-    return (frame_->parent() == NULL);
+    return (frame_->Parent() == NULL);
   return false;
 }
 
 bool CefFrameImpl::IsFocused() {
   CEF_REQUIRE_RT_RETURN(false);
 
-  if (frame_ && frame_->view())
-    return (frame_->view()->focusedFrame() == frame_);
+  if (frame_ && frame_->View())
+    return (frame_->View()->FocusedFrame() == frame_);
   return false;
 }
 
@@ -194,7 +194,7 @@ CefString CefFrameImpl::GetName() {
   CEF_REQUIRE_RT_RETURN(name);
 
   if (frame_)
-    name = frame_->uniqueName().utf16();
+    name = webkit_glue::GetUniqueName(frame_);
   return name;
 }
 
@@ -208,7 +208,7 @@ CefRefPtr<CefFrame> CefFrameImpl::GetParent() {
   CEF_REQUIRE_RT_RETURN(NULL);
 
   if (frame_) {
-    blink::WebFrame* parent = frame_->parent();
+    blink::WebFrame* parent = frame_->Parent();
     if (parent)
       return browser_->GetWebFrameImpl(parent).get();
   }
@@ -221,7 +221,7 @@ CefString CefFrameImpl::GetURL() {
   CEF_REQUIRE_RT_RETURN(url);
 
   if (frame_) {
-    GURL gurl = frame_->document().url();
+    GURL gurl = frame_->GetDocument().Url();
     url = gurl.spec();
   }
   return url;
@@ -237,9 +237,9 @@ CefRefPtr<CefV8Context> CefFrameImpl::GetV8Context() {
   CEF_REQUIRE_RT_RETURN(NULL);
 
   if (frame_) {
-    v8::Isolate* isolate = blink::mainThreadIsolate();
+    v8::Isolate* isolate = blink::MainThreadIsolate();
     v8::HandleScope handle_scope(isolate);
-    return new CefV8ContextImpl(isolate, frame_->mainWorldScriptContext());
+    return new CefV8ContextImpl(isolate, frame_->MainWorldScriptContext());
   } else {
     return NULL;
   }
@@ -254,8 +254,8 @@ void CefFrameImpl::VisitDOM(CefRefPtr<CefDOMVisitor> visitor) {
   // Create a CefDOMDocumentImpl object that is valid only for the scope of this
   // method.
   CefRefPtr<CefDOMDocumentImpl> documentImpl;
-  const blink::WebDocument& document = frame_->document();
-  if (!document.isNull())
+  const blink::WebDocument& document = frame_->GetDocument();
+  if (!document.IsNull())
     documentImpl = new CefDOMDocumentImpl(browser_, frame_);
 
   visitor->Visit(documentImpl.get());
@@ -271,8 +271,8 @@ void CefFrameImpl::Detach() {
 
 void CefFrameImpl::ExecuteCommand(const std::string& command) {
   CEF_REQUIRE_RT_RETURN_VOID();
-  if (frame_ && frame_->isWebLocalFrame())
-    frame_->toWebLocalFrame()->executeCommand(WebString::fromUTF8(command));
+  if (frame_ && frame_->IsWebLocalFrame())
+    frame_->ToWebLocalFrame()->ExecuteCommand(WebString::FromUTF8(command));
 }
 
 

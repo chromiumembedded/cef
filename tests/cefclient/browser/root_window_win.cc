@@ -257,7 +257,7 @@ ClientWindowHandle RootWindowWin::GetWindowHandle() const {
 
 void RootWindowWin::CreateBrowserWindow(const std::string& startup_url) {
   if (with_osr_) {
-    OsrRenderer::Settings settings;
+    OsrRenderer::Settings settings = {};
     MainContext::Get()->PopulateOsrSettings(&settings);
     browser_window_.reset(new BrowserWindowOsrWin(this, startup_url, settings));
   } else {

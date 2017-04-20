@@ -1,75 +1,75 @@
 diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
-index a5721cf..d89dcff 100644
+index ba81ee3..648d7ce 100644
 --- Source/web/ChromeClientImpl.cpp
 +++ Source/web/ChromeClientImpl.cpp
-@@ -898,7 +898,7 @@ bool ChromeClientImpl::hasOpenedPopup() const {
- PopupMenu* ChromeClientImpl::openPopupMenu(LocalFrame& frame,
+@@ -908,7 +908,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
+ PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
-   notifyPopupOpeningObservers();
--  if (WebViewImpl::useExternalPopupMenus())
-+  if (m_webView->useExternalPopupMenus())
-     return new ExternalPopupMenu(frame, select, *m_webView);
+   NotifyPopupOpeningObservers();
+-  if (WebViewImpl::UseExternalPopupMenus())
++  if (web_view_->UseExternalPopupMenus())
+     return new ExternalPopupMenu(frame, select, *web_view_);
  
    DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index 8a38208..90784a8 100644
+index 16ac66b..7053b54 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
-@@ -357,6 +357,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
-       m_enableFakePageScaleAnimationForTesting(false),
-       m_fakePageScaleAnimationPageScaleFactor(0),
-       m_fakePageScaleAnimationUseAnchor(false),
-+      m_shouldUseExternalPopupMenus(shouldUseExternalPopupMenus),
-       m_compositorDeviceScaleFactorOverride(0),
-       m_suppressNextKeypressEvent(false),
-       m_imeAcceptEvents(true),
-@@ -3704,8 +3705,13 @@ void WebViewImpl::mainFrameScrollOffsetChanged() {
-   m_devToolsEmulator->mainFrameScrollOrScaleChanged();
+@@ -355,6 +355,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
+       enable_fake_page_scale_animation_for_testing_(false),
+       fake_page_scale_animation_page_scale_factor_(0),
+       fake_page_scale_animation_use_anchor_(false),
++      should_use_external_popup_menus_(g_should_use_external_popup_menus),
+       compositor_device_scale_factor_override_(0),
+       suppress_next_keypress_event_(false),
+       ime_accept_events_(true),
+@@ -3743,8 +3744,13 @@ void WebViewImpl::MainFrameScrollOffsetChanged() {
+   dev_tools_emulator_->MainFrameScrollOrScaleChanged();
  }
  
-+void WebViewImpl::setUseExternalPopupMenusThisInstance(
++void WebViewImpl::SetUseExternalPopupMenusThisInstance(
 +    bool useExternalPopupMenus) {
-+  m_shouldUseExternalPopupMenus = useExternalPopupMenus;
++  should_use_external_popup_menus_ = useExternalPopupMenus;
 +}
 +
- bool WebViewImpl::useExternalPopupMenus() {
--  return shouldUseExternalPopupMenus;
-+  return m_shouldUseExternalPopupMenus;
+ bool WebViewImpl::UseExternalPopupMenus() {
+-  return g_should_use_external_popup_menus;
++  return should_use_external_popup_menus_;
  }
  
- void WebViewImpl::setBackgroundColorOverride(WebColor color) {
+ void WebViewImpl::SetBackgroundColorOverride(WebColor color) {
 diff --git Source/web/WebViewImpl.h Source/web/WebViewImpl.h
-index f94b695..4828185 100644
+index a22ef37..33dbab4 100644
 --- Source/web/WebViewImpl.h
 +++ Source/web/WebViewImpl.h
-@@ -369,7 +369,8 @@ class WEB_EXPORT WebViewImpl final
+@@ -362,7 +362,8 @@ class WEB_EXPORT WebViewImpl final
  
    // Returns true if popup menus should be rendered by the browser, false if
    // they should be rendered by WebKit (which is the default).
--  static bool useExternalPopupMenus();
-+  void setUseExternalPopupMenusThisInstance(bool);
-+  bool useExternalPopupMenus();
+-  static bool UseExternalPopupMenus();
++  void SetUseExternalPopupMenusThisInstance(bool);
++  bool UseExternalPopupMenus();
  
-   bool shouldAutoResize() const { return m_shouldAutoResize; }
+   bool ShouldAutoResize() const { return should_auto_resize_; }
  
-@@ -652,6 +653,8 @@ class WEB_EXPORT WebViewImpl final
-   float m_fakePageScaleAnimationPageScaleFactor;
-   bool m_fakePageScaleAnimationUseAnchor;
+@@ -647,6 +648,8 @@ class WEB_EXPORT WebViewImpl final
+   float fake_page_scale_animation_page_scale_factor_;
+   bool fake_page_scale_animation_use_anchor_;
  
-+  bool m_shouldUseExternalPopupMenus;
++  bool should_use_external_popup_menus_;
 +
-   float m_compositorDeviceScaleFactorOverride;
-   TransformationMatrix m_deviceEmulationTransform;
+   float compositor_device_scale_factor_override_;
+   TransformationMatrix device_emulation_transform_;
  
 diff --git public/web/WebView.h public/web/WebView.h
-index 92bdf07..1a813a9 100644
+index e811392..d6d5bf8 100644
 --- public/web/WebView.h
 +++ public/web/WebView.h
-@@ -402,6 +402,7 @@ class WebView : protected WebWidget {
+@@ -403,6 +403,7 @@ class WebView : protected WebWidget {
  
    // Sets whether select popup menus should be rendered by the browser.
-   BLINK_EXPORT static void setUseExternalPopupMenus(bool);
-+  virtual void setUseExternalPopupMenusThisInstance(bool) = 0;
+   BLINK_EXPORT static void SetUseExternalPopupMenus(bool);
++  virtual void SetUseExternalPopupMenusThisInstance(bool) = 0;
  
    // Hides any popup (suggestions, selects...) that might be showing.
-   virtual void hidePopups() = 0;
+   virtual void HidePopups() = 0;

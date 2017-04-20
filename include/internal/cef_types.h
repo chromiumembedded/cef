@@ -401,10 +401,14 @@ typedef struct _cef_settings_t {
   int enable_net_security_expiration;
 
   ///
-  // Opaque background color used for accelerated content. By default the
-  // background color will be white. Only the RGB compontents of the specified
-  // value will be used. The alpha component must greater than 0 to enable use
-  // of the background color but will be otherwise ignored.
+  // Background color used for the browser before a document is loaded and when
+  // no document color is specified. The alpha component must be either fully
+  // opaque (0xFF) or fully transparent (0x00). If the alpha component is fully
+  // opaque then the RGB components will be used as the background color. If the
+  // alpha component is fully transparent for a windowed browser then the
+  // default value of opaque white be used. If the alpha component is fully
+  // transparent for a windowless (off-screen) browser then transparent painting
+  // will be enabled.
   ///
   cef_color_t background_color;
 
@@ -652,11 +656,14 @@ typedef struct _cef_browser_settings_t {
   cef_state_t webgl;
 
   ///
-  // Opaque background color used for the browser before a document is loaded
-  // and when no document color is specified. By default the background color
-  // will be the same as CefSettings.background_color. Only the RGB compontents
-  // of the specified value will be used. The alpha component must greater than
-  // 0 to enable use of the background color but will be otherwise ignored.
+  // Background color used for the browser before a document is loaded and when
+  // no document color is specified. The alpha component must be either fully
+  // opaque (0xFF) or fully transparent (0x00). If the alpha component is fully
+  // opaque then the RGB components will be used as the background color. If the
+  // alpha component is fully transparent for a windowed browser then the
+  // CefSettings.background_color value will be used. If the alpha component is
+  // fully transparent for a windowless (off-screen) browser then transparent
+  // painting will be enabled.
   ///
   cef_color_t background_color;
 

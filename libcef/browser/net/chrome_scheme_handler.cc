@@ -295,7 +295,7 @@ class CefWebUIControllerFactory : public content::WebUIControllerFactory {
   ~CefWebUIControllerFactory() override {}
 
  private:
-  friend struct base::DefaultLazyInstanceTraits<CefWebUIControllerFactory>;
+  friend struct base::LazyInstanceTraitsBase<CefWebUIControllerFactory>;
 
   // From chrome/browser/chrome_content_browser_client.cc
 

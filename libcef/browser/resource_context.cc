@@ -37,26 +37,13 @@ bool ShouldProxyUserData(const void* key) {
 
 CefResourceContext::CefResourceContext(
     bool is_off_the_record,
-    extensions::InfoMap* extension_info_map,
     CefRefPtr<CefRequestContextHandler> handler)
     : parent_(nullptr),
       is_off_the_record_(is_off_the_record),
-      extension_info_map_(extension_info_map),
       handler_(handler) {
 }
 
 CefResourceContext::~CefResourceContext() {
-  if (getter_.get()) {
-    // When the parent object (ResourceContext) destructor executes all
-    // associated URLRequests should be destroyed. If there are no other
-    // references it should then be safe to destroy the URLRequestContextGetter
-    // which owns the URLRequestContext.
-    getter_->AddRef();
-    CefURLRequestContextGetter* raw_getter = getter_.get();
-    getter_ = NULL;
-    content::BrowserThread::ReleaseSoon(
-          content::BrowserThread::IO, FROM_HERE, raw_getter);
-  }
 }
 
 base::SupportsUserData::Data* CefResourceContext::GetUserData(const void* key)
@@ -115,6 +102,12 @@ std::unique_ptr<net::ClientCertStore>
 #else
 #error Unknown platform.
 #endif
+}
+
+void CefResourceContext::set_extensions_info_map(
+    extensions::InfoMap* extensions_info_map) {
+  DCHECK(!extension_info_map_);
+  extension_info_map_ = extensions_info_map;
 }
 
 void CefResourceContext::set_url_request_context_getter(

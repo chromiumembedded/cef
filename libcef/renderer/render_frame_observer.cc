@@ -39,7 +39,7 @@ void CefRenderFrameObserver::DidCreateScriptContext(
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
 
   CefRefPtr<CefBrowserImpl> browserPtr =
-      CefBrowserImpl::GetBrowserForMainFrame(frame->top());
+      CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
   if (!browserPtr.get())
     return;
 
@@ -52,7 +52,7 @@ void CefRenderFrameObserver::DidCreateScriptContext(
 
   CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
-  v8::Isolate* isolate = blink::mainThreadIsolate();
+  v8::Isolate* isolate = blink::MainThreadIsolate();
   v8::HandleScope handle_scope(isolate);
   v8::Context::Scope scope(context);
   v8::MicrotasksScope microtasks_scope(isolate,
@@ -69,7 +69,7 @@ void CefRenderFrameObserver::WillReleaseScriptContext(
   blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
 
   CefRefPtr<CefBrowserImpl> browserPtr =
-      CefBrowserImpl::GetBrowserForMainFrame(frame->top());
+      CefBrowserImpl::GetBrowserForMainFrame(frame->Top());
   if (browserPtr.get()) {
     CefRefPtr<CefApp> application = CefContentClient::Get()->application();
     if (application.get()) {
@@ -78,7 +78,7 @@ void CefRenderFrameObserver::WillReleaseScriptContext(
       if (handler.get()) {
         CefRefPtr<CefFrameImpl> framePtr = browserPtr->GetWebFrameImpl(frame);
 
-        v8::Isolate* isolate = blink::mainThreadIsolate();
+        v8::Isolate* isolate = blink::MainThreadIsolate();
         v8::HandleScope handle_scope(isolate);
 
         // The released context should not be used for script execution.

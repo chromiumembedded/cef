@@ -339,6 +339,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
 
   // Thread safe accessors.
   const CefBrowserSettings& settings() const { return settings_; }
+  SkColor GetBackgroundColor() const;
   CefRefPtr<CefClient> client() const { return client_; }
   scoped_refptr<CefBrowserInfo> browser_info() const { return browser_info_; }
   int browser_id() const;
@@ -391,10 +392,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
                  bool reverse) override;
   bool HandleContextMenu(
       const content::ContextMenuParams& params) override;
-  bool PreHandleKeyboardEvent(
+  content::KeyboardEventProcessingResult PreHandleKeyboardEvent(
       content::WebContents* source,
-      const content::NativeWebKeyboardEvent& event,
-      bool* is_keyboard_shortcut) override;
+      const content::NativeWebKeyboardEvent& event) override;
   void HandleKeyboardEvent(
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event) override;

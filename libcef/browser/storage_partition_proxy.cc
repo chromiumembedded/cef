@@ -11,6 +11,10 @@ CefStoragePartitionProxy::CefStoragePartitionProxy(
     url_request_context_(url_request_context) {
 }
 
+CefStoragePartitionProxy::~CefStoragePartitionProxy() {
+  url_request_context_->ShutdownOnUIThread();
+}
+
 base::FilePath CefStoragePartitionProxy::GetPath() {
   return parent_->GetPath();
 }
@@ -76,6 +80,11 @@ CefStoragePartitionProxy::GetPlatformNotificationContext() {
   return parent_->GetPlatformNotificationContext();
 }
 
+content::BackgroundFetchContext*
+CefStoragePartitionProxy::GetBackgroundFetchContext() {
+  return parent_->GetBackgroundFetchContext();
+}
+
 content::BackgroundSyncContext*
 CefStoragePartitionProxy::GetBackgroundSyncContext() {
   return parent_->GetBackgroundSyncContext();
@@ -128,6 +137,14 @@ void CefStoragePartitionProxy::ClearData(
     const base::Closure& callback) {
   parent_->ClearData(remove_mask, quota_storage_remove_mask, origin_matcher,
                      cookie_matcher, begin, end, callback);
+}
+
+void CefStoragePartitionProxy::ClearHttpAndMediaCaches(
+    const base::Time begin,
+    const base::Time end,
+    const base::Callback<bool(const GURL&)>& url_matcher,
+    const base::Closure& callback) {
+  parent_->ClearHttpAndMediaCaches(begin, end, url_matcher, callback);
 }
 
 void CefStoragePartitionProxy::Flush() {

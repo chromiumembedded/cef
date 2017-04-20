@@ -8,6 +8,7 @@
 
 #include "content/browser/renderer_host/render_view_host_delegate_view.h"
 #include "content/browser/web_contents/web_contents_view.h"
+#include "third_party/skia/include/core/SkColor.h"
 
 namespace content {
 class BrowserPluginGuest;
@@ -22,7 +23,7 @@ class CefRenderWidgetHostViewOSR;
 class CefWebContentsViewOSR : public content::WebContentsView,
                               public content::RenderViewHostDelegateView {
  public:
-  explicit CefWebContentsViewOSR(bool transparent);
+  explicit CefWebContentsViewOSR(SkColor background_color);
   ~CefWebContentsViewOSR() override;
 
   void WebContentsCreated(content::WebContents* web_contents);
@@ -74,7 +75,7 @@ class CefWebContentsViewOSR : public content::WebContentsView,
   CefRenderWidgetHostViewOSR* GetView() const;
   CefBrowserHostImpl* GetBrowser() const;
 
-  const bool transparent_;
+  const SkColor background_color_;
 
   content::WebContents* web_contents_;
 

@@ -13,8 +13,8 @@ class CefWindowX11;
 class CefBrowserPlatformDelegateNativeLinux :
     public CefBrowserPlatformDelegateNative {
  public:
-  explicit CefBrowserPlatformDelegateNativeLinux(
-      const CefWindowInfo& window_info);
+  CefBrowserPlatformDelegateNativeLinux(const CefWindowInfo& window_info,
+                                        SkColor background_color);
 
   // CefBrowserPlatformDelegate methods:
   void BrowserDestroyed(CefBrowserHostImpl* browser) override;

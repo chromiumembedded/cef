@@ -150,7 +150,8 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
       callback.Run(suggested_path,
                    DownloadItem::TARGET_DISPOSITION_OVERWRITE,
                    content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
-                   suggested_path);
+                   suggested_path,
+                   content::DOWNLOAD_INTERRUPT_REASON_NONE);
     }
   }
 
@@ -168,7 +169,7 @@ class CefBeforeDownloadCallbackImpl : public CefBeforeDownloadCallback {
     callback.Run(path,
                  DownloadItem::TARGET_DISPOSITION_OVERWRITE,
                  content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
-                 path);
+                 path, content::DOWNLOAD_INTERRUPT_REASON_NONE);
   }
 
   base::WeakPtr<DownloadManager> manager_;
@@ -360,7 +361,8 @@ bool CefDownloadManagerDelegate::DetermineDownloadTarget(
     callback.Run(item->GetForcedFilePath(),
                  DownloadItem::TARGET_DISPOSITION_OVERWRITE,
                  content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
-                 item->GetForcedFilePath());
+                 item->GetForcedFilePath(),
+                 content::DOWNLOAD_INTERRUPT_REASON_NONE);
     return true;
   }
 

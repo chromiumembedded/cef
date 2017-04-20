@@ -44,7 +44,8 @@ void CefMimeHandlerViewGuestDelegate::OverrideWebContentsCreateParams(
 
   CefRefPtr<CefBrowserHostImpl> owner_browser = GetOwnerBrowser(guest_);
   if (owner_browser->IsWindowless()) {
-    CefWebContentsViewOSR* view_osr = new CefWebContentsViewOSR(false);
+    CefWebContentsViewOSR* view_osr =
+        new CefWebContentsViewOSR(owner_browser->GetBackgroundColor());
     params->view = view_osr;
     params->delegate_view = view_osr;
   }

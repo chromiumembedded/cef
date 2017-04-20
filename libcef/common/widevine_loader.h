@@ -47,7 +47,7 @@ class CefWidevineLoader {
 #endif
 
  private:
-  friend struct base::DefaultLazyInstanceTraits<CefWidevineLoader>;
+  friend struct base::LazyInstanceTraitsBase<CefWidevineLoader>;
 
   // Members are only accessed before context initialization or on the UI
   // thread.

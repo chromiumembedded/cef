@@ -1,7 +1,36 @@
-diff --git controls/button/menu_button.cc controls/button/menu_button.cc
+diff --git ui/views/animation/ink_drop_host_view.h ui/views/animation/ink_drop_host_view.h
+index 15199209..a45b1ac 100644
+--- ui/views/animation/ink_drop_host_view.h
++++ ui/views/animation/ink_drop_host_view.h
+@@ -122,6 +122,8 @@ class VIEWS_EXPORT InkDropHostView : public View, public InkDropHost {
+   // of CreateInkDrop() delegates to this function.
+   std::unique_ptr<InkDropImpl> CreateDefaultInkDropImpl();
+ 
++  InkDropMode ink_drop_mode() const { return ink_drop_mode_; }
++
+  private:
+   class InkDropGestureHandler;
+   friend class InkDropGestureHandler;
+diff --git ui/views/controls/button/label_button.h ui/views/controls/button/label_button.h
+index 6dade72..7dd110d 100644
+--- ui/views/controls/button/label_button.h
++++ ui/views/controls/button/label_button.h
+@@ -116,9 +116,11 @@ class VIEWS_EXPORT LabelButton : public CustomButton,
+   // these bounds if they need room to do manual painting.
+   virtual gfx::Rect GetChildAreaBounds();
+ 
++ public:
+   // Sets the font list used by this button.
+   virtual void SetFontList(const gfx::FontList& font_list);
+ 
++ protected:
+   // View:
+   void OnPaint(gfx::Canvas* canvas) override;
+   void OnFocus() override;
+diff --git ui/views/controls/button/menu_button.cc ui/views/controls/button/menu_button.cc
 index 173194b..8bb4f6e 100644
---- controls/button/menu_button.cc
-+++ controls/button/menu_button.cc
+--- ui/views/controls/button/menu_button.cc
++++ ui/views/controls/button/menu_button.cc
 @@ -193,7 +193,7 @@ void MenuButton::OnPaint(gfx::Canvas* canvas) {
  gfx::Size MenuButton::GetPreferredSize() const {
    gfx::Size prefsize = LabelButton::GetPreferredSize();
@@ -31,10 +60,10 @@ index 173194b..8bb4f6e 100644
 +}
 +
  }  // namespace views
-diff --git controls/button/menu_button.h controls/button/menu_button.h
+diff --git ui/views/controls/button/menu_button.h ui/views/controls/button/menu_button.h
 index b0ddf331..4d573ed 100644
---- controls/button/menu_button.h
-+++ controls/button/menu_button.h
+--- ui/views/controls/button/menu_button.h
++++ ui/views/controls/button/menu_button.h
 @@ -54,6 +54,9 @@ class VIEWS_EXPORT MenuButton : public LabelButton {
    ~MenuButton() override;
  
@@ -55,10 +84,25 @@ index b0ddf331..4d573ed 100644
    // We use a time object in order to keep track of when the menu was closed.
    // The time is used for simulating menu behavior for the menu button; that
    // is, if the menu is shown and the button is pressed, we need to close the
-diff --git view.h view.h
-index fcbee85..8ba4fd0 100644
---- view.h
-+++ view.h
+diff --git ui/views/test/ui_controls_factory_desktop_aurax11.cc ui/views/test/ui_controls_factory_desktop_aurax11.cc
+index 117a268..6065c73 100644
+--- ui/views/test/ui_controls_factory_desktop_aurax11.cc
++++ ui/views/test/ui_controls_factory_desktop_aurax11.cc
+@@ -146,10 +146,6 @@ class UIControlsDesktopX11 : public UIControlsAura {
+         aura::test::QueryLatestMousePositionRequestInHost(host);
+     host->ConvertPixelsToDIP(&root_current_location);
+ 
+-    auto* screen = views::test::TestDesktopScreenX11::GetInstance();
+-    DCHECK_EQ(screen, display::Screen::GetScreen());
+-    screen->set_cursor_screen_point(gfx::Point(screen_x, screen_y));
+-
+     if (root_location != root_current_location && button_down_mask == 0) {
+       // Move the cursor because EnterNotify/LeaveNotify are generated with the
+       // current mouse position as a result of XGrabPointer()
+diff --git ui/views/view.h ui/views/view.h
+index bfa107c..01df3f4cd 100644
+--- ui/views/view.h
++++ ui/views/view.h
 @@ -18,6 +18,7 @@
  #include "base/i18n/rtl.h"
  #include "base/logging.h"
@@ -67,7 +111,7 @@ index fcbee85..8ba4fd0 100644
  #include "build/build_config.h"
  #include "ui/accessibility/ax_enums.h"
  #include "ui/base/accelerators/accelerator.h"
-@@ -114,7 +115,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
+@@ -115,7 +116,8 @@ class VIEWS_EXPORT View : public ui::LayerDelegate,
                            public ui::LayerOwner,
                            public ui::AcceleratorTarget,
                            public ui::EventTarget,

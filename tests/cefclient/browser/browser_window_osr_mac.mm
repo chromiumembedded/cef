@@ -12,6 +12,7 @@
 #include "include/cef_parser.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/cefclient/browser/bytes_write_handler.h"
+#include "tests/cefclient/browser/main_context.h"
 #include "tests/cefclient/browser/text_input_client_osr_mac.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
@@ -696,7 +697,8 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   CefRefPtr<CefBrowser> browser = [self getBrowser];
   if ([self inLiveResize] || !browser.get()) {
     // Fill with the background color.
-    const cef_color_t background_color = renderer_->GetBackgroundColor();
+    const cef_color_t background_color =
+        client::MainContext::Get()->GetBackgroundColor();
     NSColor* color =
         [NSColor colorWithCalibratedRed:
                               float(CefColorGetR(background_color)) / 255.0f
@@ -1166,7 +1168,7 @@ void BrowserWindowOsrMac::CreateBrowser(
   Create(parent_handle, rect);
 
   CefWindowInfo window_info;
-  window_info.SetAsWindowless(nsview_, renderer_.IsTransparent());
+  window_info.SetAsWindowless(nsview_);
 
   // Create the browser asynchronously.
   CefBrowserHost::CreateBrowser(window_info, client_handler_,
@@ -1179,7 +1181,7 @@ void BrowserWindowOsrMac::GetPopupConfig(CefWindowHandle temp_handle,
                                          CefRefPtr<CefClient>& client,
                                          CefBrowserSettings& settings) {
   // Note: This method may be called on any thread.
-  windowInfo.SetAsWindowless(temp_handle, renderer_.IsTransparent());
+  windowInfo.SetAsWindowless(temp_handle);
   client = client_handler_;
 }
 

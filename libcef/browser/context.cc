@@ -22,12 +22,12 @@
 #include "base/debug/debugger.h"
 #include "base/files/file_util.h"
 #include "base/synchronization/waitable_event.h"
-#include "content/public/app/content_main.h"
-#include "content/public/app/content_main_runner.h"
+#include "content/app/content_service_manager_main_delegate.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
+#include "services/service_manager/embedder/main.h"
 #include "ui/base/ui_base_switches.h"
 
 #if defined(OS_WIN)
@@ -116,10 +116,27 @@ int RunAsCrashpadHandler(const base::CommandLine& command_line) {
   argv_as_utf8[argv.size()] = nullptr;
   argv.clear();
   return crashpad::HandlerMain(static_cast<int>(storage.size()),
-                               argv_as_utf8.get());
+                               argv_as_utf8.get(), nullptr);
 }
 
 #endif  // defined(OS_MACOSX) || defined(OS_WIN)
+
+bool GetColor(const cef_color_t cef_in, bool is_windowless, SkColor* sk_out) {
+  // Windowed browser colors must be fully opaque.
+  if (!is_windowless && CefColorGetA(cef_in) != SK_AlphaOPAQUE)
+    return false;
+
+  // Windowless browser colors may be fully transparent.
+  if (is_windowless && CefColorGetA(cef_in) == SK_AlphaTRANSPARENT) {
+    *sk_out = SK_ColorTRANSPARENT;
+    return true;
+  }
+
+  // Ignore the alpha component.
+  *sk_out = SkColorSetRGB(CefColorGetR(cef_in), CefColorGetG(cef_in),
+                          CefColorGetB(cef_in));
+  return true;
+}
 
 }  // namespace
 
@@ -326,12 +343,12 @@ bool CefContext::Initialize(const CefMainArgs& args,
 #endif
 
   main_delegate_.reset(new CefMainDelegate(application));
-  main_runner_.reset(content::ContentMainRunner::Create());
   browser_info_manager_.reset(new CefBrowserInfoManager);
 
   int exit_code;
 
   // Initialize the content runner.
+  content::ContentMainParams params(main_delegate_.get());
 #if defined(OS_WIN)
   sandbox::SandboxInterfaceInfo sandbox_info = {0};
   if (windows_sandbox_info == NULL) {
@@ -340,20 +357,20 @@ bool CefContext::Initialize(const CefMainArgs& args,
     settings_.no_sandbox = true;
   }
 
-  content::ContentMainParams params(main_delegate_.get());
   params.instance = args.instance;
   params.sandbox_info =
       static_cast<sandbox::SandboxInterfaceInfo*>(windows_sandbox_info);
-
-  exit_code = main_runner_->Initialize(params);
 #else
-  content::ContentMainParams params(main_delegate_.get());
   params.argc = args.argc;
   params.argv = const_cast<const char**>(args.argv);
-
-  exit_code = main_runner_->Initialize(params);
 #endif
 
+  sm_main_delegate_.reset(
+      new content::ContentServiceManagerMainDelegate(params));
+  sm_main_params_.reset(
+      new service_manager::MainParams(sm_main_delegate_.get()));
+
+  exit_code = service_manager::MainInitialize(*sm_main_params_);
   DCHECK_LT(exit_code, 0);
   if (exit_code >= 0)
     return false;
@@ -363,7 +380,7 @@ bool CefContext::Initialize(const CefMainArgs& args,
 
   // Run the process. Results in a call to CefMainDelegate::RunProcess() which
   // will create the browser runner and message loop without blocking.
-  exit_code = main_runner_->Run();
+  exit_code = service_manager::MainRun(*sm_main_params_);
 
   initialized_ = true;
 
@@ -411,6 +428,23 @@ void CefContext::Shutdown() {
 
 bool CefContext::OnInitThread() {
   return (base::PlatformThread::CurrentId() == init_thread_id_);
+}
+
+SkColor CefContext::GetBackgroundColor(
+    const CefBrowserSettings* browser_settings,
+    cef_state_t windowless_state) const {
+  bool is_windowless = windowless_state == STATE_ENABLED ? true :
+      (windowless_state == STATE_DISABLED ? false :
+          !!settings_.windowless_rendering_enabled);
+
+  // Default to opaque white if no acceptable color values are found.
+  SkColor sk_color = SK_ColorWHITE;
+
+  if (!browser_settings ||
+      !GetColor(browser_settings->background_color, is_windowless, &sk_color)) {
+    GetColor(settings_.background_color, is_windowless, &sk_color);
+  }
+  return sk_color;
 }
 
 CefTraceSubscriber* CefContext::GetTraceSubscriber() {
@@ -488,9 +522,10 @@ void CefContext::FinalizeShutdown() {
   main_delegate_->ShutdownBrowser();
 
   // Shut down the content runner.
-  main_runner_->Shutdown();
+  service_manager::MainShutdown(*sm_main_params_);
 
   browser_info_manager_.reset(NULL);
-  main_runner_.reset(NULL);
+  sm_main_params_.reset(NULL);
+  sm_main_delegate_.reset(NULL);
   main_delegate_.reset(NULL);
 }

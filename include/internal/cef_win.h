@@ -88,7 +88,6 @@ struct CefWindowInfoTraits {
     target->height = src->height;
     target->parent_window = src->parent_window;
     target->menu = src->menu;
-    target->transparent_painting_enabled = src->transparent_painting_enabled;
     target->windowless_rendering_enabled = src->windowless_rendering_enabled;
     target->window = src->window;
   }
@@ -140,15 +139,14 @@ class CefWindowInfo : public CefStructBase<CefWindowInfoTraits> {
   // monitor info and to act as the parent window for dialogs, context menus,
   // etc. If |parent| is not provided then the main screen monitor will be used
   // and some functionality that requires a parent window may not function
-  // correctly. If |transparent| is true a transparent background color will be
-  // used (RGBA=0x00000000). If |transparent| is false the background will be
-  // white and opaque. In order to create windowless browsers the
+  // correctly. In order to create windowless browsers the
   // CefSettings.windowless_rendering_enabled value must be set to true.
+  // Transparent painting is enabled by default but can be disabled by setting
+  // CefBrowserSettings.background_color to an opaque value.
   ///
-  void SetAsWindowless(CefWindowHandle parent, bool transparent) {
+  void SetAsWindowless(CefWindowHandle parent) {
     windowless_rendering_enabled = TRUE;
     parent_window = parent;
-    transparent_painting_enabled = transparent;
   }
 };
 

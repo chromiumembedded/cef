@@ -290,7 +290,8 @@ public:
   base::ThreadLocalPointer<CefV8IsolateManager> current_tls_;
 };
 
-base::LazyInstance<CefV8StateManager> g_v8_state = LAZY_INSTANCE_INITIALIZER;
+base::LazyInstance<CefV8StateManager>::Leaky g_v8_state =
+    LAZY_INSTANCE_INITIALIZER;
 
 CefV8IsolateManager* GetIsolateManager() {
   return g_v8_state.Pointer()->GetIsolateManager();
@@ -1005,7 +1006,7 @@ CefRefPtr<CefBrowser> CefV8ContextImpl::GetBrowser() {
 
   blink::WebFrame* webframe = GetWebFrame();
   if (webframe)
-    browser = CefBrowserImpl::GetBrowserForMainFrame(webframe->top());
+    browser = CefBrowserImpl::GetBrowserForMainFrame(webframe->Top());
 
   return browser;
 }
@@ -1017,7 +1018,7 @@ CefRefPtr<CefFrame> CefV8ContextImpl::GetFrame() {
   blink::WebFrame* webframe = GetWebFrame();
   if (webframe) {
     CefRefPtr<CefBrowserImpl> browser =
-        CefBrowserImpl::GetBrowserForMainFrame(webframe->top());
+        CefBrowserImpl::GetBrowserForMainFrame(webframe->Top());
     frame = browser->GetFrame(webkit_glue::GetIdentifier(webframe));
   }
 
@@ -1116,8 +1117,8 @@ bool CefV8ContextImpl::Eval(const CefString& code,
   v8::Local<v8::Context> context = GetV8Context();
   v8::Context::Scope context_scope(context);
 
-  const blink::WebString& source = blink::WebString::fromUTF16(code);
-  const blink::WebString& source_url = blink::WebString::fromUTF16(script_url);
+  const blink::WebString& source = blink::WebString::FromUTF16(code);
+  const blink::WebString& source_url = blink::WebString::FromUTF16(script_url);
 
   v8::TryCatch try_catch(isolate);
   try_catch.SetVerbose(true);
@@ -1125,7 +1126,7 @@ bool CefV8ContextImpl::Eval(const CefString& code,
   v8::MaybeLocal<v8::Value> func_rv =
       webkit_glue::ExecuteV8ScriptAndReturnValue(source, source_url, start_line,
           context, isolate, try_catch,
-          blink::AccessControlStatus::NotSharableCrossOrigin);
+          blink::AccessControlStatus::kNotSharableCrossOrigin);
 
   if (try_catch.HasCaught()) {
     exception = new CefV8ExceptionImpl(context, try_catch.Message());
@@ -1152,7 +1153,7 @@ blink::WebFrame* CefV8ContextImpl::GetWebFrame() {
   v8::HandleScope handle_scope(handle_->isolate());
   v8::Local<v8::Context> context = GetV8Context();
   v8::Context::Scope context_scope(context);
-  return blink::WebLocalFrame::frameForContext(context);
+  return blink::WebLocalFrame::FrameForContext(context);
 }
 
 

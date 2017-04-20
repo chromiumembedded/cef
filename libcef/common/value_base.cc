@@ -199,3 +199,40 @@ void CefValueController::TakeFrom(CefValueController* other) {
     }
   }
 }
+
+void CefValueController::Swap(void* old_value, void* new_value) {
+  DCHECK(old_value && new_value && old_value != new_value);
+
+  // Controller should already be locked.
+  DCHECK(locked());
+
+  if (owner_value_ == old_value)
+    owner_value_ = new_value;
+
+  if (!reference_map_.empty()) {
+    ReferenceMap::iterator it = reference_map_.find(old_value);
+    if (it != reference_map_.end()) {
+      // References should only be added once.
+      DCHECK(reference_map_.find(new_value) == reference_map_.end());
+      reference_map_.insert(std::make_pair(new_value, it->second));
+      reference_map_.erase(it);
+    }
+  }
+
+  if (!dependency_map_.empty()) {
+    DependencyMap::iterator it = dependency_map_.find(old_value);
+    if (it != dependency_map_.end()) {
+      dependency_map_.insert(std::make_pair(new_value, it->second));
+      dependency_map_.erase(it);
+    }
+
+    it = dependency_map_.begin();
+    for (; it != dependency_map_.end(); ++it) {
+      DependencySet::iterator dit = it->second.find(old_value);
+      if (dit != it->second.end()) {
+        it->second.insert(new_value);
+        it->second.erase(dit);
+      }
+    }
+  }
+}

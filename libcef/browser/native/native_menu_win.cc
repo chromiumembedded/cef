@@ -289,10 +289,11 @@ class CefNativeMenuWin::MenuHostWindow {
         // We currently don't support items with both icons and checkboxes.
         const gfx::ImageSkia skia_icon = icon.AsImageSkia();
         DCHECK(type != ui::MenuModel::TYPE_CHECK);
-        gfx::Canvas canvas(skia_icon.size(), 1.0f, false);
-        canvas.DrawImageInt(skia_icon, 0, 0);
+        std::unique_ptr<SkCanvas> canvas = skia::CreatePlatformCanvas(
+            skia_icon.width(), skia_icon.height(), false);
+        canvas->drawBitmap(*skia_icon.bitmap(), 0, 0);
         DrawToNativeContext(
-            canvas.sk_canvas(), dc,
+            canvas.get(), dc,
             draw_item_struct->rcItem.left + kItemLeftMargin,
             draw_item_struct->rcItem.top + (draw_item_struct->rcItem.bottom -
                 draw_item_struct->rcItem.top - skia_icon.height()) / 2, NULL);
@@ -308,9 +309,11 @@ class CefNativeMenuWin::MenuHostWindow {
           state = draw_item_struct->itemState & ODS_SELECTED ?
               NativeTheme::kHovered : NativeTheme::kNormal;
         }
-        gfx::Canvas canvas(gfx::Size(config.check_width, config.check_height),
-                           1.0f,
-                           false);
+
+        std::unique_ptr<SkCanvas> canvas = skia::CreatePlatformCanvas(
+            config.check_width, config.check_height, false);
+        cc::SkiaPaintCanvas paint_canvas(canvas.get());
+
         NativeTheme::ExtraParams extra;
         extra.menu_check.is_radio = false;
         gfx::Rect bounds(0, 0, config.check_width, config.check_height);
@@ -319,13 +322,13 @@ class CefNativeMenuWin::MenuHostWindow {
         ui::NativeTheme* native_theme =
             ui::NativeTheme::GetInstanceForNativeUi();
         native_theme->Paint(
-            canvas.sk_canvas(), NativeTheme::kMenuCheckBackground,
+            &paint_canvas, NativeTheme::kMenuCheckBackground,
             state, bounds, extra);
         native_theme->Paint(
-            canvas.sk_canvas(), NativeTheme::kMenuCheck, state, bounds, extra);
+            &paint_canvas, NativeTheme::kMenuCheck, state, bounds, extra);
 
         // Draw checkbox to menu.
-        DrawToNativeContext(canvas.sk_canvas(), dc,
+        DrawToNativeContext(canvas.get(), dc,
             draw_item_struct->rcItem.left + kItemLeftMargin,
             draw_item_struct->rcItem.top + (draw_item_struct->rcItem.bottom -
                 draw_item_struct->rcItem.top - config.check_height) / 2, NULL);

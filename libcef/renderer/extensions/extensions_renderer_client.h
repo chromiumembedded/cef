@@ -55,6 +55,7 @@ class CefExtensionsRendererClient : public ExtensionsRendererClient {
                        GURL* new_url);
   void RunScriptsAtDocumentStart(content::RenderFrame* render_frame);
   void RunScriptsAtDocumentEnd(content::RenderFrame* render_frame);
+  void RunScriptsAtDocumentIdle(content::RenderFrame* render_frame);
 
   static bool ShouldFork(blink::WebLocalFrame* frame,
                          const GURL& url,

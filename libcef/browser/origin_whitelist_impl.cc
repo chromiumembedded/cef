@@ -150,7 +150,7 @@ class CefOriginWhitelistManager {
   DISALLOW_COPY_AND_ASSIGN(CefOriginWhitelistManager);
 };
 
-base::LazyInstance<CefOriginWhitelistManager> g_manager =
+base::LazyInstance<CefOriginWhitelistManager>::Leaky g_manager =
     LAZY_INSTANCE_INITIALIZER;
 
 CefOriginWhitelistManager* CefOriginWhitelistManager::GetInstance() {

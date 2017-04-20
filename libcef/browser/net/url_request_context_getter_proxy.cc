@@ -21,9 +21,26 @@ CefURLRequestContextGetterProxy::~CefURLRequestContextGetterProxy() {
   CEF_REQUIRE_IOT();
 }
 
+void CefURLRequestContextGetterProxy::ShutdownOnUIThread() {
+  CEF_REQUIRE_UIT();
+  CEF_POST_TASK(CEF_IOT,
+      base::Bind(&CefURLRequestContextGetterProxy::ShutdownOnIOThread, this));
+}
+
+void CefURLRequestContextGetterProxy::ShutdownOnIOThread() {
+  CEF_REQUIRE_IOT();
+  shutting_down_ = true;
+  context_proxy_.reset();
+  NotifyContextShuttingDown();
+}
+
 net::URLRequestContext*
     CefURLRequestContextGetterProxy::GetURLRequestContext() {
   CEF_REQUIRE_IOT();
+
+  if (shutting_down_)
+    return nullptr;
+
   if (!context_proxy_) {
     context_proxy_.reset(
         new CefURLRequestContextProxy(static_cast<CefURLRequestContextImpl*>(

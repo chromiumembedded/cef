@@ -29,13 +29,13 @@ bool CefPrintWebViewHelperDelegate::CancelPrerender(
 // Return the PDF object element if |frame| is the out of process PDF extension.
 blink::WebElement CefPrintWebViewHelperDelegate::GetPdfElement(
         blink::WebLocalFrame* frame) {
-  GURL url = frame->document().url();
+  GURL url = frame->GetDocument().Url();
   if (url.SchemeIs(extensions::kExtensionScheme) &&
       url.host() == extension_misc::kPdfExtensionId) {
     // <object> with id="plugin" is created in
     // chrome/browser/resources/pdf/pdf.js.
-    auto plugin_element = frame->document().getElementById("plugin");
-    if (!plugin_element.isNull()) {
+    auto plugin_element = frame->GetDocument().GetElementById("plugin");
+    if (!plugin_element.IsNull()) {
       return plugin_element;
     }
     NOTREACHED();
@@ -49,7 +49,7 @@ bool CefPrintWebViewHelperDelegate::IsPrintPreviewEnabled() {
 
 bool CefPrintWebViewHelperDelegate::OverridePrint(
     blink::WebLocalFrame* frame) {
-  if (!frame->document().isPluginDocument())
+  if (!frame->GetDocument().IsPluginDocument())
     return false;
 
   std::vector<extensions::MimeHandlerViewContainer*> mime_handlers =

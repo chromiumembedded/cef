@@ -1,20 +1,21 @@
 diff --git .gn .gn
-index b0565e5..4fd1771 100644
+index cd7ed79..0c318f9 100644
 --- .gn
 +++ .gn
-@@ -259,6 +259,7 @@ exec_script_whitelist =
+@@ -257,6 +257,8 @@ exec_script_whitelist =
        # in the Chromium repo outside of //build.
-       "//android_webview/BUILD.gn",
        "//build_overrides/build.gni",
-+      "//cef/BUILD.gn",
-       "//chromeos/BUILD.gn",
  
++      "//cef/BUILD.gn",
++
        # TODO(dgn): Layer violation but breaks the build otherwise, see
+       # https://crbug.com/474506.
+       "//clank/java/BUILD.gn",
 diff --git BUILD.gn BUILD.gn
-index d783ebe..ae5e8d1 100644
+index d24c2da..7f0d451 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -282,6 +282,7 @@ group("both_gn_and_gyp") {
+@@ -158,6 +158,7 @@ group("gn_all") {
      # and whether there should be other targets that are iOS-only and missing.
      deps += [
        "//cc:cc_unittests",
@@ -55,13 +56,13 @@ index 982fbe8..e757be46 100644
 +         "studio path")
  }
 diff --git build/toolchain/win/setup_toolchain.py build/toolchain/win/setup_toolchain.py
-index 43a7e09..2af18e9 100644
+index e8b0849..0bfc676 100644
 --- build/toolchain/win/setup_toolchain.py
 +++ build/toolchain/win/setup_toolchain.py
-@@ -127,15 +127,17 @@ def _LoadToolchainEnv(cpu, sdk_dir):
-                                        os.environ['GYP_MSVS_OVERRIDE_PATH'],
-                                        'VC/vcvarsall.bat'))
-     if not os.path.exists(script_path):
+@@ -132,18 +132,20 @@ def _LoadToolchainEnv(cpu, sdk_dir):
+       # variable.
+       if 'VSINSTALLDIR' in os.environ:
+         del os.environ['VSINSTALLDIR']
 -      other_path = os.path.normpath(os.path.join(
 +      script_path = os.path.normpath(os.path.join(
                                          os.environ['GYP_MSVS_OVERRIDE_PATH'],
@@ -70,10 +71,16 @@ index 43a7e09..2af18e9 100644
 -        raise Exception('%s is missing - make sure VC++ tools are installed.' %
 -                        script_path)
 -      script_path = other_path
--    args = [script_path, 'amd64_x86' if cpu == 'x86' else 'amd64']
+-    # Chromium requires the 10.0.14393.0 SDK. Previous versions don't have all
+-    # of the required declarations, and 10.0.15063.0 is buggy.
+-    args = [script_path, 'amd64_x86' if cpu == 'x86' else 'amd64',
+-            '10.0.14393.0']
 -    variables = _LoadEnvFromBat(args)
 +    if os.path.exists(script_path):
-+      args = [script_path, 'amd64_x86' if cpu == 'x86' else 'amd64']
++      # Chromium requires the 10.0.14393.0 SDK. Previous versions don't have all
++      # of the required declarations, and 10.0.15063.0 is buggy.
++      args = [script_path, 'amd64_x86' if cpu == 'x86' else 'amd64',
++              '10.0.14393.0']
 +      variables = _LoadEnvFromBat(args)
 +    else:
 +      variables = []
@@ -84,10 +91,10 @@ index 43a7e09..2af18e9 100644
  
  
 diff --git build/vs_toolchain.py build/vs_toolchain.py
-index c5db1b24..e4f5839 100755
+index 90a562d..8c63b12 100755
 --- build/vs_toolchain.py
 +++ build/vs_toolchain.py
-@@ -74,11 +74,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
+@@ -78,11 +78,18 @@ def SetEnvironmentAndGetRuntimeDllDirs():
      runtime_path = os.path.pathsep.join(vs_runtime_dll_dirs)
      os.environ['PATH'] = runtime_path + os.path.pathsep + os.environ['PATH']
    elif sys.platform == 'win32' and not depot_tools_win_toolchain:
@@ -107,7 +114,7 @@ index c5db1b24..e4f5839 100755
      # directory in order to run binaries locally, but they are needed in order
      # to create isolates or the mini_installer. Copying them to the output
 diff --git chrome/chrome_paks.gni chrome/chrome_paks.gni
-index 811afda..8d21b5f 100644
+index 4e303dc..a0398f1 100644
 --- chrome/chrome_paks.gni
 +++ chrome/chrome_paks.gni
 @@ -249,7 +249,7 @@ template("chrome_paks") {

@@ -1,12 +1,14 @@
-diff --git content/browser/renderer_host/input/render_widget_host_latency_tracker.cc content/browser/renderer_host/input/render_widget_host_latency_tracker.cc
-index f809926..3635113 100644
---- content/browser/renderer_host/input/render_widget_host_latency_tracker.cc
-+++ content/browser/renderer_host/input/render_widget_host_latency_tracker.cc
-@@ -80,7 +80,6 @@ void UpdateLatencyCoordinates(const WebInputEvent& event,
+diff --git ui/latency/latency_histogram_macros.h ui/latency/latency_histogram_macros.h
+index 77e3eee..f8dd635 100644
+--- ui/latency/latency_histogram_macros.h
++++ ui/latency/latency_histogram_macros.h
+@@ -10,8 +10,7 @@
+ // Check valid timing for start and end latency components.
  #define CONFIRM_VALID_TIMING(start, end)     \
    DCHECK(!start.first_event_time.is_null()); \
-   DCHECK(!end.last_event_time.is_null());    \
+-  DCHECK(!end.last_event_time.is_null());    \
 -  DCHECK_GE(end.last_event_time, start.first_event_time);
++  DCHECK(!end.last_event_time.is_null());
  
- // Long scroll latency component that is mostly under 200ms.
- #define UMA_HISTOGRAM_SCROLL_LATENCY_LONG(name, start, end)             \
+ // Event latency that is mostly under 1 second. We should only use 100 buckets
+ // when needed.

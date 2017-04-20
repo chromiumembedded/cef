@@ -48,7 +48,7 @@ class ShutdownNotifierFactory
   static ShutdownNotifierFactory* GetInstance();
 
  private:
-  friend struct base::DefaultLazyInstanceTraits<ShutdownNotifierFactory>;
+  friend struct base::LazyInstanceTraitsBase<ShutdownNotifierFactory>;
 
   ShutdownNotifierFactory()
       : BrowserContextKeyedServiceShutdownNotifierFactory(

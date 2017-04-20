@@ -272,7 +272,7 @@ void SetString(CommandLinePrefStore* prefs,
                const std::string& value) {
   prefs->SetValue(
       key,
-      base::WrapUnique(new base::StringValue(value)),
+      base::WrapUnique(new base::Value(value)),
       WriteablePrefStore::DEFAULT_PREF_WRITE_FLAGS);
 }
 
@@ -282,28 +282,6 @@ void SetBool(CommandLinePrefStore* prefs,
   prefs->SetValue(key,
       base::WrapUnique(new base::Value(value)),
       WriteablePrefStore::DEFAULT_PREF_WRITE_FLAGS);
-}
-
-SkColor GetBaseBackgroundColor(CefRefPtr<CefBrowserHostImpl> browser) {
-  if (browser.get()) {
-    const CefBrowserSettings& browser_settings = browser->settings();
-    if (CefColorGetA(browser_settings.background_color) > 0) {
-      return SkColorSetRGB(
-          CefColorGetR(browser_settings.background_color),
-          CefColorGetG(browser_settings.background_color),
-          CefColorGetB(browser_settings.background_color));
-    }
-  }
-
-  const CefSettings& settings = CefContext::Get()->settings();
-  if (CefColorGetA(settings.background_color) > 0) {
-    return SkColorSetRGB(
-        CefColorGetR(settings.background_color),
-        CefColorGetG(settings.background_color),
-        CefColorGetB(settings.background_color));
-  }
-
-  return SK_ColorWHITE;
 }
 
 }  // namespace
@@ -368,7 +346,7 @@ void PopulateWebPreferences(content::RenderViewHost* rvh,
   SetDefaultPrefs(web);
 
   // Set preferences based on the context's PrefService.
-  if (browser.get()) {
+  if (browser) {
     CefBrowserContext* profile =
         static_cast<CefBrowserContext*>(
             browser->web_contents()->GetBrowserContext());
@@ -379,11 +357,18 @@ void PopulateWebPreferences(content::RenderViewHost* rvh,
   SetExtensionPrefs(rvh, web);
 
   // Set preferences based on CefBrowserSettings.
-  if (browser.get())
+  if (browser)
     SetCefPrefs(browser->settings(), web);
 
   // Set the background color for the WebView.
-  web.base_background_color = GetBaseBackgroundColor(browser);
+  if (browser) {
+    web.base_background_color = browser->GetBackgroundColor();
+  } else {
+    // We don't know for sure that the browser will be windowless but assume
+    // that the global windowless state is likely to be accurate.
+    web.base_background_color =
+        CefContext::Get()->GetBackgroundColor(nullptr, STATE_DEFAULT);
+  }
 }
 
 }  // namespace renderer_prefs

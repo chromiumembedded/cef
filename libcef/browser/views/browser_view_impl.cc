@@ -181,22 +181,8 @@ void CefBrowserViewImpl::SetPendingBrowserCreateParams(
 }
 
 void CefBrowserViewImpl::SetDefaults(const CefBrowserSettings& settings) {
-  SkColor background_color = SK_ColorWHITE;
-  if (CefColorGetA(settings.background_color) > 0) {
-    background_color = SkColorSetRGB(
-        CefColorGetR(settings.background_color),
-        CefColorGetG(settings.background_color),
-        CefColorGetB(settings.background_color));
-  } else {
-    const CefSettings& global_settings = CefContext::Get()->settings();
-    if (CefColorGetA(global_settings.background_color) > 0) {
-      background_color = SkColorSetRGB(
-          CefColorGetR(global_settings.background_color),
-          CefColorGetG(global_settings.background_color),
-          CefColorGetB(global_settings.background_color));
-    }
-  }
-  SetBackgroundColor(background_color);
+  SetBackgroundColor(
+      CefContext::Get()->GetBackgroundColor(&settings, STATE_DISABLED));
 }
 
 CefBrowserViewView* CefBrowserViewImpl::CreateRootView() {
@@ -213,7 +199,8 @@ bool CefBrowserViewImpl::HandleAccelerator(
   // Previous calls to TranslateMessage can generate Char events as well as
   // RawKeyDown events, even if the latter triggered an accelerator.  In these
   // cases, we discard the Char events.
-  if (event.type() == blink::WebInputEvent::Char && ignore_next_char_event_) {
+  if (event.GetType() == blink::WebInputEvent::kChar &&
+      ignore_next_char_event_) {
     ignore_next_char_event_ = false;
     return true;
   }
@@ -222,7 +209,7 @@ bool CefBrowserViewImpl::HandleAccelerator(
   // always generate a Char event.
   ignore_next_char_event_ = false;
 
-  if (event.type() == blink::WebInputEvent::RawKeyDown) {
+  if (event.GetType() == blink::WebInputEvent::kRawKeyDown) {
     ui::Accelerator accelerator =
         ui::GetAcceleratorFromNativeWebKeyboardEvent(event);
 

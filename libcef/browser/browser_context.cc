@@ -28,6 +28,15 @@ CefBrowserContext::~CefBrowserContext() {
 void CefBrowserContext::Initialize() {
   content::BrowserContext::Initialize(this, GetPath());
 
+  resource_context_.reset(
+      new CefResourceContext(IsOffTheRecord(), GetHandler()));
+
+  // This must be called before creating any services to avoid hitting
+  // DependencyManager::AssertContextWasntDestroyed when creating/destroying
+  // multiple browser contexts (due to pointer address reuse).
+  BrowserContextDependencyManager::GetInstance()->CreateBrowserContextServices(
+      this);
+
   const bool extensions_enabled = extensions::ExtensionsEnabled();
   if (extensions_enabled) {
     // Create the custom ExtensionSystem first because other KeyedServices
@@ -41,22 +50,18 @@ void CefBrowserContext::Initialize() {
     } else {
       extension_system_->InitForRegularProfile(true);
     }
+    resource_context_->set_extensions_info_map(extension_system_->info_map());
   }
+}
 
-  resource_context_.reset(new CefResourceContext(
-      IsOffTheRecord(),
-      extensions_enabled ? extension_system_->info_map() : NULL,
-      GetHandler()));
-
-  BrowserContextDependencyManager::GetInstance()->CreateBrowserContextServices(
-      this);
-
+void CefBrowserContext::PostInitialize() {
   // Spell checking support and possibly other subsystems retrieve the
   // PrefService associated with a BrowserContext via UserPrefs::Get().
   PrefService* pref_service = GetPrefs();
   DCHECK(pref_service);
   user_prefs::UserPrefs::Set(this, pref_service);
 
+  const bool extensions_enabled = extensions::ExtensionsEnabled();
   if (extensions_enabled && !is_proxy_)
     extension_system_->Init();
 }

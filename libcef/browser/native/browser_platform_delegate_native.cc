@@ -10,9 +10,15 @@
 #include "content/public/browser/render_widget_host.h"
 
 CefBrowserPlatformDelegateNative::CefBrowserPlatformDelegateNative(
-    const CefWindowInfo& window_info)
+    const CefWindowInfo& window_info,
+    SkColor background_color)
     : window_info_(window_info),
+      background_color_(background_color),
       windowless_handler_(nullptr) {
+}
+
+SkColor CefBrowserPlatformDelegateNative::GetBackgroundColor() const {
+  return background_color_;
 }
 
 void CefBrowserPlatformDelegateNative::WasResized() {

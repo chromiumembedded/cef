@@ -40,7 +40,7 @@ MSVC_POP_WARNING();
 #undef LOG
 
 #include "base/logging.h"
-#include "content/public/renderer/render_frame.h"
+#include "content/renderer/render_frame_impl.h"
 
 namespace webkit_glue {
 
@@ -50,45 +50,45 @@ bool CanGoBack(blink::WebView* view) {
   if (!view)
     return false;
   blink::WebViewImpl* impl = reinterpret_cast<blink::WebViewImpl*>(view);
-  return (impl->client()->historyBackListCount() > 0);
+  return (impl->Client()->HistoryBackListCount() > 0);
 }
 
 bool CanGoForward(blink::WebView* view) {
   if (!view)
     return false;
   blink::WebViewImpl* impl = reinterpret_cast<blink::WebViewImpl*>(view);
-  return (impl->client()->historyForwardListCount() > 0);
+  return (impl->Client()->HistoryForwardListCount() > 0);
 }
 
 void GoBack(blink::WebView* view) {
   if (!view)
     return;
   blink::WebViewImpl* impl = reinterpret_cast<blink::WebViewImpl*>(view);
-  if (impl->client()->historyBackListCount() > 0)
-    impl->client()->navigateBackForwardSoon(-1);
+  if (impl->Client()->HistoryBackListCount() > 0)
+    impl->Client()->NavigateBackForwardSoon(-1);
 }
 
 void GoForward(blink::WebView* view) {
   if (!view)
     return;
   blink::WebViewImpl* impl = reinterpret_cast<blink::WebViewImpl*>(view);
-  if (impl->client()->historyForwardListCount() > 0)
-    impl->client()->navigateBackForwardSoon(1);
+  if (impl->Client()->HistoryForwardListCount() > 0)
+    impl->Client()->NavigateBackForwardSoon(1);
 }
 
 std::string DumpDocumentText(blink::WebFrame* frame) {
   // We use the document element's text instead of the body text here because
   // not all documents have a body, such as XML documents.
-  blink::WebElement document_element = frame->document().documentElement();
-  if (document_element.isNull())
+  blink::WebElement document_element = frame->GetDocument().DocumentElement();
+  if (document_element.IsNull())
     return std::string();
 
-  blink::Element* web_element = document_element.unwrap<blink::Element>();
-  return blink::WebString(web_element->innerText()).utf8();
+  blink::Element* web_element = document_element.Unwrap<blink::Element>();
+  return blink::WebString(web_element->innerText()).Utf8();
 }
 
 cef_dom_node_type_t GetNodeType(const blink::WebNode& node) {
-  const blink::Node* web_node = node.constUnwrap<blink::Node>();
+  const blink::Node* web_node = node.ConstUnwrap<blink::Node>();
   switch (web_node->getNodeType()) {
     case blink::Node::kElementNode:
       return DOM_NODE_TYPE_ELEMENT;
@@ -113,17 +113,17 @@ cef_dom_node_type_t GetNodeType(const blink::WebNode& node) {
 }
 
 blink::WebString GetNodeName(const blink::WebNode& node) {
-  const blink::Node* web_node = node.constUnwrap<blink::Node>();
+  const blink::Node* web_node = node.ConstUnwrap<blink::Node>();
   return web_node->nodeName();
 }
 
 blink::WebString CreateNodeMarkup(const blink::WebNode& node) {
-  const blink::Node* web_node = node.constUnwrap<blink::Node>();
-  return blink::createMarkup(web_node);
+  const blink::Node* web_node = node.ConstUnwrap<blink::Node>();
+  return blink::CreateMarkup(web_node);
 }
 
 bool SetNodeValue(blink::WebNode& node, const blink::WebString& value) {
-  blink::Node* web_node = node.unwrap<blink::Node>();
+  blink::Node* web_node = node.Unwrap<blink::Node>();
   web_node->setNodeValue(value);
   return true;
 }
@@ -139,30 +139,13 @@ int64_t GetIdentifier(blink::WebFrame* frame) {
   return kInvalidFrameId;
 }
 
-// Based on WebViewImpl::findFrameByName and FrameTree::find.
-blink::WebFrame* FindFrameByUniqueName(const blink::WebString& unique_name,
-                                       blink::WebFrame* relative_to_frame) {
-  blink::Frame* start_frame = toWebLocalFrameImpl(relative_to_frame)->frame();
-  if (!start_frame)
-    return NULL;
-
-  const AtomicString& atomic_name = unique_name;
-  blink::Frame* found_frame = NULL;
-
-  // Search the subtree starting with |start_frame|.
-  for (blink::Frame* frame = start_frame;
-       frame;
-       frame = frame->tree().traverseNext(start_frame)) {
-    if (frame->tree().uniqueName() == atomic_name) {
-      found_frame = frame;
-      break;
-    }
-  }
-
-  if (found_frame && found_frame->isLocalFrame())
-    return blink::WebLocalFrameImpl::fromFrame(toLocalFrame(found_frame));
-
-  return NULL;
+std::string GetUniqueName(blink::WebFrame* frame) {
+  content::RenderFrameImpl* render_frame =
+      content::RenderFrameImpl::FromWebFrame(frame);
+  DCHECK(render_frame);
+  if (render_frame)
+    return render_frame->unique_name();
+  return std::string();
 }
 
 v8::MaybeLocal<v8::Value> CallV8Function(v8::Local<v8::Context> context,
@@ -175,21 +158,20 @@ v8::MaybeLocal<v8::Value> CallV8Function(v8::Local<v8::Context> context,
 
   // Execute the function call using the V8ScriptRunner so that inspector
   // instrumentation works.
-  blink::LocalFrame* frame =
-      toLocalFrame(blink::toFrameIfNotDetached(context));
+  blink::LocalFrame* frame = blink::ToLocalFrameIfNotDetached(context);
   DCHECK(frame);
   if (frame &&
-      frame->document()->canExecuteScripts(blink::AboutToExecuteScript)) {
-    func_rv = blink::V8ScriptRunner::callFunction(
-        function, frame->document(), receiver, argc, args, isolate);
+      frame->GetDocument()->CanExecuteScripts(blink::kAboutToExecuteScript)) {
+    func_rv = blink::V8ScriptRunner::CallFunction(
+        function, frame->GetDocument(), receiver, argc, args, isolate);
   }
 
   return func_rv;
 }
 
 bool IsTextControlElement(const blink::WebElement& element) {
-  const blink::Element* web_element = element.constUnwrap<blink::Element>();
-  return web_element->isTextControl();
+  const blink::Element* web_element = element.ConstUnwrap<blink::Element>();
+  return web_element->IsTextControl();
 }
 
 v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
@@ -206,51 +188,50 @@ v8::MaybeLocal<v8::Value> ExecuteV8ScriptAndReturnValue(
   if (start_line < 1)
     start_line = 1;
 
-  const blink::KURL kurl = source_url.isEmpty() ?
-      blink::KURL() : blink::KURL(blink::ParsedURLString, source_url);
+  const blink::KURL kurl = source_url.IsEmpty() ?
+      blink::KURL() : blink::KURL(blink::kParsedURLString, source_url);
 
   const blink::ScriptSourceCode ssc = blink::ScriptSourceCode(source, kurl,
-      WTF::TextPosition(WTF::OrdinalNumber::fromOneBasedInt(start_line),
-      WTF::OrdinalNumber::fromZeroBasedInt(0)));
+      WTF::TextPosition(WTF::OrdinalNumber::FromOneBasedInt(start_line),
+      WTF::OrdinalNumber::FromZeroBasedInt(0)));
 
   v8::MaybeLocal<v8::Value> result;
 
-  blink::LocalFrame* frame =
-      toLocalFrame(blink::toFrameIfNotDetached(context));
+  blink::LocalFrame* frame = blink::ToLocalFrameIfNotDetached(context);
   DCHECK(frame);
 
   if (frame) {
-    blink::V8CacheOptions v8CacheOptions(blink::V8CacheOptionsDefault);
-    if (frame && frame->settings())
-      v8CacheOptions = frame->settings()->getV8CacheOptions();
+    blink::V8CacheOptions v8CacheOptions(blink::kV8CacheOptionsDefault);
+    if (frame && frame->GetSettings())
+      v8CacheOptions = frame->GetSettings()->GetV8CacheOptions();
 
     v8::Local<v8::Script> script;
-    if (!blink::v8Call(blink::V8ScriptRunner::compileScript(ssc, isolate,
+    if (!blink::V8Call(blink::V8ScriptRunner::CompileScript(ssc, isolate,
             accessControlStatus, v8CacheOptions), script, tryCatch)) {
       return result;
     }
 
-    result = blink::V8ScriptRunner::runCompiledScript(isolate, script,
-        blink::toExecutionContext(context));
+    result = blink::V8ScriptRunner::RunCompiledScript(isolate, script,
+        blink::ToExecutionContext(context));
   }
 
   return result;
 }
 
 bool IsScriptForbidden() {
-  return blink::ScriptForbiddenScope::isScriptForbidden();
+  return blink::ScriptForbiddenScope::IsScriptForbidden();
 }
 
-void registerURLSchemeAsLocal(const blink::WebString& scheme) {
-  blink::SchemeRegistry::registerURLSchemeAsLocal(scheme);
+void RegisterURLSchemeAsLocal(const blink::WebString& scheme) {
+  blink::SchemeRegistry::RegisterURLSchemeAsLocal(scheme);
 }
 
-void registerURLSchemeAsSecure(const blink::WebString& scheme) {
-  blink::SchemeRegistry::registerURLSchemeAsSecure(scheme);
+void RegisterURLSchemeAsSecure(const blink::WebString& scheme) {
+  blink::SchemeRegistry::RegisterURLSchemeAsSecure(scheme);
 }
 
-void registerURLSchemeAsCORSEnabled(const blink::WebString& scheme) {
-  blink::SchemeRegistry::registerURLSchemeAsCORSEnabled(scheme);
+void RegisterURLSchemeAsCORSEnabled(const blink::WebString& scheme) {
+  blink::SchemeRegistry::RegisterURLSchemeAsCORSEnabled(scheme);
 }
 
 }  // webkit_glue

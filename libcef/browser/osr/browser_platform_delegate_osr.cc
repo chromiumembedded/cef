@@ -28,8 +28,7 @@ void CefBrowserPlatformDelegateOsr::CreateViewForWebContents(
   DCHECK(!view_osr_);
 
   // Use the OSR view instead of the default platform view.
-  view_osr_ = new CefWebContentsViewOSR(
-      !!native_delegate_->window_info().transparent_painting_enabled);
+  view_osr_ = new CefWebContentsViewOSR(GetBackgroundColor());
   *view = view_osr_;
   *delegate_view = view_osr_;
 }
@@ -66,6 +65,10 @@ void CefBrowserPlatformDelegateOsr::BrowserDestroyed(
   CefBrowserPlatformDelegate::BrowserDestroyed(browser);
 
   view_osr_ = nullptr;
+}
+
+SkColor CefBrowserPlatformDelegateOsr::GetBackgroundColor() const {
+  return native_delegate_->GetBackgroundColor();
 }
 
 void CefBrowserPlatformDelegateOsr::WasResized() {
