@@ -1,5 +1,5 @@
 diff --git chrome/browser/ui/views/BUILD.gn chrome/browser/ui/views/BUILD.gn
-index 47aa8b5bdbc9..d198a017a63c 100644
+index 47aa8b5..d198a01 100644
 --- chrome/browser/ui/views/BUILD.gn
 +++ chrome/browser/ui/views/BUILD.gn
 @@ -27,6 +27,7 @@ component("views") {
@@ -11,7 +11,7 @@ index 47aa8b5bdbc9..d198a017a63c 100644
      "//skia",
      "//ui/base",
 diff --git extensions/browser/api/BUILD.gn extensions/browser/api/BUILD.gn
-index dcf2bdb8fe74..96c9bf870c67 100644
+index dcf2bdb..96c9bf8 100644
 --- extensions/browser/api/BUILD.gn
 +++ extensions/browser/api/BUILD.gn
 @@ -25,6 +25,8 @@ source_set("api") {
@@ -24,7 +24,7 @@ index dcf2bdb8fe74..96c9bf870c67 100644
      "//extensions/browser/api/alarms",
      "//extensions/browser/api/app_current_window_internal",
 diff --git extensions/common/BUILD.gn extensions/common/BUILD.gn
-index 8af643d9d426..189cf47e7756 100644
+index 8af643d..189cf47 100644
 --- extensions/common/BUILD.gn
 +++ extensions/common/BUILD.gn
 @@ -271,6 +271,7 @@ if (enable_extensions) {
@@ -44,7 +44,7 @@ index 8af643d9d426..189cf47e7756 100644
        "//device/bluetooth",
        "//device/usb",
 diff --git extensions/renderer/BUILD.gn extensions/renderer/BUILD.gn
-index fca1114a561b..b049678396ee 100644
+index fca1114..b049678 100644
 --- extensions/renderer/BUILD.gn
 +++ extensions/renderer/BUILD.gn
 @@ -245,6 +245,7 @@ source_set("renderer") {
