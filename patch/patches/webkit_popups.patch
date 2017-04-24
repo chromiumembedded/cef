@@ -12,7 +12,7 @@ index 48385f8..a11804b 100644
  
    DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
 diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
-index 365a716..c1519f8 100644
+index 5b5fef6..ef4f665 100644
 --- Source/web/WebViewImpl.cpp
 +++ Source/web/WebViewImpl.cpp
 @@ -357,6 +357,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
@@ -23,7 +23,7 @@ index 365a716..c1519f8 100644
        m_compositorDeviceScaleFactorOverride(0),
        m_suppressNextKeypressEvent(false),
        m_imeAcceptEvents(true),
-@@ -3699,8 +3700,13 @@ void WebViewImpl::mainFrameScrollOffsetChanged() {
+@@ -3704,8 +3705,13 @@ void WebViewImpl::mainFrameScrollOffsetChanged() {
    m_devToolsEmulator->mainFrameScrollOrScaleChanged();
  }
  
@@ -39,10 +39,10 @@ index 365a716..c1519f8 100644
  
  void WebViewImpl::setBackgroundColorOverride(WebColor color) {
 diff --git Source/web/WebViewImpl.h Source/web/WebViewImpl.h
-index f94b695..4828185 100644
+index 354e52e..c2058f3 100644
 --- Source/web/WebViewImpl.h
 +++ Source/web/WebViewImpl.h
-@@ -369,7 +369,8 @@ class WEB_EXPORT WebViewImpl final
+@@ -370,7 +370,8 @@ class WEB_EXPORT WebViewImpl final
  
    // Returns true if popup menus should be rendered by the browser, false if
    // they should be rendered by WebKit (which is the default).
@@ -52,7 +52,7 @@ index f94b695..4828185 100644
  
    bool shouldAutoResize() const { return m_shouldAutoResize; }
  
-@@ -652,6 +653,8 @@ class WEB_EXPORT WebViewImpl final
+@@ -653,6 +654,8 @@ class WEB_EXPORT WebViewImpl final
    float m_fakePageScaleAnimationPageScaleFactor;
    bool m_fakePageScaleAnimationUseAnchor;
  

@@ -15,10 +15,10 @@ index 2b04a24..85653cf 100644
      }
    }
 diff --git Source/core/frame/LocalFrame.cpp Source/core/frame/LocalFrame.cpp
-index 6fa75cf..20cba50 100644
+index 949107e..8a6f58d 100644
 --- Source/core/frame/LocalFrame.cpp
 +++ Source/core/frame/LocalFrame.cpp
-@@ -898,6 +898,7 @@ PluginData* LocalFrame::pluginData() const {
+@@ -900,6 +900,7 @@ PluginData* LocalFrame::pluginData() const {
    if (!loader().allowPlugins(NotAboutToInstantiatePlugin))
      return nullptr;
    return page()->pluginData(
@@ -27,10 +27,10 @@ index 6fa75cf..20cba50 100644
  }
  
 diff --git Source/core/page/Page.cpp Source/core/page/Page.cpp
-index cb46ff7..7c63196 100644
+index b18bc71..ad01dcf 100644
 --- Source/core/page/Page.cpp
 +++ Source/core/page/Page.cpp
-@@ -226,16 +226,26 @@ void Page::refreshPlugins() {
+@@ -231,16 +231,26 @@ void Page::refreshPlugins() {
  
    for (const Page* page : allPages()) {
      // Clear out the page's plugin data.
@@ -65,7 +65,7 @@ index cb46ff7..7c63196 100644
  
  void Page::setValidationMessageClient(ValidationMessageClient* client) {
 diff --git Source/core/page/Page.h Source/core/page/Page.h
-index 9c429bd..667207e 100644
+index 8fda288..615389b 100644
 --- Source/core/page/Page.h
 +++ Source/core/page/Page.h
 @@ -130,7 +130,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
@@ -78,7 +78,7 @@ index 9c429bd..667207e 100644
  
    EditorClient& editorClient() const { return *m_editorClient; }
    SpellCheckerClient& spellCheckerClient() const {
-@@ -285,7 +286,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
+@@ -286,7 +287,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
    // longer needed.
    Member<Frame> m_mainFrame;
  
