@@ -24,6 +24,9 @@ class CefURLRequestContextGetterProxy : public CefURLRequestContextGetter {
       scoped_refptr<CefURLRequestContextGetterImpl> parent);
   ~CefURLRequestContextGetterProxy() override;
 
+  // Called when the StoragePartitionProxy is destroyed.
+  void ShutdownOnUIThread();
+
   // net::URLRequestContextGetter implementation.
   net::URLRequestContext* GetURLRequestContext() override;
   scoped_refptr<base::SingleThreadTaskRunner>
@@ -35,6 +38,8 @@ class CefURLRequestContextGetterProxy : public CefURLRequestContextGetter {
   CefRefPtr<CefRequestContextHandler> handler() const { return handler_; }
 
  private:
+  void ShutdownOnIOThread();
+
   CefRefPtr<CefRequestContextHandler> handler_;
 
   // The CefURLRequestContextImpl owned by |parent_| is passed as a raw pointer
@@ -43,6 +48,8 @@ class CefURLRequestContextGetterProxy : public CefURLRequestContextGetter {
   scoped_refptr<CefURLRequestContextGetterImpl> parent_;
 
   std::unique_ptr<CefURLRequestContextProxy> context_proxy_;
+
+  bool shutting_down_ = false;
 
   DISALLOW_COPY_AND_ASSIGN(CefURLRequestContextGetterProxy);
 };

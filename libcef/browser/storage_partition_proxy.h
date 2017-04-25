@@ -18,6 +18,7 @@ class CefStoragePartitionProxy : public content::StoragePartition {
   CefStoragePartitionProxy(
       content::StoragePartition* parent,
       CefURLRequestContextGetterProxy* url_request_context);
+  ~CefStoragePartitionProxy() override;
 
   // StoragePartition methods:
   base::FilePath GetPath() override;

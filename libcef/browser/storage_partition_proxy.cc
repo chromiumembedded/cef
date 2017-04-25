@@ -11,6 +11,10 @@ CefStoragePartitionProxy::CefStoragePartitionProxy(
     url_request_context_(url_request_context) {
 }
 
+CefStoragePartitionProxy::~CefStoragePartitionProxy() {
+  url_request_context_->ShutdownOnUIThread();
+}
+
 base::FilePath CefStoragePartitionProxy::GetPath() {
   return parent_->GetPath();
 }

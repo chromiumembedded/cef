@@ -81,7 +81,7 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
   net::CookieStore* GetExistingCookieStore() const;
 
   CefURLRequestManager* request_manager() const {
-    return url_request_manager_.get();
+    return io_state_->url_request_manager_.get();
   }
 
  private:
@@ -89,29 +89,38 @@ class CefURLRequestContextGetterImpl : public CefURLRequestContextGetter {
   void UpdateServerWhitelist();
   void UpdateDelegateWhitelist();
 
+  void ShutdownOnIOThread();
+
   const CefRequestContextSettings settings_;
 
-  net::NetLog* net_log_;  // Guaranteed to outlive this object.
+  bool shutting_down_ = false;
 
-  scoped_refptr<base::SingleThreadTaskRunner> io_task_runner_;
-  scoped_refptr<base::SingleThreadTaskRunner> file_task_runner_;
+  // State that is only accessed on the IO thread and will be reset in
+  // ShutdownOnIOThread().
+  struct IOState {
+    net::NetLog* net_log_ = nullptr;  // Guaranteed to outlive this object.
+
+    scoped_refptr<base::SingleThreadTaskRunner> io_task_runner_;
+    scoped_refptr<base::SingleThreadTaskRunner> file_task_runner_;
 
 #if defined(OS_POSIX) && !defined(OS_ANDROID)
-  std::string gsapi_library_name_;
+    std::string gsapi_library_name_;
 #endif
 
-  std::unique_ptr<net::ProxyConfigService> proxy_config_service_;
-  std::unique_ptr<net::URLRequestContextStorage> storage_;
-  std::unique_ptr<net::HttpAuthPreferences> http_auth_preferences_;
-  std::unique_ptr<CefURLRequestContextImpl> url_request_context_;
-  std::unique_ptr<CefURLRequestManager> url_request_manager_;
-  content::ProtocolHandlerMap protocol_handlers_;
-  content::URLRequestInterceptorScopedVector request_interceptors_;
+    std::unique_ptr<net::ProxyConfigService> proxy_config_service_;
+    std::unique_ptr<net::URLRequestContextStorage> storage_;
+    std::unique_ptr<net::HttpAuthPreferences> http_auth_preferences_;
+    std::unique_ptr<CefURLRequestContextImpl> url_request_context_;
+    std::unique_ptr<CefURLRequestManager> url_request_manager_;
+    content::ProtocolHandlerMap protocol_handlers_;
+    content::URLRequestInterceptorScopedVector request_interceptors_;
 
-  base::FilePath cookie_store_path_;
-  std::vector<std::string> cookie_supported_schemes_;
+    base::FilePath cookie_store_path_;
+    std::vector<std::string> cookie_supported_schemes_;
 
-  std::vector<CefRefPtr<CefRequestContextHandler> > handler_list_;
+    std::vector<CefRefPtr<CefRequestContextHandler> > handler_list_;
+  };
+  std::unique_ptr<IOState> io_state_;
 
   BooleanPrefMember quick_check_enabled_;
   BooleanPrefMember pac_https_url_stripping_enabled_;
