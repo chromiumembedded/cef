@@ -45,6 +45,7 @@
 #include "ui/display/screen.h"
 #include "ui/views/test/desktop_test_views_delegate.h"
 #include "ui/views/widget/desktop_aura/desktop_screen.h"
+#include "ui/wm/core/wm_state.h"
 
 #if defined(OS_WIN)
 #include "ui/base/cursor/cursor_loader_win.h"
@@ -132,6 +133,8 @@ void CefBrowserMainParts::ToolkitInitialized() {
   CHECK(aura::Env::GetInstance());
 
   new views::DesktopTestViewsDelegate;
+
+  wm_state_.reset(new wm::WMState);
 
 #if defined(OS_WIN)
   ui::CursorLoaderWin::SetCursorResourceModule(
