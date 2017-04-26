@@ -880,6 +880,23 @@ CEF_GLOBAL bool CefGetPath(PathKey key, CefString& path) {
   return _retval?true:false;
 }
 
+CEF_GLOBAL bool CefOverridePath(PathKey key, const CefString& path) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: path; type: string_byref_const
+  DCHECK(!path.empty());
+  if (path.empty())
+    return false;
+
+  // Execute
+  int _retval = cef_override_path(
+      key,
+      path.GetStruct());
+
+  // Return type: bool
+  return _retval?true:false;
+}
+
 CEF_GLOBAL bool CefLaunchProcess(CefRefPtr<CefCommandLine> command_line) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 

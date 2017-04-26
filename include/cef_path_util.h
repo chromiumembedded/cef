@@ -49,4 +49,15 @@ typedef cef_path_key_t PathKey;
 /*--cef()--*/
 bool CefGetPath(PathKey key, CefString& path);
 
+///
+// Override the path associated with the specified |key|. This cannot
+// be used to change the value of PK_DIR_CURRENT, but that should be obvious.
+// Also, if the path specifies a directory that does not exist, the directory
+// will be created by this method.  This method returns true if successful.
+// WARNING: Consumers of CefGetPath may expect paths to be constant
+// over the lifetime of the app, so this method should be used with caution.
+///
+/*--cef()--*/
+bool CefOverridePath(PathKey key, const CefString& path);
+
 #endif  // CEF_INCLUDE_CEF_PATH_UTIL_H_

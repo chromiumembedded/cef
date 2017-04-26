@@ -51,6 +51,16 @@ extern "C" {
 ///
 CEF_EXPORT int cef_get_path(cef_path_key_t key, cef_string_t* path);
 
+///
+// Override the path associated with the specified |key|. This cannot be used to
+// change the value of PK_DIR_CURRENT, but that should be obvious. Also, if the
+// path specifies a directory that does not exist, the directory will be created
+// by this function.  This function returns true (1) if successful. WARNING:
+// Consumers of CefGetPath may expect paths to be constant over the lifetime of
+// the app, so this function should be used with caution.
+///
+CEF_EXPORT int cef_override_path(cef_path_key_t key, const cef_string_t* path);
+
 #ifdef __cplusplus
 }
 #endif
