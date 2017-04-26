@@ -39,6 +39,7 @@
 #pragma once
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_image_capi.h"
 #include "include/capi/cef_stream_capi.h"
 
 #ifdef __cplusplus
@@ -195,6 +196,21 @@ typedef struct _cef_drag_data_t {
   ///
   void (CEF_CALLBACK *add_file)(struct _cef_drag_data_t* self,
       const cef_string_t* path, const cef_string_t* display_name);
+
+  ///
+  // Get image representation of drag data (may be NULL).
+  ///
+  struct _cef_image_t* (CEF_CALLBACK *get_image)(struct _cef_drag_data_t* self);
+
+  ///
+  // Get image hotspot (drag start location relative to image dimensions).
+  ///
+  cef_point_t (CEF_CALLBACK *get_image_hotspot)(struct _cef_drag_data_t* self);
+
+  ///
+  // Whether image representation of drag data is available.
+  ///
+  int (CEF_CALLBACK *has_image)(struct _cef_drag_data_t* self);
 } cef_drag_data_t;
 
 

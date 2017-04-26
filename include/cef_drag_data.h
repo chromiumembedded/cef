@@ -39,6 +39,7 @@
 #pragma once
 
 #include "include/cef_base.h"
+#include "include/cef_image.h"
 #include "include/cef_stream.h"
 #include <vector>
 
@@ -193,6 +194,24 @@ class CefDragData : public virtual CefBaseRefCounted {
   ///
   /*--cef(optional_param=display_name)--*/
   virtual void AddFile(const CefString& path, const CefString& display_name) =0;
+
+  ///
+  // Get image representation of drag data (may be NULL).
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefImage> GetImage() =0;
+
+  ///
+  // Get image hotspot (drag start location relative to image dimensions).
+  ///
+  /*--cef()--*/
+  virtual CefPoint GetImageHotspot() =0;
+
+  ///
+  // Whether image representation of drag data is available.
+  ///
+  /*--cef()--*/
+  virtual bool HasImage() =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_DRAG_DATA_H_

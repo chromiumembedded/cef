@@ -19,6 +19,15 @@ CefDragDataImpl::CefDragDataImpl(const content::DropData& data)
       read_only_(false) {
 }
 
+CefDragDataImpl::CefDragDataImpl(const content::DropData& data,
+                                 CefRefPtr<CefImage> image,
+                                 const CefPoint& image_hotspot)
+    : data_(data),
+      image_(image),
+      image_hotspot_(image_hotspot),
+      read_only_(false) {
+}
+
 CefDragDataImpl::CefDragDataImpl()
     : read_only_(false) {
 }
@@ -31,7 +40,7 @@ CefRefPtr<CefDragData> CefDragDataImpl::Clone() {
   CefDragDataImpl* drag_data = NULL;
   {
     base::AutoLock lock_scope(lock_);
-    drag_data = new CefDragDataImpl(data_);
+    drag_data = new CefDragDataImpl(data_, image_, image_hotspot_);
   }
   return drag_data;
 }
@@ -186,4 +195,32 @@ void CefDragDataImpl::SetReadOnly(bool read_only) {
     return;
 
   read_only_ = read_only;
+}
+
+void CefDragDataImpl::SetImage(CefRefPtr<CefImage> image) {
+  base::AutoLock lock_scope(lock_);
+  CHECK_READONLY_RETURN_VOID();
+  image_ = image;
+}
+
+void CefDragDataImpl::SetImageHotspot(const CefPoint& point) {
+  base::AutoLock lock_scope(lock_);
+  CHECK_READONLY_RETURN_VOID();
+  image_hotspot_.Set(point.x, point.y);
+}
+
+CefRefPtr<CefImage> CefDragDataImpl::GetImage() {
+  base::AutoLock lock_scope(lock_);
+  return image_;
+}
+
+CefPoint CefDragDataImpl::GetImageHotspot() {
+  base::AutoLock lock_scope(lock_);
+  return image_hotspot_;
+}
+
+bool CefDragDataImpl::HasImage() {
+  base::AutoLock lock_scope(lock_);
+  if (image_) return true;
+  else return false;
 }
