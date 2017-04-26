@@ -197,6 +197,10 @@
 // Deletes itself.
 - (void)cleanup:(id)window {
   root_window_->WindowDestroyed();
+
+  // Don't want any more delegate callbacks after we destroy ourselves.
+  [window setDelegate:nil];
+
   [self release];
 }
 
