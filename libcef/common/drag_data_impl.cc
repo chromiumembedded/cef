@@ -197,18 +197,6 @@ void CefDragDataImpl::SetReadOnly(bool read_only) {
   read_only_ = read_only;
 }
 
-void CefDragDataImpl::SetImage(CefRefPtr<CefImage> image) {
-  base::AutoLock lock_scope(lock_);
-  CHECK_READONLY_RETURN_VOID();
-  image_ = image;
-}
-
-void CefDragDataImpl::SetImageHotspot(const CefPoint& point) {
-  base::AutoLock lock_scope(lock_);
-  CHECK_READONLY_RETURN_VOID();
-  image_hotspot_.Set(point.x, point.y);
-}
-
 CefRefPtr<CefImage> CefDragDataImpl::GetImage() {
   base::AutoLock lock_scope(lock_);
   return image_;
@@ -221,6 +209,5 @@ CefPoint CefDragDataImpl::GetImageHotspot() {
 
 bool CefDragDataImpl::HasImage() {
   base::AutoLock lock_scope(lock_);
-  if (image_) return true;
-  else return false;
+  return image_ ? true : false;
 }

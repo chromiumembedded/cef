@@ -19,9 +19,9 @@ class CefDragDataImpl : public CefDragData {
  public:
   CefDragDataImpl();
   explicit CefDragDataImpl(const content::DropData& data);
-  explicit CefDragDataImpl(const content::DropData& data,
-                           CefRefPtr<CefImage> image,
-                           const CefPoint& image_hotspot);
+  CefDragDataImpl(const content::DropData& data,
+                  CefRefPtr<CefImage> image,
+                  const CefPoint& image_hotspot);
 
   CefRefPtr<CefDragData> Clone() override;
   bool IsReadOnly() override;
@@ -55,9 +55,6 @@ class CefDragDataImpl : public CefDragData {
   }
 
   void SetReadOnly(bool read_only);
-
-  void SetImage(CefRefPtr<CefImage> image);
-  void SetImageHotspot(const CefPoint& point);
 
   base::Lock& lock() { return lock_; }
 
