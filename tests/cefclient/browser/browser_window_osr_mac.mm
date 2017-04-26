@@ -189,12 +189,19 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
                 name:NSWindowDidChangeBackingPropertiesNotification
               object:nil];
 
+  if (text_input_context_osr_mac_) {
+    [GetInputClientFromContext(text_input_context_osr_mac_) release];
+    [text_input_context_osr_mac_ release];
+  }
+
   [super dealloc];
 }
 
 - (void)detach {
   renderer_ = NULL;
   browser_window_ = NULL;
+  if (text_input_context_osr_mac_)
+    [GetInputClientFromContext(text_input_context_osr_mac_) detach];
 }
 
 - (CefRefPtr<CefBrowser>)getBrowser {
@@ -527,10 +534,11 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
 - (NSTextInputContext*)inputContext {
   if (!text_input_context_osr_mac_) {
     CefTextInputClientOSRMac* text_input_client =
-        [[CefTextInputClientOSRMac alloc] initWithBrowser:[self getBrowser]];
+        [[[CefTextInputClientOSRMac alloc]
+            initWithBrowser:[self getBrowser]] retain];
 
-    text_input_context_osr_mac_ = [[NSTextInputContext alloc] initWithClient:
-                                   text_input_client];
+    text_input_context_osr_mac_ = [[[NSTextInputContext alloc] initWithClient:
+                                   text_input_client] retain];
   }
 
   return text_input_context_osr_mac_;
