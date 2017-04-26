@@ -46,17 +46,6 @@ CefResourceContext::CefResourceContext(
 }
 
 CefResourceContext::~CefResourceContext() {
-  if (getter_.get()) {
-    // When the parent object (ResourceContext) destructor executes all
-    // associated URLRequests should be destroyed. If there are no other
-    // references it should then be safe to destroy the URLRequestContextGetter
-    // which owns the URLRequestContext.
-    getter_->AddRef();
-    CefURLRequestContextGetter* raw_getter = getter_.get();
-    getter_ = NULL;
-    content::BrowserThread::ReleaseSoon(
-          content::BrowserThread::IO, FROM_HERE, raw_getter);
-  }
 }
 
 base::SupportsUserData::Data* CefResourceContext::GetUserData(const void* key)

@@ -1,5 +1,5 @@
 diff --git content/browser/frame_host/navigation_handle_impl.cc content/browser/frame_host/navigation_handle_impl.cc
-index 380b80a12..5992881 100644
+index 4ebe13f1..11ded80 100644
 --- content/browser/frame_host/navigation_handle_impl.cc
 +++ content/browser/frame_host/navigation_handle_impl.cc
 @@ -257,12 +257,6 @@ net::Error NavigationHandleImpl::GetNetErrorCode() {
@@ -16,7 +16,7 @@ index 380b80a12..5992881 100644
  }
  
 diff --git content/browser/frame_host/render_frame_host_impl.cc content/browser/frame_host/render_frame_host_impl.cc
-index ff676db..63f862d 100644
+index e3c2371..c2ce9bc 100644
 --- content/browser/frame_host/render_frame_host_impl.cc
 +++ content/browser/frame_host/render_frame_host_impl.cc
 @@ -1133,6 +1133,7 @@ void RenderFrameHostImpl::OnDidFailProvisionalLoadWithError(

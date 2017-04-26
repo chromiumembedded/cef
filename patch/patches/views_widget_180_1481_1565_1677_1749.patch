@@ -71,7 +71,7 @@ index 657ad20..fcd514a 100644
    void FlushInput();
  
 diff --git content/browser/renderer_host/render_widget_host_view_event_handler.cc content/browser/renderer_host/render_widget_host_view_event_handler.cc
-index 628aa29..f2098f9 100644
+index f19b0c3..df2727e 100644
 --- content/browser/renderer_host/render_widget_host_view_event_handler.cc
 +++ content/browser/renderer_host/render_widget_host_view_event_handler.cc
 @@ -28,6 +28,10 @@
