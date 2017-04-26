@@ -69,6 +69,10 @@ extern NSString* NSTextInputReplacementRangeAttributeName;
   return self;
 }
 
+- (void)detach {
+  browser_ = NULL;
+}
+
 - (NSArray*)validAttributesForMarkedText {
   if (!validAttributesForMarkedText_) {
     validAttributesForMarkedText_ = [[NSArray alloc] initWithObjects:

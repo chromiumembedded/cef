@@ -66,6 +66,7 @@
 @property(nonatomic) BOOL handlingKeyDown;
 
 - (id)initWithBrowser:(CefRefPtr<CefBrowser>)browser;
+- (void)detach;
 - (void)HandleKeyEventBeforeTextInputClient:(NSEvent*)keyEvent;
 - (void)HandleKeyEventAfterTextInputClient:(CefKeyEvent)keyEvent;
 - (void)ChangeCompositionRange:(CefRange)range
