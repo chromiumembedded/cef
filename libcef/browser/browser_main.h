@@ -30,6 +30,12 @@ class ExtensionsBrowserClient;
 class ExtensionsClient;
 }
 
+#if defined(USE_AURA)
+namespace wm {
+class WMState;
+}
+#endif
+
 class CefBrowserContextImpl;
 class CefDevToolsDelegate;
 
@@ -65,6 +71,10 @@ class CefBrowserMainParts : public content::BrowserMainParts {
 
   std::unique_ptr<extensions::ExtensionsClient> extensions_client_;
   std::unique_ptr<extensions::ExtensionsBrowserClient> extensions_browser_client_;
+
+#if defined(USE_AURA)
+  std::unique_ptr<wm::WMState> wm_state_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(CefBrowserMainParts);
 };
