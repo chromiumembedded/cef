@@ -186,10 +186,13 @@ using CefOwnPtr = scoped_ptr<T, D>;
 // A CefRawPtr<T> is the same as T*
 ///
 #if defined(HAS_CPP11_TEMPLATE_ALIAS_SUPPORT)
+#define CEF_RAW_PTR_GET(r) r
 template <class T>
 using CefRawPtr = T*;
 #else
 // Simple wrapper implementation that behaves as much like T* as possible.
+// CEF_RAW_PTR_GET is required for VS2008 compatibility (Issue #2155).
+#define CEF_RAW_PTR_GET(r) r.get()
 template <class T>
 class CefRawPtr {
  public:

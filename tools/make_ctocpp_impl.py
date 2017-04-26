@@ -550,7 +550,7 @@ def make_ctocpp_unwrap_derived(header, cls, base_scoped):
                        '  }\n'
             impl[1] += '  if (type == '+get_wrapper_type_enum(clsname)+') {\n'+\
                        '    return reinterpret_cast<'+get_capi_name(cls.get_name(), True)+'*>('+\
-                       clsname+'CToCpp::UnwrapRaw(CefRawPtr<'+clsname+'>(reinterpret_cast<'+clsname+'*>(c))));\n'+\
+                       clsname+'CToCpp::UnwrapRaw(CefRawPtr<'+clsname+'>(reinterpret_cast<'+clsname+'*>(CEF_RAW_PTR_GET(c)))));\n'+\
                        '  }\n'
     else:
         impl = ''

@@ -94,13 +94,15 @@ template<> cef_translator_test_scoped_library_t* CefCToCppScoped<CefTranslatorTe
     return reinterpret_cast<cef_translator_test_scoped_library_t*>(
         CefTranslatorTestScopedLibraryChildCToCpp::UnwrapRaw(
         CefRawPtr<CefTranslatorTestScopedLibraryChild>(
-        reinterpret_cast<CefTranslatorTestScopedLibraryChild*>(c))));
+        reinterpret_cast<CefTranslatorTestScopedLibraryChild*>(CEF_RAW_PTR_GET(
+        c)))));
   }
   if (type == WT_TRANSLATOR_TEST_SCOPED_LIBRARY_CHILD_CHILD) {
     return reinterpret_cast<cef_translator_test_scoped_library_t*>(
         CefTranslatorTestScopedLibraryChildChildCToCpp::UnwrapRaw(
         CefRawPtr<CefTranslatorTestScopedLibraryChildChild>(
-        reinterpret_cast<CefTranslatorTestScopedLibraryChildChild*>(c))));
+        reinterpret_cast<CefTranslatorTestScopedLibraryChildChild*>(
+        CEF_RAW_PTR_GET(c)))));
   }
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;

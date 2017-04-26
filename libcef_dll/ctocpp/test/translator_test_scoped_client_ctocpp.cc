@@ -58,7 +58,8 @@ template<> cef_translator_test_scoped_client_t* CefCToCppScoped<CefTranslatorTes
     return reinterpret_cast<cef_translator_test_scoped_client_t*>(
         CefTranslatorTestScopedClientChildCToCpp::UnwrapRaw(
         CefRawPtr<CefTranslatorTestScopedClientChild>(
-        reinterpret_cast<CefTranslatorTestScopedClientChild*>(c))));
+        reinterpret_cast<CefTranslatorTestScopedClientChild*>(CEF_RAW_PTR_GET(
+        c)))));
   }
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
