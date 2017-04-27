@@ -1,7 +1,7 @@
-diff --git message_loop.cc message_loop.cc
+diff --git base/message_loop/message_loop.cc base/message_loop/message_loop.cc
 index 3d55920..721aca1 100644
---- message_loop.cc
-+++ message_loop.cc
+--- base/message_loop/message_loop.cc
++++ base/message_loop/message_loop.cc
 @@ -96,12 +96,6 @@ MessageLoop::~MessageLoop() {
    // may be current.
    DCHECK((pump_ && current() == this) || (!pump_ && current() != this));
@@ -25,10 +25,10 @@ index 3d55920..721aca1 100644
        pump_factory_(pump_factory),
        run_loop_(nullptr),
        current_pending_task_(nullptr),
-diff --git message_loop.h message_loop.h
+diff --git base/message_loop/message_loop.h base/message_loop/message_loop.h
 index 2ef4537..9c657f8 100644
---- message_loop.h
-+++ message_loop.h
+--- base/message_loop/message_loop.h
++++ base/message_loop/message_loop.h
 @@ -303,6 +303,16 @@ class BASE_EXPORT MessageLoop : public MessagePump::Delegate {
    void AddTaskObserver(TaskObserver* task_observer);
    void RemoveTaskObserver(TaskObserver* task_observer);
@@ -59,10 +59,10 @@ index 2ef4537..9c657f8 100644
    // pump_factory_.Run() is called to create a message pump for this loop
    // if type_ is TYPE_CUSTOM and pump_ is null.
    MessagePumpFactoryCallback pump_factory_;
-diff --git message_pump_win.cc message_pump_win.cc
+diff --git base/message_loop/message_pump_win.cc base/message_loop/message_pump_win.cc
 index d52c785..a43b5b3 100644
---- message_pump_win.cc
-+++ message_pump_win.cc
+--- base/message_loop/message_pump_win.cc
++++ base/message_loop/message_pump_win.cc
 @@ -366,20 +366,28 @@ bool MessagePumpForUI::ProcessMessageHelper(const MSG& msg) {
  }
  

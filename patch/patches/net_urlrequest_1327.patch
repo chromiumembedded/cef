@@ -1,7 +1,7 @@
-diff --git url_request.h url_request.h
+diff --git net/url_request/url_request.h net/url_request/url_request.h
 index e1406f3..ed9aa91 100644
---- url_request.h
-+++ url_request.h
+--- net/url_request/url_request.h
++++ net/url_request/url_request.h
 @@ -651,10 +651,11 @@ class NET_EXPORT URLRequest : NON_EXPORTED_BASE(public base::NonThreadSafe),
    // Returns the error status of the request.
    // Do not use! Going to be protected!

@@ -1,7 +1,7 @@
-diff --git contrib/minizip/unzip.c contrib/minizip/unzip.c
+diff --git third_party/zlib/contrib/minizip/unzip.c third_party/zlib/contrib/minizip/unzip.c
 index 199b472..be42478 100644
---- contrib/minizip/unzip.c
-+++ contrib/minizip/unzip.c
+--- third_party/zlib/contrib/minizip/unzip.c
++++ third_party/zlib/contrib/minizip/unzip.c
 @@ -69,7 +69,7 @@
  #include <string.h>
  

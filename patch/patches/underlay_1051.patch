@@ -1,7 +1,7 @@
-diff --git underlay_opengl_hosting_window.h underlay_opengl_hosting_window.h
+diff --git ui/base/cocoa/underlay_opengl_hosting_window.h ui/base/cocoa/underlay_opengl_hosting_window.h
 index d673c31..806d134 100644
---- underlay_opengl_hosting_window.h
-+++ underlay_opengl_hosting_window.h
+--- ui/base/cocoa/underlay_opengl_hosting_window.h
++++ ui/base/cocoa/underlay_opengl_hosting_window.h
 @@ -12,7 +12,7 @@
  // Common base class for windows that host a OpenGL surface that renders under
  // the window. Previously contained methods related to hole punching, now just

@@ -1,7 +1,7 @@
-diff --git Source/web/ChromeClientImpl.cpp Source/web/ChromeClientImpl.cpp
+diff --git third_party/WebKit/Source/web/ChromeClientImpl.cpp third_party/WebKit/Source/web/ChromeClientImpl.cpp
 index ba81ee3..648d7ce 100644
---- Source/web/ChromeClientImpl.cpp
-+++ Source/web/ChromeClientImpl.cpp
+--- third_party/WebKit/Source/web/ChromeClientImpl.cpp
++++ third_party/WebKit/Source/web/ChromeClientImpl.cpp
 @@ -908,7 +908,7 @@ bool ChromeClientImpl::HasOpenedPopup() const {
  PopupMenu* ChromeClientImpl::OpenPopupMenu(LocalFrame& frame,
                                             HTMLSelectElement& select) {
@@ -11,10 +11,10 @@ index ba81ee3..648d7ce 100644
      return new ExternalPopupMenu(frame, select, *web_view_);
  
    DCHECK(RuntimeEnabledFeatures::pagePopupEnabled());
-diff --git Source/web/WebViewImpl.cpp Source/web/WebViewImpl.cpp
+diff --git third_party/WebKit/Source/web/WebViewImpl.cpp third_party/WebKit/Source/web/WebViewImpl.cpp
 index 16ac66b..7053b54 100644
---- Source/web/WebViewImpl.cpp
-+++ Source/web/WebViewImpl.cpp
+--- third_party/WebKit/Source/web/WebViewImpl.cpp
++++ third_party/WebKit/Source/web/WebViewImpl.cpp
 @@ -355,6 +355,7 @@ WebViewImpl::WebViewImpl(WebViewClient* client,
        enable_fake_page_scale_animation_for_testing_(false),
        fake_page_scale_animation_page_scale_factor_(0),
@@ -38,10 +38,10 @@ index 16ac66b..7053b54 100644
  }
  
  void WebViewImpl::SetBackgroundColorOverride(WebColor color) {
-diff --git Source/web/WebViewImpl.h Source/web/WebViewImpl.h
+diff --git third_party/WebKit/Source/web/WebViewImpl.h third_party/WebKit/Source/web/WebViewImpl.h
 index a22ef37..33dbab4 100644
---- Source/web/WebViewImpl.h
-+++ Source/web/WebViewImpl.h
+--- third_party/WebKit/Source/web/WebViewImpl.h
++++ third_party/WebKit/Source/web/WebViewImpl.h
 @@ -362,7 +362,8 @@ class WEB_EXPORT WebViewImpl final
  
    // Returns true if popup menus should be rendered by the browser, false if
@@ -61,10 +61,10 @@ index a22ef37..33dbab4 100644
    float compositor_device_scale_factor_override_;
    TransformationMatrix device_emulation_transform_;
  
-diff --git public/web/WebView.h public/web/WebView.h
+diff --git third_party/WebKit/public/web/WebView.h third_party/WebKit/public/web/WebView.h
 index e811392..d6d5bf8 100644
---- public/web/WebView.h
-+++ public/web/WebView.h
+--- third_party/WebKit/public/web/WebView.h
++++ third_party/WebKit/public/web/WebView.h
 @@ -403,6 +403,7 @@ class WebView : protected WebWidget {
  
    // Sets whether select popup menus should be rendered by the browser.

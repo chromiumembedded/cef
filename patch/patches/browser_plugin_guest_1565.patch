@@ -303,7 +303,7 @@ index d237318..3701bd2 100644
    content::WebContents* OpenURLFromTab(
        content::WebContents* source,
 diff --git extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
-index e065104d..ea3f547 100644
+index e065104d..e67ae566e 100644
 --- extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 +++ extensions/browser/guest_view/mime_handler_view/mime_handler_view_guest_delegate.h
 @@ -6,9 +6,9 @@
@@ -317,11 +317,10 @@ index e065104d..ea3f547 100644
  struct ContextMenuParams;
  }  // namespace content
  
-@@ -21,6 +21,14 @@ class MimeHandlerViewGuestDelegate {
-  public:
+@@ -22,6 +22,14 @@ class MimeHandlerViewGuestDelegate {
    MimeHandlerViewGuestDelegate() {}
    virtual ~MimeHandlerViewGuestDelegate() {}
-+  
+ 
 +  // Provides an opportunity to supply a custom view implementation.
 +  virtual void OverrideWebContentsCreateParams(
 +      content::WebContents::CreateParams* params) {}
@@ -329,6 +328,7 @@ index e065104d..ea3f547 100644
 +  // Called when a guest is attached or detached.
 +  virtual void OnGuestAttached(content::WebContentsView* parent_view) {}
 +  virtual void OnGuestDetached(content::WebContentsView* parent_view) {}
- 
++
    // Handles context menu, or returns false if unhandled.
    virtual bool HandleContextMenu(content::WebContents* web_contents,
+                                  const content::ContextMenuParams& params);

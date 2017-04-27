@@ -75,7 +75,7 @@ if options.resave and options.revert:
 
 # The CEF root directory is the parent directory of _this_ script.
 cef_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-src_dir = os.path.join(cef_dir, os.pardir)
+src_dir = os.path.abspath(os.path.join(cef_dir, os.pardir))
 
 # Determine the type of Chromium checkout.
 if not git.is_checkout(src_dir):
@@ -104,8 +104,10 @@ for patch in patches:
 
   if os.path.isfile(patch_file):
     msg('Reading patch file %s' % patch_file)
-    patch_root = patch['path']
-    patch_root_abs = os.path.abspath(os.path.join(cef_dir, patch_root))
+    if 'path' in patch:
+      patch_root_abs = os.path.abspath(os.path.join(src_dir, patch['path']))
+    else:
+      patch_root_abs = src_dir
 
     # Retrieve the list of paths modified by the patch file.
     patch_paths = extract_paths(patch_file)
@@ -136,7 +138,8 @@ for patch in patches:
       if not options.revert:
         # Apply the patch file.
         msg('Applying patch to %s' % patch_root_abs)
-        result = exec_cmd('patch -p0', patch_root_abs, patch_file)
+        patch_string = open(patch_file, 'rb').read()
+        result = exec_cmd('patch -p0', patch_root_abs, patch_string)
         if result['err'] != '':
           raise Exception('Failed to apply patch file: %s' % result['err'])
         sys.stdout.write(result['out'])

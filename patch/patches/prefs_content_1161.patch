@@ -1,7 +1,7 @@
-diff --git public/common/common_param_traits_macros.h public/common/common_param_traits_macros.h
+diff --git content/public/common/common_param_traits_macros.h content/public/common/common_param_traits_macros.h
 index 3dd2e75..9f61aad 100644
---- public/common/common_param_traits_macros.h
-+++ public/common/common_param_traits_macros.h
+--- content/public/common/common_param_traits_macros.h
++++ content/public/common/common_param_traits_macros.h
 @@ -201,6 +201,7 @@ IPC_STRUCT_TRAITS_BEGIN(content::WebPreferences)
    IPC_STRUCT_TRAITS_MEMBER(main_frame_resizes_are_orientation_changes)
    IPC_STRUCT_TRAITS_MEMBER(initialize_at_minimum_page_scale)
@@ -10,10 +10,10 @@ index 3dd2e75..9f61aad 100644
    IPC_STRUCT_TRAITS_MEMBER(cookie_enabled)
    IPC_STRUCT_TRAITS_MEMBER(navigate_on_drag_drop)
    IPC_STRUCT_TRAITS_MEMBER(spatial_navigation_enabled)
-diff --git public/common/web_preferences.cc public/common/web_preferences.cc
+diff --git content/public/common/web_preferences.cc content/public/common/web_preferences.cc
 index 72f7bd8..850e591 100644
---- public/common/web_preferences.cc
-+++ public/common/web_preferences.cc
+--- content/public/common/web_preferences.cc
++++ content/public/common/web_preferences.cc
 @@ -172,6 +172,7 @@ WebPreferences::WebPreferences()
        spatial_navigation_enabled(false),
        use_solid_color_scrollbars(false),
@@ -22,10 +22,10 @@ index 72f7bd8..850e591 100644
        v8_cache_options(V8_CACHE_OPTIONS_DEFAULT),
        inert_visual_viewport(false),
        record_whole_document(false),
-diff --git public/common/web_preferences.h public/common/web_preferences.h
+diff --git content/public/common/web_preferences.h content/public/common/web_preferences.h
 index ae9756c..d0f2f1b 100644
---- public/common/web_preferences.h
-+++ public/common/web_preferences.h
+--- content/public/common/web_preferences.h
++++ content/public/common/web_preferences.h
 @@ -184,6 +184,7 @@ struct CONTENT_EXPORT WebPreferences {
    bool spatial_navigation_enabled;
    bool use_solid_color_scrollbars;
@@ -34,10 +34,10 @@ index ae9756c..d0f2f1b 100644
    V8CacheOptions v8_cache_options;
    bool inert_visual_viewport;
    bool record_whole_document;
-diff --git renderer/render_view_impl.cc renderer/render_view_impl.cc
+diff --git content/renderer/render_view_impl.cc content/renderer/render_view_impl.cc
 index 7d6113c..d600026 100644
---- renderer/render_view_impl.cc
-+++ renderer/render_view_impl.cc
+--- content/renderer/render_view_impl.cc
++++ content/renderer/render_view_impl.cc
 @@ -1383,6 +1383,8 @@ void RenderViewImpl::ApplyWebPreferencesInternal(
      blink::WebView* web_view,
      CompositorDependencies* compositor_deps) {
