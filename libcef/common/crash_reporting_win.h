@@ -8,8 +8,4 @@ namespace crash_reporting_win {
 // state from chrome_elf via exported functions.
 bool InitializeCrashReportingForModule();
 
-// Called from libcef early in main process startup to ensure that the crash
-// handler process is started before other sub-processes are created.
-void BlockUntilHandlerStarted();
-
 }  // namespace crash_reporting_win
