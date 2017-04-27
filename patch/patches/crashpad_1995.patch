@@ -557,10 +557,10 @@ index 94a350f..61667a8 100644
      (*annotations)["special"] = base::UTF16ToUTF8(special_build);
  #if defined(ARCH_CPU_X86)
 -  (*annotations)["plat"] = std::string("Win32");
-+  (*annotations)["platform"] = std::string("Win32");
++  (*annotations)["platform"] = std::string("win32");
  #elif defined(ARCH_CPU_X86_64)
 -  (*annotations)["plat"] = std::string("Win64");
-+  (*annotations)["platform"] = std::string("Win64");
++  (*annotations)["platform"] = std::string("win64");
  #endif
  }
  

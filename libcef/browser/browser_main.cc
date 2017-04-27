@@ -48,7 +48,6 @@
 #include "ui/wm/core/wm_state.h"
 
 #if defined(OS_WIN)
-#include "libcef/common/crash_reporting_win.h"
 #include "ui/base/cursor/cursor_loader_win.h"
 #endif
 #endif  // defined(USE_AURA)
@@ -172,10 +171,6 @@ int CefBrowserMainParts::PreCreateThreads() {
 }
 
 void CefBrowserMainParts::PreMainMessageLoopRun() {
-#if defined(OS_WIN)
-  crash_reporting_win::BlockUntilHandlerStarted();
-#endif
-
   if (extensions::ExtensionsEnabled()) {
     // Initialize extension global objects before creating the global
     // BrowserContext.
