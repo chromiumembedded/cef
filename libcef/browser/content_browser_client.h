@@ -56,6 +56,10 @@ class CefContentBrowserClient : public content::ContentBrowserClient {
                                               int child_process_id) override;
   content::QuotaPermissionContext*
       CreateQuotaPermissionContext() override;
+  void GetQuotaSettings(
+      content::BrowserContext* context,
+      content::StoragePartition* partition,
+      const storage::OptionalQuotaSettingsCallback& callback) override;
   content::MediaObserver* GetMediaObserver() override;
   content::SpeechRecognitionManagerDelegate*
       CreateSpeechRecognitionManagerDelegate() override;
