@@ -1,7 +1,7 @@
-diff --git render_widget_host_view_mac.mm render_widget_host_view_mac.mm
+diff --git content/browser/renderer_host/render_widget_host_view_mac.mm content/browser/renderer_host/render_widget_host_view_mac.mm
 index 896170a..4beadf9 100644
---- render_widget_host_view_mac.mm
-+++ render_widget_host_view_mac.mm
+--- content/browser/renderer_host/render_widget_host_view_mac.mm
++++ content/browser/renderer_host/render_widget_host_view_mac.mm
 @@ -453,9 +453,6 @@ RenderWidgetHostViewMac::RenderWidgetHostViewMac(RenderWidgetHost* widget,
    // Paint this view host with |background_color_| when there is no content
    // ready to draw.

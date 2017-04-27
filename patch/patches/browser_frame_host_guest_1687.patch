@@ -1,7 +1,7 @@
-diff --git render_widget_host_view_guest.cc render_widget_host_view_guest.cc
+diff --git content/browser/frame_host/render_widget_host_view_guest.cc content/browser/frame_host/render_widget_host_view_guest.cc
 index fc720a7..1c30365 100644
---- render_widget_host_view_guest.cc
-+++ render_widget_host_view_guest.cc
+--- content/browser/frame_host/render_widget_host_view_guest.cc
++++ content/browser/frame_host/render_widget_host_view_guest.cc
 @@ -247,13 +247,14 @@ void RenderWidgetHostViewGuest::Destroy() {
  }
  

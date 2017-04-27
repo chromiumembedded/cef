@@ -1,2 +1,2 @@
 #!/bin/sh
-python tools/patcher.py  --patch-config patch/patch.cfg
+python tools/patcher.py

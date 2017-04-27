@@ -35,8 +35,7 @@ cmd = [ 'python', 'tools/make_version_header.py',
 RunAction(cef_dir, cmd)
 
 print "\nPatching build configuration and source files for CEF..."
-cmd = [ 'python', 'tools/patcher.py',
-        '--patch-config', 'patch/patch.cfg' ]
+cmd = [ 'python', 'tools/patcher.py' ]
 RunAction(cef_dir, cmd)
 
 print "\nGenerating CEF project files..."

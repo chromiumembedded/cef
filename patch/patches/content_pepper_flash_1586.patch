@@ -1,7 +1,7 @@
-diff --git pepper_flash_file_message_filter.cc pepper_flash_file_message_filter.cc
+diff --git content/browser/renderer_host/pepper/pepper_flash_file_message_filter.cc content/browser/renderer_host/pepper/pepper_flash_file_message_filter.cc
 index 6f03077..c61fed3 100644
---- pepper_flash_file_message_filter.cc
-+++ pepper_flash_file_message_filter.cc
+--- content/browser/renderer_host/pepper/pepper_flash_file_message_filter.cc
++++ content/browser/renderer_host/pepper/pepper_flash_file_message_filter.cc
 @@ -55,7 +55,7 @@ PepperFlashFileMessageFilter::PepperFlashFileMessageFilter(
      // will construct a bad path and could provide access to the wrong files.
      // In this case, |plugin_data_directory_| will remain unset and

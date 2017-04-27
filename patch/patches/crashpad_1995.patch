@@ -483,7 +483,7 @@ index 3bae07e..12b0a16 100644
 +      const char* product_version = "";
 +      crash_reporter_client->GetProductNameAndVersion(&product_name,
 +                                                      &product_version);
-+ 
++
        NSBundle* outer_bundle = base::mac::OuterBundle();
 -      NSString* product = base::mac::ObjCCast<NSString>([outer_bundle
 -          objectForInfoDictionaryKey:base::mac::CFToNSCast(kCFBundleNameKey)]);
@@ -528,7 +528,7 @@ index 3bae07e..12b0a16 100644
          arguments.push_back(
              "--reset-own-crash-exception-port-to-system-default");
        }
-+      
++
 +      // Since we're using the same subprocess helper exe we must specify the
 +      // process type.
 +      arguments.push_back(std::string("--type=") + switches::kCrashpadHandler);
@@ -581,7 +581,7 @@ index 94a350f..61667a8 100644
 -    // reinvoke it with --type=crashpad-handler. Otherwise, we use the
 -    // standalone crashpad_handler.exe (for tests, etc.).
      std::vector<std::string> start_arguments;
-+    
++
 +    // Always add --type=crashpad-handler because the value is expected by
 +    // CefExecuteProcess.
 +    start_arguments.push_back(

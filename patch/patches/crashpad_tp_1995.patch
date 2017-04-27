@@ -1,7 +1,7 @@
-diff --git crashpad/client/prune_crash_reports.cc crashpad/client/prune_crash_reports.cc
+diff --git third_party/crashpad/crashpad/client/prune_crash_reports.cc third_party/crashpad/crashpad/client/prune_crash_reports.cc
 index 3aaaeee..d99fcb4 100644
---- crashpad/client/prune_crash_reports.cc
-+++ crashpad/client/prune_crash_reports.cc
+--- third_party/crashpad/crashpad/client/prune_crash_reports.cc
++++ third_party/crashpad/crashpad/client/prune_crash_reports.cc
 @@ -67,13 +67,19 @@ void PruneCrashReportDatabase(CrashReportDatabase* database,
  }
  
@@ -25,10 +25,10 @@ index 3aaaeee..d99fcb4 100644
  }
  
  static const time_t kSecondsInDay = 60 * 60 * 24;
-diff --git crashpad/client/prune_crash_reports.h crashpad/client/prune_crash_reports.h
+diff --git third_party/crashpad/crashpad/client/prune_crash_reports.h third_party/crashpad/crashpad/client/prune_crash_reports.h
 index 6dac5f3..34f5ee1 100644
---- crashpad/client/prune_crash_reports.h
-+++ crashpad/client/prune_crash_reports.h
+--- third_party/crashpad/crashpad/client/prune_crash_reports.h
++++ third_party/crashpad/crashpad/client/prune_crash_reports.h
 @@ -57,7 +57,8 @@ class PruneCondition {
    //! of 128 MB.
    //!
@@ -39,10 +39,10 @@ index 6dac5f3..34f5ee1 100644
  
    virtual ~PruneCondition() {}
  
-diff --git crashpad/client/settings.cc crashpad/client/settings.cc
+diff --git third_party/crashpad/crashpad/client/settings.cc third_party/crashpad/crashpad/client/settings.cc
 index 15d16f2..5e8eadf 100644
---- crashpad/client/settings.cc
-+++ crashpad/client/settings.cc
+--- third_party/crashpad/crashpad/client/settings.cc
++++ third_party/crashpad/crashpad/client/settings.cc
 @@ -38,7 +38,7 @@ void ScopedLockedFileHandleTraits::Free(FileHandle handle) {
  
  struct Settings::Data {
@@ -129,10 +129,10 @@ index 15d16f2..5e8eadf 100644
  // static
  Settings::ScopedLockedFileHandle Settings::MakeScopedLockedFileHandle(
      FileHandle file,
-diff --git crashpad/client/settings.h crashpad/client/settings.h
+diff --git third_party/crashpad/crashpad/client/settings.h third_party/crashpad/crashpad/client/settings.h
 index b64f74f..0c3c22e 100644
---- crashpad/client/settings.h
-+++ crashpad/client/settings.h
+--- third_party/crashpad/crashpad/client/settings.h
++++ third_party/crashpad/crashpad/client/settings.h
 @@ -102,6 +102,11 @@ class Settings {
    //!     error logged.
    bool SetLastUploadAttemptTime(time_t time);
@@ -145,10 +145,10 @@ index b64f74f..0c3c22e 100644
   private:
    struct Data;
  
-diff --git crashpad/handler/crash_report_upload_thread.h crashpad/handler/crash_report_upload_thread.h
+diff --git third_party/crashpad/crashpad/handler/crash_report_upload_thread.h third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 index 14debac..c25c653 100644
---- crashpad/handler/crash_report_upload_thread.h
-+++ crashpad/handler/crash_report_upload_thread.h
+--- third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
++++ third_party/crashpad/crashpad/handler/crash_report_upload_thread.h
 @@ -78,7 +78,7 @@ class CrashReportUploadThread : public WorkerThread::Delegate {
    //! This method may be called from any thread.
    void ReportPending();
@@ -176,10 +176,10 @@ index 14debac..c25c653 100644
  
    //! \brief Attempts to upload a crash report.
    //!
-diff --git crashpad/handler/handler_main.cc crashpad/handler/handler_main.cc
+diff --git third_party/crashpad/crashpad/handler/handler_main.cc third_party/crashpad/crashpad/handler/handler_main.cc
 index 641bf0f..3a86eb3 100644
---- crashpad/handler/handler_main.cc
-+++ crashpad/handler/handler_main.cc
+--- third_party/crashpad/crashpad/handler/handler_main.cc
++++ third_party/crashpad/crashpad/handler/handler_main.cc
 @@ -35,8 +35,10 @@
  #include "base/metrics/persistent_histogram_allocator.h"
  #include "base/scoped_generic.h"

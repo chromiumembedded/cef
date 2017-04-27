@@ -1,7 +1,7 @@
-diff --git Source/core/dom/DOMImplementation.cpp Source/core/dom/DOMImplementation.cpp
+diff --git third_party/WebKit/Source/core/dom/DOMImplementation.cpp third_party/WebKit/Source/core/dom/DOMImplementation.cpp
 index 8aab9bb..e3286f6 100644
---- Source/core/dom/DOMImplementation.cpp
-+++ Source/core/dom/DOMImplementation.cpp
+--- third_party/WebKit/Source/core/dom/DOMImplementation.cpp
++++ third_party/WebKit/Source/core/dom/DOMImplementation.cpp
 @@ -241,10 +241,11 @@ Document* DOMImplementation::createDocument(const String& type,
      // For that reason, the origin must be retrieved directly from init.url().
      if (init.GetFrame()->IsMainFrame()) {
@@ -16,10 +16,10 @@ index 8aab9bb..e3286f6 100644
                                                          ->Tree()
                                                          .Top()
                                                          ->GetSecurityContext()
-diff --git Source/core/frame/LocalFrame.cpp Source/core/frame/LocalFrame.cpp
+diff --git third_party/WebKit/Source/core/frame/LocalFrame.cpp third_party/WebKit/Source/core/frame/LocalFrame.cpp
 index b64d75d..869b45d 100644
---- Source/core/frame/LocalFrame.cpp
-+++ Source/core/frame/LocalFrame.cpp
+--- third_party/WebKit/Source/core/frame/LocalFrame.cpp
++++ third_party/WebKit/Source/core/frame/LocalFrame.cpp
 @@ -927,7 +927,7 @@ ContentSettingsClient* LocalFrame::GetContentSettingsClient() {
  PluginData* LocalFrame::GetPluginData() const {
    if (!Loader().AllowPlugins(kNotAboutToInstantiatePlugin))
@@ -29,10 +29,10 @@ index b64d75d..869b45d 100644
        Tree().Top()->GetSecurityContext()->GetSecurityOrigin());
  }
  
-diff --git Source/core/page/Page.cpp Source/core/page/Page.cpp
+diff --git third_party/WebKit/Source/core/page/Page.cpp third_party/WebKit/Source/core/page/Page.cpp
 index 941a30c..2c5764c 100644
---- Source/core/page/Page.cpp
-+++ Source/core/page/Page.cpp
+--- third_party/WebKit/Source/core/page/Page.cpp
++++ third_party/WebKit/Source/core/page/Page.cpp
 @@ -289,16 +289,30 @@ void Page::RefreshPlugins() {
  
    for (const Page* page : AllPages()) {
@@ -71,10 +71,10 @@ index 941a30c..2c5764c 100644
  }
  
  void Page::SetValidationMessageClient(ValidationMessageClient* client) {
-diff --git Source/core/page/Page.h Source/core/page/Page.h
+diff --git third_party/WebKit/Source/core/page/Page.h third_party/WebKit/Source/core/page/Page.h
 index e644faa..2fe0d37 100644
---- Source/core/page/Page.h
-+++ Source/core/page/Page.h
+--- third_party/WebKit/Source/core/page/Page.h
++++ third_party/WebKit/Source/core/page/Page.h
 @@ -132,7 +132,8 @@ class CORE_EXPORT Page final : public GarbageCollectedFinalized<Page>,
    ViewportDescription GetViewportDescription() const;
  
@@ -95,10 +95,10 @@ index e644faa..2fe0d37 100644
  
    EditorClient* const editor_client_;
    SpellCheckerClient* const spell_checker_client_;
-diff --git Source/platform/plugins/PluginData.cpp Source/platform/plugins/PluginData.cpp
+diff --git third_party/WebKit/Source/platform/plugins/PluginData.cpp third_party/WebKit/Source/platform/plugins/PluginData.cpp
 index 03618f6..5ac59e8 100644
---- Source/platform/plugins/PluginData.cpp
-+++ Source/platform/plugins/PluginData.cpp
+--- third_party/WebKit/Source/platform/plugins/PluginData.cpp
++++ third_party/WebKit/Source/platform/plugins/PluginData.cpp
 @@ -30,11 +30,12 @@
  
  namespace blink {
@@ -125,10 +125,10 @@ index 03618f6..5ac59e8 100644
                                       &builder);
  }
  
-diff --git Source/platform/plugins/PluginData.h Source/platform/plugins/PluginData.h
+diff --git third_party/WebKit/Source/platform/plugins/PluginData.h third_party/WebKit/Source/platform/plugins/PluginData.h
 index cdf3381..671f17c 100644
---- Source/platform/plugins/PluginData.h
-+++ Source/platform/plugins/PluginData.h
+--- third_party/WebKit/Source/platform/plugins/PluginData.h
++++ third_party/WebKit/Source/platform/plugins/PluginData.h
 @@ -52,8 +52,9 @@ class PLATFORM_EXPORT PluginData : public RefCounted<PluginData> {
    WTF_MAKE_NONCOPYABLE(PluginData);
  
@@ -156,10 +156,10 @@ index cdf3381..671f17c 100644
    RefPtr<SecurityOrigin> main_frame_origin_;
  };
  
-diff --git public/platform/Platform.h public/platform/Platform.h
+diff --git third_party/WebKit/public/platform/Platform.h third_party/WebKit/public/platform/Platform.h
 index eab1ca5..6657878 100644
---- public/platform/Platform.h
-+++ public/platform/Platform.h
+--- third_party/WebKit/public/platform/Platform.h
++++ third_party/WebKit/public/platform/Platform.h
 @@ -365,6 +365,7 @@ class BLINK_PLATFORM_EXPORT Platform {
    // satisfy this call. mainFrameOrigin is used by the browser process to
    // filter plugins from the plugin list based on content settings.

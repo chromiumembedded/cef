@@ -1,7 +1,7 @@
-diff --git renderer_preferences_util.cc renderer_preferences_util.cc
+diff --git chrome/browser/renderer_preferences_util.cc chrome/browser/renderer_preferences_util.cc
 index 7296a04..c702d31 100644
---- renderer_preferences_util.cc
-+++ renderer_preferences_util.cc
+--- chrome/browser/renderer_preferences_util.cc
++++ chrome/browser/renderer_preferences_util.cc
 @@ -32,7 +32,8 @@
  #include "ui/base/cocoa/defaults_utils.h"
  #endif

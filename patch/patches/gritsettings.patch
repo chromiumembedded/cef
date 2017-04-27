@@ -1,17 +1,16 @@
-diff --git resource_ids resource_ids
-index 4e3fd2d..447c1f5 100644
---- resource_ids
-+++ resource_ids
-@@ -361,5 +361,12 @@
-   # Thinking about appending to the end?
+diff --git tools/gritsettings/resource_ids tools/gritsettings/resource_ids
+index 4e3fd2d..2cf62da 100644
+--- tools/gritsettings/resource_ids
++++ tools/gritsettings/resource_ids
+@@ -362,4 +362,11 @@
    # Please read the header and find the right section above instead.
  
+   # Resource ids starting at 31000 are reserved for projects built on Chromium.
++
 +  "cef/libcef/resources/cef_resources.grd": {
 +    "includes": [31500],
 +  },
 +  "cef/libcef/resources/cef_strings.grd": {
 +    "messages": [32000],
 +  },
-+
-   # Resource ids starting at 31000 are reserved for projects built on Chromium.
  }
