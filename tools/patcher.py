@@ -80,6 +80,7 @@ def apply_patch_config():
   if results['fail'] > 0:
     sys.stdout.write('\n')
     write_note('ERROR', '%d patches failed to apply. Your build will not be correct.' % results['fail'])
+    raise Exception('%d patches failed to apply. Your build will not be correct.' % results['fail'])
 
 # Parse command-line options.
 disc = """
