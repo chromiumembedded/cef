@@ -48,7 +48,11 @@
 #elif defined(COMPILER_GCC)
 
 #define CEF_EXPORT __attribute__ ((visibility("default")))
+#ifdef OS_WIN
+#define CEF_CALLBACK __stdcall
+#else
 #define CEF_CALLBACK
+#endif
 
 #endif  // COMPILER_GCC
 
