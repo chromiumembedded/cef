@@ -47,6 +47,7 @@
 #include "content/browser/renderer_host/render_view_host_impl.h"
 #include "content/browser/gpu/compositor_util.h"
 #include "content/common/view_messages.h"
+#include "content/public/browser/desktop_media_id.h"
 #include "content/public/browser/download_manager.h"
 #include "content/public/browser/download_url_parameters.h"
 #include "content/public/browser/host_zoom_map.h"
@@ -2364,7 +2365,9 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
       (request.audio_type == content::MEDIA_DEVICE_AUDIO_CAPTURE);
   bool webcam_requested =
       (request.video_type == content::MEDIA_DEVICE_VIDEO_CAPTURE);
-  if (microphone_requested || webcam_requested) {
+  bool screen_requested =
+      (request.video_type == content::MEDIA_DESKTOP_VIDEO_CAPTURE);
+  if (microphone_requested || webcam_requested || screen_requested) {
     // Pick the desired device or fall back to the first available of the
     // given type.
     if (microphone_requested) {
@@ -2380,6 +2383,19 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
           false,
           true,
           &devices);
+    }
+    if (screen_requested) {
+      content::DesktopMediaID media_id;
+      if (request.requested_video_device_id.empty()) {
+        media_id = content::DesktopMediaID(
+            content::DesktopMediaID::TYPE_SCREEN,
+            -1  /* webrtc::kFullDesktopScreenId */);
+      } else {
+        media_id =
+            content::DesktopMediaID::Parse(request.requested_video_device_id);
+      }
+      devices.push_back(content::MediaStreamDevice(
+          content::MEDIA_DESKTOP_VIDEO_CAPTURE, media_id.ToString(), "Screen"));
     }
   }
 
