@@ -1,5 +1,5 @@
 diff --git services/service_manager/embedder/main.cc services/service_manager/embedder/main.cc
-index 0debd91780b5..432d91ef9713 100644
+index 0debd91780b5..34c770b08ac2 100644
 --- services/service_manager/embedder/main.cc
 +++ services/service_manager/embedder/main.cc
 @@ -29,7 +29,6 @@
@@ -19,19 +19,22 @@ index 0debd91780b5..432d91ef9713 100644
    MainDelegate* delegate = params.delegate;
    DCHECK(delegate);
  
-@@ -155,9 +154,9 @@ int Main(const MainParams& params) {
-   // loop, but we don't want to leave them hanging around until the app quits.
-   // Each "main" needs to flush this pool right before it goes into its main
-   // event loop to get rid of the cruft.
+@@ -151,13 +150,7 @@ int Main(const MainParams& params) {
+   MainDelegate::InitializeParams init_params;
+ 
+ #if defined(OS_MACOSX)
+-  // We need this pool for all the objects created before we get to the event
+-  // loop, but we don't want to leave them hanging around until the app quits.
+-  // Each "main" needs to flush this pool right before it goes into its main
+-  // event loop to get rid of the cruft.
 -  std::unique_ptr<base::mac::ScopedNSAutoreleasePool> autorelease_pool =
-+  params.autorelease_pool =
-       base::MakeUnique<base::mac::ScopedNSAutoreleasePool>();
+-      base::MakeUnique<base::mac::ScopedNSAutoreleasePool>();
 -  init_params.autorelease_pool = autorelease_pool.get();
 +  init_params.autorelease_pool = params.autorelease_pool.get();
    InitializeMac();
  #endif
  
-@@ -173,10 +172,17 @@ int Main(const MainParams& params) {
+@@ -173,10 +166,17 @@ int Main(const MainParams& params) {
            base::debug::GlobalActivityTracker::PROCESS_LAUNCH_FAILED);
        tracker->process_data().SetInt("exit-code", exit_code);
      }
@@ -51,7 +54,7 @@ index 0debd91780b5..432d91ef9713 100644
    if (tracker) {
      if (exit_code == 0) {
        tracker->SetProcessPhaseIfEnabled(
-@@ -187,13 +193,26 @@ int Main(const MainParams& params) {
+@@ -187,13 +187,35 @@ int Main(const MainParams& params) {
        tracker->process_data().SetInt("exit-code", exit_code);
      }
    }
@@ -69,8 +72,17 @@ index 0debd91780b5..432d91ef9713 100644
  
    delegate->ShutDown();
 +}
- 
++
 +int Main(MainParams& params) {
++#if defined(OS_MACOSX)
++  // We need this pool for all the objects created before we get to the event
++  // loop, but we don't want to leave them hanging around until the app quits.
++  // Each "main" needs to flush this pool right before it goes into its main
++  // event loop to get rid of the cruft.
++  params.autorelease_pool =
++      base::MakeUnique<base::mac::ScopedNSAutoreleasePool>();
++#endif
+ 
 +  int exit_code = MainInitialize(params);
 +  if (exit_code >= 0)
 +    return exit_code;
