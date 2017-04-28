@@ -19,7 +19,7 @@ namespace {
 
 // Returns the top menu bar with the specified |tag|.
 NSMenuItem* GetMenuBarMenuWithTag(NSInteger tag) {
-  NSMenu* main_menu = NSApp.mainMenu;
+  NSMenu* main_menu = [[NSApplication sharedApplication] mainMenu];
   NSInteger found_index = [main_menu indexOfItemWithTag:tag];
   if (found_index >= 0)
     return [main_menu itemAtIndex:found_index];
