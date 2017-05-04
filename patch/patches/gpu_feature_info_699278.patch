@@ -1,13 +1,17 @@
 diff --git gpu/command_buffer/service/feature_info.cc gpu/command_buffer/service/feature_info.cc
-index 32e72c6..495ccdd 100644
+index 32e72c6..712d3ac 100644
 --- gpu/command_buffer/service/feature_info.cc
 +++ gpu/command_buffer/service/feature_info.cc
-@@ -1524,8 +1524,6 @@ void FeatureInfo::InitializeFloatAndHalfFloatFeatures(
-     glBindFramebufferEXT(GL_FRAMEBUFFER, static_cast<GLuint>(fb_binding));
-     glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(tex_binding));
- 
--    DCHECK_EQ(glGetError(), static_cast<GLuint>(GL_NO_ERROR));
--
-     if (status_rgba == GL_FRAMEBUFFER_COMPLETE) {
-       feature_flags_.chromium_color_buffer_float_rgba = true;
-       if (!disallowed_features_.chromium_color_buffer_float_rgba)
+@@ -1493,8 +1493,10 @@ void FeatureInfo::InitializeFloatAndHalfFloatFeatures(
+       }
+       enable_ext_color_buffer_float = full_float_support;
+     }
+-    // Likewise for EXT_color_buffer_half_float on ES2 contexts.
+-    if (IsWebGL1OrES2Context() && !enable_ext_color_buffer_half_float) {
++    // Likewise for EXT_color_buffer_half_float on ES2 contexts. On desktop,
++    // require at least GL 3.0, to ensure that all formats are defined.
++    if (IsWebGL1OrES2Context() && !enable_ext_color_buffer_half_float &&
++        (gl_version_info_->is_es || gl_version_info_->IsAtLeastGL(3, 0))) {
+       bool full_half_float_support = true;
+       GLenum internal_formats[] = {
+           GL_R16F, GL_RG16F, GL_RGBA16F,
