@@ -996,8 +996,9 @@ void CefContentBrowserClient::RegisterCustomScheme(const std::string& scheme) {
     policy->RegisterWebSafeScheme(scheme);
 }
 
-CefBrowserContextImpl* CefContentBrowserClient::browser_context() const {
-  return browser_main_parts_->browser_context();
+CefRefPtr<CefRequestContextImpl>
+CefContentBrowserClient::request_context() const {
+  return browser_main_parts_->request_context();
 }
 
 CefDevToolsDelegate* CefContentBrowserClient::devtools_delegate() const {

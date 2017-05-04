@@ -118,6 +118,7 @@
 //    CefURLRequestContextGetter* destruction. 
 */
 
+class CefRequestContextImpl;
 class HostContentSettingsMap;
 class PrefService;
 
@@ -145,6 +146,12 @@ class CefBrowserContext : public ChromeProfileStub {
 
   // Profile methods.
   ChromeZoomLevelPrefs* GetZoomLevelPrefs() override;
+
+  // Returns a RequestContext associated with this object. If this object is a
+  // *Proxy then it will return the single associated proxy RequestContext. If
+  // this object is an *Impl then it will return the first non-proxy
+  // RequestContext, if one exists, otherwise the first proxy RequestContext.
+  virtual CefRequestContextImpl* GetCefRequestContext() const = 0;
 
   // Returns the settings associated with this object. Safe to call from any
   // thread.

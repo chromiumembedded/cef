@@ -21,7 +21,8 @@ namespace {
 // Return the main context for now since we don't currently have a good way to
 // determine that.
 CefBrowserContextImpl* GetActiveBrowserContext() {
-  return CefContentBrowserClient::Get()->browser_context();
+  return static_cast<CefBrowserContextImpl*>(
+      CefContentBrowserClient::Get()->request_context()->GetBrowserContext());
 }
 
 }  // namespace

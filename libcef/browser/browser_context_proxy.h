@@ -20,7 +20,8 @@ class CefStoragePartitionProxy;
 // browser_context.h for an object relationship diagram.
 class CefBrowserContextProxy : public CefBrowserContext {
  public:
-  CefBrowserContextProxy(CefRefPtr<CefRequestContextHandler> handler,
+  CefBrowserContextProxy(CefRequestContextImpl* const request_context,
+                         CefRefPtr<CefRequestContextHandler> handler,
                          CefBrowserContextImpl* parent);
 
   // Must be called immediately after this object is created.
@@ -61,6 +62,7 @@ class CefBrowserContextProxy : public CefBrowserContext {
   const PrefService* GetPrefs() const override;
 
   // CefBrowserContext methods.
+  CefRequestContextImpl* GetCefRequestContext() const override;
   const CefRequestContextSettings& GetSettings() const override;
   CefRefPtr<CefRequestContextHandler> GetHandler() const override;
   HostContentSettingsMap* GetHostContentSettingsMap() override;
@@ -78,6 +80,9 @@ class CefBrowserContextProxy : public CefBrowserContext {
   friend std::default_delete<CefBrowserContextProxy>;
 
   ~CefBrowserContextProxy() override;
+
+  // Guaranteed to outlive this object.
+  CefRequestContextImpl* const request_context_;
 
   // Members initialized during construction are safe to access from any thread.
   CefRefPtr<CefRequestContextHandler> handler_;

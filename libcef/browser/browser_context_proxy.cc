@@ -58,9 +58,11 @@ bool ShouldProxyUserData(const void* key) {
 }  // namespace
 
 CefBrowserContextProxy::CefBrowserContextProxy(
+    CefRequestContextImpl* const request_context,
     CefRefPtr<CefRequestContextHandler> handler,
     CefBrowserContextImpl* parent)
     : CefBrowserContext(true),
+      request_context_(request_context),
       handler_(handler),
       parent_(parent) {
   DCHECK(handler_.get());
@@ -197,6 +199,10 @@ const PrefService* CefBrowserContextProxy::GetPrefs() const {
   return parent_->GetPrefs();
 }
 
+CefRequestContextImpl* CefBrowserContextProxy::GetCefRequestContext() const {
+  return request_context_;
+}
+
 const CefRequestContextSettings& CefBrowserContextProxy::GetSettings() const {
   return parent_->GetSettings();
 }
@@ -221,7 +227,7 @@ CefBrowserContextProxy::GetOrCreateStoragePartitionProxy(
   if (!storage_partition_proxy_) {
     scoped_refptr<CefURLRequestContextGetterProxy> url_request_getter =
         new CefURLRequestContextGetterProxy(handler_,
-                                            parent_->request_context());
+                                            parent_->request_context_getter());
     resource_context()->set_url_request_context_getter(
         url_request_getter.get());
     storage_partition_proxy_.reset(
