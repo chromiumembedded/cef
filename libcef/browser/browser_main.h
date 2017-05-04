@@ -7,6 +7,7 @@
 #pragma once
 
 #include "libcef/browser/net/url_request_context_getter_impl.h"
+#include "libcef/browser/request_context_impl.h"
 
 #include "base/macros.h"
 #include "base/memory/scoped_vector.h"
@@ -36,7 +37,6 @@ class WMState;
 }
 #endif
 
-class CefBrowserContextImpl;
 class CefDevToolsDelegate;
 
 class CefBrowserMainParts : public content::BrowserMainParts {
@@ -53,8 +53,8 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   void PostMainMessageLoopRun() override;
   void PostDestroyThreads() override;
 
-  CefBrowserContextImpl* browser_context() const {
-    return global_browser_context_.get();
+  CefRefPtr<CefRequestContextImpl> request_context() const {
+    return global_request_context_;
   }
   CefDevToolsDelegate* devtools_delegate() const {
     return devtools_delegate_;
@@ -65,7 +65,7 @@ class CefBrowserMainParts : public content::BrowserMainParts {
   void PlatformInitialize();
 #endif  // defined(OS_WIN)
 
-  std::unique_ptr<CefBrowserContextImpl> global_browser_context_;
+  CefRefPtr<CefRequestContextImpl> global_request_context_;
   CefDevToolsDelegate* devtools_delegate_;  // Deletes itself.
   std::unique_ptr<base::MessageLoop> message_loop_;
 

@@ -52,10 +52,11 @@ class CefBrowserContextImpl : public CefBrowserContext,
   void AddProxy(const CefBrowserContextProxy* proxy);
   void RemoveProxy(const CefBrowserContextProxy* proxy);
 
-  // Track associated CefRequestContextImpl objects. If this object is a non-
-  // global context then it will delete itself when the count reaches zero.
-  void AddRequestContext();
-  void RemoveRequestContext();
+  // Track associated CefRequestContextImpl objects. This object will delete
+  // itself when the count reaches zero.
+  void AddCefRequestContext(CefRequestContextImpl* context);
+  void RemoveCefRequestContext(CefRequestContextImpl* context);
+  CefRequestContextImpl* GetCefRequestContext(bool impl_only) const;
 
   // BrowserContext methods.
   base::FilePath GetPath() const override;
@@ -88,6 +89,7 @@ class CefBrowserContextImpl : public CefBrowserContext,
   const PrefService* GetPrefs() const override;
 
   // CefBrowserContext methods.
+  CefRequestContextImpl* GetCefRequestContext() const override;
   const CefRequestContextSettings& GetSettings() const override;
   CefRefPtr<CefRequestContextHandler> GetHandler() const override;
   HostContentSettingsMap* GetHostContentSettingsMap() override;
@@ -97,7 +99,7 @@ class CefBrowserContextImpl : public CefBrowserContext,
   void RebuildTable(const scoped_refptr<URLEnumerator>& enumerator) override;
 
   // Guaranteed to exist once this object has been initialized.
-  scoped_refptr<CefURLRequestContextGetterImpl> request_context() const {
+  scoped_refptr<CefURLRequestContextGetterImpl> request_context_getter() const {
     return url_request_getter_;
   }
 
@@ -111,8 +113,8 @@ class CefBrowserContextImpl : public CefBrowserContext,
   CefRequestContextSettings settings_;
   base::FilePath cache_path_;
 
-  // Number of CefRequestContextImpl objects referencing this object.
-  int request_context_count_ = 0;
+  // CefRequestContextImpl objects referencing this object.
+  std::set<CefRequestContextImpl*> request_context_set_;
 
   std::unique_ptr<PrefService> pref_service_;
   std::unique_ptr<PrefProxyConfigTracker> pref_proxy_config_tracker_;

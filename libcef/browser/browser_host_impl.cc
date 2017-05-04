@@ -2286,16 +2286,14 @@ void CefBrowserHostImpl::WebContentsCreated(
   CefRefPtr<CefBrowserHostImpl> opener = GetBrowserForContents(source_contents);
   DCHECK(opener.get());
 
+  // Popups must share the same BrowserContext as the parent.
   CefBrowserContext* browser_context =
       static_cast<CefBrowserContext*>(new_contents->GetBrowserContext());
   DCHECK(browser_context);
-  CefRefPtr<CefRequestContext> request_context =
-      CefRequestContextImpl::CreateForBrowserContext(browser_context).get();
-  DCHECK(request_context.get());
 
   CefRefPtr<CefBrowserHostImpl> browser = CefBrowserHostImpl::CreateInternal(
-      settings, client, new_contents, info, opener, false, request_context,
-      std::move(platform_delegate));
+      settings, client, new_contents, info, opener, false,
+      browser_context->GetCefRequestContext(), std::move(platform_delegate));
 }
 
 void CefBrowserHostImpl::DidNavigateMainFramePostCommit(

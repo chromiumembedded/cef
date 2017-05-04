@@ -190,18 +190,20 @@ void CefBrowserMainParts::PreMainMessageLoopRun() {
   CefRequestContextSettings settings;
   CefContext::Get()->PopulateRequestContextSettings(&settings);
 
-  // Create the global BrowserContext.
-  global_browser_context_.reset(new CefBrowserContextImpl(settings));
-  global_browser_context_->Initialize();
+  // Create the global RequestContext.
+  global_request_context_ =
+      CefRequestContextImpl::CreateGlobalRequestContext(settings);
+  CefBrowserContextImpl* browser_context = static_cast<CefBrowserContextImpl*>(
+      global_request_context_->GetBrowserContext());
 
-  CefDevToolsManagerDelegate::StartHttpHandler(global_browser_context_.get());
+  CefDevToolsManagerDelegate::StartHttpHandler(browser_context);
 
   // Triggers initialization of the singleton instance on UI thread.
   PluginFinder::GetInstance()->Init();
 
   device::GeolocationProvider::SetGeolocationDelegate(
       new CefGeolocationDelegate(
-          global_browser_context_->request_context().get()));
+          browser_context->request_context_getter().get()));
 
   scheme::RegisterWebUIControllerFactory();
 }
@@ -210,7 +212,7 @@ void CefBrowserMainParts::PostMainMessageLoopRun() {
   // NOTE: Destroy objects in reverse order of creation.
   CefDevToolsManagerDelegate::StopHttpHandler();
 
-  global_browser_context_.reset(nullptr);
+  global_request_context_ = NULL;
 
   if (extensions::ExtensionsEnabled()) {
     extensions::ExtensionsBrowserClient::Set(NULL);

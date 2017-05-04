@@ -14,6 +14,7 @@
 #include "libcef/browser/extensions/extension_system.h"
 #include "libcef/browser/permissions/permission_manager.h"
 #include "libcef/browser/prefs/browser_prefs.h"
+#include "libcef/browser/request_context_impl.h"
 #include "libcef/browser/ssl_host_state_delegate.h"
 #include "libcef/browser/thread_util.h"
 #include "libcef/common/cef_switches.h"
@@ -220,7 +221,7 @@ CefBrowserContextImpl::~CefBrowserContextImpl() {
   CEF_REQUIRE_UIT();
 
   // No CefRequestContextImpl should be referencing this object any longer.
-  DCHECK_EQ(request_context_count_, 0);
+  DCHECK(request_context_set_.empty());
 
   // Unregister the context first to avoid re-entrancy during shutdown.
   g_manager.Get().RemoveImpl(this, cache_path_);
@@ -324,21 +325,33 @@ void CefBrowserContextImpl::RemoveProxy(const CefBrowserContextProxy* proxy) {
   visitedlink_listener_->RemoveListenerForContext(proxy);
 }
 
-void CefBrowserContextImpl::AddRequestContext() {
+void CefBrowserContextImpl::AddCefRequestContext(
+    CefRequestContextImpl* context) {
   CEF_REQUIRE_UIT();
-  request_context_count_++;
+  request_context_set_.insert(context);
 }
 
-void CefBrowserContextImpl::RemoveRequestContext() {
+void CefBrowserContextImpl::RemoveCefRequestContext(
+    CefRequestContextImpl* context) {
   CEF_REQUIRE_UIT();
-  request_context_count_--;
-  DCHECK_GE(request_context_count_, 0);
+  request_context_set_.erase(context);
 
-  // Delete non-global contexts when the reference count reaches zero.
-  if (request_context_count_ == 0 &&
-      this != CefContentBrowserClient::Get()->browser_context()) {
+  // Delete ourselves when the reference count reaches zero.
+  if (request_context_set_.empty())
     delete this;
+}
+
+CefRequestContextImpl* CefBrowserContextImpl::GetCefRequestContext(
+    bool impl_only) const {
+  CEF_REQUIRE_UIT();
+  // First try to find a non-proxy RequestContext.
+  for (CefRequestContextImpl* impl : request_context_set_) {
+    if (!impl->GetHandler())
+      return impl;
   }
+  if (impl_only)
+    return nullptr;
+  return *request_context_set_.begin();
 }
 
 // static
@@ -477,6 +490,10 @@ PrefService* CefBrowserContextImpl::GetPrefs() {
 
 const PrefService* CefBrowserContextImpl::GetPrefs() const {
   return pref_service_.get();
+}
+
+CefRequestContextImpl* CefBrowserContextImpl::GetCefRequestContext() const {
+  return GetCefRequestContext(false);
 }
 
 const CefRequestContextSettings& CefBrowserContextImpl::GetSettings() const {

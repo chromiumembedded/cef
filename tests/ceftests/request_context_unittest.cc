@@ -125,50 +125,17 @@ TEST(RequestContextTest, CreateContextSharedGlobal) {
   EXPECT_TRUE(context1->IsSame(context1));
   EXPECT_TRUE(context1->IsSharingWith(context1));
 
+  // Returns the same global context.
   CefRefPtr<CefRequestContext> context2 =
       CefRequestContext::CreateContext(context1, NULL);
   EXPECT_TRUE(context2.get());
-  EXPECT_FALSE(context2->IsGlobal());
+  EXPECT_TRUE(context2->IsGlobal());
   EXPECT_TRUE(context2->IsSame(context2));
-  EXPECT_FALSE(context2->IsSame(context1));
-  EXPECT_FALSE(context1->IsSame(context2));
+  EXPECT_TRUE(context2->IsSame(context1));
+  EXPECT_TRUE(context1->IsSame(context2));
   EXPECT_TRUE(context2->IsSharingWith(context2));
   EXPECT_TRUE(context2->IsSharingWith(context1));
   EXPECT_TRUE(context1->IsSharingWith(context2));
-
-  CefRefPtr<CefRequestContext> context3 =
-      CefRequestContext::CreateContext(context2, NULL);
-  EXPECT_TRUE(context3.get());
-  EXPECT_FALSE(context3->IsGlobal());
-  EXPECT_TRUE(context3->IsSame(context3));
-  EXPECT_FALSE(context3->IsSame(context2));
-  EXPECT_FALSE(context3->IsSame(context1));
-  EXPECT_FALSE(context1->IsSame(context3));
-  EXPECT_FALSE(context2->IsSame(context3));
-  EXPECT_TRUE(context3->IsSharingWith(context3));
-  EXPECT_TRUE(context3->IsSharingWith(context2));
-  EXPECT_TRUE(context3->IsSharingWith(context1));
-  EXPECT_TRUE(context1->IsSharingWith(context3));
-  EXPECT_TRUE(context2->IsSharingWith(context3));
-
-  CefRefPtr<CefRequestContext> context4 =
-      CefRequestContext::CreateContext(context1, NULL);
-  EXPECT_TRUE(context4.get());
-  EXPECT_FALSE(context4->IsGlobal());
-  EXPECT_TRUE(context4->IsSame(context4));
-  EXPECT_FALSE(context4->IsSame(context3));
-  EXPECT_FALSE(context4->IsSame(context2));
-  EXPECT_FALSE(context4->IsSame(context1));
-  EXPECT_FALSE(context1->IsSame(context4));
-  EXPECT_FALSE(context2->IsSame(context4));
-  EXPECT_FALSE(context3->IsSame(context4));
-  EXPECT_TRUE(context4->IsSharingWith(context4));
-  EXPECT_TRUE(context4->IsSharingWith(context3));
-  EXPECT_TRUE(context4->IsSharingWith(context2));
-  EXPECT_TRUE(context4->IsSharingWith(context1));
-  EXPECT_TRUE(context1->IsSharingWith(context4));
-  EXPECT_TRUE(context2->IsSharingWith(context4));
-  EXPECT_TRUE(context3->IsSharingWith(context4));
 }
 
 TEST(RequestContextTest, CreateContextSharedOnDisk) {
@@ -647,6 +614,278 @@ TEST(RequestContextTest, NoReferrerLinkDifferentOrigin) {
   handler->ExecuteTest();
   ReleaseAndWaitForDestructor(handler);
 }
+
+
+namespace {
+
+const char kPopupNavPageUrl[] = "http://tests-popup.com/page.html";
+const char kPopupNavPopupUrl[] = "http://tests-popup.com/popup.html";
+const char kPopupNavPopupUrl2[] = "http://tests-popup2.com/popup.html";
+const char kPopupNavPopupName[] = "my_popup";
+
+// Browser side.
+class PopupNavTestHandler : public TestHandler {
+ public:
+  enum Mode {
+    ALLOW_CLOSE_POPUP_FIRST,
+    ALLOW_CLOSE_POPUP_LAST,
+    DENY,
+    NAVIGATE_AFTER_CREATION,
+  };
+  enum RCMode {
+    RC_MODE_NONE,
+    RC_MODE_IMPL,
+    RC_MODE_PROXY,
+  };
+
+  PopupNavTestHandler(Mode mode, RCMode rc_mode)
+      : mode_(mode),
+        rc_mode_(rc_mode) {}
+
+  void RunTest() override {
+    // Add the resources that we will navigate to/from.
+    std::string page = "<html><script>function doPopup() { window.open('" +
+                       std::string(kPopupNavPopupUrl) + "', '" +
+                       std::string(kPopupNavPopupName) +
+                       "'); }</script>Page</html>";
+    AddResource(kPopupNavPageUrl, page, "text/html");
+    AddResource(kPopupNavPopupUrl, "<html>Popup</html>", "text/html");
+    if (mode_ == NAVIGATE_AFTER_CREATION)
+      AddResource(kPopupNavPopupUrl2, "<html>Popup2</html>", "text/html");
+
+    CefRefPtr<CefRequestContext> request_context;
+    CefRefPtr<CefRequestContextHandler> rc_handler;
+    if (rc_mode_ == RC_MODE_PROXY) {
+      class Handler : public CefRequestContextHandler {
+       public:
+        Handler() {}
+       private:
+        IMPLEMENT_REFCOUNTING(Handler);
+      };
+      rc_handler = new Handler();
+    }
+
+    if (rc_mode_ != RC_MODE_NONE) {
+      CefRequestContextSettings settings;
+      request_context = CefRequestContext::CreateContext(settings, rc_handler);
+    }
+
+    // Create the browser.
+    CreateBrowser(kPopupNavPageUrl, request_context);
+
+    // Time out the test after a reasonable period of time.
+    SetTestTimeout();
+  }
+
+  bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
+                     CefRefPtr<CefFrame> frame,
+                     const CefString& target_url,
+                     const CefString& target_frame_name,
+                     cef_window_open_disposition_t target_disposition,
+                     bool user_gesture,
+                     const CefPopupFeatures& popupFeatures,
+                     CefWindowInfo& windowInfo,
+                     CefRefPtr<CefClient>& client,
+                     CefBrowserSettings& settings,
+                     bool* no_javascript_access) override {
+    EXPECT_FALSE(got_on_before_popup_);
+    got_on_before_popup_.yes();
+
+    EXPECT_TRUE(CefCurrentlyOn(TID_IO));
+    EXPECT_EQ(GetBrowserId(), browser->GetIdentifier());
+    EXPECT_STREQ(kPopupNavPageUrl, frame->GetURL().ToString().c_str());
+    EXPECT_STREQ(kPopupNavPopupUrl, target_url.ToString().c_str());
+    EXPECT_STREQ(kPopupNavPopupName, target_frame_name.ToString().c_str());
+    EXPECT_EQ(WOD_NEW_FOREGROUND_TAB, target_disposition);
+    EXPECT_FALSE(user_gesture);
+    EXPECT_FALSE(*no_javascript_access);
+
+    return (mode_ == DENY);  // Return true to cancel the popup.
+  }
+
+  void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
+    TestHandler::OnAfterCreated(browser);
+
+    if (mode_ == NAVIGATE_AFTER_CREATION && browser->IsPopup()) {
+      // Navigate to the 2nd popup URL instead of the 1st popup URL.
+      browser->GetMainFrame()->LoadURL(kPopupNavPopupUrl2);
+    }
+  }
+
+  void OnLoadStart(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   TransitionType transition_type) override {
+    const std::string& url = frame->GetURL();
+    if (url == kPopupNavPageUrl) {
+      EXPECT_FALSE(got_load_start_);
+      got_load_start_.yes();
+    } else if (url == kPopupNavPopupUrl) {
+      EXPECT_FALSE(got_popup_load_start_);
+      got_popup_load_start_.yes();
+    } else if (url == kPopupNavPopupUrl2) {
+      EXPECT_FALSE(got_popup_load_start2_);
+      got_popup_load_start2_.yes();
+    }
+  }
+
+  void OnLoadError(CefRefPtr<CefBrowser> browser,
+                   CefRefPtr<CefFrame> frame,
+                   ErrorCode errorCode,
+                   const CefString& errorText,
+                   const CefString& failedUrl) override {
+    if (failedUrl == kPopupNavPageUrl) {
+      EXPECT_FALSE(got_load_error_);
+      got_load_error_.yes();
+    } else if (failedUrl == kPopupNavPopupUrl) {
+      EXPECT_FALSE(got_popup_load_error_);
+      got_popup_load_error_.yes();
+    } else if (failedUrl == kPopupNavPopupUrl2) {
+      EXPECT_FALSE(got_popup_load_error2_);
+      got_popup_load_error2_.yes();
+    }
+  }
+
+  void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+                 CefRefPtr<CefFrame> frame,
+                 int httpStatusCode) override {
+    const std::string& url = frame->GetURL();
+    if (url == kPopupNavPageUrl) {
+      EXPECT_FALSE(got_load_end_);
+      got_load_end_.yes();
+
+      frame->ExecuteJavaScript("doPopup()", kPopupNavPageUrl, 0);
+
+      if (mode_ == DENY) {
+        // Wait a bit to make sure the popup window isn't created.
+        CefPostDelayedTask(TID_UI,
+            base::Bind(&PopupNavTestHandler::DestroyTest, this), 200);
+      }
+    } else if (url == kPopupNavPopupUrl) {
+      EXPECT_FALSE(got_popup_load_end_);
+      got_popup_load_end_.yes();
+
+      if (mode_ == ALLOW_CLOSE_POPUP_FIRST) {
+        // Close the popup browser first.
+        CloseBrowser(browser, false);
+      } else if (mode_ == ALLOW_CLOSE_POPUP_LAST) {
+        // Close the main browser first.
+        CloseBrowser(GetBrowser(), false);
+      } else if (mode_ != NAVIGATE_AFTER_CREATION) {
+        EXPECT_FALSE(true); // Not reached.
+      }
+    } else if (url == kPopupNavPopupUrl2) {
+      EXPECT_FALSE(got_popup_load_end2_);
+      got_popup_load_end2_.yes();
+
+      if (mode_ == NAVIGATE_AFTER_CREATION) {
+        // Close the popup browser first.
+        CloseBrowser(browser, false);
+      } else {
+        EXPECT_FALSE(true); // Not reached.
+      }
+    } else {
+      EXPECT_FALSE(true); // Not reached.
+    }
+  }
+
+  void OnBeforeClose(CefRefPtr<CefBrowser> browser) override {
+    TestHandler::OnBeforeClose(browser);
+
+    bool destroy_test = false;
+    if (mode_ == ALLOW_CLOSE_POPUP_FIRST || mode_ == NAVIGATE_AFTER_CREATION) {
+      // Destroy the test after the popup browser closes.
+      if (browser->IsPopup())
+        destroy_test = true;
+    } else if (mode_ == ALLOW_CLOSE_POPUP_LAST) {
+      // Destroy the test after the main browser closes.
+      if (!browser->IsPopup())
+        destroy_test = true;
+    }
+
+    if (destroy_test) {
+      CefPostTask(TID_UI, base::Bind(&PopupNavTestHandler::DestroyTest, this));
+    }
+  }
+
+ private:
+  void DestroyTest() override {
+    EXPECT_TRUE(got_load_start_);
+    EXPECT_FALSE(got_load_error_);
+    EXPECT_TRUE(got_load_end_);
+    EXPECT_TRUE(got_on_before_popup_);
+    if (mode_ == ALLOW_CLOSE_POPUP_FIRST || mode_ == ALLOW_CLOSE_POPUP_LAST) {
+      EXPECT_TRUE(got_popup_load_start_);
+      EXPECT_FALSE(got_popup_load_error_);
+      EXPECT_TRUE(got_popup_load_end_);
+      EXPECT_FALSE(got_popup_load_start2_);
+      EXPECT_FALSE(got_popup_load_error2_);
+      EXPECT_FALSE(got_popup_load_end2_);
+    } else if (mode_ == DENY) {
+      EXPECT_FALSE(got_popup_load_start_);
+      EXPECT_FALSE(got_popup_load_error_);
+      EXPECT_FALSE(got_popup_load_end_);
+      EXPECT_FALSE(got_popup_load_start2_);
+      EXPECT_FALSE(got_popup_load_error2_);
+      EXPECT_FALSE(got_popup_load_end2_);
+    } else if (mode_ == NAVIGATE_AFTER_CREATION) {
+      EXPECT_FALSE(got_popup_load_start_);
+      EXPECT_TRUE(got_popup_load_error_);
+      EXPECT_FALSE(got_popup_load_end_);
+      EXPECT_TRUE(got_popup_load_start2_);
+      EXPECT_FALSE(got_popup_load_error2_);
+      EXPECT_TRUE(got_popup_load_end2_);
+    }
+
+    // Will trigger destruction of all remaining browsers.
+    TestHandler::DestroyTest();
+  }
+
+  const Mode mode_;
+  const RCMode rc_mode_;
+
+  TrackCallback got_on_before_popup_;
+  TrackCallback got_load_start_;
+  TrackCallback got_load_error_;
+  TrackCallback got_load_end_;
+  TrackCallback got_popup_load_start_;
+  TrackCallback got_popup_load_error_;
+  TrackCallback got_popup_load_end_;
+  TrackCallback got_popup_load_start2_;
+  TrackCallback got_popup_load_error2_;
+  TrackCallback got_popup_load_end2_;
+
+  IMPLEMENT_REFCOUNTING(PopupNavTestHandler);
+};
+
+}  // namespace
+
+#define POPUP_TEST(name, test_mode, rc_mode)\
+    TEST(RequestContextTest, Popup##name) {\
+      CefRefPtr<PopupNavTestHandler> handler =\
+          new PopupNavTestHandler(PopupNavTestHandler::test_mode,\
+                                  PopupNavTestHandler::rc_mode);\
+      handler->ExecuteTest();\
+      ReleaseAndWaitForDestructor(handler);\
+    }
+
+#define POPUP_TEST_GROUP(name, test_mode)\
+    POPUP_TEST(name##RCNone, test_mode, RC_MODE_NONE);\
+    POPUP_TEST(name##RCImpl, test_mode, RC_MODE_IMPL);\
+    POPUP_TEST(name##RCProxy, test_mode, RC_MODE_PROXY);
+
+// Test allowing popups and closing the popup browser first.
+POPUP_TEST_GROUP(AllowClosePopupFirst, ALLOW_CLOSE_POPUP_FIRST);
+
+// Test allowing popups and closing the main browser first to verify that
+// internal objects are tracked correctly (see issue #2162).
+POPUP_TEST_GROUP(AllowClosePopupLast, ALLOW_CLOSE_POPUP_LAST);
+
+// Test denying popups.
+POPUP_TEST_GROUP(Deny, DENY);
+
+// Test navigation to a different origin after popup creation to verify that
+// internal objects are tracked correctly (see issue #1392).
+POPUP_TEST_GROUP(NavigateAfterCreation, NAVIGATE_AFTER_CREATION);
 
 
 namespace {

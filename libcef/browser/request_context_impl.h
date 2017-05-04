@@ -19,15 +19,15 @@ class CefRequestContextImpl : public CefRequestContext {
  public:
   ~CefRequestContextImpl() override;
 
+  // Creates the singleton global RequestContext. Called from
+  // CefBrowserMainParts::PreMainMessageLoopRun.
+  static CefRefPtr<CefRequestContextImpl> CreateGlobalRequestContext(
+      const CefRequestContextSettings& settings);
+
   // Returns a CefRequestContextImpl for the specified |request_context|.
   // Will return the global context if |request_context| is NULL.
   static CefRefPtr<CefRequestContextImpl> GetOrCreateForRequestContext(
       CefRefPtr<CefRequestContext> request_context);
-
-  // Returns a CefRequestContextImpl for the specified |browser_context|.
-  // |browser_context| must be non-NULL.
-  static CefRefPtr<CefRequestContextImpl> CreateForBrowserContext(
-      CefBrowserContext* browser_context);
 
   // Returns the browser context object. Can only be called on the UI thread.
   CefBrowserContext* GetBrowserContext();
@@ -108,10 +108,12 @@ class CefRequestContextImpl : public CefRequestContext {
     int unique_id = -1;
   };
 
+  static CefRefPtr<CefRequestContextImpl> GetOrCreateRequestContext(
+      const Config& config);
+
   explicit CefRequestContextImpl(const Config& config);
 
   void Initialize();
-  void Initialize(CefBrowserContext* other_browser_context);
 
   // Make sure the browser context exists. Only called on the UI thread.
   void EnsureBrowserContext();
@@ -155,7 +157,7 @@ class CefRequestContextImpl : public CefRequestContext {
   Config config_;
 
   // Owned by the CefBrowserContext.
-  CefURLRequestContextGetterImpl* request_context_impl_ = nullptr;
+  CefURLRequestContextGetterImpl* request_context_getter_impl_ = nullptr;
 
   IMPLEMENT_REFCOUNTING_DELETE_ON_UIT(CefRequestContextImpl);
   DISALLOW_COPY_AND_ASSIGN(CefRequestContextImpl);

@@ -222,38 +222,33 @@ void TestHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 
   browser_count_++;
 
-  if (!browser->IsPopup()) {
-    // Keep non-popup browsers.
-    const int browser_id = browser->GetIdentifier();
-    EXPECT_EQ(browser_map_.find(browser_id), browser_map_.end());
-    if (browser_map_.empty()) {
-      first_browser_id_ = browser_id;
-      first_browser_ = browser;
-    }
-    browser_map_.insert(std::make_pair(browser_id, browser));
+  const int browser_id = browser->GetIdentifier();
+  EXPECT_EQ(browser_map_.find(browser_id), browser_map_.end());
+  if (browser_map_.empty()) {
+    first_browser_id_ = browser_id;
+    first_browser_ = browser;
   }
+  browser_map_.insert(std::make_pair(browser_id, browser));
 }
 
 void TestHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
   EXPECT_UI_THREAD();
 
-  if (!browser->IsPopup()) {
-    // Free the browser pointer so that the browser can be destroyed.
-    const int browser_id = browser->GetIdentifier();
-    BrowserMap::iterator it = browser_map_.find(browser_id);
-    EXPECT_NE(it, browser_map_.end());
-    browser_map_.erase(it);
+  // Free the browser pointer so that the browser can be destroyed.
+  const int browser_id = browser->GetIdentifier();
+  BrowserMap::iterator it = browser_map_.find(browser_id);
+  EXPECT_NE(it, browser_map_.end());
+  browser_map_.erase(it);
 
-    if (browser_id == first_browser_id_) {
-      first_browser_id_ = 0;
-      first_browser_ = NULL;
-    }
+  if (browser_id == first_browser_id_) {
+    first_browser_id_ = 0;
+    first_browser_ = NULL;
+  }
 
-    if (browser_map_.empty() &&
-        signal_completion_when_all_browsers_close_) {
-      // Signal that the test is now complete.
-      TestComplete();
-    }
+  if (browser_map_.empty() &&
+      signal_completion_when_all_browsers_close_) {
+    // Signal that the test is now complete.
+    TestComplete();
   }
 
   browser_count_--;
@@ -352,7 +347,7 @@ void TestHandler::DestroyTest() {
     // iterating.
     BrowserMap browser_map = browser_map_;
 
-    // Tell all non-popup browsers to close.
+    // Tell all browsers to close.
     BrowserMap::const_iterator it = browser_map.begin();
     for (; it != browser_map.end(); ++it)
       CloseBrowser(it->second, false);

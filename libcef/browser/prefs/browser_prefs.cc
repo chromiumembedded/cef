@@ -24,6 +24,7 @@
 #include "chrome/grit/locale_settings.h"
 #include "components/content_settings/core/browser/cookie_settings.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
+#include "components/google/core/browser/google_url_tracker.h"
 #include "components/prefs/json_pref_store.h"
 #include "components/prefs/pref_filter.h"
 #include "components/prefs/pref_registry_simple.h"
@@ -181,6 +182,7 @@ std::unique_ptr<PrefService> CreatePrefService(
   update_client::RegisterPrefs(registry.get());
   content_settings::CookieSettings::RegisterProfilePrefs(registry.get());
   chrome_browser_net::RegisterPredictionOptionsProfilePrefs(registry.get());
+  GoogleURLTracker::RegisterProfilePrefs(registry.get());
 
   // Print preferences.
   registry->RegisterBooleanPref(prefs::kPrintingEnabled, true);

@@ -90,7 +90,7 @@ CefRefPtr<CefRequestContext> CefRequestContext::GetGlobalContext() {
 
   CefRequestContextImpl::Config config;
   config.is_global = true;
-  return new CefRequestContextImpl(config);
+  return CefRequestContextImpl::GetOrCreateRequestContext(config);
 }
 
 // static
@@ -107,7 +107,7 @@ CefRefPtr<CefRequestContext> CefRequestContext::CreateContext(
   config.settings = settings;
   config.handler = handler;
   config.unique_id = g_next_id.GetNext();
-  return new CefRequestContextImpl(config);
+  return CefRequestContextImpl::GetOrCreateRequestContext(config);
 }
 
 // static
@@ -127,7 +127,7 @@ CefRefPtr<CefRequestContext> CefRequestContext::CreateContext(
   config.other = static_cast<CefRequestContextImpl*>(other.get());
   config.handler = handler;
   config.unique_id = g_next_id.GetNext();
-  return new CefRequestContextImpl(config);
+  return CefRequestContextImpl::GetOrCreateRequestContext(config);
 }
 
 
@@ -139,10 +139,23 @@ CefRequestContextImpl::~CefRequestContextImpl() {
     browser_context_proxy_.reset(nullptr);
 
   if (browser_context_impl_) {
-    // May result in |browser_context_impl_| being deleted if it's not the
-    // global context and no other CefRequestContextImpl are referencing it.
-    browser_context_impl_->RemoveRequestContext();
+    // May result in |browser_context_impl_| being deleted if no other
+    // CefRequestContextImpl are referencing it.
+    browser_context_impl_->RemoveCefRequestContext(this);
   }
+}
+
+// static
+CefRefPtr<CefRequestContextImpl>
+CefRequestContextImpl::CreateGlobalRequestContext(
+    const CefRequestContextSettings& settings) {
+  // Create and initialize the global context immediately.
+  Config config;
+  config.is_global = true;
+  config.settings = settings;
+  CefRefPtr<CefRequestContextImpl> impl = new CefRequestContextImpl(config);
+  impl->Initialize();
+  return impl;
 }
 
 // static
@@ -155,22 +168,9 @@ CefRequestContextImpl::GetOrCreateForRequestContext(
   }
   
   // Use the global context.
-  CefRequestContextImpl::Config config;
+  Config config;
   config.is_global = true;
-  return new CefRequestContextImpl(config);
-}
-
-// static
-CefRefPtr<CefRequestContextImpl> CefRequestContextImpl::CreateForBrowserContext(
-      CefBrowserContext* browser_context) {
-  DCHECK(browser_context);
-  CefRequestContextImpl::Config config;
-  config.handler = browser_context->GetHandler();
-  CefRefPtr<CefRequestContextImpl> impl = new CefRequestContextImpl(config);
-  // Force immediate initialization because it's not safe to keep a raw pointer
-  // to |browser_context|.
-  impl->Initialize(browser_context);
-  return impl;
+  return CefRequestContextImpl::GetOrCreateRequestContext(config);
 }
 
 CefBrowserContext* CefRequestContextImpl::GetBrowserContext() {
@@ -191,7 +191,7 @@ void CefRequestContextImpl::GetRequestContextImpl(
     const RequestContextCallback& callback) {
   if (!task_runner.get())
     task_runner = base::MessageLoop::current()->task_runner();
-  if (request_context_impl_) {
+  if (request_context_getter_impl_) {
     // The browser context already exists.
     DCHECK(browser_context());
     GetRequestContextImplOnIOThread(task_runner, callback, browser_context());
@@ -257,9 +257,10 @@ bool CefRequestContextImpl::IsSharingWith(CefRefPtr<CefRequestContext> other) {
     return pending_other->IsSharingWith(this);
   }
 
-  if (request_context_impl_ && other_impl->request_context_impl_) {
+  if (request_context_getter_impl_ && other_impl->request_context_getter_impl_) {
     // Both objects are initialized. Compare the request context objects.
-    return (request_context_impl_ == other_impl->request_context_impl_);
+    return (request_context_getter_impl_ ==
+            other_impl->request_context_getter_impl_);
   }
 
   // This or the other object is not initialized. Compare the cache path values.
@@ -479,12 +480,13 @@ cef_errorcode_t CefRequestContextImpl::ResolveHostCached(
     return ERR_FAILED;
   }
 
-  if (!request_context_impl_)
+  if (!request_context_getter_impl_)
     return ERR_FAILED;
 
   int retval = ERR_FAILED;
 
-  net::HostResolver* host_resolver = request_context_impl_->GetHostResolver();
+  net::HostResolver* host_resolver =
+      request_context_getter_impl_->GetHostResolver();
   if (host_resolver) {
     net::HostResolver::RequestInfo request_info(
         net::HostPortPair::FromURL(GURL(origin.ToString())));
@@ -501,38 +503,34 @@ cef_errorcode_t CefRequestContextImpl::ResolveHostCached(
   return static_cast<cef_errorcode_t>(retval);
 }
 
+// static
+CefRefPtr<CefRequestContextImpl>
+CefRequestContextImpl::GetOrCreateRequestContext(const Config& config) {
+  if (config.is_global ||
+      (config.other && config.other->IsGlobal() && !config.handler)) {
+    // Return the singleton global context.
+    return CefContentBrowserClient::Get()->request_context();
+  }
+
+  // The new context will be initialized later by EnsureBrowserContext().
+  return new CefRequestContextImpl(config);
+}
+
 CefRequestContextImpl::CefRequestContextImpl(
     const CefRequestContextImpl::Config& config)
     : config_(config) {
 }
 
 void CefRequestContextImpl::Initialize() {
-  CefBrowserContext* other_browser_context = nullptr;
-  if (config_.is_global)
-    other_browser_context = CefContentBrowserClient::Get()->browser_context();
-  else if (config_.other.get())
-    other_browser_context = config_.other->GetBrowserContext();
-
-  Initialize(other_browser_context);
-
-  if (config_.other.get()) {
-    // Clear the reference to |other_| after setting |request_context_impl_|.
-    // This is the reverse order of checks in IsSharedWith().
-    config_.other = NULL;
-  }
-}
-
-void CefRequestContextImpl::Initialize(
-    CefBrowserContext* other_browser_context) {
   CEF_REQUIRE_UIT();
 
   DCHECK(!browser_context_impl_);
-  DCHECK(!request_context_impl_);
+  DCHECK(!request_context_getter_impl_);
 
-  if (other_browser_context) {
-    // Share storage with |other_browser_context|.
+  if (config_.other) {
+    // Share storage with |config_.other|.
     browser_context_impl_ = CefBrowserContextImpl::GetForContext(
-        other_browser_context);
+        config_.other->GetBrowserContext());
   }
 
   if (!browser_context_impl_) {
@@ -556,7 +554,7 @@ void CefRequestContextImpl::Initialize(
   }
 
   // We'll disassociate from |browser_context_impl_| on destruction.
-  browser_context_impl_->AddRequestContext();
+  browser_context_impl_->AddCefRequestContext(this);
 
   // Force our settings to match |browser_context_impl_|.
   config_.settings = browser_context_impl_->GetSettings();
@@ -565,21 +563,27 @@ void CefRequestContextImpl::Initialize(
     // Use a proxy that will execute handler callbacks where appropriate and
     // otherwise forward all requests to |browser_context_impl_|.
     browser_context_proxy_.reset(
-        new CefBrowserContextProxy(config_.handler, browser_context_impl_));
+        new CefBrowserContextProxy(this, config_.handler,
+                                   browser_context_impl_));
     browser_context_proxy_->Initialize();
     DCHECK(!config_.is_global);
-  } else {
-    config_.is_global = (browser_context_impl_ ==
-                         CefContentBrowserClient::Get()->browser_context());
   }
 
-  request_context_impl_ = browser_context_impl_->request_context().get();
-  DCHECK(request_context_impl_);
+  request_context_getter_impl_ =
+      browser_context_impl_->request_context_getter().get();
+  DCHECK(request_context_getter_impl_);
 
   if (config_.handler.get()) {
     // Keep the handler alive until the associated request context is
     // destroyed.
-    request_context_impl_->AddHandler(config_.handler);
+    request_context_getter_impl_->AddHandler(config_.handler);
+  }
+
+  if (config_.other) {
+    // Clear the reference to |config_.other| after setting
+    // |request_context_getter_impl_|. This is the reverse order of checks in
+    // IsSharedWith().
+    config_.other = NULL;
   }
 }
 
@@ -587,7 +591,7 @@ void CefRequestContextImpl::EnsureBrowserContext() {
   if (!browser_context())
     Initialize();
   DCHECK(browser_context());
-  DCHECK(request_context_impl_);
+  DCHECK(request_context_getter_impl_);
 }
 
 void CefRequestContextImpl::GetBrowserContextOnUIThread(
@@ -623,18 +627,18 @@ void CefRequestContextImpl::GetRequestContextImplOnIOThread(
     return;
   }
 
-  DCHECK(request_context_impl_);
+  DCHECK(request_context_getter_impl_);
 
   // Make sure the request context exists.
-  request_context_impl_->GetURLRequestContext();
+  request_context_getter_impl_->GetURLRequestContext();
 
   if (task_runner->BelongsToCurrentThread()) {
     // Execute the callback immediately.
-    callback.Run(request_context_impl_);
+    callback.Run(request_context_getter_impl_);
   } else {
     // Execute the callback on the target thread.
     task_runner->PostTask(FROM_HERE,
-        base::Bind(callback, make_scoped_refptr(request_context_impl_)));
+        base::Bind(callback, make_scoped_refptr(request_context_getter_impl_)));
   }
 }
 
