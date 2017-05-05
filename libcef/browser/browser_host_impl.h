@@ -637,6 +637,9 @@ class CefBrowserHostImpl : public CefBrowserHost,
   // Observers that want to be notified of changes to this object.
   base::ObserverList<Observer> observers_;
 
+  // Used to provide unique incremental IDs for each find request.
+  int find_request_id_counter_ = 0;
+
   IMPLEMENT_REFCOUNTING(CefBrowserHostImpl);
   DISALLOW_COPY_AND_ASSIGN(CefBrowserHostImpl);
 };

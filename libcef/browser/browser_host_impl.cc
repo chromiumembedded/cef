@@ -784,6 +784,14 @@ void CefBrowserHostImpl::Find(int identifier, const CefString& searchText,
     if (!web_contents_)
       return;
 
+    // Every find request must have a unique ID and these IDs must strictly
+    // increase so that newer requests always have greater IDs than older
+    // requests.
+    if (identifier <= find_request_id_counter_)
+      identifier = ++find_request_id_counter_;
+    else
+      find_request_id_counter_ = identifier;
+
     blink::WebFindOptions options;
     options.forward = forward;
     options.match_case = matchCase;
