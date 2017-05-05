@@ -430,12 +430,15 @@ typedef struct _cef_browser_host_t {
       struct _cef_pdf_print_callback_t* callback);
 
   ///
-  // Search for |searchText|. |identifier| can be used to have multiple searches
-  // running simultaniously. |forward| indicates whether to search forward or
-  // backward within the page. |matchCase| indicates whether the search should
-  // be case-sensitive. |findNext| indicates whether this is the first request
-  // or a follow-up. The cef_find_handler_t instance, if any, returned via
-  // cef_client_t::GetFindHandler will be called to report find results.
+  // Search for |searchText|. |identifier| must be a unique ID and these IDs
+  // must strictly increase so that newer requests always have greater IDs than
+  // older requests. If |identifier| is zero or less than the previous ID value
+  // then it will be automatically assigned a new valid ID. |forward| indicates
+  // whether to search forward or backward within the page. |matchCase|
+  // indicates whether the search should be case-sensitive. |findNext| indicates
+  // whether this is the first request or a follow-up. The cef_find_handler_t
+  // instance, if any, returned via cef_client_t::GetFindHandler will be called
+  // to report find results.
   ///
   void (CEF_CALLBACK *find)(struct _cef_browser_host_t* self, int identifier,
       const cef_string_t* searchText, int forward, int matchCase,
