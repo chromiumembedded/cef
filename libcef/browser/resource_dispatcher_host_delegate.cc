@@ -53,6 +53,8 @@ void SendExecuteMimeTypeHandlerEvent(
     web_contents = content::WebContents::FromRenderFrameHost(
         content::RenderFrameHost::FromID(render_process_id, render_frame_id));
   }
+  if (!web_contents)
+    return;
 
   CefRefPtr<CefBrowserHostImpl> browser =
       CefBrowserHostImpl::GetBrowserForContents(web_contents);
