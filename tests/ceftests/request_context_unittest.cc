@@ -631,6 +631,12 @@ class PopupNavTestHandler : public TestHandler {
     ALLOW_CLOSE_POPUP_LAST,
     DENY,
     NAVIGATE_AFTER_CREATION,
+    DESTROY_PARENT_BEFORE_CREATION,
+    DESTROY_PARENT_BEFORE_CREATION_FORCE,
+    DESTROY_PARENT_DURING_CREATION,
+    DESTROY_PARENT_DURING_CREATION_FORCE,
+    DESTROY_PARENT_AFTER_CREATION,
+    DESTROY_PARENT_AFTER_CREATION_FORCE,
   };
   enum RCMode {
     RC_MODE_NONE,
@@ -700,11 +706,25 @@ class PopupNavTestHandler : public TestHandler {
     EXPECT_FALSE(user_gesture);
     EXPECT_FALSE(*no_javascript_access);
 
+    if (mode_ == DESTROY_PARENT_DURING_CREATION ||
+        mode_ == DESTROY_PARENT_DURING_CREATION_FORCE) {
+      // Destroy the main (parent) browser while popup creation is pending.
+      CloseBrowser(browser, mode_ == DESTROY_PARENT_DURING_CREATION_FORCE);
+    }
+
     return (mode_ == DENY);  // Return true to cancel the popup.
   }
 
   void OnAfterCreated(CefRefPtr<CefBrowser> browser) override {
     TestHandler::OnAfterCreated(browser);
+
+    if (browser->IsPopup() &&
+        (mode_ == DESTROY_PARENT_AFTER_CREATION ||
+        mode_ == DESTROY_PARENT_AFTER_CREATION_FORCE)) {
+      // Destroy the main (parent) browser immediately after the popup is
+      // created.
+      CloseBrowser(GetBrowser(), mode_ == DESTROY_PARENT_AFTER_CREATION_FORCE);
+    }
 
     if (mode_ == NAVIGATE_AFTER_CREATION && browser->IsPopup()) {
       // Navigate to the 2nd popup URL instead of the 1st popup URL.
@@ -755,6 +775,13 @@ class PopupNavTestHandler : public TestHandler {
 
       frame->ExecuteJavaScript("doPopup()", kPopupNavPageUrl, 0);
 
+      if (mode_ == DESTROY_PARENT_BEFORE_CREATION ||
+          mode_ == DESTROY_PARENT_BEFORE_CREATION_FORCE) {
+        // Destroy the main (parent) browser immediately before the popup is
+        // created.
+        CloseBrowser(browser, mode_ == DESTROY_PARENT_BEFORE_CREATION_FORCE);
+      }
+
       if (mode_ == DENY) {
         // Wait a bit to make sure the popup window isn't created.
         CefPostDelayedTask(TID_UI,
@@ -796,7 +823,13 @@ class PopupNavTestHandler : public TestHandler {
       // Destroy the test after the popup browser closes.
       if (browser->IsPopup())
         destroy_test = true;
-    } else if (mode_ == ALLOW_CLOSE_POPUP_LAST) {
+    } else if (mode_ == ALLOW_CLOSE_POPUP_LAST ||
+               mode_ == DESTROY_PARENT_BEFORE_CREATION ||
+               mode_ == DESTROY_PARENT_BEFORE_CREATION_FORCE ||
+               mode_ == DESTROY_PARENT_DURING_CREATION ||
+               mode_ == DESTROY_PARENT_DURING_CREATION_FORCE ||
+               mode_ == DESTROY_PARENT_AFTER_CREATION ||
+               mode_ == DESTROY_PARENT_AFTER_CREATION_FORCE) {
       // Destroy the test after the main browser closes.
       if (!browser->IsPopup())
         destroy_test = true;
@@ -812,7 +845,14 @@ class PopupNavTestHandler : public TestHandler {
     EXPECT_TRUE(got_load_start_);
     EXPECT_FALSE(got_load_error_);
     EXPECT_TRUE(got_load_end_);
-    EXPECT_TRUE(got_on_before_popup_);
+
+    // OnBeforePopup may come before or after browser destruction with the
+    // DESTROY_PARENT_BEFORE_CREATION* tests.
+    if (mode_ != DESTROY_PARENT_BEFORE_CREATION &&
+        mode_ != DESTROY_PARENT_BEFORE_CREATION_FORCE) {
+      EXPECT_TRUE(got_on_before_popup_);
+    }
+
     if (mode_ == ALLOW_CLOSE_POPUP_FIRST || mode_ == ALLOW_CLOSE_POPUP_LAST) {
       EXPECT_TRUE(got_popup_load_start_);
       EXPECT_FALSE(got_popup_load_error_);
@@ -820,7 +860,13 @@ class PopupNavTestHandler : public TestHandler {
       EXPECT_FALSE(got_popup_load_start2_);
       EXPECT_FALSE(got_popup_load_error2_);
       EXPECT_FALSE(got_popup_load_end2_);
-    } else if (mode_ == DENY) {
+    } else if (mode_ == DENY ||
+               mode_ == DESTROY_PARENT_BEFORE_CREATION ||
+               mode_ == DESTROY_PARENT_BEFORE_CREATION_FORCE ||
+               mode_ == DESTROY_PARENT_DURING_CREATION ||
+               mode_ == DESTROY_PARENT_DURING_CREATION_FORCE ||
+               mode_ == DESTROY_PARENT_AFTER_CREATION ||
+               mode_ == DESTROY_PARENT_AFTER_CREATION_FORCE) {
       EXPECT_FALSE(got_popup_load_start_);
       EXPECT_FALSE(got_popup_load_error_);
       EXPECT_FALSE(got_popup_load_end_);
@@ -886,6 +932,18 @@ POPUP_TEST_GROUP(Deny, DENY);
 // Test navigation to a different origin after popup creation to verify that
 // internal objects are tracked correctly (see issue #1392).
 POPUP_TEST_GROUP(NavigateAfterCreation, NAVIGATE_AFTER_CREATION);
+
+// Test destroying the parent browser during or immediately after popup creation
+// to verify that internal objects are tracked correctly (see issue #2041).
+POPUP_TEST_GROUP(DestroyParentBeforeCreation, DESTROY_PARENT_BEFORE_CREATION);
+POPUP_TEST_GROUP(DestroyParentBeforeCreationForce,
+                 DESTROY_PARENT_BEFORE_CREATION_FORCE);
+POPUP_TEST_GROUP(DestroyParentDuringCreation, DESTROY_PARENT_DURING_CREATION);
+POPUP_TEST_GROUP(DestroyParentDuringCreationForce,
+                 DESTROY_PARENT_DURING_CREATION_FORCE);
+POPUP_TEST_GROUP(DestroyParentAfterCreation, DESTROY_PARENT_AFTER_CREATION);
+POPUP_TEST_GROUP(DestroyParentAfterCreationForce,
+                 DESTROY_PARENT_AFTER_CREATION_FORCE);
 
 
 namespace {
