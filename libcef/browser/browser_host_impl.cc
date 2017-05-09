@@ -355,6 +355,11 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
   DCHECK(!opener.get() || browser_info->is_popup());
 
   if (opener) {
+    if (!opener->platform_delegate_) {
+      // The opener window is being destroyed. Cancel the popup.
+      return nullptr;
+    }
+
     // Give the opener browser's platform delegate an opportunity to modify the
     // new browser's platform delegate.
     opener->platform_delegate_->PopupWebContentsCreated(
@@ -386,7 +391,7 @@ CefRefPtr<CefBrowserHostImpl> CefBrowserHostImpl::CreateInternal(
   // CefBrowserViewDelegate::OnBrowserCreated().
   browser->platform_delegate_->NotifyBrowserCreated();
 
-  if (opener) {
+  if (opener && opener->platform_delegate_) {
     // 3. Notify the opener browser's platform delegate. With Views this will
     // result in a call to CefBrowserViewDelegate::OnPopupBrowserViewCreated().
     opener->platform_delegate_->PopupBrowserCreated(browser.get(),
@@ -2292,7 +2297,8 @@ void CefBrowserHostImpl::WebContentsCreated(
   DCHECK(info->is_popup());
 
   CefRefPtr<CefBrowserHostImpl> opener = GetBrowserForContents(source_contents);
-  DCHECK(opener.get());
+  if (!opener.get())
+    return;
 
   // Popups must share the same BrowserContext as the parent.
   CefBrowserContext* browser_context =

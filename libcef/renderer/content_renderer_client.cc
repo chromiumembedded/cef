@@ -848,9 +848,8 @@ void CefContentRendererClient::BrowserCreated(
           render_view_routing_id,
           render_frame_routing_id,
           &params));
-  DCHECK_GT(params.browser_id, 0);
   if (params.browser_id == 0) {
-    // The request failed for some reason.
+    // The popup may have been canceled during creation.
     return;
   }
 
