@@ -72,17 +72,6 @@ bool GetPrivate(v8::Local<v8::Context> context,
       .ToLocal(result);
 }
 
-void DeletePrivate(v8::Local<v8::Context> context,
-                   v8::Local<v8::Object> obj,
-                   const char* key) {
-  v8::Isolate* isolate = context->GetIsolate();
-  obj->DeletePrivate(context,
-                     v8::Private::ForApi(
-                         isolate,
-                         v8::String::NewFromUtf8(isolate, key)))
-      .FromJust();
-}
-
 // Manages memory and state information associated with a single Isolate.
 class CefV8IsolateManager {
  public:
