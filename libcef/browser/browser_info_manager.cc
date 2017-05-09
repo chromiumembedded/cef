@@ -409,34 +409,55 @@ void CefBrowserInfoManager::GetBrowserInfoList(BrowserInfoList& list) {
 
 void CefBrowserInfoManager::RenderProcessHostDestroyed(
     content::RenderProcessHost* host) {
-  base::AutoLock lock_scope(browser_info_lock_);
-
   const int render_process_id = host->GetID();
+  DCHECK_GT(render_process_id, 0);
 
   // Remove all pending requests that reference the destroyed host.
-  PendingNewBrowserInfoList::iterator it =
-      pending_new_browser_info_list_.begin();
-  while (it != pending_new_browser_info_list_.end()) {
-    PendingNewBrowserInfo* info = *it;
-    if (info->render_process_id == render_process_id)
-      it = pending_new_browser_info_list_.erase(it);
-    else
-      ++it;
+  {
+    base::AutoLock lock_scope(browser_info_lock_);
+
+    PendingNewBrowserInfoList::iterator it =
+        pending_new_browser_info_list_.begin();
+    while (it != pending_new_browser_info_list_.end()) {
+      PendingNewBrowserInfo* info = *it;
+      if (info->render_process_id == render_process_id)
+        it = pending_new_browser_info_list_.erase(it);
+      else
+        ++it;
+    }
+  }
+
+  // Remove all pending popups that reference the destroyed host as the opener.
+  {
+    base::AutoLock lock_scope(pending_popup_lock_);
+
+    PendingPopupList::iterator it = pending_popup_list_.begin();
+    while (it != pending_popup_list_.end()) {
+      PendingPopup* popup = *it;
+      if (popup->opener_process_id == render_process_id) {
+        it = pending_popup_list_.erase(it);
+      } else {
+        ++it;
+      }
+    }
   }
 }
 
 void CefBrowserInfoManager::FilterPendingPopupURL(
     int opener_process_id,
     std::unique_ptr<CefBrowserInfoManager::PendingPopup> pending_popup) {
+  // |host| may be nullptr if the parent browser is destroyed while the popup is
+  // pending.
   content::RenderProcessHost* host =
       content::RenderProcessHost::FromID(opener_process_id);
-  DCHECK(host);
-  host->FilterURL(false, &pending_popup->target_url);
-
-  GetInstance()->PushPendingPopup(std::move(pending_popup));
+  if (host) {
+    host->FilterURL(false, &pending_popup->target_url);
+    GetInstance()->PushPendingPopup(std::move(pending_popup));
+  }
 }
 
-void CefBrowserInfoManager::PushPendingPopup(std::unique_ptr<PendingPopup> popup) {
+void CefBrowserInfoManager::PushPendingPopup(
+    std::unique_ptr<PendingPopup> popup) {
   base::AutoLock lock_scope(pending_popup_lock_);
   pending_popup_list_.push_back(std::move(popup));
 }
