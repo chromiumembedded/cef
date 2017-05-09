@@ -47,18 +47,15 @@ namespace {
 
 CefContext* g_context = NULL;
 
-// Force shutdown when the process terminates if a context currently exists and
-// CefShutdown() has not been explicitly called.
-class CefForceShutdown {
+#if DCHECK_IS_ON()
+// When the process terminates check if CefShutdown() has been called.
+class CefShutdownChecker {
  public:
-  ~CefForceShutdown() {
-    if (g_context) {
-      g_context->Shutdown();
-      delete g_context;
-      g_context = NULL;
-    }
+  ~CefShutdownChecker() {
+    DCHECK(!g_context) << "CefShutdown was not called";
   }
-} g_force_shutdown;
+} g_shutdown_checker;
+#endif  // DCHECK_IS_ON()
 
 #if defined(OS_WIN)
 #if defined(ARCH_CPU_X86_64)
