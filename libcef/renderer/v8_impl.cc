@@ -40,7 +40,6 @@
 namespace {
 
 static const char kCefTrackObject[] = "Cef::TrackObject";
-static const char kCefContextState[] = "Cef::ContextState";
 
 void MessageListenerCallbackImpl(v8::Handle<v8::Message> message,
                                  v8::Handle<v8::Value> data);
@@ -90,25 +89,10 @@ class CefV8IsolateManager {
   CefV8IsolateManager()
       : isolate_(v8::Isolate::GetCurrent()),
         task_runner_(CefContentRendererClient::Get()->GetCurrentTaskRunner()),
-        context_safety_impl_(IMPL_HASH),
         message_listener_registered_(false),
         worker_id_(0) {
     DCHECK(isolate_);
     DCHECK(task_runner_.get());
-
-    const base::CommandLine* command_line =
-        base::CommandLine::ForCurrentProcess();
-    if (command_line->HasSwitch(switches::kContextSafetyImplementation)) {
-      std::string value = command_line->GetSwitchValueASCII(
-          switches::kContextSafetyImplementation);
-      int mode;
-      if (base::StringToInt(value, &mode)) {
-        if (mode < 0)
-          context_safety_impl_ = IMPL_DISABLED;
-        else if (mode == 1)
-          context_safety_impl_ = IMPL_VALUE;
-      }
-    }
   }
   ~CefV8IsolateManager() {
     DCHECK_EQ(isolate_, v8::Isolate::GetCurrent());
@@ -120,9 +104,6 @@ class CefV8IsolateManager {
     DCHECK_EQ(isolate_, v8::Isolate::GetCurrent());
     DCHECK(context.IsEmpty() || isolate_ == context->GetIsolate());
 
-    if (context_safety_impl_ == IMPL_DISABLED)
-      return scoped_refptr<CefV8ContextState>();
-
     if (context.IsEmpty()) {
       if (isolate_->InContext())
         context = isolate_->GetCurrentContext();
@@ -130,64 +111,26 @@ class CefV8IsolateManager {
         return scoped_refptr<CefV8ContextState>();
     }
 
-    if (context_safety_impl_ == IMPL_HASH) {
-      int hash = context->Global()->GetIdentityHash();
-      ContextMap::const_iterator it = context_map_.find(hash);
-      if (it != context_map_.end())
-        return it->second;
+    int hash = context->Global()->GetIdentityHash();
+    ContextMap::const_iterator it = context_map_.find(hash);
+    if (it != context_map_.end())
+      return it->second;
 
-      scoped_refptr<CefV8ContextState> state = new CefV8ContextState();
-      context_map_.insert(std::make_pair(hash, state));
+    scoped_refptr<CefV8ContextState> state = new CefV8ContextState();
+    context_map_.insert(std::make_pair(hash, state));
 
-      return state;
-    } else {
-      v8::Local<v8::Object> object = context->Global();
-
-      v8::Local<v8::Value> value;
-      if (GetPrivate(context, object, kCefContextState, &value)) {
-        return static_cast<CefV8ContextState*>(
-            v8::External::Cast(*value)->Value());
-      }
-
-      scoped_refptr<CefV8ContextState> state = new CefV8ContextState();
-      SetPrivate(context, object, kCefContextState,
-                 v8::External::New(isolate_, state.get()));
-
-      // Reference will be released in ReleaseContext.
-      state->AddRef();
-
-      return state;
-    }
+    return state;
   }
 
   void ReleaseContext(v8::Local<v8::Context> context) {
     DCHECK_EQ(isolate_, v8::Isolate::GetCurrent());
     DCHECK_EQ(isolate_, context->GetIsolate());
 
-    if (context_safety_impl_ == IMPL_DISABLED)
-      return;
-
-    if (context_safety_impl_ == IMPL_HASH) {
-      int hash = context->Global()->GetIdentityHash();
-      ContextMap::iterator it = context_map_.find(hash);
-      if (it != context_map_.end()) {
-        it->second->Detach();
-        context_map_.erase(it);
-      }
-    } else {
-      v8::Local<v8::Object> object = context->Global();
-
-      v8::Local<v8::Value> value;
-      if (GetPrivate(context, object, kCefContextState, &value)) {
-        scoped_refptr<CefV8ContextState> state =
-            static_cast<CefV8ContextState*>(
-                v8::External::Cast(*value)->Value());
-        state->Detach();
-        DeletePrivate(context, object, kCefContextState);
-
-        // Match the AddRef in GetContextState.
-        state->Release();
-      }
+    int hash = context->Global()->GetIdentityHash();
+    ContextMap::iterator it = context_map_.find(hash);
+    if (it != context_map_.end()) {
+      it->second->Detach();
+      context_map_.erase(it);
     }
   }
 
@@ -236,14 +179,6 @@ class CefV8IsolateManager {
   v8::Isolate* isolate_;
   scoped_refptr<base::SequencedTaskRunner> task_runner_;
 
-  enum ContextSafetyImpl {
-    IMPL_DISABLED,
-    IMPL_HASH,
-    IMPL_VALUE,
-  };
-  ContextSafetyImpl context_safety_impl_;
-
-  // Used with IMPL_HASH.
   typedef std::map<int, scoped_refptr<CefV8ContextState> > ContextMap;
   ContextMap context_map_;
 

@@ -601,7 +601,6 @@ struct CefSettingsTraits {
     target->pack_loading_disabled = src->pack_loading_disabled;
     target->remote_debugging_port = src->remote_debugging_port;
     target->uncaught_exception_stack_size = src->uncaught_exception_stack_size;
-    target->context_safety_implementation = src->context_safety_implementation;
     target->ignore_certificate_errors = src->ignore_certificate_errors;
     target->enable_net_security_expiration =
         src->enable_net_security_expiration;

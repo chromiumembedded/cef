@@ -433,11 +433,6 @@ bool CefMainDelegate::BasicStartupComplete(int* exit_code) {
       command_line->AppendSwitchASCII(switches::kUncaughtExceptionStackSize,
         base::IntToString(settings.uncaught_exception_stack_size));
     }
-
-    if (settings.context_safety_implementation != 0) {
-      command_line->AppendSwitchASCII(switches::kContextSafetyImplementation,
-          base::IntToString(settings.context_safety_implementation));
-    }
   }
 
   if (content_client_.application().get()) {

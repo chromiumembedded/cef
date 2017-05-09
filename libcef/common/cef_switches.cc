@@ -29,9 +29,6 @@ const char kDisablePackLoading[]          = "disable-pack-loading";
 // Stack size for uncaught exceptions.
 const char kUncaughtExceptionStackSize[]  = "uncaught-exception-stack-size";
 
-// Context safety implementation type.
-const char kContextSafetyImplementation[] = "context-safety-implementation";
-
 // Default encoding.
 const char kDefaultEncoding[]             = "default-encoding";
 
