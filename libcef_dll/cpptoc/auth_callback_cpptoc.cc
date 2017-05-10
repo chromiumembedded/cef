@@ -28,10 +28,7 @@ void CEF_CALLBACK auth_callback_cont(struct _cef_auth_callback_t* self,
   DCHECK(username);
   if (!username)
     return;
-  // Verify param: password; type: string_byref_const
-  DCHECK(password);
-  if (!password)
-    return;
+  // Unverified params: password
 
   // Execute
   CefAuthCallbackCppToC::Get(self)->Continue(
