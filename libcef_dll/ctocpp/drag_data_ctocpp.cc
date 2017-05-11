@@ -11,6 +11,7 @@
 //
 
 #include "libcef_dll/ctocpp/drag_data_ctocpp.h"
+#include "libcef_dll/ctocpp/image_ctocpp.h"
 #include "libcef_dll/ctocpp/stream_writer_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -370,6 +371,48 @@ void CefDragDataCToCpp::AddFile(const CefString& path,
   _struct->add_file(_struct,
       path.GetStruct(),
       display_name.GetStruct());
+}
+
+CefRefPtr<CefImage> CefDragDataCToCpp::GetImage() {
+  cef_drag_data_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_image))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_image_t* _retval = _struct->get_image(_struct);
+
+  // Return type: refptr_same
+  return CefImageCToCpp::Wrap(_retval);
+}
+
+CefPoint CefDragDataCToCpp::GetImageHotspot() {
+  cef_drag_data_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_image_hotspot))
+    return CefPoint();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_point_t _retval = _struct->get_image_hotspot(_struct);
+
+  // Return type: simple
+  return _retval;
+}
+
+bool CefDragDataCToCpp::HasImage() {
+  cef_drag_data_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, has_image))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  int _retval = _struct->has_image(_struct);
+
+  // Return type: bool
+  return _retval?true:false;
 }
 
 

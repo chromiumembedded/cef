@@ -7,6 +7,7 @@
 #pragma once
 
 #include "include/cef_drag_data.h"
+#include "include/cef_image.h"
 
 #include <vector>
 
@@ -18,6 +19,9 @@ class CefDragDataImpl : public CefDragData {
  public:
   CefDragDataImpl();
   explicit CefDragDataImpl(const content::DropData& data);
+  CefDragDataImpl(const content::DropData& data,
+                  CefRefPtr<CefImage> image,
+                  const CefPoint& image_hotspot);
 
   CefRefPtr<CefDragData> Clone() override;
   bool IsReadOnly() override;
@@ -41,6 +45,9 @@ class CefDragDataImpl : public CefDragData {
   void SetFragmentBaseURL(const CefString& fragment) override;
   void ResetFileContents() override;
   void AddFile(const CefString& path, const CefString& display_name) override;
+  CefRefPtr<CefImage> GetImage() override;
+  CefPoint GetImageHotspot() override;
+  bool HasImage() override;
 
   // This method is not safe. Use Lock/Unlock to get mutually exclusive access.
   content::DropData* drop_data() {
@@ -53,6 +60,8 @@ class CefDragDataImpl : public CefDragData {
 
  private:
   content::DropData data_;
+  CefRefPtr<CefImage> image_;
+  CefPoint image_hotspot_;
 
   // True if this object is read-only.
   bool read_only_;
