@@ -82,6 +82,8 @@ class BrowserWindowOsrGtk : public BrowserWindow,
       const CefRenderHandler::RectList& character_bounds) OVERRIDE;
 
  private:
+  ~BrowserWindowOsrGtk();
+
   // Create the GTK GlArea.
   void Create(ClientWindowHandle parent_handle);
 
@@ -113,6 +115,51 @@ class BrowserWindowOsrGtk : public BrowserWindow,
   void EnableGL();
   void DisableGL();
 
+  // Drag & drop
+  void RegisterDragDrop();
+  void UnregisterDragDrop();
+  void DragReset();
+  static void DragBegin(GtkWidget* widget,
+                        GdkDragContext* drag_context,
+                        BrowserWindowOsrGtk* self);
+  static void DragDataGet(GtkWidget* widget,
+                          GdkDragContext* drag_context,
+                          GtkSelectionData* data,
+                          guint info,
+                          guint time,
+                          BrowserWindowOsrGtk* self);
+  static void DragEnd(GtkWidget* widget,
+                      GdkDragContext* drag_context,
+                      BrowserWindowOsrGtk* self);
+  static gboolean DragMotion(GtkWidget* widget,
+                             GdkDragContext* drag_context,
+                             gint x,
+                             gint y,
+                             guint time,
+                             BrowserWindowOsrGtk* self);
+  static void DragLeave(GtkWidget* widget,
+                        GdkDragContext* drag_context,
+                        guint time,
+                        BrowserWindowOsrGtk* self);
+  static gboolean DragFailed(GtkWidget* widget,
+                             GdkDragContext* drag_context,
+                             GtkDragResult result,
+                             BrowserWindowOsrGtk* self);
+  static gboolean DragDrop(GtkWidget* widget,
+                           GdkDragContext* drag_context,
+                           gint x,
+                           gint y,
+                           guint time,
+                           BrowserWindowOsrGtk* self);
+  static void DragDataReceived(GtkWidget* widget,
+                               GdkDragContext* drag_context,
+                               gint x,
+                               gint y,
+                               GtkSelectionData* data,
+                               guint info,
+                               guint time,
+                               BrowserWindowOsrGtk* self);
+
   // The below members will only be accessed on the main thread which should be
   // the same as the CEF UI thread.
   OsrRenderer renderer_;
@@ -122,6 +169,15 @@ class BrowserWindowOsrGtk : public BrowserWindow,
   bool painting_popup_;
 
   float device_scale_factor_;
+
+  // Drag & drop
+  GdkEvent* drag_trigger_event_;  // mouse event, a possible trigger for drag
+  CefRefPtr<CefDragData> drag_data_;
+  CefRenderHandler::DragOperation drag_operation_;
+  GdkDragContext* drag_context_;
+  GtkTargetList* drag_targets_;
+  bool drag_leave_;
+  bool drag_drop_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserWindowOsrGtk);
 };
