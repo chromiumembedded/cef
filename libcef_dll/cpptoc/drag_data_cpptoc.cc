@@ -11,6 +11,7 @@
 //
 
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
+#include "libcef_dll/cpptoc/image_cpptoc.h"
 #include "libcef_dll/cpptoc/stream_writer_cpptoc.h"
 #include "libcef_dll/transfer_util.h"
 
@@ -367,6 +368,50 @@ void CEF_CALLBACK drag_data_add_file(struct _cef_drag_data_t* self,
       CefString(display_name));
 }
 
+struct _cef_image_t* CEF_CALLBACK drag_data_get_image(
+    struct _cef_drag_data_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefImage> _retval = CefDragDataCppToC::Get(self)->GetImage();
+
+  // Return type: refptr_same
+  return CefImageCppToC::Wrap(_retval);
+}
+
+cef_point_t CEF_CALLBACK drag_data_get_image_hotspot(
+    struct _cef_drag_data_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return CefPoint();
+
+  // Execute
+  cef_point_t _retval = CefDragDataCppToC::Get(self)->GetImageHotspot();
+
+  // Return type: simple
+  return _retval;
+}
+
+int CEF_CALLBACK drag_data_has_image(struct _cef_drag_data_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return 0;
+
+  // Execute
+  bool _retval = CefDragDataCppToC::Get(self)->HasImage();
+
+  // Return type: bool
+  return _retval;
+}
+
 }  // namespace
 
 
@@ -395,6 +440,9 @@ CefDragDataCppToC::CefDragDataCppToC() {
   GetStruct()->set_fragment_base_url = drag_data_set_fragment_base_url;
   GetStruct()->reset_file_contents = drag_data_reset_file_contents;
   GetStruct()->add_file = drag_data_add_file;
+  GetStruct()->get_image = drag_data_get_image;
+  GetStruct()->get_image_hotspot = drag_data_get_image_hotspot;
+  GetStruct()->has_image = drag_data_has_image;
 }
 
 template<> CefRefPtr<CefDragData> CefCppToCRefCounted<CefDragDataCppToC,

@@ -1007,6 +1007,27 @@ class OSRTestHandler : public RoutingTestHandler,
                      CefRenderHandler::DragOperationsMask allowed_ops,
                      int x, int y) override {
     if (test_type_ == OSR_TEST_DRAG_DROP_START_DRAGGING && started()) {
+      // Verify the drag image representation.
+      EXPECT_TRUE(drag_data->HasImage());
+      CefRefPtr<CefImage> image = drag_data->GetImage();
+      EXPECT_TRUE(image.get() != NULL);
+      if (image.get()) {
+        // Drag image height seems to always be + 1px greater than the drag rect
+        // on Linux. Therefore allow it to be +/- 1px.
+        EXPECT_NEAR(static_cast<int>(image->GetWidth()),
+                    GetScaledInt(kDragDivRect.width), 1);
+        EXPECT_NEAR(static_cast<int>(image->GetHeight()),
+                    GetScaledInt(kDragDivRect.height), 1);
+      }
+      // During testing hotspot (x, y) was (15, 23) at 1x scale and (15, 18) at
+      // 2x scale. Since the mechanism for determining this position is unclear
+      // test only that it falls within the rect boundaries.
+      CefPoint hotspot = drag_data->GetImageHotspot();
+      EXPECT_GT(hotspot.x, 0);
+      EXPECT_LT(hotspot.x, GetScaledInt(kDragDivRect.width));
+      EXPECT_GT(hotspot.y, 0);
+      EXPECT_LT(hotspot.y, GetScaledInt(kDragDivRect.height));
+
       DestroySucceededTestSoon();
       return false;
     } else if ((test_type_ == OSR_TEST_DRAG_DROP_UPDATE_CURSOR ||
