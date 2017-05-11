@@ -48,13 +48,13 @@
 #     libgtkglext1-dev  (required by the cefclient target only)
 #
 # - Mac OS X requirements:
-#   Xcode 5 or newer building on Mac OS X 10.9 (Mavericks) or newer. Xcode 7.2
-#   and OS X 10.11 are recommended. The Xcode command-line tools must also be
+#   Xcode 5 or newer building on Mac OS X 10.9 (Mavericks) or newer. Xcode 8.3
+#   and OS X 10.12 are recommended. The Xcode command-line tools must also be
 #   installed. Only 64-bit builds are supported on OS X.
 #
 # - Windows requirements:
 #   Visual Studio 2010 or newer building on Windows 7 or newer. Visual Studio
-#   2015 Update 2 and Windows 10 64-bit are recommended.
+#   2015 Update 3 and Windows 10 64-bit are recommended.
 #
 # BUILD EXAMPLES
 #
