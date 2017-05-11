@@ -54,6 +54,9 @@ class CefDragDataCToCpp
   void SetFragmentBaseURL(const CefString& base_url) OVERRIDE;
   void ResetFileContents() OVERRIDE;
   void AddFile(const CefString& path, const CefString& display_name) OVERRIDE;
+  CefRefPtr<CefImage> GetImage() OVERRIDE;
+  CefPoint GetImageHotspot() OVERRIDE;
+  bool HasImage() OVERRIDE;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DRAG_DATA_CTOCPP_H_
