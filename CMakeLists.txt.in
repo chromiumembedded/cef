@@ -199,10 +199,12 @@ add_subdirectory(${CEF_LIBCEF_DLL_WRAPPER_PATH} libcef_dll_wrapper)
 # Include application targets.
 # Comes from the <target>/CMakeLists.txt file in the current directory.
 # TODO: Change these lines to match your project target when you copy this file.
-add_subdirectory(tests/cefclient)
-add_subdirectory(tests/cefsimple)
-add_subdirectory(tests/gtest)
-add_subdirectory(tests/ceftests)
+if(EXISTS tests)
+  add_subdirectory(tests/cefclient)
+  add_subdirectory(tests/cefsimple)
+  add_subdirectory(tests/gtest)
+  add_subdirectory(tests/ceftests)
+endif()
 
 # Display configuration settings.
 PRINT_CEF_CONFIG()
