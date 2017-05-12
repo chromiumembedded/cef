@@ -39,6 +39,7 @@
 #include "include/cef_web_plugin.h"
 #include "include/capi/cef_web_plugin_capi.h"
 #include "include/cef_version.h"
+#include "libcef_dll/cpptoc/accessibility_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/app_cpptoc.h"
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/views/browser_view_delegate_cpptoc.h"
@@ -229,6 +230,8 @@ CEF_GLOBAL void CefShutdown() {
 
 #if DCHECK_IS_ON()
   // Check that all wrapper objects have been destroyed
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefAccessibilityHandlerCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefAuthCallbackCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefBeforeDownloadCallbackCToCpp::DebugObjCt));

@@ -103,6 +103,7 @@ class CefBrowserHostCToCpp
   void DragSourceEndedAt(int x, int y, DragOperationsMask op) OVERRIDE;
   void DragSourceSystemDragEnded() OVERRIDE;
   CefRefPtr<CefNavigationEntry> GetVisibleNavigationEntry() OVERRIDE;
+  void SetAccessibilityState(cef_state_t accessibility_state) OVERRIDE;
 };
 
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_

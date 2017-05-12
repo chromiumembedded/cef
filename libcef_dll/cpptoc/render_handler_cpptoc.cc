@@ -10,6 +10,7 @@
 // for more information.
 //
 
+#include "libcef_dll/cpptoc/accessibility_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/render_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/browser_ctocpp.h"
 #include "libcef_dll/ctocpp/drag_data_ctocpp.h"
@@ -18,6 +19,22 @@
 namespace {
 
 // MEMBER FUNCTIONS - Body may be edited by hand.
+
+cef_accessibility_handler_t* CEF_CALLBACK render_handler_get_accessibility_handler(
+    struct _cef_render_handler_t* self) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return NULL;
+
+  // Execute
+  CefRefPtr<CefAccessibilityHandler> _retval = CefRenderHandlerCppToC::Get(
+      self)->GetAccessibilityHandler();
+
+  // Return type: refptr_same
+  return CefAccessibilityHandlerCppToC::Wrap(_retval);
+}
 
 int CEF_CALLBACK render_handler_get_root_screen_rect(
     struct _cef_render_handler_t* self, cef_browser_t* browser,
@@ -396,6 +413,8 @@ void CEF_CALLBACK render_handler_on_ime_composition_range_changed(
 // CONSTRUCTOR - Do not edit by hand.
 
 CefRenderHandlerCppToC::CefRenderHandlerCppToC() {
+  GetStruct()->get_accessibility_handler =
+      render_handler_get_accessibility_handler;
   GetStruct()->get_root_screen_rect = render_handler_get_root_screen_rect;
   GetStruct()->get_view_rect = render_handler_get_view_rect;
   GetStruct()->get_screen_point = render_handler_get_screen_point;

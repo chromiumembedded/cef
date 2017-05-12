@@ -1279,6 +1279,10 @@ void BrowserWindowOsrGtk::OnImeCompositionRangeChanged(
   CEF_REQUIRE_UI_THREAD();
 }
 
+void BrowserWindowOsrGtk::UpdateAccessibilityTree(CefRefPtr<CefValue> value) {
+  CEF_REQUIRE_UI_THREAD();
+}
+
 void BrowserWindowOsrGtk::Create(ClientWindowHandle parent_handle) {
   REQUIRE_MAIN_THREAD();
   DCHECK(!glarea_);

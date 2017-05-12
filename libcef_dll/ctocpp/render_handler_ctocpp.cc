@@ -12,10 +12,27 @@
 
 #include "libcef_dll/cpptoc/browser_cpptoc.h"
 #include "libcef_dll/cpptoc/drag_data_cpptoc.h"
+#include "libcef_dll/ctocpp/accessibility_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/render_handler_ctocpp.h"
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
+
+CefRefPtr<CefAccessibilityHandler> CefRenderHandlerCToCpp::GetAccessibilityHandler(
+    ) {
+  cef_render_handler_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_accessibility_handler))
+    return NULL;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_accessibility_handler_t* _retval = _struct->get_accessibility_handler(
+      _struct);
+
+  // Return type: refptr_same
+  return CefAccessibilityHandlerCToCpp::Wrap(_retval);
+}
 
 bool CefRenderHandlerCToCpp::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
     CefRect& rect) {

@@ -107,6 +107,7 @@ const char kKeyTestWord[] = "done";
 #define VKEY_N        0x4E
 #define VKEY_E        0x45
 #define VKEY_ESCAPE   0x1B
+#define VKEY_TAB      0x09
 
 const unsigned int kNativeKeyTestCodes[] = {
   XK_d,
@@ -116,6 +117,7 @@ const unsigned int kNativeKeyTestCodes[] = {
 };
 
 const unsigned int kNativeKeyEscape = XK_Escape;
+const unsigned int kNativeKeyTab = XK_Tab;
 
 #elif defined(OS_MACOSX)
 
@@ -125,6 +127,7 @@ const unsigned int kNativeKeyEscape = XK_Escape;
 #define VKEY_N        'n'
 #define VKEY_E        'e'
 #define VKEY_ESCAPE   kEscapeCharCode
+#define VKEY_TAB      kTabCharCode
 
 const unsigned int kNativeKeyTestCodes[] = {
   kVK_ANSI_D,
@@ -134,6 +137,7 @@ const unsigned int kNativeKeyTestCodes[] = {
 };
 
 const unsigned int kNativeKeyEscape = kVK_Escape;
+const unsigned int kNativeKeyTab = kVK_Tab;
 
 #endif
 
@@ -154,6 +158,12 @@ enum OSRTestType {
   OSR_TEST_IS_WINDOWLESS,
   // focusing webview, LI00 will get red & repainted
   OSR_TEST_FOCUS,
+  // tab key traversal should iterate the focus across HTML element and
+  // subsequently after last element CefFocusHandler::OnTakeFocus should be
+  // called to allow giving focus to the next component.
+  OSR_TEST_TAKE_FOCUS,
+  // send focus event should set focus on the webview
+  OSR_TEST_GOT_FOCUS,
   // loading webview should trigger a full paint (L01)
   OSR_TEST_PAINT,
   // same as OSR_TEST_PAINT but with alpha values
@@ -509,6 +519,23 @@ class OSRTestHandler : public RoutingTestHandler,
       case OSR_TEST_FOCUS:
         if (StartTest()) {
           // body.onfocus will make LI00 red
+          browser->GetHost()->SendFocusEvent(true);
+        }
+        break;
+      case OSR_TEST_TAKE_FOCUS:
+        if (StartTest() || started()) {
+          // Tab traversal across HTML element
+#if defined(OS_WIN)
+          SendKeyEvent(browser, VK_TAB);
+#elif defined(OS_MACOSX) || defined(OS_LINUX)
+          SendKeyEvent(browser, kNativeKeyTab, VKEY_TAB);
+#else
+#error "Unsupported platform"
+#endif
+        }
+        break;
+      case OSR_TEST_GOT_FOCUS:
+        if (StartTest()) {
           browser->GetHost()->SendFocusEvent(true);
         }
         break;
@@ -980,6 +1007,21 @@ class OSRTestHandler : public RoutingTestHandler,
     return false;
   }
 
+  void OnTakeFocus(CefRefPtr<CefBrowser> browser,
+                  bool next) {
+    if (test_type_ == OSR_TEST_TAKE_FOCUS) {
+      EXPECT_TRUE(true);
+      DestroySucceededTestSoon();
+    }
+  }
+
+  void OnGotFocus(CefRefPtr<CefBrowser> browser) {
+    if (test_type_ == OSR_TEST_GOT_FOCUS) {
+      EXPECT_TRUE(true);
+      DestroySucceededTestSoon();
+    }
+  }
+
   void OnCursorChange(CefRefPtr<CefBrowser> browser,
                       CefCursorHandle cursor,
                       CursorType type,
@@ -1319,6 +1361,10 @@ OSR_TEST(Windowless, OSR_TEST_IS_WINDOWLESS, 1.0f);
 OSR_TEST(Windowless2x, OSR_TEST_IS_WINDOWLESS, 2.0f);
 OSR_TEST(Focus, OSR_TEST_FOCUS, 1.0f);
 OSR_TEST(Focus2x, OSR_TEST_FOCUS, 2.0f);
+OSR_TEST(TakeFocus, OSR_TEST_TAKE_FOCUS, 1.0f);
+OSR_TEST(TakeFocus2x, OSR_TEST_TAKE_FOCUS, 2.0f);
+OSR_TEST(GotFocus, OSR_TEST_GOT_FOCUS, 1.0f);
+OSR_TEST(GotFocus2x, OSR_TEST_GOT_FOCUS, 2.0f);
 OSR_TEST(Paint, OSR_TEST_PAINT, 1.0f);
 OSR_TEST(Paint2x, OSR_TEST_PAINT, 2.0f);
 OSR_TEST(TransparentPaint, OSR_TEST_TRANSPARENCY, 1.0f);

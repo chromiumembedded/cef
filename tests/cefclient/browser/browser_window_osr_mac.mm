@@ -13,9 +13,13 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "tests/cefclient/browser/bytes_write_handler.h"
 #include "tests/cefclient/browser/main_context.h"
+#include "tests/cefclient/browser/osr_accessibility_helper.h"
+#include "tests/cefclient/browser/osr_accessibility_node.h"
 #include "tests/cefclient/browser/text_input_client_osr_mac.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
+
+#import <AppKit/NSAccessibility.h>
 
 namespace {
 
@@ -29,7 +33,7 @@ CefTextInputClientOSRMac* GetInputClientFromContext(
 }  // namespace
 
 @interface BrowserOpenGLView
-    : NSOpenGLView <NSDraggingSource, NSDraggingDestination> {
+    : NSOpenGLView <NSDraggingSource, NSDraggingDestination, NSAccessibility> {
  @private
   NSTrackingArea* tracking_area_;
   client::BrowserWindowOsrMac* browser_window_;
@@ -51,6 +55,9 @@ CefTextInputClientOSRMac* GetInputClientFromContext(
 
   // For intreacting with IME.
   NSTextInputContext* text_input_context_osr_mac_;
+
+  // Manages Accessibility Tree
+  client::OsrAccessibilityHelper* accessibility_helper_;
 
   // Event monitor for scroll wheel end event.
   id endWheelMonitor_;
@@ -99,6 +106,7 @@ CefTextInputClientOSRMac* GetInputClientFromContext(
 - (NSRect)convertRectToBackingInternal:(NSRect)aRect;
 - (void)ChangeCompositionRange:(CefRange)range
         character_bounds:(const CefRenderHandler::RectList&) character_bounds;
+- (void)UpdateAccessibilityTree:(CefRefPtr<CefValue>)value;
 @end
 
 
@@ -948,6 +956,50 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
   }
 }
 
+// NSAccessibility Protocol implementation.
+- (BOOL)accessibilityIsIgnored {
+  if(!accessibility_helper_)
+    return YES;
+  else
+    return NO;
+}
+
+- (id)accessibilityAttributeValue:(NSString *)attribute {
+  if(!accessibility_helper_)
+    return [super accessibilityAttributeValue:attribute];
+  if ([attribute isEqualToString:NSAccessibilityRoleAttribute]) {
+    return NSAccessibilityGroupRole;
+  } else if ([attribute isEqualToString:NSAccessibilityDescriptionAttribute]) {
+    client::OsrAXNode* node = accessibility_helper_->GetRootNode();
+    std::string desc = node ? node->AxDescription(): "";
+    return [NSString stringWithUTF8String:desc.c_str()];
+  } else if ([attribute isEqualToString:NSAccessibilityValueAttribute]) {
+    client::OsrAXNode* node = accessibility_helper_->GetRootNode();
+    std::string desc = node ? node->AxValue(): "";
+    return [NSString stringWithUTF8String:desc.c_str()];
+  } else if ([attribute isEqualToString:
+              NSAccessibilityRoleDescriptionAttribute]) {
+    return NSAccessibilityRoleDescriptionForUIElement(self);
+  } else if ([attribute isEqualToString:NSAccessibilityChildrenAttribute]) {
+    client::OsrAXNode* node = accessibility_helper_->GetRootNode();
+    // Add Root as first Kid
+    NSMutableArray* kids = [NSMutableArray arrayWithCapacity:1];
+    NSObject* child = node->GetNativeAccessibleObject(NULL);
+    [kids addObject: child];
+    return NSAccessibilityUnignoredChildren(kids);
+  } else {
+    return [super accessibilityAttributeValue:attribute];
+  }
+}
+
+- (id)accessibilityFocusedUIElement {
+  if (accessibility_helper_) {
+    client::OsrAXNode* node = accessibility_helper_->GetFocusedNode();
+    return node ? node->GetNativeAccessibleObject(NULL) : nil;
+  }
+  return nil;
+}
+
 // Utility methods.
 - (void)resetDragDrop {
   current_drag_op_ = NSDragOperationNone;
@@ -1141,6 +1193,21 @@ NSPoint ConvertPointFromWindowToScreen(NSWindow* window, NSPoint point) {
       GetInputClientFromContext(text_input_context_osr_mac_);
   if (client)
     [client ChangeCompositionRange: range character_bounds:bounds];
+}
+
+- (void)UpdateAccessibilityTree:(CefRefPtr<CefValue>)value {
+  if (!accessibility_helper_) {
+    accessibility_helper_ = new client::OsrAccessibilityHelper(value,
+        [self getBrowser]);
+  } else {
+    accessibility_helper_->UpdateAccessibilityTree(value);
+  }
+
+  if (accessibility_helper_) {
+    NSAccessibilityPostNotification(self,
+                                    NSAccessibilityValueChangedNotification);
+  }
+  return;
 }
 @end
 
@@ -1490,6 +1557,14 @@ void BrowserWindowOsrMac::OnImeCompositionRangeChanged(
   if (nsview_) {
     [GLView(nsview_) ChangeCompositionRange:selection_range
                            character_bounds:bounds];
+  }
+}
+
+void BrowserWindowOsrMac::UpdateAccessibilityTree(CefRefPtr<CefValue> value) {
+  CEF_REQUIRE_UI_THREAD();
+
+  if (nsview_) {
+    [GLView(nsview_) UpdateAccessibilityTree:value];
   }
 }
 
