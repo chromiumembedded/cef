@@ -5,13 +5,18 @@
 #include "tests/cefclient/browser/osr_window_win.h"
 
 #include <windowsx.h>
+#if defined(CEF_USE_ATL)
+#include <oleacc.h>
+#endif
 
 #include "include/base/cef_build.h"
 #include "tests/shared/browser/geometry_util.h"
 #include "tests/shared/browser/main_message_loop.h"
 #include "tests/cefclient/browser/main_context.h"
-#include "tests/cefclient/browser/resource.h"
+#include "tests/cefclient/browser/osr_accessibility_helper.h"
+#include "tests/cefclient/browser/osr_accessibility_node.h"
 #include "tests/cefclient/browser/osr_ime_handler_win.h"
+#include "tests/cefclient/browser/resource.h"
 #include "tests/shared/browser/util_win.h"
 
 namespace client {
@@ -250,6 +255,8 @@ void OsrWindowWin::Create(HWND parent_hwnd, const RECT& rect) {
   SetUserDataPtr(hwnd_, this);
 
 #if defined(CEF_USE_ATL)
+  accessibility_root_ = NULL;
+
   // Create/register the drag&drop handler.
   drop_target_ = DropTargetWin::Create(this, hwnd_);
   HRESULT register_res = RegisterDragDrop(hwnd_, drop_target_);
@@ -486,7 +493,25 @@ LRESULT CALLBACK OsrWindowWin::OsrWndProc(HWND hWnd, UINT message,
       self->OnIMECancelCompositionEvent();
       // Let WTL call::DefWindowProc() and release its resources.
       break;
+#if defined(CEF_USE_ATL)
+    case WM_GETOBJECT: {
+      // Only the lower 32 bits of lParam are valid when checking the object id
+      // because it sometimes gets sign-extended incorrectly (but not always).
+      DWORD obj_id = static_cast<DWORD>(static_cast<DWORD_PTR>(lParam));
 
+      // Accessibility readers will send an OBJID_CLIENT message.
+      if (static_cast<DWORD>(OBJID_CLIENT) == obj_id) {
+        if (self->accessibility_root_) {
+          return LresultFromObject(IID_IAccessible, wParam,
+              static_cast<IAccessible*>(self->accessibility_root_));
+        } else {
+          // Notify the renderer to enable accessibility.
+          if (self->browser_ && self->browser_->GetHost())
+            self->browser_->GetHost()->SetAccessibilityState(STATE_ENABLED);
+        }
+      }
+    } break;
+#endif
     case WM_LBUTTONDOWN:
     case WM_RBUTTONDOWN:
     case WM_MBUTTONDOWN:
@@ -1012,6 +1037,23 @@ void OsrWindowWin::OnImeCompositionRangeChanged(
 
     ime_handler_->ChangeCompositionRange(selection_range, device_bounds);
   }
+}
+
+void OsrWindowWin::UpdateAccessibilityTree(CefRefPtr<CefValue> value) {
+  CEF_REQUIRE_UI_THREAD();
+
+#if defined(CEF_USE_ATL)
+  if (!accessibility_handler_) {
+    accessibility_handler_.reset(new OsrAccessibilityHelper(value, browser_));
+  } else {
+    accessibility_handler_->UpdateAccessibilityTree(value);
+  }
+
+  // Update |accessibility_root_| because UpdateAccessibilityTree may have
+  // cleared it.
+  OsrAXNode* root = accessibility_handler_->GetRootNode();
+  accessibility_root_ = root ? root->GetNativeAccessibleObject(NULL) : NULL;
+#endif  // defined(CEF_USE_ATL)
 }
 
 #if defined(CEF_USE_ATL)

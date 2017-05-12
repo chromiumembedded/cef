@@ -13,6 +13,7 @@ namespace client {
 // Client handler implementation for windowless browsers. There will only ever
 // be one browser per handler instance.
 class ClientHandlerOsr : public ClientHandler,
+                         public CefAccessibilityHandler,
                          public CefRenderHandler {
  public:
   // Implement this interface to receive notification of ClientHandlerOsr
@@ -61,6 +62,8 @@ class ClientHandlerOsr : public ClientHandler,
         const CefRange& selection_range,
         const CefRenderHandler::RectList& character_bounds) = 0;
 
+    virtual void UpdateAccessibilityTree(CefRefPtr<CefValue> value) = 0;
+
    protected:
     virtual ~OsrDelegate() {}
   };
@@ -75,6 +78,9 @@ class ClientHandlerOsr : public ClientHandler,
 
   // CefClient methods.
   CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE {
+    return this;
+  }
+  CefRefPtr<CefAccessibilityHandler> GetAccessibilityHandler() OVERRIDE {
     return this;
   }
 
@@ -117,6 +123,10 @@ class ClientHandlerOsr : public ClientHandler,
       CefRefPtr<CefBrowser> browser,
       const CefRange& selection_range,
       const CefRenderHandler::RectList& character_bounds) OVERRIDE;
+
+  // CefAccessibilityHandler methods.
+  void OnAccessibilityTreeChange(CefRefPtr<CefValue> value) OVERRIDE;
+  void OnAccessibilityLocationChange(CefRefPtr<CefValue> value) OVERRIDE {}
 
  private:
   // Only accessed on the UI thread.

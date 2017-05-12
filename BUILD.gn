@@ -380,6 +380,8 @@ static_library("libcef_static") {
     "libcef/browser/origin_whitelist_impl.h",
     "libcef/browser/osr/browser_platform_delegate_osr.cc",
     "libcef/browser/osr/browser_platform_delegate_osr.h",
+    "libcef/browser/osr/osr_accessibility_util.cc",
+    "libcef/browser/osr/osr_accessibility_util.h",
     "libcef/browser/osr/osr_util.cc",
     "libcef/browser/osr/osr_util.h",
     "libcef/browser/osr/render_widget_host_view_osr.cc",
@@ -1738,11 +1740,12 @@ if (is_mac) {
 
       libs = [
         "comctl32.lib",
-        "shlwapi.lib",
-        "rpcrt4.lib",
-        "opengl32.lib",
         "glu32.lib",
         "imm32.lib",
+        "oleacc.lib",
+        "opengl32.lib",
+        "rpcrt4.lib",
+        "shlwapi.lib",
       ]
     }
 

@@ -648,6 +648,19 @@ void RootWindowMac::OnSetLoadingState(bool isLoading,
     [back_button_ setEnabled:canGoBack];
     [forward_button_ setEnabled:canGoForward];
   }
+
+  // After Loading is done, check if voiceover is running and accessibility
+  // should be enabled.
+  if (!isLoading) {
+    Boolean keyExists = false;
+    // On OSX there is no API to query if VoiceOver is active or not. The value
+    // however is stored in preferences that can be queried.
+    if (CFPreferencesGetAppBooleanValue(CFSTR("voiceOverOnOffKey"),
+                                        CFSTR("com.apple.universalaccess"),
+                                        &keyExists)) {
+      GetBrowser()->GetHost()->SetAccessibilityState(STATE_ENABLED);
+    }
+  }
 }
 
 void RootWindowMac::NotifyDestroyedIfDone() {

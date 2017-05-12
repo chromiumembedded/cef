@@ -38,6 +38,7 @@
 #define CEF_INCLUDE_CAPI_CEF_RENDER_HANDLER_CAPI_H_
 #pragma once
 
+#include "include/capi/cef_accessibility_handler_capi.h"
 #include "include/capi/cef_base_capi.h"
 #include "include/capi/cef_browser_capi.h"
 #include "include/capi/cef_drag_data_capi.h"
@@ -56,6 +57,14 @@ typedef struct _cef_render_handler_t {
   // Base structure.
   ///
   cef_base_ref_counted_t base;
+
+  ///
+  // Return the handler for accessibility notifications. If no handler is
+  // provided the default implementation will be used.
+  ///
+  struct _cef_accessibility_handler_t* (
+      CEF_CALLBACK *get_accessibility_handler)(
+      struct _cef_render_handler_t* self);
 
   ///
   // Called to retrieve the root window rectangle in screen coordinates. Return

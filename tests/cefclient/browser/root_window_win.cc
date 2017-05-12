@@ -541,6 +541,18 @@ LRESULT CALLBACK RootWindowWin::RootWndProc(HWND hWnd, UINT message,
         return 0;
       break;
 
+    case WM_GETOBJECT: {
+      // Only the lower 32 bits of lParam are valid when checking the object id
+      // because it sometimes gets sign-extended incorrectly (but not always).
+      DWORD obj_id = static_cast<DWORD>(static_cast<DWORD_PTR>(lParam));
+
+      // Accessibility readers will send an OBJID_CLIENT message.
+      if (static_cast<DWORD>(OBJID_CLIENT) == obj_id) {
+        if (self->GetBrowser() && self->GetBrowser()->GetHost())
+          self->GetBrowser()->GetHost()->SetAccessibilityState(STATE_ENABLED);
+      }
+    } break;
+
     case WM_PAINT:
       self->OnPaint();
       return 0;

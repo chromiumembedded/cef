@@ -12,6 +12,7 @@
 {
   'variables': {
     'autogen_cpp_includes': [
+      'include/cef_accessibility_handler.h',
       'include/cef_app.h',
       'include/cef_auth_callback.h',
       'include/cef_browser.h',
@@ -100,6 +101,7 @@
       'include/views/cef_window_delegate.h',
     ],
     'autogen_capi_includes': [
+      'include/capi/cef_accessibility_handler_capi.h',
       'include/capi/cef_app_capi.h',
       'include/capi/cef_auth_callback_capi.h',
       'include/capi/cef_browser_capi.h',
@@ -188,6 +190,8 @@
       'include/capi/views/cef_window_delegate_capi.h',
     ],
     'autogen_library_side': [
+      'libcef_dll/ctocpp/accessibility_handler_ctocpp.cc',
+      'libcef_dll/ctocpp/accessibility_handler_ctocpp.h',
       'libcef_dll/ctocpp/app_ctocpp.cc',
       'libcef_dll/ctocpp/app_ctocpp.h',
       'libcef_dll/cpptoc/auth_callback_cpptoc.cc',
@@ -460,6 +464,8 @@
       'libcef_dll/cpptoc/zip_reader_cpptoc.h',
     ],
     'autogen_client_side': [
+      'libcef_dll/cpptoc/accessibility_handler_cpptoc.cc',
+      'libcef_dll/cpptoc/accessibility_handler_cpptoc.h',
       'libcef_dll/cpptoc/app_cpptoc.cc',
       'libcef_dll/cpptoc/app_cpptoc.h',
       'libcef_dll/ctocpp/auth_callback_ctocpp.cc',

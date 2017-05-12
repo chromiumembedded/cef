@@ -31,6 +31,7 @@ class CefRenderHandlerCToCpp
   CefRenderHandlerCToCpp();
 
   // CefRenderHandler methods.
+  CefRefPtr<CefAccessibilityHandler> GetAccessibilityHandler() override;
   bool GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
   bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
   bool GetScreenPoint(CefRefPtr<CefBrowser> browser, int viewX, int viewY,

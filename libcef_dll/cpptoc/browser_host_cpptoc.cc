@@ -1005,6 +1005,19 @@ struct _cef_navigation_entry_t* CEF_CALLBACK browser_host_get_visible_navigation
   return CefNavigationEntryCppToC::Wrap(_retval);
 }
 
+void CEF_CALLBACK browser_host_set_accessibility_state(
+    struct _cef_browser_host_t* self, cef_state_t accessibility_state) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  DCHECK(self);
+  if (!self)
+    return;
+
+  // Execute
+  CefBrowserHostCppToC::Get(self)->SetAccessibilityState(
+      accessibility_state);
+}
+
 }  // namespace
 
 
@@ -1072,6 +1085,7 @@ CefBrowserHostCppToC::CefBrowserHostCppToC() {
       browser_host_drag_source_system_drag_ended;
   GetStruct()->get_visible_navigation_entry =
       browser_host_get_visible_navigation_entry;
+  GetStruct()->set_accessibility_state = browser_host_set_accessibility_state;
 }
 
 template<> CefRefPtr<CefBrowserHost> CefCppToCRefCounted<CefBrowserHostCppToC,

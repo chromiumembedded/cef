@@ -107,6 +107,7 @@
 #include "libcef_dll/cpptoc/x509certificate_cpptoc.h"
 #include "libcef_dll/cpptoc/xml_reader_cpptoc.h"
 #include "libcef_dll/cpptoc/zip_reader_cpptoc.h"
+#include "libcef_dll/ctocpp/accessibility_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/app_ctocpp.h"
 #include "libcef_dll/ctocpp/browser_process_handler_ctocpp.h"
 #include "libcef_dll/ctocpp/views/browser_view_delegate_ctocpp.h"
@@ -237,6 +238,8 @@ CEF_EXPORT void cef_shutdown() {
 
 #if DCHECK_IS_ON()
   // Check that all wrapper objects have been destroyed
+  DCHECK(base::AtomicRefCountIsZero(
+      &CefAccessibilityHandlerCToCpp::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(&CefAuthCallbackCppToC::DebugObjCt));
   DCHECK(base::AtomicRefCountIsZero(
       &CefBeforeDownloadCallbackCppToC::DebugObjCt));

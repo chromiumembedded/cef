@@ -146,4 +146,11 @@ void ClientHandlerOsr::OnImeCompositionRangeChanged(
                                               character_bounds);
 }
 
+void ClientHandlerOsr::OnAccessibilityTreeChange(CefRefPtr<CefValue> value) {
+  CEF_REQUIRE_UI_THREAD();
+  if (!osr_delegate_)
+    return;
+  osr_delegate_->UpdateAccessibilityTree(value);
+}
+
 }  // namespace client

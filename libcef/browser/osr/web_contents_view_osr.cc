@@ -71,6 +71,20 @@ void CefWebContentsViewOSR::StoreFocus() {
 void CefWebContentsViewOSR::RestoreFocus() {
 }
 
+void CefWebContentsViewOSR::GotFocus() {
+  if (web_contents_) {
+    content::WebContentsImpl* web_contents_impl =
+        static_cast<content::WebContentsImpl*>(web_contents_);
+    if (web_contents_impl)
+      web_contents_impl->NotifyWebContentsFocused();
+  }
+}
+
+void CefWebContentsViewOSR::TakeFocus(bool reverse) {
+  if (web_contents_->GetDelegate())
+    web_contents_->GetDelegate()->TakeFocus(web_contents_, reverse);
+}
+
 content::DropData* CefWebContentsViewOSR::GetDropData() const {
   return NULL;
 }

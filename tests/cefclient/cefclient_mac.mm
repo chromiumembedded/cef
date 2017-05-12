@@ -65,6 +65,7 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
 - (IBAction)menuTestsPrint:(id)sender;
 - (IBAction)menuTestsPrintToPdf:(id)sender;
 - (IBAction)menuTestsOtherTests:(id)sender;
+- (void)enableAccessibility:(bool)bEnable;
 @end
 
 // Provide the CefAppProtocol implementation required by CEF.
@@ -131,6 +132,18 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
       [[NSApplication sharedApplication] delegate]);
   [delegate tryToTerminateApplication:self];
   // Return, don't exit. The application is responsible for exiting on its own.
+}
+
+// Detect dynamically if VoiceOver is running. Like Chromium, rely upon the
+// undocumented accessibility attribute @"AXEnhancedUserInterface" which is set
+// when VoiceOver is launched and unset when VoiceOver is closed.
+- (void)accessibilitySetValue:(id)value forAttribute:(NSString*)attribute {
+  if ([attribute isEqualToString:@"AXEnhancedUserInterface"]) {
+    ClientAppDelegate* delegate = static_cast<ClientAppDelegate*>(
+        [[NSApplication sharedApplication] delegate]);
+    [delegate enableAccessibility:([value intValue] == 1)];
+  }
+  return [super accessibilitySetValue:value forAttribute:attribute];
 }
 @end
 
@@ -295,6 +308,22 @@ NSMenuItem* GetMenuItemWithAction(NSMenu* menu, SEL action_selector) {
 
 - (IBAction)menuTestsOtherTests:(id)sender {
   [self testsItemSelected:ID_TESTS_OTHER_TESTS];
+}
+
+- (void)enableAccessibility:(bool)bEnable {
+  // Retrieve the active RootWindow.
+  NSWindow* key_window = [[NSApplication sharedApplication] keyWindow];
+  if (!key_window)
+    return;
+
+  scoped_refptr<client::RootWindow> root_window =
+      client::RootWindow::GetForNSWindow(key_window);
+
+  CefRefPtr<CefBrowser> browser = root_window->GetBrowser();
+  if (browser.get()) {
+    browser->GetHost()->SetAccessibilityState(bEnable ?
+                                              STATE_ENABLED : STATE_DISABLED);
+  }
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:

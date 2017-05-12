@@ -46,6 +46,7 @@
 #include "components/zoom/zoom_controller.h"
 #include "content/browser/renderer_host/render_view_host_impl.h"
 #include "content/browser/gpu/compositor_util.h"
+#include "content/browser/web_contents/web_contents_impl.h"
 #include "content/common/view_messages.h"
 #include "content/public/browser/desktop_media_id.h"
 #include "content/public/browser/download_manager.h"
@@ -928,6 +929,39 @@ CefRefPtr<CefNavigationEntry> CefBrowserHostImpl::GetVisibleNavigationEntry() {
     return nullptr;
 
   return new CefNavigationEntryImpl(entry);
+}
+
+void CefBrowserHostImpl::SetAccessibilityState(
+    cef_state_t accessibility_state) {
+  // Do nothing if state is set to default. It'll be disabled by default and
+  // controlled by the commmand-line flags "force-renderer-accessibility" and
+  // "disable-renderer-accessibility".
+  if (accessibility_state == STATE_DEFAULT)
+    return;
+
+  if (!CEF_CURRENTLY_ON_UIT()) {
+    CEF_POST_TASK(CEF_UIT,
+                  base::Bind(&CefBrowserHostImpl::SetAccessibilityState,
+                             this, accessibility_state));
+    return;
+  }
+
+  content::WebContentsImpl* web_contents_impl =
+    static_cast<content::WebContentsImpl*>(web_contents());
+
+  if (!web_contents_impl)
+    return;
+
+  content::AccessibilityMode accMode;
+  // In windowless mode set accessibility to TreeOnly mode. Else native
+  // accessibility APIs, specific to each platform, are also created.
+  if (accessibility_state == STATE_ENABLED) {
+    if (IsWindowless())
+      accMode = content::kAccessibilityModeWebContentsOnly;
+    else
+      accMode = content::kAccessibilityModeComplete;
+  }
+  web_contents_impl->SetAccessibilityMode(accMode);
 }
 
 void CefBrowserHostImpl::SetMouseCursorChangeDisabled(bool disabled) {
@@ -2688,6 +2722,28 @@ bool CefBrowserHostImpl::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
+}
+
+void CefBrowserHostImpl::AccessibilityEventReceived(
+    const std::vector<content::AXEventNotificationDetails>& eventData) {
+  // Only needed in windowless mode.
+  if (IsWindowless()) {
+    if (!web_contents() || !platform_delegate_)
+      return;
+
+    platform_delegate_->AccessibilityEventReceived(eventData);
+  }
+}
+
+void CefBrowserHostImpl::AccessibilityLocationChangesReceived(
+    const std::vector<content::AXLocationChangeNotificationDetails>& locData) {
+  // Only needed in windowless mode.
+  if (IsWindowless()) {
+    if (!web_contents() || !platform_delegate_)
+      return;
+
+    platform_delegate_->AccessibilityLocationChangesReceived(locData);
+  }
 }
 
 void CefBrowserHostImpl::OnWebContentsFocused() {

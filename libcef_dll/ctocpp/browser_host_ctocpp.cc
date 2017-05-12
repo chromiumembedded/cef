@@ -843,6 +843,19 @@ CefRefPtr<CefNavigationEntry> CefBrowserHostCToCpp::GetVisibleNavigationEntry(
   return CefNavigationEntryCToCpp::Wrap(_retval);
 }
 
+void CefBrowserHostCToCpp::SetAccessibilityState(
+    cef_state_t accessibility_state) {
+  cef_browser_host_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_accessibility_state))
+    return;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  _struct->set_accessibility_state(_struct,
+      accessibility_state);
+}
+
 
 // CONSTRUCTOR - Do not edit by hand.
 

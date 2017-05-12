@@ -8,6 +8,7 @@
 
 #include "libcef/browser/browser_host_impl.h"
 #include "libcef/browser/image_impl.h"
+#include "libcef/browser/osr/osr_accessibility_util.h"
 #include "libcef/browser/osr/render_widget_host_view_osr.h"
 #include "libcef/browser/osr/web_contents_view_osr.h"
 #include "libcef/common/drag_data_impl.h"
@@ -520,6 +521,34 @@ void CefBrowserPlatformDelegateOsr::DragSourceSystemDragEnded() {
   web_contents->SystemDragEnded(drag_start_rwh_.get());
 
   drag_start_rwh_ = nullptr;
+}
+
+void CefBrowserPlatformDelegateOsr::AccessibilityEventReceived(
+    const std::vector<content::AXEventNotificationDetails>& eventData) {
+  CefRefPtr<CefRenderHandler> handler = browser_->client()->GetRenderHandler();
+  if (handler.get()) {
+    CefRefPtr<CefAccessibilityHandler> acchandler =
+        handler->GetAccessibilityHandler();
+
+    if (acchandler.get()) {
+      acchandler->OnAccessibilityTreeChange(
+          osr_accessibility_util::ParseAccessibilityEventData(eventData));
+    }
+  }
+}
+
+void CefBrowserPlatformDelegateOsr::AccessibilityLocationChangesReceived(
+    const std::vector<content::AXLocationChangeNotificationDetails>& locData) {
+  CefRefPtr<CefRenderHandler> handler = browser_->client()->GetRenderHandler();
+  if (handler.get()) {
+    CefRefPtr<CefAccessibilityHandler> acchandler =
+        handler->GetAccessibilityHandler();
+
+    if (acchandler.get()) {
+      acchandler->OnAccessibilityLocationChange(
+          osr_accessibility_util::ParseAccessibilityLocationData(locData));
+    }
+  }
 }
 
 CefWindowHandle CefBrowserPlatformDelegateOsr::GetParentWindowHandle() const {

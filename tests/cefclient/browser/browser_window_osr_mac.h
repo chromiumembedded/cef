@@ -83,6 +83,8 @@ class BrowserWindowOsrMac : public BrowserWindow,
       const CefRange& selection_range,
       const CefRenderHandler::RectList& character_bounds) OVERRIDE;
 
+  void UpdateAccessibilityTree(CefRefPtr<CefValue> value) OVERRIDE;
+
  private:
   // Create the NSView.
   void Create(ClientWindowHandle parent_handle, const CefRect& rect);

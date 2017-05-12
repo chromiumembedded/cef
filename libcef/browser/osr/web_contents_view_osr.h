@@ -70,6 +70,8 @@ class CefWebContentsViewOSR : public content::WebContentsView,
       const content::DragEventSourceInfo& event_info,
       content::RenderWidgetHostImpl* source_rwh) override;
   void UpdateDragCursor(blink::WebDragOperation operation) override;
+  virtual void GotFocus() override;
+  virtual void TakeFocus(bool reverse) override;
 
  private:
   CefRenderWidgetHostViewOSR* GetView() const;

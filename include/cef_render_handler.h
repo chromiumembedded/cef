@@ -40,6 +40,7 @@
 
 #include <vector>
 
+#include "include/cef_accessibility_handler.h"
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
 #include "include/cef_drag_data.h"
@@ -56,6 +57,15 @@ class CefRenderHandler : public virtual CefBaseRefCounted {
   typedef cef_drag_operations_mask_t DragOperationsMask;
   typedef cef_paint_element_type_t PaintElementType;
   typedef std::vector<CefRect> RectList;
+
+  ///
+  // Return the handler for accessibility notifications. If no handler is
+  // provided the default implementation will be used.
+  ///
+  /*--cef()--*/
+  virtual CefRefPtr<CefAccessibilityHandler> GetAccessibilityHandler() {
+    return NULL;
+  }
 
   ///
   // Called to retrieve the root window rectangle in screen coordinates. Return

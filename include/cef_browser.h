@@ -365,7 +365,7 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   // Retrieve the window handle of the browser that opened this browser. Will
   // return NULL for non-popup windows or if this browser is wrapped in a
   // CefBrowserView. This method can be used in combination with custom handling
-  // of modal windows. 
+  // of modal windows.
   ///
   /*--cef()--*/
   virtual CefWindowHandle GetOpenerWindowHandle() =0;
@@ -805,6 +805,35 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   ///
   /*--cef()--*/
   virtual CefRefPtr<CefNavigationEntry> GetVisibleNavigationEntry() =0;
+
+  ///
+  // Set accessibility state for all frames. |accessibility_state| may be
+  // default, enabled or disabled. If |accessibility_state| is STATE_DEFAULT
+  // then accessibility will be disabled by default and the state may be further
+  // controlled with the "force-renderer-accessibility" and
+  // "disable-renderer-accessibility" command-line switches. If
+  // |accessibility_state| is STATE_ENABLED then accessibility will be enabled.
+  // If |accessibility_state| is STATE_DISABLED then accessibility will be
+  // completely disabled.
+  //
+  // For windowed browsers accessibility will be enabled in Complete mode (which
+  // corresponds to kAccessibilityModeComplete in Chromium). In this mode all
+  // platform accessibility objects will be created and managed by Chromium's
+  // internal implementation. The client needs only to detect the screen reader
+  // and call this method appropriately. For example, on macOS the client can
+  // handle the @"AXEnhancedUserInterface" accessibility attribute to detect
+  // VoiceOver state changes and on Windows the client can handle WM_GETOBJECT
+  // with OBJID_CLIENT to detect accessibility readers.
+  //
+  // For windowless browsers accessibility will be enabled in TreeOnly mode
+  // (which corresponds to kAccessibilityModeWebContentsOnly in Chromium). In
+  // this mode renderer accessibility is enabled, the full tree is computed, and
+  // events are passed to CefAccessibiltyHandler, but platform accessibility
+  // objects are not created. The client may implement platform accessibility
+  // objects using CefAccessibiltyHandler callbacks if desired.
+  ///
+  /*--cef()--*/
+  virtual void SetAccessibilityState(cef_state_t accessibility_state) =0;
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_

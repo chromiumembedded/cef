@@ -229,6 +229,7 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void DragSourceSystemDragEnded() override;
   void DragSourceEndedAt(int x, int y, DragOperationsMask op) override;
   CefRefPtr<CefNavigationEntry> GetVisibleNavigationEntry() override;
+  void SetAccessibilityState(cef_state_t accessibility_state) override;
 
   // CefBrowser methods.
   CefRefPtr<CefBrowserHost> GetHost() override;
@@ -471,6 +472,13 @@ class CefBrowserHostImpl : public CefBrowserHost,
   void DidUpdateFaviconURL(
       const std::vector<content::FaviconURL>& candidates) override;
   bool OnMessageReceived(const IPC::Message& message) override;
+  void AccessibilityEventReceived(
+      const std::vector<content::AXEventNotificationDetails>& eventData)
+      override;
+  void AccessibilityLocationChangesReceived(
+      const std::vector<content::AXLocationChangeNotificationDetails>& locData)
+      override;
+
   void OnWebContentsFocused() override;
   // Override to provide a thread safe implementation.
   bool Send(IPC::Message* message) override;

@@ -202,6 +202,16 @@ void CefBrowserPlatformDelegate::DragSourceSystemDragEnded() {
   NOTREACHED();
 }
 
+void CefBrowserPlatformDelegate::AccessibilityEventReceived(
+    const std::vector<content::AXEventNotificationDetails>& eventData) {
+  NOTREACHED();
+}
+
+void CefBrowserPlatformDelegate::AccessibilityLocationChangesReceived(
+    const std::vector<content::AXLocationChangeNotificationDetails>& locData) {
+  NOTREACHED();
+}
+
 // static
 int CefBrowserPlatformDelegate::TranslateModifiers(uint32 cef_modifiers) {
   int webkit_modifiers = 0;

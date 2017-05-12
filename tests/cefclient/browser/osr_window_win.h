@@ -11,11 +11,13 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
 #include "tests/cefclient/browser/client_handler_osr.h"
+#include "tests/cefclient/browser/osr_accessibility_node.h"
 #include "tests/cefclient/browser/osr_dragdrop_win.h"
 #include "tests/cefclient/browser/osr_renderer.h"
 
 namespace client {
 
+class OsrAccessibilityHelper;
 class OsrImeHandlerWin;
 
 // Represents the native parent window for an off-screen browser. This object
@@ -24,7 +26,7 @@ class OsrImeHandlerWin;
 class OsrWindowWin :
     public base::RefCountedThreadSafe<OsrWindowWin, CefDeleteOnUIThread>,
     public ClientHandlerOsr::OsrDelegate
- #if defined(CEF_USE_ATL)
+#if defined(CEF_USE_ATL)
     , public OsrDragEvents
 #endif
 {
@@ -51,7 +53,7 @@ class OsrWindowWin :
                      const CefBrowserSettings& settings,
                      CefRefPtr<CefRequestContext> request_context,
                      const std::string& startup_url);
-  
+
   // Show the popup window with correct parent and bounds in parent coordinates.
   void ShowPopup(HWND parent_hwnd, int x, int y, size_t width, size_t height);
 
@@ -145,6 +147,8 @@ class OsrWindowWin :
       const CefRange& selection_range,
       const CefRenderHandler::RectList& character_bounds) OVERRIDE;
 
+  void UpdateAccessibilityTree(CefRefPtr<CefValue> value);
+
 #if defined(CEF_USE_ATL)
   // OsrDragEvents methods.
   CefBrowserHost::DragOperationsMask OnDragEnter(
@@ -178,6 +182,11 @@ class OsrWindowWin :
 #if defined(CEF_USE_ATL)
   CComPtr<DropTargetWin> drop_target_;
   CefRenderHandler::DragOperation current_drag_op_;
+
+  // Class that abstracts the accessibility information received from the
+  // renderer.
+  scoped_ptr<OsrAccessibilityHelper> accessibility_handler_;
+  IAccessible* accessibility_root_;
 #endif
 
   bool painting_popup_;
